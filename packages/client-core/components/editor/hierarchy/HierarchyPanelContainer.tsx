@@ -19,16 +19,31 @@ import useUpload from "../assets/useUpload";
 import { AllFileTypes } from "../assets/fileTypes";
 import NodeIssuesIcon from "./NodeIssuesIcon";
 
+/**
+ * [uploadOption initializing object containing Properties multiple, accepts]
+ * @type {Object}
+ */
 
 const uploadOptions = {
   multiple: true,
   accepts: AllFileTypes
 };
 
+
+/**
+ * [function provides node menu properties]
+ * @param  {object} node
+ * @return {object}
+ */
 function collectNodeMenuProps({ node }) {
   return node;
 }
 
+
+/**
+ * [PanelContainer used as wrapper element for   penal content]
+ * @type {Styled component}
+ */
 const PanelContainer = (styled as any).div`
   outline: none;
   user-select: none;
@@ -40,8 +55,20 @@ const PanelContainer = (styled as any).div`
   flex: 1;
 `;
 
+/**
+ * [TreeDepthContainer used to provide the styles for hierarchy tree]
+ * @type {Styled component}
+ */
 const TreeDepthContainer = (styled as any).li``;
 
+/**
+ * [treeNodeBackgroundColor function used to provide background color for tree nodes]
+ * @param  {boolean} root
+ * @param  {boolean} selected
+ * @param  {boolean} active
+ * @param  {object} theme
+ * @return {string}
+ */
 function treeNodeBackgroundColor({ root, selected, active, theme }) {
   if (selected) {
     if (active) {
@@ -58,14 +85,29 @@ function treeNodeBackgroundColor({ root, selected, active, theme }) {
   }
 }
 
+/**
+ * [getNodeKey function used to get object id at given index]
+ * @param  {number} index [index of the node to get object id]
+ * @param  {object} data
+ * @return {string}
+ */
 function getNodeKey(index, data) {
   return data.nodes[index].object.id;
 }
 
+/**
+ * [getNodeElId function provides id for node]
+ * @param  {object} node
+ * @return {string}
+ */
 function getNodeElId(node) {
   return "hierarchy-node-" + node.id;
 }
 
+/**
+ * [TreeNodeContainer used to provide styles to node tree]
+ * @type {Styled component}
+ */
 const TreeNodeContainer = (styled as any).div`
   display: flex;
   flex-direction: column;
@@ -89,17 +131,29 @@ const TreeNodeContainer = (styled as any).div`
   }
 `;
 
+/**
+ * [TreeNodeSelectTarget used to provide styles for node inside hierarchy container]
+ * @type {Styled component}
+ */
 const TreeNodeSelectTarget = (styled as any).div`
   display: flex;
   flex: 1;
   padding: 2px 4px 2px 0;
 `;
 
+/**
+ * [TreeNodeLabelContainer used to provide styles for label text on hierarchy node]
+ * @type {Styled component}
+ */
 const TreeNodeLabelContainer = (styled as any).div`
   display: flex;
   flex: 1;
 `;
 
+/**
+ * [TreeNodeContent used to provide styles for container element of TreeNodeIcon TreeNodeLabel]
+ * @type {Styled Component}
+ */
 const TreeNodeContent = (styled as any).div`
   outline: none;
   display: flex;
@@ -107,6 +161,10 @@ const TreeNodeContent = (styled as any).div`
   padding-left: ${props => props.depth * 8 + 2 + "px"};
 `;
 
+/**
+ * [TreeNodeToggle creates element used to toggle node ]
+ * @type {Styled component}
+ */
 const TreeNodeToggle = (styled as any).div`
   padding: 2px 4px;
   margin: 0 4px;
@@ -118,16 +176,28 @@ const TreeNodeToggle = (styled as any).div`
   }
 `;
 
+/**
+ * [TreeNodeLeafSpacer used to create space between leaf node]
+ * @type {Styled component}
+ */
 const TreeNodeLeafSpacer = (styled as any).div`
   width: 20px;
 `;
 
+/**
+ * [TreeNodeIcon used provide style for icon inside tree node]
+ * @type {Styled component}
+ */
 const TreeNodeIcon = (styled as any).div`
   width: 12px;
   height: 12px;
   margin: 2px 4px;
 `;
 
+/**
+ * [TreeNodeLabel used to provide styles for label content of tree node]
+ * @type {Styled component}
+ */
 const TreeNodeLabel = (styled as any).div`
   background-color: ${props => (props.isOver && props.canDrop ? "rgba(255, 255, 255, 0.3)" : "transparent")};
   color: ${props => (props.isOver && props.canDrop ? props.theme.text : "inherit")};
@@ -135,6 +205,13 @@ const TreeNodeLabel = (styled as any).div`
   padding: 0 2px;
 `;
 
+/**
+ * [borderStyle function used to provide styles for border]
+ * @param  {Boolean} isOver
+ * @param  {Boolean}  canDrop
+ * @param  {string}  position
+ * @return {string}
+ */
 function borderStyle({ isOver, canDrop, position }) {
   if (isOver && canDrop) {
     return `border-${position === "before" ? "top" : "bottom"}: 2px solid rgba(255, 255, 255, 0.3)`;
@@ -143,6 +220,11 @@ function borderStyle({ isOver, canDrop, position }) {
   }
 }
 
+
+/**
+ * [TreeNodeDropTarget used to provide styles to drop target node]
+ * @type {Styled component}
+ */
 const TreeNodeDropTarget = (styled as any).div`
   height: 4px;
   box-sizing: content-box;
@@ -150,6 +232,10 @@ const TreeNodeDropTarget = (styled as any).div`
   margin-left: ${props => (props.depth > 0 ? props.depth * 8 + 20 : 0)}px;
 `;
 
+/**
+ * [TreeNodeRenameInput used to provides styles for rename input of node]
+ * @type {Styled Component}
+ */
 const TreeNodeRenameInput = (styled as any).input`
   position: absolute;
   top: -3px;
@@ -159,25 +245,57 @@ const TreeNodeRenameInput = (styled as any).input`
   padding: 2px 4px;
 `;
 
+
+/**
+ * [TreeNodeRenameInputContainer used to provide styles for rename input container of tree node]
+ * @type {Styled component}
+ */
 const TreeNodeRenameInputContainer = (styled as any).div`
   position: relative;
   height: 15px;
 `;
 
+/**
+ * [isAncestor used to check if object contains leaf nodes or not]
+ * @param  {object}  object
+ * @param  {object}  otherObject
+ * @return {Boolean}
+ */
 function isAncestor(object, otherObject) {
   return !traverseEarlyOut(object, child => child !== otherObject);
 }
 
+/**
+ * [TreeNode function provides tree node hierarchy view]
+ * @param       {number} index
+ * @param       {object} data
+ * @param       {object} renamingNode
+ * @param       {function} onToggle
+ * @param       {function} onKeyDown
+ * @param       {function} onMouseDown
+ * @param       {function} onClick
+ * @param       {function} onChangeName
+ * @param       {function} onRenameSubmit
+ * @param       {function} onUpload
+ * @param       {object} style
+ * @constructor
+ */
 function TreeNode({
   index,
   data: { nodes, renamingNode, onToggle, onKeyDown, onMouseDown, onClick, onChangeName, onRenameSubmit, onUpload },
   style
 }) {
+
+  //initializing node from nodes array at specific index
   const node = nodes[index];
+
+  //initializing variables using node.
   const { isLeaf, object, depth, selected, active, iconComponent, isCollapsed, childIndex, lastChild } = node;
 
+  //initializing editor using EditorContext
   const editor = useContext(EditorContext);
 
+  //callback function to handle click on node of hierarchy panel
   const onClickToggle = useCallback(
     e => {
       e.stopPropagation();
@@ -189,6 +307,7 @@ function TreeNode({
     [onToggle, node]
   );
 
+  //callback function used to handle KeyDown event on node
   const onNodeKeyDown = useCallback(
     e => {
       e.stopPropagation();
@@ -200,6 +319,10 @@ function TreeNode({
     [onKeyDown, node]
   );
 
+/**
+ * [onKeyDownNameInput callback function to handle key down event on name input]
+ * @type {function}
+ */
   const onKeyDownNameInput = useCallback(
     e => {
       if (e.key === "Escape") {
@@ -211,6 +334,10 @@ function TreeNode({
     [onRenameSubmit, node]
   );
 
+/**
+ * [onClickNode callback function used to hanlde click node inside hierarchy panel]
+ * @type {function}
+ */
   const onClickNode = useCallback(
     e => {
       onClick(e, node);
@@ -218,6 +345,10 @@ function TreeNode({
     [node, onClick]
   );
 
+/**
+ * [onMouseDownNode callback function used to handle mouse down event on node]
+ * @type {function}
+ */
   const onMouseDownNode = useCallback(
     e => {
       onMouseDown(e, node);
@@ -225,6 +356,10 @@ function TreeNode({
     [node, onMouseDown]
   );
 
+/**
+ * [onChangeNodeName callback function used to handle change in name of node]
+ * @type {function}
+ */
   const onChangeNodeName = useCallback(
     e => {
       onChangeName(node, e.target.value);
@@ -232,6 +367,10 @@ function TreeNode({
     [node, onChangeName]
   );
 
+/**
+ * [onSubmitNodeName callback function to handle submit or rename nade input]
+ * @type {function}
+ */
   const onSubmitNodeName = useCallback(
     e => {
       onRenameSubmit(node, e.target.value);
@@ -239,8 +378,13 @@ function TreeNode({
     [onRenameSubmit, node]
   );
 
+/**
+ * [initializing renaming setting renaming true if renamingNode id equals node id]
+ * @type {boolean}
+ */
   const renaming = renamingNode && renamingNode.id === node.id;
 
+  //initializing _dragProps, drag, preview
   const [_dragProps, drag, preview] = useDrag({
     /* @ts-ignore */
     item: { type: ItemTypes.Node },
@@ -256,14 +400,24 @@ function TreeNode({
     })
   });
 
+  //calling preview function with change in property
   useEffect(() => {
     preview(getEmptyImage(), { captureDraggingState: true });
   }, [preview]);
 
+  //initializing canDropBefore and isOverBefore
   const [{ canDropBefore, isOverBefore }, beforeDropTarget] = useDrop({
+
+    //initializing accept type with array containing node itemTypes, file ItemTypes and asset types
     accept: [ItemTypes.Node, ItemTypes.File, ...AssetTypes],
+
+    //function used to drop items
     drop(item: any) {
+
+      //check if item contain files
       if (item.files) {
+
+        //uploading files then adding as media to the editor
         onUpload(item.files).then(assets => {
           if (assets) {
             for (const asset of assets) {
@@ -274,9 +428,11 @@ function TreeNode({
         return;
       }
 
+      //check if addAssetOnDrop returns true then return
       if (addAssetOnDrop(editor, item, object.parent, object)) {
         return;
       } else {
+        //check if items contain multiple then calling reparentMultiple else  call reparent of editor
         if (item.multiple) {
           editor.reparentMultiple(item.value, object.parent, object);
         } else {
@@ -284,15 +440,19 @@ function TreeNode({
         }
       }
     },
-    canDrop(item, monitor) {
+    canDrop(item, monitor) { //used to check item that item is dropable or not
+
+      //check if monitor is over or object is not parent element
       if (!monitor.isOver() || !object.parent) {
         return false;
       }
 
+      //check item is asset
       if (isAsset(item)) {
         return true;
       }
 
+      //check if item type is equals to node
       if (item.type === ItemTypes.Node) {
         return (
           object.parent &&
@@ -310,12 +470,22 @@ function TreeNode({
     })
   });
 
+  /**
+   * [initializing variable using useDrop]
+   */
   const [{ canDropAfter, isOverAfter }, afterDropTarget] = useDrop({
+
+    // initializing accept with array containing types
     accept: [ItemTypes.Node, ItemTypes.File, ...AssetTypes],
     drop(item: any) {
+
+      // initializing next and is true if not last child and object parent contains children property and contain childIndex
       const next = !lastChild && object.parent.children[childIndex + 1];
 
+      //check if item contains files
       if (item.files) {
+
+        //uploading files then adding assets to editor media
         onUpload(item.files).then(assets => {
           if (assets) {
             for (const asset of assets) {
@@ -336,15 +506,24 @@ function TreeNode({
         }
       }
     },
+
+    /**
+     * [canDrop used to check item is dropable or not]
+     * @param  {object} item
+     * @param  {object} monitor
+     * @return {boolean}
+     */
     canDrop(item, monitor) {
-      if (!monitor.isOver() || !object.parent) {
+      if (!monitor.isOver() || !object.parent){
         return false;
       }
 
+      // check if item is asset
       if (isAsset(item)) {
         return true;
       }
 
+      //check if item is of node type
       if (item.type === ItemTypes.Node) {
         return (
           object.parent &&
@@ -362,10 +541,17 @@ function TreeNode({
     })
   });
 
+
   const [{ canDropOn, isOverOn }, onDropTarget] = useDrop({
+
+    //initializing accept with array containing types
     accept: [ItemTypes.Node, ItemTypes.File, ...AssetTypes],
     drop(item: any) {
+
+      // check if item contain files
       if (item.files) {
+
+        //uploading files then adding assets to editor media
         onUpload(item.files).then(assets => {
           if (assets) {
             for (const asset of assets) {
@@ -379,6 +565,8 @@ function TreeNode({
       if (addAssetOnDrop(editor, item, object)) {
         return;
       } else {
+
+        // check if item contains multiple
         if (item.multiple) {
           editor.reparentMultiple(item.value, object);
         } else {
@@ -387,14 +575,18 @@ function TreeNode({
       }
     },
     canDrop(item, monitor) {
+
+      // check if monitor is not over
       if (!monitor.isOver()) {
         return false;
       }
 
+      //check item is asset
       if (isAsset(item)) {
         return true;
       }
 
+       // check if item is of node type
       if (item.type === ItemTypes.Node) {
         return !(item.multiple
           ? item.value.some(otherObject => isAncestor(otherObject, object))
@@ -409,6 +601,7 @@ function TreeNode({
     })
   });
 
+  //returning tree view for hierarchy panel
   return (
     <TreeDepthContainer style={style}>
       { /* @ts-ignore */ }
@@ -477,6 +670,10 @@ function TreeNode({
   );
 }
 
+/**
+ * [declairing propTypes for TreeNode]
+ * @type {Object}
+ */
 TreeNode.propTypes = {
   data: PropTypes.shape({
     nodes: PropTypes.arrayOf(
@@ -507,8 +704,16 @@ TreeNode.propTypes = {
   isScrolling: PropTypes.bool
 };
 
+/**
+ * [initializing MemoTreeNode ]
+ */
 const MemoTreeNode = memo(TreeNode, areEqual);
 
+/**
+ * [treeWalker function used to handle tree]
+ * @param  {object}    editor
+ * @param  {object}    collapsedNodes
+ */
 function* treeWalker(editor, collapsedNodes) {
   const stack = [];
 
@@ -557,6 +762,10 @@ function* treeWalker(editor, collapsedNodes) {
   }
 }
 
+/**
+ * [HierarchyPanel function component provides view for hierarchy tree]
+ * @constructor
+ */
 export default function HierarchyPanel() {
   const editor = useContext(EditorContext);
   const onUpload = useUpload(uploadOptions);
@@ -567,6 +776,10 @@ export default function HierarchyPanel() {
     setNodes(Array.from(treeWalker(editor, collapsedNodes)));
   }, [editor, collapsedNodes]);
 
+  /**
+   * [expandNode callback function used to expand node]
+   * @type {function}
+   */
   const expandNode = useCallback(
     node => {
       delete collapsedNodes[node.id];
@@ -575,6 +788,10 @@ export default function HierarchyPanel() {
     [collapsedNodes]
   );
 
+  /**
+   * [collapseNode function used to collapse node]
+   * @type {function}
+   */
   const collapseNode = useCallback(
     node => {
       setCollapsedNodes({ ...collapsedNodes, [node.id]: true });
@@ -582,6 +799,10 @@ export default function HierarchyPanel() {
     [setCollapsedNodes, collapsedNodes]
   );
 
+  /**
+   * [expandChildren function used to expand children]
+   * @type {function}
+   */
   const expandChildren = useCallback(
     node => {
       node.object.traverse(child => {
@@ -594,6 +815,10 @@ export default function HierarchyPanel() {
     [setCollapsedNodes, collapsedNodes]
   );
 
+  /**
+   * [collapseChildren function used to collapse children]
+   * @type {function}
+   */
   const collapseChildren = useCallback(
     node => {
       node.object.traverse(child => {
@@ -606,10 +831,18 @@ export default function HierarchyPanel() {
     [setCollapsedNodes, collapsedNodes]
   );
 
+  /**
+   * [function used to expand all node]
+   * @type {function}
+   */
   const onExpandAllNodes = useCallback(() => {
     setCollapsedNodes({});
   }, [setCollapsedNodes]);
 
+/**
+ * [function used to collapse all nodes]
+ * @type {function}
+ */
   const onCollapseAllNodes = useCallback(() => {
     const newCollapsedNodes = {};
     editor.scene.traverse(child => {
@@ -620,6 +853,10 @@ export default function HierarchyPanel() {
     setCollapsedNodes(newCollapsedNodes);
   }, [editor, setCollapsedNodes]);
 
+/**
+ * [onObjectChanged callback function used to handle changes on object]
+ * @type {[type]}
+ */
   const onObjectChanged = useCallback(
     (objects, propertyName) => {
       if (propertyName === "name" || !propertyName) {
@@ -641,6 +878,10 @@ export default function HierarchyPanel() {
     };
   }, [editor, updateNodeHierarchy, onObjectChanged]);
 
+/**
+ * [onMouseDown callback function used to handle mouse down event]
+ * @type {function}
+ */
   const onMouseDown = useCallback(
     (e, node) => {
       if (e.detail === 1) {
@@ -654,6 +895,10 @@ export default function HierarchyPanel() {
     [editor]
   );
 
+/**
+ * [onClick callback function for handling onClick event on hierarchy penal item]
+ * @type {function}
+ */
   const onClick = useCallback(
     (e, node) => {
       if (e.detail === 2) {
@@ -665,6 +910,10 @@ export default function HierarchyPanel() {
     [editor]
   );
 
+/**
+ * [onToggle function used to handle toggle on hierarchy penal item]
+ * @type {function}
+ */
   const onToggle = useCallback(
     (_e, node) => {
       if (collapsedNodes[node.id]) {
@@ -676,54 +925,79 @@ export default function HierarchyPanel() {
     [collapsedNodes, expandNode, collapseNode]
   );
 
+/**
+ * [onKeyDown callback function to handle onKeyDown event on hierarchy penal item]
+ * @type {function}
+ */
   const onKeyDown = useCallback(
     (e, node) => {
+
+      // check if key equals to ArrowDown
       if (e.key === "ArrowDown") {
         e.preventDefault();
 
+        // initializing nodeIndex using nodes array
         const nodeIndex = nodes.indexOf(node);
+
+        // initializing nextNode using nodes array
         const nextNode = nodeIndex !== -1 && nodes[nodeIndex + 1];
 
+        // check if nextNode is not Empty
         if (nextNode) {
           if (e.shiftKey) {
             editor.select(nextNode.object);
           }
-
+          // initializing nextNodeEl using nextNode element id
           const nextNodeEl = document.getElementById(getNodeElId(nextNode));
 
+          //check if nextNodeEl is not empty
           if (nextNodeEl) {
             nextNodeEl.focus();
           }
         }
+
+        //check if pressed key equals to ArrowUp
       } else if (e.key === "ArrowUp") {
         e.preventDefault();
 
+        // initializing nodeIndex  using nodes array
         const nodeIndex = nodes.indexOf(node);
+
+        // initializing prevNode using nodes array current nodeIndex -1
         const prevNode = nodeIndex !== -1 && nodes[nodeIndex - 1];
 
+        // if prevNode is not empty
         if (prevNode) {
           if (e.shiftKey) {
             editor.select(prevNode.object);
           }
 
+          // initializing prevNodeEl using prevNode Id
           const prevNodeEl = document.getElementById(getNodeElId(prevNode));
 
+          //check if prevNodeEl is not empty
           if (prevNodeEl) {
             prevNodeEl.focus();
           }
         }
+      // check if pressed key equals to left arrow and node object children node length is greator then 0
       } else if (e.key === "ArrowLeft" && node.object.children.filter(o => o.isNode).length > 0) {
         if (e.shiftKey) {
           collapseChildren(node);
         } else {
           collapseNode(node);
         }
+
+        //check if pressed key equals to arrow right
+        //and node property object children node length ius greator then zero.
       } else if (e.key === "ArrowRight" && node.object.children.filter(o => o.isNode).length > 0) {
         if (e.shiftKey) {
           expandChildren(node);
         } else if (node.object.children.filter(o => o.isNode).length > 0) {
           expandNode(node);
         }
+
+        //check if pressed key equals to enter
       } else if (e.key === "Enter") {
         if (e.shiftKey) {
           editor.toggleSelection(node.object);
@@ -735,6 +1009,10 @@ export default function HierarchyPanel() {
     [nodes, editor, expandNode, collapseNode, expandChildren, collapseChildren]
   );
 
+/**
+ * [onDeleteNode callback function used to handle delete on node]
+ * @type {function}
+ */
   const onDeleteNode = useCallback(
     (e, node) => {
       if (node.selected) {
@@ -746,6 +1024,10 @@ export default function HierarchyPanel() {
     [editor]
   );
 
+/**
+ * [onDuplicateNode callback function to handle Duplication of node]
+ * @type {function}
+ */
   const onDuplicateNode = useCallback(
     (e, node) => {
       if (node.selected) {
@@ -757,6 +1039,10 @@ export default function HierarchyPanel() {
     [editor]
   );
 
+/**
+ * [onGroupNodes callback function used to handle grouping of nodes]
+ * @type {function}
+ */
   const onGroupNodes = useCallback(
     (e, node) => {
       if (node.selected) {
@@ -768,6 +1054,10 @@ export default function HierarchyPanel() {
     [editor]
   );
 
+/**
+ * [onRenameNode callback function to handle rename node]
+ * @type {function}
+ */
   const onRenameNode = useCallback(
     (e, node) => {
       setRenamingNode({ id: node.id, name: node.object.name });
@@ -775,6 +1065,10 @@ export default function HierarchyPanel() {
     [setRenamingNode]
   );
 
+/**
+ * [onChangeName callback  function used to handle changes in name]
+ * @type {function}
+ */
   const onChangeName = useCallback(
     (node, name) => {
       setRenamingNode({ id: node.id, name });
@@ -782,6 +1076,10 @@ export default function HierarchyPanel() {
     [setRenamingNode]
   );
 
+/**
+ * [onRenameSubmit callback function used to handle rename input submit]
+ * @type {function}
+ */
   const onRenameSubmit = useCallback(
     (node, name) => {
       if (name !== null) {
@@ -792,14 +1090,23 @@ export default function HierarchyPanel() {
     [editor]
   );
 
+/**
+ * [initializing treeContainerDropTarget]
+ * @type {Array}
+ */
   const [, treeContainerDropTarget] = useDrop({
+
+    // initializing accept using array of  types
     accept: [ItemTypes.Node, ItemTypes.File, ...AssetTypes],
     drop(item: any, monitor) {
       if (monitor.didDrop()) {
         return;
       }
 
+      // check if item contains files
       if (item.files) {
+
+        //uploading files then adding to editor media
         onUpload(item.files).then(assets => {
           if (assets) {
             for (const asset of assets) {
@@ -814,6 +1121,7 @@ export default function HierarchyPanel() {
         return;
       }
 
+      // check if item contains multiple
       if (item.multiple) {
         editor.reparentMultiple(item.value, editor.scene);
       } else {
@@ -824,11 +1132,11 @@ export default function HierarchyPanel() {
       if (!monitor.isOver({ shallow: true })) {
         return false;
       }
-
+      // check if item is asset
       if (isAsset(item)) {
         return true;
       }
-
+      // check if item is of node type
       if (item.type === ItemTypes.Node) {
         return !(item.multiple
           ? item.value.some(otherObject => isAncestor(otherObject, editor.scene))
@@ -843,7 +1151,8 @@ export default function HierarchyPanel() {
     updateNodeHierarchy();
   }, [collapsedNodes, updateNodeHierarchy]);
 
-  return (
+  //returning hierarchy penal view
+  return(
     /* @ts-ignore */
     <Panel id="hierarchy-panel" title="Hierarchy" icon={ProjectDiagram}>
       <PanelContainer>

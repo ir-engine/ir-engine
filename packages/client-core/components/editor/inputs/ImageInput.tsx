@@ -6,11 +6,21 @@ import { ItemTypes } from "../dnd";
 import useUpload from "../assets/useUpload";
 import { ImageFileTypes } from "../assets/fileTypes";
 
+/**
+ * [used to set uploadOptions]
+ * @type {Object}
+ */
 const uploadOptions = {
   multiple: false,
   accepts: ImageFileTypes
 };
 
+/**
+ * [ImageInput used to render component view for image inputs]
+ * @param       {function} onChange
+ * @param       {any} rest
+ * @constructor
+ */
 export default function ImageInput({ onChange, ...rest }) {
   const onUpload = useUpload(uploadOptions);
   const [{ canDrop, isOver }, dropRef] = useDrop({
@@ -31,7 +41,7 @@ export default function ImageInput({ onChange, ...rest }) {
       isOver: monitor.isOver()
     })
   });
-
+// creating view for component.
   return (
     <ControlledStringInput
       ref={dropRef}
@@ -44,6 +54,10 @@ export default function ImageInput({ onChange, ...rest }) {
   );
 }
 
+/**
+ * [declaring proptoTtypes for Component]
+ * @type {Object}
+ */
 ImageInput.propTypes = {
   onChange: PropTypes.func.isRequired
 };
