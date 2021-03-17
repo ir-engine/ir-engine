@@ -61,7 +61,7 @@ export default function Home({ children }) {
 
   return (<>
     <div className={styles.viewport}>
-      <AppHeader user={loginData} logo="/assets/logoBlack.png" />
+      <AppHeader logo="/assets/logoBlack.png" />
       <FeedMenu />
       {/* <MoreModalItems /> */}
       {/* <Stories stories={stories} /> */}

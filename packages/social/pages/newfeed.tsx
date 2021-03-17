@@ -9,7 +9,7 @@ import styles from './index.module.scss';
 
 export default function NewFeedPage() {
    return <div className={styles.viewport}>
-      <AppHeader user={{username:'username'}} logo="/assets/logoBlack.png"/>
+      <AppHeader logo="/assets/logoBlack.png"/>
       <FeedForm />
       <AppFooter />
     </div>;
