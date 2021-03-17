@@ -3,7 +3,7 @@ import { bindActionCreators, Dispatch } from 'redux';
 import { connect } from 'react-redux';
 
 import FeedCard from '../common/FeedCard';
-// import CommentList from '../CommentList';
+import CommentList from '../CommentList';
 import NewComment from '../NewComment';
 import { selectFeedsState } from '../../../redux/feed/selector';
 import { getFeed } from '../../../redux/feed/service';
@@ -30,7 +30,7 @@ const Feed = ({feedsState, getFeed, feedId} : Props) => {
 
     return <section style={{overflow: 'scroll'}}>
             {feed && <FeedCard feed={feed} />}      
-            {/* {feed && <CommentList feedId={feed.id} />}   */}
+            {feed && <CommentList feedId={feed.id} />}  
             {feed && <NewComment feedId={feed.id} />}  
         </section>
 };

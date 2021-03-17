@@ -3,6 +3,7 @@ import { Params } from '@feathersjs/feathers';
 import { Service, SequelizeServiceOptions } from 'feathers-sequelize';
 import { QueryTypes } from 'sequelize';
 import { Application } from '../../declarations';
+import creatorModel from '../../models/creator.model';
 import { extractLoggedInUserFromParams } from '../auth-management/auth-management.utils';
 
 /**
@@ -27,11 +28,21 @@ export class Comments extends Service {
       const skip = params.query?.$skip ? params.query.$skip : 0;
       const limit = params.query?.$limit ? params.query.$limit : 100;
       const feedId = params.query?.feedId;
+      // const loggedInUser = extractLoggedInUserFromParams(params);
+      //common  - TODO -move somewhere
       const loggedInUser = extractLoggedInUserFromParams(params);
+      const creatorQuery = `SELECT id  FROM \`creator\` WHERE userId=:userId`;
+      const [creator] = await this.app.get('sequelizeClient').query(creatorQuery,
+        {
+          type: QueryTypes.SELECT,
+          raw: true,
+          replacements: {userId:loggedInUser.userId}
+        });  
+      const creatorId = creator?.id ;
 
-      let select = ` SELECT comments.*, user.id as userId, user.name as userName, COUNT(cf.id) as fires `;
+      let select = ` SELECT comments.*, creator.id as creatorId, creator.name as creatorName, creator.username as creatorUserName, COUNT(cf.id) as fires `;
       const from = ` FROM \`comments\` as comments`;
-      let join = ` JOIN \`user\` as user ON user.id=comments.authorId
+      let join = ` JOIN \`creator\` as creator ON creator.id=comments.creatorId
                     LEFT JOIN \`comments_fires\` as cf ON cf.commentId=comments.id `;
       const where = ` WHERE comments.feedId=:feedId `;
       const order = ` GROUP BY comments.id
@@ -43,10 +54,10 @@ export class Comments extends Service {
         limit,
       } as any;
 
-      if(loggedInUser?.userId){
+      if(creatorId){
         select += ` , iscf.id as fired `;
-        join += ` LEFT JOIN \`comments_fires\` as iscf ON iscf.commentId=comments.id  AND iscf.authorId=:loggedInUser`;
-        queryParamsReplacements.loggedInUser =  loggedInUser.userId;
+        join += ` LEFT JOIN \`comments_fires\` as iscf ON iscf.commentId=comments.id  AND iscf.creatorId=:creatorId`;
+        queryParamsReplacements.creatorId =  creatorId;
       }
       const dataQuery = select + from + join + where + order;
       const feed_comments = await this.app.get('sequelizeClient').query(dataQuery,
@@ -59,11 +70,10 @@ export class Comments extends Service {
       const data = feed_comments.map(comment => {
         return {
             creator: {
-              userId: comment.userId,
-              id:comment.userId,
+              id:comment.creatorId,
               avatar: 'https://picsum.photos/40/40',
-              name: comment.userName,
-              username: comment.userName,
+              name: comment.creatorName,
+              username: comment.creatorUserName,
               verified : true,
             },
             id:comment.id,
@@ -82,28 +92,35 @@ export class Comments extends Service {
       return feedsResult;
     }
 
-
-
-
     async create (data: any, params?: Params ): Promise<any> {
+      const {comments:commentsModel, creator:creatorModel} = this.app.get('sequelizeClient').models;
+
+      //common  - TODO -move somewhere
       const loggedInUser = extractLoggedInUserFromParams(params);
-      const {comments:commentsModel, user:userModel} = this.app.get('sequelizeClient').models;
-      const newComment =  await commentsModel.create({feedId:data.feedId, authorId:loggedInUser.userId, text: data.text});
+      const creatorQuery = `SELECT id  FROM \`creator\` WHERE userId=:userId`;
+      const [creator] = await this.app.get('sequelizeClient').query(creatorQuery,
+        {
+          type: QueryTypes.SELECT,
+          raw: true,
+          replacements: {userId:loggedInUser.userId}
+        });  
+      const creatorId = creator?.id ;
+
+      const newComment =  await commentsModel.create({feedId:data.feedId, creatorId, text: data.text});
       const commentFromDb = await commentsModel.findOne({
         where: {
           id: newComment.id
         },
         include: [
-          { model: userModel, as: 'user' },
+          { model: creatorModel, as: 'creator' },
         ]
       });
       return  {
         creator: {
-          userId: commentFromDb.user.dataValues.id,
-          id:commentFromDb.user.dataValues.id,
+          id:commentFromDb.creator.dataValues.id,
           avatar: 'https://picsum.photos/40/40',
-          name: commentFromDb.user.dataValues.name,
-          username: commentFromDb.user.dataValues.name,
+          name: commentFromDb.creator.dataValues.name,
+          username: commentFromDb.creator.dataValues.username,
           verified : true,
         },
         id:commentFromDb.id,
