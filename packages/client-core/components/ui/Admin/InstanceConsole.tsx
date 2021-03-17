@@ -11,7 +11,7 @@ import {
     TableCell,
     TableSortLabel,
     Paper,
-    Button, 
+    Button,
 } from '@material-ui/core';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
@@ -23,8 +23,17 @@ import { Router, withRouter } from "next/router";
 import {
     fetchAdminInstances
 } from '../../../redux/admin/service';
+import {
+    removeInstance
+} from "../../../redux/admin/service";
 import InstanceModal from './InstanceModal';
 import CreateInstance from "./CreateInstance";
+import { Delete, Edit } from '@material-ui/icons';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogTitle from '@material-ui/core/DialogTitle';
+import Slide from '@material-ui/core/Slide';
+import { TransitionProps } from '@material-ui/core/transitions';
 
 if (!global.setImmediate) {
     global.setImmediate = setTimeout as any;
@@ -38,6 +47,7 @@ interface Props {
     authState?: any;
     locationState?: any;
     fetchAdminInstances?: any;
+    removeInstance?: any;
 }
 
 const mapStateToProps = (state: any): any => {
@@ -49,15 +59,25 @@ const mapStateToProps = (state: any): any => {
 };
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
-    fetchAdminInstances: bindActionCreators(fetchAdminInstances, dispatch)
+    fetchAdminInstances: bindActionCreators(fetchAdminInstances, dispatch),
+    removeInstance: bindActionCreators(removeInstance, dispatch),
 });
 
+const Transition = React.forwardRef(function Transition(
+    props: TransitionProps & { children?: React.ReactElement<any, any> },
+    ref: React.Ref<unknown>,
+  ) {
+    return <Slide direction="up" ref={ref} {...props} />;
+  });
+
+  
 function InstanceConsole(props: Props) {
     const {
         router,
         adminState,
         authState,
-        fetchAdminInstances
+        fetchAdminInstances,
+        removeInstance
     } = props;
     const initialInstance = {
         id: '',
@@ -78,7 +98,8 @@ function InstanceConsole(props: Props) {
             { id: 'gsId', numeric: false, disablePadding: false, label: 'Gameserver ID' },
             { id: 'serverAddress', numeric: false, disablePadding: false, label: 'Public address' },
             { id: 'currentUsers', numeric: true, disablePadding: false, label: 'Current # of Users' },
-            { id: 'locationId', numeric: false, disablePadding: false, label: 'Location ID' }
+            { id: 'locationId', numeric: false, disablePadding: false, label: 'Location ID' },
+            { id: 'action', numeric: false, disablePadding: false, label: 'Action' }
         ]
     };
 
@@ -128,7 +149,7 @@ function InstanceConsole(props: Props) {
     }
 
     function EnhancedTableHead(props: EnhancedTableProps) {
-        const {  order, orderBy, onRequestSort } = props;
+        const { order, orderBy, onRequestSort } = props;
         const createSortHandler = (property) => (event: React.MouseEvent<unknown>) => {
             onRequestSort(event, property);
         };
@@ -166,7 +187,10 @@ function InstanceConsole(props: Props) {
     const [dense, setDense] = React.useState(false);
     const [rowsPerPage, setRowsPerPage] = React.useState(PAGE_LIMIT);
     const [refetch, setRefetch] = React.useState(false);
-
+    const [instanceEdit, setInstanceEdit] = React.useState(initialInstance);
+    const [instanceEditing, setInstanceEditing] = React.useState(false);
+    const [open, setOpen] = React.useState(false);
+    const [instanceId, setInstanceId] = React.useState('');
 
     const displayInstances = adminInstances.map(instance => {
         return {
@@ -190,6 +214,13 @@ function InstanceConsole(props: Props) {
         setInstanceModalOpen(true);
     };
 
+    const handleInstanceUpdateClick = (id: string) => {
+        const selected = adminInstances.find(instance => instance.id === id);
+        setInstanceEdit(selected);
+        setInstanceCreateOpen(true);
+        setInstanceEditing(true);
+    }
+
     const handleInstanceClose = (e: any): void => {
         console.log('handleInstanceClosed');
         setInstanceModalOpen(false);
@@ -198,6 +229,7 @@ function InstanceConsole(props: Props) {
 
     const handleCreateInstanceClose = (e: any): void => {
         setInstanceCreateOpen(false);
+        setInstanceEditing(false);
     };
 
     useEffect(() => {
@@ -206,6 +238,22 @@ function InstanceConsole(props: Props) {
         }
         setRefetch(false);
     }, [authState, adminState, refetch]);
+
+    const handleClickOpen = (instance: any) => {
+        setInstanceId(instance);
+        setOpen(true);
+      };
+    
+      const handleClose = () => {
+        setOpen(false);
+        setInstanceId("");
+      };
+
+      const deleteInstance = () =>{
+        removeInstance((instanceId as any).id);
+        setOpen(false);
+        setInstanceId("");
+      }
 
     return (
         <div>
@@ -250,7 +298,6 @@ function InstanceConsole(props: Props) {
                                         <TableRow
                                             className={styles.trow}
                                             style={{ color: 'black !important' }}
-                                            // onClick={(event) => handleClick(event, row.id.toString())}
                                             tabIndex={-1}
                                             key={row.id}
                                         >
@@ -274,6 +321,14 @@ function InstanceConsole(props: Props) {
                                                 <p className={styles.currentUser}>{row.currentUsers}</p></TableCell>
                                             <TableCell className={styles.tcell}
                                                 align="right">{row.locationId}</TableCell>
+                                            <TableCell className={styles.tcell} align="right">
+                                                <a href="#h"
+                                                    onClick={(event) => handleInstanceUpdateClick(row.id.toString())}
+                                                > <Edit className="text-success" /> </a>
+                                                <a href="#h"
+                                                 onClick={() => handleClickOpen(row)}
+                                                > <Delete className="text-danger" /> </a>
+                                            </TableCell>
                                         </TableRow>
                                     );
                                 })}
@@ -289,7 +344,30 @@ function InstanceConsole(props: Props) {
                 <CreateInstance
                     open={instanceCreateOpen}
                     handleClose={handleCreateInstanceClose}
+                    editing={instanceEditing}
+                    instanceEdit={instanceEdit}
                 />
+
+
+                <Dialog
+                    open={open}
+                    TransitionComponent={Transition}
+                    keepMounted
+                    onClose={handleClose}
+                    aria-labelledby="alert-dialog-slide-title"
+                    aria-describedby="alert-dialog-slide-description"
+                >
+                    <DialogTitle id="alert-dialog-slide-title">{`Do You want to delete Instance with Ip Address of ${(instanceId as any).ipAddress}?`}</DialogTitle>
+                    <DialogActions>
+                        <Button onClick={handleClose} color="primary">
+                            Cancel
+                        </Button>
+                        <Button onClick={deleteInstance} color="primary">
+                            Delete
+                        </Button>
+                    </DialogActions>
+                </Dialog>
+
             </Paper>
         </div>
     )

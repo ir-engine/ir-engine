@@ -3,6 +3,10 @@ import React from "react";
 import PropTypes from "prop-types";
 import styled from "styled-components";
 
+/**
+ * [BlockFormField used to provide styles for block FormField div]
+ * @type {styled component}
+ */
 const BlockFormField = (styled as any).div`
   margin-bottom: 16px;
 
@@ -12,6 +16,10 @@ const BlockFormField = (styled as any).div`
   }
 `;
 
+/**
+ * [InlineFormField used to provide styles for inline FormField div]
+ * @type {styled component}
+ */
 const InlineFormField = (styled as any).div`
   display: flex;
   justify-content: space-between;
@@ -26,6 +34,13 @@ const InlineFormField = (styled as any).div`
   }
 `;
 
+/**
+ * [FormField function component used to render form fields]
+ * @param       {boolean} inline
+ * @param       {string} children
+ * @param       {any} rest  
+ * @constructor
+ */
 export default function FormField({ inline, children, ...rest }) {
   if (inline) {
     return <InlineFormField {...rest}>{children}</InlineFormField>;
@@ -34,6 +49,10 @@ export default function FormField({ inline, children, ...rest }) {
   return <BlockFormField {...rest}>{children}</BlockFormField>;
 }
 
+/**
+ * [declairing propTypes for component]
+ * @type {Object}
+ */
 FormField.propTypes = {
   inline: PropTypes.bool,
   children: PropTypes.node

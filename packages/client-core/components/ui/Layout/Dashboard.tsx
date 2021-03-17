@@ -183,9 +183,9 @@ export default function Dashboard({ children }) {
             </Drawer>
             <main className={classes.content}>
                 <div className={classes.toolbar} />
-                <Typography paragraph>
+                <div>
                     {children}
-                </Typography>
+                </div>
             </main>
         </div>
     );

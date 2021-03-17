@@ -1,6 +1,10 @@
 // @ts-ignore
 import styled from "styled-components";
 
+/**
+ * [Button used to provide styles to button input]
+ * @type {Styled component}
+ */
 export const Button = styled.button.attrs(props => ({
   type: props.type || "button"
 }))`
@@ -40,18 +44,30 @@ export const Button = styled.button.attrs(props => ({
   }
 `;
 
+/**
+ * [MediumButton used to create medium size button]
+ * @type {styled component}
+ */
 export const MediumButton = styled(Button)`
   line-height: 1em;
   height: 3em;
   padding: 1em;
 `;
 
+/**
+ * [LargeButton used to create large size button]
+ * @type {Styled component}
+ */
 export const LargeButton = styled(Button)`
   min-height: 24px;
   padding: 1em 2em;
   font-size: 1.5em;
 `;
 
+/**
+ * [SecondaryButton is the button used for performing secondary action like cancel]
+ * @type {Styled component}
+ */
 export const SecondaryButton = styled(Button)`
   background-color: ${props => props.theme.hover};
   color: ${props => props.theme.text};
@@ -74,6 +90,10 @@ export const SecondaryButton = styled(Button)`
   }
 `;
 
+/**
+ * [MenuButton used to show menus like context menus]
+ * @type {styled component}
+ */
 export const MenuButton = styled(Button)`
   background-color: transparent;
   color: ${props => props.theme.text2};
@@ -97,6 +117,10 @@ export const MenuButton = styled(Button)`
   }
 `;
 
+/**
+ * [PropertiesPanelButton used in property penal like in ScenePreviewCamera nodes we using it as set from viewport ]
+ * @type {Styled component}
+ */
 export const PropertiesPanelButton = styled(Button)`
   align-self: center;
   justify-content: center;
