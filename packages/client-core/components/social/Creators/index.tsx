@@ -37,7 +37,7 @@ const Creators = ({creatorsState, getCreators}:Props) => {
     }
 
     return <section className={styles.creatorContainer}>
-        {creators ? creators.map((item, itemIndex)=>
+        {creators?.map((item, itemIndex)=>
             <Card className={styles.creatorItem} elevation={0} key={itemIndex} onClick={()=>handleCreatorView(item.id)}>                 
                 <CardMedia   
                     className={styles.previewImage}                  
@@ -51,7 +51,7 @@ const Creators = ({creatorsState, getCreators}:Props) => {
                     <Typography variant="h4" align="center" color="secondary">{item.username}</Typography>
                 </CardContent>
             </Card>
-        ): ''}
+        )}
         </section>
 };
 
