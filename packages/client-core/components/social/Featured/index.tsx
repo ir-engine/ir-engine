@@ -30,7 +30,6 @@ interface Props{
 const Featured = ({feedsState, getFeeds, type, creatorId} : Props) => { 
     let feedsList = [];
     useEffect(()=> {
-        console.log('type', type);
         if(type && (type === 'creator' || type === 'bookmark')){
             getFeeds(type, creatorId);
         }else{

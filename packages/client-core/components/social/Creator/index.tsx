@@ -7,7 +7,6 @@ import CardMedia from '@material-ui/core/CardMedia';
 import Typography from '@material-ui/core/Typography';
 import CardContent from '@material-ui/core/CardContent';
 import Button from '@material-ui/core/Button';
-// import VisibilityIcon from '@material-ui/icons/Visibility';
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
 import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
 
@@ -19,7 +18,6 @@ import { bindActionCreators, Dispatch } from 'redux';
 import { connect } from 'react-redux';
 import { useEffect } from 'react';
 import { getCreator } from '../../../redux/creator/service';
-import { getFeeds } from '../../../redux/feed/service';
 import Featured from '../Featured';
 
 const mapStateToProps = (state: any): any => {
@@ -110,7 +108,7 @@ const Creator = ({creatorId, creatorState, getCreator}:Props) => {
                     <Button variant={videoType === 'creator' ? 'contained' : 'text'} color='secondary' className={styles.switchButton+(videoType === 'creator' ? ' '+styles.active : '')} onClick={()=>setVideoType('creator')}>My Videos</Button>
                     <Button variant={videoType === 'bookmark' ? 'contained' : 'text'} color='secondary' className={styles.switchButton+(videoType === 'bookmark' ? ' '+styles.active : '')} onClick={()=>setVideoType('bookmark')}>Saved Videos</Button>
             </section>}
-            <Featured creatorId={creatorId} type={videoType}/>
+            <section className={styles.feedsWrapper}><Featured creatorId={creatorId} type={videoType}/></section>
         </section>) 
     : <></>
 };
