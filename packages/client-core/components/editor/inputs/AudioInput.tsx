@@ -7,11 +7,21 @@ import { ItemTypes } from "../dnd";
 import useUpload from "../assets/useUpload";
 import { AudioFileTypes } from "../assets/fileTypes";
 
+/**
+ * [initializing uploadOptions properties]
+ * @type {Object}
+ */
 const uploadOptions = {
   multiple: false,
   accepts: AudioFileTypes
 };
 
+/**
+ * [AudioInput used to provide view]
+ * @param       {function} onChange
+ * @param       {any} rest
+ * @constructor
+ */
 export default function AudioInput({ onChange, ...rest }) {
   const onUpload = useUpload(uploadOptions);
   const [{ canDrop, isOver }, dropRef] = useDrop({
@@ -33,6 +43,9 @@ export default function AudioInput({ onChange, ...rest }) {
     })
   });
 
+/**
+ * [retuning view for AudioInput]
+ */
   return (
     <ControlledStringInput
       ref={dropRef}
@@ -45,6 +58,10 @@ export default function AudioInput({ onChange, ...rest }) {
   );
 }
 
+/**
+ * [declairing propTypes for AudioInput]
+ * @type {Object}
+ */
 AudioInput.propTypes = {
   onChange: PropTypes.func.isRequired
 };

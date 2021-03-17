@@ -11,6 +11,7 @@ import {
   MathUtils,
   WebGLRenderer
 } from 'three';
+import { EventDispatcher } from '../common/classes/EventDispatcher';
 import { isMobileOrTablet } from '../common/functions/isMobile';
 import { 
   XRHandedness,
@@ -1034,7 +1035,7 @@ class DocumentProxy extends DocumentElementProxy {
       case 'media':
         return new DocumentElementProxy({ messageQueue: this.messageQueue, type: 'mediaElementSource', elementArgs });
       case 'canvas':
-        return new OffscreenCanvas(0, 0);
+        return wrapWithEventDispatcher(new OffscreenCanvas(0, 0));
       default:
         return null;
     }
@@ -1042,11 +1043,18 @@ class DocumentProxy extends DocumentElementProxy {
   createElementNS(ns: string, type: string): any {
     switch (type) {
       case 'canvas':
-        return new OffscreenCanvas(0, 0);
+        return wrapWithEventDispatcher(new OffscreenCanvas(0, 0));
       default:
         return null;
     }
   }
+}
+
+const wrapWithEventDispatcher = (el) => {
+  const eventDispatcher = new EventDispatcher();
+  el.addEventListener = eventDispatcher.addEventListener;
+  el.removeEventListener = eventDispatcher.removeEventListener;
+  el.dispatchEvent = eventDispatcher.dispatchEvent;
 }
 
 class CanvasProxy extends DocumentElementProxy {
