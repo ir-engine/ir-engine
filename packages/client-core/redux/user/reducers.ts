@@ -7,6 +7,7 @@ import {
   RemovedLayerUserAction,
   UserAction,
   UserToastAction,
+  UserRemovedInstance 
 } from './actions';
 
 import {
@@ -22,6 +23,7 @@ import {
   LOADED_CHANNEL_LAYER_USERS,
   REMOVED_CHANNEL_LAYER_USER,
   USER_TOAST,
+  USER_REMOVED_ROW
 } from '../actions';
 import { RelationshipSeed } from '@xr3ngine/common/interfaces/Relationship';
 
@@ -108,6 +110,12 @@ const userReducer = (state = immutableState, action: UserAction): any => {
       const toastMessages = state.get('toastMessages');
       toastMessages.push((action as UserToastAction).message)
       return state.set('toastMessages', toastMessages.push((action as UserToastAction).message))
+
+      case USER_REMOVED_ROW: 
+      const users =  state.get("users");
+        return  state.set('users',  users.data.filter(el => el.id !== (action as  UserRemovedInstance ).user.id))
+         .set('updateNeeded', false);
+      
   }
 
   return state;
