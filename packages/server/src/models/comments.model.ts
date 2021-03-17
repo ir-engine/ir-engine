@@ -29,7 +29,7 @@ export default function (app: Application): typeof Model {
   (comments as any).associate = (models: any): void => {
     // Define associations here
     // See http://docs.sequelizejs.com/en/latest/docs/associations/
-    (comments as any).belongsTo(models.user, { foreignKey: 'authorId', allowNull: false });
+    (comments as any).belongsTo(models.creator, { foreignKey: 'creatorId', allowNull: false });
     (comments as any).belongsTo(models.feed, { foreignKey: 'feedId', allowNull: false });
     (comments as any).hasMany(models.comments_fires);
   };

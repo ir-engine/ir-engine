@@ -43,8 +43,7 @@ export class Feed extends Service {
         raw: true,
         replacements: {userId:loggedInUser.userId}
       });  
-    const creatorId = creator.id ;
-
+    const creatorId = creator?.id ;
 
     if (action === 'featured') {
       const dataQuery = `SELECT feed.id, feed.viewsCount, sr.url as previewUrl 
