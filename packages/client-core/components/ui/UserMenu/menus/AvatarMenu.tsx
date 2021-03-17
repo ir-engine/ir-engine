@@ -4,7 +4,7 @@ import { NavigateNext, NavigateBefore, Check, ArrowBack, PersonAdd } from '@mate
 // @ts-ignore
 import styles from '../style.module.scss';
 import { LazyImage } from '../../LazyImage';
-import { getAvatarURL, SettingMenuProps, Views } from '../util';
+import { Views } from '../util';
 
 const AvatarMenu = (props: any): any => {
 	const MAX_AVATARS_PER_PAGE = 6;
@@ -44,10 +44,11 @@ const AvatarMenu = (props: any): any => {
 		setPage(page - 1);
 	}
 
-	const selectAvatar = (avatar: any) => {
+	const selectAvatar = (avatarResources: any) => {
+		const avatar = avatarResources.avatar;
 		setSelectedAvatarId(avatar.name);
 		if (props.avatarId !== avatar.name) {
-			props.setAvatar(avatar.name, avatar.url);
+			props.setAvatar(avatar.name, avatar.url, avatarResources['user-thumbnail'].url);
 		}
 	}
 
@@ -81,7 +82,7 @@ const AvatarMenu = (props: any): any => {
 						${characterAvatar.avatar.name === props.avatarId ? styles.activeAvatar : ''}
 						${characterAvatar.avatar.name === selectedAvatarId ? styles.selectedAvatar : ''}
 					`}>
-					<CardContent onClick={() => selectAvatar(characterAvatar.avatar)}>
+					<CardContent onClick={() => selectAvatar(characterAvatar)}>
 						<LazyImage
 							key={characterAvatar.avatar.id}
 							src={characterAvatar['user-thumbnail'].url}

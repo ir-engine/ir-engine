@@ -153,10 +153,10 @@ class UserMenu extends React.Component<UserMenuProps, StateType> {
     EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.LOAD_AVATAR, entityID, avatarId: avatarId || this.selfUser?.avatarId, avatarURL });
   }
 
-  setAvatar = (avatarId: string, avatarURL: string) => {
+  setAvatar = (avatarId: string, avatarURL: string, thumbnailURL: string) => {
     if (this.state.actorEntityID) {
       this.updateCharacterComponent(this.state.actorEntityID, avatarId, avatarURL);
-      this.props.updateUserAvatarId(this.selfUser.id, avatarId);
+      this.props.updateUserAvatarId(this.selfUser.id, avatarId, avatarURL, thumbnailURL);
     }
   }
 
@@ -195,7 +195,8 @@ class UserMenu extends React.Component<UserMenuProps, StateType> {
         args = {
           username: this.state.username,
           userRole: this.selfUser?.userRole,
-          avatarId: this.selfUser?.avatarId,
+          userId: this.selfUser?.id,
+          activeAvatar: this.activeAvatar,
           setUsername: this.setUsername,
           updateUsername: this.handleUpdateUsername,
           changeActiveMenu: this.changeActiveMenu,
@@ -204,6 +205,7 @@ class UserMenu extends React.Component<UserMenuProps, StateType> {
           loginUserByOAuth: this.props.loginUserByOAuth,
           addConnectionByEmail: this.props.addConnectionByEmail,
           addConnectionBySms: this.props.addConnectionBySms,
+          Network,
         };
         break;
       case Views.Avatar:

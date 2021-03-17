@@ -7,6 +7,7 @@ export interface User {
   id: string;
   name: string;
   userRole: string;
+  avatarId: string;
   identityProviders: IdentityProvider[];
   locationAdmins: LocationAdmin[];
   relationType?: RelationshipType;

@@ -187,6 +187,7 @@ export async function handleConnectToWorld(socket, data, callback, userId, user,
     if (Network.instance.clients[userId] == null) Network.instance.clients[userId] = {
         userId: userId,
         name: user.dataValues.name,
+        avatarDetail,
         socket: socket,
         socketId: socket.id,
         lastSeenTs: Date.now(),
@@ -307,7 +308,8 @@ export async function handleJoinWorld(socket, data, callback, userId, user): Pro
 
     // Get all clients and add to clientsConnected and push to world state frame
     Object.keys(Network.instance.clients).forEach(userId => {
-        worldState.clientsConnected.push({ userId: Network.instance.clients[userId].userId, name: Network.instance.clients[userId].userId });
+        const client = Network.instance.clients[userId];
+        worldState.clientsConnected.push({ userId: client.userId, name: client.userId, avatarDetail: client.avatarDetail });
     });
 
     // Get all network objects and add to createObjects

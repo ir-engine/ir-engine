@@ -42,6 +42,9 @@ import { resolveAuthUser } from '@xr3ngine/common/interfaces/AuthUser';
 import { resolveUser } from '@xr3ngine/common/interfaces/User';
 import store from "../store";
 import { endVideoChat, leave, setRelationship } from '@xr3ngine/engine/src/networking/functions/SocketWebRTCClientFunctions';
+import { Network } from '@xr3ngine/engine/src/networking/classes/Network';
+import { NetworkStateMessageTypes } from '@xr3ngine/engine/src/networking/enums/MessageTypes';
+import { EngineEvents } from '@xr3ngine/engine/src/ecs/classes/EngineEvents';
 import querystring from 'querystring';
 
 const { publicRuntimeConfig } = getConfig();
@@ -129,13 +132,8 @@ export function loadUserData (dispatch: Dispatch, userId: string): any {
       return Promise.resolve(res);
     }).then((res: any) => {
       const user = resolveUser(res);
-      client.service('static-resource').find({
-        query: {
-          name: user.avatarId,
-        }
-      }).then((res: any) => {
+      getAvatarResources(user).then((res: any) => {
         dispatch(loadedUserData(user, res.data));
-        
       }).catch(err => console.debug('Error ocured while fetching user resources'));
     })
     .catch((err: any) => {
@@ -598,8 +596,6 @@ export function fetchAvatarList () {
       }
     });
 
-    console.debug(result);
-
     dispatch(updateAvatarList(result.data));
   };
 }
@@ -616,15 +612,15 @@ export function updateUsername (userId: string, name: string) {
   };
 }
 
-export function updateUserAvatarId (userId: string, avatarId: string) {  
+export function updateUserAvatarId (userId: string, avatarId: string, avatarURL: string, thumbnailURL: string) {
   return (dispatch: Dispatch): any => {
     client.service('user').patch(userId, {
       avatarId: avatarId
-    })
-      .then((res: any) => {
-        // dispatchAlertSuccess(dispatch, 'User Avatar updated');
-        dispatch(userAvatarIdUpdated(res));
-      });
+    }).then((res: any) => {
+      // dispatchAlertSuccess(dispatch, 'User Avatar updated');
+      dispatch(userAvatarIdUpdated(res));
+      (Network.instance.transport as any).sendNetworkStatUpdateMessage({ type: NetworkStateMessageTypes.AvatarUpdated, userId, avatarId, avatarURL, thumbnailURL });
+    });
   };
 }
 
@@ -640,11 +636,19 @@ export function removeUser (userId: string) {
   };
 }
 
+const getAvatarResources = (user) => {
+  return client.service('static-resource').find({
+    query: {
+      name: user.avatarId,
+      staticResourceType: { $in: ['user-thumbnail', 'avatar'] },
+    },
+  });
+}
+
 client.service('user').on('patched', async (params) => {
   console.log('User patched');
   const selfUser = (store.getState() as any).get('auth').get('user');
   const user = resolveUser(params.userRelationship);
-  console.log(user);
   if (selfUser.id === user.id) {
     if (selfUser.instanceId !== user.instanceId) store.dispatch(clearLayerUsers());
     if (selfUser.channelInstanceId !== user.channelInstanceId) store.dispatch(clearChannelLayerUsers());
@@ -662,6 +666,25 @@ client.service('user').on('patched', async (params) => {
       }
     }
   } else {
+    // Fetch Avatar Resources for updated user.
+    const avatars = await getAvatarResources(user);
+    let avatarURL = avatars?.data[0].staticResourceType === 'avatar' ? avatars?.data[0].url : avatars?.data[1].url;
+
+    //Find entityId from network objects of updated user and dispatch avatar load event.
+    for (let key of Object.keys(Network.instance.networkObjects)) {
+      if (Network.instance.networkObjects[key]?.ownerId === user.id) {
+        const obj = Network.instance.networkObjects[key]
+        console.log(key, obj.component.entity.id);
+        EngineEvents.instance.dispatchEvent({
+          type: EngineEvents.EVENTS.LOAD_AVATAR,
+          entityID: obj.component.entity.id,
+          avatarId: user.avatarId,
+          avatarURL
+        });
+        break;
+      }
+    }
+
     if (user.channelInstanceId != null && user.channelInstanceId === selfUser.channelInstanceId) store.dispatch(addedChannelLayerUser(user));
     if (user.instanceId != null && user.instanceId === selfUser.instanceId) {
       store.dispatch(addedLayerUser(user));

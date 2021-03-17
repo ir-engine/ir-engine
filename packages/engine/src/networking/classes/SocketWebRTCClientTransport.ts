@@ -12,6 +12,7 @@ import store from "@xr3ngine/client-core/redux/store";
 import { triggerUpdateConsumers } from "@xr3ngine/client-core/redux/mediastream/service";
 import { createDataProducer, endVideoChat, initReceiveTransport, initSendTransport, leave, subscribeToTrack } from "../functions/SocketWebRTCClientFunctions";
 import { EngineEvents } from "../../ecs/classes/EngineEvents";
+import { handleNetworkStateUpdate } from "../functions/updateNetworkState";
 
 const { publicRuntimeConfig } = getConfig();
 const gameserver = process.env.NODE_ENV === 'production' ? publicRuntimeConfig.gameserver : 'https://127.0.0.1:3030';
@@ -48,6 +49,11 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
   sendReliableData(message, instance = true): void {
     if (instance === true) this.instanceSocket.emit(MessageTypes.ReliableMessage.toString(), message);
     else this.channelSocket.emit(MessageTypes.ReliableMessage.toString(), message);
+  }
+
+  sendNetworkStatUpdateMessage(message, instance = true): void {
+    if (instance) this.instanceSocket.emit(MessageTypes.UpdateNetworkState.toString(), message)
+    else this.channelSocket.emit(MessageTypes.UpdateNetworkState.toString(), message)
   }
 
   handleKick(socket) {
@@ -167,6 +173,10 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       socket.on(MessageTypes.ReliableMessage.toString(), (message) => {
         Network.instance?.incomingMessageQueue.add(message);
       });
+
+      socket.on(MessageTypes.UpdateNetworkState.toString(), (message) => {
+        handleNetworkStateUpdate(socket, message);
+      })
 
       // use sendBeacon to tell the server we're disconnecting when
       // the page unloads

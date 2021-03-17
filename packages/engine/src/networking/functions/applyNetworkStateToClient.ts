@@ -142,7 +142,7 @@ export function applyNetworkStateToClient(worldStateBuffer: WorldStateInterface,
                   objectToCreate.prefabType,
                   position,
                   rotation,
-                  Network.instance.clients[objectToCreateKey.ownerId].avatarDetail,
+                  Network.instance.clients[objectToCreate.ownerId].avatarDetail,
               );
 
               if (objectToCreate.ownerId === Network.instance.userId) {
