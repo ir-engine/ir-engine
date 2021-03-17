@@ -59,6 +59,7 @@ import Upload from './upload/upload.service';
 import Video from './video/video.service';
 import Subscription from './subscription/subscription.service';
 import SubscriptionConfirm from './subscription-confirm/subscription-confirm.service';
+import Creator from './creator/creator.service';
 import Feed from './feed/feed.service';
 import FeedFires from './feed-fires/feed-fires.service';
 import FeedBookmark from './feed-bookmark/feed-bookmark.service';
@@ -136,6 +137,7 @@ export default (app: Application): void => {
   app.configure(SubscriptionConfirm);
   app.configure(Upload);
   // app.configure(Video);
+  app.configure(Creator); // ARC
   app.configure(Feed); // ARC
   app.configure(FeedFires); // ARC
   app.configure(FeedBookmark); // ARC
