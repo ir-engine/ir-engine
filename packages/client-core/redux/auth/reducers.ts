@@ -9,7 +9,8 @@ import {
   UsernameUpdatedAction,
   UserUpdatedAction,
   UserSettingsUpdatedAction,
-  UserAvatarIdUpdatedAction
+  UserAvatarIdUpdatedAction,
+  AvatarListUpdateAction,
 } from './actions';
 
 import {
@@ -27,6 +28,7 @@ import {
   RESTORE,
   LOADED_USER_DATA,
   AVATAR_UPDATED,
+  AVATAR_FETCHED,
   USERNAME_UPDATED,
   USER_UPDATED,
   UPDATE_USER_SETTINGS,
@@ -43,7 +45,8 @@ export const initialState = {
   error: '',
   authUser: AuthUserSeed,
   user: UserSeed,
-  identityProvider: IdentityProviderSeed
+  identityProvider: IdentityProviderSeed,
+  avatarList: [],
 };
 
 const immutableState = Immutable.fromJS(initialState);
@@ -88,9 +91,8 @@ const authReducer = (state = immutableState, action: any): any => {
 
     case LOADED_USER_DATA: {
       const user = (action as LoadDataResultAction).user;
-
       return state
-        .set('user', user);
+        .set('user', user)
     }
     case RESTORE: {
       const stored = getStoredState('auth');
@@ -122,6 +124,17 @@ const authReducer = (state = immutableState, action: any): any => {
     case UPDATE_USER_SETTINGS: {
       const updatedUser = Object.assign({}, state.get('user'), { user_setting: (action as UserSettingsUpdatedAction).data });
       return state.set('user', updatedUser);
+    }
+    case AVATAR_FETCHED: {
+      const resources = (action as AvatarListUpdateAction).avatarList;
+      const avatarData = {};
+      for (let resource of resources) {
+        const r = avatarData[(resource as any).name] || {};
+        r[(resource as any).staticResourceType] = resource;
+        avatarData[(resource as any).name] = r;
+      }
+
+      return state.set('avatarList', Object.keys(avatarData).map(key => avatarData[key]))
     }
   }
 

@@ -35,14 +35,15 @@
   "scripts": {
     "start": "yarn run build && node dist/server.js",
     "dev": "cross-env NODE_ENV=development webpack --watch --mode=development",
-    "dev-reinit-db": "cross-env NODE_ENV=development FORCE_DB_REFRESH=true  webpack --watch --mode=development",
+    "dev-reinit-db": "cross-env NODE_ENV=development FORCE_DB_REFRESH=true webpack --watch --mode=development",
     "build": "cross-env NODE_ENV=production webpack --mode=production",
     "copyfiles-server": "copyfiles -u 2 src/email-templates/**/* lib/email-templates",
     "test": "echo \"TODO: no test specified\" && exit 0",
-    "localbuild": "yarn build && cross-env FORCE_SSL=true yarn start",
+    "localbuild": "yarn build && cross-env LOCAL_BUILD=true yarn start",
     "lint": "node node_modules/.bin/eslint --ext .js,.ts ./ --fix",
     "validate": "yarn run lint && yarn run build && yarn run test",
     "precommit": "no-master-commits -b master,dev",
+    "upload-avatar": "node ./scripts/upload-avatar.js",
     "postinstall": "cd ../../node_modules/mediasoup && node npm-scripts.js postinstall",
     "serve-local-files": "http-server ./upload --ssl --cert ../../certs/cert.pem --key ../../certs/key.pem --port 8642"
   },

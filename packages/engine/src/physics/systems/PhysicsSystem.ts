@@ -53,6 +53,9 @@ const cannonDebugger = isClient ? import('cannon-es-debugger').then((module) => 
 }) : null;
 */
 export class PhysicsSystem extends System {
+  static EVENTS = {
+    PORTAL_REDIRECT_EVENT: 'PHYSICS_SYSTEM_PORTAL_REDIRECT',
+  };
   updateType = SystemUpdateType.Fixed;
   static frame: number
   diffSpeed: number = Engine.physicsFrameRate / Engine.networkFramerate;
@@ -230,7 +233,7 @@ export class PhysicsSystem extends System {
         correction: Vault.instance?.get((Network.instance.snapshot as any).timeCorrection, true),
         new: []
       }
-
+      console.warn(snapshots.correction);
       this.queryResults.serverCorrection.all?.forEach(entity => {
         // Creatr new snapshot position for next frame server correction
         createNewCorrection(entity, {

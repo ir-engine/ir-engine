@@ -25,7 +25,7 @@ const SettingMenu = (props: any): JSX.Element => {
             <span className={styles.materialIconBlock}><VolumeUp color="primary"/></span>
             <span className={styles.settingLabel}>Volume</span>
             <Slider
-              value={props.setting.audio}
+              value={props.setting.audio || 100}
               onChange={(_, value) => { props.setUserSettings({ audio: value }) }}
               className={styles.slider}
             />
@@ -34,7 +34,7 @@ const SettingMenu = (props: any): JSX.Element => {
             <span className={styles.materialIconBlock}><Mic color="primary"/></span>
             <span className={styles.settingLabel}>Microphone</span>
             <Slider
-              value={props.setting.microphone}
+              value={props.setting.microphone || 100}
               onChange={(_, value) => { props.setUserSettings({ microphone: value }) }}
               className={styles.slider}
             />

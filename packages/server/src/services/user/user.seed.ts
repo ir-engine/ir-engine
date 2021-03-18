@@ -1,5 +1,4 @@
 import config from '../../config';
-import { DEFAULT_AVATAR_ID } from '@xr3ngine/engine/src/templates/character/CharacterAvatars';
 
 export const seed = {
     count: 3,
@@ -11,7 +10,7 @@ export const seed = {
         [
             {
                 name: '{{name.firstName}} {{name.lastName}}',
-                avatarId: DEFAULT_AVATAR_ID,
+                avatarId: process.env.DEFAULT_AVATAR_ID,
                 // instanceId: '67890uihi0u98yuijo',
                 // userRole: type === 'guest' ? 'guest' : type === 'admin' ? 'admin' : 'user',
                 // partyId: '5678uhy789uijk',
