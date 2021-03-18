@@ -31,6 +31,7 @@ import {
 import { MediaStreamSystem } from '@xr3ngine/engine/src/networking/systems/MediaStreamSystem';
 import {Network} from "@xr3ngine/engine/src/networking/classes/Network";
 import {MessageTypes} from "@xr3ngine/engine/src/networking/enums/MessageTypes";
+import { EngineEvents } from "@xr3ngine/engine/src/ecs/classes/EngineEvents";
 import {selectAppState} from '../../../redux/app/selector';
 import {selectAuthState} from '../../../redux/auth/selector';
 import {selectLocationState} from '../../../redux/location/selector';
@@ -40,7 +41,7 @@ import {selectUserState} from '../../../redux/user/selector';
 import {connect} from "react-redux";
 import {Dispatch} from "redux";
 import {PositionalAudioSystem} from "@xr3ngine/engine/src/audio/systems/PositionalAudioSystem";
-import { getAvatarURL } from "../UserMenu/util";
+import { getAvatarURLFromNetwork } from "../UserMenu/util";
 import Draggable from './Draggable';
 
 
@@ -84,6 +85,7 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
     const [audioProducerGlobalMute, setAudioProducerGlobalMute] = useState(false);
     const [audioTrackClones, setAudioTrackClones] = useState([]);
     const [videoTrackClones, setVideoTrackClones] = useState([]);
+    const [toggle, setToggle] = useState(0);
     const [volume, setVolume] = useState(100);
     const {
         harmony,
@@ -191,18 +193,22 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
     }, [selfUser]);
 
     useEffect(() => {
-        if ((Network.instance?.transport as any)?.channelType === 'instance') {
-            (Network.instance?.transport as any)?.instanceSocket?.on(MessageTypes.WebRTCPauseConsumer.toString(), pauseConsumerListener);
-            (Network.instance?.transport as any)?.instanceSocket?.on(MessageTypes.WebRTCResumeConsumer.toString(), resumeConsumerListener);
-            (Network.instance?.transport as any)?.instanceSocket?.on(MessageTypes.WebRTCPauseProducer.toString(), pauseProducerListener);
-            (Network.instance?.transport as any)?.instanceSocket?.on(MessageTypes.WebRTCResumeProducer.toString(), resumeProducerListener);
-        }
-        else {
-            (Network.instance?.transport as any)?.channelSocket?.on(MessageTypes.WebRTCPauseConsumer.toString(), pauseConsumerListener);
-            (Network.instance?.transport as any)?.channelSocket?.on(MessageTypes.WebRTCResumeConsumer.toString(), resumeConsumerListener);
-            (Network.instance?.transport as any)?.channelSocket?.on(MessageTypes.WebRTCPauseProducer.toString(), pauseProducerListener);
-            (Network.instance?.transport as any)?.channelSocket?.on(MessageTypes.WebRTCResumeProducer.toString(), resumeProducerListener);
-        }
+        const socket = (Network.instance?.transport as any)?.channelType === 'instance' ? (Network.instance?.transport as any)?.instanceSocket : (Network.instance?.transport as any)?.channelSocket;
+        socket?.on(MessageTypes.WebRTCPauseConsumer.toString(), pauseConsumerListener);
+        socket?.on(MessageTypes.WebRTCResumeConsumer.toString(), resumeConsumerListener);
+        socket?.on(MessageTypes.WebRTCPauseProducer.toString(), pauseProducerListener);
+        socket?.on(MessageTypes.WebRTCResumeProducer.toString(), resumeProducerListener);
+
+        let interval = setInterval(() => {
+            if (EngineEvents.instance) {
+                EngineEvents.instance.addEventListener(EngineEvents.EVENTS.NETWORK_USER_UPDATED, (ev) => {
+                    if (isSelfUser || user?.id === ev.userId) {
+                        setToggle(toggle + Math.random())
+                    }
+                })
+                clearInterval(interval);
+            }
+        });
     }, []);
 
     useEffect(() => {
@@ -244,6 +250,7 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
                 const updateVideoTrackClones = videoTrackClones.concat(newVideoTrack);
                 setVideoTrackClones(updateVideoTrackClones);
                 videoRef.current.srcObject = new MediaStream([newVideoTrack]);
+                setVideoProducerPaused(false);
             }
         }
 
@@ -254,7 +261,7 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
 
     useEffect(() => {
         if (peerId === 'me_cam' || peerId === 'me_screen') setAudioStreamPaused(MediaStreamSystem.instance?.audioPaused);
-        if (audioStream != null && audioRef.current != null) {
+        if (harmony === true && audioStream != null && audioRef.current != null) {
             const newAudioTrack = audioStream.track.clone();
             const updateAudioTrackClones = audioTrackClones.concat(newAudioTrack);
             setAudioTrackClones(updateAudioTrackClones);
@@ -264,7 +271,7 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
 
     useEffect(() => {
         if (peerId === 'me_cam' || peerId === 'me_screen') setVideoStreamPaused(MediaStreamSystem.instance?.videoPaused);
-        if (videoStream != null && videoRef.current != null) {
+        if (harmony === true && videoStream != null && videoRef.current != null) {
             const newVideoTrack = videoStream.track.clone();
             const updateVideoTrackClones = videoTrackClones.concat(newVideoTrack);
             setVideoTrackClones(updateVideoTrackClones);
@@ -335,6 +342,7 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
     const togglePiP = () => setPiP(!isPiP);
 
     const isSelfUser = peerId === 'me_cam' || peerId === 'me_screen';
+
     return (
         <Draggable isPiP={isPiP}>
         <div
@@ -351,7 +359,7 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
         >
 
             <div className={styles['video-wrapper']}>
-                { (videoStream == null || videoStreamPaused == true || videoProducerPaused == true || videoProducerGlobalMute == true) && <img src={getAvatarURL(isSelfUser ? selfUser?.avatarId : user?.avatarId)} /> }
+                { (videoStream == null || videoStreamPaused == true || videoProducerPaused == true || videoProducerGlobalMute == true) && <img src={getAvatarURLFromNetwork(Network.instance, isSelfUser ? selfUser?.id : user?.id)} /> }
                 <video key={peerId + '_cam'} ref={videoRef}/>
             </div>
             <audio key={peerId + '_audio'} ref={audioRef}/>

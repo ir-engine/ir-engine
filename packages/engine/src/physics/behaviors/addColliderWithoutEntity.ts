@@ -1,9 +1,17 @@
-import { Body, Box, Sphere, Cylinder, Plane, Vec3 } from 'cannon-es';
+import { Body, Trimesh, Box, Sphere, Cylinder, Plane, Vec3 } from 'cannon-es';
 import { PhysicsSystem } from '../systems/PhysicsSystem';
 import { CollisionGroups } from "../enums/CollisionGroups";
 import { threeToCannon } from '../classes/three-to-cannon';
 
-export function createTrimesh (mesh) {
+export function createTrimeshFromArrayVertices (vertices, indices) {
+	  indices = indices || vertices.map((v,i) => i);
+		const shape = new Trimesh(vertices, indices)
+		const body = new Body({ mass: 0 });
+    body.addShape(shape);
+		return body;
+}
+
+export function createTrimeshFromMesh (mesh) {
 		const shape = threeToCannon(mesh, {type: threeToCannon.Type.MESH});
 		const body = new Body({ mass: 0 });
     body.addShape(shape);
@@ -47,8 +55,7 @@ export function doThisActivateCollider (body, userData) {
 	return body;
 }
 
-export function addColliderWithoutEntity( userData, position, quaternion, scale, mesh ) {
-	console.warn('****** Collider '+userData.type);
+export function addColliderWithoutEntity( userData, position, quaternion, scale, { mesh = null, vertices = null, indices = null }) {
   let body;
 	const type = userData.type
   switch (type) {
@@ -74,7 +81,14 @@ export function addColliderWithoutEntity( userData, position, quaternion, scale,
       break;
 
     case 'trimesh':
-      body = createTrimesh(mesh);
+			if (mesh != null) {
+				body = createTrimeshFromMesh(mesh);
+			} else if (vertices != null) {
+				body = createTrimeshFromArrayVertices(vertices, indices);
+			} else {
+				console.warn('!!! dont have any mesh or vertices array to create trimesh');
+				return;
+			}
       break;
 
     default:
@@ -86,7 +100,7 @@ export function addColliderWithoutEntity( userData, position, quaternion, scale,
   if (position) {
     body.position.set(position.x, position.y, position.z);
   }
-  
+
   if (quaternion) {
     body.quaternion.set(quaternion.x, quaternion.y, quaternion.z, quaternion.w);
   }

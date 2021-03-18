@@ -29,7 +29,8 @@ export class CharacterComponent extends Component<CharacterComponent> {
 	public currentAnimationLength = 0;
 	public timer = 0;
 	public animationsTimeScale = .5;
-  public avatarId:string
+  public avatarId:string;
+  public avatarURL: string;
 	public height = 0;
 	// public cameraMount: Group;
 	public tiltContainer: Group;
@@ -96,7 +97,6 @@ export class CharacterComponent extends Component<CharacterComponent> {
 	public raySafeOffset = 0.03;
 	public wantsToJump = false;
 	public initJumpSpeed = -1;
-	public playerStuck = 0;
 	public playerInPortal = 0;
 	public animationVelocity: Vector3 = new Vector3();
 	public groundImpactVelocity: Vector3 = new Vector3();

@@ -86,7 +86,7 @@
                     position: relative;
                     flex-shrink: 0;
                     flex-grow: 0;
-                    img { width: 100%; height: 100%; display: block; }
+                    img { width: 100%; height: 100%; display: block; border-radius: 10px; }
                     .avatarBtn {
                         position: absolute;
                         width: 50px;
@@ -494,6 +494,7 @@
             color: black;
             border: none;
             padding: 0;
+            background: transparent;
 
             svg {
                 position: relative;
@@ -565,7 +566,7 @@
 
         .avatarHeaderBlock {
             margin: 30px 0 20px 0;
-            .iconBlock { display: inline-block; color: #5F5FF1; }
+            .iconBlock { display: inline-block; color: #5F5FF1; background: transparent; }
             h2 { font-size: 18px; font-weight: bold; display: inline-block; vertical-align: middle; margin-left: 10px;}
         }
         .controlContainer {

@@ -181,6 +181,16 @@ Chrome sometimes does not show a clickable option on the warning. If so, just
 type ```badidea``` or ```thisisunsafe``` when on that page. You don't enter that into the
 address bar or into a text box, Chrome is just passively listening for those commands.
 
+##### Allow gameserver address connection via installing local Certificate Authority
+For more detailed instructions check: https://github.com/FiloSottile/mkcert
+
+Short version (common for development process on Ubuntu):
+1. `sudo apt install libnss3-tools`
+2. `brew install mkcert` (if you don't have brew, check it's page: https://brew.sh/)
+3. `mkcert --install`
+4. navigate to `./certs` folder
+5. mkcert -key-file key.pem -cert-file cert.pem localhost 127.0.0.1 ::1
+
 ##### Allow gameserver address connection with invalid certificate
 
 The gameserver functionality is hosted on an address other than 127.0.0.1 in the local

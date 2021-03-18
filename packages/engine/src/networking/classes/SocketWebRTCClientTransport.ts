@@ -12,6 +12,7 @@ import store from "@xr3ngine/client-core/redux/store";
 import { triggerUpdateConsumers } from "@xr3ngine/client-core/redux/mediastream/service";
 import { createDataProducer, endVideoChat, initReceiveTransport, initSendTransport, leave, subscribeToTrack } from "../functions/SocketWebRTCClientFunctions";
 import { EngineEvents } from "../../ecs/classes/EngineEvents";
+import { handleNetworkStateUpdate } from "../functions/updateNetworkState";
 
 const { publicRuntimeConfig } = getConfig();
 const gameserver = process.env.NODE_ENV === 'production' ? publicRuntimeConfig.gameserver : 'https://127.0.0.1:3030';
@@ -48,6 +49,11 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
   sendReliableData(message, instance = true): void {
     if (instance === true) this.instanceSocket.emit(MessageTypes.ReliableMessage.toString(), message);
     else this.channelSocket.emit(MessageTypes.ReliableMessage.toString(), message);
+  }
+
+  sendNetworkStatUpdateMessage(message, instance = true): void {
+    if (instance) this.instanceSocket.emit(MessageTypes.UpdateNetworkState.toString(), message)
+    else this.channelSocket.emit(MessageTypes.UpdateNetworkState.toString(), message)
   }
 
   handleKick(socket) {
@@ -102,7 +108,11 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     if (query.locationId == null) delete query.locationId;
     if (query.sceneId == null) delete query.sceneId;
     if (query.channelId == null) delete query.channelId;
-    if (process.env.NODE_ENV === 'development') {
+    if (process.env.NEXT_PUBLIC_LOCAL_BUILD === 'true') {
+      socket = ioclient(`https://${address as string}:${port.toString()}/realtime`, {
+        query: query
+      });
+    } else if (process.env.NODE_ENV === 'development') {
       socket = ioclient(`${address as string}:${port.toString()}/realtime`, {
         query: query
       });
@@ -168,6 +178,10 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
         Network.instance?.incomingMessageQueue.add(message);
       });
 
+      socket.on(MessageTypes.UpdateNetworkState.toString(), (message) => {
+        handleNetworkStateUpdate(socket, message);
+      })
+
       // use sendBeacon to tell the server we're disconnecting when
       // the page unloads
       window.addEventListener("unload", async () => {
@@ -226,11 +240,11 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
           // (MediaStreamSystem.mediaStream !== null) &&
           (producerId != null) &&
           (channelType === self.channelType) &&
-          (selfProducerIds.indexOf(producerId) < 0) &&
-          (MediaStreamSystem.instance?.consumers?.find(
-            c => c?.appData?.peerId === socketId && c?.appData?.mediaTag === mediaTag
-          ) == null /*&&
-            (channelType === 'instance' ? this.channelType === 'instance' : this.channelType === channelType && this.channelId === channelId)*/)
+          (selfProducerIds.indexOf(producerId) < 0)
+          // (MediaStreamSystem.instance?.consumers?.find(
+          //   c => c?.appData?.peerId === socketId && c?.appData?.mediaTag === mediaTag
+          // ) == null /*&&
+          //   (channelType === 'instance' ? this.channelType === 'instance' : this.channelType === channelType && this.channelId === channelId)*/)
         ) {
           // that we don't already have consumers for...
           await subscribeToTrack(socketId, mediaTag, channelType, channelId);
