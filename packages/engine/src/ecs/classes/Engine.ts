@@ -88,7 +88,6 @@ export class Engine {
   static renderer: WebGLRenderer = null
   static csm: CSM = null
   static xrSession: XRSession = null
-  static xrReferenceSpace = null
   static context = null
 
   /**
@@ -101,7 +100,7 @@ export class Engine {
    * Reference to the three.js perspective camera object.
    * This is set in {@link initialize.initializeEngine | initializeEngine()}.
    */
-  static camera: PerspectiveCamera = null
+   static camera: PerspectiveCamera = null
 
   /**
    * Reference to the Transform component of the three.js camera object.
@@ -223,9 +222,9 @@ export class Engine {
 
   static createElement: any = createElement;
 
-  static hasUserEngaged: boolean = false;
+  static hasUserEngaged = false;
 
-  static useAudioSystem: boolean = false;
+  static useAudioSystem = false;
 
   static inputState = new Map();
   static prevInputState = new Map();
@@ -238,8 +237,10 @@ export class Engine {
    * @property {Binary[]} gamepadButtons Map gamepad buttons
    * @property {Number[]} gamepadInput Map gamepad buttons to abstract input
    */
-  static gamepadConnected: boolean = false;
-  static gamepadThreshold: number = 0.1;
+  static gamepadConnected = false;
+  static gamepadThreshold = 0.1;
   static gamepadButtons: BinaryType[] = [];
   static gamepadInput: number[] = [];
+
+  static xrSupported = false;
 }

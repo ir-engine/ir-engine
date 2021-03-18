@@ -1,4 +1,4 @@
-import React, {useEffect, useState, useRef} from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { connect } from 'react-redux';
 import { selectAdminState } from "../../../redux/admin/selector";
 import styles from './Admin.module.scss';
@@ -16,12 +16,14 @@ import {
     TableSortLabel
 } from '@material-ui/core';
 import classNames from 'classnames';
-import {selectAppState} from "../../../redux/app/selector";
-import {selectAuthState} from "../../../redux/auth/selector";
-import {bindActionCreators, Dispatch} from "redux";
-import {client} from "../../../redux/feathers";
+import { selectAppState } from "../../../redux/app/selector";
+import { selectAuthState } from "../../../redux/auth/selector";
+import { bindActionCreators, Dispatch } from "redux";
+import { client } from "../../../redux/feathers";
 import { Router, withRouter } from "next/router";
-
+import Snackbar from '@material-ui/core/Snackbar';
+import MuiAlert, { AlertProps } from '@material-ui/lab/Alert';
+import { makeStyles, Theme } from '@material-ui/core/styles';
 interface Props {
     router: Router,
     open: boolean;
@@ -40,6 +42,19 @@ const mapStateToProps = (state: any): any => {
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({});
 
+function Alert(props: AlertProps) {
+    return <MuiAlert elevation={6} variant="filled" {...props} />;
+}
+
+const useStyles = makeStyles((theme: Theme) => ({
+    root: {
+        width: '100%',
+        '& > * + *': {
+            marginTop: theme.spacing(2),
+        },
+    },
+}));
+
 const InstanceModal = (props: Props): any => {
     const {
         router,
@@ -48,6 +63,9 @@ const InstanceModal = (props: Props): any => {
         instance
     } = props;
 
+    const classes = useStyles();
+    const [openToast, setOpenToast] = React.useState(false);
+    const [message, setMessage] = React.useState('');
     const currentInstanceId = useRef();
 
     const [instanceUsers, setInstanceUsers] = useState([]);
@@ -61,7 +79,10 @@ const InstanceModal = (props: Props): any => {
                 }
             });
             setInstanceUsers(instanceUserResult.data);
-            if (instanceUserResult.total === 0) handleClose();
+            if (instanceUserResult.total === 0)
+                setTimeout(() => {
+                    handleClose();
+                }, 5000);
             else setTimeout(() => {
                 getInstanceUsers();
             }, 2000);
@@ -86,7 +107,7 @@ const InstanceModal = (props: Props): any => {
         { id: 'id', numeric: false, disablePadding: true, label: 'ID' },
         { id: 'name', numeric: false, disablePadding: false, label: 'Name' },
         { id: 'instanceId', numeric: false, disablePadding: false, label: 'Instance ID' },
-        { id: 'userRole', numeric: false, disablePadding: false, label: 'User Role'},
+        { id: 'userRole', numeric: false, disablePadding: false, label: 'User Role' },
         { id: 'partyId', numeric: false, disablePadding: false, label: 'Party ID' }
     ];
 
@@ -95,9 +116,11 @@ const InstanceModal = (props: Props): any => {
             const location = await client.service('location').get(instance.locationId);
             const route = `/location/${location.slugifiedName}?instanceId=${instance.id}`;
             router.push(route);
-        } catch(err) {
+        } catch (err) {
             console.log('Error redirecting to instance:');
             console.log(err);
+            setMessage('Error redirecting to instannce!......' + err.message);
+            setOpenToast(true);
         }
     };
 
@@ -169,18 +192,18 @@ const InstanceModal = (props: Props): any => {
                                             return (
                                                 <TableRow
                                                     className={styles.trow}
-                                                    style={{color: 'black !important'}}
+                                                    style={{ color: 'black !important' }}
                                                     // onClick={(event) => handleClick(event, row.id.toString())}
                                                     tabIndex={-1}
                                                     key={row.id}
                                                 >
                                                     <TableCell className={styles.tcell} component="th" id={row.id.toString()}
-                                                               align="right" scope="row" padding="none">
+                                                        align="right" scope="row" padding="none">
                                                         {row.id}
                                                     </TableCell>
                                                     <TableCell className={styles.tcell} align="right">{row.name}</TableCell>
                                                     <TableCell className={styles.tcell}
-                                                               align="right"
+                                                        align="right"
                                                     >{row.instanceId}</TableCell>
                                                     <TableCell className={styles.tcell} align="right">{row.userRole}</TableCell>
                                                     <TableCell className={styles.tcell} align="right">{row.partyId}</TableCell>
@@ -198,6 +221,16 @@ const InstanceModal = (props: Props): any => {
                     </div>
                 </Fade>
             </Modal>
+            <Snackbar
+             open={openToast} 
+             autoHideDuration={6000}
+             onClose={()=> setOpenToast(false)}
+             anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+            >
+                <Alert onClose={()=> setOpenToast(false)} severity="error">
+                    {message}
+                </Alert>
+            </Snackbar>
         </div>
     );
 };

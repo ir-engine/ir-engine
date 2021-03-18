@@ -6,7 +6,6 @@ import { Vec3 } from "cannon-es";
 import { AnimationClip, AnimationMixer, BoxGeometry, Group, Matrix4, Mesh, MeshLambertMaterial, Quaternion, Scene, SkinnedMesh, Vector3 } from "three";
 import { AssetLoader } from "../../../assets/components/AssetLoader";
 import { AssetLoaderState } from "../../../assets/components/AssetLoaderState";
-import { GLTFLoader } from "../../../assets/loaders/gltf/GLTFLoader";
 import { PositionalAudioComponent } from '../../../audio/components/PositionalAudioComponent';
 import { FollowCameraComponent } from '../../../camera/components/FollowCameraComponent';
 import { CameraModes } from '../../../camera/types/CameraModes';
@@ -19,6 +18,7 @@ import { NetworkPrefab } from '../../../networking/interfaces/NetworkPrefab';
 import { RelativeSpringSimulator } from "../../../physics/classes/SpringSimulator";
 import { VectorSpringSimulator } from "../../../physics/classes/VectorSpringSimulator";
 import { CapsuleCollider } from "../../../physics/components/CapsuleCollider";
+import { InterpolationComponent } from "../../../physics/components/InterpolationComponent";
 import { CollisionGroups } from "../../../physics/enums/CollisionGroups";
 import { PhysicsSystem } from "../../../physics/systems/PhysicsSystem";
 import { createShadow } from "../../../scene/behaviors/createShadow";
@@ -51,10 +51,17 @@ import { CharacterStateSchema } from '../CharacterStateSchema';
 import { CharacterStateTypes } from "../CharacterStateTypes";
 import { CharacterComponent } from '../components/CharacterComponent';
 import { NamePlateComponent } from '../components/NamePlateComponent';
+import { getLoader } from "../../../assets/functions/LoadGLTF";
 
 
 export class AnimationManager {
-	static instance: AnimationManager = new AnimationManager();
+	static _instance: AnimationManager;
+	static get instance() {
+		if (!this._instance) {
+			this._instance = new AnimationManager();
+		}
+		return this._instance;
+	}
 	public initialized = false
 
 	_animations: AnimationClip[] = []
@@ -64,8 +71,7 @@ export class AnimationManager {
 				resolve([]);
 				return;
 			}
-
-			new GLTFLoader().load('/models/avatars/Animation.glb', gltf => {
+			getLoader().load('/models/avatars/Animation.glb', gltf => {
 					this._animations = gltf.animations;
 					this._animations?.forEach(clip => {
 						// TODO: make list of morph targets names
@@ -114,8 +120,7 @@ export const loadActorAvatar: Behavior = (entity) => {
 
     actor.mixer = new AnimationMixer(actor.modelContainer.children[0]);
 	// TODO: Remove this. Currently we are double-sampling the samplerate
-	actor.mixer.timeScale = 0.5;
-    
+
     initiateIKSystem(entity, args.asset.children[0]);
     const stateComponent = getComponent(entity, State);
     // trigger all states to restart?
@@ -220,7 +225,7 @@ function initiateIKSystem(entity: Entity, object) {
 	}
 
   actor.armature = findArmature(actor.Hips)
-  
+
 	const _getEyePosition = () => {
 		if (actor.Eye_L && actor.Eye_R) {
 			return actor.Eye_L.getWorldPosition(new Vector3())
@@ -542,7 +547,7 @@ function initiateIKSystem(entity: Entity, object) {
 		rightGamepad: actor.poseManager.vrTransforms.rightHand
   }
   console.log('load actor status', actor.inputs);
-  
+
 	actor.inputs.hmd.scaleFactor = 1
 	actor.lastModelScaleFactor = 1
 	actor.outputs = {
@@ -603,7 +608,7 @@ function initializeBonePositions(actor, setups) {
 
 	actor.shoulderTransforms.hips.updateMatrixWorld()
 }
-const initializeCharacter: Behavior = (entity): void => {	
+const initializeCharacter: Behavior = (entity): void => {
 	// console.warn("Initializing character for ", entity.id);
 	if (!hasComponent(entity, CharacterComponent as any)){
 		console.warn("Character does not have a character component, adding");
@@ -647,6 +652,8 @@ const initializeCharacter: Behavior = (entity): void => {
 		}
 
 	actor.velocitySimulator = new VectorSpringSimulator(60, actor.defaultVelocitySimulatorMass, actor.defaultVelocitySimulatorDamping);
+	actor.moveVectorSmooth = new VectorSpringSimulator(60, actor.defaultVelocitySimulatorMass, actor.defaultVelocitySimulatorDamping);
+	actor.vactorAnimSimulator = new VectorSpringSimulator(60, actor.defaultVelocitySimulatorMass, actor.defaultVelocitySimulatorDamping);
 	actor.rotationSimulator = new RelativeSpringSimulator(60, actor.defaultRotationSimulatorMass, actor.defaultRotationSimulatorDamping);
 
 	if(actor.viewVector == null) actor.viewVector = new Vector3();
@@ -700,8 +707,6 @@ export const NetworkPlayerCharacter: NetworkPrefab = {
   // These will be created for all players on the network
   networkComponents: [
     // ActorComponent has values like movement speed, deceleration, jump height, etc
-    { type: CharacterComponent },
-    // Handle character's body
     { type: CharacterComponent, data: { avatarId: DEFAULT_AVATAR_ID }},
     // Transform system applies values from transform component to three.js object (position, rotation, etc)
     { type: TransformComponent },
@@ -716,8 +721,8 @@ export const NetworkPlayerCharacter: NetworkPrefab = {
   localClientComponents: [
     { type: LocalInputReceiver },
     { type: FollowCameraComponent, data: { distance: 3, mode: CameraModes.ThirdPerson } },
-    { type: Interactor }
-  
+    { type: Interactor },
+  	{ type: InterpolationComponent }
   ],
   serverComponents: [
     { type: TeleportToSpawnPoint },

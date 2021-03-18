@@ -8,7 +8,7 @@ export default function PostPage() {
 
   return (
     <div className="container">
-    <AppHeader user={pid} />
+    <AppHeader />
           <div>{pid}</div>
     </div>
   );

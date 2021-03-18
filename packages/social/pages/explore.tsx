@@ -4,7 +4,7 @@ import React from "react";
 export default function Explore() {
   return (
     <div className="container">
-      <AppHeader user={null} />
+      <AppHeader />
       <div>Explore</div>
     </div>
   );

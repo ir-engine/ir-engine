@@ -16,13 +16,17 @@ import {
   ADD_FEED_BOOKMARK,
   REMOVE_FEED_BOOKMARK,
   ADD_FEED_VIEW,
-  ADD_FEED
+  ADD_FEED,
+  FEEDS_CREATOR_RETRIEVED,
+  FEEDS_BOOKMARK_RETRIEVED
 } from '../actions';
 
 export const initialState = {
   feeds: {
     feeds: [],
     feedsFeatured: [],
+    feedsCreator:[],
+    feedsBookmark:[],
     feed: {},
     fetching: false
   },
@@ -40,6 +44,12 @@ const feedReducer = (state = immutableState, action: FeedsAction): any => {
     case FEEDS_FEATURED_RETRIEVED:     
       return state.set('feedsFeatured', (action as FeedsRetrievedAction).feeds).set('fetching', false);
 
+    case FEEDS_CREATOR_RETRIEVED:     
+      return state.set('feedsCreator', (action as FeedsRetrievedAction).feeds).set('fetching', false);
+
+    case FEEDS_BOOKMARK_RETRIEVED:
+      return state.set('feedsBookmark', (action as FeedsRetrievedAction).feeds).set('fetching', false);
+      
     case FEED_RETRIEVED: 
       return state.set('feed', (action as FeedRetrievedAction).feed).set('fetching', false);
 

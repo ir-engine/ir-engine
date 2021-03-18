@@ -1,7 +1,8 @@
-import { Vec3, Material, Body, Sphere } from "cannon-es";
+import { Vec3, Material, Body, Sphere, Cylinder } from "cannon-es";
 import { Component } from "../../ecs/classes/Component";
 import { setDefaults } from "../../common/functions/setDefaults";
 import { Types } from "../../ecs/types/Types";
+import { CollisionGroups } from "../enums/CollisionGroups";
 
 export class CapsuleCollider extends Component<CapsuleCollider>
 {
@@ -13,6 +14,7 @@ export class CapsuleCollider extends Component<CapsuleCollider>
 	public radius: number;
 	public segments: number;
 	public friction: number;
+	public moreRaysIchTurn = 0;
 
 	constructor(options: any)
 	{
@@ -32,11 +34,11 @@ export class CapsuleCollider extends Component<CapsuleCollider>
 	reapplyOptions(options: any) {
 		const defaults = {
 			mass: 0,
-			position: new Vec3(),
+			position: {x: 0, y: 1, z: 0},
 			height: 0.5,
 			radius: 0.3,
 			segments: 8,
-			friction: 0.3
+			friction: 0
 		};
 		options = setDefaults(options, defaults);
 		this.options = options;
@@ -45,20 +47,29 @@ export class CapsuleCollider extends Component<CapsuleCollider>
 		mat.friction = options.friction;
 
 		const capsuleBody = new Body({
-			mass: options.mass,
-			position: new Vec3( options.position.x, options.position.y, options.position.z )
+			mass: options.mass
 		});
 
 		// Compound shape
 		const sphereShape = new Sphere(options.radius);
-
+		const cylinderShape = new Cylinder(0.237,0.005,0.5,20);
 		// Materials
 		capsuleBody.material = mat;
 
 		capsuleBody.addShape(sphereShape, new Vec3(0, 0, 0));
 		capsuleBody.addShape(sphereShape, new Vec3(0, options.height / 2, 0));
-		capsuleBody.addShape(sphereShape, new Vec3(0, -options.height / 2, 0));
-
+		capsuleBody.addShape(cylinderShape, new Vec3(0, -options.height / 3 , 0));
+		capsuleBody.angularDamping = 0;
+		capsuleBody.linearDamping = 0;
+	//	capsuleBody.fixedRotation = true;
+		//capsuleBody.type = Body.KINEMATIC;
+		capsuleBody.collisionFilterGroup = CollisionGroups.Characters;
+		capsuleBody.collisionFilterMask = CollisionGroups.Default | CollisionGroups.Characters | CollisionGroups.Car | CollisionGroups.TrimeshColliders;
+		capsuleBody.position.set(
+      options.position.x,
+      options.position.y,
+      options.position.z
+    );
 		this.body = capsuleBody;
 
 	}

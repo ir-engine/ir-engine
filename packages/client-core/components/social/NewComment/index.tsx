@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 
 import { TextField } from '@material-ui/core';
-import TelegramIcon from '@material-ui/icons/Telegram';
+import MessageIcon from '@material-ui/icons/Message';
 
 import { addCommentToFeed } from '../../../redux/feedComment/service';
 
@@ -37,7 +37,7 @@ const NewComment = ({addCommentToFeed, feedId}:Props) => {
                     fullWidth 
                     placeholder="Add your comment..."                     
                     />     
-                <TelegramIcon className={styles.sendButton} onClick={()=>handleAddComment()} />
+                <MessageIcon className={styles.sendButton} onClick={()=>handleAddComment()} />
             </section>
 };
 

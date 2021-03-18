@@ -1,5 +1,4 @@
 import React, { useEffect } from 'react';
-import { random } from 'lodash';
 import { bindActionCreators, Dispatch } from 'redux';
 import { connect } from 'react-redux';
 
@@ -8,8 +7,6 @@ import CommentList from '../CommentList';
 import NewComment from '../NewComment';
 import { selectFeedsState } from '../../../redux/feed/selector';
 import { getFeed } from '../../../redux/feed/service';
-
-// import styles from './Feed.module.scss';
 
 const mapStateToProps = (state: any): any => {
     return {
