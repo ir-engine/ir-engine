@@ -60,7 +60,10 @@ export abstract class System {
    * This needs to be user defined.
    */
   static instance: System;
-  static queries: SystemQueries = {}
+  static queries: SystemQueries = {};
+  
+  /** Name of the property. */
+  [x: string]: any
   
   static isSystem: true
   _mandatoryQueries: any

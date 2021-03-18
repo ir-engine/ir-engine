@@ -7,7 +7,7 @@ import { Vector3 } from "three";
  * @param {Vector3} b Vector to apply basis to
  */
 
-export function appplyVectorMatrixXZ(a: Vector3, b: Vector3): Vector3 {
+export function applyVectorMatrixXZ(a: Vector3, b: Vector3): Vector3 {
 	return new Vector3(
 		(a.x * b.z + a.z * b.x),
 		b.y,
