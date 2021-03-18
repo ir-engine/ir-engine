@@ -23,6 +23,9 @@ import { Entity } from "../../ecs/classes/Entity";
 import { PhysicsSystem } from "../../physics/systems/PhysicsSystem";
 import { CollisionGroups } from "../../physics/enums/CollisionGroups";
 import { Vec3 } from "cannon-es";
+import { Behavior } from "../../common/interfaces/Behavior";
+import { WebXRRendererSystem } from "../../renderer/WebXRRendererSystem";
+import { applyVectorMatrixXZ } from "../../common/functions/applyVectorMatrixXZ";
 
 const forwardVector = new Vector3(0, 0, 1);
 let direction = new Vector3();
@@ -91,7 +94,7 @@ export class CameraSystem extends System {
     });
 
     this.queryResults.cameraComponent.all?.forEach(entity => {
-      if (isServer) return;
+      if (Engine.renderer?.xr?.isPresenting) return;
       const cam = getComponent(entity, CameraComponent) as CameraComponent;
       if (!!cam.followTarget && hasComponent(cam.followTarget, FollowCameraComponent)) {
 

@@ -2,7 +2,6 @@ import { Behavior } from '@xr3ngine/engine/src/common/interfaces/Behavior';
 import { StateSchemaValue } from '../../../state/interfaces/StateSchema';
 import { physicsMove } from '../../../physics/behaviors/physicsMove';
 import { triggerActionIfMovementHasChanged } from '../behaviors/triggerActionIfMovementHasChanged';
-import { updateCharacterState } from "../behaviors/updateCharacterState";
 import { CharacterStateTypes } from '../CharacterStateTypes';
 import { CharacterComponent } from '../components/CharacterComponent';
 import { TransformComponent } from '../../../transform/components/TransformComponent';
@@ -12,6 +11,69 @@ import { MathUtils, Vector3 } from "three";
 
 import { isMyPlayer } from '../../../common/functions/isMyPlayer';
 import { isOtherPlayer } from '../../../common/functions/isOtherPlayer';
+import { isMobileOrTablet } from '../../../common/functions/isMobile';
+import { Engine } from '../../../ecs/classes/Engine';
+import { WebXRRendererSystem } from '../../../renderer/WebXRRendererSystem';
+import { applyVectorMatrixXZ } from '../../../common/functions/applyVectorMatrixXZ';
+import { FollowCameraComponent } from '../../../camera/components/FollowCameraComponent';
+import { CameraModes } from '../../../camera/types/CameraModes';
+
+
+const upVector = new Vector3(0, 1, 0)
+const leftVector = new Vector3(1, 0, 0);
+const forwardVector = new Vector3(0, 0, 1);
+const emptyVector = new Vector3();
+const damping = 0.05; // To reduce the change in direction.
+
+export const updateCharacterState: Behavior = (entity, args: { }, deltaTime: number): void => {
+	const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
+	if (!actor.initialized) return console.warn("Actor no initialized");
+	actor.timer += deltaTime;
+
+	const localMovementDirection = actor.localMovementDirection; //getLocalMovementDirection(entity);
+
+  if(actor.moveVectorSmooth.position.length() < 0.1) { actor.moveVectorSmooth.velocity.multiplyScalar(0.9) };
+  if(actor.moveVectorSmooth.position.length() < 0.001) { actor.moveVectorSmooth.velocity.set(0,0,0); actor.moveVectorSmooth.position.set(0,0,0); }
+
+  if(actor.changedViewAngle) {
+    const viewVectorAngle = Math.atan2(actor.viewVector.z, actor.viewVector.x);
+    actor.viewVector.x = Math.cos(viewVectorAngle - (actor.changedViewAngle * damping));
+    actor.viewVector.z = Math.sin(viewVectorAngle - (actor.changedViewAngle * damping));
+
+    // this is a bad hack. this is for xr first person inputs. need to refactor movement & orientation system.
+    if(!isMobileOrTablet()) {
+      // const actorTransform = getMutableComponent(entity, TransformComponent);
+      // actorTransform.rotation.setFromAxisAngle(upVector, Math.atan2(-actor.viewVector.z, -actor.viewVector.x));
+      // actor.orientation.copy(forwardVector).applyQuaternion(actorTransform.rotation);
+      // actorTransform.rotation.setFromUnitVectors(forwardVector, actor.orientation.clone().setY(0));
+    }
+  }
+
+  // if(Engine.renderer?.xr?.isPresenting) {
+  //   const actorTransform = getMutableComponent(entity, TransformComponent);
+  //   actorTransform.rotation.setFromAxisAngle(upDirection, Math.atan2(actor.viewVector.z, actor.viewVector.x));
+  //   actor.orientationTarget.copy(forwardVector).applyQuaternion(actorTransform.rotation);
+  //   actorTransform.rotation.setFromUnitVectors(forwardVector, actor.orientationTarget.clone().setY(0));
+    // WebXRRendererSystem.instance.cameraDolly.setRotationFromAxisAngle(upDirection, Math.atan2(actor.viewVector.z, actor.viewVector.x))
+  // }
+
+	const flatViewVector = new Vector3(actor.viewVector.x, 0, actor.viewVector.z).normalize();
+	const moveVector = localMovementDirection.length() ? applyVectorMatrixXZ(flatViewVector, forwardVector) : emptyVector.setScalar(0);
+
+  // if(Engine.renderer?.xr?.isPresenting) {
+	// 	actor.orientationTarget.copy(new Vector3().copy(actor.orientation).setY(0).normalize());
+  //   return;
+  // }
+	const camera = getComponent(entity, FollowCameraComponent);
+
+	if (camera && camera.mode === CameraModes.FirstPerson)
+		actor.orientationTarget.copy(new Vector3().copy(actor.orientation).setY(0).normalize());
+	else if (moveVector.x === 0 && moveVector.y === 0 && moveVector.z === 0)
+		actor.orientationTarget.copy(new Vector3().copy(actor.orientation).setY(0).normalize());
+	else
+		actor.orientationTarget.copy(new Vector3().copy(moveVector).setY(0).normalize());
+};
+
 
 const {
   IDLE,

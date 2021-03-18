@@ -1,15 +1,15 @@
-import { sRGBEncoding } from 'three';
+import { Group, sRGBEncoding, Vector3 } from 'three';
 import { BinaryValue } from '../common/enums/BinaryValue';
 import { LifecycleValue } from '../common/enums/LifecycleValue';
 import { isWebWorker } from '../common/functions/getEnvironment';
 import { Engine } from '../ecs/classes/Engine';
 import { EngineEvents } from '../ecs/classes/EngineEvents';
 import { System, SystemAttributes } from '../ecs/classes/System';
-import { getMutableComponent } from '../ecs/functions/EntityFunctions';
+import { getComponent, getMutableComponent } from '../ecs/functions/EntityFunctions';
 import { gamepadMapping } from '../input/behaviors/GamepadInputBehaviors';
 import { InputType } from '../input/enums/InputType';
 import { endXR, startXR } from '../input/functions/WebXRFunctions';
-import { XRFrame, XRReferenceSpaceType, XRWebGLLayer } from '../input/types/WebXR';
+import { XRFrame, XRReferenceSpace, XRReferenceSpaceType, XRWebGLLayer, XRRigidTransform } from '../input/types/WebXR';
 import { Network } from '../networking/classes/Network';
 import { CharacterComponent } from '../templates/character/components/CharacterComponent';
 // import { EngineEvents } from '../ecs/classes/EngineEvents';
@@ -40,19 +40,25 @@ export class WebXRRendererSystem extends System {
 
   controllerUpdateHook: any;
 
-  referenceSpace: XRReferenceSpaceType = 'local-floor';
+  referenceSpaceType: XRReferenceSpaceType = 'local-floor';
+  referenceSpace: XRReferenceSpace;
+  playerPosition: Vector3 = new Vector3();
+  cameraDolly: Group;
+  static instance: WebXRRendererSystem;
 
   constructor(attributes?: SystemAttributes) {
     super(attributes);
 
+    WebXRRendererSystem.instance = this;
+
     EngineEvents.instance.addEventListener(WebXRRendererSystem.EVENTS.XR_START, async (ev: any) => {
       Engine.renderer.outputEncoding = sRGBEncoding;
-      const sessionInit = { optionalFeatures: [this.referenceSpace] };
+      const sessionInit = { optionalFeatures: [this.referenceSpaceType] };
       try {
         const session = await (navigator as any).xr.requestSession("immersive-vr", sessionInit)
         
         Engine.xrSession = session;
-        Engine.renderer.xr.setReferenceSpaceType(this.referenceSpace);
+        Engine.renderer.xr.setReferenceSpaceType(this.referenceSpaceType);
         Engine.renderer.xr.setSession(session);
         if(!isWebWorker) { 
           EngineEvents.instance.dispatchEvent({ type: WebXRRendererSystem.EVENTS.XR_SESSION });
@@ -62,6 +68,7 @@ export class WebXRRendererSystem extends System {
         actor.modelContainer.visible = false;
 
         await startXR()
+
       } catch(e) { console.log(e) }
     });
 
@@ -127,8 +134,6 @@ export class WebXRRendererSystem extends System {
     if(!Engine.renderer?.xr?.isPresenting) return;
     
     const session = WebXRRendererSystem.xrFrame.session;
-    const refSpace = Engine.renderer.xr.getReferenceSpace();
-    const pose = WebXRRendererSystem.xrFrame.getViewerPose(refSpace);
   
     session.inputSources.forEach((source) => {
       if(source.gamepad) {
@@ -152,6 +157,7 @@ export class WebXRRendererSystem extends System {
             value: [source.gamepad.axes[0], source.gamepad.axes[1]]
           })
         }
+        console.log(source.gamepad.axes)
       }
     })
       /*

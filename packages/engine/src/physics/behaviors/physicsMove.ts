@@ -2,7 +2,7 @@ import { Matrix4, Vector3, Quaternion } from 'three';
 import CANNON, { Vec3 } from 'cannon-es';
 import { Engine } from '../../ecs/classes/Engine';
 
-import { appplyVectorMatrixXZ } from '../../common/functions/appplyVectorMatrixXZ';
+import { applyVectorMatrixXZ } from '../../common/functions/applyVectorMatrixXZ';
 import { cannonFromThreeVector } from '../../common/functions/cannonFromThreeVector';
 import { getSignedAngleBetweenVectors } from '../../common/functions/getSignedAngleBetweenVectors';
 import { lerp } from '../../common/functions/MathLerpFunctions';
@@ -42,7 +42,7 @@ export const physicsMove: Behavior = (entity: Entity, args: any, deltaTime): voi
   // if we rotation character here, lets server will do his rotation here too
   if (isServer) {
     const flatViewVector = new Vector3(actor.viewVector.x, 0, actor.viewVector.z).normalize();
-    actor.orientation.copy(appplyVectorMatrixXZ(flatViewVector, forwardVector))
+    actor.orientation.copy(applyVectorMatrixXZ(flatViewVector, forwardVector))
     transform.rotation.setFromUnitVectors(forwardVector, actor.orientation.clone().setY(0));
   }
   // if we rotation character here, lets server will do his rotation here too
@@ -84,11 +84,11 @@ export const physicsMove: Behavior = (entity: Entity, args: any, deltaTime): voi
   // Take local velocity
   arcadeVelocity.copy(actor.velocity).multiplyScalar(actor.moveSpeed);
   // Turn local into global
-  arcadeVelocity.copy(appplyVectorMatrixXZ(actor.orientation, arcadeVelocity));
+  arcadeVelocity.copy(applyVectorMatrixXZ(actor.orientation, arcadeVelocity));
   // Additive velocity mode
   if (actor.arcadeVelocityIsAdditive) {
   	newVelocity.copy(simulatedVelocity);
-  	const globalVelocityTarget = appplyVectorMatrixXZ(actor.orientation, actor.velocityTarget);
+  	const globalVelocityTarget = applyVectorMatrixXZ(actor.orientation, actor.velocityTarget);
   	const add = new Vector3().copy(arcadeVelocity).multiply(actor.arcadeVelocityInfluence);
   /*
   	if (Math.abs(simulatedVelocity.x) < Math.abs(globalVelocityTarget.x * actor.moveSpeed) || haveDifferentSigns(simulatedVelocity.x, arcadeVelocity.x)) { newVelocity.x += add.x; }

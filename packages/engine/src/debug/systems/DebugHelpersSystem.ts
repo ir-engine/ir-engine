@@ -57,14 +57,14 @@ export class DebugHelpersSystem extends System {
       const hex = 0xffff00;
       if(!actor || !actor.viewVector) return console.warn ("actor.viewVector is null")
       const arrowHelper = new ArrowHelper( actor.viewVector.clone().normalize(), origin, length, hex );
-      arrowHelper.visible = false;
+      arrowHelper.visible = true;
       Engine.scene.add( arrowHelper );
       this.helpersByEntity.viewVector.set(entity, arrowHelper);
 
       // velocity
       const velocityColor = 0x0000ff;
       const velocityArrowHelper = new ArrowHelper( new Vector3(), new Vector3( 0, 0, 0 ), 0.5, velocityColor );
-      velocityArrowHelper.visible = false;
+      velocityArrowHelper.visible = true;
       Engine.scene.add( velocityArrowHelper );
       this.helpersByEntity.velocityArrow.set(entity, velocityArrowHelper);
     });
@@ -106,7 +106,7 @@ export class DebugHelpersSystem extends System {
         if (boundingBox.dynamic) {
           boundingBox.boxArray.forEach((object3D, index) => {
             const helper = new BoxHelper(object3D);
-            helper.visible = false;
+            helper.visible = true;
             Engine.scene.add(helper);
           });
         }
@@ -118,7 +118,7 @@ export class DebugHelpersSystem extends System {
           box3.applyMatrix4(object3D.value.matrixWorld);
         }
         const helper = new Box3Helper(box3);
-        helper.visible = false;
+        helper.visible = true;
         Engine.scene.add(helper);
       }
     });

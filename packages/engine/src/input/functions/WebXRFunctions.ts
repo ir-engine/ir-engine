@@ -1,9 +1,11 @@
 import { Engine } from "@xr3ngine/engine/src/ecs/classes/Engine";
-import { AdditiveBlending, BufferGeometry, Float32BufferAttribute, Line, LineBasicMaterial, Mesh, MeshBasicMaterial, MeshPhongMaterial, RingGeometry, Vector3 } from 'three';
+import { AdditiveBlending, BufferGeometry, Float32BufferAttribute, Group, Line, LineBasicMaterial, Mesh, MeshBasicMaterial, MeshPhongMaterial, RingGeometry, Vector3 } from 'three';
 import { getLoader } from "../../assets/functions/LoadGLTF";
 import { GLTF } from "../../assets/loaders/gltf/GLTFLoader";
 import { addComponent, getComponent, removeComponent } from '../../ecs/functions/EntityFunctions';
 import { Network } from "../../networking/classes/Network";
+import { WebXRRendererSystem } from "../../renderer/WebXRRendererSystem";
+import { CharacterComponent } from "../../templates/character/components/CharacterComponent";
 import { XRInputReceiver } from '../components/XRInputReceiver';
 
 let head, controllerGripLeft, controllerLeft, controllerRight, controllerGripRight;
@@ -12,12 +14,20 @@ export const startXR = async () => {
 
   try{
 
+    const dolly = new Group();
+    WebXRRendererSystem.instance.cameraDolly = dolly;
+
+    const actor = getComponent(Network.instance.localClientEntity, CharacterComponent);
+    actor.tiltContainer.add(dolly);
+    Engine.scene.remove(Engine.camera);
+    dolly.add(Engine.camera);
+
     head = Engine.renderer.xr.getCamera(Engine.camera);
     controllerLeft = Engine.renderer.xr.getController(0);
     controllerRight = Engine.renderer.xr.getController(1);
-    Engine.scene.add(controllerLeft);
-    Engine.scene.add(controllerRight);
-    // Engine.scene.add(head);
+    dolly.add(controllerLeft);
+    dolly.add(controllerRight);
+    // dolly.add(head);
 
     // obviously unfinished
     [controllerLeft, controllerRight].forEach((controller) => {
@@ -47,7 +57,7 @@ export const startXR = async () => {
 
     controllerGripLeft = Engine.renderer.xr.getControllerGrip(0);
     controllerGripRight = Engine.renderer.xr.getControllerGrip(1);
-    console.log(Network.instance.localClientEntity)
+    
     addComponent(Network.instance.localClientEntity, XRInputReceiver, {
       headPosition: head.position,
       headRotation: head.rotation,
@@ -62,7 +72,7 @@ export const startXR = async () => {
     })
 
     console.warn(getComponent(Network.instance.localClientEntity, XRInputReceiver));
-    console.warn(controllerLeft);
+    // console.warn(controllerLeft);
 
     const obj: GLTF = await new Promise((resolve) => { getLoader().load('/models/webxr/controllers/valve_controller_knu_1_0_right.glb', obj => { resolve(obj) }, console.warn, console.error)});
     
@@ -74,10 +84,10 @@ export const startXR = async () => {
     controllerMeshRight.scale.multiply(new Vector3(-1, 1, 1));
 
     controllerGripLeft.add(controllerMeshLeft);
-    Engine.scene.add(controllerGripLeft);
+    dolly.add(controllerGripLeft);
 
     controllerGripRight.add(controllerMeshRight);
-    Engine.scene.add(controllerGripRight);
+    dolly.add(controllerGripRight);
 
     console.warn('Loaded Model Controllers Done');
     
@@ -93,6 +103,9 @@ export const endXR = () => {
     removeComponent(Network.instance.localClientEntity, XRInputReceiver);
     Engine.xrSession.end();
     Engine.xrSession = null;
+    const actor = getComponent(Network.instance.localClientEntity, CharacterComponent);
+    actor.tiltContainer.remove(WebXRRendererSystem.instance.cameraDolly);
+    Engine.scene.add(Engine.camera);
   }
 }
 

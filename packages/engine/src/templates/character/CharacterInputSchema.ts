@@ -19,11 +19,13 @@ import { Interactable } from '../../interaction/components/Interactable';
 import { Interactor } from '../../interaction/components/Interactor';
 import { Object3DComponent } from '../../scene/components/Object3DComponent';
 import { interactOnServer } from '../../interaction/systems/InteractiveSystem';
-import { updateCharacterState } from "./behaviors/updateCharacterState";
 import { CharacterComponent } from "./components/CharacterComponent";
 import { isServer } from "../../common/functions/isServer";
 import { VehicleBody } from '../../physics/components/VehicleBody';
 import { isMobileOrTablet } from '../../common/functions/isMobile';
+import { WebXRRendererSystem } from '../../renderer/WebXRRendererSystem';
+import { Engine } from '../../ecs/classes/Engine';
+import { TransformComponent } from '../../transform/components/TransformComponent';
 
 /**
  *
@@ -317,15 +319,26 @@ const moveFromXRInputs: Behavior = (entity, args): void => {
   const actor: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
   const input = getComponent<Input>(entity, Input as any);
   const values = input.data.get(BaseInput.XR_MOVE)?.value;
-  console.log(values)
+  
   if(values) {
-    actor.localMovementDirection.z = values[0] ?? actor.localMovementDirection.z;
-    actor.localMovementDirection.x = values[1] ?? actor.localMovementDirection.x;
+    actor.localMovementDirection.x = values[0] ?? actor.localMovementDirection.x;
+    actor.localMovementDirection.z = values[1] ?? actor.localMovementDirection.z;
     actor.localMovementDirection.normalize();
   }
 };
 
+const forwardVector = new Vector3(0, 0, 1);
+const upDirection = new Vector3(0, 1, 0)
 
+const lookFromXRInputs: Behavior = (entity, args): void => {
+  const actor: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
+  const input = getComponent<Input>(entity, Input as any);
+  const values = input.data.get(BaseInput.XR_LOOK)?.value;
+
+  if(values) {
+    actor.changedViewAngle = values[0];
+  }
+};
 
 const lookByInputAxis = (
   entity: Entity,
@@ -484,24 +497,6 @@ export const CharacterInputSchema: InputSchema = {
           args: {
             y: 0
           }
-        },
-        {
-          behavior: updateCharacterState,
-          args: {}
-        }
-      ]
-    },
-    [BaseInput.WALK]: {
-      started: [
-        {
-          behavior: updateCharacterState,
-          args: {}
-        }
-      ],
-      ended: [
-        {
-          behavior: updateCharacterState,
-          args: {}
         }
       ]
     },
@@ -529,10 +524,6 @@ export const CharacterInputSchema: InputSchema = {
             z: 0
           }
         },
-        {
-          behavior: updateCharacterState,
-          args: {}
-        }
       ]
     },
     [BaseInput.BACKWARD]: {
@@ -559,10 +550,6 @@ export const CharacterInputSchema: InputSchema = {
             z: 0
           }
         },
-        {
-          behavior: updateCharacterState,
-          args: {}
-        }
       ]
     },
     [BaseInput.LEFT]: {
@@ -589,10 +576,6 @@ export const CharacterInputSchema: InputSchema = {
             x: 0
           }
         },
-        {
-          behavior: updateCharacterState,
-          args: {}
-        }
       ]
     },
     [BaseInput.RIGHT]: {
@@ -619,10 +602,6 @@ export const CharacterInputSchema: InputSchema = {
             x: 0
           }
         },
-        {
-          behavior: updateCharacterState,
-          args: {}
-        }
       ]
     }
   },
@@ -711,9 +690,6 @@ export const CharacterInputSchema: InputSchema = {
             inputType: InputType.TWODIM
           }
         },
-        {
-          behavior: updateCharacterState
-        }
       ],
       unchanged: [
         {
@@ -723,9 +699,6 @@ export const CharacterInputSchema: InputSchema = {
             inputType: InputType.TWODIM
           }
         },
-        {
-          behavior: updateCharacterState
-        }
       ],
     },
     [BaseInput.GAMEPAD_STICK_RIGHT]: {
@@ -768,19 +741,33 @@ export const CharacterInputSchema: InputSchema = {
         {
           behavior: moveFromXRInputs,
         },
-        {
-          behavior: updateCharacterState,
-          args: {}
-        }
       ],
       changed: [
         {
           behavior: moveFromXRInputs,
         },
+      ],
+      unchanged: [
         {
-          behavior: updateCharacterState,
-          args: {}
-        }
+          behavior: moveFromXRInputs,
+        },
+      ],
+    },
+    [BaseInput.XR_LOOK]: {
+      started: [
+        {
+          behavior: lookFromXRInputs,
+        },
+      ],
+      changed: [
+        {
+          behavior: lookFromXRInputs,
+        },
+      ],
+      unchanged: [
+        {
+          behavior: lookFromXRInputs,
+        },
       ],
     }
   }

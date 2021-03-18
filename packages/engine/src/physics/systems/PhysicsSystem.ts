@@ -3,7 +3,7 @@ import { Matrix4, Mesh, Quaternion, Vector3 } from 'three';
 import { CameraComponent } from '../../camera/components/CameraComponent';
 import { FollowCameraComponent } from '../../camera/components/FollowCameraComponent';
 import { CameraSystem } from '../../camera/systems/CameraSystem';
-import { appplyVectorMatrixXZ } from '../../common/functions/appplyVectorMatrixXZ';
+import { applyVectorMatrixXZ } from '../../common/functions/applyVectorMatrixXZ';
 import { cannonFromThreeVector } from '../../common/functions/cannonFromThreeVector';
 import { getSignedAngleBetweenVectors } from '../../common/functions/getSignedAngleBetweenVectors';
 import { isServer } from '../../common/functions/isServer';
