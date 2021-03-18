@@ -8,7 +8,9 @@ import {
   ADD_FEED_BOOKMARK,
   REMOVE_FEED_BOOKMARK,
   ADD_FEED_VIEW,
-  ADD_FEED
+  ADD_FEED,
+  FEEDS_CREATOR_RETRIEVED,
+  FEEDS_BOOKMARK_RETRIEVED
 } from '../actions';
 import { FeedShort, Feed } from '@xr3ngine/common/interfaces/Feed';
 
@@ -47,6 +49,20 @@ export function feedsRetrieved (feeds: Feed[]): FeedsRetrievedAction {
 export function feedsFeaturedRetrieved (feeds: FeedShort[]): FeedsRetrievedAction {
   return {
     type: FEEDS_FEATURED_RETRIEVED,
+    feeds: feeds
+  };
+}
+
+export function feedsCreatorRetrieved(feeds: FeedShort[]): FeedsRetrievedAction {
+  return {
+    type: FEEDS_CREATOR_RETRIEVED,
+    feeds: feeds
+  };
+}
+
+export function feedsBookmarkRetrieved(feeds: FeedShort[]): FeedsRetrievedAction {
+  return {
+    type: FEEDS_BOOKMARK_RETRIEVED,
     feeds: feeds
   };
 }
