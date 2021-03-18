@@ -327,6 +327,7 @@ const Invites = (props: Props): any => {
                     setTabIndex(0);
                 }}
                 onOpen={() => {
+                    setInviteTabIndex(0);
                 }}
             >
                 <Accordion className={styles.rightDrawerAccordion} expanded={selectedAccordion === 'invite'} onChange={handleAccordionSelect('invite')}>
@@ -369,17 +370,15 @@ const Invites = (props: Props): any => {
                                 {inviteTabIndex === 1 && receivedInvites.sort((a, b) => {
                                     return a.created - b.created;
                                 }).map((invite, index) => {
-                                    return <div key={invite.id}>
+                                    return <div className={styles.invite} key={invite.id}>
                                         <ListItem>
                                             <ListItemAvatar>
                                                 <Avatar src={invite.user.avatarUrl}/>
                                             </ListItemAvatar>
                                             {invite.inviteType === 'friend' &&
-                                            <ListItemText>{capitalize(invite.inviteType)} request
-                                                from {invite.user.name}</ListItemText>}
+                                            <ListItemText>{capitalize(invite.inviteType)} request from {invite.user.name}</ListItemText>}
                                             {invite.inviteType === 'group' &&
-                                            <ListItemText>Join
-                                                group {invite.groupName} from {invite.user.name}</ListItemText>}
+                                            <ListItemText>Join group {invite.groupName} from {invite.user.name}</ListItemText>}
                                             {invite.inviteType === 'party' &&
                                             <ListItemText>Join a party from {invite.user.name}</ListItemText>}
                                             <Button
@@ -404,7 +403,7 @@ const Invites = (props: Props): any => {
                                 {inviteTabIndex === 2 && sentInvites.sort((a, b) => {
                                     return a.created - b.created;
                                 }).map((invite, index) => {
-                                    return <div key={invite.id}>
+                                    return <div className={styles.invite}  key={invite.id}>
                                         <ListItem>
                                             <ListItemAvatar>
                                                 <Avatar src={invite.user.avatarUrl}/>
