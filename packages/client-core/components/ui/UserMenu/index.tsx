@@ -25,7 +25,6 @@ import { EngineEvents } from '@xr3ngine/engine/src/ecs/classes/EngineEvents';
 type StateType = {
   currentActiveMenu: any;
   username: any;
-  actorEntityID: string | number;
   userSetting: any;
   graphics: any;
 }
@@ -68,7 +67,6 @@ class UserMenu extends React.Component<UserMenuProps, StateType> {
   };
 
   selfUser = this.props.authState.get('user') || {};
-  activeAvatar = this.props.authState.get('activeAvatar') || {};
   avatarList = this.props.authState.get('avatarList') || [];
   prevPropUsername = '';
 
@@ -78,7 +76,6 @@ class UserMenu extends React.Component<UserMenuProps, StateType> {
     this.state = {
       currentActiveMenu: {} as any,
       username: '',
-      actorEntityID: 0,
       userSetting: {},
       graphics: {
         resolution: WebGLRendererSystem.scaleFactor,
@@ -103,9 +100,9 @@ class UserMenu extends React.Component<UserMenuProps, StateType> {
         userSetting: sf.user_setting
       }
     }
-    // else if (state.waitingForLogout === true && 
-    //   props.authState.get('authUser') != null && 
-    //   props.authState.get('user') != null && 
+    // else if (state.waitingForLogout === true &&
+    //   props.authState.get('authUser') != null &&
+    //   props.authState.get('user') != null &&
     //   props.authState.get('user').userRole === 'guest') {
     //   setWaitingForLogout(false);
     //   location.reload();
@@ -120,21 +117,12 @@ class UserMenu extends React.Component<UserMenuProps, StateType> {
 
   onEngineLoaded = () => {
     EngineEvents.instance?.addEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD, this.graphicsSettingsLoaded);
-    EngineEvents.instance?.addEventListener(EngineEvents.EVENTS.CLIENT_ENTITY_LOAD, this.clientEntityLoaded);
     document.removeEventListener('ENGINE_LOADED', this.onEngineLoaded);
   }
 
   graphicsSettingsLoaded = () => {
     EngineEvents.instance?.addEventListener(WebGLRendererSystem.EVENTS.QUALITY_CHANGED, this.setGraphicsSettings);
     EngineEvents.instance?.removeEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD, this.graphicsSettingsLoaded);
-  }
-
-  clientEntityLoaded = (ev: any) => {
-    const id = ev.id;
-    Network.instance.localClientEntity = id;
-    this.setState({ actorEntityID: id });
-    this.updateCharacterComponent(id, this.selfUser?.avatarId, this.activeAvatar?.avatar?.url);
-    EngineEvents.instance?.removeEventListener(EngineEvents.EVENTS.CLIENT_ENTITY_LOAD, this.clientEntityLoaded);
   }
 
   setUsername = (username) => {
@@ -149,13 +137,8 @@ class UserMenu extends React.Component<UserMenuProps, StateType> {
     }
   };
 
-  updateCharacterComponent = (entityID, avatarId?: string, avatarURL?: string) => {
-    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.LOAD_AVATAR, entityID, avatarId: avatarId || this.selfUser?.avatarId, avatarURL });
-  }
-
   setAvatar = (avatarId: string, avatarURL: string, thumbnailURL: string) => {
-    if (this.state.actorEntityID) {
-      this.updateCharacterComponent(this.state.actorEntityID, avatarId, avatarURL);
+    if (this.selfUser) {
       this.props.updateUserAvatarId(this.selfUser.id, avatarId, avatarURL, thumbnailURL);
     }
   }
@@ -196,7 +179,6 @@ class UserMenu extends React.Component<UserMenuProps, StateType> {
           username: this.state.username,
           userRole: this.selfUser?.userRole,
           userId: this.selfUser?.id,
-          activeAvatar: this.activeAvatar,
           setUsername: this.setUsername,
           updateUsername: this.handleUpdateUsername,
           changeActiveMenu: this.changeActiveMenu,
@@ -214,7 +196,6 @@ class UserMenu extends React.Component<UserMenuProps, StateType> {
           changeActiveMenu: this.changeActiveMenu,
           fetchAvatarList: this.props.fetchAvatarList,
           avatarList: this.avatarList,
-          activeAvatar: this.activeAvatar,
           avatarId: this.selfUser?.avatarId,
         };
         break;
@@ -246,7 +227,6 @@ class UserMenu extends React.Component<UserMenuProps, StateType> {
 
   render () {
     this.selfUser = this.props.authState.get('user') || {};
-    this.activeAvatar = this.props.authState.get('activeAvatar') || {};
     this.avatarList = this.props.authState.get('avatarList') || [];
     return (
       <ClickAwayListener onClickAway={() => this.setState({ currentActiveMenu: null })}>

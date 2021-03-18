@@ -16,7 +16,7 @@ export default (app: Application): void => {
   presigned.docs = uploadDocs;
   app.use('/upload-presigned', presigned);
 
-  const service = app.service('upload');
+  const service = app.service('upload-presigned');
 
   service.hooks(hooks);
 };

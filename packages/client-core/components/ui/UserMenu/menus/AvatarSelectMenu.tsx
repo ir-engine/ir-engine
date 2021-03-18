@@ -19,6 +19,7 @@ interface Props {
 interface State {
     selectedFile: any;
     imgFile: any;
+	error: string;
 }
 
 export default class AvatarSelectMenu extends React.Component<Props, State> {
@@ -33,6 +34,7 @@ export default class AvatarSelectMenu extends React.Component<Props, State> {
 		this.state = {
 			selectedFile: null,
 			imgFile: null,
+			error: '',
 		}
 	}
 
@@ -89,6 +91,12 @@ export default class AvatarSelectMenu extends React.Component<Props, State> {
 	}
 
 	handleAvatarChange = (e) => {
+		const sizeInMB = e.size / 1048576;
+		if (sizeInMB < 2 || sizeInMB > 15) {
+			this.setState({ error: 'Avatar file size must be between 2 MB and 15 MB'});
+			return;
+		}
+
 	    this.scene.children = this.scene.children.filter(c => c.name !== 'avatar');
 	    const file = e.target.files[ 0 ];
 	    const reader = new FileReader();
@@ -141,8 +149,12 @@ export default class AvatarSelectMenu extends React.Component<Props, State> {
                 		</div>
                 	</div>
                 </div>
-                <div className={styles.avatarSelectLabel}>{this.fileSelected ? this.state.selectedFile.name : 'Select Avatar...'}</div>
-            	<input type="file" id="avatarSelect" accept=".glb, .gltf" hidden onChange={this.handleAvatarChange} />
+                <div className={styles.avatarSelectLabel}>
+					{this.state.error
+						? this.state.error
+						: this.fileSelected ? this.state.selectedFile.name : 'Select Avatar...'}
+				</div>
+            	<input type="file" id="avatarSelect" accept=".glb, .gltf, .vrm" hidden onChange={this.handleAvatarChange} />
             	<div className={styles.controlContainer}>
 	                <button type="button" className={styles.browseBtn} onClick={this.handleBrowse}>Browse <SystemUpdateAlt /></button>
 	                <button type="button" className={styles.uploadBtn} onClick={this.uploadAvatar} disabled={!this.fileSelected}>Upload <CloudUpload /></button>

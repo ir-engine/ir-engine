@@ -28,36 +28,21 @@ export class UploadPresigned implements ServiceMethods<Data> {
 
   async get (id: Id, params?: Params): Promise<Data> {
     let url = await this.s3.getSignedUrl(
-      // this.getKeyForFilename(params['identity-provider'].userId + '/' + params.query.fileName),
-      this.getKeyForFilename(params.query.fileName),
+      this.getKeyForFilename(params['identity-provider'].userId + '/' + params.query.fileName),
       3600,  // Expires After 1 hour
       [
         {"acl": "public-read"},
-        ['content-length-range', 0, 15728640 ] // Max size 15 MB
+        // ['content-length-range', 0, 15728640 ] // Max size 15 MB
       ]
     );
-    console.log('url => ', url);
-    // TODO: Review Security
     return url;
   }
 
   async create (data: Data, params?: Params): Promise<Data> {
-    if (Array.isArray(data)) {
-      return await Promise.all(data.map(current => this.create(current, params)));
-    }
-
-    const result = await this.app.service('static-resource').create({
-      name: (data as any).name,
-      description: (data as any).description,
-      url: (data as any).url,
-      mimeType: (data as any).mimeType
-    });
-
-    return result;
+    return data;
   }
 
   async update (id: NullableId, data: Data, params?: Params): Promise<Data> {
-    console.debug('================================\n', id, data)
     return data;
   }
 
@@ -67,8 +52,7 @@ export class UploadPresigned implements ServiceMethods<Data> {
 
   async remove (id: NullableId, params?: Params): Promise<Data> {
     let data = await this.s3.deleteResources(params.query.keys);
-    console.log('result => ', data);
-    return { id };
+    return { data };
   }
 
   getKeyForFilename = (key: string) => {

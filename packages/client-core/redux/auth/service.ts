@@ -132,11 +132,8 @@ export function loadUserData (dispatch: Dispatch, userId: string): any {
       return Promise.resolve(res);
     }).then((res: any) => {
       const user = resolveUser(res);
-      getAvatarResources(user).then((res: any) => {
-        dispatch(loadedUserData(user, res.data));
-      }).catch(err => console.debug('Error ocured while fetching user resources'));
-    })
-    .catch((err: any) => {
+      dispatch(loadedUserData(user));
+    }).catch((err: any) => {
       console.log(err);
       dispatchAlertError(dispatch, 'Failed to load user data');
     });
@@ -489,6 +486,7 @@ export const updateUserSettings = (id: any, data: any) => async (dispatch: any) 
   dispatch(updatedUserSettingsAction(res));
 };
 
+// TODO: remove
 export function uploadAvatar (data: any) {
   return async (dispatch: Dispatch, getState: any) => {
     const token = getState().get('auth').get('authUser').accessToken;
@@ -510,11 +508,12 @@ export function uploadAvatar (data: any) {
 
 export function uploadAvatarModel (model: any, thumbnail: any) {
   return async (dispatch: Dispatch, getState: any) => {
+    const name = model.name.substring(0, model.name.lastIndexOf('.'));
     const [ modelURL, thumbnailURL ] = await Promise.all([
-      client.service('upload-presigned').get('', { query: { fileName: 'model.glb' } }),
-      client.service('upload-presigned').get('', { query: { fileName: 'model.png' } }),
+      client.service('upload-presigned').get('', { query: { type: 'avatar', fileName: model.name, fileSize: model.size } }),
+      client.service('upload-presigned').get('', { query: { type: 'user-thumbnail', fileName: name + '.png', fileSize: thumbnail.size, mimeType: thumbnail.type } }),
     ]);
-    
+
     const modelData = new FormData();
     Object.keys(modelURL.fields).forEach(key => modelData.append(key, modelURL.fields[key]));
     modelData.append('acl', 'public-read');
@@ -529,39 +528,44 @@ export function uploadAvatarModel (model: any, thumbnail: any) {
 
       // Upload Thumbnail file to S3
       axios.post(thumbnailURL.url, thumbnailData).then(res => {
-        const name = modelURL.fields.Key.substring(modelURL.fields.Key.lastIndexOf('/'), modelURL.fields.Key.lastIndexOf('.'));
         const selfUser = (store.getState() as any).get('auth').get('user');
-
+        const modelS3URL = modelURL.url + '/' + modelURL.fields.Key;
+        const thumbnailS3URL = thumbnailURL.url + '/' + thumbnailURL.fields.Key;
         // Save URLs to backend
         Promise.all([
           client.service('static-resource').create({
             name,
             staticResourceType: 'avatar',
-            url: modelURL.url + '/' + modelURL.fields.Key,
+            url: modelS3URL,
             key: modelURL.fields.Key,
             userId: selfUser.id,
           }),
           client.service('static-resource').create({
             name,
             staticResourceType: 'user-thumbnail',
-            url: modelURL.url + '/' + thumbnailURL.fields.Key,
+            url: thumbnailS3URL,
             mimeType: 'image/png',
             key: thumbnailURL.fields.Key,
             userId: selfUser.id,
           }),
         ]).then(_ => {
-          dispatchAlertSuccess(dispatch, 'Avatar Uploaded Successfully.');
-          // dispatch(avatarUpdated(result));
+          dispatch(userAvatarIdUpdated(res));
+          client.service('user').patch(selfUser.id, { avatarId: name }).then(_ => {
+            dispatchAlertSuccess(dispatch, 'Avatar Uploaded Successfully.');
+            (Network.instance.transport as any).sendNetworkStatUpdateMessage({
+              type: NetworkStateMessageTypes.AvatarUpdated,
+              userId: selfUser.id,
+              avatarId: name,
+              avatarURL: modelS3URL,
+              thumbnailURL: thumbnailS3URL
+            });
+          });
         }).catch(err => {
-          console.error('Error occured while saving Avatar.');
+          console.error('Error occured while saving Avatar.', err);
 
           // IF error occurs then removed Model and thumbnail from S3
           client.service('upload-presigned').remove('', { query: { keys: [modelURL.fields.Key, thumbnailURL.fields.Key] } });
         })
-        // await client.service('user').patch(selfUser.id, {
-        //   name: selfUser.name
-        // });
-        // const result = res.data;
       }).catch(err => {
         console.error('Error occured while uploading thumbnail.', err);
 
@@ -579,8 +583,6 @@ export function removeAvatar (keys: [string]) {
     const result = await client.service('upload-presigned').remove('', {
       query: { keys },
     });
-
-    console.debug(result);
   }
 }
 
@@ -666,25 +668,6 @@ client.service('user').on('patched', async (params) => {
       }
     }
   } else {
-    // Fetch Avatar Resources for updated user.
-    const avatars = await getAvatarResources(user);
-    let avatarURL = avatars?.data[0].staticResourceType === 'avatar' ? avatars?.data[0].url : avatars?.data[1].url;
-
-    //Find entityId from network objects of updated user and dispatch avatar load event.
-    for (let key of Object.keys(Network.instance.networkObjects)) {
-      if (Network.instance.networkObjects[key]?.ownerId === user.id) {
-        const obj = Network.instance.networkObjects[key]
-        console.log(key, obj.component.entity.id);
-        EngineEvents.instance.dispatchEvent({
-          type: EngineEvents.EVENTS.LOAD_AVATAR,
-          entityID: obj.component.entity.id,
-          avatarId: user.avatarId,
-          avatarURL
-        });
-        break;
-      }
-    }
-
     if (user.channelInstanceId != null && user.channelInstanceId === selfUser.channelInstanceId) store.dispatch(addedChannelLayerUser(user));
     if (user.instanceId != null && user.instanceId === selfUser.instanceId) {
       store.dispatch(addedLayerUser(user));
@@ -695,6 +678,26 @@ client.service('user').on('patched', async (params) => {
       store.dispatch(displayUserToast(user, { userRemoved: true }));
     }
     if (user.channelInstanceId !== selfUser.channelInstanceId) store.dispatch(removedChannelLayerUser(user));
+  }
+
+  if (Network.instance.clients[user.id]?.avatarDetail?.avatarId !== user.avatarId) {
+    // Fetch Avatar Resources for updated user.
+    const avatars = await getAvatarResources(user);
+    let avatarURL = avatars?.data[0].staticResourceType === 'avatar' ? avatars?.data[0].url : avatars?.data[1].url;
+
+    //Find entityId from network objects of updated user and dispatch avatar load event.
+    for (let key of Object.keys(Network.instance.networkObjects)) {
+      if (Network.instance.networkObjects[key]?.ownerId === user.id) {
+        const obj = Network.instance.networkObjects[key]
+        EngineEvents.instance.dispatchEvent({
+          type: EngineEvents.EVENTS.LOAD_AVATAR,
+          entityID: obj.component.entity.id,
+          avatarId: user.avatarId,
+          avatarURL
+        });
+        break;
+      }
+    }
   }
 });
 
