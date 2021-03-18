@@ -96,7 +96,6 @@ export class CharacterComponent extends Component<CharacterComponent> {
 	public raySafeOffset = 0.03;
 	public wantsToJump = false;
 	public initJumpSpeed = -1;
-	public playerStuck = 0;
 	public playerInPortal = 0;
 	public animationVelocity: Vector3 = new Vector3();
 	public groundImpactVelocity: Vector3 = new Vector3();

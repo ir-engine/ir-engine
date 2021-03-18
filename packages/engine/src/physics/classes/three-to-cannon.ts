@@ -289,7 +289,7 @@ function createTrimeshShape (geometry) {
  * @param {Object3D} object
  * @return {BufferGeometry}
  */
-function getGeometry (object) {
+export function getGeometry (object) {
   let mesh,
       tmp = new BufferGeometry();
   const meshes = getMeshes(object);

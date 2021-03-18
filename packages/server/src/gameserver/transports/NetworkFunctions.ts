@@ -264,10 +264,10 @@ export async function handleJoinWorld(socket, data, callback, userId, user): Pro
     logger.info("JoinWorld received");
     const transport = Network.instance.transport as any;
 
-    const spawnPoint = Engine.spawnSystem.getRandomSpawnPoint();
+  //  const spawnPoint = Engine.spawnSystem.getRandomSpawnPoint();
 
     // Create a new default prefab for client
-    const networkObject = initializeNetworkObject(userId, Network.getNetworkId(), Network.instance.schema.defaultClientPrefab, spawnPoint.position, spawnPoint.rotation);
+    const networkObject = initializeNetworkObject(userId, Network.getNetworkId(), Network.instance.schema.defaultClientPrefab);// , spawnPoint.position, spawnPoint.rotation
     const transform = getComponent(networkObject.entity, TransformComponent);
 
     // Add the network object to our list of network objects

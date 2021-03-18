@@ -146,9 +146,6 @@ export function applyNetworkStateToClient(worldStateBuffer: WorldStateInterface,
                 console.warn('Give Player Id by Server '+objectToCreate.networkId, objectToCreate.ownerId, Network.instance.userId);
                 console.warn(Network.instance.networkObjects);
                 Network.instance.localAvatarNetworkId = objectToCreate.networkId;
-                addComponent(networkObject.entity, InterpolationComponent);
-              } else {
-                addComponent(networkObject.entity, InterpolationComponent);
               }
 
             }
