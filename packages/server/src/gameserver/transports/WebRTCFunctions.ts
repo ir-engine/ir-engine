@@ -529,3 +529,16 @@ export async function handleWebRtcRequestCurrentProducers(socket, data, callback
     await sendInitialProducers(socket, channelType, channelId);
     callback({requested: true});
 }
+
+export async function handleWebRtcInitializeRouter(socket, data, callback): Promise<any> {
+    const { channelType, channelId } = data;
+    if (channelType !== 'instance') {
+        const mediaCodecs = localConfig.mediasoup.router.mediaCodecs as RtpCodecCapability[];
+        const networkTransport = Network.instance.transport as any;
+        if (networkTransport.routers[`${channelType}:${channelId}`] == null) {
+            console.log('Making new router');
+            networkTransport.routers[`${channelType}:${channelId}`] = await networkTransport.worker.createRouter({mediaCodecs});
+        }
+    }
+    callback({initialized: true});
+}

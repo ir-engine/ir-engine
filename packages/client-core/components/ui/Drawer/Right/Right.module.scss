@@ -73,6 +73,20 @@
     }
 }
 
+.invite {
+    [class*='MuiListItemText-root'] {
+        word-break: break-word !important;
+
+        span {
+            font-size: 14px;
+        }
+    }
+
+    button {
+        margin: 0 5px;
+    }
+}
+
 .invite-text {
     fieldset {
         border-color: rgba(40, 40, 40, 0.8);
