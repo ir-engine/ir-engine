@@ -19,31 +19,44 @@ export class FeedBookmark extends Service {
   }
 
   async create (data: any, params?: Params): Promise<any> {
-    const loggedInUser = extractLoggedInUserFromParams(params);
-    if (!loggedInUser?.userId) {
-      return Promise.reject(new BadRequest('Could not create bookmark. Users isn\'t logged in! '));
-    }
     const {feed_bookmark:feedBookmarkModel} = this.app.get('sequelizeClient').models;
-    const newBookmark =  await feedBookmarkModel.create({feedId:data.feedId, authorId:loggedInUser?.userId});
+
+    //common  - TODO -move somewhere
+    const loggedInUser = extractLoggedInUserFromParams(params);
+    const creatorQuery = `SELECT id  FROM \`creator\` as creator WHERE creator.userId=:userId`;
+    const [creator] = await this.app.get('sequelizeClient').query(creatorQuery,
+      {
+        type: QueryTypes.SELECT,
+        raw: true,
+        replacements: {userId:loggedInUser.userId}
+      });   
+    const creatorId = creator.id;
+    const newBookmark =  await feedBookmarkModel.create({feedId:data.feedId, creatorId});
     return  newBookmark;
   }
 
 
   async remove ( feedId: string,  params?: Params): Promise<any> {
-    const loggedInUser = extractLoggedInUserFromParams(params);
-    if (!loggedInUser?.userId) {
-      return Promise.reject(new BadRequest('Could not remove bookmark. Users isn\'t logged in! '));
-    }
-    
+   //common  - TODO -move somewhere
+   const loggedInUser = extractLoggedInUserFromParams(params);
+   const creatorQuery = `SELECT id  FROM \`creator\` as creator WHERE creator.userId=:userId`;
+   const [creator] = await this.app.get('sequelizeClient').query(creatorQuery,
+     {
+       type: QueryTypes.SELECT,
+       raw: true,
+       replacements: {userId:loggedInUser.userId}
+     });   
+   const creatorId = creator.id;
+
     const dataQuery = `DELETE FROM  \`feed_bookmark\`  
-    WHERE feedId=:feedId AND authorId=:authorId`;
+    WHERE feedId=:feedId AND creatorId=:creatorId`;
     await this.app.get('sequelizeClient').query(dataQuery,
       {
         type: QueryTypes.DELETE,
         raw: true,
         replacements: {
           feedId:feedId, 
-          authorId:loggedInUser?.userId
+          creatorId
         }
       });
   }

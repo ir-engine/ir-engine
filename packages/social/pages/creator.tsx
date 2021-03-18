@@ -6,10 +6,11 @@ import AppFooter from "@xr3ngine/client-core/components/social/Footer";
 import Creator from "@xr3ngine/client-core/components/social/Creator";
 
 export default function CreatorPage() {
+  const creatorId = Router?.router.query.creatorId.toString();
    return (<>
     <div>
-      <Creator />
-      <AppFooter user={{username:'username'}} />
+      <Creator creatorId={creatorId} />
+      <AppFooter />
     </div>
   </>
   );
