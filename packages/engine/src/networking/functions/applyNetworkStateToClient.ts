@@ -87,8 +87,10 @@ export function applyNetworkStateToClient(worldStateBuffer: WorldStateInterface,
     // Handle all clients that connected this frame
     for (const connectingClient in worldStateBuffer.clientsConnected) {
         // Add them to our client list
-        Network.instance.clients[worldStateBuffer.clientsConnected[connectingClient].userId] = {
-            userId: worldStateBuffer.clientsConnected[connectingClient].userId
+        const newClient = worldStateBuffer.clientsConnected[connectingClient];
+        Network.instance.clients[newClient.userId] = {
+            userId: newClient.userId,
+            avatarDetail: newClient.avatarDetail,
         };
     }
 
@@ -140,15 +142,13 @@ export function applyNetworkStateToClient(worldStateBuffer: WorldStateInterface,
                   objectToCreate.prefabType,
                   position,
                   rotation,
+                  Network.instance.clients[objectToCreate.ownerId].avatarDetail,
               );
 
               if (objectToCreate.ownerId === Network.instance.userId) {
                 console.warn('Give Player Id by Server '+objectToCreate.networkId, objectToCreate.ownerId, Network.instance.userId);
                 console.warn(Network.instance.networkObjects);
                 Network.instance.localAvatarNetworkId = objectToCreate.networkId;
-                addComponent(networkObject.entity, InterpolationComponent);
-              } else {
-                addComponent(networkObject.entity, InterpolationComponent);
               }
 
             }

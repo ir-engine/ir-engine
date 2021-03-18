@@ -40,9 +40,10 @@ export const defaultAvatarAnimations: {[key:number]: AnimationConfigInterface} =
   [CharacterStateTypes.EXITING_VEHICLE]: { name: 'exiting_car', loop: LoopOnce },
 };
 
+// TODO: remove
 export const CharacterAvatars: CharacterAvatarData[] = [
   {
-    id: "Allison",
+    id: "allison",
     title: "Allison",
     src: "/models/avatars/Allison.glb",
     animations: defaultAvatarAnimations
@@ -79,5 +80,3 @@ export const CharacterAvatars: CharacterAvatarData[] = [
     animationsSource: "vrm"
   }
 ];
-
-export const DEFAULT_AVATAR_ID = CharacterAvatars[0].id;

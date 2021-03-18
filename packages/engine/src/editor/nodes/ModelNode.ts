@@ -8,6 +8,8 @@ import {
   getObjectPerfIssues,
   maybeAddLargeFileIssue
 } from "../functions/performance";
+import { getGeometry } from '../../physics/classes/three-to-cannon';
+import { plusParameter } from '../../scene/constants/SceneObjectLoadingSchema';
 import { LoadGLTF } from "../../assets/functions/LoadGLTF";
 export default class ModelNode extends EditorNodeMixin(Model) {
   static nodeName = "Model";
@@ -36,6 +38,7 @@ export default class ModelNode extends EditorNodeMixin(Model) {
           node.attribution = attribution;
         }
         node.collidable = !!json.components.find(c => c.name === "collidable");
+        node.saveColliders = !!json.components.find(c => c.name === "mesh-collider-0");
         node.walkable = !!json.components.find(c => c.name === "walkable");
         const loopAnimationComponent = json.components.find(
           c => c.name === "loop-animation"
@@ -87,6 +90,7 @@ export default class ModelNode extends EditorNodeMixin(Model) {
     this.attribution = null;
     this._canonicalUrl = "";
     this.collidable = true;
+    this.saveColliders = false;
     this.walkable = true;
     this.initialScale = 1;
     this.boundingBox = new Box3();
@@ -136,45 +140,6 @@ export default class ModelNode extends EditorNodeMixin(Model) {
         this.editor.renderer.removeBatchedObject(this.model);
       }
       await super.load(accessibleUrl);
-      if (this.model) {
-        // Set up colliders
-        const colliders = []
-
-          const parseColliders = ( mesh ) => {
-            if (mesh.userData.data === 'physics' || mesh.userData.data === 'dynamic' || mesh.userData.data === 'vehicle') {
-            let geometry = null;
-               if(mesh.userData.type == "trimesh"){
-            //     geometry = this.getGeometry(mesh);
-               }
-                const meshCollider = {
-                    type: mesh.userData.type,
-                    position: {
-                      x: mesh.position.x,
-                      y: mesh.position.y,
-                      z: mesh.position.z
-                    },
-                    quaternion: {
-                      x: mesh.quaternion.x,
-                      y: mesh.quaternion.y,
-                      z: mesh.quaternion.z,
-                      w: mesh.quaternion.w
-                    },
-                    scale: {
-                      x: mesh.scale.x,
-                      y: mesh.scale.y,
-                      z: mesh.scale.z
-                    },
-              //      vertices: (geometry != null ? Array.from(geometry.attributes.position.array): null),// .map(v=> parseFloat((Math.round(v * 10000)/10000).toFixed(4))
-              //      indices: (geometry != null && geometry.index ? Array.from(geometry.index.array): null)
-                  }
-                colliders.push(meshCollider);
-             }
-          }
-          this.model.traverse( parseColliders );
-      //    console.warn(colliders);
-          this.meshColliders = colliders;
-          this.editor.renderer.addBatchedObject(this.model);
-        }
 
       if (this.initialScale === "fit") {
         this.scale.set(1, 1, 1);
@@ -249,77 +214,69 @@ export default class ModelNode extends EditorNodeMixin(Model) {
       this.update(dt);
     }
   }
+  parseAndSaveColliders(components) {
+    if (this.model) {
+      // Set up colliders
+      const colliders = []
+        const parseColliders = ( mesh ) => {
+          if (mesh.userData.data === 'physics' || mesh.userData.data === 'dynamic' || mesh.userData.data === 'vehicle') {
+          let geometry = null;
+             if(mesh.userData.type == "trimesh"){
+               geometry = getGeometry(mesh);
+             }
+              const meshCollider = {
+                  type: mesh.userData.type,
+                  position: {
+                    x: mesh.position.x,
+                    y: mesh.position.y,
+                    z: mesh.position.z
+                  },
+                  quaternion: {
+                    x: mesh.quaternion.x,
+                    y: mesh.quaternion.y,
+                    z: mesh.quaternion.z,
+                    w: mesh.quaternion.w
+                  },
+                  scale: {
+                    x: mesh.scale.x,
+                    y: mesh.scale.y,
+                    z: mesh.scale.z
+                  },
+                  vertices: (geometry != null ? Array.from(geometry.attributes.position.array).map(v=> parseFloat((Math.round(v * 10000)/10000).toFixed(4))): null),
+                  indices: (geometry != null && geometry.index ? Array.from(geometry.index.array): null)
+                }
+              colliders.push(meshCollider);
+           }
+        }
+        this.model.traverse( parseColliders );
+        this.meshColliders = colliders;
+        this.editor.renderer.addBatchedObject(this.model);
+      }
+    for(let i = 0; i < this.meshColliders.length; i++) {
+      components[`mesh-collider-${i}`] = this.addEditorParametersToCollider(this.meshColliders[i]);
+    }
+  }
   addEditorParametersToCollider(collider) {
-    collider.position.x += this.position.x
-    collider.position.y += this.position.y
-    collider.position.z += this.position.z
-
-    collider.scale.x *= this.scale.x
-    collider.scale.y *= this.scale.y
-    collider.scale.z *= this.scale.z
-    // quaternion
-    // scale
-    return collider
+    let [position, quaternion, scale] = plusParameter(
+      collider.position,
+      collider.quaternion,
+      collider.scale,
+      this.position,
+      this.quaternion,
+      this.scale
+    );
+    collider.position.x = position.x;
+    collider.position.y = position.y;
+    collider.position.z = position.z;
+    collider.quaternion.x = quaternion.x;
+    collider.quaternion.y = quaternion.y;
+    collider.quaternion.z = quaternion.z;
+    collider.quaternion.w = quaternion.w;
+    collider.scale.x = scale.x;
+    collider.scale.y = scale.y;
+    collider.scale.z = scale.z;
+    return collider;
   }
-  /*
-  getMeshes(object) {
-    const meshes = [];
-    object.traverse((o) => {
-      if (o.type === 'Mesh') {
-        meshes.push(o);
-      }
-    });
-    return meshes;
-  }
-  getGeometry(object) {
-    let mesh,
-        tmp = new BufferGeometry();
-    const meshes = this.getMeshes(object);
-
-    const combined = new BufferGeometry();
-
-    if (meshes.length === 0) return null;
-
-    // Apply scale  – it can't easily be applied to a CANNON.Shape later.
-    if (meshes.length === 1) {
-      const position = new Vector3(),
-          quaternion = new Quaternion(),
-          scale = new Vector3();
-      if (meshes[0].geometry.isBufferGeometry) {
-        if (meshes[0].geometry.attributes.position
-            && meshes[0].geometry.attributes.position.itemSize > 2) {
-          tmp = meshes[0].geometry;
-        }
-      } else {
-        tmp = meshes[0].geometry.clone();
-      }
-      //tmp.metadata = meshes[0].geometry.metadata;
-      meshes[0].updateMatrixWorld();
-      meshes[0].matrixWorld.decompose(position, quaternion, scale);
-      return tmp.scale(scale.x, scale.y, scale.z);
-    }
-
-    // Recursively merge geometry, preserving local transforms.
-    while ((mesh = meshes.pop())) {
-      mesh.updateMatrixWorld();
-      if (mesh.geometry.isBufferGeometry) {
-        if (mesh.geometry.attributes.position
-            && mesh.geometry.attributes.position.itemSize > 2) {
-          const tmpGeom = mesh.geometry;
-          combined.merge(tmpGeom, mesh.matrixWorld);
-          tmpGeom.dispose();
-        }
-      } else {
-        combined.merge(mesh.geometry, mesh.matrixWorld);
-      }
-    }
-
-    const matrix = new Matrix4();
-    matrix.scale(object.scale);
-    combined.applyMatrix4(matrix);
-    return combined;
-  }
-  */
   updateStaticModes() {
     if (!this.model) return;
     setStaticMode(this.model, StaticModes.Static);
@@ -344,7 +301,8 @@ export default class ModelNode extends EditorNodeMixin(Model) {
     const components = {
       "gltf-model": {
         src: this._canonicalUrl,
-        attribution: this.attribution
+        attribution: this.attribution,
+        parseColliders: !this.saveColliders
       },
       shadow: {
         cast: this.castShadow,
@@ -362,8 +320,8 @@ export default class ModelNode extends EditorNodeMixin(Model) {
         payloadModelUrl : this._canonicalUrl,
       }
     };
-    for(let i = 0; i < this.meshColliders.length; i++) {
-      components[`mesh-collider-${i}`] = this.addEditorParametersToCollider(this.meshColliders[i]);
+    if (this.saveColliders) {
+      this.parseAndSaveColliders(components);
     }
     if (this.activeClipIndex !== -1) {
       components["loop-animation"] = {
@@ -390,6 +348,7 @@ export default class ModelNode extends EditorNodeMixin(Model) {
     }
     this.attribution = source.attribution;
     this.collidable = source.collidable;
+    this.saveColliders = source.saveColliders;
     this.walkable = source.walkable;
     return this;
   }
