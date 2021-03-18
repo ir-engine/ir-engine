@@ -81,7 +81,6 @@ const UserMenu = (props: UserMenuProps): any => {
 
   const clientEntityLoaded = (ev: any) => {
     const id = ev.id;
-    Network.instance.localClientEntity = id;
     setActorEntityID(id);
     updateCharacterComponent(id, selfUser?.avatarId)
     EngineEvents.instance?.removeEventListener(EngineEvents.EVENTS.CLIENT_ENTITY_LOAD, clientEntityLoaded);
