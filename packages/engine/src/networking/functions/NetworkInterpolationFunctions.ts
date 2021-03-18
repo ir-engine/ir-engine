@@ -274,7 +274,7 @@ export function calculateInterpolation (parameters: string, arrayName = ''): Int
   // find snapshots between which our time goes
   const shots = NetworkInterpolation.instance.get(serverTime);
   if (!shots) {
-    //console.warn('shots return');
+    console.warn('Skipping network interpolation, are you lagging or disconnected?');
     return;
   }
   const { older, newer } = shots;

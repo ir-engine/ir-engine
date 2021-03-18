@@ -45,7 +45,7 @@
     "precommit": "no-master-commits -b master,dev",
     "upload-avatar": "node ./scripts/upload-avatar.js",
     "postinstall": "cd ../../node_modules/mediasoup && node npm-scripts.js postinstall",
-    "serve-local-files": "http-server ./upload --ssl --cert ./certs/cert.pem --key ./certs/key.pem --port 8642"
+    "serve-local-files": "http-server ./upload --ssl --cert ../../certs/cert.pem --key ../../certs/key.pem --port 8642"
   },
   "types": "lib/",
   "pre-push": [
