@@ -47,7 +47,6 @@ export const initialState = {
   user: UserSeed,
   identityProvider: IdentityProviderSeed,
   avatarList: [],
-  activeAvatar: {},
 };
 
 const immutableState = Immutable.fromJS(initialState);
@@ -92,15 +91,8 @@ const authReducer = (state = immutableState, action: any): any => {
 
     case LOADED_USER_DATA: {
       const user = (action as LoadDataResultAction).user;
-      const userResources = (action as LoadDataResultAction).userResources;
-      const activeAvatar = {};
-
-      userResources.forEach(r => {
-        activeAvatar[r.staticResourceType] = r;
-      });
       return state
         .set('user', user)
-        .set('activeAvatar', activeAvatar);
     }
     case RESTORE: {
       const stored = getStoredState('auth');

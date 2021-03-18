@@ -84,7 +84,6 @@ export interface AddConnectionResultAction {
 export interface LoadDataResultAction {
   type: string;
   user?: User;
-  userResources?: any;
 }
 
 export interface AvatarUpdatedAction {
@@ -232,11 +231,10 @@ export function didCreateMagicLink (result: boolean): AuthResultAction {
   };
 }
 
-export function loadedUserData (user: User, userResources: any): LoadDataResultAction {
+export function loadedUserData (user: User): LoadDataResultAction {
   return {
     type: LOADED_USER_DATA,
     user,
-    userResources,
   };
 }
 

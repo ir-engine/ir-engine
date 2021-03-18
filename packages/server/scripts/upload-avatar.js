@@ -8,6 +8,7 @@ const { nanoid } = require('nanoid');
 // TODO: check for existing avatar on S3
 
 dotenv.config({ path: process.cwd() + '/../../.env.local' });
+const forceS3Upload = process.argv.includes('--force-s3-upload');
 
 const s3 = new aws.S3({
     accessKeyId: process.env.STORAGE_AWS_ACCESS_KEY_ID,
@@ -60,13 +61,15 @@ const staticResource = sequelizeClient.define('static_resource', {
     updatedAt: Sequelize.DataTypes.DATE,
 });
 
+// match case of the name of the avatar and the name of corresponding file.
+// also update seed file of static resource model to match changes.
 const AVATAR_LIST = [
-    'allison',
-    'rose',
-    'andy',
-    'erik',
-    'geoff',
-    'jace',
+    'Allison',
+    'Rose',
+    'Andy',
+    'Erik',
+    'Geoff',
+    'Jace',
 ];
 const MODEL_PATH = process.cwd() + '/../client/public/models/characters/';
 const THUMBNAIL_PATH = process.cwd() + '/../client/public/static/';
@@ -79,13 +82,23 @@ const THUMBNAIL_RESOURCE_TYPE = 'user-thumbnail';
 
 const uploadFile = (Key, Body) => {
     return new Promise((resolve) => {
-        s3.putObject({
-            Body,
+        s3.headObject({
             Bucket: BUCKET,
-            Key,
-            ACL: 'public-read',
+            Key: Key,
         }, (err, data) => {
-            resolve(data);
+            if (forceS3Upload || err && err.code === 'NotFound') {
+                s3.putObject({
+                    Body,
+                    Bucket: BUCKET,
+                    Key,
+                    ACL: 'public-read',
+                }, (err, data) => {
+                    resolve(data);
+                })
+            } else {
+                console.log('Object Already Exist hence Skipping => ', Key);
+                resolve(data);
+            }
         })
     });
 }

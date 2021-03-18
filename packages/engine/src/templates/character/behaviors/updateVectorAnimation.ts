@@ -8,7 +8,7 @@ import { Input } from '../../../input/components/Input';
 import { BinaryValue } from "@xr3ngine/engine/src/common/enums/BinaryValue";
 import { BaseInput } from '@xr3ngine/engine/src/input/enums/BaseInput';
 
-import { AnimationConfigInterface, CharacterAvatars, defaultAvatarAnimations } from "../CharacterAvatars";
+import { AnimationConfigInterface, defaultAvatarAnimations } from "../CharacterAvatars";
 import { CharacterStateTypes } from '../CharacterStateTypes';
 import { CharacterComponent, RUN_SPEED, WALK_SPEED } from '../components/CharacterComponent';
 import { isServer } from '../../../common/functions/isServer';
@@ -93,9 +93,7 @@ export const updateVectorAnimation: Behavior = (entity, args: { animationsSchema
 
   if(args.animationsSchema.length == 3) return;
 	// Get the magnitude of current velocity
-	const animations = new Map<number, AnimationWeightScaleInterface>();
-	const avatarId = actor.avatarId;
-	const avatarAnimations = CharacterAvatars.find(a => a.id === avatarId)?.animations ?? defaultAvatarAnimations;
+	const avatarAnimations = defaultAvatarAnimations;
 	const animationRoot = actor.modelContainer.children[0];
   // update values for animations
   const objectValues = args.updateAnimationsValues(entity, args.animationsSchema, deltaTime);
@@ -151,7 +149,6 @@ export const clearAnimOnChange: Behavior = (entity: Entity, args: { animationsSc
 // If animation is not in this array, remove
   // Actor isn't initialized yet, so skip the animation
   if (!actor || !actor.initialized || !actor.mixer) return;
-  const avatarAnimations = CharacterAvatars.find(a => a.id === actor.avatarId)?.animations ?? defaultAvatarAnimations;
   const movementAnimationNames = args.animationsSchema.map(val => val.name);
     // Clear existing animations
     actor.currentAnimationAction.forEach(currentAnimationAction => {
@@ -173,8 +170,7 @@ export const changeAnimation: Behavior = (entity, args: {}, deltaTime: number): 
 	//@ts-ignore
 	const transitionDuration = args.transitionDuration;
 	// if actor model is not yet loaded mixer could be empty
-	const avatarId = getComponent(entity, CharacterComponent)?.avatarId;
-	const avatarAnimations = CharacterAvatars.find(a => a.id === avatarId)?.animations ?? defaultAvatarAnimations;
+	const avatarAnimations = defaultAvatarAnimations;
 
 	const avatarAnimation: AnimationConfigInterface = avatarAnimations[animationId];
 
