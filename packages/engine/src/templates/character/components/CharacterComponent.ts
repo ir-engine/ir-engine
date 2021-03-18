@@ -29,7 +29,8 @@ export class CharacterComponent extends Component<CharacterComponent> {
 	public currentAnimationLength = 0;
 	public timer = 0;
 	public animationsTimeScale = .5;
-  public avatarId:string
+  public avatarId:string;
+  public avatarURL: string;
 	public height = 0;
 	// public cameraMount: Group;
 	public tiltContainer: Group;

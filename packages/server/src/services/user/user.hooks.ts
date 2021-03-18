@@ -103,7 +103,7 @@ export default {
               }
             });
 
-            if (userAvatarResult.total > 0) {
+            if (userAvatarResult.total > 0 && item.dataValues) {
               item.dataValues.avatarUrl = userAvatarResult.data[0].url;
             }
           });
