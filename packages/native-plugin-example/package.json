@@ -22,9 +22,7 @@
     "test": "echo \"TODO: Add Testing to Client\" && exit 0",
     "lint": "node node_modules/.bin/eslint --fix --quiet '*.ts' '**/*.ts' '**/*.tsx'"
   },
-  "resolutions": {
-    "webpack": "^5.1.0"
-  },
+  "resolutions": {},
   "peerDependencies": {
     "react": "^17.0.0"
   },
@@ -36,7 +34,6 @@
     "@capacitor/ios": "2.4.6",
     "@typescript-eslint/eslint-plugin": "^4.5.0",
     "@xr3ngine/native-plugin-xr": "^0.1.0",
-    "next": "^10.0.6",
     "next-transpile-modules": "^6.2.0",
     "react": "^17.0.0"
   },
@@ -53,6 +50,7 @@
     "eslint": "^6.8.0",
     "eslint-plugin-react": "^7.21.4",
     "gltf-webpack-loader": "https://github.com/MozillaReality/gltf-webpack-loader.git#fix/relative-and-output-paths",
+    "next": "10.0.8",
     "next-images": "^1.4.0",
     "next-optimized-images": "^2.6.2",
     "next-plugin-node-config": "^1.0.2",
@@ -61,7 +59,7 @@
     "ts-loader": "^8.0.5",
     "ts-shader-loader": "^1.0.6",
     "typescript": "^4.0.3",
-    "webpack": "^5.1.0",
+    "webpack": "5.24.3",
     "webpack-cli": "^4.0.0"
   },
   "license": "ISC"

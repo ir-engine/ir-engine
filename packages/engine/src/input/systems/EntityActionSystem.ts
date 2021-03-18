@@ -18,13 +18,13 @@ import { Input } from '../components/Input';
 import { LocalInputReceiver } from "../components/LocalInputReceiver";
 import { XRInputReceiver } from '../components/XRInputReceiver';
 import { InputType } from "../enums/InputType";
-import { initializeXR } from "../functions/WebXRFunctions";
 import { InputValue } from "../interfaces/InputValue";
 import { InputAlias } from "../types/InputAlias";
 import { BaseInput } from "../enums/BaseInput";
 import { ClientNetworkSystem } from "../../networking/systems/ClientNetworkSystem";
 import { EngineEvents } from "../../ecs/classes/EngineEvents";
 import { ClientInputSystem } from "./ClientInputSystem";
+import { Entity } from "../../ecs/classes/Entity";
 /**
  * Input System
  *
@@ -40,16 +40,17 @@ export class EntityActionSystem extends System {
   // Temp/ref variables
   private _inputComponent: Input;
   private useWebXR = false;
-  // Client only variables  
+  // Client only variables
   public leftControllerId; //= 0
   public rightControllerId; //= 1
+  static inputReceiverEntity: Entity;
   stateUpdates = [];
 
   constructor({ useWebXR }) {
     super();
     this.useWebXR = useWebXR;
     // Client only
-    if (isClient) {      
+    if (isClient) {
       this.leftControllerId = 0;
       this.rightControllerId = 1;
     }
@@ -115,56 +116,20 @@ export class EntityActionSystem extends System {
           xRControllers.controllerRotationRight.z,
           xRControllers.controllerRotationRight.w
         );
-
-        // inputs.axes6DOF.push({
-        //     input: XRInput.HEAD,
-        //     x: xRControllers.headPosition.x,
-        //     y: xRControllers.headPosition.y,
-        //     z: xRControllers.headPosition.z,
-        //     qX: xRControllers.headRotation.x,
-        //     qY: xRControllers.headRotation.y,
-        //     qZ: xRControllers.headRotation.z,
-        //     qW: xRControllers.headRotation.w
-        //   });
-
-        //   inputs.axes6DOF.push({
-        //     input: XRInput.CONTROLLER_LEFT,
-        //     x: xRControllers.controllerPositionLeft.x,
-        //     y: xRControllers.controllerPositionLeft.y,
-        //     z: xRControllers.controllerPositionLeft.z,
-        //     qX: xRControllers.controllerRotationLeft.x,
-        //     qY: xRControllers.controllerRotationLeft.y,
-        //     qZ: xRControllers.controllerRotationLeft.z,
-        //     qW: xRControllers.controllerRotationLeft.w
-        //   });
-
-        //   inputs.axes6DOF.push({
-        //     input: XRInput.CONTROLLER_RIGHT,
-        //     x: xRControllers.controllerPositionRight.x,
-        //     y: xRControllers.controllerPositionRight.y,
-        //     z: xRControllers.controllerPositionRight.z,
-        //     qX: xRControllers.controllerRotationRight.x,
-        //     qY: xRControllers.controllerRotationRight.y,
-        //     qZ: xRControllers.controllerRotationRight.z,
-        //     qW: xRControllers.controllerRotationRight.w
-        //   });
-        //   console.log("********** PUSHING XR CONTROLLERS TO INPUT")
       });
     }
 
-    // check CHANGED/UNCHANGED axis inputs
-
-    // Apply input for local user input onto client
-    this.queryResults.localClientInput.all?.forEach(entity => {
+    if(EntityActionSystem.inputReceiverEntity) {
+      // Apply input for local user input onto client
       const newStates = [...this.stateUpdates];
       this.stateUpdates = [];
       newStates?.forEach((stateUpdate) => {
-          
+
         // Get immutable reference to Input and check if the button is defined -- ignore undefined buttons
-        const input = getMutableComponent(entity, Input);
+        const input = getMutableComponent(EntityActionSystem.inputReceiverEntity, Input);
 
         // key is the input type enu, value is the input value
-        stateUpdate.forEach((value: InputValue<NumericalType>, key: InputAlias) => { 
+        stateUpdate.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
           if(input.schema.inputMap.has(key)) {
             input.data.set(input.schema.inputMap.get(key), value);
           }
@@ -187,7 +152,7 @@ export class EntityActionSystem extends System {
             }
             return;
           }
-    
+
           if (value.lifecycleState === LifecycleValue.ENDED) {
             // ENDED here is a special case, like mouse position on mouse down
             return;
@@ -215,19 +180,19 @@ export class EntityActionSystem extends System {
               if (value.lifecycleState === LifecycleValue.STARTED) {
                 // Set the value of the input to continued to debounce
                 input.schema.inputButtonBehaviors[key].started?.forEach(element => {
-                  element.behavior(entity, element.args, delta)
+                  element.behavior(EntityActionSystem.inputReceiverEntity, element.args, delta)
                 });
               } else if (value.lifecycleState === LifecycleValue.CONTINUED) {
                 // If the lifecycle equal continued
                 input.schema.inputButtonBehaviors[key].continued?.forEach(element =>
-                  element.behavior(entity, element.args, delta)
+                  element.behavior(EntityActionSystem.inputReceiverEntity, element.args, delta)
                 );
               } else {
                 console.error('Unexpected lifecycleState', key, value.lifecycleState, LifecycleValue[value.lifecycleState], 'prev', LifecycleValue[input.prevData.get(key)?.lifecycleState]);
               }
             } else {
               input.schema.inputButtonBehaviors[key].ended?.forEach(element =>
-                element.behavior(entity, element.args, delta)
+                element.behavior(EntityActionSystem.inputReceiverEntity, element.args, delta)
               );
             }
           } else if (input.schema.inputAxisBehaviors[key]) {
@@ -237,18 +202,18 @@ export class EntityActionSystem extends System {
               case LifecycleValue.STARTED:
                 // Set the value to continued to debounce
                 input.schema.inputAxisBehaviors[key].started?.forEach(element =>
-                  element.behavior(entity, element.args, delta)
+                  element.behavior(EntityActionSystem.inputReceiverEntity, element.args, delta)
                 );
                 break;
               case LifecycleValue.CHANGED:
                 // If the value is different from last frame, update it
                 input.schema.inputAxisBehaviors[key].changed?.forEach(element => {
-                  element.behavior(entity, element.args, delta);
+                  element.behavior(EntityActionSystem.inputReceiverEntity, element.args, delta);
                 });
                 break;
               case LifecycleValue.UNCHANGED:
                 input.schema.inputAxisBehaviors[key].unchanged?.forEach(element =>
-                  element.behavior(entity, element.args, delta)
+                  element.behavior(EntityActionSystem.inputReceiverEntity, element.args, delta)
                 );
                 break;
               case LifecycleValue.ENDED:
@@ -271,7 +236,7 @@ export class EntityActionSystem extends System {
         if (!hasComponent(Network.instance.networkObjects[Network.instance.localAvatarNetworkId].component.entity, LocalInputReceiver) && !this.needSend) {
           this.needSend = true;
           sendSwitchInputs = true;
-          this.switchId = getComponent(entity, NetworkObject).networkId;
+          this.switchId = getComponent(EntityActionSystem.inputReceiverEntity, NetworkObject).networkId;
           //console.warn('Car id: '+ getComponent(entity, NetworkObject).networkId);
         } else if (hasComponent(Network.instance.networkObjects[Network.instance.localAvatarNetworkId].component.entity, LocalInputReceiver) && this.needSend) {
           this.needSend = false;
@@ -290,55 +255,58 @@ export class EntityActionSystem extends System {
         input.lastData.clear();
         input.data.forEach((value, key) => input.lastData.set(key, value));
 
-        // Create a schema for input to send
-        const inputs: NetworkClientInputInterface = {
-          networkId: Network.instance.localAvatarNetworkId,
-          buttons: [],
-          axes1d: [],
-          axes2d: [],
-          axes6DOF: [],
-          viewVector: {
-            x: 0, y: 0, z: 0
-          },
-          snapShotTime: Vault.instance?.get().time - Network.instance.timeSnaphotCorrection ?? 0,
-          switchInputs: sendSwitchInputs ? this.switchId : 0
-        };
+        const inputSnapshot = Vault.instance?.get()
+        if (inputSnapshot !== undefined) {
+          // Create a schema for input to send
+          const inputs: NetworkClientInputInterface = {
+            networkId: Network.instance.localAvatarNetworkId,
+            buttons: [],
+            axes1d: [],
+            axes2d: [],
+            axes6DOF: [],
+            viewVector: {
+              x: 0, y: 0, z: 0
+            },
+            snapShotTime: inputSnapshot.time - Network.instance.timeSnaphotCorrection ?? 0,
+            switchInputs: sendSwitchInputs ? this.switchId : 0
+          };
 
-        //console.warn(inputs.snapShotTime);
-        // Add all values in input component to schema
-        input.data.forEach((value: any, key) => {
-          if (value.type === InputType.BUTTON)
-            inputs.buttons.push({ input: key, value: value.value, lifecycleState: value.lifecycleState });
-          else if (value.type === InputType.ONEDIM) // && value.lifecycleState !== LifecycleValue.UNCHANGED
-            inputs.axes1d.push({ input: key, value: value.value, lifecycleState: value.lifecycleState });
-          else if (value.type === InputType.TWODIM) //  && value.lifecycleState !== LifecycleValue.UNCHANGED
-            inputs.axes2d.push({ input: key, value: value.value, lifecycleState: value.lifecycleState }); // : LifecycleValue.ENDED
-          else if (value.type === InputType.SIXDOF){ //  && value.lifecycleState !== LifecycleValue.UNCHANGED
-            inputs.axes6DOF.push({
-              input: key,
-              x: value.value.x,
-              y: value.value.y,
-              z: value.value.z,
-              qX: value.value.qX,
-              qY: value.value.qX,
-              qZ: value.value.qZ,
-              qW: value.value.qW
-            }); 
-            console.log("*********** Pushing 6DOF input from client input system")
+          //console.warn(inputs.snapShotTime);
+          // Add all values in input component to schema
+          input.data.forEach((value: any, key) => {
+            if (value.type === InputType.BUTTON)
+              inputs.buttons.push({ input: key, value: value.value, lifecycleState: value.lifecycleState });
+            else if (value.type === InputType.ONEDIM) // && value.lifecycleState !== LifecycleValue.UNCHANGED
+              inputs.axes1d.push({ input: key, value: value.value, lifecycleState: value.lifecycleState });
+            else if (value.type === InputType.TWODIM) //  && value.lifecycleState !== LifecycleValue.UNCHANGED
+              inputs.axes2d.push({ input: key, value: value.value, lifecycleState: value.lifecycleState }); // : LifecycleValue.ENDED
+            else if (value.type === InputType.SIXDOF){ //  && value.lifecycleState !== LifecycleValue.UNCHANGED
+              inputs.axes6DOF.push({
+                input: key,
+                x: value.value.x,
+                y: value.value.y,
+                z: value.value.z,
+                qX: value.value.qX,
+                qY: value.value.qX,
+                qZ: value.value.qZ,
+                qW: value.value.qW
+              });
+              console.log("*********** Pushing 6DOF input from client input system")
+            }
+          });
+
+          const actor = getMutableComponent(EntityActionSystem.inputReceiverEntity, CharacterComponent);
+          if (actor) {
+            const isWalking = (input.data.get(BaseInput.WALK)?.value) === BinaryValue.ON;
+            actor.moveSpeed = isWalking ? WALK_SPEED : RUN_SPEED;
+
+            inputs.viewVector.x = actor.viewVector.x;
+            inputs.viewVector.y = actor.viewVector.y;
+            inputs.viewVector.z = actor.viewVector.z;
           }
-        });
-
-        const actor = getMutableComponent(entity, CharacterComponent);
-        if (actor) {
-          const isWalking = (input.data.get(BaseInput.WALK)?.value) === BinaryValue.ON;
-          actor.moveSpeed = isWalking ? WALK_SPEED : RUN_SPEED;
-
-          inputs.viewVector.x = actor.viewVector.x;
-          inputs.viewVector.y = actor.viewVector.y;
-          inputs.viewVector.z = actor.viewVector.z;
+          const buffer = ClientInputModel.toBuffer(inputs);
+          EngineEvents.instance.dispatchEvent({ type: ClientNetworkSystem.EVENTS.SEND_DATA, buffer }, false, [buffer]);
         }
-        const buffer = ClientInputModel.toBuffer(inputs);
-        EngineEvents.instance.dispatchEvent({ type: ClientNetworkSystem.EVENTS.SEND_DATA, buffer }, false, [buffer]);
 
         input.data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
           if (value.type === InputType.BUTTON) {
@@ -348,11 +316,11 @@ export class EntityActionSystem extends System {
           }
         });
       });
-    })
+    }
 
     // Called when input component is added to entity
     this.queryResults.localClientInput.added?.forEach(entity => {
-      initializeXR(entity);
+      EntityActionSystem.inputReceiverEntity = entity;
       // Get component reference
       this._inputComponent = getComponent(entity, Input);
       if (this._inputComponent === undefined)

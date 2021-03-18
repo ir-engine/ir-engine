@@ -25,7 +25,7 @@ export default function (app: Application): typeof Model {
   (commentsFire as any).associate = function (models: any): void {
     // Define associations here
     // See http://docs.sequelizejs.com/en/latest/docs/associations/
-    (commentsFire as any).belongsTo(models.user, { foreignKey: 'authorId', allowNull: false });
+    (commentsFire as any).belongsTo(models.creator, { foreignKey: 'creatorId', allowNull: false });
     (commentsFire as any).belongsTo(models.comments, { foreignKey: 'commentId', allowNull: false });
   };
 

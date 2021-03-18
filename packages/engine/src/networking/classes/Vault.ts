@@ -22,6 +22,22 @@ export class Vault {
     return this.vault.filter(snapshot => snapshot.id === id)?.[0];
   }
 
+  test(clientSnapshot) {
+    /*
+    if (this.clientSnapshotFreezeTime == clientSnapshot.old.time && this.serverSnapshotFreezeTime == Network.instance.snapshot.timeCorrection && this.freezeTimes > 3) {
+      clientSnapshot.old = null;
+    } else if (this.clientSnapshotFreezeTime == clientSnapshot.old.time && this.serverSnapshotFreezeTime == Network.instance.snapshot.timeCorrection) {
+      this.freezeTimes+=1;
+    } else {
+      this.freezeTimes = 0;
+      this.clientSnapshotFreezeTime = clientSnapshot.old.time;
+      this.serverSnapshotFreezeTime = Network.instance.snapshot.timeCorrection;
+    }
+  */
+    return clientSnapshot;
+  }
+
+
   /** Get the latest snapshot */
   get (): Snapshot | undefined
   /** Get the two snapshots around a specific time */
@@ -40,10 +56,10 @@ export class Vault {
         const snaps = { older: sorted[i], newer: sorted[i - 1] };
         if (closest) {
           const older = Math.abs(time - snaps.older.time);
-          if (snaps.newer === undefined) return snaps.older;
+          if (snaps.newer === undefined) return this.test(snaps.older);
           const newer = Math.abs(time - snaps.newer.time);
-          if (newer <= older) return snaps.older;
-          else return snaps.newer;
+          if (newer <= older) return this.test(snaps.older);
+          else return this.test(snaps.newer);
         }
         return snaps;
       }

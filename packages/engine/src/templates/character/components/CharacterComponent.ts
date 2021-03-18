@@ -61,7 +61,10 @@ export class CharacterComponent extends Component<CharacterComponent> {
 	public defaultVelocitySimulatorDamping = 0.8;
 	public defaultVelocitySimulatorMass = 50;
 	public velocitySimulator: VectorSpringSimulator
-	public moveSpeed = WALK_SPEED;
+	public vactorAnimSimulator: VectorSpringSimulator
+	public moveVectorSmooth: VectorSpringSimulator
+	public moveSpeed = RUN_SPEED;
+	public otherPlayerMaxSpeedCount = 0;
 	public angularVelocity = 0;
 	public orientation: Vector3 = new Vector3(0, 0, 1);
 	public orientationTarget: Vector3 = new Vector3(0, 0, 1);
@@ -69,7 +72,7 @@ export class CharacterComponent extends Component<CharacterComponent> {
 	public defaultRotationSimulatorMass = 10;
 	public rotationSimulator: RelativeSpringSimulator;
 	public viewVector: Vector3;
-	public changedViewAngle: number = 0;
+	public changedViewAngle = 0;
 	public actions: any;
 	public actorCapsule: CapsuleCollider;
 
@@ -78,16 +81,24 @@ export class CharacterComponent extends Component<CharacterComponent> {
 	public actorHeight = 1;
 	public capsuleRadius = 0.25;
 	public capsuleSegments = 8;
-	public capsuleFriction = 0.0;
+	public capsuleFriction = 0.1;
 	public capsulePosition: Vec3 = new Vec3();
-
 	// Ray casting
 	public rayResult: RaycastResult = new RaycastResult();
+	public rayDontStuckX: RaycastResult = new RaycastResult();
+	public rayDontStuckZ: RaycastResult = new RaycastResult();
+	public rayDontStuckXm: RaycastResult = new RaycastResult();
+	public rayDontStuckZm: RaycastResult = new RaycastResult();
 	public rayHasHit = false;
+	public rayGroundHit = false;
+	public rayGroundY = null;
 	public rayCastLength = 0.85; // depends on the height of the actor
 	public raySafeOffset = 0.03;
 	public wantsToJump = false;
 	public initJumpSpeed = -1;
+	public playerStuck = 0;
+	public playerInPortal = 0;
+	public animationVelocity: Vector3 = new Vector3();
 	public groundImpactVelocity: Vector3 = new Vector3();
 
 	public controlledObject: any;
@@ -99,7 +110,7 @@ export class CharacterComponent extends Component<CharacterComponent> {
 	canFindVehiclesToEnter: boolean;
 	canEnterVehicles: boolean;
 	canLeaveVehicles: boolean;
-  	alreadyJumped: boolean;
+  alreadyJumped: boolean;
 	rotationSpeed: any;
 
   model: any
@@ -144,7 +155,7 @@ export class CharacterComponent extends Component<CharacterComponent> {
   modelBoneOutputs: any
   volume: number
 	outputs: any
-	
+
 	update: any
 }
 

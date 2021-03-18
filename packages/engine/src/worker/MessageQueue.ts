@@ -7,8 +7,28 @@ import {
   Object3D,
   PositionalAudio as THREE_PositionalAudio,
   Scene,
+  XRRenderState,
+  MathUtils,
+  WebGLRenderer
 } from 'three';
-import { MathUtils } from 'three';
+import { EventDispatcher } from '../common/classes/EventDispatcher';
+import { isMobileOrTablet } from '../common/functions/isMobile';
+import { 
+  XRHandedness,
+  XRHitResult,
+  XRHitTestOptionsInit,
+  XRHitTestSource,
+  XRInputSource,
+  XRRay,
+  XRReferenceSpace,
+  XRReferenceSpaceType,
+  XRSession,
+  XRSpace,
+  XRTargetRayMode,
+  XRTransientInputHitTestOptionsInit,
+  XRTransientInputHitTestSource
+} from '../input/types/WebXR';
+
 
 const { generateUUID } = MathUtils;
 
@@ -97,7 +117,7 @@ export class EventDispatcherProxy {//extends ExtendableProxy {
   [x: string]: any;
   eventTarget: EventTarget;
   eventListener: any;
-  messageTypeFunctions: Map<MessageType, any>;
+  messageTypeFunctions: Map<MessageType | string, any>;
   _listeners: any;
 
   constructor({
@@ -110,7 +130,7 @@ export class EventDispatcherProxy {//extends ExtendableProxy {
     this._listeners = {};
     this.eventTarget = eventTarget;
     this.eventListener = eventListener;
-    this.messageTypeFunctions = new Map<MessageType, any>();
+    this.messageTypeFunctions = new Map<MessageType | string, any>();
 
     this.messageTypeFunctions.set(MessageType.EVENT, (event: any) => {
       event.preventDefault = () => {};
@@ -302,20 +322,21 @@ export class DocumentElementProxy extends EventDispatcherProxy {
   uuid: string;
   type: string;
   eventTarget: EventTarget;
-  remoteCalls: string[];
 
   constructor({
     messageQueue,
     type,
-    remoteCalls,
     eventTarget,
     elementArgs,
+    ignoreCreate = false,
+    uuid,
   }: {
     messageQueue: MessageQueue;
     type: string;
-    remoteCalls?: string[];
     eventTarget?: EventTarget;
     elementArgs?: any,
+    ignoreCreate?: boolean;
+    uuid?: string;
   }) {
     super({
       eventTarget: eventTarget || messageQueue.eventTarget,
@@ -326,35 +347,56 @@ export class DocumentElementProxy extends EventDispatcherProxy {
         } as Message);
       },
     });
-    this.remoteCalls = remoteCalls || [];
-    for (const call of this.remoteCalls) {
-      this[call] = (...args: any) => {
+    this.type = type;
+    this.messageQueue = messageQueue;
+    this.eventTarget = eventTarget || messageQueue.eventTarget;
+    this.uuid = uuid || generateUUID();
+    this.messageQueue.remoteDocumentObjects.set(this.uuid, this);
+    if(!ignoreCreate) {
+      this.messageQueue.queue.push({
+        messageType: MessageType.DOCUMENT_ELEMENT_CREATE,
+        message: {
+          type,
+          uuid: this.uuid,
+          elementArgs,
+        },
+      } as Message);
+    }
+  }
+  __callFunc(call: string, ...args: any) {
+    this.messageQueue.queue.push({
+      messageType: MessageType.DOCUMENT_ELEMENT_FUNCTION_CALL,
+      message: {
+        call,
+        uuid: this.uuid,
+        args,
+      },
+    } as Message);
+    return true;
+  }
+  async __callFuncAsync(call: string, ...args: any) {
+    try {
+      return await new Promise<any>((resolve) => {
+        const requestID = generateUUID();
+        const onRequestReturned = (ev) => {
+          this.messageQueue.removeEventListener(requestID, onRequestReturned);
+          resolve(ev.detail.returnedData);
+        }
+        this.messageQueue.addEventListener(requestID, onRequestReturned);
         this.messageQueue.queue.push({
           messageType: MessageType.DOCUMENT_ELEMENT_FUNCTION_CALL,
           message: {
             call,
             uuid: this.uuid,
+            requestID,
             args,
           },
         } as Message);
-        return true;
-      };
+      })
+    } catch (e) {
+      console.warn(e)
     }
-    this.type = type;
-    this.messageQueue = messageQueue;
-    this.eventTarget = eventTarget || messageQueue.eventTarget;
-    this.uuid = generateUUID();
-    this.messageQueue.remoteDocumentObjects.set(this.uuid, this);
-    this.messageQueue.queue.push({
-      messageType: MessageType.DOCUMENT_ELEMENT_CREATE,
-      message: {
-        type,
-        uuid: this.uuid,
-        elementArgs,
-      },
-    } as Message);
   }
-
   __setValue(prop, value) {
     this.messageQueue.queue.push({
       messageType: MessageType.DOCUMENT_ELEMENT_PARAM_SET,
@@ -365,7 +407,6 @@ export class DocumentElementProxy extends EventDispatcherProxy {
       },
     } as Message);
   }
-
   addEventListener(
     type: string,
     listener: (event: DispatchEvent) => void,
@@ -403,27 +444,22 @@ export class DocumentElementProxy extends EventDispatcherProxy {
   }
 }
 
-const audioRemoteFunctionCalls: string[] = ['play', 'pause'];
-
 export class AudioDocumentElementProxy extends DocumentElementProxy {
   _src: string;
   _autoplay: string;
-  _isPlaying: boolean = false;
+  _isPlaying = false;
   constructor({
     messageQueue,
     type = 'audio',
-    remoteCalls = [],
     elementArgs,
   }: {
     messageQueue: MessageQueue;
     type?: string;
-    remoteCalls?: string[];
     elementArgs?: any,
   }) {
     super({
       messageQueue,
       type,
-      remoteCalls: [...remoteCalls, ...audioRemoteFunctionCalls],
       elementArgs,
     });
   }
@@ -445,18 +481,15 @@ export class AudioDocumentElementProxy extends DocumentElementProxy {
     return this._isPlaying;
   }
   play() {
-    this._isPlaying = true;
-    super.play()
+    this.__callFunc('play');
   }
   pause() {
-    this._isPlaying = false;
-    super.pause()
+    this.__callFunc('pause');
   }
   dispatchEvent(
     ev: any,
     fromMain?: boolean
   ): void {
-    console.log(ev)
     switch(ev.type) {
       case 'play': this._isPlaying = true; break;
       case 'pause': case 'paused': case 'ended': this._isPlaying = false; break;
@@ -465,8 +498,6 @@ export class AudioDocumentElementProxy extends DocumentElementProxy {
     super.dispatchEvent(ev, fromMain);
   }
 }
-
-const videoRemoteFunctionCalls: string[] = [];
 
 export class VideoDocumentElementProxy extends AudioDocumentElementProxy {
   frameCallback: any;
@@ -481,7 +512,6 @@ export class VideoDocumentElementProxy extends AudioDocumentElementProxy {
     super({
       messageQueue,
       type: 'video',
-      remoteCalls: [],
       elementArgs,
     });
     this.video = new OffscreenCanvas(0, 0);
@@ -671,11 +701,23 @@ export async function createWorker(
   const audioLoader = new THREE_AudioLoader();
   const audioBuffers: Map<string, AudioBuffer> = new Map<string, AudioBuffer>();
   let audioListener: any = undefined;
+  messageQueue.isMobile = isMobileOrTablet();
 
   messageQueue.messageTypeFunctions.set(
     MessageType.DOCUMENT_ELEMENT_FUNCTION_CALL,
-    ({ call, uuid, args }: { call: string; uuid: string; args: any[] }) => {
-      documentElementMap.get(uuid)[call](...args);
+    async ({ call, uuid, args, requestID }: { call: string; uuid: string; args: any[], requestID?: any }) => {
+      // console.log(call, uuid, args, requestID, documentElementMap.get(uuid), documentElementMap.get(uuid)[call])
+      try {
+        const returnedData = await documentElementMap.get(uuid)[call](...args)
+        if(requestID) {
+          messageQueue.sendEvent(requestID, { returnedData });
+        }
+      } catch (e) { 
+        console.log(e)
+        if(requestID) {
+          messageQueue.sendEvent(requestID, { returnedData: undefined });
+        }
+      }
     },
   );
   messageQueue.messageTypeFunctions.set(
@@ -727,6 +769,8 @@ export async function createWorker(
     ({ type, uuid, elementArgs }: { type: string; uuid: string, elementArgs: any }) => {
       switch (type) {
         case 'window': documentElementMap.set(uuid, (window as any)); break;
+        // @ts-ignore
+        case 'navigator.xr': documentElementMap.set(uuid, new XRSystemPolyfill({ messageQueue, documentElementMap })); break;
         case 'document': documentElementMap.set(uuid, (document as any)); break;
         case 'canvas': documentElementMap.set(uuid, canvas); break;
         case 'mediaElementSource': documentElementMap.set(uuid, audioListener.context.createMediaElementSource(documentElementMap.get(elementArgs.elementID) as HTMLMediaElement) as MediaElementAudioSourceNode);
@@ -740,22 +784,25 @@ export async function createWorker(
           elementArgs !== undefined && applyElementArguments(video, elementArgs);
           documentElementMap.set(uuid, video);
           video.onplay = (ev: any) => {
+            const canvasScale =  video.videoWidth > 1280 || video.videoHeight > 720 ? (1/Math.abs(video.videoHeight / 720)) : 1;
+            video.setAttribute('height', String(video.videoHeight * canvasScale) + 'px');
             const drawCanvas = new OffscreenCanvas(
-              video.videoWidth,
-              video.videoHeight
+              video.videoWidth * canvasScale,
+              video.videoHeight * canvasScale
             );
             const context = drawCanvas.getContext('2d');
             messageQueue.queue.push({
               messageType: MessageType.VIDEO_ELEMENT_CREATE,
               message: {
-                width: video.videoWidth,
-                height: video.videoHeight,
+                width: drawCanvas.width,
+                height: drawCanvas.width,
                 returnID: uuid,
+                canvasScale
               },
             } as Message);
 
             const sendFrame = (now, metaData) => {
-              context.drawImage(video, 0, 0);
+              context.drawImage(video, 0, 0, video.videoWidth * canvasScale, video.videoHeight * canvasScale);
               const imageBitmap = drawCanvas.transferToImageBitmap();
               messageQueue.queue.push({
                 messageType: MessageType.VIDEO_ELEMENT_FRAME,
@@ -912,7 +959,8 @@ export async function createWorker(
       height,
       canvas: offscreen,
       devicePixelRatio: window.devicePixelRatio,
-      userArgs
+      isMobile: messageQueue.isMobile,
+      userArgs,
     },
     transferables: [offscreen],
   } as Message);
@@ -939,19 +987,19 @@ class WindowProxy extends DocumentElementProxy {
   constructor({
     messageQueue,
     type = 'window',
-    remoteCalls = [],
   }: {
     messageQueue: MessageQueue;
     type?: string;
-    remoteCalls?: string[];
   }) {
     super({
       messageQueue,
       type,
-      remoteCalls: [...remoteCalls],
     });
   }
-  focus: () => {}
+  open (url) {
+    this.__callFunc('open', url);
+  }
+  focus () {}
   get ownerDocument() { return (globalThis as any).document; }
   get width() { return this.messageQueue.width; }
   get height() { return this.messageQueue.height; }
@@ -966,22 +1014,19 @@ class DocumentProxy extends DocumentElementProxy {
   constructor({
     messageQueue,
     type = 'document',
-    remoteCalls = [],
   }: {
     messageQueue: MessageQueue;
     type?: string;
-    remoteCalls?: string[];
   }) {
     super({
       messageQueue,
       type,
-      remoteCalls: [...remoteCalls],
     });
   }
   get ownerDocument() {
     return (globalThis as any).document
   }
-  createElement(type: string, elementArgs: any): DocumentElementProxy | null {
+  createElement(type: string, elementArgs: any): any {
     switch (type) {
       case 'audio':
         return new AudioDocumentElementProxy({ messageQueue: this.messageQueue, elementArgs });
@@ -989,27 +1034,157 @@ class DocumentProxy extends DocumentElementProxy {
         return new VideoDocumentElementProxy({ messageQueue: this.messageQueue, elementArgs });
       case 'media':
         return new DocumentElementProxy({ messageQueue: this.messageQueue, type: 'mediaElementSource', elementArgs });
+      case 'canvas':
+        return wrapWithEventDispatcher(new OffscreenCanvas(0, 0));
+      default:
+        return null;
+    }
+  }
+  createElementNS(ns: string, type: string): any {
+    switch (type) {
+      case 'canvas':
+        return wrapWithEventDispatcher(new OffscreenCanvas(0, 0));
       default:
         return null;
     }
   }
 }
 
+const wrapWithEventDispatcher = (el) => {
+  const eventDispatcher = new EventDispatcher();
+  el.addEventListener = eventDispatcher.addEventListener;
+  el.removeEventListener = eventDispatcher.removeEventListener;
+  el.dispatchEvent = eventDispatcher.dispatchEvent;
+}
+
 class CanvasProxy extends DocumentElementProxy {
   constructor({
     messageQueue,
     type = 'canvas',
-    remoteCalls = [],
   }: {
     messageQueue: MessageQueue;
     type?: string;
-    remoteCalls?: string[];
   }) {
     super({
       messageQueue,
       type,
-      remoteCalls: [...remoteCalls],
     });
+  }
+}
+
+class XRSystemProxy extends DocumentElementProxy {
+  constructor({
+    messageQueue,
+  }: {
+    messageQueue: MessageQueue;
+  }) {
+    super({
+      messageQueue,
+      type: 'navigator.xr',
+    });
+  }
+
+  async isSessionSupported(sessionMode) {
+    return await this.__callFuncAsync('isSessionSupported', sessionMode);
+  }
+
+  async requestSession(sessionMode): Promise<XRSessionProxy> {
+    const uuid = await this.__callFuncAsync('requestSession', sessionMode);
+    return new XRSessionProxy({ uuid, messageQueue: this.messageQueue, });
+  }
+}
+
+export const OFFSCREEN_XR_EVENTS = {
+  SESSION_START: 'OFFSCREEN_XR_EVENTS_SESSION_START',
+  SESSION_CREATED: 'OFFSCREEN_XR_EVENTS_SESSION_CREATED',
+  SESSION_END: 'OFFSCREEN_XR_EVENTS_SESSION_END',
+}
+
+class XRSystemPolyfill {
+  messageQueue: MessageQueue;
+  documentElementMap: Map<string, any>;
+
+  constructor({ messageQueue, documentElementMap }: { messageQueue: MessageQueue; documentElementMap: Map<string, any> }) {
+    this.messageQueue = messageQueue;
+    this.documentElementMap = documentElementMap;
+  }
+
+  async isSessionSupported(sessionMode) {
+    return await (navigator as any).xr.isSessionSupported(sessionMode);
+  }
+
+  async requestSession(sessionMode) {
+    const session: XRSession = await (navigator as any).xr.requestSession(sessionMode)
+    document.dispatchEvent(new CustomEvent(OFFSCREEN_XR_EVENTS.SESSION_START, { detail: { session } }));
+    const uuid = generateUUID();
+    this.documentElementMap.set(uuid, session);
+    //@ts-ignore
+    session.createOffscreenSession = async ({ framebufferScaleFactor }) => {
+
+      //@ts-ignore
+      this.messageQueue.eventTarget.hidden = true;
+      const canvas = document.createElement('canvas');
+      document.body.append(canvas)
+      const context = canvas.getContext('webgl2', { xrCompatible: true });
+      //@ts-ignore
+			const attributes = context.getContextAttributes();
+      //@ts-ignore
+			if (context.xrCompatible !== true) {
+        //@ts-ignore
+				await context.makeXRCompatible();
+			}
+
+      //@ts-ignore
+			const baseLayer = new XRWebGLLayer(session, context, {
+				antialias: attributes.antialias,
+				alpha: attributes.alpha,
+				depth: attributes.depth,
+				stencil: attributes.stencil,
+        framebufferScaleFactor
+      });
+      
+			await session.updateRenderState({ baseLayer });
+      document.dispatchEvent(new CustomEvent(OFFSCREEN_XR_EVENTS.SESSION_CREATED, { detail: { baseLayer, context, session, canvas } }))
+    }
+
+    return uuid;
+  }
+}
+
+export class XRSessionProxy extends DocumentElementProxy implements XRSession {
+  messageQueue: MessageQueue;
+  requestAnimationFrame: any;
+  renderState: XRRenderState;
+  inputSources: XRInputSource[] = [];
+  constructor({ uuid, messageQueue }: { uuid: string, messageQueue: MessageQueue; }) {
+    super({ uuid, messageQueue, type: 'xr_session', ignoreCreate: true })
+    this.messageQueue = messageQueue;
+  }
+  async requestReferenceSpace(type: XRReferenceSpaceType): Promise<XRReferenceSpace> {
+    return this.__callFuncAsync('requestReferenceSpace', type);
+  }
+  async updateRenderState(XRRenderStateInit: XRRenderState): Promise<void> {
+    this.__callFunc('updateRenderState', XRRenderStateInit);
+    return
+  }
+  async end(): Promise<void> {
+    this.__callFunc('end');
+    return
+  }
+  async requestHitTestSource(options: XRHitTestOptionsInit): Promise<XRHitTestSource> { 
+    return this.__callFuncAsync('requestHitTestSource', options);
+  }
+  async requestHitTestSourceForTransientInput(options: XRTransientInputHitTestOptionsInit): Promise<XRTransientInputHitTestSource> {
+    return this.__callFuncAsync('requestHitTestSourceForTransientInput', options);
+  }
+  async requestHitTest(ray: XRRay, referenceSpace: XRReferenceSpace): Promise<XRHitResult[]> {
+    return this.__callFuncAsync('requestHitTest', ray, referenceSpace);
+  }
+  updateWorldTrackingState(options: { planeDetectionState?: { enabled: boolean } }): void {
+    this.__callFunc('updateWorldTrackingState', options);
+  }
+  async createOffscreenSession(layerInit) {
+    return this.__callFuncAsync('createOffscreenSession', layerInit);
   }
 }
 
@@ -1023,17 +1198,20 @@ export async function receiveWorker(onCanvas: any) {
         canvas,
         height,
         width,
-        devicePixelRatio
+        devicePixelRatio,
+        isMobile,
       }: {
         canvas: OffscreenCanvas;
         width: number;
         height: number;
         devicePixelRatio: number;
+        isMobile: boolean
       } = args;
       messageQueue.canvas = canvas;
       messageQueue.width = width;
       messageQueue.height = height;
       messageQueue.devicePixelRatio = devicePixelRatio;
+      messageQueue.isMobile = isMobile;
       canvas.addEventListener = (
         type: string,
         listener: (event: any) => void,
@@ -1057,6 +1235,7 @@ export async function receiveWorker(onCanvas: any) {
       canvas.ownerDocument = (globalThis as any).document;
       (globalThis as any).window = new WindowProxy({ messageQueue });
       (globalThis as any).document = new DocumentProxy({ messageQueue });
+      (globalThis as any).navigator.xr = new XRSystemProxy({ messageQueue });
       onCanvas(args, messageQueue);
       messageQueue.queue.push({
         messageType: MessageType.CANVAS_CREATED,

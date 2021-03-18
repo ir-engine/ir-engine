@@ -32,7 +32,8 @@ import {
 import { Network } from "@xr3ngine/engine/src/networking/classes/Network";
 import { VrIcon } from "../Icons/Vricon";
 import { Engine } from "@xr3ngine/engine/src/ecs/classes/Engine";
-import { startXR } from "@xr3ngine/engine/src/input/functions/WebXRFunctions";
+import { EngineEvents } from "@xr3ngine/engine/src/ecs/classes/EngineEvents";
+import { WebXRRendererSystem } from "@xr3ngine/engine/src/renderer/WebXRRendererSystem";
 
 const mapStateToProps = (state: any): any => {
     return {
@@ -66,30 +67,31 @@ const MediaIconsBox = (props) => {
     const isCamVideoEnabled = mediastream.get('isCamVideoEnabled');
     const isCamAudioEnabled = mediastream.get('isCamAudioEnabled');
 
-    (navigator as any).xr?.isSessionSupported('immersive-vr').then(supported => {
-      setXRSupported(supported);
-      if(supported && Engine.renderer != null && Engine.renderer.xr != null)
-        Engine.renderer.xr.enabled = true;
-    })
+    const onEngineLoaded = () => {
+      setXRSupported(Engine.xrSupported);
+      document.removeEventListener('ENGINE_LOADED', onEngineLoaded)
+    }
+    document.addEventListener('ENGINE_LOADED', onEngineLoaded)
 
-    const checkMediaStream = async (partyId: string) => {
-        if (!MediaStreamSystem.instance.mediaStream)
-            await configureMediaTransports(partyId);
+    const checkMediaStream = async (partyId: string): Promise<boolean> => {
+        return await configureMediaTransports(partyId);
     };
 
     const handleFaceClick = async () => {
         const entity = Network.instance.localClientEntity;
         if (entity) {
             const partyId = currentLocation?.locationSettings?.instanceMediaChatEnabled === true ? 'instance' : user.partyId;
-            await checkMediaStream(partyId);
-            changeFaceTrackingState(!isFaceTrackingEnabled);
-            if (!isFaceTrackingEnabled) {
-                // get local input receiver entity
-                startFaceTracking();
-                startLipsyncTracking();
-            } else {
-                stopFaceTracking();
-                stopLipsyncTracking();
+            if(await checkMediaStream(partyId)) {
+                changeFaceTrackingState(!isFaceTrackingEnabled);
+                if (!isFaceTrackingEnabled) {
+                    // get local input receiver entity
+                    startFaceTracking();
+                    startLipsyncTracking();
+                } else {
+                    stopFaceTracking();
+                    stopLipsyncTracking();
+                }
+                
             }
         }
     };
@@ -102,34 +104,35 @@ const MediaIconsBox = (props) => {
     };
     const handleMicClick = async () => {
         const partyId = currentLocation?.locationSettings?.instanceMediaChatEnabled === true ? 'instance' : user.partyId;
-        await checkMediaStream(partyId);
-
-        if (MediaStreamSystem.instance?.camAudioProducer == null) await createCamAudioProducer(partyId);
-        else {
-            const audioPaused = MediaStreamSystem.instance.toggleAudioPaused();
-            if (audioPaused === true) await pauseProducer(MediaStreamSystem.instance?.camAudioProducer);
-            else await resumeProducer(MediaStreamSystem.instance?.camAudioProducer);
-            checkEndVideoChat();
+        if(await checkMediaStream(partyId)) {
+          if (MediaStreamSystem.instance?.camAudioProducer == null) await createCamAudioProducer(partyId);
+          else {
+              const audioPaused = MediaStreamSystem.instance.toggleAudioPaused();
+              if (audioPaused === true) await pauseProducer(MediaStreamSystem.instance?.camAudioProducer);
+              else await resumeProducer(MediaStreamSystem.instance?.camAudioProducer);
+              checkEndVideoChat();
+          }
+          updateCamAudioState();
         }
-
-        updateCamAudioState();
     };
 
     const handleCamClick = async () => {
         const partyId = currentLocation?.locationSettings?.instanceMediaChatEnabled === true ? 'instance' : user.partyId;
-        await checkMediaStream(partyId);
-        if (MediaStreamSystem.instance?.camVideoProducer == null) await createCamVideoProducer(partyId);
-        else {
-            const videoPaused = MediaStreamSystem.instance.toggleVideoPaused();
-            if (videoPaused === true) await pauseProducer(MediaStreamSystem.instance?.camVideoProducer);
-            else await resumeProducer(MediaStreamSystem.instance?.camVideoProducer);
-            checkEndVideoChat();
-        }
+        if(await checkMediaStream(partyId)) {
+          
+            if (MediaStreamSystem.instance?.camVideoProducer == null) await createCamVideoProducer(partyId);
+            else {
+                const videoPaused = MediaStreamSystem.instance.toggleVideoPaused();
+                if (videoPaused === true) await pauseProducer(MediaStreamSystem.instance?.camVideoProducer);
+                else await resumeProducer(MediaStreamSystem.instance?.camVideoProducer);
+                checkEndVideoChat();
+            }
 
-        updateCamVideoState();
+            updateCamVideoState();
+        }
     };
 
-    const handleVRClick = () => startXR();
+    const handleVRClick = () => EngineEvents.instance.dispatchEvent({ type: WebXRRendererSystem.EVENTS.XR_START });
 
     const xrEnabled = Engine.renderer?.xr.enabled === true;
     const VideocamIcon = isCamVideoEnabled ? Videocam : VideocamOff;

@@ -7,17 +7,26 @@ import {
   videoDeleted,
   locationTypesRetrieved,
   instancesRetrievedAction,
-  instanceRemovedAction
+  instanceRemovedAction,
+  instanceCreated,
+  instanceRemoved,
+  instancePatched
 } from './actions';
 import {
   locationCreated,
   locationPatched,
   locationRemoved,
-  locationsRetrieved
+  locationsRetrieved,
 } from "../location/actions";
 import {
-  loadedUsers
+  loadedUsers,
+  userCreated,
+  userRemoved,
+  userPatched,
 } from '../user/actions';
+
+import { LOADED_USERS } from "../actions"
+
 import { client } from '../feathers';
 import { PublicVideo, videosFetchedError, videosFetchedSuccess } from '../video/actions';
 import axios from 'axios';
@@ -25,6 +34,7 @@ import { apiUrl } from '../service.common';
 import { dispatchAlertError, dispatchAlertSuccess } from '../alert/service';
 import {collectionsFetched} from "../scenes/actions";
 import store from "../store";
+
 
 export function createVideo (data: VideoCreationForm) {
   return async (dispatch: Dispatch, getState: any) => {
@@ -106,6 +116,7 @@ export function fetchUsersAsAdmin (offset: string) {
     const user = getState().get('auth').get('user');
     const skip = getState().get('admin').get('users').get('skip');
     const limit = getState().get('admin').get('users').get('limit');
+    
     if (user.userRole === 'admin') {
       const users = await client.service('user').find({
         query: {
@@ -148,6 +159,66 @@ export function createLocation (location: any) {
       dispatchAlertError(dispatch, err.message);
     }
   };
+}
+
+export function createUser (user: any) {
+  return async (dispatch: Dispatch): Promise<any> => {
+    try {
+      const result = await client.service('user').create(user);
+      dispatch(userCreated(result))
+    } catch (error) {
+      dispatchAlertError(dispatch, error.message);
+    }
+  }
+}
+
+export function patchUser (id: string, user: any) {
+  return async (dispatch: Dispatch): Promise<any> => {
+    try {
+      const result = await client.service('user').patch(id, user);
+      dispatch(userPatched(result));
+    } catch (error) {
+      console.log(error);
+      dispatchAlertError(dispatch, error.message);
+    }
+  }
+}
+
+
+export function removeUser (id: string) {
+  return async (dispatch: Dispatch): Promise<any> => {
+    const result = await client.service('user').remove(id);
+    dispatch(userRemoved(result))
+  }
+}
+
+export function createInstance (instance: any) {
+  return async (dispatch: Dispatch): Promise<any> => {
+    try {
+      const result = await client.service('instance').create(instance);
+      dispatch(instanceCreated(result));
+    } catch (error) {
+      dispatchAlertError(dispatch, error.message);
+    }
+  }
+}
+
+export function patchInstance (id: string, instance) {
+  return async (dispatch: Dispatch): Promise<any> => {
+    try {
+      const result = await client.service('instance').patch(id, instance);
+      dispatch(instancePatched(result));
+    } catch (error) {
+      
+    }
+  }
+}
+
+export function removeInstance (id: string) {
+  return async (dispatch: Dispatch): Promise<any> => {
+    const result = await client.service('instance').remove(id);
+    dispatch(instanceRemoved(result));
+  }
 }
 
 export function patchLocation (id: string, location: any) {

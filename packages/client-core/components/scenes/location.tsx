@@ -44,10 +44,8 @@ import { OpenLink } from '../ui/OpenLink';
 import TooltipContainer from '../ui/TooltipContainer';
 import { MessageTypes } from '@xr3ngine/engine/src/networking/enums/MessageTypes';
 import { EngineEvents } from '@xr3ngine/engine/src/ecs/classes/EngineEvents';
-import { Engine } from '@xr3ngine/engine/src/ecs/classes/Engine';
 import { InteractiveSystem } from '@xr3ngine/engine/src/interaction/systems/InteractiveSystem';
 import { DefaultInitializationOptions, initializeEngine } from '@xr3ngine/engine/src/initialize';
-import { DefaultInitializationOptions as WorkerDefaultInitializationOptions, initializeWorker } from '@xr3ngine/engine/src/initializeWorker';
 
 const goHome = () => window.location.href = window.location.origin;
 
@@ -206,7 +204,7 @@ export const EnginePage = (props: Props) => {
     }
   }, [appState]);
   const projectRegex = /\/([A-Za-z0-9]+)\/([a-f0-9-]+)$/;
-
+  
   async function init(sceneId: string): Promise<any> { // auth: any,
     let service, serviceId;
     const projectResult = await client.service('project').get(sceneId);
@@ -226,30 +224,16 @@ export const EnginePage = (props: Props) => {
 
     const canvas = document.getElementById(engineRendererCanvasId) as HTMLCanvasElement;
     styleCanvas(canvas);
-
-    if(canvas.transferControlToOffscreen) {
-      const InitializationOptions = {
-        ...WorkerDefaultInitializationOptions,
-        networking: {
-          schema: networkSchema,
-        },
-        renderer: {
-          canvas,
-        }
-      };
-      await initializeWorker(InitializationOptions)
-    } else {
-      const InitializationOptions = {
-        ...DefaultInitializationOptions,
-        networking: {
-          schema: networkSchema,
-        },
-        renderer: {
-          canvas,
-        }
-      };
-      await initializeEngine(InitializationOptions)
-    }
+    const InitializationOptions = {
+      ...DefaultInitializationOptions,
+      networking: {
+        schema: networkSchema,
+      },
+      renderer: {
+        canvas,
+      },
+    };
+    await initializeEngine(InitializationOptions)
 
     document.dispatchEvent(new CustomEvent('ENGINE_LOADED')); // this is the only time we should use document events. would be good to replace this with react state
     
@@ -257,8 +241,8 @@ export const EnginePage = (props: Props) => {
     EngineEvents.instance.addEventListener(EngineEvents.EVENTS.SCENE_LOADED, onSceneLoaded);
     EngineEvents.instance.addEventListener(EngineEvents.EVENTS.ENTITY_LOADED, onSceneLoadedEntity);
     EngineEvents.instance.addEventListener(InteractiveSystem.EVENTS.USER_HOVER, onUserHover);
-    document.addEventListener('object-activation', onObjectActivation);
-    document.addEventListener('object-hover', onObjectHover);
+    EngineEvents.instance.addEventListener(InteractiveSystem.EVENTS.OBJECT_ACTIVATION, onObjectActivation);
+    EngineEvents.instance.addEventListener(InteractiveSystem.EVENTS.OBJECT_HOVER, onObjectHover);
     const engageType = isMobileOrTablet() ? 'touchstart' : 'click'
     const onUserEngage = () => {
       EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.USER_ENGAGE });
@@ -296,9 +280,9 @@ export const EnginePage = (props: Props) => {
     setProgressEntity(event.left || 0);
   };
 
-  const onObjectHover = (event: CustomEvent): void => {
-    setObjectHovered(event.detail.focused);
-    setHoveredLabel(event.detail.interactionText);
+  const onObjectHover = ({ focused, interactionText}): void => {
+    setObjectHovered(focused);
+    setHoveredLabel(interactionText);
   };
 
   const onUserHover = ({ focused, userId, position }): void => {
@@ -307,16 +291,15 @@ export const EnginePage = (props: Props) => {
     setonUserPosition(focused ? position : null);
   };
 
-  const onObjectActivation = (event: CustomEvent): void => {
-    switch (event.detail.action) {
+  const onObjectActivation = ({ action, payload }): void => {
+    switch (action) {
       case 'link':
-        console.log('=======onObjectActivation====',event.detail.payload);
-        setOpenLinkData(event.detail.payload);
+        setOpenLinkData(payload);
         setObjectActivated(true);
         break;
       case 'infoBox':
       case 'mediaSource':
-        setModalData(event.detail.payload);
+        setModalData(payload);
         setObjectActivated(true);
         break;
       default:
