@@ -4,6 +4,10 @@ import styled, { ThemeContext } from "styled-components";
 import { ExclamationTriangle } from "@styled-icons/fa-solid/ExclamationTriangle";
 import Tooltip from "../layout/Tooltip";
 
+/**
+ * [IssuesTooltipContainer used to provide styles and showing issues list]
+ * @type {styled component}
+ */
 const IssuesTooltipContainer = (styled as any).div`
   display: inline-block;
   pointer-events: none;
@@ -31,10 +35,19 @@ const IssuesTooltipContainer = (styled as any).div`
   }
 `;
 
+/**
+ * [IssueIcon used to provide styles to issue icon]
+ * @param {styled component} styled
+ */
 const IssueIcon = (styled as any)(ExclamationTriangle)`
   color: ${props => props.color};
 `;
 
+/**
+ * [NodeIssuesIcon function component used to provide view of issues list ]
+ * @param       {function component} node
+ * @constructor
+ */
 export default function NodeIssuesIcon({ node }) {
   const theme = useContext(ThemeContext) as any;
 
@@ -46,6 +59,10 @@ export default function NodeIssuesIcon({ node }) {
     [theme]
   );
 
+/**
+ * [renderInfo function used to return view ]
+ * @type {function}
+ */
   const renderInfo = useCallback(() => {
     return (
       <IssuesTooltipContainer>
@@ -80,6 +97,7 @@ export default function NodeIssuesIcon({ node }) {
   );
 }
 
+//declairing propTypes for NodeIssuesIcon
 NodeIssuesIcon.propTypes = {
   node: PropTypes.object.isRequired
 };

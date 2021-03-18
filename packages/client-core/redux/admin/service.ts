@@ -8,7 +8,9 @@ import {
   locationTypesRetrieved,
   instancesRetrievedAction,
   instanceRemovedAction,
-  instanceCreated
+  instanceCreated,
+  instanceRemoved,
+  instancePatched
 } from './actions';
 import {
   locationCreated,
@@ -18,8 +20,13 @@ import {
 } from "../location/actions";
 import {
   loadedUsers,
-  userCreated
+  userCreated,
+  userRemoved,
+  userPatched,
 } from '../user/actions';
+
+import { LOADED_USERS } from "../actions"
+
 import { client } from '../feathers';
 import { PublicVideo, videosFetchedError, videosFetchedSuccess } from '../video/actions';
 import axios from 'axios';
@@ -165,6 +172,26 @@ export function createUser (user: any) {
   }
 }
 
+export function patchUser (id: string, user: any) {
+  return async (dispatch: Dispatch): Promise<any> => {
+    try {
+      const result = await client.service('user').patch(id, user);
+      dispatch(userPatched(result));
+    } catch (error) {
+      console.log(error);
+      dispatchAlertError(dispatch, error.message);
+    }
+  }
+}
+
+
+export function removeUser (id: string) {
+  return async (dispatch: Dispatch): Promise<any> => {
+    const result = await client.service('user').remove(id);
+    dispatch(userRemoved(result))
+  }
+}
+
 export function createInstance (instance: any) {
   return async (dispatch: Dispatch): Promise<any> => {
     try {
@@ -173,6 +200,24 @@ export function createInstance (instance: any) {
     } catch (error) {
       dispatchAlertError(dispatch, error.message);
     }
+  }
+}
+
+export function patchInstance (id: string, instance) {
+  return async (dispatch: Dispatch): Promise<any> => {
+    try {
+      const result = await client.service('instance').patch(id, instance);
+      dispatch(instancePatched(result));
+    } catch (error) {
+      
+    }
+  }
+}
+
+export function removeInstance (id: string) {
+  return async (dispatch: Dispatch): Promise<any> => {
+    const result = await client.service('instance').remove(id);
+    dispatch(instanceRemoved(result));
   }
 }
 
