@@ -116,7 +116,7 @@ export class IdentityProvider extends Service {
     try {
       foundUser = await userService.get(userId);
     } catch (err) {
-      console.log(err);
+
     }
 
     if (foundUser != null) {
