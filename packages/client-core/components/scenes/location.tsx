@@ -247,13 +247,19 @@ export const EnginePage = (props: Props) => {
     EngineEvents.instance.addEventListener(InteractiveSystem.EVENTS.OBJECT_ACTIVATION, onObjectActivation);
     EngineEvents.instance.addEventListener(InteractiveSystem.EVENTS.OBJECT_HOVER, onObjectHover);
     EngineEvents.instance.addEventListener(PhysicsSystem.EVENTS.PORTAL_REDIRECT_EVENT, ({ location }) => router.push(location));
-
     const engageType = isMobileOrTablet() ? 'touchstart' : 'click'
     const onUserEngage = () => {
       EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.USER_ENGAGE });
       document.removeEventListener(engageType, onUserEngage);
     }
     document.addEventListener(engageType, onUserEngage);
+
+    const onClientEntityLoad = () => {
+      console.log('client entity loaded')
+      EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENABLE_SCENE, enable: true });
+      EngineEvents.instance.removeEventListener(EngineEvents.EVENTS.CLIENT_ENTITY_LOAD, onClientEntityLoad)
+    }
+    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.CLIENT_ENTITY_LOAD, onClientEntityLoad)
 
     EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.LOAD_SCENE, result });
     connectToInstanceServer('instance');
@@ -267,7 +273,6 @@ export const EnginePage = (props: Props) => {
   const joinWorld = async () => {
     const { worldState } =  await (Network.instance.transport as SocketWebRTCClientTransport).instanceRequest(MessageTypes.JoinWorld.toString());
     EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.JOINED_WORLD, worldState });
-    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENABLE_SCENE, enable: true });
   }
 
   //all scene entities are loaded
