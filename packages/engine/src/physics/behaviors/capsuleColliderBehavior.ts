@@ -9,6 +9,7 @@ import { CapsuleCollider } from '../components/CapsuleCollider';
 import { TransformComponent } from '../../transform/components/TransformComponent';
 import { CollisionGroups } from '../enums/CollisionGroups';
 import { LocalInputReceiver } from '../../input/components/LocalInputReceiver';
+import { EngineEvents } from '../../ecs/classes/EngineEvents';
 //import { useRouter } from 'next/router';
 
 
@@ -40,7 +41,9 @@ export const capsuleColliderBehavior: Behavior = (entity: Entity, args): void =>
   if (actor == undefined || !actor.initialized) return;
 
   if(isNaN(capsule.body.position.x)) {
-    capsule.body.position.set(0,1,0);
+    capsule.body.position.x = 0;
+    capsule.body.position.y = 0;
+    capsule.body.position.z = 0;
   }
   // onUpdate
   transform.position.set(
@@ -48,12 +51,7 @@ export const capsuleColliderBehavior: Behavior = (entity: Entity, args): void =>
     capsule.body.position.y,
     capsule.body.position.z
   );
-/*
-  if (actor.playerStuck > 300) {
-    capsule.body.position.set(0,20,0)
-    capsule.body.velocity.set(0,-5,0)
-  }
-*/
+
   // Shearch ground
   // Create ray
 
@@ -67,8 +65,6 @@ export const capsuleColliderBehavior: Behavior = (entity: Entity, args): void =>
   	collisionFilterMask: CollisionGroups.Default | CollisionGroups.Car | CollisionGroups.ActiveCollider,
   	skipBackfaces: true /* ignore back faces */
   };
-
-
 
   let n = 0.17;
 
@@ -96,29 +92,24 @@ export const capsuleColliderBehavior: Behavior = (entity: Entity, args): void =>
   actor.rayHasHit = m0 || m1 || m2 || m3;
 
   if (actor.rayHasHit) {
-    actor.playerStuck = 0;
-
     const arrT = [actor.rayDontStuckX.hitPointWorld.y,
      actor.rayDontStuckZ.hitPointWorld.y,
      actor.rayDontStuckXm.hitPointWorld.y,
      actor.rayDontStuckZm.hitPointWorld.y]
      actor.rayGroundY = arrT.sort()[0]
 
+    if (capsule.playerStuck < 180) {
+      capsule.playerStuck = 0;
+    }
   } else {
-    actor.playerStuck +=1
+    capsule.playerStuck += 1;
   }
 
   if (isClient && m && actor.rayResult.body.collisionFilterGroup == CollisionGroups.ActiveCollider) {
-    //console.warn('portal '+actor.playerInPortal+' '+actor.rayResult.body.link);
-  //  console.warn(actor.rayResult.body.link);
     actor.playerInPortal += 1
     if (actor.playerInPortal > 120) {
-
-    //  const router = useRouter();
-    //  window.location.href = actor.rayResult.body.link;
-    //  router.push(actor.rayResult.body.link);
-    //  router.push(actor.rayResult.body.link);
-      //window.location = String(actor.rayResult.body.link);
+      //@ts-ignore
+      EngineEvents.instance.dispatchEvent({ type: PhysicsSystem.EVENTS.PORTAL_REDIRECT_EVENT, location: actor.rayResult.body.link });
       actor.playerInPortal = 0;
     }
   } else {
