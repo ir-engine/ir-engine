@@ -29,6 +29,7 @@ import querystring from 'querystring';
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
+import { useRouter } from 'next/router';
 import url from 'url';
 import { generalStateList, setAppLoaded, setAppOnBoardingStep } from '../../redux/app/actions';
 import { selectAuthState } from '../../redux/auth/selector';
@@ -45,6 +46,7 @@ import TooltipContainer from '../ui/TooltipContainer';
 import { MessageTypes } from '@xr3ngine/engine/src/networking/enums/MessageTypes';
 import { EngineEvents } from '@xr3ngine/engine/src/ecs/classes/EngineEvents';
 import { InteractiveSystem } from '@xr3ngine/engine/src/interaction/systems/InteractiveSystem';
+import { PhysicsSystem } from '@xr3ngine/engine/src/physics/systems/PhysicsSystem';
 import { DefaultInitializationOptions, initializeEngine } from '@xr3ngine/engine/src/initialize';
 
 const goHome = () => window.location.href = window.location.origin;
@@ -113,6 +115,7 @@ export const EnginePage = (props: Props) => {
   const [infoBoxData, setModalData] = useState(null);
   const [userBanned, setUserBannedState] = useState(false);
   const [openLinkData, setOpenLinkData] = useState(null);
+  const router = useRouter();
 
   const [progressEntity, setProgressEntity] = useState(99);
   const [userHovered, setonUserHover] = useState(false);
@@ -204,7 +207,7 @@ export const EnginePage = (props: Props) => {
     }
   }, [appState]);
   const projectRegex = /\/([A-Za-z0-9]+)\/([a-f0-9-]+)$/;
-  
+
   async function init(sceneId: string): Promise<any> { // auth: any,
     let service, serviceId;
     const projectResult = await client.service('project').get(sceneId);
@@ -236,13 +239,15 @@ export const EnginePage = (props: Props) => {
     await initializeEngine(InitializationOptions)
 
     document.dispatchEvent(new CustomEvent('ENGINE_LOADED')); // this is the only time we should use document events. would be good to replace this with react state
-    
+
     EngineEvents.instance.addEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD, onNetworkConnect);
     EngineEvents.instance.addEventListener(EngineEvents.EVENTS.SCENE_LOADED, onSceneLoaded);
     EngineEvents.instance.addEventListener(EngineEvents.EVENTS.ENTITY_LOADED, onSceneLoadedEntity);
     EngineEvents.instance.addEventListener(InteractiveSystem.EVENTS.USER_HOVER, onUserHover);
     EngineEvents.instance.addEventListener(InteractiveSystem.EVENTS.OBJECT_ACTIVATION, onObjectActivation);
     EngineEvents.instance.addEventListener(InteractiveSystem.EVENTS.OBJECT_HOVER, onObjectHover);
+    EngineEvents.instance.addEventListener(PhysicsSystem.EVENTS.PORTAL_REDIRECT_EVENT, ({ location }) => router.push(location));
+
     const engageType = isMobileOrTablet() ? 'touchstart' : 'click'
     const onUserEngage = () => {
       EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.USER_ENGAGE });

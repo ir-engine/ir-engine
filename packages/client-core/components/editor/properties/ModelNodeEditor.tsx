@@ -62,6 +62,11 @@ export default class ModelNodeEditor extends Component<
     (this.props.editor as any).setPropertySelected("collidable", collidable);
   };
 
+  //function to handle change in saveColliders property
+  onChangeSaveColliders = saveColliders => {
+    (this.props.editor as any).setPropertySelected("saveColliders", saveColliders);
+  };
+
   // function to handle changes in walkable property
   onChangeWalkable = walkable => {
     (this.props.editor as any).setPropertySelected("walkable", walkable);
@@ -230,6 +235,13 @@ export default class ModelNodeEditor extends Component<
           <BooleanInput
             value={node.collidable}
             onChange={this.onChangeCollidable}
+          />
+        </InputGroup>
+        { /* @ts-ignore */ }
+        <InputGroup name="Save Colliders">
+          <BooleanInput
+            value={node.saveColliders}
+            onChange={this.onChangeSaveColliders}
           />
         </InputGroup>
         { /* @ts-ignore */ }

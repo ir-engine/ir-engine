@@ -14,6 +14,7 @@ export class CapsuleCollider extends Component<CapsuleCollider>
 	public radius: number;
 	public segments: number;
 	public friction: number;
+	public playerStuck: number;
 	public moreRaysIchTurn = 0;
 
 	constructor(options: any)
@@ -82,4 +83,5 @@ CapsuleCollider._schema = {
 	radius: { type: Types.Number, default: 0.3 },
 	segments: { type: Types.Number, default: 8 },
 	friction: { type: Types.Number, default: 0.3 },
+	playerStuck: { type: Types.Number, default: 1000 }
 };

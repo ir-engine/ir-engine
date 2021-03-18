@@ -21,6 +21,7 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { isServer } from '../../common/functions/isServer';
 import { LocalInputReceiver } from "../../input/components/LocalInputReceiver";
 import { InterpolationComponent } from '../components/InterpolationComponent';
+import TeleportToSpawnPoint from '../../scene/components/TeleportToSpawnPoint';
 
 const forwardVector = new Vector3(0, 0, 1);
 const upVector = new Vector3(0, 1, 0);
@@ -46,7 +47,7 @@ export const physicsMove: Behavior = (entity: Entity, args: any, deltaTime): voi
     transform.rotation.setFromUnitVectors(forwardVector, actor.orientation.clone().setY(0));
   }
   // if we rotation character here, lets server will do his rotation here too
-  if (hasComponent(entity, InterpolationComponent) && !hasComponent(entity, LocalInputReceiver)) return;
+  if (hasComponent(entity, InterpolationComponent) && !hasComponent(entity, TeleportToSpawnPoint) && !hasComponent(entity, LocalInputReceiver)) return;
   const body = capsule.body;
   // down speed when walk
   if (getComponent(entity, Input).data.get(BaseInput.WALK)?.value === BinaryValue.ON) {

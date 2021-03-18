@@ -1,5 +1,6 @@
 import { AssetLoader } from '../../assets/components/AssetLoader';
 import { isClient } from "../../common/functions/isClient";
+import { Engine } from '../../ecs/classes/Engine';
 import { EngineEvents } from '../../ecs/classes/EngineEvents';
 import { Entity } from "../../ecs/classes/Entity";
 import { addComponent, createEntity, getMutableComponent } from '../../ecs/functions/EntityFunctions';
@@ -12,8 +13,8 @@ export function loadScene(scene: SceneData): void {
   const loadPromises = [];
   let loaded = 0;
   if (isClient) {
-    // console.warn(Engine.scene);
-    // console.warn(scene);
+     console.warn(Engine.scene);
+     console.warn(scene);
     EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENTITY_LOADED, left: loadPromises.length });
   }
   Object.keys(scene.entities).forEach(key => {
