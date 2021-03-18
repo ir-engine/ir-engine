@@ -50,9 +50,10 @@ export type VideoTexture = VideoTextureProxy | THREE_VideoTexture;
 export class Engine {
 
   public static engineTimer: { start: Function; stop: Function } = null
-  public static engineTimerTimeout;
+  public static engineTimerTimeout = null;
 
-  public static engineIKTimer: { start: Function; stop: Function } = null
+  public static xrSupported = false;
+
   //public static stats: Stats
   // Move for sure
   // public static sky: Sky;
@@ -241,6 +242,4 @@ export class Engine {
   static gamepadThreshold = 0.1;
   static gamepadButtons: BinaryType[] = [];
   static gamepadInput: number[] = [];
-
-  static xrSupported = false;
 }
