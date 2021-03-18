@@ -710,6 +710,8 @@ export const NetworkPlayerCharacter: NetworkPrefab = {
     { type: CharacterComponent, data: { avatarId: DEFAULT_AVATAR_ID }},
     // Transform system applies values from transform component to three.js object (position, rotation, etc)
     { type: TransformComponent },
+		// Its component is a pass to Interpolation for Other Players and Serrver Correction for Your Local Player
+		{ type: InterpolationComponent },
     // Local player input mapped to behaviors in the input map
     { type: Input, data: { schema: CharacterInputSchema } },
     // Current state (isJumping, isidle, etc)
@@ -721,8 +723,7 @@ export const NetworkPlayerCharacter: NetworkPrefab = {
   localClientComponents: [
     { type: LocalInputReceiver },
     { type: FollowCameraComponent, data: { distance: 3, mode: CameraModes.ThirdPerson } },
-    { type: Interactor },
-  	{ type: InterpolationComponent }
+    { type: Interactor }
   ],
   serverComponents: [
     { type: TeleportToSpawnPoint },

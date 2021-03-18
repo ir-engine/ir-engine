@@ -1,11 +1,14 @@
+import { Quaternion, Vector3 } from "three";
 import { Entity } from "../../ecs/classes/Entity";
 import { System, SystemAttributes } from "../../ecs/classes/System";
-import { getComponent, hasComponent, removeComponent } from "../../ecs/functions/EntityFunctions";
+import { getComponent, getMutableComponent, hasComponent, removeComponent } from "../../ecs/functions/EntityFunctions";
 import { TransformComponent } from "../../transform/components/TransformComponent";
 import SpawnPointComponent from "../components/SpawnPointComponent";
 import TeleportToSpawnPoint from "../components/TeleportToSpawnPoint";
 import { Engine } from "../../ecs/classes/Engine";
-import { Quaternion, Vector3 } from "three";
+import { CapsuleCollider } from "../../physics/components/CapsuleCollider";
+//import { CharacterComponent } from '../../templates/character/components/CharacterComponent';
+
 
 export class ServerSpawnSystem extends System {
     spawnPoints: Entity[] = []
@@ -16,7 +19,7 @@ export class ServerSpawnSystem extends System {
 
         Engine.spawnSystem = this;
     }
-
+/*
     getRandomSpawnPoint(): { position: Vector3, rotation: Quaternion } {
         if (this.spawnPoints.length < 1) {
             console.warn("Couldn't spawn entity at spawn point, no spawn points available");
@@ -35,13 +38,26 @@ export class ServerSpawnSystem extends System {
             rotation: spawnTransform.rotation.clone(),
         };
     }
-
+*/
     execute(): void {
         // Keep a list of spawn points so we can send our user to one
         this.queryResults.spawnPoint.added?.forEach(entity => {
             if (!hasComponent(entity, TransformComponent))
                 return console.warn("Can't add spawn point, no transform component on entity")
             this.spawnPoints.push(entity);
+        });
+        this.queryResults.toBeSpawned.all?.forEach(entity => {
+          const capsule = getMutableComponent(entity, CapsuleCollider);
+            if (capsule.body != null && capsule.playerStuck > 180) {
+                const spawnTransform = getComponent(this.spawnPoints[this.lastSpawnIndex], TransformComponent);
+                capsule.body.position.set(
+                  spawnTransform.position.x,
+                  spawnTransform.position.y,
+                  spawnTransform.position.z
+                );
+                capsule.playerStuck = 0;
+                this.lastSpawnIndex = (this.lastSpawnIndex + 1) % this.spawnPoints.length;
+            }
         });
         this.queryResults.spawnPoint.removed?.forEach(entity => {
             this.spawnPoints.splice(this.spawnPoints.indexOf(entity))
@@ -51,7 +67,7 @@ export class ServerSpawnSystem extends System {
 
 ServerSpawnSystem.queries = {
     toBeSpawned: {
-        components: [TeleportToSpawnPoint, TransformComponent],
+        components: [TeleportToSpawnPoint, CapsuleCollider],
         listen: {
             added: true,
             removed: true
