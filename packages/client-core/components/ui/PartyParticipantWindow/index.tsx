@@ -82,6 +82,8 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
     const [audioProducerPaused, setAudioProducerPaused] = useState(false);
     const [videoProducerGlobalMute, setVideoProducerGlobalMute] = useState(false);
     const [audioProducerGlobalMute, setAudioProducerGlobalMute] = useState(false);
+    const [audioTrackClones, setAudioTrackClones] = useState([]);
+    const [videoTrackClones, setVideoTrackClones] = useState([]);
     const [volume, setVolume] = useState(100);
     const {
         harmony,
@@ -189,18 +191,11 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
     }, [selfUser]);
 
     useEffect(() => {
-        if ((Network.instance?.transport as any)?.channelType === 'instance') {
-            (Network.instance?.transport as any)?.instanceSocket?.on(MessageTypes.WebRTCPauseConsumer.toString(), pauseConsumerListener);
-            (Network.instance?.transport as any)?.instanceSocket?.on(MessageTypes.WebRTCResumeConsumer.toString(), resumeConsumerListener);
-            (Network.instance?.transport as any)?.instanceSocket?.on(MessageTypes.WebRTCPauseProducer.toString(), pauseProducerListener);
-            (Network.instance?.transport as any)?.instanceSocket?.on(MessageTypes.WebRTCResumeProducer.toString(), resumeProducerListener);
-        }
-        else {
-            (Network.instance?.transport as any)?.channelSocket?.on(MessageTypes.WebRTCPauseConsumer.toString(), pauseConsumerListener);
-            (Network.instance?.transport as any)?.channelSocket?.on(MessageTypes.WebRTCResumeConsumer.toString(), resumeConsumerListener);
-            (Network.instance?.transport as any)?.channelSocket?.on(MessageTypes.WebRTCPauseProducer.toString(), pauseProducerListener);
-            (Network.instance?.transport as any)?.channelSocket?.on(MessageTypes.WebRTCResumeProducer.toString(), resumeProducerListener);
-        }
+        const socket = (Network.instance?.transport as any)?.channelType === 'instance' ? (Network.instance?.transport as any)?.instanceSocket : (Network.instance?.transport as any)?.channelSocket;
+        socket?.on(MessageTypes.WebRTCPauseConsumer.toString(), pauseConsumerListener);
+        socket?.on(MessageTypes.WebRTCResumeConsumer.toString(), resumeConsumerListener);
+        socket?.on(MessageTypes.WebRTCPauseProducer.toString(), pauseProducerListener);
+        socket?.on(MessageTypes.WebRTCResumeProducer.toString(), resumeProducerListener);
     }, []);
 
     useEffect(() => {
@@ -212,21 +207,10 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
                 audioRef.current.muted = true;
             }
             if (audioStream != null) {
-                audioRef.current.srcObject = new MediaStream([audioStream.track.clone()]);
-                if (peerId !== 'me_cam') {
-                    console.log("*** New mediastream created for audio track for peer id ", peerId);
-                    // Create positional audio and attach mediastream here
-                    console.log("MediaStreamSystem.instance?.consumers is ");
-                    console.log(MediaStreamSystem.instance?.consumers);
-                }
-                if (peerId === 'me_cam') {
-                    MediaStreamSystem.instance.setAudioPaused(false);
-                } else if (peerId === 'me_screen') {
-                    MediaStreamSystem.instance.setScreenShareAudioPaused(false);
-                } else if (audioStream.track.muted === true) {
-                    // toggleAudio();
-                }
-                setAudioProducerPaused(false);
+                const newAudioTrack = audioStream.track.clone();
+                const updateAudioTrackClones = audioTrackClones.concat(newAudioTrack);
+                setAudioTrackClones(updateAudioTrackClones);
+                audioRef.current.srcObject = new MediaStream([newAudioTrack]);
             }
             // TODO: handle 3d audio switch on/off
             if (harmony !== true && (selfUser?.user_setting?.spatialAudioEnabled === true || selfUser?.user_setting?.spatialAudioEnabled === 1)) audioRef.current.volume = 0;
@@ -236,6 +220,10 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
             }
             setVolume(volume);
         }
+
+        return () => {
+            audioTrackClones.forEach((track) => track.stop());
+        }
     }, [audioStream]);
 
     useEffect(() => {
@@ -244,26 +232,38 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
             videoRef.current.autoplay = true;
             videoRef.current.muted = true;
             videoRef.current.setAttribute('playsinline', 'true');
-            if (videoStream) {
-                videoRef.current.srcObject = new MediaStream([videoStream.track.clone()]);
-                if (peerId === 'me_cam') {
-                    MediaStreamSystem.instance.setVideoPaused(false);
-                } else if (peerId === 'me_screen') {
-                    MediaStreamSystem.instance.setScreenShareVideoPaused(false);
-                } else if (videoStream.track.muted === true) {
-                    // toggleVideo();
-                }
+            if (videoStream != null) {
+                const newVideoTrack = videoStream.track.clone();
+                const updateVideoTrackClones = videoTrackClones.concat(newVideoTrack);
+                setVideoTrackClones(updateVideoTrackClones);
+                videoRef.current.srcObject = new MediaStream([newVideoTrack]);
                 setVideoProducerPaused(false);
             }
+        }
+
+        return () => {
+            videoTrackClones.forEach((track) => track.stop());
         }
     }, [videoStream]);
 
     useEffect(() => {
         if (peerId === 'me_cam' || peerId === 'me_screen') setAudioStreamPaused(MediaStreamSystem.instance?.audioPaused);
+        if (harmony === true && audioStream != null && audioRef.current != null) {
+            const newAudioTrack = audioStream.track.clone();
+            const updateAudioTrackClones = audioTrackClones.concat(newAudioTrack);
+            setAudioTrackClones(updateAudioTrackClones);
+            audioRef.current.srcObject = new MediaStream([newAudioTrack]);
+        }
     }, [MediaStreamSystem.instance?.audioPaused]);
 
     useEffect(() => {
         if (peerId === 'me_cam' || peerId === 'me_screen') setVideoStreamPaused(MediaStreamSystem.instance?.videoPaused);
+        if (harmony === true && videoStream != null && videoRef.current != null) {
+            const newVideoTrack = videoStream.track.clone();
+            const updateVideoTrackClones = videoTrackClones.concat(newVideoTrack);
+            setVideoTrackClones(updateVideoTrackClones);
+            videoRef.current.srcObject = new MediaStream([newVideoTrack]);
+        }
     }, [MediaStreamSystem.instance?.videoPaused]);
 
     const toggleVideo = async (e) => {
@@ -329,6 +329,7 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
     const togglePiP = () => setPiP(!isPiP);
 
     const isSelfUser = peerId === 'me_cam' || peerId === 'me_screen';
+
     return (
         <Draggable isPiP={isPiP}>
         <div
@@ -388,7 +389,7 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
                                             : audioStreamPaused ? <VolumeOff /> : <VolumeUp />}
                                     </IconButton>
                                 </Tooltip> : null}
-                            <Tooltip title="Open Picture in Picture">
+                            {harmony !== true && <Tooltip title="Open Picture in Picture">
                                 <IconButton
                                     color="secondary"
                                     size="small"
@@ -397,7 +398,7 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
                                 >
                                     <Launch className={styles.pipBtn}/>
                                 </IconButton>
-                            </Tooltip>
+                            </Tooltip> }
                     </div>
                     {audioProducerGlobalMute === true && <div className={styles['global-mute']}>Muted by Admin</div>}
                     {audioStream && audioProducerPaused === false && audioProducerGlobalMute === false &&

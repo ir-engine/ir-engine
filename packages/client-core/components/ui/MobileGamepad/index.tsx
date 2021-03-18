@@ -27,8 +27,6 @@ export const MobileGamepad: FunctionComponent<MobileGamepadProps> = ({ hovered }
       className={styles.controllButton + ' ' + styles[`gamepadButton_${value.label}`] + ' ' + (hovered ? styles.availableButton : styles.notAvailableButton)}
       onPointerDown={ (): void => triggerButton(value.button, true) }
       onPointerUp={ (): void => triggerButton(value.button, false) }
-      onTouchStart={ (): void => triggerButton(value.button, true) }
-      onTouchEnd={ (): void => triggerButton(value.button, false) }
     ><TouchApp /></div>);
   }));
 

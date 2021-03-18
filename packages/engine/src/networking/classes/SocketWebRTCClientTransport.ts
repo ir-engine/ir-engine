@@ -66,17 +66,11 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
   // This sends message on a data channel (data channel creation is now handled explicitly/default)
   sendData(data: any, instance = true): void {
     if (instance === true) {
-      if (!this.instanceDataProducer) {
-        console.error('Data Producer not initialized on client, Instance Data Producer doesn\'t exist!');
-        return;
-      }
-      if (this.instanceDataProducer.closed !== true) this.instanceDataProducer.send(this.toBuffer(data));
+      if (this.instanceDataProducer && this.instanceDataProducer.closed !== true && this.instanceDataProducer.readyState === 'open')
+          this.instanceDataProducer.send(this.toBuffer(data));
     } else {
-      if (!this.channelDataProducer) {
-        console.error('Data Producer not initialized on client, Channel Data Producer doesn\'t exist!');
-        return;
-      }
-      if (this.channelDataProducer.closed !== true) this.channelDataProducer.send(this.toBuffer(data));
+      if (this.channelDataProducer && this.channelDataProducer.closed !== true && this.channelDataProducer.readyState === 'open')
+        this.channelDataProducer.send(this.toBuffer(data));
     }
   }
 
@@ -155,9 +149,6 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       console.log(ConnectToWorldResponse);
       const { worldState, routerRtpCapabilities } = ConnectToWorldResponse as any;
 
-      console.log('EngineEvents:');
-      console.log(EngineEvents.instance);
-      console.log(EngineEvents.instance.dispatchEvent);
       EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.CONNECT_TO_WORLD });
 
       // Send heartbeat every second
@@ -207,6 +198,9 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       // Get information for how to consume data from server and init a data consumer
       socket.on(MessageTypes.WebRTCConsumeData.toString(), async (options) => {
         const dataConsumer = await this.instanceRecvTransport.consumeData(options);
+
+        // Firefox uses blob as by default hence have to convert binary type of data consumer to 'arraybuffer' explicitly.
+        dataConsumer.binaryType = 'arraybuffer';
         Network.instance?.dataConsumers.set(options.dataProducerId, dataConsumer);
 
         dataConsumer.on('message', (message: any) => {
@@ -232,11 +226,11 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
           // (MediaStreamSystem.mediaStream !== null) &&
           (producerId != null) &&
           (channelType === self.channelType) &&
-          (selfProducerIds.indexOf(producerId) < 0) &&
-          (MediaStreamSystem.instance?.consumers?.find(
-            c => c?.appData?.peerId === socketId && c?.appData?.mediaTag === mediaTag
-          ) == null /*&&
-            (channelType === 'instance' ? this.channelType === 'instance' : this.channelType === channelType && this.channelId === channelId)*/)
+          (selfProducerIds.indexOf(producerId) < 0)
+          // (MediaStreamSystem.instance?.consumers?.find(
+          //   c => c?.appData?.peerId === socketId && c?.appData?.mediaTag === mediaTag
+          // ) == null /*&&
+          //   (channelType === 'instance' ? this.channelType === 'instance' : this.channelType === channelType && this.channelId === channelId)*/)
         ) {
           // that we don't already have consumers for...
           await subscribeToTrack(socketId, mediaTag, channelType, channelId);
@@ -251,6 +245,8 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
 
       // Init Receive and Send Transports initially since we need them for unreliable message consumption and production
       if ((socket as any).instance === true) {
+        console.log('Initializing instance transports');
+        console.log(socket);
         await Promise.all([initSendTransport('instance'), initReceiveTransport('instance')]);
         await createDataProducer((socket as any).instance === true ? 'instance' : this.channelId );
       }

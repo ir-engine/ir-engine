@@ -35,7 +35,7 @@ export class FeedFires extends Service {
   
       const {
         feed_fires:feedFiresModel,
-        user:userModel,
+        creator:creatorModel,
       } = this.app.get('sequelizeClient').models;
 
       const feed_fired_users = await feedFiresModel.findAndCountAll({
@@ -45,21 +45,20 @@ export class FeedFires extends Service {
         offset: skip,
         limit,
         include: [
-          { model: userModel, as: 'user' }
+          { model: creatorModel, as: 'creator' }
         ],
         order: [ [ 'createdAt', 'DESC' ] ] // order not used in find?
       });
 
       const data = feed_fired_users.rows.map(fire => {
-        const user = fire.user.dataValues;
+        const creator = fire.creator.dataValues;
         return { // TODO: get creator from corresponding table
-            userId: user.id,
-            id:user.id,
+            id:creator.id,
             avatar: 'https://picsum.photos/40/40',
-            name: user.name,
-            username: user.name,
+            name: creator.name,
+            username: creator.username,
             verified : true,
-        }  
+        };  
       });
       const feedsResult = {
         data,
@@ -71,31 +70,45 @@ export class FeedFires extends Service {
       return feedsResult;
     }
 
-  async create (data : any, params?:Params): Promise<any> {
-    const loggedInUser = extractLoggedInUserFromParams(params);
-    if (!loggedInUser?.userId) {
-      return Promise.reject(new BadRequest('Could not add fire. Users isn\'t logged in! '));
-    }
+  async create (data: any, params?: Params): Promise<any> {   
     const {feed_fires:feedFiresModel} = this.app.get('sequelizeClient').models;
-    const newFire =  await feedFiresModel.create({feedId:data.feedId, authorId:loggedInUser?.userId});
+
+    //common  - TODO -move somewhere
+    const loggedInUser = extractLoggedInUserFromParams(params);
+    const creatorQuery = `SELECT id  FROM \`creator\` as creator WHERE creator.userId=:userId`;
+    const [creator] = await this.app.get('sequelizeClient').query(creatorQuery,
+      {
+        type: QueryTypes.SELECT,
+        raw: true,
+        replacements: {userId:loggedInUser.userId}
+      });   
+    const creatorId = creator.id;
+
+    const newFire =  await feedFiresModel.create({feedId:data.feedId, creatorId});
     return  newFire;
 
   }
 
-  async remove ( feedId: string,  params?:Params): Promise<any> {
+  async remove ( feedId: string,  params?: Params): Promise<any> {
+    //common  - TODO -move somewhere
     const loggedInUser = extractLoggedInUserFromParams(params);
-    if (!loggedInUser?.userId) {
-      return Promise.reject(new BadRequest('Could not remove fire. Users isn\'t logged in! '));
-    }
+    const creatorQuery = `SELECT id  FROM \`creator\` as creator WHERE creator.userId=:userId`;
+    const [creator] = await this.app.get('sequelizeClient').query(creatorQuery,
+      {
+        type: QueryTypes.SELECT,
+        raw: true,
+        replacements: {userId:loggedInUser.userId}
+      });   
+    const creatorId = creator.id;
     
-    const dataQuery = `DELETE FROM  \`feed_fires\` WHERE feedId=:feedId AND authorId=:authorId`;
+    const dataQuery = `DELETE FROM  \`feed_fires\` WHERE feedId=:feedId AND creatorId=:creatorId`;
     await this.app.get('sequelizeClient').query(dataQuery,
       {
         type: QueryTypes.DELETE,
         raw: true,
         replacements: {
           feedId:feedId, 
-          authorId:loggedInUser?.userId
+          creatorId
         }
       });
   }

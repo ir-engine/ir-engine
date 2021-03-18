@@ -82,6 +82,7 @@ export const subFocused:Behavior = (entity: Entity, args, delta: number): void =
 };
 
 const interactFocused: Behavior = (entity: Entity, args, delta: number): void => {
+
   if (!hasComponent(entity, Interactable)) {
     console.error('Attempted to call interact behavior, but target does not have Interactive component');
     return;
@@ -205,6 +206,8 @@ export class InteractiveSystem extends System {
 
   static EVENTS = {
     USER_HOVER: 'INTERACTIVE_SYSTEM_USER_HOVER',
+    OBJECT_HOVER: 'INTERACTIVE_SYSTEM_OBJECT_HOVER',
+    OBJECT_ACTIVATION: 'INTERACTIVE_SYSTEM_OBJECT_ACTIVATION',
   };
   updateType = SystemUpdateType.Fixed;
 
@@ -378,7 +381,7 @@ export class InteractiveSystem extends System {
 
         } else
         if (object3D instanceof Object3D) {
-          aabb.setFromObject( object3D );
+          aabb.setFromCenterAndSize(getComponent(entity, TransformComponent).position, new Vector3(0.5, 0.5, 0.5))
         }
 
        calcBoundingBox.box = aabb;

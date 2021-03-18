@@ -21,6 +21,7 @@ import { PlayerInCar } from '@xr3ngine/engine/src/physics/components/PlayerInCar
 import { FollowCameraComponent } from "@xr3ngine/engine/src/camera/components/FollowCameraComponent";
 import { BinaryValue } from "../../common/enums/BinaryValue";
 import { BaseInput } from "../../input/enums/BaseInput";
+import { InterpolationComponent } from "../../physics/components/InterpolationComponent";
 /**
  * Apply State received over the network to the client.
  * @param worldStateBuffer State of the world received over the network.
@@ -132,21 +133,25 @@ export function applyNetworkStateToClient(worldStateBuffer: WorldStateInterface,
               // sync Physics Objects with server network id
               syncPhysicsObjects(objectToCreate)
             } else {
-              if (objectToCreate.ownerId === Network.instance.userId) {
-                console.warn('Give Player Id by Server '+objectToCreate.networkId, objectToCreate.ownerId, Network.instance.userId);
-                console.warn(Network.instance.networkObjects);
-                Network.instance.localAvatarNetworkId = objectToCreate.networkId;
-              }
-              initializeNetworkObject(
+
+              const networkObject = initializeNetworkObject(
                   String(objectToCreate.ownerId),
                   objectToCreate.networkId,
                   objectToCreate.prefabType,
                   position,
                   rotation,
               );
-            }
-            // for now, its for optimization
 
+              if (objectToCreate.ownerId === Network.instance.userId) {
+                console.warn('Give Player Id by Server '+objectToCreate.networkId, objectToCreate.ownerId, Network.instance.userId);
+                console.warn(Network.instance.networkObjects);
+                Network.instance.localAvatarNetworkId = objectToCreate.networkId;
+                addComponent(networkObject.entity, InterpolationComponent);
+              } else {
+                addComponent(networkObject.entity, InterpolationComponent);
+              }
+
+            }
         }
     }
 
@@ -257,7 +262,7 @@ export function applyNetworkStateToClient(worldStateBuffer: WorldStateInterface,
             inputData.viewVector.y,
             inputData.viewVector.z,
         );
-
+/*
         // Get input object attached
         const input = getComponent(networkComponent.entity, Input);
         const isWalking = (input.data.get(BaseInput.WALK)?.value) === BinaryValue.ON;
@@ -296,6 +301,7 @@ export function applyNetworkStateToClient(worldStateBuffer: WorldStateInterface,
 
         // handle inputs
         handleInputFromNonLocalClients(networkComponent.entity, {isLocal:false, isServer: false}, delta);
+        */
     });
 
 /*

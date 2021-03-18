@@ -59,7 +59,7 @@ export class ClientInputSystem extends System {
     ClientInputSchema.onAdded.forEach(behavior => {
       behavior.behavior();
     });
-  
+
     Object.keys(ClientInputSchema.eventBindings)?.forEach((eventName: string) => {
       ClientInputSchema.eventBindings[eventName].forEach((behaviorEntry: DomEventBehaviorValue) => {
         // const domParentElement:EventTarget = document;
@@ -114,8 +114,9 @@ export class ClientInputSystem extends System {
    * @param {Number} delta Time since last frame
    */
 
-  public execute(delta: number): void { 
+  public execute(delta: number): void {
     handleGamepads();
+    const newState = new Map();
 
     Engine.inputState.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
       if (!Engine.prevInputState.has(key)) {
@@ -140,28 +141,26 @@ export class ClientInputSystem extends System {
         return;
       }
 
-      if (Engine.prevInputState.has(key)) {
-        if (JSON.stringify(value.value) === JSON.stringify(Engine.prevInputState.get(key).value)) {
-          value.lifecycleState = LifecycleValue.UNCHANGED;
-        } else {
-          value.lifecycleState = LifecycleValue.CHANGED;
-        }
-        Engine.inputState.set(key, value);
+      value.lifecycleState = JSON.stringify(value.value) === JSON.stringify(Engine.prevInputState.get(key).value)
+        ? LifecycleValue.UNCHANGED
+        : LifecycleValue.CHANGED;
+      Engine.inputState.set(key, value);
+    });
+
+    // deep copy
+    Engine.inputState.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
+      if(!(value.lifecycleState === LifecycleValue.UNCHANGED && Engine.prevInputState.get(key)?.lifecycleState === LifecycleValue.UNCHANGED)) {
+        newState.set(key, { type: value.type, value: value.value, lifecycleState: value.lifecycleState });
       }
     });
 
-    EngineEvents.instance.dispatchEvent({ type: ClientInputSystem.EVENTS.PROCESS_INPUT, data: new Map(Engine.inputState) });
+    EngineEvents.instance.dispatchEvent({ type: ClientInputSystem.EVENTS.PROCESS_INPUT, data: newState });
 
     Engine.prevInputState.clear();
     Engine.inputState.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
       Engine.prevInputState.set(key, value);
-    });
-
-    Engine.inputState.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
-      if (value.type === InputType.BUTTON) {
-        if (value.lifecycleState === LifecycleValue.ENDED) {
-          Engine.inputState.delete(key);
-        }
+      if (value.lifecycleState === LifecycleValue.ENDED) {
+        Engine.inputState.delete(key);
       }
     });
   }

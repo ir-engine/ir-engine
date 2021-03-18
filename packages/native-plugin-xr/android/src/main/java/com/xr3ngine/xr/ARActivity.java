@@ -19,20 +19,29 @@ package com.xr3ngine.xr;
 import android.app.Activity;
 import android.app.Fragment;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.res.Resources;
 import android.media.Image;
+import android.net.Uri;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.MediaController;
 import android.widget.PopupMenu;
+import android.widget.PopupWindow;
 import android.widget.Toast;
+import android.widget.VideoView;
 
 import androidx.appcompat.app.AlertDialog;
 
@@ -77,8 +86,10 @@ import com.xr3ngine.xr.arcore.samplerender.VertexBuffer;
 import com.xr3ngine.xr.arcore.samplerender.arcore.BackgroundRenderer;
 import com.xr3ngine.xr.arcore.samplerender.arcore.PlaneRenderer;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 
@@ -101,6 +112,7 @@ public class ARActivity extends Fragment implements SampleRender.Renderer {
     private GLSurfaceView surfaceView;
 
     private boolean installRequested;
+    private boolean pauseARSession=false;
 
     private Session session;
     private DisplayRotationHelper displayRotationHelper;
@@ -110,6 +122,8 @@ public class ARActivity extends Fragment implements SampleRender.Renderer {
     private BackgroundRenderer backgroundRenderer;
     private Framebuffer virtualSceneFramebuffer;
     private boolean hasSetTextureNames = false;
+
+    private PopupWindow popupWindow;
 
     public int width;
     public int height;
@@ -201,6 +215,8 @@ public class ARActivity extends Fragment implements SampleRender.Renderer {
 
         // Inflate the layout for this fragment
         view = inflater.inflate(getResources().getIdentifier("xr_activity", "layout", appResourcesPackage), container, false);
+
+
 
         surfaceView = view.findViewById(R.id.surfaceview);
         displayRotationHelper = new DisplayRotationHelper(/*context=*/ getContext());
@@ -391,9 +407,11 @@ public class ARActivity extends Fragment implements SampleRender.Renderer {
 
     @Override
     public void onDrawFrame(SampleRender render) {
-        if (session == null) {
+        if (session == null||pauseARSession)
+        {
             return;
         }
+
 
         // Texture names should only be set once on a GL thread unless they change. This is done during
         // onDrawFrame rather than onSurfaceCreated since the session is not guaranteed to have been
@@ -644,6 +662,57 @@ public class ARActivity extends Fragment implements SampleRender.Renderer {
         }
     }
 
+
+    /*
+    Pauses the current ARSession and opens a popwindow and play the recorded video
+    * */
+    void showVideo()
+    {
+
+        pauseARSession = true;
+        session.pause();
+
+        View popupView = LayoutInflater.from(getActivity()).inflate(R.layout.video_viewer_layout, null);
+        VideoView videoView = popupView.findViewById(R.id.videoview1);
+        Button button =popupView.findViewById(R.id.btn_close_view);
+
+        //Onclicking the close button popwindow will be closed resuming the ARCore session
+        button.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                popupWindow.dismiss();
+                pauseARSession =false;
+                try
+                {
+                    session.resume();
+                } catch (CameraNotAvailableException e)
+                {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        popupWindow = new PopupWindow(popupView, WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.WRAP_CONTENT);
+
+        popupWindow.showAtLocation(view, Gravity.CENTER,0,0);
+
+        MediaController mediaController= new MediaController(getContext());
+        mediaController.setAnchorView(videoView);
+
+        String appName = "Example";
+        File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES), appName);
+        String uriPath = mediaStorageDir.getPath()+"/test.mp4";
+        //specify the location of media file
+        Uri uri= Uri.parse(uriPath);
+
+        //Setting MediaController and URI, then starting the videoView
+        videoView.setMediaController(mediaController);
+        videoView.setVideoURI(uri);
+        videoView.requestFocus();
+        videoView.start();
+    }
 //    /**
 //     * Shows a pop-up dialog on the first call, determining whether the user wants to enable
 //     * depth-based occlusion. The result of this dialog can be retrieved with useDepthForOcclusion().
@@ -748,4 +817,6 @@ public class ARActivity extends Fragment implements SampleRender.Renderer {
 //        }
         session.configure(config);
     }
+
+
 }

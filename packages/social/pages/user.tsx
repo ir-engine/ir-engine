@@ -9,7 +9,7 @@ export default function User() {
   return (<>
     <div className={styles.viewport}>
       <UserEdit />      
-      <AppFooter user={{username:'username'}} />
+      <AppFooter />
     </div>
   </>
   );

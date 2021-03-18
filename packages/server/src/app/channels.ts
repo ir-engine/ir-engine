@@ -5,6 +5,8 @@ import config from '../config';
 import {Application} from '../declarations';
 import getLocalServerIp from '../util/get-local-server-ip';
 import logger from './logger';
+import {localConfig} from "../gameserver/transports/config";
+import {RtpCodecCapability} from "mediasoup/lib/types";
 
 
 let sceneLoaded = false;

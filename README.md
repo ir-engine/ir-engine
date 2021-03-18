@@ -1,52 +1,37 @@
-<div align="center">
 
-<a href="https://xr3ngine.io">
-</a>
+![xr3ngine](https://github.com/xr3ngine/xr3ngine/raw/dev/xrengine%20black.png)
 
-# xr3ngine
 An end-to-end solution for hosting humans and AI in a virtual space, built on top of react, three.js and express/feathers.
 
 This repo includes a fully-feature client, API server, realtime gamerserver, game engine and devops for scalable deployment. Pick and choose what you need or deploy the whole stack and start building your application on top.
-
-</div>
 
 [![Build Status](https://travis-ci.org/xr3ngine/xr3ngine.svg?branch=dev)](https://travis-ci.org/xr3ngine/xr3ngine)	
 
 
 ## Popular features
-Player rigs to support 2D, 3D and XR interaction
-
-High-performance ECS engine
-
-Full-featured world editor
-
-Fully networked player controller, physics, vehicles and particles
-
-Fully data-oriented design
-
-Chat, groups, parties and friends
-
-Voice and video over WebRTC
-
-Instant login with phone number or email
-
-OAuth login with Facebook, Google, Steam and Github
-
-User management, avatars and inventory
-
-Authorative realtime gameserver
-
-Reliable messaging and signaling with socket.io
-
-Fast, unreliable messaging with SCTP data channels
-
-Built end-to-end in Typescript
-
-Free, open source, MIT-licensed
+- Player rigs to support 2D, 3D and XR interaction
+- High-performance ECS engine
+- Full-featured world editor
+- Fully networked player controller, physics, vehicles and particles
+- Fully data-oriented design
+- Chat, groups, parties and friends
+- Voice and video over WebRTC
+- Instant login with phone number or email
+- OAuth login with Facebook, Google, Steam and Github
+- User management, avatars and inventory
+- Authorative realtime gameserver
+- Reliable messaging and signaling with socket.io
+- Fast, unreliable messaging with SCTP data channels
+- Built end-to-end in Typescript
+- Free, open source, MIT-licensed
 
 ## Getting Started
 
-Getting up and running requires only a few steps. Supported on OSX / Linux / WSL2 for Windows
+Getting up and running requires only a few steps. 
+
+IF ON WINDOWS, go to Native Windows Preinstall below
+
+For on OSX / Linux / WSL2 for Windows:
 
 First, make sure you have [NodeJS](https://nodejs.org/) and [npm](https://www.npmjs.com/) installed (and if you are using it, [docker](https://docs.docker.com/)).
 
@@ -65,7 +50,6 @@ First, make sure you have [NodeJS](https://nodejs.org/) and [npm](https://www.np
 	npm config set python /usr/bin/python
 	PYTHON=python3 yarn install
 	```
-
 2. Make sure you have a mysql database installed and running -- our recommendation is Mariadb. We've provided a docker container for easy setup:
     ```
     cd scripts && sudo bash start-db.sh
@@ -123,9 +107,40 @@ First, make sure you have [NodeJS](https://nodejs.org/) and [npm](https://www.np
    See the sections below about invalid certificates if you are encountering errors
    connecting to the client, API, or gameserver.
 
-### Notes
+### Native Windows Preinstall
 
-If you are on Windows, you can use docker-compose to start the scripts/docker-compose.yml file, or install mariadb and copy the login/pass and database name from docker-compose or .env.local -- you will need to create the database with the matching name, but you do not need to populate it
+1. Add Env Variable
+```
+PUPPETEER_SKIP_DOWNLOAD='true'
+```
+2. install python 2 and add python installation directory path to 'path' env variable.
+
+3. Install node js
+
+4. install Visual studio community edition with build tools. follow next steps. If mediasoup will not installed properly then modify Visual studio setup to add c++ and Node.js support.
+
+5. add environmental variable
+```
+GYP_MSVS_VERSION=<vs-year>
+for example, GYP_MSVS_VERSION=2019
+```
+
+6. add path to MSbuild.exe (which is present into vs installation folder) into 'path' variable
+for example:``` C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Current\Bin```
+
+7. remove mediasoup and mediasoup-client from every package.json. This will enable us to add all the dependencies except mediasoup, this way we can save time while dealing with mediasoup.
+
+8. rename 'postinstall' to 'postinstall-1' so that it will not run after installing dependencies.
+
+9. install all dependences using yarn.
+
+10. add back all removed mediasoup and mediasoup-client dependencies.
+
+11. Rerun yarn command to install dependencies to install newly added mediasoup and mediasoup-client dependencies.
+
+12. If error persists then check for typos in evironment variables.
+
+13. If you are on Windows, you can use docker-compose to start the scripts/docker-compose.yml file, or install mariadb and copy the login/pass and database name from docker-compose or .env.local -- you will need to create the database with the matching name, but you do not need to populate it
 
 ./start-db.sh only needs to be run once. If the docker image has stopped, start it again with:
 
@@ -133,8 +148,8 @@ If you are on Windows, you can use docker-compose to start the scripts/docker-co
     docker container start xr3ngine_db
 ```
 
-#### OSX DB Init
-
+### OSX DB Native Initialization Commands
+```
 brew install mysql
 
 mysql_secure_installation
@@ -152,8 +167,7 @@ show databases;
 
 mysql.server start
 mysql.server stop
-
-
+```
 ### Troubleshooting
 
 #### Invalid Certificate errors in local environment
@@ -166,6 +180,16 @@ of 'advanced options' button or link and then something along the lines of 'go t
 Chrome sometimes does not show a clickable option on the warning. If so, just
 type ```badidea``` or ```thisisunsafe``` when on that page. You don't enter that into the
 address bar or into a text box, Chrome is just passively listening for those commands.
+
+##### Allow gameserver address connection via installing local Certificate Authority
+For more detailed instructions check: https://github.com/FiloSottile/mkcert
+
+Short version (common for development process on Ubuntu):
+1. `sudo apt install libnss3-tools`
+2. `brew install mkcert` (if you don't have brew, check it's page: https://brew.sh/)
+3. `mkcert --install`
+4. navigate to `./certs` folder
+5. mkcert -key-file key.pem -cert-file cert.pem localhost 127.0.0.1 ::1
 
 ##### Allow gameserver address connection with invalid certificate
 

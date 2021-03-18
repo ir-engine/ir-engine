@@ -139,13 +139,6 @@ export class User extends Service {
               userRelationshipType: 'friend'
             }
           },
-          {
-            model: this.app.service('user-relationship').Model,
-            where: {
-              userId: loggedInUser.userId,
-              userRelationshipType: 'friend'
-            }
-          }
         ]
       });
 
