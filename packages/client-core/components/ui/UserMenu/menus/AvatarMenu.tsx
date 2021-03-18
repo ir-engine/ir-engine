@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent } from '@material-ui/core';
 import { NavigateNext, NavigateBefore, Check, ArrowBack, PersonAdd } from '@material-ui/icons';
-import { CharacterAvatars } from '@xr3ngine/engine/src/templates/character/CharacterAvatars';
 // @ts-ignore
 import styles from '../style.module.scss';
 import { LazyImage } from '../../LazyImage';
-import { getAvatarURL, SettingMenuProps, Views } from '../util';
+import { Views } from '../util';
 
 const AvatarMenu = (props: any): any => {
 	const MAX_AVATARS_PER_PAGE = 6;
@@ -16,6 +15,7 @@ const AvatarMenu = (props: any): any => {
 	const [ page, setPage ] = useState(0);
 	const [ imgPerPage, setImgPerPage ] = useState(getAvatarPerPage());
 	const [ selectedAvatarId, setSelectedAvatarId ] = useState(''); 
+	const [ isAvatarLoaded, setAvatarLoaded ] = useState(false);
 
 	useEffect((() => {
 		function handleResize() {
@@ -29,9 +29,13 @@ const AvatarMenu = (props: any): any => {
 		};
 	}) as any);
 
+	useEffect(() => {
+		props.fetchAvatarList();
+	}, [isAvatarLoaded]);
+
 	const loadNextAvatars = (e) => {
 		e.preventDefault();
-		if ((page + 1) * imgPerPage >= CharacterAvatars.length) return;
+		if ((page + 1) * imgPerPage >= props.avatarList.length) return;
 		setPage(page + 1);
 	}
 	const loadPreviousAvatars = (e) => {
@@ -40,11 +44,11 @@ const AvatarMenu = (props: any): any => {
 		setPage(page - 1);
 	}
 
-	const selectAvatar = (e) => {
-		const selectedAvatar = e.currentTarget.id
-		setSelectedAvatarId(selectedAvatar);
-		if (props.avatarId !== selectedAvatar) {
-			props.setAvatar(selectedAvatar);
+	const selectAvatar = (avatarResources: any) => {
+		const avatar = avatarResources.avatar;
+		setSelectedAvatarId(avatar.name);
+		if (props.avatarId !== avatar.name) {
+			props.setAvatar(avatar.name, avatar.url, avatarResources['user-thumbnail'].url);
 		}
 	}
 
@@ -66,23 +70,23 @@ const AvatarMenu = (props: any): any => {
 	const renderAvatarList = () => {
 		const avatarList = [];
 		const startIndex = page * imgPerPage;
-		const endIndex = Math.min(startIndex + imgPerPage, CharacterAvatars.length);
+		const endIndex = Math.min(startIndex + imgPerPage, props.avatarList.length);
 
 		for (let i = startIndex; i < endIndex; i++) {
-			const characterAvatar = CharacterAvatars[i];
+			const characterAvatar = props.avatarList[i];
 			avatarList.push(
 				<Card
-					key={characterAvatar.id}
+					key={characterAvatar.avatar.id}
 					className={`
 						${styles.avatarPreviewWrapper}
-						${characterAvatar.id === props.avatarId ? styles.activeAvatar : ''}
-						${characterAvatar.id === selectedAvatarId ? styles.selectedAvatar : ''}
+						${characterAvatar.avatar.name === props.avatarId ? styles.activeAvatar : ''}
+						${characterAvatar.avatar.name === selectedAvatarId ? styles.selectedAvatar : ''}
 					`}>
-					<CardContent id={characterAvatar.id} onClick={selectAvatar}>
+					<CardContent onClick={() => selectAvatar(characterAvatar)}>
 						<LazyImage
-							key={characterAvatar.id}
-							src={getAvatarURL(characterAvatar.id)}
-							alt={characterAvatar.title}
+							key={characterAvatar.avatar.id}
+							src={characterAvatar['user-thumbnail'].url}
+							alt={characterAvatar.avatar.name}
 						/>
 					</CardContent>
 				</Card>
@@ -111,7 +115,7 @@ const AvatarMenu = (props: any): any => {
 						<PersonAdd />
 					</button>
 				</div>
-				<button type="button" className={`${styles.iconBlock} ${(page + 1) * imgPerPage >= CharacterAvatars.length ? styles.disabled : ''}`} onClick={loadNextAvatars}>
+				<button type="button" className={`${styles.iconBlock} ${(page + 1) * imgPerPage >= props.avatarList.length ? styles.disabled : ''}`} onClick={loadNextAvatars}>
 					<NavigateNext />
 				</button>
 			</section>

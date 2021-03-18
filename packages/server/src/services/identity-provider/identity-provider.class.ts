@@ -1,5 +1,4 @@
 import { Service, SequelizeServiceOptions } from 'feathers-sequelize';
-import { DEFAULT_AVATAR_ID } from '@xr3ngine/engine/src/templates/character/CharacterAvatars';
 import { Application } from '../../declarations';
 import { Sequelize } from 'sequelize';
 import { v1 as uuidv1 } from 'uuid';
@@ -116,7 +115,7 @@ export class IdentityProvider extends Service {
     try {
       foundUser = await userService.get(userId);
     } catch (err) {
-      console.log(err);
+
     }
 
     if (foundUser != null) {
@@ -140,7 +139,7 @@ export class IdentityProvider extends Service {
       user: {
         id: userId,
         userRole: type === 'guest' ? 'guest' : type === 'admin' ? 'admin' : 'user',
-        avatarId: DEFAULT_AVATAR_ID,
+        avatarId: process.env.DEFAULT_AVATAR_ID,
       }
     }, params);
 

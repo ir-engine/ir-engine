@@ -25,6 +25,7 @@ export interface NetworkClientList {
     channelRecvTransport?: any;
     dataConsumers?: Map<string, any>; // Key => id of data producer
     dataProducers?: Map<string, any>; // Key => label of data channel}
+    avatarDetail?: any;
   };
 }
 

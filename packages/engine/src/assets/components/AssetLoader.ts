@@ -15,6 +15,8 @@ export class AssetLoader extends Component<AssetLoader> {
   assetType: AssetTypeAlias = null
   /** Class of the asset. Supported Asset classes can be found in {@link assets/enums/AssetClass.AssetClass | AssetClass}. */
   assetClass: AssetClassAlias = null
+  /** the object will parse to Colliders when loading location */
+  parseColliders = true
   /** Indicates whether the object will receive a shadow. */
   receiveShadow = false
   /** Indicates whether the object will cast a shadow. */
@@ -35,6 +37,7 @@ AssetLoader._schema = {
   assetClass: { default: AssetClass, type: Types.Number },
   url: { default: '', type: Types.Number },
   loaded: { default: false, type: Types.Boolean },
+  parseColliders: { default: true, type: Types.Boolean },
   receiveShadow: { default: false, type: Types.Boolean },
   castShadow: { default: false, type: Types.Boolean },
   envMapOverride: { default: null, type: Types.Ref },

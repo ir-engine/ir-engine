@@ -11,7 +11,7 @@ import { VehicleBody } from "@xr3ngine/engine/src/physics/components/VehicleBody
 import { PhysicsSystem } from '@xr3ngine/engine/src/physics/systems/PhysicsSystem';
 import { PrefabType } from "@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema";
 import { TransformComponent } from "@xr3ngine/engine/src/transform/components/TransformComponent";
-import { AmbientLight, CircleBufferGeometry, Color, HemisphereLight, Mesh, MeshPhongMaterial, PointLight, SpotLight, Vector3 } from 'three';
+import { AmbientLight, CircleBufferGeometry, Color, HemisphereLight, Mesh, MeshPhongMaterial, PointLight, SpotLight, Vector3, Quaternion, Matrix4 } from 'three';
 import { AssetLoader } from '../../assets/components/AssetLoader';
 import { isClient } from "../../common/functions/isClient";
 import { Component } from "../../ecs/classes/Component";
@@ -146,18 +146,43 @@ const parseCarModel: Behavior = (entity: Entity, groupMeshes: any) => {
 
 function plusParametersFromEditorToMesh(entity, mesh) {
   const transform = getComponent(entity, TransformComponent);
-  mesh.position.set(
-    transform.position.x + mesh.position.x,
-    transform.position.y + mesh.position.y,
-    transform.position.z + mesh.position.z
+  let [position, quaternion, scale] = plusParameter(
+    mesh.position,
+    mesh.quaternion,
+    mesh.scale,
+    transform.position,
+    transform.rotation,
+    transform.scale
   );
-  mesh.scale.set(
-    transform.scale.x * mesh.scale.x,
-    transform.scale.y * mesh.scale.y,
-    transform.scale.z * mesh.scale.z
-  );
+
+  mesh.position.set( position.x, position.y, position.z);
+  mesh.quaternion.copy( quaternion );
+  mesh.scale.set( scale.x, scale.y, scale.z );
 }
 
+export function plusParameter(posM, queM, scaM, posE, queE, scaE) {
+  let quaternionM = new Quaternion(queM.x,queM.y,queM.z,queM.w);
+  let quaternionE = new Quaternion(queE.x,queE.y,queE.z,queE.w);
+  let position = new Vector3().set(posM.x, posM.y, posM.z).applyQuaternion(quaternionE)
+  let quaternion = new Quaternion();
+  let scale = {x:0,y:0,z:0};
+
+  position.x = (position.x * scaE.x) + posE.x;
+  position.y = (position.y * scaE.y) + posE.y;
+  position.z = (position.z * scaE.z) + posE.z;
+
+  quaternion.setFromRotationMatrix(
+    new Matrix4().multiplyMatrices(
+      new Matrix4().makeRotationFromQuaternion(quaternionE),
+      new Matrix4().makeRotationFromQuaternion(quaternionM)
+    )
+  );
+
+  scale.x = scaM.x * scaE.x;
+  scale.y = scaM.y * scaE.y;
+  scale.z = scaM.z * scaE.z;
+  return [position, quaternion, scale];
+}
 
 function addColliderComponent(entity, mesh) {
   addComponent(entity, ColliderComponent, {
@@ -173,12 +198,13 @@ function addColliderComponent(entity, mesh) {
 // createStaticColliders
 
 function createStaticCollider(mesh) {
+  console.log('****** Collider from Model, type: '+mesh.userData.type);
   if (mesh.type == 'Group') {
     for (let i = 0; i < mesh.children.length; i++) {
-      addColliderWithoutEntity(mesh.userData, mesh.position, mesh.children[i].quaternion, mesh.children[i].scale, mesh.children[i]);
+      addColliderWithoutEntity(mesh.userData, mesh.position, mesh.children[i].quaternion, mesh.children[i].scale, { mesh: mesh.children[i]});
     }
   } else if (mesh.type == 'Mesh') {
-    addColliderWithoutEntity(mesh.userData, mesh.position, mesh.quaternion, mesh.scale, mesh);
+    addColliderWithoutEntity(mesh.userData, mesh.position, mesh.quaternion, mesh.scale, { mesh });
   }
 }
 
@@ -278,33 +304,26 @@ function createVehicleOnServer(entity, mesh) {
   });
 }
 
-// parse Function
+// only clean colliders from model Function
 const clearFromColliders: Behavior = (entity: Entity, args: any) => {
   const asset = args.asset;
   const deleteArr = [];
-
   function parseColliders(mesh) {
-    // have user data physics its our case
     if (mesh.userData.data === 'physics' || mesh.userData.data === 'dynamic' || mesh.userData.data === 'vehicle') {
-      // add position from editor to mesh
-      // its for delete mesh from view scene
       mesh.userData.data === 'vehicle' ? '' : deleteArr.push(mesh);
     }
   }
-  // its for diferent files with models
   if (asset.scene) {
     asset.scene.traverse(parseColliders);
   } else {
     asset.traverse(parseColliders);
   }
-
-  // its for delete mesh from view scene
   for (let i = 0; i < deleteArr.length; i++) {
     deleteArr[i].parent.remove(deleteArr[i]);
   }
-
   return entity;
 }
+// parse Function
 export const addWorldColliders: Behavior = (entity: Entity, args: any) => {
 
   const asset = args.asset;
@@ -432,12 +451,19 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
           component: AssetLoader,
         },
         values: [
-          { from: 'src', to: 'url' }
+          { from: 'src', to: 'url' },
+          'parseColliders'
         ]
       },
       {
         behavior: (entity) => {
-          getMutableComponent<AssetLoader>(entity, AssetLoader).onLoaded.push(addWorldColliders);
+          if (getComponent<AssetLoader>(entity, AssetLoader).parseColliders) {
+            // parse model and add colliders
+            getMutableComponent<AssetLoader>(entity, AssetLoader).onLoaded.push(addWorldColliders);
+          } else {
+            // parse model and clean up model from colliders (because its loaded from scene data)
+            getMutableComponent<AssetLoader>(entity, AssetLoader).onLoaded.push(clearFromColliders);
+          }
         }
       }
     ]
@@ -709,7 +735,6 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
       }
     ]
   },
-  /*
   'mesh-collider': {
     behaviors: [
       {
@@ -718,7 +743,6 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
       }
     ]
   },
-  */
   'trigger-volume': {
     behaviors: [
       {

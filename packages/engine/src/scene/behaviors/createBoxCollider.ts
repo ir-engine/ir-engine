@@ -7,7 +7,18 @@ import { RigidBody } from '../../physics/components/RigidBody';
 import { addColliderWithoutEntity } from '../../physics/behaviors/addColliderWithoutEntity';
 
 export const createBoxCollider: Behavior = (entity, args: any) => {
-  console.warn(args.objArgs);
-  //addColliderWithoutEntity({type:args.objArgs.type}, args.objArgs.position, args.objArgs.quaternion, args.objArgs.scale, args.objArgs.vertices, args.objArgs.indices);
-  addColliderWithoutEntity({type:args.objArgs.type}, args.objArgs.position, args.objArgs.quaternion, args.objArgs.scale, args.objArgs.mesh);
+  console.log('****** Collider from Scene data, type: '+args.objArgs.type);
+  console.log(args.objArgs);
+
+  addColliderWithoutEntity(
+    {type:args.objArgs.type},
+    args.objArgs.position,
+    args.objArgs.quaternion,
+    args.objArgs.scale,
+    {
+      mesh: args.objArgs.mesh,
+      vertices:  args.objArgs.vertices,
+      indices:   args.objArgs.indices
+    }
+  );
 };
