@@ -64,7 +64,7 @@ export class DebugHelpersSystem extends System {
       // velocity
       const velocityColor = 0x0000ff;
       const velocityArrowHelper = new ArrowHelper( new Vector3(), new Vector3( 0, 0, 0 ), 0.5, velocityColor );
-      velocityArrowHelper.visible = true;
+      velocityArrowHelper.visible = false;
       Engine.scene.add( velocityArrowHelper );
       this.helpersByEntity.velocityArrow.set(entity, velocityArrowHelper);
     });
@@ -106,7 +106,7 @@ export class DebugHelpersSystem extends System {
         if (boundingBox.dynamic) {
           boundingBox.boxArray.forEach((object3D, index) => {
             const helper = new BoxHelper(object3D);
-            helper.visible = true;
+            helper.visible = false;
             Engine.scene.add(helper);
           });
         }
@@ -118,7 +118,7 @@ export class DebugHelpersSystem extends System {
           box3.applyMatrix4(object3D.value.matrixWorld);
         }
         const helper = new Box3Helper(box3);
-        helper.visible = true;
+        helper.visible = false;
         Engine.scene.add(helper);
       }
     });

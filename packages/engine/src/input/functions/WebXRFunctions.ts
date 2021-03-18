@@ -2,7 +2,9 @@ import { Engine } from "@xr3ngine/engine/src/ecs/classes/Engine";
 import { AdditiveBlending, BufferGeometry, Float32BufferAttribute, Group, Line, LineBasicMaterial, Mesh, MeshBasicMaterial, MeshPhongMaterial, RingGeometry, Vector3 } from 'three';
 import { getLoader } from "../../assets/functions/LoadGLTF";
 import { GLTF } from "../../assets/loaders/gltf/GLTFLoader";
-import { addComponent, getComponent, removeComponent } from '../../ecs/functions/EntityFunctions';
+import { FollowCameraComponent } from "../../camera/components/FollowCameraComponent";
+import { CameraModes } from "../../camera/types/CameraModes";
+import { addComponent, getComponent, getMutableComponent, removeComponent } from '../../ecs/functions/EntityFunctions';
 import { Network } from "../../networking/classes/Network";
 import { WebXRRendererSystem } from "../../renderer/WebXRRendererSystem";
 import { CharacterComponent } from "../../templates/character/components/CharacterComponent";
@@ -17,6 +19,8 @@ export const startXR = async () => {
     const dolly = new Group();
     WebXRRendererSystem.instance.cameraDolly = dolly;
 
+    const cameraFollow = getMutableComponent<FollowCameraComponent>(Network.instance.localClientEntity, FollowCameraComponent) as FollowCameraComponent;
+    cameraFollow.mode = CameraModes.XR;
     const actor = getComponent(Network.instance.localClientEntity, CharacterComponent);
     actor.tiltContainer.add(dolly);
     Engine.scene.remove(Engine.camera);
@@ -101,6 +105,8 @@ export const startXR = async () => {
 export const endXR = () => {
   if(Engine.xrSession) {
     removeComponent(Network.instance.localClientEntity, XRInputReceiver);
+    const cameraFollow = getMutableComponent<FollowCameraComponent>(Network.instance.localClientEntity, FollowCameraComponent) as FollowCameraComponent;
+    cameraFollow.mode = CameraModes.ThirdPerson;
     Engine.xrSession.end();
     Engine.xrSession = null;
     const actor = getComponent(Network.instance.localClientEntity, CharacterComponent);
