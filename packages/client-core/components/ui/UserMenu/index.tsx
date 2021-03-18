@@ -86,17 +86,6 @@ class UserMenu extends React.Component<UserMenuProps, StateType> {
       }
     }
 
-  const clientEntityLoaded = (ev: any) => {
-    const id = ev.id;
-    setActorEntityID(id);
-    updateCharacterComponent(id, selfUser?.avatarId)
-    EngineEvents.instance?.removeEventListener(EngineEvents.EVENTS.CLIENT_ENTITY_LOAD, clientEntityLoaded);
-  }
-  
-  const graphicsSettingsLoaded = (ev) => {
-    EngineEvents.instance?.addEventListener(WebGLRendererSystem.EVENTS.QUALITY_CHANGED, updateGraphics);
-    EngineEvents.instance?.removeEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD, graphicsSettingsLoaded);
-    // WARNING: Merged, let's make sure this is correct!
     document.addEventListener('ENGINE_LOADED', this.onEngineLoaded);
   }
 
