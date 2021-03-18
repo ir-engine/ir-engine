@@ -6,7 +6,7 @@ import { FacebookIcon } from '../../Icons/FacebookIcon';
 import { GoogleIcon } from '../../Icons/GoogleIcon';
 import { LinkedInIcon } from '../../Icons/LinkedInIcon';
 import { TwitterIcon } from '../../Icons/TwitterIcon';
-import { getAvatarURL, Views } from '../util';
+import { getAvatarURLFromNetwork, Views } from '../util';
 //@ts-ignore
 import styles from '../style.module.scss';
 
@@ -64,7 +64,7 @@ const ProfileMenu = (props: any): any => {
 			<section className={styles.profilePanel}>
 				<section className={styles.profileBlock}>
 					<div className={styles.avatarBlock}>
-						<img src={getAvatarURL(props.avatarId)} />
+						<img src={getAvatarURLFromNetwork(props.Network.instance, props.userId)} />
 						<Button className={styles.avatarBtn} onClick={() => props.changeActiveMenu(Views.Avatar)} disableRipple><Create /></Button>
 					</div>
 					<div className={styles.headerBlock}>
@@ -90,7 +90,6 @@ const ProfileMenu = (props: any): any => {
 									),
 								}}
 							/>
-							
 						</span>
 						<h2>You are {props.userRole === 'admin' ? 'an' : 'a'} <span>{props.userRole}</span>.</h2>
 						<h4>{(props.userRole === 'user' || props.userRole === 'admin') && <div onClick={handleLogout}>Log out</div>}</h4>

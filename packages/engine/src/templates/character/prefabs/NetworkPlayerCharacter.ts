@@ -45,7 +45,6 @@ import {
 import XRPose from "../../../xr/classes/XRPose";
 import ShoulderTransforms from "../../../xr/ShoulderTransforms";
 import { fixSkeletonZForward } from "../../../xr/SkeletonUtils";
-import { CharacterAvatars, DEFAULT_AVATAR_ID } from "../CharacterAvatars";
 import { CharacterInputSchema } from '../CharacterInputSchema';
 import { CharacterStateSchema } from '../CharacterStateSchema';
 import { CharacterStateTypes } from "../CharacterStateTypes";
@@ -90,15 +89,13 @@ export class AnimationManager {
 
 
 export const loadActorAvatar: Behavior = (entity) => {
-  const avatarId: string = getComponent(entity, CharacterComponent)?.avatarId;
-  const avatarSource = CharacterAvatars.find(avatarData => avatarData.id === avatarId)?.src;
-
+  const avatarURL: string = getComponent(entity, CharacterComponent)?.avatarURL;
   if (hasComponent(entity, AssetLoader)) removeComponent(entity, AssetLoader, true);
   if (hasComponent(entity, AssetLoaderState)) removeComponent(entity, AssetLoaderState, true);
 
   const tmpGroup = new Group();
   addComponent(entity, AssetLoader, {
-    url: avatarSource,
+    url: avatarURL,
     receiveShadow: true,
     castShadow: true,
     parent: tmpGroup,
@@ -707,7 +704,7 @@ export const NetworkPlayerCharacter: NetworkPrefab = {
   // These will be created for all players on the network
   networkComponents: [
     // ActorComponent has values like movement speed, deceleration, jump height, etc
-    { type: CharacterComponent, data: { avatarId: DEFAULT_AVATAR_ID }},
+    { type: CharacterComponent, data: { avatarId: process.env.DEFAULT_AVATAR_ID || 'Allison' }}, // TODO: add to environment
     // Transform system applies values from transform component to three.js object (position, rotation, etc)
     { type: TransformComponent },
 		// Its component is a pass to Interpolation for Other Players and Serrver Correction for Your Local Player

@@ -32,6 +32,7 @@ const EVENTS = {
   // MISC
   USER_ENGAGE: 'CORE_USER_ENGAGE',
   ENTITY_DEBUG_DATA: 'CORE_ENTITY_DEBUG_DATA', // to pipe offscreen entity data to UI
+  NETWORK_USER_UPDATED: 'NETWORK_USER_UPDATED',
 };
 
 export class EngineEvents extends EventDispatcher {
@@ -65,7 +66,10 @@ export const addIncomingEvents = () => {
   EngineEvents.instance.addEventListener(EngineEvents.EVENTS.LOAD_AVATAR, (ev) => {
     const entity = getEntityByID(ev.entityID)
     const characterAvatar = getMutableComponent(entity, CharacterComponent);
-    if (characterAvatar != null) characterAvatar.avatarId = ev.avatarId;
+    if (characterAvatar != null) {
+      characterAvatar.avatarId = ev.avatarId;
+      characterAvatar.avatarURL = ev.avatarURL;
+    }
     loadActorAvatar(entity)
   })
 

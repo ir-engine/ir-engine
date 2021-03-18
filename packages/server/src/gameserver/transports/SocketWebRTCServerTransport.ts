@@ -1,6 +1,7 @@
 import { MessageTypes } from "@xr3ngine/engine/src/networking/enums/MessageTypes";
 import { NetworkTransport } from "@xr3ngine/engine/src/networking/interfaces/NetworkTransport";
 import { WebRtcTransportParams } from "@xr3ngine/engine/src/networking/types/WebRtcTransportParams";
+import { handleNetworkStateUpdate } from "@xr3ngine/engine/src/networking/functions/updateNetworkState";
 import AWS from 'aws-sdk';
 import * as https from "https";
 import {DataProducer, DataConsumer, Router, Transport, Worker, DataProducerOptions} from "mediasoup/lib/types";
@@ -18,7 +19,7 @@ import {
     handleIncomingMessage,
     handleJoinWorld,
     handleLeaveWorld,
-    validateNetworkObjects
+    validateNetworkObjects,
 } from "./NetworkFunctions";
 import {
     handleWebRtcCloseConsumer,
@@ -65,6 +66,10 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
 
     public sendReliableData = (message: any): any => {
         if (this.socketIO != null) this.socketIO.of('/realtime').emit(MessageTypes.ReliableMessage.toString(), message);
+    }
+
+    public sendNetworkStatUpdateMessage = (message: any): any => {
+        if (this.socketIO != null) this.socketIO.of('/realtime').emit(MessageTypes.UpdateNetworkState.toString(), message);
     }
 
     toBuffer(ab): any {
@@ -166,7 +171,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
 
                 // Check database to verify that user ID is valid
                 const user = await this.app.service('user').Model.findOne({
-                    attributes: ['id', 'name', 'instanceId'],
+                    attributes: ['id', 'name', 'instanceId', 'avatarId'],
                     where: {
                         id: userId
                     }
@@ -174,6 +179,32 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                     // They weren't found in the dabase, so send the client an error message and return
                     callback({ success: false, message: error });
                     return console.warn("Failed to authorize user");
+                });
+
+                // Check database to verify that user ID is valid
+                const avatarResources = await this.app.service('static-resource').find({
+                    query: {
+                        $select: ['name', 'url', 'staticResourceType', 'userId'],
+                        $or: [
+                            { userId: null },
+                            { userId: user.id },
+                        ],
+                        name: user.avatarId,
+                        staticResourceType: {
+                            $in: ['user-thumbnail', 'avatar'],
+                        },
+                    }
+                }).catch(error => {
+                    // They weren't found in the dabase, so send the client an error message and return
+                    callback({ success: false, message: error });
+                    return console.warn("Failed to authorize user");
+                });
+
+                const avatar = {} as any;
+                avatarResources?.data.forEach(a => {
+                    if (a.staticResourceType === 'avatar') avatar.avatarURL = a.url;
+                    else avatar.thumbnailURL = a.url;
+                    avatar.avatarId = a.name;
                 });
 
                 // TODO: Check that they are supposed to be in this instance
@@ -186,7 +217,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                     console.log('Got ConnectToWorld:');
                     console.log(data);
                     console.log(userId);
-                    handleConnectToWorld(socket, data, callback, userId, user);
+                    handleConnectToWorld(socket, data, callback, userId, user, avatar);
                 });
 
                 socket.on(MessageTypes.JoinWorld.toString(), async (data, callback) =>
@@ -244,6 +275,9 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
 
                 socket.on(MessageTypes.WebRTCRequestCurrentProducers.toString(), async (data, callback) =>
                     handleWebRtcRequestCurrentProducers(socket, data, callback));
+
+                socket.on(MessageTypes.UpdateNetworkState.toString(), async (data) =>
+                    handleNetworkStateUpdate(socket, data, true));
 
                 socket.on(MessageTypes.InitializeRouter.toString(), async (data, callback) =>
                     handleWebRtcInitializeRouter(socket, data, callback));

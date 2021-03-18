@@ -3,7 +3,7 @@ import { Component } from '../../ecs/classes/Component';
 import { EngineEvents } from '../../ecs/classes/EngineEvents';
 import { Entity } from '../../ecs/classes/Entity';
 import { addComponent, createEntity, getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
-import { loadActorAvatar } from '../../templates/character/prefabs/NetworkPlayerCharacter';
+import { CharacterComponent } from '../../templates/character/components/CharacterComponent';
 import { PrefabType } from "../../templates/networking/DefaultNetworkSchema";
 import { TransformComponent } from '../../transform/components/TransformComponent';
 import { Network } from '../classes/Network';
@@ -122,7 +122,7 @@ function initComponents(entity: Entity, components: Array<{ type: any, data?: an
  *
  * @returns Newly created object.
  */
-export function initializeNetworkObject(ownerId: string, networkId: number, prefabType: string | number, position?: Vector3, rotation?: Quaternion): NetworkObject {
+export function initializeNetworkObject(ownerId: string, networkId: number, prefabType: string | number, position?: Vector3, rotation?: Quaternion, avatarDetail?: any): NetworkObject {
   // Instantiate into the world
   const networkEntity = createNetworkPrefab(
     // Prefab from the Network singleton's schema, using the defaultClientPrefab as a key
@@ -140,6 +140,10 @@ export function initializeNetworkObject(ownerId: string, networkId: number, pref
             position: position ? position.clone() : new Vector3(),
             rotation: rotation ? rotation.clone() : new Quaternion()
           }
+        },
+        {
+          type: CharacterComponent,
+          data: avatarDetail || {},
         }
       ],
       serverComponents: []
