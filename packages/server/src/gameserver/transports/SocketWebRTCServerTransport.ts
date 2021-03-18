@@ -36,6 +36,7 @@ import {
     handleWebRtcTransportConnect,
     handleWebRtcTransportCreate,
     handleWebRtcRequestCurrentProducers,
+    handleWebRtcInitializeRouter,
     startWebRTC
 } from './WebRTCFunctions';
 
@@ -277,6 +278,9 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
 
                 socket.on(MessageTypes.UpdateNetworkState.toString(), async (data) =>
                     handleNetworkStateUpdate(socket, data, true));
+
+                socket.on(MessageTypes.InitializeRouter.toString(), async (data, callback) =>
+                    handleWebRtcInitializeRouter(socket, data, callback));
             });
         });
     }

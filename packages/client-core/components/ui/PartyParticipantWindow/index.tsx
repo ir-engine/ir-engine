@@ -193,18 +193,11 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
     }, [selfUser]);
 
     useEffect(() => {
-        if ((Network.instance?.transport as any)?.channelType === 'instance') {
-            (Network.instance?.transport as any)?.instanceSocket?.on(MessageTypes.WebRTCPauseConsumer.toString(), pauseConsumerListener);
-            (Network.instance?.transport as any)?.instanceSocket?.on(MessageTypes.WebRTCResumeConsumer.toString(), resumeConsumerListener);
-            (Network.instance?.transport as any)?.instanceSocket?.on(MessageTypes.WebRTCPauseProducer.toString(), pauseProducerListener);
-            (Network.instance?.transport as any)?.instanceSocket?.on(MessageTypes.WebRTCResumeProducer.toString(), resumeProducerListener);
-        }
-        else {
-            (Network.instance?.transport as any)?.channelSocket?.on(MessageTypes.WebRTCPauseConsumer.toString(), pauseConsumerListener);
-            (Network.instance?.transport as any)?.channelSocket?.on(MessageTypes.WebRTCResumeConsumer.toString(), resumeConsumerListener);
-            (Network.instance?.transport as any)?.channelSocket?.on(MessageTypes.WebRTCPauseProducer.toString(), pauseProducerListener);
-            (Network.instance?.transport as any)?.channelSocket?.on(MessageTypes.WebRTCResumeProducer.toString(), resumeProducerListener);
-        }
+        const socket = (Network.instance?.transport as any)?.channelType === 'instance' ? (Network.instance?.transport as any)?.instanceSocket : (Network.instance?.transport as any)?.channelSocket;
+        socket?.on(MessageTypes.WebRTCPauseConsumer.toString(), pauseConsumerListener);
+        socket?.on(MessageTypes.WebRTCResumeConsumer.toString(), resumeConsumerListener);
+        socket?.on(MessageTypes.WebRTCPauseProducer.toString(), pauseProducerListener);
+        socket?.on(MessageTypes.WebRTCResumeProducer.toString(), resumeProducerListener);
 
         let interval = setInterval(() => {
             if (EngineEvents.instance) {
@@ -257,6 +250,7 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
                 const updateVideoTrackClones = videoTrackClones.concat(newVideoTrack);
                 setVideoTrackClones(updateVideoTrackClones);
                 videoRef.current.srcObject = new MediaStream([newVideoTrack]);
+                setVideoProducerPaused(false);
             }
         }
 
@@ -267,7 +261,7 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
 
     useEffect(() => {
         if (peerId === 'me_cam' || peerId === 'me_screen') setAudioStreamPaused(MediaStreamSystem.instance?.audioPaused);
-        if (audioStream != null && audioRef.current != null) {
+        if (harmony === true && audioStream != null && audioRef.current != null) {
             const newAudioTrack = audioStream.track.clone();
             const updateAudioTrackClones = audioTrackClones.concat(newAudioTrack);
             setAudioTrackClones(updateAudioTrackClones);
@@ -277,7 +271,7 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
 
     useEffect(() => {
         if (peerId === 'me_cam' || peerId === 'me_screen') setVideoStreamPaused(MediaStreamSystem.instance?.videoPaused);
-        if (videoStream != null && videoRef.current != null) {
+        if (harmony === true && videoStream != null && videoRef.current != null) {
             const newVideoTrack = videoStream.track.clone();
             const updateVideoTrackClones = videoTrackClones.concat(newVideoTrack);
             setVideoTrackClones(updateVideoTrackClones);
@@ -348,6 +342,7 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
     const togglePiP = () => setPiP(!isPiP);
 
     const isSelfUser = peerId === 'me_cam' || peerId === 'me_screen';
+
     return (
         <Draggable isPiP={isPiP}>
         <div

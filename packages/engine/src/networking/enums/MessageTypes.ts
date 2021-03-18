@@ -30,6 +30,7 @@ export enum MessageTypes {
   ConnectToWorld = 28,
   WebRTCRequestCurrentProducers = 29,
   UpdateNetworkState = 30,
+  InitializeRouter = 31,
   Synchronization = 100,
   ClientInput = 101,
   StateUpdate = 102,

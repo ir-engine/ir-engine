@@ -236,11 +236,11 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
           // (MediaStreamSystem.mediaStream !== null) &&
           (producerId != null) &&
           (channelType === self.channelType) &&
-          (selfProducerIds.indexOf(producerId) < 0) &&
-          (MediaStreamSystem.instance?.consumers?.find(
-            c => c?.appData?.peerId === socketId && c?.appData?.mediaTag === mediaTag
-          ) == null /*&&
-            (channelType === 'instance' ? this.channelType === 'instance' : this.channelType === channelType && this.channelId === channelId)*/)
+          (selfProducerIds.indexOf(producerId) < 0)
+          // (MediaStreamSystem.instance?.consumers?.find(
+          //   c => c?.appData?.peerId === socketId && c?.appData?.mediaTag === mediaTag
+          // ) == null /*&&
+          //   (channelType === 'instance' ? this.channelType === 'instance' : this.channelType === channelType && this.channelId === channelId)*/)
         ) {
           // that we don't already have consumers for...
           await subscribeToTrack(socketId, mediaTag, channelType, channelId);
