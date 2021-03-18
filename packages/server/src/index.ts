@@ -49,11 +49,13 @@ process.on('unhandledRejection', (error, promise) => {
 })();
 
 // SSL setup
-const useSSL = process.env.FORCE_SSL === 'true' || process.env.NODE_ENV !== 'production' && fs.existsSync(path.join(appRootPath.path, 'certs', 'key.pem'));
+const certPath = path.join(appRootPath.path, process.env.CERT ?? 'certs/cert.pem');
+const certKeyPath = path.join(appRootPath.path, process.env.KEY ?? 'certs/key.pem');
+const useSSL = process.env.FORCE_SSL === 'true' || process.env.NODE_ENV !== 'production' && fs.existsSync(certKeyPath);
 
 const certOptions = {
-  key: useSSL && (process.env.FORCE_SSL === 'true' || process.env.NODE_ENV !== 'production') ? fs.readFileSync(path.join(appRootPath.path, 'certs', 'key.pem')) : null,
-  cert: useSSL && (process.env.FORCE_SSL === 'true' || process.env.NODE_ENV !== 'production') ? fs.readFileSync(path.join(appRootPath.path, 'certs', 'cert.pem')) : null
+  key: useSSL && (process.env.FORCE_SSL === 'true' || process.env.NODE_ENV !== 'production') ? fs.readFileSync(certKeyPath) : null,
+  cert: useSSL && (process.env.FORCE_SSL === 'true' || process.env.NODE_ENV !== 'production') ? fs.readFileSync(certPath) : null
 };
 if (useSSL) logger.info('Starting server with HTTPS');
 else logger.warn('Starting server with NO HTTPS, if you meant to use HTTPS try \'sudo bash generate-certs\'');

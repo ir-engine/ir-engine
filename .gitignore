@@ -163,3 +163,4 @@ packages/server/upload/
 .DS_Store
 */.DS_Store
 
+certs/

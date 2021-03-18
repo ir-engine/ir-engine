@@ -44,7 +44,7 @@
     "validate": "yarn run lint && yarn run build && yarn run test",
     "precommit": "no-master-commits -b master,dev",
     "postinstall": "cd ../../node_modules/mediasoup && node npm-scripts.js postinstall",
-    "serve-local-files": "http-server ./upload --ssl --cert ./certs/cert.pem --key ./certs/key.pem --port 8642"
+    "serve-local-files": "http-server ./upload --ssl --cert ../../certs/cert.pem --key ../../certs/key.pem --port 8642"
   },
   "types": "lib/",
   "pre-push": [
