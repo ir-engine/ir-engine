@@ -32,8 +32,6 @@ export function getLocation(locationId: string) {
     try {
       dispatch(fetchingCurrentLocation());
       const location = await client.service('location').get(locationId);
-      console.log('getLocation location:');
-      console.log(location);
       dispatch(locationRetrieved(location));
     } catch(err) {
       console.log(err);
@@ -43,7 +41,6 @@ export function getLocation(locationId: string) {
 }
 
 export function getLocationByName(locationName: string) {
-  console.log("Trying to get location by name", locationName);
   return async (dispatch: Dispatch): Promise<any> => {
       const locationResult = await client.service('location').find({
         query: {

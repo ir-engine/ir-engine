@@ -10,10 +10,10 @@ import {
 import { PlayerInCar } from '../../../physics/components/PlayerInCar';
 
 export const getInCar: Behavior = (entity: Entity, args: { currentFocusedPart: number }, delta, entityCar): void => {
-  //console.warn('Behavior: getInCar');
+  console.warn('Behavior: getInCar');
   if (isClient) return;
   // isServer
-  //console.warn('getInCar: '+args.currentFocusedPart);
+  console.warn('getInCar: '+args.currentFocusedPart);
   addComponent(entity, PlayerInCar, {
       state: 'onAddedEnding',
       networkCarId: getComponent(entityCar, NetworkObject).networkId,

@@ -7,6 +7,7 @@ import { CharacterStateTypes } from "@xr3ngine/engine/src/templates/character/Ch
 import { TransformComponent } from '@xr3ngine/engine/src/transform/components/TransformComponent';
 import { Matrix4, Vector3 } from 'three';
 import { isServer } from "../../../common/functions/isServer";
+import { updateVectorAnimation, clearAnimOnChange, changeAnimation } from "@xr3ngine/engine/src/templates/character/behaviors/updateVectorAnimation";
 
 function doorAnimation(entityCar, seat, timer, timeAnimation, angel) {
   const vehicle = getComponent<VehicleBody>(entityCar, VehicleBody);
@@ -68,7 +69,12 @@ export const onAddEndingInCar = (entity: Entity, entityCar: Entity, seat: number
   }
 
   if (isServer) return;
+
   if (timeOut) {
-    setState(entity, {state: CharacterStateTypes.DRIVING});
+    changeAnimation(entity, {
+      animationId: CharacterStateTypes.DRIVING,
+  	  transitionDuration: 0.3
+     })
   }
+
 };

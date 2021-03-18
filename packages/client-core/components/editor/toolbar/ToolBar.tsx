@@ -411,6 +411,16 @@ export default class ToolBar extends Component<ToolBarProps, ToolBarState> {
     } = (this.props as any).editor.editorControls;
 
     const queryParams = (this.props as any).queryParams;
+
+    //@ts-ignore
+    const button = <Button type="submit"
+        color="primary"
+        onClick={this.openModalCreate}
+        className="mr-4 mt-2 mb-2 pl-5 pr-5"
+    >
+      Publish
+    </Button>;
+
     return (
       <StyledToolbar>
         <ToolButtons>
@@ -524,14 +534,7 @@ export default class ToolBar extends Component<ToolBarProps, ToolBarState> {
         <Spacer />
         {
           !queryParams ?
-          <Button
-            type="submit"
-            color="primary"
-            onClick={this.openModalCreate}
-            className="mr-4 mt-2 mb-2 pl-5 pr-5"
-          >
-            Publish
-         </Button>
+          button
          :
          <Button
           color="primary"

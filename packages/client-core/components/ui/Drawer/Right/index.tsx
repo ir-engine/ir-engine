@@ -324,8 +324,10 @@ const Invites = (props: Props): any => {
                 onClose={() => {
                     setRightDrawerOpen(false);
                     updateInviteTarget('user', null);
+                    setTabIndex(0);
                 }}
                 onOpen={() => {
+                    setInviteTabIndex(0);
                 }}
             >
                 <Accordion className={styles.rightDrawerAccordion} expanded={selectedAccordion === 'invite'} onChange={handleAccordionSelect('invite')}>
@@ -368,17 +370,15 @@ const Invites = (props: Props): any => {
                                 {inviteTabIndex === 1 && receivedInvites.sort((a, b) => {
                                     return a.created - b.created;
                                 }).map((invite, index) => {
-                                    return <div key={invite.id}>
+                                    return <div className={styles.invite} key={invite.id}>
                                         <ListItem>
                                             <ListItemAvatar>
                                                 <Avatar src={invite.user.avatarUrl}/>
                                             </ListItemAvatar>
                                             {invite.inviteType === 'friend' &&
-                                            <ListItemText>{capitalize(invite.inviteType)} request
-                                                from {invite.user.name}</ListItemText>}
+                                            <ListItemText>{capitalize(invite.inviteType)} request from {invite.user.name}</ListItemText>}
                                             {invite.inviteType === 'group' &&
-                                            <ListItemText>Join
-                                                group {invite.groupName} from {invite.user.name}</ListItemText>}
+                                            <ListItemText>Join group {invite.groupName} from {invite.user.name}</ListItemText>}
                                             {invite.inviteType === 'party' &&
                                             <ListItemText>Join a party from {invite.user.name}</ListItemText>}
                                             <Button
@@ -403,7 +403,7 @@ const Invites = (props: Props): any => {
                                 {inviteTabIndex === 2 && sentInvites.sort((a, b) => {
                                     return a.created - b.created;
                                 }).map((invite, index) => {
-                                    return <div key={invite.id}>
+                                    return <div className={styles.invite}  key={invite.id}>
                                         <ListItem>
                                             <ListItemAvatar>
                                                 <Avatar src={invite.user.avatarUrl}/>
@@ -451,6 +451,7 @@ const Invites = (props: Props): any => {
                                 indicatorColor="primary"
                                 textColor="primary"
                                 aria-label="Invite Type"
+                                className={styles['target-type']}
                             >
 
                                 <Tab
@@ -567,7 +568,10 @@ const Invites = (props: Props): any => {
                                         >
                                             {friends.map((friend) => {
                                                 return <MenuItem
-                                                    className={styles['flex-center']}
+                                                    className={classNames({
+                                                        [styles['flex-center']]: true,
+                                                        [styles['friend-selector']]: true
+                                                    })}
                                                     key={friend.id}
                                                     value={friend.id}
                                                 >
@@ -592,33 +596,33 @@ const Invites = (props: Props): any => {
                         }
                     </AccordionDetails>
                 </Accordion>
-                <Accordion className={styles.rightDrawerAccordion} expanded={selectedAccordion === 'scenes'} onChange={handleAccordionSelect('scenes')}>
-                    <AccordionSummary
-                        id="scenes-header"
-                        expandIcon={<ExpandMore/>}
-                        aria-controls="scenes-content"
-                    >
-                        <Public/>
-                        <Typography>Scenes</Typography>
-                    </AccordionSummary>
-                    <AccordionDetails className={styles['list-container']}>
-                        <GridList
-                            cellHeight={160}
-                            className={styles['location-grid']}
-                            cols={4}
-                        >
-                            {locations.map((location) => {
-                                return <GridListTile
-                                    key={location.id}
-                                    cols={1}
-                                    onClick={() => provisionInstance(location)}
-                                >
-                                    <div>{location.name}</div>
-                                </GridListTile>;
-                            })}
-                        </GridList>
-                    </AccordionDetails>
-                </Accordion>
+                {/*<Accordion className={styles.rightDrawerAccordion} expanded={selectedAccordion === 'scenes'} onChange={handleAccordionSelect('scenes')}>*/}
+                {/*    <AccordionSummary*/}
+                {/*        id="scenes-header"*/}
+                {/*        expandIcon={<ExpandMore/>}*/}
+                {/*        aria-controls="scenes-content"*/}
+                {/*    >*/}
+                {/*        <Public/>*/}
+                {/*        <Typography>Scenes</Typography>*/}
+                {/*    </AccordionSummary>*/}
+                {/*    <AccordionDetails className={styles['list-container']}>*/}
+                {/*        <GridList*/}
+                {/*            cellHeight={160}*/}
+                {/*            className={styles['location-grid']}*/}
+                {/*            cols={4}*/}
+                {/*        >*/}
+                {/*            {locations.map((location) => {*/}
+                {/*                return <GridListTile*/}
+                {/*                    key={location.id}*/}
+                {/*                    cols={1}*/}
+                {/*                    onClick={() => provisionInstance(location)}*/}
+                {/*                >*/}
+                {/*                    <div>{location.name}</div>*/}
+                {/*                </GridListTile>;*/}
+                {/*            })}*/}
+                {/*        </GridList>*/}
+                {/*    </AccordionDetails>*/}
+                {/*</Accordion>*/}
             </SwipeableDrawer>
         </div>
     );

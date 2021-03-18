@@ -19,31 +19,44 @@ export class CommentsFire extends Service {
   }
 
 
-  async create (data : any, params?:Params): Promise<any> {
+  async create (data: any, params?: Params): Promise<any> {
+    //common  - TODO -move somewhere
     const loggedInUser = extractLoggedInUserFromParams(params);
-    if (!loggedInUser.userId) {
-      return Promise.reject(new BadRequest('Could not add fire. Users isn\'t logged in! '));
-    }
+    const creatorQuery = `SELECT id  FROM \`creator\` WHERE userId=:userId`;
+    const [creator] = await this.app.get('sequelizeClient').query(creatorQuery,
+      {
+        type: QueryTypes.SELECT,
+        raw: true,
+        replacements: {userId:loggedInUser.userId}
+      });  
+    const creatorId = creator?.id ;
+    
     const {comments_fires:commentFiresModel} = this.app.get('sequelizeClient').models;
-    const newFire =  await commentFiresModel.create({commentId:data.commentId, authorId:loggedInUser.userId});
+    const newFire =  await commentFiresModel.create({commentId:data.commentId, creatorId});
     return  newFire;
 
   }
 
-  async remove ( commentId: string,  params?:Params): Promise<any> {
+  async remove ( commentId: string,  params?: Params): Promise<any> {
+    //common  - TODO -move somewhere
     const loggedInUser = extractLoggedInUserFromParams(params);
-    if (!loggedInUser.userId) {
-      return Promise.reject(new BadRequest('Could not remove fire. Users isn\'t logged in! '));
-    }
+    const creatorQuery = `SELECT id  FROM \`creator\` WHERE userId=:userId`;
+    const [creator] = await this.app.get('sequelizeClient').query(creatorQuery,
+      {
+        type: QueryTypes.SELECT,
+        raw: true,
+        replacements: {userId:loggedInUser.userId}
+      });  
+    const creatorId = creator?.id ;
     
-    const dataQuery = `DELETE FROM  \`comments_fires\` WHERE commentId=:commentId AND authorId=:authorId`;
+    const dataQuery = `DELETE FROM  \`comments_fires\` WHERE commentId=:commentId AND creatorId=:creatorId`;
     await this.app.get('sequelizeClient').query(dataQuery,
       {
         type: QueryTypes.DELETE,
         raw: true,
         replacements: {
-          commentId:commentId, 
-          authorId:loggedInUser.userId
+          commentId, 
+          creatorId
         }
       });
   }
