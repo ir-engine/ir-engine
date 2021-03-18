@@ -9,7 +9,7 @@ import { SkinnedMesh } from 'three/src/objects/SkinnedMesh';
 import { CameraComponent } from "../../camera/components/CameraComponent";
 import { CameraModes } from "../../camera/types/CameraModes";
 import { LifecycleValue } from "../../common/enums/LifecycleValue";
-import { Thumbsticks } from '../../input/enums/InputEnums';
+import { GamepadAxis, XRAxes } from '../../input/enums/InputEnums';
 import { getMutableComponent, hasComponent } from "../../ecs/functions/EntityFunctions";
 import { CameraInput, GamepadButtons, MouseInput, TouchInputs } from "../../input/enums/InputEnums";
 import { InputType } from "../../input/enums/InputType";
@@ -19,11 +19,13 @@ import { Interactable } from '../../interaction/components/Interactable';
 import { Interactor } from '../../interaction/components/Interactor';
 import { Object3DComponent } from '../../scene/components/Object3DComponent';
 import { interactOnServer } from '../../interaction/systems/InteractiveSystem';
-import { updateCharacterState } from "./behaviors/updateCharacterState";
 import { CharacterComponent } from "./components/CharacterComponent";
 import { isServer } from "../../common/functions/isServer";
 import { VehicleBody } from '../../physics/components/VehicleBody';
 import { isMobileOrTablet } from '../../common/functions/isMobile';
+import { WebXRRendererSystem } from '../../renderer/WebXRRendererSystem';
+import { Engine } from '../../ecs/classes/Engine';
+import { TransformComponent } from '../../transform/components/TransformComponent';
 
 /**
  *
@@ -313,6 +315,31 @@ const setLocalMovementDirection: Behavior = (entity, args: { z?: number; x?: num
 };
 
 
+const moveFromXRInputs: Behavior = (entity, args): void => {
+  const actor: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
+  const input = getComponent<Input>(entity, Input as any);
+  const values = input.data.get(BaseInput.XR_MOVE)?.value;
+  
+  if(values) {
+    actor.localMovementDirection.x = values[0] ?? actor.localMovementDirection.x;
+    actor.localMovementDirection.z = values[1] ?? actor.localMovementDirection.z;
+    actor.localMovementDirection.normalize();
+  }
+};
+
+const forwardVector = new Vector3(0, 0, 1);
+const upDirection = new Vector3(0, 1, 0)
+
+const lookFromXRInputs: Behavior = (entity, args): void => {
+  const actor: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
+  const input = getComponent<Input>(entity, Input as any);
+  const values = input.data.get(BaseInput.XR_LOOK)?.value;
+
+  if(values) {
+    actor.changedViewAngle = values[0];
+  }
+};
+
 const lookByInputAxis = (
   entity: Entity,
   args: {
@@ -390,8 +417,11 @@ export const createCharacterInput = () => {
   map.set(GamepadButtons.DPad3, BaseInput.LEFT);
   map.set(GamepadButtons.DPad4, BaseInput.RIGHT);
 
-  map.set(Thumbsticks.Left, BaseInput.MOVEMENT_PLAYERONE);
-  map.set(Thumbsticks.Right, BaseInput.GAMEPAD_STICK_RIGHT);
+  map.set(GamepadAxis.Left, BaseInput.MOVEMENT_PLAYERONE);
+  map.set(GamepadAxis.Right, BaseInput.GAMEPAD_STICK_RIGHT);
+
+  map.set(XRAxes.Left, BaseInput.XR_MOVE);
+  map.set(XRAxes.Right, BaseInput.XR_LOOK);
 
   map.set('w', BaseInput.FORWARD);
   map.set('a', BaseInput.LEFT);
@@ -467,24 +497,6 @@ export const CharacterInputSchema: InputSchema = {
           args: {
             y: 0
           }
-        },
-        {
-          behavior: updateCharacterState,
-          args: {}
-        }
-      ]
-    },
-    [BaseInput.WALK]: {
-      started: [
-        {
-          behavior: updateCharacterState,
-          args: {}
-        }
-      ],
-      ended: [
-        {
-          behavior: updateCharacterState,
-          args: {}
         }
       ]
     },
@@ -512,10 +524,6 @@ export const CharacterInputSchema: InputSchema = {
             z: 0
           }
         },
-        {
-          behavior: updateCharacterState,
-          args: {}
-        }
       ]
     },
     [BaseInput.BACKWARD]: {
@@ -542,10 +550,6 @@ export const CharacterInputSchema: InputSchema = {
             z: 0
           }
         },
-        {
-          behavior: updateCharacterState,
-          args: {}
-        }
       ]
     },
     [BaseInput.LEFT]: {
@@ -572,10 +576,6 @@ export const CharacterInputSchema: InputSchema = {
             x: 0
           }
         },
-        {
-          behavior: updateCharacterState,
-          args: {}
-        }
       ]
     },
     [BaseInput.RIGHT]: {
@@ -602,10 +602,6 @@ export const CharacterInputSchema: InputSchema = {
             x: 0
           }
         },
-        {
-          behavior: updateCharacterState,
-          args: {}
-        }
       ]
     }
   },
@@ -694,9 +690,6 @@ export const CharacterInputSchema: InputSchema = {
             inputType: InputType.TWODIM
           }
         },
-        {
-          behavior: updateCharacterState
-        }
       ],
       unchanged: [
         {
@@ -706,9 +699,6 @@ export const CharacterInputSchema: InputSchema = {
             inputType: InputType.TWODIM
           }
         },
-        {
-          behavior: updateCharacterState
-        }
       ],
     },
     [BaseInput.GAMEPAD_STICK_RIGHT]: {
@@ -745,6 +735,40 @@ export const CharacterInputSchema: InputSchema = {
           }
         }
       ]
+    },
+    [BaseInput.XR_MOVE]: {
+      started: [
+        {
+          behavior: moveFromXRInputs,
+        },
+      ],
+      changed: [
+        {
+          behavior: moveFromXRInputs,
+        },
+      ],
+      unchanged: [
+        {
+          behavior: moveFromXRInputs,
+        },
+      ],
+    },
+    [BaseInput.XR_LOOK]: {
+      started: [
+        {
+          behavior: lookFromXRInputs,
+        },
+      ],
+      changed: [
+        {
+          behavior: lookFromXRInputs,
+        },
+      ],
+      unchanged: [
+        {
+          behavior: lookFromXRInputs,
+        },
+      ],
     }
   }
 }

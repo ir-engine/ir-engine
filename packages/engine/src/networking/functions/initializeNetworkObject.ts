@@ -1,4 +1,5 @@
 import { Quaternion, Vector3 } from 'three';
+import { isWebWorker } from '../../common/functions/getEnvironment';
 import { Component } from '../../ecs/classes/Component';
 import { EngineEvents } from '../../ecs/classes/EngineEvents';
 import { Entity } from '../../ecs/classes/Entity';

@@ -102,7 +102,7 @@ export const initializeEngine = async (initOptions: any = DefaultInitializationO
     registerSystem(ServerSpawnSystem, { priority: 899 });
     registerSystem(TransformSystem, { priority: 900 });
 
-    Engine.camera = new PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.3, 750);
+    Engine.camera = new PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 10000);
     Engine.scene.add(Engine.camera);
     registerSystem(HighlightSystem);
     registerSystem(EntityActionSystem, { useWebXR: Engine.xrSupported });
