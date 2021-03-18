@@ -242,7 +242,7 @@ export default class ModelNode extends EditorNodeMixin(Model) {
                     y: mesh.scale.y,
                     z: mesh.scale.z
                   },
-                  vertices: (geometry != null ? Array.from(geometry.attributes.position.array).map(v=> parseFloat((Math.round(v * 10000)/10000).toFixed(4))): null),
+                  vertices: (geometry != null ? Array.from(geometry.attributes.position.array).map((v: number) => parseFloat((Math.round(v * 10000)/10000).toFixed(4))): null),
                   indices: (geometry != null && geometry.index ? Array.from(geometry.index.array): null)
                 }
               colliders.push(meshCollider);

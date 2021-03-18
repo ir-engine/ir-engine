@@ -160,7 +160,7 @@ function plusParametersFromEditorToMesh(entity, mesh) {
   mesh.scale.set( scale.x, scale.y, scale.z );
 }
 
-export function plusParameter(posM, queM, scaM, posE, queE, scaE) {
+export function plusParameter(posM, queM, scaM, posE, queE, scaE): [Vector3, Quaternion, any] {
   let quaternionM = new Quaternion(queM.x,queM.y,queM.z,queM.w);
   let quaternionE = new Quaternion(queE.x,queE.y,queE.z,queE.w);
   let position = new Vector3().set(posM.x, posM.y, posM.z).applyQuaternion(quaternionE)
