@@ -43,7 +43,6 @@ export class EntityActionSystem extends System {
   // Client only variables
   public leftControllerId; //= 0
   public rightControllerId; //= 1
-  static inputReceiverEntity: Entity;
   stateUpdates = [];
 
   constructor({ useWebXR }) {
@@ -119,14 +118,14 @@ export class EntityActionSystem extends System {
       });
     }
 
-    if(EntityActionSystem.inputReceiverEntity) {
+    this.queryResults.localClientInput.all?.forEach(entity => {
       // Apply input for local user input onto client
       const newStates = [...this.stateUpdates];
       this.stateUpdates = [];
       newStates?.forEach((stateUpdate) => {
 
         // Get immutable reference to Input and check if the button is defined -- ignore undefined buttons
-        const input = getMutableComponent(EntityActionSystem.inputReceiverEntity, Input);
+        const input = getMutableComponent(entity, Input);
 
         // key is the input type enu, value is the input value
         stateUpdate.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
@@ -180,19 +179,19 @@ export class EntityActionSystem extends System {
               if (value.lifecycleState === LifecycleValue.STARTED) {
                 // Set the value of the input to continued to debounce
                 input.schema.inputButtonBehaviors[key].started?.forEach(element => {
-                  element.behavior(EntityActionSystem.inputReceiverEntity, element.args, delta)
+                  element.behavior(entity, element.args, delta)
                 });
               } else if (value.lifecycleState === LifecycleValue.CONTINUED) {
                 // If the lifecycle equal continued
                 input.schema.inputButtonBehaviors[key].continued?.forEach(element =>
-                  element.behavior(EntityActionSystem.inputReceiverEntity, element.args, delta)
+                  element.behavior(entity, element.args, delta)
                 );
               } else {
                 console.error('Unexpected lifecycleState', key, value.lifecycleState, LifecycleValue[value.lifecycleState], 'prev', LifecycleValue[input.prevData.get(key)?.lifecycleState]);
               }
             } else {
               input.schema.inputButtonBehaviors[key].ended?.forEach(element =>
-                element.behavior(EntityActionSystem.inputReceiverEntity, element.args, delta)
+                element.behavior(entity, element.args, delta)
               );
             }
           } else if (input.schema.inputAxisBehaviors[key]) {
@@ -202,18 +201,18 @@ export class EntityActionSystem extends System {
               case LifecycleValue.STARTED:
                 // Set the value to continued to debounce
                 input.schema.inputAxisBehaviors[key].started?.forEach(element =>
-                  element.behavior(EntityActionSystem.inputReceiverEntity, element.args, delta)
+                  element.behavior(entity, element.args, delta)
                 );
                 break;
               case LifecycleValue.CHANGED:
                 // If the value is different from last frame, update it
                 input.schema.inputAxisBehaviors[key].changed?.forEach(element => {
-                  element.behavior(EntityActionSystem.inputReceiverEntity, element.args, delta);
+                  element.behavior(entity, element.args, delta);
                 });
                 break;
               case LifecycleValue.UNCHANGED:
                 input.schema.inputAxisBehaviors[key].unchanged?.forEach(element =>
-                  element.behavior(EntityActionSystem.inputReceiverEntity, element.args, delta)
+                  element.behavior(entity, element.args, delta)
                 );
                 break;
               case LifecycleValue.ENDED:
@@ -236,7 +235,7 @@ export class EntityActionSystem extends System {
         if (!hasComponent(Network.instance.networkObjects[Network.instance.localAvatarNetworkId].component.entity, LocalInputReceiver) && !this.needSend) {
           this.needSend = true;
           sendSwitchInputs = true;
-          this.switchId = getComponent(EntityActionSystem.inputReceiverEntity, NetworkObject).networkId;
+          this.switchId = getComponent(entity, NetworkObject).networkId;
           //console.warn('Car id: '+ getComponent(entity, NetworkObject).networkId);
         } else if (hasComponent(Network.instance.networkObjects[Network.instance.localAvatarNetworkId].component.entity, LocalInputReceiver) && this.needSend) {
           this.needSend = false;
@@ -295,7 +294,7 @@ export class EntityActionSystem extends System {
             }
           });
 
-          const actor = getMutableComponent(EntityActionSystem.inputReceiverEntity, CharacterComponent);
+          const actor = getMutableComponent(entity, CharacterComponent);
           if (actor) {
             const isWalking = (input.data.get(BaseInput.WALK)?.value) === BinaryValue.ON;
             actor.moveSpeed = isWalking ? WALK_SPEED : RUN_SPEED;
@@ -316,11 +315,10 @@ export class EntityActionSystem extends System {
           }
         });
       });
-    }
+    });
 
     // Called when input component is added to entity
     this.queryResults.localClientInput.added?.forEach(entity => {
-      EntityActionSystem.inputReceiverEntity = entity;
       // Get component reference
       this._inputComponent = getComponent(entity, Input);
       if (this._inputComponent === undefined)

@@ -1,7 +1,7 @@
 import { Vector2 } from "three";
 import { BinaryValue } from "../../common/enums/BinaryValue";
 import { LifecycleValue } from "../../common/enums/LifecycleValue";
-import { Thumbsticks } from '../enums/InputEnums';
+import { GamepadAxis } from '../enums/InputEnums';
 import { isClient } from "../../common/functions/isClient";
 import { BinaryType } from '../../common/types/NumericalTypes';
 import { Engine } from "../../ecs/classes/Engine";
@@ -23,8 +23,8 @@ const tapLength = 200; // 100ms between doubletaps
 
 const usingThumbstick = () => { 
   return Boolean(
-    Engine.inputState.get(Thumbsticks.Left)?.value[0] || Engine.inputState.get(Thumbsticks.Left)?.value[1]
-    || Engine.inputState.get(Thumbsticks.Right)?.value[0] || Engine.inputState.get(Thumbsticks.Right)?.value[1]
+    Engine.inputState.get(GamepadAxis.Left)?.value[0] || Engine.inputState.get(GamepadAxis.Left)?.value[1]
+    || Engine.inputState.get(GamepadAxis.Right)?.value[0] || Engine.inputState.get(GamepadAxis.Right)?.value[1]
   );
 }
 
@@ -226,7 +226,7 @@ const handleTouch = ({ event, value }: { event: TouchEvent; value: BinaryType })
 
 const handleMobileDirectionalPad = (args: { event: CustomEvent }): void => {
   // TODO: move this types to types and interfaces
-  const { stick, value }: { stick: Thumbsticks; value: { x: number; y: number; angleRad: number } } = args.event.detail;
+  const { stick, value }: { stick: GamepadAxis; value: { x: number; y: number; angleRad: number } } = args.event.detail;
   if (!stick) {
     return;
   }

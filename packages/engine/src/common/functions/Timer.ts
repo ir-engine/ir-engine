@@ -4,7 +4,7 @@ import { Engine } from "@xr3ngine/engine/src/ecs/classes/Engine";
 import { WebGLRendererSystem } from '../../renderer/WebGLRendererSystem';
 import { EngineEvents } from '../../ecs/classes/EngineEvents';
 import { isWebWorker } from './getEnvironment';
-import { processXRFrame, WebXRRendererSystem } from '../../renderer/WebXRRendererSystem';
+import { WebXRRendererSystem } from '../../renderer/WebXRRendererSystem';
 import { XRFrame } from '../../input/types/WebXR';
 
 type TimerUpdateCallback = (delta: number, elapsedTime?: number) => any;
@@ -58,7 +58,7 @@ export function Timer (
       if (networkRunner) {
         networkRunner.run(delta);
       }
-      processXRFrame(delta, xrFrame);
+      WebXRRendererSystem.xrFrame = xrFrame;
       if (callbacks.update) {
         callbacks.update(delta, accumulated);
       }
@@ -70,7 +70,6 @@ export function Timer (
     stop();
   });
   EngineEvents.instance.addEventListener(WebXRRendererSystem.EVENTS.XR_SESSION, async (ev: any) => {
-    console.log('STARTING XR', Engine.renderer?.xr)
     Engine.renderer?.xr?.setAnimationLoop(xrAnimationLoop);
   });
   EngineEvents.instance.addEventListener(WebXRRendererSystem.EVENTS.XR_END, async (ev: any) => {

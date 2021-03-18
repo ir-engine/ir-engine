@@ -51,6 +51,7 @@ import { CharacterStateTypes } from "../CharacterStateTypes";
 import { CharacterComponent } from '../components/CharacterComponent';
 import { NamePlateComponent } from '../components/NamePlateComponent';
 import { getLoader } from "../../../assets/functions/LoadGLTF";
+import { Engine } from "../../../ecs/classes/Engine";
 
 
 export class AnimationManager {
@@ -122,6 +123,10 @@ export const loadActorAvatar: Behavior = (entity) => {
     const stateComponent = getComponent(entity, State);
     // trigger all states to restart?
     stateComponent.data.forEach(data => data.lifecycleState = LifecycleValue.STARTED);
+
+    if(Engine.xrSession) {
+      actor.modelContainer.visible = false;
+    }
   })
 };
 

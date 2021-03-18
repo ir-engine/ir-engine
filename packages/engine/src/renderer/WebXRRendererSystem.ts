@@ -1,10 +1,17 @@
-import { sRGBEncoding } from 'three';
+import { Group, sRGBEncoding, Vector3 } from 'three';
+import { BinaryValue } from '../common/enums/BinaryValue';
+import { LifecycleValue } from '../common/enums/LifecycleValue';
 import { isWebWorker } from '../common/functions/getEnvironment';
 import { Engine } from '../ecs/classes/Engine';
 import { EngineEvents } from '../ecs/classes/EngineEvents';
 import { System, SystemAttributes } from '../ecs/classes/System';
+import { getComponent, getMutableComponent } from '../ecs/functions/EntityFunctions';
+import { gamepadMapping } from '../input/behaviors/GamepadInputBehaviors';
+import { InputType } from '../input/enums/InputType';
 import { endXR, startXR } from '../input/functions/WebXRFunctions';
-import { XRFrame, XRReferenceSpaceType, XRWebGLLayer } from '../input/types/WebXR';
+import { XRFrame, XRReferenceSpace, XRReferenceSpaceType, XRWebGLLayer, XRRigidTransform } from '../input/types/WebXR';
+import { Network } from '../networking/classes/Network';
+import { CharacterComponent } from '../templates/character/components/CharacterComponent';
 // import { EngineEvents } from '../ecs/classes/EngineEvents';
 // import { isWebWorker } from '../common/functions/getEnvironment';
 // import { OFFSCREEN_XR_EVENTS } from '../worker/MessageQueue';
@@ -24,6 +31,7 @@ export class WebXRRendererSystem extends System {
   }
 
   offscreen: boolean;
+  static xrFrame: XRFrame;
 
   isRenderering = false;
   baseLayer: XRWebGLLayer;
@@ -32,25 +40,35 @@ export class WebXRRendererSystem extends System {
 
   controllerUpdateHook: any;
 
-  referenceSpace: XRReferenceSpaceType = 'local-floor';
+  referenceSpaceType: XRReferenceSpaceType = 'local-floor';
+  referenceSpace: XRReferenceSpace;
+  playerPosition: Vector3 = new Vector3();
+  cameraDolly: Group;
+  static instance: WebXRRendererSystem;
 
   constructor(attributes?: SystemAttributes) {
     super(attributes);
 
+    WebXRRendererSystem.instance = this;
+
     EngineEvents.instance.addEventListener(WebXRRendererSystem.EVENTS.XR_START, async (ev: any) => {
       Engine.renderer.outputEncoding = sRGBEncoding;
-      const sessionInit = { optionalFeatures: [this.referenceSpace] };
+      const sessionInit = { optionalFeatures: [this.referenceSpaceType] };
       try {
         const session = await (navigator as any).xr.requestSession("immersive-vr", sessionInit)
         
         Engine.xrSession = session;
-        Engine.renderer.xr.setReferenceSpaceType(this.referenceSpace);
+        Engine.renderer.xr.setReferenceSpaceType(this.referenceSpaceType);
         Engine.renderer.xr.setSession(session);
         if(!isWebWorker) { 
           EngineEvents.instance.dispatchEvent({ type: WebXRRendererSystem.EVENTS.XR_SESSION });
         }
 
+        const actor = getMutableComponent<CharacterComponent>(Network.instance.localClientEntity, CharacterComponent);
+        actor.modelContainer.visible = false;
+
         await startXR()
+
       } catch(e) { console.log(e) }
     });
 
@@ -114,7 +132,33 @@ export class WebXRRendererSystem extends System {
    */
   execute(delta: number): void {
     if(!Engine.renderer?.xr?.isPresenting) return;
-    if(this.offscreen) {
+    
+    const session = WebXRRendererSystem.xrFrame.session;
+  
+    session.inputSources.forEach((source) => {
+      if(source.gamepad) {
+        const mapping = gamepadMapping[source.gamepad.mapping || 'xr-standard'][source.handedness];
+        source.gamepad.buttons.forEach((button, index) => {
+          // TODO : support button.touched and button.value
+          Engine.inputState.set(mapping.buttons[index], {
+            type: InputType.BUTTON,
+            value: button.pressed ? BinaryValue.ON : BinaryValue.OFF,
+            lifecycleState: button.pressed ? LifecycleValue.STARTED : LifecycleValue.ENDED
+          })
+        })
+        if(source.gamepad.axes.length > 2) {
+          Engine.inputState.set(mapping.axes, {
+            type: InputType.TWODIM,
+            value: [source.gamepad.axes[2], source.gamepad.axes[3]]
+          })
+        } else {
+          Engine.inputState.set(mapping.axes, {
+            type: InputType.TWODIM,
+            value: [source.gamepad.axes[0], source.gamepad.axes[1]]
+          })
+        }
+      }
+    })
       /*
       if(this.isRenderering) {
 
@@ -133,29 +177,11 @@ export class WebXRRendererSystem extends System {
           }
         }
         */
-    } else {
-      // Post processing is not currently supported in xr // https://github.com/mrdoob/three.js/pull/18846
-      // webaverse already has support for it https://github.com/webaverse/app/pull/906
-      Engine.renderer.render(Engine.scene, Engine.camera);
-    }
   }
 }
 
 // https://github.com/immersive-web/webxr-samples/blob/main/controller-state.html
 // we have to do it here unless we refactor systems to take an XRFrame, which might not be a bad idea, or set it globally maybe? 'Engine.xrFrame'?
-export const processXRFrame = (delta:number, xrFrame: XRFrame): void => {
-  const session = xrFrame.session;
-  const refSpace = Engine.renderer.xr.getReferenceSpace();
-  const pose = xrFrame.getViewerPose(refSpace);
-
-  for(let source of session.inputSources) {
-    if(source.gamepad) {
-      const controllerPose = xrFrame.getPose(source.gripSpace, refSpace);
-      //todo - deal with gamepad stuff as per link above
-      // console.log(source.gamepad, controllerPose)
-    }
-  }
-}
 
 WebXRRendererSystem.queries = {
 };

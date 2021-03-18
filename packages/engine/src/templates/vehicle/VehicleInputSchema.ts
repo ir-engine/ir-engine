@@ -6,7 +6,7 @@ import { Behavior } from '../../common/interfaces/Behavior';
 import { Entity } from '../../ecs/classes/Entity';
 import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
 import { Input } from "../../input/components/Input";
-import { GamepadButtons, MouseInput, Thumbsticks } from '../../input/enums/InputEnums';
+import { GamepadButtons, MouseInput, GamepadAxis } from '../../input/enums/InputEnums';
 import { InputType } from '../../input/enums/InputType';
 import { InputSchema } from '../../input/interfaces/InputSchema';
 import { InputAlias } from "../../input/types/InputAlias";
@@ -145,8 +145,8 @@ const createVehicleInput = () => {
   map.set(GamepadButtons.DPad3, BaseInput.LEFT);
   map.set(GamepadButtons.DPad4, BaseInput.RIGHT);
 
-  map.set(Thumbsticks.Left, BaseInput.MOVEMENT_PLAYERONE);
-  map.set(Thumbsticks.Right, BaseInput.LOOKTURN_PLAYERONE);
+  map.set(GamepadAxis.Left, BaseInput.MOVEMENT_PLAYERONE);
+  map.set(GamepadAxis.Right, BaseInput.LOOKTURN_PLAYERONE);
 
   map.set('w', BaseInput.FORWARD);
   map.set('a', BaseInput.LEFT);
