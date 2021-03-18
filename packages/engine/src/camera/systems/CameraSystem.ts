@@ -36,33 +36,6 @@ const mx = new Matrix4();
 const vec3 = new Vector3();
 const emptyInputValue = [0, 0] as NumericalType;
 
-/**
- * Get Input data from the device.
- *
- * @param inputComponent Input component which is holding input data.
- * @param inputAxes Axes of the input.
- * @param forceRefresh
- *
- * @returns Input value from input component.
- */
-const getInputData = (inputComponent: Input, inputAxes: number, prevValue: NumericalType ): { 
-  currentInputValue: NumericalType;
-  inputValue: NumericalType
-} => {
-  const result = {
-    currentInputValue: emptyInputValue,
-    inputValue: emptyInputValue,
-  }
-  if (!inputComponent?.data.has(inputAxes)) return result;
-
-  const inputData = inputComponent.data.get(inputAxes);
-  result.currentInputValue = inputData.value;
-  result.inputValue = inputData.lifecycleState === LifecycleValue.ENDED ||
-    JSON.stringify(result.currentInputValue) === JSON.stringify(prevValue)
-      ? emptyInputValue : result.currentInputValue;
-  return result;
-}
-
 
 /** System class which provides methods for Camera system. */
 export class CameraSystem extends System {
@@ -108,36 +81,7 @@ export class CameraSystem extends System {
         const actor: CharacterComponent = getMutableComponent<CharacterComponent>(cam.followTarget, CharacterComponent as any);
         const actorTransform = getMutableComponent(cam.followTarget, TransformComponent);
 
-        const inputComponent = getComponent(cam.followTarget, Input) as Input;
         const cameraFollow = getMutableComponent<FollowCameraComponent>(cam.followTarget, FollowCameraComponent) as FollowCameraComponent;
-
-        // this is for future integration of MMO style pointer lock controls
-        // let inputAxes;
-        // if (cameraFollow.mode === CameraModes.FirstPerson || cameraFollow.mode === CameraModes.ShoulderCam) {
-        //   inputAxes = BaseInput.MOUSE_MOVEMENT;
-        // } else {
-          const inputAxes = BaseInput.LOOKTURN_PLAYERONE;
-        // }
-        const { inputValue, currentInputValue } = getInputData(inputComponent, inputAxes, this.prevState);
-        this.prevState = currentInputValue;
-
-        if(cameraFollow.locked && actor) {
-          cameraFollow.theta = Math.atan2(actor.orientation.x, actor.orientation.z) * 180 / Math.PI + 180
-        } else if (cameraFollow.locked) { // this is for cars
-          cameraFollow.theta = Math.atan2(actorTransform.rotation.z, actorTransform.rotation.x) * 180 / Math.PI
-        }
-
-        cameraFollow.theta -= inputValue[0] * (isMobileOrTablet() ? 60 : 100);
-        cameraFollow.theta %= 360;
-
-        cameraFollow.phi -= inputValue[1] * (isMobileOrTablet() ? 60 : 100);
-        cameraFollow.phi = Math.min(85, Math.max(-70, cameraFollow.phi));
-
-        if(cameraFollow.locked || cameraFollow.mode === CameraModes.FirstPerson) {
-          actorTransform.rotation.setFromAxisAngle(upVector, (cameraFollow.theta - 180) * (Math.PI / 180));
-          actor.orientation.copy(forwardVector).applyQuaternion(actorTransform.rotation);
-          actorTransform.rotation.setFromUnitVectors(forwardVector, actor.orientation.clone().setY(0));
-        }
 
         cameraDesiredTransform.rotationRate = isMobileOrTablet() || cameraFollow.mode === CameraModes.FirstPerson ? 5 : 3.5
         cameraDesiredTransform.positionRate = isMobileOrTablet() || cameraFollow.mode === CameraModes.FirstPerson ? 3.5 : 2
@@ -148,7 +92,6 @@ export class CameraSystem extends System {
         else if (cameraFollow.mode === CameraModes.TopDown) camDist = cameraFollow.maxDistance;
 
         const phi = cameraFollow.mode === CameraModes.TopDown ? 85 : cameraFollow.phi;
-
 
         let targetPosition;
         if (actor) { // this is for cars

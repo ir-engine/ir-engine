@@ -157,7 +157,6 @@ export class WebXRRendererSystem extends System {
             value: [source.gamepad.axes[0], source.gamepad.axes[1]]
           })
         }
-        console.log(source.gamepad.axes)
       }
     })
       /*
