@@ -20,7 +20,7 @@ export class Feed extends Service {
   /**
    * @function find it is used to find specific users
    *
-   * @param params user id
+   * @param params 
    * @returns {@Array} of found users
    */
 
@@ -34,6 +34,17 @@ export class Feed extends Service {
       limit,
     } as any;
 
+    //common  - TODO -move somewhere
+    const loggedInUser = extractLoggedInUserFromParams(params);
+    const creatorQuery = `SELECT id  FROM \`creator\` WHERE userId=:userId`;
+    const [creator] = await this.app.get('sequelizeClient').query(creatorQuery,
+      {
+        type: QueryTypes.SELECT,
+        raw: true,
+        replacements: {userId:loggedInUser.userId}
+      });  
+    const creatorId = creator?.id ;
+
     if (action === 'featured') {
       const dataQuery = `SELECT feed.id, feed.viewsCount, sr.url as previewUrl 
         FROM \`feed\` as feed
@@ -43,7 +54,6 @@ export class Feed extends Service {
         LIMIT :skip, :limit 
         `;
       
-
       const feeds = await this.app.get('sequelizeClient').query(dataQuery,
         {
           type: QueryTypes.SELECT,
@@ -59,12 +69,63 @@ export class Feed extends Service {
       };
     }
 
-    // regular feeds
-    const loggedInUser = extractLoggedInUserFromParams(params);
+    if (action === 'creator') {
+      const dataQuery = `SELECT feed.id, feed.viewsCount, sr.url as previewUrl 
+        FROM \`feed\` as feed
+        JOIN \`static_resource\` as sr ON sr.id=feed.previewId
+        WHERE feed.creatorId=:creatorId
+        ORDER BY feed.createdAt DESC    
+        LIMIT :skip, :limit 
+        `;
+      
+      queryParamsReplacements.creatorId = creatorId;
+      const feeds = await this.app.get('sequelizeClient').query(dataQuery,
+        {
+          type: QueryTypes.SELECT,
+          raw: true,
+          replacements: queryParamsReplacements
+        });
 
-    let select = `SELECT feed.*, user.id as userId, user.name as userName, COUNT(ff.id) as fires, sr1.url as videoUrl, sr2.url as previewUrl `;
+      return {
+        data: feeds,
+        skip,
+        limit,
+        total: feeds.count,
+      };
+    }
+
+    if (action === 'bookmark') {
+      const dataQuery = `SELECT feed.id, feed.viewsCount, sr.url as previewUrl 
+        FROM \`feed\` as feed
+        JOIN \`static_resource\` as sr ON sr.id=feed.previewId
+        JOIN \`feed_bookmark\` as fb ON fb.feedId=feed.id
+        WHERE fb.creatorId=:creatorId
+        ORDER BY feed.createdAt DESC    
+        LIMIT :skip, :limit 
+        `;
+      
+      queryParamsReplacements.creatorId = creatorId;
+      const feeds = await this.app.get('sequelizeClient').query(dataQuery,
+        {
+          type: QueryTypes.SELECT,
+          raw: true,
+          replacements: queryParamsReplacements
+        });
+
+        console.log('feeds',feeds)
+      return {
+        data: feeds,
+        skip,
+        limit,
+        total: feeds.count,
+      };
+    }
+
+    // regular feeds
+    let select = `SELECT feed.*, creator.id as creatorId, creator.name as creatorName, creator.username as creatorUserName,
+       COUNT(ff.id) as fires, sr1.url as videoUrl, sr2.url as previewUrl `;
     const from = ` FROM \`feed\` as feed`;
-    let join = ` JOIN \`user\` as user ON user.id=feed.authorId
+    let join = ` JOIN \`creator\` as creator ON creator.id=feed.creatorId
                   LEFT JOIN \`feed_fires\` as ff ON ff.feedId=feed.id 
                   JOIN \`static_resource\` as sr1 ON sr1.id=feed.videoId
                   JOIN \`static_resource\` as sr2 ON sr2.id=feed.previewId
@@ -74,11 +135,11 @@ export class Feed extends Service {
     ORDER BY feed.createdAt DESC    
     LIMIT :skip, :limit `;
 
-    if(loggedInUser?.userId){
+    if(creator){
       select += ` , isf.id as fired, isb.id as bookmarked `;
-      join += ` LEFT JOIN \`feed_fires\` as isf ON isf.feedId=feed.id  AND isf.authorId=:loggedInUser
-                LEFT JOIN \`feed_bookmark\` as isb ON isb.feedId=feed.id  AND isb.authorId=:loggedInUser`;
-      queryParamsReplacements.loggedInUser =  loggedInUser.userId;
+      join += ` LEFT JOIN \`feed_fires\` as isf ON isf.feedId=feed.id  AND isf.creatorId=:creatorId
+                LEFT JOIN \`feed_bookmark\` as isb ON isb.feedId=feed.id  AND isb.creatorId=:creatorId`;
+      queryParamsReplacements.creatorId =  creatorId;
     }
 
     const dataQuery = select + from + join + where + order;
@@ -92,11 +153,10 @@ export class Feed extends Service {
     const data = feeds.map(feed => {
       const newFeed: FeedInterface = {
         creator: {
-          userId: feed.userId,
-          id:feed.userId,
+          id:feed.creatorId,
           avatar: 'https://picsum.photos/40/40',
-          name: feed.userName,
-          username: feed.userName,
+          name: feed.creatorName,
+          username: feed.creatorUserName,
           verified : true,
         },
         description: feed.description,
@@ -132,11 +192,10 @@ export class Feed extends Service {
    * @author Vykliuk Tetiana
    */
     async get (id: Id, params?: Params): Promise<any> {
-      const loggedInUser = extractLoggedInUserFromParams(params);
-
-      let select = `SELECT feed.*, user.id as userId, user.name as userName, COUNT(ff.id) as fires, sr1.url as videoUrl, sr2.url as previewUrl `;
+      let select = `SELECT feed.*, creator.id as creatorId, creator.name as creatorName, creator.username as creatorUserName, 
+      COUNT(ff.id) as fires, sr1.url as videoUrl, sr2.url as previewUrl `;
       const from = ` FROM \`feed\` as feed`;
-      let join = ` JOIN \`user\` as user ON user.id=feed.authorId
+      let join = ` JOIN \`creator\` as creator ON creator.id=feed.creatorId
                     LEFT JOIN \`feed_fires\` as ff ON ff.feedId=feed.id 
                     JOIN \`static_resource\` as sr1 ON sr1.id=feed.videoId
                     JOIN \`static_resource\` as sr2 ON sr2.id=feed.previewId
@@ -147,12 +206,22 @@ export class Feed extends Service {
         id,
       } as any;
 
+      //common  - TODO -move somewhere
+      const loggedInUser = extractLoggedInUserFromParams(params);
+      const creatorQuery = `SELECT id  FROM \`creator\` WHERE userId=:userId`;
+      const [creator] = await this.app.get('sequelizeClient').query(creatorQuery,
+        {
+          type: QueryTypes.SELECT,
+          raw: true,
+          replacements: {userId:loggedInUser.userId}
+        });   
+      const creatorId = creator.id;
 
-      if(loggedInUser?.userId){
+      if(creatorId){
         select += ` , isf.id as fired, isb.id as bookmarked `;
-        join += ` LEFT JOIN \`feed_fires\` as isf ON isf.feedId=feed.id  AND isf.authorId=:loggedInUser
-                  LEFT JOIN \`feed_bookmark\` as isb ON isb.feedId=feed.id  AND isb.authorId=:loggedInUser`;
-        queryParamsReplacements.loggedInUser =  loggedInUser?.userId;
+        join += ` LEFT JOIN \`feed_fires\` as isf ON isf.feedId=feed.id  AND isf.creatorId=:creatorId
+                  LEFT JOIN \`feed_bookmark\` as isb ON isb.feedId=feed.id  AND isb.creatorId=:creatorId`;
+        queryParamsReplacements.creatorId = creatorId; 
       }
   
       const dataQuery = select + from + join + where;
@@ -165,11 +234,10 @@ export class Feed extends Service {
 
       const newFeed: FeedInterface = ({
         creator: {
-          userId: feed.userId,
-          id: feed.userId,
+          id: feed.creatorId,
           avatar: 'https://picsum.photos/40/40',
-          name: feed.userName,
-          username: feed.userName,
+          name: feed.creatorName,
+          username: feed.creatorUserName,
           verified : true,
         },
         description: feed.description,
@@ -187,8 +255,18 @@ export class Feed extends Service {
 
     async create (data: any,  params?: Params): Promise<any> {
       const {feed:feedModel} = this.app.get('sequelizeClient').models;
+
+      //common  - TODO -move somewhere
       const loggedInUser = extractLoggedInUserFromParams(params);
-      data.authorId = loggedInUser.userId;
+      const creatorQuery = `SELECT id  FROM \`creator\` WHERE userId=:userId`;
+      const [creator] = await this.app.get('sequelizeClient').query(creatorQuery,
+        {
+          type: QueryTypes.SELECT,
+          raw: true,
+          replacements: {userId:loggedInUser.userId}
+        });   
+
+      data.creatorId = creator.id;
       const newFeed =  await feedModel.create(data);
       return  newFeed;
     }
