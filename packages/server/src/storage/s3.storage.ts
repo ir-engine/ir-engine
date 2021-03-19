@@ -8,8 +8,9 @@ export default class S3Provider implements StorageProviderInterface {
   bucket = config.aws.s3.staticResourceBucket;
   provider: AWS.S3 = new AWS.S3({
     accessKeyId: config.aws.keys.accessKeyId,
-    secretAccessKey: config.aws.keys.secretAccessKey
-  })
+    secretAccessKey: config.aws.keys.secretAccessKey,
+    region: config.aws.s3.region,
+  });
 
   blob: S3BlobStore = new S3BlobStore({
     client: this.provider,
@@ -37,39 +38,6 @@ export default class S3Provider implements StorageProviderInterface {
         resolve(data);
       })
     })
-    
-    // this.provider.getBucketAcl({
-    //   Bucket: this.bucket}, (e, d) => {
-    //   console.log('ACL => ', JSON.stringify(d));
-    // })
-    
-    // this.provider.getObjectAcl({
-    //   Bucket: this.bucket, 
-    //   Key: "file.jpg"
-    //  }, (e, d) => {
-    //   console.log('Object ACl => ', JSON.stringify(d));
-    // }) 
-      // this.provider.putBucketCors({
-      //   Bucket: this.bucket,
-      //   CORSConfiguration: {
-      //     CORSRules: [
-      //       {
-      //         "AllowedHeaders":[],
-      //         "AllowedMethods":["HEAD","GET", 'POST'],
-      //         "AllowedOrigins":["*"],
-      //         "ExposeHeaders":[],
-      //       }
-      //     ]
-      //   }
-      // }, (e, d) => {
-      //   console.log('UPDATED cors => ', JSON.stringify(d),);
-      //   this.provider.getBucketCors({
-      //     Bucket: this.bucket}, (e, d) => {
-      //     console.log('CORS => ', JSON.stringify(d));
-      //   })
-        
-      // })
-
     return result;
   }
 

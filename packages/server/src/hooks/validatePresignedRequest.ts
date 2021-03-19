@@ -20,3 +20,19 @@ export const validateGet = async (context: HookContext): Promise<HookContext> =>
     }
     return context;
 }
+
+export const checkDefaultResources = async (context: HookContext): Promise<HookContext> => {
+  const q = context.params.query.keys;
+
+  const defaultResources = await context.app.service('static-resource').find({
+    query: {
+      key: {
+        $in: q,
+      },
+      userId: null,
+    }
+  });
+
+  if (defaultResources.total > 0) throw new Error("Default resources can't be deleted.");
+  return context;
+}

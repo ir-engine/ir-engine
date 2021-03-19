@@ -1,3 +1,4 @@
+import { Op } from "sequelize";
 import { Id, NullableId, Paginated, Params, ServiceMethods } from '@feathersjs/feathers';
 import { Application } from '../../declarations';
 import S3Provider from '../../storage/s3.storage';
@@ -52,6 +53,13 @@ export class UploadPresigned implements ServiceMethods<Data> {
 
   async remove (id: NullableId, params?: Params): Promise<Data> {
     let data = await this.s3.deleteResources(params.query.keys);
+    await this.app.service('static-resource').Model.destroy({
+      where: {
+        key: {
+          [Op.in]: [params.query.keys],
+        }
+      }
+    });
     return { data };
   }
 
