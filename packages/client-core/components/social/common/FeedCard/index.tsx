@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { bindActionCreators, Dispatch } from 'redux';
 
 import Router from "next/router";
@@ -48,6 +48,7 @@ interface Props{
     addViewToFeed?: typeof addViewToFeed;
 }
 const FeedCard = (props: Props) : any => {
+    const [isVideo, setIsVideo] = useState(false);
     const {feed, getFeedFires, feedFiresState, addFireToFeed, removeFireToFeed, addBookmarkToFeed, removeBookmarkToFeed, addViewToFeed} = props;
     
     const handleAddFireClick = (feedId) =>addFireToFeed(feedId);
@@ -70,15 +71,21 @@ const FeedCard = (props: Props) : any => {
     
     return  feed ? <Card className={styles.tipItem} square={false} elevation={0} key={feed.id}>
                 <CreatorAsTitle creator={feed.creator} />                   
-                <CardMedia   
+                {isVideo ? <CardMedia   
                     className={styles.previewImage}                  
-                    image={feed.previewUrl}
                     src={feed.videoUrl}
                     title={feed.title}  
                     component='video'      
-                    controls   
+                    controls  
+                    autoPlay={true} 
                     onClick={()=>handlePlayVideo(feed.id)}               
-                />
+                /> :
+                <CardMedia   
+                    className={styles.previewImage}                  
+                    image={feed.previewUrl}
+                    title={feed.title}                      
+                    onClick={()=>setIsVideo(true)}               
+                />}
                 <span className={styles.eyeLine}>{feed.viewsCount}<VisibilityIcon style={{fontSize: '16px'}}/></span>
                 <CardContent>
                     <section className={styles.iconsContainer}>
