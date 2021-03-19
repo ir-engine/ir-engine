@@ -1,19 +1,8 @@
 import { float32, Model, Schema, string, uint32, uint8 } from "superbuffer";
 import { Network } from '../classes/Network';
 import { WorldStateInterface } from "../interfaces/WorldState";
-import { inputAxis1DSchema, inputAxis2DSchema, inputAxis6DOFSchema, inputKeySchema, viewVectorSchema } from "./clientInputSchema";
 
 /** Schema for input. */
-/*
-export const inputKeyArraySchema = new Schema({
-  networkId: uint32,
-  axes1d: [inputAxis1DSchema],
-  axes2d: [inputAxis2DSchema],
-  axes6DOF: [inputAxis6DOFSchema],
-  buttons: [inputKeySchema],
-  viewVector: viewVectorSchema
-});
-*/
 const clientConnectedSchema = new Schema({
     userId: string,
     name: string,
@@ -74,7 +63,6 @@ const worldStateSchema = new Schema({
     createObjects: [createNetworkObjectSchema],
     editObjects: [editNetworkObjectSchema],
     destroyObjects: [destroyNetworkObjectSchema],
-  //  inputs: [inputKeyArraySchema],
     tick: uint32,
     timeFP: uint32,
     timeSP: uint32,
@@ -89,7 +77,6 @@ export class WorldStateModel {
 
     /** Convert to buffer. */
     static toBuffer(worldState: WorldStateInterface, type: String): ArrayBuffer {
-        // console.log("Making into buffer");
       //  'Reliable'
       if ( type === 'Reliable') {
         const state:any = {
@@ -98,7 +85,6 @@ export class WorldStateModel {
           createObjects: worldState.createObjects,
           editObjects: worldState.editObjects,
           destroyObjects: worldState.destroyObjects,
-        //  inputs: [],
           tick: 0,
           timeFP: 0,
           timeSP: 0,
@@ -115,19 +101,6 @@ export class WorldStateModel {
           createObjects: [],
           editObjects: [],
           destroyObjects: [],
-          /*
-          inputs: worldState.inputs?.map(input => {
-            return {
-              networkId: input.networkId,
-              axes1d: Object.keys(input.axes1d).map(v => input.axes1d[v]),
-              axes2d: Object.keys(input.axes2d).map(v => input.axes2d[v]),
-              axes6DOF: Object.keys(input.axes6DOF).map(v => input.axes6DOF[v]),
-              buttons: Object.keys(input.buttons).map(v => input.buttons[v]),
-              viewVector: { ...input.viewVector },
-              snapShotTime: 0,
-            };
-          }),
-          */
           tick: worldState.tick,
           timeFP: Number(timeToTwoUinit32.slice(0,6)), // first part
           timeSP: Number(timeToTwoUinit32.slice(6)), // second part
@@ -166,11 +139,6 @@ export class WorldStateModel {
               snapShotTime: Number(snapShotTime)
             }
           }),
-          // inputs: state.inputs.map(v=> {
-          //   return {
-          //     ...v
-          //   }
-          // })
         };
       } catch(error){
         console.warn("Couldn't deserialize buffer", buffer, error)

@@ -56,6 +56,11 @@ export class ServerNetworkOutgoingSystem extends System {
       Network.instance.worldState.destroyObjects.length
     ) {
       const bufferReliable = WorldStateModel.toBuffer(Network.instance.worldState, 'Reliable');
+      if(!bufferReliable){
+        console.warn("Reliable buffer is null");
+        console.warn(Network.instance.worldState);
+      } 
+            else
       Network.instance.transport.sendReliableData(bufferReliable);
     }
 

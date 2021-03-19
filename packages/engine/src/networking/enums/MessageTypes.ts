@@ -34,9 +34,6 @@ export enum MessageTypes {
   Synchronization = 100,
   ClientInput = 101,
   StateUpdate = 102,
-  Test = 250
-}
-
-export enum NetworkStateMessageTypes {
-  AvatarUpdated = 0,
+  Test = 250,
+  AvatarUpdated = 254
 }
