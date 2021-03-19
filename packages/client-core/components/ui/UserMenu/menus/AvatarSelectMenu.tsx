@@ -108,10 +108,13 @@ export default class AvatarSelectMenu extends React.Component<Props, State> {
 	            this.renderScene();
 	        }, errormsg => console.error( errormsg ));
 	    };
-
-	    reader.readAsArrayBuffer( file );
-	    this.fileSelected = true;
-	    this.setState({ selectedFile: e.target.files[0] });
+		try {
+			reader.readAsArrayBuffer( file );
+			this.fileSelected = true;
+			this.setState({ selectedFile: e.target.files[0] });
+		} catch (error) {
+			console.error("Failed to read file", error);
+		}
 	}
 
 	openAvatarMenu = (e) => {
