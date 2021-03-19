@@ -9,7 +9,7 @@ import makeS3FilesPublic from '../../hooks/make-s3-files-public';
 import uploadThumbnail from '../../hooks/upload-thumbnail';
 import setLoggedInUser from '../../hooks/set-loggedin-user-in-body';
 import createResource from '../../hooks/create-static-resource';
-import { validateGet } from '../../hooks/validatePresignedRequest';
+import { validateGet, checkDefaultResources } from '../../hooks/validatePresignedRequest';
 import * as commonHooks from 'feathers-hooks-common';
 
 // Don't remove this comment. It's needed to format import lines nicely.
@@ -29,7 +29,7 @@ export default {
       ), addUUID(), addUploadPath(), addUriToFile(), makeS3FilesPublic()],
     update: [disallow()],
     patch: [disallow()],
-    remove: []
+    remove: [checkDefaultResources]
   },
 
   after: {

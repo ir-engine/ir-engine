@@ -13,16 +13,17 @@ const forceS3Upload = process.argv.includes('--force-s3-upload');
 const s3 = new aws.S3({
     accessKeyId: process.env.STORAGE_AWS_ACCESS_KEY_ID,
     secretAccessKey: process.env.STORAGE_AWS_ACCESS_KEY_SECRET,
+    region: process.env.STORAGE_S3_REGION
 });
 
 const db = {
-    username: process.env.MYSQL_USER ?? 'server',
-    password: process.env.MYSQL_PASSWORD ?? 'password',
-    database: process.env.MYSQL_DATABASE ?? 'xr3ngine',
-    host: process.env.MYSQL_HOST ?? '127.0.0.1',
-    port: process.env.MYSQL_PORT ?? 3306,
+    username: process.env.MYSQL_USER || 'server',
+    password: process.env.MYSQL_PASSWORD || 'password',
+    database: process.env.MYSQL_DATABASE || 'xr3ngine',
+    host: process.env.MYSQL_HOST || '127.0.0.1',
+    port: process.env.MYSQL_PORT || 3306,
     dialect: 'mysql',
-    url: process.env.MYSQL_URL ??
+    url: process.env.MYSQL_URL ||
     `mysql://${this.username}:${this.password}@${this.host}:${this.port}/${this.database}`
 };
 

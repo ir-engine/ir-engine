@@ -573,21 +573,24 @@ export function uploadAvatarModel (model: any, thumbnail: any) {
         client.service('upload-presigned').remove('', { query: { keys: [modelURL.fields.Key] } });
       });
     }).catch(err => {
-      console.error('Error occured while uploading model.');
+      console.error('Error occured while uploading model.', err);
     });
   };
 }
 
 export function removeAvatar (keys: [string]) {
   return async (dispatch: Dispatch, getState: any) => {
-    const result = await client.service('upload-presigned').remove('', {
+    await client.service('upload-presigned').remove('', {
       query: { keys },
-    });
+    }).then(_ => {
+      dispatchAlertSuccess(dispatch, 'Avatar Removed Successfully.');
+      fetchAvatarList()(dispatch);
+    })
   }
 }
 
 export function fetchAvatarList () {
-  return async (dispatch: Dispatch, getState: any) => {
+  return async (dispatch: Dispatch) => {
     const result = await client.service('static-resource').find({
       query: {
         $select: ['id', 'key', 'name', 'url', 'staticResourceType', 'userId'],
