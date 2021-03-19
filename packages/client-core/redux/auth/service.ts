@@ -643,6 +643,10 @@ const getAvatarResources = (user) => {
     query: {
       name: user.avatarId,
       staticResourceType: { $in: ['user-thumbnail', 'avatar'] },
+      $or: [
+        { userId: null },
+        { userId: user.id },
+      ],
     },
   });
 }
@@ -684,20 +688,21 @@ client.service('user').on('patched', async (params) => {
     // Fetch Avatar Resources for updated user.
     const avatars = await getAvatarResources(user);
     let avatarURL = "";
-    if(avatars?.data[0])
+    if(avatars?.data && avatars.data.length === 2) {
       avatarURL = avatars?.data[0].staticResourceType === 'avatar' ? avatars?.data[0].url : avatars?.data[1].url;
 
-    //Find entityId from network objects of updated user and dispatch avatar load event.
-    for (let key of Object.keys(Network.instance.networkObjects)) {
-      if (Network.instance.networkObjects[key]?.ownerId === user.id) {
-        const obj = Network.instance.networkObjects[key]
-        EngineEvents.instance.dispatchEvent({
-          type: EngineEvents.EVENTS.LOAD_AVATAR,
-          entityID: obj.component.entity.id,
-          avatarId: user.avatarId,
-          avatarURL
-        });
-        break;
+      //Find entityId from network objects of updated user and dispatch avatar load event.
+      for (let key of Object.keys(Network.instance.networkObjects)) {
+        if (Network.instance.networkObjects[key]?.ownerId === user.id) {
+          const obj = Network.instance.networkObjects[key]
+          EngineEvents.instance.dispatchEvent({
+            type: EngineEvents.EVENTS.LOAD_AVATAR,
+            entityID: obj.component.entity.id,
+            avatarId: user.avatarId,
+            avatarURL
+          });
+          break;
+        }
       }
     }
   }
