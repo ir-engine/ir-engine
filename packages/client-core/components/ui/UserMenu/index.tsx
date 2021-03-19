@@ -8,7 +8,19 @@ import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 import { selectAppOnBoardingStep } from '../../../redux/app/selector';
 import { selectAuthState } from '../../../redux/auth/selector';
-import { logoutUser, removeUser, updateUserAvatarId, updateUsername, updateUserSettings, addConnectionByEmail, addConnectionBySms, loginUserByOAuth, uploadAvatarModel, fetchAvatarList } from '../../../redux/auth/service';
+import {
+  logoutUser,
+  removeUser,
+  updateUserAvatarId,
+  updateUsername,
+  updateUserSettings,
+  addConnectionByEmail,
+  addConnectionBySms,
+  loginUserByOAuth,
+  uploadAvatarModel,
+  fetchAvatarList,
+  removeAvatar,
+} from '../../../redux/auth/service';
 import { alertSuccess } from '../../../redux/alert/service';
 import { provisionInstanceServer } from "../../../redux/instanceConnection/service";
 import { Views, UserMenuProps } from './util';
@@ -49,6 +61,7 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
   removeUser: bindActionCreators(removeUser, dispatch),
   uploadAvatarModel: bindActionCreators(uploadAvatarModel, dispatch),
   fetchAvatarList: bindActionCreators(fetchAvatarList, dispatch),
+  removeAvatar: bindActionCreators(removeAvatar, dispatch),
 });
 
 class UserMenu extends React.Component<UserMenuProps, StateType> {
@@ -194,6 +207,7 @@ class UserMenu extends React.Component<UserMenuProps, StateType> {
         args = {
           setAvatar: this.setAvatar,
           changeActiveMenu: this.changeActiveMenu,
+          removeAvatar: this.props.removeAvatar,
           fetchAvatarList: this.props.fetchAvatarList,
           avatarList: this.avatarList,
           avatarId: this.selfUser?.avatarId,

@@ -240,7 +240,7 @@
                     display: block;
                     cursor: initial;
                 }
-                
+
                 .smallTextBlock {
                     font-size: 12px;
                     font-weight: normal;
@@ -427,11 +427,12 @@
                 width: 90px;
                 height: 90px;
                 cursor: pointer;
-                margin: 5px;    
+                margin: 5px;
                 flex-grow: 0;
                 background: white;
                 box-shadow: 0px 2px 18px 0px #11111159;
                 position: relative;
+                overflow: visible;
 
                 .avatarPreview{
                     width: 100%;
@@ -468,6 +469,56 @@
                         border-radius: 10px;
                         color: white;
                         font-weight: bold;
+                    }
+                }
+                .deleteBlock {
+                    position: absolute;
+                    width: 30px;
+                    height: 30px;
+                    bottom: -5px;
+                    right: -5px;
+                    border: none;
+                    border-radius: 50%;
+                    background: #5F5FF1;
+                    box-shadow: 2px 2px 10px gray;
+                    color: white;
+                    transition: all 0.15s cubic-bezier(.18,.89,.32,1.28);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    &:not(:disabled):hover, &:not(:disabled):focus {
+                        width: 35px;
+                        height: 35px;
+                        bottom: -5px;
+                        right: -5px;
+                    }
+                    svg { font-size: 18px; }
+                    &:disabled { background: grey; cursor: default; }
+                }
+                .confirmationBlock {
+                    position: absolute;
+                    bottom: 8px;
+                    width: 125%;
+                    background: #fff;
+                    border-radius: 5px;
+                    color: grey;
+                    text-align: center;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    box-shadow: 2px 2px 10px gray;
+
+                    p { margin: 5px; font-size: 13px; }
+                    button {
+                        background: transparent;
+                        color: #e81515;
+                        border: none;
+                        padding: 5px;
+                        width: 50%;
+                        &:last-child { color: #5f5ff1; }
+                        svg { font-size: 20px; }
+                    }
+                    @media (min-width: 769px){
+                        width: 80%;
                     }
                 }
             }

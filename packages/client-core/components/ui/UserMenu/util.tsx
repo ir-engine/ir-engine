@@ -28,6 +28,7 @@ export interface UserMenuProps {
   uploadAvatarModel?: Function;
   fetchAvatarList?: Function;
   updateUserSettings?: Function;
+  removeAvatar?: Function;
 }
 
 export interface SettingMenuProps {

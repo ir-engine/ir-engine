@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent } from '@material-ui/core';
-import { NavigateNext, NavigateBefore, Check, ArrowBack, PersonAdd } from '@material-ui/icons';
+import { NavigateNext, NavigateBefore, Check, ArrowBack, PersonAdd, Delete, Close } from '@material-ui/icons';
 // @ts-ignore
 import styles from '../style.module.scss';
 import { LazyImage } from '../../LazyImage';
@@ -16,6 +16,7 @@ const AvatarMenu = (props: any): any => {
 	const [ imgPerPage, setImgPerPage ] = useState(getAvatarPerPage());
 	const [ selectedAvatarId, setSelectedAvatarId ] = useState(''); 
 	const [ isAvatarLoaded, setAvatarLoaded ] = useState(false);
+	const [ avatarTobeDeleted, setAvatarTobeDeleted] = useState(null);
 
 	useEffect((() => {
 		function handleResize() {
@@ -32,6 +33,12 @@ const AvatarMenu = (props: any): any => {
 	useEffect(() => {
 		props.fetchAvatarList();
 	}, [isAvatarLoaded]);
+
+	useEffect(() => {
+		if (page * imgPerPage >= props.avatarList.length) {
+			setPage(page - 1);
+		}
+	}, [props.avatarList]);
 
 	const loadNextAvatars = (e) => {
 		e.preventDefault();
@@ -67,6 +74,20 @@ const AvatarMenu = (props: any): any => {
 		props.changeActiveMenu(Views.AvatarUpload);
 	}
 
+	const setRemovingAvatar = (e, avatarResource) => {
+		e.stopPropagation();
+		setAvatarTobeDeleted(avatarResource);
+	}
+
+	const removeAvatar = (e, confirmation) => {
+		e.stopPropagation();
+		if (confirmation) {
+			props.removeAvatar([avatarTobeDeleted.avatar.key, avatarTobeDeleted['user-thumbnail'].key]);
+		}
+
+		setAvatarTobeDeleted(null);
+	}
+
 	const renderAvatarList = () => {
 		const avatarList = [];
 		const startIndex = page * imgPerPage;
@@ -88,6 +109,23 @@ const AvatarMenu = (props: any): any => {
 							src={characterAvatar['user-thumbnail'].url}
 							alt={characterAvatar.avatar.name}
 						/>
+						{characterAvatar.avatar.userId ?
+							avatarTobeDeleted && avatarTobeDeleted.avatar.url === characterAvatar.avatar.url
+								? <div className={styles.confirmationBlock}>
+									<p>Are you sure?</p>
+									<button type="button" onClick={(e) => {removeAvatar(e, true)}} className={styles.yesBtn} ><Check /></button>
+									<button type="button" onClick={(e) => {removeAvatar(e, false)}} className={styles.noBtn} ><Close /></button>
+								</div>
+								: <button
+									type="button"
+									className={styles.deleteBlock}
+									onClick={(e) => setRemovingAvatar(e, characterAvatar)}
+									disabled={characterAvatar.avatar.name === props.avatarId}
+									title={characterAvatar.avatar.name === props.avatarId ? 'Active Avatar can not be removed' : 'Remove avatar'}
+								>
+									<Delete />
+								</button>
+							: null}
 					</CardContent>
 				</Card>
 			)
