@@ -1,9 +1,6 @@
-import { float32, Model, Schema, uint32, uint8 } from "superbuffer"
-import { NetworkClientInputInterface, PacketNetworkClientInputInterface } from "../interfaces/WorldState";
+import { float32, Model, Schema, uint32, uint8 } from "superbuffer";
 import { Network } from '../classes/Network';
-//import { uint8, float32, uint16, uint32 } from "../../common/types/DataTypes";
-//import { createSchema } from "../functions/createSchema";
-//import { Model } from "../classes/Model";
+import { NetworkClientInputInterface } from "../interfaces/WorldState";
 
 export const inputKeySchema = new Schema({
   input: uint8,
@@ -51,15 +48,6 @@ export const inputKeyArraySchema = new Schema({
   snapShotTime: uint32,
   switchInputs: uint32
 });
-
-function toArrayBuffer(buf) {
-  const ab = new ArrayBuffer(buf.length);
-  const view = new Uint8Array(ab);
-  for (let i = 0; i < buf.length; ++i) {
-      view[i] = buf[i];
-  }
-  return ab;
-}
 
 /** Class for client input. */
 export class ClientInputModel {

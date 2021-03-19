@@ -116,13 +116,6 @@ export class Network {
   /** Tick of the network. */
   static tick: any = 0
 
-  /** Constructs the network. */
-  // constructor() {
-  //   Network.instance = this;
-  //   Network.tick = 0;
-  //   this.incomingMessageQueue ;
-  // }
-
   /** Disposes the network. */
   dispose(): void {
     // TODO: needs tests

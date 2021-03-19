@@ -200,7 +200,11 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                     return console.warn("Failed to authorize user");
                 });
 
-                const avatar = {} as any;
+                const avatar = {
+                    thumbnailURL: "",
+                    avatarURL: "",
+                    avatarId: 0
+                } as any;
                 avatarResources?.data.forEach(a => {
                     if (a.staticResourceType === 'avatar') avatar.avatarURL = a.url;
                     else avatar.thumbnailURL = a.url;
@@ -217,6 +221,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                     console.log('Got ConnectToWorld:');
                     console.log(data);
                     console.log(userId);
+                    console.log("Avatar", avatar)
                     handleConnectToWorld(socket, data, callback, userId, user, avatar);
                 });
 

@@ -48,6 +48,7 @@ export class ServerSpawnSystem extends System {
         });
         this.queryResults.toBeSpawned.all?.forEach(entity => {
           const capsule = getMutableComponent(entity, CapsuleCollider);
+          console.log("SPAWNING AT", this.spawnPoints[this.lastSpawnIndex]);
           const spawnTransform = getComponent(this.spawnPoints[this.lastSpawnIndex], TransformComponent);
             if (capsule.body != null && capsule.playerStuck > 180 && spawnTransform) {
 

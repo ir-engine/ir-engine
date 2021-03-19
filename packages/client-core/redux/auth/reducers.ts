@@ -130,6 +130,10 @@ const authReducer = (state = immutableState, action: any): any => {
       const avatarData = {};
       for (let resource of resources) {
         const r = avatarData[(resource as any).name] || {};
+        if(!r) {
+          console.warn("Avatar resource is empty, have you synced avatars to your static file storage?")
+          return;
+        }
         r[(resource as any).staticResourceType] = resource;
         avatarData[(resource as any).name] = r;
       }

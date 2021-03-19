@@ -43,9 +43,9 @@ import { resolveUser } from '@xr3ngine/common/interfaces/User';
 import store from "../store";
 import { endVideoChat, leave, setRelationship } from '@xr3ngine/engine/src/networking/functions/SocketWebRTCClientFunctions';
 import { Network } from '@xr3ngine/engine/src/networking/classes/Network';
-import { NetworkStateMessageTypes } from '@xr3ngine/engine/src/networking/enums/MessageTypes';
 import { EngineEvents } from '@xr3ngine/engine/src/ecs/classes/EngineEvents';
 import querystring from 'querystring';
+import { MessageTypes } from '@xr3ngine/engine/src/networking/enums/MessageTypes';
 
 const { publicRuntimeConfig } = getConfig();
 const apiServer: string = publicRuntimeConfig.apiServer;
@@ -553,7 +553,7 @@ export function uploadAvatarModel (model: any, thumbnail: any) {
           client.service('user').patch(selfUser.id, { avatarId: name }).then(_ => {
             dispatchAlertSuccess(dispatch, 'Avatar Uploaded Successfully.');
             (Network.instance.transport as any).sendNetworkStatUpdateMessage({
-              type: NetworkStateMessageTypes.AvatarUpdated,
+              type: MessageTypes.AvatarUpdated,
               userId: selfUser.id,
               avatarId: name,
               avatarURL: modelS3URL,
@@ -621,7 +621,7 @@ export function updateUserAvatarId (userId: string, avatarId: string, avatarURL:
     }).then((res: any) => {
       // dispatchAlertSuccess(dispatch, 'User Avatar updated');
       dispatch(userAvatarIdUpdated(res));
-      (Network.instance.transport as any).sendNetworkStatUpdateMessage({ type: NetworkStateMessageTypes.AvatarUpdated, userId, avatarId, avatarURL, thumbnailURL });
+      (Network.instance.transport as any).sendNetworkStatUpdateMessage({ type: MessageTypes.AvatarUpdated, userId, avatarId, avatarURL, thumbnailURL });
     });
   };
 }
@@ -683,7 +683,9 @@ client.service('user').on('patched', async (params) => {
   if (Network.instance.clients[user.id]?.avatarDetail?.avatarId !== user.avatarId) {
     // Fetch Avatar Resources for updated user.
     const avatars = await getAvatarResources(user);
-    let avatarURL = avatars?.data[0].staticResourceType === 'avatar' ? avatars?.data[0].url : avatars?.data[1].url;
+    let avatarURL = "";
+    if(avatars?.data[0])
+      avatarURL = avatars?.data[0].staticResourceType === 'avatar' ? avatars?.data[0].url : avatars?.data[1].url;
 
     //Find entityId from network objects of updated user and dispatch avatar load event.
     for (let key of Object.keys(Network.instance.networkObjects)) {

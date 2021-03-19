@@ -185,6 +185,9 @@ function clone(source: Object3D): Object3D {
  * @param onAssetLoaded Callback to be called after asset will be loaded.
  */
 function loadAsset(url: AssetUrl, entity: Entity, onAssetLoaded: AssetsLoadedHandler): void {
+  if(url === "" || !url){
+    return console.warn("Load asset skipped because URL was null");
+  }
   const urlHashed = hashFromResourceName(url);
   if (AssetVault.instance.assets.has(urlHashed)) {
     onAssetLoaded(entity, { asset: clone(AssetVault.instance.assets.get(urlHashed)) });
