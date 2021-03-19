@@ -3,7 +3,7 @@ import { isClient } from "@xr3ngine/engine/src/common/functions/isClient";
 import { Behavior } from "@xr3ngine/engine/src/common/interfaces/Behavior";
 import { addObject3DComponent } from "@xr3ngine/engine/src/scene/behaviors/addObject3DComponent";
 import { Vec3 } from "cannon-es";
-import { AnimationClip, AnimationMixer, BoxGeometry, Group, Matrix4, Mesh, MeshLambertMaterial, Quaternion, Scene, SkinnedMesh, Vector3 } from "three";
+import { AnimationClip, AnimationMixer, BoxGeometry, Group, Material, Matrix4, Mesh, MeshLambertMaterial, Object3D, Quaternion, Scene, SkinnedMesh, Vector3 } from "three";
 import { AssetLoader } from "../../../assets/components/AssetLoader";
 import { AssetLoaderState } from "../../../assets/components/AssetLoaderState";
 import { PositionalAudioComponent } from '../../../audio/components/PositionalAudioComponent';
@@ -65,21 +65,42 @@ export class AnimationManager {
 	public initialized = false
 
 	_animations: AnimationClip[] = []
+  _defaultModel: Group;
+
 	getAnimations(): Promise<AnimationClip[]> {
 		return new Promise(resolve => {
 			if (!isClient) {
 				resolve([]);
 				return;
 			}
-			getLoader().load('/models/avatars/Animation.glb', gltf => {
-					this._animations = gltf.animations;
-					this._animations?.forEach(clip => {
-						// TODO: make list of morph targets names
-						clip.tracks = clip.tracks.filter(track => !track.name.match(/^CC_Base_/));
-					});
-					resolve(this._animations);
-				}
-			);
+			getLoader().load('/models/avatars/Animations.glb', gltf => {
+        // console.log('animations loaded', gltf)
+        this._animations = gltf.animations;
+        this._animations?.forEach(clip => {
+          // TODO: make list of morph targets names
+          clip.tracks = clip.tracks.filter(track => !track.name.match(/^CC_Base_/));
+        });
+        resolve(this._animations);
+      });
+		});
+	}
+	getDefaultModel(): Promise<Group> {
+		return new Promise(resolve => {
+			if (!isClient) {
+				resolve(new Group());
+				return;
+			}
+			getLoader().load('/models/avatars/Default.glb', gltf => {
+        // console.log('default model loaded')
+        this._defaultModel = gltf.scene;
+        this._defaultModel.traverse((obj: Mesh) => {
+          if(obj.material) {
+            (obj.material as Material).transparent = true;
+            (obj.material as Material).opacity = 0.5;
+          }
+        })
+        resolve(this._defaultModel);
+      });
 		});
 	}
 
@@ -88,9 +109,15 @@ export class AnimationManager {
 	}
 }
 
+export const loadDefaultActorAvatar: Behavior = (entity) => {
+  loadActorAvatarFromURL(entity, '/models/avatars/Default.glb');
+}
 
 export const loadActorAvatar: Behavior = (entity) => {
-  const avatarURL: string = getComponent(entity, CharacterComponent)?.avatarURL;
+  loadActorAvatarFromURL(entity, getComponent(entity, CharacterComponent)?.avatarURL);
+};
+
+export const loadActorAvatarFromURL: Behavior = (entity, avatarURL) => {
   if (hasComponent(entity, AssetLoader)) removeComponent(entity, AssetLoader, true);
   if (hasComponent(entity, AssetLoaderState)) removeComponent(entity, AssetLoaderState, true);
 
@@ -733,6 +760,10 @@ export const NetworkPlayerCharacter: NetworkPrefab = {
   onAfterCreate: [
     {
       behavior: initializeCharacter,
+      networked: true
+    },
+    {
+      behavior: loadDefaultActorAvatar,
       networked: true
     },
     {

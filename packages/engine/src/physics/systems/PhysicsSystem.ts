@@ -233,7 +233,7 @@ export class PhysicsSystem extends System {
         correction: Vault.instance?.get((Network.instance.snapshot as any).timeCorrection, true),
         new: []
       }
-      console.warn(snapshots.correction);
+      // console.warn(snapshots.correction);
       this.queryResults.serverCorrection.all?.forEach(entity => {
         // Creatr new snapshot position for next frame server correction
         createNewCorrection(entity, {
