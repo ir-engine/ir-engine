@@ -1,5 +1,6 @@
 import { AssetLoader } from '../../assets/components/AssetLoader';
 import { isClient } from "../../common/functions/isClient";
+import { isServer } from "../../common/functions/isServer";
 import { Engine } from '../../ecs/classes/Engine';
 import { EngineEvents } from '../../ecs/classes/EngineEvents';
 import { Entity } from "../../ecs/classes/Entity";
@@ -13,8 +14,8 @@ export function loadScene(scene: SceneData): void {
   const loadPromises = [];
   let loaded = 0;
   if (isClient) {
-     console.warn(Engine.scene);
-     console.warn(scene);
+    // console.warn(Engine.scene);
+    // console.warn(scene);
     EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENTITY_LOADED, left: loadPromises.length });
   }
   Object.keys(scene.entities).forEach(key => {
@@ -23,8 +24,18 @@ export function loadScene(scene: SceneData): void {
     addComponent(entity, SceneTagComponent);
     sceneEntity.components.forEach(component => {
       loadComponent(entity, component);
+      if (isServer && component.name === 'gltf-model') {
+        // dont load glb model if dont need to parse colliders
+        if(!component.data.parseColliders) return;
+       // its add unic id from entityId, entityId gives editor to both of side (client have same scene data as a server).
+       // needed to syncronize network Objects, like dynamic network rigidBody or cars.
+       const loaderComponent = getMutableComponent(entity, AssetLoader);
+       loaderComponent.entityIdFromScenaLoader = sceneEntity;
+     } else
       if (isClient && component.name === 'gltf-model') {
         const loaderComponent = getMutableComponent(entity, AssetLoader);
+        // its add unic id from entityId, entityId gives editor to both of side (client have same scene data as a server).
+        // needed to syncronize network Objects, like dynamic network rigidBody or cars.
         loaderComponent.entityIdFromScenaLoader = sceneEntity;
         loadPromises.push(new Promise<void>((resolve, reject) => {
           if (loaderComponent.onLoaded === null || loaderComponent.onLoaded === undefined) {
@@ -35,14 +46,12 @@ export function loadScene(scene: SceneData): void {
             EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENTITY_LOADED, left: (loadPromises.length - loaded) });
           });
         }));
-      } else if (!isClient && component.name === 'gltf-model') {
-        const loaderComponent = getMutableComponent(entity, AssetLoader);
-        loaderComponent.entityIdFromScenaLoader = sceneEntity;
       }
     });
   });
-  //PhysicsSystem.simulate = true;
-
+  if (isServer) {
+    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.SCENE_LOADED, loaded: true });
+  }
   isClient && Promise.all(loadPromises).then(() => {
     EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.SCENE_LOADED, loaded: true });
   });
@@ -64,6 +73,18 @@ export function loadComponent(entity: Entity, component: SceneDataComponent): vo
       // Does it have a from and to field? Let's map to that
       if (val['from'] !== undefined) {
         values[val['to']] = component.data[val['from']];
+        // Its only for DEBUG, allow load Models glb adding in dev mode
+        // ************************* change url from https:// to http://
+      //  console.warn('process.env.LOCAL_BUILD');
+      //  console.warn(process.env.LOCAL_BUILD == 'true');
+        /*
+        if (process.env.NODE_ENV == 'production') {
+          if (val['from'] == 'src') {
+            values[val['to']] = 'http'+ values[val['to']].substring('https'.length, values[val['to']].length);
+          }
+        }
+        */
+        // ************************
       }
       else {
         // Otherwise raw data
