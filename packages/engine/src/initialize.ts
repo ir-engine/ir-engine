@@ -32,6 +32,7 @@ import { WebXRRendererSystem } from './renderer/WebXRRendererSystem';
 import { createWorker, WorkerProxy } from './worker/MessageQueue';
 import { Network } from './networking/classes/Network';
 import { isMobileOrTablet } from './common/functions/isMobile';
+import { AnimationManager } from './templates/character/prefabs/NetworkPlayerCharacter';
 // import { PositionalAudioSystem } from './audio/systems/PositionalAudioSystem';
 
 Mesh.prototype.raycast = acceleratedRaycast;
@@ -96,6 +97,7 @@ export const initializeEngine = async (initOptions: any = DefaultInitializationO
 
   if(!useOffscreen) {
 
+    await AnimationManager.instance.getDefaultModel()
     registerSystem(AssetLoadingSystem);
     registerSystem(PhysicsSystem);
     registerSystem(StateSystem);
