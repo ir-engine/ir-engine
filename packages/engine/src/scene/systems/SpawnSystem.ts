@@ -48,18 +48,22 @@ export class ServerSpawnSystem extends System {
         });
         this.queryResults.toBeSpawned.all?.forEach(entity => {
           const capsule = getMutableComponent(entity, CapsuleCollider);
-          const spawnTransform = getComponent(this.spawnPoints[this.lastSpawnIndex], TransformComponent);
-            if (capsule.body != null && capsule.playerStuck > 180 && spawnTransform) {
 
-              this.lastSpawnIndex = (this.lastSpawnIndex + 1) % this.spawnPoints.length;
-              capsule.body.position.set(
-                spawnTransform.position.x,
-                spawnTransform.position.y,
-                spawnTransform.position.z
-              );
-              capsule.playerStuck = 0;
+          let spawnTransform = { position: { x: 0, y: 0, z: 0 } };
+          if(this.spawnPoints[this.lastSpawnIndex]) 
+            spawnTransform = getComponent(this.spawnPoints[this.lastSpawnIndex], TransformComponent);
+          
+          if (capsule.body != null && capsule.playerStuck > 180) {
 
-            }
+            this.lastSpawnIndex = (this.lastSpawnIndex + 1) % this.spawnPoints.length;
+            capsule.body.position.set(
+              spawnTransform.position.x,
+              spawnTransform.position.y,
+              spawnTransform.position.z
+            );
+            capsule.playerStuck = 0;
+
+          }
         });
         this.queryResults.spawnPoint.removed?.forEach(entity => {
             this.spawnPoints.splice(this.spawnPoints.indexOf(entity))

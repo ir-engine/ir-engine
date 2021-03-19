@@ -63,7 +63,7 @@ const loadLightmaps = parser => {
         material.needsUpdate = true;
         return lightMap;
     };
-    for (let i = 0; i < parser.json.materials.length; i++) {
+    for (let i = 0; i < parser.json.materials?.length; i++) {
         const materialNode = parser.json.materials[i];
 
         if (!materialNode.extensions) continue;
