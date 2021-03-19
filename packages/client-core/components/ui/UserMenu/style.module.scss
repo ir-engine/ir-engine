@@ -355,6 +355,17 @@
         flex-direction: column;
         position: relative;
 
+        .closeButton {
+            position: fixed;
+            right: 8px;
+            top: 8px;
+
+            &:hover {
+                cursor: pointer;
+                color: red;
+            }
+        }
+
         .profileBlock {
             display: flex;
             justify-content: space-between;

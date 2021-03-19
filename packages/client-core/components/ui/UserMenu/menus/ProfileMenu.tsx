@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import { TextField, Button, Typography, InputAdornment, } from '@material-ui/core';
-import { Send, GitHub, Check, Create } from '@material-ui/icons';
+import { Send, GitHub, Check, Create, Close } from '@material-ui/icons';
 import { validateEmail, validatePhoneNumber } from '../../../../redux/helper';
 import { FacebookIcon } from '../../Icons/FacebookIcon';
 import { GoogleIcon } from '../../Icons/GoogleIcon';
@@ -18,6 +18,7 @@ import { addConnectionByEmail, addConnectionBySms, loginUserByOAuth } from '../.
 
 interface Props {
 	changeActiveMenu?: any;
+	setProfileMenuOpen?: any;
 	authState?: any;
 	updateUsername?: any;
 	updateUserAvatarId?: any;
@@ -46,7 +47,7 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 	removeUser: bindActionCreators(removeUser, dispatch),
 });
 
-const ProfileMenu = (props: any): any => {
+const ProfileMenu = (props: Props): any => {
 	const {
 		authState,
 		updateUsername,
@@ -54,7 +55,8 @@ const ProfileMenu = (props: any): any => {
 		addConnectionBySms,
 		loginUserByOAuth,
 		logoutUser,
-		changeActiveMenu
+		changeActiveMenu,
+		setProfileMenuOpen
 	} = props;
 
 	const selfUser = authState.get('user') || {};
@@ -117,6 +119,7 @@ const ProfileMenu = (props: any): any => {
 
 	const handleLogout = (e) => {
 		logoutUser();
+		window.location.reload();
 	}
 
 	return (
@@ -155,7 +158,7 @@ const ProfileMenu = (props: any): any => {
 						<h4>{(selfUser.userRole === 'user' || selfUser.userRole === 'admin') && <div onClick={handleLogout}>Log out</div>}</h4>
 					</div>
 				</section>
-				<section className={styles.emailPhoneSection}>
+				{ selfUser?.userRole === 'guest' && <section className={styles.emailPhoneSection}>
 					<Typography variant="h1" className={styles.panelHeader}>
 						Connect your email or phone number
 					</Typography>
@@ -181,8 +184,8 @@ const ProfileMenu = (props: any): any => {
 							}}
 						/>
 					</form>
-				</section>
-				<section className={styles.socialBlock}>
+				</section>}
+				{ selfUser?.userRole === 'guest' && <section className={styles.socialBlock}>
 					<Typography variant="h3" className={styles.textBlock}>Or connect with social accounts</Typography>
 					<div className={styles.socialContainer}>
 						<a href="#" id="facebook" onClick={handleOAuthServiceClick}><FacebookIcon width="40" height="40" viewBox="0 0 40 40" /></a>
@@ -192,7 +195,8 @@ const ProfileMenu = (props: any): any => {
 						<a href="#" id="github" onClick={handleOAuthServiceClick}><GitHub /></a>
 					</div>
 					<Typography variant="h4" className={styles.smallTextBlock}>If you don’t have an account, a new one will be created for you.</Typography>
-				</section>
+				</section>}
+				{ setProfileMenuOpen != null && <div className={styles.closeButton} onClick={() => setProfileMenuOpen(false)}><Close /></div>}
 			</section>
 		</div>
 	);

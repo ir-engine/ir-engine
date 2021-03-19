@@ -104,23 +104,6 @@ import { isMobileOrTablet } from '@xr3ngine/engine/src/common/functions/isMobile
 import ProfileMenu from "../UserMenu/menus/ProfileMenu";
 import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 
-const initialSelectedUserState = {
-    id: '',
-    name: '',
-    userRole: '',
-    identityProviders: [],
-    relationType: {},
-    inverseRelationType: {},
-    avatarUrl: ''
-};
-
-const initialGroupForm = {
-    id: '',
-    name: '',
-    groupUsers: [],
-    description: ''
-};
-
 const engineRendererCanvasId = 'engine-renderer-canvas';
 
 const mapStateToProps = (state: any): any => {
@@ -1292,7 +1275,7 @@ const Harmony = (props: Props): any => {
             { profileMenuOpen &&
             <ClickAwayListener onClickAway={() => setProfileMenuOpen(false)}>
                 <div className={styles.profileMenu}>
-                    <ProfileMenu />
+                    <ProfileMenu setProfileMenuOpen={setProfileMenuOpen}/>
                 </div>
             </ClickAwayListener>
             }
