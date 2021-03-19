@@ -7,7 +7,7 @@ import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
 
-import styles from './User.module.scss';
+import styles from './CreatorForm.module.scss';
 import AccountCircle from '@material-ui/icons/AccountCircle';
 import AlternateEmailIcon from '@material-ui/icons/AlternateEmail';
 import MailOutlineIcon from '@material-ui/icons/MailOutline';
@@ -34,7 +34,7 @@ const mapStateToProps = (state: any): any => {
     updateCreator?: typeof updateCreator;
   }
   
-const User = ({creatorsState, updateCreator}:Props) => {
+const CreatorForm = ({creatorsState, updateCreator}:Props) => {
     const [creator, setCreator] = useState(creatorsState && creatorsState.get('currentCreator')); 
     const handleUpdateUser = (e:any) =>{
         e.preventDefault();
@@ -96,4 +96,4 @@ const User = ({creatorsState, updateCreator}:Props) => {
     </section>
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(User);
+export default connect(mapStateToProps, mapDispatchToProps)(CreatorForm);

@@ -56,7 +56,7 @@ export function updateCreator(creator: Creator){
       const api = new  Api();
       const storedAvatar = await api.upload(creator.avatar, null);
       //@ts-ignore error that this vars are void bacause upload is defines as voin funtion
-      const updatedCreator = await client.service('creator').patch(creator.id, {...creator, avatarId: storedAvatar.fileId});   
+      const updatedCreator = await client.service('creator').patch(creator.id, {...creator, avatarId: storedAvatar.file_id});   
       dispatch(creatorLoggedRetrieved(updatedCreator));
     } catch(err) {
       console.log(err);
