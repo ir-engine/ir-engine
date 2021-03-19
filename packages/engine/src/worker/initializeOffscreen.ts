@@ -29,6 +29,7 @@ import { EngineEventsProxy, addIncomingEvents } from '../ecs/classes/EngineEvent
 import { WebXRRendererSystem } from '../renderer/WebXRRendererSystem';
 // import { PositionalAudioSystem } from './audio/systems/PositionalAudioSystem';
 import { receiveWorker } from './MessageQueue';
+import { AnimationManager } from '../templates/character/prefabs/NetworkPlayerCharacter';
 
 
 Mesh.prototype.raycast = acceleratedRaycast;
@@ -55,6 +56,8 @@ const initializeEngineOffscreen = async ({ canvas, userArgs }, proxy: MainProxy)
 
   initialize();
   Engine.scene = new Scene();
+
+  await AnimationManager.instance.getDefaultModel()
 
   Network.instance.schema = options.networking.schema;
   // @ts-ignore
