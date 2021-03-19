@@ -15,6 +15,7 @@ export default function createSkybox(entity, args: {
     return;
   }
   const renderer = Engine.renderer
+
   const pmremGenerator = new PMREMGenerator(renderer);
 
   if (args.objArgs.skytype === "cubemap") {

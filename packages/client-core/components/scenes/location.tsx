@@ -261,7 +261,13 @@ export const EnginePage = (props: Props) => {
     }
     EngineEvents.instance.addEventListener(EngineEvents.EVENTS.CLIENT_ENTITY_LOAD, onClientEntityLoad)
 
-    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.LOAD_SCENE, result });
+    // add this beacose loading start too fast, physics not initialized yet
+    const waitInitialize = () => {
+      EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.LOAD_SCENE, result });
+      EngineEvents.instance.removeEventListener(PhysicsSystem.EVENTS.INITIALIZE, waitInitialize)
+    }
+    EngineEvents.instance.addEventListener(PhysicsSystem.EVENTS.INITIALIZE, waitInitialize);
+
     connectToInstanceServer('instance');
   }
 

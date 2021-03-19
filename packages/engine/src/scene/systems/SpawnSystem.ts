@@ -1,18 +1,20 @@
 import { Quaternion, Vector3 } from "three";
 import { Entity } from "../../ecs/classes/Entity";
 import { System, SystemAttributes } from "../../ecs/classes/System";
+import { PhysicsSystem } from "../../physics/systems/PhysicsSystem";
 import { getComponent, getMutableComponent, hasComponent, removeComponent } from "../../ecs/functions/EntityFunctions";
 import { TransformComponent } from "../../transform/components/TransformComponent";
 import SpawnPointComponent from "../components/SpawnPointComponent";
 import TeleportToSpawnPoint from "../components/TeleportToSpawnPoint";
 import { Engine } from "../../ecs/classes/Engine";
 import { CapsuleCollider } from "../../physics/components/CapsuleCollider";
+
 //import { CharacterComponent } from '../../templates/character/components/CharacterComponent';
 
 
 export class ServerSpawnSystem extends System {
     spawnPoints: Entity[] = []
-    lastSpawnIndex = 0;
+    lastSpawnIndex: number = 0;
 
     constructor(attributes?: SystemAttributes) {
         super(attributes);
@@ -48,13 +50,13 @@ export class ServerSpawnSystem extends System {
         });
         this.queryResults.toBeSpawned.all?.forEach(entity => {
           const capsule = getMutableComponent(entity, CapsuleCollider);
-
+          // on production is NaN at start (dont know why)
+          isNaN(this.lastSpawnIndex) ? this.lastSpawnIndex = 0:'';
           let spawnTransform = { position: { x: 0, y: 0, z: 0 } };
-          if(this.spawnPoints[this.lastSpawnIndex]) 
+          if (this.spawnPoints.length > 0) {
             spawnTransform = getComponent(this.spawnPoints[this.lastSpawnIndex], TransformComponent);
-          
-          if (capsule.body != null && capsule.playerStuck > 180) {
-
+          }
+          if ( capsule.body != null && capsule.playerStuck > 180 ) {
             this.lastSpawnIndex = (this.lastSpawnIndex + 1) % this.spawnPoints.length;
             capsule.body.position.set(
               spawnTransform.position.x,
@@ -62,7 +64,6 @@ export class ServerSpawnSystem extends System {
               spawnTransform.position.z
             );
             capsule.playerStuck = 0;
-
           }
         });
         this.queryResults.spawnPoint.removed?.forEach(entity => {
