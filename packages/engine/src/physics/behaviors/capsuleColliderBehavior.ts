@@ -1,4 +1,5 @@
 import { Vec3 } from 'cannon-es';
+import { Euler, Matrix4, Vector3, Quaternion } from 'three';
 import { isClient } from '../../common/functions/isClient';
 import { Behavior } from '../../common/interfaces/Behavior';
 import { Entity } from '../../ecs/classes/Entity';
@@ -10,9 +11,32 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { CollisionGroups } from '../enums/CollisionGroups';
 import { LocalInputReceiver } from '../../input/components/LocalInputReceiver';
 import { EngineEvents } from '../../ecs/classes/EngineEvents';
-//import { useRouter } from 'next/router';
 
+let lastPos = { x:0, y:0, z:0 };
+export const updateVelocityVector: Behavior = (entity: Entity, args): void => {
+  if (hasComponent(entity, CapsuleCollider)) {
+    const capsule = getComponent<CapsuleCollider>(entity, CapsuleCollider);
+    const transform = getComponent<TransformComponent>(entity, TransformComponent);
+    const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
+    if (!actor.initialized) return;
 
+    let x = capsule.body.position.x - lastPos.x;
+    let y = capsule.body.position.y - lastPos.y;
+    let z = capsule.body.position.z - lastPos.z;
+
+    if(isNaN(x)) {
+      actor.animationVelocity = new Vector3(0,1,0);
+      return;
+    }
+
+    lastPos.x = capsule.body.position.x;
+    lastPos.y = capsule.body.position.y;
+    lastPos.z = capsule.body.position.z;
+
+    let q = new Quaternion().copy(transform.rotation).invert();
+    actor.animationVelocity = new Vector3(x,y,z).applyQuaternion(q);
+  }
+};
 
 export const capsuleColliderBehavior: Behavior = (entity: Entity, args): void => {
   const capsule = getMutableComponent<CapsuleCollider>(entity, CapsuleCollider)
@@ -44,6 +68,7 @@ export const capsuleColliderBehavior: Behavior = (entity: Entity, args): void =>
     capsule.body.position.x = 0;
     capsule.body.position.y = 0;
     capsule.body.position.z = 0;
+    capsule.playerStuck = 1000;
   }
   // onUpdate
   transform.position.set(
@@ -89,22 +114,23 @@ export const capsuleColliderBehavior: Behavior = (entity: Entity, args): void =>
   let m2 = PhysicsSystem.physicsWorld.raycastClosest(actorRaycastStart2, actorRaycastEnd2, rayDontStuckOptions, actor.rayDontStuckXm);
   let m3 = PhysicsSystem.physicsWorld.raycastClosest(actorRaycastStart3, actorRaycastEnd3, rayDontStuckOptions, actor.rayDontStuckZm);
   // Cast the ray
+  actor.rayGroundHit = m;
   actor.rayHasHit = m0 || m1 || m2 || m3;
 
   if (actor.rayHasHit) {
-    const arrT = [actor.rayDontStuckX.hitPointWorld.y,
-     actor.rayDontStuckZ.hitPointWorld.y,
-     actor.rayDontStuckXm.hitPointWorld.y,
-     actor.rayDontStuckZm.hitPointWorld.y]
-     actor.rayGroundY = arrT.sort()[0]
-
-    if (capsule.playerStuck < 180) {
+    const arrT = []
+    actor.rayDontStuckX.shape != null ? arrT.push(actor.rayDontStuckX.hitPointWorld.y):'';
+    actor.rayDontStuckZ.shape != null ? arrT.push(actor.rayDontStuckZ.hitPointWorld.y) :'';
+    actor.rayDontStuckXm.shape != null ? arrT.push(actor.rayDontStuckXm.hitPointWorld.y) :'';
+    actor.rayDontStuckZm.shape != null ? arrT.push(actor.rayDontStuckZm.hitPointWorld.y) :'';
+    actor.rayGroundY = arrT.sort((a, b) => b - a)[0];
+    if (capsule.playerStuck > 10) {
       capsule.playerStuck = 0;
     }
   } else {
     capsule.playerStuck += 1;
   }
-
+ // its for portals for time
   if (isClient && m && actor.rayResult.body.collisionFilterGroup == CollisionGroups.ActiveCollider) {
     actor.playerInPortal += 1
     if (actor.playerInPortal > 120) {
@@ -116,7 +142,6 @@ export const capsuleColliderBehavior: Behavior = (entity: Entity, args): void =>
     actor.playerInPortal = 0;
   }
 
-  actor.rayGroundHit = m;
 	// Raycast debug
 	// if (actor.rayHasHit) {
 	// 	if (actor.raycastBox.visible) {

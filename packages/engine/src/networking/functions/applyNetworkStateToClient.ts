@@ -136,13 +136,13 @@ export function applyNetworkStateToClient(worldStateBuffer: WorldStateInterface,
               syncPhysicsObjects(objectToCreate)
             } else {
 
-              const networkObject = initializeNetworkObject(
-                  String(objectToCreate.ownerId),
-                  objectToCreate.networkId,
-                  objectToCreate.prefabType,
-                  position,
-                  rotation,
-                  Network.instance.clients[objectToCreate.ownerId].avatarDetail,
+              initializeNetworkObject(
+                String(objectToCreate.ownerId),
+                objectToCreate.networkId,
+                objectToCreate.prefabType,
+                position,
+                rotation,
+                Network.instance.clients[objectToCreate.ownerId].avatarDetail,
               );
 
               if (objectToCreate.ownerId === Network.instance.userId) {

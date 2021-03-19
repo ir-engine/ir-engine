@@ -114,13 +114,16 @@ export const loadDefaultActorAvatar: Behavior = (entity) => {
 }
 
 export const loadActorAvatar: Behavior = (entity) => {
-  loadActorAvatarFromURL(entity, getComponent(entity, CharacterComponent)?.avatarURL);
+	const avatarURL = getComponent(entity, CharacterComponent)?.avatarURL;
+  if (avatarURL) {
+		loadActorAvatarFromURL(entity, avatarURL);
+	}
 };
 
 export const loadActorAvatarFromURL: Behavior = (entity, avatarURL) => {
   if (hasComponent(entity, AssetLoader)) removeComponent(entity, AssetLoader, true);
   if (hasComponent(entity, AssetLoaderState)) removeComponent(entity, AssetLoaderState, true);
-
+	console.warn(avatarURL);
   const tmpGroup = new Group();
   addComponent(entity, AssetLoader, {
     url: avatarURL,

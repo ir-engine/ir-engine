@@ -62,14 +62,14 @@ export const initializeEngine = async (initOptions: any = DefaultInitializationO
 
   Engine.xrSupported = await (navigator as any).xr?.isSessionSupported('immersive-vr')
   const useOffscreen = !Engine.xrSupported && 'transferControlToOffscreen' in canvas;
-  
+
   if(useOffscreen) {
     const workerProxy: WorkerProxy = await createWorker(
       // @ts-ignore
       new Worker(new URL('./worker/initializeOffscreen.ts', import.meta.url)),
       (options.renderer.canvas || createCanvas()),
       {
-        
+
       }
     );
     EngineEvents.instance = new EngineEventsProxy(workerProxy);
@@ -108,7 +108,7 @@ export const initializeEngine = async (initOptions: any = DefaultInitializationO
     Engine.scene.add(Engine.camera);
     registerSystem(HighlightSystem);
     registerSystem(EntityActionSystem, { useWebXR: Engine.xrSupported });
-  
+
 // audio breaks webxr currently
     // Engine.audioListener = new AudioListener();
     // Engine.camera.add(Engine.audioListener);
