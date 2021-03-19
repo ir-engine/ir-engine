@@ -18,4 +18,54 @@ export class Notifications extends Service {
     this.app = app;
   }
 
+
+  /**
+   * @function find it is used to find specific users
+   *
+   * @param params user id
+   * @returns {@Array} of found users
+   */
+
+   async find (params: Params): Promise<any> {
+    const loggedInUser = extractLoggedInUserFromParams(params);
+    if (!loggedInUser?.userId) {
+      return Promise.reject(new BadRequest('Could not get fired users list. Users isn\'t logged in! '));
+    }
+    const action = params.action;   
+
+    if(action === 'getNotificationId'){
+      const feedId = params.feedId;
+      const type = params.type;
+
+      //common  - TODO -move somewhere
+      const loggedInUser = extractLoggedInUserFromParams(params);
+      const creatorQuery = `SELECT id  FROM \`creator\` WHERE userId=:userId`;
+      const [creator] = await this.app.get('sequelizeClient').query(creatorQuery,
+        {
+          type: QueryTypes.SELECT,
+          raw: true,
+          replacements: {userId:loggedInUser.userId}
+        });  
+      const creatorId = creator?.id ;
+      const dataQuery = `SELECT id 
+      FROM \`notifications\` 
+      WHERE feedId=:feedId AND creatorAuthorId=:creatorId AND type=:type`;
+    
+      const [feed] = await this.app.get('sequelizeClient').query(dataQuery,
+      {
+        type: QueryTypes.SELECT,
+        raw: true,
+        replacements: {
+          feedId, 
+          creatorId,
+          type
+        }
+      });
+      return feed;
+    }
+    return 1;
+  }
+
+
+
 }

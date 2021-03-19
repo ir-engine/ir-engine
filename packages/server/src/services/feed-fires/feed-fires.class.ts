@@ -86,7 +86,6 @@ export class FeedFires extends Service {
 
     const newFire =  await feedFiresModel.create({feedId:data.feedId, creatorId});
     return  newFire;
-
   }
 
   async remove ( feedId: string,  params?: Params): Promise<any> {
@@ -111,5 +110,6 @@ export class FeedFires extends Service {
           creatorId
         }
       });
+      return feedId;
   }
 }
