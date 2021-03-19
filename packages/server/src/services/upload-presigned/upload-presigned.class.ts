@@ -55,7 +55,7 @@ export class UploadPresigned implements ServiceMethods<Data> {
     return { data };
   }
 
-  getKeyForFilename = (key: string) => {
+  getKeyForFilename = (key: string): string => {
     return `${process.env.STORAGE_S3_AVATAR_DIRECTORY}${process.env.STORAGE_S3_DEV_MODE ? '/' + process.env.STORAGE_S3_DEV_MODE : ''}/${key}`;
   }
 }
