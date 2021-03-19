@@ -1,5 +1,4 @@
 import React, { useEffect } from 'react';
-import { random } from 'lodash';
 import Router from "next/router";
 
 import CardMedia from '@material-ui/core/CardMedia';

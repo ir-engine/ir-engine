@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { random } from 'lodash';
 import Router from "next/router";
 
 import Card from '@material-ui/core/Card';
@@ -58,7 +57,7 @@ const Creator = ({creatorId, creatorState, getCreator}:Props) => {
     };
     const handleEditClick = () =>{
         handleClose();
-        Router.push('/user');
+        Router.push('/creatorEdit');
     } 
     return  creator ?  (<section className={styles.creatorContainer}>
             <Card className={styles.creatorCard} elevation={0} key={creator.username} square={false} >

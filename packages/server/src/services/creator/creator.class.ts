@@ -37,9 +37,10 @@ export class Creator extends Service {
     if (action === 'current') {
       const loggedInUser = extractLoggedInUserFromParams(params);
       if(loggedInUser?.userId){
-        let select = `SELECT creator.* `;
+        let select = `SELECT creator.*, sr.url as avatar `;
         const from = ` FROM \`creator\` as creator`;
-        let join = ` JOIN \`user\` as user ON user.id=creator.userId`;
+        let join = ` JOIN \`user\` as user ON user.id=creator.userId
+                    LEFT JOIN \`static_resource\` as sr ON sr.id=creator.avatarId` ;
         let where = ` WHERE creator.userId=:userId`;      
 
         queryParamsReplacements.userId = loggedInUser.userId;
@@ -58,7 +59,10 @@ export class Creator extends Service {
     }
 
     //creators list
-    const dataQuery = `SELECT *  FROM \`creator\` WHERE 1 
+    const dataQuery = `SELECT creator.*, sr.url as avatar 
+    FROM \`creator\` as creator
+    LEFT JOIN \`static_resource\` as sr ON sr.id=creator.avatarId
+    WHERE 1 
     ORDER BY createdAt DESC    
     LIMIT :skip, :limit `
 
@@ -81,8 +85,9 @@ export class Creator extends Service {
    * @author Vykliuk Tetiana
    */
     async get (id: Id, params?: Params): Promise<any> {
-      const select = `SELECT creator.* `;
-      const from = ` FROM \`creator\` as creator`;
+      const select = `SELECT creator.* , sr.url as avatar `;
+      const from = ` FROM \`creator\` as creator 
+      LEFT JOIN \`static_resource\` as sr ON sr.id=creator.avatarId`;
       const where = ` WHERE creator.id=:id`;      
 
       const queryParamsReplacements = {id} as any;      
