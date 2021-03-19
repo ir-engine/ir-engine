@@ -2,21 +2,14 @@ import LinkIcon from '@material-ui/icons/Link';
 import PersonIcon from '@material-ui/icons/Person';
 import SettingsIcon from '@material-ui/icons/Settings';
 import ClickAwayListener from '@material-ui/core/ClickAwayListener';
-import { Network } from '@xr3ngine/engine/src/networking/classes/Network';
 import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 import { selectAppOnBoardingStep } from '../../../redux/app/selector';
 import { selectAuthState } from '../../../redux/auth/selector';
 import {
-  logoutUser,
-  removeUser,
   updateUserAvatarId,
-  updateUsername,
   updateUserSettings,
-  addConnectionByEmail,
-  addConnectionBySms,
-  loginUserByOAuth,
   uploadAvatarModel,
   fetchAvatarList,
   removeAvatar,
@@ -49,16 +42,10 @@ const mapStateToProps = (state: any): any => {
 };
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  updateUsername: bindActionCreators(updateUsername, dispatch),
   updateUserAvatarId: bindActionCreators(updateUserAvatarId, dispatch),
   updateUserSettings: bindActionCreators(updateUserSettings, dispatch),
   alertSuccess: bindActionCreators(alertSuccess, dispatch),
   provisionInstanceServer: bindActionCreators(provisionInstanceServer, dispatch),
-  loginUserByOAuth: bindActionCreators(loginUserByOAuth, dispatch),
-  addConnectionBySms: bindActionCreators(addConnectionBySms, dispatch),
-  addConnectionByEmail: bindActionCreators(addConnectionByEmail, dispatch),
-  logoutUser: bindActionCreators(logoutUser, dispatch),
-  removeUser: bindActionCreators(removeUser, dispatch),
   uploadAvatarModel: bindActionCreators(uploadAvatarModel, dispatch),
   fetchAvatarList: bindActionCreators(fetchAvatarList, dispatch),
   removeAvatar: bindActionCreators(removeAvatar, dispatch),
@@ -142,14 +129,6 @@ class UserMenu extends React.Component<UserMenuProps, StateType> {
     this.setState({ username })
   }
 
-  handleUpdateUsername = () => {
-    const name = this.state.username.trim();
-    if (!name) return;
-    if (this.selfUser.name.trim() !== name) {
-      this.props.updateUsername(this.selfUser.id, name);
-    }
-  };
-
   setAvatar = (avatarId: string, avatarURL: string, thumbnailURL: string) => {
     if (this.selfUser) {
       this.props.updateUserAvatarId(this.selfUser.id, avatarId, avatarURL, thumbnailURL);
@@ -171,7 +150,7 @@ class UserMenu extends React.Component<UserMenuProps, StateType> {
 
   setActiveMenu = (e): void => {
     const identity = e.currentTarget.id.split('_');
-    this.setState({ 
+    this.setState({
       currentActiveMenu: this.state.currentActiveMenu && this.state.currentActiveMenu.id === identity[0]
           ? null
           : this.menus[identity[1]]
@@ -189,18 +168,7 @@ class UserMenu extends React.Component<UserMenuProps, StateType> {
     switch (this.state.currentActiveMenu.id) {
       case Views.Profile:
         args = {
-          username: this.state.username,
-          userRole: this.selfUser?.userRole,
-          userId: this.selfUser?.id,
-          setUsername: this.setUsername,
-          updateUsername: this.handleUpdateUsername,
           changeActiveMenu: this.changeActiveMenu,
-          logoutUser: this.props.logoutUser,
-          removeUser: this.props.removeUser,
-          loginUserByOAuth: this.props.loginUserByOAuth,
-          addConnectionByEmail: this.props.addConnectionByEmail,
-          addConnectionBySms: this.props.addConnectionBySms,
-          Network,
         };
         break;
       case Views.Avatar:

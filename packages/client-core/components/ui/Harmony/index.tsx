@@ -17,7 +17,6 @@ import {
 } from '@material-ui/core';
 import {
     Add,
-    Block,
     Call,
     CallEnd,
     Clear,
@@ -30,14 +29,12 @@ import {
     GroupAdd,
     GroupWork,
     Mic,
-    MicOff,
-    PersonAdd,
     PeopleOutline,
+    Person,
     Public,
     Save,
     Send,
     Settings,
-    SupervisedUserCircle,
     ThreeDRotation,
     Videocam,
     VideocamOff
@@ -56,7 +53,6 @@ import {
     updateMessageScrollInit
 } from '@xr3ngine/client-core/redux/chat/service';
 import { selectChannelConnectionState } from '@xr3ngine/client-core/redux/channelConnection/selector';
-import { selectInstanceConnectionState } from '../../../redux/instanceConnection/selector';
 import {
     connectToChannelServer,
     provisionChannelServer,
@@ -105,6 +101,8 @@ import {selectTransportState} from '../../../redux/transport/selector';
 import {selectMediastreamState} from "../../../redux/mediastream/selector";
 import {Group as GroupType} from "../../../../common/interfaces/Group";
 import { isMobileOrTablet } from '@xr3ngine/engine/src/common/functions/isMobile';
+import ProfileMenu from "../UserMenu/menus/ProfileMenu";
+import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 
 const initialSelectedUserState = {
     id: '',
@@ -130,7 +128,6 @@ const mapStateToProps = (state: any): any => {
         authState: selectAuthState(state),
         chatState: selectChatState(state),
         channelConnectionState: selectChannelConnectionState(state),
-        instanceConnectionState: selectInstanceConnectionState(state),
         userState: selectUserState(state),
         friendState: selectFriendState(state),
         groupState: selectGroupState(state),
@@ -174,12 +171,10 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 interface Props {
     authState?: any;
     doLoginAuto?: typeof doLoginAuto;
-    setBottomDrawerOpen: any;
     setLeftDrawerOpen: any;
     setRightDrawerOpen: any;
     chatState?: any;
     channelConnectionState?: any;
-    instanceConnectionState?: any;
     getChannels?: any;
     getChannelMessages?: any;
     createMessage?: any;
@@ -193,30 +188,17 @@ interface Props {
     resetChannelServer?: typeof resetChannelServer;
     friendState?: any;
     getFriends?: any;
-    unfriend?: any;
     groupState?: any;
     getGroups?: any;
-    createGroup?: any;
-    patchGroup?: any;
-    removeGroup?: any;
-    removeGroupUser?: any;
     partyState?: any;
-    getParty?: any;
-    createParty?: any;
     removeParty?: any;
     removePartyUser?: any;
     transferPartyOwner?: any;
-    detailsType?: any;
     setDetailsType?: any;
-    groupFormMode?: string;
     setGroupFormMode?: any;
-    groupFormOpen?: boolean;
     setGroupFormOpen?: any;
-    groupForm?: any;
     setGroupForm?: any;
-    selectedUser?: any;
     setSelectedUser?: any;
-    selectedGroup?: any;
     setSelectedGroup?: any;
     locationState?: any;
     transportState?: any;
@@ -231,12 +213,10 @@ const Harmony = (props: Props): any => {
         authState,
         chatState,
         channelConnectionState,
-        instanceConnectionState,
         getChannels,
         getChannelMessages,
         createMessage,
         removeMessage,
-        setBottomDrawerOpen,
         setLeftDrawerOpen,
         setRightDrawerOpen,
         updateChatTarget,
@@ -248,27 +228,14 @@ const Harmony = (props: Props): any => {
         resetChannelServer,
         friendState,
         getFriends,
-        unfriend,
         groupState,
         getGroups,
-        createGroup,
-        patchGroup,
-        removeGroup,
-        removeGroupUser,
         partyState,
-        getParty,
-        createParty,
-        detailsType,
         setDetailsType,
-        groupFormOpen,
         setGroupFormOpen,
-        groupFormMode,
         setGroupFormMode,
-        groupForm,
         setGroupForm,
-        selectedUser,
         setSelectedUser,
-        selectedGroup,
         setSelectedGroup,
         locationState,
         transportState,
@@ -313,6 +280,7 @@ const Harmony = (props: Props): any => {
     });
     const [engineInitialized, setEngineInitialized] = useState(false);
     const [lastConnectToWorldId, _setLastConnectToWorldId] = useState('');
+    const [profileMenuOpen, setProfileMenuOpen] = useState(false);
 
     const instanceLayerUsers = userState.get('layerUsers') ?? [];
     const channelLayerUsers = userState.get('channelLayerUsers') ?? [];
@@ -323,9 +291,6 @@ const Harmony = (props: Props): any => {
     const groups = groupSubState.get('groups');
     const party = partyState.get('party');
     const currentLocation = locationState.get('currentLocation').get('location');
-    const selfGroupUser = selectedGroup.id && selectedGroup.id.length > 0 ? selectedGroup.groupUsers.find((groupUser) => groupUser.userId === selfUser.id) : {};
-    const partyUsers = party && party.partyUsers ? party.partyUsers : [];
-    const selfPartyUser = party && party.partyUsers ? party.partyUsers.find((partyUser) => partyUser.userId === selfUser.id) : {};
 
     const setProducerStarting = value => {
         producerStartingRef.current = value;
@@ -829,6 +794,10 @@ const Harmony = (props: Props): any => {
         setHarmonyOpen(false);
     }
 
+    const openProfileMenu = (): void => {
+        setProfileMenuOpen(true);
+    }
+
     useEffect(() => {
         if (
             channelConnectionState.get('instanceProvisioned') === true &&
@@ -1124,6 +1093,10 @@ const Harmony = (props: Props): any => {
 
                     <div className={styles.controls}>
                         <div className={classNames({
+                            [styles['profile-toggle']]: true,
+                            [styles.iconContainer]: true
+                        })} onClick={() => openProfileMenu()}><Person /></div>
+                        <div className={classNames({
                             [styles['invite-toggle']]: true,
                             [styles.iconContainer]: true
                         })} onClick={() => openInvite()}><GroupAdd /></div>
@@ -1316,6 +1289,13 @@ const Harmony = (props: Props): any => {
                     }
                 </div>
             </div>
+            { profileMenuOpen &&
+            <ClickAwayListener onClickAway={() => setProfileMenuOpen(false)}>
+                <div className={styles.profileMenu}>
+                    <ProfileMenu />
+                </div>
+            </ClickAwayListener>
+            }
         </div>
     );
 };
