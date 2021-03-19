@@ -10,33 +10,9 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { VehicleBody } from '../components/VehicleBody';
 import { Network } from '../../networking/classes/Network';
 
-let lastPos = { x:0, y:0, z:0 };
+
 let correctionSpeed = 180;
 export const serverCorrectionBehavior: Behavior = (entity: Entity, args): void => {
-
-  if (hasComponent(entity, CapsuleCollider)) {
-    const capsule = getComponent<CapsuleCollider>(entity, CapsuleCollider);
-    const transform = getComponent<TransformComponent>(entity, TransformComponent);
-    const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
-    if (!actor.initialized) return;
-
-    let x = capsule.body.position.x - lastPos.x;
-    let y = capsule.body.position.y - lastPos.y;
-    let z = capsule.body.position.z - lastPos.z;
-
-    if(isNaN(x)) {
-      actor.animationVelocity = new Vector3(0,1,0);
-      return;
-    }
-
-    lastPos.x = capsule.body.position.x;
-    lastPos.y = capsule.body.position.y;
-    lastPos.z = capsule.body.position.z;
-
-    let q = new Quaternion().copy(transform.rotation).invert();
-    actor.animationVelocity = new Vector3(x,y,z).applyQuaternion(q);
-  }
-
   if (args.correction == null || args.snapshot == null) return;
 
   if (hasComponent(entity, CapsuleCollider)) {

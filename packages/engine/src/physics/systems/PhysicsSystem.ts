@@ -30,7 +30,7 @@ import { onRemovedFromCar } from '../../templates/vehicle/behaviors/onRemovedFro
 import { onStartRemoveFromCar } from '../../templates/vehicle/behaviors/onStartRemoveFromCar';
 import { onUpdatePlayerInCar } from '../../templates/vehicle/behaviors/onUpdatePlayerInCar';
 import { TransformComponent } from '../../transform/components/TransformComponent';
-import { capsuleColliderBehavior } from '../behaviors/capsuleColliderBehavior';
+import { capsuleColliderBehavior, updateVelocityVector } from '../behaviors/capsuleColliderBehavior';
 import { handleCollider } from '../behaviors/ColliderBehavior';
 import { RigidBodyBehavior } from '../behaviors/RigidBodyBehavior';
 import { VehicleBehavior } from '../behaviors/VehicleBehavior';
@@ -55,6 +55,7 @@ const cannonDebugger = isClient ? import('cannon-es-debugger').then((module) => 
 export class PhysicsSystem extends System {
   static EVENTS = {
     PORTAL_REDIRECT_EVENT: 'PHYSICS_SYSTEM_PORTAL_REDIRECT',
+    INITIALIZE: 'PHYSICS_SYSTEM_INITIALIZE'
   };
   updateType = SystemUpdateType.Fixed;
   static frame: number
@@ -120,6 +121,7 @@ export class PhysicsSystem extends System {
     // if (DEBUG_PHYSICS) {
     //   debug(Engine.scene, PhysicsSystem.physicsWorld.bodies, DebugOptions);
     // }
+    EngineEvents.instance.dispatchEvent({ type: PhysicsSystem.EVENTS.INITIALIZE });
   }
 
   dispose(): void {
@@ -159,8 +161,12 @@ export class PhysicsSystem extends System {
       capsuleColliderBehavior(entity, { phase: 'onRemoved' });
     });
 
-    // RigidBody
+    // Update velocity vector for Animations
+    this.queryResults.character.all?.forEach(entity => {
+      updateVelocityVector(entity, { phase: 'onUpdate' });
+    });
 
+    // RigidBody
     this.queryResults.rigidBody.added?.forEach(entity => {
       RigidBodyBehavior(entity, { phase: 'onAdded' });
     });
@@ -267,7 +273,7 @@ export class PhysicsSystem extends System {
 
 PhysicsSystem.queries = {
   character: {
-    components: [CharacterComponent, NetworkObject],
+    components: [LocalInputReceiver, CapsuleCollider, CharacterComponent, NetworkObject],
   },
   serverCorrection: {
     components: [LocalInputReceiver, InterpolationComponent, NetworkObject],
