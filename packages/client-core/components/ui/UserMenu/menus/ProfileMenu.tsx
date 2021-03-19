@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import { TextField, Button, Typography, InputAdornment, } from '@material-ui/core';
 import { Send, GitHub, Check, Create } from '@material-ui/icons';
 import { validateEmail, validatePhoneNumber } from '../../../../redux/helper';
@@ -9,24 +9,84 @@ import { TwitterIcon } from '../../Icons/TwitterIcon';
 import { getAvatarURLFromNetwork, Views } from '../util';
 //@ts-ignore
 import styles from '../style.module.scss';
+import {connect} from "react-redux";
+import { bindActionCreators, Dispatch } from 'redux';
+import { selectAuthState } from '../../../../redux/auth/selector';
+import { logoutUser, removeUser, updateUserAvatarId, updateUsername, updateUserSettings } from '../../../../redux/auth/service';
+import { addConnectionByEmail, addConnectionBySms, loginUserByOAuth } from '../../../../redux/auth/service';
+
+
+interface Props {
+	changeActiveMenu?: any;
+	authState?: any;
+	updateUsername?: any;
+	updateUserAvatarId?: any;
+	updateUserSettings?: any;
+	loginUserByOAuth?: any;
+	addConnectionBySms?: any;
+	addConnectionByEmail?: any;
+	logoutUser?: any;
+	removeUser?: any;
+}
+
+const mapStateToProps = (state: any): any => {
+	return {
+		authState: selectAuthState(state),
+	};
+};
+
+const mapDispatchToProps = (dispatch: Dispatch): any => ({
+	updateUsername: bindActionCreators(updateUsername, dispatch),
+	updateUserAvatarId: bindActionCreators(updateUserAvatarId, dispatch),
+	updateUserSettings: bindActionCreators(updateUserSettings, dispatch),
+	loginUserByOAuth: bindActionCreators(loginUserByOAuth, dispatch),
+	addConnectionBySms: bindActionCreators(addConnectionBySms, dispatch),
+	addConnectionByEmail: bindActionCreators(addConnectionByEmail, dispatch),
+	logoutUser: bindActionCreators(logoutUser, dispatch),
+	removeUser: bindActionCreators(removeUser, dispatch),
+});
 
 const ProfileMenu = (props: any): any => {
+	const {
+		authState,
+		updateUsername,
+		addConnectionByEmail,
+		addConnectionBySms,
+		loginUserByOAuth,
+		logoutUser,
+		changeActiveMenu
+	} = props;
+
+	const selfUser = authState.get('user') || {};
+
+	const [username, setUsername] = useState(selfUser?.name);
 	const [ emailPhone, setEmailPhone ] = useState('');
 	const [ error, setError ] = useState(false);
 	const [ errorUsername, setErrorUsername] = useState(false);
 
 	let type = '';
 
+	useEffect(() => {
+		selfUser && setUsername(selfUser.name);
+	}, [selfUser.name]);
+
 	const updateUserName = (e) => {
 		e.preventDefault();
-		props.updateUsername();
+		handleUpdateUsername();
 	}
 
 	const handleUsernameChange = (e) => {
-		props.setUsername(e.target.value);
+		setUsername(e.target.value);
 		if (!e.target.value) setErrorUsername(true);
 	}
 
+	const handleUpdateUsername = () => {
+		const name = username.trim();
+		if (!name) return;
+		if (selfUser.name.trim() !== name) {
+			updateUsername(selfUser.id, name);
+		}
+	};
 	const handleInputChange = (e) => setEmailPhone(e.target.value);
 
 	const validate = () => {
@@ -45,18 +105,18 @@ const ProfileMenu = (props: any): any => {
 	const handleSubmit = (e: any): any => {
 		e.preventDefault();
 		if (!validate()) return;
-		if (type === 'email') props.addConnectionByEmail(emailPhone, props.userId);
-		else if (type === 'sms') props.addConnectionBySms(emailPhone, props.userId);
+		if (type === 'email') addConnectionByEmail(emailPhone, selfUser?.id);
+		else if (type === 'sms') addConnectionBySms(emailPhone, selfUser?.id);
 
 		return;
 	};
 
 	const handleOAuthServiceClick = (e) => {
-		props.loginUserByOAuth(e.currentTarget.id);
+		loginUserByOAuth(e.currentTarget.id);
 	}
 
 	const handleLogout = (e) => {
-		props.logoutUser();
+		logoutUser();
 	}
 
 	return (
@@ -64,8 +124,8 @@ const ProfileMenu = (props: any): any => {
 			<section className={styles.profilePanel}>
 				<section className={styles.profileBlock}>
 					<div className={styles.avatarBlock}>
-						<img src={getAvatarURLFromNetwork(props.Network.instance, props.userId)} />
-						<Button className={styles.avatarBtn} onClick={() => props.changeActiveMenu(Views.Avatar)} disableRipple><Create /></Button>
+						<img src={getAvatarURLFromNetwork(props.Network.instance, selfUser?.avatarId)} />
+						{ changeActiveMenu != null && <Button className={styles.avatarBtn} onClick={() => changeActiveMenu(Views.Avatar)} disableRipple><Create /></Button>}
 					</div>
 					<div className={styles.headerBlock}>
 						<span className={styles.inputBlock}>
@@ -75,7 +135,7 @@ const ProfileMenu = (props: any): any => {
 								label="Username"
 								name="username"
 								variant="outlined"
-								value={props.username || ''}
+								value={username || ''}
 								onChange={handleUsernameChange}
 								onKeyDown={(e) => { if (e.key === 'Enter') updateUserName(e); }}
 								className={styles.usernameInput}
@@ -91,8 +151,8 @@ const ProfileMenu = (props: any): any => {
 								}}
 							/>
 						</span>
-						<h2>You are {props.userRole === 'admin' ? 'an' : 'a'} <span>{props.userRole}</span>.</h2>
-						<h4>{(props.userRole === 'user' || props.userRole === 'admin') && <div onClick={handleLogout}>Log out</div>}</h4>
+						<h2>You are {selfUser?.userRole === 'admin' ? 'an' : 'a'} <span>{selfUser?.userRole}</span>.</h2>
+						<h4>{(selfUser.userRole === 'user' || selfUser.userRole === 'admin') && <div onClick={handleLogout}>Log out</div>}</h4>
 					</div>
 				</section>
 				<section className={styles.emailPhoneSection}>
@@ -138,4 +198,4 @@ const ProfileMenu = (props: any): any => {
 	);
 };
 
-export default ProfileMenu;
+export default connect(mapStateToProps, mapDispatchToProps)(ProfileMenu);
