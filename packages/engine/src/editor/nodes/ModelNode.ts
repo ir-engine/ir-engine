@@ -214,44 +214,62 @@ export default class ModelNode extends EditorNodeMixin(Model) {
       this.update(dt);
     }
   }
+
+
+
   parseAndSaveColliders(components) {
     if (this.model) {
       // Set up colliders
       const colliders = []
-        const parseColliders = ( mesh ) => {
-          if (mesh.userData.data === 'physics' || mesh.userData.data === 'dynamic' || mesh.userData.data === 'vehicle') {
-          let geometry = null;
-             if(mesh.userData.type == "trimesh"){
-               geometry = getGeometry(mesh);
-             }
-              const meshCollider = {
-                  type: mesh.userData.type,
-                  position: {
-                    x: mesh.position.x,
-                    y: mesh.position.y,
-                    z: mesh.position.z
-                  },
-                  quaternion: {
-                    x: mesh.quaternion.x,
-                    y: mesh.quaternion.y,
-                    z: mesh.quaternion.z,
-                    w: mesh.quaternion.w
-                  },
-                  scale: {
-                    x: mesh.scale.x,
-                    y: mesh.scale.y,
-                    z: mesh.scale.z
-                  },
-                  vertices: (geometry != null ? Array.from(geometry.attributes.position.array).map((v: number) => parseFloat((Math.round(v * 10000)/10000).toFixed(4))): null),
-                  indices: (geometry != null && geometry.index ? Array.from(geometry.index.array): null)
-                }
-              colliders.push(meshCollider);
-           }
+
+        const parseGroupColliders = ( group ) => {
+          if (group.userData.data === 'physics' || group.userData.data === 'dynamic' || group.userData.data === 'vehicle') {
+            if (group.type == 'Group') {
+              for (let i = 0; i < group.children.length; i++) {
+                parseColliders(group.userData.type, group.position, group.quaternion, group.scale, group.children[i] );
+              }
+            } else if (group.type == 'Mesh') {
+              parseColliders(group.userData.type, group.position, group.quaternion, group.scale, group );
+            }
+          }
         }
-        this.model.traverse( parseColliders );
+
+        const parseColliders = ( type, position, quaternion, scale, mesh ) => {
+
+          let geometry = null;
+           if(type == "trimesh") {
+             geometry = getGeometry(mesh);
+            }
+            const meshCollider = {
+                type: type,
+                position: {
+                  x: position.x,
+                  y: position.y,
+                  z: position.z
+                },
+                quaternion: {
+                  x: quaternion.x,
+                  y: quaternion.y,
+                  z: quaternion.z,
+                  w: quaternion.w
+                },
+
+                scale: {
+                  x: scale.x,
+                  y: scale.y,
+                  z: scale.z
+                },
+                vertices: (geometry != null ? Array.from(geometry.attributes.position.array).map((v: number) => parseFloat((Math.round(v * 10000)/10000).toFixed(4))): null),
+                indices: (geometry != null && geometry.index ? Array.from(geometry.index.array): null)
+              }
+              colliders.push(meshCollider);
+
+        }
+        this.model.traverse( parseGroupColliders );
         this.meshColliders = colliders;
         this.editor.renderer.addBatchedObject(this.model);
       }
+
     for(let i = 0; i < this.meshColliders.length; i++) {
       components[`mesh-collider-${i}`] = this.addEditorParametersToCollider(this.meshColliders[i]);
     }
