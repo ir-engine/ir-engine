@@ -8,7 +8,7 @@ type ModelViewProps = {
 
 /**
  *
- * @param modelUrl The URL to the 3D model. This parameter is required for <model-viewer> to display. Only glTF/GLB models are supported
+ * @param modelUrl The URL to the 3D model. This parameter is required for model-viewer to display. Only glTF/GLB models are supported
  * @param iosModelUrl The url to a USDZ model which will be used on supported iOS 12+ devices via AR Quick Look on Safari.
  * @constructor
  */
