@@ -94,7 +94,7 @@ function guessContentType(url): string {
 
 
 /**
- * [Api class contains functions to perform common functions. ]
+ * Api class contains functions to perform common functions.
  * @type {class}
  */
 export default class Api extends EventEmitter {

@@ -15,17 +15,14 @@ module.exports = {
       {
         id:'api-1',
         entryPoints: [
-                      '../client-core/components/editor/Api.tsx',
-                      '../client-core/components/editor/App.tsx',
-                      '../client-core/components/editor/Editor.tsx'
+                        '../client-core',
+                        '../client'
                     ],
-        exclude: [
-          '../client-core/components/social/Layout.tsx',
-          '../client-core/components/ui/VideoChat/index.tsx',
-          '../client-core/redux/feedBookmark/actions.ts',
-          '../client-core/redux/feedBookmark/reducers.ts'
-        ],
+        exclude: '../client-core/components/ui/InteractableModal',
         tsconfig: '../client-core/tsconfig.json',
+        exclude: [
+            '**/node_modules/**'
+        ],
         out: 'docs',
         readme: 'none',
         sidebar: {
@@ -37,10 +34,10 @@ module.exports = {
     //   'docusaurus-plugin-typedoc',
     //   {
     //     id:'api-2',
-    //     entryPoints: ['../api-2/src/index.ts'],
-    //     tsconfig: '../api-2/tsconfig.json',
+    //     entryPoints: ['../engine/src/initialize.ts'],
+    //     tsconfig: '../engine/tsconfig.json',
     //     sidebar: {
-    //       sidebarFile: 'api-2-sidebar.js',
+    //       sidebarFile: 'tsdoc-engine-sidebar.js',
     //     },
     //   },
     // ],
