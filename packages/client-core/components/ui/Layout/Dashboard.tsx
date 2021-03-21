@@ -20,8 +20,12 @@ import DirectionRun from "@material-ui/icons/DirectionsRun";
 import DashboardIcon from "@material-ui/icons/Dashboard";
 import NearMe from "@material-ui/icons/NearMe";
 import { useRouter } from "next/router";
+import { Forum, GroupAdd, DragIndicator, PersonAdd, CalendarViewDay } from '@material-ui/icons';
+import Link from "next/link";
+import Backdrop from '@material-ui/core/Backdrop';
+import CircularProgress from '@material-ui/core/CircularProgress';
 
-const drawerWidth = 240;
+const drawerWidth = 200;
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -34,6 +38,7 @@ const useStyles = makeStyles((theme: Theme) =>
                 easing: theme.transitions.easing.sharp,
                 duration: theme.transitions.duration.leavingScreen,
             }),
+            backgroundColor: "#43484F"
         },
         appBarShift: {
             marginLeft: drawerWidth,
@@ -45,6 +50,7 @@ const useStyles = makeStyles((theme: Theme) =>
         },
         menuButton: {
             marginRight: 36,
+            color: "white"
         },
         hide: {
             display: 'none',
@@ -60,6 +66,7 @@ const useStyles = makeStyles((theme: Theme) =>
                 easing: theme.transitions.easing.sharp,
                 duration: theme.transitions.duration.enteringScreen,
             }),
+            backgroundColor: "#1f252d",
         },
         drawerClose: {
             transition: theme.transitions.create('width', {
@@ -71,6 +78,7 @@ const useStyles = makeStyles((theme: Theme) =>
             [theme.breakpoints.up('sm')]: {
                 width: theme.spacing(9) + 1,
             },
+            backgroundColor: "#1f252d",
         },
         toolbar: {
             display: 'flex',
@@ -83,7 +91,13 @@ const useStyles = makeStyles((theme: Theme) =>
         content: {
             flexGrow: 1,
             padding: theme.spacing(3),
+            backgroundColor: "#15171B",
+            minHeight: "100vh"
         },
+        backdrop: {
+            zIndex: theme.zIndex.drawer + 1,
+            color: '#fff',
+        }
     }),
 );
 
@@ -92,6 +106,7 @@ export default function Dashboard({ children }) {
     const classes = useStyles();
     const theme = useTheme();
     const [open, setOpen] = React.useState(false);
+    const [loading, setLoading] = React.useState(false);
 
     const handleDrawerOpen = () => {
         setOpen(true);
@@ -100,6 +115,13 @@ export default function Dashboard({ children }) {
     const handleDrawerClose = () => {
         setOpen(false);
     };
+
+    const changeComponent = () => {
+        setLoading(true);
+        setTimeout(()=>{
+            setLoading(false);
+        }, 2000)
+    }
 
     return (
         <div className={classes.root}>
@@ -113,6 +135,7 @@ export default function Dashboard({ children }) {
                 <Toolbar>
                     <IconButton
                         color="inherit"
+                        style={{ color: "white" }}
                         aria-label="open drawer"
                         onClick={handleDrawerOpen}
                         edge="start"
@@ -124,7 +147,7 @@ export default function Dashboard({ children }) {
                     </IconButton>
                     <Typography variant="h6">
                         Dashboard
-          </Typography>
+                    </Typography>
                 </Toolbar>
             </AppBar>
             <Drawer
@@ -147,38 +170,78 @@ export default function Dashboard({ children }) {
                 </div>
                 <Divider />
                 <List>
-                <a href="/admin" style={{color: "black", textDecoration: "none"}}>
-                        <ListItem button>
+                    <Link href="/admin">
+                            <ListItem style={{ color: "white" }} onClick={changeComponent} button>
+                                <ListItemIcon >
+                                    <DashboardIcon style={{ color: "white" }} />
+                                </ListItemIcon>
+                                <ListItemText primary="Dashboard" />
+                            </ListItem>
+                    </Link>
+                    <Link href="/admin/users" >
+                        <ListItem style={{ color: "white" }} onClick={changeComponent} button>
                             <ListItemIcon >
-                                <DashboardIcon />
-                            </ListItemIcon>
-                            <ListItemText primary="Dashboard" />
-                        </ListItem>
-                    </a>
-                    <a href="/admin/users" style={{color: "black", textDecoration: "none"}}>
-                        <ListItem button>
-                            <ListItemIcon >
-                                <SuperviosorAccount />
+                                <SuperviosorAccount style={{ color: "white" }} />
                             </ListItemIcon>
                             <ListItemText primary="Users" />
                         </ListItem>
-                    </a>
-                    <a href="/admin/instance" style={{color: "black", textDecoration: "none"}}>
-                        <ListItem button>
+                    </Link>
+                    <Link href="/admin/instance">
+                        <ListItem style={{ color: "white"}} onClick={changeComponent} button>
                             <ListItemIcon >
-                                <DirectionRun />
+                                <DirectionRun style={{ color: "white" }} />
                             </ListItemIcon>
                             <ListItemText primary="Instance" />
                         </ListItem>
-                    </a>
-                    <a href="/admin/locations" style={{color: "black", textDecoration: "none"}}>
-                        <ListItem button>
+                    </Link>
+                    <Link href="/admin/locations">
+                        <ListItem style={{ color: "white"}} onClick={changeComponent}  button>
                             <ListItemIcon >
-                                <NearMe />
+                                <NearMe style={{ color: "white" }} />
                             </ListItemIcon>
                             <ListItemText primary="Locations" />
                         </ListItem>
-                    </a>
+                    </Link>
+                    <Link href="/admin/invites">
+                        <ListItem style={{ color: "white" }} onClick={changeComponent} button>
+                            <ListItemIcon >
+                                <PersonAdd style={{ color: "white" }} />
+                            </ListItemIcon>
+                            <ListItemText primary="Invites" />
+                        </ListItem>
+                    </Link>
+                    <Link href="/admin/sessions">
+                        <ListItem style={{ color: "white"}} onClick={changeComponent} button>
+                            <ListItemIcon >
+                                <DragIndicator style={{ color: "white" }} />
+                            </ListItemIcon>
+                            <ListItemText primary="Sessions" />
+                        </ListItem>
+                    </Link>
+                    <Link href="/admin/groups">
+                        <ListItem style={{color: "white"}} onClick={changeComponent} button>
+                            <ListItemIcon >
+                                <GroupAdd style={{ color: "white" }} />
+                            </ListItemIcon>
+                            <ListItemText primary="Groups" />
+                        </ListItem>
+                    </Link>
+                    <Link href="/admin/parties">
+                        <ListItem style={{ color: "white"}} onClick={changeComponent} button>
+                            <ListItemIcon >
+                                <CalendarViewDay style={{ color: "white" }} />
+                            </ListItemIcon>
+                            <ListItemText primary="Parties" />
+                        </ListItem>
+                    </Link>
+                    <Link href="/admin/chats">
+                        <ListItem style={{ color: "white" }} onClick={changeComponent} button>
+                            <ListItemIcon >
+                                <Forum style={{ color: "white" }} />
+                            </ListItemIcon>
+                            <ListItemText primary="Chats" />
+                        </ListItem>
+                    </Link>
                 </List>
             </Drawer>
             <main className={classes.content}>
@@ -186,6 +249,9 @@ export default function Dashboard({ children }) {
                 <div>
                     {children}
                 </div>
+            <Backdrop className={classes.backdrop} open={loading}>
+                <CircularProgress color="inherit" />
+            </Backdrop>
             </main>
         </div>
     );
