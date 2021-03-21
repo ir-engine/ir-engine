@@ -1,22 +1,29 @@
 /** @type {import('@docusaurus/types').DocusaurusConfig} */
 module.exports = {
-  title: 'My Site',
-  tagline: 'The tagline of my site',
+  title: 'xr3ngine',
+  tagline: 'An end-to-end solution for hosting humans and AI in a virtual space, built on top of react, three.js and express/feathers.',
   url: 'https://your-docusaurus-test-site.com',
   baseUrl: '/',
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
   favicon: 'img/favicon.ico',
   organizationName: 'facebook', // Usually your GitHub org/user name.
-  projectName: 'docusaurus', // Usually your repo name.
+  projectName: 'jsdoc-docusaurus', // Usually your repo name.
   plugins: [
     [
       'docusaurus-plugin-typedoc',
       {
         id:'api-1',
-        entryPoints: ['../packages/client-core/index.tsx'],
-        tsconfig: '../packages/client-core/tsconfig.json',
-        out: 'docs/api',
+        entryPoints: [
+                        '../client-core',
+                        '../client'
+                    ],
+        exclude: '../client-core/components/ui/InteractableModal',
+        tsconfig: '../client-core/tsconfig.json',
+        exclude: [
+            '**/node_modules/**'
+        ],
+        out: 'docs',
         readme: 'none',
         sidebar: {
            sidebarFile: 'sidebar/typedoc-client-core.js',
@@ -27,21 +34,21 @@ module.exports = {
     //   'docusaurus-plugin-typedoc',
     //   {
     //     id:'api-2',
-    //     entryPoints: ['../api-2/src/index.ts'],
-    //     tsconfig: '../api-2/tsconfig.json',
+    //     entryPoints: ['../engine/src/initialize.ts'],
+    //     tsconfig: '../engine/tsconfig.json',
     //     sidebar: {
-    //       sidebarFile: 'api-2-sidebar.js',
+    //       sidebarFile: 'tsdoc-engine-sidebar.js',
     //     },
     //   },
     // ],
   ],
   themeConfig: {
     navbar: {
-      title: 'My Site',
-      logo: {
-        alt: 'My Site Logo',
-        src: 'img/logo.svg',
-      },
+      title: 'xr3ngine',
+      // logo: {
+      //   alt: 'My Site Logo',
+      //   src: 'img/logo.svg',
+      // },
       items: [
         {
           to: 'docs/',
@@ -64,10 +71,6 @@ module.exports = {
           title: 'Docs',
           items: [
             {
-              label: 'Style Guide',
-              to: 'docs/',
-            },
-            {
               label: 'Second Doc',
               to: 'docs/doc2/',
             },
@@ -87,7 +90,7 @@ module.exports = {
             {
               label: 'Twitter',
               href: 'https://twitter.com/docusaurus',
-            },
+            }
           ],
         },
         {
@@ -124,7 +127,7 @@ module.exports = {
             'https://github.com/facebook/docusaurus/edit/master/website/blog/',
         },
         theme: {
-          customCss: require.resolve('./src/css/custom.css'),
+         customCss: require.resolve('./src/css/custom.css'),
         },
       },
     ],
