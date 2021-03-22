@@ -55,7 +55,6 @@ const cannonDebugger = isClient ? import('cannon-es-debugger').then((module) => 
 export class PhysicsSystem extends System {
   static EVENTS = {
     PORTAL_REDIRECT_EVENT: 'PHYSICS_SYSTEM_PORTAL_REDIRECT',
-    INITIALIZE: 'PHYSICS_SYSTEM_INITIALIZE'
   };
   updateType = SystemUpdateType.Fixed;
   static frame: number
