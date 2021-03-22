@@ -1,3 +1,4 @@
+import { addFeedComment } from "../../hooks/notifications";
 
 export default {
   before: {
@@ -14,7 +15,7 @@ export default {
     all: [],
     find: [],
     get: [],
-    create: [],
+    create: [addFeedComment],
     update: [],
     patch: [],
     remove: []

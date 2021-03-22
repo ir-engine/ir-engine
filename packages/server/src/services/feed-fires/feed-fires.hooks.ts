@@ -1,5 +1,3 @@
-// import { HookContext } from "@feathersjs/feathers";
-// import logger from "../../app/logger";
 import { addFeedFire, removeFeedFire } from "../../hooks/notifications";
 
 export default {
