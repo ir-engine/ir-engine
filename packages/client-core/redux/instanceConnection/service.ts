@@ -70,8 +70,6 @@ export function connectToInstanceServer(channelType: string, channelId?: string)
         channelId: channelId,
         videoEnabled: currentLocation?.locationSettings?.videoEnabled === true || !(currentLocation?.locationSettings?.locationType === 'showroom' && user.locationAdmins?.find(locationAdmin => locationAdmin.locationId === currentLocation.id) == null)
       });
-      Network.instance.isInitialized = true;
-      EngineEvents.instance.dispatchEvent({ type: ClientNetworkSystem.EVENTS.CONNECT })
 
       // setClient(instanceClient);
       dispatch(instanceServerConnected());

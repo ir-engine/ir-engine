@@ -122,6 +122,12 @@ export const initializeEngine = async (initOptions: any = DefaultInitializationO
     registerSystem(WebXRRendererSystem, { offscreen: useOffscreen });
     Engine.viewportElement = Engine.renderer.domElement;
     Engine.renderer.xr.enabled = Engine.xrSupported;
+
+    const connectNetworkEvent = (ev: any) => {
+      Network.instance.isInitialized = true;
+      EngineEvents.instance.removeEventListener(ClientNetworkSystem.EVENTS.CONNECT, connectNetworkEvent)
+    }
+    EngineEvents.instance.addEventListener(ClientNetworkSystem.EVENTS.CONNECT, connectNetworkEvent)
   }
 
   Engine.engineTimerTimeout = setTimeout(() => {
@@ -132,6 +138,13 @@ export const initializeEngine = async (initOptions: any = DefaultInitializationO
         update: (delta, elapsedTime) => execute(delta, elapsedTime, SystemUpdateType.Free)
       }, Engine.physicsFrameRate, Engine.networkFramerate).start();
   }, 1000);
+
+  const engageType = isMobileOrTablet() ? 'touchstart' : 'click'
+  const onUserEngage = () => {
+    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.USER_ENGAGE });
+    document.removeEventListener(engageType, onUserEngage);
+  }
+  document.addEventListener(engageType, onUserEngage);
 }
 
 export const initializeServer = async (initOptions: any = DefaultInitializationOptions): Promise<void> => {
