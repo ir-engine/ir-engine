@@ -121,7 +121,6 @@ export class PhysicsSystem extends System {
     // if (DEBUG_PHYSICS) {
     //   debug(Engine.scene, PhysicsSystem.physicsWorld.bodies, DebugOptions);
     // }
-    EngineEvents.instance.dispatchEvent({ type: PhysicsSystem.EVENTS.INITIALIZE });
   }
 
   dispose(): void {

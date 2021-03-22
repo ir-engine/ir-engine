@@ -87,13 +87,6 @@ const initializeEngineOffscreen = async ({ canvas, userArgs }, proxy: MainProxy)
   registerSystem(WebXRRendererSystem, { offscreen: true });
   Engine.viewportElement = Engine.renderer.domElement;
 
-  Engine.engineTimer = Timer({
-    networkUpdate: (delta:number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Network),
-    fixedUpdate: (delta:number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Fixed),
-    update: (delta, elapsedTime) => execute(delta, elapsedTime, SystemUpdateType.Free)
-  }, Engine.physicsFrameRate, Engine.networkFramerate).start();
-
-
   const connectNetworkEvent = (ev: any) => {
     Network.instance.isInitialized = true;
     EngineEvents.instance.removeEventListener(ClientNetworkSystem.EVENTS.CONNECT, connectNetworkEvent)
@@ -109,6 +102,13 @@ const initializeEngineOffscreen = async ({ canvas, userArgs }, proxy: MainProxy)
   setInterval(() => {
     EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENTITY_DEBUG_DATA, })
   }, 1000)
+
+  Engine.engineTimer = Timer({
+    networkUpdate: (delta:number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Network),
+    fixedUpdate: (delta:number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Fixed),
+    update: (delta, elapsedTime) => execute(delta, elapsedTime, SystemUpdateType.Free)
+  }, Engine.physicsFrameRate, Engine.networkFramerate).start();
+
 }
 
 receiveWorker(initializeEngineOffscreen)

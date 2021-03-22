@@ -180,7 +180,7 @@ export async function handleConnectToWorld(socket, data, callback, userId, user,
     const transport = Network.instance.transport as any;
 
     console.log('Connect to world from ' + userId);
-    console.log("Avatar detail is", avatarDetail);
+    // console.log("Avatar detail is", avatarDetail);
     disconnectClientIfConnected(socket, userId);
 
     // Create a new client object
@@ -203,7 +203,7 @@ export async function handleConnectToWorld(socket, data, callback, userId, user,
     // Push to our worldstate to send out to other users
     Network.instance.clientsConnected.push({ userId, name: userId, avatarDetail });
     console.log("Pushing: ")
-    console.log({ userId, name: userId, avatarDetail });
+    // console.log({ userId, name: userId, avatarDetail });
     // Create a new worldtate object that we can fill
     const worldState = {
         tick: Network.tick,
