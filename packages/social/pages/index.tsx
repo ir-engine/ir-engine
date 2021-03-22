@@ -4,6 +4,7 @@ import AppHeader from "@xr3ngine/client-core/components/social/Header";
 import FeedMenu from "@xr3ngine/client-core/components/social/FeedMenu";
 import AppFooter from "@xr3ngine/client-core/components/social/Footer";
 
+import FlatSignIn from '@xr3ngine/client-core/components/social/Login';
 // import { Layout } from "@xr3ngine/client-core/components/social/Layout";
 // import { Stories } from "@xr3ngine/client-core/components/social/Stories";
 // import { FeedItem } from "@xr3ngine/client-core/components/social/FeedItem";
@@ -16,9 +17,17 @@ import { LoginUserHook } from "@xr3ngine/client-core/components/social/GlobalHoo
 import { Plugins } from '@capacitor/core';
 
 import styles from './index.module.scss';
+import { selectAuthState } from "@xr3ngine/client-core/redux/auth/selector";
+import { connect } from "react-redux";
 const { Example } = Plugins;
 
-export default function Home({ children }) {
+const mapStateToProps = (state: any): any => {
+  return {
+    authState: selectAuthState(state),
+  };
+};
+
+const  Home = ({ authState }) => {
   const { data, setLoginUser } = LoginUserHook();
 
   const [loginData, setLoginData] = useState(null);
@@ -61,7 +70,7 @@ export default function Home({ children }) {
 
   return (<>
     <div className={styles.viewport}>
-      <AppHeader logo="/assets/logoBlack.png" />
+     {authState.get('user')?.id ? <><AppHeader logo="/assets/logoBlack.png" />
       <FeedMenu />
       {/* <MoreModalItems /> */}
       {/* <Stories stories={stories} /> */}
@@ -72,8 +81,11 @@ export default function Home({ children }) {
             })}
         </div> */}
       {/* <HomeRightBar data={suggestions} /> */}
-      <AppFooter />
+      <AppFooter /></> : 
+      <FlatSignIn logo="/assets/LogoColored.png" />}
     </div>
   </>
   );
 }
+
+export default connect(mapStateToProps)(Home);

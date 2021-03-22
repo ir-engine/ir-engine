@@ -63,7 +63,7 @@ const Creator = ({creatorId, creatorState, getCreator}:Props) => {
             <Card className={styles.creatorCard} elevation={0} key={creator.username} square={false} >
                 <CardMedia   
                     className={styles.bgImage}                  
-                    image={creator.background}
+                    src={creator.background}
                     title={creator.name}
                 />
                {isMe ?  
