@@ -49,12 +49,14 @@ import { InteractiveSystem } from '@xr3ngine/engine/src/interaction/systems/Inte
 import { PhysicsSystem } from '@xr3ngine/engine/src/physics/systems/PhysicsSystem';
 import { DefaultInitializationOptions, initializeEngine } from '@xr3ngine/engine/src/initialize';
 import { ClientNetworkSystem } from '@xr3ngine/engine/src/networking/systems/ClientNetworkSystem';
+import { ClientInputSystem } from '@xr3ngine/engine/src/input/systems/ClientInputSystem';
 
 const goHome = () => window.location.href = window.location.origin;
 
 const MobileGamepad = dynamic<MobileGamepadProps>(() => import("../ui/MobileGamepad").then((mod) => mod.MobileGamepad), { ssr: false });
 
 const engineRendererCanvasId = 'engine-renderer-canvas';
+const locationUIContainerID = 'location-ui-container';
 
 interface Props {
   setAppLoaded?: any,
@@ -225,7 +227,7 @@ export const EnginePage = (props: Props) => {
       ...DefaultNetworkSchema,
       transport: SocketWebRTCClientTransport,
     };
-
+  
     const canvas = document.getElementById(engineRendererCanvasId) as HTMLCanvasElement;
     styleCanvas(canvas);
     const InitializationOptions = {
@@ -294,6 +296,14 @@ export const EnginePage = (props: Props) => {
     EngineEvents.instance.addEventListener(InteractiveSystem.EVENTS.OBJECT_ACTIVATION, onObjectActivation);
     EngineEvents.instance.addEventListener(InteractiveSystem.EVENTS.OBJECT_HOVER, onObjectHover);
     EngineEvents.instance.addEventListener(PhysicsSystem.EVENTS.PORTAL_REDIRECT_EVENT, ({ location }) => router.push(location));
+
+
+    document.getElementById(locationUIContainerID).addEventListener('mouseenter', () => {
+      EngineEvents.instance.dispatchEvent({ type: ClientInputSystem.EVENTS.ENABLE_MOUSE_INPUT, enable: false })
+    })
+    document.getElementById(locationUIContainerID).addEventListener('mouseleave', () => {
+      EngineEvents.instance.dispatchEvent({ type: ClientInputSystem.EVENTS.ENABLE_MOUSE_INPUT, enable: true })
+    })
   }
 
   const onObjectActivation = ({ action, payload }): void => {
@@ -341,30 +351,31 @@ export const EnginePage = (props: Props) => {
   //mobile gamepad
   const mobileGamepadProps = { hovered: objectHovered, layout: 'default' };
   const mobileGamepad = isMobileOrTablet() ? <MobileGamepad {...mobileGamepadProps} /> : null;
-
   return userBanned !== true ? (
     <>
-      {isValidLocation && <UserMenu />}
-      <Snackbar open={!isValidLocation}
-        anchorOrigin={{
-          vertical: 'top',
-          horizontal: 'center',
-        }}>
-        <>
-          <section>Location is invalid</section>
-          <Button onClick={goHome}>Return Home</Button>
-        </>
-      </Snackbar>
+      <div id={locationUIContainerID}>
+        {isValidLocation && <UserMenu />}
+        <Snackbar open={!isValidLocation}
+          anchorOrigin={{
+            vertical: 'top',
+            horizontal: 'center',
+          }}>
+          <>
+            <section>Location is invalid</section>
+            <Button onClick={goHome}>Return Home</Button>
+          </>
+        </Snackbar>
 
-      <NetworkDebug />
-      <LoadingScreen objectsToLoad={progressEntity} />
-      { harmonyOpen !== true && <MediaIconsBox /> }
-      { userHovered && <NamePlate userId={userId} position={{ x: position?.x, y: position?.y }} focused={userHovered} />}
-      {objectHovered && !objectActivated && <TooltipContainer message={hoveredLabel} />}
-      <InteractableModal onClose={() => { setModalData(null); setObjectActivated(false); }} data={infoBoxData} />
-      <OpenLink onClose={() => { setOpenLinkData(null); setObjectActivated(false); }} data={openLinkData} />
+        <NetworkDebug />
+        <LoadingScreen objectsToLoad={progressEntity} />
+        { harmonyOpen !== true && <MediaIconsBox /> }
+        { userHovered && <NamePlate userId={userId} position={{ x: position?.x, y: position?.y }} focused={userHovered} />}
+        {objectHovered && !objectActivated && <TooltipContainer message={hoveredLabel} />}
+        <InteractableModal onClose={() => { setModalData(null); setObjectActivated(false); }} data={infoBoxData} />
+        <OpenLink onClose={() => { setOpenLinkData(null); setObjectActivated(false); }} data={openLinkData} />
+        {mobileGamepad}
+      </div>
       <canvas id={engineRendererCanvasId} width='100%' height='100%' />
-      {mobileGamepad}
     </>
   ) : (<div className="banned">You have been banned from this location</div>);
 };
