@@ -420,6 +420,7 @@
         .avatarContainer{
             display: flex;
             align-items: flex-start;
+            margin: auto;
             flex-wrap: wrap;
             height: auto;
 
@@ -582,8 +583,8 @@
         }
 
         @media screen and (min-width: 768px) {
-            width: 320px;
-            &>.avatarContainer{ margin-top: 25px; }
+            width: 330px;
+            &>.avatarContainer{ margin-top: 25px; width: 280px; }
 
             .avatarContainer {
                 .avatarPreviewWrapper {
