@@ -14,6 +14,7 @@ import { bindActionCreators, Dispatch } from 'redux';
 import { selectAuthState } from '../../../../redux/auth/selector';
 import { logoutUser, removeUser, updateUserAvatarId, updateUsername, updateUserSettings } from '../../../../redux/auth/service';
 import { addConnectionByEmail, addConnectionBySms, loginUserByOAuth } from '../../../../redux/auth/service';
+import { Network } from '@xr3ngine/engine/src/networking/classes/Network';
 
 
 interface Props {
@@ -117,8 +118,10 @@ const ProfileMenu = (props: Props): any => {
 		loginUserByOAuth(e.currentTarget.id);
 	}
 
-	const handleLogout = (e) => {
-		logoutUser();
+	const handleLogout = async (e) => {
+		if (changeActiveMenu != null) changeActiveMenu(null);
+		else if (setProfileMenuOpen != null) setProfileMenuOpen(false);
+		await logoutUser();
 		window.location.reload();
 	}
 
@@ -127,7 +130,7 @@ const ProfileMenu = (props: Props): any => {
 			<section className={styles.profilePanel}>
 				<section className={styles.profileBlock}>
 					<div className={styles.avatarBlock}>
-						<img src={getAvatarURLFromNetwork(props.Network.instance, selfUser?.avatarId)} />
+						<img src={getAvatarURLFromNetwork(Network.instance, selfUser?.avatarId)} />
 						{ changeActiveMenu != null && <Button className={styles.avatarBtn} onClick={() => changeActiveMenu(Views.Avatar)} disableRipple><Create /></Button>}
 					</div>
 					<div className={styles.headerBlock}>

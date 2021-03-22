@@ -29,6 +29,7 @@ import { EngineEvents } from '@xr3ngine/engine/src/ecs/classes/EngineEvents';
 
 type StateType = {
   currentActiveMenu: any;
+  profileMenuOpen: boolean;
   username: any;
   userSetting: any;
   graphics: any;
@@ -75,6 +76,7 @@ class UserMenu extends React.Component<UserMenuProps, StateType> {
 
     this.state = {
       currentActiveMenu: {} as any,
+      profileMenuOpen: false,
       username: '',
       userSetting: {},
       graphics: {
