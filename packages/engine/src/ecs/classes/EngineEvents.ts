@@ -78,6 +78,12 @@ export const addIncomingEvents = () => {
     EngineEvents.instance.removeEventListener(EngineEvents.EVENTS.USER_ENGAGE, onUserEngage);
   }
   EngineEvents.instance.addEventListener(EngineEvents.EVENTS.USER_ENGAGE, onUserEngage);
+
+  const onNetworkConnect = ({ worldState }) => {
+    applyNetworkStateToClient(worldState)
+    EngineEvents.instance.removeEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD, onNetworkConnect);
+  }
+  EngineEvents.instance.addEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD, onNetworkConnect);
 }
 
 export const addOutgoingEvents = () => {
