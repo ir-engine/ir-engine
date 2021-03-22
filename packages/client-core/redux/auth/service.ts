@@ -654,6 +654,10 @@ const getAvatarResources = (user) => {
         { userId: null },
         { userId: user.id },
       ],
+      $sort: {
+        userId: -1,
+      },
+      $limit: 2
     },
   });
 }
