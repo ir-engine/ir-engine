@@ -47,8 +47,8 @@ export class EngineEvents extends EventDispatcher {
 
 export const addIncomingEvents = () => {
 
-  const doLoadScene = (ev: any) => {
-    loadScene(ev.result);
+  const doLoadScene = ({ sceneData }) => {
+    loadScene(sceneData);
     EngineEvents.instance.removeEventListener(EngineEvents.EVENTS.LOAD_SCENE, doLoadScene)
   }
   EngineEvents.instance.addEventListener(EngineEvents.EVENTS.LOAD_SCENE, doLoadScene)
