@@ -87,18 +87,6 @@ const initializeEngineOffscreen = async ({ canvas, userArgs }, proxy: MainProxy)
   registerSystem(WebXRRendererSystem, { offscreen: true });
   Engine.viewportElement = Engine.renderer.domElement;
 
-  const connectNetworkEvent = (ev: any) => {
-    Network.instance.isInitialized = true;
-    EngineEvents.instance.removeEventListener(ClientNetworkSystem.EVENTS.CONNECT, connectNetworkEvent)
-  }
-  EngineEvents.instance.addEventListener(ClientNetworkSystem.EVENTS.CONNECT, connectNetworkEvent)
-
-  const initializeNetworkEvent = (ev: any) => {
-    Network.instance.userId = ev.userId;
-    EngineEvents.instance.removeEventListener(ClientNetworkSystem.EVENTS.INITIALIZE, initializeNetworkEvent)
-  }
-  EngineEvents.instance.addEventListener(ClientNetworkSystem.EVENTS.INITIALIZE, initializeNetworkEvent)
-
   setInterval(() => {
     EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENTITY_DEBUG_DATA, })
   }, 1000)
@@ -108,6 +96,13 @@ const initializeEngineOffscreen = async ({ canvas, userArgs }, proxy: MainProxy)
     fixedUpdate: (delta:number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Fixed),
     update: (delta, elapsedTime) => execute(delta, elapsedTime, SystemUpdateType.Free)
   }, Engine.physicsFrameRate, Engine.networkFramerate).start();
+
+  const connectNetworkEvent = ({ id }) => {
+    Network.instance.isInitialized = true;
+    Network.instance.userId = id;
+    EngineEvents.instance.removeEventListener(ClientNetworkSystem.EVENTS.CONNECT, connectNetworkEvent)
+  }
+  EngineEvents.instance.addEventListener(ClientNetworkSystem.EVENTS.CONNECT, connectNetworkEvent)
 
 }
 

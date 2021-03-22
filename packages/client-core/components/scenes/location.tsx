@@ -245,7 +245,6 @@ export const EnginePage = (props: Props) => {
     addUIEvents();
 
     await connectToInstanceServer('instance');
-    EngineEvents.instance.dispatchEvent({ type: ClientNetworkSystem.EVENTS.CONNECT })
 
     const loadScene = new Promise<void>((resolve) => {
       const onSceneLoaded = () => {

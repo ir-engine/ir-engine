@@ -33,6 +33,7 @@ import { createWorker, WorkerProxy } from './worker/MessageQueue';
 import { Network } from './networking/classes/Network';
 import { isMobileOrTablet } from './common/functions/isMobile';
 import { AnimationManager } from './templates/character/prefabs/NetworkPlayerCharacter';
+import { applyNetworkStateToClient } from './networking/functions/applyNetworkStateToClient';
 // import { PositionalAudioSystem } from './audio/systems/PositionalAudioSystem';
 
 Mesh.prototype.raycast = acceleratedRaycast;
@@ -75,12 +76,6 @@ export const initializeEngine = async (initOptions: any = DefaultInitializationO
     EngineEvents.instance = new EngineEventsProxy(workerProxy);
     Engine.viewportElement = options.renderer.canvas;
 
-    const onNetworkConnect = (ev: any) => {
-      EngineEvents.instance.dispatchEvent({ type: ClientNetworkSystem.EVENTS.INITIALIZE, userId: Network.instance.userId });
-      EngineEvents.instance.removeEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD, onNetworkConnect);
-    }
-    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD, onNetworkConnect);
-
   } else {
     EngineEvents.instance = new EngineEvents();
     Engine.scene = new Scene();
@@ -122,12 +117,6 @@ export const initializeEngine = async (initOptions: any = DefaultInitializationO
     registerSystem(WebXRRendererSystem, { offscreen: useOffscreen });
     Engine.viewportElement = Engine.renderer.domElement;
     Engine.renderer.xr.enabled = Engine.xrSupported;
-
-    const connectNetworkEvent = (ev: any) => {
-      Network.instance.isInitialized = true;
-      EngineEvents.instance.removeEventListener(ClientNetworkSystem.EVENTS.CONNECT, connectNetworkEvent)
-    }
-    EngineEvents.instance.addEventListener(ClientNetworkSystem.EVENTS.CONNECT, connectNetworkEvent)
   }
 
   Engine.engineTimerTimeout = setTimeout(() => {
@@ -145,6 +134,13 @@ export const initializeEngine = async (initOptions: any = DefaultInitializationO
     document.removeEventListener(engageType, onUserEngage);
   }
   document.addEventListener(engageType, onUserEngage);
+
+  const connectNetworkEvent = ({ id }) => {
+    Network.instance.isInitialized = true;
+    Network.instance.userId = id;
+    EngineEvents.instance.removeEventListener(ClientNetworkSystem.EVENTS.CONNECT, connectNetworkEvent)
+  }
+  EngineEvents.instance.addEventListener(ClientNetworkSystem.EVENTS.CONNECT, connectNetworkEvent)
 }
 
 export const initializeServer = async (initOptions: any = DefaultInitializationOptions): Promise<void> => {
