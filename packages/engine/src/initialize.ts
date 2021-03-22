@@ -62,7 +62,9 @@ export const initializeEngine = async (initOptions: any = DefaultInitializationO
   const canvas = options.renderer.canvas || createCanvas();
 
   Engine.xrSupported = await (navigator as any).xr?.isSessionSupported('immersive-vr')
-  const useOffscreen = !Engine.xrSupported && 'transferControlToOffscreen' in canvas;
+  // offscreen is buggy still, disable it for now and opt in with url query
+  // const useOffscreen = !Engine.xrSupported && 'transferControlToOffscreen' in canvas;
+  const useOffscreen = (new URL(location.toString())).searchParams.get("offscreen");
 
   if(useOffscreen) {
     const workerProxy: WorkerProxy = await createWorker(
