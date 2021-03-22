@@ -48,7 +48,6 @@ export const startFaceTracking = async () => {
       await faceWorker.create(faceVideo.videoWidth, faceVideo.videoHeight)
       faceCanvas = new OffscreenCanvas(faceVideo.videoWidth, faceVideo.videoHeight);
       const context = faceCanvas.getContext('2d')
-      console.log(faceCanvas)
       const interval = setInterval(async () => {
           context.drawImage(faceVideo, 0, 0, faceVideo.videoWidth, faceVideo.videoHeight)
           const imageData = context.getImageData(0, 0, faceVideo.videoWidth, faceVideo.videoHeight)
@@ -60,7 +59,7 @@ export const startFaceTracking = async () => {
       }, 100);
       faceTrackingTimers.push(interval);
   })
-  
+
   faceVideo.srcObject = MediaStreamSystem.instance.mediaStream;
   faceVideo.muted = true;
   faceVideo.play();
@@ -77,8 +76,6 @@ const nameToInputValue = {
 };
 
 export async function faceToInput(entity, detection) {
-  console.log('faceToInput')
-
     if (detection !== undefined && detection.expressions !== undefined) {
         // console.log(detection.expressions);
         const input = getMutableComponent(entity, Input);
@@ -141,9 +138,9 @@ export const startLipsyncTracking = () => {
         // Populate frequency data for computing frequency intensities
         userSpeechAnalyzer.getFloatFrequencyData(spectrum);// getByteTimeDomainData gets volumes over the sample time
         // Populate time domain for calculating RMS
-        userSpeechAnalyzer.getFloatTimeDomainData(spectrum);
+        // userSpeechAnalyzer.getFloatTimeDomainData(spectrum);
         // RMS (root mean square) is a better approximation of current input level than peak (just sampling this frame)
-        spectrumRMS = getRMS(spectrum);
+        // spectrumRMS = getRMS(spectrum);
 
         sensitivityPerPole = getSensitivityMap(spectrum);
 
@@ -165,7 +162,6 @@ export const startLipsyncTracking = () => {
             EnergyBinMasc[m] /= (IndicesFrequencyMale[m + 1] - IndicesFrequencyMale[m]);
             EnergyBinFem[m] = EnergyBinFem[m] / (IndicesFrequencyFemale[m + 1] - IndicesFrequencyFemale[m]);
         }
-
         const pucker = Math.max(EnergyBinFem[1], EnergyBinMasc[1]) > 0.2 ?
             1 - 2 * Math.max(EnergyBinMasc[2], EnergyBinFem[2])
             : (1 - 2 * Math.max(EnergyBinMasc[2], EnergyBinFem[2])) * 5 * Math.max(EnergyBinMasc[1], EnergyBinFem[1]);
@@ -178,7 +174,6 @@ export const startLipsyncTracking = () => {
 };
 
 export const lipToInput = (entity, pucker, widen, open) => {
-
   const input = getMutableComponent(entity, Input);
 
   if (pucker > .2)
