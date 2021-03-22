@@ -36,18 +36,19 @@ export const stopLipsyncTracking = () => {
 }
 
 export const startFaceTracking = async () => {
-  faceVideo = document.createElement('video');
-  faceVideo.srcObject = MediaStreamSystem.instance.mediaStream;
-
+  
   if(!faceWorker) {
       faceWorker = Comlink.wrap(new Worker(new URL('./WebcamInputWorker.ts', import.meta.url)));
       await faceWorker.initialise();
   }
 
+  faceVideo = document.createElement('video');
+
   faceVideo.addEventListener('loadeddata', async () => {
       await faceWorker.create(faceVideo.videoWidth, faceVideo.videoHeight)
       faceCanvas = new OffscreenCanvas(faceVideo.videoWidth, faceVideo.videoHeight);
       const context = faceCanvas.getContext('2d')
+      console.log(faceCanvas)
       const interval = setInterval(async () => {
           context.drawImage(faceVideo, 0, 0, faceVideo.videoWidth, faceVideo.videoHeight)
           const imageData = context.getImageData(0, 0, faceVideo.videoWidth, faceVideo.videoHeight)
@@ -60,6 +61,7 @@ export const startFaceTracking = async () => {
       faceTrackingTimers.push(interval);
   })
   
+  faceVideo.srcObject = MediaStreamSystem.instance.mediaStream;
   faceVideo.muted = true;
   faceVideo.play();
 }
@@ -75,6 +77,7 @@ const nameToInputValue = {
 };
 
 export async function faceToInput(entity, detection) {
+  console.log('faceToInput')
 
     if (detection !== undefined && detection.expressions !== undefined) {
         // console.log(detection.expressions);

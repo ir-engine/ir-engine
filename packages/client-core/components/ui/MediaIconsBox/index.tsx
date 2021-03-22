@@ -82,22 +82,17 @@ const MediaIconsBox = (props) => {
     };
 
     const handleFaceClick = async () => {
-        const entity = Network.instance.localClientEntity;
-        if (entity) {
-            const partyId = currentLocation?.locationSettings?.instanceMediaChatEnabled === true ? 'instance' : user.partyId;
-            if(await checkMediaStream(partyId)) {
-                changeFaceTrackingState(!isFaceTrackingEnabled);
-                if (!isFaceTrackingEnabled) {
-                    // get local input receiver entity
-                    startFaceTracking();
-                    startLipsyncTracking();
-                } else {
-                    stopFaceTracking();
-                    stopLipsyncTracking();
-                }
-                
-            }
+      const partyId = currentLocation?.locationSettings?.instanceMediaChatEnabled === true ? 'instance' : user.partyId;
+      if(await checkMediaStream(partyId)) {
+        changeFaceTrackingState(!isFaceTrackingEnabled);
+        if (!isFaceTrackingEnabled) {
+          startFaceTracking();
+          startLipsyncTracking();
+        } else {
+          stopFaceTracking();
+          stopLipsyncTracking();
         }
+      }
     };
 
     const checkEndVideoChat = async () => {
