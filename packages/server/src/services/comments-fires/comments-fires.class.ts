@@ -59,5 +59,10 @@ export class CommentsFire extends Service {
           creatorId
         }
       });
+
+      return {
+        commentId, 
+        creatorAuthorId:creatorId
+      }
   }
 }
