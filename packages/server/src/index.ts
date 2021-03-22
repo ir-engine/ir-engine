@@ -38,9 +38,7 @@ process.on('unhandledRejection', (error, promise) => {
 
       // Check for child process with mac OSX
         exec("docker ps | grep mariadb", (err, stdout, stderr) => {
-          if(stdout.includes("mariadb")){
-            (databaseService as any) = true;
-          }else {
+          if(!stdout.includes("mariadb")){
             throw new Error('\x1b[33mError: DB proccess is not running or Docker is not running!. If you are in local development, please run xr3ngine/scripts/start-db.sh and restart server\x1b[0m');
           }
         });
