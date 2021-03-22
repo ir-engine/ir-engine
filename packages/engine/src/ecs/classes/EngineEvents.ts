@@ -1,5 +1,6 @@
 import { EventDispatcher } from "../../common/classes/EventDispatcher";
 import { isClient } from "../../common/functions/isClient";
+import { isMobileOrTablet } from "../../common/functions/isMobile";
 import { Network } from "../../networking/classes/Network";
 import { applyNetworkStateToClient } from "../../networking/functions/applyNetworkStateToClient";
 import { ClientNetworkSystem } from "../../networking/systems/ClientNetworkSystem";
@@ -23,11 +24,11 @@ const EVENTS = {
   SCENE_LOADED: 'CORE_SCENE_LOADED',
   ENTITY_LOADED: 'CORE_ENTITY_LOADED',
 
+  // Start or stop client side physics & rendering
   ENABLE_SCENE: 'CORE_ENABLE_SCENE',
 
   // Entity
   LOAD_AVATAR: "CORE_LOAD_AVATAR",
-  CLIENT_ENTITY_LOAD: "CORE_CLIENT_ENTITY_LOAD",
 
   // MISC
   USER_ENGAGE: 'CORE_USER_ENGAGE',
@@ -46,16 +47,15 @@ export class EngineEvents extends EventDispatcher {
 
 export const addIncomingEvents = () => {
 
-  // call this Event to load the scene
   const doLoadScene = (ev: any) => {
     loadScene(ev.result);
     EngineEvents.instance.removeEventListener(EngineEvents.EVENTS.LOAD_SCENE, doLoadScene)
   }
   EngineEvents.instance.addEventListener(EngineEvents.EVENTS.LOAD_SCENE, doLoadScene)
 
-  // this event fires once the scene has loaded
   const onWorldJoined = (ev: any) => {
     applyNetworkStateToClient(ev.worldState);
+    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENABLE_SCENE, enable: true });
     EngineEvents.instance.removeEventListener(EngineEvents.EVENTS.JOINED_WORLD, onWorldJoined);
   }
   EngineEvents.instance.addEventListener(EngineEvents.EVENTS.JOINED_WORLD, onWorldJoined)

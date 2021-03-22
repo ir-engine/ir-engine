@@ -70,8 +70,6 @@ export function connectToChannelServer(channelId: string, isHarmonyPage?: boolea
         videoEnabled: currentLocation?.locationSettings?.videoEnabled === true || !(currentLocation?.locationSettings?.locationType === 'showroom' && user.locationAdmins?.find(locationAdmin => locationAdmin.locationId === currentLocation.id) == null),
         isHarmonyPage: isHarmonyPage
       });
-      Network.instance.isInitialized = true;
-      EngineEvents.instance.dispatchEvent({ type: ClientNetworkSystem.EVENTS.CONNECT })
 
       // setClient(instanceClient);
       dispatch(channelServerConnected());
