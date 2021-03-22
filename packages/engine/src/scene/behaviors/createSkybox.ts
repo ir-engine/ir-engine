@@ -14,6 +14,7 @@ export default function createSkybox(entity, args: {
   if (!isClient) {
     return;
   }
+  
   const renderer = Engine.renderer
 
   const pmremGenerator = new PMREMGenerator(renderer);
