@@ -22,6 +22,13 @@ import { selectFeedFiresState } from '../../../../redux/feedFires/selector';
 import CreatorAsTitle from '../CreatorAsTitle';
 
 import styles from './FeedCard.module.scss';
+import getConfig from 'next/config';
+import { Plugins } from '@capacitor/core';
+const { Share } = Plugins;
+
+const config = getConfig().publicRuntimeConfig;
+const APP_URL = (config as any).appServer;
+const baseUrl = `${APP_URL}/feed/`;
 
 const mapStateToProps = (state: any): any => {
     return {
@@ -50,7 +57,7 @@ interface Props{
 const FeedCard = (props: Props) : any => {
     const [isVideo, setIsVideo] = useState(false);
     const {feed, getFeedFires, feedFiresState, addFireToFeed, removeFireToFeed, addBookmarkToFeed, removeBookmarkToFeed, addViewToFeed} = props;
-    
+
     const handleAddFireClick = (feedId) =>addFireToFeed(feedId);
     const handleRemoveFireClick = (feedId) =>removeFireToFeed(feedId);
 
@@ -59,7 +66,7 @@ const FeedCard = (props: Props) : any => {
 
     const handlePlayVideo = (feedId) => {
         addViewToFeed(feedId);
-    }
+    };
 
     const handleGetFeedFiredUsers = (feedId) => {
         if(feedId){
@@ -67,37 +74,58 @@ const FeedCard = (props: Props) : any => {
             //TODO create component for this
             console.log('Users who fired this feed ',feedFiresState.get('feedFires'));
         }
+    };
+
+    async function shareTheFeed(feed) {
+      // TODO: place SERVER_URL here
+      const url = `${baseUrl}?feedId=${feed.id}`;
+      console.log('baseUrl', baseUrl);
+      console.log('url', url);
+      console.log('config', config);
+      console.log('getConfig()', getConfig());
+      let shareRet = await Share.share({
+        title: feed.id,
+        text: 'Really awesome thing you need to see right now',
+        url,
+        dialogTitle: 'Share the post:'
+      });
+      console.log('shareRet',shareRet);
     }
-    
+
+    let canShare = false;
+    if ('canShare' in navigator) {
+      canShare = (navigator as any).canShare();
+    }
+
     return  feed ? <Card className={styles.tipItem} square={false} elevation={0} key={feed.id}>
-                <CreatorAsTitle creator={feed.creator} />                   
-                {isVideo ? <CardMedia   
-                    className={styles.previewImage}                  
+                <CreatorAsTitle creator={feed.creator} />
+                {isVideo ? <CardMedia
+                    className={styles.previewImage}
                     src={feed.videoUrl}
-                    title={feed.title}  
-                    component='video'      
-                    controls  
-                    autoPlay={true} 
-                    onClick={()=>handlePlayVideo(feed.id)}               
+                    title={feed.title}
+                    component='video'
+                    controls
+                    autoPlay={true}
+                    onClick={()=>handlePlayVideo(feed.id)}
                 /> :
-                <CardMedia   
-                    className={styles.previewImage}                  
+                <CardMedia
+                    className={styles.previewImage}
                     image={feed.previewUrl}
-                    title={feed.title}                      
-                    onClick={()=>setIsVideo(true)}               
+                    title={feed.title}
+                    onClick={()=>setIsVideo(true)}
                 />}
                 <span className={styles.eyeLine}>{feed.viewsCount}<VisibilityIcon style={{fontSize: '16px'}}/></span>
                 <CardContent>
                     <section className={styles.iconsContainer}>
-                        {feed.isFired ? 
-                                <WhatshotIcon htmlColor="#FF6201" onClick={()=>handleRemoveFireClick(feed.id)} /> 
+                        {feed.isFired ?
+                                <WhatshotIcon htmlColor="#FF6201" onClick={()=>handleRemoveFireClick(feed.id)} />
                                 :
                                 <WhatshotIcon htmlColor="#DDDDDD" onClick={()=>handleAddFireClick(feed.id)} />}
-                        <TelegramIcon />
+                        {canShare && <TelegramIcon onClick={()=>shareTheFeed(feed)} />}
                         {feed.isBookmarked ? <BookmarkIcon onClick={()=>handleRemoveBookmarkClick(feed.id)} /> : <BookmarkBorderIcon onClick={()=>handleAddBookmarkClick(feed.id)} />}
                     </section>
                     <Typography className={styles.titleContainer} gutterBottom variant="h2" onClick={()=>Router.push({ pathname: '/feed', query:{ feedId: feed.id}})}>
-                        {feed.title}                      
+                        {feed.title}
                     </Typography>
                     <Typography variant="h2" onClick={()=>handleGetFeedFiredUsers(feed.id)}><span className={styles.flamesCount}>{feed.fires}</span>Flames</Typography>
                     <Typography variant="h2">{feed.description}</Typography>
@@ -107,3 +135,4 @@ const FeedCard = (props: Props) : any => {
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(FeedCard);
+
