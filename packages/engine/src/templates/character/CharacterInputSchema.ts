@@ -233,16 +233,16 @@ const changeCameraDistanceByDelta: Behavior = (entity: Entity, { input:inputAxes
 };
 
 const morphNameByInput = {
-  [BaseInput.FACE_EXPRESSION_HAPPY]: "Smile",
-  [BaseInput.FACE_EXPRESSION_SAD]: "Frown",
-  // [CameraInput.Disgusted]: "Frown",
-  // [CameraInput.Fearful]: "Frown",
-  // [CameraInput.Happy]: "Smile",
-  // [CameraInput.Surprised]: "Frown",
-  // [CameraInput.Sad]: "Frown",
-  // [CameraInput.Pucker]: "None",
-  // [CameraInput.Widen]: "Frown",
-  // [CameraInput.Open]: "Happy"
+  [CameraInput.Neutral]: "None",
+  [CameraInput.Angry]: "Frown",
+  [CameraInput.Disgusted]: "Frown",
+  [CameraInput.Fearful]: "Frown",
+  [CameraInput.Happy]: "Smile",
+  [CameraInput.Surprised]: "Frown",
+  [CameraInput.Sad]: "Frown",
+  [CameraInput.Pucker]: "None",
+  [CameraInput.Widen]: "Frown",
+  [CameraInput.Open]: "Happy"
 };
 
 const setCharacterExpression: Behavior = (entity: Entity, args: any): void => {
@@ -435,8 +435,16 @@ export const createCharacterInput = () => {
   map.set('c', BaseInput.SWITCH_SHOULDER_SIDE);
   map.set('f', BaseInput.LOCKING_CAMERA);
 
-  map.set(CameraInput.Happy, BaseInput.FACE_EXPRESSION_HAPPY);
-  map.set(CameraInput.Sad, BaseInput.FACE_EXPRESSION_SAD);
+  map.set(CameraInput.Neutral, CameraInput.Neutral);
+  map.set(CameraInput.Angry, CameraInput.Angry);
+  map.set(CameraInput.Disgusted, CameraInput.Disgusted);
+  map.set(CameraInput.Fearful, CameraInput.Fearful);
+  map.set(CameraInput.Happy, CameraInput.Happy);
+  map.set(CameraInput.Surprised, CameraInput.Surprised);
+  map.set(CameraInput.Sad, CameraInput.Sad);
+  map.set(CameraInput.Pucker, CameraInput.Pucker);
+  map.set(CameraInput.Widen, CameraInput.Widen);
+  map.set(CameraInput.Open, CameraInput.Open);
 
   return map;
 }
@@ -607,12 +615,12 @@ export const CharacterInputSchema: InputSchema = {
   },
   // Axis behaviors are called by continuous input and map to a scalar, vec2 or vec3
   inputAxisBehaviors: {
-    [BaseInput.FACE_EXPRESSION_HAPPY]: {
+    [CameraInput.Happy]: {
       started: [
         {
           behavior: setCharacterExpression,
           args: {
-            input: BaseInput.FACE_EXPRESSION_HAPPY
+            input: CameraInput.Happy
           }
         }
       ],
@@ -620,17 +628,17 @@ export const CharacterInputSchema: InputSchema = {
         {
           behavior: setCharacterExpression,
           args: {
-            input: BaseInput.FACE_EXPRESSION_HAPPY
+            input: CameraInput.Happy
           }
         }
       ]
     },
-    [BaseInput.FACE_EXPRESSION_SAD]: {
+    [CameraInput.Sad]: {
       started: [
         {
           behavior: setCharacterExpression,
           args: {
-            input: BaseInput.FACE_EXPRESSION_SAD
+            input: CameraInput.Sad
           }
         }
       ],
@@ -638,7 +646,7 @@ export const CharacterInputSchema: InputSchema = {
         {
           behavior: setCharacterExpression,
           args: {
-            input: BaseInput.FACE_EXPRESSION_SAD
+            input: CameraInput.Sad
           }
         }
       ]
