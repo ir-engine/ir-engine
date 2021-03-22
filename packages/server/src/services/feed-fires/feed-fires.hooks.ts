@@ -1,3 +1,4 @@
+import { addFeedFire, removeFeedFire } from "../../hooks/notifications";
 
 export default {
   before: {
@@ -14,10 +15,10 @@ export default {
     all: [],
     find: [],
     get: [],
-    create: [],
+    create: [addFeedFire],
     update: [],
     patch: [],
-    remove: []
+    remove: [removeFeedFire]
   },
 
   error: {

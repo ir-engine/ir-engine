@@ -1,3 +1,4 @@
+import { addFeedBookmark, removeFeedBookmark } from "../../hooks/notifications";
 
 export default {
   before: {
@@ -14,10 +15,10 @@ export default {
     all: [],
     find: [],
     get: [],
-    create: [],
+    create: [addFeedBookmark],
     update: [],
     patch: [],
-    remove: []
+    remove: [removeFeedBookmark]
   },
 
   error: {
