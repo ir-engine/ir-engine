@@ -202,8 +202,7 @@ export async function handleConnectToWorld(socket, data, callback, userId, user,
 
     // Push to our worldstate to send out to other users
     Network.instance.clientsConnected.push({ userId, name: userId, avatarDetail });
-    console.log("Pushing: ")
-    // console.log({ userId, name: userId, avatarDetail });
+
     // Create a new worldtate object that we can fill
     const worldState = {
         tick: Network.tick,
@@ -307,12 +306,6 @@ export async function handleJoinWorld(socket, data, callback, userId, user): Pro
         createObjects: [],
         destroyObjects: []
     };
-
-    // Get all clients and add to clientsConnected and push to world state frame
-    Object.keys(Network.instance.clients).forEach(userId => {
-        const client = Network.instance.clients[userId];
-        worldState.clientsConnected.push({ userId: client.userId, name: client.userId, avatarDetail: client.avatarDetail });
-    });
 
     // Get all network objects and add to createObjects
     Object.keys(Network.instance.networkObjects).forEach(networkId => {
