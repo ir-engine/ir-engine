@@ -20,16 +20,11 @@ export default {
   before: {
     all: [],
     find: [disallow()],
-    get: [validateGet],
-    create: [
-      commonHooks.iff(
-        commonHooks.isProvider('external'),
-        authenticate('jwt'),
-        setLoggedInUser('userId')
-      ), addUUID(), addUploadPath(), addUriToFile(), makeS3FilesPublic()],
+    get: [authenticate('jwt'), validateGet],
+    create: [disallow()],
     update: [disallow()],
     patch: [disallow()],
-    remove: [checkDefaultResources]
+    remove: [authenticate('jwt'), checkDefaultResources]
   },
 
   after: {
