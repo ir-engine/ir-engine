@@ -1,4 +1,4 @@
-import { addFeedCommentFire, removeFeedCommentFire } from "../../hooks/notifications";
+import * as notifications from "../../hooks/notifications";
 
 export default {
   before: {
@@ -15,10 +15,10 @@ export default {
     all: [],
     find: [],
     get: [],
-    create: [addFeedCommentFire],
+    create: [notifications.addFeedCommentFire],
     update: [],
     patch: [],
-    remove: [removeFeedCommentFire]
+    remove: [notifications.removeFeedCommentFire]
   },
 
   error: {
