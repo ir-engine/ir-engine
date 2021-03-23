@@ -90,6 +90,17 @@ export function doLoginAuto (allowGuest?: boolean, forceClientAuthReset?: boolea
         }
       }
       if (res) {
+        if (res['identity-provider']?.id == null) {
+          await dispatch(didLogout());
+          await (client as any).authentication.reset();
+          const newProvider = await client.service('identity-provider').create({
+            type: 'guest',
+            token: v1()
+          });
+          accessToken = newProvider.accessToken;
+          await (client as any).authentication.setAccessToken(accessToken as string);
+          res = await (client as any).reAuthenticate();
+        }
         const authUser = resolveAuthUser(res);
         dispatch(loginUserSuccess(authUser));
         loadUserData(dispatch, authUser.identityProvider.userId);
@@ -200,6 +211,7 @@ export function loginUserByJwt (accessToken: string, redirectSuccess: string, re
   return async (dispatch: Dispatch): Promise<any> => {
     try {
       dispatch(actionProcessing(true));
+      await (client as any).authentication.setAccessToken(accessToken as string);
       const res = await (client as any).authenticate({
         strategy: 'jwt',
         accessToken

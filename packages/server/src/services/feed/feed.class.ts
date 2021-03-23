@@ -112,7 +112,7 @@ export class Feed extends Service {
           replacements: queryParamsReplacements
         });
 
-        console.log('feeds',feeds)
+        console.log('feeds',feeds);
       return {
         data: feeds,
         skip,
