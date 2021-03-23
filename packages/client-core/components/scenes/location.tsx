@@ -283,8 +283,8 @@ export const EnginePage = (props: Props) => {
     setObjectHovered(focused);
     let displayText = interactionText;
     const length = interactionText.length;
-    if(length > 120) {
-      displayText = interactionText.substring(0, 120) + '...'
+    if(length > 110) {
+      displayText = interactionText.substring(0, 110) + '...'
     }
     setHoveredLabel(displayText);
   };
