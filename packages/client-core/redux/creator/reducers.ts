@@ -2,12 +2,14 @@ import Immutable from 'immutable';
 import {
   CreatorsAction,
   CreatorRetrievedAction,
-  CreatorsRetrievedAction
+  CreatorsRetrievedAction,
+  CreatorsNotificationsRetrievedAction
 } from './actions';
 
 import {
   CREATORS_RETRIEVED,
   CREATOR_FETCH,
+  CREATOR_NOTIFICATION_LIST_RETRIEVED,
   CREATOR_RETRIEVED,
   CURRENT_CREATOR_RETRIEVED
 } from '../actions';
@@ -17,6 +19,7 @@ export const initialState = {
     creators: [],
     creator: {},
     currentCreator: {},
+    currentCreatorNotifications: {},
     fetching: false
   },
 };
@@ -35,6 +38,10 @@ const creatorReducer = (state = immutableState, action: CreatorsAction): any => 
 
     case CREATOR_RETRIEVED: 
       return state.set('creator', (action as CreatorRetrievedAction).creator).set('fetching', false);
+
+    case CREATOR_NOTIFICATION_LIST_RETRIEVED:
+      return state.set('currentCreatorNotifications', (action as CreatorsNotificationsRetrievedAction).notifications).set('fetching', false);
+
   }
   return state;
 };
