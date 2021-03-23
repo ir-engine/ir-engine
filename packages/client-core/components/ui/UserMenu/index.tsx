@@ -26,6 +26,7 @@ import ShareMenu from './menus/ShareMenu';
 import AvatarSelectMenu from './menus/AvatarSelectMenu';
 import { WebGLRendererSystem } from '@xr3ngine/engine/src/renderer/WebGLRendererSystem';
 import { EngineEvents } from '@xr3ngine/engine/src/ecs/classes/EngineEvents';
+import { ClientInputSystem } from '@xr3ngine/engine/src/input/systems/ClientInputSystem';
 
 type StateType = {
   currentActiveMenu: any;
@@ -152,14 +153,15 @@ class UserMenu extends React.Component<UserMenuProps, StateType> {
 
   setActiveMenu = (e): void => {
     const identity = e.currentTarget.id.split('_');
+    const enabled = Boolean(this.state.currentActiveMenu && this.state.currentActiveMenu.id === identity[0])
     this.setState({
-      currentActiveMenu: this.state.currentActiveMenu && this.state.currentActiveMenu.id === identity[0]
-          ? null
-          : this.menus[identity[1]]
+      currentActiveMenu: enabled ? null : this.menus[identity[1]]
     });
+    // EngineEvents.instance.dispatchEvent({ type: ClientInputSystem.EVENTS.ENABLE_INPUT, mouse: enabled, keyboard: enabled })
   }
 
   changeActiveMenu = (menu) => {
+    const enabled = Boolean(this.state.currentActiveMenu && this.state.currentActiveMenu.id === menu)
     this.setState({ currentActiveMenu: menu ? { id: menu } : null });
   }
 
