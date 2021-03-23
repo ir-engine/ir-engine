@@ -2,7 +2,8 @@ import {
   CREATOR_RETRIEVED, 
   CREATOR_FETCH,
   CURRENT_CREATOR_RETRIEVED,
-  CREATORS_RETRIEVED
+  CREATORS_RETRIEVED,
+  CREATOR_NOTIFICATION_LIST_RETRIEVED
 } from '../actions';
 import { Creator, CreatorShort } from '@xr3ngine/common/interfaces/Creator';
 
@@ -18,7 +19,10 @@ export interface CreatorsRetrievedAction{
 export interface FetchingCreatorAction {
   type: string;
 }
-
+export interface CreatorsNotificationsRetrievedAction{
+  type: string;
+  notifications: any[];
+}
 
 export type CreatorsAction =
 CreatorRetrievedAction
@@ -49,6 +53,14 @@ export function creatorsRetrieved (creators: CreatorShort[]) : CreatorsRetrieved
   return {
     type: CREATORS_RETRIEVED,
     creators
+  };
+}
+
+
+export function creatorNotificationList (notifications: any[]) : CreatorsNotificationsRetrievedAction {
+  return {
+    type: CREATOR_NOTIFICATION_LIST_RETRIEVED,
+    notifications
   };
 }
 
