@@ -86,6 +86,6 @@ const  Home = ({ authState }) => {
     </div>
   </>
   );
-}
+};
 
 export default connect(mapStateToProps)(Home);

@@ -12,7 +12,7 @@ import { CollisionGroups } from '../enums/CollisionGroups';
 import { LocalInputReceiver } from '../../input/components/LocalInputReceiver';
 import { EngineEvents } from '../../ecs/classes/EngineEvents';
 
-let lastPos = { x:0, y:0, z:0 };
+const lastPos = { x:0, y:0, z:0 };
 export const updateVelocityVector: Behavior = (entity: Entity, args): void => {
   if (hasComponent(entity, CapsuleCollider)) {
     const capsule = getComponent<CapsuleCollider>(entity, CapsuleCollider);
@@ -20,9 +20,9 @@ export const updateVelocityVector: Behavior = (entity: Entity, args): void => {
     const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
     if (!actor.initialized) return;
 
-    let x = capsule.body.position.x - lastPos.x;
-    let y = capsule.body.position.y - lastPos.y;
-    let z = capsule.body.position.z - lastPos.z;
+    const x = capsule.body.position.x - lastPos.x;
+    const y = capsule.body.position.y - lastPos.y;
+    const z = capsule.body.position.z - lastPos.z;
 
     if(isNaN(x)) {
       actor.animationVelocity = new Vector3(0,1,0);
@@ -33,7 +33,7 @@ export const updateVelocityVector: Behavior = (entity: Entity, args): void => {
     lastPos.y = capsule.body.position.y;
     lastPos.z = capsule.body.position.z;
 
-    let q = new Quaternion().copy(transform.rotation).invert();
+    const q = new Quaternion().copy(transform.rotation).invert();
     actor.animationVelocity = new Vector3(x,y,z).applyQuaternion(q);
   }
 };
@@ -91,7 +91,7 @@ export const capsuleColliderBehavior: Behavior = (entity: Entity, args): void =>
   	skipBackfaces: true /* ignore back faces */
   };
 
-  let n = 0.17;
+  const n = 0.17;
 
   const actorRaycastStart = new Vec3(capsule.body.position.x, capsule.body.position.y, capsule.body.position.z);
   const actorRaycastEnd = new Vec3(capsule.body.position.x, capsule.body.position.y - actor.rayCastLength - actor.raySafeOffset, capsule.body.position.z);
@@ -108,11 +108,11 @@ export const capsuleColliderBehavior: Behavior = (entity: Entity, args): void =>
   const actorRaycastStart3 = new Vec3(capsule.body.position.x, capsule.body.position.y, capsule.body.position.z-n);
   const actorRaycastEnd3 = new Vec3(capsule.body.position.x, capsule.body.position.y - actor.rayCastLength - actor.raySafeOffset, capsule.body.position.z-n);
 
-  let m = PhysicsSystem.physicsWorld.raycastClosest(actorRaycastStart, actorRaycastEnd, actorRaycastOptions, actor.rayResult);
-  let m0 = PhysicsSystem.physicsWorld.raycastClosest(actorRaycastStart0, actorRaycastEnd0, rayDontStuckOptions, actor.rayDontStuckX);
-  let m1 = PhysicsSystem.physicsWorld.raycastClosest(actorRaycastStart1, actorRaycastEnd1, rayDontStuckOptions, actor.rayDontStuckZ);
-  let m2 = PhysicsSystem.physicsWorld.raycastClosest(actorRaycastStart2, actorRaycastEnd2, rayDontStuckOptions, actor.rayDontStuckXm);
-  let m3 = PhysicsSystem.physicsWorld.raycastClosest(actorRaycastStart3, actorRaycastEnd3, rayDontStuckOptions, actor.rayDontStuckZm);
+  const m = PhysicsSystem.physicsWorld.raycastClosest(actorRaycastStart, actorRaycastEnd, actorRaycastOptions, actor.rayResult);
+  const m0 = PhysicsSystem.physicsWorld.raycastClosest(actorRaycastStart0, actorRaycastEnd0, rayDontStuckOptions, actor.rayDontStuckX);
+  const m1 = PhysicsSystem.physicsWorld.raycastClosest(actorRaycastStart1, actorRaycastEnd1, rayDontStuckOptions, actor.rayDontStuckZ);
+  const m2 = PhysicsSystem.physicsWorld.raycastClosest(actorRaycastStart2, actorRaycastEnd2, rayDontStuckOptions, actor.rayDontStuckXm);
+  const m3 = PhysicsSystem.physicsWorld.raycastClosest(actorRaycastStart3, actorRaycastEnd3, rayDontStuckOptions, actor.rayDontStuckZm);
   // Cast the ray
   actor.rayGroundHit = m;
   actor.rayHasHit = m0 || m1 || m2 || m3;
