@@ -146,7 +146,7 @@ const parseCarModel: Behavior = (entity: Entity, groupMeshes: any) => {
 
 function plusParametersFromEditorToMesh(entity, mesh) {
   const transform = getComponent(entity, TransformComponent);
-  let [position, quaternion, scale] = plusParameter(
+  const [position, quaternion, scale] = plusParameter(
     mesh.position,
     mesh.quaternion,
     mesh.scale,
@@ -161,11 +161,11 @@ function plusParametersFromEditorToMesh(entity, mesh) {
 }
 
 export function plusParameter(posM, queM, scaM, posE, queE, scaE): [Vector3, Quaternion, any] {
-  let quaternionM = new Quaternion(queM.x,queM.y,queM.z,queM.w);
-  let quaternionE = new Quaternion(queE.x,queE.y,queE.z,queE.w);
-  let position = new Vector3().set(posM.x, posM.y, posM.z).applyQuaternion(quaternionE)
-  let quaternion = new Quaternion();
-  let scale = {x:0,y:0,z:0};
+  const quaternionM = new Quaternion(queM.x,queM.y,queM.z,queM.w);
+  const quaternionE = new Quaternion(queE.x,queE.y,queE.z,queE.w);
+  const position = new Vector3().set(posM.x, posM.y, posM.z).applyQuaternion(quaternionE)
+  const quaternion = new Quaternion();
+  const scale = {x:0,y:0,z:0};
 
   position.x = (position.x * scaE.x) + posE.x;
   position.y = (position.y * scaE.y) + posE.y;

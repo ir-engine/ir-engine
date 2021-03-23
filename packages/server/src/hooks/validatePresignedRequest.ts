@@ -19,7 +19,7 @@ export const validateGet = async (context: HookContext): Promise<HookContext> =>
         break;
     }
     return context;
-}
+};
 
 export const checkDefaultResources = async (context: HookContext): Promise<HookContext> => {
   const q = context.params.query.keys;
@@ -35,4 +35,4 @@ export const checkDefaultResources = async (context: HookContext): Promise<HookC
 
   if (defaultResources.total > 0) throw new Error("Default resources can't be deleted.");
   return context;
-}
+};

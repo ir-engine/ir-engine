@@ -1,4 +1,4 @@
-import { Params } from '@feathersjs/feathers'
+import { Params } from '@feathersjs/feathers';
 import { JWTStrategy } from '@feathersjs/authentication';
 
 // TODO: Why is all this commented out? Can we remove it/clean up?

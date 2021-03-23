@@ -63,6 +63,6 @@ export class CommentsFire extends Service {
       return {
         commentId, 
         creatorAuthorId:creatorId
-      }
+      };
   }
 }

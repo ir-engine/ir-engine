@@ -63,7 +63,7 @@ export class PhysicsSystem extends System {
   static physicsWorld: World
   static simulate: boolean
   static serverOnlyRigidBodyCollides: boolean
-  static serverCorrectionForRigidBodyTick: number = 1000
+  static serverCorrectionForRigidBodyTick = 1000
 
   freezeTimes = 0
   clientSnapshotFreezeTime = 0
