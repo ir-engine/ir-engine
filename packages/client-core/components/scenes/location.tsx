@@ -279,9 +279,14 @@ export const EnginePage = (props: Props) => {
     setProgressEntity(event.left || 0);
   };
 
-  const onObjectHover = ({ focused, interactionText}): void => {
+  const onObjectHover = ({ focused, interactionText }: { focused: boolean, interactionText: string }): void => {
     setObjectHovered(focused);
-    setHoveredLabel(interactionText);
+    let displayText = interactionText;
+    const length = interactionText.length;
+    if(length > 120) {
+      displayText = interactionText.substring(0, 120) + '...'
+    }
+    setHoveredLabel(displayText);
   };
 
   const onUserHover = ({ focused, userId, position }): void => {
