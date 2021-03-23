@@ -44,8 +44,7 @@ interface ListenerBindingData {
 export class ClientInputSystem extends System {
 
   static EVENTS = {
-    ENABLE_MOUSE_INPUT: 'CLIENT_INPUT_SYSTEM_ENABLE_MOUSE_INPUT',
-    ENABLE_KEYBOARD_INPUT: 'CLIENT_INPUT_SYSTEM_ENABLE_KEYBOARD_INPUT',
+    ENABLE_INPUT: 'CLIENT_INPUT_SYSTEM_ENABLE_INPUT',
     PROCESS_INPUT: 'CLIENT_INPUT_SYSTEM_PROCESS_EVENT',
   }
 
@@ -64,13 +63,11 @@ export class ClientInputSystem extends System {
       behavior.behavior();
     });
 
-    EngineEvents.instance.addEventListener(ClientInputSystem.EVENTS.ENABLE_MOUSE_INPUT, ({ enable }) => {
-      ClientInputSystem.mouseInputEnabled = enable;
+    EngineEvents.instance.addEventListener(ClientInputSystem.EVENTS.ENABLE_INPUT, ({ keyboard, mouse }) => {
+      if(typeof keyboard !== 'undefined') ClientInputSystem.keyboardInputEnabled = keyboard;
+      if(typeof mouse !== 'undefined') ClientInputSystem.mouseInputEnabled = mouse;
     })
 
-    EngineEvents.instance.addEventListener(ClientInputSystem.EVENTS.ENABLE_KEYBOARD_INPUT, ({ enable }) => {
-      ClientInputSystem.keyboardInputEnabled = enable;
-    })
 
     Object.keys(ClientInputSchema.eventBindings)?.forEach((eventName: string) => {
       ClientInputSchema.eventBindings[eventName].forEach((behaviorEntry: DomEventBehaviorValue) => {
