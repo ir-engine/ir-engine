@@ -53,7 +53,7 @@ function mathMixesAnimFromSchemaValues( entity, animationsSchema, objectValues, 
             weight += animationMapLinear(giveSpeed, animation.value, animation[animation.customProperties[ip]], mi) * (ip == 0 ? 1 -dontHasHit : dontHasHit)
           }
       }
-    };
+    }
 
     animation.axis != 'xyz' ? weight*= multiplyXYZ:'';
     weight < EPSILON ? weight = 0:'';
