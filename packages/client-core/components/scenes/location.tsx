@@ -368,8 +368,8 @@ export const EnginePage = (props: Props) => {
       {objectHovered && !objectActivated && <TooltipContainer message={hoveredLabel} />}
       <InteractableModal onClose={() => { setModalData(null); setObjectActivated(false); }} data={infoBoxData} />
       <OpenLink onClose={() => { setOpenLinkData(null); setObjectActivated(false); }} data={openLinkData} />
-      {mobileGamepad}
       <canvas id={engineRendererCanvasId} width='100%' height='100%' />
+      {mobileGamepad}
     </>
   ) : (<div className="banned">You have been banned from this location</div>);
 };
