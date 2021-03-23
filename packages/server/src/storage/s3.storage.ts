@@ -36,12 +36,12 @@ export default class S3Provider implements StorageProviderInterface {
         Conditions: conditions
       }, (err, data) => {
         resolve(data);
-      })
-    })
+      });
+    });
     return result;
   }
 
-  deleteResources = (keys: [string]) => {
+  deleteResources = (keys: string[]): Promise<any> => {
     return new Promise((resolve, reject) => {
       this.provider.deleteObjects({
         Bucket: this.bucket,

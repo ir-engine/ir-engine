@@ -69,7 +69,7 @@ export const updateCharacterState: Behavior = (entity, args: { }, deltaTime: num
 
 	const localMovementDirection = actor.localMovementDirection; //getLocalMovementDirection(entity);
 
-  if(actor.moveVectorSmooth.position.length() < 0.1) { actor.moveVectorSmooth.velocity.multiplyScalar(0.9) };
+  if(actor.moveVectorSmooth.position.length() < 0.1) { actor.moveVectorSmooth.velocity.multiplyScalar(0.9) }
   if(actor.moveVectorSmooth.position.length() < 0.001) { actor.moveVectorSmooth.velocity.set(0,0,0); actor.moveVectorSmooth.position.set(0,0,0); }
 
   if(actor.changedViewAngle) {

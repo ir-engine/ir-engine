@@ -43,7 +43,9 @@ interface Props {
           const user = auth.get('user');
           refreshConnections(user.id);
         } else {
-          loginUserByJwt(token, `${path}?instanceId=${instanceId}` || '/', '/');
+          let redirectSuccess = `${path}`;
+          if (instanceId != null) redirectSuccess += `?instanceId=${instanceId}`;
+          loginUserByJwt(token, redirectSuccess || '/', '/');
         }
       }
   
