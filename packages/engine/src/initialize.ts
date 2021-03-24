@@ -34,6 +34,7 @@ import { Network } from './networking/classes/Network';
 import { isMobileOrTablet } from './common/functions/isMobile';
 import { AnimationManager } from './templates/character/prefabs/NetworkPlayerCharacter';
 import { applyNetworkStateToClient } from './networking/functions/applyNetworkStateToClient';
+import { IKAvatarSystem } from './xr/systems/IKAvatarSystem';
 // import { PositionalAudioSystem } from './audio/systems/PositionalAudioSystem';
 
 Mesh.prototype.raycast = acceleratedRaycast;
@@ -91,6 +92,7 @@ export const initializeEngine = async (initOptions: any = DefaultInitializationO
   registerSystem(ClientNetworkSystem, { ...networkSystemOptions, priority: -1 });
   registerSystem(MediaStreamSystem);
   registerSystem(ClientInputSystem, { useWebXR: Engine.xrSupported });
+  if(Engine.xrSupported) registerSystem(IKAvatarSystem);
 
   if(!useOffscreen) {
 
@@ -116,7 +118,7 @@ export const initializeEngine = async (initOptions: any = DefaultInitializationO
     registerSystem(DebugHelpersSystem);
     registerSystem(CameraSystem);
     registerSystem(WebGLRendererSystem, { priority: 1001, canvas });
-    registerSystem(XRSystem, { offscreen: useOffscreen });
+    if(Engine.xrSupported) registerSystem(XRSystem, { offscreen: useOffscreen });
     Engine.viewportElement = Engine.renderer.domElement;
     Engine.renderer.xr.enabled = Engine.xrSupported;
   }

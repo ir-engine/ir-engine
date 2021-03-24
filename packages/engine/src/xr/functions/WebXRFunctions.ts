@@ -9,6 +9,7 @@ import { Network } from "../../networking/classes/Network";
 import { XRSystem } from "../systems/XRSystem";
 import { CharacterComponent } from "../../templates/character/components/CharacterComponent";
 import { XRInputReceiver } from '../../input/components/XRInputReceiver';
+import { IKAvatarComponent } from "../components/IKAvatarComponent";
 
 let head, controllerGripLeft, controllerLeft, controllerRight, controllerGripRight;
 
@@ -25,6 +26,8 @@ export const startXR = async () => {
     actor.tiltContainer.add(dolly);
     Engine.scene.remove(Engine.camera);
     dolly.add(Engine.camera);
+
+    const playerIKAvatarComponent = addComponent(Network.instance.localClientEntity, IKAvatarComponent);
 
     head = Engine.renderer.xr.getCamera(Engine.camera);
     controllerLeft = Engine.renderer.xr.getController(0);

@@ -55,7 +55,7 @@ export function doThisActivateCollider (body, userData) {
 	return body;
 }
 
-export function addColliderWithoutEntity( userData, position, quaternion, scale, { mesh = null, vertices = null, indices = null }) {
+export function addColliderWithoutEntity( userData, position, quaternion, scale, { mesh = null, vertices = null, indices = null } = {}) {
   let body;
 	const type = userData.type
   switch (type) {

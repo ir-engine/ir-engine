@@ -31,8 +31,8 @@ import { CharacterStateTypes } from "../CharacterStateTypes";
 import { CharacterComponent } from '../components/CharacterComponent';
 import { NamePlateComponent } from '../components/NamePlateComponent';
 import { getLoader } from "../../../assets/functions/LoadGLTF";
+import { IKAvatarComponent } from "../../../xr/components/IKAvatarComponent";
 import { Engine } from "../../../ecs/classes/Engine";
-import { initiateIKSystem } from "../../../xr/functions/initiateIKSystem";
 
 
 export class AnimationManager {
@@ -121,6 +121,8 @@ export const loadActorAvatarFromURL: Behavior = (entity, avatarURL) => {
     // forget that we have any animation playing
     actor.currentAnimationAction = [];
 
+    if(Engine.xrSession) removeComponent(entity, IKAvatarComponent);
+    
     // clear current avatar mesh
     ([...actor.modelContainer.children])
       .forEach(child => actor.modelContainer.remove(child));
@@ -130,14 +132,12 @@ export const loadActorAvatarFromURL: Behavior = (entity, avatarURL) => {
     actor.mixer = new AnimationMixer(actor.modelContainer.children[0]);
 	// TODO: Remove this. Currently we are double-sampling the samplerate
 
-    initiateIKSystem(entity, args.asset.children[0]);
     const stateComponent = getComponent(entity, State);
     // trigger all states to restart?
     stateComponent.data.forEach(data => data.lifecycleState = LifecycleValue.STARTED);
 
-    if(Engine.xrSession) {
-      actor.modelContainer.visible = false;
-    }
+    if(Engine.xrSession) addComponent(entity, IKAvatarComponent);
+
   })
 };
 
