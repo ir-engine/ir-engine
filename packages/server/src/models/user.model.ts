@@ -1,6 +1,5 @@
 import { DataTypes, Sequelize } from 'sequelize';
 import { Application } from '../declarations';
-import crypto from "crypto";
 
 /**
  * This model contain users information
@@ -28,8 +27,6 @@ export default (app: Application): any => {
       },
       inviteCode: {
         type: DataTypes.STRING,
-        defaultValue: (): string => crypto.randomBytes(4).toString('hex'),
-        allowNull: false,
         unique: true
       }
     },
