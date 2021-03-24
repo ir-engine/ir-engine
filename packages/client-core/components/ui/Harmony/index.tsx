@@ -20,6 +20,7 @@ import {
     Call,
     CallEnd,
     Clear,
+    Close,
     Delete,
     Edit,
     ExpandMore,
@@ -1034,6 +1035,7 @@ const Harmony = (props: Props): any => {
                     setSelectedAccordion('friends')
                 }}
             >
+                <div className={styles['close-button']} onClick={() => setSelectorsOpen(false)}><Close /></div>
                 {chatSelectors}
             </SwipeableDrawer> }
             { (isMobileOrTablet() !== true && dimensions.width > 768) && chatSelectors}

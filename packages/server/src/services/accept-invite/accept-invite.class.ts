@@ -49,16 +49,23 @@ export class AcceptInvite implements ServiceMethods<Data> {
     }
     try {
       params.provider = null;
-      const invite = await this.app.service('invite').get(id, params);
+      let invite;
+      try {
+        invite = await this.app.service('invite').get(id, params);
+      } catch(err) {}
 
       if (invite == null) {
         console.log('INVALID INVITE ID');
-        return new BadRequest('Invalid invite ID');
+        return {
+          error: 'Invalid Invite ID'
+        };
       }
 
       if (params.query.passcode !== invite.passcode) {
         console.log('INVALID INVITE PASSCODE');
-        return new BadRequest('Invalid passcode');
+        return {
+          error: 'Invalid Invite Passcode'
+        };
       }
 
       if (invite.identityProviderType != null) {
@@ -78,6 +85,7 @@ export class AcceptInvite implements ServiceMethods<Data> {
         } else {
           inviteeIdentityProvider = (inviteeIdentityProviderResult as any).data[0];
         }
+        if (params['identity-provider'] == null) params['identity-provider'] = inviteeIdentityProvider;
 
         if (invite.inviteType === 'friend') {
           const existingRelationshipResult = await this.app.service('user-relationship').find({
@@ -104,7 +112,7 @@ export class AcceptInvite implements ServiceMethods<Data> {
             }
           });
 
-          await this.app.service('user-relationship').patch(relationshipToPatch.data[0].id, {
+          if (relationshipToPatch.data.length > 0) await this.app.service('user-relationship').patch(relationshipToPatch.data[0].id, {
             userRelationshipType: invite.inviteType
           }, params);
         } else if (invite.inviteType === 'group') {
@@ -114,13 +122,23 @@ export class AcceptInvite implements ServiceMethods<Data> {
             return new BadRequest('Invalid group ID');
           }
 
-          const { query, ...paramsCopy } = params;
-          paramsCopy.skipAuth = true;
-          await this.app.service('group-user').create({
-            userId: inviteeIdentityProvider.userId,
-            groupId: invite.targetObjectId,
-            groupUserRank: 'user'
-          }, paramsCopy);
+          const {query, ...paramsCopy} = params;
+
+          const existingGroupUser = await this.app.service('group-user').find({
+            query: {
+              userId: inviteeIdentityProvider.userId,
+              groupId: invite.targetObjectId,
+              groupUserRank: 'user'
+            }
+          });
+
+          if (existingGroupUser.total === 0) {
+            paramsCopy.skipAuth = true;
+            await this.app.service('group-user').create({
+              userId: inviteeIdentityProvider.userId,
+              groupId: invite.targetObjectId
+            }, paramsCopy);
+          }
         } else if (invite.inviteType === 'party') {
           const party = await this.app.service('party').get(invite.targetObjectId, params);
 
@@ -132,13 +150,24 @@ export class AcceptInvite implements ServiceMethods<Data> {
             partyId: invite.targetObjectId
           });
 
-          const { query, ...paramsCopy } = params;
-          paramsCopy.skipAuth = true;
-          await this.app.service('party-user').create({
-            userId: inviteeIdentityProvider.userId,
-            partyId: invite.targetObjectId,
-            isOwner: false
-          }, paramsCopy);
+          const {query, ...paramsCopy} = params;
+
+          const existingPartyUser = await this.app.service('party-user').find({
+            query: {
+              userId: inviteeIdentityProvider.userId,
+              partyId: invite.targetObjectId,
+              isOwner: false
+            }
+          });
+
+          if (existingPartyUser.total === 0) {
+            paramsCopy.skipAuth = true;
+            await this.app.service('party-user').create({
+              userId: inviteeIdentityProvider.userId,
+              partyId: invite.targetObjectId,
+              isOwner: false
+            }, paramsCopy);
+          }
         }
       } else if (invite.inviteeId != null) {
         const invitee = await this.app.service('user').get(invite.inviteeId);
@@ -146,6 +175,8 @@ export class AcceptInvite implements ServiceMethods<Data> {
         if (invitee == null) {
           return new BadRequest('Invalid invitee ID');
         }
+
+        if (params['identity-provider'] == null) params['identity-provider'] = invitee.identityProvider;
 
         if (invite.inviteType === 'friend') {
           const existingRelationshipResult = await this.app.service('user-relationship').find({
@@ -172,7 +203,7 @@ export class AcceptInvite implements ServiceMethods<Data> {
             }
           });
 
-          await this.app.service('user-relationship').patch(relationshipToPatch.data[0].id, {
+          if (relationshipToPatch.data.length > 0) await this.app.service('user-relationship').patch(relationshipToPatch.data[0].id, {
             userRelationshipType: invite.inviteType
           }, params);
         } else if (invite.inviteType === 'group') {
@@ -182,13 +213,22 @@ export class AcceptInvite implements ServiceMethods<Data> {
             return new BadRequest('Invalid group ID');
           }
 
-          const { query, ...paramsCopy } = params;
-          paramsCopy.skipAuth = true;
-          await this.app.service('group-user').create({
-            userId: invite.inviteeId,
-            groupId: invite.targetObjectId,
-            groupUserRank: 'user'
-          }, paramsCopy);
+          const {query, ...paramsCopy} = params;
+
+          const existingGroupUser = await this.app.service('group-user').find({
+            query: {
+              userId: invite.inviteeId,
+              groupId: invite.targetObjectId
+            }
+          });
+          if (existingGroupUser.total === 0) {
+            paramsCopy.skipAuth = true;
+            await this.app.service('group-user').create({
+              userId: invite.inviteeId,
+              groupId: invite.targetObjectId,
+              groupUserRank: 'user'
+            }, paramsCopy);
+          }
         } else if (invite.inviteType === 'party') {
           const party = await this.app.service('party').get(invite.targetObjectId, params);
 
@@ -200,17 +240,35 @@ export class AcceptInvite implements ServiceMethods<Data> {
             partyId: invite.targetObjectId
           });
 
-          const { query, ...paramsCopy } = params;
-          paramsCopy.skipAuth = true;
-          await this.app.service('party-user').create({
-            userId: invite.inviteeId,
-            partyId: invite.targetObjectId,
-            isOwner: false
-          }, paramsCopy);
+          const {query, ...paramsCopy} = params;
+
+          const existingPartyUser = await this.app.service('party-user').find({
+            query: {
+              userId: invite.inviteeId,
+              partyId: invite.targetObjectId,
+              isOwner: false
+            }
+          });
+
+          if (existingPartyUser.total === 0) {
+            paramsCopy.skipAuth = true;
+            await this.app.service('party-user').create({
+              userId: invite.inviteeId,
+              partyId: invite.targetObjectId,
+              isOwner: false
+            }, paramsCopy);
+          }
         }
       }
 
       await this.app.service('invite').remove(invite.id, params);
+      const token = await this.app.service('authentication').createAccessToken(
+          {},
+          {subject: params['identity-provider'].id.toString()}
+      );
+      return {
+        token: token
+      };
     } catch (err) {
       logger.error(err);
     }
