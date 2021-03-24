@@ -16,7 +16,7 @@ import { selectCreatorsState } from '../../../redux/creator/selector';
 import { bindActionCreators, Dispatch } from 'redux';
 import { connect } from 'react-redux';
 import { useEffect } from 'react';
-import { getCreator } from '../../../redux/creator/service';
+import { getCreator, followCreator, unFollowCreator } from '../../../redux/creator/service';
 import Featured from '../Featured';
 
 const mapStateToProps = (state: any): any => {
@@ -27,15 +27,19 @@ const mapStateToProps = (state: any): any => {
   
   const mapDispatchToProps = (dispatch: Dispatch): any => ({
     getCreator: bindActionCreators(getCreator, dispatch),
+    followCreator: bindActionCreators(followCreator, dispatch),
+    unFollowCreator: bindActionCreators(unFollowCreator, dispatch),
   });
 
   interface Props{
     creatorId: string;
     creatorState?: any;
     getCreator?: typeof getCreator;
+    followCreator?: typeof followCreator;
+    unFollowCreator?: typeof unFollowCreator;
   }
 
-const Creator = ({creatorId, creatorState, getCreator}:Props) => { 
+const Creator = ({creatorId, creatorState, getCreator, followCreator, unFollowCreator}:Props) => { 
     const [isMe, setIsMe] = useState(false);
     let creator = null;
     useEffect(()=>{
@@ -59,6 +63,10 @@ const Creator = ({creatorId, creatorState, getCreator}:Props) => {
         handleClose();
         Router.push('/creatorEdit');
     } 
+
+    const handleFollowCreator = creatorId => followCreator(creatorId);
+    const handleUnFollowCreator = creatorId => unFollowCreator(creatorId);
+
     return  creator ?  (<section className={styles.creatorContainer}>
             <Card className={styles.creatorCard} elevation={0} key={creator.username} square={false} >
                 <CardMedia   
@@ -92,6 +100,11 @@ const Creator = ({creatorId, creatorState, getCreator}:Props) => {
                     <Typography variant="h4" component="p" align="center">{creator.username}</Typography>
                     <Typography variant="h4" component="p" align="center">{creator.tags}</Typography>
                     <Typography variant="h4" component="p" align="center">{creator.bio}</Typography>
+
+                    {!isMe && creator.followed === false && <Button variant={'contained'} color='primary' className={styles.followButton} 
+                            onClick={()=>handleFollowCreator(creator.id)}>Follow</Button>}
+                    {!isMe && creator.followed === true && <Button variant={'outlined'} color='primary' className={styles.followButton} 
+                        onClick={()=>handleUnFollowCreator(creator.id)}>UnFollow</Button>}
                 </CardContent>
             </Card>
             {isMe && <section className={styles.videosSwitcher}>

@@ -11,7 +11,9 @@ import {
   CREATOR_FETCH,
   CREATOR_NOTIFICATION_LIST_RETRIEVED,
   CREATOR_RETRIEVED,
-  CURRENT_CREATOR_RETRIEVED
+  CURRENT_CREATOR_RETRIEVED,
+  SET_CREATOR_AS_FOLLOWED,
+  SET_CREATOR_NOT_FOLLOWED
 } from '../actions';
 
 export const initialState = {
@@ -41,6 +43,12 @@ const creatorReducer = (state = immutableState, action: CreatorsAction): any => 
 
     case CREATOR_NOTIFICATION_LIST_RETRIEVED:
       return state.set('currentCreatorNotifications', (action as CreatorsNotificationsRetrievedAction).notifications).set('fetching', false);
+
+    case SET_CREATOR_AS_FOLLOWED:
+      return state.set('creator', {...state.get('creator'), followed:true});
+    
+      case SET_CREATOR_NOT_FOLLOWED:
+        return state.set('creator', {...state.get('creator'), followed:false});
 
   }
   return state;
