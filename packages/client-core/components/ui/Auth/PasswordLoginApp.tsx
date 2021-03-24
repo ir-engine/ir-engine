@@ -13,20 +13,23 @@ import OutlinedInput from '@material-ui/core/OutlinedInput';
 
 import { selectAuthState } from '../../../redux/auth/selector';
 import { doLoginAuto } from '../../../redux/auth/service';
-// import { loginUserByPassword, doLoginAuto } from '../../../redux/auth/service';
 import { User } from '@xr3ngine/common/interfaces/User';
 
 import styles from './Auth.module.scss';
+import { createCreator } from '../../../redux/creator/service';
+import { selectCreatorsState } from '../../../redux/creator/selector';
 
 const mapStateToProps = (state: any): any => {
   return {
     auth: selectAuthState(state),
+    creatorsState: selectCreatorsState(state),
   };
 };
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
   // loginUserByPassword: bindActionCreators(loginUserByPassword, dispatch),
-  doLoginAuto: bindActionCreators(doLoginAuto, dispatch)
+  doLoginAuto: bindActionCreators(doLoginAuto, dispatch),
+  createCreator: bindActionCreators(createCreator, dispatch)
 });
 
 const initialState = { email: '', password: '' };
@@ -35,24 +38,34 @@ interface Props {
   auth?: any;
   // loginUserByPassword?: typeof loginUserByPassword;
   doLoginAuto?: typeof doLoginAuto;
+  createCreator?: typeof createCreator;
+  creatorsState?:any;
 }
 
 export const PasswordLogin = (props: Props): any => {
   const {
     auth,
     // loginUserByPassword,
-    doLoginAuto
+    doLoginAuto,
+    createCreator,
+    creatorsState
   } = props;
 
   useEffect(()=>{
     if(auth){
       const user = auth.get('user') as User;
       const userId = user ? user.id : null;
+      
       if(userId){
-        Router.push("/");
+        createCreator();
       }
     }
   },[auth])
+
+  useEffect(()=>{    
+    creatorsState && creatorsState.get('currentCreator') && Router.push("/");
+  },[creatorsState])
+
   const [state, setState] = useState(initialState);
 
   const handleInput = (e: any): void =>
@@ -61,11 +74,7 @@ export const PasswordLogin = (props: Props): any => {
   const handleEmailLogin = (e: any): void => {
     e.preventDefault();
 
-      doLoginAuto(true);
-      // loginUserByPassword({
-      //   email: state.email,
-      //   password: state.password
-      // });
+    doLoginAuto(true);
   };
 
   const [showPassword, showHidePassword] = useState(false);
