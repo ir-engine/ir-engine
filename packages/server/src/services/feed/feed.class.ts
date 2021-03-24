@@ -70,7 +70,7 @@ export class Feed extends Service {
     }
 
     if (action === 'creator') {
-      const dataQuery = `SELECT feed.id, feed.viewsCount, sr.url as previewUrl 
+      const dataQuery = `SELECT feed.id, feed.creatorId, feed.featured, feed.viewsCount, sr.url as previewUrl
         FROM \`feed\` as feed
         JOIN \`static_resource\` as sr ON sr.id=feed.previewId
         WHERE feed.creatorId=:creatorId
@@ -78,6 +78,29 @@ export class Feed extends Service {
         LIMIT :skip, :limit 
         `;
       
+      queryParamsReplacements.creatorId = creatorId;
+      const feeds = await this.app.get('sequelizeClient').query(dataQuery,
+        {
+          type: QueryTypes.SELECT,
+          raw: true,
+          replacements: queryParamsReplacements
+        });
+
+      return {
+        data: feeds,
+        skip,
+        limit,
+        total: feeds.count,
+      };
+    }
+
+    if (action === 'myFeatured') {
+      const dataQuery = `SELECT feed.id, feed.creatorId, feed.featured,  feed.viewsCount, sr.url as previewUrl 
+        FROM \`feed\` as feed
+        JOIN \`static_resource\` as sr ON sr.id=feed.previewId
+        WHERE feed.creatorId=:creatorId AND feed.featured=1
+        ORDER BY feed.createdAt DESC    
+        LIMIT :skip, :limit `;
       queryParamsReplacements.creatorId = creatorId;
       const feeds = await this.app.get('sequelizeClient').query(dataQuery,
         {
@@ -290,12 +313,20 @@ export class Feed extends Service {
       return Promise.reject(new BadRequest('Could not update feed. Feed id isn\'t provided! '));
     }
     const {feed:feedModel } = this.app.get('sequelizeClient').models;
-    const feedItem = await feedModel.findOne({where: {id: id}});
-    if(!feedItem){
-      return Promise.reject(new BadRequest('Could not update feed. Feed not found! '));
+    let result = null;
+    if(data.viewsCount){
+      const feedItem = await feedModel.findOne({where: {id: id}});
+      if(!feedItem){
+        return Promise.reject(new BadRequest('Could not update feed. Feed not found! '));
+      }
+      result = await super.patch(feedItem.id, {
+        viewsCount: (feedItem.viewsCount as number) + 1,
+      });
+    }else{
+      result = await super.patch(id, data);
     }
-    return await super.patch(feedItem.id, {
-      viewsCount: (feedItem.viewsCount as number) + 1,
-    });
+
+    return result;
+    
   }
 }

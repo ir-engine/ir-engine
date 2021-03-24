@@ -14,6 +14,13 @@
     .creatorItem{
         width: 100%;
         position: relative;
+        .starLine{
+            position: absolute;
+            color: #FF6201;
+            svg{
+                margin: 0 0 0 5px;
+            }
+        }
         .previewImage{
             height: 139px;
             border-radius: 10px;
@@ -30,7 +37,7 @@
             flex-direction: row;
             align-items: center;
             justify-content: flex-end;
-            color: blanchedalmond;
+            color: #FFF;
             svg{
                 margin: 0 0 0 5px;
             }
