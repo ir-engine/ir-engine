@@ -325,6 +325,12 @@ export async function handleJoinWorld(socket, data, callback, userId, user): Pro
         });
     });
 
+    // Get all clients and add to clientsConnected and push to world state frame
+    Object.keys(Network.instance.clients).forEach(userId => {
+      const client = Network.instance.clients[userId];
+      worldState.clientsConnected.push({ userId: client.userId, name: client.userId, avatarDetail: client.avatarDetail });
+    });
+
     // Return initial world state to client to set things up
     callback({
         worldState /* worldState: worldStateModel.toBuffer(worldState) */,
