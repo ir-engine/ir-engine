@@ -85,12 +85,26 @@ export class Creator extends Service {
    * @author Vykliuk Tetiana
    */
     async get (id: Id, params?: Params): Promise<any> {
-      const select = `SELECT creator.* , sr.url as avatar `;
+
+      //common  - TODO -move somewhere
+      const loggedInUser = extractLoggedInUserFromParams(params);
+      const creatorQuery = `SELECT id  FROM \`creator\` WHERE userId=:userId`;
+      const [currentCreator] = await this.app.get('sequelizeClient').query(creatorQuery,
+        {
+          type: QueryTypes.SELECT,
+          raw: true,
+          replacements: {userId:loggedInUser.userId}
+        });   
+      const creatorId = currentCreator?.id;
+
+
+      const select = `SELECT creator.* , sr.url as avatar, fc.id as followed`;
       const from = ` FROM \`creator\` as creator 
-      LEFT JOIN \`static_resource\` as sr ON sr.id=creator.avatarId`;
+      LEFT JOIN \`static_resource\` as sr ON sr.id=creator.avatarId 
+      LEFT JOIN \`follow_creator\` as fc ON fc.creatorId=creator.id AND fc.followerId=:creatorId`;
       const where = ` WHERE creator.id=:id`;      
 
-      const queryParamsReplacements = {id} as any;      
+      const queryParamsReplacements = {id, creatorId} as any;      
   
       const dataQuery = select + from + where;
       const [creator] = await this.app.get('sequelizeClient').query(dataQuery,
@@ -99,7 +113,7 @@ export class Creator extends Service {
           raw: true,
           replacements: queryParamsReplacements
         });
-      return creator;
+      return {...creator, followed:creator.followed ? true : false};
     }
 
     async create (data: any,  params?: Params): Promise<any> {

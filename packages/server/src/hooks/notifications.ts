@@ -111,3 +111,34 @@ export async function removeFeedCommentFire (context: any): Promise<HookContext>
   }
 }
 
+
+
+export async function addFollowCreator(context: any): Promise<HookContext> {
+  try {
+    const { result } = context;
+    await context.app.service('notifications').create({
+        creatorAuthorId: result.followerId,
+        creatorViewerId: result.creatorId,
+        type:'follow',
+    });
+    return context;
+  } catch (err) {
+    logger.error('NOTIFICATION AFTER FOLLOW CREATOR ERROR');
+    logger.error(err);
+  }
+}
+
+export async function removeFollowCreator (context: any): Promise<HookContext> {
+  try {
+    const { result } = context;
+      await context.app.service('notifications').create({
+        creatorAuthorId: result.creatorId,
+        creatorViewerId: result.followedCreatorId,
+        type:'unfollow',
+    });
+    return context;
+  } catch (err) {
+    logger.error('NOTIFICATION AFTER UNFOLLOW CREATOR ERROR');
+    logger.error(err);
+  }
+}

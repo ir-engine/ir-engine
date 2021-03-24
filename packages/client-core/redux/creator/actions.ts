@@ -3,7 +3,9 @@ import {
   CREATOR_FETCH,
   CURRENT_CREATOR_RETRIEVED,
   CREATORS_RETRIEVED,
-  CREATOR_NOTIFICATION_LIST_RETRIEVED
+  CREATOR_NOTIFICATION_LIST_RETRIEVED,
+  SET_CREATOR_AS_FOLLOWED,
+  SET_CREATOR_NOT_FOLLOWED
 } from '../actions';
 import { Creator, CreatorShort } from '@xr3ngine/common/interfaces/Creator';
 
@@ -64,3 +66,15 @@ export function creatorNotificationList (notifications: any[]) : CreatorsNotific
   };
 }
 
+
+export function updateCreatorAsFollowed (): FetchingCreatorAction {
+  return {
+    type: SET_CREATOR_AS_FOLLOWED
+  };
+}
+
+export function updateCreatorNotFollowed (): FetchingCreatorAction {
+  return {
+    type: SET_CREATOR_NOT_FOLLOWED
+  };
+}
