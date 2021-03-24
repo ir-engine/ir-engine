@@ -11,6 +11,18 @@ import {
   creatorNotificationList
 } from './actions';
 
+export function createCreator(){
+  return async (dispatch: Dispatch, getState: any): Promise<any> => {
+    try {
+      dispatch(fetchingCreator());
+      const creator = await client.service('creator').create({});   
+      dispatch(creatorLoggedRetrieved(creator));     
+    } catch(err) {
+      console.log(err);
+      dispatchAlertError(dispatch, err.message);
+    }
+  };
+}
 export function getCreators(limit?: number) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
     try {
@@ -54,10 +66,13 @@ export function updateCreator(creator: Creator){
   return async (dispatch: Dispatch): Promise<any> => {
     try {
       dispatch(fetchingCreator());
-      const api = new  Api();
-      const storedAvatar = await api.upload(creator.avatar, null);
-      //@ts-ignore error that this vars are void bacause upload is defines as voin funtion
-      const updatedCreator = await client.service('creator').patch(creator.id, {...creator, avatarId: storedAvatar.file_id});   
+      if(creator.avatar){
+        const api = new  Api();
+        const storedAvatar = await api.upload(creator.avatar, null);
+        //@ts-ignore error that this vars are void bacause upload is defines as voin funtion
+        creator.avatarId = storedAvatar.file_id;
+      }      
+      const updatedCreator = await client.service('creator').patch(creator.id, creator);   
       dispatch(creatorLoggedRetrieved(updatedCreator));
     } catch(err) {
       console.log(err);
