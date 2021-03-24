@@ -59,11 +59,6 @@ export class FollowCreator extends Service {
           followedCreatorId
         }
       });
-
-      console.log('{followedCreatorId, creatorId}', {
-        followedCreatorId,
-        creatorId
-      });
       return {
         followedCreatorId,
         creatorId
