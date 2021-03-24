@@ -124,7 +124,7 @@ export class Comments extends Service {
           avatar: commentFromDb.creator.dataValues.avatar,
           name: commentFromDb.creator.dataValues.name,
           username: commentFromDb.creator.dataValues.username,
-          verified:!!+commentFromDb.creator.dataValues.vedified
+          verified:!!+commentFromDb.creator.dataValues.verified
         },
         id:commentFromDb.id,
         feedId:commentFromDb.feedId,
