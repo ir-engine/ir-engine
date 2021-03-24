@@ -99,15 +99,27 @@ export class Creator extends Service {
           raw: true,
           replacements: queryParamsReplacements
         });
-      return creator;
+      return {...creator, verified:!!+creator.vedified};
     }
 
     async create (data: any,  params?: Params): Promise<any> {
-      const {creator:creatorModel} = this.app.get('sequelizeClient').models;
+      //common  - TODO -move somewhere
       const loggedInUser = extractLoggedInUserFromParams(params);
-      data.userId = loggedInUser.userId;
-      const creator =  await creatorModel.create(data);
-      return  creator;
+      const creatorQuery = `SELECT id  FROM \`creator\` WHERE userId=:userId`;
+      let [creator] = await this.app.get('sequelizeClient').query(creatorQuery,
+        {
+          type: QueryTypes.SELECT,
+          raw: true,
+          replacements: {userId:loggedInUser.userId}
+        });   
+        const creatorId = creator?.id;
+
+      if(!creatorId){
+        const {creator:creatorModel} = this.app.get('sequelizeClient').models;
+        data.userId = loggedInUser.userId;
+        creator =  await creatorModel.create(data);
+      }
+      return creator;
     }
 
       /**

@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
 import Router from "next/router";
+import { bindActionCreators, Dispatch } from 'redux';
+import { connect } from 'react-redux';
+import { useEffect } from 'react';
 
 import Card from '@material-ui/core/Card';
 import CardMedia from '@material-ui/core/CardMedia';
@@ -8,14 +11,14 @@ import CardContent from '@material-ui/core/CardContent';
 import Button from '@material-ui/core/Button';
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
 import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
-
 import styles from './Creator.module.scss';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
+import TwitterIcon from '@material-ui/icons/Twitter';
+import InstagramIcon from '@material-ui/icons/Instagram';
+import TitleIcon from '@material-ui/icons/Title';
+
 import { selectCreatorsState } from '../../../redux/creator/selector';
-import { bindActionCreators, Dispatch } from 'redux';
-import { connect } from 'react-redux';
-import { useEffect } from 'react';
 import { getCreator } from '../../../redux/creator/service';
 import Featured from '../Featured';
 
@@ -59,6 +62,13 @@ const Creator = ({creatorId, creatorState, getCreator}:Props) => {
         handleClose();
         Router.push('/creatorEdit');
     } 
+
+    const renderSocials = () =>  <>
+            {creator.twitter && <Typography variant="h4" component="p" align="center"><TwitterIcon />{creator.twitter}</Typography>}
+            {creator.instagram && <Typography variant="h4" component="p" align="center"><InstagramIcon />{creator.instagram}</Typography>}
+            {creator.tiktok && <Typography variant="h4" component="p" align="center"><TitleIcon />{creator.tiktok}</Typography>}
+            {creator.snap && <Typography variant="h4" component="p" align="center"><TwitterIcon />{creator.snap}</Typography>}
+        </>
     return  creator ?  (<section className={styles.creatorContainer}>
             <Card className={styles.creatorCard} elevation={0} key={creator.username} square={false} >
                 <CardMedia   
@@ -92,6 +102,7 @@ const Creator = ({creatorId, creatorState, getCreator}:Props) => {
                     <Typography variant="h4" component="p" align="center">{creator.username}</Typography>
                     <Typography variant="h4" component="p" align="center">{creator.tags}</Typography>
                     <Typography variant="h4" component="p" align="center">{creator.bio}</Typography>
+                    {renderSocials()}
                 </CardContent>
             </Card>
             {isMe && <section className={styles.videosSwitcher}>

@@ -122,8 +122,8 @@ export class Feed extends Service {
     }
 
     // regular feeds
-    let select = `SELECT feed.*, creator.id as creatorId, creator.name as creatorName, creator.username as creatorUserName, sr3.url as avatar, 
-       COUNT(ff.id) as fires, sr1.url as videoUrl, sr2.url as previewUrl `;
+    let select = `SELECT feed.*, creator.id as creatorId, creator.name as creatorName, creator.username as creatorUserName, creator.verified as creatorVerified, 
+    sr3.url as avatar, COUNT(ff.id) as fires, sr1.url as videoUrl, sr2.url as previewUrl `;
     const from = ` FROM \`feed\` as feed`;
     let join = ` JOIN \`creator\` as creator ON creator.id=feed.creatorId
                   LEFT JOIN \`feed_fires\` as ff ON ff.feedId=feed.id 
@@ -158,7 +158,7 @@ export class Feed extends Service {
           avatar: feed.avatar,
           name: feed.creatorName,
           username: feed.creatorUserName,
-          verified : true,
+          verified : !!+feed.creatorVerified,
         },
         description: feed.description,
         fires: feed.fires,
@@ -194,7 +194,7 @@ export class Feed extends Service {
    */
     async get (id: Id, params?: Params): Promise<any> {
       let select = `SELECT feed.*, creator.id as creatorId, creator.name as creatorName, creator.username as creatorUserName, sr3.url as avatar, 
-      COUNT(ff.id) as fires, sr1.url as videoUrl, sr2.url as previewUrl `;
+      creator.verified as creatorVerified, COUNT(ff.id) as fires, sr1.url as videoUrl, sr2.url as previewUrl `;
       const from = ` FROM \`feed\` as feed`;
       let join = ` JOIN \`creator\` as creator ON creator.id=feed.creatorId
                     LEFT JOIN \`feed_fires\` as ff ON ff.feedId=feed.id 
@@ -240,7 +240,7 @@ export class Feed extends Service {
           avatar: 'https://picsum.photos/40/40',
           name: feed.creatorName,
           username: feed.creatorUserName,
-          verified : true,
+          verified : !!+feed.creatorVerified,
         },
         description: feed.description,
         fires: feed.fires,

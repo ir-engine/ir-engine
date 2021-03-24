@@ -14,6 +14,9 @@ import MailOutlineIcon from '@material-ui/icons/MailOutline';
 import EditIcon from '@material-ui/icons/Edit';
 import LinkIcon from '@material-ui/icons/Link';
 import SubjectIcon from '@material-ui/icons/Subject';
+import TwitterIcon from '@material-ui/icons/Twitter';
+import InstagramIcon from '@material-ui/icons/Instagram';
+import TitleIcon from '@material-ui/icons/Title';
 
 import TextField from '@material-ui/core/TextField';
 import { selectCreatorsState } from '../../../redux/creator/selector';
@@ -85,10 +88,22 @@ const CreatorForm = ({creatorsState, updateCreator}:Props) => {
                     <SubjectIcon className={styles.fieldLabelIcon} />
                     <TextField className={styles.textFieldContainer} onChange={(e)=>setCreator({...creator, bio: e.target.value})} fullWidth multiline id="bio" placeholder="More about you" value={creator.bio} />
                 </div>    
-                <br />
-                <br />
-                <br />
-                <br />
+                <div className={styles.formLine}>
+                    <TwitterIcon className={styles.fieldLabelIcon} />
+                    <TextField className={styles.textFieldContainer} onChange={(e)=>setCreator({...creator, twitter: e.target.value})} fullWidth id="twitter" placeholder="twitter" value={creator.twitter} />
+                </div> 
+                <div className={styles.formLine}>
+                    <InstagramIcon className={styles.fieldLabelIcon} />
+                    <TextField className={styles.textFieldContainer} onChange={(e)=>setCreator({...creator, instagram: e.target.value})} fullWidth id="instagram" placeholder="instagram" value={creator.instagram} />
+                </div> 
+                <div className={styles.formLine}>
+                    <TitleIcon className={styles.fieldLabelIcon} />
+                    <TextField className={styles.textFieldContainer} onChange={(e)=>setCreator({...creator, tiktok: e.target.value})} fullWidth id="tiktok" placeholder="tiktok" value={creator.tiktok} />
+                </div> 
+                <div className={styles.formLine}>
+                    <InstagramIcon className={styles.fieldLabelIcon} />
+                    <TextField className={styles.textFieldContainer} onChange={(e)=>setCreator({...creator, instagram: e.target.value})} fullWidth id="instagram" placeholder="instagram" value={creator.instagram} />
+                </div>   
                 <br />
                 <Button className={styles.logOutButton} variant="contained" color="primary">Sign-out</Button>
             </section>    
