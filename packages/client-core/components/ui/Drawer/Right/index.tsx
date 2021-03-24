@@ -39,7 +39,7 @@ import {
     Mail,
     PhoneIphone,
     Public,
-    SupervisedUserCircle
+    SupervisedUserCircle, Close
 } from '@material-ui/icons';
 import { selectAuthState } from '../../../../redux/auth/selector';
 import { getFriends } from '../../../../redux/friend/service';
@@ -330,272 +330,281 @@ const Invites = (props: Props): any => {
                     setInviteTabIndex(0);
                 }}
             >
-                <Accordion className={styles.rightDrawerAccordion} expanded={selectedAccordion === 'invite'} onChange={handleAccordionSelect('invite')}>
-                    <AccordionSummary
-                        id="invites-header"
-                        expandIcon={<ExpandMore/>}
-                        aria-controls="invites-content"
+                {/*<Accordion className={styles.rightDrawerAccordion} expanded={selectedAccordion === 'invite'} onChange={handleAccordionSelect('invite')}>*/}
+                {/*    <AccordionSummary*/}
+                {/*        id="invites-header"*/}
+                {/*        expandIcon={<ExpandMore/>}*/}
+                {/*        aria-controls="invites-content"*/}
+                {/*    >*/}
+                {/*        <Mail/>*/}
+                {/*        <Typography>Invites</Typography>*/}
+                {/*    </AccordionSummary>*/}
+                {/*    <AccordionDetails className={styles['list-container']}>*/}
+                <div className={classNames({
+                    [styles['list-container']]: true,
+                    [styles['solo-right']]: true
+                })}>
+                    <div className={styles['close-button']} onClick={() => setRightDrawerOpen(false)}><Close /></div>
+                    <div className={styles.title}>Invites</div>
+                    <Tabs
+                        value={inviteTabIndex}
+                        onChange={handleInviteChange}
+                        variant="fullWidth"
+                        indicatorColor="secondary"
+                        textColor="secondary"
+                        aria-label="Invites"
                     >
-                        <Mail/>
-                        <Typography>Invites</Typography>
-                    </AccordionSummary>
-                    <AccordionDetails className={styles['list-container']}>
-                        <div className={styles.title}>Invites</div>
-                        <Tabs
-                            value={inviteTabIndex}
-                            onChange={handleInviteChange}
-                            variant="fullWidth"
-                            indicatorColor="secondary"
-                            textColor="secondary"
-                            aria-label="Invites"
+                        <Tab
+                            icon={<Add/>}
+                            label="Create"
+                        />
+                        <Tab
+                            icon={<ArrowDownward/>}
+                            label="Received"
+                        />
+                        <Tab
+                            icon={<ArrowUpward/>}
+                            label="Sent"
+                        />
+                    </Tabs>
+                    {
+                        (inviteTabIndex === 2 || inviteTabIndex === 1) &&
+                        <List
+                            onScroll={(e) => onListScroll(e)}
                         >
+                            {inviteTabIndex === 1 && receivedInvites.sort((a, b) => {
+                                return a.created - b.created;
+                            }).map((invite, index) => {
+                                return <div className={styles.invite} key={invite.id}>
+                                    <ListItem>
+                                        <ListItemAvatar>
+                                            <Avatar src={invite.user.avatarUrl}/>
+                                        </ListItemAvatar>
+                                        {invite.inviteType === 'friend' &&
+                                        <ListItemText>{capitalize(invite.inviteType)} request from {invite.user.name}</ListItemText>}
+                                        {invite.inviteType === 'group' &&
+                                        <ListItemText>Join group {invite.groupName} from {invite.user.name}</ListItemText>}
+                                        {invite.inviteType === 'party' &&
+                                        <ListItemText>Join a party from {invite.user.name}</ListItemText>}
+                                        <Button
+                                            variant="contained"
+                                            color="primary"
+                                            onClick={() => acceptRequest(invite)}
+                                        >
+                                            Accept
+                                        </Button>
+                                        <Button
+                                            variant="contained"
+                                            color="secondary"
+                                            onClick={() => declineRequest(invite)}
+                                        >
+                                            Decline
+                                        </Button>
+                                    </ListItem>
+                                    {index < receivedInvites.length - 1 && <Divider/>}
+                                </div>;
+                            })
+                            }
+                            {inviteTabIndex === 2 && sentInvites.sort((a, b) => {
+                                return a.created - b.created;
+                            }).map((invite, index) => {
+                                return <div className={styles.invite}  key={invite.id}>
+                                    <ListItem>
+                                        <ListItemAvatar>
+                                            <Avatar src={invite.user.avatarUrl}/>
+                                        </ListItemAvatar>
+                                        {invite.inviteType === 'friend' &&
+                                        <ListItemText>{capitalize(invite.inviteType)} request
+                                            to {invite.invitee ? invite.invitee.name : invite.token}</ListItemText>}
+                                        {invite.inviteType === 'group' && <ListItemText>Join
+                                            group {invite.groupName} to {invite.invitee ? invite.invitee.name : invite.token}</ListItemText>}
+                                        {invite.inviteType === 'party' && <ListItemText>Join a party
+                                            to {invite.invitee ? invite.invitee.name : invite.token}</ListItemText>}
+                                        {deletePending !== invite.id &&
+                                        <Button onClick={() => showDeleteConfirm(invite.id)}>Uninvite</Button>}
+                                        {deletePending === invite.id &&
+                                        <div>
+                                            <Button variant="contained"
+                                                    color="primary"
+                                                    onClick={() => confirmDelete(invite)}
+                                            >
+                                                Uninvite
+                                            </Button>
+                                            <Button variant="contained"
+                                                    color="secondary"
+                                                    onClick={() => cancelDelete()}
+                                            >
+                                                Cancel
+                                            </Button>
+                                        </div>
+                                        }
+                                    </ListItem>
+                                    {index < sentInvites.length - 1 && <Divider/>}
+                                </div>;
+                            })
+                            }
+                        </List>
+                    }
+                    {inviteTabIndex === 0 &&
+                    <div>
+                        <div className={styles.title}>Send Request</div>
+                        <div className={styles['sub-header']}>Request Type</div>
+                        <Tabs
+                            value={inviteTypeIndex}
+                            onChange={handleInviteTypeChange}
+                            variant="fullWidth"
+                            indicatorColor="primary"
+                            textColor="primary"
+                            aria-label="Invite Type"
+                            className={styles['target-type']}
+                        >
+
                             <Tab
-                                icon={<Add/>}
-                                label="Create"
+                                icon={<SupervisedUserCircle style={{fontSize: 30}}/>}
+                                label="Friends"
+                                onClick={() => updateInviteTargetType('user', null)}
                             />
                             <Tab
-                                icon={<ArrowDownward/>}
-                                label="Received"
+                                icon={<Group style={{fontSize: 30}}/>}
+                                label="Groups"
+                                onClick={() => updateInviteTargetType('group', null)}
                             />
                             <Tab
-                                icon={<ArrowUpward/>}
-                                label="Sent"
+                                icon={<GroupWork style={{fontSize: 30}}/>}
+                                label="Party"
+                                onClick={() => {
+                                    if (party?.id) {
+                                        updateInviteTargetType('party', party.id);
+                                    }
+                                }}
                             />
                         </Tabs>
-                        {
-                            (inviteTabIndex === 2 || inviteTabIndex === 1) &&
-                            <List
-                                onScroll={(e) => onListScroll(e)}
-                            >
-                                {inviteTabIndex === 1 && receivedInvites.sort((a, b) => {
-                                    return a.created - b.created;
-                                }).map((invite, index) => {
-                                    return <div className={styles.invite} key={invite.id}>
-                                        <ListItem>
-                                            <ListItemAvatar>
-                                                <Avatar src={invite.user.avatarUrl}/>
-                                            </ListItemAvatar>
-                                            {invite.inviteType === 'friend' &&
-                                            <ListItemText>{capitalize(invite.inviteType)} request from {invite.user.name}</ListItemText>}
-                                            {invite.inviteType === 'group' &&
-                                            <ListItemText>Join group {invite.groupName} from {invite.user.name}</ListItemText>}
-                                            {invite.inviteType === 'party' &&
-                                            <ListItemText>Join a party from {invite.user.name}</ListItemText>}
-                                            <Button
-                                                variant="contained"
-                                                color="primary"
-                                                onClick={() => acceptRequest(invite)}
-                                            >
-                                                Accept
-                                            </Button>
-                                            <Button
-                                                variant="contained"
-                                                color="secondary"
-                                                onClick={() => declineRequest(invite)}
-                                            >
-                                                Decline
-                                            </Button>
-                                        </ListItem>
-                                        {index < receivedInvites.length - 1 && <Divider/>}
-                                    </div>;
-                                })
-                                }
-                                {inviteTabIndex === 2 && sentInvites.sort((a, b) => {
-                                    return a.created - b.created;
-                                }).map((invite, index) => {
-                                    return <div className={styles.invite}  key={invite.id}>
-                                        <ListItem>
-                                            <ListItemAvatar>
-                                                <Avatar src={invite.user.avatarUrl}/>
-                                            </ListItemAvatar>
-                                            {invite.inviteType === 'friend' &&
-                                            <ListItemText>{capitalize(invite.inviteType)} request
-                                                to {invite.invitee ? invite.invitee.name : invite.token}</ListItemText>}
-                                            {invite.inviteType === 'group' && <ListItemText>Join
-                                                group {invite.groupName} to {invite.invitee ? invite.invitee.name : invite.token}</ListItemText>}
-                                            {invite.inviteType === 'party' && <ListItemText>Join a party
-                                                to {invite.invitee ? invite.invitee.name : invite.token}</ListItemText>}
-                                            {deletePending !== invite.id &&
-                                            <Button onClick={() => showDeleteConfirm(invite.id)}>Uninvite</Button>}
-                                            {deletePending === invite.id &&
-                                            <div>
-                                                <Button variant="contained"
-                                                        color="primary"
-                                                        onClick={() => confirmDelete(invite)}
-                                                >
-                                                    Uninvite
-                                                </Button>
-                                                <Button variant="contained"
-                                                        color="secondary"
-                                                        onClick={() => cancelDelete()}
-                                                >
-                                                    Cancel
-                                                </Button>
-                                            </div>
-                                            }
-                                        </ListItem>
-                                        {index < sentInvites.length - 1 && <Divider/>}
-                                    </div>;
-                                })
-                                }
-                            </List>
+                        {inviteTypeIndex === 1 &&
+                        <div className={styles['flex-justify-center']}>
+                            {invitableGroupState.get('total') > 0 &&
+                            <FormControl className={styles['group-select']}>
+                                <InputLabel id="invite-group-select-label">Group</InputLabel>
+                                <Select
+                                    labelId="invite-group-select-label"
+                                    id="invite-group-select"
+                                    value={inviteState.get('targetObjectId')}
+                                    onChange={handleInviteGroupChange}
+                                    onScroll={onSelectScroll}
+                                >
+                                    {invitableGroups.map((group) => {
+                                        return <MenuItem
+                                            className={classNames({
+                                                [styles['flex-center']]: true,
+                                                [styles['color-white']]: true
+                                            })}
+                                            key={group.id}
+                                            value={group.id}
+                                        >
+                                            {group.name}
+                                        </MenuItem>;
+                                    })
+                                    }
+                                </Select>
+                            </FormControl>
+                            }
+                            {invitableGroupState.get('total') === 0 &&
+                            <div>You cannot invite people to any groups</div>}
+                        </div>
                         }
-                        {inviteTabIndex === 0 &&
+                        {inviteTypeIndex === 2 && party == null &&
+                        <div className={styles['flex-justify-center']}>You are not currently in a party</div>
+                        }
+                        {inviteTypeIndex === 2 && party != null && selfPartyUser?.isOwner !== true && selfPartyUser?.isOwner !== 1 &&
+                        <div className={styles['flex-justify-center']}>You are not the owner of your current party</div>
+                        }
+                        {!((inviteTypeIndex === 1 && invitableGroupState.get('total') === 0) ||
+                            (inviteTypeIndex === 1 && _.find(invitableGroupState.get('groups'), (invitableGroup) => invitableGroup.id === inviteState.get('targetObjectId')) == null) ||
+                            (inviteTypeIndex === 2 && party == null) ||
+                            (inviteTypeIndex === 2 && party != null && selfPartyUser?.isOwner !== true && selfPartyUser?.isOwner !== 1)) &&
                         <div>
-                            <div className={styles.title}>Send Request</div>
-                            <div className={styles['sub-header']}>Request Type</div>
                             <Tabs
-                                value={inviteTypeIndex}
-                                onChange={handleInviteTypeChange}
+                                value={tabIndex}
+                                onChange={handleChange}
                                 variant="fullWidth"
-                                indicatorColor="primary"
-                                textColor="primary"
-                                aria-label="Invite Type"
-                                className={styles['target-type']}
+                                indicatorColor="secondary"
+                                textColor="secondary"
+                                aria-label="Invite Address"
                             >
-
                                 <Tab
-                                    icon={<SupervisedUserCircle style={{fontSize: 30}}/>}
-                                    label="Friends"
-                                    onClick={() => updateInviteTargetType('user', null)}
+                                    icon={<Mail/>}
+                                    label="Email"
                                 />
                                 <Tab
-                                    icon={<Group style={{fontSize: 30}}/>}
-                                    label="Groups"
-                                    onClick={() => updateInviteTargetType('group', null)}
+                                    icon={<PhoneIphone/>}
+                                    label="Phone #"
                                 />
                                 <Tab
-                                    icon={<GroupWork style={{fontSize: 30}}/>}
-                                    label="Party"
-                                    onClick={() => {
-                                        if (party?.id) {
-                                            updateInviteTargetType('party', party.id);
-                                        }
-                                    }}
+                                    icon={<AccountCircle/>}
+                                    label="User ID"
                                 />
+                                {inviteTypeIndex !== 0 &&
+                                <Tab
+                                    icon={<SupervisedUserCircle/>}
+                                    label="Friend"
+                                />
+                                }
                             </Tabs>
-                            {inviteTypeIndex === 1 &&
-                            <div className={styles['flex-justify-center']}>
-                                {invitableGroupState.get('total') > 0 &&
-                                <FormControl className={styles['group-select']}>
-                                    <InputLabel id="invite-group-select-label">Group</InputLabel>
+
+                            <div className={styles.username}>
+                                {tabIndex !== 3 && <TextField
+                                    variant="outlined"
+                                    margin="normal"
+                                    className={styles['invite-text']}
+                                    fullWidth
+                                    id="token"
+                                    label={tabIndex === 0 ? "Recipient's email" : tabIndex === 1 ? "Recipient's phone number" : "Recipient's user ID"}
+                                    name="name"
+                                    autoFocus
+                                    value={userToken}
+                                    onChange={(e) => handleUserTokenChange(e)}
+                                />
+                                }
+                                {tabIndex === 3 &&
+                                <FormControl className={styles['friend-select']}>
+                                    <InputLabel id="invite-friend-select-label">Friend</InputLabel>
                                     <Select
-                                        labelId="invite-group-select-label"
-                                        id="invite-group-select"
-                                        value={inviteState.get('targetObjectId')}
-                                        onChange={handleInviteGroupChange}
-                                        onScroll={onSelectScroll}
+                                        labelId="invite-friend-select-label"
+                                        id="invite-friend-select"
+                                        value={userToken}
+                                        onChange={(e) => handleUserTokenChange(e)}
+                                        onScroll={onFriendScroll}
                                     >
-                                        {invitableGroups.map((group) => {
+                                        {friends.map((friend) => {
                                             return <MenuItem
-                                                className={styles['flex-center']}
-                                                key={group.id}
-                                                value={group.id}
+                                                className={classNames({
+                                                    [styles['flex-center']]: true,
+                                                    [styles['friend-selector']]: true
+                                                })}
+                                                key={friend.id}
+                                                value={friend.id}
                                             >
-                                                {group.name}
+                                                {friend.name}
                                             </MenuItem>;
                                         })
                                         }
                                     </Select>
                                 </FormControl>
                                 }
-                                {invitableGroupState.get('total') === 0 &&
-                                <div>You cannot invite people to any groups</div>}
-                            </div>
-                            }
-                            {inviteTypeIndex === 2 && party == null &&
-                            <div className={styles['flex-justify-center']}>You are not currently in a party</div>
-                            }
-                            {inviteTypeIndex === 2 && party != null && selfPartyUser?.isOwner !== true && selfPartyUser?.isOwner !== 1 &&
-                            <div className={styles['flex-justify-center']}>You are not the owner of your current party</div>
-                            }
-                            {!((inviteTypeIndex === 1 && invitableGroupState.get('total') === 0) ||
-                                (inviteTypeIndex === 1 && _.find(invitableGroupState.get('groups'), (invitableGroup) => invitableGroup.id === inviteState.get('targetObjectId')) == null) ||
-                                (inviteTypeIndex === 2 && party == null) ||
-                                (inviteTypeIndex === 2 && party != null && selfPartyUser?.isOwner !== true && selfPartyUser?.isOwner !== 1)) &&
-                            <div>
-                                <Tabs
-                                    value={tabIndex}
-                                    onChange={handleChange}
-                                    variant="fullWidth"
-                                    indicatorColor="secondary"
-                                    textColor="secondary"
-                                    aria-label="Invite Address"
+                                <Button variant="contained"
+                                        color="primary"
+                                        className={styles['send-button']}
+                                        onClick={packageInvite}
                                 >
-                                    <Tab
-                                        icon={<Mail/>}
-                                        label="Email"
-                                    />
-                                    <Tab
-                                        icon={<PhoneIphone/>}
-                                        label="Phone #"
-                                    />
-                                    <Tab
-                                        icon={<AccountCircle/>}
-                                        label="User ID"
-                                    />
-                                    {inviteTypeIndex !== 0 &&
-                                    <Tab
-                                        icon={<SupervisedUserCircle/>}
-                                        label="Friend"
-                                    />
-                                    }
-                                </Tabs>
-
-                                <div className={styles.username}>
-                                    {tabIndex !== 3 && <TextField
-                                        variant="outlined"
-                                        margin="normal"
-                                        className={styles['invite-text']}
-                                        fullWidth
-                                        id="token"
-                                        label={tabIndex === 0 ? "Recipient's email" : tabIndex === 1 ? "Recipient's phone number" : "Recipient's user ID"}
-                                        name="name"
-                                        autoFocus
-                                        value={userToken}
-                                        onChange={(e) => handleUserTokenChange(e)}
-                                    />
-                                    }
-                                    {tabIndex === 3 &&
-                                    <FormControl className={styles['friend-select']}>
-                                        <InputLabel id="invite-friend-select-label">Friend</InputLabel>
-                                        <Select
-                                            labelId="invite-friend-select-label"
-                                            id="invite-friend-select"
-                                            value={userToken}
-                                            onChange={(e) => handleUserTokenChange(e)}
-                                            onScroll={onFriendScroll}
-                                        >
-                                            {friends.map((friend) => {
-                                                return <MenuItem
-                                                    className={classNames({
-                                                        [styles['flex-center']]: true,
-                                                        [styles['friend-selector']]: true
-                                                    })}
-                                                    key={friend.id}
-                                                    value={friend.id}
-                                                >
-                                                    {friend.name}
-                                                </MenuItem>;
-                                            })
-                                            }
-                                        </Select>
-                                    </FormControl>
-                                    }
-                                    <Button variant="contained"
-                                            color="primary"
-                                            className={styles['send-button']}
-                                            onClick={packageInvite}
-                                    >
-                                        Send
-                                    </Button>
-                                </div>
+                                    Send
+                                </Button>
                             </div>
-                            }
                         </div>
                         }
-                    </AccordionDetails>
-                </Accordion>
+                    </div>
+                    }
+                </div>
+                {/*    </AccordionDetails>*/}
+                {/*</Accordion>*/}
                 {/*<Accordion className={styles.rightDrawerAccordion} expanded={selectedAccordion === 'scenes'} onChange={handleAccordionSelect('scenes')}>*/}
                 {/*    <AccordionSummary*/}
                 {/*        id="scenes-header"*/}
