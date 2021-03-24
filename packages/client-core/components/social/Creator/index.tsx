@@ -64,10 +64,10 @@ const Creator = ({creatorId, creatorState, getCreator}:Props) => {
     } 
 
     const renderSocials = () =>  <>
-            {creator.twitter && <Typography variant="h4" component="p" align="center"><TwitterIcon />{creator.twitter}</Typography>}
-            {creator.instagram && <Typography variant="h4" component="p" align="center"><InstagramIcon />{creator.instagram}</Typography>}
-            {creator.tiktok && <Typography variant="h4" component="p" align="center"><TitleIcon />{creator.tiktok}</Typography>}
-            {creator.snap && <Typography variant="h4" component="p" align="center"><TwitterIcon />{creator.snap}</Typography>}
+            {creator.twitter && <a target="_blank" href={'http://twitter.com/'+creator.twitter}><Typography variant="h4" component="p" align="center"><TwitterIcon />{creator.twitter}</Typography></a>}
+            {creator.instagram && <a target="_blank" href={'http://instagram.com/'+creator.instagram}><Typography variant="h4" component="p" align="center"><InstagramIcon />{creator.instagram}</Typography></a>}
+            {creator.tiktok && <a target="_blank" href={'http://tiktok.com/@'+creator.tiktok}><Typography variant="h4" component="p" align="center"><TitleIcon />{creator.tiktok}</Typography></a>}
+            {creator.snap && <a target="_blank" href={'http://snap.com/'+creator.snap}><Typography variant="h4" component="p" align="center"><TwitterIcon />{creator.snap}</Typography></a>}
         </>
     return  creator ?  (<section className={styles.creatorContainer}>
             <Card className={styles.creatorCard} elevation={0} key={creator.username} square={false} >

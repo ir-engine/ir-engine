@@ -40,10 +40,12 @@ export class Comments extends Service {
         });  
       const creatorId = creator?.id ;
 
-      let select = ` SELECT comments.*, creator.id as creatorId, creator.name as creatorName, creator.username as creatorUserName, COUNT(cf.id) as fires `;
+      let select = ` SELECT comments.*, creator.id as creatorId, creator.name as creatorName, creator.username as creatorUserName, 
+      creator.verified as creatorVerified,  sr.url as avatar, COUNT(cf.id) as fires `;
       const from = ` FROM \`comments\` as comments`;
       let join = ` JOIN \`creator\` as creator ON creator.id=comments.creatorId
-                    LEFT JOIN \`comments_fires\` as cf ON cf.commentId=comments.id `;
+                    LEFT JOIN \`comments_fires\` as cf ON cf.commentId=comments.id 
+                    LEFT JOIN \`static_resource\` as sr ON sr.id=creator.avatarId `;
       const where = ` WHERE comments.feedId=:feedId `;
       const order = ` GROUP BY comments.id
       ORDER BY comments.createdAt DESC    
@@ -71,10 +73,10 @@ export class Comments extends Service {
         return {
             creator: {
               id:comment.creatorId,
-              avatar: 'https://picsum.photos/40/40',
+              avatar: comment.avatar,
               name: comment.creatorName,
               username: comment.creatorUserName,
-              verified : true,
+              verified : !!+comment.creatorVerified,
             },
             id:comment.id,
             feedId:comment.feedId,
@@ -115,13 +117,14 @@ export class Comments extends Service {
           { model: creatorModel, as: 'creator' },
         ]
       });
+
       return  {
         creator: {
           id:commentFromDb.creator.dataValues.id,
-          avatar: 'https://picsum.photos/40/40',
+          avatar: commentFromDb.creator.dataValues.avatar,
           name: commentFromDb.creator.dataValues.name,
           username: commentFromDb.creator.dataValues.username,
-          verified : true,
+          verified:!!+commentFromDb.creator.dataValues.vedified
         },
         id:commentFromDb.id,
         feedId:commentFromDb.feedId,
