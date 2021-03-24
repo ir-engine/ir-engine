@@ -13,7 +13,7 @@ import { isMyPlayer } from '../../../common/functions/isMyPlayer';
 import { isOtherPlayer } from '../../../common/functions/isOtherPlayer';
 import { isMobileOrTablet } from '../../../common/functions/isMobile';
 import { Engine } from '../../../ecs/classes/Engine';
-import { WebXRRendererSystem } from '../../../renderer/WebXRRendererSystem';
+import { XRSystem } from '../../../xr/systems/XRSystem';
 import { applyVectorMatrixXZ } from '../../../common/functions/applyVectorMatrixXZ';
 import { FollowCameraComponent } from '../../../camera/components/FollowCameraComponent';
 import { CameraModes } from '../../../camera/types/CameraModes';
@@ -111,7 +111,7 @@ export const updateCharacterState: Behavior = (entity, args: { }, deltaTime: num
     }
   }
   
-  if(WebXRRendererSystem.instance?.cameraDolly) WebXRRendererSystem.instance.cameraDolly.setRotationFromAxisAngle(downVector, Math.atan2(actor.viewVector.z, actor.viewVector.x))
+  if(XRSystem.instance?.cameraDolly) XRSystem.instance.cameraDolly.setRotationFromAxisAngle(downVector, Math.atan2(actor.viewVector.z, actor.viewVector.x))
   
 	const flatViewVector = new Vector3(actor.viewVector.x, 0, actor.viewVector.z).normalize();
 	const moveVector = localMovementDirection.length() ? applyVectorMatrixXZ(flatViewVector, forwardVector) : emptyVector.setScalar(0);
