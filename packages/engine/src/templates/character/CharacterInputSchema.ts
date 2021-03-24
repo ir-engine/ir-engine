@@ -23,9 +23,6 @@ import { CharacterComponent } from "./components/CharacterComponent";
 import { isServer } from "../../common/functions/isServer";
 import { VehicleBody } from '../../physics/components/VehicleBody';
 import { isMobileOrTablet } from '../../common/functions/isMobile';
-import { WebXRRendererSystem } from '../../renderer/WebXRRendererSystem';
-import { Engine } from '../../ecs/classes/Engine';
-import { TransformComponent } from '../../transform/components/TransformComponent';
 
 /**
  *

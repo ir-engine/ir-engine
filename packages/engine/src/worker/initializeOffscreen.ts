@@ -26,7 +26,7 @@ import { MainProxy } from './MessageQueue';
 import { EntityActionSystem } from '../input/systems/EntityActionSystem';
 import { EngineEvents } from '../ecs/classes/EngineEvents';
 import { EngineEventsProxy, addIncomingEvents } from '../ecs/classes/EngineEvents';
-import { WebXRRendererSystem } from '../renderer/WebXRRendererSystem';
+import { XRSystem } from '../xr/systems/XRSystem';
 // import { PositionalAudioSystem } from './audio/systems/PositionalAudioSystem';
 import { receiveWorker } from './MessageQueue';
 import { AnimationManager } from '../templates/character/prefabs/NetworkPlayerCharacter';
@@ -84,7 +84,7 @@ const initializeEngineOffscreen = async ({ canvas, userArgs }, proxy: MainProxy)
   registerSystem(DebugHelpersSystem);
   registerSystem(CameraSystem);
   registerSystem(WebGLRendererSystem, { priority: 1001, canvas });
-  registerSystem(WebXRRendererSystem, { offscreen: true });
+  registerSystem(XRSystem, { offscreen: true });
   Engine.viewportElement = Engine.renderer.domElement;
 
   setInterval(() => {

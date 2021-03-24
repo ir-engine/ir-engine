@@ -4,22 +4,22 @@ import { addObject3DComponent } from "@xr3ngine/engine/src/scene/behaviors/addOb
 import { TransformComponent } from "@xr3ngine/engine/src/transform/components/TransformComponent";
 import { addMeshCollider } from "@xr3ngine/engine/src/physics/behaviors/addMeshCollider";
 import { addMeshRigidBody } from "@xr3ngine/engine/src/physics/behaviors/addMeshRigidBody";
-import { Interactable } from "../../../interaction/components/Interactable";
+import { Interactable } from "../components/Interactable";
 import {
     addComponent,
     getComponent,
     getMutableComponent,
     hasComponent,
     removeComponent
-} from "../../../ecs/functions/EntityFunctions";
-import { AssetLoader } from "../../../assets/components/AssetLoader";
-import { CharacterComponent } from "../../character/components/CharacterComponent";
-import { AssetLoaderState } from "../../../assets/components/AssetLoaderState";
-import { State } from "../../../state/components/State";
+} from "../../ecs/functions/EntityFunctions";
+import { AssetLoader } from "../../assets/components/AssetLoader";
+import { CharacterComponent } from "../../templates/character/components/CharacterComponent";
+import { AssetLoaderState } from "../../assets/components/AssetLoaderState";
+import { State } from "../../state/components/State";
 import { LifecycleValue } from "@xr3ngine/engine/src/common/enums/LifecycleValue";
 import { Behavior } from "@xr3ngine/engine/src/common/interfaces/Behavior";
 import { Object3DComponent } from "@xr3ngine/engine/src/scene/components/Object3DComponent";
-import { ColliderComponent } from "../../../physics/components/ColliderComponent";
+import { ColliderComponent } from "../../physics/components/ColliderComponent";
 
 const boxGeometry = new BoxBufferGeometry(1, 1, 1);
 const boxMaterial = new MeshPhongMaterial({ color: 'blue' });
