@@ -1,6 +1,6 @@
 import React from 'react';
 import * as THREE from 'three';
-import { ArrowBack, CloudUpload, SystemUpdateAlt, Help, MouseOutlined } from '@material-ui/icons';
+import { ArrowBack, CloudUpload, SystemUpdateAlt, Help } from '@material-ui/icons';
 import IconLeftClick from '../../Icons/IconLeftClick';
 import { getLoader } from '@xr3ngine/engine/src/assets/functions/LoadGLTF';
 import { getOrbitControls } from '@xr3ngine/engine/src/input/functions/loadOrbitControl';
@@ -10,6 +10,7 @@ import styles from '../style.module.scss';
 
 const THUMBNAIL_WIDTH = 300;
 const THUMBNAIL_HEIGHT = 300;
+const MAX_ALLOWED_TRIANGLES = 10000;
 
 interface Props {
     changeActiveMenu: Function;
@@ -20,6 +21,7 @@ interface State {
     selectedFile: any;
     imgFile: any;
 	error: string;
+	obj: any;
 }
 
 export default class AvatarSelectMenu extends React.Component<Props, State> {
@@ -28,6 +30,10 @@ export default class AvatarSelectMenu extends React.Component<Props, State> {
 	renderer = null;
 	fileSelected = false;
 
+	minBB = new THREE.Vector3(0.5,1,0.3);
+	maxBB = new THREE.Vector3(0.75, 1.5, 0.45);
+	avatarBoundingBox = new THREE.Box3(this.minBB, this.maxBB);
+
 	constructor(props) {
 		super(props);
 
@@ -35,6 +41,7 @@ export default class AvatarSelectMenu extends React.Component<Props, State> {
 			selectedFile: null,
 			imgFile: null,
 			error: '',
+			obj: null,
 		}
 	}
 
@@ -113,10 +120,15 @@ export default class AvatarSelectMenu extends React.Component<Props, State> {
 	    reader.onload = gltfText => {
 	        const loader = getLoader();
 	        loader.parse(gltfText.target.result, '', gltf => {
-	            gltf.scene.name = 'avatar'
+				gltf.scene.name = 'avatar';
 	            this.scene.add( gltf.scene );
 	            this.renderScene();
-	        }, errormsg => console.error( errormsg ));
+				const error = this.validate(gltf);
+				this.setState({ error, obj: gltf });
+	        }, errormsg => {
+				console.error( errormsg );
+				this.setState({ error: 'Select valid 3d avatar file.'});
+			});
 	    };
 		try {
 			reader.readAsArrayBuffer( file );
@@ -127,12 +139,28 @@ export default class AvatarSelectMenu extends React.Component<Props, State> {
 		}
 	}
 
+	validate = (gltf) => {
+		const objBoundingBox = new THREE.Box3().setFromObject(gltf.scene);
+
+		if (this.renderer.info.render.triangles > MAX_ALLOWED_TRIANGLES) return 'Object contains greater than ' + MAX_ALLOWED_TRIANGLES + ' faces.';
+		if (this.renderer.info.render.triangles <= 0) return 'Object is empty.';
+		else if (!this.avatarBoundingBox.containsBox(objBoundingBox)) return 'Object is out of bound.';
+
+		return '';
+	}
+
 	openAvatarMenu = (e) => {
 		e.preventDefault();
 		this.props.changeActiveMenu(Views.Avatar);
 	}
 
 	uploadAvatar = () => {
+		const error = this.validate(this.state.obj)
+		if (!error) {
+			this.setState({ error });
+			return;
+		}
+
 	    const canvas = document.createElement('canvas');
 	    canvas.width = THUMBNAIL_WIDTH,
 	    canvas.height = THUMBNAIL_HEIGHT;
@@ -162,7 +190,7 @@ export default class AvatarSelectMenu extends React.Component<Props, State> {
                 		</div>
                 	</div>
                 </div>
-                <div className={styles.avatarSelectLabel}>
+                <div className={styles.avatarSelectLabel + ' ' + (this.state.error ? styles.avatarSelectError : '')}>
 					{this.state.error
 						? this.state.error
 						: this.fileSelected ? this.state.selectedFile.name : 'Select Avatar...'}
@@ -170,7 +198,7 @@ export default class AvatarSelectMenu extends React.Component<Props, State> {
             	<input type="file" id="avatarSelect" accept=".glb, .gltf, .vrm" hidden onChange={this.handleAvatarChange} />
             	<div className={styles.controlContainer}>
 	                <button type="button" className={styles.browseBtn} onClick={this.handleBrowse}>Browse <SystemUpdateAlt /></button>
-	                <button type="button" className={styles.uploadBtn} onClick={this.uploadAvatar} disabled={!this.fileSelected}>Upload <CloudUpload /></button>
+	                <button type="button" className={styles.uploadBtn} onClick={this.uploadAvatar} disabled={!this.fileSelected || !!this.state.error}>Upload <CloudUpload /></button>
 	            </div>
 		    </div>
 		)

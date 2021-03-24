@@ -130,7 +130,7 @@ const ProfileMenu = (props: Props): any => {
 			<section className={styles.profilePanel}>
 				<section className={styles.profileBlock}>
 					<div className={styles.avatarBlock}>
-						<img src={getAvatarURLFromNetwork(Network.instance, selfUser?.avatarId)} />
+						<img src={getAvatarURLFromNetwork(Network.instance, selfUser?.id)} />
 						{ changeActiveMenu != null && <Button className={styles.avatarBtn} onClick={() => changeActiveMenu(Views.Avatar)} disableRipple><Create /></Button>}
 					</div>
 					<div className={styles.headerBlock}>
