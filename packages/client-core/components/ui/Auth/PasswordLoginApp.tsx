@@ -57,7 +57,6 @@ export const PasswordLogin = (props: Props): any => {
       const userId = user ? user.id : null;
       
       if(userId){
-        console.log('userId=',userId);
         createCreator();
       }
     }
