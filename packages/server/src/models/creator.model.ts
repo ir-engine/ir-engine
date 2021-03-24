@@ -15,10 +15,14 @@ export default (app: Application): any => {
         allowNull: false,
         primaryKey: true
       },
+      verified:{
+        type: DataTypes.BOOLEAN,
+        defaultValue: (): boolean => false,
+      },
       name: {
         type: DataTypes.STRING,
         defaultValue: (): string => "",
-        allowNull: false
+        allowNull: true
       },
       username: {
         type: DataTypes.STRING,
@@ -28,17 +32,37 @@ export default (app: Application): any => {
       email: {
         type: DataTypes.STRING,
         defaultValue: (): string => "",
-        allowNull: false
+        allowNull: true
       },
       link: {
         type: DataTypes.STRING,
         defaultValue: (): string => "",
-        allowNull: false
+        allowNull: true
       },
       bio: {
         type: DataTypes.STRING,
         defaultValue: (): string => "",
-        allowNull: false
+        allowNull: true
+      },
+      twitter: {
+        type: DataTypes.STRING,
+        defaultValue: (): string => "",
+        allowNull: true
+      },
+      tiktok: {
+        type: DataTypes.STRING,
+        defaultValue: (): string => "",
+        allowNull: true
+      },
+      snap: {
+        type: DataTypes.STRING,
+        defaultValue: (): string => "",
+        allowNull: true
+      },
+      instagram: {
+        type: DataTypes.STRING,
+        defaultValue: (): string => "",
+        allowNull: true
       },
     },
     {
@@ -57,7 +81,6 @@ export default (app: Application): any => {
     (Creator as any).hasMany(models.feed_bookmark, { foreignKey: 'creatorId' });
     (Creator as any).hasMany(models.comments, { foreignKey: 'creatorId' });
     (Creator as any).hasMany(models.comments_fires, { foreignKey: 'creatorId' });
-
     (Creator as any).belongsTo(models.static_resource, { as: 'avatar',  required: false, constraints: false });
 
   };
