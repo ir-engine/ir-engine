@@ -99,7 +99,7 @@ export class Creator extends Service {
           raw: true,
           replacements: queryParamsReplacements
         });
-      return {...creator, verified:!!+creator.vedified};
+      return {...creator, verified:!!+creator.verified};
     }
 
     async create (data: any,  params?: Params): Promise<any> {
