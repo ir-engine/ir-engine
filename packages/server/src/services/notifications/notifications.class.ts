@@ -83,7 +83,6 @@ export class Notifications extends Service {
         WHERE notifications.creatorViewerId=:creatorId 
         ORDER BY notifications.createdAt DESC`;
 
-        console.log(dataQuery, creatorId)
         const notificationList = await this.app.get('sequelizeClient').query(dataQuery,
         {
           type: QueryTypes.SELECT,
@@ -92,7 +91,6 @@ export class Notifications extends Service {
             creatorId,
           }
         });
-        console.log('notification',notificationList)
         return notificationList;
     }
     return 1;
