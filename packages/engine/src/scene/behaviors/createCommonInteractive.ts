@@ -3,7 +3,7 @@ import { EngineEvents } from "../../ecs/classes/EngineEvents";
 import { addComponent, getComponent, hasComponent } from "../../ecs/functions/EntityFunctions";
 import { Interactable } from "../../interaction/components/Interactable";
 import { InteractiveSystem } from "../../interaction/systems/InteractiveSystem";
-import { CommonInteractiveData } from "../../templates/interactive/interfaces/CommonInteractiveData";
+import { CommonInteractiveData } from "../../interaction/interfaces/CommonInteractiveData";
 import { Object3DComponent } from "../components/Object3DComponent";
 import { InteractiveSchema } from '../constants/InteractiveSchema';
 

@@ -4,12 +4,12 @@ import { addObject3DComponent } from "@xr3ngine/engine/src/scene/behaviors/addOb
 import { TransformComponent } from "@xr3ngine/engine/src/transform/components/TransformComponent";
 import { addMeshCollider } from "@xr3ngine/engine/src/physics/behaviors/addMeshCollider";
 import { addMeshRigidBody } from "@xr3ngine/engine/src/physics/behaviors/addMeshRigidBody";
-import { Interactable } from "../../../interaction/components/Interactable";
+import { Interactable } from "../components/Interactable";
 import { Behavior } from "@xr3ngine/engine/src/common/interfaces/Behavior";
 import { Object3DComponent } from "@xr3ngine/engine/src/scene/components/Object3DComponent";
-import { getMutableComponent, hasComponent } from "../../../ecs/functions/EntityFunctions";
-import { EngineEvents } from "../../../ecs/classes/EngineEvents";
-import { InteractiveSystem } from "../../../interaction/systems/InteractiveSystem";
+import { getMutableComponent, hasComponent } from "../../ecs/functions/EntityFunctions";
+import { EngineEvents } from "../../ecs/classes/EngineEvents";
+import { InteractiveSystem } from "../systems/InteractiveSystem";
 
 const onInteraction: Behavior = (entity, args, delta, entityOut, time) => {
   EngineEvents.instance.dispatchEvent({ type: InteractiveSystem.EVENTS.OBJECT_ACTIVATION, url: "https://google.com" });

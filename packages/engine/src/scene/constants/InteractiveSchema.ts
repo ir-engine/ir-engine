@@ -1,5 +1,5 @@
 import { Entity } from "../../ecs/classes/Entity";
-import { CommonInteractiveData } from "../../templates/interactive/interfaces/CommonInteractiveData";
+import { CommonInteractiveData } from "../../interaction/interfaces/CommonInteractiveData";
 
 
 export const InteractiveSchema = {
