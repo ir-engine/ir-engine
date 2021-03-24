@@ -452,8 +452,13 @@ export function addConnectionBySms (phone: string, userId: string) {
   return (dispatch: Dispatch): any => {
     dispatch(actionProcessing(true));
 
+    let sendPhone = phone.replace(/-/g, '');
+    if (sendPhone.length === 10) {
+      sendPhone = '1' + sendPhone
+    }
+
     client.service('magic-link').create({
-      mobile: phone,
+      mobile: sendPhone,
       type: 'sms',
       userId
     })
