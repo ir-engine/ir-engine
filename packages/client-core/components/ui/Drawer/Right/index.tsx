@@ -204,14 +204,15 @@ const Invites = (props: Props): any => {
         setUserToken(event.target.value);
     };
 
-    const packageInvite = (event: any): void => {
+    const packageInvite = async (event: any): Promise<void> => {
         const mappedIDProvider = identityProviderTabMap.get(tabIndex);
         const sendData = {
             type: inviteState.get('targetObjectType') === 'user' ? 'friend' : inviteState.get('targetObjectType'),
             token: mappedIDProvider ? userToken : null,
+            inviteCode: tabIndex === 2 ? userToken : null,
             identityProviderType: mappedIDProvider ? mappedIDProvider : null,
             targetObjectId: inviteState.get('targetObjectId'),
-            invitee: (tabIndex === 2 || tabIndex === 3) ? userToken : null
+            invitee: tabIndex === 3 ? userToken : null
         };
 
         sendInvite(sendData);
@@ -540,7 +541,7 @@ const Invites = (props: Props): any => {
                                 />
                                 <Tab
                                     icon={<AccountCircle/>}
-                                    label="User ID"
+                                    label="Invite Code"
                                 />
                                 {inviteTypeIndex !== 0 &&
                                 <Tab
@@ -557,7 +558,7 @@ const Invites = (props: Props): any => {
                                     className={styles['invite-text']}
                                     fullWidth
                                     id="token"
-                                    label={tabIndex === 0 ? "Recipient's email" : tabIndex === 1 ? "Recipient's phone number" : "Recipient's user ID"}
+                                    label={tabIndex === 0 ? "Recipient's email" : tabIndex === 1 ? "Recipient's phone number" : "Recipient's invite code"}
                                     name="name"
                                     autoFocus
                                     value={userToken}

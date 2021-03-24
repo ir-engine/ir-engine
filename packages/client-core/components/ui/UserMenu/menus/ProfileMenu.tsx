@@ -159,7 +159,7 @@ const ProfileMenu = (props: Props): any => {
 						</span>
 						<h2>You are {selfUser?.userRole === 'admin' ? 'an' : 'a'} <span>{selfUser?.userRole}</span>.</h2>
 						<h4>{(selfUser.userRole === 'user' || selfUser.userRole === 'admin') && <div onClick={handleLogout}>Log out</div>}</h4>
-						<h2>Invite Code: {selfUser.inviteCode}</h2>
+						{ selfUser?.inviteCode != null && <h2>Invite Code: {selfUser.inviteCode}</h2> }
 					</div>
 				</section>
 				{ selfUser?.userRole === 'guest' && <section className={styles.emailPhoneSection}>
