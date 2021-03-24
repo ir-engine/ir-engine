@@ -1,5 +1,5 @@
 import { Quaternion, Vector3, Euler, Matrix4, Object3D } from 'three';
-import {Helpers} from './functions/Helpers';
+import { Helpers } from '../functions/Helpers';
 
 const stepRate = 0.2;
 const stepHeight = 0.2;

@@ -6,9 +6,9 @@ import { FollowCameraComponent } from "../../camera/components/FollowCameraCompo
 import { CameraModes } from "../../camera/types/CameraModes";
 import { addComponent, getComponent, getMutableComponent, removeComponent } from '../../ecs/functions/EntityFunctions';
 import { Network } from "../../networking/classes/Network";
-import { WebXRRendererSystem } from "../../renderer/WebXRRendererSystem";
+import { XRSystem } from "../systems/XRSystem";
 import { CharacterComponent } from "../../templates/character/components/CharacterComponent";
-import { XRInputReceiver } from '../components/XRInputReceiver';
+import { XRInputReceiver } from '../../input/components/XRInputReceiver';
 
 let head, controllerGripLeft, controllerLeft, controllerRight, controllerGripRight;
 
@@ -17,7 +17,7 @@ export const startXR = async () => {
   try{
 
     const dolly = new Group();
-    WebXRRendererSystem.instance.cameraDolly = dolly;
+    XRSystem.instance.cameraDolly = dolly;
 
     const cameraFollow = getMutableComponent<FollowCameraComponent>(Network.instance.localClientEntity, FollowCameraComponent) as FollowCameraComponent;
     cameraFollow.mode = CameraModes.XR;
@@ -110,7 +110,7 @@ export const endXR = () => {
     Engine.xrSession.end();
     Engine.xrSession = null;
     const actor = getComponent(Network.instance.localClientEntity, CharacterComponent);
-    actor.tiltContainer.remove(WebXRRendererSystem.instance.cameraDolly);
+    actor.tiltContainer.remove(XRSystem.instance.cameraDolly);
     Engine.scene.add(Engine.camera);
   }
 }

@@ -33,7 +33,7 @@ import { Network } from "@xr3ngine/engine/src/networking/classes/Network";
 import { VrIcon } from "../Icons/Vricon";
 import { Engine } from "@xr3ngine/engine/src/ecs/classes/Engine";
 import { EngineEvents } from "@xr3ngine/engine/src/ecs/classes/EngineEvents";
-import { WebXRRendererSystem } from "@xr3ngine/engine/src/renderer/WebXRRendererSystem";
+import { XRSystem } from "@xr3ngine/engine/src/xr/systems/XRSystem";
 
 const mapStateToProps = (state: any): any => {
     return {
@@ -131,7 +131,7 @@ const MediaIconsBox = (props) => {
         }
     };
 
-    const handleVRClick = () => EngineEvents.instance.dispatchEvent({ type: WebXRRendererSystem.EVENTS.XR_START });
+    const handleVRClick = () => EngineEvents.instance.dispatchEvent({ type: XRSystem.EVENTS.XR_START });
 
     const xrEnabled = Engine.renderer?.xr.enabled === true;
     const VideocamIcon = isCamVideoEnabled ? Videocam : VideocamOff;

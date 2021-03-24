@@ -28,7 +28,7 @@ import { DefaultNetworkSchema } from './templates/networking/DefaultNetworkSchem
 import { TransformSystem } from './transform/systems/TransformSystem';
 import { EngineEvents, addIncomingEvents, addOutgoingEvents, EngineEventsProxy } from './ecs/classes/EngineEvents';
 import { ClientInputSystem } from './input/systems/ClientInputSystem';
-import { WebXRRendererSystem } from './renderer/WebXRRendererSystem';
+import { XRSystem } from './xr/systems/XRSystem';
 import { createWorker, WorkerProxy } from './worker/MessageQueue';
 import { Network } from './networking/classes/Network';
 import { isMobileOrTablet } from './common/functions/isMobile';
@@ -116,7 +116,7 @@ export const initializeEngine = async (initOptions: any = DefaultInitializationO
     registerSystem(DebugHelpersSystem);
     registerSystem(CameraSystem);
     registerSystem(WebGLRendererSystem, { priority: 1001, canvas });
-    registerSystem(WebXRRendererSystem, { offscreen: useOffscreen });
+    registerSystem(XRSystem, { offscreen: useOffscreen });
     Engine.viewportElement = Engine.renderer.domElement;
     Engine.renderer.xr.enabled = Engine.xrSupported;
   }

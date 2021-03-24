@@ -22,7 +22,7 @@ import { Input } from '../../input/components/Input';
 import { Interactable } from '../../interaction/components/Interactable';
 import { Network } from '../../networking/classes/Network';
 import { createParticleEmitter } from '../../particles/functions/particleHelpers';
-import { onInteractionHover } from '../../templates/interactive/functions/commonInteractive';
+import { onInteractionHover } from '../../interaction/functions/commonInteractive';
 import { getInCar } from '../../templates/vehicle/behaviors/getInCarBehavior';
 import { getInCarPossible } from '../../templates/vehicle/behaviors/getInCarPossible';
 import { VehicleInputSchema } from '../../templates/vehicle/VehicleInputSchema';
