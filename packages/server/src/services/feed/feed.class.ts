@@ -237,7 +237,7 @@ export class Feed extends Service {
       const newFeed: FeedInterface = ({
         creator: {
           id: feed.creatorId,
-          avatar: 'https://picsum.photos/40/40',
+          avatar: feed.avatar,
           name: feed.creatorName,
           username: feed.creatorUserName,
           verified : !!+feed.creatorVerified,
