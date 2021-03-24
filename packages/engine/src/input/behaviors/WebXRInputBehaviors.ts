@@ -13,14 +13,12 @@ export const addPhysics: Behavior = (entity: Entity) => {
 		xRControllers.controllerPositionLeft,
 		xRControllers.controllerRotationLeft,
 	  {x: 0.08, y: 0.08, z: 0.08},
-		null
 	)
 	xRControllers.rightHandPhysicsBody = addColliderWithoutEntity(
 		'sphere',
 		xRControllers.controllerPositionRight,
 		xRControllers.controllerRotationRight,
 		{x: 0.08, y: 0.08, z: 0.08},
-		null
 	)
 };
 
