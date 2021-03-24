@@ -71,6 +71,10 @@
             margin-left: 10px;
         }
     }
+
+    &[class*=MuiDrawer-paperAnchorRight] {
+        background-color: rgb(155, 155, 155, 0.6);
+    }
 }
 
 .invite {
@@ -148,4 +152,22 @@
 
 .target-type {
     margin-bottom: 10px;
+}
+
+.close-button {
+    position: fixed;
+    right: 8px;
+    top: 8px;
+    background-color: darken(red, 10%);
+    border-radius: 50px;
+    padding: 2px;
+
+    &:hover {
+        cursor: pointer;
+        background-color: darken(red, 20%);
+    }
+}
+
+.color-white {
+    color: white !important;
 }
