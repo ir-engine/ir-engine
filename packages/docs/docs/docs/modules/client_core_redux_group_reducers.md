@@ -34,7 +34,7 @@ Name | Type |
 `invitableUpdateNeeded` | *boolean* |
 `updateNeeded` | *boolean* |
 
-Defined in: [packages/client-core/redux/group/reducers.ts:31](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/group/reducers.ts#L31)
+Defined in: [packages/client-core/redux/group/reducers.ts:31](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/group/reducers.ts#L31)
 
 ## Functions
 
@@ -51,4 +51,4 @@ Name | Type |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/redux/group/reducers.ts:53](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/group/reducers.ts#L53)
+Defined in: [packages/client-core/redux/group/reducers.ts:53](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/group/reducers.ts#L53)

@@ -16,7 +16,7 @@ hide_title: true
 
 • **location**: Location
 
-Defined in: [packages/client-core/redux/location/actions.ts:34](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/location/actions.ts#L34)
+Defined in: [packages/client-core/redux/location/actions.ts:34](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/location/actions.ts#L34)
 
 ___
 
@@ -24,4 +24,4 @@ ___
 
 • **type**: *string*
 
-Defined in: [packages/client-core/redux/location/actions.ts:33](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/location/actions.ts#L33)
+Defined in: [packages/client-core/redux/location/actions.ts:33](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/location/actions.ts#L33)

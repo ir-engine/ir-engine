@@ -470,7 +470,7 @@ Name | Type |
 
 e
 
-Defined in: [packages/client-core/components/editor/inputs/EulerInput.tsx:31](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/inputs/EulerInput.tsx#L31)
+Defined in: [packages/client-core/components/editor/inputs/EulerInput.tsx:31](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/inputs/EulerInput.tsx#L31)
 
 ___
 
@@ -482,7 +482,7 @@ ___
 
 Overrides: void
 
-Defined in: [packages/client-core/components/editor/inputs/EulerInput.tsx:36](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/inputs/EulerInput.tsx#L36)
+Defined in: [packages/client-core/components/editor/inputs/EulerInput.tsx:36](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/inputs/EulerInput.tsx#L36)
 
 ___
 

@@ -16,7 +16,7 @@ hide_title: true
 
 • **content**: *any*
 
-Defined in: [packages/client-core/redux/dialog/actions.ts:12](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/dialog/actions.ts#L12)
+Defined in: [packages/client-core/redux/dialog/actions.ts:12](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/dialog/actions.ts#L12)
 
 ___
 
@@ -24,4 +24,4 @@ ___
 
 • **type**: *string*
 
-Defined in: [packages/client-core/redux/dialog/actions.ts:11](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/dialog/actions.ts#L11)
+Defined in: [packages/client-core/redux/dialog/actions.ts:11](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/dialog/actions.ts#L11)

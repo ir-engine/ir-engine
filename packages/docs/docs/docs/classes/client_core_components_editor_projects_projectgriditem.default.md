@@ -156,7 +156,7 @@ Name | Type |
 `contextMenuId` | *Requireable*<string\> |
 `project` | *Validator*<object\> |
 
-Defined in: [packages/client-core/components/editor/projects/ProjectGridItem.tsx:87](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/projects/ProjectGridItem.tsx#L87)
+Defined in: [packages/client-core/components/editor/projects/ProjectGridItem.tsx:87](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/projects/ProjectGridItem.tsx#L87)
 
 ## Methods
 
@@ -479,7 +479,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/projects/ProjectGridItem.tsx:92](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/projects/ProjectGridItem.tsx#L92)
+Defined in: [packages/client-core/components/editor/projects/ProjectGridItem.tsx:92](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/projects/ProjectGridItem.tsx#L92)
 
 ___
 
@@ -491,7 +491,7 @@ ___
 
 Overrides: void
 
-Defined in: [packages/client-core/components/editor/projects/ProjectGridItem.tsx:108](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/projects/ProjectGridItem.tsx#L108)
+Defined in: [packages/client-core/components/editor/projects/ProjectGridItem.tsx:108](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/projects/ProjectGridItem.tsx#L108)
 
 ___
 

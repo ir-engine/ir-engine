@@ -16,7 +16,7 @@ hide_title: true
 
 • **email**: *string*
 
-Defined in: [packages/client-core/redux/auth/actions.ts:33](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/auth/actions.ts#L33)
+Defined in: [packages/client-core/redux/auth/actions.ts:33](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/auth/actions.ts#L33)
 
 ___
 
@@ -24,4 +24,4 @@ ___
 
 • **password**: *string*
 
-Defined in: [packages/client-core/redux/auth/actions.ts:34](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/auth/actions.ts#L34)
+Defined in: [packages/client-core/redux/auth/actions.ts:34](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/auth/actions.ts#L34)

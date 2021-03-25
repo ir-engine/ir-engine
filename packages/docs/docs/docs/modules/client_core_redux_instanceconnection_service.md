@@ -23,7 +23,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>, `getState`: *any*) => *Promise*<any\>
 
-Defined in: [packages/client-core/redux/instanceConnection/service.ts:44](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/instanceConnection/service.ts#L44)
+Defined in: [packages/client-core/redux/instanceConnection/service.ts:44](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/instanceConnection/service.ts#L44)
 
 ___
 
@@ -41,7 +41,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>, `getState`: *any*) => *Promise*<any\>
 
-Defined in: [packages/client-core/redux/instanceConnection/service.ts:16](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/instanceConnection/service.ts#L16)
+Defined in: [packages/client-core/redux/instanceConnection/service.ts:16](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/instanceConnection/service.ts#L16)
 
 ___
 
@@ -51,4 +51,4 @@ ___
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/redux/instanceConnection/service.ts:85](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/instanceConnection/service.ts#L85)
+Defined in: [packages/client-core/redux/instanceConnection/service.ts:85](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/instanceConnection/service.ts#L85)

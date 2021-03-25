@@ -14,7 +14,7 @@ hide_title: true
 
 • `Const` **apiUrl**: *any*
 
-Defined in: [packages/client-core/redux/service.common.ts:5](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/service.common.ts#L5)
+Defined in: [packages/client-core/redux/service.common.ts:5](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/service.common.ts#L5)
 
 ## Functions
 
@@ -31,7 +31,7 @@ Name | Type |
 
 **Returns:** *Promise*<any\>
 
-Defined in: [packages/client-core/redux/service.common.ts:11](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/service.common.ts#L11)
+Defined in: [packages/client-core/redux/service.common.ts:11](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/service.common.ts#L11)
 
 ___
 
@@ -50,7 +50,7 @@ Name | Type |
 
 **Returns:** *Promise*<any\>
 
-Defined in: [packages/client-core/redux/service.common.ts:22](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/service.common.ts#L22)
+Defined in: [packages/client-core/redux/service.common.ts:22](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/service.common.ts#L22)
 
 ___
 
@@ -68,7 +68,7 @@ Name | Type |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/redux/service.common.ts:48](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/service.common.ts#L48)
+Defined in: [packages/client-core/redux/service.common.ts:48](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/service.common.ts#L48)
 
 ___
 
@@ -78,4 +78,4 @@ ___
 
 **Returns:** *object*
 
-Defined in: [packages/client-core/redux/service.common.ts:7](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/service.common.ts#L7)
+Defined in: [packages/client-core/redux/service.common.ts:7](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/service.common.ts#L7)

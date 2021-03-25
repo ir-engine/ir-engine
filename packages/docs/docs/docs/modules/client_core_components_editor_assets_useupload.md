@@ -26,4 +26,4 @@ Name | Type |
 
 [assets]
 
-Defined in: [packages/client-core/components/editor/assets/useUpload.tsx:13](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/assets/useUpload.tsx#L13)
+Defined in: [packages/client-core/components/editor/assets/useUpload.tsx:13](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/assets/useUpload.tsx#L13)

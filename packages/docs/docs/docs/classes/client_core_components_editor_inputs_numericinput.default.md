@@ -32,7 +32,7 @@ Name | Type |
 
 Overrides: void
 
-Defined in: [packages/client-core/components/editor/inputs/NumericInput.tsx:72](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/inputs/NumericInput.tsx#L72)
+Defined in: [packages/client-core/components/editor/inputs/NumericInput.tsx:72](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/inputs/NumericInput.tsx#L72)
 
 ## Properties
 
@@ -64,7 +64,7 @@ ___
 
 • **inputEl**: *any*
 
-Defined in: [packages/client-core/components/editor/inputs/NumericInput.tsx:81](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/inputs/NumericInput.tsx#L81)
+Defined in: [packages/client-core/components/editor/inputs/NumericInput.tsx:81](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/inputs/NumericInput.tsx#L81)
 
 ___
 
@@ -401,7 +401,7 @@ ___
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/inputs/NumericInput.tsx:87](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/inputs/NumericInput.tsx#L87)
+Defined in: [packages/client-core/components/editor/inputs/NumericInput.tsx:87](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/inputs/NumericInput.tsx#L87)
 
 ___
 
@@ -455,7 +455,7 @@ ___
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/inputs/NumericInput.tsx:172](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/inputs/NumericInput.tsx#L172)
+Defined in: [packages/client-core/components/editor/inputs/NumericInput.tsx:172](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/inputs/NumericInput.tsx#L172)
 
 ___
 
@@ -471,7 +471,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/inputs/NumericInput.tsx:138](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/inputs/NumericInput.tsx#L138)
+Defined in: [packages/client-core/components/editor/inputs/NumericInput.tsx:138](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/inputs/NumericInput.tsx#L138)
 
 ___
 
@@ -481,7 +481,7 @@ ___
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/inputs/NumericInput.tsx:155](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/inputs/NumericInput.tsx#L155)
+Defined in: [packages/client-core/components/editor/inputs/NumericInput.tsx:155](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/inputs/NumericInput.tsx#L155)
 
 ___
 
@@ -497,7 +497,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/inputs/NumericInput.tsx:132](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/inputs/NumericInput.tsx#L132)
+Defined in: [packages/client-core/components/editor/inputs/NumericInput.tsx:132](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/inputs/NumericInput.tsx#L132)
 
 ___
 
@@ -513,7 +513,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/inputs/NumericInput.tsx:91](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/inputs/NumericInput.tsx#L91)
+Defined in: [packages/client-core/components/editor/inputs/NumericInput.tsx:91](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/inputs/NumericInput.tsx#L91)
 
 ___
 
@@ -531,7 +531,7 @@ Name | Type | Default value |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/inputs/NumericInput.tsx:107](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/inputs/NumericInput.tsx#L107)
+Defined in: [packages/client-core/components/editor/inputs/NumericInput.tsx:107](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/inputs/NumericInput.tsx#L107)
 
 ___
 
@@ -541,7 +541,7 @@ ___
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/inputs/NumericInput.tsx:83](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/inputs/NumericInput.tsx#L83)
+Defined in: [packages/client-core/components/editor/inputs/NumericInput.tsx:83](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/inputs/NumericInput.tsx#L83)
 
 ___
 
@@ -553,7 +553,7 @@ ___
 
 Overrides: void
 
-Defined in: [packages/client-core/components/editor/inputs/NumericInput.tsx:184](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/inputs/NumericInput.tsx#L184)
+Defined in: [packages/client-core/components/editor/inputs/NumericInput.tsx:184](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/inputs/NumericInput.tsx#L184)
 
 ___
 

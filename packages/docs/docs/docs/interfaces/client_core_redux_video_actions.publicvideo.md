@@ -16,7 +16,7 @@ hide_title: true
 
 • `Optional` **attribution**: *Partial*<[*Attribution*](client_core_redux_video_actions.attribution.md)\>
 
-Defined in: [packages/client-core/redux/video/actions.ts:29](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/video/actions.ts#L29)
+Defined in: [packages/client-core/redux/video/actions.ts:29](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/video/actions.ts#L29)
 
 ___
 
@@ -24,7 +24,7 @@ ___
 
 • **description**: *string*
 
-Defined in: [packages/client-core/redux/video/actions.ts:26](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/video/actions.ts#L26)
+Defined in: [packages/client-core/redux/video/actions.ts:26](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/video/actions.ts#L26)
 
 ___
 
@@ -32,7 +32,7 @@ ___
 
 • **id**: *number*
 
-Defined in: [packages/client-core/redux/video/actions.ts:24](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/video/actions.ts#L24)
+Defined in: [packages/client-core/redux/video/actions.ts:24](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/video/actions.ts#L24)
 
 ___
 
@@ -40,7 +40,7 @@ ___
 
 • **metadata**: *Partial*<[*VideoMetaData*](client_core_redux_video_actions.videometadata.md)\>
 
-Defined in: [packages/client-core/redux/video/actions.ts:28](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/video/actions.ts#L28)
+Defined in: [packages/client-core/redux/video/actions.ts:28](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/video/actions.ts#L28)
 
 ___
 
@@ -48,7 +48,7 @@ ___
 
 • **name**: *string*
 
-Defined in: [packages/client-core/redux/video/actions.ts:25](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/video/actions.ts#L25)
+Defined in: [packages/client-core/redux/video/actions.ts:25](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/video/actions.ts#L25)
 
 ___
 
@@ -56,4 +56,4 @@ ___
 
 • **url**: *string*
 
-Defined in: [packages/client-core/redux/video/actions.ts:27](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/video/actions.ts#L27)
+Defined in: [packages/client-core/redux/video/actions.ts:27](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/video/actions.ts#L27)

@@ -93,10 +93,10 @@ function guessContentType(url): string {
 }
 
 
-/**
- * Api class contains functions to perform common functions.
- * @type {class}
- */
+
+ /**
+  * Api class contains functions to perform common functions.
+  */
 export default class Api extends EventEmitter {
   serverURL: string;
   apiURL: string;

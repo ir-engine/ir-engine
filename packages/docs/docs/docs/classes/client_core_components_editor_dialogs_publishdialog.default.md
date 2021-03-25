@@ -34,7 +34,7 @@ Name | Type |
 
 Overrides: void
 
-Defined in: [packages/client-core/components/editor/dialogs/PublishDialog.tsx:28](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/dialogs/PublishDialog.tsx#L28)
+Defined in: [packages/client-core/components/editor/dialogs/PublishDialog.tsx:28](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/dialogs/PublishDialog.tsx#L28)
 
 ## Properties
 
@@ -144,7 +144,7 @@ Name | Type |
 `sceneUrl` | *Requireable*<string\> |
 `screenshotUrl` | *Requireable*<string\> |
 
-Defined in: [packages/client-core/components/editor/dialogs/PublishDialog.tsx:20](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/dialogs/PublishDialog.tsx#L20)
+Defined in: [packages/client-core/components/editor/dialogs/PublishDialog.tsx:20](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/dialogs/PublishDialog.tsx#L20)
 
 ## Methods
 
@@ -467,7 +467,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/dialogs/PublishDialog.tsx:52](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/dialogs/PublishDialog.tsx#L52)
+Defined in: [packages/client-core/components/editor/dialogs/PublishDialog.tsx:52](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/dialogs/PublishDialog.tsx#L52)
 
 ___
 
@@ -483,7 +483,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/dialogs/PublishDialog.tsx:49](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/dialogs/PublishDialog.tsx#L49)
+Defined in: [packages/client-core/components/editor/dialogs/PublishDialog.tsx:49](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/dialogs/PublishDialog.tsx#L49)
 
 ___
 
@@ -499,7 +499,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/dialogs/PublishDialog.tsx:46](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/dialogs/PublishDialog.tsx#L46)
+Defined in: [packages/client-core/components/editor/dialogs/PublishDialog.tsx:46](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/dialogs/PublishDialog.tsx#L46)
 
 ___
 
@@ -515,7 +515,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/dialogs/PublishDialog.tsx:43](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/dialogs/PublishDialog.tsx#L43)
+Defined in: [packages/client-core/components/editor/dialogs/PublishDialog.tsx:43](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/dialogs/PublishDialog.tsx#L43)
 
 ___
 
@@ -525,7 +525,7 @@ ___
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/dialogs/PublishDialog.tsx:55](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/dialogs/PublishDialog.tsx#L55)
+Defined in: [packages/client-core/components/editor/dialogs/PublishDialog.tsx:55](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/dialogs/PublishDialog.tsx#L55)
 
 ___
 
@@ -537,7 +537,7 @@ ___
 
 Overrides: void
 
-Defined in: [packages/client-core/components/editor/dialogs/PublishDialog.tsx:63](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/dialogs/PublishDialog.tsx#L63)
+Defined in: [packages/client-core/components/editor/dialogs/PublishDialog.tsx:63](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/dialogs/PublishDialog.tsx#L63)
 
 ___
 

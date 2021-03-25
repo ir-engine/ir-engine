@@ -38,7 +38,7 @@ Name | Type |
 
 **Returns:** [*InstanceRemovedResponse*](../interfaces/client_core_redux_admin_actions.instanceremovedresponse.md)
 
-Defined in: [packages/client-core/redux/admin/actions.ts:138](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/admin/actions.ts#L138)
+Defined in: [packages/client-core/redux/admin/actions.ts:138](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/admin/actions.ts#L138)
 
 ___
 
@@ -54,7 +54,7 @@ Name | Type |
 
 **Returns:** [*InstanceRemovedResponse*](../interfaces/client_core_redux_admin_actions.instanceremovedresponse.md)
 
-Defined in: [packages/client-core/redux/admin/actions.ts:152](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/admin/actions.ts#L152)
+Defined in: [packages/client-core/redux/admin/actions.ts:152](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/admin/actions.ts#L152)
 
 ___
 
@@ -70,7 +70,7 @@ Name | Type |
 
 **Returns:** [*InstanceRemovedResponse*](../interfaces/client_core_redux_admin_actions.instanceremovedresponse.md)
 
-Defined in: [packages/client-core/redux/admin/actions.ts:145](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/admin/actions.ts#L145)
+Defined in: [packages/client-core/redux/admin/actions.ts:145](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/admin/actions.ts#L145)
 
 ___
 
@@ -86,7 +86,7 @@ Name | Type |
 
 **Returns:** [*InstanceRemovedResponse*](../interfaces/client_core_redux_admin_actions.instanceremovedresponse.md)
 
-Defined in: [packages/client-core/redux/admin/actions.ts:131](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/admin/actions.ts#L131)
+Defined in: [packages/client-core/redux/admin/actions.ts:131](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/admin/actions.ts#L131)
 
 ___
 
@@ -102,7 +102,7 @@ Name | Type |
 
 **Returns:** [*InstancesRetrievedResponse*](../interfaces/client_core_redux_admin_actions.instancesretrievedresponse.md)
 
-Defined in: [packages/client-core/redux/admin/actions.ts:124](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/admin/actions.ts#L124)
+Defined in: [packages/client-core/redux/admin/actions.ts:124](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/admin/actions.ts#L124)
 
 ___
 
@@ -118,7 +118,7 @@ Name | Type |
 
 **Returns:** [*LocationTypesRetrievedResponse*](../interfaces/client_core_redux_admin_actions.locationtypesretrievedresponse.md)
 
-Defined in: [packages/client-core/redux/admin/actions.ts:117](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/admin/actions.ts#L117)
+Defined in: [packages/client-core/redux/admin/actions.ts:117](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/admin/actions.ts#L117)
 
 ___
 
@@ -134,7 +134,7 @@ Name | Type |
 
 **Returns:** [*VideoCreatedAction*](../interfaces/client_core_redux_admin_actions.videocreatedaction.md)
 
-Defined in: [packages/client-core/redux/admin/actions.ts:96](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/admin/actions.ts#L96)
+Defined in: [packages/client-core/redux/admin/actions.ts:96](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/admin/actions.ts#L96)
 
 ___
 
@@ -150,7 +150,7 @@ Name | Type |
 
 **Returns:** [*VideoDeletedAction*](../interfaces/client_core_redux_admin_actions.videodeletedaction.md)
 
-Defined in: [packages/client-core/redux/admin/actions.ts:110](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/admin/actions.ts#L110)
+Defined in: [packages/client-core/redux/admin/actions.ts:110](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/admin/actions.ts#L110)
 
 ___
 
@@ -166,4 +166,4 @@ Name | Type |
 
 **Returns:** [*VideoUpdatedAction*](../interfaces/client_core_redux_admin_actions.videoupdatedaction.md)
 
-Defined in: [packages/client-core/redux/admin/actions.ts:103](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/admin/actions.ts#L103)
+Defined in: [packages/client-core/redux/admin/actions.ts:103](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/admin/actions.ts#L103)

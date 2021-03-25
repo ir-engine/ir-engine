@@ -14,4 +14,4 @@ hide_title: true
 
 • `Const` **selectAlertState**: *OutputSelector*<any, any, (`res`: *any*) => *any*\>
 
-Defined in: [packages/client-core/redux/alert/selector.ts:4](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/alert/selector.ts#L4)
+Defined in: [packages/client-core/redux/alert/selector.ts:4](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/alert/selector.ts#L4)

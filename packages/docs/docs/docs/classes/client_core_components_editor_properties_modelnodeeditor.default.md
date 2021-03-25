@@ -149,7 +149,7 @@ ___
 
 ▪ `Static` **description**: *string*= "A 3D model in your scene, loaded from a GLTF URL or file."
 
-Defined in: [packages/client-core/components/editor/properties/ModelNodeEditor.tsx:48](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/properties/ModelNodeEditor.tsx#L48)
+Defined in: [packages/client-core/components/editor/properties/ModelNodeEditor.tsx:48](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/ModelNodeEditor.tsx#L48)
 
 ___
 
@@ -157,7 +157,7 @@ ___
 
 ▪ `Static` **iconComponent**: StyledIcon
 
-Defined in: [packages/client-core/components/editor/properties/ModelNodeEditor.tsx:45](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/properties/ModelNodeEditor.tsx#L45)
+Defined in: [packages/client-core/components/editor/properties/ModelNodeEditor.tsx:45](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/ModelNodeEditor.tsx#L45)
 
 ## Methods
 
@@ -474,7 +474,7 @@ ___
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/components/editor/properties/ModelNodeEditor.tsx:126](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/properties/ModelNodeEditor.tsx#L126)
+Defined in: [packages/client-core/components/editor/properties/ModelNodeEditor.tsx:126](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/ModelNodeEditor.tsx#L126)
 
 ___
 
@@ -490,7 +490,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/properties/ModelNodeEditor.tsx:56](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/properties/ModelNodeEditor.tsx#L56)
+Defined in: [packages/client-core/components/editor/properties/ModelNodeEditor.tsx:56](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/ModelNodeEditor.tsx#L56)
 
 ___
 
@@ -506,7 +506,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/properties/ModelNodeEditor.tsx:76](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/properties/ModelNodeEditor.tsx#L76)
+Defined in: [packages/client-core/components/editor/properties/ModelNodeEditor.tsx:76](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/ModelNodeEditor.tsx#L76)
 
 ___
 
@@ -522,7 +522,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/properties/ModelNodeEditor.tsx:61](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/properties/ModelNodeEditor.tsx#L61)
+Defined in: [packages/client-core/components/editor/properties/ModelNodeEditor.tsx:61](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/ModelNodeEditor.tsx#L61)
 
 ___
 
@@ -538,7 +538,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/properties/ModelNodeEditor.tsx:86](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/properties/ModelNodeEditor.tsx#L86)
+Defined in: [packages/client-core/components/editor/properties/ModelNodeEditor.tsx:86](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/ModelNodeEditor.tsx#L86)
 
 ___
 
@@ -554,7 +554,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/properties/ModelNodeEditor.tsx:96](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/properties/ModelNodeEditor.tsx#L96)
+Defined in: [packages/client-core/components/editor/properties/ModelNodeEditor.tsx:96](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/ModelNodeEditor.tsx#L96)
 
 ___
 
@@ -570,7 +570,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/properties/ModelNodeEditor.tsx:91](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/properties/ModelNodeEditor.tsx#L91)
+Defined in: [packages/client-core/components/editor/properties/ModelNodeEditor.tsx:91](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/ModelNodeEditor.tsx#L91)
 
 ___
 
@@ -586,7 +586,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/properties/ModelNodeEditor.tsx:111](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/properties/ModelNodeEditor.tsx#L111)
+Defined in: [packages/client-core/components/editor/properties/ModelNodeEditor.tsx:111](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/ModelNodeEditor.tsx#L111)
 
 ___
 
@@ -602,7 +602,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/properties/ModelNodeEditor.tsx:121](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/properties/ModelNodeEditor.tsx#L121)
+Defined in: [packages/client-core/components/editor/properties/ModelNodeEditor.tsx:121](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/ModelNodeEditor.tsx#L121)
 
 ___
 
@@ -618,7 +618,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/properties/ModelNodeEditor.tsx:116](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/properties/ModelNodeEditor.tsx#L116)
+Defined in: [packages/client-core/components/editor/properties/ModelNodeEditor.tsx:116](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/ModelNodeEditor.tsx#L116)
 
 ___
 
@@ -634,7 +634,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/properties/ModelNodeEditor.tsx:101](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/properties/ModelNodeEditor.tsx#L101)
+Defined in: [packages/client-core/components/editor/properties/ModelNodeEditor.tsx:101](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/ModelNodeEditor.tsx#L101)
 
 ___
 
@@ -650,7 +650,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/properties/ModelNodeEditor.tsx:106](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/properties/ModelNodeEditor.tsx#L106)
+Defined in: [packages/client-core/components/editor/properties/ModelNodeEditor.tsx:106](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/ModelNodeEditor.tsx#L106)
 
 ___
 
@@ -666,7 +666,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/properties/ModelNodeEditor.tsx:81](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/properties/ModelNodeEditor.tsx#L81)
+Defined in: [packages/client-core/components/editor/properties/ModelNodeEditor.tsx:81](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/ModelNodeEditor.tsx#L81)
 
 ___
 
@@ -682,7 +682,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/properties/ModelNodeEditor.tsx:66](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/properties/ModelNodeEditor.tsx#L66)
+Defined in: [packages/client-core/components/editor/properties/ModelNodeEditor.tsx:66](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/ModelNodeEditor.tsx#L66)
 
 ___
 
@@ -699,7 +699,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/properties/ModelNodeEditor.tsx:51](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/properties/ModelNodeEditor.tsx#L51)
+Defined in: [packages/client-core/components/editor/properties/ModelNodeEditor.tsx:51](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/ModelNodeEditor.tsx#L51)
 
 ___
 
@@ -715,7 +715,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/properties/ModelNodeEditor.tsx:71](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/properties/ModelNodeEditor.tsx#L71)
+Defined in: [packages/client-core/components/editor/properties/ModelNodeEditor.tsx:71](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/ModelNodeEditor.tsx#L71)
 
 ___
 
@@ -727,7 +727,7 @@ ___
 
 Overrides: void
 
-Defined in: [packages/client-core/components/editor/properties/ModelNodeEditor.tsx:214](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/properties/ModelNodeEditor.tsx#L214)
+Defined in: [packages/client-core/components/editor/properties/ModelNodeEditor.tsx:214](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/ModelNodeEditor.tsx#L214)
 
 ___
 
@@ -743,7 +743,7 @@ Name | Type |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/components/editor/properties/ModelNodeEditor.tsx:186](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/properties/ModelNodeEditor.tsx#L186)
+Defined in: [packages/client-core/components/editor/properties/ModelNodeEditor.tsx:186](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/ModelNodeEditor.tsx#L186)
 
 ___
 
@@ -759,7 +759,7 @@ Name | Type |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/components/editor/properties/ModelNodeEditor.tsx:137](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/properties/ModelNodeEditor.tsx#L137)
+Defined in: [packages/client-core/components/editor/properties/ModelNodeEditor.tsx:137](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/ModelNodeEditor.tsx#L137)
 
 ___
 

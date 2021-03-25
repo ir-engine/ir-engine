@@ -21,7 +21,7 @@ hide_title: true
 
 Ƭ **FeedFiresAction**: [*FeedFiresRetriveAction*](../interfaces/client_core_redux_feedfires_actions.feedfiresretriveaction.md) \| [*FetchingFeedFiresAction*](../interfaces/client_core_redux_feedfires_actions.fetchingfeedfiresaction.md)
 
-Defined in: [packages/client-core/redux/feedFires/actions.ts:16](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/feedFires/actions.ts#L16)
+Defined in: [packages/client-core/redux/feedFires/actions.ts:16](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/feedFires/actions.ts#L16)
 
 ## Functions
 
@@ -37,7 +37,7 @@ Name | Type |
 
 **Returns:** [*FeedFiresRetriveAction*](../interfaces/client_core_redux_feedfires_actions.feedfiresretriveaction.md)
 
-Defined in: [packages/client-core/redux/feedFires/actions.ts:20](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/feedFires/actions.ts#L20)
+Defined in: [packages/client-core/redux/feedFires/actions.ts:20](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/feedFires/actions.ts#L20)
 
 ___
 
@@ -47,4 +47,4 @@ ___
 
 **Returns:** [*FetchingFeedFiresAction*](../interfaces/client_core_redux_feedfires_actions.fetchingfeedfiresaction.md)
 
-Defined in: [packages/client-core/redux/feedFires/actions.ts:28](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/feedFires/actions.ts#L28)
+Defined in: [packages/client-core/redux/feedFires/actions.ts:28](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/feedFires/actions.ts#L28)

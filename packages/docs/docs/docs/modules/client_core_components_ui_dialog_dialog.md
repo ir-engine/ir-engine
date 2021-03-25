@@ -14,4 +14,4 @@ hide_title: true
 
 • `Const` **UIDialog**: *ConnectedComponent*<(`props`: *any*) => *any*, Omit<any, string \| number \| symbol\>\>
 
-Defined in: [packages/client-core/components/ui/Dialog/Dialog.tsx:68](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/ui/Dialog/Dialog.tsx#L68)
+Defined in: [packages/client-core/components/ui/Dialog/Dialog.tsx:68](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/ui/Dialog/Dialog.tsx#L68)

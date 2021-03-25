@@ -34,7 +34,7 @@ Name | Type |
 
 Overrides: void
 
-Defined in: [packages/client-core/components/editor/inputs/BooleanInput.tsx:64](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/inputs/BooleanInput.tsx#L64)
+Defined in: [packages/client-core/components/editor/inputs/BooleanInput.tsx:64](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/inputs/BooleanInput.tsx#L64)
 
 ## Properties
 
@@ -42,7 +42,7 @@ Defined in: [packages/client-core/components/editor/inputs/BooleanInput.tsx:64](
 
 • **checkboxId**: *string*
 
-Defined in: [packages/client-core/components/editor/inputs/BooleanInput.tsx:73](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/inputs/BooleanInput.tsx#L73)
+Defined in: [packages/client-core/components/editor/inputs/BooleanInput.tsx:73](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/inputs/BooleanInput.tsx#L73)
 
 ___
 
@@ -145,7 +145,7 @@ Name | Type |
 `onChange` | () => *void* |
 `value` | *boolean* |
 
-Defined in: [packages/client-core/components/editor/inputs/BooleanInput.tsx:61](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/inputs/BooleanInput.tsx#L61)
+Defined in: [packages/client-core/components/editor/inputs/BooleanInput.tsx:61](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/inputs/BooleanInput.tsx#L61)
 
 ___
 
@@ -160,7 +160,7 @@ Name | Type |
 `onChange` | *Requireable*<(...`args`: *any*[]) => *any*\> |
 `value` | *Requireable*<boolean\> |
 
-Defined in: [packages/client-core/components/editor/inputs/BooleanInput.tsx:55](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/inputs/BooleanInput.tsx#L55)
+Defined in: [packages/client-core/components/editor/inputs/BooleanInput.tsx:55](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/inputs/BooleanInput.tsx#L55)
 
 ## Methods
 
@@ -483,7 +483,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/inputs/BooleanInput.tsx:76](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/inputs/BooleanInput.tsx#L76)
+Defined in: [packages/client-core/components/editor/inputs/BooleanInput.tsx:76](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/inputs/BooleanInput.tsx#L76)
 
 ___
 
@@ -495,7 +495,7 @@ ___
 
 Overrides: void
 
-Defined in: [packages/client-core/components/editor/inputs/BooleanInput.tsx:80](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/inputs/BooleanInput.tsx#L80)
+Defined in: [packages/client-core/components/editor/inputs/BooleanInput.tsx:80](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/inputs/BooleanInput.tsx#L80)
 
 ___
 

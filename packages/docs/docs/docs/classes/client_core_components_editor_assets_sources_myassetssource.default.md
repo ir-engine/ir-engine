@@ -32,7 +32,7 @@ Name | Type |
 
 Overrides: [BaseSource](client_core_components_editor_assets_sources.basesource.md)
 
-Defined in: [packages/client-core/components/editor/assets/sources/MyAssetsSource.tsx:29](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/assets/sources/MyAssetsSource.tsx#L29)
+Defined in: [packages/client-core/components/editor/assets/sources/MyAssetsSource.tsx:29](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/assets/sources/MyAssetsSource.tsx#L29)
 
 ## Properties
 
@@ -40,7 +40,7 @@ Defined in: [packages/client-core/components/editor/assets/sources/MyAssetsSourc
 
 • **acceptFileTypes**: *string*
 
-Defined in: [packages/client-core/components/editor/assets/sources/MyAssetsSource.tsx:29](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/assets/sources/MyAssetsSource.tsx#L29)
+Defined in: [packages/client-core/components/editor/assets/sources/MyAssetsSource.tsx:29](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/assets/sources/MyAssetsSource.tsx#L29)
 
 ___
 
@@ -50,7 +50,7 @@ ___
 
 Inherited from: [BaseSource](client_core_components_editor_assets_sources.basesource.md).[assetPanelComponent](client_core_components_editor_assets_sources.basesource.md#assetpanelcomponent)
 
-Defined in: [packages/client-core/components/editor/assets/sources/index.tsx:10](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/assets/sources/index.tsx#L10)
+Defined in: [packages/client-core/components/editor/assets/sources/index.tsx:10](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/assets/sources/index.tsx#L10)
 
 ___
 
@@ -58,7 +58,7 @@ ___
 
 • **component**: *typeof* [*default*](../modules/client_core_components_editor_assets_uploadsourcepanel.md#default)
 
-Defined in: [packages/client-core/components/editor/assets/sources/MyAssetsSource.tsx:23](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/assets/sources/MyAssetsSource.tsx#L23)
+Defined in: [packages/client-core/components/editor/assets/sources/MyAssetsSource.tsx:23](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/assets/sources/MyAssetsSource.tsx#L23)
 
 ___
 
@@ -66,7 +66,7 @@ ___
 
 • **editor**: [*default*](client_core_components_editor_editor.default.md)
 
-Defined in: [packages/client-core/components/editor/assets/sources/MyAssetsSource.tsx:24](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/assets/sources/MyAssetsSource.tsx#L24)
+Defined in: [packages/client-core/components/editor/assets/sources/MyAssetsSource.tsx:24](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/assets/sources/MyAssetsSource.tsx#L24)
 
 ___
 
@@ -76,7 +76,7 @@ ___
 
 Inherited from: [BaseSource](client_core_components_editor_assets_sources.basesource.md).[iconComponent](client_core_components_editor_assets_sources.basesource.md#iconcomponent)
 
-Defined in: [packages/client-core/components/editor/assets/sources/index.tsx:9](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/assets/sources/index.tsx#L9)
+Defined in: [packages/client-core/components/editor/assets/sources/index.tsx:9](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/assets/sources/index.tsx#L9)
 
 ___
 
@@ -86,7 +86,7 @@ ___
 
 Inherited from: [BaseSource](client_core_components_editor_assets_sources.basesource.md).[id](client_core_components_editor_assets_sources.basesource.md#id)
 
-Defined in: [packages/client-core/components/editor/assets/sources/index.tsx:7](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/assets/sources/index.tsx#L7)
+Defined in: [packages/client-core/components/editor/assets/sources/index.tsx:7](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/assets/sources/index.tsx#L7)
 
 ___
 
@@ -96,7 +96,7 @@ ___
 
 Inherited from: [BaseSource](client_core_components_editor_assets_sources.basesource.md).[name](client_core_components_editor_assets_sources.basesource.md#name)
 
-Defined in: [packages/client-core/components/editor/assets/sources/index.tsx:8](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/assets/sources/index.tsx#L8)
+Defined in: [packages/client-core/components/editor/assets/sources/index.tsx:8](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/assets/sources/index.tsx#L8)
 
 ___
 
@@ -104,7 +104,7 @@ ___
 
 • **privacyPolicyUrl**: *string*
 
-Defined in: [packages/client-core/components/editor/assets/sources/MyAssetsSource.tsx:27](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/assets/sources/MyAssetsSource.tsx#L27)
+Defined in: [packages/client-core/components/editor/assets/sources/MyAssetsSource.tsx:27](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/assets/sources/MyAssetsSource.tsx#L27)
 
 ___
 
@@ -114,7 +114,7 @@ ___
 
 Inherited from: [BaseSource](client_core_components_editor_assets_sources.basesource.md).[requiresAuthentication](client_core_components_editor_assets_sources.basesource.md#requiresauthentication)
 
-Defined in: [packages/client-core/components/editor/assets/sources/index.tsx:11](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/assets/sources/index.tsx#L11)
+Defined in: [packages/client-core/components/editor/assets/sources/index.tsx:11](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/assets/sources/index.tsx#L11)
 
 ___
 
@@ -124,7 +124,7 @@ ___
 
 Inherited from: [BaseSource](client_core_components_editor_assets_sources.basesource.md).[searchDebounceTimeout](client_core_components_editor_assets_sources.basesource.md#searchdebouncetimeout)
 
-Defined in: [packages/client-core/components/editor/assets/sources/index.tsx:13](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/assets/sources/index.tsx#L13)
+Defined in: [packages/client-core/components/editor/assets/sources/index.tsx:13](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/assets/sources/index.tsx#L13)
 
 ___
 
@@ -132,7 +132,7 @@ ___
 
 • **searchLegalCopy**: *string*
 
-Defined in: [packages/client-core/components/editor/assets/sources/MyAssetsSource.tsx:26](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/assets/sources/MyAssetsSource.tsx#L26)
+Defined in: [packages/client-core/components/editor/assets/sources/MyAssetsSource.tsx:26](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/assets/sources/MyAssetsSource.tsx#L26)
 
 ___
 
@@ -140,7 +140,7 @@ ___
 
 • **tags**: { `label`: *string* ; `value`: *string*  }[]
 
-Defined in: [packages/client-core/components/editor/assets/sources/MyAssetsSource.tsx:25](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/assets/sources/MyAssetsSource.tsx#L25)
+Defined in: [packages/client-core/components/editor/assets/sources/MyAssetsSource.tsx:25](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/assets/sources/MyAssetsSource.tsx#L25)
 
 ___
 
@@ -148,7 +148,7 @@ ___
 
 • **uploadMultiple**: *boolean*
 
-Defined in: [packages/client-core/components/editor/assets/sources/MyAssetsSource.tsx:28](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/assets/sources/MyAssetsSource.tsx#L28)
+Defined in: [packages/client-core/components/editor/assets/sources/MyAssetsSource.tsx:28](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/assets/sources/MyAssetsSource.tsx#L28)
 
 ___
 
@@ -158,7 +158,7 @@ ___
 
 Inherited from: [BaseSource](client_core_components_editor_assets_sources.basesource.md).[uploadSource](client_core_components_editor_assets_sources.basesource.md#uploadsource)
 
-Defined in: [packages/client-core/components/editor/assets/sources/index.tsx:12](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/assets/sources/index.tsx#L12)
+Defined in: [packages/client-core/components/editor/assets/sources/index.tsx:12](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/assets/sources/index.tsx#L12)
 
 ___
 
@@ -210,7 +210,7 @@ Name | Type |
 
 **Returns:** *Promise*<void\>
 
-Defined in: [packages/client-core/components/editor/assets/sources/MyAssetsSource.tsx:60](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/assets/sources/MyAssetsSource.tsx#L60)
+Defined in: [packages/client-core/components/editor/assets/sources/MyAssetsSource.tsx:60](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/assets/sources/MyAssetsSource.tsx#L60)
 
 ___
 
@@ -450,7 +450,7 @@ Name | Type |
 
 Overrides: [BaseSource](client_core_components_editor_assets_sources.basesource.md)
 
-Defined in: [packages/client-core/components/editor/assets/sources/MyAssetsSource.tsx:64](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/assets/sources/MyAssetsSource.tsx#L64)
+Defined in: [packages/client-core/components/editor/assets/sources/MyAssetsSource.tsx:64](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/assets/sources/MyAssetsSource.tsx#L64)
 
 ___
 
@@ -468,4 +468,4 @@ Name | Type |
 
 **Returns:** *Promise*<any\>
 
-Defined in: [packages/client-core/components/editor/assets/sources/MyAssetsSource.tsx:50](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/assets/sources/MyAssetsSource.tsx#L50)
+Defined in: [packages/client-core/components/editor/assets/sources/MyAssetsSource.tsx:50](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/assets/sources/MyAssetsSource.tsx#L50)

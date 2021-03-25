@@ -14,4 +14,4 @@ hide_title: true
 
 • `Const` **Filters**: *any*
 
-Defined in: [packages/client-core/components/editor/assets/Filters.tsx:5](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/assets/Filters.tsx#L5)
+Defined in: [packages/client-core/components/editor/assets/Filters.tsx:5](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/assets/Filters.tsx#L5)

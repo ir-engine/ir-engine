@@ -14,7 +14,7 @@ hide_title: true
 
 • `Const` **initialState**: [*PublicVideoState*](../interfaces/client_core_redux_video_actions.publicvideostate.md)
 
-Defined in: [packages/client-core/redux/video/reducers.ts:12](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/video/reducers.ts#L12)
+Defined in: [packages/client-core/redux/video/reducers.ts:12](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/video/reducers.ts#L12)
 
 ## Functions
 
@@ -31,4 +31,4 @@ Name | Type |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/redux/video/reducers.ts:19](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/video/reducers.ts#L19)
+Defined in: [packages/client-core/redux/video/reducers.ts:19](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/video/reducers.ts#L19)

@@ -17,7 +17,7 @@ module.exports = {
         entryPoints: [
                         '../client-core',
                         '../client'
-                    ],
+                     ],
         exclude: '../client-core/components/ui/InteractableModal',
         tsconfig: '../client-core/tsconfig.json',
         exclude: [
@@ -30,25 +30,14 @@ module.exports = {
         }
       },
     ],
-    // [
-    //   'docusaurus-plugin-typedoc',
-    //   {
-    //     id:'api-2',
-    //     entryPoints: ['../engine/src/initialize.ts'],
-    //     tsconfig: '../engine/tsconfig.json',
-    //     sidebar: {
-    //       sidebarFile: 'tsdoc-engine-sidebar.js',
-    //     },
-    //   },
-    // ],
   ],
   themeConfig: {
     navbar: {
-      title: 'xr3ngine',
-      // logo: {
-      //   alt: 'My Site Logo',
-      //   src: 'img/logo.svg',
-      // },
+      // title: 'xr3ngine',
+      logo: {
+        alt: 'Logo',
+        src: 'https://github.com/xr3ngine/xr3ngine/raw/dev/xrengine%20black.png',
+      },
       items: [
         {
           to: 'docs/',
@@ -56,9 +45,9 @@ module.exports = {
           label: 'Docs',
           position: 'left',
         },
-        {to: 'blog', label: 'Blog', position: 'left'},
+        // {to: 'blog', label: 'Blog', position: 'left'},
         {
-          href: 'https://github.com/facebook/docusaurus',
+          href: 'https://github.com/xr3ngine/xr3ngine',
           label: 'GitHub',
           position: 'right',
         },
@@ -71,8 +60,20 @@ module.exports = {
           title: 'Docs',
           items: [
             {
-              label: 'Second Doc',
+              label: 'Introduction',
+              to: 'docs/doc1/',
+            },
+            {
+              label: 'Installation',
               to: 'docs/doc2/',
+            },
+            {
+              label: 'Deployment',
+              to: 'docs/doc3/',
+            },
+            {
+              label: 'Configurations',
+              to: 'docs/doc4/',
             },
           ],
         },
@@ -80,34 +81,17 @@ module.exports = {
           title: 'Community',
           items: [
             {
-              label: 'Stack Overflow',
-              href: 'https://stackoverflow.com/questions/tagged/docusaurus',
-            },
-            {
               label: 'Discord',
-              href: 'https://discordapp.com/invite/docusaurus',
+              href: 'https://discord.gg/mQ3D4FE',
             },
             {
-              label: 'Twitter',
-              href: 'https://twitter.com/docusaurus',
+              label: 'Github',
+              href: 'https://github.com/xr3ngine/xr3ngine',
             }
           ],
-        },
-        {
-          title: 'More',
-          items: [
-            {
-              label: 'Blog',
-              to: 'blog',
-            },
-            {
-              label: 'GitHub',
-              href: 'https://github.com/facebook/docusaurus',
-            },
-          ],
-        },
+        }
       ],
-      copyright: `Copyright © ${new Date().getFullYear()} My Project, Inc. Built with Docusaurus.`,
+      copyright: `Copyright © ${new Date().getFullYear()} THEOVERLAY, Inc. Built with LAGUNA LABS.`,
     },
   },
   presets: [

@@ -37,7 +37,7 @@ Name | Type |
 
 Overrides: [BaseSource](client_core_components_editor_assets_sources.basesource.md)
 
-Defined in: [packages/client-core/components/editor/assets/sources/ElementsSource.tsx:21](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/assets/sources/ElementsSource.tsx#L21)
+Defined in: [packages/client-core/components/editor/assets/sources/ElementsSource.tsx:21](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/assets/sources/ElementsSource.tsx#L21)
 
 ## Properties
 
@@ -47,7 +47,7 @@ Defined in: [packages/client-core/components/editor/assets/sources/ElementsSourc
 
 Inherited from: [BaseSource](client_core_components_editor_assets_sources.basesource.md).[assetPanelComponent](client_core_components_editor_assets_sources.basesource.md#assetpanelcomponent)
 
-Defined in: [packages/client-core/components/editor/assets/sources/index.tsx:10](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/assets/sources/index.tsx#L10)
+Defined in: [packages/client-core/components/editor/assets/sources/index.tsx:10](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/assets/sources/index.tsx#L10)
 
 ___
 
@@ -55,7 +55,7 @@ ___
 
 • **component**: *typeof* [*default*](../modules/client_core_components_editor_assets_mediasourcepanel.md#default)
 
-Defined in: [packages/client-core/components/editor/assets/sources/ElementsSource.tsx:16](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/assets/sources/ElementsSource.tsx#L16)
+Defined in: [packages/client-core/components/editor/assets/sources/ElementsSource.tsx:16](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/assets/sources/ElementsSource.tsx#L16)
 
 ___
 
@@ -63,7 +63,7 @@ ___
 
 • **disableUrl**: *boolean*
 
-Defined in: [packages/client-core/components/editor/assets/sources/ElementsSource.tsx:20](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/assets/sources/ElementsSource.tsx#L20)
+Defined in: [packages/client-core/components/editor/assets/sources/ElementsSource.tsx:20](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/assets/sources/ElementsSource.tsx#L20)
 
 ___
 
@@ -71,7 +71,7 @@ ___
 
 • **editor**: [*default*](client_core_components_editor_editor.default.md)
 
-Defined in: [packages/client-core/components/editor/assets/sources/ElementsSource.tsx:17](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/assets/sources/ElementsSource.tsx#L17)
+Defined in: [packages/client-core/components/editor/assets/sources/ElementsSource.tsx:17](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/assets/sources/ElementsSource.tsx#L17)
 
 ___
 
@@ -81,7 +81,7 @@ ___
 
 Inherited from: [BaseSource](client_core_components_editor_assets_sources.basesource.md).[iconComponent](client_core_components_editor_assets_sources.basesource.md#iconcomponent)
 
-Defined in: [packages/client-core/components/editor/assets/sources/index.tsx:9](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/assets/sources/index.tsx#L9)
+Defined in: [packages/client-core/components/editor/assets/sources/index.tsx:9](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/assets/sources/index.tsx#L9)
 
 ___
 
@@ -91,7 +91,7 @@ ___
 
 Overrides: [BaseSource](client_core_components_editor_assets_sources.basesource.md).[id](client_core_components_editor_assets_sources.basesource.md#id)
 
-Defined in: [packages/client-core/components/editor/assets/sources/ElementsSource.tsx:18](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/assets/sources/ElementsSource.tsx#L18)
+Defined in: [packages/client-core/components/editor/assets/sources/ElementsSource.tsx:18](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/assets/sources/ElementsSource.tsx#L18)
 
 ___
 
@@ -101,7 +101,7 @@ ___
 
 Overrides: [BaseSource](client_core_components_editor_assets_sources.basesource.md).[name](client_core_components_editor_assets_sources.basesource.md#name)
 
-Defined in: [packages/client-core/components/editor/assets/sources/ElementsSource.tsx:19](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/assets/sources/ElementsSource.tsx#L19)
+Defined in: [packages/client-core/components/editor/assets/sources/ElementsSource.tsx:19](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/assets/sources/ElementsSource.tsx#L19)
 
 ___
 
@@ -111,7 +111,7 @@ ___
 
 Inherited from: [BaseSource](client_core_components_editor_assets_sources.basesource.md).[requiresAuthentication](client_core_components_editor_assets_sources.basesource.md#requiresauthentication)
 
-Defined in: [packages/client-core/components/editor/assets/sources/index.tsx:11](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/assets/sources/index.tsx#L11)
+Defined in: [packages/client-core/components/editor/assets/sources/index.tsx:11](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/assets/sources/index.tsx#L11)
 
 ___
 
@@ -121,7 +121,7 @@ ___
 
 Overrides: [BaseSource](client_core_components_editor_assets_sources.basesource.md).[searchDebounceTimeout](client_core_components_editor_assets_sources.basesource.md#searchdebouncetimeout)
 
-Defined in: [packages/client-core/components/editor/assets/sources/ElementsSource.tsx:21](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/assets/sources/ElementsSource.tsx#L21)
+Defined in: [packages/client-core/components/editor/assets/sources/ElementsSource.tsx:21](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/assets/sources/ElementsSource.tsx#L21)
 
 ___
 
@@ -131,7 +131,7 @@ ___
 
 Inherited from: [BaseSource](client_core_components_editor_assets_sources.basesource.md).[uploadSource](client_core_components_editor_assets_sources.basesource.md#uploadsource)
 
-Defined in: [packages/client-core/components/editor/assets/sources/index.tsx:12](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/assets/sources/index.tsx#L12)
+Defined in: [packages/client-core/components/editor/assets/sources/index.tsx:12](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/assets/sources/index.tsx#L12)
 
 ___
 
@@ -320,7 +320,7 @@ ___
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/assets/sources/ElementsSource.tsx:42](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/assets/sources/ElementsSource.tsx#L42)
+Defined in: [packages/client-core/components/editor/assets/sources/ElementsSource.tsx:42](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/assets/sources/ElementsSource.tsx#L42)
 
 ___
 
@@ -330,7 +330,7 @@ ___
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/assets/sources/ElementsSource.tsx:37](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/assets/sources/ElementsSource.tsx#L37)
+Defined in: [packages/client-core/components/editor/assets/sources/ElementsSource.tsx:37](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/assets/sources/ElementsSource.tsx#L37)
 
 ___
 
@@ -425,4 +425,4 @@ Name | Type |
 
 Overrides: [BaseSource](client_core_components_editor_assets_sources.basesource.md)
 
-Defined in: [packages/client-core/components/editor/assets/sources/ElementsSource.tsx:48](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/assets/sources/ElementsSource.tsx#L48)
+Defined in: [packages/client-core/components/editor/assets/sources/ElementsSource.tsx:48](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/assets/sources/ElementsSource.tsx#L48)

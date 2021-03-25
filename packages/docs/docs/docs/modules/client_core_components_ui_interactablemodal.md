@@ -21,7 +21,7 @@ Name | Type |
 `data` | CommonInteractiveDataPayload |
 `onClose` | *unknown* |
 
-Defined in: [packages/client-core/components/ui/InteractableModal/index.tsx:14](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/ui/InteractableModal/index.tsx#L14)
+Defined in: [packages/client-core/components/ui/InteractableModal/index.tsx:14](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/ui/InteractableModal/index.tsx#L14)
 
 ## Variables
 
@@ -29,4 +29,4 @@ Defined in: [packages/client-core/components/ui/InteractableModal/index.tsx:14](
 
 • `Const` **InteractableModal**: *FunctionComponent*<[*InteractableModalProps*](client_core_components_ui_interactablemodal.md#interactablemodalprops)\>
 
-Defined in: [packages/client-core/components/ui/InteractableModal/index.tsx:19](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/ui/InteractableModal/index.tsx#L19)
+Defined in: [packages/client-core/components/ui/InteractableModal/index.tsx:19](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/ui/InteractableModal/index.tsx#L19)

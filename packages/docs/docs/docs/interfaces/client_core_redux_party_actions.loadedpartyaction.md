@@ -16,7 +16,7 @@ hide_title: true
 
 • **party**: Party
 
-Defined in: [packages/client-core/redux/party/actions.ts:19](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/party/actions.ts#L19)
+Defined in: [packages/client-core/redux/party/actions.ts:19](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/party/actions.ts#L19)
 
 ___
 
@@ -24,4 +24,4 @@ ___
 
 • **type**: *string*
 
-Defined in: [packages/client-core/redux/party/actions.ts:18](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/party/actions.ts#L18)
+Defined in: [packages/client-core/redux/party/actions.ts:18](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/party/actions.ts#L18)

@@ -149,7 +149,7 @@ ___
 
 ▪ `Static` **description**: *string*= "A light which illuminates the scene from directly overhead."
 
-Defined in: [packages/client-core/components/editor/properties/HemisphereLightNodeEditor.tsx:26](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/properties/HemisphereLightNodeEditor.tsx#L26)
+Defined in: [packages/client-core/components/editor/properties/HemisphereLightNodeEditor.tsx:26](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/HemisphereLightNodeEditor.tsx#L26)
 
 ___
 
@@ -157,7 +157,7 @@ ___
 
 ▪ `Static` **iconComponent**: StyledIcon
 
-Defined in: [packages/client-core/components/editor/properties/HemisphereLightNodeEditor.tsx:23](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/properties/HemisphereLightNodeEditor.tsx#L23)
+Defined in: [packages/client-core/components/editor/properties/HemisphereLightNodeEditor.tsx:23](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/HemisphereLightNodeEditor.tsx#L23)
 
 ## Methods
 
@@ -480,7 +480,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/properties/HemisphereLightNodeEditor.tsx:34](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/properties/HemisphereLightNodeEditor.tsx#L34)
+Defined in: [packages/client-core/components/editor/properties/HemisphereLightNodeEditor.tsx:34](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/HemisphereLightNodeEditor.tsx#L34)
 
 ___
 
@@ -496,7 +496,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/properties/HemisphereLightNodeEditor.tsx:39](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/properties/HemisphereLightNodeEditor.tsx#L39)
+Defined in: [packages/client-core/components/editor/properties/HemisphereLightNodeEditor.tsx:39](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/HemisphereLightNodeEditor.tsx#L39)
 
 ___
 
@@ -512,7 +512,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/properties/HemisphereLightNodeEditor.tsx:29](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/properties/HemisphereLightNodeEditor.tsx#L29)
+Defined in: [packages/client-core/components/editor/properties/HemisphereLightNodeEditor.tsx:29](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/HemisphereLightNodeEditor.tsx#L29)
 
 ___
 
@@ -524,7 +524,7 @@ ___
 
 Overrides: void
 
-Defined in: [packages/client-core/components/editor/properties/HemisphereLightNodeEditor.tsx:44](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/properties/HemisphereLightNodeEditor.tsx#L44)
+Defined in: [packages/client-core/components/editor/properties/HemisphereLightNodeEditor.tsx:44](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/HemisphereLightNodeEditor.tsx#L44)
 
 ___
 

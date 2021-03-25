@@ -16,4 +16,4 @@ hide_title: true
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/components/editor/inputs/ProgressBar.tsx:77](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/inputs/ProgressBar.tsx#L77)
+Defined in: [packages/client-core/components/editor/inputs/ProgressBar.tsx:77](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/inputs/ProgressBar.tsx#L77)

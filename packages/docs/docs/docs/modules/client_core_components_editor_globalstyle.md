@@ -16,4 +16,4 @@ hide_title: true
 
 [GlobalStyle component used to provide common styles all over application]
 
-Defined in: [packages/client-core/components/editor/GlobalStyle.tsx:8](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/GlobalStyle.tsx#L8)
+Defined in: [packages/client-core/components/editor/GlobalStyle.tsx:8](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/GlobalStyle.tsx#L8)

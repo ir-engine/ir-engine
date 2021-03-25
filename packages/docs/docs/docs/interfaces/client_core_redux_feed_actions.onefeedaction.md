@@ -16,7 +16,7 @@ hide_title: true
 
 • **feedId**: *string*
 
-Defined in: [packages/client-core/redux/feed/actions.ts:33](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/feed/actions.ts#L33)
+Defined in: [packages/client-core/redux/feed/actions.ts:33](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/feed/actions.ts#L33)
 
 ___
 
@@ -24,4 +24,4 @@ ___
 
 • **type**: *string*
 
-Defined in: [packages/client-core/redux/feed/actions.ts:32](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/feed/actions.ts#L32)
+Defined in: [packages/client-core/redux/feed/actions.ts:32](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/feed/actions.ts#L32)

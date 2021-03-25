@@ -16,7 +16,7 @@ hide_title: true
 
 • **content**: *any*
 
-Defined in: [packages/client-core/redux/devicedetect/actions.tsx:5](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/devicedetect/actions.tsx#L5)
+Defined in: [packages/client-core/redux/devicedetect/actions.tsx:5](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/devicedetect/actions.tsx#L5)
 
 ___
 
@@ -24,4 +24,4 @@ ___
 
 • **isDetected**: *boolean*
 
-Defined in: [packages/client-core/redux/devicedetect/actions.tsx:4](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/devicedetect/actions.tsx#L4)
+Defined in: [packages/client-core/redux/devicedetect/actions.tsx:4](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/devicedetect/actions.tsx#L4)

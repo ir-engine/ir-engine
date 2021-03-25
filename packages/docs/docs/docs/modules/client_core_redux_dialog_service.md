@@ -16,7 +16,7 @@ hide_title: true
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *any*
 
-Defined in: [packages/client-core/redux/dialog/service.ts:12](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/dialog/service.ts#L12)
+Defined in: [packages/client-core/redux/dialog/service.ts:12](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/dialog/service.ts#L12)
 
 ___
 
@@ -32,4 +32,4 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *any*
 
-Defined in: [packages/client-core/redux/dialog/service.ts:7](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/dialog/service.ts#L7)
+Defined in: [packages/client-core/redux/dialog/service.ts:7](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/dialog/service.ts#L7)

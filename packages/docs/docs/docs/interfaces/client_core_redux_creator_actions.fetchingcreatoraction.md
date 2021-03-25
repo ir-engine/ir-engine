@@ -16,4 +16,4 @@ hide_title: true
 
 • **type**: *string*
 
-Defined in: [packages/client-core/redux/creator/actions.ts:19](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/creator/actions.ts#L19)
+Defined in: [packages/client-core/redux/creator/actions.ts:19](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/creator/actions.ts#L19)

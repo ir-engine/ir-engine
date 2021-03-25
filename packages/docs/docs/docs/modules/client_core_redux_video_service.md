@@ -22,4 +22,4 @@ Name | Type | Default value |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *any*
 
-Defined in: [packages/client-core/redux/video/service.ts:9](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/video/service.ts#L9)
+Defined in: [packages/client-core/redux/video/service.ts:9](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/video/service.ts#L9)
