@@ -22,7 +22,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/redux/party/service.ts:70](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/party/service.ts#L70)
+Defined in: [packages/client-core/redux/party/service.ts:70](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/party/service.ts#L70)
 
 ___
 
@@ -32,7 +32,7 @@ ___
 
 **Returns:** *Promise*<void\>
 
-Defined in: [packages/client-core/redux/party/service.ts:32](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/party/service.ts#L32)
+Defined in: [packages/client-core/redux/party/service.ts:32](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/party/service.ts#L32)
 
 ___
 
@@ -42,7 +42,7 @@ ___
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>, `getState`: *any*) => *Promise*<any\>
 
-Defined in: [packages/client-core/redux/party/service.ts:17](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/party/service.ts#L17)
+Defined in: [packages/client-core/redux/party/service.ts:17](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/party/service.ts#L17)
 
 ___
 
@@ -58,7 +58,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/redux/party/service.ts:82](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/party/service.ts#L82)
+Defined in: [packages/client-core/redux/party/service.ts:82](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/party/service.ts#L82)
 
 ___
 
@@ -74,7 +74,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/redux/party/service.ts:102](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/party/service.ts#L102)
+Defined in: [packages/client-core/redux/party/service.ts:102](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/party/service.ts#L102)
 
 ___
 
@@ -90,4 +90,4 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/redux/party/service.ts:113](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/party/service.ts#L113)
+Defined in: [packages/client-core/redux/party/service.ts:113](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/party/service.ts#L113)

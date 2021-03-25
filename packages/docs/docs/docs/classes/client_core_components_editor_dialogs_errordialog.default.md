@@ -118,7 +118,7 @@ Name | Type |
 
 Overrides: void
 
-Defined in: [packages/client-core/components/editor/dialogs/ErrorDialog.tsx:38](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/dialogs/ErrorDialog.tsx#L38)
+Defined in: [packages/client-core/components/editor/dialogs/ErrorDialog.tsx:38](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/dialogs/ErrorDialog.tsx#L38)
 
 ___
 
@@ -278,7 +278,7 @@ ___
 
 Overrides: void
 
-Defined in: [packages/client-core/components/editor/dialogs/ErrorDialog.tsx:41](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/dialogs/ErrorDialog.tsx#L41)
+Defined in: [packages/client-core/components/editor/dialogs/ErrorDialog.tsx:41](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/dialogs/ErrorDialog.tsx#L41)
 
 ___
 
@@ -464,7 +464,7 @@ ___
 
 Overrides: void
 
-Defined in: [packages/client-core/components/editor/dialogs/ErrorDialog.tsx:48](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/dialogs/ErrorDialog.tsx#L48)
+Defined in: [packages/client-core/components/editor/dialogs/ErrorDialog.tsx:48](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/dialogs/ErrorDialog.tsx#L48)
 
 ___
 

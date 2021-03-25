@@ -16,7 +16,7 @@ hide_title: true
 
 • **channelId**: *string*
 
-Defined in: [packages/client-core/redux/channelConnection/actions.ts:20](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/channelConnection/actions.ts#L20)
+Defined in: [packages/client-core/redux/channelConnection/actions.ts:20](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/channelConnection/actions.ts#L20)
 
 ___
 
@@ -24,7 +24,7 @@ ___
 
 • **ipAddress**: *string*
 
-Defined in: [packages/client-core/redux/channelConnection/actions.ts:18](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/channelConnection/actions.ts#L18)
+Defined in: [packages/client-core/redux/channelConnection/actions.ts:18](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/channelConnection/actions.ts#L18)
 
 ___
 
@@ -32,7 +32,7 @@ ___
 
 • **port**: *string*
 
-Defined in: [packages/client-core/redux/channelConnection/actions.ts:19](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/channelConnection/actions.ts#L19)
+Defined in: [packages/client-core/redux/channelConnection/actions.ts:19](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/channelConnection/actions.ts#L19)
 
 ___
 
@@ -40,4 +40,4 @@ ___
 
 • **type**: *string*
 
-Defined in: [packages/client-core/redux/channelConnection/actions.ts:17](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/channelConnection/actions.ts#L17)
+Defined in: [packages/client-core/redux/channelConnection/actions.ts:17](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/channelConnection/actions.ts#L17)

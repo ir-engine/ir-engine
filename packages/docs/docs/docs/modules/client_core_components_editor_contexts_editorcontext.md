@@ -16,7 +16,7 @@ hide_title: true
 
 [initializing EditorContext]
 
-Defined in: [packages/client-core/components/editor/contexts/EditorContext.tsx:6](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/contexts/EditorContext.tsx#L6)
+Defined in: [packages/client-core/components/editor/contexts/EditorContext.tsx:6](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/contexts/EditorContext.tsx#L6)
 
 ___
 
@@ -26,7 +26,7 @@ ___
 
 [EditorContextProvider used to access value of component context]
 
-Defined in: [packages/client-core/components/editor/contexts/EditorContext.tsx:11](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/contexts/EditorContext.tsx#L11)
+Defined in: [packages/client-core/components/editor/contexts/EditorContext.tsx:11](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/contexts/EditorContext.tsx#L11)
 
 ## Functions
 
@@ -44,4 +44,4 @@ Name | Type |
 
 **Returns:** (`props`: *any*) => *Element*
 
-Defined in: [packages/client-core/components/editor/contexts/EditorContext.tsx:16](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/contexts/EditorContext.tsx#L16)
+Defined in: [packages/client-core/components/editor/contexts/EditorContext.tsx:16](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/contexts/EditorContext.tsx#L16)

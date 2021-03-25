@@ -466,7 +466,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/properties/LightShadowProperties.tsx:58](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/properties/LightShadowProperties.tsx#L58)
+Defined in: [packages/client-core/components/editor/properties/LightShadowProperties.tsx:58](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/LightShadowProperties.tsx#L58)
 
 ___
 
@@ -482,7 +482,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/properties/LightShadowProperties.tsx:63](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/properties/LightShadowProperties.tsx#L63)
+Defined in: [packages/client-core/components/editor/properties/LightShadowProperties.tsx:63](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/LightShadowProperties.tsx#L63)
 
 ___
 
@@ -498,7 +498,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/properties/LightShadowProperties.tsx:50](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/properties/LightShadowProperties.tsx#L50)
+Defined in: [packages/client-core/components/editor/properties/LightShadowProperties.tsx:50](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/LightShadowProperties.tsx#L50)
 
 ___
 
@@ -514,7 +514,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/properties/LightShadowProperties.tsx:68](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/properties/LightShadowProperties.tsx#L68)
+Defined in: [packages/client-core/components/editor/properties/LightShadowProperties.tsx:68](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/LightShadowProperties.tsx#L68)
 
 ___
 
@@ -526,7 +526,7 @@ ___
 
 Overrides: void
 
-Defined in: [packages/client-core/components/editor/properties/LightShadowProperties.tsx:73](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/properties/LightShadowProperties.tsx#L73)
+Defined in: [packages/client-core/components/editor/properties/LightShadowProperties.tsx:73](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/LightShadowProperties.tsx#L73)
 
 ___
 

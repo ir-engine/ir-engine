@@ -21,7 +21,7 @@ hide_title: true
 
 • `Const` **DEFAULT\_PROFILE\_IMG\_PLACEHOLDER**: */placeholders/default-silhouette.svg*= '/placeholders/default-silhouette.svg'
 
-Defined in: [packages/client-core/components/ui/UserMenu/util.tsx:39](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/ui/UserMenu/util.tsx#L39)
+Defined in: [packages/client-core/components/ui/UserMenu/util.tsx:39](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/ui/UserMenu/util.tsx#L39)
 
 ___
 
@@ -42,7 +42,7 @@ Name | Type |
 `Settings` | *string* |
 `Share` | *string* |
 
-Defined in: [packages/client-core/components/ui/UserMenu/util.tsx:1](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/ui/UserMenu/util.tsx#L1)
+Defined in: [packages/client-core/components/ui/UserMenu/util.tsx:1](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/ui/UserMenu/util.tsx#L1)
 
 ## Functions
 
@@ -59,4 +59,4 @@ Name | Type |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/components/ui/UserMenu/util.tsx:41](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/ui/UserMenu/util.tsx#L41)
+Defined in: [packages/client-core/components/ui/UserMenu/util.tsx:41](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/ui/UserMenu/util.tsx#L41)

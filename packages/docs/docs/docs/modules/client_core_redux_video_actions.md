@@ -34,7 +34,7 @@ Name | Type |
 
 **Returns:** [*VideosFetchedAction*](../interfaces/client_core_redux_video_actions.videosfetchedaction.md)
 
-Defined in: [packages/client-core/redux/video/actions.ts:57](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/video/actions.ts#L57)
+Defined in: [packages/client-core/redux/video/actions.ts:57](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/video/actions.ts#L57)
 
 ___
 
@@ -50,4 +50,4 @@ Name | Type |
 
 **Returns:** [*VideosFetchedAction*](../interfaces/client_core_redux_video_actions.videosfetchedaction.md)
 
-Defined in: [packages/client-core/redux/video/actions.ts:50](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/video/actions.ts#L50)
+Defined in: [packages/client-core/redux/video/actions.ts:50](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/video/actions.ts#L50)

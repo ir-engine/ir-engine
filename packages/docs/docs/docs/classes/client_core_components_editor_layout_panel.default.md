@@ -156,7 +156,7 @@ Name | Type |
 `title` | *Requireable*<string\> |
 `toolbarContent` | *Requireable*<ReactNodeLike\> |
 
-Defined in: [packages/client-core/components/editor/layout/Panel.tsx:39](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/layout/Panel.tsx#L39)
+Defined in: [packages/client-core/components/editor/layout/Panel.tsx:39](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/layout/Panel.tsx#L39)
 
 ## Methods
 
@@ -475,7 +475,7 @@ ___
 
 Overrides: void
 
-Defined in: [packages/client-core/components/editor/layout/Panel.tsx:46](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/layout/Panel.tsx#L46)
+Defined in: [packages/client-core/components/editor/layout/Panel.tsx:46](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/layout/Panel.tsx#L46)
 
 ___
 

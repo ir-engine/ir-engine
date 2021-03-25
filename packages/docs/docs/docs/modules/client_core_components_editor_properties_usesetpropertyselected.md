@@ -23,4 +23,4 @@ Name | Type |
 
 **Returns:** (`value`: *any*) => *any*
 
-Defined in: [packages/client-core/components/editor/properties/useSetPropertySelected.tsx:4](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/properties/useSetPropertySelected.tsx#L4)
+Defined in: [packages/client-core/components/editor/properties/useSetPropertySelected.tsx:4](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/useSetPropertySelected.tsx#L4)

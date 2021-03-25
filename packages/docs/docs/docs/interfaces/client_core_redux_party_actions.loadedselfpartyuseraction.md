@@ -16,7 +16,7 @@ hide_title: true
 
 • **selfPartyUser**: PartyUser
 
-Defined in: [packages/client-core/redux/party/actions.ts:111](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/party/actions.ts#L111)
+Defined in: [packages/client-core/redux/party/actions.ts:111](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/party/actions.ts#L111)
 
 ___
 
@@ -24,7 +24,7 @@ ___
 
 • **total**: *number*
 
-Defined in: [packages/client-core/redux/party/actions.ts:112](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/party/actions.ts#L112)
+Defined in: [packages/client-core/redux/party/actions.ts:112](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/party/actions.ts#L112)
 
 ___
 
@@ -32,4 +32,4 @@ ___
 
 • **type**: *string*
 
-Defined in: [packages/client-core/redux/party/actions.ts:110](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/party/actions.ts#L110)
+Defined in: [packages/client-core/redux/party/actions.ts:110](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/party/actions.ts#L110)

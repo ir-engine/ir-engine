@@ -21,7 +21,7 @@ Name | Type |
 `channelId` | *string* |
 `channelType` | *string* |
 
-Defined in: [packages/client-core/redux/transport/reducers.ts:7](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/transport/reducers.ts#L7)
+Defined in: [packages/client-core/redux/transport/reducers.ts:7](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/transport/reducers.ts#L7)
 
 ## Functions
 
@@ -38,4 +38,4 @@ Name | Type |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/redux/transport/reducers.ts:14](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/transport/reducers.ts#L14)
+Defined in: [packages/client-core/redux/transport/reducers.ts:14](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/transport/reducers.ts#L14)

@@ -24,7 +24,7 @@ Name | Type |
 `creators.currentCreator` | *object* |
 `creators.fetching` | *boolean* |
 
-Defined in: [packages/client-core/redux/creator/reducers.ts:15](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/creator/reducers.ts#L15)
+Defined in: [packages/client-core/redux/creator/reducers.ts:15](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/creator/reducers.ts#L15)
 
 ## Functions
 
@@ -41,4 +41,4 @@ Name | Type |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/redux/creator/reducers.ts:26](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/creator/reducers.ts#L26)
+Defined in: [packages/client-core/redux/creator/reducers.ts:26](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/creator/reducers.ts#L26)

@@ -59,7 +59,7 @@ Defined in: packages/client-core/node_modules/@types/react/index.d.ts:474
 
 • **com**: *any*= null
 
-Defined in: [packages/client-core/components/terminal/components/Content/index.tsx:73](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/terminal/components/Content/index.tsx#L73)
+Defined in: [packages/client-core/components/terminal/components/Content/index.tsx:73](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/terminal/components/Content/index.tsx#L73)
 
 ___
 
@@ -67,7 +67,7 @@ ___
 
 • **contentWrapper**: *any*= null
 
-Defined in: [packages/client-core/components/terminal/components/Content/index.tsx:72](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/terminal/components/Content/index.tsx#L72)
+Defined in: [packages/client-core/components/terminal/components/Content/index.tsx:72](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/terminal/components/Content/index.tsx#L72)
 
 ___
 
@@ -99,7 +99,7 @@ ___
 
 • **inputWrapper**: *any*= null
 
-Defined in: [packages/client-core/components/terminal/components/Content/index.tsx:71](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/terminal/components/Content/index.tsx#L71)
+Defined in: [packages/client-core/components/terminal/components/Content/index.tsx:71](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/terminal/components/Content/index.tsx#L71)
 
 ___
 
@@ -148,7 +148,7 @@ Name | Type |
 
 Overrides: void
 
-Defined in: [packages/client-core/components/terminal/components/Content/index.tsx:34](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/terminal/components/Content/index.tsx#L34)
+Defined in: [packages/client-core/components/terminal/components/Content/index.tsx:34](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/terminal/components/Content/index.tsx#L34)
 
 ___
 
@@ -156,7 +156,7 @@ ___
 
 • **unregister**: *any*= null
 
-Defined in: [packages/client-core/components/terminal/components/Content/index.tsx:70](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/terminal/components/Content/index.tsx#L70)
+Defined in: [packages/client-core/components/terminal/components/Content/index.tsx:70](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/terminal/components/Content/index.tsx#L70)
 
 ___
 
@@ -202,7 +202,7 @@ Name | Type |
 `maximise` | *Requireable*<boolean\> |
 `tabsShowing` | *Requireable*<boolean\> |
 
-Defined in: [packages/client-core/components/terminal/components/Content/index.tsx:22](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/terminal/components/Content/index.tsx#L22)
+Defined in: [packages/client-core/components/terminal/components/Content/index.tsx:22](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/terminal/components/Content/index.tsx#L22)
 
 ___
 
@@ -217,7 +217,7 @@ Name | Type |
 `oldData` | *object* |
 `prompt` | *string* |
 
-Defined in: [packages/client-core/components/terminal/components/Content/index.tsx:29](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/terminal/components/Content/index.tsx#L29)
+Defined in: [packages/client-core/components/terminal/components/Content/index.tsx:29](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/terminal/components/Content/index.tsx#L29)
 
 ___
 
@@ -225,7 +225,7 @@ ___
 
 ▪ `Static` **displayName**: *string*= 'Content'
 
-Defined in: [packages/client-core/components/terminal/components/Content/index.tsx:11](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/terminal/components/Content/index.tsx#L11)
+Defined in: [packages/client-core/components/terminal/components/Content/index.tsx:11](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/terminal/components/Content/index.tsx#L11)
 
 ___
 
@@ -244,7 +244,7 @@ Name | Type |
 `prompt` | *Requireable*<string\> |
 `register` | *Requireable*<(...`args`: *any*[]) => *any*\> |
 
-Defined in: [packages/client-core/components/terminal/components/Content/index.tsx:13](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/terminal/components/Content/index.tsx#L13)
+Defined in: [packages/client-core/components/terminal/components/Content/index.tsx:13](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/terminal/components/Content/index.tsx#L13)
 
 ## Methods
 
@@ -375,7 +375,7 @@ ___
 
 Overrides: void
 
-Defined in: [packages/client-core/components/terminal/components/Content/index.tsx:46](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/terminal/components/Content/index.tsx#L46)
+Defined in: [packages/client-core/components/terminal/components/Content/index.tsx:46](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/terminal/components/Content/index.tsx#L46)
 
 ___
 
@@ -387,7 +387,7 @@ ___
 
 Overrides: void
 
-Defined in: [packages/client-core/components/terminal/components/Content/index.tsx:61](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/terminal/components/Content/index.tsx#L61)
+Defined in: [packages/client-core/components/terminal/components/Content/index.tsx:61](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/terminal/components/Content/index.tsx#L61)
 
 ___
 
@@ -457,7 +457,7 @@ ___
 
 Overrides: void
 
-Defined in: [packages/client-core/components/terminal/components/Content/index.tsx:66](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/terminal/components/Content/index.tsx#L66)
+Defined in: [packages/client-core/components/terminal/components/Content/index.tsx:66](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/terminal/components/Content/index.tsx#L66)
 
 ___
 
@@ -500,7 +500,7 @@ ___
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/terminal/components/Content/index.tsx:82](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/terminal/components/Content/index.tsx#L82)
+Defined in: [packages/client-core/components/terminal/components/Content/index.tsx:82](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/terminal/components/Content/index.tsx#L82)
 
 ___
 
@@ -560,7 +560,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/terminal/components/Content/index.tsx:88](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/terminal/components/Content/index.tsx#L88)
+Defined in: [packages/client-core/components/terminal/components/Content/index.tsx:88](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/terminal/components/Content/index.tsx#L88)
 
 ___
 
@@ -576,7 +576,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/terminal/components/Content/index.tsx:92](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/terminal/components/Content/index.tsx#L92)
+Defined in: [packages/client-core/components/terminal/components/Content/index.tsx:92](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/terminal/components/Content/index.tsx#L92)
 
 ___
 
@@ -592,7 +592,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/terminal/components/Content/index.tsx:96](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/terminal/components/Content/index.tsx#L96)
+Defined in: [packages/client-core/components/terminal/components/Content/index.tsx:96](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/terminal/components/Content/index.tsx#L96)
 
 ___
 
@@ -604,7 +604,7 @@ ___
 
 Overrides: void
 
-Defined in: [packages/client-core/components/terminal/components/Content/index.tsx:109](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/terminal/components/Content/index.tsx#L109)
+Defined in: [packages/client-core/components/terminal/components/Content/index.tsx:109](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/terminal/components/Content/index.tsx#L109)
 
 ___
 
@@ -620,7 +620,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/terminal/components/Content/index.tsx:75](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/terminal/components/Content/index.tsx#L75)
+Defined in: [packages/client-core/components/terminal/components/Content/index.tsx:75](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/terminal/components/Content/index.tsx#L75)
 
 ___
 

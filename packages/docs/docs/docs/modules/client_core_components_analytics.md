@@ -16,7 +16,7 @@ hide_title: true
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/analytics.tsx:3](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/analytics.tsx#L3)
+Defined in: [packages/client-core/components/analytics.tsx:3](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/analytics.tsx#L3)
 
 ___
 
@@ -26,4 +26,4 @@ ___
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/analytics.tsx:7](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/analytics.tsx#L7)
+Defined in: [packages/client-core/components/analytics.tsx:7](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/analytics.tsx#L7)

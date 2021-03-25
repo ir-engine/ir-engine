@@ -27,7 +27,7 @@ hide_title: true
 
 Ƭ **LocationsAction**: [*LocationsRetrievedAction*](../interfaces/client_core_redux_location_actions.locationsretrievedaction.md) \| [*LocationRetrievedAction*](../interfaces/client_core_redux_location_actions.locationretrievedaction.md) \| [*LocationBanCreatedAction*](../interfaces/client_core_redux_location_actions.locationbancreatedaction.md) \| [*FetchingCurrentLocationAction*](../interfaces/client_core_redux_location_actions.fetchingcurrentlocationaction.md) \| [*LocationNotFoundAction*](../interfaces/client_core_redux_location_actions.locationnotfoundaction.md)
 
-Defined in: [packages/client-core/redux/location/actions.ts:49](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/location/actions.ts#L49)
+Defined in: [packages/client-core/redux/location/actions.ts:49](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/location/actions.ts#L49)
 
 ## Functions
 
@@ -37,7 +37,7 @@ Defined in: [packages/client-core/redux/location/actions.ts:49](https://github.c
 
 **Returns:** [*FetchingCurrentLocationAction*](../interfaces/client_core_redux_location_actions.fetchingcurrentlocationaction.md)
 
-Defined in: [packages/client-core/redux/location/actions.ts:98](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/location/actions.ts#L98)
+Defined in: [packages/client-core/redux/location/actions.ts:98](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/location/actions.ts#L98)
 
 ___
 
@@ -47,7 +47,7 @@ ___
 
 **Returns:** [*LocationBanCreatedAction*](../interfaces/client_core_redux_location_actions.locationbancreatedaction.md)
 
-Defined in: [packages/client-core/redux/location/actions.ts:92](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/location/actions.ts#L92)
+Defined in: [packages/client-core/redux/location/actions.ts:92](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/location/actions.ts#L92)
 
 ___
 
@@ -63,7 +63,7 @@ Name | Type |
 
 **Returns:** [*LocationCreatedAction*](../interfaces/client_core_redux_location_actions.locationcreatedaction.md)
 
-Defined in: [packages/client-core/redux/location/actions.ts:70](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/location/actions.ts#L70)
+Defined in: [packages/client-core/redux/location/actions.ts:70](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/location/actions.ts#L70)
 
 ___
 
@@ -73,7 +73,7 @@ ___
 
 **Returns:** [*LocationNotFoundAction*](../interfaces/client_core_redux_location_actions.locationnotfoundaction.md)
 
-Defined in: [packages/client-core/redux/location/actions.ts:104](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/location/actions.ts#L104)
+Defined in: [packages/client-core/redux/location/actions.ts:104](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/location/actions.ts#L104)
 
 ___
 
@@ -89,7 +89,7 @@ Name | Type |
 
 **Returns:** [*LocationCreatedAction*](../interfaces/client_core_redux_location_actions.locationcreatedaction.md)
 
-Defined in: [packages/client-core/redux/location/actions.ts:78](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/location/actions.ts#L78)
+Defined in: [packages/client-core/redux/location/actions.ts:78](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/location/actions.ts#L78)
 
 ___
 
@@ -105,7 +105,7 @@ Name | Type |
 
 **Returns:** [*LocationCreatedAction*](../interfaces/client_core_redux_location_actions.locationcreatedaction.md)
 
-Defined in: [packages/client-core/redux/location/actions.ts:85](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/location/actions.ts#L85)
+Defined in: [packages/client-core/redux/location/actions.ts:85](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/location/actions.ts#L85)
 
 ___
 
@@ -121,7 +121,7 @@ Name | Type |
 
 **Returns:** [*LocationRetrievedAction*](../interfaces/client_core_redux_location_actions.locationretrievedaction.md)
 
-Defined in: [packages/client-core/redux/location/actions.ts:63](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/location/actions.ts#L63)
+Defined in: [packages/client-core/redux/location/actions.ts:63](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/location/actions.ts#L63)
 
 ___
 
@@ -137,4 +137,4 @@ Name | Type |
 
 **Returns:** [*LocationsRetrievedAction*](../interfaces/client_core_redux_location_actions.locationsretrievedaction.md)
 
-Defined in: [packages/client-core/redux/location/actions.ts:56](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/location/actions.ts#L56)
+Defined in: [packages/client-core/redux/location/actions.ts:56](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/location/actions.ts#L56)

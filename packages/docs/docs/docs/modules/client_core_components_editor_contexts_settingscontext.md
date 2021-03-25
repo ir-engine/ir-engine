@@ -16,7 +16,7 @@ hide_title: true
 
 [SettingsContextProvider provides component context value]
 
-Defined in: [packages/client-core/components/editor/contexts/SettingsContext.tsx:21](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/contexts/SettingsContext.tsx#L21)
+Defined in: [packages/client-core/components/editor/contexts/SettingsContext.tsx:21](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/contexts/SettingsContext.tsx#L21)
 
 ___
 
@@ -28,7 +28,7 @@ ___
 
 #### Type declaration:
 
-Defined in: [packages/client-core/components/editor/contexts/SettingsContext.tsx:7](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/contexts/SettingsContext.tsx#L7)
+Defined in: [packages/client-core/components/editor/contexts/SettingsContext.tsx:7](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/contexts/SettingsContext.tsx#L7)
 
 ## Functions
 
@@ -46,4 +46,4 @@ Name | Type |
 
 **Returns:** (`props`: *any*) => *Element*
 
-Defined in: [packages/client-core/components/editor/contexts/SettingsContext.tsx:26](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/contexts/SettingsContext.tsx#L26)
+Defined in: [packages/client-core/components/editor/contexts/SettingsContext.tsx:26](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/contexts/SettingsContext.tsx#L26)

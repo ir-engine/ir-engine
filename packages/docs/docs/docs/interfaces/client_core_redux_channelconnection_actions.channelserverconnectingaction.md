@@ -16,4 +16,4 @@ hide_title: true
 
 • **type**: *string*
 
-Defined in: [packages/client-core/redux/channelConnection/actions.ts:24](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/channelConnection/actions.ts#L24)
+Defined in: [packages/client-core/redux/channelConnection/actions.ts:24](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/channelConnection/actions.ts#L24)

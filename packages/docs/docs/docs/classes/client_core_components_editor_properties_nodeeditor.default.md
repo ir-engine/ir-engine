@@ -460,7 +460,7 @@ ___
 
 Overrides: void
 
-Defined in: [packages/client-core/components/editor/properties/NodeEditor.tsx:18](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/properties/NodeEditor.tsx#L18)
+Defined in: [packages/client-core/components/editor/properties/NodeEditor.tsx:18](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/NodeEditor.tsx#L18)
 
 ___
 

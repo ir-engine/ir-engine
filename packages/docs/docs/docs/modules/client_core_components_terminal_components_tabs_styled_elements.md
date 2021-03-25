@@ -14,7 +14,7 @@ hide_title: true
 
 • `Const` **Tab**: *any*
 
-Defined in: [packages/client-core/components/terminal/components/Tabs/styled-elements.tsx:39](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/terminal/components/Tabs/styled-elements.tsx#L39)
+Defined in: [packages/client-core/components/terminal/components/Tabs/styled-elements.tsx:39](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/terminal/components/Tabs/styled-elements.tsx#L39)
 
 ___
 
@@ -22,7 +22,7 @@ ___
 
 • `Const` **TabBar**: *any*
 
-Defined in: [packages/client-core/components/terminal/components/Tabs/styled-elements.tsx:3](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/terminal/components/Tabs/styled-elements.tsx#L3)
+Defined in: [packages/client-core/components/terminal/components/Tabs/styled-elements.tsx:3](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/terminal/components/Tabs/styled-elements.tsx#L3)
 
 ___
 
@@ -30,7 +30,7 @@ ___
 
 • `Const` **TabBarEmpty**: *any*
 
-Defined in: [packages/client-core/components/terminal/components/Tabs/styled-elements.tsx:13](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/terminal/components/Tabs/styled-elements.tsx#L13)
+Defined in: [packages/client-core/components/terminal/components/Tabs/styled-elements.tsx:13](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/terminal/components/Tabs/styled-elements.tsx#L13)
 
 ___
 
@@ -38,7 +38,7 @@ ___
 
 • `Const` **TabClose**: *any*
 
-Defined in: [packages/client-core/components/terminal/components/Tabs/styled-elements.tsx:20](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/terminal/components/Tabs/styled-elements.tsx#L20)
+Defined in: [packages/client-core/components/terminal/components/Tabs/styled-elements.tsx:20](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/terminal/components/Tabs/styled-elements.tsx#L20)
 
 ___
 
@@ -46,4 +46,4 @@ ___
 
 • `Const` **TabPlus**: *any*
 
-Defined in: [packages/client-core/components/terminal/components/Tabs/styled-elements.tsx:62](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/terminal/components/Tabs/styled-elements.tsx#L62)
+Defined in: [packages/client-core/components/terminal/components/Tabs/styled-elements.tsx:62](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/terminal/components/Tabs/styled-elements.tsx#L62)

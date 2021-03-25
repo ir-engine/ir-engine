@@ -22,4 +22,4 @@ Name | Type |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/components/social/FeedItemHeader.tsx:6](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/social/FeedItemHeader.tsx#L6)
+Defined in: [packages/client-core/components/social/FeedItemHeader.tsx:6](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/social/FeedItemHeader.tsx#L6)

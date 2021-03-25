@@ -16,4 +16,4 @@ hide_title: true
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *any*
 
-Defined in: [packages/client-core/redux/scenes/service.ts:13](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/scenes/service.ts#L13)
+Defined in: [packages/client-core/redux/scenes/service.ts:13](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/scenes/service.ts#L13)

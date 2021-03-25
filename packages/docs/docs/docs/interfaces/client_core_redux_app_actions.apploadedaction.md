@@ -26,7 +26,7 @@ hide_title: true
 
 • **loaded**: *boolean*
 
-Defined in: [packages/client-core/redux/app/actions.ts:18](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/app/actions.ts#L18)
+Defined in: [packages/client-core/redux/app/actions.ts:18](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/app/actions.ts#L18)
 
 ___
 
@@ -36,4 +36,4 @@ ___
 
 Inherited from: void
 
-Defined in: [packages/client-core/redux/app/actions.ts:14](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/app/actions.ts#L14)
+Defined in: [packages/client-core/redux/app/actions.ts:14](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/app/actions.ts#L14)

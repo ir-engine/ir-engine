@@ -26,7 +26,7 @@ Name | Type |
 `feeds.feedsFeatured` | *any*[] |
 `feeds.fetching` | *boolean* |
 
-Defined in: [packages/client-core/redux/feed/reducers.ts:24](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/feed/reducers.ts#L24)
+Defined in: [packages/client-core/redux/feed/reducers.ts:24](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/feed/reducers.ts#L24)
 
 ## Functions
 
@@ -43,4 +43,4 @@ Name | Type |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/redux/feed/reducers.ts:37](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/feed/reducers.ts#L37)
+Defined in: [packages/client-core/redux/feed/reducers.ts:37](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/feed/reducers.ts#L37)

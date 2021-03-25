@@ -16,4 +16,4 @@ hide_title: true
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/terminal/args/index.ts:20](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/terminal/args/index.ts#L20)
+Defined in: [packages/client-core/components/terminal/args/index.ts:20](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/terminal/args/index.ts#L20)

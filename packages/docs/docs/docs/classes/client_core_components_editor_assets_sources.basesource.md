@@ -40,7 +40,7 @@ hide_title: true
 
 Overrides: void
 
-Defined in: [packages/client-core/components/editor/assets/sources/index.tsx:13](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/assets/sources/index.tsx#L13)
+Defined in: [packages/client-core/components/editor/assets/sources/index.tsx:13](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/assets/sources/index.tsx#L13)
 
 ## Properties
 
@@ -48,7 +48,7 @@ Defined in: [packages/client-core/components/editor/assets/sources/index.tsx:13]
 
 • **assetPanelComponent**: *any*
 
-Defined in: [packages/client-core/components/editor/assets/sources/index.tsx:10](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/assets/sources/index.tsx#L10)
+Defined in: [packages/client-core/components/editor/assets/sources/index.tsx:10](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/assets/sources/index.tsx#L10)
 
 ___
 
@@ -56,7 +56,7 @@ ___
 
 • **iconComponent**: *any*
 
-Defined in: [packages/client-core/components/editor/assets/sources/index.tsx:9](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/assets/sources/index.tsx#L9)
+Defined in: [packages/client-core/components/editor/assets/sources/index.tsx:9](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/assets/sources/index.tsx#L9)
 
 ___
 
@@ -64,7 +64,7 @@ ___
 
 • **id**: *string*
 
-Defined in: [packages/client-core/components/editor/assets/sources/index.tsx:7](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/assets/sources/index.tsx#L7)
+Defined in: [packages/client-core/components/editor/assets/sources/index.tsx:7](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/assets/sources/index.tsx#L7)
 
 ___
 
@@ -72,7 +72,7 @@ ___
 
 • **name**: *string*
 
-Defined in: [packages/client-core/components/editor/assets/sources/index.tsx:8](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/assets/sources/index.tsx#L8)
+Defined in: [packages/client-core/components/editor/assets/sources/index.tsx:8](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/assets/sources/index.tsx#L8)
 
 ___
 
@@ -80,7 +80,7 @@ ___
 
 • **requiresAuthentication**: *boolean*
 
-Defined in: [packages/client-core/components/editor/assets/sources/index.tsx:11](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/assets/sources/index.tsx#L11)
+Defined in: [packages/client-core/components/editor/assets/sources/index.tsx:11](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/assets/sources/index.tsx#L11)
 
 ___
 
@@ -88,7 +88,7 @@ ___
 
 • **searchDebounceTimeout**: *number*
 
-Defined in: [packages/client-core/components/editor/assets/sources/index.tsx:13](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/assets/sources/index.tsx#L13)
+Defined in: [packages/client-core/components/editor/assets/sources/index.tsx:13](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/assets/sources/index.tsx#L13)
 
 ___
 
@@ -96,7 +96,7 @@ ___
 
 • **uploadSource**: *boolean*
 
-Defined in: [packages/client-core/components/editor/assets/sources/index.tsx:12](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/assets/sources/index.tsx#L12)
+Defined in: [packages/client-core/components/editor/assets/sources/index.tsx:12](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/assets/sources/index.tsx#L12)
 
 ___
 
@@ -370,4 +370,4 @@ Name | Type |
 
 **Returns:** *Promise*<{ `hasMore`: *boolean* = false; `nextCursor`: *number* = 0; `results`: *any*[] ; `suggestions`: *any*[]  }\>
 
-Defined in: [packages/client-core/components/editor/assets/sources/index.tsx:24](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/assets/sources/index.tsx#L24)
+Defined in: [packages/client-core/components/editor/assets/sources/index.tsx:24](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/assets/sources/index.tsx#L24)

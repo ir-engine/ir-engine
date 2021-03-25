@@ -16,7 +16,7 @@ hide_title: true
 
 [Button used to provide styles to button input]
 
-Defined in: [packages/client-core/components/editor/inputs/Button.tsx:8](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/inputs/Button.tsx#L8)
+Defined in: [packages/client-core/components/editor/inputs/Button.tsx:8](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/inputs/Button.tsx#L8)
 
 ___
 
@@ -26,7 +26,7 @@ ___
 
 [LargeButton used to create large size button]
 
-Defined in: [packages/client-core/components/editor/inputs/Button.tsx:61](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/inputs/Button.tsx#L61)
+Defined in: [packages/client-core/components/editor/inputs/Button.tsx:61](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/inputs/Button.tsx#L61)
 
 ___
 
@@ -36,7 +36,7 @@ ___
 
 [MediumButton used to create medium size button]
 
-Defined in: [packages/client-core/components/editor/inputs/Button.tsx:51](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/inputs/Button.tsx#L51)
+Defined in: [packages/client-core/components/editor/inputs/Button.tsx:51](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/inputs/Button.tsx#L51)
 
 ___
 
@@ -46,7 +46,7 @@ ___
 
 [MenuButton used to show menus like context menus]
 
-Defined in: [packages/client-core/components/editor/inputs/Button.tsx:97](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/inputs/Button.tsx#L97)
+Defined in: [packages/client-core/components/editor/inputs/Button.tsx:97](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/inputs/Button.tsx#L97)
 
 ___
 
@@ -56,7 +56,7 @@ ___
 
 [PropertiesPanelButton used in property penal like in ScenePreviewCamera nodes we using it as set from viewport ]
 
-Defined in: [packages/client-core/components/editor/inputs/Button.tsx:124](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/inputs/Button.tsx#L124)
+Defined in: [packages/client-core/components/editor/inputs/Button.tsx:124](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/inputs/Button.tsx#L124)
 
 ___
 
@@ -66,4 +66,4 @@ ___
 
 [SecondaryButton is the button used for performing secondary action like cancel]
 
-Defined in: [packages/client-core/components/editor/inputs/Button.tsx:71](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/inputs/Button.tsx#L71)
+Defined in: [packages/client-core/components/editor/inputs/Button.tsx:71](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/inputs/Button.tsx#L71)

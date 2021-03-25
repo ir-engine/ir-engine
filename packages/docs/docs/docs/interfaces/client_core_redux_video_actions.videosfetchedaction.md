@@ -16,7 +16,7 @@ hide_title: true
 
 • `Optional` **image**: [*Image*](client_core_redux_video_actions.image.md)
 
-Defined in: [packages/client-core/redux/video/actions.ts:40](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/video/actions.ts#L40)
+Defined in: [packages/client-core/redux/video/actions.ts:40](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/video/actions.ts#L40)
 
 ___
 
@@ -24,7 +24,7 @@ ___
 
 • `Optional` **message**: *string*
 
-Defined in: [packages/client-core/redux/video/actions.ts:41](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/video/actions.ts#L41)
+Defined in: [packages/client-core/redux/video/actions.ts:41](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/video/actions.ts#L41)
 
 ___
 
@@ -32,7 +32,7 @@ ___
 
 • **type**: *string*
 
-Defined in: [packages/client-core/redux/video/actions.ts:38](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/video/actions.ts#L38)
+Defined in: [packages/client-core/redux/video/actions.ts:38](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/video/actions.ts#L38)
 
 ___
 
@@ -40,4 +40,4 @@ ___
 
 • `Optional` **videos**: [*PublicVideo*](client_core_redux_video_actions.publicvideo.md)[]
 
-Defined in: [packages/client-core/redux/video/actions.ts:39](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/video/actions.ts#L39)
+Defined in: [packages/client-core/redux/video/actions.ts:39](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/video/actions.ts#L39)

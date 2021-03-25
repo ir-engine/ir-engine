@@ -16,7 +16,7 @@ hide_title: true
 
 • `Optional` **addConnectionByEmail**: Function
 
-Defined in: [packages/client-core/components/ui/UserMenu/util.tsx:23](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/ui/UserMenu/util.tsx#L23)
+Defined in: [packages/client-core/components/ui/UserMenu/util.tsx:23](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/ui/UserMenu/util.tsx#L23)
 
 ___
 
@@ -24,7 +24,7 @@ ___
 
 • `Optional` **addConnectionBySms**: Function
 
-Defined in: [packages/client-core/components/ui/UserMenu/util.tsx:24](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/ui/UserMenu/util.tsx#L24)
+Defined in: [packages/client-core/components/ui/UserMenu/util.tsx:24](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/ui/UserMenu/util.tsx#L24)
 
 ___
 
@@ -32,7 +32,7 @@ ___
 
 • `Optional` **alertSuccess**: Function
 
-Defined in: [packages/client-core/components/ui/UserMenu/util.tsx:22](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/ui/UserMenu/util.tsx#L22)
+Defined in: [packages/client-core/components/ui/UserMenu/util.tsx:22](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/ui/UserMenu/util.tsx#L22)
 
 ___
 
@@ -40,7 +40,7 @@ ___
 
 • `Optional` **authState**: *any*
 
-Defined in: [packages/client-core/components/ui/UserMenu/util.tsx:14](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/ui/UserMenu/util.tsx#L14)
+Defined in: [packages/client-core/components/ui/UserMenu/util.tsx:14](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/ui/UserMenu/util.tsx#L14)
 
 ___
 
@@ -48,7 +48,7 @@ ___
 
 • `Optional` **currentScene**: *any*
 
-Defined in: [packages/client-core/components/ui/UserMenu/util.tsx:26](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/ui/UserMenu/util.tsx#L26)
+Defined in: [packages/client-core/components/ui/UserMenu/util.tsx:26](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/ui/UserMenu/util.tsx#L26)
 
 ___
 
@@ -56,7 +56,7 @@ ___
 
 • `Optional` **fetchAvatarList**: Function
 
-Defined in: [packages/client-core/components/ui/UserMenu/util.tsx:29](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/ui/UserMenu/util.tsx#L29)
+Defined in: [packages/client-core/components/ui/UserMenu/util.tsx:29](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/ui/UserMenu/util.tsx#L29)
 
 ___
 
@@ -64,7 +64,7 @@ ___
 
 • `Optional` **instanceConnectionState**: *any*
 
-Defined in: [packages/client-core/components/ui/UserMenu/util.tsx:15](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/ui/UserMenu/util.tsx#L15)
+Defined in: [packages/client-core/components/ui/UserMenu/util.tsx:15](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/ui/UserMenu/util.tsx#L15)
 
 ___
 
@@ -72,7 +72,7 @@ ___
 
 • `Optional` **locationState**: *any*
 
-Defined in: [packages/client-core/components/ui/UserMenu/util.tsx:16](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/ui/UserMenu/util.tsx#L16)
+Defined in: [packages/client-core/components/ui/UserMenu/util.tsx:16](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/ui/UserMenu/util.tsx#L16)
 
 ___
 
@@ -80,7 +80,7 @@ ___
 
 • `Optional` **login**: *boolean*
 
-Defined in: [packages/client-core/components/ui/UserMenu/util.tsx:13](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/ui/UserMenu/util.tsx#L13)
+Defined in: [packages/client-core/components/ui/UserMenu/util.tsx:13](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/ui/UserMenu/util.tsx#L13)
 
 ___
 
@@ -88,7 +88,7 @@ ___
 
 • `Optional` **loginUserByOAuth**: Function
 
-Defined in: [packages/client-core/components/ui/UserMenu/util.tsx:25](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/ui/UserMenu/util.tsx#L25)
+Defined in: [packages/client-core/components/ui/UserMenu/util.tsx:25](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/ui/UserMenu/util.tsx#L25)
 
 ___
 
@@ -96,7 +96,7 @@ ___
 
 • `Optional` **logoutUser**: Function
 
-Defined in: [packages/client-core/components/ui/UserMenu/util.tsx:19](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/ui/UserMenu/util.tsx#L19)
+Defined in: [packages/client-core/components/ui/UserMenu/util.tsx:19](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/ui/UserMenu/util.tsx#L19)
 
 ___
 
@@ -104,7 +104,7 @@ ___
 
 • `Optional` **provisionInstanceServer**: *any*
 
-Defined in: [packages/client-core/components/ui/UserMenu/util.tsx:27](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/ui/UserMenu/util.tsx#L27)
+Defined in: [packages/client-core/components/ui/UserMenu/util.tsx:27](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/ui/UserMenu/util.tsx#L27)
 
 ___
 
@@ -112,7 +112,7 @@ ___
 
 • `Optional` **removeAvatar**: Function
 
-Defined in: [packages/client-core/components/ui/UserMenu/util.tsx:31](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/ui/UserMenu/util.tsx#L31)
+Defined in: [packages/client-core/components/ui/UserMenu/util.tsx:31](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/ui/UserMenu/util.tsx#L31)
 
 ___
 
@@ -120,7 +120,7 @@ ___
 
 • `Optional` **removeUser**: Function
 
-Defined in: [packages/client-core/components/ui/UserMenu/util.tsx:21](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/ui/UserMenu/util.tsx#L21)
+Defined in: [packages/client-core/components/ui/UserMenu/util.tsx:21](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/ui/UserMenu/util.tsx#L21)
 
 ___
 
@@ -128,7 +128,7 @@ ___
 
 • `Optional` **showDialog**: Function
 
-Defined in: [packages/client-core/components/ui/UserMenu/util.tsx:20](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/ui/UserMenu/util.tsx#L20)
+Defined in: [packages/client-core/components/ui/UserMenu/util.tsx:20](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/ui/UserMenu/util.tsx#L20)
 
 ___
 
@@ -136,7 +136,7 @@ ___
 
 • `Optional` **updateUserAvatarId**: Function
 
-Defined in: [packages/client-core/components/ui/UserMenu/util.tsx:18](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/ui/UserMenu/util.tsx#L18)
+Defined in: [packages/client-core/components/ui/UserMenu/util.tsx:18](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/ui/UserMenu/util.tsx#L18)
 
 ___
 
@@ -144,7 +144,7 @@ ___
 
 • `Optional` **updateUserSettings**: Function
 
-Defined in: [packages/client-core/components/ui/UserMenu/util.tsx:30](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/ui/UserMenu/util.tsx#L30)
+Defined in: [packages/client-core/components/ui/UserMenu/util.tsx:30](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/ui/UserMenu/util.tsx#L30)
 
 ___
 
@@ -152,7 +152,7 @@ ___
 
 • `Optional` **updateUsername**: Function
 
-Defined in: [packages/client-core/components/ui/UserMenu/util.tsx:17](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/ui/UserMenu/util.tsx#L17)
+Defined in: [packages/client-core/components/ui/UserMenu/util.tsx:17](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/ui/UserMenu/util.tsx#L17)
 
 ___
 
@@ -160,4 +160,4 @@ ___
 
 • `Optional` **uploadAvatarModel**: Function
 
-Defined in: [packages/client-core/components/ui/UserMenu/util.tsx:28](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/ui/UserMenu/util.tsx#L28)
+Defined in: [packages/client-core/components/ui/UserMenu/util.tsx:28](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/ui/UserMenu/util.tsx#L28)

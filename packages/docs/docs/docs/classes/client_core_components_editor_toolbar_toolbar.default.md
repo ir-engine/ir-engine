@@ -32,7 +32,7 @@ Name | Type |
 
 Overrides: void
 
-Defined in: [packages/client-core/components/editor/toolbar/ToolBar.tsx:239](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/toolbar/ToolBar.tsx#L239)
+Defined in: [packages/client-core/components/editor/toolbar/ToolBar.tsx:239](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/toolbar/ToolBar.tsx#L239)
 
 ## Properties
 
@@ -139,7 +139,7 @@ Name | Type |
 `onPublish` | *Requireable*<(...`args`: *any*[]) => *any*\> |
 `queryParams` | *Requireable*<object\> |
 
-Defined in: [packages/client-core/components/editor/toolbar/ToolBar.tsx:232](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/toolbar/ToolBar.tsx#L232)
+Defined in: [packages/client-core/components/editor/toolbar/ToolBar.tsx:232](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/toolbar/ToolBar.tsx#L232)
 
 ## Methods
 
@@ -270,7 +270,7 @@ ___
 
 Overrides: void
 
-Defined in: [packages/client-core/components/editor/toolbar/ToolBar.tsx:261](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/toolbar/ToolBar.tsx#L261)
+Defined in: [packages/client-core/components/editor/toolbar/ToolBar.tsx:261](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/toolbar/ToolBar.tsx#L261)
 
 ___
 
@@ -364,7 +364,7 @@ ___
 
 Overrides: void
 
-Defined in: [packages/client-core/components/editor/toolbar/ToolBar.tsx:268](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/toolbar/ToolBar.tsx#L268)
+Defined in: [packages/client-core/components/editor/toolbar/ToolBar.tsx:268](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/toolbar/ToolBar.tsx#L268)
 
 ___
 
@@ -457,7 +457,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/toolbar/ToolBar.tsx:257](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/toolbar/ToolBar.tsx#L257)
+Defined in: [packages/client-core/components/editor/toolbar/ToolBar.tsx:257](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/toolbar/ToolBar.tsx#L257)
 
 ___
 
@@ -473,7 +473,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/toolbar/ToolBar.tsx:381](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/toolbar/ToolBar.tsx#L381)
+Defined in: [packages/client-core/components/editor/toolbar/ToolBar.tsx:381](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/toolbar/ToolBar.tsx#L381)
 
 ___
 
@@ -489,7 +489,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/toolbar/ToolBar.tsx:376](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/toolbar/ToolBar.tsx#L376)
+Defined in: [packages/client-core/components/editor/toolbar/ToolBar.tsx:376](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/toolbar/ToolBar.tsx#L376)
 
 ___
 
@@ -505,7 +505,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/toolbar/ToolBar.tsx:372](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/toolbar/ToolBar.tsx#L372)
+Defined in: [packages/client-core/components/editor/toolbar/ToolBar.tsx:372](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/toolbar/ToolBar.tsx#L372)
 
 ___
 
@@ -521,7 +521,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/toolbar/ToolBar.tsx:355](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/toolbar/ToolBar.tsx#L355)
+Defined in: [packages/client-core/components/editor/toolbar/ToolBar.tsx:355](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/toolbar/ToolBar.tsx#L355)
 
 ___
 
@@ -537,7 +537,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/toolbar/ToolBar.tsx:367](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/toolbar/ToolBar.tsx#L367)
+Defined in: [packages/client-core/components/editor/toolbar/ToolBar.tsx:367](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/toolbar/ToolBar.tsx#L367)
 
 ___
 
@@ -547,7 +547,7 @@ ___
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/toolbar/ToolBar.tsx:285](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/toolbar/ToolBar.tsx#L285)
+Defined in: [packages/client-core/components/editor/toolbar/ToolBar.tsx:285](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/toolbar/ToolBar.tsx#L285)
 
 ___
 
@@ -557,7 +557,7 @@ ___
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/toolbar/ToolBar.tsx:296](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/toolbar/ToolBar.tsx#L296)
+Defined in: [packages/client-core/components/editor/toolbar/ToolBar.tsx:296](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/toolbar/ToolBar.tsx#L296)
 
 ___
 
@@ -573,7 +573,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/toolbar/ToolBar.tsx:300](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/toolbar/ToolBar.tsx#L300)
+Defined in: [packages/client-core/components/editor/toolbar/ToolBar.tsx:300](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/toolbar/ToolBar.tsx#L300)
 
 ___
 
@@ -583,7 +583,7 @@ ___
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/toolbar/ToolBar.tsx:343](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/toolbar/ToolBar.tsx#L343)
+Defined in: [packages/client-core/components/editor/toolbar/ToolBar.tsx:343](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/toolbar/ToolBar.tsx#L343)
 
 ___
 
@@ -593,7 +593,7 @@ ___
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/toolbar/ToolBar.tsx:347](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/toolbar/ToolBar.tsx#L347)
+Defined in: [packages/client-core/components/editor/toolbar/ToolBar.tsx:347](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/toolbar/ToolBar.tsx#L347)
 
 ___
 
@@ -603,7 +603,7 @@ ___
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/toolbar/ToolBar.tsx:339](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/toolbar/ToolBar.tsx#L339)
+Defined in: [packages/client-core/components/editor/toolbar/ToolBar.tsx:339](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/toolbar/ToolBar.tsx#L339)
 
 ___
 
@@ -613,7 +613,7 @@ ___
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/toolbar/ToolBar.tsx:385](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/toolbar/ToolBar.tsx#L385)
+Defined in: [packages/client-core/components/editor/toolbar/ToolBar.tsx:385](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/toolbar/ToolBar.tsx#L385)
 
 ___
 
@@ -623,7 +623,7 @@ ___
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/toolbar/ToolBar.tsx:389](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/toolbar/ToolBar.tsx#L389)
+Defined in: [packages/client-core/components/editor/toolbar/ToolBar.tsx:389](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/toolbar/ToolBar.tsx#L389)
 
 ___
 
@@ -633,7 +633,7 @@ ___
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/toolbar/ToolBar.tsx:363](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/toolbar/ToolBar.tsx#L363)
+Defined in: [packages/client-core/components/editor/toolbar/ToolBar.tsx:363](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/toolbar/ToolBar.tsx#L363)
 
 ___
 
@@ -643,7 +643,7 @@ ___
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/toolbar/ToolBar.tsx:359](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/toolbar/ToolBar.tsx#L359)
+Defined in: [packages/client-core/components/editor/toolbar/ToolBar.tsx:359](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/toolbar/ToolBar.tsx#L359)
 
 ___
 
@@ -653,7 +653,7 @@ ___
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/toolbar/ToolBar.tsx:351](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/toolbar/ToolBar.tsx#L351)
+Defined in: [packages/client-core/components/editor/toolbar/ToolBar.tsx:351](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/toolbar/ToolBar.tsx#L351)
 
 ___
 
@@ -663,7 +663,7 @@ ___
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/toolbar/ToolBar.tsx:315](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/toolbar/ToolBar.tsx#L315)
+Defined in: [packages/client-core/components/editor/toolbar/ToolBar.tsx:315](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/toolbar/ToolBar.tsx#L315)
 
 ___
 
@@ -673,7 +673,7 @@ ___
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/toolbar/ToolBar.tsx:253](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/toolbar/ToolBar.tsx#L253)
+Defined in: [packages/client-core/components/editor/toolbar/ToolBar.tsx:253](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/toolbar/ToolBar.tsx#L253)
 
 ___
 
@@ -685,7 +685,7 @@ ___
 
 Overrides: void
 
-Defined in: [packages/client-core/components/editor/toolbar/ToolBar.tsx:397](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/toolbar/ToolBar.tsx#L397)
+Defined in: [packages/client-core/components/editor/toolbar/ToolBar.tsx:397](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/toolbar/ToolBar.tsx#L397)
 
 ___
 
@@ -701,7 +701,7 @@ Name | Type |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/components/editor/toolbar/ToolBar.tsx:320](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/toolbar/ToolBar.tsx#L320)
+Defined in: [packages/client-core/components/editor/toolbar/ToolBar.tsx:320](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/toolbar/ToolBar.tsx#L320)
 
 ___
 
