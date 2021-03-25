@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
 import Router from "next/router";
+import { bindActionCreators, Dispatch } from 'redux';
+import { connect } from 'react-redux';
+import { useEffect } from 'react';
 
 import Card from '@material-ui/core/Card';
 import CardMedia from '@material-ui/core/CardMedia';
@@ -8,14 +11,14 @@ import CardContent from '@material-ui/core/CardContent';
 import Button from '@material-ui/core/Button';
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
 import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
-
 import styles from './Creator.module.scss';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
+import TwitterIcon from '@material-ui/icons/Twitter';
+import InstagramIcon from '@material-ui/icons/Instagram';
+import TitleIcon from '@material-ui/icons/Title';
+
 import { selectCreatorsState } from '../../../redux/creator/selector';
-import { bindActionCreators, Dispatch } from 'redux';
-import { connect } from 'react-redux';
-import { useEffect } from 'react';
 import { getCreator, followCreator, unFollowCreator } from '../../../redux/creator/service';
 import Featured from '../Featured';
 
@@ -67,6 +70,12 @@ const Creator = ({creatorId, creatorState, getCreator, followCreator, unFollowCr
     const handleFollowCreator = creatorId => followCreator(creatorId);
     const handleUnFollowCreator = creatorId => unFollowCreator(creatorId);
 
+    const renderSocials = () =>  <>
+            {creator.twitter && <a target="_blank" href={'http://twitter.com/'+creator.twitter}><Typography variant="h4" component="p" align="center"><TwitterIcon />{creator.twitter}</Typography></a>}
+            {creator.instagram && <a target="_blank" href={'http://instagram.com/'+creator.instagram}><Typography variant="h4" component="p" align="center"><InstagramIcon />{creator.instagram}</Typography></a>}
+            {creator.tiktok && <a target="_blank" href={'http://tiktok.com/@'+creator.tiktok}><Typography variant="h4" component="p" align="center"><TitleIcon />{creator.tiktok}</Typography></a>}
+            {creator.snap && <a target="_blank" href={'http://snap.com/'+creator.snap}><Typography variant="h4" component="p" align="center"><TwitterIcon />{creator.snap}</Typography></a>}
+        </>
     return  creator ?  (<section className={styles.creatorContainer}>
             <Card className={styles.creatorCard} elevation={0} key={creator.username} square={false} >
                 <CardMedia   
@@ -105,9 +114,11 @@ const Creator = ({creatorId, creatorState, getCreator, followCreator, unFollowCr
                             onClick={()=>handleFollowCreator(creator.id)}>Follow</Button>}
                     {!isMe && creator.followed === true && <Button variant={'outlined'} color='primary' className={styles.followButton} 
                         onClick={()=>handleUnFollowCreator(creator.id)}>UnFollow</Button>}
+                    {renderSocials()}
                 </CardContent>
             </Card>
             {isMe && <section className={styles.videosSwitcher}>
+                    <Button variant={videoType === 'myFeatured' ? 'contained' : 'text'} color='secondary' className={styles.switchButton+(videoType === 'myFeatured' ? ' '+styles.active : '')} onClick={()=>setVideoType('myFeatured')}>Featured</Button>
                     <Button variant={videoType === 'creator' ? 'contained' : 'text'} color='secondary' className={styles.switchButton+(videoType === 'creator' ? ' '+styles.active : '')} onClick={()=>setVideoType('creator')}>My Videos</Button>
                     <Button variant={videoType === 'bookmark' ? 'contained' : 'text'} color='secondary' className={styles.switchButton+(videoType === 'bookmark' ? ' '+styles.active : '')} onClick={()=>setVideoType('bookmark')}>Saved Videos</Button>
             </section>}

@@ -119,7 +119,8 @@ const groupReducer = (state = immutableState, action: GroupAction): any => {
       updateMapGroupsChild = _.find(updateMapGroups, (group) => { return group != null && (group.id === groupUser.groupId)});
       if (updateMapGroupsChild != null) {
         updateMapGroupUsers = updateMapGroupsChild.groupUsers;
-        updateMapGroupUsers = Array.isArray(updateMapGroupUsers) ? updateMapGroupUsers.concat([groupUser]) : [groupUser];
+        const match = updateMapGroupUsers.find((gUser) => { return gUser != null && (gUser.id === groupUser.id)});
+        updateMapGroupUsers = Array.isArray(updateMapGroupUsers) ? (match == null ? updateMapGroupUsers.concat([groupUser]) : updateMapGroupUsers.map((gUser) => gUser.id === groupUser.id ? groupUser : gUser)) : [groupUser];
         updateMapGroupsChild.groupUsers = updateMapGroupUsers;
       }
       updateMap.set('groups', updateMapGroups);

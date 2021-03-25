@@ -277,6 +277,7 @@ const LeftDrawer = (props: Props): any => {
             setFriendDeletePending('');
             unfriend(friendId);
             closeDetails();
+            setLeftDrawerOpen(false);
         };
 
         const nextFriendsPage = (): void => {
@@ -301,6 +302,7 @@ const LeftDrawer = (props: Props): any => {
             removeGroup(groupId);
             setSelectedGroup(initialGroupForm);
             setDetailsType('');
+            setLeftDrawerOpen(false);
         };
 
         const showLocationBanConfirm = (e, userId) => {
@@ -344,6 +346,7 @@ const LeftDrawer = (props: Props): any => {
             if (groupUser.userId === user.id) {
                 setSelectedGroup(initialGroupForm);
                 setDetailsType('');
+                setLeftDrawerOpen(false);
             }
         };
 
@@ -361,6 +364,7 @@ const LeftDrawer = (props: Props): any => {
             e.preventDefault();
             setPartyDeletePending(false);
             removeParty(partyId);
+            setLeftDrawerOpen(false);
         };
 
         const showPartyUserDeleteConfirm = (e, partyUserId) => {
@@ -375,8 +379,10 @@ const LeftDrawer = (props: Props): any => {
 
         const confirmPartyUserDelete = (e, partyUserId) => {
             e.preventDefault();
+            const partyUser = _.find(partyUsers, (pUser) => pUser.id === partyUserId);
             setPartyUserDeletePending('');
             removePartyUser(partyUserId);
+            if (partyUser.userId === user.id) setLeftDrawerOpen(false);
         };
 
         const showTransferPartyOwnerConfirm = (e, partyUserId) => {
