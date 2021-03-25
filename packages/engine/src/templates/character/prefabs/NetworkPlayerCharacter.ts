@@ -31,7 +31,7 @@ import { CharacterStateTypes } from "../CharacterStateTypes";
 import { CharacterComponent } from '../components/CharacterComponent';
 import { NamePlateComponent } from '../components/NamePlateComponent';
 import { getLoader } from "../../../assets/functions/LoadGLTF";
-import { IKAvatarComponent } from "../../../xr/components/IKAvatarComponent";
+import { Avatar } from "../../../xr/classes/IKAvatar";
 import { Engine } from "../../../ecs/classes/Engine";
 
 
@@ -91,7 +91,7 @@ export class AnimationManager {
 }
 
 export const loadDefaultActorAvatar: Behavior = (entity) => {
-  loadActorAvatarFromURL(entity, '/models/avatars/Default.glb');
+  loadActorAvatarFromURL(entity, Engine.publicPath + '/models/avatars/Default.glb');
 }
 
 export const loadActorAvatar: Behavior = (entity) => {
@@ -104,7 +104,6 @@ export const loadActorAvatar: Behavior = (entity) => {
 export const loadActorAvatarFromURL: Behavior = (entity, avatarURL) => {
   if (hasComponent(entity, AssetLoader)) removeComponent(entity, AssetLoader, true);
   if (hasComponent(entity, AssetLoaderState)) removeComponent(entity, AssetLoaderState, true);
-	console.warn(avatarURL);
   const tmpGroup = new Group();
   addComponent(entity, AssetLoader, {
     url: avatarURL,
@@ -120,8 +119,6 @@ export const loadActorAvatarFromURL: Behavior = (entity, avatarURL) => {
     actor.mixer && actor.mixer.stopAllAction();
     // forget that we have any animation playing
     actor.currentAnimationAction = [];
-
-    if(Engine.xrSession) removeComponent(entity, IKAvatarComponent);
     
     // clear current avatar mesh
     ([...actor.modelContainer.children])
@@ -136,7 +133,8 @@ export const loadActorAvatarFromURL: Behavior = (entity, avatarURL) => {
     // trigger all states to restart?
     stateComponent.data.forEach(data => data.lifecycleState = LifecycleValue.STARTED);
 
-    if(Engine.xrSession) addComponent(entity, IKAvatarComponent);
+    const avatarIK = new Avatar(actor.modelContainer)
+    actor.avatarIKRig = avatarIK;
 
   })
 };

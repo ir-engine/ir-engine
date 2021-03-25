@@ -1,7 +1,7 @@
 import { BinaryValue } from "../../common/enums/BinaryValue";
 import { LifecycleValue } from "../../common/enums/LifecycleValue";
 import { isClient } from "../../common/functions/isClient";
-import { NumericalType } from "../../common/types/NumericalTypes";
+import { NumericalType, SIXDOFType } from "../../common/types/NumericalTypes";
 import { System } from '../../ecs/classes/System';
 import { Not } from "../../ecs/functions/ComponentFunctions";
 import { getComponent, hasComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
@@ -77,46 +77,57 @@ export class EntityActionSystem extends System {
    */
 
   public execute(delta: number): void {
-    if (this.useWebXR) {
-      // Handle XR input
-      this.queryResults.controllersComponent.added?.forEach(entity => addPhysics(entity));
+    // Handle XR input
+    // this.queryResults.controllersComponent.added?.forEach(entity => addPhysics(entity));
 
-      this.queryResults.controllersComponent.removed?.forEach(entity => removeWebXRPhysics(entity, {
-        leftControllerPhysicsBody: this.leftControllerId,
-        rightControllerPhysicsBody: this.rightControllerId
-      }));
+    // this.queryResults.controllersComponent.removed?.forEach(entity => removeWebXRPhysics(entity, {
+    //   leftControllerPhysicsBody: this.leftControllerId,
+    //   rightControllerPhysicsBody: this.rightControllerId
+    // }));
 
-      this.queryResults.controllersComponent.all?.forEach(entity => {
-        const xRControllers = getComponent(entity, XRInputReceiver);
-        if (xRControllers.leftHandPhysicsBody !== null && xRControllers.rightHandPhysicsBody !== null) {
-          this.leftControllerId = xRControllers.leftHandPhysicsBody;
-          this.rightControllerId = xRControllers.rightHandPhysicsBody;
-        }
-
-        xRControllers.leftHandPhysicsBody.position.set(
-          xRControllers.controllerPositionLeft.x,
-          xRControllers.controllerPositionLeft.y,
-          xRControllers.controllerPositionLeft.z
-        );
-        xRControllers.rightHandPhysicsBody.position.set(
-          xRControllers.controllerPositionRight.x,
-          xRControllers.controllerPositionRight.y,
-          xRControllers.controllerPositionRight.z
-        );
-        xRControllers.leftHandPhysicsBody.quaternion.set(
-          xRControllers.controllerRotationLeft.x,
-          xRControllers.controllerRotationLeft.y,
-          xRControllers.controllerRotationLeft.z,
-          xRControllers.controllerRotationLeft.w
-        );
-        xRControllers.rightHandPhysicsBody.quaternion.set(
-          xRControllers.controllerRotationRight.x,
-          xRControllers.controllerRotationRight.y,
-          xRControllers.controllerRotationRight.z,
-          xRControllers.controllerRotationRight.w
-        );
-      });
-    }
+    this.queryResults.controllersComponent.all?.forEach(entity => {
+      const xrControllers = getComponent(entity, XRInputReceiver);
+      const input = getMutableComponent(entity, Input);
+      input.data.set(BaseInput.XR_HEAD, {
+        type: InputType.SIXDOF,
+        value: {
+          x: xrControllers.head.position.x,
+          y: xrControllers.head.position.y,
+          z: xrControllers.head.position.z,
+          qW: xrControllers.head.quaternion.w,
+          qX: xrControllers.head.quaternion.x,
+          qY: xrControllers.head.quaternion.y,
+          qZ: xrControllers.head.quaternion.z,
+        },
+        lifecycleState: LifecycleValue.CHANGED
+      })
+      input.data.set(BaseInput.XR_LEFT_HAND, {
+        type: InputType.SIXDOF,
+        value: {
+          x: xrControllers.controllerLeft.position.x,
+          y: xrControllers.controllerLeft.position.y,
+          z: xrControllers.controllerLeft.position.z,
+          qW: xrControllers.controllerLeft.quaternion.w,
+          qX: xrControllers.controllerLeft.quaternion.x,
+          qY: xrControllers.controllerLeft.quaternion.y,
+          qZ: xrControllers.controllerLeft.quaternion.z,
+        },
+        lifecycleState: LifecycleValue.CHANGED
+      })
+      input.data.set(BaseInput.XR_RIGHT_HAND, {
+        type: InputType.SIXDOF,
+        value: {
+          x: xrControllers.controllerRight.position.x,
+          y: xrControllers.controllerRight.position.y,
+          z: xrControllers.controllerRight.position.z,
+          qW: xrControllers.controllerRight.quaternion.w,
+          qX: xrControllers.controllerRight.quaternion.x,
+          qY: xrControllers.controllerRight.quaternion.y,
+          qZ: xrControllers.controllerRight.quaternion.z,
+        },
+        lifecycleState: LifecycleValue.CHANGED
+      })
+    });
 
     this.queryResults.localClientInput.all?.forEach(entity => {
       // Apply input for local user input onto client
@@ -280,17 +291,16 @@ export class EntityActionSystem extends System {
             else if (value.type === InputType.TWODIM) //  && value.lifecycleState !== LifecycleValue.UNCHANGED
               inputs.axes2d.push({ input: key, value: value.value, lifecycleState: value.lifecycleState }); // : LifecycleValue.ENDED
             else if (value.type === InputType.SIXDOF){ //  && value.lifecycleState !== LifecycleValue.UNCHANGED
-              inputs.axes6DOF.push({
-                input: key,
+              inputs.axes6DOF.push({ input: key,
                 x: value.value.x,
                 y: value.value.y,
                 z: value.value.z,
                 qX: value.value.qX,
                 qY: value.value.qX,
                 qZ: value.value.qZ,
-                qW: value.value.qW
+                qW: value.value.qW,
               });
-              console.log("*********** Pushing 6DOF input from client input system")
+              // console.log("*********** Pushing 6DOF input from client input system")
             }
           });
 
