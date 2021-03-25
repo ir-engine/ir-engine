@@ -14,13 +14,8 @@ export function loadScene(scene: SceneData): void {
   const loadPromises = [];
   let loaded = 0;
   if (isClient) {
-<<<<<<< HEAD
-     console.warn(Engine.scene);
-     console.warn(scene);
-=======
     console.warn(Engine.scene);
-    console.warn(scene);
->>>>>>> 261c72dac32eaf68c26d323a6cc75d0ce04f1185
+    //console.warn(scene);
     EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENTITY_LOADED, left: loadPromises.length });
   }
   Object.keys(scene.entities).forEach(key => {

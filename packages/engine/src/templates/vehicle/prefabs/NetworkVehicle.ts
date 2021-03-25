@@ -19,7 +19,7 @@ import { createTrimeshFromArrayVertices, createTrimeshFromMesh, createCylinder, 
 import { AssetLoader } from '../../../assets/components/AssetLoader';
 import { VehicleBody } from "@xr3ngine/engine/src/physics/components/VehicleBody";
 import { NetworkObject } from '@xr3ngine/engine/src/networking/components/NetworkObject';
-import { onInteractionHover } from '../../interactive/functions/commonInteractive';
+import { onInteractionHover } from '../../../interaction/functions/commonInteractive';
 import { getInCar } from '../behaviors/getInCarBehavior';
 import { getInCarPossible } from '../behaviors/getInCarPossible';
 import { CollisionGroups } from "@xr3ngine/engine/src/physics/enums/CollisionGroups";

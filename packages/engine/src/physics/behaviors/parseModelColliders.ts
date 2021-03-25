@@ -5,7 +5,7 @@ import { getComponent, getMutableComponent, removeComponent } from '../../ecs/fu
 import { ColliderComponent } from '../components/ColliderComponent';
 import { Network } from '../../networking/classes/Network';
 import { AssetLoader } from '../../assets/components/AssetLoader';
-import { createNetworkRigidBody } from '@xr3ngine/engine/src/templates/interactive/prefabs/NetworkRigidBody';
+import { createNetworkRigidBody } from '@xr3ngine/engine/src/interaction/prefabs/NetworkRigidBody';
 import { createVehicleFromModel } from '@xr3ngine/engine/src/templates/vehicle/prefabs/NetworkVehicle';
 import { TransformComponent } from "@xr3ngine/engine/src/transform/components/TransformComponent";
 import { addColliderWithoutEntity } from './addColliderWithoutEntity';
