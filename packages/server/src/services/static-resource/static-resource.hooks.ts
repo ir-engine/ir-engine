@@ -24,7 +24,7 @@ export default {
     ],
     get: [],
     create: [
-      // authenticate('jwt'),
+      authenticate('jwt'),
       (context: HookContext): HookContext => {
         if (!context.data.uri && context.params.file) {
           const file = context.params.file;

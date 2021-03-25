@@ -2,7 +2,8 @@ import React from 'react';
 import * as THREE from 'three';
 import { ArrowBack, CloudUpload, SystemUpdateAlt, Help } from '@material-ui/icons';
 import IconLeftClick from '../../Icons/IconLeftClick';
-import { getLoader } from '@xr3ngine/engine/src/assets/functions/LoadGLTF';
+import { getLoader, loadExtentions } from '@xr3ngine/engine/src/assets/functions/LoadGLTF';
+import { FBXLoader } from '@xr3ngine/engine/src/assets/loaders/fbx/FBXLoader';
 import { getOrbitControls } from '@xr3ngine/engine/src/input/functions/loadOrbitControl';
 import { Views } from '../util';
 //@ts-ignore
@@ -10,7 +11,7 @@ import styles from '../style.module.scss';
 
 const THUMBNAIL_WIDTH = 300;
 const THUMBNAIL_HEIGHT = 300;
-const MAX_ALLOWED_TRIANGLES = 10000;
+const MAX_ALLOWED_TRIANGLES = 100000;
 
 interface Props {
     changeActiveMenu: Function;
@@ -29,10 +30,7 @@ export default class AvatarSelectMenu extends React.Component<Props, State> {
 	scene = null;
 	renderer = null;
 	fileSelected = false;
-
-	minBB = new THREE.Vector3(0.5,1,0.3);
-	maxBB = new THREE.Vector3(0.75, 1.5, 0.45);
-	avatarBoundingBox = new THREE.Box3(this.minBB, this.maxBB);
+	maxBB = new THREE.Vector3(2,2,2);
 
 	constructor(props) {
 		super(props);
@@ -117,18 +115,34 @@ export default class AvatarSelectMenu extends React.Component<Props, State> {
 	    this.scene.children = this.scene.children.filter(c => c.name !== 'avatar');
 	    const file = e.target.files[ 0 ];
 	    const reader = new FileReader();
-	    reader.onload = gltfText => {
-	        const loader = getLoader();
-	        loader.parse(gltfText.target.result, '', gltf => {
-				gltf.scene.name = 'avatar';
-	            this.scene.add( gltf.scene );
-	            this.renderScene();
-				const error = this.validate(gltf);
-				this.setState({ error, obj: gltf });
-	        }, errormsg => {
-				console.error( errormsg );
-				this.setState({ error: 'Select valid 3d avatar file.'});
-			});
+	    reader.onload = fileData => {
+			if (/\.(?:gltf|glb|vrm)/.test(file.name)) {
+				const loader = getLoader();
+				loader.parse(fileData.target.result, '', gltf => {
+					gltf.scene.name = 'avatar';
+					loadExtentions(gltf);
+					this.scene.add( gltf.scene );
+					this.renderScene();
+					const error = this.validate(gltf.scene);
+					this.setState({ error, obj: gltf.scene });
+				}, errormsg => {
+					console.error( errormsg );
+					this.setState({ error: 'Select valid 3d avatar file.'});
+				});
+			} else {
+				try {
+					const loader = new FBXLoader();
+					const scene = loader.parse(fileData.target.result, file.name);
+					scene.name = 'avatar';
+					this.scene.add( scene );
+					this.renderScene();
+					const error = this.validate(scene);
+					this.setState({ error, obj: scene });
+				} catch (error) {
+					console.error(error);
+					this.setState({ error: 'Select valid 3d avatar file.'});
+				}
+			}
 	    };
 		try {
 			reader.readAsArrayBuffer( file );
@@ -139,12 +153,14 @@ export default class AvatarSelectMenu extends React.Component<Props, State> {
 		}
 	}
 
-	validate = (gltf) => {
-		const objBoundingBox = new THREE.Box3().setFromObject(gltf.scene);
-
+	validate = (scene) => {
+		const objBoundingBox = new THREE.Box3().setFromObject(scene);
 		if (this.renderer.info.render.triangles > MAX_ALLOWED_TRIANGLES) return 'Object contains greater than ' + MAX_ALLOWED_TRIANGLES + ' faces.';
+
 		if (this.renderer.info.render.triangles <= 0) return 'Object is empty.';
-		else if (!this.avatarBoundingBox.containsBox(objBoundingBox)) return 'Object is out of bound.';
+
+		const size = new THREE.Vector3().subVectors(this.maxBB, objBoundingBox.getSize(new THREE.Vector3()));
+		if (size.x <= 0 || size.y <= 0 || size.z <= 0) return 'Object is out of bound.';
 
 		return '';
 	}
@@ -156,7 +172,7 @@ export default class AvatarSelectMenu extends React.Component<Props, State> {
 
 	uploadAvatar = () => {
 		const error = this.validate(this.state.obj)
-		if (!error) {
+		if (error) {
 			this.setState({ error });
 			return;
 		}
@@ -195,7 +211,7 @@ export default class AvatarSelectMenu extends React.Component<Props, State> {
 						? this.state.error
 						: this.fileSelected ? this.state.selectedFile.name : 'Select Avatar...'}
 				</div>
-            	<input type="file" id="avatarSelect" accept=".glb, .gltf, .vrm" hidden onChange={this.handleAvatarChange} />
+            	<input type="file" id="avatarSelect" accept=".glb, .gltf, .vrm, .fbx" hidden onChange={this.handleAvatarChange} />
             	<div className={styles.controlContainer}>
 	                <button type="button" className={styles.browseBtn} onClick={this.handleBrowse}>Browse <SystemUpdateAlt /></button>
 	                <button type="button" className={styles.uploadBtn} onClick={this.uploadAvatar} disabled={!this.fileSelected || !!this.state.error}>Upload <CloudUpload /></button>
