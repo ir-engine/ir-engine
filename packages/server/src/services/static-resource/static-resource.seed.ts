@@ -1,5 +1,9 @@
 import config from '../../config';
 
+const getAvatarURL = (avatarName) => {
+  return 'https://s3.amazonaws.com/' + config.aws.s3.staticResourceBucket + '/' + process.env.STORAGE_S3_AVATAR_DIRECTORY + '/' + avatarName;
+}
+
 export const seed = {
   disabled: !config.db.forceRefresh,
   delete: config.db.forceRefresh,
@@ -25,73 +29,73 @@ export const seed = {
     },
     {
       name: 'Allison',
-      url: 'https://s3.amazonaws.com/xr3ngine-static-resources/avatars/Allison.glb',
+      url: getAvatarURL('Allison.glb'),
       key: 'avatars/Allison.glb',
       staticResourceType: 'avatar',
     },
     {
       name: 'Allison',
-      url: 'https://s3.amazonaws.com/xr3ngine-static-resources/avatars/Allison.png',
+      url: getAvatarURL('Allison.png'),
       key: 'avatars/Allison.png',
       staticResourceType: 'user-thumbnail',
     },
     {
       name: 'Andy',
-      url: 'https://s3.amazonaws.com/xr3ngine-static-resources/avatars/Andy.glb',
+      url: getAvatarURL('Andy.glb'),
       key: 'avatars/Andy.glb',
       staticResourceType: 'avatar',
     },
     {
       name: 'Andy',
-      url: 'https://s3.amazonaws.com/xr3ngine-static-resources/avatars/Andy.png',
+      url: getAvatarURL('Andy.png'),
       key: 'avatars/Andy.png',
       staticResourceType: 'user-thumbnail',
     },
     {
       name: 'Erik',
-      url: 'https://s3.amazonaws.com/xr3ngine-static-resources/avatars/Erik.glb',
+      url: getAvatarURL('Erik.glb'),
       key: 'avatars/Erik.glb',
       staticResourceType: 'avatar',
     },
     {
       name: 'Erik',
-      url: 'https://s3.amazonaws.com/xr3ngine-static-resources/avatars/Erik.png',
+      url: getAvatarURL('Erik.png'),
       key: 'avatars/Erik.png',
       staticResourceType: 'user-thumbnail',
     },
     {
       name: 'Geoff',
-      url: 'https://s3.amazonaws.com/xr3ngine-static-resources/avatars/Geoff.glb',
+      url: getAvatarURL('Geoff.glb'),
       key: 'avatars/Geoff.glb',
       staticResourceType: 'avatar',
     },
     {
       name: 'Geoff',
-      url: 'https://s3.amazonaws.com/xr3ngine-static-resources/avatars/Geoff.png',
+      url: getAvatarURL('Geoff.png'),
       key: 'avatars/Geoff.png',
       staticResourceType: 'user-thumbnail',
     },
     {
       name: 'Jace',
-      url: 'https://s3.amazonaws.com/xr3ngine-static-resources/avatars/Jace.glb',
+      url: getAvatarURL('Jace.glb'),
       key: 'avatars/Jace.glb',
       staticResourceType: 'avatar',
     },
     {
       name: 'Jace',
-      url: 'https://s3.amazonaws.com/xr3ngine-static-resources/avatars/Jace.png',
+      url: getAvatarURL('Jace.png'),
       key: 'avatars/Jace.png',
       staticResourceType: 'user-thumbnail',
     },
     {
       name: 'Rose',
-      url: 'https://s3.amazonaws.com/xr3ngine-static-resources/avatars/Rose.glb',
+      url: getAvatarURL('Rose.glb'),
       key: 'avatars/Rose.glb',
       staticResourceType: 'avatar',
     },
     {
       name: 'Rose',
-      url: 'https://s3.amazonaws.com/xr3ngine-static-resources/avatars/Rose.png',
+      url: getAvatarURL('Rose.png'),
       key: 'avatars/Rose.png',
       staticResourceType: 'user-thumbnail',
     },

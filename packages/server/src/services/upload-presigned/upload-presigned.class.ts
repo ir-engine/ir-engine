@@ -30,10 +30,10 @@ export class UploadPresigned implements ServiceMethods<Data> {
   async get (id: Id, params?: Params): Promise<Data> {
     const url = await this.s3.getSignedUrl(
       this.getKeyForFilename(params['identity-provider'].userId + '/' + params.query.fileName),
-      3600,  // Expires After 1 hour
+      parseInt(process.env.PRESIGNED_URL_EXPIRATION_DURATION) || 3600, // Expiration duration in Seconds
       [
         {"acl": "public-read"},
-        // ['content-length-range', 0, 15728640 ] // Max size 15 MB
+        ['content-length-range', process.env.MIN_AVATAR_FILE_SIZE, process.env.MAX_AVATAR_FILE_SIZE ] // Max size 15 MB
       ]
     );
     return url;
