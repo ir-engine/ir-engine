@@ -1,3 +1,4 @@
+import { isServer } from '@xr3ngine/engine/src/common/functions/isServer';
 import { Behavior } from "@xr3ngine/engine/src/common/interfaces/Behavior";
 import { getComponent, getMutableComponent, hasComponent } from "../../../ecs/functions/EntityFunctions";
 import { Object3DComponent } from "@xr3ngine/engine/src/scene/components/Object3DComponent";
@@ -23,6 +24,7 @@ export const onInteraction: Behavior = (entityInitiator, args, delta, entityInte
 };
 
 export const onInteractionHover: Behavior = (entityInitiator, { focused }: { focused: boolean }, delta, entityInteractive, time) => {
+  if (isServer) return;
   const interactiveComponent = getComponent(entityInteractive, Interactable);
   // TODO: make interface for universal interactive data, and event data
   const engineEvent: any = { type: InteractiveSystem.EVENTS.OBJECT_HOVER, focused };

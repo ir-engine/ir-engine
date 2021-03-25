@@ -2,6 +2,8 @@ import { LifecycleValue } from "@xr3ngine/engine/src/common/enums/LifecycleValue
 import { isClient } from "@xr3ngine/engine/src/common/functions/isClient";
 import { Behavior } from "@xr3ngine/engine/src/common/interfaces/Behavior";
 import { addObject3DComponent } from "@xr3ngine/engine/src/scene/behaviors/addObject3DComponent";
+import { initializeNetworkObject } from '../../../networking/functions/initializeNetworkObject'
+import { Network } from '../../../networking/classes/Network';
 import { Vec3 } from "cannon-es";
 import { AnimationClip, AnimationMixer, BoxGeometry, Group, Material, Matrix4, Mesh, MeshLambertMaterial, Object3D, Quaternion, Scene, SkinnedMesh, Vector3 } from "three";
 import { AssetLoader } from "../../../assets/components/AssetLoader";
@@ -26,6 +28,7 @@ import TeleportToSpawnPoint from '../../../scene/components/TeleportToSpawnPoint
 import { setState } from "../../../state/behaviors/setState";
 import { State } from '../../../state/components/State';
 import { TransformComponent } from '../../../transform/components/TransformComponent';
+import { PrefabType } from "@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema";
 import skeletonString from "../../../xr/Skeleton";
 import {
 	copySkeleton,
@@ -733,7 +736,42 @@ const initializeCharacter: Behavior = (entity): void => {
 	// };
 };
 
-
+export function createNetworkPlayer( args:{ ownerId: string | number, networkId?: number, entity?: Entity } ) {
+	/*
+  let position = null;
+  let rotation = null;
+  if (typeof obj.x === 'number' || typeof obj.y === 'number' || typeof obj.z === 'number' ) {
+      position = new Vector3(obj.x, obj.y, obj.z);
+  }
+  if (typeof obj.qX === 'number' || typeof obj.qY === 'number' || typeof obj.qZ === 'number' || typeof obj.qW === 'number') {
+      rotation = new Quaternion(obj.qX, obj.qY, obj.qZ, obj.qW);
+  }
+	*/
+  const networkComponent = initializeNetworkObject({
+    ownerId: String(args.ownerId),
+    networkId: args.networkId,
+    prefabType: PrefabType.Player,
+	  override: {
+	      localClientComponents: [],
+	      networkComponents: [
+	        {
+	          type: TransformComponent,
+	          data: {
+	            position: new Vector3(),
+	            rotation: new Quaternion()
+	          }
+	        },
+	        {
+	          type: CharacterComponent,
+	          data: Network.instance.clients[args.ownerId].avatarDetail ?? {},
+	        }
+	      ],
+	      serverComponents: []
+	    }
+		}
+  );
+	return networkComponent;
+}
 // Prefab is a pattern for creating an entity and component collection as a prototype
 export const NetworkPlayerCharacter: NetworkPrefab = {
   // These will be created for all players on the network
@@ -742,8 +780,6 @@ export const NetworkPlayerCharacter: NetworkPrefab = {
     { type: CharacterComponent, data: { avatarId: process.env.DEFAULT_AVATAR_ID || 'Allison' }}, // TODO: add to environment
     // Transform system applies values from transform component to three.js object (position, rotation, etc)
     { type: TransformComponent },
-		// Its component is a pass to Interpolation for Other Players and Serrver Correction for Your Local Player
-		{ type: InterpolationComponent },
     // Local player input mapped to behaviors in the input map
     { type: Input, data: { schema: CharacterInputSchema } },
     // Current state (isJumping, isidle, etc)
@@ -757,6 +793,10 @@ export const NetworkPlayerCharacter: NetworkPrefab = {
     { type: FollowCameraComponent, data: { distance: 3, mode: CameraModes.ThirdPerson } },
     { type: Interactor }
   ],
+	clientComponents: [
+		// Its component is a pass to Interpolation for Other Players and Serrver Correction for Your Local Player
+		{ type: InterpolationComponent }
+	],
   serverComponents: [
     { type: TeleportToSpawnPoint },
   ],

@@ -249,7 +249,8 @@ export class PhysicsSystem extends System {
         // apply previos correction values
         serverCorrectionBehavior(entity, {
           correction: findOne(entity, snapshots.correction),
-          snapshot: findOne(entity, Network.instance.snapshot)
+          interpolation: findOne(entity, snapshots.interpolation),
+          snapshot: findOne(entity, Network.instance.snapshot),
         });
       });
       // Creatr new snapshot position for next frame server correction

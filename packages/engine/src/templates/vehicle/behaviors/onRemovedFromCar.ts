@@ -32,13 +32,13 @@ export const onRemovedFromCar = (entity: Entity, entityCar: Entity, seat: number
 
   if (isServer) return;
   // LocalPlayer and others
-  removeComponent(entity, EnteringVehicle);
-  setState(entity, { state: CharacterStateTypes.DEFAULT });
+  //removeComponent(entity, EnteringVehicle);
+  
   // Player only
   if (Network.instance.localAvatarNetworkId != networkDriverId) return;
   removeComponent(entityCar, LocalInputReceiver);
-  removeComponent(entityCar, FollowCameraComponent);
+  //removeComponent(entityCar, FollowCameraComponent);
 
   addComponent(entity, LocalInputReceiver);
-  addComponent(entity, FollowCameraComponent, { distance: 3, mode: CameraModes.ThirdPerson });
+//  addComponent(entity, FollowCameraComponent, { distance: 3, mode: CameraModes.ThirdPerson });
 };
