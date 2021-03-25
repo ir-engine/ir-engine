@@ -19,15 +19,17 @@ import { Plugins } from '@capacitor/core';
 import styles from './index.module.scss';
 import { selectAuthState } from "@xr3ngine/client-core/redux/auth/selector";
 import { connect } from "react-redux";
+import { selectCreatorsState } from "@xr3ngine/client-core/redux/creator/selector";
 const { Example } = Plugins;
 
 const mapStateToProps = (state: any): any => {
   return {
     authState: selectAuthState(state),
+    creatorsState: selectCreatorsState(state),
   };
 };
 
-const  Home = ({ authState }) => {
+const  Home = ({ authState, creatorsState }) => {
   const { data, setLoginUser } = LoginUserHook();
 
   const [loginData, setLoginData] = useState(null);
@@ -70,7 +72,8 @@ const  Home = ({ authState }) => {
 
   return (<>
     <div className={styles.viewport}>
-     {authState.get('user')?.id ? <><AppHeader logo="/assets/logoBlack.png" />
+     {authState.get('user')?.id && creatorsState?.get('currentCreator') ? 
+      <><AppHeader logo="/assets/logoBlack.png" />
       <FeedMenu />
       {/* <MoreModalItems /> */}
       {/* <Stories stories={stories} /> */}

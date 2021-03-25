@@ -4,6 +4,7 @@ import { Application } from '../../declarations';
 import { AcceptInvite } from './accept-invite.class';
 import hooks from './accept-invite.hooks';
 import config from '../../config';
+import logger from "../../app/logger";
 
 
 /**
@@ -26,7 +27,15 @@ declare module '../../declarations' {
  */
 
 function redirect (req, res, next): any {
-  return res.redirect(config.client.url);
+  try {
+    if (res.data.error) {
+      return res.redirect(`${(config.client.url)}/?error=${(res.data.error as string)}`);
+    }
+    return res.redirect(`${(config.client.url)}/auth/magiclink?type=login&token=${(res.data.token as string)}`);
+  } catch (err) {
+    logger.error(err);
+    throw err;
+  }
 }
 
 export default (app: Application): any => {
@@ -40,7 +49,6 @@ export default (app: Application): any => {
    * @author  Vyacheslav Solovjov
    */
   const event = new AcceptInvite(options, app);
-  event.docs = event.docs;
   app.use('/a-i', event, redirect);
 
   /**
