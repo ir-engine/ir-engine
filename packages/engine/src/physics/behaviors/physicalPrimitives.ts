@@ -1,4 +1,4 @@
-import { Body, Box, ConvexPolyhedron, Cylinder, Plane, Quaternion, Sphere, Vec3 } from 'cannon-es';
+import { Body, Trimesh, Box, ConvexPolyhedron, Cylinder, Plane, Quaternion, Sphere, Vec3 } from 'cannon-es';
 import { Entity } from '../../ecs/classes/Entity';
 import { getComponent } from '../../ecs/functions/EntityFunctions';
 import { TransformComponent } from '../../transform/components/TransformComponent';
@@ -6,15 +6,45 @@ import { threeToCannon } from '../classes/three-to-cannon';
 import { ColliderComponent } from '../components/ColliderComponent';
 import { CollisionGroups } from "../enums/CollisionGroups";
 
-export function createTrimesh (mesh, position, mass) {
-    mesh = mesh.clone();
+export function createTrimesh (entity: Entity) {
+  const collider = getComponent<ColliderComponent>(entity, ColliderComponent);
+  const transformComponent = getComponent<TransformComponent>(entity, TransformComponent);
 
-		const shape = threeToCannon(mesh, {type: threeToCannon.Type.MESH});
-		// Add phys sphere
-    shape.collisionFilterGroup = CollisionGroups.TrimeshColliders;
-		const body = new Body({ mass });
-    body.addShape(shape, position);
-		return body;
+  const mesh = collider.mesh != null && collider.mesh != undefined ? collider.mesh.clone() : null;
+  const indices = collider.indices ?? (collider.vertices != null && collider.vertices != undefined && collider.indices == undefined ?  collider.vertices.map((v,i) => i): null);
+  let shape = null;
+  if (mesh != null) {
+    shape = threeToCannon(mesh, {type: threeToCannon.Type.MESH});
+  } else {
+    shape = new Trimesh(collider.vertices, indices);
+  }
+	const body = new Body({ mass: collider.mass });
+
+  if (collider.position) {
+    body.position.set(
+      collider.position.x,
+      collider.position.y,
+      collider.position.z
+    );
+  } else {
+    body.position.set(
+      collider.position.x,
+      collider.position.y,
+      collider.position.z
+    );
+  }
+
+  if (collider.quaternion) {
+    body.quaternion.set(
+      collider.quaternion.x,
+      collider.quaternion.y,
+      collider.quaternion.z,
+      collider.quaternion.w
+    );
+  }
+
+  body.addShape(shape);
+	return body;
 }
 
 export function createGround (entity: Entity) {
