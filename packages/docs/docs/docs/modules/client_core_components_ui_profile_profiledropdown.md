@@ -22,4 +22,4 @@ Name | Type |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/components/ui/Profile/ProfileDropdown.tsx:21](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/ui/Profile/ProfileDropdown.tsx#L21)
+Defined in: [packages/client-core/components/ui/Profile/ProfileDropdown.tsx:21](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/ui/Profile/ProfileDropdown.tsx#L21)

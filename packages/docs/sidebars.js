@@ -5,7 +5,7 @@ module.exports = {
   // //  API1: ['docs/api/index']
   // },
   sidebar: {
-   Guides: ['doc1'],
-   API: require('./sidebar/typedoc-client-core.js'),
+  'Getting Started': ['doc1', 'doc2', 'doc3','doc4'],
+   API:  require('./sidebar/typedoc-client-core.js'),
   },
 };

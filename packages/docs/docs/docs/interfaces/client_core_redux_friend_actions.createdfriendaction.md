@@ -16,7 +16,7 @@ hide_title: true
 
 • **type**: *string*
 
-Defined in: [packages/client-core/redux/friend/actions.ts:21](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/friend/actions.ts#L21)
+Defined in: [packages/client-core/redux/friend/actions.ts:21](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/friend/actions.ts#L21)
 
 ___
 
@@ -24,4 +24,4 @@ ___
 
 • **userRelationship**: UserRelationship
 
-Defined in: [packages/client-core/redux/friend/actions.ts:22](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/friend/actions.ts#L22)
+Defined in: [packages/client-core/redux/friend/actions.ts:22](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/friend/actions.ts#L22)

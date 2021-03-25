@@ -149,7 +149,7 @@ ___
 
 ▪ `Static` **description**: *string*
 
-Defined in: [packages/client-core/components/editor/properties/LinkNodeEditor.tsx:24](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/properties/LinkNodeEditor.tsx#L24)
+Defined in: [packages/client-core/components/editor/properties/LinkNodeEditor.tsx:24](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/LinkNodeEditor.tsx#L24)
 
 ___
 
@@ -157,7 +157,7 @@ ___
 
 ▪ `Static` **iconComponent**: StyledIcon
 
-Defined in: [packages/client-core/components/editor/properties/LinkNodeEditor.tsx:21](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/properties/LinkNodeEditor.tsx#L21)
+Defined in: [packages/client-core/components/editor/properties/LinkNodeEditor.tsx:21](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/LinkNodeEditor.tsx#L21)
 
 ## Methods
 
@@ -480,7 +480,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/properties/LinkNodeEditor.tsx:27](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/properties/LinkNodeEditor.tsx#L27)
+Defined in: [packages/client-core/components/editor/properties/LinkNodeEditor.tsx:27](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/LinkNodeEditor.tsx#L27)
 
 ___
 
@@ -492,7 +492,7 @@ ___
 
 Overrides: void
 
-Defined in: [packages/client-core/components/editor/properties/LinkNodeEditor.tsx:32](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/properties/LinkNodeEditor.tsx#L32)
+Defined in: [packages/client-core/components/editor/properties/LinkNodeEditor.tsx:32](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/LinkNodeEditor.tsx#L32)
 
 ___
 

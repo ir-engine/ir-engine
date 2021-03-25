@@ -20,4 +20,4 @@ Renames and exports: [MobileGamepad](client_core_components_ui_mobilegamepad.md#
 
 • `Const` **MobileGamepad**: *FunctionComponent*<[*MobileGamepadProps*](client_core_components_ui_mobilegamepad_mobilegamepadprops.md#mobilegamepadprops)\>
 
-Defined in: [packages/client-core/components/ui/MobileGamepad/index.tsx:8](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/ui/MobileGamepad/index.tsx#L8)
+Defined in: [packages/client-core/components/ui/MobileGamepad/index.tsx:8](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/ui/MobileGamepad/index.tsx#L8)

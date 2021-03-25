@@ -16,7 +16,7 @@ hide_title: true
 
 • **socket**: *any*
 
-Defined in: [packages/client-core/redux/channelConnection/actions.ts:37](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/channelConnection/actions.ts#L37)
+Defined in: [packages/client-core/redux/channelConnection/actions.ts:37](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/channelConnection/actions.ts#L37)
 
 ___
 
@@ -24,4 +24,4 @@ ___
 
 • **type**: *string*
 
-Defined in: [packages/client-core/redux/channelConnection/actions.ts:36](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/channelConnection/actions.ts#L36)
+Defined in: [packages/client-core/redux/channelConnection/actions.ts:36](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/channelConnection/actions.ts#L36)

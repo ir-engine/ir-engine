@@ -16,7 +16,7 @@ hide_title: true
 
 • **avatarList**: []
 
-Defined in: [packages/client-core/redux/auth/actions.ts:115](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/auth/actions.ts#L115)
+Defined in: [packages/client-core/redux/auth/actions.ts:115](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/auth/actions.ts#L115)
 
 ___
 
@@ -24,4 +24,4 @@ ___
 
 • **type**: *string*
 
-Defined in: [packages/client-core/redux/auth/actions.ts:114](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/auth/actions.ts#L114)
+Defined in: [packages/client-core/redux/auth/actions.ts:114](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/auth/actions.ts#L114)

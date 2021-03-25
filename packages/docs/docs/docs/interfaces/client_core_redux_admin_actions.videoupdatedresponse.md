@@ -16,7 +16,7 @@ hide_title: true
 
 • **attributionId**: *string*
 
-Defined in: [packages/client-core/redux/admin/actions.ts:51](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/admin/actions.ts#L51)
+Defined in: [packages/client-core/redux/admin/actions.ts:51](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/admin/actions.ts#L51)
 
 ___
 
@@ -24,7 +24,7 @@ ___
 
 • **description**: *string*
 
-Defined in: [packages/client-core/redux/admin/actions.ts:47](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/admin/actions.ts#L47)
+Defined in: [packages/client-core/redux/admin/actions.ts:47](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/admin/actions.ts#L47)
 
 ___
 
@@ -32,7 +32,7 @@ ___
 
 • **id**: *string*
 
-Defined in: [packages/client-core/redux/admin/actions.ts:44](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/admin/actions.ts#L44)
+Defined in: [packages/client-core/redux/admin/actions.ts:44](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/admin/actions.ts#L44)
 
 ___
 
@@ -40,7 +40,7 @@ ___
 
 • **metadata**: *object*
 
-Defined in: [packages/client-core/redux/admin/actions.ts:48](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/admin/actions.ts#L48)
+Defined in: [packages/client-core/redux/admin/actions.ts:48](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/admin/actions.ts#L48)
 
 ___
 
@@ -48,7 +48,7 @@ ___
 
 • **mimeType**: *string*
 
-Defined in: [packages/client-core/redux/admin/actions.ts:50](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/admin/actions.ts#L50)
+Defined in: [packages/client-core/redux/admin/actions.ts:50](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/admin/actions.ts#L50)
 
 ___
 
@@ -56,7 +56,7 @@ ___
 
 • **name**: *string*
 
-Defined in: [packages/client-core/redux/admin/actions.ts:45](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/admin/actions.ts#L45)
+Defined in: [packages/client-core/redux/admin/actions.ts:45](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/admin/actions.ts#L45)
 
 ___
 
@@ -64,7 +64,7 @@ ___
 
 • **staticResourceType**: *string*
 
-Defined in: [packages/client-core/redux/admin/actions.ts:52](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/admin/actions.ts#L52)
+Defined in: [packages/client-core/redux/admin/actions.ts:52](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/admin/actions.ts#L52)
 
 ___
 
@@ -72,7 +72,7 @@ ___
 
 • **url**: *string*
 
-Defined in: [packages/client-core/redux/admin/actions.ts:46](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/admin/actions.ts#L46)
+Defined in: [packages/client-core/redux/admin/actions.ts:46](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/admin/actions.ts#L46)
 
 ___
 
@@ -80,4 +80,4 @@ ___
 
 • **userId**: *string*
 
-Defined in: [packages/client-core/redux/admin/actions.ts:49](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/admin/actions.ts#L49)
+Defined in: [packages/client-core/redux/admin/actions.ts:49](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/admin/actions.ts#L49)

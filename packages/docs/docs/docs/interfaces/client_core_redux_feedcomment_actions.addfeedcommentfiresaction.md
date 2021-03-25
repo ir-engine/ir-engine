@@ -16,7 +16,7 @@ hide_title: true
 
 • **commentId**: *string*
 
-Defined in: [packages/client-core/redux/feedComment/actions.ts:27](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/feedComment/actions.ts#L27)
+Defined in: [packages/client-core/redux/feedComment/actions.ts:27](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/feedComment/actions.ts#L27)
 
 ___
 
@@ -24,4 +24,4 @@ ___
 
 • **type**: *string*
 
-Defined in: [packages/client-core/redux/feedComment/actions.ts:26](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/feedComment/actions.ts#L26)
+Defined in: [packages/client-core/redux/feedComment/actions.ts:26](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/feedComment/actions.ts#L26)

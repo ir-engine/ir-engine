@@ -16,4 +16,4 @@ hide_title: true
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/components/ui/Avatar/index.tsx:6](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/ui/Avatar/index.tsx#L6)
+Defined in: [packages/client-core/components/ui/Avatar/index.tsx:6](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/ui/Avatar/index.tsx#L6)

@@ -156,7 +156,7 @@ Name | Type |
 `isFullscreen` | *Requireable*<boolean\> |
 `message` | *Requireable*<string\> |
 
-Defined in: [packages/client-core/components/editor/Loading.tsx:28](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/Loading.tsx#L28)
+Defined in: [packages/client-core/components/editor/Loading.tsx:28](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/Loading.tsx#L28)
 
 ## Methods
 
@@ -475,7 +475,7 @@ ___
 
 Overrides: void
 
-Defined in: [packages/client-core/components/editor/Loading.tsx:34](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/Loading.tsx#L34)
+Defined in: [packages/client-core/components/editor/Loading.tsx:34](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/Loading.tsx#L34)
 
 ___
 

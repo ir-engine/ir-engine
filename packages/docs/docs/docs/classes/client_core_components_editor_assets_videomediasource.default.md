@@ -38,7 +38,7 @@ Name | Type |
 
 Overrides: [BaseSource](client_core_components_editor_assets_sources.basesource.md)
 
-Defined in: [packages/client-core/components/editor/assets/VideoMediaSource.tsx:13](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/assets/VideoMediaSource.tsx#L13)
+Defined in: [packages/client-core/components/editor/assets/VideoMediaSource.tsx:13](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/assets/VideoMediaSource.tsx#L13)
 
 ## Properties
 
@@ -46,7 +46,7 @@ Defined in: [packages/client-core/components/editor/assets/VideoMediaSource.tsx:
 
 • **api**: [*default*](client_core_components_editor_api.default.md)
 
-Defined in: [packages/client-core/components/editor/assets/VideoMediaSource.tsx:13](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/assets/VideoMediaSource.tsx#L13)
+Defined in: [packages/client-core/components/editor/assets/VideoMediaSource.tsx:13](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/assets/VideoMediaSource.tsx#L13)
 
 ___
 
@@ -56,7 +56,7 @@ ___
 
 Inherited from: [BaseSource](client_core_components_editor_assets_sources.basesource.md).[assetPanelComponent](client_core_components_editor_assets_sources.basesource.md#assetpanelcomponent)
 
-Defined in: [packages/client-core/components/editor/assets/sources/index.tsx:10](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/assets/sources/index.tsx#L10)
+Defined in: [packages/client-core/components/editor/assets/sources/index.tsx:10](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/assets/sources/index.tsx#L10)
 
 ___
 
@@ -64,7 +64,7 @@ ___
 
 • **component**: *typeof* [*default*](../modules/client_core_components_editor_assets_videosourcepanel.md#default)
 
-Defined in: [packages/client-core/components/editor/assets/VideoMediaSource.tsx:12](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/assets/VideoMediaSource.tsx#L12)
+Defined in: [packages/client-core/components/editor/assets/VideoMediaSource.tsx:12](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/assets/VideoMediaSource.tsx#L12)
 
 ___
 
@@ -74,7 +74,7 @@ ___
 
 Inherited from: [BaseSource](client_core_components_editor_assets_sources.basesource.md).[iconComponent](client_core_components_editor_assets_sources.basesource.md#iconcomponent)
 
-Defined in: [packages/client-core/components/editor/assets/sources/index.tsx:9](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/assets/sources/index.tsx#L9)
+Defined in: [packages/client-core/components/editor/assets/sources/index.tsx:9](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/assets/sources/index.tsx#L9)
 
 ___
 
@@ -84,7 +84,7 @@ ___
 
 Inherited from: [BaseSource](client_core_components_editor_assets_sources.basesource.md).[id](client_core_components_editor_assets_sources.basesource.md#id)
 
-Defined in: [packages/client-core/components/editor/assets/sources/index.tsx:7](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/assets/sources/index.tsx#L7)
+Defined in: [packages/client-core/components/editor/assets/sources/index.tsx:7](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/assets/sources/index.tsx#L7)
 
 ___
 
@@ -94,7 +94,7 @@ ___
 
 Inherited from: [BaseSource](client_core_components_editor_assets_sources.basesource.md).[name](client_core_components_editor_assets_sources.basesource.md#name)
 
-Defined in: [packages/client-core/components/editor/assets/sources/index.tsx:8](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/assets/sources/index.tsx#L8)
+Defined in: [packages/client-core/components/editor/assets/sources/index.tsx:8](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/assets/sources/index.tsx#L8)
 
 ___
 
@@ -104,7 +104,7 @@ ___
 
 Inherited from: [BaseSource](client_core_components_editor_assets_sources.basesource.md).[requiresAuthentication](client_core_components_editor_assets_sources.basesource.md#requiresauthentication)
 
-Defined in: [packages/client-core/components/editor/assets/sources/index.tsx:11](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/assets/sources/index.tsx#L11)
+Defined in: [packages/client-core/components/editor/assets/sources/index.tsx:11](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/assets/sources/index.tsx#L11)
 
 ___
 
@@ -114,7 +114,7 @@ ___
 
 Inherited from: [BaseSource](client_core_components_editor_assets_sources.basesource.md).[searchDebounceTimeout](client_core_components_editor_assets_sources.basesource.md#searchdebouncetimeout)
 
-Defined in: [packages/client-core/components/editor/assets/sources/index.tsx:13](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/assets/sources/index.tsx#L13)
+Defined in: [packages/client-core/components/editor/assets/sources/index.tsx:13](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/assets/sources/index.tsx#L13)
 
 ___
 
@@ -124,7 +124,7 @@ ___
 
 Inherited from: [BaseSource](client_core_components_editor_assets_sources.basesource.md).[uploadSource](client_core_components_editor_assets_sources.basesource.md#uploadsource)
 
-Defined in: [packages/client-core/components/editor/assets/sources/index.tsx:12](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/assets/sources/index.tsx#L12)
+Defined in: [packages/client-core/components/editor/assets/sources/index.tsx:12](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/assets/sources/index.tsx#L12)
 
 ___
 
@@ -402,4 +402,4 @@ Name | Type |
 
 Overrides: [BaseSource](client_core_components_editor_assets_sources.basesource.md)
 
-Defined in: [packages/client-core/components/editor/assets/VideoMediaSource.tsx:27](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/assets/VideoMediaSource.tsx#L27)
+Defined in: [packages/client-core/components/editor/assets/VideoMediaSource.tsx:27](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/assets/VideoMediaSource.tsx#L27)

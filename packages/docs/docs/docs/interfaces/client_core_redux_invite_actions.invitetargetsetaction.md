@@ -16,7 +16,7 @@ hide_title: true
 
 • **targetObjectId**: *string*
 
-Defined in: [packages/client-core/redux/invite/actions.ts:47](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/invite/actions.ts#L47)
+Defined in: [packages/client-core/redux/invite/actions.ts:47](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/invite/actions.ts#L47)
 
 ___
 
@@ -24,7 +24,7 @@ ___
 
 • **targetObjectType**: *string*
 
-Defined in: [packages/client-core/redux/invite/actions.ts:46](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/invite/actions.ts#L46)
+Defined in: [packages/client-core/redux/invite/actions.ts:46](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/invite/actions.ts#L46)
 
 ___
 
@@ -32,4 +32,4 @@ ___
 
 • **type**: *string*
 
-Defined in: [packages/client-core/redux/invite/actions.ts:45](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/invite/actions.ts#L45)
+Defined in: [packages/client-core/redux/invite/actions.ts:45](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/invite/actions.ts#L45)

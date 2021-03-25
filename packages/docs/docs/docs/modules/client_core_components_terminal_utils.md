@@ -16,7 +16,7 @@ hide_title: true
 
 **Returns:** *win* \| *linux* \| *darwin* \| *unknown*
 
-Defined in: [packages/client-core/components/terminal/utils.tsx:38](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/terminal/utils.tsx#L38)
+Defined in: [packages/client-core/components/terminal/utils.tsx:38](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/terminal/utils.tsx#L38)
 
 ___
 
@@ -33,4 +33,4 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/terminal/utils.tsx:12](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/terminal/utils.tsx#L12)
+Defined in: [packages/client-core/components/terminal/utils.tsx:12](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/terminal/utils.tsx#L12)

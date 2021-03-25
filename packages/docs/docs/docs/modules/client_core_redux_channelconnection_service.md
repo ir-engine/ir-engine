@@ -23,7 +23,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>, `getState`: *any*) => *Promise*<any\>
 
-Defined in: [packages/client-core/redux/channelConnection/service.ts:43](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/channelConnection/service.ts#L43)
+Defined in: [packages/client-core/redux/channelConnection/service.ts:43](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/channelConnection/service.ts#L43)
 
 ___
 
@@ -40,7 +40,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>, `getState`: *any*) => *Promise*<any\>
 
-Defined in: [packages/client-core/redux/channelConnection/service.ts:17](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/channelConnection/service.ts#L17)
+Defined in: [packages/client-core/redux/channelConnection/service.ts:17](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/channelConnection/service.ts#L17)
 
 ___
 
@@ -50,4 +50,4 @@ ___
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/redux/channelConnection/service.ts:85](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/channelConnection/service.ts#L85)
+Defined in: [packages/client-core/redux/channelConnection/service.ts:85](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/channelConnection/service.ts#L85)

@@ -32,7 +32,7 @@ Name | Type |
 
 Overrides: void
 
-Defined in: [packages/client-core/components/editor/layout/Resizeable.tsx:73](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/layout/Resizeable.tsx#L73)
+Defined in: [packages/client-core/components/editor/layout/Resizeable.tsx:73](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/layout/Resizeable.tsx#L73)
 
 ## Properties
 
@@ -40,7 +40,7 @@ Defined in: [packages/client-core/components/editor/layout/Resizeable.tsx:73](ht
 
 • **containerRef**: *RefObject*<unknown\>
 
-Defined in: [packages/client-core/components/editor/layout/Resizeable.tsx:106](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/layout/Resizeable.tsx#L106)
+Defined in: [packages/client-core/components/editor/layout/Resizeable.tsx:106](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/layout/Resizeable.tsx#L106)
 
 ___
 
@@ -72,7 +72,7 @@ ___
 
 • **itemRefs**: *any*[]
 
-Defined in: [packages/client-core/components/editor/layout/Resizeable.tsx:107](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/layout/Resizeable.tsx#L107)
+Defined in: [packages/client-core/components/editor/layout/Resizeable.tsx:107](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/layout/Resizeable.tsx#L107)
 
 ___
 
@@ -151,7 +151,7 @@ Name | Type |
 `axis` | *string* |
 `min` | *number* |
 
-Defined in: [packages/client-core/components/editor/layout/Resizeable.tsx:70](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/layout/Resizeable.tsx#L70)
+Defined in: [packages/client-core/components/editor/layout/Resizeable.tsx:70](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/layout/Resizeable.tsx#L70)
 
 ___
 
@@ -169,7 +169,7 @@ Name | Type |
 `min` | *Validator*<number\> |
 `onChange` | *Requireable*<(...`args`: *any*[]) => *any*\> |
 
-Defined in: [packages/client-core/components/editor/layout/Resizeable.tsx:62](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/layout/Resizeable.tsx#L62)
+Defined in: [packages/client-core/components/editor/layout/Resizeable.tsx:62](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/layout/Resizeable.tsx#L62)
 
 ## Methods
 
@@ -396,7 +396,7 @@ ___
 
 Overrides: void
 
-Defined in: [packages/client-core/components/editor/layout/Resizeable.tsx:101](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/layout/Resizeable.tsx#L101)
+Defined in: [packages/client-core/components/editor/layout/Resizeable.tsx:101](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/layout/Resizeable.tsx#L101)
 
 ___
 
@@ -490,7 +490,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/layout/Resizeable.tsx:109](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/layout/Resizeable.tsx#L109)
+Defined in: [packages/client-core/components/editor/layout/Resizeable.tsx:109](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/layout/Resizeable.tsx#L109)
 
 ___
 
@@ -506,7 +506,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/layout/Resizeable.tsx:116](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/layout/Resizeable.tsx#L116)
+Defined in: [packages/client-core/components/editor/layout/Resizeable.tsx:116](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/layout/Resizeable.tsx#L116)
 
 ___
 
@@ -516,7 +516,7 @@ ___
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/layout/Resizeable.tsx:143](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/layout/Resizeable.tsx#L143)
+Defined in: [packages/client-core/components/editor/layout/Resizeable.tsx:143](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/layout/Resizeable.tsx#L143)
 
 ___
 
@@ -528,7 +528,7 @@ ___
 
 Overrides: void
 
-Defined in: [packages/client-core/components/editor/layout/Resizeable.tsx:150](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/layout/Resizeable.tsx#L150)
+Defined in: [packages/client-core/components/editor/layout/Resizeable.tsx:150](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/layout/Resizeable.tsx#L150)
 
 ___
 

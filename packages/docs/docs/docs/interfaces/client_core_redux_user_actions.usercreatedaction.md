@@ -16,7 +16,7 @@ hide_title: true
 
 • **type**: *string*
 
-Defined in: [packages/client-core/redux/user/actions.ts:26](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/user/actions.ts#L26)
+Defined in: [packages/client-core/redux/user/actions.ts:26](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/user/actions.ts#L26)
 
 ___
 
@@ -24,4 +24,4 @@ ___
 
 • **user**: User
 
-Defined in: [packages/client-core/redux/user/actions.ts:27](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/user/actions.ts#L27)
+Defined in: [packages/client-core/redux/user/actions.ts:27](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/user/actions.ts#L27)

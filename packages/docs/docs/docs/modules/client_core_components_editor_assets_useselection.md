@@ -35,7 +35,7 @@ Name | Type |
 
 [returns object containing selectedItems array, setSelectedItems  onSelect clearSelection  function callbacks]
 
-Defined in: [packages/client-core/components/editor/assets/useSelection.tsx:60](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/assets/useSelection.tsx#L60)
+Defined in: [packages/client-core/components/editor/assets/useSelection.tsx:60](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/assets/useSelection.tsx#L60)
 
 ___
 
@@ -58,4 +58,4 @@ Name | Type | Default value |
 
 containing callback handlers onSelect and clearSelection.
 
-Defined in: [packages/client-core/components/editor/assets/useSelection.tsx:11](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/assets/useSelection.tsx#L11)
+Defined in: [packages/client-core/components/editor/assets/useSelection.tsx:11](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/assets/useSelection.tsx#L11)

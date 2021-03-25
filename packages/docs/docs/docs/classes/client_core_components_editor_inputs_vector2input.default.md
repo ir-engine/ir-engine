@@ -32,7 +32,7 @@ Name | Type |
 
 Overrides: void
 
-Defined in: [packages/client-core/components/editor/inputs/Vector2Input.tsx:55](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/inputs/Vector2Input.tsx#L55)
+Defined in: [packages/client-core/components/editor/inputs/Vector2Input.tsx:55](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/inputs/Vector2Input.tsx#L55)
 
 ## Properties
 
@@ -64,7 +64,7 @@ ___
 
 • **id**: *number*
 
-Defined in: [packages/client-core/components/editor/inputs/Vector2Input.tsx:74](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/inputs/Vector2Input.tsx#L74)
+Defined in: [packages/client-core/components/editor/inputs/Vector2Input.tsx:74](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/inputs/Vector2Input.tsx#L74)
 
 ___
 
@@ -72,7 +72,7 @@ ___
 
 • **newValue**: *Vector2*
 
-Defined in: [packages/client-core/components/editor/inputs/Vector2Input.tsx:75](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/inputs/Vector2Input.tsx#L75)
+Defined in: [packages/client-core/components/editor/inputs/Vector2Input.tsx:75](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/inputs/Vector2Input.tsx#L75)
 
 ___
 
@@ -114,7 +114,7 @@ Name | Type |
 
 Overrides: void
 
-Defined in: [packages/client-core/components/editor/inputs/Vector2Input.tsx:70](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/inputs/Vector2Input.tsx#L70)
+Defined in: [packages/client-core/components/editor/inputs/Vector2Input.tsx:70](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/inputs/Vector2Input.tsx#L70)
 
 ___
 
@@ -158,7 +158,7 @@ Name | Type |
 `onChange` | () => *void* |
 `value` | *Vector2* |
 
-Defined in: [packages/client-core/components/editor/inputs/Vector2Input.tsx:52](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/inputs/Vector2Input.tsx#L52)
+Defined in: [packages/client-core/components/editor/inputs/Vector2Input.tsx:52](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/inputs/Vector2Input.tsx#L52)
 
 ___
 
@@ -174,7 +174,7 @@ Name | Type |
 `uniformScaling` | *Requireable*<boolean\> |
 `value` | *Requireable*<object\> |
 
-Defined in: [packages/client-core/components/editor/inputs/Vector2Input.tsx:46](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/inputs/Vector2Input.tsx#L46)
+Defined in: [packages/client-core/components/editor/inputs/Vector2Input.tsx:46](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/inputs/Vector2Input.tsx#L46)
 
 ## Methods
 
@@ -498,7 +498,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/inputs/Vector2Input.tsx:81](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/inputs/Vector2Input.tsx#L81)
+Defined in: [packages/client-core/components/editor/inputs/Vector2Input.tsx:81](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/inputs/Vector2Input.tsx#L81)
 
 ___
 
@@ -514,7 +514,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/inputs/Vector2Input.tsx:97](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/inputs/Vector2Input.tsx#L97)
+Defined in: [packages/client-core/components/editor/inputs/Vector2Input.tsx:97](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/inputs/Vector2Input.tsx#L97)
 
 ___
 
@@ -530,7 +530,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/inputs/Vector2Input.tsx:99](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/inputs/Vector2Input.tsx#L99)
+Defined in: [packages/client-core/components/editor/inputs/Vector2Input.tsx:99](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/inputs/Vector2Input.tsx#L99)
 
 ___
 
@@ -540,7 +540,7 @@ ___
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/inputs/Vector2Input.tsx:77](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/inputs/Vector2Input.tsx#L77)
+Defined in: [packages/client-core/components/editor/inputs/Vector2Input.tsx:77](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/inputs/Vector2Input.tsx#L77)
 
 ___
 
@@ -552,7 +552,7 @@ ___
 
 Overrides: void
 
-Defined in: [packages/client-core/components/editor/inputs/Vector2Input.tsx:101](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/inputs/Vector2Input.tsx#L101)
+Defined in: [packages/client-core/components/editor/inputs/Vector2Input.tsx:101](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/inputs/Vector2Input.tsx#L101)
 
 ___
 

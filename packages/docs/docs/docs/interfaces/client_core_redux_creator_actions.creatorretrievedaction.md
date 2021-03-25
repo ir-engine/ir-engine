@@ -16,7 +16,7 @@ hide_title: true
 
 • **creator**: Creator
 
-Defined in: [packages/client-core/redux/creator/actions.ts:11](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/creator/actions.ts#L11)
+Defined in: [packages/client-core/redux/creator/actions.ts:11](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/creator/actions.ts#L11)
 
 ___
 
@@ -24,4 +24,4 @@ ___
 
 • **type**: *string*
 
-Defined in: [packages/client-core/redux/creator/actions.ts:10](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/creator/actions.ts#L10)
+Defined in: [packages/client-core/redux/creator/actions.ts:10](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/creator/actions.ts#L10)

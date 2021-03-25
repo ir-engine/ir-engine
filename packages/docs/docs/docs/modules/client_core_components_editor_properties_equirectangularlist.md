@@ -16,4 +16,4 @@ hide_title: true
 
 [EquirectangularOption array containing textures and used in SkyboxNode]
 
-Defined in: [packages/client-core/components/editor/properties/EquirectangularList.ts:4](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/properties/EquirectangularList.ts#L4)
+Defined in: [packages/client-core/components/editor/properties/EquirectangularList.ts:4](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/EquirectangularList.ts#L4)

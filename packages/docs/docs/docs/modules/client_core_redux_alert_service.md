@@ -16,7 +16,7 @@ hide_title: true
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *any*
 
-Defined in: [packages/client-core/redux/alert/service.ts:26](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/alert/service.ts#L26)
+Defined in: [packages/client-core/redux/alert/service.ts:26](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/alert/service.ts#L26)
 
 ___
 
@@ -32,7 +32,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *any*
 
-Defined in: [packages/client-core/redux/alert/service.ts:21](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/alert/service.ts#L21)
+Defined in: [packages/client-core/redux/alert/service.ts:21](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/alert/service.ts#L21)
 
 ___
 
@@ -48,7 +48,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *any*
 
-Defined in: [packages/client-core/redux/alert/service.ts:11](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/alert/service.ts#L11)
+Defined in: [packages/client-core/redux/alert/service.ts:11](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/alert/service.ts#L11)
 
 ___
 
@@ -64,7 +64,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *any*
 
-Defined in: [packages/client-core/redux/alert/service.ts:16](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/alert/service.ts#L16)
+Defined in: [packages/client-core/redux/alert/service.ts:16](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/alert/service.ts#L16)
 
 ___
 
@@ -80,7 +80,7 @@ Name | Type |
 
 **Returns:** [*AlertAction*](../interfaces/client_core_redux_alert_actions.alertaction.md)
 
-Defined in: [packages/client-core/redux/alert/service.ts:57](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/alert/service.ts#L57)
+Defined in: [packages/client-core/redux/alert/service.ts:57](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/alert/service.ts#L57)
 
 ___
 
@@ -97,7 +97,7 @@ Name | Type |
 
 **Returns:** [*AlertAction*](../interfaces/client_core_redux_alert_actions.alertaction.md)
 
-Defined in: [packages/client-core/redux/alert/service.ts:53](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/alert/service.ts#L53)
+Defined in: [packages/client-core/redux/alert/service.ts:53](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/alert/service.ts#L53)
 
 ___
 
@@ -114,7 +114,7 @@ Name | Type |
 
 **Returns:** [*AlertAction*](../interfaces/client_core_redux_alert_actions.alertaction.md)
 
-Defined in: [packages/client-core/redux/alert/service.ts:45](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/alert/service.ts#L45)
+Defined in: [packages/client-core/redux/alert/service.ts:45](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/alert/service.ts#L45)
 
 ___
 
@@ -131,4 +131,4 @@ Name | Type |
 
 **Returns:** [*AlertAction*](../interfaces/client_core_redux_alert_actions.alertaction.md)
 
-Defined in: [packages/client-core/redux/alert/service.ts:49](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/alert/service.ts#L49)
+Defined in: [packages/client-core/redux/alert/service.ts:49](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/alert/service.ts#L49)

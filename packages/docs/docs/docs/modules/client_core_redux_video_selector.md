@@ -14,7 +14,7 @@ hide_title: true
 
 • `Const` **selectImageState**: *OutputSelector*<any, any, (`res`: *any*) => *any*\>
 
-Defined in: [packages/client-core/redux/video/selector.ts:6](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/video/selector.ts#L6)
+Defined in: [packages/client-core/redux/video/selector.ts:6](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/video/selector.ts#L6)
 
 ___
 
@@ -22,4 +22,4 @@ ___
 
 • `Const` **selectVideoState**: *OutputSelector*<any, any, (`res`: *any*) => *any*\>
 
-Defined in: [packages/client-core/redux/video/selector.ts:5](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/video/selector.ts#L5)
+Defined in: [packages/client-core/redux/video/selector.ts:5](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/video/selector.ts#L5)

@@ -149,7 +149,7 @@ ___
 
 ▪ `Static` **description**: *string*= "A light which illuminates the entire scene, but emits along a single direction."
 
-Defined in: [packages/client-core/components/editor/properties/DirectionalLightNodeEditor.tsx:30](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/properties/DirectionalLightNodeEditor.tsx#L30)
+Defined in: [packages/client-core/components/editor/properties/DirectionalLightNodeEditor.tsx:30](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/DirectionalLightNodeEditor.tsx#L30)
 
 ___
 
@@ -157,7 +157,7 @@ ___
 
 ▪ `Static` **iconComponent**: StyledIcon
 
-Defined in: [packages/client-core/components/editor/properties/DirectionalLightNodeEditor.tsx:27](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/properties/DirectionalLightNodeEditor.tsx#L27)
+Defined in: [packages/client-core/components/editor/properties/DirectionalLightNodeEditor.tsx:27](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/DirectionalLightNodeEditor.tsx#L27)
 
 ## Methods
 
@@ -480,7 +480,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/properties/DirectionalLightNodeEditor.tsx:33](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/properties/DirectionalLightNodeEditor.tsx#L33)
+Defined in: [packages/client-core/components/editor/properties/DirectionalLightNodeEditor.tsx:33](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/DirectionalLightNodeEditor.tsx#L33)
 
 ___
 
@@ -496,7 +496,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/properties/DirectionalLightNodeEditor.tsx:37](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/properties/DirectionalLightNodeEditor.tsx#L37)
+Defined in: [packages/client-core/components/editor/properties/DirectionalLightNodeEditor.tsx:37](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/DirectionalLightNodeEditor.tsx#L37)
 
 ___
 
@@ -508,7 +508,7 @@ ___
 
 Overrides: void
 
-Defined in: [packages/client-core/components/editor/properties/DirectionalLightNodeEditor.tsx:42](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/properties/DirectionalLightNodeEditor.tsx#L42)
+Defined in: [packages/client-core/components/editor/properties/DirectionalLightNodeEditor.tsx:42](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/DirectionalLightNodeEditor.tsx#L42)
 
 ___
 

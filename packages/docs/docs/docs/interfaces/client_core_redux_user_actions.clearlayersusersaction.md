@@ -16,4 +16,4 @@ hide_title: true
 
 • **type**: *string*
 
-Defined in: [packages/client-core/redux/user/actions.ts:45](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/user/actions.ts#L45)
+Defined in: [packages/client-core/redux/user/actions.ts:45](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/user/actions.ts#L45)

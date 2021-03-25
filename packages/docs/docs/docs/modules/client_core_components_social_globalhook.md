@@ -21,4 +21,4 @@ Name | Type |
 `data` | *any* |
 `setLoginUser` | (`newData`: *any*) => *void* |
 
-Defined in: [packages/client-core/components/social/GlobalHook.tsx:3](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/social/GlobalHook.tsx#L3)
+Defined in: [packages/client-core/components/social/GlobalHook.tsx:3](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/social/GlobalHook.tsx#L3)

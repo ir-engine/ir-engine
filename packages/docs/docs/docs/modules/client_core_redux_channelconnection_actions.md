@@ -25,7 +25,7 @@ hide_title: true
 
 Ƭ **ChannelServerAction**: [*ChannelServerProvisionedAction*](../interfaces/client_core_redux_channelconnection_actions.channelserverprovisionedaction.md) \| [*ChannelServerProvisioningAction*](../interfaces/client_core_redux_channelconnection_actions.channelserverprovisioningaction.md) \| [*ChannelServerConnectingAction*](../interfaces/client_core_redux_channelconnection_actions.channelserverconnectingaction.md) \| [*ChannelServerConnectedAction*](../interfaces/client_core_redux_channelconnection_actions.channelserverconnectedaction.md) \| [*ChannelServerDisconnectedAction*](../interfaces/client_core_redux_channelconnection_actions.channelserverdisconnectedaction.md) \| [*SocketCreatedAction*](../interfaces/client_core_redux_channelconnection_actions.socketcreatedaction.md)
 
-Defined in: [packages/client-core/redux/channelConnection/actions.ts:40](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/channelConnection/actions.ts#L40)
+Defined in: [packages/client-core/redux/channelConnection/actions.ts:40](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/channelConnection/actions.ts#L40)
 
 ## Functions
 
@@ -35,7 +35,7 @@ Defined in: [packages/client-core/redux/channelConnection/actions.ts:40](https:/
 
 **Returns:** [*ChannelServerConnectedAction*](../interfaces/client_core_redux_channelconnection_actions.channelserverconnectedaction.md)
 
-Defined in: [packages/client-core/redux/channelConnection/actions.ts:68](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/channelConnection/actions.ts#L68)
+Defined in: [packages/client-core/redux/channelConnection/actions.ts:68](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/channelConnection/actions.ts#L68)
 
 ___
 
@@ -45,7 +45,7 @@ ___
 
 **Returns:** [*ChannelServerConnectingAction*](../interfaces/client_core_redux_channelconnection_actions.channelserverconnectingaction.md)
 
-Defined in: [packages/client-core/redux/channelConnection/actions.ts:62](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/channelConnection/actions.ts#L62)
+Defined in: [packages/client-core/redux/channelConnection/actions.ts:62](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/channelConnection/actions.ts#L62)
 
 ___
 
@@ -55,7 +55,7 @@ ___
 
 **Returns:** [*ChannelServerDisconnectedAction*](../interfaces/client_core_redux_channelconnection_actions.channelserverdisconnectedaction.md)
 
-Defined in: [packages/client-core/redux/channelConnection/actions.ts:74](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/channelConnection/actions.ts#L74)
+Defined in: [packages/client-core/redux/channelConnection/actions.ts:74](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/channelConnection/actions.ts#L74)
 
 ___
 
@@ -72,7 +72,7 @@ Name | Type |
 
 **Returns:** [*ChannelServerProvisionedAction*](../interfaces/client_core_redux_channelconnection_actions.channelserverprovisionedaction.md)
 
-Defined in: [packages/client-core/redux/channelConnection/actions.ts:53](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/channelConnection/actions.ts#L53)
+Defined in: [packages/client-core/redux/channelConnection/actions.ts:53](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/channelConnection/actions.ts#L53)
 
 ___
 
@@ -82,7 +82,7 @@ ___
 
 **Returns:** [*ChannelServerProvisioningAction*](../interfaces/client_core_redux_channelconnection_actions.channelserverprovisioningaction.md)
 
-Defined in: [packages/client-core/redux/channelConnection/actions.ts:48](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/channelConnection/actions.ts#L48)
+Defined in: [packages/client-core/redux/channelConnection/actions.ts:48](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/channelConnection/actions.ts#L48)
 
 ___
 
@@ -98,4 +98,4 @@ Name | Type |
 
 **Returns:** [*SocketCreatedAction*](../interfaces/client_core_redux_channelconnection_actions.socketcreatedaction.md)
 
-Defined in: [packages/client-core/redux/channelConnection/actions.ts:80](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/channelConnection/actions.ts#L80)
+Defined in: [packages/client-core/redux/channelConnection/actions.ts:80](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/channelConnection/actions.ts#L80)
