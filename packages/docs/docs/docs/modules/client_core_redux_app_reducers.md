@@ -14,7 +14,7 @@ hide_title: true
 
 • `Const` **initialState**: AppState
 
-Defined in: [packages/client-core/redux/app/reducers.ts:30](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/app/reducers.ts#L30)
+Defined in: [packages/client-core/redux/app/reducers.ts:30](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/app/reducers.ts#L30)
 
 ## Functions
 
@@ -31,4 +31,4 @@ Name | Type |
 
 **Returns:** AppState
 
-Defined in: [packages/client-core/redux/app/reducers.ts:44](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/app/reducers.ts#L44)
+Defined in: [packages/client-core/redux/app/reducers.ts:44](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/app/reducers.ts#L44)

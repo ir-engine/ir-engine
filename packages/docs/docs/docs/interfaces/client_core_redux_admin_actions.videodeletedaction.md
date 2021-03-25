@@ -16,7 +16,7 @@ hide_title: true
 
 • **data**: StaticResource
 
-Defined in: [packages/client-core/redux/admin/actions.ts:88](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/admin/actions.ts#L88)
+Defined in: [packages/client-core/redux/admin/actions.ts:88](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/admin/actions.ts#L88)
 
 ___
 
@@ -24,4 +24,4 @@ ___
 
 • **type**: *string*
 
-Defined in: [packages/client-core/redux/admin/actions.ts:87](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/admin/actions.ts#L87)
+Defined in: [packages/client-core/redux/admin/actions.ts:87](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/admin/actions.ts#L87)

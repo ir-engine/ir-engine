@@ -25,7 +25,7 @@ Name | Type |
 
 **Returns:** [*default*](client_core_components_terminal_components_plugin.default.md)
 
-Defined in: [packages/client-core/components/terminal/components/Plugin.ts:19](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/terminal/components/Plugin.ts#L19)
+Defined in: [packages/client-core/components/terminal/components/Plugin.ts:19](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/terminal/components/Plugin.ts#L19)
 
 ## Properties
 
@@ -33,7 +33,7 @@ Defined in: [packages/client-core/components/terminal/components/Plugin.ts:19](h
 
 • **api**: [*default*](client_core_components_editor_api.default.md)
 
-Defined in: [packages/client-core/components/terminal/components/Plugin.ts:15](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/terminal/components/Plugin.ts#L15)
+Defined in: [packages/client-core/components/terminal/components/Plugin.ts:15](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/terminal/components/Plugin.ts#L15)
 
 ___
 
@@ -43,7 +43,7 @@ ___
 
 #### Type declaration:
 
-Defined in: [packages/client-core/components/terminal/components/Plugin.ts:11](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/terminal/components/Plugin.ts#L11)
+Defined in: [packages/client-core/components/terminal/components/Plugin.ts:11](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/terminal/components/Plugin.ts#L11)
 
 ___
 
@@ -53,7 +53,7 @@ ___
 
 #### Type declaration:
 
-Defined in: [packages/client-core/components/terminal/components/Plugin.ts:16](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/terminal/components/Plugin.ts#L16)
+Defined in: [packages/client-core/components/terminal/components/Plugin.ts:16](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/terminal/components/Plugin.ts#L16)
 
 ___
 
@@ -63,7 +63,7 @@ ___
 
 #### Type declaration:
 
-Defined in: [packages/client-core/components/terminal/components/Plugin.ts:12](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/terminal/components/Plugin.ts#L12)
+Defined in: [packages/client-core/components/terminal/components/Plugin.ts:12](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/terminal/components/Plugin.ts#L12)
 
 ___
 
@@ -77,9 +77,9 @@ ___
 
 **Returns:** *object*
 
-Defined in: [packages/client-core/components/terminal/components/Plugin.ts:18](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/terminal/components/Plugin.ts#L18)
+Defined in: [packages/client-core/components/terminal/components/Plugin.ts:18](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/terminal/components/Plugin.ts#L18)
 
-Defined in: [packages/client-core/components/terminal/components/Plugin.ts:18](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/terminal/components/Plugin.ts#L18)
+Defined in: [packages/client-core/components/terminal/components/Plugin.ts:18](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/terminal/components/Plugin.ts#L18)
 
 ___
 
@@ -93,9 +93,9 @@ ___
 
 **Returns:** *boolean*
 
-Defined in: [packages/client-core/components/terminal/components/Plugin.ts:19](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/terminal/components/Plugin.ts#L19)
+Defined in: [packages/client-core/components/terminal/components/Plugin.ts:19](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/terminal/components/Plugin.ts#L19)
 
-Defined in: [packages/client-core/components/terminal/components/Plugin.ts:19](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/terminal/components/Plugin.ts#L19)
+Defined in: [packages/client-core/components/terminal/components/Plugin.ts:19](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/terminal/components/Plugin.ts#L19)
 
 ___
 
@@ -105,7 +105,7 @@ ___
 
 #### Type declaration:
 
-Defined in: [packages/client-core/components/terminal/components/Plugin.ts:13](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/terminal/components/Plugin.ts#L13)
+Defined in: [packages/client-core/components/terminal/components/Plugin.ts:13](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/terminal/components/Plugin.ts#L13)
 
 ___
 
@@ -125,9 +125,9 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/terminal/components/Plugin.ts:17](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/terminal/components/Plugin.ts#L17)
+Defined in: [packages/client-core/components/terminal/components/Plugin.ts:17](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/terminal/components/Plugin.ts#L17)
 
-Defined in: [packages/client-core/components/terminal/components/Plugin.ts:17](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/terminal/components/Plugin.ts#L17)
+Defined in: [packages/client-core/components/terminal/components/Plugin.ts:17](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/terminal/components/Plugin.ts#L17)
 
 ___
 
@@ -137,7 +137,7 @@ ___
 
 #### Type declaration:
 
-Defined in: [packages/client-core/components/terminal/components/Plugin.ts:8](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/terminal/components/Plugin.ts#L8)
+Defined in: [packages/client-core/components/terminal/components/Plugin.ts:8](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/terminal/components/Plugin.ts#L8)
 
 ___
 
@@ -145,7 +145,7 @@ ___
 
 ▪ `Static` **defaultData**: *string*= ''
 
-Defined in: [packages/client-core/components/terminal/components/Plugin.ts:6](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/terminal/components/Plugin.ts#L6)
+Defined in: [packages/client-core/components/terminal/components/Plugin.ts:6](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/terminal/components/Plugin.ts#L6)
 
 ___
 
@@ -155,7 +155,7 @@ ___
 
 #### Type declaration:
 
-Defined in: [packages/client-core/components/terminal/components/Plugin.ts:9](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/terminal/components/Plugin.ts#L9)
+Defined in: [packages/client-core/components/terminal/components/Plugin.ts:9](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/terminal/components/Plugin.ts#L9)
 
 ___
 
@@ -163,7 +163,7 @@ ___
 
 ▪ `Static` **displayName**: *string*= ''
 
-Defined in: [packages/client-core/components/terminal/components/Plugin.ts:4](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/terminal/components/Plugin.ts#L4)
+Defined in: [packages/client-core/components/terminal/components/Plugin.ts:4](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/terminal/components/Plugin.ts#L4)
 
 ___
 
@@ -173,7 +173,7 @@ ___
 
 #### Type declaration:
 
-Defined in: [packages/client-core/components/terminal/components/Plugin.ts:10](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/terminal/components/Plugin.ts#L10)
+Defined in: [packages/client-core/components/terminal/components/Plugin.ts:10](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/terminal/components/Plugin.ts#L10)
 
 ___
 
@@ -181,4 +181,4 @@ ___
 
 ▪ `Static` **version**: *string*= '1.0.0'
 
-Defined in: [packages/client-core/components/terminal/components/Plugin.ts:5](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/terminal/components/Plugin.ts#L5)
+Defined in: [packages/client-core/components/terminal/components/Plugin.ts:5](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/terminal/components/Plugin.ts#L5)

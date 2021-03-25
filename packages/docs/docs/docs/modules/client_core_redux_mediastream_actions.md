@@ -16,7 +16,7 @@ hide_title: true
 
 #### Type declaration:
 
-Defined in: [packages/client-core/redux/mediastream/actions.ts:11](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/mediastream/actions.ts#L11)
+Defined in: [packages/client-core/redux/mediastream/actions.ts:11](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/mediastream/actions.ts#L11)
 
 ## Functions
 
@@ -32,7 +32,7 @@ Name | Type |
 
 **Returns:** [*Action*](client_core_redux_actions.md#action)
 
-Defined in: [packages/client-core/redux/mediastream/actions.ts:14](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/mediastream/actions.ts#L14)
+Defined in: [packages/client-core/redux/mediastream/actions.ts:14](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/mediastream/actions.ts#L14)
 
 ___
 
@@ -48,7 +48,7 @@ Name | Type |
 
 **Returns:** [*Action*](client_core_redux_actions.md#action)
 
-Defined in: [packages/client-core/redux/mediastream/actions.ts:13](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/mediastream/actions.ts#L13)
+Defined in: [packages/client-core/redux/mediastream/actions.ts:13](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/mediastream/actions.ts#L13)
 
 ___
 
@@ -64,7 +64,7 @@ Name | Type |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/redux/mediastream/actions.ts:16](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/mediastream/actions.ts#L16)
+Defined in: [packages/client-core/redux/mediastream/actions.ts:16](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/mediastream/actions.ts#L16)
 
 ___
 
@@ -80,4 +80,4 @@ Name | Type |
 
 **Returns:** [*Action*](client_core_redux_actions.md#action)
 
-Defined in: [packages/client-core/redux/mediastream/actions.ts:15](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/mediastream/actions.ts#L15)
+Defined in: [packages/client-core/redux/mediastream/actions.ts:15](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/mediastream/actions.ts#L15)

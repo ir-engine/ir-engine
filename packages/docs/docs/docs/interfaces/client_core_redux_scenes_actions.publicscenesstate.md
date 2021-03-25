@@ -16,7 +16,7 @@ hide_title: true
 
 • **currentScene**: [*PublicScene*](client_core_redux_scenes_actions.publicscene.md)
 
-Defined in: [packages/client-core/redux/scenes/actions.ts:10](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/scenes/actions.ts#L10)
+Defined in: [packages/client-core/redux/scenes/actions.ts:10](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/scenes/actions.ts#L10)
 
 ___
 
@@ -24,7 +24,7 @@ ___
 
 • **error**: *string*
 
-Defined in: [packages/client-core/redux/scenes/actions.ts:11](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/scenes/actions.ts#L11)
+Defined in: [packages/client-core/redux/scenes/actions.ts:11](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/scenes/actions.ts#L11)
 
 ___
 
@@ -32,4 +32,4 @@ ___
 
 • **scenes**: [*PublicScene*](client_core_redux_scenes_actions.publicscene.md)[]
 
-Defined in: [packages/client-core/redux/scenes/actions.ts:9](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/scenes/actions.ts#L9)
+Defined in: [packages/client-core/redux/scenes/actions.ts:9](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/scenes/actions.ts#L9)

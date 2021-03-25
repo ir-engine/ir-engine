@@ -20,7 +20,7 @@ Name | Type |
 :------ | :------ |
 `type` | *string* |
 
-Defined in: [packages/client-core/redux/actions.ts:91](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L91)
+Defined in: [packages/client-core/redux/actions.ts:91](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L91)
 
 ## Variables
 
@@ -28,7 +28,7 @@ Defined in: [packages/client-core/redux/actions.ts:91](https://github.com/xr3ngi
 
 • `Const` **ACCEPTED\_INVITE**: *ACCEPTED_INVITE*= 'ACCEPTED\_INVITE'
 
-Defined in: [packages/client-core/redux/actions.ts:115](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L115)
+Defined in: [packages/client-core/redux/actions.ts:115](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L115)
 
 ___
 
@@ -36,7 +36,7 @@ ___
 
 • `Const` **ACTION\_PROCESSING**: *ACTION_PROCESSING*= 'ACTION\_PROCESSING'
 
-Defined in: [packages/client-core/redux/actions.ts:6](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L6)
+Defined in: [packages/client-core/redux/actions.ts:6](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L6)
 
 ___
 
@@ -44,7 +44,7 @@ ___
 
 • `Const` **ADDED\_CHANNEL\_LAYER\_USER**: *ADDED_CHANNEL_LAYER_USER*= 'ADDED\_CHANNEL\_LAYER\_USER'
 
-Defined in: [packages/client-core/redux/actions.ts:199](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L199)
+Defined in: [packages/client-core/redux/actions.ts:199](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L199)
 
 ___
 
@@ -52,7 +52,7 @@ ___
 
 • `Const` **ADDED\_LAYER\_USER**: *ADDED_LAYER_USER*= 'ADDED\_LAYER\_USER'
 
-Defined in: [packages/client-core/redux/actions.ts:67](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L67)
+Defined in: [packages/client-core/redux/actions.ts:67](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L67)
 
 ___
 
@@ -60,7 +60,7 @@ ___
 
 • `Const` **ADD\_FEED**: *ADD_FEED*= 'ADD\_FEED'
 
-Defined in: [packages/client-core/redux/actions.ts:219](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L219)
+Defined in: [packages/client-core/redux/actions.ts:219](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L219)
 
 ___
 
@@ -68,7 +68,7 @@ ___
 
 • `Const` **ADD\_FEED\_BOOKMARK**: *ADD_FEED_BOOKMARK*= 'ADD\_FEED\_BOOKMARK'
 
-Defined in: [packages/client-core/redux/actions.ts:211](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L211)
+Defined in: [packages/client-core/redux/actions.ts:211](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L211)
 
 ___
 
@@ -76,7 +76,7 @@ ___
 
 • `Const` **ADD\_FEED\_COMMENT**: *ADD_FEED_COMMENT*= 'ADD\_FEED\_COMMENT'
 
-Defined in: [packages/client-core/redux/actions.ts:218](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L218)
+Defined in: [packages/client-core/redux/actions.ts:218](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L218)
 
 ___
 
@@ -84,7 +84,7 @@ ___
 
 • `Const` **ADD\_FEED\_COMMENT\_FIRES**: *ADD_FEED_COMMENT_FIRES*= 'ADD\_FEED\_COMMENT\_FIRES'
 
-Defined in: [packages/client-core/redux/actions.ts:216](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L216)
+Defined in: [packages/client-core/redux/actions.ts:216](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L216)
 
 ___
 
@@ -92,7 +92,7 @@ ___
 
 • `Const` **ADD\_FEED\_FIRES**: *ADD_FEED_FIRES*= 'ADD\_FEED\_FIRES'
 
-Defined in: [packages/client-core/redux/actions.ts:209](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L209)
+Defined in: [packages/client-core/redux/actions.ts:209](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L209)
 
 ___
 
@@ -100,7 +100,7 @@ ___
 
 • `Const` **ADD\_FEED\_VIEW**: *ADD_FEED_VIEW*= 'ADD\_FEED\_VIEW'
 
-Defined in: [packages/client-core/redux/actions.ts:213](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L213)
+Defined in: [packages/client-core/redux/actions.ts:213](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L213)
 
 ___
 
@@ -108,7 +108,7 @@ ___
 
 • `Const` **AVATAR\_FETCHED**: *AVATAR_FETCHED*= 'AVATAR\_FETCHED'
 
-Defined in: [packages/client-core/redux/actions.ts:46](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L46)
+Defined in: [packages/client-core/redux/actions.ts:46](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L46)
 
 ___
 
@@ -116,7 +116,7 @@ ___
 
 • `Const` **AVATAR\_UPDATED**: *AVATAR_UPDATED*= 'AVATAR\_UPDATED'
 
-Defined in: [packages/client-core/redux/actions.ts:47](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L47)
+Defined in: [packages/client-core/redux/actions.ts:47](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L47)
 
 ___
 
@@ -124,7 +124,7 @@ ___
 
 • `Const` **AVATAR\_UPDATE\_FAILURE**: *AVATAR_UPDATE_FAILURE*= 'AVATAR\_UPDATE\_FAILURE'
 
-Defined in: [packages/client-core/redux/actions.ts:48](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L48)
+Defined in: [packages/client-core/redux/actions.ts:48](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L48)
 
 ___
 
@@ -132,7 +132,7 @@ ___
 
 • `Const` **CAM\_AUDIO\_CHANGED**: *CAM_AUDIO_CHANGED*= 'CAM\_AUDIO\_CHANGED'
 
-Defined in: [packages/client-core/redux/actions.ts:165](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L165)
+Defined in: [packages/client-core/redux/actions.ts:165](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L165)
 
 ___
 
@@ -140,7 +140,7 @@ ___
 
 • `Const` **CAM\_VIDEO\_CHANGED**: *CAM_VIDEO_CHANGED*= 'CAM\_VIDEO\_CHANGED'
 
-Defined in: [packages/client-core/redux/actions.ts:164](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L164)
+Defined in: [packages/client-core/redux/actions.ts:164](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L164)
 
 ___
 
@@ -148,7 +148,7 @@ ___
 
 • `Const` **CANCELED\_INVITATION**: *CANCELED_INVITATION*= 'CANCELED\_INVITATION'
 
-Defined in: [packages/client-core/redux/actions.ts:73](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L73)
+Defined in: [packages/client-core/redux/actions.ts:73](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L73)
 
 ___
 
@@ -156,7 +156,7 @@ ___
 
 • `Const` **CHANGED\_RELATION**: *CHANGED_RELATION*= 'CHANGED\_RELATION'
 
-Defined in: [packages/client-core/redux/actions.ts:64](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L64)
+Defined in: [packages/client-core/redux/actions.ts:64](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L64)
 
 ___
 
@@ -164,7 +164,7 @@ ___
 
 • `Const` **CHANNEL\_SERVER\_CONNECTED**: *CHANNEL_SERVER_CONNECTED*= 'CHANNEL\_SERVER\_CONNECTED'
 
-Defined in: [packages/client-core/redux/actions.ts:194](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L194)
+Defined in: [packages/client-core/redux/actions.ts:194](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L194)
 
 ___
 
@@ -172,7 +172,7 @@ ___
 
 • `Const` **CHANNEL\_SERVER\_CONNECTING**: *CHANNEL_SERVER_CONNECTING*= 'CHANNEL\_SERVER\_CONNECTING'
 
-Defined in: [packages/client-core/redux/actions.ts:193](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L193)
+Defined in: [packages/client-core/redux/actions.ts:193](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L193)
 
 ___
 
@@ -180,7 +180,7 @@ ___
 
 • `Const` **CHANNEL\_SERVER\_DISCONNECTED**: *CHANNEL_SERVER_DISCONNECTED*= 'CHANNEL\_SERVER\_DISCONNECTED'
 
-Defined in: [packages/client-core/redux/actions.ts:195](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L195)
+Defined in: [packages/client-core/redux/actions.ts:195](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L195)
 
 ___
 
@@ -188,7 +188,7 @@ ___
 
 • `Const` **CHANNEL\_SERVER\_PROVISIONED**: *CHANNEL_SERVER_PROVISIONED*= 'CHANNEL\_SERVER\_PROVISIONED'
 
-Defined in: [packages/client-core/redux/actions.ts:192](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L192)
+Defined in: [packages/client-core/redux/actions.ts:192](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L192)
 
 ___
 
@@ -196,7 +196,7 @@ ___
 
 • `Const` **CHANNEL\_SERVER\_PROVISIONING**: *CHANNEL_SERVER_PROVISIONING*= 'CHANNEL\_SERVER\_PROVISIONING'
 
-Defined in: [packages/client-core/redux/actions.ts:191](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L191)
+Defined in: [packages/client-core/redux/actions.ts:191](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L191)
 
 ___
 
@@ -204,7 +204,7 @@ ___
 
 • `Const` **CHANNEL\_TYPE\_CHANGED**: *CHANNEL_TYPE_CHANGED*= 'CHANNEL\_TYPE\_CHANGED'
 
-Defined in: [packages/client-core/redux/actions.ts:172](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L172)
+Defined in: [packages/client-core/redux/actions.ts:172](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L172)
 
 ___
 
@@ -212,7 +212,7 @@ ___
 
 • `Const` **CHAT\_TARGET\_SET**: *CHAT_TARGET_SET*= 'CHAT\_TARGET\_SET'
 
-Defined in: [packages/client-core/redux/actions.ts:144](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L144)
+Defined in: [packages/client-core/redux/actions.ts:144](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L144)
 
 ___
 
@@ -220,7 +220,7 @@ ___
 
 • `Const` **CLEAR\_CHANNEL\_LAYER\_USERS**: *CLEAR_CHANNEL_LAYER_USERS*= 'CLEAR\_CHANNEL\_LAYER\_USERS'
 
-Defined in: [packages/client-core/redux/actions.ts:197](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L197)
+Defined in: [packages/client-core/redux/actions.ts:197](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L197)
 
 ___
 
@@ -228,7 +228,7 @@ ___
 
 • `Const` **CLEAR\_LAYER\_USERS**: *CLEAR_LAYER_USERS*= 'CLEAR\_LAYER\_USERS'
 
-Defined in: [packages/client-core/redux/actions.ts:65](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L65)
+Defined in: [packages/client-core/redux/actions.ts:65](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L65)
 
 ___
 
@@ -236,7 +236,7 @@ ___
 
 • `Const` **CLOSE\_DIALOG**: *CLOSE_DIALOG*= 'CLOSE\_DIALOG'
 
-Defined in: [packages/client-core/redux/actions.ts:44](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L44)
+Defined in: [packages/client-core/redux/actions.ts:44](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L44)
 
 ___
 
@@ -244,7 +244,7 @@ ___
 
 • `Const` **CONSUMERS\_CHANGED**: *CONSUMERS_CHANGED*= 'CONSUMERS\_CHANGED'
 
-Defined in: [packages/client-core/redux/actions.ts:169](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L169)
+Defined in: [packages/client-core/redux/actions.ts:169](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L169)
 
 ___
 
@@ -252,7 +252,7 @@ ___
 
 • `Const` **CREATED\_CHANNEL**: *CREATED_CHANNEL*= 'CREATED\_CHANNEL'
 
-Defined in: [packages/client-core/redux/actions.ts:148](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L148)
+Defined in: [packages/client-core/redux/actions.ts:148](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L148)
 
 ___
 
@@ -260,7 +260,7 @@ ___
 
 • `Const` **CREATED\_FRIEND**: *CREATED_FRIEND*= 'CREATED\_FRIEND'
 
-Defined in: [packages/client-core/redux/actions.ts:103](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L103)
+Defined in: [packages/client-core/redux/actions.ts:103](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L103)
 
 ___
 
@@ -268,7 +268,7 @@ ___
 
 • `Const` **CREATED\_GROUP**: *CREATED_GROUP*= 'CREATED\_GROUP'
 
-Defined in: [packages/client-core/redux/actions.ts:122](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L122)
+Defined in: [packages/client-core/redux/actions.ts:122](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L122)
 
 ___
 
@@ -276,7 +276,7 @@ ___
 
 • `Const` **CREATED\_GROUP\_USER**: *CREATED_GROUP_USER*= 'CREATED\_GROUP\_USER'
 
-Defined in: [packages/client-core/redux/actions.ts:125](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L125)
+Defined in: [packages/client-core/redux/actions.ts:125](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L125)
 
 ___
 
@@ -284,7 +284,7 @@ ___
 
 • `Const` **CREATED\_MESSAGE**: *CREATED_MESSAGE*= 'CREATED\_MESSAGE'
 
-Defined in: [packages/client-core/redux/actions.ts:151](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L151)
+Defined in: [packages/client-core/redux/actions.ts:151](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L151)
 
 ___
 
@@ -292,7 +292,7 @@ ___
 
 • `Const` **CREATED\_PARTY**: *CREATED_PARTY*= 'CREATED\_PARTY'
 
-Defined in: [packages/client-core/redux/actions.ts:135](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L135)
+Defined in: [packages/client-core/redux/actions.ts:135](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L135)
 
 ___
 
@@ -300,7 +300,7 @@ ___
 
 • `Const` **CREATED\_PARTY\_USER**: *CREATED_PARTY_USER*= 'CREATED\_PARTY\_USER'
 
-Defined in: [packages/client-core/redux/actions.ts:138](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L138)
+Defined in: [packages/client-core/redux/actions.ts:138](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L138)
 
 ___
 
@@ -308,7 +308,7 @@ ___
 
 • `Const` **CREATED\_RECEIVED\_INVITE**: *CREATED_RECEIVED_INVITE*= 'CREATED\_RECEIVED\_INVITE'
 
-Defined in: [packages/client-core/redux/actions.ts:111](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L111)
+Defined in: [packages/client-core/redux/actions.ts:111](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L111)
 
 ___
 
@@ -316,7 +316,7 @@ ___
 
 • `Const` **CREATED\_SENT\_INVITE**: *CREATED_SENT_INVITE*= 'CREATED\_SENT\_INVITE'
 
-Defined in: [packages/client-core/redux/actions.ts:113](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L113)
+Defined in: [packages/client-core/redux/actions.ts:113](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L113)
 
 ___
 
@@ -324,7 +324,7 @@ ___
 
 • `Const` **CREATORS\_RETRIEVED**: *CREATORS_RETRIEVED*= 'CREATORS\_RETRIEVED'
 
-Defined in: [packages/client-core/redux/actions.ts:225](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L225)
+Defined in: [packages/client-core/redux/actions.ts:225](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L225)
 
 ___
 
@@ -332,7 +332,7 @@ ___
 
 • `Const` **CREATOR\_FETCH**: *CREATOR_FETCH*= 'CREATOR\_FETCH'
 
-Defined in: [packages/client-core/redux/actions.ts:222](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L222)
+Defined in: [packages/client-core/redux/actions.ts:222](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L222)
 
 ___
 
@@ -340,7 +340,7 @@ ___
 
 • `Const` **CREATOR\_RETRIEVED**: *CREATOR_RETRIEVED*= 'CREATOR\_RETRIEVED'
 
-Defined in: [packages/client-core/redux/actions.ts:221](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L221)
+Defined in: [packages/client-core/redux/actions.ts:221](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L221)
 
 ___
 
@@ -348,7 +348,7 @@ ___
 
 • `Const` **CURRENT\_CREATOR\_RETRIEVED**: *CURRENT_CREATOR_RETRIEVED*= 'CURRENT\_CREATOR\_RETRIEVED'
 
-Defined in: [packages/client-core/redux/actions.ts:220](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L220)
+Defined in: [packages/client-core/redux/actions.ts:220](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L220)
 
 ___
 
@@ -356,7 +356,7 @@ ___
 
 • `Const` **DECLINED\_INVITE**: *DECLINED_INVITE*= 'DECLINED\_INVITE'
 
-Defined in: [packages/client-core/redux/actions.ts:116](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L116)
+Defined in: [packages/client-core/redux/actions.ts:116](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L116)
 
 ___
 
@@ -364,7 +364,7 @@ ___
 
 • `Const` **DETECT\_DEVICE\_TYPE**: *DETECT_DEVICE_TYPE*= 'DETECT\_DEVICE\_TYPE'
 
-Defined in: [packages/client-core/redux/actions.ts:57](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L57)
+Defined in: [packages/client-core/redux/actions.ts:57](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L57)
 
 ___
 
@@ -372,7 +372,7 @@ ___
 
 • `Const` **DID\_CREATE\_MAGICLINK**: *DID_CREATE_MAGICLINK*= 'DID\_CREATE\_MAGICLINK'
 
-Defined in: [packages/client-core/redux/actions.ts:36](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L36)
+Defined in: [packages/client-core/redux/actions.ts:36](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L36)
 
 ___
 
@@ -380,7 +380,7 @@ ___
 
 • `Const` **DID\_FORGOT\_PASSWORD**: *DID_FORGOT_PASSWORD*= 'DID\_FORGOT\_PASSWORD'
 
-Defined in: [packages/client-core/redux/actions.ts:27](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L27)
+Defined in: [packages/client-core/redux/actions.ts:27](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L27)
 
 ___
 
@@ -388,7 +388,7 @@ ___
 
 • `Const` **DID\_RESEND\_VERIFICATION\_EMAIL**: *DID_RESEND_VERIFICATION_EMAIL*= 'DID\_RESEND\_VERIFICATION\_EMAIL'
 
-Defined in: [packages/client-core/redux/actions.ts:26](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L26)
+Defined in: [packages/client-core/redux/actions.ts:26](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L26)
 
 ___
 
@@ -396,7 +396,7 @@ ___
 
 • `Const` **DID\_RESET\_PASSWORD**: *DID_RESET_PASSWORD*= 'DID\_RESET\_PASSWORD'
 
-Defined in: [packages/client-core/redux/actions.ts:28](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L28)
+Defined in: [packages/client-core/redux/actions.ts:28](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L28)
 
 ___
 
@@ -404,7 +404,7 @@ ___
 
 • `Const` **DID\_VERIFY\_EMAIL**: *DID_VERIFY_EMAIL*= 'DID\_VERIFY\_EMAIL'
 
-Defined in: [packages/client-core/redux/actions.ts:25](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L25)
+Defined in: [packages/client-core/redux/actions.ts:25](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L25)
 
 ___
 
@@ -412,7 +412,7 @@ ___
 
 • `Const` **FACE\_TRACKING\_CHANGED**: *FACE_TRACKING_CHANGED*= 'FACE\_TRACKING\_CHANGED'
 
-Defined in: [packages/client-core/redux/actions.ts:166](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L166)
+Defined in: [packages/client-core/redux/actions.ts:166](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L166)
 
 ___
 
@@ -420,7 +420,7 @@ ___
 
 • `Const` **FEEDS\_BOOKMARK\_RETRIEVED**: *FEEDS_BOOKMARK_RETRIEVED*= 'FEEDS\_BOOKMARK\_RETRIEVED'
 
-Defined in: [packages/client-core/redux/actions.ts:224](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L224)
+Defined in: [packages/client-core/redux/actions.ts:224](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L224)
 
 ___
 
@@ -428,7 +428,7 @@ ___
 
 • `Const` **FEEDS\_CREATOR\_RETRIEVED**: *FEEDS_CREATOR_RETRIEVED*= 'FEEDS\_CREATOR\_RETRIEVED'
 
-Defined in: [packages/client-core/redux/actions.ts:223](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L223)
+Defined in: [packages/client-core/redux/actions.ts:223](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L223)
 
 ___
 
@@ -436,7 +436,7 @@ ___
 
 • `Const` **FEEDS\_FEATURED\_RETRIEVED**: *FEEDS_FEATURED_RETRIEVED*= 'FEEDS\_FEATURED\_RETRIEVED'
 
-Defined in: [packages/client-core/redux/actions.ts:206](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L206)
+Defined in: [packages/client-core/redux/actions.ts:206](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L206)
 
 ___
 
@@ -444,7 +444,7 @@ ___
 
 • `Const` **FEEDS\_FETCH**: *FEEDS_FETCH*= 'FEEDS\_FETCH'
 
-Defined in: [packages/client-core/redux/actions.ts:205](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L205)
+Defined in: [packages/client-core/redux/actions.ts:205](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L205)
 
 ___
 
@@ -452,7 +452,7 @@ ___
 
 • `Const` **FEEDS\_RETRIEVED**: *FEEDS_RETRIEVED*= 'FEEDS\_RETRIEVED'
 
-Defined in: [packages/client-core/redux/actions.ts:203](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L203)
+Defined in: [packages/client-core/redux/actions.ts:203](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L203)
 
 ___
 
@@ -460,7 +460,7 @@ ___
 
 • `Const` **FEED\_COMMENTS\_FETCH**: *FEED_COMMENTS_FETCH*= 'FEED\_COMMENTS\_FETCH'
 
-Defined in: [packages/client-core/redux/actions.ts:215](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L215)
+Defined in: [packages/client-core/redux/actions.ts:215](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L215)
 
 ___
 
@@ -468,7 +468,7 @@ ___
 
 • `Const` **FEED\_COMMENTS\_RETRIEVED**: *FEED_COMMENTS_RETRIEVED*= 'FEED\_COMMENTS\_RETRIEVED'
 
-Defined in: [packages/client-core/redux/actions.ts:214](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L214)
+Defined in: [packages/client-core/redux/actions.ts:214](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L214)
 
 ___
 
@@ -476,7 +476,7 @@ ___
 
 • `Const` **FEED\_FIRES\_FETCH**: *FEEDFIRES_FETCH*= 'FEEDFIRES\_FETCH'
 
-Defined in: [packages/client-core/redux/actions.ts:207](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L207)
+Defined in: [packages/client-core/redux/actions.ts:207](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L207)
 
 ___
 
@@ -484,7 +484,7 @@ ___
 
 • `Const` **FEED\_FIRES\_RETRIEVED**: *FEED_FIRES_RETRIEVED*= 'FEED\_FIRES\_RETRIEVED'
 
-Defined in: [packages/client-core/redux/actions.ts:208](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L208)
+Defined in: [packages/client-core/redux/actions.ts:208](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L208)
 
 ___
 
@@ -492,7 +492,7 @@ ___
 
 • `Const` **FEED\_RETRIEVED**: *FEED_RETRIEVED*= 'FEED\_RETRIEVED'
 
-Defined in: [packages/client-core/redux/actions.ts:204](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L204)
+Defined in: [packages/client-core/redux/actions.ts:204](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L204)
 
 ___
 
@@ -500,7 +500,7 @@ ___
 
 • `Const` **FETCHING\_FRIENDS**: *FETCHING_FRIENDS*= 'FETCHING\_FRIENDS'
 
-Defined in: [packages/client-core/redux/actions.ts:106](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L106)
+Defined in: [packages/client-core/redux/actions.ts:106](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L106)
 
 ___
 
@@ -508,7 +508,7 @@ ___
 
 • `Const` **FETCHING\_GROUPS**: *FETCHING_GROUPS*= 'FETCHING\_GROUPS'
 
-Defined in: [packages/client-core/redux/actions.ts:130](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L130)
+Defined in: [packages/client-core/redux/actions.ts:130](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L130)
 
 ___
 
@@ -516,7 +516,7 @@ ___
 
 • `Const` **FETCHING\_INSTANCE\_CHANNEL**: *FETCHING_INSTANCE_CHANNEL*= 'FETCHING\_INSTANCE\_CHANNEL'
 
-Defined in: [packages/client-core/redux/actions.ts:145](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L145)
+Defined in: [packages/client-core/redux/actions.ts:145](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L145)
 
 ___
 
@@ -524,7 +524,7 @@ ___
 
 • `Const` **FETCHING\_INVITABLE\_GROUPS**: *FETCHING_INVITABLE_GROUPS*= 'FETCHING\_INVITABLE\_GROUPS'
 
-Defined in: [packages/client-core/redux/actions.ts:132](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L132)
+Defined in: [packages/client-core/redux/actions.ts:132](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L132)
 
 ___
 
@@ -532,7 +532,7 @@ ___
 
 • `Const` **FETCHING\_RECEIVED\_INVITES**: *FETCHING_RECEIVED_INVITES*= 'FETCHING\_RECEIVED\_INVITES'
 
-Defined in: [packages/client-core/redux/actions.ts:119](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L119)
+Defined in: [packages/client-core/redux/actions.ts:119](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L119)
 
 ___
 
@@ -540,7 +540,7 @@ ___
 
 • `Const` **FETCHING\_SENT\_INVITES**: *FETCHING_SENT_INVITES*= 'FETCHING\_SENT\_INVITES'
 
-Defined in: [packages/client-core/redux/actions.ts:118](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L118)
+Defined in: [packages/client-core/redux/actions.ts:118](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L118)
 
 ___
 
@@ -548,7 +548,7 @@ ___
 
 • `Const` **FETCH\_CURRENT\_LOCATION**: *FETCH_CURRENT_LOCATION*= 'FETCH\_CURRENT\_LOCATION'
 
-Defined in: [packages/client-core/redux/actions.ts:174](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L174)
+Defined in: [packages/client-core/redux/actions.ts:174](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L174)
 
 ___
 
@@ -556,7 +556,7 @@ ___
 
 • `Const` **HIDE\_NOTIFICATION**: *HIDE_NOTIFICATION*= 'HIDE\_NOTIFICATION'
 
-Defined in: [packages/client-core/redux/actions.ts:39](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L39)
+Defined in: [packages/client-core/redux/actions.ts:39](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L39)
 
 ___
 
@@ -564,7 +564,7 @@ ___
 
 • `Const` **INSTANCES\_RETRIEVED**: *INSTANCES_RETRIEVED*= 'INSTANCES\_RETRIEVED'
 
-Defined in: [packages/client-core/redux/actions.ts:176](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L176)
+Defined in: [packages/client-core/redux/actions.ts:176](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L176)
 
 ___
 
@@ -572,7 +572,7 @@ ___
 
 • `Const` **INSTANCE\_CREATE**: *INSTANCE_CREATE*= "INSTANCE\_CREATE"
 
-Defined in: [packages/client-core/redux/actions.ts:233](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L233)
+Defined in: [packages/client-core/redux/actions.ts:233](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L233)
 
 ___
 
@@ -580,7 +580,7 @@ ___
 
 • `Const` **INSTANCE\_PATCHED**: *INSTANCE_PATCHED*= "INSTANCE\_PATCHED"
 
-Defined in: [packages/client-core/redux/actions.ts:235](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L235)
+Defined in: [packages/client-core/redux/actions.ts:235](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L235)
 
 ___
 
@@ -588,7 +588,7 @@ ___
 
 • `Const` **INSTANCE\_REMOVED**: *INSTANCE_REMOVED*= 'INSTANCE\_REMOVED'
 
-Defined in: [packages/client-core/redux/actions.ts:189](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L189)
+Defined in: [packages/client-core/redux/actions.ts:189](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L189)
 
 ___
 
@@ -596,7 +596,7 @@ ___
 
 • `Const` **INSTANCE\_REMOVED\_ROW**: *INSTANCE_REMOVED_ROW*= "INSTANCE\_REMOVED\_ROW"
 
-Defined in: [packages/client-core/redux/actions.ts:234](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L234)
+Defined in: [packages/client-core/redux/actions.ts:234](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L234)
 
 ___
 
@@ -604,7 +604,7 @@ ___
 
 • `Const` **INSTANCE\_SERVER\_CONNECTED**: *INSTANCE_SERVER_CONNECTED*= 'INSTANCE\_SERVER\_CONNECTED'
 
-Defined in: [packages/client-core/redux/actions.ts:160](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L160)
+Defined in: [packages/client-core/redux/actions.ts:160](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L160)
 
 ___
 
@@ -612,7 +612,7 @@ ___
 
 • `Const` **INSTANCE\_SERVER\_CONNECTING**: *INSTANCE_SERVER_CONNECTING*= 'INSTANCE\_SERVER\_CONNECTING'
 
-Defined in: [packages/client-core/redux/actions.ts:159](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L159)
+Defined in: [packages/client-core/redux/actions.ts:159](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L159)
 
 ___
 
@@ -620,7 +620,7 @@ ___
 
 • `Const` **INSTANCE\_SERVER\_DISCONNECTED**: *INSTANCE_SERVER_DISCONNECTED*= 'INSTANCE\_SERVER\_DISCONNECTED'
 
-Defined in: [packages/client-core/redux/actions.ts:161](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L161)
+Defined in: [packages/client-core/redux/actions.ts:161](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L161)
 
 ___
 
@@ -628,7 +628,7 @@ ___
 
 • `Const` **INSTANCE\_SERVER\_PROVISIONED**: *INSTANCE_SERVER_PROVISIONED*= 'INSTANCE\_SERVER\_PROVISIONED'
 
-Defined in: [packages/client-core/redux/actions.ts:158](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L158)
+Defined in: [packages/client-core/redux/actions.ts:158](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L158)
 
 ___
 
@@ -636,7 +636,7 @@ ___
 
 • `Const` **INSTANCE\_SERVER\_PROVISIONING**: *INSTANCE_SERVER_PROVISIONING*= 'INSTANCE\_SERVER\_PROVISIONING'
 
-Defined in: [packages/client-core/redux/actions.ts:157](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L157)
+Defined in: [packages/client-core/redux/actions.ts:157](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L157)
 
 ___
 
@@ -644,7 +644,7 @@ ___
 
 • `Const` **INVITED\_GROUP\_USER**: *INVITED_GROUP_USER*= 'INVITED\_GROUP\_USER'
 
-Defined in: [packages/client-core/redux/actions.ts:127](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L127)
+Defined in: [packages/client-core/redux/actions.ts:127](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L127)
 
 ___
 
@@ -652,7 +652,7 @@ ___
 
 • `Const` **INVITED\_PARTY\_USER**: *INVITED_PARTY_USER*= 'INVITED\_PARTY\_USER'
 
-Defined in: [packages/client-core/redux/actions.ts:140](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L140)
+Defined in: [packages/client-core/redux/actions.ts:140](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L140)
 
 ___
 
@@ -660,7 +660,7 @@ ___
 
 • `Const` **INVITED\_USER**: *INVITED_USER*= 'INVITED\_USER'
 
-Defined in: [packages/client-core/redux/actions.ts:72](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L72)
+Defined in: [packages/client-core/redux/actions.ts:72](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L72)
 
 ___
 
@@ -668,7 +668,7 @@ ___
 
 • `Const` **INVITE\_SENT**: *INVITE_SENT*= 'INVITE\_SENT'
 
-Defined in: [packages/client-core/redux/actions.ts:108](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L108)
+Defined in: [packages/client-core/redux/actions.ts:108](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L108)
 
 ___
 
@@ -676,7 +676,7 @@ ___
 
 • `Const` **INVITE\_TARGET\_SET**: *INVITE_TARGET_SET*= 'INVITE\_TARGET\_SET'
 
-Defined in: [packages/client-core/redux/actions.ts:117](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L117)
+Defined in: [packages/client-core/redux/actions.ts:117](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L117)
 
 ___
 
@@ -684,7 +684,7 @@ ___
 
 • `Const` **LEFT\_GROUP**: *LEFT_GROUP*= 'LEFT\_GROUP'
 
-Defined in: [packages/client-core/redux/actions.ts:129](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L129)
+Defined in: [packages/client-core/redux/actions.ts:129](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L129)
 
 ___
 
@@ -692,7 +692,7 @@ ___
 
 • `Const` **LEFT\_PARTY**: *LEFT_PARTY*= 'LEFT\_PARTY'
 
-Defined in: [packages/client-core/redux/actions.ts:142](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L142)
+Defined in: [packages/client-core/redux/actions.ts:142](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L142)
 
 ___
 
@@ -700,7 +700,7 @@ ___
 
 • `Const` **LOADED\_CHANNEL**: *LOADED_CHANNEL*= 'LOADED\_CHANNEL'
 
-Defined in: [packages/client-core/redux/actions.ts:146](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L146)
+Defined in: [packages/client-core/redux/actions.ts:146](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L146)
 
 ___
 
@@ -708,7 +708,7 @@ ___
 
 • `Const` **LOADED\_CHANNELS**: *LOADED_CHANNELS*= 'LOADED\_CHANNELS'
 
-Defined in: [packages/client-core/redux/actions.ts:147](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L147)
+Defined in: [packages/client-core/redux/actions.ts:147](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L147)
 
 ___
 
@@ -716,7 +716,7 @@ ___
 
 • `Const` **LOADED\_CHANNEL\_LAYER\_USERS**: *LOADED_CHANNEL_LAYER_USERS*= 'LOADED\_CHANNEL\_LAYER\_USERS'
 
-Defined in: [packages/client-core/redux/actions.ts:198](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L198)
+Defined in: [packages/client-core/redux/actions.ts:198](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L198)
 
 ___
 
@@ -724,7 +724,7 @@ ___
 
 • `Const` **LOADED\_FRIENDS**: *LOADED_FRIENDS*= 'LOADED\_FRIENDS'
 
-Defined in: [packages/client-core/redux/actions.ts:102](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L102)
+Defined in: [packages/client-core/redux/actions.ts:102](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L102)
 
 ___
 
@@ -732,7 +732,7 @@ ___
 
 • `Const` **LOADED\_GROUPS**: *LOADED_GROUPS*= 'LOADED\_GROUPS'
 
-Defined in: [packages/client-core/redux/actions.ts:121](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L121)
+Defined in: [packages/client-core/redux/actions.ts:121](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L121)
 
 ___
 
@@ -740,7 +740,7 @@ ___
 
 • `Const` **LOADED\_INVITABLE\_GROUPS**: *LOADED_INVITABLE_GROUPS*= 'LOADED\_INVITABLE\_GROUPS'
 
-Defined in: [packages/client-core/redux/actions.ts:131](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L131)
+Defined in: [packages/client-core/redux/actions.ts:131](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L131)
 
 ___
 
@@ -748,7 +748,7 @@ ___
 
 • `Const` **LOADED\_LAYER\_USERS**: *LOADED_LAYER_USERS*= 'LOADED\_LAYER\_USERS'
 
-Defined in: [packages/client-core/redux/actions.ts:66](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L66)
+Defined in: [packages/client-core/redux/actions.ts:66](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L66)
 
 ___
 
@@ -756,7 +756,7 @@ ___
 
 • `Const` **LOADED\_MESSAGES**: *LOADED_MESSAGES*= 'LOADED\_MESSAGES'
 
-Defined in: [packages/client-core/redux/actions.ts:152](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L152)
+Defined in: [packages/client-core/redux/actions.ts:152](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L152)
 
 ___
 
@@ -764,7 +764,7 @@ ___
 
 • `Const` **LOADED\_PARTY**: *LOADED_PARTY*= 'LOADED\_PARTY'
 
-Defined in: [packages/client-core/redux/actions.ts:134](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L134)
+Defined in: [packages/client-core/redux/actions.ts:134](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L134)
 
 ___
 
@@ -772,7 +772,7 @@ ___
 
 • `Const` **LOADED\_RELATIONSHIP**: *LOADED_RELATIONSHIP*= 'LOADED\_RELATIONSHIP'
 
-Defined in: [packages/client-core/redux/actions.ts:62](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L62)
+Defined in: [packages/client-core/redux/actions.ts:62](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L62)
 
 ___
 
@@ -780,7 +780,7 @@ ___
 
 • `Const` **LOADED\_SEATS**: *LOADED_SEATS*= 'LOADED\_SEATS'
 
-Defined in: [packages/client-core/redux/actions.ts:71](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L71)
+Defined in: [packages/client-core/redux/actions.ts:71](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L71)
 
 ___
 
@@ -788,7 +788,7 @@ ___
 
 • `Const` **LOADED\_USERS**: *LOADED_USERS*= 'LOADED\_USERS'
 
-Defined in: [packages/client-core/redux/actions.ts:63](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L63)
+Defined in: [packages/client-core/redux/actions.ts:63](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L63)
 
 ___
 
@@ -796,7 +796,7 @@ ___
 
 • `Const` **LOADED\_USER\_DATA**: *LOADED_USER_DATA*= 'LOADED\_USER\_DATA'
 
-Defined in: [packages/client-core/redux/actions.ts:4](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L4)
+Defined in: [packages/client-core/redux/actions.ts:4](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L4)
 
 ___
 
@@ -804,7 +804,7 @@ ___
 
 • `Const` **LOCATIONS\_RETRIEVED**: *LOCATIONS_RETRIEVED*= 'LOCATIONS\_RETRIEVED'
 
-Defined in: [packages/client-core/redux/actions.ts:175](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L175)
+Defined in: [packages/client-core/redux/actions.ts:175](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L175)
 
 ___
 
@@ -812,7 +812,7 @@ ___
 
 • `Const` **LOCATION\_BAN\_CREATED**: *LOCATION_BAN_CREATED*= 'LOCATION\_BAN\_CREATED'
 
-Defined in: [packages/client-core/redux/actions.ts:183](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L183)
+Defined in: [packages/client-core/redux/actions.ts:183](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L183)
 
 ___
 
@@ -820,7 +820,7 @@ ___
 
 • `Const` **LOCATION\_CREATED**: *LOCATION_CREATED*= 'LOCATION\_CREATED'
 
-Defined in: [packages/client-core/redux/actions.ts:178](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L178)
+Defined in: [packages/client-core/redux/actions.ts:178](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L178)
 
 ___
 
@@ -828,7 +828,7 @@ ___
 
 • `Const` **LOCATION\_NOT\_FOUND**: *LOCATION_NOT_FOUND*= 'LOCATION\_NOT\_FOUND'
 
-Defined in: [packages/client-core/redux/actions.ts:181](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L181)
+Defined in: [packages/client-core/redux/actions.ts:181](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L181)
 
 ___
 
@@ -836,7 +836,7 @@ ___
 
 • `Const` **LOCATION\_PATCHED**: *LOCATION_PATCHED*= 'LOCATION\_PATCHED'
 
-Defined in: [packages/client-core/redux/actions.ts:179](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L179)
+Defined in: [packages/client-core/redux/actions.ts:179](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L179)
 
 ___
 
@@ -844,7 +844,7 @@ ___
 
 • `Const` **LOCATION\_REMOVED**: *LOCATION_REMOVED*= 'LOCATION\_REMOVED'
 
-Defined in: [packages/client-core/redux/actions.ts:180](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L180)
+Defined in: [packages/client-core/redux/actions.ts:180](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L180)
 
 ___
 
@@ -852,7 +852,7 @@ ___
 
 • `Const` **LOCATION\_RETRIEVED**: *LOCATION_RETRIEVED*= 'LOCATION\_RETRIEVED'
 
-Defined in: [packages/client-core/redux/actions.ts:177](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L177)
+Defined in: [packages/client-core/redux/actions.ts:177](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L177)
 
 ___
 
@@ -860,7 +860,7 @@ ___
 
 • `Const` **LOCATION\_TYPES\_RETRIEVED**: *LOCATION_TYPES_RETRIEVED*= 'LOCATION\_TYPES\_RETRIEVED'
 
-Defined in: [packages/client-core/redux/actions.ts:186](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L186)
+Defined in: [packages/client-core/redux/actions.ts:186](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L186)
 
 ___
 
@@ -868,7 +868,7 @@ ___
 
 • `Const` **LOGIN\_USER\_BY\_FACEBOOK\_ERROR**: *LOGIN_USER_BY_FACEBOOK_ERROR*= 'LOGIN\_USER\_BY\_FACEBOOK\_ERROR'
 
-Defined in: [packages/client-core/redux/actions.ts:15](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L15)
+Defined in: [packages/client-core/redux/actions.ts:15](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L15)
 
 ___
 
@@ -876,7 +876,7 @@ ___
 
 • `Const` **LOGIN\_USER\_BY\_FACEBOOK\_SUCCESS**: *LOGIN_USER_BY_FACEBOOK_SUCCESS*= 'LOGIN\_USER\_BY\_FACEBOOK\_SUCCESS'
 
-Defined in: [packages/client-core/redux/actions.ts:14](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L14)
+Defined in: [packages/client-core/redux/actions.ts:14](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L14)
 
 ___
 
@@ -884,7 +884,7 @@ ___
 
 • `Const` **LOGIN\_USER\_BY\_GITHUB\_ERROR**: *LOGIN_USER_BY_GITHUB_ERROR*= 'LOGIN\_USER\_BY\_GITHUB\_ERROR'
 
-Defined in: [packages/client-core/redux/actions.ts:9](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L9)
+Defined in: [packages/client-core/redux/actions.ts:9](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L9)
 
 ___
 
@@ -892,7 +892,7 @@ ___
 
 • `Const` **LOGIN\_USER\_BY\_GITHUB\_SUCCESS**: *LOGIN_USER_BY_GITHUB_SUCCESS*= 'LOGIN\_USER\_BY\_GITHUB\_SUCCESS'
 
-Defined in: [packages/client-core/redux/actions.ts:8](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L8)
+Defined in: [packages/client-core/redux/actions.ts:8](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L8)
 
 ___
 
@@ -900,7 +900,7 @@ ___
 
 • `Const` **LOGIN\_USER\_BY\_GOOGLE\_ERROR**: *LOGIN_USER_BY_GOOGLE_ERROR*= 'LOGIN\_USER\_BY\_GOOGLE\_ERROR'
 
-Defined in: [packages/client-core/redux/actions.ts:18](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L18)
+Defined in: [packages/client-core/redux/actions.ts:18](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L18)
 
 ___
 
@@ -908,7 +908,7 @@ ___
 
 • `Const` **LOGIN\_USER\_BY\_GOOGLE\_SUCCESS**: *LOGIN_USER_BY_GOOGLE_SUCCESS*= 'LOGIN\_USER\_BY\_GOOGLE\_SUCCESS'
 
-Defined in: [packages/client-core/redux/actions.ts:17](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L17)
+Defined in: [packages/client-core/redux/actions.ts:17](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L17)
 
 ___
 
@@ -916,7 +916,7 @@ ___
 
 • `Const` **LOGIN\_USER\_BY\_LINKEDIN\_ERROR**: *LOGIN_USER_BY_LINKEDIN_ERROR*= 'LOGIN\_USER\_BY\_LINKEDIN\_ERROR'
 
-Defined in: [packages/client-core/redux/actions.ts:12](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L12)
+Defined in: [packages/client-core/redux/actions.ts:12](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L12)
 
 ___
 
@@ -924,7 +924,7 @@ ___
 
 • `Const` **LOGIN\_USER\_BY\_LINKEDIN\_SUCCESS**: *LOGIN_USER_BY_LINKEDIN_SUCCESS*= 'LOGIN\_USER\_BY\_LINKEDIN\_SUCCESS'
 
-Defined in: [packages/client-core/redux/actions.ts:11](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L11)
+Defined in: [packages/client-core/redux/actions.ts:11](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L11)
 
 ___
 
@@ -932,7 +932,7 @@ ___
 
 • `Const` **LOGIN\_USER\_ERROR**: *LOGIN_USER_ERROR*= 'LOGIN\_USER\_ERROR'
 
-Defined in: [packages/client-core/redux/actions.ts:3](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L3)
+Defined in: [packages/client-core/redux/actions.ts:3](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L3)
 
 ___
 
@@ -940,7 +940,7 @@ ___
 
 • `Const` **LOGIN\_USER\_SUCCESS**: *LOGIN_USER_SUCCESS*= 'LOGIN\_USER\_SUCCESS'
 
-Defined in: [packages/client-core/redux/actions.ts:2](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L2)
+Defined in: [packages/client-core/redux/actions.ts:2](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L2)
 
 ___
 
@@ -948,7 +948,7 @@ ___
 
 • `Const` **LOGOUT\_USER**: *LOGOUT_USER*= 'LOGOUT\_USER'
 
-Defined in: [packages/client-core/redux/actions.ts:23](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L23)
+Defined in: [packages/client-core/redux/actions.ts:23](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L23)
 
 ___
 
@@ -956,7 +956,7 @@ ___
 
 • `Const` **PATCHED\_CHANNEL**: *PATCHED_CHANNEL*= 'PATCHED\_CHANNEL'
 
-Defined in: [packages/client-core/redux/actions.ts:149](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L149)
+Defined in: [packages/client-core/redux/actions.ts:149](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L149)
 
 ___
 
@@ -964,7 +964,7 @@ ___
 
 • `Const` **PATCHED\_FRIEND**: *PATCHED_FRIEND*= 'PATCHED\_FRIEND'
 
-Defined in: [packages/client-core/redux/actions.ts:104](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L104)
+Defined in: [packages/client-core/redux/actions.ts:104](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L104)
 
 ___
 
@@ -972,7 +972,7 @@ ___
 
 • `Const` **PATCHED\_GROUP**: *PATCHED_GROUP*= 'PATCHED\_GROUP'
 
-Defined in: [packages/client-core/redux/actions.ts:123](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L123)
+Defined in: [packages/client-core/redux/actions.ts:123](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L123)
 
 ___
 
@@ -980,7 +980,7 @@ ___
 
 • `Const` **PATCHED\_GROUP\_USER**: *PATCHED_GROUP_USER*= 'PATCHED\_GROUP\_USER'
 
-Defined in: [packages/client-core/redux/actions.ts:126](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L126)
+Defined in: [packages/client-core/redux/actions.ts:126](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L126)
 
 ___
 
@@ -988,7 +988,7 @@ ___
 
 • `Const` **PATCHED\_MESSAGE**: *PATCHED_MESSAGE*= 'PATCHED\_MESSAGE'
 
-Defined in: [packages/client-core/redux/actions.ts:153](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L153)
+Defined in: [packages/client-core/redux/actions.ts:153](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L153)
 
 ___
 
@@ -996,7 +996,7 @@ ___
 
 • `Const` **PATCHED\_PARTY**: *PATCHED_PARTY*= 'PATCHED\_PARTY'
 
-Defined in: [packages/client-core/redux/actions.ts:136](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L136)
+Defined in: [packages/client-core/redux/actions.ts:136](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L136)
 
 ___
 
@@ -1004,7 +1004,7 @@ ___
 
 • `Const` **PATCHED\_PARTY\_USER**: *PATCHED_PARTY_USER*= 'PATCHED\_PARTY\_USER'
 
-Defined in: [packages/client-core/redux/actions.ts:139](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L139)
+Defined in: [packages/client-core/redux/actions.ts:139](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L139)
 
 ___
 
@@ -1012,7 +1012,7 @@ ___
 
 • `Const` **RECEIVED\_INVITES\_RETRIEVED**: *RECEIVED_INVITES_RECEIVED*= 'RECEIVED\_INVITES\_RECEIVED'
 
-Defined in: [packages/client-core/redux/actions.ts:110](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L110)
+Defined in: [packages/client-core/redux/actions.ts:110](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L110)
 
 ___
 
@@ -1020,7 +1020,7 @@ ___
 
 • `Const` **REGISTER\_USER\_BY\_EMAIL\_ERROR**: *REGISTER_USER_ERROR*= 'REGISTER\_USER\_ERROR'
 
-Defined in: [packages/client-core/redux/actions.ts:21](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L21)
+Defined in: [packages/client-core/redux/actions.ts:21](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L21)
 
 ___
 
@@ -1028,7 +1028,7 @@ ___
 
 • `Const` **REGISTER\_USER\_BY\_EMAIL\_SUCCESS**: *REGISTER_USER_SUCCESS*= 'REGISTER\_USER\_SUCCESS'
 
-Defined in: [packages/client-core/redux/actions.ts:20](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L20)
+Defined in: [packages/client-core/redux/actions.ts:20](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L20)
 
 ___
 
@@ -1036,7 +1036,7 @@ ___
 
 • `Const` **REMOVED\_CHANNEL**: *REMOVED_CHANNEL*= 'REMOVED\_CHANNEL'
 
-Defined in: [packages/client-core/redux/actions.ts:150](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L150)
+Defined in: [packages/client-core/redux/actions.ts:150](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L150)
 
 ___
 
@@ -1044,7 +1044,7 @@ ___
 
 • `Const` **REMOVED\_CHANNEL\_LAYER\_USER**: *REMOVED_CHANNEL_LAYER_USER*= 'REMOVED\_CHANNEL\_LAYER\_USER'
 
-Defined in: [packages/client-core/redux/actions.ts:200](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L200)
+Defined in: [packages/client-core/redux/actions.ts:200](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L200)
 
 ___
 
@@ -1052,7 +1052,7 @@ ___
 
 • `Const` **REMOVED\_FRIEND**: *REMOVED_FRIEND*= 'REMOVED\_FRIEND'
 
-Defined in: [packages/client-core/redux/actions.ts:105](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L105)
+Defined in: [packages/client-core/redux/actions.ts:105](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L105)
 
 ___
 
@@ -1060,7 +1060,7 @@ ___
 
 • `Const` **REMOVED\_GROUP**: *REMOVED_GROUP*= 'REMOVED\_GROUP'
 
-Defined in: [packages/client-core/redux/actions.ts:124](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L124)
+Defined in: [packages/client-core/redux/actions.ts:124](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L124)
 
 ___
 
@@ -1068,7 +1068,7 @@ ___
 
 • `Const` **REMOVED\_GROUP\_USER**: *REMOVED_GROUP_USER*= 'REMOVED\_GROUP\_USER'
 
-Defined in: [packages/client-core/redux/actions.ts:128](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L128)
+Defined in: [packages/client-core/redux/actions.ts:128](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L128)
 
 ___
 
@@ -1076,7 +1076,7 @@ ___
 
 • `Const` **REMOVED\_LAYER\_USER**: *REMOVED_LAYER_USER*= 'REMOVED\_LAYER\_USER'
 
-Defined in: [packages/client-core/redux/actions.ts:68](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L68)
+Defined in: [packages/client-core/redux/actions.ts:68](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L68)
 
 ___
 
@@ -1084,7 +1084,7 @@ ___
 
 • `Const` **REMOVED\_MESSAGE**: *REMOVED_MESSAGE*= 'REMOVED\_MESSAGE'
 
-Defined in: [packages/client-core/redux/actions.ts:154](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L154)
+Defined in: [packages/client-core/redux/actions.ts:154](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L154)
 
 ___
 
@@ -1092,7 +1092,7 @@ ___
 
 • `Const` **REMOVED\_PARTY**: *REMOVED_PARTY*= 'REMOVED\_PARTY'
 
-Defined in: [packages/client-core/redux/actions.ts:137](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L137)
+Defined in: [packages/client-core/redux/actions.ts:137](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L137)
 
 ___
 
@@ -1100,7 +1100,7 @@ ___
 
 • `Const` **REMOVED\_PARTY\_USER**: *REMOVED_PARTY_USER*= 'REMOVED\_PARTY\_USER'
 
-Defined in: [packages/client-core/redux/actions.ts:141](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L141)
+Defined in: [packages/client-core/redux/actions.ts:141](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L141)
 
 ___
 
@@ -1108,7 +1108,7 @@ ___
 
 • `Const` **REMOVED\_RECEIVED\_INVITE**: *REMOVED_RECEIVED_INVITE*= 'REMOVED\_RECEIVED\_INVITE'
 
-Defined in: [packages/client-core/redux/actions.ts:112](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L112)
+Defined in: [packages/client-core/redux/actions.ts:112](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L112)
 
 ___
 
@@ -1116,7 +1116,7 @@ ___
 
 • `Const` **REMOVED\_SEAT**: *REMOVED_SEAT*= 'REMOVED\_SEAT'
 
-Defined in: [packages/client-core/redux/actions.ts:74](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L74)
+Defined in: [packages/client-core/redux/actions.ts:74](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L74)
 
 ___
 
@@ -1124,7 +1124,7 @@ ___
 
 • `Const` **REMOVED\_SENT\_INVITE**: *REMOVED_SENT_INVITE*= 'REMOVED\_SENT\_INVITE'
 
-Defined in: [packages/client-core/redux/actions.ts:114](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L114)
+Defined in: [packages/client-core/redux/actions.ts:114](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L114)
 
 ___
 
@@ -1132,7 +1132,7 @@ ___
 
 • `Const` **REMOVE\_FEED\_BOOKMARK**: *REMOVE_FEED_BOOKMARK*= 'REMOVE\_FEED\_BOOKMARK'
 
-Defined in: [packages/client-core/redux/actions.ts:212](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L212)
+Defined in: [packages/client-core/redux/actions.ts:212](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L212)
 
 ___
 
@@ -1140,7 +1140,7 @@ ___
 
 • `Const` **REMOVE\_FEED\_COMMENT\_FIRES**: *REMOVE_FEED_COMMENT_FIRES*= 'REMOVE\_FEED\_COMMENT\_FIRES'
 
-Defined in: [packages/client-core/redux/actions.ts:217](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L217)
+Defined in: [packages/client-core/redux/actions.ts:217](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L217)
 
 ___
 
@@ -1148,7 +1148,7 @@ ___
 
 • `Const` **REMOVE\_FEED\_FIRES**: *REMOVE_FEED_FIRES*= 'REMOVE\_FEED\_FIRES'
 
-Defined in: [packages/client-core/redux/actions.ts:210](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L210)
+Defined in: [packages/client-core/redux/actions.ts:210](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L210)
 
 ___
 
@@ -1156,7 +1156,7 @@ ___
 
 • `Const` **RESTORE**: *RESTORE*= 'RESTORE'
 
-Defined in: [packages/client-core/redux/actions.ts:41](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L41)
+Defined in: [packages/client-core/redux/actions.ts:41](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L41)
 
 ___
 
@@ -1164,7 +1164,7 @@ ___
 
 • `Const` **SCENES\_FETCHED\_ERROR**: *SCENES_FETCHED_ERROR*= 'SCENES\_FETCHED\_ERROR'
 
-Defined in: [packages/client-core/redux/actions.ts:34](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L34)
+Defined in: [packages/client-core/redux/actions.ts:34](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L34)
 
 ___
 
@@ -1172,7 +1172,7 @@ ___
 
 • `Const` **SCENES\_FETCHED\_SUCCESS**: *SCENES_FETCHED_SUCCESS*= 'SCENES\_FETCHED\_SUCCESS'
 
-Defined in: [packages/client-core/redux/actions.ts:33](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L33)
+Defined in: [packages/client-core/redux/actions.ts:33](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L33)
 
 ___
 
@@ -1180,7 +1180,7 @@ ___
 
 • `Const` **SCENES\_RETRIEVED**: *SCENES_RETRIEVED*= 'SCENES\_RETRIEVED'
 
-Defined in: [packages/client-core/redux/actions.ts:185](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L185)
+Defined in: [packages/client-core/redux/actions.ts:185](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L185)
 
 ___
 
@@ -1188,7 +1188,7 @@ ___
 
 • `Const` **SCREEN\_AUDIO\_CHANGED**: *SCREEN_AUDIO_CHANGED*= 'SCREEN\_AUDIO\_CHANGED'
 
-Defined in: [packages/client-core/redux/actions.ts:168](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L168)
+Defined in: [packages/client-core/redux/actions.ts:168](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L168)
 
 ___
 
@@ -1196,7 +1196,7 @@ ___
 
 • `Const` **SCREEN\_VIDEO\_CHANGED**: *SCREEN_VIDEO_CHANGED*= 'SCREEN\_VIDEO\_CHANGED'
 
-Defined in: [packages/client-core/redux/actions.ts:167](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L167)
+Defined in: [packages/client-core/redux/actions.ts:167](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L167)
 
 ___
 
@@ -1204,7 +1204,7 @@ ___
 
 • `Const` **SENT\_INVITES\_RETRIEVED**: *SENT_INVITES_RETRIEVED*= 'SENT\_INVITES\_RETRIEVED'
 
-Defined in: [packages/client-core/redux/actions.ts:109](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L109)
+Defined in: [packages/client-core/redux/actions.ts:109](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L109)
 
 ___
 
@@ -1212,7 +1212,7 @@ ___
 
 • `Const` **SET\_APP\_LOADED**: *SET_APP_LOADED*= 'SET\_APP\_LOADED'
 
-Defined in: [packages/client-core/redux/actions.ts:60](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L60)
+Defined in: [packages/client-core/redux/actions.ts:60](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L60)
 
 ___
 
@@ -1220,7 +1220,7 @@ ___
 
 • `Const` **SET\_APP\_LOADING\_PERCENT**: *SET_APP_LOADING_PERCENT*= 'SET\_APP\_LOADING\_PERCENT'
 
-Defined in: [packages/client-core/redux/actions.ts:76](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L76)
+Defined in: [packages/client-core/redux/actions.ts:76](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L76)
 
 ___
 
@@ -1228,7 +1228,7 @@ ___
 
 • `Const` **SET\_APP\_ONBOARDING\_STEP**: *SET_APP_ONBOARDING_STEP*= 'SET\_APP\_ONBOARDING\_STEP'
 
-Defined in: [packages/client-core/redux/actions.ts:84](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L84)
+Defined in: [packages/client-core/redux/actions.ts:84](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L84)
 
 ___
 
@@ -1236,7 +1236,7 @@ ___
 
 • `Const` **SET\_APP\_SPECIFIC\_ONBOARDING\_STEP**: *SET_APP_SPECIFIC_ONBOARDING_STEP*= 'SET\_APP\_SPECIFIC\_ONBOARDING\_STEP'
 
-Defined in: [packages/client-core/redux/actions.ts:85](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L85)
+Defined in: [packages/client-core/redux/actions.ts:85](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L85)
 
 ___
 
@@ -1244,7 +1244,7 @@ ___
 
 • `Const` **SET\_CURRENT\_SCENE**: *SET_CURRENT_SCENE*= 'SET\_CURRENT\_SCENE'
 
-Defined in: [packages/client-core/redux/actions.ts:187](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L187)
+Defined in: [packages/client-core/redux/actions.ts:187](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L187)
 
 ___
 
@@ -1252,7 +1252,7 @@ ___
 
 • `Const` **SET\_IN\_VR\_MODE**: *SET_IN_VR_MODE*= 'SET\_IN\_VR\_MODE'
 
-Defined in: [packages/client-core/redux/actions.ts:80](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L80)
+Defined in: [packages/client-core/redux/actions.ts:80](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L80)
 
 ___
 
@@ -1260,7 +1260,7 @@ ___
 
 • `Const` **SET\_MESSAGE\_SCROLL\_INIT**: *SET_MESSAGE_SCROLL_INIT*= 'SET\_MESSAGE\_SCROLL\_INIT'
 
-Defined in: [packages/client-core/redux/actions.ts:155](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L155)
+Defined in: [packages/client-core/redux/actions.ts:155](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L155)
 
 ___
 
@@ -1268,7 +1268,7 @@ ___
 
 • `Const` **SET\_USER\_HAS\_INTERACTED**: *SET_USER_HAS_INTERACTED*= 'SET\_USER\_HAS\_INTERACTED'
 
-Defined in: [packages/client-core/redux/actions.ts:82](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L82)
+Defined in: [packages/client-core/redux/actions.ts:82](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L82)
 
 ___
 
@@ -1276,7 +1276,7 @@ ___
 
 • `Const` **SET\_VIDEO\_PLAYING**: *SET_VIDEO_PLAYING*= 'SET\_VIDEO\_PLAYING'
 
-Defined in: [packages/client-core/redux/actions.ts:89](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L89)
+Defined in: [packages/client-core/redux/actions.ts:89](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L89)
 
 ___
 
@@ -1284,7 +1284,7 @@ ___
 
 • `Const` **SET\_VIEWPORT\_SIZE**: *SET_VIEWPORT_SIZE*= 'SET\_VIEWPORT\_SIZE'
 
-Defined in: [packages/client-core/redux/actions.ts:78](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L78)
+Defined in: [packages/client-core/redux/actions.ts:78](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L78)
 
 ___
 
@@ -1292,7 +1292,7 @@ ___
 
 • `Const` **SHOW\_DIALOG**: *SHOW_DIALOG*= 'SHOW\_DIALOG'
 
-Defined in: [packages/client-core/redux/actions.ts:43](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L43)
+Defined in: [packages/client-core/redux/actions.ts:43](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L43)
 
 ___
 
@@ -1300,7 +1300,7 @@ ___
 
 • `Const` **SHOW\_NOTIFICATION**: *SHOW_NOTIFICATION*= 'SHOW\_NOTIFICATION'
 
-Defined in: [packages/client-core/redux/actions.ts:38](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L38)
+Defined in: [packages/client-core/redux/actions.ts:38](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L38)
 
 ___
 
@@ -1308,7 +1308,7 @@ ___
 
 • `Const` **SOCKET\_CREATED**: *SOCKET_CREATED*= 'SOCKET\_CREATED'
 
-Defined in: [packages/client-core/redux/actions.ts:162](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L162)
+Defined in: [packages/client-core/redux/actions.ts:162](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L162)
 
 ___
 
@@ -1316,7 +1316,7 @@ ___
 
 • `Const` **UPDATE\_USER\_SETTINGS**: *UPDATE_USER_SETTINGS*= 'UPDATE\_USER\_SETTINGS'
 
-Defined in: [packages/client-core/redux/actions.ts:53](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L53)
+Defined in: [packages/client-core/redux/actions.ts:53](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L53)
 
 ___
 
@@ -1324,7 +1324,7 @@ ___
 
 • `Const` **UPDATE\_USER\_SETTINGS\_FALURE**: *UPDATE_USER_SETTINGS_FALURE*= 'UPDATE\_USER\_SETTINGS\_FALURE'
 
-Defined in: [packages/client-core/redux/actions.ts:55](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L55)
+Defined in: [packages/client-core/redux/actions.ts:55](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L55)
 
 ___
 
@@ -1332,7 +1332,7 @@ ___
 
 • `Const` **USERAVATARID\_UPDATED**: *USERAVATARID_UPDATED*= 'USERAVATARID\_UPDATED'
 
-Defined in: [packages/client-core/redux/actions.ts:51](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L51)
+Defined in: [packages/client-core/redux/actions.ts:51](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L51)
 
 ___
 
@@ -1340,7 +1340,7 @@ ___
 
 • `Const` **USERNAME\_UPDATED**: *USERNAME_UPDATED*= 'USERNAME\_UPDATED'
 
-Defined in: [packages/client-core/redux/actions.ts:50](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L50)
+Defined in: [packages/client-core/redux/actions.ts:50](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L50)
 
 ___
 
@@ -1348,7 +1348,7 @@ ___
 
 • `Const` **USER\_CREATED**: *USER_CREATED*= "USER\_CREATED"
 
-Defined in: [packages/client-core/redux/actions.ts:228](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L228)
+Defined in: [packages/client-core/redux/actions.ts:228](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L228)
 
 ___
 
@@ -1356,7 +1356,7 @@ ___
 
 • `Const` **USER\_PATCHED**: *USER_PATCHED*= "USER\_PATCHED"
 
-Defined in: [packages/client-core/redux/actions.ts:230](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L230)
+Defined in: [packages/client-core/redux/actions.ts:230](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L230)
 
 ___
 
@@ -1364,7 +1364,7 @@ ___
 
 • `Const` **USER\_REMOVED\_ROW**: *USER_REMOVED_ROW*= "USER\_REMOVED\_ROW"
 
-Defined in: [packages/client-core/redux/actions.ts:229](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L229)
+Defined in: [packages/client-core/redux/actions.ts:229](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L229)
 
 ___
 
@@ -1372,7 +1372,7 @@ ___
 
 • `Const` **USER\_TOAST**: *USER_TOAST*= 'USER\_TOAST'
 
-Defined in: [packages/client-core/redux/actions.ts:69](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L69)
+Defined in: [packages/client-core/redux/actions.ts:69](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L69)
 
 ___
 
@@ -1380,7 +1380,7 @@ ___
 
 • `Const` **USER\_UPDATED**: *USER_UPDATED*= 'USER\_UPDATED'
 
-Defined in: [packages/client-core/redux/actions.ts:49](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L49)
+Defined in: [packages/client-core/redux/actions.ts:49](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L49)
 
 ___
 
@@ -1388,7 +1388,7 @@ ___
 
 • `Const` **VIDEOS\_FETCHED\_ERROR**: *VIDEOS_FETCHED_ERROR*= 'VIDEOS\_FETCHED\_ERROR'
 
-Defined in: [packages/client-core/redux/actions.ts:31](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L31)
+Defined in: [packages/client-core/redux/actions.ts:31](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L31)
 
 ___
 
@@ -1396,7 +1396,7 @@ ___
 
 • `Const` **VIDEOS\_FETCHED\_SUCCESS**: *VIDEOS_FETCHED_SUCCESS*= 'VIDEOS\_FETCHED\_SUCCESS'
 
-Defined in: [packages/client-core/redux/actions.ts:30](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L30)
+Defined in: [packages/client-core/redux/actions.ts:30](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L30)
 
 ___
 
@@ -1404,7 +1404,7 @@ ___
 
 • `Const` **VIDEO\_CREATED**: *VIDEO_CREATED*= 'VIDEO\_CREATED'
 
-Defined in: [packages/client-core/redux/actions.ts:98](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L98)
+Defined in: [packages/client-core/redux/actions.ts:98](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L98)
 
 ___
 
@@ -1412,7 +1412,7 @@ ___
 
 • `Const` **VIDEO\_DELETED**: *VIDEO_DELETED*= 'VIDEO\_DELETED'
 
-Defined in: [packages/client-core/redux/actions.ts:100](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L100)
+Defined in: [packages/client-core/redux/actions.ts:100](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L100)
 
 ___
 
@@ -1420,4 +1420,4 @@ ___
 
 • `Const` **VIDEO\_UPDATED**: *VIDEO_UPDATED*= 'VIDEO\_UPDATED'
 
-Defined in: [packages/client-core/redux/actions.ts:99](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/actions.ts#L99)
+Defined in: [packages/client-core/redux/actions.ts:99](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/actions.ts#L99)

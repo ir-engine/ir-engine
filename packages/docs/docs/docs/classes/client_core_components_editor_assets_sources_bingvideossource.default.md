@@ -34,7 +34,7 @@ Name | Type |
 
 Overrides: [default](client_core_components_editor_assets_videomediasource.default.md)
 
-Defined in: [packages/client-core/components/editor/assets/sources/BingVideosSource.tsx:11](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/assets/sources/BingVideosSource.tsx#L11)
+Defined in: [packages/client-core/components/editor/assets/sources/BingVideosSource.tsx:11](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/assets/sources/BingVideosSource.tsx#L11)
 
 ## Properties
 
@@ -44,7 +44,7 @@ Defined in: [packages/client-core/components/editor/assets/sources/BingVideosSou
 
 Inherited from: [default](client_core_components_editor_assets_videomediasource.default.md).[api](client_core_components_editor_assets_videomediasource.default.md#api)
 
-Defined in: [packages/client-core/components/editor/assets/VideoMediaSource.tsx:13](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/assets/VideoMediaSource.tsx#L13)
+Defined in: [packages/client-core/components/editor/assets/VideoMediaSource.tsx:13](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/assets/VideoMediaSource.tsx#L13)
 
 ___
 
@@ -54,7 +54,7 @@ ___
 
 Inherited from: [default](client_core_components_editor_assets_videomediasource.default.md).[assetPanelComponent](client_core_components_editor_assets_videomediasource.default.md#assetpanelcomponent)
 
-Defined in: [packages/client-core/components/editor/assets/sources/index.tsx:10](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/assets/sources/index.tsx#L10)
+Defined in: [packages/client-core/components/editor/assets/sources/index.tsx:10](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/assets/sources/index.tsx#L10)
 
 ___
 
@@ -64,7 +64,7 @@ ___
 
 Inherited from: [default](client_core_components_editor_assets_videomediasource.default.md).[component](client_core_components_editor_assets_videomediasource.default.md#component)
 
-Defined in: [packages/client-core/components/editor/assets/VideoMediaSource.tsx:12](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/assets/VideoMediaSource.tsx#L12)
+Defined in: [packages/client-core/components/editor/assets/VideoMediaSource.tsx:12](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/assets/VideoMediaSource.tsx#L12)
 
 ___
 
@@ -74,7 +74,7 @@ ___
 
 Inherited from: [default](client_core_components_editor_assets_videomediasource.default.md).[iconComponent](client_core_components_editor_assets_videomediasource.default.md#iconcomponent)
 
-Defined in: [packages/client-core/components/editor/assets/sources/index.tsx:9](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/assets/sources/index.tsx#L9)
+Defined in: [packages/client-core/components/editor/assets/sources/index.tsx:9](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/assets/sources/index.tsx#L9)
 
 ___
 
@@ -84,7 +84,7 @@ ___
 
 Overrides: [default](client_core_components_editor_assets_videomediasource.default.md).[id](client_core_components_editor_assets_videomediasource.default.md#id)
 
-Defined in: [packages/client-core/components/editor/assets/sources/BingVideosSource.tsx:8](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/assets/sources/BingVideosSource.tsx#L8)
+Defined in: [packages/client-core/components/editor/assets/sources/BingVideosSource.tsx:8](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/assets/sources/BingVideosSource.tsx#L8)
 
 ___
 
@@ -94,7 +94,7 @@ ___
 
 Overrides: [default](client_core_components_editor_assets_videomediasource.default.md).[name](client_core_components_editor_assets_videomediasource.default.md#name)
 
-Defined in: [packages/client-core/components/editor/assets/sources/BingVideosSource.tsx:9](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/assets/sources/BingVideosSource.tsx#L9)
+Defined in: [packages/client-core/components/editor/assets/sources/BingVideosSource.tsx:9](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/assets/sources/BingVideosSource.tsx#L9)
 
 ___
 
@@ -102,7 +102,7 @@ ___
 
 • **privacyPolicyUrl**: *string*
 
-Defined in: [packages/client-core/components/editor/assets/sources/BingVideosSource.tsx:11](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/assets/sources/BingVideosSource.tsx#L11)
+Defined in: [packages/client-core/components/editor/assets/sources/BingVideosSource.tsx:11](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/assets/sources/BingVideosSource.tsx#L11)
 
 ___
 
@@ -112,7 +112,7 @@ ___
 
 Inherited from: [default](client_core_components_editor_assets_videomediasource.default.md).[requiresAuthentication](client_core_components_editor_assets_videomediasource.default.md#requiresauthentication)
 
-Defined in: [packages/client-core/components/editor/assets/sources/index.tsx:11](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/assets/sources/index.tsx#L11)
+Defined in: [packages/client-core/components/editor/assets/sources/index.tsx:11](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/assets/sources/index.tsx#L11)
 
 ___
 
@@ -122,7 +122,7 @@ ___
 
 Inherited from: [default](client_core_components_editor_assets_videomediasource.default.md).[searchDebounceTimeout](client_core_components_editor_assets_videomediasource.default.md#searchdebouncetimeout)
 
-Defined in: [packages/client-core/components/editor/assets/sources/index.tsx:13](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/assets/sources/index.tsx#L13)
+Defined in: [packages/client-core/components/editor/assets/sources/index.tsx:13](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/assets/sources/index.tsx#L13)
 
 ___
 
@@ -130,7 +130,7 @@ ___
 
 • **searchLegalCopy**: *string*
 
-Defined in: [packages/client-core/components/editor/assets/sources/BingVideosSource.tsx:10](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/assets/sources/BingVideosSource.tsx#L10)
+Defined in: [packages/client-core/components/editor/assets/sources/BingVideosSource.tsx:10](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/assets/sources/BingVideosSource.tsx#L10)
 
 ___
 
@@ -140,7 +140,7 @@ ___
 
 Inherited from: [default](client_core_components_editor_assets_videomediasource.default.md).[uploadSource](client_core_components_editor_assets_videomediasource.default.md#uploadsource)
 
-Defined in: [packages/client-core/components/editor/assets/sources/index.tsx:12](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/assets/sources/index.tsx#L12)
+Defined in: [packages/client-core/components/editor/assets/sources/index.tsx:12](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/assets/sources/index.tsx#L12)
 
 ___
 
@@ -418,4 +418,4 @@ Name | Type |
 
 Inherited from: [default](client_core_components_editor_assets_videomediasource.default.md)
 
-Defined in: [packages/client-core/components/editor/assets/VideoMediaSource.tsx:27](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/assets/VideoMediaSource.tsx#L27)
+Defined in: [packages/client-core/components/editor/assets/VideoMediaSource.tsx:27](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/assets/VideoMediaSource.tsx#L27)

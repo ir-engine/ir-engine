@@ -16,7 +16,7 @@ hide_title: true
 
 • **limit**: *number*
 
-Defined in: [packages/client-core/redux/party/actions.ts:119](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/party/actions.ts#L119)
+Defined in: [packages/client-core/redux/party/actions.ts:119](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/party/actions.ts#L119)
 
 ___
 
@@ -24,7 +24,7 @@ ___
 
 • **partyUsers**: PartyUser[]
 
-Defined in: [packages/client-core/redux/party/actions.ts:117](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/party/actions.ts#L117)
+Defined in: [packages/client-core/redux/party/actions.ts:117](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/party/actions.ts#L117)
 
 ___
 
@@ -32,7 +32,7 @@ ___
 
 • **skip**: *number*
 
-Defined in: [packages/client-core/redux/party/actions.ts:120](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/party/actions.ts#L120)
+Defined in: [packages/client-core/redux/party/actions.ts:120](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/party/actions.ts#L120)
 
 ___
 
@@ -40,7 +40,7 @@ ___
 
 • **total**: *number*
 
-Defined in: [packages/client-core/redux/party/actions.ts:118](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/party/actions.ts#L118)
+Defined in: [packages/client-core/redux/party/actions.ts:118](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/party/actions.ts#L118)
 
 ___
 
@@ -48,4 +48,4 @@ ___
 
 • **type**: *string*
 
-Defined in: [packages/client-core/redux/party/actions.ts:116](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/party/actions.ts#L116)
+Defined in: [packages/client-core/redux/party/actions.ts:116](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/party/actions.ts#L116)

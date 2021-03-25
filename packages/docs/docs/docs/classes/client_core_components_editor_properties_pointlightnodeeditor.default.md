@@ -149,7 +149,7 @@ ___
 
 ▪ `Static` **description**: *string*= "A light which emits in all directions from a single point."
 
-Defined in: [packages/client-core/components/editor/properties/PointLightNodeEditor.tsx:30](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/properties/PointLightNodeEditor.tsx#L30)
+Defined in: [packages/client-core/components/editor/properties/PointLightNodeEditor.tsx:30](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/PointLightNodeEditor.tsx#L30)
 
 ___
 
@@ -157,7 +157,7 @@ ___
 
 ▪ `Static` **iconComponent**: StyledIcon
 
-Defined in: [packages/client-core/components/editor/properties/PointLightNodeEditor.tsx:27](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/properties/PointLightNodeEditor.tsx#L27)
+Defined in: [packages/client-core/components/editor/properties/PointLightNodeEditor.tsx:27](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/PointLightNodeEditor.tsx#L27)
 
 ## Methods
 
@@ -480,7 +480,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/properties/PointLightNodeEditor.tsx:33](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/properties/PointLightNodeEditor.tsx#L33)
+Defined in: [packages/client-core/components/editor/properties/PointLightNodeEditor.tsx:33](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/PointLightNodeEditor.tsx#L33)
 
 ___
 
@@ -496,7 +496,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/properties/PointLightNodeEditor.tsx:38](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/properties/PointLightNodeEditor.tsx#L38)
+Defined in: [packages/client-core/components/editor/properties/PointLightNodeEditor.tsx:38](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/PointLightNodeEditor.tsx#L38)
 
 ___
 
@@ -512,7 +512,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/properties/PointLightNodeEditor.tsx:43](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/properties/PointLightNodeEditor.tsx#L43)
+Defined in: [packages/client-core/components/editor/properties/PointLightNodeEditor.tsx:43](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/PointLightNodeEditor.tsx#L43)
 
 ___
 
@@ -524,7 +524,7 @@ ___
 
 Overrides: void
 
-Defined in: [packages/client-core/components/editor/properties/PointLightNodeEditor.tsx:48](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/properties/PointLightNodeEditor.tsx#L48)
+Defined in: [packages/client-core/components/editor/properties/PointLightNodeEditor.tsx:48](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/PointLightNodeEditor.tsx#L48)
 
 ___
 

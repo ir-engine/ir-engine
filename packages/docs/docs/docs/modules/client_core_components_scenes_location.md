@@ -28,4 +28,4 @@ Name | Type |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/components/scenes/location.tsx:96](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/scenes/location.tsx#L96)
+Defined in: [packages/client-core/components/scenes/location.tsx:96](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/scenes/location.tsx#L96)

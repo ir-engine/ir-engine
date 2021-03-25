@@ -22,7 +22,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/redux/creator/service.ts:39](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/creator/service.ts#L39)
+Defined in: [packages/client-core/redux/creator/service.ts:39](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/creator/service.ts#L39)
 
 ___
 
@@ -38,7 +38,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>, `getState`: *any*) => *Promise*<any\>
 
-Defined in: [packages/client-core/redux/creator/service.ts:13](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/creator/service.ts#L13)
+Defined in: [packages/client-core/redux/creator/service.ts:13](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/creator/service.ts#L13)
 
 ___
 
@@ -48,7 +48,7 @@ ___
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/redux/creator/service.ts:26](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/creator/service.ts#L26)
+Defined in: [packages/client-core/redux/creator/service.ts:26](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/creator/service.ts#L26)
 
 ___
 
@@ -64,4 +64,4 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/redux/creator/service.ts:52](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/creator/service.ts#L52)
+Defined in: [packages/client-core/redux/creator/service.ts:52](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/creator/service.ts#L52)

@@ -22,7 +22,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/redux/feed/service.ts:70](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/feed/service.ts#L70)
+Defined in: [packages/client-core/redux/feed/service.ts:70](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/feed/service.ts#L70)
 
 ___
 
@@ -38,7 +38,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/redux/feed/service.ts:82](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/feed/service.ts#L82)
+Defined in: [packages/client-core/redux/feed/service.ts:82](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/feed/service.ts#L82)
 
 ___
 
@@ -54,7 +54,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/redux/feed/service.ts:57](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/feed/service.ts#L57)
+Defined in: [packages/client-core/redux/feed/service.ts:57](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/feed/service.ts#L57)
 
 ___
 
@@ -72,4 +72,4 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>, `getState`: *any*) => *Promise*<any\>
 
-Defined in: [packages/client-core/redux/feed/service.ts:17](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/feed/service.ts#L17)
+Defined in: [packages/client-core/redux/feed/service.ts:17](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/feed/service.ts#L17)

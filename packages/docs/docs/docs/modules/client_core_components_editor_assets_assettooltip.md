@@ -30,4 +30,4 @@ Name | Type |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/components/editor/assets/AssetTooltip.tsx:46](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/assets/AssetTooltip.tsx#L46)
+Defined in: [packages/client-core/components/editor/assets/AssetTooltip.tsx:46](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/assets/AssetTooltip.tsx#L46)

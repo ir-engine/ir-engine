@@ -21,7 +21,7 @@ hide_title: true
 
 • `Const` **TooltipContainer**: *any*
 
-Defined in: [packages/client-core/components/editor/layout/Tooltip.tsx:41](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/layout/Tooltip.tsx#L41)
+Defined in: [packages/client-core/components/editor/layout/Tooltip.tsx:41](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/layout/Tooltip.tsx#L41)
 
 ## Functions
 
@@ -37,7 +37,7 @@ Name | Type |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/components/editor/layout/Tooltip.tsx:57](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/layout/Tooltip.tsx#L57)
+Defined in: [packages/client-core/components/editor/layout/Tooltip.tsx:57](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/layout/Tooltip.tsx#L57)
 
 ___
 
@@ -53,4 +53,4 @@ Name | Type |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/components/editor/layout/Tooltip.tsx:12](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/layout/Tooltip.tsx#L12)
+Defined in: [packages/client-core/components/editor/layout/Tooltip.tsx:12](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/layout/Tooltip.tsx#L12)

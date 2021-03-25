@@ -20,7 +20,7 @@ hide_title: true
 
 • `Const` **Vector2InputContainer**: *any*
 
-Defined in: [packages/client-core/components/editor/inputs/Vector2Input.tsx:11](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/inputs/Vector2Input.tsx#L11)
+Defined in: [packages/client-core/components/editor/inputs/Vector2Input.tsx:11](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/inputs/Vector2Input.tsx#L11)
 
 ___
 
@@ -28,4 +28,4 @@ ___
 
 • `Const` **Vector2Scrubber**: *any*
 
-Defined in: [packages/client-core/components/editor/inputs/Vector2Input.tsx:19](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/inputs/Vector2Input.tsx#L19)
+Defined in: [packages/client-core/components/editor/inputs/Vector2Input.tsx:19](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/inputs/Vector2Input.tsx#L19)

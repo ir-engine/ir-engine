@@ -152,7 +152,7 @@ ___
 
 ▪ `Static` **description**: *string*= "A light which illuminates all objects in your scene."
 
-Defined in: [packages/client-core/components/editor/properties/AmbientLightNodeEditor.tsx:26](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/properties/AmbientLightNodeEditor.tsx#L26)
+Defined in: [packages/client-core/components/editor/properties/AmbientLightNodeEditor.tsx:26](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/AmbientLightNodeEditor.tsx#L26)
 
 ___
 
@@ -160,7 +160,7 @@ ___
 
 ▪ `Static` **iconComponent**: StyledIcon
 
-Defined in: [packages/client-core/components/editor/properties/AmbientLightNodeEditor.tsx:24](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/properties/AmbientLightNodeEditor.tsx#L24)
+Defined in: [packages/client-core/components/editor/properties/AmbientLightNodeEditor.tsx:24](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/AmbientLightNodeEditor.tsx#L24)
 
 ## Methods
 
@@ -483,7 +483,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/properties/AmbientLightNodeEditor.tsx:28](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/properties/AmbientLightNodeEditor.tsx#L28)
+Defined in: [packages/client-core/components/editor/properties/AmbientLightNodeEditor.tsx:28](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/AmbientLightNodeEditor.tsx#L28)
 
 ___
 
@@ -499,7 +499,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/properties/AmbientLightNodeEditor.tsx:32](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/properties/AmbientLightNodeEditor.tsx#L32)
+Defined in: [packages/client-core/components/editor/properties/AmbientLightNodeEditor.tsx:32](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/AmbientLightNodeEditor.tsx#L32)
 
 ___
 
@@ -513,7 +513,7 @@ ___
 
 Overrides: void
 
-Defined in: [packages/client-core/components/editor/properties/AmbientLightNodeEditor.tsx:39](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/editor/properties/AmbientLightNodeEditor.tsx#L39)
+Defined in: [packages/client-core/components/editor/properties/AmbientLightNodeEditor.tsx:39](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/AmbientLightNodeEditor.tsx#L39)
 
 ___
 

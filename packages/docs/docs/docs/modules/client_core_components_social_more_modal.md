@@ -16,4 +16,4 @@ hide_title: true
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/components/social/more-modal.tsx:5](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/components/social/more-modal.tsx#L5)
+Defined in: [packages/client-core/components/social/more-modal.tsx:5](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/social/more-modal.tsx#L5)

@@ -23,7 +23,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/redux/invite/service.ts:122](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/invite/service.ts#L122)
+Defined in: [packages/client-core/redux/invite/service.ts:122](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/invite/service.ts#L122)
 
 ___
 
@@ -39,7 +39,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/redux/invite/service.ts:137](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/invite/service.ts#L137)
+Defined in: [packages/client-core/redux/invite/service.ts:137](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/invite/service.ts#L137)
 
 ___
 
@@ -55,7 +55,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/redux/invite/service.ts:111](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/invite/service.ts#L111)
+Defined in: [packages/client-core/redux/invite/service.ts:111](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/invite/service.ts#L111)
 
 ___
 
@@ -72,7 +72,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>, `getState`: *any*) => *Promise*<any\>
 
-Defined in: [packages/client-core/redux/invite/service.ts:73](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/invite/service.ts#L73)
+Defined in: [packages/client-core/redux/invite/service.ts:73](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/invite/service.ts#L73)
 
 ___
 
@@ -89,7 +89,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>, `getState`: *any*) => *Promise*<any\>
 
-Defined in: [packages/client-core/redux/invite/service.ts:92](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/invite/service.ts#L92)
+Defined in: [packages/client-core/redux/invite/service.ts:92](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/invite/service.ts#L92)
 
 ___
 
@@ -105,7 +105,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>, `getState`: *any*) => *Promise*<void\>
 
-Defined in: [packages/client-core/redux/invite/service.ts:27](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/invite/service.ts#L27)
+Defined in: [packages/client-core/redux/invite/service.ts:27](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/invite/service.ts#L27)
 
 ___
 
@@ -122,4 +122,4 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/redux/invite/service.ts:147](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/invite/service.ts#L147)
+Defined in: [packages/client-core/redux/invite/service.ts:147](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/invite/service.ts#L147)

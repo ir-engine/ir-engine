@@ -23,7 +23,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/redux/location/service.ts:61](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/location/service.ts#L61)
+Defined in: [packages/client-core/redux/location/service.ts:61](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/location/service.ts#L61)
 
 ___
 
@@ -39,7 +39,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/redux/location/service.ts:30](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/location/service.ts#L30)
+Defined in: [packages/client-core/redux/location/service.ts:30](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/location/service.ts#L30)
 
 ___
 
@@ -55,7 +55,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/redux/location/service.ts:43](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/location/service.ts#L43)
+Defined in: [packages/client-core/redux/location/service.ts:43](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/location/service.ts#L43)
 
 ___
 
@@ -72,4 +72,4 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>, `getState`: *any*) => *Promise*<any\>
 
-Defined in: [packages/client-core/redux/location/service.ts:12](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/location/service.ts#L12)
+Defined in: [packages/client-core/redux/location/service.ts:12](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/location/service.ts#L12)

@@ -21,7 +21,7 @@ hide_title: true
 
 Ƭ **AlertType**: *error* \| *success* \| *warning* \| *none*
 
-Defined in: [packages/client-core/redux/alert/actions.ts:5](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/alert/actions.ts#L5)
+Defined in: [packages/client-core/redux/alert/actions.ts:5](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/alert/actions.ts#L5)
 
 ## Functions
 
@@ -31,7 +31,7 @@ Defined in: [packages/client-core/redux/alert/actions.ts:5](https://github.com/x
 
 **Returns:** [*AlertAction*](../interfaces/client_core_redux_alert_actions.alertaction.md)
 
-Defined in: [packages/client-core/redux/alert/actions.ts:22](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/alert/actions.ts#L22)
+Defined in: [packages/client-core/redux/alert/actions.ts:22](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/alert/actions.ts#L22)
 
 ___
 
@@ -48,4 +48,4 @@ Name | Type |
 
 **Returns:** [*AlertAction*](../interfaces/client_core_redux_alert_actions.alertaction.md)
 
-Defined in: [packages/client-core/redux/alert/actions.ts:15](https://github.com/xr3ngine/xr3ngine/blob/5a0f83ed8/packages/client-core/redux/alert/actions.ts#L15)
+Defined in: [packages/client-core/redux/alert/actions.ts:15](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/alert/actions.ts#L15)
