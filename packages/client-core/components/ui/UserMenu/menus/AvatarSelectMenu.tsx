@@ -47,10 +47,20 @@ export default class AvatarSelectMenu extends React.Component<Props, State> {
 
 		this.scene = new THREE.Scene();
 
-		this.scene.background = new THREE.Color(0xc8c8c8);
-		this.scene.add(new THREE.AmbientLight(0xc8c8c8));
+		const backLight = new THREE.DirectionalLight(0xfafaff, 1);
+		backLight.position.set(1,3,-1);
+		backLight.target.position.set(0, 1.5, 0);
+		const frontLight = new THREE.DirectionalLight(0xfafaff, 0.7);
+		frontLight.position.set(-1,3,1);
+		frontLight.target.position.set(0, 1.5, 0);
+		const hemi = new THREE.HemisphereLight(0xeeeeff, 0xebbf2c, 1)
+		this.scene.add(backLight);
+		this.scene.add(backLight.target);
+		this.scene.add(frontLight);
+		this.scene.add(frontLight.target);
+		this.scene.add(hemi);
 
-		this.renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+		this.renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true, alpha: true });
 		this.renderer.setPixelRatio(window.devicePixelRatio);
 		this.renderer.setSize(bounds.width, bounds.height);
 		this.renderer.outputEncoding = THREE.sRGBEncoding;

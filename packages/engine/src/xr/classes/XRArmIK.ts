@@ -1,5 +1,5 @@
 import { Quaternion, Vector3, Euler, Matrix4 } from 'three';
-import {Helpers} from './functions/Helpers';
+import {Helpers} from '../functions/Helpers';
 
 const zeroVector = new Vector3();
 const forwardVector = new Vector3(0, 0, 1);

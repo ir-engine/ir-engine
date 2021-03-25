@@ -28,11 +28,12 @@ import { DefaultNetworkSchema } from './templates/networking/DefaultNetworkSchem
 import { TransformSystem } from './transform/systems/TransformSystem';
 import { EngineEvents, addIncomingEvents, addOutgoingEvents, EngineEventsProxy } from './ecs/classes/EngineEvents';
 import { ClientInputSystem } from './input/systems/ClientInputSystem';
-import { WebXRRendererSystem } from './renderer/WebXRRendererSystem';
+import { XRSystem } from './xr/systems/XRSystem';
 import { createWorker, WorkerProxy } from './worker/MessageQueue';
 import { Network } from './networking/classes/Network';
 import { isMobileOrTablet } from './common/functions/isMobile';
 import { AnimationManager } from './templates/character/prefabs/NetworkPlayerCharacter';
+import { applyNetworkStateToClient } from './networking/functions/applyNetworkStateToClient';
 // import { PositionalAudioSystem } from './audio/systems/PositionalAudioSystem';
 
 Mesh.prototype.raycast = acceleratedRaycast;
@@ -61,7 +62,9 @@ export const initializeEngine = async (initOptions: any = DefaultInitializationO
   const canvas = options.renderer.canvas || createCanvas();
 
   Engine.xrSupported = await (navigator as any).xr?.isSessionSupported('immersive-vr')
-  const useOffscreen = !Engine.xrSupported && 'transferControlToOffscreen' in canvas;
+  // offscreen is buggy still, disable it for now and opt in with url query
+  // const useOffscreen = !Engine.xrSupported && 'transferControlToOffscreen' in canvas;
+  const useOffscreen = (new URL(location.toString())).searchParams.get("offscreen");
 
   if(useOffscreen) {
     const workerProxy: WorkerProxy = await createWorker(
@@ -74,12 +77,6 @@ export const initializeEngine = async (initOptions: any = DefaultInitializationO
     );
     EngineEvents.instance = new EngineEventsProxy(workerProxy);
     Engine.viewportElement = options.renderer.canvas;
-
-    const onNetworkConnect = (ev: any) => {
-      EngineEvents.instance.dispatchEvent({ type: ClientNetworkSystem.EVENTS.INITIALIZE, userId: Network.instance.userId });
-      EngineEvents.instance.removeEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD, onNetworkConnect);
-    }
-    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD, onNetworkConnect);
 
   } else {
     EngineEvents.instance = new EngineEvents();
@@ -119,7 +116,7 @@ export const initializeEngine = async (initOptions: any = DefaultInitializationO
     registerSystem(DebugHelpersSystem);
     registerSystem(CameraSystem);
     registerSystem(WebGLRendererSystem, { priority: 1001, canvas });
-    registerSystem(WebXRRendererSystem, { offscreen: useOffscreen });
+    registerSystem(XRSystem, { offscreen: useOffscreen });
     Engine.viewportElement = Engine.renderer.domElement;
     Engine.renderer.xr.enabled = Engine.xrSupported;
   }
@@ -132,6 +129,20 @@ export const initializeEngine = async (initOptions: any = DefaultInitializationO
         update: (delta, elapsedTime) => execute(delta, elapsedTime, SystemUpdateType.Free)
       }, Engine.physicsFrameRate, Engine.networkFramerate).start();
   }, 1000);
+
+  const engageType = isMobileOrTablet() ? 'touchstart' : 'click'
+  const onUserEngage = () => {
+    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.USER_ENGAGE });
+    document.removeEventListener(engageType, onUserEngage);
+  }
+  document.addEventListener(engageType, onUserEngage);
+
+  const connectNetworkEvent = ({ id }) => {
+    Network.instance.isInitialized = true;
+    Network.instance.userId = id;
+    EngineEvents.instance.removeEventListener(ClientNetworkSystem.EVENTS.CONNECT, connectNetworkEvent)
+  }
+  EngineEvents.instance.addEventListener(ClientNetworkSystem.EVENTS.CONNECT, connectNetworkEvent)
 }
 
 export const initializeServer = async (initOptions: any = DefaultInitializationOptions): Promise<void> => {

@@ -1,4 +1,4 @@
-import XRTrackingReferences from '../XRTrackingReferences';
+import XRTrackingReferences from './XRTrackingReferences';
 
 class XRPose {
 	vrTransforms: XRTrackingReferences;

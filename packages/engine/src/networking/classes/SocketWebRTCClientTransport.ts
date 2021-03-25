@@ -12,7 +12,7 @@ import store from "@xr3ngine/client-core/redux/store";
 import { triggerUpdateConsumers } from "@xr3ngine/client-core/redux/mediastream/service";
 import { createDataProducer, endVideoChat, initReceiveTransport, initSendTransport, leave, subscribeToTrack } from "../functions/SocketWebRTCClientFunctions";
 import { EngineEvents } from "../../ecs/classes/EngineEvents";
-import { handleNetworkStateUpdate } from "../functions/updateNetworkState";
+import { ClientNetworkSystem } from "../systems/ClientNetworkSystem";
 
 const { publicRuntimeConfig } = getConfig();
 const gameserver = process.env.NODE_ENV === 'production' ? publicRuntimeConfig.gameserver : 'https://127.0.0.1:3030';
@@ -93,8 +93,8 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     const selfUser = (store.getState() as any).get('auth').get('user') as User;
     let socket = instance === true ? this.instanceSocket : this.channelSocket;
 
-    Network.instance.userId = selfUser.id;
     Network.instance.accessToken = token;
+    EngineEvents.instance.dispatchEvent({ type: ClientNetworkSystem.EVENTS.CONNECT, id: selfUser.id })
 
     this.mediasoupDevice = new Device();
     if (socket && socket.close) socket.close();
@@ -159,15 +159,12 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       console.log(ConnectToWorldResponse);
       const { worldState, routerRtpCapabilities } = ConnectToWorldResponse as any;
 
-      EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.CONNECT_TO_WORLD });
+      EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.CONNECT_TO_WORLD, worldState });
 
       // Send heartbeat every second
       const heartbeat = setInterval(() => {
         socket.emit(MessageTypes.Heartbeat.toString());
       }, 1000);
-
-      // Apply all state to initial frame
-      applyNetworkStateToClient(worldState);
 
       if (this.mediasoupDevice.loaded !== true)
         await this.mediasoupDevice.load({ routerRtpCapabilities });
@@ -177,10 +174,6 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       socket.on(MessageTypes.ReliableMessage.toString(), (message) => {
         Network.instance?.incomingMessageQueue.add(message);
       });
-
-      socket.on(MessageTypes.UpdateNetworkState.toString(), (message) => {
-        handleNetworkStateUpdate(socket, message);
-      })
 
       // use sendBeacon to tell the server we're disconnecting when
       // the page unloads

@@ -25,9 +25,6 @@ import { SSAOEffect } from './postprocessing/SSAOEffect';
 import { TextureEffect } from './postprocessing/TextureEffect';
 import { PostProcessingSchema } from './postprocessing/PostProcessingSchema';
 import { EngineEvents } from '../ecs/classes/EngineEvents';
-import { startXR, endXR } from '../input/functions/WebXRFunctions';
-import { WebXRRendererSystem } from './WebXRRendererSystem';
-import { isWebWorker } from '../common/functions/getEnvironment';
 
 export class WebGLRendererSystem extends System {
   

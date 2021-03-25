@@ -55,7 +55,6 @@ const cannonDebugger = isClient ? import('cannon-es-debugger').then((module) => 
 export class PhysicsSystem extends System {
   static EVENTS = {
     PORTAL_REDIRECT_EVENT: 'PHYSICS_SYSTEM_PORTAL_REDIRECT',
-    INITIALIZE: 'PHYSICS_SYSTEM_INITIALIZE'
   };
   updateType = SystemUpdateType.Fixed;
   static frame: number
@@ -64,7 +63,7 @@ export class PhysicsSystem extends System {
   static physicsWorld: World
   static simulate: boolean
   static serverOnlyRigidBodyCollides: boolean
-  static serverCorrectionForRigidBodyTick: number = 1000
+  static serverCorrectionForRigidBodyTick = 1000
 
   freezeTimes = 0
   clientSnapshotFreezeTime = 0
@@ -121,7 +120,6 @@ export class PhysicsSystem extends System {
     // if (DEBUG_PHYSICS) {
     //   debug(Engine.scene, PhysicsSystem.physicsWorld.bodies, DebugOptions);
     // }
-    EngineEvents.instance.dispatchEvent({ type: PhysicsSystem.EVENTS.INITIALIZE });
   }
 
   dispose(): void {

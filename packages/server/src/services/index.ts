@@ -66,6 +66,7 @@ import FeedFires from './feed-fires/feed-fires.service';
 import FeedBookmark from './feed-bookmark/feed-bookmark.service';
 import Comments from './comments/comments.service';
 import CommentsFires from './comments-fires/comments-fires.service';
+import Notifications from './notifications/notifications.service';
 
 // Editor
 import MediaSearch from './media-search/media-search.service';
@@ -145,6 +146,7 @@ export default (app: Application): void => {
   app.configure(FeedBookmark); // ARC
   app.configure(Comments); // ARC
   app.configure(CommentsFires); // ARC
+  app.configure(Notifications); // ARC
 
   // Editor
   app.configure(MediaSearch);

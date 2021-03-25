@@ -1,7 +1,7 @@
 import { Quaternion, Vector3, Euler } from 'three';
 import {
   Helpers
-} from './functions/Helpers';
+} from '../functions/Helpers';
 
 const rightVector = new Vector3(1, 0, 0);
 const z180Quaternion = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Math.PI);

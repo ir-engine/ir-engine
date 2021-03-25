@@ -9,6 +9,7 @@ import { handleGamepadConnected, handleGamepadDisconnected } from "../behaviors/
 // import { BaseInput } from "../enums/BaseInput";
 import { InputType } from '../enums/InputType';
 import { MouseInput, GamepadButtons, TouchInputs } from '../enums/InputEnums';
+import { ClientInputSystem } from "../systems/ClientInputSystem";
 
 const touchSensitive = 2;
 let prevTouchPosition: [number, number] = [0, 0];
@@ -399,6 +400,11 @@ const handleMouseMovement = (args: { event: MouseEvent }): void => {
 
 const handleMouseButton = (args: { event: MouseEvent; value: BinaryType }): void => {
 
+  // For if mouse is over UI, disable button clicks for engine
+  if(args.value === BinaryValue.ON && !ClientInputSystem.mouseInputEnabled) {
+    return;
+  }
+
   const mousePosition: [number, number] = [0, 0];
   mousePosition[0] = (args.event.clientX / window.innerWidth) * 2 - 1;
   mousePosition[1] = (args.event.clientY / window.innerHeight) * -2 + 1;
@@ -451,6 +457,11 @@ const handleMouseButton = (args: { event: MouseEvent; value: BinaryType }): void
 
 const handleKey = (args: { event: KeyboardEvent; value: BinaryType }): any => {
   
+  // For if mouse is over UI, disable button clicks for engine
+  if(args.value === BinaryValue.ON && !ClientInputSystem.keyboardInputEnabled) {
+    return;
+  }
+
   const element = args.event.target as HTMLElement;
   // Сheck which excludes the possibility of controlling the character (car, etc.) when typing a text
   if (element?.tagName === 'INPUT' || element?.tagName === 'SELECT' || element?.tagName === 'TEXTAREA') {

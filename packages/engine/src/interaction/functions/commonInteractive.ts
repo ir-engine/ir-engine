@@ -1,10 +1,10 @@
 import { isServer } from '@xr3ngine/engine/src/common/functions/isServer';
 import { Behavior } from "@xr3ngine/engine/src/common/interfaces/Behavior";
-import { getComponent, getMutableComponent, hasComponent } from "../../../ecs/functions/EntityFunctions";
+import { getComponent, getMutableComponent, hasComponent } from "../../ecs/functions/EntityFunctions";
 import { Object3DComponent } from "@xr3ngine/engine/src/scene/components/Object3DComponent";
-import { Interactable } from "../../../interaction/components/Interactable";
-import { EngineEvents } from "../../../ecs/classes/EngineEvents";
-import { InteractiveSystem } from "../../../interaction/systems/InteractiveSystem";
+import { Interactable } from "../components/Interactable";
+import { EngineEvents } from "../../ecs/classes/EngineEvents";
+import { InteractiveSystem } from "../systems/InteractiveSystem";
 
 export const onInteraction: Behavior = (entityInitiator, args, delta, entityInteractive, time) => {
   const interactiveComponent = getComponent(entityInteractive, Interactable);

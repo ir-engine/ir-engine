@@ -1,10 +1,7 @@
 import { getMutableComponent } from "@xr3ngine/engine/src/ecs/functions/EntityFunctions";
-import { Input } from "@xr3ngine/engine/src/input/components/Input";
 import { Matrix4, Quaternion, Vector3 } from "three";
 import { addObject3DComponent } from '../../scene/behaviors/addObject3DComponent';
 import { CameraTagComponent } from '../../scene/components/Object3DTagComponents';
-import { LifecycleValue } from "../../common/enums/LifecycleValue";
-import { isServer } from '../../common/functions/isServer';
 import { isMobileOrTablet } from "../../common/functions/isMobile";
 import { NumericalType } from "../../common/types/NumericalTypes";
 import { Engine } from '../../ecs/classes/Engine';
@@ -13,7 +10,6 @@ import {
   addComponent, createEntity, getComponent, hasComponent
 } from '../../ecs/functions/EntityFunctions';
 import { CharacterComponent } from "../../templates/character/components/CharacterComponent";
-import { BaseInput } from '@xr3ngine/engine/src/input/enums/BaseInput';
 import { DesiredTransformComponent } from '../../transform/components/DesiredTransformComponent';
 import { TransformComponent } from '../../transform/components/TransformComponent';
 import { CameraComponent } from '../components/CameraComponent';
@@ -23,18 +19,13 @@ import { Entity } from "../../ecs/classes/Entity";
 import { PhysicsSystem } from "../../physics/systems/PhysicsSystem";
 import { CollisionGroups } from "../../physics/enums/CollisionGroups";
 import { Vec3 } from "cannon-es";
-import { Behavior } from "../../common/interfaces/Behavior";
-import { WebXRRendererSystem } from "../../renderer/WebXRRendererSystem";
-import { applyVectorMatrixXZ } from "../../common/functions/applyVectorMatrixXZ";
 
-const forwardVector = new Vector3(0, 0, 1);
 let direction = new Vector3();
 const upVector = new Vector3(0, 1, 0);
 const empty = new Vector3();
 const PI_2Deg = Math.PI / 180;
 const mx = new Matrix4();
 const vec3 = new Vector3();
-const emptyInputValue = [0, 0] as NumericalType;
 
 
 /** System class which provides methods for Camera system. */

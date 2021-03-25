@@ -14,7 +14,6 @@ export class ClientNetworkSystem extends System {
 
   static EVENTS = {
     CONNECT: 'CLIENT_NETWORK_SYSTEM_CONNECT',
-    INITIALIZE: 'CLIENT_NETWORK_SYSTEM_INITIALIZE',
     SEND_DATA: 'CLIENT_NETWORK_SYSTEM_SEND_DATA',
     RECEIVE_DATA: 'CLIENT_NETWORK_SYSTEM_RECEIVE_DATA',
   }
@@ -33,12 +32,6 @@ export class ClientNetworkSystem extends System {
     Network.instance.schema = schema;
     // Instantiate the provided transport (SocketWebRTCClientTransport / SocketWebRTCServerTransport by default)
     Network.instance.transport = new schema.transport(app);
-
-    // Initialize the server automatically - client is initialized in connectToServer
-    if (process.env.SERVER_MODE !== undefined && (process.env.SERVER_MODE === 'realtime' || process.env.SERVER_MODE === 'local')) {
-      Network.instance.transport.initialize();
-      Network.instance.isInitialized = true;
-    }
   }
 
   /**

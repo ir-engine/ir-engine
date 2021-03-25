@@ -90,6 +90,17 @@ export function doLoginAuto (allowGuest?: boolean, forceClientAuthReset?: boolea
         }
       }
       if (res) {
+        if (res['identity-provider']?.id == null) {
+          await dispatch(didLogout());
+          await (client as any).authentication.reset();
+          const newProvider = await client.service('identity-provider').create({
+            type: 'guest',
+            token: v1()
+          });
+          accessToken = newProvider.accessToken;
+          await (client as any).authentication.setAccessToken(accessToken as string);
+          res = await (client as any).reAuthenticate();
+        }
         const authUser = resolveAuthUser(res);
         dispatch(loginUserSuccess(authUser));
         loadUserData(dispatch, authUser.identityProvider.userId);
@@ -200,6 +211,7 @@ export function loginUserByJwt (accessToken: string, redirectSuccess: string, re
   return async (dispatch: Dispatch): Promise<any> => {
     try {
       dispatch(actionProcessing(true));
+      await (client as any).authentication.setAccessToken(accessToken as string);
       const res = await (client as any).authenticate({
         strategy: 'jwt',
         accessToken
@@ -440,8 +452,13 @@ export function addConnectionBySms (phone: string, userId: string) {
   return (dispatch: Dispatch): any => {
     dispatch(actionProcessing(true));
 
+    let sendPhone = phone.replace(/-/g, '');
+    if (sendPhone.length === 10) {
+      sendPhone = '1' + sendPhone
+    }
+
     client.service('magic-link').create({
-      mobile: phone,
+      mobile: sendPhone,
       type: 'sms',
       userId
     })
@@ -573,31 +590,38 @@ export function uploadAvatarModel (model: any, thumbnail: any) {
         client.service('upload-presigned').remove('', { query: { keys: [modelURL.fields.Key] } });
       });
     }).catch(err => {
-      console.error('Error occured while uploading model.');
+      console.error('Error occured while uploading model.', err);
     });
   };
 }
 
 export function removeAvatar (keys: [string]) {
   return async (dispatch: Dispatch, getState: any) => {
-    const result = await client.service('upload-presigned').remove('', {
+    await client.service('upload-presigned').remove('', {
       query: { keys },
-    });
+    }).then(_ => {
+      dispatchAlertSuccess(dispatch, 'Avatar Removed Successfully.');
+      fetchAvatarList()(dispatch);
+    })
   }
 }
 
 export function fetchAvatarList () {
-  return async (dispatch: Dispatch, getState: any) => {
+  const selfUser = (store.getState() as any).get('auth').get('user');
+  return async (dispatch: Dispatch) => {
     const result = await client.service('static-resource').find({
       query: {
         $select: ['id', 'key', 'name', 'url', 'staticResourceType', 'userId'],
         staticResourceType: {
           $in: [ 'avatar', 'user-thumbnail']
         },
+        $or: [
+          { userId: selfUser.id },
+          { userId: null }
+        ],
         $limit: 1000,
       }
     });
-
     dispatch(updateAvatarList(result.data));
   };
 }
@@ -647,7 +671,57 @@ const getAvatarResources = (user) => {
         { userId: null },
         { userId: user.id },
       ],
+      $sort: {
+        userId: -1,
+      },
+      $limit: 2
     },
+  });
+}
+
+const loadAvatarForUpdatedUser = async (user) => {
+  if (!user || !user.instanceId) Promise.resolve(true);
+
+  return new Promise(async resolve => {
+    const networkUser = Network.instance.clients[user.id];
+
+    // If network is not initialized then wait to be initialized.
+    if (!networkUser) {
+      setTimeout(async () => {
+        await loadAvatarForUpdatedUser(user);
+        resolve(true);
+      }, 200);
+      return;
+    }
+
+    if (networkUser.avatarDetail.avatarId === user.avatarId) {
+      resolve(true);
+      return;
+    }
+
+    // Fetch Avatar Resources for updated user.
+    const avatars = await getAvatarResources(user);
+    if(avatars?.data && avatars.data.length === 2) {
+      const avatarURL = avatars?.data[0].staticResourceType === 'avatar' ? avatars?.data[0].url : avatars?.data[1].url;
+      const thumbnailURL = avatars?.data[0].staticResourceType === 'user-thumbnail' ? avatars?.data[0].url : avatars?.data[1].url;
+
+      networkUser.avatarDetail = { avatarURL, thumbnailURL, avatarId: user.avatarId };
+
+      //Find entityId from network objects of updated user and dispatch avatar load event.
+      for (let key of Object.keys(Network.instance.networkObjects)) {
+        const obj = Network.instance.networkObjects[key]
+        if (obj?.ownerId === user.id) {
+          EngineEvents.instance.dispatchEvent({
+            type: EngineEvents.EVENTS.LOAD_AVATAR,
+            entityID: obj.component.entity.id,
+            avatarId: user.avatarId,
+            avatarURL
+          });
+          break;
+        }
+      }
+    }
+    resolve(true);
   });
 }
 
@@ -655,6 +729,9 @@ client.service('user').on('patched', async (params) => {
   console.log('User patched');
   const selfUser = (store.getState() as any).get('auth').get('user');
   const user = resolveUser(params.userRelationship);
+
+  await loadAvatarForUpdatedUser(user);
+
   if (selfUser.id === user.id) {
     if (selfUser.instanceId !== user.instanceId) store.dispatch(clearLayerUsers());
     if (selfUser.channelInstanceId !== user.channelInstanceId) store.dispatch(clearChannelLayerUsers());
@@ -684,28 +761,6 @@ client.service('user').on('patched', async (params) => {
     if (user.channelInstanceId !== selfUser.channelInstanceId) store.dispatch(removedChannelLayerUser(user));
   }
 
-  if (Network.instance.clients[user.id]?.avatarDetail?.avatarId !== user.avatarId) {
-    // Fetch Avatar Resources for updated user.
-    const avatars = await getAvatarResources(user);
-    let avatarURL = "";
-    if(avatars?.data && avatars.data.length === 2) {
-      avatarURL = avatars?.data[0].staticResourceType === 'avatar' ? avatars?.data[0].url : avatars?.data[1].url;
-
-      //Find entityId from network objects of updated user and dispatch avatar load event.
-      for (let key of Object.keys(Network.instance.networkObjects)) {
-        if (Network.instance.networkObjects[key]?.ownerId === user.id) {
-          const obj = Network.instance.networkObjects[key]
-          EngineEvents.instance.dispatchEvent({
-            type: EngineEvents.EVENTS.LOAD_AVATAR,
-            entityID: obj.component.entity.id,
-            avatarId: user.avatarId,
-            avatarURL
-          });
-          break;
-        }
-      }
-    }
-  }
 });
 
 client.service('location-ban').on('created', async(params) => {

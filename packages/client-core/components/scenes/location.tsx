@@ -48,6 +48,8 @@ import { EngineEvents } from '@xr3ngine/engine/src/ecs/classes/EngineEvents';
 import { InteractiveSystem } from '@xr3ngine/engine/src/interaction/systems/InteractiveSystem';
 import { PhysicsSystem } from '@xr3ngine/engine/src/physics/systems/PhysicsSystem';
 import { DefaultInitializationOptions, initializeEngine } from '@xr3ngine/engine/src/initialize';
+import { ClientNetworkSystem } from '@xr3ngine/engine/src/networking/systems/ClientNetworkSystem';
+import { ClientInputSystem } from '@xr3ngine/engine/src/input/systems/ClientInputSystem';
 
 const goHome = () => window.location.href = window.location.origin;
 
@@ -218,13 +220,13 @@ export const EnginePage = (props: Props) => {
       service = regexResult[1];
       serviceId = regexResult[2];
     }
-    const result = await client.service(service).get(serviceId);
+    const sceneData = await client.service(service).get(serviceId);
 
     const networkSchema: NetworkSchema = {
       ...DefaultNetworkSchema,
       transport: SocketWebRTCClientTransport,
     };
-
+  
     const canvas = document.getElementById(engineRendererCanvasId) as HTMLCanvasElement;
     styleCanvas(canvas);
     const InitializationOptions = {
@@ -236,69 +238,54 @@ export const EnginePage = (props: Props) => {
         canvas,
       },
     };
+    
     await initializeEngine(InitializationOptions)
 
     document.dispatchEvent(new CustomEvent('ENGINE_LOADED')); // this is the only time we should use document events. would be good to replace this with react state
 
-    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD, onNetworkConnect);
-    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.SCENE_LOADED, onSceneLoaded);
-    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.ENTITY_LOADED, onSceneLoadedEntity);
-    EngineEvents.instance.addEventListener(InteractiveSystem.EVENTS.USER_HOVER, onUserHover);
-    EngineEvents.instance.addEventListener(InteractiveSystem.EVENTS.OBJECT_ACTIVATION, onObjectActivation);
-    EngineEvents.instance.addEventListener(InteractiveSystem.EVENTS.OBJECT_HOVER, onObjectHover);
-    EngineEvents.instance.addEventListener(PhysicsSystem.EVENTS.PORTAL_REDIRECT_EVENT, ({ location }) => router.push(location));
-    const engageType = isMobileOrTablet() ? 'touchstart' : 'click'
-    const onUserEngage = () => {
-      EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.USER_ENGAGE });
-      document.removeEventListener(engageType, onUserEngage);
-    }
-    document.addEventListener(engageType, onUserEngage);
+    addUIEvents();
 
-    const onClientEntityLoad = () => {
-      console.log('client entity loaded')
-      EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENABLE_SCENE, enable: true });
-      EngineEvents.instance.removeEventListener(EngineEvents.EVENTS.CLIENT_ENTITY_LOAD, onClientEntityLoad)
-    }
-    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.CLIENT_ENTITY_LOAD, onClientEntityLoad)
+    await connectToInstanceServer('instance');
 
-    // add this beacose loading start too fast, physics not initialized yet
-    const waitInitialize = () => {
-      EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.LOAD_SCENE, result });
-      EngineEvents.instance.removeEventListener(PhysicsSystem.EVENTS.INITIALIZE, waitInitialize)
-    }
-    EngineEvents.instance.addEventListener(PhysicsSystem.EVENTS.INITIALIZE, waitInitialize);
+    const loadScene = new Promise<void>((resolve) => {
+      const onSceneLoaded = () => {
+        setProgressEntity(0);
+        store.dispatch(setAppOnBoardingStep(generalStateList.SCENE_LOADED));
+        EngineEvents.instance.removeEventListener(EngineEvents.EVENTS.SCENE_LOADED, onSceneLoaded);
+        EngineEvents.instance.removeEventListener(EngineEvents.EVENTS.ENTITY_LOADED, onSceneLoadedEntity);
+        setAppLoaded(true);
+        resolve();
+      };
+      EngineEvents.instance.addEventListener(EngineEvents.EVENTS.SCENE_LOADED, onSceneLoaded);
+      EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.LOAD_SCENE, sceneData });
+    })
 
-    connectToInstanceServer('instance');
-  }
+    const getWorldState = new Promise<any>((resolve) => {
+      const onNetworkConnect = async () => {
+        const { worldState } =  await (Network.instance.transport as SocketWebRTCClientTransport).instanceRequest(MessageTypes.JoinWorld.toString());
+        EngineEvents.instance.removeEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD, onNetworkConnect);
+        resolve(worldState);
+      }
+      EngineEvents.instance.addEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD, onNetworkConnect);
+    })
+    
+    const [sceneLoaded, worldState] = await Promise.all([ loadScene, getWorldState ]);
 
-  const onNetworkConnect = async () => {
-    await joinWorld();
-    EngineEvents.instance?.removeEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD, onNetworkConnect);
-  }
-
-  const joinWorld = async () => {
-    const { worldState } =  await (Network.instance.transport as SocketWebRTCClientTransport).instanceRequest(MessageTypes.JoinWorld.toString());
     EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.JOINED_WORLD, worldState });
   }
 
-  //all scene entities are loaded
-  const onSceneLoaded = (event: any): void => {
-    if (event.loaded) {
-      setProgressEntity(0);
-      store.dispatch(setAppOnBoardingStep(generalStateList.SCENE_LOADED));
-      EngineEvents.instance?.removeEventListener(EngineEvents.EVENTS.SCENE_LOADED, onSceneLoaded);
-      setAppLoaded(true);
-    }
-  };
-
-  //started loading scene entities
   const onSceneLoadedEntity = (event: any): void => {
     setProgressEntity(event.left || 0);
   };
 
-  const onObjectHover = ({ focused, interactionText}): void => {
+  const onObjectHover = ({ focused, interactionText }: { focused: boolean, interactionText: string }): void => {
     setObjectHovered(focused);
-    setHoveredLabel(interactionText);
+    let displayText = interactionText;
+    const length = interactionText.length;
+    if(length > 110) {
+      displayText = interactionText.substring(0, 110) + '...'
+    }
+    setHoveredLabel(displayText);
   };
 
   const onUserHover = ({ focused, userId, position }): void => {
@@ -306,6 +293,14 @@ export const EnginePage = (props: Props) => {
     setonUserId(focused ? userId : null);
     setonUserPosition(focused ? position : null);
   };
+
+  const addUIEvents = () => {
+    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.ENTITY_LOADED, onSceneLoadedEntity);
+    EngineEvents.instance.addEventListener(InteractiveSystem.EVENTS.USER_HOVER, onUserHover);
+    EngineEvents.instance.addEventListener(InteractiveSystem.EVENTS.OBJECT_ACTIVATION, onObjectActivation);
+    EngineEvents.instance.addEventListener(InteractiveSystem.EVENTS.OBJECT_HOVER, onObjectHover);
+    EngineEvents.instance.addEventListener(PhysicsSystem.EVENTS.PORTAL_REDIRECT_EVENT, ({ location }) => router.push(location));
+  }
 
   const onObjectActivation = ({ action, payload }): void => {
     switch (action) {
@@ -352,7 +347,6 @@ export const EnginePage = (props: Props) => {
   //mobile gamepad
   const mobileGamepadProps = { hovered: objectHovered, layout: 'default' };
   const mobileGamepad = isMobileOrTablet() ? <MobileGamepad {...mobileGamepadProps} /> : null;
-
   return userBanned !== true ? (
     <>
       {isValidLocation && <UserMenu />}

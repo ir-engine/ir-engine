@@ -10,7 +10,7 @@ import { Network } from '../../networking/classes/Network';
 import { createNetworkRigidBody } from '@xr3ngine/engine/src/templates/interactive/prefabs/NetworkRigidBody';
 import { addCollidersToNetworkVehicle } from '@xr3ngine/engine/src/templates/vehicle/prefabs/NetworkVehicle';
 
-export const createCollidersFromScaneData: Behavior = ( entity: Entity, args: any ) => { //{ data:string, type: string,}
+export const createCollidersFromSceneData: Behavior = ( entity: Entity, args: any ) => { //{ data:string, type: string,}
   console.log('****** Collider from Scene data, type: '+args.objArgs.type);
 
   switch (args.objArgs.data) {

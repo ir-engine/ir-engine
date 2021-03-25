@@ -7,7 +7,6 @@ import { selectCreatorsState } from "../../../redux/creator/selector";
 import { bindActionCreators, Dispatch } from "redux";
 import { getLoggedCreator } from "../../../redux/creator/service";
 import { connect } from "react-redux";
-import { any } from "prop-types";
 
 const mapStateToProps = (state: any): any => {
   return {

@@ -8,7 +8,7 @@
     "appServer": "https://127.0.0.1:3000",
     "siteTitle": "ARC",
     "siteDescription": "Connected Worlds for Everyone",
-    "featherStoreKey": "Arc-Auth-Store",
+    "featherStoreKey": "TheOverlay-Auth-Store",
     "localStorageKey": "arc-client-store-key-v1",
     "auth": {
       "enableSmsMagicLink": true,
