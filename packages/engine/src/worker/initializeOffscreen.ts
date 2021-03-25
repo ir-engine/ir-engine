@@ -26,7 +26,7 @@ import { MainProxy } from './MessageQueue';
 import { EntityActionSystem } from '../input/systems/EntityActionSystem';
 import { EngineEvents } from '../ecs/classes/EngineEvents';
 import { EngineEventsProxy, addIncomingEvents } from '../ecs/classes/EngineEvents';
-import { WebXRRendererSystem } from '../renderer/WebXRRendererSystem';
+import { XRSystem } from '../xr/systems/XRSystem';
 // import { PositionalAudioSystem } from './audio/systems/PositionalAudioSystem';
 import { receiveWorker } from './MessageQueue';
 import { AnimationManager } from '../templates/character/prefabs/NetworkPlayerCharacter';
@@ -84,8 +84,12 @@ const initializeEngineOffscreen = async ({ canvas, userArgs }, proxy: MainProxy)
   registerSystem(DebugHelpersSystem);
   registerSystem(CameraSystem);
   registerSystem(WebGLRendererSystem, { priority: 1001, canvas });
-  registerSystem(WebXRRendererSystem, { offscreen: true });
+  registerSystem(XRSystem, { offscreen: true });
   Engine.viewportElement = Engine.renderer.domElement;
+
+  setInterval(() => {
+    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENTITY_DEBUG_DATA, })
+  }, 1000)
 
   Engine.engineTimer = Timer({
     networkUpdate: (delta:number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Network),
@@ -93,22 +97,13 @@ const initializeEngineOffscreen = async ({ canvas, userArgs }, proxy: MainProxy)
     update: (delta, elapsedTime) => execute(delta, elapsedTime, SystemUpdateType.Free)
   }, Engine.physicsFrameRate, Engine.networkFramerate).start();
 
-
-  const connectNetworkEvent = (ev: any) => {
+  const connectNetworkEvent = ({ id }) => {
     Network.instance.isInitialized = true;
+    Network.instance.userId = id;
     EngineEvents.instance.removeEventListener(ClientNetworkSystem.EVENTS.CONNECT, connectNetworkEvent)
   }
   EngineEvents.instance.addEventListener(ClientNetworkSystem.EVENTS.CONNECT, connectNetworkEvent)
 
-  const initializeNetworkEvent = (ev: any) => {
-    Network.instance.userId = ev.userId;
-    EngineEvents.instance.removeEventListener(ClientNetworkSystem.EVENTS.INITIALIZE, initializeNetworkEvent)
-  }
-  EngineEvents.instance.addEventListener(ClientNetworkSystem.EVENTS.INITIALIZE, initializeNetworkEvent)
-
-  setInterval(() => {
-    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENTITY_DEBUG_DATA, })
-  }, 1000)
 }
 
 receiveWorker(initializeEngineOffscreen)

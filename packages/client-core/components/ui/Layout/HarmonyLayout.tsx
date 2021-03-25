@@ -131,20 +131,13 @@ const Layout = (props: Props): any => {
                 <Harmony
                     isHarmonyPage={true}
                     setHarmonyOpen={setHarmonyOpen}
-                    detailsType={detailsType}
                     setDetailsType={setDetailsType}
-                    groupFormOpen={groupFormOpen}
                     setGroupFormOpen={setGroupFormOpen}
-                    groupFormMode={groupFormMode}
                     setGroupFormMode={setGroupFormMode}
-                    groupForm={groupForm}
                     setGroupForm={setGroupForm}
-                    selectedUser={selectedUser}
                     setSelectedUser={setSelectedUser}
-                    selectedGroup={selectedGroup}
                     setSelectedGroup={setSelectedGroup}
                     setLeftDrawerOpen={setLeftDrawerOpen}
-                    setBottomDrawerOpen={setBottomDrawerOpen}
                     setRightDrawerOpen={setRightDrawerOpen}
                 />
                 <Fragment>

@@ -553,6 +553,17 @@ $mobileControllButtonsSize: 3em;
                 background-color: lighten(rgb(178, 56, 56), 10%);
             }
         }
+
+        .profile-toggle {
+            background-color: rgb(50, 170, 75);
+            color: white;
+            margin-right: 5px;
+
+            &:hover {
+                cursor: pointer;
+                background-color: lighten(rgb(50, 170, 75), 10%);
+            }
+        }
     }
 
     .iconContainer{
@@ -625,4 +636,25 @@ $mobileControllButtonsSize: 3em;
 
 .icon-margin-right {
     margin-right: 3px;
+}
+
+.profileMenu {
+    position: fixed;
+    bottom: 25px;
+    width: 100vw;
+    z-index: 15;
+}
+
+.close-button {
+    position: fixed;
+    left: 8px;
+    top: 8px;
+    background-color: darken(red, 10%);
+    border-radius: 50px;
+    padding: 2px;
+
+    &:hover {
+        cursor: pointer;
+        background-color: darken(red, 20%);
+    }
 }

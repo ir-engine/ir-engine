@@ -12,8 +12,6 @@ export async function handleNetworkStateUpdate(socket, data, isServer?: boolean)
                     thumbnailURL: data.thumbnailURL,
                 }
             }
-            if (isServer) (Network.instance.transport as any).sendNetworkStatUpdateMessage(data);
-            else EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.NETWORK_USER_UPDATED, userId: data.userId });
             break;
         default:
             break;

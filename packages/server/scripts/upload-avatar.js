@@ -13,16 +13,17 @@ const forceS3Upload = process.argv.includes('--force-s3-upload');
 const s3 = new aws.S3({
     accessKeyId: process.env.STORAGE_AWS_ACCESS_KEY_ID,
     secretAccessKey: process.env.STORAGE_AWS_ACCESS_KEY_SECRET,
+    region: process.env.STORAGE_S3_REGION
 });
 
 const db = {
-    username: process.env.MYSQL_USER ?? 'server',
-    password: process.env.MYSQL_PASSWORD ?? 'password',
-    database: process.env.MYSQL_DATABASE ?? 'xr3ngine',
-    host: process.env.MYSQL_HOST ?? '127.0.0.1',
-    port: process.env.MYSQL_PORT ?? 3306,
+    username: process.env.MYSQL_USER || 'server',
+    password: process.env.MYSQL_PASSWORD || 'password',
+    database: process.env.MYSQL_DATABASE || 'xr3ngine',
+    host: process.env.MYSQL_HOST || '127.0.0.1',
+    port: process.env.MYSQL_PORT || 3306,
     dialect: 'mysql',
-    url: process.env.MYSQL_URL ??
+    url: process.env.MYSQL_URL ||
     `mysql://${this.username}:${this.password}@${this.host}:${this.port}/${this.database}`
 };
 
@@ -94,14 +95,14 @@ const uploadFile = (Key, Body) => {
                     ACL: 'public-read',
                 }, (err, data) => {
                     resolve(data);
-                })
+                });
             } else {
                 console.log('Object Already Exist hence Skipping => ', Key);
                 resolve(data);
             }
-        })
+        });
     });
-}
+};
 
 const saveToDB = async (name, extension, staticResourceType) => {
     return staticResource.create({
@@ -112,20 +113,20 @@ const saveToDB = async (name, extension, staticResourceType) => {
         createdAt: Date.now(),
         updatedAt: Date.now(),
         staticResourceType,
-    })
-}
+    });
+};
 
 const processFile = async (fileName, extension, dirPath, staticResourceType) => {
     const location = dirPath + fileName + extension;
     console.log('File Location => ', location);
     const file = fs.readFileSync(location);
-    let result = await uploadFile(AVATAR_FOLDER + '/' + fileName + extension, file);
+    const result = await uploadFile(AVATAR_FOLDER + '/' + fileName + extension, file);
     console.log('Uploading status => ', result);
 
-    console.log('Saving to DB')
+    console.log('Saving to DB');
     await saveToDB(fileName, extension, staticResourceType);
-    console.log('Saved To DB')
-}
+    console.log('Saved To DB');
+};
 
 new Promise(async (resolve, reject) => {
     try {
@@ -139,7 +140,7 @@ new Promise(async (resolve, reject) => {
             }
         });
 
-        for (let avatar of AVATAR_LIST) {
+        for (const avatar of AVATAR_LIST) {
             console.log('Uploading Avatar Model =>', avatar);
             await processFile(avatar, MODEL_EXTENSION, MODEL_PATH, AVATAR_RESOURCE_TYPE);
 

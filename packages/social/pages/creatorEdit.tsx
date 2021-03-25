@@ -1,6 +1,6 @@
 
 import React from "react";
-import UserEdit from "@xr3ngine/client-core/components/social/User";
+import CreatorForm from "@xr3ngine/client-core/components/social/CreatorForm";
 import AppFooter from "@xr3ngine/client-core/components/social/Footer";
 
 import styles from './index.module.scss';
@@ -8,7 +8,7 @@ import styles from './index.module.scss';
 export default function User() {
   return (<>
     <div className={styles.viewport}>
-      <UserEdit />      
+      <CreatorForm />      
       <AppFooter />
     </div>
   </>

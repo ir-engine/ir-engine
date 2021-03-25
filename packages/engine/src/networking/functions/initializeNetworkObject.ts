@@ -189,7 +189,6 @@ export function initializeNetworkObject( args: { entity?: Entity, prefabType?: s
     console.warn(Network.instance.networkObjects);
     Network.instance.localAvatarNetworkId = networkId;
     Network.instance.localClientEntity = networkEntity;
-    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.CLIENT_ENTITY_LOAD, id: networkEntity.id });
   }
 
   return networkObject;

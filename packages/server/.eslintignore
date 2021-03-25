@@ -4,3 +4,4 @@ lib
 webpack.config.js
 .env
 public
+scripts/*.js

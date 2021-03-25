@@ -14,20 +14,15 @@ export interface UserMenuProps {
   authState?: any;
   instanceConnectionState?: any;
   locationState?: any;
-  updateUsername?: Function;
   updateUserAvatarId?: Function;
-  logoutUser?: Function;
   showDialog?: Function;
-  removeUser?: Function;
   alertSuccess?: Function;
-  addConnectionByEmail?: Function;
-  addConnectionBySms?: Function;
-  loginUserByOAuth?: Function;
   currentScene?: any;
   provisionInstanceServer?: any;
   uploadAvatarModel?: Function;
   fetchAvatarList?: Function;
   updateUserSettings?: Function;
+  removeAvatar?: Function;
 }
 
 export interface SettingMenuProps {

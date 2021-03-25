@@ -5,7 +5,7 @@ import { Behavior } from '@xr3ngine/engine/src/common/interfaces/Behavior';
 import { Engine } from "@xr3ngine/engine/src/ecs/classes/Engine";
 import { getComponent, hasComponent, removeEntity } from "@xr3ngine/engine/src/ecs/functions/EntityFunctions";
 import { parseModelColliders, clearFromColliders } from '@xr3ngine/engine/src/physics/behaviors/parseModelColliders';
-import { createVehicleFromScaneData } from '@xr3ngine/engine/src/templates/vehicle/prefabs/NetworkVehicle';
+import { createVehicleFromSceneData } from '@xr3ngine/engine/src/templates/vehicle/prefabs/NetworkVehicle';
 import { AmbientLight, CircleBufferGeometry, Color, HemisphereLight, Mesh, MeshPhongMaterial, PointLight, SpotLight, Vector3, Quaternion, Matrix4 } from 'three';
 import { AssetLoader } from '../../assets/components/AssetLoader';
 import { addComponent, getMutableComponent } from "../../ecs/functions/EntityFunctions";
@@ -14,7 +14,7 @@ import { createParticleEmitter } from '../../particles/functions/particleHelpers
 import { addObject3DComponent } from '../behaviors/addObject3DComponent';
 import { createBackground } from '../behaviors/createBackground';
 import { createBoxCollider } from '../behaviors/createBoxCollider';
-import { createCollidersFromScaneData } from '../behaviors/createCollidersFromScaneData';
+import { createCollidersFromSceneData } from '../behaviors/createCollidersFromSceneData';
 import { createCommonInteractive } from "../behaviors/createCommonInteractive";
 import { createGroup } from '../behaviors/createGroup';
 import { createLink } from '../behaviors/createLink';
@@ -402,7 +402,7 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
   'mesh-collider': {
     behaviors: [
       {
-        behavior: createCollidersFromScaneData,
+        behavior: createCollidersFromSceneData,
         values: ['data', 'type', 'position', 'quaternion', 'scale', 'vertices', 'indices']
       }
     ]
@@ -410,7 +410,7 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
   'vehicle-saved-in-scene': {
     behaviors: [
       {
-        behavior: createVehicleFromScaneData,
+        behavior: createVehicleFromSceneData,
         values: ['arrayWheelsPosition', 'entrancesArray', 'seatsArray', 'startPosition', 'startQuaternion', 'suspensionRestLength', 'interactionPartsPosition', 'mass']
       }
     ]

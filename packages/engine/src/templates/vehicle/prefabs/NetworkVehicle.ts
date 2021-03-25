@@ -193,7 +193,7 @@ export function addCollidersToNetworkVehicle( args:{ parameters?: any, entity?: 
   return { shape: shape, position: args.parameters.position};
 }
 
-export function createVehicleFromScaneData( entity: Entity, args: any) {
+export function createVehicleFromSceneData( entity: Entity, args: any) {
   console.warn(args.objArgs.mass);
   createNetworkVehicle({
     parameters: {

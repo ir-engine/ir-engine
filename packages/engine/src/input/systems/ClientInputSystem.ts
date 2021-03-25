@@ -44,7 +44,8 @@ interface ListenerBindingData {
 export class ClientInputSystem extends System {
 
   static EVENTS = {
-    PROCESS_INPUT: 'CLIENT_INPUT_SYSTEM_PROCESS_EVENT'
+    ENABLE_INPUT: 'CLIENT_INPUT_SYSTEM_ENABLE_INPUT',
+    PROCESS_INPUT: 'CLIENT_INPUT_SYSTEM_PROCESS_EVENT',
   }
 
   updateType = SystemUpdateType.Fixed;
@@ -52,6 +53,8 @@ export class ClientInputSystem extends System {
   switchId = 1;
   boundListeners: ListenerBindingData[] = [];
   onProcessInput: any;
+  static mouseInputEnabled = true;
+  static keyboardInputEnabled = true;
 
   constructor(attributes?: SystemAttributes) {
     super(attributes);
@@ -59,6 +62,12 @@ export class ClientInputSystem extends System {
     ClientInputSchema.onAdded.forEach(behavior => {
       behavior.behavior();
     });
+
+    EngineEvents.instance.addEventListener(ClientInputSystem.EVENTS.ENABLE_INPUT, ({ keyboard, mouse }) => {
+      if(typeof keyboard !== 'undefined') ClientInputSystem.keyboardInputEnabled = keyboard;
+      if(typeof mouse !== 'undefined') ClientInputSystem.mouseInputEnabled = mouse;
+    })
+
 
     Object.keys(ClientInputSchema.eventBindings)?.forEach((eventName: string) => {
       ClientInputSchema.eventBindings[eventName].forEach((behaviorEntry: DomEventBehaviorValue) => {

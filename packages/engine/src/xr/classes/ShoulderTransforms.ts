@@ -1,5 +1,5 @@
 import { Object3D } from 'three';
-import ArmTransforms from './classes/ArmTransforms';
+import ArmTransforms from '../classes/ArmTransforms';
 import ShoulderPoser from './ShoulderPoser';
 import XRArmIK from './XRArmIK';
 

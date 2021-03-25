@@ -16,7 +16,7 @@ export class TextureLoader extends Loader {
       //@ts-ignore
       loader.setOptions( { imageOrientation: 'flipY' } );
     }
-		loader.load( url, function ( image ) {
+		loader.load( url, ( image ) => {
 			texture.image = image;
 			// JPEGs can't have an alpha channel, so memory can be saved by storing them as RGB.
 			const isJPEG = url.search( /\.jpe?g($|\?)/i ) > 0 || url.search( /^data\:image\/jpeg/ ) === 0;

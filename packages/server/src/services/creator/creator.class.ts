@@ -37,15 +37,16 @@ export class Creator extends Service {
     if (action === 'current') {
       const loggedInUser = extractLoggedInUserFromParams(params);
       if(loggedInUser?.userId){
-        let select = `SELECT creator.* `;
+        const select = `SELECT creator.*, sr.url as avatar `;
         const from = ` FROM \`creator\` as creator`;
-        let join = ` JOIN \`user\` as user ON user.id=creator.userId`;
-        let where = ` WHERE creator.userId=:userId`;      
+        const join = ` JOIN \`user\` as user ON user.id=creator.userId
+                    LEFT JOIN \`static_resource\` as sr ON sr.id=creator.avatarId` ;
+        const where = ` WHERE creator.userId=:userId`;      
 
         queryParamsReplacements.userId = loggedInUser.userId;
         const dataQuery = select + from + join + where;
 
-        let [creator] = await this.app.get('sequelizeClient').query(dataQuery,
+        const [creator] = await this.app.get('sequelizeClient').query(dataQuery,
           {
             type: QueryTypes.SELECT,
             raw: true,
@@ -58,11 +59,14 @@ export class Creator extends Service {
     }
 
     //creators list
-    const dataQuery = `SELECT *  FROM \`creator\` WHERE 1 
+    const dataQuery = `SELECT creator.*, sr.url as avatar 
+    FROM \`creator\` as creator
+    LEFT JOIN \`static_resource\` as sr ON sr.id=creator.avatarId
+    WHERE 1 
     ORDER BY createdAt DESC    
-    LIMIT :skip, :limit `
+    LIMIT :skip, :limit `;
 
-    let creators = await this.app.get('sequelizeClient').query(dataQuery,
+    const creators = await this.app.get('sequelizeClient').query(dataQuery,
       {
         type: QueryTypes.SELECT,
         raw: true,
@@ -81,8 +85,9 @@ export class Creator extends Service {
    * @author Vykliuk Tetiana
    */
     async get (id: Id, params?: Params): Promise<any> {
-      const select = `SELECT creator.* `;
-      const from = ` FROM \`creator\` as creator`;
+      const select = `SELECT creator.* , sr.url as avatar `;
+      const from = ` FROM \`creator\` as creator 
+      LEFT JOIN \`static_resource\` as sr ON sr.id=creator.avatarId`;
       const where = ` WHERE creator.id=:id`;      
 
       const queryParamsReplacements = {id} as any;      
@@ -94,15 +99,27 @@ export class Creator extends Service {
           raw: true,
           replacements: queryParamsReplacements
         });
-      return creator;
+      return {...creator, verified:!!+creator.verified};
     }
 
     async create (data: any,  params?: Params): Promise<any> {
-      const {creator:creatorModel} = this.app.get('sequelizeClient').models;
+      //common  - TODO -move somewhere
       const loggedInUser = extractLoggedInUserFromParams(params);
-      data.userId = loggedInUser.userId;
-      const creator =  await creatorModel.create(data);
-      return  creator;
+      const creatorQuery = `SELECT id  FROM \`creator\` WHERE userId=:userId`;
+      let [creator] = await this.app.get('sequelizeClient').query(creatorQuery,
+        {
+          type: QueryTypes.SELECT,
+          raw: true,
+          replacements: {userId:loggedInUser.userId}
+        });   
+        const creatorId = creator?.id;
+
+      if(!creatorId){
+        const {creator:creatorModel} = this.app.get('sequelizeClient').models;
+        data.userId = loggedInUser.userId;
+        creator =  await creatorModel.create(data);
+      }
+      return creator;
     }
 
       /**

@@ -7,13 +7,16 @@ import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
 
-import styles from './User.module.scss';
+import styles from './CreatorForm.module.scss';
 import AccountCircle from '@material-ui/icons/AccountCircle';
 import AlternateEmailIcon from '@material-ui/icons/AlternateEmail';
 import MailOutlineIcon from '@material-ui/icons/MailOutline';
 import EditIcon from '@material-ui/icons/Edit';
 import LinkIcon from '@material-ui/icons/Link';
 import SubjectIcon from '@material-ui/icons/Subject';
+import TwitterIcon from '@material-ui/icons/Twitter';
+import InstagramIcon from '@material-ui/icons/Instagram';
+import TitleIcon from '@material-ui/icons/Title';
 
 import TextField from '@material-ui/core/TextField';
 import { selectCreatorsState } from '../../../redux/creator/selector';
@@ -34,7 +37,7 @@ const mapStateToProps = (state: any): any => {
     updateCreator?: typeof updateCreator;
   }
   
-const User = ({creatorsState, updateCreator}:Props) => {
+const CreatorForm = ({creatorsState, updateCreator}:Props) => {
     const [creator, setCreator] = useState(creatorsState && creatorsState.get('currentCreator')); 
     const handleUpdateUser = (e:any) =>{
         e.preventDefault();
@@ -85,10 +88,22 @@ const User = ({creatorsState, updateCreator}:Props) => {
                     <SubjectIcon className={styles.fieldLabelIcon} />
                     <TextField className={styles.textFieldContainer} onChange={(e)=>setCreator({...creator, bio: e.target.value})} fullWidth multiline id="bio" placeholder="More about you" value={creator.bio} />
                 </div>    
-                <br />
-                <br />
-                <br />
-                <br />
+                <div className={styles.formLine}>
+                    <TwitterIcon className={styles.fieldLabelIcon} />
+                    <TextField className={styles.textFieldContainer} onChange={(e)=>setCreator({...creator, twitter: e.target.value})} fullWidth id="twitter" placeholder="twitter" value={creator.twitter} />
+                </div> 
+                <div className={styles.formLine}>
+                    <InstagramIcon className={styles.fieldLabelIcon} />
+                    <TextField className={styles.textFieldContainer} onChange={(e)=>setCreator({...creator, instagram: e.target.value})} fullWidth id="instagram" placeholder="instagram" value={creator.instagram} />
+                </div> 
+                <div className={styles.formLine}>
+                    <TitleIcon className={styles.fieldLabelIcon} />
+                    <TextField className={styles.textFieldContainer} onChange={(e)=>setCreator({...creator, tiktok: e.target.value})} fullWidth id="tiktok" placeholder="tiktok" value={creator.tiktok} />
+                </div> 
+                <div className={styles.formLine}>
+                    <InstagramIcon className={styles.fieldLabelIcon} />
+                    <TextField className={styles.textFieldContainer} onChange={(e)=>setCreator({...creator, instagram: e.target.value})} fullWidth id="instagram" placeholder="instagram" value={creator.instagram} />
+                </div>   
                 <br />
                 <Button className={styles.logOutButton} variant="contained" color="primary">Sign-out</Button>
             </section>    
@@ -96,4 +111,4 @@ const User = ({creatorsState, updateCreator}:Props) => {
     </section>
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(User);
+export default connect(mapStateToProps, mapDispatchToProps)(CreatorForm);

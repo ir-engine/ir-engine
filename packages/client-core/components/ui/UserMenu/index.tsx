@@ -2,13 +2,18 @@ import LinkIcon from '@material-ui/icons/Link';
 import PersonIcon from '@material-ui/icons/Person';
 import SettingsIcon from '@material-ui/icons/Settings';
 import ClickAwayListener from '@material-ui/core/ClickAwayListener';
-import { Network } from '@xr3ngine/engine/src/networking/classes/Network';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 import { selectAppOnBoardingStep } from '../../../redux/app/selector';
 import { selectAuthState } from '../../../redux/auth/selector';
-import { logoutUser, removeUser, updateUserAvatarId, updateUsername, updateUserSettings, addConnectionByEmail, addConnectionBySms, loginUserByOAuth, uploadAvatarModel, fetchAvatarList } from '../../../redux/auth/service';
+import {
+  updateUserAvatarId,
+  updateUserSettings,
+  uploadAvatarModel,
+  fetchAvatarList,
+  removeAvatar,
+} from '../../../redux/auth/service';
 import { alertSuccess } from '../../../redux/alert/service';
 import { provisionInstanceServer } from "../../../redux/instanceConnection/service";
 import { Views, UserMenuProps } from './util';
@@ -21,9 +26,11 @@ import ShareMenu from './menus/ShareMenu';
 import AvatarSelectMenu from './menus/AvatarSelectMenu';
 import { WebGLRendererSystem } from '@xr3ngine/engine/src/renderer/WebGLRendererSystem';
 import { EngineEvents } from '@xr3ngine/engine/src/ecs/classes/EngineEvents';
+import { ClientInputSystem } from '@xr3ngine/engine/src/input/systems/ClientInputSystem';
 
 type StateType = {
   currentActiveMenu: any;
+  profileMenuOpen: boolean;
   username: any;
   userSetting: any;
   graphics: any;
@@ -37,28 +44,31 @@ const mapStateToProps = (state: any): any => {
 };
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  updateUsername: bindActionCreators(updateUsername, dispatch),
   updateUserAvatarId: bindActionCreators(updateUserAvatarId, dispatch),
   updateUserSettings: bindActionCreators(updateUserSettings, dispatch),
   alertSuccess: bindActionCreators(alertSuccess, dispatch),
   provisionInstanceServer: bindActionCreators(provisionInstanceServer, dispatch),
-  loginUserByOAuth: bindActionCreators(loginUserByOAuth, dispatch),
-  addConnectionBySms: bindActionCreators(addConnectionBySms, dispatch),
-  addConnectionByEmail: bindActionCreators(addConnectionByEmail, dispatch),
-  logoutUser: bindActionCreators(logoutUser, dispatch),
-  removeUser: bindActionCreators(removeUser, dispatch),
   uploadAvatarModel: bindActionCreators(uploadAvatarModel, dispatch),
   fetchAvatarList: bindActionCreators(fetchAvatarList, dispatch),
+  removeAvatar: bindActionCreators(removeAvatar, dispatch),
 });
 
-class UserMenu extends React.Component<UserMenuProps, StateType> {
-  menus = [
+const UserMenu = (props: UserMenuProps): any => {
+  const {
+    authState,
+    updateUserAvatarId,
+    alertSuccess,
+    uploadAvatarModel,
+    fetchAvatarList,
+  } = props;
+
+  const menus = [
     { id: Views.Profile, iconNode: PersonIcon },
     { id: Views.Settings, iconNode: SettingsIcon },
     { id: Views.Share, iconNode: LinkIcon },
   ];
 
-  menuPanel = {
+  const menuPanel = {
     [Views.Profile]: ProfileMenu,
     [Views.Settings]: SettingMenu,
     [Views.Share]: ShareMenu,
@@ -66,192 +76,136 @@ class UserMenu extends React.Component<UserMenuProps, StateType> {
     [Views.AvatarUpload]: AvatarSelectMenu,
   };
 
-  selfUser = this.props.authState.get('user') || {};
-  avatarList = this.props.authState.get('avatarList') || [];
-  prevPropUsername = '';
+  const selfUser = authState.get('user') || {};
+  const avatarList = authState.get('avatarList') || [];
+  const prevPropUsername = '';
 
-  constructor(props) {
-    super(props);
+  const [currentActiveMenu, setCurrentActiveMenu] = useState({} as any);
+  const [actorEntityID, setActorEntityID] = useState(null);
 
-    this.state = {
-      currentActiveMenu: {} as any,
-      username: '',
-      userSetting: {},
-      graphics: {
-        resolution: WebGLRendererSystem.scaleFactor,
-        shadows: WebGLRendererSystem.shadowQuality,
-        automatic: WebGLRendererSystem.automatic,
-        pbr: WebGLRendererSystem.usePBR,
-        postProcessing: WebGLRendererSystem.usePostProcessing,
-      }
-    }
+  const [username, setUsername] = useState(selfUser?.name);
+  const [userSetting, setUserSetting] = useState(selfUser?.user_setting);
+  const [graphics, setGraphicsSetting] = useState({
+    resolution: WebGLRendererSystem.scaleFactor,
+    shadows: WebGLRendererSystem.shadowQuality,
+    automatic: WebGLRendererSystem.automatic,
+    pbr: WebGLRendererSystem.usePBR,
+    postProcessing: WebGLRendererSystem.usePostProcessing,
+  });
+  
+  const onEngineLoaded = () => {
+    EngineEvents.instance?.addEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD, graphicsSettingsLoaded);
+    document.removeEventListener('ENGINE_LOADED', onEngineLoaded);
+  }
+  document.addEventListener('ENGINE_LOADED', onEngineLoaded);
 
-    document.addEventListener('ENGINE_LOADED', this.onEngineLoaded);
+  // EngineEvents.instance?.removeEventListener(WebGLRendererSystem.EVENTS.QUALITY_CHANGED, this.setGraphicsSettings);
+
+  const graphicsSettingsLoaded = () => {
+    EngineEvents.instance?.addEventListener(WebGLRendererSystem.EVENTS.QUALITY_CHANGED, updateGraphicsSettings);
+    EngineEvents.instance?.removeEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD, graphicsSettingsLoaded);
   }
 
-  static getDerivedStateFromProps(props, state) {
-    const sf = props.authState.get('user');
-    if (!sf) return null;
-
-    if (state.prevPropUsername !== sf.name ) {
-      return { username: sf.name, prevPropUsername: sf.name };
-    } else if (sf.user_setting !== state.userSetting) {
-      return {
-        userSetting: sf.user_setting
-      }
-    }
-    // else if (state.waitingForLogout === true &&
-    //   props.authState.get('authUser') != null &&
-    //   props.authState.get('user') != null &&
-    //   props.authState.get('user').userRole === 'guest') {
-    //   setWaitingForLogout(false);
-    //   location.reload();
-    // }
-
-    return null;
-  }
-
-  componentWillUnmount() {
-    EngineEvents.instance?.removeEventListener(WebGLRendererSystem.EVENTS.QUALITY_CHANGED, this.setGraphicsSettings);
-  }
-
-  onEngineLoaded = () => {
-    EngineEvents.instance?.addEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD, this.graphicsSettingsLoaded);
-    document.removeEventListener('ENGINE_LOADED', this.onEngineLoaded);
-  }
-
-  graphicsSettingsLoaded = () => {
-    EngineEvents.instance?.addEventListener(WebGLRendererSystem.EVENTS.QUALITY_CHANGED, this.setGraphicsSettings);
-    EngineEvents.instance?.removeEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD, this.graphicsSettingsLoaded);
-  }
-
-  setUsername = (username) => {
-    this.setState({ username })
-  }
-
-  handleUpdateUsername = () => {
-    const name = this.state.username.trim();
-    if (!name) return;
-    if (this.selfUser.name.trim() !== name) {
-      this.props.updateUsername(this.selfUser.id, name);
-    }
-  };
-
-  setAvatar = (avatarId: string, avatarURL: string, thumbnailURL: string) => {
-    if (this.selfUser) {
-      this.props.updateUserAvatarId(this.selfUser.id, avatarId, avatarURL, thumbnailURL);
+  const setAvatar = (avatarId: string, avatarURL: string, thumbnailURL: string) => {
+    if (selfUser) {
+      updateUserAvatarId(selfUser.id, avatarId, avatarURL, thumbnailURL);
     }
   }
 
-  setUserSettings = (newSetting: any): void => {
-    const setting = { ...this.state.userSetting, ...newSetting };
-
-    this.setState({ userSetting: setting });
-    this.props.updateUserSettings(this.selfUser.user_setting.id, setting);
+  const setUserSettings = (newSetting: any): void => {
+    const setting = { ...userSetting, ...newSetting };
+    setUserSetting(setting)
+    updateUserSettings(selfUser.user_setting.id, setting);
   }
 
-  setGraphicsSettings = (newSetting: any): void => {
-    const setting = { ...this.state.graphics, ...newSetting };
+  const updateGraphicsSettings = (newSetting: any): void => {
+    const setting = { ...graphics, ...newSetting };
 
-    this.setState({ graphics: setting });
+    setGraphicsSetting(setting);
   }
 
-  setActiveMenu = (e): void => {
+  const setActiveMenu = (e): void => {
     const identity = e.currentTarget.id.split('_');
-    this.setState({ 
-      currentActiveMenu: this.state.currentActiveMenu && this.state.currentActiveMenu.id === identity[0]
-          ? null
-          : this.menus[identity[1]]
-    });
+    const enabled = Boolean(currentActiveMenu && currentActiveMenu.id === identity[0])
+    setCurrentActiveMenu(enabled ? null : menus[identity[1]]);
+    EngineEvents.instance.dispatchEvent({ type: ClientInputSystem.EVENTS.ENABLE_INPUT, mouse: enabled, keyboard: enabled })
   }
 
-  changeActiveMenu = (menu) => {
-    this.setState({ currentActiveMenu: menu ? { id: menu } : null });
+  const changeActiveMenu = (menu) => {
+    setCurrentActiveMenu(menu ? { id: menu } : null);
+    const enabled = Boolean(menu)
+    EngineEvents.instance.dispatchEvent({ type: ClientInputSystem.EVENTS.ENABLE_INPUT, mouse: !enabled, keyboard: !enabled })
   }
 
-  renderMenuPanel = () => {
-    if (!this.state.currentActiveMenu) return null;
+  const renderMenuPanel = () => {
+    if (!currentActiveMenu) return null;
 
     let args = {};
-    switch (this.state.currentActiveMenu.id) {
+    switch (currentActiveMenu.id) {
       case Views.Profile:
         args = {
-          username: this.state.username,
-          userRole: this.selfUser?.userRole,
-          userId: this.selfUser?.id,
-          setUsername: this.setUsername,
-          updateUsername: this.handleUpdateUsername,
-          changeActiveMenu: this.changeActiveMenu,
-          logoutUser: this.props.logoutUser,
-          removeUser: this.props.removeUser,
-          loginUserByOAuth: this.props.loginUserByOAuth,
-          addConnectionByEmail: this.props.addConnectionByEmail,
-          addConnectionBySms: this.props.addConnectionBySms,
-          Network,
+          changeActiveMenu: changeActiveMenu,
         };
         break;
       case Views.Avatar:
         args = {
-          setAvatar: this.setAvatar,
-          changeActiveMenu: this.changeActiveMenu,
-          fetchAvatarList: this.props.fetchAvatarList,
-          avatarList: this.avatarList,
-          avatarId: this.selfUser?.avatarId,
+          setAvatar: setAvatar,
+          changeActiveMenu: changeActiveMenu,
+          removeAvatar: removeAvatar,
+          fetchAvatarList: fetchAvatarList,
+          avatarList: avatarList,
+          avatarId: selfUser?.avatarId,
         };
         break;
       case Views.Settings:
         args = {
-          setting: this.state.userSetting,
-          setUserSettings: this.setUserSettings,
-          graphics: this.state.graphics,
-          setGraphicsSettings: this.setGraphicsSettings,
+          setting: userSetting,
+          setUserSettings: setUserSettings,
+          graphics: graphics,
+          setGraphicsSettings: updateGraphicsSettings,
         };
         break;
       case Views.Share:
-        args = { alertSuccess: this.props.alertSuccess };
+        args = { alertSuccess: alertSuccess };
         break;
       case Views.AvatarUpload:
         args = {
-          userId: this.selfUser?.id,
-          changeActiveMenu: this.changeActiveMenu,
-          uploadAvatarModel: this.props.uploadAvatarModel,
+          userId: selfUser?.id,
+          changeActiveMenu: changeActiveMenu,
+          uploadAvatarModel: uploadAvatarModel,
         };
         break;
       default: return null;
     }
 
-    const Panel = this.menuPanel[this.state.currentActiveMenu.id];
+    const Panel = menuPanel[currentActiveMenu.id];
 
     return <Panel {...args} />
   };
 
-  render () {
-    this.selfUser = this.props.authState.get('user') || {};
-    this.avatarList = this.props.authState.get('avatarList') || [];
-    return (
-      <ClickAwayListener onClickAway={() => this.setState({ currentActiveMenu: null })}>
-        <section className={styles.settingContainer}>
-          <div className={styles.iconContainer}>
-            {this.menus.map((menu, index) => {
-              return (
-                <span
-                  key={index}
-                  id={menu.id + '_' + index}
-                  onClick={this.setActiveMenu}
-                  className={`${styles.materialIconBlock} ${this.state.currentActiveMenu && this.state.currentActiveMenu.id === menu.id ? styles.activeMenu : null}`}
-                >
-                  <menu.iconNode className={styles.icon} />
-                </span>
-              )
-            })}
-          </div>
-          {this.state.currentActiveMenu
-            ? this.renderMenuPanel()
-            : null}
-        </section>
-      </ClickAwayListener>
-    );
-  }
+  return (
+    <ClickAwayListener onClickAway={() => changeActiveMenu(null)}>
+      <section className={styles.settingContainer}>
+        <div className={styles.iconContainer}>
+          {menus.map((menu, index) => {
+            return (
+              <span
+                key={index}
+                id={menu.id + '_' + index}
+                onClick={setActiveMenu}
+                className={`${styles.materialIconBlock} ${currentActiveMenu && currentActiveMenu.id === menu.id ? styles.activeMenu : null}`}
+              >
+                <menu.iconNode className={styles.icon} />
+              </span>
+            )
+          })}
+        </div>
+        {currentActiveMenu
+          ? renderMenuPanel()
+          : null}
+      </section>
+    </ClickAwayListener>
+  );
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(UserMenu);
