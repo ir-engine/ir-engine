@@ -28,8 +28,8 @@ export class User extends Service {
    */
 
   async find (params: Params): Promise<any> {
-    console.log('user find');
-    console.log(params);
+    // console.log('user find');
+    // console.log(params);
     const action = params.query?.action;
     const skip = params.query?.$skip ? params.query.$skip : 0;
     const limit = params.query?.$limit ? params.query.$limit : 10;

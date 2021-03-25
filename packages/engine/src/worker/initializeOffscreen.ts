@@ -56,6 +56,7 @@ const initializeEngineOffscreen = async ({ canvas, userArgs }, proxy: MainProxy)
 
   initialize();
   Engine.scene = new Scene();
+  Engine.publicPath = location.origin;
 
   await AnimationManager.instance.getDefaultModel()
 

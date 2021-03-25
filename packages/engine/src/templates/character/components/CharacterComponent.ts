@@ -6,6 +6,7 @@ import { CapsuleCollider } from '../../../physics/components/CapsuleCollider';
 import { VectorSpringSimulator } from '../../../physics/classes/VectorSpringSimulator';
 import { RelativeSpringSimulator } from '../../../physics/classes/SpringSimulator';
 import { RaycastResult, Vec3 } from 'cannon-es';
+import { Avatar } from '../../../xr/classes/IKAvatar';
 
 // idle|   idle  +  walk     |    walk      |    walk + run     |   run
 // 0   | > WALK_START_SPEED  | > WALK_SPEED | > RUN_START_SPEED | > RUN_SPEED
@@ -22,6 +23,7 @@ export class CharacterComponent extends Component<CharacterComponent> {
         // this.cameraMount = null;
   }
 
+  public avatarIKRig: Avatar;
 	public initialized = false;
 
 // TODO: Move these... but for now...
