@@ -39,7 +39,6 @@ interface Props{
 const Featured = ({feedsState, getFeeds, type, creatorId, creatorState, setFeedAsFeatured, setFeedNotFeatured} : Props) => { 
     let feedsList = [];
     useEffect(()=> {
-        console.log('type', type, 'creatorId', creatorId);
         if(type === 'creator' || type === 'bookmark' || type === 'myFeatured'){
             getFeeds(type, creatorId);
         }else{
@@ -67,7 +66,6 @@ const Featured = ({feedsState, getFeeds, type, creatorId, creatorState, setFeedA
         }
     }
     return <section className={styles.feedContainer}>
-
         {feedsList && feedsList.length > 0  && feedsList.map((item, itemIndex)=>
             <Card className={styles.creatorItem} elevation={0} key={itemIndex}>         
                     {renderFeaturedStar( item.id, item.creatorId, !!+item.featured)}        

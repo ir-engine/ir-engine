@@ -45,6 +45,7 @@ export class Feed extends Service {
       });  
     const creatorId = creator?.id ;
 
+    //Featured menu item
     if (action === 'featured') {
       const dataQuery = `SELECT feed.id, feed.viewsCount, sr.url as previewUrl 
         FROM \`feed\` as feed
@@ -144,7 +145,7 @@ export class Feed extends Service {
       };
     }
 
-    // regular feeds - just for followed creatos!!!!!
+    // TheFeed menu item - just for followed creatos!!!!!
     let select = `SELECT feed.*, creator.id as creatorId, creator.name as creatorName, creator.username as creatorUserName, creator.verified as creatorVerified, 
     sr3.url as avatar, COUNT(ff.id) as fires, sr1.url as videoUrl, sr2.url as previewUrl, fc.id as follow_id, fc.creatorId as fc_creatorId, 
     fc.followerId as fc_follower_id  `;
@@ -175,10 +176,6 @@ export class Feed extends Service {
         raw: true,
         replacements: queryParamsReplacements
       });
-
-      console.log('query', dataQuery)
-      console.log('queryParamsReplacements', queryParamsReplacements)
-      console.log('feeds', feeds);
 
     const data = feeds.map(feed => {
       const newFeed: FeedInterface = {

@@ -55,7 +55,6 @@ const Creator = ({creatorId, creatorState, getCreator, followCreator, unFollowCr
     if(creatorState && creatorState.get('fetching') === false){
         creator = isMe === true ? creatorState.get('currentCreator') : creatorState.get('creator');
     }
-    console.log('creator', creator);
     const [videoType, setVideoType] = useState('creator');
     const [anchorEl, setAnchorEl] = useState(null);
     const handleClick = (event) => {
@@ -124,7 +123,7 @@ const Creator = ({creatorId, creatorState, getCreator, followCreator, unFollowCr
                     <Button variant={videoType === 'creator' ? 'contained' : 'text'} color='secondary' className={styles.switchButton+(videoType === 'creator' ? ' '+styles.active : '')} onClick={()=>setVideoType('creator')}>My Videos</Button>
                     <Button variant={videoType === 'bookmark' ? 'contained' : 'text'} color='secondary' className={styles.switchButton+(videoType === 'bookmark' ? ' '+styles.active : '')} onClick={()=>setVideoType('bookmark')}>Saved Videos</Button>
             </section>}
-            {/* <section className={styles.feedsWrapper}><Featured creatorId={creator.id} type={videoType}/></section> */}
+            {creator.id && <section className={styles.feedsWrapper}><Featured creatorId={creator.id} type={videoType}/></section>}
         </section>) 
     : <></>
 };
