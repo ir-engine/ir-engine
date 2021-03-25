@@ -104,6 +104,8 @@ export interface NetworkObjectCreateInterface {
   networkId: number,
   /** Id of the owner. */
   ownerId: string,
+  /** Entity unique Id from editor scene. */
+  uniqueId: string,
   /** Type of prefab used to create this object. */
   prefabType: string | number,
   x: number,

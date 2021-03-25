@@ -1,7 +1,7 @@
 import { Euler } from 'three';
 import { FollowCameraComponent } from "@xr3ngine/engine/src/camera/components/FollowCameraComponent";
 import { Entity } from '@xr3ngine/engine/src/ecs/classes/Entity';
-import { addComponent, getComponent, getMutableComponent } from '@xr3ngine/engine/src/ecs/functions/EntityFunctions';
+import { addComponent, getComponent, removeComponent, getMutableComponent } from '@xr3ngine/engine/src/ecs/functions/EntityFunctions';
 import { LocalInputReceiver } from "@xr3ngine/engine/src/input/components/LocalInputReceiver";
 import { Network } from '@xr3ngine/engine/src/networking/classes/Network';
 import { NetworkObject } from '@xr3ngine/engine/src/networking/components/NetworkObject';
@@ -72,11 +72,13 @@ export const onAddedInCar = (entity: Entity, entityCar: Entity, seat: number, de
   // LocalPlayerOnly
   if (Network.instance.localAvatarNetworkId != networkDriverId) return;
   addComponent(entityCar, LocalInputReceiver);
-  addComponent(entityCar, FollowCameraComponent, {
+  removeComponent(entity, FollowCameraComponent);
+  addComponent(entity, FollowCameraComponent, {
     distance: 7,
     locked: false,
     mode: CameraModes.ThirdPerson,
     theta: Math.round( ( (270/Math.PI) * (orientation/3*2) ) + 180),
     phi: 20
    });
+
 };

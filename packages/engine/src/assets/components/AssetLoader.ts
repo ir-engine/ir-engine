@@ -16,7 +16,7 @@ export class AssetLoader extends Component<AssetLoader> {
   /** Class of the asset. Supported Asset classes can be found in {@link assets/enums/AssetClass.AssetClass | AssetClass}. */
   assetClass: AssetClassAlias = null
   /** the object will parse to Colliders when loading location */
-  parseColliders = true
+  dontParseModel = true
   /** Indicates whether the object will receive a shadow. */
   receiveShadow = false
   /** Indicates whether the object will cast a shadow. */
@@ -26,6 +26,8 @@ export class AssetLoader extends Component<AssetLoader> {
   append = true
   /** List of function to be called after loading is completed. */
   onLoaded: any = []
+  /** VehicleBody do not create yet, i need until i get best solution  */
+  addShapeArray: any = []
   /** Parent object. */
   parent: Object3D = null
   /** entity Id from scena loader fro editor, needs for physics sync colliders from server with models on client */
@@ -37,12 +39,13 @@ AssetLoader._schema = {
   assetClass: { default: AssetClass, type: Types.Number },
   url: { default: '', type: Types.Number },
   loaded: { default: false, type: Types.Boolean },
-  parseColliders: { default: true, type: Types.Boolean },
+  dontParseModel: { default: true, type: Types.Boolean },
   receiveShadow: { default: false, type: Types.Boolean },
   castShadow: { default: false, type: Types.Boolean },
   envMapOverride: { default: null, type: Types.Ref },
   append: { default: true, type: Types.Boolean },
   onLoaded: { default: [], type: Types.Ref },
+  addShapeArray: { default: [], type: Types.Ref },
   parent: { default: null, type: Types.Ref },
   entityIdFromScenaLoader: { default: null, type: Types.Ref }
 };
