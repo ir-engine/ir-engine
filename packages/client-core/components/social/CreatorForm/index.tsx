@@ -43,7 +43,7 @@ const CreatorForm = ({creatorsState, updateCreator}:Props) => {
         e.preventDefault();
         updateCreator(creator);
     }
-    const handlePickAvatar = async (file) => setCreator({...creator, avatar: file.target.files[0]});
+    const handlePickAvatar = async (file) => setCreator({...creator, newAvatar: file.target.files[0]});
 
     return <section className={styles.creatorContainer}>
          <form
@@ -62,7 +62,7 @@ const CreatorForm = ({creatorsState, updateCreator}:Props) => {
                 title={creator.username}
             />
             <Typography variant="h4" align="center" color="secondary" >Change Profile Image</Typography>
-            <input type="file" name="avatar" onChange={handlePickAvatar} placeholder={'Select preview'}/>
+            <input type="file" name="newAvatar" onChange={handlePickAvatar} placeholder={'Select preview'}/>
             <section className={styles.content}>
                 <div className={styles.formLine}>
                     <AccountCircle className={styles.fieldLabelIcon} />

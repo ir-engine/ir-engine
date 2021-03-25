@@ -48,17 +48,17 @@ export class Feed extends Service {
     if (action === 'featured') {
       const dataQuery = `SELECT feed.id, feed.viewsCount, sr.url as previewUrl 
         FROM \`feed\` as feed
+        JOIN \`follow_creator\` as fc ON fc.creatorId=feed.creatorId
         JOIN \`static_resource\` as sr ON sr.id=feed.previewId
-        WHERE feed.featured=1
+        WHERE feed.featured=1 AND (fc.followerId=:creatorId OR feed.creatorId=:creatorId)
         ORDER BY feed.createdAt DESC    
-        LIMIT :skip, :limit 
-        `;
+        LIMIT :skip, :limit `;
       
       const feeds = await this.app.get('sequelizeClient').query(dataQuery,
         {
           type: QueryTypes.SELECT,
           raw: true,
-          replacements: queryParamsReplacements
+          replacements: {...queryParamsReplacements, creatorId}
         });
 
       return {
@@ -78,7 +78,7 @@ export class Feed extends Service {
         LIMIT :skip, :limit 
         `;
       
-      queryParamsReplacements.creatorId = creatorId;
+      queryParamsReplacements.creatorId =  params.query?.creatorId ? params.query.creatorId : creatorId;
       const feeds = await this.app.get('sequelizeClient').query(dataQuery,
         {
           type: QueryTypes.SELECT,
@@ -144,17 +144,19 @@ export class Feed extends Service {
       };
     }
 
-    // regular feeds
+    // regular feeds - just for followed creatos!!!!!
     let select = `SELECT feed.*, creator.id as creatorId, creator.name as creatorName, creator.username as creatorUserName, creator.verified as creatorVerified, 
-    sr3.url as avatar, COUNT(ff.id) as fires, sr1.url as videoUrl, sr2.url as previewUrl `;
+    sr3.url as avatar, COUNT(ff.id) as fires, sr1.url as videoUrl, sr2.url as previewUrl, fc.id as follow_id, fc.creatorId as fc_creatorId, 
+    fc.followerId as fc_follower_id  `;
     const from = ` FROM \`feed\` as feed`;
     let join = ` JOIN \`creator\` as creator ON creator.id=feed.creatorId
+                  LEFT JOIN \`follow_creator\` as fc ON fc.creatorId=feed.creatorId 
                   LEFT JOIN \`feed_fires\` as ff ON ff.feedId=feed.id 
                   JOIN \`static_resource\` as sr1 ON sr1.id=feed.videoId
                   JOIN \`static_resource\` as sr2 ON sr2.id=feed.previewId
                   LEFT JOIN \`static_resource\` as sr3 ON sr3.id=creator.avatarId
                   `;
-    const where = ` WHERE 1`;
+    const where = ` WHERE fc.followerId=:creatorId OR feed.creatorId=:creatorId`;
     const order = ` GROUP BY feed.id
     ORDER BY feed.createdAt DESC    
     LIMIT :skip, :limit `;
@@ -173,6 +175,10 @@ export class Feed extends Service {
         raw: true,
         replacements: queryParamsReplacements
       });
+
+      console.log('query', dataQuery)
+      console.log('queryParamsReplacements', queryParamsReplacements)
+      console.log('feeds', feeds);
 
     const data = feeds.map(feed => {
       const newFeed: FeedInterface = {

@@ -39,12 +39,13 @@ interface Props{
 const Featured = ({feedsState, getFeeds, type, creatorId, creatorState, setFeedAsFeatured, setFeedNotFeatured} : Props) => { 
     let feedsList = [];
     useEffect(()=> {
+        console.log('type', type, 'creatorId', creatorId);
         if(type === 'creator' || type === 'bookmark' || type === 'myFeatured'){
             getFeeds(type, creatorId);
         }else{
             getFeeds('featured');
         }
-    }, [type]);
+    }, [type, creatorId]);
     if(feedsState.get('fetching') === false){
        if(type === 'creator'){
             feedsList = feedsState?.get('feedsCreator');

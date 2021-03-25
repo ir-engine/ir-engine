@@ -30,7 +30,7 @@ const immutableState = Immutable.fromJS(initialState);
 
 const creatorReducer = (state = immutableState, action: CreatorsAction): any => {
   switch (action.type) {
-    case CREATOR_FETCH : return state.set('fetching', true);
+    case CREATOR_FETCH : return state.set('fetching', true).set('creators',[]).set('creator',{});
 
     case CREATORS_RETRIEVED:
       return state.set('creators', (action as CreatorsRetrievedAction).creators).set('fetching', false);
