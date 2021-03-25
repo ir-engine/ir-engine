@@ -1,11 +1,12 @@
 import { LifecycleValue } from "@xr3ngine/engine/src/common/enums/LifecycleValue";
 import { isClient } from "@xr3ngine/engine/src/common/functions/isClient";
+import { Entity } from '../../../ecs/classes/Entity';
 import { Behavior } from "@xr3ngine/engine/src/common/interfaces/Behavior";
 import { addObject3DComponent } from "@xr3ngine/engine/src/scene/behaviors/addObject3DComponent";
 import { initializeNetworkObject } from '../../../networking/functions/initializeNetworkObject'
 import { Network } from '../../../networking/classes/Network';
 import { Vec3 } from "cannon-es";
-import { AnimationClip, AnimationMixer, BoxGeometry, Group, Material, Mesh, MeshLambertMaterial, Vector3 } from "three";
+import { AnimationClip, AnimationMixer, BoxGeometry, Group, Material, Mesh, MeshLambertMaterial, Quaternion, Vector3 } from "three";
 import { AssetLoader } from "../../../assets/components/AssetLoader";
 import { AssetLoaderState } from "../../../assets/components/AssetLoaderState";
 import { PositionalAudioComponent } from '../../../audio/components/PositionalAudioComponent';
@@ -27,29 +28,6 @@ import TeleportToSpawnPoint from '../../../scene/components/TeleportToSpawnPoint
 import { setState } from "../../../state/behaviors/setState";
 import { State } from '../../../state/components/State';
 import { TransformComponent } from '../../../transform/components/TransformComponent';
-<<<<<<< HEAD
-import { PrefabType } from "@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema";
-import skeletonString from "../../../xr/Skeleton";
-import {
-	copySkeleton,
-	countCharacters,
-	findArmature,
-	findClosestParentBone,
-	findEye,
-	findFurthestParentBone,
-	findHand,
-	findHead,
-	findHips,
-	findShoulder,
-	findSpine,
-	getTailBones,
-	importSkeleton
-} from "../../../xr/functions/AvatarFunctions";
-import XRPose from "../../../xr/classes/XRPose";
-import ShoulderTransforms from "../../../xr/ShoulderTransforms";
-import { fixSkeletonZForward } from "../../../xr/SkeletonUtils";
-=======
->>>>>>> 261c72dac32eaf68c26d323a6cc75d0ce04f1185
 import { CharacterInputSchema } from '../CharacterInputSchema';
 import { CharacterStateSchema } from '../CharacterStateSchema';
 import { CharacterStateTypes } from "../CharacterStateTypes";
@@ -57,6 +35,7 @@ import { CharacterComponent } from '../components/CharacterComponent';
 import { NamePlateComponent } from '../components/NamePlateComponent';
 import { getLoader } from "../../../assets/functions/LoadGLTF";
 import { Engine } from "../../../ecs/classes/Engine";
+import { PrefabType } from "@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema";
 import { initiateIKSystem } from "../../../xr/functions/initiateIKSystem";
 
 

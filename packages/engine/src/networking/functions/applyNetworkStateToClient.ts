@@ -23,7 +23,7 @@ import { BaseInput } from "../../input/enums/BaseInput";
 import { InterpolationComponent } from "../../physics/components/InterpolationComponent";
 import { TransformComponent } from '../../transform/components/TransformComponent';
 import { createNetworkPlayer } from '@xr3ngine/engine/src/templates/character/prefabs/NetworkPlayerCharacter';
-import { createNetworkRigidBody } from '@xr3ngine/engine/src/templates/interactive/prefabs/NetworkRigidBody';
+import { createNetworkRigidBody } from '@xr3ngine/engine/src/interaction/prefabs/NetworkRigidBody';
 import { createNetworkVehicle } from '@xr3ngine/engine/src/templates/vehicle/prefabs/NetworkVehicle';
 
 /**

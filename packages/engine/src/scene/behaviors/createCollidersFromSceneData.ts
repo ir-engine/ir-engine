@@ -7,7 +7,7 @@ import { ColliderComponent } from '../../physics/components/ColliderComponent';
 import { RigidBody } from '../../physics/components/RigidBody';
 import { addColliderWithoutEntity } from '../../physics/behaviors/addColliderWithoutEntity';
 import { Network } from '../../networking/classes/Network';
-import { createNetworkRigidBody } from '@xr3ngine/engine/src/templates/interactive/prefabs/NetworkRigidBody';
+import { createNetworkRigidBody } from '@xr3ngine/engine/src/interaction/prefabs/NetworkRigidBody';
 import { addCollidersToNetworkVehicle } from '@xr3ngine/engine/src/templates/vehicle/prefabs/NetworkVehicle';
 
 export const createCollidersFromSceneData: Behavior = ( entity: Entity, args: any ) => { //{ data:string, type: string,}
