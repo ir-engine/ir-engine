@@ -185,7 +185,8 @@ export default class ModelNode extends EditorNodeMixin(Model) {
       }
       console.error(modelError);
       this.issues.push({ severity: "error", message: "Error loading model." });
-      this._canonicalUrl = "";
+      if(this._canonicalUrl!="")
+        this._canonicalUrl += "   **Error in URL**";
     }
     this.editor.emit("objectsChanged", [this]);
     this.editor.emit("selectionChanged");
