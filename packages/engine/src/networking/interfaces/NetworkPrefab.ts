@@ -15,6 +15,8 @@ interface NetworkComponentInterface {
 
 /** Interface for Network prefab. */
 export interface NetworkPrefab extends Prefab {
+  /** List of only client components. */
+  clientComponents: Array<NetworkComponentInterface>;
   /** List of network components. */
   networkComponents: Array<NetworkComponentInterface>;
   /** List of server components. */
