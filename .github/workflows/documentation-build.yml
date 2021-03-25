@@ -24,6 +24,7 @@ jobs:
           else
           npm i
           fi
+          cd packages/docs
           npm run build
   gh-release:
     if: github.event_name != 'pull_request'
@@ -50,4 +51,5 @@ jobs:
           else
           npm i
           fi
+          cd packages/docs
           npm run deploy
