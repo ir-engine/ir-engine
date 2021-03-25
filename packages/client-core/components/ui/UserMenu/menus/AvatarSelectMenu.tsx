@@ -162,6 +162,15 @@ export default class AvatarSelectMenu extends React.Component<Props, State> {
 		const size = new THREE.Vector3().subVectors(this.maxBB, objBoundingBox.getSize(new THREE.Vector3()));
 		if (size.x <= 0 || size.y <= 0 || size.z <= 0) return 'Object is out of bound.';
 
+		let bone = false;
+		let skinnedMesh = false;
+		scene.traverse(o => {
+			if (o.type.toLowerCase() === 'bone') bone = true;
+			if (o.type.toLowerCase() === 'skinnedmesh') skinnedMesh = true;
+		})
+
+		if (!bone || !skinnedMesh) return 'Obejct does not contain any bones or skin';
+
 		return '';
 	}
 
