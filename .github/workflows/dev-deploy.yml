@@ -2,7 +2,7 @@ name: workflow
 on:
   push:
     branches:
-      dev
+      [dev]
 jobs:
   dev-deploy:
     runs-on: ubuntu-latest

@@ -2,13 +2,13 @@
 module.exports = {
   title: 'My Site',
   tagline: 'The tagline of my site',
-  url: 'https://your-docusaurus-test-site.com',
-  baseUrl: '/',
+  url: 'https://xr3ngine.github.io',
+  baseUrl: '/xr3ngine',
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
   favicon: 'img/favicon.ico',
-  organizationName: 'facebook', // Usually your GitHub org/user name.
-  projectName: 'docusaurus', // Usually your repo name.
+  organizationName: 'xr3ngine', // Usually your GitHub org/user name.
+  projectName: 'xr3ngine', // Usually your repo name.
   plugins: [
     [
       'docusaurus-plugin-typedoc',
