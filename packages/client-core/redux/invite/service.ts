@@ -23,49 +23,71 @@ import {User} from "@xr3ngine/common/interfaces/User";
 const emailRegex = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/;
 const phoneRegex = /^[0-9]{10}$/;
 const userIdRegex = /^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$/;
+const inviteCodeRegex = /^[0-9a-fA-F]{8}$/;
 
 export function sendInvite (data: any) {
   return async (dispatch: Dispatch, getState: any) => {
-    let send = true;
-
     if (data.identityProviderType === 'email') {
       if (emailRegex.test(data.token) !== true) {
         dispatchAlertError(dispatch, 'Invalid email address');
-        send = false;
+        return;
       }
     }
     if (data.identityProviderType === 'sms') {
       if (phoneRegex.test(data.token) !== true) {
         dispatchAlertError(dispatch, 'Invalid 10-digit US phone number');
-        send = false;
+        return;
+      }
+    }
+    if (data.inviteCode != null) {
+      if (inviteCodeRegex.test(data.inviteCode) !== true) {
+        dispatchAlertError(dispatch, 'Invalid Invite Code');
+        return;
+      } else {
+        const userResult = await client.service('user').find({
+          query: {
+            action: 'invite-code-lookup',
+            inviteCode: data.inviteCode
+          }
+        });
+        if (userResult.errors || userResult.code) {
+          dispatchAlertError(dispatch, userResult.message);
+          return;
+        }
+
+        if (userResult.total === 0) {
+          dispatchAlertError(dispatch, 'No user has that invite code');
+          return;
+        } else {
+          data.invitee = userResult.data[0].id
+        }
       }
     }
     if (data.invitee != null) {
       if (userIdRegex.test(data.invitee) !== true) {
         dispatchAlertError(dispatch, 'Invalid user ID');
-        send = false;
+        return;
       }
     }
     if ((data.token == null || data.token.length === 0) && (data.invitee == null || data.invitee.length === 0)) {
       dispatchAlertError(dispatch, `Not a valid recipient`);
-      send = false;
+      return;
     }
 
-    if (send === true) {
-      try {
-        const inviteResult = await client.service('invite').create({
-          inviteType: data.type,
-          token: data.token,
-          targetObjectId: data.targetObjectId,
-          identityProviderType: data.identityProviderType,
-          inviteeId: data.invitee
-        });
-        dispatchAlertSuccess(dispatch, 'Invite Sent');
-        dispatch(sentInvite(inviteResult));
-      } catch (err) {
-        console.log(err);
-        dispatchAlertError(dispatch, err.message);
-      }
+    try {
+      const inviteResult = await client.service('invite').create({
+        inviteType: data.type,
+        token: data.token,
+        inviteCode: data.inviteCode,
+        targetObjectId: data.targetObjectId,
+        identityProviderType: data.identityProviderType,
+        inviteeId: data.invitee
+      });
+      dispatchAlertSuccess(dispatch, 'Invite Sent');
+      dispatch(sentInvite(inviteResult));
+    } catch (err) {
+      console.log(err);
+      dispatchAlertError(dispatch, err.message);
     }
   };
 }
