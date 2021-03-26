@@ -1,3 +1,5 @@
+import { Engine } from '@xr3ngine/engine/src/ecs/classes/Engine';
+import { EngineEvents } from '@xr3ngine/engine/src/ecs/classes/EngineEvents';
 import { Entity } from '@xr3ngine/engine/src/ecs/classes/Entity';
 import { getComponent, removeEntity } from "@xr3ngine/engine/src/ecs/functions/EntityFunctions";
 import { Network } from "@xr3ngine/engine/src/networking//classes/Network";
@@ -176,6 +178,15 @@ export function validateNetworkObjects(): void {
 
 
 export async function handleConnectToWorld(socket, data, callback, userId, user, avatarDetail): Promise<any> {
+  if(!Engine.sceneLoaded) {
+    await new Promise<void>((resolve) => {
+      const onSceneLoaded = (): void => {
+        EngineEvents.instance.removeEventListener(EngineEvents.EVENTS.SCENE_LOADED, onSceneLoaded);
+        resolve();
+      };
+      EngineEvents.instance.addEventListener(EngineEvents.EVENTS.SCENE_LOADED, onSceneLoaded);
+    });
+  }
     const transport = Network.instance.transport as any;
 
     console.log('Connect to world from ' + userId);
