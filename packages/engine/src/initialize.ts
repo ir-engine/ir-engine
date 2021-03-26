@@ -137,12 +137,10 @@ export const initializeEngine = async (initOptions: any = DefaultInitializationO
   }
   document.addEventListener(engageType, onUserEngage);
 
-  const connectNetworkEvent = ({ id }) => {
+  EngineEvents.instance.once(ClientNetworkSystem.EVENTS.CONNECT, ({ id }) => {
     Network.instance.isInitialized = true;
     Network.instance.userId = id;
-    EngineEvents.instance.removeEventListener(ClientNetworkSystem.EVENTS.CONNECT, connectNetworkEvent)
-  }
-  EngineEvents.instance.addEventListener(ClientNetworkSystem.EVENTS.CONNECT, connectNetworkEvent)
+  })
 }
 
 export const initializeServer = async (initOptions: any = DefaultInitializationOptions): Promise<void> => {

@@ -180,11 +180,7 @@ export function validateNetworkObjects(): void {
 export async function handleConnectToWorld(socket, data, callback, userId, user, avatarDetail): Promise<any> {
   if(!Engine.sceneLoaded) {
     await new Promise<void>((resolve) => {
-      const onSceneLoaded = (): void => {
-        EngineEvents.instance.removeEventListener(EngineEvents.EVENTS.SCENE_LOADED, onSceneLoaded);
-        resolve();
-      };
-      EngineEvents.instance.addEventListener(EngineEvents.EVENTS.SCENE_LOADED, onSceneLoaded);
+      EngineEvents.instance.once(EngineEvents.EVENTS.SCENE_LOADED, resolve);
     });
   }
     const transport = Network.instance.transport as any;

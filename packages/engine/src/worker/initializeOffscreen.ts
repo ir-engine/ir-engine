@@ -98,12 +98,10 @@ const initializeEngineOffscreen = async ({ canvas, userArgs }, proxy: MainProxy)
     update: (delta, elapsedTime) => execute(delta, elapsedTime, SystemUpdateType.Free)
   }, Engine.physicsFrameRate, Engine.networkFramerate).start();
 
-  const connectNetworkEvent = ({ id }) => {
+  EngineEvents.instance.once(ClientNetworkSystem.EVENTS.CONNECT, ({ id }) => {
     Network.instance.isInitialized = true;
     Network.instance.userId = id;
-    EngineEvents.instance.removeEventListener(ClientNetworkSystem.EVENTS.CONNECT, connectNetworkEvent)
-  }
-  EngineEvents.instance.addEventListener(ClientNetworkSystem.EVENTS.CONNECT, connectNetworkEvent)
+  })
 
 }
 

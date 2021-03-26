@@ -45,56 +45,45 @@ export class EngineEvents extends EventDispatcher {
 
 export const addIncomingEvents = () => {
 
-  const doLoadScene = ({ sceneData }) => {
-    loadScene(sceneData);
-    EngineEvents.instance.removeEventListener(EngineEvents.EVENTS.LOAD_SCENE, doLoadScene)
-  }
-  EngineEvents.instance.addEventListener(EngineEvents.EVENTS.LOAD_SCENE, doLoadScene)
-
-  const onWorldJoined = (ev: any) => {
-    applyNetworkStateToClient(ev.worldState);
+  // INITIALIZATION
+  EngineEvents.instance.once(EngineEvents.EVENTS.LOAD_SCENE, ({ sceneData }) => { loadScene(sceneData); })
+  EngineEvents.instance.once(EngineEvents.EVENTS.USER_ENGAGE, () => { Engine.hasUserEngaged = true; });
+  EngineEvents.instance.once(EngineEvents.EVENTS.CONNECT_TO_WORLD, ({ worldState }) => { applyNetworkStateToClient(worldState) });
+  EngineEvents.instance.once(EngineEvents.EVENTS.JOINED_WORLD, ({ worldState }) => {
+    applyNetworkStateToClient(worldState);
     EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENABLE_SCENE, enable: true });
-    EngineEvents.instance.removeEventListener(EngineEvents.EVENTS.JOINED_WORLD, onWorldJoined);
-  }
-  EngineEvents.instance.addEventListener(EngineEvents.EVENTS.JOINED_WORLD, onWorldJoined)
-
-  EngineEvents.instance.addEventListener(ClientNetworkSystem.EVENTS.RECEIVE_DATA, (ev: any) => {
-    applyNetworkStateToClient(ev.unbufferedState, ev.delta);
   })
-  EngineEvents.instance.addEventListener(EngineEvents.EVENTS.LOAD_AVATAR, (ev) => {
-    const entity = getEntityByID(ev.entityID)
+
+  // RUNTIME
+  EngineEvents.instance.addEventListener(ClientNetworkSystem.EVENTS.RECEIVE_DATA, ({ unbufferedState, delta }) => {
+    applyNetworkStateToClient(unbufferedState, delta);
+  })
+  EngineEvents.instance.addEventListener(EngineEvents.EVENTS.LOAD_AVATAR, ({ entityID, avatarId, avatarURL }) => {
+    const entity = getEntityByID(entityID)
     const characterAvatar = getMutableComponent(entity, CharacterComponent);
     if (characterAvatar != null) {
-      characterAvatar.avatarId = ev.avatarId;
-      characterAvatar.avatarURL = ev.avatarURL;
+      characterAvatar.avatarId = avatarId;
+      characterAvatar.avatarURL = avatarURL;
     }
     loadActorAvatar(entity)
   })
-
-  const onUserEngage = () => {
-    Engine.hasUserEngaged = true;
-    EngineEvents.instance.removeEventListener(EngineEvents.EVENTS.USER_ENGAGE, onUserEngage);
-  }
-  EngineEvents.instance.addEventListener(EngineEvents.EVENTS.USER_ENGAGE, onUserEngage);
-
-  const onNetworkConnect = ({ worldState }) => {
-    applyNetworkStateToClient(worldState)
-    EngineEvents.instance.removeEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD, onNetworkConnect);
-  }
-  EngineEvents.instance.addEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD, onNetworkConnect);
 }
 
 export const addOutgoingEvents = () => {
-  EngineEvents.instance.addEventListener(ClientNetworkSystem.EVENTS.SEND_DATA, (ev) => {
-    Network.instance.transport.sendReliableData(ev.buffer);
-    // Network.instance.transport.sendData(ev.buffer);
+
+  // RUNTIME
+  EngineEvents.instance.addEventListener(ClientNetworkSystem.EVENTS.SEND_DATA, ({ buffer }) => {
+    Network.instance.transport.sendReliableData(buffer);
+    // Network.instance.transport.sendData(buffer);
   });
 }
 
 const ENGINE_EVENTS_PROXY = {
   EVENT: 'ENGINE_EVENTS_PROXY_EVENT',
   EVENT_ADD: 'ENGINE_EVENTS_PROXY_EVENT_ADD',
+  EVENT_ONCE: 'ENGINE_EVENTS_PROXY_EVENT_ONCE',
   EVENT_REMOVE: 'ENGINE_EVENTS_PROXY_EVENT_REMOVE',
+  EVENT_REMOVE_ALL: 'ENGINE_EVENTS_PROXY_EVENT_REMOVE_ALL',
 };
 
 export class EngineEventsProxy extends EngineEvents {
@@ -109,30 +98,47 @@ export class EngineEventsProxy extends EngineEvents {
       const { type } = ev.detail;
       this.addEventListener(type, listener, true)
     });
+    this.messageQueue.addEventListener(ENGINE_EVENTS_PROXY.EVENT_ONCE, (ev: any) => {
+      const { type } = ev.detail;
+      this.once(type, listener, true)
+    });
     this.messageQueue.addEventListener(ENGINE_EVENTS_PROXY.EVENT_REMOVE, (ev: any) => {
       const { type } = ev.detail;
       this.removeEventListener(type, listener, true)
+    });
+    this.messageQueue.addEventListener(ENGINE_EVENTS_PROXY.EVENT_REMOVE_ALL, (ev: any) => {
+      const { type, deleteEvent } = ev.detail;
+      this.removeAllListenersForEvent(type, deleteEvent, true)
     });
     this.messageQueue.addEventListener(ENGINE_EVENTS_PROXY.EVENT, (ev: any) => {
       const { event } = ev.detail;
       this.dispatchEvent(event, true);
     });
   }
-
   addEventListener(type: string, listener: any, fromSelf?: boolean) {
     if(!fromSelf) {
       this.messageQueue.sendEvent(ENGINE_EVENTS_PROXY.EVENT_ADD, { type });
     }
     super.addEventListener(type, listener)
   }
-  
+  once(type: string, listener: any, fromSelf?: boolean) {
+    if(!fromSelf) {
+      this.messageQueue.sendEvent(ENGINE_EVENTS_PROXY.EVENT_ONCE, { type });
+    }
+    super.once(type, listener)
+  }
   removeEventListener(type: string, listener: any, fromSelf?: boolean) {
     if(!fromSelf) {
       this.messageQueue.sendEvent(ENGINE_EVENTS_PROXY.EVENT_REMOVE, { type });
     }
     super.removeEventListener(type, listener)
   }
-  
+  removeAllListenersForEvent(type: string, deleteEvent: boolean, fromSelf?: boolean) {
+    if(!fromSelf) {
+      this.messageQueue.sendEvent(ENGINE_EVENTS_PROXY.EVENT_REMOVE_ALL, { type, deleteEvent });
+    }
+    super.removeAllListenersForEvent(type, deleteEvent)
+  }
   dispatchEvent (event: any, fromSelf?: boolean, transferable?: Transferable[]) {
     if(!fromSelf) {
       this.messageQueue.sendEvent(ENGINE_EVENTS_PROXY.EVENT, { event }, transferable);
