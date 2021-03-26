@@ -3,7 +3,8 @@ import {
   FeedCommentsAction,
   FeedCommentsRetrievedAction,
   AddFeedCommentFiresAction,
-  AddFeedCommentAction
+  AddFeedCommentAction,
+  CommentFiresRetrievedAction
 } from './actions';
 
 import {
@@ -11,12 +12,14 @@ import {
   FEED_COMMENTS_FETCH, 
   ADD_FEED_COMMENT_FIRES,
   REMOVE_FEED_COMMENT_FIRES ,
-  ADD_FEED_COMMENT
+  ADD_FEED_COMMENT,
+  COMMENT_FIRES
 } from '../actions';
 
 export const initialState = {
   feeds: {
     feedComments: [],
+    commentFires:[],
     fetching: false
   },
 };
@@ -44,8 +47,10 @@ const feedCommentsReducer = (state = immutableState, action: FeedCommentsAction)
       }));
 
       case ADD_FEED_COMMENT:
-        // console.log((action as AddFeedCommentAction).comment, state.get('feedComments') || [] );return 1;
         return state.set('feedComments', [ (action as AddFeedCommentAction).comment, ...state.get('feedComments') || []]);
+
+      case COMMENT_FIRES:
+        return state.set('commentFires', (action as CommentFiresRetrievedAction).creators)
 }
 
 

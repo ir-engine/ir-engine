@@ -3,10 +3,12 @@ import {
   FEED_COMMENTS_FETCH,
   ADD_FEED_COMMENT_FIRES,
   REMOVE_FEED_COMMENT_FIRES,
-  ADD_FEED_COMMENT
+  ADD_FEED_COMMENT,
+  COMMENT_FIRES
 } from '../actions';
 
 import { CommentInterface } from '@xr3ngine/common/interfaces/Comment';
+import { CreatorShort } from '@xr3ngine/common/interfaces/Creator';
 
 export interface FeedCommentsRetrievedAction {
   type: string;
@@ -32,10 +34,16 @@ export interface AddFeedCommentAction{
   comment: CommentInterface;
 }
 
+export interface CommentFiresRetrievedAction {
+  type: string;
+  creators: CreatorShort[];
+}
+
 export type FeedCommentsAction =
 FeedCommentsRetrievedAction
   | FetchingFeedCommentsAction
   | AddFeedCommentAction
+  | CommentFiresRetrievedAction
 
 export function feedsRetrieved (comments: CommentInterface[]): FeedCommentsRetrievedAction {
   return {
@@ -69,5 +77,12 @@ export function addFeedComment (comment : CommentInterface) : AddFeedCommentActi
   return {
     type: ADD_FEED_COMMENT,
     comment
+  };
+}
+
+export function commentFires (creators : CreatorShort[]) : CommentFiresRetrievedAction{
+  return {
+    type: COMMENT_FIRES,
+    creators
   };
 }
