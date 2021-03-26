@@ -249,25 +249,21 @@ export const EnginePage = (props: Props) => {
     await connectToInstanceServer('instance');
 
     const loadScene = new Promise<void>((resolve) => {
-      const onSceneLoaded = () => {
+      EngineEvents.instance.once(EngineEvents.EVENTS.SCENE_LOADED, () => {
         setProgressEntity(0);
         store.dispatch(setAppOnBoardingStep(generalStateList.SCENE_LOADED));
-        EngineEvents.instance.removeEventListener(EngineEvents.EVENTS.SCENE_LOADED, onSceneLoaded);
         EngineEvents.instance.removeEventListener(EngineEvents.EVENTS.ENTITY_LOADED, onSceneLoadedEntity);
         setAppLoaded(true);
         resolve();
-      };
-      EngineEvents.instance.addEventListener(EngineEvents.EVENTS.SCENE_LOADED, onSceneLoaded);
+      });
       EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.LOAD_SCENE, sceneData });
     })
 
     const getWorldState = new Promise<any>((resolve) => {
-      const onNetworkConnect = async () => {
+      EngineEvents.instance.once(EngineEvents.EVENTS.CONNECT_TO_WORLD, async () => {
         const { worldState } =  await (Network.instance.transport as SocketWebRTCClientTransport).instanceRequest(MessageTypes.JoinWorld.toString());
-        EngineEvents.instance.removeEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD, onNetworkConnect);
         resolve(worldState);
-      }
-      EngineEvents.instance.addEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD, onNetworkConnect);
+      })
     })
     
     const [sceneLoaded, worldState] = await Promise.all([ loadScene, getWorldState ]);
