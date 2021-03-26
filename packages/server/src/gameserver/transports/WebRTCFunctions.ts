@@ -214,6 +214,8 @@ export async function createInternalDataConsumer(dataProducer: DataProducer, use
 }
 
 export async function handleWebRtcTransportCreate(socket, data: WebRtcTransportParams, callback): Promise<any> {
+    console.log('handleWebRtcTransportCreate');
+    console.log(data);
     networkTransport = Network.instance.transport as any;
     const userId = getUserIdFromSocketId(socket.id);
     const { direction, peerId, sctpCapabilities, channelType, channelId } = Object.assign(data, { peerId: userId });
@@ -266,6 +268,8 @@ export async function handleWebRtcTransportCreate(socket, data: WebRtcTransportP
     // Create data consumers for other clients if the current client transport receives data producer on it
     newTransport.observer.on('newdataproducer', handleConsumeDataEvent(socket));
     newTransport.observer.on('newproducer', sendCurrentProducers(socket, channelType, channelId));
+    console.log('Callback from transportCreate with options:');
+    console.log(clientTransportOptions);
     callback({ transportOptions: clientTransportOptions });
 }
 

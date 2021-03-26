@@ -160,8 +160,6 @@ export default {
       try {
         const app = context.app;
         let result = context.result;
-        console.log('User after patch result:');
-        console.log(result);
         if (Array.isArray(result)) result = result[0];
         if (result?.userRole !== 'guest' && result?.inviteCode == null) {
           const code = await getFreeInviteCode(app);
