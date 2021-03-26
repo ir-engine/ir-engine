@@ -10,7 +10,9 @@ import {
   creatorLoggedRetrieved,
   creatorNotificationList,
   updateCreatorAsFollowed,
-  updateCreatorNotFollowed
+  updateCreatorNotFollowed,
+  creatorFollowers,
+  creatorFollowing
 } from './actions';
 
 export function createCreator(){
@@ -114,6 +116,30 @@ export function unFollowCreator(creatorId: string) {
     try {
       const follow = await client.service('follow-creator').remove(creatorId);   
       follow && dispatch(updateCreatorNotFollowed());
+    } catch(err) {
+      console.log(err);
+      dispatchAlertError(dispatch, err.message);
+    }
+  };
+}
+
+export function getFollowersList(creatorId: string) {
+  return async (dispatch: Dispatch): Promise<any> => {
+    try {
+      const list = await client.service('follow-creator').find({query:{action: 'followers', creatorId}});   
+      dispatch(creatorFollowers(list.data));
+    } catch(err) {
+      console.log(err);
+      dispatchAlertError(dispatch, err.message);
+    }
+  };
+}
+
+export function getFollowingList(creatorId: string) {
+  return async (dispatch: Dispatch): Promise<any> => {
+    try {
+      const list = await client.service('follow-creator').find({query:{action: 'following', creatorId}});   
+      dispatch(creatorFollowing(list.data));
     } catch(err) {
       console.log(err);
       dispatchAlertError(dispatch, err.message);

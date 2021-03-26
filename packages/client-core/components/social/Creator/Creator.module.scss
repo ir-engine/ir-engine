@@ -34,9 +34,18 @@
     .content{
         transform: translate(0, -115px);
     }
-    .followButton{
-        width: fit-content;
+    .countersButtons{
+        position: absolute;
+        transform: translate(0, -120px);
+        width: 100vw;
+        .countersButtonsSub{
+            display: flex;
+            .followButton{
+                width: fit-content;
+            }
+        }
     }
+    
 
     .videosSwitcher{
         transform: translate(0, -115px);
