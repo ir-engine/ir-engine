@@ -5,7 +5,8 @@ import {
   CREATORS_RETRIEVED,
   CREATOR_NOTIFICATION_LIST_RETRIEVED,
   SET_CREATOR_AS_FOLLOWED,
-  SET_CREATOR_NOT_FOLLOWED
+  SET_CREATOR_NOT_FOLLOWED,
+  CREATOR_FOLLOWERS_RETRIEVED
 } from '../actions';
 import { Creator, CreatorShort } from '@xr3ngine/common/interfaces/Creator';
 
@@ -76,5 +77,19 @@ export function updateCreatorAsFollowed (): FetchingCreatorAction {
 export function updateCreatorNotFollowed (): FetchingCreatorAction {
   return {
     type: SET_CREATOR_NOT_FOLLOWED
+  };
+}
+
+export function creatorFollowers(creators: CreatorShort[]) : CreatorsRetrievedAction {
+  return {
+    type: CREATOR_FOLLOWERS_RETRIEVED,
+    creators
+  };
+}
+
+export function creatorFollowing(creators: CreatorShort[]) : CreatorsRetrievedAction {
+  return {
+    type: CREATOR_FOLLOWERS_RETRIEVED,
+    creators
   };
 }
