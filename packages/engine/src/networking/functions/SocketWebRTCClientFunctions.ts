@@ -53,9 +53,6 @@ export async function createTransport(direction: string, channelType?: string, c
             channelId: channelId
         });
 
-        console.log('Transport create was successful');
-        console.log(transportOptions);
-
         if (direction === "recv")
             transport = await networkTransport.mediasoupDevice.createRecvTransport(transportOptions);
         else if (direction === "send")
@@ -67,7 +64,6 @@ export async function createTransport(direction: string, channelType?: string, c
         // start flowing for the first time. send dtlsParameters to the
         // server, then call callback() on success or errback() on failure.
         transport.on("connect", async ({dtlsParameters}: any, callback: () => void, errback: () => void) => {
-            console.log('Transport.on(connect)!');
             const connectResult = await request(MessageTypes.WebRTCTransportConnect.toString(),
                 {transportId: transportOptions.id, dtlsParameters});
 
@@ -144,9 +140,9 @@ export async function createTransport(direction: string, channelType?: string, c
         // any time a transport transitions to closed,
         // failed, or disconnected, leave the  and reset
         transport.on("connectionstatechange", async (state: string) => {
-            console.log('WebRTC Transport connection state changed');
-            console.log(state);
             if (networkTransport.leaving !== true && (state === "closed" || state === "failed" || state === "disconnected")) {
+                console.error('Transport transitioned to state', state);
+                console.error('If this occurred unexpectedly shortly after joining a world, check that the gameserver nodegroup has public IP addresses.');
                 await request(MessageTypes.WebRTCTransportClose.toString(), {transportId: transport.id});
             }
             if (networkTransport.leaving !== true && state === 'connected' && transport.direction === 'recv') {
