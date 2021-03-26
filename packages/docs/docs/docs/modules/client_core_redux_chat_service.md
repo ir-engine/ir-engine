@@ -22,7 +22,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/redux/chat/service.ts:89](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/chat/service.ts#L89)
+Defined in: [packages/client-core/redux/chat/service.ts:89](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/chat/service.ts#L89)
 
 ___
 
@@ -40,7 +40,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>, `getState`: *any*) => *Promise*<any\>
 
-Defined in: [packages/client-core/redux/chat/service.ts:104](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/chat/service.ts#L104)
+Defined in: [packages/client-core/redux/chat/service.ts:104](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/chat/service.ts#L104)
 
 ___
 
@@ -57,7 +57,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>, `getState`: *any*) => *Promise*<any\>
 
-Defined in: [packages/client-core/redux/chat/service.ts:21](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/chat/service.ts#L21)
+Defined in: [packages/client-core/redux/chat/service.ts:21](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/chat/service.ts#L21)
 
 ___
 
@@ -67,7 +67,7 @@ ___
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>, `getState`: *any*) => *Promise*<any\>
 
-Defined in: [packages/client-core/redux/chat/service.ts:74](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/chat/service.ts#L74)
+Defined in: [packages/client-core/redux/chat/service.ts:74](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/chat/service.ts#L74)
 
 ___
 
@@ -84,7 +84,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/redux/chat/service.ts:136](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/chat/service.ts#L136)
+Defined in: [packages/client-core/redux/chat/service.ts:136](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/chat/service.ts#L136)
 
 ___
 
@@ -100,7 +100,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/redux/chat/service.ts:125](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/chat/service.ts#L125)
+Defined in: [packages/client-core/redux/chat/service.ts:125](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/chat/service.ts#L125)
 
 ___
 
@@ -117,7 +117,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/redux/chat/service.ts:149](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/chat/service.ts#L149)
+Defined in: [packages/client-core/redux/chat/service.ts:149](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/chat/service.ts#L149)
 
 ___
 
@@ -133,4 +133,4 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/redux/chat/service.ts:162](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/chat/service.ts#L162)
+Defined in: [packages/client-core/redux/chat/service.ts:162](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/chat/service.ts#L162)

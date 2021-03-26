@@ -22,7 +22,7 @@ hide_title: true
 
 [AssetPanelContentContainer container element for asset panel]
 
-Defined in: [packages/client-core/components/editor/assets/AssetsPanel.tsx:84](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/assets/AssetsPanel.tsx#L84)
+Defined in: [packages/client-core/components/editor/assets/AssetsPanel.tsx:84](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/assets/AssetsPanel.tsx#L84)
 
 ___
 
@@ -32,7 +32,7 @@ ___
 
 [AssetPanelToolbarContent used to provide styles toolbar content]
 
-Defined in: [packages/client-core/components/editor/assets/AssetsPanel.tsx:37](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/assets/AssetsPanel.tsx#L37)
+Defined in: [packages/client-core/components/editor/assets/AssetsPanel.tsx:37](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/assets/AssetsPanel.tsx#L37)
 
 ## Functions
 
@@ -50,7 +50,7 @@ Name | Type |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/components/editor/assets/AssetsPanel.tsx:53](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/assets/AssetsPanel.tsx#L53)
+Defined in: [packages/client-core/components/editor/assets/AssetsPanel.tsx:53](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/assets/AssetsPanel.tsx#L53)
 
 ___
 
@@ -62,4 +62,4 @@ ___
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/components/editor/assets/AssetsPanel.tsx:103](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/assets/AssetsPanel.tsx#L103)
+Defined in: [packages/client-core/components/editor/assets/AssetsPanel.tsx:103](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/assets/AssetsPanel.tsx#L103)

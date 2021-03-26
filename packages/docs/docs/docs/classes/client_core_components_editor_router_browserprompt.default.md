@@ -32,7 +32,7 @@ Name | Type |
 
 Overrides: void
 
-Defined in: [packages/client-core/components/editor/router/BrowserPrompt.tsx:9](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/router/BrowserPrompt.tsx#L9)
+Defined in: [packages/client-core/components/editor/router/BrowserPrompt.tsx:9](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/router/BrowserPrompt.tsx#L9)
 
 ## Properties
 
@@ -347,7 +347,7 @@ ___
 
 Overrides: void
 
-Defined in: [packages/client-core/components/editor/router/BrowserPrompt.tsx:14](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/router/BrowserPrompt.tsx#L14)
+Defined in: [packages/client-core/components/editor/router/BrowserPrompt.tsx:14](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/router/BrowserPrompt.tsx#L14)
 
 ___
 
@@ -440,7 +440,7 @@ Name | Type |
 
 **Returns:** *string* \| (...`args`: *any*[]) => *any*
 
-Defined in: [packages/client-core/components/editor/router/BrowserPrompt.tsx:17](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/router/BrowserPrompt.tsx#L17)
+Defined in: [packages/client-core/components/editor/router/BrowserPrompt.tsx:17](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/router/BrowserPrompt.tsx#L17)
 
 ___
 
@@ -452,7 +452,7 @@ ___
 
 Overrides: void
 
-Defined in: [packages/client-core/components/editor/router/BrowserPrompt.tsx:22](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/router/BrowserPrompt.tsx#L22)
+Defined in: [packages/client-core/components/editor/router/BrowserPrompt.tsx:22](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/router/BrowserPrompt.tsx#L22)
 
 ___
 

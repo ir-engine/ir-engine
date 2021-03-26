@@ -31,7 +31,7 @@ Name | Type |
 
 **Returns:** [*CollectionsFetchedAction*](../interfaces/client_core_redux_scenes_actions.collectionsfetchedaction.md)
 
-Defined in: [packages/client-core/redux/scenes/actions.ts:46](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/scenes/actions.ts#L46)
+Defined in: [packages/client-core/redux/scenes/actions.ts:46](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/scenes/actions.ts#L46)
 
 ___
 
@@ -47,7 +47,7 @@ Name | Type |
 
 **Returns:** [*ScenesFetchedAction*](../interfaces/client_core_redux_scenes_actions.scenesfetchedaction.md)
 
-Defined in: [packages/client-core/redux/scenes/actions.ts:39](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/scenes/actions.ts#L39)
+Defined in: [packages/client-core/redux/scenes/actions.ts:39](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/scenes/actions.ts#L39)
 
 ___
 
@@ -63,7 +63,7 @@ Name | Type |
 
 **Returns:** [*ScenesFetchedAction*](../interfaces/client_core_redux_scenes_actions.scenesfetchedaction.md)
 
-Defined in: [packages/client-core/redux/scenes/actions.ts:32](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/scenes/actions.ts#L32)
+Defined in: [packages/client-core/redux/scenes/actions.ts:32](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/scenes/actions.ts#L32)
 
 ___
 
@@ -79,4 +79,4 @@ Name | Type |
 
 **Returns:** [*ScenesFetchedAction*](../interfaces/client_core_redux_scenes_actions.scenesfetchedaction.md)
 
-Defined in: [packages/client-core/redux/scenes/actions.ts:53](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/scenes/actions.ts#L53)
+Defined in: [packages/client-core/redux/scenes/actions.ts:53](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/scenes/actions.ts#L53)

@@ -16,7 +16,7 @@ hide_title: true
 
 • **ipAddress**: *string*
 
-Defined in: [packages/client-core/redux/instanceConnection/actions.ts:18](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/instanceConnection/actions.ts#L18)
+Defined in: [packages/client-core/redux/instanceConnection/actions.ts:18](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/instanceConnection/actions.ts#L18)
 
 ___
 
@@ -24,7 +24,7 @@ ___
 
 • **locationId**: *string*
 
-Defined in: [packages/client-core/redux/instanceConnection/actions.ts:20](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/instanceConnection/actions.ts#L20)
+Defined in: [packages/client-core/redux/instanceConnection/actions.ts:20](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/instanceConnection/actions.ts#L20)
 
 ___
 
@@ -32,7 +32,7 @@ ___
 
 • **port**: *string*
 
-Defined in: [packages/client-core/redux/instanceConnection/actions.ts:19](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/instanceConnection/actions.ts#L19)
+Defined in: [packages/client-core/redux/instanceConnection/actions.ts:19](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/instanceConnection/actions.ts#L19)
 
 ___
 
@@ -40,7 +40,7 @@ ___
 
 • **sceneId**: *string*
 
-Defined in: [packages/client-core/redux/instanceConnection/actions.ts:21](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/instanceConnection/actions.ts#L21)
+Defined in: [packages/client-core/redux/instanceConnection/actions.ts:21](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/instanceConnection/actions.ts#L21)
 
 ___
 
@@ -48,4 +48,4 @@ ___
 
 • **type**: *string*
 
-Defined in: [packages/client-core/redux/instanceConnection/actions.ts:17](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/instanceConnection/actions.ts#L17)
+Defined in: [packages/client-core/redux/instanceConnection/actions.ts:17](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/instanceConnection/actions.ts#L17)

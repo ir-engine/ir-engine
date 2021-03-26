@@ -34,7 +34,7 @@ Name | Type |
 
 Overrides: void
 
-Defined in: [packages/client-core/components/editor/properties/NameInputGroup.tsx:29](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/NameInputGroup.tsx#L29)
+Defined in: [packages/client-core/components/editor/properties/NameInputGroup.tsx:29](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/properties/NameInputGroup.tsx#L29)
 
 ## Properties
 
@@ -137,7 +137,7 @@ Name | Type |
 `editor` | *Validator*<object\> |
 `node` | *Validator*<object\> |
 
-Defined in: [packages/client-core/components/editor/properties/NameInputGroup.tsx:26](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/NameInputGroup.tsx#L26)
+Defined in: [packages/client-core/components/editor/properties/NameInputGroup.tsx:26](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/properties/NameInputGroup.tsx#L26)
 
 ## Methods
 
@@ -454,7 +454,7 @@ ___
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/properties/NameInputGroup.tsx:56](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/NameInputGroup.tsx#L56)
+Defined in: [packages/client-core/components/editor/properties/NameInputGroup.tsx:56](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/properties/NameInputGroup.tsx#L56)
 
 ___
 
@@ -464,7 +464,7 @@ ___
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/properties/NameInputGroup.tsx:48](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/NameInputGroup.tsx#L48)
+Defined in: [packages/client-core/components/editor/properties/NameInputGroup.tsx:48](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/properties/NameInputGroup.tsx#L48)
 
 ___
 
@@ -480,7 +480,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/properties/NameInputGroup.tsx:67](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/NameInputGroup.tsx#L67)
+Defined in: [packages/client-core/components/editor/properties/NameInputGroup.tsx:67](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/properties/NameInputGroup.tsx#L67)
 
 ___
 
@@ -496,7 +496,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/properties/NameInputGroup.tsx:42](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/NameInputGroup.tsx#L42)
+Defined in: [packages/client-core/components/editor/properties/NameInputGroup.tsx:42](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/properties/NameInputGroup.tsx#L42)
 
 ___
 
@@ -508,7 +508,7 @@ ___
 
 Overrides: void
 
-Defined in: [packages/client-core/components/editor/properties/NameInputGroup.tsx:75](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/NameInputGroup.tsx#L75)
+Defined in: [packages/client-core/components/editor/properties/NameInputGroup.tsx:75](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/properties/NameInputGroup.tsx#L75)
 
 ___
 

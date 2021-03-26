@@ -14,4 +14,4 @@ hide_title: true
 
 • `Const` **Alerts**: *ConnectedComponent*<(`props`: *any*) => *any*, Omit<any, string \| number \| symbol\>\>
 
-Defined in: [packages/client-core/components/ui/Common/Alerts.tsx:57](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/ui/Common/Alerts.tsx#L57)
+Defined in: [packages/client-core/components/ui/Common/Alerts.tsx:57](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/ui/Common/Alerts.tsx#L57)

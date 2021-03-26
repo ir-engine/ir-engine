@@ -18,4 +18,4 @@ hide_title: true
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/components/editor/viewport/ViewportPanelContainer.tsx:221](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/viewport/ViewportPanelContainer.tsx#L221)
+Defined in: [packages/client-core/components/editor/viewport/ViewportPanelContainer.tsx:221](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/viewport/ViewportPanelContainer.tsx#L221)

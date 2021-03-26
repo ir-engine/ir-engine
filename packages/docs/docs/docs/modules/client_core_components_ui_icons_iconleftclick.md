@@ -16,4 +16,4 @@ hide_title: true
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/components/ui/Icons/IconLeftClick.tsx:3](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/ui/Icons/IconLeftClick.tsx#L3)
+Defined in: [packages/client-core/components/ui/Icons/IconLeftClick.tsx:3](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/ui/Icons/IconLeftClick.tsx#L3)

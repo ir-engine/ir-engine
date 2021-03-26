@@ -22,7 +22,7 @@ Name | Type |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/redux/persisted.store.ts:14](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/persisted.store.ts#L14)
+Defined in: [packages/client-core/redux/persisted.store.ts:14](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/persisted.store.ts#L14)
 
 ___
 
@@ -32,7 +32,7 @@ ___
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/redux/persisted.store.ts:8](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/persisted.store.ts#L8)
+Defined in: [packages/client-core/redux/persisted.store.ts:8](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/persisted.store.ts#L8)
 
 ___
 
@@ -48,4 +48,4 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/redux/persisted.store.ts:26](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/persisted.store.ts#L26)
+Defined in: [packages/client-core/redux/persisted.store.ts:26](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/persisted.store.ts#L26)

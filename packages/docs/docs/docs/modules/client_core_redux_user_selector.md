@@ -14,4 +14,4 @@ hide_title: true
 
 • `Const` **selectUserState**: *OutputSelector*<any, any, (`res`: *any*) => *any*\>
 
-Defined in: [packages/client-core/redux/user/selector.ts:4](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/user/selector.ts#L4)
+Defined in: [packages/client-core/redux/user/selector.ts:4](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/user/selector.ts#L4)

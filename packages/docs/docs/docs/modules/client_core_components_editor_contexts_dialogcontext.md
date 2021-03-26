@@ -16,7 +16,7 @@ hide_title: true
 
 [DialogContext creating context using react]
 
-Defined in: [packages/client-core/components/editor/contexts/DialogContext.tsx:6](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/contexts/DialogContext.tsx#L6)
+Defined in: [packages/client-core/components/editor/contexts/DialogContext.tsx:6](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/contexts/DialogContext.tsx#L6)
 
 ___
 
@@ -26,7 +26,7 @@ ___
 
 [DialogContextProvider provides component context value]
 
-Defined in: [packages/client-core/components/editor/contexts/DialogContext.tsx:14](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/contexts/DialogContext.tsx#L14)
+Defined in: [packages/client-core/components/editor/contexts/DialogContext.tsx:14](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/contexts/DialogContext.tsx#L14)
 
 ## Functions
 
@@ -44,4 +44,4 @@ Name | Type |
 
 **Returns:** (`props`: *any*) => *Element*
 
-Defined in: [packages/client-core/components/editor/contexts/DialogContext.tsx:19](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/contexts/DialogContext.tsx#L19)
+Defined in: [packages/client-core/components/editor/contexts/DialogContext.tsx:19](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/contexts/DialogContext.tsx#L19)

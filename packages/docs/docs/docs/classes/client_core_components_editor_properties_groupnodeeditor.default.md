@@ -149,7 +149,7 @@ ___
 
 ▪ `Static` **description**: *string*= "A group of multiple objects that can be moved or duplicated together.\nDrag and drop objects into the Group in the Hierarchy."
 
-Defined in: [packages/client-core/components/editor/properties/GroupNodeEditor.tsx:22](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/GroupNodeEditor.tsx#L22)
+Defined in: [packages/client-core/components/editor/properties/GroupNodeEditor.tsx:22](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/properties/GroupNodeEditor.tsx#L22)
 
 ___
 
@@ -157,7 +157,7 @@ ___
 
 ▪ `Static` **iconComponent**: StyledIcon
 
-Defined in: [packages/client-core/components/editor/properties/GroupNodeEditor.tsx:19](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/GroupNodeEditor.tsx#L19)
+Defined in: [packages/client-core/components/editor/properties/GroupNodeEditor.tsx:19](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/properties/GroupNodeEditor.tsx#L19)
 
 ## Methods
 
@@ -476,7 +476,7 @@ ___
 
 Overrides: void
 
-Defined in: [packages/client-core/components/editor/properties/GroupNodeEditor.tsx:24](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/GroupNodeEditor.tsx#L24)
+Defined in: [packages/client-core/components/editor/properties/GroupNodeEditor.tsx:24](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/properties/GroupNodeEditor.tsx#L24)
 
 ___
 

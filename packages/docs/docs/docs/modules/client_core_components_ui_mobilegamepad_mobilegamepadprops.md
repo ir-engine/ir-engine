@@ -22,4 +22,4 @@ Name | Type |
 `layout`? | *string* |
 `onBoardingStep`? | *number* \| *null* |
 
-Defined in: [packages/client-core/components/ui/MobileGamepad/MobileGamepadProps.tsx:2](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/ui/MobileGamepad/MobileGamepadProps.tsx#L2)
+Defined in: [packages/client-core/components/ui/MobileGamepad/MobileGamepadProps.tsx:2](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/ui/MobileGamepad/MobileGamepadProps.tsx#L2)

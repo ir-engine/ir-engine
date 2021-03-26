@@ -20,7 +20,7 @@ hide_title: true
 
 • `Const` **PanelContainer**: *any*
 
-Defined in: [packages/client-core/components/editor/layout/Panel.tsx:5](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/layout/Panel.tsx#L5)
+Defined in: [packages/client-core/components/editor/layout/Panel.tsx:5](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/layout/Panel.tsx#L5)
 
 ___
 
@@ -28,7 +28,7 @@ ___
 
 • `Const` **PanelContent**: *any*
 
-Defined in: [packages/client-core/components/editor/layout/Panel.tsx:30](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/layout/Panel.tsx#L30)
+Defined in: [packages/client-core/components/editor/layout/Panel.tsx:30](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/layout/Panel.tsx#L30)
 
 ___
 
@@ -36,7 +36,7 @@ ___
 
 • `Const` **PanelIcon**: *any*
 
-Defined in: [packages/client-core/components/editor/layout/Panel.tsx:24](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/layout/Panel.tsx#L24)
+Defined in: [packages/client-core/components/editor/layout/Panel.tsx:24](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/layout/Panel.tsx#L24)
 
 ___
 
@@ -44,7 +44,7 @@ ___
 
 • `Const` **PanelTitle**: *any*
 
-Defined in: [packages/client-core/components/editor/layout/Panel.tsx:28](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/layout/Panel.tsx#L28)
+Defined in: [packages/client-core/components/editor/layout/Panel.tsx:28](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/layout/Panel.tsx#L28)
 
 ___
 
@@ -52,4 +52,4 @@ ___
 
 • `Const` **PanelToolbar**: *any*
 
-Defined in: [packages/client-core/components/editor/layout/Panel.tsx:16](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/layout/Panel.tsx#L16)
+Defined in: [packages/client-core/components/editor/layout/Panel.tsx:16](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/layout/Panel.tsx#L16)

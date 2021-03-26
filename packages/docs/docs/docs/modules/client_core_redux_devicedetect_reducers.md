@@ -14,7 +14,7 @@ hide_title: true
 
 • `Const` **initialState**: [*DeviceDetectState*](../interfaces/client_core_redux_devicedetect_actions.devicedetectstate.md)
 
-Defined in: [packages/client-core/redux/devicedetect/reducers.tsx:5](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/devicedetect/reducers.tsx#L5)
+Defined in: [packages/client-core/redux/devicedetect/reducers.tsx:5](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/devicedetect/reducers.tsx#L5)
 
 ## Functions
 
@@ -31,4 +31,4 @@ Name | Type |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/redux/devicedetect/reducers.tsx:12](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/devicedetect/reducers.tsx#L12)
+Defined in: [packages/client-core/redux/devicedetect/reducers.tsx:12](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/devicedetect/reducers.tsx#L12)

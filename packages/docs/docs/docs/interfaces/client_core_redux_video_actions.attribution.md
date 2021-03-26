@@ -16,7 +16,7 @@ hide_title: true
 
 • `Optional` **creator**: *string*
 
-Defined in: [packages/client-core/redux/video/actions.ts:20](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/video/actions.ts#L20)
+Defined in: [packages/client-core/redux/video/actions.ts:20](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/video/actions.ts#L20)
 
 ___
 
@@ -24,4 +24,4 @@ ___
 
 • `Optional` **url**: *string*
 
-Defined in: [packages/client-core/redux/video/actions.ts:21](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/video/actions.ts#L21)
+Defined in: [packages/client-core/redux/video/actions.ts:21](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/video/actions.ts#L21)

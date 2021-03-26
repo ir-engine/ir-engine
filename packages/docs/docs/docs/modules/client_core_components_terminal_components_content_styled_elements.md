@@ -14,7 +14,7 @@ hide_title: true
 
 • `Const` **Container**: *any*
 
-Defined in: [packages/client-core/components/terminal/components/Content/styled-elements.tsx:3](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/terminal/components/Content/styled-elements.tsx#L3)
+Defined in: [packages/client-core/components/terminal/components/Content/styled-elements.tsx:3](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/terminal/components/Content/styled-elements.tsx#L3)
 
 ___
 
@@ -22,7 +22,7 @@ ___
 
 • `Const` **ContainerContent**: *any*
 
-Defined in: [packages/client-core/components/terminal/components/Content/styled-elements.tsx:68](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/terminal/components/Content/styled-elements.tsx#L68)
+Defined in: [packages/client-core/components/terminal/components/Content/styled-elements.tsx:68](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/terminal/components/Content/styled-elements.tsx#L68)
 
 ___
 
@@ -30,7 +30,7 @@ ___
 
 • `Const` **ContainerMain**: *any*
 
-Defined in: [packages/client-core/components/terminal/components/Content/styled-elements.tsx:8](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/terminal/components/Content/styled-elements.tsx#L8)
+Defined in: [packages/client-core/components/terminal/components/Content/styled-elements.tsx:8](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/terminal/components/Content/styled-elements.tsx#L8)
 
 ___
 
@@ -38,7 +38,7 @@ ___
 
 • `Const` **Holder**: *any*
 
-Defined in: [packages/client-core/components/terminal/components/Content/styled-elements.tsx:65](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/terminal/components/Content/styled-elements.tsx#L65)
+Defined in: [packages/client-core/components/terminal/components/Content/styled-elements.tsx:65](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/terminal/components/Content/styled-elements.tsx#L65)
 
 ___
 
@@ -46,7 +46,7 @@ ___
 
 • `Const` **Input**: *any*
 
-Defined in: [packages/client-core/components/terminal/components/Content/styled-elements.tsx:40](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/terminal/components/Content/styled-elements.tsx#L40)
+Defined in: [packages/client-core/components/terminal/components/Content/styled-elements.tsx:40](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/terminal/components/Content/styled-elements.tsx#L40)
 
 ___
 
@@ -54,7 +54,7 @@ ___
 
 • `Const` **InputArea**: *any*
 
-Defined in: [packages/client-core/components/terminal/components/Content/styled-elements.tsx:73](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/terminal/components/Content/styled-elements.tsx#L73)
+Defined in: [packages/client-core/components/terminal/components/Content/styled-elements.tsx:73](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/terminal/components/Content/styled-elements.tsx#L73)
 
 ___
 
@@ -62,7 +62,7 @@ ___
 
 • `Const` **MainInput**: *any*
 
-Defined in: [packages/client-core/components/terminal/components/Content/styled-elements.tsx:51](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/terminal/components/Content/styled-elements.tsx#L51)
+Defined in: [packages/client-core/components/terminal/components/Content/styled-elements.tsx:51](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/terminal/components/Content/styled-elements.tsx#L51)
 
 ___
 
@@ -70,7 +70,7 @@ ___
 
 • `Const` **OutputLine**: *any*
 
-Defined in: [packages/client-core/components/terminal/components/Content/styled-elements.tsx:23](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/terminal/components/Content/styled-elements.tsx#L23)
+Defined in: [packages/client-core/components/terminal/components/Content/styled-elements.tsx:23](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/terminal/components/Content/styled-elements.tsx#L23)
 
 ___
 
@@ -78,7 +78,7 @@ ___
 
 • `Const` **PreOutputLine**: *any*
 
-Defined in: [packages/client-core/components/terminal/components/Content/styled-elements.tsx:31](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/terminal/components/Content/styled-elements.tsx#L31)
+Defined in: [packages/client-core/components/terminal/components/Content/styled-elements.tsx:31](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/terminal/components/Content/styled-elements.tsx#L31)
 
 ___
 
@@ -86,4 +86,4 @@ ___
 
 • `Const` **Prompt**: *any*
 
-Defined in: [packages/client-core/components/terminal/components/Content/styled-elements.tsx:47](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/terminal/components/Content/styled-elements.tsx#L47)
+Defined in: [packages/client-core/components/terminal/components/Content/styled-elements.tsx:47](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/terminal/components/Content/styled-elements.tsx#L47)

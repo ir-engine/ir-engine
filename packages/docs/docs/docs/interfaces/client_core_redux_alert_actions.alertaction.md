@@ -16,7 +16,7 @@ hide_title: true
 
 • **alertType**: [*AlertType*](../modules/client_core_redux_alert_actions.md#alerttype)
 
-Defined in: [packages/client-core/redux/alert/actions.ts:12](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/alert/actions.ts#L12)
+Defined in: [packages/client-core/redux/alert/actions.ts:12](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/alert/actions.ts#L12)
 
 ___
 
@@ -24,7 +24,7 @@ ___
 
 • **message**: *string*
 
-Defined in: [packages/client-core/redux/alert/actions.ts:13](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/alert/actions.ts#L13)
+Defined in: [packages/client-core/redux/alert/actions.ts:13](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/alert/actions.ts#L13)
 
 ___
 
@@ -32,4 +32,4 @@ ___
 
 • **type**: *string*
 
-Defined in: [packages/client-core/redux/alert/actions.ts:11](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/alert/actions.ts#L11)
+Defined in: [packages/client-core/redux/alert/actions.ts:11](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/alert/actions.ts#L11)

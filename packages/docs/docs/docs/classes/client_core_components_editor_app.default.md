@@ -34,7 +34,7 @@ Name | Type |
 
 Overrides: void
 
-Defined in: [packages/client-core/components/editor/App.tsx:29](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/App.tsx#L29)
+Defined in: [packages/client-core/components/editor/App.tsx:29](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/App.tsx#L29)
 
 ## Properties
 
@@ -253,7 +253,7 @@ ___
 
 Overrides: void
 
-Defined in: [packages/client-core/components/editor/App.tsx:42](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/App.tsx#L42)
+Defined in: [packages/client-core/components/editor/App.tsx:42](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/App.tsx#L42)
 
 ___
 
@@ -347,7 +347,7 @@ ___
 
 Overrides: void
 
-Defined in: [packages/client-core/components/editor/App.tsx:51](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/App.tsx#L51)
+Defined in: [packages/client-core/components/editor/App.tsx:51](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/App.tsx#L51)
 
 ___
 
@@ -440,7 +440,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/App.tsx:59](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/App.tsx#L59)
+Defined in: [packages/client-core/components/editor/App.tsx:59](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/App.tsx#L59)
 
 ___
 
@@ -452,7 +452,7 @@ ___
 
 Overrides: void
 
-Defined in: [packages/client-core/components/editor/App.tsx:63](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/App.tsx#L63)
+Defined in: [packages/client-core/components/editor/App.tsx:63](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/App.tsx#L63)
 
 ___
 

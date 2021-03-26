@@ -34,7 +34,7 @@ Name | Type |
 
 Overrides: void
 
-Defined in: [packages/client-core/components/editor/properties/TransformPropertyGroup.tsx:24](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/TransformPropertyGroup.tsx#L24)
+Defined in: [packages/client-core/components/editor/properties/TransformPropertyGroup.tsx:24](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/properties/TransformPropertyGroup.tsx#L24)
 
 ## Properties
 
@@ -101,7 +101,7 @@ ___
 
 • **translation**: *Vector3*
 
-Defined in: [packages/client-core/components/editor/properties/TransformPropertyGroup.tsx:48](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/TransformPropertyGroup.tsx#L48)
+Defined in: [packages/client-core/components/editor/properties/TransformPropertyGroup.tsx:48](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/properties/TransformPropertyGroup.tsx#L48)
 
 ___
 
@@ -261,7 +261,7 @@ ___
 
 Overrides: void
 
-Defined in: [packages/client-core/components/editor/properties/TransformPropertyGroup.tsx:33](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/TransformPropertyGroup.tsx#L33)
+Defined in: [packages/client-core/components/editor/properties/TransformPropertyGroup.tsx:33](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/properties/TransformPropertyGroup.tsx#L33)
 
 ___
 
@@ -355,7 +355,7 @@ ___
 
 Overrides: void
 
-Defined in: [packages/client-core/components/editor/properties/TransformPropertyGroup.tsx:43](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/TransformPropertyGroup.tsx#L43)
+Defined in: [packages/client-core/components/editor/properties/TransformPropertyGroup.tsx:43](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/properties/TransformPropertyGroup.tsx#L43)
 
 ___
 
@@ -448,7 +448,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/properties/TransformPropertyGroup.tsx:68](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/TransformPropertyGroup.tsx#L68)
+Defined in: [packages/client-core/components/editor/properties/TransformPropertyGroup.tsx:68](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/properties/TransformPropertyGroup.tsx#L68)
 
 ___
 
@@ -464,7 +464,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/properties/TransformPropertyGroup.tsx:74](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/TransformPropertyGroup.tsx#L74)
+Defined in: [packages/client-core/components/editor/properties/TransformPropertyGroup.tsx:74](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/properties/TransformPropertyGroup.tsx#L74)
 
 ___
 
@@ -480,7 +480,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/properties/TransformPropertyGroup.tsx:79](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/TransformPropertyGroup.tsx#L79)
+Defined in: [packages/client-core/components/editor/properties/TransformPropertyGroup.tsx:79](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/properties/TransformPropertyGroup.tsx#L79)
 
 ___
 
@@ -497,7 +497,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/properties/TransformPropertyGroup.tsx:51](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/TransformPropertyGroup.tsx#L51)
+Defined in: [packages/client-core/components/editor/properties/TransformPropertyGroup.tsx:51](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/properties/TransformPropertyGroup.tsx#L51)
 
 ___
 
@@ -509,7 +509,7 @@ ___
 
 Overrides: void
 
-Defined in: [packages/client-core/components/editor/properties/TransformPropertyGroup.tsx:84](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/TransformPropertyGroup.tsx#L84)
+Defined in: [packages/client-core/components/editor/properties/TransformPropertyGroup.tsx:84](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/properties/TransformPropertyGroup.tsx#L84)
 
 ___
 
@@ -552,4 +552,4 @@ Name | Type |
 
 Overrides: void
 
-Defined in: [packages/client-core/components/editor/properties/TransformPropertyGroup.tsx:38](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/TransformPropertyGroup.tsx#L38)
+Defined in: [packages/client-core/components/editor/properties/TransformPropertyGroup.tsx:38](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/properties/TransformPropertyGroup.tsx#L38)

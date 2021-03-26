@@ -22,4 +22,4 @@ Name | Type |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/components/social/UsernameText.tsx:4](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/social/UsernameText.tsx#L4)
+Defined in: [packages/client-core/components/social/UsernameText.tsx:4](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/social/UsernameText.tsx#L4)

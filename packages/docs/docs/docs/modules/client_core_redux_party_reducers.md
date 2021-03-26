@@ -21,7 +21,7 @@ Name | Type |
 `party` | *object* |
 `updateNeeded` | *boolean* |
 
-Defined in: [packages/client-core/redux/party/reducers.ts:22](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/party/reducers.ts#L22)
+Defined in: [packages/client-core/redux/party/reducers.ts:22](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/party/reducers.ts#L22)
 
 ## Functions
 
@@ -38,4 +38,4 @@ Name | Type |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/redux/party/reducers.ts:29](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/party/reducers.ts#L29)
+Defined in: [packages/client-core/redux/party/reducers.ts:29](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/party/reducers.ts#L29)

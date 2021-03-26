@@ -16,7 +16,7 @@ hide_title: true
 
 • **error**: *string*
 
-Defined in: [packages/client-core/redux/video/actions.ts:8](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/video/actions.ts#L8)
+Defined in: [packages/client-core/redux/video/actions.ts:8](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/video/actions.ts#L8)
 
 ___
 
@@ -24,4 +24,4 @@ ___
 
 • **videos**: [*PublicVideo*](client_core_redux_video_actions.publicvideo.md)[]
 
-Defined in: [packages/client-core/redux/video/actions.ts:7](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/video/actions.ts#L7)
+Defined in: [packages/client-core/redux/video/actions.ts:7](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/video/actions.ts#L7)

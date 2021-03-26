@@ -26,7 +26,7 @@ Name | Type |
 `eval.options` | { `defaultValue`: *string* = 'console.log("Eval says: feed me code!")'; `description`: *string* = 'execute arbitrary js'; `name`: *string* = 'eval' }[] |
 `helloworld` | () => *void* |
 
-Defined in: [packages/client-core/components/terminal/commands.ts:41](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/terminal/commands.ts#L41)
+Defined in: [packages/client-core/components/terminal/commands.ts:41](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/terminal/commands.ts#L41)
 
 ___
 
@@ -40,4 +40,4 @@ Name | Type |
 :------ | :------ |
 `ecs` | *string* |
 
-Defined in: [packages/client-core/components/terminal/commands.ts:274](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/terminal/commands.ts#L274)
+Defined in: [packages/client-core/components/terminal/commands.ts:274](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/terminal/commands.ts#L274)

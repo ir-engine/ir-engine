@@ -36,7 +36,7 @@ Name | Type |
 
 Overrides: void
 
-Defined in: [packages/client-core/components/editor/inputs/FileInput.tsx:34](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/inputs/FileInput.tsx#L34)
+Defined in: [packages/client-core/components/editor/inputs/FileInput.tsx:34](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/inputs/FileInput.tsx#L34)
 
 ## Properties
 
@@ -451,7 +451,7 @@ Name | Type |
 
 e
 
-Defined in: [packages/client-core/components/editor/inputs/FileInput.tsx:52](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/inputs/FileInput.tsx#L52)
+Defined in: [packages/client-core/components/editor/inputs/FileInput.tsx:52](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/inputs/FileInput.tsx#L52)
 
 ___
 
@@ -463,7 +463,7 @@ ___
 
 Overrides: void
 
-Defined in: [packages/client-core/components/editor/inputs/FileInput.tsx:57](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/inputs/FileInput.tsx#L57)
+Defined in: [packages/client-core/components/editor/inputs/FileInput.tsx:57](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/inputs/FileInput.tsx#L57)
 
 ___
 
