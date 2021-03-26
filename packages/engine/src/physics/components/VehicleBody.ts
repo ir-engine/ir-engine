@@ -10,13 +10,15 @@ export class VehicleBody extends Component<VehicleBody> {
   driver: number
   seatPlane: any
 
-  vehicleMesh: any
+  vehicleMesh: boolean
   vehiclePhysics: RaycastVehicle
   vehicleCollider: any
   vehicleSphereColliders: any
+  addShapeArray: any
   vehicleDoorsArray: any
 
   startPosition: any
+  startQuaternion: any
   suspensionRestLength: any
   colliderTrimOffset: Vec3
   collidersSphereOffset: Vec3
@@ -50,13 +52,15 @@ VehicleBody._schema = {
   seatPlane: { type: Types.Ref, default: ['driver','passenger']},
 
 
-  vehicleMesh: { type: Types.Ref, default: null },
+  vehicleMesh: { type: Types.Boolean, default: false },
   vehiclePhysics: { type: Types.Ref, default: null },
   vehicleCollider: { type: Types.Ref, default: null },
   vehicleSphereColliders: { type: Types.Ref, default: [] },
+  addShapeArray: { type: Types.Ref, default: [] },
   vehicleDoorsArray: { type: Types.Ref, default: [] },
 
   startPosition: { type: Types.Ref, default: [0, 0, 0] },
+  startQuaternion: { type: Types.Ref, default: [0, 0, 0, 0] },
   suspensionRestLength: { type: Types.Number, default: 0.3 },
   colliderTrimOffset: { type: Types.Ref, default: [0, 0, 0] },
   collidersSphereOffset: { type: Types.Ref, default: [0, 0, 0] },

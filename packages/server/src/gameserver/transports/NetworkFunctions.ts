@@ -2,7 +2,7 @@ import { Entity } from '@xr3ngine/engine/src/ecs/classes/Entity';
 import { getComponent, removeEntity } from "@xr3ngine/engine/src/ecs/functions/EntityFunctions";
 import { Network } from "@xr3ngine/engine/src/networking//classes/Network";
 import { MessageTypes } from '@xr3ngine/engine/src/networking/enums/MessageTypes';
-import { initializeNetworkObject } from '@xr3ngine/engine/src/networking/functions/initializeNetworkObject';
+import { createNetworkPlayer } from '@xr3ngine/engine/src/templates/character/prefabs/NetworkPlayerCharacter';
 import { TransformComponent } from '@xr3ngine/engine/src/transform/components/TransformComponent';
 import { DataConsumer, DataProducer } from 'mediasoup/lib/types';
 import logger from "../../app/logger";
@@ -269,9 +269,9 @@ export async function handleJoinWorld(socket, data, callback, userId, user): Pro
   //  const spawnPoint = Engine.spawnSystem.getRandomSpawnPoint();
 
     // Create a new default prefab for client
-    const networkObject = initializeNetworkObject(userId, Network.getNetworkId(), Network.instance.schema.defaultClientPrefab);// , spawnPoint.position, spawnPoint.rotation
+    const networkObject = createNetworkPlayer({ ownerId: userId });// , spawnPoint.position, spawnPoint.rotation
     const transform = getComponent(networkObject.entity, TransformComponent);
-
+/*
     // Add the network object to our list of network objects
     Network.instance.networkObjects[networkObject.networkId] = {
         ownerId: userId, // Owner's socket ID
@@ -279,8 +279,9 @@ export async function handleJoinWorld(socket, data, callback, userId, user): Pro
         component: networkObject,
         uniqueId: ''
     };
-
+*/
     // Added new object to the worldState with networkId and ownerId
+    /*
     Network.instance.createObjects.push({
         networkId: networkObject.networkId,
         ownerId: userId,
@@ -294,7 +295,7 @@ export async function handleJoinWorld(socket, data, callback, userId, user): Pro
         qZ: transform.rotation.z,
         qW: transform.rotation.w
     });
-
+*/
     // Create a new worldtate object that we can fill
     const worldState = {
         tick: Network.tick,

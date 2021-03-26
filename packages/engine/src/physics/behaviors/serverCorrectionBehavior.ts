@@ -8,6 +8,7 @@ import { CapsuleCollider } from '../components/CapsuleCollider';
 import { Engine } from '../../ecs/classes/Engine';
 import { TransformComponent } from '../../transform/components/TransformComponent';
 import { VehicleBody } from '../components/VehicleBody';
+import { interpolationBehavior, findOne } from './interpolationBehavior';
 import { Network } from '../../networking/classes/Network';
 
 
@@ -43,11 +44,19 @@ export const serverCorrectionBehavior: Behavior = (entity: Entity, args): void =
   } else if (hasComponent(entity, VehicleBody)) {
 
     const vehicleComponent = getComponent(entity, VehicleBody) as VehicleBody;
+    const isPassenger = vehicleComponent.passenger == Network.instance.localAvatarNetworkId;
+    // for passager
+    if (isPassenger) {
+      if (args.interpolation == null ) return;
+      interpolationBehavior(entity, { snapshot: args.interpolation });
+      return;
+    };
+
     const vehicle = vehicleComponent.vehiclePhysics;
     const chassisBody = vehicle.chassisBody;
     const isMoved = vehicleComponent.isMoved;
     const wheels = vehicleComponent.arrayWheelsMesh;
-    const isDriver = vehicleComponent.driver == Network.instance.localAvatarNetworkId;
+
 
     const carSpeed = vehicle.currentVehicleSpeedKmHour;
     const correction = 180 - (carSpeed/4);
@@ -115,30 +124,9 @@ export const serverCorrectionBehavior: Behavior = (entity: Entity, args): void =
         correctionQuaternion.w
       )
 
-      //         console.warn(yawFromQuaternion([
-      //           interpolationSnapshot.qX,
-      //           interpolationSnapshot.qY,
-      //           interpolationSnapshot.qZ,
-      //           interpolationSnapshot.qW
-      //         ]));
-
-
     }
 
-    if (!isMoved && (carSpeed > 1 || carSpeed < -1) ) {
-      vehicle.applyEngineForce(carSpeed * 2, 2);
-      vehicle.applyEngineForce(carSpeed * 2, 3);
-    } else if (!isMoved && (carSpeed < 0.1 && carSpeed > -0.1)) {
-      vehicle.setBrake(0.3, 0);
-      vehicle.setBrake(0.3, 1);
-      vehicle.applyEngineForce(-1, 2);
-      vehicle.applyEngineForce(-1, 3);
-    } else if (!isMoved && (carSpeed < 1 && carSpeed > -1)) {
-      vehicle.setBrake(2, 0);
-      vehicle.setBrake(2, 1);
-      vehicle.applyEngineForce(-3, 2);
-      vehicle.applyEngineForce(-3, 3);
-    }
+    
 
     for (let i = 0; i < wheels.length; i++) {
       wheels[i].position.set(

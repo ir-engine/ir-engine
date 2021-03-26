@@ -7,6 +7,7 @@ import { ColliderComponent } from '../components/ColliderComponent';
 
 
 export const RigidBodyBehavior: Behavior = (entity: Entity, args): void => {
+  if (!hasComponent(entity, ColliderComponent)) return;
   const colliderComponent = getComponent<ColliderComponent>(entity, ColliderComponent);
   const transform = getComponent<TransformComponent>(entity, TransformComponent);
 

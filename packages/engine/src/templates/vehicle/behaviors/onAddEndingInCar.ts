@@ -12,7 +12,7 @@ import { updateVectorAnimation, clearAnimOnChange, changeAnimation } from "@xr3n
 function doorAnimation(entityCar, seat, timer, timeAnimation, angel) {
   const vehicle = getComponent<VehicleBody>(entityCar, VehicleBody);
   const mesh = vehicle.vehicleDoorsArray[seat];
-
+  if (mesh === undefined) return;
   const andelPetTick = angel / (timeAnimation / 2);
   if (timer > (timeAnimation/2)) {
 
