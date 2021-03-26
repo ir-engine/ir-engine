@@ -22,7 +22,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/redux/feedBookmark/service.ts:8](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/feedBookmark/service.ts#L8)
+Defined in: [packages/client-core/redux/feedBookmark/service.ts:8](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/feedBookmark/service.ts#L8)
 
 ___
 
@@ -38,4 +38,4 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/redux/feedBookmark/service.ts:20](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/feedBookmark/service.ts#L20)
+Defined in: [packages/client-core/redux/feedBookmark/service.ts:20](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/feedBookmark/service.ts#L20)

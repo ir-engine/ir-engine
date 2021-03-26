@@ -16,7 +16,7 @@ hide_title: true
 
 [AssetTypes array containing types of items used]
 
-Defined in: [packages/client-core/components/editor/dnd/index.tsx:22](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/dnd/index.tsx#L22)
+Defined in: [packages/client-core/components/editor/dnd/index.tsx:22](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/dnd/index.tsx#L22)
 
 ___
 
@@ -39,7 +39,7 @@ Name | Type |
 `Video` | *string* |
 `Volumetric` | *string* |
 
-Defined in: [packages/client-core/components/editor/dnd/index.tsx:7](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/dnd/index.tsx#L7)
+Defined in: [packages/client-core/components/editor/dnd/index.tsx:7](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/dnd/index.tsx#L7)
 
 ## Functions
 
@@ -59,7 +59,7 @@ Name | Type |
 
 **Returns:** *boolean*
 
-Defined in: [packages/client-core/components/editor/dnd/index.tsx:65](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/dnd/index.tsx#L65)
+Defined in: [packages/client-core/components/editor/dnd/index.tsx:65](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/dnd/index.tsx#L65)
 
 ___
 
@@ -80,7 +80,7 @@ Name | Type |
 
 **Returns:** *boolean*
 
-Defined in: [packages/client-core/components/editor/dnd/index.tsx:46](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/dnd/index.tsx#L46)
+Defined in: [packages/client-core/components/editor/dnd/index.tsx:46](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/dnd/index.tsx#L46)
 
 ___
 
@@ -98,4 +98,4 @@ Name | Type |
 
 **Returns:** *boolean*
 
-Defined in: [packages/client-core/components/editor/dnd/index.tsx:35](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/dnd/index.tsx#L35)
+Defined in: [packages/client-core/components/editor/dnd/index.tsx:35](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/dnd/index.tsx#L35)

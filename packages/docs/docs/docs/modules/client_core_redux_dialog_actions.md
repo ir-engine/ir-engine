@@ -23,7 +23,7 @@ hide_title: true
 
 **Returns:** [*DialogAction*](../interfaces/client_core_redux_dialog_actions.dialogaction.md)
 
-Defined in: [packages/client-core/redux/dialog/actions.ts:20](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/dialog/actions.ts#L20)
+Defined in: [packages/client-core/redux/dialog/actions.ts:20](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/dialog/actions.ts#L20)
 
 ___
 
@@ -39,4 +39,4 @@ Name | Type |
 
 **Returns:** [*DialogAction*](../interfaces/client_core_redux_dialog_actions.dialogaction.md)
 
-Defined in: [packages/client-core/redux/dialog/actions.ts:14](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/dialog/actions.ts#L14)
+Defined in: [packages/client-core/redux/dialog/actions.ts:14](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/dialog/actions.ts#L14)

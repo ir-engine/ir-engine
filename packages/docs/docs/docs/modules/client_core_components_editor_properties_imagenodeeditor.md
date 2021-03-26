@@ -30,4 +30,4 @@ Name | Type |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/components/editor/properties/ImageNodeEditor.tsx:21](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/ImageNodeEditor.tsx#L21)
+Defined in: [packages/client-core/components/editor/properties/ImageNodeEditor.tsx:21](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/properties/ImageNodeEditor.tsx#L21)

@@ -14,7 +14,7 @@ hide_title: true
 
 • `Const` **Base**: *any*
 
-Defined in: [packages/client-core/components/terminal/components/Terminal/styled-elements.tsx:3](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/terminal/components/Terminal/styled-elements.tsx#L3)
+Defined in: [packages/client-core/components/terminal/components/Terminal/styled-elements.tsx:3](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/terminal/components/Terminal/styled-elements.tsx#L3)
 
 ___
 
@@ -22,7 +22,7 @@ ___
 
 • `Const` **ContainerWrapper**: *any*
 
-Defined in: [packages/client-core/components/terminal/components/Terminal/styled-elements.tsx:18](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/terminal/components/Terminal/styled-elements.tsx#L18)
+Defined in: [packages/client-core/components/terminal/components/Terminal/styled-elements.tsx:18](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/terminal/components/Terminal/styled-elements.tsx#L18)
 
 ___
 
@@ -30,4 +30,4 @@ ___
 
 • `Const` **Note**: *any*
 
-Defined in: [packages/client-core/components/terminal/components/Terminal/styled-elements.tsx:39](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/terminal/components/Terminal/styled-elements.tsx#L39)
+Defined in: [packages/client-core/components/terminal/components/Terminal/styled-elements.tsx:39](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/terminal/components/Terminal/styled-elements.tsx#L39)

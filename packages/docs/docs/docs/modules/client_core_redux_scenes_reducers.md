@@ -14,7 +14,7 @@ hide_title: true
 
 • `Const` **initialState**: [*PublicScenesState*](../interfaces/client_core_redux_scenes_actions.publicscenesstate.md)
 
-Defined in: [packages/client-core/redux/scenes/reducers.ts:13](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/scenes/reducers.ts#L13)
+Defined in: [packages/client-core/redux/scenes/reducers.ts:13](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/scenes/reducers.ts#L13)
 
 ## Functions
 
@@ -31,4 +31,4 @@ Name | Type |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/redux/scenes/reducers.ts:21](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/scenes/reducers.ts#L21)
+Defined in: [packages/client-core/redux/scenes/reducers.ts:21](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/scenes/reducers.ts#L21)

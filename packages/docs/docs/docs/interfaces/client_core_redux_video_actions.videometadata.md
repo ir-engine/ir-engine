@@ -16,7 +16,7 @@ hide_title: true
 
 • `Optional` **360\_format**: *string*
 
-Defined in: [packages/client-core/redux/video/actions.ts:12](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/video/actions.ts#L12)
+Defined in: [packages/client-core/redux/video/actions.ts:12](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/video/actions.ts#L12)
 
 ___
 
@@ -24,7 +24,7 @@ ___
 
 • `Optional` **categories**: *string*[]
 
-Defined in: [packages/client-core/redux/video/actions.ts:15](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/video/actions.ts#L15)
+Defined in: [packages/client-core/redux/video/actions.ts:15](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/video/actions.ts#L15)
 
 ___
 
@@ -32,7 +32,7 @@ ___
 
 • `Optional` **rating**: *string*
 
-Defined in: [packages/client-core/redux/video/actions.ts:14](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/video/actions.ts#L14)
+Defined in: [packages/client-core/redux/video/actions.ts:14](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/video/actions.ts#L14)
 
 ___
 
@@ -40,7 +40,7 @@ ___
 
 • `Optional` **runtime**: *string*
 
-Defined in: [packages/client-core/redux/video/actions.ts:16](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/video/actions.ts#L16)
+Defined in: [packages/client-core/redux/video/actions.ts:16](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/video/actions.ts#L16)
 
 ___
 
@@ -48,4 +48,4 @@ ___
 
 • `Optional` **thumbnailUrl**: *string*
 
-Defined in: [packages/client-core/redux/video/actions.ts:12](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/video/actions.ts#L12)
+Defined in: [packages/client-core/redux/video/actions.ts:12](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/video/actions.ts#L12)

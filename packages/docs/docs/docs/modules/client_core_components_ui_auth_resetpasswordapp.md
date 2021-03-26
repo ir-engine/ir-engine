@@ -22,4 +22,4 @@ Name | Type |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/components/ui/Auth/ResetPasswordApp.tsx:19](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/ui/Auth/ResetPasswordApp.tsx#L19)
+Defined in: [packages/client-core/components/ui/Auth/ResetPasswordApp.tsx:19](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/ui/Auth/ResetPasswordApp.tsx#L19)

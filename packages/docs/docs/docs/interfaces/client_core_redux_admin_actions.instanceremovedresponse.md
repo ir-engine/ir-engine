@@ -16,7 +16,7 @@ hide_title: true
 
 • **instance**: *any*
 
-Defined in: [packages/client-core/redux/admin/actions.ts:79](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/admin/actions.ts#L79)
+Defined in: [packages/client-core/redux/admin/actions.ts:79](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/admin/actions.ts#L79)
 
 ___
 
@@ -24,4 +24,4 @@ ___
 
 • **type**: *string*
 
-Defined in: [packages/client-core/redux/admin/actions.ts:78](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/admin/actions.ts#L78)
+Defined in: [packages/client-core/redux/admin/actions.ts:78](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/admin/actions.ts#L78)

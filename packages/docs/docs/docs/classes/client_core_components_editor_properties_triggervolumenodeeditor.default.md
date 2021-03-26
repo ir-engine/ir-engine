@@ -34,7 +34,7 @@ Name | Type |
 
 Overrides: void
 
-Defined in: [packages/client-core/components/editor/properties/TriggerVolumeNodeEditor.tsx:61](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/TriggerVolumeNodeEditor.tsx#L61)
+Defined in: [packages/client-core/components/editor/properties/TriggerVolumeNodeEditor.tsx:61](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/properties/TriggerVolumeNodeEditor.tsx#L61)
 
 ## Properties
 
@@ -130,7 +130,7 @@ ___
 
 ▪ `Static` **description**: *string*= "Sets a property on the target object on enter and leave."
 
-Defined in: [packages/client-core/components/editor/properties/TriggerVolumeNodeEditor.tsx:87](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/TriggerVolumeNodeEditor.tsx#L87)
+Defined in: [packages/client-core/components/editor/properties/TriggerVolumeNodeEditor.tsx:87](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/properties/TriggerVolumeNodeEditor.tsx#L87)
 
 ___
 
@@ -138,7 +138,7 @@ ___
 
 ▪ `Static` **iconComponent**: StyledIcon
 
-Defined in: [packages/client-core/components/editor/properties/TriggerVolumeNodeEditor.tsx:84](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/TriggerVolumeNodeEditor.tsx#L84)
+Defined in: [packages/client-core/components/editor/properties/TriggerVolumeNodeEditor.tsx:84](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/properties/TriggerVolumeNodeEditor.tsx#L84)
 
 ## Methods
 
@@ -269,7 +269,7 @@ ___
 
 Overrides: void
 
-Defined in: [packages/client-core/components/editor/properties/TriggerVolumeNodeEditor.tsx:72](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/TriggerVolumeNodeEditor.tsx#L72)
+Defined in: [packages/client-core/components/editor/properties/TriggerVolumeNodeEditor.tsx:72](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/properties/TriggerVolumeNodeEditor.tsx#L72)
 
 ___
 
@@ -459,7 +459,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/properties/TriggerVolumeNodeEditor.tsx:103](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/TriggerVolumeNodeEditor.tsx#L103)
+Defined in: [packages/client-core/components/editor/properties/TriggerVolumeNodeEditor.tsx:103](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/properties/TriggerVolumeNodeEditor.tsx#L103)
 
 ___
 
@@ -476,7 +476,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/properties/TriggerVolumeNodeEditor.tsx:112](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/TriggerVolumeNodeEditor.tsx#L112)
+Defined in: [packages/client-core/components/editor/properties/TriggerVolumeNodeEditor.tsx:112](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/properties/TriggerVolumeNodeEditor.tsx#L112)
 
 ___
 
@@ -492,7 +492,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/properties/TriggerVolumeNodeEditor.tsx:120](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/TriggerVolumeNodeEditor.tsx#L120)
+Defined in: [packages/client-core/components/editor/properties/TriggerVolumeNodeEditor.tsx:120](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/properties/TriggerVolumeNodeEditor.tsx#L120)
 
 ___
 
@@ -508,7 +508,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/properties/TriggerVolumeNodeEditor.tsx:125](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/TriggerVolumeNodeEditor.tsx#L125)
+Defined in: [packages/client-core/components/editor/properties/TriggerVolumeNodeEditor.tsx:125](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/properties/TriggerVolumeNodeEditor.tsx#L125)
 
 ___
 
@@ -525,7 +525,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/properties/TriggerVolumeNodeEditor.tsx:135](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/TriggerVolumeNodeEditor.tsx#L135)
+Defined in: [packages/client-core/components/editor/properties/TriggerVolumeNodeEditor.tsx:135](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/properties/TriggerVolumeNodeEditor.tsx#L135)
 
 ___
 
@@ -541,7 +541,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/properties/TriggerVolumeNodeEditor.tsx:143](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/TriggerVolumeNodeEditor.tsx#L143)
+Defined in: [packages/client-core/components/editor/properties/TriggerVolumeNodeEditor.tsx:143](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/properties/TriggerVolumeNodeEditor.tsx#L143)
 
 ___
 
@@ -557,7 +557,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/properties/TriggerVolumeNodeEditor.tsx:90](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/TriggerVolumeNodeEditor.tsx#L90)
+Defined in: [packages/client-core/components/editor/properties/TriggerVolumeNodeEditor.tsx:90](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/properties/TriggerVolumeNodeEditor.tsx#L90)
 
 ___
 
@@ -569,7 +569,7 @@ ___
 
 Overrides: void
 
-Defined in: [packages/client-core/components/editor/properties/TriggerVolumeNodeEditor.tsx:149](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/TriggerVolumeNodeEditor.tsx#L149)
+Defined in: [packages/client-core/components/editor/properties/TriggerVolumeNodeEditor.tsx:149](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/properties/TriggerVolumeNodeEditor.tsx#L149)
 
 ___
 

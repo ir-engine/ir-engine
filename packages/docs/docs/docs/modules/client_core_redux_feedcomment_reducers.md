@@ -22,7 +22,7 @@ Name | Type |
 `feeds.feedComments` | *any*[] |
 `feeds.fetching` | *boolean* |
 
-Defined in: [packages/client-core/redux/feedComment/reducers.ts:17](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/feedComment/reducers.ts#L17)
+Defined in: [packages/client-core/redux/feedComment/reducers.ts:17](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/feedComment/reducers.ts#L17)
 
 ## Functions
 
@@ -39,4 +39,4 @@ Name | Type |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/redux/feedComment/reducers.ts:26](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/feedComment/reducers.ts#L26)
+Defined in: [packages/client-core/redux/feedComment/reducers.ts:26](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/feedComment/reducers.ts#L26)

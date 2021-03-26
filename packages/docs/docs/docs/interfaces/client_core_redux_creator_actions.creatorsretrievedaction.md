@@ -16,7 +16,7 @@ hide_title: true
 
 • **creators**: CreatorShort[]
 
-Defined in: [packages/client-core/redux/creator/actions.ts:15](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/creator/actions.ts#L15)
+Defined in: [packages/client-core/redux/creator/actions.ts:15](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/creator/actions.ts#L15)
 
 ___
 
@@ -24,4 +24,4 @@ ___
 
 • **type**: *string*
 
-Defined in: [packages/client-core/redux/creator/actions.ts:14](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/creator/actions.ts#L14)
+Defined in: [packages/client-core/redux/creator/actions.ts:14](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/creator/actions.ts#L14)

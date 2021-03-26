@@ -23,7 +23,7 @@ hide_title: true
 
 Ƭ **FeedsAction**: [*FeedsRetrievedAction*](../interfaces/client_core_redux_feed_actions.feedsretrievedaction.md) \| [*FeedRetrievedAction*](../interfaces/client_core_redux_feed_actions.feedretrievedaction.md) \| [*FetchingFeedsAction*](../interfaces/client_core_redux_feed_actions.fetchingfeedsaction.md) \| [*oneFeedAction*](../interfaces/client_core_redux_feed_actions.onefeedaction.md)
 
-Defined in: [packages/client-core/redux/feed/actions.ts:36](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/feed/actions.ts#L36)
+Defined in: [packages/client-core/redux/feed/actions.ts:36](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/feed/actions.ts#L36)
 
 ## Functions
 
@@ -39,7 +39,7 @@ Name | Type |
 
 **Returns:** [*FeedRetrievedAction*](../interfaces/client_core_redux_feed_actions.feedretrievedaction.md)
 
-Defined in: [packages/client-core/redux/feed/actions.ts:119](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/feed/actions.ts#L119)
+Defined in: [packages/client-core/redux/feed/actions.ts:119](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/feed/actions.ts#L119)
 
 ___
 
@@ -55,7 +55,7 @@ Name | Type |
 
 **Returns:** [*oneFeedAction*](../interfaces/client_core_redux_feed_actions.onefeedaction.md)
 
-Defined in: [packages/client-core/redux/feed/actions.ts:98](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/feed/actions.ts#L98)
+Defined in: [packages/client-core/redux/feed/actions.ts:98](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/feed/actions.ts#L98)
 
 ___
 
@@ -71,7 +71,7 @@ Name | Type |
 
 **Returns:** [*oneFeedAction*](../interfaces/client_core_redux_feed_actions.onefeedaction.md)
 
-Defined in: [packages/client-core/redux/feed/actions.ts:84](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/feed/actions.ts#L84)
+Defined in: [packages/client-core/redux/feed/actions.ts:84](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/feed/actions.ts#L84)
 
 ___
 
@@ -87,7 +87,7 @@ Name | Type |
 
 **Returns:** [*oneFeedAction*](../interfaces/client_core_redux_feed_actions.onefeedaction.md)
 
-Defined in: [packages/client-core/redux/feed/actions.ts:112](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/feed/actions.ts#L112)
+Defined in: [packages/client-core/redux/feed/actions.ts:112](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/feed/actions.ts#L112)
 
 ___
 
@@ -103,7 +103,7 @@ Name | Type |
 
 **Returns:** [*FeedRetrievedAction*](../interfaces/client_core_redux_feed_actions.feedretrievedaction.md)
 
-Defined in: [packages/client-core/redux/feed/actions.ts:70](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/feed/actions.ts#L70)
+Defined in: [packages/client-core/redux/feed/actions.ts:70](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/feed/actions.ts#L70)
 
 ___
 
@@ -119,7 +119,7 @@ Name | Type |
 
 **Returns:** [*FeedsRetrievedAction*](../interfaces/client_core_redux_feed_actions.feedsretrievedaction.md)
 
-Defined in: [packages/client-core/redux/feed/actions.ts:63](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/feed/actions.ts#L63)
+Defined in: [packages/client-core/redux/feed/actions.ts:63](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/feed/actions.ts#L63)
 
 ___
 
@@ -135,7 +135,7 @@ Name | Type |
 
 **Returns:** [*FeedsRetrievedAction*](../interfaces/client_core_redux_feed_actions.feedsretrievedaction.md)
 
-Defined in: [packages/client-core/redux/feed/actions.ts:56](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/feed/actions.ts#L56)
+Defined in: [packages/client-core/redux/feed/actions.ts:56](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/feed/actions.ts#L56)
 
 ___
 
@@ -151,7 +151,7 @@ Name | Type |
 
 **Returns:** [*FeedsRetrievedAction*](../interfaces/client_core_redux_feed_actions.feedsretrievedaction.md)
 
-Defined in: [packages/client-core/redux/feed/actions.ts:49](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/feed/actions.ts#L49)
+Defined in: [packages/client-core/redux/feed/actions.ts:49](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/feed/actions.ts#L49)
 
 ___
 
@@ -167,7 +167,7 @@ Name | Type |
 
 **Returns:** [*FeedsRetrievedAction*](../interfaces/client_core_redux_feed_actions.feedsretrievedaction.md)
 
-Defined in: [packages/client-core/redux/feed/actions.ts:42](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/feed/actions.ts#L42)
+Defined in: [packages/client-core/redux/feed/actions.ts:42](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/feed/actions.ts#L42)
 
 ___
 
@@ -177,7 +177,7 @@ ___
 
 **Returns:** [*FetchingFeedsAction*](../interfaces/client_core_redux_feed_actions.fetchingfeedsaction.md)
 
-Defined in: [packages/client-core/redux/feed/actions.ts:78](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/feed/actions.ts#L78)
+Defined in: [packages/client-core/redux/feed/actions.ts:78](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/feed/actions.ts#L78)
 
 ___
 
@@ -193,7 +193,7 @@ Name | Type |
 
 **Returns:** [*oneFeedAction*](../interfaces/client_core_redux_feed_actions.onefeedaction.md)
 
-Defined in: [packages/client-core/redux/feed/actions.ts:105](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/feed/actions.ts#L105)
+Defined in: [packages/client-core/redux/feed/actions.ts:105](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/feed/actions.ts#L105)
 
 ___
 
@@ -209,4 +209,4 @@ Name | Type |
 
 **Returns:** [*oneFeedAction*](../interfaces/client_core_redux_feed_actions.onefeedaction.md)
 
-Defined in: [packages/client-core/redux/feed/actions.ts:91](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/feed/actions.ts#L91)
+Defined in: [packages/client-core/redux/feed/actions.ts:91](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/feed/actions.ts#L91)

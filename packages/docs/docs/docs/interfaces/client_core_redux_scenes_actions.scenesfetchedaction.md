@@ -16,7 +16,7 @@ hide_title: true
 
 • `Optional` **message**: *string*
 
-Defined in: [packages/client-core/redux/scenes/actions.ts:24](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/scenes/actions.ts#L24)
+Defined in: [packages/client-core/redux/scenes/actions.ts:24](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/scenes/actions.ts#L24)
 
 ___
 
@@ -24,7 +24,7 @@ ___
 
 • `Optional` **scene**: [*PublicScene*](client_core_redux_scenes_actions.publicscene.md)
 
-Defined in: [packages/client-core/redux/scenes/actions.ts:23](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/scenes/actions.ts#L23)
+Defined in: [packages/client-core/redux/scenes/actions.ts:23](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/scenes/actions.ts#L23)
 
 ___
 
@@ -32,7 +32,7 @@ ___
 
 • `Optional` **scenes**: [*PublicScene*](client_core_redux_scenes_actions.publicscene.md)[]
 
-Defined in: [packages/client-core/redux/scenes/actions.ts:22](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/scenes/actions.ts#L22)
+Defined in: [packages/client-core/redux/scenes/actions.ts:22](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/scenes/actions.ts#L22)
 
 ___
 
@@ -40,4 +40,4 @@ ___
 
 • **type**: *string*
 
-Defined in: [packages/client-core/redux/scenes/actions.ts:21](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/scenes/actions.ts#L21)
+Defined in: [packages/client-core/redux/scenes/actions.ts:21](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/scenes/actions.ts#L21)

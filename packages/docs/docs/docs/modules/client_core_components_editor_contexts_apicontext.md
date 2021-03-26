@@ -20,7 +20,7 @@ without explicitly threading it through every component.
 ApiContext used to context API component
    ]
 
-Defined in: [packages/client-core/components/editor/contexts/ApiContext.tsx:12](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/contexts/ApiContext.tsx#L12)
+Defined in: [packages/client-core/components/editor/contexts/ApiContext.tsx:12](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/contexts/ApiContext.tsx#L12)
 
 ## Functions
 
@@ -38,4 +38,4 @@ Name | Type |
 
 **Returns:** (`props`: *any*) => *Element*
 
-Defined in: [packages/client-core/components/editor/contexts/ApiContext.tsx:17](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/contexts/ApiContext.tsx#L17)
+Defined in: [packages/client-core/components/editor/contexts/ApiContext.tsx:17](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/contexts/ApiContext.tsx#L17)

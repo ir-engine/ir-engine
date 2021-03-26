@@ -16,7 +16,7 @@ hide_title: true
 
 • **feeds**: FeedShort[]
 
-Defined in: [packages/client-core/redux/feed/actions.ts:19](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/feed/actions.ts#L19)
+Defined in: [packages/client-core/redux/feed/actions.ts:19](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/feed/actions.ts#L19)
 
 ___
 
@@ -24,4 +24,4 @@ ___
 
 • **type**: *string*
 
-Defined in: [packages/client-core/redux/feed/actions.ts:18](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/feed/actions.ts#L18)
+Defined in: [packages/client-core/redux/feed/actions.ts:18](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/feed/actions.ts#L18)

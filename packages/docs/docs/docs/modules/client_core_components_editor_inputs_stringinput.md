@@ -14,7 +14,7 @@ hide_title: true
 
 • `Const` **ControlledStringInput**: *ForwardRefExoticComponent*<RefAttributes<unknown\>\>
 
-Defined in: [packages/client-core/components/editor/inputs/StringInput.tsx:42](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/inputs/StringInput.tsx#L42)
+Defined in: [packages/client-core/components/editor/inputs/StringInput.tsx:42](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/inputs/StringInput.tsx#L42)
 
 ___
 
@@ -22,4 +22,4 @@ ___
 
 • `Const` **default**: *ForwardRefExoticComponent*<RefAttributes<unknown\>\>
 
-Defined in: [packages/client-core/components/editor/inputs/StringInput.tsx:12](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/inputs/StringInput.tsx#L12)
+Defined in: [packages/client-core/components/editor/inputs/StringInput.tsx:12](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/inputs/StringInput.tsx#L12)

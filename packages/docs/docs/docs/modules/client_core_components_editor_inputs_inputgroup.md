@@ -23,7 +23,7 @@ hide_title: true
 
 [used to provide styles for InputGroupContainer div]
 
-Defined in: [packages/client-core/components/editor/inputs/InputGroup.tsx:10](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/inputs/InputGroup.tsx#L10)
+Defined in: [packages/client-core/components/editor/inputs/InputGroup.tsx:10](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/inputs/InputGroup.tsx#L10)
 
 ___
 
@@ -33,7 +33,7 @@ ___
 
 [used to provide styles for InputGroupContent div]
 
-Defined in: [packages/client-core/components/editor/inputs/InputGroup.tsx:37](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/inputs/InputGroup.tsx#L37)
+Defined in: [packages/client-core/components/editor/inputs/InputGroup.tsx:37](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/inputs/InputGroup.tsx#L37)
 
 ___
 
@@ -43,7 +43,7 @@ ___
 
 [used to provide styles for InputGroupInfoIcon div]
 
-Defined in: [packages/client-core/components/editor/inputs/InputGroup.tsx:48](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/inputs/InputGroup.tsx#L48)
+Defined in: [packages/client-core/components/editor/inputs/InputGroup.tsx:48](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/inputs/InputGroup.tsx#L48)
 
 ## Functions
 
@@ -61,7 +61,7 @@ Name | Type |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/components/editor/inputs/InputGroup.tsx:61](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/inputs/InputGroup.tsx#L61)
+Defined in: [packages/client-core/components/editor/inputs/InputGroup.tsx:61](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/inputs/InputGroup.tsx#L61)
 
 ___
 
@@ -79,4 +79,4 @@ Name | Type |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/components/editor/inputs/InputGroup.tsx:86](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/inputs/InputGroup.tsx#L86)
+Defined in: [packages/client-core/components/editor/inputs/InputGroup.tsx:86](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/inputs/InputGroup.tsx#L86)
