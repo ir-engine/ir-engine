@@ -247,8 +247,9 @@ yarn run dev-reinit-db // in server package
 # Development
 
 ## API Reference
-[Open API]https://api-dev.theoverlay.io/openapi/)
-[GraphQL]https://api-dev.theoverlay.io/graphql/) 
+[Open API](https://api-dev.theoverlay.io/openapi/)
+
+[GraphQL](https://api-dev.theoverlay.io/graphql/) 
 
 ## Code Reference
 
