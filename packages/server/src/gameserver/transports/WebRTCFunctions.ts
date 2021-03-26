@@ -214,8 +214,6 @@ export async function createInternalDataConsumer(dataProducer: DataProducer, use
 }
 
 export async function handleWebRtcTransportCreate(socket, data: WebRtcTransportParams, callback): Promise<any> {
-    console.log('handleWebRtcTransportCreate');
-    console.log(data);
     networkTransport = Network.instance.transport as any;
     const userId = getUserIdFromSocketId(socket.id);
     const { direction, peerId, sctpCapabilities, channelType, channelId } = Object.assign(data, { peerId: userId });
