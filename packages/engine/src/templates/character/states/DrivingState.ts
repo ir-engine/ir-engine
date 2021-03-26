@@ -1,67 +1,166 @@
 import { Behavior } from '@xr3ngine/engine/src/common/interfaces/Behavior';
+import { MathUtils, Vector3 } from "three";
+import { Network } from '@xr3ngine/engine/src/networking/classes/Network';
 import { updateVectorAnimation, clearAnimOnChange, changeAnimation } from "../behaviors/updateVectorAnimation";
-import { getComponent, getMutableComponent } from '../../../ecs/functions/EntityFunctions';
-
+import { getComponent, hasComponent, getMutableComponent } from '../../../ecs/functions/EntityFunctions';
+import { TransformComponent } from '../../../transform/components/TransformComponent';
 import { CharacterStateTypes } from "../CharacterStateTypes";
 import { CharacterComponent } from '../components/CharacterComponent';
 import { StateSchemaValue } from '../../../state/interfaces/StateSchema';
+import { isMobileOrTablet } from '../../../common/functions/isMobile';
+import { NumericalType } from '../../../common/types/NumericalTypes';
+import { Input } from '../../../input/components/Input';
+import { LifecycleValue } from '../../../common/enums/LifecycleValue';
+import { FollowCameraComponent } from '../../../camera/components/FollowCameraComponent';
+import { PlayerInCar } from '@xr3ngine/engine/src/physics/components/PlayerInCar';
+import { BaseInput } from '../../../input/enums/BaseInput';
+import { CameraModes } from '../../../camera/types/CameraModes';
+
+let prevState;
+const emptyInputValue = [0, 0] as NumericalType;
+/**
+ * Get Input data from the device.
+ *
+ * @param inputComponent Input component which is holding input data.
+ * @param inputAxes Axes of the input.
+ * @param forceRefresh
+ *
+ * @returns Input value from input component.
+ */
+ const getInputData = (inputComponent: Input, inputAxes: number, prevValue: NumericalType ): {
+  currentInputValue: NumericalType;
+  inputValue: NumericalType
+} => {
+  const result = {
+    currentInputValue: emptyInputValue,
+    inputValue: emptyInputValue,
+  }
+  if (!inputComponent?.data.has(inputAxes)) return result;
+
+  const inputData = inputComponent.data.get(inputAxes);
+  result.currentInputValue = inputData.value;
+  result.inputValue = inputData.lifecycleState === LifecycleValue.ENDED ||
+    JSON.stringify(result.currentInputValue) === JSON.stringify(prevValue)
+      ? emptyInputValue : result.currentInputValue;
+  return result;
+}
+/*
+const downVector = new Vector3(0, -1, 0)
+const leftVector = new Vector3(1, 0, 0);
+const upVector = new Vector3(0, 1, 0);
+const forwardVector = new Vector3(0, 0, 1);
+const emptyVector = new Vector3();
+
+const halfPI = Math.PI / 2;
+*/
+const damping = 0.05; // To reduce the change in direction.
+export const updateCharacterState: Behavior = (entity, args: {}, deltaTime: number): void => {
+
+	const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
+  if (!hasComponent(entity, PlayerInCar)) return;
+	const playerInCar = getComponent<PlayerInCar>(entity, PlayerInCar as any);
+  const entityCar = Network.instance.networkObjects[playerInCar.networkCarId].component.entity;
+//	if (!actor.initialized) return console.warn("Actor no initialized");
+  const actorTransform = getMutableComponent(entityCar, TransformComponent);
+
+//	actor.timer += deltaTime;
+
+	const localMovementDirection = actor.localMovementDirection; //getLocalMovementDirection(entity);
+
+  if(actor.moveVectorSmooth.position.length() < 0.1) { actor.moveVectorSmooth.velocity.multiplyScalar(0.9) };
+  if(actor.moveVectorSmooth.position.length() < 0.001) { actor.moveVectorSmooth.velocity.set(0,0,0); actor.moveVectorSmooth.position.set(0,0,0); }
+
+  if(actor.changedViewAngle) {
+    const viewVectorAngle = Math.atan2(actor.viewVector.z, actor.viewVector.x);
+    actor.viewVector.x = Math.cos(viewVectorAngle - (actor.changedViewAngle * damping));
+    actor.viewVector.z = Math.sin(viewVectorAngle - (actor.changedViewAngle * damping));
+  }
+
+  const inputComponent = getComponent(entityCar, Input) as Input;
+  const followCamera = getMutableComponent<FollowCameraComponent>(entity, FollowCameraComponent) as FollowCameraComponent;
+  if(followCamera) {
+
+    const inputAxes = BaseInput.LOOKTURN_PLAYERONE;
+
+    const { inputValue, currentInputValue } = getInputData(inputComponent, inputAxes, prevState);
+    prevState = currentInputValue;
+
+    if(followCamera.locked ) { // this is for cars
+    //  followCamera.theta = Math.atan2(actorTransform.rotation.z, actorTransform.rotation.x) * 180 / Math.PI
+    }
+
+    followCamera.theta -= inputValue[0] * (isMobileOrTablet() ? 60 : 100);
+    followCamera.theta %= 360;
+
+    followCamera.phi -= inputValue[1] * (isMobileOrTablet() ? 60 : 100);
+    followCamera.phi = Math.min(85, Math.max(-70, followCamera.phi));
+
+    if(followCamera.locked || followCamera.mode === CameraModes.FirstPerson) {
+    //  actorTransform.rotation.setFromAxisAngle(upVector, (followCamera.theta - 180) * (Math.PI / 180));
+  //    actor.orientation.copy(forwardVector).applyQuaternion(actorTransform.rotation);
+    //  actorTransform.rotation.setFromUnitVectors(forwardVector, actor.orientation.clone().setY(0));
+    }
+  }
+}
 
 const { DRIVING, ENTERING_VEHICLE, EXITING_VEHICLE } = CharacterStateTypes;
 
 const animationsSchema = [
   {
-    type: [DRIVING], name: 'driving', axis: 'xyz', speed: 1, customProperties: ['weight', 'dontHasHit'],
+    type: [DRIVING], name: 'driving', axis: 'xyz', speed: 1, customProperties: ['weight', 'test'],
     value:      [ -0.5, 0, 0.5 ],
-    weight:     [  0 ,  1,   0 ],
-    dontHasHit: [  0 ,  0,   0 ]
-  },{
-    type: [ENTERING_VEHICLE], name: 'entering_car', axis:'xyz', speed: 0.5, customProperties: ['weight', 'dontHasHit'],
-    value:      [ -1,   0,   1 ],
     weight:     [  0 ,  0,   0 ],
-    dontHasHit: [  1 ,  1,   1 ]
+    test:       [  0 ,  1,   0 ]
+  },{
+    type: [ENTERING_VEHICLE], name: 'entering_car', axis:'z', speed: 0.5, customProperties: ['weight', 'test'],
+    value:      [  0,   1 ],
+    weight:     [  1,   0 ],
+    test:       [  0,   1 ]
   },
   {
-    type: [EXITING_VEHICLE], name: 'exiting_car', axis:'y', speed: 0.5, customProperties: ['weight', 'dontHasHit'],
+    type: [EXITING_VEHICLE], name: 'exiting_car', axis:'z', speed: 0.5, customProperties: ['weight', 'test'],
     value:      [  -1  ,   0  ],
-    weight:     [   1 ,    0  ],
-    dontHasHit: [   1  ,   0  ]
+    weight:     [   1  ,   1  ],
+    test:       [   0  ,   0  ]
   }
 ];
 
 
-
+const customVector = new Vector3(0,0,0);
 const getDrivingValues: Behavior = (entity, args: {}, deltaTime: number): any => {
-  const values = { test: 1 }
-  //console.warn('onAddedInCar '+seat);
-  /*
+
+/*
   const networkDriverId = getComponent<NetworkObject>(entity, NetworkObject).networkId;
   const vehicle = getMutableComponent<VehicleBody>(entityCar, VehicleBody);
   vehicle[vehicle.seatPlane[seat]] = networkDriverId;
-
+  */
   const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
-  PhysicsSystem.physicsWorld.removeBody(actor.actorCapsule.body);
+	const playerInCar = getComponent<PlayerInCar>(entity, PlayerInCar as any);
+  let testDrive = playerInCar.networkCarId != undefined;
+  const entityCar = Network.instance.networkObjects[playerInCar.networkCarId].component.entity;
+//  const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
+//  PhysicsSystem.physicsWorld.removeBody(actor.actorCapsule.body);
 
-  const orientation = positionEnter(entity, entityCar, seat);
-  getMutableComponent(entity, PlayerInCar).state = 'onAddEnding';
+  //const orientation = positionEnter(entity, entityCar, seat);
+  //getMutableComponent(entity, PlayerInCar).state = 'onAddInCar';
 
-  if (isServer) return;
-  // CLIENT
-  addComponent(entity, EnteringVehicle);
-  setState(entity, { state: CharacterStateTypes.ENTERING_VEHICLE });
-  // LocalPlayerOnly
-  if (Network.instance.userNetworkId != networkDriverId) return;
-  addComponent(entityCar, LocalInputReceiver);
-  addComponent(entityCar, FollowCameraComponent, {
-    distance: 7,
-    locked: false,
-    mode: CameraModes.ThirdPerson,
-    theta: Math.round( ( (270/Math.PI) * (orientation/3*2) ) + 180),
-    phi: 20
-   });
-   */
    // going to animation clip behavior for set values to animations
    // any parameters
-   return { values: values.test };
+   // simulate rayCastHit as vectorY from 1 to 0, for smooth changes
+  //  absSpeed = MathUtils.smoothstep(absSpeed, 0, 1);
+   actor.moveVectorSmooth.target.copy(actor.animationVelocity);
+   actor.moveVectorSmooth.simulate(deltaTime);
+   const actorVelocity = actor.moveVectorSmooth.position;
+
+   customVector.setY(testDrive ? 0 : 1);
+   actor.vactorAnimSimulator.target.copy(customVector);
+   actor.vactorAnimSimulator.simulate(deltaTime);
+   let test = actor.vactorAnimSimulator.position.y;
+
+   test < 0.00001 ? test = 0:'';
+   test = Math.min(test, 1);
+
+   return { actorVelocity, test };
 }
 
 const initializeDriverState: Behavior = (entity, args: { x?: number, y?: number, z?: number }) => {
@@ -92,6 +191,9 @@ export const DrivingState: StateSchemaValue = {
     }
   ],
   onUpdate: [
+    {
+      behavior: updateCharacterState // rotation character
+    },
     {
       behavior: updateVectorAnimation,
       args: {

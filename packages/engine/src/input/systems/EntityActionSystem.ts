@@ -231,20 +231,20 @@ export class EntityActionSystem extends System {
         });
 
         let sendSwitchInputs = false;
-
+        
         if (!hasComponent(Network.instance.networkObjects[Network.instance.localAvatarNetworkId].component.entity, LocalInputReceiver) && !this.needSend) {
           this.needSend = true;
           sendSwitchInputs = true;
           this.switchId = getComponent(entity, NetworkObject).networkId;
-          //console.warn('Car id: '+ getComponent(entity, NetworkObject).networkId);
+          console.warn('Car id: '+ getComponent(entity, NetworkObject).networkId);
         } else if (hasComponent(Network.instance.networkObjects[Network.instance.localAvatarNetworkId].component.entity, LocalInputReceiver) && this.needSend) {
           this.needSend = false;
           sendSwitchInputs = true;
-          //  console.warn('Network.instance.userNetworkId: '+ Network.instance.userNetworkId);
+          console.warn('Network.instance.userNetworkId: '+ Network.instance.localAvatarNetworkId);
         }
 
 
-        //  sendSwitchInputs ? console.warn('switchInputs'):'';
+          sendSwitchInputs ? console.warn('switchInputs'):'';
         //cleanupInput(entity);
         // If input is the same as last frame, return
         // if (_.isEqual(input.data, input.lastData))
