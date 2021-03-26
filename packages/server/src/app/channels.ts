@@ -7,9 +7,7 @@ import getLocalServerIp from '../util/get-local-server-ip';
 import logger from './logger';
 import {localConfig} from "../gameserver/transports/config";
 import {RtpCodecCapability} from "mediasoup/lib/types";
-
-
-let sceneLoaded = false;
+import { Engine } from '@xr3ngine/engine/src/ecs/classes/Engine';
 
 export default (app: Application): void => {
     if (typeof app.channel !== 'function') {
@@ -104,9 +102,8 @@ export default (app: Application): void => {
                               }
                               const result = await app.service(service).get(serviceId);
 
-                              if (!sceneLoaded) {
+                              if (!Engine.sceneLoaded) {
                                 loadScene(result);
-                                sceneLoaded = true;
                               }
                             }
                         } else {

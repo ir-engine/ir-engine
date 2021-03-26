@@ -57,6 +57,7 @@ export function loadScene(scene: SceneData): void {
   });
   Promise.all(loadPromises).then(() => {
     EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.SCENE_LOADED });
+    Engine.sceneLoaded = true;
   });
 }
 
