@@ -99,6 +99,7 @@ export default class ModelNode extends EditorNodeMixin(Model) {
     this.boundingBox = new Box3();
     this.boundingSphere = new Sphere();
     this.gltfJson = null;
+    this.isValidURL=false;
   }
   // Overrides Model's src property and stores the original (non-resolved) url.
   get src(): string {
@@ -137,7 +138,7 @@ export default class ModelNode extends EditorNodeMixin(Model) {
     this.hideErrorIcon();
     try {
       console.log("Try");
-
+      this.isValidURL=true;
       const { accessibleUrl, files } = await this.editor.api.resolveMedia(src);
       if (this.model) {
         this.editor.renderer.removeBatchedObject(this.model);
@@ -188,7 +189,8 @@ export default class ModelNode extends EditorNodeMixin(Model) {
       }
       console.error(modelError);
       this.issues.push({ severity: "error", message: "Error loading model." });
-      this._canonicalUrl = "";
+      this.isValidURL=false;
+      //this._canonicalUrl = "";
     }
     this.editor.emit("objectsChanged", [this]);
     this.editor.emit("selectionChanged");
