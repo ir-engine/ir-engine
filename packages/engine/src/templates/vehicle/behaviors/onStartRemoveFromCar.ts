@@ -14,6 +14,7 @@ import { updateVectorAnimation, clearAnimOnChange, changeAnimation } from "@xr3n
 function doorAnimation(entityCar, seat, timer, timeAnimation, angel) {
   const vehicle = getComponent<VehicleBody>(entityCar, VehicleBody);
   const mesh = vehicle.vehicleDoorsArray[seat];
+  if (mesh === undefined) return;
 
   const andelPetTick = angel / (timeAnimation / 2);
   if (timer > (timeAnimation/2)) {
@@ -66,7 +67,6 @@ export const onStartRemoveFromCar = (entity: Entity, entityCar: Entity, seat: nu
 
 
   if (playerInCar.currentFrame > carTimeOut) {
-
     positionExit(entity, entityCar, seat);
     removeComponent(entity, PlayerInCar)
   } else {
@@ -93,12 +93,14 @@ export const onStartRemoveFromCar = (entity: Entity, entityCar: Entity, seat: nu
 
   if (isServer) return;
 
-  if (playerInCar.currentFrame == playerInCar.animationSpeed) {
 
+
+  if (playerInCar.currentFrame == playerInCar.animationSpeed) {
+    setState(entity, { state: CharacterStateTypes.DEFAULT });
     changeAnimation(entity, {
       animationId: CharacterStateTypes.EXITING_VEHICLE,
-  	  transitionDuration: 0.3
+      transitionDuration: 0.3
      })
-
   }
+
 };

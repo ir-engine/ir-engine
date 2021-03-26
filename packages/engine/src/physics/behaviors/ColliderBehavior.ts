@@ -53,15 +53,11 @@ export const handleCollider: Behavior = (entity: Entity, args: { phase?: string 
       break;
 
     case 'trimesh':
-    body = createTrimesh(
-        colliderComponent.mesh,
-        new Vec3(),
-        colliderComponent.mass
-      );
+    body = createTrimesh(entity);
       break;
 
     default:
-      body = createBox(entity)
+      body = createBox(entity);
       break;
   }
   PhysicsSystem.physicsWorld.addBody(body);
