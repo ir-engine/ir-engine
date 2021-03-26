@@ -36,16 +36,37 @@ can be useful to have them running on a different group; there's no conflict for
 resources with the other server types, and you can specify more powerful instance types
 if needed.
 
+#### Create launch template
+Go EC2 -> Launch Templates and make a new one. Name it something like 'xr3ngine-production-gameserver'.
+Most settings can be left as-is, except for the following:
+* Storage -> Add a volume, set the size to ~80GB, and for Device name select '/dev/xvda'.
+* Network Interfaces -> Add one, and under 'Auto-assing public IP' select 'Enable'
+
+#### Create nodegroup
 Go to the AWS website, then go to EKS -> Clusters -> click on the cluster you just made -> Configuration -> Compute.
 You should see one managed nodegroup already there; clicking on its name will open up information
 and editing, though you can't change the instance type after it's been made.
 
-Back at the Compute tab, click on Add Node Group. Pick a name, select the IAM role that was
-created with the cluster (it should be something like ```eksctl-<cluster_name>-node-NodeInstanceRole-<jumble_of_characters>``),
+Back at the Compute tab, click on Add Node Group. Pick a name (something like ng-gameservers-1 is recommended),
+select the IAM role that was created with the cluster (it should be something like ```eksctl-<cluster_name>-node-NodeInstanceRole-<jumble_of_characters>``),
+toggle the Use Launch Template toggle and select the launch template you made in the previous step,
+then click Next. On the second page, Choose the instance type(s) you'd like for the group,
+set the minimum/maximum/desired scaling sizes, and hit Next (t3(a).smalls are recommended). 
+The default subnets should be fine, so hit Next, review everything, and click Create.
+
+### Create nodegroup for redis
+
+redis should get its own nodegroup to isolate it from any other changes that might be made to your cluster.
+As with the gameserver nodegroup, it's not strictly necessary, but can prevent various other things from
+going down due to the redis servers getting interrupted.
+
+Back at the Compute tab, click on Add Node Group. Pick a name (the default config in packages/ops/config assumes
+a name of 'ng-redis-1'), select the IAM role that was created with the cluster 
+(it should be something like ```eksctl-<cluster_name>-node-NodeInstanceRole-<jumble_of_characters>``),
 toggle the Use Launch Template toggle and select the launch template used to make the initial nodegroup,
 then click Next. On the second page, Choose the instance type(s) you'd like for the group,
-set the minimum/maximum/desired scaling sizes, and hit Next. The default subnets should be fine,
-so hit Next, review everything, and click Create.
+set the minimum/maximum/desired scaling sizes, and hit Next (You can probably get away with a single t3(a).small). 
+The default subnets should be fine, so hit Next, review everything, and click Create.
 
 ## Edit security group to allow gameserver traffic
 You'll need to edit the new cluster's main security group to allow gameserver traffic.
@@ -137,7 +158,12 @@ Each redis deployment needs to be named the same as the deployment that will use
 XR3ngine deployment named 'dev', the corresponding redis deployment would need to be named
 'dev-redis'.
 
-Run ```helm install <deployment_name>-redis redis/redis``` to install, e.g. ```helm install dev-redis redis/redis```.
+Run ```helm install  -f packages/ops/configs/redix-values.yaml <deployment_name>-redis redis/redis``` to install, e.g. 
+```helm install  -f packages/ops/configs/redix-values.yaml dev-redis redis/redis```.
+If you named the redis nodegroup something other than 'ng-redis-1', youl'l have to alter the value in
+packages/ops/configs/redis-values.yaml in two places to your redis nodegroup name.
+If you didn't create a nodegroup just for redis, you musut omit the ` -f packages/ops/configs/redix-values.yaml `,
+as that config makes redis pods run on a specific nodegroup. 
 
 #### Installing redis as part of XR3ngine chart (not recommended for production) 
 redis can be installed as part of the XR3ngine chart so long as the config file for the XR3ngine installation has 'redis.enabled' set to true.
