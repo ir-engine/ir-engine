@@ -13,6 +13,7 @@ import { plusParameter } from '../../scene/constants/SceneObjectLoadingSchema';
 import { LoadGLTF } from "../../assets/functions/LoadGLTF";
 export default class ModelNode extends EditorNodeMixin(Model) {
   static nodeName = "Model";
+  static isValidURL=true;
   static legacyComponentName = "gltf-model";
   static initialElementProps = {
     initialScale: "fit",
@@ -134,7 +135,7 @@ export default class ModelNode extends EditorNodeMixin(Model) {
     this.hideErrorIcon();
     try {
       console.log("Try");
-
+      ModelNode.isValidURL=true;
       const { accessibleUrl, files } = await this.editor.api.resolveMedia(src);
       if (this.model) {
         this.editor.renderer.removeBatchedObject(this.model);
@@ -185,8 +186,8 @@ export default class ModelNode extends EditorNodeMixin(Model) {
       }
       console.error(modelError);
       this.issues.push({ severity: "error", message: "Error loading model." });
-      if(this._canonicalUrl!="")
-        this._canonicalUrl += "   **Error in URL**";
+      //this._canonicalUrl = "";
+      ModelNode.isValidURL=false;
     }
     this.editor.emit("objectsChanged", [this]);
     this.editor.emit("selectionChanged");

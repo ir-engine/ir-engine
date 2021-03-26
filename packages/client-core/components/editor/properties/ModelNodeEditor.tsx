@@ -6,6 +6,7 @@ import BooleanInput from "../inputs/BooleanInput";
 import ModelInput from "../inputs/ModelInput";
 import { Cube } from "@styled-icons/fa-solid/Cube";
 import StringInput from "../inputs/StringInput";
+import ModelNode from "@xr3ngine/engine/src/editor/nodes/ModelNode";
 
 /**
  * [array containing options for InteractableOption ]
@@ -50,6 +51,7 @@ export default class ModelNodeEditor extends Component<
   //function to handle change in property src
   onChangeSrc = (src, initialProps) => {
     (this.props.editor as any).setPropertiesSelected({ ...initialProps, src });
+
   };
 
   //fucntion to handle changes in activeChipIndex property
@@ -209,7 +211,6 @@ export default class ModelNodeEditor extends Component<
       default: break;
     }
   }
-
   // rendering view of ModelNodeEditor
   render() {
     const node = this.props.node as any;
@@ -219,6 +220,7 @@ export default class ModelNodeEditor extends Component<
         { /* @ts-ignore */ }
         <InputGroup name="Model Url">
           <ModelInput value={node.src} onChange={this.onChangeSrc} />
+          {!(ModelNode.isValidURL) && (<div>  Error in Model URL</div>)}
         </InputGroup>
         { /* @ts-ignore */ }
         <InputGroup name="Loop Animation">
