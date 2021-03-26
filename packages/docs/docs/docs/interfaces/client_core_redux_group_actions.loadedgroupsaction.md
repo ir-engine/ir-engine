@@ -16,7 +16,7 @@ hide_title: true
 
 • **groups**: Group[]
 
-Defined in: [packages/client-core/redux/group/actions.ts:21](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/group/actions.ts#L21)
+Defined in: [packages/client-core/redux/group/actions.ts:21](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/group/actions.ts#L21)
 
 ___
 
@@ -24,7 +24,7 @@ ___
 
 • **limit**: *number*
 
-Defined in: [packages/client-core/redux/group/actions.ts:23](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/group/actions.ts#L23)
+Defined in: [packages/client-core/redux/group/actions.ts:23](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/group/actions.ts#L23)
 
 ___
 
@@ -32,7 +32,7 @@ ___
 
 • **skip**: *number*
 
-Defined in: [packages/client-core/redux/group/actions.ts:24](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/group/actions.ts#L24)
+Defined in: [packages/client-core/redux/group/actions.ts:24](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/group/actions.ts#L24)
 
 ___
 
@@ -40,7 +40,7 @@ ___
 
 • **total**: *number*
 
-Defined in: [packages/client-core/redux/group/actions.ts:22](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/group/actions.ts#L22)
+Defined in: [packages/client-core/redux/group/actions.ts:22](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/group/actions.ts#L22)
 
 ___
 
@@ -48,4 +48,4 @@ ___
 
 • **type**: *string*
 
-Defined in: [packages/client-core/redux/group/actions.ts:20](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/group/actions.ts#L20)
+Defined in: [packages/client-core/redux/group/actions.ts:20](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/group/actions.ts#L20)

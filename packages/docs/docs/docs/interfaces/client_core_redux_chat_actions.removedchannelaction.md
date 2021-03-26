@@ -16,7 +16,7 @@ hide_title: true
 
 • **channel**: Channel
 
-Defined in: [packages/client-core/redux/chat/actions.ts:83](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/chat/actions.ts#L83)
+Defined in: [packages/client-core/redux/chat/actions.ts:83](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/chat/actions.ts#L83)
 
 ___
 
@@ -24,4 +24,4 @@ ___
 
 • **type**: *string*
 
-Defined in: [packages/client-core/redux/chat/actions.ts:82](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/chat/actions.ts#L82)
+Defined in: [packages/client-core/redux/chat/actions.ts:82](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/chat/actions.ts#L82)

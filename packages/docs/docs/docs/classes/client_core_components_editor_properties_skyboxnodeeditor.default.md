@@ -149,7 +149,7 @@ ___
 
 ▪ `Static` **iconComponent**: StyledIcon
 
-Defined in: [packages/client-core/components/editor/properties/SkyboxNodeEditor.tsx:54](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/SkyboxNodeEditor.tsx#L54)
+Defined in: [packages/client-core/components/editor/properties/SkyboxNodeEditor.tsx:54](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/properties/SkyboxNodeEditor.tsx#L54)
 
 ## Methods
 
@@ -472,7 +472,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/properties/SkyboxNodeEditor.tsx:87](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/SkyboxNodeEditor.tsx#L87)
+Defined in: [packages/client-core/components/editor/properties/SkyboxNodeEditor.tsx:87](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/properties/SkyboxNodeEditor.tsx#L87)
 
 ___
 
@@ -488,7 +488,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/properties/SkyboxNodeEditor.tsx:92](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/SkyboxNodeEditor.tsx#L92)
+Defined in: [packages/client-core/components/editor/properties/SkyboxNodeEditor.tsx:92](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/properties/SkyboxNodeEditor.tsx#L92)
 
 ___
 
@@ -504,7 +504,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/properties/SkyboxNodeEditor.tsx:82](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/SkyboxNodeEditor.tsx#L82)
+Defined in: [packages/client-core/components/editor/properties/SkyboxNodeEditor.tsx:82](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/properties/SkyboxNodeEditor.tsx#L82)
 
 ___
 
@@ -520,7 +520,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/properties/SkyboxNodeEditor.tsx:67](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/SkyboxNodeEditor.tsx#L67)
+Defined in: [packages/client-core/components/editor/properties/SkyboxNodeEditor.tsx:67](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/properties/SkyboxNodeEditor.tsx#L67)
 
 ___
 
@@ -536,7 +536,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/properties/SkyboxNodeEditor.tsx:72](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/SkyboxNodeEditor.tsx#L72)
+Defined in: [packages/client-core/components/editor/properties/SkyboxNodeEditor.tsx:72](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/properties/SkyboxNodeEditor.tsx#L72)
 
 ___
 
@@ -552,7 +552,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/properties/SkyboxNodeEditor.tsx:77](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/SkyboxNodeEditor.tsx#L77)
+Defined in: [packages/client-core/components/editor/properties/SkyboxNodeEditor.tsx:77](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/properties/SkyboxNodeEditor.tsx#L77)
 
 ___
 
@@ -568,7 +568,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/properties/SkyboxNodeEditor.tsx:62](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/SkyboxNodeEditor.tsx#L62)
+Defined in: [packages/client-core/components/editor/properties/SkyboxNodeEditor.tsx:62](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/properties/SkyboxNodeEditor.tsx#L62)
 
 ___
 
@@ -584,7 +584,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/properties/SkyboxNodeEditor.tsx:97](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/SkyboxNodeEditor.tsx#L97)
+Defined in: [packages/client-core/components/editor/properties/SkyboxNodeEditor.tsx:97](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/properties/SkyboxNodeEditor.tsx#L97)
 
 ___
 
@@ -600,7 +600,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/properties/SkyboxNodeEditor.tsx:107](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/SkyboxNodeEditor.tsx#L107)
+Defined in: [packages/client-core/components/editor/properties/SkyboxNodeEditor.tsx:107](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/properties/SkyboxNodeEditor.tsx#L107)
 
 ___
 
@@ -616,7 +616,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/properties/SkyboxNodeEditor.tsx:57](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/SkyboxNodeEditor.tsx#L57)
+Defined in: [packages/client-core/components/editor/properties/SkyboxNodeEditor.tsx:57](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/properties/SkyboxNodeEditor.tsx#L57)
 
 ___
 
@@ -628,7 +628,7 @@ ___
 
 Overrides: void
 
-Defined in: [packages/client-core/components/editor/properties/SkyboxNodeEditor.tsx:248](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/SkyboxNodeEditor.tsx#L248)
+Defined in: [packages/client-core/components/editor/properties/SkyboxNodeEditor.tsx:248](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/properties/SkyboxNodeEditor.tsx#L248)
 
 ___
 
@@ -644,7 +644,7 @@ Name | Type |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/components/editor/properties/SkyboxNodeEditor.tsx:222](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/SkyboxNodeEditor.tsx#L222)
+Defined in: [packages/client-core/components/editor/properties/SkyboxNodeEditor.tsx:222](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/properties/SkyboxNodeEditor.tsx#L222)
 
 ___
 
@@ -660,7 +660,7 @@ Name | Type |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/components/editor/properties/SkyboxNodeEditor.tsx:208](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/SkyboxNodeEditor.tsx#L208)
+Defined in: [packages/client-core/components/editor/properties/SkyboxNodeEditor.tsx:208](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/properties/SkyboxNodeEditor.tsx#L208)
 
 ___
 
@@ -676,7 +676,7 @@ Name | Type |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/components/editor/properties/SkyboxNodeEditor.tsx:236](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/SkyboxNodeEditor.tsx#L236)
+Defined in: [packages/client-core/components/editor/properties/SkyboxNodeEditor.tsx:236](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/properties/SkyboxNodeEditor.tsx#L236)
 
 ___
 
@@ -692,7 +692,7 @@ Name | Type |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/components/editor/properties/SkyboxNodeEditor.tsx:130](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/SkyboxNodeEditor.tsx#L130)
+Defined in: [packages/client-core/components/editor/properties/SkyboxNodeEditor.tsx:130](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/properties/SkyboxNodeEditor.tsx#L130)
 
 ___
 
@@ -708,7 +708,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/properties/SkyboxNodeEditor.tsx:115](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/SkyboxNodeEditor.tsx#L115)
+Defined in: [packages/client-core/components/editor/properties/SkyboxNodeEditor.tsx:115](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/properties/SkyboxNodeEditor.tsx#L115)
 
 ___
 

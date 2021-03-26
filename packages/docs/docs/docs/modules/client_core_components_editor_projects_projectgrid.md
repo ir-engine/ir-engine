@@ -21,7 +21,7 @@ hide_title: true
 
 • `Const` **CenteredMessage**: *StyledComponent*<*div*, any, {}, never\>
 
-Defined in: [packages/client-core/components/editor/projects/ProjectGrid.tsx:145](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/projects/ProjectGrid.tsx#L145)
+Defined in: [packages/client-core/components/editor/projects/ProjectGrid.tsx:145](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/projects/ProjectGrid.tsx#L145)
 
 ___
 
@@ -29,7 +29,7 @@ ___
 
 • `Const` **ErrorMessage**: *StyledComponent*<*div*, any, {}, never\>
 
-Defined in: [packages/client-core/components/editor/projects/ProjectGrid.tsx:152](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/projects/ProjectGrid.tsx#L152)
+Defined in: [packages/client-core/components/editor/projects/ProjectGrid.tsx:152](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/projects/ProjectGrid.tsx#L152)
 
 ___
 
@@ -37,7 +37,7 @@ ___
 
 • `Const` **Filter**: *StyledComponent*<*a*, any, { `active?`: *boolean*  }, never\>
 
-Defined in: [packages/client-core/components/editor/projects/ProjectGrid.tsx:119](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/projects/ProjectGrid.tsx#L119)
+Defined in: [packages/client-core/components/editor/projects/ProjectGrid.tsx:119](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/projects/ProjectGrid.tsx#L119)
 
 ___
 
@@ -45,7 +45,7 @@ ___
 
 • `Const` **ProjectGridContainer**: *StyledComponent*<*div*, any, {}, never\>
 
-Defined in: [packages/client-core/components/editor/projects/ProjectGrid.tsx:94](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/projects/ProjectGrid.tsx#L94)
+Defined in: [packages/client-core/components/editor/projects/ProjectGrid.tsx:94](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/projects/ProjectGrid.tsx#L94)
 
 ___
 
@@ -53,7 +53,7 @@ ___
 
 • `Const` **ProjectGridContent**: *StyledComponent*<*div*, any, {}, never\>
 
-Defined in: [packages/client-core/components/editor/projects/ProjectGrid.tsx:102](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/projects/ProjectGrid.tsx#L102)
+Defined in: [packages/client-core/components/editor/projects/ProjectGrid.tsx:102](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/projects/ProjectGrid.tsx#L102)
 
 ___
 
@@ -61,7 +61,7 @@ ___
 
 • `Const` **ProjectGridHeader**: *StyledComponent*<*div*, any, {}, never\>
 
-Defined in: [packages/client-core/components/editor/projects/ProjectGrid.tsx:109](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/projects/ProjectGrid.tsx#L109)
+Defined in: [packages/client-core/components/editor/projects/ProjectGrid.tsx:109](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/projects/ProjectGrid.tsx#L109)
 
 ___
 
@@ -69,7 +69,7 @@ ___
 
 • `Const` **ProjectGridHeaderRow**: *StyledComponent*<any, any, object, string \| number \| symbol\>
 
-Defined in: [packages/client-core/components/editor/projects/ProjectGrid.tsx:131](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/projects/ProjectGrid.tsx#L131)
+Defined in: [packages/client-core/components/editor/projects/ProjectGrid.tsx:131](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/projects/ProjectGrid.tsx#L131)
 
 ___
 
@@ -77,7 +77,7 @@ ___
 
 • `Const` **SearchInput**: *StyledComponent*<any, any, object, string \| number \| symbol\>
 
-Defined in: [packages/client-core/components/editor/projects/ProjectGrid.tsx:139](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/projects/ProjectGrid.tsx#L139)
+Defined in: [packages/client-core/components/editor/projects/ProjectGrid.tsx:139](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/projects/ProjectGrid.tsx#L139)
 
 ___
 
@@ -85,7 +85,7 @@ ___
 
 • `Const` **Separator**: *StyledComponent*<*div*, any, {}, never\>
 
-Defined in: [packages/client-core/components/editor/projects/ProjectGrid.tsx:125](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/projects/ProjectGrid.tsx#L125)
+Defined in: [packages/client-core/components/editor/projects/ProjectGrid.tsx:125](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/projects/ProjectGrid.tsx#L125)
 
 ## Functions
 
@@ -95,7 +95,7 @@ Defined in: [packages/client-core/components/editor/projects/ProjectGrid.tsx:125
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/components/editor/projects/ProjectGrid.tsx:59](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/projects/ProjectGrid.tsx#L59)
+Defined in: [packages/client-core/components/editor/projects/ProjectGrid.tsx:59](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/projects/ProjectGrid.tsx#L59)
 
 ___
 
@@ -113,7 +113,7 @@ Name | Type |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/components/editor/projects/ProjectGrid.tsx:36](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/projects/ProjectGrid.tsx#L36)
+Defined in: [packages/client-core/components/editor/projects/ProjectGrid.tsx:36](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/projects/ProjectGrid.tsx#L36)
 
 ___
 
@@ -129,4 +129,4 @@ Name | Type |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/components/editor/projects/ProjectGrid.tsx:74](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/projects/ProjectGrid.tsx#L74)
+Defined in: [packages/client-core/components/editor/projects/ProjectGrid.tsx:74](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/projects/ProjectGrid.tsx#L74)

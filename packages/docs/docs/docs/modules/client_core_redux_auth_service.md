@@ -23,7 +23,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *any*
 
-Defined in: [packages/client-core/redux/auth/service.ts:418](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/auth/service.ts#L418)
+Defined in: [packages/client-core/redux/auth/service.ts:418](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/auth/service.ts#L418)
 
 ___
 
@@ -40,7 +40,7 @@ Name | Type |
 
 **Returns:** () => *void*
 
-Defined in: [packages/client-core/redux/auth/service.ts:460](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/auth/service.ts#L460)
+Defined in: [packages/client-core/redux/auth/service.ts:460](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/auth/service.ts#L460)
 
 ___
 
@@ -57,7 +57,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *any*
 
-Defined in: [packages/client-core/redux/auth/service.ts:396](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/auth/service.ts#L396)
+Defined in: [packages/client-core/redux/auth/service.ts:396](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/auth/service.ts#L396)
 
 ___
 
@@ -74,7 +74,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *any*
 
-Defined in: [packages/client-core/redux/auth/service.ts:439](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/auth/service.ts#L439)
+Defined in: [packages/client-core/redux/auth/service.ts:439](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/auth/service.ts#L439)
 
 ___
 
@@ -91,7 +91,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *any*
 
-Defined in: [packages/client-core/redux/auth/service.ts:338](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/auth/service.ts#L338)
+Defined in: [packages/client-core/redux/auth/service.ts:338](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/auth/service.ts#L338)
 
 ___
 
@@ -108,7 +108,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/redux/auth/service.ts:54](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/auth/service.ts#L54)
+Defined in: [packages/client-core/redux/auth/service.ts:54](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/auth/service.ts#L54)
 
 ___
 
@@ -118,7 +118,7 @@ ___
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<void\>
 
-Defined in: [packages/client-core/redux/auth/service.ts:592](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/auth/service.ts#L592)
+Defined in: [packages/client-core/redux/auth/service.ts:592](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/auth/service.ts#L592)
 
 ___
 
@@ -134,7 +134,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *any*
 
-Defined in: [packages/client-core/redux/auth/service.ts:299](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/auth/service.ts#L299)
+Defined in: [packages/client-core/redux/auth/service.ts:299](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/auth/service.ts#L299)
 
 ___
 
@@ -151,7 +151,7 @@ Name | Type |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/redux/auth/service.ts:110](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/auth/service.ts#L110)
+Defined in: [packages/client-core/redux/auth/service.ts:110](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/auth/service.ts#L110)
 
 ___
 
@@ -169,7 +169,7 @@ Name | Type |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/redux/auth/service.ts:199](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/auth/service.ts#L199)
+Defined in: [packages/client-core/redux/auth/service.ts:199](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/auth/service.ts#L199)
 
 ___
 
@@ -185,7 +185,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>, `getState`: *any*) => *any*
 
-Defined in: [packages/client-core/redux/auth/service.ts:183](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/auth/service.ts#L183)
+Defined in: [packages/client-core/redux/auth/service.ts:183](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/auth/service.ts#L183)
 
 ___
 
@@ -201,7 +201,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *any*
 
-Defined in: [packages/client-core/redux/auth/service.ts:142](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/auth/service.ts#L142)
+Defined in: [packages/client-core/redux/auth/service.ts:142](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/auth/service.ts#L142)
 
 ___
 
@@ -211,7 +211,7 @@ ___
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *any*
 
-Defined in: [packages/client-core/redux/auth/service.ts:224](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/auth/service.ts#L224)
+Defined in: [packages/client-core/redux/auth/service.ts:224](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/auth/service.ts#L224)
 
 ___
 
@@ -227,7 +227,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/redux/auth/service.ts:482](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/auth/service.ts#L482)
+Defined in: [packages/client-core/redux/auth/service.ts:482](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/auth/service.ts#L482)
 
 ___
 
@@ -243,7 +243,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *any*
 
-Defined in: [packages/client-core/redux/auth/service.ts:237](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/auth/service.ts#L237)
+Defined in: [packages/client-core/redux/auth/service.ts:237](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/auth/service.ts#L237)
 
 ___
 
@@ -259,7 +259,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>, `getState`: *any*) => *Promise*<void\>
 
-Defined in: [packages/client-core/redux/auth/service.ts:581](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/auth/service.ts#L581)
+Defined in: [packages/client-core/redux/auth/service.ts:581](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/auth/service.ts#L581)
 
 ___
 
@@ -276,7 +276,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *any*
 
-Defined in: [packages/client-core/redux/auth/service.ts:466](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/auth/service.ts#L466)
+Defined in: [packages/client-core/redux/auth/service.ts:466](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/auth/service.ts#L466)
 
 ___
 
@@ -292,7 +292,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/redux/auth/service.ts:632](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/auth/service.ts#L632)
+Defined in: [packages/client-core/redux/auth/service.ts:632](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/auth/service.ts#L632)
 
 ___
 
@@ -308,7 +308,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *any*
 
-Defined in: [packages/client-core/redux/auth/service.ts:282](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/auth/service.ts#L282)
+Defined in: [packages/client-core/redux/auth/service.ts:282](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/auth/service.ts#L282)
 
 ___
 
@@ -325,7 +325,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *any*
 
-Defined in: [packages/client-core/redux/auth/service.ts:316](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/auth/service.ts#L316)
+Defined in: [packages/client-core/redux/auth/service.ts:316](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/auth/service.ts#L316)
 
 ___
 
@@ -344,7 +344,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *any*
 
-Defined in: [packages/client-core/redux/auth/service.ts:620](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/auth/service.ts#L620)
+Defined in: [packages/client-core/redux/auth/service.ts:620](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/auth/service.ts#L620)
 
 ___
 
@@ -361,7 +361,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *any*) => *Promise*<void\>
 
-Defined in: [packages/client-core/redux/auth/service.ts:484](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/auth/service.ts#L484)
+Defined in: [packages/client-core/redux/auth/service.ts:484](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/auth/service.ts#L484)
 
 ___
 
@@ -378,7 +378,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *any*
 
-Defined in: [packages/client-core/redux/auth/service.ts:608](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/auth/service.ts#L608)
+Defined in: [packages/client-core/redux/auth/service.ts:608](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/auth/service.ts#L608)
 
 ___
 
@@ -394,7 +394,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>, `getState`: *any*) => *Promise*<void\>
 
-Defined in: [packages/client-core/redux/auth/service.ts:490](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/auth/service.ts#L490)
+Defined in: [packages/client-core/redux/auth/service.ts:490](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/auth/service.ts#L490)
 
 ___
 
@@ -411,7 +411,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>, `getState`: *any*) => *Promise*<void\>
 
-Defined in: [packages/client-core/redux/auth/service.ts:509](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/auth/service.ts#L509)
+Defined in: [packages/client-core/redux/auth/service.ts:509](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/auth/service.ts#L509)
 
 ___
 
@@ -427,4 +427,4 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *any*
 
-Defined in: [packages/client-core/redux/auth/service.ts:261](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/auth/service.ts#L261)
+Defined in: [packages/client-core/redux/auth/service.ts:261](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/auth/service.ts#L261)

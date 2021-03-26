@@ -27,7 +27,7 @@ Name | Type |
 `updateNeeded` | *boolean* |
 `users` | *any*[] |
 
-Defined in: [packages/client-core/redux/user/reducers.ts:30](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/user/reducers.ts#L30)
+Defined in: [packages/client-core/redux/user/reducers.ts:30](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/user/reducers.ts#L30)
 
 ## Functions
 
@@ -44,4 +44,4 @@ Name | Type |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/redux/user/reducers.ts:43](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/user/reducers.ts#L43)
+Defined in: [packages/client-core/redux/user/reducers.ts:43](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/user/reducers.ts#L43)

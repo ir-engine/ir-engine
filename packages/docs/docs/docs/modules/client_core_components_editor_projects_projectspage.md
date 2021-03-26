@@ -26,7 +26,7 @@ Name | Type |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/components/editor/contexts/ApiContext.tsx:17](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/contexts/ApiContext.tsx#L17)
+Defined in: [packages/client-core/components/editor/contexts/ApiContext.tsx:17](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/contexts/ApiContext.tsx#L17)
 
 ## Variables
 
@@ -34,7 +34,7 @@ Defined in: [packages/client-core/components/editor/contexts/ApiContext.tsx:17](
 
 • `Const` **ProjectsContainer**: *any*
 
-Defined in: [packages/client-core/components/editor/projects/ProjectsPage.tsx:37](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/projects/ProjectsPage.tsx#L37)
+Defined in: [packages/client-core/components/editor/projects/ProjectsPage.tsx:37](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/projects/ProjectsPage.tsx#L37)
 
 ___
 
@@ -42,7 +42,7 @@ ___
 
 • `Const` **ProjectsHeader**: *any*
 
-Defined in: [packages/client-core/components/editor/projects/ProjectsPage.tsx:62](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/projects/ProjectsPage.tsx#L62)
+Defined in: [packages/client-core/components/editor/projects/ProjectsPage.tsx:62](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/projects/ProjectsPage.tsx#L62)
 
 ___
 
@@ -50,4 +50,4 @@ ___
 
 • `Const` **ProjectsSection**: *any*
 
-Defined in: [packages/client-core/components/editor/projects/ProjectsPage.tsx:19](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/projects/ProjectsPage.tsx#L19)
+Defined in: [packages/client-core/components/editor/projects/ProjectsPage.tsx:19](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/projects/ProjectsPage.tsx#L19)

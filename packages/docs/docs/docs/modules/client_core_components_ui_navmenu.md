@@ -28,4 +28,4 @@ Name | Type |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/components/ui/NavMenu/index.tsx:10](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/ui/NavMenu/index.tsx#L10)
+Defined in: [packages/client-core/components/ui/NavMenu/index.tsx:10](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/ui/NavMenu/index.tsx#L10)

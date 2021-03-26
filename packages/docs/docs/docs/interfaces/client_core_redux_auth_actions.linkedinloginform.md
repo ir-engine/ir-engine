@@ -16,4 +16,4 @@ hide_title: true
 
 • **email**: *string*
 
-Defined in: [packages/client-core/redux/auth/actions.ts:47](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/auth/actions.ts#L47)
+Defined in: [packages/client-core/redux/auth/actions.ts:47](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/auth/actions.ts#L47)

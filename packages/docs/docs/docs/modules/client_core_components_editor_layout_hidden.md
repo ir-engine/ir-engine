@@ -14,4 +14,4 @@ hide_title: true
 
 • `Const` **default**: *any*
 
-Defined in: [packages/client-core/components/editor/layout/Hidden.tsx:3](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/layout/Hidden.tsx#L3)
+Defined in: [packages/client-core/components/editor/layout/Hidden.tsx:3](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/layout/Hidden.tsx#L3)

@@ -16,7 +16,7 @@ hide_title: true
 
 • **feedFires**: CreatorShort[]
 
-Defined in: [packages/client-core/redux/feedFires/actions.ts:9](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/feedFires/actions.ts#L9)
+Defined in: [packages/client-core/redux/feedFires/actions.ts:9](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/feedFires/actions.ts#L9)
 
 ___
 
@@ -24,4 +24,4 @@ ___
 
 • **type**: *string*
 
-Defined in: [packages/client-core/redux/feedFires/actions.ts:8](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/feedFires/actions.ts#L8)
+Defined in: [packages/client-core/redux/feedFires/actions.ts:8](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/feedFires/actions.ts#L8)

@@ -116,7 +116,7 @@ Name | Type |
 
 Overrides: void
 
-Defined in: [packages/client-core/components/terminal/components/Tabs/index.tsx:32](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/terminal/components/Tabs/index.tsx#L32)
+Defined in: [packages/client-core/components/terminal/components/Tabs/index.tsx:32](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/terminal/components/Tabs/index.tsx#L32)
 
 ___
 
@@ -160,7 +160,7 @@ Name | Type |
 `instances` | *Requireable*<any[]\> |
 `maximise` | *Requireable*<boolean\> |
 
-Defined in: [packages/client-core/components/terminal/components/Tabs/index.tsx:23](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/terminal/components/Tabs/index.tsx#L23)
+Defined in: [packages/client-core/components/terminal/components/Tabs/index.tsx:23](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/terminal/components/Tabs/index.tsx#L23)
 
 ___
 
@@ -174,7 +174,7 @@ Name | Type |
 :------ | :------ |
 `style` | *object* |
 
-Defined in: [packages/client-core/components/terminal/components/Tabs/index.tsx:28](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/terminal/components/Tabs/index.tsx#L28)
+Defined in: [packages/client-core/components/terminal/components/Tabs/index.tsx:28](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/terminal/components/Tabs/index.tsx#L28)
 
 ___
 
@@ -182,7 +182,7 @@ ___
 
 ▪ `Static` **displayName**: *string*= 'Tabs'
 
-Defined in: [packages/client-core/components/terminal/components/Tabs/index.tsx:13](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/terminal/components/Tabs/index.tsx#L13)
+Defined in: [packages/client-core/components/terminal/components/Tabs/index.tsx:13](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/terminal/components/Tabs/index.tsx#L13)
 
 ___
 
@@ -200,7 +200,7 @@ Name | Type |
 `setActiveTab` | *Requireable*<(...`args`: *any*[]) => *any*\> |
 `style` | *Requireable*<object\> |
 
-Defined in: [packages/client-core/components/terminal/components/Tabs/index.tsx:15](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/terminal/components/Tabs/index.tsx#L15)
+Defined in: [packages/client-core/components/terminal/components/Tabs/index.tsx:15](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/terminal/components/Tabs/index.tsx#L15)
 
 ## Methods
 
@@ -523,7 +523,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/terminal/components/Tabs/index.tsx:36](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/terminal/components/Tabs/index.tsx#L36)
+Defined in: [packages/client-core/components/terminal/components/Tabs/index.tsx:36](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/terminal/components/Tabs/index.tsx#L36)
 
 ___
 
@@ -540,7 +540,7 @@ Name | Type |
 
 **Returns:** *boolean*
 
-Defined in: [packages/client-core/components/terminal/components/Tabs/index.tsx:49](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/terminal/components/Tabs/index.tsx#L49)
+Defined in: [packages/client-core/components/terminal/components/Tabs/index.tsx:49](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/terminal/components/Tabs/index.tsx#L49)
 
 ___
 
@@ -557,7 +557,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/terminal/components/Tabs/index.tsx:42](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/terminal/components/Tabs/index.tsx#L42)
+Defined in: [packages/client-core/components/terminal/components/Tabs/index.tsx:42](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/terminal/components/Tabs/index.tsx#L42)
 
 ___
 
@@ -567,7 +567,7 @@ ___
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/terminal/components/Tabs/index.tsx:56](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/terminal/components/Tabs/index.tsx#L56)
+Defined in: [packages/client-core/components/terminal/components/Tabs/index.tsx:56](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/terminal/components/Tabs/index.tsx#L56)
 
 ___
 
@@ -579,7 +579,7 @@ ___
 
 Overrides: void
 
-Defined in: [packages/client-core/components/terminal/components/Tabs/index.tsx:66](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/terminal/components/Tabs/index.tsx#L66)
+Defined in: [packages/client-core/components/terminal/components/Tabs/index.tsx:66](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/terminal/components/Tabs/index.tsx#L66)
 
 ___
 
@@ -643,4 +643,4 @@ ___
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/terminal/components/Tabs/index.tsx:61](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/terminal/components/Tabs/index.tsx#L61)
+Defined in: [packages/client-core/components/terminal/components/Tabs/index.tsx:61](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/terminal/components/Tabs/index.tsx#L61)

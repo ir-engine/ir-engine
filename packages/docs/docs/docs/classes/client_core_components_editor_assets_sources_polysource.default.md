@@ -34,7 +34,7 @@ Name | Type |
 
 Overrides: [default](client_core_components_editor_assets_modelmediasource.default.md)
 
-Defined in: [packages/client-core/components/editor/assets/sources/PolySource.tsx:12](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/assets/sources/PolySource.tsx#L12)
+Defined in: [packages/client-core/components/editor/assets/sources/PolySource.tsx:12](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/assets/sources/PolySource.tsx#L12)
 
 ## Properties
 
@@ -44,7 +44,7 @@ Defined in: [packages/client-core/components/editor/assets/sources/PolySource.ts
 
 Inherited from: [default](client_core_components_editor_assets_modelmediasource.default.md).[api](client_core_components_editor_assets_modelmediasource.default.md#api)
 
-Defined in: [packages/client-core/components/editor/assets/ModelMediaSource.tsx:17](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/assets/ModelMediaSource.tsx#L17)
+Defined in: [packages/client-core/components/editor/assets/ModelMediaSource.tsx:17](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/assets/ModelMediaSource.tsx#L17)
 
 ___
 
@@ -54,7 +54,7 @@ ___
 
 Inherited from: [default](client_core_components_editor_assets_modelmediasource.default.md).[assetPanelComponent](client_core_components_editor_assets_modelmediasource.default.md#assetpanelcomponent)
 
-Defined in: [packages/client-core/components/editor/assets/sources/index.tsx:10](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/assets/sources/index.tsx#L10)
+Defined in: [packages/client-core/components/editor/assets/sources/index.tsx:10](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/assets/sources/index.tsx#L10)
 
 ___
 
@@ -64,7 +64,7 @@ ___
 
 Inherited from: [default](client_core_components_editor_assets_modelmediasource.default.md).[component](client_core_components_editor_assets_modelmediasource.default.md#component)
 
-Defined in: [packages/client-core/components/editor/assets/ModelMediaSource.tsx:14](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/assets/ModelMediaSource.tsx#L14)
+Defined in: [packages/client-core/components/editor/assets/ModelMediaSource.tsx:14](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/assets/ModelMediaSource.tsx#L14)
 
 ___
 
@@ -74,7 +74,7 @@ ___
 
 Inherited from: [default](client_core_components_editor_assets_modelmediasource.default.md).[iconComponent](client_core_components_editor_assets_modelmediasource.default.md#iconcomponent)
 
-Defined in: [packages/client-core/components/editor/assets/sources/index.tsx:9](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/assets/sources/index.tsx#L9)
+Defined in: [packages/client-core/components/editor/assets/sources/index.tsx:9](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/assets/sources/index.tsx#L9)
 
 ___
 
@@ -84,7 +84,7 @@ ___
 
 Inherited from: [default](client_core_components_editor_assets_modelmediasource.default.md).[id](client_core_components_editor_assets_modelmediasource.default.md#id)
 
-Defined in: [packages/client-core/components/editor/assets/sources/index.tsx:7](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/assets/sources/index.tsx#L7)
+Defined in: [packages/client-core/components/editor/assets/sources/index.tsx:7](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/assets/sources/index.tsx#L7)
 
 ___
 
@@ -94,7 +94,7 @@ ___
 
 Inherited from: [default](client_core_components_editor_assets_modelmediasource.default.md).[name](client_core_components_editor_assets_modelmediasource.default.md#name)
 
-Defined in: [packages/client-core/components/editor/assets/sources/index.tsx:8](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/assets/sources/index.tsx#L8)
+Defined in: [packages/client-core/components/editor/assets/sources/index.tsx:8](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/assets/sources/index.tsx#L8)
 
 ___
 
@@ -102,7 +102,7 @@ ___
 
 • **privacyPolicyUrl**: *string*
 
-Defined in: [packages/client-core/components/editor/assets/sources/PolySource.tsx:11](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/assets/sources/PolySource.tsx#L11)
+Defined in: [packages/client-core/components/editor/assets/sources/PolySource.tsx:11](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/assets/sources/PolySource.tsx#L11)
 
 ___
 
@@ -112,7 +112,7 @@ ___
 
 Inherited from: [default](client_core_components_editor_assets_modelmediasource.default.md).[requiresAuthentication](client_core_components_editor_assets_modelmediasource.default.md#requiresauthentication)
 
-Defined in: [packages/client-core/components/editor/assets/sources/index.tsx:11](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/assets/sources/index.tsx#L11)
+Defined in: [packages/client-core/components/editor/assets/sources/index.tsx:11](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/assets/sources/index.tsx#L11)
 
 ___
 
@@ -122,7 +122,7 @@ ___
 
 Inherited from: [default](client_core_components_editor_assets_modelmediasource.default.md).[searchDebounceTimeout](client_core_components_editor_assets_modelmediasource.default.md#searchdebouncetimeout)
 
-Defined in: [packages/client-core/components/editor/assets/sources/index.tsx:13](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/assets/sources/index.tsx#L13)
+Defined in: [packages/client-core/components/editor/assets/sources/index.tsx:13](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/assets/sources/index.tsx#L13)
 
 ___
 
@@ -130,7 +130,7 @@ ___
 
 • **searchLegalCopy**: *string*
 
-Defined in: [packages/client-core/components/editor/assets/sources/PolySource.tsx:10](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/assets/sources/PolySource.tsx#L10)
+Defined in: [packages/client-core/components/editor/assets/sources/PolySource.tsx:10](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/assets/sources/PolySource.tsx#L10)
 
 ___
 
@@ -138,7 +138,7 @@ ___
 
 • **tags**: { `label`: *string* ; `value`: *string*  }[]
 
-Defined in: [packages/client-core/components/editor/assets/sources/PolySource.tsx:9](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/assets/sources/PolySource.tsx#L9)
+Defined in: [packages/client-core/components/editor/assets/sources/PolySource.tsx:9](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/assets/sources/PolySource.tsx#L9)
 
 ___
 
@@ -146,7 +146,7 @@ ___
 
 • **transformPivot**: *any*
 
-Defined in: [packages/client-core/components/editor/assets/sources/PolySource.tsx:12](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/assets/sources/PolySource.tsx#L12)
+Defined in: [packages/client-core/components/editor/assets/sources/PolySource.tsx:12](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/assets/sources/PolySource.tsx#L12)
 
 ___
 
@@ -156,7 +156,7 @@ ___
 
 Inherited from: [default](client_core_components_editor_assets_modelmediasource.default.md).[uploadSource](client_core_components_editor_assets_modelmediasource.default.md#uploadsource)
 
-Defined in: [packages/client-core/components/editor/assets/sources/index.tsx:12](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/assets/sources/index.tsx#L12)
+Defined in: [packages/client-core/components/editor/assets/sources/index.tsx:12](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/assets/sources/index.tsx#L12)
 
 ___
 
@@ -432,4 +432,4 @@ Name | Type |
 
 Inherited from: [default](client_core_components_editor_assets_modelmediasource.default.md)
 
-Defined in: [packages/client-core/components/editor/assets/ModelMediaSource.tsx:27](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/assets/ModelMediaSource.tsx#L27)
+Defined in: [packages/client-core/components/editor/assets/ModelMediaSource.tsx:27](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/assets/ModelMediaSource.tsx#L27)

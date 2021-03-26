@@ -16,7 +16,7 @@ hide_title: true
 
 • **groupUser**: GroupUser
 
-Defined in: [packages/client-core/redux/group/actions.ts:44](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/group/actions.ts#L44)
+Defined in: [packages/client-core/redux/group/actions.ts:44](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/group/actions.ts#L44)
 
 ___
 
@@ -24,4 +24,4 @@ ___
 
 • **type**: *string*
 
-Defined in: [packages/client-core/redux/group/actions.ts:43](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/group/actions.ts#L43)
+Defined in: [packages/client-core/redux/group/actions.ts:43](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/group/actions.ts#L43)

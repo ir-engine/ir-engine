@@ -16,7 +16,7 @@ hide_title: true
 
 • `Optional` **message**: *string*
 
-Defined in: [packages/client-core/redux/video/actions.ts:47](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/video/actions.ts#L47)
+Defined in: [packages/client-core/redux/video/actions.ts:47](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/video/actions.ts#L47)
 
 ___
 
@@ -24,7 +24,7 @@ ___
 
 • `Optional` **payload**: *any*
 
-Defined in: [packages/client-core/redux/video/actions.ts:46](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/video/actions.ts#L46)
+Defined in: [packages/client-core/redux/video/actions.ts:46](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/video/actions.ts#L46)
 
 ___
 
@@ -32,4 +32,4 @@ ___
 
 • **type**: *string*
 
-Defined in: [packages/client-core/redux/video/actions.ts:45](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/video/actions.ts#L45)
+Defined in: [packages/client-core/redux/video/actions.ts:45](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/video/actions.ts#L45)

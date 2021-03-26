@@ -149,7 +149,7 @@ ___
 
 ▪ `Static` **description**: *string*= "The camera used to generate the thumbnail for your scene and the starting position for the preview camera in Hubs."
 
-Defined in: [packages/client-core/components/editor/properties/ScenePreviewCameraNodeEditor.tsx:28](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/ScenePreviewCameraNodeEditor.tsx#L28)
+Defined in: [packages/client-core/components/editor/properties/ScenePreviewCameraNodeEditor.tsx:28](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/properties/ScenePreviewCameraNodeEditor.tsx#L28)
 
 ___
 
@@ -157,7 +157,7 @@ ___
 
 ▪ `Static` **iconComponent**: StyledIcon
 
-Defined in: [packages/client-core/components/editor/properties/ScenePreviewCameraNodeEditor.tsx:25](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/ScenePreviewCameraNodeEditor.tsx#L25)
+Defined in: [packages/client-core/components/editor/properties/ScenePreviewCameraNodeEditor.tsx:25](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/properties/ScenePreviewCameraNodeEditor.tsx#L25)
 
 ## Methods
 
@@ -474,7 +474,7 @@ ___
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/properties/ScenePreviewCameraNodeEditor.tsx:30](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/ScenePreviewCameraNodeEditor.tsx#L30)
+Defined in: [packages/client-core/components/editor/properties/ScenePreviewCameraNodeEditor.tsx:30](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/properties/ScenePreviewCameraNodeEditor.tsx#L30)
 
 ___
 
@@ -486,7 +486,7 @@ ___
 
 Overrides: void
 
-Defined in: [packages/client-core/components/editor/properties/ScenePreviewCameraNodeEditor.tsx:33](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/ScenePreviewCameraNodeEditor.tsx#L33)
+Defined in: [packages/client-core/components/editor/properties/ScenePreviewCameraNodeEditor.tsx:33](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/properties/ScenePreviewCameraNodeEditor.tsx#L33)
 
 ___
 

@@ -14,7 +14,7 @@ hide_title: true
 
 • `Const` **initialState**: [*DialogState*](../interfaces/client_core_redux_dialog_actions.dialogstate.md)
 
-Defined in: [packages/client-core/redux/dialog/reducers.ts:12](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/dialog/reducers.ts#L12)
+Defined in: [packages/client-core/redux/dialog/reducers.ts:12](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/dialog/reducers.ts#L12)
 
 ## Functions
 
@@ -31,4 +31,4 @@ Name | Type |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/redux/dialog/reducers.ts:19](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/dialog/reducers.ts#L19)
+Defined in: [packages/client-core/redux/dialog/reducers.ts:19](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/dialog/reducers.ts#L19)

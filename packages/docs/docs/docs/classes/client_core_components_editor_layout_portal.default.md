@@ -32,7 +32,7 @@ Name | Type |
 
 Overrides: void
 
-Defined in: [packages/client-core/components/editor/layout/Portal.tsx:3](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/layout/Portal.tsx#L3)
+Defined in: [packages/client-core/components/editor/layout/Portal.tsx:3](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/layout/Portal.tsx#L3)
 
 ## Properties
 
@@ -64,7 +64,7 @@ ___
 
 • **el**: HTMLDivElement
 
-Defined in: [packages/client-core/components/editor/layout/Portal.tsx:20](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/layout/Portal.tsx#L20)
+Defined in: [packages/client-core/components/editor/layout/Portal.tsx:20](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/layout/Portal.tsx#L20)
 
 ___
 
@@ -259,7 +259,7 @@ ___
 
 Overrides: void
 
-Defined in: [packages/client-core/components/editor/layout/Portal.tsx:8](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/layout/Portal.tsx#L8)
+Defined in: [packages/client-core/components/editor/layout/Portal.tsx:8](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/layout/Portal.tsx#L8)
 
 ___
 
@@ -353,7 +353,7 @@ ___
 
 Overrides: void
 
-Defined in: [packages/client-core/components/editor/layout/Portal.tsx:11](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/layout/Portal.tsx#L11)
+Defined in: [packages/client-core/components/editor/layout/Portal.tsx:11](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/layout/Portal.tsx#L11)
 
 ___
 
@@ -442,7 +442,7 @@ ___
 
 Overrides: void
 
-Defined in: [packages/client-core/components/editor/layout/Portal.tsx:21](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/layout/Portal.tsx#L21)
+Defined in: [packages/client-core/components/editor/layout/Portal.tsx:21](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/layout/Portal.tsx#L21)
 
 ___
 

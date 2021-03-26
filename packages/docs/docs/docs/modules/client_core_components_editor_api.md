@@ -28,7 +28,7 @@ Name | Type |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/components/editor/Api.tsx:49](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/Api.tsx#L49)
+Defined in: [packages/client-core/components/editor/Api.tsx:49](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/Api.tsx#L49)
 
 ___
 
@@ -50,4 +50,4 @@ Name | Type |
 
 [returns url to get scaled image]
 
-Defined in: [packages/client-core/components/editor/Api.tsx:66](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/Api.tsx#L66)
+Defined in: [packages/client-core/components/editor/Api.tsx:66](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/Api.tsx#L66)

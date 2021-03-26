@@ -30,7 +30,7 @@ Name | Type |
 `locations.total` | *number* |
 `updateNeeded` | *boolean* |
 
-Defined in: [packages/client-core/redux/location/reducers.ts:16](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/location/reducers.ts#L16)
+Defined in: [packages/client-core/redux/location/reducers.ts:16](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/location/reducers.ts#L16)
 
 ## Functions
 
@@ -47,4 +47,4 @@ Name | Type |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/redux/location/reducers.ts:34](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/location/reducers.ts#L34)
+Defined in: [packages/client-core/redux/location/reducers.ts:34](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/location/reducers.ts#L34)

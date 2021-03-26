@@ -16,4 +16,4 @@ hide_title: true
 
 [CubemapOption array containing textures used for SkyboxNode]
 
-Defined in: [packages/client-core/components/editor/properties/CubemapList.ts:6](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/CubemapList.ts#L6)
+Defined in: [packages/client-core/components/editor/properties/CubemapList.ts:6](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/properties/CubemapList.ts#L6)

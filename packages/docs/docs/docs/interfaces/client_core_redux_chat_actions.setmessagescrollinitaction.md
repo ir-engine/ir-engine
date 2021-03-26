@@ -16,7 +16,7 @@ hide_title: true
 
 • **type**: *string*
 
-Defined in: [packages/client-core/redux/chat/actions.ts:67](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/chat/actions.ts#L67)
+Defined in: [packages/client-core/redux/chat/actions.ts:67](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/chat/actions.ts#L67)
 
 ___
 
@@ -24,4 +24,4 @@ ___
 
 • **value**: *boolean*
 
-Defined in: [packages/client-core/redux/chat/actions.ts:68](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/chat/actions.ts#L68)
+Defined in: [packages/client-core/redux/chat/actions.ts:68](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/chat/actions.ts#L68)

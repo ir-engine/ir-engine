@@ -16,7 +16,7 @@ hide_title: true
 
 • **relationship**: Relationship
 
-Defined in: [packages/client-core/redux/user/actions.ts:23](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/user/actions.ts#L23)
+Defined in: [packages/client-core/redux/user/actions.ts:23](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/user/actions.ts#L23)
 
 ___
 
@@ -24,4 +24,4 @@ ___
 
 • **type**: *string*
 
-Defined in: [packages/client-core/redux/user/actions.ts:22](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/user/actions.ts#L22)
+Defined in: [packages/client-core/redux/user/actions.ts:22](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/user/actions.ts#L22)

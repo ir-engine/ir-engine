@@ -149,7 +149,7 @@ ___
 
 ▪ `Static` **description**: *string*= "A point where people will appear when they enter your scene.\nThe icon in the Viewport represents the actual size of an avatar."
 
-Defined in: [packages/client-core/components/editor/properties/SpawnPointNodeEditor.tsx:27](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/SpawnPointNodeEditor.tsx#L27)
+Defined in: [packages/client-core/components/editor/properties/SpawnPointNodeEditor.tsx:27](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/properties/SpawnPointNodeEditor.tsx#L27)
 
 ___
 
@@ -157,7 +157,7 @@ ___
 
 ▪ `Static` **iconComponent**: StyledIcon
 
-Defined in: [packages/client-core/components/editor/properties/SpawnPointNodeEditor.tsx:24](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/SpawnPointNodeEditor.tsx#L24)
+Defined in: [packages/client-core/components/editor/properties/SpawnPointNodeEditor.tsx:24](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/properties/SpawnPointNodeEditor.tsx#L24)
 
 ## Methods
 
@@ -476,7 +476,7 @@ ___
 
 Overrides: void
 
-Defined in: [packages/client-core/components/editor/properties/SpawnPointNodeEditor.tsx:28](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/SpawnPointNodeEditor.tsx#L28)
+Defined in: [packages/client-core/components/editor/properties/SpawnPointNodeEditor.tsx:28](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/properties/SpawnPointNodeEditor.tsx#L28)
 
 ___
 
