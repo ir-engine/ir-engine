@@ -127,8 +127,6 @@ export default (app: Application): void => {
                         (connection as any).instanceId = (app as any).instance.id;
                         // console.log('Patched user instanceId');
                         app.channel(`instanceIds/${(app as any).instance.id as string}`).join(connection);
-                        console.log('Sending joined layer message');
-                        console.log((app as any).isChannelInstance);
                         if ((app as any).isChannelInstance !== true) await app.service('message').create({
                             targetObjectId: (app as any).instance.id,
                             targetObjectType: 'instance',

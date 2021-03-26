@@ -15,7 +15,7 @@ export function loadScene(scene: SceneData): void {
   let loaded = 0;
   if (isClient) {
     console.warn(Engine.scene);
-    console.warn(scene);
+    //console.warn(scene);
     EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENTITY_LOADED, left: loadPromises.length });
   }
   Object.keys(scene.entities).forEach(key => {
@@ -24,21 +24,27 @@ export function loadScene(scene: SceneData): void {
     addComponent(entity, SceneTagComponent);
     sceneEntity.components.forEach(component => {
       loadComponent(entity, component);
+
       if (isServer && component.name === 'gltf-model') {
-        // dont load glb model if dont need to parse colliders
-        if(!component.data.parseColliders) return;
        // its add unic id from entityId, entityId gives editor to both of side (client have same scene data as a server).
        // needed to syncronize network Objects, like dynamic network rigidBody or cars.
        const loaderComponent = getMutableComponent(entity, AssetLoader);
-       loaderComponent.entityIdFromScenaLoader = sceneEntity;
+       loaderComponent.entityIdFromScenaLoader = sceneEntity.entityId;
      } else
       if (isClient && component.name === 'gltf-model') {
+
         const loaderComponent = getMutableComponent(entity, AssetLoader);
-        // its add unic id from entityId, entityId gives editor to both of side (client have same scene data as a server).
+        // its add unique id from entityId, entityId gives editor to both of side (client have same scene data as a server).
         // needed to syncronize network Objects, like dynamic network rigidBody or cars.
-        loaderComponent.entityIdFromScenaLoader = sceneEntity;
+        loaderComponent.entityIdFromScenaLoader = sceneEntity.entityId;
+
+        if (component.data.dontParseModel) {
+          console.warn(' dont wait dontParseModel ' + component.data.dontParseModel);
+          return;
+        }
+
         loadPromises.push(new Promise<void>((resolve, reject) => {
-          if (loaderComponent.onLoaded === null || loaderComponent.onLoaded === undefined) {
+          if (loaderComponent.onLoaded === null || loaderComponent.onLoaded === undefined ) {
           }
           loaderComponent.onLoaded.push(() => {
             loaded++;
@@ -64,9 +70,17 @@ export function loadComponent(entity: Entity, component: SceneDataComponent): vo
   const componentSchema = SceneObjectLoadingSchema[name];
   // for each component in component name, call behavior
   componentSchema.behaviors?.forEach(b => {
+    // its allow to work colliders without download glb
     // For each value, from component.data
     const values = {};
     b.values?.forEach(val => {
+      // dont load glb model if dont need to parse colliders
+
+      if (isServer && component.name === 'gltf-model' && component.data.dontParseModel) {
+        console.warn('Stop download glb if dontParseModel');
+        return;
+      }
+
       // Does it have a from and to field? Let's map to that
       if (val['from'] !== undefined) {
         values[val['to']] = component.data[val['from']];

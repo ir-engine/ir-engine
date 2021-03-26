@@ -31,7 +31,7 @@ This repo includes a fully-feature client, API server, realtime gamerserver, gam
 
 https://theoverlay.io
 
-## Getting Started
+# Getting Started
 
 Getting up and running requires only a few steps. 
 
@@ -244,7 +244,18 @@ Try
 yarn run dev-reinit-db // in server package
 ```
 
-## Deployment
+# Development
+
+## API Reference
+[Open API](https://api-dev.theoverlay.io/openapi/)
+
+[GraphQL](https://api-dev.theoverlay.io/graphql/) 
+
+## Code Reference
+
+### [Developer Reference](https://docs.google.com/document/d/1_nCi0CL5b7wVPi-Mj77XZ939xo5ztXLaxtYAfzHsvPo)
+
+# Deployment
 
 [AWS EKS Deployment](https://github.com/xr3ngine/xr3ngine/blob/dev/packages/ops/docs/EKS-setup.md)
 
@@ -346,7 +357,7 @@ $ feathers help                           # Show all commands
 ```
 
 
-## Help
+## Backend API Help
 
 For more information on all the things you can do with Feathers visit [docs.feathersjs.com](http://docs.feathersjs.com).
 
