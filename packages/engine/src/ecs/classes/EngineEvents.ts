@@ -36,11 +36,10 @@ const EVENTS = {
 };
 
 export class EngineEvents extends EventDispatcher {
-  static instance: EngineEvents;
+  static instance: EngineEvents = new EngineEvents();
   static EVENTS = EVENTS;
   constructor() {
     super();
-    EngineEvents.instance = this;
   }
 }
 
