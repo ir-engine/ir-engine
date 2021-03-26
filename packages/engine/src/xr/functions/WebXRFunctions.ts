@@ -63,14 +63,9 @@ export const startXR = async () => {
     controllerGripRight = Engine.renderer.xr.getControllerGrip(1);
     
     addComponent(Network.instance.localClientEntity, XRInputReceiver, {
-      headPosition: head.position,
-      headRotation: head.rotation,
+      head: head,
       controllerLeft: controllerLeft,
       controllerRight: controllerRight,
-      controllerPositionLeft: controllerLeft.position,
-      controllerPositionRight: controllerRight.position,
-      controllerRotationLeft: controllerLeft.quaternion,
-      controllerRotationRight: controllerRight.quaternion,
       controllerGripLeft: controllerGripLeft,
       controllerGripRight: controllerGripRight
     })

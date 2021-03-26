@@ -301,27 +301,24 @@ export default class AssetLoadingSystem extends System {
         EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENTITY_LOADED, left: this.loadingCount });
       }
 
+      try {
+        loadAsset(assetLoader.url, entity, (entity, { asset }) => {
+          // This loads the editor scene
+          this.loaded.set(entity, asset);
+          if (isClient) {
+            this.loadingCount--;
 
-      if (!isCharacter || isClient) {
-        try {
-          loadAsset(assetLoader.url, entity, (entity, { asset }) => {
-            // This loads the editor scene
-            this.loaded.set(entity, asset);
-            if (isClient) {
-              this.loadingCount--;
-
-              if (this.loadingCount === 0) {
-                //loading finished
-                EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.SCENE_LOADED, loaded: true });
-              } else {
-                //show progress by entitites
-                EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENTITY_LOADED, left: this.loadingCount });
-              }
+            if (this.loadingCount === 0) {
+              //loading finished
+              EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.SCENE_LOADED, loaded: true });
+            } else {
+              //show progress by entitites
+              EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENTITY_LOADED, left: this.loadingCount });
             }
-          });
-        } catch (error) {
-          console.log("**** Loading error; failed to load because ", error);
-        }
+          }
+        });
+      } catch (error) {
+        console.log("**** Loading error; failed to load because ", error);
       }
 
     });

@@ -242,4 +242,6 @@ export class Engine {
   static gamepadThreshold = 0.1;
   static gamepadButtons: BinaryType[] = [];
   static gamepadInput: number[] = [];
+
+  static publicPath: string;
 }

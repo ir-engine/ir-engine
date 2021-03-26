@@ -5,13 +5,16 @@ import { isWebWorker } from '../../common/functions/getEnvironment';
 import { Engine } from '../../ecs/classes/Engine';
 import { EngineEvents } from '../../ecs/classes/EngineEvents';
 import { System, SystemAttributes } from '../../ecs/classes/System';
-import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
 import { gamepadMapping } from '../../input/behaviors/GamepadInputBehaviors';
 import { InputType } from '../../input/enums/InputType';
 import { endXR, startXR } from '../functions/WebXRFunctions';
-import { XRFrame, XRReferenceSpace, XRReferenceSpaceType, XRWebGLLayer, XRRigidTransform } from '../../input/types/WebXR';
-import { Network } from '../../networking/classes/Network';
-import { CharacterComponent } from '../../templates/character/components/CharacterComponent';
+import { XRFrame, XRReferenceSpace, XRReferenceSpaceType, XRWebGLLayer } from '../../input/types/WebXR';
+import { getComponent, getMutableComponent } from "../../ecs/functions/EntityFunctions";
+import { CharacterComponent } from "../../templates/character/components/CharacterComponent";
+import { isClient } from '../../common/functions/isClient';
+import { Input } from '../../input/components/Input';
+import { BaseInput } from '../../input/enums/BaseInput';
+import { SIXDOFType } from '../../common/types/NumericalTypes';
 
 export class XRSystem extends System {
 
@@ -55,8 +58,8 @@ export class XRSystem extends System {
           EngineEvents.instance.dispatchEvent({ type: XRSystem.EVENTS.XR_SESSION });
         }
 
-        const actor = getMutableComponent<CharacterComponent>(Network.instance.localClientEntity, CharacterComponent);
-        actor.modelContainer.visible = false;
+        // const actor = getMutableComponent<CharacterComponent>(Network.instance.localClientEntity, CharacterComponent);
+        // actor.modelContainer.visible = false;
 
         await startXR()
 
@@ -78,34 +81,33 @@ export class XRSystem extends System {
    * @param delta Time since last frame.
    */
   execute(delta: number): void {
-    if(!Engine.renderer?.xr?.isPresenting) return;
-    
-    const session = XRSystem.xrFrame.session;
-  
-    session.inputSources.forEach((source) => {
-      if(source.gamepad) {
-        const mapping = gamepadMapping[source.gamepad.mapping || 'xr-standard'][source.handedness];
-        source.gamepad.buttons.forEach((button, index) => {
-          // TODO : support button.touched and button.value
-          Engine.inputState.set(mapping.buttons[index], {
-            type: InputType.BUTTON,
-            value: button.pressed ? BinaryValue.ON : BinaryValue.OFF,
-            lifecycleState: button.pressed ? LifecycleValue.STARTED : LifecycleValue.ENDED
+    if(Engine.renderer?.xr?.isPresenting) {
+      const session = XRSystem.xrFrame.session;
+      session.inputSources.forEach((source) => {
+        if(source.gamepad) {
+          const mapping = gamepadMapping[source.gamepad.mapping || 'xr-standard'][source.handedness];
+          source.gamepad.buttons.forEach((button, index) => {
+            // TODO : support button.touched and button.value
+            Engine.inputState.set(mapping.buttons[index], {
+              type: InputType.BUTTON,
+              value: button.pressed ? BinaryValue.ON : BinaryValue.OFF,
+              lifecycleState: button.pressed ? LifecycleValue.STARTED : LifecycleValue.ENDED
+            })
           })
-        })
-        if(source.gamepad.axes.length > 2) {
-          Engine.inputState.set(mapping.axes, {
-            type: InputType.TWODIM,
-            value: [source.gamepad.axes[2], source.gamepad.axes[3]]
-          })
-        } else {
-          Engine.inputState.set(mapping.axes, {
-            type: InputType.TWODIM,
-            value: [source.gamepad.axes[0], source.gamepad.axes[1]]
-          })
+          if(source.gamepad.axes.length > 2) {
+            Engine.inputState.set(mapping.axes, {
+              type: InputType.TWODIM,
+              value: [source.gamepad.axes[2], source.gamepad.axes[3]]
+            })
+          } else {
+            Engine.inputState.set(mapping.axes, {
+              type: InputType.TWODIM,
+              value: [source.gamepad.axes[0], source.gamepad.axes[1]]
+            })
+          }
         }
-      }
-    })
+      })
+    }
   }
 }
 
