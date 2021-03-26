@@ -22,7 +22,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/redux/admin/service.ts:195](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/admin/service.ts#L195)
+Defined in: [packages/client-core/redux/admin/service.ts:195](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/admin/service.ts#L195)
 
 ___
 
@@ -38,7 +38,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/redux/admin/service.ts:153](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/admin/service.ts#L153)
+Defined in: [packages/client-core/redux/admin/service.ts:153](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/admin/service.ts#L153)
 
 ___
 
@@ -54,7 +54,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/redux/admin/service.ts:164](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/admin/service.ts#L164)
+Defined in: [packages/client-core/redux/admin/service.ts:164](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/admin/service.ts#L164)
 
 ___
 
@@ -70,7 +70,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>, `getState`: *any*) => *Promise*<void\>
 
-Defined in: [packages/client-core/redux/admin/service.ts:39](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/admin/service.ts#L39)
+Defined in: [packages/client-core/redux/admin/service.ts:39](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/admin/service.ts#L39)
 
 ___
 
@@ -86,7 +86,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *any*
 
-Defined in: [packages/client-core/redux/admin/service.ts:69](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/admin/service.ts#L69)
+Defined in: [packages/client-core/redux/admin/service.ts:69](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/admin/service.ts#L69)
 
 ___
 
@@ -96,7 +96,7 @@ ___
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>, `getState`: *any*) => *Promise*<any\>
 
-Defined in: [packages/client-core/redux/admin/service.ts:136](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/admin/service.ts#L136)
+Defined in: [packages/client-core/redux/admin/service.ts:136](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/admin/service.ts#L136)
 
 ___
 
@@ -106,7 +106,7 @@ ___
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>, `getState`: *any*) => *Promise*<any\>
 
-Defined in: [packages/client-core/redux/admin/service.ts:98](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/admin/service.ts#L98)
+Defined in: [packages/client-core/redux/admin/service.ts:98](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/admin/service.ts#L98)
 
 ___
 
@@ -116,7 +116,7 @@ ___
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/redux/admin/service.ts:243](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/admin/service.ts#L243)
+Defined in: [packages/client-core/redux/admin/service.ts:243](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/admin/service.ts#L243)
 
 ___
 
@@ -126,7 +126,7 @@ ___
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *any*
 
-Defined in: [packages/client-core/redux/admin/service.ts:79](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/admin/service.ts#L79)
+Defined in: [packages/client-core/redux/admin/service.ts:79](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/admin/service.ts#L79)
 
 ___
 
@@ -136,7 +136,7 @@ ___
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/redux/admin/service.ts:257](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/admin/service.ts#L257)
+Defined in: [packages/client-core/redux/admin/service.ts:257](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/admin/service.ts#L257)
 
 ___
 
@@ -152,7 +152,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>, `getState`: *any*) => *Promise*<any\>
 
-Defined in: [packages/client-core/redux/admin/service.ts:114](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/admin/service.ts#L114)
+Defined in: [packages/client-core/redux/admin/service.ts:114](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/admin/service.ts#L114)
 
 ___
 
@@ -169,7 +169,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/redux/admin/service.ts:206](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/admin/service.ts#L206)
+Defined in: [packages/client-core/redux/admin/service.ts:206](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/admin/service.ts#L206)
 
 ___
 
@@ -186,7 +186,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/redux/admin/service.ts:224](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/admin/service.ts#L224)
+Defined in: [packages/client-core/redux/admin/service.ts:224](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/admin/service.ts#L224)
 
 ___
 
@@ -203,7 +203,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/redux/admin/service.ts:175](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/admin/service.ts#L175)
+Defined in: [packages/client-core/redux/admin/service.ts:175](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/admin/service.ts#L175)
 
 ___
 
@@ -219,7 +219,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/redux/admin/service.ts:217](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/admin/service.ts#L217)
+Defined in: [packages/client-core/redux/admin/service.ts:217](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/admin/service.ts#L217)
 
 ___
 
@@ -235,7 +235,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/redux/admin/service.ts:236](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/admin/service.ts#L236)
+Defined in: [packages/client-core/redux/admin/service.ts:236](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/admin/service.ts#L236)
 
 ___
 
@@ -251,7 +251,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/redux/admin/service.ts:188](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/admin/service.ts#L188)
+Defined in: [packages/client-core/redux/admin/service.ts:188](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/admin/service.ts#L188)
 
 ___
 
@@ -267,4 +267,4 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *any*
 
-Defined in: [packages/client-core/redux/admin/service.ts:59](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/admin/service.ts#L59)
+Defined in: [packages/client-core/redux/admin/service.ts:59](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/admin/service.ts#L59)

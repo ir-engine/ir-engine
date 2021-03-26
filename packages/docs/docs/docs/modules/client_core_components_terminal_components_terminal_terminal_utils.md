@@ -14,7 +14,7 @@ hide_title: true
 
 • `Const` **os**: *win* \| *linux* \| *darwin* \| *unknown*
 
-Defined in: [packages/client-core/components/terminal/components/Terminal/terminal-utils.tsx:4](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/terminal/components/Terminal/terminal-utils.tsx#L4)
+Defined in: [packages/client-core/components/terminal/components/Terminal/terminal-utils.tsx:4](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/terminal/components/Terminal/terminal-utils.tsx#L4)
 
 ## Functions
 
@@ -31,7 +31,7 @@ Name | Type |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/components/terminal/components/Terminal/terminal-utils.tsx:26](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/terminal/components/Terminal/terminal-utils.tsx#L26)
+Defined in: [packages/client-core/components/terminal/components/Terminal/terminal-utils.tsx:26](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/terminal/components/Terminal/terminal-utils.tsx#L26)
 
 ___
 
@@ -47,7 +47,7 @@ Name | Type |
 
 **Returns:** *object*
 
-Defined in: [packages/client-core/components/terminal/components/Terminal/terminal-utils.tsx:43](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/terminal/components/Terminal/terminal-utils.tsx#L43)
+Defined in: [packages/client-core/components/terminal/components/Terminal/terminal-utils.tsx:43](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/terminal/components/Terminal/terminal-utils.tsx#L43)
 
 ___
 
@@ -64,7 +64,7 @@ Name | Type |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/components/terminal/components/Terminal/terminal-utils.tsx:6](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/terminal/components/Terminal/terminal-utils.tsx#L6)
+Defined in: [packages/client-core/components/terminal/components/Terminal/terminal-utils.tsx:6](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/terminal/components/Terminal/terminal-utils.tsx#L6)
 
 ___
 
@@ -74,4 +74,4 @@ ___
 
 **Returns:** *string*
 
-Defined in: [packages/client-core/components/terminal/components/Terminal/terminal-utils.tsx:18](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/terminal/components/Terminal/terminal-utils.tsx#L18)
+Defined in: [packages/client-core/components/terminal/components/Terminal/terminal-utils.tsx:18](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/terminal/components/Terminal/terminal-utils.tsx#L18)

@@ -28,4 +28,4 @@ Name | Type |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/components/editor/inputs/ModelInput.tsx:14](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/inputs/ModelInput.tsx#L14)
+Defined in: [packages/client-core/components/editor/inputs/ModelInput.tsx:14](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/inputs/ModelInput.tsx#L14)

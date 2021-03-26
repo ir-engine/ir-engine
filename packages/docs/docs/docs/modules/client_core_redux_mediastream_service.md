@@ -22,7 +22,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *void*
 
-Defined in: [packages/client-core/redux/mediastream/service.ts:41](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/mediastream/service.ts#L41)
+Defined in: [packages/client-core/redux/mediastream/service.ts:41](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/mediastream/service.ts#L41)
 
 ___
 
@@ -38,7 +38,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *void*
 
-Defined in: [packages/client-core/redux/mediastream/service.ts:19](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/mediastream/service.ts#L19)
+Defined in: [packages/client-core/redux/mediastream/service.ts:19](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/mediastream/service.ts#L19)
 
 ___
 
@@ -54,7 +54,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *void*
 
-Defined in: [packages/client-core/redux/mediastream/service.ts:50](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/mediastream/service.ts#L50)
+Defined in: [packages/client-core/redux/mediastream/service.ts:50](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/mediastream/service.ts#L50)
 
 ___
 
@@ -64,7 +64,7 @@ ___
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/redux/mediastream/service.ts:23](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/mediastream/service.ts#L23)
+Defined in: [packages/client-core/redux/mediastream/service.ts:23](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/mediastream/service.ts#L23)
 
 ___
 
@@ -74,7 +74,7 @@ ___
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/redux/mediastream/service.ts:34](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/mediastream/service.ts#L34)
+Defined in: [packages/client-core/redux/mediastream/service.ts:34](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/mediastream/service.ts#L34)
 
 ___
 
@@ -84,7 +84,7 @@ ___
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/redux/mediastream/service.ts:11](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/mediastream/service.ts#L11)
+Defined in: [packages/client-core/redux/mediastream/service.ts:11](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/mediastream/service.ts#L11)
 
 ___
 
@@ -100,7 +100,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *void*
 
-Defined in: [packages/client-core/redux/mediastream/service.ts:30](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/mediastream/service.ts#L30)
+Defined in: [packages/client-core/redux/mediastream/service.ts:30](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/mediastream/service.ts#L30)
 
 ___
 
@@ -110,4 +110,4 @@ ___
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/redux/mediastream/service.ts:45](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/mediastream/service.ts#L45)
+Defined in: [packages/client-core/redux/mediastream/service.ts:45](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/mediastream/service.ts#L45)

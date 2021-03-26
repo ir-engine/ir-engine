@@ -30,7 +30,7 @@ Api class contains functions to perform common functions.
 
 Overrides: void
 
-Defined in: [packages/client-core/components/editor/Api.tsx:105](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/Api.tsx#L105)
+Defined in: [packages/client-core/components/editor/Api.tsx:105](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/Api.tsx#L105)
 
 ## Properties
 
@@ -38,7 +38,7 @@ Defined in: [packages/client-core/components/editor/Api.tsx:105](https://github.
 
 • **apiURL**: *string*
 
-Defined in: [packages/client-core/components/editor/Api.tsx:102](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/Api.tsx#L102)
+Defined in: [packages/client-core/components/editor/Api.tsx:102](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/Api.tsx#L102)
 
 ___
 
@@ -46,7 +46,7 @@ ___
 
 • **lastUploadAssetRequest**: *number*= 0
 
-Defined in: [packages/client-core/components/editor/Api.tsx:1119](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/Api.tsx#L1119)
+Defined in: [packages/client-core/components/editor/Api.tsx:1119](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/Api.tsx#L1119)
 
 ___
 
@@ -54,7 +54,7 @@ ___
 
 • **maxUploadSize**: *number*
 
-Defined in: [packages/client-core/components/editor/Api.tsx:104](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/Api.tsx#L104)
+Defined in: [packages/client-core/components/editor/Api.tsx:104](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/Api.tsx#L104)
 
 ___
 
@@ -62,7 +62,7 @@ ___
 
 • **projectDirectoryPath**: *string*
 
-Defined in: [packages/client-core/components/editor/Api.tsx:103](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/Api.tsx#L103)
+Defined in: [packages/client-core/components/editor/Api.tsx:103](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/Api.tsx#L103)
 
 ___
 
@@ -70,7 +70,7 @@ ___
 
 • **props**: *any*
 
-Defined in: [packages/client-core/components/editor/Api.tsx:105](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/Api.tsx#L105)
+Defined in: [packages/client-core/components/editor/Api.tsx:105](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/Api.tsx#L105)
 
 ___
 
@@ -78,7 +78,7 @@ ___
 
 • **serverURL**: *string*
 
-Defined in: [packages/client-core/components/editor/Api.tsx:101](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/Api.tsx#L101)
+Defined in: [packages/client-core/components/editor/Api.tsx:101](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/Api.tsx#L101)
 
 ___
 
@@ -112,7 +112,7 @@ Name | Type |
 
 [uploaded asset file data]
 
-Defined in: [packages/client-core/components/editor/Api.tsx:1129](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/Api.tsx#L1129)
+Defined in: [packages/client-core/components/editor/Api.tsx:1129](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/Api.tsx#L1129)
 
 ___
 
@@ -136,7 +136,7 @@ Name | Type |
 
 [assets file data]
 
-Defined in: [packages/client-core/components/editor/Api.tsx:1059](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/Api.tsx#L1059)
+Defined in: [packages/client-core/components/editor/Api.tsx:1059](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/Api.tsx#L1059)
 
 ___
 
@@ -187,7 +187,7 @@ Name | Type |
 
 [response as json]
 
-Defined in: [packages/client-core/components/editor/Api.tsx:459](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/Api.tsx#L459)
+Defined in: [packages/client-core/components/editor/Api.tsx:459](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/Api.tsx#L459)
 
 ___
 
@@ -207,7 +207,7 @@ Name | Type |
 
 [true if deleted successfully else throw error]
 
-Defined in: [packages/client-core/components/editor/Api.tsx:1198](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/Api.tsx#L1198)
+Defined in: [packages/client-core/components/editor/Api.tsx:1198](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/Api.tsx#L1198)
 
 ___
 
@@ -225,7 +225,7 @@ Name | Type |
 
 **Returns:** *Promise*<any\>
 
-Defined in: [packages/client-core/components/editor/Api.tsx:533](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/Api.tsx#L533)
+Defined in: [packages/client-core/components/editor/Api.tsx:533](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/Api.tsx#L533)
 
 ___
 
@@ -246,7 +246,7 @@ Name | Type |
 
 [true if deleted successfully else throw error]
 
-Defined in: [packages/client-core/components/editor/Api.tsx:1229](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/Api.tsx#L1229)
+Defined in: [packages/client-core/components/editor/Api.tsx:1229](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/Api.tsx#L1229)
 
 ___
 
@@ -308,7 +308,7 @@ Name | Type |
 
 [wait for the response and return response]
 
-Defined in: [packages/client-core/components/editor/Api.tsx:255](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/Api.tsx#L255)
+Defined in: [packages/client-core/components/editor/Api.tsx:255](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/Api.tsx#L255)
 
 ___
 
@@ -329,7 +329,7 @@ Name | Type |
 
 [response from api]
 
-Defined in: [packages/client-core/components/editor/Api.tsx:1279](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/Api.tsx#L1279)
+Defined in: [packages/client-core/components/editor/Api.tsx:1279](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/Api.tsx#L1279)
 
 ___
 
@@ -343,7 +343,7 @@ ___
 
 [returns accountId]
 
-Defined in: [packages/client-core/components/editor/Api.tsx:156](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/Api.tsx#L156)
+Defined in: [packages/client-core/components/editor/Api.tsx:156](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/Api.tsx#L156)
 
 ___
 
@@ -369,7 +369,7 @@ Name | Type |
 
 [returns the contentType]
 
-Defined in: [packages/client-core/components/editor/Api.tsx:273](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/Api.tsx#L273)
+Defined in: [packages/client-core/components/editor/Api.tsx:273](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/Api.tsx#L273)
 
 ___
 
@@ -387,7 +387,7 @@ Name | Type |
 
 **Returns:** *Promise*<JSON\>
 
-Defined in: [packages/client-core/components/editor/Api.tsx:193](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/Api.tsx#L193)
+Defined in: [packages/client-core/components/editor/Api.tsx:193](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/Api.tsx#L193)
 
 ___
 
@@ -405,7 +405,7 @@ Name | Type |
 
 **Returns:** *Promise*<any\>
 
-Defined in: [packages/client-core/components/editor/Api.tsx:649](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/Api.tsx#L649)
+Defined in: [packages/client-core/components/editor/Api.tsx:649](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/Api.tsx#L649)
 
 ___
 
@@ -419,7 +419,7 @@ ___
 
 [description]
 
-Defined in: [packages/client-core/components/editor/Api.tsx:167](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/Api.tsx#L167)
+Defined in: [packages/client-core/components/editor/Api.tsx:167](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/Api.tsx#L167)
 
 ___
 
@@ -437,7 +437,7 @@ Name | Type |
 
 **Returns:** *Promise*<JSON\>
 
-Defined in: [packages/client-core/components/editor/Api.tsx:659](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/Api.tsx#L659)
+Defined in: [packages/client-core/components/editor/Api.tsx:659](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/Api.tsx#L659)
 
 ___
 
@@ -457,7 +457,7 @@ Name | Type |
 
 [url]
 
-Defined in: [packages/client-core/components/editor/Api.tsx:680](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/Api.tsx#L680)
+Defined in: [packages/client-core/components/editor/Api.tsx:680](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/Api.tsx#L680)
 
 ___
 
@@ -471,7 +471,7 @@ ___
 
 [returns token string]
 
-Defined in: [packages/client-core/components/editor/Api.tsx:143](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/Api.tsx#L143)
+Defined in: [packages/client-core/components/editor/Api.tsx:143](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/Api.tsx#L143)
 
 ___
 
@@ -485,7 +485,7 @@ ___
 
 [User data]
 
-Defined in: [packages/client-core/components/editor/Api.tsx:1265](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/Api.tsx#L1265)
+Defined in: [packages/client-core/components/editor/Api.tsx:1265](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/Api.tsx#L1265)
 
 ___
 
@@ -497,7 +497,7 @@ ___
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/Api.tsx:1310](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/Api.tsx#L1310)
+Defined in: [packages/client-core/components/editor/Api.tsx:1310](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/Api.tsx#L1310)
 
 ___
 
@@ -511,7 +511,7 @@ function component to check user is valid or not.
 
 [return true if user is valid else return false]
 
-Defined in: [packages/client-core/components/editor/Api.tsx:133](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/Api.tsx#L133)
+Defined in: [packages/client-core/components/editor/Api.tsx:133](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/Api.tsx#L133)
 
 ___
 
@@ -660,7 +660,7 @@ Name | Type |
 
 url
 
-Defined in: [packages/client-core/components/editor/Api.tsx:334](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/Api.tsx#L334)
+Defined in: [packages/client-core/components/editor/Api.tsx:334](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/Api.tsx#L334)
 
 ___
 
@@ -683,7 +683,7 @@ Name | Type |
 
 [returns published project data]
 
-Defined in: [packages/client-core/components/editor/Api.tsx:692](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/Api.tsx#L692)
+Defined in: [packages/client-core/components/editor/Api.tsx:692](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/Api.tsx#L692)
 
 ___
 
@@ -751,7 +751,7 @@ Name | Type |
 
 **Returns:** *Promise*<any\>
 
-Defined in: [packages/client-core/components/editor/Api.tsx:292](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/Api.tsx#L292)
+Defined in: [packages/client-core/components/editor/Api.tsx:292](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/Api.tsx#L292)
 
 ___
 
@@ -774,7 +774,7 @@ Name | Type |
 
 [returns response data ]
 
-Defined in: [packages/client-core/components/editor/Api.tsx:218](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/Api.tsx#L218)
+Defined in: [packages/client-core/components/editor/Api.tsx:218](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/Api.tsx#L218)
 
 ___
 
@@ -791,7 +791,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/Api.tsx:1269](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/Api.tsx#L1269)
+Defined in: [packages/client-core/components/editor/Api.tsx:1269](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/Api.tsx#L1269)
 
 ___
 
@@ -813,7 +813,7 @@ Name | Type |
 
 **Returns:** *Promise*<any\>
 
-Defined in: [packages/client-core/components/editor/Api.tsx:566](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/Api.tsx#L566)
+Defined in: [packages/client-core/components/editor/Api.tsx:566](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/Api.tsx#L566)
 
 ___
 
@@ -836,7 +836,7 @@ Name | Type |
 
 [result , nextCursor, suggestions]
 
-Defined in: [packages/client-core/components/editor/Api.tsx:372](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/Api.tsx#L372)
+Defined in: [packages/client-core/components/editor/Api.tsx:372](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/Api.tsx#L372)
 
 ___
 
@@ -852,7 +852,7 @@ Name | Type |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/components/editor/Api.tsx:445](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/Api.tsx#L445)
+Defined in: [packages/client-core/components/editor/Api.tsx:445](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/Api.tsx#L445)
 
 ___
 
@@ -870,7 +870,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/Api.tsx:1257](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/Api.tsx#L1257)
+Defined in: [packages/client-core/components/editor/Api.tsx:1257](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/Api.tsx#L1257)
 
 ___
 
@@ -891,7 +891,7 @@ Name | Type |
 
 [absoluteUrl]
 
-Defined in: [packages/client-core/components/editor/Api.tsx:344](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/Api.tsx#L344)
+Defined in: [packages/client-core/components/editor/Api.tsx:344](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/Api.tsx#L344)
 
 ___
 
@@ -912,7 +912,7 @@ Name | Type |
 
 **Returns:** *Promise*<void\>
 
-Defined in: [packages/client-core/components/editor/Api.tsx:980](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/Api.tsx#L980)
+Defined in: [packages/client-core/components/editor/Api.tsx:980](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/Api.tsx#L980)
 
 ___
 
@@ -933,7 +933,7 @@ Name | Type |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/components/editor/Api.tsx:1097](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/Api.tsx#L1097)
+Defined in: [packages/client-core/components/editor/Api.tsx:1097](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/Api.tsx#L1097)
 
 ___
 
@@ -956,7 +956,7 @@ Name | Type |
 
 [uploaded file assets]
 
-Defined in: [packages/client-core/components/editor/Api.tsx:1046](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/Api.tsx#L1046)
+Defined in: [packages/client-core/components/editor/Api.tsx:1046](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/Api.tsx#L1046)
 
 ___
 
@@ -978,4 +978,4 @@ Name | Type |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/components/editor/Api.tsx:1109](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/Api.tsx#L1109)
+Defined in: [packages/client-core/components/editor/Api.tsx:1109](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/Api.tsx#L1109)

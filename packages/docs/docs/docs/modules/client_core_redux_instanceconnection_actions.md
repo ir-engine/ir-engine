@@ -25,7 +25,7 @@ hide_title: true
 
 Ƭ **InstanceServerAction**: [*InstanceServerProvisionedAction*](../interfaces/client_core_redux_instanceconnection_actions.instanceserverprovisionedaction.md) \| [*InstanceServerProvisioningAction*](../interfaces/client_core_redux_instanceconnection_actions.instanceserverprovisioningaction.md) \| [*InstanceServerConnectingAction*](../interfaces/client_core_redux_instanceconnection_actions.instanceserverconnectingaction.md) \| [*InstanceServerConnectedAction*](../interfaces/client_core_redux_instanceconnection_actions.instanceserverconnectedaction.md) \| [*InstanceServerDisconnectedAction*](../interfaces/client_core_redux_instanceconnection_actions.instanceserverdisconnectedaction.md) \| [*SocketCreatedAction*](../interfaces/client_core_redux_instanceconnection_actions.socketcreatedaction.md)
 
-Defined in: [packages/client-core/redux/instanceConnection/actions.ts:41](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/instanceConnection/actions.ts#L41)
+Defined in: [packages/client-core/redux/instanceConnection/actions.ts:41](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/instanceConnection/actions.ts#L41)
 
 ## Functions
 
@@ -35,7 +35,7 @@ Defined in: [packages/client-core/redux/instanceConnection/actions.ts:41](https:
 
 **Returns:** [*InstanceServerConnectedAction*](../interfaces/client_core_redux_instanceconnection_actions.instanceserverconnectedaction.md)
 
-Defined in: [packages/client-core/redux/instanceConnection/actions.ts:70](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/instanceConnection/actions.ts#L70)
+Defined in: [packages/client-core/redux/instanceConnection/actions.ts:70](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/instanceConnection/actions.ts#L70)
 
 ___
 
@@ -45,7 +45,7 @@ ___
 
 **Returns:** [*InstanceServerConnectingAction*](../interfaces/client_core_redux_instanceconnection_actions.instanceserverconnectingaction.md)
 
-Defined in: [packages/client-core/redux/instanceConnection/actions.ts:64](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/instanceConnection/actions.ts#L64)
+Defined in: [packages/client-core/redux/instanceConnection/actions.ts:64](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/instanceConnection/actions.ts#L64)
 
 ___
 
@@ -55,7 +55,7 @@ ___
 
 **Returns:** [*InstanceServerDisconnectedAction*](../interfaces/client_core_redux_instanceconnection_actions.instanceserverdisconnectedaction.md)
 
-Defined in: [packages/client-core/redux/instanceConnection/actions.ts:76](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/instanceConnection/actions.ts#L76)
+Defined in: [packages/client-core/redux/instanceConnection/actions.ts:76](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/instanceConnection/actions.ts#L76)
 
 ___
 
@@ -73,7 +73,7 @@ Name | Type |
 
 **Returns:** [*InstanceServerProvisionedAction*](../interfaces/client_core_redux_instanceconnection_actions.instanceserverprovisionedaction.md)
 
-Defined in: [packages/client-core/redux/instanceConnection/actions.ts:54](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/instanceConnection/actions.ts#L54)
+Defined in: [packages/client-core/redux/instanceConnection/actions.ts:54](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/instanceConnection/actions.ts#L54)
 
 ___
 
@@ -83,7 +83,7 @@ ___
 
 **Returns:** [*InstanceServerProvisioningAction*](../interfaces/client_core_redux_instanceconnection_actions.instanceserverprovisioningaction.md)
 
-Defined in: [packages/client-core/redux/instanceConnection/actions.ts:49](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/instanceConnection/actions.ts#L49)
+Defined in: [packages/client-core/redux/instanceConnection/actions.ts:49](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/instanceConnection/actions.ts#L49)
 
 ___
 
@@ -99,4 +99,4 @@ Name | Type |
 
 **Returns:** [*SocketCreatedAction*](../interfaces/client_core_redux_instanceconnection_actions.socketcreatedaction.md)
 
-Defined in: [packages/client-core/redux/instanceConnection/actions.ts:82](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/instanceConnection/actions.ts#L82)
+Defined in: [packages/client-core/redux/instanceConnection/actions.ts:82](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/instanceConnection/actions.ts#L82)

@@ -14,7 +14,7 @@ hide_title: true
 
 • `Const` **PAGE\_LIMIT**: *100*= 100
 
-Defined in: [packages/client-core/redux/admin/reducers.ts:31](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/admin/reducers.ts#L31)
+Defined in: [packages/client-core/redux/admin/reducers.ts:31](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/admin/reducers.ts#L31)
 
 ___
 
@@ -79,7 +79,7 @@ Name | Type |
 `users.updateNeeded` | *boolean* |
 `users.users` | *any*[] |
 
-Defined in: [packages/client-core/redux/admin/reducers.ts:33](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/admin/reducers.ts#L33)
+Defined in: [packages/client-core/redux/admin/reducers.ts:33](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/admin/reducers.ts#L33)
 
 ## Functions
 
@@ -96,4 +96,4 @@ Name | Type |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/redux/admin/reducers.ts:88](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/admin/reducers.ts#L88)
+Defined in: [packages/client-core/redux/admin/reducers.ts:88](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/admin/reducers.ts#L88)

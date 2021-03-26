@@ -14,7 +14,7 @@ hide_title: true
 
 • `Const` **selectCurrentScene**: *OutputSelector*<any, any, (`res`: *any*) => *any*\>
 
-Defined in: [packages/client-core/redux/scenes/selector.ts:7](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/scenes/selector.ts#L7)
+Defined in: [packages/client-core/redux/scenes/selector.ts:7](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/scenes/selector.ts#L7)
 
 ___
 
@@ -22,4 +22,4 @@ ___
 
 • `Const` **selectScenesState**: *OutputSelector*<any, any, (`res`: *any*) => *any*\>
 
-Defined in: [packages/client-core/redux/scenes/selector.ts:4](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/scenes/selector.ts#L4)
+Defined in: [packages/client-core/redux/scenes/selector.ts:4](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/scenes/selector.ts#L4)

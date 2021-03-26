@@ -22,4 +22,4 @@ Renames and exports: [TipsAndTricks](client_core_components_social_tipsandtricks
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/components/social/TipsAndTricks/index.tsx:11](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/social/TipsAndTricks/index.tsx#L11)
+Defined in: [packages/client-core/components/social/TipsAndTricks/index.tsx:11](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/social/TipsAndTricks/index.tsx#L11)

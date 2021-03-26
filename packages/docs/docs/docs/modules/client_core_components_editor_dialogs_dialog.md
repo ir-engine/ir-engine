@@ -22,7 +22,7 @@ hide_title: true
 
 DialogContent used to provide styles for dialog body content.
 
-Defined in: [packages/client-core/components/editor/dialogs/Dialog.tsx:49](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/dialogs/Dialog.tsx#L49)
+Defined in: [packages/client-core/components/editor/dialogs/Dialog.tsx:49](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/dialogs/Dialog.tsx#L49)
 
 ## Functions
 
@@ -40,4 +40,4 @@ Name | Type |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/components/editor/dialogs/Dialog.tsx:119](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/dialogs/Dialog.tsx#L119)
+Defined in: [packages/client-core/components/editor/dialogs/Dialog.tsx:119](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/dialogs/Dialog.tsx#L119)

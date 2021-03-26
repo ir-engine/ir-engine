@@ -24,7 +24,7 @@ hide_title: true
 
 Inherited from: void
 
-Defined in: [packages/client-core/redux/app/actions.ts:14](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/app/actions.ts#L14)
+Defined in: [packages/client-core/redux/app/actions.ts:14](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/app/actions.ts#L14)
 
 ___
 
@@ -39,4 +39,4 @@ Name | Type |
 `height` | *number* |
 `width` | *number* |
 
-Defined in: [packages/client-core/redux/app/actions.ts:23](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/app/actions.ts#L23)
+Defined in: [packages/client-core/redux/app/actions.ts:23](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/app/actions.ts#L23)

@@ -149,7 +149,7 @@ ___
 
 ▪ `Static` **description**: *string*= "Particle emitter to create particles."
 
-Defined in: [packages/client-core/components/editor/properties/ParticleEmitterNodeEditor.tsx:43](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/ParticleEmitterNodeEditor.tsx#L43)
+Defined in: [packages/client-core/components/editor/properties/ParticleEmitterNodeEditor.tsx:43](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/properties/ParticleEmitterNodeEditor.tsx#L43)
 
 ___
 
@@ -157,7 +157,7 @@ ___
 
 ▪ `Static` **iconComponent**: StyledIcon
 
-Defined in: [packages/client-core/components/editor/properties/ParticleEmitterNodeEditor.tsx:40](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/ParticleEmitterNodeEditor.tsx#L40)
+Defined in: [packages/client-core/components/editor/properties/ParticleEmitterNodeEditor.tsx:40](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/properties/ParticleEmitterNodeEditor.tsx#L40)
 
 ___
 
@@ -172,7 +172,7 @@ Name | Type |
 `editor` | *Requireable*<object\> |
 `node` | *Requireable*<object\> |
 
-Defined in: [packages/client-core/components/editor/properties/ParticleEmitterNodeEditor.tsx:34](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/ParticleEmitterNodeEditor.tsx#L34)
+Defined in: [packages/client-core/components/editor/properties/ParticleEmitterNodeEditor.tsx:34](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/properties/ParticleEmitterNodeEditor.tsx#L34)
 
 ## Methods
 
@@ -495,7 +495,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/properties/ParticleEmitterNodeEditor.tsx:148](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/ParticleEmitterNodeEditor.tsx#L148)
+Defined in: [packages/client-core/components/editor/properties/ParticleEmitterNodeEditor.tsx:148](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/properties/ParticleEmitterNodeEditor.tsx#L148)
 
 ___
 
@@ -511,7 +511,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/properties/ParticleEmitterNodeEditor.tsx:131](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/ParticleEmitterNodeEditor.tsx#L131)
+Defined in: [packages/client-core/components/editor/properties/ParticleEmitterNodeEditor.tsx:131](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/properties/ParticleEmitterNodeEditor.tsx#L131)
 
 ___
 
@@ -527,7 +527,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/properties/ParticleEmitterNodeEditor.tsx:53](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/ParticleEmitterNodeEditor.tsx#L53)
+Defined in: [packages/client-core/components/editor/properties/ParticleEmitterNodeEditor.tsx:53](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/properties/ParticleEmitterNodeEditor.tsx#L53)
 
 ___
 
@@ -543,7 +543,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/properties/ParticleEmitterNodeEditor.tsx:74](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/ParticleEmitterNodeEditor.tsx#L74)
+Defined in: [packages/client-core/components/editor/properties/ParticleEmitterNodeEditor.tsx:74](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/properties/ParticleEmitterNodeEditor.tsx#L74)
 
 ___
 
@@ -559,7 +559,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/properties/ParticleEmitterNodeEditor.tsx:89](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/ParticleEmitterNodeEditor.tsx#L89)
+Defined in: [packages/client-core/components/editor/properties/ParticleEmitterNodeEditor.tsx:89](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/properties/ParticleEmitterNodeEditor.tsx#L89)
 
 ___
 
@@ -575,7 +575,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/properties/ParticleEmitterNodeEditor.tsx:110](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/ParticleEmitterNodeEditor.tsx#L110)
+Defined in: [packages/client-core/components/editor/properties/ParticleEmitterNodeEditor.tsx:110](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/properties/ParticleEmitterNodeEditor.tsx#L110)
 
 ___
 
@@ -591,7 +591,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/properties/ParticleEmitterNodeEditor.tsx:126](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/ParticleEmitterNodeEditor.tsx#L126)
+Defined in: [packages/client-core/components/editor/properties/ParticleEmitterNodeEditor.tsx:126](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/properties/ParticleEmitterNodeEditor.tsx#L126)
 
 ___
 
@@ -607,7 +607,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/properties/ParticleEmitterNodeEditor.tsx:142](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/ParticleEmitterNodeEditor.tsx#L142)
+Defined in: [packages/client-core/components/editor/properties/ParticleEmitterNodeEditor.tsx:142](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/properties/ParticleEmitterNodeEditor.tsx#L142)
 
 ___
 
@@ -623,7 +623,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/properties/ParticleEmitterNodeEditor.tsx:154](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/ParticleEmitterNodeEditor.tsx#L154)
+Defined in: [packages/client-core/components/editor/properties/ParticleEmitterNodeEditor.tsx:154](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/properties/ParticleEmitterNodeEditor.tsx#L154)
 
 ___
 
@@ -639,7 +639,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/properties/ParticleEmitterNodeEditor.tsx:69](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/ParticleEmitterNodeEditor.tsx#L69)
+Defined in: [packages/client-core/components/editor/properties/ParticleEmitterNodeEditor.tsx:69](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/properties/ParticleEmitterNodeEditor.tsx#L69)
 
 ___
 
@@ -655,7 +655,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/properties/ParticleEmitterNodeEditor.tsx:84](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/ParticleEmitterNodeEditor.tsx#L84)
+Defined in: [packages/client-core/components/editor/properties/ParticleEmitterNodeEditor.tsx:84](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/properties/ParticleEmitterNodeEditor.tsx#L84)
 
 ___
 
@@ -671,7 +671,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/properties/ParticleEmitterNodeEditor.tsx:136](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/ParticleEmitterNodeEditor.tsx#L136)
+Defined in: [packages/client-core/components/editor/properties/ParticleEmitterNodeEditor.tsx:136](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/properties/ParticleEmitterNodeEditor.tsx#L136)
 
 ___
 
@@ -687,7 +687,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/properties/ParticleEmitterNodeEditor.tsx:99](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/ParticleEmitterNodeEditor.tsx#L99)
+Defined in: [packages/client-core/components/editor/properties/ParticleEmitterNodeEditor.tsx:99](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/properties/ParticleEmitterNodeEditor.tsx#L99)
 
 ___
 
@@ -703,7 +703,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/properties/ParticleEmitterNodeEditor.tsx:115](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/ParticleEmitterNodeEditor.tsx#L115)
+Defined in: [packages/client-core/components/editor/properties/ParticleEmitterNodeEditor.tsx:115](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/properties/ParticleEmitterNodeEditor.tsx#L115)
 
 ___
 
@@ -719,7 +719,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/properties/ParticleEmitterNodeEditor.tsx:94](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/ParticleEmitterNodeEditor.tsx#L94)
+Defined in: [packages/client-core/components/editor/properties/ParticleEmitterNodeEditor.tsx:94](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/properties/ParticleEmitterNodeEditor.tsx#L94)
 
 ___
 
@@ -735,7 +735,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/properties/ParticleEmitterNodeEditor.tsx:63](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/ParticleEmitterNodeEditor.tsx#L63)
+Defined in: [packages/client-core/components/editor/properties/ParticleEmitterNodeEditor.tsx:63](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/properties/ParticleEmitterNodeEditor.tsx#L63)
 
 ___
 
@@ -751,7 +751,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/properties/ParticleEmitterNodeEditor.tsx:79](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/ParticleEmitterNodeEditor.tsx#L79)
+Defined in: [packages/client-core/components/editor/properties/ParticleEmitterNodeEditor.tsx:79](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/properties/ParticleEmitterNodeEditor.tsx#L79)
 
 ___
 
@@ -767,7 +767,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/properties/ParticleEmitterNodeEditor.tsx:104](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/ParticleEmitterNodeEditor.tsx#L104)
+Defined in: [packages/client-core/components/editor/properties/ParticleEmitterNodeEditor.tsx:104](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/properties/ParticleEmitterNodeEditor.tsx#L104)
 
 ___
 
@@ -783,7 +783,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/properties/ParticleEmitterNodeEditor.tsx:121](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/ParticleEmitterNodeEditor.tsx#L121)
+Defined in: [packages/client-core/components/editor/properties/ParticleEmitterNodeEditor.tsx:121](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/properties/ParticleEmitterNodeEditor.tsx#L121)
 
 ___
 
@@ -799,7 +799,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/properties/ParticleEmitterNodeEditor.tsx:58](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/ParticleEmitterNodeEditor.tsx#L58)
+Defined in: [packages/client-core/components/editor/properties/ParticleEmitterNodeEditor.tsx:58](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/properties/ParticleEmitterNodeEditor.tsx#L58)
 
 ___
 
@@ -811,7 +811,7 @@ ___
 
 Overrides: void
 
-Defined in: [packages/client-core/components/editor/properties/ParticleEmitterNodeEditor.tsx:160](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/ParticleEmitterNodeEditor.tsx#L160)
+Defined in: [packages/client-core/components/editor/properties/ParticleEmitterNodeEditor.tsx:160](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/properties/ParticleEmitterNodeEditor.tsx#L160)
 
 ___
 
@@ -875,4 +875,4 @@ ___
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/properties/ParticleEmitterNodeEditor.tsx:46](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/ParticleEmitterNodeEditor.tsx#L46)
+Defined in: [packages/client-core/components/editor/properties/ParticleEmitterNodeEditor.tsx:46](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/properties/ParticleEmitterNodeEditor.tsx#L46)

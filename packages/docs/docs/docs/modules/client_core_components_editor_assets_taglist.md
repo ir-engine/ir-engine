@@ -22,7 +22,7 @@ hide_title: true
 
 [TreeListItem used to provide styles for list ]
 
-Defined in: [packages/client-core/components/editor/assets/TagList.tsx:90](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/assets/TagList.tsx#L90)
+Defined in: [packages/client-core/components/editor/assets/TagList.tsx:90](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/assets/TagList.tsx#L90)
 
 ## Functions
 
@@ -40,4 +40,4 @@ Name | Type |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/components/editor/assets/TagList.tsx:216](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/assets/TagList.tsx#L216)
+Defined in: [packages/client-core/components/editor/assets/TagList.tsx:216](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/assets/TagList.tsx#L216)

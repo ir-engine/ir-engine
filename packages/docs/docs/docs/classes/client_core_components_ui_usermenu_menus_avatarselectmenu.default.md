@@ -32,7 +32,7 @@ Name | Type |
 
 Overrides: void
 
-Defined in: [packages/client-core/components/ui/UserMenu/menus/AvatarSelectMenu.tsx:29](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/ui/UserMenu/menus/AvatarSelectMenu.tsx#L29)
+Defined in: [packages/client-core/components/ui/UserMenu/menus/AvatarSelectMenu.tsx:29](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/ui/UserMenu/menus/AvatarSelectMenu.tsx#L29)
 
 ## Properties
 
@@ -40,7 +40,7 @@ Defined in: [packages/client-core/components/ui/UserMenu/menus/AvatarSelectMenu.
 
 • **camera**: *any*= null
 
-Defined in: [packages/client-core/components/ui/UserMenu/menus/AvatarSelectMenu.tsx:26](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/ui/UserMenu/menus/AvatarSelectMenu.tsx#L26)
+Defined in: [packages/client-core/components/ui/UserMenu/menus/AvatarSelectMenu.tsx:26](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/ui/UserMenu/menus/AvatarSelectMenu.tsx#L26)
 
 ___
 
@@ -72,7 +72,7 @@ ___
 
 • **fileSelected**: *boolean*= false
 
-Defined in: [packages/client-core/components/ui/UserMenu/menus/AvatarSelectMenu.tsx:29](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/ui/UserMenu/menus/AvatarSelectMenu.tsx#L29)
+Defined in: [packages/client-core/components/ui/UserMenu/menus/AvatarSelectMenu.tsx:29](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/ui/UserMenu/menus/AvatarSelectMenu.tsx#L29)
 
 ___
 
@@ -105,7 +105,7 @@ ___
 
 • **renderer**: *any*= null
 
-Defined in: [packages/client-core/components/ui/UserMenu/menus/AvatarSelectMenu.tsx:28](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/ui/UserMenu/menus/AvatarSelectMenu.tsx#L28)
+Defined in: [packages/client-core/components/ui/UserMenu/menus/AvatarSelectMenu.tsx:28](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/ui/UserMenu/menus/AvatarSelectMenu.tsx#L28)
 
 ___
 
@@ -113,7 +113,7 @@ ___
 
 • **scene**: *any*= null
 
-Defined in: [packages/client-core/components/ui/UserMenu/menus/AvatarSelectMenu.tsx:27](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/ui/UserMenu/menus/AvatarSelectMenu.tsx#L27)
+Defined in: [packages/client-core/components/ui/UserMenu/menus/AvatarSelectMenu.tsx:27](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/ui/UserMenu/menus/AvatarSelectMenu.tsx#L27)
 
 ___
 
@@ -283,7 +283,7 @@ ___
 
 Overrides: void
 
-Defined in: [packages/client-core/components/ui/UserMenu/menus/AvatarSelectMenu.tsx:41](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/ui/UserMenu/menus/AvatarSelectMenu.tsx#L41)
+Defined in: [packages/client-core/components/ui/UserMenu/menus/AvatarSelectMenu.tsx:41](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/ui/UserMenu/menus/AvatarSelectMenu.tsx#L41)
 
 ___
 
@@ -377,7 +377,7 @@ ___
 
 Overrides: void
 
-Defined in: [packages/client-core/components/ui/UserMenu/menus/AvatarSelectMenu.tsx:70](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/ui/UserMenu/menus/AvatarSelectMenu.tsx#L70)
+Defined in: [packages/client-core/components/ui/UserMenu/menus/AvatarSelectMenu.tsx:70](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/ui/UserMenu/menus/AvatarSelectMenu.tsx#L70)
 
 ___
 
@@ -470,7 +470,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/ui/UserMenu/menus/AvatarSelectMenu.tsx:93](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/ui/UserMenu/menus/AvatarSelectMenu.tsx#L93)
+Defined in: [packages/client-core/components/ui/UserMenu/menus/AvatarSelectMenu.tsx:93](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/ui/UserMenu/menus/AvatarSelectMenu.tsx#L93)
 
 ___
 
@@ -480,7 +480,7 @@ ___
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/ui/UserMenu/menus/AvatarSelectMenu.tsx:89](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/ui/UserMenu/menus/AvatarSelectMenu.tsx#L89)
+Defined in: [packages/client-core/components/ui/UserMenu/menus/AvatarSelectMenu.tsx:89](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/ui/UserMenu/menus/AvatarSelectMenu.tsx#L89)
 
 ___
 
@@ -490,7 +490,7 @@ ___
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/ui/UserMenu/menus/AvatarSelectMenu.tsx:74](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/ui/UserMenu/menus/AvatarSelectMenu.tsx#L74)
+Defined in: [packages/client-core/components/ui/UserMenu/menus/AvatarSelectMenu.tsx:74](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/ui/UserMenu/menus/AvatarSelectMenu.tsx#L74)
 
 ___
 
@@ -506,7 +506,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/ui/UserMenu/menus/AvatarSelectMenu.tsx:120](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/ui/UserMenu/menus/AvatarSelectMenu.tsx#L120)
+Defined in: [packages/client-core/components/ui/UserMenu/menus/AvatarSelectMenu.tsx:120](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/ui/UserMenu/menus/AvatarSelectMenu.tsx#L120)
 
 ___
 
@@ -518,7 +518,7 @@ ___
 
 Overrides: void
 
-Defined in: [packages/client-core/components/ui/UserMenu/menus/AvatarSelectMenu.tsx:137](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/ui/UserMenu/menus/AvatarSelectMenu.tsx#L137)
+Defined in: [packages/client-core/components/ui/UserMenu/menus/AvatarSelectMenu.tsx:137](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/ui/UserMenu/menus/AvatarSelectMenu.tsx#L137)
 
 ___
 
@@ -528,7 +528,7 @@ ___
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/ui/UserMenu/menus/AvatarSelectMenu.tsx:85](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/ui/UserMenu/menus/AvatarSelectMenu.tsx#L85)
+Defined in: [packages/client-core/components/ui/UserMenu/menus/AvatarSelectMenu.tsx:85](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/ui/UserMenu/menus/AvatarSelectMenu.tsx#L85)
 
 ___
 
@@ -592,4 +592,4 @@ ___
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/ui/UserMenu/menus/AvatarSelectMenu.tsx:125](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/ui/UserMenu/menus/AvatarSelectMenu.tsx#L125)
+Defined in: [packages/client-core/components/ui/UserMenu/menus/AvatarSelectMenu.tsx:125](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/ui/UserMenu/menus/AvatarSelectMenu.tsx#L125)

@@ -24,7 +24,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>, `getState`: *any*) => *Promise*<any\>
 
-Defined in: [packages/client-core/redux/friend/service.ts:34](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/friend/service.ts#L34)
+Defined in: [packages/client-core/redux/friend/service.ts:34](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/friend/service.ts#L34)
 
 ___
 
@@ -40,4 +40,4 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/redux/friend/service.ts:117](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/friend/service.ts#L117)
+Defined in: [packages/client-core/redux/friend/service.ts:117](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/friend/service.ts#L117)

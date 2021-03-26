@@ -16,7 +16,7 @@ hide_title: true
 
 • `Optional` **authUser**: AuthUser
 
-Defined in: [packages/client-core/redux/auth/actions.ts:63](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/auth/actions.ts#L63)
+Defined in: [packages/client-core/redux/auth/actions.ts:63](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/auth/actions.ts#L63)
 
 ___
 
@@ -24,7 +24,7 @@ ___
 
 • **message**: *string*
 
-Defined in: [packages/client-core/redux/auth/actions.ts:64](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/auth/actions.ts#L64)
+Defined in: [packages/client-core/redux/auth/actions.ts:64](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/auth/actions.ts#L64)
 
 ___
 
@@ -32,4 +32,4 @@ ___
 
 • **type**: *string*
 
-Defined in: [packages/client-core/redux/auth/actions.ts:62](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/auth/actions.ts#L62)
+Defined in: [packages/client-core/redux/auth/actions.ts:62](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/auth/actions.ts#L62)

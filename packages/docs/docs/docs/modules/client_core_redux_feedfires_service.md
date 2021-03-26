@@ -22,7 +22,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/redux/feedFires/service.ts:26](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/feedFires/service.ts#L26)
+Defined in: [packages/client-core/redux/feedFires/service.ts:26](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/feedFires/service.ts#L26)
 
 ___
 
@@ -38,7 +38,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>, `getState`: *any*) => *Promise*<any\>
 
-Defined in: [packages/client-core/redux/feedFires/service.ts:12](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/feedFires/service.ts#L12)
+Defined in: [packages/client-core/redux/feedFires/service.ts:12](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/feedFires/service.ts#L12)
 
 ___
 
@@ -54,4 +54,4 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/redux/feedFires/service.ts:38](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/feedFires/service.ts#L38)
+Defined in: [packages/client-core/redux/feedFires/service.ts:38](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/feedFires/service.ts#L38)

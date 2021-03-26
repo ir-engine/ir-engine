@@ -16,7 +16,7 @@ hide_title: true
 
 • **message**: *string*
 
-Defined in: [packages/client-core/redux/alert/actions.ts:7](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/alert/actions.ts#L7)
+Defined in: [packages/client-core/redux/alert/actions.ts:7](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/alert/actions.ts#L7)
 
 ___
 
@@ -24,4 +24,4 @@ ___
 
 • **type**: [*AlertType*](../modules/client_core_redux_alert_actions.md#alerttype)
 
-Defined in: [packages/client-core/redux/alert/actions.ts:8](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/alert/actions.ts#L8)
+Defined in: [packages/client-core/redux/alert/actions.ts:8](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/alert/actions.ts#L8)

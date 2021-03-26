@@ -14,7 +14,7 @@ hide_title: true
 
 • `Let` **environmentMap**: *any*= null
 
-Defined in: [packages/client-core/components/editor/EnvironmentMap.ts:10](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/EnvironmentMap.ts#L10)
+Defined in: [packages/client-core/components/editor/EnvironmentMap.ts:10](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/EnvironmentMap.ts#L10)
 
 ## Functions
 
@@ -24,4 +24,4 @@ Defined in: [packages/client-core/components/editor/EnvironmentMap.ts:10](https:
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/components/editor/EnvironmentMap.ts:11](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/EnvironmentMap.ts#L11)
+Defined in: [packages/client-core/components/editor/EnvironmentMap.ts:11](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/EnvironmentMap.ts#L11)

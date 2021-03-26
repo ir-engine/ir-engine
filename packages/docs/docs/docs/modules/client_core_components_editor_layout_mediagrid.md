@@ -22,7 +22,7 @@ hide_title: true
 
 • `Const` **MediaGrid**: *any*
 
-Defined in: [packages/client-core/components/editor/layout/MediaGrid.tsx:165](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/layout/MediaGrid.tsx#L165)
+Defined in: [packages/client-core/components/editor/layout/MediaGrid.tsx:165](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/layout/MediaGrid.tsx#L165)
 
 ## Functions
 
@@ -38,7 +38,7 @@ Name | Type |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/components/editor/layout/MediaGrid.tsx:143](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/layout/MediaGrid.tsx#L143)
+Defined in: [packages/client-core/components/editor/layout/MediaGrid.tsx:143](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/layout/MediaGrid.tsx#L143)
 
 ___
 
@@ -54,7 +54,7 @@ Name | Type |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/components/editor/layout/MediaGrid.tsx:123](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/layout/MediaGrid.tsx#L123)
+Defined in: [packages/client-core/components/editor/layout/MediaGrid.tsx:123](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/layout/MediaGrid.tsx#L123)
 
 ___
 
@@ -70,4 +70,4 @@ Name | Type |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/components/editor/layout/MediaGrid.tsx:103](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/layout/MediaGrid.tsx#L103)
+Defined in: [packages/client-core/components/editor/layout/MediaGrid.tsx:103](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/layout/MediaGrid.tsx#L103)

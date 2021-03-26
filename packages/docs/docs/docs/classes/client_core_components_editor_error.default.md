@@ -122,7 +122,7 @@ ___
 
 Overrides: void
 
-Defined in: [packages/client-core/components/editor/Error.tsx:34](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/Error.tsx#L34)
+Defined in: [packages/client-core/components/editor/Error.tsx:34](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/Error.tsx#L34)
 
 ___
 
@@ -136,7 +136,7 @@ Name | Type |
 :------ | :------ |
 `message` | *Requireable*<ReactNodeLike\> |
 
-Defined in: [packages/client-core/components/editor/Error.tsx:30](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/Error.tsx#L30)
+Defined in: [packages/client-core/components/editor/Error.tsx:30](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/Error.tsx#L30)
 
 ## Methods
 
@@ -455,7 +455,7 @@ ___
 
 Overrides: void
 
-Defined in: [packages/client-core/components/editor/Error.tsx:37](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/Error.tsx#L37)
+Defined in: [packages/client-core/components/editor/Error.tsx:37](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/Error.tsx#L37)
 
 ___
 

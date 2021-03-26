@@ -22,4 +22,4 @@ Name | Type |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/components/ui/Layout/EmptyLayout.tsx:9](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/ui/Layout/EmptyLayout.tsx#L9)
+Defined in: [packages/client-core/components/ui/Layout/EmptyLayout.tsx:9](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/ui/Layout/EmptyLayout.tsx#L9)

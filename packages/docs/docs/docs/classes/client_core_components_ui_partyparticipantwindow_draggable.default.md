@@ -59,7 +59,7 @@ Defined in: packages/client-core/node_modules/@types/react/index.d.ts:474
 
 • **MARGIN**: *number*= 20
 
-Defined in: [packages/client-core/components/ui/PartyParticipantWindow/Draggable.tsx:8](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/ui/PartyParticipantWindow/Draggable.tsx#L8)
+Defined in: [packages/client-core/components/ui/PartyParticipantWindow/Draggable.tsx:8](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/ui/PartyParticipantWindow/Draggable.tsx#L8)
 
 ___
 
@@ -91,7 +91,7 @@ ___
 
 • **dragStarted**: *boolean*= false
 
-Defined in: [packages/client-core/components/ui/PartyParticipantWindow/Draggable.tsx:9](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/ui/PartyParticipantWindow/Draggable.tsx#L9)
+Defined in: [packages/client-core/components/ui/PartyParticipantWindow/Draggable.tsx:9](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/ui/PartyParticipantWindow/Draggable.tsx#L9)
 
 ___
 
@@ -106,7 +106,7 @@ Name | Type |
 `x` | *number* |
 `y` | *number* |
 
-Defined in: [packages/client-core/components/ui/PartyParticipantWindow/Draggable.tsx:10](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/ui/PartyParticipantWindow/Draggable.tsx#L10)
+Defined in: [packages/client-core/components/ui/PartyParticipantWindow/Draggable.tsx:10](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/ui/PartyParticipantWindow/Draggable.tsx#L10)
 
 ___
 
@@ -285,7 +285,7 @@ Name | Type |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/components/ui/PartyParticipantWindow/Draggable.tsx:12](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/ui/PartyParticipantWindow/Draggable.tsx#L12)
+Defined in: [packages/client-core/components/ui/PartyParticipantWindow/Draggable.tsx:12](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/ui/PartyParticipantWindow/Draggable.tsx#L12)
 
 ___
 
@@ -490,7 +490,7 @@ Name | Type |
 `x` | *any* |
 `y` | *any* |
 
-Defined in: [packages/client-core/components/ui/PartyParticipantWindow/Draggable.tsx:57](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/ui/PartyParticipantWindow/Draggable.tsx#L57)
+Defined in: [packages/client-core/components/ui/PartyParticipantWindow/Draggable.tsx:57](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/ui/PartyParticipantWindow/Draggable.tsx#L57)
 
 ___
 
@@ -526,7 +526,7 @@ ___
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/components/ui/PartyParticipantWindow/Draggable.tsx:71](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/ui/PartyParticipantWindow/Draggable.tsx#L71)
+Defined in: [packages/client-core/components/ui/PartyParticipantWindow/Draggable.tsx:71](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/ui/PartyParticipantWindow/Draggable.tsx#L71)
 
 ___
 
@@ -542,7 +542,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/ui/PartyParticipantWindow/Draggable.tsx:18](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/ui/PartyParticipantWindow/Draggable.tsx#L18)
+Defined in: [packages/client-core/components/ui/PartyParticipantWindow/Draggable.tsx:18](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/ui/PartyParticipantWindow/Draggable.tsx#L18)
 
 ___
 
@@ -558,7 +558,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/ui/PartyParticipantWindow/Draggable.tsx:27](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/ui/PartyParticipantWindow/Draggable.tsx#L27)
+Defined in: [packages/client-core/components/ui/PartyParticipantWindow/Draggable.tsx:27](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/ui/PartyParticipantWindow/Draggable.tsx#L27)
 
 ___
 
@@ -574,7 +574,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/ui/PartyParticipantWindow/Draggable.tsx:38](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/ui/PartyParticipantWindow/Draggable.tsx#L38)
+Defined in: [packages/client-core/components/ui/PartyParticipantWindow/Draggable.tsx:38](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/ui/PartyParticipantWindow/Draggable.tsx#L38)
 
 ___
 
@@ -586,7 +586,7 @@ ___
 
 Overrides: void
 
-Defined in: [packages/client-core/components/ui/PartyParticipantWindow/Draggable.tsx:86](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/ui/PartyParticipantWindow/Draggable.tsx#L86)
+Defined in: [packages/client-core/components/ui/PartyParticipantWindow/Draggable.tsx:86](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/ui/PartyParticipantWindow/Draggable.tsx#L86)
 
 ___
 

@@ -16,7 +16,7 @@ hide_title: true
 
 • **result**: *boolean*
 
-Defined in: [packages/client-core/redux/auth/actions.ts:75](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/auth/actions.ts#L75)
+Defined in: [packages/client-core/redux/auth/actions.ts:75](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/auth/actions.ts#L75)
 
 ___
 
@@ -24,4 +24,4 @@ ___
 
 • **type**: *string*
 
-Defined in: [packages/client-core/redux/auth/actions.ts:74](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/auth/actions.ts#L74)
+Defined in: [packages/client-core/redux/auth/actions.ts:74](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/auth/actions.ts#L74)

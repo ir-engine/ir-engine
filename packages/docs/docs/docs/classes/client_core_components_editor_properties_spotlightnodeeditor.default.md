@@ -149,7 +149,7 @@ ___
 
 ▪ `Static` **description**: *string*= "A light which emits along a direction, illuminating objects within a cone."
 
-Defined in: [packages/client-core/components/editor/properties/SpotLightNodeEditor.tsx:32](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/SpotLightNodeEditor.tsx#L32)
+Defined in: [packages/client-core/components/editor/properties/SpotLightNodeEditor.tsx:32](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/properties/SpotLightNodeEditor.tsx#L32)
 
 ___
 
@@ -157,7 +157,7 @@ ___
 
 ▪ `Static` **iconComponent**: StyledIcon
 
-Defined in: [packages/client-core/components/editor/properties/SpotLightNodeEditor.tsx:29](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/SpotLightNodeEditor.tsx#L29)
+Defined in: [packages/client-core/components/editor/properties/SpotLightNodeEditor.tsx:29](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/properties/SpotLightNodeEditor.tsx#L29)
 
 ## Methods
 
@@ -480,7 +480,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/properties/SpotLightNodeEditor.tsx:35](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/SpotLightNodeEditor.tsx#L35)
+Defined in: [packages/client-core/components/editor/properties/SpotLightNodeEditor.tsx:35](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/properties/SpotLightNodeEditor.tsx#L35)
 
 ___
 
@@ -496,7 +496,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/properties/SpotLightNodeEditor.tsx:45](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/SpotLightNodeEditor.tsx#L45)
+Defined in: [packages/client-core/components/editor/properties/SpotLightNodeEditor.tsx:45](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/properties/SpotLightNodeEditor.tsx#L45)
 
 ___
 
@@ -512,7 +512,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/properties/SpotLightNodeEditor.tsx:40](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/SpotLightNodeEditor.tsx#L40)
+Defined in: [packages/client-core/components/editor/properties/SpotLightNodeEditor.tsx:40](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/properties/SpotLightNodeEditor.tsx#L40)
 
 ___
 
@@ -528,7 +528,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/properties/SpotLightNodeEditor.tsx:50](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/SpotLightNodeEditor.tsx#L50)
+Defined in: [packages/client-core/components/editor/properties/SpotLightNodeEditor.tsx:50](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/properties/SpotLightNodeEditor.tsx#L50)
 
 ___
 
@@ -544,7 +544,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/properties/SpotLightNodeEditor.tsx:55](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/SpotLightNodeEditor.tsx#L55)
+Defined in: [packages/client-core/components/editor/properties/SpotLightNodeEditor.tsx:55](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/properties/SpotLightNodeEditor.tsx#L55)
 
 ___
 
@@ -556,7 +556,7 @@ ___
 
 Overrides: void
 
-Defined in: [packages/client-core/components/editor/properties/SpotLightNodeEditor.tsx:60](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/SpotLightNodeEditor.tsx#L60)
+Defined in: [packages/client-core/components/editor/properties/SpotLightNodeEditor.tsx:60](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/properties/SpotLightNodeEditor.tsx#L60)
 
 ___
 

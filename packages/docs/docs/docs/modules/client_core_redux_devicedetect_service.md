@@ -22,4 +22,4 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *any*
 
-Defined in: [packages/client-core/redux/devicedetect/service.tsx:4](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/devicedetect/service.tsx#L4)
+Defined in: [packages/client-core/redux/devicedetect/service.tsx:4](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/devicedetect/service.tsx#L4)

@@ -16,4 +16,4 @@ hide_title: true
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/components/ui/Loader/SquareLoader/index.tsx:4](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/ui/Loader/SquareLoader/index.tsx#L4)
+Defined in: [packages/client-core/components/ui/Loader/SquareLoader/index.tsx:4](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/ui/Loader/SquareLoader/index.tsx#L4)

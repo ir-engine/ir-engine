@@ -20,4 +20,4 @@ hide_title: true
 
 #### Type declaration:
 
-Defined in: [packages/client-core/components/editor/configs.ts:11](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/configs.ts#L11)
+Defined in: [packages/client-core/components/editor/configs.ts:11](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/configs.ts#L11)

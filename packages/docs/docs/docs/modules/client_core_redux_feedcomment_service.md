@@ -23,7 +23,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/redux/feedComment/service.ts:27](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/feedComment/service.ts#L27)
+Defined in: [packages/client-core/redux/feedComment/service.ts:27](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/feedComment/service.ts#L27)
 
 ___
 
@@ -39,7 +39,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/redux/feedComment/service.ts:40](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/feedComment/service.ts#L40)
+Defined in: [packages/client-core/redux/feedComment/service.ts:40](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/feedComment/service.ts#L40)
 
 ___
 
@@ -56,7 +56,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>, `getState`: *any*) => *Promise*<any\>
 
-Defined in: [packages/client-core/redux/feedComment/service.ts:14](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/feedComment/service.ts#L14)
+Defined in: [packages/client-core/redux/feedComment/service.ts:14](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/feedComment/service.ts#L14)
 
 ___
 
@@ -72,4 +72,4 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/redux/feedComment/service.ts:52](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/redux/feedComment/service.ts#L52)
+Defined in: [packages/client-core/redux/feedComment/service.ts:52](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/redux/feedComment/service.ts#L52)

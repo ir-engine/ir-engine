@@ -149,7 +149,7 @@ ___
 
 ▪ `Static` **description**: *string*= "An invisible box that objects will bounce off of or rest on top of.\nWithout colliders, objects will fall through floors and go through walls."
 
-Defined in: [packages/client-core/components/editor/properties/BoxColliderNodeEditor.tsx:24](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/BoxColliderNodeEditor.tsx#L24)
+Defined in: [packages/client-core/components/editor/properties/BoxColliderNodeEditor.tsx:24](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/properties/BoxColliderNodeEditor.tsx#L24)
 
 ___
 
@@ -157,7 +157,7 @@ ___
 
 ▪ `Static` **iconComponent**: StyledIcon
 
-Defined in: [packages/client-core/components/editor/properties/BoxColliderNodeEditor.tsx:20](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/BoxColliderNodeEditor.tsx#L20)
+Defined in: [packages/client-core/components/editor/properties/BoxColliderNodeEditor.tsx:20](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/properties/BoxColliderNodeEditor.tsx#L20)
 
 ## Methods
 
@@ -480,7 +480,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/components/editor/properties/BoxColliderNodeEditor.tsx:27](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/BoxColliderNodeEditor.tsx#L27)
+Defined in: [packages/client-core/components/editor/properties/BoxColliderNodeEditor.tsx:27](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/properties/BoxColliderNodeEditor.tsx#L27)
 
 ___
 
@@ -492,7 +492,7 @@ ___
 
 Overrides: void
 
-Defined in: [packages/client-core/components/editor/properties/BoxColliderNodeEditor.tsx:31](https://github.com/xr3ngine/xr3ngine/blob/5c3dcaef1/packages/client-core/components/editor/properties/BoxColliderNodeEditor.tsx#L31)
+Defined in: [packages/client-core/components/editor/properties/BoxColliderNodeEditor.tsx:31](https://github.com/xr3ngine/xr3ngine/blob/9d253dc38/packages/client-core/components/editor/properties/BoxColliderNodeEditor.tsx#L31)
 
 ___
 
