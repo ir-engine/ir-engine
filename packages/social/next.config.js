@@ -4,7 +4,10 @@ process.env.NODE_CONFIG_DIR = path.join(appRootPath.path, 'packages/social/confi
 const conf = require('config');
 const withTM = require('next-transpile-modules')(['@xr3ngine/client-core'], { unstable_webpack5: true });
 
-module.exports = withTM(
+const withPWA = require('next-pwa');
+const runtimeCaching = require('next-pwa/cache');
+
+module.exports = withPWA(withTM(
   {
     /* config options here */
     publicRuntimeConfig: conf.get('publicRuntimeConfig'),
@@ -25,6 +28,11 @@ module.exports = withTM(
        chunks: 'all',
      },
    },
+    pwa: {
+      disabled: !process.env.BUILD_PWA,
+      dest: 'public',
+      runtimeCaching,
+    },
     webpack(config) {
       config.externals.push({xmlhttprequest: 'xmlhttprequest', fs: 'fs'})
       config.resolve.alias.utils = path.join(__dirname, 'utils')

@@ -1,0 +1,22 @@
+{
+  "manifest_version": 2,
+
+  "name": "ARC",
+  "short_name": "ARC",
+
+  "theme_color": "#ffffff",
+  "background_color": "#004740",
+
+  "icons": {
+    "48": "icon.png",
+    "96": "icon@2x.png"
+  },
+
+  "version": "0.1",
+
+  "description": "...",
+
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait"
+}

@@ -16,6 +16,7 @@
     "copyfiles-client": "copyfiles design/** design/**/* public/** public/**/* **/*.scss lib/client",
     "dev": "cross-env NODE_ENV=development node --max-old-space-size=3184 ./index.js --port 3000",
     "build": "cross-env NODE_OPTIONS=--max_old_space_size=6144 next build ./ && yarn run export",
+    "build-pwa": "cross-env BUILD_PWA=true NODE_OPTIONS=--max_old_space_size=6144 next build ./",
     "export": "next export -o www/ && mv www/404.html www/index.html && npx cap sync",
     "start": "next start",
     "watch": "cross-env NODE_ENV=development next --port 3001 --hostname 127.0.0.1",
@@ -141,7 +142,8 @@
     "ts-shader-loader": "^1.0.6",
     "typescript": "^4.0.3",
     "webpack": "5.24.3",
-    "webpack-cli": "^4.0.0"
+    "webpack-cli": "^4.0.0",
+    "next-pwa": "^5.0.6"
   },
   "license": "ISC"
 }
