@@ -20,7 +20,7 @@ const SimpleModal = (props: Props) : any => {
 
   const renderListTitle = () =>{
     switch (type){
-      case 'feed-fires': return (list ? list?.length : '0') + ' fires';
+      case 'feed-fires': case 'comment-fires': return (list ? list?.length : '0') + '  flames';
       case 'followers': return (list ? list?.length : '0') + ' followers';
       case 'following': return (list ? list?.length : '0') + ' following';
       default: return '';

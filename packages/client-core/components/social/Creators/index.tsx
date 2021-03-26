@@ -39,7 +39,7 @@ const Creators = ({creatorsState, getCreators}:Props) => {
             <Card className={styles.creatorItem} elevation={0} key={itemIndex} onClick={()=>handleCreatorView(item.id)}>                 
                 <CardMedia   
                     className={styles.previewImage}                  
-                    src={item.avatar}
+                    image={item.avatar}
                     title={item.name}
                 />
                 <CardContent>
