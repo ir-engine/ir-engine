@@ -192,13 +192,14 @@ function loadAsset(url: AssetUrl, entity: Entity, onAssetLoaded: AssetsLoadedHan
   if (AssetVault.instance.assets.has(urlHashed)) {
     onAssetLoaded(entity, { asset: clone(AssetVault.instance.assets.get(urlHashed)) });
   } else {
-    const loader = getLoaderForAssetType(getAssetType(url));
+    const assetType = getAssetType(url);
+    const loader = getLoaderForAssetType(assetType);
     if (loader == null) {
       console.error('Asset loader failed ', url, entity);
       return;
     }
     loader.load(url, resource => {
-      if (resource !== undefined) {
+      if (assetType === AssetType.glTF || assetType === AssetType.VRM && resource !== undefined) {
         LoadGLTF.loadExtentions(resource);
       }
       if (resource.scene) {
