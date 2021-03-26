@@ -46,6 +46,7 @@ export function sendInvite (data: any) {
         send = false;
       }
     }
+
     if ((data.token == null || data.token.length === 0) && (data.invitee == null || data.invitee.length === 0)) {
       dispatchAlertError(dispatch, `Not a valid recipient`);
       send = false;
@@ -60,6 +61,7 @@ export function sendInvite (data: any) {
           identityProviderType: data.identityProviderType,
           inviteeId: data.invitee
         });
+        
         dispatchAlertSuccess(dispatch, 'Invite Sent');
         dispatch(sentInvite(inviteResult));
       } catch (err) {

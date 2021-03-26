@@ -18,6 +18,7 @@ declare const store: import("redux").Store<{
     dialog: any;
     devicedetect: unknown;
     user: any;
+    inviteTypeData: any;
 }, import("redux").Action<any>> & {
     dispatch: unknown;
 };
@@ -41,6 +42,7 @@ export declare function configureStore(): import("redux").Store<{
     dialog: any;
     devicedetect: unknown;
     user: any;
+    inviteTypeData: any;
 }, import("redux").Action<any>> & {
     dispatch: unknown;
 };

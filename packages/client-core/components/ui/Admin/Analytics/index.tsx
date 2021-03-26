@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import Card from "./CardNumber";
 import Grid from '@material-ui/core/Grid';
 import { makeStyles, createStyles, Theme } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import ApiLinks from './ApiLinks';
 import Graph from "./Graph";
+import ReactGa from "react-ga";
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -20,6 +21,8 @@ const useStyles = makeStyles((theme: Theme) =>
         },
     }),
 );
+
+
 
 const dataTest = [
     {
@@ -314,6 +317,16 @@ const Analytics = () => {
             label: "Instances"
         }
     ]
+
+    useEffect(()=> {
+      ReactGa.initialize("UA-192756414-1", {
+        debug: true,
+        titleCase: false,
+      });
+  
+      ReactGa.pageview("/admin");
+    }, []);
+
     return (
         <div className="w-100">
             <Grid container spacing={3}>
