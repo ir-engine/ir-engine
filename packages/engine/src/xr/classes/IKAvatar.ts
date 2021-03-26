@@ -1,11 +1,11 @@
-import XRPose from '../classes/XRPose';
-import LegsManager from '../classes/LegsManager';
+import XRPose from './XRPose';
+import LegsManager from './LegsManager';
 import {VRMSpringBoneImporter} from "@pixiv/three-vrm";
 import { Quaternion, Vector3, Matrix4, Object3D, Bone, Scene } from 'three';
 import { importSkeleton, findHips, findArmature, copySkeleton, makeDebugMeshes, getTailBones, findEye, findHead, findSpine, findShoulder, findHand, findFinger, findFoot, findClosestParentBone, countCharacters, findFurthestParentBone, localMatrix, localVector, localVector2, AnimationMapping, localEuler, localQuaternion, leftRotation, rightRotation, upRotation } from '../functions/AvatarFunctions';
 import skeletonString from '../constants/Skeleton';
-import ShoulderTransforms from '../classes/ShoulderTransforms';
-import { fixSkeletonZForward } from '../classes/SkeletonUtils';
+import ShoulderTransforms from './ShoulderTransforms';
+import { fixSkeletonZForward } from './SkeletonUtils';
 
 export class Avatar {
   shoulderTransforms: any;
@@ -52,8 +52,9 @@ export class Avatar {
   sitAnimation: any;
   sitTarget: Object3D;
   skeleton: any;
-  constructor(object, options = { debug: true, top: true, bottom: true, visemes: true, hair: false } )
+  constructor(object, options = { debug: true, top: true, bottom: true, visemes: true, hair: true } )
   {
+    console.log(object)
     this.object = object;
     const model = (() => {
       let o = object;
@@ -1204,5 +1205,3 @@ export class Avatar {
     return this.poseManager.vrTransforms.floorHeight;
   }
 }
-
-export default Avatar;

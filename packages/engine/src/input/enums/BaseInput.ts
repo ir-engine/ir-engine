@@ -36,5 +36,8 @@ export enum BaseInput {
   GAMEPAD_STICK_RIGHT,
   XR_MOVE,
   XR_LOOK,
+  XR_HEAD,
+  XR_LEFT_HAND,
+  XR_RIGHT_HAND,
   SWITCH_SHOULDER_SIDE
 }

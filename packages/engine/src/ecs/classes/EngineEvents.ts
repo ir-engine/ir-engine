@@ -88,7 +88,7 @@ export const addIncomingEvents = () => {
 export const addOutgoingEvents = () => {
   EngineEvents.instance.addEventListener(ClientNetworkSystem.EVENTS.SEND_DATA, (ev) => {
     Network.instance.transport.sendReliableData(ev.buffer);
-    Network.instance.transport.sendData(ev.buffer);
+    // Network.instance.transport.sendData(ev.buffer);
   });
 }
 

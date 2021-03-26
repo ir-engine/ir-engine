@@ -34,9 +34,9 @@ import { CharacterStateTypes } from "../CharacterStateTypes";
 import { CharacterComponent } from '../components/CharacterComponent';
 import { NamePlateComponent } from '../components/NamePlateComponent';
 import { getLoader } from "../../../assets/functions/LoadGLTF";
+import { Avatar } from "../../../xr/classes/IKAvatar";
 import { Engine } from "../../../ecs/classes/Engine";
 import { PrefabType } from "@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema";
-import { initiateIKSystem } from "../../../xr/functions/initiateIKSystem";
 
 
 export class AnimationManager {
@@ -95,7 +95,7 @@ export class AnimationManager {
 }
 
 export const loadDefaultActorAvatar: Behavior = (entity) => {
-  loadActorAvatarFromURL(entity, '/models/avatars/Default.glb');
+  loadActorAvatarFromURL(entity, Engine.publicPath + '/models/avatars/Default.glb');
 }
 
 export const loadActorAvatar: Behavior = (entity) => {
@@ -108,7 +108,6 @@ export const loadActorAvatar: Behavior = (entity) => {
 export const loadActorAvatarFromURL: Behavior = (entity, avatarURL) => {
   if (hasComponent(entity, AssetLoader)) removeComponent(entity, AssetLoader, true);
   if (hasComponent(entity, AssetLoaderState)) removeComponent(entity, AssetLoaderState, true);
-	console.warn(avatarURL);
   const tmpGroup = new Group();
   addComponent(entity, AssetLoader, {
     url: avatarURL,
@@ -124,7 +123,7 @@ export const loadActorAvatarFromURL: Behavior = (entity, avatarURL) => {
     actor.mixer && actor.mixer.stopAllAction();
     // forget that we have any animation playing
     actor.currentAnimationAction = [];
-
+    
     // clear current avatar mesh
     ([...actor.modelContainer.children])
       .forEach(child => actor.modelContainer.remove(child));
@@ -134,14 +133,13 @@ export const loadActorAvatarFromURL: Behavior = (entity, avatarURL) => {
     actor.mixer = new AnimationMixer(actor.modelContainer.children[0]);
 	// TODO: Remove this. Currently we are double-sampling the samplerate
 
-    initiateIKSystem(entity, args.asset.children[0]);
     const stateComponent = getComponent(entity, State);
     // trigger all states to restart?
     stateComponent.data.forEach(data => data.lifecycleState = LifecycleValue.STARTED);
 
-    if(Engine.xrSession) {
-      actor.modelContainer.visible = false;
-    }
+    const avatarIK = new Avatar(actor.modelContainer)
+    actor.avatarIKRig = avatarIK;
+
   })
 };
 

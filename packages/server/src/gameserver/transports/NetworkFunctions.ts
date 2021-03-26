@@ -8,7 +8,6 @@ import { DataConsumer, DataProducer } from 'mediasoup/lib/types';
 import logger from "../../app/logger";
 import config from '../../config';
 import { closeTransport } from './WebRTCFunctions';
-import { Engine } from "@xr3ngine/engine/src/ecs/classes/Engine";
 
 const gsNameRegex = /gameserver-([a-zA-Z0-9]{5}-[a-zA-Z0-9]{5})/;
 

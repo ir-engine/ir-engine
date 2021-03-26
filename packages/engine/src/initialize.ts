@@ -33,7 +33,6 @@ import { createWorker, WorkerProxy } from './worker/MessageQueue';
 import { Network } from './networking/classes/Network';
 import { isMobileOrTablet } from './common/functions/isMobile';
 import { AnimationManager } from './templates/character/prefabs/NetworkPlayerCharacter';
-import { applyNetworkStateToClient } from './networking/functions/applyNetworkStateToClient';
 // import { PositionalAudioSystem } from './audio/systems/PositionalAudioSystem';
 
 Mesh.prototype.raycast = acceleratedRaycast;
@@ -86,6 +85,7 @@ export const initializeEngine = async (initOptions: any = DefaultInitializationO
   addOutgoingEvents()
 
   initialize();
+  Engine.publicPath = location.origin;
 
   const networkSystemOptions = { schema: options.networking.schema, app: options.networking.app };
   registerSystem(ClientNetworkSystem, { ...networkSystemOptions, priority: -1 });
@@ -116,7 +116,7 @@ export const initializeEngine = async (initOptions: any = DefaultInitializationO
     registerSystem(DebugHelpersSystem);
     registerSystem(CameraSystem);
     registerSystem(WebGLRendererSystem, { priority: 1001, canvas });
-    registerSystem(XRSystem, { offscreen: useOffscreen });
+    registerSystem(XRSystem);
     Engine.viewportElement = Engine.renderer.domElement;
     Engine.renderer.xr.enabled = Engine.xrSupported;
   }

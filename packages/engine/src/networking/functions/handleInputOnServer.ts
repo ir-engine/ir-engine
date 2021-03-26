@@ -60,31 +60,26 @@ export const handleInputFromNonLocalClients: Behavior = (entity: Entity, args: {
     }
     // If the input is an axis
     else if (input.schema.inputAxisBehaviors[key]) {
-        // Handle based on lifecycle state
-        switch (value.lifecycleState) {
-          case LifecycleValue.STARTED:
-            // Set the value to continued to debounce
-            input.schema.inputAxisBehaviors[key].started?.forEach(element =>
-              element.behavior(entity, element.args, delta)
-            );
-            break;
-          case LifecycleValue.CHANGED:
-            // If the value is different from last frame, update it
-            input.schema.inputAxisBehaviors[key].changed?.forEach(element => {
-              element.behavior(entity, element.args, delta);
-            });
-            break;
-          case LifecycleValue.UNCHANGED:
-            input.schema.inputAxisBehaviors[key].unchanged?.forEach(element =>
-              element.behavior(entity, element.args, delta)
-            );
-            break;
-          case LifecycleValue.ENDED:
-            console.warn("Patch fix, need to handle properly: ", LifecycleValue.ENDED);
-            break;
-          default:
-            console.error('Unexpected lifecycleState', value.lifecycleState, LifecycleValue[value.lifecycleState]);
-        }
+      // Handle based on lifecycle state
+      if(value.lifecycleState === LifecycleValue.STARTED) {
+        // Set the value to continued to debounce
+        input.schema.inputAxisBehaviors[key].started?.forEach(element =>
+          element.behavior(entity, element.args, delta)
+        );
+      } else if(value.lifecycleState === LifecycleValue.CHANGED || value.type === InputType.SIXDOF) {
+        // If the value is different from last frame, update it
+        input.schema.inputAxisBehaviors[key].changed?.forEach(element => {
+          element.behavior(entity, element.args, delta);
+        });
+      } else if(value.lifecycleState === LifecycleValue.UNCHANGED) {
+        input.schema.inputAxisBehaviors[key].unchanged?.forEach(element =>
+          element.behavior(entity, element.args, delta)
+        );
+      } else if(value.lifecycleState === LifecycleValue.ENDED) {
+        console.warn("Patch fix, need to handle properly: ", LifecycleValue.ENDED);
+      } else {
+        console.error('Unexpected lifecycleState', value.lifecycleState, LifecycleValue[value.lifecycleState], value);
       }
+    }
   });
 };

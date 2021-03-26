@@ -48,8 +48,7 @@ import { EngineEvents } from '@xr3ngine/engine/src/ecs/classes/EngineEvents';
 import { InteractiveSystem } from '@xr3ngine/engine/src/interaction/systems/InteractiveSystem';
 import { PhysicsSystem } from '@xr3ngine/engine/src/physics/systems/PhysicsSystem';
 import { DefaultInitializationOptions, initializeEngine } from '@xr3ngine/engine/src/initialize';
-import { ClientNetworkSystem } from '@xr3ngine/engine/src/networking/systems/ClientNetworkSystem';
-import { ClientInputSystem } from '@xr3ngine/engine/src/input/systems/ClientInputSystem';
+import { XRSystem } from '@xr3ngine/engine/src/xr/systems/XRSystem';
 
 const goHome = () => window.location.href = window.location.origin;
 
@@ -127,6 +126,7 @@ export const EnginePage = (props: Props) => {
   const [objectHovered, setObjectHovered] = useState(false);
 
   const [isValidLocation, setIsValidLocation] = useState(true);
+  const [isInXR, setIsInXR] = useState(false);
 
   const appLoaded = appState.get('loaded');
   const selfUser = authState.get('user');
@@ -222,7 +222,8 @@ export const EnginePage = (props: Props) => {
     }
     const sceneData = await client.service(service).get(serviceId);
 
-    const networkSchema: NetworkSchema = {
+    const networkSchema
+    : NetworkSchema = {
       ...DefaultNetworkSchema,
       transport: SocketWebRTCClientTransport,
     };
@@ -300,6 +301,8 @@ export const EnginePage = (props: Props) => {
     EngineEvents.instance.addEventListener(InteractiveSystem.EVENTS.OBJECT_ACTIVATION, onObjectActivation);
     EngineEvents.instance.addEventListener(InteractiveSystem.EVENTS.OBJECT_HOVER, onObjectHover);
     EngineEvents.instance.addEventListener(PhysicsSystem.EVENTS.PORTAL_REDIRECT_EVENT, ({ location }) => router.push(location));
+    EngineEvents.instance.addEventListener(XRSystem.EVENTS.XR_START, async (ev: any) => { setIsInXR(true); })
+    EngineEvents.instance.addEventListener(XRSystem.EVENTS.XR_END, async (ev: any) => { setIsInXR(false); })
   }
 
   const onObjectActivation = ({ action, payload }): void => {
@@ -347,7 +350,7 @@ export const EnginePage = (props: Props) => {
   //mobile gamepad
   const mobileGamepadProps = { hovered: objectHovered, layout: 'default' };
   const mobileGamepad = isMobileOrTablet() ? <MobileGamepad {...mobileGamepadProps} /> : null;
-  return userBanned !== true ? (
+  return userBanned !== true && !isInXR ? (
     <>
       {isValidLocation && <UserMenu />}
       <Snackbar open={!isValidLocation}
