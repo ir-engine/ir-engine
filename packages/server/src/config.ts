@@ -77,7 +77,7 @@ const client = {
   title: process.env.APP_LOGO ?? 'XR3ngine',
   url: process.env.APP_URL ??
     process.env.APP_HOST ?? // Legacy env var, to deprecate
-    'https://127.0.0.1:3000',
+    process.env.LOCAL_BUILD ? 'http://127.0.0.1:3000' : 'https://127.0.0.1:3000',
   releaseName: process.env.RELEASE_NAME ?? ''
 };
 
