@@ -33,7 +33,7 @@ import { Entity } from "../../ecs/classes/Entity";
  * @property {Number} rightControllerId set value 1
  */
 
-export class EntityActionSystem extends System {
+export class ActionSystem extends System {
   updateType = SystemUpdateType.Fixed;
   needSend = false;
   switchId = 1;
@@ -395,7 +395,7 @@ export class EntityActionSystem extends System {
 /**
  * Queries must have components attribute which defines the list of components
  */
-EntityActionSystem.queries = {
+ActionSystem.queries = {
   networkClientInput: {
     components: [NetworkObject, Input, Not(LocalInputReceiver)],
     listen: {
