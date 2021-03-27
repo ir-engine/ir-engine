@@ -37,6 +37,8 @@ import { getLoader } from "../../../assets/functions/LoadGLTF";
 import { Avatar } from "../../../xr/classes/IKAvatar";
 import { Engine } from "../../../ecs/classes/Engine";
 import { PrefabType } from "@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema";
+import { AnimationComponent } from "../../../character/components/AnimationComponent";
+import { getMovementValues, movingAnimationSchema } from "../states/MovingState";
 
 
 export class AnimationManager {
@@ -231,6 +233,8 @@ const initializeCharacter: Behavior = (entity): void => {
 	// Physics pre/post step callback bindings
 	// States
 	setState(entity, { state: CharacterStateTypes.DEFAULT });
+  addComponent(entity, AnimationComponent, { animationsSchema: movingAnimationSchema, updateAnimationsValues: getMovementValues });
+
 	actor.initialized = true;
 
 	// };

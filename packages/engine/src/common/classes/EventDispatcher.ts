@@ -18,8 +18,8 @@ export class EventDispatcher {
 
   once(eventName: string | number, listener: Function): void {
     const onEvent = (ev) => {
-      listener(ev);
       this.removeEventListener(eventName, onEvent);
+      listener(ev);
     }
     this.addEventListener(eventName, onEvent)
   }

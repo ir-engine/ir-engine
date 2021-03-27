@@ -9,7 +9,7 @@ import { Engine, AudioListener } from './ecs/classes/Engine';
 import { execute, initialize } from "./ecs/functions/EngineFunctions";
 import { registerSystem } from './ecs/functions/SystemFunctions';
 import { SystemUpdateType } from "./ecs/functions/SystemUpdateType";
-import { EntityActionSystem } from './input/systems/EntityActionSystem';
+import { ActionSystem } from './input/systems/ActionSystem';
 import { InteractiveSystem } from "./interaction/systems/InteractiveSystem";
 import { ClientNetworkSystem } from './networking/systems/ClientNetworkSystem';
 import { MediaStreamSystem } from './networking/systems/MediaStreamSystem';
@@ -33,6 +33,8 @@ import { createWorker, WorkerProxy } from './worker/MessageQueue';
 import { Network } from './networking/classes/Network';
 import { isMobileOrTablet } from './common/functions/isMobile';
 import { AnimationManager } from './templates/character/prefabs/NetworkPlayerCharacter';
+import { AnimationSystem } from './character/AnimationSystem';
+
 // import { PositionalAudioSystem } from './audio/systems/PositionalAudioSystem';
 
 Mesh.prototype.raycast = acceleratedRaycast;
@@ -98,13 +100,14 @@ export const initializeEngine = async (initOptions: any = DefaultInitializationO
     registerSystem(AssetLoadingSystem);
     registerSystem(PhysicsSystem);
     registerSystem(StateSystem);
+    registerSystem(AnimationSystem);
     registerSystem(ServerSpawnSystem, { priority: 899 });
     registerSystem(TransformSystem, { priority: 900 });
 
     Engine.camera = new PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 10000);
     Engine.scene.add(Engine.camera);
     registerSystem(HighlightSystem);
-    registerSystem(EntityActionSystem, { useWebXR: Engine.xrSupported });
+    registerSystem(ActionSystem, { useWebXR: Engine.xrSupported });
 
 // audio breaks webxr currently
     // Engine.audioListener = new AudioListener();
@@ -161,6 +164,7 @@ export const initializeServer = async (initOptions: any = DefaultInitializationO
   registerSystem(AssetLoadingSystem);
   registerSystem(PhysicsSystem);
   registerSystem(StateSystem);
+  registerSystem(AnimationSystem);
   registerSystem(ServerSpawnSystem, { priority: 899 });
   registerSystem(TransformSystem, { priority: 900 });
 
