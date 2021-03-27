@@ -2,12 +2,11 @@ import { Entity } from '@xr3ngine/engine/src/ecs/classes/Entity';
 import { getComponent, getMutableComponent } from '@xr3ngine/engine/src/ecs/functions/EntityFunctions';
 import { PlayerInCar } from '@xr3ngine/engine/src/physics/components/PlayerInCar';
 import { VehicleBody } from '@xr3ngine/engine/src/physics/components/VehicleBody';
-import { setState } from "@xr3ngine/engine/src/state/behaviors/setState";
 import { CharacterStateTypes } from "@xr3ngine/engine/src/templates/character/CharacterStateTypes";
 import { TransformComponent } from '@xr3ngine/engine/src/transform/components/TransformComponent';
 import { Matrix4, Vector3 } from 'three';
 import { isServer } from "../../../common/functions/isServer";
-import { updateVectorAnimation, clearAnimOnChange, changeAnimation } from "@xr3ngine/engine/src/templates/character/behaviors/updateVectorAnimation";
+import { changeAnimation } from "@xr3ngine/engine/src/templates/character/behaviors/updateVectorAnimation";
 
 function doorAnimation(entityCar, seat, timer, timeAnimation, angel) {
   const vehicle = getComponent<VehicleBody>(entityCar, VehicleBody);

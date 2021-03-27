@@ -1,7 +1,6 @@
 import { Behavior } from '@xr3ngine/engine/src/common/interfaces/Behavior';
-import { MathUtils, Vector3 } from "three";
+import { Vector3 } from "three";
 import { Network } from '@xr3ngine/engine/src/networking/classes/Network';
-import { updateVectorAnimation, clearAnimOnChange, changeAnimation } from "../behaviors/updateVectorAnimation";
 import { getComponent, hasComponent, getMutableComponent } from '../../../ecs/functions/EntityFunctions';
 import { TransformComponent } from '../../../transform/components/TransformComponent';
 import { CharacterStateTypes } from "../CharacterStateTypes";
@@ -105,7 +104,7 @@ export const updateCharacterState: Behavior = (entity, args: {}, deltaTime: numb
 
 const { DRIVING, ENTERING_VEHICLE, EXITING_VEHICLE } = CharacterStateTypes;
 
-const animationsSchema = [
+export const drivingAnimationSchema = [
   {
     type: [DRIVING], name: 'driving', axis: 'xyz', speed: 1, customProperties: ['weight', 'test'],
     value:      [ -0.5, 0, 0.5 ],
@@ -127,7 +126,7 @@ const animationsSchema = [
 
 
 const customVector = new Vector3(0,0,0);
-const getDrivingValues: Behavior = (entity, args: {}, deltaTime: number): any => {
+export const getDrivingValues: Behavior = (entity, args: {}, deltaTime: number): any => {
 
 /*
   const networkDriverId = getComponent<NetworkObject>(entity, NetworkObject).networkId;
@@ -183,23 +182,10 @@ export const DrivingState: StateSchemaValue = {
     {
       behavior: initializeDriverState,
     },
-    {
-      behavior: clearAnimOnChange,
-      args: {
-        animationsSchema: animationsSchema
-      }
-    }
   ],
   onUpdate: [
     {
       behavior: updateCharacterState // rotation character
     },
-    {
-      behavior: updateVectorAnimation,
-      args: {
-        animationsSchema: animationsSchema, // animationsSchema
-        updateAnimationsValues: getDrivingValues // function
-      }
-    }
   ]
 };

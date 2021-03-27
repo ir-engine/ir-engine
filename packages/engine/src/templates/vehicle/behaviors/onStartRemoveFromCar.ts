@@ -1,5 +1,5 @@
 import { Entity } from '@xr3ngine/engine/src/ecs/classes/Entity';
-import { getComponent, getMutableComponent, removeComponent } from '@xr3ngine/engine/src/ecs/functions/EntityFunctions';
+import { addComponent, getComponent, getMutableComponent, removeComponent } from '@xr3ngine/engine/src/ecs/functions/EntityFunctions';
 import { PlayerInCar } from '@xr3ngine/engine/src/physics/components/PlayerInCar';
 import { VehicleBody } from '@xr3ngine/engine/src/physics/components/VehicleBody';
 import { PhysicsSystem } from '@xr3ngine/engine/src/physics/systems/PhysicsSystem';
@@ -9,7 +9,10 @@ import { CharacterComponent } from "@xr3ngine/engine/src/templates/character/com
 import { TransformComponent } from '@xr3ngine/engine/src/transform/components/TransformComponent';
 import { Matrix4, Vector3 } from 'three';
 import { isServer } from "../../../common/functions/isServer";
-import { updateVectorAnimation, clearAnimOnChange, changeAnimation } from "@xr3ngine/engine/src/templates/character/behaviors/updateVectorAnimation";
+import { changeAnimation } from "@xr3ngine/engine/src/templates/character/behaviors/updateVectorAnimation";
+import { AnimationComponent } from '../../../character/components/AnimationComponent';
+import { movingAnimationSchema, getMovementValues } from '../../character/states/MovingState'
+
 
 function doorAnimation(entityCar, seat, timer, timeAnimation, angel) {
   const vehicle = getComponent<VehicleBody>(entityCar, VehicleBody);
@@ -97,6 +100,10 @@ export const onStartRemoveFromCar = (entity: Entity, entityCar: Entity, seat: nu
 
   if (playerInCar.currentFrame == playerInCar.animationSpeed) {
     setState(entity, { state: CharacterStateTypes.DEFAULT });
+    
+    removeComponent(entity, AnimationComponent);
+    addComponent(entity, AnimationComponent, { animationsSchema: movingAnimationSchema, updateAnimationsValues: getMovementValues });
+
     changeAnimation(entity, {
       animationId: CharacterStateTypes.EXITING_VEHICLE,
       transitionDuration: 0.3

@@ -2,16 +2,11 @@ import { AnimationClip, MathUtils } from "three";
 import { Engine } from '../../../ecs/classes/Engine';
 import { Entity } from "../../../ecs/classes/Entity";
 import { Behavior } from '@xr3ngine/engine/src/common/interfaces/Behavior';
-import { hasComponent, getComponent, getMutableComponent } from '../../../ecs/functions/EntityFunctions';
-
-import { Input } from '../../../input/components/Input';
-import { BinaryValue } from "@xr3ngine/engine/src/common/enums/BinaryValue";
-import { BaseInput } from '@xr3ngine/engine/src/input/enums/BaseInput';
-
+import {  getMutableComponent } from '../../../ecs/functions/EntityFunctions';
 import { AnimationConfigInterface, defaultAvatarAnimations } from "../CharacterAvatars";
-import { CharacterStateTypes } from '../CharacterStateTypes';
 import { CharacterComponent, RUN_SPEED, WALK_SPEED } from '../components/CharacterComponent';
 import { isServer } from '../../../common/functions/isServer';
+import { AnimationComponent } from "../../../character/components/AnimationComponent";
 
 interface AnimationWeightScaleInterface {
   weight: number
@@ -83,23 +78,23 @@ function consoleGrafics(obj) {
 }
 */
 //
-export const updateVectorAnimation: Behavior = (entity, args: { animationsSchema: any, updateAnimationsValues: any }, deltaTime: number): void => {
-  if (isServer) return;
-  	// Actor isn't initialized yet, so skip the animation
+export const updateVectorAnimation = (entity, delta: number): void => {
+  // Actor isn't initialized yet, so skip the animation
 	const actor = getMutableComponent(entity, CharacterComponent);
-	if (!actor || !actor.initialized || !actor.mixer) return;
+	const animationComponent = getMutableComponent(entity, AnimationComponent);
+  if (isServer) return;
+	if (!actor || !actor.initialized || !actor.mixer || !animationComponent) return;
 
-  if (actor.mixer) actor.mixer.update(deltaTime);
+  if (actor.mixer) actor.mixer.update(delta);
 
-  if(args.animationsSchema.length == 3) return;
+  if(animationComponent.animationsSchema.length == 3) return;
 	// Get the magnitude of current velocity
 	const avatarAnimations = defaultAvatarAnimations;
 	const animationRoot = actor.modelContainer.children[0];
   // update values for animations
-  const objectValues = args.updateAnimationsValues(entity, args.animationsSchema, deltaTime);
+  const objectValues = animationComponent.updateAnimationsValues(entity, animationComponent.animationsSchema, delta);
   // math to correct all animations
-  const animationsValues = mathMixesAnimFromSchemaValues(entity, args.animationsSchema, objectValues, deltaTime);
-
+  const animationsValues = mathMixesAnimFromSchemaValues(entity, animationComponent.animationsSchema, objectValues, delta);
 /*
     console.clear();
     for (let ia = 0; ia < animationsValues.length; ia++) {
@@ -144,19 +139,19 @@ export const updateVectorAnimation: Behavior = (entity, args: { animationsSchema
 };
 
 export const clearAnimOnChange: Behavior = (entity: Entity, args: { animationsSchema: any }, deltaTime: number): void => {
-  const actor = getComponent<CharacterComponent>(entity, CharacterComponent as any);
+  // const actor = getComponent<CharacterComponent>(entity, CharacterComponent as any);
 // Walking animation names
 // If animation is not in this array, remove
   // Actor isn't initialized yet, so skip the animation
-  if (!actor || !actor.initialized || !actor.mixer) return;
-  const movementAnimationNames = args.animationsSchema.map(val => val.name);
+  // if (!actor || !actor.initialized || !actor.mixer) return;
+  // const movementAnimationNames = args.animationsSchema.map(val => val.name);
     // Clear existing animations
-    actor.currentAnimationAction.forEach(currentAnimationAction => {
-      if(movementAnimationNames.filter(movAnim => movAnim === currentAnimationAction.getClip().name).length > 0)
-        return;
+    // actor.currentAnimationAction.forEach(currentAnimationAction => {
+    //   if(movementAnimationNames.filter(movAnim => movAnim === currentAnimationAction.getClip().name).length > 0)
+    //     return;
       //currentAnimationAction.fadeOut(.3);
       // currentAnimationAction.setEffectiveWeight(0);
-    } )
+    // } )
 };
 
 

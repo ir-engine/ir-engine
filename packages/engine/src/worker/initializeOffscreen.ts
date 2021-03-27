@@ -23,13 +23,14 @@ import { CharacterStateSchema } from '../templates/character/CharacterStateSchem
 import { DefaultNetworkSchema } from '../templates/networking/DefaultNetworkSchema';
 import { TransformSystem } from '../transform/systems/TransformSystem';
 import { MainProxy } from './MessageQueue';
-import { EntityActionSystem } from '../input/systems/EntityActionSystem';
+import { ActionSystem } from '../input/systems/ActionSystem';
 import { EngineEvents } from '../ecs/classes/EngineEvents';
 import { EngineEventsProxy, addIncomingEvents } from '../ecs/classes/EngineEvents';
 import { XRSystem } from '../xr/systems/XRSystem';
 // import { PositionalAudioSystem } from './audio/systems/PositionalAudioSystem';
 import { receiveWorker } from './MessageQueue';
 import { AnimationManager } from '../templates/character/prefabs/NetworkPlayerCharacter';
+import { AnimationSystem } from '../character/AnimationSystem';
 
 
 Mesh.prototype.raycast = acceleratedRaycast;
@@ -66,8 +67,9 @@ const initializeEngineOffscreen = async ({ canvas, userArgs }, proxy: MainProxy)
 
   registerSystem(AssetLoadingSystem);
   registerSystem(PhysicsSystem);
-  registerSystem(EntityActionSystem, { useWebXR: false });
+  registerSystem(ActionSystem, { useWebXR: false });
   registerSystem(StateSystem);
+  registerSystem(AnimationSystem);
   registerSystem(ServerSpawnSystem, { priority: 899 });
   registerSystem(TransformSystem, { priority: 900 });
   
