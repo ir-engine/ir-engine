@@ -16,8 +16,9 @@ import { TransformComponent } from '@xr3ngine/engine/src/transform/components/Tr
 import { Matrix4, Vector3 } from 'three';
 import { isServer } from "../../../common/functions/isServer";
 import { CameraModes } from '../../../camera/types/CameraModes';
-import { EnteringVehicle } from "@xr3ngine/engine/src/templates/character/components/EnteringVehicle";
-import { updateVectorAnimation, clearAnimOnChange, changeAnimation } from "@xr3ngine/engine/src/templates/character/behaviors/updateVectorAnimation";
+import { changeAnimation } from "@xr3ngine/engine/src/templates/character/behaviors/updateVectorAnimation";
+import { AnimationComponent } from '../../../character/components/AnimationComponent';
+import { drivingAnimationSchema, getDrivingValues } from '../../character/states/DrivingState'
 
 function positionEnter(entity, entityCar, seat) {
   const transform = getMutableComponent<TransformComponent>(entity, TransformComponent);
@@ -62,6 +63,8 @@ export const onAddedInCar = (entity: Entity, entityCar: Entity, seat: number, de
   // CLIENT
 //  addComponent(entity, EnteringVehicle);
   setState(entity, { state: CharacterStateTypes.DRIVING });
+  removeComponent(entity, AnimationComponent);
+	addComponent(entity, AnimationComponent, { animationsSchema: drivingAnimationSchema, updateAnimationsValues: getDrivingValues });
 
   changeAnimation(entity, {
     animationId: CharacterStateTypes.ENTERING_VEHICLE,

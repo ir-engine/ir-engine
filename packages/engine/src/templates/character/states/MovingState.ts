@@ -131,7 +131,7 @@ const {
   RUN_FORWARD, RUN_BACKWARD, RUN_STRAFE_LEFT, RUN_STRAFE_RIGHT, JUMP, FALLING, DROP, DROP_ROLLING
 } = CharacterStateTypes;
 
-const animationsSchema = [
+export const movingAnimationSchema = [
   {
     type: [IDLE], name: 'idle', axis: 'xyz', speed: 0.5, customProperties: ['weight', 'dontHasHit'],
     value:      [ -0.5, 0, 0.5 ],
@@ -257,7 +257,7 @@ export const onAnimationEnded: Behavior = (entity: Entity, args: { transitionToS
 };
 */
 const customVector = new Vector3(0,0,0);
-const getMovementValues: Behavior = (entity, args: {}, deltaTime: number) => {
+export const getMovementValues: Behavior = (entity, args: {}, deltaTime: number) => {
   const actor = getComponent<CharacterComponent>(entity, CharacterComponent as any);
   // simulate rayCastHit as vectorY from 1 to 0, for smooth changes
  //  absSpeed = MathUtils.smoothstep(absSpeed, 0, 1);
@@ -289,12 +289,6 @@ export const MovingState: StateSchemaValue = {
     {
       behavior: initializeCharacterState,
     },
-    {
-      behavior: clearAnimOnChange,
-      args: {
-        animationsSchema: animationsSchema
-      }
-    }
   ],
   onUpdate: [
     {
@@ -303,12 +297,5 @@ export const MovingState: StateSchemaValue = {
     {
       behavior: physicsMove
     },
-    {
-      behavior: updateVectorAnimation,
-      args: {
-        animationsSchema: animationsSchema, // animationsSchema
-        updateAnimationsValues: getMovementValues // function
-      }
-    }
   ]
 };
