@@ -1,18 +1,12 @@
 import { Behavior } from '@xr3ngine/engine/src/common/interfaces/Behavior';
 import { StateSchemaValue } from '../../../state/interfaces/StateSchema';
 import { physicsMove } from '../../../physics/behaviors/physicsMove';
-import { triggerActionIfMovementHasChanged } from '../behaviors/triggerActionIfMovementHasChanged';
 import { CharacterStateTypes } from '../CharacterStateTypes';
 import { CharacterComponent } from '../components/CharacterComponent';
 import { TransformComponent } from '../../../transform/components/TransformComponent';
-import { updateVectorAnimation, clearAnimOnChange, changeAnimation } from "../behaviors/updateVectorAnimation";
 import { getComponent, getMutableComponent } from '../../../ecs/functions/EntityFunctions';
-import { MathUtils, Vector3 } from "three";
-
-import { isMyPlayer } from '../../../common/functions/isMyPlayer';
-import { isOtherPlayer } from '../../../common/functions/isOtherPlayer';
+import { Vector3 } from "three";
 import { isMobileOrTablet } from '../../../common/functions/isMobile';
-import { Engine } from '../../../ecs/classes/Engine';
 import { XRSystem } from '../../../xr/systems/XRSystem';
 import { applyVectorMatrixXZ } from '../../../common/functions/applyVectorMatrixXZ';
 import { FollowCameraComponent } from '../../../camera/components/FollowCameraComponent';
