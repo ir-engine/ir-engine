@@ -16,9 +16,9 @@ import { TransformComponent } from '@xr3ngine/engine/src/transform/components/Tr
 import { Matrix4, Vector3 } from 'three';
 import { isServer } from "../../../common/functions/isServer";
 import { CameraModes } from '../../../camera/types/CameraModes';
-import { changeAnimation } from "@xr3ngine/engine/src/templates/character/behaviors/updateVectorAnimation";
+import { changeAnimation } from '../../../character/functions/updateVectorAnimation';
 import { AnimationComponent } from '../../../character/components/AnimationComponent';
-import { drivingAnimationSchema, getDrivingValues } from '../../character/states/DrivingState'
+import { drivingAnimationSchema, getDrivingValues, initializeDriverState } from '../../character/states/DrivingState'
 
 function positionEnter(entity, entityCar, seat) {
   const transform = getMutableComponent<TransformComponent>(entity, TransformComponent);
@@ -59,13 +59,12 @@ export const onAddedInCar = (entity: Entity, entityCar: Entity, seat: number, de
   const orientation = positionEnter(entity, entityCar, seat);
   getMutableComponent(entity, PlayerInCar).state = 'onAddEnding';
 
-  if (isServer) return;
   // CLIENT
-//  addComponent(entity, EnteringVehicle);
-  setState(entity, { state: CharacterStateTypes.DRIVING });
+  initializeDriverState(entity)
   removeComponent(entity, AnimationComponent);
 	addComponent(entity, AnimationComponent, { animationsSchema: drivingAnimationSchema, updateAnimationsValues: getDrivingValues });
-
+  
+  // if (isServer) return;
   changeAnimation(entity, {
     animationId: CharacterStateTypes.ENTERING_VEHICLE,
 	  transitionDuration: 0.3

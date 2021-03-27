@@ -19,7 +19,6 @@ import { WebGLRendererSystem } from '../renderer/WebGLRendererSystem';
 import { ServerSpawnSystem } from '../scene/systems/SpawnSystem';
 import { StateSystem } from '../state/systems/StateSystem';
 import { CharacterInputSchema } from '../templates/character/CharacterInputSchema';
-import { CharacterStateSchema } from '../templates/character/CharacterStateSchema';
 import { DefaultNetworkSchema } from '../templates/networking/DefaultNetworkSchema';
 import { TransformSystem } from '../transform/systems/TransformSystem';
 import { MainProxy } from './MessageQueue';
@@ -30,7 +29,7 @@ import { XRSystem } from '../xr/systems/XRSystem';
 // import { PositionalAudioSystem } from './audio/systems/PositionalAudioSystem';
 import { receiveWorker } from './MessageQueue';
 import { AnimationManager } from '../templates/character/prefabs/NetworkPlayerCharacter';
-import { AnimationSystem } from '../character/AnimationSystem';
+import { CharacterControllerSystem } from '../character/CharacterControllerSystem';
 
 
 Mesh.prototype.raycast = acceleratedRaycast;
@@ -42,9 +41,6 @@ export const DefaultInitializationOptions = {
   },
   networking: {
     schema: DefaultNetworkSchema
-  },
-  state: {
-    schema: CharacterStateSchema
   },
 };
 
@@ -69,7 +65,7 @@ const initializeEngineOffscreen = async ({ canvas, userArgs }, proxy: MainProxy)
   registerSystem(PhysicsSystem);
   registerSystem(ActionSystem, { useWebXR: false });
   registerSystem(StateSystem);
-  registerSystem(AnimationSystem);
+  registerSystem(CharacterControllerSystem);
   registerSystem(ServerSpawnSystem, { priority: 899 });
   registerSystem(TransformSystem, { priority: 900 });
   
