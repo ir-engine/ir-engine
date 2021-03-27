@@ -50,7 +50,7 @@ function createData(id: string, name: string, userRole: string, passcode: string
 
 const RecievedInvite = (props: Props) => {
   const classes = useStyles();
-  const { retrieveReceivedInvites, receivedInvites, sendInvite, sentInvite, invites } = props
+  const { retrieveReceivedInvites, receivedInvites, sendInvite, invites } = props
   const rows = invites.map((el, index) => createData(el.id, el.user.name, el.user.userRole, el.passcode, el.inviteType));
 
   return (

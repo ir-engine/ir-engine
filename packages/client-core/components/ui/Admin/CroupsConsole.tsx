@@ -46,10 +46,10 @@ export default function CroupsConsole() {
     type Order = 'asc' | 'desc';
 
     interface EnhancedTableProps {
-        numSelected: number;
-        onRequestSort: (event: React.MouseEvent<unknown>, property) => void;
-        order: Order;
-        orderBy: string;
+        numSelected?: number;
+        onRequestSort?: (event: React.MouseEvent<unknown>, property) => void;
+        order?: Order;
+        orderBy?: string;
     }
 
     function  EnchancedTableHead (props: EnhancedTableProps ) {
