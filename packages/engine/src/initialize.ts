@@ -33,6 +33,8 @@ import { createWorker, WorkerProxy } from './worker/MessageQueue';
 import { Network } from './networking/classes/Network';
 import { isMobileOrTablet } from './common/functions/isMobile';
 import { AnimationManager } from './templates/character/prefabs/NetworkPlayerCharacter';
+import { AnimationSystem } from './character/AnimationSystem';
+
 // import { PositionalAudioSystem } from './audio/systems/PositionalAudioSystem';
 
 Mesh.prototype.raycast = acceleratedRaycast;
@@ -98,6 +100,7 @@ export const initializeEngine = async (initOptions: any = DefaultInitializationO
     registerSystem(AssetLoadingSystem);
     registerSystem(PhysicsSystem);
     registerSystem(StateSystem);
+    registerSystem(AnimationSystem);
     registerSystem(ServerSpawnSystem, { priority: 899 });
     registerSystem(TransformSystem, { priority: 900 });
 
@@ -161,6 +164,7 @@ export const initializeServer = async (initOptions: any = DefaultInitializationO
   registerSystem(AssetLoadingSystem);
   registerSystem(PhysicsSystem);
   registerSystem(StateSystem);
+  registerSystem(AnimationSystem);
   registerSystem(ServerSpawnSystem, { priority: 899 });
   registerSystem(TransformSystem, { priority: 900 });
 
