@@ -1,7 +1,6 @@
 import { Behavior } from '@xr3ngine/engine/src/common/interfaces/Behavior';
-import { MathUtils, Vector3 } from "three";
+import { Vector3 } from "three";
 import { Network } from '@xr3ngine/engine/src/networking/classes/Network';
-import { updateVectorAnimation, clearAnimOnChange, changeAnimation } from "../behaviors/updateVectorAnimation";
 import { getComponent, hasComponent, getMutableComponent } from '../../../ecs/functions/EntityFunctions';
 import { TransformComponent } from '../../../transform/components/TransformComponent';
 import { CharacterStateTypes } from "../CharacterStateTypes";

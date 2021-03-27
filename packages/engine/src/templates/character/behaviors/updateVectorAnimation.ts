@@ -2,14 +2,8 @@ import { AnimationClip, MathUtils } from "three";
 import { Engine } from '../../../ecs/classes/Engine';
 import { Entity } from "../../../ecs/classes/Entity";
 import { Behavior } from '@xr3ngine/engine/src/common/interfaces/Behavior';
-import { hasComponent, getComponent, getMutableComponent } from '../../../ecs/functions/EntityFunctions';
-
-import { Input } from '../../../input/components/Input';
-import { BinaryValue } from "@xr3ngine/engine/src/common/enums/BinaryValue";
-import { BaseInput } from '@xr3ngine/engine/src/input/enums/BaseInput';
-
+import {  getMutableComponent } from '../../../ecs/functions/EntityFunctions';
 import { AnimationConfigInterface, defaultAvatarAnimations } from "../CharacterAvatars";
-import { CharacterStateTypes } from '../CharacterStateTypes';
 import { CharacterComponent, RUN_SPEED, WALK_SPEED } from '../components/CharacterComponent';
 import { isServer } from '../../../common/functions/isServer';
 import { AnimationComponent } from "../../../character/components/AnimationComponent";
