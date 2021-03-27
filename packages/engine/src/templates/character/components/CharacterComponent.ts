@@ -23,6 +23,7 @@ export class CharacterComponent extends Component<CharacterComponent> {
         // this.cameraMount = null;
   }
 
+  public movementEnabled: boolean = false;
   public avatarIKRig: Avatar;
 	public initialized = false;
 
