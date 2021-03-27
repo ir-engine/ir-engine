@@ -481,7 +481,7 @@ spec:
 
             {{- with .Values.gameserver.resources }}
               resources:
-                {{- toYaml . | nindent 14 }}
+                {{- toYaml . | nindent 16 }}
             {{- end }}
               envFrom:
                 - configMapRef:
