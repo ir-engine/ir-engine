@@ -1,12 +1,12 @@
 import { AnimationClip, MathUtils } from "three";
-import { Engine } from '../../../ecs/classes/Engine';
-import { Entity } from "../../../ecs/classes/Entity";
+import { Engine } from '../../ecs/classes/Engine';
+import { Entity } from "../../ecs/classes/Entity";
 import { Behavior } from '@xr3ngine/engine/src/common/interfaces/Behavior';
-import {  getMutableComponent } from '../../../ecs/functions/EntityFunctions';
-import { AnimationConfigInterface, defaultAvatarAnimations } from "../CharacterAvatars";
-import { CharacterComponent, RUN_SPEED, WALK_SPEED } from '../components/CharacterComponent';
-import { isServer } from '../../../common/functions/isServer';
-import { AnimationComponent } from "../../../character/components/AnimationComponent";
+import {  getMutableComponent } from '../../ecs/functions/EntityFunctions';
+import { AnimationConfigInterface, defaultAvatarAnimations } from "../../templates/character/CharacterAvatars";
+import { CharacterComponent, RUN_SPEED, WALK_SPEED } from '../../templates/character/components/CharacterComponent';
+import { isServer } from '../../common/functions/isServer';
+import { AnimationComponent } from "../components/AnimationComponent";
 
 interface AnimationWeightScaleInterface {
   weight: number
@@ -79,10 +79,10 @@ function consoleGrafics(obj) {
 */
 //
 export const updateVectorAnimation = (entity, delta: number): void => {
+  if (isServer) return;
   // Actor isn't initialized yet, so skip the animation
 	const actor = getMutableComponent(entity, CharacterComponent);
 	const animationComponent = getMutableComponent(entity, AnimationComponent);
-  if (isServer) return;
 	if (!actor || !actor.initialized || !actor.mixer || !animationComponent) return;
 
   if (actor.mixer) actor.mixer.update(delta);
@@ -158,6 +158,7 @@ export const clearAnimOnChange: Behavior = (entity: Entity, args: { animationsSc
 
 export const changeAnimation: Behavior = (entity, args: {}, deltaTime: number): void => {
 
+  if(isServer) return;
 	const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
 	if (!actor.initialized || !actor.mixer) return;
 	//@ts-ignore

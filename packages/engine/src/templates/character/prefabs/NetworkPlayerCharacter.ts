@@ -29,7 +29,6 @@ import { setState } from "../../../state/behaviors/setState";
 import { State } from '../../../state/components/State';
 import { TransformComponent } from '../../../transform/components/TransformComponent';
 import { CharacterInputSchema } from '../CharacterInputSchema';
-import { CharacterStateSchema } from '../CharacterStateSchema';
 import { CharacterStateTypes } from "../CharacterStateTypes";
 import { CharacterComponent } from '../components/CharacterComponent';
 import { NamePlateComponent } from '../components/NamePlateComponent';
@@ -38,8 +37,7 @@ import { Avatar } from "../../../xr/classes/IKAvatar";
 import { Engine } from "../../../ecs/classes/Engine";
 import { PrefabType } from "@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema";
 import { AnimationComponent } from "../../../character/components/AnimationComponent";
-import { getMovementValues, movingAnimationSchema } from "../states/MovingState";
-
+import { getMovementValues, initializeCharacterState, movingAnimationSchema } from "../states/MovingState";
 
 export class AnimationManager {
 	static _instance: AnimationManager;
@@ -135,9 +133,9 @@ export const loadActorAvatarFromURL: Behavior = (entity, avatarURL) => {
     actor.mixer = new AnimationMixer(actor.modelContainer.children[0]);
 	// TODO: Remove this. Currently we are double-sampling the samplerate
 
-    const stateComponent = getComponent(entity, State);
+    // const stateComponent = getComponent(entity, State);
     // trigger all states to restart?
-    stateComponent.data.forEach(data => data.lifecycleState = LifecycleValue.STARTED);
+    // stateComponent.data.forEach(data => data.lifecycleState = LifecycleValue.STARTED);
 
     const avatarIK = new Avatar(actor.modelContainer)
     actor.avatarIKRig = avatarIK;
@@ -164,9 +162,9 @@ const initializeCharacter: Behavior = (entity): void => {
 	if(actor.modelContainer !== undefined)
 	  ([ ...actor.modelContainer.children ])
 		.forEach(child => actor.modelContainer.remove(child));
-	const stateComponent = getComponent(entity, State);
+	// const stateComponent = getComponent(entity, State);
 	// trigger all states to restart?
-	stateComponent.data.forEach(data => data.lifecycleState = LifecycleValue.STARTED);
+	// stateComponent.data.forEach(data => data.lifecycleState = LifecycleValue.STARTED);
 
 	// The visuals group is centered for easy actor tilting
 	actor.tiltContainer = new Group();
@@ -232,10 +230,11 @@ const initializeCharacter: Behavior = (entity): void => {
 
 	// Physics pre/post step callback bindings
 	// States
-	setState(entity, { state: CharacterStateTypes.DEFAULT });
-  addComponent(entity, AnimationComponent, { animationsSchema: movingAnimationSchema, updateAnimationsValues: getMovementValues });
-
+	// setState(entity, { state: CharacterStateTypes.DEFAULT });
 	actor.initialized = true;
+
+  initializeCharacterState(entity)
+  addComponent(entity, AnimationComponent, { animationsSchema: movingAnimationSchema, updateAnimationsValues: getMovementValues });
 
 	// };
 };
@@ -286,8 +285,6 @@ export const NetworkPlayerCharacter: NetworkPrefab = {
     { type: TransformComponent },
     // Local player input mapped to behaviors in the input map
     { type: Input, data: { schema: CharacterInputSchema } },
-    // Current state (isJumping, isidle, etc)
-    { type: State, data: { schema: CharacterStateSchema } },
     { type: NamePlateComponent },
     { type: PositionalAudioComponent }
   ],

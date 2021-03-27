@@ -5,7 +5,6 @@ import { getComponent, hasComponent, getMutableComponent } from '../../../ecs/fu
 import { TransformComponent } from '../../../transform/components/TransformComponent';
 import { CharacterStateTypes } from "../CharacterStateTypes";
 import { CharacterComponent } from '../components/CharacterComponent';
-import { StateSchemaValue } from '../../../state/interfaces/StateSchema';
 import { isMobileOrTablet } from '../../../common/functions/isMobile';
 import { NumericalType } from '../../../common/types/NumericalTypes';
 import { Input } from '../../../input/components/Input';
@@ -162,7 +161,7 @@ export const getDrivingValues: Behavior = (entity, args: {}, deltaTime: number):
    return { actorVelocity, test };
 }
 
-const initializeDriverState: Behavior = (entity, args: { x?: number, y?: number, z?: number }) => {
+export const initializeDriverState: Behavior = (entity, args: { x?: number, y?: number, z?: number }) => {
 	const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
 	if (!actor.initialized) return;
 
@@ -170,22 +169,5 @@ const initializeDriverState: Behavior = (entity, args: { x?: number, y?: number,
 	actor.velocityTarget.z = args?.z ?? 0;
 	actor.velocityTarget.x = args?.x ?? 0;
 	actor.velocityTarget.y = args?.y ?? 0;
-};
-
-// THIS STATE
-export const DrivingState: StateSchemaValue = {
-  componentProperties: [{
-    component: CharacterComponent,
-    properties: {}
-  }],
-  onEntry: [
-    {
-      behavior: initializeDriverState,
-    },
-  ],
-  onUpdate: [
-    {
-      behavior: updateCharacterState // rotation character
-    },
-  ]
+  actor.movementEnabled = false;
 };
