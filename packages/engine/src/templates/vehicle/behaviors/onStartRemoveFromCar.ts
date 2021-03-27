@@ -9,9 +9,9 @@ import { CharacterComponent } from "@xr3ngine/engine/src/templates/character/com
 import { TransformComponent } from '@xr3ngine/engine/src/transform/components/TransformComponent';
 import { Matrix4, Vector3 } from 'three';
 import { isServer } from "../../../common/functions/isServer";
-import { changeAnimation } from "@xr3ngine/engine/src/templates/character/behaviors/updateVectorAnimation";
+import { changeAnimation } from '../../../character/functions/updateVectorAnimation';
 import { AnimationComponent } from '../../../character/components/AnimationComponent';
-import { movingAnimationSchema, getMovementValues } from '../../character/states/MovingState'
+import { movingAnimationSchema, getMovementValues, initializeCharacterState } from '../../character/states/MovingState';
 
 
 function doorAnimation(entityCar, seat, timer, timeAnimation, angel) {
@@ -94,12 +94,13 @@ export const onStartRemoveFromCar = (entity: Entity, entityCar: Entity, seat: nu
 
   }
 
-  if (isServer) return;
+  // if (isServer) return;
 
 
 
   if (playerInCar.currentFrame == playerInCar.animationSpeed) {
-    setState(entity, { state: CharacterStateTypes.DEFAULT });
+    // setState(entity, { state: CharacterStateTypes.DEFAULT });
+    initializeCharacterState(entity)
     
     removeComponent(entity, AnimationComponent);
     addComponent(entity, AnimationComponent, { animationsSchema: movingAnimationSchema, updateAnimationsValues: getMovementValues });

@@ -5,8 +5,8 @@ import { VehicleBody } from '@xr3ngine/engine/src/physics/components/VehicleBody
 import { CharacterStateTypes } from "@xr3ngine/engine/src/templates/character/CharacterStateTypes";
 import { TransformComponent } from '@xr3ngine/engine/src/transform/components/TransformComponent';
 import { Matrix4, Vector3 } from 'three';
+import { changeAnimation } from '../../../character/functions/updateVectorAnimation';
 import { isServer } from "../../../common/functions/isServer";
-import { changeAnimation } from "@xr3ngine/engine/src/templates/character/behaviors/updateVectorAnimation";
 
 function doorAnimation(entityCar, seat, timer, timeAnimation, angel) {
   const vehicle = getComponent<VehicleBody>(entityCar, VehicleBody);

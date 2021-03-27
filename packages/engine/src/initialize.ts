@@ -23,7 +23,6 @@ import { WebGLRendererSystem } from './renderer/WebGLRendererSystem';
 import { ServerSpawnSystem } from './scene/systems/SpawnSystem';
 import { StateSystem } from './state/systems/StateSystem';
 import { CharacterInputSchema } from './templates/character/CharacterInputSchema';
-import { CharacterStateSchema } from './templates/character/CharacterStateSchema';
 import { DefaultNetworkSchema } from './templates/networking/DefaultNetworkSchema';
 import { TransformSystem } from './transform/systems/TransformSystem';
 import { EngineEvents, addIncomingEvents, addOutgoingEvents, EngineEventsProxy } from './ecs/classes/EngineEvents';
@@ -33,7 +32,7 @@ import { createWorker, WorkerProxy } from './worker/MessageQueue';
 import { Network } from './networking/classes/Network';
 import { isMobileOrTablet } from './common/functions/isMobile';
 import { AnimationManager } from './templates/character/prefabs/NetworkPlayerCharacter';
-import { AnimationSystem } from './character/AnimationSystem';
+import { CharacterControllerSystem } from './character/CharacterControllerSystem';
 
 // import { PositionalAudioSystem } from './audio/systems/PositionalAudioSystem';
 
@@ -52,9 +51,6 @@ export const DefaultInitializationOptions = {
   },
   networking: {
     schema: DefaultNetworkSchema
-  },
-  state: {
-    schema: CharacterStateSchema
   },
 };
 
@@ -100,7 +96,7 @@ export const initializeEngine = async (initOptions: any = DefaultInitializationO
     registerSystem(AssetLoadingSystem);
     registerSystem(PhysicsSystem);
     registerSystem(StateSystem);
-    registerSystem(AnimationSystem);
+    registerSystem(CharacterControllerSystem);
     registerSystem(ServerSpawnSystem, { priority: 899 });
     registerSystem(TransformSystem, { priority: 900 });
 
@@ -164,7 +160,7 @@ export const initializeServer = async (initOptions: any = DefaultInitializationO
   registerSystem(AssetLoadingSystem);
   registerSystem(PhysicsSystem);
   registerSystem(StateSystem);
-  registerSystem(AnimationSystem);
+  registerSystem(CharacterControllerSystem);
   registerSystem(ServerSpawnSystem, { priority: 899 });
   registerSystem(TransformSystem, { priority: 900 });
 
