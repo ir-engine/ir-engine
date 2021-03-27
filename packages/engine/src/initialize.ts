@@ -9,7 +9,7 @@ import { Engine, AudioListener } from './ecs/classes/Engine';
 import { execute, initialize } from "./ecs/functions/EngineFunctions";
 import { registerSystem } from './ecs/functions/SystemFunctions';
 import { SystemUpdateType } from "./ecs/functions/SystemUpdateType";
-import { EntityActionSystem } from './input/systems/EntityActionSystem';
+import { ActionSystem } from './input/systems/ActionSystem';
 import { InteractiveSystem } from "./interaction/systems/InteractiveSystem";
 import { ClientNetworkSystem } from './networking/systems/ClientNetworkSystem';
 import { MediaStreamSystem } from './networking/systems/MediaStreamSystem';
@@ -104,7 +104,7 @@ export const initializeEngine = async (initOptions: any = DefaultInitializationO
     Engine.camera = new PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 10000);
     Engine.scene.add(Engine.camera);
     registerSystem(HighlightSystem);
-    registerSystem(EntityActionSystem, { useWebXR: Engine.xrSupported });
+    registerSystem(ActionSystem, { useWebXR: Engine.xrSupported });
 
 // audio breaks webxr currently
     // Engine.audioListener = new AudioListener();
