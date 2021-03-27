@@ -52,7 +52,8 @@ select the IAM role that was created with the cluster (it should be something li
 toggle the Use Launch Template toggle and select the launch template you made in the previous step,
 then click Next. On the second page, Choose the instance type(s) you'd like for the group,
 set the minimum/maximum/desired scaling sizes, and hit Next (t3(a).smalls are recommended). 
-The default subnets should be fine, so hit Next, review everything, and click Create.
+There may be connection issues with gameserver instances in private subnets, so remove all of the public
+subnets from the list of subnets to use. Hit Next, review everything, and click Create.
 
 ### Create nodegroup for redis
 
