@@ -52,7 +52,7 @@ const emptyVector = new Vector3();
 const halfPI = Math.PI / 2;
 */
 const damping = 0.05; // To reduce the change in direction.
-export const updateCharacterState: Behavior = (entity, args: {}, deltaTime: number): void => {
+export const updateCharacterStateInVehicle: Behavior = (entity, args: {}, deltaTime: number): void => {
 
 	const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
   if (!hasComponent(entity, PlayerInCar)) return;
@@ -60,8 +60,6 @@ export const updateCharacterState: Behavior = (entity, args: {}, deltaTime: numb
   const entityCar = Network.instance.networkObjects[playerInCar.networkCarId].component.entity;
 //	if (!actor.initialized) return console.warn("Actor no initialized");
   const actorTransform = getMutableComponent(entityCar, TransformComponent);
-
-//	actor.timer += deltaTime;
 
 	const localMovementDirection = actor.localMovementDirection; //getLocalMovementDirection(entity);
 
@@ -165,7 +163,6 @@ export const initializeDriverState: Behavior = (entity, args: { x?: number, y?: 
 	const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
 	if (!actor.initialized) return;
 
-	actor.timer = 0;
 	actor.velocityTarget.z = args?.z ?? 0;
 	actor.velocityTarget.x = args?.x ?? 0;
 	actor.velocityTarget.y = args?.y ?? 0;
