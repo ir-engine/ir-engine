@@ -6,17 +6,19 @@ export default class SkyboxNode extends EditorNodeMixin(Sky) {
   static disableTransform = true;
   static ignoreRaycast = true;
   static nodeName = "Skybox";
+  static textureValue=''
   static canAddNode(editor) {
     return editor.scene.findNodeByType(SkyboxNode) === null;
   }
+
   static async deserialize(editor, json) {
     const node = await super.deserialize(editor, json);
     const skybox = json.components.find(c => c.name === "skybox");
-
     switch (skybox.props.skytype) {
       case "cubemap":
       case "equirectangular":
         node.texture = skybox.props.texture;
+        SkyboxNode.textureValue=node.texture;
         break;
       default:
         const {
@@ -72,6 +74,12 @@ export default class SkyboxNode extends EditorNodeMixin(Sky) {
   }
 
   getTexture() {
+    if(SkyboxNode.textureValue!=''){
+      this.textureOptionValue=SkyboxNode.textureValue;
+      SkyboxNode.textureValue='';
+    }
+
+
     switch (this.skyOptionValue) {
       case "equirectangular":
         const texture = new TextureLoader().load(this.textureOptionValue);

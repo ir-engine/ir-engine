@@ -106,14 +106,12 @@ export default class SkyboxNodeEditor extends Component<
   // function to handle changes textureOptionValue
   onChangeTextureOption = textureOptionValue => {
     (this.props.editor as any).setPropertySelected(
-      "textureOptionValue",
-      textureOptionValue
-    );
+      "textureOptionValue",textureOptionValue);
   };
 
  // function to set default texture option on the basis of skyOptionValue
   setDefaultTextureOptionValue = (skyOptionValue) => {
-
+    
     switch (skyOptionValue) {
       case "cubemap" as any:
         this.onChangeTextureOption(CubemapOption[0].value);
