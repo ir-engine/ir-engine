@@ -115,7 +115,7 @@ First, make sure you have [NodeJS](https://nodejs.org/) and [npm](https://www.np
    (as opposed to storing them on S3). You will need to start a local server
    to serve these files, and make sure that .env.local has the line
    ```LOCAL_STORAGE_PROVIDER="localhost:8642"```.
-   In a new tab, go to ```packaages/server``` and run ```yarn serve-local-files```.
+   In a new tab, go to ```packages/server``` and run ```yarn serve-local-files```.
    This will start up ```http-server``` to serve files from ```packages/server/upload```
    on ```localhost:8642```.
    You may have to accept the invalid self-signed certificate for it in the browser;
