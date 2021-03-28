@@ -265,6 +265,16 @@ Try
 yarn run dev-reinit-db // in server package
 ```
 
+## Admin System
+
+How to make a user an admin:
+
+Method 1: Run `yarn run scripts/make-user-admin.js [USER ID]` TODO: Improve with email/phone ID support
+
+Method 2: Look up in User table and change userRole to 'admin' - Suggested: beekeeperstudio.io
+
+test by going to `/admin`
+
 # Development
 
 ## API Reference
