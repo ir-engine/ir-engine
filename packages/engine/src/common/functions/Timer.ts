@@ -202,8 +202,20 @@ export function Timer (
     stop: stop
   };
 }
+
+const expectedServerDelta = 1000 / 60;
+let lastTime = 0;
 function requestAnimationFrameOnServer(f) {
-  setImmediate(() => f(Date.now()));
+  const serverLoop = () => {
+    const now = Date.now();
+    if(now - lastTime >= expectedServerDelta) {
+      lastTime = now;
+      f(now);
+    } else {
+      setImmediate(serverLoop);
+    }
+  }
+  serverLoop()
 }
 
 export class FixedStepsRunner {

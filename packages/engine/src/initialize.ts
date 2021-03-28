@@ -94,9 +94,9 @@ export const initializeEngine = async (initOptions: any = DefaultInitializationO
 
     await AnimationManager.instance.getDefaultModel()
     registerSystem(AssetLoadingSystem);
-    registerSystem(PhysicsSystem);
     registerSystem(StateSystem);
     registerSystem(CharacterControllerSystem);
+    registerSystem(PhysicsSystem);
     registerSystem(ServerSpawnSystem, { priority: 899 });
     registerSystem(TransformSystem, { priority: 900 });
 
@@ -158,9 +158,9 @@ export const initializeServer = async (initOptions: any = DefaultInitializationO
   registerSystem(ServerNetworkOutgoingSystem, { ...networkSystemOptions, priority: 10000 });
   registerSystem(MediaStreamSystem);
   registerSystem(AssetLoadingSystem);
-  registerSystem(PhysicsSystem);
   registerSystem(StateSystem);
   registerSystem(CharacterControllerSystem);
+  registerSystem(PhysicsSystem);
   registerSystem(ServerSpawnSystem, { priority: 899 });
   registerSystem(TransformSystem, { priority: 900 });
 

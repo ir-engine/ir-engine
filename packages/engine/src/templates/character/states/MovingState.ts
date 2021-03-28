@@ -50,44 +50,44 @@ export const movingAnimationSchema = [
   },
   */
   {
-    type: [WALK_FORWARD], name: 'walking', axis:'z', speed: 0.5, customProperties: ['weight', 'dontHasHit'],
+    type: [WALK_FORWARD], name: 'walking', axis:'z', speed: 1, customProperties: ['weight', 'dontHasHit'],
     value:      [ 0.1, 0.5, 1 ],
     weight:     [  0,   1,  0 ],
     dontHasHit: [  0,   0,  0 ]
   },{
-    type: [WALK_STRAFE_RIGHT], name: 'walk_right', axis:'x', speed: 0.5, customProperties: ['weight', 'dontHasHit'],
+    type: [WALK_STRAFE_RIGHT], name: 'walk_right', axis:'x', speed: 1, customProperties: ['weight', 'dontHasHit'],
     value:      [ -1, -0.5, -0.1 ],
     weight:     [  0,   1 ,   0  ],
     dontHasHit: [  0 ,  0,    0  ]
   },{
-    type: [WALK_STRAFE_LEFT], name: 'walk_left', axis:'x', speed: 0.5, customProperties: ['weight', 'dontHasHit'],
+    type: [WALK_STRAFE_LEFT], name: 'walk_left', axis:'x', speed: 1, customProperties: ['weight', 'dontHasHit'],
     value:      [ 0.1, 0.5, 1 ],
     weight:     [  0,   1,  0 ],
     dontHasHit: [  0 ,  0,  0 ]
   },{
-    type: [WALK_BACKWARD], name: 'walking_backward', axis:'z', speed: 0.5, customProperties: ['weight', 'dontHasHit'],
+    type: [WALK_BACKWARD], name: 'walking_backward', axis:'z', speed: 1, customProperties: ['weight', 'dontHasHit'],
     value:      [ -1, -0.5, -0.1],
     weight:     [  0,   1,    0 ],
     dontHasHit: [  0 ,  0,    0 ]
   },
 
   {
-    type: [RUN_FORWARD], name: 'run_forward', axis:'z', speed: 0.45, customProperties: ['weight', 'dontHasHit'],
+    type: [RUN_FORWARD], name: 'run_forward', axis:'z', speed: 0.9, customProperties: ['weight', 'dontHasHit'],
     value:      [  0.5,  1  ],
     weight:     [   0,   1  ],
     dontHasHit: [   0 , 0.5 ]
   },{
-    type: [RUN_STRAFE_RIGHT], name: 'run_right', axis: 'x', speed: 0.45, customProperties: ['weight', 'dontHasHit'],
+    type: [RUN_STRAFE_RIGHT], name: 'run_right', axis: 'x', speed: 0.9, customProperties: ['weight', 'dontHasHit'],
     value:      [ -1, -0.5 ],
     weight:     [  1 ,  0  ],
     dontHasHit: [  0.5, 0  ]
   },{
-    type: [RUN_STRAFE_LEFT], name: 'run_left', axis:'x', speed: 0.45, customProperties: ['weight', 'dontHasHit'],
+    type: [RUN_STRAFE_LEFT], name: 'run_left', axis:'x', speed: 0.9, customProperties: ['weight', 'dontHasHit'],
     value:      [ 0.5,  1  ],
     weight:     [  0 ,  1  ],
     dontHasHit: [  0 , 0.5 ]
   },{
-    type: [RUN_BACKWARD], name: 'run_backward', axis: 'z', speed: 0.45, customProperties: ['weight', 'dontHasHit'],
+    type: [RUN_BACKWARD], name: 'run_backward', axis: 'z', speed: 0.9, customProperties: ['weight', 'dontHasHit'],
     value:      [ -1 ,-0.5 ],
     weight:     [  1 ,  0  ],
     dontHasHit: [ 0.5,  0  ]
@@ -128,7 +128,6 @@ export const initializeCharacterState: Behavior = (entity, args: { x?: number, y
 	actor.arcadeVelocityIsAdditive = false;
 	actor.arcadeVelocityInfluence.set(1, 0, 1);
 
-	actor.timer = 0;
 	actor.velocityTarget.z = args?.z ?? 0;
 	actor.velocityTarget.x = args?.x ?? 0;
 	actor.velocityTarget.y = args?.y ?? 0;
@@ -136,16 +135,6 @@ export const initializeCharacterState: Behavior = (entity, args: { x?: number, y
   actor.movementEnabled = true;
 };
 
-/*
-export const onAnimationEnded: Behavior = (entity: Entity, args: { transitionToState: any }, deltaTime) => {
-  const actor = getComponent<CharacterComponent>(entity, CharacterComponent as any);
-  if(!actor.initialized) return console.warn("Actor not initialized");
-  if (actor.timer > actor.currentAnimationLength - deltaTime) {
-  //  console.log('animation ended! (', actor.currentAnimationLength, ')', now(),', switch to ', args.transitionToState)
-    setState(entity, { state: args.transitionToState });
-  }
-};
-*/
 const customVector = new Vector3(0,0,0);
 export const getMovementValues: Behavior = (entity, args: {}, deltaTime: number) => {
   const actor = getComponent<CharacterComponent>(entity, CharacterComponent as any);
