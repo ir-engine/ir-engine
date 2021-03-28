@@ -269,11 +269,17 @@ yarn run dev-reinit-db // in server package
 
 How to make a user an admin:
 
-Method 1: Run `yarn run scripts/make-user-admin.js [USER ID]` TODO: Improve with email/phone ID support
+Method 1: 
 
-Method 2: Look up in User table and change userRole to 'admin' - Suggested: beekeeperstudio.io
+1. Run `yarn run scripts/make-user-admin.js [USER ID]` 
+2. TODO: Improve with email/phone ID support
 
-test by going to `/admin`
+Method 2: 
+1. Look up in User table and change userRole to 'admin' 
+2. Dev DB credentials can be found here: packages/ops/docker-compose-local.yml#L42
+3. Suggested: beekeeperstudio.io
+
+Test user Admin privliges by going to `/admin`
 
 # Development
 
