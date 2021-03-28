@@ -38,6 +38,7 @@ import { Engine } from "../../../ecs/classes/Engine";
 import { PrefabType } from "@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema";
 import { AnimationComponent } from "../../../character/components/AnimationComponent";
 import { getMovementValues, initializeCharacterState, movingAnimationSchema } from "../states/MovingState";
+import { IKComponent } from "../../../character/components/IKComponent";
 
 export class AnimationManager {
 	static _instance: AnimationManager;
@@ -137,8 +138,11 @@ export const loadActorAvatarFromURL: Behavior = (entity, avatarURL) => {
     // trigger all states to restart?
     // stateComponent.data.forEach(data => data.lifecycleState = LifecycleValue.STARTED);
 
-    const avatarIK = new Avatar(actor.modelContainer)
-    actor.avatarIKRig = avatarIK;
+    if(hasComponent(entity, IKComponent)) {
+      removeComponent(entity, IKComponent);
+    }
+    const avatarIKRig = new Avatar(actor.modelContainer)
+    addComponent(entity, IKComponent, { avatarIKRig });
 
   })
 };
