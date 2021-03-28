@@ -269,6 +269,8 @@ yarn run dev-reinit-db // in server package
 
 How to make a user an admin:
 
+Create a user at `/login`
+
 Method 1: 
 
 1. Run `yarn run scripts/make-user-admin.js [USER ID]` 
