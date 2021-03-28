@@ -23,9 +23,7 @@
     "name": "Laguna Labs",
     "email": "info@lagunalabs.io"
   },
-  "entrypoint":{
-
-  },
+  "entrypoint": {},
   "contributors": [],
   "bugs": {},
   "directories": {
@@ -54,7 +52,7 @@
   ],
   "resolutions": {
     "socket.io": "2.4.1",
-    "terser" : "4.8.0"
+    "terser": "4.8.0"
   },
   "peerDependencies": {
     "@feathersjs/authentication": "^4.5.8",

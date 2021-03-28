@@ -1,56 +1,83 @@
 importScripts(location.origin + '/corto/corto.js', location.origin + '/corto/rangeFetcher.js');
 
-let _meshFilePath;
-let currentKeyframe = 0;
-let fetchLoop;
-let lastRequestedKeyframe = -1;
-let _numberOfKeyframes;
-let _fileHeader;
-
 function startFetching({
   meshFilePath,
   numberOfKeyframes,
-  fileHeader
+  fileHeader,
+  targetFramesToRequest
 }) {
   //@ts-ignore
   let rangeFetcher = new HttpRangeFetcher({});
-  console.log("Range fetcher");
-  console.log(rangeFetcher);
-  _meshFilePath = meshFilePath;
-  _numberOfKeyframes = numberOfKeyframes;
-  _fileHeader = fileHeader;
   (globalThis as any).postMessage({ type: "initialized" });
 
-
-
+  let fetchLoop;
+  let lastRequestedKeyframe = 0;
+  
   fetchLoop = setInterval(() => {
-    if (lastRequestedKeyframe >= _numberOfKeyframes) {
+    if (lastRequestedKeyframe >= numberOfKeyframes -1) {
       clearInterval(fetchLoop);
-      (globalThis as any).postMessage({ type: "complete" });
+      return (globalThis as any).postMessage({ type: "complete" });
     }
 
-    // Now increment one more
-    lastRequestedKeyframe++;
+    console.log("******* FETCHING")
+
+    let numberOfFramesToRequest = 0;
+
+    let requestStartBytePosition, requestEndBytePosition
+    let frames = [];
+    let keyframePositions = [];
+    let hasDataToSend = false;
+    while(numberOfFramesToRequest < targetFramesToRequest && lastRequestedKeyframe < numberOfKeyframes - 1){
     // This is our new keyframe
     const newKeyframe = lastRequestedKeyframe;
+    // Now increment one more
+    lastRequestedKeyframe++;
+
+    let keyframe = fileHeader.frameData[newKeyframe];
+
+    if (keyframe === undefined) return console.log("Keyframe", newKeyframe, " is undefined");
+    hasDataToSend = true;
+    keyframePositions.push(frames.length);
+    
+    frames.push(keyframe);
+
+    console.log("Requesting keyframe", newKeyframe);
+    console.log("Keyframe header is", keyframe);
+
+    if(!requestStartBytePosition) requestStartBytePosition = keyframe.startBytePosition;
 
 
-    const keyframe = _fileHeader.frameData[newKeyframe];
-    if (keyframe === undefined) return console.log("Keyframe undefined");
     // Get count of frames associated with keyframe
-    const iframes = _fileHeader.frameData.filter(frame => frame.keyframeNumber === newKeyframe && frame.keyframeNumber !== frame.frameNumber).sort((a, b) => (a.frameNumber < b.frameNumber));
+    const iframes = fileHeader.frameData.filter(frame => frame.keyframeNumber === newKeyframe && frame.keyframeNumber !== frame.frameNumber).sort((a, b) => (a.frameNumber < b.frameNumber));
+    
+  if(iframes.length > 0 ) console.log("**** IFRAMES LENGTH IS", iframes.length);
 
-    const requestStartBytePosition = keyframe.startBytePosition;
+    iframes.forEach((frame) => {
+      frames.push(frame);
+    })
+    
+    numberOfFramesToRequest += 1 + iframes.length;
 
-    const requestEndBytePosition = iframes.length > 0 ?
-      iframes[iframes.length - 1].startBytePosition + iframes[iframes.length - 1].meshLength - requestStartBytePosition
-      : keyframe.startBytePosition + keyframe.meshLength - requestStartBytePosition;
+    requestEndBytePosition = iframes.length > 0 ?
+    iframes[iframes.length - 1].startBytePosition + iframes[iframes.length - 1].meshLength - requestStartBytePosition
+    : keyframe.startBytePosition + keyframe.meshLength - requestStartBytePosition;
+  }
+  if(!hasDataToSend) return;
+  console.log("Got", frames.length, " frames")
 
-    rangeFetcher.getRange(_meshFilePath, requestStartBytePosition, requestEndBytePosition).then(response => {
+  console.log("********* REQEUESTING RANGE", requestStartBytePosition, requestEndBytePosition);
+  rangeFetcher.getRange(meshFilePath, requestStartBytePosition, requestEndBytePosition).then(response => {
+    let startBytePosition = 0;
+    let messages = [];
+      keyframePositions.forEach((position) => {
+        let keyframe = fileHeader.frameData[keyframePositions[position]];
+
+      // TODO: Handle iframes
 
       // Slice keyframe out by byte position
-      const keyframeStartPosition = 0;
-      const keyframeEndPosition = keyframe.meshLength;
+      const keyframeStartPosition = startBytePosition;
+      const keyframeEndPosition = startBytePosition + keyframe.meshLength;
+      startBytePosition = keyframeEndPosition;
 
       //@ts-ignore
       let decoder = new CortoDecoder(response.buffer.buffer, keyframeStartPosition, keyframeEndPosition);
@@ -71,6 +98,8 @@ function startFetching({
         keyframeBufferObject: bufferObject,
         //   iframeBufferObjects: []
       };
+
+      messages.push(message);
 
       // // For each iframe...
       // for (const frameNo in iframes) {
@@ -110,10 +139,11 @@ function startFetching({
       //   message.iframeBufferObjects.push(bufferObject);
       // }
 
-      (globalThis as any).postMessage({ type: 'framedata', payload: message });
+      (globalThis as any).postMessage({ type: 'framedata', payload: messages });
+    })
 
     });
-  }, 1000 / 60);
+  }, 100);
 
 }
 
