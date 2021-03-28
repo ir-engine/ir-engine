@@ -1,8 +1,7 @@
 import * as tf from '@tensorflow/tfjs-core';
-
-import { ParamMapping } from './common';
 import { getModelUris } from './common/getModelUris';
-import { loadWeightMap } from './dom';
+import { ParamMapping } from './common/types';
+import { loadWeightMap } from './dom/loadWeightMap';
 import { env } from './env';
 
 export abstract class NeuralNetwork<TNetParams> {
