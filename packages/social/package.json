@@ -25,10 +25,13 @@
   },
   "resolutions": {
     "socket.io": "2.4.1",
+    "@types/react": "^17.0.0",
     "react": "^17.0.0"
   },
   "peerDependencies": {
-    "socket.io": "2.4.1"
+    "socket.io": "2.4.1",
+    "react": "^17.0.0",
+    "@types/react": "^17.0.0"
   },
   "dependencies": {
     "@babel/helper-builder-react-jsx": "^7.12.13",
@@ -45,7 +48,6 @@
     "@material-ui/core": "^4.9.8",
     "@material-ui/icons": "^4.9.1",
     "@material-ui/lab": "^4.0.0-alpha.49",
-    "@mozillareality/easing-functions": "^0.1.1",
     "@styled-icons/bootstrap": "^10.19.0",
     "@styled-icons/boxicons-regular": "^10.18.0",
     "@styled-icons/evaicons-outline": "^10.18.0",
@@ -56,7 +58,6 @@
     "@types/react-redux": "^7.1.7",
     "@types/redux-immutable": "^4.0.1",
     "@types/styled-components": "^5.1.3",
-    "@types/webgl2": "^0.0.5",
     "@typescript-eslint/eslint-plugin": "^4.5.0",
     "@xr3ngine/common": "^0.2.0",
     "@xr3ngine/engine": "^0.2.0",

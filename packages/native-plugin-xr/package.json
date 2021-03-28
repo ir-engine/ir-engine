@@ -28,7 +28,6 @@
     "@ionic/prettier-config": "^1.0.0",
     "@ionic/swiftlint-config": "^1.0.0",
     "@rollup/plugin-node-resolve": "^8.1.0",
-    "@types/webgl2": "^0.0.5",
     "prettier": "^2.0.5",
     "prettier-plugin-java": "^0.8.0",
     "rimraf": "^3.0.0",
@@ -66,10 +65,6 @@
   },
   "bugs": {
     "url": "https://github.com/xr3ngine/xr3ngine/issues"
-  },
-  "dependencies": {
-    "@types/react": "^17.0.1",
-    "@types/webgl2": "^0.0.5"
   },
   "homepage": "https://github.com/xr3ngine/xr3ngine#readme"
 }
