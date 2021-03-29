@@ -1,21 +1,9 @@
 import { Behavior } from '@xr3ngine/engine/src/common/interfaces/Behavior';
-import { StateSchemaValue } from '../../../state/interfaces/StateSchema';
-import { physicsMove } from '../../../physics/behaviors/physicsMove';
 import { CharacterStateTypes } from '../CharacterStateTypes';
 import { CharacterComponent } from '../components/CharacterComponent';
-import { TransformComponent } from '../../../transform/components/TransformComponent';
-import { getComponent, getMutableComponent } from '../../../ecs/functions/EntityFunctions';
+import { addComponent, getComponent, getMutableComponent, hasComponent, removeComponent } from '../../../ecs/functions/EntityFunctions';
 import { Vector3 } from "three";
-import { isMobileOrTablet } from '../../../common/functions/isMobile';
-import { XRSystem } from '../../../xr/systems/XRSystem';
-import { applyVectorMatrixXZ } from '../../../common/functions/applyVectorMatrixXZ';
-import { FollowCameraComponent } from '../../../camera/components/FollowCameraComponent';
-import { CameraModes } from '../../../camera/types/CameraModes';
-import { Input } from '../../../input/components/Input';
-import { NumericalType } from '../../../common/types/NumericalTypes';
-import { LifecycleValue } from '../../../common/enums/LifecycleValue';
-import { BaseInput } from '../../../input/enums/BaseInput';
-import { updateCharacterState } from '../../../character/functions/updateCharacterState';
+import { AnimationComponent } from '../../../character/components/AnimationComponent';
 
 const {
   IDLE,
@@ -23,7 +11,7 @@ const {
   RUN_FORWARD, RUN_BACKWARD, RUN_STRAFE_LEFT, RUN_STRAFE_RIGHT, JUMP, FALLING, DROP, DROP_ROLLING
 } = CharacterStateTypes;
 
-export const movingAnimationSchema = [
+const movingAnimationSchema = [
   {
     type: [IDLE], name: 'idle', axis: 'xyz', speed: 0.5, customProperties: ['weight', 'dontHasHit'],
     value:      [ -0.5, 0, 0.5 ],
@@ -94,25 +82,21 @@ export const movingAnimationSchema = [
   }
 ];
 
-export const initializeCharacterState: Behavior = (entity, args: { x?: number, y?: number, z?: number }) => {
+export const initializeMovingState: Behavior = (entity, args: { x?: number, y?: number, z?: number }) => {
+
+  if(hasComponent(entity, AnimationComponent)) {
+    const animComponent = getMutableComponent(entity, AnimationComponent);
+    animComponent.animationsSchema = movingAnimationSchema;
+    animComponent.updateAnimationsValues = getMovementValues;
+  }
 	const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
 	if (!actor.initialized) return;
-
-	if (actor.velocitySimulator === undefined ) {
-		actor.velocitySimulator.init();
-	}
-  if (actor.vactorAnimSimulator === undefined ) {
-    actor.vactorAnimSimulator.init();
-  }
-  if (actor.moveVectorSmooth === undefined ) {
-    actor.moveVectorSmooth.init();
-  }
 
 	actor.velocitySimulator.damping = actor.defaultVelocitySimulatorDamping;
 	actor.velocitySimulator.mass = actor.defaultVelocitySimulatorMass;
 
-  actor.vactorAnimSimulator.damping = 0.5;
-	actor.vactorAnimSimulator.mass = 35;
+  actor.animationVectorSimulator.damping = 0.5;
+	actor.animationVectorSimulator.mass = 35;
 
   actor.moveVectorSmooth.damping = 0.7;
 	actor.moveVectorSmooth.mass = 35;
@@ -136,7 +120,7 @@ export const initializeCharacterState: Behavior = (entity, args: { x?: number, y
 };
 
 const customVector = new Vector3(0,0,0);
-export const getMovementValues: Behavior = (entity, args: {}, deltaTime: number) => {
+const getMovementValues: Behavior = (entity, args: {}, deltaTime: number) => {
   const actor = getComponent<CharacterComponent>(entity, CharacterComponent as any);
   // simulate rayCastHit as vectorY from 1 to 0, for smooth changes
  //  absSpeed = MathUtils.smoothstep(absSpeed, 0, 1);
@@ -145,9 +129,9 @@ export const getMovementValues: Behavior = (entity, args: {}, deltaTime: number)
   const actorVelocity = actor.moveVectorSmooth.position;
 
   customVector.setY(actor.rayHasHit ? 0 : 1);
-  actor.vactorAnimSimulator.target.copy(customVector);
-  actor.vactorAnimSimulator.simulate(deltaTime);
-  let dontHasHit = actor.vactorAnimSimulator.position.y;
+  actor.animationVectorSimulator.target.copy(customVector);
+  actor.animationVectorSimulator.simulate(deltaTime);
+  let dontHasHit = actor.animationVectorSimulator.position.y;
 
   dontHasHit < 0.00001 ? dontHasHit = 0:'';
   dontHasHit = Math.min(dontHasHit, 1);

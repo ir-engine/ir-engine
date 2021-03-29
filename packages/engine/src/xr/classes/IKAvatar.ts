@@ -58,11 +58,12 @@ export class Avatar {
     this.object = object;
     const model = (() => {
       let o = object;
-      if (o && !o.isMesh) {
-        o = o.scene;
-      }
+      // if (o && !o.isMesh) {
+      //   console.log('o = o.scene')
+      //   o = o.scene;
+      // }
       if (!o) {
-        const scene = new Scene();
+        const object = new Scene();
 
         const skinnedMesh = new Object3D();
         skinnedMesh["isSkinnedMesh"] = true;
@@ -71,13 +72,14 @@ export class Avatar {
           skinnedMesh["skeleton"] = skeleton;
         };
         skinnedMesh["bind"](importSkeleton(skeletonString));
-        scene.add(skinnedMesh);
+        object.add(skinnedMesh);
 
         const hips = findHips(skinnedMesh["skeleton"]);
         const armature = findArmature(hips);
-        scene.add(armature);
+        object.add(armature);
 
-        o = scene;
+        o = object;
+        console.log('o = scene')
       }
       return o;
     })();
@@ -125,7 +127,7 @@ export class Avatar {
 
     const tailBones = getTailBones(skeleton);
     // const tailBones = skeleton.bones.filter(bone => bone.children.length === 0);
-
+    console.log(tailBones)
     const Eye_L = findEye(tailBones, true);
     const Eye_R = findEye(tailBones, false);
     const Head = findHead(tailBones);
@@ -238,7 +240,7 @@ export class Avatar {
         console.warn('missing bone', k);
       }
     } */
-
+    console.log(Hips)
     const armature = findArmature(Hips);
 
     const _getEyePosition = () => {
@@ -1000,8 +1002,7 @@ export class Avatar {
     } */
 
     const now = Date.now();
-
-
+    // console.log(this.debugMeshes)
     if (this.getTopEnabled()) {
       this.sdkInputs.hmd.position.copy(this.inputs.hmd.position);
       this.sdkInputs.hmd.quaternion.copy(this.inputs.hmd.quaternion);
