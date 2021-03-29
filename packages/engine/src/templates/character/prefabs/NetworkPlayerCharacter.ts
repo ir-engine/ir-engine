@@ -1,4 +1,3 @@
-import { LifecycleValue } from "@xr3ngine/engine/src/common/enums/LifecycleValue";
 import { isClient } from "@xr3ngine/engine/src/common/functions/isClient";
 import { Entity } from '../../../ecs/classes/Entity';
 import { Behavior } from "@xr3ngine/engine/src/common/interfaces/Behavior";
@@ -25,20 +24,18 @@ import { CollisionGroups } from "../../../physics/enums/CollisionGroups";
 import { PhysicsSystem } from "../../../physics/systems/PhysicsSystem";
 import { createShadow } from "../../../scene/behaviors/createShadow";
 import TeleportToSpawnPoint from '../../../scene/components/TeleportToSpawnPoint';
-import { setState } from "../../../state/behaviors/setState";
-import { State } from '../../../state/components/State';
 import { TransformComponent } from '../../../transform/components/TransformComponent';
 import { CharacterInputSchema } from '../CharacterInputSchema';
-import { CharacterStateTypes } from "../CharacterStateTypes";
 import { CharacterComponent } from '../components/CharacterComponent';
 import { NamePlateComponent } from '../components/NamePlateComponent';
 import { getLoader } from "../../../assets/functions/LoadGLTF";
 import { Avatar } from "../../../xr/classes/IKAvatar";
 import { Engine } from "../../../ecs/classes/Engine";
 import { PrefabType } from "@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema";
-import { AnimationComponent } from "../../../character/components/AnimationComponent";
-import { getMovementValues, initializeCharacterState, movingAnimationSchema } from "../states/MovingState";
+import { initializeMovingState } from "../states/MovingState";
 import { IKComponent } from "../../../character/components/IKComponent";
+import { initiateIKSystem } from "../../../xr/functions/initiateIKSystem";
+import { AnimationComponent } from "../../../character/components/AnimationComponent";
 
 export class AnimationManager {
 	static _instance: AnimationManager;
@@ -119,7 +116,9 @@ export const loadActorAvatarFromURL: Behavior = (entity, avatarURL) => {
   createShadow(entity, { objArgs: { castShadow: true, receiveShadow: true }})
   const loader = getComponent(entity, AssetLoader);
   loader.onLoaded.push(async (entity, args) => {
+
     console.log("Actor Avatar loaded")
+
     const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
     actor.mixer && actor.mixer.stopAllAction();
     // forget that we have any animation playing
@@ -132,17 +131,10 @@ export const loadActorAvatarFromURL: Behavior = (entity, avatarURL) => {
     tmpGroup.children.forEach(child => actor.modelContainer.add(child));
 
     actor.mixer = new AnimationMixer(actor.modelContainer.children[0]);
-	// TODO: Remove this. Currently we are double-sampling the samplerate
-
-    // const stateComponent = getComponent(entity, State);
-    // trigger all states to restart?
-    // stateComponent.data.forEach(data => data.lifecycleState = LifecycleValue.STARTED);
 
     if(hasComponent(entity, IKComponent)) {
-      removeComponent(entity, IKComponent);
+      initiateIKSystem(entity)
     }
-    const avatarIKRig = new Avatar(actor.modelContainer)
-    addComponent(entity, IKComponent, { avatarIKRig });
 
   })
 };
@@ -192,7 +184,7 @@ const initializeCharacter: Behavior = (entity): void => {
 
 	actor.velocitySimulator = new VectorSpringSimulator(60, actor.defaultVelocitySimulatorMass, actor.defaultVelocitySimulatorDamping);
 	actor.moveVectorSmooth = new VectorSpringSimulator(60, actor.defaultVelocitySimulatorMass, actor.defaultVelocitySimulatorDamping);
-	actor.vactorAnimSimulator = new VectorSpringSimulator(60, actor.defaultVelocitySimulatorMass, actor.defaultVelocitySimulatorDamping);
+	actor.animationVectorSimulator = new VectorSpringSimulator(60, actor.defaultVelocitySimulatorMass, actor.defaultVelocitySimulatorDamping);
 	actor.rotationSimulator = new RelativeSpringSimulator(60, actor.defaultRotationSimulatorMass, actor.defaultRotationSimulatorDamping);
 
 	if(actor.viewVector == null) actor.viewVector = new Vector3();
@@ -237,8 +229,9 @@ const initializeCharacter: Behavior = (entity): void => {
 	// setState(entity, { state: CharacterStateTypes.DEFAULT });
 	actor.initialized = true;
 
-  initializeCharacterState(entity)
-  addComponent(entity, AnimationComponent, { animationsSchema: movingAnimationSchema, updateAnimationsValues: getMovementValues });
+  // addComponent(entity, AnimationComponent);
+
+  initializeMovingState(entity)
 
 	// };
 };

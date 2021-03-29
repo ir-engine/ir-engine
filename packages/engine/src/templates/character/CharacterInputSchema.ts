@@ -388,30 +388,29 @@ const lookByInputAxis = (
 
 const updateIKRig: Behavior = (entity, args): void => {
 
-  const { avatarIKRig } = getMutableComponent(entity, IKComponent);
+  const avatarIK = getMutableComponent(entity, IKComponent);
   const inputs = getMutableComponent(entity, Input);
-  if(!avatarIKRig) return console.warn('no ik rig attached');
+  if(!avatarIK?.avatarIKRig) return console.warn('no ik rig attached');
 
   if(args.type === BaseInput.XR_HEAD) { 
     
     const cam = inputs.data.get(BaseInput.XR_HEAD).value as SIXDOFType;
-    avatarIKRig.inputs.hmd.position.copy(cam.x, cam.y, cam.z);
-    avatarIKRig.inputs.hmd.quaternion.copy(cam.qW, cam.qX, cam.qY, cam.qZ);
+    avatarIK.avatarIKRig.inputs.hmd.position.set(cam.x, cam.y, cam.z);
+    avatarIK.avatarIKRig.inputs.hmd.quaternion.set(cam.qW, cam.qX, cam.qY, cam.qZ);
 
   } else if(args.type === BaseInput.XR_LEFT_HAND) { 
 
     const left = inputs.data.get(BaseInput.XR_LEFT_HAND).value as SIXDOFType;
-    avatarIKRig.inputs.leftGamepad.position.copy(left.x, left.y, left.z);
-    avatarIKRig.inputs.leftGamepad.quaternion.copy(left.qW, left.qX, left.qY, left.qZ);
+    avatarIK.avatarIKRig.inputs.leftGamepad.position.set(left.x, left.y, left.z);
+    avatarIK.avatarIKRig.inputs.leftGamepad.quaternion.set(left.qW, left.qX, left.qY, left.qZ);
     // avatar.inputs.leftGamepad.pointer = ; // for finger animation
     // avatar.inputs.leftGamepad.grip = ;
 
-  }
-  else if(args.type === BaseInput.XR_LEFT_HAND) { 
+  } else if(args.type === BaseInput.XR_RIGHT_HAND) { 
 
     const right = inputs.data.get(BaseInput.XR_RIGHT_HAND).value as SIXDOFType;
-    avatarIKRig.inputs.rightGamepad.position.copy(right.x, right.y, right.z);
-    avatarIKRig.inputs.rightGamepad.quaternion.copy(right.qW, right.qX, right.qY, right.qZ);
+    avatarIK.avatarIKRig.inputs.rightGamepad.position.set(right.x, right.y, right.z);
+    avatarIK.avatarIKRig.inputs.rightGamepad.quaternion.set(right.qW, right.qX, right.qY, right.qZ);
     
   }
 }

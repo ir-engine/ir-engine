@@ -11,7 +11,7 @@ import { Matrix4, Vector3 } from 'three';
 import { isServer } from "../../../common/functions/isServer";
 import { changeAnimation } from '../../../character/functions/updateVectorAnimation';
 import { AnimationComponent } from '../../../character/components/AnimationComponent';
-import { movingAnimationSchema, getMovementValues, initializeCharacterState } from '../../character/states/MovingState';
+import { initializeMovingState } from '../../character/states/MovingState';
 
 
 function doorAnimation(entityCar, seat, timer, timeAnimation, angel) {
@@ -100,10 +100,7 @@ export const onStartRemoveFromCar = (entity: Entity, entityCar: Entity, seat: nu
 
   if (playerInCar.currentFrame == playerInCar.animationSpeed) {
     // setState(entity, { state: CharacterStateTypes.DEFAULT });
-    initializeCharacterState(entity)
-    
-    removeComponent(entity, AnimationComponent);
-    addComponent(entity, AnimationComponent, { animationsSchema: movingAnimationSchema, updateAnimationsValues: getMovementValues });
+    initializeMovingState(entity)
 
     changeAnimation(entity, {
       animationId: CharacterStateTypes.EXITING_VEHICLE,

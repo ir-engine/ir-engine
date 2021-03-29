@@ -85,6 +85,7 @@ export class ActionSystem extends System {
     //   rightControllerPhysicsBody: this.rightControllerId
     // }));
 
+    // TODO: use Vector & Quaternion .toArray & .fromArray to make this faster
     this.queryResults.controllersComponent.all?.forEach(entity => {
       const xrControllers = getComponent(entity, XRInputReceiver);
       const input = getMutableComponent(entity, Input);
