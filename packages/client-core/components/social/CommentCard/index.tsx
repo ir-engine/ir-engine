@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 import Typography from '@material-ui/core/Typography';
 import Avatar from '@material-ui/core/Avatar';
@@ -11,27 +11,44 @@ import VerifiedUserIcon from '@material-ui/icons/VerifiedUser';
 import styles from './CommentCard.module.scss';
 import { CommentInterface } from '@xr3ngine/common/interfaces/Comment';
 import { bindActionCreators, Dispatch } from 'redux';
-import { addFireToFeedComment, removeFireToFeedComment } from '../../../redux/feedComment/service';
+import { addFireToFeedComment, removeFireToFeedComment, getCommentFires } from '../../../redux/feedComment/service';
 import { connect } from 'react-redux';
+import { selectFeedCommentsState } from '../../../redux/feedComment/selector';
+import SimpleModal from '../common/SimpleModal';
+
+const mapStateToProps = (state: any): any => {
+    return {
+        feedCommentsState: selectFeedCommentsState(state),
+    };
+  };
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
     addFireToFeedComment: bindActionCreators(addFireToFeedComment, dispatch),
     removeFireToFeedComment: bindActionCreators(removeFireToFeedComment, dispatch),
+    getCommentFires: bindActionCreators(getCommentFires, dispatch),
 });
 
 interface Props{
     addFireToFeedComment?: typeof addFireToFeedComment;
     removeFireToFeedComment?: typeof removeFireToFeedComment;
     comment: CommentInterface;
+    getCommentFires?:typeof getCommentFires;
+    feedCommentsState?:any;
 }
 
-const CommentCard = ({comment, addFireToFeedComment, removeFireToFeedComment }: Props) => { 
+const CommentCard = ({comment, addFireToFeedComment, removeFireToFeedComment, getCommentFires, feedCommentsState }: Props) => { 
     const {id, creator, fires, text, isFired } = comment;
+    const [openFiredModal, setOpenFiredModal] = useState(false);
 
     const handleAddFireClick = (feedId) =>addFireToFeedComment(feedId);
     const handleRemoveFireClick = (feedId) =>removeFireToFeedComment(feedId);
 
-    return  <Card className={styles.commentItem} square={false} elevation={0} key={id}>
+    const handleGetCommentFiredUsers = (id) => {
+        getCommentFires(id);
+        setOpenFiredModal(true);
+    } 
+
+    return  <><Card className={styles.commentItem} square={false} elevation={0} key={id}>
                 <Avatar className={styles.authorAvatar} src={creator.avatar} />                                
                 <CardContent className={styles.commentCard}>
                     <Typography variant="h2">
@@ -39,7 +56,7 @@ const CommentCard = ({comment, addFireToFeedComment, removeFireToFeedComment }: 
                         {creator.verified && <VerifiedUserIcon htmlColor="#007AFF" style={{fontSize:'13px', margin: '0 0 0 5px'}}/>}
                     </Typography> 
                     <Typography variant="h2">{text}</Typography>                    
-                    {(fires && fires > 0 ) ? <Typography variant="h2"><span className={styles.flamesCount}>{fires}</span>Flames</Typography> : null}
+                    {(fires && fires > 0 ) ? <Typography variant="h2" onClick={()=>handleGetCommentFiredUsers(id)}><span className={styles.flamesCount}>{fires}</span>Flames</Typography> : null}
                 </CardContent>
                 <section className={styles.fire}>
                     {isFired ? 
@@ -49,6 +66,8 @@ const CommentCard = ({comment, addFireToFeedComment, removeFireToFeedComment }: 
                     }
                 </section>
             </Card>
+        <SimpleModal type={'comment-fires'} list={feedCommentsState.get('commentFires')} open={openFiredModal} onClose={()=>setOpenFiredModal(false)} />
+</>
 };
 
-export default connect(null, mapDispatchToProps)(CommentCard);
+export default connect(mapStateToProps, mapDispatchToProps)(CommentCard);
