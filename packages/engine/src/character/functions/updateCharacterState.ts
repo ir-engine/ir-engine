@@ -55,8 +55,6 @@ export const updateCharacterState = (entity, deltaTime: number): void => {
 	if (!actor.initialized) return console.warn("Actor no initialized");
   const actorTransform = getMutableComponent(entity, TransformComponent);
   
-	actor.timer += deltaTime;
-
 	const localMovementDirection = actor.localMovementDirection; //getLocalMovementDirection(entity);
 
   if(actor.moveVectorSmooth.position.length() < 0.1) { actor.moveVectorSmooth.velocity.multiplyScalar(0.9) }

@@ -16,7 +16,7 @@ export default function (app: Application): typeof Model {
     type: {
       type: DataTypes.STRING,
       allowNull: false,
-      values: ['feed', 'feed-fire', 'feed-bookmark', 'comment', 'comment-fire', 'follow']
+      values: ['feed', 'feed-fire', 'feed-bookmark', 'comment', 'comment-fire', 'follow', 'unfollow']
     }
   }, {
     hooks: {

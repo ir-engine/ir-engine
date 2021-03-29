@@ -19,8 +19,9 @@ import InstagramIcon from '@material-ui/icons/Instagram';
 import TitleIcon from '@material-ui/icons/Title';
 
 import { selectCreatorsState } from '../../../redux/creator/selector';
-import { getCreator } from '../../../redux/creator/service';
+import { getCreator, followCreator, unFollowCreator, getFollowersList, getFollowingList } from '../../../redux/creator/service';
 import Featured from '../Featured';
+import SimpleModal from '../common/SimpleModal';
 
 const mapStateToProps = (state: any): any => {
     return {
@@ -30,16 +31,26 @@ const mapStateToProps = (state: any): any => {
   
   const mapDispatchToProps = (dispatch: Dispatch): any => ({
     getCreator: bindActionCreators(getCreator, dispatch),
+    followCreator: bindActionCreators(followCreator, dispatch),
+    unFollowCreator: bindActionCreators(unFollowCreator, dispatch),
+    getFollowersList: bindActionCreators(getFollowersList, dispatch),
+    getFollowingList: bindActionCreators(getFollowingList, dispatch),
   });
 
   interface Props{
     creatorId: string;
     creatorState?: any;
     getCreator?: typeof getCreator;
+    followCreator?: typeof followCreator;
+    unFollowCreator?: typeof unFollowCreator;
+    getFollowersList?:typeof getFollowersList;
+    getFollowingList?:typeof getFollowingList;
   }
 
-const Creator = ({creatorId, creatorState, getCreator}:Props) => { 
+const Creator = ({creatorId, creatorState, getCreator, followCreator, unFollowCreator, getFollowersList, getFollowingList}:Props) => { 
     const [isMe, setIsMe] = useState(false);
+    const [openFiredModal, setOpenFiredModal] = useState(false);
+    const [creatorsType, setCreatorsType] = useState('followers');
     let creator = null;
     useEffect(()=>{
         if(creatorState && creatorState.get('currentCreator') && creatorId === creatorState.get('currentCreator').id){
@@ -48,8 +59,9 @@ const Creator = ({creatorId, creatorState, getCreator}:Props) => {
             getCreator(creatorId);
         }
     },[])
-
-    creator = creatorState && isMe === true? creatorState.get('currentCreator') : creatorState.get('creator');
+    if(creatorState && creatorState.get('fetching') === false){
+        creator = isMe === true ? creatorState.get('currentCreator') : creatorState.get('creator');
+    }
     const [videoType, setVideoType] = useState('creator');
     const [anchorEl, setAnchorEl] = useState(null);
     const handleClick = (event) => {
@@ -63,6 +75,19 @@ const Creator = ({creatorId, creatorState, getCreator}:Props) => {
         Router.push('/creatorEdit');
     } 
 
+    const handleFollowCreator = creatorId => followCreator(creatorId);
+    const handleUnFollowCreator = creatorId => unFollowCreator(creatorId);
+
+    const handleFollowersByCreator = creatorId => {
+        getFollowersList(creatorId);
+        setOpenFiredModal(true);
+        setCreatorsType('followers');
+    }
+    const handleFollowingByCreator = creatorId => {
+        getFollowingList(creatorId);
+        setOpenFiredModal(true);
+        setCreatorsType('following');
+    }
     const renderSocials = () =>  <>
             {creator.twitter && <a target="_blank" href={'http://twitter.com/'+creator.twitter}><Typography variant="h4" component="p" align="center"><TwitterIcon />{creator.twitter}</Typography></a>}
             {creator.instagram && <a target="_blank" href={'http://instagram.com/'+creator.instagram}><Typography variant="h4" component="p" align="center"><InstagramIcon />{creator.instagram}</Typography></a>}
@@ -92,6 +117,12 @@ const Creator = ({creatorId, creatorState, getCreator}:Props) => {
                     : <section className={styles.controls}>
                     <Button variant="text" className={styles.backButton} onClick={()=>Router.push('/')}><ArrowBackIosIcon />Back</Button>                    
                 </section> }
+                <section className={styles.countersButtons}>
+                    <section className={styles.countersButtonsSub}>
+                        <Button variant={'outlined'} color='primary' className={styles.followButton} onClick={()=>handleFollowersByCreator(creator.id)}>Followers</Button>
+                        <Button variant={'outlined'} color='primary' className={styles.followButton} onClick={()=>handleFollowingByCreator(creator.id)}>Following</Button>
+                    </section>
+                </section>
                 <CardMedia   
                     className={styles.avatarImage}                  
                     image={creator.avatar}
@@ -102,6 +133,11 @@ const Creator = ({creatorId, creatorState, getCreator}:Props) => {
                     <Typography variant="h4" component="p" align="center">{creator.username}</Typography>
                     <Typography variant="h4" component="p" align="center">{creator.tags}</Typography>
                     <Typography variant="h4" component="p" align="center">{creator.bio}</Typography>
+
+                    {!isMe && creator.followed === false && <Button variant={'contained'} color='primary' className={styles.followButton} 
+                            onClick={()=>handleFollowCreator(creator.id)}>Follow</Button>}
+                    {!isMe && creator.followed === true && <Button variant={'outlined'} color='primary' className={styles.followButton} 
+                        onClick={()=>handleUnFollowCreator(creator.id)}>UnFollow</Button>}
                     {renderSocials()}
                 </CardContent>
             </Card>
@@ -110,7 +146,8 @@ const Creator = ({creatorId, creatorState, getCreator}:Props) => {
                     <Button variant={videoType === 'creator' ? 'contained' : 'text'} color='secondary' className={styles.switchButton+(videoType === 'creator' ? ' '+styles.active : '')} onClick={()=>setVideoType('creator')}>My Videos</Button>
                     <Button variant={videoType === 'bookmark' ? 'contained' : 'text'} color='secondary' className={styles.switchButton+(videoType === 'bookmark' ? ' '+styles.active : '')} onClick={()=>setVideoType('bookmark')}>Saved Videos</Button>
             </section>}
-            <section className={styles.feedsWrapper}><Featured creatorId={creator.id} type={videoType}/></section>
+            {creator.id && <section className={styles.feedsWrapper}><Featured creatorId={creator.id} type={videoType}/></section>}
+            <SimpleModal type={creatorsType} list={creatorsType === 'followers' ? creatorState.get('followers') : creatorState.get('following')} open={openFiredModal} onClose={()=>setOpenFiredModal(false)} />
         </section>) 
     : <></>
 };
