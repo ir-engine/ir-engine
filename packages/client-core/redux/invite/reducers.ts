@@ -42,6 +42,7 @@ export const initialState = {
   targetObjectType: ''
 };
 
+
 const immutableState = Immutable.fromJS(initialState);
 
 const inviteReducer = (state = immutableState, action: InviteAction): any => {
@@ -49,7 +50,7 @@ const inviteReducer = (state = immutableState, action: InviteAction): any => {
   switch (action.type) {
     case INVITE_SENT:
       return state.set('sentUpdateNeeded', true);
-    case SENT_INVITES_RETRIEVED:
+    case SENT_INVITES_RETRIEVED:      
       newValues = (action as InvitesRetrievedAction);
       const sentInvites = state.get('sentInvites').get('invites');
       updateMap = new Map();
