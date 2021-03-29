@@ -1,3 +1,4 @@
+import { IKComponent } from '../../character/components/IKComponent';
 import { Entity } from '../../ecs/classes/Entity';
 import { System } from '../../ecs/classes/System';
 import { getComponent } from '../../ecs/functions/EntityFunctions';
@@ -46,6 +47,43 @@ export class ServerNetworkOutgoingSystem extends System {
         qZ: transformComponent.rotation.z,
         qW: transformComponent.rotation.w
       });
+
+      const ikComponent = getComponent(entity, IKComponent)
+      if(ikComponent) {
+        const transforms = ikComponent.avatarIKRig.poseManager.vrTransforms
+        console.log(transforms)
+        Network.instance.worldState.ikTransforms.push({
+        networkId: networkObject.networkId,
+        snapShotTime: snapShotTime,
+        hmd: {
+          x: transforms.head.position.x,
+          y: transforms.head.position.y,
+          z: transforms.head.position.z,
+          qW: transforms.head.quaternion.w,
+          qX: transforms.head.quaternion.x,
+          qY: transforms.head.quaternion.y,
+          qZ: transforms.head.quaternion.z,
+        },
+        left: {
+          x: transforms.leftHand.position.x,
+          y: transforms.leftHand.position.y,
+          z: transforms.leftHand.position.z,
+          qW: transforms.leftHand.quaternion.w,
+          qX: transforms.leftHand.quaternion.x,
+          qY: transforms.leftHand.quaternion.y,
+          qZ: transforms.leftHand.quaternion.z,
+        },
+        right: {
+          x: transforms.rightHand.position.x,
+          y: transforms.rightHand.position.y,
+          z: transforms.rightHand.position.z,
+          qW: transforms.rightHand.quaternion.w,
+          qX: transforms.rightHand.quaternion.x,
+          qY: transforms.rightHand.quaternion.y,
+          qZ: transforms.rightHand.quaternion.z,
+        },
+        })
+      }
     });
 
     if (

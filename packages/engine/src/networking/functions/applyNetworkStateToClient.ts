@@ -15,7 +15,7 @@ import { AssetLoader } from '@xr3ngine/engine/src/assets/components/AssetLoader'
 import { PhysicsSystem } from '@xr3ngine/engine/src/physics/systems/PhysicsSystem';
 import { VehicleBody } from '@xr3ngine/engine/src/physics/components/VehicleBody';
 import { setState } from "@xr3ngine/engine/src/state/behaviors/setState";
-import { CharacterStateTypes } from "@xr3ngine/engine/src/templates/character/CharacterStateTypes";
+import { CharacterAnimations } from "@xr3ngine/engine/src/templates/character/CharacterAnimations";
 import { PlayerInCar } from '@xr3ngine/engine/src/physics/components/PlayerInCar';
 import { FollowCameraComponent } from "@xr3ngine/engine/src/camera/components/FollowCameraComponent";
 import { BinaryValue } from "../../common/enums/BinaryValue";
@@ -25,6 +25,10 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { createNetworkPlayer } from '@xr3ngine/engine/src/templates/character/prefabs/NetworkPlayerCharacter';
 import { createNetworkRigidBody } from '@xr3ngine/engine/src/interaction/prefabs/NetworkRigidBody';
 import { createNetworkVehicle } from '@xr3ngine/engine/src/templates/vehicle/prefabs/NetworkVehicle';
+import { StateEntityIK } from "../types/SnapshotDataTypes";
+import { IKComponent } from "../../character/components/IKComponent";
+import { Avatar } from "../../xr/classes/IKAvatar";
+import { initiateIK } from "../../xr/functions/IKFunctions";
 
 /**
  * Apply State received over the network to the client.
@@ -165,8 +169,29 @@ export function applyNetworkStateToClient(worldStateBuffer: WorldStateInterface,
       Network.instance.snapshot = newServerSnapshot;
       addSnapshot(newServerSnapshot);
     }
-
-
+    
+    worldStateBuffer.ikTransforms.forEach((ikTransform: StateEntityIK) => {
+      const entity = Network.instance.networkObjects[ikTransform.networkId].component.entity;
+      console.log('got ik transform on entity', entity)
+      if(!hasComponent(entity, IKComponent)) {
+        addComponent(entity, IKComponent);
+      }
+      const actor = getComponent(entity, CharacterComponent);
+      const ikComponent = getMutableComponent(entity, IKComponent);
+      if(!ikComponent.avatarIKRig && actor.modelContainer.children.length)  {
+        initiateIK(entity)
+        console.log('initiated IK on entity', entity)
+      }
+      if(ikComponent.avatarIKRig) {
+        const { hmd, left, right } = ikTransform;
+        ikComponent.avatarIKRig.inputs.hmd.position.set(hmd.x, hmd.y, hmd.z);
+        ikComponent.avatarIKRig.inputs.hmd.quaternion.set(hmd.qX, hmd.qY, hmd.qZ, hmd.qW);
+        ikComponent.avatarIKRig.inputs.leftGamepad.position.set(left.x, left.y, left.z);
+        ikComponent.avatarIKRig.inputs.leftGamepad.quaternion.set(left.qX, left.qY, left.qZ, left.qW);
+        ikComponent.avatarIKRig.inputs.rightGamepad.position.set(right.x, right.y, right.z);
+        ikComponent.avatarIKRig.inputs.rightGamepad.quaternion.set(right.qX, right.qY, right.qZ, right.qW);
+      }
+    })
 
     // Handle all network objects destroyed this frame
 

@@ -2,7 +2,7 @@ import { System, SystemAttributes } from "../ecs/classes/System";
 import { updateVectorAnimation } from "./functions/updateVectorAnimation";
 import { AnimationComponent } from "./components/AnimationComponent";
 import { CharacterComponent } from "../templates/character/components/CharacterComponent";
-import { updateCharacterState } from "./functions/updateCharacterState";
+import { updateCharacterOrientation } from "./functions/updateCharacterOrientation";
 import { getComponent, getMutableComponent } from "../ecs/functions/EntityFunctions";
 import { physicsMove } from "../physics/behaviors/physicsMove";
 import { IKComponent } from "./components/IKComponent";
@@ -26,7 +26,7 @@ export class CharacterControllerSystem extends System {
     this.queryResults.character.all.forEach((entity) => {
       const actor = getComponent(entity, CharacterComponent)
       
-      updateCharacterState(entity, delta)
+      updateCharacterOrientation(entity, delta)
       if(actor.movementEnabled) {
         physicsMove(entity, {}, delta)
       }

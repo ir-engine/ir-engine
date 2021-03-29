@@ -4,14 +4,14 @@ import { PlayerInCar } from '@xr3ngine/engine/src/physics/components/PlayerInCar
 import { VehicleBody } from '@xr3ngine/engine/src/physics/components/VehicleBody';
 import { PhysicsSystem } from '@xr3ngine/engine/src/physics/systems/PhysicsSystem';
 import { setState } from "@xr3ngine/engine/src/state/behaviors/setState";
-import { CharacterStateTypes } from "@xr3ngine/engine/src/templates/character/CharacterStateTypes";
+import { CharacterAnimations } from "@xr3ngine/engine/src/templates/character/CharacterAnimations";
 import { CharacterComponent } from "@xr3ngine/engine/src/templates/character/components/CharacterComponent";
 import { TransformComponent } from '@xr3ngine/engine/src/transform/components/TransformComponent';
 import { Matrix4, Vector3 } from 'three';
 import { isServer } from "../../../common/functions/isServer";
 import { changeAnimation } from '../../../character/functions/updateVectorAnimation';
 import { AnimationComponent } from '../../../character/components/AnimationComponent';
-import { initializeMovingState } from '../../character/states/MovingState';
+import { initializeMovingState } from '../../character/animations/MovingAnimations';
 
 
 function doorAnimation(entityCar, seat, timer, timeAnimation, angel) {
@@ -99,11 +99,11 @@ export const onStartRemoveFromCar = (entity: Entity, entityCar: Entity, seat: nu
 
 
   if (playerInCar.currentFrame == playerInCar.animationSpeed) {
-    // setState(entity, { state: CharacterStateTypes.DEFAULT });
+    // setState(entity, { state: CharacterAnimations.DEFAULT });
     initializeMovingState(entity)
 
     changeAnimation(entity, {
-      animationId: CharacterStateTypes.EXITING_VEHICLE,
+      animationId: CharacterAnimations.EXITING_VEHICLE,
       transitionDuration: 0.3
      })
   }

@@ -22,6 +22,7 @@ export class CharacterComponent extends Component<CharacterComponent> {
 
   public movementEnabled: boolean = false;
 	public initialized = false;
+  public state: number = 0;
 
 // TODO: Move these... but for now...
 	public currentAnimationAction: AnimationAction[] = [];

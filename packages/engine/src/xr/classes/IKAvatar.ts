@@ -54,14 +54,9 @@ export class Avatar {
   skeleton: any;
   constructor(object, options = { debug: true, top: true, bottom: true, visemes: true, hair: true } )
   {
-    console.log(object)
     this.object = object;
     const model = (() => {
       let o = object;
-      // if (o && !o.isMesh) {
-      //   console.log('o = o.scene')
-      //   o = o.scene;
-      // }
       if (!o) {
         const object = new Scene();
 
@@ -79,7 +74,6 @@ export class Avatar {
         object.add(armature);
 
         o = object;
-        console.log('o = scene')
       }
       return o;
     })();
@@ -127,7 +121,6 @@ export class Avatar {
 
     const tailBones = getTailBones(skeleton);
     // const tailBones = skeleton.bones.filter(bone => bone.children.length === 0);
-    console.log(tailBones)
     const Eye_L = findEye(tailBones, true);
     const Eye_R = findEye(tailBones, false);
     const Head = findHead(tailBones);
@@ -240,7 +233,6 @@ export class Avatar {
         console.warn('missing bone', k);
       }
     } */
-    console.log(Hips)
     const armature = findArmature(Hips);
 
     const _getEyePosition = () => {
@@ -1002,7 +994,6 @@ export class Avatar {
     } */
 
     const now = Date.now();
-    // console.log(this.debugMeshes)
     if (this.getTopEnabled()) {
       this.sdkInputs.hmd.position.copy(this.inputs.hmd.position);
       this.sdkInputs.hmd.quaternion.copy(this.inputs.hmd.quaternion);
