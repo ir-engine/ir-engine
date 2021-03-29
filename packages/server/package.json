@@ -49,11 +49,11 @@
   },
   "types": "lib/",
   "pre-push": [
-    "test"
+    "lint",
+    "precommit"
   ],
   "pre-commit": [
     "lint",
-    "test",
     "precommit"
   ],
   "resolutions": {

@@ -50,7 +50,10 @@
   },
   "types": "lib/",
   "pre-push": [
-    "test"
+    "lint"
+  ],
+  "pre-commit": [
+    "lint"
   ],
   "resolutions": {
     "socket.io": "2.4.1",
