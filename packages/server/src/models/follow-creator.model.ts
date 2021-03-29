@@ -6,17 +6,12 @@ import { HookReturn } from 'sequelize/types/lib/hooks';
 
 export default function (app: Application): typeof Model {
   const sequelizeClient: Sequelize = app.get('sequelizeClient');
-  const Notification = sequelizeClient.define('notifications', {
+  const followCreator = sequelizeClient.define('follow_creator', {
     id: {
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV1,
       allowNull: false,
       primaryKey: true
-    },
-    type: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      values: ['feed', 'feed-fire', 'feed-bookmark', 'comment', 'comment-fire', 'follow', 'unfollow']
     }
   }, {
     hooks: {
@@ -27,14 +22,12 @@ export default function (app: Application): typeof Model {
   });
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  (Notification as any).associate = function (models: any): void {
+  (followCreator as any).associate = function (models: any): void {
     // Define associations here
     // See http://docs.sequelizejs.com/en/latest/docs/associations/
-    (Notification as any).belongsTo(models.creator, { foreignKey: 'creatorAuthorId', allowNull: false });
-    (Notification as any).belongsTo(models.creator, { foreignKey: 'creatorViewerId', allowNull: false });
-    (Notification as any).belongsTo(models.feed, { foreignKey: 'feedId', allowNull: true });
-    (Notification as any).belongsTo(models.comments, { foreignKey: 'commentId', allowNull: true });
+    (followCreator as any).belongsTo(models.creator, { foreignKey: 'creatorId', allowNull: false });
+    (followCreator as any).belongsTo(models.creator, { foreignKey: 'followerId', allowNull: false });
   };
 
-  return Notification;
+  return followCreator;
 }

@@ -8,7 +8,11 @@ import {
   creatorRetrieved,
   creatorsRetrieved,
   creatorLoggedRetrieved,
-  creatorNotificationList
+  creatorNotificationList,
+  updateCreatorAsFollowed,
+  updateCreatorNotFollowed,
+  creatorFollowers,
+  creatorFollowing
 } from './actions';
 
 export function createCreator(){
@@ -66,11 +70,12 @@ export function updateCreator(creator: Creator){
   return async (dispatch: Dispatch): Promise<any> => {
     try {
       dispatch(fetchingCreator());
-      if(creator.avatar){
+      if(creator.newAvatar){
         const api = new  Api();
         const storedAvatar = await api.upload(creator.avatar, null);
         //@ts-ignore error that this vars are void bacause upload is defines as voin funtion
         creator.avatarId = storedAvatar.file_id;
+        delete creator.newAvatar;
       }      
       const updatedCreator = await client.service('creator').patch(creator.id, creator);   
       dispatch(creatorLoggedRetrieved(updatedCreator));
@@ -87,6 +92,54 @@ export function getCreatorNotificationList() {
       dispatch(fetchingCreator());
       const notificationList = await client.service('notifications').find({query:{action: 'byCurrentCreator'}});   
       dispatch(creatorNotificationList(notificationList));
+    } catch(err) {
+      console.log(err);
+      dispatchAlertError(dispatch, err.message);
+    }
+  };
+}
+
+export function followCreator(creatorId: string) {
+  return async (dispatch: Dispatch): Promise<any> => {
+    try {
+      const follow = await client.service('follow-creator').create({creatorId});   
+      follow && dispatch(updateCreatorAsFollowed());
+    } catch(err) {
+      console.log(err);
+      dispatchAlertError(dispatch, err.message);
+    }
+  };
+}
+
+export function unFollowCreator(creatorId: string) {
+  return async (dispatch: Dispatch): Promise<any> => {
+    try {
+      const follow = await client.service('follow-creator').remove(creatorId);   
+      follow && dispatch(updateCreatorNotFollowed());
+    } catch(err) {
+      console.log(err);
+      dispatchAlertError(dispatch, err.message);
+    }
+  };
+}
+
+export function getFollowersList(creatorId: string) {
+  return async (dispatch: Dispatch): Promise<any> => {
+    try {
+      const list = await client.service('follow-creator').find({query:{action: 'followers', creatorId}});   
+      dispatch(creatorFollowers(list.data));
+    } catch(err) {
+      console.log(err);
+      dispatchAlertError(dispatch, err.message);
+    }
+  };
+}
+
+export function getFollowingList(creatorId: string) {
+  return async (dispatch: Dispatch): Promise<any> => {
+    try {
+      const list = await client.service('follow-creator').find({query:{action: 'following', creatorId}});   
+      dispatch(creatorFollowing(list.data));
     } catch(err) {
       console.log(err);
       dispatchAlertError(dispatch, err.message);
