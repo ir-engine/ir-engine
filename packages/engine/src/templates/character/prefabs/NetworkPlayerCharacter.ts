@@ -32,9 +32,9 @@ import { getLoader } from "../../../assets/functions/LoadGLTF";
 import { Avatar } from "../../../xr/classes/IKAvatar";
 import { Engine } from "../../../ecs/classes/Engine";
 import { PrefabType } from "@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema";
-import { initializeMovingState } from "../states/MovingState";
+import { initializeMovingState } from "../animations/MovingAnimations";
 import { IKComponent } from "../../../character/components/IKComponent";
-import { initiateIKSystem } from "../../../xr/functions/initiateIKSystem";
+import { initiateIK } from "../../../xr/functions/IKFunctions";
 import { AnimationComponent } from "../../../character/components/AnimationComponent";
 
 export class AnimationManager {
@@ -133,7 +133,7 @@ export const loadActorAvatarFromURL: Behavior = (entity, avatarURL) => {
     actor.mixer = new AnimationMixer(actor.modelContainer.children[0]);
 
     if(hasComponent(entity, IKComponent)) {
-      initiateIKSystem(entity)
+      initiateIK(entity)
     }
 
   })
@@ -226,10 +226,10 @@ const initializeCharacter: Behavior = (entity): void => {
 
 	// Physics pre/post step callback bindings
 	// States
-	// setState(entity, { state: CharacterStateTypes.DEFAULT });
+	// setState(entity, { state: CharacterAnimations.DEFAULT });
 	actor.initialized = true;
 
-  // addComponent(entity, AnimationComponent);
+  addComponent(entity, AnimationComponent);
 
   initializeMovingState(entity)
 

@@ -73,7 +73,6 @@ export function Timer (
     Engine.renderer?.xr?.setAnimationLoop(xrAnimationLoop);
   });
   EngineEvents.instance.addEventListener(XRSystem.EVENTS.XR_END, async (ev: any) => {
-    Engine.renderer.setAnimationLoop(null);
     start();
   });
 

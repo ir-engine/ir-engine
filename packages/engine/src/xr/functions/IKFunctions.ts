@@ -4,8 +4,10 @@ import { CharacterComponent } from "../../templates/character/components/Charact
 import { IKComponent } from "../../character/components/IKComponent";
 import { Avatar } from "../classes/IKAvatar";
 import { AnimationComponent } from "../../character/components/AnimationComponent";
+import { clearBit, setBit } from "../../common/functions/bitFunctions";
+import { CHARACTER_STATES } from "../../templates/character/state/CharacterStates";
 
-export function initiateIKSystem(entity: Entity) {
+export function initiateIK(entity: Entity) {
 
   const actor = getMutableComponent(entity, CharacterComponent);
   if(!hasComponent(entity, IKComponent)) {
@@ -15,7 +17,20 @@ export function initiateIKSystem(entity: Entity) {
     removeComponent(entity, AnimationComponent);
   }
   const avatarIK = getMutableComponent(entity, IKComponent);
-  console.log(actor.modelContainer)
   avatarIK.avatarIKRig = new Avatar(actor.modelContainer.children[0]);
+  console.log(actor.state)
+  actor.state = setBit(actor.state, CHARACTER_STATES.VR);
+  console.log(actor.state)
 
+}
+
+export function stopIK(entity) {
+  if(!hasComponent(entity, AnimationComponent)) {
+    addComponent(entity, AnimationComponent);
+  }
+  if(hasComponent(entity, IKComponent)) {
+    removeComponent(entity, IKComponent);
+  }
+  const actor = getMutableComponent(entity, CharacterComponent);
+  actor.state = clearBit(actor.state, CHARACTER_STATES.VR);
 }

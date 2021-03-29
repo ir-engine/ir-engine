@@ -4,7 +4,7 @@ import { Entity } from '@xr3ngine/engine/src/ecs/classes/Entity';
 import { getComponent } from '@xr3ngine/engine/src/ecs/functions/EntityFunctions';
 import { Input } from '@xr3ngine/engine/src/input/components/Input';
 import { BaseInput } from '@xr3ngine/engine/src/input/enums/BaseInput';
-import { Material, Mesh, Vector3, Quaternion } from "three";
+import { Material, Mesh, Vector3, Quaternion, Object3D } from "three";
 import { SkinnedMesh } from 'three/src/objects/SkinnedMesh';
 import { CameraComponent } from "../../camera/components/CameraComponent";
 import { CameraModes } from "../../camera/types/CameraModes";
@@ -390,19 +390,21 @@ const updateIKRig: Behavior = (entity, args): void => {
 
   const avatarIK = getMutableComponent(entity, IKComponent);
   const inputs = getMutableComponent(entity, Input);
-  if(!avatarIK?.avatarIKRig) return console.warn('no ik rig attached');
+  if(!avatarIK?.avatarIKRig) return// console.warn('no ik rig attached');
+  const obj3d = getComponent(entity, Object3DComponent).value as Object3D;
 
   if(args.type === BaseInput.XR_HEAD) { 
     
     const cam = inputs.data.get(BaseInput.XR_HEAD).value as SIXDOFType;
-    avatarIK.avatarIKRig.inputs.hmd.position.set(cam.x, cam.y, cam.z);
-    avatarIK.avatarIKRig.inputs.hmd.quaternion.set(cam.qW, cam.qX, cam.qY, cam.qZ);
+    avatarIK.avatarIKRig.inputs.hmd.position.set(cam.x, cam.y, cam.z).sub(obj3d.position);
+    avatarIK.avatarIKRig.inputs.hmd.quaternion.set(cam.qX, cam.qY, cam.qZ, cam.qW)
+    // avatarIK.avatarIKRig.inputs.hmd.rotateY(Math.PI / 2)
 
   } else if(args.type === BaseInput.XR_LEFT_HAND) { 
 
     const left = inputs.data.get(BaseInput.XR_LEFT_HAND).value as SIXDOFType;
     avatarIK.avatarIKRig.inputs.leftGamepad.position.set(left.x, left.y, left.z);
-    avatarIK.avatarIKRig.inputs.leftGamepad.quaternion.set(left.qW, left.qX, left.qY, left.qZ);
+    avatarIK.avatarIKRig.inputs.leftGamepad.quaternion.set(left.qX, left.qY, left.qZ, left.qW);
     // avatar.inputs.leftGamepad.pointer = ; // for finger animation
     // avatar.inputs.leftGamepad.grip = ;
 
@@ -410,7 +412,7 @@ const updateIKRig: Behavior = (entity, args): void => {
 
     const right = inputs.data.get(BaseInput.XR_RIGHT_HAND).value as SIXDOFType;
     avatarIK.avatarIKRig.inputs.rightGamepad.position.set(right.x, right.y, right.z);
-    avatarIK.avatarIKRig.inputs.rightGamepad.quaternion.set(right.qW, right.qX, right.qY, right.qZ);
+    avatarIK.avatarIKRig.inputs.rightGamepad.quaternion.set( right.qX, right.qY, right.qZ, right.qW);
     
   }
 }

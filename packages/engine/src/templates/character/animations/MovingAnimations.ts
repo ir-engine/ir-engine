@@ -1,5 +1,5 @@
 import { Behavior } from '@xr3ngine/engine/src/common/interfaces/Behavior';
-import { CharacterStateTypes } from '../CharacterStateTypes';
+import { CharacterAnimations } from '../CharacterAnimations';
 import { CharacterComponent } from '../components/CharacterComponent';
 import { addComponent, getComponent, getMutableComponent, hasComponent, removeComponent } from '../../../ecs/functions/EntityFunctions';
 import { Vector3 } from "three";
@@ -9,7 +9,7 @@ const {
   IDLE,
   WALK_FORWARD, WALK_BACKWARD, WALK_STRAFE_LEFT, WALK_STRAFE_RIGHT,
   RUN_FORWARD, RUN_BACKWARD, RUN_STRAFE_LEFT, RUN_STRAFE_RIGHT, JUMP, FALLING, DROP, DROP_ROLLING
-} = CharacterStateTypes;
+} = CharacterAnimations;
 
 const movingAnimationSchema = [
   {

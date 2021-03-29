@@ -3,7 +3,7 @@ import { Vector3 } from "three";
 import { Network } from '@xr3ngine/engine/src/networking/classes/Network';
 import { getComponent, hasComponent, getMutableComponent, removeComponent, addComponent } from '../../../ecs/functions/EntityFunctions';
 import { TransformComponent } from '../../../transform/components/TransformComponent';
-import { CharacterStateTypes } from "../CharacterStateTypes";
+import { CharacterAnimations } from "../CharacterAnimations";
 import { CharacterComponent } from '../components/CharacterComponent';
 import { isMobileOrTablet } from '../../../common/functions/isMobile';
 import { NumericalType } from '../../../common/types/NumericalTypes';
@@ -100,7 +100,7 @@ export const updateCharacterStateInVehicle: Behavior = (entity, args: {}, deltaT
   }
 }
 
-const { DRIVING, ENTERING_VEHICLE, EXITING_VEHICLE } = CharacterStateTypes;
+const { DRIVING, ENTERING_VEHICLE, EXITING_VEHICLE } = CharacterAnimations;
 
 const drivingAnimationSchema = [
   {
