@@ -48,7 +48,7 @@ export default function AssetDropZone({ afterUpload, uploadOptions }) {
     drop(item: any) {
       onUpload(item.files).then(assets => {
         if (assets) {
-          editor.setSource(editor.defaultUploadSource.id);
+          //editor.setSource(editor.defaultUploadSource.id);
 
           if (afterUpload) {
             afterUpload(assets);
