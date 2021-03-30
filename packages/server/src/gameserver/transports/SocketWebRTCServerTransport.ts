@@ -221,7 +221,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                     // console.log('Got ConnectToWorld:');
                     // console.log(data);
                     // console.log(userId);
-                    // console.log("Avatar", avatar)
+                    // console.log("Avatar", avatar);
                     handleConnectToWorld(socket, data, callback, userId, user, avatar);
                 });
 
