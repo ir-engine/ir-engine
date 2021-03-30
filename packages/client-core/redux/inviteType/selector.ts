@@ -1,9 +1,8 @@
 import {  createSelector } from "reselect";
 
 
-const selectState = (state: any ): any =>{
-    console.log(state.get('inviteType'));
-    
-    return state.get('inviteType');
-};
+const selectState = (state: any ): any =>{    
+    return state.get("invitesTypeData");
+}
+
 export const selectInviteTypesState = createSelector([selectState], (inviteType) => inviteType);

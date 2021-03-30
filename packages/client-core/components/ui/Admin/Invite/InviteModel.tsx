@@ -13,14 +13,17 @@ import styles from '../Admin.module.scss';
 import { sendInvite } from "../../../../redux/invite/service";
 import { retrieveInvites } from "../../../../redux/inviteType/service";
 import { selectInviteState } from "../../../../redux/invite/selector";
-import { selectInviteTypesState  } from "../../../../redux/inviteType/selector";
+import { selectInviteTypesState } from "../../../../redux/inviteType/selector";
 import { bindActionCreators, Dispatch } from "redux";
 import { withRouter, Router } from "next/router";
 import { connect } from "react-redux";
 import { Dropdown } from 'semantic-ui-react';
-import faker from 'faker';
+import Snackbar from '@material-ui/core/Snackbar';
 import _ from 'lodash';
 import Grid from '@material-ui/core/Grid';
+import MuiAlert, { AlertProps } from '@material-ui/lab/Alert';
+import { ValidatorForm, TextValidator } from 'react-material-ui-form-validator';
+import { useRouter } from "next/router";
 
 interface Props {
     router: Router;
@@ -29,6 +32,7 @@ interface Props {
     sendInvite?: any;
     retrieveInvites?: any;
     inviteTypeData?: any;
+    users: any
 }
 
 const mapStateToProps = (state: any): any => {
@@ -44,21 +48,13 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
     retrieveInvites: bindActionCreators(retrieveInvites, dispatch)
 });
 
-const currencies = [
-    {
-        value: 'family',
-        label: 'family',
-    },
-    {
-        value: 'freind',
-        label: 'freind',
-    },
-    {
-        value: 'group',
-        label: 'group',
-    }
-];
+function Alert(props: AlertProps) {
+    return <MuiAlert elevation={6} variant="filled" {...props} />;
+}
 
+const inviteCodeRegex = /^[0-9a-fA-F]{8}$/;
+const emailRegex = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/;
+const phoneRegex = /^[0-9]{10}$/;
 /**
  * Dev comment: => I don't know use of Token in the form field
  * @param props 
@@ -69,16 +65,77 @@ const InviteModel = (props: Props) => {
         handleClose,
         sendInvite,
         retrieveInvites,
-        inviteTypeData
+        inviteTypeData,
+        users
     } = props;
-    const [currency, setCurrency] = React.useState('EUR');
+    const router = useRouter();
 
+    const [currency, setCurrency] = React.useState('friend');
+    const inviteType = inviteTypeData.get("inviteTypeData").get("inviteType");
+    const [targetUser, setTargetUser] = React.useState("");
+    const [token, setToken] = React.useState("");
+    const [passcode, setPasscode] = React.useState("");
+    const [warning, setWarning] = React.useState("");
+    const [openSnabar, setOpenSnabar] = React.useState(false);
+    const [providerType, setProviderType] = React.useState("email");
+    const currencies = [];
+    const provide = [
+        {
+            value: "email",
+            label: "E-mail"
+        },
+        {
+            value: "sms",
+            label: "SMS"
+        }
+    ]
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setCurrency(event.target.value);
     };
 
+    const refreshData = () => {
+        router.replace(router.asPath);
+    }
+
+    const handleChangeType = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setProviderType(event.target.value);
+    };
+    useEffect(() => {
+        ValidatorForm.addValidationRule("isEmail", (value) => {
+            switch (providerType) {
+                case "email":
+                    if (emailRegex.test(value) !== true ) {
+                        return false;
+                    }
+                    break;
+                case "sms":
+                    if (phoneRegex.test(value) !== true) {
+                        return false;
+                    }
+                    break;
+            }
+
+            return true;
+        });
+
+        ValidatorForm.addValidationRule("isPasscode", (value) => {
+            if(value){
+                if(inviteCodeRegex.test(value) !== true){
+                    return false;
+                }
+            }
+            return true;
+        });
+
+        return () => {
+            ValidatorForm.removeValidationRule("isEmail");
+            ValidatorForm.removeValidationRule("isPasscode");
+        }
+    }, [providerType])
+
     const createInvite = async () => {
         const data = {
+<<<<<<< HEAD
             "token": "string",
             "identityProviderType": "string",
             "passcode": "string",
@@ -93,17 +150,70 @@ const InviteModel = (props: Props) => {
         text: state,
         value: addressDefinitions.state_abbr[index],
     }));
+=======
+            "type": currency,
+            "token": token, // phone number (10 digital us number) or email
+            "inviteCode": passcode || null, // Code should range from 0-9 and a-f as well as A-F match to 8 characters
+            "invitee": targetUser[0], // valid user id 
+            "identityProviderType": providerType, // email or sms 
+            "targetObjectId": targetUser[0]
+        }
+        if (token && currency && targetUser) {
+            await sendInvite(data);
+            refreshData();
+            handleClose()
+        } else {
+            setOpenSnabar(true);
+            setWarning("Please fill all required fields!")
+        }
+    }
 
-    console.log('====================================');
-    console.log(inviteTypeData);
-    console.log('====================================');
+    if (inviteType) {
+        inviteType.forEach(el => {
+            currencies.push({
+                value: el.type,
+                label: el.type
+            });
+        })
+    }
+>>>>>>> 5607c14d9... integrate create invite and delete invite
 
-    useEffect(()=>{
+    const stateOptions = [];
+    users.forEach(el => {
+        stateOptions.push({
+            key: el.id,
+            text: el.name,
+            value: el.id
+        });
+    });
+
+    useEffect(() => {
         const fetchData = async () => {
+<<<<<<< HEAD
            await retrieveInvites();
         };
+=======
+            await retrieveInvites();
+        }
+>>>>>>> 5607c14d9... integrate create invite and delete invite
         fetchData();
     }, []);
+
+    const onSelectValue = (e, data) => {
+        setTargetUser(data.value);
+    }
+
+    const handleInputChange = (e) => {
+        const value = e.target.value.trim();
+    }
+
+    const handleCloseSnabar = (event?: React.SyntheticEvent, reason?: string) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+
+        setOpenSnabar(false);
+    };
 
     return (
         <div>
@@ -125,78 +235,105 @@ const InviteModel = (props: Props) => {
                         [styles['modal-content']]: true
                     })}>
                         <Typography variant="h5" align="center" className="mt-4 mb-4" component="h4">
-                             Send Invite 
+                            Send Invite
                         </Typography>
                         <Dropdown
-                            placeholder='State'
+                            placeholder='Users'
                             fluid
                             multiple
                             search
                             selection
+                            onChange={onSelectValue}
+                            onSearchChange={handleInputChange}
                             options={stateOptions}
                         />
+                        <ValidatorForm
+                            onSubmit={createInvite}
+                        >
 
-                        <Grid container spacing={3}>
-                            <Grid item xs={6}>
-                                <TextField
-                                    variant="outlined"
-                                    margin="normal"
-                                    fullWidth
-                                    id="passcode"
-                                    label="Enter Passcode"
-                                    name="passcode"
-                                    required
-                                //  value={passcode}
-                                // onChange={(e) => setName(e.target.value)}
-                                />
+                            <Grid container spacing={3}>
+                                <Grid item xs={5}>
+                                    <TextValidator
+                                        variant="outlined"
+                                        margin="normal"
+                                        fullWidth
+                                        id="passcode"
+                                        label="Enter valid Passcode or None"
+                                        name="passcode"
+                                        value={passcode}
+                                        validators={['isPasscode']}
+                                        errorMessages={['Invalid Invite Code']}
+                                        onChange={(e) => setPasscode(e.target.value)}
+                                    />
+                                </Grid>
+                                <Grid item xs={4}>
+                                    <TextField
+                                        id="outlined-select-currency-native"
+                                        select
+                                        label="Target type"
+                                        value={currency}
+                                        onChange={handleChange}
+                                        SelectProps={{
+                                            native: true,
+                                        }}
+                                        fullWidth
+                                        margin="normal"
+                                        required
+                                        variant="outlined"
+                                    >
+                                        {currencies.map((option) => (
+                                            <option key={option.value} value={option.value}>
+                                                {option.label}
+                                            </option>
+                                        ))}
+                                    </TextField>
+                                    </Grid>
+                                    <Grid item xs={3}>
+                                    <TextField
+                                        id="outlined-select-currency-native"
+                                        select
+                                        label="Identity provider  type"
+                                        value={providerType}
+                                        onChange={handleChangeType}
+                                        SelectProps={{
+                                            native: true,
+                                        }}
+                                        fullWidth
+                                        margin="normal"
+                                        required
+                                        variant="outlined"
+                                    >
+                                        {provide.map((option) => (
+                                            <option key={option.value} value={option.value}>
+                                                {option.label}
+                                            </option>
+                                        ))}
+                                    </TextField>
+                                </Grid>
                             </Grid>
-                            <Grid item xs={6}>
-                                <TextField
-                                    id="outlined-select-currency-native"
-                                    select
-                                    label="Target type"
-                                    value={currency}
-                                    onChange={handleChange}
-                                    SelectProps={{
-                                        native: true,
-                                    }}
-                                    fullWidth
-                                    margin="normal"
-                                    required
-                                    variant="outlined"
-                                >
-                                    {currencies.map((option) => (
-                                        <option key={option.value} value={option.value}>
-                                            {option.label}
-                                        </option>
-                                    ))}
-                                </TextField>
-                            </Grid>
-                        </Grid>
 
-                        
-                        <TextField
-                            variant="outlined"
-                            margin="normal"
-                            fullWidth
-                            id="maxUsers"
-                            label="Token"
-                            name="token"
-                            required
-                            className="mb-4"
-                            //  value={avatar}
-                            //onChange={(e) => setAvatar(e.target.value)}
+
+                            <TextValidator
+                                variant="outlined"
+                                margin="normal"
+                                fullWidth
+                                id="maxUsers"
+                                label="Please enter US phone number or E-mail"
+                                name="token"
+                                required
+                                className="mb-4"
+                                value={token}
+                                validators={['isEmail', 'required']}
+                                errorMessages={['E-mail is invaid or Phone number must be 10 digital', 'this field is required']}
+                                onChange={(e) => setToken(e.target.value)}
                             />
-                        <FormGroup row className={styles.locationModalButtons}>
-
-                            <Button
+                            <FormGroup row className={styles.locationModalButtons}>                            <Button
                                 type="submit"
                                 variant="contained"
                                 color="primary"
-                                onClick={createInvite}
                             >
-                               Send Invitation 
-                          </Button>
+                                Send Invitation
+                            </Button>
                             <Button
                                 type="submit"
                                 variant="contained"
@@ -204,10 +341,21 @@ const InviteModel = (props: Props) => {
                             >
                                 Cancel
                             </Button>
-                        </FormGroup>
+                            </FormGroup>
+                        </ValidatorForm>
                     </div>
                 </Fade>
             </Modal>
+            <Snackbar
+                open={openSnabar}
+                autoHideDuration={6000}
+                onClose={handleCloseSnabar}
+                anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+            >
+                <Alert onClose={handleCloseSnabar} severity="warning">
+                    {warning}
+                </Alert>
+            </Snackbar>
         </div>
     );
 };
