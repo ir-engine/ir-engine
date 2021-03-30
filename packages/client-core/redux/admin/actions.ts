@@ -139,19 +139,19 @@ export function instanceCreated(instance: any): InstanceRemovedResponse {
   return{
     type: INSTANCE_CREATE,
     instance: instance
-  }
+  };
 }
 
 export function instanceRemoved(instance: any): InstanceRemovedResponse {
   return {
     type: INSTANCE_REMOVED_ROW,
     instance: instance
-  }
+  };
 }
 
 export function instancePatched(instance: any): InstanceRemovedResponse {
   return {
     type: INSTANCE_PATCHED,
     instance: instance
-  }
+  };
 }

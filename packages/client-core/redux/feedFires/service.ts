@@ -7,7 +7,7 @@ import {
 } from './actions';
 import {
   addFeedFire, removeFeedFire
-} from '../feed/actions'
+} from '../feed/actions';
 
 export function getFeedFires(feedId : string) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {

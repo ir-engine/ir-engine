@@ -241,7 +241,7 @@ export default class ModelNode extends EditorNodeMixin(Model) {
       deepColliders.push(this.parseColliders('vehicle', v.userData.type, null, v.position, v.quaternion, v.scale, v ));
     });
     return [vehicleSaved, deepColliders];
-  };
+  }
 
 parseColliders( data, type, mass, position, quaternion, scale, mesh ) {
 
@@ -295,7 +295,7 @@ parseColliders( data, type, mass, position, quaternion, scale, mesh ) {
               colliders.push(this.parseColliders(group.userData.data, group.userData.type, group.userData.mass, group.position, group.quaternion, group.scale, group ));
             }
           } else if ( group.userData.data === 'vehicle') {
-            let [vehicleSaved, deepArrayColliders] = this.parseVehicle(group);
+            const [vehicleSaved, deepArrayColliders] = this.parseVehicle(group);
             vehicleMain.push(vehicleSaved);
             vehicleColliders.push(deepArrayColliders);
           }
@@ -319,7 +319,7 @@ parseColliders( data, type, mass, position, quaternion, scale, mesh ) {
     // its for vehicle
     if (collider.data == 'vehicle') return collider;
 
-    let [position, quaternion, scale] = plusParameter(
+    const [position, quaternion, scale] = plusParameter(
       collider.position,
       collider.quaternion,
       collider.scale,

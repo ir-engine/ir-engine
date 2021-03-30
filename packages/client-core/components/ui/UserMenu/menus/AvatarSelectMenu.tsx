@@ -20,27 +20,21 @@ interface Props {
 
 interface State {
     selectedFile: any;
-    imgFile: any;
+    // imgFile: any;
 	error: string;
 	obj: any;
 }
 
 export default class AvatarSelectMenu extends React.Component<Props, State> {
-	camera = null;
-	scene = null;
-	renderer = null;
-	fileSelected = false;
-	maxBB = new THREE.Vector3(2,2,2);
-
 	constructor(props) {
 		super(props);
 
 		this.state = {
 			selectedFile: null,
-			imgFile: null,
+			// imgFile: null,
 			error: '',
 			obj: null,
-		}
+		};
 	}
 
 	componentDidMount() {
@@ -58,7 +52,7 @@ export default class AvatarSelectMenu extends React.Component<Props, State> {
 		const frontLight = new THREE.DirectionalLight(0xfafaff, 0.7);
 		frontLight.position.set(-1,3,1);
 		frontLight.target.position.set(0, 1.5, 0);
-		const hemi = new THREE.HemisphereLight(0xeeeeff, 0xebbf2c, 1)
+		const hemi = new THREE.HemisphereLight(0xeeeeff, 0xebbf2c, 1);
 		this.scene.add(backLight);
 		this.scene.add(backLight.target);
 		this.scene.add(frontLight);
@@ -85,6 +79,12 @@ export default class AvatarSelectMenu extends React.Component<Props, State> {
 	componentWillUnmount() {
 		window.removeEventListener('resize', this.onWindowResize);
 	}
+
+	camera = null;
+	scene = null;
+	renderer = null;
+	fileSelected = false;
+	maxBB = new THREE.Vector3(2,2,2);
 
 	onWindowResize = () => {
 	    const container = document.getElementById('stage');
@@ -167,7 +167,7 @@ export default class AvatarSelectMenu extends React.Component<Props, State> {
 		scene.traverse(o => {
 			if (o.type.toLowerCase() === 'bone') bone = true;
 			if (o.type.toLowerCase() === 'skinnedmesh') skinnedMesh = true;
-		})
+		});
 
 		if (!bone || !skinnedMesh) return 'Obejct does not contain any bones or skin';
 
@@ -180,7 +180,7 @@ export default class AvatarSelectMenu extends React.Component<Props, State> {
 	}
 
 	uploadAvatar = () => {
-		const error = this.validate(this.state.obj)
+		const error = this.validate(this.state.obj);
 		if (error) {
 			this.setState({ error });
 			return;
@@ -226,6 +226,6 @@ export default class AvatarSelectMenu extends React.Component<Props, State> {
 	                <button type="button" className={styles.uploadBtn} onClick={this.uploadAvatar} disabled={!this.fileSelected || !!this.state.error}>Upload <CloudUpload /></button>
 	            </div>
 		    </div>
-		)
+		);
 	}
 }

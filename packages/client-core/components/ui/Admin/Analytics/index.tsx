@@ -295,7 +295,7 @@ const dataTest = [
         }
       ]
     }
-  ]
+  ];
 
 const Analytics = () => {
     const classes = useStyles();
@@ -316,7 +316,7 @@ const Analytics = () => {
             number: "453K",
             label: "Instances"
         }
-    ]
+    ];
 
     useEffect(()=> {
       ReactGa.initialize("UA-192756414-1", {
@@ -336,7 +336,7 @@ const Analytics = () => {
                             <Grid item xs={3} key={el.number}>
                                 <Card data={el} />
                             </Grid>
-                        )
+                        );
                     })
                 }
             </Grid>
@@ -349,8 +349,8 @@ const Analytics = () => {
                 <ApiLinks/>
             </div>
         </div>
-    )
-}
+    );
+};
 
 
 export default Analytics;

@@ -50,7 +50,7 @@ const feedCommentsReducer = (state = immutableState, action: FeedCommentsAction)
         return state.set('feedComments', [ (action as AddFeedCommentAction).comment, ...state.get('feedComments') || []]);
 
       case COMMENT_FIRES:
-        return state.set('commentFires', (action as CommentFiresRetrievedAction).creators)
+        return state.set('commentFires', (action as CommentFiresRetrievedAction).creators);
 }
 
 

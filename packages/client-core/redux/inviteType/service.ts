@@ -18,5 +18,5 @@ export function retrieveInvites () {
             console.log(err);
             dispatchAlertError(dispatch, err.message);
         }
-    }
+    };
 }

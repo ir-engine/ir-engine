@@ -19,7 +19,7 @@ const NotificationCard = ({notification} : any) => {
             case 'unfollow': return ' stopped following you';
             default: return ' followed you';
         }
-    }
+    };
     return  <Card className={styles.commentItem} square={false} elevation={0} key={notification.id}>
                 <Avatar onClick={()=>Router.push({ pathname: '/creator', query:{ creatorId: notification.creatorAuthorId}})}
                      className={styles.authorAvatar} src={notification.avatar} />                                
@@ -36,7 +36,7 @@ const NotificationCard = ({notification} : any) => {
                             className={styles.authorAvatar} src={notification.previewUrl} />  
                     </section>
                 }
-            </Card>
+            </Card>;
 };
 
 export default (NotificationCard);

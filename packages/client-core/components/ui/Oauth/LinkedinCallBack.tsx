@@ -60,7 +60,7 @@ interface Props {
       ) : (
         <Container>Authenticating...</Container>
       );
-  }
+  };
 
   const LinkedInHomeWrapper = (props: any): any => <LinkedinCallbackComponent {...props} router={ useRouter() } />;
 
