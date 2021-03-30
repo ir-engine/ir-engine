@@ -62,7 +62,7 @@ const userModel = (props: Props): any => {
         const data = {
             name: name,
             avatarId: avatar
-        }
+        };
         if (editing) {
             patchUser(userEdit.id, data);
         } else {
@@ -71,7 +71,7 @@ const userModel = (props: Props): any => {
             setAvatar("");
         }
         handleClose();
-    }
+    };
 
     useEffect(() => {
         if (editing) {
@@ -175,7 +175,7 @@ const userModel = (props: Props): any => {
                 </Fade>
             </Modal>
         </div>
-    )
-}
+    );
+};
 
 export default connect(mapStateToProps, mapDispatchToProps)(userModel);

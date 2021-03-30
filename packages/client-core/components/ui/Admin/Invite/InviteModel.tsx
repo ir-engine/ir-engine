@@ -36,7 +36,7 @@ const mapStateToProps = (state: any): any => {
         receivedInvites: selectInviteState(state),
         sentInvites: selectInviteState(state),
         inviteTypeData: selectInviteTypesState(state)
-    }
+    };
 };
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
@@ -83,11 +83,11 @@ const InviteModel = (props: Props) => {
             "identityProviderType": "string",
             "passcode": "string",
             "targetObjectId": "string"
-        }
+        };
         await sendInvite(data);
-    }
+    };
 
-    const addressDefinitions = faker.definitions.address
+    const addressDefinitions = faker.definitions.address;
     const stateOptions = _.map(addressDefinitions.state, (state, index) => ({
         key: addressDefinitions.state_abbr[index],
         text: state,
@@ -101,7 +101,7 @@ const InviteModel = (props: Props) => {
     useEffect(()=>{
         const fetchData = async () => {
            await retrieveInvites();
-        }
+        };
         fetchData();
     }, []);
 
@@ -209,7 +209,7 @@ const InviteModel = (props: Props) => {
                 </Fade>
             </Modal>
         </div>
-    )
-}
+    );
+};
 
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(InviteModel))
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(InviteModel));

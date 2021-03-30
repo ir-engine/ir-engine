@@ -249,7 +249,7 @@ export function logoutUser () {
 export function registerUserByEmail (form: EmailRegistrationForm) {
   console.log('1 registerUserByEmail');
   return (dispatch: Dispatch): any => {
-    console.log('2 dispatch', dispatch)
+    console.log('2 dispatch', dispatch);
     dispatch(actionProcessing(true));
     client.service('identity-provider').create({
       token: form.email,
@@ -257,7 +257,7 @@ export function registerUserByEmail (form: EmailRegistrationForm) {
       type: 'password'
     })
       .then((identityProvider: any) => {
-        console.log('3 ', identityProvider)
+        console.log('3 ', identityProvider);
         dispatch(registerUserByEmailSuccess(identityProvider));
         window.location.href = '/auth/confirm';
       })
@@ -266,7 +266,7 @@ export function registerUserByEmail (form: EmailRegistrationForm) {
         dispatch(registerUserByEmailError(err.message));
         dispatchAlertError(dispatch, err.message);
       })    
-    .finally(() => {console.log('4 finally', dispatch); dispatch(actionProcessing(false))});
+    .finally(() => {console.log('4 finally', dispatch); dispatch(actionProcessing(false));});
   };
 }
 
@@ -311,7 +311,7 @@ export function resendVerificationEmail (email: string) {
 export function forgotPassword (email: string) {
   return (dispatch: Dispatch): any => {
     dispatch(actionProcessing(true));
-    console.log('forgotPassword', email)
+    console.log('forgotPassword', email);
     client.service('authManagement').create({
       action: 'sendResetPwd',
       value: {
@@ -454,7 +454,7 @@ export function addConnectionBySms (phone: string, userId: string) {
 
     let sendPhone = phone.replace(/-/g, '');
     if (sendPhone.length === 10) {
-      sendPhone = '1' + sendPhone
+      sendPhone = '1' + sendPhone;
     }
 
     client.service('magic-link').create({
@@ -582,7 +582,7 @@ export function uploadAvatarModel (model: any, thumbnail: any) {
 
           // IF error occurs then removed Model and thumbnail from S3
           client.service('upload-presigned').remove('', { query: { keys: [modelURL.fields.Key, thumbnailURL.fields.Key] } });
-        })
+        });
       }).catch(err => {
         console.error('Error occured while uploading thumbnail.', err);
 
@@ -602,8 +602,8 @@ export function removeAvatar (keys: [string]) {
     }).then(_ => {
       dispatchAlertSuccess(dispatch, 'Avatar Removed Successfully.');
       fetchAvatarList()(dispatch);
-    })
-  }
+    });
+  };
 }
 
 export function fetchAvatarList () {
@@ -677,7 +677,7 @@ const getAvatarResources = (user) => {
       $limit: 2
     },
   });
-}
+};
 
 const loadAvatarForUpdatedUser = async (user) => {
   if (!user || !user.instanceId) Promise.resolve(true);
@@ -709,7 +709,7 @@ const loadAvatarForUpdatedUser = async (user) => {
 
       //Find entityId from network objects of updated user and dispatch avatar load event.
       for (let key of Object.keys(Network.instance.networkObjects)) {
-        const obj = Network.instance.networkObjects[key]
+        const obj = Network.instance.networkObjects[key];
         if (obj?.ownerId === user.id) {
           EngineEvents.instance.dispatchEvent({
             type: EngineEvents.EVENTS.LOAD_AVATAR,
@@ -723,7 +723,7 @@ const loadAvatarForUpdatedUser = async (user) => {
     }
     resolve(true);
   });
-}
+};
 
 client.service('user').on('patched', async (params) => {
   console.log('User patched');

@@ -86,7 +86,7 @@ switch (view) {
                   break;          
     case 'reset-password': component = <><ResetPassword resetPassword={resetPassword} token={''} completeAction={()=>setView('login')} /><span className={styles.placeholder} /></>;                  
                   footer = <>{!props.isAddConnection &&  (
-                    <p></p>
+                    <p />
                   )} </>;break;
 
     //login by default

@@ -15,7 +15,7 @@ export function FeedItemHeader({
         className="FeedItemHeader-text text-14-bold mr-1 ml-4 cursor-pointer"
         username={username || "username"}
       />
-      <button className="ml-auto flex">
+      <button type='button' className="ml-auto flex">
         <MoreSettings onClick={moreClickEvent} />
       </button>
     </div>

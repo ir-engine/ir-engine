@@ -33,7 +33,7 @@ function castShadowOn(group) {
   })
 }
 
-export const parseCarModel = ( groupMeshes: any, notEditor:boolean = true) => {
+export const parseCarModel = ( groupMeshes: any, notEditor = true) => {
   if (!groupMeshes) return;
   const deleteArr = [];
   const vehicleCompData = {

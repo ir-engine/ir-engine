@@ -131,6 +131,6 @@ export class FollowCreator extends Service {
       return {
         followedCreatorId,
         creatorId
-      }
+      };
   }
 }

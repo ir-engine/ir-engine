@@ -17,7 +17,7 @@ const Me = () => {
     window.addEventListener('resize', handleResize);
 
     return _ => {
-      window.removeEventListener('resize', handleResize)
+      window.removeEventListener('resize', handleResize);
     };
   }) as any);
 

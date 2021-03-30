@@ -76,12 +76,12 @@ const ProfileMenu = (props: Props): any => {
 	const updateUserName = (e) => {
 		e.preventDefault();
 		handleUpdateUsername();
-	}
+	};
 
 	const handleUsernameChange = (e) => {
 		setUsername(e.target.value);
 		if (!e.target.value) setErrorUsername(true);
-	}
+	};
 
 	const handleUpdateUsername = () => {
 		const name = username.trim();
@@ -103,7 +103,7 @@ const ProfileMenu = (props: Props): any => {
 
 		setError(false);
 		return true;
-	}
+	};
 
 	const handleSubmit = (e: any): any => {
 		e.preventDefault();
@@ -116,14 +116,14 @@ const ProfileMenu = (props: Props): any => {
 
 	const handleOAuthServiceClick = (e) => {
 		loginUserByOAuth(e.currentTarget.id);
-	}
+	};
 
 	const handleLogout = async (e) => {
 		if (changeActiveMenu != null) changeActiveMenu(null);
 		else if (setProfileMenuOpen != null) setProfileMenuOpen(false);
 		await logoutUser();
 		window.location.reload();
-	}
+	};
 
 	return (
 		<div className={styles.menuPanel}>
