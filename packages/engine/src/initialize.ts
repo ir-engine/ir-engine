@@ -52,6 +52,7 @@ export const DefaultInitializationOptions = {
   networking: {
     schema: DefaultNetworkSchema
   },
+  publicPath: ''
 };
 
 export const initializeEngine = async (initOptions: any = DefaultInitializationOptions): Promise<void> => {
@@ -147,11 +148,13 @@ export const initializeServer = async (initOptions: any = DefaultInitializationO
 
   EngineEvents.instance = new EngineEvents();
   Engine.scene = new Scene();
+  Engine.publicPath = options.publicPath;
 
   addIncomingEvents()
   addOutgoingEvents()
 
   initialize();
+  await AnimationManager.instance.getDefaultModel()
 
   const networkSystemOptions = { schema: options.networking.schema, app: options.networking.app };
   registerSystem(ServerNetworkIncomingSystem, { ...networkSystemOptions, priority: -1 });

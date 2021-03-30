@@ -1,3 +1,4 @@
+import { IKComponent } from '../../character/components/IKComponent';
 import { Entity } from '../../ecs/classes/Entity';
 import { System } from '../../ecs/classes/System';
 import { getComponent } from '../../ecs/functions/EntityFunctions';
@@ -46,6 +47,42 @@ export class ServerNetworkOutgoingSystem extends System {
         qZ: transformComponent.rotation.z,
         qW: transformComponent.rotation.w
       });
+
+      const ikComponent = getComponent(entity, IKComponent)
+      if(ikComponent) {
+        const transforms = ikComponent.avatarIKRig.inputs
+        Network.instance.worldState.ikTransforms.push({
+          networkId: networkObject.networkId,
+          snapShotTime: snapShotTime,
+          hmd: {
+            x: transforms.hmd.position.x,
+            y: transforms.hmd.position.y,
+            z: transforms.hmd.position.z,
+            qW: transforms.hmd.quaternion.w,
+            qX: transforms.hmd.quaternion.x,
+            qY: transforms.hmd.quaternion.y,
+            qZ: transforms.hmd.quaternion.z,
+          },
+          left: {
+            x: transforms.leftGamepad.position.x,
+            y: transforms.leftGamepad.position.y,
+            z: transforms.leftGamepad.position.z,
+            qW: transforms.leftGamepad.quaternion.w,
+            qX: transforms.leftGamepad.quaternion.x,
+            qY: transforms.leftGamepad.quaternion.y,
+            qZ: transforms.leftGamepad.quaternion.z,
+          },
+          right: {
+            x: transforms.rightGamepad.position.x,
+            y: transforms.rightGamepad.position.y,
+            z: transforms.rightGamepad.position.z,
+            qW: transforms.rightGamepad.quaternion.w,
+            qX: transforms.rightGamepad.quaternion.x,
+            qY: transforms.rightGamepad.quaternion.y,
+            qZ: transforms.rightGamepad.quaternion.z,
+          },
+        })
+      }
     });
 
     if (

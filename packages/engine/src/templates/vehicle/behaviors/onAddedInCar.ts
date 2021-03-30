@@ -8,17 +8,13 @@ import { NetworkObject } from '@xr3ngine/engine/src/networking/components/Networ
 import { PlayerInCar } from '@xr3ngine/engine/src/physics/components/PlayerInCar';
 import { VehicleBody } from '@xr3ngine/engine/src/physics/components/VehicleBody';
 import { PhysicsSystem } from '@xr3ngine/engine/src/physics/systems/PhysicsSystem';
-import { setState } from "@xr3ngine/engine/src/state/behaviors/setState";
-//import { deactivateCapsuleCollision } from "@xr3ngine/engine/src/templates/character/behaviors/deactivateCapsuleCollision";
-import { CharacterStateTypes } from "@xr3ngine/engine/src/templates/character/CharacterStateTypes";
+import { CharacterAnimations } from "@xr3ngine/engine/src/templates/character/CharacterAnimations";
 import { CharacterComponent } from "@xr3ngine/engine/src/templates/character/components/CharacterComponent";
 import { TransformComponent } from '@xr3ngine/engine/src/transform/components/TransformComponent';
 import { Matrix4, Vector3 } from 'three';
-import { isServer } from "../../../common/functions/isServer";
 import { CameraModes } from '../../../camera/types/CameraModes';
 import { changeAnimation } from '../../../character/functions/updateVectorAnimation';
-import { AnimationComponent } from '../../../character/components/AnimationComponent';
-import { drivingAnimationSchema, getDrivingValues, initializeDriverState } from '../../character/states/DrivingState'
+import { initializeDriverState } from '../../character/animations/DrivingAnimations'
 
 function positionEnter(entity, entityCar, seat) {
   const transform = getMutableComponent<TransformComponent>(entity, TransformComponent);
@@ -61,12 +57,10 @@ export const onAddedInCar = (entity: Entity, entityCar: Entity, seat: number, de
 
   // CLIENT
   initializeDriverState(entity)
-  removeComponent(entity, AnimationComponent);
-	addComponent(entity, AnimationComponent, { animationsSchema: drivingAnimationSchema, updateAnimationsValues: getDrivingValues });
   
   // if (isServer) return;
   changeAnimation(entity, {
-    animationId: CharacterStateTypes.ENTERING_VEHICLE,
+    animationId: CharacterAnimations.ENTERING_VEHICLE,
 	  transitionDuration: 0.3
    })
 

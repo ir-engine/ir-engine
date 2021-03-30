@@ -50,7 +50,7 @@ const emptyVector = new Vector3();
 const damping = 0.05; // To reduce the change in direction.
 const halfPI = Math.PI / 2;
 
-export const updateCharacterState = (entity, deltaTime: number): void => {
+export const updateCharacterOrientation = (entity, deltaTime: number): void => {
 	const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
 	if (!actor.initialized) return console.warn("Actor no initialized");
   const actorTransform = getMutableComponent(entity, TransformComponent);
