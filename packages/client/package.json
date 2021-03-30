@@ -112,6 +112,7 @@
     "react-infinite-scroller": "^1.2.4",
     "react-json-tree": "^0.13.0",
     "react-loaders": "^3.0.1",
+    "react-material-ui-form-validator": "^2.1.4",
     "react-modal": "^3.11.2",
     "react-no-ssr": "^1.1.0",
     "react-object-inspector": "^0.2.1",

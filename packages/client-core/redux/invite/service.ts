@@ -27,6 +27,7 @@ const inviteCodeRegex = /^[0-9a-fA-F]{8}$/;
 
 export function sendInvite (data: any) {
   return async (dispatch: Dispatch, getState: any) => {
+
     if (data.identityProviderType === 'email') {
       if (emailRegex.test(data.token) !== true) {
         dispatchAlertError(dispatch, 'Invalid email address');
@@ -39,7 +40,8 @@ export function sendInvite (data: any) {
         return;
       }
     }
-    if (data.inviteCode != null) {
+
+    if (data.inviteCode != null) {  
       if (inviteCodeRegex.test(data.inviteCode) !== true) {
         dispatchAlertError(dispatch, 'Invalid Invite Code');
         return;
@@ -63,13 +65,14 @@ export function sendInvite (data: any) {
         }
       }
     }
+
     if (data.invitee != null) {
       if (userIdRegex.test(data.invitee) !== true) {
         dispatchAlertError(dispatch, 'Invalid user ID');
         return;
       }
     }
-
+    
     if ((data.token == null || data.token.length === 0) && (data.invitee == null || data.invitee.length === 0)) {
       dispatchAlertError(dispatch, `Not a valid recipient`);
       return;
@@ -84,6 +87,8 @@ export function sendInvite (data: any) {
         identityProviderType: data.identityProviderType,
         inviteeId: data.invitee
       });
+
+      
       dispatchAlertSuccess(dispatch, 'Invite Sent');
       dispatch(sentInvite(inviteResult));
     } catch (err) {
@@ -123,6 +128,8 @@ export function retrieveSentInvites(skip?: number, limit?: number) {
           $skip: skip != null ? skip : getState().get('invite').get('sentInvites').get('skip')
         }
       });
+      console.log(inviteResult);
+      
       dispatch(retrievedSentInvites(inviteResult));
     } catch(err) {
       console.log(err);
