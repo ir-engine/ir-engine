@@ -1,4 +1,4 @@
-export enum CharacterStateTypes {
+export enum CharacterAnimations {
   // Main States
   DEFAULT,
   JUMP,

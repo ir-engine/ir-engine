@@ -13,7 +13,6 @@ import { NetworkClientInputInterface } from "../../networking/interfaces/WorldSt
 import { ClientInputModel } from '../../networking/schema/clientInputSchema';
 import { CharacterComponent, RUN_SPEED, WALK_SPEED } from "../../templates/character/components/CharacterComponent";
 import { faceToInput,  lipToInput,  WEBCAM_INPUT_EVENTS } from "../behaviors/WebcamInputBehaviors";
-import { addPhysics, removeWebXRPhysics } from '../behaviors/WebXRInputBehaviors';
 import { Input } from '../components/Input';
 import { LocalInputReceiver } from "../components/LocalInputReceiver";
 import { XRInputReceiver } from '../components/XRInputReceiver';
@@ -24,7 +23,7 @@ import { BaseInput } from "../enums/BaseInput";
 import { ClientNetworkSystem } from "../../networking/systems/ClientNetworkSystem";
 import { EngineEvents } from "../../ecs/classes/EngineEvents";
 import { ClientInputSystem } from "./ClientInputSystem";
-import { Entity } from "../../ecs/classes/Entity";
+
 /**
  * Input System
  *
@@ -43,7 +42,7 @@ export class ActionSystem extends System {
   // Client only variables
   public leftControllerId; //= 0
   public rightControllerId; //= 1
-  stateUpdates = [];
+  receivedClientInputs = [];
 
   constructor({ useWebXR }) {
     super();
@@ -63,7 +62,7 @@ export class ActionSystem extends System {
     });
 
     EngineEvents.instance.addEventListener(ClientInputSystem.EVENTS.PROCESS_INPUT, ({ data }) => {
-      this.stateUpdates.push(data)
+      this.receivedClientInputs.push(data)
     });
   }
 
@@ -85,6 +84,7 @@ export class ActionSystem extends System {
     //   rightControllerPhysicsBody: this.rightControllerId
     // }));
 
+    // TODO: use Vector & Quaternion .toArray & .fromArray to make this faster
     this.queryResults.controllersComponent.all?.forEach(entity => {
       const xrControllers = getComponent(entity, XRInputReceiver);
       const input = getMutableComponent(entity, Input);
@@ -131,9 +131,9 @@ export class ActionSystem extends System {
 
     this.queryResults.localClientInput.all?.forEach(entity => {
       // Apply input for local user input onto client
-      const newStates = [...this.stateUpdates];
-      this.stateUpdates = [];
-      newStates?.forEach((stateUpdate) => {
+      const receivedClientInput = [...this.receivedClientInputs];
+      this.receivedClientInputs = [];
+      receivedClientInput?.forEach((stateUpdate) => {
 
         // Get immutable reference to Input and check if the button is defined -- ignore undefined buttons
         const input = getMutableComponent(entity, Input);
@@ -278,7 +278,8 @@ export class ActionSystem extends System {
               x: 0, y: 0, z: 0
             },
             snapShotTime: inputSnapshot.time - Network.instance.timeSnaphotCorrection ?? 0,
-            switchInputs: sendSwitchInputs ? this.switchId : 0
+            switchInputs: sendSwitchInputs ? this.switchId : 0,
+            characterState: hasComponent(entity, CharacterComponent) ? getComponent(entity, CharacterComponent).state : 0
           };
 
           //console.warn(inputs.snapShotTime);

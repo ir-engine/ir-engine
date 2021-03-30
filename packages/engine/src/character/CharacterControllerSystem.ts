@@ -2,14 +2,11 @@ import { System, SystemAttributes } from "../ecs/classes/System";
 import { updateVectorAnimation } from "./functions/updateVectorAnimation";
 import { AnimationComponent } from "./components/AnimationComponent";
 import { CharacterComponent } from "../templates/character/components/CharacterComponent";
-import { updateCharacterState } from "./functions/updateCharacterState";
+import { updateCharacterOrientation } from "./functions/updateCharacterOrientation";
 import { getComponent, getMutableComponent } from "../ecs/functions/EntityFunctions";
 import { physicsMove } from "../physics/behaviors/physicsMove";
 import { IKComponent } from "./components/IKComponent";
 import { Input } from "../input/components/Input";
-import { isClient } from "../common/functions/isClient";
-
-
 export class CharacterControllerSystem extends System {
 
   constructor(attributes?: SystemAttributes) {
@@ -29,8 +26,7 @@ export class CharacterControllerSystem extends System {
     this.queryResults.character.all.forEach((entity) => {
       const actor = getComponent(entity, CharacterComponent)
       
-      // if(isClient)  
-      updateCharacterState(entity, delta)
+      updateCharacterOrientation(entity, delta)
       if(actor.movementEnabled) {
         physicsMove(entity, {}, delta)
       }
@@ -41,8 +37,10 @@ export class CharacterControllerSystem extends System {
     })
 
     this.queryResults.ikavatar.all.forEach((entity) => {
-      const { avatarIKRig } = getMutableComponent(entity, IKComponent);
-      avatarIKRig.update(delta);
+      const ikComponent = getMutableComponent(entity, IKComponent);
+      if(ikComponent.avatarIKRig) {
+        ikComponent.avatarIKRig.update(delta);
+      }
     })
   }
 }

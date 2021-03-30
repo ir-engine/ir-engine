@@ -20,6 +20,7 @@ const options = {
   networking: {
     schema: networkSchema
   },
+  publicPath: config.client.url
 };
 
 export class WebRTCGameServer {
@@ -27,8 +28,6 @@ export class WebRTCGameServer {
   constructor(app: any) {
     (options.networking as any).app = app;
     WebRTCGameServer.instance = this;
-    initializeServer(options).then(() => {
-      Engine.publicPath = config.client.url;
-    });
+    initializeServer(options);
   }
 }

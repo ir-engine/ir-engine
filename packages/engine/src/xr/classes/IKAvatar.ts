@@ -7,6 +7,7 @@ import skeletonString from '../constants/Skeleton';
 import ShoulderTransforms from './ShoulderTransforms';
 import { fixSkeletonZForward } from './SkeletonUtils';
 
+type AvatarOptions = { debug: boolean, top: boolean, bottom: boolean, visemes: boolean, hair: boolean }
 export class Avatar {
   shoulderTransforms: any;
   legsManager: any;
@@ -16,7 +17,7 @@ export class Avatar {
   decapitated: boolean;
   sdkInputs: any;
   inputs: any;
-  options: {};
+  options: AvatarOptions;
   debug = true;
   springBoneManager: any;
   lastModelScaleFactor: any;
@@ -52,17 +53,13 @@ export class Avatar {
   sitAnimation: any;
   sitTarget: Object3D;
   skeleton: any;
-  constructor(object, options = { debug: true, top: true, bottom: true, visemes: true, hair: true } )
+  constructor(object, options: AvatarOptions = { debug: true, top: true, bottom: true, visemes: true, hair: true } )
   {
-    console.log(object)
     this.object = object;
     const model = (() => {
       let o = object;
-      if (o && !o.isMesh) {
-        o = o.scene;
-      }
       if (!o) {
-        const scene = new Scene();
+        const object = new Scene();
 
         const skinnedMesh = new Object3D();
         skinnedMesh["isSkinnedMesh"] = true;
@@ -71,13 +68,13 @@ export class Avatar {
           skinnedMesh["skeleton"] = skeleton;
         };
         skinnedMesh["bind"](importSkeleton(skeletonString));
-        scene.add(skinnedMesh);
+        object.add(skinnedMesh);
 
         const hips = findHips(skinnedMesh["skeleton"]);
         const armature = findArmature(hips);
-        scene.add(armature);
+        object.add(armature);
 
-        o = scene;
+        o = object;
       }
       return o;
     })();
@@ -125,7 +122,6 @@ export class Avatar {
 
     const tailBones = getTailBones(skeleton);
     // const tailBones = skeleton.bones.filter(bone => bone.children.length === 0);
-
     const Eye_L = findEye(tailBones, true);
     const Eye_R = findEye(tailBones, false);
     const Head = findHead(tailBones);
@@ -238,7 +234,6 @@ export class Avatar {
         console.warn('missing bone', k);
       }
     } */
-
     const armature = findArmature(Hips);
 
     const _getEyePosition = () => {
@@ -1000,8 +995,6 @@ export class Avatar {
     } */
 
     const now = Date.now();
-
-
     if (this.getTopEnabled()) {
       this.sdkInputs.hmd.position.copy(this.inputs.hmd.position);
       this.sdkInputs.hmd.quaternion.copy(this.inputs.hmd.quaternion);

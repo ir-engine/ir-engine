@@ -17,13 +17,12 @@ export class CharacterComponent extends Component<CharacterComponent> {
 	dispose(): void {
     super.dispose();
 		this.modelContainer.parent.remove(this.modelContainer);
-		//this.modelContainer = null;
-        this.tiltContainer = null;
-        // this.cameraMount = null;
+    this.tiltContainer = null;
   }
 
   public movementEnabled = false;
 	public initialized = false;
+  public state = 0;
 
 // TODO: Move these... but for now...
 	public currentAnimationAction: AnimationAction[] = [];
@@ -33,7 +32,6 @@ export class CharacterComponent extends Component<CharacterComponent> {
   public avatarId:string;
   public avatarURL: string;
 	public height = 0;
-	// public cameraMount: Group;
 	public tiltContainer: Group;
 	public modelContainer: Group;
 	public materials: Material[] = [];
@@ -63,7 +61,7 @@ export class CharacterComponent extends Component<CharacterComponent> {
 	public defaultVelocitySimulatorDamping = 0.8;
 	public defaultVelocitySimulatorMass = 50;
 	public velocitySimulator: VectorSpringSimulator
-	public vactorAnimSimulator: VectorSpringSimulator
+	public animationVectorSimulator: VectorSpringSimulator
 	public moveVectorSmooth: VectorSpringSimulator
 	public moveSpeed = RUN_SPEED;
 	public otherPlayerMaxSpeedCount = 0;
@@ -105,63 +103,16 @@ export class CharacterComponent extends Component<CharacterComponent> {
 	public controlledObject: any;
 
 	public raycastBox: Mesh;
-  	public vehicleEntryInstance: any;
-  	public occupyingSeat: any;
-    quaternion: any;
+  public vehicleEntryInstance: any;
+  public occupyingSeat: any;
+  quaternion: any;
 	canFindVehiclesToEnter: boolean;
 	canEnterVehicles: boolean;
 	canLeaveVehicles: boolean;
   alreadyJumped: boolean;
 	rotationSpeed: any;
-
-  model: any
-  options: {}
-  skinnedMeshes: any[]
-  flipZ: boolean
-  flipY: boolean
-  flipLeg: boolean
-  allHairBones: any[]
-  hairBones: any[]
-  fingerBones: any
-  tailBones: any
-  armature: any
-  skeleton: any
-  Eye_L: any
-  Eye_R: any
-  Head: any
-  Neck: any
-  Chest: any
-  Hips: any
-  Spine: any
-  Left_shoulder: any
-  Left_wrist: any
-  Left_elbow: any
-  Left_arm: any
-  Right_shoulder: any
-  Right_wrist: any
-  Right_elbow: any
-  Right_arm: any
-
-  modelBones: any
-  poseManager: any
-  shoulderTransforms: any
-  legsManager: any
-  inputs: any
-  shoulderWidth: any
-  leftArmLength: any
-  rightArmLength: any
-  lastModelScaleFactor: number
-  lastTimestamp: number
-  decapitated: boolean
-  modelBoneOutputs: any
-  volume: number
-	outputs: any
-
-	update: any
 }
 
 CharacterComponent._schema = {
 	tiltContainer: { type: Types.Ref, default: null },
-	// cameraMount: { type: Types.Ref, default: null },
-	//modelContainer: { type: Types.Ref, default: null }
 };

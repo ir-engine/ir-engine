@@ -1,7 +1,6 @@
 import { Network } from "../../src/networking//classes/Network";
 import {
   NetworkObjectCreateInterface,
-  PacketWorldState,
   WorldStateInterface
 } from "../../src/networking/interfaces/WorldState";
 import { PrefabType } from "../../src/templates/networking/DefaultNetworkSchema";
