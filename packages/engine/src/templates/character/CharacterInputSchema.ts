@@ -1,7 +1,7 @@
 import { FollowCameraComponent } from '@xr3ngine/engine/src/camera/components/FollowCameraComponent';
 import { Behavior } from '@xr3ngine/engine/src/common/interfaces/Behavior';
 import { Entity } from '@xr3ngine/engine/src/ecs/classes/Entity';
-import { getComponent } from '@xr3ngine/engine/src/ecs/functions/EntityFunctions';
+import { getComponent, removeComponent } from '@xr3ngine/engine/src/ecs/functions/EntityFunctions';
 import { Input } from '@xr3ngine/engine/src/input/components/Input';
 import { BaseInput } from '@xr3ngine/engine/src/input/enums/BaseInput';
 import { Material, Mesh, Vector3, Quaternion, Object3D } from "three";
@@ -25,6 +25,9 @@ import { VehicleBody } from '../../physics/components/VehicleBody';
 import { isMobileOrTablet } from '../../common/functions/isMobile';
 import { SIXDOFType } from '../../common/types/NumericalTypes';
 import { IKComponent } from '../../character/components/IKComponent';
+import { EquippedComponent } from '../../interaction/components/EquippedComponent';
+import { TransformParentComponent } from '../../transform/components/TransformParentComponent';
+import { unequipEntity } from '../../interaction/functions/equippableFunctions';
 
 /**
  *
@@ -34,6 +37,13 @@ import { IKComponent } from '../../character/components/IKComponent';
  */
 
 const interact: Behavior = (entity: Entity, args: any = { }, delta): void => {
+
+  // TODO: figure out how to best handle equippables & interactables at the same time
+  const equippedComponent = getComponent(entity, EquippedComponent)
+  if(equippedComponent) {
+    unequipEntity(entity)
+    return;
+  }
   if (isServer) {
     interactOnServer(entity);
     return;

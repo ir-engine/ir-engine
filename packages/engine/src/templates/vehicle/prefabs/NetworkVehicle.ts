@@ -18,11 +18,8 @@ import { InterpolationComponent } from "@xr3ngine/engine/src/physics/components/
 import { createTrimeshFromArrayVertices, createTrimeshFromMesh, createCylinder, createBox, createSphere } from '@xr3ngine/engine/src/physics/behaviors/addColliderWithoutEntity';
 import { AssetLoader } from '../../../assets/components/AssetLoader';
 import { VehicleBody } from "@xr3ngine/engine/src/physics/components/VehicleBody";
-import { NetworkObject } from '@xr3ngine/engine/src/networking/components/NetworkObject';
-import { onInteractionHover } from '../../../interaction/functions/commonInteractive';
 import { getInCar } from '../behaviors/getInCarBehavior';
 import { getInCarPossible } from '../behaviors/getInCarPossible';
-import { CollisionGroups } from "@xr3ngine/engine/src/physics/enums/CollisionGroups";
 
 
 function castShadowOn(group) {
