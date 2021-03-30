@@ -23,7 +23,7 @@
     "url": "git+https://github.com/xr3ngine/xr3ngine.git"
   },
   "scripts": {
-    "lint": "node node_modules/.bin/eslint --fix --quiet --ext .ts src/",
+    "lint":"eslint --fix --quiet --ext .ts src/",
     "test": "jest",
     "validate": "yarn run lint && yarn run test",
     "generate-doc": "node_modules/.bin/typedoc"
