@@ -5,7 +5,6 @@ import { Interactable } from "../../interaction/components/Interactable";
 import { InteractiveSystem } from "../../interaction/systems/InteractiveSystem";
 import { CommonInteractiveData } from "../../interaction/interfaces/CommonInteractiveData";
 import { Object3DComponent } from "../components/Object3DComponent";
-import { InteractiveSchema } from '../constants/InteractiveSchema';
 
 const onInteraction: Behavior = (entityInitiator, args, delta, entityInteractive, time) => {
   const interactiveComponent = getComponent(entityInteractive, Interactable);
@@ -26,15 +25,7 @@ const onInteraction: Behavior = (entityInitiator, args, delta, entityInteractive
 const onInteractionHover: Behavior = (entityInitiator, { focused }: { focused: boolean }, delta, entityInteractive, time) => {
   const interactiveComponent = getComponent(entityInteractive, Interactable);
 
-  const engineEvent: any = { type: InteractiveSystem.EVENTS.OBJECT_HOVER, focused };
-
-  if (interactiveComponent.data) {
-    if (typeof interactiveComponent.data.action !== 'undefined') {
-      engineEvent.action = interactiveComponent.data.action;
-      engineEvent.payload = interactiveComponent.data.payload;
-    }
-    engineEvent.interactionText = interactiveComponent.data.interactionText;
-  }
+  const engineEvent: any = { type: InteractiveSystem.EVENTS.OBJECT_HOVER, focused, ...interactiveComponent.data };
   EngineEvents.instance.dispatchEvent(engineEvent);
 
   if (!hasComponent(entityInteractive, Object3DComponent)) {
@@ -51,7 +42,13 @@ export const createCommonInteractive: Behavior = (entity, args: any) => {
     return;
   }
 
-  const data: CommonInteractiveData = InteractiveSchema[args.objArgs.interactionType](args.objArgs, entity);
+  console.log(args.objArgs.interactionType)
+
+  const data = {
+    action: args.objArgs.interactionType,
+    payload: args.objArgs,
+    interactionText: args.objArgs.interactionText
+  };
 
   if(!data) {
     console.error('unsupported interactionType', args.objArgs.interactionType);

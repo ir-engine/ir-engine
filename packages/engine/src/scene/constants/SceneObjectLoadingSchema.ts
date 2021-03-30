@@ -116,6 +116,7 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
         },
         values: [
           { from: 'src', to: 'url' },
+          { from: 'equippable', to: 'equippable' },
           'dontParseModel',
         ]
       },

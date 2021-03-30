@@ -278,7 +278,7 @@ export const EnginePage = (props: Props) => {
   const onObjectHover = ({ focused, interactionText }: { focused: boolean, interactionText: string }): void => {
     setObjectHovered(focused);
     let displayText = interactionText;
-    const length = interactionText.length;
+    const length = interactionText && interactionText.length;
     if(length > 110) {
       displayText = interactionText.substring(0, 110) + '...';
     }
@@ -301,7 +301,7 @@ export const EnginePage = (props: Props) => {
     EngineEvents.instance.addEventListener(XRSystem.EVENTS.XR_END, async (ev: any) => { setIsInXR(false); });
   };
 
-  const onObjectActivation = ({ action, payload }): void => {
+  const onObjectActivation = ({ action, payload, interactionText }): void => {
     switch (action) {
       case 'link':
         setOpenLinkData(payload);
@@ -309,7 +309,7 @@ export const EnginePage = (props: Props) => {
         break;
       case 'infoBox':
       case 'mediaSource':
-        setModalData(payload);
+        setModalData({ payload, interactionText});
         setObjectActivated(true);
         break;
       default:
