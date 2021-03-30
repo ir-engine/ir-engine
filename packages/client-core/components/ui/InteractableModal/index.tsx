@@ -20,15 +20,13 @@ export const InteractableModal: FunctionComponent<InteractableModalProps> = ({ o
 
   if(!data){return null;}
 
-  const { payload, interactionText } = data;
-
   const handleLinkClick = (url) =>{  
     window.open(url, "_blank");
   };
 
   let modelView = null;
-  if (payload.payloadModelUrl) {
-    modelView = (<ModelView modelUrl={payload.payloadModelUrl} />);
+  if (data.payloadModelUrl) {
+    modelView = (<ModelView modelUrl={data.payloadModelUrl} />);
   }
   return  (<Dialog open={true} aria-labelledby="xr-dialog" 
       classes={{
@@ -36,19 +34,19 @@ export const InteractableModal: FunctionComponent<InteractableModalProps> = ({ o
         paper: styles.customDialogInner, 
       }}
       BackdropProps={{ style: { backgroundColor: "transparent" } }} >
-      { payload.payloadUrl && 
+      { data.payloadUrl && 
         <DialogTitle disableTypography className={styles.dialogTitle}>
           <IconButton aria-label="close" className={styles.dialogCloseButton} color="primary"
               onClick={(): void => { if (typeof onClose === 'function') { onClose(); } }}><CloseIcon /></IconButton>
-          <Typography variant="h2"align="left" >{interactionText}</Typography>          
+          <Typography variant="h2"align="left" >{data.interactionText}</Typography>          
         </DialogTitle>}
         <DialogContent className={styles.dialogContent}>
           {modelView}
           {/* eslint-disable-next-line react/no-danger */}
-          { payload.payloadHtmlContent && (<div dangerouslySetInnerHTML={{__html: payload.payloadHtmlContent}} />)}
-          { payload.payloadUrl && (<p>{payload.payloadUrl}</p>)}
-          { payload.payloadBuyUrl && (<Button  variant="outlined" color="primary" onClick={()=>handleLinkClick(payload.payloadBuyUrl)}>Buy</Button>)}
-          { payload.payloadLearnMoreUrl && (<Button  variant="outlined" color="secondary" onClick={()=>handleLinkClick(payload.payloadLearnMoreUrl)}>Learn more</Button>)}
+          { data.payloadHtmlContent && (<div dangerouslySetInnerHTML={{__html: data.payloadHtmlContent}} />)}
+          { data.payloadUrl && (<p>{data.payloadUrl}</p>)}
+          { data.payloadBuyUrl && (<Button  variant="outlined" color="primary" onClick={()=>handleLinkClick(data.payloadBuyUrl)}>Buy</Button>)}
+          { data.payloadLearnMoreUrl && (<Button  variant="outlined" color="secondary" onClick={()=>handleLinkClick(data.payloadLearnMoreUrl)}>Learn more</Button>)}
           {/* { data.url? <iframe className="iframe" src={data.url} /> : null } */}
         </DialogContent>
     </Dialog>);

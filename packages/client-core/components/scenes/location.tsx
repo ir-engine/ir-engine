@@ -301,15 +301,15 @@ export const EnginePage = (props: Props) => {
     EngineEvents.instance.addEventListener(XRSystem.EVENTS.XR_END, async (ev: any) => { setIsInXR(false); });
   };
 
-  const onObjectActivation = ({ action, payload, interactionText }): void => {
-    switch (action) {
+  const onObjectActivation = (interactionData): void => {
+    switch (interactionData.interactionType) {
       case 'link':
-        setOpenLinkData(payload);
+        setOpenLinkData(interactionData);
         setObjectActivated(true);
         break;
       case 'infoBox':
       case 'mediaSource':
-        setModalData({ payload, interactionText});
+        setModalData(interactionData);
         setObjectActivated(true);
         break;
       default:
