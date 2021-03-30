@@ -3,12 +3,20 @@ import { EngineEvents } from "../../ecs/classes/EngineEvents";
 import { addComponent, getComponent, hasComponent } from "../../ecs/functions/EntityFunctions";
 import { Interactable } from "../../interaction/components/Interactable";
 import { InteractiveSystem } from "../../interaction/systems/InteractiveSystem";
-import { CommonInteractiveData } from "../../interaction/interfaces/CommonInteractiveData";
 import { Object3DComponent } from "../components/Object3DComponent";
+import { EquippedComponent } from "../../interaction/components/EquippedComponent";
+import { equipEntity } from "../../interaction/functions/equippableFunctions";
 
 const onInteraction: Behavior = (entityInitiator, args, delta, entityInteractive, time) => {
   const interactiveComponent = getComponent(entityInteractive, Interactable);
-  EngineEvents.instance.dispatchEvent({type: InteractiveSystem.EVENTS.OBJECT_ACTIVATION, ...interactiveComponent.data });
+
+  if(interactiveComponent.data.interactionType === 'equippable') {
+    if(!hasComponent(entityInitiator, EquippedComponent)) {
+      equipEntity(entityInitiator, entityInteractive)
+    }
+  } else {
+    EngineEvents.instance.dispatchEvent({type: InteractiveSystem.EVENTS.OBJECT_ACTIVATION, ...interactiveComponent.data });
+  }
 };
 
 const onInteractionHover: Behavior = (entityInitiator, { focused }: { focused: boolean }, delta, entityInteractive, time) => {
@@ -31,11 +39,10 @@ export const createCommonInteractive: Behavior = (entity, args: any) => {
     return;
   }
 
-  console.log(args.objArgs)
-
   const interactiveData = {
     onInteraction: onInteraction,
     onInteractionFocused: onInteractionHover,
+    onInteractionCheck: () => { return true },
     data: args.objArgs
   };
 

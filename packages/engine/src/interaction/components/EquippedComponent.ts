@@ -2,12 +2,12 @@ import { Component } from "../../ecs/classes/Component";
 import { Types } from "../../ecs/types/Types";
 import { Entity } from "../../ecs/classes/Entity";
 
-export class EquippableComponent extends Component<EquippableComponent> {
+export class EquippedComponent extends Component<EquippedComponent> {
   static _schema = {
-    equipperEntity:  { type: Types.Ref, default: null},
+    equippedEntity:  { type: Types.Ref, default: null},
     data: { type: Types.Ref }
   }
 
-  public equipperEntity: Entity
+  public equippedEntity: Entity
   public data: any
 }

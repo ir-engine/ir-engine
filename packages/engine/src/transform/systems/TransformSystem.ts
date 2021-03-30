@@ -4,6 +4,7 @@ import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType';
 import { Object3DComponent } from '../../scene/components/Object3DComponent';
 import { CopyTransformComponent } from "../components/CopyTransformComponent";
 import { DesiredTransformComponent } from "../components/DesiredTransformComponent";
+import { TransformChildComponent } from '../components/TransformChildComponent';
 import { TransformComponent } from '../components/TransformComponent';
 import { TransformParentComponent } from '../components/TransformParentComponent';
 
@@ -126,12 +127,43 @@ export class TransformSystem extends System {
         childQuaternion.multiply(parentTransform.rotation);
       });
     });
+
+    this.queryResults.child.all?.forEach(entity => {
+      const childComponent = getComponent(entity, TransformChildComponent);
+      const parent = childComponent.parent;
+
+      if (!hasComponent(parent, Object3DComponent)) {
+        return;
+      }
+      const parentTransform = getMutableComponent(parent, TransformComponent);
+  
+      const { value: { position: childPosition, quaternion: childQuaternion } } = getMutableComponent<Object3DComponent>(entity, Object3DComponent);
+      const childTransformComponent = getComponent(entity, TransformComponent);
+  
+      // reset to "local"
+      if (childTransformComponent) {
+        childPosition.copy(childTransformComponent.position);
+        childQuaternion.copy(childTransformComponent.rotation);
+      } else {
+        childPosition.setScalar(0);
+        childQuaternion.set(0,0,0,0);
+      }
+ 
+      // TODO: add an option on TransformChildComponent to use proper child orientation
+
+      // add parent
+      childPosition.add(parentTransform.position).add(childComponent.offsetPosition);
+      childQuaternion.multiply(parentTransform.rotation).multiply(childComponent.offsetQuaternion);
+    });
   }
 }
 
 TransformSystem.queries = {
   parent: {
     components: [TransformParentComponent, TransformComponent]
+  },
+  child: {
+    components: [TransformChildComponent, TransformComponent]
   },
   transforms: {
     components: [TransformComponent],
