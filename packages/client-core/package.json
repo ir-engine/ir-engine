@@ -12,7 +12,7 @@
   "npmClient": "yarn",
   "jest": "ts-jest",
   "scripts": {
-    "lint": "node node_modules/.bin/eslint --fix --quiet '*.ts' '**/*.d.ts' '**/*.ts' '**/*.tsx'"
+    "lint":"eslint --fix --quiet *.ts **/*.d.ts **/*.ts **/*.tsx"
   },
   "resolutions": {
     "socket.io": "2.4.1"

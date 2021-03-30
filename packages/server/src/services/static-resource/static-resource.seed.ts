@@ -1,7 +1,12 @@
 import config from '../../config';
 
 const getAvatarURL = (avatarName) => {
-  return 'https://s3.amazonaws.com/' + config.aws.s3.staticResourceBucket + '/' + process.env.STORAGE_S3_AVATAR_DIRECTORY + '/' + avatarName;
+  if (process.env.STORAGE_S3_DEV_MODE === 'local') {
+    if (avatarName.includes('.glb')) return '/models/avatars/' + avatarName;
+    else return '/static/' + avatarName;
+  } else {
+    return 'https://s3.amazonaws.com/' + config.aws.s3.staticResourceBucket + '/' + process.env.STORAGE_S3_AVATAR_DIRECTORY + '/' + avatarName;
+  }
 };
 
 export const seed = {

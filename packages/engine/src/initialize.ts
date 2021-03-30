@@ -154,7 +154,6 @@ export const initializeServer = async (initOptions: any = DefaultInitializationO
   addOutgoingEvents()
 
   initialize();
-  await AnimationManager.instance.getDefaultModel()
 
   const networkSystemOptions = { schema: options.networking.schema, app: options.networking.app };
   registerSystem(ServerNetworkIncomingSystem, { ...networkSystemOptions, priority: -1 });
@@ -175,4 +174,5 @@ export const initializeServer = async (initOptions: any = DefaultInitializationO
         update: (delta, elapsedTime) => execute(delta, elapsedTime, SystemUpdateType.Free)
       }, Engine.physicsFrameRate, Engine.networkFramerate).start();
   }, 1000);
+  await AnimationManager.instance.getDefaultModel()
 }

@@ -29,7 +29,7 @@ import { CharacterInputSchema } from '../CharacterInputSchema';
 import { CharacterComponent } from '../components/CharacterComponent';
 import { NamePlateComponent } from '../components/NamePlateComponent';
 import { getLoader } from "../../../assets/functions/LoadGLTF";
-import { Avatar } from "../../../xr/classes/IKAvatar";
+import { DEFAULT_AVATAR_ID } from "../../../common/constants/AvatarConstants";
 import { Engine } from "../../../ecs/classes/Engine";
 import { PrefabType } from "@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema";
 import { initializeMovingState } from "../animations/MovingAnimations";
@@ -285,7 +285,7 @@ export const NetworkPlayerCharacter: NetworkPrefab = {
   // These will be created for all players on the network
   networkComponents: [
     // ActorComponent has values like movement speed, deceleration, jump height, etc
-    { type: CharacterComponent, data: { avatarId: process.env.DEFAULT_AVATAR_ID || 'Allison' }}, // TODO: add to environment
+    { type: CharacterComponent, data: { avatarId: DEFAULT_AVATAR_ID || 'Allison' }}, // TODO: add to environment
     // Transform system applies values from transform component to three.js object (position, rotation, etc)
     { type: TransformComponent },
     // Local player input mapped to behaviors in the input map
