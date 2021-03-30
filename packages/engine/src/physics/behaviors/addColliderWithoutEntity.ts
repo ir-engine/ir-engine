@@ -97,7 +97,8 @@ export function addColliderWithoutEntity( userData, position, quaternion, scale,
   }
   //    body.collisionFilterMask = CollisionGroups.Scene | CollisionGroups.Default | CollisionGroups.Characters | CollisionGroups.Car | CollisionGroups.TrimeshColliders;
 
-  PhysicsSystem.physicsWorld?.addBody(body);
+  console.log(PhysicsSystem.physicsWorld)
+  PhysicsSystem.physicsWorld.addBody(body);
   // console. log(body)
   return body;
 }

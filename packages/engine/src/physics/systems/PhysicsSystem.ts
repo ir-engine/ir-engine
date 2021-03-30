@@ -120,7 +120,7 @@ export class PhysicsSystem extends System {
     this.wheelGroundContactMaterial = null;
     PhysicsSystem.frame = 0;
     PhysicsSystem.physicsWorld.broadphase = null;
-    PhysicsSystem.physicsWorld = null;
+    // PhysicsSystem.physicsWorld = null;
   }
 
   execute(delta: number): void {
