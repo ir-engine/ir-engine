@@ -8,10 +8,8 @@ import { getOrbitControls } from '@xr3ngine/engine/src/input/functions/loadOrbit
 import { Views } from '../util';
 //@ts-ignore
 import styles from '../style.module.scss';
+import { AVATAR_FILE_ALLOWED_EXTENSIONS, MAX_AVATAR_FILE_SIZE, MIN_AVATAR_FILE_SIZE, MAX_ALLOWED_TRIANGLES, THUMBNAIL_HEIGHT, THUMBNAIL_WIDTH } from '@xr3ngine/engine/src/common/constants/AvatarConstants';
 
-const THUMBNAIL_WIDTH = 300;
-const THUMBNAIL_HEIGHT = 300;
-const MAX_ALLOWED_TRIANGLES = 100000;
 
 interface Props {
     changeActiveMenu: Function;
@@ -106,9 +104,8 @@ export default class AvatarSelectMenu extends React.Component<Props, State> {
 	}
 
 	handleAvatarChange = (e) => {
-		const sizeInMB = e.size / 1048576;
-		if (sizeInMB < 2 || sizeInMB > 15) {
-			this.setState({ error: 'Avatar file size must be between 2 MB and 15 MB'});
+		if (e.target.files[0].size < MIN_AVATAR_FILE_SIZE || e.target.files[0].size > MAX_AVATAR_FILE_SIZE) {
+			this.setState({ error: 'Avatar file size must be between ' + (MIN_AVATAR_FILE_SIZE / 1048576) + ' MB and ' + (MAX_AVATAR_FILE_SIZE / 1048576) + ' MB'});
 			return;
 		}
 
@@ -220,7 +217,7 @@ export default class AvatarSelectMenu extends React.Component<Props, State> {
 						? this.state.error
 						: this.fileSelected ? this.state.selectedFile.name : 'Select Avatar...'}
 				</div>
-            	<input type="file" id="avatarSelect" accept=".glb, .gltf, .vrm, .fbx" hidden onChange={this.handleAvatarChange} />
+            	<input type="file" id="avatarSelect" accept={AVATAR_FILE_ALLOWED_EXTENSIONS} hidden onChange={this.handleAvatarChange} />
             	<div className={styles.controlContainer}>
 	                <button type="button" className={styles.browseBtn} onClick={this.handleBrowse}>Browse <SystemUpdateAlt /></button>
 	                <button type="button" className={styles.uploadBtn} onClick={this.uploadAvatar} disabled={!this.fileSelected || !!this.state.error}>Upload <CloudUpload /></button>
