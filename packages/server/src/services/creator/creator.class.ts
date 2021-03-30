@@ -37,16 +37,16 @@ export class Creator extends Service {
     if (action === 'current') {
       const loggedInUser = extractLoggedInUserFromParams(params);
       if(loggedInUser?.userId){
-        let select = `SELECT creator.*, sr.url as avatar `;
+        const select = `SELECT creator.*, sr.url as avatar `;
         const from = ` FROM \`creator\` as creator`;
-        let join = ` JOIN \`user\` as user ON user.id=creator.userId
+        const join = ` JOIN \`user\` as user ON user.id=creator.userId
                     LEFT JOIN \`static_resource\` as sr ON sr.id=creator.avatarId` ;
-        let where = ` WHERE creator.userId=:userId`;      
+        const where = ` WHERE creator.userId=:userId`;      
 
         queryParamsReplacements.userId = loggedInUser.userId;
         const dataQuery = select + from + join + where;
 
-        let [creator] = await this.app.get('sequelizeClient').query(dataQuery,
+        const [creator] = await this.app.get('sequelizeClient').query(dataQuery,
           {
             type: QueryTypes.SELECT,
             raw: true,
@@ -64,9 +64,9 @@ export class Creator extends Service {
     LEFT JOIN \`static_resource\` as sr ON sr.id=creator.avatarId
     WHERE 1 
     ORDER BY createdAt DESC    
-    LIMIT :skip, :limit `
+    LIMIT :skip, :limit `;
 
-    let creators = await this.app.get('sequelizeClient').query(dataQuery,
+    const creators = await this.app.get('sequelizeClient').query(dataQuery,
       {
         type: QueryTypes.SELECT,
         raw: true,

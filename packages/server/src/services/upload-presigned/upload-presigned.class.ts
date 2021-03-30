@@ -28,7 +28,7 @@ export class UploadPresigned implements ServiceMethods<Data> {
   }
 
   async get (id: Id, params?: Params): Promise<Data> {
-    let url = await this.s3.getSignedUrl(
+    const url = await this.s3.getSignedUrl(
       this.getKeyForFilename(params['identity-provider'].userId + '/' + params.query.fileName),
       3600,  // Expires After 1 hour
       [
@@ -52,7 +52,7 @@ export class UploadPresigned implements ServiceMethods<Data> {
   }
 
   async remove (id: NullableId, params?: Params): Promise<Data> {
-    let data = await this.s3.deleteResources(params.query.keys);
+    const data = await this.s3.deleteResources(params.query.keys);
     await this.app.service('static-resource').Model.destroy({
       where: {
         key: {

@@ -257,7 +257,7 @@ export default class ModelNode extends EditorNodeMixin(Model) {
     }
   }
   addEditorParametersToCollider(collider) {
-    let [position, quaternion, scale] = plusParameter(
+    const [position, quaternion, scale] = plusParameter(
       collider.position,
       collider.quaternion,
       collider.scale,

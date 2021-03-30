@@ -202,7 +202,7 @@ export async function handleConnectToWorld(socket, data, callback, userId, user,
 
     // Push to our worldstate to send out to other users
     Network.instance.clientsConnected.push({ userId, name: userId, avatarDetail });
-    console.log("Pushing: ")
+    console.log("Pushing: ");
     console.log({ userId, name: userId, avatarDetail });
     // Create a new worldtate object that we can fill
     const worldState = {

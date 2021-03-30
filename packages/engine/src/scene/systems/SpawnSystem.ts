@@ -14,7 +14,7 @@ import { CapsuleCollider } from "../../physics/components/CapsuleCollider";
 
 export class ServerSpawnSystem extends System {
     spawnPoints: Entity[] = []
-    lastSpawnIndex: number = 0;
+    lastSpawnIndex = 0;
 
     constructor(attributes?: SystemAttributes) {
         super(attributes);
