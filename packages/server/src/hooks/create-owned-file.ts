@@ -40,10 +40,10 @@ export default (options = {}) => {
           })
         } else { */
       if (context.params.parentResourceId) {
-        ;(resourceData as any).parentResourceId =
+        (resourceData as any).parentResourceId =
           context.params.parentResourceId;
       }
-      ;(resourceData as any).type = getBasicMimetype(resourceData.content_type);
+      (resourceData as any).type = getBasicMimetype(resourceData.content_type);
 
       // Remap input from Editor to fit
       const modifiedResourceData = {

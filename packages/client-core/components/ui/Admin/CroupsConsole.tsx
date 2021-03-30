@@ -41,7 +41,7 @@ export default function CroupsConsole() {
             { id: "description", numeric: false, disablePadding: false, label: "Description"},
             { id: "action", numeric: false, disablePadding: false, label: "Action"}
         ]
-    }
+    };
 
     type Order = 'asc' | 'desc';
 
@@ -56,7 +56,7 @@ export default function CroupsConsole() {
         const { order, orderBy, onRequestSort } = props;
         const createSortHandler = (property) => (event: React.MouseEvent<unknown>) => {
             onRequestSort(event, property);
-        }
+        };
 
         return (
             <TableHead className={styles.thead}>
@@ -95,12 +95,10 @@ export default function CroupsConsole() {
                       >
                           <EnchancedTableHead
                            />
-                           <TableBody className={styles.thead}>
-
-                           </TableBody>
+                           <TableBody className={styles.thead} />
                       </Table>
                 </TableContainer>
             </Paper>
         </div>
-    )
+    );
 }

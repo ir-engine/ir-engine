@@ -1,7 +1,7 @@
 import { LifecycleValue } from "../../common/enums/LifecycleValue";
 import { NumericalType } from "../../common/types/NumericalTypes";
 import { InputAlias } from "../../input/types/InputAlias";
-import { Snapshot, StateEntityGroup, StateEntityClientGroup } from "../types/SnapshotDataTypes";
+import { StateEntityGroup, StateEntityIKGroup } from "../types/SnapshotDataTypes";
 
 /** Interface for handling network input. */
 export interface NetworkInputInterface {
@@ -46,7 +46,8 @@ export interface NetworkInputInterface {
 export interface NetworkClientInputInterface extends NetworkInputInterface {
   /** Time of the snapshot. */
   snapShotTime: number,
-  switchInputs: number
+  switchInputs: number,
+  characterState: number
 }
 
 /** Interface for network client input packet. */
@@ -60,21 +61,6 @@ export interface NetworkClientDataInterface {
   /** Id of the user. */
   userId: string,
   avatarDetail: any,
-}
-
-/** Interface for network transform. */
-export interface NetworkTransformsInterface {
-  /** Id of the network. */
-  networkId: number,
-  /** Time of the snapshot. */
-  snapShotTime: number,
-  x: number
-  y: number
-  z: number
-  qX: number
-  qY: number
-  qZ: number
-  qW: number
 }
 
 /** Interface to remove network object. */
@@ -135,6 +121,8 @@ export interface WorldStateInterface {
   time: number
   /** transform of world. */
   transforms: StateEntityGroup
+  /** transform of ik avatars. */
+  ikTransforms: StateEntityIKGroup
   //snapshot: Snapshot
   /** Inputs received. */
   inputs: NetworkInputInterface[]
@@ -149,29 +137,6 @@ export interface WorldStateInterface {
   /** List of created objects. */
   editObjects: NetworkObjectEditInterface[]
   /** List of destroyed objects. */
-  destroyObjects: NetworkObjectRemoveInterface[]
-}
-
-/** Interface for packet world state. */
-export interface PacketWorldState {
-  /** Tick of the world. */
-  tick: number
-  /** transform of world. */
-  transforms: NetworkTransformsInterface[]
-  //snapshot: WorldStateSnapshot
-  /** Inputs received. */
-  inputs: PacketNetworkInputInterface[]
-  /** List of the states. */
-  states: any[],
-  /** List of connected clients. */
-  clientsConnected: NetworkClientDataInterface[]
-  /** List of disconnected clients. */
-  clientsDisconnected: NetworkClientDataInterface[]
-  /** List of created objects. */
-  createObjects: NetworkObjectCreateInterface[]
-  /** List of destroyed objects. */
-  editObjects: NetworkObjectEditInterface[]
-    /** List of created objects. */
   destroyObjects: NetworkObjectRemoveInterface[]
 }
 /** Interface for handling packet network input. */

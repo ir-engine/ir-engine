@@ -1,9 +1,9 @@
 import { Behavior } from '@xr3ngine/engine/src/common/interfaces/Behavior';
 import { Vector3 } from "three";
 import { Network } from '@xr3ngine/engine/src/networking/classes/Network';
-import { getComponent, hasComponent, getMutableComponent } from '../../../ecs/functions/EntityFunctions';
+import { getComponent, hasComponent, getMutableComponent, removeComponent, addComponent } from '../../../ecs/functions/EntityFunctions';
 import { TransformComponent } from '../../../transform/components/TransformComponent';
-import { CharacterStateTypes } from "../CharacterStateTypes";
+import { CharacterAnimations } from "../CharacterAnimations";
 import { CharacterComponent } from '../components/CharacterComponent';
 import { isMobileOrTablet } from '../../../common/functions/isMobile';
 import { NumericalType } from '../../../common/types/NumericalTypes';
@@ -13,6 +13,7 @@ import { FollowCameraComponent } from '../../../camera/components/FollowCameraCo
 import { PlayerInCar } from '@xr3ngine/engine/src/physics/components/PlayerInCar';
 import { BaseInput } from '../../../input/enums/BaseInput';
 import { CameraModes } from '../../../camera/types/CameraModes';
+import { AnimationComponent } from '../../../character/components/AnimationComponent';
 
 let prevState;
 const emptyInputValue = [0, 0] as NumericalType;
@@ -63,7 +64,7 @@ export const updateCharacterStateInVehicle: Behavior = (entity, args: {}, deltaT
 
 	const localMovementDirection = actor.localMovementDirection; //getLocalMovementDirection(entity);
 
-  if(actor.moveVectorSmooth.position.length() < 0.1) { actor.moveVectorSmooth.velocity.multiplyScalar(0.9) };
+  if(actor.moveVectorSmooth.position.length() < 0.1) { actor.moveVectorSmooth.velocity.multiplyScalar(0.9) }
   if(actor.moveVectorSmooth.position.length() < 0.001) { actor.moveVectorSmooth.velocity.set(0,0,0); actor.moveVectorSmooth.position.set(0,0,0); }
 
   if(actor.changedViewAngle) {
@@ -99,9 +100,9 @@ export const updateCharacterStateInVehicle: Behavior = (entity, args: {}, deltaT
   }
 }
 
-const { DRIVING, ENTERING_VEHICLE, EXITING_VEHICLE } = CharacterStateTypes;
+const { DRIVING, ENTERING_VEHICLE, EXITING_VEHICLE } = CharacterAnimations;
 
-export const drivingAnimationSchema = [
+const drivingAnimationSchema = [
   {
     type: [DRIVING], name: 'driving', axis: 'xyz', speed: 1, customProperties: ['weight', 'test'],
     value:      [ -0.5, 0, 0.5 ],
@@ -123,7 +124,7 @@ export const drivingAnimationSchema = [
 
 
 const customVector = new Vector3(0,0,0);
-export const getDrivingValues: Behavior = (entity, args: {}, deltaTime: number): any => {
+const getDrivingValues: Behavior = (entity, args: {}, deltaTime: number): any => {
 
 /*
   const networkDriverId = getComponent<NetworkObject>(entity, NetworkObject).networkId;
@@ -132,7 +133,7 @@ export const getDrivingValues: Behavior = (entity, args: {}, deltaTime: number):
   */
   const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
 	const playerInCar = getComponent<PlayerInCar>(entity, PlayerInCar as any);
-  let testDrive = playerInCar.networkCarId != undefined;
+  const testDrive = playerInCar.networkCarId != undefined;
   const entityCar = Network.instance.networkObjects[playerInCar.networkCarId].component.entity;
 //  const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
 //  PhysicsSystem.physicsWorld.removeBody(actor.actorCapsule.body);
@@ -149,9 +150,9 @@ export const getDrivingValues: Behavior = (entity, args: {}, deltaTime: number):
    const actorVelocity = actor.moveVectorSmooth.position;
 
    customVector.setY(testDrive ? 0 : 1);
-   actor.vactorAnimSimulator.target.copy(customVector);
-   actor.vactorAnimSimulator.simulate(deltaTime);
-   let test = actor.vactorAnimSimulator.position.y;
+   actor.animationVectorSimulator.target.copy(customVector);
+   actor.animationVectorSimulator.simulate(deltaTime);
+   let test = actor.animationVectorSimulator.position.y;
 
    test < 0.00001 ? test = 0:'';
    test = Math.min(test, 1);
@@ -160,6 +161,13 @@ export const getDrivingValues: Behavior = (entity, args: {}, deltaTime: number):
 }
 
 export const initializeDriverState: Behavior = (entity, args: { x?: number, y?: number, z?: number }) => {
+
+  if(hasComponent(entity, AnimationComponent)) {
+    const animComponent = getMutableComponent(entity, AnimationComponent);
+    animComponent.animationsSchema = drivingAnimationSchema;
+    animComponent.updateAnimationsValues = getDrivingValues;
+  }
+
 	const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
 	if (!actor.initialized) return;
 

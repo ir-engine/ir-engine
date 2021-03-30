@@ -7,7 +7,7 @@ export const Views = {
   Login: 'login',
   AvatarUpload: 'AvatarUpload',
   Avatar: 'Avatar',
-}
+};
 
 export interface UserMenuProps {
   login?: boolean;
@@ -36,4 +36,4 @@ export const getAvatarURLFromNetwork = (network, userId) => {
   if (!network || !userId) return DEFAULT_PROFILE_IMG_PLACEHOLDER;
   if (!network.clients[userId]) return DEFAULT_PROFILE_IMG_PLACEHOLDER;
   return network.clients[userId].avatarDetail?.thumbnailURL || DEFAULT_PROFILE_IMG_PLACEHOLDER;
-}
+};

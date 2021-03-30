@@ -96,6 +96,7 @@ export class Network {
   worldState: WorldStateInterface = {
     tick: Network.tick,
     transforms: [],
+    ikTransforms: [],
     time: 0,
     inputs: [],
     states: [],

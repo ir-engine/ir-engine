@@ -24,7 +24,7 @@ return  <>
                 image={media.logo}
                 title="ARC Logo"
             />
-        </>
+        </>;
 };
 
 export default Splash;

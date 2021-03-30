@@ -31,7 +31,7 @@ const FeedForm = ({createFeed} : Props) => {
             title: composingTitle.trim(),
             description: composingText.trim(),
             video, preview
-        }        
+        };        
 
         createFeed(feed);
         setComposingTitle('');
@@ -39,9 +39,9 @@ const FeedForm = ({createFeed} : Props) => {
         setVideo(null);
         setPreview(null);
         setIsSended(true);              
-    }
-    const handlePickVideo = async (file) => setVideo(file.target.files[0])
-    const handlePickPreview = async (file) => setPreview(file.target.files[0])
+    };
+    const handlePickVideo = async (file) => setVideo(file.target.files[0]);
+    const handlePickPreview = async (file) => setPreview(file.target.files[0]);
     
 return <section className={styles.feedFormContainer}>
     {isSended ? 
@@ -77,7 +77,7 @@ return <section className={styles.feedFormContainer}>
                 </Button>   
         </section>
     }    
-</section>
+</section>;
 };
 
 export default connect(null, mapDispatchToProps)(FeedForm);

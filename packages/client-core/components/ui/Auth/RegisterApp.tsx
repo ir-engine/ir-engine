@@ -16,7 +16,7 @@ import { Visibility, VisibilityOff } from '@material-ui/icons';
 const mapDispatchToProps = (dispatch: Dispatch): any => {
   return ({
     registerUserByEmail: bindActionCreators(registerUserByEmail, dispatch),
-  })
+  });
 };
 
 interface Props {
@@ -42,7 +42,7 @@ const SignUp = (props: Props): any => {
     console.log('handleRegister', {
       email: state.email,
       password: state.password
-    })
+    });
     registerUserByEmail({
       email: state.email,
       password: state.password

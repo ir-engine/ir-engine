@@ -21,7 +21,7 @@
     "validate": "yarn run lint && yarn run test",
     "test": "echo \"TODO: Add Testing to Client\" && exit 0",
     "localbuild": "NEXT_PUBLIC_LOCAL_BUILD=true yarn build && yarn start",
-    "lint": "node node_modules/.bin/eslint --fix --quiet '*.ts' '**/*.ts' '**/*.tsx'"
+    "lint":"eslint --fix --quiet *.ts **/*.ts **/*.tsx"
   },
   "resolutions": {
     "socket.io": "2.4.1",
@@ -113,6 +113,7 @@
     "react-infinite-scroller": "^1.2.4",
     "react-json-tree": "^0.13.0",
     "react-loaders": "^3.0.1",
+    "react-material-ui-form-validator": "^2.1.4",
     "react-modal": "^3.11.2",
     "react-no-ssr": "^1.1.0",
     "react-object-inspector": "^0.2.1",

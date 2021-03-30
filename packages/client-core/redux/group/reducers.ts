@@ -87,7 +87,7 @@ const groupReducer = (state = immutableState, action: GroupAction): any => {
       updateGroup = newValues.group;
       updateMap = new Map(state.get('groups'));
       updateMapGroups = updateMap.get('groups');
-      updateMapGroupsChild = _.find(updateMapGroups, (group) => { return group != null && (group.id === groupUser.groupId)});
+      updateMapGroupsChild = _.find(updateMapGroups, (group) => { return group != null && (group.id === groupUser.groupId);});
         if (updateMapGroupsChild != null) {
           updateMapGroupsChild.name = updateGroup.name;
           updateMapGroupsChild.description = updateGroup.description;
@@ -116,10 +116,10 @@ const groupReducer = (state = immutableState, action: GroupAction): any => {
       groupUser = newValues.groupUser;
       updateMap = new Map(state.get('groups'));
       updateMapGroups = updateMap.get('groups');
-      updateMapGroupsChild = _.find(updateMapGroups, (group) => { return group != null && (group.id === groupUser.groupId)});
+      updateMapGroupsChild = _.find(updateMapGroups, (group) => { return group != null && (group.id === groupUser.groupId);});
       if (updateMapGroupsChild != null) {
         updateMapGroupUsers = updateMapGroupsChild.groupUsers;
-        const match = updateMapGroupUsers.find((gUser) => { return gUser != null && (gUser.id === groupUser.id)});
+        const match = updateMapGroupUsers.find((gUser) => { return gUser != null && (gUser.id === groupUser.id);});
         updateMapGroupUsers = Array.isArray(updateMapGroupUsers) ? (match == null ? updateMapGroupUsers.concat([groupUser]) : updateMapGroupUsers.map((gUser) => gUser.id === groupUser.id ? groupUser : gUser)) : [groupUser];
         updateMapGroupsChild.groupUsers = updateMapGroupUsers;
       }
@@ -131,7 +131,7 @@ const groupReducer = (state = immutableState, action: GroupAction): any => {
       groupUser = newValues.groupUser;
       updateMap = new Map(state.get('groups'));
       updateMapGroups = updateMap.get('groups');
-      updateMapGroupsChild = _.find(updateMapGroups, (group) => { return group != null && (group.id === groupUser.groupId)});
+      updateMapGroupsChild = _.find(updateMapGroups, (group) => { return group != null && (group.id === groupUser.groupId);});
       if (updateMapGroupsChild != null) {
         // updateMapGroupUsers = updateMapGroupsChild.groupUsers
         updateMapGroupsChild.groupUsers = updateMapGroupsChild.groupUsers.map((gUser) => gUser.id === groupUser.id ? groupUser : gUser);
@@ -145,7 +145,7 @@ const groupReducer = (state = immutableState, action: GroupAction): any => {
       const self = newValues.self;
       updateMap = new Map(state.get('groups'));
       updateMapGroups = updateMap.get('groups');
-      updateMapGroupsChild = _.find(updateMapGroups, (group) => { return group != null && (group.id === groupUser.groupId)});
+      updateMapGroupsChild = _.find(updateMapGroups, (group) => { return group != null && (group.id === groupUser.groupId);});
       if (updateMapGroupsChild != null) {
         updateMapGroupUsers = updateMapGroupsChild.groupUsers;
         _.remove(updateMapGroupUsers, (gUser: GroupUser) => groupUser.id === gUser.id);

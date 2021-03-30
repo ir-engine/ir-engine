@@ -8,10 +8,8 @@ import { getOrbitControls } from '@xr3ngine/engine/src/input/functions/loadOrbit
 import { Views } from '../util';
 //@ts-ignore
 import styles from '../style.module.scss';
+import { AVATAR_FILE_ALLOWED_EXTENSIONS, MAX_AVATAR_FILE_SIZE, MIN_AVATAR_FILE_SIZE, MAX_ALLOWED_TRIANGLES, THUMBNAIL_HEIGHT, THUMBNAIL_WIDTH } from '@xr3ngine/engine/src/common/constants/AvatarConstants';
 
-const THUMBNAIL_WIDTH = 300;
-const THUMBNAIL_HEIGHT = 300;
-const MAX_ALLOWED_TRIANGLES = 100000;
 
 interface Props {
     changeActiveMenu: Function;
@@ -20,27 +18,21 @@ interface Props {
 
 interface State {
     selectedFile: any;
-    imgFile: any;
+    // imgFile: any;
 	error: string;
 	obj: any;
 }
 
 export default class AvatarSelectMenu extends React.Component<Props, State> {
-	camera = null;
-	scene = null;
-	renderer = null;
-	fileSelected = false;
-	maxBB = new THREE.Vector3(2,2,2);
-
 	constructor(props) {
 		super(props);
 
 		this.state = {
 			selectedFile: null,
-			imgFile: null,
+			// imgFile: null,
 			error: '',
 			obj: null,
-		}
+		};
 	}
 
 	componentDidMount() {
@@ -58,7 +50,7 @@ export default class AvatarSelectMenu extends React.Component<Props, State> {
 		const frontLight = new THREE.DirectionalLight(0xfafaff, 0.7);
 		frontLight.position.set(-1,3,1);
 		frontLight.target.position.set(0, 1.5, 0);
-		const hemi = new THREE.HemisphereLight(0xeeeeff, 0xebbf2c, 1)
+		const hemi = new THREE.HemisphereLight(0xeeeeff, 0xebbf2c, 1);
 		this.scene.add(backLight);
 		this.scene.add(backLight.target);
 		this.scene.add(frontLight);
@@ -86,6 +78,12 @@ export default class AvatarSelectMenu extends React.Component<Props, State> {
 		window.removeEventListener('resize', this.onWindowResize);
 	}
 
+	camera = null;
+	scene = null;
+	renderer = null;
+	fileSelected = false;
+	maxBB = new THREE.Vector3(2,2,2);
+
 	onWindowResize = () => {
 	    const container = document.getElementById('stage');
 	    const bounds = container.getBoundingClientRect();
@@ -106,9 +104,8 @@ export default class AvatarSelectMenu extends React.Component<Props, State> {
 	}
 
 	handleAvatarChange = (e) => {
-		const sizeInMB = e.size / 1048576;
-		if (sizeInMB < 2 || sizeInMB > 15) {
-			this.setState({ error: 'Avatar file size must be between 2 MB and 15 MB'});
+		if (e.target.files[0].size < MIN_AVATAR_FILE_SIZE || e.target.files[0].size > MAX_AVATAR_FILE_SIZE) {
+			this.setState({ error: 'Avatar file size must be between ' + (MIN_AVATAR_FILE_SIZE / 1048576) + ' MB and ' + (MAX_AVATAR_FILE_SIZE / 1048576) + ' MB'});
 			return;
 		}
 
@@ -167,7 +164,7 @@ export default class AvatarSelectMenu extends React.Component<Props, State> {
 		scene.traverse(o => {
 			if (o.type.toLowerCase() === 'bone') bone = true;
 			if (o.type.toLowerCase() === 'skinnedmesh') skinnedMesh = true;
-		})
+		});
 
 		if (!bone || !skinnedMesh) return 'Obejct does not contain any bones or skin';
 
@@ -180,7 +177,7 @@ export default class AvatarSelectMenu extends React.Component<Props, State> {
 	}
 
 	uploadAvatar = () => {
-		const error = this.validate(this.state.obj)
+		const error = this.validate(this.state.obj);
 		if (error) {
 			this.setState({ error });
 			return;
@@ -220,12 +217,12 @@ export default class AvatarSelectMenu extends React.Component<Props, State> {
 						? this.state.error
 						: this.fileSelected ? this.state.selectedFile.name : 'Select Avatar...'}
 				</div>
-            	<input type="file" id="avatarSelect" accept=".glb, .gltf, .vrm, .fbx" hidden onChange={this.handleAvatarChange} />
+            	<input type="file" id="avatarSelect" accept={AVATAR_FILE_ALLOWED_EXTENSIONS} hidden onChange={this.handleAvatarChange} />
             	<div className={styles.controlContainer}>
 	                <button type="button" className={styles.browseBtn} onClick={this.handleBrowse}>Browse <SystemUpdateAlt /></button>
 	                <button type="button" className={styles.uploadBtn} onClick={this.uploadAvatar} disabled={!this.fileSelected || !!this.state.error}>Upload <CloudUpload /></button>
 	            </div>
 		    </div>
-		)
+		);
 	}
 }

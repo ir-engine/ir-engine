@@ -38,7 +38,7 @@ const AppFooter = ({creatorState, getLoggedCreator}: any) => {
         )}
     </nav>
   );
-}
+};
 
 export default connect(mapStateToProps, mapDispatchToProps)(AppFooter);
 

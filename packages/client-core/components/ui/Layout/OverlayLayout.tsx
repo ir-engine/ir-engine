@@ -148,7 +148,7 @@ const Layout = (props: Props): any => {
     window.addEventListener('resize', handleResize);
 
     return _ => {
-      window.removeEventListener('resize', handleResize)
+      window.removeEventListener('resize', handleResize);
     };
   }) as any);
 
@@ -156,7 +156,7 @@ const Layout = (props: Props): any => {
     const canvas = document.getElementById(engineRendererCanvasId) as HTMLCanvasElement;
     if (canvas?.style != null) canvas.style.width = '0px';
     setHarmonyOpen(true);
-  }
+  };
 
   const toggleExpanded = () => setExpanded(!expanded);
 

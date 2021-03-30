@@ -54,12 +54,12 @@ export class XRSystem extends System {
         Engine.xrSession = session;
         Engine.renderer.xr.setReferenceSpaceType(this.referenceSpaceType);
         Engine.renderer.xr.setSession(session);
-        if(!isWebWorker) { 
-          EngineEvents.instance.dispatchEvent({ type: XRSystem.EVENTS.XR_SESSION });
-        }
+        EngineEvents.instance.dispatchEvent({ type: XRSystem.EVENTS.XR_SESSION });
 
-        // const actor = getMutableComponent<CharacterComponent>(Network.instance.localClientEntity, CharacterComponent);
-        // actor.modelContainer.visible = false;
+        Engine.renderer.xr.addEventListener('sessionend', async () => {
+          await endXR();
+          EngineEvents.instance.dispatchEvent({ type: XRSystem.EVENTS.XR_END });
+        })
 
         await startXR()
 
@@ -67,7 +67,6 @@ export class XRSystem extends System {
     });
 
     EngineEvents.instance.addEventListener(XRSystem.EVENTS.XR_END, async (ev: any) => {
-      endXR();
     });
   }
 

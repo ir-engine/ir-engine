@@ -61,14 +61,14 @@ const FeedCard = (props: Props) : any => {
 
     const handlePlayVideo = (feedId) => {
         addViewToFeed(feedId);
-    }
+    };
 
     const handleGetFeedFiredUsers = (feedId) => {
         if(feedId){
             getFeedFires(feedId);
             setOpenFiredModal(true);
         }
-    }
+    };
     
     return  feed ? <><Card className={styles.tipItem} square={false} elevation={0} key={feed.id}>
                 <CreatorAsTitle creator={feed.creator} />                   
@@ -106,7 +106,7 @@ const FeedCard = (props: Props) : any => {
             </Card>
             <SimpleModal type={'feed-fires'} list={feedFiresState.get('feedFires')} open={openFiredModal} onClose={()=>setOpenFiredModal(false)} />
             </>
-        :''
+        :'';
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(FeedCard);

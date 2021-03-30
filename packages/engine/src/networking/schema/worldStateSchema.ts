@@ -130,7 +130,12 @@ export class WorldStateModel {
               snapShotTime: v.snapShotTime,
             }
           }),
-          ikTransforms: [],
+          ikTransforms: worldState.ikTransforms.map(v=> {
+            return {
+              ...v,
+              snapShotTime: v.snapShotTime,
+            }
+          }),
           states: []
         };
         return Network.instance.packetCompression ? WorldStateModel.model.toBuffer(state) : state;
