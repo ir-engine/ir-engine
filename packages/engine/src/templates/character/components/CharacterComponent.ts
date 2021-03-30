@@ -22,7 +22,7 @@ export class CharacterComponent extends Component<CharacterComponent> {
         // this.cameraMount = null;
   }
 
-  public movementEnabled: boolean = false;
+  public movementEnabled = false;
 	public initialized = false;
 
 // TODO: Move these... but for now...

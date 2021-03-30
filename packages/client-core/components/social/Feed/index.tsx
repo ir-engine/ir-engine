@@ -32,7 +32,7 @@ const Feed = ({feedsState, getFeed, feedId} : Props) => {
             {feed && <FeedCard feed={feed} />}      
             {feed && <CommentList feedId={feed.id} />}  
             {feed && <NewComment feedId={feed.id} />}  
-        </section>
+        </section>;
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(Feed);

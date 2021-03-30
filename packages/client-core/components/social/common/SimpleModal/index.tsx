@@ -25,12 +25,12 @@ const SimpleModal = (props: Props) : any => {
       case 'following': return (list ? list?.length : '0') + ' following';
       default: return '';
     }
-  }
+  };
     
 return  <Dialog onClose={handleClose} aria-labelledby="simple-dialog-title" open={open}>
         <DialogTitle className={styles.dialogTitle}>{renderListTitle()}</DialogTitle>    
         {list?.length>0 ? list?.map((creator, creatorIndex)=><CreatorAsTitle creator={creator} key={creatorIndex} />) : <p>Empty list</p>}    
-  </Dialog>
+  </Dialog>;
 };
 
 export default (SimpleModal);

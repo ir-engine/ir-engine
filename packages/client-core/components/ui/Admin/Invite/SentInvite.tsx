@@ -5,7 +5,7 @@ import TableCell from '@material-ui/core/TableCell';
 import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
-import { retrieveReceivedInvites, retrieveSentInvites, sendInvite } from "../../../../redux/invite/service"
+import { retrieveReceivedInvites, retrieveSentInvites, sendInvite } from "../../../../redux/invite/service";
 import {  makeStyles } from '@material-ui/core/styles';
 import { selectInviteState } from "../../../../redux/invite/selector";
 import { bindActionCreators, Dispatch } from "redux";
@@ -26,8 +26,8 @@ const mapStateToProps = (state: any): any => {
     return {
         receivedInvites: selectInviteState(state),
         sentInvites: selectInviteState(state)
-    }
-}
+    };
+};
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
     retrieveReceivedInvites: bindActionCreators(retrieveReceivedInvites, dispatch),
@@ -48,7 +48,7 @@ const useStyles = makeStyles({
 
 const SentInvite = (props: Props) => {
     const classes = useStyles();
-    const { retrieveReceivedInvites, receivedInvites, sendInvite, sentInvites, invites } = props
+    const { retrieveReceivedInvites, receivedInvites, sendInvite, sentInvites, invites } = props;
 
     const rows = invites.map((el, index)=> createData(el.id, el.user.name, el.user.userRole, el.passcode, el.inviteType));
    
@@ -81,8 +81,8 @@ const SentInvite = (props: Props) => {
             </TableBody>
           </Table>
         </TableContainer>
-      )
-}
+      );
+};
 
 
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(SentInvite));

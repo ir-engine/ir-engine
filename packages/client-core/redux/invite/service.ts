@@ -59,7 +59,7 @@ export function sendInvite (data: any) {
           dispatchAlertError(dispatch, 'No user has that invite code');
           return;
         } else {
-          data.invitee = userResult.data[0].id
+          data.invitee = userResult.data[0].id;
         }
       }
     }
