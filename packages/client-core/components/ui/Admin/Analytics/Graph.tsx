@@ -1,5 +1,5 @@
 import React from "react";
-import { ResponsiveLine } from '@nivo/line'
+import { ResponsiveLine } from '@nivo/line';
 const Graph = ({ data /* see data tab */ }) => {
 return (
     <ResponsiveLine
@@ -61,7 +61,7 @@ return (
             }
         ]}
     />
-)
-}
+);
+};
 
 export default Graph;

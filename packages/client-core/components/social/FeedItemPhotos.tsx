@@ -88,7 +88,7 @@ export function FeedItemPhotos({
                 style={{
                   backgroundColor: index === selectedPhoto && "#0095F6",
                 }}
-              ></div>
+               />
             );
           })}
         </div>

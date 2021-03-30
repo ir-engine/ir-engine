@@ -46,7 +46,7 @@ const CommentCard = ({comment, addFireToFeedComment, removeFireToFeedComment, ge
     const handleGetCommentFiredUsers = (id) => {
         getCommentFires(id);
         setOpenFiredModal(true);
-    } 
+    }; 
 
     return  <><Card className={styles.commentItem} square={false} elevation={0} key={id}>
                 <Avatar className={styles.authorAvatar} src={creator.avatar} />                                
@@ -67,7 +67,7 @@ const CommentCard = ({comment, addFireToFeedComment, removeFireToFeedComment, ge
                 </section>
             </Card>
         <SimpleModal type={'comment-fires'} list={feedCommentsState.get('commentFires')} open={openFiredModal} onClose={()=>setOpenFiredModal(false)} />
-</>
+</>;
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(CommentCard);

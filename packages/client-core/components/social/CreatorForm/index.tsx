@@ -42,7 +42,7 @@ const CreatorForm = ({creatorsState, updateCreator}:Props) => {
     const handleUpdateUser = (e:any) =>{
         e.preventDefault();
         updateCreator(creator);
-    }
+    };
     const handlePickAvatar = async (file) => setCreator({...creator, newAvatar: file.target.files[0]});
 
     return <section className={styles.creatorContainer}>
@@ -108,7 +108,7 @@ const CreatorForm = ({creatorsState, updateCreator}:Props) => {
                 <Button className={styles.logOutButton} variant="contained" color="primary">Sign-out</Button>
             </section>    
         </form>        
-    </section>
+    </section>;
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(CreatorForm);

@@ -2,7 +2,7 @@ import config from '../../config';
 
 const getAvatarURL = (avatarName) => {
   return 'https://s3.amazonaws.com/' + config.aws.s3.staticResourceBucket + '/' + process.env.STORAGE_S3_AVATAR_DIRECTORY + '/' + avatarName;
-}
+};
 
 export const seed = {
   disabled: !config.db.forceRefresh,

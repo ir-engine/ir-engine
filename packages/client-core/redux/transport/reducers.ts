@@ -16,7 +16,7 @@ export default function transportReducer (state = immutableState, action: any): 
     case CHANNEL_TYPE_CHANGED:
       return state
           .set('channelType', (action as ChannelTypeAction).channelType)
-          .set('channelId', (action as ChannelTypeAction).channelId)
+          .set('channelId', (action as ChannelTypeAction).channelId);
   }
 
   return state;

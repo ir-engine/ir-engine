@@ -50,7 +50,7 @@ export const serverCorrectionBehavior: Behavior = (entity: Entity, args): void =
       if (args.interpolation == null ) return;
       interpolationBehavior(entity, { snapshot: args.interpolation });
       return;
-    };
+    }
 
     const vehicle = vehicleComponent.vehiclePhysics;
     const chassisBody = vehicle.chassisBody;
