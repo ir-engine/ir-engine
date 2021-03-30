@@ -20,7 +20,7 @@ jobs:
             node_modules
             */*/node_modules
             yarn.lock
-          key: ${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
+          key: ${{ runner.os }}-branch-${{ hashFiles('**/yarn.lock') }}
       - run: yarn install
       - run: yarn lint
       - run: yarn build-docker

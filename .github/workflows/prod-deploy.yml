@@ -28,7 +28,7 @@ jobs:
             node_modules
             */*/node_modules
             yarn.lock
-          key: ${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
+          key: ${{ runner.os }}-prod-${{ hashFiles('**/yarn.lock') }}
       - name: Build Docker Image
         run: bash scripts/build_docker.sh prod $DOCKER_LABEL
         env:
