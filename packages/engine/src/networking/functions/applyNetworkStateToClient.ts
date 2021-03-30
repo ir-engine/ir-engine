@@ -171,8 +171,8 @@ export function applyNetworkStateToClient(worldStateBuffer: WorldStateInterface,
     }
     
     worldStateBuffer.ikTransforms.forEach((ikTransform: StateEntityIK) => {
+      if(!Network.instance.networkObjects[ikTransform.networkId]) return;
       const entity = Network.instance.networkObjects[ikTransform.networkId].component.entity;
-      console.log('got ik transform on entity', entity)
       if(!hasComponent(entity, IKComponent)) {
         addComponent(entity, IKComponent);
       }
@@ -180,7 +180,6 @@ export function applyNetworkStateToClient(worldStateBuffer: WorldStateInterface,
       const ikComponent = getMutableComponent(entity, IKComponent);
       if(!ikComponent.avatarIKRig && actor.modelContainer.children.length)  {
         initiateIK(entity)
-        console.log('initiated IK on entity', entity)
       }
       if(ikComponent.avatarIKRig) {
         const { hmd, left, right } = ikTransform;

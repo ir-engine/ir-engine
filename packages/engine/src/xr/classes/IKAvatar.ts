@@ -7,6 +7,7 @@ import skeletonString from '../constants/Skeleton';
 import ShoulderTransforms from './ShoulderTransforms';
 import { fixSkeletonZForward } from './SkeletonUtils';
 
+type AvatarOptions = { debug: boolean, top: boolean, bottom: boolean, visemes: boolean, hair: boolean }
 export class Avatar {
   shoulderTransforms: any;
   legsManager: any;
@@ -16,7 +17,7 @@ export class Avatar {
   decapitated: boolean;
   sdkInputs: any;
   inputs: any;
-  options: {};
+  options: AvatarOptions;
   debug = true;
   springBoneManager: any;
   lastModelScaleFactor: any;
@@ -52,7 +53,7 @@ export class Avatar {
   sitAnimation: any;
   sitTarget: Object3D;
   skeleton: any;
-  constructor(object, options = { debug: true, top: true, bottom: true, visemes: true, hair: true } )
+  constructor(object, options: AvatarOptions = { debug: true, top: true, bottom: true, visemes: true, hair: true } )
   {
     this.object = object;
     const model = (() => {
