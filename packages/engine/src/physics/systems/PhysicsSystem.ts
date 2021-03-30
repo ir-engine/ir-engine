@@ -34,7 +34,7 @@ import { InterpolationComponent } from "../components/InterpolationComponent";
 
 
 const vec3 = new Vector3();
-let lastRightGamePad = null;
+const lastRightGamePad = null;
 const DEBUG_PHYSICS = false;
 /*
 const cannonDebugger = isClient ? import('cannon-es-debugger').then((module) => {
