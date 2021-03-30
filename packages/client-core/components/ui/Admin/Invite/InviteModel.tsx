@@ -135,22 +135,6 @@ const InviteModel = (props: Props) => {
 
     const createInvite = async () => {
         const data = {
-<<<<<<< HEAD
-            "token": "string",
-            "identityProviderType": "string",
-            "passcode": "string",
-            "targetObjectId": "string"
-        };
-        await sendInvite(data);
-    };
-
-    const addressDefinitions = faker.definitions.address;
-    const stateOptions = _.map(addressDefinitions.state, (state, index) => ({
-        key: addressDefinitions.state_abbr[index],
-        text: state,
-        value: addressDefinitions.state_abbr[index],
-    }));
-=======
             "type": currency,
             "token": token, // phone number (10 digital us number) or email
             "inviteCode": passcode || null, // Code should range from 0-9 and a-f as well as A-F match to 8 characters
@@ -176,7 +160,6 @@ const InviteModel = (props: Props) => {
             });
         })
     }
->>>>>>> 5607c14d9... integrate create invite and delete invite
 
     const stateOptions = [];
     users.forEach(el => {
@@ -189,13 +172,8 @@ const InviteModel = (props: Props) => {
 
     useEffect(() => {
         const fetchData = async () => {
-<<<<<<< HEAD
-           await retrieveInvites();
-        };
-=======
             await retrieveInvites();
         }
->>>>>>> 5607c14d9... integrate create invite and delete invite
         fetchData();
     }, []);
 
