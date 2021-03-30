@@ -58,7 +58,7 @@ const Creator = ({creatorId, creatorState, getCreator, followCreator, unFollowCr
         }else{
             getCreator(creatorId);
         }
-    },[])
+    },[]);
     if(creatorState && creatorState.get('fetching') === false){
         creator = isMe === true ? creatorState.get('currentCreator') : creatorState.get('creator');
     }
@@ -73,7 +73,7 @@ const Creator = ({creatorId, creatorState, getCreator, followCreator, unFollowCr
     const handleEditClick = () =>{
         handleClose();
         Router.push('/creatorEdit');
-    } 
+    }; 
 
     const handleFollowCreator = creatorId => followCreator(creatorId);
     const handleUnFollowCreator = creatorId => unFollowCreator(creatorId);
@@ -82,18 +82,18 @@ const Creator = ({creatorId, creatorState, getCreator, followCreator, unFollowCr
         getFollowersList(creatorId);
         setOpenFiredModal(true);
         setCreatorsType('followers');
-    }
+    };
     const handleFollowingByCreator = creatorId => {
         getFollowingList(creatorId);
         setOpenFiredModal(true);
         setCreatorsType('following');
-    }
+    };
     const renderSocials = () =>  <>
             {creator.twitter && <a target="_blank" href={'http://twitter.com/'+creator.twitter}><Typography variant="h4" component="p" align="center"><TwitterIcon />{creator.twitter}</Typography></a>}
             {creator.instagram && <a target="_blank" href={'http://instagram.com/'+creator.instagram}><Typography variant="h4" component="p" align="center"><InstagramIcon />{creator.instagram}</Typography></a>}
             {creator.tiktok && <a target="_blank" href={'http://tiktok.com/@'+creator.tiktok}><Typography variant="h4" component="p" align="center"><TitleIcon />{creator.tiktok}</Typography></a>}
             {creator.snap && <a target="_blank" href={'http://snap.com/'+creator.snap}><Typography variant="h4" component="p" align="center"><TwitterIcon />{creator.snap}</Typography></a>}
-        </>
+        </>;
     return  creator ?  (<section className={styles.creatorContainer}>
             <Card className={styles.creatorCard} elevation={0} key={creator.username} square={false} >
                 <CardMedia   
@@ -149,7 +149,7 @@ const Creator = ({creatorId, creatorState, getCreator, followCreator, unFollowCr
             {creator.id && <section className={styles.feedsWrapper}><Featured creatorId={creator.id} type={videoType}/></section>}
             <SimpleModal type={creatorsType} list={creatorsType === 'followers' ? creatorState.get('followers') : creatorState.get('following')} open={openFiredModal} onClose={()=>setOpenFiredModal(false)} />
         </section>) 
-    : <></>
+    : <></>;
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(Creator);

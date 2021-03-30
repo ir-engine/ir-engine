@@ -19,7 +19,7 @@ const logRequest = (options = {}) => {
 };
 
 function processCollectionEntities (collection: any): any {
-  const entitesObject: { [key: string]: {} } = {};
+  const entitesObject: { [key: string]: any } = {};
   const collectionJson = collection.toJSON();
   let rootEntity: any = null;
   collectionJson.entities.forEach((entity: any) => {

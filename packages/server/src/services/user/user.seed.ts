@@ -1,3 +1,4 @@
+import { DEFAULT_AVATAR_ID } from "@xr3ngine/engine/src/common/constants/AvatarConstants";
 import config from '../../config';
 
 export const seed = {
@@ -10,7 +11,7 @@ export const seed = {
         [
             {
                 name: '{{name.firstName}} {{name.lastName}}',
-                avatarId: process.env.DEFAULT_AVATAR_ID,
+                avatarId: DEFAULT_AVATAR_ID,
                 // instanceId: '67890uihi0u98yuijo',
                 // userRole: type === 'guest' ? 'guest' : type === 'admin' ? 'admin' : 'user',
                 // partyId: '5678uhy789uijk',

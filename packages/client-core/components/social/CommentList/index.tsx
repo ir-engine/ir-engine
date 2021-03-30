@@ -25,11 +25,11 @@ interface Props{
     getFeedComments?: typeof getFeedComments;
 }
 const CommentList = ({feedId, getFeedComments, feedCommentsState}:Props) => {    
-    useEffect(()=>{getFeedComments(feedId)}, []) 
+    useEffect(()=>{getFeedComments(feedId);}, []); 
     return <section className={styles.commentsContainer}>
         {feedCommentsState && feedCommentsState.get('feedComments') && feedCommentsState.get('fetching') === false && 
             feedCommentsState.get('feedComments').map((item, key)=><CommentCard key={key} comment={item} /> )}
-        </section>
+        </section>;
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(CommentList);

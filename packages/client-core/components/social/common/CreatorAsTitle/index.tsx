@@ -15,7 +15,7 @@ const CreatorAsTitle = ({creator}) : any => {
                     {creator.verified === true && <VerifiedUserIcon htmlColor="#007AFF" style={{fontSize:'13px', margin: '0 0 0 5px'}}/>}
                 </Typography>}
                 />               
-        :''
+        :'';
 };
 
 export default CreatorAsTitle;

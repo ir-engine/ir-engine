@@ -17,8 +17,9 @@ export function AddComment() {
           setAreaSize(changeRef.current.scrollHeight);
           setTyped(e.target.value.length > 0);
         }}
-      ></textarea>
+       />
       <button
+        type='button'
         className="add-comment-button text-14-light text-blue"
         style={{ opacity: isTyped ? 1 : 0.3 }}
       >

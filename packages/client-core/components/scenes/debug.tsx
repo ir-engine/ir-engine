@@ -210,7 +210,7 @@ export const EnginePage = (props: Props) => {
   return (
     <>
     </>
-  )
+  );
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(EnginePage);

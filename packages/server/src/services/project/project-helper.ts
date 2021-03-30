@@ -91,7 +91,7 @@ export function readJSONFromBlobStore(storage, key): any {
       .createReadStream({
         key
       })
-      .on('data', (data: object) => {
+      .on('data', (data: any) => {
         const parsedData = JSON.parse(data.toString());
         chunks = Object.assign(chunks, parsedData);
       })

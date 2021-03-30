@@ -29,7 +29,7 @@ const NewComment = ({addCommentToFeed, feedId}:Props) => {
     const handleAddComment = () => {
         composingComment.trim().length > 0 && addCommentToFeed(feedId, composingComment);
         setComposingComment('');
-    }
+    };
     return  <section className={styles.messageContainer}>
                 <TextField ref={commentRef} 
                     value={composingComment}
@@ -38,7 +38,7 @@ const NewComment = ({addCommentToFeed, feedId}:Props) => {
                     placeholder="Add your comment..."                     
                     />     
                 <MessageIcon className={styles.sendButton} onClick={()=>handleAddComment()} />
-            </section>
+            </section>;
 };
 
 export default connect(null, mapDispatchToProps)(NewComment);

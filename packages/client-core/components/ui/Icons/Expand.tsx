@@ -18,5 +18,5 @@ export const Expand = () => {
                 </filter>
             </defs>
         </svg>
-    )
-}
+    );
+};

@@ -7,6 +7,7 @@ export function ArrowButton({
 }: any) {
   return (
     <button
+      type='button'
       className={`w-12 h-12 absolute ${
         place === "left" ? "left-0" : "right-0"
       } z-10 justify-center items-center flex`}

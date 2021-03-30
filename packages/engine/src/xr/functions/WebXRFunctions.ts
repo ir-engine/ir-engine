@@ -9,6 +9,8 @@ import { Network } from "../../networking/classes/Network";
 import { XRSystem } from "../systems/XRSystem";
 import { CharacterComponent } from "../../templates/character/components/CharacterComponent";
 import { XRInputReceiver } from '../../input/components/XRInputReceiver';
+import { initiateIK, stopIK } from "./IKFunctions";
+import { initializeMovingState } from "../../templates/character/animations/MovingAnimations";
 
 let head, controllerGripLeft, controllerLeft, controllerRight, controllerGripRight;
 
@@ -25,6 +27,8 @@ export const startXR = async () => {
     actor.tiltContainer.add(dolly);
     Engine.scene.remove(Engine.camera);
     dolly.add(Engine.camera);
+
+    initiateIK(Network.instance.localClientEntity)
 
     head = Engine.renderer.xr.getCamera(Engine.camera);
     controllerLeft = Engine.renderer.xr.getController(0);
@@ -98,16 +102,17 @@ export const startXR = async () => {
 }
 
 export const endXR = () => {
-  if(Engine.xrSession) {
-    removeComponent(Network.instance.localClientEntity, XRInputReceiver);
-    const cameraFollow = getMutableComponent<FollowCameraComponent>(Network.instance.localClientEntity, FollowCameraComponent) as FollowCameraComponent;
-    cameraFollow.mode = CameraModes.ThirdPerson;
-    Engine.xrSession.end();
-    Engine.xrSession = null;
-    const actor = getComponent(Network.instance.localClientEntity, CharacterComponent);
-    actor.tiltContainer.remove(XRSystem.instance.cameraDolly);
-    Engine.scene.add(Engine.camera);
-  }
+  removeComponent(Network.instance.localClientEntity, XRInputReceiver);
+  const cameraFollow = getMutableComponent<FollowCameraComponent>(Network.instance.localClientEntity, FollowCameraComponent) as FollowCameraComponent;
+  cameraFollow.mode = CameraModes.ThirdPerson;
+  Engine.xrSession.end();
+  Engine.xrSession = null;
+  // Engine.renderer.setAnimationLoop(null);
+  const actor = getComponent(Network.instance.localClientEntity, CharacterComponent);
+  actor.tiltContainer.remove(XRSystem.instance.cameraDolly);
+  Engine.scene.add(Engine.camera);
+  stopIK(Network.instance.localClientEntity)
+  initializeMovingState(Network.instance.localClientEntity)
 }
 
 // pointer taken from https://github.com/mrdoob/three.js/blob/master/examples/webxr_vr_ballshooter.html

@@ -20,7 +20,7 @@ const Toast = ({
     return (
       <div className={styles.toastMessageContainer} key={index} style={style}>
         <div className={styles.toastMessage}>{m}</div>
-        {showAction && <button className={styles.toastAction}>X</button>}
+        {showAction && <button type="button" className={styles.toastAction}>X</button>}
       </div>
     );
   };

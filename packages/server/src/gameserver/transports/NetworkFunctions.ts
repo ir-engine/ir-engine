@@ -4,6 +4,7 @@ import { Entity } from '@xr3ngine/engine/src/ecs/classes/Entity';
 import { getComponent, removeEntity } from "@xr3ngine/engine/src/ecs/functions/EntityFunctions";
 import { Network } from "@xr3ngine/engine/src/networking//classes/Network";
 import { MessageTypes } from '@xr3ngine/engine/src/networking/enums/MessageTypes';
+import { WorldStateInterface } from '@xr3ngine/engine/src/networking/interfaces/WorldState';
 import { createNetworkPlayer } from '@xr3ngine/engine/src/templates/character/prefabs/NetworkPlayerCharacter';
 import { TransformComponent } from '@xr3ngine/engine/src/transform/components/TransformComponent';
 import { DataConsumer, DataProducer } from 'mediasoup/lib/types';
@@ -213,6 +214,7 @@ export async function handleConnectToWorld(socket, data, callback, userId, user,
     const worldState = {
         tick: Network.tick,
         transforms: [],
+        ikTransforms: [],
         inputs: [],
         clientsConnected: [],
         clientsDisconnected: [],
@@ -307,6 +309,7 @@ export async function handleJoinWorld(socket, data, callback, userId, user): Pro
     const worldState = {
         tick: Network.tick,
         transforms: [],
+        ikTransforms: [],
         inputs: [],
         clientsConnected: [],
         clientsDisconnected: [],
