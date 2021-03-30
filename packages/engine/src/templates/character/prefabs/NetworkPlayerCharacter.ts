@@ -5,7 +5,7 @@ import { addObject3DComponent } from "@xr3ngine/engine/src/scene/behaviors/addOb
 import { initializeNetworkObject } from '../../../networking/functions/initializeNetworkObject'
 import { Network } from '../../../networking/classes/Network';
 import { Vec3 } from "cannon-es";
-import { AnimationClip, AnimationMixer, BoxGeometry, Group, Material, Mesh, MeshLambertMaterial, Quaternion, Vector3 } from "three";
+import { AnimationClip, AnimationMixer, BackSide, BoxGeometry, Group, Material, Mesh, MeshLambertMaterial, Quaternion, Vector3 } from "three";
 import { AssetLoader } from "../../../assets/components/AssetLoader";
 import { AssetLoaderState } from "../../../assets/components/AssetLoaderState";
 import { PositionalAudioComponent } from '../../../audio/components/PositionalAudioComponent';
@@ -69,12 +69,8 @@ export class AnimationManager {
 	}
 	getDefaultModel(): Promise<Group> {
 		return new Promise(resolve => {
-			if (!isClient) {
-				resolve(new Group());
-				return;
-			}
-			getLoader().load('/models/avatars/Default.glb', gltf => {
-        // console.log('default model loaded')
+			getLoader().load(Engine.publicPath + '/models/avatars/Default.glb', gltf => {
+        console.log('default model loaded')
         this._defaultModel = gltf.scene;
         this._defaultModel.traverse((obj: Mesh) => {
           if(obj.material) {
@@ -93,7 +89,13 @@ export class AnimationManager {
 }
 
 export const loadDefaultActorAvatar: Behavior = (entity) => {
-  loadActorAvatarFromURL(entity, Engine.publicPath + '/models/avatars/Default.glb');
+  const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
+  wipeOldModel(entity);
+  AnimationManager.instance._defaultModel.children.forEach(child => actor.modelContainer.add(child));
+  actor.mixer = new AnimationMixer(actor.modelContainer.children[0]);
+  if(hasComponent(entity, IKComponent)) {
+    initiateIK(entity)
+  }
 }
 
 export const loadActorAvatar: Behavior = (entity) => {
@@ -118,26 +120,32 @@ export const loadActorAvatarFromURL: Behavior = (entity, avatarURL) => {
   loader.onLoaded.push(async (entity, args) => {
 
     console.log("Actor Avatar loaded")
+    wipeOldModel(entity)
 
     const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
-    actor.mixer && actor.mixer.stopAllAction();
-    // forget that we have any animation playing
-    actor.currentAnimationAction = [];
-    
-    // clear current avatar mesh
-    ([...actor.modelContainer.children])
-      .forEach(child => actor.modelContainer.remove(child));
-
     tmpGroup.children.forEach(child => actor.modelContainer.add(child));
-
+    
     actor.mixer = new AnimationMixer(actor.modelContainer.children[0]);
-
     if(hasComponent(entity, IKComponent)) {
       initiateIK(entity)
     }
-
   })
 };
+
+const wipeOldModel = (entity) => {
+  const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
+  actor.mixer && actor.mixer.stopAllAction();
+  // forget that we have any animation playing
+  actor.currentAnimationAction = [];
+  
+  // clear current avatar mesh
+  ([...actor.modelContainer.children])
+    .forEach(child => actor.modelContainer.remove(child));
+}
+
+const initializeAnimations = (entity) => {
+  const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
+}
 
 const initializeCharacter: Behavior = (entity): void => {
 	// console.warn("Initializing character for ", entity.id);

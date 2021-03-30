@@ -6,6 +6,8 @@ import { Avatar } from "../classes/IKAvatar";
 import { AnimationComponent } from "../../character/components/AnimationComponent";
 import { clearBit, setBit } from "../../common/functions/bitFunctions";
 import { CHARACTER_STATES } from "../../templates/character/state/CharacterStates";
+import { Network } from "../../networking/classes/Network";
+import { FollowCameraComponent } from "../../camera/components/FollowCameraComponent";
 
 export function initiateIK(entity: Entity) {
 
@@ -16,17 +18,30 @@ export function initiateIK(entity: Entity) {
   if(hasComponent(entity, AnimationComponent)) {
     removeComponent(entity, AnimationComponent);
   }
+  if(hasComponent(entity, FollowCameraComponent)) {
+    removeComponent(entity, FollowCameraComponent);
+  }
   const avatarIK = getMutableComponent(entity, IKComponent);
-  avatarIK.avatarIKRig = new Avatar(actor.modelContainer.children[0]);
-  console.log(actor.state)
+  avatarIK.avatarIKRig = new Avatar(actor.modelContainer.children[0], {
+    debug: true,
+    top: true,
+    bottom: true,
+    visemes: true,
+    hair: true,
+  });
+  if(Network.instance.localClientEntity === entity) {
+    // avatarIK.avatarIKRig.decapitate()
+  }
   actor.state = setBit(actor.state, CHARACTER_STATES.VR);
-  console.log(actor.state)
 
 }
 
 export function stopIK(entity) {
   if(!hasComponent(entity, AnimationComponent)) {
     addComponent(entity, AnimationComponent);
+  }
+  if(!hasComponent(entity, FollowCameraComponent)) {
+    addComponent(entity, FollowCameraComponent);
   }
   if(hasComponent(entity, IKComponent)) {
     removeComponent(entity, IKComponent);

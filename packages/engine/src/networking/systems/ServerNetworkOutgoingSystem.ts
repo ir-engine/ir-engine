@@ -50,38 +50,37 @@ export class ServerNetworkOutgoingSystem extends System {
 
       const ikComponent = getComponent(entity, IKComponent)
       if(ikComponent) {
-        const transforms = ikComponent.avatarIKRig.poseManager.vrTransforms
-        console.log(transforms)
+        const transforms = ikComponent.avatarIKRig.inputs
         Network.instance.worldState.ikTransforms.push({
-        networkId: networkObject.networkId,
-        snapShotTime: snapShotTime,
-        hmd: {
-          x: transforms.head.position.x,
-          y: transforms.head.position.y,
-          z: transforms.head.position.z,
-          qW: transforms.head.quaternion.w,
-          qX: transforms.head.quaternion.x,
-          qY: transforms.head.quaternion.y,
-          qZ: transforms.head.quaternion.z,
-        },
-        left: {
-          x: transforms.leftHand.position.x,
-          y: transforms.leftHand.position.y,
-          z: transforms.leftHand.position.z,
-          qW: transforms.leftHand.quaternion.w,
-          qX: transforms.leftHand.quaternion.x,
-          qY: transforms.leftHand.quaternion.y,
-          qZ: transforms.leftHand.quaternion.z,
-        },
-        right: {
-          x: transforms.rightHand.position.x,
-          y: transforms.rightHand.position.y,
-          z: transforms.rightHand.position.z,
-          qW: transforms.rightHand.quaternion.w,
-          qX: transforms.rightHand.quaternion.x,
-          qY: transforms.rightHand.quaternion.y,
-          qZ: transforms.rightHand.quaternion.z,
-        },
+          networkId: networkObject.networkId,
+          snapShotTime: snapShotTime,
+          hmd: {
+            x: transforms.hmd.position.x,
+            y: transforms.hmd.position.y,
+            z: transforms.hmd.position.z,
+            qW: transforms.hmd.quaternion.w,
+            qX: transforms.hmd.quaternion.x,
+            qY: transforms.hmd.quaternion.y,
+            qZ: transforms.hmd.quaternion.z,
+          },
+          left: {
+            x: transforms.leftGamepad.position.x,
+            y: transforms.leftGamepad.position.y,
+            z: transforms.leftGamepad.position.z,
+            qW: transforms.leftGamepad.quaternion.w,
+            qX: transforms.leftGamepad.quaternion.x,
+            qY: transforms.leftGamepad.quaternion.y,
+            qZ: transforms.leftGamepad.quaternion.z,
+          },
+          right: {
+            x: transforms.rightGamepad.position.x,
+            y: transforms.rightGamepad.position.y,
+            z: transforms.rightGamepad.position.z,
+            qW: transforms.rightGamepad.quaternion.w,
+            qX: transforms.rightGamepad.quaternion.x,
+            qY: transforms.rightGamepad.quaternion.y,
+            qZ: transforms.rightGamepad.quaternion.z,
+          },
         })
       }
     });

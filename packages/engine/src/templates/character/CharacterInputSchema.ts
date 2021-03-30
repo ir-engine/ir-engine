@@ -334,6 +334,7 @@ const lookFromXRInputs: Behavior = (entity, args): void => {
   const input = getComponent<Input>(entity, Input as any);
   const values = input.data.get(BaseInput.XR_LOOK)?.value;
 
+  // todo: finish this
   if(values) {
     actor.changedViewAngle = values[0];
   }
@@ -390,7 +391,7 @@ const updateIKRig: Behavior = (entity, args): void => {
 
   const avatarIK = getMutableComponent(entity, IKComponent);
   const inputs = getMutableComponent(entity, Input);
-  if(!avatarIK?.avatarIKRig) return// console.warn('no ik rig attached');
+  if(!avatarIK?.avatarIKRig) return console.warn('no ik rig attached');
   const obj3d = getComponent(entity, Object3DComponent).value as Object3D;
 
   if(args.type === BaseInput.XR_HEAD) { 

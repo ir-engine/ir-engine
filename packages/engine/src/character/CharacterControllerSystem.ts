@@ -38,7 +38,9 @@ export class CharacterControllerSystem extends System {
 
     this.queryResults.ikavatar.all.forEach((entity) => {
       const ikComponent = getMutableComponent(entity, IKComponent);
-      ikComponent.avatarIKRig.update(delta);
+      if(ikComponent.avatarIKRig) {
+        ikComponent.avatarIKRig.update(delta);
+      }
     })
   }
 }

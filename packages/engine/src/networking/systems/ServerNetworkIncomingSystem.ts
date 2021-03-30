@@ -185,14 +185,11 @@ const addInputToWorldStateOnServer: Behavior = (entity: Entity) => {
   // Add inputs to world state
   Network.instance.worldState.inputs.push(inputs);
 };
-function dec2bin(dec) {
-  return (dec >>> 0).toString(2);
-}
+
 const updateCharacterState = (entity: Entity, newState: number) => {
   const actor = getMutableComponent(entity, CharacterComponent);
   const stateChanges = newState ^ actor.state; // xor to get state changes
   if(getBit(stateChanges, CHARACTER_STATES.VR)) {
-    console.log(newState, CHARACTER_STATES.VR, getBit(newState, CHARACTER_STATES.VR))
     // do server VR stuff for actor
     if(getBit(newState, CHARACTER_STATES.VR)) {
       initiateIK(entity)
