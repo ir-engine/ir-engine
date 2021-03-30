@@ -8,36 +8,13 @@ import { InteractiveSystem } from "../systems/InteractiveSystem";
 
 export const onInteraction: Behavior = (entityInitiator, args, delta, entityInteractive, time) => {
   const interactiveComponent = getComponent(entityInteractive, Interactable);
-
-  const engineEvent: any = { type: InteractiveSystem.EVENTS.OBJECT_ACTIVATION };
-
-  // TODO: make interface for universal interactive data, and event data
-  if (interactiveComponent.data) {
-    if (typeof interactiveComponent.data.action !== 'undefined') {
-      engineEvent.action = interactiveComponent.data.action;
-      engineEvent.payload = interactiveComponent.data.payload;
-      engineEvent.interactionText = interactiveComponent.data.interactionText;
-    }
-  }
-
-  EngineEvents.instance.dispatchEvent(engineEvent);
+  EngineEvents.instance.dispatchEvent({ type: InteractiveSystem.EVENTS.OBJECT_ACTIVATION, ...interactiveComponent.data });
 };
 
 export const onInteractionHover: Behavior = (entityInitiator, { focused }: { focused: boolean }, delta, entityInteractive, time) => {
   if (isServer) return;
-  const interactiveComponent = getComponent(entityInteractive, Interactable);
-  // TODO: make interface for universal interactive data, and event data
-  const engineEvent: any = { type: InteractiveSystem.EVENTS.OBJECT_HOVER, focused };
-
-  if (interactiveComponent.data) {
-    if (typeof interactiveComponent.data.action !== 'undefined') {
-      engineEvent.action = interactiveComponent.data.action;
-      engineEvent.payload = interactiveComponent.data.payload;
-    }
-    engineEvent.interactionText = interactiveComponent.data.interactionText;
-  }
-  EngineEvents.instance.dispatchEvent(engineEvent);
-
+  const interactiveComponent = getComponent(entityInteractive, Interactable);  
+  EngineEvents.instance.dispatchEvent({ type: InteractiveSystem.EVENTS.OBJECT_HOVER, focused, ...interactiveComponent.data });
 
   if (!hasComponent(entityInteractive, Object3DComponent)) {
     return;

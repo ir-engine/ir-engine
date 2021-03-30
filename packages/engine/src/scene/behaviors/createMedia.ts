@@ -44,7 +44,7 @@ const onMediaInteractionHover: Behavior = (entityInitiator, { focused }: { focus
   EngineEvents.instance.dispatchEvent({ 
     type: InteractiveSystem.EVENTS.OBJECT_HOVER, 
     focused,
-    action: 'mediaSource',
+    interactionType: 'mediaSource',
     interactionText: elementPlaying(mediaElement) ? 'pause video' : 'play video'
   });
 };
@@ -97,7 +97,7 @@ export function createMediaServer(entity, args: {
 function addInteraction(entity): void {
 
   const data = {
-    action: 'mediaSource',
+    interactionType: 'mediaSource',
   };
 
   const interactiveData = {
@@ -112,7 +112,7 @@ function addInteraction(entity): void {
     EngineEvents.instance.dispatchEvent({ 
       type: InteractiveSystem.EVENTS.OBJECT_HOVER, 
       focused: true,
-      action: 'mediaSource',
+      interactionType: 'mediaSource',
       interactionText: didPlay ? 'pause media' : 'play media' 
     })
   };

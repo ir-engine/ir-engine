@@ -8,18 +8,7 @@ import { Object3DComponent } from "../components/Object3DComponent";
 
 const onInteraction: Behavior = (entityInitiator, args, delta, entityInteractive, time) => {
   const interactiveComponent = getComponent(entityInteractive, Interactable);
-
-  // TODO: make interface for universal interactive data, and event data
-  const engineEvent: any = {type: InteractiveSystem.EVENTS.OBJECT_ACTIVATION };
-  if (interactiveComponent.data) {
-    if (typeof interactiveComponent.data.action !== 'undefined') {
-      engineEvent.action = interactiveComponent.data.action;
-      engineEvent.payload = interactiveComponent.data.payload;
-      engineEvent.interactionText = interactiveComponent.data.interactionText;
-    }
-  }
-
-  EngineEvents.instance.dispatchEvent(engineEvent);
+  EngineEvents.instance.dispatchEvent({type: InteractiveSystem.EVENTS.OBJECT_ACTIVATION, ...interactiveComponent.data });
 };
 
 const onInteractionHover: Behavior = (entityInitiator, { focused }: { focused: boolean }, delta, entityInteractive, time) => {
@@ -42,23 +31,12 @@ export const createCommonInteractive: Behavior = (entity, args: any) => {
     return;
   }
 
-  console.log(args.objArgs.interactionType)
-
-  const data = {
-    action: args.objArgs.interactionType,
-    payload: args.objArgs,
-    interactionText: args.objArgs.interactionText
-  };
-
-  if(!data) {
-    console.error('unsupported interactionType', args.objArgs.interactionType);
-    return;
-  }
+  console.log(args.objArgs)
 
   const interactiveData = {
     onInteraction: onInteraction,
     onInteractionFocused: onInteractionHover,
-    data
+    data: args.objArgs
   };
 
   addComponent(entity, Interactable, interactiveData);
