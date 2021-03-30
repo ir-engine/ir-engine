@@ -43,11 +43,11 @@ class Draggable extends React.Component<PropsType> {
         const margin = {
             left: boundingRect.left - this.MARGIN,
             right: window.innerWidth - boundingRect.left - boundingRect.width - this.MARGIN,
-        }
+        };
 
         let p = margin.left <= margin.right
             ? { x: this.MARGIN, y: boundingRect.top }
-            : { x: window.innerWidth - boundingRect.width - this.MARGIN, y: boundingRect.top }
+            : { x: window.innerWidth - boundingRect.width - this.MARGIN, y: boundingRect.top };
 
         container.style.left = p.x + 'px';
         container.style.top = p.y + 'px';
@@ -100,8 +100,8 @@ class Draggable extends React.Component<PropsType> {
             >
                 {this.props.children}
             </div>
-        )
+        );
     }
-};
+}
 
 export default Draggable;

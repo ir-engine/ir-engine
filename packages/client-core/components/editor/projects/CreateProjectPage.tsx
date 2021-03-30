@@ -105,7 +105,7 @@ function CreateProjectPage({ api }: { api: Api }) {
   })) : [];
 
   //@ts-ignore
-  const searchInput = <SearchInput placeholder="Search scenes..." value={params.q} onChange={onChangeQuery} />
+  const searchInput = <SearchInput placeholder="Search scenes..." value={params.q} onChange={onChangeQuery} />;
 
   return (
     <>

@@ -49,7 +49,7 @@ const ShareMenu = (props: any): any => {
 					variant="outlined"
 					InputProps={{
 						endAdornment: (
-							<InputAdornment position="end" onClick={() => {console.log('Sending Message...')}}>
+							<InputAdornment position="end" onClick={() => {console.log('Sending Message...');}}>
 								<Send />
 							</InputAdornment>
 						),

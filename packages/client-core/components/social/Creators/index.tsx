@@ -32,14 +32,14 @@ const Creators = ({creatorsState, getCreators}:Props) => {
     useEffect(()=> getCreators(), []);
     const creators= creatorsState && creatorsState.get('creators') ? creatorsState.get('creators') : null;
     const handleCreatorView = (id) =>{
-        Router.push({ pathname: '/creator', query:{ creatorId: id}})
-    }
+        Router.push({ pathname: '/creator', query:{ creatorId: id}});
+    };
     return <section className={styles.creatorContainer}>
         {creators?.map((item, itemIndex)=>
             <Card className={styles.creatorItem} elevation={0} key={itemIndex} onClick={()=>handleCreatorView(item.id)}>                 
                 <CardMedia   
                     className={styles.previewImage}                  
-                    src={item.avatar}
+                    image={item.avatar}
                     title={item.name}
                 />
                 <CardContent>
@@ -50,7 +50,7 @@ const Creators = ({creatorsState, getCreators}:Props) => {
                 </CardContent>
             </Card>
         )}
-        </section>
+        </section>;
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(Creators);

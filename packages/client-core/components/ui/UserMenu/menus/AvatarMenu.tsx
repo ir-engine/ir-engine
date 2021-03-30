@@ -26,7 +26,7 @@ const AvatarMenu = (props: any): any => {
 		window.addEventListener('resize', handleResize);
 
 		return _ => {
-			window.removeEventListener('resize', handleResize)
+			window.removeEventListener('resize', handleResize);
 		};
 	}) as any);
 
@@ -44,12 +44,12 @@ const AvatarMenu = (props: any): any => {
 		e.preventDefault();
 		if ((page + 1) * imgPerPage >= props.avatarList.length) return;
 		setPage(page + 1);
-	}
+	};
 	const loadPreviousAvatars = (e) => {
 		e.preventDefault();
 		if (page === 0) return;
 		setPage(page - 1);
-	}
+	};
 
 	const selectAvatar = (avatarResources: any) => {
 		const avatar = avatarResources.avatar;
@@ -57,27 +57,27 @@ const AvatarMenu = (props: any): any => {
 		if (props.avatarId !== avatar.name) {
 			props.setAvatar(avatar.name, avatar.url, avatarResources['user-thumbnail'].url);
 		}
-	}
+	};
 
 	const closeMenu = (e) => {
 		e.preventDefault();
 		props.changeActiveMenu(null);
-	}
+	};
 
 	const openProfileMenu = (e) => {
 		e.preventDefault();
 		props.changeActiveMenu(Views.Profile);
-	}
+	};
 
 	const openAvatarSelectMenu = (e) => {
 		e.preventDefault();
 		props.changeActiveMenu(Views.AvatarUpload);
-	}
+	};
 
 	const setRemovingAvatar = (e, avatarResource) => {
 		e.stopPropagation();
 		setAvatarTobeDeleted(avatarResource);
-	}
+	};
 
 	const removeAvatar = (e, confirmation) => {
 		e.stopPropagation();
@@ -86,7 +86,7 @@ const AvatarMenu = (props: any): any => {
 		}
 
 		setAvatarTobeDeleted(null);
-	}
+	};
 
 	const renderAvatarList = () => {
 		const avatarList = [];
@@ -113,8 +113,8 @@ const AvatarMenu = (props: any): any => {
 							avatarTobeDeleted && avatarTobeDeleted.avatar.url === characterAvatar.avatar.url
 								? <div className={styles.confirmationBlock}>
 									<p>Are you sure?</p>
-									<button type="button" onClick={(e) => {removeAvatar(e, true)}} className={styles.yesBtn} ><Check /></button>
-									<button type="button" onClick={(e) => {removeAvatar(e, false)}} className={styles.noBtn} ><Close /></button>
+									<button type="button" onClick={(e) => {removeAvatar(e, true);}} className={styles.yesBtn} ><Check /></button>
+									<button type="button" onClick={(e) => {removeAvatar(e, false);}} className={styles.noBtn} ><Close /></button>
 								</div>
 								: <button
 									type="button"
@@ -128,11 +128,11 @@ const AvatarMenu = (props: any): any => {
 							: null}
 					</CardContent>
 				</Card>
-			)
+			);
 		}
 
 		return avatarList;
-	}
+	};
 	return (
 		<div className={styles.avatarPanel}>
 			<section className={styles.avatarContainer}>

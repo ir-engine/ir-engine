@@ -3,6 +3,7 @@ export interface CreatorShort {
   id: string,
   userId?: string,
   avatar: string,
+  newAvatar?: string,
   name: string,  
   username: string,  
   verified : boolean,

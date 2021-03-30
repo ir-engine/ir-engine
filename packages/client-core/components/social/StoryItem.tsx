@@ -19,7 +19,7 @@ export function StoryItem({
           username={data?.username}
           size={56}
           border
-        ></ProfilePic>
+         />
       </div>
       <UsernameText
         username={data?.username || "username"}

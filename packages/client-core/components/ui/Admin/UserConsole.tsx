@@ -94,10 +94,10 @@ const useStyles = makeStyles((theme: Theme) =>
     }),
 );
 
-const Transition = React.forwardRef(function Transition(
+const Transition = React.forwardRef((
     props: TransitionProps & { children?: React.ReactElement<any, any> },
     ref: React.Ref<unknown>,
-  ) {
+  ) => {
     return <Slide direction="up" ref={ref} {...props} />;
   });
 
@@ -118,7 +118,7 @@ const UserConsole = (props: Props) => {
         id: null,
         name: '',
         avatarId: ''
-    }
+    };
 
     const headCells = {
         users: [
@@ -129,7 +129,7 @@ const UserConsole = (props: Props) => {
             { id: 'partyId', numeric: false, disablePadding: false, label: 'Party ID' },
             { id: 'action', numeric: false, disablePadding: false, label: 'Action' }
         ]
-    }
+    };
 
     function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
         if (b[orderBy] < a[orderBy]) {
@@ -213,7 +213,7 @@ const UserConsole = (props: Props) => {
     const [selectedUser, setSelectedUser] = React.useState({});
     const [loading, setLoading] = React.useState(false);
     const [userEditing, setUserEditing] = React.useState(false);
-    const [userEdit, setUserEdit] = React.useState(initialUser)
+    const [userEdit, setUserEdit] = React.useState(initialUser);
     const [userId, setUserId] = React.useState("");
     const [open, setOpen] = React.useState(false);
 
@@ -245,7 +245,7 @@ const UserConsole = (props: Props) => {
         setUserEdit(selected);
         setUserModalOpen(true);
         setUserEditing(true);
-    }
+    };
 
     useEffect(() => {
         if (user?.id != null && (adminState.get('users').get('updateNeeded') === true || refetch === true)) {
@@ -262,18 +262,18 @@ const UserConsole = (props: Props) => {
     const handleUserClose = () => {
         setUserModalOpen(false);
         setUserEditing(false);
-    }
+    };
 
     const handleChange = (event: React.ChangeEvent<{ value: unknown }>, user: any) => {
         let role = {};
         if (user) {
             setLoading(true);
-            patchUserRole(user, event.target.value as string)
+            patchUserRole(user, event.target.value as string);
             role[user] = event.target.value;
             setUserRole(event.target.value as string);
-            setSelectedUser({ ...selectedUser, ...role })
+            setSelectedUser({ ...selectedUser, ...role });
             setTimeout(() => {
-                setLoading(false)
+                setLoading(false);
             }, 2000);
 
         }
@@ -302,7 +302,7 @@ const UserConsole = (props: Props) => {
     const deleteUser = () => {
         removeUser((userId as any).id);
         handleClose();
-    }
+    };
 
     return (
         <div>
@@ -420,9 +420,9 @@ const UserConsole = (props: Props) => {
                 <CircularProgress color="inherit" />
             </Backdrop>
         </div>
-    )
+    );
 
-}
+};
 
 
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(UserConsole));

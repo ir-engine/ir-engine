@@ -29,9 +29,9 @@ const LoadingScreen = (props: Props) => {
       setShowProgressBar(true);
     } else if (showProgressBar && !showEntering) {
       setShowEntering(true);
-          setTimeout(() => { setShowProgressBar(false) }, 1500);
+          setTimeout(() => { setShowProgressBar(false); }, 1500);
     }
-  }, [onBoardingStep, objectsToLoad])
+  }, [onBoardingStep, objectsToLoad]);
 
   return showProgressBar === true ? <>
     <Loader />

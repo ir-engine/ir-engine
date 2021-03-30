@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { sendInvite, retrieveSentInvites, retrieveReceivedInvites } from "../../../../redux/invite/service"
+import { sendInvite, retrieveSentInvites, retrieveReceivedInvites } from "../../../../redux/invite/service";
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import { selectInviteState } from "../../../../redux/invite/selector";
 import { bindActionCreators, Dispatch } from "redux";
@@ -72,8 +72,8 @@ const mapStateToProps = (state: any): any => {
     return {
         receivedInvites: selectInviteState(state),
         sentInvites: selectInviteState(state),
-    }
-}
+    };
+};
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
     sendInvite: bindActionCreators(sendInvite, dispatch),
@@ -92,15 +92,15 @@ const InvitesConsole = (props: Props) => {
     };
     const openModelInvite = () => {
           setInviteModelOpen(true);
-    }
+    };
     const closeModelInvite = () => {
         setInviteModelOpen(false);
-    }
+    };
 
     useEffect(()=>{
         const fetchData = async () => {
             await  retrieveSentInvites();
-        }
+        };
         fetchData();
     }, [retrieveSentInvites]);
 
@@ -141,7 +141,7 @@ const InvitesConsole = (props: Props) => {
             handleClose={closeModelInvite}
             />
         </div>
-    )
-}
+    );
+};
 
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(InvitesConsole))
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(InvitesConsole));

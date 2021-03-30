@@ -28,7 +28,7 @@ const FeedMenu = () => {
       default: leftScrollPos = 0; break;
     }
     containerRef.current.scrollTo({left: leftScrollPos, behavior: 'smooth'});
-  }
+  };
   let content = null;
   switch (view) {
     case 'creators': content=<Creators />;break;
@@ -41,7 +41,7 @@ const FeedMenu = () => {
     creators: [styles.creatorsButton, view === 'creators' && styles.active],
     thefeed: [styles.thefeedButton, view === 'thefeed' && styles.active],
     tipsandtricks: [styles.tipsandtricksButton, view === 'tipsandtricks' && styles.active],
-  }
+  };
   return (
     <>
       <nav className={styles.feedMenuContainer}>  
@@ -57,6 +57,6 @@ const FeedMenu = () => {
     <section className={styles.content}>{content}</section>
   </>
   );
-}
+};
 
 export default FeedMenu;

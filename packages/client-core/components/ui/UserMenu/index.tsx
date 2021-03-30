@@ -96,7 +96,7 @@ const UserMenu = (props: UserMenuProps): any => {
   const onEngineLoaded = () => {
     EngineEvents.instance?.addEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD, graphicsSettingsLoaded);
     document.removeEventListener('ENGINE_LOADED', onEngineLoaded);
-  }
+  };
   document.addEventListener('ENGINE_LOADED', onEngineLoaded);
 
   // EngineEvents.instance?.removeEventListener(WebGLRendererSystem.EVENTS.QUALITY_CHANGED, this.setGraphicsSettings);
@@ -104,38 +104,38 @@ const UserMenu = (props: UserMenuProps): any => {
   const graphicsSettingsLoaded = () => {
     EngineEvents.instance?.addEventListener(WebGLRendererSystem.EVENTS.QUALITY_CHANGED, updateGraphicsSettings);
     EngineEvents.instance?.removeEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD, graphicsSettingsLoaded);
-  }
+  };
 
   const setAvatar = (avatarId: string, avatarURL: string, thumbnailURL: string) => {
     if (selfUser) {
       updateUserAvatarId(selfUser.id, avatarId, avatarURL, thumbnailURL);
     }
-  }
+  };
 
   const setUserSettings = (newSetting: any): void => {
     const setting = { ...userSetting, ...newSetting };
-    setUserSetting(setting)
+    setUserSetting(setting);
     updateUserSettings(selfUser.user_setting.id, setting);
-  }
+  };
 
   const updateGraphicsSettings = (newSetting: any): void => {
     const setting = { ...graphics, ...newSetting };
 
     setGraphicsSetting(setting);
-  }
+  };
 
   const setActiveMenu = (e): void => {
     const identity = e.currentTarget.id.split('_');
-    const enabled = Boolean(currentActiveMenu && currentActiveMenu.id === identity[0])
+    const enabled = Boolean(currentActiveMenu && currentActiveMenu.id === identity[0]);
     setCurrentActiveMenu(enabled ? null : menus[identity[1]]);
-    EngineEvents.instance.dispatchEvent({ type: ClientInputSystem.EVENTS.ENABLE_INPUT, mouse: enabled, keyboard: enabled })
-  }
+    EngineEvents.instance.dispatchEvent({ type: ClientInputSystem.EVENTS.ENABLE_INPUT, mouse: enabled, keyboard: enabled });
+  };
 
   const changeActiveMenu = (menu) => {
     setCurrentActiveMenu(menu ? { id: menu } : null);
-    const enabled = Boolean(menu)
-    EngineEvents.instance.dispatchEvent({ type: ClientInputSystem.EVENTS.ENABLE_INPUT, mouse: !enabled, keyboard: !enabled })
-  }
+    const enabled = Boolean(menu);
+    EngineEvents.instance.dispatchEvent({ type: ClientInputSystem.EVENTS.ENABLE_INPUT, mouse: !enabled, keyboard: !enabled });
+  };
 
   const renderMenuPanel = () => {
     if (!currentActiveMenu) return null;
@@ -180,7 +180,7 @@ const UserMenu = (props: UserMenuProps): any => {
 
     const Panel = menuPanel[currentActiveMenu.id];
 
-    return <Panel {...args} />
+    return <Panel {...args} />;
   };
 
   return (
@@ -197,7 +197,7 @@ const UserMenu = (props: UserMenuProps): any => {
               >
                 <menu.iconNode className={styles.icon} />
               </span>
-            )
+            );
           })}
         </div>
         {currentActiveMenu
@@ -206,6 +206,6 @@ const UserMenu = (props: UserMenuProps): any => {
       </section>
     </ClickAwayListener>
   );
-}
+};
 
 export default connect(mapStateToProps, mapDispatchToProps)(UserMenu);
