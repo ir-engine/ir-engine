@@ -1,5 +1,5 @@
 import React, { FunctionComponent } from "react";
-import { CommonInteractiveDataPayload } from "@xr3ngine/engine/src/interaction/interfaces/CommonInteractiveData";
+import { CommonInteractiveData, CommonInteractiveDataPayload } from "@xr3ngine/engine/src/interaction/interfaces/CommonInteractiveData";
 import dynamic from "next/dynamic";
 import styles from './style.module.scss';
 import { Button, Dialog, DialogContent, DialogTitle, IconButton, Typography } from "@material-ui/core";
@@ -13,20 +13,22 @@ const ModelView = dynamic<ModelViewProps>(() => import("./modelView").then((mod)
 
 export type InteractableModalProps = {
   onClose: unknown;
-  data: CommonInteractiveDataPayload;
+  data: CommonInteractiveData;
 };
 
 export const InteractableModal: FunctionComponent<InteractableModalProps> = ({ onClose, data }: InteractableModalProps) => {
 
   if(!data){return null;}
 
+  const { payload, interactionText } = data;
+
   const handleLinkClick = (url) =>{  
     window.open(url, "_blank");
   };
 
   let modelView = null;
-  if (data.modelUrl) {
-    modelView = (<ModelView modelUrl={data.modelUrl} />);
+  if (payload.payloadModelUrl) {
+    modelView = (<ModelView modelUrl={payload.payloadModelUrl} />);
   }
   return  (<Dialog open={true} aria-labelledby="xr-dialog" 
       classes={{
@@ -34,19 +36,19 @@ export const InteractableModal: FunctionComponent<InteractableModalProps> = ({ o
         paper: styles.customDialogInner, 
       }}
       BackdropProps={{ style: { backgroundColor: "transparent" } }} >
-      { data.name && 
+      { payload.payloadUrl && 
         <DialogTitle disableTypography className={styles.dialogTitle}>
           <IconButton aria-label="close" className={styles.dialogCloseButton} color="primary"
               onClick={(): void => { if (typeof onClose === 'function') { onClose(); } }}><CloseIcon /></IconButton>
-          <Typography variant="h2"align="left" >{data.name}</Typography>          
+          <Typography variant="h2"align="left" >{interactionText}</Typography>          
         </DialogTitle>}
         <DialogContent className={styles.dialogContent}>
           {modelView}
           {/* eslint-disable-next-line react/no-danger */}
-          { data.htmlContent && (<div dangerouslySetInnerHTML={{__html: data.htmlContent}} />)}
-          { data.url && (<p>{data.url}</p>)}
-          { data.buyUrl && (<Button  variant="outlined" color="primary" onClick={()=>handleLinkClick(data.buyUrl)}>Buy</Button>)}
-          { data.learnMoreUrl && (<Button  variant="outlined" color="secondary" onClick={()=>handleLinkClick(data.learnMoreUrl)}>Learn more</Button>)}
+          { payload.payloadHtmlContent && (<div dangerouslySetInnerHTML={{__html: payload.payloadHtmlContent}} />)}
+          { payload.payloadUrl && (<p>{payload.payloadUrl}</p>)}
+          { payload.payloadBuyUrl && (<Button  variant="outlined" color="primary" onClick={()=>handleLinkClick(payload.payloadBuyUrl)}>Buy</Button>)}
+          { payload.payloadLearnMoreUrl && (<Button  variant="outlined" color="secondary" onClick={()=>handleLinkClick(payload.payloadLearnMoreUrl)}>Learn more</Button>)}
           {/* { data.url? <iframe className="iframe" src={data.url} /> : null } */}
         </DialogContent>
     </Dialog>);
