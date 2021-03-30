@@ -240,7 +240,7 @@ export const EnginePage = (props: Props) => {
       },
     };
     
-    await initializeEngine(InitializationOptions)
+    await initializeEngine(InitializationOptions);
 
     document.dispatchEvent(new CustomEvent('ENGINE_LOADED')); // this is the only time we should use document events. would be good to replace this with react state
 
@@ -257,14 +257,14 @@ export const EnginePage = (props: Props) => {
         resolve();
       });
       EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.LOAD_SCENE, sceneData });
-    })
+    });
 
     const getWorldState = new Promise<any>((resolve) => {
       EngineEvents.instance.once(EngineEvents.EVENTS.CONNECT_TO_WORLD, async () => {
         const { worldState } =  await (Network.instance.transport as SocketWebRTCClientTransport).instanceRequest(MessageTypes.JoinWorld.toString());
         resolve(worldState);
-      })
-    })
+      });
+    });
     
     const [sceneLoaded, worldState] = await Promise.all([ loadScene, getWorldState ]);
 
@@ -280,7 +280,7 @@ export const EnginePage = (props: Props) => {
     let displayText = interactionText;
     const length = interactionText.length;
     if(length > 110) {
-      displayText = interactionText.substring(0, 110) + '...'
+      displayText = interactionText.substring(0, 110) + '...';
     }
     setHoveredLabel(displayText);
   };
@@ -297,9 +297,9 @@ export const EnginePage = (props: Props) => {
     EngineEvents.instance.addEventListener(InteractiveSystem.EVENTS.OBJECT_ACTIVATION, onObjectActivation);
     EngineEvents.instance.addEventListener(InteractiveSystem.EVENTS.OBJECT_HOVER, onObjectHover);
     EngineEvents.instance.addEventListener(PhysicsSystem.EVENTS.PORTAL_REDIRECT_EVENT, ({ location }) => router.push(location));
-    EngineEvents.instance.addEventListener(XRSystem.EVENTS.XR_START, async (ev: any) => { setIsInXR(true); })
-    EngineEvents.instance.addEventListener(XRSystem.EVENTS.XR_END, async (ev: any) => { setIsInXR(false); })
-  }
+    EngineEvents.instance.addEventListener(XRSystem.EVENTS.XR_START, async (ev: any) => { setIsInXR(true); });
+    EngineEvents.instance.addEventListener(XRSystem.EVENTS.XR_END, async (ev: any) => { setIsInXR(false); });
+  };
 
   const onObjectActivation = ({ action, payload }): void => {
     switch (action) {

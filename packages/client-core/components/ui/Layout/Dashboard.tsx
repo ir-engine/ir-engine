@@ -120,8 +120,8 @@ export default function Dashboard({ children }) {
         setLoading(true);
         setTimeout(()=>{
             setLoading(false);
-        }, 2000)
-    }
+        }, 2000);
+    };
 
     return (
         <div className={classes.root}>

@@ -36,7 +36,7 @@ const  CardNumber = ({ data }: any ) => {
       </CardContent>
     </Card>
   );
-}
+};
 
 
 export default CardNumber;

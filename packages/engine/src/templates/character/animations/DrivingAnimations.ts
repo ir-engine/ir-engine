@@ -64,7 +64,7 @@ export const updateCharacterStateInVehicle: Behavior = (entity, args: {}, deltaT
 
 	const localMovementDirection = actor.localMovementDirection; //getLocalMovementDirection(entity);
 
-  if(actor.moveVectorSmooth.position.length() < 0.1) { actor.moveVectorSmooth.velocity.multiplyScalar(0.9) };
+  if(actor.moveVectorSmooth.position.length() < 0.1) { actor.moveVectorSmooth.velocity.multiplyScalar(0.9) }
   if(actor.moveVectorSmooth.position.length() < 0.001) { actor.moveVectorSmooth.velocity.set(0,0,0); actor.moveVectorSmooth.position.set(0,0,0); }
 
   if(actor.changedViewAngle) {
@@ -133,7 +133,7 @@ const getDrivingValues: Behavior = (entity, args: {}, deltaTime: number): any =>
   */
   const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
 	const playerInCar = getComponent<PlayerInCar>(entity, PlayerInCar as any);
-  let testDrive = playerInCar.networkCarId != undefined;
+  const testDrive = playerInCar.networkCarId != undefined;
   const entityCar = Network.instance.networkObjects[playerInCar.networkCarId].component.entity;
 //  const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
 //  PhysicsSystem.physicsWorld.removeBody(actor.actorCapsule.body);

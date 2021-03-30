@@ -29,7 +29,7 @@ const TheFeed = ({feedsState, getFeeds}: Props) => {
     feedsList = feedsState.get('fetching') === false && feedsState?.get('feeds');
     return <section className={styles.thefeedContainer}>
             {feedsList && feedsList.length > 0 && feedsList.map((item, key)=> <FeedCard key={key} feed = {item} />)}
-        </section>
+        </section>;
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(TheFeed);

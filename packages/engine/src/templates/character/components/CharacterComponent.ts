@@ -20,7 +20,7 @@ export class CharacterComponent extends Component<CharacterComponent> {
     this.tiltContainer = null;
   }
 
-  public movementEnabled: boolean = false;
+  public movementEnabled = false;
 	public initialized = false;
   public state: number = 0;
 

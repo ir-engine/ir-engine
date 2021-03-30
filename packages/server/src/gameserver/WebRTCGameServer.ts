@@ -6,7 +6,7 @@ import { SocketWebRTCServerTransport } from "./transports/SocketWebRTCServerTran
 import { XMLHttpRequest } from 'xmlhttprequest';
 import { Engine } from "@xr3ngine/engine/src/ecs/classes/Engine";
 (globalThis as any).XMLHttpRequest = XMLHttpRequest; 
-import config from '../config'
+import config from '../config';
 
 const networkSchema = {
   ...DefaultNetworkSchema,
