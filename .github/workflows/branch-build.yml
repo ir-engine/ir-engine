@@ -13,6 +13,14 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: 14.x
+      - name: restore lerna
+        uses: actions/cache@v2
+        with:
+          path: |
+            node_modules
+            */*/node_modules
+            yarn.lock
+          key: ${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
       - run: yarn install
       - run: yarn lint
       - run: yarn build-docker
