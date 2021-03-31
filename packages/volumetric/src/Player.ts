@@ -203,7 +203,6 @@ export default class DracosisPlayer {
     this._video = video ?? createElement('video', {
       id: "broadway",
       crossorigin: "anonymous",
-      playsinline: "",
       playsInline: "true",
       loop: true,
       src: videoFilePath,
@@ -391,7 +390,7 @@ export default class DracosisPlayer {
 
   // Start loop to check if we're ready to play
   play() {
-    this._video.playsinline = true;
+    this._video.playsInline = true;
 
     this._video.play()
 
