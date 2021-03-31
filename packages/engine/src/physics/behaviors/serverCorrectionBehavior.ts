@@ -10,10 +10,19 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { VehicleComponent } from '../../templates/vehicle/components/VehicleComponent';
 import { interpolationBehavior, findOne } from './interpolationBehavior';
 import { Network } from '../../networking/classes/Network';
+import { ColliderComponent } from '../components/ColliderComponent';
 
+export const serverCorrectionBehavior: Behavior = (entity: Entity, args): void => {
+  if (args.snapshot == null) return;
+  const collider = getMutableComponent(entity, ColliderComponent)
+  if(collider) {
+    collider.collider.position.set(args.snapshot.x, args.snapshot.y, args.snapshot.z);
+    collider.collider.quaternion.set(args.snapshot.qX, args.snapshot.qY, args.snapshot.qZ, args.snapshot.qW);
+  }
+}
 
 let correctionSpeed = 180;
-export const serverCorrectionBehavior: Behavior = (entity: Entity, args): void => {
+export const serverCorrectionInterpolationBehavior: Behavior = (entity: Entity, args): void => {
   if (args.correction == null || args.snapshot == null) return;
 
   if (hasComponent(entity, CapsuleCollider)) {
