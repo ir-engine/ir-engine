@@ -56,8 +56,8 @@
   "resolutions": {
     "socket.io": "2.4.1",
     "terser": "4.8.0",
-    "**/@typescript-eslint/eslint-plugin": "^4.1.1",
-    "**/@typescript-eslint/parser": "^4.1.1"
+    "@typescript-eslint/eslint-plugin": "^4.1.1",
+    "@typescript-eslint/parser": "^4.1.1"
   },
   "peerDependencies": {
     "@feathersjs/authentication": "^4.5.8",
