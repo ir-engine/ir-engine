@@ -1,5 +1,5 @@
 import React, { FunctionComponent } from "react";
-import { CommonInteractiveDataPayload } from "@xr3ngine/engine/src/interaction/interfaces/CommonInteractiveData";
+import { CommonInteractiveData, CommonInteractiveDataPayload } from "@xr3ngine/engine/src/interaction/interfaces/CommonInteractiveData";
 import dynamic from "next/dynamic";
 import styles from './style.module.scss';
 import { Button, Dialog, DialogContent, DialogTitle, IconButton, Typography } from "@material-ui/core";
@@ -13,7 +13,7 @@ const ModelView = dynamic<ModelViewProps>(() => import("./modelView").then((mod)
 
 export type InteractableModalProps = {
   onClose: unknown;
-  data: CommonInteractiveDataPayload;
+  data: CommonInteractiveData;
 };
 
 export const InteractableModal: FunctionComponent<InteractableModalProps> = ({ onClose, data }: InteractableModalProps) => {
@@ -25,8 +25,8 @@ export const InteractableModal: FunctionComponent<InteractableModalProps> = ({ o
   };
 
   let modelView = null;
-  if (data.modelUrl) {
-    modelView = (<ModelView modelUrl={data.modelUrl} />);
+  if (data.payloadModelUrl) {
+    modelView = (<ModelView modelUrl={data.payloadModelUrl} />);
   }
   return  (<Dialog open={true} aria-labelledby="xr-dialog" 
       classes={{
@@ -34,19 +34,19 @@ export const InteractableModal: FunctionComponent<InteractableModalProps> = ({ o
         paper: styles.customDialogInner, 
       }}
       BackdropProps={{ style: { backgroundColor: "transparent" } }} >
-      { data.name && 
+      { data.payloadUrl && 
         <DialogTitle disableTypography className={styles.dialogTitle}>
           <IconButton aria-label="close" className={styles.dialogCloseButton} color="primary"
               onClick={(): void => { if (typeof onClose === 'function') { onClose(); } }}><CloseIcon /></IconButton>
-          <Typography variant="h2"align="left" >{data.name}</Typography>          
+          <Typography variant="h2"align="left" >{data.interactionText}</Typography>          
         </DialogTitle>}
         <DialogContent className={styles.dialogContent}>
           {modelView}
           {/* eslint-disable-next-line react/no-danger */}
-          { data.htmlContent && (<div dangerouslySetInnerHTML={{__html: data.htmlContent}} />)}
-          { data.url && (<p>{data.url}</p>)}
-          { data.buyUrl && (<Button  variant="outlined" color="primary" onClick={()=>handleLinkClick(data.buyUrl)}>Buy</Button>)}
-          { data.learnMoreUrl && (<Button  variant="outlined" color="secondary" onClick={()=>handleLinkClick(data.learnMoreUrl)}>Learn more</Button>)}
+          { data.payloadHtmlContent && (<div dangerouslySetInnerHTML={{__html: data.payloadHtmlContent}} />)}
+          { data.payloadUrl && (<p>{data.payloadUrl}</p>)}
+          { data.payloadBuyUrl && (<Button  variant="outlined" color="primary" onClick={()=>handleLinkClick(data.payloadBuyUrl)}>Buy</Button>)}
+          { data.payloadLearnMoreUrl && (<Button  variant="outlined" color="secondary" onClick={()=>handleLinkClick(data.payloadLearnMoreUrl)}>Learn more</Button>)}
           {/* { data.url? <iframe className="iframe" src={data.url} /> : null } */}
         </DialogContent>
     </Dialog>);

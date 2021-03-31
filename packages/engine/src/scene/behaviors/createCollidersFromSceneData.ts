@@ -11,7 +11,8 @@ import { createNetworkRigidBody } from '@xr3ngine/engine/src/interaction/prefabs
 import { addCollidersToNetworkVehicle } from '@xr3ngine/engine/src/templates/vehicle/prefabs/NetworkVehicle';
 
 export const createCollidersFromSceneData: Behavior = ( entity: Entity, args: any ) => { //{ data:string, type: string,}
-  console.log('****** Collider from Scene data, type: '+args.objArgs.type);
+  console.log('****** Collider from Scene data: ')
+  console.log(args);
 
   switch (args.objArgs.data) {
 

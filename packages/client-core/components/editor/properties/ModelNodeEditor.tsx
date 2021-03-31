@@ -21,6 +21,10 @@ const InteractableOption = [
     label: "Open link",
     value: "link"
   },
+  {
+    label: "Equippable",
+    value: "equippable"
+  },
 ];
 
 /**
