@@ -78,7 +78,7 @@
     "jwt-decode": "^2.2.0",
     "lodash": "^4.17.20",
     "mediasoup-client": "^3.6.12",
-    "next": "^10.0.6",
+    "next": "^10.1.0",
     "next-transpile-modules": "^6.2.0",
     "prop-types": "^15.7.2",
     "rc-slider": "^9.3.1",
