@@ -1,6 +1,8 @@
 import * as Comlink from 'comlink'
+import { detectSingleFace } from '../../ml/face/globalApi/detectFaces';
+import { nets } from '../../ml/face/globalApi/nets';
+import { TinyFaceDetectorOptions } from '../../ml/face/tinyFaceDetector/TinyFaceDetectorOptions';
 import './faceEnvWorkerPatch.js' // polyfill for face-api in webworker
-import { nets, detectSingleFace, TinyFaceDetectorOptions } from "face-api.js";
 let canvas;
 let imageData;
 const faceApiOptions = new TinyFaceDetectorOptions();

@@ -1,6 +1,6 @@
 {
   "name": "@xr3ngine/native-plugin-example",
-  "version": "0.2.0",
+  "version": "0.2.4",
   "private": true,
   "repository": {
     "type": "git",
@@ -20,10 +20,14 @@
     "watch": "cross-env NODE_ENV=development next --port 3001 --hostname 127.0.0.1",
     "validate": "yarn run lint && yarn run test",
     "test": "echo \"TODO: Add Testing to Client\" && exit 0",
-    "lint":"eslint --fix --quiet **/*.tsx *.ts **/*.ts"
+    "lint": "eslint --fix --quiet **/*.tsx *.ts **/*.ts"
   },
-  "resolutions": {},
+  "resolutions": {
+    "@types/react": "^17.0.0",
+    "react": "^17.0.0"
+  },
   "peerDependencies": {
+    "@types/react": "^17.0.0",
     "react": "^17.0.0"
   },
   "dependencies": {
@@ -33,7 +37,7 @@
     "@capacitor/core": "^2.4.6",
     "@capacitor/ios": "2.4.6",
     "@typescript-eslint/eslint-plugin": "^4.5.0",
-    "@xr3ngine/native-plugin-xr": "^0.1.0",
+    "@xr3ngine/native-plugin-xr": "^0.2.4",
     "next-transpile-modules": "^6.2.0",
     "react": "^17.0.0"
   },
@@ -49,7 +53,6 @@
     "dotenv-webpack": "^3.0.0",
     "eslint": "^6.8.0",
     "eslint-plugin-react": "^7.21.4",
-    "gltf-webpack-loader": "https://github.com/MozillaReality/gltf-webpack-loader.git#fix/relative-and-output-paths",
     "next": "10.0.8",
     "next-images": "^1.4.0",
     "next-optimized-images": "^2.6.2",

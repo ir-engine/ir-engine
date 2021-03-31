@@ -1,6 +1,6 @@
 {
-  "name": "xr-3-ngine",
-  "version": "0.0.0",
+  "name": "@xr3ngine/docs",
+  "version": "0.2.4",
   "private": true,
   "scripts": {
     "docusaurus": "docusaurus",
@@ -32,6 +32,14 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "resolutions": {
+    "@types/react": "^17.0.0",
+    "react": "^17.0.0"
+  },
+  "peerDependencies": {
+    "@types/react": "^17.0.0",
+    "react": "^17.0.0"
   },
   "devDependencies": {
     "@docusaurus/module-type-aliases": "^2.0.0-alpha.72",
