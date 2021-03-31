@@ -1,35 +1,16 @@
-import {Quaternion, Vector3} from "three";
-import { Engine } from "@xr3ngine/engine/src/ecs/classes/Engine";
-import {getComponent, removeComponent, addComponent, hasComponent, removeEntity, getMutableComponent} from '../../ecs/functions/EntityFunctions';
-import {Input} from '../../input/components/Input';
-import {LocalInputReceiver} from '../../input/components/LocalInputReceiver';
-import {InputType} from '../../input/enums/InputType';
+import {getComponent, addComponent, hasComponent, removeEntity, getMutableComponent} from '../../ecs/functions/EntityFunctions';
 import {Network} from '../classes/Network';
 import { NetworkObject } from '@xr3ngine/engine/src/networking/components/NetworkObject';
 import {addSnapshot, createSnapshot} from '../functions/NetworkInterpolationFunctions';
 import {WorldStateInterface} from "../interfaces/WorldState";
 import { CharacterComponent } from "../../templates/character/components/CharacterComponent";
-import {handleInputFromNonLocalClients} from "./handleInputOnServer";
 import { PrefabType } from "@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema";
-import { AssetLoader } from '@xr3ngine/engine/src/assets/components/AssetLoader';
-import { PhysicsSystem } from '@xr3ngine/engine/src/physics/systems/PhysicsSystem';
-import { VehicleBody } from '@xr3ngine/engine/src/physics/components/VehicleBody';
-import { setState } from "@xr3ngine/engine/src/state/behaviors/setState";
-import { CharacterAnimations } from "@xr3ngine/engine/src/templates/character/CharacterAnimations";
-import { PlayerInCar } from '@xr3ngine/engine/src/physics/components/PlayerInCar';
-import { FollowCameraComponent } from "@xr3ngine/engine/src/camera/components/FollowCameraComponent";
-import { BinaryValue } from "../../common/enums/BinaryValue";
-import { BaseInput } from "../../input/enums/BaseInput";
-import { InterpolationComponent } from "../../physics/components/InterpolationComponent";
-import { TransformComponent } from '../../transform/components/TransformComponent';
 import { createNetworkPlayer } from '@xr3ngine/engine/src/templates/character/prefabs/NetworkPlayerCharacter';
 import { createNetworkRigidBody } from '@xr3ngine/engine/src/interaction/prefabs/NetworkRigidBody';
 import { createNetworkVehicle } from '@xr3ngine/engine/src/templates/vehicle/prefabs/NetworkVehicle';
 import { StateEntityIK } from "../types/SnapshotDataTypes";
 import { IKComponent } from "../../character/components/IKComponent";
-import { Avatar } from "../../xr/classes/IKAvatar";
 import { initiateIK } from "../../xr/functions/IKFunctions";
-import { VehicleState } from "../../templates/vehicle/enums/VehicleStateEnum";
 import { NetworkObjectUpdateSchema } from "../../templates/networking/NetworkObjectUpdateSchema";
 
 /**
@@ -48,10 +29,9 @@ function searchSameInAnotherId( objectToCreate ) {
 
 function syncNetworkObjectsTest( createObjects ) {
   createObjects?.forEach((objectToCreate) => {
+    if(!Network.instance.networkObjects[objectToCreate.networkId]) return;
     if (objectToCreate.uniqueId === Network.instance.networkObjects[objectToCreate.networkId]?.uniqueId &&
-        objectToCreate.ownerId === Network.instance.networkObjects[objectToCreate.networkId]?.ownerId ) {
-          return;
-    }
+        objectToCreate.ownerId === Network.instance.networkObjects[objectToCreate.networkId]?.ownerId ) return;
 
     Object.keys(Network.instance.networkObjects).map(Number).forEach( key => {
       if(Network.instance.networkObjects[key].component.uniqueId === objectToCreate.uniqueId && Network.instance.networkObjects[key].component.ownerId === objectToCreate.ownerId) {
@@ -194,11 +174,8 @@ export function applyNetworkStateToClient(worldStateBuffer: WorldStateInterface,
     })
 
     worldStateBuffer.editObjects?.forEach((editObject) => {
-      const networkId = editObject.networkId;
-      const type = editObject.type;
-      const objectUpdateSchema = NetworkObjectUpdateSchema[type];
-      objectUpdateSchema.forEach((element) => { 
-        element.behavior(Network.instance.networkObjects[networkId].component.entity, editObject);
+      NetworkObjectUpdateSchema[editObject.type]?.forEach((element) => { 
+        element.behavior(editObject);
       })
     });
     
