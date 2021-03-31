@@ -48,8 +48,7 @@ import { EngineEvents } from '@xr3ngine/engine/src/ecs/classes/EngineEvents';
 import { InteractiveSystem } from '@xr3ngine/engine/src/interaction/systems/InteractiveSystem';
 import { PhysicsSystem } from '@xr3ngine/engine/src/physics/systems/PhysicsSystem';
 import { DefaultInitializationOptions, initializeEngine } from '@xr3ngine/engine/src/initialize';
-import { ClientNetworkSystem } from '@xr3ngine/engine/src/networking/systems/ClientNetworkSystem';
-import { ClientInputSystem } from '@xr3ngine/engine/src/input/systems/ClientInputSystem';
+import { XRSystem } from '@xr3ngine/engine/src/xr/systems/XRSystem';
 
 const goHome = () => window.location.href = window.location.origin;
 
@@ -127,6 +126,7 @@ export const EnginePage = (props: Props) => {
   const [objectHovered, setObjectHovered] = useState(false);
 
   const [isValidLocation, setIsValidLocation] = useState(true);
+  const [isInXR, setIsInXR] = useState(false);
 
   const appLoaded = appState.get('loaded');
   const selfUser = authState.get('user');
@@ -222,7 +222,8 @@ export const EnginePage = (props: Props) => {
     }
     const sceneData = await client.service(service).get(serviceId);
 
-    const networkSchema: NetworkSchema = {
+    const networkSchema
+    : NetworkSchema = {
       ...DefaultNetworkSchema,
       transport: SocketWebRTCClientTransport,
     };
@@ -239,7 +240,7 @@ export const EnginePage = (props: Props) => {
       },
     };
     
-    await initializeEngine(InitializationOptions)
+    await initializeEngine(InitializationOptions);
 
     document.dispatchEvent(new CustomEvent('ENGINE_LOADED')); // this is the only time we should use document events. would be good to replace this with react state
 
@@ -248,26 +249,22 @@ export const EnginePage = (props: Props) => {
     await connectToInstanceServer('instance');
 
     const loadScene = new Promise<void>((resolve) => {
-      const onSceneLoaded = () => {
+      EngineEvents.instance.once(EngineEvents.EVENTS.SCENE_LOADED, () => {
         setProgressEntity(0);
         store.dispatch(setAppOnBoardingStep(generalStateList.SCENE_LOADED));
-        EngineEvents.instance.removeEventListener(EngineEvents.EVENTS.SCENE_LOADED, onSceneLoaded);
         EngineEvents.instance.removeEventListener(EngineEvents.EVENTS.ENTITY_LOADED, onSceneLoadedEntity);
         setAppLoaded(true);
         resolve();
-      };
-      EngineEvents.instance.addEventListener(EngineEvents.EVENTS.SCENE_LOADED, onSceneLoaded);
+      });
       EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.LOAD_SCENE, sceneData });
-    })
+    });
 
     const getWorldState = new Promise<any>((resolve) => {
-      const onNetworkConnect = async () => {
+      EngineEvents.instance.once(EngineEvents.EVENTS.CONNECT_TO_WORLD, async () => {
         const { worldState } =  await (Network.instance.transport as SocketWebRTCClientTransport).instanceRequest(MessageTypes.JoinWorld.toString());
-        EngineEvents.instance.removeEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD, onNetworkConnect);
         resolve(worldState);
-      }
-      EngineEvents.instance.addEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD, onNetworkConnect);
-    })
+      });
+    });
     
     const [sceneLoaded, worldState] = await Promise.all([ loadScene, getWorldState ]);
 
@@ -281,9 +278,9 @@ export const EnginePage = (props: Props) => {
   const onObjectHover = ({ focused, interactionText }: { focused: boolean, interactionText: string }): void => {
     setObjectHovered(focused);
     let displayText = interactionText;
-    const length = interactionText.length;
+    const length = interactionText && interactionText.length;
     if(length > 110) {
-      displayText = interactionText.substring(0, 110) + '...'
+      displayText = interactionText.substring(0, 110) + '...';
     }
     setHoveredLabel(displayText);
   };
@@ -300,17 +297,19 @@ export const EnginePage = (props: Props) => {
     EngineEvents.instance.addEventListener(InteractiveSystem.EVENTS.OBJECT_ACTIVATION, onObjectActivation);
     EngineEvents.instance.addEventListener(InteractiveSystem.EVENTS.OBJECT_HOVER, onObjectHover);
     EngineEvents.instance.addEventListener(PhysicsSystem.EVENTS.PORTAL_REDIRECT_EVENT, ({ location }) => router.push(location));
-  }
+    EngineEvents.instance.addEventListener(XRSystem.EVENTS.XR_START, async (ev: any) => { setIsInXR(true); });
+    EngineEvents.instance.addEventListener(XRSystem.EVENTS.XR_END, async (ev: any) => { setIsInXR(false); });
+  };
 
-  const onObjectActivation = ({ action, payload }): void => {
-    switch (action) {
+  const onObjectActivation = (interactionData): void => {
+    switch (interactionData.interactionType) {
       case 'link':
-        setOpenLinkData(payload);
+        setOpenLinkData(interactionData);
         setObjectActivated(true);
         break;
       case 'infoBox':
       case 'mediaSource':
-        setModalData(payload);
+        setModalData(interactionData);
         setObjectActivated(true);
         break;
       default:
@@ -347,7 +346,7 @@ export const EnginePage = (props: Props) => {
   //mobile gamepad
   const mobileGamepadProps = { hovered: objectHovered, layout: 'default' };
   const mobileGamepad = isMobileOrTablet() ? <MobileGamepad {...mobileGamepadProps} /> : null;
-  return userBanned !== true ? (
+  return userBanned !== true && !isInXR ? (
     <>
       {isValidLocation && <UserMenu />}
       <Snackbar open={!isValidLocation}

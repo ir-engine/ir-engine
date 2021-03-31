@@ -63,10 +63,10 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
     removeInstance: bindActionCreators(removeInstance, dispatch),
 });
 
-const Transition = React.forwardRef(function Transition(
+const Transition = React.forwardRef((
     props: TransitionProps & { children?: React.ReactElement<any, any> },
     ref: React.Ref<unknown>,
-  ) {
+  ) => {
     return <Slide direction="up" ref={ref} {...props} />;
   });
 
@@ -219,7 +219,7 @@ function InstanceConsole(props: Props) {
         setInstanceEdit(selected);
         setInstanceCreateOpen(true);
         setInstanceEditing(true);
-    }
+    };
 
     const handleInstanceClose = (e: any): void => {
         console.log('handleInstanceClosed');
@@ -253,7 +253,7 @@ function InstanceConsole(props: Props) {
         removeInstance((instanceId as any).id);
         setOpen(false);
         setInstanceId("");
-      }
+      };
 
     return (
         <div>
@@ -370,7 +370,7 @@ function InstanceConsole(props: Props) {
 
             </Paper>
         </div>
-    )
+    );
 }
 
 

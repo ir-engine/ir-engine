@@ -30,7 +30,7 @@ export default (app: Application): any => {
     data: {
       type: DataTypes.JSON,
       allowNull: true,
-      get (this: any): object {
+      get (this: any): any {
         const data = this.getDataValue('data');
         if (!data) {
           return {};

@@ -148,7 +148,7 @@ const Layout = (props: Props): any => {
     window.addEventListener('resize', handleResize);
 
     return _ => {
-      window.removeEventListener('resize', handleResize)
+      window.removeEventListener('resize', handleResize);
     };
   }) as any);
 
@@ -156,7 +156,7 @@ const Layout = (props: Props): any => {
     const canvas = document.getElementById(engineRendererCanvasId) as HTMLCanvasElement;
     if (canvas?.style != null) canvas.style.width = '0px';
     setHarmonyOpen(true);
-  }
+  };
 
   const toggleExpanded = () => setExpanded(!expanded);
 
@@ -240,11 +240,11 @@ const Layout = (props: Props): any => {
                 <RightDrawer rightDrawerOpen={rightDrawerOpen} setRightDrawerOpen={setRightDrawerOpen} />
               </Fragment>
             }
-            {authUser?.accessToken != null && authUser.accessToken.length > 0 && user?.id != null &&
-              <Fragment>
-                <BottomDrawer bottomDrawerOpen={bottomDrawerOpen} setBottomDrawerOpen={setBottomDrawerOpen} setLeftDrawerOpen={setLeftDrawerOpen} />
-              </Fragment>
-            }
+            {/*{authUser?.accessToken != null && authUser.accessToken.length > 0 && user?.id != null &&*/}
+            {/*  <Fragment>*/}
+            {/*    <BottomDrawer bottomDrawerOpen={bottomDrawerOpen} setBottomDrawerOpen={setBottomDrawerOpen} setLeftDrawerOpen={setLeftDrawerOpen} />*/}
+            {/*  </Fragment>*/}
+            {/*}*/}
             <footer>
               {locationState.get('currentLocation')?.get('location')?.id &&
                 authState.get('authUser') != null && authState.get('isLoggedIn') === true && user?.instanceId != null &&

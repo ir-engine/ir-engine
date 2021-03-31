@@ -178,7 +178,7 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
             setVideoStream(MediaStreamSystem.instance?.consumers?.find((c: any) => c.appData.peerId === peerId && c.appData.mediaTag === 'cam-video'));
             setAudioStream(MediaStreamSystem.instance?.consumers?.find((c: any) => c.appData.peerId === peerId && c.appData.mediaTag === 'cam-audio'));
         }
-    }, [consumers])
+    }, [consumers]);
 
     useEffect(() => {
         if (userHasInteracted === true && peerId !== 'me_cam' && peerId !== 'me_screen') {
@@ -225,7 +225,7 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
 
         return () => {
             audioTrackClones.forEach((track) => track.stop());
-        }
+        };
     }, [audioStream]);
 
     useEffect(() => {
@@ -245,7 +245,7 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
 
         return () => {
             videoTrackClones.forEach((track) => track.stop());
-        }
+        };
     }, [videoStream]);
 
     useEffect(() => {

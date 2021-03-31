@@ -9,8 +9,8 @@ export const updateChannelTypeState = () => {
   if (!ms) changeChannelTypeState('', '');
 
   return changeChannelTypeState((ms as any).channelType, (ms as any).channelId);
-}
+};
 
 export const changeChannelTypeState = (channelType: string, channelId: string) => {
-  return (dispatch: Dispatch): void => { dispatch(setChannelTypeState(channelType, channelId)); }
-}
+  return (dispatch: Dispatch): void => { dispatch(setChannelTypeState(channelType, channelId)); };
+};

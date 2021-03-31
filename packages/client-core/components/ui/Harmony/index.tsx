@@ -20,6 +20,7 @@ import {
     Call,
     CallEnd,
     Clear,
+    Close,
     Delete,
     Edit,
     ExpandMore,
@@ -288,12 +289,12 @@ const Harmony = (props: Props): any => {
     const setChannelAwaitingProvision = value => {
         channelAwaitingProvisionRef.current = value;
         _setChannelAwaitingProvision(value);
-    }
+    };
 
     const setLastConnectToWorldId = value => {
         lastConnectToWorldIdRef.current = value;
         _setLastConnectToWorldId(value);
-    }
+    };
 
     const producerStartingRef = useRef(producerStarting);
     const activeAVChannelIdRef = useRef(activeAVChannelId);
@@ -312,7 +313,7 @@ const Harmony = (props: Props): any => {
             setDimensions({
                 height: window.innerHeight,
                 width: window.innerWidth
-            })
+            });
         });
 
         return () => {
@@ -322,7 +323,7 @@ const Harmony = (props: Props): any => {
 
                 EngineEvents.instance?.removeEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD_TIMEOUT, (e: any) => {
                     if (e.instance === true) resetChannelServer();
-                })
+                });
 
                 EngineEvents.instance?.removeEventListener(EngineEvents.EVENTS.LEAVE_WORLD, () => {
                     resetChannelServer();
@@ -334,9 +335,9 @@ const Harmony = (props: Props): any => {
                 setDimensions({
                     height: window.innerHeight,
                     width: window.innerWidth
-                })
+                });
             });
-        }
+        };
     }, []);
 
     useEffect(() => {
@@ -347,7 +348,7 @@ const Harmony = (props: Props): any => {
         } else {
             setActiveAVChannelId(transportState.get('channelId'));
         }
-    }, [transportState])
+    }, [transportState]);
 
     useEffect(() => {
         if (channelConnectionState.get('connected') === false && channelAwaitingProvision?.id?.length > 0) {
@@ -444,14 +445,14 @@ const Harmony = (props: Props): any => {
             updateCamVideoState();
             updateCamAudioState();
         }
-    }
+    };
 
     const createEngineListeners = (): void => {
         EngineEvents.instance.addEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD, connectToWorldHandler);
 
         EngineEvents.instance.addEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD_TIMEOUT, (e: any) => {
             if (e.instance === true) resetChannelServer();
-        })
+        });
 
         EngineEvents.instance.addEventListener(EngineEvents.EVENTS.LEAVE_WORLD, () => {
             resetChannelServer();
@@ -461,7 +462,7 @@ const Harmony = (props: Props): any => {
             updateCamVideoState();
             updateCamAudioState();
         });
-    }
+    };
 
     const onChannelScroll = (e): void => {
         if ((e.target.scrollHeight - e.target.scrollTop) === e.target.clientHeight ) {
@@ -607,7 +608,7 @@ const Harmony = (props: Props): any => {
             updateCamVideoState();
             updateCamAudioState();
         }
-    }
+    };
 
     const handleEndCall = async(e: any) => {
         e.stopPropagation();
@@ -617,7 +618,7 @@ const Harmony = (props: Props): any => {
         setActiveAVChannelId('');
         updateCamVideoState();
         updateCamAudioState();
-    }
+    };
 
     const toggleAudio = async(channelId) => {
         await checkMediaStream('channel', channelId);
@@ -760,7 +761,7 @@ const Harmony = (props: Props): any => {
                              channelType === 'friend' ? channelEntries.find((entry) => (entry[1].userId1 === targetObjectId || entry[1].userId2 === targetObjectId)) :
                              channelEntries.find((entry) => entry[1].partyId === targetObjectId);
         return channelMatch != null && channelMatch[0] === targetChannelId;
-    }
+    };
 
     const isActiveAVCall = (channelType: string, targetObjectId: string): boolean => {
         const channelEntries = [...channels.entries()];
@@ -769,17 +770,17 @@ const Harmony = (props: Props): any => {
                 channelType === 'friend' ? channelEntries.find((entry) => (entry[1].userId1 === targetObjectId || entry[1].userId2 === targetObjectId)) :
                     channelEntries.find((entry) => entry[1].partyId === targetObjectId);
         return channelMatch != null && channelMatch[0] === activeAVChannelId;
-    }
+    };
 
     const closeHarmony = (): void => {
         const canvas = document.getElementById(engineRendererCanvasId) as HTMLCanvasElement;
         if (canvas?.style != null) canvas.style.width = '100%';
         setHarmonyOpen(false);
-    }
+    };
 
     const openProfileMenu = (): void => {
         setProfileMenuOpen(true);
-    }
+    };
 
     useEffect(() => {
         if (
@@ -789,7 +790,7 @@ const Harmony = (props: Props): any => {
             channelConnectionState.get('connected') === false
         ) {
             init().then(() => {
-                connectToChannelServer(channelConnectionState.get('channelId'), isHarmonyPage)
+                connectToChannelServer(channelConnectionState.get('channelId'), isHarmonyPage);
                 updateCamVideoState();
                 updateCamAudioState();
             });
@@ -809,7 +810,7 @@ const Harmony = (props: Props): any => {
                      if (party != null) {
                          setActiveChat('party', party);
                          if (isMobileOrTablet() === true || dimensions.width <= 768) setSelectorsOpen(false);
-                     } else openDetails(e, 'party', party)}}
+                     } else openDetails(e, 'party', party);}}
             >
                 <PeopleOutline className={styles['icon-margin-right']}/>
                 <span>Party</span>
@@ -1007,7 +1008,7 @@ const Harmony = (props: Props): any => {
                 </AccordionDetails>
             </Accordion>
         }
-    </div>
+    </div>;
 
     return (
         <div className={styles['harmony-component']}>
@@ -1031,9 +1032,10 @@ const Harmony = (props: Props): any => {
                     setSelectorsOpen(false);
                 }}
                 onOpen={() => {
-                    setSelectedAccordion('friends')
+                    setSelectedAccordion('friends');
                 }}
             >
+                <div className={styles['close-button']} onClick={() => setSelectorsOpen(false)}><Close /></div>
                 {chatSelectors}
             </SwipeableDrawer> }
             { (isMobileOrTablet() !== true && dimensions.width > 768) && chatSelectors}
@@ -1246,7 +1248,7 @@ const Harmony = (props: Props): any => {
                                 }}
                                 onKeyPress={(e) => {
                                     if (e.shiftKey === false && e.charCode === 13) {
-                                        e.preventDefault()
+                                        e.preventDefault();
                                         packageMessage();
                                     }
                                 }}

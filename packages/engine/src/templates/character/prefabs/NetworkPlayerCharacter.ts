@@ -1,9 +1,11 @@
-import { LifecycleValue } from "@xr3ngine/engine/src/common/enums/LifecycleValue";
 import { isClient } from "@xr3ngine/engine/src/common/functions/isClient";
+import { Entity } from '../../../ecs/classes/Entity';
 import { Behavior } from "@xr3ngine/engine/src/common/interfaces/Behavior";
 import { addObject3DComponent } from "@xr3ngine/engine/src/scene/behaviors/addObject3DComponent";
+import { initializeNetworkObject } from '../../../networking/functions/initializeNetworkObject'
+import { Network } from '../../../networking/classes/Network';
 import { Vec3 } from "cannon-es";
-import { AnimationClip, AnimationMixer, BoxGeometry, Group, Material, Mesh, MeshLambertMaterial, Vector3 } from "three";
+import { AnimationClip, AnimationMixer, BackSide, BoxGeometry, Group, Material, Mesh, MeshLambertMaterial, Quaternion, Vector3 } from "three";
 import { AssetLoader } from "../../../assets/components/AssetLoader";
 import { AssetLoaderState } from "../../../assets/components/AssetLoaderState";
 import { PositionalAudioComponent } from '../../../audio/components/PositionalAudioComponent';
@@ -22,18 +24,18 @@ import { CollisionGroups } from "../../../physics/enums/CollisionGroups";
 import { PhysicsSystem } from "../../../physics/systems/PhysicsSystem";
 import { createShadow } from "../../../scene/behaviors/createShadow";
 import TeleportToSpawnPoint from '../../../scene/components/TeleportToSpawnPoint';
-import { setState } from "../../../state/behaviors/setState";
-import { State } from '../../../state/components/State';
 import { TransformComponent } from '../../../transform/components/TransformComponent';
 import { CharacterInputSchema } from '../CharacterInputSchema';
-import { CharacterStateSchema } from '../CharacterStateSchema';
-import { CharacterStateTypes } from "../CharacterStateTypes";
 import { CharacterComponent } from '../components/CharacterComponent';
 import { NamePlateComponent } from '../components/NamePlateComponent';
 import { getLoader } from "../../../assets/functions/LoadGLTF";
+import { DEFAULT_AVATAR_ID } from "../../../common/constants/AvatarConstants";
 import { Engine } from "../../../ecs/classes/Engine";
-import { initiateIKSystem } from "../../../xr/functions/initiateIKSystem";
-
+import { PrefabType } from "@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema";
+import { initializeMovingState } from "../animations/MovingAnimations";
+import { IKComponent } from "../../../character/components/IKComponent";
+import { initiateIK } from "../../../xr/functions/IKFunctions";
+import { AnimationComponent } from "../../../character/components/AnimationComponent";
 
 export class AnimationManager {
 	static _instance: AnimationManager;
@@ -67,12 +69,8 @@ export class AnimationManager {
 	}
 	getDefaultModel(): Promise<Group> {
 		return new Promise(resolve => {
-			if (!isClient) {
-				resolve(new Group());
-				return;
-			}
-			getLoader().load('/models/avatars/Default.glb', gltf => {
-        // console.log('default model loaded')
+			getLoader().load(Engine.publicPath + '/models/avatars/Default.glb', gltf => {
+        console.log('default model loaded')
         this._defaultModel = gltf.scene;
         this._defaultModel.traverse((obj: Mesh) => {
           if(obj.material) {
@@ -91,7 +89,15 @@ export class AnimationManager {
 }
 
 export const loadDefaultActorAvatar: Behavior = (entity) => {
-  loadActorAvatarFromURL(entity, '/models/avatars/Default.glb');
+  const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
+  AnimationManager.instance.getDefaultModel().then(() => {
+    wipeOldModel(entity);
+    AnimationManager.instance._defaultModel.children.forEach(child => actor.modelContainer.add(child));
+    actor.mixer = new AnimationMixer(actor.modelContainer.children[0]);
+    if(hasComponent(entity, IKComponent)) {
+      initiateIK(entity)
+    }
+  })
 }
 
 export const loadActorAvatar: Behavior = (entity) => {
@@ -104,7 +110,6 @@ export const loadActorAvatar: Behavior = (entity) => {
 export const loadActorAvatarFromURL: Behavior = (entity, avatarURL) => {
   if (hasComponent(entity, AssetLoader)) removeComponent(entity, AssetLoader, true);
   if (hasComponent(entity, AssetLoaderState)) removeComponent(entity, AssetLoaderState, true);
-	console.warn(avatarURL);
   const tmpGroup = new Group();
   addComponent(entity, AssetLoader, {
     url: avatarURL,
@@ -115,31 +120,34 @@ export const loadActorAvatarFromURL: Behavior = (entity, avatarURL) => {
   createShadow(entity, { objArgs: { castShadow: true, receiveShadow: true }})
   const loader = getComponent(entity, AssetLoader);
   loader.onLoaded.push(async (entity, args) => {
+
     console.log("Actor Avatar loaded")
+    wipeOldModel(entity)
+
     const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
-    actor.mixer && actor.mixer.stopAllAction();
-    // forget that we have any animation playing
-    actor.currentAnimationAction = [];
-
-    // clear current avatar mesh
-    ([...actor.modelContainer.children])
-      .forEach(child => actor.modelContainer.remove(child));
-
     tmpGroup.children.forEach(child => actor.modelContainer.add(child));
-
+    
     actor.mixer = new AnimationMixer(actor.modelContainer.children[0]);
-	// TODO: Remove this. Currently we are double-sampling the samplerate
-
-    initiateIKSystem(entity, args.asset.children[0]);
-    const stateComponent = getComponent(entity, State);
-    // trigger all states to restart?
-    stateComponent.data.forEach(data => data.lifecycleState = LifecycleValue.STARTED);
-
-    if(Engine.xrSession) {
-      actor.modelContainer.visible = false;
+    if(hasComponent(entity, IKComponent)) {
+      initiateIK(entity)
     }
   })
 };
+
+const wipeOldModel = (entity) => {
+  const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
+  actor.mixer && actor.mixer.stopAllAction();
+  // forget that we have any animation playing
+  actor.currentAnimationAction = [];
+  
+  // clear current avatar mesh
+  ([...actor.modelContainer.children])
+    .forEach(child => actor.modelContainer.remove(child));
+}
+
+const initializeAnimations = (entity) => {
+  const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
+}
 
 const initializeCharacter: Behavior = (entity): void => {
 	// console.warn("Initializing character for ", entity.id);
@@ -160,9 +168,9 @@ const initializeCharacter: Behavior = (entity): void => {
 	if(actor.modelContainer !== undefined)
 	  ([ ...actor.modelContainer.children ])
 		.forEach(child => actor.modelContainer.remove(child));
-	const stateComponent = getComponent(entity, State);
+	// const stateComponent = getComponent(entity, State);
 	// trigger all states to restart?
-	stateComponent.data.forEach(data => data.lifecycleState = LifecycleValue.STARTED);
+	// stateComponent.data.forEach(data => data.lifecycleState = LifecycleValue.STARTED);
 
 	// The visuals group is centered for easy actor tilting
 	actor.tiltContainer = new Group();
@@ -186,7 +194,7 @@ const initializeCharacter: Behavior = (entity): void => {
 
 	actor.velocitySimulator = new VectorSpringSimulator(60, actor.defaultVelocitySimulatorMass, actor.defaultVelocitySimulatorDamping);
 	actor.moveVectorSmooth = new VectorSpringSimulator(60, actor.defaultVelocitySimulatorMass, actor.defaultVelocitySimulatorDamping);
-	actor.vactorAnimSimulator = new VectorSpringSimulator(60, actor.defaultVelocitySimulatorMass, actor.defaultVelocitySimulatorDamping);
+	actor.animationVectorSimulator = new VectorSpringSimulator(60, actor.defaultVelocitySimulatorMass, actor.defaultVelocitySimulatorDamping);
 	actor.rotationSimulator = new RelativeSpringSimulator(60, actor.defaultRotationSimulatorMass, actor.defaultRotationSimulatorDamping);
 
 	if(actor.viewVector == null) actor.viewVector = new Vector3();
@@ -228,27 +236,62 @@ const initializeCharacter: Behavior = (entity): void => {
 
 	// Physics pre/post step callback bindings
 	// States
-	setState(entity, { state: CharacterStateTypes.DEFAULT });
+	// setState(entity, { state: CharacterAnimations.DEFAULT });
 	actor.initialized = true;
+
+  addComponent(entity, AnimationComponent);
+
+  initializeMovingState(entity)
 
 	// };
 };
 
-
+export function createNetworkPlayer( args:{ ownerId: string | number, networkId?: number, entity?: Entity } ) {
+	/*
+  let position = null;
+  let rotation = null;
+  if (typeof obj.x === 'number' || typeof obj.y === 'number' || typeof obj.z === 'number' ) {
+      position = new Vector3(obj.x, obj.y, obj.z);
+  }
+  if (typeof obj.qX === 'number' || typeof obj.qY === 'number' || typeof obj.qZ === 'number' || typeof obj.qW === 'number') {
+      rotation = new Quaternion(obj.qX, obj.qY, obj.qZ, obj.qW);
+  }
+	*/
+  const networkComponent = initializeNetworkObject({
+    ownerId: String(args.ownerId),
+    networkId: args.networkId,
+    prefabType: PrefabType.Player,
+	  override: {
+	      localClientComponents: [],
+	      networkComponents: [
+	        {
+	          type: TransformComponent,
+	          data: {
+	            position: new Vector3(),
+	            rotation: new Quaternion()
+	          }
+	        },
+	        {
+	          type: CharacterComponent,
+	          data: Network.instance.clients[args.ownerId].avatarDetail ?? {},
+	        }
+	      ],
+	      serverComponents: []
+	    }
+		}
+  );
+	return networkComponent;
+}
 // Prefab is a pattern for creating an entity and component collection as a prototype
 export const NetworkPlayerCharacter: NetworkPrefab = {
   // These will be created for all players on the network
   networkComponents: [
     // ActorComponent has values like movement speed, deceleration, jump height, etc
-    { type: CharacterComponent, data: { avatarId: process.env.DEFAULT_AVATAR_ID || 'Allison' }}, // TODO: add to environment
+    { type: CharacterComponent, data: { avatarId: DEFAULT_AVATAR_ID || 'Allison' }}, // TODO: add to environment
     // Transform system applies values from transform component to three.js object (position, rotation, etc)
     { type: TransformComponent },
-		// Its component is a pass to Interpolation for Other Players and Serrver Correction for Your Local Player
-		{ type: InterpolationComponent },
     // Local player input mapped to behaviors in the input map
     { type: Input, data: { schema: CharacterInputSchema } },
-    // Current state (isJumping, isidle, etc)
-    { type: State, data: { schema: CharacterStateSchema } },
     { type: NamePlateComponent },
     { type: PositionalAudioComponent }
   ],
@@ -258,6 +301,10 @@ export const NetworkPlayerCharacter: NetworkPrefab = {
     { type: FollowCameraComponent, data: { distance: 3, mode: CameraModes.ThirdPerson } },
     { type: Interactor }
   ],
+	clientComponents: [
+		// Its component is a pass to Interpolation for Other Players and Serrver Correction for Your Local Player
+		{ type: InterpolationComponent }
+	],
   serverComponents: [
     { type: TeleportToSpawnPoint },
   ],

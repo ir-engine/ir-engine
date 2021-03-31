@@ -15,6 +15,14 @@ export class EventDispatcher {
       delete this._listeners[key];
     });
   }
+
+  once(eventName: string | number, listener: Function): void {
+    const onEvent = (ev) => {
+      this.removeEventListener(eventName, onEvent);
+      listener(ev);
+    }
+    this.addEventListener(eventName, onEvent)
+  }
   
   /**
    * Adds an event listener.

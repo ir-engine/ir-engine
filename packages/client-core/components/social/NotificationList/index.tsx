@@ -24,14 +24,14 @@ interface Props{
     getCreatorNotificationList?:any;
 }
 const NotificationList = ({creatorsState, getCreatorNotificationList}:Props) => {    
-    useEffect(()=>{getCreatorNotificationList()}, []);
+    useEffect(()=>{getCreatorNotificationList();}, []);
     const notificationList= creatorsState && creatorsState.get('creators') ? creatorsState.get('currentCreatorNotifications') : null;
     return <section className={styles.notificationsContainer}>
         <Typography variant="h2">Activity</Typography>
         {notificationList && notificationList.map((item, key)=>
             <NotificationCard key={key} notification={item} />
          )}
-        </section>
+        </section>;
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(NotificationList);

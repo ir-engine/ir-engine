@@ -89,7 +89,7 @@ export function userPatched ( user: User ): UserCreatedAction {
   return {
     type: USER_PATCHED,
     user: user
-  }
+  };
 }
 
 export function loadedUserRelationship(relationship: Relationship): LoadedUserRelationshipAction {

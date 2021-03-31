@@ -44,7 +44,7 @@ const Featured = ({feedsState, getFeeds, type, creatorId, creatorState, setFeedA
         }else{
             getFeeds('featured');
         }
-    }, [type]);
+    }, [type, creatorId]);
     if(feedsState.get('fetching') === false){
        if(type === 'creator'){
             feedsList = feedsState?.get('feedsCreator');
@@ -57,16 +57,15 @@ const Featured = ({feedsState, getFeeds, type, creatorId, creatorState, setFeedA
         }
     }
 
-    const featureFeed = feedId =>setFeedAsFeatured(feedId)
-    const unfeatureFeed = feedId =>setFeedNotFeatured(feedId)
+    const featureFeed = feedId =>setFeedAsFeatured(feedId);
+    const unfeatureFeed = feedId =>setFeedNotFeatured(feedId);
 
     const renderFeaturedStar = (feedId ,creatorId, featured) =>{
         if(creatorId === creatorState.get('currentCreator').id){
             return <span className={styles.starLine} onClick={()=>featured ? unfeatureFeed(feedId) : featureFeed(feedId)} >{featured ? <StarIcon /> : <StarOutlineIcon />}</span>;
         }
-    }
+    };
     return <section className={styles.feedContainer}>
-
         {feedsList && feedsList.length > 0  && feedsList.map((item, itemIndex)=>
             <Card className={styles.creatorItem} elevation={0} key={itemIndex}>         
                     {renderFeaturedStar( item.id, item.creatorId, !!+item.featured)}        
@@ -78,7 +77,7 @@ const Featured = ({feedsState, getFeeds, type, creatorId, creatorState, setFeedA
                 <span className={styles.eyeLine}>{item.viewsCount}<VisibilityIcon style={{fontSize: '16px'}}/></span>
             </Card>
         )}
-        </section>
+        </section>;
 };
 
 export default  connect(mapStateToProps, mapDispatchToProps)(Featured);

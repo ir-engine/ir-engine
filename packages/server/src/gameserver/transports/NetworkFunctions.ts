@@ -1,14 +1,16 @@
+import { Engine } from '@xr3ngine/engine/src/ecs/classes/Engine';
+import { EngineEvents } from '@xr3ngine/engine/src/ecs/classes/EngineEvents';
 import { Entity } from '@xr3ngine/engine/src/ecs/classes/Entity';
 import { getComponent, removeEntity } from "@xr3ngine/engine/src/ecs/functions/EntityFunctions";
 import { Network } from "@xr3ngine/engine/src/networking//classes/Network";
 import { MessageTypes } from '@xr3ngine/engine/src/networking/enums/MessageTypes';
-import { initializeNetworkObject } from '@xr3ngine/engine/src/networking/functions/initializeNetworkObject';
+import { WorldStateInterface } from '@xr3ngine/engine/src/networking/interfaces/WorldState';
+import { createNetworkPlayer } from '@xr3ngine/engine/src/templates/character/prefabs/NetworkPlayerCharacter';
 import { TransformComponent } from '@xr3ngine/engine/src/transform/components/TransformComponent';
 import { DataConsumer, DataProducer } from 'mediasoup/lib/types';
 import logger from "../../app/logger";
 import config from '../../config';
 import { closeTransport } from './WebRTCFunctions';
-import { Engine } from "@xr3ngine/engine/src/ecs/classes/Engine";
 
 const gsNameRegex = /gameserver-([a-zA-Z0-9]{5}-[a-zA-Z0-9]{5})/;
 
@@ -177,6 +179,11 @@ export function validateNetworkObjects(): void {
 
 
 export async function handleConnectToWorld(socket, data, callback, userId, user, avatarDetail): Promise<any> {
+  if(!Engine.sceneLoaded) {
+    await new Promise<void>((resolve) => {
+      EngineEvents.instance.once(EngineEvents.EVENTS.SCENE_LOADED, resolve);
+    });
+  }
     const transport = Network.instance.transport as any;
 
     console.log('Connect to world from ' + userId);
@@ -207,6 +214,7 @@ export async function handleConnectToWorld(socket, data, callback, userId, user,
     const worldState = {
         tick: Network.tick,
         transforms: [],
+        ikTransforms: [],
         inputs: [],
         clientsConnected: [],
         clientsDisconnected: [],
@@ -270,9 +278,9 @@ export async function handleJoinWorld(socket, data, callback, userId, user): Pro
   //  const spawnPoint = Engine.spawnSystem.getRandomSpawnPoint();
 
     // Create a new default prefab for client
-    const networkObject = initializeNetworkObject(userId, Network.getNetworkId(), Network.instance.schema.defaultClientPrefab);// , spawnPoint.position, spawnPoint.rotation
+    const networkObject = createNetworkPlayer({ ownerId: userId });// , spawnPoint.position, spawnPoint.rotation
     const transform = getComponent(networkObject.entity, TransformComponent);
-
+/*
     // Add the network object to our list of network objects
     Network.instance.networkObjects[networkObject.networkId] = {
         ownerId: userId, // Owner's socket ID
@@ -280,8 +288,9 @@ export async function handleJoinWorld(socket, data, callback, userId, user): Pro
         component: networkObject,
         uniqueId: ''
     };
-
+*/
     // Added new object to the worldState with networkId and ownerId
+    /*
     Network.instance.createObjects.push({
         networkId: networkObject.networkId,
         ownerId: userId,
@@ -295,11 +304,12 @@ export async function handleJoinWorld(socket, data, callback, userId, user): Pro
         qZ: transform.rotation.z,
         qW: transform.rotation.w
     });
-
+*/
     // Create a new worldtate object that we can fill
     const worldState = {
         tick: Network.tick,
         transforms: [],
+        ikTransforms: [],
         inputs: [],
         clientsConnected: [],
         clientsDisconnected: [],
@@ -323,6 +333,12 @@ export async function handleJoinWorld(socket, data, callback, userId, user): Pro
             qZ: transform.rotation.z,
             qW: transform.rotation.w
         });
+    });
+
+    // Get all clients and add to clientsConnected and push to world state frame
+    Object.keys(Network.instance.clients).forEach(userId => {
+      const client = Network.instance.clients[userId];
+      worldState.clientsConnected.push({ userId: client.userId, name: client.userId, avatarDetail: client.avatarDetail });
     });
 
     // Return initial world state to client to set things up

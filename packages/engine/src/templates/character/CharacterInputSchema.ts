@@ -1,10 +1,10 @@
 import { FollowCameraComponent } from '@xr3ngine/engine/src/camera/components/FollowCameraComponent';
 import { Behavior } from '@xr3ngine/engine/src/common/interfaces/Behavior';
 import { Entity } from '@xr3ngine/engine/src/ecs/classes/Entity';
-import { getComponent } from '@xr3ngine/engine/src/ecs/functions/EntityFunctions';
+import { getComponent, removeComponent } from '@xr3ngine/engine/src/ecs/functions/EntityFunctions';
 import { Input } from '@xr3ngine/engine/src/input/components/Input';
 import { BaseInput } from '@xr3ngine/engine/src/input/enums/BaseInput';
-import { Material, Mesh, Vector3, Quaternion } from "three";
+import { Material, Mesh, Vector3, Quaternion, Object3D } from "three";
 import { SkinnedMesh } from 'three/src/objects/SkinnedMesh';
 import { CameraComponent } from "../../camera/components/CameraComponent";
 import { CameraModes } from "../../camera/types/CameraModes";
@@ -23,6 +23,12 @@ import { CharacterComponent } from "./components/CharacterComponent";
 import { isServer } from "../../common/functions/isServer";
 import { VehicleBody } from '../../physics/components/VehicleBody';
 import { isMobileOrTablet } from '../../common/functions/isMobile';
+import { SIXDOFType } from '../../common/types/NumericalTypes';
+import { IKComponent } from '../../character/components/IKComponent';
+import { EquippedComponent } from '../../interaction/components/EquippedComponent';
+import { TransformParentComponent } from '../../transform/components/TransformParentComponent';
+import { unequipEntity } from '../../interaction/functions/equippableFunctions';
+import { TransformComponent } from '../../transform/components/TransformComponent';
 
 /**
  *
@@ -32,6 +38,13 @@ import { isMobileOrTablet } from '../../common/functions/isMobile';
  */
 
 const interact: Behavior = (entity: Entity, args: any = { }, delta): void => {
+
+  // TODO: figure out how to best handle equippables & interactables at the same time
+  const equippedComponent = getComponent(entity, EquippedComponent)
+  if(equippedComponent) {
+    unequipEntity(entity)
+    return;
+  }
   if (isServer) {
     interactOnServer(entity);
     return;
@@ -69,14 +82,19 @@ const interact: Behavior = (entity: Entity, args: any = { }, delta): void => {
 
 
   const interactive = getComponent(focusedEntity, Interactable);
-  if (interactive && typeof interactive.onInteraction === 'function') {
-    if (!hasComponent(focusedEntity, VehicleBody)) {
-      interactive.onInteraction(entity, args, delta, focusedEntity);
+  const intPosition = getComponent(focusedEntity, TransformComponent).position;
+  const position = getComponent(entity, TransformComponent).position;
+  
+  if (position.distanceTo(intPosition) < 3) {
+    if (interactive && typeof interactive.onInteraction === 'function') {
+      if (!hasComponent(focusedEntity, VehicleBody)) {
+        interactive.onInteraction(entity, args, delta, focusedEntity);
+      } else {
+        console.log('Interaction with cars must work only from server');
+      }
     } else {
-      console.log('Interaction with cars must work only from server');
+      console.warn('onInteraction is not a function');
     }
-  } else {
-    console.warn('onInteraction is not a function');
   }
 
 };
@@ -332,6 +350,7 @@ const lookFromXRInputs: Behavior = (entity, args): void => {
   const input = getComponent<Input>(entity, Input as any);
   const values = input.data.get(BaseInput.XR_LOOK)?.value;
 
+  // todo: finish this
   if(values) {
     actor.changedViewAngle = values[0];
   }
@@ -381,6 +400,37 @@ const lookByInputAxis = (
         lifecycleState: LifecycleValue.CHANGED
       });
     }
+  }
+}
+
+const updateIKRig: Behavior = (entity, args): void => {
+
+  const avatarIK = getMutableComponent(entity, IKComponent);
+  const inputs = getMutableComponent(entity, Input);
+  if(!avatarIK?.avatarIKRig) return console.warn('no ik rig attached');
+  const obj3d = getComponent(entity, Object3DComponent).value as Object3D;
+
+  if(args.type === BaseInput.XR_HEAD) { 
+    
+    const cam = inputs.data.get(BaseInput.XR_HEAD).value as SIXDOFType;
+    avatarIK.avatarIKRig.inputs.hmd.position.set(cam.x, cam.y, cam.z).sub(obj3d.position);
+    avatarIK.avatarIKRig.inputs.hmd.quaternion.set(cam.qX, cam.qY, cam.qZ, cam.qW)
+    // avatarIK.avatarIKRig.inputs.hmd.rotateY(Math.PI / 2)
+
+  } else if(args.type === BaseInput.XR_LEFT_HAND) { 
+
+    const left = inputs.data.get(BaseInput.XR_LEFT_HAND).value as SIXDOFType;
+    avatarIK.avatarIKRig.inputs.leftGamepad.position.set(left.x, left.y, left.z);
+    avatarIK.avatarIKRig.inputs.leftGamepad.quaternion.set(left.qX, left.qY, left.qZ, left.qW);
+    // avatar.inputs.leftGamepad.pointer = ; // for finger animation
+    // avatar.inputs.leftGamepad.grip = ;
+
+  } else if(args.type === BaseInput.XR_RIGHT_HAND) { 
+
+    const right = inputs.data.get(BaseInput.XR_RIGHT_HAND).value as SIXDOFType;
+    avatarIK.avatarIKRig.inputs.rightGamepad.position.set(right.x, right.y, right.z);
+    avatarIK.avatarIKRig.inputs.rightGamepad.quaternion.set( right.qX, right.qY, right.qZ, right.qW);
+    
   }
 }
 
@@ -772,6 +822,30 @@ export const CharacterInputSchema: InputSchema = {
       unchanged: [
         {
           behavior: lookFromXRInputs,
+        },
+      ],
+    },
+    [BaseInput.XR_HEAD]: {
+      changed: [
+        {
+          behavior: updateIKRig,
+          args: { type: BaseInput.XR_HEAD }
+        },
+      ],
+    },
+    [BaseInput.XR_LEFT_HAND]: {
+      changed: [
+        {
+          behavior: updateIKRig,
+          args: { type: BaseInput.XR_LEFT_HAND }
+        },
+      ],
+    },
+    [BaseInput.XR_RIGHT_HAND]: {
+      changed: [
+        {
+          behavior: updateIKRig,
+          args: { type: BaseInput.XR_RIGHT_HAND }
         },
       ],
     }

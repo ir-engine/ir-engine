@@ -75,15 +75,15 @@ export class Notifications extends Service {
 
         const dataQuery = `SELECT notifications.*, sr.url as previewUrl, creator.username as creator_username,  sr2.url as avatar, comments.text as comment_text 
         FROM \`notifications\` as notifications
-        JOIN \`feed\` as feed ON feed.id=notifications.feedId
-        JOIN \`static_resource\` as sr ON sr.id=feed.previewId
+        LEFT JOIN \`feed\` as feed ON feed.id=notifications.feedId
+        LEFT JOIN \`static_resource\` as sr ON sr.id=feed.previewId
         JOIN \`creator\` as creator ON creator.id=notifications.creatorAuthorId
         LEFT JOIN \`static_resource\` as sr2 ON sr2.id=creator.avatarId
         LEFT JOIN \`comments\` as comments ON comments.id=notifications.commentId
         WHERE notifications.creatorViewerId=:creatorId 
         ORDER BY notifications.createdAt DESC`;
 
-        const notification = await this.app.get('sequelizeClient').query(dataQuery,
+        const notificationList = await this.app.get('sequelizeClient').query(dataQuery,
         {
           type: QueryTypes.SELECT,
           raw: true,
@@ -91,7 +91,7 @@ export class Notifications extends Service {
             creatorId,
           }
         });
-        return notification;
+        return notificationList;
     }
     return 1;
   }

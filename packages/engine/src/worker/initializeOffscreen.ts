@@ -19,17 +19,17 @@ import { WebGLRendererSystem } from '../renderer/WebGLRendererSystem';
 import { ServerSpawnSystem } from '../scene/systems/SpawnSystem';
 import { StateSystem } from '../state/systems/StateSystem';
 import { CharacterInputSchema } from '../templates/character/CharacterInputSchema';
-import { CharacterStateSchema } from '../templates/character/CharacterStateSchema';
 import { DefaultNetworkSchema } from '../templates/networking/DefaultNetworkSchema';
 import { TransformSystem } from '../transform/systems/TransformSystem';
 import { MainProxy } from './MessageQueue';
-import { EntityActionSystem } from '../input/systems/EntityActionSystem';
+import { ActionSystem } from '../input/systems/ActionSystem';
 import { EngineEvents } from '../ecs/classes/EngineEvents';
 import { EngineEventsProxy, addIncomingEvents } from '../ecs/classes/EngineEvents';
 import { XRSystem } from '../xr/systems/XRSystem';
 // import { PositionalAudioSystem } from './audio/systems/PositionalAudioSystem';
 import { receiveWorker } from './MessageQueue';
 import { AnimationManager } from '../templates/character/prefabs/NetworkPlayerCharacter';
+import { CharacterControllerSystem } from '../character/CharacterControllerSystem';
 
 
 Mesh.prototype.raycast = acceleratedRaycast;
@@ -42,9 +42,6 @@ export const DefaultInitializationOptions = {
   networking: {
     schema: DefaultNetworkSchema
   },
-  state: {
-    schema: CharacterStateSchema
-  },
 };
 
 const initializeEngineOffscreen = async ({ canvas, userArgs }, proxy: MainProxy) => {
@@ -56,6 +53,7 @@ const initializeEngineOffscreen = async ({ canvas, userArgs }, proxy: MainProxy)
 
   initialize();
   Engine.scene = new Scene();
+  Engine.publicPath = location.origin;
 
   await AnimationManager.instance.getDefaultModel()
 
@@ -65,8 +63,9 @@ const initializeEngineOffscreen = async ({ canvas, userArgs }, proxy: MainProxy)
 
   registerSystem(AssetLoadingSystem);
   registerSystem(PhysicsSystem);
-  registerSystem(EntityActionSystem, { useWebXR: false });
+  registerSystem(ActionSystem, { useWebXR: false });
   registerSystem(StateSystem);
+  registerSystem(CharacterControllerSystem);
   registerSystem(ServerSpawnSystem, { priority: 899 });
   registerSystem(TransformSystem, { priority: 900 });
   
@@ -97,12 +96,10 @@ const initializeEngineOffscreen = async ({ canvas, userArgs }, proxy: MainProxy)
     update: (delta, elapsedTime) => execute(delta, elapsedTime, SystemUpdateType.Free)
   }, Engine.physicsFrameRate, Engine.networkFramerate).start();
 
-  const connectNetworkEvent = ({ id }) => {
+  EngineEvents.instance.once(ClientNetworkSystem.EVENTS.CONNECT, ({ id }) => {
     Network.instance.isInitialized = true;
     Network.instance.userId = id;
-    EngineEvents.instance.removeEventListener(ClientNetworkSystem.EVENTS.CONNECT, connectNetworkEvent)
-  }
-  EngineEvents.instance.addEventListener(ClientNetworkSystem.EVENTS.CONNECT, connectNetworkEvent)
+  })
 
 }
 

@@ -73,7 +73,7 @@ function CreateInstance(props: Props) {
         const data = {
             ipAddress: ipAddress,
             currentUsers: curremtUser
-        }
+        };
         if(editing){
             patchInstance(instanceEdit.id, data);
         } else {
@@ -84,7 +84,7 @@ function CreateInstance(props: Props) {
 
         fetchAdminInstances();
         handleClose();
-    }
+    };
 
     return (
         <div>
@@ -175,7 +175,7 @@ function CreateInstance(props: Props) {
                 </Fade>
             </Modal>
         </div>
-    )
+    );
 }
 
 

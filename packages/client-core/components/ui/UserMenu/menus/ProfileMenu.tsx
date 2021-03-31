@@ -76,12 +76,12 @@ const ProfileMenu = (props: Props): any => {
 	const updateUserName = (e) => {
 		e.preventDefault();
 		handleUpdateUsername();
-	}
+	};
 
 	const handleUsernameChange = (e) => {
 		setUsername(e.target.value);
 		if (!e.target.value) setErrorUsername(true);
-	}
+	};
 
 	const handleUpdateUsername = () => {
 		const name = username.trim();
@@ -103,7 +103,7 @@ const ProfileMenu = (props: Props): any => {
 
 		setError(false);
 		return true;
-	}
+	};
 
 	const handleSubmit = (e: any): any => {
 		e.preventDefault();
@@ -116,21 +116,21 @@ const ProfileMenu = (props: Props): any => {
 
 	const handleOAuthServiceClick = (e) => {
 		loginUserByOAuth(e.currentTarget.id);
-	}
+	};
 
 	const handleLogout = async (e) => {
 		if (changeActiveMenu != null) changeActiveMenu(null);
 		else if (setProfileMenuOpen != null) setProfileMenuOpen(false);
 		await logoutUser();
 		window.location.reload();
-	}
+	};
 
 	return (
 		<div className={styles.menuPanel}>
 			<section className={styles.profilePanel}>
 				<section className={styles.profileBlock}>
 					<div className={styles.avatarBlock}>
-						<img src={getAvatarURLFromNetwork(Network.instance, selfUser?.avatarId)} />
+						<img src={getAvatarURLFromNetwork(Network.instance, selfUser?.id)} />
 						{ changeActiveMenu != null && <Button className={styles.avatarBtn} onClick={() => changeActiveMenu(Views.Avatar)} disableRipple><Create /></Button>}
 					</div>
 					<div className={styles.headerBlock}>
@@ -159,6 +159,7 @@ const ProfileMenu = (props: Props): any => {
 						</span>
 						<h2>You are {selfUser?.userRole === 'admin' ? 'an' : 'a'} <span>{selfUser?.userRole}</span>.</h2>
 						<h4>{(selfUser.userRole === 'user' || selfUser.userRole === 'admin') && <div onClick={handleLogout}>Log out</div>}</h4>
+						{ selfUser?.inviteCode != null && <h2>Invite Code: {selfUser.inviteCode}</h2> }
 					</div>
 				</section>
 				{ selfUser?.userRole === 'guest' && <section className={styles.emailPhoneSection}>

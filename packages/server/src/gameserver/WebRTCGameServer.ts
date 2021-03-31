@@ -1,11 +1,12 @@
 import { initializeServer } from "@xr3ngine/engine/src/initialize";
-import { CharacterStateSchema } from "@xr3ngine/engine/src/templates/character/CharacterStateSchema";
 import { DefaultNetworkSchema } from "@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema";
 import { SocketWebRTCServerTransport } from "./transports/SocketWebRTCServerTransport";
 
 // Patch XHR for FileLoader in threejs
 import { XMLHttpRequest } from 'xmlhttprequest';
+import { Engine } from "@xr3ngine/engine/src/ecs/classes/Engine";
 (globalThis as any).XMLHttpRequest = XMLHttpRequest; 
+import config from '../config';
 
 const networkSchema = {
   ...DefaultNetworkSchema,
@@ -19,9 +20,7 @@ const options = {
   networking: {
     schema: networkSchema
   },
-  state: {
-    schema: CharacterStateSchema
-  }
+  publicPath: config.client.url
 };
 
 export class WebRTCGameServer {

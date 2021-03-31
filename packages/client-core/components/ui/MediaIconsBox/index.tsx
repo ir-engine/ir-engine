@@ -68,14 +68,10 @@ const MediaIconsBox = (props) => {
     const isCamAudioEnabled = mediastream.get('isCamAudioEnabled');
 
     const onEngineLoaded = () => {
-      const onSceneEnabled = () => {
-        setXRSupported(Engine.xrSupported);
-        EngineEvents.instance.removeEventListener(EngineEvents.EVENTS.JOINED_WORLD, onSceneEnabled)
-      }
-      EngineEvents.instance.addEventListener(EngineEvents.EVENTS.JOINED_WORLD, onSceneEnabled)
-      document.removeEventListener('ENGINE_LOADED', onEngineLoaded)
-    }
-    document.addEventListener('ENGINE_LOADED', onEngineLoaded)
+      EngineEvents.instance.once(EngineEvents.EVENTS.JOINED_WORLD, () => setXRSupported(Engine.xrSupported));
+      document.removeEventListener('ENGINE_LOADED', onEngineLoaded);
+    };
+    document.addEventListener('ENGINE_LOADED', onEngineLoaded);
 
     const checkMediaStream = async (partyId: string): Promise<boolean> => {
         return await configureMediaTransports(partyId);

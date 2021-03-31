@@ -36,5 +36,5 @@ export class Instance extends Service {
     } else {
       return super.find(params);
     }
-  };
+  }
 }

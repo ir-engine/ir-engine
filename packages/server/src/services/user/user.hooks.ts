@@ -1,9 +1,8 @@
 import * as authentication from '@feathersjs/authentication';
 import addAssociations from '../../hooks/add-associations';
 import { HookContext } from '@feathersjs/feathers';
-import attachOwnerIdInQuery from '../../hooks/set-loggedin-user-in-query';
-import * as commonHooks from 'feathers-hooks-common';
 import logger from '../../app/logger';
+import getFreeInviteCode from "../../util/get-free-invite-code";
 
 const { authenticate } = authentication.hooks;
 
@@ -145,8 +144,6 @@ export default {
     create: [
         async (context: HookContext): Promise<HookContext> => {
           try {
-            console.log('Created user');
-            console.log(context.result);
             await context.app.service('user-settings').create({
               userId: context.result.id
             });
@@ -159,7 +156,23 @@ export default {
         }
     ],
     update: [],
-    patch: [],
+    patch: [async (context: HookContext): Promise<HookContext> => {
+      try {
+        const app = context.app;
+        let result = context.result;
+        if (Array.isArray(result)) result = result[0];
+        if (result?.userRole !== 'guest' && result?.inviteCode == null) {
+          const code = await getFreeInviteCode(app);
+          await app.service('user').patch(result.id, {
+            inviteCode: code
+          });
+        }
+      } catch(err) {
+        logger.error('USER AFTER PATCH ERROR');
+        logger.error(err);
+      }
+      return context;
+    }],
     remove: []
   },
 

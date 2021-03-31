@@ -644,3 +644,17 @@ $mobileControllButtonsSize: 3em;
     width: 100vw;
     z-index: 15;
 }
+
+.close-button {
+    position: fixed;
+    left: 8px;
+    top: 8px;
+    background-color: darken(red, 10%);
+    border-radius: 50px;
+    padding: 2px;
+
+    &:hover {
+        cursor: pointer;
+        background-color: darken(red, 20%);
+    }
+}

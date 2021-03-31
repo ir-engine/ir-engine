@@ -59,12 +59,12 @@ const SocialLogin = (props: Props): any => {
   const handleLinkedinLogin = (e: any): void => {
     e.preventDefault();
     loginUserByOAuth('linkedin2');
-  }
+  };
 
   const handleTwitterLogin = (e: any): void => {
     e.preventDefault();
     loginUserByOAuth('twitter');
-  }
+  };
 
   const githubButton = enableGithubSocial ? (
     <Grid item xs={12}>

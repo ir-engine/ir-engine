@@ -141,6 +141,8 @@ export async function createTransport(direction: string, channelType?: string, c
         // failed, or disconnected, leave the  and reset
         transport.on("connectionstatechange", async (state: string) => {
             if (networkTransport.leaving !== true && (state === "closed" || state === "failed" || state === "disconnected")) {
+                console.error('Transport transitioned to state', state);
+                console.error('If this occurred unexpectedly shortly after joining a world, check that the gameserver nodegroup has public IP addresses.');
                 await request(MessageTypes.WebRTCTransportClose.toString(), {transportId: transport.id});
             }
             if (networkTransport.leaving !== true && state === 'connected' && transport.direction === 'recv') {

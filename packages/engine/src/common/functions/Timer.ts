@@ -73,7 +73,6 @@ export function Timer (
     Engine.renderer?.xr?.setAnimationLoop(xrAnimationLoop);
   });
   EngineEvents.instance.addEventListener(XRSystem.EVENTS.XR_END, async (ev: any) => {
-    Engine.renderer.setAnimationLoop(null);
     start();
   });
 
@@ -202,8 +201,20 @@ export function Timer (
     stop: stop
   };
 }
+
+const expectedServerDelta = 1000 / 60;
+let lastTime = 0;
 function requestAnimationFrameOnServer(f) {
-  setImmediate(() => f(Date.now()));
+  const serverLoop = () => {
+    const now = Date.now();
+    if(now - lastTime >= expectedServerDelta) {
+      lastTime = now;
+      f(now);
+    } else {
+      setImmediate(serverLoop);
+    }
+  }
+  serverLoop()
 }
 
 export class FixedStepsRunner {

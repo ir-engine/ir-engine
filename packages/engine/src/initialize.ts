@@ -9,7 +9,7 @@ import { Engine, AudioListener } from './ecs/classes/Engine';
 import { execute, initialize } from "./ecs/functions/EngineFunctions";
 import { registerSystem } from './ecs/functions/SystemFunctions';
 import { SystemUpdateType } from "./ecs/functions/SystemUpdateType";
-import { EntityActionSystem } from './input/systems/EntityActionSystem';
+import { ActionSystem } from './input/systems/ActionSystem';
 import { InteractiveSystem } from "./interaction/systems/InteractiveSystem";
 import { ClientNetworkSystem } from './networking/systems/ClientNetworkSystem';
 import { MediaStreamSystem } from './networking/systems/MediaStreamSystem';
@@ -23,7 +23,6 @@ import { WebGLRendererSystem } from './renderer/WebGLRendererSystem';
 import { ServerSpawnSystem } from './scene/systems/SpawnSystem';
 import { StateSystem } from './state/systems/StateSystem';
 import { CharacterInputSchema } from './templates/character/CharacterInputSchema';
-import { CharacterStateSchema } from './templates/character/CharacterStateSchema';
 import { DefaultNetworkSchema } from './templates/networking/DefaultNetworkSchema';
 import { TransformSystem } from './transform/systems/TransformSystem';
 import { EngineEvents, addIncomingEvents, addOutgoingEvents, EngineEventsProxy } from './ecs/classes/EngineEvents';
@@ -33,7 +32,8 @@ import { createWorker, WorkerProxy } from './worker/MessageQueue';
 import { Network } from './networking/classes/Network';
 import { isMobileOrTablet } from './common/functions/isMobile';
 import { AnimationManager } from './templates/character/prefabs/NetworkPlayerCharacter';
-import { applyNetworkStateToClient } from './networking/functions/applyNetworkStateToClient';
+import { CharacterControllerSystem } from './character/CharacterControllerSystem';
+
 // import { PositionalAudioSystem } from './audio/systems/PositionalAudioSystem';
 
 Mesh.prototype.raycast = acceleratedRaycast;
@@ -52,9 +52,7 @@ export const DefaultInitializationOptions = {
   networking: {
     schema: DefaultNetworkSchema
   },
-  state: {
-    schema: CharacterStateSchema
-  },
+  publicPath: ''
 };
 
 export const initializeEngine = async (initOptions: any = DefaultInitializationOptions): Promise<void> => {
@@ -86,6 +84,7 @@ export const initializeEngine = async (initOptions: any = DefaultInitializationO
   addOutgoingEvents()
 
   initialize();
+  Engine.publicPath = location.origin;
 
   const networkSystemOptions = { schema: options.networking.schema, app: options.networking.app };
   registerSystem(ClientNetworkSystem, { ...networkSystemOptions, priority: -1 });
@@ -96,15 +95,16 @@ export const initializeEngine = async (initOptions: any = DefaultInitializationO
 
     await AnimationManager.instance.getDefaultModel()
     registerSystem(AssetLoadingSystem);
-    registerSystem(PhysicsSystem);
     registerSystem(StateSystem);
+    registerSystem(CharacterControllerSystem);
+    registerSystem(PhysicsSystem);
     registerSystem(ServerSpawnSystem, { priority: 899 });
     registerSystem(TransformSystem, { priority: 900 });
 
     Engine.camera = new PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 10000);
     Engine.scene.add(Engine.camera);
     registerSystem(HighlightSystem);
-    registerSystem(EntityActionSystem, { useWebXR: Engine.xrSupported });
+    registerSystem(ActionSystem, { useWebXR: Engine.xrSupported });
 
 // audio breaks webxr currently
     // Engine.audioListener = new AudioListener();
@@ -116,7 +116,7 @@ export const initializeEngine = async (initOptions: any = DefaultInitializationO
     registerSystem(DebugHelpersSystem);
     registerSystem(CameraSystem);
     registerSystem(WebGLRendererSystem, { priority: 1001, canvas });
-    registerSystem(XRSystem, { offscreen: useOffscreen });
+    registerSystem(XRSystem);
     Engine.viewportElement = Engine.renderer.domElement;
     Engine.renderer.xr.enabled = Engine.xrSupported;
   }
@@ -137,12 +137,10 @@ export const initializeEngine = async (initOptions: any = DefaultInitializationO
   }
   document.addEventListener(engageType, onUserEngage);
 
-  const connectNetworkEvent = ({ id }) => {
+  EngineEvents.instance.once(ClientNetworkSystem.EVENTS.CONNECT, ({ id }) => {
     Network.instance.isInitialized = true;
     Network.instance.userId = id;
-    EngineEvents.instance.removeEventListener(ClientNetworkSystem.EVENTS.CONNECT, connectNetworkEvent)
-  }
-  EngineEvents.instance.addEventListener(ClientNetworkSystem.EVENTS.CONNECT, connectNetworkEvent)
+  })
 }
 
 export const initializeServer = async (initOptions: any = DefaultInitializationOptions): Promise<void> => {
@@ -150,6 +148,7 @@ export const initializeServer = async (initOptions: any = DefaultInitializationO
 
   EngineEvents.instance = new EngineEvents();
   Engine.scene = new Scene();
+  Engine.publicPath = options.publicPath;
 
   addIncomingEvents()
   addOutgoingEvents()
@@ -161,8 +160,9 @@ export const initializeServer = async (initOptions: any = DefaultInitializationO
   registerSystem(ServerNetworkOutgoingSystem, { ...networkSystemOptions, priority: 10000 });
   registerSystem(MediaStreamSystem);
   registerSystem(AssetLoadingSystem);
-  registerSystem(PhysicsSystem);
   registerSystem(StateSystem);
+  registerSystem(CharacterControllerSystem);
+  registerSystem(PhysicsSystem);
   registerSystem(ServerSpawnSystem, { priority: 899 });
   registerSystem(TransformSystem, { priority: 900 });
 
@@ -174,4 +174,5 @@ export const initializeServer = async (initOptions: any = DefaultInitializationO
         update: (delta, elapsedTime) => execute(delta, elapsedTime, SystemUpdateType.Free)
       }, Engine.physicsFrameRate, Engine.networkFramerate).start();
   }, 1000);
+  await AnimationManager.instance.getDefaultModel()
 }

@@ -2,17 +2,16 @@ import { Entity } from '@xr3ngine/engine/src/ecs/classes/Entity';
 import { getComponent, getMutableComponent } from '@xr3ngine/engine/src/ecs/functions/EntityFunctions';
 import { PlayerInCar } from '@xr3ngine/engine/src/physics/components/PlayerInCar';
 import { VehicleBody } from '@xr3ngine/engine/src/physics/components/VehicleBody';
-import { setState } from "@xr3ngine/engine/src/state/behaviors/setState";
-import { CharacterStateTypes } from "@xr3ngine/engine/src/templates/character/CharacterStateTypes";
+import { CharacterAnimations } from "@xr3ngine/engine/src/templates/character/CharacterAnimations";
 import { TransformComponent } from '@xr3ngine/engine/src/transform/components/TransformComponent';
 import { Matrix4, Vector3 } from 'three';
+import { changeAnimation } from '../../../character/functions/updateVectorAnimation';
 import { isServer } from "../../../common/functions/isServer";
-import { updateVectorAnimation, clearAnimOnChange, changeAnimation } from "@xr3ngine/engine/src/templates/character/behaviors/updateVectorAnimation";
 
 function doorAnimation(entityCar, seat, timer, timeAnimation, angel) {
   const vehicle = getComponent<VehicleBody>(entityCar, VehicleBody);
   const mesh = vehicle.vehicleDoorsArray[seat];
-
+  if (mesh === undefined) return;
   const andelPetTick = angel / (timeAnimation / 2);
   if (timer > (timeAnimation/2)) {
 
@@ -72,7 +71,7 @@ export const onAddEndingInCar = (entity: Entity, entityCar: Entity, seat: number
 
   if (timeOut) {
     changeAnimation(entity, {
-      animationId: CharacterStateTypes.DRIVING,
+      animationId: CharacterAnimations.DRIVING,
   	  transitionDuration: 0.3
      })
   }
