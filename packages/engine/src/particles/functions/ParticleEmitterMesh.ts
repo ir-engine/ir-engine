@@ -16,7 +16,7 @@ import {
   DynamicDrawUsage,
   DoubleSide
 } from "three";
-import * as EasingFunctions from "@mozillareality/easing-functions";
+import * as EasingFunctions from "@xr3ngine/engine/src/common/functions/EasingFunctions";
 import loadTexture from "../../editor/functions/loadTexture";
 import { lerp, clamp } from "../../common/functions/MathLerpFunctions";
 import { DEG2RAD, vertexShader, fragmentShader } from "./particleHelpers";

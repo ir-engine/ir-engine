@@ -1,8 +1,20 @@
+<<<<<<< HEAD
+=======
+import { Entity } from '@xr3ngine/engine/src/ecs/classes/Entity';
+import { addComponent, getComponent, getMutableComponent, removeComponent } from '@xr3ngine/engine/src/ecs/functions/EntityFunctions';
+import { PlayerInCar } from '@xr3ngine/engine/src/physics/components/PlayerInCar';
+import { VehicleBody } from '@xr3ngine/engine/src/physics/components/VehicleBody';
+import { PhysicsSystem } from '@xr3ngine/engine/src/physics/systems/PhysicsSystem';
+import { setState } from "@xr3ngine/engine/src/state/behaviors/setState";
+import { CharacterComponent } from "@xr3ngine/engine/src/templates/character/components/CharacterComponent";
+import { TransformComponent } from '@xr3ngine/engine/src/transform/components/TransformComponent';
+>>>>>>> origin/fix-volumetric-ios
 import { Matrix4, Vector3 } from 'three';
 import { isServer } from "../../../common/functions/isServer";
 import { changeAnimation } from '../../../character/functions/updateVectorAnimation';
 import { AnimationComponent } from '../../../character/components/AnimationComponent';
 import { initializeMovingState } from '../../character/animations/MovingAnimations';
+<<<<<<< HEAD
 import { VehicleComponent } from '../components/VehicleComponent';
 import { getComponent, getMutableComponent, removeComponent } from '../../../ecs/functions/EntityFunctions';
 import { TransformComponent } from '../../../transform/components/TransformComponent';
@@ -11,6 +23,10 @@ import { Entity } from '../../../ecs/classes/Entity';
 import { PhysicsSystem } from '../../../physics/systems/PhysicsSystem';
 import { PlayerInCar } from '../../../physics/components/PlayerInCar';
 import { CharacterAnimations } from '../../character/CharacterAnimations';
+=======
+import { CharacterAnimations } from '../../character/CharacterAnimations';
+
+>>>>>>> origin/fix-volumetric-ios
 
 function doorAnimation(entityCar, seat, timer, timeAnimation, angel) {
   const vehicle = getComponent<VehicleComponent>(entityCar, VehicleComponent);
