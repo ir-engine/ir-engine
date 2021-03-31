@@ -64,11 +64,11 @@ const createNetworkObjectSchema = new Schema({
 const editNetworkObjectSchema = new Schema({
     networkId: uint32,
     ownerId: string,
-    component: string,
-    state: string,
-    currentId: uint32,
-    value: uint32,
-    whoIsItFor: string
+    type: uint8,
+    values: [uint32]
+    // state: uint8,
+    // currentId: uint32,
+    // value: uint32,
 });
 
 const destroyNetworkObjectSchema = new Schema({

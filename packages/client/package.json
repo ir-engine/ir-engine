@@ -90,7 +90,7 @@
     "minimist": "^1.2.5",
     "moment": "^2.29.1",
     "mousetrap": "^1.6.5",
-    "next": "^10.0.8",
+    "next": "^10.1.2",
     "next-transpile-modules": "^6.2.0",
     "nipplejs": "^0.8.7",
     "platform": "^1.3.6",

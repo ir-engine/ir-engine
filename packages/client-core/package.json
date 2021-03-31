@@ -130,7 +130,7 @@
     "eslint": "^6.8.0",
     "eslint-plugin-react": "^7.21.4",
     "gltf-webpack-loader": "https://github.com/MozillaReality/gltf-webpack-loader.git#fix/relative-and-output-paths",
-    "next": "10.0.8",
+    "next": "10.1.2",
     "next-images": "^1.4.0",
     "next-optimized-images": "^2.6.2",
     "next-plugin-node-config": "^1.0.2",

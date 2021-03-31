@@ -1,16 +1,9 @@
-type CommonInteractiveAction = "link" | "infoBox" | "mediaSource";
 export interface CommonInteractiveData {
-  action: CommonInteractiveAction;
-  payload: CommonInteractiveDataPayload;
+  interactionType: string;
+  payloadUrl: string;
+  payloadBuyUrl?: string;
+  payloadLearnMoreUrl?: string;
+  payloadModelUrl?: string;
+  payloadHtmlContent?: string;
   interactionText?: string;
-}
-
-export interface CommonInteractiveDataPayload {
-  name: string;
-  url: string;
-  buyUrl?: string;
-  learnMoreUrl?: string;
-  modelUrl?: string;
-  iosModelUrl?: string;
-  htmlContent?: string;
 }
