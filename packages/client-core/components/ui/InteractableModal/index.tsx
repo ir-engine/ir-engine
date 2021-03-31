@@ -1,5 +1,5 @@
 import React, { FunctionComponent } from "react";
-import { CommonInteractiveData, CommonInteractiveDataPayload } from "@xr3ngine/engine/src/interaction/interfaces/CommonInteractiveData";
+import { CommonInteractiveData } from "@xr3ngine/engine/src/interaction/interfaces/CommonInteractiveData";
 import dynamic from "next/dynamic";
 import styles from './style.module.scss';
 import { Button, Dialog, DialogContent, DialogTitle, IconButton, Typography } from "@material-ui/core";
