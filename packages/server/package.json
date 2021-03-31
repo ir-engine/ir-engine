@@ -1,7 +1,7 @@
 {
   "name": "@xr3ngine/server",
   "description": "API Server for XR3ngine",
-  "version": "0.2.8",
+  "version": "0.2.9",
   "homepage": "",
   "entry": "./",
   "main": "./index.ts",
@@ -97,7 +97,7 @@
     "@feathersjs/socketio-client": "^4.5.9",
     "@feathersjs/transport-commons": "^4.5.9",
     "@google-cloud/agones-sdk": "^1.7.0",
-    "@xr3ngine/common": "^0.2.8",
+    "@xr3ngine/common": "^0.2.9",
     "aws-sdk": "^2.811.0",
     "bent": "^7.3.0",
     "cannon-es-debugger": "^0.0.4",
