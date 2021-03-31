@@ -2,7 +2,7 @@ import { handleVehicleStateChange } from "../vehicle/behaviors/handleVehicleStat
 
 export enum NetworkObjectUpdateType {
   VehicleStateChange,
-};
+}
 
 export const NetworkObjectUpdateSchema = {
   [NetworkObjectUpdateType.VehicleStateChange]: [
