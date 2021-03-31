@@ -1,5 +1,6 @@
 import { LOD, MeshPhysicalMaterial, Object3D, SkinnedMesh, TextureLoader } from 'three';
 import { hashFromResourceName } from '../../common/functions/hashFromResourceName';
+import { isAbsolutePath } from '../../common/functions/isAbsolutePath';
 import { isClient } from '../../common/functions/isClient';
 import { Engine } from '../../ecs/classes/Engine';
 import { EngineEvents } from '../../ecs/classes/EngineEvents';
@@ -185,9 +186,6 @@ function clone(source: Object3D): Object3D {
  * @param onAssetLoaded Callback to be called after asset will be loaded.
  */
 function loadAsset(url: AssetUrl, entity: Entity, onAssetLoaded: AssetsLoadedHandler): void {
-  if(url === "" || !url){
-    return console.warn("Load asset skipped because URL was null");
-  }
   const urlHashed = hashFromResourceName(url);
   if (AssetVault.instance.assets.has(urlHashed)) {
     onAssetLoaded(entity, { asset: clone(AssetVault.instance.assets.get(urlHashed)) });
@@ -300,9 +298,12 @@ export default class AssetLoadingSystem extends System {
         this.loadingCount++;
         EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENTITY_LOADED, left: this.loadingCount });
       }
-
+      if(assetLoader.url === "" || !assetLoader.url){
+        return console.warn("Load asset skipped because URL was null");
+      }
+      const url = isAbsolutePath(assetLoader.url) ? assetLoader.url : Engine.publicPath + assetLoader.url;
       try {
-        loadAsset(assetLoader.url, entity, (entity, { asset }) => {
+        loadAsset(url, entity, (entity, { asset }) => {
           // This loads the editor scene
           this.loaded.set(entity, asset);
           if (isClient) {
