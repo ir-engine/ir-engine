@@ -28,7 +28,7 @@ export default class DracosisPlayer {
   public speed = 1.0; // Multiplied by framerate for final playback output rate
 
   // Three objects
-  public scene: Scene;
+  public scene: Object3D;
   public renderer: Renderer;
   public mesh: Mesh;
   public meshFilePath: String;
@@ -37,7 +37,7 @@ export default class DracosisPlayer {
   public bufferGeometry: BufferGeometry;
 
   // Private Fields
-  private readonly _scale = 1;
+  private readonly _scale:number = 1;
   private _prevFrame = 0;
   private currentKeyframe = 0;
   private _video:HTMLVideoElement|AdvancedHTMLVideoElement = null;
@@ -224,7 +224,7 @@ export default class DracosisPlayer {
       playbackRate: 1
     });
 
-    this._videoTexture = new VideoTexture(this._video);
+    this._videoTexture = new VideoTexture(this._video as any);
     this._videoTexture.encoding = sRGBEncoding;
     this.frameRate = frameRate;
     this.canvas = document.createElement('canvas') as HTMLCanvasElement;
