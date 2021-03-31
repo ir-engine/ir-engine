@@ -9,7 +9,6 @@
   },
   "deprecated": false,
   "name": "@xr3ngine/engine",
-  "private": true,
   "publishConfig": {
     "access": "public"
   },
