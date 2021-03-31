@@ -29,7 +29,7 @@
     "validate": "yarn run lint && yarn run test",
     "generate-doc": "node_modules/.bin/typedoc"
   },
-  "version": "0.2.9",
+  "version": "0.2.10",
   "peerDependencies": {
     "three": "^0.125.0"
   },
