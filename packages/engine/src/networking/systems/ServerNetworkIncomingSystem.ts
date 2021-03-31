@@ -245,7 +245,6 @@ export class ServerNetworkIncomingSystem extends System {
       transforms: [],
       ikTransforms: [],
       inputs: [],
-      states: [],
       clientsConnected: Network.instance.clientsConnected,
       clientsDisconnected: Network.instance.clientsDisconnected,
       createObjects: Network.instance.createObjects,

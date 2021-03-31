@@ -15,6 +15,7 @@ import { Matrix4, Vector3 } from 'three';
 import { CameraModes } from '../../../camera/types/CameraModes';
 import { changeAnimation } from '../../../character/functions/updateVectorAnimation';
 import { initializeDriverState } from '../../character/animations/DrivingAnimations'
+import { VehicleState } from '../enums/VehicleStateEnum';
 
 function positionEnter(entity, entityCar, seat) {
   const transform = getMutableComponent<TransformComponent>(entity, TransformComponent);
@@ -53,7 +54,7 @@ export const onAddedInCar = (entity: Entity, entityCar: Entity, seat: number, de
   PhysicsSystem.physicsWorld.removeBody(actor.actorCapsule.body);
 
   const orientation = positionEnter(entity, entityCar, seat);
-  getMutableComponent(entity, PlayerInCar).state = 'onAddEnding';
+  getMutableComponent(entity, PlayerInCar).state = VehicleState.onAddEnding;
 
   // CLIENT
   initializeDriverState(entity)

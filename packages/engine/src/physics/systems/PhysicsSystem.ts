@@ -31,6 +31,7 @@ import { PlayerInCar } from '../components/PlayerInCar';
 import { RigidBody } from "../components/RigidBody";
 import { VehicleBody } from "../components/VehicleBody";
 import { InterpolationComponent } from "../components/InterpolationComponent";
+import { VehicleState } from '../../templates/vehicle/enums/VehicleStateEnum';
 
 
 const vec3 = new Vector3();
@@ -142,7 +143,7 @@ export class PhysicsSystem extends System {
     });
 
     this.queryResults.capsuleCollider.all?.forEach(entity => {
-      capsuleColliderBehavior(entity, { phase: 'onUpdate' });
+      capsuleColliderBehavior(entity, { phase: VehicleState.onUpdate });
     });
 
     this.queryResults.capsuleCollider.removed?.forEach(entity => {
@@ -151,7 +152,7 @@ export class PhysicsSystem extends System {
 
     // Update velocity vector for Animations
     this.queryResults.character.all?.forEach(entity => {
-      updateVelocityVector(entity, { phase: 'onUpdate' });
+      updateVelocityVector(entity, { phase: VehicleState.onUpdate });
     });
 
     // RigidBody
@@ -160,7 +161,7 @@ export class PhysicsSystem extends System {
     });
 
     this.queryResults.rigidBody.all?.forEach(entity => {
-      RigidBodyBehavior(entity, { phase: 'onUpdate' });
+      RigidBodyBehavior(entity, { phase: VehicleState.onUpdate });
     });
 
     // Vehicle
@@ -172,7 +173,7 @@ export class PhysicsSystem extends System {
 
     this.queryResults.vehicleBody.all?.forEach(entityCar => {
       const networkCarId = getComponent(entityCar, NetworkObject).networkId;
-      VehicleBehavior(entityCar, { phase: 'onUpdate' });
+      VehicleBehavior(entityCar, { phase: VehicleState.onUpdate });
 
         this.queryResults.playerInCar.added?.forEach(entity => {
           const component = getComponent(entity, PlayerInCar);
@@ -184,13 +185,13 @@ export class PhysicsSystem extends System {
           const component = getComponent(entity, PlayerInCar);
           if (component.networkCarId == networkCarId) {
             switch (component.state) {
-              case 'onAddEnding':
+              case VehicleState.onAddEnding:
                 onAddEndingInCar(entity,  entityCar, component.currentFocusedPart, this.diffSpeed);
                 break;
-              case 'onUpdate':
+              case VehicleState.onUpdate:
                 onUpdatePlayerInCar(entity,  entityCar, component.currentFocusedPart, this.diffSpeed);
                 break;
-              case 'onStartRemove':
+              case VehicleState.onStartRemove:
                 onStartRemoveFromCar(entity, entityCar, component.currentFocusedPart, this.diffSpeed);
                 break;
           }}

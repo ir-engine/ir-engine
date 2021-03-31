@@ -16,6 +16,7 @@ import { CollisionGroups } from "../enums/CollisionGroups";
 import { PhysicsSystem } from '../systems/PhysicsSystem';
 import { createTrimesh } from "./physicalPrimitives";
 import { LocalInputReceiver } from '../../input/components/LocalInputReceiver';
+import { VehicleState } from "../../templates/vehicle/enums/VehicleStateEnum";
 
 
 function createVehicleBody (entity: Entity ) {
@@ -94,7 +95,7 @@ export const VehicleBehavior: Behavior = (entity: Entity, args): void => {
     const vehicleComponent = getMutableComponent(entity, VehicleBody);
     const vehicle = createVehicleBody(entity);
     vehicleComponent.vehiclePhysics = vehicle;
-  } else if ( args.phase == 'onUpdate') {
+  } else if ( args.phase == VehicleState.onUpdate) {
 
     const transform = getMutableComponent<TransformComponent>(entity, TransformComponent);
     const vehicleComponent = getComponent(entity, VehicleBody) as VehicleBody;

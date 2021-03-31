@@ -99,7 +99,6 @@ export class Network {
     ikTransforms: [],
     time: 0,
     inputs: [],
-    states: [],
     clientsConnected: [],
     clientsDisconnected: [],
     createObjects: [],
