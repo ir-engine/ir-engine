@@ -46,15 +46,18 @@ export const initialState = {
 const immutableState = Immutable.fromJS(initialState);
 
 const inviteReducer = (state = immutableState, action: InviteAction): any => {
-  let newValues, updateMap;
+  let newValues, updateMap;  
   switch (action.type) {
     case INVITE_SENT:
       return state.set('sentUpdateNeeded', true);
     case SENT_INVITES_RETRIEVED:      
       newValues = (action as InvitesRetrievedAction);
       const sentInvites = state.get('sentInvites').get('invites');
+      
       updateMap = new Map();
-      updateMap.set('invites', (sentInvites.size != null || state.get('sentUpdateNeeded') === true) ? newValues.invites : sentInvites.concat(newValues.invites));
+     // Commented bacause it double data on frontend 
+     // updateMap.set('invites', (sentInvites.size != null || state.get('sentUpdateNeeded') === true) ? newValues.invites : sentInvites.concat(newValues.invites));
+      updateMap.set('invites', newValues.invites)
       updateMap.set('skip', newValues.skip);
       updateMap.set('limit', newValues.limit);
       updateMap.set('total', newValues.total);

@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import { BinaryValue } from '../../common/enums/BinaryValue';
 import { LifecycleValue } from '../../common/enums/LifecycleValue';
+import { getBit } from '../../common/functions/bitFunctions';
 import { Behavior } from '../../common/interfaces/Behavior';
 import { NumericalType } from '../../common/types/NumericalTypes';
 import { Entity } from '../../ecs/classes/Entity';
@@ -15,6 +16,8 @@ import { InputAlias } from '../../input/types/InputAlias';
 import { PlayerInCar } from '../../physics/components/PlayerInCar';
 import { VehicleBody } from '../../physics/components/VehicleBody';
 import { CharacterComponent, RUN_SPEED, WALK_SPEED } from "../../templates/character/components/CharacterComponent";
+import { CHARACTER_STATES } from '../../templates/character/state/CharacterStates';
+import { initiateIK, stopIK } from '../../xr/functions/IKFunctions';
 import { Network } from '../classes/Network';
 import { NetworkObject } from '../components/NetworkObject';
 import { handleInputFromNonLocalClients } from '../functions/handleInputOnServer';
@@ -183,6 +186,20 @@ const addInputToWorldStateOnServer: Behavior = (entity: Entity) => {
   Network.instance.worldState.inputs.push(inputs);
 };
 
+const updateCharacterState = (entity: Entity, newState: number) => {
+  const actor = getMutableComponent(entity, CharacterComponent);
+  const stateChanges = newState ^ actor.state; // xor to get state changes
+  if(getBit(stateChanges, CHARACTER_STATES.VR)) {
+    // do server VR stuff for actor
+    if(getBit(newState, CHARACTER_STATES.VR)) {
+      initiateIK(entity)
+    } else {
+      stopIK(entity)
+    }
+  }
+  actor.state = newState;
+}
+
 /** System class to handle incoming messages. */
 export class ServerNetworkIncomingSystem extends System {
   /** Input component of the system. */
@@ -226,6 +243,7 @@ export class ServerNetworkIncomingSystem extends System {
       tick: Network.tick,
       time: 0,
       transforms: [],
+      ikTransforms: [],
       inputs: [],
       states: [],
       clientsConnected: Network.instance.clientsConnected,
@@ -258,6 +276,7 @@ export class ServerNetworkIncomingSystem extends System {
           clientInput.viewVector.y,
           clientInput.viewVector.z
         );
+        updateCharacterState(Network.instance.networkObjects[clientInput.networkId].component.entity, clientInput.characterState);
       }
       // its warns the car that a passenger or driver wants to get out
       // and does not allow the passenger to drive the car

@@ -83,7 +83,7 @@ export const updateVectorAnimation = (entity, delta: number): void => {
   // Actor isn't initialized yet, so skip the animation
 	const actor = getMutableComponent(entity, CharacterComponent);
 	const animationComponent = getMutableComponent(entity, AnimationComponent);
-	if (!actor || !actor.initialized || !actor.mixer || !animationComponent) return;
+	if (!actor || !actor.initialized || !actor.mixer || !animationComponent || !actor.modelContainer.children.length) return;
 
   if (actor.mixer) actor.mixer.update(delta);
 

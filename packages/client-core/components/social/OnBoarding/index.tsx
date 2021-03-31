@@ -51,10 +51,10 @@ const OnBoardingComponent = ({media}: Props) => {
                                 image={media[step].images[0]}
                                 title="Meet up with friends"
                             />
-                    </section>; ;
+                    </section>; 
     }
 
-    return <section className={styles.fullPage} style={{backgroundImage: `url(${media[step].screenBg})`}}><section className={styles.subWrapper}>{content}</section></section>
+    return <section className={styles.fullPage} style={{backgroundImage: `url(${media[step].screenBg})`}}><section className={styles.subWrapper}>{content}</section></section>;
 };
 
 export default OnBoardingComponent;

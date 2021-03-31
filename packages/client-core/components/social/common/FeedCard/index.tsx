@@ -22,6 +22,7 @@ import { selectFeedFiresState } from '../../../../redux/feedFires/selector';
 import CreatorAsTitle from '../CreatorAsTitle';
 
 import styles from './FeedCard.module.scss';
+import SimpleModal from '../SimpleModal';
 
 const mapStateToProps = (state: any): any => {
     return {
@@ -49,6 +50,7 @@ interface Props{
 }
 const FeedCard = (props: Props) : any => {
     const [isVideo, setIsVideo] = useState(false);
+    const [openFiredModal, setOpenFiredModal] = useState(false);
     const {feed, getFeedFires, feedFiresState, addFireToFeed, removeFireToFeed, addBookmarkToFeed, removeBookmarkToFeed, addViewToFeed} = props;
     
     const handleAddFireClick = (feedId) =>addFireToFeed(feedId);
@@ -59,17 +61,16 @@ const FeedCard = (props: Props) : any => {
 
     const handlePlayVideo = (feedId) => {
         addViewToFeed(feedId);
-    }
+    };
 
     const handleGetFeedFiredUsers = (feedId) => {
         if(feedId){
             getFeedFires(feedId);
-            //TODO create component for this
-            console.log('Users who fired this feed ',feedFiresState.get('feedFires'));
+            setOpenFiredModal(true);
         }
-    }
+    };
     
-    return  feed ? <Card className={styles.tipItem} square={false} elevation={0} key={feed.id}>
+    return  feed ? <><Card className={styles.tipItem} square={false} elevation={0} key={feed.id}>
                 <CreatorAsTitle creator={feed.creator} />                   
                 {isVideo ? <CardMedia   
                     className={styles.previewImage}                  
@@ -103,7 +104,9 @@ const FeedCard = (props: Props) : any => {
                     <Typography variant="h2">{feed.description}</Typography>
                 </CardContent>
             </Card>
-        :''
+            <SimpleModal type={'feed-fires'} list={feedFiresState.get('feedFires')} open={openFiredModal} onClose={()=>setOpenFiredModal(false)} />
+            </>
+        :'';
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(FeedCard);

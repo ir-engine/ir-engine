@@ -52,6 +52,7 @@ export const DefaultInitializationOptions = {
   networking: {
     schema: DefaultNetworkSchema
   },
+  publicPath: ''
 };
 
 export const initializeEngine = async (initOptions: any = DefaultInitializationOptions): Promise<void> => {
@@ -147,6 +148,7 @@ export const initializeServer = async (initOptions: any = DefaultInitializationO
 
   EngineEvents.instance = new EngineEvents();
   Engine.scene = new Scene();
+  Engine.publicPath = options.publicPath;
 
   addIncomingEvents()
   addOutgoingEvents()
@@ -172,4 +174,5 @@ export const initializeServer = async (initOptions: any = DefaultInitializationO
         update: (delta, elapsedTime) => execute(delta, elapsedTime, SystemUpdateType.Free)
       }, Engine.physicsFrameRate, Engine.networkFramerate).start();
   }, 1000);
+  await AnimationManager.instance.getDefaultModel()
 }

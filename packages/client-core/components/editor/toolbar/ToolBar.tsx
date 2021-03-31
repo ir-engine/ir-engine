@@ -250,14 +250,6 @@ export default class ToolBar extends Component<ToolBarProps, ToolBarState> {
     };
   }
 
-  openModalCreate = () => {
-    this.setState({ locationModalOpen: true });
-  }
-
-  handleLocationClose = (e: any): void => {
-    this.setState({ locationModalOpen: false })
-  }
-
   componentDidMount() {
     const editor = (this.props as any).editor;
     editor.addListener("initialized", this.onEditorInitialized);
@@ -266,7 +258,6 @@ export default class ToolBar extends Component<ToolBarProps, ToolBarState> {
   }
 
   componentWillUnmount() {
-
     const editor = (this.props as any).editor;
     editor.removeListener("initialized", this.onEditorInitialized);
 
@@ -280,6 +271,14 @@ export default class ToolBar extends Component<ToolBarProps, ToolBarState> {
       editor.removeListener("playModeChanged", this.onForceUpdate);
       editor.removeListener("settingsChanged", this.onForceUpdate);
     }
+  }
+
+  openModalCreate = () => {
+    this.setState({ locationModalOpen: true });
+  }
+
+  handleLocationClose = (e: any): void => {
+    this.setState({ locationModalOpen: false });
   }
 
   onEditorInitialized = () => {

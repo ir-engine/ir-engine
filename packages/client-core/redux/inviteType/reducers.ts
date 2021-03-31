@@ -37,6 +37,6 @@ const inviteTypeReducer = (state= immutableState, action: InviteTypeAction ): an
             return state.set('inviteTypeData', updateMap);
     }
     return state;
-}
+};
 
 export default inviteTypeReducer;

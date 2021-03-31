@@ -14,7 +14,7 @@ export const TipsAndTricks = () => {
         data.push({ 
             title: 'Created Tips & Tricks',
             description: 'I recently understood the words of my friend Jacob West about music.'
-        })
+        });
     }
     return <section className={styles.tipsandtricksContainer}>
         {data.map((item, itemindex)=>
@@ -32,7 +32,7 @@ export const TipsAndTricks = () => {
                 </CardContent>
             </Card>
         )}
-        </section>
+        </section>;
 };
 
 export default TipsAndTricks;
