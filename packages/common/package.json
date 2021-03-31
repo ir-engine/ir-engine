@@ -2,6 +2,9 @@
   "name": "@xr3ngine/common",
   "private": false,
   "version": "0.2.6",
+  "publishConfig": {
+    "access": "public"
+  },
   "description": "Shared types for other XR3ngine packages",
   "main": "index.ts",
   "repository": "http://github.com/xr3ngine/xr3ngine",

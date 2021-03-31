@@ -6,6 +6,9 @@
   "module": "dist/esm/index.js",
   "types": "dist/esm/index.d.ts",
   "private": false,
+  "publishConfig": {
+    "access": "public"
+  },
   "engines": {
     "yarn": ">= 0.18.0"
   },
