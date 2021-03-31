@@ -53,7 +53,7 @@
     "dotenv-webpack": "^3.0.0",
     "eslint": "^6.8.0",
     "eslint-plugin-react": "^7.21.4",
-    "next": "10.0.8",
+    "next": "^10.1.0",
     "next-images": "^1.4.0",
     "next-optimized-images": "^2.6.2",
     "next-plugin-node-config": "^1.0.2",
