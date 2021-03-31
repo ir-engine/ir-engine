@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { Matrix4, Vector3 } from 'three';
 import { changeAnimation } from '../../../character/functions/updateVectorAnimation';
 import { isServer } from "../../../common/functions/isServer";
@@ -8,6 +9,17 @@ import { TransformComponent } from '../../../transform/components/TransformCompo
 import { CharacterAnimations } from '../../character/CharacterAnimations';
 import { VehicleComponent } from '../components/VehicleComponent';
 import { VehicleState } from '../enums/VehicleStateEnum';
+=======
+import { Entity } from '@xr3ngine/engine/src/ecs/classes/Entity';
+import { getComponent, getMutableComponent } from '@xr3ngine/engine/src/ecs/functions/EntityFunctions';
+import { PlayerInCar } from '@xr3ngine/engine/src/physics/components/PlayerInCar';
+import { VehicleBody } from '@xr3ngine/engine/src/physics/components/VehicleBody';
+import { TransformComponent } from '@xr3ngine/engine/src/transform/components/TransformComponent';
+import { Matrix4, Vector3 } from 'three';
+import { changeAnimation } from '../../../character/functions/updateVectorAnimation';
+import { isServer } from "../../../common/functions/isServer";
+import { CharacterAnimations } from '../../character/CharacterAnimations';
+>>>>>>> origin/fix-volumetric-ios
 
 function doorAnimation(entityCar, seat, timer, timeAnimation, angel) {
   const vehicle = getComponent<VehicleComponent>(entityCar, VehicleComponent);

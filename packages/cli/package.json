@@ -1,6 +1,6 @@
 {
   "name": "@xr3ngine/cli",
-  "version": "0.2.0",
+  "version": "0.2.4",
   "private": true,
   "repository": {
     "type": "git",
@@ -14,13 +14,12 @@
   "bin": {
     "xr3": "node ./index.js"
   },
-  "type":"module",
+  "type": "module",
   "scripts": {
     "xr3": "node ./index.js "
   },
   "dependencies": {
     "cli-color": "^2.0.0"
   },
-  "devDependencies": {},
   "license": "ISC"
 }
