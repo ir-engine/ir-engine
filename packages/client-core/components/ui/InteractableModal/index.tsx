@@ -20,7 +20,7 @@ export const InteractableModal: FunctionComponent<InteractableModalProps> = ({ o
 
   if(!data){return null;}
 
-  const handleLinkClick = (url) =>{  
+  const handleLinkClick = (url) =>{
     window.open(url, "_blank");
   };
 
@@ -28,17 +28,17 @@ export const InteractableModal: FunctionComponent<InteractableModalProps> = ({ o
   if (data.modelUrl) {
     modelView = (<ModelView modelUrl={data.modelUrl} />);
   }
-  return  (<Dialog open={true} aria-labelledby="xr-dialog" 
+  return  (<Dialog open={true} aria-labelledby="xr-dialog"
       classes={{
         root: styles.customDialog,
-        paper: styles.customDialogInner, 
+        paper: styles.customDialogInner,
       }}
       BackdropProps={{ style: { backgroundColor: "transparent" } }} >
-      { data.name && 
+      { data.name &&
         <DialogTitle disableTypography className={styles.dialogTitle}>
           <IconButton aria-label="close" className={styles.dialogCloseButton} color="primary"
               onClick={(): void => { if (typeof onClose === 'function') { onClose(); } }}><CloseIcon /></IconButton>
-          <Typography variant="h2"align="left" >{data.name}</Typography>          
+          <Typography variant="h2"align="left" >{data.name}</Typography>
         </DialogTitle>}
         <DialogContent className={styles.dialogContent}>
           {modelView}
