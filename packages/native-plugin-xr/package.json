@@ -1,11 +1,11 @@
 {
   "name": "@xr3ngine/native-plugin-xr",
-  "version": "0.2.6",
+  "version": "0.2.7",
   "description": "Native XR and camera services inside any capacitor app",
   "main": "dist/plugin.js",
   "module": "dist/esm/index.js",
   "types": "dist/esm/index.d.ts",
-  "private": false,
+  "private": true,
   "publishConfig": {
     "access": "public"
   },

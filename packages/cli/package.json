@@ -1,7 +1,7 @@
 {
   "name": "@xr3ngine/cli",
-  "version": "0.2.6",
-  "private": false,
+  "version": "0.2.7",
+  "private": true,
   "repository": {
     "type": "git",
     "url": "git://github.com/xr3ngine/xr3ngine.git"
