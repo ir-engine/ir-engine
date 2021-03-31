@@ -7,10 +7,12 @@
   "bugs": {
     "url": "https://github.com/xr3ngine/xr3ngine/issues"
   },
-  "bundleDependencies": false,
   "deprecated": false,
   "name": "@xr3ngine/engine",
   "private": false,
+  "publishConfig": {
+    "access": "public"
+  },
   "description": "A declarative way to build 3D/VR/AR/XR apps that scale. Built with tooling web developers will love, using conventions that game developers and creative coders will find straightforward familiar.",
   "homepage": "https://github.com/xr3ngine/xr3ngine#readme",
   "license": "MIT",

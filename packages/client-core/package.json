@@ -9,6 +9,9 @@
   "engines": {
     "yarn": ">= 0.18.0"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "npmClient": "yarn",
   "jest": "ts-jest",
   "scripts": {

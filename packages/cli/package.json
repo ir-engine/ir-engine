@@ -6,6 +6,9 @@
     "type": "git",
     "url": "git://github.com/xr3ngine/xr3ngine.git"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "engines": {
     "yarn": ">= 0.18.0"
   },
