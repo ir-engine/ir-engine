@@ -16,6 +16,44 @@ export class TransformSystem extends System {
 
   execute (delta) {
 
+    this.queryResults.parent.all?.forEach(entity => {
+      const parentTransform = getMutableComponent(entity, TransformComponent);
+
+      const parentingComponent = getComponent<TransformParentComponent>(entity, TransformParentComponent);
+    
+      parentingComponent.children.forEach(child => {
+        if (!hasComponent(child, Object3DComponent)) {
+          return;
+        }
+    
+        const { value: { position: childPosition, quaternion: childQuaternion } } = getMutableComponent<Object3DComponent>(child, Object3DComponent);
+        const childTransformComponent = getComponent(child, TransformComponent);
+    
+        // reset to "local"
+        if (childTransformComponent) {
+          childPosition.copy(childTransformComponent.position);
+          childQuaternion.copy(childTransformComponent.rotation);
+        } else {
+          childPosition.setScalar(0);
+          childQuaternion.set(0,0,0,0);
+        }
+    
+        // add parent
+        childPosition.add(parentTransform.position);
+        childQuaternion.multiply(parentTransform.rotation);
+      });
+    });
+
+    this.queryResults.child.all?.forEach(entity => {
+      const childComponent = getComponent(entity, TransformChildComponent);
+      const parent = childComponent.parent;
+      const parentTransform = getMutableComponent(parent, TransformComponent);
+      const childTransformComponent = getComponent(entity, TransformComponent);
+      
+      childTransformComponent.position.setScalar(0).add(parentTransform.position).add(childComponent.offsetPosition);
+      childTransformComponent.rotation.set(0,0,0,1).multiply(parentTransform.rotation).multiply(childComponent.offsetQuaternion);
+    });
+
     this.queryResults.copyTransform.all?.forEach(entity => {
       const inputEntity = getMutableComponent(entity, CopyTransformComponent)?.input;
       const outputTransform = getMutableComponent(entity, TransformComponent);
@@ -98,62 +136,6 @@ export class TransformSystem extends System {
         object3DComponent.value.scale.copy(transform.scale);
       }
       object3DComponent.value.updateMatrixWorld();
-    });
-
-    this.queryResults.parent.all?.forEach(entity => {
-      const parentTransform = getMutableComponent(entity, TransformComponent);
-
-      const parentingComponent = getComponent<TransformParentComponent>(entity, TransformParentComponent);
-    
-      parentingComponent.children.forEach(child => {
-        if (!hasComponent(child, Object3DComponent)) {
-          return;
-        }
-    
-        const { value: { position: childPosition, quaternion: childQuaternion } } = getMutableComponent<Object3DComponent>(child, Object3DComponent);
-        const childTransformComponent = getComponent(child, TransformComponent);
-    
-        // reset to "local"
-        if (childTransformComponent) {
-          childPosition.copy(childTransformComponent.position);
-          childQuaternion.copy(childTransformComponent.rotation);
-        } else {
-          childPosition.setScalar(0);
-          childQuaternion.set(0,0,0,0);
-        }
-    
-        // add parent
-        childPosition.add(parentTransform.position);
-        childQuaternion.multiply(parentTransform.rotation);
-      });
-    });
-
-    this.queryResults.child.all?.forEach(entity => {
-      const childComponent = getComponent(entity, TransformChildComponent);
-      const parent = childComponent.parent;
-
-      if (!hasComponent(parent, Object3DComponent)) {
-        return;
-      }
-      const parentTransform = getMutableComponent(parent, TransformComponent);
-  
-      const { value: { position: childPosition, quaternion: childQuaternion } } = getMutableComponent<Object3DComponent>(entity, Object3DComponent);
-      const childTransformComponent = getComponent(entity, TransformComponent);
-  
-      // reset to "local"
-      if (childTransformComponent) {
-        childPosition.copy(childTransformComponent.position);
-        childQuaternion.copy(childTransformComponent.rotation);
-      } else {
-        childPosition.setScalar(0);
-        childQuaternion.set(0,0,0,0);
-      }
- 
-      // TODO: add an option on TransformChildComponent to use proper child orientation
-
-      // add parent
-      childPosition.add(parentTransform.position).add(childComponent.offsetPosition);
-      childQuaternion.multiply(parentTransform.rotation).multiply(childComponent.offsetQuaternion);
     });
   }
 }
