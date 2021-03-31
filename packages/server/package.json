@@ -3,7 +3,7 @@
   "description": "API Server for XR3ngine",
   "version": "0.2.4",
   "homepage": "",
-  "private": false,
+  "private": true,
   "entry": "./",
   "main": "./index.ts",
   "keywords": [

@@ -1,7 +1,7 @@
 {
   "name": "@xr3ngine/volumetric",
   "version": "0.2.4",
-  "private": false,
+  "private": true,
   "repository": {
     "type": "git",
     "url": "git://github.com/xr3ngine/xr3ngine.git"
