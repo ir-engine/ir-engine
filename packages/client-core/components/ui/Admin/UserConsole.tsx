@@ -113,6 +113,7 @@ const UserConsole = (props: Props) => {
 
     const user = authState.get('user');
 
+
     const initialUser = {
         id: null,
         name: '',

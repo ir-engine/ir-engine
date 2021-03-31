@@ -69,6 +69,7 @@ export function sendInvite (data: any) {
         return;
       }
     }
+
     if ((data.token == null || data.token.length === 0) && (data.invitee == null || data.invitee.length === 0)) {
       dispatchAlertError(dispatch, `Not a valid recipient`);
       return;
