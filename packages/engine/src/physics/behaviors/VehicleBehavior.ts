@@ -138,11 +138,11 @@ export const VehicleBehavior: Behavior = (entity: Entity, args): void => {
         chassisBody.quaternion.z,
         chassisBody.quaternion.w
       );
-      // if(isServer) {
+      if(isServer) {
         for (let i = 0; i < wheels.length; i++) {
           vehicle.updateWheelTransform(i);
         }
-      // }
+      }
 
     } else {
       console.warn("User data for vehicle not found");
