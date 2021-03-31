@@ -7,6 +7,7 @@ import { TransformComponent } from '@xr3ngine/engine/src/transform/components/Tr
 import { Matrix4, Vector3 } from 'three';
 import { changeAnimation } from '../../../character/functions/updateVectorAnimation';
 import { isServer } from "../../../common/functions/isServer";
+import { VehicleState } from '../enums/VehicleStateEnum';
 
 function doorAnimation(entityCar, seat, timer, timeAnimation, angel) {
   const vehicle = getComponent<VehicleBody>(entityCar, VehicleBody);
@@ -64,7 +65,7 @@ export const onAddEndingInCar = (entity: Entity, entityCar: Entity, seat: number
   if (playerInCar.currentFrame > carTimeOut) {
     playerInCar.currentFrame = 0;
     timeOut = true;
-    getMutableComponent(entity, PlayerInCar).state = 'onUpdate';
+    getMutableComponent(entity, PlayerInCar).state = VehicleState.onUpdate;
   }
 
   if (isServer) return;

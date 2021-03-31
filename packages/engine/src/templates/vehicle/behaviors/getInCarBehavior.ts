@@ -1,13 +1,14 @@
-import { isClient } from '@xr3ngine/engine/src/common/functions/isClient';
-import { Behavior } from '@xr3ngine/engine/src/common/interfaces/Behavior';
-import { NetworkObject } from '@xr3ngine/engine/src/networking/components/NetworkObject';
-import { synchronizationComponents } from '@xr3ngine/engine/src/networking/functions/synchronizationComponents';
+import { isClient } from '../../../common/functions/isClient';
+import { Behavior } from '../../../common/interfaces/Behavior';
 import { Entity } from '../../../ecs/classes/Entity';
 import {
   addComponent,
   getComponent
 } from '../../../ecs/functions/EntityFunctions';
+import { NetworkObject } from '../../../networking/components/NetworkObject';
+import { sendClientObjectUpdate } from '../../../networking/functions/sendClientObjectUpdate';
 import { PlayerInCar } from '../../../physics/components/PlayerInCar';
+import { VehicleState, VehicleStateUpdateSchema } from '../enums/VehicleStateEnum';
 
 export const getInCar: Behavior = (entity: Entity, args: { currentFocusedPart: number }, delta, entityCar): void => {
   console.warn('Behavior: getInCar');
@@ -15,17 +16,16 @@ export const getInCar: Behavior = (entity: Entity, args: { currentFocusedPart: n
   // isServer
   console.warn('getInCar: '+args.currentFocusedPart);
   addComponent(entity, PlayerInCar, {
-      state: 'onAddedEnding',
+      state: VehicleState.onAddedEnding,
       networkCarId: getComponent(entityCar, NetworkObject).networkId,
       currentFocusedPart: args.currentFocusedPart
   });
-  synchronizationComponents(entity, 'PlayerInCar', {
-      state: 'onAddedEnding',
-      networkCarId: getComponent(entityCar, NetworkObject).networkId,
-      currentFocusedPart: args.currentFocusedPart,
-      whoIsItFor: 'all'
-  });
-
+  sendClientObjectUpdate(entity, [
+      VehicleState.onAddedEnding,
+      getComponent(entityCar, NetworkObject).networkId,
+      args.currentFocusedPart
+    ] as VehicleStateUpdateSchema
+  );
 //  if (isServer) return;
   // is Client
 //  removeComponent(entity, LocalInputReceiver);

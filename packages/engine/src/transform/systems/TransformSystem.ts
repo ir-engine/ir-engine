@@ -49,9 +49,10 @@ export class TransformSystem extends System {
       const parent = childComponent.parent;
       const parentTransform = getMutableComponent(parent, TransformComponent);
       const childTransformComponent = getComponent(entity, TransformComponent);
-      
-      childTransformComponent.position.setScalar(0).add(parentTransform.position).add(childComponent.offsetPosition);
-      childTransformComponent.rotation.set(0,0,0,1).multiply(parentTransform.rotation).multiply(childComponent.offsetQuaternion);
+      if(childTransformComponent && parentTransform) { 
+        childTransformComponent.position.setScalar(0).add(parentTransform.position).add(childComponent.offsetPosition);
+        childTransformComponent.rotation.set(0,0,0,1).multiply(parentTransform.rotation).multiply(childComponent.offsetQuaternion);
+      }
     });
 
     this.queryResults.copyTransform.all?.forEach(entity => {

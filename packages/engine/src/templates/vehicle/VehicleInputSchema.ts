@@ -11,12 +11,13 @@ import { InputType } from '../../input/enums/InputType';
 import { InputSchema } from '../../input/interfaces/InputSchema';
 import { InputAlias } from "../../input/types/InputAlias";
 import { Network } from '../../networking/classes/Network';
-import { synchronizationComponents } from '../../networking/functions/synchronizationComponents';
+import { sendClientObjectUpdate } from '../../networking/functions/sendClientObjectUpdate';
 import { PlayerInCar } from '../../physics/components/PlayerInCar';
 import { VehicleBody } from '../../physics/components/VehicleBody';
 import { FollowCameraComponent } from '@xr3ngine/engine/src/camera/components/FollowCameraComponent';
 import { CameraModes } from "../../camera/types/CameraModes";
 import { isMobileOrTablet } from '../../common/functions/isMobile';
+import { VehicleState, VehicleStateUpdateSchema } from './enums/VehicleStateEnum';
 
 const getOutCar: Behavior = (entityCar: Entity): void => {
   if(isClient) return;
@@ -42,12 +43,9 @@ const getOutCar: Behavior = (entityCar: Entity): void => {
       entity = Network.instance.networkObjects[networkPlayerId].component.entity;
     }
   }
-  console.warn('onStartRemove');
-  getMutableComponent(entity, PlayerInCar).state = 'onStartRemove';
-  synchronizationComponents(entity, 'PlayerInCar', {
-    state: 'onStartRemove',
-    whoIsItFor: 'all'
-   });
+  console.warn(VehicleState.onStartRemove);
+  getMutableComponent(entity, PlayerInCar).state = VehicleState.onStartRemove;
+  sendClientObjectUpdate(entity, [VehicleState.onStartRemove] as VehicleStateUpdateSchema);
 /*
   networkCarId: getComponent(entityCar, NetworkObject).networkId,
   currentFocusedPart: args.currentFocusedPart,
