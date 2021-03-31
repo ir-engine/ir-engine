@@ -9,18 +9,27 @@ import CssBaseline from '@material-ui/core/CssBaseline';
 import Typography from '@material-ui/core/Typography';
 import Divider from '@material-ui/core/Divider';
 import IconButton from '@material-ui/core/IconButton';
-import MenuIcon from '@material-ui/icons/Menu';
-import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
-import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
-import SuperviosorAccount from "@material-ui/icons/SupervisorAccount";
-import DirectionRun from "@material-ui/icons/DirectionsRun";
-import DashboardIcon from "@material-ui/icons/Dashboard";
-import NearMe from "@material-ui/icons/NearMe";
+import {
+} from '@material-ui/icons'
 import { useRouter } from "next/router";
-import { Forum, GroupAdd, DragIndicator, PersonAdd, CalendarViewDay } from '@material-ui/icons';
+import {
+    CalendarViewDay,
+    ChevronLeft,
+    ChevronRight,
+    Dashboard as DashboardIcon,
+    DirectionsRun,
+    DragIndicator,
+    Forum,
+    GroupAdd,
+    Menu,
+    NearMe,
+    PersonAdd,
+    PhotoLibrary,
+    SupervisorAccount,
+} from '@material-ui/icons';
 import Link from "next/link";
 import Backdrop from '@material-ui/core/Backdrop';
 import CircularProgress from '@material-ui/core/CircularProgress';
@@ -143,7 +152,7 @@ export default function Dashboard({ children }) {
                             [classes.hide]: open,
                         })}
                     >
-                        <MenuIcon />
+                        <Menu />
                     </IconButton>
                     <Typography variant="h6">
                         Dashboard
@@ -165,7 +174,7 @@ export default function Dashboard({ children }) {
             >
                 <div className={classes.toolbar}>
                     <IconButton onClick={handleDrawerClose}>
-                        {theme.direction === 'rtl' ? <ChevronRightIcon /> : <ChevronLeftIcon />}
+                        {theme.direction === 'rtl' ? <ChevronRight /> : <ChevronLeft />}
                     </IconButton>
                 </div>
                 <Divider />
@@ -181,7 +190,7 @@ export default function Dashboard({ children }) {
                     <Link href="/admin/users" >
                         <ListItem style={{ color: "white" }} onClick={changeComponent} button>
                             <ListItemIcon >
-                                <SuperviosorAccount style={{ color: "white" }} />
+                                <SupervisorAccount style={{ color: "white" }} />
                             </ListItemIcon>
                             <ListItemText primary="Users" />
                         </ListItem>
@@ -189,7 +198,7 @@ export default function Dashboard({ children }) {
                     <Link href="/admin/instance">
                         <ListItem style={{ color: "white"}} onClick={changeComponent} button>
                             <ListItemIcon >
-                                <DirectionRun style={{ color: "white" }} />
+                                <DirectionsRun style={{ color: "white" }} />
                             </ListItemIcon>
                             <ListItemText primary="Instance" />
                         </ListItem>
@@ -240,6 +249,14 @@ export default function Dashboard({ children }) {
                                 <Forum style={{ color: "white" }} />
                             </ListItemIcon>
                             <ListItemText primary="Chats" />
+                        </ListItem>
+                    </Link>
+                    <Link href="/admin/content-packs">
+                        <ListItem style={{ color: "white" }} onClick={changeComponent} button>
+                            <ListItemIcon >
+                                <PhotoLibrary style={{ color: "white" }} />
+                            </ListItemIcon>
+                            <ListItemText primary="Content Packs" />
                         </ListItem>
                     </Link>
                 </List>
