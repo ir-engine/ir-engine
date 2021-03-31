@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import { Euler, Matrix4, Vector3 } from 'three';
 import { Entity } from '../../../ecs/classes/Entity';
 import { addComponent, getComponent, getMutableComponent, removeComponent } from '../../../ecs/functions/EntityFunctions';
@@ -17,25 +16,6 @@ import { PhysicsSystem } from '../../../physics/systems/PhysicsSystem';
 import { Network } from '../../../networking/classes/Network';
 import { LocalInputReceiver } from '../../../input/components/LocalInputReceiver';
 import { FollowCameraComponent } from '../../../camera/components/FollowCameraComponent';
-=======
-import { Euler } from 'three';
-import { FollowCameraComponent } from "@xr3ngine/engine/src/camera/components/FollowCameraComponent";
-import { Entity } from '@xr3ngine/engine/src/ecs/classes/Entity';
-import { addComponent, getComponent, removeComponent, getMutableComponent } from '@xr3ngine/engine/src/ecs/functions/EntityFunctions';
-import { LocalInputReceiver } from "@xr3ngine/engine/src/input/components/LocalInputReceiver";
-import { Network } from '@xr3ngine/engine/src/networking/classes/Network';
-import { NetworkObject } from '@xr3ngine/engine/src/networking/components/NetworkObject';
-import { PlayerInCar } from '@xr3ngine/engine/src/physics/components/PlayerInCar';
-import { VehicleBody } from '@xr3ngine/engine/src/physics/components/VehicleBody';
-import { PhysicsSystem } from '@xr3ngine/engine/src/physics/systems/PhysicsSystem';
-import { CharacterComponent } from "@xr3ngine/engine/src/templates/character/components/CharacterComponent";
-import { TransformComponent } from '@xr3ngine/engine/src/transform/components/TransformComponent';
-import { Matrix4, Vector3 } from 'three';
-import { CameraModes } from '../../../camera/types/CameraModes';
-import { changeAnimation } from '../../../character/functions/updateVectorAnimation';
-import { initializeDriverState } from '../../character/animations/DrivingAnimations'
-import { CharacterAnimations } from '../../character/CharacterAnimations';
->>>>>>> origin/fix-volumetric-ios
 
 function positionEnter(entity, entityCar, seat) {
   const transform = getMutableComponent<TransformComponent>(entity, TransformComponent);

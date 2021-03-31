@@ -1,33 +1,19 @@
-<<<<<<< HEAD
-import {getComponent, addComponent, hasComponent, removeEntity, getMutableComponent} from '../../ecs/functions/EntityFunctions';
-import {Network} from '../classes/Network';
-import { NetworkObject } from '@xr3ngine/engine/src/networking/components/NetworkObject';
-import {addSnapshot, createSnapshot} from '../functions/NetworkInterpolationFunctions';
-import {WorldStateInterface} from "../interfaces/WorldState";
-import { CharacterComponent } from "../../templates/character/components/CharacterComponent";
-import { PrefabType } from "@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema";
-=======
 import { createNetworkRigidBody } from '@xr3ngine/engine/src/interaction/prefabs/NetworkRigidBody';
 import { NetworkObject } from '@xr3ngine/engine/src/networking/components/NetworkObject';
 import { PlayerInCar } from '@xr3ngine/engine/src/physics/components/PlayerInCar';
->>>>>>> origin/fix-volumetric-ios
 import { createNetworkPlayer } from '@xr3ngine/engine/src/templates/character/prefabs/NetworkPlayerCharacter';
 import { PrefabType } from "@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema";
 import { createNetworkVehicle } from '@xr3ngine/engine/src/templates/vehicle/prefabs/NetworkVehicle';
 import { IKComponent } from "../../character/components/IKComponent";
-<<<<<<< HEAD
-import { initiateIK } from "../../xr/functions/IKFunctions";
-import { NetworkObjectUpdateSchema } from "../../templates/networking/NetworkObjectUpdateSchema";
-=======
 import { addComponent, getComponent, getMutableComponent, hasComponent, removeComponent, removeEntity } from '../../ecs/functions/EntityFunctions';
 import { LocalInputReceiver } from '../../input/components/LocalInputReceiver';
 import { CharacterComponent } from "../../templates/character/components/CharacterComponent";
+import { NetworkObjectUpdateSchema } from '../../templates/networking/NetworkObjectUpdateSchema';
 import { initiateIK } from "../../xr/functions/IKFunctions";
 import { Network } from '../classes/Network';
 import { addSnapshot, createSnapshot } from '../functions/NetworkInterpolationFunctions';
 import { WorldStateInterface } from "../interfaces/WorldState";
 import { StateEntityIK } from "../types/SnapshotDataTypes";
->>>>>>> origin/fix-volumetric-ios
 
 /**
  * Apply State received over the network to the client.
