@@ -3,7 +3,7 @@ import { Point } from "../classes/Point"
 export function drawContour(
   ctx: CanvasRenderingContext2D,
   points: Point[],
-  isClosed: boolean = false
+  isClosed = false
 ) {
   ctx.beginPath()
 

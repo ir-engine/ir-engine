@@ -16,7 +16,7 @@ function extractorsFactory(extractWeights: ExtractWeightsFunction, paramMappings
     return alpha
   }
 
-  function extractSharedParams(numFilters: number[], mappedPrefix: string, isRnet: boolean = false): SharedParams {
+  function extractSharedParams(numFilters: number[], mappedPrefix: string, isRnet = false): SharedParams {
 
     const conv1 = extractConvParams(numFilters[0], numFilters[1], 3, `${mappedPrefix}/conv1`)
     const prelu1_alpha = extractPReluParams(numFilters[1], `${mappedPrefix}/prelu1_alpha`)

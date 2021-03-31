@@ -3,7 +3,7 @@ import { convLayer } from '../common/convLayer';
 import { prelu } from './prelu';
 import { SharedParams } from './types';
 
-export function sharedLayer(x: tf.Tensor4D, params: SharedParams, isPnet: boolean = false) {
+export function sharedLayer(x: tf.Tensor4D, params: SharedParams, isPnet = false) {
   return tf.tidy(() => {
 
     let out = convLayer(x, params.conv1, 'valid')

@@ -10,7 +10,7 @@ export class Box<BoxType = any> implements IBoundingBox, IRect {
     return !!rect && [rect.x, rect.y, rect.width, rect.height].every(isValidNumber)
   }
 
-  public static assertIsValidBox(box: any, callee: string, allowNegativeDimensions: boolean = false) {
+  public static assertIsValidBox(box: any, callee: string, allowNegativeDimensions = false) {
     if (!Box.isRect(box)) {
       throw new Error(`${callee} - invalid box: ${JSON.stringify(box)}, expected object with properties x, y, width, height`)
     }
@@ -25,7 +25,7 @@ export class Box<BoxType = any> implements IBoundingBox, IRect {
   private _width: number
   private _height: number
 
-  constructor(_box: IBoundingBox | IRect, allowNegativeDimensions: boolean = true) {
+  constructor(_box: IBoundingBox | IRect, allowNegativeDimensions = true) {
     const box = (_box || {}) as any
 
     const isBbox = [box.left, box.top, box.right, box.bottom].every(isValidNumber)
@@ -100,7 +100,7 @@ export class Box<BoxType = any> implements IBoundingBox, IRect {
   }
 
   public pad(padX: number, padY: number): Box<BoxType> {
-    let [x, y, width, height] = [
+    const [x, y, width, height] = [
       this.x - (padX / 2),
       this.y - (padY / 2),
       this.width + padX,
@@ -134,8 +134,8 @@ export class Box<BoxType = any> implements IBoundingBox, IRect {
     const w = this.width + 1
     const h = this.height + 1
 
-    let dx = 1
-    let dy = 1
+    const dx = 1
+    const dy = 1
     let edx = w
     let edy = h
 

@@ -7,7 +7,7 @@ export interface IMtcnnOptions {
 }
 
 export class MtcnnOptions {
-  protected _name: string = 'MtcnnOptions'
+  protected _name = 'MtcnnOptions'
 
   private _minFaceSize: number
   private _scaleFactor: number

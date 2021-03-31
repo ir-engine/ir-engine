@@ -1,11 +1,11 @@
 import * as tf from '@tensorflow/tfjs-core';
 import { extractWeightsFactory } from '../common/extractWeightsFactory';
 import { ExtractWeightsFunction, ParamMapping, ConvParams } from '../common/types';
-import { MobileNetV1, NetParams, PointwiseConvParams, PredictionLayerParams } from './types';
+import { ConvPairParams, DepthwiseConvParams, NetParams, Params, PointwiseConvParams, PredictionLayerParams } from './types';
 
 function extractorsFactory(extractWeights: ExtractWeightsFunction, paramMappings: ParamMapping[]) {
 
-  function extractDepthwiseConvParams(numChannels: number, mappedPrefix: string): MobileNetV1.DepthwiseConvParams {
+  function extractDepthwiseConvParams(numChannels: number, mappedPrefix: string): DepthwiseConvParams {
 
     const filters = tf.tensor4d(extractWeights(3 * 3 * numChannels), [3, 3, numChannels, 1])
     const batch_norm_scale = tf.tensor1d(extractWeights(numChannels))
@@ -74,7 +74,7 @@ function extractorsFactory(extractWeights: ExtractWeightsFunction, paramMappings
     channelsIn: number,
     channelsOut: number,
     mappedPrefix: string
-  ): MobileNetV1.ConvPairParams {
+  ): ConvPairParams {
 
     const depthwise_conv = extractDepthwiseConvParams(channelsIn, `${mappedPrefix}/depthwise_conv`)
     const pointwise_conv = extractPointwiseConvParams(channelsIn, channelsOut, 1, `${mappedPrefix}/pointwise_conv`)
@@ -82,7 +82,7 @@ function extractorsFactory(extractWeights: ExtractWeightsFunction, paramMappings
     return { depthwise_conv, pointwise_conv }
   }
 
-  function extractMobilenetV1Params(): MobileNetV1.Params {
+  function extractMobilenetV1Params(): Params {
 
     const conv_0 = extractPointwiseConvParams(3, 32, 3, 'mobilenetv1/conv_0')
 

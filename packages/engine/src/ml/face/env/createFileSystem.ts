@@ -15,7 +15,7 @@ export function createFileSystem(fs?: any): FileSystem {
   const readFile = fs
     ? function(filePath: string) {
       return new Promise<Buffer>((res, rej) => {
-        fs.readFile(filePath, function(err: any, buffer: Buffer) {
+        fs.readFile(filePath, (err: any, buffer: Buffer) => {
           return err ? rej(err) : res(buffer)
         })
       })

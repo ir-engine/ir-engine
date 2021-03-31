@@ -6,8 +6,6 @@ export type PointwiseConvParams = {
   batch_norm_offset: tf.Tensor1D
 }
 
-export namespace MobileNetV1 {
-
   export type DepthwiseConvParams = {
     filters: tf.Tensor4D
     batch_norm_scale: tf.Tensor1D
@@ -37,7 +35,7 @@ export namespace MobileNetV1 {
     conv_12: ConvPairParams
     conv_13: ConvPairParams
   }
-}
+
 
 export type BoxPredictionParams = {
   box_encoding_predictor: ConvParams
@@ -66,7 +64,7 @@ export type OutputLayerParams = {
 }
 
 export type NetParams = {
-  mobilenetv1: MobileNetV1.Params,
+  mobilenetv1: Params,
   prediction_layer: PredictionLayerParams,
   output_layer: OutputLayerParams
 }
