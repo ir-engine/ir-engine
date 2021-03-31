@@ -2,7 +2,7 @@
 import {
   BufferGeometry,
   Float32BufferAttribute, Mesh,
-  MeshBasicMaterial,
+  MeshBasicMaterial, Object3D,
   PlaneBufferGeometry,
   Renderer,
   Scene,
@@ -119,7 +119,7 @@ export default class DracosisPlayer {
     onMeshBuffering = null,
     onFrameShow = null
   }:{
-    scene: Scene,
+    scene: Object3D,
     renderer: WebGLRenderer,
     meshFilePath: string,
     videoFilePath: string,
