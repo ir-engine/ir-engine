@@ -244,7 +244,7 @@ function disconnectClientIfConnected(socket, userId: string): void {
         Network.instance.clients[userId].socket?.disconnect();
     }
 
-    console.log(Network.instance.networkObjects);
+    // console.log(Network.instance.networkObjects);
     Object.keys(Network.instance.networkObjects).forEach((key: string) => {
         const networkObject = Network.instance.networkObjects[key];
         // Validate that the object belongeread to disconnecting user
