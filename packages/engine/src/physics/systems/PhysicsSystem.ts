@@ -29,7 +29,7 @@ import { CapsuleCollider } from "../components/CapsuleCollider";
 import { ColliderComponent } from '../components/ColliderComponent';
 import { PlayerInCar } from '../components/PlayerInCar';
 import { RigidBody } from "../components/RigidBody";
-import { VehicleBody } from "../components/VehicleBody";
+import { VehicleComponent } from "../../templates/vehicle/components/VehicleComponent";
 import { InterpolationComponent } from "../components/InterpolationComponent";
 import { VehicleState } from '../../templates/vehicle/enums/VehicleStateEnum';
 
@@ -166,12 +166,12 @@ export class PhysicsSystem extends System {
 
     // Vehicle
 
-    this.queryResults.vehicleBody.added?.forEach(entity => {
+    this.queryResults.VehicleComponent.added?.forEach(entity => {
       VehicleBehavior(entity, { phase: 'onAdded' });
     });
 
 
-    this.queryResults.vehicleBody.all?.forEach(entityCar => {
+    this.queryResults.VehicleComponent.all?.forEach(entityCar => {
       const networkCarId = getComponent(entityCar, NetworkObject).networkId;
       VehicleBehavior(entityCar, { phase: VehicleState.onUpdate });
 
@@ -199,7 +199,7 @@ export class PhysicsSystem extends System {
 
         this.queryResults.playerInCar.removed?.forEach(entity => {
           let networkPlayerId
-          const vehicle = getComponent(entityCar, VehicleBody);
+          const vehicle = getComponent(entityCar, VehicleComponent);
           if(!hasComponent(entity, NetworkObject)) {
             for (let i = 0; i < vehicle.seatPlane.length; i++) {
               if (vehicle[vehicle.seatPlane[i]] != null && !Network.instance.networkObjects[vehicle[vehicle.seatPlane[i]]]) {
@@ -217,7 +217,7 @@ export class PhysicsSystem extends System {
         });
     });
 
-    this.queryResults.vehicleBody.removed?.forEach(entity => {
+    this.queryResults.VehicleComponent.removed?.forEach(entity => {
       VehicleBehavior(entity, { phase: 'onRemoved' });
     });
 
@@ -289,8 +289,8 @@ PhysicsSystem.queries = {
       added: true
     }
   },
-  vehicleBody: {
-    components: [VehicleBody, TransformComponent],
+  VehicleComponent: {
+    components: [VehicleComponent, TransformComponent],
     listen: {
       added: true,
       removed: true

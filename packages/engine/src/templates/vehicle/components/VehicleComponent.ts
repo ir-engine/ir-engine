@@ -1,9 +1,9 @@
-import { Vector3Type } from '../../common/types/NumericalTypes';
+import { Vector3Type } from '../../../common/types/NumericalTypes';
 import { RaycastVehicle, Vec3 } from 'cannon-es';
-import { Component } from '../../ecs/classes/Component';
-import { Types } from '../../ecs/types/Types';
+import { Component } from '../../../ecs/classes/Component';
+import { Types } from '../../../ecs/types/Types';
 
-export class VehicleBody extends Component<VehicleBody> {
+export class VehicleComponent extends Component<VehicleComponent> {
 
   wantsExit: any
   passenger: number
@@ -44,7 +44,7 @@ export class VehicleBody extends Component<VehicleBody> {
 
 
 
-VehicleBody._schema = {
+VehicleComponent._schema = {
 
   wantsExit: { type: Types.Ref, default: [null, null] },
   passenger: { type: Types.Number, default: null },

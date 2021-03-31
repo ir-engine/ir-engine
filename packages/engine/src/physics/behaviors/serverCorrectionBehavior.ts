@@ -7,7 +7,7 @@ import { CharacterComponent } from '../../templates/character/components/Charact
 import { CapsuleCollider } from '../components/CapsuleCollider';
 import { Engine } from '../../ecs/classes/Engine';
 import { TransformComponent } from '../../transform/components/TransformComponent';
-import { VehicleBody } from '../components/VehicleBody';
+import { VehicleComponent } from '../../templates/vehicle/components/VehicleComponent';
 import { interpolationBehavior, findOne } from './interpolationBehavior';
 import { Network } from '../../networking/classes/Network';
 
@@ -41,9 +41,9 @@ export const serverCorrectionBehavior: Behavior = (entity: Entity, args): void =
           capsule.body.position.z - (offsetZ / correctionSpeed)
         );
       }
-  } else if (hasComponent(entity, VehicleBody)) {
+  } else if (hasComponent(entity, VehicleComponent)) {
 
-    const vehicleComponent = getComponent(entity, VehicleBody) as VehicleBody;
+    const vehicleComponent = getComponent(entity, VehicleComponent) as VehicleComponent;
     const isPassenger = vehicleComponent.passenger == Network.instance.localAvatarNetworkId;
     // for passager
     if (isPassenger) {
@@ -158,8 +158,8 @@ export const createNewCorrection: Behavior = (entity: Entity, args): void => {
        qZ: capsule.body.quaternion.z,
        qW: capsule.body.quaternion.w
      })
-   } else if (hasComponent(entity, VehicleBody)) {
-     const vehicleComponent = getComponent(entity, VehicleBody) as VehicleBody;
+   } else if (hasComponent(entity, VehicleComponent)) {
+     const vehicleComponent = getComponent(entity, VehicleComponent) as VehicleComponent;
      const vehicle = vehicleComponent.vehiclePhysics;
      const chassisBody = vehicle.chassisBody;
      const isDriver = vehicleComponent.driver == Network.instance.localAvatarNetworkId;
