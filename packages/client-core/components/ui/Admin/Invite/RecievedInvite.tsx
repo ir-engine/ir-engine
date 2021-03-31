@@ -5,7 +5,7 @@ import TableCell from '@material-ui/core/TableCell';
 import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
-import { retrieveReceivedInvites, retrieveSentInvites, sendInvite } from "../../../../redux/invite/service"
+import { retrieveReceivedInvites, retrieveSentInvites, sendInvite } from "../../../../redux/invite/service";
 import { createStyles, makeStyles, Theme, useTheme } from '@material-ui/core/styles';
 import { selectInviteState } from "../../../../redux/invite/selector";
 import { bindActionCreators, Dispatch } from "redux";

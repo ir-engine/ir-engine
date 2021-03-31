@@ -83,8 +83,8 @@ const mapStateToProps = (state: any): any => {
         sentInvites: selectInviteState(state),
         adminState: selectAdminState(state),
         authState: selectAuthState(state),
-    }
-}
+    };
+};
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
     fetchUsersAsAdmin: bindActionCreators(fetchUsersAsAdmin, dispatch),
@@ -134,7 +134,7 @@ const InvitesConsole = (props: Props) => {
     useEffect(()=>{
         const fetchData = async () => {
             await retrieveSentInvites(0, 100);
-        }
+        };
         fetchData();
     }, [retrieveSentInvites]);
 
@@ -142,7 +142,7 @@ const InvitesConsole = (props: Props) => {
         if(sentInvites.get("sentUpdateNeeded") === true ){
             retrieveSentInvites(0, 100);
         }
-    }, [sentInvites])
+    }, [sentInvites]);
 
 
     return (
