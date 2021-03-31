@@ -90,12 +90,14 @@ export class AnimationManager {
 
 export const loadDefaultActorAvatar: Behavior = (entity) => {
   const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
-  wipeOldModel(entity);
-  AnimationManager.instance._defaultModel.children.forEach(child => actor.modelContainer.add(child));
-  actor.mixer = new AnimationMixer(actor.modelContainer.children[0]);
-  if(hasComponent(entity, IKComponent)) {
-    initiateIK(entity)
-  }
+  AnimationManager.instance.getDefaultModel().then(() => {
+    wipeOldModel(entity);
+    AnimationManager.instance._defaultModel.children.forEach(child => actor.modelContainer.add(child));
+    actor.mixer = new AnimationMixer(actor.modelContainer.children[0]);
+    if(hasComponent(entity, IKComponent)) {
+      initiateIK(entity)
+    }
+  })
 }
 
 export const loadActorAvatar: Behavior = (entity) => {

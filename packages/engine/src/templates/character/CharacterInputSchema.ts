@@ -28,6 +28,7 @@ import { IKComponent } from '../../character/components/IKComponent';
 import { EquippedComponent } from '../../interaction/components/EquippedComponent';
 import { TransformParentComponent } from '../../transform/components/TransformParentComponent';
 import { unequipEntity } from '../../interaction/functions/equippableFunctions';
+import { TransformComponent } from '../../transform/components/TransformComponent';
 
 /**
  *
@@ -81,14 +82,19 @@ const interact: Behavior = (entity: Entity, args: any = { }, delta): void => {
 
 
   const interactive = getComponent(focusedEntity, Interactable);
-  if (interactive && typeof interactive.onInteraction === 'function') {
-    if (!hasComponent(focusedEntity, VehicleBody)) {
-      interactive.onInteraction(entity, args, delta, focusedEntity);
+  const intPosition = getComponent(focusedEntity, TransformComponent).position;
+  const position = getComponent(entity, TransformComponent).position;
+  
+  if (position.distanceTo(intPosition) < 3) {
+    if (interactive && typeof interactive.onInteraction === 'function') {
+      if (!hasComponent(focusedEntity, VehicleBody)) {
+        interactive.onInteraction(entity, args, delta, focusedEntity);
+      } else {
+        console.log('Interaction with cars must work only from server');
+      }
     } else {
-      console.log('Interaction with cars must work only from server');
+      console.warn('onInteraction is not a function');
     }
-  } else {
-    console.warn('onInteraction is not a function');
   }
 
 };

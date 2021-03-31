@@ -6,6 +6,7 @@ export const equipEntity = (equipperEntity, equippedEntity) => {
   addComponent(equipperEntity, EquippedComponent, { equippedEntity: equippedEntity })
   if(!hasComponent(equippedEntity, TransformChildComponent)) {
     addComponent(equippedEntity, TransformChildComponent, { parent: equipperEntity })
+    // console.log('equipped!')
   }
 }
 
@@ -14,4 +15,5 @@ export const unequipEntity = (equipperEntity) => {
   const equippedEntity = equippedComponent.equippedEntity;
   removeComponent(equippedEntity, TransformChildComponent)
   removeComponent(equipperEntity, EquippedComponent)
+  // console.log('unequipped!')
 }

@@ -26,7 +26,6 @@ import { createTransformComponent } from "../behaviors/createTransformComponent"
 import { createTriggerVolume } from '../behaviors/createTriggerVolume';
 import { handleAudioSettings } from '../behaviors/handleAudioSettings';
 import { setFog } from '../behaviors/setFog';
-import CollidableTagComponent from '../components/Collidable';
 import { LightTagComponent, VisibleTagComponent } from '../components/Object3DTagComponents';
 import ScenePreviewCameraTagComponent from "../components/ScenePreviewCamera";
 import SpawnPointComponent from "../components/SpawnPointComponent";
@@ -99,13 +98,7 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
   //         type: LightTagComponent
   //       }]
   //   },
-  'collidable': {
-    components: [
-      {
-        type: CollidableTagComponent
-      }
-    ]
-  },
+  'collidable': {},
   "floor-plan": {}, // Doesn't do anything in client mode
   'gltf-model': {
     behaviors: [
