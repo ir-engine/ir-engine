@@ -1,6 +1,7 @@
 {
   "name": "@xr3ngine/bot",
-  "version": "0.2.9",
+  "version": "0.2.5",
+  "private": true,
   "repository": {
     "type": "git",
     "url": "git://github.com/xr3ngine/xr3ngine.git"

@@ -23,5 +23,6 @@
   "dependencies": {
     "cli-color": "^2.0.0"
   },
-  "license": "ISC"
+  "license": "ISC",
+  "gitHead": "8dafe502bfc915294f8abc8cd1fc158f2a9488cd"
 }
