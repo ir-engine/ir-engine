@@ -28,7 +28,7 @@
     "validate": "yarn run lint && yarn run test",
     "generate-doc": "node_modules/.bin/typedoc"
   },
-  "version": "0.2.0",
+  "version": "0.2.2",
   "peerDependencies": {
     "three": "^0.125.0"
   },
@@ -44,8 +44,10 @@
     "cross-blob": "^2.0.0",
     "cross-fetch": "^3.0.6",
     "draco3d": "^1.4.1",
+    "draco3dgltf": "^1.4.1",
     "hls.js": "^0.14.17",
     "mousetrap": "^1.6.5",
+    "socket.io": "^4.0.0",
     "superbuffer": "^1.0.1",
     "three": "^0.125.0",
     "three-gltf-exporter": "^0.0.1",

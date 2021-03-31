@@ -4,6 +4,7 @@ import { bindActionCreators, Dispatch } from 'redux';
 import AdminConsole from '@xr3ngine/client-core/components/ui/Admin';
 import {doLoginAuto} from "@xr3ngine/client-core/redux/auth/service";
 import Dashboard  from "@xr3ngine/client-core/components/ui/Layout/Dashboard";
+import Analytics from "@xr3ngine/client-core/components/ui/Admin/Analytics/index";
 
 interface Props {
     doLoginAuto?: any;
@@ -35,7 +36,7 @@ const AdminConsolePage = (props: Props) => {
                     height: 100%;
                 }
             `}</style>
-               <AdminConsole />
+               <Analytics />
         </Dashboard>
       // </ThemeProvider>
   );

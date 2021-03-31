@@ -1,7 +1,7 @@
 {
   "name": "xr3ngine",
   "description": "Game Engine, Server & Devops powering The XR3ngine",
-  "version": "0.2.0",
+  "version": "0.2.2",
   "homepage": "lagunalabs.io",
   "private": true,
   "workspaces": [
@@ -42,8 +42,8 @@
     "lint": "lerna run --ignore @xr3ngine/bot lint",
     "version-increment": "lerna version --conventional-commits --yes",
     "validate": "lerna run validate",
-    "build": "lerna run build --parallel",
-    "build-docker": "lerna run --ignore @xr3ngine/docs --ignore @xr3ngine/bot --ignore @xr3ngine/native-plugin-example --ignore @xr3ngine/native-plugin-xr build --parallel",
+    "build": "yarn run version-increment && lerna run build --parallel",
+    "build-docker": "yarn run version-increment && lerna run --ignore @xr3ngine/docs --ignore @xr3ngine/bot --ignore @xr3ngine/native-plugin-example --ignore @xr3ngine/native-plugin-xr build --parallel",
     "diff": "lerna diff"
   },
   "types": "lib/",
@@ -89,6 +89,7 @@
     "ts-jest": "^26.4.1"
   },
   "dependencies": {
+    "@xr3ngine/engine": "0.2.1",
     "ps-list": "^7.2.0",
     "ps-node": "^0.1.6",
     "text-encoding": "^0.7.0",

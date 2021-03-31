@@ -115,7 +115,7 @@ First, make sure you have [NodeJS](https://nodejs.org/) and [npm](https://www.np
    (as opposed to storing them on S3). You will need to start a local server
    to serve these files, and make sure that .env.local has the line
    ```LOCAL_STORAGE_PROVIDER="localhost:8642"```.
-   In a new tab, go to ```packaages/server``` and run ```yarn serve-local-files```.
+   In a new tab, go to ```packages/server``` and run ```yarn serve-local-files```.
    This will start up ```http-server``` to serve files from ```packages/server/upload```
    on ```localhost:8642```.
    You may have to accept the invalid self-signed certificate for it in the browser;
@@ -264,6 +264,24 @@ Try
 ```
 yarn run dev-reinit-db // in server package
 ```
+
+## Admin System
+
+How to make a user an admin:
+
+Create a user at `/login`
+
+Method 1: 
+
+1. Run `yarn run scripts/make-user-admin.js [USER ID]` 
+2. TODO: Improve with email/phone ID support
+
+Method 2: 
+1. Look up in User table and change userRole to 'admin' 
+2. Dev DB credentials can be found here: packages/ops/docker-compose-local.yml#L42
+3. Suggested: beekeeperstudio.io
+
+Test user Admin privliges by going to `/admin`
 
 # Development
 

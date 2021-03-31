@@ -24,6 +24,7 @@ import { isServer } from "../../common/functions/isServer";
 import { VehicleBody } from '../../physics/components/VehicleBody';
 import { isMobileOrTablet } from '../../common/functions/isMobile';
 import { SIXDOFType } from '../../common/types/NumericalTypes';
+import { IKComponent } from '../../character/components/IKComponent';
 
 /**
  *
@@ -387,8 +388,7 @@ const lookByInputAxis = (
 
 const updateIKRig: Behavior = (entity, args): void => {
 
-  const actor = getMutableComponent(entity, CharacterComponent);
-  const { avatarIKRig } = actor;
+  const { avatarIKRig } = getMutableComponent(entity, IKComponent);
   const inputs = getMutableComponent(entity, Input);
   if(!avatarIKRig) return console.warn('no ik rig attached');
 

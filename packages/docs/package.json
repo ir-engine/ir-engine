@@ -1,6 +1,6 @@
 {
-  "name": "xr-3-ngine",
-  "version": "0.0.0",
+  "name": "@xr3ngine/docs",
+  "version": "0.2.2",
   "private": true,
   "scripts": {
     "docusaurus": "docusaurus",

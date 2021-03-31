@@ -3,8 +3,11 @@ import { updateVectorAnimation } from "./functions/updateVectorAnimation";
 import { AnimationComponent } from "./components/AnimationComponent";
 import { CharacterComponent } from "../templates/character/components/CharacterComponent";
 import { updateCharacterState } from "./functions/updateCharacterState";
-import { getComponent } from "../ecs/functions/EntityFunctions";
+import { getComponent, getMutableComponent } from "../ecs/functions/EntityFunctions";
 import { physicsMove } from "../physics/behaviors/physicsMove";
+import { IKComponent } from "./components/IKComponent";
+import { Input } from "../input/components/Input";
+import { isClient } from "../common/functions/isClient";
 
 
 export class CharacterControllerSystem extends System {
@@ -25,6 +28,8 @@ export class CharacterControllerSystem extends System {
   execute(delta: number): void {
     this.queryResults.character.all.forEach((entity) => {
       const actor = getComponent(entity, CharacterComponent)
+      
+      // if(isClient)  
       updateCharacterState(entity, delta)
       if(actor.movementEnabled) {
         physicsMove(entity, {}, delta)
@@ -34,12 +39,17 @@ export class CharacterControllerSystem extends System {
     this.queryResults.animation.all.forEach((entity) => {
       updateVectorAnimation(entity, delta)
     })
+
+    this.queryResults.ikavatar.all.forEach((entity) => {
+      const { avatarIKRig } = getMutableComponent(entity, IKComponent);
+      avatarIKRig.update(delta);
+    })
   }
 }
 
 CharacterControllerSystem.queries = {
   character: {
-    components: [CharacterComponent],
+    components: [CharacterComponent, Input],
     listen: {
       added: true,
       removed: true
@@ -47,6 +57,13 @@ CharacterControllerSystem.queries = {
   },
   animation: {
     components: [AnimationComponent],
+    listen: {
+      added: true,
+      removed: true
+    }
+  },
+  ikavatar: {
+    components: [IKComponent],
     listen: {
       added: true,
       removed: true

@@ -1,3 +1,4 @@
+// TODO: Remove me
 importScripts(location.origin + '/corto/corto.js', location.origin + '/corto/rangeFetcher.js');
 
 function startFetching({
