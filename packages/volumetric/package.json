@@ -1,6 +1,6 @@
 {
   "name": "@xr3ngine/volumetric",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "private": true,
   "repository": {
     "type": "git",
@@ -31,7 +31,7 @@
     "typescript": "^4.0.3"
   },
   "dependencies": {
-    "@xr3ngine/engine": "^0.2.4",
+    "@xr3ngine/engine": "^0.2.5",
     "@xr3ngine/volumetric": "0.2.1",
     "broadway-player": "^0.1.1",
     "esm": "^3.2.25",
