@@ -1,6 +1,6 @@
 {
   "name": "@xr3ngine/social",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "private": true,
   "repository": {
     "type": "git",
@@ -59,9 +59,9 @@
     "@types/redux-immutable": "^4.0.1",
     "@types/styled-components": "^5.1.3",
     "@typescript-eslint/eslint-plugin": "^4.5.0",
-    "@xr3ngine/common": "^0.2.5",
-    "@xr3ngine/engine": "^0.2.5",
-    "@xr3ngine/native-plugin-xr": "^0.2.5",
+    "@xr3ngine/common": "^0.2.6",
+    "@xr3ngine/engine": "^0.2.6",
+    "@xr3ngine/native-plugin-xr": "^0.2.6",
     "app-root-path": "^3.0.0",
     "autobind-decorator": "^2.4.0",
     "autoprefixer": "^9.7.5",
