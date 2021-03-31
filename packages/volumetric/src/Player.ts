@@ -16,8 +16,9 @@ import {
 } from './Interfaces';
 
 import RingBuffer from './RingBuffer';
-import { Engine, VideoTexture } from '@xr3ngine/engine/src/ecs/classes/Engine';
-import { EngineEvents } from '@xr3ngine/engine/src/ecs/classes/EngineEvents';
+import { VideoTexture } from '@xr3ngine/engine/src/ecs/classes/Engine';
+// import { Engine } from '@xr3ngine/engine/src/ecs/classes/Engine';
+// import { EngineEvents } from '@xr3ngine/engine/src/ecs/classes/EngineEvents';
 import { createElement } from "@xr3ngine/engine/src/ecs/functions/createElement";
 
 type AdvancedHTMLVideoElement = HTMLVideoElement & { requestVideoFrameCallback: (callback: (number, {}) => void) => void };
@@ -264,17 +265,17 @@ export default class DracosisPlayer {
       this.meshBuffer = new RingBuffer(this.numberOfFrames);
       this.iframeVertexBuffer = new RingBuffer(numberOfIframes);
 
-      if (autoplay) {
-        if (Engine.hasUserEngaged) {
-          this.play();
-        } else {
-          const onUserEngage = () => {
-            this.play();
-            EngineEvents.instance?.removeEventListener(EngineEvents.EVENTS.USER_ENGAGE, onUserEngage);
-          }
-          EngineEvents.instance?.addEventListener(EngineEvents.EVENTS.USER_ENGAGE, onUserEngage);
-        }
-      }
+      // if (autoplay) {
+      //   if (Engine.hasUserEngaged) {
+      //     this.play();
+      //   } else {
+      //     const onUserEngage = () => {
+      //       this.play();
+      //       EngineEvents.instance?.removeEventListener(EngineEvents.EVENTS.USER_ENGAGE, onUserEngage);
+      //     }
+      //     EngineEvents.instance?.addEventListener(EngineEvents.EVENTS.USER_ENGAGE, onUserEngage);
+      //   }
+      // }
 
       worker.postMessage({ type: "initialize", payload: { targetFramesToRequest, meshFilePath, numberOfKeyframes: this.numberOfKeyframes, numberOfFrames: this.numberOfFrames, fileHeader: this.fileHeader } }); // Send data to our worker.
       this._isinitialized = true;
