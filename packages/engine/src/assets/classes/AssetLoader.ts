@@ -8,6 +8,8 @@ import { createEntity, getComponent, getMutableComponent, hasComponent } from '.
 import { Object3DComponent } from '../../scene/components/Object3DComponent';
 import { addObject3DComponent } from "../../scene/behaviors/addObject3DComponent";
 import { Entity } from '../../ecs/classes/Entity';
+import { isAbsolutePath } from '../../common/functions/isAbsolutePath';
+import { Engine } from '../../ecs/classes/Engine';
 
 const LOD_DISTANCES = {
     "0": 5,
@@ -43,6 +45,8 @@ export default class AssetLoader {
         private onProgress?: ( request: ProgressEvent ) => void,
         private onError?: ( event: ErrorEvent ) => void,
     ) {
+        if (!this.params.url) return;
+
         this.assetType = this.getAssetType(this.params.url);
         this.assetClass = this.getAssetClass(this.params.url);
 
@@ -67,7 +71,9 @@ export default class AssetLoader {
                 this.fileLoader = new FileLoader();
                 break;
         }
-        this.fileLoader.load(this.params.url, this._onLoad, this._onProgress, this._onError);
+
+        let url = isAbsolutePath(this.params.url) ? this.params.url : Engine.publicPath + this.params.url;
+        this.fileLoader.load(url, this._onLoad, this._onProgress, this._onError);
 
         // Add or overwrites the loader for an entity.
         AssetLoader.loaders.set(this.params.entity.id, this);
