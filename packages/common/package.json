@@ -8,5 +8,6 @@
   "main": "index.ts",
   "repository": "http://github.com/xr3ngine/xr3ngine",
   "author": "XR3ngine",
-  "license": "MIT"
+  "license": "MIT",
+  "gitHead": "8dafe502bfc915294f8abc8cd1fc158f2a9488cd"
 }
