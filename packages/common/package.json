@@ -1,7 +1,7 @@
 {
   "name": "@xr3ngine/common",
   "private": true,
-  "version": "0.2.7",
+  "version": "0.2.8",
   "publishConfig": {
     "access": "public"
   },
