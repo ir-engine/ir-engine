@@ -114,6 +114,7 @@ const lightTheme = createMuiTheme({
         margin: '0 auto',   
         fontSize: 16,       
         textAlign: 'center',
+        backgroundColor: '#FFFFFF',
         '@media (max-width: 768px)': {
           maxWidth: '90%',
           width: '90%',

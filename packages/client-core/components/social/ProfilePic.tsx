@@ -24,7 +24,7 @@ export function ProfilePic({
           border: border && "2px solid white",
           cursor: "pointer",
         }}
-      ></img> :
+       /> :
       <AccountCircleIcon fontSize="large"/>}      
     </span>
   );

@@ -60,11 +60,11 @@ export const PasswordLogin = (props: Props): any => {
         createCreator();
       }
     }
-  },[auth])
+  },[auth]);
 
   useEffect(()=>{    
     creatorsState && creatorsState.get('currentCreator') && Router.push("/");
-  },[creatorsState])
+  },[creatorsState]);
 
   const [state, setState] = useState(initialState);
 

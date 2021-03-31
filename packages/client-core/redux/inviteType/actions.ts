@@ -32,7 +32,7 @@ export function retrievedInvitesTypes (inviteType: InviteResult ): InvitesTypesR
         limit: inviteType.limit,
         invitesType: inviteType.data,
         skip: inviteType.skip
-    }
+    };
 }
 
 

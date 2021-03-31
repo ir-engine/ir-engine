@@ -413,10 +413,10 @@ const AdminConsole = (props: Props) => {
     const handleChange = (event: React.ChangeEvent<{ value: unknown }>, user: any) => {
         let role = {};
         if (user) {
-            patchUserRole(user, event.target.value as string)
+            patchUserRole(user, event.target.value as string);
             role[user] = event.target.value;
             setUserRole(event.target.value as string);
-            setSelectedUser({ ...selectedUser, ...role })
+            setSelectedUser({ ...selectedUser, ...role });
         }
     };
 

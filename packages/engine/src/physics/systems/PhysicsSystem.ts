@@ -1,17 +1,9 @@
 import CANNON, { Body, ContactMaterial, Material, SAPBroadphase, Shape, Vec3, World } from 'cannon-es';
-import { Matrix4, Mesh, Quaternion, Vector3 } from 'three';
-import { CameraComponent } from '../../camera/components/CameraComponent';
-import { FollowCameraComponent } from '../../camera/components/FollowCameraComponent';
-import { CameraSystem } from '../../camera/systems/CameraSystem';
-import { applyVectorMatrixXZ } from '../../common/functions/applyVectorMatrixXZ';
-import { cannonFromThreeVector } from '../../common/functions/cannonFromThreeVector';
-import { getSignedAngleBetweenVectors } from '../../common/functions/getSignedAngleBetweenVectors';
+import { Mesh, Vector3 } from 'three';
 import { isServer } from '../../common/functions/isServer';
 import { Not } from '../../ecs/functions/ComponentFunctions';
-import { Behavior } from '../../common/interfaces/Behavior';
 import { Engine } from '../../ecs/classes/Engine';
 import { EngineEvents } from '../../ecs/classes/EngineEvents';
-import { Entity } from '../../ecs/classes/Entity';
 import { System } from '../../ecs/classes/System';
 import { getComponent, getMutableComponent, hasComponent } from '../../ecs/functions/EntityFunctions';
 import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType';
@@ -22,7 +14,6 @@ import { NetworkObject } from '../../networking/components/NetworkObject';
 import { calculateInterpolation, createSnapshot } from '../../networking/functions/NetworkInterpolationFunctions';
 import { serverCorrectionBehavior, createNewCorrection } from '../behaviors/serverCorrectionBehavior';
 import { interpolationBehavior, findOne } from '../behaviors/interpolationBehavior';
-import { Object3DComponent } from '../../scene/components/Object3DComponent';
 import { CharacterComponent } from '../../templates/character/components/CharacterComponent';
 import { onAddedInCar } from '../../templates/vehicle/behaviors/onAddedInCar';
 import { onAddEndingInCar } from '../../templates/vehicle/behaviors/onAddEndingInCar';
@@ -40,11 +31,10 @@ import { PlayerInCar } from '../components/PlayerInCar';
 import { RigidBody } from "../components/RigidBody";
 import { VehicleBody } from "../components/VehicleBody";
 import { InterpolationComponent } from "../components/InterpolationComponent";
-import { CollisionGroups } from '../enums/CollisionGroups';
 
 
 const vec3 = new Vector3();
-let lastRightGamePad = null;
+const lastRightGamePad = null;
 const DEBUG_PHYSICS = false;
 /*
 const cannonDebugger = isClient ? import('cannon-es-debugger').then((module) => {
@@ -130,7 +120,7 @@ export class PhysicsSystem extends System {
     this.wheelGroundContactMaterial = null;
     PhysicsSystem.frame = 0;
     PhysicsSystem.physicsWorld.broadphase = null;
-    PhysicsSystem.physicsWorld = null;
+    // PhysicsSystem.physicsWorld = null;
   }
 
   execute(delta: number): void {
@@ -261,8 +251,6 @@ export class PhysicsSystem extends System {
       })
     }
 
-
-
     if (PhysicsSystem.simulate) { // pause physics until loading all component scene
       PhysicsSystem.frame++;
       PhysicsSystem.physicsWorld.step(this.physicsFrameTime);
@@ -315,156 +303,3 @@ PhysicsSystem.queries = {
     }
   }
 };
-
-const updateIK = (entity: Entity) => {
-  const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
-  const dateOffset = Math.floor(Math.random() * 60 * 1000);
-  const realDateNow = (now => () => dateOffset + now())(Date.now);
-
-  const positionOffset = Math.sin((realDateNow() % 10000) / 10000 * Math.PI * 2) * 2;
-  const positionOffset2 = -Math.sin((realDateNow() % 5000) / 5000 * Math.PI * 2) * 1;
-  const standFactor = actor.height * (0.9 + Math.sin((realDateNow() % 2000) / 2000 * Math.PI * 2) * 0.2);
-  const rotationAngle = (realDateNow() % 5000) / 5000 * Math.PI * 2;
-
-  if (actor.inputs) {
-    // actor.inputs.hmd.position.set(positionOffset, 0.6 + standFactor, 0);
-    actor.inputs.hmd.position.set(positionOffset, standFactor, positionOffset2);
-    actor.inputs.hmd.quaternion.setFromAxisAngle(new Vector3(0, 1, 0), rotationAngle)
-      .multiply(new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), Math.sin((realDateNow() % 2000) / 2000 * Math.PI * 2) * Math.PI * 0.2))
-      .multiply(new Quaternion().setFromAxisAngle(new Vector3(0, 0, 1), Math.sin((realDateNow() % 2000) / 2000 * Math.PI * 2) * Math.PI * 0.25));
-
-    actor.inputs.rightGamepad.quaternion.setFromAxisAngle(new Vector3(0, 1, 0), rotationAngle)
-    // .multiply(new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Math.sin((realDateNow()%5000)/5000*Math.PI*2)*Math.PI*0.6));
-    actor.inputs.rightGamepad.position.set(positionOffset, actor.height * 0.7 + Math.sin((realDateNow() % 2000) / 2000 * Math.PI * 2) * 0.1, positionOffset2).add(
-      new Vector3(-actor.shoulderWidth / 2, 0, -0.2).applyQuaternion(actor.inputs.rightGamepad.quaternion)
-    )/*.add(
-      new Vector3(-0.1, 0, -1).normalize().multiplyScalar(actor.rightArmLength*0.4).applyQuaternion(actor.inputs.rightGamepad.quaternion)
-    ); */
-    if (lastRightGamePad !== actor.inputs.rightGamepad.position) {
-      // console.log(actor);
-      // console.log(actor.inputs.rightGamepad.position);
-    }
-    lastRightGamePad = actor.inputs.rightGamepad.position;
-    actor.inputs.leftGamepad.quaternion.setFromAxisAngle(new Vector3(0, 1, 0), rotationAngle);
-    actor.inputs.leftGamepad.position.set(positionOffset, actor.height * 0.7, positionOffset2).add(
-      new Vector3(actor.shoulderWidth / 2, 0, -0.2).applyQuaternion(actor.inputs.leftGamepad.quaternion)
-    )/*.add(
-      new Vector3(0.1, 0, -1).normalize().multiplyScalar(actor.leftArmLength*0.4).applyQuaternion(actor.inputs.leftGamepad.quaternion)
-    );*/
-
-    actor.inputs.leftGamepad.pointer = (Math.sin((Date.now() % 10000) / 10000 * Math.PI * 2) + 1) / 2;
-    actor.inputs.leftGamepad.grip = (Math.sin((Date.now() % 10000) / 10000 * Math.PI * 2) + 1) / 2;
-
-    actor.inputs.rightGamepad.pointer = (Math.sin((Date.now() % 10000) / 10000 * Math.PI * 2) + 1) / 2;
-    actor.inputs.rightGamepad.grip = (Math.sin((Date.now() % 10000) / 10000 * Math.PI * 2) + 1) / 2;
-
-      const upRotation = new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), Math.PI / 2)
-      const leftRotation = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Math.PI * 0.8)
-      const rightRotation = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), -Math.PI * 0.8)
-      const localVector = new Vector3()
-      const modelScaleFactor = actor.inputs.hmd.scaleFactor
-      if (modelScaleFactor !== actor.lastModelScaleFactor) {
-        actor.model.scale.set(modelScaleFactor, modelScaleFactor, modelScaleFactor)
-        actor.lastModelScaleFactor = modelScaleFactor
-      }
-
-      actor.shoulderTransforms.Update()
-
-      for (const k in actor.modelBones) {
-        const modelBone = actor.modelBones[k]
-        const modelBoneOutput = actor.modelBoneOutputs[k]
-
-        if (k === "Hips") {
-          modelBone.position.copy(modelBoneOutput.position)
-        }
-        modelBone.quaternion.multiplyQuaternions(modelBoneOutput.quaternion, modelBone.initialQuaternion)
-
-        if (k === "Left_ankle" || k === "Right_ankle") {
-          modelBone.quaternion.multiply(upRotation)
-        } else if (k === "Left_wrist") {
-          modelBone.quaternion.multiply(leftRotation) // center
-        } else if (k === "Right_wrist") {
-          modelBone.quaternion.multiply(rightRotation) // center
-        }
-        modelBone.updateMatrixWorld()
-      }
-
-      const now = Date.now()
-      const timeDiff = Math.min(now - actor.lastTimestamp, 1000)
-      actor.lastTimestamp = now
-
-      if ((actor.options as any).fingers) {
-        const _processFingerBones = left => {
-          const fingerBones = left ? actor.fingerBones.left : actor.fingerBones.right
-          const gamepadInput = left ? actor.inputs.rightGamepad : actor.inputs.leftGamepad
-          for (const k in fingerBones) {
-            const fingerBone = fingerBones[k]
-            if (fingerBone) {
-              let setter
-              if (k === "thumb") {
-                setter = (q, i) =>
-                  q.setFromAxisAngle(
-                    localVector.set(0, left ? 1 : -1, 0),
-                    gamepadInput.grip * Math.PI * (i === 0 ? 0.125 : 0.25)
-                  )
-              } else if (k === "index") {
-                setter = (q, i) =>
-                  q.setFromAxisAngle(localVector.set(0, 0, left ? -1 : 1), gamepadInput.pointer * Math.PI * 0.5)
-              } else {
-                setter = (q, i) =>
-                  q.setFromAxisAngle(localVector.set(0, 0, left ? -1 : 1), gamepadInput.grip * Math.PI * 0.5)
-              }
-              let index = 0
-              fingerBone.traverse(subFingerBone => {
-                setter(subFingerBone.quaternion, index++)
-              })
-            }
-          }
-        }
-        _processFingerBones(true)
-        _processFingerBones(false)
-      }
-
-      if ((actor.options as any).visemes) {
-        const aaValue = Math.min(actor.volume * 10, 1)
-        const blinkValue = (() => {
-          const nowWindow = now % 2000
-          if (nowWindow >= 0 && nowWindow < 100) {
-            return nowWindow / 100
-          } else if (nowWindow >= 100 && nowWindow < 200) {
-            return 1 - (nowWindow - 100) / 100
-          } else {
-            return 0
-          }
-        })()
-        actor.skinnedMeshes.forEach(o => {
-          const { morphTargetDictionary, morphTargetInfluences } = o
-          if (morphTargetDictionary && morphTargetInfluences) {
-            let aaMorphTargetIndex = morphTargetDictionary["vrc.v_aa"]
-            if (aaMorphTargetIndex === undefined) {
-              aaMorphTargetIndex = morphTargetDictionary["morphTarget26"]
-            }
-            if (aaMorphTargetIndex !== undefined) {
-              morphTargetInfluences[aaMorphTargetIndex] = aaValue
-            }
-
-            let blinkLeftMorphTargetIndex = morphTargetDictionary["vrc.blink_left"]
-            if (blinkLeftMorphTargetIndex === undefined) {
-              blinkLeftMorphTargetIndex = morphTargetDictionary["morphTarget16"]
-            }
-            if (blinkLeftMorphTargetIndex !== undefined) {
-              morphTargetInfluences[blinkLeftMorphTargetIndex] = blinkValue
-            }
-
-            let blinkRightMorphTargetIndex = morphTargetDictionary["vrc.blink_right"]
-            if (blinkRightMorphTargetIndex === undefined) {
-              blinkRightMorphTargetIndex = morphTargetDictionary["morphTarget17"]
-            }
-            if (blinkRightMorphTargetIndex !== undefined) {
-              morphTargetInfluences[blinkRightMorphTargetIndex] = blinkValue
-            }
-          }
-        })
-      }
-  }
-}

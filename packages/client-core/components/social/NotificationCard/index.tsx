@@ -15,9 +15,11 @@ const NotificationCard = ({notification} : any) => {
             case 'feed-bookmark': return ' bookmarked your feed';
             case 'comment': return ' commented your feed:';
             case 'comment-fire': return ' fired your comment to feed';
+            case 'follow': return ' started following you';
+            case 'unfollow': return ' stopped following you';
             default: return ' followed you';
         }
-    }
+    };
     return  <Card className={styles.commentItem} square={false} elevation={0} key={notification.id}>
                 <Avatar onClick={()=>Router.push({ pathname: '/creator', query:{ creatorId: notification.creatorAuthorId}})}
                      className={styles.authorAvatar} src={notification.avatar} />                                
@@ -28,11 +30,13 @@ const NotificationCard = ({notification} : any) => {
                         {notification.comment_text && ' "'+notification.comment_text+'"'}
                     </Typography> 
                 </CardContent>
-                <section className={styles.fire}>
-                    <Avatar variant="rounded" onClick={()=>Router.push({ pathname: '/feed', query:{ feedId: notification.feedId}})}
-                        className={styles.authorAvatar} src={notification.previewUrl} />  
-                </section>
-            </Card>
+                {notification.type !== 'follow' && notification.type !== 'unfollow' &&
+                    <section className={styles.fire}>
+                        <Avatar variant="rounded" onClick={()=>Router.push({ pathname: '/feed', query:{ feedId: notification.feedId}})}
+                            className={styles.authorAvatar} src={notification.previewUrl} />  
+                    </section>
+                }
+            </Card>;
 };
 
 export default (NotificationCard);
