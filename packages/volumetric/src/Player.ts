@@ -7,7 +7,7 @@ import {
   Renderer,
   Scene,
   sRGBEncoding,
-  Uint32BufferAttribute
+  Uint32BufferAttribute, WebGLRenderer
 } from 'three';
 import {
   IFrameBuffer,
@@ -17,6 +17,10 @@ import RingBuffer from './RingBuffer';
 import { Engine, VideoTexture } from '@xr3ngine/engine/src/ecs/classes/Engine';
 import { EngineEvents } from '@xr3ngine/engine/src/ecs/classes/EngineEvents';
 import { createElement } from "@xr3ngine/engine/src/ecs/functions/createElement";
+
+type AdvancedHTMLVideoElement = HTMLVideoElement & { requestVideoFrameCallback: (callback: (number, {}) => void) => void };
+type onMeshBufferingCallback = (progress:number) => void;
+type onFrameShowCallback = (frame:number) => void;
 
 export default class DracosisPlayer {
   // Public Fields
@@ -28,14 +32,15 @@ export default class DracosisPlayer {
   public renderer: Renderer;
   public mesh: Mesh;
   public meshFilePath: String;
-  public material: any;
+  public material: MeshBasicMaterial;
+  public failMaterial: MeshBasicMaterial;
   public bufferGeometry: BufferGeometry;
 
   // Private Fields
-  private _scale = 1;
+  private readonly _scale = 1;
   private _prevFrame = 0;
   private currentKeyframe = 0;
-  private _video = null;
+  private _video:HTMLVideoElement|AdvancedHTMLVideoElement = null;
   private _videoTexture = null;
   private _loop = true;
   private _isinitialized = false;
@@ -43,6 +48,9 @@ export default class DracosisPlayer {
   private iframeVertexBuffer: RingBuffer<IFrameBuffer>;
   private _worker: Worker;
   private _bufferingTimer: any;
+  private status:"paused"|"playing"|"buffering"|"error" = 'paused';
+  private onMeshBuffering: onMeshBufferingCallback|null = null;
+  private onFrameShow: onFrameShowCallback|null = null;
 
   fileHeader: any;
   tempBufferObject: KeyframeBuffer = {
@@ -107,8 +115,25 @@ export default class DracosisPlayer {
     loop = true,
     autoplay = true,
     scale = 1,
-    keyframesToBufferBeforeStart = 300
+    keyframesToBufferBeforeStart = 300,
+    onMeshBuffering = null,
+    onFrameShow = null
+  }:{
+    scene: Scene,
+    renderer: WebGLRenderer,
+    meshFilePath: string,
+    videoFilePath: string,
+    frameRate?: number,
+    loop?: boolean,
+    autoplay?: boolean,
+    scale?: number,
+    keyframesToBufferBeforeStart?: number
+    onMeshBuffering?: onMeshBufferingCallback
+    onFrameShow?: onFrameShowCallback
   }) {
+
+    this.onMeshBuffering = onMeshBuffering;
+    this.onFrameShow = onFrameShow;
 
     const worker = new Worker(new URL('./workerFunction.ts', import.meta.url)); // spawn new worker
     this._worker = worker;
@@ -131,6 +156,32 @@ export default class DracosisPlayer {
       // if(frameData.iframeBufferObjects) frameData.iframeBufferObjects.forEach(obj => {
       //   this.iframeVertexBuffer.add(obj);
       // })
+
+      if (this.status === "buffering") {
+        // Handle buffering state, check if we buffered enough or report buffering progress
+        // TODO: handle our inconsecutive frames loading, now i assume that all previous frames are loaded
+        const bufferingSize = this.frameRate * this.keyframesToBufferBeforeStart;
+        const bufferedEnough = this.meshBuffer.getPos() > (this.currentKeyframe+bufferingSize);
+        const bufferedCompletely = frameData.keyframeBufferObject.keyframeNumber >= (this.numberOfKeyframes - 1);
+        // if (this._debugLevel > 0) {
+        //   console.log('...buffering +', frameData.keyframeBufferObject.keyframeNumber - this.currentKeyframe, ' ... ', frameData.keyframeBufferObject.keyframeNumber, ' / ', this.numberOfKeyframes);
+        // }
+        if (bufferedEnough || bufferedCompletely) {
+          // if (this._debugLevel > 0) {
+          //   console.log('.....ready to resume playback');
+          // }
+          this.status = "playing";
+          this._video.play();
+          if (!this.mesh.visible) {
+            this.mesh.visible = true;
+          }
+        } else {
+          if (typeof this.onMeshBuffering === "function") {
+            // TODO: make progress report based on how many frames loaded (not on index of last loaded)
+            this.onMeshBuffering(frameData.keyframeBufferObject.keyframeNumber / (this.currentKeyframe + bufferingSize));
+          }
+        }
+      }
     }
 
     worker.onmessage = (e) => {
@@ -139,11 +190,11 @@ export default class DracosisPlayer {
           console.log("Worker initialized");
           break;
         case 'framedata':
-          // console.log("Frame data received");
+          console.log("Frame data received");
           handleFrameData(e.data.payload);
           break;
         case 'completed':
-          // console.log("Worker complete!");
+          console.log("Worker complete!");
           break;
 
       }
@@ -200,6 +251,7 @@ export default class DracosisPlayer {
 
     // Create a default mesh
     this.material = new MeshBasicMaterial({ map: this._videoTexture });
+    this.failMaterial = new MeshBasicMaterial({ color: '#555555' });
     this.mesh = new Mesh(new PlaneBufferGeometry(0.00001, 0.00001), this.material);
     this.mesh.scale.set(this._scale, this._scale, this._scale);
     this.scene.add(this.mesh);
@@ -247,7 +299,7 @@ export default class DracosisPlayer {
    */
   videoAnimationFrame(e) {
     return;
-    if(!this.fileHeader) 
+    if(!this.fileHeader)
     this.checkIfEncoderHasChanged();
 
     let newFrame = Math.round(this._video.currentTime * this.frameRate);
@@ -322,8 +374,28 @@ export default class DracosisPlayer {
 
         // console.log("Mesh buffer position is: ", meshBufferPosition);
 
-        this.mesh.geometry = this.meshBuffer.get(meshBufferPosition).bufferGeometry as BufferGeometry;
+        if (meshBufferPosition === -1) {
+          console.log('out of sync');
 
+        }
+        if (meshBufferPosition === -1) {
+          this.status = "buffering";
+          if (!this._video.paused) {
+            this._video.pause();
+          }
+          if (typeof this.onMeshBuffering === "function") {
+            this.onMeshBuffering(0);
+          }
+          // this.mesh.visible = false;
+          // this._video.pause();
+          this.mesh.material = this.failMaterial;
+        } else {
+          this.mesh.material = this.material;
+          this.mesh.geometry = this.meshBuffer.get(meshBufferPosition).bufferGeometry as BufferGeometry;
+          if (typeof this.onFrameShow === "function") {
+            this.onFrameShow(keyframeToPlay);
+          }
+        }
       }
       else {
         let vertexBufferPosition = this.getPositionInIFrameBuffer(frameToPlay);
@@ -349,17 +421,19 @@ export default class DracosisPlayer {
 
   // Start loop to check if we're ready to play
   play() {
-    // console.log("Playing")
-    const buffering = setInterval(() => {
-      if (this.meshBuffer && this.meshBuffer.getBufferLength() >= this.keyframesToBufferBeforeStart) {
-        // console.log("Keyframe buffer length is ", this.meshBuffer.getBufferLength(), ", playing video");
-        clearInterval(buffering);
-        this._video.play()
-        this.mesh.visible = true
-      }
-
-    }, 1000 / 60);
-    this._bufferingTimer = buffering;
+    this._video.play().then(() => {
+      // console.log("Playing")
+    });
+    // const buffering = setInterval(() => {
+    //   if (this.meshBuffer && this.meshBuffer.getBufferLength() >= this.keyframesToBufferBeforeStart) {
+    //     // console.log("Keyframe buffer length is ", this.meshBuffer.getBufferLength(), ", playing video");
+    //     clearInterval(buffering);
+    //     this._video.play()
+    //     this.mesh.visible = true
+    //   }
+    //
+    // }, 1000 / 60);
+    // this._bufferingTimer = buffering;
   }
 
   getPositionInKeyframeBuffer(keyframeNumber: number): number {

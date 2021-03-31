@@ -6,6 +6,9 @@ let fetchLoop;
 let lastRequestedKeyframe = -1;
 let _numberOfKeyframes;
 let _fileHeader;
+let activeDataLoads = 0;
+const activeDataLoadsLimit = 300;
+let _idOfLastKeyFrame;
 
 function startFetching({
   meshFilePath,
@@ -18,16 +21,21 @@ function startFetching({
   console.log(rangeFetcher);
   _meshFilePath = meshFilePath;
   _numberOfKeyframes = numberOfKeyframes;
+  _idOfLastKeyFrame = numberOfKeyframes - 1;
   _fileHeader = fileHeader;
   (globalThis as any).postMessage({ type: "initialized" });
 
-
-
   fetchLoop = setInterval(() => {
-    if (lastRequestedKeyframe >= _numberOfKeyframes) {
+    if (lastRequestedKeyframe >= _idOfLastKeyFrame) {
       clearInterval(fetchLoop);
       (globalThis as any).postMessage({ type: "complete" });
+      return;
     }
+    if (activeDataLoads >= activeDataLoadsLimit) {
+      return;
+    }
+
+    activeDataLoads++;
 
     // Now increment one more
     lastRequestedKeyframe++;
@@ -111,7 +119,7 @@ function startFetching({
       // }
 
       (globalThis as any).postMessage({ type: 'framedata', payload: message });
-
+      activeDataLoads--;
     });
   }, 1000 / 60);
 
