@@ -1,6 +1,6 @@
 {
   "name": "@xr3ngine/native-plugin-example",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "private": true,
   "repository": {
     "type": "git",
@@ -20,15 +20,15 @@
     "watch": "cross-env NODE_ENV=development next --port 3001 --hostname 127.0.0.1",
     "validate": "yarn run lint && yarn run test",
     "test": "echo \"TODO: Add Testing to Client\" && exit 0",
-    "lint":"eslint --fix --quiet **/*.tsx *.ts **/*.ts"
+    "lint": "eslint --fix --quiet **/*.tsx *.ts **/*.ts"
   },
   "resolutions": {
     "@types/react": "^17.0.0",
     "react": "^17.0.0"
   },
   "peerDependencies": {
-    "react": "^17.0.0",
-    "@types/react": "^17.0.0"
+    "@types/react": "^17.0.0",
+    "react": "^17.0.0"
   },
   "dependencies": {
     "@capacitor-community/electron": "^1.3.2",
@@ -37,7 +37,7 @@
     "@capacitor/core": "^2.4.6",
     "@capacitor/ios": "2.4.6",
     "@typescript-eslint/eslint-plugin": "^4.5.0",
-    "@xr3ngine/native-plugin-xr": "^0.1.0",
+    "@xr3ngine/native-plugin-xr": "^0.2.3",
     "next-transpile-modules": "^6.2.0",
     "react": "^17.0.0"
   },
