@@ -72,7 +72,7 @@ export default class AssetLoader {
                 break;
         }
 
-        let url = isAbsolutePath(this.params.url) ? this.params.url : Engine.publicPath + this.params.url;
+        const url = isAbsolutePath(this.params.url) ? this.params.url : Engine.publicPath + this.params.url;
         this.fileLoader.load(url, this._onLoad, this._onProgress, this._onError);
 
         // Add or overwrites the loader for an entity.
