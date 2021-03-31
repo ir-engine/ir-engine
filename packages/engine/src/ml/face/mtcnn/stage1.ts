@@ -79,7 +79,7 @@ export function stage1(
     const statsForScale: any = { scale }
     const resized = rescaleAndNormalize(imgTensor, scale)
 
-    let ts = Date.now()
+    const ts = Date.now()
     const { prob, regions } = PNet(resized, params)
     statsForScale.pnet = Date.now() - ts
 
@@ -110,7 +110,7 @@ export function stage1(
       return []
     }
 
-    let ts = Date.now()
+    const ts = Date.now()
     const indices = nonMaxSuppression(
       boundingBoxes.map(bbox => bbox.cell),
       boundingBoxes.map(bbox => bbox.score),
@@ -131,7 +131,7 @@ export function stage1(
   let finalScores: number[] = []
 
   if (allBoxes.length > 0) {
-    let ts = Date.now()
+    const ts = Date.now()
     const indices = nonMaxSuppression(
       allBoxes.map(bbox => bbox.cell),
       allBoxes.map(bbox => bbox.score),

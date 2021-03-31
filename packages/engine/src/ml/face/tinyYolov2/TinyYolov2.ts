@@ -18,7 +18,7 @@ import { TinyYolov2NetParams } from './types';
 
 export class TinyYolov2 extends TinyYolov2Base {
 
-  constructor(withSeparableConvs: boolean = true) {
+  constructor(withSeparableConvs = true) {
     const config = Object.assign({}, {
       withSeparableConvs,
       iouThreshold: IOU_THRESHOLD,

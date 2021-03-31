@@ -58,7 +58,7 @@ export class DetectAllFacesTask extends DetectFacesTaskBase<FaceDetection[]> {
     })
   }
 
-  withFaceLandmarks(useTinyLandmarkNet: boolean = false) {
+  withFaceLandmarks(useTinyLandmarkNet = false) {
     return new DetectAllFaceLandmarksTask(
       this.runAndExtendWithFaceDetections(),
       this.input,
@@ -101,7 +101,7 @@ export class DetectSingleFaceTask extends DetectFacesTaskBase<FaceDetection | un
     })
   }
 
-  withFaceLandmarks(useTinyLandmarkNet: boolean = false) {
+  withFaceLandmarks(useTinyLandmarkNet = false) {
     return new DetectSingleFaceLandmarksTask(
       this.runAndExtendWithFaceDetection(),
       this.input,

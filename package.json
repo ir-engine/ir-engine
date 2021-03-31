@@ -42,8 +42,8 @@
     "lint": "lerna run --ignore @xr3ngine/bot lint",
     "version-increment": "lerna version --conventional-commits --yes",
     "validate": "lerna run validate",
-    "build": "yarn run version-increment && lerna run build --parallel",
-    "build-docker": "yarn run version-increment && lerna run --ignore @xr3ngine/docs --ignore @xr3ngine/bot --ignore @xr3ngine/native-plugin-example --ignore @xr3ngine/native-plugin-xr build --parallel",
+    "build": "lerna run build --parallel",
+    "build-docker": "lerna run --ignore @xr3ngine/docs --ignore @xr3ngine/bot --ignore @xr3ngine/native-plugin-example --ignore @xr3ngine/native-plugin-xr build --parallel",
     "diff": "lerna diff"
   },
   "types": "lib/",

@@ -17,7 +17,7 @@ export async function toNetInput(inputs: TNetInput): Promise<NetInput> {
     return inputs
   }
 
-  let inputArgArray = Array.isArray(inputs)
+  const inputArgArray = Array.isArray(inputs)
       ? inputs
       : [inputs]
 

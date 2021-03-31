@@ -3,7 +3,7 @@ import { disposeUnusedWeightTensors } from '../common/disposeUnusedWeightTensors
 import { extractWeightEntryFactory } from '../common/extractWeightEntryFactory';
 import { ParamMapping, ConvParams } from '../common/types';
 import { isTensor3D } from '../utils';
-import { BoxPredictionParams, MobileNetV1, NetParams, PointwiseConvParams, PredictionLayerParams } from './types';
+import { BoxPredictionParams, ConvPairParams, MobileNetV1, NetParams, Params, PointwiseConvParams, PredictionLayerParams } from './types';
 
 function extractorsFactory(weightMap: any, paramMappings: ParamMapping[]) {
 
@@ -17,7 +17,7 @@ function extractorsFactory(weightMap: any, paramMappings: ParamMapping[]) {
     return { filters, batch_norm_offset }
   }
 
-  function extractConvPairParams(idx: number): MobileNetV1.ConvPairParams {
+  function extractConvPairParams(idx: number): ConvPairParams {
 
     const mappedPrefix = `mobilenetv1/conv_${idx}`
     const prefixDepthwiseConv = `MobilenetV1/Conv2d_${idx}_depthwise`
@@ -42,7 +42,7 @@ function extractorsFactory(weightMap: any, paramMappings: ParamMapping[]) {
     }
   }
 
-  function extractMobilenetV1Params(): MobileNetV1.Params {
+  function extractMobilenetV1Params(): Params {
     return {
       conv_0: extractPointwiseConvParams('MobilenetV1', 0, 'mobilenetv1/conv_0'),
       conv_1: extractConvPairParams(1),
