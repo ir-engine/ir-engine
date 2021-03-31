@@ -21,7 +21,7 @@ import { Object3DComponent } from '../../scene/components/Object3DComponent';
 import { interactOnServer } from '../../interaction/systems/InteractiveSystem';
 import { CharacterComponent } from "./components/CharacterComponent";
 import { isServer } from "../../common/functions/isServer";
-import { VehicleBody } from '../../physics/components/VehicleBody';
+import { VehicleComponent } from '../vehicle/components/VehicleComponent';
 import { isMobileOrTablet } from '../../common/functions/isMobile';
 import { SIXDOFType } from '../../common/types/NumericalTypes';
 import { IKComponent } from '../../character/components/IKComponent';
@@ -87,7 +87,7 @@ const interact: Behavior = (entity: Entity, args: any = { }, delta): void => {
   
   if (position.distanceTo(intPosition) < 3) {
     if (interactive && typeof interactive.onInteraction === 'function') {
-      if (!hasComponent(focusedEntity, VehicleBody)) {
+      if (!hasComponent(focusedEntity, VehicleComponent)) {
         interactive.onInteraction(entity, args, delta, focusedEntity);
       } else {
         console.log('Interaction with cars must work only from server');

@@ -50,7 +50,7 @@ export function plusParameter(posM, queM, scaM, posE, queE, scaE): [Vector3, Qua
 
 // createStaticColliders
 export function createStaticCollider(mesh) {
-  console.log('****** Collider from Model, type: '+mesh.userData.type);
+  // console.log('****** Collider from Model, type: '+mesh.userData.type);
 
   if (mesh.type == 'Group') {
     for (let i = 0; i < mesh.children.length; i++) {
