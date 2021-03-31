@@ -1,9 +1,9 @@
 {
   "name": "xr3ngine",
   "description": "Game Engine, Server & Devops powering The XR3ngine",
-  "version": "0.2.2",
+  "version": "0.2.5",
   "homepage": "lagunalabs.io",
-  "private": true,
+  "private": false,
   "workspaces": [
     "packages/*"
   ],
