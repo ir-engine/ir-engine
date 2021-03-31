@@ -1,14 +1,11 @@
 import { Component } from "../../ecs/classes/Component";
 import { Entity } from "../../ecs/classes/Entity";
 import { isClient } from "../../common/functions/isClient";
-import { Behavior } from '@xr3ngine/engine/src/common/interfaces/Behavior';
-import { Engine } from "@xr3ngine/engine/src/ecs/classes/Engine";
-import { getComponent, hasComponent, removeEntity } from "@xr3ngine/engine/src/ecs/functions/EntityFunctions";
 import { parseModelColliders, clearFromColliders } from '@xr3ngine/engine/src/physics/behaviors/parseModelColliders';
 import { createVehicleFromSceneData } from '@xr3ngine/engine/src/templates/vehicle/prefabs/NetworkVehicle';
 import { AmbientLight, CircleBufferGeometry, Color, HemisphereLight, Mesh, MeshPhongMaterial, PointLight, SpotLight, Vector3, Quaternion, Matrix4 } from 'three';
-import { AssetLoader } from '../../assets/components/AssetLoader';
-import { addComponent, getMutableComponent } from "../../ecs/functions/EntityFunctions";
+import AssetLoader from '../../assets/classes/AssetLoader';
+import { addComponent } from "../../ecs/functions/EntityFunctions";
 import { ComponentConstructor } from "../../ecs/interfaces/ComponentInterfaces";
 import { createParticleEmitter } from '../../particles/functions/particleHelpers';
 import { addObject3DComponent } from '../behaviors/addObject3DComponent';
@@ -110,26 +107,21 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
   'gltf-model': {
     behaviors: [
       {
-        behavior: addComponentFromBehavior,
-        args: {
-          component: AssetLoader,
+        behavior: (entity, args) => {
+          AssetLoader.load({
+            url: args.objArgs.url,
+            entity,
+          }, (res) => {
+            if (args.objArgs.dontParseModel) clearFromColliders(entity, { asset: res });
+            else parseModelColliders(entity, { asset: res, uniqueId: args.objArgs.sceneEntityId });
+          });
         },
         values: [
           { from: 'src', to: 'url' },
           'dontParseModel',
+          'sceneEntityId'
         ]
       },
-      {
-        behavior: (entity) => {
-          if (getComponent<AssetLoader>(entity, AssetLoader).dontParseModel) {
-            // parse model and clean up model from colliders (because its loaded from scene data)
-            getMutableComponent<AssetLoader>(entity, AssetLoader).onLoaded.push(clearFromColliders);
-          } else {
-            // parse model and add colliders
-            getMutableComponent<AssetLoader>(entity, AssetLoader).onLoaded.push(parseModelColliders);
-          }
-        }
-      }
     ]
   },
   'interact': {
@@ -403,7 +395,7 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
     behaviors: [
       {
         behavior: createCollidersFromSceneData,
-        values: ['data', 'type', 'position', 'quaternion', 'scale', 'vertices', 'indices']
+        values: ['data', 'type', 'position', 'quaternion', 'scale', 'vertices', 'indices', 'sceneEntityId']
       }
     ]
   },
@@ -411,7 +403,7 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
     behaviors: [
       {
         behavior: createVehicleFromSceneData,
-        values: ['arrayWheelsPosition', 'entrancesArray', 'seatsArray', 'startPosition', 'startQuaternion', 'suspensionRestLength', 'interactionPartsPosition', 'mass']
+        values: ['arrayWheelsPosition', 'entrancesArray', 'seatsArray', 'startPosition', 'startQuaternion', 'suspensionRestLength', 'interactionPartsPosition', 'mass', 'sceneEntityId']
       }
     ]
   },

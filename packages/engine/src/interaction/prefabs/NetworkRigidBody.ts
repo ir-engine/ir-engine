@@ -1,4 +1,3 @@
-import { getComponent, getMutableComponent } from "@xr3ngine/engine/src/ecs/functions/EntityFunctions";
 import { Entity } from '../../ecs/classes/Entity';
 import { Network } from '../../networking/classes/Network';
 import { NetworkPrefab } from '../../networking/interfaces/NetworkPrefab';
@@ -6,10 +5,8 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { ColliderComponent } from '@xr3ngine/engine/src/physics/components/ColliderComponent';
 import { RigidBody } from '@xr3ngine/engine/src/physics/components/RigidBody';
 import { InterpolationComponent } from "@xr3ngine/engine/src/physics/components/InterpolationComponent";
-import { AssetLoader } from '../../assets/components/AssetLoader';
 import { initializeNetworkObject } from '../../networking/functions/initializeNetworkObject';
 import { PrefabType } from "@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema";
-import { NetworkObject } from '@xr3ngine/engine/src/networking/components/NetworkObject';
 
 
 export function createNetworkRigidBody( args:{ parameters?: any, networkId?: string | number, uniqueId: string, entity?: Entity }) {

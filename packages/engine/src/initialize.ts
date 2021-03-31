@@ -1,7 +1,6 @@
 import _ from 'lodash';
 import { BufferGeometry, Mesh, PerspectiveCamera, Scene } from 'three';
 import { acceleratedRaycast, computeBoundsTree } from "three-mesh-bvh";
-import AssetLoadingSystem from './assets/systems/AssetLoadingSystem';
 import { CameraSystem } from './camera/systems/CameraSystem';
 import { Timer } from './common/functions/Timer';
 import { DebugHelpersSystem } from './debug/systems/DebugHelpersSystem';
@@ -94,7 +93,6 @@ export const initializeEngine = async (initOptions: any = DefaultInitializationO
   if(!useOffscreen) {
 
     await AnimationManager.instance.getDefaultModel()
-    registerSystem(AssetLoadingSystem);
     registerSystem(StateSystem);
     registerSystem(CharacterControllerSystem);
     registerSystem(PhysicsSystem);
@@ -159,7 +157,6 @@ export const initializeServer = async (initOptions: any = DefaultInitializationO
   registerSystem(ServerNetworkIncomingSystem, { ...networkSystemOptions, priority: -1 });
   registerSystem(ServerNetworkOutgoingSystem, { ...networkSystemOptions, priority: 10000 });
   registerSystem(MediaStreamSystem);
-  registerSystem(AssetLoadingSystem);
   registerSystem(StateSystem);
   registerSystem(CharacterControllerSystem);
   registerSystem(PhysicsSystem);
