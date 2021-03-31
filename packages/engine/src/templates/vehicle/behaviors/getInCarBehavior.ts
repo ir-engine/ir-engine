@@ -3,35 +3,32 @@ import { Behavior } from '../../../common/interfaces/Behavior';
 import { Entity } from '../../../ecs/classes/Entity';
 import {
   addComponent,
-  getComponent
+  getComponent,
+  getMutableComponent
 } from '../../../ecs/functions/EntityFunctions';
+import { DelegatedInputReceiver } from '../../../input/components/DelegatedInputReceiver';
+import { Network } from '../../../networking/classes/Network';
 import { NetworkObject } from '../../../networking/components/NetworkObject';
 import { sendClientObjectUpdate } from '../../../networking/functions/sendClientObjectUpdate';
 import { PlayerInCar } from '../../../physics/components/PlayerInCar';
+import { NetworkObjectUpdateType } from '../../networking/NetworkObjectUpdateSchema';
+import { VehicleComponent } from '../components/VehicleComponent';
 import { VehicleState, VehicleStateUpdateSchema } from '../enums/VehicleStateEnum';
 
 export const getInCar: Behavior = (entity: Entity, args: { currentFocusedPart: number }, delta, entityCar): void => {
-  console.warn('Behavior: getInCar');
   if (isClient) return;
-  // isServer
-  console.warn('getInCar: '+args.currentFocusedPart);
+  const carNetworkId = getComponent(entityCar, NetworkObject).networkId
+  getMutableComponent(entityCar, VehicleComponent).driver = getComponent(entity, NetworkObject).networkId
   addComponent(entity, PlayerInCar, {
       state: VehicleState.onAddedEnding,
-      networkCarId: getComponent(entityCar, NetworkObject).networkId,
+      networkCarId: carNetworkId,
       currentFocusedPart: args.currentFocusedPart
   });
-  sendClientObjectUpdate(entity, [
+  sendClientObjectUpdate(entity, NetworkObjectUpdateType.VehicleStateChange, [
       VehicleState.onAddedEnding,
-      getComponent(entityCar, NetworkObject).networkId,
+      carNetworkId,
       args.currentFocusedPart
     ] as VehicleStateUpdateSchema
   );
-//  if (isServer) return;
-  // is Client
-//  removeComponent(entity, LocalInputReceiver);
-//  removeComponent(entity, FollowCameraComponent);
-  /*
-  const event = new CustomEvent('player-in-car', { detail:{inCar:true, interactionText: 'get out of the car',} });
-  document.dispatchEvent(event);
-  */
+  addComponent(entity, DelegatedInputReceiver, { networkId: carNetworkId })
 };

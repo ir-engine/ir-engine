@@ -46,7 +46,7 @@ export interface NetworkInputInterface {
 export interface NetworkClientInputInterface extends NetworkInputInterface {
   /** Time of the snapshot. */
   snapShotTime: number,
-  switchInputs: number,
+  // switchInputs: number,
   characterState: number
 }
 

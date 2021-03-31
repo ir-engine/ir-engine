@@ -5,7 +5,7 @@ export enum VehicleState {
   onUpdate
 }
 
-
+type NetworkDriverId = number;
 type NetworkCarId = number;
 type CurrentFocusedPart = number;
 

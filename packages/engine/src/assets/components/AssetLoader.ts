@@ -26,7 +26,7 @@ export class AssetLoader extends Component<AssetLoader> {
   append = true
   /** List of function to be called after loading is completed. */
   onLoaded: any = []
-  /** VehicleBody do not create yet, i need until i get best solution  */
+  /** VehicleComponent do not create yet, i need until i get best solution  */
   addShapeArray: any = []
   /** Parent object. */
   parent: Object3D = null

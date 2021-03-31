@@ -128,7 +128,7 @@ const getDrivingValues: Behavior = (entity, args: {}, deltaTime: number): any =>
 
 /*
   const networkDriverId = getComponent<NetworkObject>(entity, NetworkObject).networkId;
-  const vehicle = getMutableComponent<VehicleBody>(entityCar, VehicleBody);
+  const vehicle = getMutableComponent<VehicleComponent>(entityCar, VehicleComponent);
   vehicle[vehicle.seatPlane[seat]] = networkDriverId;
   */
   const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);

@@ -1,16 +1,16 @@
-import { Entity } from '@xr3ngine/engine/src/ecs/classes/Entity';
-import { getComponent, getMutableComponent } from '@xr3ngine/engine/src/ecs/functions/EntityFunctions';
-import { VehicleBody } from '@xr3ngine/engine/src/physics/components/VehicleBody';
-import { TransformComponent } from '@xr3ngine/engine/src/transform/components/TransformComponent';
 import { Matrix4, Vector3 } from 'three';
-import { PhysicsSystem } from '@xr3ngine/engine/src/physics/systems/PhysicsSystem';
 import { CharacterComponent } from "../../character/components/CharacterComponent";
 import { isPlayerInVehicle } from '../../../common/functions/isPlayerInVehicle';
+import { VehicleComponent } from '../components/VehicleComponent';
+import { Entity } from '../../../ecs/classes/Entity';
+import { TransformComponent } from '../../../transform/components/TransformComponent';
+import { getComponent, getMutableComponent } from '../../../ecs/functions/EntityFunctions';
+import { PhysicsSystem } from '../../../physics/systems/PhysicsSystem';
 
 export const onUpdatePlayerInCar = (entity: Entity, entityCar: Entity, seat: number, delta): void => {
 
   const transform = getMutableComponent<TransformComponent>(entity, TransformComponent);
-  const vehicle = getComponent<VehicleBody>(entityCar, VehicleBody);
+  const vehicle = getComponent<VehicleComponent>(entityCar, VehicleComponent);
   const transformCar = getComponent<TransformComponent>(entityCar, TransformComponent);
 
 

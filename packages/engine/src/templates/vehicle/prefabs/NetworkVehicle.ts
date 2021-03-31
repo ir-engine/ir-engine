@@ -17,9 +17,9 @@ import { TransformComponent } from '../../../transform/components/TransformCompo
 import { InterpolationComponent } from "@xr3ngine/engine/src/physics/components/InterpolationComponent";
 import { createTrimeshFromArrayVertices, createTrimeshFromMesh, createCylinder, createBox, createSphere } from '@xr3ngine/engine/src/physics/behaviors/addColliderWithoutEntity';
 import { AssetLoader } from '../../../assets/components/AssetLoader';
-import { VehicleBody } from "@xr3ngine/engine/src/physics/components/VehicleBody";
 import { getInCar } from '../behaviors/getInCarBehavior';
 import { getInCarPossible } from '../behaviors/getInCarPossible';
+import { VehicleComponent } from "../components/VehicleComponent";
 
 
 function castShadowOn(group) {
@@ -252,7 +252,7 @@ export function createNetworkVehicle( args:{ parameters?: any, networkId?: strin
       override: {
         networkComponents: [
           {
-            type: VehicleBody,
+            type: VehicleComponent,
             data: args.parameters
           },
           {
@@ -282,7 +282,7 @@ export const NetworkVehicle: NetworkPrefab = {
   networkComponents: [
     { type: TransformComponent },
     { type: Input, data: { schema: VehicleInputSchema }},
-    { type: VehicleBody },
+    { type: VehicleComponent },
     { type: Interactable }
   ],
   // These are only created for the local player who owns this prefab
