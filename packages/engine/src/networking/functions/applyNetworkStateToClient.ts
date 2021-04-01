@@ -3,7 +3,7 @@ import { NetworkObject } from '../../networking/components/NetworkObject';
 import { createNetworkPlayer } from '../../templates/character/prefabs/NetworkPlayerCharacter';
 import { createNetworkVehicle } from '../../templates/vehicle/prefabs/NetworkVehicle';
 import { IKComponent } from "../../character/components/IKComponent";
-import { addComponent, getComponent, getMutableComponent, hasComponent, removeComponent, removeEntity } from '../../ecs/functions/EntityFunctions';
+import { addComponent, getComponent, getMutableComponent, hasComponent, removeEntity } from '../../ecs/functions/EntityFunctions';
 import { CharacterComponent } from "../../templates/character/components/CharacterComponent";
 import { NetworkObjectUpdateSchema } from '../../templates/networking/NetworkObjectUpdateSchema';
 import { initiateIK } from "../../xr/functions/IKFunctions";

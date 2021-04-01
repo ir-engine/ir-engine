@@ -5,7 +5,6 @@ import { PrefabType } from "../../templates/networking/PrefabType";
 import { Network } from '../classes/Network';
 import { NetworkObject } from '../components/NetworkObject';
 import { NetworkPrefab } from '../interfaces/NetworkPrefab';
-
 /**
  * Create network object from prefab.
  * @param prefab Prefab to be used to create object.

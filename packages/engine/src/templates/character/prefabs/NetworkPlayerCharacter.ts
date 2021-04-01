@@ -5,13 +5,12 @@ import { addObject3DComponent } from "../../../scene/behaviors/addObject3DCompon
 import { initializeNetworkObject } from '../../../networking/functions/initializeNetworkObject'
 import { Network } from '../../../networking/classes/Network';
 import { Vec3 } from "cannon-es";
-import { AnimationClip, AnimationMixer, BackSide, BoxGeometry, Group, Material, Mesh, MeshLambertMaterial, Quaternion, Vector3 } from "three";
-import { AssetLoader } from "../../../assets/components/AssetLoader";
-import { AssetLoaderState } from "../../../assets/components/AssetLoaderState";
+import { AnimationClip, AnimationMixer, BoxGeometry, Group, Material, Mesh, MeshLambertMaterial, Quaternion, Vector3 } from "three";
+import AssetLoader from "../../../assets/classes/AssetLoader";
 import { PositionalAudioComponent } from '../../../audio/components/PositionalAudioComponent';
 import { FollowCameraComponent } from '../../../camera/components/FollowCameraComponent';
 import { CameraModes } from '../../../camera/types/CameraModes';
-import { addComponent, getComponent, getMutableComponent, hasComponent, removeComponent } from "../../../ecs/functions/EntityFunctions";
+import { addComponent, getComponent, getMutableComponent, hasComponent } from "../../../ecs/functions/EntityFunctions";
 import { Input } from '../../../input/components/Input';
 import { LocalInputReceiver } from '../../../input/components/LocalInputReceiver';
 import { Interactor } from '../../../interaction/components/Interactor';
@@ -57,14 +56,13 @@ export class AnimationManager {
 				return;
 			}
 			getLoader().load('/models/avatars/Animations.glb', gltf => {
-        // console.log('animations loaded', gltf)
-        this._animations = gltf.animations;
-        this._animations?.forEach(clip => {
-          // TODO: make list of morph targets names
-          clip.tracks = clip.tracks.filter(track => !track.name.match(/^CC_Base_/));
-        });
-        resolve(this._animations);
-      });
+				this._animations = gltf.animations;
+				this._animations?.forEach(clip => {
+					// TODO: make list of morph targets names
+					clip.tracks = clip.tracks.filter(track => !track.name.match(/^CC_Base_/));
+				});
+				resolve(this._animations);
+			});
 		});
 	}
 	getDefaultModel(): Promise<Group> {
@@ -102,36 +100,32 @@ export const loadDefaultActorAvatar: Behavior = (entity) => {
 
 export const loadActorAvatar: Behavior = (entity) => {
 	const avatarURL = getComponent(entity, CharacterComponent)?.avatarURL;
-  if (avatarURL) {
+	if (avatarURL) {
 		loadActorAvatarFromURL(entity, avatarURL);
 	}
 };
 
 export const loadActorAvatarFromURL: Behavior = (entity, avatarURL) => {
-  if (hasComponent(entity, AssetLoader)) removeComponent(entity, AssetLoader, true);
-  if (hasComponent(entity, AssetLoaderState)) removeComponent(entity, AssetLoaderState, true);
-  const tmpGroup = new Group();
-  addComponent(entity, AssetLoader, {
-    url: avatarURL,
-    receiveShadow: true,
-    castShadow: true,
-    parent: tmpGroup,
-  });
-  createShadow(entity, { objArgs: { castShadow: true, receiveShadow: true }})
-  const loader = getComponent(entity, AssetLoader);
-  loader.onLoaded.push(async (entity, args) => {
+	const tmpGroup = new Group();
+	createShadow(entity, { objArgs: { castShadow: true, receiveShadow: true } })
 
-    console.log("Actor Avatar loaded")
-    wipeOldModel(entity)
+	AssetLoader.load({
+		url: avatarURL,
+		entity,
+		castShadow: true,
+		receiveShadow: true,
+		parent: tmpGroup,
+	}, () => {
+		wipeOldModel(entity);
 
-    const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
-    tmpGroup.children.forEach(child => actor.modelContainer.add(child));
-    
-    actor.mixer = new AnimationMixer(actor.modelContainer.children[0]);
-    if(hasComponent(entity, IKComponent)) {
-      initiateIK(entity)
-    }
-  })
+		const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
+		tmpGroup.children.forEach(child => actor.modelContainer.add(child));
+
+		actor.mixer = new AnimationMixer(actor.modelContainer.children[0]);
+		if (hasComponent(entity, IKComponent)) {
+			initiateIK(entity)
+		}
+	});
 };
 
 const wipeOldModel = (entity) => {
@@ -187,10 +181,8 @@ const initializeCharacter: Behavior = (entity): void => {
 	addObject3DComponent(entity, { obj3d: actor.tiltContainer });
 
 	if(isClient){
-			AnimationManager.instance.getAnimations().then(animations => {
-				actor.animations = animations;
-			});
-		}
+		actor.animations = AnimationManager.instance._animations;
+	}
 
 	actor.velocitySimulator = new VectorSpringSimulator(60, actor.defaultVelocitySimulatorMass, actor.defaultVelocitySimulatorDamping);
 	actor.moveVectorSmooth = new VectorSpringSimulator(60, actor.defaultVelocitySimulatorMass, actor.defaultVelocitySimulatorDamping);

@@ -10,7 +10,7 @@ import {
   retrieveSentInvites,
   sendInvite,
   removeInvite
-} from "../../../../redux/invite/service"
+} from "../../../../redux/invite/service";
 import { makeStyles, createStyles, Theme, useTheme } from '@material-ui/core/styles';
 import { selectInviteState } from "../../../../redux/invite/selector";
 import { bindActionCreators, Dispatch } from "redux";
@@ -41,8 +41,8 @@ const mapStateToProps = (state: any): any => {
   return {
     receivedInvites: selectInviteState(state),
     sentInvites: selectInviteState(state)
-  }
-}
+  };
+};
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
   retrieveReceivedInvites: bindActionCreators(retrieveReceivedInvites, dispatch),
@@ -134,7 +134,7 @@ function TablePaginationActions(props: TablePaginationActionsProps) {
 const SentInvite = (props: Props) => {
   const classes = useStyles();
   const confirm = useConfirm();
-  const { invites, removeInvite } = props
+  const { invites, removeInvite } = props;
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
 
@@ -143,7 +143,7 @@ const SentInvite = (props: Props) => {
     confirm({ description: `This will permanently delete ${invite.token}.` })
       .then(() => removeInvite(invite))
       .catch(() => console.log("error"));
-  }
+  };
 
   const emptyRows = rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage);
 
@@ -216,8 +216,8 @@ const SentInvite = (props: Props) => {
         </TableFooter>
       </Table>
     </TableContainer>
-  )
-}
+  );
+};
 
 
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(SentInvite));

@@ -2,7 +2,6 @@ import { Vector3, Quaternion, Matrix4 } from 'three';
 import { Behavior } from '../../common/interfaces/Behavior';
 import { Entity } from '../../ecs/classes/Entity';
 import { getComponent } from '../../ecs/functions/EntityFunctions';
-import { AssetLoader } from '../../assets/components/AssetLoader';
 import { createNetworkRigidBody } from '../../interaction/prefabs/NetworkRigidBody';
 import { createVehicleFromModel } from '../../templates/vehicle/prefabs/NetworkVehicle';
 import { TransformComponent } from "../../transform/components/TransformComponent";
@@ -95,13 +94,13 @@ export const parseModelColliders: Behavior = (entity: Entity, args: any) => {
               mesh: mesh.userData.type === 'trimesh' ? mesh : null,
               mass: mesh.userData.mass ?? 1
             },
-            uniqueId: getComponent(entity, AssetLoader).entityIdFromScenaLoader,
+            uniqueId: args.uniqueId,
             entity: entity
           });
           break;
 
         case 'vehicle':
-          createVehicleFromModel(entity, mesh);
+          createVehicleFromModel(entity, mesh, args.uniqueId);
           break;
 
         default:
