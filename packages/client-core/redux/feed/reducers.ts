@@ -22,7 +22,8 @@ import {
   FEEDS_MY_FEATURED_RETRIEVED,
   ADD_FEED_FEATURED,
   REMOVE_FEED_FEATURED,
-  FEEDS_AS_ADMIN_RETRIEVED
+  FEEDS_AS_ADMIN_RETRIEVED,
+  UPDATE_FEED
 } from '../actions';
 
 export const initialState = {
@@ -124,6 +125,14 @@ const feedReducer = (state = immutableState, action: FeedsAction): any => {
 
     case FEEDS_AS_ADMIN_RETRIEVED:     
       return state.set('feedsAdmin', (action as FeedsRetrievedAction).feeds).set('fetching', false);
+
+    case UPDATE_FEED:
+      return state.set('feedsAdmin', state.get('feedsAdmin').map(feed => {
+        if(feed.id === (action as FeedRetrievedAction).feed.id) {
+          return {...feed, ...(action as FeedRetrievedAction).feed};
+        }
+        return {...feed};
+      }));
 
 }
 
