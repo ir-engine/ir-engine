@@ -2,26 +2,15 @@ import { FileLoader, MeshPhysicalMaterial, Object3D, LOD, TextureLoader } from '
 import { EngineEvents } from '../../ecs/classes/EngineEvents';
 import { getLoader as getGLTFLoader, loadExtentions} from '../functions/LoadGLTF';
 import { FBXLoader } from '../loaders/fbx/FBXLoader';
-import { AssetType } from '../types/AssetType';
-import { AssetClass } from '../types/AssetClass';
+import { AssetType } from '../enum/AssetType';
+import { AssetClass } from '../enum/AssetClass';
 import { createEntity, getComponent, getMutableComponent, hasComponent } from '../../ecs/functions/EntityFunctions';
 import { Object3DComponent } from '../../scene/components/Object3DComponent';
 import { addObject3DComponent } from "../../scene/behaviors/addObject3DComponent";
 import { Entity } from '../../ecs/classes/Entity';
 import { isAbsolutePath } from '../../common/functions/isAbsolutePath';
 import { Engine } from '../../ecs/classes/Engine';
-
-const LOD_DISTANCES = {
-    "0": 5,
-    "1": 15,
-    "2": 30
-};
-const LODS_REGEXP = new RegExp(/^(.*)_LOD(\d+)$/);
-export const LOADER_STATUS = {
-    LOADED: 0,
-    LOADING: 1,
-    ERROR: 2,
-};
+import { LOADER_STATUS, LODS_REGEXP, LOD_DISTANCES } from '../constants/LoaderConstants';
 
 type AssetLoaderParamType = {
     entity: Entity;

@@ -1,4 +1,4 @@
-import { LOADER_STATUS } from "../../assets/classes/AssetLoader";
+import { LOADER_STATUS } from "../../assets/constants/LoaderConstants";
 import { isClient } from "../../common/functions/isClient";
 import { isServer } from "../../common/functions/isServer";
 import { Engine } from '../../ecs/classes/Engine';
