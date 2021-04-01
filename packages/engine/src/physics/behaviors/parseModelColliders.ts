@@ -1,9 +1,7 @@
 import { Vector3, Quaternion, Matrix4 } from 'three';
 import { Behavior } from '../../common/interfaces/Behavior';
 import { Entity } from '../../ecs/classes/Entity';
-import { getComponent, getMutableComponent, removeComponent } from '../../ecs/functions/EntityFunctions';
-import { ColliderComponent } from '../components/ColliderComponent';
-import { Network } from '../../networking/classes/Network';
+import { getComponent } from '../../ecs/functions/EntityFunctions';
 import { AssetLoader } from '../../assets/components/AssetLoader';
 import { createNetworkRigidBody } from '@xr3ngine/engine/src/interaction/prefabs/NetworkRigidBody';
 import { createVehicleFromModel } from '@xr3ngine/engine/src/templates/vehicle/prefabs/NetworkVehicle';

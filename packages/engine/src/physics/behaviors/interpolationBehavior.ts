@@ -79,7 +79,7 @@ export const interpolationBehavior: Behavior = (entity: Entity, args): void => {
     const colliderComponent = getComponent(entity, ColliderComponent);
     const inter = getMutableComponent(entity, InterpolationComponent);
 
-    if (inter.lastUpdate + inter.updateDaley < Date.now() && args.snapshot.qX != undefined) {
+    // if (inter.lastUpdate + inter.updateDaley < Date.now() && args.snapshot.qX != undefined) {
 
       colliderComponent.collider.position.set(
         args.snapshot.x,
@@ -93,8 +93,8 @@ export const interpolationBehavior: Behavior = (entity: Entity, args): void => {
         args.snapshot.qW
       );
 
-      inter.lastUpdate = Date.now();
-    }
+      // inter.lastUpdate = Date.now();
+    // }
   } else if (hasComponent(entity, VehicleComponent)) {
     const vehicleComponent = getComponent(entity, VehicleComponent) as VehicleComponent;
     const vehicle = vehicleComponent.vehiclePhysics;

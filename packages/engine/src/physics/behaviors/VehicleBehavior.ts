@@ -17,6 +17,7 @@ import { PhysicsSystem } from '../systems/PhysicsSystem';
 import { createTrimesh } from "./physicalPrimitives";
 import { LocalInputReceiver } from '../../input/components/LocalInputReceiver';
 import { VehicleState } from "../../templates/vehicle/enums/VehicleStateEnum";
+import { PhysicsLifecycleState } from "../enums/PhysicsStates";
 
 
 function createVehicleComponent (entity: Entity ) {
@@ -91,11 +92,11 @@ function createVehicleComponent (entity: Entity ) {
 }
 
 export const VehicleBehavior: Behavior = (entity: Entity, args): void => {
-  if (args.phase == 'onAdded') {
+  if (args.phase == PhysicsLifecycleState.onAdded) {
     const vehicleComponent = getMutableComponent(entity, VehicleComponent);
     const vehicle = createVehicleComponent(entity);
     vehicleComponent.vehiclePhysics = vehicle;
-  } else if ( args.phase == VehicleState.onUpdate) {
+  } else if ( args.phase == PhysicsLifecycleState.onUpdate) {
 
     const transform = getMutableComponent<TransformComponent>(entity, TransformComponent);
     const vehicleComponent = getComponent(entity, VehicleComponent) as VehicleComponent;
@@ -148,7 +149,7 @@ export const VehicleBehavior: Behavior = (entity: Entity, args): void => {
       console.warn("User data for vehicle not found");
     }
 
-  } else if (args.phase == 'onRemoved') {
+  } else if (args.phase == PhysicsLifecycleState.onRemoved) {
     // TO DO
     /*
     const object = getComponent<Object3DComponent>(entity, Object3DComponent, true)?.value;
