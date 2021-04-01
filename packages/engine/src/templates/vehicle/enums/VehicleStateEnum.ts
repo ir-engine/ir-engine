@@ -1,4 +1,6 @@
 export enum VehicleState {
+  onAdded,
+  onRemoved,
   onAddedEnding,
   onAddEnding,
   onStartRemove,
