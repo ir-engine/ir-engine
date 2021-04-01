@@ -1,19 +1,17 @@
-importScripts(location.origin + '/corto/corto.js', location.origin + '/corto/rangeFetcher.js');
-
 let _meshFilePath;
-let currentKeyframe = 0;
 let fetchLoop;
-let lastRequestedKeyframe = -1;
+let lastRequestedKeyframe = 0;
 let _numberOfKeyframes;
 let _fileHeader;
+import { CortoDecoder } from "./corto";
+import { HttpRangeFetcher } from "http-range-fetcher";
 
 function startFetching({
   meshFilePath,
   numberOfKeyframes,
   fileHeader
 }) {
-  //@ts-ignore
-  let rangeFetcher = new HttpRangeFetcher({});
+  let rangeFetcher = new HttpRangeFetcher({chunkSize: 32768, maxFetchSize: 32768 * 64});
   console.log("Range fetcher");
   console.log(rangeFetcher);
   _meshFilePath = meshFilePath;
@@ -29,48 +27,54 @@ function startFetching({
       (globalThis as any).postMessage({ type: "complete" });
     }
 
-    // Now increment one more
-    lastRequestedKeyframe++;
-    // This is our new keyframe
-    const newKeyframe = lastRequestedKeyframe;
+    let startFrame = lastRequestedKeyframe;
+    let numberOfFramesRequested = 0;
+    let _targetFramesToRequest = 1;
 
-    const keyframe = _fileHeader.frameData[newKeyframe];
-    if (keyframe === undefined) return console.log("Keyframe undefined");
-    // Get count of frames associated with keyframe
-    const iframes = _fileHeader.frameData.filter(frame => frame.keyframeNumber === newKeyframe && frame.keyframeNumber !== frame.frameNumber).sort((a, b) => (a.frameNumber < b.frameNumber));
+    while(numberOfFramesRequested < _targetFramesToRequest && lastRequestedKeyframe < numberOfKeyframes - 1){
+      numberOfFramesRequested++;
+      lastRequestedKeyframe++;
+    }
 
-    const requestStartBytePosition = keyframe.startBytePosition;
+    let endFrame = lastRequestedKeyframe;
 
-    const requestEndBytePosition = iframes.length > 0 ?
-      iframes[iframes.length - 1].startBytePosition + iframes[iframes.length - 1].meshLength - requestStartBytePosition
-      : keyframe.startBytePosition + keyframe.meshLength - requestStartBytePosition;
+    const startFrameData = _fileHeader.frameData[startFrame];
+    const endFrameData = _fileHeader.frameData[endFrame];
+
+    const requestStartBytePosition = startFrameData.startBytePosition;
+
+    const requestEndBytePosition = endFrameData.startBytePosition + endFrameData.meshLength;
 
     rangeFetcher.getRange(_meshFilePath, requestStartBytePosition, requestEndBytePosition).then(response => {
 
-      // Slice keyframe out by byte position
-      const keyframeStartPosition = 0;
-      const keyframeEndPosition = keyframe.meshLength;
+      const messages = []
+      for(let i = startFrame; i < endFrame; i++){
 
-      //@ts-ignore
-      let decoder = new CortoDecoder(response.buffer.buffer, keyframeStartPosition, keyframeEndPosition);
-      let keyframeMeshData = decoder.decode();
+        const currentFrameData = _fileHeader.frameData[i];
+      // Slice keyframe out by byte position
+      const fileReadStartPosition = currentFrameData.startBytePosition - startFrameData.startBytePosition;
+      const fileReadEndPosition = currentFrameData.startBytePosition + currentFrameData.meshLength - startFrameData.startBytePosition;
+
+      let decoder = new CortoDecoder(response.buffer.buffer, fileReadStartPosition, fileReadEndPosition);
+      let bufferGeometry = decoder.decode();
 
       // decode corto data and create a temp buffer geometry
       const bufferObject = {
-        frameNumber: keyframe.frameNumber,
-        keyframeNumber: keyframe.keyframeNumber,
-        bufferGeometry: keyframeMeshData
+        frameNumber: currentFrameData.frameNumber,
+        keyframeNumber: currentFrameData.keyframeNumber,
+        bufferGeometry
       };
 
       const message = {
         keyframeBufferObject: bufferObject,
         //   iframeBufferObjects: []
       };
+      messages.push(message);
+    }
 
-      (globalThis as any).postMessage({ type: 'framedata', payload: [message] });
-
-    });
-  }, 1000 / 60);
+      (globalThis as any).postMessage({ type: 'framedata', payload: messages });
+    }).catch(error => {console.error(error)})
+  }, 10);
 
 }
 
