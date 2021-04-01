@@ -32,9 +32,12 @@ export class AssetLoader {
         private params: AssetLoaderParamType,
         private onLoad: ( response: any ) => void,
         private onProgress?: ( request: ProgressEvent ) => void,
-        private onError?: ( event: ErrorEvent ) => void,
+        private onError?: ( event: ErrorEvent | Error ) => void,
     ) {
-        if (!this.params.url) return;
+        if (!this.params.url) {
+            this._onError(new Error('URL is empty'));
+            return;
+        }
 
         this.assetType = this.getAssetType(this.params.url);
         this.assetClass = this.getAssetClass(this.params.url);
@@ -145,23 +148,23 @@ export class AssetLoader {
             asset.children.forEach(child => this.handleLODs(child));
         }
 
-    if (this.params.parent) {
-        this.params.parent.add(asset);
-    } else {
-        if (hasComponent(this.params.entity, Object3DComponent)) {
-            if (getComponent<Object3DComponent>(this.params.entity, Object3DComponent).value !== undefined)
-                getMutableComponent<Object3DComponent>(this.params.entity, Object3DComponent).value.add(asset);
-            else getMutableComponent<Object3DComponent>(this.params.entity, Object3DComponent).value = asset;
+        if (this.params.parent) {
+            this.params.parent.add(asset);
         } else {
-            addObject3DComponent(this.params.entity, { obj3d: asset });
-        }
+            if (hasComponent(this.params.entity, Object3DComponent)) {
+                if (getComponent<Object3DComponent>(this.params.entity, Object3DComponent).value !== undefined)
+                    getMutableComponent<Object3DComponent>(this.params.entity, Object3DComponent).value.add(asset);
+                else getMutableComponent<Object3DComponent>(this.params.entity, Object3DComponent).value = asset;
+            } else {
+                addObject3DComponent(this.params.entity, { obj3d: asset });
+            }
 
-        asset.children.forEach(obj => {
-            const e = createEntity();
-            addObject3DComponent(e, { obj3d: obj, parentEntity: this.params.entity });
-        });
+            asset.children.forEach(obj => {
+                const e = createEntity();
+                addObject3DComponent(e, { obj3d: obj, parentEntity: this.params.entity });
+            });
+        }
     }
-}
 
     /**
      * Get asset type from the asset file extension.
@@ -232,7 +235,7 @@ export class AssetLoader {
         if (typeof this.onProgress === 'function') this.onProgress(request);
     }
 
-    _onError = (event: ErrorEvent): void => {
+    _onError = (event: ErrorEvent | Error): void => {
         this.status = LOADER_STATUS.ERROR;
         this.dispatchEvent();
         if (typeof this.onError === 'function') this.onError(event);
@@ -243,7 +246,7 @@ export class AssetLoader {
         params: AssetLoaderParamType,
         onLoad: ( response: any ) => void,
         onProgress?: ( request: ProgressEvent ) => void,
-        onError?: ( event: ErrorEvent ) => void,
+        onError?: ( event: ErrorEvent | Error ) => void,
     ) {
         const loader = new AssetLoader(params, onLoad, onProgress, onError);
         return loader;
