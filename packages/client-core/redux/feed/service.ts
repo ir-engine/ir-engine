@@ -14,7 +14,8 @@ import {
   feedsBookmarkRetrieved,
   feedsMyFeaturedRetrieved,
   feedAsFeatured,
-  feedNotFeatured
+  feedNotFeatured,
+  feedsAdminRetrieved
 } from './actions';
 
 export function getFeeds(type : string, id?: string,  limit?: number) {
@@ -53,10 +54,17 @@ export function getFeeds(type : string, id?: string,  limit?: number) {
             }
           });
           dispatch(feedsMyFeaturedRetrieved(feedsResults.data));
-        }else{
-          const feedsResults = await client.service('feed').find({query: {}});
+      }else if(type && type === 'admin'){
+        const feedsResults = await client.service('feed').find({
+          query: {
+            action: 'admin'
+          }
+        });
+        dispatch(feedsAdminRetrieved(feedsResults.data));
+      }else{
+        const feedsResults = await client.service('feed').find({query: {}});
 
-        dispatch(feedsRetrieved(feedsResults.data));
+      dispatch(feedsRetrieved(feedsResults.data));
       }
     } catch(err) {
       console.log(err);

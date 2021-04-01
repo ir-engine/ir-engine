@@ -34,24 +34,16 @@ export class Feed extends Service {
       limit,
     } as any;
 
-    //common  - TODO -move somewhere
-    const loggedInUser = extractLoggedInUserFromParams(params);
-    const creatorQuery = `SELECT id  FROM \`creator\` WHERE userId=:userId`;
-    const [creator] = await this.app.get('sequelizeClient').query(creatorQuery,
-      {
-        type: QueryTypes.SELECT,
-        raw: true,
-        replacements: {userId:loggedInUser.userId}
-      });  
-    const creatorId = creator?.id ;
-
-    //Featured menu item
-    if (action === 'featured') {
-      const dataQuery = `SELECT feed.id, feed.viewsCount, sr.url as previewUrl 
+    //All Feeds as Admin
+    if (action === 'admin') {
+      const dataQuery = `SELECT feed.*, creator.id as creatorId, creator.name as creatorName, creator.username as creatorUserName, 
+      sr2.url as previewUrl, sr1.url as videoUrl, sr3.url as avatar
         FROM \`feed\` as feed
-        JOIN \`follow_creator\` as fc ON fc.creatorId=feed.creatorId
-        JOIN \`static_resource\` as sr ON sr.id=feed.previewId
-        WHERE feed.featured=1 AND (fc.followerId=:creatorId OR feed.creatorId=:creatorId)
+        JOIN \`creator\` as creator ON creator.id=feed.creatorId
+        JOIN \`static_resource\` as sr1 ON sr1.id=feed.videoId
+        JOIN \`static_resource\` as sr2 ON sr2.id=feed.previewId
+        LEFT JOIN \`static_resource\` as sr3 ON sr3.id=creator.avatarId
+        WHERE 1
         ORDER BY feed.createdAt DESC    
         LIMIT :skip, :limit `;
       
@@ -59,7 +51,52 @@ export class Feed extends Service {
         {
           type: QueryTypes.SELECT,
           raw: true,
-          replacements: {...queryParamsReplacements, creatorId}
+          replacements: {...queryParamsReplacements}
+        });
+
+      return {
+        data: feeds,
+        skip,
+        limit,
+        total: feeds.count,
+      };
+    }
+
+    //common  - TODO -move somewhere
+    let creatorId =  params.query?.creatorId ? params.query.creatorId : null;
+    const loggedInUser = extractLoggedInUserFromParams(params);
+    if(loggedInUser){
+      const creatorQuery = `SELECT id  FROM \`creator\` WHERE userId=:userId`;
+      const [creator] = await this.app.get('sequelizeClient').query(creatorQuery,
+        {
+          type: QueryTypes.SELECT,
+          raw: true,
+          replacements: {userId:loggedInUser.userId}
+        });  
+      creatorId = creator?.id ;
+    }
+
+    //Featured menu item
+    if (action === 'featured') {
+      const select = `SELECT feed.id, feed.viewsCount, sr.url as previewUrl 
+        FROM \`feed\` as feed
+        JOIN \`follow_creator\` as fc ON fc.creatorId=feed.creatorId
+        JOIN \`static_resource\` as sr ON sr.id=feed.previewId`;
+       let where=` WHERE feed.featured=1 `;
+       let orderBy = ` ORDER BY feed.createdAt DESC    
+        LIMIT :skip, :limit `;
+      
+      queryParamsReplacements.creatorId = creatorId;
+      if(loggedInUser){
+        where += ` AND (fc.followerId=:creatorId OR feed.creatorId=:creatorId)`
+      }else{
+        where += ` AND feed.creatorId=:creatorId`
+      }
+      const feeds = await this.app.get('sequelizeClient').query(select+where+orderBy,
+        {
+          type: QueryTypes.SELECT,
+          raw: true,
+          replacements: queryParamsReplacements
         });
 
       return {
@@ -136,7 +173,6 @@ export class Feed extends Service {
           replacements: queryParamsReplacements
         });
 
-        console.log('feeds',feeds);
       return {
         data: feeds,
         skip,
@@ -162,7 +198,7 @@ export class Feed extends Service {
     ORDER BY feed.createdAt DESC    
     LIMIT :skip, :limit `;
 
-    if(creator){
+    if(creatorId){
       select += ` , isf.id as fired, isb.id as bookmarked `;
       join += ` LEFT JOIN \`feed_fires\` as isf ON isf.feedId=feed.id  AND isf.creatorId=:creatorId
                 LEFT JOIN \`feed_bookmark\` as isb ON isb.feedId=feed.id  AND isb.creatorId=:creatorId`;
