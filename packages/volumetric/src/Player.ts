@@ -42,7 +42,7 @@ export default class DracosisPlayer {
   // Private Fields
   private readonly _scale:number = 1;
   private _prevFrame = 0;
-  private currentKeyframe = -1;
+  private currentKeyframe = 0;
   private _video:HTMLVideoElement|AdvancedHTMLVideoElement = null;
   private _videoTexture = null;
   private _loop = true;
@@ -101,7 +101,7 @@ export default class DracosisPlayer {
     loop = true,
     autoplay = true,
     scale = 1,
-    keyframesToBufferBeforeStart = 100,
+    keyframesToBufferBeforeStart = 300,
     video = null,
     onMeshBuffering = null,
     onFrameShow = null
@@ -128,7 +128,6 @@ export default class DracosisPlayer {
     this._worker = worker;
 
     const handleFrameData = (messages) => {
-      console.log("Frame data is: ", messages);
         messages.forEach(frameData => {
         let geometry = new BufferGeometry();
         geometry.setIndex(
