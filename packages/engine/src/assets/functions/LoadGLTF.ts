@@ -3,7 +3,6 @@ import { isClient } from "../../common/functions/isClient";
 import { DRACOLoader } from "../loaders/gltf/DRACOLoader";
 import { GLTFLoader } from "../loaders/gltf/GLTFLoader";
 import NodeDRACOLoader from "../loaders/gltf/NodeDRACOLoader";
-import { AssetUrl } from "../types/AssetTypes";
 
 /**
  * Interface for result of the GLTF Asset load.
@@ -37,7 +36,7 @@ export function getLoader(): GLTFLoader {
  * @param url URL of the asset.
  * @returns a promise of {@link LoadGLTFResultInterface}.
  */
-export async function LoadGLTF(url: AssetUrl): Promise<LoadGLTFResultInterface> {
+export async function LoadGLTF(url: string): Promise<LoadGLTFResultInterface> {
     return await new Promise<LoadGLTFResultInterface>((resolve, reject) => {
         getLoader().load(url, (gltf) => {
             loadExtentions(gltf);

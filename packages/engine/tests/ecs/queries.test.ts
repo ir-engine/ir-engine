@@ -10,8 +10,6 @@ import {
 } from "../../src/ecs/functions/EntityFunctions";
 import { execute } from "../../src/ecs/functions/EngineFunctions";
 import { Types } from "../../src/ecs/types/Types";
-import { AssetLoader } from "../../src/assets/components/AssetLoader";
-import { AssetLoaderState } from "../../src/assets/components/AssetLoaderState";
 import { Not } from "../../src/ecs/functions/ComponentFunctions";
 
 class TestComponent extends Component<TestComponent> {}
@@ -25,14 +23,6 @@ class UnwantedComponent extends Component<TestComponent> {}
 class TestSystem extends System {
   execute(delta: number, time: number): void {
 
-    // special case
-    this.queryResults.toLoad.all.forEach(entity => {
-      if (hasComponent(entity, AssetLoaderState)) {
-        throw new Error("This entity should not be in this query")
-      }
-      // next line should remove entity from this query
-      addComponent(entity, AssetLoaderState)
-    })
   }
 }
 
@@ -52,13 +42,6 @@ TestSystem.queries = {
       removed: true
     }
   },
-  toLoad: {
-    components: [ AssetLoader, Not(AssetLoaderState) ],
-    listen: {
-      added: true,
-      removed: true
-    }
-  }
 };
 
 let entity, system
@@ -213,22 +196,5 @@ describe("modifier Not. [TestComponent, Not(UnwantedComponent)]", () => {
     addComponent(entity, UnwantedComponent)
 
     expect(system.queryResults.testNot.all.length).toBe(0)
-  })
-})
-
-describe("complex cases", () => {
-
-  it("remove immediate and then add new", () => {
-    addComponent(entity, AssetLoader)
-    execute(); // process and add state
-    expect(system.queryResults.toLoad.all.length).toBe(0)
-    // expect(system.queryResults.toLoad.removed.length).toBe(1)
-    execute(); // clear removed query list
-    removeComponent(entity, AssetLoader, true)
-    execute();
-    addComponent(entity, AssetLoader)
-    expect(hasComponent(entity, AssetLoaderState)).toBe(true)
-    execute(); // since we didn't delete state component, entity should not appear in toLoad query list
-    expect(system.queryResults.toLoad.all.length).toBe(0)
   })
 })

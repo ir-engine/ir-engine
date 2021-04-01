@@ -57,7 +57,7 @@ const inviteReducer = (state = immutableState, action: InviteAction): any => {
       updateMap = new Map();
      // Commented bacause it double data on frontend 
      // updateMap.set('invites', (sentInvites.size != null || state.get('sentUpdateNeeded') === true) ? newValues.invites : sentInvites.concat(newValues.invites));
-      updateMap.set('invites', newValues.invites)
+      updateMap.set('invites', newValues.invites);
       updateMap.set('skip', newValues.skip);
       updateMap.set('limit', newValues.limit);
       updateMap.set('total', newValues.total);

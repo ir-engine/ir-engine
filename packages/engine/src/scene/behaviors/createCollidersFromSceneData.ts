@@ -1,7 +1,5 @@
 import { Behavior } from '../../common/interfaces/Behavior';
 import { Entity } from '../../ecs/classes/Entity';
-import { getComponent } from '../../ecs/functions/EntityFunctions';
-import { AssetLoader } from '../../assets/components/AssetLoader';
 import { addColliderWithoutEntity } from '../../physics/behaviors/addColliderWithoutEntity';
 import { createNetworkRigidBody } from '../../interaction/prefabs/NetworkRigidBody';
 import { addCollidersToNetworkVehicle } from '../../templates/vehicle/prefabs/NetworkVehicle';
@@ -38,7 +36,7 @@ export const createCollidersFromSceneData: Behavior = ( entity: Entity, args: an
           vertices: args.objArgs.vertices,
           indices: args.objArgs.indices
         },
-        uniqueId: getComponent(entity, AssetLoader).entityIdFromScenaLoader,
+        uniqueId: args.objArgs.sceneEntityId,
         entity: entity
       });
       break;
@@ -63,6 +61,4 @@ export const createCollidersFromSceneData: Behavior = ( entity: Entity, args: an
       console.warn('args.objArgs.data: '+args.objArgs.data);
       break;
   }
-
-
 };
