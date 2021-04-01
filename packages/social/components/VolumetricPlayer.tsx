@@ -86,7 +86,7 @@ export const VolumetricPlayer = (props: VolumetricPlayerProps) => {
         renderer,
         meshFilePath: props.meshFilePath,
         videoFilePath: props.videoFilePath,
-        video: document.getElementById("video")
+        // video: document.getElementById("video")
       });
     }
     const DracosisSequence = playerRef.current;

@@ -88,7 +88,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     let socket = instance === true ? this.instanceSocket : this.channelSocket;
     const { token, user, startVideo, videoEnabled, channelType, isHarmonyPage, ...query } = opts;
 
-    Network.instance.accessToken = token;
+    Network.instance.accessToken = query.token = token;
     EngineEvents.instance.dispatchEvent({ type: ClientNetworkSystem.EVENTS.CONNECT, id: user.id })
 
     this.mediasoupDevice = new Device();

@@ -27,7 +27,6 @@ export class WebRTCGameServer {
   constructor(app: any) {
     (options.networking as any).app = app;
     WebRTCGameServer.instance = this;
-    console.log('Engine intializing...')
     initializeServer(options);
   }
 }
