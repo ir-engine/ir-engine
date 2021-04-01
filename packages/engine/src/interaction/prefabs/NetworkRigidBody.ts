@@ -4,6 +4,7 @@ import { NetworkPrefab } from '../../networking/interfaces/NetworkPrefab';
 import { TransformComponent } from '../../transform/components/TransformComponent';
 import { ColliderComponent } from '@xr3ngine/engine/src/physics/components/ColliderComponent';
 import { RigidBody } from '@xr3ngine/engine/src/physics/components/RigidBody';
+import { InterpolationComponent } from "@xr3ngine/engine/src/physics/components/InterpolationComponent";
 import { initializeNetworkObject } from '../../networking/functions/initializeNetworkObject';
 import { PrefabType } from "@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema";
 
@@ -57,7 +58,9 @@ export const NetworkRigidBody: NetworkPrefab = {
   ],
   // These are only created for the local player who owns this prefab
   localClientComponents: [],
-  clientComponents: [],
+  clientComponents: [
+    { type: InterpolationComponent }
+  ],
   serverComponents: [],
   onAfterCreate: [],
   onBeforeDestroy: []

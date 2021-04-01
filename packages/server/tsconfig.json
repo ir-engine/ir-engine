@@ -19,15 +19,10 @@
     "experimentalDecorators": true
   },
   "exclude": [
-    "node_modules",
-    "../../node_modules/k8s/*"
+    "node_modules"
   ],
   "include": [
     "src/**/*.ts",
     "src/**/*.tsx"
   ]
 }
-
-
-
-

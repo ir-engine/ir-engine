@@ -12,11 +12,9 @@ import {
   createGround, createSphere,
   createTrimesh
 } from './physicalPrimitives';
-import { VehicleState } from '../../templates/vehicle/enums/VehicleStateEnum';
-import { PhysicsLifecycleState } from '../enums/PhysicsStates';
 
-export const handleCollider: Behavior = (entity: Entity, args: { phase?: PhysicsLifecycleState }): void => {
-  if (args.phase === PhysicsLifecycleState.onRemoved) {
+export const handleCollider: Behavior = (entity: Entity, args: { phase?: string }): void => {
+  if (args.phase === 'onRemoved') {
     const colliderComponent = getComponent<ColliderComponent>(entity, ColliderComponent, true);
     if (colliderComponent) {
       PhysicsSystem.physicsWorld.removeBody(colliderComponent.collider);

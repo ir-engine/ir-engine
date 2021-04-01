@@ -9,7 +9,7 @@ import { Entity } from '../../ecs/classes/Entity';
 import { getComponent, getMutableComponent, hasComponent } from '../../ecs/functions/EntityFunctions';
 import { Network } from '../../networking/classes/Network';
 import { NetworkObject } from '../../networking/components/NetworkObject';
-import { VehicleComponent } from '../../templates/vehicle/components/VehicleComponent';
+import { VehicleBody } from '../components/VehicleBody';
 import { createTrimeshFromMesh, createTrimeshFromArrayVertices } from './addColliderWithoutEntity';
 import { TransformComponent } from '../../transform/components/TransformComponent';
 import { CollisionGroups } from "../enums/CollisionGroups";
@@ -17,11 +17,10 @@ import { PhysicsSystem } from '../systems/PhysicsSystem';
 import { createTrimesh } from "./physicalPrimitives";
 import { LocalInputReceiver } from '../../input/components/LocalInputReceiver';
 import { VehicleState } from "../../templates/vehicle/enums/VehicleStateEnum";
-import { PhysicsLifecycleState } from "../enums/PhysicsStates";
 
 
-function createVehicleComponent (entity: Entity ) {
-  const vehicleComponent = getMutableComponent<VehicleComponent>(entity, VehicleComponent);
+function createVehicleBody (entity: Entity ) {
+  const vehicleComponent = getMutableComponent<VehicleBody>(entity, VehicleBody);
   // @ts-ignore
   const colliderTrimOffset = new Vec3().set(...vehicleComponent.colliderTrimOffset);
   // @ts-ignore
@@ -92,14 +91,14 @@ function createVehicleComponent (entity: Entity ) {
 }
 
 export const VehicleBehavior: Behavior = (entity: Entity, args): void => {
-  if (args.phase == PhysicsLifecycleState.onAdded) {
-    const vehicleComponent = getMutableComponent(entity, VehicleComponent);
-    const vehicle = createVehicleComponent(entity);
+  if (args.phase == 'onAdded') {
+    const vehicleComponent = getMutableComponent(entity, VehicleBody);
+    const vehicle = createVehicleBody(entity);
     vehicleComponent.vehiclePhysics = vehicle;
-  } else if ( args.phase == PhysicsLifecycleState.onUpdate) {
+  } else if ( args.phase == VehicleState.onUpdate) {
 
     const transform = getMutableComponent<TransformComponent>(entity, TransformComponent);
-    const vehicleComponent = getComponent(entity, VehicleComponent) as VehicleComponent;
+    const vehicleComponent = getComponent(entity, VehicleBody) as VehicleBody;
 
     if( vehicleComponent.vehiclePhysics != null ) {
 
@@ -149,7 +148,7 @@ export const VehicleBehavior: Behavior = (entity: Entity, args): void => {
       console.warn("User data for vehicle not found");
     }
 
-  } else if (args.phase == PhysicsLifecycleState.onRemoved) {
+  } else if (args.phase == 'onRemoved') {
     // TO DO
     /*
     const object = getComponent<Object3DComponent>(entity, Object3DComponent, true)?.value;

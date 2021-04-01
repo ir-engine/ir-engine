@@ -6,6 +6,10 @@ import { InteractiveSystem } from "../../interaction/systems/InteractiveSystem";
 import { Object3DComponent } from "../components/Object3DComponent";
 import { EquippedComponent } from "../../interaction/components/EquippedComponent";
 import { equipEntity } from "../../interaction/functions/equippableFunctions";
+import { InterpolationComponent } from "../../physics/components/InterpolationComponent";
+import { initializeNetworkObject } from "../../networking/functions/initializeNetworkObject";
+import { PrefabType } from "../../templates/networking/DefaultNetworkSchema";
+import { createNetworkRigidBody } from "../../interaction/prefabs/NetworkRigidBody";
 
 const onInteraction: Behavior = (entityInitiator, args, delta, entityInteractive, time) => {
   const interactiveComponent = getComponent(entityInteractive, Interactable);

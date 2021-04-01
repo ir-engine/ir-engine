@@ -95,4 +95,7 @@ export default class GroundPlaneNode extends EditorNodeMixin(GroundPlane) {
       cast: false
     });
   }
+  getRuntimeResourcesForStats() {
+    return { meshes: [this.mesh], materials: [this.mesh.material] };
+  }
 }

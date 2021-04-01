@@ -12,7 +12,7 @@ import { Network } from '../../networking/classes/Network';
 import { Vault } from '../../networking/classes/Vault';
 import { NetworkObject } from '../../networking/components/NetworkObject';
 import { calculateInterpolation, createSnapshot } from '../../networking/functions/NetworkInterpolationFunctions';
-import { serverCorrectionInterpolationBehavior, serverCorrectionBehavior, createNewCorrection } from '../behaviors/serverCorrectionBehavior';
+import { serverCorrectionBehavior, createNewCorrection } from '../behaviors/serverCorrectionBehavior';
 import { interpolationBehavior, findOne } from '../behaviors/interpolationBehavior';
 import { CharacterComponent } from '../../templates/character/components/CharacterComponent';
 import { onAddedInCar } from '../../templates/vehicle/behaviors/onAddedInCar';
@@ -23,16 +23,15 @@ import { onUpdatePlayerInCar } from '../../templates/vehicle/behaviors/onUpdateP
 import { TransformComponent } from '../../transform/components/TransformComponent';
 import { capsuleColliderBehavior, updateVelocityVector } from '../behaviors/capsuleColliderBehavior';
 import { handleCollider } from '../behaviors/ColliderBehavior';
+import { RigidBodyBehavior } from '../behaviors/RigidBodyBehavior';
 import { VehicleBehavior } from '../behaviors/VehicleBehavior';
 import { CapsuleCollider } from "../components/CapsuleCollider";
 import { ColliderComponent } from '../components/ColliderComponent';
 import { PlayerInCar } from '../components/PlayerInCar';
 import { RigidBody } from "../components/RigidBody";
-import { VehicleComponent } from "../../templates/vehicle/components/VehicleComponent";
+import { VehicleBody } from "../components/VehicleBody";
 import { InterpolationComponent } from "../components/InterpolationComponent";
 import { VehicleState } from '../../templates/vehicle/enums/VehicleStateEnum';
-import { PhysicsLifecycleState } from '../enums/PhysicsStates';
-import { isClient } from '../../common/functions/isClient';
 
 
 const vec3 = new Vector3();
@@ -130,61 +129,51 @@ export class PhysicsSystem extends System {
     // Collider
 
     this.queryResults.collider.added?.forEach(entity => {
-      handleCollider(entity, { phase: PhysicsLifecycleState.onAdded });
+      handleCollider(entity, { phase: 'onAdded' });
     });
 
     this.queryResults.collider.removed?.forEach(entity => {
-      handleCollider(entity, { phase: PhysicsLifecycleState.onRemoved });
+      handleCollider(entity, { phase: 'onRemoved' });
     });
 
     // Capsule
 
     this.queryResults.capsuleCollider.all?.forEach(entity => {
-      capsuleColliderBehavior(entity, { phase: PhysicsLifecycleState.onAdded });
+      capsuleColliderBehavior(entity, { phase: 'onAdded' });
     });
 
     this.queryResults.capsuleCollider.all?.forEach(entity => {
-      capsuleColliderBehavior(entity, { phase: PhysicsLifecycleState.onUpdate });
+      capsuleColliderBehavior(entity, { phase: VehicleState.onUpdate });
     });
 
     this.queryResults.capsuleCollider.removed?.forEach(entity => {
-      capsuleColliderBehavior(entity, { phase: PhysicsLifecycleState.onRemoved });
+      capsuleColliderBehavior(entity, { phase: 'onRemoved' });
     });
 
     // Update velocity vector for Animations
     this.queryResults.character.all?.forEach(entity => {
-      updateVelocityVector(entity, { phase: PhysicsLifecycleState.onUpdate });
+      updateVelocityVector(entity, { phase: VehicleState.onUpdate });
     });
 
     // RigidBody
     this.queryResults.rigidBody.added?.forEach(entity => {
+      RigidBodyBehavior(entity, { phase: 'onAdded' });
     });
 
     this.queryResults.rigidBody.all?.forEach(entity => {
-      if (!hasComponent(entity, ColliderComponent)) return;
-      const colliderComponent = getComponent<ColliderComponent>(entity, ColliderComponent);
-      const transform = getComponent<TransformComponent>(entity, TransformComponent);
-      transform.position.set(
-        colliderComponent.collider.position.x,
-        colliderComponent.collider.position.y,
-        colliderComponent.collider.position.z
-      );
-      transform.rotation.set(
-        colliderComponent.collider.quaternion.x,
-        colliderComponent.collider.quaternion.y,
-        colliderComponent.collider.quaternion.z,
-        colliderComponent.collider.quaternion.w
-        );
+      RigidBodyBehavior(entity, { phase: VehicleState.onUpdate });
     });
 
-    this.queryResults.VehicleComponent.added?.forEach(entity => {
-      VehicleBehavior(entity, { phase: PhysicsLifecycleState.onAdded });
+    // Vehicle
+
+    this.queryResults.vehicleBody.added?.forEach(entity => {
+      VehicleBehavior(entity, { phase: 'onAdded' });
     });
 
 
-    this.queryResults.VehicleComponent.all?.forEach(entityCar => {
+    this.queryResults.vehicleBody.all?.forEach(entityCar => {
       const networkCarId = getComponent(entityCar, NetworkObject).networkId;
-      VehicleBehavior(entityCar, { phase: PhysicsLifecycleState.onUpdate });
+      VehicleBehavior(entityCar, { phase: VehicleState.onUpdate });
 
         this.queryResults.playerInCar.added?.forEach(entity => {
           const component = getComponent(entity, PlayerInCar);
@@ -196,13 +185,13 @@ export class PhysicsSystem extends System {
           const component = getComponent(entity, PlayerInCar);
           if (component.networkCarId == networkCarId) {
             switch (component.state) {
-              case PhysicsLifecycleState.onAddEnding:
+              case VehicleState.onAddEnding:
                 onAddEndingInCar(entity,  entityCar, component.currentFocusedPart, this.diffSpeed);
                 break;
-              case PhysicsLifecycleState.onUpdate:
+              case VehicleState.onUpdate:
                 onUpdatePlayerInCar(entity,  entityCar, component.currentFocusedPart, this.diffSpeed);
                 break;
-              case PhysicsLifecycleState.onStartRemove:
+              case VehicleState.onStartRemove:
                 onStartRemoveFromCar(entity, entityCar, component.currentFocusedPart, this.diffSpeed);
                 break;
           }}
@@ -210,7 +199,7 @@ export class PhysicsSystem extends System {
 
         this.queryResults.playerInCar.removed?.forEach(entity => {
           let networkPlayerId
-          const vehicle = getComponent(entityCar, VehicleComponent);
+          const vehicle = getComponent(entityCar, VehicleBody);
           if(!hasComponent(entity, NetworkObject)) {
             for (let i = 0; i < vehicle.seatPlane.length; i++) {
               if (vehicle[vehicle.seatPlane[i]] != null && !Network.instance.networkObjects[vehicle[vehicle.seatPlane[i]]]) {
@@ -228,26 +217,26 @@ export class PhysicsSystem extends System {
         });
     });
 
-    this.queryResults.VehicleComponent.removed?.forEach(entity => {
-      VehicleBehavior(entity, { phase: PhysicsLifecycleState.onRemoved });
+    this.queryResults.vehicleBody.removed?.forEach(entity => {
+      VehicleBehavior(entity, { phase: 'onRemoved' });
     });
 
     // All about interpolation and server correction in one plase
-    if (this.queryResults.serverInterpolatedCorrection.all.length > 0 && Network.instance.snapshot != undefined) {
+    if (this.queryResults.serverCorrection.all.length > 0 && Network.instance.snapshot != undefined) {
       const snapshots = {
         interpolation: calculateInterpolation('x y z quat velocity'),
         correction: Vault.instance?.get((Network.instance.snapshot as any).timeCorrection, true),
         new: []
       }
       // console.warn(snapshots.correction);
-      this.queryResults.serverInterpolatedCorrection.all?.forEach(entity => {
+      this.queryResults.serverCorrection.all?.forEach(entity => {
         // Creatr new snapshot position for next frame server correction
         createNewCorrection(entity, {
           state: snapshots.new,
           networkId: findOne(entity, null) // if dont have second pamam just return networkId
         });
         // apply previos correction values
-        serverCorrectionInterpolationBehavior(entity, {
+        serverCorrectionBehavior(entity, {
           correction: findOne(entity, snapshots.correction),
           interpolation: findOne(entity, snapshots.interpolation),
           snapshot: findOne(entity, Network.instance.snapshot),
@@ -262,13 +251,6 @@ export class PhysicsSystem extends System {
         });
       })
     }
-    if(isClient && this.queryResults.serverCorrection.all.length > 0 && Network.instance.snapshot != undefined) {
-      this.queryResults.serverCorrection.all?.forEach(entity => {
-        serverCorrectionBehavior(entity, {
-          snapshot: findOne(entity, Network.instance.snapshot),
-        });
-      });
-    }
 
     if (PhysicsSystem.simulate) { // pause physics until loading all component scene
       PhysicsSystem.frame++;
@@ -281,11 +263,8 @@ PhysicsSystem.queries = {
   character: {
     components: [LocalInputReceiver, CapsuleCollider, CharacterComponent, NetworkObject],
   },
-  serverInterpolatedCorrection: {
-    components: [LocalInputReceiver, InterpolationComponent, NetworkObject],
-  },
   serverCorrection: {
-    components: [Not(InterpolationComponent), NetworkObject],
+    components: [LocalInputReceiver, InterpolationComponent, NetworkObject],
   },
   networkInterpolation: {
     components: [Not(LocalInputReceiver), InterpolationComponent, NetworkObject],
@@ -310,8 +289,8 @@ PhysicsSystem.queries = {
       added: true
     }
   },
-  VehicleComponent: {
-    components: [VehicleComponent, TransformComponent],
+  vehicleBody: {
+    components: [VehicleBody, TransformComponent],
     listen: {
       added: true,
       removed: true

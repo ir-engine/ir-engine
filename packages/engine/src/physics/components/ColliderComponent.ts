@@ -1,9 +1,8 @@
-import { Body } from 'cannon-es'
 import { Component } from '../../ecs/classes/Component';
 import { Types } from '../../ecs/types/Types';
 
 export class ColliderComponent extends Component<ColliderComponent> {
-  collider: Body
+  collider: any
   type: string
   mass: number
   position: any

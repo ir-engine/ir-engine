@@ -4,6 +4,7 @@ import Hls from "hls.js/dist/hls.light";
 import isHLS from "../functions/isHLS";
 // import editorLandingVideo from ;
 import { RethrownError } from "../functions/errors";
+import { getObjectPerfIssues } from "../functions/performance";
 
 // @ts-ignore
 export default class VideoNode extends EditorNodeMixin(Video) {
@@ -103,6 +104,7 @@ export default class VideoNode extends EditorNodeMixin(Video) {
       if (this.editor.playing && this.autoPlay) {
         (this.el as any).play();
       }
+      this.issues = getObjectPerfIssues(this._mesh, false);
     } catch (error) {
       this.showErrorIcon();
       const videoError = new RethrownError(
@@ -186,5 +188,14 @@ export default class VideoNode extends EditorNodeMixin(Video) {
       id: this.uuid
     });
     this.replaceObject();
+  }
+  getRuntimeResourcesForStats(): any {
+    if (this._texture) {
+      return {
+        textures: [this._texture],
+        meshes: [this._mesh],
+        materials: [this._mesh.material]
+      };
+    }
   }
 }
