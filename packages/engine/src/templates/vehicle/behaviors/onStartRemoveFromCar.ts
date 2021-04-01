@@ -1,21 +1,19 @@
-import { Entity } from '@xr3ngine/engine/src/ecs/classes/Entity';
-import { addComponent, getComponent, getMutableComponent, removeComponent } from '@xr3ngine/engine/src/ecs/functions/EntityFunctions';
-import { PlayerInCar } from '@xr3ngine/engine/src/physics/components/PlayerInCar';
-import { VehicleBody } from '@xr3ngine/engine/src/physics/components/VehicleBody';
-import { PhysicsSystem } from '@xr3ngine/engine/src/physics/systems/PhysicsSystem';
-import { setState } from "@xr3ngine/engine/src/state/behaviors/setState";
-import { CharacterAnimations } from "@xr3ngine/engine/src/templates/character/CharacterAnimations";
-import { CharacterComponent } from "@xr3ngine/engine/src/templates/character/components/CharacterComponent";
-import { TransformComponent } from '@xr3ngine/engine/src/transform/components/TransformComponent';
 import { Matrix4, Vector3 } from 'three';
 import { isServer } from "../../../common/functions/isServer";
 import { changeAnimation } from '../../../character/functions/updateVectorAnimation';
 import { AnimationComponent } from '../../../character/components/AnimationComponent';
 import { initializeMovingState } from '../../character/animations/MovingAnimations';
-
+import { VehicleComponent } from '../components/VehicleComponent';
+import { getComponent, getMutableComponent, removeComponent } from '../../../ecs/functions/EntityFunctions';
+import { TransformComponent } from '../../../transform/components/TransformComponent';
+import { CharacterComponent } from '../../character/components/CharacterComponent';
+import { Entity } from '../../../ecs/classes/Entity';
+import { PhysicsSystem } from '../../../physics/systems/PhysicsSystem';
+import { PlayerInCar } from '../../../physics/components/PlayerInCar';
+import { CharacterAnimations } from '../../character/CharacterAnimations';
 
 function doorAnimation(entityCar, seat, timer, timeAnimation, angel) {
-  const vehicle = getComponent<VehicleBody>(entityCar, VehicleBody);
+  const vehicle = getComponent<VehicleComponent>(entityCar, VehicleComponent);
   const mesh = vehicle.vehicleDoorsArray[seat];
   if (mesh === undefined) return;
 
@@ -36,7 +34,7 @@ function doorAnimation(entityCar, seat, timer, timeAnimation, angel) {
 function positionExit(entity, entityCar, seat) {
   const transform = getMutableComponent<TransformComponent>(entity, TransformComponent);
   const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
-  const vehicle = getComponent<VehicleBody>(entityCar, VehicleBody);
+  const vehicle = getComponent<VehicleComponent>(entityCar, VehicleComponent);
   const transformCar = getComponent<TransformComponent>(entityCar, TransformComponent);
 
   const position = new Vector3( ...vehicle.entrancesArray[seat] )
@@ -59,7 +57,7 @@ function positionExit(entity, entityCar, seat) {
 export const onStartRemoveFromCar = (entity: Entity, entityCar: Entity, seat: number, delta): void => {
 
   const transform = getMutableComponent<TransformComponent>(entity, TransformComponent);
-  const vehicle = getComponent<VehicleBody>(entityCar, VehicleBody);
+  const vehicle = getComponent<VehicleComponent>(entityCar, VehicleComponent);
   const transformCar = getComponent<TransformComponent>(entityCar, TransformComponent);
 
   const playerInCar = getMutableComponent(entity, PlayerInCar);

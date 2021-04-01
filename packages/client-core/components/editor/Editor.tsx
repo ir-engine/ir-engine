@@ -52,7 +52,6 @@ import getIntersectingNode from "@xr3ngine/engine/src/editor/functions/getInters
 import isEmptyObject from "@xr3ngine/engine/src/editor/functions/isEmptyObject";
 import isInputSelected from "@xr3ngine/engine/src/editor/functions/isInputSelected";
 import makeUniqueName from "@xr3ngine/engine/src/editor/functions/makeUniqueName";
-import { calculateGLTFPerformanceScores } from "@xr3ngine/engine/src/editor/functions/performance";
 import resizeShadowCameraFrustum from "@xr3ngine/engine/src/editor/functions/resizeShadowCameraFrustum";
 import { generateImageFileThumbnail, generateVideoFileThumbnail } from "@xr3ngine/engine/src/editor/functions/thumbnails";
 import AudioNode from "@xr3ngine/engine/src/editor/nodes/AudioNode";
@@ -549,13 +548,7 @@ export default class Editor extends EventEmitter {
     try {
       const glbBlob = await exporter.exportGLBBlob(chunks);
 
-      let scores;
-
-      if ((options as any).scores) {
-        scores = calculateGLTFPerformanceScores(scene, glbBlob, chunks);
-      }
-
-      return { glbBlob, chunks, scores };
+      return { glbBlob, chunks };
     } catch (error) {
       throw new RethrownError("Error creating glb blob", error);
     }

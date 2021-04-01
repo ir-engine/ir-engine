@@ -1,6 +1,6 @@
 {
   "name": "@xr3ngine/bot",
-  "version": "0.2.0",
+  "version": "0.2.10",
   "private": true,
   "repository": {
     "type": "git",
@@ -17,7 +17,7 @@
     "start": "node run-bot.js",
     "validate": "yarn run lint && yarn run test",
     "test": "echo \"TODO: Add Testing to Client\" && exit 0",
-    "lint":"eslint --fix --quiet *.ts **/*.ts **/*.tsx"
+    "lint": "eslint --fix --quiet *.ts **/*.ts **/*.tsx"
   },
   "dependencies": {
     "@google-cloud/agones-sdk": "^1.11.0",
@@ -34,7 +34,7 @@
     "config": "^3.3.1",
     "cross-env": "^7.0.2",
     "dotenv-webpack": "^3.0.0",
-    "eslint": "^6.8.0",
+    "eslint": "^7.7.0",
     "eslint-plugin-react": "^7.21.4",
     "next-images": "^1.4.0",
     "next-optimized-images": "^2.6.2",

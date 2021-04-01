@@ -1,7 +1,6 @@
 import { NumericalType } from "../../common/types/NumericalTypes";
 import { Input } from "../../input/components/Input";
 import { LifecycleValue } from "../../common/enums/LifecycleValue";
-import { BaseInput } from '@xr3ngine/engine/src/input/enums/BaseInput';
 
 /**
  * Get Input data from the device.

@@ -1,4 +1,4 @@
-import { Sky } from '@xr3ngine/engine/src/scene/classes/Sky';
+import { Sky } from '../../scene/classes/Sky';
 import { CubeTextureLoader, EquirectangularReflectionMapping, PMREMGenerator, sRGBEncoding, TextureLoader, Vector3 } from 'three';
 import { isClient } from '../../common/functions/isClient';
 import { Engine } from '../../ecs/classes/Engine';

@@ -3,6 +3,10 @@ import { localMediaConstraints } from '../constants/VideoConstants';
 
 /** System class for media streaming. */
 export class MediaStreamSystem extends System {
+
+  static EVENTS = {
+    TRIGGER_UPDATE_CONSUMERS: 'NETWORK_TRANSPORT_EVENT_UPDATE_CONSUMERS',
+  }
   public static instance = null;
 
   /** Whether the video is paused or not. */

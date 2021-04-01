@@ -38,7 +38,8 @@ export interface NetworkInputInterface {
   }>
   /** Viewport vector of the client. */
   viewVector: {  x: number, y: number, z: number  },
-  //snapShotTime:
+  snapShotTime: number,
+  characterState: number
 
 }
 
@@ -46,7 +47,7 @@ export interface NetworkInputInterface {
 export interface NetworkClientInputInterface extends NetworkInputInterface {
   /** Time of the snapshot. */
   snapShotTime: number,
-  switchInputs: number,
+  // switchInputs: number,
   characterState: number
 }
 

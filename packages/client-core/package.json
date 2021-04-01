@@ -1,7 +1,6 @@
 {
   "name": "@xr3ngine/client-core",
-  "version": "0.2.0",
-  "private": true,
+  "version": "0.2.10",
   "repository": {
     "type": "git",
     "url": "git://github.com/xr3ngine/xr3ngine.git"
@@ -9,16 +8,21 @@
   "engines": {
     "yarn": ">= 0.18.0"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "npmClient": "yarn",
   "jest": "ts-jest",
   "scripts": {
-    "lint":"eslint --fix --quiet *.ts **/*.d.ts **/*.ts **/*.tsx"
+    "lint": "eslint --fix --quiet *.ts **/*.d.ts **/*.ts **/*.tsx"
   },
   "resolutions": {
-    "socket.io": "2.4.1"
+    "@types/react": "^17.0.0",
+    "react": "^17.0.0"
   },
   "peerDependencies": {
-    "socket.io": "2.4.1"
+    "@types/react": "^17.0.0",
+    "react": "^17.0.0"
   },
   "dependencies": {
     "@capacitor-community/electron": "^1.3.2",
@@ -44,10 +48,9 @@
     "@types/react-redux": "^7.1.7",
     "@types/redux-immutable": "^4.0.1",
     "@types/styled-components": "^5.1.3",
-    "@types/webgl2": "^0.0.5",
     "@typescript-eslint/eslint-plugin": "^4.5.0",
-    "@xr3ngine/common": "^0.2.0",
-    "@xr3ngine/engine": "^0.2.0",
+    "@xr3ngine/common": "^0.2.10",
+    "@xr3ngine/engine": "^0.2.10",
     "antd": "^4.12.2",
     "app-root-path": "^3.0.0",
     "autobind-decorator": "^2.4.0",
@@ -127,7 +130,7 @@
     "css-loader": "^1.0.0",
     "css-modules-typescript-loader": "^2.0.1",
     "dotenv-webpack": "^3.0.0",
-    "eslint": "^6.8.0",
+    "eslint": "^7.7.0",
     "eslint-plugin-react": "^7.21.4",
     "gltf-webpack-loader": "https://github.com/MozillaReality/gltf-webpack-loader.git#fix/relative-and-output-paths",
     "next": "10.1.2",
@@ -145,5 +148,6 @@
     "webpack": "5.24.3",
     "webpack-cli": "^4.0.0"
   },
-  "license": "ISC"
+  "license": "ISC",
+  "gitHead": "66449f6ffba4d32c424b16b4f0667fe0ad36562c"
 }

@@ -20,7 +20,7 @@ export const InteractableModal: FunctionComponent<InteractableModalProps> = ({ o
 
   if(!data){return null;}
 
-  const handleLinkClick = (url) =>{  
+  const handleLinkClick = (url) =>{
     window.open(url, "_blank");
   };
 
@@ -28,10 +28,10 @@ export const InteractableModal: FunctionComponent<InteractableModalProps> = ({ o
   if (data.payloadModelUrl) {
     modelView = (<ModelView modelUrl={data.payloadModelUrl} />);
   }
-  return  (<Dialog open={true} aria-labelledby="xr-dialog" 
+  return  (<Dialog open={true} aria-labelledby="xr-dialog"
       classes={{
         root: styles.customDialog,
-        paper: styles.customDialogInner, 
+        paper: styles.customDialogInner,
       }}
       BackdropProps={{ style: { backgroundColor: "transparent" } }} >
       { data.payloadUrl && 

@@ -1,7 +1,7 @@
-import { Behavior } from '@xr3ngine/engine/src/common/interfaces/Behavior';
+import { Behavior } from '../../../common/interfaces/Behavior';
 import { Vector3 } from "three";
-import { Network } from '@xr3ngine/engine/src/networking/classes/Network';
-import { getComponent, hasComponent, getMutableComponent, removeComponent, addComponent } from '../../../ecs/functions/EntityFunctions';
+import { Network } from '../../../networking/classes/Network';
+import { getComponent, hasComponent, getMutableComponent } from '../../../ecs/functions/EntityFunctions';
 import { TransformComponent } from '../../../transform/components/TransformComponent';
 import { CharacterAnimations } from "../CharacterAnimations";
 import { CharacterComponent } from '../components/CharacterComponent';
@@ -10,7 +10,7 @@ import { NumericalType } from '../../../common/types/NumericalTypes';
 import { Input } from '../../../input/components/Input';
 import { LifecycleValue } from '../../../common/enums/LifecycleValue';
 import { FollowCameraComponent } from '../../../camera/components/FollowCameraComponent';
-import { PlayerInCar } from '@xr3ngine/engine/src/physics/components/PlayerInCar';
+import { PlayerInCar } from '../../../physics/components/PlayerInCar';
 import { BaseInput } from '../../../input/enums/BaseInput';
 import { CameraModes } from '../../../camera/types/CameraModes';
 import { AnimationComponent } from '../../../character/components/AnimationComponent';
@@ -128,7 +128,7 @@ const getDrivingValues: Behavior = (entity, args: {}, deltaTime: number): any =>
 
 /*
   const networkDriverId = getComponent<NetworkObject>(entity, NetworkObject).networkId;
-  const vehicle = getMutableComponent<VehicleBody>(entityCar, VehicleBody);
+  const vehicle = getMutableComponent<VehicleComponent>(entityCar, VehicleComponent);
   vehicle[vehicle.seatPlane[seat]] = networkDriverId;
   */
   const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
