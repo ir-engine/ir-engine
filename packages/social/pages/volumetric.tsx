@@ -4,7 +4,7 @@ import styles from './index.module.scss';
 
 export const IndexPage = (props: any): any => {
     const meshFilePath = typeof location !== 'undefined'? location.origin + "/volumetric/liam.drcs" : "";
-    const videoFilePath = typeof location !== 'undefined'? location.origin + "/volumetric/liam.mp4" : "";
+    const videoFilePath = typeof location !== 'undefined'? location.origin + "/volumetric/test.mp4" : "";
     console.log("Mesh file path is", meshFilePath);
     return (
         <div className={styles.viewport}>
