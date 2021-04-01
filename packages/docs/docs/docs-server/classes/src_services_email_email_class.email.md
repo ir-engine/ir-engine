@@ -37,7 +37,7 @@ Name | Type |
 
 Overrides: void
 
-Defined in: [packages/server/src/services/email/email.class.ts:9](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/email/email.class.ts#L9)
+Defined in: [packages/server/src/services/email/email.class.ts:9](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/email/email.class.ts#L9)
 
 ## Properties
 

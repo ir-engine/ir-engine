@@ -30,4 +30,4 @@ Name | Type |
 `randomize` | *boolean* |
 `templates` | { `type`: *string*  }[] |
 
-Defined in: [packages/server/src/services/collection-type/collection-type.seed.ts:4](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/collection-type/collection-type.seed.ts#L4)
+Defined in: [packages/server/src/services/collection-type/collection-type.seed.ts:4](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/collection-type/collection-type.seed.ts#L4)

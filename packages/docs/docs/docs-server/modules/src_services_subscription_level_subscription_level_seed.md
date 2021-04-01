@@ -30,4 +30,4 @@ Name | Type |
 `randomize` | *boolean* |
 `templates` | { `level`: *string* = 'all' }[] |
 
-Defined in: [packages/server/src/services/subscription-level/subscription-level.seed.ts:3](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/subscription-level/subscription-level.seed.ts#L3)
+Defined in: [packages/server/src/services/subscription-level/subscription-level.seed.ts:3](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/subscription-level/subscription-level.seed.ts#L3)

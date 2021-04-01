@@ -22,7 +22,7 @@ Name | Type |
 
 **Returns:** *Promise*<void\>
 
-Defined in: [packages/server/src/gameserver/transports/WebRTCFunctions.ts:162](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/gameserver/transports/WebRTCFunctions.ts#L162)
+Defined in: [packages/server/src/gameserver/transports/WebRTCFunctions.ts:162](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/gameserver/transports/WebRTCFunctions.ts#L162)
 
 ___
 
@@ -38,7 +38,7 @@ Name | Type |
 
 **Returns:** *Promise*<void\>
 
-Defined in: [packages/server/src/gameserver/transports/WebRTCFunctions.ts:134](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/gameserver/transports/WebRTCFunctions.ts#L134)
+Defined in: [packages/server/src/gameserver/transports/WebRTCFunctions.ts:134](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/gameserver/transports/WebRTCFunctions.ts#L134)
 
 ___
 
@@ -55,7 +55,7 @@ Name | Type |
 
 **Returns:** *Promise*<void\>
 
-Defined in: [packages/server/src/gameserver/transports/WebRTCFunctions.ts:143](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/gameserver/transports/WebRTCFunctions.ts#L143)
+Defined in: [packages/server/src/gameserver/transports/WebRTCFunctions.ts:143](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/gameserver/transports/WebRTCFunctions.ts#L143)
 
 ___
 
@@ -71,7 +71,7 @@ Name | Type |
 
 **Returns:** *Promise*<void\>
 
-Defined in: [packages/server/src/gameserver/transports/WebRTCFunctions.ts:126](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/gameserver/transports/WebRTCFunctions.ts#L126)
+Defined in: [packages/server/src/gameserver/transports/WebRTCFunctions.ts:126](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/gameserver/transports/WebRTCFunctions.ts#L126)
 
 ___
 
@@ -88,7 +88,7 @@ Name | Type |
 
 **Returns:** *Promise*<DataConsumer\>
 
-Defined in: [packages/server/src/gameserver/transports/WebRTCFunctions.ts:201](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/gameserver/transports/WebRTCFunctions.ts#L201)
+Defined in: [packages/server/src/gameserver/transports/WebRTCFunctions.ts:201](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/gameserver/transports/WebRTCFunctions.ts#L201)
 
 ___
 
@@ -104,7 +104,7 @@ Name | Type |
 
 **Returns:** *Promise*<WebRtcTransport\>
 
-Defined in: [packages/server/src/gameserver/transports/WebRTCFunctions.ts:174](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/gameserver/transports/WebRTCFunctions.ts#L174)
+Defined in: [packages/server/src/gameserver/transports/WebRTCFunctions.ts:174](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/gameserver/transports/WebRTCFunctions.ts#L174)
 
 ___
 
@@ -120,7 +120,7 @@ Name | Type |
 
 **Returns:** (`dataProducer`: *DataProducer*) => *Promise*<void\>
 
-Defined in: [packages/server/src/gameserver/transports/WebRTCFunctions.ts:84](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/gameserver/transports/WebRTCFunctions.ts#L84)
+Defined in: [packages/server/src/gameserver/transports/WebRTCFunctions.ts:84](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/gameserver/transports/WebRTCFunctions.ts#L84)
 
 ___
 
@@ -138,7 +138,7 @@ Name | Type |
 
 **Returns:** *Promise*<any\>
 
-Defined in: [packages/server/src/gameserver/transports/WebRTCFunctions.ts:471](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/gameserver/transports/WebRTCFunctions.ts#L471)
+Defined in: [packages/server/src/gameserver/transports/WebRTCFunctions.ts:471](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/gameserver/transports/WebRTCFunctions.ts#L471)
 
 ___
 
@@ -156,7 +156,7 @@ Name | Type |
 
 **Returns:** *Promise*<any\>
 
-Defined in: [packages/server/src/gameserver/transports/WebRTCFunctions.ts:327](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/gameserver/transports/WebRTCFunctions.ts#L327)
+Defined in: [packages/server/src/gameserver/transports/WebRTCFunctions.ts:327](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/gameserver/transports/WebRTCFunctions.ts#L327)
 
 ___
 
@@ -174,7 +174,7 @@ Name | Type |
 
 **Returns:** *Promise*<any\>
 
-Defined in: [packages/server/src/gameserver/transports/WebRTCFunctions.ts:479](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/gameserver/transports/WebRTCFunctions.ts#L479)
+Defined in: [packages/server/src/gameserver/transports/WebRTCFunctions.ts:479](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/gameserver/transports/WebRTCFunctions.ts#L479)
 
 ___
 
@@ -192,7 +192,7 @@ Name | Type |
 
 **Returns:** *Promise*<any\>
 
-Defined in: [packages/server/src/gameserver/transports/WebRTCFunctions.ts:533](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/gameserver/transports/WebRTCFunctions.ts#L533)
+Defined in: [packages/server/src/gameserver/transports/WebRTCFunctions.ts:533](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/gameserver/transports/WebRTCFunctions.ts#L533)
 
 ___
 
@@ -210,7 +210,7 @@ Name | Type |
 
 **Returns:** *Promise*<any\>
 
-Defined in: [packages/server/src/gameserver/transports/WebRTCFunctions.ts:451](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/gameserver/transports/WebRTCFunctions.ts#L451)
+Defined in: [packages/server/src/gameserver/transports/WebRTCFunctions.ts:451](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/gameserver/transports/WebRTCFunctions.ts#L451)
 
 ___
 
@@ -228,7 +228,7 @@ Name | Type |
 
 **Returns:** *Promise*<any\>
 
-Defined in: [packages/server/src/gameserver/transports/WebRTCFunctions.ts:506](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/gameserver/transports/WebRTCFunctions.ts#L506)
+Defined in: [packages/server/src/gameserver/transports/WebRTCFunctions.ts:506](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/gameserver/transports/WebRTCFunctions.ts#L506)
 
 ___
 
@@ -246,7 +246,7 @@ Name | Type |
 
 **Returns:** *Promise*<any\>
 
-Defined in: [packages/server/src/gameserver/transports/WebRTCFunctions.ts:272](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/gameserver/transports/WebRTCFunctions.ts#L272)
+Defined in: [packages/server/src/gameserver/transports/WebRTCFunctions.ts:272](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/gameserver/transports/WebRTCFunctions.ts#L272)
 
 ___
 
@@ -264,7 +264,7 @@ Name | Type |
 
 **Returns:** *Promise*<any\>
 
-Defined in: [packages/server/src/gameserver/transports/WebRTCFunctions.ts:372](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/gameserver/transports/WebRTCFunctions.ts#L372)
+Defined in: [packages/server/src/gameserver/transports/WebRTCFunctions.ts:372](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/gameserver/transports/WebRTCFunctions.ts#L372)
 
 ___
 
@@ -282,7 +282,7 @@ Name | Type |
 
 **Returns:** *Promise*<any\>
 
-Defined in: [packages/server/src/gameserver/transports/WebRTCFunctions.ts:526](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/gameserver/transports/WebRTCFunctions.ts#L526)
+Defined in: [packages/server/src/gameserver/transports/WebRTCFunctions.ts:526](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/gameserver/transports/WebRTCFunctions.ts#L526)
 
 ___
 
@@ -300,7 +300,7 @@ Name | Type |
 
 **Returns:** *Promise*<any\>
 
-Defined in: [packages/server/src/gameserver/transports/WebRTCFunctions.ts:461](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/gameserver/transports/WebRTCFunctions.ts#L461)
+Defined in: [packages/server/src/gameserver/transports/WebRTCFunctions.ts:461](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/gameserver/transports/WebRTCFunctions.ts#L461)
 
 ___
 
@@ -318,7 +318,7 @@ Name | Type |
 
 **Returns:** *Promise*<any\>
 
-Defined in: [packages/server/src/gameserver/transports/WebRTCFunctions.ts:487](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/gameserver/transports/WebRTCFunctions.ts#L487)
+Defined in: [packages/server/src/gameserver/transports/WebRTCFunctions.ts:487](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/gameserver/transports/WebRTCFunctions.ts#L487)
 
 ___
 
@@ -336,7 +336,7 @@ Name | Type |
 
 **Returns:** *Promise*<any\>
 
-Defined in: [packages/server/src/gameserver/transports/WebRTCFunctions.ts:334](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/gameserver/transports/WebRTCFunctions.ts#L334)
+Defined in: [packages/server/src/gameserver/transports/WebRTCFunctions.ts:334](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/gameserver/transports/WebRTCFunctions.ts#L334)
 
 ___
 
@@ -354,7 +354,7 @@ Name | Type |
 
 **Returns:** *Promise*<any\>
 
-Defined in: [packages/server/src/gameserver/transports/WebRTCFunctions.ts:306](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/gameserver/transports/WebRTCFunctions.ts#L306)
+Defined in: [packages/server/src/gameserver/transports/WebRTCFunctions.ts:306](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/gameserver/transports/WebRTCFunctions.ts#L306)
 
 ___
 
@@ -372,7 +372,7 @@ Name | Type |
 
 **Returns:** *Promise*<any\>
 
-Defined in: [packages/server/src/gameserver/transports/WebRTCFunctions.ts:315](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/gameserver/transports/WebRTCFunctions.ts#L315)
+Defined in: [packages/server/src/gameserver/transports/WebRTCFunctions.ts:315](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/gameserver/transports/WebRTCFunctions.ts#L315)
 
 ___
 
@@ -390,7 +390,7 @@ Name | Type |
 
 **Returns:** *Promise*<any\>
 
-Defined in: [packages/server/src/gameserver/transports/WebRTCFunctions.ts:216](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/gameserver/transports/WebRTCFunctions.ts#L216)
+Defined in: [packages/server/src/gameserver/transports/WebRTCFunctions.ts:216](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/gameserver/transports/WebRTCFunctions.ts#L216)
 
 ___
 
@@ -408,7 +408,7 @@ Name | Type |
 
 **Returns:** (`producer`: *Producer*) => *Promise*<void\>
 
-Defined in: [packages/server/src/gameserver/transports/WebRTCFunctions.ts:49](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/gameserver/transports/WebRTCFunctions.ts#L49)
+Defined in: [packages/server/src/gameserver/transports/WebRTCFunctions.ts:49](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/gameserver/transports/WebRTCFunctions.ts#L49)
 
 ___
 
@@ -426,7 +426,7 @@ Name | Type |
 
 **Returns:** *Promise*<void\>
 
-Defined in: [packages/server/src/gameserver/transports/WebRTCFunctions.ts:68](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/gameserver/transports/WebRTCFunctions.ts#L68)
+Defined in: [packages/server/src/gameserver/transports/WebRTCFunctions.ts:68](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/gameserver/transports/WebRTCFunctions.ts#L68)
 
 ___
 
@@ -436,4 +436,4 @@ ___
 
 **Returns:** *Promise*<void\>
 
-Defined in: [packages/server/src/gameserver/transports/WebRTCFunctions.ts:24](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/gameserver/transports/WebRTCFunctions.ts#L24)
+Defined in: [packages/server/src/gameserver/transports/WebRTCFunctions.ts:24](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/gameserver/transports/WebRTCFunctions.ts#L24)

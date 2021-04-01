@@ -22,4 +22,4 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/server/src/services/location-ban/location-ban.service.ts:15](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/location-ban/location-ban.service.ts#L15)
+Defined in: [packages/server/src/services/location-ban/location-ban.service.ts:15](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/location-ban/location-ban.service.ts#L15)

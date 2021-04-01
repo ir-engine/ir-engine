@@ -26,4 +26,4 @@ Name | Type |
 
 **Returns:** *any*
 
-Defined in: [packages/server/src/services/rtc-ports/rtc-ports.service.ts:14](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/rtc-ports/rtc-ports.service.ts#L14)
+Defined in: [packages/server/src/services/rtc-ports/rtc-ports.service.ts:14](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/rtc-ports/rtc-ports.service.ts#L14)

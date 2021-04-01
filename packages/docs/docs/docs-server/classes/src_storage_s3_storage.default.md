@@ -28,7 +28,7 @@ hide_title: true
 
 • **blob**: *any*
 
-Defined in: [packages/server/src/storage/s3.storage.ts:15](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/storage/s3.storage.ts#L15)
+Defined in: [packages/server/src/storage/s3.storage.ts:15](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/storage/s3.storage.ts#L15)
 
 ___
 
@@ -36,7 +36,7 @@ ___
 
 • **bucket**: *string*
 
-Defined in: [packages/server/src/storage/s3.storage.ts:8](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/storage/s3.storage.ts#L8)
+Defined in: [packages/server/src/storage/s3.storage.ts:8](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/storage/s3.storage.ts#L8)
 
 ___
 
@@ -44,7 +44,7 @@ ___
 
 • **provider**: *S3*
 
-Defined in: [packages/server/src/storage/s3.storage.ts:9](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/storage/s3.storage.ts#L9)
+Defined in: [packages/server/src/storage/s3.storage.ts:9](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/storage/s3.storage.ts#L9)
 
 ## Methods
 
@@ -60,7 +60,7 @@ Name | Type |
 
 **Returns:** *Promise*<unknown\>
 
-Defined in: [packages/server/src/storage/s3.storage.ts:44](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/storage/s3.storage.ts#L44)
+Defined in: [packages/server/src/storage/s3.storage.ts:44](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/storage/s3.storage.ts#L44)
 
 ___
 
@@ -72,7 +72,7 @@ ___
 
 Implementation of: [StorageProviderInterface](../interfaces/src_storage_storageprovider_interface.storageproviderinterface.md)
 
-Defined in: [packages/server/src/storage/s3.storage.ts:22](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/storage/s3.storage.ts#L22)
+Defined in: [packages/server/src/storage/s3.storage.ts:22](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/storage/s3.storage.ts#L22)
 
 ___
 
@@ -90,7 +90,7 @@ Name | Type |
 
 **Returns:** *Promise*<any\>
 
-Defined in: [packages/server/src/storage/s3.storage.ts:28](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/storage/s3.storage.ts#L28)
+Defined in: [packages/server/src/storage/s3.storage.ts:28](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/storage/s3.storage.ts#L28)
 
 ___
 
@@ -102,4 +102,4 @@ ___
 
 Implementation of: [StorageProviderInterface](../interfaces/src_storage_storageprovider_interface.storageproviderinterface.md)
 
-Defined in: [packages/server/src/storage/s3.storage.ts:26](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/storage/s3.storage.ts#L26)
+Defined in: [packages/server/src/storage/s3.storage.ts:26](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/storage/s3.storage.ts#L26)

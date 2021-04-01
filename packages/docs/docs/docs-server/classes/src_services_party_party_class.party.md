@@ -37,7 +37,7 @@ Name | Type |
 
 Overrides: void
 
-Defined in: [packages/server/src/services/party/party.class.ts:16](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/party/party.class.ts#L16)
+Defined in: [packages/server/src/services/party/party.class.ts:16](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/party/party.class.ts#L16)
 
 ## Properties
 
@@ -55,7 +55,7 @@ ___
 
 • **app**: [*Application*](../modules/src_declarations.md#application)
 
-Defined in: [packages/server/src/services/party/party.class.ts:15](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/party/party.class.ts#L15)
+Defined in: [packages/server/src/services/party/party.class.ts:15](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/party/party.class.ts#L15)
 
 ___
 
@@ -63,7 +63,7 @@ ___
 
 • **docs**: *any*
 
-Defined in: [packages/server/src/services/party/party.class.ts:16](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/party/party.class.ts#L16)
+Defined in: [packages/server/src/services/party/party.class.ts:16](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/party/party.class.ts#L16)
 
 ___
 
@@ -307,7 +307,7 @@ Name | Type | Description |
 
 Overrides: void
 
-Defined in: [packages/server/src/services/party/party.class.ts:31](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/party/party.class.ts#L31)
+Defined in: [packages/server/src/services/party/party.class.ts:31](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/party/party.class.ts#L31)
 
 ___
 

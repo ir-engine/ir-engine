@@ -37,7 +37,7 @@ Name | Type |
 
 Overrides: void
 
-Defined in: [packages/server/src/services/group-user/group-user.class.ts:11](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/group-user/group-user.class.ts#L11)
+Defined in: [packages/server/src/services/group-user/group-user.class.ts:11](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/group-user/group-user.class.ts#L11)
 
 ## Properties
 
@@ -55,7 +55,7 @@ ___
 
 • **docs**: *any*
 
-Defined in: [packages/server/src/services/group-user/group-user.class.ts:11](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/group-user/group-user.class.ts#L11)
+Defined in: [packages/server/src/services/group-user/group-user.class.ts:11](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/group-user/group-user.class.ts#L11)
 
 ___
 

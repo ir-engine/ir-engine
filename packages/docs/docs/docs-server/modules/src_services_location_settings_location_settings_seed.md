@@ -30,4 +30,4 @@ Name | Type |
 `randomize` | *boolean* |
 `templates` | { `id`: *string* = '37ce32f0-208d-11eb-b02f-37cfdadfe58c'; `instanceMediaChatEnabled`: *boolean* = true; `locationId`: *string* = '98cbcc30-fd2d-11ea-bc7c-cd4cac9a8d61'; `locationType`: *string* = 'public'; `videoEnabled`: *boolean* = true }[] |
 
-Defined in: [packages/server/src/services/location-settings/location-settings.seed.ts:3](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/location-settings/location-settings.seed.ts#L3)
+Defined in: [packages/server/src/services/location-settings/location-settings.seed.ts:3](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/location-settings/location-settings.seed.ts#L3)

@@ -16,7 +16,7 @@ hide_title: true
 
 **Returns:** *Promise*<void\>
 
-Defined in: [packages/server/src/gameserver/transports/NetworkFunctions.ts:61](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/gameserver/transports/NetworkFunctions.ts#L61)
+Defined in: [packages/server/src/gameserver/transports/NetworkFunctions.ts:61](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/gameserver/transports/NetworkFunctions.ts#L61)
 
 ___
 
@@ -33,7 +33,7 @@ Name | Type |
 
 **Returns:** *Promise*<string\>
 
-Defined in: [packages/server/src/gameserver/transports/NetworkFunctions.ts:15](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/gameserver/transports/NetworkFunctions.ts#L15)
+Defined in: [packages/server/src/gameserver/transports/NetworkFunctions.ts:15](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/gameserver/transports/NetworkFunctions.ts#L15)
 
 ___
 
@@ -49,7 +49,7 @@ Name | Type |
 
 **Returns:** *string* \| *null*
 
-Defined in: [packages/server/src/gameserver/transports/NetworkFunctions.ts:93](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/gameserver/transports/NetworkFunctions.ts#L93)
+Defined in: [packages/server/src/gameserver/transports/NetworkFunctions.ts:93](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/gameserver/transports/NetworkFunctions.ts#L93)
 
 ___
 
@@ -70,7 +70,7 @@ Name | Type |
 
 **Returns:** *Promise*<any\>
 
-Defined in: [packages/server/src/gameserver/transports/NetworkFunctions.ts:179](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/gameserver/transports/NetworkFunctions.ts#L179)
+Defined in: [packages/server/src/gameserver/transports/NetworkFunctions.ts:179](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/gameserver/transports/NetworkFunctions.ts#L179)
 
 ___
 
@@ -86,7 +86,7 @@ Name | Type |
 
 **Returns:** *Promise*<any\>
 
-Defined in: [packages/server/src/gameserver/transports/NetworkFunctions.ts:353](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/gameserver/transports/NetworkFunctions.ts#L353)
+Defined in: [packages/server/src/gameserver/transports/NetworkFunctions.ts:353](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/gameserver/transports/NetworkFunctions.ts#L353)
 
 ___
 
@@ -102,7 +102,7 @@ Name | Type |
 
 **Returns:** *Promise*<any\>
 
-Defined in: [packages/server/src/gameserver/transports/NetworkFunctions.ts:346](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/gameserver/transports/NetworkFunctions.ts#L346)
+Defined in: [packages/server/src/gameserver/transports/NetworkFunctions.ts:346](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/gameserver/transports/NetworkFunctions.ts#L346)
 
 ___
 
@@ -119,7 +119,7 @@ Name | Type |
 
 **Returns:** *Promise*<any\>
 
-Defined in: [packages/server/src/gameserver/transports/NetworkFunctions.ts:342](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/gameserver/transports/NetworkFunctions.ts#L342)
+Defined in: [packages/server/src/gameserver/transports/NetworkFunctions.ts:342](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/gameserver/transports/NetworkFunctions.ts#L342)
 
 ___
 
@@ -139,7 +139,7 @@ Name | Type |
 
 **Returns:** *Promise*<any\>
 
-Defined in: [packages/server/src/gameserver/transports/NetworkFunctions.ts:267](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/gameserver/transports/NetworkFunctions.ts#L267)
+Defined in: [packages/server/src/gameserver/transports/NetworkFunctions.ts:267](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/gameserver/transports/NetworkFunctions.ts#L267)
 
 ___
 
@@ -157,7 +157,7 @@ Name | Type |
 
 **Returns:** *Promise*<any\>
 
-Defined in: [packages/server/src/gameserver/transports/NetworkFunctions.ts:397](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/gameserver/transports/NetworkFunctions.ts#L397)
+Defined in: [packages/server/src/gameserver/transports/NetworkFunctions.ts:397](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/gameserver/transports/NetworkFunctions.ts#L397)
 
 ___
 
@@ -167,4 +167,4 @@ ___
 
 **Returns:** *void*
 
-Defined in: [packages/server/src/gameserver/transports/NetworkFunctions.ts:106](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/gameserver/transports/NetworkFunctions.ts#L106)
+Defined in: [packages/server/src/gameserver/transports/NetworkFunctions.ts:106](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/gameserver/transports/NetworkFunctions.ts#L106)

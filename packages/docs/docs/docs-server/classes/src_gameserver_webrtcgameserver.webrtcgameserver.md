@@ -24,7 +24,7 @@ Name | Type |
 
 **Returns:** [*WebRTCGameServer*](src_gameserver_webrtcgameserver.webrtcgameserver.md)
 
-Defined in: [packages/server/src/gameserver/WebRTCGameServer.ts:28](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/gameserver/WebRTCGameServer.ts#L28)
+Defined in: [packages/server/src/gameserver/WebRTCGameServer.ts:28](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/gameserver/WebRTCGameServer.ts#L28)
 
 ## Properties
 
@@ -32,4 +32,4 @@ Defined in: [packages/server/src/gameserver/WebRTCGameServer.ts:28](https://gith
 
 ▪ `Static` **instance**: [*WebRTCGameServer*](src_gameserver_webrtcgameserver.webrtcgameserver.md)= null
 
-Defined in: [packages/server/src/gameserver/WebRTCGameServer.ts:28](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/gameserver/WebRTCGameServer.ts#L28)
+Defined in: [packages/server/src/gameserver/WebRTCGameServer.ts:28](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/gameserver/WebRTCGameServer.ts#L28)

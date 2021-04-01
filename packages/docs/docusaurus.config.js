@@ -2,8 +2,8 @@
 module.exports = {
   title: 'xr3ngine',
   tagline: 'An end-to-end solution for hosting humans and AI in a virtual space, built on top of react, three.js and express/feathers.',
-  url: 'https://your-docusaurus-test-site.com',
-  baseUrl: '/',
+  url: 'http://localhost',
+  baseUrl: '/build/',
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
   favicon: 'img/favicon.ico',

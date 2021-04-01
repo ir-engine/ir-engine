@@ -37,7 +37,7 @@ Name | Type |
 
 Overrides: void
 
-Defined in: [packages/server/src/services/user-relationship/user-relationship.class.ts:20](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/user-relationship/user-relationship.class.ts#L20)
+Defined in: [packages/server/src/services/user-relationship/user-relationship.class.ts:20](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/user-relationship/user-relationship.class.ts#L20)
 
 ## Properties
 
@@ -55,7 +55,7 @@ ___
 
 • **app**: [*Application*](../modules/src_declarations.md#application)
 
-Defined in: [packages/server/src/services/user-relationship/user-relationship.class.ts:19](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/user-relationship/user-relationship.class.ts#L19)
+Defined in: [packages/server/src/services/user-relationship/user-relationship.class.ts:19](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/user-relationship/user-relationship.class.ts#L19)
 
 ___
 
@@ -63,7 +63,7 @@ ___
 
 • **docs**: *any*
 
-Defined in: [packages/server/src/services/user-relationship/user-relationship.class.ts:20](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/user-relationship/user-relationship.class.ts#L20)
+Defined in: [packages/server/src/services/user-relationship/user-relationship.class.ts:20](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/user-relationship/user-relationship.class.ts#L20)
 
 ___
 
@@ -245,7 +245,7 @@ Name | Type |
 
 Overrides: void
 
-Defined in: [packages/server/src/services/user-relationship/user-relationship.class.ts:72](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/user-relationship/user-relationship.class.ts#L72)
+Defined in: [packages/server/src/services/user-relationship/user-relationship.class.ts:72](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/user-relationship/user-relationship.class.ts#L72)
 
 ___
 
@@ -298,7 +298,7 @@ Name | Type |
 
 **Returns:** *Promise*<any\>
 
-Defined in: [packages/server/src/services/user-relationship/user-relationship.class.ts:27](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/user-relationship/user-relationship.class.ts#L27)
+Defined in: [packages/server/src/services/user-relationship/user-relationship.class.ts:27](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/user-relationship/user-relationship.class.ts#L27)
 
 ___
 
@@ -355,7 +355,7 @@ Name | Type |
 
 Overrides: void
 
-Defined in: [packages/server/src/services/user-relationship/user-relationship.class.ts:99](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/user-relationship/user-relationship.class.ts#L99)
+Defined in: [packages/server/src/services/user-relationship/user-relationship.class.ts:99](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/user-relationship/user-relationship.class.ts#L99)
 
 ___
 
@@ -374,7 +374,7 @@ Name | Type |
 
 Overrides: void
 
-Defined in: [packages/server/src/services/user-relationship/user-relationship.class.ts:118](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/user-relationship/user-relationship.class.ts#L118)
+Defined in: [packages/server/src/services/user-relationship/user-relationship.class.ts:118](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/user-relationship/user-relationship.class.ts#L118)
 
 ___
 

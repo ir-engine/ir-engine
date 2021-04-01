@@ -22,4 +22,4 @@ Name | Type |
 
 **Returns:** *any*
 
-Defined in: [packages/server/src/util/model-resolver.ts:8](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/util/model-resolver.ts#L8)
+Defined in: [packages/server/src/util/model-resolver.ts:8](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/util/model-resolver.ts#L8)

@@ -29,7 +29,7 @@ Name | Type |
 
 **Returns:** [*Graphql*](src_services_graphql_graphql_class.graphql.md)
 
-Defined in: [packages/server/src/services/graphql/graphql.class.ts:10](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/graphql/graphql.class.ts#L10)
+Defined in: [packages/server/src/services/graphql/graphql.class.ts:10](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/graphql/graphql.class.ts#L10)
 
 ## Properties
 
@@ -37,7 +37,7 @@ Defined in: [packages/server/src/services/graphql/graphql.class.ts:10](https://g
 
 • **app**: [*Application*](../modules/src_declarations.md#application)
 
-Defined in: [packages/server/src/services/graphql/graphql.class.ts:9](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/graphql/graphql.class.ts#L9)
+Defined in: [packages/server/src/services/graphql/graphql.class.ts:9](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/graphql/graphql.class.ts#L9)
 
 ___
 
@@ -45,7 +45,7 @@ ___
 
 • **options**: ServiceOptions
 
-Defined in: [packages/server/src/services/graphql/graphql.class.ts:10](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/graphql/graphql.class.ts#L10)
+Defined in: [packages/server/src/services/graphql/graphql.class.ts:10](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/graphql/graphql.class.ts#L10)
 
 ## Methods
 
@@ -64,7 +64,7 @@ Name | Type |
 
 Implementation of: void
 
-Defined in: [packages/server/src/services/graphql/graphql.class.ts:27](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/graphql/graphql.class.ts#L27)
+Defined in: [packages/server/src/services/graphql/graphql.class.ts:27](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/graphql/graphql.class.ts#L27)
 
 ___
 
@@ -82,7 +82,7 @@ Name | Type |
 
 Implementation of: void
 
-Defined in: [packages/server/src/services/graphql/graphql.class.ts:17](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/graphql/graphql.class.ts#L17)
+Defined in: [packages/server/src/services/graphql/graphql.class.ts:17](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/graphql/graphql.class.ts#L17)
 
 ___
 
@@ -101,7 +101,7 @@ Name | Type |
 
 Implementation of: void
 
-Defined in: [packages/server/src/services/graphql/graphql.class.ts:21](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/graphql/graphql.class.ts#L21)
+Defined in: [packages/server/src/services/graphql/graphql.class.ts:21](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/graphql/graphql.class.ts#L21)
 
 ___
 
@@ -121,7 +121,7 @@ Name | Type |
 
 Implementation of: void
 
-Defined in: [packages/server/src/services/graphql/graphql.class.ts:39](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/graphql/graphql.class.ts#L39)
+Defined in: [packages/server/src/services/graphql/graphql.class.ts:39](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/graphql/graphql.class.ts#L39)
 
 ___
 
@@ -140,7 +140,7 @@ Name | Type |
 
 Implementation of: void
 
-Defined in: [packages/server/src/services/graphql/graphql.class.ts:43](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/graphql/graphql.class.ts#L43)
+Defined in: [packages/server/src/services/graphql/graphql.class.ts:43](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/graphql/graphql.class.ts#L43)
 
 ___
 
@@ -160,4 +160,4 @@ Name | Type |
 
 Implementation of: void
 
-Defined in: [packages/server/src/services/graphql/graphql.class.ts:35](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/graphql/graphql.class.ts#L35)
+Defined in: [packages/server/src/services/graphql/graphql.class.ts:35](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/graphql/graphql.class.ts#L35)

@@ -30,4 +30,4 @@ Name | Type |
 `randomize` | *boolean* |
 `templates` | *any* |
 
-Defined in: [packages/server/src/services/subscription-type/subscription-type.seed.ts:108](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/subscription-type/subscription-type.seed.ts#L108)
+Defined in: [packages/server/src/services/subscription-type/subscription-type.seed.ts:108](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/subscription-type/subscription-type.seed.ts#L108)

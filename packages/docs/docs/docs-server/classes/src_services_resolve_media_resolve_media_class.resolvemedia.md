@@ -33,7 +33,7 @@ Name | Type |
 
 **Returns:** [*ResolveMedia*](src_services_resolve_media_resolve_media_class.resolvemedia.md)
 
-Defined in: [packages/server/src/services/resolve-media/resolve-media.class.ts:22](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/resolve-media/resolve-media.class.ts#L22)
+Defined in: [packages/server/src/services/resolve-media/resolve-media.class.ts:22](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/resolve-media/resolve-media.class.ts#L22)
 
 ## Properties
 
@@ -41,7 +41,7 @@ Defined in: [packages/server/src/services/resolve-media/resolve-media.class.ts:2
 
 • **app**: [*Application*](../modules/src_declarations.md#application)
 
-Defined in: [packages/server/src/services/resolve-media/resolve-media.class.ts:18](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/resolve-media/resolve-media.class.ts#L18)
+Defined in: [packages/server/src/services/resolve-media/resolve-media.class.ts:18](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/resolve-media/resolve-media.class.ts#L18)
 
 ___
 
@@ -49,7 +49,7 @@ ___
 
 • **docs**: *any*
 
-Defined in: [packages/server/src/services/resolve-media/resolve-media.class.ts:22](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/resolve-media/resolve-media.class.ts#L22)
+Defined in: [packages/server/src/services/resolve-media/resolve-media.class.ts:22](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/resolve-media/resolve-media.class.ts#L22)
 
 ___
 
@@ -57,7 +57,7 @@ ___
 
 • **models**: *any*
 
-Defined in: [packages/server/src/services/resolve-media/resolve-media.class.ts:20](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/resolve-media/resolve-media.class.ts#L20)
+Defined in: [packages/server/src/services/resolve-media/resolve-media.class.ts:20](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/resolve-media/resolve-media.class.ts#L20)
 
 ___
 
@@ -65,7 +65,7 @@ ___
 
 • **options**: ServiceOptions
 
-Defined in: [packages/server/src/services/resolve-media/resolve-media.class.ts:19](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/resolve-media/resolve-media.class.ts#L19)
+Defined in: [packages/server/src/services/resolve-media/resolve-media.class.ts:19](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/resolve-media/resolve-media.class.ts#L19)
 
 ___
 
@@ -73,7 +73,7 @@ ___
 
 • **storage**: *any*
 
-Defined in: [packages/server/src/services/resolve-media/resolve-media.class.ts:21](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/resolve-media/resolve-media.class.ts#L21)
+Defined in: [packages/server/src/services/resolve-media/resolve-media.class.ts:21](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/resolve-media/resolve-media.class.ts#L21)
 
 ## Methods
 
@@ -92,7 +92,7 @@ Name | Type |
 
 Implementation of: void
 
-Defined in: [packages/server/src/services/resolve-media/resolve-media.class.ts:41](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/resolve-media/resolve-media.class.ts#L41)
+Defined in: [packages/server/src/services/resolve-media/resolve-media.class.ts:41](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/resolve-media/resolve-media.class.ts#L41)
 
 ___
 
@@ -110,7 +110,7 @@ Name | Type |
 
 Implementation of: void
 
-Defined in: [packages/server/src/services/resolve-media/resolve-media.class.ts:31](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/resolve-media/resolve-media.class.ts#L31)
+Defined in: [packages/server/src/services/resolve-media/resolve-media.class.ts:31](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/resolve-media/resolve-media.class.ts#L31)
 
 ___
 
@@ -129,7 +129,7 @@ Name | Type |
 
 Implementation of: void
 
-Defined in: [packages/server/src/services/resolve-media/resolve-media.class.ts:35](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/resolve-media/resolve-media.class.ts#L35)
+Defined in: [packages/server/src/services/resolve-media/resolve-media.class.ts:35](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/resolve-media/resolve-media.class.ts#L35)
 
 ___
 
@@ -149,7 +149,7 @@ Name | Type |
 
 Implementation of: void
 
-Defined in: [packages/server/src/services/resolve-media/resolve-media.class.ts:90](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/resolve-media/resolve-media.class.ts#L90)
+Defined in: [packages/server/src/services/resolve-media/resolve-media.class.ts:90](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/resolve-media/resolve-media.class.ts#L90)
 
 ___
 
@@ -165,7 +165,7 @@ Name | Type |
 
 **Returns:** *any*
 
-Defined in: [packages/server/src/services/resolve-media/resolve-media.class.ts:98](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/resolve-media/resolve-media.class.ts#L98)
+Defined in: [packages/server/src/services/resolve-media/resolve-media.class.ts:98](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/resolve-media/resolve-media.class.ts#L98)
 
 ___
 
@@ -184,7 +184,7 @@ Name | Type |
 
 Implementation of: void
 
-Defined in: [packages/server/src/services/resolve-media/resolve-media.class.ts:94](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/resolve-media/resolve-media.class.ts#L94)
+Defined in: [packages/server/src/services/resolve-media/resolve-media.class.ts:94](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/resolve-media/resolve-media.class.ts#L94)
 
 ___
 
@@ -204,4 +204,4 @@ Name | Type |
 
 Implementation of: void
 
-Defined in: [packages/server/src/services/resolve-media/resolve-media.class.ts:86](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/resolve-media/resolve-media.class.ts#L86)
+Defined in: [packages/server/src/services/resolve-media/resolve-media.class.ts:86](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/resolve-media/resolve-media.class.ts#L86)

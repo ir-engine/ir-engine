@@ -37,4 +37,4 @@ Name | Type |
 `user.readScope` | *string* |
 `user.updateScope` | *string* |
 
-Defined in: [packages/server/src/services/project-asset/project-asset.access-control.ts:1](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/project-asset/project-asset.access-control.ts#L1)
+Defined in: [packages/server/src/services/project-asset/project-asset.access-control.ts:1](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/project-asset/project-asset.access-control.ts#L1)

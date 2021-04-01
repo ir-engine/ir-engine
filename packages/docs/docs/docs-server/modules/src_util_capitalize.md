@@ -22,4 +22,4 @@ Name | Type |
 
 **Returns:** *string*
 
-Defined in: [packages/server/src/util/capitalize.ts:2](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/util/capitalize.ts#L2)
+Defined in: [packages/server/src/util/capitalize.ts:2](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/util/capitalize.ts#L2)

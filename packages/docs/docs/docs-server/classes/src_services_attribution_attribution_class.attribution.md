@@ -35,7 +35,7 @@ Name | Type |
 
 Overrides: void
 
-Defined in: [packages/server/src/services/attribution/attribution.class.ts:8](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/attribution/attribution.class.ts#L8)
+Defined in: [packages/server/src/services/attribution/attribution.class.ts:8](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/attribution/attribution.class.ts#L8)
 
 ## Properties
 
@@ -53,7 +53,7 @@ ___
 
 • **docs**: *any*
 
-Defined in: [packages/server/src/services/attribution/attribution.class.ts:8](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/attribution/attribution.class.ts#L8)
+Defined in: [packages/server/src/services/attribution/attribution.class.ts:8](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/attribution/attribution.class.ts#L8)
 
 ___
 

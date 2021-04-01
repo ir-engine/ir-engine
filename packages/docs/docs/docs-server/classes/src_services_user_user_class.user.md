@@ -36,7 +36,7 @@ Name | Type |
 
 Overrides: void
 
-Defined in: [packages/server/src/services/user/user.class.ts:16](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/user/user.class.ts#L16)
+Defined in: [packages/server/src/services/user/user.class.ts:16](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/user/user.class.ts#L16)
 
 ## Properties
 
@@ -54,7 +54,7 @@ ___
 
 • **app**: [*Application*](../modules/src_declarations.md#application)
 
-Defined in: [packages/server/src/services/user/user.class.ts:15](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/user/user.class.ts#L15)
+Defined in: [packages/server/src/services/user/user.class.ts:15](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/user/user.class.ts#L15)
 
 ___
 
@@ -62,7 +62,7 @@ ___
 
 • **docs**: *any*
 
-Defined in: [packages/server/src/services/user/user.class.ts:16](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/user/user.class.ts#L16)
+Defined in: [packages/server/src/services/user/user.class.ts:16](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/user/user.class.ts#L16)
 
 ___
 
@@ -285,7 +285,7 @@ Name | Type | Description |
 
 Overrides: void
 
-Defined in: [packages/server/src/services/user/user.class.ts:30](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/user/user.class.ts#L30)
+Defined in: [packages/server/src/services/user/user.class.ts:30](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/user/user.class.ts#L30)
 
 ___
 

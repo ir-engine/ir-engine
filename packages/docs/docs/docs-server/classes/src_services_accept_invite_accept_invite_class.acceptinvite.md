@@ -31,7 +31,7 @@ Name | Type |
 
 **Returns:** [*AcceptInvite*](src_services_accept_invite_accept_invite_class.acceptinvite.md)
 
-Defined in: [packages/server/src/services/accept-invite/accept-invite.class.ts:17](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/accept-invite/accept-invite.class.ts#L17)
+Defined in: [packages/server/src/services/accept-invite/accept-invite.class.ts:17](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/accept-invite/accept-invite.class.ts#L17)
 
 ## Properties
 
@@ -39,7 +39,7 @@ Defined in: [packages/server/src/services/accept-invite/accept-invite.class.ts:1
 
 • **app**: [*Application*](../modules/src_declarations.md#application)
 
-Defined in: [packages/server/src/services/accept-invite/accept-invite.class.ts:15](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/accept-invite/accept-invite.class.ts#L15)
+Defined in: [packages/server/src/services/accept-invite/accept-invite.class.ts:15](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/accept-invite/accept-invite.class.ts#L15)
 
 ___
 
@@ -47,7 +47,7 @@ ___
 
 • **docs**: *any*
 
-Defined in: [packages/server/src/services/accept-invite/accept-invite.class.ts:17](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/accept-invite/accept-invite.class.ts#L17)
+Defined in: [packages/server/src/services/accept-invite/accept-invite.class.ts:17](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/accept-invite/accept-invite.class.ts#L17)
 
 ___
 
@@ -55,7 +55,7 @@ ___
 
 • **options**: ServiceOptions
 
-Defined in: [packages/server/src/services/accept-invite/accept-invite.class.ts:16](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/accept-invite/accept-invite.class.ts#L16)
+Defined in: [packages/server/src/services/accept-invite/accept-invite.class.ts:16](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/accept-invite/accept-invite.class.ts#L16)
 
 ## Methods
 
@@ -78,7 +78,7 @@ Name | Type | Description |
 
 Implementation of: void
 
-Defined in: [packages/server/src/services/accept-invite/accept-invite.class.ts:226](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/accept-invite/accept-invite.class.ts#L226)
+Defined in: [packages/server/src/services/accept-invite/accept-invite.class.ts:226](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/accept-invite/accept-invite.class.ts#L226)
 
 ___
 
@@ -102,7 +102,7 @@ Name | Type | Description |
 
 Implementation of: void
 
-Defined in: [packages/server/src/services/accept-invite/accept-invite.class.ts:32](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/accept-invite/accept-invite.class.ts#L32)
+Defined in: [packages/server/src/services/accept-invite/accept-invite.class.ts:32](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/accept-invite/accept-invite.class.ts#L32)
 
 ___
 
@@ -127,7 +127,7 @@ Name | Type | Description |
 
 Implementation of: void
 
-Defined in: [packages/server/src/services/accept-invite/accept-invite.class.ts:45](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/accept-invite/accept-invite.class.ts#L45)
+Defined in: [packages/server/src/services/accept-invite/accept-invite.class.ts:45](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/accept-invite/accept-invite.class.ts#L45)
 
 ___
 
@@ -153,7 +153,7 @@ Data
 
 Implementation of: void
 
-Defined in: [packages/server/src/services/accept-invite/accept-invite.class.ts:256](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/accept-invite/accept-invite.class.ts#L256)
+Defined in: [packages/server/src/services/accept-invite/accept-invite.class.ts:256](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/accept-invite/accept-invite.class.ts#L256)
 
 ___
 
@@ -178,7 +178,7 @@ id
 
 Implementation of: void
 
-Defined in: [packages/server/src/services/accept-invite/accept-invite.class.ts:267](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/accept-invite/accept-invite.class.ts#L267)
+Defined in: [packages/server/src/services/accept-invite/accept-invite.class.ts:267](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/accept-invite/accept-invite.class.ts#L267)
 
 ___
 
@@ -204,4 +204,4 @@ Data
 
 Implementation of: void
 
-Defined in: [packages/server/src/services/accept-invite/accept-invite.class.ts:243](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/accept-invite/accept-invite.class.ts#L243)
+Defined in: [packages/server/src/services/accept-invite/accept-invite.class.ts:243](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/accept-invite/accept-invite.class.ts#L243)

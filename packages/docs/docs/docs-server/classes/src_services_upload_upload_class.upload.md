@@ -33,7 +33,7 @@ Name | Type |
 
 **Returns:** [*Upload*](src_services_upload_upload_class.upload.md)
 
-Defined in: [packages/server/src/services/upload/upload.class.ts:16](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/upload/upload.class.ts#L16)
+Defined in: [packages/server/src/services/upload/upload.class.ts:16](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/upload/upload.class.ts#L16)
 
 ## Properties
 
@@ -41,7 +41,7 @@ Defined in: [packages/server/src/services/upload/upload.class.ts:16](https://git
 
 • **app**: [*Application*](../modules/src_declarations.md#application)
 
-Defined in: [packages/server/src/services/upload/upload.class.ts:14](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/upload/upload.class.ts#L14)
+Defined in: [packages/server/src/services/upload/upload.class.ts:14](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/upload/upload.class.ts#L14)
 
 ___
 
@@ -49,7 +49,7 @@ ___
 
 • **docs**: *any*
 
-Defined in: [packages/server/src/services/upload/upload.class.ts:16](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/upload/upload.class.ts#L16)
+Defined in: [packages/server/src/services/upload/upload.class.ts:16](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/upload/upload.class.ts#L16)
 
 ___
 
@@ -57,7 +57,7 @@ ___
 
 • **options**: ServiceOptions
 
-Defined in: [packages/server/src/services/upload/upload.class.ts:15](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/upload/upload.class.ts#L15)
+Defined in: [packages/server/src/services/upload/upload.class.ts:15](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/upload/upload.class.ts#L15)
 
 ## Methods
 
@@ -76,7 +76,7 @@ Name | Type |
 
 Implementation of: void
 
-Defined in: [packages/server/src/services/upload/upload.class.ts:33](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/upload/upload.class.ts#L33)
+Defined in: [packages/server/src/services/upload/upload.class.ts:33](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/upload/upload.class.ts#L33)
 
 ___
 
@@ -94,7 +94,7 @@ Name | Type |
 
 Implementation of: void
 
-Defined in: [packages/server/src/services/upload/upload.class.ts:23](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/upload/upload.class.ts#L23)
+Defined in: [packages/server/src/services/upload/upload.class.ts:23](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/upload/upload.class.ts#L23)
 
 ___
 
@@ -113,7 +113,7 @@ Name | Type |
 
 Implementation of: void
 
-Defined in: [packages/server/src/services/upload/upload.class.ts:27](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/upload/upload.class.ts#L27)
+Defined in: [packages/server/src/services/upload/upload.class.ts:27](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/upload/upload.class.ts#L27)
 
 ___
 
@@ -133,7 +133,7 @@ Name | Type |
 
 Implementation of: void
 
-Defined in: [packages/server/src/services/upload/upload.class.ts:52](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/upload/upload.class.ts#L52)
+Defined in: [packages/server/src/services/upload/upload.class.ts:52](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/upload/upload.class.ts#L52)
 
 ___
 
@@ -152,7 +152,7 @@ Name | Type |
 
 Implementation of: void
 
-Defined in: [packages/server/src/services/upload/upload.class.ts:56](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/upload/upload.class.ts#L56)
+Defined in: [packages/server/src/services/upload/upload.class.ts:56](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/upload/upload.class.ts#L56)
 
 ___
 
@@ -172,4 +172,4 @@ Name | Type |
 
 Implementation of: void
 
-Defined in: [packages/server/src/services/upload/upload.class.ts:48](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/upload/upload.class.ts#L48)
+Defined in: [packages/server/src/services/upload/upload.class.ts:48](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/upload/upload.class.ts#L48)

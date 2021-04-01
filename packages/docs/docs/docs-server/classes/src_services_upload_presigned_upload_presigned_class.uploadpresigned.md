@@ -33,7 +33,7 @@ Name | Type |
 
 **Returns:** [*UploadPresigned*](src_services_upload_presigned_upload_presigned_class.uploadpresigned.md)
 
-Defined in: [packages/server/src/services/upload-presigned/upload-presigned.class.ts:19](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/upload-presigned/upload-presigned.class.ts#L19)
+Defined in: [packages/server/src/services/upload-presigned/upload-presigned.class.ts:19](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/upload-presigned/upload-presigned.class.ts#L19)
 
 ## Properties
 
@@ -41,7 +41,7 @@ Defined in: [packages/server/src/services/upload-presigned/upload-presigned.clas
 
 • **app**: [*Application*](../modules/src_declarations.md#application)
 
-Defined in: [packages/server/src/services/upload-presigned/upload-presigned.class.ts:16](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/upload-presigned/upload-presigned.class.ts#L16)
+Defined in: [packages/server/src/services/upload-presigned/upload-presigned.class.ts:16](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/upload-presigned/upload-presigned.class.ts#L16)
 
 ___
 
@@ -49,7 +49,7 @@ ___
 
 • **docs**: *any*
 
-Defined in: [packages/server/src/services/upload-presigned/upload-presigned.class.ts:18](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/upload-presigned/upload-presigned.class.ts#L18)
+Defined in: [packages/server/src/services/upload-presigned/upload-presigned.class.ts:18](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/upload-presigned/upload-presigned.class.ts#L18)
 
 ___
 
@@ -57,7 +57,7 @@ ___
 
 • **options**: ServiceOptions
 
-Defined in: [packages/server/src/services/upload-presigned/upload-presigned.class.ts:17](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/upload-presigned/upload-presigned.class.ts#L17)
+Defined in: [packages/server/src/services/upload-presigned/upload-presigned.class.ts:17](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/upload-presigned/upload-presigned.class.ts#L17)
 
 ___
 
@@ -65,7 +65,7 @@ ___
 
 • **s3**: [*default*](src_storage_s3_storage.default.md)
 
-Defined in: [packages/server/src/services/upload-presigned/upload-presigned.class.ts:19](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/upload-presigned/upload-presigned.class.ts#L19)
+Defined in: [packages/server/src/services/upload-presigned/upload-presigned.class.ts:19](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/upload-presigned/upload-presigned.class.ts#L19)
 
 ## Methods
 
@@ -84,7 +84,7 @@ Name | Type |
 
 Implementation of: void
 
-Defined in: [packages/server/src/services/upload-presigned/upload-presigned.class.ts:42](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/upload-presigned/upload-presigned.class.ts#L42)
+Defined in: [packages/server/src/services/upload-presigned/upload-presigned.class.ts:42](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/upload-presigned/upload-presigned.class.ts#L42)
 
 ___
 
@@ -102,7 +102,7 @@ Name | Type |
 
 Implementation of: void
 
-Defined in: [packages/server/src/services/upload-presigned/upload-presigned.class.ts:26](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/upload-presigned/upload-presigned.class.ts#L26)
+Defined in: [packages/server/src/services/upload-presigned/upload-presigned.class.ts:26](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/upload-presigned/upload-presigned.class.ts#L26)
 
 ___
 
@@ -121,7 +121,7 @@ Name | Type |
 
 Implementation of: void
 
-Defined in: [packages/server/src/services/upload-presigned/upload-presigned.class.ts:30](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/upload-presigned/upload-presigned.class.ts#L30)
+Defined in: [packages/server/src/services/upload-presigned/upload-presigned.class.ts:30](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/upload-presigned/upload-presigned.class.ts#L30)
 
 ___
 
@@ -137,7 +137,7 @@ Name | Type |
 
 **Returns:** *string*
 
-Defined in: [packages/server/src/services/upload-presigned/upload-presigned.class.ts:66](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/upload-presigned/upload-presigned.class.ts#L66)
+Defined in: [packages/server/src/services/upload-presigned/upload-presigned.class.ts:66](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/upload-presigned/upload-presigned.class.ts#L66)
 
 ___
 
@@ -157,7 +157,7 @@ Name | Type |
 
 Implementation of: void
 
-Defined in: [packages/server/src/services/upload-presigned/upload-presigned.class.ts:50](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/upload-presigned/upload-presigned.class.ts#L50)
+Defined in: [packages/server/src/services/upload-presigned/upload-presigned.class.ts:50](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/upload-presigned/upload-presigned.class.ts#L50)
 
 ___
 
@@ -176,7 +176,7 @@ Name | Type |
 
 Implementation of: void
 
-Defined in: [packages/server/src/services/upload-presigned/upload-presigned.class.ts:54](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/upload-presigned/upload-presigned.class.ts#L54)
+Defined in: [packages/server/src/services/upload-presigned/upload-presigned.class.ts:54](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/upload-presigned/upload-presigned.class.ts#L54)
 
 ___
 
@@ -196,4 +196,4 @@ Name | Type |
 
 Implementation of: void
 
-Defined in: [packages/server/src/services/upload-presigned/upload-presigned.class.ts:46](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/upload-presigned/upload-presigned.class.ts#L46)
+Defined in: [packages/server/src/services/upload-presigned/upload-presigned.class.ts:46](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/upload-presigned/upload-presigned.class.ts#L46)

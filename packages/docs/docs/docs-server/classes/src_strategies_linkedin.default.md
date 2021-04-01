@@ -197,7 +197,7 @@ Name | Type |
 
 Overrides: [default](src_strategies_custom_oauth.default.md)
 
-Defined in: [packages/server/src/strategies/linkedin.ts:7](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/strategies/linkedin.ts#L7)
+Defined in: [packages/server/src/strategies/linkedin.ts:7](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/strategies/linkedin.ts#L7)
 
 ___
 
@@ -216,7 +216,7 @@ Name | Type |
 
 Inherited from: [default](src_strategies_custom_oauth.default.md)
 
-Defined in: [packages/server/src/strategies/custom-oauth.ts:6](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/strategies/custom-oauth.ts#L6)
+Defined in: [packages/server/src/strategies/custom-oauth.ts:6](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/strategies/custom-oauth.ts#L6)
 
 ___
 
@@ -254,7 +254,7 @@ Name | Type |
 
 Overrides: [default](src_strategies_custom_oauth.default.md)
 
-Defined in: [packages/server/src/strategies/linkedin.ts:37](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/strategies/linkedin.ts#L37)
+Defined in: [packages/server/src/strategies/linkedin.ts:37](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/strategies/linkedin.ts#L37)
 
 ___
 
@@ -328,4 +328,4 @@ Name | Type |
 
 Overrides: [default](src_strategies_custom_oauth.default.md)
 
-Defined in: [packages/server/src/strategies/linkedin.ts:18](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/strategies/linkedin.ts#L18)
+Defined in: [packages/server/src/strategies/linkedin.ts:18](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/strategies/linkedin.ts#L18)
