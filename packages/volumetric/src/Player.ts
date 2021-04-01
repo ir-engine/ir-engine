@@ -116,7 +116,7 @@ export default class DracosisPlayer {
     autoplay?: boolean,
     scale?: number,
     keyframesToBufferBeforeStart?: number,
-    video?:any,
+    video:any,
     onMeshBuffering?: onMeshBufferingCallback
     onFrameShow?: onFrameShowCallback
   }) {
@@ -173,7 +173,7 @@ export default class DracosisPlayer {
           console.log("Worker initialized");
           break;
         case 'framedata':
-          console.log("Frame data received");
+          // console.log("Frame data received");
           handleFrameData(e.data.payload);
           break;
         case 'completed':
