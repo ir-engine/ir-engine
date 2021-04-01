@@ -1,10 +1,10 @@
-import { FollowCameraComponent } from '@xr3ngine/engine/src/camera/components/FollowCameraComponent';
-import { Behavior } from '@xr3ngine/engine/src/common/interfaces/Behavior';
-import { Entity } from '@xr3ngine/engine/src/ecs/classes/Entity';
-import { getComponent, removeComponent } from '@xr3ngine/engine/src/ecs/functions/EntityFunctions';
-import { Input } from '@xr3ngine/engine/src/input/components/Input';
-import { BaseInput } from '@xr3ngine/engine/src/input/enums/BaseInput';
-import { Material, Mesh, Vector3, Quaternion, Object3D } from "three";
+import { FollowCameraComponent } from '../../camera/components/FollowCameraComponent';
+import { Behavior } from '../../common/interfaces/Behavior';
+import { Entity } from '../../ecs/classes/Entity';
+import { getComponent } from '../../ecs/functions/EntityFunctions';
+import { Input } from '../../input/components/Input';
+import { BaseInput } from '../../input/enums/BaseInput';
+import { Material, Mesh, Vector3, Object3D } from "three";
 import { SkinnedMesh } from 'three/src/objects/SkinnedMesh';
 import { CameraComponent } from "../../camera/components/CameraComponent";
 import { CameraModes } from "../../camera/types/CameraModes";
@@ -26,7 +26,6 @@ import { isMobileOrTablet } from '../../common/functions/isMobile';
 import { SIXDOFType } from '../../common/types/NumericalTypes';
 import { IKComponent } from '../../character/components/IKComponent';
 import { EquippedComponent } from '../../interaction/components/EquippedComponent';
-import { TransformParentComponent } from '../../transform/components/TransformParentComponent';
 import { unequipEntity } from '../../interaction/functions/equippableFunctions';
 import { TransformComponent } from '../../transform/components/TransformComponent';
 

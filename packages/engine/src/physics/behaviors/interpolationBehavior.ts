@@ -1,7 +1,6 @@
-import { Vec3 } from "cannon-es";
 import { Behavior } from '../../common/interfaces/Behavior';
 import { Entity } from '../../ecs/classes/Entity';
-import { Engine } from "@xr3ngine/engine/src/ecs/classes/Engine";
+import { Engine } from "../../ecs/classes/Engine";
 import { getComponent, getMutableComponent, hasComponent } from '../../ecs/functions/EntityFunctions';
 import { Network } from '../../networking/classes/Network';
 import { NetworkObject } from '../../networking/components/NetworkObject';
@@ -12,7 +11,6 @@ import { InterpolationComponent } from '../components/InterpolationComponent';
 import { TransformComponent } from '../../transform/components/TransformComponent';
 import { VehicleComponent } from '../../templates/vehicle/components/VehicleComponent';
 import { Object3DComponent } from '../../scene/components/Object3DComponent';
-import { Interactable } from '../../interaction/components/Interactable';
 
 export const findOne = (entity, snapshot) => {
   const networkId = getComponent(entity, NetworkObject).networkId;

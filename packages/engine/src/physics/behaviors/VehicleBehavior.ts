@@ -1,22 +1,12 @@
-import { Body, RaycastVehicle, Sphere, Vec3  } from "cannon-es";
-import { Euler, Quaternion } from 'three';
-import { Engine } from "@xr3ngine/engine/src/ecs/classes/Engine";
-import { cannonFromThreeVector } from "../../common/functions/cannonFromThreeVector";
-import { isClient } from "../../common/functions/isClient";
+import { RaycastVehicle, Vec3  } from "cannon-es";
 import { isServer } from "../../common/functions/isServer";
 import { Behavior } from '../../common/interfaces/Behavior';
 import { Entity } from '../../ecs/classes/Entity';
-import { getComponent, getMutableComponent, hasComponent } from '../../ecs/functions/EntityFunctions';
-import { Network } from '../../networking/classes/Network';
-import { NetworkObject } from '../../networking/components/NetworkObject';
+import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
 import { VehicleComponent } from '../../templates/vehicle/components/VehicleComponent';
-import { createTrimeshFromMesh, createTrimeshFromArrayVertices } from './addColliderWithoutEntity';
 import { TransformComponent } from '../../transform/components/TransformComponent';
 import { CollisionGroups } from "../enums/CollisionGroups";
 import { PhysicsSystem } from '../systems/PhysicsSystem';
-import { createTrimesh } from "./physicalPrimitives";
-import { LocalInputReceiver } from '../../input/components/LocalInputReceiver';
-import { VehicleState } from "../../templates/vehicle/enums/VehicleStateEnum";
 import { PhysicsLifecycleState } from "../enums/PhysicsStates";
 
 

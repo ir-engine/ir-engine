@@ -1,9 +1,7 @@
 import { Matrix4, Vector3, Quaternion } from 'three';
 import CANNON, { Vec3 } from 'cannon-es';
-import { Engine } from '../../ecs/classes/Engine';
 
 import { applyVectorMatrixXZ } from '../../common/functions/applyVectorMatrixXZ';
-import { cannonFromThreeVector } from '../../common/functions/cannonFromThreeVector';
 import { getSignedAngleBetweenVectors } from '../../common/functions/getSignedAngleBetweenVectors';
 import { lerp } from '../../common/functions/MathLerpFunctions';
 
@@ -12,8 +10,8 @@ import { Entity } from '../../ecs/classes/Entity';
 import { hasComponent, getComponent, getMutableComponent, removeComponent } from '../../ecs/functions/EntityFunctions';
 
 import { Input } from '../../input/components/Input';
-import { BinaryValue } from "@xr3ngine/engine/src/common/enums/BinaryValue";
-import { BaseInput } from '@xr3ngine/engine/src/input/enums/BaseInput';
+import { BinaryValue } from "../../common/enums/BinaryValue";
+import { BaseInput } from '../../input/enums/BaseInput';
 
 import { CapsuleCollider } from '../components/CapsuleCollider';
 import { CharacterComponent } from '../../templates/character/components/CharacterComponent';

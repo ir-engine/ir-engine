@@ -116,7 +116,7 @@ export default class DracosisPlayer {
     autoplay?: boolean,
     scale?: number,
     keyframesToBufferBeforeStart?: number,
-    video:any,
+    video?:any,
     onMeshBuffering?: onMeshBufferingCallback
     onFrameShow?: onFrameShowCallback
   }) {

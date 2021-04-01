@@ -1,12 +1,10 @@
 import { Component } from "../../ecs/classes/Component";
 import { Entity } from "../../ecs/classes/Entity";
 import { isClient } from "../../common/functions/isClient";
-import { Behavior } from '@xr3ngine/engine/src/common/interfaces/Behavior';
-import { Engine } from "@xr3ngine/engine/src/ecs/classes/Engine";
-import { getComponent, hasComponent, removeEntity } from "@xr3ngine/engine/src/ecs/functions/EntityFunctions";
-import { parseModelColliders, clearFromColliders } from '@xr3ngine/engine/src/physics/behaviors/parseModelColliders';
-import { createVehicleFromSceneData } from '@xr3ngine/engine/src/templates/vehicle/prefabs/NetworkVehicle';
-import { AmbientLight, CircleBufferGeometry, Color, HemisphereLight, Mesh, MeshPhongMaterial, PointLight, SpotLight, Vector3, Quaternion, Matrix4 } from 'three';
+import { getComponent } from "../../ecs/functions/EntityFunctions";
+import { parseModelColliders, clearFromColliders } from '../../physics/behaviors/parseModelColliders';
+import { createVehicleFromSceneData } from '../../templates/vehicle/prefabs/NetworkVehicle';
+import { AmbientLight, CircleBufferGeometry, Color, HemisphereLight, Mesh, MeshPhongMaterial, PointLight, SpotLight } from 'three';
 import { AssetLoader } from '../../assets/components/AssetLoader';
 import { addComponent, getMutableComponent } from "../../ecs/functions/EntityFunctions";
 import { ComponentConstructor } from "../../ecs/interfaces/ComponentInterfaces";
