@@ -1,4 +1,3 @@
-import { Vec3 } from 'cannon-es';
 import { Mesh } from 'three';
 import { Object3DComponent } from '../../scene/components/Object3DComponent';
 import { Behavior } from '../../common/interfaces/Behavior';
@@ -12,7 +11,6 @@ import {
   createGround, createSphere,
   createTrimesh
 } from './physicalPrimitives';
-import { VehicleState } from '../../templates/vehicle/enums/VehicleStateEnum';
 import { PhysicsLifecycleState } from '../enums/PhysicsStates';
 
 export const handleCollider: Behavior = (entity: Entity, args: { phase?: PhysicsLifecycleState }): void => {

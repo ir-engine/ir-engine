@@ -1,12 +1,8 @@
-import { Quaternion, Vector3 } from "three";
 import { Body, Vec3 } from 'cannon-es';
-import { Engine } from "@xr3ngine/engine/src/ecs/classes/Engine";
+import { Engine } from "../../../ecs/classes/Engine";
 import { Entity } from "../../../ecs/classes/Entity";
-import { Behavior } from '@xr3ngine/engine/src/common/interfaces/Behavior';
-import { isServer } from '@xr3ngine/engine/src/common/functions/isServer';
 import { isClient } from "../../../common/functions/isClient";
-import { hasComponent, getComponent, getMutableComponent } from "@xr3ngine/engine/src/ecs/functions/EntityFunctions";
-import { PrefabType } from "@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema";
+import { hasComponent, getComponent, getMutableComponent } from "../../../ecs/functions/EntityFunctions";
 import { initializeNetworkObject } from '../../../networking/functions/initializeNetworkObject';
 import { Network } from '../../../networking/classes/Network';
 import { NetworkPrefab } from '../../../networking/interfaces/NetworkPrefab';
@@ -14,12 +10,13 @@ import { VehicleInputSchema } from '../VehicleInputSchema';
 import { Input } from '../../../input/components/Input';
 import { Interactable } from '../../../interaction/components/Interactable';
 import { TransformComponent } from '../../../transform/components/TransformComponent';
-import { InterpolationComponent } from "@xr3ngine/engine/src/physics/components/InterpolationComponent";
-import { createTrimeshFromArrayVertices, createTrimeshFromMesh, createCylinder, createBox, createSphere } from '@xr3ngine/engine/src/physics/behaviors/addColliderWithoutEntity';
+import { InterpolationComponent } from "../../../physics/components/InterpolationComponent";
+import { createTrimeshFromArrayVertices, createTrimeshFromMesh, createCylinder, createBox, createSphere } from '../../../physics/behaviors/addColliderWithoutEntity';
 import { AssetLoader } from '../../../assets/components/AssetLoader';
 import { getInCar } from '../behaviors/getInCarBehavior';
 import { getInCarPossible } from '../behaviors/getInCarPossible';
 import { VehicleComponent } from "../components/VehicleComponent";
+import { PrefabType } from "../../networking/PrefabType";
 
 
 function castShadowOn(group) {

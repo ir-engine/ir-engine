@@ -4,7 +4,6 @@ import { SocketWebRTCServerTransport } from "./transports/SocketWebRTCServerTran
 
 // Patch XHR for FileLoader in threejs
 import { XMLHttpRequest } from 'xmlhttprequest';
-import { Engine } from "@xr3ngine/engine/src/ecs/classes/Engine";
 (globalThis as any).XMLHttpRequest = XMLHttpRequest; 
 import config from '../config';
 
@@ -28,6 +27,7 @@ export class WebRTCGameServer {
   constructor(app: any) {
     (options.networking as any).app = app;
     WebRTCGameServer.instance = this;
+    console.log('Engine intializing...')
     initializeServer(options);
   }
 }

@@ -1,4 +1,4 @@
-import { mergeBufferGeometries } from "@xr3ngine/engine/src/common/classes/BufferGeometryUtils";
+import { mergeBufferGeometries } from "../../common/classes/BufferGeometryUtils";
 import { Quaternion, Vector3, Euler, Matrix4, ConeBufferGeometry, Color, BufferAttribute, MeshPhongMaterial, Mesh, Object3D, Bone, Skeleton } from 'three';
 
 export const localVector = new Vector3();

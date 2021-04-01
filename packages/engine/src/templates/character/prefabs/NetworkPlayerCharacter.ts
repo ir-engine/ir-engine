@@ -1,7 +1,7 @@
-import { isClient } from "@xr3ngine/engine/src/common/functions/isClient";
+import { isClient } from '../../../common/functions/isClient';
 import { Entity } from '../../../ecs/classes/Entity';
-import { Behavior } from "@xr3ngine/engine/src/common/interfaces/Behavior";
-import { addObject3DComponent } from "@xr3ngine/engine/src/scene/behaviors/addObject3DComponent";
+import { Behavior } from "../../../common/interfaces/Behavior";
+import { addObject3DComponent } from "../../../scene/behaviors/addObject3DComponent";
 import { initializeNetworkObject } from '../../../networking/functions/initializeNetworkObject'
 import { Network } from '../../../networking/classes/Network';
 import { Vec3 } from "cannon-es";
@@ -31,7 +31,7 @@ import { NamePlateComponent } from '../components/NamePlateComponent';
 import { getLoader } from "../../../assets/functions/LoadGLTF";
 import { DEFAULT_AVATAR_ID } from "../../../common/constants/AvatarConstants";
 import { Engine } from "../../../ecs/classes/Engine";
-import { PrefabType } from "@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema";
+import { PrefabType } from "../../networking/PrefabType";
 import { initializeMovingState } from "../animations/MovingAnimations";
 import { IKComponent } from "../../../character/components/IKComponent";
 import { initiateIK } from "../../../xr/functions/IKFunctions";

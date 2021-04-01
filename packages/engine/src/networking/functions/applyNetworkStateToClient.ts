@@ -1,12 +1,9 @@
-import { createNetworkRigidBody } from '@xr3ngine/engine/src/interaction/prefabs/NetworkRigidBody';
-import { NetworkObject } from '@xr3ngine/engine/src/networking/components/NetworkObject';
-import { PlayerInCar } from '@xr3ngine/engine/src/physics/components/PlayerInCar';
-import { createNetworkPlayer } from '@xr3ngine/engine/src/templates/character/prefabs/NetworkPlayerCharacter';
-import { PrefabType } from "@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema";
-import { createNetworkVehicle } from '@xr3ngine/engine/src/templates/vehicle/prefabs/NetworkVehicle';
+import { createNetworkRigidBody } from '../../interaction/prefabs/NetworkRigidBody';
+import { NetworkObject } from '../../networking/components/NetworkObject';
+import { createNetworkPlayer } from '../../templates/character/prefabs/NetworkPlayerCharacter';
+import { createNetworkVehicle } from '../../templates/vehicle/prefabs/NetworkVehicle';
 import { IKComponent } from "../../character/components/IKComponent";
 import { addComponent, getComponent, getMutableComponent, hasComponent, removeComponent, removeEntity } from '../../ecs/functions/EntityFunctions';
-import { LocalInputReceiver } from '../../input/components/LocalInputReceiver';
 import { CharacterComponent } from "../../templates/character/components/CharacterComponent";
 import { NetworkObjectUpdateSchema } from '../../templates/networking/NetworkObjectUpdateSchema';
 import { initiateIK } from "../../xr/functions/IKFunctions";
@@ -14,6 +11,7 @@ import { Network } from '../classes/Network';
 import { addSnapshot, createSnapshot } from '../functions/NetworkInterpolationFunctions';
 import { WorldStateInterface } from "../interfaces/WorldState";
 import { StateEntityIK } from "../types/SnapshotDataTypes";
+import { PrefabType } from '../../templates/networking/PrefabType';
 
 /**
  * Apply State received over the network to the client.
