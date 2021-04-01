@@ -37,7 +37,7 @@ Name | Type |
 
 Overrides: void
 
-Defined in: [packages/server/src/services/instance/instance.class.ts:13](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/instance/instance.class.ts#L13)
+Defined in: [packages/server/src/services/instance/instance.class.ts:13](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/instance/instance.class.ts#L13)
 
 ## Properties
 
@@ -55,7 +55,7 @@ ___
 
 • **docs**: *any*
 
-Defined in: [packages/server/src/services/instance/instance.class.ts:13](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/instance/instance.class.ts#L13)
+Defined in: [packages/server/src/services/instance/instance.class.ts:13](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/instance/instance.class.ts#L13)
 
 ___
 
@@ -278,7 +278,7 @@ user object
 
 Overrides: void
 
-Defined in: [packages/server/src/services/instance/instance.class.ts:23](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/instance/instance.class.ts#L23)
+Defined in: [packages/server/src/services/instance/instance.class.ts:23](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/instance/instance.class.ts#L23)
 
 ___
 

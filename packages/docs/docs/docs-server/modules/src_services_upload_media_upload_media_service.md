@@ -26,4 +26,4 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/server/src/services/upload-media/upload-media.service.ts:18](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/upload-media/upload-media.service.ts#L18)
+Defined in: [packages/server/src/services/upload-media/upload-media.service.ts:18](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/upload-media/upload-media.service.ts#L18)

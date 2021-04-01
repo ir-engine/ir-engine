@@ -26,4 +26,4 @@ Name | Type | Default value |
 
 **Returns:** (`context`: *HookContext*<any, Service<any\>\>) => *HookContext*<any, Service<any\>\>
 
-Defined in: [packages/server/src/hooks/set-response-status-code.ts:1](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/hooks/set-response-status-code.ts#L1)
+Defined in: [packages/server/src/hooks/set-response-status-code.ts:1](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/hooks/set-response-status-code.ts#L1)

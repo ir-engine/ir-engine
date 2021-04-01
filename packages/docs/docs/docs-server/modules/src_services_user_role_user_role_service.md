@@ -26,4 +26,4 @@ Name | Type |
 
 **Returns:** *any*
 
-Defined in: [packages/server/src/services/user-role/user-role.service.ts:12](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/user-role/user-role.service.ts#L12)
+Defined in: [packages/server/src/services/user-role/user-role.service.ts:12](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/user-role/user-role.service.ts#L12)

@@ -22,7 +22,7 @@ Name | Type |
 
 **Returns:** *Promise*<HookContext<any, Service<any\>\>\>
 
-Defined in: [packages/server/src/hooks/validatePresignedRequest.ts:24](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/hooks/validatePresignedRequest.ts#L24)
+Defined in: [packages/server/src/hooks/validatePresignedRequest.ts:24](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/hooks/validatePresignedRequest.ts#L24)
 
 ___
 
@@ -38,4 +38,4 @@ Name | Type |
 
 **Returns:** *Promise*<HookContext<any, Service<any\>\>\>
 
-Defined in: [packages/server/src/hooks/validatePresignedRequest.ts:3](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/hooks/validatePresignedRequest.ts#L3)
+Defined in: [packages/server/src/hooks/validatePresignedRequest.ts:3](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/hooks/validatePresignedRequest.ts#L3)

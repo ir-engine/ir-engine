@@ -31,7 +31,7 @@ Name | Type |
 
 **Returns:** [*InstanceProvision*](src_services_instance_provision_instance_provision_class.instanceprovision.md)
 
-Defined in: [packages/server/src/services/instance-provision/instance-provision.class.ts:28](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/instance-provision/instance-provision.class.ts#L28)
+Defined in: [packages/server/src/services/instance-provision/instance-provision.class.ts:28](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/instance-provision/instance-provision.class.ts#L28)
 
 ## Properties
 
@@ -39,7 +39,7 @@ Defined in: [packages/server/src/services/instance-provision/instance-provision.
 
 • **app**: [*Application*](../modules/src_declarations.md#application)
 
-Defined in: [packages/server/src/services/instance-provision/instance-provision.class.ts:26](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/instance-provision/instance-provision.class.ts#L26)
+Defined in: [packages/server/src/services/instance-provision/instance-provision.class.ts:26](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/instance-provision/instance-provision.class.ts#L26)
 
 ___
 
@@ -47,7 +47,7 @@ ___
 
 • **docs**: *any*
 
-Defined in: [packages/server/src/services/instance-provision/instance-provision.class.ts:28](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/instance-provision/instance-provision.class.ts#L28)
+Defined in: [packages/server/src/services/instance-provision/instance-provision.class.ts:28](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/instance-provision/instance-provision.class.ts#L28)
 
 ___
 
@@ -55,7 +55,7 @@ ___
 
 • **options**: ServiceOptions
 
-Defined in: [packages/server/src/services/instance-provision/instance-provision.class.ts:27](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/instance-provision/instance-provision.class.ts#L27)
+Defined in: [packages/server/src/services/instance-provision/instance-provision.class.ts:27](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/instance-provision/instance-provision.class.ts#L27)
 
 ## Methods
 
@@ -78,7 +78,7 @@ data of instance
 
 Implementation of: void
 
-Defined in: [packages/server/src/services/instance-provision/instance-provision.class.ts:346](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/instance-provision/instance-provision.class.ts#L346)
+Defined in: [packages/server/src/services/instance-provision/instance-provision.class.ts:346](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/instance-provision/instance-provision.class.ts#L346)
 
 ___
 
@@ -102,7 +102,7 @@ Name | Type | Description |
 
 Implementation of: void
 
-Defined in: [packages/server/src/services/instance-provision/instance-provision.class.ts:134](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/instance-provision/instance-provision.class.ts#L134)
+Defined in: [packages/server/src/services/instance-provision/instance-provision.class.ts:134](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/instance-provision/instance-provision.class.ts#L134)
 
 ___
 
@@ -125,7 +125,7 @@ id and text
 
 Implementation of: void
 
-Defined in: [packages/server/src/services/instance-provision/instance-provision.class.ts:332](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/instance-provision/instance-provision.class.ts#L332)
+Defined in: [packages/server/src/services/instance-provision/instance-provision.class.ts:332](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/instance-provision/instance-provision.class.ts#L332)
 
 ___
 
@@ -139,7 +139,7 @@ An method which start server for instance
 
 **Returns:** *Promise*<any\>
 
-Defined in: [packages/server/src/services/instance-provision/instance-provision.class.ts:38](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/instance-provision/instance-provision.class.ts#L38)
+Defined in: [packages/server/src/services/instance-provision/instance-provision.class.ts:38](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/instance-provision/instance-provision.class.ts#L38)
 
 ___
 
@@ -161,7 +161,7 @@ Name | Type | Description |
 
 ipAddress and port
 
-Defined in: [packages/server/src/services/instance-provision/instance-provision.class.ts:70](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/instance-provision/instance-provision.class.ts#L70)
+Defined in: [packages/server/src/services/instance-provision/instance-provision.class.ts:70](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/instance-provision/instance-provision.class.ts#L70)
 
 ___
 
@@ -183,7 +183,7 @@ Name | Type | Description |
 
 {@Boolean}
 
-Defined in: [packages/server/src/services/instance-provision/instance-provision.class.ts:99](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/instance-provision/instance-provision.class.ts#L99)
+Defined in: [packages/server/src/services/instance-provision/instance-provision.class.ts:99](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/instance-provision/instance-provision.class.ts#L99)
 
 ___
 
@@ -203,7 +203,7 @@ Name | Type |
 
 Implementation of: void
 
-Defined in: [packages/server/src/services/instance-provision/instance-provision.class.ts:373](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/instance-provision/instance-provision.class.ts#L373)
+Defined in: [packages/server/src/services/instance-provision/instance-provision.class.ts:373](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/instance-provision/instance-provision.class.ts#L373)
 
 ___
 
@@ -226,7 +226,7 @@ id
 
 Implementation of: void
 
-Defined in: [packages/server/src/services/instance-provision/instance-provision.class.ts:385](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/instance-provision/instance-provision.class.ts#L385)
+Defined in: [packages/server/src/services/instance-provision/instance-provision.class.ts:385](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/instance-provision/instance-provision.class.ts#L385)
 
 ___
 
@@ -250,4 +250,4 @@ data of updated instance
 
 Implementation of: void
 
-Defined in: [packages/server/src/services/instance-provision/instance-provision.class.ts:362](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/instance-provision/instance-provision.class.ts#L362)
+Defined in: [packages/server/src/services/instance-provision/instance-provision.class.ts:362](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/instance-provision/instance-provision.class.ts#L362)

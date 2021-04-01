@@ -33,7 +33,7 @@ Name | Type |
 
 **Returns:** [*UploadMedia*](src_services_upload_media_upload_media_class.uploadmedia.md)
 
-Defined in: [packages/server/src/services/upload-media/upload-media.class.ts:15](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/upload-media/upload-media.class.ts#L15)
+Defined in: [packages/server/src/services/upload-media/upload-media.class.ts:15](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/upload-media/upload-media.class.ts#L15)
 
 ## Properties
 
@@ -41,7 +41,7 @@ Defined in: [packages/server/src/services/upload-media/upload-media.class.ts:15]
 
 • **app**: [*Application*](../modules/src_declarations.md#application)
 
-Defined in: [packages/server/src/services/upload-media/upload-media.class.ts:14](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/upload-media/upload-media.class.ts#L14)
+Defined in: [packages/server/src/services/upload-media/upload-media.class.ts:14](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/upload-media/upload-media.class.ts#L14)
 
 ___
 
@@ -49,7 +49,7 @@ ___
 
 • **options**: ServiceOptions
 
-Defined in: [packages/server/src/services/upload-media/upload-media.class.ts:15](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/upload-media/upload-media.class.ts#L15)
+Defined in: [packages/server/src/services/upload-media/upload-media.class.ts:15](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/upload-media/upload-media.class.ts#L15)
 
 ## Methods
 
@@ -68,7 +68,7 @@ Name | Type |
 
 Implementation of: void
 
-Defined in: [packages/server/src/services/upload-media/upload-media.class.ts:30](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/upload-media/upload-media.class.ts#L30)
+Defined in: [packages/server/src/services/upload-media/upload-media.class.ts:30](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/upload-media/upload-media.class.ts#L30)
 
 ___
 
@@ -86,7 +86,7 @@ Name | Type |
 
 Implementation of: void
 
-Defined in: [packages/server/src/services/upload-media/upload-media.class.ts:22](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/upload-media/upload-media.class.ts#L22)
+Defined in: [packages/server/src/services/upload-media/upload-media.class.ts:22](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/upload-media/upload-media.class.ts#L22)
 
 ___
 
@@ -105,7 +105,7 @@ Name | Type |
 
 Implementation of: void
 
-Defined in: [packages/server/src/services/upload-media/upload-media.class.ts:26](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/upload-media/upload-media.class.ts#L26)
+Defined in: [packages/server/src/services/upload-media/upload-media.class.ts:26](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/upload-media/upload-media.class.ts#L26)
 
 ___
 
@@ -125,7 +125,7 @@ Name | Type |
 
 Implementation of: void
 
-Defined in: [packages/server/src/services/upload-media/upload-media.class.ts:42](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/upload-media/upload-media.class.ts#L42)
+Defined in: [packages/server/src/services/upload-media/upload-media.class.ts:42](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/upload-media/upload-media.class.ts#L42)
 
 ___
 
@@ -144,7 +144,7 @@ Name | Type |
 
 Implementation of: void
 
-Defined in: [packages/server/src/services/upload-media/upload-media.class.ts:46](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/upload-media/upload-media.class.ts#L46)
+Defined in: [packages/server/src/services/upload-media/upload-media.class.ts:46](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/upload-media/upload-media.class.ts#L46)
 
 ___
 
@@ -164,4 +164,4 @@ Name | Type |
 
 Implementation of: void
 
-Defined in: [packages/server/src/services/upload-media/upload-media.class.ts:38](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/upload-media/upload-media.class.ts#L38)
+Defined in: [packages/server/src/services/upload-media/upload-media.class.ts:38](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/upload-media/upload-media.class.ts#L38)

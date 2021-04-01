@@ -26,4 +26,4 @@ Name | Type |
 
 **Returns:** *string*
 
-Defined in: [packages/server/src/util/get-basic-mimetype.ts:1](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/util/get-basic-mimetype.ts#L1)
+Defined in: [packages/server/src/util/get-basic-mimetype.ts:1](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/util/get-basic-mimetype.ts#L1)

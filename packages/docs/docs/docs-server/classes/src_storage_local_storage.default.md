@@ -28,7 +28,7 @@ hide_title: true
 
 • **path**: *string*= './upload'
 
-Defined in: [packages/server/src/storage/local.storage.ts:5](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/storage/local.storage.ts#L5)
+Defined in: [packages/server/src/storage/local.storage.ts:5](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/storage/local.storage.ts#L5)
 
 ## Methods
 
@@ -40,7 +40,7 @@ Defined in: [packages/server/src/storage/local.storage.ts:5](https://github.com/
 
 Implementation of: [StorageProviderInterface](../interfaces/src_storage_storageprovider_interface.storageproviderinterface.md)
 
-Defined in: [packages/server/src/storage/local.storage.ts:7](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/storage/local.storage.ts#L7)
+Defined in: [packages/server/src/storage/local.storage.ts:7](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/storage/local.storage.ts#L7)
 
 ___
 
@@ -52,4 +52,4 @@ ___
 
 Implementation of: [StorageProviderInterface](../interfaces/src_storage_storageprovider_interface.storageproviderinterface.md)
 
-Defined in: [packages/server/src/storage/local.storage.ts:8](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/storage/local.storage.ts#L8)
+Defined in: [packages/server/src/storage/local.storage.ts:8](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/storage/local.storage.ts#L8)

@@ -28,4 +28,4 @@ Name | Type |
 
 **Returns:** *any*
 
-Defined in: [packages/server/src/models/creator.model.ts:2](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/models/creator.model.ts#L2)
+Defined in: [packages/server/src/models/creator.model.ts:2](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/models/creator.model.ts#L2)

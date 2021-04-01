@@ -30,4 +30,4 @@ Name | Type |
 `randomize` | *boolean* |
 `templates` | { `rank`: *string* = 'owner' }[] |
 
-Defined in: [packages/server/src/services/group-user-rank/group-user-rank.seed.ts:3](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/group-user-rank/group-user-rank.seed.ts#L3)
+Defined in: [packages/server/src/services/group-user-rank/group-user-rank.seed.ts:3](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/group-user-rank/group-user-rank.seed.ts#L3)

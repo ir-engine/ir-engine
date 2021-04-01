@@ -33,7 +33,7 @@ Name | Type |
 
 **Returns:** [*Video*](src_services_video_video_class.video.md)
 
-Defined in: [packages/server/src/services/video/video.class.ts:16](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/video/video.class.ts#L16)
+Defined in: [packages/server/src/services/video/video.class.ts:16](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/video/video.class.ts#L16)
 
 ## Properties
 
@@ -41,7 +41,7 @@ Defined in: [packages/server/src/services/video/video.class.ts:16](https://githu
 
 • **app**: [*Application*](../modules/src_declarations.md#application)
 
-Defined in: [packages/server/src/services/video/video.class.ts:15](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/video/video.class.ts#L15)
+Defined in: [packages/server/src/services/video/video.class.ts:15](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/video/video.class.ts#L15)
 
 ___
 
@@ -49,7 +49,7 @@ ___
 
 • **options**: ServiceOptions
 
-Defined in: [packages/server/src/services/video/video.class.ts:16](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/video/video.class.ts#L16)
+Defined in: [packages/server/src/services/video/video.class.ts:16](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/video/video.class.ts#L16)
 
 ## Methods
 
@@ -68,7 +68,7 @@ Name | Type |
 
 Implementation of: void
 
-Defined in: [packages/server/src/services/video/video.class.ts:33](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/video/video.class.ts#L33)
+Defined in: [packages/server/src/services/video/video.class.ts:33](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/video/video.class.ts#L33)
 
 ___
 
@@ -86,7 +86,7 @@ Name | Type |
 
 Implementation of: void
 
-Defined in: [packages/server/src/services/video/video.class.ts:23](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/video/video.class.ts#L23)
+Defined in: [packages/server/src/services/video/video.class.ts:23](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/video/video.class.ts#L23)
 
 ___
 
@@ -105,7 +105,7 @@ Name | Type |
 
 Implementation of: void
 
-Defined in: [packages/server/src/services/video/video.class.ts:27](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/video/video.class.ts#L27)
+Defined in: [packages/server/src/services/video/video.class.ts:27](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/video/video.class.ts#L27)
 
 ___
 
@@ -125,7 +125,7 @@ Name | Type |
 
 Implementation of: void
 
-Defined in: [packages/server/src/services/video/video.class.ts:48](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/video/video.class.ts#L48)
+Defined in: [packages/server/src/services/video/video.class.ts:48](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/video/video.class.ts#L48)
 
 ___
 
@@ -144,7 +144,7 @@ Name | Type |
 
 Implementation of: void
 
-Defined in: [packages/server/src/services/video/video.class.ts:52](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/video/video.class.ts#L52)
+Defined in: [packages/server/src/services/video/video.class.ts:52](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/video/video.class.ts#L52)
 
 ___
 
@@ -164,4 +164,4 @@ Name | Type |
 
 Implementation of: void
 
-Defined in: [packages/server/src/services/video/video.class.ts:44](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/video/video.class.ts#L44)
+Defined in: [packages/server/src/services/video/video.class.ts:44](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/video/video.class.ts#L44)

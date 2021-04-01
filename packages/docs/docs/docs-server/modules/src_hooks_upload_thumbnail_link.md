@@ -26,4 +26,4 @@ Name | Type |
 
 **Returns:** *Hook*<any, Service<any\>\>
 
-Defined in: [packages/server/src/hooks/upload-thumbnail-link.ts:6](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/hooks/upload-thumbnail-link.ts#L6)
+Defined in: [packages/server/src/hooks/upload-thumbnail-link.ts:6](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/hooks/upload-thumbnail-link.ts#L6)

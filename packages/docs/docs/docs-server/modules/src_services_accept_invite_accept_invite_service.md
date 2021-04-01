@@ -26,4 +26,4 @@ Name | Type |
 
 **Returns:** *any*
 
-Defined in: [packages/server/src/services/accept-invite/accept-invite.service.ts:30](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/accept-invite/accept-invite.service.ts#L30)
+Defined in: [packages/server/src/services/accept-invite/accept-invite.service.ts:30](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/accept-invite/accept-invite.service.ts#L30)

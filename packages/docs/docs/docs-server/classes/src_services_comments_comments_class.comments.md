@@ -35,7 +35,7 @@ Name | Type |
 
 Overrides: void
 
-Defined in: [packages/server/src/services/comments/comments.class.ts:14](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/comments/comments.class.ts#L14)
+Defined in: [packages/server/src/services/comments/comments.class.ts:14](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/comments/comments.class.ts#L14)
 
 ## Properties
 
@@ -53,7 +53,7 @@ ___
 
 • **app**: [*Application*](../modules/src_declarations.md#application)
 
-Defined in: [packages/server/src/services/comments/comments.class.ts:13](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/comments/comments.class.ts#L13)
+Defined in: [packages/server/src/services/comments/comments.class.ts:13](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/comments/comments.class.ts#L13)
 
 ___
 
@@ -61,7 +61,7 @@ ___
 
 • **docs**: *any*
 
-Defined in: [packages/server/src/services/comments/comments.class.ts:14](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/comments/comments.class.ts#L14)
+Defined in: [packages/server/src/services/comments/comments.class.ts:14](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/comments/comments.class.ts#L14)
 
 ___
 
@@ -243,7 +243,7 @@ Name | Type |
 
 Overrides: void
 
-Defined in: [packages/server/src/services/comments/comments.class.ts:95](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/comments/comments.class.ts#L95)
+Defined in: [packages/server/src/services/comments/comments.class.ts:95](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/comments/comments.class.ts#L95)
 
 ___
 
@@ -284,7 +284,7 @@ Name | Type | Description |
 
 Overrides: void
 
-Defined in: [packages/server/src/services/comments/comments.class.ts:27](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/comments/comments.class.ts#L27)
+Defined in: [packages/server/src/services/comments/comments.class.ts:27](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/comments/comments.class.ts#L27)
 
 ___
 

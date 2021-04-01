@@ -33,7 +33,7 @@ Name | Type |
 
 Overrides: void
 
-Defined in: [packages/server/src/services/channel/channel.class.ts:11](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/channel/channel.class.ts#L11)
+Defined in: [packages/server/src/services/channel/channel.class.ts:11](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/channel/channel.class.ts#L11)
 
 ## Properties
 
@@ -51,7 +51,7 @@ ___
 
 • **app**: [*Application*](../modules/src_declarations.md#application)
 
-Defined in: [packages/server/src/services/channel/channel.class.ts:10](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/channel/channel.class.ts#L10)
+Defined in: [packages/server/src/services/channel/channel.class.ts:10](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/channel/channel.class.ts#L10)
 
 ___
 
@@ -59,7 +59,7 @@ ___
 
 • **docs**: *any*
 
-Defined in: [packages/server/src/services/channel/channel.class.ts:11](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/channel/channel.class.ts#L11)
+Defined in: [packages/server/src/services/channel/channel.class.ts:11](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/channel/channel.class.ts#L11)
 
 ___
 
@@ -284,7 +284,7 @@ Name | Type | Description |
 
 Overrides: void
 
-Defined in: [packages/server/src/services/channel/channel.class.ts:25](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/channel/channel.class.ts#L25)
+Defined in: [packages/server/src/services/channel/channel.class.ts:25](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/channel/channel.class.ts#L25)
 
 ___
 

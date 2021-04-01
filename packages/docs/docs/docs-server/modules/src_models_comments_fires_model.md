@@ -22,4 +22,4 @@ Name | Type |
 
 **Returns:** *typeof* Model
 
-Defined in: [packages/server/src/models/comments-fires.model.ts:5](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/models/comments-fires.model.ts#L5)
+Defined in: [packages/server/src/models/comments-fires.model.ts:5](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/models/comments-fires.model.ts#L5)

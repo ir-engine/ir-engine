@@ -29,7 +29,7 @@ Name | Type |
 
 **Returns:** [*Meta*](src_services_meta_meta_class.meta.md)
 
-Defined in: [packages/server/src/services/meta/meta.class.ts:11](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/meta/meta.class.ts#L11)
+Defined in: [packages/server/src/services/meta/meta.class.ts:11](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/meta/meta.class.ts#L11)
 
 ## Properties
 
@@ -37,7 +37,7 @@ Defined in: [packages/server/src/services/meta/meta.class.ts:11](https://github.
 
 • **app**: [*Application*](../modules/src_declarations.md#application)
 
-Defined in: [packages/server/src/services/meta/meta.class.ts:9](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/meta/meta.class.ts#L9)
+Defined in: [packages/server/src/services/meta/meta.class.ts:9](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/meta/meta.class.ts#L9)
 
 ___
 
@@ -45,7 +45,7 @@ ___
 
 • **docs**: *any*
 
-Defined in: [packages/server/src/services/meta/meta.class.ts:11](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/meta/meta.class.ts#L11)
+Defined in: [packages/server/src/services/meta/meta.class.ts:11](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/meta/meta.class.ts#L11)
 
 ___
 
@@ -53,7 +53,7 @@ ___
 
 • **options**: ServiceOptions
 
-Defined in: [packages/server/src/services/meta/meta.class.ts:10](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/meta/meta.class.ts#L10)
+Defined in: [packages/server/src/services/meta/meta.class.ts:10](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/meta/meta.class.ts#L10)
 
 ## Methods
 
@@ -78,7 +78,7 @@ Name | Type | Description |
 
 Implementation of: void
 
-Defined in: [packages/server/src/services/meta/meta.class.ts:53](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/meta/meta.class.ts#L53)
+Defined in: [packages/server/src/services/meta/meta.class.ts:53](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/meta/meta.class.ts#L53)
 
 ___
 
@@ -100,7 +100,7 @@ Name | Type |
 
 Implementation of: void
 
-Defined in: [packages/server/src/services/meta/meta.class.ts:24](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/meta/meta.class.ts#L24)
+Defined in: [packages/server/src/services/meta/meta.class.ts:24](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/meta/meta.class.ts#L24)
 
 ___
 
@@ -125,7 +125,7 @@ Name | Type | Description |
 
 Implementation of: void
 
-Defined in: [packages/server/src/services/meta/meta.class.ts:39](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/meta/meta.class.ts#L39)
+Defined in: [packages/server/src/services/meta/meta.class.ts:39](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/meta/meta.class.ts#L39)
 
 ___
 
@@ -151,7 +151,7 @@ Name | Type | Description |
 
 Implementation of: void
 
-Defined in: [packages/server/src/services/meta/meta.class.ts:83](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/meta/meta.class.ts#L83)
+Defined in: [packages/server/src/services/meta/meta.class.ts:83](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/meta/meta.class.ts#L83)
 
 ___
 
@@ -174,7 +174,7 @@ Name | Type | Description |
 
 Implementation of: void
 
-Defined in: [packages/server/src/services/meta/meta.class.ts:94](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/meta/meta.class.ts#L94)
+Defined in: [packages/server/src/services/meta/meta.class.ts:94](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/meta/meta.class.ts#L94)
 
 ___
 
@@ -200,4 +200,4 @@ Name | Type | Description |
 
 Implementation of: void
 
-Defined in: [packages/server/src/services/meta/meta.class.ts:70](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/meta/meta.class.ts#L70)
+Defined in: [packages/server/src/services/meta/meta.class.ts:70](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/meta/meta.class.ts#L70)

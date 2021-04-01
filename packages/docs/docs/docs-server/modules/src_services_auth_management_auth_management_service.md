@@ -26,4 +26,4 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/server/src/services/auth-management/auth-management.service.ts:17](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/auth-management/auth-management.service.ts#L17)
+Defined in: [packages/server/src/services/auth-management/auth-management.service.ts:17](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/auth-management/auth-management.service.ts#L17)

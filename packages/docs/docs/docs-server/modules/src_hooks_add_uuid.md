@@ -26,4 +26,4 @@ Name | Type |
 
 **Returns:** *Hook*<any, Service<any\>\>
 
-Defined in: [packages/server/src/hooks/add-uuid.ts:2](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/hooks/add-uuid.ts#L2)
+Defined in: [packages/server/src/hooks/add-uuid.ts:2](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/hooks/add-uuid.ts#L2)

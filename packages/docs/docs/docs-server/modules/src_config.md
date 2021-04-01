@@ -16,7 +16,7 @@ hide_title: true
 
 Database
 
-Defined in: [packages/server/src/config.ts:18](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/config.ts#L18)
+Defined in: [packages/server/src/config.ts:18](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/config.ts#L18)
 
 ___
 
@@ -153,4 +153,4 @@ Name | Type |
 `server.storageProvider` | *string* |
 `server.url` | *string* |
 
-Defined in: [packages/server/src/config.ts:230](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/config.ts#L230)
+Defined in: [packages/server/src/config.ts:230](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/config.ts#L230)

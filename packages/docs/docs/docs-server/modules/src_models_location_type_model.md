@@ -26,4 +26,4 @@ Name | Type |
 
 **Returns:** *any*
 
-Defined in: [packages/server/src/models/location-type.model.ts:5](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/models/location-type.model.ts#L5)
+Defined in: [packages/server/src/models/location-type.model.ts:5](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/models/location-type.model.ts#L5)

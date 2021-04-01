@@ -22,7 +22,7 @@ hide_title: true
 
 **Returns:** [*default*](src_storage_storageprovider.default.md)
 
-Defined in: [packages/server/src/storage/storageprovider.ts:8](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/storage/storageprovider.ts#L8)
+Defined in: [packages/server/src/storage/storageprovider.ts:8](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/storage/storageprovider.ts#L8)
 
 ## Properties
 
@@ -30,7 +30,7 @@ Defined in: [packages/server/src/storage/storageprovider.ts:8](https://github.co
 
 • **docs**: *any*
 
-Defined in: [packages/server/src/storage/storageprovider.ts:8](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/storage/storageprovider.ts#L8)
+Defined in: [packages/server/src/storage/storageprovider.ts:8](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/storage/storageprovider.ts#L8)
 
 ___
 
@@ -38,7 +38,7 @@ ___
 
 • **provider**: [*StorageProviderInterface*](../interfaces/src_storage_storageprovider_interface.storageproviderinterface.md)
 
-Defined in: [packages/server/src/storage/storageprovider.ts:7](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/storage/storageprovider.ts#L7)
+Defined in: [packages/server/src/storage/storageprovider.ts:7](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/storage/storageprovider.ts#L7)
 
 ## Methods
 
@@ -50,7 +50,7 @@ Defined in: [packages/server/src/storage/storageprovider.ts:7](https://github.co
 
 Implementation of: [StorageProviderInterface](../interfaces/src_storage_storageprovider_interface.storageproviderinterface.md)
 
-Defined in: [packages/server/src/storage/storageprovider.ts:15](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/storage/storageprovider.ts#L15)
+Defined in: [packages/server/src/storage/storageprovider.ts:15](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/storage/storageprovider.ts#L15)
 
 ___
 
@@ -62,4 +62,4 @@ ___
 
 Implementation of: [StorageProviderInterface](../interfaces/src_storage_storageprovider_interface.storageproviderinterface.md)
 
-Defined in: [packages/server/src/storage/storageprovider.ts:16](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/storage/storageprovider.ts#L16)
+Defined in: [packages/server/src/storage/storageprovider.ts:16](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/storage/storageprovider.ts#L16)

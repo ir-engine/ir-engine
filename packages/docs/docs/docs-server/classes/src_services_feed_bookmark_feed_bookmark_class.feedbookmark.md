@@ -35,7 +35,7 @@ Name | Type |
 
 Overrides: void
 
-Defined in: [packages/server/src/services/feed-bookmark/feed-bookmark.class.ts:14](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/feed-bookmark/feed-bookmark.class.ts#L14)
+Defined in: [packages/server/src/services/feed-bookmark/feed-bookmark.class.ts:14](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/feed-bookmark/feed-bookmark.class.ts#L14)
 
 ## Properties
 
@@ -53,7 +53,7 @@ ___
 
 • **app**: [*Application*](../modules/src_declarations.md#application)
 
-Defined in: [packages/server/src/services/feed-bookmark/feed-bookmark.class.ts:13](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/feed-bookmark/feed-bookmark.class.ts#L13)
+Defined in: [packages/server/src/services/feed-bookmark/feed-bookmark.class.ts:13](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/feed-bookmark/feed-bookmark.class.ts#L13)
 
 ___
 
@@ -61,7 +61,7 @@ ___
 
 • **docs**: *any*
 
-Defined in: [packages/server/src/services/feed-bookmark/feed-bookmark.class.ts:14](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/feed-bookmark/feed-bookmark.class.ts#L14)
+Defined in: [packages/server/src/services/feed-bookmark/feed-bookmark.class.ts:14](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/feed-bookmark/feed-bookmark.class.ts#L14)
 
 ___
 
@@ -243,7 +243,7 @@ Name | Type |
 
 Overrides: void
 
-Defined in: [packages/server/src/services/feed-bookmark/feed-bookmark.class.ts:21](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/feed-bookmark/feed-bookmark.class.ts#L21)
+Defined in: [packages/server/src/services/feed-bookmark/feed-bookmark.class.ts:21](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/feed-bookmark/feed-bookmark.class.ts#L21)
 
 ___
 
@@ -356,7 +356,7 @@ Name | Type |
 
 Overrides: void
 
-Defined in: [packages/server/src/services/feed-bookmark/feed-bookmark.class.ts:39](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/feed-bookmark/feed-bookmark.class.ts#L39)
+Defined in: [packages/server/src/services/feed-bookmark/feed-bookmark.class.ts:39](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/feed-bookmark/feed-bookmark.class.ts#L39)
 
 ___
 

@@ -31,7 +31,7 @@ Name | Type |
 
 **Returns:** [*Authmanagement*](src_services_auth_management_auth_management_class.authmanagement.md)
 
-Defined in: [packages/server/src/services/auth-management/auth-management.class.ts:15](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/auth-management/auth-management.class.ts#L15)
+Defined in: [packages/server/src/services/auth-management/auth-management.class.ts:15](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/auth-management/auth-management.class.ts#L15)
 
 ## Properties
 
@@ -39,7 +39,7 @@ Defined in: [packages/server/src/services/auth-management/auth-management.class.
 
 • **app**: [*Application*](../modules/src_declarations.md#application)
 
-Defined in: [packages/server/src/services/auth-management/auth-management.class.ts:13](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/auth-management/auth-management.class.ts#L13)
+Defined in: [packages/server/src/services/auth-management/auth-management.class.ts:13](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/auth-management/auth-management.class.ts#L13)
 
 ___
 
@@ -47,7 +47,7 @@ ___
 
 • **docs**: *any*
 
-Defined in: [packages/server/src/services/auth-management/auth-management.class.ts:15](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/auth-management/auth-management.class.ts#L15)
+Defined in: [packages/server/src/services/auth-management/auth-management.class.ts:15](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/auth-management/auth-management.class.ts#L15)
 
 ___
 
@@ -55,7 +55,7 @@ ___
 
 • **options**: ServiceOptions
 
-Defined in: [packages/server/src/services/auth-management/auth-management.class.ts:14](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/auth-management/auth-management.class.ts#L14)
+Defined in: [packages/server/src/services/auth-management/auth-management.class.ts:14](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/auth-management/auth-management.class.ts#L14)
 
 ## Methods
 
@@ -78,7 +78,7 @@ Name | Type | Description |
 
 Implementation of: void
 
-Defined in: [packages/server/src/services/auth-management/auth-management.class.ts:56](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/auth-management/auth-management.class.ts#L56)
+Defined in: [packages/server/src/services/auth-management/auth-management.class.ts:56](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/auth-management/auth-management.class.ts#L56)
 
 ___
 
@@ -102,7 +102,7 @@ Name | Type |
 
 Implementation of: void
 
-Defined in: [packages/server/src/services/auth-management/auth-management.class.ts:30](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/auth-management/auth-management.class.ts#L30)
+Defined in: [packages/server/src/services/auth-management/auth-management.class.ts:30](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/auth-management/auth-management.class.ts#L30)
 
 ___
 
@@ -127,7 +127,7 @@ Name | Type | Description |
 
 Implementation of: void
 
-Defined in: [packages/server/src/services/auth-management/auth-management.class.ts:43](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/auth-management/auth-management.class.ts#L43)
+Defined in: [packages/server/src/services/auth-management/auth-management.class.ts:43](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/auth-management/auth-management.class.ts#L43)
 
 ___
 
@@ -151,7 +151,7 @@ Name | Type | Description |
 
 Implementation of: void
 
-Defined in: [packages/server/src/services/auth-management/auth-management.class.ts:85](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/auth-management/auth-management.class.ts#L85)
+Defined in: [packages/server/src/services/auth-management/auth-management.class.ts:85](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/auth-management/auth-management.class.ts#L85)
 
 ___
 
@@ -174,7 +174,7 @@ id
 
 Implementation of: void
 
-Defined in: [packages/server/src/services/auth-management/auth-management.class.ts:96](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/auth-management/auth-management.class.ts#L96)
+Defined in: [packages/server/src/services/auth-management/auth-management.class.ts:96](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/auth-management/auth-management.class.ts#L96)
 
 ___
 
@@ -198,4 +198,4 @@ Name | Type | Description |
 
 Implementation of: void
 
-Defined in: [packages/server/src/services/auth-management/auth-management.class.ts:73](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/auth-management/auth-management.class.ts#L73)
+Defined in: [packages/server/src/services/auth-management/auth-management.class.ts:73](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/auth-management/auth-management.class.ts#L73)

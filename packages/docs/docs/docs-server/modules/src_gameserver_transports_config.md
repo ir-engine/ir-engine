@@ -32,7 +32,7 @@ Name | Type |
 `mediasoup.worker.rtcMaxPort` | *number* |
 `mediasoup.worker.rtcMinPort` | *number* |
 
-Defined in: [packages/server/src/gameserver/transports/config.ts:11](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/gameserver/transports/config.ts#L11)
+Defined in: [packages/server/src/gameserver/transports/config.ts:11](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/gameserver/transports/config.ts#L11)
 
 ___
 
@@ -58,7 +58,7 @@ Name | Type |
 `mediasoup.worker.rtcMaxPort` | *number* |
 `mediasoup.worker.rtcMinPort` | *number* |
 
-Defined in: [packages/server/src/gameserver/transports/config.ts:70](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/gameserver/transports/config.ts#L70)
+Defined in: [packages/server/src/gameserver/transports/config.ts:70](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/gameserver/transports/config.ts#L70)
 
 ___
 
@@ -66,4 +66,4 @@ ___
 
 • `Const` **sctpParameters**: SctpParameters
 
-Defined in: [packages/server/src/gameserver/transports/config.ts:4](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/gameserver/transports/config.ts#L4)
+Defined in: [packages/server/src/gameserver/transports/config.ts:4](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/gameserver/transports/config.ts#L4)

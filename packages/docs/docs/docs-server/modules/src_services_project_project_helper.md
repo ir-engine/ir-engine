@@ -22,7 +22,7 @@ Name | Type |
 
 **Returns:** *any*[]
 
-Defined in: [packages/server/src/services/project/project-helper.ts:20](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/project/project-helper.ts#L20)
+Defined in: [packages/server/src/services/project/project-helper.ts:20](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/project/project-helper.ts#L20)
 
 ___
 
@@ -38,7 +38,7 @@ Name | Type |
 
 **Returns:** *any*
 
-Defined in: [packages/server/src/services/project/project-helper.ts:105](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/project/project-helper.ts#L105)
+Defined in: [packages/server/src/services/project/project-helper.ts:105](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/project/project-helper.ts#L105)
 
 ___
 
@@ -54,7 +54,7 @@ Name | Type |
 
 **Returns:** *any*
 
-Defined in: [packages/server/src/services/project/project-helper.ts:117](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/project/project-helper.ts#L117)
+Defined in: [packages/server/src/services/project/project-helper.ts:117](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/project/project-helper.ts#L117)
 
 ___
 
@@ -71,7 +71,7 @@ Name | Type |
 
 **Returns:** *any*
 
-Defined in: [packages/server/src/services/project/project-helper.ts:3](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/project/project-helper.ts#L3)
+Defined in: [packages/server/src/services/project/project-helper.ts:3](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/project/project-helper.ts#L3)
 
 ___
 
@@ -88,4 +88,4 @@ Name | Type |
 
 **Returns:** *any*
 
-Defined in: [packages/server/src/services/project/project-helper.ts:87](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/project/project-helper.ts#L87)
+Defined in: [packages/server/src/services/project/project-helper.ts:87](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/project/project-helper.ts#L87)

@@ -14,5 +14,31 @@
     "noImplicitThis": true,
   },
   "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist", "tsconfig.json"]
+  "exclude": [
+        "./node_modules",
+        "dist",
+        // "tsconfig.json"
+    ]
 }
+
+// {
+//   "compileOnSave": true,
+//   "compilerOptions": {
+//       "outDir": "./built",
+//       "allowJs": true,
+//       "target": "es5",
+//       "allowUnreachableCode": false,
+//       "noImplicitReturns": true,
+//       "noImplicitAny": true,
+//       "typeRoots": [ "./typings" ],
+//       "outFile": "./built/combined.js"
+//   },
+//   "include": [
+//       "./**/*"
+//   ],
+//   "exclude": [
+//       "./plugins/**/*",
+//       "./typings/**/*",
+//       "./built/**/*" // This is what fixed it!
+//   ]
+// }

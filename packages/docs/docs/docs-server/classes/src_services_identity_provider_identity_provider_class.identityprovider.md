@@ -37,7 +37,7 @@ Name | Type |
 
 Overrides: void
 
-Defined in: [packages/server/src/services/identity-provider/identity-provider.class.ts:18](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/identity-provider/identity-provider.class.ts#L18)
+Defined in: [packages/server/src/services/identity-provider/identity-provider.class.ts:18](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/identity-provider/identity-provider.class.ts#L18)
 
 ## Properties
 
@@ -55,7 +55,7 @@ ___
 
 • **app**: [*Application*](../modules/src_declarations.md#application)
 
-Defined in: [packages/server/src/services/identity-provider/identity-provider.class.ts:17](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/identity-provider/identity-provider.class.ts#L17)
+Defined in: [packages/server/src/services/identity-provider/identity-provider.class.ts:17](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/identity-provider/identity-provider.class.ts#L17)
 
 ___
 
@@ -63,7 +63,7 @@ ___
 
 • **docs**: *any*
 
-Defined in: [packages/server/src/services/identity-provider/identity-provider.class.ts:18](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/identity-provider/identity-provider.class.ts#L18)
+Defined in: [packages/server/src/services/identity-provider/identity-provider.class.ts:18](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/identity-provider/identity-provider.class.ts#L18)
 
 ___
 
@@ -249,7 +249,7 @@ accessToken
 
 Overrides: void
 
-Defined in: [packages/server/src/services/identity-provider/identity-provider.class.ts:32](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/identity-provider/identity-provider.class.ts#L32)
+Defined in: [packages/server/src/services/identity-provider/identity-provider.class.ts:32](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/identity-provider/identity-provider.class.ts#L32)
 
 ___
 

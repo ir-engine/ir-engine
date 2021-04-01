@@ -208,7 +208,7 @@ Name | Type |
 
 Overrides: void
 
-Defined in: [packages/server/src/strategies/custom-oauth.ts:12](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/strategies/custom-oauth.ts#L12)
+Defined in: [packages/server/src/strategies/custom-oauth.ts:12](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/strategies/custom-oauth.ts#L12)
 
 ___
 
@@ -227,7 +227,7 @@ Name | Type |
 
 Overrides: void
 
-Defined in: [packages/server/src/strategies/custom-oauth.ts:6](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/strategies/custom-oauth.ts#L6)
+Defined in: [packages/server/src/strategies/custom-oauth.ts:6](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/strategies/custom-oauth.ts#L6)
 
 ___
 

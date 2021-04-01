@@ -29,7 +29,7 @@ Name | Type |
 
 **Returns:** [*Magiclink*](src_services_magic_link_magic_link_class.magiclink.md)
 
-Defined in: [packages/server/src/services/magic-link/magic-link.class.ts:29](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/magic-link/magic-link.class.ts#L29)
+Defined in: [packages/server/src/services/magic-link/magic-link.class.ts:29](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/magic-link/magic-link.class.ts#L29)
 
 ## Properties
 
@@ -37,7 +37,7 @@ Defined in: [packages/server/src/services/magic-link/magic-link.class.ts:29](htt
 
 • **app**: [*Application*](../modules/src_declarations.md#application)
 
-Defined in: [packages/server/src/services/magic-link/magic-link.class.ts:27](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/magic-link/magic-link.class.ts#L27)
+Defined in: [packages/server/src/services/magic-link/magic-link.class.ts:27](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/magic-link/magic-link.class.ts#L27)
 
 ___
 
@@ -45,7 +45,7 @@ ___
 
 • **docs**: *any*
 
-Defined in: [packages/server/src/services/magic-link/magic-link.class.ts:29](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/magic-link/magic-link.class.ts#L29)
+Defined in: [packages/server/src/services/magic-link/magic-link.class.ts:29](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/magic-link/magic-link.class.ts#L29)
 
 ___
 
@@ -53,7 +53,7 @@ ___
 
 • **options**: ServiceOptions
 
-Defined in: [packages/server/src/services/magic-link/magic-link.class.ts:28](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/magic-link/magic-link.class.ts#L28)
+Defined in: [packages/server/src/services/magic-link/magic-link.class.ts:28](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/magic-link/magic-link.class.ts#L28)
 
 ## Methods
 
@@ -78,7 +78,7 @@ creted data
 
 Implementation of: void
 
-Defined in: [packages/server/src/services/magic-link/magic-link.class.ts:211](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/magic-link/magic-link.class.ts#L211)
+Defined in: [packages/server/src/services/magic-link/magic-link.class.ts:211](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/magic-link/magic-link.class.ts#L211)
 
 ___
 
@@ -102,7 +102,7 @@ Name | Type |
 
 Implementation of: void
 
-Defined in: [packages/server/src/services/magic-link/magic-link.class.ts:43](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/magic-link/magic-link.class.ts#L43)
+Defined in: [packages/server/src/services/magic-link/magic-link.class.ts:43](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/magic-link/magic-link.class.ts#L43)
 
 ___
 
@@ -127,7 +127,7 @@ Name | Type | Description |
 
 Implementation of: void
 
-Defined in: [packages/server/src/services/magic-link/magic-link.class.ts:55](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/magic-link/magic-link.class.ts#L55)
+Defined in: [packages/server/src/services/magic-link/magic-link.class.ts:55](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/magic-link/magic-link.class.ts#L55)
 
 ___
 
@@ -151,7 +151,7 @@ data
 
 Implementation of: void
 
-Defined in: [packages/server/src/services/magic-link/magic-link.class.ts:82](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/magic-link/magic-link.class.ts#L82)
+Defined in: [packages/server/src/services/magic-link/magic-link.class.ts:82](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/magic-link/magic-link.class.ts#L82)
 
 ___
 
@@ -174,7 +174,7 @@ id
 
 Implementation of: void
 
-Defined in: [packages/server/src/services/magic-link/magic-link.class.ts:92](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/magic-link/magic-link.class.ts#L92)
+Defined in: [packages/server/src/services/magic-link/magic-link.class.ts:92](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/magic-link/magic-link.class.ts#L92)
 
 ___
 
@@ -200,7 +200,7 @@ Name | Type | Description |
 
 {@function} sent email
 
-Defined in: [packages/server/src/services/magic-link/magic-link.class.ts:106](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/magic-link/magic-link.class.ts#L106)
+Defined in: [packages/server/src/services/magic-link/magic-link.class.ts:106](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/magic-link/magic-link.class.ts#L106)
 
 ___
 
@@ -224,7 +224,7 @@ Name | Type | Description |
 
 {@function}  send sms
 
-Defined in: [packages/server/src/services/magic-link/magic-link.class.ts:173](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/magic-link/magic-link.class.ts#L173)
+Defined in: [packages/server/src/services/magic-link/magic-link.class.ts:173](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/magic-link/magic-link.class.ts#L173)
 
 ___
 
@@ -250,4 +250,4 @@ updated data
 
 Implementation of: void
 
-Defined in: [packages/server/src/services/magic-link/magic-link.class.ts:70](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/services/magic-link/magic-link.class.ts#L70)
+Defined in: [packages/server/src/services/magic-link/magic-link.class.ts:70](https://github.com/xr3ngine/xr3ngine/blob/7650c2bea/packages/server/src/services/magic-link/magic-link.class.ts#L70)
