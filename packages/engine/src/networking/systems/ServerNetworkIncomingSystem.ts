@@ -25,6 +25,7 @@ import { handleInputFromNonLocalClients } from '../functions/handleInputOnServer
 import { NetworkSchema } from "../interfaces/NetworkSchema";
 import { NetworkClientInputInterface, NetworkInputInterface } from "../interfaces/WorldState";
 import { ClientInputModel } from '../schema/clientInputSchema';
+import { WorldStateModel } from '../schema/worldStateSchema';
 
 // function switchInputs(clientInput) {
 //   if (hasComponent(Network.instance.networkObjects[clientInput.networkId].component.entity, PlayerInCar)) {
@@ -115,7 +116,21 @@ export class ServerNetworkIncomingSystem extends System {
     // Parse incoming message queue
     while (Network.instance.incomingMessageQueue.getBufferLength() > 0) {
       const buffer = Network.instance.incomingMessageQueue.pop() as any;
-      const clientInput: NetworkClientInputInterface = ClientInputModel.fromBuffer(buffer);
+      
+      let clientInput: NetworkClientInputInterface;
+      try {
+        clientInput = ClientInputModel.fromBuffer(buffer);
+      } catch (error) {
+        try {
+          WorldStateModel.fromBuffer(buffer)
+          console.warn('Server is sending receiving its own outgoing messages...', error, buffer)
+          return;
+        } catch (error) {
+          console.warn('Unknown or corrupt data is entering the incoming server message stream', error, buffer)
+          return;
+        }
+      }
+      if(!clientInput) return;
 
       if (Network.instance.networkObjects[clientInput.networkId] === undefined) {
         console.error('Network object not found for networkId', clientInput.networkId);
