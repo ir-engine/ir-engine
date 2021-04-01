@@ -14,7 +14,9 @@ import {
   feedsBookmarkRetrieved,
   feedsMyFeaturedRetrieved,
   feedAsFeatured,
-  feedNotFeatured
+  feedNotFeatured,
+  feedsAdminRetrieved,
+  updateFeedInList
 } from './actions';
 
 export function getFeeds(type : string, id?: string,  limit?: number) {
@@ -53,10 +55,17 @@ export function getFeeds(type : string, id?: string,  limit?: number) {
             }
           });
           dispatch(feedsMyFeaturedRetrieved(feedsResults.data));
-        }else{
-          const feedsResults = await client.service('feed').find({query: {}});
+      }else if(type && type === 'admin'){
+        const feedsResults = await client.service('feed').find({
+          query: {
+            action: 'admin'
+          }
+        });
+        dispatch(feedsAdminRetrieved(feedsResults.data));
+      }else{
+        const feedsResults = await client.service('feed').find({query: {}});
 
-        dispatch(feedsRetrieved(feedsResults.data));
+      dispatch(feedsRetrieved(feedsResults.data));
       }
     } catch(err) {
       console.log(err);
@@ -102,6 +111,33 @@ export function createFeed({title, description, video, preview }: any) {
         const feed = await client.service('feed').create({title, description, videoId:storedVideo.file_id, previewId: storedPreview.file_id});
         dispatch(addFeed(feed));
       }      
+    } catch(err) {
+      console.log(err);
+      dispatchAlertError(dispatch, err.message);
+    }
+  };
+}
+
+export function updateFeedAsAdmin(feedId:string, feed: any) {
+  return async (dispatch: Dispatch): Promise<any> => {
+    try {
+      if(feed.video){
+        const api = new  Api();
+        const storedVideo = await api.upload(feed.video, null);
+        //@ts-ignore error that this vars are void bacause upload is defines as voin funtion
+        feed.videoId = storedVideo.file_id;
+        delete feed.video;
+      }
+      if(feed.preview){
+        const api = new  Api();
+        const storedPreview = await api.upload(feed.preview, null);
+        //@ts-ignore error that this vars are void bacause upload is defines as voin funtion
+        feed.previewId = storedPreview.file_id;
+        delete feed.preview;
+      }
+      //@ts-ignore error that this vars are void bacause upload is defines as voin funtion
+      const updatedFeed = await client.service('feed').patch(feedId, feed);
+      dispatch(updateFeedInList(updatedFeed));
     } catch(err) {
       console.log(err);
       dispatchAlertError(dispatch, err.message);

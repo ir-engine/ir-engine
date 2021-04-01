@@ -33,12 +33,13 @@ const mapStateToProps = (state: any): any => {
       updateCreator: bindActionCreators(updateCreator, dispatch)
 });
   interface Props{
+    creatorData?:any;
     creatorsState?: any;
-    updateCreator?: typeof updateCreator;
+    updateCreator?: typeof updateCreator;   
   }
   
-const CreatorForm = ({creatorsState, updateCreator}:Props) => {
-    const [creator, setCreator] = useState(creatorsState && creatorsState.get('currentCreator')); 
+const CreatorForm = ({creatorData, creatorsState, updateCreator}:Props) => {
+    const [creator, setCreator] = useState(creatorData ? creatorData : creatorsState && creatorsState.get('currentCreator')); 
     const handleUpdateUser = (e:any) =>{
         e.preventDefault();
         updateCreator(creator);
@@ -52,8 +53,8 @@ const CreatorForm = ({creatorsState, updateCreator}:Props) => {
           onSubmit={(e) => handleUpdateUser(e)}
         >
             <nav className={styles.headerContainer}>               
-                <Button variant="text" className={styles.backButton} onClick={()=>Router.push('/')}><ArrowBackIosIcon />Back</Button>
-                <Typography variant="h2" className={styles.pageTitle}>Edit Profile</Typography>
+                {!creatorData && <Button variant="text" className={styles.backButton} onClick={()=>Router.push('/')}><ArrowBackIosIcon />Back</Button>}
+                {!creatorData && <Typography variant="h2" className={styles.pageTitle}>Edit Profile</Typography>}
                 <Button variant="text" type="submit" className={styles.saveButton}>Save</Button>
             </nav>  
             <CardMedia   
@@ -105,7 +106,7 @@ const CreatorForm = ({creatorsState, updateCreator}:Props) => {
                     <TextField className={styles.textFieldContainer} onChange={(e)=>setCreator({...creator, instagram: e.target.value})} fullWidth id="instagram" placeholder="instagram" value={creator.instagram} />
                 </div>   
                 <br />
-                <Button className={styles.logOutButton} variant="contained" color="primary">Sign-out</Button>
+                {!creatorData && <Button className={styles.logOutButton} variant="contained" color="primary">Sign-out</Button>}
             </section>    
         </form>        
     </section>;
