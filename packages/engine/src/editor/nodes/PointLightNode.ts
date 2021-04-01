@@ -2,7 +2,7 @@
 
 import EditorNodeMixin from "./EditorNodeMixin";
 import EditorPointLightHelper from "../classes/EditorPointLightHelper";
-
+import PhysicalPointLight from "../../scene/classes/PhysicalPointLight";
 export default class PointLightNode extends EditorNodeMixin(
   PhysicalPointLight
 ) {
