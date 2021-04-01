@@ -14,8 +14,8 @@ import {
   IFrameBuffer,
   KeyframeBuffer
 } from './Interfaces';
-import Stream from './wasmlibs/Stream'
-import MP4Player from './wasmlibs/MP4Player'
+import Stream from './wasmplayer/Stream'
+import MP4Player from './wasmplayer/MP4Player'
 import RingBuffer from './RingBuffer';
 
 type AdvancedHTMLVideoElement = HTMLVideoElement & { requestVideoFrameCallback: (callback: (number, {}) => void) => void };
