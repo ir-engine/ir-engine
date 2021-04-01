@@ -4,6 +4,7 @@
     "email": "shawmakesmagic@gmail.com",
     "url": "http://github.com/xr3ngine"
   },
+  "private": true,
   "bugs": {
     "url": "https://github.com/xr3ngine/xr3ngine/issues"
   },

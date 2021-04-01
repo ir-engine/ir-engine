@@ -2,6 +2,7 @@
   "name": "@xr3ngine/server",
   "description": "API Server for XR3ngine",
   "version": "0.2.10",
+  "private": true,
   "homepage": "",
   "entry": "./",
   "main": "./index.ts",
