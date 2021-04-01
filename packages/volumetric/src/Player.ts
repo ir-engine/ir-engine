@@ -101,7 +101,7 @@ export default class DracosisPlayer {
     loop = true,
     autoplay = true,
     scale = 1,
-    keyframesToBufferBeforeStart = 300,
+    keyframesToBufferBeforeStart = 100,
     video = null,
     onMeshBuffering = null,
     onFrameShow = null
@@ -131,22 +131,18 @@ export default class DracosisPlayer {
         messages.forEach(frameData => {
         let geometry = new BufferGeometry();
         geometry.setIndex(
-          new Uint32BufferAttribute(frameData.keyframeBufferObject.bufferGeometry.index, 1)
+          new Uint32BufferAttribute(frameData.bufferGeometry.index, 1)
         );
         geometry.setAttribute(
           'position',
-          new Float32BufferAttribute(frameData.keyframeBufferObject.bufferGeometry.position, 3)
+          new Float32BufferAttribute(frameData.bufferGeometry.position, 3)
         );
         geometry.setAttribute(
           'uv',
-          new Float32BufferAttribute(frameData.keyframeBufferObject.bufferGeometry.uv, 2)
+          new Float32BufferAttribute(frameData.bufferGeometry.uv, 2)
         );
 
-        this.meshBuffer.add({ ...frameData.keyframeBufferObject, bufferGeometry: geometry });
-        console.log(frameData.keyframeBufferObject);
-        // if(frameData.iframeBufferObjects) frameData.iframeBufferObjects.forEach(obj => {
-        //   this.iframeVertexBuffer.add(obj);
-        // })
+        this.meshBuffer.add({ ...frameData, bufferGeometry: geometry });
 
         if (this.status === "buffering") {
           // Handle buffering state, check if we buffered enough or report buffering progress
@@ -154,13 +150,8 @@ export default class DracosisPlayer {
           const bufferingSize = this.frameRate * this.keyframesToBufferBeforeStart;
           const bufferedEnough = this.meshBuffer.getPos() > (this.currentKeyframe+bufferingSize);
           const bufferedCompletely = frameData.keyframeBufferObject.keyframeNumber >= (this.numberOfKeyframes - 1);
-          // if (this._debugLevel > 0) {
-          //   console.log('...buffering +', frameData.keyframeBufferObject.keyframeNumber - this.currentKeyframe, ' ... ', frameData.keyframeBufferObject.keyframeNumber, ' / ', this.numberOfKeyframes);
-          // }
+
           if (bufferedEnough || bufferedCompletely) {
-            // if (this._debugLevel > 0) {
-            //   console.log('.....ready to resume playback');
-            // }
             this.status = "playing";
             this._video.play();
             if (!this.mesh.visible) {
@@ -182,11 +173,11 @@ export default class DracosisPlayer {
           console.log("Worker initialized");
           break;
         case 'framedata':
-          // console.log("Frame data received");
+          console.log("Frame data received");
           handleFrameData(e.data.payload);
           break;
         case 'completed':
-          // console.log("Worker complete!");
+          console.log("Worker complete!");
           break;
 
       }

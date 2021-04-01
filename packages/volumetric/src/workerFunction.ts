@@ -1,61 +1,70 @@
+import { CortoDecoder } from "./corto";
 let _meshFilePath;
 let fetchLoop;
 let lastRequestedKeyframe = 0;
 let _numberOfKeyframes;
 let _fileHeader;
-import { CortoDecoder } from "./corto";
-import { HttpRangeFetcher } from "http-range-fetcher";
-
 function startFetching({
+  targetFramesToRequest,
   meshFilePath,
   numberOfKeyframes,
   fileHeader
 }) {
-  let rangeFetcher = new HttpRangeFetcher({chunkSize: 32768, maxFetchSize: 32768 * 64});
-  console.log("Range fetcher");
-  console.log(rangeFetcher);
   _meshFilePath = meshFilePath;
   _numberOfKeyframes = numberOfKeyframes;
   _fileHeader = fileHeader;
   (globalThis as any).postMessage({ type: "initialized" });
 
 
-
-  fetchLoop = setInterval(() => {
-    if (lastRequestedKeyframe >= _numberOfKeyframes) {
-      clearInterval(fetchLoop);
+  fetchLoop = async () => {
+    if (lastRequestedKeyframe >= _numberOfKeyframes - 1) {
       (globalThis as any).postMessage({ type: "complete" });
+      return;
     }
 
-    let startFrame = lastRequestedKeyframe;
-    let numberOfFramesRequested = 0;
-    let _targetFramesToRequest = 1;
+    let startFrame
 
-    while(numberOfFramesRequested < _targetFramesToRequest && lastRequestedKeyframe < numberOfKeyframes - 1){
+    let numberOfFramesRequested = 1;
+
+    startFrame = lastRequestedKeyframe
+    while (numberOfFramesRequested < targetFramesToRequest && lastRequestedKeyframe < numberOfKeyframes) {
       numberOfFramesRequested++;
       lastRequestedKeyframe++;
     }
 
-    let endFrame = lastRequestedKeyframe;
-
     const startFrameData = _fileHeader.frameData[startFrame];
+    const requestStartBytePosition = startFrameData.startBytePosition;
+
+    let endFrame = lastRequestedKeyframe;
     const endFrameData = _fileHeader.frameData[endFrame];
 
-    const requestStartBytePosition = startFrameData.startBytePosition;
+    numberOfFramesRequested++;
+    lastRequestedKeyframe++;
 
     const requestEndBytePosition = endFrameData.startBytePosition + endFrameData.meshLength;
 
-    rangeFetcher.getRange(_meshFilePath, requestStartBytePosition, requestEndBytePosition).then(response => {
+    const response = await fetch(_meshFilePath, {
+        headers: {
+            'range': `bytes=${requestStartBytePosition}-${requestEndBytePosition}`,
+        }
+      }).catch(err=> {console.error("WORKERERROR: ", err)});
 
-      const messages = []
-      for(let i = startFrame; i < endFrame; i++){
+    let messages = []
+    const buffer = await (response as Response).arrayBuffer().catch(err => {console.error("Weird error", err)});
+    for (let i = startFrame; i <= endFrame; i++) {
 
-        const currentFrameData = _fileHeader.frameData[i];
+      const currentFrameData = _fileHeader.frameData[i];
       // Slice keyframe out by byte position
       const fileReadStartPosition = currentFrameData.startBytePosition - startFrameData.startBytePosition;
-      const fileReadEndPosition = currentFrameData.startBytePosition + currentFrameData.meshLength - startFrameData.startBytePosition;
+      const fileReadEndPosition = fileReadStartPosition + currentFrameData.meshLength;
 
-      let decoder = new CortoDecoder(response.buffer.buffer, fileReadStartPosition, fileReadEndPosition);
+      console.log("fileReadStartPosition", fileReadStartPosition);
+      console.log("fileReadEndPosition", fileReadEndPosition);
+      const sliced = (buffer as ArrayBuffer).slice(fileReadStartPosition, fileReadEndPosition);
+
+      let decoder = new CortoDecoder(sliced);
+    
+
       let bufferGeometry = decoder.decode();
 
       // decode corto data and create a temp buffer geometry
@@ -64,17 +73,14 @@ function startFetching({
         keyframeNumber: currentFrameData.keyframeNumber,
         bufferGeometry
       };
-
-      const message = {
-        keyframeBufferObject: bufferObject,
-        //   iframeBufferObjects: []
-      };
-      messages.push(message);
+      console.log("i", i, bufferObject);
+      messages.push(bufferObject);
     }
-
-      (globalThis as any).postMessage({ type: 'framedata', payload: messages });
-    }).catch(error => {console.error(error)})
-  }, 10);
+    console.log("Posting payload", messages);
+    (globalThis as any).postMessage({ type: 'framedata', payload: messages });
+    fetchLoop();
+  }
+  fetchLoop();
 
 }
 
