@@ -6,7 +6,7 @@ import { initializeNetworkObject } from '../../../networking/functions/initializ
 import { Network } from '../../../networking/classes/Network';
 import { Vec3 } from "cannon-es";
 import { AnimationClip, AnimationMixer, BoxGeometry, Group, Material, Mesh, MeshLambertMaterial, Quaternion, Vector3 } from "three";
-import AssetLoader from "../../../assets/classes/AssetLoader";
+import { AssetLoader } from "../../../assets/classes/AssetLoader";
 import { PositionalAudioComponent } from '../../../audio/components/PositionalAudioComponent';
 import { FollowCameraComponent } from '../../../camera/components/FollowCameraComponent';
 import { CameraModes } from '../../../camera/types/CameraModes';
@@ -137,10 +137,6 @@ const wipeOldModel = (entity) => {
   // clear current avatar mesh
   ([...actor.modelContainer.children])
     .forEach(child => actor.modelContainer.remove(child));
-}
-
-const initializeAnimations = (entity) => {
-  const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
 }
 
 const initializeCharacter: Behavior = (entity): void => {

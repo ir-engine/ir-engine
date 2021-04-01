@@ -18,7 +18,7 @@ type AssetLoaderParamType = {
     [key: string]: any;
 }
 
-export default class AssetLoader {
+export class AssetLoader {
     static Cache = new Map<string, any>();
     static loaders = new Map<number, any>();
 

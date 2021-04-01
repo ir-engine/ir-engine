@@ -1,7 +1,7 @@
 import { Component } from "../../ecs/classes/Component";
 import { Entity } from "../../ecs/classes/Entity";
 import { isClient } from "../../common/functions/isClient";
-import AssetLoader from '../../assets/classes/AssetLoader';
+import { AssetLoader } from '../../assets/classes/AssetLoader';
 import { addComponent } from "../../ecs/functions/EntityFunctions";
 import { parseModelColliders, clearFromColliders } from '../../physics/behaviors/parseModelColliders';
 import { createVehicleFromSceneData } from '../../templates/vehicle/prefabs/NetworkVehicle';
