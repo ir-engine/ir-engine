@@ -1,87 +1,76 @@
 importScripts(location.origin + '/corto/corto.js', location.origin + '/corto/rangeFetcher.js');
 
+let _meshFilePath;
+let currentKeyframe = 0;
+let fetchLoop;
+let lastRequestedKeyframe = -1;
+let _numberOfKeyframes;
+let _fileHeader;
+
 function startFetching({
   meshFilePath,
   numberOfKeyframes,
-  fileHeader,
-  targetFramesToRequest
+  fileHeader
 }) {
   //@ts-ignore
   let rangeFetcher = new HttpRangeFetcher({});
+  console.log("Range fetcher");
+  console.log(rangeFetcher);
+  _meshFilePath = meshFilePath;
+  _numberOfKeyframes = numberOfKeyframes;
+  _fileHeader = fileHeader;
   (globalThis as any).postMessage({ type: "initialized" });
 
-  let fetchLoop;
-  let lastRequestedKeyframe = 0;
+
 
   fetchLoop = setInterval(() => {
-    if (lastRequestedKeyframe >= numberOfKeyframes - 1) {
+    if (lastRequestedKeyframe >= _numberOfKeyframes) {
       clearInterval(fetchLoop);
-      return (globalThis as any).postMessage({ type: "complete" });
+      (globalThis as any).postMessage({ type: "complete" });
     }
-
-    let numberOfFramesToRequest = 0;
-    let requestStartBytePosition, requestEndBytePosition
-    let frames = [];
-    let keyframePositions = [];
-    let keyframe = null;
-
-    // This is our new keyframe
-    keyframe = fileHeader.frameData[lastRequestedKeyframe];
-
-    keyframePositions.push(lastRequestedKeyframe);
-
-    frames.push(keyframe);
-
-    requestStartBytePosition = keyframe.startBytePosition;
-    requestEndBytePosition = keyframe.startBytePosition + keyframe.meshLength;
 
     // Now increment one more
     lastRequestedKeyframe++;
-    numberOfFramesToRequest++;
+    // This is our new keyframe
+    const newKeyframe = lastRequestedKeyframe;
 
-    let messages = [];
+    const keyframe = _fileHeader.frameData[newKeyframe];
+    if (keyframe === undefined) return console.log("Keyframe undefined");
+    // Get count of frames associated with keyframe
+    const iframes = _fileHeader.frameData.filter(frame => frame.keyframeNumber === newKeyframe && frame.keyframeNumber !== frame.frameNumber).sort((a, b) => (a.frameNumber < b.frameNumber));
 
-    rangeFetcher.getRange(meshFilePath, requestStartBytePosition, requestEndBytePosition).then(response => {
+    const requestStartBytePosition = keyframe.startBytePosition;
 
-        let startBytePosition = 0;
+    const requestEndBytePosition = iframes.length > 0 ?
+      iframes[iframes.length - 1].startBytePosition + iframes[iframes.length - 1].meshLength - requestStartBytePosition
+      : keyframe.startBytePosition + keyframe.meshLength - requestStartBytePosition;
 
-        keyframePositions.forEach((position) => {
+    rangeFetcher.getRange(_meshFilePath, requestStartBytePosition, requestEndBytePosition).then(response => {
 
-          console.log("HANDLING FRAME: ", position)
+      // Slice keyframe out by byte position
+      const keyframeStartPosition = 0;
+      const keyframeEndPosition = keyframe.meshLength;
 
-          let keyframe = fileHeader.frameData[position];
+      //@ts-ignore
+      let decoder = new CortoDecoder(response.buffer.buffer, keyframeStartPosition, keyframeEndPosition);
+      let keyframeMeshData = decoder.decode();
 
-          // Slice keyframe out by byte position
-          const keyframeStartPosition = startBytePosition;
-          const keyframeEndPosition = startBytePosition + keyframe.meshLength;
+      // decode corto data and create a temp buffer geometry
+      const bufferObject = {
+        frameNumber: keyframe.frameNumber,
+        keyframeNumber: keyframe.keyframeNumber,
+        bufferGeometry: keyframeMeshData
+      };
 
-          console.log("Keyframe start position is:", keyframeStartPosition);
-          console.log("Keyframe end position is: ", keyframeEndPosition);
-          //@ts-ignore
-          let decoder = new CortoDecoder(response.buffer.buffer, keyframeStartPosition, keyframeEndPosition);
-          let keyframeMeshData = decoder.decode();
-          startBytePosition = keyframeEndPosition + 1;
+      const message = {
+        keyframeBufferObject: bufferObject,
+        //   iframeBufferObjects: []
+      };
 
-          // decode corto data and create a temp buffer geometry
-          const bufferObject = {
-            frameNumber: keyframe.frameNumber,
-            keyframeNumber: keyframe.keyframeNumber,
-            bufferGeometry: keyframeMeshData
-          };
+      (globalThis as any).postMessage({ type: 'framedata', payload: [message] });
 
-          const message = {
-            keyframeBufferObject: bufferObject,
-          };
-
-          messages.push(message);
-
-        console.log("Posting data:", messages);
-        (globalThis as any).postMessage({ type: 'framedata', payload: messages });
-      })
-    }).catch(error => {
-      console.log("ERROR: ", error);
     });
-  }, 20);
+  }, 1000 / 60);
 
 }
 
