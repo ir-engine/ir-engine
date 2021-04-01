@@ -1,7 +1,7 @@
 {
   "name": "xr3ngine",
   "description": "Game Engine, Server & Devops powering The XR3ngine",
-  "version": "0.2.0",
+  "version": "0.2.5",
   "homepage": "lagunalabs.io",
   "private": true,
   "workspaces": [
@@ -41,9 +41,10 @@
     "test": "jest",
     "lint": "lerna run --ignore @xr3ngine/bot lint",
     "version-increment": "lerna version --conventional-commits --yes",
+    "publish": "lerna publish from-package --yes",
     "validate": "lerna run validate",
     "build": "lerna run build --parallel",
-    "build-docker": "lerna run --ignore @xr3ngine/docs --ignore @xr3ngine/bot --ignore @xr3ngine/native-plugin-example --ignore @xr3ngine/native-plugin-xr build --parallel",
+    "build-docker": "lerna run --ignore @xr3ngine/bot --ignore @xr3ngine/docs --ignore @xr3ngine/native-plugin-example --ignore @xr3ngine/native-plugin-xr build --parallel",
     "diff": "lerna diff"
   },
   "types": "lib/",
@@ -56,8 +57,8 @@
   "resolutions": {
     "socket.io": "2.4.1",
     "terser": "4.8.0",
-    "**/@typescript-eslint/eslint-plugin": "^4.1.1",
-    "**/@typescript-eslint/parser": "^4.1.1"
+    "@typescript-eslint/eslint-plugin": "^4.1.1",
+    "@typescript-eslint/parser": "^4.1.1"
   },
   "peerDependencies": {
     "@feathersjs/authentication": "^4.5.8",
@@ -95,6 +96,7 @@
     "ts-jest": "^26.4.1"
   },
   "dependencies": {
+    "@xr3ngine/engine": "0.2.1",
     "ps-list": "^7.2.0",
     "ps-node": "^0.1.6",
     "text-encoding": "^0.7.0",

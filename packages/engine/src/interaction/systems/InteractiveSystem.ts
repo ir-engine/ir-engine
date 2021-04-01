@@ -1,6 +1,3 @@
-import { RigidBody } from "@xr3ngine/engine/src/physics/components/RigidBody";
-import { VehicleBody } from '@xr3ngine/engine/src/physics/components/VehicleBody';
-import { TransformComponent } from '@xr3ngine/engine/src/transform/components/TransformComponent';
 import { Box3, Frustum, Matrix4, Mesh, Object3D, Scene, Vector3 } from "three";
 import { FollowCameraComponent } from "../../camera/components/FollowCameraComponent";
 import { isClient } from "../../common/functions/isClient";
@@ -15,10 +12,13 @@ import { addComponent, getComponent, getMutableComponent, hasComponent, removeCo
 import { SystemUpdateType } from "../../ecs/functions/SystemUpdateType";
 import { LocalInputReceiver } from "../../input/components/LocalInputReceiver";
 import { NetworkObject } from "../../networking/components/NetworkObject";
+import { RigidBody } from "../../physics/components/RigidBody";
 import { HighlightComponent } from "../../renderer/components/HighlightComponent";
 import { Object3DComponent } from "../../scene/components/Object3DComponent";
 import { CharacterComponent } from "../../templates/character/components/CharacterComponent";
 import { NamePlateComponent } from "../../templates/character/components/NamePlateComponent";
+import { VehicleComponent } from "../../templates/vehicle/components/VehicleComponent";
+import { TransformComponent } from "../../transform/components/TransformComponent";
 import { BoundingBox } from "../components/BoundingBox";
 import { Interactable } from "../components/Interactable";
 import { InteractiveFocused } from "../components/InteractiveFocused";
@@ -328,7 +328,7 @@ export class InteractiveSystem extends System {
             hasComponent(entityInter, TransformComponent)
           ) {
             addComponent(entityInter, BoundingBox, {
-              dynamic: (hasComponent(entityInter, RigidBody) || hasComponent(entityInter, VehicleBody))
+              dynamic: (hasComponent(entityInter, RigidBody) || hasComponent(entityInter, VehicleComponent))
             });
           }
           if (entityInter !== interacts.focusedInteractive && hasComponent(entityInter, InteractiveFocused)) {

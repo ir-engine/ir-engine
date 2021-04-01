@@ -35,3 +35,11 @@
   height: 200px;
   width: 200px;
 }
+
+.hero--primary {
+  background-color: #01022e!important;
+}
+
+.button{
+  color:#fff;
+}
