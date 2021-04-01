@@ -18,4 +18,3 @@ export enum AssetType {
   XLS,
   Script
 }
-

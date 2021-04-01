@@ -6,15 +6,12 @@ import { addMeshCollider } from "@xr3ngine/engine/src/physics/behaviors/addMeshC
 import { addMeshRigidBody } from "@xr3ngine/engine/src/physics/behaviors/addMeshRigidBody";
 import { Interactable } from "../components/Interactable";
 import {
-    addComponent,
     getComponent,
     getMutableComponent,
     hasComponent,
-    removeComponent
 } from "../../ecs/functions/EntityFunctions";
-import { AssetLoader } from "../../assets/components/AssetLoader";
+import AssetLoader from "../../assets/classes/AssetLoader";
 import { CharacterComponent } from "../../templates/character/components/CharacterComponent";
-import { AssetLoaderState } from "../../assets/components/AssetLoaderState";
 import { State } from "../../state/components/State";
 import { LifecycleValue } from "@xr3ngine/engine/src/common/enums/LifecycleValue";
 import { Behavior } from "@xr3ngine/engine/src/common/interfaces/Behavior";
@@ -55,8 +52,6 @@ export const interactiveBox: Prefab = {
                 interactiveDistance: 3,
                 onInteractionFocused: onInteractionHover,
                 onInteraction: (entity, args, delta, entity2): void => {
-                    removeComponent(entity, AssetLoader, true);
-                    removeComponent(entity, AssetLoaderState, true);
 
                     const avatarsList = [
                         'Allison.glb',
@@ -75,16 +70,14 @@ export const interactiveBox: Prefab = {
                     const actor = getMutableComponent(entity, CharacterComponent);
 
                     const tmpGroup = new Group();
-                    addComponent(entity, AssetLoader, {
-                        url: "models/avatars/" + nextAvatarSrc,
-                        receiveShadow: true,
-                        castShadow: true,
-                        parent: tmpGroup
-                    });
 
-                    const loader = getMutableComponent(entity, AssetLoader)
-                    
-                    loader.onLoaded.push((entity, args) => {
+                    AssetLoader.load({
+                        url: "models/avatars/" + nextAvatarSrc,
+                        entity,
+                        castShadow: true,
+                        receiveShadow: true,
+                        parent: tmpGroup,
+                    }, () => {
                         // console.log('loaded new avatar model', args);
 
                         // if (actor.currentAnimationAction) {
@@ -104,7 +97,7 @@ export const interactiveBox: Prefab = {
                         const stateComponent = getComponent(entity, State);
                         // trigger all states to restart?
                         stateComponent.data.forEach(data => data.lifecycleState = LifecycleValue.STARTED);
-                    })
+                    });
 
                     //debugger;
                 }
