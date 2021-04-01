@@ -1,10 +1,10 @@
-import { FollowCameraComponent } from '@xr3ngine/engine/src/camera/components/FollowCameraComponent';
-import { Behavior } from '@xr3ngine/engine/src/common/interfaces/Behavior';
-import { Entity } from '@xr3ngine/engine/src/ecs/classes/Entity';
-import { getComponent } from '@xr3ngine/engine/src/ecs/functions/EntityFunctions';
-import { Input } from '@xr3ngine/engine/src/input/components/Input';
-import { BaseInput } from '@xr3ngine/engine/src/input/enums/BaseInput';
-import { Material, Mesh, Vector3, Quaternion, Object3D } from "three";
+import { FollowCameraComponent } from '../../camera/components/FollowCameraComponent';
+import { Behavior } from '../../common/interfaces/Behavior';
+import { Entity } from '../../ecs/classes/Entity';
+import { getComponent } from '../../ecs/functions/EntityFunctions';
+import { Input } from '../../input/components/Input';
+import { BaseInput } from '../../input/enums/BaseInput';
+import { Material, Mesh, Vector3, Object3D } from "three";
 import { SkinnedMesh } from 'three/src/objects/SkinnedMesh';
 import { CameraComponent } from "../../camera/components/CameraComponent";
 import { CameraModes } from "../../camera/types/CameraModes";
@@ -21,10 +21,13 @@ import { Object3DComponent } from '../../scene/components/Object3DComponent';
 import { interactOnServer } from '../../interaction/systems/InteractiveSystem';
 import { CharacterComponent } from "./components/CharacterComponent";
 import { isServer } from "../../common/functions/isServer";
-import { VehicleBody } from '../../physics/components/VehicleBody';
+import { VehicleComponent } from '../vehicle/components/VehicleComponent';
 import { isMobileOrTablet } from '../../common/functions/isMobile';
 import { SIXDOFType } from '../../common/types/NumericalTypes';
 import { IKComponent } from '../../character/components/IKComponent';
+import { EquippedComponent } from '../../interaction/components/EquippedComponent';
+import { unequipEntity } from '../../interaction/functions/equippableFunctions';
+import { TransformComponent } from '../../transform/components/TransformComponent';
 
 /**
  *
@@ -34,6 +37,13 @@ import { IKComponent } from '../../character/components/IKComponent';
  */
 
 const interact: Behavior = (entity: Entity, args: any = { }, delta): void => {
+
+  // TODO: figure out how to best handle equippables & interactables at the same time
+  const equippedComponent = getComponent(entity, EquippedComponent)
+  if(equippedComponent) {
+    unequipEntity(entity)
+    return;
+  }
   if (isServer) {
     interactOnServer(entity);
     return;
@@ -71,14 +81,19 @@ const interact: Behavior = (entity: Entity, args: any = { }, delta): void => {
 
 
   const interactive = getComponent(focusedEntity, Interactable);
-  if (interactive && typeof interactive.onInteraction === 'function') {
-    if (!hasComponent(focusedEntity, VehicleBody)) {
-      interactive.onInteraction(entity, args, delta, focusedEntity);
+  const intPosition = getComponent(focusedEntity, TransformComponent).position;
+  const position = getComponent(entity, TransformComponent).position;
+  
+  if (position.distanceTo(intPosition) < 3) {
+    if (interactive && typeof interactive.onInteraction === 'function') {
+      if (!hasComponent(focusedEntity, VehicleComponent)) {
+        interactive.onInteraction(entity, args, delta, focusedEntity);
+      } else {
+        console.log('Interaction with cars must work only from server');
+      }
     } else {
-      console.log('Interaction with cars must work only from server');
+      console.warn('onInteraction is not a function');
     }
-  } else {
-    console.warn('onInteraction is not a function');
   }
 
 };

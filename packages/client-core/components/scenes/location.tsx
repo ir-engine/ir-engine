@@ -23,7 +23,7 @@ import { SocketWebRTCClientTransport } from '@xr3ngine/engine/src/networking/cla
 import { NetworkSchema } from '@xr3ngine/engine/src/networking/interfaces/NetworkSchema';
 import { styleCanvas } from '@xr3ngine/engine/src/renderer/functions/styleCanvas';
 import { CharacterComponent } from '@xr3ngine/engine/src/templates/character/components/CharacterComponent';
-import { DefaultNetworkSchema, PrefabType } from '@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema';
+import { DefaultNetworkSchema } from '@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema';
 import dynamic from 'next/dynamic';
 import querystring from 'querystring';
 import React, { useEffect, useState } from 'react';
@@ -49,6 +49,7 @@ import { InteractiveSystem } from '@xr3ngine/engine/src/interaction/systems/Inte
 import { PhysicsSystem } from '@xr3ngine/engine/src/physics/systems/PhysicsSystem';
 import { DefaultInitializationOptions, initializeEngine } from '@xr3ngine/engine/src/initialize';
 import { XRSystem } from '@xr3ngine/engine/src/xr/systems/XRSystem';
+import { PrefabType } from '@xr3ngine/engine/src/templates/networking/PrefabType';
 
 const goHome = () => window.location.href = window.location.origin;
 
@@ -278,7 +279,7 @@ export const EnginePage = (props: Props) => {
   const onObjectHover = ({ focused, interactionText }: { focused: boolean, interactionText: string }): void => {
     setObjectHovered(focused);
     let displayText = interactionText;
-    const length = interactionText.length;
+    const length = interactionText && interactionText.length;
     if(length > 110) {
       displayText = interactionText.substring(0, 110) + '...';
     }
@@ -301,15 +302,15 @@ export const EnginePage = (props: Props) => {
     EngineEvents.instance.addEventListener(XRSystem.EVENTS.XR_END, async (ev: any) => { setIsInXR(false); });
   };
 
-  const onObjectActivation = ({ action, payload }): void => {
-    switch (action) {
+  const onObjectActivation = (interactionData): void => {
+    switch (interactionData.interactionType) {
       case 'link':
-        setOpenLinkData(payload);
+        setOpenLinkData(interactionData);
         setObjectActivated(true);
         break;
       case 'infoBox':
       case 'mediaSource':
-        setModalData(payload);
+        setModalData(interactionData);
         setObjectActivated(true);
         break;
       default:

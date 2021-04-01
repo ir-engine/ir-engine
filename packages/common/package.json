@@ -1,10 +1,14 @@
 {
   "name": "@xr3ngine/common",
+  "version": "0.2.10",
   "private": true,
-  "version": "0.2.0",
+  "publishConfig": {
+    "access": "public"
+  },
   "description": "Shared types for other XR3ngine packages",
   "main": "index.ts",
   "repository": "http://github.com/xr3ngine/xr3ngine",
   "author": "XR3ngine",
-  "license": "MIT"
+  "license": "MIT",
+  "gitHead": "66449f6ffba4d32c424b16b4f0667fe0ad36562c"
 }

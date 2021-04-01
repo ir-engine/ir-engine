@@ -1,12 +1,7 @@
-import { Quaternion, Vector3 } from "three";
 import { Body, Vec3 } from 'cannon-es';
-import { Engine } from "@xr3ngine/engine/src/ecs/classes/Engine";
+import { Engine } from "../../../ecs/classes/Engine";
 import { Entity } from "../../../ecs/classes/Entity";
-import { Behavior } from '@xr3ngine/engine/src/common/interfaces/Behavior';
-import { isServer } from '@xr3ngine/engine/src/common/functions/isServer';
 import { isClient } from "../../../common/functions/isClient";
-import { hasComponent, getComponent, getMutableComponent } from "@xr3ngine/engine/src/ecs/functions/EntityFunctions";
-import { PrefabType } from "@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema";
 import { initializeNetworkObject } from '../../../networking/functions/initializeNetworkObject';
 import { Network } from '../../../networking/classes/Network';
 import { NetworkPrefab } from '../../../networking/interfaces/NetworkPrefab';
@@ -14,15 +9,12 @@ import { VehicleInputSchema } from '../VehicleInputSchema';
 import { Input } from '../../../input/components/Input';
 import { Interactable } from '../../../interaction/components/Interactable';
 import { TransformComponent } from '../../../transform/components/TransformComponent';
-import { InterpolationComponent } from "@xr3ngine/engine/src/physics/components/InterpolationComponent";
-import { createTrimeshFromArrayVertices, createTrimeshFromMesh, createCylinder, createBox, createSphere } from '@xr3ngine/engine/src/physics/behaviors/addColliderWithoutEntity';
-import { AssetLoader } from '../../../assets/components/AssetLoader';
-import { VehicleBody } from "@xr3ngine/engine/src/physics/components/VehicleBody";
-import { NetworkObject } from '@xr3ngine/engine/src/networking/components/NetworkObject';
-import { onInteractionHover } from '../../../interaction/functions/commonInteractive';
+import { InterpolationComponent } from "../../../physics/components/InterpolationComponent";
+import { createTrimeshFromArrayVertices, createTrimeshFromMesh, createCylinder, createBox, createSphere } from '../../../physics/behaviors/addColliderWithoutEntity';
 import { getInCar } from '../behaviors/getInCarBehavior';
 import { getInCarPossible } from '../behaviors/getInCarPossible';
-import { CollisionGroups } from "@xr3ngine/engine/src/physics/enums/CollisionGroups";
+import { VehicleComponent } from "../components/VehicleComponent";
+import { PrefabType } from "../../networking/PrefabType";
 
 
 function castShadowOn(group) {
@@ -132,27 +124,18 @@ export const parseCarModel = ( groupMeshes: any, notEditor = true) => {
 function addCollidersShapeInOneBody( entity: Entity, addShapeArray, mass = 0) {
   console.warn(mass);
   const body = new Body({mass});
-  const completeShapeArray = getComponent(entity, AssetLoader).addShapeArray.length ? getComponent(entity, AssetLoader).addShapeArray : [];
-
-  if (completeShapeArray.length === 0) {
-    for (let i = 0; i < addShapeArray.length; i++) {
-      completeShapeArray.push( addCollidersToNetworkVehicle({ entity,
-         parameters: {
-           type: addShapeArray[i].userData.type,
-           scale: addShapeArray[i].scale,
-           position: addShapeArray[i].position,
-           quaternion: addShapeArray[i].quaternion,
-           mesh: addShapeArray[i].userData.type === 'trimesh' ? addShapeArray[i] : null
-         }
-       })
-      )
-    }
+  for (let i = 0; i < addShapeArray.length; i++) {
+    const shape = addCollidersToNetworkVehicle({ entity,
+      parameters: {
+        type: addShapeArray[i].userData.type,
+        scale: addShapeArray[i].scale,
+        position: addShapeArray[i].position,
+        quaternion: addShapeArray[i].quaternion,
+        mesh: addShapeArray[i].userData.type === 'trimesh' ? addShapeArray[i] : null
+      }
+    });
+    body.addShape(shape.shape, new Vec3(shape.position.x, shape.position.y, shape.position.z));
   }
-
-  for (let i = 0; i < completeShapeArray.length; i++) {
-    body.addShape(completeShapeArray[i].shape, new Vec3(completeShapeArray[i].position.x, completeShapeArray[i].position.y, completeShapeArray[i].position.z));
-  }
-  //cannonFromThreeVector(vehicleSphereColliders[i].position).vadd(collidersSphereOffset)
   return body;
 }
 
@@ -187,9 +170,6 @@ export function addCollidersToNetworkVehicle( args:{ parameters?: any, entity?: 
       shape = createBox(args.parameters.scale || {x:1, y:1, z:1});
       break;
   }
-  if (hasComponent(args.entity, AssetLoader)) {
-    getMutableComponent(args.entity, AssetLoader).addShapeArray.push({ shape: shape, position: args.parameters.position});
-  }
   return { shape: shape, position: args.parameters.position};
 }
 
@@ -207,13 +187,13 @@ export function createVehicleFromSceneData( entity: Entity, args: any) {
       interactionPartsPosition: args.objArgs.interactionPartsPosition
     },
     //@ts-ignore
-    uniqueId: getComponent(entity, AssetLoader).entityIdFromScenaLoader,
+    uniqueId: args.objArgs.sceneEntityId,
     entity: entity
   });
 
 }
 
-export function createVehicleFromModel( entity: Entity, mesh: any) {
+export function createVehicleFromModel( entity: Entity, mesh: any, sceneEntityId: string) {
   const parameters = parseCarModel( mesh );
   console.warn(parameters.mass);
   createNetworkVehicle({
@@ -231,7 +211,7 @@ export function createVehicleFromModel( entity: Entity, mesh: any) {
       interactionPartsPosition: parameters.interactionPartsPosition
     },
     //@ts-ignore
-    uniqueId: getComponent(entity, AssetLoader).entityIdFromScenaLoader,
+    uniqueId: sceneEntityId,
     entity: entity
   });
 }
@@ -255,7 +235,7 @@ export function createNetworkVehicle( args:{ parameters?: any, networkId?: strin
       override: {
         networkComponents: [
           {
-            type: VehicleBody,
+            type: VehicleComponent,
             data: args.parameters
           },
           {
@@ -285,7 +265,7 @@ export const NetworkVehicle: NetworkPrefab = {
   networkComponents: [
     { type: TransformComponent },
     { type: Input, data: { schema: VehicleInputSchema }},
-    { type: VehicleBody },
+    { type: VehicleComponent },
     { type: Interactable }
   ],
   // These are only created for the local player who owns this prefab

@@ -11,7 +11,7 @@ import {
   instanceServerProvisioning
 } from './actions';
 import { EngineEvents } from "@xr3ngine/engine/src/ecs/classes/EngineEvents";
-import { ClientNetworkSystem } from "@xr3ngine/engine/src/networking/systems/ClientNetworkSystem";
+import { triggerUpdateConsumers } from "../mediastream/service";
 
 export function provisionInstanceServer(locationId?: string, instanceId?: string, sceneId?: string) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
@@ -64,12 +64,15 @@ export function connectToInstanceServer(channelType: string, channelId?: string)
       await Network.instance.transport.initialize(instance.get('ipAddress'), instance.get('port'), channelType === 'instance', {
         locationId: locationId,
         token: token,
+        user: user,
         sceneId: sceneId,
         startVideo: videoActive,
         channelType: channelType,
         channelId: channelId,
         videoEnabled: currentLocation?.locationSettings?.videoEnabled === true || !(currentLocation?.locationSettings?.locationType === 'showroom' && user.locationAdmins?.find(locationAdmin => locationAdmin.locationId === currentLocation.id) == null)
       });
+
+      EngineEvents.instance.addEventListener(MediaStreamSystem.EVENTS.TRIGGER_UPDATE_CONSUMERS, triggerUpdateConsumers)
 
       // setClient(instanceClient);
       dispatch(instanceServerConnected());

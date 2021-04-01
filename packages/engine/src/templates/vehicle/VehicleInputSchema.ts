@@ -1,65 +1,42 @@
-import { BaseInput } from '@xr3ngine/engine/src/input/enums/BaseInput';
+import { BaseInput } from '../../input/enums/BaseInput';
 import { LifecycleValue } from '../../common/enums/LifecycleValue';
 import { isServer } from '../../common/functions/isServer';
 import { isClient } from '../../common/functions/isClient';
 import { Behavior } from '../../common/interfaces/Behavior';
 import { Entity } from '../../ecs/classes/Entity';
-import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
+import { getComponent, getMutableComponent, removeComponent } from '../../ecs/functions/EntityFunctions';
 import { Input } from "../../input/components/Input";
 import { GamepadButtons, MouseInput, GamepadAxis } from '../../input/enums/InputEnums';
 import { InputType } from '../../input/enums/InputType';
 import { InputSchema } from '../../input/interfaces/InputSchema';
 import { InputAlias } from "../../input/types/InputAlias";
 import { Network } from '../../networking/classes/Network';
-import { synchronizationComponents } from '../../networking/functions/synchronizationComponents';
+import { sendClientObjectUpdate } from '../../networking/functions/sendClientObjectUpdate';
 import { PlayerInCar } from '../../physics/components/PlayerInCar';
-import { VehicleBody } from '../../physics/components/VehicleBody';
-import { FollowCameraComponent } from '@xr3ngine/engine/src/camera/components/FollowCameraComponent';
+import { VehicleComponent } from './components/VehicleComponent';
 import { CameraModes } from "../../camera/types/CameraModes";
 import { isMobileOrTablet } from '../../common/functions/isMobile';
+import { VehicleState, VehicleStateUpdateSchema } from './enums/VehicleStateEnum';
+import { NetworkObjectUpdateType } from '../networking/NetworkObjectUpdateSchema';
+import { DelegatedInputReceiver } from '../../input/components/DelegatedInputReceiver';
+import { FollowCameraComponent } from '../../camera/components/FollowCameraComponent';
 
 const getOutCar: Behavior = (entityCar: Entity): void => {
   if(isClient) return;
-  let entity = null;
-  const vehicle = getComponent(entityCar, VehicleBody);
+  const vehicle = getComponent(entityCar, VehicleComponent);
 
-  let networkPlayerId = null
-
+  if(!Network.instance.networkObjects[vehicle.driver]) return console.warn('Failed to get out of car because no driver id is known.')
+  
+  const entity = Network.instance.networkObjects[vehicle.driver].component.entity;
+  getMutableComponent(entity, PlayerInCar).state = VehicleState.onStartRemove;
+  sendClientObjectUpdate(entity, NetworkObjectUpdateType.VehicleStateChange, [VehicleState.onStartRemove] as VehicleStateUpdateSchema);
   if(isServer) {
-    networkPlayerId = vehicle.wantsExit.filter(f => f != null)[0];
-    console.warn('wantsExit: '+ vehicle.wantsExit);
-  } else {
-    networkPlayerId = Network.instance.localAvatarNetworkId
+    removeComponent(entity, DelegatedInputReceiver)
   }
-
-  if (networkPlayerId == undefined) {
-    console.warn('car dont have driver to do getOutCar behavior');
-    return;
-  }
-
-  for (let i = 0; i < vehicle.seatPlane.length; i++) {
-    if (networkPlayerId == vehicle[vehicle.seatPlane[i]]) {
-      entity = Network.instance.networkObjects[networkPlayerId].component.entity;
-    }
-  }
-  console.warn('onStartRemove');
-  getMutableComponent(entity, PlayerInCar).state = 'onStartRemove';
-  synchronizationComponents(entity, 'PlayerInCar', {
-    state: 'onStartRemove',
-    whoIsItFor: 'all'
-   });
-/*
-  networkCarId: getComponent(entityCar, NetworkObject).networkId,
-  currentFocusedPart: args.currentFocusedPart,
-  */
-/*
-  const event = new CustomEvent('player-in-car', { detail:{inCar:false} });
-  document.dispatchEvent(event);
-*/
 };
 
 const drive: Behavior = (entity: Entity, args: { direction: number }): void => {
-  const vehicleComponent = getMutableComponent<VehicleBody>(entity, VehicleBody);
+  const vehicleComponent = getMutableComponent<VehicleComponent>(entity, VehicleComponent);
   if(isClient && vehicleComponent.driver != Network.instance.localAvatarNetworkId) return;
   const vehicle = vehicleComponent.vehiclePhysics;
 
@@ -75,7 +52,7 @@ const drive: Behavior = (entity: Entity, args: { direction: number }): void => {
 };
 
 const stop: Behavior = (entity: Entity, args: { direction: number }): void => {
-  const vehicleComponent = getMutableComponent<VehicleBody>(entity, VehicleBody);
+  const vehicleComponent = getMutableComponent<VehicleComponent>(entity, VehicleComponent);
   vehicleComponent.isMoved = false;
   return;
   if(isClient && vehicleComponent.driver != Network.instance.localAvatarNetworkId) return;
@@ -95,7 +72,7 @@ const driveByInputAxis: Behavior = (entity: Entity, args: { input: InputAlias; i
   const input =  getComponent<Input>(entity, Input as any);
   const data = input.data.get(args.input);
 
-  const vehicleComponent = getMutableComponent<VehicleBody>(entity, VehicleBody);
+  const vehicleComponent = getMutableComponent<VehicleComponent>(entity, VehicleComponent);
   if(isClient && vehicleComponent.driver != Network.instance.localAvatarNetworkId) return;
   const vehicle = vehicleComponent.vehiclePhysics;
 
@@ -116,7 +93,7 @@ const driveByInputAxis: Behavior = (entity: Entity, args: { input: InputAlias; i
 };
 
 export const driveHandBrake: Behavior = (entity: Entity, args: { on: boolean }): void => {
-  const vehicleComponent = getMutableComponent<VehicleBody>(entity, VehicleBody);
+  const vehicleComponent = getMutableComponent<VehicleComponent>(entity, VehicleComponent);
   if(isClient && vehicleComponent.driver != Network.instance.localAvatarNetworkId) return;
   const vehicle = vehicleComponent.vehiclePhysics;
 
@@ -128,7 +105,7 @@ export const driveHandBrake: Behavior = (entity: Entity, args: { on: boolean }):
 
 const driveSteering: Behavior = (entity: Entity, args: { direction: number }): void => {
 
-  const vehicleComponent = getMutableComponent<VehicleBody>(entity, VehicleBody);
+  const vehicleComponent = getMutableComponent<VehicleComponent>(entity, VehicleComponent);
   if(isClient && vehicleComponent.driver != Network.instance.localAvatarNetworkId) return;
   const vehicle = vehicleComponent.vehiclePhysics;
 

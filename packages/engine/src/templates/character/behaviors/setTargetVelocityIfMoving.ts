@@ -1,4 +1,4 @@
-import { Behavior } from '@xr3ngine/engine/src/common/interfaces/Behavior';
+import { Behavior } from '../../../common/interfaces/Behavior';
 import { getComponent, getMutableComponent } from '../../../ecs/functions/EntityFunctions';
 import { CharacterComponent } from '../components/CharacterComponent';
 

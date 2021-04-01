@@ -1,5 +1,5 @@
-import Video from '@xr3ngine/engine/src/scene/classes/Video';
-import Audio from '@xr3ngine/engine/src/scene/classes/AudioSource';
+import Video from '../../scene/classes/Video';
+import Audio from '../../scene/classes/AudioSource';
 import { Object3D } from 'three';
 import { addObject3DComponent } from './addObject3DComponent';
 import { Engine } from '../../ecs/classes/Engine';
@@ -12,8 +12,6 @@ import { isWebWorker } from '../../common/functions/getEnvironment';
 import DracosisPlayer from '@xr3ngine/volumetric/src/Player';
 import VolumetricComponent from "../components/VolumetricComponent"
 import { addComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
-import { Network } from '../../networking/classes/Network';
-import { isClient } from '../../common/functions/isClient';
 import { EngineEvents } from '../../ecs/classes/EngineEvents';
 import { InteractiveSystem } from '../../interaction/systems/InteractiveSystem';
 
@@ -44,7 +42,7 @@ const onMediaInteractionHover: Behavior = (entityInitiator, { focused }: { focus
   EngineEvents.instance.dispatchEvent({ 
     type: InteractiveSystem.EVENTS.OBJECT_HOVER, 
     focused,
-    action: 'mediaSource',
+    interactionType: 'mediaSource',
     interactionText: elementPlaying(mediaElement) ? 'pause video' : 'play video'
   });
 };
@@ -97,7 +95,7 @@ export function createMediaServer(entity, args: {
 function addInteraction(entity): void {
 
   const data = {
-    action: 'mediaSource',
+    interactionType: 'mediaSource',
   };
 
   const interactiveData = {
@@ -112,7 +110,7 @@ function addInteraction(entity): void {
     EngineEvents.instance.dispatchEvent({ 
       type: InteractiveSystem.EVENTS.OBJECT_HOVER, 
       focused: true,
-      action: 'mediaSource',
+      interactionType: 'mediaSource',
       interactionText: didPlay ? 'pause media' : 'play media' 
     })
   };

@@ -3,12 +3,7 @@ import { NetworkSchema } from '../../networking/interfaces/NetworkSchema';
 import { NetworkPlayerCharacter } from '../character/prefabs/NetworkPlayerCharacter';
 import { NetworkRigidBody } from '../../interaction/prefabs/NetworkRigidBody';
 import { NetworkVehicle } from '../vehicle/prefabs/NetworkVehicle';
-
-export const PrefabType = {
-  Player: 0,
-  RigidBody: 1,
-  Vehicle: 2
-};
+import { PrefabType } from './PrefabType';
 
 export const DefaultPrefabs = {
   [PrefabType.Player]: NetworkPlayerCharacter,

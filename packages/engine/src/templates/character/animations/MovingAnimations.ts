@@ -1,7 +1,7 @@
-import { Behavior } from '@xr3ngine/engine/src/common/interfaces/Behavior';
+import { Behavior } from '../../../common/interfaces/Behavior';
 import { CharacterAnimations } from '../CharacterAnimations';
 import { CharacterComponent } from '../components/CharacterComponent';
-import { addComponent, getComponent, getMutableComponent, hasComponent, removeComponent } from '../../../ecs/functions/EntityFunctions';
+import { getComponent, getMutableComponent, hasComponent } from '../../../ecs/functions/EntityFunctions';
 import { Vector3 } from "three";
 import { AnimationComponent } from '../../../character/components/AnimationComponent';
 

@@ -1,11 +1,11 @@
 import { isClient } from './isClient';
 import { now } from "./now";
-import { Engine } from "@xr3ngine/engine/src/ecs/classes/Engine";
 import { WebGLRendererSystem } from '../../renderer/WebGLRendererSystem';
 import { EngineEvents } from '../../ecs/classes/EngineEvents';
 import { isWebWorker } from './getEnvironment';
 import { XRSystem } from '../../xr/systems/XRSystem';
 import { XRFrame } from '../../input/types/WebXR';
+import { Engine } from '../../ecs/classes/Engine';
 
 type TimerUpdateCallback = (delta: number, elapsedTime?: number) => any;
 

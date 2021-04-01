@@ -21,21 +21,12 @@ jobs:
           AWS_SECRET: ${{ secrets.AWS_SECRET }}
           AWS_REGION: ${{ secrets.AWS_REGION }}
           CLUSTER_NAME: theoverlay-production
-      - name: restore lerna
-        uses: actions/cache@v2
-        with:
-          path: |
-            node_modules
-            */*/node_modules
-            yarn.lock
-          key: ${{ runner.os }}-dev-${{ hashFiles('**/yarn.lock') }}
       - name: Space debug
         run: |
           sudo rm -rf /usr/share/dotnet
           sudo rm -rf /opt/ghc
           sudo rm -rf "/usr/local/share/boost"
           sudo rm -rf "$AGENT_TOOLSDIRECTORY"
-          df -h
       - name: Build Docker Image
         run: bash scripts/build_docker.sh dev $DOCKER_LABEL
         env:
@@ -60,7 +51,10 @@ jobs:
           DOCKER_LABEL: ${{ secrets.DOCKER_LABEL }}
       - name: Job succeeded
         if: always()
-        uses: actions/setup-ruby@v1
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 2.6 # Not needed with a .ruby-version file
+          bundler-cache: true # runs 'bundle install' and caches installed gems automatically
         env:
           JOB_STATUS: ${{ job.status }}
           WEBHOOK_URL: ${{ secrets.WEBHOOK_URL }}

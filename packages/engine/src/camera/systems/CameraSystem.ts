@@ -1,4 +1,3 @@
-import { getMutableComponent } from "@xr3ngine/engine/src/ecs/functions/EntityFunctions";
 import { Matrix4, Quaternion, Vector3 } from "three";
 import { addObject3DComponent } from '../../scene/behaviors/addObject3DComponent';
 import { CameraTagComponent } from '../../scene/components/Object3DTagComponents';
@@ -7,7 +6,7 @@ import { NumericalType } from "../../common/types/NumericalTypes";
 import { Engine } from '../../ecs/classes/Engine';
 import { System } from '../../ecs/classes/System';
 import {
-  addComponent, createEntity, getComponent, hasComponent
+  addComponent, createEntity, getComponent, getMutableComponent, hasComponent
 } from '../../ecs/functions/EntityFunctions';
 import { CharacterComponent } from "../../templates/character/components/CharacterComponent";
 import { DesiredTransformComponent } from '../../transform/components/DesiredTransformComponent';

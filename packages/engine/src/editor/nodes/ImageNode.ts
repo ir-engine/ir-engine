@@ -1,10 +1,6 @@
 import EditorNodeMixin from "./EditorNodeMixin";
 import Image, { ImageAlphaMode } from "../../scene/classes/Image";
 import { RethrownError } from "../functions/errors";
-import {
-  getObjectPerfIssues,
-  maybeAddLargeFileIssue
-} from "../functions/performance";
 // @ts-ignore
 export default class ImageNode extends EditorNodeMixin(Image) {
   static legacyComponentName = "image";
@@ -62,12 +58,6 @@ export default class ImageNode extends EditorNodeMixin(Image) {
     try {
       const { accessibleUrl } = await this.editor.api.resolveMedia(src);
       await super.load(accessibleUrl);
-      this.issues = getObjectPerfIssues(this._mesh, false);
-      const perfEntries = performance.getEntriesByName(accessibleUrl) as any;
-      if (perfEntries.length > 0) {
-        const imageSize = perfEntries[0].encodedBodySize;
-        maybeAddLargeFileIssue("image", imageSize, this.issues);
-      }
     } catch (error) {
       this.showErrorIcon();
       const imageError = new RethrownError(
@@ -120,14 +110,5 @@ export default class ImageNode extends EditorNodeMixin(Image) {
       id: this.uuid
     });
     this.replaceObject();
-  }
-  getRuntimeResourcesForStats() {
-    if (this._texture) {
-      return {
-        textures: [this._texture],
-        meshes: [this._mesh],
-        materials: [this._mesh.material]
-      };
-    }
   }
 }

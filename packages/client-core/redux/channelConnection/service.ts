@@ -63,6 +63,7 @@ export function connectToChannelServer(channelId: string, isHarmonyPage?: boolea
       await Network.instance.transport.initialize(instance.get('ipAddress'), instance.get('port'), false, {
         locationId: locationId,
         token: token,
+        user: user,
         sceneId: sceneId,
         startVideo: videoActive,
         channelType: 'channel',

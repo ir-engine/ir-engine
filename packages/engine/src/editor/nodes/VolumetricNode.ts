@@ -4,7 +4,6 @@ import Hls from "hls.js/dist/hls.light";
 import isHLS from "../functions/isHLS";
 // import editorLandingVolumetric from "../../assets/volumetric/EditorPromo.mp4";
 import { RethrownError } from "../functions/errors";
-import { getObjectPerfIssues } from "../functions/performance";
 
 // @ts-ignore
 export default class VolumetricNode extends EditorNodeMixin(Volumetric) {
@@ -167,14 +166,5 @@ export default class VolumetricNode extends EditorNodeMixin(Volumetric) {
       id: this.uuid
     });
     this.replaceObject();
-  }
-  getRuntimeResourcesForStats(): any {
-    if (this._texture) {
-      return {
-        textures: [this._texture],
-        meshes: [this._mesh],
-        materials: [this._mesh.material]
-      };
-    }
   }
 }

@@ -11,6 +11,7 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { CollisionGroups } from '../enums/CollisionGroups';
 import { LocalInputReceiver } from '../../input/components/LocalInputReceiver';
 import { EngineEvents } from '../../ecs/classes/EngineEvents';
+import { PhysicsLifecycleState } from '../enums/PhysicsStates';
 
 const lastPos = { x:0, y:0, z:0 };
 export const updateVelocityVector: Behavior = (entity: Entity, args): void => {
@@ -42,7 +43,7 @@ export const capsuleColliderBehavior: Behavior = (entity: Entity, args): void =>
   const capsule = getMutableComponent<CapsuleCollider>(entity, CapsuleCollider)
   const transform = getComponent<TransformComponent>(entity, TransformComponent as any);
   const actor: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
-  if (args.phase == 'onAdded') {
+  if (args.phase == PhysicsLifecycleState.onAdded) {
 /*
     const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent)
     const actorTransform = getMutableComponent<TransformComponent>(entity, TransformComponent as any);
@@ -54,7 +55,7 @@ export const capsuleColliderBehavior: Behavior = (entity: Entity, args): void =>
     return;
   }
 
-  if (args.phase == 'onRemoved') {
+  if (args.phase == PhysicsLifecycleState.onRemoved) {
     const removedCapsule = getComponent<CapsuleCollider>(entity, CapsuleCollider, true);
     if (removedCapsule) {
       PhysicsSystem.physicsWorld.removeBody(removedCapsule.body);
