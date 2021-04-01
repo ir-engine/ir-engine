@@ -1,4 +1,3 @@
-import { MediaStreamSystem } from "@xr3ngine/engine/src/networking/systems/MediaStreamSystem";
 import { Behavior } from "../../common/interfaces/Behavior";
 import { getMutableComponent } from "../../ecs/functions/EntityFunctions";
 import { Input } from "../components/Input";
@@ -7,6 +6,7 @@ import { InputType } from "../enums/InputType";
 import * as Comlink from 'comlink'
 import { EngineEvents } from "../../ecs/classes/EngineEvents";
 import { Engine } from "../../ecs/classes/Engine";
+import { MediaStreamSystem } from "../../networking/systems/MediaStreamSystem";
 
 export const WEBCAM_INPUT_EVENTS = {
   FACE_INPUT: 'WEBCAM_INPUT_EVENTS_FACE_INPUT',

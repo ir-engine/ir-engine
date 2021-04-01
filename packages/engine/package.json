@@ -4,13 +4,15 @@
     "email": "shawmakesmagic@gmail.com",
     "url": "http://github.com/xr3ngine"
   },
+  "private": true,
   "bugs": {
     "url": "https://github.com/xr3ngine/xr3ngine/issues"
   },
-  "bundleDependencies": false,
   "deprecated": false,
   "name": "@xr3ngine/engine",
-  "private": true,
+  "publishConfig": {
+    "access": "public"
+  },
   "description": "A declarative way to build 3D/VR/AR/XR apps that scale. Built with tooling web developers will love, using conventions that game developers and creative coders will find straightforward familiar.",
   "homepage": "https://github.com/xr3ngine/xr3ngine#readme",
   "license": "MIT",
@@ -23,36 +25,36 @@
     "url": "git+https://github.com/xr3ngine/xr3ngine.git"
   },
   "scripts": {
-    "lint":"eslint --fix --quiet --ext .ts src/",
+    "lint": "eslint --fix --quiet --ext .ts src/",
     "test": "jest",
     "validate": "yarn run lint && yarn run test",
     "generate-doc": "node_modules/.bin/typedoc"
   },
-  "version": "0.2.0",
+  "version": "0.2.10",
   "peerDependencies": {
     "three": "^0.125.0"
   },
   "dependencies": {
-    "@mozillareality/easing-functions": "^0.1.1",
-    "@mozillareality/three-particle-emitter": "^0.2.2",
     "@pixiv/three-vrm": "^0.5.2",
-    "@types/webgl2": "^0.0.5",
+    "@tensorflow/tfjs-core": "^3.3.0",
+    "@tensorflow/tfjs-node": "^3.3.0",
     "@typescript-eslint/eslint-plugin": "^4.4.1",
     "@typescript-eslint/parser": "^4.4.1",
     "cannon-es": "^0.15.1",
     "cannon-es-debugger": "^0.0.3",
+    "canvas": "^2.7.0",
     "cross-blob": "^2.0.0",
     "cross-fetch": "^3.0.6",
     "draco3d": "^1.4.1",
-    "face-api.js": "^0.22.2",
+    "draco3dgltf": "^1.4.1",
     "hls.js": "^0.14.17",
     "mousetrap": "^1.6.5",
+    "socket.io": "2.4.1",
     "superbuffer": "^1.0.1",
     "three": "^0.125.0",
     "three-gltf-exporter": "^0.0.1",
     "three-mesh-bvh": "^0.2.0",
     "three-to-cannon": "^3.0.2",
-    "tween": "^0.9.0",
     "typescript": "^4.0.3",
     "url": "^0.11.0"
   },
@@ -69,5 +71,6 @@
     "rollup-plugin-node-polyfills": "^0.2.1",
     "rollup-plugin-typescript2": "^0.27.1",
     "typedoc": "^0.20.16"
-  }
+  },
+  "gitHead": "66449f6ffba4d32c424b16b4f0667fe0ad36562c"
 }

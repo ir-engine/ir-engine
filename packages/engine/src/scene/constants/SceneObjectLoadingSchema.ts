@@ -1,11 +1,11 @@
 import { Component } from "../../ecs/classes/Component";
 import { Entity } from "../../ecs/classes/Entity";
 import { isClient } from "../../common/functions/isClient";
-import { parseModelColliders, clearFromColliders } from '@xr3ngine/engine/src/physics/behaviors/parseModelColliders';
-import { createVehicleFromSceneData } from '@xr3ngine/engine/src/templates/vehicle/prefabs/NetworkVehicle';
-import { AmbientLight, CircleBufferGeometry, Color, HemisphereLight, Mesh, MeshPhongMaterial, PointLight, SpotLight, Vector3, Quaternion, Matrix4 } from 'three';
 import AssetLoader from '../../assets/classes/AssetLoader';
 import { addComponent } from "../../ecs/functions/EntityFunctions";
+import { parseModelColliders, clearFromColliders } from '../../physics/behaviors/parseModelColliders';
+import { createVehicleFromSceneData } from '../../templates/vehicle/prefabs/NetworkVehicle';
+import { AmbientLight, CircleBufferGeometry, Color, HemisphereLight, Mesh, MeshPhongMaterial, PointLight, SpotLight } from 'three';
 import { ComponentConstructor } from "../../ecs/interfaces/ComponentInterfaces";
 import { createParticleEmitter } from '../../particles/functions/particleHelpers';
 import { addObject3DComponent } from '../behaviors/addObject3DComponent';

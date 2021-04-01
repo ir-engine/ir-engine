@@ -14,8 +14,9 @@ import MeshCombinationGroup from "../classes/MeshCombinationGroup";
 import GroupNode from "./GroupNode";
 import getNodeWithUUID from "../functions/getNodeWithUUID";
 import serializeColor from "../functions/serializeColor";
-import { DistanceModelType } from "@xr3ngine/engine/src/scene/classes/AudioSource";
-import { FogType } from "@xr3ngine/engine/src/scene/constants/FogType";
+import { FogType } from '../../scene/constants/FogType';
+import {DistanceModelType} from "../../scene/classes/AudioSource";
+
 // Migrate v1 editor scene to v2
 function migrateV1ToV2(json) {
   const { root, metadata, entities } = json;

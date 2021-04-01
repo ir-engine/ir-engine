@@ -1,16 +1,16 @@
-import { Entity } from '@xr3ngine/engine/src/ecs/classes/Entity';
-import { getComponent, getMutableComponent } from '@xr3ngine/engine/src/ecs/functions/EntityFunctions';
-import { PlayerInCar } from '@xr3ngine/engine/src/physics/components/PlayerInCar';
-import { VehicleBody } from '@xr3ngine/engine/src/physics/components/VehicleBody';
-import { CharacterAnimations } from "@xr3ngine/engine/src/templates/character/CharacterAnimations";
-import { TransformComponent } from '@xr3ngine/engine/src/transform/components/TransformComponent';
 import { Matrix4, Vector3 } from 'three';
 import { changeAnimation } from '../../../character/functions/updateVectorAnimation';
 import { isServer } from "../../../common/functions/isServer";
+import { Entity } from '../../../ecs/classes/Entity';
+import { getComponent, getMutableComponent } from '../../../ecs/functions/EntityFunctions';
+import { PlayerInCar } from '../../../physics/components/PlayerInCar';
+import { TransformComponent } from '../../../transform/components/TransformComponent';
+import { CharacterAnimations } from '../../character/CharacterAnimations';
+import { VehicleComponent } from '../components/VehicleComponent';
 import { VehicleState } from '../enums/VehicleStateEnum';
 
 function doorAnimation(entityCar, seat, timer, timeAnimation, angel) {
-  const vehicle = getComponent<VehicleBody>(entityCar, VehicleBody);
+  const vehicle = getComponent<VehicleComponent>(entityCar, VehicleComponent);
   const mesh = vehicle.vehicleDoorsArray[seat];
   if (mesh === undefined) return;
   const andelPetTick = angel / (timeAnimation / 2);
@@ -28,7 +28,7 @@ function doorAnimation(entityCar, seat, timer, timeAnimation, angel) {
 
 function positionEnter(entity, entityCar, seat) {
   const transform = getMutableComponent<TransformComponent>(entity, TransformComponent);
-  const vehicle = getComponent<VehicleBody>(entityCar, VehicleBody);
+  const vehicle = getComponent<VehicleComponent>(entityCar, VehicleComponent);
   const transformCar = getComponent<TransformComponent>(entityCar, TransformComponent);
 
   const position = new Vector3( ...vehicle.entrancesArray[seat] )

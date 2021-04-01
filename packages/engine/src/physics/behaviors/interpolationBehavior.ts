@@ -1,7 +1,6 @@
-import { Vec3 } from "cannon-es";
 import { Behavior } from '../../common/interfaces/Behavior';
 import { Entity } from '../../ecs/classes/Entity';
-import { Engine } from "@xr3ngine/engine/src/ecs/classes/Engine";
+import { Engine } from "../../ecs/classes/Engine";
 import { getComponent, getMutableComponent, hasComponent } from '../../ecs/functions/EntityFunctions';
 import { Network } from '../../networking/classes/Network';
 import { NetworkObject } from '../../networking/components/NetworkObject';
@@ -10,9 +9,8 @@ import { CapsuleCollider } from '../components/CapsuleCollider';
 import { ColliderComponent } from '../components/ColliderComponent';
 import { InterpolationComponent } from '../components/InterpolationComponent';
 import { TransformComponent } from '../../transform/components/TransformComponent';
-import { VehicleBody } from '../components/VehicleBody';
+import { VehicleComponent } from '../../templates/vehicle/components/VehicleComponent';
 import { Object3DComponent } from '../../scene/components/Object3DComponent';
-import { Interactable } from '../../interaction/components/Interactable';
 
 export const findOne = (entity, snapshot) => {
   const networkId = getComponent(entity, NetworkObject).networkId;
@@ -79,7 +77,7 @@ export const interpolationBehavior: Behavior = (entity: Entity, args): void => {
     const colliderComponent = getComponent(entity, ColliderComponent);
     const inter = getMutableComponent(entity, InterpolationComponent);
 
-    if (inter.lastUpdate + inter.updateDaley < Date.now() && args.snapshot.qX != undefined) {
+    // if (inter.lastUpdate + inter.updateDaley < Date.now() && args.snapshot.qX != undefined) {
 
       colliderComponent.collider.position.set(
         args.snapshot.x,
@@ -93,10 +91,10 @@ export const interpolationBehavior: Behavior = (entity: Entity, args): void => {
         args.snapshot.qW
       );
 
-      inter.lastUpdate = Date.now();
-    }
-  } else if (hasComponent(entity, VehicleBody)) {
-    const vehicleComponent = getComponent(entity, VehicleBody) as VehicleBody;
+      // inter.lastUpdate = Date.now();
+    // }
+  } else if (hasComponent(entity, VehicleComponent)) {
+    const vehicleComponent = getComponent(entity, VehicleComponent) as VehicleComponent;
     const vehicle = vehicleComponent.vehiclePhysics;
     const chassisBody = vehicle.chassisBody;
     const isDriver = vehicleComponent.driver == Network.instance.localAvatarNetworkId;
@@ -147,7 +145,7 @@ export const interpolationBehavior: Behavior = (entity: Entity, args): void => {
               break;
           }
         });
-        getMutableComponent(entity, VehicleBody).vehicleMesh = true;
+        getMutableComponent(entity, VehicleComponent).vehicleMesh = true;
       } catch (err) {
         console.log(err);
       }

@@ -2,11 +2,10 @@ import { Entity } from '../../ecs/classes/Entity';
 import { Network } from '../../networking/classes/Network';
 import { NetworkPrefab } from '../../networking/interfaces/NetworkPrefab';
 import { TransformComponent } from '../../transform/components/TransformComponent';
-import { ColliderComponent } from '@xr3ngine/engine/src/physics/components/ColliderComponent';
-import { RigidBody } from '@xr3ngine/engine/src/physics/components/RigidBody';
-import { InterpolationComponent } from "@xr3ngine/engine/src/physics/components/InterpolationComponent";
+import { ColliderComponent } from '../../physics/components/ColliderComponent';
+import { RigidBody } from '../../physics/components/RigidBody';
 import { initializeNetworkObject } from '../../networking/functions/initializeNetworkObject';
-import { PrefabType } from "@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema";
+import { PrefabType } from '../../templates/networking/PrefabType';
 
 
 export function createNetworkRigidBody( args:{ parameters?: any, networkId?: string | number, uniqueId: string, entity?: Entity }) {
@@ -58,9 +57,7 @@ export const NetworkRigidBody: NetworkPrefab = {
   ],
   // These are only created for the local player who owns this prefab
   localClientComponents: [],
-  clientComponents: [
-    { type: InterpolationComponent }
-  ],
+  clientComponents: [],
   serverComponents: [],
   onAfterCreate: [],
   onBeforeDestroy: []

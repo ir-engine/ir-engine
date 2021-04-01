@@ -1,8 +1,7 @@
 import { Body, Vec3 } from 'cannon-es';
-import { Engine } from "@xr3ngine/engine/src/ecs/classes/Engine";
+import { Engine } from "../../../ecs/classes/Engine";
 import { Entity } from "../../../ecs/classes/Entity";
 import { isClient } from "../../../common/functions/isClient";
-import { PrefabType } from "@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema";
 import { initializeNetworkObject } from '../../../networking/functions/initializeNetworkObject';
 import { Network } from '../../../networking/classes/Network';
 import { NetworkPrefab } from '../../../networking/interfaces/NetworkPrefab';
@@ -10,11 +9,12 @@ import { VehicleInputSchema } from '../VehicleInputSchema';
 import { Input } from '../../../input/components/Input';
 import { Interactable } from '../../../interaction/components/Interactable';
 import { TransformComponent } from '../../../transform/components/TransformComponent';
-import { InterpolationComponent } from "@xr3ngine/engine/src/physics/components/InterpolationComponent";
-import { createTrimeshFromArrayVertices, createTrimeshFromMesh, createCylinder, createBox, createSphere } from '@xr3ngine/engine/src/physics/behaviors/addColliderWithoutEntity';
-import { VehicleBody } from "@xr3ngine/engine/src/physics/components/VehicleBody";
+import { InterpolationComponent } from "../../../physics/components/InterpolationComponent";
+import { createTrimeshFromArrayVertices, createTrimeshFromMesh, createCylinder, createBox, createSphere } from '../../../physics/behaviors/addColliderWithoutEntity';
 import { getInCar } from '../behaviors/getInCarBehavior';
 import { getInCarPossible } from '../behaviors/getInCarPossible';
+import { VehicleComponent } from "../components/VehicleComponent";
+import { PrefabType } from "../../networking/PrefabType";
 
 
 function castShadowOn(group) {
@@ -235,7 +235,7 @@ export function createNetworkVehicle( args:{ parameters?: any, networkId?: strin
       override: {
         networkComponents: [
           {
-            type: VehicleBody,
+            type: VehicleComponent,
             data: args.parameters
           },
           {
@@ -265,7 +265,7 @@ export const NetworkVehicle: NetworkPrefab = {
   networkComponents: [
     { type: TransformComponent },
     { type: Input, data: { schema: VehicleInputSchema }},
-    { type: VehicleBody },
+    { type: VehicleComponent },
     { type: Interactable }
   ],
   // These are only created for the local player who owns this prefab

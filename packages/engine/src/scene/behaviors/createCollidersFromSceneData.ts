@@ -1,12 +1,12 @@
 import { Behavior } from '../../common/interfaces/Behavior';
 import { Entity } from '../../ecs/classes/Entity';
 import { addColliderWithoutEntity } from '../../physics/behaviors/addColliderWithoutEntity';
-import { createNetworkRigidBody } from '@xr3ngine/engine/src/interaction/prefabs/NetworkRigidBody';
-import { addCollidersToNetworkVehicle } from '@xr3ngine/engine/src/templates/vehicle/prefabs/NetworkVehicle';
+import { createNetworkRigidBody } from '../../interaction/prefabs/NetworkRigidBody';
+import { addCollidersToNetworkVehicle } from '../../templates/vehicle/prefabs/NetworkVehicle';
 
 export const createCollidersFromSceneData: Behavior = ( entity: Entity, args: any ) => { //{ data:string, type: string,}
-  console.log('****** Collider from Scene data: ')
-  console.log(args);
+  // console.log('****** Collider from Scene data: ')
+  // console.log(args);
 
   switch (args.objArgs.data) {
 
