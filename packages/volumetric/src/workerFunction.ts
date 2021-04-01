@@ -3,6 +3,7 @@ let _meshFilePath;
 let fetchLoop;
 let lastRequestedKeyframe = 0;
 let _numberOfKeyframes;
+let _lastFrameId;
 let _fileHeader;
 function startFetching({
   targetFramesToRequest,
@@ -12,12 +13,13 @@ function startFetching({
 }) {
   _meshFilePath = meshFilePath;
   _numberOfKeyframes = numberOfKeyframes;
+  _lastFrameId = numberOfKeyframes - 1;
   _fileHeader = fileHeader;
   (globalThis as any).postMessage({ type: "initialized" });
 
 
   fetchLoop = async () => {
-    if (lastRequestedKeyframe >= _numberOfKeyframes - 1) {
+    if (lastRequestedKeyframe >= _lastFrameId) {
       (globalThis as any).postMessage({ type: "complete" });
       return;
     }
@@ -27,7 +29,7 @@ function startFetching({
     let numberOfFramesRequested = 1;
 
     startFrame = lastRequestedKeyframe
-    while (numberOfFramesRequested < targetFramesToRequest && lastRequestedKeyframe < numberOfKeyframes) {
+    while (numberOfFramesRequested < targetFramesToRequest && lastRequestedKeyframe < _lastFrameId) {
       numberOfFramesRequested++;
       lastRequestedKeyframe++;
     }
@@ -63,7 +65,7 @@ function startFetching({
       const sliced = (buffer as ArrayBuffer).slice(fileReadStartPosition, fileReadEndPosition);
 
       let decoder = new CortoDecoder(sliced);
-    
+
 
       let bufferGeometry = decoder.decode();
 
