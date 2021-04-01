@@ -4,7 +4,7 @@ import { InputType } from "../enums/InputType";
 import { GamepadButtons, GamepadAxis, XRAxes } from "../enums/InputEnums";
 import { InputAlias } from "../types/InputAlias";
 import { Input } from "../components/Input";
-import { BaseInput } from '@xr3ngine/engine/src/input/enums/BaseInput';
+import { BaseInput } from "../enums/BaseInput";
 import { LifecycleValue } from "../../common/enums/LifecycleValue";
 import { Engine } from "../../ecs/classes/Engine";
 

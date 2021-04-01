@@ -1,7 +1,7 @@
 import { AnimationClip, MathUtils } from "three";
 import { Engine } from '../../ecs/classes/Engine';
 import { Entity } from "../../ecs/classes/Entity";
-import { Behavior } from '@xr3ngine/engine/src/common/interfaces/Behavior';
+import { Behavior } from '../../common/interfaces/Behavior';
 import {  getMutableComponent } from '../../ecs/functions/EntityFunctions';
 import { AnimationConfigInterface, defaultAvatarAnimations } from "../../templates/character/CharacterAvatars";
 import { CharacterComponent, RUN_SPEED, WALK_SPEED } from '../../templates/character/components/CharacterComponent';

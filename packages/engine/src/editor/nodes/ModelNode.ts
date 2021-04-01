@@ -9,8 +9,8 @@ import {
   maybeAddLargeFileIssue
 } from "../functions/performance";
 import { getGeometry } from '../../physics/classes/three-to-cannon';
-import { plusParameter } from '@xr3ngine/engine/src/physics/behaviors/parseModelColliders';
-import { parseCarModel } from '@xr3ngine/engine/src/templates/vehicle/prefabs/NetworkVehicle';
+import { plusParameter } from "../../physics/behaviors/parseModelColliders";
+import { parseCarModel } from "../../templates/vehicle/prefabs/NetworkVehicle";
 
 import { LoadGLTF } from "../../assets/functions/LoadGLTF";
 export default class ModelNode extends EditorNodeMixin(Model) {

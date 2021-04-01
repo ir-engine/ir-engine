@@ -1,4 +1,3 @@
-import { Vec3 } from 'cannon-es';
 import { Mesh } from 'three';
 import { Object3DComponent } from '../../scene/components/Object3DComponent';
 import { Behavior } from '../../common/interfaces/Behavior';

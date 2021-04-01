@@ -1,4 +1,4 @@
-import { BaseInput } from '@xr3ngine/engine/src/input/enums/BaseInput';
+import { BaseInput } from '../../input/enums/BaseInput';
 import { LifecycleValue } from '../../common/enums/LifecycleValue';
 import { isServer } from '../../common/functions/isServer';
 import { isClient } from '../../common/functions/isClient';
@@ -14,10 +14,10 @@ import { Network } from '../../networking/classes/Network';
 import { sendClientObjectUpdate } from '../../networking/functions/sendClientObjectUpdate';
 import { PlayerInCar } from '../../physics/components/PlayerInCar';
 import { VehicleBody } from '../../physics/components/VehicleBody';
-import { FollowCameraComponent } from '@xr3ngine/engine/src/camera/components/FollowCameraComponent';
 import { CameraModes } from "../../camera/types/CameraModes";
 import { isMobileOrTablet } from '../../common/functions/isMobile';
 import { VehicleState, VehicleStateUpdateSchema } from './enums/VehicleStateEnum';
+import { FollowCameraComponent } from '../../camera/components/FollowCameraComponent';
 
 const getOutCar: Behavior = (entityCar: Entity): void => {
   if(isClient) return;
