@@ -4,15 +4,10 @@ import EditorNodeMixin from "./EditorNodeMixin";
 import { setStaticMode, StaticModes } from "../functions/StaticMode";
 import cloneObject3D from "../functions/cloneObject3D";
 import { RethrownError } from "../functions/errors";
-import {
-  getObjectPerfIssues,
-  maybeAddLargeFileIssue
-} from "../functions/performance";
 import { getGeometry } from '../../physics/classes/three-to-cannon';
-import { plusParameter } from '@xr3ngine/engine/src/physics/behaviors/parseModelColliders';
-import { parseCarModel } from '@xr3ngine/engine/src/templates/vehicle/prefabs/NetworkVehicle';
+import { plusParameter } from "../../physics/behaviors/parseModelColliders";
+import { parseCarModel } from "../../templates/vehicle/prefabs/NetworkVehicle";
 
-import { LoadGLTF } from "../../assets/functions/LoadGLTF";
 export default class ModelNode extends EditorNodeMixin(Model) {
   static nodeName = "Model";
   static legacyComponentName = "gltf-model";
@@ -119,9 +114,6 @@ export default class ModelNode extends EditorNodeMixin(Model) {
   }
   // Overrides Model's load method and resolves the src url before loading.
   async load(src, onError?) {
-    if(src.startsWith('/')) {
-      src = window.location.origin + src;
-    }
     const nextSrc = src || "";
     if (nextSrc === this._canonicalUrl && nextSrc !== "") {
       return;
@@ -175,7 +167,6 @@ export default class ModelNode extends EditorNodeMixin(Model) {
             object.material.needsUpdate = true;
           }
         });
-        this.issues = getObjectPerfIssues(this.model);
       }
       this.updateStaticModes();
     } catch (error) {

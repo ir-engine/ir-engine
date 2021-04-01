@@ -15,7 +15,7 @@
 //
 
 import * as THREE from "three";
-import { isClient } from "@xr3ngine/engine/src/common/functions/isClient";
+import { isClient } from "../../../common/functions/isClient";
 
 let decoder;
 let decoderModule;

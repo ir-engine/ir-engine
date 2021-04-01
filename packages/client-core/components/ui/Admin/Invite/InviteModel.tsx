@@ -88,14 +88,14 @@ const InviteModel = (props: Props) => {
             value: "sms",
             label: "SMS"
         }
-    ]
+    ];
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setCurrency(event.target.value);
     };
 
     const refreshData = () => {
         router.replace(router.asPath);
-    }
+    };
 
     const handleChangeType = (event: React.ChangeEvent<HTMLInputElement>) => {
         setProviderType(event.target.value);
@@ -130,43 +130,27 @@ const InviteModel = (props: Props) => {
         return () => {
             ValidatorForm.removeValidationRule("isEmail");
             ValidatorForm.removeValidationRule("isPasscode");
-        }
-    }, [providerType])
+        };
+    }, [providerType]);
 
     const createInvite = async () => {
         const data = {
-<<<<<<< HEAD
-            "token": "string",
-            "identityProviderType": "string",
-            "passcode": "string",
-            "targetObjectId": "string"
-        };
-        await sendInvite(data);
-    };
-
-    const addressDefinitions = faker.definitions.address;
-    const stateOptions = _.map(addressDefinitions.state, (state, index) => ({
-        key: addressDefinitions.state_abbr[index],
-        text: state,
-        value: addressDefinitions.state_abbr[index],
-    }));
-=======
             "type": currency,
             "token": token, // phone number (10 digital us number) or email
             "inviteCode": passcode || null, // Code should range from 0-9 and a-f as well as A-F match to 8 characters
             "invitee": targetUser[0], // valid user id 
             "identityProviderType": providerType, // email or sms 
             "targetObjectId": targetUser[0]
-        }
+        };
         if (token && currency && targetUser) {
             await sendInvite(data);
             refreshData();
-            handleClose()
+            handleClose();
         } else {
             setOpenSnabar(true);
-            setWarning("Please fill all required fields!")
+            setWarning("Please fill all required fields!");
         }
-    }
+    };
 
     if (inviteType) {
         inviteType.forEach(el => {
@@ -174,9 +158,8 @@ const InviteModel = (props: Props) => {
                 value: el.type,
                 label: el.type
             });
-        })
+        });
     }
->>>>>>> 5607c14d9... integrate create invite and delete invite
 
     const stateOptions = [];
     users.forEach(el => {
@@ -189,23 +172,18 @@ const InviteModel = (props: Props) => {
 
     useEffect(() => {
         const fetchData = async () => {
-<<<<<<< HEAD
-           await retrieveInvites();
-        };
-=======
             await retrieveInvites();
-        }
->>>>>>> 5607c14d9... integrate create invite and delete invite
+        };
         fetchData();
     }, []);
 
     const onSelectValue = (e, data) => {
         setTargetUser(data.value);
-    }
+    };
 
     const handleInputChange = (e) => {
         const value = e.target.value.trim();
-    }
+    };
 
     const handleCloseSnabar = (event?: React.SyntheticEvent, reason?: string) => {
         if (reason === 'clickaway') {

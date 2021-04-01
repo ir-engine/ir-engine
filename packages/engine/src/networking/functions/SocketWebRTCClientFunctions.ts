@@ -1,10 +1,9 @@
-import { CAM_VIDEO_SIMULCAST_ENCODINGS } from "@xr3ngine/engine/src/networking/constants/VideoConstants";
-import { MessageTypes } from "@xr3ngine/engine/src/networking/enums/MessageTypes";
-import { MediaStreamSystem } from "@xr3ngine/engine/src/networking/systems/MediaStreamSystem";
+import { CAM_VIDEO_SIMULCAST_ENCODINGS } from "../../networking/constants/VideoConstants";
+import { MessageTypes } from "../../networking/enums/MessageTypes";
+import { MediaStreamSystem } from "../../networking/systems/MediaStreamSystem";
 import { DataProducer, Transport as MediaSoupTransport } from "mediasoup-client/lib/types";
 import { EngineEvents } from "../../ecs/classes/EngineEvents";
 import { Network } from "../classes/Network";
-import {triggerUpdateConsumers} from "@xr3ngine/client-core/redux/mediastream/service";
 
 let networkTransport: any;
 
@@ -369,7 +368,7 @@ export async function subscribeToTrack(peerId: string, mediaTag: string, channel
 
         if (MediaStreamSystem.instance?.consumers?.find(c => c?.appData?.peerId === peerId && c?.appData?.mediaTag === mediaTag) == null) {
             MediaStreamSystem.instance?.consumers.push(consumer);
-            triggerUpdateConsumers();
+            EngineEvents.instance.dispatchEvent({ type: MediaStreamSystem.EVENTS.TRIGGER_UPDATE_CONSUMERS });
 
             // okay, we're ready. let's ask the peer to send us media
             await resumeConsumer(consumer);

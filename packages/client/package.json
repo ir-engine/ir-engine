@@ -1,6 +1,6 @@
 {
   "name": "@xr3ngine/client",
-  "version": "0.2.0",
+  "version": "0.2.10",
   "private": true,
   "repository": {
     "type": "git",
@@ -15,23 +15,26 @@
     "find:unused": "next-unused",
     "dev": "cross-env NODE_ENV=development node --max-old-space-size=4096 ./index.js --port 3000",
     "build": "cross-env NODE_OPTIONS=--max_old_space_size=6144 next build ./ && yarn run export",
-    "export": "next export -o www/ && mv www/404.html www/index.html && npx cap sync",
+    "export": "next export -o www/ && mv www/404.html www/index.html",
     "start": "next start",
     "watch": "cross-env NODE_ENV=development next --port 3001 --hostname 127.0.0.1",
     "validate": "yarn run lint && yarn run test",
     "test": "echo \"TODO: Add Testing to Client\" && exit 0",
     "localbuild": "NEXT_PUBLIC_LOCAL_BUILD=true yarn build && yarn start",
-    "lint":"eslint --fix --quiet *.ts **/*.ts **/*.tsx"
+    "lint": "eslint --fix --quiet *.ts **/*.ts **/*.tsx"
   },
   "resolutions": {
-    "socket.io": "2.4.1"
+    "socket.io": "2.4.1",
+    "@types/react": "^17.0.0",
+    "react": "^17.0.0"
   },
   "peerDependencies": {
+    "@types/react": "^17.0.0",
     "react": "^17.0.0",
     "socket.io": "2.4.1"
   },
   "dependencies": {
-    "@capacitor-community/electron": "^1.3.2",
+    "@capacitor-community/electron": "^1.4.0",
     "@capacitor/android": "2.4.6",
     "@capacitor/cli": "^2.4.6",
     "@capacitor/core": "^2.4.6",
@@ -45,7 +48,6 @@
     "@material-ui/icons": "^4.11.2",
     "@material-ui/lab": "^4.0.0-alpha.49",
     "@material-ui/styles": "^4.11.3",
-    "@mozillareality/easing-functions": "^0.1.1",
     "@nivo/core": "^0.67.0",
     "@nivo/line": "^0.67.0",
     "@styled-icons/bootstrap": "^10.19.0",
@@ -58,11 +60,10 @@
     "@types/react-redux": "^7.1.7",
     "@types/redux-immutable": "^4.0.1",
     "@types/styled-components": "^5.1.3",
-    "@types/webgl2": "^0.0.5",
     "@typescript-eslint/eslint-plugin": "^4.5.0",
-    "@xr3ngine/common": "^0.2.0",
-    "@xr3ngine/engine": "^0.2.0",
-    "@xr3ngine/native-plugin-xr": "^0.1.0",
+    "@xr3ngine/common": "^0.2.10",
+    "@xr3ngine/engine": "^0.2.10",
+    "@xr3ngine/native-plugin-xr": "^0.2.10",
     "apexcharts": "^3.26.0",
     "app-root-path": "^3.0.0",
     "autobind-decorator": "^2.4.0",
@@ -90,7 +91,7 @@
     "minimist": "^1.2.5",
     "moment": "^2.29.1",
     "mousetrap": "^1.6.5",
-    "next": "^10.0.8",
+    "next": "^10.1.0",
     "next-transpile-modules": "^6.2.0",
     "nipplejs": "^0.8.7",
     "platform": "^1.3.6",
@@ -156,7 +157,7 @@
     "config": "^3.3.1",
     "cross-env": "^7.0.2",
     "dotenv-webpack": "^3.0.0",
-    "eslint": "^6.8.0",
+    "eslint": "^7.7.0",
     "eslint-plugin-react": "^7.21.4",
     "gltf-webpack-loader": "https://github.com/MozillaReality/gltf-webpack-loader.git#fix/relative-and-output-paths",
     "next-images": "^1.4.0",

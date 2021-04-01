@@ -1,7 +1,6 @@
 import _ from 'lodash';
 import { BufferGeometry, Mesh, PerspectiveCamera, Scene } from 'three';
 import { acceleratedRaycast, computeBoundsTree } from "three-mesh-bvh";
-import AssetLoadingSystem from '../assets/systems/AssetLoadingSystem';
 import { CameraSystem } from '../camera/systems/CameraSystem';
 import { Timer } from '../common/functions/Timer';
 import { DebugHelpersSystem } from '../debug/systems/DebugHelpersSystem';
@@ -61,7 +60,6 @@ const initializeEngineOffscreen = async ({ canvas, userArgs }, proxy: MainProxy)
   // @ts-ignore
   Network.instance.transport = { isServer: false }
 
-  registerSystem(AssetLoadingSystem);
   registerSystem(PhysicsSystem);
   registerSystem(ActionSystem, { useWebXR: false });
   registerSystem(StateSystem);

@@ -1,13 +1,10 @@
 import { Vector3, Quaternion, Matrix4 } from 'three';
 import { Behavior } from '../../common/interfaces/Behavior';
 import { Entity } from '../../ecs/classes/Entity';
-import { getComponent, getMutableComponent, removeComponent } from '../../ecs/functions/EntityFunctions';
-import { ColliderComponent } from '../components/ColliderComponent';
-import { Network } from '../../networking/classes/Network';
-import { AssetLoader } from '../../assets/components/AssetLoader';
-import { createNetworkRigidBody } from '@xr3ngine/engine/src/interaction/prefabs/NetworkRigidBody';
-import { createVehicleFromModel } from '@xr3ngine/engine/src/templates/vehicle/prefabs/NetworkVehicle';
-import { TransformComponent } from "@xr3ngine/engine/src/transform/components/TransformComponent";
+import { getComponent } from '../../ecs/functions/EntityFunctions';
+import { createNetworkRigidBody } from '../../interaction/prefabs/NetworkRigidBody';
+import { createVehicleFromModel } from '../../templates/vehicle/prefabs/NetworkVehicle';
+import { TransformComponent } from "../../transform/components/TransformComponent";
 import { addColliderWithoutEntity } from './addColliderWithoutEntity';
 
 function plusParametersFromEditorToMesh(entity, mesh) {
@@ -50,7 +47,7 @@ export function plusParameter(posM, queM, scaM, posE, queE, scaE): [Vector3, Qua
 
 // createStaticColliders
 export function createStaticCollider(mesh) {
-  console.log('****** Collider from Model, type: '+mesh.userData.type);
+  // console.log('****** Collider from Model, type: '+mesh.userData.type);
 
   if (mesh.type == 'Group') {
     for (let i = 0; i < mesh.children.length; i++) {
@@ -97,13 +94,13 @@ export const parseModelColliders: Behavior = (entity: Entity, args: any) => {
               mesh: mesh.userData.type === 'trimesh' ? mesh : null,
               mass: mesh.userData.mass ?? 1
             },
-            uniqueId: getComponent(entity, AssetLoader).entityIdFromScenaLoader,
+            uniqueId: args.uniqueId,
             entity: entity
           });
           break;
 
         case 'vehicle':
-          createVehicleFromModel(entity, mesh);
+          createVehicleFromModel(entity, mesh, args.uniqueId);
           break;
 
         default:

@@ -209,7 +209,6 @@ export async function handleConnectToWorld(socket, data, callback, userId, user,
 
     // Push to our worldstate to send out to other users
     Network.instance.clientsConnected.push({ userId, name: userId, avatarDetail });
-
     // Create a new worldtate object that we can fill
     const worldState = {
         tick: Network.tick,
@@ -244,7 +243,7 @@ function disconnectClientIfConnected(socket, userId: string): void {
         Network.instance.clients[userId].socket?.disconnect();
     }
 
-    console.log(Network.instance.networkObjects);
+    // console.log(Network.instance.networkObjects);
     Object.keys(Network.instance.networkObjects).forEach((key: string) => {
         const networkObject = Network.instance.networkObjects[key];
         // Validate that the object belongeread to disconnecting user

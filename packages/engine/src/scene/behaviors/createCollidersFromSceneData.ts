@@ -1,17 +1,12 @@
 import { Behavior } from '../../common/interfaces/Behavior';
 import { Entity } from '../../ecs/classes/Entity';
-import { getComponent, createEntity, addComponent, removeComponent } from '../../ecs/functions/EntityFunctions';
-import { AssetLoader } from '../../assets/components/AssetLoader';
-import { TransformComponent } from "@xr3ngine/engine/src/transform/components/TransformComponent";
-import { ColliderComponent } from '../../physics/components/ColliderComponent';
-import { RigidBody } from '../../physics/components/RigidBody';
 import { addColliderWithoutEntity } from '../../physics/behaviors/addColliderWithoutEntity';
-import { Network } from '../../networking/classes/Network';
-import { createNetworkRigidBody } from '@xr3ngine/engine/src/interaction/prefabs/NetworkRigidBody';
-import { addCollidersToNetworkVehicle } from '@xr3ngine/engine/src/templates/vehicle/prefabs/NetworkVehicle';
+import { createNetworkRigidBody } from '../../interaction/prefabs/NetworkRigidBody';
+import { addCollidersToNetworkVehicle } from '../../templates/vehicle/prefabs/NetworkVehicle';
 
 export const createCollidersFromSceneData: Behavior = ( entity: Entity, args: any ) => { //{ data:string, type: string,}
-  console.log('****** Collider from Scene data, type: '+args.objArgs.type);
+  // console.log('****** Collider from Scene data: ')
+  // console.log(args);
 
   switch (args.objArgs.data) {
 
@@ -41,7 +36,7 @@ export const createCollidersFromSceneData: Behavior = ( entity: Entity, args: an
           vertices: args.objArgs.vertices,
           indices: args.objArgs.indices
         },
-        uniqueId: getComponent(entity, AssetLoader).entityIdFromScenaLoader,
+        uniqueId: args.objArgs.sceneEntityId,
         entity: entity
       });
       break;
@@ -66,6 +61,4 @@ export const createCollidersFromSceneData: Behavior = ( entity: Entity, args: an
       console.warn('args.objArgs.data: '+args.objArgs.data);
       break;
   }
-
-
 };

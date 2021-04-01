@@ -6,6 +6,7 @@ import { NetworkSchema } from '../interfaces/NetworkSchema';
 import { NetworkTransport } from '../interfaces/NetworkTransport';
 import { WorldStateInterface } from "../interfaces/WorldState";
 import { Snapshot } from "../types/SnapshotDataTypes";
+import SocketIO from "socket.io";
 
 export interface NetworkClientList {
   // Key is socket ID
@@ -99,7 +100,6 @@ export class Network {
     ikTransforms: [],
     time: 0,
     inputs: [],
-    states: [],
     clientsConnected: [],
     clientsDisconnected: [],
     createObjects: [],

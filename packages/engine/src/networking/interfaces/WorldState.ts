@@ -38,7 +38,8 @@ export interface NetworkInputInterface {
   }>
   /** Viewport vector of the client. */
   viewVector: {  x: number, y: number, z: number  },
-  //snapShotTime:
+  snapShotTime: number,
+  characterState: number
 
 }
 
@@ -46,7 +47,7 @@ export interface NetworkInputInterface {
 export interface NetworkClientInputInterface extends NetworkInputInterface {
   /** Time of the snapshot. */
   snapShotTime: number,
-  switchInputs: number,
+  // switchInputs: number,
   characterState: number
 }
 
@@ -75,13 +76,13 @@ export interface NetworkObjectEditInterface {
   networkId: number,
   /** Id of the owner. */
   ownerId: string,
-  /** Type of prefab used to create this object. */
-  component: string,
-  state: string,
-  /** Type of prefab used to create this object. */
-  currentId: number,
-  value: number,
-  whoIsItFor: string
+  /* NetworkObjectUpdateType */
+  type: number,
+  values: number[]
+  // state: number,
+  // currentId: number,
+  // value: number,
+  // whoIsItFor: string
 }
 
 /** Interface for creation of network object. */
@@ -126,8 +127,6 @@ export interface WorldStateInterface {
   //snapshot: Snapshot
   /** Inputs received. */
   inputs: NetworkInputInterface[]
-  /** List of the states. */
-  states: any[]
   /** List of connected clients. */
   clientsConnected: NetworkClientDataInterface[]
   /** List of disconnected clients. */

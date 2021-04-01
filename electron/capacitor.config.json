@@ -1,0 +1,13 @@
+{
+  "appId": "com.xr3ngine.client",
+  "appName": "@xr3ngine/client",
+  "bundledWebRuntime": false,
+  "npmClient": "yarn",
+  "webDir": "www",
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 0
+    }
+  },
+  "cordova": {}
+}

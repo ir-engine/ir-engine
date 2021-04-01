@@ -1,4 +1,3 @@
-import { Vec3 } from 'cannon-es';
 import { Mesh } from 'three';
 import { Object3DComponent } from '../../scene/components/Object3DComponent';
 import { Behavior } from '../../common/interfaces/Behavior';
@@ -12,9 +11,10 @@ import {
   createGround, createSphere,
   createTrimesh
 } from './physicalPrimitives';
+import { PhysicsLifecycleState } from '../enums/PhysicsStates';
 
-export const handleCollider: Behavior = (entity: Entity, args: { phase?: string }): void => {
-  if (args.phase === 'onRemoved') {
+export const handleCollider: Behavior = (entity: Entity, args: { phase?: PhysicsLifecycleState }): void => {
+  if (args.phase === PhysicsLifecycleState.onRemoved) {
     const colliderComponent = getComponent<ColliderComponent>(entity, ColliderComponent, true);
     if (colliderComponent) {
       PhysicsSystem.physicsWorld.removeBody(colliderComponent.collider);

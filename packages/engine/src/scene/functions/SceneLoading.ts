@@ -1,10 +1,10 @@
-import { AssetLoader } from '../../assets/components/AssetLoader';
+import { LOADER_STATUS } from "../../assets/constants/LoaderConstants";
 import { isClient } from "../../common/functions/isClient";
 import { isServer } from "../../common/functions/isServer";
 import { Engine } from '../../ecs/classes/Engine';
 import { EngineEvents } from '../../ecs/classes/EngineEvents';
 import { Entity } from "../../ecs/classes/Entity";
-import { addComponent, createEntity, getMutableComponent } from '../../ecs/functions/EntityFunctions';
+import { addComponent, createEntity } from '../../ecs/functions/EntityFunctions';
 import { SceneTagComponent } from '../components/Object3DTagComponents';
 import { SceneObjectLoadingSchema } from '../constants/SceneObjectLoadingSchema';
 import { SceneData } from "../interfaces/SceneData";
@@ -13,48 +13,32 @@ import { SceneDataComponent } from "../interfaces/SceneDataComponent";
 export function loadScene(scene: SceneData): void {
   const loadPromises = [];
   let loaded = 0;
-  if (isClient) {
-    console.warn(Engine.scene);
-    //console.warn(scene);
-    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENTITY_LOADED, left: loadPromises.length });
-  }
+
   Object.keys(scene.entities).forEach(key => {
     const sceneEntity = scene.entities[key];
     const entity = createEntity();
     addComponent(entity, SceneTagComponent);
     sceneEntity.components.forEach(component => {
+      if(['gltf-model', 'mesh-collider', 'vehicle-saved-in-scene'].includes(component.name)) {
+        component.data.sceneEntityId = sceneEntity.entityId;
+      }
+
       loadComponent(entity, component);
 
-      if (isServer && component.name === 'gltf-model') {
-       // its add unic id from entityId, entityId gives editor to both of side (client have same scene data as a server).
-       // needed to syncronize network Objects, like dynamic network rigidBody or cars.
-       const loaderComponent = getMutableComponent(entity, AssetLoader);
-       loaderComponent.entityIdFromScenaLoader = sceneEntity.entityId;
-     } else
-      if (isClient && component.name === 'gltf-model') {
-
-        const loaderComponent = getMutableComponent(entity, AssetLoader);
-        // its add unique id from entityId, entityId gives editor to both of side (client have same scene data as a server).
-        // needed to syncronize network Objects, like dynamic network rigidBody or cars.
-        loaderComponent.entityIdFromScenaLoader = sceneEntity.entityId;
-
-        if (component.data.dontParseModel) {
-          console.warn(' dont wait dontParseModel ' + component.data.dontParseModel);
-          return;
-        }
-
-        loadPromises.push(new Promise<void>((resolve, reject) => {
-          if (loaderComponent.onLoaded === null || loaderComponent.onLoaded === undefined ) {
-          }
-          loaderComponent.onLoaded.push(() => {
-            loaded++;
-            resolve()
-            EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENTITY_LOADED, left: (loadPromises.length - loaded) });
+      if (isClient && component.name === 'gltf-model' && !component.data.dontParseModel) {
+        loadPromises.push(new Promise<void>((resolve) => {
+          EngineEvents.instance.addEventListener(EngineEvents.EVENTS.ASSET_LOADER, (e) => {
+            if (e.data.entityId === entity.id && e.data.status !== LOADER_STATUS.LOADING) {
+              loaded++;
+              resolve();
+              EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENTITY_LOADED, left: (loadPromises.length - loaded) });
+            }
           });
         }));
       }
     });
   });
+
   Promise.all(loadPromises).then(() => {
     EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.SCENE_LOADED });
     Engine.sceneLoaded = true;
@@ -69,6 +53,7 @@ export function loadComponent(entity: Entity, component: SceneDataComponent): vo
     return console.warn("Couldn't load ", name);
 
   const componentSchema = SceneObjectLoadingSchema[name];
+  // console.log(entity, component, componentSchema)
   // for each component in component name, call behavior
   componentSchema.behaviors?.forEach(b => {
     // its allow to work colliders without download glb
@@ -76,7 +61,6 @@ export function loadComponent(entity: Entity, component: SceneDataComponent): vo
     const values = {};
     b.values?.forEach(val => {
       // dont load glb model if dont need to parse colliders
-
       if (isServer && component.name === 'gltf-model' && component.data.dontParseModel) {
         console.warn('Stop download glb if dontParseModel');
         return;
@@ -85,26 +69,15 @@ export function loadComponent(entity: Entity, component: SceneDataComponent): vo
       // Does it have a from and to field? Let's map to that
       if (val['from'] !== undefined) {
         values[val['to']] = component.data[val['from']];
-        // Its only for DEBUG, allow load Models glb adding in dev mode
-        // ************************* change url from https:// to http://
-      //  console.warn('process.env.LOCAL_BUILD');
-      //  console.warn(process.env.LOCAL_BUILD == 'true');
-        /*
-        if (process.env.NODE_ENV == 'production') {
-          if (val['from'] == 'src') {
-            values[val['to']] = 'http'+ values[val['to']].substring('https'.length, values[val['to']].length);
-          }
-        }
-        */
-        // ************************
       }
       else {
-        // Otherwise raw data
         values[val] = component.data[val];
       }
     });
+
     // run behavior after load model
     if ((b as any).onLoaded) values['onLoaded'] = (b as any).onLoaded;
+
     // Invoke behavior with args and spread args
     b.behavior(entity, { ...b.args, objArgs: { ...b.args?.objArgs, ...values } });
   });
