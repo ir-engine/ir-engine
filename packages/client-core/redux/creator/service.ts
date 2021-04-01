@@ -12,7 +12,8 @@ import {
   updateCreatorAsFollowed,
   updateCreatorNotFollowed,
   creatorFollowers,
-  creatorFollowing
+  creatorFollowing,
+  fetchingCreators
 } from './actions';
 
 export function createCreator(){
@@ -30,7 +31,7 @@ export function createCreator(){
 export function getCreators(limit?: number) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
     try {
-      dispatch(fetchingCreator());
+      dispatch(fetchingCreators());
       const results =  await client.service('creator').find({query: {}});
       dispatch(creatorsRetrieved(results));      
     } catch(err) {
@@ -57,7 +58,8 @@ export function getCreator(creatorId) {
   return async (dispatch: Dispatch): Promise<any> => {
     try {
       dispatch(fetchingCreator());
-      const creator = await client.service('creator').get(creatorId);   
+      const creator = await client.service('creator').get(creatorId);  
+      console.log('getCreator service creator', creatorId, creator);
       dispatch(creatorRetrieved(creator));
     } catch(err) {
       console.log(err);
