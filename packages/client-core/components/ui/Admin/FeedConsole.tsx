@@ -1,44 +1,33 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { connect } from 'react-redux';
-import { bindActionCreators, Dispatch } from 'redux';
-import { selectAdminState } from '../../../redux/admin/selector';
-import { selectAppState } from '../../../redux/app/selector';
-import { selectAuthState } from '../../../redux/auth/selector';
-import { client } from "../../../redux/feathers";
+import { Dispatch } from 'redux';
 import { Router, withRouter } from "next/router";
 import { PAGE_LIMIT } from '../../../redux/admin/reducers';
-import FormControl from '@material-ui/core/FormControl';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
-import {
-    fetchUsersAsAdmin,
-} from '../../../redux/admin/service';
-import {
-    removeUser,
-} from "../../../redux/admin/service";
 import {
     Table,
     TableBody,
     TableContainer,
-    TableHead,
     TableRow,
     TableCell,
-    TableSortLabel,
     Paper,
-    Button, MenuItem, Select, CardMedia, Typography
+    Button, CardMedia, Typography
 } from '@material-ui/core';
 import Avatar from "@material-ui/core/Avatar";
 import styles from './Admin.module.scss';
-import UserModel from "./UserModel";
-import Search from "./Search";
 import Backdrop from '@material-ui/core/Backdrop';
 import CircularProgress from '@material-ui/core/CircularProgress';
-import { Delete, Edit } from '@material-ui/icons';
-import Dialog from '@material-ui/core/Dialog';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogTitle from '@material-ui/core/DialogTitle';
+import VisibilityIcon from '@material-ui/icons/Visibility';
+import WhatshotIcon from '@material-ui/icons/Whatshot';
+import BookmarkIcon from '@material-ui/icons/Bookmark';
+import StarIcon from '@material-ui/icons/Star';
+import StarOutlineIcon from '@material-ui/icons/StarOutline';
+import {  Edit } from '@material-ui/icons';
 import Slide from '@material-ui/core/Slide';
 import { TransitionProps } from '@material-ui/core/transitions';
 import { EnhancedTableHead } from '../Common/AdminHelpers';
+import SharedModal from './SharedModal';
+import FeedForm from '../../social/FeedForm';
 
 
 if (!global.setImmediate) {
@@ -59,25 +48,12 @@ interface Props {
     removeUser?: any;
     list?:any;
 }
-
-interface HeadCell {
-    disablePadding: boolean;
-    id: string;
-    label: string;
-    numeric: boolean;
-}
-
 const mapStateToProps = (state: any): any => {
     return {
-        // appState: selectAppState(state),
-        // authState: selectAuthState(state),
-        // adminState: selectAdminState(state)
     };
 };
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
-    // fetchUsersAsAdmin: bindActionCreators(fetchUsersAsAdmin, dispatch),
-    // removeUser: bindActionCreators(removeUser, dispatch)
 });
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -106,30 +82,16 @@ const Transition = React.forwardRef((
 
 const FeedConsole = (props: Props) => {
     const classes = useStyles();
-    const {
-        router,
-        adminState,
-        authState,
-        fetchUsersAsAdmin,
-        removeUser,
-        list
-    } = props;
-
-    const initialUser = {
-        id: null,
-        name: '',
-        avatarId: ''
-    };
+    const { list } = props;
 
     const headCells = [
-        { id: 'id', numeric: false, disablePadding: true, label: 'ID' },
+        // { id: 'id', numeric: false, disablePadding: true, label: 'ID' },
         { id: 'preview', numeric: false, disablePadding: false, label: 'Preview' },
         { id: 'video', numeric: false, disablePadding: false, label: 'Video' },
-        { id: 'title', numeric: false, disablePadding: false, label: 'Title' },
-        { id: 'description', numeric: false, disablePadding: false, label: 'Text' },
+        { id: 'details', numeric: false, disablePadding: false, label: 'Details' },
         { id: 'creatorId', numeric: false, disablePadding: false, label: 'Creator' },
         { id: 'createdAt', numeric: false, disablePadding: false, label: 'Created' },
-        { id: 'action', numeric: false, disablePadding: false, label: 'Action' }
+        { id: 'action', numeric: false, disablePadding: false, label: '' }
     ];
 
     function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
@@ -164,21 +126,15 @@ const FeedConsole = (props: Props) => {
         });
     }
 
-    const [userModalOpen, setUserModalOpen] = useState(false);
+    const [modalOpen, setModalOpen] = useState(false);
     const [order, setOrder] = React.useState<Order>('asc');
     const [orderBy, setOrderBy] = React.useState<any>('name');
     const [selected, setSelected] = React.useState<string[]>([]);
     const [dense, setDense] = React.useState(false);
     const [page, setPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(PAGE_LIMIT);
-    const [refetch, setRefetch] = React.useState(false);
-    const [userRole, setUserRole] = React.useState("");
-    const [selectedUser, setSelectedUser] = React.useState({});
     const [loading, setLoading] = React.useState(false);
-    const [userEditing, setUserEditing] = React.useState(false);
-    const [userEdit, setUserEdit] = React.useState(initialUser);
-    const [userId, setUserId] = React.useState("");
-    const [open, setOpen] = React.useState(false);
+    const [view, setView] = React.useState(null);
 
     // const adminUsers = adminState.get('users').get('users');
     const handleRequestSort = (event: React.MouseEvent<unknown>, property) => {
@@ -187,89 +143,18 @@ const FeedConsole = (props: Props) => {
         setOrderBy(property);
     };
 
-    const fetchTick = () => {
-        setTimeout(() => {
-            setRefetch(true);
-            fetchTick();
-        }, 5000);
-    };
-    const patchUserRole = async (user: any, role: string) => {
-        await client.service('user').patch(user, {
-            userRole: role
-        });
-    };
-
-    useEffect(() => {
-        fetchTick();
-    }, []);
-
-    const handleUserClick = (id: string) => {
-        // const selected = adminUsers.find(user => user.id === id);
-        // setUserEdit(selected);
-        // setUserModalOpen(true);
-        // setUserEditing(true);
-    };
-
-    // useEffect(() => {
-    //     if (user?.id != null && (adminState.get('users').get('updateNeeded') === true || refetch === true)) {
-    //         fetchUsersAsAdmin();
-    //     }
-    //     setRefetch(false);
-    // }, [authState, adminState, refetch]);
-
-    const openModalCreate = () => {
-        setUserModalOpen(true);
-        setUserEditing(false);
-    };
-
-    // const handleUserClose = () => {
-    //     setUserModalOpen(false);
-    //     setUserEditing(false);
-    // };
-
-    // const handleChange = (event: React.ChangeEvent<{ value: unknown }>, user: any) => {
-    //     let role = {};
-    //     if (user) {
-    //         setLoading(true);
-    //         patchUserRole(user, event.target.value as string);
-    //         role[user] = event.target.value;
-    //         setUserRole(event.target.value as string);
-    //         setSelectedUser({ ...selectedUser, ...role });
-    //         setTimeout(() => {
-    //             setLoading(false);
-    //         }, 2000);
-
-    //     }
-    // };
-
-    // useEffect(() => {
-    //     if (Object.keys(selectedUser).length === 0) {
-    //         let role = {};
-    //         adminUsers.forEach((element: any) => {
-    //             role[element.id] = element.userRole;
-    //         });
-    //         setSelectedUser(role);
-    //     }
-    // }, [adminUsers]);
-
-    const handleClickOpen = (user: any) => {
-        setUserId(user);
-        setOpen(true);
+    const handleView = (id: string) => {
+        setView(list.find(item => item.id === id));
+        setModalOpen(true);
     };
 
     const handleClose = () => {
-        setOpen(false);
-        setUserId("");
-    };
-
-    const deleteUser = () => {
-        removeUser((userId as any).id);
-        handleClose();
+        setModalOpen(false);
     };
 
     return (
         <div>
-            <Typography variant="h2">ARC Feeds List</Typography>
+            <Typography variant="h2" color="primary">ARC Feeds List</Typography>
             <Paper className={styles.adminRoot}>
                 <TableContainer className={styles.tableContainer}>
                     <Table
@@ -297,18 +182,18 @@ const FeedConsole = (props: Props) => {
                                             tabIndex={-1}
                                             key={row.id}
                                         >
-                                            <TableCell className={styles.tcell} component="th" id={row.id.toString()}
+                                            {/* <TableCell className={styles.tcell} component="th" id={row.id.toString()}
                                                 align="right" scope="row" padding="none">
                                                 {row.id}
-                                            </TableCell>
-                                            <TableCell className={styles.tcell} align="right">
+                                            </TableCell> */}
+                                            <TableCell className={styles.tcell} align="center">
                                                 <CardMedia   
                                                     className={styles.previewImage}                  
-                                                    image={row.previewUrl}
-                                                    title={row.title}                      
+                                                    image={row.previewUrl.toString()}
+                                                    title={row.title.toString()}                      
                                                 />
                                             </TableCell>  
-                                            <TableCell className={styles.tcell} align="right">
+                                            <TableCell className={styles.tcell}>
                                                 <CardMedia   
                                                     className={styles.previewImage}                  
                                                     src={row.videoUrl.toString()}
@@ -317,46 +202,40 @@ const FeedConsole = (props: Props) => {
                                                     controls  
                                                     autoPlay={false} 
                                                 /> 
-                                            </TableCell>                                            
-                                            <TableCell className={styles.tcell} align="right">{row.title}</TableCell>
-                                            <TableCell className={styles.tcell} align="right">{row.description}</TableCell>
-                                            <TableCell className={styles.tcell} align="right"><Avatar src={row.avatar} />{row.creatorId+'\n\r'+row.creatorName+', '+row.creatorUserName}</TableCell>
+                                            </TableCell>
+                                            <TableCell className={styles.tcell} align="left">
+                                                <section className={styles.iconsContainer}>
+                                                    <Typography variant="h3" color="textPrimary">{row.featured ? <StarIcon /> : <StarOutlineIcon />}</Typography>
+                                                    <Typography variant="h3" color="textPrimary"><VisibilityIcon style={{fontSize: '16px'}}/>{row.viewsCount}</Typography>
+                                                    <Typography variant="h3" color="textPrimary"><WhatshotIcon htmlColor="#FF6201" />{row.fires}</Typography>
+                                                    <Typography variant="h3" color="textPrimary"><BookmarkIcon />{row.bookmarks}</Typography>
+                                                </section>
+                                                <br />
+                                                {row.title}
+                                                <br />
+                                                {row.description}
+                                            </TableCell>
+                                            <TableCell className={styles.tcell} align="left">
+                                                <Avatar src={row.avatar.toString()} />
+                                                {row.creatorName+', '+row.creatorUserName}
+                                            </TableCell>
                                             <TableCell className={styles.tcell} align="right">{row.createdAt}</TableCell>
-                                            <TableCell className={styles.tcell} align="right">
-                                                {/* <a href="#h" onClick={() => handleUserClick(row.id.toString())}> <Edit className="text-success" /> </a>
-                                                <a href="#h" onClick={() => handleClickOpen(row)}> <Delete className="text-danger" /> </a> */}
+                                            <TableCell className={styles.tcell} >
+                                                <Button variant="outlined" color="secondary" style={{width:'fit-content'}} onClick={() => handleView(row.id.toString())}><Edit className="text-success"/></Button>
                                             </TableCell>
                                         </TableRow>
                                     );
                                 })}
                         </TableBody>
-
                     </Table>
-                </TableContainer>
-                {/* <UserModel
-                    open={userModalOpen}
-                    handleClose={handleUserClose}
-                    editing={userEditing}
-                    userEdit={userEdit}
-                /> */}
-                {/* <Dialog
-                    open={open}
+                </TableContainer>   
+                {view && <SharedModal
+                    open={modalOpen}
                     TransitionComponent={Transition}
-                    keepMounted
-                    onClose={handleClose}
-                    aria-labelledby="alert-dialog-slide-title"
-                    aria-describedby="alert-dialog-slide-description"
+                    onClose={handleClose}                    
                 >
-                    <DialogTitle id="alert-dialog-slide-title">{`Do You want to delete  ${(userId as any).name}?`}</DialogTitle>
-                    <DialogActions>
-                        <Button onClick={handleClose} color="primary">
-                            Cancel
-                        </Button>
-                        <Button onClick={deleteUser} color="primary">
-                            Delete
-                        </Button>
-                    </DialogActions>
-                </Dialog> */}
+                    <FeedForm feed={view} />                    
+                </SharedModal>}             
             </Paper>
             <Backdrop className={classes.backdrop} open={loading}>
                 <CircularProgress color="inherit" />

@@ -30,7 +30,7 @@ export function EnhancedTableHead(props: EnhancedTableProps) {
                     <TableCell
                         className={styles.tcell}
                         key={headCell.id}
-                        align='right'
+                        align='center'
                         padding={headCell.disablePadding ? 'none' : 'default'}
                         sortDirection={orderBy === headCell.id ? order : false}
                     >

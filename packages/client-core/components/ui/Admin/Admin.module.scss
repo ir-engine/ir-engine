@@ -74,6 +74,12 @@
     .tcell {
       color: lighten(white, 0.80);
       background-color: black;
+      .iconsContainer{
+        display: flex;
+        h3{
+          margin-right: 5px;
+        }
+      }
       &.actionCell{
         display: flex;  
         :global(.MuiButtonBase-root){
@@ -88,7 +94,7 @@
 
     .tcellSelectable {
 
-
+      
        .currentUser{
         color: lighten(white, 0.80);
         background-color: #4267B2;
@@ -169,5 +175,6 @@
   justify-content: space-between;
 }
 .previewImage{
-  min-height: 100px;
+  height: 100px;
+  max-width: 250px;
 }

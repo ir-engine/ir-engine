@@ -14,7 +14,8 @@ import {
   FEEDS_MY_FEATURED_RETRIEVED,
   ADD_FEED_FEATURED,
   REMOVE_FEED_FEATURED,
-  FEEDS_AS_ADMIN_RETRIEVED
+  FEEDS_AS_ADMIN_RETRIEVED,
+  UPDATE_FEED
 } from '../actions';
 import { FeedShort, Feed } from '@xr3ngine/common/interfaces/Feed';
 
@@ -151,5 +152,12 @@ export function feedsAdminRetrieved(feeds: any[]): FeedsRetrievedAction {
   return {
     type: FEEDS_AS_ADMIN_RETRIEVED,
     feeds: feeds
+  };
+}
+
+export function updateFeedInList(feed: Feed): FeedRetrievedAction{
+  return {
+    type: UPDATE_FEED,
+    feed
   };
 }

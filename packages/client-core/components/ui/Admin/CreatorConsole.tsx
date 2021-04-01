@@ -19,14 +19,12 @@ import Backdrop from '@material-ui/core/Backdrop';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import { Edit } from '@material-ui/icons';
 import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
-import Dialog from '@material-ui/core/Dialog';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogTitle from '@material-ui/core/DialogTitle';
 import Slide from '@material-ui/core/Slide';
 import { TransitionProps } from '@material-ui/core/transitions';
 import { EnhancedTableHead } from '../Common/AdminHelpers';
 import CreatorForm from '../../social/CreatorForm';
 import CreatorCard from '../../social/common/CreatorCard';
+import SharedModal from './SharedModal';
 
 
 if (!global.setImmediate) {
@@ -95,13 +93,13 @@ const CreatorConsole = (props: Props) => {
 
     const headCells = [
         // { id: 'id', numeric: false, disablePadding: true, label: 'ID' },
-        { id: 'avatar', numeric: false, disablePadding: false, label: 'Avatar' },
+        { id: 'avatar', numeric: false, disablePadding: false, label: '' },
         { id: 'name', numeric: false, disablePadding: false, label: 'Name' },
         { id: 'username', numeric: false, disablePadding: false, label: 'UserName' },
         { id: 'email', numeric: false, disablePadding: false, label: 'Email' },
         { id: 'userId', numeric: false, disablePadding: false, label: 'User ID' },
         { id: 'createdAt', numeric: false, disablePadding: false, label: 'Created' },
-        { id: 'action', numeric: false, disablePadding: false, label: 'Action' }
+        { id: 'action', numeric: false, disablePadding: false, label: '' }
     ]
     function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
         if (b[orderBy] < a[orderBy]) {
@@ -207,7 +205,7 @@ const CreatorConsole = (props: Props) => {
                                                 {row.id}
                                             </TableCell> */}
                                             <TableCell className={styles.tcell} align="center">
-                                                <Avatar src={row.avatar} />
+                                                <Avatar src={row.avatar.toString()} />
                                             </TableCell>
                                             <TableCell className={styles.tcell} align="left">{row.name}</TableCell>
                                             <TableCell className={styles.tcell} align="left">{row.username}</TableCell>
@@ -225,37 +223,21 @@ const CreatorConsole = (props: Props) => {
 
                     </Table>
                 </TableContainer>
-                {creatorEdit && <Dialog
+                {creatorEdit &&  <SharedModal 
                     open={creatorModalOpen}
-                    TransitionComponent={Transition}
-                    keepMounted
-                    onClose={handleCreatorClose}
-                    aria-labelledby="alert-dialog-slide-title"
-                    aria-describedby="alert-dialog-slide-description"
+                    TransitionComponent={Transition}                    
+                    onClose={handleCreatorClose}                    
+                    title={`Editing ${(creatorEdit as any).name}`}
                 >
-                    <DialogTitle id="alert-dialog-slide-title">{`Editing ${(creatorEdit as any).name}`}</DialogTitle>
-                    <CreatorForm creatorData={creatorEdit} />
-                    <DialogActions>
-                        <Button  variant="outlined" onClick={handleCreatorClose} color="primary">
-                            Cancel
-                        </Button>                        
-                    </DialogActions>
-                </Dialog>}
-                {creatorData && <Dialog
+                    <CreatorForm creatorData={creatorEdit} />                    
+                </SharedModal>}
+                {creatorData && <SharedModal
                     open={creatorView}
                     TransitionComponent={Transition}
-                    keepMounted
-                    onClose={handleClose}
-                    aria-labelledby="alert-dialog-slide-title"
-                    aria-describedby="alert-dialog-slide-description"
+                    onClose={handleClose}                    
                 >
-                    <CreatorCard creator={creatorData} />
-                    <DialogActions>
-                        <Button  variant="outlined" onClick={handleClose} color="primary">
-                            Close
-                        </Button>                        
-                    </DialogActions>
-                </Dialog>}
+                    <CreatorCard creator={creatorData} />                    
+                </SharedModal>}
             </Paper>
             <Backdrop className={classes.backdrop} open={loading}>
                 <CircularProgress color="inherit" />
