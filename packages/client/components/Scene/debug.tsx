@@ -1,21 +1,24 @@
+import { setAppLoaded } from '@xr3ngine/client-core/redux/app/actions';
 import { selectAppState } from '@xr3ngine/client-core/redux/app/selector';
+import { selectAuthState } from '@xr3ngine/client-core/redux/auth/selector';
 import { doLoginAuto } from '@xr3ngine/client-core/redux/auth/service';
 import { client } from '@xr3ngine/client-core/redux/feathers';
-import { selectInstanceConnectionState } from '@xr3ngine/client-core/redux/instanceConnection/selector';
-import {
-  connectToInstanceServer,
-  provisionInstanceServer
-} from '@xr3ngine/client-networking/redux/instanceConnection/service';
 import { selectLocationState } from '@xr3ngine/client-core/redux/location/selector';
 import {
   getLocationByName
 } from '@xr3ngine/client-core/redux/location/service';
-import { selectPartyState } from '@xr3ngine/client-core/redux/party/selector';
 import { setCurrentScene } from '@xr3ngine/client-core/redux/scenes/actions';
+import { selectUserState } from '@xr3ngine/client-core/redux/user/selector';
+import { selectInstanceConnectionState } from '@xr3ngine/client-networking/redux/instanceConnection/selector';
+import {
+  connectToInstanceServer,
+  provisionInstanceServer
+} from '@xr3ngine/client-networking/redux/instanceConnection/service';
+import { selectPartyState } from '@xr3ngine/client-networking/redux/party/selector';
+import { SocketWebRTCClientTransport } from '@xr3ngine/client-networking/transports/SocketWebRTCClientTransport';
 import { EngineEvents } from '@xr3ngine/engine/src/ecs/classes/EngineEvents';
 import { DefaultInitializationOptions, initializeEngine } from '@xr3ngine/engine/src/initialize';
 import { Network } from '@xr3ngine/engine/src/networking/classes/Network';
-import { SocketWebRTCClientTransport } from '@xr3ngine/engine/src/networking/classes/SocketWebRTCClientTransport';
 import { MessageTypes } from '@xr3ngine/engine/src/networking/enums/MessageTypes';
 import { NetworkSchema } from '@xr3ngine/engine/src/networking/interfaces/NetworkSchema';
 import { loadScene } from '@xr3ngine/engine/src/scene/functions/SceneLoading';
@@ -25,9 +28,6 @@ import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 import url from 'url';
-import { setAppLoaded } from '@xr3ngine/client-core/redux/app/actions';
-import { selectAuthState } from '@xr3ngine/client-core/redux/auth/selector';
-import { selectUserState } from '@xr3ngine/client-core/redux/user/selector';
 
 interface Props {
   setAppLoaded?: any,
