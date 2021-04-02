@@ -53,12 +53,15 @@ export const DefaultInitializationOptions = {
     schema: DefaultNetworkSchema
   },
   publicPath: '',
-  useOfflineMode: false
+  useOfflineMode: false,
+  postProcessing: true
 };
 
 export const initializeEngine = async (initOptions: any = DefaultInitializationOptions): Promise<void> => {
   const options = _.defaultsDeep({}, initOptions, DefaultInitializationOptions);
   const canvas = options.renderer.canvas || createCanvas();
+
+  const { postProcessing, useOfflineMode } = options;
 
   Engine.xrSupported = await (navigator as any).xr?.isSessionSupported('immersive-vr')
   // offscreen is buggy still, disable it for now and opt in with url query
@@ -70,6 +73,8 @@ export const initializeEngine = async (initOptions: any = DefaultInitializationO
       new Worker(new URL('./worker/initializeOffscreen.ts', import.meta.url)),
       (options.renderer.canvas || createCanvas()),
       {
+        postProcessing,
+        useOfflineMode
       }
     );
     EngineEvents.instance = new EngineEventsProxy(workerProxy);
@@ -86,7 +91,10 @@ export const initializeEngine = async (initOptions: any = DefaultInitializationO
   Engine.publicPath = location.origin;
 
   const networkSystemOptions = { schema: options.networking.schema, app: options.networking.app };
-  registerSystem(ClientNetworkSystem, { ...networkSystemOptions, priority: -1 });
+  Network.instance.schema = networkSystemOptions.schema;
+  if(!useOfflineMode) {
+    registerSystem(ClientNetworkSystem, { ...networkSystemOptions, priority: -1 });
+  }
   registerSystem(MediaStreamSystem);
   registerSystem(ClientInputSystem, { useWebXR: Engine.xrSupported });
 
@@ -113,7 +121,7 @@ export const initializeEngine = async (initOptions: any = DefaultInitializationO
     registerSystem(ParticleSystem);
     registerSystem(DebugHelpersSystem);
     registerSystem(CameraSystem);
-    registerSystem(WebGLRendererSystem, { priority: 1001, canvas });
+    registerSystem(WebGLRendererSystem, { priority: 1001, canvas, postProcessing });
     registerSystem(XRSystem);
     Engine.viewportElement = Engine.renderer.domElement;
     Engine.renderer.xr.enabled = Engine.xrSupported;
