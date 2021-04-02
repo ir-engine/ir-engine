@@ -76,6 +76,8 @@ const UserMenu = (props: UserMenuProps): any => {
     [Views.AvatarUpload]: AvatarSelectMenu,
   };
 
+  const [engineLoaded, setEngineLoaded] = useState(false);
+
   const selfUser = authState.get('user') || {};
   const avatarList = authState.get('avatarList') || [];
   const prevPropUsername = '';
@@ -94,6 +96,7 @@ const UserMenu = (props: UserMenuProps): any => {
   });
   
   const onEngineLoaded = () => {
+    setEngineLoaded(true)
     EngineEvents.instance?.addEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD, graphicsSettingsLoaded);
     document.removeEventListener('ENGINE_LOADED', onEngineLoaded);
   };
@@ -128,13 +131,13 @@ const UserMenu = (props: UserMenuProps): any => {
     const identity = e.currentTarget.id.split('_');
     const enabled = Boolean(currentActiveMenu && currentActiveMenu.id === identity[0]);
     setCurrentActiveMenu(enabled ? null : menus[identity[1]]);
-    EngineEvents.instance.dispatchEvent({ type: ClientInputSystem.EVENTS.ENABLE_INPUT, mouse: enabled, keyboard: enabled });
+    if(EngineEvents.instance) EngineEvents.instance.dispatchEvent({ type: ClientInputSystem.EVENTS.ENABLE_INPUT, mouse: enabled, keyboard: enabled });
   };
 
   const changeActiveMenu = (menu) => {
     setCurrentActiveMenu(menu ? { id: menu } : null);
     const enabled = Boolean(menu);
-    EngineEvents.instance.dispatchEvent({ type: ClientInputSystem.EVENTS.ENABLE_INPUT, mouse: !enabled, keyboard: !enabled });
+    if(EngineEvents.instance) EngineEvents.instance.dispatchEvent({ type: ClientInputSystem.EVENTS.ENABLE_INPUT, mouse: !enabled, keyboard: !enabled });
   };
 
   const renderMenuPanel = () => {
@@ -184,27 +187,31 @@ const UserMenu = (props: UserMenuProps): any => {
   };
 
   return (
-    <ClickAwayListener onClickAway={() => changeActiveMenu(null)}>
-      <section className={styles.settingContainer}>
-        <div className={styles.iconContainer}>
-          {menus.map((menu, index) => {
-            return (
-              <span
-                key={index}
-                id={menu.id + '_' + index}
-                onClick={setActiveMenu}
-                className={`${styles.materialIconBlock} ${currentActiveMenu && currentActiveMenu.id === menu.id ? styles.activeMenu : null}`}
-              >
-                <menu.iconNode className={styles.icon} />
-              </span>
-            );
-          })}
-        </div>
-        {currentActiveMenu
-          ? renderMenuPanel()
-          : null}
-      </section>
-    </ClickAwayListener>
+    <>
+      {engineLoaded && 
+        <ClickAwayListener onClickAway={() => changeActiveMenu(null)}>
+          <section className={styles.settingContainer}>
+            <div className={styles.iconContainer}>
+              {menus.map((menu, index) => {
+                return (
+                  <span
+                    key={index}
+                    id={menu.id + '_' + index}
+                    onClick={setActiveMenu}
+                    className={`${styles.materialIconBlock} ${currentActiveMenu && currentActiveMenu.id === menu.id ? styles.activeMenu : null}`}
+                  >
+                    <menu.iconNode className={styles.icon} />
+                  </span>
+                );
+              })}
+            </div>
+            {currentActiveMenu
+              ? renderMenuPanel()
+              : null}
+          </section>
+        </ClickAwayListener>
+      }
+    </>
   );
 };
 

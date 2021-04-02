@@ -20,10 +20,14 @@ import {dispatchAlertError} from '../alert/service';
 import store from "../store";
 import {User} from "@xr3ngine/common/interfaces/User";
 
+
 const emailRegex = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/;
 const phoneRegex = /^[0-9]{10}$/;
 const userIdRegex = /^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$/;
 const inviteCodeRegex = /^[0-9a-fA-F]{8}$/;
+
+import getConfig from 'next/config';
+const { publicRuntimeConfig } = getConfig();
 
 export function sendInvite (data: any) {
   return async (dispatch: Dispatch, getState: any) => {
@@ -179,23 +183,24 @@ export function updateInviteTarget(targetObjectType?: string, targetObjectId?: s
     dispatch(setInviteTarget(targetObjectType, targetObjectId));
   };
 }
+if(!publicRuntimeConfig.offlineMode) {
+  client.service('invite').on('created', (params) => {
+    const invite = params.invite;
+    const selfUser = (store.getState() as any).get('auth').get('user') as User;
+    if (invite.userId === selfUser.id) {
+      store.dispatch(createdSentInvite());
+    } else {
+      store.dispatch(createdReceivedInvite());
+    }
+  });
 
-client.service('invite').on('created', (params) => {
-  const invite = params.invite;
-  const selfUser = (store.getState() as any).get('auth').get('user') as User;
-  if (invite.userId === selfUser.id) {
-    store.dispatch(createdSentInvite());
-  } else {
-    store.dispatch(createdReceivedInvite());
-  }
-});
-
-client.service('invite').on('removed', (params) => {
-  const invite = params.invite;
-  const selfUser = (store.getState() as any).get('auth').get('user') as User;
-  if (invite.userId === selfUser.id) {
-    store.dispatch(removedSentInvite());
-  } else {
-    store.dispatch(removedReceivedInvite());
-  }
-});
+  client.service('invite').on('removed', (params) => {
+    const invite = params.invite;
+    const selfUser = (store.getState() as any).get('auth').get('user') as User;
+    if (invite.userId === selfUser.id) {
+      store.dispatch(removedSentInvite());
+    } else {
+      store.dispatch(removedReceivedInvite());
+    }
+  });
+}
