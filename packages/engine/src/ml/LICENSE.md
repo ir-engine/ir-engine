@@ -1,18 +1,19 @@
 ============================================================================
 ============================================================================
 
-Some portions of the XR3ngine codebase are derived from other projects.
-All original work by the XR3ngine team is subject to MIT license.
+Significant portions of the face tracking and machine learning code are
+derived from two projects by Vincent Mühler:
+https://github.com/justadudewhohacks/tfjs-image-recognition-base
+https://github.com/justadudewhohacks/face-api.js
 
-Some derivative works are subject to GPL and MPL licenses. These licenses
-have been included in LICENSE.md files adjacent to the code they apply to.
+The original license is provided here as is.
 
 ============================================================================
 ============================================================================
 
 MIT License
 
-Copyright (c) 2021 XR3ngine
+Copyright (c) 2018 Vincent Mühler
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

@@ -1,3 +1,8 @@
+/* THREE TO CANNON
+* Originally written by Don McCurdy
+* https://github.com/donmccurdy/three-to-cannon
+*/
+
 import * as CANNON from 'cannon-es';
 import { Box3, BufferGeometry, MathUtils, Matrix4, Quaternion, Vector3 } from 'three';
 import { quickhull } from './quickhull';
