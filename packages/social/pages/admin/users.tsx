@@ -40,6 +40,6 @@ interface Props{
     </div>
   </>
   );
-}
+};
 
 export default connect(mapStateToProps, mapDispatchToProps)(UsersPage);

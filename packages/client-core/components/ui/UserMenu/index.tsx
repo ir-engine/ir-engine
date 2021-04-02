@@ -96,7 +96,7 @@ const UserMenu = (props: UserMenuProps): any => {
   });
   
   const onEngineLoaded = () => {
-    setEngineLoaded(true)
+    setEngineLoaded(true);
     EngineEvents.instance?.addEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD, graphicsSettingsLoaded);
     document.removeEventListener('ENGINE_LOADED', onEngineLoaded);
   };
