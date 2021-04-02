@@ -16,7 +16,7 @@ import middleware from './middleware';
 import services from './services';
 import appHooks from './app/app.hooks';
 import channels from './app/channels';
-import authentication from './app/authentication';
+import authentication from './gameserver/authentication';
 import sequelize from './app/sequelize';
 import config from './config';
 import sync from 'feathers-sync';

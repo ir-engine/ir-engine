@@ -1,51 +1,50 @@
+import { resolveAuthUser } from '@xr3ngine/common/interfaces/AuthUser';
+import { IdentityProvider } from '@xr3ngine/common/interfaces/IdentityProvider';
+import { resolveUser } from '@xr3ngine/common/interfaces/User';
+import { EngineEvents } from '@xr3ngine/engine/src/ecs/classes/EngineEvents';
+import { Network } from '@xr3ngine/engine/src/networking/classes/Network';
+import { MessageTypes } from '@xr3ngine/engine/src/networking/enums/MessageTypes';
+// TODO: Decouple this
+import axios from 'axios';
+import getConfig from 'next/config';
+import querystring from 'querystring';
 import { Dispatch } from 'redux';
 import { v1 } from 'uuid';
-import {
-  EmailLoginForm,
-  EmailRegistrationForm,
-  didLogout,
-  loginUserSuccess,
-  loginUserError,
-  registerUserByEmailSuccess,
-  registerUserByEmailError,
-  didVerifyEmail,
-  actionProcessing,
-  didResendVerificationEmail,
-  didForgotPassword,
-  didResetPassword,
-  didCreateMagicLink,
-  updatedUserSettingsAction,
-  loadedUserData,
-  avatarUpdated,
-  usernameUpdated,
-  userUpdated,
-  userAvatarIdUpdated,
-  updateAvatarList,
-} from './actions';
+import { dispatchAlertError, dispatchAlertSuccess } from '../alert/service';
+import { client } from '../feathers';
+import { validateEmail, validatePhoneNumber } from '../helper';
+import { getStoredState } from '../persisted.store';
+import { apiUrl } from '../service.common';
+import store from "../store";
 import {
   addedChannelLayerUser,
   addedLayerUser, clearChannelLayerUsers,
-  clearLayerUsers, removedChannelLayerUser,
-  removedLayerUser,
-  displayUserToast,
+  clearLayerUsers,
+  displayUserToast, removedChannelLayerUser,
+  removedLayerUser
 } from '../user/actions';
-import { client } from '../feathers';
-import { dispatchAlertError, dispatchAlertSuccess } from '../alert/service';
-import { validateEmail, validatePhoneNumber } from '../helper';
-import { axiosRequest, apiUrl } from '../service.common';
-
-import { IdentityProvider } from '@xr3ngine/common/interfaces/IdentityProvider';
-import getConfig from 'next/config';
-import { getStoredState } from '../persisted.store';
-import axios from 'axios';
-import { resolveAuthUser } from '@xr3ngine/common/interfaces/AuthUser';
-import { resolveUser } from '@xr3ngine/common/interfaces/User';
-import store from "../store";
-import { endVideoChat, leave, setRelationship } from '@xr3ngine/engine/src/networking/functions/SocketWebRTCClientFunctions';
-import { Network } from '@xr3ngine/engine/src/networking/classes/Network';
-import { EngineEvents } from '@xr3ngine/engine/src/ecs/classes/EngineEvents';
-import querystring from 'querystring';
-import { MessageTypes } from '@xr3ngine/engine/src/networking/enums/MessageTypes';
+import {
+  actionProcessing,
+  avatarUpdated,
+  didCreateMagicLink,
+  didForgotPassword,
+  didLogout,
+  didResendVerificationEmail,
+  didResetPassword,
+  didVerifyEmail,
+  EmailLoginForm,
+  EmailRegistrationForm,
+  loadedUserData,
+  loginUserError,
+  loginUserSuccess,
+  registerUserByEmailError,
+  registerUserByEmailSuccess,
+  updateAvatarList,
+  updatedUserSettingsAction,
+  userAvatarIdUpdated,
+  usernameUpdated,
+  userUpdated
+} from './actions';
 
 const { publicRuntimeConfig } = getConfig();
 const apiServer: string = publicRuntimeConfig.apiServer;
@@ -763,20 +762,3 @@ client.service('user').on('patched', async (params) => {
 
 });
 
-client.service('location-ban').on('created', async(params) => {
-  const state = store.getState() as any;
-  const selfUser = state.get('auth').get('user');
-  const party = state.get('party');
-  const selfPartyUser = party && party.partyUsers ? party.partyUsers.find((partyUser) => partyUser.userId === selfUser.id) : {};
-  const currentLocation = state.get('locations').get('currentLocation').get('location');
-  const locationBan = params.locationBan;
-  if (selfUser.id === locationBan.userId && currentLocation.id === locationBan.locationId) {
-    endVideoChat({ leftParty: true });
-    leave(true);
-    if (selfPartyUser.id != null) {
-      await client.service('party-user').remove(selfPartyUser.id);
-    }
-    const user = resolveUser(await client.service('user').get(selfUser.id));
-    store.dispatch(userUpdated(user));
-  }
-});

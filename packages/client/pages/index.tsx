@@ -1,6 +1,6 @@
 import Head from 'next/head';
 import React, { useEffect } from 'react';
-import Xr3engineContact from '../components/xr3engineContact';
+import Xr3engineContact from '../components/HomePageContact';
 import { useRouter } from 'next/router';
 import { Capacitor } from '@capacitor/core';
 

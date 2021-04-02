@@ -1,4 +1,4 @@
-import DebugScene from '@xr3ngine/client-core/components/scenes/debug';
+import DebugScene from '../components/Scene/debug';
 import Loading from '@xr3ngine/client-core/components/scenes/loading';
 import Layout from '@xr3ngine/client-core/components/ui/Layout/OverlayLayout';
 import React from 'react';

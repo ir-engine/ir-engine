@@ -3,7 +3,7 @@ import fs from 'fs';
 import https from 'https';
 import path from 'path';
 import app from './app';
-import logger from './app/logger';
+import logger from './logger';
 import config from './config';
 import psList from 'ps-list';
 import { exec } from 'child_process';

@@ -1,7 +1,5 @@
-// import "dotenv";
 import getConfig from 'next/config';
 const { publicRuntimeConfig } = getConfig();
-
 
 /**
  * [ Read configs from meta tags if available, otherwise use the process.env injected from build.]
