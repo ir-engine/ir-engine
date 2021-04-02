@@ -3,6 +3,12 @@ import { RaycastVehicle, Vec3 } from 'cannon-es';
 import { Component } from '../../../ecs/classes/Component';
 import { Types } from '../../../ecs/types/Types';
 
+/**
+ * @author HydraFire <github.com/HydraFire>
+ * @param entity is the entity to handle state changes to
+ * @param seat idex array of seats
+ */
+
 export class VehicleComponent extends Component<VehicleComponent> {
 
   wantsExit: any

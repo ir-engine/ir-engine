@@ -16,6 +16,9 @@ import { getInCarPossible } from '../behaviors/getInCarPossible';
 import { VehicleComponent } from "../components/VehicleComponent";
 import { PrefabType } from "../../networking/PrefabType";
 
+/**
+ * @author HydraFire <github.com/HydraFire>
+ */
 
 function castShadowOn(group) {
   group.children.forEach(children => {

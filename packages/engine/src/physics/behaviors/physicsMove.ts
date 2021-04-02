@@ -21,6 +21,10 @@ import { LocalInputReceiver } from "../../input/components/LocalInputReceiver";
 import { InterpolationComponent } from '../components/InterpolationComponent';
 import TeleportToSpawnPoint from '../../scene/components/TeleportToSpawnPoint';
 
+/**
+ * @author HydraFire <github.com/HydraFire>
+ */
+
 const forwardVector = new Vector3(0, 0, 1);
 const upVector = new Vector3(0, 1, 0);
 function haveDifferentSigns(n1: number, n2: number): boolean {

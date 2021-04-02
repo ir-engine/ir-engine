@@ -5,6 +5,10 @@ import { getComponent, getMutableComponent, hasComponent } from '../../../ecs/fu
 import { Vector3 } from "three";
 import { AnimationComponent } from '../../../character/components/AnimationComponent';
 
+/**
+ * @author HydraFire <github.com/HydraFire>
+ */
+
 const {
   IDLE,
   WALK_FORWARD, WALK_BACKWARD, WALK_STRAFE_LEFT, WALK_STRAFE_RIGHT,

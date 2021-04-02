@@ -12,6 +12,12 @@ import { PhysicsSystem } from '../../../physics/systems/PhysicsSystem';
 import { PlayerInCar } from '../../../physics/components/PlayerInCar';
 import { CharacterAnimations } from '../../character/CharacterAnimations';
 
+/**
+ * @author HydraFire <github.com/HydraFire>
+ * @param entity is the entity to handle state changes to
+ * @param seat idex array of seats
+ */
+
 function doorAnimation(entityCar, seat, timer, timeAnimation, angel) {
   const vehicle = getComponent<VehicleComponent>(entityCar, VehicleComponent);
   const mesh = vehicle.vehicleDoorsArray[seat];

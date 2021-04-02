@@ -3,6 +3,12 @@ import { InteractionCheckHandler } from "../../../interaction/types/InteractionT
 import { VehicleComponent } from "../components/VehicleComponent";
 import { isClient } from "../../../common/functions/isClient";
 
+
+/**
+ * @author HydraFire <github.com/HydraFire>
+ */
+
+
 export const getInCarPossible: InteractionCheckHandler = (possibleDriverEntity, carEntity, focusedPart = 0) => {
   const vehicle = getComponent(carEntity, VehicleComponent);
   //console.warn('vehicle.driver '+vehicle.driver);

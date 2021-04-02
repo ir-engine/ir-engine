@@ -6,6 +6,12 @@ import { Network } from "../../../networking/classes/Network";
 import { NetworkObject } from "../../../networking/components/NetworkObject";
 import { VehicleComponent } from "../components/VehicleComponent";
 
+/**
+ * @author HydraFire <github.com/HydraFire>
+ * @param entity is the entity to handle state changes to
+ * @param seat idex array of seats
+ */
+
 export const onRemovedFromCar = (entity: Entity, entityCar: Entity, seat: number, delta: number): void => {
   // Server and others
   const vehicle = getMutableComponent<VehicleComponent>(entityCar, VehicleComponent);
@@ -28,7 +34,7 @@ export const onRemovedFromCar = (entity: Entity, entityCar: Entity, seat: number
   if (isServer) return;
   // LocalPlayer and others
   //removeComponent(entity, EnteringVehicle);
-  
+
   // Player only
   if (Network.instance.localAvatarNetworkId != networkDriverId) return;
   removeComponent(entityCar, LocalInputReceiver);

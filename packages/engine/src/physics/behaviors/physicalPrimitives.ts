@@ -6,6 +6,10 @@ import { threeToCannon } from '../classes/three-to-cannon';
 import { ColliderComponent } from '../components/ColliderComponent';
 import { CollisionGroups } from "../enums/CollisionGroups";
 
+/**
+ * @author HydraFire <github.com/HydraFire>
+ */
+
 export function createTrimesh (entity: Entity) {
   const collider = getComponent<ColliderComponent>(entity, ColliderComponent);
   const transformComponent = getComponent<TransformComponent>(entity, TransformComponent);

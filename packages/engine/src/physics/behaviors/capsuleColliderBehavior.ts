@@ -13,6 +13,10 @@ import { LocalInputReceiver } from '../../input/components/LocalInputReceiver';
 import { EngineEvents } from '../../ecs/classes/EngineEvents';
 import { PhysicsLifecycleState } from '../enums/PhysicsStates';
 
+/**
+ * @author HydraFire <github.com/HydraFire>
+ */
+
 const lastPos = { x:0, y:0, z:0 };
 export const updateVelocityVector: Behavior = (entity: Entity, args): void => {
   if (hasComponent(entity, CapsuleCollider)) {
