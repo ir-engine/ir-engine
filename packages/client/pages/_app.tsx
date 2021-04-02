@@ -1,4 +1,4 @@
-import { initGA, logPageView } from '@xr3ngine/client-core/components/analytics';
+import { initGA, logPageView } from '../components/analytics';
 import Api from "@xr3ngine/client-core/components/editor/Api";
 import { ApiContext } from '@xr3ngine/client-core/components/editor/contexts/ApiContext';
 import GlobalStyle from '@xr3ngine/client-core/components/editor/GlobalStyle';

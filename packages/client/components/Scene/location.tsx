@@ -4,22 +4,22 @@ import { setAppSpecificOnBoardingStep } from '@xr3ngine/client-core/redux/app/ac
 import { selectAppState } from '@xr3ngine/client-core/redux/app/selector';
 import { doLoginAuto } from '@xr3ngine/client-core/redux/auth/service';
 import { client } from '@xr3ngine/client-core/redux/feathers';
-import { selectInstanceConnectionState } from '@xr3ngine/client-core/redux/instanceConnection/selector';
+import { selectInstanceConnectionState } from '@xr3ngine/client-networking/redux/instanceConnection/selector';
 import {
   connectToInstanceServer,
   provisionInstanceServer
-} from '@xr3ngine/client-core/redux/instanceConnection/service';
+} from '@xr3ngine/client-networking/redux/instanceConnection/service';
 import { selectLocationState } from '@xr3ngine/client-core/redux/location/selector';
 import {
   getLocationByName
 } from '@xr3ngine/client-core/redux/location/service';
-import { selectPartyState } from '@xr3ngine/client-core/redux/party/selector';
+import { selectPartyState } from '@xr3ngine/client-networking/redux/party/selector';
 import { setCurrentScene } from '@xr3ngine/client-core/redux/scenes/actions';
 import { isMobileOrTablet } from '@xr3ngine/engine/src/common/functions/isMobile';
 import { resetEngine } from "@xr3ngine/engine/src/ecs/functions/EngineFunctions";
 import { getComponent, getMutableComponent } from '@xr3ngine/engine/src/ecs/functions/EntityFunctions';
 import { Network } from '@xr3ngine/engine/src/networking/classes/Network';
-import { SocketWebRTCClientTransport } from '@xr3ngine/engine/src/networking/classes/SocketWebRTCClientTransport';
+import { SocketWebRTCClientTransport } from '@xr3ngine/client-networking/transports/SocketWebRTCClientTransport';
 import { NetworkSchema } from '@xr3ngine/engine/src/networking/interfaces/NetworkSchema';
 import { styleCanvas } from '@xr3ngine/engine/src/renderer/functions/styleCanvas';
 import { CharacterComponent } from '@xr3ngine/engine/src/templates/character/components/CharacterComponent';
@@ -37,7 +37,7 @@ import store from '@xr3ngine/client-core/redux/store';
 import { selectUserState } from '@xr3ngine/client-core/redux/user/selector';
 import { InteractableModal } from '@xr3ngine/client-core/components/ui/InteractableModal';
 import LoadingScreen from '@xr3ngine/client-core/components/ui/Loader';
-import MediaIconsBox from "../ui/MediaIconsBox";
+import MediaIconsBox from "@xr3ngine/client-networking/components/MediaIconsBox";
 import { MobileGamepadProps } from "@xr3ngine/client-core/components/ui/MobileGamepad/MobileGamepadProps";
 import NamePlate from '@xr3ngine/client-core/components/ui/NamePlate';
 import NetworkDebug from '@xr3ngine/client-core/components/ui/NetworkDebug/NetworkDebug';
@@ -224,11 +224,11 @@ export const EnginePage = (props: Props) => {
     const sceneData = await client.service(service).get(serviceId);
 
     const networkSchema
-    : NetworkSchema = {
+      : NetworkSchema = {
       ...DefaultNetworkSchema,
       transport: SocketWebRTCClientTransport,
     };
-  
+
     const canvas = document.getElementById(engineRendererCanvasId) as HTMLCanvasElement;
     styleCanvas(canvas);
     const InitializationOptions = {
@@ -240,7 +240,7 @@ export const EnginePage = (props: Props) => {
         canvas,
       },
     };
-    
+
     await initializeEngine(InitializationOptions);
 
     document.dispatchEvent(new CustomEvent('ENGINE_LOADED')); // this is the only time we should use document events. would be good to replace this with react state
@@ -262,12 +262,12 @@ export const EnginePage = (props: Props) => {
 
     const getWorldState = new Promise<any>((resolve) => {
       EngineEvents.instance.once(EngineEvents.EVENTS.CONNECT_TO_WORLD, async () => {
-        const { worldState } =  await (Network.instance.transport as SocketWebRTCClientTransport).instanceRequest(MessageTypes.JoinWorld.toString());
+        const { worldState } = await (Network.instance.transport as SocketWebRTCClientTransport).instanceRequest(MessageTypes.JoinWorld.toString());
         resolve(worldState);
       });
     });
-    
-    const [sceneLoaded, worldState] = await Promise.all([ loadScene, getWorldState ]);
+
+    const [sceneLoaded, worldState] = await Promise.all([loadScene, getWorldState]);
 
     EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.JOINED_WORLD, worldState });
   }
@@ -280,7 +280,7 @@ export const EnginePage = (props: Props) => {
     setObjectHovered(focused);
     let displayText = interactionText;
     const length = interactionText && interactionText.length;
-    if(length > 110) {
+    if (length > 110) {
       displayText = interactionText.substring(0, 110) + '...';
     }
     setHoveredLabel(displayText);
@@ -363,7 +363,7 @@ export const EnginePage = (props: Props) => {
 
       <NetworkDebug />
       <LoadingScreen objectsToLoad={progressEntity} />
-      { harmonyOpen !== true && <MediaIconsBox /> }
+      { harmonyOpen !== true && <MediaIconsBox />}
       { userHovered && <NamePlate userId={userId} position={{ x: position?.x, y: position?.y }} focused={userHovered} />}
       {objectHovered && !objectActivated && <TooltipContainer message={hoveredLabel} />}
       <InteractableModal onClose={() => { setModalData(null); setObjectActivated(false); }} data={infoBoxData} />
