@@ -1,5 +1,5 @@
 import Loading from '@xr3ngine/client-core/components/scenes/loading';
-import Scene from '@xr3ngine/client-core/components/scenes/location';
+import Scene from '../../components/Scene/location';
 import Layout from '@xr3ngine/client-core/components/ui/Layout/OverlayLayout';
 import { useRouter } from 'next/router';
 import React from 'react';

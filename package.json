@@ -76,7 +76,6 @@
     "@feathersjs/socketio-client": "^4.5.8",
     "@feathersjs/transport-commons": "^4.5.8",
     "chokidar": "3.4.2",
-    "mediasoup-client": "^3.6.12",
     "sequelize": "~5.21.8",
     "socket.io": "2.4.1",
     "three": "^0.125.0"
