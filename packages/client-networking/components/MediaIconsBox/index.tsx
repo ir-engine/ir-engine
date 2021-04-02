@@ -19,7 +19,7 @@ import {
     endVideoChat, leave,
     pauseProducer,
     resumeProducer
-} from "@xr3ngine/client-networking/transports/SocketWebRTCClientFunctions";
+} from "../../transports/SocketWebRTCClientFunctions";
 import { selectAuthState } from "@xr3ngine/client-core/redux/auth/selector";
 import { selectLocationState } from "@xr3ngine/client-core/redux/location/selector";
 import { updateCamAudioState, updateCamVideoState, changeFaceTrackingState } from "@xr3ngine/client-core/redux/mediastream/service";

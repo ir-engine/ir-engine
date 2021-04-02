@@ -21,9 +21,9 @@ import {
     updateChatTarget,
     patchMessage,
     updateMessageScrollInit
-} from '../../../../redux/chat/service';
-import { selectAuthState} from '../../../../redux/auth/selector';
-import { selectChatState } from '../../../../redux/chat/selector';
+} from '@xr3ngine/client-core/redux/chat/service';
+import { selectAuthState} from '@xr3ngine/client-core/redux/auth/selector';
+import { selectChatState } from '@xr3ngine/client-core/redux/chat/selector';
 import {
     Clear,
     Delete,

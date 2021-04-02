@@ -1,69 +1,61 @@
-import React, {useEffect, useState} from 'react';
-import {bindActionCreators, Dispatch} from 'redux';
-import {connect} from 'react-redux';
-//@ts-ignore
-import styles from './Right.module.scss';
-import _ from 'lodash';
 import {
-    Accordion,
-    AccordionSummary,
-    AccordionDetails,
     Avatar,
     Button,
-    ButtonGroup,
+    Divider,
     FormControl,
     InputLabel,
     List,
     ListItem,
-    ListItemText,
     ListItemAvatar,
+    ListItemText,
     MenuItem,
     Select,
-    TextField,
+    SwipeableDrawer,
     Tab,
     Tabs,
-    SwipeableDrawer,
-    Divider,
-    Typography, GridListTile, GridList
+    TextField
 } from '@material-ui/core';
 import {
-    Add,
     AccountCircle,
+    Add,
     ArrowDownward,
     ArrowUpward,
-    ChevronLeft,
-    ChevronRight,
-    ExpandMore,
+    Close,
     Group,
     GroupWork,
     Mail,
     PhoneIphone,
-    Public,
-    SupervisedUserCircle, Close
+    SupervisedUserCircle
 } from '@material-ui/icons';
-import { selectAuthState } from '../../../../redux/auth/selector';
-import { getFriends } from '../../../../redux/friend/service';
-import { selectFriendState } from '../../../../redux/friend/selector';
-import { selectInviteState } from '../../../../redux/invite/selector';
-import { selectGroupState } from '../../../../redux/group/selector';
-import { selectPartyState } from '../../../../redux/party/selector';
-import { selectLocationState } from '../../../../redux/location/selector';
-import { getLocations } from '../../../../redux/location/service';
-import { provisionInstanceServer } from '../../../../redux/instanceConnection/service';
-import {
-    sendInvite,
-    retrieveReceivedInvites,
-    retrieveSentInvites,
-    removeInvite,
-    acceptInvite,
-    declineInvite,
-    updateInviteTarget
-} from '../../../../redux/invite/service';
+import { selectAuthState } from '@xr3ngine/client-core/redux/auth/selector';
+import { selectFriendState } from '@xr3ngine/client-core/redux/friend/selector';
+import { getFriends } from '@xr3ngine/client-core/redux/friend/service';
+import { selectGroupState } from '@xr3ngine/client-core/redux/group/selector';
 import {
     getInvitableGroups
-} from '../../../../redux/group/service';
-import {User} from '@xr3ngine/common/interfaces/User';
+} from '@xr3ngine/client-core/redux/group/service';
+import { selectInviteState } from '@xr3ngine/client-core/redux/invite/selector';
+import {
+    acceptInvite,
+    declineInvite,
+    removeInvite,
+    retrieveReceivedInvites,
+    retrieveSentInvites,
+    sendInvite,
+    updateInviteTarget
+} from '@xr3ngine/client-core/redux/invite/service';
+import { selectLocationState } from '@xr3ngine/client-core/redux/location/selector';
+import { getLocations } from '@xr3ngine/client-core/redux/location/service';
+import { User } from '@xr3ngine/common/interfaces/User';
 import classNames from 'classnames';
+import _ from 'lodash';
+import React, { useEffect, useState } from 'react';
+import { connect } from 'react-redux';
+import { bindActionCreators, Dispatch } from 'redux';
+import { provisionInstanceServer } from '@xr3ngine/client-networking/redux/instanceConnection/service';
+import { selectPartyState } from '@xr3ngine/client-networking/redux/party/selector';
+//@ts-ignore
+import styles from './Right.module.scss';
 
 
 const mapStateToProps = (state: any): any => {

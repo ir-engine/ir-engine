@@ -9,13 +9,13 @@ import {
 import { Network } from "@xr3ngine/engine/src/networking/classes/Network";
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
-import { selectAuthState } from '../../../redux/auth/selector';
-import { selectChatState } from '../../../redux/chat/selector';
+import { selectAuthState } from '@xr3ngine/client-core/redux/auth/selector';
+import { selectChatState } from '@xr3ngine/client-core/redux/chat/selector';
 import {
   updateMessageScrollInit
-} from '../../../redux/chat/service';
-import { selectLocationState } from '../../../redux/location/selector';
-import { selectPartyState } from '../../../redux/party/selector';
+} from '@xr3ngine/client-core/redux/chat/service';
+import { selectLocationState } from '@xr3ngine/client-core/redux/location/selector';
+import { selectPartyState } from '@xr3ngine/client-networking/redux/party/selector';
 // @ts-ignore
 import styles from './DrawerControls.module.scss';
 

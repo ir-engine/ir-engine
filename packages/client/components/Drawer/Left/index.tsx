@@ -1,40 +1,40 @@
 import React, { useState, useEffect } from 'react';
 import { bindActionCreators, Dispatch } from 'redux';
 import { connect } from 'react-redux';
-import { selectAuthState } from '../../../../redux/auth/selector';
-import { selectChatState } from '../../../../redux/chat/selector';
-import { selectFriendState } from '../../../../redux/friend/selector';
-import { selectGroupState } from '../../../../redux/group/selector';
+import { selectAuthState } from '@xr3ngine/client-core/redux/auth/selector';
+import { selectChatState } from '@xr3ngine/client-core/redux/chat/selector';
+import { selectFriendState } from '@xr3ngine/client-core/redux/friend/selector';
+import { selectGroupState } from '@xr3ngine/client-core/redux/group/selector';
 import { selectPartyState } from '@xr3ngine/client-networking/redux/party/selector';
-import { selectUserState } from '../../../../redux/user/selector';
-import { selectLocationState } from '../../../../redux/location/selector';
+import { selectUserState } from '@xr3ngine/client-core/redux/user/selector';
+import { selectLocationState } from '@xr3ngine/client-core/redux/location/selector';
 // @ts-ignore
 import styles from './Left.module.scss';
 
 import {
     updateInviteTarget
-} from '../../../../redux/invite/service';
+} from '@xr3ngine/client-core/redux/invite/service';
 import {
     updateChatTarget,
     updateMessageScrollInit
-} from '../../../../redux/chat/service';
+} from '@xr3ngine/client-core/redux/chat/service';
 import {
     getFriends,
     unfriend
-} from '../../../../redux/friend/service';
+} from '@xr3ngine/client-core/redux/friend/service';
 import {
     getGroups,
     createGroup,
     patchGroup,
     removeGroup,
     removeGroupUser
-} from '../../../../redux/group/service';
+} from '@xr3ngine/client-core/redux/group/service';
 import {
     getLayerUsers
-} from "../../../../redux/user/service";
+} from "@xr3ngine/client-core/redux/user/service";
 import {
     banUserFromLocation
-} from '../../../../redux/location/service';
+} from '@xr3ngine/client-core/redux/location/service';
 import {
     Avatar,
     Button,

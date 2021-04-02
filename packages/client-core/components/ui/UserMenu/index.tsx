@@ -15,7 +15,7 @@ import {
   removeAvatar,
 } from '../../../redux/auth/service';
 import { alertSuccess } from '../../../redux/alert/service';
-import { provisionInstanceServer } from "../../../redux/instanceConnection/service";
+import { provisionInstanceServer } from "@xr3ngine/common/client-networking/redux/instanceConnection/service";
 import { Views, UserMenuProps } from './util';
 //@ts-ignore
 import styles from './style.module.scss';
