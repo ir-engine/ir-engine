@@ -68,6 +68,8 @@ export class WebGLRendererSystem extends System {
 
   renderPass: RenderPass;
   renderContext: WebGLRenderingContext;
+
+  forcePostProcessing: boolean = false;
   
   /** Constructs WebGL Renderer System. */
   constructor(attributes?: SystemAttributes) {
@@ -124,7 +126,10 @@ export class WebGLRendererSystem extends System {
     WebGLRendererSystem.needsResize = true;
     this.configurePostProcessing();
     loadGraphicsSettingsFromStorage();
-    this.setUsePostProcessing(true);
+
+    // if we turn PostPro off, don't turn it back on, if we turn it on, let engine manage it
+    this.forcePostProcessing = attributes.postProcessing 
+    this.setUsePostProcessing(attributes.postProcessing);
     this.setShadowQuality(this.qualityLevel);
     this.setResolution(WebGLRendererSystem.scaleFactor);
     this.setUseAutomatic(WebGLRendererSystem.automatic);
@@ -289,7 +294,8 @@ export class WebGLRendererSystem extends System {
     if (this.prevQualityLevel !== this.qualityLevel) {
       this.setShadowQuality(this.qualityLevel);
       this.setResolution((this.qualityLevel) / 5);
-      this.setUsePostProcessing(this.qualityLevel > 1);
+      if(this.forcePostProcessing)
+        this.setUsePostProcessing(this.qualityLevel > 1);
       this.dispatchSettingsChangeEvent();
       saveGraphicsSettingsToStorage();
       this.prevQualityLevel = this.qualityLevel;
@@ -313,7 +319,8 @@ export class WebGLRendererSystem extends System {
       this.prevQualityLevel = -1;
       this.setShadowQuality(this.qualityLevel);
       this.setResolution((this.qualityLevel) / 5);
-      this.setUsePostProcessing(this.qualityLevel > 1);
+      if(this.forcePostProcessing)
+        this.setUsePostProcessing(this.qualityLevel > 1);
       this.dispatchSettingsChangeEvent();
     }
     saveGraphicsSettingsToStorage();
