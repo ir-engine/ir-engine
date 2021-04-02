@@ -26,6 +26,7 @@ import { NetworkSchema } from "../interfaces/NetworkSchema";
 import { NetworkClientInputInterface, NetworkInputInterface } from "../interfaces/WorldState";
 import { ClientInputModel } from '../schema/clientInputSchema';
 import { WorldStateModel } from '../schema/worldStateSchema';
+import { isServer } from '../../common/functions/isServer';
 
 // function switchInputs(clientInput) {
 //   if (hasComponent(Network.instance.networkObjects[clientInput.networkId].component.entity, PlayerInCar)) {
@@ -64,9 +65,6 @@ export class ServerNetworkIncomingSystem extends System {
      * {@link ecs/functions/SystemUpdateType.SystemUpdateType.Fixed | Fixed} type. */
   updateType = SystemUpdateType.Fixed;
 
-  /** Indication of whether the system is on server or on client. */
-  isServer;
-
   /**
    * Constructs the system.
    * @param attributes Attributes to be passed to super class constructor.
@@ -81,7 +79,7 @@ export class ServerNetworkIncomingSystem extends System {
     // Buffer model for worldState
     //  Network.instance.snapshotModel = new Model(snapshotSchema)
 
-    this.isServer = Network.instance.transport.isServer;
+    this.isServer = isServer;
 
     // Initialize the server automatically - client is initialized in connectToServer
     if (process.env.SERVER_MODE !== undefined && (process.env.SERVER_MODE === 'realtime' || process.env.SERVER_MODE === 'local')) {
