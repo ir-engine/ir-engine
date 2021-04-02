@@ -11,6 +11,7 @@
   "publishConfig": {
     "access": "public"
   },
+  "main": "index.ts",
   "npmClient": "yarn",
   "jest": "ts-jest",
   "scripts": {
@@ -133,11 +134,6 @@
     "eslint": "^7.7.0",
     "eslint-plugin-react": "^7.21.4",
     "gltf-webpack-loader": "https://github.com/MozillaReality/gltf-webpack-loader.git#fix/relative-and-output-paths",
-    "next": "10.1.2",
-    "next-images": "^1.4.0",
-    "next-optimized-images": "^2.6.2",
-    "next-plugin-node-config": "^1.0.2",
-    "next-redux-wrapper": "^5.0.0",
     "node-sass": "^5.0.0",
     "sass-loader": "^7.1.0",
     "style-loader": "^0.23.1",

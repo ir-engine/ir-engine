@@ -1,5 +1,4 @@
 import { cmdOrCtrlString, objectToMap } from "@xr3ngine/engine/src/editor/functions/utils";
-import Helmet from "next/head";
 import { Router, withRouter } from "next/router";
 import PropTypes from "prop-types";
 import React, { Component } from "react";
@@ -10,7 +9,6 @@ import styled from "styled-components";
 import defaultTemplateUrl from "./templates/crater.json";
 import tutorialTemplateUrl from "./templates/tutorial.json";
 import Api from "./Api";
-import configs from "./configs";
 import { withApi } from "./contexts/ApiContext";
 import { DialogContextProvider } from "./contexts/DialogContext";
 import { EditorContextProvider } from "./contexts/EditorContext";
@@ -874,10 +872,6 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
                       <DialogComponent onConfirm={this.hideDialog} onCancel={this.hideDialog} {...dialogProps} />
                     )}
                   </Modal>
-                  <Helmet>
-                    <title>{`${modified ? "*" : ""}${editor.scene.name} | ${(configs as any).longName()}`}</title>
-                    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
-                  </Helmet>
                 </DndProvider>
             </DialogContextProvider>
           </EditorContextProvider>
