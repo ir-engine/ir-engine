@@ -4,7 +4,7 @@ import { Network } from '@xr3ngine/engine/src/networking/classes/Network';
 import { loadScene } from "@xr3ngine/engine/src/scene/functions/SceneLoading";
 import config from './appconfig';
 import { Application } from './declarations';
-import getLocalServerIp from './util/get-local-server-ip';
+import getLocalServerIp from '@xr3ngine/server-core/src/util/get-local-server-ip';
 import logger from './logger';
 
 export default (app: Application): void => {

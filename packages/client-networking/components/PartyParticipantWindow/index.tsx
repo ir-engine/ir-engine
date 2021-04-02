@@ -27,7 +27,7 @@ import {
     pauseProducer,
     resumeConsumer,
     resumeProducer
-} from '@xr3ngine/client-networking/transports/SocketWebRTCClientFunctions';
+} from '../../transports/SocketWebRTCClientFunctions';
 import { PositionalAudioSystem } from "@xr3ngine/engine/src/audio/systems/PositionalAudioSystem";
 import { Network } from "@xr3ngine/engine/src/networking/classes/Network";
 import { MediaStreamSystem } from '@xr3ngine/engine/src/networking/systems/MediaStreamSystem';

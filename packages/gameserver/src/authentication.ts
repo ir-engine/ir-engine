@@ -2,14 +2,13 @@ import { ServiceAddons } from '@feathersjs/feathers';
 import { AuthenticationService } from '@feathersjs/authentication';
 import { expressOauth } from '@feathersjs/authentication-oauth';
 import { Application } from './declarations';
-import GithubStrategy from '../strategies/github';
-import GoogleStrategy from '../strategies/google';
-import FacebookStrategy from '../strategies/facebook';
-import LinkedInStrategy from "../strategies/linkedin";
-import { MyLocalStrategy } from '../strategies/local';
-import { MyJwtStrategy } from '../strategies/jwt';
-import authenticationDoc from './authentication.doc';
-import TwitterStrategy from '../strategies/twitter';
+import GithubStrategy from '@xr3ngine/server-core/src/strategies/github';
+import GoogleStrategy from '@xr3ngine/server-core/src/strategies/google';
+import FacebookStrategy from '@xr3ngine/server-core/src/strategies/facebook';
+import LinkedInStrategy from "@xr3ngine/server-core/src/strategies/linkedin";
+import { MyLocalStrategy } from '@xr3ngine/server-core/src/strategies/local';
+import { MyJwtStrategy } from '@xr3ngine/server-core/src/strategies/jwt';
+import TwitterStrategy from '@xr3ngine/server-core/src/strategies/twitter';
 
 declare module './declarations' {
   interface ServiceTypes {
@@ -19,8 +18,6 @@ declare module './declarations' {
 
 export default (app: Application): void => {
   const authentication = new AuthenticationService(app as any);
-  authentication['docs'] = authenticationDoc;
-
   authentication.register('jwt', new MyJwtStrategy());
   authentication.register('local', new MyLocalStrategy());
   authentication.register('google', new GoogleStrategy());

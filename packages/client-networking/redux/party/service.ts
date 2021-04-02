@@ -1,4 +1,4 @@
-import { endVideoChat } from '@xr3ngine/client-networking/transports/SocketWebRTCClientFunctions';
+import { endVideoChat } from '../../transports/SocketWebRTCClientFunctions';
 import { Dispatch } from 'redux';
 import { dispatchAlertError } from '@xr3ngine/client-core/redux/alert/service';
 import { client } from '@xr3ngine/client-core/redux/feathers';

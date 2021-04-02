@@ -1,29 +1,26 @@
-import React, { useState, useEffect } from 'react';
-import { bindActionCreators, Dispatch } from 'redux';
-import { connect } from 'react-redux';
-import { selectFriendState } from '../../../../redux/friend/selector';
-import { selectGroupState } from '../../../../redux/group/selector';
-import { selectPartyState } from '../../../../redux/party/selector';
-
+import { AppBar } from '@material-ui/core';
+import { selectFriendState } from '@xr3ngine/client-core/redux/friend/selector';
 import {
     getFriends,
     unfriend
-} from '../../../../redux/friend/service';
+} from '@xr3ngine/client-core/redux/friend/service';
+import { selectGroupState } from '@xr3ngine/client-core/redux/group/selector';
 import {
-    getGroups,
     createGroup,
+    getGroups,
     patchGroup,
     removeGroup
-} from '../../../../redux/group/service';
+} from '@xr3ngine/client-core/redux/group/service';
+import { selectPartyState } from '@xr3ngine/client-networking/redux/party/selector';
 import {
-    getParty,
     createParty,
+    getParty,
     removeParty,
     removePartyUser
-} from '../../../../redux/party/service';
-import {User} from "@xr3ngine/common/interfaces/User";
-import { AppBar } from '@material-ui/core';
-
+} from '@xr3ngine/client-networking/redux/party/service';
+import React from 'react';
+import { connect } from 'react-redux';
+import { bindActionCreators, Dispatch } from 'redux';
 
 const mapStateToProps = (state: any): any => {
     return {

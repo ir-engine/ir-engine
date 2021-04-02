@@ -247,7 +247,7 @@ export async function handleWebRtcTransportCreate(socket, data: WebRtcTransportP
             candidate.port = thisGs.spec?.ports?.find((portMapping) => portMapping.containerPort === candidate.port).hostPort;
         });
     }
-    const clientTransportOptions: TransportOptions = {
+    const clientTransportOptions = {
         id,
         sctpParameters: {
             ...sctpParameters,
