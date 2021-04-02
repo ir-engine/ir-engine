@@ -6,7 +6,8 @@ import {
   CREATOR_NOTIFICATION_LIST_RETRIEVED,
   SET_CREATOR_AS_FOLLOWED,
   SET_CREATOR_NOT_FOLLOWED,
-  CREATOR_FOLLOWERS_RETRIEVED
+  CREATOR_FOLLOWERS_RETRIEVED,
+  CREATORS_FETCH
 } from '../actions';
 import { Creator, CreatorShort } from '@xr3ngine/common/interfaces/Creator';
 
@@ -43,6 +44,12 @@ export function creatorRetrieved (creator: Creator): CreatorRetrievedAction {
   return {
     type: CREATOR_RETRIEVED,
     creator
+  };
+}
+
+export function fetchingCreators (): FetchingCreatorAction {
+  return {
+    type: CREATORS_FETCH
   };
 }
 

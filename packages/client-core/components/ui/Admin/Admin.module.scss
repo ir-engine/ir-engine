@@ -2,7 +2,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  overflow: hidden;
+  overflow: scroll;
   flex-wrap: wrap;
 }
 
@@ -74,11 +74,27 @@
     .tcell {
       color: lighten(white, 0.80);
       background-color: black;
+      .iconsContainer{
+        display: flex;
+        h3{
+          margin-right: 5px;
+        }
+      }
+      &.actionCell{
+        display: flex;  
+        :global(.MuiButtonBase-root){
+          width: fit-content;
+          margin-right: 5px;
+        }
+      }
+      :global(.MuiButtonBase-root){
+        color: lighten(white, 0.80);
+      }
     }
 
     .tcellSelectable {
 
-
+      
        .currentUser{
         color: lighten(white, 0.80);
         background-color: #4267B2;
@@ -157,4 +173,8 @@
 }
 .locationModalButtons {
   justify-content: space-between;
+}
+.previewImage{
+  height: 100px;
+  max-width: 250px;
 }

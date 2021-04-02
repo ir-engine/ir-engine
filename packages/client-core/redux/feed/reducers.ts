@@ -21,7 +21,9 @@ import {
   FEEDS_BOOKMARK_RETRIEVED,
   FEEDS_MY_FEATURED_RETRIEVED,
   ADD_FEED_FEATURED,
-  REMOVE_FEED_FEATURED
+  REMOVE_FEED_FEATURED,
+  FEEDS_AS_ADMIN_RETRIEVED,
+  UPDATE_FEED
 } from '../actions';
 
 export const initialState = {
@@ -32,7 +34,8 @@ export const initialState = {
     feedsBookmark:[],
     myFeatured:[],
     feed: {},
-    fetching: false
+    fetching: false,
+    feedsAdmin:[]
   },
 };
 
@@ -119,6 +122,18 @@ const feedReducer = (state = immutableState, action: FeedsAction): any => {
         }
         return {...feed};
       })).set('myFeatured', myFeatured ? myFeatured.splice(myFeatured.findIndex(item=>item.id === (action as oneFeedAction).feedId),1) : []);
+
+    case FEEDS_AS_ADMIN_RETRIEVED:     
+      return state.set('feedsAdmin', (action as FeedsRetrievedAction).feeds).set('fetching', false);
+
+    case UPDATE_FEED:
+      return state.set('feedsAdmin', state.get('feedsAdmin').map(feed => {
+        if(feed.id === (action as FeedRetrievedAction).feed.id) {
+          return {...feed, ...(action as FeedRetrievedAction).feed};
+        }
+        return {...feed};
+      }));
+
 }
 
 
