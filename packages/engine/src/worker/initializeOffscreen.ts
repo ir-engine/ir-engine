@@ -44,7 +44,7 @@ export const DefaultInitializationOptions = {
 };
 
 const initializeEngineOffscreen = async ({ canvas, userArgs }, proxy: MainProxy) => {
-  const { initOptions, useOfflineMode } = userArgs;
+  const { initOptions, useOfflineMode, postProcessing } = userArgs;
   const options = _.defaultsDeep({}, initOptions, DefaultInitializationOptions);
 
   EngineEvents.instance = new EngineEventsProxy(proxy);
@@ -80,7 +80,7 @@ const initializeEngineOffscreen = async ({ canvas, userArgs }, proxy: MainProxy)
   registerSystem(ParticleSystem);
   registerSystem(DebugHelpersSystem);
   registerSystem(CameraSystem);
-  registerSystem(WebGLRendererSystem, { priority: 1001, canvas });
+  registerSystem(WebGLRendererSystem, { priority: 1001, canvas, postProcessing });
   registerSystem(XRSystem, { offscreen: true });
   Engine.viewportElement = Engine.renderer.domElement;
 
