@@ -8,7 +8,7 @@ import {
 import FaceIcon from '@material-ui/icons/Face';
 import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
-import { selectAppOnBoardingStep } from "../../../redux/app/selector";
+import { selectAppOnBoardingStep } from "@xr3ngine/client-core/redux/app/selector";
 // @ts-ignore
 import styles from './MediaIconsBox.module.scss';
 import { MediaStreamSystem } from "@xr3ngine/engine/src/networking/systems/MediaStreamSystem";
@@ -19,10 +19,10 @@ import {
     endVideoChat, leave,
     pauseProducer,
     resumeProducer
-} from "@xr3ngine/engine/src/networking/functions/SocketWebRTCClientFunctions";
-import { selectAuthState } from "../../../redux/auth/selector";
-import { selectLocationState } from "../../../redux/location/selector";
-import { updateCamAudioState, updateCamVideoState, changeFaceTrackingState } from "../../../redux/mediastream/service";
+} from "@xr3ngine/client-networking/transports/SocketWebRTCClientFunctions";
+import { selectAuthState } from "@xr3ngine/client-core/redux/auth/selector";
+import { selectLocationState } from "@xr3ngine/client-core/redux/location/selector";
+import { updateCamAudioState, updateCamVideoState, changeFaceTrackingState } from "@xr3ngine/client-core/redux/mediastream/service";
 import {
     startFaceTracking,
     startLipsyncTracking,
@@ -30,7 +30,7 @@ import {
     stopLipsyncTracking
 } from "@xr3ngine/engine/src/input/behaviors/WebcamInputBehaviors";
 import { Network } from "@xr3ngine/engine/src/networking/classes/Network";
-import { VrIcon } from "../Icons/Vricon";
+import { VrIcon } from "@xr3ngine/client-core/components/ui/Icons/Vricon";
 import { Engine } from "@xr3ngine/engine/src/ecs/classes/Engine";
 import { EngineEvents } from "@xr3ngine/engine/src/ecs/classes/EngineEvents";
 import { XRSystem } from "@xr3ngine/engine/src/xr/systems/XRSystem";

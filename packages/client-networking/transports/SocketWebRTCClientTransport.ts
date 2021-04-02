@@ -6,7 +6,7 @@ import * as mediasoupClient from "mediasoup-client";
 import { Transport as MediaSoupTransport } from "mediasoup-client/lib/types";
 import getConfig from "next/config";
 import ioclient from "socket.io-client";
-import { createDataProducer, endVideoChat, initReceiveTransport, initSendTransport, leave, subscribeToTrack } from "@xr3ngine/engine/src/networking/functions/SocketWebRTCClientFunctions";
+import { createDataProducer, endVideoChat, initReceiveTransport, initSendTransport, leave, subscribeToTrack } from "@xr3ngine/client-networking/transports/SocketWebRTCClientFunctions";
 import { EngineEvents } from "@xr3ngine/engine/src/ecs/classes/EngineEvents";
 import { ClientNetworkSystem } from "@xr3ngine/engine/src/networking/systems/ClientNetworkSystem";
 

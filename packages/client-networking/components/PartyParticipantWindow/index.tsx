@@ -1,11 +1,25 @@
-import React, {useEffect, useState, useRef} from 'react';
-// @ts-ignore
-import styles from './PartyParticipantWindow.module.scss';
-import { bindActionCreators } from "redux";
 import IconButton from '@material-ui/core/IconButton';
 import Slider from '@material-ui/core/Slider';
 import Tooltip from '@material-ui/core/Tooltip';
-import classNames from 'classnames';
+import {
+    Launch, Mic,
+    MicOff,
+    RecordVoiceOver,
+    Videocam,
+    VideocamOff,
+    VoiceOverOff,
+    VolumeDown,
+
+    VolumeMute, VolumeOff,
+
+    VolumeUp
+} from '@material-ui/icons';
+import { selectAppState } from '@xr3ngine/client-core/redux/app/selector';
+import { selectAuthState } from '@xr3ngine/client-core/redux/auth/selector';
+import { selectLocationState } from '@xr3ngine/client-core/redux/location/selector';
+import { selectMediastreamState } from "@xr3ngine/client-core/redux/mediastream/selector";
+import { updateCamAudioState, updateCamVideoState } from '@xr3ngine/client-core/redux/mediastream/service';
+import { MessageTypes } from "@xr3ngine/engine/src/networking/enums/MessageTypes";
 import {
     globalMuteProducer,
     globalUnmuteProducer,
@@ -13,36 +27,20 @@ import {
     pauseProducer,
     resumeConsumer,
     resumeProducer
-} from '@xr3ngine/engine/src/networking/functions/SocketWebRTCClientFunctions';
-
-import {
-    Mic,
-    MicOff,
-    RecordVoiceOver,
-    Videocam,
-    VideocamOff,
-    VoiceOverOff,
-    VolumeDown,
-    VolumeOff,
-    VolumeMute,
-    VolumeUp,
-    Launch,
-} from '@material-ui/icons';
+} from '@xr3ngine/client-networking/transports/SocketWebRTCClientFunctions';
+import { PositionalAudioSystem } from "@xr3ngine/engine/src/audio/systems/PositionalAudioSystem";
+import { Network } from "@xr3ngine/engine/src/networking/classes/Network";
 import { MediaStreamSystem } from '@xr3ngine/engine/src/networking/systems/MediaStreamSystem';
-import {Network} from "@xr3ngine/engine/src/networking/classes/Network";
-import {MessageTypes} from "@xr3ngine/engine/src/networking/enums/MessageTypes";
-import { EngineEvents } from "@xr3ngine/engine/src/ecs/classes/EngineEvents";
-import {selectAppState} from '../../../redux/app/selector';
-import {selectAuthState} from '../../../redux/auth/selector';
-import {selectLocationState} from '../../../redux/location/selector';
-import {selectMediastreamState} from "../../../redux/mediastream/selector";
-import {updateCamVideoState, updateCamAudioState} from '../../../redux/mediastream/service';
-import {selectUserState} from '../../../redux/user/selector';
-import {connect} from "react-redux";
-import {Dispatch} from "redux";
-import {PositionalAudioSystem} from "@xr3ngine/engine/src/audio/systems/PositionalAudioSystem";
-import { getAvatarURLFromNetwork } from "../UserMenu/util";
+import classNames from 'classnames';
+import React, { useEffect, useRef, useState } from 'react';
+import { connect } from "react-redux";
+import { Dispatch } from "redux";
+import { selectUserState } from '@xr3ngine/client-core/redux/user/selector';
+import { getAvatarURLFromNetwork } from "@xr3ngine/client-core/components/ui/UserMenu/util";
 import Draggable from './Draggable';
+// @ts-ignore
+import styles from './PartyParticipantWindow.module.scss';
+
 
 
 interface ContainerProportions {

@@ -12,9 +12,9 @@ import {
     ListItemIcon,
     ListItemText, SwipeableDrawer,
     TextField,
-    Tooltip,
     Typography
 } from '@material-ui/core';
+import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 import {
     Add,
     Call,
@@ -24,7 +24,6 @@ import {
     Delete,
     Edit,
     ExpandMore,
-    Forum,
     Grain,
     Group,
     GroupAdd,
@@ -37,12 +36,18 @@ import {
     Send,
     Settings,
     ThreeDRotation,
-    Videocam,
-    VideocamOff
+    Videocam
 } from '@material-ui/icons';
 import PartyParticipantWindow from '@xr3ngine/client-core/components/ui/PartyParticipantWindow';
+import ProfileMenu from "@xr3ngine/client-core/components/ui/UserMenu/menus/ProfileMenu";
 import { selectAuthState } from '@xr3ngine/client-core/redux/auth/selector';
 import { doLoginAuto } from '@xr3ngine/client-core/redux/auth/service';
+import { selectChannelConnectionState } from '@xr3ngine/client-core/redux/channelConnection/selector';
+import {
+    connectToChannelServer,
+    provisionChannelServer,
+    resetChannelServer
+} from '@xr3ngine/client-core/redux/channelConnection/service';
 import { selectChatState } from '@xr3ngine/client-core/redux/chat/selector';
 import {
     createMessage,
@@ -53,57 +58,49 @@ import {
     updateChatTarget,
     updateMessageScrollInit
 } from '@xr3ngine/client-core/redux/chat/service';
-import { selectChannelConnectionState } from '@xr3ngine/client-core/redux/channelConnection/selector';
-import {
-    connectToChannelServer,
-    provisionChannelServer,
-    resetChannelServer
-} from '@xr3ngine/client-core/redux/channelConnection/service';
+import { selectFriendState } from "@xr3ngine/client-core/redux/friend/selector";
+import { getFriends, unfriend } from "@xr3ngine/client-core/redux/friend/service";
+import { selectGroupState } from "@xr3ngine/client-core/redux/group/selector";
+import { createGroup, getGroups, patchGroup, removeGroup, removeGroupUser } from "@xr3ngine/client-core/redux/group/service";
+import { updateInviteTarget } from "@xr3ngine/client-core/redux/invite/service";
+import { selectLocationState } from "@xr3ngine/client-core/redux/location/selector";
+import { banUserFromLocation } from "@xr3ngine/client-core/redux/location/service";
+import { selectMediastreamState } from "@xr3ngine/client-core/redux/mediastream/selector";
+import { updateCamAudioState, updateCamVideoState } from '@xr3ngine/client-core/redux/mediastream/service';
+import { selectTransportState } from '@xr3ngine/client-core/redux/transport/selector';
+import { changeChannelTypeState, updateChannelTypeState } from "@xr3ngine/client-core/redux/transport/service";
 import { selectUserState } from '@xr3ngine/client-core/redux/user/selector';
+import { getLayerUsers } from "@xr3ngine/client-core/redux/user/service";
+import { Group as GroupType } from "@xr3ngine/common/interfaces/Group";
 import { Message } from '@xr3ngine/common/interfaces/Message';
 import { User } from '@xr3ngine/common/interfaces/User';
+import { isMobileOrTablet } from '@xr3ngine/engine/src/common/functions/isMobile';
+import { EngineEvents } from '@xr3ngine/engine/src/ecs/classes/EngineEvents';
 import { DefaultInitializationOptions, initializeEngine } from '@xr3ngine/engine/src/initialize';
-import { SocketWebRTCClientTransport } from '@xr3ngine/engine/src/networking/classes/SocketWebRTCClientTransport';
-import {
-    configureMediaTransports,
-    createCamAudioProducer,
-    createCamVideoProducer,
-    endVideoChat,
-    pauseProducer,
-    resumeProducer,
-    leave,
-    setRelationship
-} from '@xr3ngine/engine/src/networking/functions/SocketWebRTCClientFunctions';
-import {NetworkSchema} from '@xr3ngine/engine/src/networking/interfaces/NetworkSchema';
+import { Network } from '@xr3ngine/engine/src/networking/classes/Network';
+import { NetworkSchema } from '@xr3ngine/engine/src/networking/interfaces/NetworkSchema';
 import { MediaStreamSystem } from '@xr3ngine/engine/src/networking/systems/MediaStreamSystem';
-import {DefaultNetworkSchema} from '@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema';
+import { DefaultNetworkSchema } from '@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema';
 import classNames from 'classnames';
 import moment from 'moment';
 import React, { useEffect, useRef, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
+import { selectPartyState } from "../../redux/party/selector";
+import { createParty, getParty, removeParty, removePartyUser, transferPartyOwner } from "../../redux/party/service";
+import {
+    configureMediaTransports,
+    createCamAudioProducer,
+    createCamVideoProducer,
+    endVideoChat,
+
+
+    leave, pauseProducer,
+    resumeProducer
+} from '../../transports/SocketWebRTCClientFunctions';
+import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport';
 //@ts-ignore
 import styles from './Harmony.module.scss';
-import { Network } from '@xr3ngine/engine/src/networking/classes/Network';
-import { EngineEvents } from '@xr3ngine/engine/src/ecs/classes/EngineEvents';
-import {getFriends, unfriend} from "@xr3ngine/client-core/redux/friend/service";
-import {createGroup, getGroups, patchGroup, removeGroup, removeGroupUser} from "../../../redux/group/service";
-import {createParty, getParty, removeParty, removePartyUser, transferPartyOwner} from "../../../redux/party/service";
-import {updateInviteTarget} from "@xr3ngine/client-core/redux/invite/service";
-import {getLayerUsers} from "../../../redux/user/service";
-import {banUserFromLocation} from "../../../redux/location/service";
-import {updateCamVideoState, updateCamAudioState} from '../../../redux/mediastream/service';
-import {updateChannelTypeState, changeChannelTypeState} from "../../../redux/transport/service";
-import {selectFriendState} from "../../../redux/friend/selector";
-import {selectGroupState} from "../../../redux/group/selector";
-import {selectLocationState} from "../../../redux/location/selector";
-import {selectPartyState} from "../../../redux/party/selector";
-import {selectTransportState} from '../../../redux/transport/selector';
-import {selectMediastreamState} from "../../../redux/mediastream/selector";
-import {Group as GroupType} from "@xr3ngine/common/interfaces/Group";
-import { isMobileOrTablet } from '@xr3ngine/engine/src/common/functions/isMobile';
-import ProfileMenu from "../UserMenu/menus/ProfileMenu";
-import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 
 const engineRendererCanvasId = 'engine-renderer-canvas';
 
@@ -378,7 +375,7 @@ const Harmony = (props: Props): any => {
         }
     }, [chatState]);
 
-    useEffect(() =>  {
+    useEffect(() => {
         if (channelState.get('updateNeeded') === true) {
             getChannels();
         }
@@ -436,7 +433,7 @@ const Harmony = (props: Props): any => {
         setComposingMessage('');
     };
 
-    const connectToWorldHandler = async(): Promise<void> => {
+    const connectToWorldHandler = async (): Promise<void> => {
         if (lastConnectToWorldIdRef.current !== activeAVChannelIdRef.current) {
             setLastConnectToWorldId(activeAVChannelIdRef.current);
             await toggleAudio(activeAVChannelIdRef.current);
@@ -465,7 +462,7 @@ const Harmony = (props: Props): any => {
     };
 
     const onChannelScroll = (e): void => {
-        if ((e.target.scrollHeight - e.target.scrollTop) === e.target.clientHeight ) {
+        if ((e.target.scrollHeight - e.target.scrollTop) === e.target.clientHeight) {
             nextChannelPage();
         }
     };
@@ -592,7 +589,7 @@ const Harmony = (props: Props): any => {
         updateCamVideoState();
     };
 
-    const handleStartCall = async(e: any) => {
+    const handleStartCall = async (e: any) => {
         e.stopPropagation();
         const channel = channels.get(targetChannelId);
         const channelType = channel.instanceId != null ? 'instance' : 'channel';
@@ -610,7 +607,7 @@ const Harmony = (props: Props): any => {
         }
     };
 
-    const handleEndCall = async(e: any) => {
+    const handleEndCall = async (e: any) => {
         e.stopPropagation();
         changeChannelTypeState('', '');
         await endVideoChat({});
@@ -620,7 +617,7 @@ const Harmony = (props: Props): any => {
         updateCamAudioState();
     };
 
-    const toggleAudio = async(channelId) => {
+    const toggleAudio = async (channelId) => {
         await checkMediaStream('channel', channelId);
 
         if (MediaStreamSystem.instance?.camAudioProducer == null) await createCamAudioProducer('channel', channelId);
@@ -632,7 +629,7 @@ const Harmony = (props: Props): any => {
         }
     };
 
-    const toggleVideo = async(channelId) => {
+    const toggleVideo = async (channelId) => {
         await checkMediaStream('channel', channelId);
         if (MediaStreamSystem.instance?.camVideoProducer == null) await createCamVideoProducer('channel', channelId);
         else {
@@ -757,9 +754,9 @@ const Harmony = (props: Props): any => {
     const isActiveChat = (channelType: string, targetObjectId: string): boolean => {
         const channelEntries = [...channels.entries()];
         const channelMatch = channelType === 'instance' ? channelEntries.find((entry) => entry[1].instanceId === targetObjectId) :
-                             channelType === 'group' ? channelEntries.find((entry) => entry[1].groupId === targetObjectId) :
-                             channelType === 'friend' ? channelEntries.find((entry) => (entry[1].userId1 === targetObjectId || entry[1].userId2 === targetObjectId)) :
-                             channelEntries.find((entry) => entry[1].partyId === targetObjectId);
+            channelType === 'group' ? channelEntries.find((entry) => entry[1].groupId === targetObjectId) :
+                channelType === 'friend' ? channelEntries.find((entry) => (entry[1].userId1 === targetObjectId || entry[1].userId2 === targetObjectId)) :
+                    channelEntries.find((entry) => entry[1].partyId === targetObjectId);
         return channelMatch != null && channelMatch[0] === targetChannelId;
     };
 
@@ -806,23 +803,24 @@ const Harmony = (props: Props): any => {
                 [styles.partyButton]: true,
                 [styles.activeChat]: party != null && isActiveChat('party', party.id)
             })}
-                 onClick={(e) => {
-                     if (party != null) {
-                         setActiveChat('party', party);
-                         if (isMobileOrTablet() === true || dimensions.width <= 768) setSelectorsOpen(false);
-                     } else openDetails(e, 'party', party);}}
+                onClick={(e) => {
+                    if (party != null) {
+                        setActiveChat('party', party);
+                        if (isMobileOrTablet() === true || dimensions.width <= 768) setSelectorsOpen(false);
+                    } else openDetails(e, 'party', party);
+                }}
             >
-                <PeopleOutline className={styles['icon-margin-right']}/>
+                <PeopleOutline className={styles['icon-margin-right']} />
                 <span>Party</span>
                 <div className={classNames({
                     [styles.activeAVCall]: party != null && isActiveAVCall('party', party.id)
                 })} />
-                { party != null && party.id != null && party.id !== '' && <ListItemIcon className={styles.groupEdit} onClick={(e) => openDetails(e,'party', party)}><Settings/></ListItemIcon>}
+                {party != null && party.id != null && party.id !== '' && <ListItemIcon className={styles.groupEdit} onClick={(e) => openDetails(e, 'party', party)}><Settings /></ListItemIcon>}
             </div>
-            { selfUser.instanceId != null && <div className={classNames({
-                    [styles.instanceButton]: true,
-                    [styles.activeChat]: isActiveChat('instance', selfUser.instanceId)
-                })}
+            {selfUser.instanceId != null && <div className={classNames({
+                [styles.instanceButton]: true,
+                [styles.activeChat]: isActiveChat('instance', selfUser.instanceId)
+            })}
                 onClick={() => {
                     setActiveChat('instance', {
                         id: selfUser.instanceId
@@ -830,123 +828,123 @@ const Harmony = (props: Props): any => {
                     if (isMobileOrTablet() === true || dimensions.width <= 768) setSelectorsOpen(false);
                 }}
             >
-                <Grain className={styles['icon-margin-right']}/>
+                <Grain className={styles['icon-margin-right']} />
                 <span>Here</span>
                 <div className={classNames({
                     [styles.activeAVCall]: isActiveAVCall('instance', selfUser.instanceId)
                 })} />
-            </div> }
+            </div>}
         </div>
         {selfUser.userRole !== 'guest' &&
-        <Accordion expanded={selectedAccordion === 'user'} onChange={handleAccordionSelect('user') } className={styles['MuiAccordion-root']}>
-            <AccordionSummary
-                id="friends-header"
-                expandIcon={<ExpandMore/>}
-                aria-controls="friends-content"
-            >
-                <Group className={styles['icon-margin-right']}/>
-                <Typography>Friends</Typography>
-            </AccordionSummary>
-            <AccordionDetails className={styles['list-container']}>
-                <div className={styles['flex-center']}>
-                    <Button
-                        variant="contained"
-                        color="primary"
-                        startIcon={<Add/>}
-                        onClick={() => openInvite('user')}>
-                        Invite Friend
-                    </Button>
-                </div>
-                <List
-                    onScroll={(e) => onListScroll(e)}
+            <Accordion expanded={selectedAccordion === 'user'} onChange={handleAccordionSelect('user')} className={styles['MuiAccordion-root']}>
+                <AccordionSummary
+                    id="friends-header"
+                    expandIcon={<ExpandMore />}
+                    aria-controls="friends-content"
                 >
-                    {friends && friends.length > 0 && friends.sort((a, b) => a.name - b.name).map((friend, index) => {
-                        return <div key={friend.id}>
-                            <ListItem className={classNames({
-                                [styles.selectable]: true,
-                                [styles.activeChat]: isActiveChat('user', friend.id)
-                            })}
-                                      onClick={() => {
-                                          setActiveChat('user', friend);
-                                          if (isMobileOrTablet() === true || dimensions.width <= 768) setSelectorsOpen(false);
-                                      }}
-                            >
-                                <ListItemAvatar>
-                                    <Avatar src={friend.avatarUrl}/>
-                                </ListItemAvatar>
-                                <ListItemText primary={friend.name}/>
-                                <div className={classNames({
-                                    [styles.activeAVCall]: isActiveAVCall('user', friend.id)
-                                })} />
-                                <ListItemIcon className={styles.groupEdit} onClick={(e) => openDetails(e,'user', friend)}><Settings/></ListItemIcon>
-                            </ListItem>
-                            {index < friends.length - 1 && <Divider/>}
-                        </div>;
-                    })
-                    }
-                </List>
-            </AccordionDetails>
-        </Accordion>
+                    <Group className={styles['icon-margin-right']} />
+                    <Typography>Friends</Typography>
+                </AccordionSummary>
+                <AccordionDetails className={styles['list-container']}>
+                    <div className={styles['flex-center']}>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            startIcon={<Add />}
+                            onClick={() => openInvite('user')}>
+                            Invite Friend
+                    </Button>
+                    </div>
+                    <List
+                        onScroll={(e) => onListScroll(e)}
+                    >
+                        {friends && friends.length > 0 && friends.sort((a, b) => a.name - b.name).map((friend, index) => {
+                            return <div key={friend.id}>
+                                <ListItem className={classNames({
+                                    [styles.selectable]: true,
+                                    [styles.activeChat]: isActiveChat('user', friend.id)
+                                })}
+                                    onClick={() => {
+                                        setActiveChat('user', friend);
+                                        if (isMobileOrTablet() === true || dimensions.width <= 768) setSelectorsOpen(false);
+                                    }}
+                                >
+                                    <ListItemAvatar>
+                                        <Avatar src={friend.avatarUrl} />
+                                    </ListItemAvatar>
+                                    <ListItemText primary={friend.name} />
+                                    <div className={classNames({
+                                        [styles.activeAVCall]: isActiveAVCall('user', friend.id)
+                                    })} />
+                                    <ListItemIcon className={styles.groupEdit} onClick={(e) => openDetails(e, 'user', friend)}><Settings /></ListItemIcon>
+                                </ListItem>
+                                {index < friends.length - 1 && <Divider />}
+                            </div>;
+                        })
+                        }
+                    </List>
+                </AccordionDetails>
+            </Accordion>
         }
         {selfUser.userRole !== 'guest' &&
-        <Accordion expanded={selectedAccordion === 'group'} onChange={handleAccordionSelect('group')} className={styles['MuiAccordion-root']}>
-            <AccordionSummary
-                id="groups-header"
-                expandIcon={<ExpandMore/>}
-                aria-controls="groups-content"
-            >
-                <GroupWork className={styles['icon-margin-right']}/>
-                <Typography>Groups</Typography>
-            </AccordionSummary>
-            <AccordionDetails className={styles['list-container']}>
-                <div className={styles['flex-center']}>
-                    <Button
-                        variant="contained"
-                        color="primary"
-                        startIcon={<Add/>}
-                        onClick={() => openGroupForm('create')}>
-                        Create Group
-                    </Button>
-                </div>
-                <List
-                    onScroll={(e) => onListScroll(e)}
+            <Accordion expanded={selectedAccordion === 'group'} onChange={handleAccordionSelect('group')} className={styles['MuiAccordion-root']}>
+                <AccordionSummary
+                    id="groups-header"
+                    expandIcon={<ExpandMore />}
+                    aria-controls="groups-content"
                 >
-                    {groups && groups.length > 0 && groups.sort((a, b) => a.name - b.name).map((group, index) => {
-                        return <div key={group.id}>
-                            <ListItem
-                                className={classNames({
-                                    [styles.selectable]: true,
-                                    [styles.activeChat]: isActiveChat('group', group.id)
-                                })}
-                                onClick={() => {
-                                    setActiveChat('group', group);
-                                    if (isMobileOrTablet() === true || dimensions.width <= 768) setSelectorsOpen(false);
-                                }}
-                            >
-                                <ListItemText primary={group.name}/>
-                                <div className={classNames({
-                                    [styles.activeAVCall]: isActiveAVCall('group', group.id)
-                                })} />
-                                <ListItemIcon className={styles.groupEdit} onClick={(e) => openDetails(e,'group', group)}><Settings/></ListItemIcon>
-                            </ListItem>
-                            {index < groups.length - 1 && <Divider/>}
-                        </div>;
-                    })
-                    }
-                </List>
-            </AccordionDetails>
-        </Accordion>
+                    <GroupWork className={styles['icon-margin-right']} />
+                    <Typography>Groups</Typography>
+                </AccordionSummary>
+                <AccordionDetails className={styles['list-container']}>
+                    <div className={styles['flex-center']}>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            startIcon={<Add />}
+                            onClick={() => openGroupForm('create')}>
+                            Create Group
+                    </Button>
+                    </div>
+                    <List
+                        onScroll={(e) => onListScroll(e)}
+                    >
+                        {groups && groups.length > 0 && groups.sort((a, b) => a.name - b.name).map((group, index) => {
+                            return <div key={group.id}>
+                                <ListItem
+                                    className={classNames({
+                                        [styles.selectable]: true,
+                                        [styles.activeChat]: isActiveChat('group', group.id)
+                                    })}
+                                    onClick={() => {
+                                        setActiveChat('group', group);
+                                        if (isMobileOrTablet() === true || dimensions.width <= 768) setSelectorsOpen(false);
+                                    }}
+                                >
+                                    <ListItemText primary={group.name} />
+                                    <div className={classNames({
+                                        [styles.activeAVCall]: isActiveAVCall('group', group.id)
+                                    })} />
+                                    <ListItemIcon className={styles.groupEdit} onClick={(e) => openDetails(e, 'group', group)}><Settings /></ListItemIcon>
+                                </ListItem>
+                                {index < groups.length - 1 && <Divider />}
+                            </div>;
+                        })
+                        }
+                    </List>
+                </AccordionDetails>
+            </Accordion>
         }
         {
             selfUser && selfUser.instanceId &&
             <Accordion expanded={selectedAccordion === 'layerUsers'}
-                       onChange={handleAccordionSelect('layerUsers')}>
+                onChange={handleAccordionSelect('layerUsers')}>
                 <AccordionSummary
                     id="layer-user-header"
-                    expandIcon={<ExpandMore/>}
+                    expandIcon={<ExpandMore />}
                     aria-controls="layer-user-content"
                 >
-                    <Public className={styles['icon-margin-right']}/>
+                    <Public className={styles['icon-margin-right']} />
                     <Typography>Layer Users</Typography>
                 </AccordionSummary>
                 <AccordionDetails className={classNames({
@@ -964,43 +962,43 @@ const Harmony = (props: Props): any => {
                             onScroll={(e) => onListScroll(e)}
                         >
                             {instanceLayerUsers && instanceLayerUsers.length > 0 && instanceLayerUsers.sort((a, b) => a.name - b.name).map((layerUser) => {
-                                    return <ListItem key={layerUser.id}>
-                                        <ListItemAvatar>
-                                            <Avatar src={layerUser.avatarUrl}/>
-                                        </ListItemAvatar>
-                                        {selfUser.id === layerUser.id &&
-                                        <ListItemText primary={layerUser.name + ' (you)'}/>}
-                                        {selfUser.id !== layerUser.id &&
-                                        <ListItemText primary={layerUser.name}/>}
-                                        {/*{*/}
-                                        {/*    locationBanPending !== layerUser.id &&*/}
-                                        {/*    isLocationAdmin === true &&*/}
-                                        {/*    selfUser.id !== layerUser.id &&*/}
-                                        {/*    layerUser.locationAdmins?.find(locationAdmin => locationAdmin.locationId === currentLocation.id) == null &&*/}
-                                        {/*    <Tooltip title="Ban user">*/}
-                                        {/*        <Button onClick={(e) => showLocationBanConfirm(e, layerUser.id)}>*/}
-                                        {/*            <Block/>*/}
-                                        {/*        </Button>*/}
-                                        {/*    </Tooltip>*/}
-                                        {/*}*/}
-                                        {/*{locationBanPending === layerUser.id &&*/}
-                                        {/*<div>*/}
-                                        {/*    <Button variant="contained"*/}
-                                        {/*            color="primary"*/}
-                                        {/*            onClick={(e) => confirmLocationBan(e, layerUser.id)}*/}
-                                        {/*    >*/}
-                                        {/*        Ban User*/}
-                                        {/*    </Button>*/}
-                                        {/*    <Button variant="contained"*/}
-                                        {/*            color="secondary"*/}
-                                        {/*            onClick={(e) => cancelLocationBan(e)}*/}
-                                        {/*    >*/}
-                                        {/*        Cancel*/}
-                                        {/*    </Button>*/}
-                                        {/*</div>*/}
-                                        {/*}*/}
-                                    </ListItem>;
-                                }
+                                return <ListItem key={layerUser.id}>
+                                    <ListItemAvatar>
+                                        <Avatar src={layerUser.avatarUrl} />
+                                    </ListItemAvatar>
+                                    {selfUser.id === layerUser.id &&
+                                        <ListItemText primary={layerUser.name + ' (you)'} />}
+                                    {selfUser.id !== layerUser.id &&
+                                        <ListItemText primary={layerUser.name} />}
+                                    {/*{*/}
+                                    {/*    locationBanPending !== layerUser.id &&*/}
+                                    {/*    isLocationAdmin === true &&*/}
+                                    {/*    selfUser.id !== layerUser.id &&*/}
+                                    {/*    layerUser.locationAdmins?.find(locationAdmin => locationAdmin.locationId === currentLocation.id) == null &&*/}
+                                    {/*    <Tooltip title="Ban user">*/}
+                                    {/*        <Button onClick={(e) => showLocationBanConfirm(e, layerUser.id)}>*/}
+                                    {/*            <Block/>*/}
+                                    {/*        </Button>*/}
+                                    {/*    </Tooltip>*/}
+                                    {/*}*/}
+                                    {/*{locationBanPending === layerUser.id &&*/}
+                                    {/*<div>*/}
+                                    {/*    <Button variant="contained"*/}
+                                    {/*            color="primary"*/}
+                                    {/*            onClick={(e) => confirmLocationBan(e, layerUser.id)}*/}
+                                    {/*    >*/}
+                                    {/*        Ban User*/}
+                                    {/*    </Button>*/}
+                                    {/*    <Button variant="contained"*/}
+                                    {/*            color="secondary"*/}
+                                    {/*            onClick={(e) => cancelLocationBan(e)}*/}
+                                    {/*    >*/}
+                                    {/*        Cancel*/}
+                                    {/*    </Button>*/}
+                                    {/*</div>*/}
+                                    {/*}*/}
+                                </ListItem>;
+                            }
                             )
                             }
                         </List>
@@ -1025,7 +1023,7 @@ const Harmony = (props: Props): any => {
                     [styles['flex-column']]: true,
                     [styles['list-container']]: true
                 })}
-                BackdropProps={{invisible: true}}
+                BackdropProps={{ invisible: true }}
                 anchor="left"
                 open={selectorsOpen === true}
                 onClose={() => {
@@ -1037,24 +1035,24 @@ const Harmony = (props: Props): any => {
             >
                 <div className={styles['close-button']} onClick={() => setSelectorsOpen(false)}><Close /></div>
                 {chatSelectors}
-            </SwipeableDrawer> }
+            </SwipeableDrawer>}
             { (isMobileOrTablet() !== true && dimensions.width > 768) && chatSelectors}
             <div className={styles['chat-window']}>
                 <div className={styles['harmony-header']}>
-                    { (isMobileOrTablet() === true || dimensions.width <= 768) && <div className={classNames({
+                    {(isMobileOrTablet() === true || dimensions.width <= 768) && <div className={classNames({
                         [styles['chat-toggle']]: true,
                         [styles.iconContainer]: true
-                    })} onClick={() => setSelectorsOpen(true)}><Group /></div> }
-                    { targetChannelId?.length > 0 && <header className={styles.mediaControls}>
-                        { activeAVChannelId === '' &&
+                    })} onClick={() => setSelectorsOpen(true)}><Group /></div>}
+                    {targetChannelId?.length > 0 && <header className={styles.mediaControls}>
+                        {activeAVChannelId === '' &&
                             <div className={classNames({
                                 [styles.iconContainer]: true,
                                 [styles.startCall]: true
                             })} onClick={(e) => handleStartCall(e)}>
-                                <Call/>
+                                <Call />
                             </div>
                         }
-                        { activeAVChannelId !== '' &&
+                        {activeAVChannelId !== '' &&
                             <div className={styles.activeCallControls}>
                                 <div className={classNames({
                                     [styles.iconContainer]: true,
@@ -1072,9 +1070,9 @@ const Harmony = (props: Props): any => {
                                 </div>}
                             </div>
                         }
-                        </header>
+                    </header>
                     }
-                    { targetChannelId?.length === 0 && <div />}
+                    {targetChannelId?.length === 0 && <div />}
 
                     <div className={styles.controls}>
                         <div className={classNames({
@@ -1085,15 +1083,15 @@ const Harmony = (props: Props): any => {
                             [styles['invite-toggle']]: true,
                             [styles.iconContainer]: true
                         })} onClick={() => openInvite()}><GroupAdd /></div>
-                        { isHarmonyPage !== true && <div className={classNames({
+                        {isHarmonyPage !== true && <div className={classNames({
                             [styles['harmony-toggle']]: true,
                             [styles.iconContainer]: true
-                        })} onClick={() => closeHarmony()}><ThreeDRotation /></div> }
+                        })} onClick={() => closeHarmony()}><ThreeDRotation /></div>}
                     </div>
                 </div>
-                { activeAVChannelId !== '' && <div className={styles['video-container']}>
-                    <div className={ styles['active-chat-plate']} >{ getAVChannelName() }</div>
-                    <Grid className={ styles['party-user-container']} container direction="row">
+                {activeAVChannelId !== '' && <div className={styles['video-container']}>
+                    <div className={styles['active-chat-plate']} >{getAVChannelName()}</div>
+                    <Grid className={styles['party-user-container']} container direction="row">
                         <Grid item className={
                             classNames({
                                 [styles['grid-item']]: true,
@@ -1110,20 +1108,20 @@ const Harmony = (props: Props): any => {
                                 peerId={'me_cam'}
                             />
                         </Grid>
-                        { layerUsers.filter(user => user.id !== selfUser.id).map((user) => (
+                        {layerUsers.filter(user => user.id !== selfUser.id).map((user) => (
                             <Grid item
-                                  key={user.id}
-                                  className={
-                                classNames({
-                                    [styles['grid-item']]: true,
-                                    [styles.single]: layerUsers.length == null || layerUsers.length <= 1,
-                                    [styles.two]: layerUsers.length === 2,
-                                    [styles.four]: layerUsers.length === 3 && layerUsers.length === 4,
-                                    [styles.six]: layerUsers.length === 5 && layerUsers.length === 6,
-                                    [styles.nine]: layerUsers.length >= 7 && layerUsers.length <= 9,
-                                    [styles.many]: layerUsers.length > 9
-                                })
-                            }>
+                                key={user.id}
+                                className={
+                                    classNames({
+                                        [styles['grid-item']]: true,
+                                        [styles.single]: layerUsers.length == null || layerUsers.length <= 1,
+                                        [styles.two]: layerUsers.length === 2,
+                                        [styles.four]: layerUsers.length === 3 && layerUsers.length === 4,
+                                        [styles.six]: layerUsers.length === 5 && layerUsers.length === 6,
+                                        [styles.nine]: layerUsers.length >= 7 && layerUsers.length <= 9,
+                                        [styles.many]: layerUsers.length > 9
+                                    })
+                                }>
                                 <PartyParticipantWindow
                                     harmony={true}
                                     peerId={user.id}
@@ -1132,11 +1130,11 @@ const Harmony = (props: Props): any => {
                             </Grid>
                         ))}
                     </Grid>
-                </div> }
+                </div>}
                 <div className={styles['list-container']}>
-                    { targetChannelId != null && targetChannelId !== '' && <div className={ styles['active-chat-plate']} >{ getChannelName() }</div> }
+                    {targetChannelId != null && targetChannelId !== '' && <div className={styles['active-chat-plate']} >{getChannelName()}</div>}
                     <List ref={(messageRef as any)} onScroll={(e) => onMessageScroll(e)} className={styles['message-container']}>
-                        { activeChannel != null && activeChannel.messages && activeChannel.messages.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()).map((message) => {
+                        {activeChannel != null && activeChannel.messages && activeChannel.messages.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()).map((message) => {
                             return <ListItem
                                 className={classNames({
                                     [styles.message]: true,
@@ -1149,137 +1147,137 @@ const Harmony = (props: Props): any => {
                                 onTouchEnd={(e) => toggleMessageCrudSelect(e, message)}
                             >
                                 <div>
-                                    { message.senderId !== selfUser.id &&
-                                    <ListItemAvatar>
-                                        <Avatar src={message.sender?.avatarUrl}/>
-                                    </ListItemAvatar>
+                                    {message.senderId !== selfUser.id &&
+                                        <ListItemAvatar>
+                                            <Avatar src={message.sender?.avatarUrl} />
+                                        </ListItemAvatar>
                                     }
                                     {messageUpdatePending !== message.id &&
-                                    <ListItemText
-                                        primary={message.text}
-                                        secondary={generateMessageSecondary(message)}
-                                    />
+                                        <ListItemText
+                                            primary={message.text}
+                                            secondary={generateMessageSecondary(message)}
+                                        />
                                     }
                                     {message.senderId === selfUser.id && messageUpdatePending !== message.id &&
-                                    <div className='message-crud'>
-                                        { messageDeletePending !== message.id && messageCrudSelected === message.id &&
-                                        <div className={styles['crud-controls']}>
-                                            {messageDeletePending !== message.id &&
-                                            <Edit className={styles.edit}
-                                                  onClick={(e) => loadMessageEdit(e, message)}
-                                                  onTouchEnd={(e) => loadMessageEdit(e, message)}
-                                            />
-                                            }
-                                            {messageDeletePending !== message.id &&
-                                            <Delete className={styles.delete}
-                                                    onClick={(e) => showMessageDeleteConfirm(e, message)}
-                                                    onTouchEnd={(e) => showMessageDeleteConfirm(e, message)}
-                                            />
-                                            }
-                                        </div>
-                                        }
-                                        {messageDeletePending === message.id &&
-                                        <div className={styles['crud-controls']}>
-                                            {messageDeletePending === message.id &&
-                                            <Delete className={styles.delete}
-                                                    onClick={(e) => confirmMessageDelete(e, message)}
-                                                    onTouchEnd={(e) => confirmMessageDelete(e, message)}
-                                            />
+                                        <div className='message-crud'>
+                                            {messageDeletePending !== message.id && messageCrudSelected === message.id &&
+                                                <div className={styles['crud-controls']}>
+                                                    {messageDeletePending !== message.id &&
+                                                        <Edit className={styles.edit}
+                                                            onClick={(e) => loadMessageEdit(e, message)}
+                                                            onTouchEnd={(e) => loadMessageEdit(e, message)}
+                                                        />
+                                                    }
+                                                    {messageDeletePending !== message.id &&
+                                                        <Delete className={styles.delete}
+                                                            onClick={(e) => showMessageDeleteConfirm(e, message)}
+                                                            onTouchEnd={(e) => showMessageDeleteConfirm(e, message)}
+                                                        />
+                                                    }
+                                                </div>
                                             }
                                             {messageDeletePending === message.id &&
-                                            <Clear className={styles.cancel}
-                                                   onClick={(e) => cancelMessageDelete(e)}
-                                                   onTouchEnd={(e) => cancelMessageDelete(e)}
-                                            />
+                                                <div className={styles['crud-controls']}>
+                                                    {messageDeletePending === message.id &&
+                                                        <Delete className={styles.delete}
+                                                            onClick={(e) => confirmMessageDelete(e, message)}
+                                                            onTouchEnd={(e) => confirmMessageDelete(e, message)}
+                                                        />
+                                                    }
+                                                    {messageDeletePending === message.id &&
+                                                        <Clear className={styles.cancel}
+                                                            onClick={(e) => cancelMessageDelete(e)}
+                                                            onTouchEnd={(e) => cancelMessageDelete(e)}
+                                                        />
+                                                    }
+                                                </div>
                                             }
                                         </div>
-                                        }
-                                    </div>
                                     }
                                     {messageUpdatePending === message.id &&
-                                    <div className={styles['message-edit']}>
-                                        <TextField
-                                            variant="outlined"
-                                            margin="normal"
-                                            multiline
-                                            fullWidth
-                                            id="editingMessage"
-                                            placeholder="Abc"
-                                            name="editingMessage"
-                                            autoFocus
-                                            value={editingMessage}
-                                            inputProps={{
-                                                maxLength: 1000
-                                            }}
-                                            onChange={handleEditingMessageChange}
-                                        />
-                                        <div className={styles['editing-controls']}>
-                                            <Clear className={styles.cancel} onClick={(e) => cancelMessageUpdate(e)} onTouchEnd={(e) => cancelMessageUpdate(e)}/>
-                                            <Save className={styles.save} onClick={(e) => confirmMessageUpdate(e, message)} onTouchEnd={(e) => confirmMessageUpdate(e, message)}/>
+                                        <div className={styles['message-edit']}>
+                                            <TextField
+                                                variant="outlined"
+                                                margin="normal"
+                                                multiline
+                                                fullWidth
+                                                id="editingMessage"
+                                                placeholder="Abc"
+                                                name="editingMessage"
+                                                autoFocus
+                                                value={editingMessage}
+                                                inputProps={{
+                                                    maxLength: 1000
+                                                }}
+                                                onChange={handleEditingMessageChange}
+                                            />
+                                            <div className={styles['editing-controls']}>
+                                                <Clear className={styles.cancel} onClick={(e) => cancelMessageUpdate(e)} onTouchEnd={(e) => cancelMessageUpdate(e)} />
+                                                <Save className={styles.save} onClick={(e) => confirmMessageUpdate(e, message)} onTouchEnd={(e) => confirmMessageUpdate(e, message)} />
+                                            </div>
                                         </div>
-                                    </div>
                                     }
                                 </div>
                             </ListItem>;
                         })
                         }
-                        { targetChannelId.length === 0 && targetObject.id != null &&
-                        <div className={styles['first-message-placeholder']}>
-                            <div>{targetChannelId}</div>
+                        {targetChannelId.length === 0 && targetObject.id != null &&
+                            <div className={styles['first-message-placeholder']}>
+                                <div>{targetChannelId}</div>
                             Start a chat with {(targetObjectType === 'user' || targetObjectType === 'group') ? targetObject.name : targetObjectType === 'instance' ? 'your current layer' : 'your current party'}
-                        </div>
+                            </div>
                         }
                     </List>
                     {targetObject != null && targetObject.id != null &&
-                    <div className={styles['flex-center']}>
-                        <div className={styles['chat-box']}>
-                            <TextField
-                                variant="outlined"
-                                margin="normal"
-                                multiline
-                                fullWidth
-                                id="newMessage"
-                                placeholder="Abc"
-                                name="newMessage"
-                                autoFocus
-                                value={composingMessage}
-                                inputProps={{
-                                    maxLength: 1000
-                                }}
-                                onKeyPress={(e) => {
-                                    if (e.shiftKey === false && e.charCode === 13) {
-                                        e.preventDefault();
-                                        packageMessage();
-                                    }
-                                }}
-                                onChange={handleComposingMessageChange}
-                            />
-                            <Button variant="contained"
+                        <div className={styles['flex-center']}>
+                            <div className={styles['chat-box']}>
+                                <TextField
+                                    variant="outlined"
+                                    margin="normal"
+                                    multiline
+                                    fullWidth
+                                    id="newMessage"
+                                    placeholder="Abc"
+                                    name="newMessage"
+                                    autoFocus
+                                    value={composingMessage}
+                                    inputProps={{
+                                        maxLength: 1000
+                                    }}
+                                    onKeyPress={(e) => {
+                                        if (e.shiftKey === false && e.charCode === 13) {
+                                            e.preventDefault();
+                                            packageMessage();
+                                        }
+                                    }}
+                                    onChange={handleComposingMessageChange}
+                                />
+                                <Button variant="contained"
                                     color="primary"
                                     className={styles['send-button']}
-                                    startIcon={<Send/>}
+                                    startIcon={<Send />}
                                     onClick={packageMessage}
-                            >
-                                Send
+                                >
+                                    Send
                             </Button>
+                            </div>
                         </div>
-                    </div>
                     }
-                    { (targetObject == null || targetObject.id == null) &&
-                    <div className={styles['no-chat']}>
-                        <div>
-                            Start a chat with a friend or group from the side panel
+                    {(targetObject == null || targetObject.id == null) &&
+                        <div className={styles['no-chat']}>
+                            <div>
+                                Start a chat with a friend or group from the side panel
                         </div>
-                    </div>
+                        </div>
                     }
                 </div>
             </div>
             { profileMenuOpen &&
-            <ClickAwayListener onClickAway={() => setProfileMenuOpen(false)}>
-                <div className={styles.profileMenu}>
-                    <ProfileMenu setProfileMenuOpen={setProfileMenuOpen}/>
-                </div>
-            </ClickAwayListener>
+                <ClickAwayListener onClickAway={() => setProfileMenuOpen(false)}>
+                    <div className={styles.profileMenu}>
+                        <ProfileMenu setProfileMenuOpen={setProfileMenuOpen} />
+                    </div>
+                </ClickAwayListener>
             }
         </div>
     );

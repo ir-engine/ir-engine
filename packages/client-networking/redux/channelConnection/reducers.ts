@@ -12,7 +12,7 @@ import {
   CHANNEL_SERVER_PROVISIONING,
   CHANNEL_SERVER_PROVISIONED,
   SOCKET_CREATED
-} from '../actions';
+} from '@xr3ngine/client-core/redux/actions';
 
 export const initialState = {
   instance: {
