@@ -69,7 +69,7 @@ export class WebGLRendererSystem extends System {
   renderPass: RenderPass;
   renderContext: WebGLRenderingContext;
 
-  forcePostProcessing: boolean = false;
+  forcePostProcessing = false;
   
   /** Constructs WebGL Renderer System. */
   constructor(attributes?: SystemAttributes) {
