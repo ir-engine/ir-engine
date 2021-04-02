@@ -725,58 +725,59 @@ const loadAvatarForUpdatedUser = async (user) => {
   });
 };
 
-client.service('user').on('patched', async (params) => {
-  console.log('User patched');
-  const selfUser = (store.getState() as any).get('auth').get('user');
-  const user = resolveUser(params.userRelationship);
+if(!publicRuntimeConfig.offlineMode) {
+  client.service('user').on('patched', async (params) => {
+    console.log('User patched');
+    const selfUser = (store.getState() as any).get('auth').get('user');
+    const user = resolveUser(params.userRelationship);
 
-  await loadAvatarForUpdatedUser(user);
+    await loadAvatarForUpdatedUser(user);
 
-  if (selfUser.id === user.id) {
-    if (selfUser.instanceId !== user.instanceId) store.dispatch(clearLayerUsers());
-    if (selfUser.channelInstanceId !== user.channelInstanceId) store.dispatch(clearChannelLayerUsers());
-    store.dispatch(userUpdated(user));
-    if (user.partyId) {
-      // setRelationship('party', user.partyId);
-    }
-    if (user.instanceId !== selfUser.instanceId) {
-      const parsed = new URL(window.location.href);
-      let query = parsed.searchParams;
-      query.set('instanceId', user.instanceId);
-      parsed.search = query.toString();
-      if (history.pushState) {
-        window.history.replaceState({}, '', parsed.toString());
+    if (selfUser.id === user.id) {
+      if (selfUser.instanceId !== user.instanceId) store.dispatch(clearLayerUsers());
+      if (selfUser.channelInstanceId !== user.channelInstanceId) store.dispatch(clearChannelLayerUsers());
+      store.dispatch(userUpdated(user));
+      if (user.partyId) {
+        // setRelationship('party', user.partyId);
       }
+      if (user.instanceId !== selfUser.instanceId) {
+        const parsed = new URL(window.location.href);
+        let query = parsed.searchParams;
+        query.set('instanceId', user.instanceId);
+        parsed.search = query.toString();
+        if (history.pushState) {
+          window.history.replaceState({}, '', parsed.toString());
+        }
+      }
+    } else {
+      if (user.channelInstanceId != null && user.channelInstanceId === selfUser.channelInstanceId) store.dispatch(addedChannelLayerUser(user));
+      if (user.instanceId != null && user.instanceId === selfUser.instanceId) {
+        store.dispatch(addedLayerUser(user));
+        store.dispatch(displayUserToast(user, { userAdded: true }));
+      }
+      if (user.instanceId !== selfUser.instanceId) {
+        store.dispatch(removedLayerUser(user));
+        store.dispatch(displayUserToast(user, { userRemoved: true }));
+      }
+      if (user.channelInstanceId !== selfUser.channelInstanceId) store.dispatch(removedChannelLayerUser(user));
     }
-  } else {
-    if (user.channelInstanceId != null && user.channelInstanceId === selfUser.channelInstanceId) store.dispatch(addedChannelLayerUser(user));
-    if (user.instanceId != null && user.instanceId === selfUser.instanceId) {
-      store.dispatch(addedLayerUser(user));
-      store.dispatch(displayUserToast(user, { userAdded: true }));
-    }
-    if (user.instanceId !== selfUser.instanceId) {
-      store.dispatch(removedLayerUser(user));
-      store.dispatch(displayUserToast(user, { userRemoved: true }));
-    }
-    if (user.channelInstanceId !== selfUser.channelInstanceId) store.dispatch(removedChannelLayerUser(user));
-  }
 
-});
-
-client.service('location-ban').on('created', async(params) => {
-  const state = store.getState() as any;
-  const selfUser = state.get('auth').get('user');
-  const party = state.get('party');
-  const selfPartyUser = party && party.partyUsers ? party.partyUsers.find((partyUser) => partyUser.userId === selfUser.id) : {};
-  const currentLocation = state.get('locations').get('currentLocation').get('location');
-  const locationBan = params.locationBan;
-  if (selfUser.id === locationBan.userId && currentLocation.id === locationBan.locationId) {
-    endVideoChat({ leftParty: true });
-    leave(true);
-    if (selfPartyUser.id != null) {
-      await client.service('party-user').remove(selfPartyUser.id);
+  });
+  client.service('location-ban').on('created', async(params) => {
+    const state = store.getState() as any;
+    const selfUser = state.get('auth').get('user');
+    const party = state.get('party');
+    const selfPartyUser = party && party.partyUsers ? party.partyUsers.find((partyUser) => partyUser.userId === selfUser.id) : {};
+    const currentLocation = state.get('locations').get('currentLocation').get('location');
+    const locationBan = params.locationBan;
+    if (selfUser.id === locationBan.userId && currentLocation.id === locationBan.locationId) {
+      endVideoChat({ leftParty: true });
+      leave(true);
+      if (selfPartyUser.id != null) {
+        await client.service('party-user').remove(selfPartyUser.id);
+      }
+      const user = resolveUser(await client.service('user').get(selfUser.id));
+      store.dispatch(userUpdated(user));
     }
-    const user = resolveUser(await client.service('user').get(selfUser.id));
-    store.dispatch(userUpdated(user));
-  }
-});
+  });
+}
