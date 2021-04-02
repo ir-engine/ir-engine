@@ -34,7 +34,7 @@ db.url = process.env.MYSQL_URL ??
  * Server / backend
  */
 const server = {
-  enabled: process.env.SERVER_ENABLED === 'true' ?? true,
+  enabled: process.env.SERVER_ENABLED !== 'false' ?? false,
   mode: process.env.SERVER_MODE ?? 'local',
   hostname: process.env.SERVER_HOSTNAME ?? '127.0.0.1',
   port: process.env.SERVER_PORT ?? 3030,

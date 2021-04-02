@@ -48,7 +48,6 @@ function isNullOrUndefined<T>(obj: T | null | undefined): obj is null | undefine
 }
 
 export class SocketWebRTCServerTransport implements NetworkTransport {
-    isServer = true
     server: https.Server
     socketIO: SocketIO.Server
     worker: Worker

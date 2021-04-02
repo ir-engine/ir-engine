@@ -29,7 +29,6 @@ export class ClientNetworkSystem extends System {
     super(attributes);
     
     const { schema, app } = attributes;
-    Network.instance.schema = schema;
     // Instantiate the provided transport (SocketWebRTCClientTransport / SocketWebRTCServerTransport by default)
     Network.instance.transport = new schema.transport(app);
   }
