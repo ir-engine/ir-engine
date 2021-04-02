@@ -1,14 +1,17 @@
+import { UserTagDimensions } from '@styled-icons/fa-solid/UserTag';
 import React, { Fragment } from 'react';
+import { useTranslation } from 'react-i18next';
 
 const Error = ({ statusCode }: { statusCode?: number }): any => {
+  const { t } = useTranslation();
   return (
     <Fragment>
       <p>
         {statusCode
-          ? `An error ${statusCode} occurred on server`
-          : 'An error occurred on client'}
+          ? t('error.withStatusCode', statusCode.toString()) // `An error ${statusCode} occurred on server`
+          : t('error.withoutStatusCode')}
       </p>
-      <a href="/">Go home</a>
+      <a href="/">{t('error.goHomeLink')}</a>
     </Fragment>
   );
 };
