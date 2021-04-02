@@ -112,22 +112,19 @@ export default class AvatarSelectMenu extends React.Component<Props, State> {
 	    this.scene.children = this.scene.children.filter(c => c.name !== 'avatar');
 	    const file = e.target.files[ 0 ];
 	    const reader = new FileReader();
-	    reader.onload = fileData => {
-			if (/\.(?:gltf|glb|vrm)/.test(file.name)) {
-				const loader = getLoader();
-				loader.parse(fileData.target.result, '', gltf => {
-					gltf.scene.name = 'avatar';
-					loadExtentions(gltf);
-					this.scene.add( gltf.scene );
-					this.renderScene();
-					const error = this.validate(gltf.scene);
-					this.setState({ error, obj: gltf.scene });
-				}, errormsg => {
-					console.error( errormsg );
-					this.setState({ error: 'Select valid 3d avatar file.'});
-				});
-			} else {
-				try {
+		reader.onload = fileData => {
+			try {
+				if (/\.(?:gltf|glb|vrm)/.test(file.name)) {
+					const loader = getLoader();
+					loader.parse(fileData.target.result, '', gltf => {
+						gltf.scene.name = 'avatar';
+						loadExtentions(gltf);
+						this.scene.add( gltf.scene );
+						this.renderScene();
+						const error = this.validate(gltf.scene);
+						this.setState({ error, obj: gltf.scene });
+					});
+				} else {
 					const loader = new FBXLoader();
 					const scene = loader.parse(fileData.target.result, file.name);
 					scene.name = 'avatar';
@@ -135,18 +132,20 @@ export default class AvatarSelectMenu extends React.Component<Props, State> {
 					this.renderScene();
 					const error = this.validate(scene);
 					this.setState({ error, obj: scene });
-				} catch (error) {
-					console.error(error);
-					this.setState({ error: 'Select valid 3d avatar file.'});
 				}
+			} catch (error) {
+				console.error(error);
+				this.setState({ error: 'Select valid 3d avatar file.'});
 			}
-	    };
+		};
+
 		try {
 			reader.readAsArrayBuffer( file );
 			this.fileSelected = true;
 			this.setState({ selectedFile: e.target.files[0] });
 		} catch (error) {
-			console.error("Failed to read file", error);
+			console.error(e);
+			this.setState({ error: 'Select valid 3d avatar file.'});
 		}
 	}
 

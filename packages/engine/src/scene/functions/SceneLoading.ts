@@ -23,8 +23,6 @@ export function loadScene(scene: SceneData): void {
         component.data.sceneEntityId = sceneEntity.entityId;
       }
 
-      loadComponent(entity, component);
-
       if (isClient && component.name === 'gltf-model' && !component.data.dontParseModel) {
         loadPromises.push(new Promise<void>((resolve) => {
           EngineEvents.instance.addEventListener(EngineEvents.EVENTS.ASSET_LOADER, (e) => {
@@ -36,6 +34,8 @@ export function loadScene(scene: SceneData): void {
           });
         }));
       }
+
+      loadComponent(entity, component);
     });
   });
 
