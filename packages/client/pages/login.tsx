@@ -5,6 +5,7 @@ import React, {useEffect} from 'react';
 import { connect } from "react-redux";
 import { bindActionCreators, Dispatch } from "redux";
 import ProfileMenu from "@xr3ngine/client-core/components/ui/UserMenu/menus/ProfileMenu";
+import { useTranslation } from 'react-i18next';
 
 interface Props {
     instanceConnectionState?: any;
@@ -25,6 +26,7 @@ export const IndexPage = (props: Props): any => {
   const {
     doLoginAuto
   } = props;
+  const { t } = useTranslation();
 
     useEffect(() => {
         doLoginAuto(true);
@@ -33,7 +35,7 @@ export const IndexPage = (props: Props): any => {
   // <Button className="right-bottom" variant="contained" color="secondary" aria-label="scene" onClick={(e) => { setSceneVisible(!sceneIsVisible); e.currentTarget.blur(); }}>scene</Button>
 
   return(
-      <EmptyLayout pageTitle="Home">
+      <EmptyLayout pageTitle={t('login.pageTitle')}>
           <style> {`
                 [class*=menuPanel] {
                     top: 75px;
