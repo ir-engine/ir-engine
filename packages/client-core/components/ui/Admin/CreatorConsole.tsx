@@ -100,7 +100,7 @@ const CreatorConsole = (props: Props) => {
         { id: 'userId', numeric: false, disablePadding: false, label: 'User ID' },
         { id: 'createdAt', numeric: false, disablePadding: false, label: 'Created' },
         { id: 'action', numeric: false, disablePadding: false, label: '' }
-    ]
+    ];
     function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
         if (b[orderBy] < a[orderBy]) {
             return -1;
