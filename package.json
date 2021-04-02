@@ -57,8 +57,8 @@
   "resolutions": {
     "socket.io": "2.4.1",
     "terser": "4.8.0",
-    "@typescript-eslint/eslint-plugin": "^4.1.1",
-    "@typescript-eslint/parser": "^4.1.1"
+    "@typescript-eslint/eslint-plugin": "^4.6.0",
+    "@typescript-eslint/parser": "^4.6.0"
   },
   "peerDependencies": {
     "@feathersjs/authentication": "^4.5.8",
@@ -93,7 +93,9 @@
     "parallel-webpack": "^2.6.0",
     "pre-push": "^0.1.1",
     "supertest": "^5.0.0",
-    "ts-jest": "^26.4.1"
+    "ts-jest": "^26.4.1",
+    "@typescript-eslint/eslint-plugin": "^4.6.0",
+    "@typescript-eslint/parser": "^4.6.0"
   },
   "dependencies": {
     "@xr3ngine/engine": "0.2.10",
