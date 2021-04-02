@@ -16,6 +16,9 @@ import {
 import {dispatchAlertError} from '../alert/service';
 import store from '../store';
 
+import getConfig from 'next/config';
+const { publicRuntimeConfig } = getConfig();
+
 export function getGroups(skip?: number, limit?: number) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
     dispatch(fetchingGroups());
@@ -115,31 +118,32 @@ export function getInvitableGroups(skip?: number, limit?: number) {
     }
   };
 }
+if(!publicRuntimeConfig.offlineMode) {
+  client.service('group-user').on('created', (params) => {
+    store.dispatch(createdGroupUser(params.groupUser));
+  });
 
-client.service('group-user').on('created', (params) => {
-  store.dispatch(createdGroupUser(params.groupUser));
-});
+  client.service('group-user').on('patched', (params) => {
+    store.dispatch(patchedGroupUser(params.groupUser));
+  });
 
-client.service('group-user').on('patched', (params) => {
-  store.dispatch(patchedGroupUser(params.groupUser));
-});
+  client.service('group-user').on('removed', (params) => {
+    store.dispatch(removedGroupUser(params.groupUser, params.self));
+  });
 
-client.service('group-user').on('removed', (params) => {
-  store.dispatch(removedGroupUser(params.groupUser, params.self));
-});
+  client.service('group').on('created', (params) => {
+    store.dispatch(createdGroup(params.group));
+  });
 
-client.service('group').on('created', (params) => {
-  store.dispatch(createdGroup(params.group));
-});
+  client.service('group').on('patched', (params) => {
+    store.dispatch(patchedGroup(params.group));
+  });
 
-client.service('group').on('patched', (params) => {
-  store.dispatch(patchedGroup(params.group));
-});
+  client.service('group').on('removed', (params) => {
+    store.dispatch(removedGroup(params.group));
+  });
 
-client.service('group').on('removed', (params) => {
-  store.dispatch(removedGroup(params.group));
-});
-
-client.service('group').on('refresh', (params) => {
-  store.dispatch(createdGroup(params.group));
-});
+  client.service('group').on('refresh', (params) => {
+    store.dispatch(createdGroup(params.group));
+  });
+}

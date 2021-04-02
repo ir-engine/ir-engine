@@ -11,6 +11,9 @@ import {dispatchAlertError} from "../alert/service";
 import store from '../store';
 import { User } from '@xr3ngine/common/interfaces/User';
 
+import getConfig from 'next/config';
+const { publicRuntimeConfig } = getConfig();
+
 // export function getUserRelationship(userId: string) {
 //   return (dispatch: Dispatch): any => {
 //     // dispatch(actionProcessing(true))
@@ -118,24 +121,24 @@ export function unfriend(relatedUserId: string) {
   return removeFriend(relatedUserId);
 }
 
+if(!publicRuntimeConfig.offlineMode) {
+  client.service('user-relationship').on('created', (params) => {
+    if (params.userRelationship.userRelationshipType === 'friend') {
+      store.dispatch(createdFriend(params.userRelationship));
+    }
+  });
 
+  client.service('user-relationship').on('patched', (params) => {
+    const selfUser = (store.getState() as any).get('auth').get('user') as User;
+    if (params.userRelationship.userRelationshipType === 'friend') {
+      store.dispatch(patchedFriend(params.userRelationship, selfUser));
+    }
+  });
 
-client.service('user-relationship').on('created', (params) => {
-  if (params.userRelationship.userRelationshipType === 'friend') {
-    store.dispatch(createdFriend(params.userRelationship));
-  }
-});
-
-client.service('user-relationship').on('patched', (params) => {
-  const selfUser = (store.getState() as any).get('auth').get('user') as User;
-  if (params.userRelationship.userRelationshipType === 'friend') {
-    store.dispatch(patchedFriend(params.userRelationship, selfUser));
-  }
-});
-
-client.service('user-relationship').on('removed', (params) => {
-  const selfUser = (store.getState() as any).get('auth').get('user') as User;
-  if (params.userRelationship.userRelationshipType === 'friend') {
-    store.dispatch(removedFriend(params.userRelationship, selfUser));
-  }
-});
+  client.service('user-relationship').on('removed', (params) => {
+    const selfUser = (store.getState() as any).get('auth').get('user') as User;
+    if (params.userRelationship.userRelationshipType === 'friend') {
+      store.dispatch(removedFriend(params.userRelationship, selfUser));
+    }
+  });
+}

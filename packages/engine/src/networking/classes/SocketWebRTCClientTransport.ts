@@ -15,7 +15,6 @@ const gameserver = process.env.NODE_ENV === 'production' ? publicRuntimeConfig.g
 const Device = mediasoupClient.Device;
 
 export class SocketWebRTCClientTransport implements NetworkTransport {
-  isServer = false
   mediasoupDevice: mediasoupClient.Device
   leaving = false
   instanceRecvTransport: MediaSoupTransport
