@@ -15,6 +15,11 @@ import { NetworkObjectUpdateType } from '../../networking/NetworkObjectUpdateSch
 import { VehicleComponent } from '../components/VehicleComponent';
 import { VehicleState, VehicleStateUpdateSchema } from '../enums/VehicleStateEnum';
 
+/**
+ * @author HydraFire <github.com/HydraFire>
+ */
+
+
 export const getInCar: Behavior = (entity: Entity, args: { currentFocusedPart: number }, delta, entityCar): void => {
   if (isClient) return;
   const carNetworkId = getComponent(entityCar, NetworkObject).networkId

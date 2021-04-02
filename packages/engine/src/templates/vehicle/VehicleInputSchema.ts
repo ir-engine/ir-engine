@@ -21,12 +21,18 @@ import { NetworkObjectUpdateType } from '../networking/NetworkObjectUpdateSchema
 import { DelegatedInputReceiver } from '../../input/components/DelegatedInputReceiver';
 import { FollowCameraComponent } from '../../camera/components/FollowCameraComponent';
 
+/**
+ * @author HydraFire <github.com/HydraFire>
+ * @param entity is the entity to handle state changes to
+ * @param seat idex array of seats
+ */
+
 const getOutCar: Behavior = (entityCar: Entity): void => {
   if(isClient) return;
   const vehicle = getComponent(entityCar, VehicleComponent);
 
   if(!Network.instance.networkObjects[vehicle.driver]) return console.warn('Failed to get out of car because no driver id is known.')
-  
+
   const entity = Network.instance.networkObjects[vehicle.driver].component.entity;
   getMutableComponent(entity, PlayerInCar).state = VehicleState.onStartRemove;
   sendClientObjectUpdate(entity, NetworkObjectUpdateType.VehicleStateChange, [VehicleState.onStartRemove] as VehicleStateUpdateSchema);

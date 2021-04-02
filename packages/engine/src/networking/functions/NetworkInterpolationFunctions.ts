@@ -5,7 +5,10 @@ import { InterpolatedSnapshot, Snapshot, StateEntityGroup, StateInterEntity, Sta
 import { NetworkInterpolation } from '../classes/NetworkInterpolation';
 import { Network } from '../classes/Network';
 import { Engine } from '../../ecs/classes/Engine';
-/** Get snapshot factory. */
+/** Get snapshot factory.
+* @author HydraFire <github.com/HydraFire>
+ */
+
 export function snapshot(): any {
   return {
     /** Create the snapshot on the server. */

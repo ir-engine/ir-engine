@@ -7,6 +7,10 @@ import { createVehicleFromModel } from '../../templates/vehicle/prefabs/NetworkV
 import { TransformComponent } from "../../transform/components/TransformComponent";
 import { addColliderWithoutEntity } from './addColliderWithoutEntity';
 
+/**
+ * @author HydraFire <github.com/HydraFire>
+ */
+
 function plusParametersFromEditorToMesh(entity, mesh) {
   const transform = getComponent(entity, TransformComponent);
 

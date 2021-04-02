@@ -7,6 +7,13 @@ import { TransformComponent } from '../../../transform/components/TransformCompo
 import { getComponent, getMutableComponent } from '../../../ecs/functions/EntityFunctions';
 import { PhysicsSystem } from '../../../physics/systems/PhysicsSystem';
 
+
+/**
+ * @author HydraFire <github.com/HydraFire>
+ * @param entity is the entity to handle state changes to
+ * @param seat idex array of seats
+ */
+
 export const onUpdatePlayerInCar = (entity: Entity, entityCar: Entity, seat: number, delta): void => {
 
   const transform = getMutableComponent<TransformComponent>(entity, TransformComponent);
