@@ -2,7 +2,7 @@ import { Dispatch } from 'redux';
 import { client } from '../feathers';
 import {dispatchAlertSuccess} from '../alert/service';
 import {
-  sentInvite,
+  loadedContentPacks,
 } from './actions';
 
 export function uploadAvatars (data: any) {
@@ -46,6 +46,30 @@ export function uploadAvatars (data: any) {
         });
       }
     });
+  }
+}
+
+export function fetchContentPacks() {
+  return async (dispatch: Dispatch, getState: any) => {
+    console.log('retrieving content packs');
+    const packs = await client.service('content-pack').find({});
+    console.log(packs);
+    dispatch(loadedContentPacks(packs));
+  }
+}
+
+export function createContentPack(data: any) {
+  return async (dispatch: Dispatch, getState: any) => {
+    const result = await client.service('content-pack').create({
+      scene: data.scene,
+      contentPack: data.contentPack
+    });
+  }
+}
+
+export function addSceneToContentPack(data: any) {
+  return async (dispatch: Dispatch, getState: any) => {
+    console.log(data);
   }
 }
 
