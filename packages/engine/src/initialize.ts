@@ -32,6 +32,7 @@ import { Network } from './networking/classes/Network';
 import { isMobileOrTablet } from './common/functions/isMobile';
 import { AnimationManager } from './templates/character/prefabs/NetworkPlayerCharacter';
 import { CharacterControllerSystem } from './character/CharacterControllerSystem';
+import { useOffscreen } from './common/functions/getURLParams';
 
 // import { PositionalAudioSystem } from './audio/systems/PositionalAudioSystem';
 
@@ -51,7 +52,8 @@ export const DefaultInitializationOptions = {
   networking: {
     schema: DefaultNetworkSchema
   },
-  publicPath: ''
+  publicPath: '',
+  useOfflineMode: false
 };
 
 export const initializeEngine = async (initOptions: any = DefaultInitializationOptions): Promise<void> => {
@@ -61,7 +63,6 @@ export const initializeEngine = async (initOptions: any = DefaultInitializationO
   Engine.xrSupported = await (navigator as any).xr?.isSessionSupported('immersive-vr')
   // offscreen is buggy still, disable it for now and opt in with url query
   // const useOffscreen = !Engine.xrSupported && 'transferControlToOffscreen' in canvas;
-  const useOffscreen = (new URL(location.toString())).searchParams.get("offscreen");
 
   if(useOffscreen) {
     const workerProxy: WorkerProxy = await createWorker(
@@ -69,7 +70,6 @@ export const initializeEngine = async (initOptions: any = DefaultInitializationO
       new Worker(new URL('./worker/initializeOffscreen.ts', import.meta.url)),
       (options.renderer.canvas || createCanvas()),
       {
-
       }
     );
     EngineEvents.instance = new EngineEventsProxy(workerProxy);
