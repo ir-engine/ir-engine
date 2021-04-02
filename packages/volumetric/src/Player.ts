@@ -147,9 +147,9 @@ export default class DracosisPlayer {
         if (this.status === "buffering") {
           // Handle buffering state, check if we buffered enough or report buffering progress
           // TODO: handle our inconsecutive frames loading, now i assume that all previous frames are loaded
-          const bufferingSize = this.frameRate * this.keyframesToBufferBeforeStart;
+          const bufferingSize = this.keyframesToBufferBeforeStart;
           const bufferedEnough = this.meshBuffer.getPos() > (this.currentKeyframe+bufferingSize);
-          const bufferedCompletely = frameData.keyframeBufferObject.keyframeNumber >= (this.numberOfKeyframes - 1);
+          const bufferedCompletely = frameData.keyframeNumber >= (this.numberOfKeyframes - 1);
 
           if (bufferedEnough || bufferedCompletely) {
             this.status = "playing";
@@ -160,7 +160,7 @@ export default class DracosisPlayer {
           } else {
             if (typeof this.onMeshBuffering === "function") {
               // TODO: make progress report based on how many frames loaded (not on index of last loaded)
-              this.onMeshBuffering(frameData.keyframeBufferObject.keyframeNumber / (this.currentKeyframe + bufferingSize));
+              this.onMeshBuffering(frameData.keyframeNumber / (this.currentKeyframe + bufferingSize));
             }
           }
         }
@@ -173,7 +173,7 @@ export default class DracosisPlayer {
           console.log("Worker initialized");
           break;
         case 'framedata':
-          console.log("Frame data received");
+          // console.log("Frame data received");
           handleFrameData(e.data.payload);
           break;
         case 'completed':

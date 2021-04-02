@@ -1,1 +1,0 @@
-require('@capacitor-community/electron/dist/electron-bridge');require('./user-preload-script.js');

@@ -56,12 +56,12 @@ const Featured = ({feedsState, getFeeds, type, creatorId, creatorState, setFeedA
             feedsList = feedsState?.get('feedsFeatured');
         }
     }
-
+    
     const featureFeed = feedId =>setFeedAsFeatured(feedId);
     const unfeatureFeed = feedId =>setFeedNotFeatured(feedId);
 
     const renderFeaturedStar = (feedId ,creatorId, featured) =>{
-        if(creatorId === creatorState.get('currentCreator').id){
+        if(creatorId === creatorState.get('currentCreator')?.id){
             return <span className={styles.starLine} onClick={()=>featured ? unfeatureFeed(feedId) : featureFeed(feedId)} >{featured ? <StarIcon /> : <StarOutlineIcon />}</span>;
         }
     };
