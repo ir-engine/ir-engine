@@ -22,8 +22,22 @@ import url from 'url';
 import './styles.scss';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'semantic-ui-css/semantic.css';
+import i18n from 'i18next';
+import translation from '../i18n/en/translation.json';
+import { initReactI18next } from 'react-i18next';
 
 const config = getConfig().publicRuntimeConfig;
+
+const resources = {
+  en: {
+    translation,
+  },
+};
+
+i18n.use(initReactI18next).init({
+  lng: 'en',
+  resources,
+});
 
 interface Props extends AppProps {
   store: Store;
