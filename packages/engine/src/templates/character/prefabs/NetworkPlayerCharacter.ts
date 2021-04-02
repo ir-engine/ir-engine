@@ -89,6 +89,11 @@ export class AnimationManager {
 export const loadDefaultActorAvatar: Behavior = (entity) => {
   const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
   AnimationManager.instance.getDefaultModel().then(() => {
+	// If avatar is already loaded then skip setting default avatar model.
+	if (actor.avatarId && actor.avatarURL && actor.modelContainer?.children?.length > 0) {
+		return;
+	}
+
     wipeOldModel(entity);
     AnimationManager.instance._defaultModel.children.forEach(child => actor.modelContainer.add(child));
     actor.mixer = new AnimationMixer(actor.modelContainer.children[0]);
