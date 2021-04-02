@@ -15,7 +15,7 @@ import {UIDialog} from '../Dialog/Dialog';
 import LeftDrawer from '../Drawer/Left/LeftDrawer';
 import RightDrawer from '../Drawer/Right';
 import Harmony from "../Harmony";
-import {doLoginAuto} from '@xr3ngine/client-core/redux/auth/service';
+import {doLoginAuto} from '../../../redux/auth/service';
 
 const {publicRuntimeConfig} = getConfig();
 const siteTitle: string = publicRuntimeConfig.siteTitle;

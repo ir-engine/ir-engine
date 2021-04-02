@@ -1,20 +1,20 @@
 import { Button, Snackbar } from '@material-ui/core';
-import UserMenu from '@xr3ngine/client-core/components/ui/UserMenu';
-import { setAppSpecificOnBoardingStep } from '@xr3ngine/client-core/redux/app/actions';
-import { selectAppState } from '@xr3ngine/client-core/redux/app/selector';
-import { doLoginAuto } from '@xr3ngine/client-core/redux/auth/service';
-import { client } from '@xr3ngine/client-core/redux/feathers';
-import { selectInstanceConnectionState } from '@xr3ngine/client-core/redux/instanceConnection/selector';
+import UserMenu from '../ui/UserMenu';
+import { setAppSpecificOnBoardingStep } from '../../redux/app/actions';
+import { selectAppState } from '../../redux/app/selector';
+import { doLoginAuto } from '../../redux/auth/service';
+import { client } from '../../redux/feathers';
+import { selectInstanceConnectionState } from '../../redux/instanceConnection/selector';
 import {
   connectToInstanceServer,
   provisionInstanceServer
-} from '@xr3ngine/client-core/redux/instanceConnection/service';
-import { selectLocationState } from '@xr3ngine/client-core/redux/location/selector';
+} from '../../redux/instanceConnection/service';
+import { selectLocationState } from '../../redux/location/selector';
 import {
   getLocationByName
-} from '@xr3ngine/client-core/redux/location/service';
-import { selectPartyState } from '@xr3ngine/client-core/redux/party/selector';
-import { setCurrentScene } from '@xr3ngine/client-core/redux/scenes/actions';
+} from '../../redux/location/service';
+import { selectPartyState } from '../../redux/party/selector';
+import { setCurrentScene } from '../../redux/scenes/actions';
 import { isMobileOrTablet } from '@xr3ngine/engine/src/common/functions/isMobile';
 import { resetEngine } from "@xr3ngine/engine/src/ecs/functions/EngineFunctions";
 import { getComponent, getMutableComponent } from '@xr3ngine/engine/src/ecs/functions/EntityFunctions';
@@ -50,7 +50,7 @@ import { PhysicsSystem } from '@xr3ngine/engine/src/physics/systems/PhysicsSyste
 import { DefaultInitializationOptions, initializeEngine } from '@xr3ngine/engine/src/initialize';
 import { XRSystem } from '@xr3ngine/engine/src/xr/systems/XRSystem';
 import { PrefabType } from '@xr3ngine/engine/src/templates/networking/PrefabType';
-import { testScenes, testUserId, testWorldState } from '@xr3ngine/common/assets/testScenes'
+import { testScenes, testUserId, testWorldState } from '@xr3ngine/common/assets/testScenes';
 import { ClientNetworkSystem } from '@xr3ngine/engine/src/networking/systems/ClientNetworkSystem';
 import getConfig from 'next/config';
 const { publicRuntimeConfig } = getConfig();
@@ -275,7 +275,7 @@ export const EnginePage = (props: Props) => {
 
     const getWorldState = new Promise<any>((resolve) => {
       if(publicRuntimeConfig.offlineMode) {
-        EngineEvents.instance.dispatchEvent({ type: ClientNetworkSystem.EVENTS.CONNECT, id: testUserId })
+        EngineEvents.instance.dispatchEvent({ type: ClientNetworkSystem.EVENTS.CONNECT, id: testUserId });
         resolve(testWorldState);
       } else {
         EngineEvents.instance.once(EngineEvents.EVENTS.CONNECT_TO_WORLD, async () => {

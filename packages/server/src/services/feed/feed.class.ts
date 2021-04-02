@@ -86,14 +86,14 @@ export class Feed extends Service {
         JOIN \`follow_creator\` as fc ON fc.creatorId=feed.creatorId
         JOIN \`static_resource\` as sr ON sr.id=feed.previewId`;
        let where=` WHERE feed.featured=1 `;
-       let orderBy = ` ORDER BY feed.createdAt DESC    
+       const orderBy = ` ORDER BY feed.createdAt DESC    
         LIMIT :skip, :limit `;
       
       queryParamsReplacements.creatorId = creatorId;
       if(loggedInUser){
-        where += ` AND (fc.followerId=:creatorId OR feed.creatorId=:creatorId)`
+        where += ` AND (fc.followerId=:creatorId OR feed.creatorId=:creatorId)`;
       }else{
-        where += ` AND feed.creatorId=:creatorId`
+        where += ` AND feed.creatorId=:creatorId`;
       }
       const feeds = await this.app.get('sequelizeClient').query(select+where+orderBy,
         {

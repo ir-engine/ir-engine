@@ -29,7 +29,7 @@ const SharedModal = (props: Props) => {
                             Close
                         </Button>                        
                     </DialogActions>
-                </Dialog>
+                </Dialog>;
 };
 
 export default SharedModal;

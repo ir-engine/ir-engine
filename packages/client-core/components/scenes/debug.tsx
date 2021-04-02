@@ -1,17 +1,17 @@
-import { selectAppState } from '@xr3ngine/client-core/redux/app/selector';
-import { doLoginAuto } from '@xr3ngine/client-core/redux/auth/service';
-import { client } from '@xr3ngine/client-core/redux/feathers';
-import { selectInstanceConnectionState } from '@xr3ngine/client-core/redux/instanceConnection/selector';
+import { selectAppState } from '../../redux/app/selector';
+import { doLoginAuto } from '../../redux/auth/service';
+import { client } from '../../redux/feathers';
+import { selectInstanceConnectionState } from '../../redux/instanceConnection/selector';
 import {
   connectToInstanceServer,
   provisionInstanceServer
-} from '@xr3ngine/client-core/redux/instanceConnection/service';
-import { selectLocationState } from '@xr3ngine/client-core/redux/location/selector';
+} from '../../redux/instanceConnection/service';
+import { selectLocationState } from '../../redux/location/selector';
 import {
   getLocationByName
-} from '@xr3ngine/client-core/redux/location/service';
-import { selectPartyState } from '@xr3ngine/client-core/redux/party/selector';
-import { setCurrentScene } from '@xr3ngine/client-core/redux/scenes/actions';
+} from '../../redux/location/service';
+import { selectPartyState } from '../../redux/party/selector';
+import { setCurrentScene } from '../../redux/scenes/actions';
 import { EngineEvents } from '@xr3ngine/engine/src/ecs/classes/EngineEvents';
 import { DefaultInitializationOptions, initializeEngine } from '@xr3ngine/engine/src/initialize';
 import { Network } from '@xr3ngine/engine/src/networking/classes/Network';
