@@ -1,9 +1,9 @@
-import { endVideoChat } from '@xr3ngine/engine/src/networking/functions/SocketWebRTCClientFunctions';
+import { endVideoChat } from '@xr3ngine/client-networking/transports/SocketWebRTCClientFunctions';
 import { Dispatch } from 'redux';
-import { dispatchAlertError } from '../alert/service';
-import { client } from '../feathers';
+import { dispatchAlertError } from '@xr3ngine/client-core/redux/alert/service';
+import { client } from '@xr3ngine/client-core/redux/feathers';
 import { provisionInstanceServer } from '../instanceConnection/service';
-import store from '../store';
+import store from '@xr3ngine/client-core/redux/store';
 import {
   createdParty,
   createdPartyUser,

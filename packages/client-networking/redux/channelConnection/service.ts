@@ -1,7 +1,7 @@
 import { MediaStreamSystem } from "@xr3ngine/engine/src/networking/systems/MediaStreamSystem";
 import { Network } from "@xr3ngine/engine/src/networking/classes/Network";
 import { Dispatch } from 'redux';
-import { endVideoChat, leave } from "@xr3ngine/engine/src/networking/functions/SocketWebRTCClientFunctions";
+import { endVideoChat, leave } from "@xr3ngine/client-networking/transports/SocketWebRTCClientFunctions";
 import { client } from '../feathers';
 import store from "../store";
 import {
@@ -12,7 +12,7 @@ import {
   channelServerProvisioning
 } from './actions';
 import { EngineEvents } from "@xr3ngine/engine/src/ecs/classes/EngineEvents";
-import { ClientNetworkSystem } from "@xr3ngine/engine/src/networking/systems/ClientNetworkSystem";
+import { ClientNetworkSystem } from "@xr3ngine/client-networking/transports/systems/ClientNetworkSystem";
 
 export function provisionChannelServer(instanceId?: string, channelId?: string) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {

@@ -1,14 +1,12 @@
-import {VideoCall, CallEnd, PersonAdd} from '@material-ui/icons';
-import { connect } from 'react-redux';
-import { bindActionCreators, Dispatch } from 'redux';
-import { MediaStreamSystem } from '@xr3ngine/engine/src/networking/systems/MediaStreamSystem';
-import { Network } from '@xr3ngine/engine/src/networking/classes/Network';
+import Fab from "@material-ui/core/Fab";
+import { CallEnd, VideoCall } from '@material-ui/icons';
 import { selectAuthState } from '@xr3ngine/client-core/redux/auth/selector';
 import { selectLocationState } from '@xr3ngine/client-core/redux/location/selector';
-import Fab from "@material-ui/core/Fab";
-import { configureMediaTransports, endVideoChat } from '@xr3ngine/engine/src/networking/functions/SocketWebRTCClientFunctions';
-// import { useEffect, useState } from 'react';
+import { configureMediaTransports, endVideoChat } from '@xr3ngine/client-networking/transports/SocketWebRTCClientFunctions';
+import { MediaStreamSystem } from '@xr3ngine/engine/src/networking/systems/MediaStreamSystem';
 import * as React from 'react';
+import { connect } from 'react-redux';
+import { Dispatch } from 'redux';
 
 interface Props {
   authState?: any;
@@ -49,6 +47,6 @@ const VideoChat = (props: Props) => {
       {mediaStreamSystem.mediaStream != null && <CallEnd /> }
     </Fab>
   );
-});
+};
 
 export default connect(mapStateToProps, mapDispatchToProps)(VideoChat);

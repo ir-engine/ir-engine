@@ -57,6 +57,8 @@
     "autoprefixer": "^9.7.5",
     "axios": "^0.21.1",
     "child_process": "^1.0.2",
+    "@nivo/core": "^0.67.0",
+    "@nivo/line": "^0.67.0",
     "classnames": "^2.2.6",
     "device-detector-js": "^2.2.5",
     "draco3dgltf": "^1.4.1",

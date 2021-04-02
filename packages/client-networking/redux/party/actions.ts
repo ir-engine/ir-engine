@@ -1,18 +1,17 @@
 import {
   CREATED_PARTY,
-  PATCHED_PARTY,
-  LOADED_PARTY,
-  REMOVED_PARTY,
-  LEFT_PARTY,
-  INVITED_PARTY_USER,
-  REMOVED_PARTY_USER,
   CREATED_PARTY_USER,
-  PATCHED_PARTY_USER
-} from '../actions';
+  INVITED_PARTY_USER,
+  LEFT_PARTY,
+  LOADED_PARTY,
+  PATCHED_PARTY,
+  PATCHED_PARTY_USER,
+  REMOVED_PARTY,
+  REMOVED_PARTY_USER
+} from '@xr3ngine/client-core/redux/actions';
 import { Party } from '@xr3ngine/common/interfaces/Party';
-import { PartyUser } from '@xr3ngine/common/interfaces/PartyUser';
 import { PartyResult } from '@xr3ngine/common/interfaces/PartyResult';
-import { PartyUserResult } from '@xr3ngine/common/interfaces/PartyUserResult';
+import { PartyUser } from '@xr3ngine/common/interfaces/PartyUser';
 
 export interface LoadedPartyAction {
   type: string;

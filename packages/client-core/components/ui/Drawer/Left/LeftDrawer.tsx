@@ -6,7 +6,7 @@ import { selectChatState } from '../../../../redux/chat/selector';
 import { selectFriendState } from '../../../../redux/friend/selector';
 import { selectGroupState } from '../../../../redux/group/selector';
 import { selectPartyState } from '../../../../redux/party/selector';
-import { selectUserState } from '../../../../redux/user/selector';
+import { selectUserState } from '../@xr3ngine/client-core/redux/user/selector';
 import { selectLocationState } from '../../../../redux/location/selector';
 // @ts-ignore
 import styles from './Left.module.scss';
@@ -31,7 +31,7 @@ import {
 } from '../../../../redux/group/service';
 import {
     getLayerUsers
-} from "../../../../redux/user/service";
+} from "../@xr3ngine/client-core/redux/user/service";
 import {
     banUserFromLocation
 } from '../../../../redux/location/service';

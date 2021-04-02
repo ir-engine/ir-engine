@@ -5,6 +5,7 @@ import { EngineEvents } from '@xr3ngine/engine/src/ecs/classes/EngineEvents';
 import { Network } from '@xr3ngine/engine/src/networking/classes/Network';
 import { MessageTypes } from '@xr3ngine/engine/src/networking/enums/MessageTypes';
 // TODO: Decouple this
+import { endVideoChat, leave } from '@xr3ngine/engine/src/networking/functions/SocketWebRTCClientFunctions';
 import axios from 'axios';
 import getConfig from 'next/config';
 import querystring from 'querystring';
@@ -762,3 +763,20 @@ client.service('user').on('patched', async (params) => {
 
 });
 
+client.service('location-ban').on('created', async(params) => {
+  const state = store.getState() as any;
+  const selfUser = state.get('auth').get('user');
+  const party = state.get('party');
+  const selfPartyUser = party && party.partyUsers ? party.partyUsers.find((partyUser) => partyUser.userId === selfUser.id) : {};
+  const currentLocation = state.get('locations').get('currentLocation').get('location');
+  const locationBan = params.locationBan;
+  if (selfUser.id === locationBan.userId && currentLocation.id === locationBan.locationId) {
+    endVideoChat({ leftParty: true });
+    leave(true);
+    if (selfPartyUser.id != null) {
+      await client.service('party-user').remove(selfPartyUser.id);
+    }
+    const user = resolveUser(await client.service('user').get(selfUser.id));
+    store.dispatch(userUpdated(user));
+  }
+});

@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from "react";
 import styles from './NamePlate.module.scss';
 import Snackbar from '@material-ui/core/Snackbar';
 import { connect } from "react-redux";
-import { selectUserState } from "../../../redux/user/selector";
+import { selectUserState } from "@xr3ngine/client-core/redux/user/selector";
 
 interface Position{
   x: number;
