@@ -44,7 +44,7 @@ export const DefaultInitializationOptions = {
 };
 
 const initializeEngineOffscreen = async ({ canvas, userArgs }, proxy: MainProxy) => {
-  const {  initOptions } = userArgs;
+  const { initOptions, useOfflineMode } = userArgs;
   const options = _.defaultsDeep({}, initOptions, DefaultInitializationOptions);
 
   EngineEvents.instance = new EngineEventsProxy(proxy);

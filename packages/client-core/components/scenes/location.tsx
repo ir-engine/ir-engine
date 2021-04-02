@@ -50,6 +50,10 @@ import { PhysicsSystem } from '@xr3ngine/engine/src/physics/systems/PhysicsSyste
 import { DefaultInitializationOptions, initializeEngine } from '@xr3ngine/engine/src/initialize';
 import { XRSystem } from '@xr3ngine/engine/src/xr/systems/XRSystem';
 import { PrefabType } from '@xr3ngine/engine/src/templates/networking/PrefabType';
+import { testScenes, testUserId, testWorldState } from '@xr3ngine/common/assets/testScenes'
+import { ClientNetworkSystem } from '@xr3ngine/engine/src/networking/systems/ClientNetworkSystem';
+import getConfig from 'next/config';
+const { publicRuntimeConfig } = getConfig();
 
 const goHome = () => window.location.href = window.location.origin;
 
@@ -137,7 +141,11 @@ export const EnginePage = (props: Props) => {
   let locationId = null;
 
   useEffect(() => {
-    doLoginAuto(true);
+    if(publicRuntimeConfig.offlineMode) {
+      init(locationName);
+    } else {
+      doLoginAuto(true);
+    }
   }, []);
 
   useEffect(() => {
@@ -212,17 +220,21 @@ export const EnginePage = (props: Props) => {
   const projectRegex = /\/([A-Za-z0-9]+)\/([a-f0-9-]+)$/;
 
   async function init(sceneId: string): Promise<any> { // auth: any,
-    let service, serviceId;
-    const projectResult = await client.service('project').get(sceneId);
-    setCurrentScene(projectResult);
-    const projectUrl = projectResult.project_url;
-    const regexResult = projectUrl.match(projectRegex);
-    if (regexResult) {
-      service = regexResult[1];
-      serviceId = regexResult[2];
+    let sceneData;
+    if(publicRuntimeConfig.offlineMode) {
+      sceneData = testScenes[sceneId] || testScenes.test;
+    } else {
+      let service, serviceId;
+      const projectResult = !publicRuntimeConfig.offlineMode ? await client.service('project').get(sceneId) : '';
+      setCurrentScene(projectResult);
+      const projectUrl = projectResult.project_url;
+      const regexResult = projectUrl.match(projectRegex);
+      if (regexResult) {
+        service = regexResult[1];
+        serviceId = regexResult[2];
+      }
+      sceneData = await client.service(service).get(serviceId);
     }
-    const sceneData = await client.service(service).get(serviceId);
-
     const networkSchema
     : NetworkSchema = {
       ...DefaultNetworkSchema,
@@ -239,6 +251,7 @@ export const EnginePage = (props: Props) => {
       renderer: {
         canvas,
       },
+      useOfflineMode: publicRuntimeConfig.offlineMode
     };
     
     await initializeEngine(InitializationOptions);
@@ -247,7 +260,7 @@ export const EnginePage = (props: Props) => {
 
     addUIEvents();
 
-    await connectToInstanceServer('instance');
+    if(!publicRuntimeConfig.offlineMode) await connectToInstanceServer('instance');
 
     const loadScene = new Promise<void>((resolve) => {
       EngineEvents.instance.once(EngineEvents.EVENTS.SCENE_LOADED, () => {
@@ -261,10 +274,15 @@ export const EnginePage = (props: Props) => {
     });
 
     const getWorldState = new Promise<any>((resolve) => {
-      EngineEvents.instance.once(EngineEvents.EVENTS.CONNECT_TO_WORLD, async () => {
-        const { worldState } =  await (Network.instance.transport as SocketWebRTCClientTransport).instanceRequest(MessageTypes.JoinWorld.toString());
-        resolve(worldState);
-      });
+      if(publicRuntimeConfig.offlineMode) {
+        EngineEvents.instance.dispatchEvent({ type: ClientNetworkSystem.EVENTS.CONNECT, id: testUserId })
+        resolve(testWorldState);
+      } else {
+        EngineEvents.instance.once(EngineEvents.EVENTS.CONNECT_TO_WORLD, async () => {
+          const { worldState } =  await (Network.instance.transport as SocketWebRTCClientTransport).instanceRequest(MessageTypes.JoinWorld.toString());
+          resolve(worldState);
+        });
+      }
     });
     
     const [sceneLoaded, worldState] = await Promise.all([ loadScene, getWorldState ]);

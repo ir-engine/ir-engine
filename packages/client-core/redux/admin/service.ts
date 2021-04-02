@@ -34,7 +34,8 @@ import { apiUrl } from '../service.common';
 import { dispatchAlertError, dispatchAlertSuccess } from '../alert/service';
 import {collectionsFetched} from "../scenes/actions";
 import store from "../store";
-
+import getConfig from 'next/config';
+const { publicRuntimeConfig } = getConfig();
 
 export function createVideo (data: VideoCreationForm) {
   return async (dispatch: Dispatch, getState: any) => {
@@ -261,6 +262,8 @@ export function fetchLocationTypes () {
   };
 }
 
-client.service('instance').on('removed', (params) => {
-  store.dispatch(instanceRemovedAction(params.instance));
-});
+if(!publicRuntimeConfig.offlineMode) {
+  client.service('instance').on('removed', (params) => {
+    store.dispatch(instanceRemovedAction(params.instance));
+  });
+}

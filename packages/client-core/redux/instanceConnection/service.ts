@@ -13,6 +13,9 @@ import {
 import { EngineEvents } from "@xr3ngine/engine/src/ecs/classes/EngineEvents";
 import { triggerUpdateConsumers } from "../mediastream/service";
 
+import getConfig from 'next/config';
+const { publicRuntimeConfig } = getConfig();
+
 export function provisionInstanceServer(locationId?: string, instanceId?: string, sceneId?: string) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
     dispatch(instanceServerProvisioning());
@@ -89,6 +92,8 @@ export function resetInstanceServer() {
   };
 }
 
-client.service('instance-provision').on('created', (params) => {
-  if (params.locationId != null) store.dispatch(instanceServerProvisioned(params, params.locationId, params.sceneId));
-});
+if(!publicRuntimeConfig.offlineMode) {
+  client.service('instance-provision').on('created', (params) => {
+    if (params.locationId != null) store.dispatch(instanceServerProvisioned(params, params.locationId, params.sceneId));
+  });
+}

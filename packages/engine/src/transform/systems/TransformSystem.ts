@@ -18,17 +18,13 @@ export class TransformSystem extends System {
 
     this.queryResults.parent.all?.forEach(entity => {
       const parentTransform = getMutableComponent(entity, TransformComponent);
-
       const parentingComponent = getComponent<TransformParentComponent>(entity, TransformParentComponent);
-    
       parentingComponent.children.forEach(child => {
         if (!hasComponent(child, Object3DComponent)) {
           return;
         }
-    
         const { value: { position: childPosition, quaternion: childQuaternion } } = getMutableComponent<Object3DComponent>(child, Object3DComponent);
         const childTransformComponent = getComponent(child, TransformComponent);
-    
         // reset to "local"
         if (childTransformComponent) {
           childPosition.copy(childTransformComponent.position);
@@ -37,7 +33,6 @@ export class TransformSystem extends System {
           childPosition.setScalar(0);
           childQuaternion.set(0,0,0,0);
         }
-    
         // add parent
         childPosition.add(parentTransform.position);
         childQuaternion.multiply(parentTransform.rotation);

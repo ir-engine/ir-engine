@@ -13,6 +13,8 @@ import {
 } from './actions';
 import { EngineEvents } from "@xr3ngine/engine/src/ecs/classes/EngineEvents";
 import { ClientNetworkSystem } from "@xr3ngine/engine/src/networking/systems/ClientNetworkSystem";
+import getConfig from 'next/config';
+const { publicRuntimeConfig } = getConfig();
 
 export function provisionChannelServer(instanceId?: string, channelId?: string) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
@@ -89,6 +91,8 @@ export function resetChannelServer() {
   };
 }
 
-client.service('instance-provision').on('created', (params) => {
-  if (params.channelId != null) store.dispatch(channelServerProvisioned(params, params.channelId));
-});
+if(!publicRuntimeConfig.offlineMode) {
+  client.service('instance-provision').on('created', (params) => {
+    if (params.channelId != null) store.dispatch(channelServerProvisioned(params, params.channelId));
+  });
+}
