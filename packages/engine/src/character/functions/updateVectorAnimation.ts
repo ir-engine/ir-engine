@@ -114,7 +114,7 @@ export const updateVectorAnimation = (entity, delta: number): void => {
 				// get new action
 				action = actor.mixer.clipAction(clip, animationRoot);
 				if (action === null) {
-					console.warn('setActorAnimation [', avatarAnimation.name, '], not found');
+					// console.warn('setActorAnimation [', avatarAnimation.name, '], not found');
 					return;
 				}
 			}
