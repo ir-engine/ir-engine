@@ -72,7 +72,7 @@ export function connectToInstanceServer(channelType: string, channelId?: string)
         videoEnabled: currentLocation?.locationSettings?.videoEnabled === true || !(currentLocation?.locationSettings?.locationType === 'showroom' && user.locationAdmins?.find(locationAdmin => locationAdmin.locationId === currentLocation.id) == null)
       });
 
-      EngineEvents.instance.addEventListener(MediaStreamSystem.EVENTS.TRIGGER_UPDATE_CONSUMERS, triggerUpdateConsumers)
+      EngineEvents.instance.addEventListener(MediaStreamSystem.EVENTS.TRIGGER_UPDATE_CONSUMERS, triggerUpdateConsumers);
 
       // setClient(instanceClient);
       dispatch(instanceServerConnected());
