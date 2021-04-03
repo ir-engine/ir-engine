@@ -11,7 +11,7 @@ import { selectAuthState } from '@xr3ngine/client-core/redux/auth/selector';
 import { selectLocationState } from '@xr3ngine/client-core/redux/location/selector';
 import theme from '@xr3ngine/client-core/theme';
 import Harmony from "@xr3ngine/common/client-networking/components/Harmony";
-import InstanceChat from '@xr3ngine/client-networking/components/InstanceChat';
+import InstanceChat from '@xr3ngine/client-networking/src/components/InstanceChat';
 import PartyVideoWindows from '@xr3ngine/common/client-networking/components/PartyVideoWindows';
 import getConfig from 'next/config';
 import Head from 'next/head';

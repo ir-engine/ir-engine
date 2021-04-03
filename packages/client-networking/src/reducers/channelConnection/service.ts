@@ -1,18 +1,18 @@
-import { MediaStreamSystem } from "@xr3ngine/engine/src/networking/systems/MediaStreamSystem";
-import { Network } from "@xr3ngine/engine/src/networking/classes/Network";
-import { Dispatch } from 'redux';
 import { endVideoChat, leave } from "@xr3ngine/client-networking/transports/SocketWebRTCClientFunctions";
+import { Network } from "@xr3ngine/engine/src/networking/classes/Network";
+import { MediaStreamSystem } from "@xr3ngine/engine/src/networking/systems/MediaStreamSystem";
+import getConfig from 'next/config';
+import { Dispatch } from 'redux';
 import { client } from '../feathers';
 import store from "../store";
 import {
   channelServerConnected,
-  channelServerConnecting, 
+  channelServerConnecting,
   channelServerDisconnected,
   channelServerProvisioned,
   channelServerProvisioning
 } from './actions';
-import { EngineEvents } from "@xr3ngine/engine/src/ecs/classes/EngineEvents";
-import { ClientNetworkSystem } from "@xr3ngine/client-networking/transports/systems/ClientNetworkSystem";
+const { publicRuntimeConfig } = getConfig();
 
 export function provisionChannelServer(instanceId?: string, channelId?: string) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
@@ -89,6 +89,8 @@ export function resetChannelServer() {
   };
 }
 
-client.service('instance-provision').on('created', (params) => {
-  if (params.channelId != null) store.dispatch(channelServerProvisioned(params, params.channelId));
-});
+if(!publicRuntimeConfig.offlineMode) {
+  client.service('instance-provision').on('created', (params) => {
+    if (params.channelId != null) store.dispatch(channelServerProvisioned(params, params.channelId));
+  });
+}
