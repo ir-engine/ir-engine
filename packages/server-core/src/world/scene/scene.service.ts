@@ -1,10 +1,10 @@
 import { ServiceAddons } from '@feathersjs/feathers';
-import { Application } from '../../declarations';
+import { Application } from '../../../declarations';
 import { Scene } from './scene.class';
 import createModel from '../../models/scene.model';
 import hooks from './scene.hooks';
 
-declare module '../../declarations' {
+declare module '../../../declarations' {
   interface ServiceTypes {
     'scene': Scene & ServiceAddons<any>;
   }

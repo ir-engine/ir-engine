@@ -1,5 +1,5 @@
 import { Sequelize, DataTypes } from 'sequelize';
-import { Application } from '../../declarations';
+import { Application } from '../../../declarations';
 import { collectionType as collectionTypeEnum } from './collectionType';
 
 export default (app: Application): any => {

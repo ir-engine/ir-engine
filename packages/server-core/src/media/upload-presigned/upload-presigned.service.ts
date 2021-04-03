@@ -1,11 +1,11 @@
 import { ServiceAddons } from '@feathersjs/feathers';
-import { Application } from '../../declarations';
+import { Application } from '../../../declarations';
 import { UploadPresigned } from './upload-presigned.class';
 import hooks from './upload-presigned.hooks';
 import uploadDocs from './upload-presigned.docs';
 
 
-declare module '../../declarations' {
+declare module '../../../declarations' {
   interface ServiceTypes {
     'upload-presigned': UploadPresigned & ServiceAddons<any>;
   }

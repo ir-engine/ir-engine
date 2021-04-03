@@ -1,11 +1,11 @@
 import { ServiceAddons } from '@feathersjs/feathers';
-import { Application } from '../../declarations';
+import { Application } from '../../../declarations';
 import { StaticResource } from './static-resource.class';
 import createModel from '../../models/static-resource.model';
 import hooks from './static-resource.hooks';
 import staticResourceDocs from './static-resource.docs';
 
-declare module '../../declarations' {
+declare module '../../../declarations' {
   interface ServiceTypes {
     'static-resource': StaticResource & ServiceAddons<any>;
   }

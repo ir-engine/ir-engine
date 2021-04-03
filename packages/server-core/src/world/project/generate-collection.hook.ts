@@ -4,7 +4,7 @@ import fetch from 'node-fetch';
 
 import { extractLoggedInUserFromParams } from '../../services/auth-management/auth-management.utils';
 import { collectionType } from '../../entities/collection-type/collectionType';
-import config from '../../config';
+import config from '../../appconfig';
 import StorageProvider from '../../media/storageprovider/storageprovider';
 import { readJSONFromBlobStore } from "./project-helper";
 

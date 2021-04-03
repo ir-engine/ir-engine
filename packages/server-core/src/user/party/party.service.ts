@@ -1,11 +1,11 @@
 import { ServiceAddons } from '@feathersjs/feathers';
-import { Application } from '../../declarations';
+import { Application } from '../../../declarations';
 import { Party } from './party.class';
 import createModel from '../../models/party.model';
 import hooks from './party.hooks';
 import partyDocs from './party.docs';
 
-declare module '../../declarations' {
+declare module '../../../declarations' {
   interface ServiceTypes {
     'party': Party & ServiceAddons<any>;
   }

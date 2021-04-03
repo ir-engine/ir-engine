@@ -1,4 +1,4 @@
-import config from '../config';
+import config from '../appconfig';
 import { Hook, HookContext } from '@feathersjs/feathers';
 import uploadThumbnailLinkHook from './upload-thumbnail-link';
 import StorageProvider from '../media/storageprovider/storageprovider';

@@ -1,11 +1,11 @@
 import { ServiceAddons } from '@feathersjs/feathers';
-import { Application } from '../../declarations';
+import { Application } from '../../../declarations';
 import { MessageStatus } from './message-status.class';
 import createModel from '../../models/user/message-status.model';
 import hooks from './message-status.hooks';
 import messageStatusDocs from './message-status.docs';
 
-declare module '../../declarations' {
+declare module '../../../declarations' {
   interface ServiceTypes {
     'message-status': MessageStatus & ServiceAddons<any>;
   }

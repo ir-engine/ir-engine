@@ -1,13 +1,13 @@
 // Initializes the `instance-provision` service on path `/instance-provision`
 import { ServiceAddons } from '@feathersjs/feathers';
 import logger from '../../logger';
-import { Application } from '../../declarations';
+import { Application } from '../../../declarations';
 import { InstanceProvision } from './instance-provision.class';
 import instanceProvisionDocs from './instance-provision.docs';
 import hooks from './instance-provision.hooks';
 
 // Add this service to the service type index
-declare module '../../declarations' {
+declare module '../../../declarations' {
   interface ServiceTypes {
     'instance-provision': InstanceProvision & ServiceAddons<any>;
   }

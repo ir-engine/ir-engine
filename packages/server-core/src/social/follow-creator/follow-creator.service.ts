@@ -1,12 +1,12 @@
 // Initializes the `feed` service on path `/feed`
 // import { ServiceAddons } from '@feathersjs/feathers';
-import { Application } from '../../declarations';
+import { Application } from '../../../declarations';
 import { FollowCreator } from './follow-creator.class';
 import createModel from '../../models/follow-creator.model';
 import hooks from './follow-creator.hooks';
 
 // Add this service to the service type index
-// declare module '../../declarations' {
+// declare module '../../../declarations' {
 //   interface ServiceTypes {
 //     'FeedBookmark': FeedBookmark & ServiceAddons<any>;
 //   }

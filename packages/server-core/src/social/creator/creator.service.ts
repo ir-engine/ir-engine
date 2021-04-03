@@ -1,6 +1,6 @@
 // Initializes the `feed` service on path `/feed`
 import { ServiceAddons } from '@feathersjs/feathers';
-import { Application } from '../../declarations';
+import { Application } from '../../../declarations';
 import { Creator } from './creator.class';
 import createModel from '../../models/social/creator.model';
 import hooks from './creator.hooks';
@@ -8,7 +8,7 @@ import { Creator as CreatorInterface } from '../../../../common/interfaces/Creat
 import creatorDocs from './creator.docs';
 
 // Add this service to the service type index
-declare module '../../declarations' {
+declare module '../../../declarations' {
   interface ServiceTypes {
     'creator': CreatorInterface & ServiceAddons<any>;
   }

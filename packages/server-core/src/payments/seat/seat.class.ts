@@ -1,6 +1,6 @@
 import { Service, SequelizeServiceOptions } from 'feathers-sequelize';
 import { Params } from '@feathersjs/feathers';
-import { Application } from '../../declarations';
+import { Application } from '../../../declarations';
 import { BadRequest, NotFound } from '@feathersjs/errors';
 
 /**

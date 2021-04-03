@@ -1,5 +1,5 @@
 import { ServiceAddons } from '@feathersjs/feathers';
-import { Application } from '../../declarations';
+import { Application } from '../../../declarations';
 import { User } from './user.class';
 import createModel from '../../models/user.model';
 import hooks from './user.hooks';
@@ -7,7 +7,7 @@ import _ from 'lodash';
 import logger from '../../logger';
 import userDocs from './user.docs';
 
-declare module '../../declarations' {
+declare module '../../../declarations' {
 
   /**
    * Interface for users input

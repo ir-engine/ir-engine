@@ -2,7 +2,7 @@ import { BadRequest } from '@feathersjs/errors';
 import { Params } from '@feathersjs/feathers';
 import { Service, SequelizeServiceOptions } from 'feathers-sequelize';
 import { QueryTypes } from 'sequelize';
-import { Application } from '../../declarations';
+import { Application } from '../../../declarations';
 // import creatorModel from '../../models/creator.model';
 import { extractLoggedInUserFromParams } from '../auth-management/auth-management.utils';
 

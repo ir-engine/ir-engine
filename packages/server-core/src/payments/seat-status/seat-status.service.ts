@@ -1,11 +1,11 @@
 import { ServiceAddons } from '@feathersjs/feathers';
-import { Application } from '../../declarations';
+import { Application } from '../../../declarations';
 import { SeatStatus } from './seat-status.class';
 import createModel from '../../models/payments/seat-status.model';
 import hooks from './seat-status.hooks';
 import seatStatusDocs from './seat-status.docs';
 
-declare module '../../declarations' {
+declare module '../../../declarations' {
   interface ServiceTypes {
     'seat-status': SeatStatus & ServiceAddons<any>;
   }

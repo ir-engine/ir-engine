@@ -1,5 +1,5 @@
 import { ServiceAddons } from '@feathersjs/feathers';
-import { Application } from '../../declarations';
+import { Application } from '../../../declarations';
 import { Authmanagement } from './auth-management.class';
 import notifier from './auth-management.notifier';
 import hooks from './auth-management.hooks';
@@ -10,7 +10,7 @@ import authManagement from 'feathers-authentication-management';
  * 
  * @author Vyacheslav Solovjov
  */
-declare module '../../declarations' {
+declare module '../../../declarations' {
   interface ServiceTypes {
     'authManagement': Authmanagement & ServiceAddons<any>;
   }

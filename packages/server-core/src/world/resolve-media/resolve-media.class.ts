@@ -1,5 +1,5 @@
 import { Id, NullableId, Paginated, Params, ServiceMethods } from '@feathersjs/feathers';
-import { Application } from '../../declarations';
+import { Application } from '../../../declarations';
 import { BadRequest } from '@feathersjs/errors';
 import StorageProvider from '../../media/storageprovider/storageprovider';
 import logger from '../../logger';

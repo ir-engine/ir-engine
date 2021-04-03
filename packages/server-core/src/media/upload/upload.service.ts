@@ -4,14 +4,14 @@ import multer from 'multer';
 import StorageProvider from '../storageprovider/storageprovider';
 import blobService from 'feathers-blob';
 
-import { Application } from '../../declarations';
+import { Application } from '../../../declarations';
 import { Upload } from './upload.class';
 import hooks from './upload.hooks';
 import uploadDocs from './upload.docs';
 
 const multipartMiddleware = multer();
 
-declare module '../../declarations' {
+declare module '../../../declarations' {
   interface ServiceTypes {
     'upload': Upload & ServiceAddons<any>;
   }

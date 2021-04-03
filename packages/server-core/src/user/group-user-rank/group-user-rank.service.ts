@@ -1,11 +1,11 @@
 import { ServiceAddons } from '@feathersjs/feathers';
-import { Application } from '../../declarations';
+import { Application } from '../../../declarations';
 import { GroupUserRank } from './group-user-rank.class';
 import createModel from '../../models/group-user-rank.model';
 import hooks from './group-user-rank.hooks';
 import groupUserRankDocs from './group-user-rank.docs';
 
-declare module '../../declarations' {
+declare module '../../../declarations' {
   interface ServiceTypes {
     'group-user-rank': GroupUserRank & ServiceAddons<any>;
   }

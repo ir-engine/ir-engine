@@ -1,16 +1,16 @@
 // Initializes the `accept-invite` service on path `/accept-invite`
 import { ServiceAddons } from '@feathersjs/feathers';
-import { Application } from '../../declarations';
+import { Application } from '../../../declarations';
 import { AcceptInvite } from './accept-invite.class';
 import hooks from './accept-invite.hooks';
-import config from '../../config';
+import config from '../../appconfig';
 import logger from "../../logger";
 
 
 /**
  * accept invite service 
  */
-declare module '../../declarations' {
+declare module '../../../declarations' {
   interface ServiceTypes {
     'a-i': AcceptInvite & ServiceAddons<any>;
   }

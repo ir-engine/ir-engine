@@ -1,13 +1,13 @@
 // Initializes the `gameserver-subdomain-provision` service on path `/gameserver-subdomain-provision`
 import { ServiceAddons } from '@feathersjs/feathers';
-import { Application } from '../../declarations';
+import { Application } from '../../../declarations';
 import { GameserverSubdomainProvision } from './gameserver-subdomain-provision.class';
 import createModel from '../../models/gameserver-subdomain-provision.model';
 import hooks from './gameserver-subdomain-provision.hooks';
 import gameServerSubdomainProvisionDocs from './gameServer-subdomain-provision.docs';
 
 // Add this service to the service type index
-declare module '../../declarations' {
+declare module '../../../declarations' {
   interface ServiceTypes {
     'gameserver-subdomain-provision': GameserverSubdomainProvision & ServiceAddons<any>;
   }

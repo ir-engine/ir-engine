@@ -1,5 +1,5 @@
 import { HookContext } from '@feathersjs/feathers';
-import config from '../config';
+import config from '../appconfig';
 import StorageProvider from '../media/storageprovider/storageprovider';
 
 export default (options = {}) => {

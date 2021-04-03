@@ -1,6 +1,6 @@
 import { Service, SequelizeServiceOptions } from 'feathers-sequelize';
 import { DEFAULT_AVATAR_ID } from "@xr3ngine/engine/src/common/constants/AvatarConstants";
-import { Application } from '../../declarations';
+import { Application } from '../../../declarations';
 import { Sequelize } from 'sequelize';
 import { v1 as uuidv1 } from 'uuid';
 import getFreeInviteCode from "../../util/get-free-invite-code";

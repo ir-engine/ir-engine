@@ -1,13 +1,13 @@
 // Initializes the `location-settings` service on path `/location-settings`
 import { ServiceAddons } from '@feathersjs/feathers';
-import { Application } from '../../declarations';
+import { Application } from '../../../declarations';
 import { LocationSettings } from './location-settings.class';
 import createModel from '../../models/location-settings.model';
 import hooks from './location-settings.hooks';
 import locationSettingsDocs from './location-settings-docs';
 
 // Add this service to the service type index
-declare module '../../declarations' {
+declare module '../../../declarations' {
   interface ServiceTypes {
     'location-settings': LocationSettings & ServiceAddons<any>;
   }

@@ -1,7 +1,7 @@
 import { Service, SequelizeServiceOptions } from 'feathers-sequelize';
 import { Params } from '@feathersjs/feathers';
-import { Application } from '../../declarations';
-import config from '../../config';
+import { Application } from '../../../declarations';
+import config from '../../appconfig';
 
 export class Subscription extends Service {
   app: Application

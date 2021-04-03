@@ -1,11 +1,11 @@
 import { ServiceAddons } from '@feathersjs/feathers';
-import { Application } from '../../declarations';
+import { Application } from '../../../declarations';
 import { Entity } from './entity.class';
 import createModel from '../../models/entity.model';
 import hooks from './entity.hooks';
 import entityDocs from './entity.docs';
 
-declare module '../../declarations' {
+declare module '../../../declarations' {
   interface ServiceTypes {
     'entity': Entity & ServiceAddons<any>;
   }

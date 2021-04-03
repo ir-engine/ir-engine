@@ -1,5 +1,5 @@
 import { ServiceAddons } from '@feathersjs/feathers';
-import { Application } from '../../declarations';
+import { Application } from '../../../declarations';
 import { Attribution } from './attribution.class';
 import createModel from '../../models/attribution.model';
 import hooks from './attribution.hooks';
@@ -8,7 +8,7 @@ import attributionDocs from './attribution.docs';
 /**
  * Attribution service 
  */
-declare module '../../declarations' {
+declare module '../../../declarations' {
   interface ServiceTypes {
     'attribution': Attribution & ServiceAddons<any>;
   }

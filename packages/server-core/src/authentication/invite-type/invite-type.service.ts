@@ -1,13 +1,13 @@
 // Initializes the `invite-type` service on path `/invite-type`
 import { ServiceAddons } from '@feathersjs/feathers';
-import { Application } from '../../declarations';
+import { Application } from '../../../declarations';
 import { InviteType } from './invite-type.class';
 import createModel from '../../models/invite-type.model';
 import hooks from './invite-type.hooks';
 import inviteTypeDocs from './invite-type.docs';
 
 // Add this service to the service type index
-declare module '../../declarations' {
+declare module '../../../declarations' {
   interface ServiceTypes {
     'invite-type': InviteType & ServiceAddons<any>;
   }

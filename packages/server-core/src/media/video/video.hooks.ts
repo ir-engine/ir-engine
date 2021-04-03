@@ -4,7 +4,7 @@ import { iff, disallow } from 'feathers-hooks-common';
 import addAttribution from '@xr3ngine/server-core/src/hooks/add-attribution';
 import restrictUserRole from '@xr3ngine/server-core/src/hooks/restrict-user-role';
 import addUserToBody from '@xr3ngine/server-core/src/hooks/set-loggedin-user-in-body';
-import config from '../../config';
+import config from '../../appconfig';
 // Don't remove this comment. It's needed to format import lines nicely.
 
 const { authenticate } = hooks;

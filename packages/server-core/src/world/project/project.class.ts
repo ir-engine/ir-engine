@@ -9,12 +9,12 @@ import {
   mapProjectTemplateDetailData
 } from './project-helper';
 import { extractLoggedInUserFromParams } from '../../services/auth-management/auth-management.utils';
-import { Application } from '../../declarations';
+import { Application } from '../../../declarations';
 import StorageProvider from '../../media/storageprovider/storageprovider';
 import { BadRequest } from '@feathersjs/errors';
 import logger from '../../logger';
 import { Op } from "sequelize";
-import config from '../../config';
+import config from '../../appconfig';
 import { contents } from "../../../../common/scenes-templates";
 interface Data { }
 interface ServiceOptions {}

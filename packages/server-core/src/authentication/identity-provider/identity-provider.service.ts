@@ -1,10 +1,10 @@
 import { ServiceAddons } from '@feathersjs/feathers';
-import { Application } from '../../declarations';
+import { Application } from '../../../declarations';
 import { IdentityProvider } from './identity-provider.class';
 import createModel from '../../models/user/identity-provider.model';
 import hooks from './identity-provider.hooks';
 import identyDocs from './identity-provider.docs';
-declare module '../../declarations' {
+declare module '../../../declarations' {
   interface ServiceTypes {
     'identity-provider': IdentityProvider & ServiceAddons<any>;
   }

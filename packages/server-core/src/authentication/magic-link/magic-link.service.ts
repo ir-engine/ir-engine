@@ -1,10 +1,10 @@
 import { ServiceAddons } from '@feathersjs/feathers';
-import { Application } from '../../declarations';
+import { Application } from '../../../declarations';
 import { Magiclink } from './magic-link.class';
 import magicLinkDocs from './magic-link.docs';
 import hooks from './magic-link.hooks';
 
-declare module '../../declarations' {
+declare module '../../../declarations' {
   interface ServiceTypes {
     'magic-link': Magiclink & ServiceAddons<any>;
   }

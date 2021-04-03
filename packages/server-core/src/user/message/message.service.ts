@@ -1,11 +1,11 @@
 import { ServiceAddons } from '@feathersjs/feathers';
-import { Application } from '../../declarations';
+import { Application } from '../../../declarations';
 import { Message } from './message.class';
 import createModel from '../../models/message.model';
 import hooks from './message.hooks';
 import messageDocs from './message.docs';
 
-declare module '../../declarations' {
+declare module '../../../declarations' {
   interface ServiceTypes {
     'message': Message & ServiceAddons<any>;
   }

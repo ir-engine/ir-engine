@@ -1,11 +1,11 @@
 import { ServiceAddons } from '@feathersjs/feathers';
-import { Application } from '../../declarations';
+import { Application } from '../../../declarations';
 import { Tag } from './tag.class';
 import createModel from '../publish-project/tag.model';
 import hooks from './tag.hooks';
 import tagDocs from './tag.docs';
 
-declare module '../../declarations' {
+declare module '../../../declarations' {
   interface ServiceTypes {
     'tag': Tag & ServiceAddons<any>;
   }

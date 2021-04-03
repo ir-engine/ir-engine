@@ -1,4 +1,4 @@
-import config from '../../config';
+import config from '../../appconfig';
 import { collectionType } from './collectionType';
 
 export const seed = {

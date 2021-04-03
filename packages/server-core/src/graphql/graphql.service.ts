@@ -5,12 +5,12 @@ import { PubSub } from 'graphql-subscriptions';
 import { generateModelTypes, generateApolloServer } from 'graphql-sequelize-generator';
 import { NotAuthenticated } from '@feathersjs/errors';
 import jwt from 'jsonwebtoken';
-import config from '../../config';
+import config from '../../appconfig';
 
 import { Sequelize } from 'sequelize';
 import logger from '../app/logger';
 
-declare module '../../declarations' {
+declare module '../../../declarations' {
   interface ServiceTypes {
     'graphql': Graphql & ServiceAddons<any>;
   }

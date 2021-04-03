@@ -1,6 +1,6 @@
 import { Params } from '@feathersjs/feathers';
-import { Application } from '../../declarations';
-import config from '../../config';
+import { Application } from '../../../declarations';
+import config from '../../appconfig';
 
 /**
  * A method which get link 

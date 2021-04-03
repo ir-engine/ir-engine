@@ -1,11 +1,11 @@
 import { ServiceAddons } from '@feathersjs/feathers';
-import { Application } from '../../declarations';
+import { Application } from '../../../declarations';
 import { Group } from './group.class';
 import createModel from '../../models/group.model';
 import hooks from './group.hooks';
 import groupDocs from "./group.docs";
 
-declare module '../../declarations' {
+declare module '../../../declarations' {
   interface ServiceTypes {
     'group': Group & ServiceAddons<any>;
   }

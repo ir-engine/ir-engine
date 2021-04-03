@@ -1,13 +1,13 @@
 // Initializes the `location-admin` service on path `/location-admin`
 import { ServiceAddons } from '@feathersjs/feathers';
-import { Application } from '../../declarations';
+import { Application } from '../../../declarations';
 import { LocationAdmin } from './location-admin.class';
 import createModel from '../../models/network/location-admin.model';
 import hooks from './location-admin.hooks';
 import locationAdminDocs from './location-admin.docs';
 
 // Add this service to the service type index
-declare module '../../declarations' {
+declare module '../../../declarations' {
   interface ServiceTypes {
     'location-admin': LocationAdmin & ServiceAddons<any>;
   }

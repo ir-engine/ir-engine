@@ -1,5 +1,5 @@
 import { ServiceAddons } from '@feathersjs/feathers';
-import { Application } from '../../declarations';
+import { Application } from '../../../declarations';
 import { UserRelationship } from './user-relationship.class';
 import createModel from '../../models/user-relationship.model';
 import hooks from './user-relationship.hooks';
@@ -7,7 +7,7 @@ import { Op } from 'sequelize';
 import logger from '../../logger';
 import userRalationshipDocs from './user-ralationship.docs';
 
-declare module '../../declarations' {
+declare module '../../../declarations' {
   interface ServiceTypes {
     'user-relationship': UserRelationship & ServiceAddons<any>;
   }

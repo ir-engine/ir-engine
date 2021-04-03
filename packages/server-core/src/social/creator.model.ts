@@ -1,5 +1,5 @@
 import { DataTypes, Sequelize } from 'sequelize';
-import { Application } from '../../declarations';
+import { Application } from '../../../declarations';
 
 /**
  * This model contain creator information - ARCAPP

@@ -1,13 +1,13 @@
 // Initializes the `rtc-ports` service on path `/rtc-ports`
 import { ServiceAddons } from '@feathersjs/feathers';
-import { Application } from '../../declarations';
+import { Application } from '../../../declarations';
 import { RtcPorts } from './rtc-ports.class';
 import createModel from '../../models/network/rtc-ports.model';
 import hooks from './rtc-ports.hooks';
 import rtcPortsDocs from './rtc-ports.docs';
 
 // Add this service to the service type index
-declare module '../../declarations' {
+declare module '../../../declarations' {
   interface ServiceTypes {
     'rtc-ports': RtcPorts & ServiceAddons<any>;
   }

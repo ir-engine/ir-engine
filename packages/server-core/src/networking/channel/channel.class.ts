@@ -1,5 +1,5 @@
 import { Service, SequelizeServiceOptions } from 'feathers-sequelize';
-import { Application } from '../../declarations';
+import { Application } from '../../../declarations';
 import { Params } from '@feathersjs/feathers';
 import { extractLoggedInUserFromParams } from '../auth-management/auth-management.utils';
 import { Op, Sequelize } from 'sequelize';

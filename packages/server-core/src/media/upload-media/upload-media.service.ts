@@ -1,5 +1,5 @@
 import { ServiceAddons } from '@feathersjs/feathers';
-import { Application } from '../../declarations';
+import { Application } from '../../../declarations';
 import { UploadMedia } from './upload-media.class';
 import hooks from './upload-media.hooks';
 import express from 'express';
@@ -8,10 +8,10 @@ import StorageProvider from '../storageprovider/storageprovider';
 import blobService from 'feathers-blob';
 import { v1 as uuidv1 } from 'uuid';
 import dauria from "dauria";
-import config from '../../config';
+import config from '../../appconfig';
 const multipartMiddleware = multer();
 
-declare module '../../declarations' {
+declare module '../../../declarations' {
   interface ServiceTypes {
     'media': UploadMedia & ServiceAddons<any>;
   }

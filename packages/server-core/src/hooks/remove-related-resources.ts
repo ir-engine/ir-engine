@@ -1,9 +1,7 @@
-import config from '../config';
 import { Hook, HookContext } from '@feathersjs/feathers';
+import logger from '../logger';
 import StorageProvider from '../media/storageprovider/storageprovider';
-import { StaticResource } from '../services/static-resource/static-resource.class';
-import logger from '../app/logger';
-
+import { StaticResource } from '../media/static-resource/static-resource.class';
 
 const getAllChildren = async (service: StaticResource, id: string | number | undefined, $skip: number): Promise<Record<string, any>[]> => {
   const pageResult = (await service.find({
