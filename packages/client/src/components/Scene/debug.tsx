@@ -3,10 +3,10 @@ import { selectAppState } from '@xr3ngine/client-core/src/common/reducers/app/se
 import { selectAuthState } from '@xr3ngine/client-core/src/user/reducers/auth/selector';
 import { doLoginAuto } from '@xr3ngine/client-core/src/user/reducers/auth/service';
 import { client } from '@xr3ngine/client-core/src/feathers';
-import { selectLocationState } from '@xr3ngine/client-networking/src/reducers/location/selector';
+import { selectLocationState } from '@xr3ngine/client-core/src/social/reducers/location/selector';
 import {
   getLocationByName
-} from '@xr3ngine/client-networking/src/reducers/location/service';
+} from '@xr3ngine/client-core/src/social/reducers/location/service';
 import { setCurrentScene } from '@xr3ngine/client-core/src/world/reducers/scenes/actions';
 import { selectUserState } from '@xr3ngine/client-core/src/user/reducers/user/selector';
 import { selectInstanceConnectionState } from '@xr3ngine/client-networking/src/reducers/instanceConnection/selector';
@@ -14,7 +14,7 @@ import {
   connectToInstanceServer,
   provisionInstanceServer
 } from '@xr3ngine/client-networking/src/reducers/instanceConnection/service';
-import { selectPartyState } from '@xr3ngine/client-networking/src/reducers/party/selector';
+import { selectPartyState } from '@xr3ngine/client-core/src/social/reducers/party/selector';
 import { SocketWebRTCClientTransport } from '@xr3ngine/client-networking/src/transports/SocketWebRTCClientTransport';
 import { EngineEvents } from '@xr3ngine/engine/src/ecs/classes/EngineEvents';
 import { DefaultInitializationOptions, initializeEngine } from '@xr3ngine/engine/src/initialize';

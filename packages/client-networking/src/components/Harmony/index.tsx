@@ -38,10 +38,7 @@ import {
     ThreeDRotation,
     Videocam
 } from '@material-ui/icons';
-import ProfileMenu from "@xr3ngine/client-core/components/ui/UserMenu/menus/ProfileMenu";
-import { selectAuthState } from '@xr3ngine/client-core/src/user/reducers/auth/selector';
-import { doLoginAuto } from '@xr3ngine/client-core/src/user/reducers/auth/service';
-import { selectChatState } from '@xr3ngine/client-core/reducers/chat/selector';
+import { selectChatState } from '@xr3ngine/client-core/src/social/reducers/chat/selector';
 import {
     createMessage,
     getChannelMessages,
@@ -50,27 +47,28 @@ import {
     removeMessage,
     updateChatTarget,
     updateMessageScrollInit
-} from '@xr3ngine/client-core/reducers/chat/service';
-import { selectFriendState } from "@xr3ngine/client-core/reducers/friend/selector";
-import { getFriends, unfriend } from "@xr3ngine/client-core/reducers/friend/service";
-import { selectGroupState } from "@xr3ngine/client-core/reducers/group/selector";
-import { createGroup, getGroups, patchGroup, removeGroup, removeGroupUser } from "@xr3ngine/client-core/reducers/group/service";
-import { updateInviteTarget } from "@xr3ngine/client-core/reducers/invite/service";
-import { selectLocationState } from "@xr3ngine/client-networking/src/reducers/location/selector";
-import { banUserFromLocation } from "@xr3ngine/client-networking/src/reducers/location/service";
-import { selectMediastreamState } from "@xr3ngine/client-core/reducers/mediastream/selector";
-import { updateCamAudioState, updateCamVideoState } from '@xr3ngine/client-core/reducers/mediastream/service';
-import { selectTransportState } from '@xr3ngine/client-core/reducers/transport/selector';
-import { changeChannelTypeState, updateChannelTypeState } from "@xr3ngine/client-core/reducers/transport/service";
+} from '@xr3ngine/client-core/src/social/reducers/chat/service';
+import { selectFriendState } from "@xr3ngine/client-core/src/social/reducers/friend/selector";
+import { getFriends, unfriend } from "@xr3ngine/client-core/src/social/reducers/friend/service";
+import { selectGroupState } from "@xr3ngine/client-core/src/social/reducers/group/selector";
+import { createGroup, getGroups, patchGroup, removeGroup, removeGroupUser } from "@xr3ngine/client-core/src/social/reducers/group/service";
+import { updateInviteTarget } from "@xr3ngine/client-core/src/social/reducers/invite/service";
+import { selectLocationState } from "@xr3ngine/client-core/src/social/reducers/location/selector";
+import { banUserFromLocation } from "@xr3ngine/client-core/src/social/reducers/location/service";
+import { selectPartyState } from '@xr3ngine/client-core/src/social/reducers/party/selector';
+import { createParty, getParty, removeParty, removePartyUser, transferPartyOwner } from "@xr3ngine/client-core/src/social/reducers/party/service";
+import ProfileMenu from "@xr3ngine/client-core/src/user/components/UserMenu/menus/AvatarMenu";
+import { selectAuthState } from '@xr3ngine/client-core/src/user/reducers/auth/selector';
+import { doLoginAuto } from '@xr3ngine/client-core/src/user/reducers/auth/service';
 import { selectUserState } from '@xr3ngine/client-core/src/user/reducers/user/selector';
 import { getLayerUsers } from "@xr3ngine/client-core/src/user/reducers/user/service";
+import PartyParticipantWindow from '@xr3ngine/client-networking/src/components/PartyParticipantWindow';
 import { selectChannelConnectionState } from '@xr3ngine/client-networking/src/reducers/channelConnection/selector';
 import {
     connectToChannelServer,
     provisionChannelServer,
     resetChannelServer
 } from '@xr3ngine/client-networking/src/reducers/channelConnection/service';
-import PartyParticipantWindow from '@xr3ngine/client-networking/src/components/PartyParticipantWindow';
 import { Group as GroupType } from "@xr3ngine/common/interfaces/Group";
 import { Message } from '@xr3ngine/common/interfaces/Message';
 import { User } from '@xr3ngine/common/interfaces/User';
@@ -86,22 +84,22 @@ import moment from 'moment';
 import React, { useEffect, useRef, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
-import { selectPartyState } from "../../reducers/party/selector";
-import { createParty, getParty, removeParty, removePartyUser, transferPartyOwner } from "../../reducers/party/service";
+import { selectMediastreamState } from '../../reducers/mediastream/selector';
+import { updateCamAudioState, updateCamVideoState } from '../../reducers/mediastream/service';
+import { selectTransportState } from '../../reducers/transport/selector';
+import { changeChannelTypeState, updateChannelTypeState } from '../../reducers/transport/service';
 import {
     configureMediaTransports,
     createCamAudioProducer,
     createCamVideoProducer,
     endVideoChat,
-
-
-    leave, pauseProducer,
+    leave,
+    pauseProducer,
     resumeProducer
 } from '../../transports/SocketWebRTCClientFunctions';
 import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport';
 //@ts-ignore
 import styles from './Harmony.module.scss';
-
 const engineRendererCanvasId = 'engine-renderer-canvas';
 
 const mapStateToProps = (state: any): any => {

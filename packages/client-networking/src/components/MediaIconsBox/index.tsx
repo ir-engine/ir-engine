@@ -21,7 +21,7 @@ import {
     resumeProducer
 } from "../../transports/SocketWebRTCClientFunctions";
 import { selectAuthState } from "@xr3ngine/client-core/src/user/reducers/auth/selector";
-import { selectLocationState } from "@xr3ngine/client-networking/src/reducers/location/selector";
+import { selectLocationState } from "@xr3ngine/client-core/src/social/reducers/location/selector";
 import { updateCamAudioState, updateCamVideoState, changeFaceTrackingState } from "@xr3ngine/client-core/reducers/mediastream/service";
 import {
     startFaceTracking,
@@ -30,7 +30,7 @@ import {
     stopLipsyncTracking
 } from "@xr3ngine/engine/src/input/behaviors/WebcamInputBehaviors";
 import { Network } from "@xr3ngine/engine/src/networking/classes/Network";
-import { VrIcon } from "@xr3ngine/client-core/components/ui/Icons/Vricon";
+import { VrIcon } from "@xr3ngine/client-core/src/common/components/Icons/Vricon";
 import { Engine } from "@xr3ngine/engine/src/ecs/classes/Engine";
 import { EngineEvents } from "@xr3ngine/engine/src/ecs/classes/EngineEvents";
 import { XRSystem } from "@xr3ngine/engine/src/xr/systems/XRSystem";

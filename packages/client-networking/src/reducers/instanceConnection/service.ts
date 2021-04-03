@@ -1,19 +1,19 @@
-import { MediaStreamSystem } from "@xr3ngine/engine/src/networking/systems/MediaStreamSystem";
+import { client } from '@xr3ngine/client-core/src/feathers';
+import store from "@xr3ngine/client-core/src/store";
+import { EngineEvents } from "@xr3ngine/engine/src/ecs/classes/EngineEvents";
 import { Network } from "@xr3ngine/engine/src/networking/classes/Network";
+import { MediaStreamSystem } from "@xr3ngine/engine/src/networking/systems/MediaStreamSystem";
+import getConfig from 'next/config';
 import { Dispatch } from 'redux';
 import { endVideoChat, leave } from "../../transports/SocketWebRTCClientFunctions";
-import { client } from '../feathers';
-import store from "../store";
+import { triggerUpdateConsumers } from '../mediastream/service';
 import {
   instanceServerConnected,
   instanceServerConnecting, instanceServerDisconnected,
   instanceServerProvisioned,
   instanceServerProvisioning
 } from './actions';
-import { EngineEvents } from "@xr3ngine/engine/src/ecs/classes/EngineEvents";
-import { triggerUpdateConsumers } from "../mediastream/service";
 
-import getConfig from 'next/config';
 const { publicRuntimeConfig } = getConfig();
 
 export function provisionInstanceServer(locationId?: string, instanceId?: string, sceneId?: string) {
@@ -77,9 +77,7 @@ export function connectToInstanceServer(channelType: string, channelId?: string)
 
       EngineEvents.instance.addEventListener(MediaStreamSystem.EVENTS.TRIGGER_UPDATE_CONSUMERS, triggerUpdateConsumers);
 
-      // setClient(instanceClient);
       dispatch(instanceServerConnected());
-      // dispatch(socketCreated(socket));
     } catch (err) {
       console.log(err);
     }

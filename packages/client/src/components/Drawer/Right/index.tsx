@@ -28,13 +28,13 @@ import {
     SupervisedUserCircle
 } from '@material-ui/icons';
 import { selectAuthState } from '@xr3ngine/client-core/src/user/reducers/auth/selector';
-import { selectFriendState } from '@xr3ngine/client-core/reducers/friend/selector';
-import { getFriends } from '@xr3ngine/client-core/reducers/friend/service';
-import { selectGroupState } from '@xr3ngine/client-core/reducers/group/selector';
+import { selectFriendState } from '@xr3ngine/client-core/src/social/reducers/friend/selector';
+import { getFriends } from '@xr3ngine/client-core/src/social/reducers/friend/service';
+import { selectGroupState } from '@xr3ngine/client-core/src/social/reducers/group/selector';
 import {
     getInvitableGroups
-} from '@xr3ngine/client-core/reducers/group/service';
-import { selectInviteState } from '@xr3ngine/client-core/reducers/invite/selector';
+} from '@xr3ngine/client-core/src/social/reducers/group/service';
+import { selectInviteState } from '@xr3ngine/client-core/src/social/reducers/invite/selector';
 import {
     acceptInvite,
     declineInvite,
@@ -43,9 +43,9 @@ import {
     retrieveSentInvites,
     sendInvite,
     updateInviteTarget
-} from '@xr3ngine/client-core/reducers/invite/service';
-import { selectLocationState } from '@xr3ngine/client-networking/src/reducers/location/selector';
-import { getLocations } from '@xr3ngine/client-networking/src/reducers/location/service';
+} from '@xr3ngine/client-core/src/social/reducers/invite/service';
+import { selectLocationState } from '@xr3ngine/client-core/src/social/reducers/location/selector';
+import { getLocations } from '@xr3ngine/client-core/src/social/reducers/location/service';
 import { User } from '@xr3ngine/common/interfaces/User';
 import classNames from 'classnames';
 import _ from 'lodash';
@@ -53,7 +53,7 @@ import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 import { provisionInstanceServer } from '@xr3ngine/common/client-networking/src/reducers/instanceConnection/service';
-import { selectPartyState } from '@xr3ngine/common/client-networking/src/reducers/party/selector';
+import { selectPartyState } from '@xr3ngine/client-core/src/social/reducers/party/selector';
 //@ts-ignore
 import styles from './Right.module.scss';
 

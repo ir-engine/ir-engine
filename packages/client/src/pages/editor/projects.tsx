@@ -12,11 +12,11 @@ import { connect } from 'react-redux';
 import {selectAuthState} from "@xr3ngine/client-core/src/user/reducers/auth/selector";
 import {bindActionCreators, Dispatch} from "redux";
 import {doLoginAuto, logoutUser} from "@xr3ngine/client-core/src/user/reducers/auth/service";
-import SignIn from "@xr3ngine/client-core/components/ui/Auth/Login";
-import AdminConsole from "@xr3ngine/client-core/components/ui/Admin";
-import ProfileMenu from "@xr3ngine/client-core/components/ui/UserMenu/menus/ProfileMenu";
+import SignIn from "@xr3ngine/client-core/src/common/components/Auth/Login";
+import AdminConsole from "@xr3ngine/client-core/src/common/components/Admin";
+import ProfileMenu from "@xr3ngine/client-core/src/common/components/UserMenu/menus/ProfileMenu";
 import ClickAwayListener from "@material-ui/core/ClickAwayListener";
-import styles from "@xr3ngine/client-core/components/ui/Harmony/Harmony.module.scss";
+import styles from "@xr3ngine/client-core/src/common/components/Harmony/Harmony.module.scss";
 import {Person} from "@material-ui/icons";
 import { useTranslation } from 'react-i18next';
 

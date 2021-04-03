@@ -1,30 +1,30 @@
 import { Button, Snackbar } from '@material-ui/core';
-import { InteractableModal } from '@xr3ngine/client-core/components/ui/InteractableModal';
-import LoadingScreen from '@xr3ngine/client-core/components/ui/Loader';
-import { MobileGamepadProps } from "@xr3ngine/client-core/components/ui/MobileGamepad/MobileGamepadProps";
-import NamePlate from '@xr3ngine/client-core/components/ui/NamePlate';
-import NetworkDebug from '@xr3ngine/client-core/components/ui/NetworkDebug/NetworkDebug';
-import { OpenLink } from '@xr3ngine/client-core/components/ui/OpenLink';
-import TooltipContainer from '@xr3ngine/client-core/components/ui/TooltipContainer';
-import UserMenu from '@xr3ngine/client-core/components/ui/UserMenu';
+import { InteractableModal } from '@xr3ngine/client-core/src/world/components/InteractableModal';
+import LoadingScreen from '@xr3ngine/client-core/src/common/components/Loader';
+import { MobileGamepadProps } from "@xr3ngine/client-core/src/common/components/MobileGamepad/MobileGamepadProps";
+import NamePlate from '@xr3ngine/client-core/src/world/components/NamePlate';
+import NetworkDebug from '@xr3ngine/client-networking/src/components/NetworkDebug';
+import { OpenLink } from '@xr3ngine/client-core/src/world/components/OpenLink';
+import TooltipContainer from '@xr3ngine/client-core/src/common/components/TooltipContainer';
+import UserMenu from '@xr3ngine/client-core/src/user/components/UserMenu';
 import { generalStateList, setAppLoaded, setAppOnBoardingStep, setAppSpecificOnBoardingStep } from '@xr3ngine/client-core/src/common/reducers/app/actions';
 import { selectAppState } from '@xr3ngine/client-core/src/common/reducers/app/selector';
 import { selectAuthState } from '@xr3ngine/client-core/src/user/reducers/auth/selector';
 import { doLoginAuto } from '@xr3ngine/client-core/src/user/reducers/auth/service';
 import { client } from '@xr3ngine/client-core/src/feathers';
-import { selectLocationState } from '@xr3ngine/client-networking/src/reducers/location/selector';
+import { selectLocationState } from '@xr3ngine/client-core/src/social/reducers/location/selector';
 import {
   getLocationByName
-} from '@xr3ngine/client-networking/src/reducers/location/service';
+} from '@xr3ngine/client-core/src/social/reducers/location/service';
 import { setCurrentScene } from '@xr3ngine/client-core/src/world/reducers/scenes/actions';
-import store from '@xr3ngine/client-core/reducers/store';
+import store from '@xr3ngine/client-core/src/store';
 import { selectUserState } from '@xr3ngine/client-core/src/user/reducers/user/selector';
 import { selectInstanceConnectionState } from '@xr3ngine/client-networking/src/reducers/instanceConnection/selector';
 import {
   connectToInstanceServer,
   provisionInstanceServer
 } from '@xr3ngine/client-networking/src/reducers/instanceConnection/service';
-import { selectPartyState } from '@xr3ngine/client-networking/src/reducers/party/selector';
+import { selectPartyState } from '@xr3ngine/client-core/src/social/reducers/party/selector';
 import MediaIconsBox from "@xr3ngine/client-networking/src/components/MediaIconsBox";
 import { SocketWebRTCClientTransport } from '@xr3ngine/client-networking/src/transports/SocketWebRTCClientTransport';
 import { testScenes, testUserId, testWorldState } from '@xr3ngine/common/assets/testScenes';
@@ -56,7 +56,7 @@ const { publicRuntimeConfig } = getConfig();
 
 const goHome = () => window.location.href = window.location.origin;
 
-const MobileGamepad = dynamic<MobileGamepadProps>(() => import("@xr3ngine/client-core/components/ui/MobileGamepad").then((mod) => mod.MobileGamepad), { ssr: false });
+const MobileGamepad = dynamic<MobileGamepadProps>(() => import("@xr3ngine/client-core/src/common/components/MobileGamepad").then((mod) => mod.MobileGamepad), { ssr: false });
 
 const engineRendererCanvasId = 'engine-renderer-canvas';
 

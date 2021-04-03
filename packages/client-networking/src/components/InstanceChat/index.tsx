@@ -19,9 +19,9 @@ import {
     createMessage,
     updateChatTarget,
     updateMessageScrollInit
-} from '@xr3ngine/client-core/reducers/chat/service';
+} from '@xr3ngine/client-core/src/social/reducers/chat/service';
 import { selectAuthState } from '@xr3ngine/client-core/src/user/reducers/auth/selector';
-import { selectChatState } from '@xr3ngine/client-core/reducers/chat/selector';
+import { selectChatState } from '@xr3ngine/client-core/src/social/reducers/chat/selector';
 import { selectInstanceConnectionState } from '../../../reducers/instanceConnection/selector';
 import {
     Message as MessageIcon,

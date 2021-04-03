@@ -16,7 +16,7 @@ import {
 } from '@material-ui/icons';
 import { selectAppState } from '@xr3ngine/client-core/src/common/reducers/app/selector';
 import { selectAuthState } from '@xr3ngine/client-core/src/user/reducers/auth/selector';
-import { selectLocationState } from '@xr3ngine/client-networking/src/reducers/location/selector';
+import { selectLocationState } from '@xr3ngine/client-core/src/social/reducers/location/selector';
 import { selectMediastreamState } from "@xr3ngine/client-core/reducers/mediastream/selector";
 import { updateCamAudioState, updateCamVideoState } from '@xr3ngine/client-core/reducers/mediastream/service';
 import { MessageTypes } from "@xr3ngine/engine/src/networking/enums/MessageTypes";
@@ -36,7 +36,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { connect } from "react-redux";
 import { Dispatch } from "redux";
 import { selectUserState } from '@xr3ngine/client-core/src/user/reducers/user/selector';
-import { getAvatarURLFromNetwork } from "@xr3ngine/client-core/components/ui/UserMenu/util";
+import { getAvatarURLFromNetwork } from "@xr3ngine/client-core/src/common/components/UserMenu/util";
 import Draggable from './Draggable';
 // @ts-ignore
 import styles from './PartyParticipantWindow.module.scss';

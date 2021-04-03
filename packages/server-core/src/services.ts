@@ -1,6 +1,5 @@
 import { Application } from '../declarations';
 
-// Types
 import EntityServices from './entities/services';
 import GraphQLServices from './graphql/services';
 import MediaServices from './media/services';
@@ -14,14 +13,14 @@ import WorldServices from './world/services';
 export default (app: Application): void => {
   [
     ...EntityServices,
-    ...GraphQLServices,
+    ...WorldServices,
+    ...UserServices,
     ...MediaServices,
     ...NetworkingServices,
     ...PaymentServices,
     ...SocialServices,
     ...SocialMediaServices,
-    ...UserServices,
-    ...WorldServices
+    ...GraphQLServices,
   ].forEach(service => {
     app.configure(service);
   });

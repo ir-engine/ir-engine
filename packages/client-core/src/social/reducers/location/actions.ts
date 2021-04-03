@@ -7,7 +7,7 @@ import {
   LOCATION_REMOVED,
   LOCATION_BAN_CREATED,
   LOCATION_NOT_FOUND,
-} from '../actions';
+} from '@xr3ngine/client-networking/src/reducers/actions';
 import { Location } from '@xr3ngine/common/interfaces/Location';
 
 

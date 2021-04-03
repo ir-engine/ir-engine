@@ -1,10 +1,10 @@
 import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
-import AdminConsole from '@xr3ngine/client-core/components/ui/Admin';
+import AdminConsole from '@xr3ngine/client-core/src/common/components/Admin';
 import {doLoginAuto} from "@xr3ngine/client-core/src/user/reducers/auth/service";
-import Dashboard  from "@xr3ngine/client-core/components/ui/Layout/Dashboard";
-import Analytics from "@xr3ngine/client-core/components/ui/Admin/Analytics/index";
+import Dashboard  from "@xr3ngine/client-core/src/common/components/Layout/Dashboard";
+import Analytics from "@xr3ngine/client-core/src/common/components/Admin/Analytics/index";
 
 interface Props {
     doLoginAuto?: any;

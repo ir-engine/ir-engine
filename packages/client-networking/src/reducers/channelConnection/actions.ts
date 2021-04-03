@@ -1,12 +1,4 @@
-import {
-  CHANNEL_SERVER_PROVISIONING,
-  CHANNEL_SERVER_PROVISIONED,
-  CHANNEL_SERVER_CONNECTING,
-  CHANNEL_SERVER_CONNECTED,
-  CHANNEL_SERVER_DISCONNECTED,
-  SOCKET_CREATED
-} from '@xr3ngine/client-core/reducers/actions';
-
+import { CHANNEL_SERVER_PROVISIONING, CHANNEL_SERVER_PROVISIONED, CHANNEL_SERVER_CONNECTING, CHANNEL_SERVER_CONNECTED, CHANNEL_SERVER_DISCONNECTED } from '@xr3ngine/client-core/src/world/reducers/actions';
 import { InstanceServerProvisionResult } from '@xr3ngine/common/interfaces/InstanceServerProvisionResult';
 
 export interface ChannelServerProvisioningAction {
@@ -74,12 +66,5 @@ export function channelServerConnected (): ChannelServerConnectedAction {
 export function channelServerDisconnected (): ChannelServerDisconnectedAction {
   return {
     type: CHANNEL_SERVER_DISCONNECTED
-  };
-}
-
-export function socketCreated(socket: any): SocketCreatedAction {
-  return {
-    type: SOCKET_CREATED,
-    socket: socket
   };
 }

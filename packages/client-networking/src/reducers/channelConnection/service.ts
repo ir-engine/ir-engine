@@ -3,8 +3,9 @@ import { Network } from "@xr3ngine/engine/src/networking/classes/Network";
 import { MediaStreamSystem } from "@xr3ngine/engine/src/networking/systems/MediaStreamSystem";
 import getConfig from 'next/config';
 import { Dispatch } from 'redux';
-import { client } from '../feathers';
-import store from "../store";
+import { client } from '@xr3ngine/client-core/src/feathers';
+import store from "@xr3ngine/client-core/src/store";
+
 import {
   channelServerConnected,
   channelServerConnecting,
@@ -72,9 +73,7 @@ export function connectToChannelServer(channelId: string, isHarmonyPage?: boolea
         isHarmonyPage: isHarmonyPage
       });
 
-      // setClient(instanceClient);
       dispatch(channelServerConnected());
-      // dispatch(socketCreated(socket));
     } catch (err) {
       console.log(err);
     }

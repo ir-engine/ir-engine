@@ -1,15 +1,17 @@
+import { StaticResource } from '@xr3ngine/common/interfaces/StaticResource';
+import { INSTANCE_REMOVED } from '../../../social/reducers/actions';
+import {
+  INSTANCES_RETRIEVED,
+  INSTANCE_CREATE,
+  INSTANCE_PATCHED,
+  INSTANCE_REMOVED_ROW,
+  LOCATION_TYPES_RETRIEVED
+} from '../../../world/reducers/actions';
 import {
   VIDEO_CREATED,
-  VIDEO_UPDATED,
   VIDEO_DELETED,
-  LOCATION_TYPES_RETRIEVED,
-  INSTANCES_RETRIEVED,
-  INSTANCE_REMOVED,
-  INSTANCE_CREATE,
-  INSTANCE_REMOVED_ROW,
-  INSTANCE_PATCHED
-} from '../../../actions';
-import { StaticResource } from '@xr3ngine/common/interfaces/StaticResource';
+  VIDEO_UPDATED
+} from '../actions';
 
 export interface VideoCreationForm {
   name: string;

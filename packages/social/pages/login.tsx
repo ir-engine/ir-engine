@@ -1,4 +1,4 @@
-import Layout from '@xr3ngine/client-core/components/ui/Layout/OverlayLayout';
+import Layout from '@xr3ngine/client-core/src/common/components/Layout/OverlayLayout';
 import { selectAuthState } from "@xr3ngine/client-core/src/user/reducers/auth/selector";
 import { doLoginAuto, resetPassword } from '@xr3ngine/client-core/src/user/reducers/auth/service';
 import { selectInstanceConnectionState } from '@xr3ngine/client-core/reducers/instanceConnection/selector';
