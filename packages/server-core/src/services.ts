@@ -23,6 +23,6 @@ export default (app: Application): void => {
     ...UserServices,
     ...WorldServices
   ].forEach(service => {
-    app.configure(service)
-  })
+    app.configure(service);
+  });
 };
