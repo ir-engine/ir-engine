@@ -1,6 +1,6 @@
 import config from '../config';
 import { Hook, HookContext } from '@feathersjs/feathers';
-import StorageProvider from '../storage/storageprovider';
+import StorageProvider from '../media/storageprovider/storageprovider';
 import { StaticResource } from '../services/static-resource/static-resource.class';
 import logger from '../app/logger';
 
