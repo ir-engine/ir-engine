@@ -9,7 +9,7 @@ import * as path from 'path';
 import { BadRequest } from '@feathersjs/errors';
 import * as pug from 'pug';
 import requireMainFilename from 'require-main-filename';
-import config from '../config';
+import config from '../../appconfig';
 import logger from '../app/logger';
 
 

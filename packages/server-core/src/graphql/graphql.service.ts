@@ -1,5 +1,5 @@
 import { ServiceAddons } from '@feathersjs/feathers';
-import { Application } from '../declarations';
+import { Application } from '../../../declarations';
 import { Graphql } from './graphql.class';
 import { PubSub } from 'graphql-subscriptions';
 import { generateModelTypes, generateApolloServer } from 'graphql-sequelize-generator';

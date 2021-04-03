@@ -2,11 +2,11 @@
 // import util from 'util';
 // import { exec } from 'child_process';
 // import * as path from 'path';
-// import config from '../config';
+// import config from '../../appconfig';
 // import youtubedl from 'youtube-dl';
 // import AWS from 'aws-sdk';
 // import S3BlobStore from 's3-blob-store';
-// import { Application } from '../declarations';
+// import { Application } from '../../../declarations';
 // import StorageProvider from '../storage/storageprovider';
 // import createStaticResource from './create-static-resource';
 //

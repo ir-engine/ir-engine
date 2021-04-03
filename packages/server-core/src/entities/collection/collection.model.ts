@@ -1,7 +1,7 @@
 import { Sequelize, DataTypes } from 'sequelize';
-import { Application } from '../declarations';
-import generateShortId from '../util/generate-short-id';
-import config from '../config';
+import { Application } from '../../../declarations';
+import generateShortId from '../../util/generate-short-id';
+import config from '../../appconfig';
 
 const COLLECTION_API_ENDPOINT = `${config.server.url}/collection`;
 

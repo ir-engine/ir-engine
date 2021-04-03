@@ -3,33 +3,32 @@ import { Application } from '../../../declarations';
 
 export default (app: Application): any => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient');
-  const ownedFile = sequelizeClient.define('owned_file', {
-    id: {
-      type: DataTypes.UUID,
-      defaultValue: DataTypes.UUIDV1,
+  const subscriptionType = sequelizeClient.define('subscription_type', {
+    plan: {
+      type: DataTypes.STRING,
       allowNull: false,
-      primaryKey: true
+      primaryKey: true,
+      unique: true
     },
-    key: {
+    name: {
       type: DataTypes.STRING,
       allowNull: false
     },
-    url: {
+    type: {
       type: DataTypes.STRING,
       allowNull: false
     },
-    content_type: {
+    description: {
       type: DataTypes.STRING,
       allowNull: true
     },
-    content_length: {
-      type: DataTypes.INTEGER,
+    amount: {
+      type: DataTypes.DOUBLE,
       allowNull: false
     },
-    state: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      values: ['active', 'inactive', 'removed']
+    seats: {
+      type: DataTypes.INTEGER,
+      allowNull: false
     }
   }, {
     hooks: {
@@ -39,9 +38,9 @@ export default (app: Application): any => {
     }
   });
 
-  (ownedFile as any).associate = (models: any): void => {
-    (ownedFile as any).belongsTo(models.user, { foreignKey: 'ownerUserId', allowNull: false });
+  (subscriptionType as any).associate = (models: any): void => {
+    (subscriptionType as any).hasMany(models.subscription, { foreignKey: 'plan' });
   };
 
-  return ownedFile;
+  return subscriptionType;
 };
