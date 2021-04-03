@@ -9,7 +9,7 @@ import NoSSR from "react-no-ssr";
 
 
 // importing component EditorContainer.
-const EditorContainer = dynamic(() => import("@xr3ngine/client-core/components/editor/EditorContainer"), { ssr: false });
+const EditorContainer = dynamic(() => import("@xr3ngine/client-core/src/world/components/editor/EditorContainer"), { ssr: false });
 
 import { connect } from 'react-redux';
 import {selectAuthState} from "@xr3ngine/client-core/src/user/reducers/auth/selector";
