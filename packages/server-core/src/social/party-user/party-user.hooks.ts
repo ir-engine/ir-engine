@@ -6,7 +6,7 @@ import { disallow, iff, isProvider } from 'feathers-hooks-common';
 import collectAnalytics from '@xr3ngine/server-core/src/hooks/collect-analytics';
 import unsetSelfPartyOwner from '@xr3ngine/server-core/src/hooks/unset-self-party-owner';
 import checkPartyInstanceSize from '@xr3ngine/server-core/src/hooks/check-party-instance-size';
-import {extractLoggedInUserFromParams} from "../../authentication/auth-management/auth-management.utils";
+import {extractLoggedInUserFromParams} from "../../user/auth-management/auth-management.utils";
 import logger from '../../logger';
 
 // Don't remove this comment. It's needed to format import lines nicely.

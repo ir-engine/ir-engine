@@ -3,7 +3,7 @@ import { Application } from '../../../declarations';
 import { Id, Params } from "@feathersjs/feathers";
 import { QueryTypes } from "sequelize";
 import { Feed as FeedInterface } from '../../../../common/interfaces/Feed';
-import { extractLoggedInUserFromParams } from "../../authentication/auth-management/auth-management.utils";
+import { extractLoggedInUserFromParams } from "../../user/auth-management/auth-management.utils";
 import { BadRequest } from '@feathersjs/errors';
 /**
  * A class for ARC Feed service

@@ -1,7 +1,6 @@
 import { Application } from '../declarations';
 
 // Types
-import AuthenticationServices from './authentication/services';
 import EntityServices from './entities/services';
 import GraphQLServices from './graphql/services';
 import MediaServices from './media/services';
@@ -14,7 +13,6 @@ import WorldServices from './world/services';
 
 export default (app: Application): void => {
   [
-    ...AuthenticationServices,
     ...EntityServices,
     ...GraphQLServices,
     ...MediaServices,

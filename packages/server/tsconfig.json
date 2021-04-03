@@ -25,7 +25,6 @@
   "include": [
     "src/**/*.ts",
     "src/**/*.tsx"
-, "../server-core/src/authentication/authentication.ts", "../server-core/src/models.ts", "../server-core/src/services/services.ts"  ]
 }
 
 

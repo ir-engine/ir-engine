@@ -47,7 +47,7 @@ import LocationAdmin from './location-admin/location-admin.service';
 import AcceptInvite from './accept-invite/accept-invite.service';
 import Auth from './auth-management/auth-management.service';
 import Channel from './channel/channel.service';
-import Email from './authentication/email/email.service';
+import Email from './user/email/email.service';
 import InstanceProvision from './instance-provision/instance-provision.service';
 import Login from './login/login.service';
 import MagicLink from './magic-link/magic-link.service';

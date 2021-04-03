@@ -2,7 +2,7 @@ import { HookContext } from '@feathersjs/feathers';
 import { BadRequest } from '@feathersjs/errors';
 import fetch from 'node-fetch';
 
-import { extractLoggedInUserFromParams } from '../../authentication/auth-management/auth-management.utils';
+import { extractLoggedInUserFromParams } from '../../user/auth-management/auth-management.utils';
 import { collectionType } from '../../entities/collection-type/collectionType';
 import config from '../../appconfig';
 import StorageProvider from '../../media/storageprovider/storageprovider';

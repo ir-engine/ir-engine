@@ -4,7 +4,7 @@ import {
   Params
 } from '@feathersjs/feathers';
 import { QueryTypes } from 'sequelize';
-import { extractLoggedInUserFromParams } from '../../authentication/auth-management/auth-management.utils';
+import { extractLoggedInUserFromParams } from '../../user/auth-management/auth-management.utils';
 import { Forbidden } from '@feathersjs/errors';
 
 /**

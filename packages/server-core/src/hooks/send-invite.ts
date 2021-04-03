@@ -8,7 +8,7 @@ import {
   getInviteLink,
   sendEmail,
   sendSms
-} from '../authentication/auth-management/auth-management.utils';
+} from '../user/auth-management/auth-management.utils';
 import logger from '../logger';
 
 async function generateEmail (
