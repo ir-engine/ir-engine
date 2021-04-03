@@ -1,7 +1,7 @@
 import { ServiceAddons } from '@feathersjs/feathers';
 import { Application } from '../../../declarations';
 import { SubscriptionLevel } from './subscription-level.class';
-import createModel from '../../models/payments/subscription-level.model';
+import createModel from './subscription-level.model';
 import hooks from './subscription-level.hooks';
 import subscriptionLevelDocs from './subscription-level.docs';
 

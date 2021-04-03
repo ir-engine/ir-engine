@@ -2,7 +2,7 @@
 import { ServiceAddons } from '@feathersjs/feathers';
 import { Application } from '../../../declarations';
 import { InviteType } from './invite-type.class';
-import createModel from '../../models/invite-type.model';
+import createModel from './invite-type.model';
 import hooks from './invite-type.hooks';
 import inviteTypeDocs from './invite-type.docs';
 

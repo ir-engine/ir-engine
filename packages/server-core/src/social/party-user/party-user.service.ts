@@ -1,7 +1,7 @@
 import { ServiceAddons } from '@feathersjs/feathers';
 import { Application } from '../../../declarations';
 import { PartyUser } from './party-user.class';
-import createModel from '../../models/user/party-user.model';
+import createModel from './party-user.model';
 import hooks from './party-user.hooks';
 import logger from '../../logger';
 import partyUserDocs from './party-user.docs';

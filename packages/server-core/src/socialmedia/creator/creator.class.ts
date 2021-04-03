@@ -3,7 +3,7 @@ import { Application } from '../../../declarations';
 import { Id, Params } from "@feathersjs/feathers";
 import { QueryTypes } from "sequelize";
 import { Creator as CreatorInterface } from '../../../../common/interfaces/Creator';
-import { extractLoggedInUserFromParams } from "../auth-management/auth-management.utils";
+import { extractLoggedInUserFromParams } from "../../authentication/auth-management/auth-management.utils";
 import { BadRequest } from '@feathersjs/errors';
 /**
  * A class for ARC Creator service

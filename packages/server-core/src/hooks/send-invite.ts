@@ -1,18 +1,15 @@
-import { HookContext, Params } from '@feathersjs/feathers';
+import { HookContext } from '@feathersjs/feathers';
+import * as path from 'path';
+import * as pug from 'pug';
+import requireMainFilename from 'require-main-filename';
+import config from '../appconfig';
 import {
   extractLoggedInUserFromParams,
   getInviteLink,
   sendEmail,
   sendSms
-} from '../services/auth-management/auth-management.utils';
-import * as path from 'path';
-import { BadRequest } from '@feathersjs/errors';
-import * as pug from 'pug';
-import requireMainFilename from 'require-main-filename';
-import config from '../../appconfig';
-import logger from '../app/logger';
-
-
+} from '../authentication/auth-management/auth-management.utils';
+import logger from '../logger';
 
 async function generateEmail (
   app: any,

@@ -1,7 +1,7 @@
 import { ServiceAddons } from '@feathersjs/feathers';
 import { Application } from '../../../declarations';
 import { Message } from './message.class';
-import createModel from '../../models/message.model';
+import createModel from './message.model';
 import hooks from './message.hooks';
 import messageDocs from './message.docs';
 

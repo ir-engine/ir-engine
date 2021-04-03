@@ -5,7 +5,7 @@ import { selectAuthState } from '@xr3ngine/client-core/redux/auth/selector';
 import { selectChatState } from '@xr3ngine/client-core/redux/chat/selector';
 import { selectFriendState } from '@xr3ngine/client-core/redux/friend/selector';
 import { selectGroupState } from '@xr3ngine/client-core/redux/group/selector';
-import { selectPartyState } from '@xr3ngine/client-networking/redux/party/selector';
+import { selectPartyState } from '@xr3ngine/common/client-networking/redux/party/selector';
 import { selectUserState } from '@xr3ngine/client-core/redux/user/selector';
 import { selectLocationState } from '@xr3ngine/client-core/redux/location/selector';
 // @ts-ignore
@@ -65,7 +65,7 @@ import {
     removeParty,
     removePartyUser,
     transferPartyOwner
-} from '@xr3ngine/client-networking/redux/party/service';
+} from '@xr3ngine/common/client-networking/redux/party/service';
 import classNames from 'classnames';
 
 

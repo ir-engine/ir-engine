@@ -1,4 +1,4 @@
-import logger from "../app/logger";
+import logger from "../logger";
 
 export default async function (context: any): Promise<void> {
   const { result, app, data } = context;

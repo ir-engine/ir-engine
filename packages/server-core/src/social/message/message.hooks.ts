@@ -3,7 +3,7 @@ import messagePermissionAuthenticate from '@xr3ngine/server-core/src/hooks/messa
 import removeMessageStatuses from '@xr3ngine/server-core/src/hooks/remove-message-statuses';
 import channelPermissionAuthenticate from '@xr3ngine/server-core/src/hooks/channel-permission-authenticate';
 import addAssociations from '@xr3ngine/server-core/src/hooks/add-associations';
-// import { extractLoggedInUserFromParams } from '../auth-management/auth-management.utils'
+// import { extractLoggedInUserFromParams } from '../../authentication/auth-management/auth-management.utils'
 // Don't remove this comment. It's needed to format import lines nicely.
 
 const { authenticate } = authentication.hooks;

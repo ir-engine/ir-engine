@@ -2,7 +2,7 @@
 import { ServiceAddons } from '@feathersjs/feathers';
 import { Application } from '../../../declarations';
 import { Creator } from './creator.class';
-import createModel from '../../models/social/creator.model';
+import createModel from './creator.model';
 import hooks from './creator.hooks';
 import { Creator as CreatorInterface } from '../../../../common/interfaces/Creator';
 import creatorDocs from './creator.docs';

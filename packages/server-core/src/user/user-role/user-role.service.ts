@@ -1,7 +1,7 @@
 import { ServiceAddons } from '@feathersjs/feathers';
 import { Application } from '../../../declarations';
 import { UserRole } from './user-role.class';
-import createModel from '../../models/user-role.model';
+import createModel from './user-role.model';
 import hooks from './user-role.hooks';
 import userRoleDocs from './user-role.docs';
 

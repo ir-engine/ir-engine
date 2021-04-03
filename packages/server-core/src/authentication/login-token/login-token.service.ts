@@ -2,7 +2,7 @@
 import { ServiceAddons } from '@feathersjs/feathers';
 import { Application } from '../../../declarations';
 import { LoginToken } from './login-token.class';
-import createModel from '../../models/user/login-token.model';
+import createModel from './login-token.model';
 import hooks from './login-token.hooks';
 import loginTokenDocs from "./login-token.docs";
 

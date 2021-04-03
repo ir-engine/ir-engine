@@ -2,7 +2,7 @@
 import { ServiceAddons } from '@feathersjs/feathers';
 import { Application } from '../../../declarations';
 import { LocationSettings } from './location-settings.class';
-import createModel from '../../models/location-settings.model';
+import createModel from './location-settings.model';
 import hooks from './location-settings.hooks';
 import locationSettingsDocs from './location-settings-docs';
 

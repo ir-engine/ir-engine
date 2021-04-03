@@ -1,5 +1,5 @@
 import { Sequelize } from 'sequelize';
-import app from '../../server/src/app';
+import app from './app';
 
 export const sequelize = app.get('sequelizeClient');
 const models = sequelize.models;

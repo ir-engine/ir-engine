@@ -1,7 +1,7 @@
 import { ServiceAddons } from '@feathersjs/feathers';
 import { Application } from '../../../declarations';
 import { GroupUserRank } from './group-user-rank.class';
-import createModel from '../../models/group-user-rank.model';
+import createModel from './group-user-rank.model';
 import hooks from './group-user-rank.hooks';
 import groupUserRankDocs from './group-user-rank.docs';
 

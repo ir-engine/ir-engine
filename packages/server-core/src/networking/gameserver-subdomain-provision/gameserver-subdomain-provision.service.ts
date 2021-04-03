@@ -2,7 +2,7 @@
 import { ServiceAddons } from '@feathersjs/feathers';
 import { Application } from '../../../declarations';
 import { GameserverSubdomainProvision } from './gameserver-subdomain-provision.class';
-import createModel from '../../models/gameserver-subdomain-provision.model';
+import createModel from './gameserver-subdomain-provision.model';
 import hooks from './gameserver-subdomain-provision.hooks';
 import gameServerSubdomainProvisionDocs from './gameServer-subdomain-provision.docs';
 

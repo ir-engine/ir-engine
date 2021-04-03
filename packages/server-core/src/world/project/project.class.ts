@@ -8,7 +8,7 @@ import {
   readJSONFromBlobStore,
   mapProjectTemplateDetailData
 } from './project-helper';
-import { extractLoggedInUserFromParams } from '../../services/auth-management/auth-management.utils';
+import { extractLoggedInUserFromParams } from '../../authentication/auth-management/auth-management.utils';
 import { Application } from '../../../declarations';
 import StorageProvider from '../../media/storageprovider/storageprovider';
 import { BadRequest } from '@feathersjs/errors';

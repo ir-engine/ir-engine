@@ -1,7 +1,7 @@
 import { ServiceAddons } from '@feathersjs/feathers';
 import { Application } from '../../../declarations';
 import { IdentityProvider } from './identity-provider.class';
-import createModel from '../../models/user/identity-provider.model';
+import createModel from './identity-provider.model';
 import hooks from './identity-provider.hooks';
 import identyDocs from './identity-provider.docs';
 declare module '../../../declarations' {

@@ -1,7 +1,7 @@
 import { Service, SequelizeServiceOptions } from 'feathers-sequelize';
 import { Application } from '../../../declarations';
 import { Params } from '@feathersjs/feathers';
-import {extractLoggedInUserFromParams} from "../auth-management/auth-management.utils";
+import {extractLoggedInUserFromParams} from "../../authentication/auth-management/auth-management.utils";
 import Sequelize, { Op } from 'sequelize';
 import slugify from 'slugify';
 

@@ -2,7 +2,7 @@
 import { ServiceAddons } from '@feathersjs/feathers';
 import { Application } from '../../../declarations';
 import { LocationBan } from './location-ban.class';
-import createModel from '../../models/location-ban.model';
+import createModel from './location-ban.model';
 import hooks from './location-ban.hooks';
 import logger from '../../logger';
 import locationBanDocs from './location-ban.docs';

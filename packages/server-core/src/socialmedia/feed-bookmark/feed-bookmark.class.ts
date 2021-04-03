@@ -3,7 +3,7 @@ import { Params } from '@feathersjs/feathers';
 import { Service, SequelizeServiceOptions } from 'feathers-sequelize';
 import { QueryTypes } from 'sequelize';
 import { Application } from '../../../declarations';
-import { extractLoggedInUserFromParams } from '../auth-management/auth-management.utils';
+import { extractLoggedInUserFromParams } from '../../authentication/auth-management/auth-management.utils';
 
 /**
  * A class for ARC Feed-bookmark service

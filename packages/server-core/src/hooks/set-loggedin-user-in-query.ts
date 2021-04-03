@@ -1,5 +1,5 @@
 import { HookContext } from '@feathersjs/feathers';
-import { extractLoggedInUserFromParams } from '../services/auth-management/auth-management.utils';
+import { extractLoggedInUserFromParams } from '../authentication/auth-management/auth-management.utils';
 
 // TODO: Make one hook by combine this with "set-loggedin-user-in-body"
 // This will attach the loggedIn user id in the query property

@@ -1,6 +1,6 @@
 import { Service, SequelizeServiceOptions } from 'feathers-sequelize';
 import { Application } from '../../../declarations';
-import { extractLoggedInUserFromParams } from '../auth-management/auth-management.utils';
+import { extractLoggedInUserFromParams } from '../../authentication/auth-management/auth-management.utils';
 import { Params } from '@feathersjs/feathers';
 import { BadRequest } from '@feathersjs/errors';
 import { Op } from 'sequelize';

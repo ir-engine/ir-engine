@@ -20,13 +20,13 @@
     "jsx": "react",
     "isolatedModules": true,
     "experimentalDecorators": true,
-    "outDir": "../common/client-networking/lib"
+    "outDir": "./lib"
   },
   "exclude": [
-    "../common/client-networking/node_modules",
-    "../common/client-networking/tests/**"
+    "node_modules",
+    "tests/**"
   ],
   "include": [
-    "../common/client-networking/**/*.ts",
-    "../common/client-networking/**/*.tsx"]
+    "./**/*.ts",
+    "./**/*.tsx"]
 }
