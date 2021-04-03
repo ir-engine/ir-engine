@@ -1,5 +1,5 @@
 import { DEFAULT_AVATAR_ID } from "@xr3ngine/engine/src/common/constants/AvatarConstants";
-import config from '../../config';
+import config from '../../appconfig';
 
 export const seed = {
     count: 3,

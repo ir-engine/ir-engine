@@ -1,10 +1,10 @@
 import { ServiceAddons } from '@feathersjs/feathers';
-import { Application } from '../../declarations';
+import { Application } from '../../../declarations';
 import { Sms } from './sms.class';
 import smsDocs from './sms.docs';
 import hooks from './sms.hooks';
 
-declare module '../../declarations' {
+declare module '../../../declarations' {
   interface ServiceTypes {
     'sms': Sms & ServiceAddons<any>;
   }

@@ -1,5 +1,5 @@
 import { Sequelize } from 'sequelize';
-import { Application } from '../../declarations';
+import { Application } from '../../../declarations';
 
 export default (app: Application): any => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient');

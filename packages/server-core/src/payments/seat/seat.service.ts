@@ -1,12 +1,12 @@
 import { ServiceAddons } from '@feathersjs/feathers';
-import { Application } from '../../declarations';
+import { Application } from '../../../declarations';
 import { Seat } from './seat.class';
 import createModel from '../../models/seat.model';
 import hooks from './seat.hooks';
 import seatDocs from './seat.docs';
 
 // Add this service to the service type index
-declare module '../../declarations' {
+declare module '../../../declarations' {
   interface ServiceTypes {
     'seat': Seat & ServiceAddons<any>;
   }

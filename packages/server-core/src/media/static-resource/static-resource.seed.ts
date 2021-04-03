@@ -1,4 +1,4 @@
-import config from '../../config';
+import config from '../../appconfig';
 
 const getAvatarURL = (avatarName) => {
   if (process.env.STORAGE_S3_DEV_MODE === 'local') {

@@ -1,6 +1,6 @@
 import bent from 'bent';
 import { Hook, HookContext } from '@feathersjs/feathers';
-import config from '../config';
+import config from '../appconfig';
 
 const fileRegex = /\.([a-zA-Z0-9]+)(?=\?|$)/;
 const getBuffer = bent('buffer');

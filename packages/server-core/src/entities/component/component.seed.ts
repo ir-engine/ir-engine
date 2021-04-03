@@ -1,4 +1,4 @@
-import config from '../../config';
+import config from '../../appconfig';
 import EntitySeed from "../entity/entity.seed";
 
 export const seed = {

@@ -1,5 +1,5 @@
 import { Service, SequelizeServiceOptions } from 'feathers-sequelize';
-import { Application } from '../../declarations';
+import { Application } from '../../../declarations';
 import { Params } from '@feathersjs/feathers';
 
 export class Collection extends Service {

@@ -1,7 +1,7 @@
 import { Id, NullableId, Paginated, Params, ServiceMethods } from '@feathersjs/feathers';
 import { Forbidden } from '@feathersjs/errors';
 import { Transaction } from 'sequelize/types';
-import { Application } from '../../declarations';
+import { Application } from '../../../declarations';
 import { mapProjectDetailData, defaultProjectImport } from '../project/project-helper';
 import StorageProvider from '../../media/storageprovider/storageprovider';
 import { collectionType } from '../../entities/collection-type/collectionType';

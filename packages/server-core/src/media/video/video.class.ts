@@ -1,5 +1,5 @@
 import { Id, NullableId, Paginated, Params, ServiceMethods } from '@feathersjs/feathers';
-import { Application } from '../../declarations';
+import { Application } from '../../../declarations';
 import getBasicMimetype from '../../util/get-basic-mimetype';
 
 interface Data {}

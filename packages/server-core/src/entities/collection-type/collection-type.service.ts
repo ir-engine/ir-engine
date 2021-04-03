@@ -1,11 +1,11 @@
 import { ServiceAddons } from '@feathersjs/feathers';
-import { Application } from '../../declarations';
+import { Application } from '../../../declarations';
 import { CollectionType } from './collection-type.class';
 import createModel from '../../models/collection-type.model';
 import hooks from './collection-type.hooks';
 import collectionTypeDocs from './collection-type.docs';
 
-declare module '../../declarations' {
+declare module '../../../declarations' {
   interface ServiceTypes {
     'collection-type': CollectionType & ServiceAddons<any>;
   }

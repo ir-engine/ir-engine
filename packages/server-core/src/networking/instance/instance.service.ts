@@ -1,12 +1,12 @@
 import { ServiceAddons } from '@feathersjs/feathers';
-import { Application } from '../../declarations';
+import { Application } from '../../../declarations';
 import { Instance } from './instance.class';
 import createModel from '../../models/network/instance.model';
 import hooks from './instance.hooks';
 import logger from "../../logger";
 import instanceDocs from "./instance.docs";
 
-declare module '../../declarations' {
+declare module '../../../declarations' {
   interface ServiceTypes {
     'instance': Instance & ServiceAddons<any>;
   }

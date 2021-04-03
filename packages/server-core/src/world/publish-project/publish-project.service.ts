@@ -1,10 +1,10 @@
 import { ServiceAddons } from '@feathersjs/feathers';
-import { Application } from '../../declarations';
+import { Application } from '../../../declarations';
 import { PublishProject } from './publish-project.class';
 import publishProjectDocs from './publish-project.docs';
 import hooks from './publish-project.hooks';
 
-declare module '../../declarations' {
+declare module '../../../declarations' {
   interface ServiceTypes {
     'publish-project': PublishProject & ServiceAddons<any>;
   }

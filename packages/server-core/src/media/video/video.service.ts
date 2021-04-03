@@ -1,9 +1,9 @@
 import { ServiceAddons } from '@feathersjs/feathers';
-import { Application } from '../../declarations';
+import { Application } from '../../../declarations';
 import { Video } from './video.class';
 import hooks from './video.hooks';
 
-declare module '../../declarations' {
+declare module '../../../declarations' {
   interface ServiceTypes {
     'video': Video & ServiceAddons<any>;
   }

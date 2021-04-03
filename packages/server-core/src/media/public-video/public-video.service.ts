@@ -1,10 +1,10 @@
 import { ServiceAddons } from '@feathersjs/feathers';
-import { Application } from '../../declarations';
+import { Application } from '../../../declarations';
 import { PublicVideo } from './public-video.class';
 import hooks from './public-video.hooks';
 import staticResourceModel from '../../models/static-resource.model';
 
-declare module '../../declarations' {
+declare module '../../../declarations' {
   interface ServiceTypes {
     'public-video': PublicVideo & ServiceAddons<any>;
   }

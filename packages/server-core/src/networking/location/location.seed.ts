@@ -1,4 +1,4 @@
-import config from '../../config';
+import config from '../../appconfig';
 import LocationSettingsSeed from '../location-settings/location-settings.seed';
 
 export const seed = {

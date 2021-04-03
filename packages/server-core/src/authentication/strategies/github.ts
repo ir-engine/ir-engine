@@ -1,9 +1,14 @@
 import CustomOAuthStrategy from './custom-oauth';
 import { Params } from '@feathersjs/feathers';
-import config from '../../../server/src/config';
-import app from '../../../server/src/app';
+import config from '../../appconfig';
 
 export default class GithubStrategy extends CustomOAuthStrategy {
+  app: any
+  constructor(app){
+    super();
+    this.app = app;
+  }
+  
   async getEntityData (profile: any, entity: any, params?: Params): Promise<any> {
     const baseData = await super.getEntityData(profile, null, {});
     const userId = (params?.query) ? params.query.userId : undefined;
@@ -17,15 +22,15 @@ export default class GithubStrategy extends CustomOAuthStrategy {
 
   async updateEntity(entity: any, profile: any, params?: Params): Promise<any> {
     console.log('Github JWT authenticate');
-    const authResult = await app.service('authentication').strategies.jwt.authenticate({ accessToken: params?.authentication?.accessToken }, {});
+    const authResult = await this.app.service('authentication').strategies.jwt.authenticate({ accessToken: params?.authentication?.accessToken }, {});
     const identityProvider = authResult['identity-provider'];
-    const user = await app.service('user').get(entity.userId);
-    await app.service('user').patch(entity.userId, {
+    const user = await this.app.service('user').get(entity.userId);
+    await this.app.service('user').patch(entity.userId, {
       userRole: user?.userRole === 'admin' ? 'admin' : 'user'
     });
     if (entity.type !== 'guest') {
-      await app.service('identity-provider').remove(identityProvider.id);
-      await app.service('user').remove(identityProvider.userId);
+      await this.app.service('identity-provider').remove(identityProvider.id);
+      await this.app.service('user').remove(identityProvider.userId);
     }
     return super.updateEntity(entity, profile, params);
   }

@@ -1,13 +1,13 @@
 // Initializes the `login-token` service on path `/login-token`
 import { ServiceAddons } from '@feathersjs/feathers';
-import { Application } from '../../declarations';
+import { Application } from '../../../declarations';
 import { LoginToken } from './login-token.class';
 import createModel from '../../models/user/login-token.model';
 import hooks from './login-token.hooks';
 import loginTokenDocs from "./login-token.docs";
 
 // Add this service to the service type index
-declare module '../../declarations' {
+declare module '../../../declarations' {
   interface ServiceTypes {
     'login-token': LoginToken & ServiceAddons<any>;
   }

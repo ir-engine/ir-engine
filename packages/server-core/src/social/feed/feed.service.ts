@@ -1,13 +1,13 @@
 // Initializes the `feed` service on path `/feed`
 import { ServiceAddons } from '@feathersjs/feathers';
-import { Application } from '../../declarations';
+import { Application } from '../../../declarations';
 import { Feed } from './feed.class';
 import createModel from '../../models/feed.model';
 import hooks from './feed.hooks';
 import feedDocs from './feed.docs';
 
 // Add this service to the service type index
-declare module '../../declarations' {
+declare module '../../../declarations' {
   interface ServiceTypes {
     'feed': Feed & ServiceAddons<any>;
   }

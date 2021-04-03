@@ -1,11 +1,11 @@
 import { ServiceAddons } from '@feathersjs/feathers';
-import { Application } from '../../declarations';
+import { Application } from '../../../declarations';
 import { Location } from './location.class';
 import createModel from '../../models/location.model';
 import hooks from './location.hooks';
 import locationDocs from './location.docs';
 
-declare module '../../declarations' {
+declare module '../../../declarations' {
   interface ServiceTypes {
     'location': Location & ServiceAddons<any>;
   }

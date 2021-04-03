@@ -1,5 +1,5 @@
 import { ServiceAddons } from '@feathersjs/feathers';
-import { Application } from '../../declarations';
+import { Application } from '../../../declarations';
 import { Channel } from './channel.class';
 import createModel from '../../models/channel.model';
 import hooks from './channel.hooks';
@@ -7,7 +7,7 @@ import logger from '../../logger';
 import channelDocs from './channel.docs';
 
 // Add this service to the service type index
-declare module '../../declarations' {
+declare module '../../../declarations' {
   interface ServiceTypes {
     'channel': Channel & ServiceAddons<any>;
   }

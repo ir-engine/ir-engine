@@ -1,10 +1,10 @@
 import { ServiceAddons } from '@feathersjs/feathers';
-import { Application } from '../../declarations';
+import { Application } from '../../../declarations';
 import { MediaSearch } from './media-search.class';
 import mediaSearchDocs from './media-search.docs';
 import hooks from './media-search.hooks';
 
-declare module '../../declarations' {
+declare module '../../../declarations' {
   interface ServiceTypes {
     'media-search': MediaSearch & ServiceAddons<any>;
   }

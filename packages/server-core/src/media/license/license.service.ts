@@ -1,11 +1,11 @@
 import { ServiceAddons } from '@feathersjs/feathers';
-import { Application } from '../../declarations';
+import { Application } from '../../../declarations';
 import { License } from './license.class';
 import createModel from './license.model';
 import hooks from './license.hooks';
 import licenseDocs from './license.docs';
 
-declare module '../../declarations' {
+declare module '../../../declarations' {
   interface ServiceTypes {
     'license': License & ServiceAddons<any>;
   }

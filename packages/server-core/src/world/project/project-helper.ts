@@ -1,4 +1,4 @@
-import config from '../../config';
+import config from '../../appconfig';
 
 export function mapSceneData (scene: any, projectId: string): any {
   if (!scene) {

@@ -1,11 +1,11 @@
 import { ServiceAddons } from '@feathersjs/feathers';
-import { Application } from '../../declarations';
+import { Application } from '../../../declarations';
 import { Component } from './component.class';
 import createModel from '../../models/component.model';
 import hooks from './component.hooks';
 import componentDocs from './component.docs';
 
-declare module '../../declarations' {
+declare module '../../../declarations' {
   interface ServiceTypes {
     'component': Component & ServiceAddons<any>;
   }

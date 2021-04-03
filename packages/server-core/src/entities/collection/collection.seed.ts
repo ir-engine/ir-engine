@@ -1,4 +1,4 @@
-import config from '../../config';
+import config from '../../appconfig';
 
 export const seed = {
   disabled: !config.db.forceRefresh,

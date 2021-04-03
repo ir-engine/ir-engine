@@ -1,6 +1,6 @@
 import AWS from 'aws-sdk';
 import S3BlobStore from 's3-blob-store';
-import config from '../../config';
+import config from '../../appconfig';
 import { StorageProviderInterface } from './storageprovider.interface';
 
 export default class S3Provider implements StorageProviderInterface {

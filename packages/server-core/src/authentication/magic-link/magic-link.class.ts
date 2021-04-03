@@ -5,7 +5,7 @@ import {
   Params,
   ServiceMethods
 } from '@feathersjs/feathers';
-import { Application } from '../../declarations';
+import { Application } from '../../../declarations';
 import {
   getLink,
   sendEmail,
@@ -16,7 +16,7 @@ import * as pug from 'pug';
 import { Service } from 'feathers-sequelize';
 import { IdentityProvider } from '../identity-provider/identity-provider.class';
 import { BadRequest } from '@feathersjs/errors';
-import config from '../../config';
+import config from '../../appconfig';
 import requireMainFilename from 'require-main-filename';
 
 interface Data {}

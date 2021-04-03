@@ -1,12 +1,12 @@
 import { Service, SequelizeServiceOptions } from 'feathers-sequelize';
-import { Application } from '../../declarations';
+import { Application } from '../../../declarations';
 import {
   NullableId,
   Params
 } from '@feathersjs/feathers';
 import { resolveModelData } from '../../util/model-resolver';
 import { Transaction, Sequelize } from 'sequelize';
-import config from '../../config';
+import config from '../../appconfig';
 
 const loggedInUserEntity: string = config.authentication.entity;
 

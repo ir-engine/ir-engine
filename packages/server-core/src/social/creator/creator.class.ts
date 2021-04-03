@@ -1,5 +1,5 @@
 import { Service, SequelizeServiceOptions } from 'feathers-sequelize';
-import { Application } from '../../declarations';
+import { Application } from '../../../declarations';
 import { Id, Params } from "@feathersjs/feathers";
 import { QueryTypes } from "sequelize";
 import { Creator as CreatorInterface } from '../../../../common/interfaces/Creator';

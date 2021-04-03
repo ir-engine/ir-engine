@@ -1,11 +1,11 @@
 import { ServiceAddons } from '@feathersjs/feathers';
-import { Application } from '../../declarations';
+import { Application } from '../../../declarations';
 import { ChannelType } from './channel-type.class';
 import createModel from '../../models/network/channel-type.model';
 import hooks from './channel-type.hooks';
 import channelTypeDocs from './channel-type.docs';
 
-declare module '../../declarations' {
+declare module '../../../declarations' {
   interface ServiceTypes {
     'channel-type': ChannelType & ServiceAddons<any>;
   }

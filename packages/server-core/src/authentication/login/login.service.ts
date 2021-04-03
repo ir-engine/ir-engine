@@ -1,14 +1,14 @@
 // Initializes the `login` service on path `/login`
 import { ServiceAddons } from '@feathersjs/feathers';
-import { Application } from '../../declarations';
+import { Application } from '../../../declarations';
 import { Login } from './login.class';
 import hooks from './login.hooks';
-import config from '../../config';
+import config from '../../appconfig';
 import logger from '../../logger';
 import loginDocs from './login.docs';
 
 // Add this service to the service type index
-declare module '../../declarations' {
+declare module '../../../declarations' {
   interface ServiceTypes {
     'login': Login & ServiceAddons<any>;
   }
