@@ -12,14 +12,10 @@ import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from "redux";
 import { selectAdminState } from "../../../../redux/admin/selector";
-import {
-    createUser,
-    patchUser
-} from "../../../../redux/admin/service";
 import { selectAppState } from "../../../../redux/app/selector";
 import { selectAuthState } from "../../../../redux/auth/selector";
 import styles from './ContentPack.module.scss';
-import { uploadAvatars } from "../../../../redux/contentPack/service";
+import { downloadContentPack } from "../../../../redux/contentPack/service";
 
 
 interface Props {
@@ -27,6 +23,7 @@ interface Props {
     handleClose: any;
     adminState?: any;
     uploadAvatar?: any;
+    downloadContentPack?: any;
 }
 
 const mapStateToProps = (state: any): any => {
@@ -38,7 +35,7 @@ const mapStateToProps = (state: any): any => {
 };
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
-    uploadAvatars: bindActionCreators(uploadAvatars, dispatch)
+    downloadContentPack: bindActionCreators(downloadContentPack, dispatch)
 });
 
 
@@ -46,7 +43,7 @@ const userModel = (props: Props): any => {
     const {
         open,
         handleClose,
-        uploadAvatars
+        downloadContentPack
     } = props;
 
     const [contentPackUrl, setContentPackUrl] = useState('');
@@ -59,20 +56,11 @@ const userModel = (props: Props): any => {
         }, 3000);
     }
 
-    const downloadContentPack = async () => {
+    const getContentPack = async () => {
         try {
-            const res = await axios.get(contentPackUrl);
-            console.log(res);
-            if (!(res && res.data && (res.data.avatars || res.data.scenes))) {
-                showError('Not a valid manifest file');
-            }
-            const { avatars, scenes } = res.data;
-            avatars.each(avatar => {
-
-            });
-            await uploadAvatars(avatars);
-            // setContentPackUrl('');
-            // handleClose();
+            console.log('Getting content pack');
+            console.log(contentPackUrl);
+            const res = await downloadContentPack(contentPackUrl);
         } catch(err) {
             showError('Invalid URL');
         }
@@ -114,7 +102,7 @@ const userModel = (props: Props): any => {
                             type="submit"
                             variant="contained"
                             color="primary"
-                            onClick={downloadContentPack}
+                            onClick={getContentPack}
                         >
                             Download Content Pack
                         </Button>

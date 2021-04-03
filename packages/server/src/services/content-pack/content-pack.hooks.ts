@@ -21,7 +21,7 @@ export default {
     find: [],
     get: [],
     create: [authenticate('jwt')/*, attachOwnerIdInSavingContact('userId'), addUriToFile(), makeS3FilesPublic()*/],
-    update: [disallow()],
+    update: [],
     patch: [authenticate('jwt')],
     remove: [disallow()]
   },
