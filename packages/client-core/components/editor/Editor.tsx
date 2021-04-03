@@ -100,8 +100,10 @@ const rendererPromise = new Promise((resolve, reject) => {
 const removeObjectsRoots = [];
 
 /**
- * [Editor used to provide the various tools and properties to create or edit scene]
- * @type {[class]}
+ * Editor used to provide the various tools and properties to create or edit scene.
+ * 
+ * @author Robert Long
+ * @type class
  */
 export default class Editor extends EventEmitter {
   api: Api;
@@ -194,7 +196,8 @@ export default class Editor extends EventEmitter {
   }
 
 /**
- * [registerNode used to add new object to the scene]
+ * registerNode used to add new object to the scene
+ * @author Robert Long
  * @param  {[type]} nodeConstructor [contains constructor properties]
  * @param  {[type]} nodeEditor      [contains editor properties]
  */
