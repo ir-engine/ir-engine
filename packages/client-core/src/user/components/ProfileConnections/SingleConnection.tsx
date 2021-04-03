@@ -8,16 +8,16 @@ import { User } from '@xr3ngine/common/interfaces/User';
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
-import { showAlert } from '../../../redux/alert/actions';
-import { selectAuthState } from '../../../redux/auth/selector';
+import { showAlert } from '../../../reducers/alert/actions';
+import { selectAuthState } from '../../../reducers/auth/selector';
 import {
   addConnectionByOauth,
   removeConnection,
   createMagicLink,
   loginUserByPassword,
   addConnectionByPassword
-} from '../../../redux/auth/service';
-import { showDialog } from '../../../redux/dialog/service';
+} from '../../../reducers/auth/service';
+import { showDialog } from '../../../reducers/dialog/service';
 import MagicLinkEmail from '../../../user/components/Auth/MagicLinkEmail';
 import PasswordLogin from '../../../user/components/Auth/PasswordLogin';
 import { ConnectionTexts } from './ConnectionTexts';

@@ -1,10 +1,11 @@
-import { combineReducers } from 'redux-immutable';
-import channelConnectionReducer from './channelConnection/reducers';
-import instanceConnectionReducer from './instanceConnection/reducers';
-import partyReducer from './party/reducers';
+import channelConnectionoReducer from './channelConnection/reducers';
+import instanceConnectionoReducer from './instanceConnection/reducers';
+import locationReducer from './location/reducers';
+import transportReducer from './transport/reducers';
 
-export default combineReducers({
-  party: partyReducer,
-  channelConnection: channelConnectionReducer,
-  instanceConnection: instanceConnectionReducer,
-});
+export default {
+  channelConnection: channelConnectionoReducer,
+  instanceConnection: instanceConnectionoReducer,
+  locations: locationReducer,
+  transport: transportReducer
+};

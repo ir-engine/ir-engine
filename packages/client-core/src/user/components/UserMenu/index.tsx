@@ -5,17 +5,17 @@ import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
-import { selectAppOnBoardingStep } from '../../../redux/app/selector';
-import { selectAuthState } from '../../../redux/auth/selector';
+import { selectAppOnBoardingStep } from '../../../reducers/app/selector';
+import { selectAuthState } from '../../../reducers/auth/selector';
 import {
   updateUserAvatarId,
   updateUserSettings,
   uploadAvatarModel,
   fetchAvatarList,
   removeAvatar,
-} from '../../../redux/auth/service';
-import { alertSuccess } from '../../../redux/alert/service';
-import { provisionInstanceServer } from "@xr3ngine/common/client-networking/redux/instanceConnection/service";
+} from '../../../reducers/auth/service';
+import { alertSuccess } from '../../../reducers/alert/service';
+import { provisionInstanceServer } from "@xr3ngine/common/client-networking/src/reducers/instanceConnection/service";
 import { Views, UserMenuProps } from './util';
 //@ts-ignore
 import styles from './style.module.scss';

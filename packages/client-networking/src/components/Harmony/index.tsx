@@ -39,9 +39,9 @@ import {
     Videocam
 } from '@material-ui/icons';
 import ProfileMenu from "@xr3ngine/client-core/components/ui/UserMenu/menus/ProfileMenu";
-import { selectAuthState } from '@xr3ngine/client-core/redux/auth/selector';
-import { doLoginAuto } from '@xr3ngine/client-core/redux/auth/service';
-import { selectChatState } from '@xr3ngine/client-core/redux/chat/selector';
+import { selectAuthState } from '@xr3ngine/client-core/src/user/reducers/auth/selector';
+import { doLoginAuto } from '@xr3ngine/client-core/src/user/reducers/auth/service';
+import { selectChatState } from '@xr3ngine/client-core/reducers/chat/selector';
 import {
     createMessage,
     getChannelMessages,
@@ -50,26 +50,26 @@ import {
     removeMessage,
     updateChatTarget,
     updateMessageScrollInit
-} from '@xr3ngine/client-core/redux/chat/service';
-import { selectFriendState } from "@xr3ngine/client-core/redux/friend/selector";
-import { getFriends, unfriend } from "@xr3ngine/client-core/redux/friend/service";
-import { selectGroupState } from "@xr3ngine/client-core/redux/group/selector";
-import { createGroup, getGroups, patchGroup, removeGroup, removeGroupUser } from "@xr3ngine/client-core/redux/group/service";
-import { updateInviteTarget } from "@xr3ngine/client-core/redux/invite/service";
-import { selectLocationState } from "@xr3ngine/client-core/redux/location/selector";
-import { banUserFromLocation } from "@xr3ngine/client-core/redux/location/service";
-import { selectMediastreamState } from "@xr3ngine/client-core/redux/mediastream/selector";
-import { updateCamAudioState, updateCamVideoState } from '@xr3ngine/client-core/redux/mediastream/service';
-import { selectTransportState } from '@xr3ngine/client-core/redux/transport/selector';
-import { changeChannelTypeState, updateChannelTypeState } from "@xr3ngine/client-core/redux/transport/service";
-import { selectUserState } from '@xr3ngine/client-core/redux/user/selector';
-import { getLayerUsers } from "@xr3ngine/client-core/redux/user/service";
-import { selectChannelConnectionState } from '@xr3ngine/client-networking/redux/channelConnection/selector';
+} from '@xr3ngine/client-core/reducers/chat/service';
+import { selectFriendState } from "@xr3ngine/client-core/reducers/friend/selector";
+import { getFriends, unfriend } from "@xr3ngine/client-core/reducers/friend/service";
+import { selectGroupState } from "@xr3ngine/client-core/reducers/group/selector";
+import { createGroup, getGroups, patchGroup, removeGroup, removeGroupUser } from "@xr3ngine/client-core/reducers/group/service";
+import { updateInviteTarget } from "@xr3ngine/client-core/reducers/invite/service";
+import { selectLocationState } from "@xr3ngine/client-networking/src/reducers/location/selector";
+import { banUserFromLocation } from "@xr3ngine/client-networking/src/reducers/location/service";
+import { selectMediastreamState } from "@xr3ngine/client-core/reducers/mediastream/selector";
+import { updateCamAudioState, updateCamVideoState } from '@xr3ngine/client-core/reducers/mediastream/service';
+import { selectTransportState } from '@xr3ngine/client-core/reducers/transport/selector';
+import { changeChannelTypeState, updateChannelTypeState } from "@xr3ngine/client-core/reducers/transport/service";
+import { selectUserState } from '@xr3ngine/client-core/src/user/reducers/user/selector';
+import { getLayerUsers } from "@xr3ngine/client-core/src/user/reducers/user/service";
+import { selectChannelConnectionState } from '@xr3ngine/client-networking/src/reducers/channelConnection/selector';
 import {
     connectToChannelServer,
     provisionChannelServer,
     resetChannelServer
-} from '@xr3ngine/client-networking/redux/channelConnection/service';
+} from '@xr3ngine/client-networking/src/reducers/channelConnection/service';
 import PartyParticipantWindow from '@xr3ngine/client-networking/src/components/PartyParticipantWindow';
 import { Group as GroupType } from "@xr3ngine/common/interfaces/Group";
 import { Message } from '@xr3ngine/common/interfaces/Message';

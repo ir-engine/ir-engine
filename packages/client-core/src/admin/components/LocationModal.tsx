@@ -16,14 +16,14 @@ import classNames from 'classnames';
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from "redux";
-import { selectAdminState } from "../../../redux/admin/selector";
+import { selectAdminState } from "../../../reducers/admin/selector";
 import {
     createLocation,
     patchLocation,
     removeLocation
-} from "../../../redux/admin/service";
-import { selectAppState } from "../../../redux/app/selector";
-import { selectAuthState } from "../../../redux/auth/selector";
+} from "../../../reducers/admin/service";
+import { selectAppState } from "../../../reducers/app/selector";
+import { selectAuthState } from "../../../reducers/auth/selector";
 import styles from './Admin.module.scss';
 
 

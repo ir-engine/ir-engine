@@ -15,10 +15,10 @@ import BookmarkIcon from '@material-ui/icons/Bookmark';
 import VisibilityIcon from '@material-ui/icons/Visibility';
 
 import { Feed } from '@xr3ngine/common/interfaces/Feed';
-import { addFireToFeed, getFeedFires, removeFireToFeed } from '../../../../redux/feedFires/service';
-import { addViewToFeed } from '../../../../redux/feed/service';
-import { addBookmarkToFeed, removeBookmarkToFeed } from '../../../../redux/feedBookmark/service';
-import { selectFeedFiresState } from '../../../../redux/feedFires/selector';
+import { addFireToFeed, getFeedFires, removeFireToFeed } from '../../../../reducers/feedFires/service';
+import { addViewToFeed } from '../../../../reducers/feed/service';
+import { addBookmarkToFeed, removeBookmarkToFeed } from '../../../../reducers/feedBookmark/service';
+import { selectFeedFiresState } from '../../../../reducers/feedFires/selector';
 import CreatorAsTitle from '../CreatorAsTitle';
 
 import styles from './FeedCard.module.scss';

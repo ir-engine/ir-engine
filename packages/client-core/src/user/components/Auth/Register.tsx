@@ -9,10 +9,10 @@ import Typography from '@material-ui/core/Typography';
 import Container from '@material-ui/core/Container';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
-import { registerUserByEmail } from '../../../redux/auth/service';
+import { registerUserByEmail } from '../../../reducers/auth/service';
 import SignIn from './Login';
 import styles from './Auth.module.scss';
-import { showDialog } from '../../../redux/dialog/service';
+import { showDialog } from '../../../reducers/dialog/service';
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
   registerUserByEmail: bindActionCreators(registerUserByEmail, dispatch),

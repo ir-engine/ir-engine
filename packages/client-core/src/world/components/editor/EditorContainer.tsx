@@ -27,14 +27,14 @@ import { createEditor } from "./Nodes";
 import PropertiesPanelContainer from "./properties/PropertiesPanelContainer";
 import ToolBar from "./toolbar/ToolBar";
 import ViewportPanelContainer from "./viewport/ViewportPanelContainer";
-import { selectAdminState } from '../../redux/admin/selector';
+import { selectAdminState } from '../../reducers/admin/selector';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 import {
   fetchAdminLocations,
   fetchAdminScenes,
   fetchLocationTypes
-} from '../../redux/admin/service';
+} from '../../reducers/admin/service';
 
 
 /**

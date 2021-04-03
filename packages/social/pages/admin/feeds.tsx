@@ -5,8 +5,8 @@ import Dashboard  from "@xr3ngine/client-core/components/ui/Layout/SocialDashboa
 import FeedConsole  from "@xr3ngine/client-core/components/ui/Admin/FeedConsole";
 import { bindActionCreators, Dispatch } from "redux";
 import { connect } from "react-redux";
-import { selectFeedsState } from "@xr3ngine/client-core/redux/feed/selector";
-import { getFeeds } from "@xr3ngine/client-core/redux/feed/service";
+import { selectFeedsState } from "@xr3ngine/client-core/reducers/feed/selector";
+import { getFeeds } from "@xr3ngine/client-core/reducers/feed/service";
 
 const mapStateToProps = (state: any): any => {
   return {

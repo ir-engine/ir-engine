@@ -5,7 +5,7 @@ import { bindActionCreators, Dispatch } from 'redux';
 import { TextField } from '@material-ui/core';
 import MessageIcon from '@material-ui/icons/Message';
 
-import { addCommentToFeed } from '../../../redux/feedComment/service';
+import { addCommentToFeed } from '../../../reducers/feedComment/service';
 
 import styles from './NewComment.module.scss';
 

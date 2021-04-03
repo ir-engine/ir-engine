@@ -5,7 +5,7 @@ import { bindActionCreators, Dispatch } from 'redux';
 import { connect } from 'react-redux';
 import styles from './Profile.module.scss';
 import TextField from '@material-ui/core/TextField';
-import { uploadAvatar, updateUsername } from '../../../redux/auth/service';
+import { uploadAvatar, updateUsername } from '../../../reducers/auth/service';
 import classNames from 'classnames';
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({

@@ -5,7 +5,7 @@ import {
   CHANNEL_SERVER_CONNECTED,
   CHANNEL_SERVER_DISCONNECTED,
   SOCKET_CREATED
-} from '@xr3ngine/client-core/redux/actions';
+} from '@xr3ngine/client-core/reducers/actions';
 
 import { InstanceServerProvisionResult } from '@xr3ngine/common/interfaces/InstanceServerProvisionResult';
 

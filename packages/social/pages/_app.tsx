@@ -1,10 +1,10 @@
 import { initGA, logPageView } from '@xr3ngine/client-core/components/analytics';
 import GlobalStyle from '@xr3ngine/client-core/components/editor/GlobalStyle';
 import theme from "../theme";
-import { dispatchAlertError } from '@xr3ngine/client-core/redux/alert/service';
-import { getDeviceType } from '@xr3ngine/client-core/redux/devicedetect/actions';
-import { restoreState } from '@xr3ngine/client-core/redux/persisted.store';
-import { configureStore } from '@xr3ngine/client-core/redux/store';
+import { dispatchAlertError } from '@xr3ngine/client-core/reducers/alert/service';
+import { getDeviceType } from '@xr3ngine/client-core/reducers/devicedetect/actions';
+import { restoreState } from '@xr3ngine/client-core/reducers/persisted.store';
+import { configureStore } from '@xr3ngine/client-core/reducers/store';
 import DeviceDetector from 'device-detector-js';
 import { fromJS } from 'immutable';
 import withRedux from 'next-redux-wrapper';

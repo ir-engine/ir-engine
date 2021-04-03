@@ -9,11 +9,11 @@ import InfoIcon from '@material-ui/icons/Info';
 import { connect } from 'react-redux';
 import Container from '@material-ui/core/Container';
 import { bindActionCreators, Dispatch } from 'redux';
-import { fetchAdminVideos } from '../../../redux/admin/service';
+import { fetchAdminVideos } from '../../../reducers/admin/service';
 import styles from './Admin.module.scss';
-import { selectAdminState } from '../../../redux/admin/selector';
-import { selectVideoState } from '../../../redux/video/selector';
-import { selectAuthState } from '../../../redux/auth/selector';
+import { selectAdminState } from '../../../reducers/admin/selector';
+import { selectVideoState } from '../../../reducers/video/selector';
+import { selectAuthState } from '../../../reducers/auth/selector';
 import VideoModal from './VideoModal';
 import { useRouter } from 'next/router';
 

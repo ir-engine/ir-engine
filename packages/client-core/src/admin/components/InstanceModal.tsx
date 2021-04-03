@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { connect } from 'react-redux';
-import { selectAdminState } from "../../../redux/admin/selector";
+import { selectAdminState } from "../../../reducers/admin/selector";
 import styles from './Admin.module.scss';
 import {
     Backdrop,
@@ -16,10 +16,10 @@ import {
     TableSortLabel
 } from '@material-ui/core';
 import classNames from 'classnames';
-import { selectAppState } from "../../../redux/app/selector";
-import { selectAuthState } from "../../../redux/auth/selector";
+import { selectAppState } from "../../../reducers/app/selector";
+import { selectAuthState } from "../../../reducers/auth/selector";
 import { bindActionCreators, Dispatch } from "redux";
-import { client } from "../../../redux/feathers";
+import { client } from "../../../reducers/feathers";
 import { Router, withRouter } from "next/router";
 import Snackbar from '@material-ui/core/Snackbar';
 import MuiAlert, { AlertProps } from '@material-ui/lab/Alert';

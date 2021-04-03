@@ -5,7 +5,7 @@ import Typography from '@material-ui/core/Typography';
 import Container from '@material-ui/core/Container';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
-import { forgotPassword } from '../../../redux/auth/service';
+import { forgotPassword } from '../../../reducers/auth/service';
 import Grid from '@material-ui/core/Grid';
 import styles from './Auth.module.scss';
 

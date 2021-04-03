@@ -14,10 +14,10 @@ import {
     Slider,
     Typography
 } from '@material-ui/core';
-import { selectAuthState } from "../../../redux/auth/selector";
+import { selectAuthState } from "../../../reducers/auth/selector";
 import {bindActionCreators, Dispatch} from "redux";
 import {connect} from "react-redux";
-import { updateUserSettings } from "../../../redux/auth/service";
+import { updateUserSettings } from "../../../reducers/auth/service";
 import { PositionalAudioSystem } from '@xr3ngine/engine/src/audio/systems/PositionalAudioSystem';
 
 interface Props {

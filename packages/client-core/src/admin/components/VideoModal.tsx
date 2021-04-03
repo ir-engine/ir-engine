@@ -15,9 +15,9 @@ import {
   createVideo,
   updateVideo,
   deleteVideo
-} from '../../../redux/admin/service';
+} from '../../../reducers/admin/service';
 import styles from './Admin.module.scss';
-import { selectAdminState } from '../../../redux/admin/selector';
+import { selectAdminState } from '../../../reducers/admin/selector';
 interface Props {
   open: boolean;
   handleClose: any;

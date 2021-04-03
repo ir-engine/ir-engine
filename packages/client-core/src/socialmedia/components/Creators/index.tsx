@@ -8,9 +8,9 @@ import CardContent from '@material-ui/core/CardContent';
 import VerifiedUserIcon from '@material-ui/icons/VerifiedUser';
 
 import styles from './Creators.module.scss';
-import { selectCreatorsState } from '../../../redux/creator/selector';
+import { selectCreatorsState } from '../../../reducers/creator/selector';
 import { bindActionCreators, Dispatch } from 'redux';
-import { getCreators } from '../../../redux/creator/service';
+import { getCreators } from '../../../reducers/creator/service';
 import { connect } from 'react-redux';
 
 const mapStateToProps = (state: any): any => {

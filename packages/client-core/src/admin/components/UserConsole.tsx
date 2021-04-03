@@ -1,20 +1,20 @@
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
-import { selectAdminState } from '../../../redux/admin/selector';
-import { selectAppState } from '../../../redux/app/selector';
-import { selectAuthState } from '../../../redux/auth/selector';
-import { client } from "../../../redux/feathers";
+import { selectAdminState } from '../../../reducers/admin/selector';
+import { selectAppState } from '../../../reducers/app/selector';
+import { selectAuthState } from '../../../reducers/auth/selector';
+import { client } from "../../../reducers/feathers";
 import { Router, withRouter } from "next/router";
-import { PAGE_LIMIT } from '../../../redux/admin/reducers';
+import { PAGE_LIMIT } from '../../../reducers/admin/reducers';
 import FormControl from '@material-ui/core/FormControl';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import {
     fetchUsersAsAdmin,
-} from '../../../redux/admin/service';
+} from '../../../reducers/admin/service';
 import {
     removeUser,
-} from "../../../redux/admin/service";
+} from "../../../reducers/admin/service";
 import {
     Table,
     TableBody,

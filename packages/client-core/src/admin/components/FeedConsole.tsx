@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import { Dispatch } from 'redux';
 import { Router, withRouter } from "next/router";
-import { PAGE_LIMIT } from '../../../redux/admin/reducers';
+import { PAGE_LIMIT } from '../../../reducers/admin/reducers';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import {
     Table,

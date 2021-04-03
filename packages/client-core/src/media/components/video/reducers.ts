@@ -7,7 +7,7 @@ import {
 import {
   VIDEOS_FETCHED_SUCCESS,
   VIDEOS_FETCHED_ERROR
-} from '../actions';
+} from '../../../actions';
 
 export const initialState: PublicVideoState = {
   videos: [],

@@ -7,7 +7,7 @@ import { Facebook } from '@styled-icons/bootstrap/Facebook';
 import Fab from '@material-ui/core/Fab';
 
 import styles from './Login.module.scss';
-import { loginUserByOAuth, registerUserByEmail, resetPassword } from '../../../redux/auth/service';
+import { loginUserByOAuth, registerUserByEmail, resetPassword } from '../../../reducers/auth/service';
 import getConfig from 'next/config';
 
 import PasswordLoginApp from '../../ui/Auth/PasswordLoginApp';

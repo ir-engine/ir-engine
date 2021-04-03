@@ -19,10 +19,10 @@ import {
     createMessage,
     updateChatTarget,
     updateMessageScrollInit
-} from '@xr3ngine/client-core/redux/chat/service';
-import { selectAuthState } from '@xr3ngine/client-core/redux/auth/selector';
-import { selectChatState } from '@xr3ngine/client-core/redux/chat/selector';
-import { selectInstanceConnectionState } from '../../../redux/instanceConnection/selector';
+} from '@xr3ngine/client-core/reducers/chat/service';
+import { selectAuthState } from '@xr3ngine/client-core/src/user/reducers/auth/selector';
+import { selectChatState } from '@xr3ngine/client-core/reducers/chat/selector';
+import { selectInstanceConnectionState } from '../../../reducers/instanceConnection/selector';
 import {
     Message as MessageIcon,
     Send

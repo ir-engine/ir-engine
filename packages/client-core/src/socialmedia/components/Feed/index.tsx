@@ -5,8 +5,8 @@ import { connect } from 'react-redux';
 import FeedCard from '../common/FeedCard';
 import CommentList from '../CommentList';
 import NewComment from '../NewComment';
-import { selectFeedsState } from '../../../redux/feed/selector';
-import { getFeed } from '../../../redux/feed/service';
+import { selectFeedsState } from '../../../reducers/feed/selector';
+import { getFeed } from '../../../reducers/feed/service';
 
 const mapStateToProps = (state: any): any => {
     return {

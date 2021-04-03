@@ -8,7 +8,7 @@ import {
 import FaceIcon from '@material-ui/icons/Face';
 import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
-import { selectAppOnBoardingStep } from "@xr3ngine/client-core/redux/app/selector";
+import { selectAppOnBoardingStep } from "@xr3ngine/client-core/src/common/reducers/app/selector";
 // @ts-ignore
 import styles from './MediaIconsBox.module.scss';
 import { MediaStreamSystem } from "@xr3ngine/engine/src/networking/systems/MediaStreamSystem";
@@ -20,9 +20,9 @@ import {
     pauseProducer,
     resumeProducer
 } from "../../transports/SocketWebRTCClientFunctions";
-import { selectAuthState } from "@xr3ngine/client-core/redux/auth/selector";
-import { selectLocationState } from "@xr3ngine/client-core/redux/location/selector";
-import { updateCamAudioState, updateCamVideoState, changeFaceTrackingState } from "@xr3ngine/client-core/redux/mediastream/service";
+import { selectAuthState } from "@xr3ngine/client-core/src/user/reducers/auth/selector";
+import { selectLocationState } from "@xr3ngine/client-networking/src/reducers/location/selector";
+import { updateCamAudioState, updateCamVideoState, changeFaceTrackingState } from "@xr3ngine/client-core/reducers/mediastream/service";
 import {
     startFaceTracking,
     startLipsyncTracking,
