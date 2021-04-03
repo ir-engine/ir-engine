@@ -1,18 +1,16 @@
-import React, { useState } from 'react';
 import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
-import TextField from '@material-ui/core/TextField';
-import Link from '@material-ui/core/Link';
-import Grid from '@material-ui/core/Grid';
-import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
-import Typography from '@material-ui/core/Typography';
 import Container from '@material-ui/core/Container';
+import Grid from '@material-ui/core/Grid';
+import TextField from '@material-ui/core/TextField';
+import Typography from '@material-ui/core/Typography';
+import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
+import { showDialog } from '@xr3ngine/client-core/src/common/reducers/dialog/service';
+import { registerUserByEmail } from '@xr3ngine/client-core/src/user/reducers/auth/service';
+import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
-import { registerUserByEmail } from '../../../reducers/auth/service';
-import SignIn from './Login';
 import styles from './Auth.module.scss';
-import { showDialog } from '../../../reducers/dialog/service';
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
   registerUserByEmail: bindActionCreators(registerUserByEmail, dispatch),

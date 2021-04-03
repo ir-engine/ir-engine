@@ -5,8 +5,8 @@ import { bindActionCreators, Dispatch } from 'redux';
 import { connect } from 'react-redux';
 import styles from './Profile.module.scss';
 import TextField from '@material-ui/core/TextField';
-import { uploadAvatar, updateUsername } from '../../../reducers/auth/service';
 import classNames from 'classnames';
+import { uploadAvatar, updateUsername } from '@xr3ngine/client-core/src/user/reducers/auth/service';
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
   uploadAvatar: bindActionCreators(uploadAvatar, dispatch),

@@ -1,3 +1,4 @@
+import { dispatchAlertError, dispatchAlertSuccess } from '@xr3ngine/client-core/src/common/reducers/alert/service';
 import { resolveAuthUser } from '@xr3ngine/common/interfaces/AuthUser';
 import { IdentityProvider } from '@xr3ngine/common/interfaces/IdentityProvider';
 import { resolveUser } from '@xr3ngine/common/interfaces/User';
@@ -5,18 +6,17 @@ import { EngineEvents } from '@xr3ngine/engine/src/ecs/classes/EngineEvents';
 import { Network } from '@xr3ngine/engine/src/networking/classes/Network';
 import { MessageTypes } from '@xr3ngine/engine/src/networking/enums/MessageTypes';
 // TODO: Decouple this
-import { endVideoChat, leave } from '@xr3ngine/engine/src/networking/functions/SocketWebRTCClientFunctions';
+// import { endVideoChat, leave } from '@xr3ngine/engine/src/networking/functions/SocketWebRTCClientFunctions';
 import axios from 'axios';
 import getConfig from 'next/config';
 import querystring from 'querystring';
 import { Dispatch } from 'redux';
 import { v1 } from 'uuid';
-import { dispatchAlertError, dispatchAlertSuccess } from '../alert/service';
-import { client } from '../feathers';
-import { validateEmail, validatePhoneNumber } from '../helper';
-import { getStoredState } from '../persisted.store';
-import { apiUrl } from '../service.common';
-import store from "../store";
+import { client } from '../../../feathers';
+import { validateEmail, validatePhoneNumber } from '../../../helper';
+import { getStoredState } from '../../../persisted.store';
+import { apiUrl } from '../../../service.common';
+import store from "../../../store";
 import {
   addedChannelLayerUser,
   addedLayerUser, clearChannelLayerUsers,
@@ -771,8 +771,9 @@ if(!publicRuntimeConfig.offlineMode) {
     const currentLocation = state.get('locations').get('currentLocation').get('location');
     const locationBan = params.locationBan;
     if (selfUser.id === locationBan.userId && currentLocation.id === locationBan.locationId) {
-      endVideoChat({ leftParty: true });
-      leave(true);
+      // TODO: Decouple and reenable me!
+      // endVideoChat({ leftParty: true });
+      // leave(true);
       if (selfPartyUser.id != null) {
         await client.service('party-user').remove(selfPartyUser.id);
       }

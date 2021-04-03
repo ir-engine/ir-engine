@@ -1,30 +1,29 @@
+import {
+  ADD_FEED,
+  ADD_FEED_BOOKMARK,
+  ADD_FEED_FEATURED,
+  ADD_FEED_FIRES,
+  ADD_FEED_VIEW,
+  FEEDS_AS_ADMIN_RETRIEVED,
+  FEEDS_BOOKMARK_RETRIEVED,
+  FEEDS_CREATOR_RETRIEVED,
+  FEEDS_FEATURED_RETRIEVED,
+  FEEDS_FETCH,
+  FEEDS_MY_FEATURED_RETRIEVED,
+  FEEDS_RETRIEVED,
+  FEED_RETRIEVED,
+  REMOVE_FEED_BOOKMARK,
+  REMOVE_FEED_FEATURED,
+  REMOVE_FEED_FIRES,
+  UPDATE_FEED
+} from '@xr3ngine/client-core/src/socialmedia/reducers/actions';
 import Immutable from 'immutable';
 import {
+  FeedRetrievedAction,
   FeedsAction,
   FeedsRetrievedAction,
-  FeedRetrievedAction,
   oneFeedAction
 } from './actions';
-
-import {
-  FEEDS_FETCH,
-  FEEDS_FEATURED_RETRIEVED,
-  FEED_RETRIEVED,
-  FEEDS_RETRIEVED,
-  ADD_FEED_FIRES,
-  REMOVE_FEED_FIRES,
-  ADD_FEED_BOOKMARK,
-  REMOVE_FEED_BOOKMARK,
-  ADD_FEED_VIEW,
-  ADD_FEED,
-  FEEDS_CREATOR_RETRIEVED,
-  FEEDS_BOOKMARK_RETRIEVED,
-  FEEDS_MY_FEATURED_RETRIEVED,
-  ADD_FEED_FEATURED,
-  REMOVE_FEED_FEATURED,
-  FEEDS_AS_ADMIN_RETRIEVED,
-  UPDATE_FEED
-} from '../../../actions';
 
 export const initialState = {
   feeds: {

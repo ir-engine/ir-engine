@@ -1,18 +1,10 @@
+import { CHANNEL_SERVER_PROVISIONING, CHANNEL_SERVER_PROVISIONED, CHANNEL_SERVER_CONNECTING, CHANNEL_SERVER_CONNECTED, CHANNEL_SERVER_DISCONNECTED, SOCKET_CREATED } from '@xr3ngine/client-core/src/world/reducers/actions';
 import Immutable from 'immutable';
 import {
   ChannelServerAction,
   ChannelServerProvisionedAction,
   SocketCreatedAction
 } from './actions';
-
-import {
-  CHANNEL_SERVER_CONNECTING,
-  CHANNEL_SERVER_CONNECTED,
-  CHANNEL_SERVER_DISCONNECTED,
-  CHANNEL_SERVER_PROVISIONING,
-  CHANNEL_SERVER_PROVISIONED,
-  SOCKET_CREATED
-} from '@xr3ngine/client-core/reducers/actions';
 
 export const initialState = {
   instance: {

@@ -98,7 +98,6 @@ import {
     resumeProducer
 } from '../../transports/SocketWebRTCClientFunctions';
 import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport';
-//@ts-ignore
 import styles from './Harmony.module.scss';
 const engineRendererCanvasId = 'engine-renderer-canvas';
 

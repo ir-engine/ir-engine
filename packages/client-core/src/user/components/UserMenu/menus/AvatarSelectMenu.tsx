@@ -1,7 +1,7 @@
 import React from 'react';
 import * as THREE from 'three';
 import { ArrowBack, CloudUpload, SystemUpdateAlt, Help } from '@material-ui/icons';
-import IconLeftClick from '../../Icons/IconLeftClick';
+import IconLeftClick from '../../../../common/components/Icons/IconLeftClick';
 import { getLoader, loadExtentions } from '@xr3ngine/engine/src/assets/functions/LoadGLTF';
 import { FBXLoader } from '@xr3ngine/engine/src/assets/loaders/fbx/FBXLoader';
 import { getOrbitControls } from '@xr3ngine/engine/src/input/functions/loadOrbitControl';

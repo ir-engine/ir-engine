@@ -1,6 +1,6 @@
 import Head from 'next/head';
 import React, { useEffect } from 'react';
-import Xr3engineContact from '../components/HomePageContact';
+import ContactForm from '@xr3ngine/client-core/src/common/components/ContactForm';
 import { useRouter } from 'next/router';
 import { Capacitor } from '@capacitor/core';
 import { useTranslation } from 'react-i18next';
@@ -41,7 +41,7 @@ export const IndexPage = (): any => {
                     </div>
                     <object className="main-background" data="static/main-background.png" />
                     <div className="contact-right-div">
-                        <Xr3engineContact />
+                        <ContactForm />
                     </div>
                 </div>
                 <div className="right-top-menu-row row">
