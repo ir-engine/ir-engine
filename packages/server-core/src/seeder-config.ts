@@ -1,5 +1,5 @@
 
-import AuthenticationSeeds from './authentication/seeder-config';
+import AuthenticationSeeds from './user/seeder-config';
 import EntitySeeds from './entities/seeder-config';
 import MediaSeeds from './media/seeder-config';
 import NetworkingSeeds from './networking/seeder-config';

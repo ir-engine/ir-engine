@@ -28,5 +28,6 @@
   ],
   "include": [
     "./**/*.ts",
-    "./**/*.tsx", "../client/components/Scene/loading.tsx", "../client/components/analytics.tsx", "../client/components/Layout/Layout.tsx"]
+    "./**/*.tsx"
+  ]
 }

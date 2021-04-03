@@ -4,7 +4,7 @@ import { Service, SequelizeServiceOptions } from 'feathers-sequelize';
 import { QueryTypes } from 'sequelize';
 import { Application } from '../../../declarations';
 // import creatorModel from './creator.model';
-import { extractLoggedInUserFromParams } from '../../authentication/auth-management/auth-management.utils';
+import { extractLoggedInUserFromParams } from '../../user/auth-management/auth-management.utils';
 
 /**
  * A class for ARC Feed service

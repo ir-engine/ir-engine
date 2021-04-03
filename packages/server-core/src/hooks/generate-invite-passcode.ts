@@ -1,5 +1,5 @@
 import { HookContext } from '@feathersjs/feathers';
-import { extractLoggedInUserFromParams } from '../authentication/auth-management/auth-management.utils';
+import { extractLoggedInUserFromParams } from '../user/auth-management/auth-management.utils';
 import crypto from 'crypto';
 
 // This will attach the owner ID in the contact while creating/updating list item

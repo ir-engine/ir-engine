@@ -1,5 +1,5 @@
 import { HookContext } from '@feathersjs/feathers';
-import { extractLoggedInUserFromParams } from '../authentication/auth-management/auth-management.utils';
+import { extractLoggedInUserFromParams } from '../user/auth-management/auth-management.utils';
 import { BadRequest, Forbidden } from '@feathersjs/errors';
 import _ from 'lodash';
 
