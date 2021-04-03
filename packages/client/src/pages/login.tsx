@@ -1,10 +1,10 @@
-import { EmptyLayout } from '@xr3ngine/client-core/components/ui/Layout/EmptyLayout';
+import { EmptyLayout } from '@xr3ngine/client-core/src/common/components/Layout/EmptyLayout';
 import { doLoginAuto } from '@xr3ngine/client-core/src/user/reducers/auth/service';
 import { selectInstanceConnectionState } from '@xr3ngine/client-core/reducers/instanceConnection/selector';
 import React, {useEffect} from 'react';
 import { connect } from "react-redux";
 import { bindActionCreators, Dispatch } from "redux";
-import ProfileMenu from "@xr3ngine/client-core/components/ui/UserMenu/menus/ProfileMenu";
+import ProfileMenu from "@xr3ngine/client-core/src/common/components/UserMenu/menus/ProfileMenu";
 import { useTranslation } from 'react-i18next';
 
 interface Props {

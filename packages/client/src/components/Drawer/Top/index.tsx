@@ -1,23 +1,23 @@
 import { AppBar } from '@material-ui/core';
-import { selectFriendState } from '@xr3ngine/client-core/reducers/friend/selector';
+import { selectFriendState } from '@xr3ngine/client-core/src/social/reducers/friend/selector';
 import {
     getFriends,
     unfriend
-} from '@xr3ngine/client-core/reducers/friend/service';
-import { selectGroupState } from '@xr3ngine/client-core/reducers/group/selector';
+} from '@xr3ngine/client-core/src/social/reducers/friend/service';
+import { selectGroupState } from '@xr3ngine/client-core/src/social/reducers/group/selector';
 import {
     createGroup,
     getGroups,
     patchGroup,
     removeGroup
-} from '@xr3ngine/client-core/reducers/group/service';
-import { selectPartyState } from '@xr3ngine/client-networking/src/reducers/party/selector';
+} from '@xr3ngine/client-core/src/social/reducers/group/service';
+import { selectPartyState } from '@xr3ngine/client-core/src/social/reducers/party/selector';
 import {
     createParty,
     getParty,
     removeParty,
     removePartyUser
-} from '@xr3ngine/client-networking/src/reducers/party/service';
+} from '@xr3ngine/client-core/src/social/reducers/party/service';
 import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';

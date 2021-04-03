@@ -17,7 +17,6 @@ export const OpenLink: FunctionComponent<OpenLinkProps> = ({ onClose, data }: Op
     window.open(url, "_blank");
   };
 
-  let modelView = null;
   return  (<Dialog open={true} aria-labelledby="xr-dialog" 
       classes={{
         root: styles.customDialog,

@@ -1,13 +1,9 @@
 import Immutable from 'immutable';
+import { SHOW_NOTIFICATION, HIDE_NOTIFICATION } from '../../../user/reducers/actions';
 import {
   AlertState,
   AlertAction
 } from './actions';
-
-import {
-  SHOW_NOTIFICATION,
-  HIDE_NOTIFICATION
-} from '../../../actions';
 
 export const initialState: AlertState = {
   type: 'none',

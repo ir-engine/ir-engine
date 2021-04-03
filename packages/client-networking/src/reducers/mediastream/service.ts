@@ -6,7 +6,7 @@ import {
   setFaceTrackingState,
   setConsumers
 } from './actions';
-import store from '../../../store';
+import store from '@xr3ngine/client-core/src/store';
 
 export const updateCamVideoState = () => {
   const ms = MediaStreamSystem.instance;

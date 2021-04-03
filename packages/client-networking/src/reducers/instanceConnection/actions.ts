@@ -1,13 +1,12 @@
+import { InstanceServerProvisionResult } from '@xr3ngine/common/interfaces/InstanceServerProvisionResult';
 import {
-  INSTANCE_SERVER_PROVISIONING,
-  INSTANCE_SERVER_PROVISIONED,
-  INSTANCE_SERVER_CONNECTING,
   INSTANCE_SERVER_CONNECTED,
+  INSTANCE_SERVER_CONNECTING,
   INSTANCE_SERVER_DISCONNECTED,
+  INSTANCE_SERVER_PROVISIONED,
+  INSTANCE_SERVER_PROVISIONING,
   SOCKET_CREATED
 } from '../actions';
-
-import { InstanceServerProvisionResult } from '@xr3ngine/common/interfaces/InstanceServerProvisionResult';
 
 export interface InstanceServerProvisioningAction {
   type: string;
@@ -76,12 +75,5 @@ export function instanceServerConnected (): InstanceServerConnectedAction {
 export function instanceServerDisconnected (): InstanceServerDisconnectedAction {
   return {
     type: INSTANCE_SERVER_DISCONNECTED
-  };
-}
-
-export function socketCreated(socket: any): SocketCreatedAction {
-  return {
-    type: SOCKET_CREATED,
-    socket: socket
   };
 }

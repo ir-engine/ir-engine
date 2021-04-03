@@ -10,12 +10,12 @@ import { Network } from "@xr3ngine/engine/src/networking/classes/Network";
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 import { selectAuthState } from '@xr3ngine/client-core/src/user/reducers/auth/selector';
-import { selectChatState } from '@xr3ngine/client-core/reducers/chat/selector';
+import { selectChatState } from '@xr3ngine/client-core/src/social/reducers/chat/selector';
 import {
   updateMessageScrollInit
-} from '@xr3ngine/client-core/reducers/chat/service';
-import { selectLocationState } from '@xr3ngine/client-networking/src/reducers/location/selector';
-import { selectPartyState } from '@xr3ngine/client-networking/src/reducers/party/selector';
+} from '@xr3ngine/client-core/src/social/reducers/chat/service';
+import { selectLocationState } from '@xr3ngine/client-core/src/social/reducers/location/selector';
+import { selectPartyState } from '@xr3ngine/client-core/src/social/reducers/party/selector';
 // @ts-ignore
 import styles from './DrawerControls.module.scss';
 

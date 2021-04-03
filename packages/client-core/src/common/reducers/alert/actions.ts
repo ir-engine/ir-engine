@@ -1,6 +1,4 @@
-import {
-  SHOW_NOTIFICATION
-} from '../../../actions';
+import { SHOW_NOTIFICATION } from "../../../user/reducers/actions";
 
 export type AlertType = 'error' | 'success' | 'warning' | 'none'
 export interface AlertState {

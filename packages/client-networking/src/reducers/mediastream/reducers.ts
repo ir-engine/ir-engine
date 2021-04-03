@@ -1,10 +1,5 @@
 import Immutable from 'immutable';
-import {
-  CAM_VIDEO_CHANGED,
-  CAM_AUDIO_CHANGED,
-  CONSUMERS_CHANGED,
-  FACE_TRACKING_CHANGED,
-} from '../../../actions';
+import { CAM_VIDEO_CHANGED, CAM_AUDIO_CHANGED, FACE_TRACKING_CHANGED, CONSUMERS_CHANGED } from '../actions';
 import { BooleanAction } from './actions';
 
 export const initialState = {
