@@ -1,7 +1,7 @@
 import { ServiceAddons } from '@feathersjs/feathers';
 import { Application } from '../../../declarations';
 import { Collection } from './collection.class';
-import createModel from '../../models/collection.model';
+import createModel from './collection.model';
 import hooks from './collection.hooks';
 import collectionDocs from './collection.docs';
 

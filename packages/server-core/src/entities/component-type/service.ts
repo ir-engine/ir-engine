@@ -1,7 +1,7 @@
 import { ServiceAddons } from '@feathersjs/feathers';
 import { Application } from '../../../declarations';
 import { ComponentType } from './component-type.class';
-import createModel from '../../models/component-type.model';
+import createModel from './component-type.model';
 import hooks from './component-type.hooks';
 
 declare module '../../../declarations' {

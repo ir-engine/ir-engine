@@ -1,7 +1,7 @@
 import { ServiceAddons } from '@feathersjs/feathers';
 import { Application } from '../../../declarations';
 import { GroupUser } from './group-user.class';
-import createModel from '../../models/group-user.model';
+import createModel from './group-user.model';
 import hooks from './group-user.hooks';
 import logger from '../../logger';
 import groupUserDocs from './group-user.docs';

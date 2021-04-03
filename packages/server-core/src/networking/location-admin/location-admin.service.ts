@@ -2,7 +2,7 @@
 import { ServiceAddons } from '@feathersjs/feathers';
 import { Application } from '../../../declarations';
 import { LocationAdmin } from './location-admin.class';
-import createModel from '../../models/network/location-admin.model';
+import createModel from './location-admin.model';
 import hooks from './location-admin.hooks';
 import locationAdminDocs from './location-admin.docs';
 

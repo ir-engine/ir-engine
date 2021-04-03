@@ -2,7 +2,7 @@
 import { ServiceAddons } from '@feathersjs/feathers';
 import { Application } from '../../../declarations';
 import { Feed } from './feed.class';
-import createModel from '../../models/feed.model';
+import createModel from './feed.model';
 import hooks from './feed.hooks';
 import feedDocs from './feed.docs';
 

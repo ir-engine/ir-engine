@@ -1,7 +1,7 @@
 import { ServiceAddons } from '@feathersjs/feathers';
 import { Application } from '../../../declarations';
 import { UserSettings } from './user-settings.class';
-import createModel from '../../models/user-settings.model';
+import createModel from './user-settings.model';
 import hooks from './user-settings.hooks';
 import userSettingsDocs from './user-settings.docs';
 

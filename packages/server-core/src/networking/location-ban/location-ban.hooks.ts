@@ -1,7 +1,7 @@
 import * as authentication from '@feathersjs/authentication';
 import { disallow } from 'feathers-hooks-common';
 import {HookContext} from "@feathersjs/feathers";
-import {extractLoggedInUserFromParams} from "../auth-management/auth-management.utils";
+import {extractLoggedInUserFromParams} from "../../authentication/auth-management/auth-management.utils";
 import { Forbidden } from '@feathersjs/errors';
 
 

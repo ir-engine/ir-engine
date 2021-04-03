@@ -1,7 +1,6 @@
 import express from '@feathersjs/express';
 import feathers from '@feathersjs/feathers';
 import socketio from '@feathersjs/socketio';
-import AgonesSDK from '@google-cloud/agones-sdk';
 import authentication from '@xr3ngine/server-core/src/authentication/authentication';
 import channels from '@xr3ngine/server-core/src/channels';
 import compress from 'compression';
@@ -20,14 +19,11 @@ import config from '@xr3ngine/server-core/src/appconfig';
 import { Application } from '@xr3ngine/server-core/declarations';
 import logger from '@xr3ngine/server-core/src/logger';
 import sequelize from '@xr3ngine/server-core/src/sequelize';
-import services from '@xr3ngine/server-core/src/services/services';
+import services from '@xr3ngine/server-core/src/services';
 
 const emitter = new EventEmitter();
 
-// Don't remove this comment. It's needed to format import lines nicely.
-
 const app = express(feathers()) as Application;
-const agonesSDK = new AgonesSDK();
 
 app.set('nextReadyEmitter', emitter);
 

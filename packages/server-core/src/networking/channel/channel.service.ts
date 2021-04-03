@@ -1,7 +1,7 @@
 import { ServiceAddons } from '@feathersjs/feathers';
 import { Application } from '../../../declarations';
 import { Channel } from './channel.class';
-import createModel from '../../models/channel.model';
+import createModel from './channel.model';
 import hooks from './channel.hooks';
 import logger from '../../logger';
 import channelDocs from './channel.docs';

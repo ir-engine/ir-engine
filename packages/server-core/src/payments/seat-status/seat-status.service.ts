@@ -1,7 +1,7 @@
 import { ServiceAddons } from '@feathersjs/feathers';
 import { Application } from '../../../declarations';
 import { SeatStatus } from './seat-status.class';
-import createModel from '../../models/payments/seat-status.model';
+import createModel from './seat-status.model';
 import hooks from './seat-status.hooks';
 import seatStatusDocs from './seat-status.docs';
 

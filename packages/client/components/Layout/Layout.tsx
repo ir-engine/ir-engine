@@ -10,9 +10,9 @@ import { selectAppOnBoardingStep, selectAppState } from '@xr3ngine/client-core/r
 import { selectAuthState } from '@xr3ngine/client-core/redux/auth/selector';
 import { selectLocationState } from '@xr3ngine/client-core/redux/location/selector';
 import theme from '@xr3ngine/client-core/theme';
-import Harmony from "@xr3ngine/client-networking/components/Harmony";
+import Harmony from "@xr3ngine/common/client-networking/components/Harmony";
 import InstanceChat from '@xr3ngine/client-networking/components/InstanceChat';
-import PartyVideoWindows from '@xr3ngine/client-networking/components/PartyVideoWindows';
+import PartyVideoWindows from '@xr3ngine/common/client-networking/components/PartyVideoWindows';
 import getConfig from 'next/config';
 import Head from 'next/head';
 import { useRouter } from 'next/router';

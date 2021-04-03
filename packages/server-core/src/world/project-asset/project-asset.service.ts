@@ -1,7 +1,7 @@
 import { ServiceAddons } from '@feathersjs/feathers';
 import { Application } from '../../../declarations';
 import { ProjectAsset } from './project-asset.class';
-import createModel from '../../models/project-asset.model';
+import createModel from './project-asset.model';
 import hooks from './project-asset.hooks';
 
 declare module '../../../declarations' {

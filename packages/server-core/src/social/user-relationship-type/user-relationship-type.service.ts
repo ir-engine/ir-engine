@@ -1,7 +1,7 @@
 import { ServiceAddons } from '@feathersjs/feathers';
 import { Application } from '../../../declarations';
 import { UserRelationshipType } from './user-relationship-type.class';
-import createModel from '../../models/user/user-relationship-type.model';
+import createModel from './user-relationship-type.model';
 import hooks from './user-relationship-type.hooks';
 import userRelationshipTypeDocs from './user-relationship-type.docs';
 

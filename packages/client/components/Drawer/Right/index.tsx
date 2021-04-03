@@ -52,8 +52,8 @@ import _ from 'lodash';
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
-import { provisionInstanceServer } from '@xr3ngine/client-networking/redux/instanceConnection/service';
-import { selectPartyState } from '@xr3ngine/client-networking/redux/party/selector';
+import { provisionInstanceServer } from '@xr3ngine/common/client-networking/redux/instanceConnection/service';
+import { selectPartyState } from '@xr3ngine/common/client-networking/redux/party/selector';
 //@ts-ignore
 import styles from './Right.module.scss';
 

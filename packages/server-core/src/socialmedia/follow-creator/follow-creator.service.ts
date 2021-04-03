@@ -2,7 +2,7 @@
 // import { ServiceAddons } from '@feathersjs/feathers';
 import { Application } from '../../../declarations';
 import { FollowCreator } from './follow-creator.class';
-import createModel from '../../models/follow-creator.model';
+import createModel from './follow-creator.model';
 import hooks from './follow-creator.hooks';
 
 // Add this service to the service type index

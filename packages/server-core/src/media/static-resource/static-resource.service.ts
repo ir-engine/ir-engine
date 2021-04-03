@@ -1,7 +1,7 @@
 import { ServiceAddons } from '@feathersjs/feathers';
 import { Application } from '../../../declarations';
 import { StaticResource } from './static-resource.class';
-import createModel from '../../models/static-resource.model';
+import createModel from './static-resource.model';
 import hooks from './static-resource.hooks';
 import staticResourceDocs from './static-resource.docs';
 

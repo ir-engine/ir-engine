@@ -1,6 +1,8 @@
-import ChannelTypeSeed from './channel-type/channel-type.seed';
-import LocationTypeSeed from './location-type/location-type.seed';
-import LocationSeed from './location/location.seed';
+import CollectionTypeSeed from './collection-type/collection-type.seed';
+import CollectionSeed from './collection/collection.seed';
+import ComponentTypeSeed from './component-type/component-type.seed';
+import ComponentSeed from './component/component.seed';
+import EntitySeed from './entity/entity.seed';
 
 type SeedCallback = (ServicesSeedConfig) => Promise<any>;
 type ServicesSeedCallback = (obj: any, seed: SeedCallback) => Promise<any>;
@@ -16,9 +18,11 @@ interface ServicesSeedConfig {
 }
 
 export const services: Array<ServicesSeedConfig> = [
-    ChannelTypeSeed,
-    LocationTypeSeed,
-    LocationSeed
+    CollectionTypeSeed,
+    CollectionSeed,
+    EntitySeed,
+    ComponentTypeSeed,
+    ComponentSeed,
   ];
 
 export default services;

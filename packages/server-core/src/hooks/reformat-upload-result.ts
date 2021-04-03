@@ -1,4 +1,4 @@
-import config from '../../appconfig';
+import config from '../appconfig';
 import { Hook, HookContext } from '@feathersjs/feathers';
 
 export default (options = {}): Hook => {

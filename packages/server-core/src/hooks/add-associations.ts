@@ -1,5 +1,5 @@
 import { HookContext } from '@feathersjs/feathers';
-import logger from '../app/logger';
+import logger from '../logger';
 
 function processInclude (includeCollection: any, context: HookContext): any {
   if (!includeCollection) {
