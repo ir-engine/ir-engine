@@ -3,9 +3,11 @@ import React, { useEffect } from 'react';
 import Xr3engineContact from '../components/HomePageContact';
 import { useRouter } from 'next/router';
 import { Capacitor } from '@capacitor/core';
+import { useTranslation } from 'react-i18next';
 
 export const IndexPage = (): any => {
     const router = useRouter();
+    const { t } = useTranslation();
     useEffect(() => {
         if(Capacitor.isNative){
             router.push("/plugintest");
@@ -22,18 +24,18 @@ export const IndexPage = (): any => {
                     <object className="lander-logo" data="static/overlay_mark.svg" />
                 </div>
                 <div className="logo-bottom mb-padding">
-                    <span className="main-txt gray-txt mr-2">BY</span>
-                    <span className="main-txt gradiant-txt mr-2">LAGUNA</span>
-                    <span className="main-txt white-txt">LABS</span>
+                    <span className="main-txt gray-txt mr-2">{t('index.by')}</span>
+                    <span className="main-txt gradiant-txt mr-2">{t('index.laguna')}</span>
+                    <span className="main-txt white-txt">{t('index.labs')}</span>
                 </div>
                 <div className="row mt-5">
                     <div className="bottom-left mb-padding">
                         <div className="main-txt width-400">
-                            Realtime social apps for everyone, at metaverse scale.
+                            {t('index.description')}
                         </div>
                         <a href="/location/demo">
                             <button type="button" className="button main-button">
-                                Try The Demo
+                                {t('index.lbl-tryDemo')}
                             </button>
                         </a>
                     </div>
@@ -52,9 +54,9 @@ export const IndexPage = (): any => {
                         </a>
                     </div>
                     <div className="mobile-only">
-                        <span className="main-txt gray-txt mr-2">BY</span>
-                        <span className="main-txt gradiant-txt mr-2">LAGUNA</span>
-                        <span className="main-txt white-txt">LABS</span>
+                        <span className="main-txt gray-txt mr-2">{t('index.by')}</span>
+                        <span className="main-txt gradiant-txt mr-2">{t('index.laguna')}</span>
+                        <span className="main-txt white-txt">{t('index.labs')}</span>
                     </div>
                 </div>
             </div>

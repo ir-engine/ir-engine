@@ -38,16 +38,9 @@ import {
     ThreeDRotation,
     Videocam
 } from '@material-ui/icons';
-import PartyParticipantWindow from '@xr3ngine/client-networking/components/PartyParticipantWindow';
 import ProfileMenu from "@xr3ngine/client-core/components/ui/UserMenu/menus/ProfileMenu";
 import { selectAuthState } from '@xr3ngine/client-core/redux/auth/selector';
 import { doLoginAuto } from '@xr3ngine/client-core/redux/auth/service';
-import { selectChannelConnectionState } from '@xr3ngine/client-networking/redux/channelConnection/selector';
-import {
-    connectToChannelServer,
-    provisionChannelServer,
-    resetChannelServer
-} from '@xr3ngine/client-networking/redux/channelConnection/service';
 import { selectChatState } from '@xr3ngine/client-core/redux/chat/selector';
 import {
     createMessage,
@@ -71,6 +64,13 @@ import { selectTransportState } from '@xr3ngine/client-core/redux/transport/sele
 import { changeChannelTypeState, updateChannelTypeState } from "@xr3ngine/client-core/redux/transport/service";
 import { selectUserState } from '@xr3ngine/client-core/redux/user/selector';
 import { getLayerUsers } from "@xr3ngine/client-core/redux/user/service";
+import { selectChannelConnectionState } from '@xr3ngine/client-networking/redux/channelConnection/selector';
+import {
+    connectToChannelServer,
+    provisionChannelServer,
+    resetChannelServer
+} from '@xr3ngine/client-networking/redux/channelConnection/service';
+import PartyParticipantWindow from '@xr3ngine/client-networking/src/components/PartyParticipantWindow';
 import { Group as GroupType } from "@xr3ngine/common/interfaces/Group";
 import { Message } from '@xr3ngine/common/interfaces/Message';
 import { User } from '@xr3ngine/common/interfaces/User';

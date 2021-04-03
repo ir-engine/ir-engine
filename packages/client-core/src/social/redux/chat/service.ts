@@ -18,6 +18,9 @@ import { User } from '@xr3ngine/common/interfaces/User';
 import store from '../store';
 import { dispatchAlertError } from '../alert/service';
 
+import getConfig from 'next/config';
+const { publicRuntimeConfig } = getConfig();
+
 export function getChannels(skip?: number, limit?: number) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
     try {
@@ -165,27 +168,29 @@ export function updateMessageScrollInit(value: boolean) {
   };
 }
 
-client.service('message').on('created', (params) => {
-  const selfUser = (store.getState() as any).get('auth').get('user') as User;
-  store.dispatch(createdMessage(params.message, selfUser));
-});
+if(!publicRuntimeConfig.offlineMode) {
+  client.service('message').on('created', (params) => {
+    const selfUser = (store.getState() as any).get('auth').get('user') as User;
+    store.dispatch(createdMessage(params.message, selfUser));
+  });
 
-client.service('message').on('patched', (params) => {
-  store.dispatch(patchedMessage(params.message));
-});
+  client.service('message').on('patched', (params) => {
+    store.dispatch(patchedMessage(params.message));
+  });
 
-client.service('message').on('removed', (params) => {
-  store.dispatch(removedMessage(params.message));
-});
+  client.service('message').on('removed', (params) => {
+    store.dispatch(removedMessage(params.message));
+  });
 
-client.service('channel').on('created', (params) => {
-  store.dispatch(createdChannel(params.channel));
-});
+  client.service('channel').on('created', (params) => {
+    store.dispatch(createdChannel(params.channel));
+  });
 
-client.service('channel').on('patched', (params) => {
-  store.dispatch(patchedChannel(params.channel));
-});
+  client.service('channel').on('patched', (params) => {
+    store.dispatch(patchedChannel(params.channel));
+  });
 
-client.service('channel').on('removed', (params) => {
-  store.dispatch(removedChannel(params.channel));
-});
+  client.service('channel').on('removed', (params) => {
+    store.dispatch(removedChannel(params.channel));
+  });
+}

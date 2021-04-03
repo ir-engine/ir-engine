@@ -36,7 +36,6 @@
     "@capacitor/cli": "^2.4.6",
     "@capacitor/core": "^2.4.6",
     "@capacitor/ios": "2.4.6",
-    "@typescript-eslint/eslint-plugin": "^4.5.0",
     "@xr3ngine/native-plugin-xr": "^0.2.10",
     "next-transpile-modules": "^6.2.0",
     "react": "^17.0.0"

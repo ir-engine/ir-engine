@@ -55,7 +55,7 @@ export class AnimationManager {
 				resolve([]);
 				return;
 			}
-			getLoader().load('/models/avatars/Animations.glb', gltf => {
+			getLoader().load(Engine.publicPath + '/models/avatars/Animations.glb', gltf => {
 				this._animations = gltf.animations;
 				this._animations?.forEach(clip => {
 					// TODO: make list of morph targets names
@@ -88,19 +88,11 @@ export class AnimationManager {
 
 export const loadDefaultActorAvatar: Behavior = (entity) => {
   const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
-  AnimationManager.instance.getDefaultModel().then(() => {
-	// If avatar is already loaded then skip setting default avatar model.
-	if (actor.avatarId && actor.avatarURL && actor.modelContainer?.children?.length > 0) {
-		return;
-	}
-
-    wipeOldModel(entity);
-    AnimationManager.instance._defaultModel.children.forEach(child => actor.modelContainer.add(child));
-    actor.mixer = new AnimationMixer(actor.modelContainer.children[0]);
-    if(hasComponent(entity, IKComponent)) {
-      initiateIK(entity)
-    }
-  })
+  AnimationManager.instance._defaultModel.children.forEach(child => actor.modelContainer.add(child));
+  actor.mixer = new AnimationMixer(actor.modelContainer.children[0]);
+  if(hasComponent(entity, IKComponent)) {
+    initiateIK(entity)
+  }
 }
 
 export const loadActorAvatar: Behavior = (entity) => {
@@ -121,9 +113,17 @@ export const loadActorAvatarFromURL: Behavior = (entity, avatarURL) => {
 		receiveShadow: true,
 		parent: tmpGroup,
 	}, () => {
-		wipeOldModel(entity);
-
 		const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
+    if(!actor) return
+
+    actor.mixer && actor.mixer.stopAllAction();
+    // forget that we have any animation playing
+    actor.currentAnimationAction = [];
+    
+    // clear current avatar mesh
+    ([...actor.modelContainer.children])
+      .forEach(child => actor.modelContainer.remove(child));
+
 		tmpGroup.children.forEach(child => actor.modelContainer.add(child));
 
 		actor.mixer = new AnimationMixer(actor.modelContainer.children[0]);
@@ -133,19 +133,8 @@ export const loadActorAvatarFromURL: Behavior = (entity, avatarURL) => {
 	});
 };
 
-const wipeOldModel = (entity) => {
-  const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
-  actor.mixer && actor.mixer.stopAllAction();
-  // forget that we have any animation playing
-  actor.currentAnimationAction = [];
-  
-  // clear current avatar mesh
-  ([...actor.modelContainer.children])
-    .forEach(child => actor.modelContainer.remove(child));
-}
-
 const initializeCharacter: Behavior = (entity): void => {
-	// console.warn("Initializing character for ", entity.id);
+	// console.warn("Initializing character for ", entity);
 	if (!hasComponent(entity, CharacterComponent as any)){
 		console.warn("Character does not have a character component, adding");
 		addComponent(entity, CharacterComponent as any);
@@ -182,7 +171,9 @@ const initializeCharacter: Behavior = (entity): void => {
 	addObject3DComponent(entity, { obj3d: actor.tiltContainer });
 
 	if(isClient){
-		actor.animations = AnimationManager.instance._animations;
+    AnimationManager.instance.getAnimations().then(() => {
+      actor.animations = AnimationManager.instance._animations;
+    })
 	}
 
 	actor.velocitySimulator = new VectorSpringSimulator(60, actor.defaultVelocitySimulatorMass, actor.defaultVelocitySimulatorDamping);

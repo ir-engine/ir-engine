@@ -38,7 +38,7 @@ import {
     ThreeDRotation,
     Videocam
 } from '@material-ui/icons';
-import PartyParticipantWindow from '@xr3ngine/client-networking/components/PartyParticipantWindow';
+import PartyParticipantWindow from '@xr3ngine/client-networking/src/components/PartyParticipantWindow';
 import ProfileMenu from "@xr3ngine/client-core/components/ui/UserMenu/menus/ProfileMenu";
 import { selectAuthState } from '@xr3ngine/client-core/redux/auth/selector';
 import { doLoginAuto } from '@xr3ngine/client-core/redux/auth/service';

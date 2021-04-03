@@ -1,55 +1,58 @@
 import { Button, Snackbar } from '@material-ui/core';
-import UserMenu from '@xr3ngine/client-core/components/ui/UserMenu';
-import { setAppSpecificOnBoardingStep } from '@xr3ngine/client-core/redux/app/actions';
-import { selectAppState } from '@xr3ngine/client-core/redux/app/selector';
-import { doLoginAuto } from '@xr3ngine/client-core/redux/auth/service';
-import { client } from '@xr3ngine/client-core/redux/feathers';
-import { selectInstanceConnectionState } from '@xr3ngine/client-networking/redux/instanceConnection/selector';
-import {
-  connectToInstanceServer,
-  provisionInstanceServer
-} from '@xr3ngine/client-networking/redux/instanceConnection/service';
-import { selectLocationState } from '@xr3ngine/client-core/redux/location/selector';
-import {
-  getLocationByName
-} from '@xr3ngine/client-core/redux/location/service';
-import { selectPartyState } from '@xr3ngine/client-networking/redux/party/selector';
-import { setCurrentScene } from '@xr3ngine/client-core/redux/scenes/actions';
-import { isMobileOrTablet } from '@xr3ngine/engine/src/common/functions/isMobile';
-import { resetEngine } from "@xr3ngine/engine/src/ecs/functions/EngineFunctions";
-import { getComponent, getMutableComponent } from '@xr3ngine/engine/src/ecs/functions/EntityFunctions';
-import { Network } from '@xr3ngine/engine/src/networking/classes/Network';
-import { SocketWebRTCClientTransport } from '@xr3ngine/client-networking/transports/SocketWebRTCClientTransport';
-import { NetworkSchema } from '@xr3ngine/engine/src/networking/interfaces/NetworkSchema';
-import { styleCanvas } from '@xr3ngine/engine/src/renderer/functions/styleCanvas';
-import { CharacterComponent } from '@xr3ngine/engine/src/templates/character/components/CharacterComponent';
-import { DefaultNetworkSchema } from '@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema';
-import dynamic from 'next/dynamic';
-import querystring from 'querystring';
-import React, { useEffect, useState } from 'react';
-import { connect } from 'react-redux';
-import { bindActionCreators, Dispatch } from 'redux';
-import { useRouter } from 'next/router';
-import url from 'url';
-import { generalStateList, setAppLoaded, setAppOnBoardingStep } from '@xr3ngine/client-core/redux/app/actions';
-import { selectAuthState } from '@xr3ngine/client-core/redux/auth/selector';
-import store from '@xr3ngine/client-core/redux/store';
-import { selectUserState } from '@xr3ngine/client-core/redux/user/selector';
 import { InteractableModal } from '@xr3ngine/client-core/components/ui/InteractableModal';
 import LoadingScreen from '@xr3ngine/client-core/components/ui/Loader';
-import MediaIconsBox from "@xr3ngine/client-networking/components/MediaIconsBox";
 import { MobileGamepadProps } from "@xr3ngine/client-core/components/ui/MobileGamepad/MobileGamepadProps";
 import NamePlate from '@xr3ngine/client-core/components/ui/NamePlate';
 import NetworkDebug from '@xr3ngine/client-core/components/ui/NetworkDebug/NetworkDebug';
 import { OpenLink } from '@xr3ngine/client-core/components/ui/OpenLink';
 import TooltipContainer from '@xr3ngine/client-core/components/ui/TooltipContainer';
-import { MessageTypes } from '@xr3ngine/engine/src/networking/enums/MessageTypes';
+import UserMenu from '@xr3ngine/client-core/components/ui/UserMenu';
+import { generalStateList, setAppLoaded, setAppOnBoardingStep, setAppSpecificOnBoardingStep } from '@xr3ngine/client-core/redux/app/actions';
+import { selectAppState } from '@xr3ngine/client-core/redux/app/selector';
+import { selectAuthState } from '@xr3ngine/client-core/redux/auth/selector';
+import { doLoginAuto } from '@xr3ngine/client-core/redux/auth/service';
+import { client } from '@xr3ngine/client-core/redux/feathers';
+import { selectLocationState } from '@xr3ngine/client-core/redux/location/selector';
+import {
+  getLocationByName
+} from '@xr3ngine/client-core/redux/location/service';
+import { setCurrentScene } from '@xr3ngine/client-core/redux/scenes/actions';
+import store from '@xr3ngine/client-core/redux/store';
+import { selectUserState } from '@xr3ngine/client-core/redux/user/selector';
+import { selectInstanceConnectionState } from '@xr3ngine/client-networking/redux/instanceConnection/selector';
+import {
+  connectToInstanceServer,
+  provisionInstanceServer
+} from '@xr3ngine/client-networking/redux/instanceConnection/service';
+import { selectPartyState } from '@xr3ngine/client-networking/redux/party/selector';
+import MediaIconsBox from "@xr3ngine/client-networking/src/components/MediaIconsBox";
+import { SocketWebRTCClientTransport } from '@xr3ngine/client-networking/transports/SocketWebRTCClientTransport';
+import { testScenes, testUserId, testWorldState } from '@xr3ngine/common/assets/testScenes';
+import { isMobileOrTablet } from '@xr3ngine/engine/src/common/functions/isMobile';
 import { EngineEvents } from '@xr3ngine/engine/src/ecs/classes/EngineEvents';
-import { InteractiveSystem } from '@xr3ngine/engine/src/interaction/systems/InteractiveSystem';
-import { PhysicsSystem } from '@xr3ngine/engine/src/physics/systems/PhysicsSystem';
+import { resetEngine } from "@xr3ngine/engine/src/ecs/functions/EngineFunctions";
+import { getComponent, getMutableComponent } from '@xr3ngine/engine/src/ecs/functions/EntityFunctions';
 import { DefaultInitializationOptions, initializeEngine } from '@xr3ngine/engine/src/initialize';
-import { XRSystem } from '@xr3ngine/engine/src/xr/systems/XRSystem';
+import { InteractiveSystem } from '@xr3ngine/engine/src/interaction/systems/InteractiveSystem';
+import { Network } from '@xr3ngine/engine/src/networking/classes/Network';
+import { MessageTypes } from '@xr3ngine/engine/src/networking/enums/MessageTypes';
+import { NetworkSchema } from '@xr3ngine/engine/src/networking/interfaces/NetworkSchema';
+import { ClientNetworkSystem } from '@xr3ngine/engine/src/networking/systems/ClientNetworkSystem';
+import { PhysicsSystem } from '@xr3ngine/engine/src/physics/systems/PhysicsSystem';
+import { styleCanvas } from '@xr3ngine/engine/src/renderer/functions/styleCanvas';
+import { CharacterComponent } from '@xr3ngine/engine/src/templates/character/components/CharacterComponent';
+import { DefaultNetworkSchema } from '@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema';
 import { PrefabType } from '@xr3ngine/engine/src/templates/networking/PrefabType';
+import { XRSystem } from '@xr3ngine/engine/src/xr/systems/XRSystem';
+import getConfig from 'next/config';
+import dynamic from 'next/dynamic';
+import { useRouter } from 'next/router';
+import querystring from 'querystring';
+import React, { useEffect, useState } from 'react';
+import { connect } from 'react-redux';
+import { bindActionCreators, Dispatch } from 'redux';
+import url from 'url';
+const { publicRuntimeConfig } = getConfig();
 
 const goHome = () => window.location.href = window.location.origin;
 
@@ -137,7 +140,11 @@ export const EnginePage = (props: Props) => {
   let locationId = null;
 
   useEffect(() => {
-    doLoginAuto(true);
+    if(publicRuntimeConfig.offlineMode) {
+      init(locationName);
+    } else {
+      doLoginAuto(true);
+    }
   }, []);
 
   useEffect(() => {
@@ -212,17 +219,21 @@ export const EnginePage = (props: Props) => {
   const projectRegex = /\/([A-Za-z0-9]+)\/([a-f0-9-]+)$/;
 
   async function init(sceneId: string): Promise<any> { // auth: any,
-    let service, serviceId;
-    const projectResult = await client.service('project').get(sceneId);
-    setCurrentScene(projectResult);
-    const projectUrl = projectResult.project_url;
-    const regexResult = projectUrl.match(projectRegex);
-    if (regexResult) {
-      service = regexResult[1];
-      serviceId = regexResult[2];
+    let sceneData;
+    if(publicRuntimeConfig.offlineMode) {
+      sceneData = testScenes[sceneId] || testScenes.test;
+    } else {
+      let service, serviceId;
+      const projectResult = !publicRuntimeConfig.offlineMode ? await client.service('project').get(sceneId) : '';
+      setCurrentScene(projectResult);
+      const projectUrl = projectResult.project_url;
+      const regexResult = projectUrl.match(projectRegex);
+      if (regexResult) {
+        service = regexResult[1];
+        serviceId = regexResult[2];
+      }
+      sceneData = await client.service(service).get(serviceId);
     }
-    const sceneData = await client.service(service).get(serviceId);
-
     const networkSchema
       : NetworkSchema = {
       ...DefaultNetworkSchema,
@@ -239,6 +250,7 @@ export const EnginePage = (props: Props) => {
       renderer: {
         canvas,
       },
+      useOfflineMode: publicRuntimeConfig.offlineMode
     };
 
     await initializeEngine(InitializationOptions);
@@ -247,7 +259,7 @@ export const EnginePage = (props: Props) => {
 
     addUIEvents();
 
-    await connectToInstanceServer('instance');
+    if(!publicRuntimeConfig.offlineMode) await connectToInstanceServer('instance');
 
     const loadScene = new Promise<void>((resolve) => {
       EngineEvents.instance.once(EngineEvents.EVENTS.SCENE_LOADED, () => {
@@ -261,10 +273,15 @@ export const EnginePage = (props: Props) => {
     });
 
     const getWorldState = new Promise<any>((resolve) => {
-      EngineEvents.instance.once(EngineEvents.EVENTS.CONNECT_TO_WORLD, async () => {
-        const { worldState } = await (Network.instance.transport as SocketWebRTCClientTransport).instanceRequest(MessageTypes.JoinWorld.toString());
-        resolve(worldState);
-      });
+      if(publicRuntimeConfig.offlineMode) {
+        EngineEvents.instance.dispatchEvent({ type: ClientNetworkSystem.EVENTS.CONNECT, id: testUserId });
+        resolve(testWorldState);
+      } else {
+        EngineEvents.instance.once(EngineEvents.EVENTS.CONNECT_TO_WORLD, async () => {
+          const { worldState } =  await (Network.instance.transport as SocketWebRTCClientTransport).instanceRequest(MessageTypes.JoinWorld.toString());
+          resolve(worldState);
+        });
+      }
     });
 
     const [sceneLoaded, worldState] = await Promise.all([loadScene, getWorldState]);
