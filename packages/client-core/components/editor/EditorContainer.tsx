@@ -35,6 +35,7 @@ import {
   fetchAdminScenes,
   fetchLocationTypes
 } from '../../redux/admin/service';
+import { withTranslation } from 'react-i18next';
 
 
 /**
@@ -68,7 +69,8 @@ type EditorContainerProps = {
   adminState: any;
   fetchAdminLocations?: any;
   fetchAdminScenes?: any;
-  fetchLocationTypes?: any
+  fetchLocationTypes?: any;
+  t: any;
 };
 type EditorContainerState = {
   project: any;
@@ -125,6 +127,8 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
       dialogProps: {},
       modified: false
     };
+
+    this.t = this.props.t;
   }
 
   componentDidMount() {
@@ -192,6 +196,8 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     editor.dispose();
   }
 
+  t: Function;
+
   async loadProjectTemplate(templateFile) {
     this.setState({
       project: null,
@@ -200,8 +206,8 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     });
 
     this.showDialog(ProgressDialog, {
-      title: "Loading Project",
-      message: "Loading project..."
+      title: this.t('editor:loading'), // "Loading Project",
+      message: this.t('editor:loadingMsg')
     });
 
     const editor = this.state.editor;
@@ -226,8 +232,8 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
       console.error(error);
 
       this.showDialog(ErrorDialog, {
-        title: "Error loading project.",
-        message: error.message || "There was an error when loading the project.",
+        title: this.t('editor:loadingError'),
+        message: error.message || this.t('editor:loadingErrorMsg'),
         error
       });
     }
@@ -241,8 +247,8 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     });
 
     this.showDialog(ProgressDialog, {
-      title: "Loading Project",
-      message: "Loading project..."
+      title:  this.t('editor:loading'),
+      message:  this.t('editor:loadingMsg')
     });
 
     const editor = this.state.editor;
@@ -271,8 +277,8 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
       console.error(error);
 
       this.showDialog(ErrorDialog, {
-        title: "Error loading project.",
-        message: error.message || "There was an error when loading the project.",
+        title: this.t('editor:loadingError'),
+        message: error.message || this.t('editor:loadingErrorMsg'),
         error
       });
     }
@@ -288,8 +294,8 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     });
 
     this.showDialog(ProgressDialog, {
-      title: "Loading Project",
-      message: "Loading project..."
+      title:  this.t('editor:loading'),
+      message:  this.t('editor:loadingMsg')
     });
 
     const editor = this.state.editor;
@@ -307,8 +313,8 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
       console.error(error);
 
       this.showDialog(ErrorDialog, {
-        title: "Error loading project.",
-        message: error.message || "There was an error when loading the project.",
+        title: this.t('editor:loadingError'),
+        message: error.message || this.t('editor:loadingErrorMsg'),
         error
       });
     } finally {
@@ -327,8 +333,8 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     });
 
     this.showDialog(ProgressDialog, {
-      title: "Loading Project",
-      message: "Loading project..."
+      title:  this.t('editor:loading'),
+      message:  this.t('editor:loadingMsg')
     });
 
     const editor = this.state.editor;
@@ -349,8 +355,8 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
       console.error(error);
 
       this.showDialog(ErrorDialog, {
-        title: "Error loading project.",
-        message: error.message || "There was an error when loading the project.",
+        title: this.t('editor:loadingError'),
+        message: error.message || this.t('editor:loadingErrorMsg'),
         error
       });
     } finally {
@@ -375,36 +381,36 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
   generateToolbarMenu = () => {
     return [
       {
-        name: "New Project",
+        name: this.t('editor:toolbar.newProject'),
         action: this.onNewProject
       },
       {
-        name: "Save Project",
+        name: this.t('editor:toolbar.saveProject'),
         hotkey: `${cmdOrCtrlString} + S`,
         action: this.onSaveProject
       },
       {
-        name: "Save As",
+        name: this.t('editor:toolbar.saveAs'),
         action: this.onDuplicateProject
       },
       // {
-      //   name: "Publish Scene...",
+      //   name: this.t('editor:toolbar.publishProject'),
       //   action: this.onPublishProject
       // },
       {
-        name: "Export as binary glTF (.glb) ...", // TODO: Disabled temporarily till workers are working
+        name: this.t('editor:toolbar.exportGLB'), // TODO: Disabled temporarily till workers are working
         action: this.onExportProject
       },
       {
-        name: "Import editor project",
+        name: this.t('editor:toolbar.importProject'),
         action: this.onImportLegacyProject
       },
       {
-        name: "Export editor project",
+        name: this.t('editor:toolbar.exportProject'),
         action: this.onExportLegacyProject
       },
       {
-        name: "Quit",
+        name: this.t('editor:toolbar.quit'),
         action: this.onOpenProject
       },
     ];
@@ -473,8 +479,8 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     console.error(error);
 
     this.showDialog(ErrorDialog, {
-      title: error.title || "Error",
-      message: error.message || "There was an unknown error.",
+      title: error.title || this.t('editor:error'),
+      message: error.message || this.t('editor:errorMsg'),
       error
     });
   };
@@ -505,12 +511,11 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
    *  Project Actions
    */
 
-  async createProject() {
+  createProject = async () => {
     const { editor, parentSceneId } = this.state as any;
-
     this.showDialog(ProgressDialog, {
-      title: "Generating Project Screenshot",
-      message: "Generating project screenshot..."
+      title: this.t('editor:generateScreenshot'),
+      message: this.t('editor:generateScreenshotMsg'),
     });
 
     // Wait for 5ms so that the ProgressDialog shows up.
@@ -535,8 +540,8 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     const abortController = new AbortController();
 
     this.showDialog(ProgressDialog, {
-      title: "Saving Project",
-      message: "Saving project...",
+      title: this.t('editor:saving'),
+      message: this.t('editor:savingMsg'),
       cancelable: true,
       onCancel: () => {
         abortController.abort();
@@ -581,8 +586,8 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
   onDuplicateProject = async () => {
     const abortController = new AbortController();
     this.showDialog(ProgressDialog, {
-      title: "Duplicating Project",
-      message: "Duplicating project...",
+      title: this.t('editor:duplicating'),
+      message: this.t('editor:duplicatingMsg'),
       cancelable: true,
       onCancel: () => {
         abortController.abort();
@@ -601,8 +606,8 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
       console.error(error);
 
       this.showDialog(ErrorDialog, {
-        title: "Error Saving Project",
-        message: error.message || "There was an error when saving the project."
+        title: this.t('editor:savingError'),
+        message: error.message || this.t('editor:savingErrorMsg')
       });
     }
   };
@@ -624,8 +629,8 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     const abortController = new AbortController();
 
     this.showDialog(ProgressDialog, {
-      title: "Exporting Project",
-      message: "Exporting project...",
+      title: this.t('editor:exporting'),
+      message: this.t('editor:exportingMsg'),
       cancelable: true,
       onCancel: () => abortController.abort()
     });
@@ -653,8 +658,8 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
       console.error(error);
 
       this.showDialog(ErrorDialog, {
-        title: "Error Exporting Project",
-        message: error.message || "There was an error when exporting the project.",
+        title: this.t('editor:exportingError'),
+        message: error.message || this.t('editor:exportingErrorMsg'),
         error
       });
     }
@@ -663,8 +668,8 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
   onImportLegacyProject = async () => {
     const confirm = await new Promise(resolve => {
       this.showDialog(ConfirmDialog, {
-        title: "Import Legacy World",
-        message: "Warning! This will overwrite your existing scene! Are you sure you wish to continue?",
+        title: this.t('editor:importLegacy'),
+        message: this.t('editor:importLegacyMsg'),
         onConfirm: () => resolve(true),
         onCancel: () => resolve(false)
       });
@@ -723,8 +728,8 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     const abortController = new AbortController();
 
     this.showDialog(ProgressDialog, {
-      title: "Saving Project",
-      message: "Saving project...",
+      title: this.t('editor:saving'),
+      message: this.t('editor:savingMsg'),
       cancelable: true,
       onCancel: () => {
         abortController.abort();
@@ -760,8 +765,8 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
       console.error(error);
 
       this.showDialog(ErrorDialog, {
-        title: "Error Saving Project",
-        message: error.message || "There was an error when saving the project."
+        title: this.t('editor:savingError'),
+        message: error.message || this.t('editor:savingErrorMsg'),
       });
 
     }
@@ -799,8 +804,8 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
 
       console.error(error);
       this.showDialog(ErrorDialog, {
-        title: "Error Publishing Project",
-        message: error.message || "There was an unknown error.",
+        title: this.t('editor:publishingError'),
+        message: error.message || this.t('editor:publishingErrorMsg'),
         error
       });
     }
@@ -894,4 +899,4 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
   fetchLocationTypes: bindActionCreators(fetchLocationTypes, dispatch),
 });
 
-export default withRouter(withApi(connect(mapStateToProps, mapDispatchToProps )(EditorContainer as any)));
+export default withTranslation()(withRouter(withApi(connect(mapStateToProps, mapDispatchToProps )(EditorContainer as any))));
