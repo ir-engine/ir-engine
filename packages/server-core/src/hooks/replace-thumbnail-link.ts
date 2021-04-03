@@ -1,7 +1,7 @@
 import config from '../config';
 import { Hook, HookContext } from '@feathersjs/feathers';
 import uploadThumbnailLinkHook from './upload-thumbnail-link';
-import StorageProvider from '../storage/storageprovider';
+import StorageProvider from '../media/storageprovider/storageprovider';
 import _ from 'lodash';
 
 export default (options = {}): Hook => {

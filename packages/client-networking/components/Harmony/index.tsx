@@ -38,16 +38,16 @@ import {
     ThreeDRotation,
     Videocam
 } from '@material-ui/icons';
-import PartyParticipantWindow from '@xr3ngine/client-core/components/ui/PartyParticipantWindow';
+import PartyParticipantWindow from '@xr3ngine/client-networking/components/PartyParticipantWindow';
 import ProfileMenu from "@xr3ngine/client-core/components/ui/UserMenu/menus/ProfileMenu";
 import { selectAuthState } from '@xr3ngine/client-core/redux/auth/selector';
 import { doLoginAuto } from '@xr3ngine/client-core/redux/auth/service';
-import { selectChannelConnectionState } from '@xr3ngine/client-core/redux/channelConnection/selector';
+import { selectChannelConnectionState } from '@xr3ngine/client-networking/redux/channelConnection/selector';
 import {
     connectToChannelServer,
     provisionChannelServer,
     resetChannelServer
-} from '@xr3ngine/client-core/redux/channelConnection/service';
+} from '@xr3ngine/client-networking/redux/channelConnection/service';
 import { selectChatState } from '@xr3ngine/client-core/redux/chat/selector';
 import {
     createMessage,

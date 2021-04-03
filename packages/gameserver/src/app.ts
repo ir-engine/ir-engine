@@ -9,17 +9,14 @@ import feathers from '@feathersjs/feathers';
 import express from '@feathersjs/express';
 import socketio from '@feathersjs/socketio';
 import AgonesSDK from '@google-cloud/agones-sdk';
-
-import { Application } from './declarations';
-import logger from './logger';
-import channels from './channels';
-import authentication from './authentication';
-import config from './appconfig';
+import { Application } from '../declarations';
+import logger from '@xr3ngine/server-core/src/logger';
+import channels from '@xr3ngine/server-core/src/channels';
+import authentication from '@xr3ngine/server-core/src/authentication';
+import config from '@xr3ngine/server-core/src/appconfig';
 import sync from 'feathers-sync';
 import K8s from 'k8s';
-
 import { WebRTCGameServer } from "./WebRTCGameServer";
-
 import winston from 'winston';
 import feathersLogger from 'feathers-logger';
 import { EventEmitter } from 'events';

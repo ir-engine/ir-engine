@@ -3,8 +3,8 @@ import fs from 'fs';
 import https from 'https';
 import path from 'path';
 import app from './app';
-import logger from './logger';
-import config from './config';
+import logger from '@xr3ngine/server-core/src/logger';
+import config from '@xr3ngine/server-core/src/appconfig';
 import psList from 'ps-list';
 import { exec } from 'child_process';
 

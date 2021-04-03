@@ -1,6 +1,6 @@
 import { HookContext } from '@feathersjs/feathers';
 import config from '../config';
-import StorageProvider from '../storage/storageprovider';
+import StorageProvider from '../media/storageprovider/storageprovider';
 
 export default (options = {}) => {
   return async (context: HookContext): Promise<HookContext> => {

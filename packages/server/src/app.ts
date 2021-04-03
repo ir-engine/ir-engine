@@ -1,33 +1,26 @@
-import fs from 'fs';
-import path from 'path';
-import favicon from 'serve-favicon';
-import compress from 'compression';
-import helmet from 'helmet';
-import cors from 'cors';
-import swagger from 'feathers-swagger';
-import feathers from '@feathersjs/feathers';
 import express from '@feathersjs/express';
+import feathers from '@feathersjs/feathers';
 import socketio from '@feathersjs/socketio';
 import AgonesSDK from '@google-cloud/agones-sdk';
-
-import { Application } from './declarations';
-import logger from './app/logger';
-import middleware from './middleware';
-import services from './services';
-import appHooks from './app/app.hooks';
-import channels from './app/channels';
-import authentication from './gameserver/authentication';
-import sequelize from './app/sequelize';
-import config from './config';
-import sync from 'feathers-sync';
-import K8s from 'k8s';
-
-import { WebRTCGameServer } from "./gameserver/WebRTCGameServer";
-
-import winston from 'winston';
-import feathersLogger from 'feathers-logger';
+import authentication from '@xr3ngine/server-core/src/authentication/authentication';
+import channels from '@xr3ngine/server-core/src/channels';
+import compress from 'compression';
+import cors from 'cors';
 import { EventEmitter } from 'events';
-import psList from 'ps-list';
+import feathersLogger from 'feathers-logger';
+import swagger from 'feathers-swagger';
+import sync from 'feathers-sync';
+import fs from 'fs';
+import helmet from 'helmet';
+import K8s from 'k8s';
+import path from 'path';
+import favicon from 'serve-favicon';
+import winston from 'winston';
+import config from '@xr3ngine/server-core/src/appconfig';
+import { Application } from '@xr3ngine/server-core/declarations';
+import logger from '@xr3ngine/server-core/src/logger';
+import sequelize from '@xr3ngine/server-core/src/sequelize';
+import services from '@xr3ngine/server-core/src/services/services';
 
 const emitter = new EventEmitter();
 
@@ -119,8 +112,6 @@ if (config.server.enabled) {
       });
     }
 
-    // Configure other middleware (see `middleware/index.js`)
-    app.configure(middleware);
     app.configure(authentication);
     // Set up our services (see `services/index.js`)
 
@@ -129,14 +120,6 @@ if (config.server.enabled) {
     app.configure(services);
     // Set up event channels (see channels.js)
     app.configure(channels);
-
-    // Host the public folder
-    // Configure a middleware for 404s and the error handler
-
-    // Host the public folder
-    // Configure a middleware for 404s and the error handler
-
-    app.hooks(appHooks);
 
     if (config.server.mode === 'api' || config.server.mode === 'realtime') {
       (app as any).k8AgonesClient = K8s.api({
@@ -157,22 +140,6 @@ if (config.server.enabled) {
       });
     }
 
-    if ((process.env.KUBERNETES === 'true' && config.server.mode === 'realtime') || process.env.NODE_ENV === 'development' || config.server.mode === 'local') {
-      agonesSDK.connect();
-      agonesSDK.ready().catch((err) => {
-        throw new Error('\x1b[33mError: Agones is not running!. If you are in local development, please run xr3ngine/scripts/sh start-agones.sh and restart server\x1b[0m');
-      });    
-
-      (app as any).agonesSDK = agonesSDK;
-      setInterval(() => agonesSDK.health(), 1000);
-
-      // Create new gameserver instance
-      const gameServer = new WebRTCGameServer(app);
-      console.log("Created new gameserver instance");
-    } else {
-      console.warn('Did not create gameserver');
-    }
-
     app.use('/healthcheck', (req, res) => {
       res.sendStatus(200);
     });
@@ -186,32 +153,11 @@ app.use(express.errorHandler({ logger } as any));
 
 process.on('exit', async () => {
   console.log('Server EXIT');
-  // if ((app as any).gsSubdomainNumber != null) {
-  //   const gsSubdomainProvision = await app.service('gameserver-subdomain-provision').find({
-  //     query: {
-  //       gs_number: (app as any).gsSubdomainNumber
-  //     }
-  //   });
-  //   await app.service('gameserver-subdomain-provision').patch(gsSubdomainProvision.data[0].id, {
-  //     allocated: false
-  //   });
-  // }
 });
 
 process.on('SIGTERM', async (err) => {
   console.log('Server SIGTERM');
   console.log(err);
-  // const gsName = (app as any).gsName;
-  // if ((app as any).gsSubdomainNumber != null) {
-  //   const gsSubdomainProvision = await app.service('gameserver-subdomain-provision').find({
-  //     query: {
-  //       gs_number: (app as any).gsSubdomainNumber
-  //     }
-  //   });
-  //   await app.service('gameserver-subdomain-provision').patch(gsSubdomainProvision.data[0].id, {
-  //     allocated: false
-  //   });
-  // }
 });
 process.on('SIGINT', () => {
   console.log('RECEIVED SIGINT');
