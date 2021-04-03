@@ -1,21 +1,20 @@
-import React, {useEffect, useState} from 'react';
-import { TextField, Button, Typography, InputAdornment, } from '@material-ui/core';
-import { Send, GitHub, Check, Create, Close } from '@material-ui/icons';
-import { validateEmail, validatePhoneNumber } from '../../../../reducers/helper';
-import { FacebookIcon } from '../../Icons/FacebookIcon';
-import { GoogleIcon } from '../../Icons/GoogleIcon';
-import { LinkedInIcon } from '../../Icons/LinkedInIcon';
-import { TwitterIcon } from '../../Icons/TwitterIcon';
+import { Button, InputAdornment, TextField, Typography } from '@material-ui/core';
+import { Check, Close, Create, GitHub, Send } from '@material-ui/icons';
+import { selectAuthState } from '@xr3ngine/client-core/src/user/reducers/auth/selector';
+import { addConnectionByEmail, addConnectionBySms, loginUserByOAuth, logoutUser, removeUser, updateUserAvatarId, updateUsername, updateUserSettings } from '@xr3ngine/client-core/src/user/reducers/auth/service';
+import { Network } from '@xr3ngine/engine/src/networking/classes/Network';
+import React, { useEffect, useState } from 'react';
+import { connect } from "react-redux";
+import { bindActionCreators, Dispatch } from 'redux';
+import { FacebookIcon } from '../../../../common/components/Icons/FacebookIcon';
+import { GoogleIcon } from '../../../../common/components/Icons/GoogleIcon';
+import { LinkedInIcon } from '../../../../common/components/Icons/LinkedInIcon';
+import { TwitterIcon } from '../../../../common/components/Icons/TwitterIcon';
 import { getAvatarURLFromNetwork, Views } from '../util';
+import { validateEmail, validatePhoneNumber } from '../../../../helper';
+
 //@ts-ignore
 import styles from '../style.module.scss';
-import {connect} from "react-redux";
-import { bindActionCreators, Dispatch } from 'redux';
-import { selectAuthState } from '../../../../reducers/auth/selector';
-import { logoutUser, removeUser, updateUserAvatarId, updateUsername, updateUserSettings } from '../../../../reducers/auth/service';
-import { addConnectionByEmail, addConnectionBySms, loginUserByOAuth } from '../../../../reducers/auth/service';
-import { Network } from '@xr3ngine/engine/src/networking/classes/Network';
-
 
 interface Props {
 	changeActiveMenu?: any;

@@ -8,7 +8,7 @@ import {
   ListItemText,
   SwipeableDrawer,
   TextField,
-} from '@material-ui/core'
+} from '@material-ui/core';
 import {
   Add,
   ArrowLeft,
@@ -18,48 +18,48 @@ import {
   Forum,
   GroupAdd,
   SupervisorAccount,
-} from '@material-ui/icons'
-import { selectChatState } from '@xr3ngine/client-core/src/social/reducers/chat/selector'
+} from '@material-ui/icons';
+import { selectChatState } from '@xr3ngine/client-core/src/social/reducers/chat/selector';
 import {
   updateChatTarget,
   updateMessageScrollInit,
-} from '@xr3ngine/client-core/src/social/reducers/chat/service'
-import { selectFriendState } from '@xr3ngine/client-core/src/social/reducers/friend/selector'
+} from '@xr3ngine/client-core/src/social/reducers/chat/service';
+import { selectFriendState } from '@xr3ngine/client-core/src/social/reducers/friend/selector';
 import {
   getFriends,
   unfriend,
-} from '@xr3ngine/client-core/src/social/reducers/friend/service'
-import { selectGroupState } from '@xr3ngine/client-core/src/social/reducers/group/selector'
+} from '@xr3ngine/client-core/src/social/reducers/friend/service';
+import { selectGroupState } from '@xr3ngine/client-core/src/social/reducers/group/selector';
 import {
   createGroup,
   getGroups,
   patchGroup,
   removeGroup,
   removeGroupUser,
-} from '@xr3ngine/client-core/src/social/reducers/group/service'
-import { updateInviteTarget } from '@xr3ngine/client-core/src/social/reducers/invite/service'
-import { selectLocationState } from '@xr3ngine/client-core/src/social/reducers/location/selector'
-import { banUserFromLocation } from '@xr3ngine/client-core/src/social/reducers/location/service'
-import { selectPartyState } from '@xr3ngine/client-core/src/social/reducers/party/selector'
+} from '@xr3ngine/client-core/src/social/reducers/group/service';
+import { updateInviteTarget } from '@xr3ngine/client-core/src/social/reducers/invite/service';
+import { selectLocationState } from '@xr3ngine/client-core/src/social/reducers/location/selector';
+import { banUserFromLocation } from '@xr3ngine/client-core/src/social/reducers/location/service';
+import { selectPartyState } from '@xr3ngine/client-core/src/social/reducers/party/selector';
 import {
   createParty,
   getParty,
   removeParty,
   removePartyUser,
   transferPartyOwner,
-} from '@xr3ngine/client-core/src/social/reducers/party/service'
-import { selectAuthState } from '@xr3ngine/client-core/src/user/reducers/auth/selector'
-import { selectUserState } from '@xr3ngine/client-core/src/user/reducers/user/selector'
-import { getLayerUsers } from '@xr3ngine/client-core/src/user/reducers/user/service'
-import { Group as GroupType } from '@xr3ngine/common/interfaces/Group'
-import { User } from '@xr3ngine/common/interfaces/User'
-import classNames from 'classnames'
-import _ from 'lodash'
-import React, { useEffect, useState } from 'react'
-import { connect } from 'react-redux'
-import { bindActionCreators, Dispatch } from 'redux'
+} from '@xr3ngine/client-core/src/social/reducers/party/service';
+import { selectAuthState } from '@xr3ngine/client-core/src/user/reducers/auth/selector';
+import { selectUserState } from '@xr3ngine/client-core/src/user/reducers/user/selector';
+import { getLayerUsers } from '@xr3ngine/client-core/src/user/reducers/user/service';
+import { Group as GroupType } from '@xr3ngine/common/interfaces/Group';
+import { User } from '@xr3ngine/common/interfaces/User';
+import classNames from 'classnames';
+import _ from 'lodash';
+import React, { useEffect, useState } from 'react';
+import { connect } from 'react-redux';
+import { bindActionCreators, Dispatch } from 'redux';
 // @ts-ignore
-import styles from './Left.module.scss'
+import styles from './Left.module.scss';
 
 const mapStateToProps = (state: any): any => {
   return {
@@ -70,8 +70,8 @@ const mapStateToProps = (state: any): any => {
     locationState: selectLocationState(state),
     partyState: selectPartyState(state),
     userState: selectUserState(state),
-  }
-}
+  };
+};
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
   getFriends: bindActionCreators(getFriends, dispatch),
@@ -94,7 +94,7 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
   ),
   getLayerUsers: bindActionCreators(getLayerUsers, dispatch),
   banUserFromLocation: bindActionCreators(banUserFromLocation, dispatch),
-})
+});
 
 interface Props {
   harmony?: boolean
@@ -149,14 +149,14 @@ const initialSelectedUserState = {
   relationType: {},
   inverseRelationType: {},
   avatarUrl: '',
-}
+};
 
 const initialGroupForm = {
   id: '',
   name: '',
   groupUsers: [],
   description: '',
-}
+};
 
 const LeftDrawer = (props: Props): any => {
   try {
@@ -202,306 +202,306 @@ const LeftDrawer = (props: Props): any => {
       setSelectedUser,
       selectedGroup,
       setSelectedGroup,
-    } = props
+    } = props;
 
-    const user = authState.get('user') as User
-    const friendSubState = friendState.get('friends')
-    const friends = friendSubState.get('friends')
-    const groupSubState = groupState.get('groups')
-    const groups = groupSubState.get('groups')
-    const party = partyState.get('party')
-    const [tabIndex, setTabIndex] = useState(0)
-    const [friendDeletePending, setFriendDeletePending] = useState('')
-    const [groupDeletePending, setGroupDeletePending] = useState('')
-    const [groupUserDeletePending, setGroupUserDeletePending] = useState('')
-    const [partyDeletePending, setPartyDeletePending] = useState(false)
+    const user = authState.get('user') as User;
+    const friendSubState = friendState.get('friends');
+    const friends = friendSubState.get('friends');
+    const groupSubState = groupState.get('groups');
+    const groups = groupSubState.get('groups');
+    const party = partyState.get('party');
+    const [tabIndex, setTabIndex] = useState(0);
+    const [friendDeletePending, setFriendDeletePending] = useState('');
+    const [groupDeletePending, setGroupDeletePending] = useState('');
+    const [groupUserDeletePending, setGroupUserDeletePending] = useState('');
+    const [partyDeletePending, setPartyDeletePending] = useState(false);
     const [partyTransferOwnerPending, setPartyTransferOwnerPending] = useState(
       ''
-    )
-    const [partyUserDeletePending, setPartyUserDeletePending] = useState('')
-    const [selectedAccordion, setSelectedAccordion] = useState('')
-    const [locationBanPending, setLocationBanPending] = useState('')
+    );
+    const [partyUserDeletePending, setPartyUserDeletePending] = useState('');
+    const [selectedAccordion, setSelectedAccordion] = useState('');
+    const [locationBanPending, setLocationBanPending] = useState('');
     const selfGroupUser =
       selectedGroup.id && selectedGroup.id.length > 0
         ? selectedGroup.groupUsers.find(
             (groupUser) => groupUser.userId === user.id
           )
-        : {}
-    const partyUsers = party && party.partyUsers ? party.partyUsers : []
+        : {};
+    const partyUsers = party && party.partyUsers ? party.partyUsers : [];
     const selfPartyUser =
       party && party.partyUsers
         ? party.partyUsers.find((partyUser) => partyUser.userId === user.id)
-        : {}
-    const layerUsers = userState.get('layerUsers') ?? []
-    const currentLocation = locationState.get('currentLocation').get('location')
+        : {};
+    const layerUsers = userState.get('layerUsers') ?? [];
+    const currentLocation = locationState.get('currentLocation').get('location');
     const isLocationAdmin =
       user.locationAdmins?.find(
         (locationAdmin) => currentLocation.id === locationAdmin.locationId
-      ) != null
+      ) != null;
 
     useEffect(() => {
       if (
         friendState.get('updateNeeded') === true &&
         friendState.get('getFriendsInProgress') !== true
       ) {
-        getFriends(0)
+        getFriends(0);
       }
       if (friendState.get('closeDetails') === selectedUser.id) {
-        closeDetails()
-        friendState.set('closeDetails', '')
+        closeDetails();
+        friendState.set('closeDetails', '');
       }
-    }, [friendState])
+    }, [friendState]);
 
     useEffect(() => {
       if (
         groupState.get('updateNeeded') === true &&
         groupState.get('getGroupsInProgress') !== true
       ) {
-        getGroups(0)
+        getGroups(0);
       }
       if (groupState.get('closeDetails') === selectedGroup.id) {
-        closeDetails()
-        groupState.set('closeDetails', '')
+        closeDetails();
+        groupState.set('closeDetails', '');
       }
-    }, [groupState])
+    }, [groupState]);
 
     useEffect(() => {
       if (partyState.get('updateNeeded') === true) {
-        getParty()
+        getParty();
       }
-    }, [partyState])
+    }, [partyState]);
 
     useEffect(() => {
       if (
         user.instanceId != null &&
         userState.get('layerUsersUpdateNeeded') === true
       )
-        getLayerUsers(true)
+        getLayerUsers(true);
       if (
         user.channelInstanceId != null &&
         userState.get('channelLayerUsersUpdateNeeded') === true
       )
-        getLayerUsers(false)
-    }, [user, userState])
+        getLayerUsers(false);
+    }, [user, userState]);
 
     const showFriendDeleteConfirm = (e, friendId) => {
-      e.preventDefault()
-      setFriendDeletePending(friendId)
-    }
+      e.preventDefault();
+      setFriendDeletePending(friendId);
+    };
 
     const cancelFriendDelete = (e) => {
-      e.preventDefault()
-      setFriendDeletePending('')
-    }
+      e.preventDefault();
+      setFriendDeletePending('');
+    };
 
     const confirmFriendDelete = (e, friendId) => {
-      e.preventDefault()
-      setFriendDeletePending('')
-      unfriend(friendId)
-      closeDetails()
-      setLeftDrawerOpen(false)
-    }
+      e.preventDefault();
+      setFriendDeletePending('');
+      unfriend(friendId);
+      closeDetails();
+      setLeftDrawerOpen(false);
+    };
 
     const nextFriendsPage = (): void => {
       if (
         friendSubState.get('skip') + friendSubState.get('limit') <
         friendSubState.get('total')
       ) {
-        getFriends(friendSubState.get('skip') + friendSubState.get('limit'))
+        getFriends(friendSubState.get('skip') + friendSubState.get('limit'));
       }
-    }
+    };
 
     const showGroupDeleteConfirm = (e, groupId) => {
-      e.preventDefault()
-      setGroupDeletePending(groupId)
-    }
+      e.preventDefault();
+      setGroupDeletePending(groupId);
+    };
 
     const cancelGroupDelete = (e) => {
-      e.preventDefault()
-      setGroupDeletePending('')
-    }
+      e.preventDefault();
+      setGroupDeletePending('');
+    };
 
     const confirmGroupDelete = (e, groupId) => {
-      e.preventDefault()
-      setGroupDeletePending('')
-      removeGroup(groupId)
-      setSelectedGroup(initialGroupForm)
-      setDetailsType('')
-      setLeftDrawerOpen(false)
-    }
+      e.preventDefault();
+      setGroupDeletePending('');
+      removeGroup(groupId);
+      setSelectedGroup(initialGroupForm);
+      setDetailsType('');
+      setLeftDrawerOpen(false);
+    };
 
     const showLocationBanConfirm = (e, userId) => {
-      e.preventDefault()
-      setLocationBanPending(userId)
-    }
+      e.preventDefault();
+      setLocationBanPending(userId);
+    };
 
     const cancelLocationBan = (e) => {
-      e.preventDefault()
-      setLocationBanPending('')
-    }
+      e.preventDefault();
+      setLocationBanPending('');
+    };
 
     const confirmLocationBan = (e, userId) => {
-      e.preventDefault()
-      console.log('Confirming location ban')
-      setLocationBanPending('')
-      banUserFromLocation(userId, currentLocation.id)
-    }
+      e.preventDefault();
+      console.log('Confirming location ban');
+      setLocationBanPending('');
+      banUserFromLocation(userId, currentLocation.id);
+    };
 
     const nextGroupsPage = (): void => {
       if (
         groupSubState.get('skip') + groupSubState.get('limit') <
         groupSubState.get('total')
       ) {
-        getGroups(groupSubState.get('skip') + groupSubState.get('limit'))
+        getGroups(groupSubState.get('skip') + groupSubState.get('limit'));
       }
-    }
+    };
 
     const showGroupUserDeleteConfirm = (e, groupUserId) => {
-      e.preventDefault()
-      setGroupUserDeletePending(groupUserId)
-    }
+      e.preventDefault();
+      setGroupUserDeletePending(groupUserId);
+    };
 
     const cancelGroupUserDelete = (e) => {
-      e.preventDefault()
-      setGroupUserDeletePending('')
-    }
+      e.preventDefault();
+      setGroupUserDeletePending('');
+    };
 
     const confirmGroupUserDelete = (e, groupUserId) => {
-      e.preventDefault()
+      e.preventDefault();
       const groupUser = _.find(
         selectedGroup.groupUsers,
         (groupUser) => groupUser.id === groupUserId
-      )
-      setGroupUserDeletePending('')
-      removeGroupUser(groupUserId)
+      );
+      setGroupUserDeletePending('');
+      removeGroupUser(groupUserId);
       if (groupUser.userId === user.id) {
-        setSelectedGroup(initialGroupForm)
-        setDetailsType('')
-        setLeftDrawerOpen(false)
+        setSelectedGroup(initialGroupForm);
+        setDetailsType('');
+        setLeftDrawerOpen(false);
       }
-    }
+    };
 
     const showPartyDeleteConfirm = (e) => {
-      e.preventDefault()
-      setPartyDeletePending(true)
-    }
+      e.preventDefault();
+      setPartyDeletePending(true);
+    };
 
     const cancelPartyDelete = (e) => {
-      e.preventDefault()
-      setPartyDeletePending(false)
-    }
+      e.preventDefault();
+      setPartyDeletePending(false);
+    };
 
     const confirmPartyDelete = (e, partyId) => {
-      e.preventDefault()
-      setPartyDeletePending(false)
-      removeParty(partyId)
-      setLeftDrawerOpen(false)
-    }
+      e.preventDefault();
+      setPartyDeletePending(false);
+      removeParty(partyId);
+      setLeftDrawerOpen(false);
+    };
 
     const showPartyUserDeleteConfirm = (e, partyUserId) => {
-      e.preventDefault()
-      setPartyUserDeletePending(partyUserId)
-    }
+      e.preventDefault();
+      setPartyUserDeletePending(partyUserId);
+    };
 
     const cancelPartyUserDelete = (e) => {
-      e.preventDefault()
-      setPartyUserDeletePending('')
-    }
+      e.preventDefault();
+      setPartyUserDeletePending('');
+    };
 
     const confirmPartyUserDelete = (e, partyUserId) => {
-      e.preventDefault()
-      const partyUser = _.find(partyUsers, (pUser) => pUser.id === partyUserId)
-      setPartyUserDeletePending('')
-      removePartyUser(partyUserId)
-      if (partyUser.userId === user.id) setLeftDrawerOpen(false)
-    }
+      e.preventDefault();
+      const partyUser = _.find(partyUsers, (pUser) => pUser.id === partyUserId);
+      setPartyUserDeletePending('');
+      removePartyUser(partyUserId);
+      if (partyUser.userId === user.id) setLeftDrawerOpen(false);
+    };
 
     const showTransferPartyOwnerConfirm = (e, partyUserId) => {
-      e.preventDefault()
-      setPartyTransferOwnerPending(partyUserId)
-    }
+      e.preventDefault();
+      setPartyTransferOwnerPending(partyUserId);
+    };
 
     const cancelTransferPartyOwner = (e) => {
-      e.preventDefault()
-      setPartyTransferOwnerPending('')
-    }
+      e.preventDefault();
+      setPartyTransferOwnerPending('');
+    };
 
     const confirmTransferPartyOwner = (e, partyUserId) => {
-      e.preventDefault()
-      setPartyTransferOwnerPending('')
-      transferPartyOwner(partyUserId)
-    }
+      e.preventDefault();
+      setPartyTransferOwnerPending('');
+      transferPartyOwner(partyUserId);
+    };
 
     const handleChange = (event: any, newValue: number): void => {
-      event.preventDefault()
-      setTabIndex(newValue)
-    }
+      event.preventDefault();
+      setTabIndex(newValue);
+    };
 
     const openDetails = (type, object) => {
-      setDetailsType(type)
+      setDetailsType(type);
       if (type === 'user') {
-        setSelectedUser(object)
+        setSelectedUser(object);
       } else if (type === 'group') {
-        setSelectedGroup(object)
+        setSelectedGroup(object);
       }
-    }
+    };
 
     const closeDetails = () => {
-      setLeftDrawerOpen(false)
-      setDetailsType('')
-      setSelectedUser(initialSelectedUserState)
-      setSelectedGroup(initialGroupForm)
-    }
+      setLeftDrawerOpen(false);
+      setDetailsType('');
+      setSelectedUser(initialSelectedUserState);
+      setSelectedGroup(initialGroupForm);
+    };
 
     const openGroupForm = (mode: string, group?: GroupType) => {
-      setGroupFormOpen(true)
-      setGroupFormMode(mode)
+      setGroupFormOpen(true);
+      setGroupFormMode(mode);
       if (group != null) {
         setGroupForm({
           id: group.id,
           name: group.name,
           groupUsers: group.groupUsers,
           description: group.description,
-        })
+        });
       }
-    }
+    };
 
     const closeGroupForm = (): void => {
-      setLeftDrawerOpen(false)
-      setGroupFormOpen(false)
-      setGroupForm(initialGroupForm)
-    }
+      setLeftDrawerOpen(false);
+      setGroupFormOpen(false);
+      setGroupForm(initialGroupForm);
+    };
 
     const handleGroupCreateInput = (e: any): void => {
-      const value = e.target.value
-      const form = Object.assign({}, groupForm)
-      form[e.target.name] = value
-      setGroupForm(form)
-    }
+      const value = e.target.value;
+      const form = Object.assign({}, groupForm);
+      form[e.target.name] = value;
+      setGroupForm(form);
+    };
 
     const submitGroup = (e: any): void => {
-      e.preventDefault()
+      e.preventDefault();
 
       const form = {
         id: groupForm.id,
         name: groupForm.name,
         description: groupForm.description,
-      }
+      };
 
       if (groupFormMode === 'create') {
-        delete form.id
-        createGroup(form)
+        delete form.id;
+        createGroup(form);
       } else {
-        patchGroup(form)
+        patchGroup(form);
       }
-      setLeftDrawerOpen(false)
-      setGroupFormOpen(false)
-      setGroupForm(initialGroupForm)
-    }
+      setLeftDrawerOpen(false);
+      setGroupFormOpen(false);
+      setGroupForm(initialGroupForm);
+    };
 
     const createNewParty = (): void => {
-      createParty()
-    }
+      createParty();
+    };
 
     const onListScroll = (e): void => {
       if (
@@ -509,42 +509,42 @@ const LeftDrawer = (props: Props): any => {
         e.target.clientHeight
       ) {
         if (tabIndex === 0) {
-          nextFriendsPage()
+          nextFriendsPage();
         } else if (tabIndex === 1) {
-          nextGroupsPage()
+          nextGroupsPage();
         }
       }
-    }
+    };
 
     const openInvite = (
       targetObjectType?: string,
       targetObjectId?: string
     ): void => {
-      updateInviteTarget(targetObjectType, targetObjectId)
-      setLeftDrawerOpen(false)
-      setRightDrawerOpen(true)
-    }
+      updateInviteTarget(targetObjectType, targetObjectId);
+      setLeftDrawerOpen(false);
+      setRightDrawerOpen(true);
+    };
 
     const openChat = (targetObjectType: string, targetObject: any): void => {
-      setLeftDrawerOpen(false)
-      if (harmony !== true) setBottomDrawerOpen(true)
+      setLeftDrawerOpen(false);
+      if (harmony !== true) setBottomDrawerOpen(true);
       // else if (harmony === true) setHarmonyOpen(true);
       setTimeout(() => {
-        updateChatTarget(targetObjectType, targetObject)
-        updateMessageScrollInit(true)
-      }, 100)
-    }
+        updateChatTarget(targetObjectType, targetObject);
+        updateMessageScrollInit(true);
+      }, 100);
+    };
 
     const handleAccordionSelect = (accordionType: string) => (
       event: React.ChangeEvent<{}>,
       isExpanded: boolean
     ) => {
       if (accordionType === selectedAccordion) {
-        setSelectedAccordion('')
+        setSelectedAccordion('');
       } else {
-        setSelectedAccordion(accordionType)
+        setSelectedAccordion(accordionType);
       }
-    }
+    };
 
     return (
       <div>
@@ -556,7 +556,7 @@ const LeftDrawer = (props: Props): any => {
           anchor="left"
           open={leftDrawerOpen === true}
           onClose={() => {
-            setLeftDrawerOpen(false)
+            setLeftDrawerOpen(false);
           }}
           onOpen={() => {}}
         >
@@ -605,7 +605,7 @@ const LeftDrawer = (props: Props): any => {
                     color="primary"
                     startIcon={<Forum />}
                     onClick={() => {
-                      openChat('user', selectedUser)
+                      openChat('user', selectedUser);
                     }}
                   >
                     Chat
@@ -918,7 +918,7 @@ const LeftDrawer = (props: Props): any => {
                                   </div>
                                 )}
                             </ListItem>
-                          )
+                          );
                         })}
                   </List>
                 </div>
@@ -976,7 +976,7 @@ const LeftDrawer = (props: Props): any => {
                     color="primary"
                     startIcon={<Forum />}
                     onClick={() => {
-                      openChat('group', selectedGroup)
+                      openChat('group', selectedGroup);
                     }}
                   >
                     Chat
@@ -1134,7 +1134,7 @@ const LeftDrawer = (props: Props): any => {
                               </div>
                             )}
                           </ListItem>
-                        )
+                        );
                       })}
                 </List>
               </div>
@@ -1205,11 +1205,11 @@ const LeftDrawer = (props: Props): any => {
           )}
         </SwipeableDrawer>
       </div>
-    )
+    );
   } catch (err) {
-    console.log('LeftDrawer error:')
-    console.log(err)
+    console.log('LeftDrawer error:');
+    console.log(err);
   }
-}
+};
 
-export default connect(mapStateToProps, mapDispatchToProps)(LeftDrawer)
+export default connect(mapStateToProps, mapDispatchToProps)(LeftDrawer);

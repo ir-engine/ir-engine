@@ -1,8 +1,8 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import Alert from '@material-ui/lab/Alert';
-import { selectAlertState } from '../../../reducers/alert/selector';
-import { alertCancel } from '../../../reducers/alert/service';
+import { selectAlertState } from '../reducers/alert/selector';
+import { alertCancel } from '../reducers/alert/service';
 import { bindActionCreators, Dispatch } from 'redux';
 import { Box } from '@material-ui/core';
 import styles from './Common.module.scss';

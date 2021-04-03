@@ -7,7 +7,7 @@ import { connect } from "react-redux";
 import { bindActionCreators, Dispatch } from "redux";
 import { ThemeProvider } from "styled-components";
 
-import FlatSignIn from '@xr3ngine/client-core/components/social/Login';
+import FlatSignIn from '@xr3ngine/client-core/src/components/social/Login';
 import theme from '../theme';
 
 interface Props {

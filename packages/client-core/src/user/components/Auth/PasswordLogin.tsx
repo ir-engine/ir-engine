@@ -4,20 +4,19 @@ import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
-// import Link from '@material-ui/core/Link';
 import Grid from '@material-ui/core/Grid';
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import Typography from '@material-ui/core/Typography';
 import Container from '@material-ui/core/Container';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
-import { selectAuthState } from '../../../reducers/auth/selector';
-import { loginUserByPassword, addConnectionByPassword } from '../../../reducers/auth/service';
-import { showDialog, closeDialog } from '../../../reducers/dialog/service';
+import { selectAuthState } from '@xr3ngine/client-core/src/user/reducers/auth/selector';
+import { showDialog, closeDialog } from '@xr3ngine/client-core/src/common/reducers/dialog/service';
 import SignUp from './Register';
 import { ForgotPassword }from './ForgotPassword';
 import styles from './Auth.module.scss';
 import { User } from '@xr3ngine/common/interfaces/User';
+import { loginUserByPassword, addConnectionByPassword } from '@xr3ngine/client-core/src/user/reducers/auth/service';
 
 const mapStateToProps = (state: any): any => {
   return {

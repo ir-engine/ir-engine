@@ -1,7 +1,3 @@
-import React, { useState, useEffect } from 'react';
-import { bindActionCreators, Dispatch } from 'redux';
-import { connect } from 'react-redux';
-import styles from './InstanceChat.module.scss';
 import {
     Avatar,
     Badge,
@@ -15,24 +11,24 @@ import {
     TextField
 } from '@material-ui/core';
 import {
-    getInstanceChannel,
+    Message as MessageIcon,
+    Send
+} from '@material-ui/icons';
+import { selectChatState } from '@xr3ngine/client-core/src/social/reducers/chat/selector';
+import {
     createMessage,
+    getInstanceChannel,
     updateChatTarget,
     updateMessageScrollInit
 } from '@xr3ngine/client-core/src/social/reducers/chat/service';
 import { selectAuthState } from '@xr3ngine/client-core/src/user/reducers/auth/selector';
-import { selectChatState } from '@xr3ngine/client-core/src/social/reducers/chat/selector';
-import { selectInstanceConnectionState } from '../../../reducers/instanceConnection/selector';
-import {
-    Message as MessageIcon,
-    Send
-} from '@material-ui/icons';
-import moment from 'moment';
 import { User } from "@xr3ngine/common/interfaces/User";
-import { Message } from '@xr3ngine/common/interfaces/Message';
-import _ from 'lodash';
-import classNames from 'classnames';
 import { isMobileOrTablet } from '@xr3ngine/engine/src/common/functions/isMobile';
+import classNames from 'classnames';
+import React, { useEffect, useState } from 'react';
+import { connect } from 'react-redux';
+import { bindActionCreators, Dispatch } from 'redux';
+import styles from './InstanceChat.module.scss';
 
 
 const mapStateToProps = (state: any): any => {
@@ -228,3 +224,7 @@ const InstanceChat = (props: Props): any => {
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(InstanceChat);
+
+function selectInstanceConnectionState(state: any) {
+    throw new Error('Function not implemented.');
+}

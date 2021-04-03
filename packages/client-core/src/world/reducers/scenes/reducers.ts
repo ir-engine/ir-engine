@@ -1,14 +1,9 @@
+import { SCENES_FETCHED_ERROR, SCENES_FETCHED_SUCCESS } from '@xr3ngine/client-core/src/user/reducers/actions';
+import { SET_CURRENT_SCENE } from '@xr3ngine/client-core/src/world/reducers/actions';
 import Immutable from 'immutable';
 import {
-  ScenesFetchedAction,
-  PublicScenesState,
+  PublicScenesState, ScenesFetchedAction
 } from './actions';
-
-import {
-  SCENES_FETCHED_SUCCESS,
-  SCENES_FETCHED_ERROR,
-  SET_CURRENT_SCENE,
-} from '../../../actions';
 
 export const initialState: PublicScenesState = {
   scenes: [],
@@ -27,10 +22,10 @@ const sceneReducer = (state = immutableState, action: ScenesFetchedAction): any 
       return state
         .set('error', (action as ScenesFetchedAction).message);
     case SET_CURRENT_SCENE:
-        return state
+      return state
         .set('currentScene', (action as ScenesFetchedAction).scene);
   }
-  
+
   return state;
 };
 

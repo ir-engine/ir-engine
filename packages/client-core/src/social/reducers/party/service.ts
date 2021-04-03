@@ -1,9 +1,8 @@
-import { endVideoChat } from '../../transports/SocketWebRTCClientFunctions';
+// TODO: Reenable me! But decoupled so we don't need to import this lib
+// import { endVideoChat } from '@xr3ngine/client-networking/src/transports/SocketWebRTCClientFunctions';
 import { Dispatch } from 'redux';
-import { dispatchAlertError } from '@xr3ngine/client-core/reducers/alert/service';
 import { client } from '@xr3ngine/client-core/src/feathers';
-import { provisionInstanceServer } from '../instanceConnection/service';
-import store from '@xr3ngine/client-core/reducers/store';
+import { provisionInstanceServer } from '@xr3ngine/client-networking/src/reducers/instanceConnection/service';
 import {
   createdParty,
   createdPartyUser,
@@ -15,6 +14,8 @@ import {
 } from './actions';
 
 import getConfig from 'next/config';
+import { dispatchAlertError } from '@xr3ngine/client-core/src/common/reducers/alert/service';
+import store from '@xr3ngine/client-core/src/store';
 const { publicRuntimeConfig } = getConfig();
 
 export function getParty () {
@@ -155,8 +156,8 @@ if(!publicRuntimeConfig.offlineMode) {
     store.dispatch(removedPartyUser(params.partyUser));
     if (params.partyUser.userId === selfUser.id) {
       console.log('Attempting to end video call');
-      endVideoChat({ leftParty: true });
-      // (Network.instance?.transport as any)?.leave();
+      // TODO: Reenable me!
+      // endVideoChat({ leftParty: true });
     }
   });
 

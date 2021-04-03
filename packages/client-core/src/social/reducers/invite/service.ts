@@ -1,6 +1,5 @@
 import { Dispatch } from 'redux';
-import { client } from '../feathers';
-import {dispatchAlertSuccess} from '../alert/service';
+import { client } from '../../../feathers';
 import {
   sentInvite,
   retrievedReceivedInvites,
@@ -16,10 +15,8 @@ import {
   fetchingSentInvites,
 } from './actions';
 import { Invite } from '@xr3ngine/common/interfaces/Invite';
-import {dispatchAlertError} from '../alert/service';
-import store from "../store";
+import store from "../../../store";
 import {User} from "@xr3ngine/common/interfaces/User";
-
 
 const emailRegex = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/;
 const phoneRegex = /^[0-9]{10}$/;
@@ -27,6 +24,7 @@ const userIdRegex = /^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4
 const inviteCodeRegex = /^[0-9a-fA-F]{8}$/;
 
 import getConfig from 'next/config';
+import { dispatchAlertError, dispatchAlertSuccess } from '@xr3ngine/client-core/src/common/reducers/alert/service';
 const { publicRuntimeConfig } = getConfig();
 
 export function sendInvite (data: any) {

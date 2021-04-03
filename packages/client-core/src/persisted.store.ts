@@ -1,6 +1,6 @@
 import getConfig from 'next/config';
 
-import { RESTORE } from './actions';
+import { RESTORE } from '@xr3ngine/client-core/src/user/reducers/actions';
 
 const { publicRuntimeConfig } = getConfig();
 const localStorageKey: string = publicRuntimeConfig.localStorageKey;

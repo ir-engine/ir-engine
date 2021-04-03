@@ -32,13 +32,14 @@
   },
   "version": "0.2.10",
   "peerDependencies": {
-    "three": "^0.125.0"
+    "@typescript-eslint/eslint-plugin": "^4.6.0",
+    "@typescript-eslint/parser": "^4.4.1",
+    "three": "^0.127.0"
   },
   "dependencies": {
     "@pixiv/three-vrm": "^0.5.2",
     "@tensorflow/tfjs-core": "^3.3.0",
     "@tensorflow/tfjs-node": "^3.3.0",
-    "@typescript-eslint/parser": "^4.4.1",
     "cannon-es": "^0.15.1",
     "cannon-es-debugger": "^0.0.3",
     "canvas": "^2.7.0",
@@ -50,7 +51,7 @@
     "mousetrap": "^1.6.5",
     "socket.io": "2.4.1",
     "superbuffer": "^1.0.1",
-    "three": "^0.125.0",
+    "three": "^0.127.0",
     "three-gltf-exporter": "^0.0.1",
     "three-mesh-bvh": "^0.2.0",
     "three-to-cannon": "^3.0.2",

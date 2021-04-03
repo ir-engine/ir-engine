@@ -1,5 +1,5 @@
 import { Dispatch } from 'redux';
-import { client } from '../feathers';
+import { client } from '../../../feathers';
 import {
   loadedFriends,
   createdFriend,
@@ -7,8 +7,8 @@ import {
   removedFriend,
   fetchingFriends
 } from './actions';
-import {dispatchAlertError} from "../alert/service";
-import store from '../store';
+import {dispatchAlertError} from "../../../common/reducers/alert/service";
+import store from '../../../store';
 import { User } from '@xr3ngine/common/interfaces/User';
 
 import getConfig from 'next/config';

@@ -1,5 +1,5 @@
-import { initGA, logPageView } from '@xr3ngine/client-core/components/analytics';
-import GlobalStyle from '@xr3ngine/client-core/components/editor/GlobalStyle';
+import { initGA, logPageView } from '@xr3ngine/client-core/src/components/analytics';
+import GlobalStyle from '@xr3ngine/client-core/src/world/components/editor/GlobalStyle';
 import theme from "../theme";
 import { dispatchAlertError } from '@xr3ngine/client-core/reducers/alert/service';
 import { getDeviceType } from '@xr3ngine/client-core/reducers/devicedetect/actions';

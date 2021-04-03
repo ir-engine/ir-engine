@@ -1,18 +1,18 @@
 
 import React, { useState, useEffect } from "react";
-import AppHeader from "@xr3ngine/client-core/components/social/Header";
-import FeedMenu from "@xr3ngine/client-core/components/social/FeedMenu";
-import AppFooter from "@xr3ngine/client-core/components/social/Footer";
+import AppHeader from "@xr3ngine/client-core/src/components/social/Header";
+import FeedMenu from "@xr3ngine/client-core/src/components/social/FeedMenu";
+import AppFooter from "@xr3ngine/client-core/src/components/social/Footer";
 
-import FlatSignIn from '@xr3ngine/client-core/components/social/Login';
-// import { Layout } from "@xr3ngine/client-core/components/social/Layout";
-// import { Stories } from "@xr3ngine/client-core/components/social/Stories";
-// import { FeedItem } from "@xr3ngine/client-core/components/social/FeedItem";
-// import { HomeRightBar } from "@xr3ngine/client-core/components/social/HomeRightBar";
-// import { MoreModalItems } from "@xr3ngine/client-core/components/social/more-modal";
+import FlatSignIn from '@xr3ngine/client-core/src/components/social/Login';
+// import { Layout } from "@xr3ngine/client-core/src/components/social/Layout";
+// import { Stories } from "@xr3ngine/client-core/src/components/social/Stories";
+// import { FeedItem } from "@xr3ngine/client-core/src/components/social/FeedItem";
+// import { HomeRightBar } from "@xr3ngine/client-core/src/components/social/HomeRightBar";
+// import { MoreModalItems } from "@xr3ngine/client-core/src/components/social/more-modal";
 
 // TODO: HANDLE
-import { LoginUserHook } from "@xr3ngine/client-core/components/social/GlobalHook";
+import { LoginUserHook } from "@xr3ngine/client-core/src/components/social/GlobalHook";
 
 import { Plugins } from '@capacitor/core';
 

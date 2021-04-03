@@ -2,24 +2,33 @@ import IconButton from '@material-ui/core/IconButton';
 import Slider from '@material-ui/core/Slider';
 import Tooltip from '@material-ui/core/Tooltip';
 import {
-    Launch, Mic,
+    Launch,
+    Mic,
     MicOff,
     RecordVoiceOver,
     Videocam,
     VideocamOff,
     VoiceOverOff,
     VolumeDown,
-
-    VolumeMute, VolumeOff,
-
+    VolumeMute,
+    VolumeOff,
     VolumeUp
 } from '@material-ui/icons';
 import { selectAppState } from '@xr3ngine/client-core/src/common/reducers/app/selector';
-import { selectAuthState } from '@xr3ngine/client-core/src/user/reducers/auth/selector';
 import { selectLocationState } from '@xr3ngine/client-core/src/social/reducers/location/selector';
-import { selectMediastreamState } from "@xr3ngine/client-core/reducers/mediastream/selector";
-import { updateCamAudioState, updateCamVideoState } from '@xr3ngine/client-core/reducers/mediastream/service';
+import { getAvatarURLFromNetwork } from '@xr3ngine/client-core/src/user/components/UserMenu/util';
+import { selectAuthState } from '@xr3ngine/client-core/src/user/reducers/auth/selector';
+import { selectUserState } from '@xr3ngine/client-core/src/user/reducers/user/selector';
+import { updateCamAudioState, updateCamVideoState } from '@xr3ngine/client-networking/src/reducers/mediastream/service';
+import { PositionalAudioSystem } from "@xr3ngine/engine/src/audio/systems/PositionalAudioSystem";
+import { Network } from "@xr3ngine/engine/src/networking/classes/Network";
 import { MessageTypes } from "@xr3ngine/engine/src/networking/enums/MessageTypes";
+import { MediaStreamSystem } from '@xr3ngine/engine/src/networking/systems/MediaStreamSystem';
+import classNames from 'classnames';
+import React, { useEffect, useRef, useState } from 'react';
+import { connect } from "react-redux";
+import { Dispatch } from "redux";
+import { selectMediastreamState } from '../../reducers/mediastream/selector';
 import {
     globalMuteProducer,
     globalUnmuteProducer,
@@ -28,20 +37,9 @@ import {
     resumeConsumer,
     resumeProducer
 } from '../../transports/SocketWebRTCClientFunctions';
-import { PositionalAudioSystem } from "@xr3ngine/engine/src/audio/systems/PositionalAudioSystem";
-import { Network } from "@xr3ngine/engine/src/networking/classes/Network";
-import { MediaStreamSystem } from '@xr3ngine/engine/src/networking/systems/MediaStreamSystem';
-import classNames from 'classnames';
-import React, { useEffect, useRef, useState } from 'react';
-import { connect } from "react-redux";
-import { Dispatch } from "redux";
-import { selectUserState } from '@xr3ngine/client-core/src/user/reducers/user/selector';
-import { getAvatarURLFromNetwork } from "@xr3ngine/client-core/src/common/components/UserMenu/util";
 import Draggable from './Draggable';
 // @ts-ignore
 import styles from './PartyParticipantWindow.module.scss';
-
-
 
 interface ContainerProportions {
     width: number | string;

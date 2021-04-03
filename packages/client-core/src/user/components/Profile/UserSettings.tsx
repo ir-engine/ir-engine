@@ -1,24 +1,19 @@
-import React, { ChangeEvent, useState } from 'react';
-import styles from './Profile.module.scss';
 import {
-    Mic,
-    Image,
-    SurroundSound,
-    VolumeUp
-} from '@material-ui/icons';
-import {
-    Checkbox,
-    FormControlLabel,
-    Radio,
-    RadioGroup,
-    Slider,
-    Typography
+  Checkbox,
+  FormControlLabel,
+  Radio,
+  RadioGroup,
+  Slider,
+  Typography
 } from '@material-ui/core';
-import { selectAuthState } from "../../../reducers/auth/selector";
-import {bindActionCreators, Dispatch} from "redux";
-import {connect} from "react-redux";
-import { updateUserSettings } from "../../../reducers/auth/service";
+import { Image, Mic, VolumeUp } from '@material-ui/icons';
+import { selectAuthState } from '@xr3ngine/client-core/src/user/reducers/auth/selector';
+import { updateUserSettings } from '@xr3ngine/client-core/src/user/reducers/auth/service';
 import { PositionalAudioSystem } from '@xr3ngine/engine/src/audio/systems/PositionalAudioSystem';
+import React, { ChangeEvent, useState } from 'react';
+import { connect } from "react-redux";
+import { bindActionCreators, Dispatch } from "redux";
+import styles from './Profile.module.scss';
 
 interface Props {
     authState?: any;

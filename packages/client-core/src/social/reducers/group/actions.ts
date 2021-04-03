@@ -1,20 +1,8 @@
-import {
-  CREATED_GROUP,
-  PATCHED_GROUP,
-  LOADED_GROUPS,
-  REMOVED_GROUP,
-  LEFT_GROUP,
-  CREATED_GROUP_USER,
-  PATCHED_GROUP_USER,
-  INVITED_GROUP_USER,
-  REMOVED_GROUP_USER,
-  FETCHING_GROUPS,
-  LOADED_INVITABLE_GROUPS,
-  FETCHING_INVITABLE_GROUPS
-} from '../../../actions';
+
 import { Group } from '@xr3ngine/common/interfaces/Group';
 import { GroupUser } from '@xr3ngine/common/interfaces/GroupUser';
 import { GroupResult } from '@xr3ngine/common/interfaces/GroupResult';
+import { LOADED_GROUPS, CREATED_GROUP, PATCHED_GROUP, REMOVED_GROUP, CREATED_GROUP_USER, PATCHED_GROUP_USER, REMOVED_GROUP_USER, INVITED_GROUP_USER, LEFT_GROUP, FETCHING_GROUPS, LOADED_INVITABLE_GROUPS, FETCHING_INVITABLE_GROUPS } from '@xr3ngine/client-core/src/social/reducers/actions';
 
 export interface LoadedGroupsAction {
   type: string;

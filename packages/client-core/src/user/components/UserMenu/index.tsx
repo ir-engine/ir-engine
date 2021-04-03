@@ -5,17 +5,7 @@ import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
-import { selectAppOnBoardingStep } from '../../../reducers/app/selector';
-import { selectAuthState } from '../../../reducers/auth/selector';
-import {
-  updateUserAvatarId,
-  updateUserSettings,
-  uploadAvatarModel,
-  fetchAvatarList,
-  removeAvatar,
-} from '../../../reducers/auth/service';
-import { alertSuccess } from '../../../reducers/alert/service';
-import { provisionInstanceServer } from "@xr3ngine/common/client-networking/src/reducers/instanceConnection/service";
+import { provisionInstanceServer } from "@xr3ngine/client-networking/src/reducers/instanceConnection/service";
 import { Views, UserMenuProps } from './util';
 //@ts-ignore
 import styles from './style.module.scss';
@@ -216,3 +206,35 @@ const UserMenu = (props: UserMenuProps): any => {
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(UserMenu);
+function selectAppOnBoardingStep(state: any) {
+  throw new Error('Function not implemented.');
+}
+
+function selectAuthState(state: any) {
+  throw new Error('Function not implemented.');
+}
+
+function updateUserAvatarId(updateUserAvatarId: any, dispatch: Dispatch<import("redux").AnyAction>) {
+  throw new Error('Function not implemented.');
+}
+
+function updateUserSettings(updateUserSettings: any, dispatch: Dispatch<import("redux").AnyAction>) {
+  throw new Error('Function not implemented.');
+}
+
+function alertSuccess(alertSuccess: any, dispatch: Dispatch<import("redux").AnyAction>) {
+  throw new Error('Function not implemented.');
+}
+
+function uploadAvatarModel(uploadAvatarModel: any, dispatch: Dispatch<import("redux").AnyAction>) {
+  throw new Error('Function not implemented.');
+}
+
+function fetchAvatarList(fetchAvatarList: any, dispatch: Dispatch<import("redux").AnyAction>) {
+  throw new Error('Function not implemented.');
+}
+
+function removeAvatar(removeAvatar: any, dispatch: Dispatch<import("redux").AnyAction>) {
+  throw new Error('Function not implemented.');
+}
+
