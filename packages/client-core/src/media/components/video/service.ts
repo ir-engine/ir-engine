@@ -4,7 +4,7 @@ import {
   videosFetchedError,
   PublicVideo
 } from './actions';
-import { client } from '../feathers';
+import { client } from '../../../feathers';
 
 export function fetchPublicVideos (pageOffset = 0) {
   return (dispatch: Dispatch): any => {

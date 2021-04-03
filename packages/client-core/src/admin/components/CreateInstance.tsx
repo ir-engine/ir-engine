@@ -12,11 +12,11 @@ import {
     createInstance,
     fetchAdminInstances,
     patchInstance
-} from "../../../redux/admin/service";
+} from "../../../reducers/admin/service";
 import { bindActionCreators, Dispatch } from "redux";
-import { selectAppState } from "../../../redux/app/selector";
-import { selectAuthState } from "../../../redux/auth/selector";
-import { selectAdminState } from "../../../redux/admin/selector";
+import { selectAppState } from "../../../reducers/app/selector";
+import { selectAuthState } from "../../../reducers/auth/selector";
+import { selectAdminState } from "../../../reducers/admin/selector";
 import styles from './Admin.module.scss';
 import classNames from 'classnames';
 

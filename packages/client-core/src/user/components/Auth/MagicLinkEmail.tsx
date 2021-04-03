@@ -5,12 +5,12 @@ import Typography from '@material-ui/core/Typography';
 import Container from '@material-ui/core/Container';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
-import { selectAuthState } from '../../../redux/auth/selector';
+import { selectAuthState } from '../../../reducers/auth/selector';
 import {
   createMagicLink,
   addConnectionByEmail,
   addConnectionBySms
-} from '../../../redux/auth/service';
+} from '../../../reducers/auth/service';
 import Grid from '@material-ui/core/Grid';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';

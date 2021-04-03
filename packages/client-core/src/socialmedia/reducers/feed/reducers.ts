@@ -24,7 +24,7 @@ import {
   REMOVE_FEED_FEATURED,
   FEEDS_AS_ADMIN_RETRIEVED,
   UPDATE_FEED
-} from '../actions';
+} from '../../../actions';
 
 export const initialState = {
   feeds: {

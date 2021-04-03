@@ -1,8 +1,8 @@
 import Fab from "@material-ui/core/Fab";
 import { CallEnd, VideoCall } from '@material-ui/icons';
-import { selectAuthState } from '@xr3ngine/client-core/redux/auth/selector';
-import { selectLocationState } from '@xr3ngine/client-core/redux/location/selector';
-import { configureMediaTransports, endVideoChat } from '@xr3ngine/client-networking/transports/SocketWebRTCClientFunctions';
+import { selectAuthState } from '@xr3ngine/client-core/src/user/reducers/auth/selector';
+import { selectLocationState } from '@xr3ngine/client-networking/src/reducers/location/selector';
+import { configureMediaTransports, endVideoChat } from '@xr3ngine/client-networking/src/transports/SocketWebRTCClientFunctions';
 import { MediaStreamSystem } from '@xr3ngine/engine/src/networking/systems/MediaStreamSystem';
 import * as React from 'react';
 import { connect } from 'react-redux';

@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
-import { generalStateList } from '../../../redux/app/actions';
-import { selectAppOnBoardingStep } from '../../../redux/app/selector';
-import { selectCurrentScene } from '../../../redux/scenes/selector';
+import { generalStateList } from '../../../reducers/app/actions';
+import { selectAppOnBoardingStep } from '../../../reducers/app/selector';
+import { selectCurrentScene } from '../../../reducers/scenes/selector';
 import Loader from './SquareLoader';
 import styles from './style.module.scss';
 interface Props {

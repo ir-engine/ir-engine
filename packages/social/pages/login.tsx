@@ -1,7 +1,7 @@
 import Layout from '@xr3ngine/client-core/components/ui/Layout/OverlayLayout';
-import { selectAuthState } from "@xr3ngine/client-core/redux/auth/selector";
-import { doLoginAuto, resetPassword } from '@xr3ngine/client-core/redux/auth/service';
-import { selectInstanceConnectionState } from '@xr3ngine/client-core/redux/instanceConnection/selector';
+import { selectAuthState } from "@xr3ngine/client-core/src/user/reducers/auth/selector";
+import { doLoginAuto, resetPassword } from '@xr3ngine/client-core/src/user/reducers/auth/service';
+import { selectInstanceConnectionState } from '@xr3ngine/client-core/reducers/instanceConnection/selector';
 import React from 'react';
 import { connect } from "react-redux";
 import { bindActionCreators, Dispatch } from "redux";

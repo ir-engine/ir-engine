@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import { TextField, Button, Typography, InputAdornment, } from '@material-ui/core';
 import { Send, GitHub, Check, Create, Close } from '@material-ui/icons';
-import { validateEmail, validatePhoneNumber } from '../../../../redux/helper';
+import { validateEmail, validatePhoneNumber } from '../../../../reducers/helper';
 import { FacebookIcon } from '../../Icons/FacebookIcon';
 import { GoogleIcon } from '../../Icons/GoogleIcon';
 import { LinkedInIcon } from '../../Icons/LinkedInIcon';
@@ -11,9 +11,9 @@ import { getAvatarURLFromNetwork, Views } from '../util';
 import styles from '../style.module.scss';
 import {connect} from "react-redux";
 import { bindActionCreators, Dispatch } from 'redux';
-import { selectAuthState } from '../../../../redux/auth/selector';
-import { logoutUser, removeUser, updateUserAvatarId, updateUsername, updateUserSettings } from '../../../../redux/auth/service';
-import { addConnectionByEmail, addConnectionBySms, loginUserByOAuth } from '../../../../redux/auth/service';
+import { selectAuthState } from '../../../../reducers/auth/selector';
+import { logoutUser, removeUser, updateUserAvatarId, updateUsername, updateUserSettings } from '../../../../reducers/auth/service';
+import { addConnectionByEmail, addConnectionBySms, loginUserByOAuth } from '../../../../reducers/auth/service';
 import { Network } from '@xr3ngine/engine/src/networking/classes/Network';
 
 

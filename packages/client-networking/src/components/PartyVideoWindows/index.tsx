@@ -3,14 +3,14 @@ import React, { useState, useEffect } from 'react';
 import styles from './PartyVideoWindows.module.scss';
 import { ChevronRight } from '@material-ui/icons';
 import PartyParticipantWindow from '../PartyParticipantWindow';
-import { selectAuthState } from "@xr3ngine/client-core/redux/auth/selector";
-import { selectUserState } from "@xr3ngine/client-core/redux/user/selector";
+import { selectAuthState } from "@xr3ngine/client-core/src/user/reducers/auth/selector";
+import { selectUserState } from "@xr3ngine/client-core/src/user/reducers/user/selector";
 import {connect} from "react-redux";
 import {Network} from "@xr3ngine/engine/src/networking/classes/Network";
 import {bindActionCreators, Dispatch} from "redux";
 import {
   getLayerUsers
-} from "@xr3ngine/client-core/redux/user/service";
+} from "@xr3ngine/client-core/src/user/reducers/user/service";
 
 interface Props {
   authState?: any;

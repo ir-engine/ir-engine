@@ -17,8 +17,8 @@ import TwitterIcon from '@material-ui/icons/Twitter';
 import InstagramIcon from '@material-ui/icons/Instagram';
 import TitleIcon from '@material-ui/icons/Title';
 
-import { selectCreatorsState } from '../../../../redux/creator/selector';
-import { getCreator, followCreator, unFollowCreator, getFollowersList, getFollowingList } from '../../../../redux/creator/service';
+import { selectCreatorsState } from '../../../../reducers/creator/selector';
+import { getCreator, followCreator, unFollowCreator, getFollowersList, getFollowingList } from '../../../../reducers/creator/service';
 import SimpleModal from '../SimpleModal';
 
 import styles from './CreatorCard.module.scss';

@@ -2,8 +2,8 @@ import React from 'react';
 import { useEffect } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
-import { selectFeedCommentsState } from '../../../redux/feedComment/selector';
-import { getFeedComments } from '../../../redux/feedComment/service';
+import { selectFeedCommentsState } from '../../../reducers/feedComment/selector';
+import { getFeedComments } from '../../../reducers/feedComment/service';
 
 import CommentCard from '../CommentCard';
 

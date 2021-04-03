@@ -6,8 +6,8 @@ import Button from '@material-ui/core/Button';
 import styles from './Creator.module.scss';
 
 
-import { selectCreatorsState } from '../../../redux/creator/selector';
-import { getCreator, followCreator, unFollowCreator, getFollowersList, getFollowingList } from '../../../redux/creator/service';
+import { selectCreatorsState } from '../../../reducers/creator/selector';
+import { getCreator, followCreator, unFollowCreator, getFollowersList, getFollowingList } from '../../../reducers/creator/service';
 import Featured from '../Featured';
 import CreatorCard from '../common/CreatorCard';
 

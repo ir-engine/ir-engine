@@ -1,7 +1,7 @@
 import { createStore, applyMiddleware } from 'redux';
 import { saveState } from './persisted.store';
 import thunkMiddleware from 'redux-thunk';
-import reducers from './reducers';
+import reducers from '../../client/src/reducers';
 import Immutable from 'immutable';
 import { composeWithDevTools } from 'redux-devtools-extension';
 

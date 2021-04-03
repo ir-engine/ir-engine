@@ -10,7 +10,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 import {
   loginUserByOAuth
-} from '../../../redux/auth/service';
+} from '../../../reducers/auth/service';
 import styles from './Auth.module.scss';
 
 const mapStateToProps = (state: any): any => {

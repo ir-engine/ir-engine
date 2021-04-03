@@ -5,7 +5,7 @@ import {
   refreshConnections,
   verifyEmail,
   resetPassword
-} from '../../../redux/auth/service';
+} from '../../../reducers/auth/service';
 import { Dispatch, bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import Box from '@material-ui/core/Box';

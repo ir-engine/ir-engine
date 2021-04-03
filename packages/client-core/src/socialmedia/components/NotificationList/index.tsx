@@ -3,8 +3,8 @@ import React from 'react';
 import { useEffect } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
-import { selectCreatorsState } from '../../../redux/creator/selector';
-import { getCreatorNotificationList } from '../../../redux/creator/service';
+import { selectCreatorsState } from '../../../reducers/creator/selector';
+import { getCreatorNotificationList } from '../../../reducers/creator/service';
 import NotificationCard from '../NotificationCard';
 
 import styles from './NotificationList.module.scss';

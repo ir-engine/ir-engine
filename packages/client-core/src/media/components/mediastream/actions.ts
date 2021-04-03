@@ -6,7 +6,7 @@ import {
   FACE_TRACKING_CHANGED,
   CONSUMERS_CHANGED,
   Action
-} from '../actions';
+} from '../../../actions';
 
 export type BooleanAction = { [key: string]: boolean };
 

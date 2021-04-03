@@ -4,7 +4,7 @@ import {
   CAM_AUDIO_CHANGED,
   CONSUMERS_CHANGED,
   FACE_TRACKING_CHANGED,
-} from '../actions';
+} from '../../../actions';
 import { BooleanAction } from './actions';
 
 export const initialState = {

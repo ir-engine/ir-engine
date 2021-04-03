@@ -8,7 +8,7 @@ import {
   PATCHED_PARTY_USER,
   REMOVED_PARTY,
   REMOVED_PARTY_USER
-} from '@xr3ngine/client-core/redux/actions';
+} from '@xr3ngine/client-core/reducers/actions';
 import { Party } from '@xr3ngine/common/interfaces/Party';
 import { PartyResult } from '@xr3ngine/common/interfaces/PartyResult';
 import { PartyUser } from '@xr3ngine/common/interfaces/PartyUser';

@@ -3,7 +3,7 @@ import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 import Container from '@material-ui/core/Container';
 import { EmptyLayout }from '../../../media/components/ui/Layout/EmptyLayout';
-import { resetPassword } from '../../../redux/auth/service';
+import { resetPassword } from '../../../reducers/auth/service';
 import styles from './Auth.module.scss';
 import OutlinedInput from '@material-ui/core/OutlinedInput';
 import InputAdornment from '@material-ui/core/InputAdornment';

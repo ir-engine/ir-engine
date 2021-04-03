@@ -17,9 +17,9 @@ import { LoginUserHook } from "@xr3ngine/client-core/components/social/GlobalHoo
 import { Plugins } from '@capacitor/core';
 
 import styles from './index.module.scss';
-import { selectAuthState } from "@xr3ngine/client-core/redux/auth/selector";
+import { selectAuthState } from "@xr3ngine/client-core/src/user/reducers/auth/selector";
 import { connect } from "react-redux";
-import { selectCreatorsState } from "@xr3ngine/client-core/redux/creator/selector";
+import { selectCreatorsState } from "@xr3ngine/client-core/reducers/creator/selector";
 const { Example } = Plugins;
 
 const mapStateToProps = (state: any): any => {
