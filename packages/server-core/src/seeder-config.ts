@@ -31,6 +31,6 @@ export const seeds: Array<ServicesSeedConfig> = [
     ...SocialMediaSeeds,
     ...UserSeeds,
     ...WorldSeeds
-  ]
+  ];
 
 export default seeds;

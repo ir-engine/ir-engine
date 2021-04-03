@@ -6,7 +6,7 @@ export default class ImageNode extends EditorNodeMixin(Image) {
   static legacyComponentName = "image";
   static nodeName = "Image";
   static initialElementProps = {
-    src: new URL('/editor/favicon-editor.ico', location as any).href
+    src: new URL('/editor/dot.png', location as any).href
   };
   static async deserialize(editor, json, loadAsync, onError) {
     const node = await super.deserialize(editor, json);

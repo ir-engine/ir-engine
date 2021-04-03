@@ -1,7 +1,7 @@
-import React, { Component } from 'react'
-import emailjs from 'emailjs-com'
+import React, { Component } from 'react';
+import emailjs from 'emailjs-com';
 //@ts-ignore
-import styles from './ContactForm.module.css'
+import styles from './ContactForm.module.css';
 export default class HomePageContact extends Component {
 
     state = {
@@ -12,7 +12,7 @@ export default class HomePageContact extends Component {
     }
 
     handleSubmit = (e) => {
-        e.preventDefault()
+        e.preventDefault();
 
         var templateParams = {
             from_name: this.state.userName,
@@ -40,14 +40,14 @@ export default class HomePageContact extends Component {
             error => {
                 alert('An error occured, Plese try again' + error.text);
             }
-        )
+        );
 
         this.setState({
             userName: "",
             emailAddress: "",
             companyName: "",
             message: ""
-        })
+        });
     }
 
     handleChange = (e) => {
@@ -55,7 +55,7 @@ export default class HomePageContact extends Component {
         var value = e.target.value;
         this.setState({
             [name]: value
-        })
+        });
     }
 
     render() {
@@ -82,6 +82,6 @@ export default class HomePageContact extends Component {
                     <button className="button email-button" type="button" onClick={this.handleSubmit}>Send</button>
                 </div>
             </div>
-        )
+        );
     }
 }
