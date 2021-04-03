@@ -23,13 +23,8 @@ export default class Googlestrategy extends CustomOAuthStrategy {
       userRole: user?.userRole === 'admin' ? 'admin' : 'user'
     });
     if (entity.type !== 'guest') {
-      const oldEntity = Object.assign({}, entity);
-      await app.service('identity-provider').remove(oldEntity.id);
+      await app.service('identity-provider').remove(identityProvider.id);
       await app.service('user').remove(identityProvider.userId);
-      entity = identityProvider;
-      await app.service('identity-provider').patch(entity.id, {
-        userId: oldEntity.userId
-      });
     }
     return super.updateEntity(entity, profile, params);
   }

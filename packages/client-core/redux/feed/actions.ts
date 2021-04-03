@@ -10,7 +10,12 @@ import {
   ADD_FEED_VIEW,
   ADD_FEED,
   FEEDS_CREATOR_RETRIEVED,
-  FEEDS_BOOKMARK_RETRIEVED
+  FEEDS_BOOKMARK_RETRIEVED,
+  FEEDS_MY_FEATURED_RETRIEVED,
+  ADD_FEED_FEATURED,
+  REMOVE_FEED_FEATURED,
+  FEEDS_AS_ADMIN_RETRIEVED,
+  UPDATE_FEED
 } from '../actions';
 import { FeedShort, Feed } from '@xr3ngine/common/interfaces/Feed';
 
@@ -67,6 +72,13 @@ export function feedsBookmarkRetrieved(feeds: FeedShort[]): FeedsRetrievedAction
   };
 }
 
+export function feedsMyFeaturedRetrieved(feeds: FeedShort[]): FeedsRetrievedAction {
+  return {
+    type: FEEDS_MY_FEATURED_RETRIEVED,
+    feeds: feeds
+  };
+}
+
 export function feedRetrieved (feed: Feed): FeedRetrievedAction {
   return {
     type: FEED_RETRIEVED,
@@ -88,6 +100,19 @@ export function addFeedFire (feedId:string) : oneFeedAction{
   };
 } 
 
+export function feedAsFeatured(feedId:string) : oneFeedAction{
+  return {
+    type: ADD_FEED_FEATURED,
+    feedId: feedId
+  };
+} 
+
+export function feedNotFeatured(feedId:string) : oneFeedAction{
+  return {
+    type: REMOVE_FEED_FEATURED,
+    feedId: feedId
+  };
+} 
 export function removeFeedFire (feedId:string) : oneFeedAction{
   return {
     type: REMOVE_FEED_FIRES,
@@ -120,5 +145,19 @@ export function addFeed(feed:Feed): FeedRetrievedAction{
   return {
     type: ADD_FEED,
     feed: feed
+  };
+}
+
+export function feedsAdminRetrieved(feeds: any[]): FeedsRetrievedAction {
+  return {
+    type: FEEDS_AS_ADMIN_RETRIEVED,
+    feeds: feeds
+  };
+}
+
+export function updateFeedInList(feed: Feed): FeedRetrievedAction{
+  return {
+    type: UPDATE_FEED,
+    feed
   };
 }

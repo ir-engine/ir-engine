@@ -18,7 +18,12 @@ import {
   ADD_FEED_VIEW,
   ADD_FEED,
   FEEDS_CREATOR_RETRIEVED,
-  FEEDS_BOOKMARK_RETRIEVED
+  FEEDS_BOOKMARK_RETRIEVED,
+  FEEDS_MY_FEATURED_RETRIEVED,
+  ADD_FEED_FEATURED,
+  REMOVE_FEED_FEATURED,
+  FEEDS_AS_ADMIN_RETRIEVED,
+  UPDATE_FEED
 } from '../actions';
 
 export const initialState = {
@@ -27,8 +32,10 @@ export const initialState = {
     feedsFeatured: [],
     feedsCreator:[],
     feedsBookmark:[],
+    myFeatured:[],
     feed: {},
-    fetching: false
+    fetching: false,
+    feedsAdmin:[]
   },
 };
 
@@ -46,6 +53,9 @@ const feedReducer = (state = immutableState, action: FeedsAction): any => {
 
     case FEEDS_CREATOR_RETRIEVED:     
       return state.set('feedsCreator', (action as FeedsRetrievedAction).feeds).set('fetching', false);
+
+    case FEEDS_MY_FEATURED_RETRIEVED:     
+      return state.set('myFeatured', (action as FeedsRetrievedAction).feeds).set('fetching', false);
 
     case FEEDS_BOOKMARK_RETRIEVED:
       return state.set('feedsBookmark', (action as FeedsRetrievedAction).feeds).set('fetching', false);
@@ -94,6 +104,36 @@ const feedReducer = (state = immutableState, action: FeedsAction): any => {
       })).set('feed', currentFeed ? {...currentFeed, viewsCount: ++currentFeed.viewsCount} : {});
     case ADD_FEED:
       return state.set('feeds', [...state.get('feeds'), (action as FeedRetrievedAction).feed]);
+
+
+    case ADD_FEED_FEATURED:
+      return state.set('feedsCreator', state.get('feedsCreator').map(feed => {
+        if(feed.id === (action as oneFeedAction).feedId) {
+          return {...feed, featured:true};
+        }
+        return {...feed};
+      }));
+
+    case REMOVE_FEED_FEATURED:
+      const myFeatured = state.get('myFeatured');
+      return state.set('feedsCreator', state.get('feedsCreator').map(feed => {
+        if(feed.id === (action as oneFeedAction).feedId) {
+          return {...feed, featured:false};
+        }
+        return {...feed};
+      })).set('myFeatured', myFeatured ? myFeatured.splice(myFeatured.findIndex(item=>item.id === (action as oneFeedAction).feedId),1) : []);
+
+    case FEEDS_AS_ADMIN_RETRIEVED:     
+      return state.set('feedsAdmin', (action as FeedsRetrievedAction).feeds).set('fetching', false);
+
+    case UPDATE_FEED:
+      return state.set('feedsAdmin', state.get('feedsAdmin').map(feed => {
+        if(feed.id === (action as FeedRetrievedAction).feed.id) {
+          return {...feed, ...(action as FeedRetrievedAction).feed};
+        }
+        return {...feed};
+      }));
+
 }
 
 

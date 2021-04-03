@@ -1,9 +1,9 @@
 {
   "name": "@xr3ngine/server",
   "description": "API Server for XR3ngine",
-  "version": "0.2.0",
-  "homepage": "",
+  "version": "0.2.10",
   "private": true,
+  "homepage": "",
   "entry": "./",
   "main": "./index.ts",
   "keywords": [
@@ -40,20 +40,20 @@
     "copyfiles-server": "copyfiles -u 2 src/email-templates/**/* lib/email-templates",
     "test": "echo \"TODO: no test specified\" && exit 0",
     "localbuild": "yarn build && cross-env LOCAL_BUILD=true yarn start",
-    "lint": "node node_modules/.bin/eslint --ext .js,.ts ./ --fix",
+    "lint": "eslint --fix --ext **/*.js **/*.ts",
     "validate": "yarn run lint && yarn run build && yarn run test",
     "precommit": "no-master-commits -b master,dev",
     "upload-avatar": "node ./scripts/upload-avatar.js",
     "postinstall": "cd ../../node_modules/mediasoup && node npm-scripts.js postinstall",
-    "serve-local-files": "http-server ./upload --ssl --cert ../../certs/cert.pem --key ../../certs/key.pem --port 8642"
+    "serve-local-files": "http-server ./upload --ssl --cert ../../certs/cert.pem --key ../../certs/key.pem --port 8642 --cors=*"
   },
   "types": "lib/",
   "pre-push": [
-    "test"
+    "lint",
+    "precommit"
   ],
   "pre-commit": [
     "lint",
-    "test",
     "precommit"
   ],
   "resolutions": {
@@ -98,7 +98,8 @@
     "@feathersjs/socketio-client": "^4.5.9",
     "@feathersjs/transport-commons": "^4.5.9",
     "@google-cloud/agones-sdk": "^1.7.0",
-    "@xr3ngine/common": "^0.2.0",
+    "@xr3ngine/common": "^0.2.10",
+    "@xr3ngine/engine": "^0.2.10",
     "aws-sdk": "^2.811.0",
     "bent": "^7.3.0",
     "cannon-es-debugger": "^0.0.4",
@@ -173,11 +174,10 @@
     "@types/universal-analytics": "^0.4.4",
     "@types/uuid": "^7.0.3",
     "@types/validator": "^10.0.0",
-    "@typescript-eslint/eslint-plugin": "^2.34.0",
     "@typescript-eslint/parser": "^2.34.0",
     "app-root-path": "^3.0.0",
     "cross-env": "^7.0.2",
-    "eslint": "^7.6.0",
+    "eslint": "^7.7.0",
     "feathers-cli": "^2.4.0",
     "no-master-commits": "^1.1.1",
     "nodemon": "^2.0.5",
@@ -185,7 +185,8 @@
     "ts-loader": "^8.0.5",
     "typedoc": "^0.20.16",
     "typescript": "^4.0.3",
-    "webpack-cli": "^4.0.0",
-    "webpack": "^5.25.0"
-  }
+    "webpack": "^5.25.0",
+    "webpack-cli": "^4.0.0"
+  },
+  "gitHead": "66449f6ffba4d32c424b16b4f0667fe0ad36562c"
 }

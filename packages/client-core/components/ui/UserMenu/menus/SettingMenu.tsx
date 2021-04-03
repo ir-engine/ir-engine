@@ -25,8 +25,8 @@ const SettingMenu = (props: any): JSX.Element => {
             <span className={styles.materialIconBlock}><VolumeUp color="primary"/></span>
             <span className={styles.settingLabel}>Volume</span>
             <Slider
-              value={props.setting.audio || 100}
-              onChange={(_, value) => { props.setUserSettings({ audio: value }) }}
+              value={props.setting?.audio || 100}
+              onChange={(_, value) => { props.setUserSettings({ audio: value }); }}
               className={styles.slider}
             />
           </div>
@@ -34,8 +34,8 @@ const SettingMenu = (props: any): JSX.Element => {
             <span className={styles.materialIconBlock}><Mic color="primary"/></span>
             <span className={styles.settingLabel}>Microphone</span>
             <Slider
-              value={props.setting.microphone || 100}
-              onChange={(_, value) => { props.setUserSettings({ microphone: value }) }}
+              value={props.setting?.microphone || 100}
+              onChange={(_, value) => { props.setUserSettings({ microphone: value }); }}
               className={styles.slider}
             />
           </div>
@@ -51,7 +51,7 @@ const SettingMenu = (props: any): JSX.Element => {
                 props.setGraphicsSettings({
                   resolution: value,
                   automatic: false
-                })
+                });
                 EngineEvents.instance.dispatchEvent({ type: WebGLRendererSystem.EVENTS.SET_RESOLUTION, payload: value });
                 EngineEvents.instance.dispatchEvent({ type: WebGLRendererSystem.EVENTS.SET_USE_AUTOMATIC, payload: false });
               }}
@@ -70,7 +70,7 @@ const SettingMenu = (props: any): JSX.Element => {
                 props.setGraphicsSettings({
                   shadows: value,
                   automatic: false
-                })
+                });
                 EngineEvents.instance.dispatchEvent({ type: WebGLRendererSystem.EVENTS.SET_SHADOW_QUALITY, payload: value });
                 EngineEvents.instance.dispatchEvent({ type: WebGLRendererSystem.EVENTS.SET_USE_AUTOMATIC, payload: false });
               }}
@@ -89,7 +89,7 @@ const SettingMenu = (props: any): JSX.Element => {
                 props.setGraphicsSettings({
                   postProcessing: value,
                   automatic: false
-                })
+                });
                 EngineEvents.instance.dispatchEvent({ type: WebGLRendererSystem.EVENTS.SET_POST_PROCESSING, payload: value });
                 EngineEvents.instance.dispatchEvent({ type: WebGLRendererSystem.EVENTS.SET_USE_AUTOMATIC, payload: false });
               }}
@@ -101,7 +101,7 @@ const SettingMenu = (props: any): JSX.Element => {
               onChange={(_, value) => { 
                 props.setGraphicsSettings({
                   pbr: value
-                })
+                });
               }}
             />
           </div>
@@ -114,7 +114,7 @@ const SettingMenu = (props: any): JSX.Element => {
               onChange={(_, value) => { 
                 props.setGraphicsSettings({
                   automatic: value
-                })
+                });
                 EngineEvents.instance.dispatchEvent({ type: WebGLRendererSystem.EVENTS.SET_USE_AUTOMATIC, payload: value });
               }}
             />

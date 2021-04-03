@@ -44,7 +44,7 @@ const PartyVideoWindows = (props: Props): JSX.Element => {
 
   useEffect(() => {
     if ((Network.instance?.transport as any)?.channelType === 'channel') setDisplayedUsers(channelLayerUsers.filter((user) => user.id !== selfUser.id));
-    else setDisplayedUsers(layerUsers.filter((user) => user.id !== selfUser.id))
+    else setDisplayedUsers(layerUsers.filter((user) => user.id !== selfUser.id));
   }, [layerUsers, channelLayerUsers]);
 
   const [ expanded, setExpanded ] = useState(true);
@@ -57,7 +57,7 @@ const PartyVideoWindows = (props: Props): JSX.Element => {
     window.addEventListener('resize', handleResize);
 
     return _ => {
-      window.removeEventListener('resize', handleResize)
+      window.removeEventListener('resize', handleResize);
     };
   }) as any);
 

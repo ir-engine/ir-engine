@@ -1,8 +1,8 @@
-import DracosisPlayer from "@xr3ngine/volumetric/src/Player";
+import DracosisPlayer from "@xr3ngine/volumetric/src/WasmPlayer";
 
 import React, { useEffect, useRef, useState } from 'react';
 import { PerspectiveCamera, Scene, sRGBEncoding, Vector3, WebGLRenderer } from "three";
-import { THREETrackballControls } from "@xr3ngine/engine/src/input/classes/THREETrackballControls";
+// import { THREETrackballControls } from "@xr3ngine/engine/src/input/classes/THREETrackballControls";
 
 interface VolumetricPlayerProps extends React.HTMLAttributes<any> {
   meshFilePath: string,
@@ -28,15 +28,15 @@ export const VolumetricPlayer = (props: VolumetricPlayerProps) => {
       h = container.clientHeight;
     const scene = new Scene(),
       camera = new PerspectiveCamera(35, w / h, 0.001, 100),
-      controls = new THREETrackballControls(camera, container),
+      // controls = new THREETrackballControls(camera, container),
       renderConfig = { antialias: true, alpha: true };
     if (!rendererRef.current) {
       rendererRef.current = new WebGLRenderer(renderConfig);
     }
     let renderer = rendererRef.current;
     renderer.outputEncoding = sRGBEncoding;
-    controls.target = new Vector3(0, 1.7, 0.75);
-    controls.panSpeed = 0.4;
+    // controls.target = new Vector3(0, 1.7, 0.75);
+    // controls.panSpeed = 0.4;
     camera.position.set(0, 1.7, 6);
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(w, h);
@@ -76,7 +76,7 @@ export const VolumetricPlayer = (props: VolumetricPlayerProps) => {
     function render() {
       animationFrameId = requestAnimationFrame(render);
       renderer.render(scene, camera);
-      controls.update();
+      // controls.update();
     }
 
     console.log('create new player');
@@ -85,7 +85,8 @@ export const VolumetricPlayer = (props: VolumetricPlayerProps) => {
         scene,
         renderer,
         meshFilePath: props.meshFilePath,
-        videoFilePath: props.videoFilePath
+        videoFilePath: props.videoFilePath,
+        // video: document.getElementById("video")
       });
     }
     const DracosisSequence = playerRef.current;
@@ -95,7 +96,7 @@ export const VolumetricPlayer = (props: VolumetricPlayerProps) => {
     return () => {
       window.removeEventListener("resize", onResize);
       cancelAnimationFrame(animationFrameId);
-      controls.dispose();
+      // controls.dispose();
       // clear volumetric player
       DracosisSequence.dispose();
       playerRef.current = null;
@@ -103,9 +104,10 @@ export const VolumetricPlayer = (props: VolumetricPlayerProps) => {
   }, []);
 
   // this is play button
-  const playButton = playPressed? null : <button type="button" style={{ position: "absolute", left: "50%", top: "50%", transform: "translate(-50%, -50%)" }} onClick={(e) => { playerRef.current?.play(); setPlayPressed(true); }}>Play</button>;
+  const playButton = playPressed? null : <button type="button" style={{ position: "absolute", zIndex: 100000, left: "50%", top: "50%"}} onClick={(e) => { playerRef.current?.play(); setPlayPressed(true); }}>Play</button>;
 
-  return <div className="volumetric__player" style={{ width: '100%', height: '100%'}} ref={containerRef}>
+  return <div className="volumetric__player" style={{ zIndex: -1, width: '100%', height: '100%'}} ref={containerRef}>
     { playButton }
+    {/* <video src={props.videoFilePath} playsInline id="video" style={{display: "none"}}></video> */}
   </div>;
 };

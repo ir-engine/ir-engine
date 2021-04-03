@@ -96,6 +96,7 @@ export class Engine {
    * This is set in {@link initialize.initializeEngine | initializeEngine()}.
    */
   static scene: Scene = null
+  static sceneLoaded = false;
 
   /**
    * Reference to the three.js perspective camera object.
@@ -242,4 +243,6 @@ export class Engine {
   static gamepadThreshold = 0.1;
   static gamepadButtons: BinaryType[] = [];
   static gamepadInput: number[] = [];
+
+  static publicPath: string;
 }

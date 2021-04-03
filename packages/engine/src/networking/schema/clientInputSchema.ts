@@ -46,7 +46,8 @@ export const inputKeyArraySchema = new Schema({
   buttons: [inputKeySchema],
   viewVector: viewVectorSchema,
   snapShotTime: uint32,
-  switchInputs: uint32
+  // switchInputs: uint32,
+  characterState: uint8
 });
 
 /** Class for client input. */

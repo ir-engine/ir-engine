@@ -1,7 +1,9 @@
 import { Service, SequelizeServiceOptions } from 'feathers-sequelize';
+import { DEFAULT_AVATAR_ID } from "@xr3ngine/engine/src/common/constants/AvatarConstants";
 import { Application } from '../../declarations';
 import { Sequelize } from 'sequelize';
 import { v1 as uuidv1 } from 'uuid';
+import getFreeInviteCode from "../../util/get-free-invite-code";
 
 interface Data {
   userId: string;
@@ -132,6 +134,7 @@ export class IdentityProvider extends Service {
       include: [User]
     };
 
+    const code = await getFreeInviteCode(this.app);
     // if there is no user with userId, then we create a user and a identity provider.
     const result = await super.create({
       ...data,
@@ -139,7 +142,8 @@ export class IdentityProvider extends Service {
       user: {
         id: userId,
         userRole: type === 'guest' ? 'guest' : type === 'admin' ? 'admin' : 'user',
-        avatarId: process.env.DEFAULT_AVATAR_ID,
+        inviteCode: type === 'guest' ? null : code,
+        avatarId: DEFAULT_AVATAR_ID,
       }
     }, params);
 

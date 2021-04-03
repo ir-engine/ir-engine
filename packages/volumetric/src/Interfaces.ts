@@ -1,6 +1,7 @@
 import { BufferGeometry } from 'three';
 export interface IFrameData {
     frameNumber: number;
+    keyframeNumber: number;
     startBytePosition: number;
     vertices: number;
     faces: number;

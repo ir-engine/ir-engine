@@ -266,6 +266,8 @@ export async function handleWebRtcTransportCreate(socket, data: WebRtcTransportP
     // Create data consumers for other clients if the current client transport receives data producer on it
     newTransport.observer.on('newdataproducer', handleConsumeDataEvent(socket));
     newTransport.observer.on('newproducer', sendCurrentProducers(socket, channelType, channelId));
+    // console.log('Callback from transportCreate with options:');
+    // console.log(clientTransportOptions);
     callback({ transportOptions: clientTransportOptions });
 }
 

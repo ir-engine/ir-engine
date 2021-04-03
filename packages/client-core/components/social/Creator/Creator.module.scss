@@ -1,39 +1,7 @@
 .creatorContainer{
     height: 100vh;
     overflow: scroll;
-
-    .bgImage{
-        width: 100vw;
-        height: 290px;
-        background-color: #CCCCCC;
-    }
-    .controls{
-        .backButton{
-            width: fit-content;
-            transform: translate(40px);
-        }
-    }
-    .meControls{
-        display: flex;
-        flex-wrap: wrap;
-
-        .moreButton,
-        .backButton{
-            width: fit-content;
-        }
-    }
     
-    .avatarImage{
-        height: 110px;
-        width: 110px;
-        border-radius: 50%;
-        margin: 0 auto;
-        transform: translate(0, -115px);
-        background-color: #CA3E7B;
-    }
-    .content{
-        transform: translate(0, -115px);
-    }
 
     .videosSwitcher{
         transform: translate(0, -115px);

@@ -164,14 +164,14 @@ export function loginUserByLinkedinSuccess (message: string): LoginResultAction 
   return {
     type: LOGIN_USER_BY_LINKEDIN_SUCCESS,
     message
-  }
+  };
 }
 
 export function loginUserByLinkedinError (message: string): LoginResultAction {
   return {
     type: LOGIN_USER_BY_LINKEDIN_ERROR,
     message
-  }
+  };
 }
 
 export function didLogout (): LoginResultAction {
@@ -281,7 +281,7 @@ export function updateAvatarList (avatarList: []): AvatarListUpdateAction {
   return {
     type: AVATAR_FETCHED,
     avatarList,
-  }
+  };
 }
 
 // export function fileUploadFailure (err: any): VideosFetchedAction {

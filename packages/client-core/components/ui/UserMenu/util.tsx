@@ -7,22 +7,16 @@ export const Views = {
   Login: 'login',
   AvatarUpload: 'AvatarUpload',
   Avatar: 'Avatar',
-}
+};
 
 export interface UserMenuProps {
   login?: boolean;
   authState?: any;
   instanceConnectionState?: any;
   locationState?: any;
-  updateUsername?: Function;
   updateUserAvatarId?: Function;
-  logoutUser?: Function;
   showDialog?: Function;
-  removeUser?: Function;
   alertSuccess?: Function;
-  addConnectionByEmail?: Function;
-  addConnectionBySms?: Function;
-  loginUserByOAuth?: Function;
   currentScene?: any;
   provisionInstanceServer?: any;
   uploadAvatarModel?: Function;
@@ -42,4 +36,4 @@ export const getAvatarURLFromNetwork = (network, userId) => {
   if (!network || !userId) return DEFAULT_PROFILE_IMG_PLACEHOLDER;
   if (!network.clients[userId]) return DEFAULT_PROFILE_IMG_PLACEHOLDER;
   return network.clients[userId].avatarDetail?.thumbnailURL || DEFAULT_PROFILE_IMG_PLACEHOLDER;
-}
+};

@@ -1,10 +1,13 @@
 {
   "name": "@xr3ngine/cli",
-  "version": "0.2.0",
+  "version": "0.2.10",
   "private": true,
   "repository": {
     "type": "git",
     "url": "git://github.com/xr3ngine/xr3ngine.git"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "engines": {
     "yarn": ">= 0.18.0"
@@ -14,13 +17,13 @@
   "bin": {
     "xr3": "node ./index.js"
   },
-  "type":"module",
+  "type": "module",
   "scripts": {
     "xr3": "node ./index.js "
   },
   "dependencies": {
     "cli-color": "^2.0.0"
   },
-  "devDependencies": {},
-  "license": "ISC"
+  "license": "ISC",
+  "gitHead": "66449f6ffba4d32c424b16b4f0667fe0ad36562c"
 }

@@ -3,38 +3,26 @@ import { EngineEvents } from "../../ecs/classes/EngineEvents";
 import { addComponent, getComponent, hasComponent } from "../../ecs/functions/EntityFunctions";
 import { Interactable } from "../../interaction/components/Interactable";
 import { InteractiveSystem } from "../../interaction/systems/InteractiveSystem";
-import { CommonInteractiveData } from "../../templates/interactive/interfaces/CommonInteractiveData";
 import { Object3DComponent } from "../components/Object3DComponent";
-import { InteractiveSchema } from '../constants/InteractiveSchema';
+import { EquippedComponent } from "../../interaction/components/EquippedComponent";
+import { equipEntity } from "../../interaction/functions/equippableFunctions";
 
 const onInteraction: Behavior = (entityInitiator, args, delta, entityInteractive, time) => {
   const interactiveComponent = getComponent(entityInteractive, Interactable);
 
-  // TODO: make interface for universal interactive data, and event data
-  const engineEvent: any = {type: InteractiveSystem.EVENTS.OBJECT_ACTIVATION };
-  if (interactiveComponent.data) {
-    if (typeof interactiveComponent.data.action !== 'undefined') {
-      engineEvent.action = interactiveComponent.data.action;
-      engineEvent.payload = interactiveComponent.data.payload;
-      engineEvent.interactionText = interactiveComponent.data.interactionText;
+  if(interactiveComponent.data.interactionType === 'equippable') {
+    if(!hasComponent(entityInitiator, EquippedComponent)) {
+      equipEntity(entityInitiator, entityInteractive)
     }
+  } else {
+    EngineEvents.instance.dispatchEvent({type: InteractiveSystem.EVENTS.OBJECT_ACTIVATION, ...interactiveComponent.data });
   }
-
-  EngineEvents.instance.dispatchEvent(engineEvent);
 };
 
 const onInteractionHover: Behavior = (entityInitiator, { focused }: { focused: boolean }, delta, entityInteractive, time) => {
   const interactiveComponent = getComponent(entityInteractive, Interactable);
 
-  const engineEvent: any = { type: InteractiveSystem.EVENTS.OBJECT_HOVER, focused };
-
-  if (interactiveComponent.data) {
-    if (typeof interactiveComponent.data.action !== 'undefined') {
-      engineEvent.action = interactiveComponent.data.action;
-      engineEvent.payload = interactiveComponent.data.payload;
-    }
-    engineEvent.interactionText = interactiveComponent.data.interactionText;
-  }
+  const engineEvent: any = { type: InteractiveSystem.EVENTS.OBJECT_HOVER, focused, ...interactiveComponent.data };
   EngineEvents.instance.dispatchEvent(engineEvent);
 
   if (!hasComponent(entityInteractive, Object3DComponent)) {
@@ -51,17 +39,11 @@ export const createCommonInteractive: Behavior = (entity, args: any) => {
     return;
   }
 
-  const data: CommonInteractiveData = InteractiveSchema[args.objArgs.interactionType](args.objArgs, entity);
-
-  if(!data) {
-    console.error('unsupported interactionType', args.objArgs.interactionType);
-    return;
-  }
-
   const interactiveData = {
     onInteraction: onInteraction,
     onInteractionFocused: onInteractionHover,
-    data
+    onInteractionCheck: () => { return true },
+    data: args.objArgs
   };
 
   addComponent(entity, Interactable, interactiveData);

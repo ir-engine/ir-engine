@@ -1,11 +1,11 @@
 import { isClient } from './isClient';
 import { now } from "./now";
-import { Engine } from "@xr3ngine/engine/src/ecs/classes/Engine";
 import { WebGLRendererSystem } from '../../renderer/WebGLRendererSystem';
 import { EngineEvents } from '../../ecs/classes/EngineEvents';
 import { isWebWorker } from './getEnvironment';
-import { WebXRRendererSystem } from '../../renderer/WebXRRendererSystem';
+import { XRSystem } from '../../xr/systems/XRSystem';
 import { XRFrame } from '../../input/types/WebXR';
+import { Engine } from '../../ecs/classes/Engine';
 
 type TimerUpdateCallback = (delta: number, elapsedTime?: number) => any;
 
@@ -58,7 +58,7 @@ export function Timer (
       if (networkRunner) {
         networkRunner.run(delta);
       }
-      WebXRRendererSystem.xrFrame = xrFrame;
+      XRSystem.xrFrame = xrFrame;
       if (callbacks.update) {
         callbacks.update(delta, accumulated);
       }
@@ -66,14 +66,13 @@ export function Timer (
     last = time;
 	}
 
-  EngineEvents.instance.addEventListener(WebXRRendererSystem.EVENTS.XR_START, async (ev: any) => {
+  EngineEvents.instance.addEventListener(XRSystem.EVENTS.XR_START, async (ev: any) => {
     stop();
   });
-  EngineEvents.instance.addEventListener(WebXRRendererSystem.EVENTS.XR_SESSION, async (ev: any) => {
+  EngineEvents.instance.addEventListener(XRSystem.EVENTS.XR_SESSION, async (ev: any) => {
     Engine.renderer?.xr?.setAnimationLoop(xrAnimationLoop);
   });
-  EngineEvents.instance.addEventListener(WebXRRendererSystem.EVENTS.XR_END, async (ev: any) => {
-    Engine.renderer.setAnimationLoop(null);
+  EngineEvents.instance.addEventListener(XRSystem.EVENTS.XR_END, async (ev: any) => {
     start();
   });
 
@@ -202,8 +201,20 @@ export function Timer (
     stop: stop
   };
 }
+
+const expectedServerDelta = 1000 / 60;
+let lastTime = 0;
 function requestAnimationFrameOnServer(f) {
-  setImmediate(() => f(Date.now()));
+  const serverLoop = () => {
+    const now = Date.now();
+    if(now - lastTime >= expectedServerDelta) {
+      lastTime = now;
+      f(now);
+    } else {
+      setImmediate(serverLoop);
+    }
+  }
+  serverLoop()
 }
 
 export class FixedStepsRunner {

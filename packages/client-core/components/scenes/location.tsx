@@ -1,20 +1,20 @@
 import { Button, Snackbar } from '@material-ui/core';
-import UserMenu from '@xr3ngine/client-core/components/ui/UserMenu';
-import { setAppSpecificOnBoardingStep } from '@xr3ngine/client-core/redux/app/actions';
-import { selectAppState } from '@xr3ngine/client-core/redux/app/selector';
-import { doLoginAuto } from '@xr3ngine/client-core/redux/auth/service';
-import { client } from '@xr3ngine/client-core/redux/feathers';
-import { selectInstanceConnectionState } from '@xr3ngine/client-core/redux/instanceConnection/selector';
+import UserMenu from '../ui/UserMenu';
+import { setAppSpecificOnBoardingStep } from '../../redux/app/actions';
+import { selectAppState } from '../../redux/app/selector';
+import { doLoginAuto } from '../../redux/auth/service';
+import { client } from '../../redux/feathers';
+import { selectInstanceConnectionState } from '../../redux/instanceConnection/selector';
 import {
   connectToInstanceServer,
   provisionInstanceServer
-} from '@xr3ngine/client-core/redux/instanceConnection/service';
-import { selectLocationState } from '@xr3ngine/client-core/redux/location/selector';
+} from '../../redux/instanceConnection/service';
+import { selectLocationState } from '../../redux/location/selector';
 import {
   getLocationByName
-} from '@xr3ngine/client-core/redux/location/service';
-import { selectPartyState } from '@xr3ngine/client-core/redux/party/selector';
-import { setCurrentScene } from '@xr3ngine/client-core/redux/scenes/actions';
+} from '../../redux/location/service';
+import { selectPartyState } from '../../redux/party/selector';
+import { setCurrentScene } from '../../redux/scenes/actions';
 import { isMobileOrTablet } from '@xr3ngine/engine/src/common/functions/isMobile';
 import { resetEngine } from "@xr3ngine/engine/src/ecs/functions/EngineFunctions";
 import { getComponent, getMutableComponent } from '@xr3ngine/engine/src/ecs/functions/EntityFunctions';
@@ -23,7 +23,7 @@ import { SocketWebRTCClientTransport } from '@xr3ngine/engine/src/networking/cla
 import { NetworkSchema } from '@xr3ngine/engine/src/networking/interfaces/NetworkSchema';
 import { styleCanvas } from '@xr3ngine/engine/src/renderer/functions/styleCanvas';
 import { CharacterComponent } from '@xr3ngine/engine/src/templates/character/components/CharacterComponent';
-import { DefaultNetworkSchema, PrefabType } from '@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema';
+import { DefaultNetworkSchema } from '@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema';
 import dynamic from 'next/dynamic';
 import querystring from 'querystring';
 import React, { useEffect, useState } from 'react';
@@ -48,6 +48,12 @@ import { EngineEvents } from '@xr3ngine/engine/src/ecs/classes/EngineEvents';
 import { InteractiveSystem } from '@xr3ngine/engine/src/interaction/systems/InteractiveSystem';
 import { PhysicsSystem } from '@xr3ngine/engine/src/physics/systems/PhysicsSystem';
 import { DefaultInitializationOptions, initializeEngine } from '@xr3ngine/engine/src/initialize';
+import { XRSystem } from '@xr3ngine/engine/src/xr/systems/XRSystem';
+import { PrefabType } from '@xr3ngine/engine/src/templates/networking/PrefabType';
+import { testScenes, testUserId, testWorldState } from '@xr3ngine/common/assets/testScenes';
+import { ClientNetworkSystem } from '@xr3ngine/engine/src/networking/systems/ClientNetworkSystem';
+import getConfig from 'next/config';
+const { publicRuntimeConfig } = getConfig();
 
 const goHome = () => window.location.href = window.location.origin;
 
@@ -125,6 +131,7 @@ export const EnginePage = (props: Props) => {
   const [objectHovered, setObjectHovered] = useState(false);
 
   const [isValidLocation, setIsValidLocation] = useState(true);
+  const [isInXR, setIsInXR] = useState(false);
 
   const appLoaded = appState.get('loaded');
   const selfUser = authState.get('user');
@@ -134,7 +141,11 @@ export const EnginePage = (props: Props) => {
   let locationId = null;
 
   useEffect(() => {
-    doLoginAuto(true);
+    if(publicRuntimeConfig.offlineMode) {
+      init(locationName);
+    } else {
+      doLoginAuto(true);
+    }
   }, []);
 
   useEffect(() => {
@@ -209,22 +220,27 @@ export const EnginePage = (props: Props) => {
   const projectRegex = /\/([A-Za-z0-9]+)\/([a-f0-9-]+)$/;
 
   async function init(sceneId: string): Promise<any> { // auth: any,
-    let service, serviceId;
-    const projectResult = await client.service('project').get(sceneId);
-    setCurrentScene(projectResult);
-    const projectUrl = projectResult.project_url;
-    const regexResult = projectUrl.match(projectRegex);
-    if (regexResult) {
-      service = regexResult[1];
-      serviceId = regexResult[2];
+    let sceneData;
+    if(publicRuntimeConfig.offlineMode) {
+      sceneData = testScenes[sceneId] || testScenes.test;
+    } else {
+      let service, serviceId;
+      const projectResult = !publicRuntimeConfig.offlineMode ? await client.service('project').get(sceneId) : '';
+      setCurrentScene(projectResult);
+      const projectUrl = projectResult.project_url;
+      const regexResult = projectUrl.match(projectRegex);
+      if (regexResult) {
+        service = regexResult[1];
+        serviceId = regexResult[2];
+      }
+      sceneData = await client.service(service).get(serviceId);
     }
-    const result = await client.service(service).get(serviceId);
-
-    const networkSchema: NetworkSchema = {
+    const networkSchema
+    : NetworkSchema = {
       ...DefaultNetworkSchema,
       transport: SocketWebRTCClientTransport,
     };
-
+  
     const canvas = document.getElementById(engineRendererCanvasId) as HTMLCanvasElement;
     styleCanvas(canvas);
     const InitializationOptions = {
@@ -235,70 +251,57 @@ export const EnginePage = (props: Props) => {
       renderer: {
         canvas,
       },
+      useOfflineMode: publicRuntimeConfig.offlineMode
     };
-    await initializeEngine(InitializationOptions)
+    
+    await initializeEngine(InitializationOptions);
 
     document.dispatchEvent(new CustomEvent('ENGINE_LOADED')); // this is the only time we should use document events. would be good to replace this with react state
 
-    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD, onNetworkConnect);
-    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.SCENE_LOADED, onSceneLoaded);
-    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.ENTITY_LOADED, onSceneLoadedEntity);
-    EngineEvents.instance.addEventListener(InteractiveSystem.EVENTS.USER_HOVER, onUserHover);
-    EngineEvents.instance.addEventListener(InteractiveSystem.EVENTS.OBJECT_ACTIVATION, onObjectActivation);
-    EngineEvents.instance.addEventListener(InteractiveSystem.EVENTS.OBJECT_HOVER, onObjectHover);
-    EngineEvents.instance.addEventListener(PhysicsSystem.EVENTS.PORTAL_REDIRECT_EVENT, ({ location }) => router.push(location));
-    const engageType = isMobileOrTablet() ? 'touchstart' : 'click'
-    const onUserEngage = () => {
-      EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.USER_ENGAGE });
-      document.removeEventListener(engageType, onUserEngage);
-    }
-    document.addEventListener(engageType, onUserEngage);
+    addUIEvents();
 
-    const onClientEntityLoad = () => {
-      console.log('client entity loaded')
-      EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENABLE_SCENE, enable: true });
-      EngineEvents.instance.removeEventListener(EngineEvents.EVENTS.CLIENT_ENTITY_LOAD, onClientEntityLoad)
-    }
-    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.CLIENT_ENTITY_LOAD, onClientEntityLoad)
+    if(!publicRuntimeConfig.offlineMode) await connectToInstanceServer('instance');
 
-    // add this beacose loading start too fast, physics not initialized yet
-    const waitInitialize = () => {
-      EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.LOAD_SCENE, result });
-      EngineEvents.instance.removeEventListener(PhysicsSystem.EVENTS.INITIALIZE, waitInitialize)
-    }
-    EngineEvents.instance.addEventListener(PhysicsSystem.EVENTS.INITIALIZE, waitInitialize);
+    const loadScene = new Promise<void>((resolve) => {
+      EngineEvents.instance.once(EngineEvents.EVENTS.SCENE_LOADED, () => {
+        setProgressEntity(0);
+        store.dispatch(setAppOnBoardingStep(generalStateList.SCENE_LOADED));
+        EngineEvents.instance.removeEventListener(EngineEvents.EVENTS.ENTITY_LOADED, onSceneLoadedEntity);
+        setAppLoaded(true);
+        resolve();
+      });
+      EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.LOAD_SCENE, sceneData });
+    });
 
-    connectToInstanceServer('instance');
-  }
+    const getWorldState = new Promise<any>((resolve) => {
+      if(publicRuntimeConfig.offlineMode) {
+        EngineEvents.instance.dispatchEvent({ type: ClientNetworkSystem.EVENTS.CONNECT, id: testUserId });
+        resolve(testWorldState);
+      } else {
+        EngineEvents.instance.once(EngineEvents.EVENTS.CONNECT_TO_WORLD, async () => {
+          const { worldState } =  await (Network.instance.transport as SocketWebRTCClientTransport).instanceRequest(MessageTypes.JoinWorld.toString());
+          resolve(worldState);
+        });
+      }
+    });
+    
+    const [sceneLoaded, worldState] = await Promise.all([ loadScene, getWorldState ]);
 
-  const onNetworkConnect = async () => {
-    await joinWorld();
-    EngineEvents.instance?.removeEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD, onNetworkConnect);
-  }
-
-  const joinWorld = async () => {
-    const { worldState } =  await (Network.instance.transport as SocketWebRTCClientTransport).instanceRequest(MessageTypes.JoinWorld.toString());
     EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.JOINED_WORLD, worldState });
   }
 
-  //all scene entities are loaded
-  const onSceneLoaded = (event: any): void => {
-    if (event.loaded) {
-      setProgressEntity(0);
-      store.dispatch(setAppOnBoardingStep(generalStateList.SCENE_LOADED));
-      EngineEvents.instance?.removeEventListener(EngineEvents.EVENTS.SCENE_LOADED, onSceneLoaded);
-      setAppLoaded(true);
-    }
-  };
-
-  //started loading scene entities
   const onSceneLoadedEntity = (event: any): void => {
     setProgressEntity(event.left || 0);
   };
 
-  const onObjectHover = ({ focused, interactionText}): void => {
+  const onObjectHover = ({ focused, interactionText }: { focused: boolean, interactionText: string }): void => {
     setObjectHovered(focused);
-    setHoveredLabel(interactionText);
+    let displayText = interactionText;
+    const length = interactionText && interactionText.length;
+    if(length > 110) {
+      displayText = interactionText.substring(0, 110) + '...';
+    }
+    setHoveredLabel(displayText);
   };
 
   const onUserHover = ({ focused, userId, position }): void => {
@@ -307,15 +310,25 @@ export const EnginePage = (props: Props) => {
     setonUserPosition(focused ? position : null);
   };
 
-  const onObjectActivation = ({ action, payload }): void => {
-    switch (action) {
+  const addUIEvents = () => {
+    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.ENTITY_LOADED, onSceneLoadedEntity);
+    EngineEvents.instance.addEventListener(InteractiveSystem.EVENTS.USER_HOVER, onUserHover);
+    EngineEvents.instance.addEventListener(InteractiveSystem.EVENTS.OBJECT_ACTIVATION, onObjectActivation);
+    EngineEvents.instance.addEventListener(InteractiveSystem.EVENTS.OBJECT_HOVER, onObjectHover);
+    EngineEvents.instance.addEventListener(PhysicsSystem.EVENTS.PORTAL_REDIRECT_EVENT, ({ location }) => router.push(location));
+    EngineEvents.instance.addEventListener(XRSystem.EVENTS.XR_START, async (ev: any) => { setIsInXR(true); });
+    EngineEvents.instance.addEventListener(XRSystem.EVENTS.XR_END, async (ev: any) => { setIsInXR(false); });
+  };
+
+  const onObjectActivation = (interactionData): void => {
+    switch (interactionData.interactionType) {
       case 'link':
-        setOpenLinkData(payload);
+        setOpenLinkData(interactionData);
         setObjectActivated(true);
         break;
       case 'infoBox':
       case 'mediaSource':
-        setModalData(payload);
+        setModalData(interactionData);
         setObjectActivated(true);
         break;
       default:
@@ -352,8 +365,7 @@ export const EnginePage = (props: Props) => {
   //mobile gamepad
   const mobileGamepadProps = { hovered: objectHovered, layout: 'default' };
   const mobileGamepad = isMobileOrTablet() ? <MobileGamepad {...mobileGamepadProps} /> : null;
-
-  return userBanned !== true ? (
+  return userBanned !== true && !isInXR ? (
     <>
       {isValidLocation && <UserMenu />}
       <Snackbar open={!isValidLocation}

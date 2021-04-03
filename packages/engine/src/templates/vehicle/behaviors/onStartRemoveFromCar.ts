@@ -1,19 +1,21 @@
-import { Entity } from '@xr3ngine/engine/src/ecs/classes/Entity';
-import { getComponent, getMutableComponent, removeComponent } from '@xr3ngine/engine/src/ecs/functions/EntityFunctions';
-import { PlayerInCar } from '@xr3ngine/engine/src/physics/components/PlayerInCar';
-import { VehicleBody } from '@xr3ngine/engine/src/physics/components/VehicleBody';
-import { PhysicsSystem } from '@xr3ngine/engine/src/physics/systems/PhysicsSystem';
-import { setState } from "@xr3ngine/engine/src/state/behaviors/setState";
-import { CharacterStateTypes } from "@xr3ngine/engine/src/templates/character/CharacterStateTypes";
-import { CharacterComponent } from "@xr3ngine/engine/src/templates/character/components/CharacterComponent";
-import { TransformComponent } from '@xr3ngine/engine/src/transform/components/TransformComponent';
 import { Matrix4, Vector3 } from 'three';
 import { isServer } from "../../../common/functions/isServer";
-import { updateVectorAnimation, clearAnimOnChange, changeAnimation } from "@xr3ngine/engine/src/templates/character/behaviors/updateVectorAnimation";
+import { changeAnimation } from '../../../character/functions/updateVectorAnimation';
+import { AnimationComponent } from '../../../character/components/AnimationComponent';
+import { initializeMovingState } from '../../character/animations/MovingAnimations';
+import { VehicleComponent } from '../components/VehicleComponent';
+import { getComponent, getMutableComponent, removeComponent } from '../../../ecs/functions/EntityFunctions';
+import { TransformComponent } from '../../../transform/components/TransformComponent';
+import { CharacterComponent } from '../../character/components/CharacterComponent';
+import { Entity } from '../../../ecs/classes/Entity';
+import { PhysicsSystem } from '../../../physics/systems/PhysicsSystem';
+import { PlayerInCar } from '../../../physics/components/PlayerInCar';
+import { CharacterAnimations } from '../../character/CharacterAnimations';
 
 function doorAnimation(entityCar, seat, timer, timeAnimation, angel) {
-  const vehicle = getComponent<VehicleBody>(entityCar, VehicleBody);
+  const vehicle = getComponent<VehicleComponent>(entityCar, VehicleComponent);
   const mesh = vehicle.vehicleDoorsArray[seat];
+  if (mesh === undefined) return;
 
   const andelPetTick = angel / (timeAnimation / 2);
   if (timer > (timeAnimation/2)) {
@@ -32,7 +34,7 @@ function doorAnimation(entityCar, seat, timer, timeAnimation, angel) {
 function positionExit(entity, entityCar, seat) {
   const transform = getMutableComponent<TransformComponent>(entity, TransformComponent);
   const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
-  const vehicle = getComponent<VehicleBody>(entityCar, VehicleBody);
+  const vehicle = getComponent<VehicleComponent>(entityCar, VehicleComponent);
   const transformCar = getComponent<TransformComponent>(entityCar, TransformComponent);
 
   const position = new Vector3( ...vehicle.entrancesArray[seat] )
@@ -55,7 +57,7 @@ function positionExit(entity, entityCar, seat) {
 export const onStartRemoveFromCar = (entity: Entity, entityCar: Entity, seat: number, delta): void => {
 
   const transform = getMutableComponent<TransformComponent>(entity, TransformComponent);
-  const vehicle = getComponent<VehicleBody>(entityCar, VehicleBody);
+  const vehicle = getComponent<VehicleComponent>(entityCar, VehicleComponent);
   const transformCar = getComponent<TransformComponent>(entityCar, TransformComponent);
 
   const playerInCar = getMutableComponent(entity, PlayerInCar);
@@ -66,7 +68,6 @@ export const onStartRemoveFromCar = (entity: Entity, entityCar: Entity, seat: nu
 
 
   if (playerInCar.currentFrame > carTimeOut) {
-
     positionExit(entity, entityCar, seat);
     removeComponent(entity, PlayerInCar)
   } else {
@@ -91,14 +92,18 @@ export const onStartRemoveFromCar = (entity: Entity, entityCar: Entity, seat: nu
 
   }
 
-  if (isServer) return;
+  // if (isServer) return;
+
+
 
   if (playerInCar.currentFrame == playerInCar.animationSpeed) {
+    // setState(entity, { state: CharacterAnimations.DEFAULT });
+    initializeMovingState(entity)
 
     changeAnimation(entity, {
-      animationId: CharacterStateTypes.EXITING_VEHICLE,
-  	  transitionDuration: 0.3
+      animationId: CharacterAnimations.EXITING_VEHICLE,
+      transitionDuration: 0.3
      })
-
   }
+
 };

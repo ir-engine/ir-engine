@@ -5,9 +5,10 @@ import {
   Mesh,
   DoubleSide
 } from "three";
-import AudioSource from "@xr3ngine/engine/src/scene/classes/AudioSource";
+
 import loadTexture from "../functions/loadTexture";
 import { RethrownError } from "../functions/errors";
+import AudioSource from "../../scene/classes/AudioSource";
 let audioHelperTexture = null;
 // @ts-ignore
 export default class AudioNode extends EditorNodeMixin(AudioSource) {

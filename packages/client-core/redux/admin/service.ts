@@ -25,7 +25,7 @@ import {
   userPatched,
 } from '../user/actions';
 
-import { LOADED_USERS } from "../actions"
+import { LOADED_USERS } from "../actions";
 
 import { client } from '../feathers';
 import { PublicVideo, videosFetchedError, videosFetchedSuccess } from '../video/actions';
@@ -34,7 +34,8 @@ import { apiUrl } from '../service.common';
 import { dispatchAlertError, dispatchAlertSuccess } from '../alert/service';
 import {collectionsFetched} from "../scenes/actions";
 import store from "../store";
-
+import getConfig from 'next/config';
+const { publicRuntimeConfig } = getConfig();
 
 export function createVideo (data: VideoCreationForm) {
   return async (dispatch: Dispatch, getState: any) => {
@@ -165,11 +166,11 @@ export function createUser (user: any) {
   return async (dispatch: Dispatch): Promise<any> => {
     try {
       const result = await client.service('user').create(user);
-      dispatch(userCreated(result))
+      dispatch(userCreated(result));
     } catch (error) {
       dispatchAlertError(dispatch, error.message);
     }
-  }
+  };
 }
 
 export function patchUser (id: string, user: any) {
@@ -181,15 +182,15 @@ export function patchUser (id: string, user: any) {
       console.log(error);
       dispatchAlertError(dispatch, error.message);
     }
-  }
+  };
 }
 
 
 export function removeUser (id: string) {
   return async (dispatch: Dispatch): Promise<any> => {
     const result = await client.service('user').remove(id);
-    dispatch(userRemoved(result))
-  }
+    dispatch(userRemoved(result));
+  };
 }
 
 export function createInstance (instance: any) {
@@ -200,7 +201,7 @@ export function createInstance (instance: any) {
     } catch (error) {
       dispatchAlertError(dispatch, error.message);
     }
-  }
+  };
 }
 
 export function patchInstance (id: string, instance) {
@@ -211,14 +212,14 @@ export function patchInstance (id: string, instance) {
     } catch (error) {
       
     }
-  }
+  };
 }
 
 export function removeInstance (id: string) {
   return async (dispatch: Dispatch): Promise<any> => {
     const result = await client.service('instance').remove(id);
     dispatch(instanceRemoved(result));
-  }
+  };
 }
 
 export function patchLocation (id: string, location: any) {
@@ -261,6 +262,8 @@ export function fetchLocationTypes () {
   };
 }
 
-client.service('instance').on('removed', (params) => {
-  store.dispatch(instanceRemovedAction(params.instance));
-});
+if(!publicRuntimeConfig.offlineMode) {
+  client.service('instance').on('removed', (params) => {
+    store.dispatch(instanceRemovedAction(params.instance));
+  });
+}

@@ -27,7 +27,7 @@ export class User extends Service {
    * @returns {@Array} of found users 
    */
 
-  async find (params: Params): Promise<any> { 
+  async find (params: Params): Promise<any> {
     const action = params.query?.action;
     const skip = params.query?.$skip ? params.query.$skip : 0;
     const limit = params.query?.$limit ? params.query.$limit : 10;
@@ -199,10 +199,19 @@ export class User extends Service {
           $limit: params.query.$limit || 10
         }
       });
+    } else if (action === 'invite-code-lookup') {
+      return super.find({
+        query: {
+          $skip: params.query.$skip || 0,
+          $limit: params.query.$limit || 10,
+          inviteCode: params.query.inviteCode
+        }
+      });
     } else {
       const loggedInUser = extractLoggedInUserFromParams(params);
-      const user = await super.get(loggedInUser.userId);
-      if (user.userRole !== 'admin') throw new Forbidden ('Must be system admin to execute this action');
+      let user;
+      if (loggedInUser) user = await super.get(loggedInUser.userId);
+      if (user?.userRole !== 'admin' && params.isInternal != true) return new Forbidden ('Must be system admin to execute this action');
       return await super.find(params);
     }
   }

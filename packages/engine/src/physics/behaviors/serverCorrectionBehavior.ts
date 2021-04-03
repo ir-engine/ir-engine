@@ -7,12 +7,22 @@ import { CharacterComponent } from '../../templates/character/components/Charact
 import { CapsuleCollider } from '../components/CapsuleCollider';
 import { Engine } from '../../ecs/classes/Engine';
 import { TransformComponent } from '../../transform/components/TransformComponent';
-import { VehicleBody } from '../components/VehicleBody';
+import { VehicleComponent } from '../../templates/vehicle/components/VehicleComponent';
+import { interpolationBehavior, findOne } from './interpolationBehavior';
 import { Network } from '../../networking/classes/Network';
+import { ColliderComponent } from '../components/ColliderComponent';
 
+export const serverCorrectionBehavior: Behavior = (entity: Entity, args): void => {
+  if (args.snapshot == null) return;
+  const collider = getMutableComponent(entity, ColliderComponent)
+  if(collider) {
+    collider.collider.position.set(args.snapshot.x, args.snapshot.y, args.snapshot.z);
+    collider.collider.quaternion.set(args.snapshot.qX, args.snapshot.qY, args.snapshot.qZ, args.snapshot.qW);
+  }
+}
 
 let correctionSpeed = 180;
-export const serverCorrectionBehavior: Behavior = (entity: Entity, args): void => {
+export const serverCorrectionInterpolationBehavior: Behavior = (entity: Entity, args): void => {
   if (args.correction == null || args.snapshot == null) return;
 
   if (hasComponent(entity, CapsuleCollider)) {
@@ -40,14 +50,22 @@ export const serverCorrectionBehavior: Behavior = (entity: Entity, args): void =
           capsule.body.position.z - (offsetZ / correctionSpeed)
         );
       }
-  } else if (hasComponent(entity, VehicleBody)) {
+  } else if (hasComponent(entity, VehicleComponent)) {
 
-    const vehicleComponent = getComponent(entity, VehicleBody) as VehicleBody;
+    const vehicleComponent = getComponent(entity, VehicleComponent) as VehicleComponent;
+    const isPassenger = vehicleComponent.passenger == Network.instance.localAvatarNetworkId;
+    // for passager
+    if (isPassenger) {
+      if (args.interpolation == null ) return;
+      interpolationBehavior(entity, { snapshot: args.interpolation });
+      return;
+    }
+
     const vehicle = vehicleComponent.vehiclePhysics;
     const chassisBody = vehicle.chassisBody;
     const isMoved = vehicleComponent.isMoved;
     const wheels = vehicleComponent.arrayWheelsMesh;
-    const isDriver = vehicleComponent.driver == Network.instance.localAvatarNetworkId;
+
 
     const carSpeed = vehicle.currentVehicleSpeedKmHour;
     const correction = 180 - (carSpeed/4);
@@ -115,30 +133,9 @@ export const serverCorrectionBehavior: Behavior = (entity: Entity, args): void =
         correctionQuaternion.w
       )
 
-      //         console.warn(yawFromQuaternion([
-      //           interpolationSnapshot.qX,
-      //           interpolationSnapshot.qY,
-      //           interpolationSnapshot.qZ,
-      //           interpolationSnapshot.qW
-      //         ]));
-
-
     }
 
-    if (!isMoved && (carSpeed > 1 || carSpeed < -1) ) {
-      vehicle.applyEngineForce(carSpeed * 2, 2);
-      vehicle.applyEngineForce(carSpeed * 2, 3);
-    } else if (!isMoved && (carSpeed < 0.1 && carSpeed > -0.1)) {
-      vehicle.setBrake(0.3, 0);
-      vehicle.setBrake(0.3, 1);
-      vehicle.applyEngineForce(-1, 2);
-      vehicle.applyEngineForce(-1, 3);
-    } else if (!isMoved && (carSpeed < 1 && carSpeed > -1)) {
-      vehicle.setBrake(2, 0);
-      vehicle.setBrake(2, 1);
-      vehicle.applyEngineForce(-3, 2);
-      vehicle.applyEngineForce(-3, 3);
-    }
+    
 
     for (let i = 0; i < wheels.length; i++) {
       wheels[i].position.set(
@@ -170,8 +167,8 @@ export const createNewCorrection: Behavior = (entity: Entity, args): void => {
        qZ: capsule.body.quaternion.z,
        qW: capsule.body.quaternion.w
      })
-   } else if (hasComponent(entity, VehicleBody)) {
-     const vehicleComponent = getComponent(entity, VehicleBody) as VehicleBody;
+   } else if (hasComponent(entity, VehicleComponent)) {
+     const vehicleComponent = getComponent(entity, VehicleComponent) as VehicleComponent;
      const vehicle = vehicleComponent.vehiclePhysics;
      const chassisBody = vehicle.chassisBody;
      const isDriver = vehicleComponent.driver == Network.instance.localAvatarNetworkId;

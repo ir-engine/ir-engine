@@ -1,10 +1,8 @@
-import { Behavior } from "@xr3ngine/engine/src/common/interfaces/Behavior";
+import { Behavior } from "../../../common/interfaces/Behavior";
 import { Entity } from "../../../ecs/classes/Entity";
 import { getMutableComponent } from "../../../ecs/functions/EntityFunctions";
 import { Input } from "../../../input/components/Input";
 import { CharacterComponent } from "../components/CharacterComponent";
-import { BinaryValue } from "@xr3ngine/engine/src/common/enums/BinaryValue";
-import { BaseInput } from '@xr3ngine/engine/src/input/enums/BaseInput';
 
 
 export const triggerActionIfMovementHasChanged: Behavior = (entity: Entity, args: { action: any }): void => {

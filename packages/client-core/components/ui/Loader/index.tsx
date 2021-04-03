@@ -24,23 +24,28 @@ const LoadingScreen = (props: Props) => {
   const [showEntering, setShowEntering] = useState(false);
 
   useEffect(() => {
-
     if (onBoardingStep === generalStateList.START_STATE) {
       setShowProgressBar(true);
     } else if (showProgressBar && !showEntering) {
       setShowEntering(true);
-          setTimeout(() => { setShowProgressBar(false) }, 1500);
+          setTimeout(() => { setShowProgressBar(false); }, 1500);
     }
-  }, [onBoardingStep, objectsToLoad])
+  }, [onBoardingStep, objectsToLoad]);
 
-  return showProgressBar === true ? <>
+  if (!showProgressBar) return null;
+
+  let loadingText = 'Entering world...';
+  if (!showEntering) {
+    if (objectsToLoad >= 99) loadingText = 'Loading...';
+    else if (objectsToLoad > 0) loadingText = objectsToLoad + ' object' + (objectsToLoad > 1 ? 's ' : ' ') + 'remaining';
+  }
+
+  return <>
     <Loader />
     <section className={styles.overlay} style={{ backgroundImage: `url(${currentScene?.thumbnailUrl})` }}>
       <section className={styles.linearProgressContainer}>
-        {!showEntering && (objectsToLoad >= 99 || !objectsToLoad) && (<span className={styles.loadingProgressInfo}>Loading...</span>)}
-        {!showEntering && objectsToLoad > 0 && (<span className={styles.loadingProgressInfo}>{objectsToLoad} object{objectsToLoad > 1 && 's'} remaining</span>)}
-        {showEntering && (<span className={styles.loadingProgressInfo}>Entering world...</span>)}
+        <span className={styles.loadingProgressInfo}>{loadingText}</span>
       </section>
-    </section></> : null;
+    </section></>;
 };
 export default connect(mapStateToProps)(LoadingScreen);

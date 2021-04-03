@@ -33,7 +33,7 @@ import { Network } from "@xr3ngine/engine/src/networking/classes/Network";
 import { VrIcon } from "../Icons/Vricon";
 import { Engine } from "@xr3ngine/engine/src/ecs/classes/Engine";
 import { EngineEvents } from "@xr3ngine/engine/src/ecs/classes/EngineEvents";
-import { WebXRRendererSystem } from "@xr3ngine/engine/src/renderer/WebXRRendererSystem";
+import { XRSystem } from "@xr3ngine/engine/src/xr/systems/XRSystem";
 
 const mapStateToProps = (state: any): any => {
     return {
@@ -68,36 +68,27 @@ const MediaIconsBox = (props) => {
     const isCamAudioEnabled = mediastream.get('isCamAudioEnabled');
 
     const onEngineLoaded = () => {
-      const onClientEntityLoad = () => {
-        setXRSupported(Engine.xrSupported);
-        EngineEvents.instance.removeEventListener(EngineEvents.EVENTS.CLIENT_ENTITY_LOAD, onClientEntityLoad)
-      }
-      EngineEvents.instance.addEventListener(EngineEvents.EVENTS.CLIENT_ENTITY_LOAD, onClientEntityLoad)
-      document.removeEventListener('ENGINE_LOADED', onEngineLoaded)
-    }
-    document.addEventListener('ENGINE_LOADED', onEngineLoaded)
+      EngineEvents.instance.once(EngineEvents.EVENTS.JOINED_WORLD, () => setXRSupported(Engine.xrSupported));
+      document.removeEventListener('ENGINE_LOADED', onEngineLoaded);
+    };
+    document.addEventListener('ENGINE_LOADED', onEngineLoaded);
 
     const checkMediaStream = async (partyId: string): Promise<boolean> => {
         return await configureMediaTransports(partyId);
     };
 
     const handleFaceClick = async () => {
-        const entity = Network.instance.localClientEntity;
-        if (entity) {
-            const partyId = currentLocation?.locationSettings?.instanceMediaChatEnabled === true ? 'instance' : user.partyId;
-            if(await checkMediaStream(partyId)) {
-                changeFaceTrackingState(!isFaceTrackingEnabled);
-                if (!isFaceTrackingEnabled) {
-                    // get local input receiver entity
-                    startFaceTracking();
-                    startLipsyncTracking();
-                } else {
-                    stopFaceTracking();
-                    stopLipsyncTracking();
-                }
-                
-            }
+      const partyId = currentLocation?.locationSettings?.instanceMediaChatEnabled === true ? 'instance' : user.partyId;
+      if(await checkMediaStream(partyId)) {
+        changeFaceTrackingState(!isFaceTrackingEnabled);
+        if (!isFaceTrackingEnabled) {
+          startFaceTracking();
+          startLipsyncTracking();
+        } else {
+          stopFaceTracking();
+          stopLipsyncTracking();
         }
+      }
     };
 
     const checkEndVideoChat = async () => {
@@ -136,7 +127,7 @@ const MediaIconsBox = (props) => {
         }
     };
 
-    const handleVRClick = () => EngineEvents.instance.dispatchEvent({ type: WebXRRendererSystem.EVENTS.XR_START });
+    const handleVRClick = () => EngineEvents.instance.dispatchEvent({ type: XRSystem.EVENTS.XR_START });
 
     const xrEnabled = Engine.renderer?.xr.enabled === true;
     const VideocamIcon = isCamVideoEnabled ? Videocam : VideocamOff;

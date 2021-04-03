@@ -6,6 +6,7 @@ export default class SkyboxNode extends EditorNodeMixin(Sky) {
   static disableTransform = true;
   static ignoreRaycast = true;
   static nodeName = "Skybox";
+  static textureID=''
   static canAddNode(editor) {
     return editor.scene.findNodeByType(SkyboxNode) === null;
   }
@@ -17,6 +18,7 @@ export default class SkyboxNode extends EditorNodeMixin(Sky) {
       case "cubemap":
       case "equirectangular":
         node.texture = skybox.props.texture;
+        SkyboxNode.textureID=node.texture;
         break;
       default:
         const {
@@ -72,6 +74,10 @@ export default class SkyboxNode extends EditorNodeMixin(Sky) {
   }
 
   getTexture() {
+    if(SkyboxNode.textureID!=''){
+      this.textureOptionValue=SkyboxNode.textureID;
+      SkyboxNode.textureID=''
+    }
     switch (this.skyOptionValue) {
       case "equirectangular":
         const texture = new TextureLoader().load(this.textureOptionValue);
@@ -134,8 +140,5 @@ export default class SkyboxNode extends EditorNodeMixin(Sky) {
       distance: this.distance
     });
     this.replaceObject();
-  }
-  getRuntimeResourcesForStats() {
-    return { meshes: [this.sky], materials: [this.sky.material] };
   }
 }

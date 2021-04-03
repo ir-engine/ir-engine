@@ -1,10 +1,9 @@
-import { CAM_VIDEO_SIMULCAST_ENCODINGS } from "@xr3ngine/engine/src/networking/constants/VideoConstants";
-import { MessageTypes } from "@xr3ngine/engine/src/networking/enums/MessageTypes";
-import { MediaStreamSystem } from "@xr3ngine/engine/src/networking/systems/MediaStreamSystem";
+import { CAM_VIDEO_SIMULCAST_ENCODINGS } from "../../networking/constants/VideoConstants";
+import { MessageTypes } from "../../networking/enums/MessageTypes";
+import { MediaStreamSystem } from "../../networking/systems/MediaStreamSystem";
 import { DataProducer, Transport as MediaSoupTransport } from "mediasoup-client/lib/types";
 import { EngineEvents } from "../../ecs/classes/EngineEvents";
 import { Network } from "../classes/Network";
-import {triggerUpdateConsumers} from "@xr3ngine/client-core/redux/mediastream/service";
 
 let networkTransport: any;
 
@@ -141,6 +140,8 @@ export async function createTransport(direction: string, channelType?: string, c
         // failed, or disconnected, leave the  and reset
         transport.on("connectionstatechange", async (state: string) => {
             if (networkTransport.leaving !== true && (state === "closed" || state === "failed" || state === "disconnected")) {
+                console.error('Transport transitioned to state', state);
+                console.error('If this occurred unexpectedly shortly after joining a world, check that the gameserver nodegroup has public IP addresses.');
                 await request(MessageTypes.WebRTCTransportClose.toString(), {transportId: transport.id});
             }
             if (networkTransport.leaving !== true && state === 'connected' && transport.direction === 'recv') {
@@ -367,7 +368,7 @@ export async function subscribeToTrack(peerId: string, mediaTag: string, channel
 
         if (MediaStreamSystem.instance?.consumers?.find(c => c?.appData?.peerId === peerId && c?.appData?.mediaTag === mediaTag) == null) {
             MediaStreamSystem.instance?.consumers.push(consumer);
-            triggerUpdateConsumers();
+            EngineEvents.instance.dispatchEvent({ type: MediaStreamSystem.EVENTS.TRIGGER_UPDATE_CONSUMERS });
 
             // okay, we're ready. let's ask the peer to send us media
             await resumeConsumer(consumer);

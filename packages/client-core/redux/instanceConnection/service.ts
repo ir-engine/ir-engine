@@ -11,7 +11,10 @@ import {
   instanceServerProvisioning
 } from './actions';
 import { EngineEvents } from "@xr3ngine/engine/src/ecs/classes/EngineEvents";
-import { ClientNetworkSystem } from "@xr3ngine/engine/src/networking/systems/ClientNetworkSystem";
+import { triggerUpdateConsumers } from "../mediastream/service";
+
+import getConfig from 'next/config';
+const { publicRuntimeConfig } = getConfig();
 
 export function provisionInstanceServer(locationId?: string, instanceId?: string, sceneId?: string) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
@@ -64,14 +67,15 @@ export function connectToInstanceServer(channelType: string, channelId?: string)
       await Network.instance.transport.initialize(instance.get('ipAddress'), instance.get('port'), channelType === 'instance', {
         locationId: locationId,
         token: token,
+        user: user,
         sceneId: sceneId,
         startVideo: videoActive,
         channelType: channelType,
         channelId: channelId,
         videoEnabled: currentLocation?.locationSettings?.videoEnabled === true || !(currentLocation?.locationSettings?.locationType === 'showroom' && user.locationAdmins?.find(locationAdmin => locationAdmin.locationId === currentLocation.id) == null)
       });
-      Network.instance.isInitialized = true;
-      EngineEvents.instance.dispatchEvent({ type: ClientNetworkSystem.EVENTS.CONNECT })
+
+      EngineEvents.instance.addEventListener(MediaStreamSystem.EVENTS.TRIGGER_UPDATE_CONSUMERS, triggerUpdateConsumers);
 
       // setClient(instanceClient);
       dispatch(instanceServerConnected());
@@ -88,6 +92,8 @@ export function resetInstanceServer() {
   };
 }
 
-client.service('instance-provision').on('created', (params) => {
-  if (params.locationId != null) store.dispatch(instanceServerProvisioned(params, params.locationId, params.sceneId));
-});
+if(!publicRuntimeConfig.offlineMode) {
+  client.service('instance-provision').on('created', (params) => {
+    if (params.locationId != null) store.dispatch(instanceServerProvisioned(params, params.locationId, params.sceneId));
+  });
+}

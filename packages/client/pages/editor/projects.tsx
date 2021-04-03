@@ -14,6 +14,11 @@ import {bindActionCreators, Dispatch} from "redux";
 import {doLoginAuto, logoutUser} from "@xr3ngine/client-core/redux/auth/service";
 import SignIn from "@xr3ngine/client-core/components/ui/Auth/Login";
 import AdminConsole from "@xr3ngine/client-core/components/ui/Admin";
+import ProfileMenu from "@xr3ngine/client-core/components/ui/UserMenu/menus/ProfileMenu";
+import ClickAwayListener from "@material-ui/core/ClickAwayListener";
+import styles from "@xr3ngine/client-core/components/ui/Harmony/Harmony.module.scss";
+import {Person} from "@material-ui/icons";
+import { useTranslation } from 'react-i18next';
 
 /**
  * Creating styled component using section.
@@ -86,6 +91,52 @@ export const ProjectsHeader = (styled as any).div`
 	  display: flex;
 	  justify-content: space-between;
 	  align-items: center;
+`;
+
+export const ProfileButton = (styled as any).div`
+    box-sizing: border-box;
+    border-radius: 50%;
+    margin: auto 10px;
+    cursor: pointer;
+    height: 40px;
+    width: 40px;
+    &.on {
+        .offIcon{
+            display: none;
+        }
+        .onIcon{
+            display: block;
+        }
+    }
+    &.off{
+        .offIcon{
+            display: block;
+        }
+        .onIcon{
+            display: none;
+        }
+    }
+
+
+    .onIcon{
+        color: rgba(122, 255, 100, 1)
+    }
+
+    > svg{
+        height: 1.2em;
+        width: 1.2em;
+        box-sizing: border-box;
+        cursor: pointer;
+        margin: 6px;
+    }
+    background-color: rgb(50, 170, 75);
+    color: white;
+    margin-right: 5px;
+
+    &:hover {
+        cursor: pointer;
+        background-color: rgb(70, 201, 97);
+    }
 `;
 
 /**
@@ -162,12 +213,14 @@ const ProjectsPage = (props: Props) => {
     logoutUser
   } = props;
 
-  const [projects, setProjects] = useState([]); // constant projects intialized with an empty array.  
-  const [loading, setLoading] = useState(false);// constant loading intialized with false. 
+  const [projects, setProjects] = useState([]); // constant projects initialized with an empty array.
+  const [loading, setLoading] = useState(false);// constant loading initialized with false.
   const isAuthenticated = api.isAuthenticated();// intialized with value returning from api.isAuthenticated()  
-  const [error, setError] = useState(null);// constant error intialized with null. 
-  const authUser = authState.get('authUser');// authUser intialized by getting property from authState object.
-  const user = authState.get('user');// user intialized by getting value from authState object.
+  const [error, setError] = useState(null);// constant error initialized with null.
+  const [profileMenuOpen, setProfileMenuOpen] = useState(false); // constant profileMenuOpen initialized as false
+  const authUser = authState.get('authUser');// authUser initialized by getting property from authState object.
+  const user = authState.get('user');// user initialized by getting value from authState object.
+  const { t } = useTranslation();
 
   useEffect(() => {
     doLoginAuto(true);
@@ -234,7 +287,7 @@ const ProjectsPage = (props: Props) => {
       <>
       <ContextMenu id={contextMenuId}>
         <MenuItem onClick={e => onDeleteProject(props.trigger.project)}>
-          Delete Project
+          {t('editor.projects.contextMenu.deleteProject')}
         </MenuItem>
       </ContextMenu>
       </>
@@ -254,9 +307,8 @@ const ProjectsPage = (props: Props) => {
   for (let i = 0; i < templates.length && i < 4; i++) {
     topTemplates.push(templates[i]);
   }
- 
- //function to logout user.
-  const handleLogout = () => logoutUser();
+
+  const openProfileMenu = (): void => setProfileMenuOpen(true);
 
   /**
    * Rendering view for projects page, if user is not login yet then showing login view.  
@@ -270,7 +322,7 @@ const ProjectsPage = (props: Props) => {
         <ProjectsSection>
           <ProjectsContainer>
             <ProjectsHeader>
-                <h1>Please Login</h1>
+                <h1>{t('editor.projects.header')}</h1>
               </ProjectsHeader>
             <ProjectGridContainer>
               <ProjectGridContent>  
@@ -283,7 +335,7 @@ const ProjectsPage = (props: Props) => {
         <ProjectGridHeader>
           <ProjectGridHeaderRow />
           <ProjectGridHeaderRow>
-            <MediumButton onClick={handleLogout}>Logout</MediumButton>
+            <ProfileButton onClick={() => openProfileMenu()}><Person /></ProfileButton>
           </ProjectGridHeaderRow>
         </ProjectGridHeader>        
       }
@@ -291,14 +343,12 @@ const ProjectsPage = (props: Props) => {
           {(projects.length === 0 && !loading) ? (
               <ProjectsSection flex={0}>
                 <WelcomeContainer>
-                  <h1>Welcome</h1>
+                  <h1>{t('editor.projects.welcomeMsg')}</h1>
                   <h2>
-                    If you&#39;re new here we recommend going through the
-                    tutorial. Otherwise, jump right in and create a project from
-                    scratch or from one of our templates.
+                  {t('editor.projects.description')}
                   </h2>
                   <MediumButton onClick={routeTo("/editor/tutorial")}>
-                    Start Tutorial
+                  {t('editor.projects.lbl-startTutorial')}
                   </MediumButton>
                 </WelcomeContainer>
               </ProjectsSection>
@@ -306,20 +356,20 @@ const ProjectsPage = (props: Props) => {
           <ProjectsSection>
             <ProjectsContainer>
             <ProjectsHeader>
-                <h1>Locations</h1>
+                <h1>{t('editor.projects.locationHeader')}</h1>
               </ProjectsHeader>
               <div className="mb-5">
                 <AdminConsole />
               </div>
               <ProjectsHeader>
-                <h1>Projects</h1>
+                <h1> {t('editor.projects.projectHeader')}</h1>
               </ProjectsHeader>
               <ProjectGridContainer>
                 <ProjectGridHeader>
                   <ProjectGridHeaderRow />
                   <ProjectGridHeaderRow>
                     <Button onClick={routeTo("/editor/create")}>
-                      New Project
+                    {t('editor.projects.lbl-newProject')}
                     </Button>
                   </ProjectGridHeaderRow>
                 </ProjectGridHeader>
@@ -331,7 +381,7 @@ const ProjectsPage = (props: Props) => {
                           projects={projects}
                           // newProjectPath="/editor/templates"
                           newProjectPath="/editor/create"
-                          newProjectLabel="New Project"
+                          newProjectLabel={t('editor.projects.lbl-newProject')}
                           contextMenuId={contextMenuId}
                       />
                   )}
@@ -341,6 +391,14 @@ const ProjectsPage = (props: Props) => {
           </ProjectsSection>
           <ProjectContextMenu />
         </main> }
+
+        { profileMenuOpen &&
+        <ClickAwayListener onClickAway={() => setProfileMenuOpen(false)}>
+          <div className={styles.profileMenu}>
+            <ProfileMenu setProfileMenuOpen={setProfileMenuOpen}/>
+          </div>
+        </ClickAwayListener>
+        }
       </>
     );
 };

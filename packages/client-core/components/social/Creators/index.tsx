@@ -32,9 +32,8 @@ const Creators = ({creatorsState, getCreators}:Props) => {
     useEffect(()=> getCreators(), []);
     const creators= creatorsState && creatorsState.get('creators') ? creatorsState.get('creators') : null;
     const handleCreatorView = (id) =>{
-        Router.push({ pathname: '/creator', query:{ creatorId: id}})
-    }
-
+        Router.push({ pathname: '/creator', query:{ creatorId: id}});
+    };
     return <section className={styles.creatorContainer}>
         {creators?.map((item, itemIndex)=>
             <Card className={styles.creatorItem} elevation={0} key={itemIndex} onClick={()=>handleCreatorView(item.id)}>                 
@@ -45,13 +44,13 @@ const Creators = ({creatorsState, getCreators}:Props) => {
                 />
                 <CardContent>
                     <Typography className={styles.titleContainer} gutterBottom variant="h3" component="h2" align="center">{item.name} 
-                            <VerifiedUserIcon htmlColor="#007AFF" style={{fontSize:'13px', margin: '0 0 0 5px'}}/>
+                        {item.verified === true && <VerifiedUserIcon htmlColor="#007AFF" style={{fontSize:'13px', margin: '0 0 0 5px'}}/>}
                     </Typography>
                     <Typography variant="h4" align="center" color="secondary">{item.username}</Typography>
                 </CardContent>
             </Card>
         )}
-        </section>
+        </section>;
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(Creators);
