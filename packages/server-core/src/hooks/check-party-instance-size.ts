@@ -2,7 +2,7 @@ import { HookContext } from '@feathersjs/feathers';
 import Sequelize, {Op} from "sequelize";
 import _ from "lodash";
 import getLocalServerIp from "../util/get-local-server-ip";
-import logger from '../app/logger';
+import logger from '../logger';
 
 // This will attach the owner ID in the contact while creating/updating list item
 export default () => {

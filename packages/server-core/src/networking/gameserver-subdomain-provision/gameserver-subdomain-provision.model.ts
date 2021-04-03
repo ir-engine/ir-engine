@@ -33,7 +33,7 @@ export default function (app: Application): typeof Model {
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   (gameserverSubdomainProvision as any).associate = function (models: any): void {
-    (gameserverSubdomainProvision as any).belongsTo(models.instance);
+    // (gameserverSubdomainProvision as any).belongsTo(models.instance);
     // Define associations here
     // See http://docs.sequelizejs.com/en/latest/docs/associations/
   };

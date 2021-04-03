@@ -1,18 +1,18 @@
-import { Application } from '../../declarations';
 
-// Types
-import ComponentType from './component-type/component-type.service';
+import Attribution from './attribution/attribution.service';
 import CollectionType from './collection-type/collection-type.service';
-
-// Objects
 import Collection from './collection/collection.service';
+import ComponentType from './component-type/component-type.service';
 import Component from './component/component.service';
 import Entity from './entity/entity.service';
+import License from './license/license.service';
 
 export default [
+  License,
+  Attribution,
   CollectionType,
   ComponentType,
+  Entity,
   Collection,
-  Component,
-  Entity
+  Component
 ]
