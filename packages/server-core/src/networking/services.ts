@@ -1,7 +1,9 @@
-import Location from '../social/location/location.service';
-import Instance from '../social/instance/instance.service';
+import Instance from './instance/instance.service';
+import InstanceProvision from './instance-provision/instance-provision.service';
+import GameServerSubdomainProvision from './gameserver-subdomain-provision/gameserver-subdomain-provision.service';
 
 export default [
   Instance,
-  Location
+  GameServerSubdomainProvision,
+  InstanceProvision
 ];

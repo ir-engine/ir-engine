@@ -66,22 +66,9 @@ export default (app: Application): any => {
   (collection as any).associate = (models: any): void => {
     (collection as any).belongsTo(models.collection_type, { foreignKey: 'type', required: true });
     (collection as any).hasOne(models.attribution);
-    (collection as any).belongsTo(models.static_resource, { as: 'thumbnail_owned_file', required: false, constraints: false });
+    // (collection as any).belongsTo(models.static_resource, { as: 'thumbnail_owned_file', required: false, constraints: false });
     (collection as any).hasMany(models.entity, { required: false, constraints: false, delete: 'cascade' });
-    (collection as any).hasMany(models.tag);
-    (collection as any).belongsTo(models.user, { required: false, constraints: false }); // Reticulum foreignKey: 'creatorUserId'
-    (collection as any).belongsTo(models.location);
-    (collection as any).belongsToMany(models.tag, { through: 'collection_tag' });
-    // (collection as any).belongsTo(models.collection)
-
-    // thumbnail   (project as any).belongsTo(models.owned_file, { foreignKey: 'thumbnailOwnedFileId' })
-    // parent collection   (project as any).belongsTo(models.scene, { foreignKey: 'parentSceneId' });
-    // hasMany static resources (project as any).belongsToMany(models.asset, { foreignKey: 'projectId' });
-    // ??? listing ? (project as any).belongsTo(models.scene_listing, { foreignKey: 'parentSceneListingId' })
-
-    // scene and project can be same   (project as any).belongsTo(models.scene, { foreignKey: 'sceneId' });
-    // associated model? remove? (scene as any).belongsTo(models.owned_file, { foreignKey: 'modelOwnedFileId', allowNull: false });
-    // screenshot (scene as any).belongsTo(models.owned_file, { foreignKey: 'screenshotOwnedFileId', allowNull: false });
+    // (collection as any).belongsTo(models.location);
   };
 
   return collection;

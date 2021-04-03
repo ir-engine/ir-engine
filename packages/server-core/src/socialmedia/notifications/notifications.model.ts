@@ -28,12 +28,10 @@ export default function (app: Application): typeof Model {
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   (Notification as any).associate = function (models: any): void {
-    // Define associations here
-    // See http://docs.sequelizejs.com/en/latest/docs/associations/
-    (Notification as any).belongsTo(models.creator, { foreignKey: 'creatorAuthorId', allowNull: false });
-    (Notification as any).belongsTo(models.creator, { foreignKey: 'creatorViewerId', allowNull: false });
-    (Notification as any).belongsTo(models.feed, { foreignKey: 'feedId', allowNull: true });
-    (Notification as any).belongsTo(models.comments, { foreignKey: 'commentId', allowNull: true });
+    // (Notification as any).belongsTo(models.creator, { foreignKey: 'creatorAuthorId', allowNull: false });
+    // (Notification as any).belongsTo(models.creator, { foreignKey: 'creatorViewerId', allowNull: false });
+    // (Notification as any).belongsTo(models.feed, { foreignKey: 'feedId', allowNull: true });
+    // (Notification as any).belongsTo(models.comments, { foreignKey: 'commentId', allowNull: true });
   };
 
   return Notification;
