@@ -1,12 +1,8 @@
 import { initGA, logPageView } from '../components/analytics';
-import Api from "@xr3ngine/client-core/components/editor/Api";
-import { ApiContext } from '@xr3ngine/client-core/components/editor/contexts/ApiContext';
-import GlobalStyle from '@xr3ngine/client-core/components/editor/GlobalStyle';
-import theme from "@xr3ngine/client-core/components/editor/theme";
-import { dispatchAlertError } from '@xr3ngine/client-core/reducers/alert/service';
-import { getDeviceType } from '@xr3ngine/client-core/reducers/devicedetect/actions';
-import { restoreState } from '@xr3ngine/client-core/reducers/persisted.store';
-import { configureStore } from '@xr3ngine/client-core/reducers/store';
+import Api from "@xr3ngine/client-core/src/world/components/editor/Api";
+import { ApiContext } from '@xr3ngine/client-core/src/world/components/editor/contexts/ApiContext';
+import GlobalStyle from '@xr3ngine/client-core/src/world/components/editor/GlobalStyle';
+import theme from "@xr3ngine/client-core/src/world/components/editor/theme";
 import DeviceDetector from 'device-detector-js';
 import { fromJS } from 'immutable';
 import withRedux from 'next-redux-wrapper';
@@ -23,6 +19,10 @@ import './styles.scss';
 import i18n from 'i18next';
 import translation from '../../i18n/en/translation.json';
 import { initReactI18next } from 'react-i18next';
+import { configureStore } from '@xr3ngine/client-core/src/store';
+import { dispatchAlertError } from '@xr3ngine/client-core/src/common/reducers/alert/service';
+import { getDeviceType } from '@xr3ngine/client-core/src/common/reducers/devicedetect/actions';
+import { restoreState } from '@xr3ngine/client-core/src/persisted.store';
 
 const config = getConfig().publicRuntimeConfig;
 
