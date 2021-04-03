@@ -7,6 +7,7 @@ import { dispatchAlertError } from '@xr3ngine/client-core/redux/alert/service';
 import { getDeviceType } from '@xr3ngine/client-core/redux/devicedetect/actions';
 import { restoreState } from '@xr3ngine/client-core/redux/persisted.store';
 import { configureStore } from '@xr3ngine/client-core/redux/store';
+import { initI18N } from '@xr3ngine/client-core';
 import DeviceDetector from 'device-detector-js';
 import { fromJS } from 'immutable';
 import withRedux from 'next-redux-wrapper';
@@ -39,6 +40,7 @@ i18n.use(initReactI18next).init({
   resources,
 });
 
+initI18N();
 interface Props extends AppProps {
   store: Store;
 }
