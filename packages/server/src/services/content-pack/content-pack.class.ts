@@ -1,7 +1,9 @@
 import { Id, NullableId, Paginated, Params, ServiceMethods } from '@feathersjs/feathers';
 import { Application } from '../../declarations';
 import S3Provider from '../../storage/s3.storage';
-import assembleScene from '../../util/assemble-scene';
+import { assembleScene, populateScene } from './content-pack-helper';
+import config from "../../config";
+import axios from 'axios';
 
 interface Data {}
 
@@ -11,6 +13,7 @@ const packRegex = /content-pack\/([a-zA-Z0-9_-]+)\/manifest.json/;
 
 const getManifestKey = (packName: string) => `content-pack/${packName}/manifest.json`;
 const getWorldFileKey = (packName: string, uuid: string) => `content-pack/${packName}/world/${uuid}.world`
+const getWorldFileUrl = (packName: string, uuid: string) => `https://${config.aws.cloudfront.domain}/content-pack/${packName}/world/${uuid}.world`;
 
 /**
  * A class for Upload Media service 
@@ -53,10 +56,9 @@ export class ContentPack implements ServiceMethods<Data> {
       return await Promise.all(data.map(current => this.create(current, params)));
     }
 
-    console.log('Content-pack create');
-    console.log(data);
+    let uploadPromises = [];
     const { scene, contentPack } = data as any;
-    const packExists = await new Promise((resolve, reject) => {
+    await new Promise((resolve, reject) => {
       s3.provider.getObjectAcl({
         Bucket: s3.bucket,
         Key: getManifestKey(contentPack)
@@ -73,14 +75,98 @@ export class ContentPack implements ServiceMethods<Data> {
       });
     });
     const body = {
+      version: 1,
       avatars: [],
       scenes: []
     };
     if (scene != null) {
-      const worldFile = assembleScene(scene);
-      console.log('Made worldFile:');
-      console.log(worldFile);
-      const worldFileKey = getWorldFileKey(contentPack, worldFile.root);
+      const assembleResponse = assembleScene(scene, contentPack);
+      const worldFile = assembleResponse.worldFile;
+      uploadPromises = assembleResponse.uploadPromises;
+      if (typeof worldFile.metadata === 'string') worldFile.metadata = JSON.parse(worldFile.metadata);
+      const worldFileKey = getWorldFileKey(contentPack, worldFile.metadata.name);
+      await new Promise((resolve, reject) => {
+        s3.provider.putObject({
+          ACL: "public-read",
+          Body: Buffer.from(JSON.stringify(worldFile)),
+          Bucket: s3.bucket,
+          ContentType: "application/json",
+          Key: worldFileKey
+        }, (err, data) => {
+          if (err) {
+            console.error(err);
+            reject(err);
+          } else {
+            resolve(data);
+          }
+        });
+      });
+      body.scenes.push({
+        name: worldFile.metadata.name,
+        worldFile: getWorldFileUrl(contentPack, worldFile.metadata.name)
+      });
+    }
+
+    await new Promise((resolve, reject) => {
+      s3.provider.putObject({
+        ACL: "public-read",
+        Body: Buffer.from(JSON.stringify(body)),
+        Bucket: s3.bucket,
+        ContentType: "application/json",
+        Key: getManifestKey(contentPack)
+      }, (err, data) => {
+        if (err) {
+          console.error(err);
+          reject(err);
+        } else {
+          resolve(data);
+        }
+      });
+    });
+    await Promise.all(uploadPromises);
+    return data;
+  }
+
+  async update (id: NullableId, data: Data, params?: Params): Promise<Data> {
+    const manifestUrl = data.manifestUrl;
+    const manifestResult = await axios.get(manifestUrl);
+    console.log(manifestResult);
+    const { avatars, scenes } = manifestResult.data;
+    for (let index in scenes) {
+      const scene = scenes[index];
+      console.log('scene:', scene)
+      const sceneResult = await axios.get(scene.worldFile);
+      console.log(sceneResult);
+      await populateScene(sceneResult.data, this.app);
+    }
+    return data;
+  }
+
+  async patch (id: NullableId, data: Data, params?: Params): Promise<Data> {
+    let uploadPromises = [];
+    const { scene, contentPack } = data as any;
+    const pack = await new Promise((resolve, reject) => {
+      s3.provider.getObject({
+        Bucket: s3.bucket,
+        Key: getManifestKey(contentPack)
+      }, (err, data) => {
+        if (err) {
+          if (err.code === 'NoSuchKey') reject('Pack does not exist');
+          else {
+            reject(err);
+          }
+        } else {
+          resolve(data);
+        }
+      });
+    });
+    const body = JSON.parse((pack as any).Body.toString());
+    if (scene != null) {
+      const assembleResponse = assembleScene(scene, contentPack);
+      const worldFile = assembleResponse.worldFile;
+      uploadPromises = assembleResponse.uploadPromises;
+      if (typeof worldFile.metadata === 'string') worldFile.metadata = JSON.parse(worldFile.metadata);
+      const worldFileKey = getWorldFileKey(contentPack, worldFile.metadata.name);
       const uploadWorld = await new Promise((resolve, reject) => {
         s3.provider.putObject({
           ACL: "public-read",
@@ -97,15 +183,17 @@ export class ContentPack implements ServiceMethods<Data> {
           }
         });
       });
-      console.log('UploadWorld result:');
-      console.log(uploadWorld);
+      const existingSceneIndex = body.scenes.findIndex(existingScene => existingScene.name === worldFile.metadata.name);
+      if (existingSceneIndex > -1 ) body.scenes.splice(existingSceneIndex, 1);
       body.scenes.push({
         name: worldFile.metadata.name,
-        worldFile: worldFileKey
-      })
+        worldFile: getWorldFileUrl(contentPack, worldFile.metadata.name)
+      });
     }
 
-    const uploadFile = await new Promise((resolve, reject) => {
+    if (body.version) body.version++;
+    else body.version = 1;
+    const uploadManifest = await new Promise((resolve, reject) => {
       s3.provider.putObject({
         ACL: "public-read",
         Body: Buffer.from(JSON.stringify(body)),
@@ -121,16 +209,9 @@ export class ContentPack implements ServiceMethods<Data> {
         }
       });
     });
-    console.log('Upload result:');
-    console.log(uploadFile);
-    return data;
-  }
-
-  async update (id: NullableId, data: Data, params?: Params): Promise<Data> {
-    return data;
-  }
-
-  async patch (id: NullableId, data: Data, params?: Params): Promise<Data> {
+    console.log('Upload manifest result:');
+    console.log(uploadManifest);
+    await Promise.all(uploadPromises);
     return data;
   }
 

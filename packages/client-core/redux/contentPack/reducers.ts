@@ -6,7 +6,7 @@ import {
 import _ from 'lodash';
 
 import {
-  CONTENT_PACK_CREATE,
+  CONTENT_PACK_CREATED,
   CONTENT_PACK_PATCHED,
   LOADED_CONTENT_PACKS,
 } from '../actions';
@@ -26,17 +26,17 @@ const contentPackReducer = (state = immutableState, action: ContentPackAction): 
       console.log('LOADED_CONTENT_PACKS');
       console.log(action);
       newValues = (action as LoadedContentPacksAction);
-      console.log(newValues.contentPacks);
       let contentPacks = state.get('contentPacks');
-      console.log('subContentPacks:');
-      console.log(contentPacks);
-      console.log(contentPacks);
-      contentPacks = ['coolpants'];
-      console.log('contentPacks after set:');
-      console.log(contentPacks);
+      contentPacks = newValues.contentPacks;
       return state
           .set('updateNeeded', false)
           .set('contentPacks', contentPacks);
+    case CONTENT_PACK_CREATED:
+      console.log('CONTENT_PACK_CREATED');
+      return state.set('updateNeeded', true);
+    case CONTENT_PACK_PATCHED:
+      console.log('CONTENT_PACK_PATCHED');
+      return state.set('updateNeeded', true);
   }
 
   return state;

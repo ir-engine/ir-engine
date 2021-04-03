@@ -2,6 +2,8 @@ import { Dispatch } from 'redux';
 import { client } from '../feathers';
 import {dispatchAlertSuccess} from '../alert/service';
 import {
+  createdContentPack,
+  patchedContentPack,
   loadedContentPacks,
 } from './actions';
 
@@ -64,12 +66,27 @@ export function createContentPack(data: any) {
       scene: data.scene,
       contentPack: data.contentPack
     });
+    dispatch(createdContentPack());
   }
 }
 
 export function addSceneToContentPack(data: any) {
   return async (dispatch: Dispatch, getState: any) => {
-    console.log(data);
+    const result = await client.service('content-pack').patch(null, {
+      scene: data.scene,
+      contentPack: data.contentPack
+    });
+    dispatch(patchedContentPack());
+  }
+}
+
+export function downloadContentPack(url: string) {
+  return async (dispatch: Dispatch, getState: any) => {
+    console.log('downloadContentPack--');
+    console.log(url);
+    const result = await client.service('content-pack').update(null, {
+      manifestUrl: url
+    });
   }
 }
 
