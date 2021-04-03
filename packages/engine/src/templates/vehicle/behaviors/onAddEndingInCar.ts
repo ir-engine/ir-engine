@@ -1,18 +1,18 @@
-import { Entity } from '@xr3ngine/engine/src/ecs/classes/Entity';
-import { getComponent, getMutableComponent } from '@xr3ngine/engine/src/ecs/functions/EntityFunctions';
-import { PlayerInCar } from '@xr3ngine/engine/src/physics/components/PlayerInCar';
-import { VehicleBody } from '@xr3ngine/engine/src/physics/components/VehicleBody';
-import { setState } from "@xr3ngine/engine/src/state/behaviors/setState";
-import { CharacterStateTypes } from "@xr3ngine/engine/src/templates/character/CharacterStateTypes";
-import { TransformComponent } from '@xr3ngine/engine/src/transform/components/TransformComponent';
 import { Matrix4, Vector3 } from 'three';
+import { changeAnimation } from '../../../character/functions/updateVectorAnimation';
 import { isServer } from "../../../common/functions/isServer";
-import { updateVectorAnimation, clearAnimOnChange, changeAnimation } from "@xr3ngine/engine/src/templates/character/behaviors/updateVectorAnimation";
+import { Entity } from '../../../ecs/classes/Entity';
+import { getComponent, getMutableComponent } from '../../../ecs/functions/EntityFunctions';
+import { PlayerInCar } from '../../../physics/components/PlayerInCar';
+import { TransformComponent } from '../../../transform/components/TransformComponent';
+import { CharacterAnimations } from '../../character/CharacterAnimations';
+import { VehicleComponent } from '../components/VehicleComponent';
+import { VehicleState } from '../enums/VehicleStateEnum';
 
 function doorAnimation(entityCar, seat, timer, timeAnimation, angel) {
-  const vehicle = getComponent<VehicleBody>(entityCar, VehicleBody);
+  const vehicle = getComponent<VehicleComponent>(entityCar, VehicleComponent);
   const mesh = vehicle.vehicleDoorsArray[seat];
-
+  if (mesh === undefined) return;
   const andelPetTick = angel / (timeAnimation / 2);
   if (timer > (timeAnimation/2)) {
 
@@ -28,7 +28,7 @@ function doorAnimation(entityCar, seat, timer, timeAnimation, angel) {
 
 function positionEnter(entity, entityCar, seat) {
   const transform = getMutableComponent<TransformComponent>(entity, TransformComponent);
-  const vehicle = getComponent<VehicleBody>(entityCar, VehicleBody);
+  const vehicle = getComponent<VehicleComponent>(entityCar, VehicleComponent);
   const transformCar = getComponent<TransformComponent>(entityCar, TransformComponent);
 
   const position = new Vector3( ...vehicle.entrancesArray[seat] )
@@ -65,14 +65,14 @@ export const onAddEndingInCar = (entity: Entity, entityCar: Entity, seat: number
   if (playerInCar.currentFrame > carTimeOut) {
     playerInCar.currentFrame = 0;
     timeOut = true;
-    getMutableComponent(entity, PlayerInCar).state = 'onUpdate';
+    getMutableComponent(entity, PlayerInCar).state = VehicleState.onUpdate;
   }
 
   if (isServer) return;
 
   if (timeOut) {
     changeAnimation(entity, {
-      animationId: CharacterStateTypes.DRIVING,
+      animationId: CharacterAnimations.DRIVING,
   	  transitionDuration: 0.3
      })
   }

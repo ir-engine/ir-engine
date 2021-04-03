@@ -48,7 +48,6 @@ function isNullOrUndefined<T>(obj: T | null | undefined): obj is null | undefine
 }
 
 export class SocketWebRTCServerTransport implements NetworkTransport {
-    isServer = true
     server: https.Server
     socketIO: SocketIO.Server
     worker: Worker
@@ -218,10 +217,10 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                 callback({ success: true });
 
                 socket.on(MessageTypes.ConnectToWorld.toString(), async (data, callback) => {
-                    console.log('Got ConnectToWorld:');
-                    console.log(data);
-                    console.log(userId);
-                    console.log("Avatar", avatar);
+                    // console.log('Got ConnectToWorld:');
+                    // console.log(data);
+                    // console.log(userId);
+                    // console.log("Avatar", avatar)
                     handleConnectToWorld(socket, data, callback, userId, user, avatar);
                 });
 

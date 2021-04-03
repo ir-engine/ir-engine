@@ -7,9 +7,7 @@ import getLocalServerIp from '../util/get-local-server-ip';
 import logger from './logger';
 import {localConfig} from "../gameserver/transports/config";
 import {RtpCodecCapability} from "mediasoup/lib/types";
-
-
-let sceneLoaded = false;
+import { Engine } from '@xr3ngine/engine/src/ecs/classes/Engine';
 
 export default (app: Application): void => {
     if (typeof app.channel !== 'function') {
@@ -35,7 +33,7 @@ export default (app: Application): void => {
                 if (token != null) {
                     const authResult = await app.service('authentication').strategies.jwt.authenticate({accessToken: token}, {});
                     const identityProvider = authResult['identity-provider'];
-                    if (identityProvider != null) {
+                    if (identityProvider != null && identityProvider.id != null) {
                         logger.info(`user ${identityProvider.userId} joining ${(connection as any).socketQuery.locationId} with sceneId ${(connection as any).socketQuery.sceneId}`);
                         const userId = identityProvider.userId;
                         const user = await app.service('user').get(userId);
@@ -104,9 +102,8 @@ export default (app: Application): void => {
                               }
                               const result = await app.service(service).get(serviceId);
 
-                              if (!sceneLoaded) {
+                              if (!Engine.sceneLoaded) {
                                 loadScene(result);
-                                sceneLoaded = true;
                               }
                             }
                         } else {
@@ -127,8 +124,6 @@ export default (app: Application): void => {
                         (connection as any).instanceId = (app as any).instance.id;
                         // console.log('Patched user instanceId');
                         app.channel(`instanceIds/${(app as any).instance.id as string}`).join(connection);
-                        console.log('Sending joined layer message');
-                        console.log((app as any).isChannelInstance);
                         if ((app as any).isChannelInstance !== true) await app.service('message').create({
                             targetObjectId: (app as any).instance.id,
                             targetObjectType: 'instance',
@@ -185,7 +180,7 @@ export default (app: Application): void => {
                 if (token != null) {
                     const authResult = await app.service('authentication').strategies.jwt.authenticate({accessToken: token}, {});
                     const identityProvider = authResult['identity-provider'];
-                    if (identityProvider != null) {
+                    if (identityProvider != null && identityProvider.id != null) {
                         const userId = identityProvider.userId;
                         const user = await app.service('user').get(userId);
                         logger.info('Socket disconnect from ' + userId);

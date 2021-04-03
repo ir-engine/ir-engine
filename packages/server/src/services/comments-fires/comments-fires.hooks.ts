@@ -1,3 +1,4 @@
+import * as notifications from "../../hooks/notifications";
 
 export default {
   before: {
@@ -14,10 +15,10 @@ export default {
     all: [],
     find: [],
     get: [],
-    create: [],
+    create: [notifications.addFeedCommentFire],
     update: [],
     patch: [],
-    remove: []
+    remove: [notifications.removeFeedCommentFire]
   },
 
   error: {

@@ -5,48 +5,29 @@ import { threeToCannon } from '../classes/three-to-cannon';
 
 export function createTrimeshFromArrayVertices (vertices, indices) {
 	  indices = indices || vertices.map((v,i) => i);
-		const shape = new Trimesh(vertices, indices)
-		const body = new Body({ mass: 0 });
-    body.addShape(shape);
-		return body;
+		return new Trimesh(vertices, indices);
 }
 
 export function createTrimeshFromMesh (mesh) {
-		const shape = threeToCannon(mesh, {type: threeToCannon.Type.MESH});
-		const body = new Body({ mass: 0 });
-    body.addShape(shape);
-		return body;
+		return threeToCannon(mesh, {type: threeToCannon.Type.MESH});
 }
 
-function createBox (scale) {
+export function createBox (scale) {
   if(scale == undefined) return console.error("Scale is  null");
-  const shape = new Box(new Vec3(Math.abs(scale.x), Math.abs(scale.y), Math.abs(scale.z)));
-  const body = new Body({ mass: 0 });
-  body.addShape(shape);
-  return body;
+  return new Box(new Vec3(Math.abs(scale.x), Math.abs(scale.y), Math.abs(scale.z)));
 }
 
-function createSphere (scale) {
-  const shape = new Sphere(Math.abs(scale.x));
-  const body = new Body({ mass: 0 });
-  body.addShape(shape);
-  return body;
+export function createSphere (scale) {
+  return new Sphere(Math.abs(scale.x));
 }
 
 export function createGround () {
-  const shape = new Plane();
-  const body = new Body({ mass: 0 });
-  body.quaternion.setFromAxisAngle(new Vec3(1, 0, 0), -Math.PI / 2);
-  body.addShape(shape);
-  return body;
+  return new Plane();
 }
 
 export function createCylinder (scale) {
   if(scale == undefined) return console.error("Scale is  null");
-  const shape = new Cylinder(scale.x, scale.z, scale.y*2, 10);
-  const body = new Body({ mass: 0 });
-  body.addShape(shape);
-  return body;
+  return new Cylinder(scale.x, scale.z, scale.y*2, 10);
 }
 
 export function doThisActivateCollider (body, userData) {
@@ -55,36 +36,31 @@ export function doThisActivateCollider (body, userData) {
 	return body;
 }
 
-export function addColliderWithoutEntity( userData, position, quaternion, scale, { mesh = null, vertices = null, indices = null }) {
-  let body;
+export function addColliderWithoutEntity( userData, position, quaternion, scale, model = { mesh: null, vertices:null, indices: null }) {
+  let shape;
 	const type = userData.type
   switch (type) {
     case 'box':
-      body = createBox(scale);
-      /*
-      body.shapes.forEach((shape) => {
-  			shape.collisionFilterMask = ~CollisionGroups.TrimeshColliders;
-  		});
-      */
+      shape = createBox(scale);
       break;
 
     case 'ground':
-      body = createGround()
+      shape = createGround()
       break;
 
     case 'cylinder':
-      body = createCylinder(scale);
+      shape = createCylinder(scale);
       break;
 
     case 'sphere':
-      body = createSphere(scale);
+      shape = createSphere(scale);
       break;
 
     case 'trimesh':
-			if (mesh != null) {
-				body = createTrimeshFromMesh(mesh);
-			} else if (vertices != null) {
-				body = createTrimeshFromArrayVertices(vertices, indices);
+			if (model.mesh != null) {
+				shape = createTrimeshFromMesh(model.mesh);
+			} else if (model.vertices != null) {
+				shape = createTrimeshFromArrayVertices(model.vertices, model.indices);
 			} else {
 				console.warn('!!! dont have any mesh or vertices array to create trimesh');
 				return;
@@ -93,9 +69,16 @@ export function addColliderWithoutEntity( userData, position, quaternion, scale,
 
     default:
       console.warn('create Collider undefined type !!!');
-      body = createBox(scale || {x:1, y:1, z:1});
+      shape = createBox(scale || {x:1, y:1, z:1});
       break;
   }
+
+	const body = new Body({ mass: 0 });
+	body.addShape(shape);
+
+	if (type == 'ground') {
+		body.quaternion.setFromAxisAngle(new Vec3(1, 0, 0), -Math.PI / 2);
+	}
 
   if (position) {
     body.position.set(position.x, position.y, position.z);
@@ -106,7 +89,9 @@ export function addColliderWithoutEntity( userData, position, quaternion, scale,
   }
 
   if (userData.action == 'portal') {
-    body = doThisActivateCollider(body, userData);
+    body.collisionFilterGroup = CollisionGroups.ActiveCollider;
+		//@ts-ignore
+		body.link = userData.link;
   } else {
     body.collisionFilterGroup = CollisionGroups.Default;
   }

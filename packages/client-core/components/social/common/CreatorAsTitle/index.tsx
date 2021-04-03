@@ -12,10 +12,10 @@ const CreatorAsTitle = ({creator}) : any => {
                     avatar={<Avatar src={creator.avatar} alt={creator.username} onClick={()=>Router.push({ pathname: '/creator', query:{ creatorId: creator.id}})}/>} 
                     title={<Typography variant="h2">
                     {creator.username}
-                    <VerifiedUserIcon htmlColor="#007AFF" style={{fontSize:'13px', margin: '0 0 0 5px'}}/>
+                    {creator.verified === true && <VerifiedUserIcon htmlColor="#007AFF" style={{fontSize:'13px', margin: '0 0 0 5px'}}/>}
                 </Typography>}
                 />               
-        :''
+        :'';
 };
 
 export default CreatorAsTitle;

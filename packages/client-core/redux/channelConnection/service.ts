@@ -13,6 +13,8 @@ import {
 } from './actions';
 import { EngineEvents } from "@xr3ngine/engine/src/ecs/classes/EngineEvents";
 import { ClientNetworkSystem } from "@xr3ngine/engine/src/networking/systems/ClientNetworkSystem";
+import getConfig from 'next/config';
+const { publicRuntimeConfig } = getConfig();
 
 export function provisionChannelServer(instanceId?: string, channelId?: string) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
@@ -63,6 +65,7 @@ export function connectToChannelServer(channelId: string, isHarmonyPage?: boolea
       await Network.instance.transport.initialize(instance.get('ipAddress'), instance.get('port'), false, {
         locationId: locationId,
         token: token,
+        user: user,
         sceneId: sceneId,
         startVideo: videoActive,
         channelType: 'channel',
@@ -70,8 +73,6 @@ export function connectToChannelServer(channelId: string, isHarmonyPage?: boolea
         videoEnabled: currentLocation?.locationSettings?.videoEnabled === true || !(currentLocation?.locationSettings?.locationType === 'showroom' && user.locationAdmins?.find(locationAdmin => locationAdmin.locationId === currentLocation.id) == null),
         isHarmonyPage: isHarmonyPage
       });
-      Network.instance.isInitialized = true;
-      EngineEvents.instance.dispatchEvent({ type: ClientNetworkSystem.EVENTS.CONNECT })
 
       // setClient(instanceClient);
       dispatch(channelServerConnected());
@@ -90,6 +91,8 @@ export function resetChannelServer() {
   };
 }
 
-client.service('instance-provision').on('created', (params) => {
-  if (params.channelId != null) store.dispatch(channelServerProvisioned(params, params.channelId));
-});
+if(!publicRuntimeConfig.offlineMode) {
+  client.service('instance-provision').on('created', (params) => {
+    if (params.channelId != null) store.dispatch(channelServerProvisioned(params, params.channelId));
+  });
+}

@@ -1,7 +1,7 @@
 import { LifecycleValue } from "../../common/enums/LifecycleValue";
 import { NumericalType } from "../../common/types/NumericalTypes";
 import { InputAlias } from "../../input/types/InputAlias";
-import { Snapshot, StateEntityGroup, StateEntityClientGroup } from "../types/SnapshotDataTypes";
+import { StateEntityGroup, StateEntityIKGroup } from "../types/SnapshotDataTypes";
 
 /** Interface for handling network input. */
 export interface NetworkInputInterface {
@@ -38,7 +38,8 @@ export interface NetworkInputInterface {
   }>
   /** Viewport vector of the client. */
   viewVector: {  x: number, y: number, z: number  },
-  //snapShotTime:
+  snapShotTime: number,
+  characterState: number
 
 }
 
@@ -46,7 +47,8 @@ export interface NetworkInputInterface {
 export interface NetworkClientInputInterface extends NetworkInputInterface {
   /** Time of the snapshot. */
   snapShotTime: number,
-  switchInputs: number
+  // switchInputs: number,
+  characterState: number
 }
 
 /** Interface for network client input packet. */
@@ -62,21 +64,6 @@ export interface NetworkClientDataInterface {
   avatarDetail: any,
 }
 
-/** Interface for network transform. */
-export interface NetworkTransformsInterface {
-  /** Id of the network. */
-  networkId: number,
-  /** Time of the snapshot. */
-  snapShotTime: number,
-  x: number
-  y: number
-  z: number
-  qX: number
-  qY: number
-  qZ: number
-  qW: number
-}
-
 /** Interface to remove network object. */
 export interface NetworkObjectRemoveInterface {
   /** Id of the network. */
@@ -89,13 +76,13 @@ export interface NetworkObjectEditInterface {
   networkId: number,
   /** Id of the owner. */
   ownerId: string,
-  /** Type of prefab used to create this object. */
-  component: string,
-  state: string,
-  /** Type of prefab used to create this object. */
-  currentId: number,
-  value: number,
-  whoIsItFor: string
+  /* NetworkObjectUpdateType */
+  type: number,
+  values: number[]
+  // state: number,
+  // currentId: number,
+  // value: number,
+  // whoIsItFor: string
 }
 
 /** Interface for creation of network object. */
@@ -104,6 +91,8 @@ export interface NetworkObjectCreateInterface {
   networkId: number,
   /** Id of the owner. */
   ownerId: string,
+  /** Entity unique Id from editor scene. */
+  uniqueId: string,
   /** Type of prefab used to create this object. */
   prefabType: string | number,
   x: number,
@@ -133,11 +122,11 @@ export interface WorldStateInterface {
   time: number
   /** transform of world. */
   transforms: StateEntityGroup
+  /** transform of ik avatars. */
+  ikTransforms: StateEntityIKGroup
   //snapshot: Snapshot
   /** Inputs received. */
   inputs: NetworkInputInterface[]
-  /** List of the states. */
-  states: any[]
   /** List of connected clients. */
   clientsConnected: NetworkClientDataInterface[]
   /** List of disconnected clients. */
@@ -147,29 +136,6 @@ export interface WorldStateInterface {
   /** List of created objects. */
   editObjects: NetworkObjectEditInterface[]
   /** List of destroyed objects. */
-  destroyObjects: NetworkObjectRemoveInterface[]
-}
-
-/** Interface for packet world state. */
-export interface PacketWorldState {
-  /** Tick of the world. */
-  tick: number
-  /** transform of world. */
-  transforms: NetworkTransformsInterface[]
-  //snapshot: WorldStateSnapshot
-  /** Inputs received. */
-  inputs: PacketNetworkInputInterface[]
-  /** List of the states. */
-  states: any[],
-  /** List of connected clients. */
-  clientsConnected: NetworkClientDataInterface[]
-  /** List of disconnected clients. */
-  clientsDisconnected: NetworkClientDataInterface[]
-  /** List of created objects. */
-  createObjects: NetworkObjectCreateInterface[]
-  /** List of destroyed objects. */
-  editObjects: NetworkObjectEditInterface[]
-    /** List of created objects. */
   destroyObjects: NetworkObjectRemoveInterface[]
 }
 /** Interface for handling packet network input. */

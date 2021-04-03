@@ -24,6 +24,10 @@ export default (app: Application): any => {
         type: DataTypes.STRING,
         defaultValue: (): string => "",
         allowNull: false
+      },
+      inviteCode: {
+        type: DataTypes.STRING,
+        unique: true
       }
     },
     {
@@ -46,14 +50,14 @@ export default (app: Application): any => {
       as: 'relatedUser',
       through: models.user_relationship
     });
-    (User as any).hasMany(models.user_relationship);
+    (User as any).hasMany(models.user_relationship, { onDelete: 'cascade' });
     (User as any).belongsToMany(models.group, { through: 'group_user' }); // user can join multiple orgs
-    (User as any).hasMany(models.group_user, { unique: false });
-    (User as any).hasMany(models.identity_provider);
+    (User as any).hasMany(models.group_user, { unique: false, onDelete: 'cascade' });
+    (User as any).hasMany(models.identity_provider, { onDelete: 'cascade' });
     (User as any).hasMany(models.static_resource);
     (User as any).hasMany(models.subscription);
-    (User as any).hasMany(models.channel, { foreignKey: 'userId1' });
-    (User as any).hasMany(models.channel, { foreignKey: 'userId2' });
+    (User as any).hasMany(models.channel, { foreignKey: 'userId1', onDelete: 'cascade' });
+    (User as any).hasMany(models.channel, { foreignKey: 'userId2', onDelete: 'cascade' });
     (User as any).hasOne(models.seat, { foreignKey: 'userId' });
     (User as any).belongsToMany(models.location, { through: 'location_admin' });
     (User as any).hasMany(models.location_admin, { unique: false });

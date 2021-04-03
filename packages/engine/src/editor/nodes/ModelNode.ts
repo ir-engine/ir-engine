@@ -4,13 +4,10 @@ import EditorNodeMixin from "./EditorNodeMixin";
 import { setStaticMode, StaticModes } from "../functions/StaticMode";
 import cloneObject3D from "../functions/cloneObject3D";
 import { RethrownError } from "../functions/errors";
-import {
-  getObjectPerfIssues,
-  maybeAddLargeFileIssue
-} from "../functions/performance";
 import { getGeometry } from '../../physics/classes/three-to-cannon';
-import { plusParameter } from '../../scene/constants/SceneObjectLoadingSchema';
-import { LoadGLTF } from "../../assets/functions/LoadGLTF";
+import { plusParameter } from "../../physics/behaviors/parseModelColliders";
+import { parseCarModel } from "../../templates/vehicle/prefabs/NetworkVehicle";
+
 export default class ModelNode extends EditorNodeMixin(Model) {
   static nodeName = "Model";
   static legacyComponentName = "gltf-model";
@@ -20,6 +17,7 @@ export default class ModelNode extends EditorNodeMixin(Model) {
   };
 
   meshColliders = []
+  vehicleObject = []
 
   static async deserialize(editor, json, loadAsync, onError) {
     const node = await super.deserialize(editor, json);
@@ -96,6 +94,7 @@ export default class ModelNode extends EditorNodeMixin(Model) {
     this.boundingBox = new Box3();
     this.boundingSphere = new Sphere();
     this.gltfJson = null;
+    this.isValidURL=false;
   }
   // Overrides Model's src property and stores the original (non-resolved) url.
   get src(): string {
@@ -115,9 +114,6 @@ export default class ModelNode extends EditorNodeMixin(Model) {
   }
   // Overrides Model's load method and resolves the src url before loading.
   async load(src, onError?) {
-    if(src.startsWith('/')) {
-      src = window.location.origin + src;
-    }
     const nextSrc = src || "";
     if (nextSrc === this._canonicalUrl && nextSrc !== "") {
       return;
@@ -134,7 +130,7 @@ export default class ModelNode extends EditorNodeMixin(Model) {
     this.hideErrorIcon();
     try {
       console.log("Try");
-
+      this.isValidURL=true;
       const { accessibleUrl, files } = await this.editor.api.resolveMedia(src);
       if (this.model) {
         this.editor.renderer.removeBatchedObject(this.model);
@@ -171,7 +167,6 @@ export default class ModelNode extends EditorNodeMixin(Model) {
             object.material.needsUpdate = true;
           }
         });
-        this.issues = getObjectPerfIssues(this.model);
       }
       this.updateStaticModes();
     } catch (error) {
@@ -185,7 +180,8 @@ export default class ModelNode extends EditorNodeMixin(Model) {
       }
       console.error(modelError);
       this.issues.push({ severity: "error", message: "Error loading model." });
-      this._canonicalUrl = "";
+      this.isValidURL=false;
+      //this._canonicalUrl = "";
     }
     this.editor.emit("objectsChanged", [this]);
     this.editor.emit("selectionChanged");
@@ -214,49 +210,106 @@ export default class ModelNode extends EditorNodeMixin(Model) {
       this.update(dt);
     }
   }
+  simplyfyFloat(arr) {
+    return arr.map((v: number) => parseFloat((Math.round(v * 10000)/10000).toFixed(4)));
+  }
+  parseVehicle(group) {
+    const vehicleCompData = parseCarModel(group, false); // false means thet we parse in editor
+    const deepColliders = [];
+
+    const vehicleSaved = {
+      arrayWheelsPosition: vehicleCompData.arrayWheelsPosition.map((array: any) => this.simplyfyFloat(array)),
+      entrancesArray: vehicleCompData.entrancesArray.map((array: any) => this.simplyfyFloat(array)),
+      seatsArray: vehicleCompData.seatsArray.map((array: any) => this.simplyfyFloat(array)),
+      startPosition: this.simplyfyFloat([ this.position.x, this.position.y, this.position.z ]),
+      startQuaternion: this.simplyfyFloat([ this.quaternion.x, this.quaternion.y, this.quaternion.z, this.quaternion.w ]),
+      suspensionRestLength: parseFloat((Math.round(vehicleCompData.suspensionRestLength * 10000)/10000).toFixed(4)),
+      interactionPartsPosition: vehicleCompData.interactionPartsPosition.map((array: any) => this.simplyfyFloat(array)),
+      mass: vehicleCompData.mass
+    };
+    console.warn(vehicleSaved);
+    vehicleCompData.vehicleSphereColliders.forEach(v => {
+      deepColliders.push(this.parseColliders('vehicle', v.userData.type, null, v.position, v.quaternion, v.scale, v ));
+    });
+    return [vehicleSaved, deepColliders];
+  }
+
+parseColliders( data, type, mass, position, quaternion, scale, mesh ) {
+
+  let geometry = null;
+  if(type == "trimesh") {
+   geometry = getGeometry(mesh);
+  }
+
+  const meshCollider = {
+    data: data,
+    type: type,
+    mass: mass ? mass : 1,
+    position: {
+      x: position.x,
+      y: position.y,
+      z: position.z
+    },
+    quaternion: {
+      x: quaternion.x,
+      y: quaternion.y,
+      z: quaternion.z,
+      w: quaternion.w
+    },
+
+    scale: {
+      x: scale.x,
+      y: scale.y,
+      z: scale.z
+    },
+    vertices: (geometry != null ? Array.from(geometry.attributes.position.array).map((v: number) => parseFloat((Math.round(v * 10000)/10000).toFixed(4))): null),
+    indices: (geometry != null && geometry.index ? Array.from(geometry.index.array): null)
+  }
+
+  return meshCollider;
+}
+
   parseAndSaveColliders(components) {
     if (this.model) {
       // Set up colliders
-      const colliders = []
-        const parseColliders = ( mesh ) => {
-          if (mesh.userData.data === 'physics' || mesh.userData.data === 'dynamic' || mesh.userData.data === 'vehicle') {
-          let geometry = null;
-             if(mesh.userData.type == "trimesh"){
-               geometry = getGeometry(mesh);
-             }
-              const meshCollider = {
-                  type: mesh.userData.type,
-                  position: {
-                    x: mesh.position.x,
-                    y: mesh.position.y,
-                    z: mesh.position.z
-                  },
-                  quaternion: {
-                    x: mesh.quaternion.x,
-                    y: mesh.quaternion.y,
-                    z: mesh.quaternion.z,
-                    w: mesh.quaternion.w
-                  },
-                  scale: {
-                    x: mesh.scale.x,
-                    y: mesh.scale.y,
-                    z: mesh.scale.z
-                  },
-                  vertices: (geometry != null ? Array.from(geometry.attributes.position.array).map((v: number) => parseFloat((Math.round(v * 10000)/10000).toFixed(4))): null),
-                  indices: (geometry != null && geometry.index ? Array.from(geometry.index.array): null)
-                }
-              colliders.push(meshCollider);
-           }
+      const colliders = [];
+      const vehicleColliders = [];
+      const vehicleMain = [];
+
+        const parseGroupColliders = ( group ) => {
+          if (group.userData.data === 'physics' || group.userData.data === 'dynamic' ) {
+            if (group.type == 'Group') {
+              for (let i = 0; i < group.children.length; i++) {
+                colliders.push(this.parseColliders(group.userData.data, group.userData.type, group.userData.mass, group.position, group.quaternion, group.scale, group.children[i] ));
+              }
+            } else if (group.type == 'Mesh') {
+              colliders.push(this.parseColliders(group.userData.data, group.userData.type, group.userData.mass, group.position, group.quaternion, group.scale, group ));
+            }
+          } else if ( group.userData.data === 'vehicle') {
+            const [vehicleSaved, deepArrayColliders] = this.parseVehicle(group);
+            vehicleMain.push(vehicleSaved);
+            vehicleColliders.push(deepArrayColliders);
+          }
         }
-        this.model.traverse( parseColliders );
-        this.meshColliders = colliders;
+
+        this.model.traverse( parseGroupColliders );
+        this.meshColliders = colliders.concat(...vehicleColliders);
+        this.vehicleObject = vehicleMain;
         this.editor.renderer.addBatchedObject(this.model);
-      }
+    }
+
     for(let i = 0; i < this.meshColliders.length; i++) {
       components[`mesh-collider-${i}`] = this.addEditorParametersToCollider(this.meshColliders[i]);
     }
+
+    for(let i = 0; i < this.vehicleObject.length; i++) {
+      components[`vehicle-saved-in-scene-${i}`] = this.vehicleObject[i];
+    }
   }
   addEditorParametersToCollider(collider) {
+    // its for vehicle
+    if (collider.data == 'vehicle') return collider;
+
     const [position, quaternion, scale] = plusParameter(
       collider.position,
       collider.quaternion,
@@ -302,7 +355,7 @@ export default class ModelNode extends EditorNodeMixin(Model) {
       "gltf-model": {
         src: this._canonicalUrl,
         attribution: this.attribution,
-        parseColliders: !this.saveColliders
+        dontParseModel: this.saveColliders
       },
       shadow: {
         cast: this.castShadow,

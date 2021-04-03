@@ -29,6 +29,24 @@ const transformSchema = new Schema({
     qW: float32
 });
 
+const ikTransformOrientationSchema = new Schema({
+    x: float32,
+    y: float32,
+    z: float32,
+    qX: float32,
+    qY: float32,
+    qZ: float32,
+    qW: float32
+});
+
+const ikTransformSchema = new Schema({
+  networkId: uint32,
+  snapShotTime: uint32,
+  hmd: ikTransformOrientationSchema,
+  left: ikTransformOrientationSchema,
+  right: ikTransformOrientationSchema,
+});
+
 const createNetworkObjectSchema = new Schema({
     networkId: uint32,
     ownerId: string,
@@ -46,11 +64,11 @@ const createNetworkObjectSchema = new Schema({
 const editNetworkObjectSchema = new Schema({
     networkId: uint32,
     ownerId: string,
-    component: string,
-    state: string,
-    currentId: uint32,
-    value: uint32,
-    whoIsItFor: string
+    type: uint8,
+    values: [uint32]
+    // state: uint8,
+    // currentId: uint32,
+    // value: uint32,
 });
 
 const destroyNetworkObjectSchema = new Schema({
@@ -66,7 +84,8 @@ const worldStateSchema = new Schema({
     tick: uint32,
     timeFP: uint32,
     timeSP: uint32,
-    transforms: [transformSchema]
+    transforms: [transformSchema],
+    ikTransforms: [ikTransformSchema]
 });
 
 // TODO: convert WorldStateInterface to PacketReadyWorldState in toBuffer and back in fromBuffer
@@ -89,6 +108,7 @@ export class WorldStateModel {
           timeFP: 0,
           timeSP: 0,
           transforms: [],
+          ikTransforms: [],
           states: []
         };
         return Network.instance.packetCompression ? WorldStateModel.model.toBuffer(state) : state;
@@ -105,6 +125,12 @@ export class WorldStateModel {
           timeFP: Number(timeToTwoUinit32.slice(0,6)), // first part
           timeSP: Number(timeToTwoUinit32.slice(6)), // second part
           transforms: worldState.transforms.map(v=> {
+            return {
+              ...v,
+              snapShotTime: v.snapShotTime,
+            }
+          }),
+          ikTransforms: worldState.ikTransforms.map(v=> {
             return {
               ...v,
               snapShotTime: v.snapShotTime,

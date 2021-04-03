@@ -1,50 +1,42 @@
-import { BaseInput } from '@xr3ngine/engine/src/input/enums/BaseInput';
+import { BaseInput } from '../../input/enums/BaseInput';
 import { LifecycleValue } from '../../common/enums/LifecycleValue';
 import { isServer } from '../../common/functions/isServer';
 import { isClient } from '../../common/functions/isClient';
 import { Behavior } from '../../common/interfaces/Behavior';
 import { Entity } from '../../ecs/classes/Entity';
-import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
+import { getComponent, getMutableComponent, removeComponent } from '../../ecs/functions/EntityFunctions';
 import { Input } from "../../input/components/Input";
 import { GamepadButtons, MouseInput, GamepadAxis } from '../../input/enums/InputEnums';
 import { InputType } from '../../input/enums/InputType';
 import { InputSchema } from '../../input/interfaces/InputSchema';
 import { InputAlias } from "../../input/types/InputAlias";
 import { Network } from '../../networking/classes/Network';
-import { synchronizationComponents } from '../../networking/functions/synchronizationComponents';
+import { sendClientObjectUpdate } from '../../networking/functions/sendClientObjectUpdate';
 import { PlayerInCar } from '../../physics/components/PlayerInCar';
-import { VehicleBody } from '../../physics/components/VehicleBody';
+import { VehicleComponent } from './components/VehicleComponent';
+import { CameraModes } from "../../camera/types/CameraModes";
+import { isMobileOrTablet } from '../../common/functions/isMobile';
+import { VehicleState, VehicleStateUpdateSchema } from './enums/VehicleStateEnum';
+import { NetworkObjectUpdateType } from '../networking/NetworkObjectUpdateSchema';
+import { DelegatedInputReceiver } from '../../input/components/DelegatedInputReceiver';
+import { FollowCameraComponent } from '../../camera/components/FollowCameraComponent';
 
 const getOutCar: Behavior = (entityCar: Entity): void => {
-  let entity = null;
-  const vehicle = getComponent(entityCar, VehicleBody);
+  if(isClient) return;
+  const vehicle = getComponent(entityCar, VehicleComponent);
 
-  let networkPlayerId = null
-
+  if(!Network.instance.networkObjects[vehicle.driver]) return console.warn('Failed to get out of car because no driver id is known.')
+  
+  const entity = Network.instance.networkObjects[vehicle.driver].component.entity;
+  getMutableComponent(entity, PlayerInCar).state = VehicleState.onStartRemove;
+  sendClientObjectUpdate(entity, NetworkObjectUpdateType.VehicleStateChange, [VehicleState.onStartRemove] as VehicleStateUpdateSchema);
   if(isServer) {
-    networkPlayerId = vehicle.wantsExit.filter(f => f != null)[0]
-    console.warn('wantsExit: '+ vehicle.wantsExit);
-  } else {
-    networkPlayerId = Network.instance.localAvatarNetworkId
+    removeComponent(entity, DelegatedInputReceiver)
   }
-
-  for (let i = 0; i < vehicle.seatPlane.length; i++) {
-    if (networkPlayerId == vehicle[vehicle.seatPlane[i]]) {
-      entity = Network.instance.networkObjects[networkPlayerId].component.entity;
-    }
-  }
-
-  getMutableComponent(entity, PlayerInCar).state = 'onStartRemove';
-  synchronizationComponents(entity, 'PlayerInCar', { state: 'onStartRemove', whoIsItFor: 'otherPlayers' });
-
-/*
-  const event = new CustomEvent('player-in-car', { detail:{inCar:false} });
-  document.dispatchEvent(event);
-*/
 };
 
 const drive: Behavior = (entity: Entity, args: { direction: number }): void => {
-  const vehicleComponent = getMutableComponent<VehicleBody>(entity, VehicleBody);
+  const vehicleComponent = getMutableComponent<VehicleComponent>(entity, VehicleComponent);
   if(isClient && vehicleComponent.driver != Network.instance.localAvatarNetworkId) return;
   const vehicle = vehicleComponent.vehiclePhysics;
 
@@ -60,7 +52,7 @@ const drive: Behavior = (entity: Entity, args: { direction: number }): void => {
 };
 
 const stop: Behavior = (entity: Entity, args: { direction: number }): void => {
-  const vehicleComponent = getMutableComponent<VehicleBody>(entity, VehicleBody);
+  const vehicleComponent = getMutableComponent<VehicleComponent>(entity, VehicleComponent);
   vehicleComponent.isMoved = false;
   return;
   if(isClient && vehicleComponent.driver != Network.instance.localAvatarNetworkId) return;
@@ -80,7 +72,7 @@ const driveByInputAxis: Behavior = (entity: Entity, args: { input: InputAlias; i
   const input =  getComponent<Input>(entity, Input as any);
   const data = input.data.get(args.input);
 
-  const vehicleComponent = getMutableComponent<VehicleBody>(entity, VehicleBody);
+  const vehicleComponent = getMutableComponent<VehicleComponent>(entity, VehicleComponent);
   if(isClient && vehicleComponent.driver != Network.instance.localAvatarNetworkId) return;
   const vehicle = vehicleComponent.vehiclePhysics;
 
@@ -101,7 +93,7 @@ const driveByInputAxis: Behavior = (entity: Entity, args: { input: InputAlias; i
 };
 
 export const driveHandBrake: Behavior = (entity: Entity, args: { on: boolean }): void => {
-  const vehicleComponent = getMutableComponent<VehicleBody>(entity, VehicleBody);
+  const vehicleComponent = getMutableComponent<VehicleComponent>(entity, VehicleComponent);
   if(isClient && vehicleComponent.driver != Network.instance.localAvatarNetworkId) return;
   const vehicle = vehicleComponent.vehiclePhysics;
 
@@ -113,7 +105,7 @@ export const driveHandBrake: Behavior = (entity: Entity, args: { on: boolean }):
 
 const driveSteering: Behavior = (entity: Entity, args: { direction: number }): void => {
 
-  const vehicleComponent = getMutableComponent<VehicleBody>(entity, VehicleBody);
+  const vehicleComponent = getMutableComponent<VehicleComponent>(entity, VehicleComponent);
   if(isClient && vehicleComponent.driver != Network.instance.localAvatarNetworkId) return;
   const vehicle = vehicleComponent.vehiclePhysics;
 
@@ -122,9 +114,110 @@ const driveSteering: Behavior = (entity: Entity, args: { direction: number }): v
 
 };
 
+let lastScrollDelta = 0;
+let changeTimeout = undefined;
+const switchCameraMode = (entity: Entity, args: any = { pointerLock: false, mode: CameraModes.ThirdPerson }): void => {
+
+  if(changeTimeout !== undefined) return;
+  changeTimeout = setTimeout(() => {
+    clearTimeout(changeTimeout);
+    changeTimeout = undefined;
+  }, 250);
+
+  //const actor: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
+
+  const cameraFollow = getMutableComponent(entity, FollowCameraComponent);
+  cameraFollow.mode = args.mode
+
+  switch(args.mode) {
+    case CameraModes.FirstPerson: {
+      cameraFollow.offset.set(0, 1, 0);
+      cameraFollow.phi = 0;
+      cameraFollow.locked = true;
+      //setVisible(actor, false);
+    } break;
+/*
+    case CameraModes.ShoulderCam: {
+      cameraFollow.offset.set(cameraFollow.shoulderSide ? -0.25 : 0.25, 1, 0);
+    //  setVisible(actor, true);
+    } break;
+*/
+    default: case CameraModes.ThirdPerson: {
+      cameraFollow.offset.set(cameraFollow.shoulderSide ? -0.25 : 0.25, 1, 0);
+    //  setVisible(actor, true);
+    } break;
+
+    case CameraModes.TopDown: {
+      cameraFollow.offset.set(0, 1, 0);
+      //setVisible(actor, true);
+    } break;
+  }
+};
+
+const changeCameraDistanceByDelta: Behavior = (entity: Entity, { input:inputAxes, inputType }: { input: InputAlias; inputType: InputType }): void => {
+  const inputComponent = getComponent(entity, Input) as Input;
+
+  if (!inputComponent.data.has(inputAxes)) {
+    return;
+  }
+
+  const cameraFollow = getMutableComponent<FollowCameraComponent>(entity, FollowCameraComponent);
+  if(cameraFollow === undefined) return //console.warn("cameraFollow is undefined");
+
+  const inputPrevValue = inputComponent.prevData.get(inputAxes)?.value as number ?? 0;
+  const inputValue = inputComponent.data.get(inputAxes).value as number;
+
+  const delta = Math.min(1, Math.max(-1, inputValue - inputPrevValue)) * (isMobileOrTablet() ? 0.25 : 1);
+  if(cameraFollow.mode !== CameraModes.ThirdPerson && delta === lastScrollDelta) {
+    return
+  }
+  lastScrollDelta = delta;
+
+  switch(cameraFollow.mode) {
+    case CameraModes.FirstPerson:
+      if(delta > 0) {
+        switchCameraMode(entity, { mode: CameraModes.ThirdPerson })
+      }
+    break;
+    /*
+    case CameraModes.ShoulderCam:
+      if(delta > 0) {
+        switchCameraMode(entity, { mode: CameraModes.ThirdPerson })
+        cameraFollow.distance = cameraFollow.minDistance + 1
+      }
+      if(delta < 0) {
+        switchCameraMode(entity, { mode: CameraModes.FirstPerson })
+      }
+    break;
+    */
+    default: case CameraModes.ThirdPerson:
+      const newDistance = cameraFollow.distance + delta;
+      cameraFollow.distance = Math.max(cameraFollow.minDistance, Math.min( cameraFollow.maxDistance, newDistance));
+
+      if(cameraFollow.distance >= cameraFollow.maxDistance) {
+        if(delta > 0) {
+        //  switchCameraMode(entity, { mode: CameraModes.TopDown })
+        }
+      } else if(cameraFollow.distance <= cameraFollow.minDistance) {
+        if(delta < 0) {
+          switchCameraMode(entity, { mode: CameraModes.FirstPerson })
+        }
+      }
+
+    break;
+    /*
+    case CameraModes.TopDown:
+      if(delta < 0) {
+        switchCameraMode(entity, { mode: CameraModes.ThirdPerson })
+      }
+    break;
+    */
+  }
+};
+
 const createVehicleInput = () => {
   const map: Map<InputAlias, InputAlias> = new Map();
-  
+
   map.set(MouseInput.LeftButton, BaseInput.PRIMARY);
   map.set(MouseInput.RightButton, BaseInput.SECONDARY);
   map.set(MouseInput.MiddleButton, BaseInput.INTERACT);
@@ -334,6 +427,35 @@ export const VehicleInputSchema: InputSchema = {
           }
         }
       ]
+    },
+    [BaseInput.CAMERA_SCROLL]: {
+      started: [
+        {
+          behavior: changeCameraDistanceByDelta,
+          args: {
+            input: BaseInput.CAMERA_SCROLL,
+            inputType: InputType.ONEDIM
+          }
+        }
+      ],
+      changed: [
+        {
+          behavior: changeCameraDistanceByDelta,
+          args: {
+            input: BaseInput.CAMERA_SCROLL,
+            inputType: InputType.ONEDIM
+          }
+        }
+      ],
+      unchanged: [
+        {
+          behavior: changeCameraDistanceByDelta,
+          args: {
+            input: BaseInput.CAMERA_SCROLL,
+            inputType: InputType.ONEDIM
+          }
+        }
+      ],
     }
   }
 };

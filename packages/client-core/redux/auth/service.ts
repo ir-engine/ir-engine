@@ -90,6 +90,17 @@ export function doLoginAuto (allowGuest?: boolean, forceClientAuthReset?: boolea
         }
       }
       if (res) {
+        if (res['identity-provider']?.id == null) {
+          await dispatch(didLogout());
+          await (client as any).authentication.reset();
+          const newProvider = await client.service('identity-provider').create({
+            type: 'guest',
+            token: v1()
+          });
+          accessToken = newProvider.accessToken;
+          await (client as any).authentication.setAccessToken(accessToken as string);
+          res = await (client as any).reAuthenticate();
+        }
         const authUser = resolveAuthUser(res);
         dispatch(loginUserSuccess(authUser));
         loadUserData(dispatch, authUser.identityProvider.userId);
@@ -200,6 +211,7 @@ export function loginUserByJwt (accessToken: string, redirectSuccess: string, re
   return async (dispatch: Dispatch): Promise<any> => {
     try {
       dispatch(actionProcessing(true));
+      await (client as any).authentication.setAccessToken(accessToken as string);
       const res = await (client as any).authenticate({
         strategy: 'jwt',
         accessToken
@@ -237,7 +249,7 @@ export function logoutUser () {
 export function registerUserByEmail (form: EmailRegistrationForm) {
   console.log('1 registerUserByEmail');
   return (dispatch: Dispatch): any => {
-    console.log('2 dispatch', dispatch)
+    console.log('2 dispatch', dispatch);
     dispatch(actionProcessing(true));
     client.service('identity-provider').create({
       token: form.email,
@@ -245,7 +257,7 @@ export function registerUserByEmail (form: EmailRegistrationForm) {
       type: 'password'
     })
       .then((identityProvider: any) => {
-        console.log('3 ', identityProvider)
+        console.log('3 ', identityProvider);
         dispatch(registerUserByEmailSuccess(identityProvider));
         window.location.href = '/auth/confirm';
       })
@@ -254,7 +266,7 @@ export function registerUserByEmail (form: EmailRegistrationForm) {
         dispatch(registerUserByEmailError(err.message));
         dispatchAlertError(dispatch, err.message);
       })    
-    .finally(() => {console.log('4 finally', dispatch); dispatch(actionProcessing(false))});
+    .finally(() => {console.log('4 finally', dispatch); dispatch(actionProcessing(false));});
   };
 }
 
@@ -299,7 +311,7 @@ export function resendVerificationEmail (email: string) {
 export function forgotPassword (email: string) {
   return (dispatch: Dispatch): any => {
     dispatch(actionProcessing(true));
-    console.log('forgotPassword', email)
+    console.log('forgotPassword', email);
     client.service('authManagement').create({
       action: 'sendResetPwd',
       value: {
@@ -440,8 +452,13 @@ export function addConnectionBySms (phone: string, userId: string) {
   return (dispatch: Dispatch): any => {
     dispatch(actionProcessing(true));
 
+    let sendPhone = phone.replace(/-/g, '');
+    if (sendPhone.length === 10) {
+      sendPhone = '1' + sendPhone;
+    }
+
     client.service('magic-link').create({
-      mobile: phone,
+      mobile: sendPhone,
       type: 'sms',
       userId
     })
@@ -565,7 +582,7 @@ export function uploadAvatarModel (model: any, thumbnail: any) {
 
           // IF error occurs then removed Model and thumbnail from S3
           client.service('upload-presigned').remove('', { query: { keys: [modelURL.fields.Key, thumbnailURL.fields.Key] } });
-        })
+        });
       }).catch(err => {
         console.error('Error occured while uploading thumbnail.', err);
 
@@ -585,11 +602,12 @@ export function removeAvatar (keys: [string]) {
     }).then(_ => {
       dispatchAlertSuccess(dispatch, 'Avatar Removed Successfully.');
       fetchAvatarList()(dispatch);
-    })
-  }
+    });
+  };
 }
 
 export function fetchAvatarList () {
+  const selfUser = (store.getState() as any).get('auth').get('user');
   return async (dispatch: Dispatch) => {
     const result = await client.service('static-resource').find({
       query: {
@@ -597,10 +615,13 @@ export function fetchAvatarList () {
         staticResourceType: {
           $in: [ 'avatar', 'user-thumbnail']
         },
+        $or: [
+          { userId: selfUser.id },
+          { userId: null }
+        ],
         $limit: 1000,
       }
     });
-
     dispatch(updateAvatarList(result.data));
   };
 }
@@ -650,54 +671,46 @@ const getAvatarResources = (user) => {
         { userId: null },
         { userId: user.id },
       ],
+      $sort: {
+        userId: -1,
+      },
+      $limit: 2
     },
   });
-}
+};
 
-client.service('user').on('patched', async (params) => {
-  console.log('User patched');
-  const selfUser = (store.getState() as any).get('auth').get('user');
-  const user = resolveUser(params.userRelationship);
-  if (selfUser.id === user.id) {
-    if (selfUser.instanceId !== user.instanceId) store.dispatch(clearLayerUsers());
-    if (selfUser.channelInstanceId !== user.channelInstanceId) store.dispatch(clearChannelLayerUsers());
-    store.dispatch(userUpdated(user));
-    if (user.partyId) {
-      // setRelationship('party', user.partyId);
-    }
-    if (user.instanceId !== selfUser.instanceId) {
-      const parsed = new URL(window.location.href);
-      let query = parsed.searchParams;
-      query.set('instanceId', user.instanceId);
-      parsed.search = query.toString();
-      if (history.pushState) {
-        window.history.replaceState({}, '', parsed.toString());
-      }
-    }
-  } else {
-    if (user.channelInstanceId != null && user.channelInstanceId === selfUser.channelInstanceId) store.dispatch(addedChannelLayerUser(user));
-    if (user.instanceId != null && user.instanceId === selfUser.instanceId) {
-      store.dispatch(addedLayerUser(user));
-      store.dispatch(displayUserToast(user, { userAdded: true }));
-    }
-    if (user.instanceId !== selfUser.instanceId) {
-      store.dispatch(removedLayerUser(user));
-      store.dispatch(displayUserToast(user, { userRemoved: true }));
-    }
-    if (user.channelInstanceId !== selfUser.channelInstanceId) store.dispatch(removedChannelLayerUser(user));
-  }
+const loadAvatarForUpdatedUser = async (user) => {
+  if (!user || !user.instanceId) Promise.resolve(true);
 
-  if (Network.instance.clients[user.id]?.avatarDetail?.avatarId !== user.avatarId) {
+  return new Promise(async resolve => {
+    const networkUser = Network.instance.clients[user.id];
+
+    // If network is not initialized then wait to be initialized.
+    if (!networkUser) {
+      setTimeout(async () => {
+        await loadAvatarForUpdatedUser(user);
+        resolve(true);
+      }, 200);
+      return;
+    }
+
+    if (networkUser.avatarDetail.avatarId === user.avatarId) {
+      resolve(true);
+      return;
+    }
+
     // Fetch Avatar Resources for updated user.
     const avatars = await getAvatarResources(user);
-    let avatarURL = "";
     if(avatars?.data && avatars.data.length === 2) {
-      avatarURL = avatars?.data[0].staticResourceType === 'avatar' ? avatars?.data[0].url : avatars?.data[1].url;
+      const avatarURL = avatars?.data[0].staticResourceType === 'avatar' ? avatars?.data[0].url : avatars?.data[1].url;
+      const thumbnailURL = avatars?.data[0].staticResourceType === 'user-thumbnail' ? avatars?.data[0].url : avatars?.data[1].url;
+
+      networkUser.avatarDetail = { avatarURL, thumbnailURL, avatarId: user.avatarId };
 
       //Find entityId from network objects of updated user and dispatch avatar load event.
       for (let key of Object.keys(Network.instance.networkObjects)) {
-        if (Network.instance.networkObjects[key]?.ownerId === user.id) {
-          const obj = Network.instance.networkObjects[key]
+        const obj = Network.instance.networkObjects[key];
+        if (obj?.ownerId === user.id) {
           EngineEvents.instance.dispatchEvent({
             type: EngineEvents.EVENTS.LOAD_AVATAR,
             entityID: obj.component.entity.id,
@@ -708,23 +721,63 @@ client.service('user').on('patched', async (params) => {
         }
       }
     }
-  }
-});
+    resolve(true);
+  });
+};
 
-client.service('location-ban').on('created', async(params) => {
-  const state = store.getState() as any;
-  const selfUser = state.get('auth').get('user');
-  const party = state.get('party');
-  const selfPartyUser = party && party.partyUsers ? party.partyUsers.find((partyUser) => partyUser.userId === selfUser.id) : {};
-  const currentLocation = state.get('locations').get('currentLocation').get('location');
-  const locationBan = params.locationBan;
-  if (selfUser.id === locationBan.userId && currentLocation.id === locationBan.locationId) {
-    endVideoChat({ leftParty: true });
-    leave(true);
-    if (selfPartyUser.id != null) {
-      await client.service('party-user').remove(selfPartyUser.id);
+if(!publicRuntimeConfig.offlineMode) {
+  client.service('user').on('patched', async (params) => {
+    console.log('User patched');
+    const selfUser = (store.getState() as any).get('auth').get('user');
+    const user = resolveUser(params.userRelationship);
+
+    await loadAvatarForUpdatedUser(user);
+
+    if (selfUser.id === user.id) {
+      if (selfUser.instanceId !== user.instanceId) store.dispatch(clearLayerUsers());
+      if (selfUser.channelInstanceId !== user.channelInstanceId) store.dispatch(clearChannelLayerUsers());
+      store.dispatch(userUpdated(user));
+      if (user.partyId) {
+        // setRelationship('party', user.partyId);
+      }
+      if (user.instanceId !== selfUser.instanceId) {
+        const parsed = new URL(window.location.href);
+        let query = parsed.searchParams;
+        query.set('instanceId', user.instanceId);
+        parsed.search = query.toString();
+        if (history.pushState) {
+          window.history.replaceState({}, '', parsed.toString());
+        }
+      }
+    } else {
+      if (user.channelInstanceId != null && user.channelInstanceId === selfUser.channelInstanceId) store.dispatch(addedChannelLayerUser(user));
+      if (user.instanceId != null && user.instanceId === selfUser.instanceId) {
+        store.dispatch(addedLayerUser(user));
+        store.dispatch(displayUserToast(user, { userAdded: true }));
+      }
+      if (user.instanceId !== selfUser.instanceId) {
+        store.dispatch(removedLayerUser(user));
+        store.dispatch(displayUserToast(user, { userRemoved: true }));
+      }
+      if (user.channelInstanceId !== selfUser.channelInstanceId) store.dispatch(removedChannelLayerUser(user));
     }
-    const user = resolveUser(await client.service('user').get(selfUser.id));
-    store.dispatch(userUpdated(user));
-  }
-});
+
+  });
+  client.service('location-ban').on('created', async(params) => {
+    const state = store.getState() as any;
+    const selfUser = state.get('auth').get('user');
+    const party = state.get('party');
+    const selfPartyUser = party && party.partyUsers ? party.partyUsers.find((partyUser) => partyUser.userId === selfUser.id) : {};
+    const currentLocation = state.get('locations').get('currentLocation').get('location');
+    const locationBan = params.locationBan;
+    if (selfUser.id === locationBan.userId && currentLocation.id === locationBan.locationId) {
+      endVideoChat({ leftParty: true });
+      leave(true);
+      if (selfPartyUser.id != null) {
+        await client.service('party-user').remove(selfPartyUser.id);
+      }
+      const user = resolveUser(await client.service('user').get(selfUser.id));
+      store.dispatch(userUpdated(user));
+    }
+  });
+}

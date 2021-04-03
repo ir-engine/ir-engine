@@ -5,8 +5,10 @@ An end-to-end solution for hosting humans and AI in a virtual space, built on to
 
 This repo includes a fully-feature client, API server, realtime gamerserver, game engine and devops for scalable deployment. Pick and choose what you need or deploy the whole stack and start building your application on top.
 
-[![Build Status](https://travis-ci.org/xr3ngine/xr3ngine.svg?branch=dev)](https://travis-ci.org/xr3ngine/xr3ngine)	
+#### Join our Discord
+[![Discord Chat](https://img.shields.io/discord/692672143053422678.svg)](https://discord.gg/Tb4MT4TTjH)  
 
+[![Build Status](https://travis-ci.org/xr3ngine/xr3ngine.svg?branch=dev)](https://travis-ci.org/xr3ngine/xr3ngine)  
 
 ## Popular features
 - Player rigs to support 2D, 3D and XR interaction
@@ -25,7 +27,11 @@ This repo includes a fully-feature client, API server, realtime gamerserver, gam
 - Built end-to-end in Typescript
 - Free, open source, MIT-licensed
 
-## Getting Started
+## Demos:
+
+https://theoverlay.io
+
+# Getting Started
 
 Getting up and running requires only a few steps. 
 
@@ -35,7 +41,7 @@ For on OSX / Linux / WSL2 for Windows:
 
 First, make sure you have [NodeJS](https://nodejs.org/) and [npm](https://www.npmjs.com/) installed (and if you are using it, [docker](https://docs.docker.com/)).
 
-1. Install your dependencies 
+1. ####Install your dependencies 
     ```
     cd path/to/xr3ngine
     yarn install
@@ -50,7 +56,8 @@ First, make sure you have [NodeJS](https://nodejs.org/) and [npm](https://www.np
 	npm config set python /usr/bin/python
 	PYTHON=python3 yarn install
 	```
-2. Make sure you have a mysql database installed and running -- our recommendation is Mariadb. We've provided a docker container for easy setup:
+2. ####Make sure you have a mysql database installed and running -- our recommendation is Mariadb. 
+    We've provided a docker container for easy setup:
     ```
     cd scripts && sudo bash start-db.sh
     ```
@@ -61,7 +68,7 @@ First, make sure you have [NodeJS](https://nodejs.org/) and [npm](https://www.np
    
    Seeing errors connecting to the local DB? Shut off your local firewall.
     
-3. Open a new tab and start the Agones sidecar in local mode
+3. ####Open a new tab and start the Agones sidecar in local mode
 
     ```
    cd scripts
@@ -80,14 +87,14 @@ First, make sure you have [NodeJS](https://nodejs.org/) and [npm](https://www.np
    
    ```./sdk-server.darwin.amd64 --local```
 
-4. Obtain .env.local file with configuration variable.
+4. ####Obtain .env.local file with configuration variable.
    Many parts of XR3ngine are configured using environment variables.
    For simplicity, it's recommended that you create a file called ```.env.local``` in the top level of xr3ngine,
    and have all of your ENV_VAR definitions here in the form ```<VAR_NAME>=<VALUE>```.
    If you are actively working on this project, contact one of the developers for a copy of the file
    that has all of the development settings and keys in it.
 
-5. Start the server in database seed mode
+5. ####Start the server in database seed mode
 
    Several tables in the database need to be seeded with default values.
    Run ```cd packages/server```, then run ```yarn dev-reinit-db```.
@@ -97,13 +104,26 @@ First, make sure you have [NodeJS](https://nodejs.org/) and [npm](https://www.np
    
     At this point, the database has been seeded. You can shut down the server with CTRL+C.
 
-6. Open two separate tabs and start the server (non-seeding) and the client
+6. #####Open two separate tabs and start the server (non-seeding) and the client
    In /packages/server, run ```sudo yarn dev```.
    In the other tab, go to /packages/client and run ```sudo yarn dev```.
    
-7. In a browser, navigate to https://127.0.0.1:3000/location/home
+7. ####Open a new tab and start local file server (optional)
+   If the .env.local file you have has the line 
+   ```STORAGE_PROVIDER=local```
+   then the scene editor will save components, models, scenes, etc. locally 
+   (as opposed to storing them on S3). You will need to start a local server
+   to serve these files, and make sure that .env.local has the line
+   ```LOCAL_STORAGE_PROVIDER="localhost:8642"```.
+   In a new tab, go to ```packages/server``` and run ```yarn serve-local-files```.
+   This will start up ```http-server``` to serve files from ```packages/server/upload```
+   on ```localhost:8642```.
+   You may have to accept the invalid self-signed certificate for it in the browser;
+   see 'Allow local file http-server connection with invalid certificate' below.
+   
+8. ####In a browser, navigate to https://127.0.0.1:3000/location/test
    The database seeding process creates a test empty location called 'test'.
-   It can be navigated to by going to 'https://127.0.0.1:3000/location/home'.
+   It can be navigated to by going to 'https://127.0.0.1:3000/location/test'.
    See the sections below about invalid certificates if you are encountering errors
    connecting to the client, API, or gameserver.
 
@@ -191,6 +211,13 @@ Short version (common for development process on Ubuntu):
 4. navigate to `./certs` folder
 5. mkcert -key-file key.pem -cert-file cert.pem localhost 127.0.0.1 ::1
 
+##### Allow local file http-server connection with invalid certificate
+
+Open the developer tools in your browser by pressing ```Ctrl+Shift+i``` at the same time. Go to the 'Console'
+tab and look at the message history. If there are red errors that say something like
+```GET https://127.0.0.1:3030/socket.io/?EIO=3&transport=polling&t=NXlZLTa net::ERR_CERT_AUTHORITY_INVALID```,
+then right-click that URL, then select 'Open in new tab', and accept the invalid certificate.
+
 ##### Allow gameserver address connection with invalid certificate
 
 The gameserver functionality is hosted on an address other than 127.0.0.1 in the local
@@ -238,7 +265,36 @@ Try
 yarn run dev-reinit-db // in server package
 ```
 
-## Deployment
+## Admin System
+
+How to make a user an admin:
+
+Create a user at `/login`
+
+Method 1: 
+
+1. Run `yarn run scripts/make-user-admin.js [USER ID]` 
+2. TODO: Improve with email/phone ID support
+
+Method 2: 
+1. Look up in User table and change userRole to 'admin' 
+2. Dev DB credentials can be found here: packages/ops/docker-compose-local.yml#L42
+3. Suggested: beekeeperstudio.io
+
+Test user Admin privliges by going to `/admin`
+
+# Development
+
+## API Reference
+[Open API](https://api-dev.theoverlay.io/openapi/)
+
+[GraphQL](https://api-dev.theoverlay.io/graphql/) 
+
+## Code Reference
+
+### [Developer Reference](https://docs.google.com/document/d/1_nCi0CL5b7wVPi-Mj77XZ939xo5ztXLaxtYAfzHsvPo)
+
+# Deployment
 
 [AWS EKS Deployment](https://github.com/xr3ngine/xr3ngine/blob/dev/packages/ops/docs/EKS-setup.md)
 
@@ -340,7 +396,7 @@ $ feathers help                           # Show all commands
 ```
 
 
-## Help
+## Backend API Help
 
 For more information on all the things you can do with Feathers visit [docs.feathersjs.com](http://docs.feathersjs.com).
 

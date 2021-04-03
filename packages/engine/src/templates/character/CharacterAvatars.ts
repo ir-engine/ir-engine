@@ -1,4 +1,4 @@
-import { CharacterStateTypes } from "./CharacterStateTypes";
+import { CharacterAnimations } from "./CharacterAnimations";
 import { AnimationActionLoopStyles, LoopOnce } from 'three';
 
 export interface CharacterAvatarData {
@@ -21,23 +21,23 @@ export interface AnimationConfigInterface {
 }
 
 export const defaultAvatarAnimations: {[key:number]: AnimationConfigInterface} = {
-  [CharacterStateTypes.IDLE]: { name: 'idle' },
-  [CharacterStateTypes.JUMP]: { name: 'jump' },
-  [CharacterStateTypes.FALLING]: { name: 'falling' },
-  [CharacterStateTypes.FALLING_LONG]: { name: 'falling' },
-  [CharacterStateTypes.DROP]: { name: 'falling_to_land' },
-  [CharacterStateTypes.DROP_ROLLING]: { name: 'falling_to_roll' },
-  [CharacterStateTypes.WALK_FORWARD]: { name: 'walking' },
-  [CharacterStateTypes.WALK_BACKWARD]: { name: 'walking_backward' },
-  [CharacterStateTypes.WALK_STRAFE_RIGHT]: { name: 'walk_right' },
-  [CharacterStateTypes.WALK_STRAFE_LEFT]: { name: 'walk_left' },
-  [CharacterStateTypes.RUN_FORWARD]: { name: 'run_forward' },
-  [CharacterStateTypes.RUN_BACKWARD]: { name: 'run_backward' },
-  [CharacterStateTypes.RUN_STRAFE_RIGHT]: { name: 'run_right' },
-  [CharacterStateTypes.RUN_STRAFE_LEFT]: { name: 'run_left' },
-  [CharacterStateTypes.DRIVING]: { name: 'driving' },
-  [CharacterStateTypes.ENTERING_VEHICLE]: { name: 'entering_car', loop: LoopOnce },
-  [CharacterStateTypes.EXITING_VEHICLE]: { name: 'exiting_car', loop: LoopOnce },
+  [CharacterAnimations.IDLE]: { name: 'idle' },
+  [CharacterAnimations.JUMP]: { name: 'jump' },
+  [CharacterAnimations.FALLING]: { name: 'falling' },
+  [CharacterAnimations.FALLING_LONG]: { name: 'falling' },
+  [CharacterAnimations.DROP]: { name: 'falling_to_land' },
+  [CharacterAnimations.DROP_ROLLING]: { name: 'falling_to_roll' },
+  [CharacterAnimations.WALK_FORWARD]: { name: 'walking' },
+  [CharacterAnimations.WALK_BACKWARD]: { name: 'walking_backward' },
+  [CharacterAnimations.WALK_STRAFE_RIGHT]: { name: 'walk_right' },
+  [CharacterAnimations.WALK_STRAFE_LEFT]: { name: 'walk_left' },
+  [CharacterAnimations.RUN_FORWARD]: { name: 'run_forward' },
+  [CharacterAnimations.RUN_BACKWARD]: { name: 'run_backward' },
+  [CharacterAnimations.RUN_STRAFE_RIGHT]: { name: 'run_right' },
+  [CharacterAnimations.RUN_STRAFE_LEFT]: { name: 'run_left' },
+  [CharacterAnimations.DRIVING]: { name: 'driving' },
+  [CharacterAnimations.ENTERING_VEHICLE]: { name: 'entering_car', loop: LoopOnce },
+  [CharacterAnimations.EXITING_VEHICLE]: { name: 'exiting_car', loop: LoopOnce },
 };
 
 // TODO: remove

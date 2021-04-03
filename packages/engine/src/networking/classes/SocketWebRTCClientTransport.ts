@@ -1,25 +1,20 @@
-import { User } from "@xr3ngine/common/interfaces/User";
-import { MediaStreamSystem } from "@xr3ngine/engine/src/networking/systems/MediaStreamSystem";
+import { MediaStreamSystem } from "../../networking/systems/MediaStreamSystem";
 import { Network } from "../classes/Network";
-import { MessageTypes } from "@xr3ngine/engine/src/networking/enums/MessageTypes";
-import { applyNetworkStateToClient } from "@xr3ngine/engine/src/networking/functions/applyNetworkStateToClient";
-import { NetworkTransport } from "@xr3ngine/engine/src/networking/interfaces/NetworkTransport";
+import { MessageTypes } from "../../networking/enums/MessageTypes";
+import { NetworkTransport } from "../../networking/interfaces/NetworkTransport";
 import * as mediasoupClient from "mediasoup-client";
 import { Transport as MediaSoupTransport } from "mediasoup-client/lib/types";
 import getConfig from "next/config";
 import ioclient from "socket.io-client";
-import store from "@xr3ngine/client-core/redux/store";
-import { triggerUpdateConsumers } from "@xr3ngine/client-core/redux/mediastream/service";
 import { createDataProducer, endVideoChat, initReceiveTransport, initSendTransport, leave, subscribeToTrack } from "../functions/SocketWebRTCClientFunctions";
 import { EngineEvents } from "../../ecs/classes/EngineEvents";
-import { handleNetworkStateUpdate } from "../functions/updateNetworkState";
+import { ClientNetworkSystem } from "../systems/ClientNetworkSystem";
 
 const { publicRuntimeConfig } = getConfig();
 const gameserver = process.env.NODE_ENV === 'production' ? publicRuntimeConfig.gameserver : 'https://127.0.0.1:3030';
 const Device = mediasoupClient.Device;
 
 export class SocketWebRTCClientTransport implements NetworkTransport {
-  isServer = false
   mediasoupDevice: mediasoupClient.Device
   leaving = false
   instanceRecvTransport: MediaSoupTransport
@@ -89,17 +84,15 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
 
   public async initialize(address = "https://127.0.0.1", port = 3030, instance: boolean, opts?: any): Promise<void> {
     const self = this;
-    const token = (store.getState() as any).get('auth').get('authUser').accessToken;
-    const selfUser = (store.getState() as any).get('auth').get('user') as User;
     let socket = instance === true ? this.instanceSocket : this.channelSocket;
+    const { token, user, startVideo, videoEnabled, channelType, isHarmonyPage, ...query } = opts;
 
-    Network.instance.userId = selfUser.id;
-    Network.instance.accessToken = token;
+    Network.instance.accessToken = query.token = token;
+    EngineEvents.instance.dispatchEvent({ type: ClientNetworkSystem.EVENTS.CONNECT, id: user.id })
 
     this.mediasoupDevice = new Device();
     if (socket && socket.close) socket.close();
 
-    const { startVideo, videoEnabled, channelType, isHarmonyPage, ...query } = opts;
     this.channelType = channelType;
     this.channelId = opts.channelId;
 
@@ -159,15 +152,12 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       console.log(ConnectToWorldResponse);
       const { worldState, routerRtpCapabilities } = ConnectToWorldResponse as any;
 
-      EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.CONNECT_TO_WORLD });
+      EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.CONNECT_TO_WORLD, worldState });
 
       // Send heartbeat every second
       const heartbeat = setInterval(() => {
         socket.emit(MessageTypes.Heartbeat.toString());
       }, 1000);
-
-      // Apply all state to initial frame
-      applyNetworkStateToClient(worldState);
 
       if (this.mediasoupDevice.loaded !== true)
         await this.mediasoupDevice.load({ routerRtpCapabilities });
@@ -177,10 +167,6 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       socket.on(MessageTypes.ReliableMessage.toString(), (message) => {
         Network.instance?.incomingMessageQueue.add(message);
       });
-
-      socket.on(MessageTypes.UpdateNetworkState.toString(), (message) => {
-        handleNetworkStateUpdate(socket, message);
-      })
 
       // use sendBeacon to tell the server we're disconnecting when
       // the page unloads
@@ -253,7 +239,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
 
       socket.on(MessageTypes.WebRTCCloseConsumer.toString(), async (consumerId) => {
         if (MediaStreamSystem.instance) MediaStreamSystem.instance.consumers = MediaStreamSystem.instance?.consumers.filter((c) => c.id !== consumerId);
-        triggerUpdateConsumers();
+        EngineEvents.instance.dispatchEvent({ type: MediaStreamSystem.EVENTS.TRIGGER_UPDATE_CONSUMERS });
       });
 
 

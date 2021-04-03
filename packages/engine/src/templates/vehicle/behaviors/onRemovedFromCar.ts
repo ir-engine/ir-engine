@@ -1,19 +1,14 @@
-import { FollowCameraComponent } from "@xr3ngine/engine/src/camera/components/FollowCameraComponent";
-import { Entity } from '@xr3ngine/engine/src/ecs/classes/Entity';
-import { addComponent, hasComponent, getComponent, getMutableComponent, removeComponent } from '@xr3ngine/engine/src/ecs/functions/EntityFunctions';
-import { LocalInputReceiver } from "@xr3ngine/engine/src/input/components/LocalInputReceiver";
-import { Network } from '@xr3ngine/engine/src/networking/classes/Network';
-import { NetworkObject } from '@xr3ngine/engine/src/networking/components/NetworkObject';
-import { VehicleBody } from '@xr3ngine/engine/src/physics/components/VehicleBody';
-import { setState } from "@xr3ngine/engine/src/state/behaviors/setState";
-import { CharacterStateTypes } from "@xr3ngine/engine/src/templates/character/CharacterStateTypes";
 import { isServer } from "../../../common/functions/isServer";
-import { CameraModes } from '../../../camera/types/CameraModes';
-import { EnteringVehicle } from "@xr3ngine/engine/src/templates/character/components/EnteringVehicle";
+import { Entity } from "../../../ecs/classes/Entity";
+import { addComponent, getComponent, getMutableComponent, hasComponent, removeComponent } from "../../../ecs/functions/EntityFunctions";
+import { LocalInputReceiver } from "../../../input/components/LocalInputReceiver";
+import { Network } from "../../../networking/classes/Network";
+import { NetworkObject } from "../../../networking/components/NetworkObject";
+import { VehicleComponent } from "../components/VehicleComponent";
 
 export const onRemovedFromCar = (entity: Entity, entityCar: Entity, seat: number, delta: number): void => {
   // Server and others
-  const vehicle = getMutableComponent<VehicleBody>(entityCar, VehicleBody);
+  const vehicle = getMutableComponent<VehicleComponent>(entityCar, VehicleComponent);
 
   let networkDriverId = null
   if(hasComponent(entity, NetworkObject)) {
@@ -32,13 +27,13 @@ export const onRemovedFromCar = (entity: Entity, entityCar: Entity, seat: number
 
   if (isServer) return;
   // LocalPlayer and others
-  removeComponent(entity, EnteringVehicle);
-  setState(entity, { state: CharacterStateTypes.DEFAULT });
+  //removeComponent(entity, EnteringVehicle);
+  
   // Player only
   if (Network.instance.localAvatarNetworkId != networkDriverId) return;
   removeComponent(entityCar, LocalInputReceiver);
-  removeComponent(entityCar, FollowCameraComponent);
+  //removeComponent(entityCar, FollowCameraComponent);
 
   addComponent(entity, LocalInputReceiver);
-  addComponent(entity, FollowCameraComponent, { distance: 3, mode: CameraModes.ThirdPerson });
+//  addComponent(entity, FollowCameraComponent, { distance: 3, mode: CameraModes.ThirdPerson });
 };

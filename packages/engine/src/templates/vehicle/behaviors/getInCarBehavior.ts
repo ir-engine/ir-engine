@@ -1,37 +1,34 @@
-import { isClient } from '@xr3ngine/engine/src/common/functions/isClient';
-import { Behavior } from '@xr3ngine/engine/src/common/interfaces/Behavior';
-import { NetworkObject } from '@xr3ngine/engine/src/networking/components/NetworkObject';
-import { synchronizationComponents } from '@xr3ngine/engine/src/networking/functions/synchronizationComponents';
+import { isClient } from '../../../common/functions/isClient';
+import { Behavior } from '../../../common/interfaces/Behavior';
 import { Entity } from '../../../ecs/classes/Entity';
 import {
   addComponent,
-  getComponent
+  getComponent,
+  getMutableComponent
 } from '../../../ecs/functions/EntityFunctions';
+import { DelegatedInputReceiver } from '../../../input/components/DelegatedInputReceiver';
+import { Network } from '../../../networking/classes/Network';
+import { NetworkObject } from '../../../networking/components/NetworkObject';
+import { sendClientObjectUpdate } from '../../../networking/functions/sendClientObjectUpdate';
 import { PlayerInCar } from '../../../physics/components/PlayerInCar';
+import { NetworkObjectUpdateType } from '../../networking/NetworkObjectUpdateSchema';
+import { VehicleComponent } from '../components/VehicleComponent';
+import { VehicleState, VehicleStateUpdateSchema } from '../enums/VehicleStateEnum';
 
 export const getInCar: Behavior = (entity: Entity, args: { currentFocusedPart: number }, delta, entityCar): void => {
-  console.warn('Behavior: getInCar');
   if (isClient) return;
-  // isServer
-  console.warn('getInCar: '+args.currentFocusedPart);
+  const carNetworkId = getComponent(entityCar, NetworkObject).networkId
+  getMutableComponent(entityCar, VehicleComponent).driver = getComponent(entity, NetworkObject).networkId
   addComponent(entity, PlayerInCar, {
-      state: 'onAddedEnding',
-      networkCarId: getComponent(entityCar, NetworkObject).networkId,
+      state: VehicleState.onAddedEnding,
+      networkCarId: carNetworkId,
       currentFocusedPart: args.currentFocusedPart
   });
-  synchronizationComponents(entity, 'PlayerInCar', {
-      state: 'onAddedEnding',
-      networkCarId: getComponent(entityCar, NetworkObject).networkId,
-      currentFocusedPart: args.currentFocusedPart,
-      whoIsItFor: 'all'
-  });
-
-//  if (isServer) return;
-  // is Client
-//  removeComponent(entity, LocalInputReceiver);
-//  removeComponent(entity, FollowCameraComponent);
-  /*
-  const event = new CustomEvent('player-in-car', { detail:{inCar:true, interactionText: 'get out of the car',} });
-  document.dispatchEvent(event);
-  */
+  sendClientObjectUpdate(entity, NetworkObjectUpdateType.VehicleStateChange, [
+      VehicleState.onAddedEnding,
+      carNetworkId,
+      args.currentFocusedPart
+    ] as VehicleStateUpdateSchema
+  );
+  addComponent(entity, DelegatedInputReceiver, { networkId: carNetworkId })
 };

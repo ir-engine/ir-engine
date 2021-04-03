@@ -1,4 +1,3 @@
-import { MediaStreamSystem } from "@xr3ngine/engine/src/networking/systems/MediaStreamSystem";
 import { Behavior } from "../../common/interfaces/Behavior";
 import { getMutableComponent } from "../../ecs/functions/EntityFunctions";
 import { Input } from "../components/Input";
@@ -7,6 +6,7 @@ import { InputType } from "../enums/InputType";
 import * as Comlink from 'comlink'
 import { EngineEvents } from "../../ecs/classes/EngineEvents";
 import { Engine } from "../../ecs/classes/Engine";
+import { MediaStreamSystem } from "../../networking/systems/MediaStreamSystem";
 
 export const WEBCAM_INPUT_EVENTS = {
   FACE_INPUT: 'WEBCAM_INPUT_EVENTS_FACE_INPUT',
@@ -36,13 +36,13 @@ export const stopLipsyncTracking = () => {
 }
 
 export const startFaceTracking = async () => {
-  faceVideo = document.createElement('video');
-  faceVideo.srcObject = MediaStreamSystem.instance.mediaStream;
-
+  
   if(!faceWorker) {
       faceWorker = Comlink.wrap(new Worker(new URL('./WebcamInputWorker.ts', import.meta.url)));
       await faceWorker.initialise();
   }
+
+  faceVideo = document.createElement('video');
 
   faceVideo.addEventListener('loadeddata', async () => {
       await faceWorker.create(faceVideo.videoWidth, faceVideo.videoHeight)
@@ -59,7 +59,8 @@ export const startFaceTracking = async () => {
       }, 100);
       faceTrackingTimers.push(interval);
   })
-  
+
+  faceVideo.srcObject = MediaStreamSystem.instance.mediaStream;
   faceVideo.muted = true;
   faceVideo.play();
 }
@@ -75,7 +76,6 @@ const nameToInputValue = {
 };
 
 export async function faceToInput(entity, detection) {
-
     if (detection !== undefined && detection.expressions !== undefined) {
         // console.log(detection.expressions);
         const input = getMutableComponent(entity, Input);
@@ -138,9 +138,9 @@ export const startLipsyncTracking = () => {
         // Populate frequency data for computing frequency intensities
         userSpeechAnalyzer.getFloatFrequencyData(spectrum);// getByteTimeDomainData gets volumes over the sample time
         // Populate time domain for calculating RMS
-        userSpeechAnalyzer.getFloatTimeDomainData(spectrum);
+        // userSpeechAnalyzer.getFloatTimeDomainData(spectrum);
         // RMS (root mean square) is a better approximation of current input level than peak (just sampling this frame)
-        spectrumRMS = getRMS(spectrum);
+        // spectrumRMS = getRMS(spectrum);
 
         sensitivityPerPole = getSensitivityMap(spectrum);
 
@@ -162,7 +162,6 @@ export const startLipsyncTracking = () => {
             EnergyBinMasc[m] /= (IndicesFrequencyMale[m + 1] - IndicesFrequencyMale[m]);
             EnergyBinFem[m] = EnergyBinFem[m] / (IndicesFrequencyFemale[m + 1] - IndicesFrequencyFemale[m]);
         }
-
         const pucker = Math.max(EnergyBinFem[1], EnergyBinMasc[1]) > 0.2 ?
             1 - 2 * Math.max(EnergyBinMasc[2], EnergyBinFem[2])
             : (1 - 2 * Math.max(EnergyBinMasc[2], EnergyBinFem[2])) * 5 * Math.max(EnergyBinMasc[1], EnergyBinFem[1]);
@@ -175,7 +174,6 @@ export const startLipsyncTracking = () => {
 };
 
 export const lipToInput = (entity, pucker, widen, open) => {
-
   const input = getMutableComponent(entity, Input);
 
   if (pucker > .2)

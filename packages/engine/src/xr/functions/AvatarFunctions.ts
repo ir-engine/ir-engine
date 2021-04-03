@@ -1,4 +1,4 @@
-import { mergeBufferGeometries } from "@xr3ngine/engine/src/common/classes/BufferGeometryUtils";
+import { mergeBufferGeometries } from "../../common/classes/BufferGeometryUtils";
 import { Quaternion, Vector3, Euler, Matrix4, ConeBufferGeometry, Color, BufferAttribute, MeshPhongMaterial, Mesh, Object3D, Bone, Skeleton } from 'three';
 
 export const localVector = new Vector3();
@@ -240,7 +240,7 @@ export const countCharacters = (name, regex) => {
   }
   return result;
 };
-export const findHips = skeleton => skeleton.bones.find(bone => /hip|rootx/i.test(bone.name));
+export const findHips = skeleton => skeleton.bones.find(bone => /hip|rootx|pelvis/i.test(bone.name));
 export const findHead = tailBones => {
   const headBones = tailBones.map(tailBone => {
     const headBone = findFurthestParentBone(tailBone, bone => /head/i.test(bone.name));
@@ -295,7 +295,7 @@ export const findSpine = (chest, hips) => {
 export const findShoulder = (tailBones, left) => {
   const regexp = left ? /l/i : /r/i;
   const shoulderBones = tailBones.map(tailBone => {
-    const shoulderBone = findClosestParentBone(tailBone, bone => /shoulder/i.test(bone.name) && regexp.test(bone.name.replace(/shoulder/gi, '')));
+    const shoulderBone = findClosestParentBone(tailBone, bone => /shoulder|clavicle/i.test(bone.name) && regexp.test(bone.name.replace(/shoulder|clavicle/gi, '')));
     if (shoulderBone) {
       const distance = distanceToParentBone(tailBone, shoulderBone);
       if (distance >= 3) {
@@ -314,9 +314,9 @@ export const findShoulder = (tailBones, left) => {
     if (diff !== 0) {
       return diff;
     } else {
-      const aName = a.bone.name.replace(/shoulder/gi, '');
+      const aName = a.bone.name.replace(/shoulder|clavicle/gi, '');
       const aLeftBalance = countCharacters(aName, /l/i) - countCharacters(aName, /r/i);
-      const bName = b.bone.name.replace(/shoulder/gi, '');
+      const bName = b.bone.name.replace(/shoulder|clavicle/gi, '');
       const bLeftBalance = countCharacters(bName, /l/i) - countCharacters(bName, /r/i);
       if (!left) {
         return aLeftBalance - bLeftBalance;

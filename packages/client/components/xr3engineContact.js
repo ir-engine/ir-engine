@@ -1,8 +1,9 @@
 import React, { Component} from 'react'
 import emailjs from 'emailjs-com'
-import styles from './Contact.module.css'
+import styles from './Contact.module.css';
+import { withTranslation } from 'react-i18next';
 
-export default class xr3ngineContact extends Component{
+export class xr3ngineContact extends Component{
 
     state={
         userName:  "",
@@ -35,10 +36,10 @@ export default class xr3ngineContact extends Component{
             process.env.EMAILJS_USER_ID
         ).then(
             result => {
-                alert('Message Sent, I\'ll get back to you shortly', result.text);
+                alert(this.props.t('xr3engineContact.lbl-success'), result.text);
             },
             error => {
-                alert( 'An error occured, Plese try again',error.text);
+                alert( this.props.t('xr3engineContact.lbl-failure'), error.text);
             }
         )
 
@@ -59,29 +60,32 @@ export default class xr3ngineContact extends Component{
     }
     
     render(){
+        const t = this.props.t;
         return (
                     <div className={styles.emailDiv}>
-                        <p className={styles.emailTitle}>Get In Touch!</p>
+                        <p className={styles.emailTitle}>{t('xr3engineContact.header')}</p>
                         <p className={styles.emailDetail}>
-                            We’d love to help you with your virtual events, digital retail, entertainment and other needs.
+                            {t('xr3engineContact.description')}
                         </p>
                         <div className="row">
-                            <input type="text" className={styles.emailInput} value={this.state.userName} name="userName" onChange={this.handleChange} placeholder="Name"/>
+                            <input type="text" className={styles.emailInput} value={this.state.userName} name="userName" onChange={this.handleChange} placeholder={t('xr3engineContact.lbl-name')}/>
                         </div>
                         <div className="row mt-4">
-                            <input type="text" className={styles.emailInput} value={this.state.emailAddress} name="emailAddress" onChange={this.handleChange} placeholder="Email"/>
+                            <input type="text" className={styles.emailInput} value={this.state.emailAddress} name="emailAddress" onChange={this.handleChange} placeholder={t('xr3engineContact.lbl-email')}/>
                         </div>
                         <div className="row mt-4">
-                            <input type="text" className={styles.emailInput} value={this.state.companyName} name="companyName" onChange={this.handleChange} placeholder="Company"/>
+                            <input type="text" className={styles.emailInput} value={this.state.companyName} name="companyName" onChange={this.handleChange} placeholder={t('xr3engineContact.lbl-company')}/>
                         </div>
                         <div className="row mt-4">
-                            <textarea type="text" className={styles.emailInput} rows="5" placeholder="Describe your Project" 
+                            <textarea type="text" className={styles.emailInput} rows="5" placeholder={t('xr3engineContact.lbl-project')} 
                             value={this.state.message} name="message" onChange={this.handleChange}/>
                         </div>
                         <div className="row mt-3">
-                            <button className="button email-button" type="button" onClick={this.handleSubmit}>Send</button>
+                            <button className="button email-button" type="button" onClick={this.handleSubmit}>{t('xr3engineContact.lbl-send')}</button>
                         </div>
                     </div>
         )
     }
 }
+
+export default withTranslation()(xr3ngineContact);

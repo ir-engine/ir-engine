@@ -33,12 +33,12 @@ export const NetworkDebug = () => {
   const [remountCount, setRemountCount] = useState(0);
   const refresh = () => setRemountCount(remountCount + 1);
   const togglePhysicsDebug = () => { 
-    EngineEvents.instance.dispatchEvent({ type: DebugHelpersSystem.EVENTS.TOGGLE_PHYSICS, enabled: !physicsDebug })
+    EngineEvents.instance.dispatchEvent({ type: DebugHelpersSystem.EVENTS.TOGGLE_PHYSICS, enabled: !physicsDebug });
     setPhysicsDebug(!physicsDebug);
   };
 
   const toggleAvatarDebug = () => { 
-    EngineEvents.instance.dispatchEvent({ type: DebugHelpersSystem.EVENTS.TOGGLE_AVATAR, enabled: !avatarDebug })
+    EngineEvents.instance.dispatchEvent({ type: DebugHelpersSystem.EVENTS.TOGGLE_AVATAR, enabled: !avatarDebug });
     setAvatarDebug(!avatarDebug);
   };
 

@@ -3,7 +3,10 @@ const appRootPath = require('app-root-path')
 process.env.NODE_CONFIG_DIR = path.join(appRootPath.path, 'packages/client/config')
 const conf = require('config');
 const withTM = require('next-transpile-modules')(['@xr3ngine/client-core'], { unstable_webpack5: true });
-
+const publicRuntimeConfig = Object.assign({}, conf.get('publicRuntimeConfig'))
+if(process.env.NODE_ENV === 'offline') {
+  publicRuntimeConfig.offlineMode = true;
+}
 module.exports = withTM(
   {
     mode: 'development',
@@ -11,7 +14,7 @@ module.exports = withTM(
       type: 'filesystem'
       },
     /* config options here */
-    publicRuntimeConfig: conf.get('publicRuntimeConfig'),
+    publicRuntimeConfig,
     env: {
       APP_URL: process.env.APP_URL,
       SERVER_URL: process.env.SERVER_URL

@@ -178,7 +178,7 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
             setVideoStream(MediaStreamSystem.instance?.consumers?.find((c: any) => c.appData.peerId === peerId && c.appData.mediaTag === 'cam-video'));
             setAudioStream(MediaStreamSystem.instance?.consumers?.find((c: any) => c.appData.peerId === peerId && c.appData.mediaTag === 'cam-audio'));
         }
-    }, [consumers])
+    }, [consumers]);
 
     useEffect(() => {
         if (userHasInteracted === true && peerId !== 'me_cam' && peerId !== 'me_screen') {
@@ -198,17 +198,6 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
         socket?.on(MessageTypes.WebRTCResumeConsumer.toString(), resumeConsumerListener);
         socket?.on(MessageTypes.WebRTCPauseProducer.toString(), pauseProducerListener);
         socket?.on(MessageTypes.WebRTCResumeProducer.toString(), resumeProducerListener);
-
-        let interval = setInterval(() => {
-            if (EngineEvents.instance) {
-                EngineEvents.instance.addEventListener(EngineEvents.EVENTS.NETWORK_USER_UPDATED, (ev) => {
-                    if (isSelfUser || user?.id === ev.userId) {
-                        setToggle(toggle + Math.random())
-                    }
-                })
-                clearInterval(interval);
-            }
-        });
     }, []);
 
     useEffect(() => {
@@ -236,7 +225,7 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
 
         return () => {
             audioTrackClones.forEach((track) => track.stop());
-        }
+        };
     }, [audioStream]);
 
     useEffect(() => {
@@ -256,7 +245,7 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
 
         return () => {
             videoTrackClones.forEach((track) => track.stop());
-        }
+        };
     }, [videoStream]);
 
     useEffect(() => {
@@ -359,8 +348,8 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
         >
 
             <div className={styles['video-wrapper']}>
-                { (videoStream == null || videoStreamPaused == true || videoProducerPaused == true || videoProducerGlobalMute == true) && <img src={getAvatarURLFromNetwork(Network.instance, isSelfUser ? selfUser?.id : user?.id)} /> }
-                <video key={peerId + '_cam'} ref={videoRef}/>
+                { (videoStream == null || videoStreamPaused == true || videoProducerPaused == true || videoProducerGlobalMute == true) && <img src={getAvatarURLFromNetwork(Network.instance, isSelfUser ? selfUser?.id : user?.id)} draggable={false} /> }
+                <video key={peerId + '_cam'} ref={videoRef} draggable={false} />
             </div>
             <audio key={peerId + '_audio'} ref={audioRef}/>
             <div className={styles['user-controls']}>

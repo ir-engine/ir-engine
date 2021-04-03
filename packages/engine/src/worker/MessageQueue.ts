@@ -1193,7 +1193,7 @@ export async function receiveWorker(onCanvas: any) {
   const canvasProxy = new CanvasProxy({ messageQueue });
   messageQueue.messageTypeFunctions.set(
     MessageType.OFFSCREEN_CANVAS,
-    (args: any) => {
+    async (args: any) => {
       const {
         canvas,
         height,
@@ -1236,7 +1236,7 @@ export async function receiveWorker(onCanvas: any) {
       (globalThis as any).window = new WindowProxy({ messageQueue });
       (globalThis as any).document = new DocumentProxy({ messageQueue });
       (globalThis as any).navigator.xr = new XRSystemProxy({ messageQueue });
-      onCanvas(args, messageQueue);
+      await onCanvas(args, messageQueue);
       messageQueue.queue.push({
         messageType: MessageType.CANVAS_CREATED,
         message: {}

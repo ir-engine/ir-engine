@@ -3,7 +3,7 @@ import { dispatchAlertError } from "../alert/service";
 import { client } from '../feathers';
 import {
   addFeedBookmark, removeFeedBookmark
-} from '../feed/actions'
+} from '../feed/actions';
 
 export function addBookmarkToFeed(feedId: string) {
   return async (dispatch: Dispatch): Promise<any> => {

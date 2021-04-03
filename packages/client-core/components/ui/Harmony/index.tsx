@@ -17,10 +17,10 @@ import {
 } from '@material-ui/core';
 import {
     Add,
-    Block,
     Call,
     CallEnd,
     Clear,
+    Close,
     Delete,
     Edit,
     ExpandMore,
@@ -30,22 +30,20 @@ import {
     GroupAdd,
     GroupWork,
     Mic,
-    MicOff,
-    PersonAdd,
     PeopleOutline,
+    Person,
     Public,
     Save,
     Send,
     Settings,
-    SupervisedUserCircle,
     ThreeDRotation,
     Videocam,
     VideocamOff
 } from '@material-ui/icons';
-import PartyParticipantWindow from '@xr3ngine/client-core/components/ui/PartyParticipantWindow';
-import { selectAuthState } from '@xr3ngine/client-core/redux/auth/selector';
-import { doLoginAuto } from '@xr3ngine/client-core/redux/auth/service';
-import { selectChatState } from '@xr3ngine/client-core/redux/chat/selector';
+import PartyParticipantWindow from '../PartyParticipantWindow';
+import { selectAuthState } from '../../../redux/auth/selector';
+import { doLoginAuto } from '../../../redux/auth/service';
+import { selectChatState } from '../../../redux/chat/selector';
 import {
     createMessage,
     getChannelMessages,
@@ -54,15 +52,14 @@ import {
     removeMessage,
     updateChatTarget,
     updateMessageScrollInit
-} from '@xr3ngine/client-core/redux/chat/service';
-import { selectChannelConnectionState } from '@xr3ngine/client-core/redux/channelConnection/selector';
-import { selectInstanceConnectionState } from '../../../redux/instanceConnection/selector';
+} from '../../../redux/chat/service';
+import { selectChannelConnectionState } from '../../../redux/channelConnection/selector';
 import {
     connectToChannelServer,
     provisionChannelServer,
     resetChannelServer
-} from '@xr3ngine/client-core/redux/channelConnection/service';
-import { selectUserState } from '@xr3ngine/client-core/redux/user/selector';
+} from '../../../redux/channelConnection/service';
+import { selectUserState } from '../../../redux/user/selector';
 import { Message } from '@xr3ngine/common/interfaces/Message';
 import { User } from '@xr3ngine/common/interfaces/User';
 import { DefaultInitializationOptions, initializeEngine } from '@xr3ngine/engine/src/initialize';
@@ -105,23 +102,8 @@ import {selectTransportState} from '../../../redux/transport/selector';
 import {selectMediastreamState} from "../../../redux/mediastream/selector";
 import {Group as GroupType} from "../../../../common/interfaces/Group";
 import { isMobileOrTablet } from '@xr3ngine/engine/src/common/functions/isMobile';
-
-const initialSelectedUserState = {
-    id: '',
-    name: '',
-    userRole: '',
-    identityProviders: [],
-    relationType: {},
-    inverseRelationType: {},
-    avatarUrl: ''
-};
-
-const initialGroupForm = {
-    id: '',
-    name: '',
-    groupUsers: [],
-    description: ''
-};
+import ProfileMenu from "../UserMenu/menus/ProfileMenu";
+import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 
 const engineRendererCanvasId = 'engine-renderer-canvas';
 
@@ -130,7 +112,6 @@ const mapStateToProps = (state: any): any => {
         authState: selectAuthState(state),
         chatState: selectChatState(state),
         channelConnectionState: selectChannelConnectionState(state),
-        instanceConnectionState: selectInstanceConnectionState(state),
         userState: selectUserState(state),
         friendState: selectFriendState(state),
         groupState: selectGroupState(state),
@@ -174,12 +155,10 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 interface Props {
     authState?: any;
     doLoginAuto?: typeof doLoginAuto;
-    setBottomDrawerOpen: any;
     setLeftDrawerOpen: any;
     setRightDrawerOpen: any;
     chatState?: any;
     channelConnectionState?: any;
-    instanceConnectionState?: any;
     getChannels?: any;
     getChannelMessages?: any;
     createMessage?: any;
@@ -193,30 +172,17 @@ interface Props {
     resetChannelServer?: typeof resetChannelServer;
     friendState?: any;
     getFriends?: any;
-    unfriend?: any;
     groupState?: any;
     getGroups?: any;
-    createGroup?: any;
-    patchGroup?: any;
-    removeGroup?: any;
-    removeGroupUser?: any;
     partyState?: any;
-    getParty?: any;
-    createParty?: any;
     removeParty?: any;
     removePartyUser?: any;
     transferPartyOwner?: any;
-    detailsType?: any;
     setDetailsType?: any;
-    groupFormMode?: string;
     setGroupFormMode?: any;
-    groupFormOpen?: boolean;
     setGroupFormOpen?: any;
-    groupForm?: any;
     setGroupForm?: any;
-    selectedUser?: any;
     setSelectedUser?: any;
-    selectedGroup?: any;
     setSelectedGroup?: any;
     locationState?: any;
     transportState?: any;
@@ -231,12 +197,10 @@ const Harmony = (props: Props): any => {
         authState,
         chatState,
         channelConnectionState,
-        instanceConnectionState,
         getChannels,
         getChannelMessages,
         createMessage,
         removeMessage,
-        setBottomDrawerOpen,
         setLeftDrawerOpen,
         setRightDrawerOpen,
         updateChatTarget,
@@ -248,27 +212,14 @@ const Harmony = (props: Props): any => {
         resetChannelServer,
         friendState,
         getFriends,
-        unfriend,
         groupState,
         getGroups,
-        createGroup,
-        patchGroup,
-        removeGroup,
-        removeGroupUser,
         partyState,
-        getParty,
-        createParty,
-        detailsType,
         setDetailsType,
-        groupFormOpen,
         setGroupFormOpen,
-        groupFormMode,
         setGroupFormMode,
-        groupForm,
         setGroupForm,
-        selectedUser,
         setSelectedUser,
-        selectedGroup,
         setSelectedGroup,
         locationState,
         transportState,
@@ -313,6 +264,7 @@ const Harmony = (props: Props): any => {
     });
     const [engineInitialized, setEngineInitialized] = useState(false);
     const [lastConnectToWorldId, _setLastConnectToWorldId] = useState('');
+    const [profileMenuOpen, setProfileMenuOpen] = useState(false);
 
     const instanceLayerUsers = userState.get('layerUsers') ?? [];
     const channelLayerUsers = userState.get('channelLayerUsers') ?? [];
@@ -323,9 +275,6 @@ const Harmony = (props: Props): any => {
     const groups = groupSubState.get('groups');
     const party = partyState.get('party');
     const currentLocation = locationState.get('currentLocation').get('location');
-    const selfGroupUser = selectedGroup.id && selectedGroup.id.length > 0 ? selectedGroup.groupUsers.find((groupUser) => groupUser.userId === selfUser.id) : {};
-    const partyUsers = party && party.partyUsers ? party.partyUsers : [];
-    const selfPartyUser = party && party.partyUsers ? party.partyUsers.find((partyUser) => partyUser.userId === selfUser.id) : {};
 
     const setProducerStarting = value => {
         producerStartingRef.current = value;
@@ -340,12 +289,12 @@ const Harmony = (props: Props): any => {
     const setChannelAwaitingProvision = value => {
         channelAwaitingProvisionRef.current = value;
         _setChannelAwaitingProvision(value);
-    }
+    };
 
     const setLastConnectToWorldId = value => {
         lastConnectToWorldIdRef.current = value;
         _setLastConnectToWorldId(value);
-    }
+    };
 
     const producerStartingRef = useRef(producerStarting);
     const activeAVChannelIdRef = useRef(activeAVChannelId);
@@ -364,7 +313,7 @@ const Harmony = (props: Props): any => {
             setDimensions({
                 height: window.innerHeight,
                 width: window.innerWidth
-            })
+            });
         });
 
         return () => {
@@ -374,7 +323,7 @@ const Harmony = (props: Props): any => {
 
                 EngineEvents.instance?.removeEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD_TIMEOUT, (e: any) => {
                     if (e.instance === true) resetChannelServer();
-                })
+                });
 
                 EngineEvents.instance?.removeEventListener(EngineEvents.EVENTS.LEAVE_WORLD, () => {
                     resetChannelServer();
@@ -386,9 +335,9 @@ const Harmony = (props: Props): any => {
                 setDimensions({
                     height: window.innerHeight,
                     width: window.innerWidth
-                })
+                });
             });
-        }
+        };
     }, []);
 
     useEffect(() => {
@@ -399,7 +348,7 @@ const Harmony = (props: Props): any => {
         } else {
             setActiveAVChannelId(transportState.get('channelId'));
         }
-    }, [transportState])
+    }, [transportState]);
 
     useEffect(() => {
         if (channelConnectionState.get('connected') === false && channelAwaitingProvision?.id?.length > 0) {
@@ -496,14 +445,14 @@ const Harmony = (props: Props): any => {
             updateCamVideoState();
             updateCamAudioState();
         }
-    }
+    };
 
     const createEngineListeners = (): void => {
         EngineEvents.instance.addEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD, connectToWorldHandler);
 
         EngineEvents.instance.addEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD_TIMEOUT, (e: any) => {
             if (e.instance === true) resetChannelServer();
-        })
+        });
 
         EngineEvents.instance.addEventListener(EngineEvents.EVENTS.LEAVE_WORLD, () => {
             resetChannelServer();
@@ -513,7 +462,7 @@ const Harmony = (props: Props): any => {
             updateCamVideoState();
             updateCamAudioState();
         });
-    }
+    };
 
     const onChannelScroll = (e): void => {
         if ((e.target.scrollHeight - e.target.scrollTop) === e.target.clientHeight ) {
@@ -659,7 +608,7 @@ const Harmony = (props: Props): any => {
             updateCamVideoState();
             updateCamAudioState();
         }
-    }
+    };
 
     const handleEndCall = async(e: any) => {
         e.stopPropagation();
@@ -669,7 +618,7 @@ const Harmony = (props: Props): any => {
         setActiveAVChannelId('');
         updateCamVideoState();
         updateCamAudioState();
-    }
+    };
 
     const toggleAudio = async(channelId) => {
         await checkMediaStream('channel', channelId);
@@ -812,7 +761,7 @@ const Harmony = (props: Props): any => {
                              channelType === 'friend' ? channelEntries.find((entry) => (entry[1].userId1 === targetObjectId || entry[1].userId2 === targetObjectId)) :
                              channelEntries.find((entry) => entry[1].partyId === targetObjectId);
         return channelMatch != null && channelMatch[0] === targetChannelId;
-    }
+    };
 
     const isActiveAVCall = (channelType: string, targetObjectId: string): boolean => {
         const channelEntries = [...channels.entries()];
@@ -821,13 +770,17 @@ const Harmony = (props: Props): any => {
                 channelType === 'friend' ? channelEntries.find((entry) => (entry[1].userId1 === targetObjectId || entry[1].userId2 === targetObjectId)) :
                     channelEntries.find((entry) => entry[1].partyId === targetObjectId);
         return channelMatch != null && channelMatch[0] === activeAVChannelId;
-    }
+    };
 
     const closeHarmony = (): void => {
         const canvas = document.getElementById(engineRendererCanvasId) as HTMLCanvasElement;
         if (canvas?.style != null) canvas.style.width = '100%';
         setHarmonyOpen(false);
-    }
+    };
+
+    const openProfileMenu = (): void => {
+        setProfileMenuOpen(true);
+    };
 
     useEffect(() => {
         if (
@@ -837,7 +790,7 @@ const Harmony = (props: Props): any => {
             channelConnectionState.get('connected') === false
         ) {
             init().then(() => {
-                connectToChannelServer(channelConnectionState.get('channelId'), isHarmonyPage)
+                connectToChannelServer(channelConnectionState.get('channelId'), isHarmonyPage);
                 updateCamVideoState();
                 updateCamAudioState();
             });
@@ -857,7 +810,7 @@ const Harmony = (props: Props): any => {
                      if (party != null) {
                          setActiveChat('party', party);
                          if (isMobileOrTablet() === true || dimensions.width <= 768) setSelectorsOpen(false);
-                     } else openDetails(e, 'party', party)}}
+                     } else openDetails(e, 'party', party);}}
             >
                 <PeopleOutline className={styles['icon-margin-right']}/>
                 <span>Party</span>
@@ -1055,7 +1008,7 @@ const Harmony = (props: Props): any => {
                 </AccordionDetails>
             </Accordion>
         }
-    </div>
+    </div>;
 
     return (
         <div className={styles['harmony-component']}>
@@ -1079,9 +1032,10 @@ const Harmony = (props: Props): any => {
                     setSelectorsOpen(false);
                 }}
                 onOpen={() => {
-                    setSelectedAccordion('friends')
+                    setSelectedAccordion('friends');
                 }}
             >
+                <div className={styles['close-button']} onClick={() => setSelectorsOpen(false)}><Close /></div>
                 {chatSelectors}
             </SwipeableDrawer> }
             { (isMobileOrTablet() !== true && dimensions.width > 768) && chatSelectors}
@@ -1123,6 +1077,10 @@ const Harmony = (props: Props): any => {
                     { targetChannelId?.length === 0 && <div />}
 
                     <div className={styles.controls}>
+                        <div className={classNames({
+                            [styles['profile-toggle']]: true,
+                            [styles.iconContainer]: true
+                        })} onClick={() => openProfileMenu()}><Person /></div>
                         <div className={classNames({
                             [styles['invite-toggle']]: true,
                             [styles.iconContainer]: true
@@ -1290,7 +1248,7 @@ const Harmony = (props: Props): any => {
                                 }}
                                 onKeyPress={(e) => {
                                     if (e.shiftKey === false && e.charCode === 13) {
-                                        e.preventDefault()
+                                        e.preventDefault();
                                         packageMessage();
                                     }
                                 }}
@@ -1316,6 +1274,13 @@ const Harmony = (props: Props): any => {
                     }
                 </div>
             </div>
+            { profileMenuOpen &&
+            <ClickAwayListener onClickAway={() => setProfileMenuOpen(false)}>
+                <div className={styles.profileMenu}>
+                    <ProfileMenu setProfileMenuOpen={setProfileMenuOpen}/>
+                </div>
+            </ClickAwayListener>
+            }
         </div>
     );
 };

@@ -1,9 +1,4 @@
-// import NavItem from '../NavItem'
 import React, { useEffect } from 'react';
-// import Link from 'next/link';
-
-// import { siteTitle } from '../../../config/server'
-
 import styles from './Videos.module.scss';
 import Button from '@material-ui/core/Button';
 import { connect } from 'react-redux';

@@ -7,9 +7,9 @@ import {
   feedsRetrieved,
   addFeedCommentFire,
   removeFeedCommentFire ,
-  addFeedComment
+  addFeedComment,
+  commentFires
 } from './actions';
-import { CommentInterface } from '@xr3ngine/common/interfaces/Comment';
 
 export function getFeedComments(feedId : string, limit?: number) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
@@ -54,6 +54,19 @@ export function removeFireToFeedComment(commentId: string) {
     try {
       await client.service('comments-fires').remove(commentId);
       dispatch(removeFeedCommentFire(commentId));
+    } catch(err) {
+      console.log(err);
+      dispatchAlertError(dispatch, err.message);
+    }
+  };
+}
+
+
+export function getCommentFires(commentId : string, limit?: number) {
+  return async (dispatch: Dispatch, getState: any): Promise<any> => {
+    try {
+      const comments = await client.service('comments-fires').find({query: {action:'comment-fires',commentId}});
+      dispatch(commentFires(comments.data));
     } catch(err) {
       console.log(err);
       dispatchAlertError(dispatch, err.message);

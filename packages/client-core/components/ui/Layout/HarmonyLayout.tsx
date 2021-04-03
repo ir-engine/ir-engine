@@ -15,7 +15,7 @@ import {UIDialog} from '../Dialog/Dialog';
 import LeftDrawer from '../Drawer/Left/LeftDrawer';
 import RightDrawer from '../Drawer/Right';
 import Harmony from "../Harmony";
-import {doLoginAuto} from '@xr3ngine/client-core/redux/auth/service';
+import {doLoginAuto} from '../../../redux/auth/service';
 
 const {publicRuntimeConfig} = getConfig();
 const siteTitle: string = publicRuntimeConfig.siteTitle;
@@ -131,20 +131,13 @@ const Layout = (props: Props): any => {
                 <Harmony
                     isHarmonyPage={true}
                     setHarmonyOpen={setHarmonyOpen}
-                    detailsType={detailsType}
                     setDetailsType={setDetailsType}
-                    groupFormOpen={groupFormOpen}
                     setGroupFormOpen={setGroupFormOpen}
-                    groupFormMode={groupFormMode}
                     setGroupFormMode={setGroupFormMode}
-                    groupForm={groupForm}
                     setGroupForm={setGroupForm}
-                    selectedUser={selectedUser}
                     setSelectedUser={setSelectedUser}
-                    selectedGroup={selectedGroup}
                     setSelectedGroup={setSelectedGroup}
                     setLeftDrawerOpen={setLeftDrawerOpen}
-                    setBottomDrawerOpen={setBottomDrawerOpen}
                     setRightDrawerOpen={setRightDrawerOpen}
                 />
                 <Fragment>

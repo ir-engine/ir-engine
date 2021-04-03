@@ -1,27 +1,25 @@
-import { Euler } from 'three';
-import { FollowCameraComponent } from "@xr3ngine/engine/src/camera/components/FollowCameraComponent";
-import { Entity } from '@xr3ngine/engine/src/ecs/classes/Entity';
-import { addComponent, getComponent, getMutableComponent } from '@xr3ngine/engine/src/ecs/functions/EntityFunctions';
-import { LocalInputReceiver } from "@xr3ngine/engine/src/input/components/LocalInputReceiver";
-import { Network } from '@xr3ngine/engine/src/networking/classes/Network';
-import { NetworkObject } from '@xr3ngine/engine/src/networking/components/NetworkObject';
-import { PlayerInCar } from '@xr3ngine/engine/src/physics/components/PlayerInCar';
-import { VehicleBody } from '@xr3ngine/engine/src/physics/components/VehicleBody';
-import { PhysicsSystem } from '@xr3ngine/engine/src/physics/systems/PhysicsSystem';
-import { setState } from "@xr3ngine/engine/src/state/behaviors/setState";
-//import { deactivateCapsuleCollision } from "@xr3ngine/engine/src/templates/character/behaviors/deactivateCapsuleCollision";
-import { CharacterStateTypes } from "@xr3ngine/engine/src/templates/character/CharacterStateTypes";
-import { CharacterComponent } from "@xr3ngine/engine/src/templates/character/components/CharacterComponent";
-import { TransformComponent } from '@xr3ngine/engine/src/transform/components/TransformComponent';
-import { Matrix4, Vector3 } from 'three';
-import { isServer } from "../../../common/functions/isServer";
+import { Euler, Matrix4, Vector3 } from 'three';
+import { Entity } from '../../../ecs/classes/Entity';
+import { addComponent, getComponent, getMutableComponent, removeComponent } from '../../../ecs/functions/EntityFunctions';
+import { PlayerInCar } from '../../../physics/components/PlayerInCar';
+import { TransformComponent } from '../../../transform/components/TransformComponent';
+import { CharacterAnimations } from '../../character/CharacterAnimations';
+import { VehicleComponent } from '../components/VehicleComponent';
+import { VehicleState } from '../enums/VehicleStateEnum';
 import { CameraModes } from '../../../camera/types/CameraModes';
-import { EnteringVehicle } from "@xr3ngine/engine/src/templates/character/components/EnteringVehicle";
-import { updateVectorAnimation, clearAnimOnChange, changeAnimation } from "@xr3ngine/engine/src/templates/character/behaviors/updateVectorAnimation";
+import { changeAnimation } from '../../../character/functions/updateVectorAnimation';
+import { initializeDriverState } from '../../character/animations/DrivingAnimations'
+import { isServer } from '../../../common/functions/isServer';
+import { NetworkObject } from '../../../networking/components/NetworkObject';
+import { CharacterComponent } from '../../character/components/CharacterComponent';
+import { PhysicsSystem } from '../../../physics/systems/PhysicsSystem';
+import { Network } from '../../../networking/classes/Network';
+import { LocalInputReceiver } from '../../../input/components/LocalInputReceiver';
+import { FollowCameraComponent } from '../../../camera/components/FollowCameraComponent';
 
 function positionEnter(entity, entityCar, seat) {
   const transform = getMutableComponent<TransformComponent>(entity, TransformComponent);
-  const vehicle = getComponent<VehicleBody>(entityCar, VehicleBody);
+  const vehicle = getComponent<VehicleComponent>(entityCar, VehicleComponent);
   const transformCar = getComponent<TransformComponent>(entityCar, TransformComponent);
 
   const position = new Vector3( ...vehicle.entrancesArray[seat] )
@@ -47,36 +45,33 @@ function positionEnter(entity, entityCar, seat) {
 
 
 export const onAddedInCar = (entity: Entity, entityCar: Entity, seat: number, delta: number): void => {
-  //console.warn('onAddedInCar '+seat);
   const networkDriverId = getComponent<NetworkObject>(entity, NetworkObject).networkId;
-  const vehicle = getMutableComponent<VehicleBody>(entityCar, VehicleBody);
+  const vehicle = getMutableComponent<VehicleComponent>(entityCar, VehicleComponent);
   vehicle[vehicle.seatPlane[seat]] = networkDriverId;
 
   const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
   PhysicsSystem.physicsWorld.removeBody(actor.actorCapsule.body);
 
   const orientation = positionEnter(entity, entityCar, seat);
-  getMutableComponent(entity, PlayerInCar).state = 'onAddEnding';
+  getMutableComponent(entity, PlayerInCar).state = VehicleState.onAddEnding;
 
-  if (isServer) return;
   // CLIENT
-//  addComponent(entity, EnteringVehicle);
-  setState(entity, { state: CharacterStateTypes.DRIVING });
-
+  initializeDriverState(entity)
+  
   changeAnimation(entity, {
-    animationId: CharacterStateTypes.ENTERING_VEHICLE,
+    animationId: CharacterAnimations.ENTERING_VEHICLE,
 	  transitionDuration: 0.3
    })
 
-  //
-  // LocalPlayerOnly
-  if (Network.instance.localAvatarNetworkId != networkDriverId) return;
+   if (isServer || Network.instance.localAvatarNetworkId !== networkDriverId) return;
   addComponent(entityCar, LocalInputReceiver);
-  addComponent(entityCar, FollowCameraComponent, {
+  removeComponent(entity, FollowCameraComponent);
+  addComponent(entity, FollowCameraComponent, {
     distance: 7,
     locked: false,
     mode: CameraModes.ThirdPerson,
     theta: Math.round( ( (270/Math.PI) * (orientation/3*2) ) + 180),
     phi: 20
    });
+
 };

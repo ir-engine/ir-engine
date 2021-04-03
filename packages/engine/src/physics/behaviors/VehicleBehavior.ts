@@ -1,58 +1,28 @@
-import { Body, RaycastVehicle, Sphere, Vec3  } from "cannon-es";
-import { Euler, Quaternion } from 'three';
-import { cannonFromThreeVector } from "../../common/functions/cannonFromThreeVector";
-import { isClient } from "../../common/functions/isClient";
+import { RaycastVehicle, Vec3  } from "cannon-es";
 import { isServer } from "../../common/functions/isServer";
 import { Behavior } from '../../common/interfaces/Behavior';
 import { Entity } from '../../ecs/classes/Entity';
-import { getComponent, getMutableComponent, hasComponent } from '../../ecs/functions/EntityFunctions';
-import { Network } from '../../networking/classes/Network';
-import { NetworkObject } from '../../networking/components/NetworkObject';
-import { VehicleBody } from '../../physics/components/VehicleBody';
+import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
+import { VehicleComponent } from '../../templates/vehicle/components/VehicleComponent';
 import { TransformComponent } from '../../transform/components/TransformComponent';
 import { CollisionGroups } from "../enums/CollisionGroups";
 import { PhysicsSystem } from '../systems/PhysicsSystem';
-import { createTrimesh } from "./physicalPrimitives";
-import { LocalInputReceiver } from '../../input/components/LocalInputReceiver';
+import { PhysicsLifecycleState } from "../enums/PhysicsStates";
 
 
-function createVehicleBody (entity: Entity ) {
-  const vehicleComponent = getMutableComponent<VehicleBody>(entity, VehicleBody);
+function createVehicleComponent (entity: Entity ) {
+  const vehicleComponent = getMutableComponent<VehicleComponent>(entity, VehicleComponent);
   // @ts-ignore
   const colliderTrimOffset = new Vec3().set(...vehicleComponent.colliderTrimOffset);
   // @ts-ignore
   const collidersSphereOffset = new Vec3().set(...vehicleComponent.collidersSphereOffset);
   const wheelsPositions = vehicleComponent.arrayWheelsPosition;
   const wheelRadius = vehicleComponent.wheelRadius;
-  const vehicleCollider = vehicleComponent.vehicleCollider;
-  const vehicleSphereColliders = vehicleComponent.vehicleSphereColliders;
-  const mass = vehicleComponent.mass;
-
-  let chassisBody, chassisShape;
-
-  if (vehicleCollider) {
-    chassisBody = createTrimesh(vehicleCollider, new Vec3(), mass);
-    /*
-    chassisBody.shapes.forEach((shape) => {
-      shape.collisionFilterMask = ~CollisionGroups.Car;
-    });
-    */
-  } else {
-    //chassisShape = new Box(new Vec3(1, 0.2, 2.0));
-    chassisBody = new Body({ mass });
-  //  chassisBody.addShape(chassisShape);
-  }
-
-
-  for (let i = 0; i < vehicleSphereColliders.length; i++) {
-    const shape = new Sphere(vehicleSphereColliders[i].scale.x);
-  //  shape.collisionFilterGroup = ~CollisionGroups.Car;
-  //  shape.collisionFilterMask = ~CollisionGroups.Default;
-    chassisBody.addShape(shape, cannonFromThreeVector(vehicleSphereColliders[i].position).vadd(collidersSphereOffset));
-  }
+  const chassisBody = vehicleComponent.vehicleCollider;
 
   chassisBody.collisionFilterGroup = CollisionGroups.Car;
   chassisBody.position.set( ...vehicleComponent.startPosition );
+  chassisBody.quaternion.set( ...vehicleComponent.startQuaternion );
   //chassisBody.angularVelocity.set(0, 0, 0.5);
 
   const options = {
@@ -80,32 +50,27 @@ function createVehicleBody (entity: Entity ) {
     indexForwardAxis: 2
   });
 
-//
-  options.chassisConnectionPointLocal.set(wheelsPositions[0].x, wheelsPositions[0].y, wheelsPositions[0].z);
-  vehicle.addWheel(options);
-
-  options.chassisConnectionPointLocal.set(wheelsPositions[1].x, wheelsPositions[1].y, wheelsPositions[1].z);
-  vehicle.addWheel(options);
-
-  options.chassisConnectionPointLocal.set(wheelsPositions[2].x, wheelsPositions[2].y, wheelsPositions[2].z);
-  vehicle.addWheel(options);
-
-  options.chassisConnectionPointLocal.set(wheelsPositions[3].x, wheelsPositions[3].y, wheelsPositions[3].z);
-  vehicle.addWheel(options);
-/*
-  const wheelBodies = [];
-  for (let i = 0; i < vehicle.wheelInfos.length; i++) {
-    const cylinderShape = new Cylinder(wheelRadius, wheelRadius, 0.1, 20);
-    const wheelBody = new Body({
-      mass: 0
-    });
-    wheelBody.type = Body.KINEMATIC;
-    wheelBody.collisionFilterGroup = 0; // turn off collisions
-    wheelBody.addShape(cylinderShape);
-    wheelBodies.push(wheelBody);
-
+  for (let i = 0; i < wheelsPositions.length; i++) {
+    options.chassisConnectionPointLocal.set( wheelsPositions[i][0], wheelsPositions[i][1], wheelsPositions[i][2]);
+    vehicle.addWheel(options);
   }
-*/
+
+
+  /*
+    const wheelBodies = [];
+    for (let i = 0; i < vehicle.wheelInfos.length; i++) {
+      const cylinderShape = new Cylinder(wheelRadius, wheelRadius, 0.1, 20);
+      const wheelBody = new Body({
+        mass: 0
+      });
+      wheelBody.type = Body.KINEMATIC;
+      wheelBody.collisionFilterGroup = 0; // turn off collisions
+      wheelBody.addShape(cylinderShape);
+      wheelBodies.push(wheelBody);
+
+    }
+  */
+
   vehicle.addToWorld(PhysicsSystem.physicsWorld);
 
 /*
@@ -117,14 +82,14 @@ function createVehicleBody (entity: Entity ) {
 }
 
 export const VehicleBehavior: Behavior = (entity: Entity, args): void => {
-  if (args.phase == 'onAdded') {
-    const vehicleComponent = getMutableComponent(entity, VehicleBody);
-    const vehicle = createVehicleBody(entity);
+  if (args.phase == PhysicsLifecycleState.onAdded) {
+    const vehicleComponent = getMutableComponent(entity, VehicleComponent);
+    const vehicle = createVehicleComponent(entity);
     vehicleComponent.vehiclePhysics = vehicle;
-  } else if ( args.phase == 'onUpdate') {
+  } else if ( args.phase == PhysicsLifecycleState.onUpdate) {
 
     const transform = getMutableComponent<TransformComponent>(entity, TransformComponent);
-    const vehicleComponent = getComponent(entity, VehicleBody) as VehicleBody;
+    const vehicleComponent = getComponent(entity, VehicleComponent) as VehicleComponent;
 
     if( vehicleComponent.vehiclePhysics != null ) {
 
@@ -134,7 +99,7 @@ export const VehicleBehavior: Behavior = (entity: Entity, args): void => {
       const wheels = vehicleComponent.arrayWheelsMesh;
       const carSpeed = vehicle.currentVehicleSpeedKmHour;
 
-      if(isServer) {
+
         // STOP FORCE
         if (!isMoved && (carSpeed > 1 || carSpeed < -1) ) {
           vehicle.applyEngineForce(carSpeed * 2, 2);
@@ -150,7 +115,7 @@ export const VehicleBehavior: Behavior = (entity: Entity, args): void => {
           vehicle.applyEngineForce(-3, 2);
           vehicle.applyEngineForce(-3, 3);
         }
-      }
+
 
       // APPLY PHYSICS TO TRANSFORM
       transform.position.set(
@@ -174,7 +139,7 @@ export const VehicleBehavior: Behavior = (entity: Entity, args): void => {
       console.warn("User data for vehicle not found");
     }
 
-  } else if (args.phase == 'onRemoved') {
+  } else if (args.phase == PhysicsLifecycleState.onRemoved) {
     // TO DO
     /*
     const object = getComponent<Object3DComponent>(entity, Object3DComponent, true)?.value;

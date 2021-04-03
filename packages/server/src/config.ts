@@ -34,7 +34,7 @@ db.url = process.env.MYSQL_URL ??
  * Server / backend
  */
 const server = {
-  enabled: process.env.SERVER_ENABLED === 'true' ?? true,
+  enabled: process.env.SERVER_ENABLED !== 'false' ?? false,
   mode: process.env.SERVER_MODE ?? 'local',
   hostname: process.env.SERVER_HOSTNAME ?? '127.0.0.1',
   port: process.env.SERVER_PORT ?? 3030,
@@ -77,7 +77,7 @@ const client = {
   title: process.env.APP_LOGO ?? 'XR3ngine',
   url: process.env.APP_URL ??
     process.env.APP_HOST ?? // Legacy env var, to deprecate
-    'https://127.0.0.1:3000',
+    (process.env.LOCAL_BUILD ? 'http://127.0.0.1:3000' : 'https://127.0.0.1:3000'),
   releaseName: process.env.RELEASE_NAME ?? ''
 };
 

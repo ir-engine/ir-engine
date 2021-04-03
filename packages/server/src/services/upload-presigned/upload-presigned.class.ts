@@ -2,6 +2,7 @@ import { Op } from "sequelize";
 import { Id, NullableId, Paginated, Params, ServiceMethods } from '@feathersjs/feathers';
 import { Application } from '../../declarations';
 import S3Provider from '../../storage/s3.storage';
+import { MAX_AVATAR_FILE_SIZE, MIN_AVATAR_FILE_SIZE, PRESIGNED_URL_EXPIRATION_DURATION } from "@xr3ngine/engine/src/common/constants/AvatarConstants";
 
 interface Data {}
 
@@ -30,10 +31,10 @@ export class UploadPresigned implements ServiceMethods<Data> {
   async get (id: Id, params?: Params): Promise<Data> {
     const url = await this.s3.getSignedUrl(
       this.getKeyForFilename(params['identity-provider'].userId + '/' + params.query.fileName),
-      3600,  // Expires After 1 hour
+      PRESIGNED_URL_EXPIRATION_DURATION || 3600, // Expiration duration in Seconds
       [
         {"acl": "public-read"},
-        // ['content-length-range', 0, 15728640 ] // Max size 15 MB
+        ['content-length-range', MIN_AVATAR_FILE_SIZE, MAX_AVATAR_FILE_SIZE ] // Max size 15 MB
       ]
     );
     return url;

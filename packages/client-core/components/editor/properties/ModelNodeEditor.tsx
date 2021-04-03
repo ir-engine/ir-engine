@@ -6,6 +6,7 @@ import BooleanInput from "../inputs/BooleanInput";
 import ModelInput from "../inputs/ModelInput";
 import { Cube } from "@styled-icons/fa-solid/Cube";
 import StringInput from "../inputs/StringInput";
+import ModelNode from "@xr3ngine/engine/src/editor/nodes/ModelNode";
 
 /**
  * [array containing options for InteractableOption ]
@@ -19,6 +20,10 @@ const InteractableOption = [
   {
     label: "Open link",
     value: "link"
+  },
+  {
+    label: "Equippable",
+    value: "equippable"
   },
 ];
 
@@ -219,6 +224,7 @@ export default class ModelNodeEditor extends Component<
         { /* @ts-ignore */ }
         <InputGroup name="Model Url">
           <ModelInput value={node.src} onChange={this.onChangeSrc} />
+          {!(this.props.node as ModelNode).isValidURL && <div>Error Loading From URL</div>}
         </InputGroup>
         { /* @ts-ignore */ }
         <InputGroup name="Loop Animation">
