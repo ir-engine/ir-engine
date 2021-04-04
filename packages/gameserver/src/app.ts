@@ -12,7 +12,7 @@ import AgonesSDK from '@google-cloud/agones-sdk';
 import { Application } from '@xr3ngine/server-core/declarations';
 import logger from '@xr3ngine/server-core/src/logger';
 import channels from '@xr3ngine/server-core/src/channels';
-import authentication from '@xr3ngine/server-core/src/authentication/authentication';
+import authentication from '@xr3ngine/server-core/src/user/authentication';
 import config from '@xr3ngine/server-core/src/appconfig';
 import sync from 'feathers-sync';
 import K8s from 'k8s';

@@ -40,7 +40,7 @@ export class CircleOfConfusionMaterial extends ShaderMaterial {
     } as any);
 
     /** @ignore */
-    this.toneMapped = false;
+    (this as any).toneMapped = false;
 
     this.adoptCameraSettings(camera);
   }
@@ -52,7 +52,7 @@ export class CircleOfConfusionMaterial extends ShaderMaterial {
 	 */
 
   get depthPacking () {
-    return Number(this.defines.DEPTH_PACKING);
+    return Number((this as any).defines.DEPTH_PACKING);
   }
 
   /**
@@ -62,8 +62,8 @@ export class CircleOfConfusionMaterial extends ShaderMaterial {
 	 */
 
   set depthPacking (value) {
-    this.defines.DEPTH_PACKING = value.toFixed(0);
-    this.needsUpdate = true;
+    (this as any).defines.DEPTH_PACKING = value.toFixed(0);
+    (this as any).needsUpdate = true;
   }
 
   /**
@@ -74,16 +74,16 @@ export class CircleOfConfusionMaterial extends ShaderMaterial {
 
   adoptCameraSettings (camera = null) {
     if (camera !== null) {
-      this.uniforms.cameraNear.value = camera.near;
-      this.uniforms.cameraFar.value = camera.far;
+      (this as any).uniforms.cameraNear.value = camera.near;
+      (this as any).uniforms.cameraFar.value = camera.far;
 
       if (camera instanceof PerspectiveCamera) {
-        this.defines.PERSPECTIVE_CAMERA = '1';
+        (this as any).defines.PERSPECTIVE_CAMERA = '1';
       } else {
-        delete this.defines.PERSPECTIVE_CAMERA;
+        delete (this as any).defines.PERSPECTIVE_CAMERA;
       }
 
-      this.needsUpdate = true;
+      (this as any).needsUpdate = true;
     }
   }
 }

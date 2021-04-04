@@ -47,7 +47,7 @@ export class TextureEffect extends Effect {
 	 */
 
   get texture () {
-    return this.uniforms.get('texture').value;
+    return (this as any).uniforms.get('texture').value;
   }
 
   /**
@@ -61,13 +61,13 @@ export class TextureEffect extends Effect {
 
     if (currentTexture !== value) {
       const previousEncoding = (currentTexture !== null) ? currentTexture.encoding : null;
-      this.uniforms.get('texture').value = value;
+      (this as any).uniforms.get('texture').value = value;
 
       if (value !== null) {
         if (value.encoding === sRGBEncoding) {
-          this.defines.set('texelToLinear(texel)', 'sRGBToLinear(texel)');
+          (this as any).defines.set('texelToLinear(texel)', 'sRGBToLinear(texel)');
         } else if (value.encoding === LinearEncoding) {
-          this.defines.set('texelToLinear(texel)', 'texel');
+          (this as any).defines.set('texelToLinear(texel)', 'texel');
         } else {
           console.log('Unsupported encoding: ' + value.encoding);
         }
@@ -89,7 +89,7 @@ export class TextureEffect extends Effect {
 	 */
 
   get aspectCorrection () {
-    return this.defines.has('ASPECT_CORRECTION');
+    return (this as any).defines.has('ASPECT_CORRECTION');
   }
 
   /**
@@ -106,10 +106,10 @@ export class TextureEffect extends Effect {
           this.uvTransform = false;
         }
 
-        this.defines.set('ASPECT_CORRECTION', '1');
+        (this as any).defines.set('ASPECT_CORRECTION', '1');
         this.setVertexShader(vertexShader);
       } else {
-        this.defines.delete('ASPECT_CORRECTION');
+        (this as any).defines.delete('ASPECT_CORRECTION');
         this.setVertexShader(null);
       }
 
@@ -127,7 +127,7 @@ export class TextureEffect extends Effect {
 	 */
 
   get uvTransform () {
-    return this.defines.has('UV_TRANSFORM');
+    return (this as any).defines.has('UV_TRANSFORM');
   }
 
   /**
@@ -143,12 +143,12 @@ export class TextureEffect extends Effect {
           this.aspectCorrection = false;
         }
 
-        this.defines.set('UV_TRANSFORM', '1');
-        this.uniforms.get('uvTransform').value = new Matrix3();
+        (this as any).defines.set('UV_TRANSFORM', '1');
+        (this as any).uniforms.get('uvTransform').value = new Matrix3();
         this.setVertexShader(vertexShader);
       } else {
-        this.defines.delete('UV_TRANSFORM');
-        this.uniforms.get('uvTransform').value = null;
+        (this as any).defines.delete('UV_TRANSFORM');
+        (this as any).uniforms.get('uvTransform').value = null;
         this.setVertexShader(null);
       }
 
@@ -175,7 +175,7 @@ export class TextureEffect extends Effect {
       swizzle = ['.', rgba[r], rgba[g], rgba[b], rgba[a]].join('');
     }
 
-    this.defines.set('TEXEL', 'texel' + swizzle);
+    (this as any).defines.set('TEXEL', 'texel' + swizzle);
     this.setChanged();
   }
 
@@ -188,11 +188,11 @@ export class TextureEffect extends Effect {
 	 */
 
   update (renderer, inputBuffer, deltaTime) {
-    const texture = this.uniforms.get('texture').value;
+    const texture = (this as any).uniforms.get('texture').value;
 
     if (this.uvTransform && texture.matrixAutoUpdate) {
       texture.updateMatrix();
-      this.uniforms.get('uvTransform').value.copy(texture.matrix);
+      (this as any).uniforms.get('uvTransform').value.copy(texture.matrix);
     }
   }
 }
