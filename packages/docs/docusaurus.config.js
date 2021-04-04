@@ -10,25 +10,25 @@ module.exports = {
   organizationName: 'facebook', // Usually your GitHub org/user name.
   projectName: 'jsdoc-docusaurus', // Usually your repo name.
   plugins: [
-    // [
-    //   'docusaurus-plugin-typedoc',
-    //   {
-    //     id:'api-1',
-    //     entryPoints: [
-    //                     '../client-core',
-    //                  ],
-    //     exclude: '../client-core/components/ui/InteractableModal',
-    //     tsconfig: '../client-core/tsconfig.json',
-    //     exclude: [
-    //         '**/node_modules/**'
-    //     ],
-    //     out: 'docs-client-core',
-    //     readme: 'none',
-    //     sidebar: {
-    //        sidebarFile: 'sidebar/typedoc-client-core.js',
-    //     }
-    //   },
-    // ],
+    [
+      'docusaurus-plugin-typedoc',
+      {
+        id:'api-1',
+        entryPoints: [
+                        '../client-core',
+                     ],
+        exclude: '../client-core/components/ui/InteractableModal',
+        tsconfig: '../client-core/tsconfig.json',
+        exclude: [
+            '**/node_modules/**'
+        ],
+        out: 'docs-client-core',
+        readme: 'none',
+        sidebar: {
+           sidebarFile: 'sidebar/typedoc-client-core.js',
+        }
+      },
+    ],
     // [
     //     'docusaurus-plugin-typedoc',
     //     {
