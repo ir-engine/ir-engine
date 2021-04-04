@@ -1,4 +1,4 @@
-import { DETECT_DEVICE_TYPE } from '../actions';
+import { DETECT_DEVICE_TYPE } from "../../../user/reducers/actions";
 
 export interface DeviceDetectState {
   isDetected: boolean;

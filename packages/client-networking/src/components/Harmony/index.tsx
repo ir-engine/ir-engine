@@ -98,7 +98,7 @@ import {
     resumeProducer
 } from '../../transports/SocketWebRTCClientFunctions';
 import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport';
-import styles from './Harmony.module.scss';
+import styles from './style.module.scss';
 const engineRendererCanvasId = 'engine-renderer-canvas';
 
 const mapStateToProps = (state: any): any => {

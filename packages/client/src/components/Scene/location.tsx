@@ -115,6 +115,10 @@ export const EnginePage = (props: Props) => {
     locationName,
     harmonyOpen
   } = props;
+
+  console.log("Props are");
+  console.log(props);
+
   const currentUser = authState.get('user');
   const [hoveredLabel, setHoveredLabel] = useState('');
   const [infoBoxData, setModalData] = useState(null);

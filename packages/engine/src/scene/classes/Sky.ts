@@ -206,7 +206,7 @@ export class Sky extends Object3D {
     this.skyScene.add(this.cubeCamera);
     this.sky = new Mesh(Sky.geometry, Sky.material);
     this.sky.name = "Sky";
-    this.add(this.sky);
+    (this as any).add(this.sky);
     this._inclination = 0;
     this._azimuth = 0.15;
     this._distance = 8000;
@@ -276,7 +276,7 @@ export class Sky extends Object3D {
   generateEnvironmentMap(renderer: WebGLRenderer) {
     this.skyScene.add(this.sky);
     this.cubeCamera.update(renderer, this.skyScene);
-    this.add(this.sky);
+    (this as any).add(this.sky);
     // const pmremGenerator = new PMREMGenerator(
     //   this.cubeCamera.renderTarget.texture as any
     // );
@@ -294,13 +294,13 @@ export class Sky extends Object3D {
   }
   copy(source, recursive = true) {
     if (recursive) {
-      this.remove(this.sky);
+      (this as any).remove(this.sky);
     }
     super.copy(source, recursive);
     if (recursive) {
       const skyIndex = source.children.indexOf(source.sky);
       if (skyIndex !== -1) {
-        (this.sky as any) = this.children[skyIndex];
+        (this.sky as any) = (this as any).children[skyIndex];
       }
     }
     this.turbidity = source.turbidity;
