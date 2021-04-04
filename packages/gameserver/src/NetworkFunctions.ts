@@ -8,8 +8,8 @@ import { WorldStateInterface } from '@xr3ngine/engine/src/networking/interfaces/
 import { createNetworkPlayer } from '@xr3ngine/engine/src/templates/character/prefabs/NetworkPlayerCharacter';
 import { TransformComponent } from '@xr3ngine/engine/src/transform/components/TransformComponent';
 import { DataConsumer, DataProducer } from 'mediasoup/lib/types';
-import logger from "../../logger";
-import config from '../appconfig';
+import logger from "@xr3ngine/server-core/src/logger";
+import config from '@xr3ngine/server-core/src/appconfig';
 import { closeTransport } from './WebRTCFunctions';
 
 const gsNameRegex = /gameserver-([a-zA-Z0-9]{5}-[a-zA-Z0-9]{5})/;

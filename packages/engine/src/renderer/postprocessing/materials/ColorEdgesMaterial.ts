@@ -39,7 +39,7 @@ export class ColorEdgesMaterial extends ShaderMaterial {
     } as any);
 
     /** @ignore */
-    this.toneMapped = false;
+    (this as any).toneMapped = false;
   }
 
   /**
@@ -56,7 +56,7 @@ export class ColorEdgesMaterial extends ShaderMaterial {
 	 */
 
   setLocalContrastAdaptationFactor (factor) {
-    this.defines.LOCAL_CONTRAST_ADAPTATION_FACTOR = factor.toFixed('2');
+    (this as any).defines.LOCAL_CONTRAST_ADAPTATION_FACTOR = factor.toFixed('2');
     this.needsUpdate = true;
   }
 
@@ -77,7 +77,7 @@ export class ColorEdgesMaterial extends ShaderMaterial {
 
   setEdgeDetectionThreshold (threshold) {
     const t = Math.min(Math.max(threshold, 0.05), 0.5);
-    this.defines.EDGE_THRESHOLD = t.toFixed(2);
+    (this as any).defines.EDGE_THRESHOLD = t.toFixed(2);
     this.needsUpdate = true;
   }
 }

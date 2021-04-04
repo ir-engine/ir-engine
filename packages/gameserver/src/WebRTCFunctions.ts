@@ -8,7 +8,7 @@ import { DataProducer, DataConsumer, DataProducerOptions, Producer, RtpCodecCapa
 import SocketIO from "socket.io";
 import logger from "@xr3ngine/server-core/src/logger";
 import { localConfig, sctpParameters } from '@xr3ngine/server-core/src/config';
-import { getUserIdFromSocketId } from "@xr3ngine/server-core/src/NetworkFunctions";
+import { getUserIdFromSocketId } from "./NetworkFunctions";
 
 const toArrayBuffer = (buf): any => {
     var ab = new ArrayBuffer(buf.length);

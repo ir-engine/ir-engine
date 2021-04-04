@@ -47,7 +47,7 @@ export class VignetteEffect extends Effect {
 	 */
 
   get eskil () {
-    return this.defines.has('ESKIL');
+    return (this as any).defines.has('ESKIL');
   }
 
   /**
@@ -59,9 +59,9 @@ export class VignetteEffect extends Effect {
   set eskil (value) {
     if (this.eskil !== value) {
       if (value) {
-        this.defines.set('ESKIL', '1');
+        (this as any).defines.set('ESKIL', '1');
       } else {
-        this.defines.delete('ESKIL');
+        (this as any).defines.delete('ESKIL');
       }
 
       this.setChanged();

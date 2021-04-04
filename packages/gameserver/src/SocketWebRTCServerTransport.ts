@@ -14,7 +14,7 @@ import {
     handleJoinWorld,
     handleLeaveWorld,
     validateNetworkObjects
-} from "@xr3ngine/server-core/src/NetworkFunctions";
+} from "@xr3ngine/gameserver/src/NetworkFunctions";
 import { WebRtcTransportParams } from "@xr3ngine/server-core/src/types/WebRtcTransportParams";
 import getLocalServerIp from '@xr3ngine/server-core/src/util/get-local-server-ip';
 import AWS from 'aws-sdk';

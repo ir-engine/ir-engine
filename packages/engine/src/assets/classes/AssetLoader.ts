@@ -225,19 +225,19 @@ export class AssetLoader {
         if (!AssetLoader.Cache.has(this.params.url)) AssetLoader.Cache.set(this.params.url, response);
 
         this.status = LOADER_STATUS.LOADED;
-        this.dispatchEvent();
+        (this as any).dispatchEvent();
         if (typeof this.onLoad === 'function') this.onLoad(this.result);
     }
 
     _onProgress = (request: ProgressEvent): void => {
         this.status = LOADER_STATUS.LOADING;
-        this.dispatchEvent();
+        (this as any).dispatchEvent();
         if (typeof this.onProgress === 'function') this.onProgress(request);
     }
 
     _onError = (event: ErrorEvent | Error): void => {
         this.status = LOADER_STATUS.ERROR;
-        this.dispatchEvent();
+        (this as any).dispatchEvent();
         if (typeof this.onError === 'function') this.onError(event);
     }
 
