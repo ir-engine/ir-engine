@@ -97,6 +97,7 @@
     "@google-cloud/agones-sdk": "^1.7.0",
     "@xr3ngine/common": "^0.2.10",
     "@xr3ngine/engine": "^0.2.10",
+    "@xr3ngine/server-core": "^0.2.10",
     "aws-sdk": "^2.811.0",
     "mediasoup": "^3.6.16",
     "bent": "^7.3.0",

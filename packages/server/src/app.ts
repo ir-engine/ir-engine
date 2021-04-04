@@ -77,26 +77,9 @@ if (config.server.enabled) {
 
     // Set up Plugins and providers
     app.configure(express.rest());
-    app.configure(socketio({
-      serveClient: false,
-      handlePreflightRequest: (req: any, res: any) => {
-        // Set CORS headers
-        if (res != null) {
-          res.setHeader('Access-Control-Allow-Origin', req.headers.origin);
-          res.setHeader('Access-Control-Request-Method', '*');
-          res.setHeader('Access-Control-Allow-Methods', 'OPTIONS, GET`');
-          res.setHeader('Access-Control-Allow-Headers', '*');
-          res.writeHead(200);
-          res.end();
-        }
-      }
-    }, (io) => {
-      io.use((socket, next) => {
-        (socket as any).feathers.socketQuery = socket.handshake.query;
-        (socket as any).socketQuery = socket.handshake.query;
-        next();
-      });
-    }));
+
+    // TODO: Configure socket.io
+    app.configure(socketio());
 
     if (config.redis.enabled) {
       app.configure(sync({
