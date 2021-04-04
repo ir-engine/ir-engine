@@ -1,25 +1,18 @@
 
 import React, { useState, useEffect } from "react";
-import AppHeader from "@xr3ngine/client-core/src/components/social/Header";
-import FeedMenu from "@xr3ngine/client-core/src/components/social/FeedMenu";
-import AppFooter from "@xr3ngine/client-core/src/components/social/Footer";
+import AppHeader from "@xr3ngine/client-core/src/socialmedia/components/Header";
+import FeedMenu from "@xr3ngine/client-core/src/socialmedia/components/FeedMenu";
+import AppFooter from "@xr3ngine/client-core/src/socialmedia/components/Footer";
+import FlatSignIn from '@xr3ngine/client-core/src/socialmedia/components/Login';
 
-import FlatSignIn from '@xr3ngine/client-core/src/components/social/Login';
-// import { Layout } from "@xr3ngine/client-core/src/components/social/Layout";
-// import { Stories } from "@xr3ngine/client-core/src/components/social/Stories";
-// import { FeedItem } from "@xr3ngine/client-core/src/components/social/FeedItem";
-// import { HomeRightBar } from "@xr3ngine/client-core/src/components/social/HomeRightBar";
-// import { MoreModalItems } from "@xr3ngine/client-core/src/components/social/more-modal";
-
-// TODO: HANDLE
-import { LoginUserHook } from "@xr3ngine/client-core/src/components/social/GlobalHook";
+import { LoginUserHook } from "@xr3ngine/client-core/src/socialmedia/components/GlobalHook";
+import { selectCreatorsState } from "@xr3ngine/client-core/src/socialmedia/reducers/creator/selector";
 
 import { Plugins } from '@capacitor/core';
 
 import styles from './index.module.scss';
 import { selectAuthState } from "@xr3ngine/client-core/src/user/reducers/auth/selector";
 import { connect } from "react-redux";
-import { selectCreatorsState } from "@xr3ngine/client-core/reducers/creator/selector";
 const { Example } = Plugins;
 
 const mapStateToProps = (state: any): any => {

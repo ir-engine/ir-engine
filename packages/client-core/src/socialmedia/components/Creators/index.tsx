@@ -1,17 +1,17 @@
-import React, { useEffect } from 'react';
-import Router from "next/router";
-
-import CardMedia from '@material-ui/core/CardMedia';
-import Typography from '@material-ui/core/Typography';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
+import CardMedia from '@material-ui/core/CardMedia';
+import Typography from '@material-ui/core/Typography';
 import VerifiedUserIcon from '@material-ui/icons/VerifiedUser';
-
-import styles from './Creators.module.scss';
-import { selectCreatorsState } from '../../../reducers/creator/selector';
-import { bindActionCreators, Dispatch } from 'redux';
-import { getCreators } from '../../../reducers/creator/service';
+import Router from "next/router";
+import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
+import { bindActionCreators, Dispatch } from 'redux';
+import { selectCreatorsState } from '../../../reducers/creator/selector';
+import { getCreators } from '../../../reducers/creator/service';
+import styles from './Creators.module.scss';
+
+
 
 const mapStateToProps = (state: any): any => {
     return {
