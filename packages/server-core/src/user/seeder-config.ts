@@ -16,9 +16,9 @@ interface ServicesSeedConfig {
 }
 
 export const services: Array<ServicesSeedConfig> = [
-    UserRelationshipTypeSeed,
-    User,
-    UserRoleSeed
+  UserRoleSeed,
+  UserRelationshipTypeSeed,
+    User
   ];
 
 export default services;

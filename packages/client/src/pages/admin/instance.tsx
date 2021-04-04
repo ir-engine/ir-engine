@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import Dashboard from "@xr3ngine/client-core/src/common/components/Layout/Dashboard";
+import Dashboard  from "@xr3ngine/client-core/src/user/components/Dashboard/Dashboard";
 import { bindActionCreators, Dispatch } from "redux";
 import InstanceConsole from "@xr3ngine/client-core/src/common/components/Admin/InstanceConsole";
 import { doLoginAuto } from '@xr3ngine/client-core/src/user/reducers/auth/service';

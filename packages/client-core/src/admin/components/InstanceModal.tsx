@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { connect } from 'react-redux';
-import { selectAdminState } from "../../../reducers/admin/selector";
 import styles from './Admin.module.scss';
 import {
     Backdrop,
@@ -16,10 +15,7 @@ import {
     TableSortLabel
 } from '@material-ui/core';
 import classNames from 'classnames';
-import { selectAppState } from "../../../reducers/app/selector";
-import { selectAuthState } from "../../../reducers/auth/selector";
 import { bindActionCreators, Dispatch } from "redux";
-import { client } from "../../../reducers/feathers";
 import { Router, withRouter } from "next/router";
 import Snackbar from '@material-ui/core/Snackbar';
 import MuiAlert, { AlertProps } from '@material-ui/lab/Alert';
@@ -236,3 +232,15 @@ const InstanceModal = (props: Props): any => {
 };
 
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(InstanceModal));
+function selectAppState(state: any) {
+    throw new Error('Function not implemented.');
+}
+
+function selectAuthState(state: any) {
+    throw new Error('Function not implemented.');
+}
+
+function selectAdminState(state: any) {
+    throw new Error('Function not implemented.');
+}
+
