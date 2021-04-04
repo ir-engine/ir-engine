@@ -123,7 +123,7 @@ export class Effect extends EventDispatcher {
 		 */
 
     this.blendMode = new BlendMode(blendFunction);
-    this.blendMode.addEventListener('change', (event) => this.setChanged());
+    (this.blendMode as any).addEventListener('change', (event) => this.setChanged());
   }
 
   /**
@@ -137,7 +137,7 @@ export class Effect extends EventDispatcher {
 	 */
 
   setChanged () {
-    this.dispatchEvent({ type: 'change' });
+    (this as any).dispatchEvent({ type: 'change' });
   }
 
   /**

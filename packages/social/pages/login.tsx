@@ -1,13 +1,13 @@
-import Layout from '@xr3ngine/client-core/components/ui/Layout/OverlayLayout';
-import { selectAuthState } from "@xr3ngine/client-core/redux/auth/selector";
-import { doLoginAuto, resetPassword } from '@xr3ngine/client-core/redux/auth/service';
-import { selectInstanceConnectionState } from '@xr3ngine/client-core/redux/instanceConnection/selector';
+import Layout from '@xr3ngine/client-core/src/common/components/Layout/OverlayLayout';
+import { selectAuthState } from "@xr3ngine/client-core/src/user/reducers/auth/selector";
+import { doLoginAuto, resetPassword } from '@xr3ngine/client-core/src/user/reducers/auth/service';
+import { selectInstanceConnectionState } from '@xr3ngine/client-core/reducers/instanceConnection/selector';
 import React from 'react';
 import { connect } from "react-redux";
 import { bindActionCreators, Dispatch } from "redux";
 import { ThemeProvider } from "styled-components";
 
-import FlatSignIn from '@xr3ngine/client-core/components/social/Login';
+import FlatSignIn from '@xr3ngine/client-core/src/components/social/Login';
 import theme from '../theme';
 
 interface Props {

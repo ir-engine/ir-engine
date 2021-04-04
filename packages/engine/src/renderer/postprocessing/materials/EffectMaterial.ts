@@ -49,7 +49,7 @@ export class EffectMaterial extends ShaderMaterial {
     } as any);
 
     /** @ignore */
-    this.toneMapped = false;
+    (this as any).toneMapped = false;
 
     if (shaderParts !== null) {
       this.setShaderParts(shaderParts);
@@ -73,7 +73,7 @@ export class EffectMaterial extends ShaderMaterial {
 	 */
 
   get depthPacking () {
-    return Number(this.defines.DEPTH_PACKING);
+    return Number((this as any).defines.DEPTH_PACKING);
   }
 
   /**
@@ -86,8 +86,8 @@ export class EffectMaterial extends ShaderMaterial {
 	 */
 
   set depthPacking (value) {
-    this.defines.DEPTH_PACKING = value.toFixed(0);
-    this.needsUpdate = true;
+    (this as any).defines.DEPTH_PACKING = value.toFixed(0);
+    (this as any).needsUpdate = true;
   }
 
   /**
@@ -98,16 +98,16 @@ export class EffectMaterial extends ShaderMaterial {
 	 */
 
   setShaderParts (shaderParts) {
-    this.fragmentShader = fragmentTemplate
+    (this as any).fragmentShader = fragmentTemplate
       .replace(Section.FRAGMENT_HEAD, shaderParts.get(Section.FRAGMENT_HEAD))
       .replace(Section.FRAGMENT_MAIN_UV, shaderParts.get(Section.FRAGMENT_MAIN_UV))
       .replace(Section.FRAGMENT_MAIN_IMAGE, shaderParts.get(Section.FRAGMENT_MAIN_IMAGE));
 
-    this.vertexShader = vertexTemplate
+      (this as any).vertexShader = vertexTemplate
       .replace(Section.VERTEX_HEAD, shaderParts.get(Section.VERTEX_HEAD))
       .replace(Section.VERTEX_MAIN_SUPPORT, shaderParts.get(Section.VERTEX_MAIN_SUPPORT));
 
-    this.needsUpdate = true;
+      (this as any).needsUpdate = true;
 
     return this;
   }
@@ -121,10 +121,10 @@ export class EffectMaterial extends ShaderMaterial {
 
   setDefines (defines) {
     for (const entry of defines.entries()) {
-      this.defines[entry[0]] = entry[1];
+      (this as any).defines[entry[0]] = entry[1];
     }
 
-    this.needsUpdate = true;
+    (this as any).needsUpdate = true;
 
     return this;
   }
@@ -138,7 +138,7 @@ export class EffectMaterial extends ShaderMaterial {
 
   setUniforms (uniforms) {
     for (const entry of uniforms.entries()) {
-      this.uniforms[entry[0]] = entry[1];
+      (this as any).uniforms[entry[0]] = entry[1];
     }
 
     return this;
@@ -152,16 +152,16 @@ export class EffectMaterial extends ShaderMaterial {
 
   adoptCameraSettings (camera = null) {
     if (camera !== null) {
-      this.uniforms.cameraNear.value = camera.near;
-      this.uniforms.cameraFar.value = camera.far;
+      (this as any).uniforms.cameraNear.value = camera.near;
+      (this as any).uniforms.cameraFar.value = camera.far;
 
       if (camera instanceof PerspectiveCamera) {
-        this.defines.PERSPECTIVE_CAMERA = '1';
+        (this as any).defines.PERSPECTIVE_CAMERA = '1';
       } else {
-        delete this.defines.PERSPECTIVE_CAMERA;
+        delete (this as any).defines.PERSPECTIVE_CAMERA;
       }
 
-      this.needsUpdate = true;
+      (this as any).needsUpdate = true;
     }
   }
 
@@ -176,9 +176,9 @@ export class EffectMaterial extends ShaderMaterial {
     const w = Math.max(width, 1);
     const h = Math.max(height, 1);
 
-    this.uniforms.resolution.value.set(w, h);
-    this.uniforms.texelSize.value.set(1.0 / w, 1.0 / h);
-    this.uniforms.aspect.value = w / h;
+    (this as any).uniforms.resolution.value.set(w, h);
+    (this as any).uniforms.texelSize.value.set(1.0 / w, 1.0 / h);
+    (this as any).uniforms.aspect.value = w / h;
   }
 }
 

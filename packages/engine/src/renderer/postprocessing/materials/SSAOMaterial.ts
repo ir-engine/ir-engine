@@ -59,7 +59,7 @@ export class SSAOMaterial extends ShaderMaterial {
     } as any);
 
     /** @ignore */
-    this.toneMapped = false;
+    (this as any).toneMapped = false;
 
     this.adoptCameraSettings(camera);
   }
@@ -71,7 +71,7 @@ export class SSAOMaterial extends ShaderMaterial {
 	 */
 
   get depthPacking () {
-    return Number(this.defines.DEPTH_PACKING);
+    return Number((this as any).defines.DEPTH_PACKING);
   }
 
   /**
@@ -81,8 +81,8 @@ export class SSAOMaterial extends ShaderMaterial {
 	 */
 
   set depthPacking (value) {
-    this.defines.DEPTH_PACKING = value.toFixed(0);
-    this.needsUpdate = true;
+    (this as any).defines.DEPTH_PACKING = value.toFixed(0);
+    (this as any).needsUpdate = true;
   }
 
   /**
@@ -93,7 +93,7 @@ export class SSAOMaterial extends ShaderMaterial {
 	 */
 
   setTexelSize (x, y) {
-    this.uniforms.texelSize.value.set(x, y);
+    (this as any).uniforms.texelSize.value.set(x, y);
   }
 
   /**
@@ -104,18 +104,18 @@ export class SSAOMaterial extends ShaderMaterial {
 
   adoptCameraSettings (camera = null) {
     if (camera !== null) {
-      const uniforms = this.uniforms;
+      const uniforms = (this as any).uniforms;
 
       uniforms.cameraNear.value = camera.near;
       uniforms.cameraFar.value = camera.far;
 
       if (camera instanceof PerspectiveCamera) {
-        this.defines.PERSPECTIVE_CAMERA = '1';
+        (this as any).defines.PERSPECTIVE_CAMERA = '1';
       } else {
-        delete this.defines.PERSPECTIVE_CAMERA;
+        delete (this as any).defines.PERSPECTIVE_CAMERA;
       }
 
-      this.needsUpdate = true;
+      (this as any).needsUpdate = true;
     }
   }
 }

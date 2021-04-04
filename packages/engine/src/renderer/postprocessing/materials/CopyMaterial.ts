@@ -30,6 +30,6 @@ export class CopyMaterial extends ShaderMaterial {
     } as any);
 
     /** @ignore */
-    this.toneMapped = false;
+    (this as any).toneMapped = false;
   }
 }

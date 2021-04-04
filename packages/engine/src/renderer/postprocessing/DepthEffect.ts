@@ -36,7 +36,7 @@ export class DepthEffect extends Effect {
 	 */
 
   get inverted () {
-    return this.defines.has('INVERTED');
+    return (this as any).defines.has('INVERTED');
   }
 
   /**
@@ -48,9 +48,9 @@ export class DepthEffect extends Effect {
   set inverted (value) {
     if (this.inverted !== value) {
       if (value) {
-        this.defines.set('INVERTED', '1');
+        (this as any).defines.set('INVERTED', '1');
       } else {
-        this.defines.delete('INVERTED');
+        (this as any).defines.delete('INVERTED');
       }
 
       this.setChanged();

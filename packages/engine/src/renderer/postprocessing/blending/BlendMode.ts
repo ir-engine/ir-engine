@@ -99,7 +99,7 @@ export class BlendMode extends EventDispatcher {
 
   setBlendFunction (blendFunction) {
     this.blendFunction = blendFunction;
-    this.dispatchEvent({ type: 'change' });
+    (this as any).dispatchEvent({ type: 'change' });
   }
 
   /**

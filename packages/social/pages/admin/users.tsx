@@ -1,10 +1,10 @@
 
 import React, { useEffect } from "react";
 
-import Dashboard  from "@xr3ngine/client-core/components/ui/Layout/SocialDashboard";
-import CreatorConsole  from "@xr3ngine/client-core/components/ui/Admin/CreatorConsole";
-import { selectCreatorsState } from "@xr3ngine/client-core/redux/creator/selector";
-import { getCreators } from "@xr3ngine/client-core/redux/creator/service";
+import Dashboard  from "@xr3ngine/client-core/src/common/components/Layout/SocialDashboard";
+import CreatorConsole  from "@xr3ngine/client-core/src/common/components/Admin/CreatorConsole";
+import { selectCreatorsState } from "@xr3ngine/client-core/reducers/creator/selector";
+import { getCreators } from "@xr3ngine/client-core/reducers/creator/service";
 import { bindActionCreators, Dispatch } from "redux";
 import { connect } from "react-redux";
 

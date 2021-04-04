@@ -144,7 +144,7 @@ export class GlitchEffect extends Effect {
 		 * @private
 		 */
 
-    this.seed = this.uniforms.get('seed').value;
+    this.seed = (this as any).uniforms.get('seed').value;
 
     /**
 		 * A distortion vector.
@@ -153,7 +153,7 @@ export class GlitchEffect extends Effect {
 		 * @private
 		 */
 
-    this.distortion = this.uniforms.get('distortion').value;
+    this.distortion = (this as any).uniforms.get('distortion').value;
 
     /**
 		 * The effect mode.
@@ -197,7 +197,7 @@ export class GlitchEffect extends Effect {
 	 */
 
   get active () {
-    return this.uniforms.get('active').value;
+    return (this as any).uniforms.get('active').value;
   }
 
   /**
@@ -207,7 +207,7 @@ export class GlitchEffect extends Effect {
 	 */
 
   getPerturbationMap () {
-    return this.uniforms.get('perturbationMap').value;
+    return (this as any).uniforms.get('perturbationMap').value;
   }
 
   /**
@@ -229,7 +229,7 @@ export class GlitchEffect extends Effect {
     map.wrapS = map.wrapT = RepeatWrapping;
     map.generateMipmaps = false;
 
-    this.uniforms.get('perturbationMap').value = map;
+    (this as any).uniforms.get('perturbationMap').value = map;
   }
 
   /**
@@ -281,7 +281,7 @@ export class GlitchEffect extends Effect {
       }
 
       r = Math.random();
-      this.uniforms.get('random').value = r;
+      (this as any).uniforms.get('random').value = r;
 
       if ((trigger && r > this.ratio) || mode === GlitchMode.CONSTANT_WILD) {
         active = true;
@@ -312,7 +312,7 @@ export class GlitchEffect extends Effect {
       }
     }
 
-    this.uniforms.get('active').value = active;
+    (this as any).uniforms.get('active').value = active;
   }
 }
 
