@@ -30,5 +30,5 @@
     "next-env.d.ts",
     "./**/*.ts",
     "./**/*.tsx"
-, "../client-core/src/common/components/Layout/EmptyLayout.tsx"  ]
+, "../client-core/src/common/components/Layout/EmptyLay, "../client-core/src/common/components/analytics.tsx"out.tsx"  ]
 }
