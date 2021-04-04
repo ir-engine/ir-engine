@@ -28,6 +28,7 @@ import classNames from 'classnames';
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
+import { selectInstanceConnectionState } from '../../reducers/instanceConnection/selector';
 import styles from './style.module.scss';
 
 const mapStateToProps = (state: any): any => {
@@ -223,7 +224,3 @@ const InstanceChat = (props: Props): any => {
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(InstanceChat);
-
-function selectInstanceConnectionState(state: any) {
-    throw new Error('Function not implemented.');
-}

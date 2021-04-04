@@ -17,6 +17,10 @@ import AvatarSelectMenu from './menus/AvatarSelectMenu';
 import { WebGLRendererSystem } from '@xr3ngine/engine/src/renderer/WebGLRendererSystem';
 import { EngineEvents } from '@xr3ngine/engine/src/ecs/classes/EngineEvents';
 import { ClientInputSystem } from '@xr3ngine/engine/src/input/systems/ClientInputSystem';
+import { alertSuccess } from '../../../common/reducers/alert/service';
+import { selectAppOnBoardingStep } from '../../../common/reducers/app/selector';
+import { selectAuthState } from '../../reducers/auth/selector';
+import { updateUserAvatarId, updateUserSettings, uploadAvatarModel, fetchAvatarList, removeAvatar } from '../../reducers/auth/service';
 
 type StateType = {
   currentActiveMenu: any;
@@ -206,35 +210,3 @@ const UserMenu = (props: UserMenuProps): any => {
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(UserMenu);
-function selectAppOnBoardingStep(state: any) {
-  throw new Error('Function not implemented.');
-}
-
-function selectAuthState(state: any) {
-  throw new Error('Function not implemented.');
-}
-
-function updateUserAvatarId(updateUserAvatarId: any, dispatch: Dispatch<import("redux").AnyAction>) {
-  throw new Error('Function not implemented.');
-}
-
-function updateUserSettings(updateUserSettings: any, dispatch: Dispatch<import("redux").AnyAction>) {
-  throw new Error('Function not implemented.');
-}
-
-function alertSuccess(alertSuccess: any, dispatch: Dispatch<import("redux").AnyAction>) {
-  throw new Error('Function not implemented.');
-}
-
-function uploadAvatarModel(uploadAvatarModel: any, dispatch: Dispatch<import("redux").AnyAction>) {
-  throw new Error('Function not implemented.');
-}
-
-function fetchAvatarList(fetchAvatarList: any, dispatch: Dispatch<import("redux").AnyAction>) {
-  throw new Error('Function not implemented.');
-}
-
-function removeAvatar(removeAvatar: any, dispatch: Dispatch<import("redux").AnyAction>) {
-  throw new Error('Function not implemented.');
-}
-

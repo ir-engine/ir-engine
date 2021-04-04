@@ -47,8 +47,8 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
   }
 
   sendNetworkStatUpdateMessage(message, instance = true): void {
-    if (instance) this.instanceSocket.emit(MessageTypes.UpdateNetworkState.toString(), message)
-    else this.channelSocket.emit(MessageTypes.UpdateNetworkState.toString(), message)
+    if (instance) this.instanceSocket.emit(MessageTypes.UpdateNetworkState.toString(), message);
+    else this.channelSocket.emit(MessageTypes.UpdateNetworkState.toString(), message);
   }
 
   handleKick(socket) {
@@ -88,7 +88,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     const { token, user, startVideo, videoEnabled, channelType, isHarmonyPage, ...query } = opts;
 
     Network.instance.accessToken = query.token = token;
-    EngineEvents.instance.dispatchEvent({ type: ClientNetworkSystem.EVENTS.CONNECT, id: user.id })
+    EngineEvents.instance.dispatchEvent({ type: ClientNetworkSystem.EVENTS.CONNECT, id: user.id });
 
     this.mediasoupDevice = new Device();
     if (socket && socket.close) socket.close();
@@ -140,13 +140,13 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
         ConnectToWorldResponse = await Promise.race([
           await request(MessageTypes.ConnectToWorld.toString()),
           new Promise((resolve, reject) => {
-            setTimeout(() => reject(new Error('Connect timed out')), 10000)
+            setTimeout(() => reject(new Error('Connect timed out')), 10000);
           })
       ]);
       } catch(err) {
         console.log(err);
         EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.CONNECT_TO_WORLD_TIMEOUT, instance: instance === true });
-        return
+        return;
       }
       console.log('ConnectToWorldResponse:');
       console.log(ConnectToWorldResponse);

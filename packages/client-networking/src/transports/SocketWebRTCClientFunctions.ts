@@ -194,7 +194,7 @@ export async function configureMediaTransports(channelType, channelId?: string):
     networkTransport = Network.instance.transport as any;
 
     if (MediaStreamSystem.instance.mediaStream == null) {
-      await MediaStreamSystem.instance.startCamera()
+      await MediaStreamSystem.instance.startCamera();
     }
 
     if (MediaStreamSystem.instance.mediaStream == null) {
@@ -449,7 +449,7 @@ export async function leave(instance: boolean): Promise<boolean> {
                 // close everything on the server-side (transports, producers, consumers)
                 const result = await request(MessageTypes.LeaveWorld.toString());
                 if (result.error) console.error(result.error);
-                EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.LEAVE_WORLD })
+                EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.LEAVE_WORLD });
             }
 
             networkTransport.leaving = false;
