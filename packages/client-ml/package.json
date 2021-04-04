@@ -15,7 +15,6 @@
   "npmClient": "yarn",
   "jest": "ts-jest",
   "scripts": {
-    "lint": "eslint --fix --quiet *.ts **/*.d.ts **/*.ts **/*.tsx"
   },
   "resolutions": {
     "@types/react": "^17.0.0",
