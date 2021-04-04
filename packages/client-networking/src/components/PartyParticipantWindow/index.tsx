@@ -38,8 +38,7 @@ import {
     resumeProducer
 } from '../../transports/SocketWebRTCClientFunctions';
 import Draggable from './Draggable';
-// @ts-ignore
-import styles from './PartyParticipantWindow.module.scss';
+import styles from './style.module.scss';
 
 interface ContainerProportions {
     width: number | string;

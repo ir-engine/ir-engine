@@ -2,6 +2,7 @@
   "name": "@xr3ngine/client-networking",
   "version": "0.2.10",
   "private": true,
+  "main": "./index.ts",
   "repository": {
     "type": "git",
     "url": "git://github.com/xr3ngine/xr3ngine.git"

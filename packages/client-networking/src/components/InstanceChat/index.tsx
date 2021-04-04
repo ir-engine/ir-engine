@@ -28,8 +28,7 @@ import classNames from 'classnames';
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
-import styles from './InstanceChat.module.scss';
-
+import styles from './style.module.scss';
 
 const mapStateToProps = (state: any): any => {
     return {

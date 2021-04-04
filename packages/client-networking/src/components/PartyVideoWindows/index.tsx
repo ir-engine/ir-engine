@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-// @ts-ignore
-import styles from './PartyVideoWindows.module.scss';
+import styles from './style.module.scss';
 import { ChevronRight } from '@material-ui/icons';
 import PartyParticipantWindow from '../PartyParticipantWindow';
 import { selectAuthState } from "@xr3ngine/client-core/src/user/reducers/auth/selector";
