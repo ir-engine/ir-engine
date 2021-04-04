@@ -20,6 +20,8 @@ import { WebRTCGameServer } from "./WebRTCGameServer";
 import winston from 'winston';
 import feathersLogger from 'feathers-logger';
 import { EventEmitter } from 'events';
+import services from '@xr3ngine/server-core/src/services';
+import sequelize from '@xr3ngine/server-core/src/sequelize';
 
 const emitter = new EventEmitter();
 
@@ -30,7 +32,7 @@ const agonesSDK = new AgonesSDK();
 
 app.set('nextReadyEmitter', emitter);
 
-if (config.server.enabled) {
+if (config.gameserver.enabled) {
   try {
     app.configure(
         swagger({
@@ -62,6 +64,8 @@ if (config.server.enabled) {
 
     app.set('paginate', config.server.paginate);
     app.set('authentication', config.authentication);
+
+    app.configure(sequelize);
 
     // Enable security, CORS, compression, favicon and body parsing
     app.use(helmet());
@@ -114,6 +118,7 @@ if (config.server.enabled) {
     // Set up our services (see `services/index.js`)
 
     app.configure(feathersLogger(winston));
+    app.configure(services);
 
     // Set up event channels (see channels.js)
     app.configure(channels);
@@ -124,6 +129,7 @@ if (config.server.enabled) {
     // Host the public folder
     // Configure a middleware for 404s and the error handler
 
+    if (config.gameserver.mode === 'realtime') {
       (app as any).k8AgonesClient = K8s.api({
         endpoint: `https://${process.env.KUBERNETES_SERVICE_HOST}:${process.env.KUBERNETES_PORT_443_TCP_PORT}`,
         version: '/apis/agones.dev/v1',
@@ -140,8 +146,9 @@ if (config.server.enabled) {
           token: fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/token')
         }
       });
+    }
 
-    if ((process.env.KUBERNETES === 'true') || process.env.NODE_ENV === 'development' || config.server.mode === 'local') {
+    if ((process.env.KUBERNETES === 'true') || process.env.NODE_ENV === 'development' || config.gameserver.mode === 'local') {
       agonesSDK.connect();
       agonesSDK.ready().catch((err) => {
         throw new Error('\x1b[33mError: Agones is not running!. If you are in local development, please run xr3ngine/scripts/sh start-agones.sh and restart server\x1b[0m');

@@ -12,7 +12,7 @@ import {
   INSTANCE_SERVER_PROVISIONING,
   INSTANCE_SERVER_PROVISIONED,
   SOCKET_CREATED
-} from '../actions';
+} from '@xr3ngine/client-core/src/world/reducers/actions';
 
 export const initialState = {
   instance: {

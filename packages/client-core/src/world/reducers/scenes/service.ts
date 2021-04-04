@@ -1,7 +1,7 @@
 import { Dispatch } from 'redux';
 import {
   scenesFetchedSuccess,
-  // scenessFetchedError,
+  // scenesFetchedError,
   PublicScene
 } from './actions';
 

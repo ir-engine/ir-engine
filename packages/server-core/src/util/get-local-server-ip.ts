@@ -9,6 +9,6 @@ export default async (): Promise<ServerAddress> => {
     const ip = await internalIp.v4();
     return {
         ipAddress: ip,
-        port: '3030'
+        port: '3031'
     };
 };

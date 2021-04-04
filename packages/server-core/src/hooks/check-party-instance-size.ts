@@ -53,7 +53,7 @@ export default () => {
               const agonesSDK = (context.app as any).agonesSDK;
               const gsResult = await agonesSDK.getGameServer();
               status = gsResult.status;
-              selfIpAddress = `${emittedIp.ipAddress}:3030`;
+              selfIpAddress = `${emittedIp.ipAddress}:3031`;
             }
             const instance = await context.app.service('instance').create({
               currentUsers: partyUserResult.total,

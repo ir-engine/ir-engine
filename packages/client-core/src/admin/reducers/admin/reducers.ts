@@ -6,27 +6,32 @@ import {
   VideoCreatedAction
 } from './actions';
 
+import { VIDEO_CREATED } from "../actions";
 import {
-  VIDEO_CREATED,
   LOCATIONS_RETRIEVED,
   LOCATION_CREATED,
   LOCATION_PATCHED,
   LOCATION_REMOVED,
+  INSTANCE_REMOVED
+} from '../../../social/reducers/actions';
+import {
   SCENES_RETRIEVED,
   LOCATION_TYPES_RETRIEVED,
+  INSTANCES_RETRIEVED
+} from "../../../world/reducers/actions";
+import {
   LOADED_USERS,
-  INSTANCES_RETRIEVED, INSTANCE_REMOVED
-} from '../actions';
+} from '../../../common/reducers/actions'
 import { UserSeed } from '@xr3ngine/common/interfaces/User';
 import { IdentityProviderSeed } from '@xr3ngine/common/interfaces/IdentityProvider';
 import { AuthUserSeed } from '@xr3ngine/common/interfaces/AuthUser';
 import {
   LocationsRetrievedAction,
-} from "../location/actions";
+} from "../../../social/reducers/location/actions";
 import {
   LoadedUsersAction
-} from "../user/actions";
-import {CollectionsFetchedAction} from "../scenes/actions";
+} from "../../../user/reducers/user/actions";
+import {CollectionsFetchedAction} from "../../../world/reducers/scenes/actions";
 
 export const PAGE_LIMIT = 100;
 

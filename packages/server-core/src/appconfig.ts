@@ -58,7 +58,7 @@ const server = {
   certPath: path.resolve(path.dirname("./"), process.env.CERT ?? 'certs/cert.pem'),
   keyPath: path.resolve(path.dirname("./"), process.env.KEY ?? 'certs/key.pem'),
   local: process.env.LOCAL === 'true',
-  gameserverContainerPort: process.env.GAMESERVER_CONTAINER_PORT ?? 3030,
+  gameserverContainerPort: process.env.GAMESERVER_CONTAINER_PORT ?? 3031,
   releaseName: process.env.RELEASE_NAME ?? ''
 };
 const obj = process.env.KUBERNETES === 'true' ? { protocol: 'https', hostname: server.hostname }: { protocol: 'https', ...server };
@@ -82,13 +82,16 @@ const client = {
 };
 
 const gameserver = {
+  enabled: process.env.GAMESERVER_ENABLED !== 'false' ?? false,
   rtc_start_port: process.env.RTC_START_PORT ? parseInt(process.env.RTC_START_PORT) : 40000,
   rtc_end_port: process.env.RTC_END_PORT ? parseInt(process.env.RTC_END_PORT) : 40099,
   rtc_port_block_size: process.env.RTC_PORT_BLOCK_SIZE ? parseInt(process.env.RTC_PORT_BLOCK_SIZE) : 100,
   identifierDigits: 5,
   local: process.env.LOCAL === 'true',
   domain: process.env.GAMESERVER_DOMAIN ?? 'gameserver.theoverlay.io',
-  releaseName: process.env.RELEASE_NAME ?? ''
+  releaseName: process.env.RELEASE_NAME ?? '',
+  port: process.env.GAMESERVER_PORT ?? 3031,
+  mode: process.env.SERVER_MODE ?? 'local'
 };
 
 /**

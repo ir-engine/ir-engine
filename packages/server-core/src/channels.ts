@@ -25,7 +25,7 @@ export default (app: Application): void => {
     // }
 
     app.on('connection', async (connection) => {
-        if ((process.env.KUBERNETES === 'true' && config.server.mode === 'realtime') || (process.env.NODE_ENV === 'development') || config.server.mode === 'local') {
+        if ((process.env.KUBERNETES === 'true' && config.gameserver.mode === 'realtime') || (process.env.NODE_ENV === 'development') || config.gameserver.mode === 'local') {
             try {
                 const token = (connection as any).socketQuery?.token;
                 if (token != null) {
@@ -54,7 +54,7 @@ export default (app: Application): void => {
                             const newInstance = {
                                 currentUsers: 1,
                                 sceneId: sceneId,
-                                ipAddress: config.server.mode === 'local' ? `${localIp.ipAddress}:3030` : selfIpAddress
+                                ipAddress: config.gameserver.mode === 'local' ? `${localIp.ipAddress}:3031` : selfIpAddress
                             } as any;
                             console.log('channelId: ' + channelId);
                             console.log('locationId: ' + locationId);
@@ -172,7 +172,7 @@ export default (app: Application): void => {
     });
 
     app.on('disconnect', async (connection) => {
-        if ((process.env.KUBERNETES === 'true' && config.server.mode === 'realtime') || process.env.NODE_ENV === 'development' || config.server.mode === 'local') {
+        if ((process.env.KUBERNETES === 'true' && config.gameserver.mode === 'realtime') || process.env.NODE_ENV === 'development' || config.gameserver.mode === 'local') {
             try {
                 const token = (connection as any).socketQuery?.token;
                 if (token != null) {
