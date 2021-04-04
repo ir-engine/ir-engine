@@ -48,10 +48,10 @@ export class BokehMaterial extends ShaderMaterial {
     } as any);
 
     /** @ignore */
-    this.toneMapped = false;
+    (this as any).toneMapped = false;
 
     if (foreground) {
-      this.defines.FOREGROUND = '1';
+      (this as any).defines.FOREGROUND = '1';
     }
 
     this.generateKernel();
@@ -65,8 +65,8 @@ export class BokehMaterial extends ShaderMaterial {
 
   generateKernel () {
     const GOLDEN_ANGLE = 2.39996323;
-    const points64 = this.uniforms.kernel64.value;
-    const points16 = this.uniforms.kernel16.value;
+    const points64 = (this as any).uniforms.kernel64.value;
+    const points16 = (this as any).uniforms.kernel16.value;
 
     let i64 = 0; let i16 = 0;
 
@@ -93,6 +93,6 @@ export class BokehMaterial extends ShaderMaterial {
 	 */
 
   setTexelSize (x, y) {
-    this.uniforms.texelSize.value.set(x, y);
+    (this as any).uniforms.texelSize.value.set(x, y);
   }
 }

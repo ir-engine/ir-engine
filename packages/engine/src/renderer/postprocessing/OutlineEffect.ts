@@ -95,11 +95,11 @@ export class OutlineEffect extends Effect {
     });
 
     // Handle alpha blending.
-    this.blendMode.addEventListener('change', (event) => {
+    (this.blendMode as any).addEventListener('change', (event) => {
       if (this.blendMode.getBlendFunction() === BlendFunction.ALPHA) {
-        this.defines.set('ALPHA', '1');
+        (this as any).defines.set('ALPHA', '1');
       } else {
-        this.defines.delete('ALPHA');
+        (this as any).defines.delete('ALPHA');
       }
 
       this.setChanged();
@@ -143,7 +143,7 @@ export class OutlineEffect extends Effect {
 
     this.renderTargetMask.texture.name = 'Outline.Mask';
 
-    this.uniforms.get('maskTexture').value = this.renderTargetMask.texture;
+    (this as any).uniforms.get('maskTexture').value = this.renderTargetMask.texture;
 
     /**
 		 * A render target for the edge detection.
@@ -379,7 +379,7 @@ export class OutlineEffect extends Effect {
   set blur (value) {
     this.blurPass.enabled = value;
 
-    this.uniforms.get('edgeTexture').value = value
+    (this as any).uniforms.get('edgeTexture').value = value
       ? this.renderTargetBlurredOutline.texture
       : this.renderTargetOutline.texture;
   }
@@ -391,7 +391,7 @@ export class OutlineEffect extends Effect {
 	 */
 
   get xRay () {
-    return this.defines.has('X_RAY');
+    return (this as any).defines.has('X_RAY');
   }
 
   /**
@@ -403,9 +403,9 @@ export class OutlineEffect extends Effect {
   set xRay (value) {
     if (this.xRay !== value) {
       if (value) {
-        this.defines.set('X_RAY', '1');
+        (this as any).defines.set('X_RAY', '1');
       } else {
-        this.defines.delete('X_RAY');
+        (this as any).defines.delete('X_RAY');
       }
 
       this.setChanged();
@@ -422,12 +422,12 @@ export class OutlineEffect extends Effect {
     if (texture !== null) {
       texture.wrapS = texture.wrapT = RepeatWrapping;
 
-      this.defines.set('USE_PATTERN', '1');
-      this.uniforms.get('patternTexture').value = texture;
+      (this as any).defines.set('USE_PATTERN', '1');
+      (this as any).uniforms.get('patternTexture').value = texture;
       this.setVertexShader(vertexShader);
     } else {
-      this.defines.delete('USE_PATTERN');
-      this.uniforms.get('patternTexture').value = null;
+      (this as any).defines.delete('USE_PATTERN');
+      (this as any).uniforms.get('patternTexture').value = null;
       this.setVertexShader(null);
     }
 
@@ -523,7 +523,7 @@ export class OutlineEffect extends Effect {
     const scene = this.scene;
     const camera = this.camera;
     const selection = this.selection;
-    const pulse = this.uniforms.get('pulse');
+    const pulse = (this as any).uniforms.get('pulse');
 
     const background = scene.background;
     const mask = camera.layers.mask;

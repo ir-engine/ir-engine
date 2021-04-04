@@ -84,7 +84,7 @@ export class RealisticBokehEffect extends Effect {
 	 */
 
   get rings () {
-    return Number.parseInt(this.defines.get('RINGS_INT'));
+    return Number.parseInt((this as any).defines.get('RINGS_INT'));
   }
 
   /**
@@ -95,8 +95,8 @@ export class RealisticBokehEffect extends Effect {
 
   set rings (value) {
     const r = Math.floor(value);
-    this.defines.set('RINGS_INT', r.toFixed(0));
-    this.defines.set('RINGS_FLOAT', r.toFixed(1));
+    (this as any).defines.set('RINGS_INT', r.toFixed(0));
+    (this as any).defines.set('RINGS_FLOAT', r.toFixed(1));
 
     this.setChanged();
   }
@@ -108,7 +108,7 @@ export class RealisticBokehEffect extends Effect {
 	 */
 
   get samples () {
-    return Number.parseInt(this.defines.get('SAMPLES_INT'));
+    return Number.parseInt((this as any).defines.get('SAMPLES_INT'));
   }
 
   /**
@@ -119,8 +119,8 @@ export class RealisticBokehEffect extends Effect {
 
   set samples (value) {
     const s = Math.floor(value);
-    this.defines.set('SAMPLES_INT', s.toFixed(0));
-    this.defines.set('SAMPLES_FLOAT', s.toFixed(1));
+    (this as any).defines.set('SAMPLES_INT', s.toFixed(0));
+    (this as any).defines.set('SAMPLES_FLOAT', s.toFixed(1));
 
     this.setChanged();
   }
@@ -132,7 +132,7 @@ export class RealisticBokehEffect extends Effect {
 	 */
 
   get showFocus () {
-    return this.defines.has('SHOW_FOCUS');
+    return (this as any).defines.has('SHOW_FOCUS');
   }
 
   /**
@@ -144,9 +144,9 @@ export class RealisticBokehEffect extends Effect {
   set showFocus (value) {
     if (this.showFocus !== value) {
       if (value) {
-        this.defines.set('SHOW_FOCUS', '1');
+        (this as any).defines.set('SHOW_FOCUS', '1');
       } else {
-        this.defines.delete('SHOW_FOCUS');
+        (this as any).defines.delete('SHOW_FOCUS');
       }
 
       this.setChanged();
@@ -162,7 +162,7 @@ export class RealisticBokehEffect extends Effect {
 	 */
 
   get manualDoF () {
-    return this.defines.has('MANUAL_DOF');
+    return (this as any).defines.has('MANUAL_DOF');
   }
 
   /**
@@ -174,11 +174,11 @@ export class RealisticBokehEffect extends Effect {
   set manualDoF (value) {
     if (this.manualDoF !== value) {
       if (value) {
-        this.defines.set('MANUAL_DOF', '1');
-        this.uniforms.get('dof').value = new Vector4(0.2, 1.0, 0.2, 2.0);
+        (this as any).defines.set('MANUAL_DOF', '1');
+        (this as any).uniforms.get('dof').value = new Vector4(0.2, 1.0, 0.2, 2.0);
       } else {
-        this.defines.delete('MANUAL_DOF');
-        this.uniforms.get('dof').value = null;
+        (this as any).defines.delete('MANUAL_DOF');
+        (this as any).uniforms.get('dof').value = null;
       }
 
       this.setChanged();
@@ -192,7 +192,7 @@ export class RealisticBokehEffect extends Effect {
 	 */
 
   get pentagon () {
-    return this.defines.has('PENTAGON');
+    return (this as any).defines.has('PENTAGON');
   }
 
   /**
@@ -204,9 +204,9 @@ export class RealisticBokehEffect extends Effect {
   set pentagon (value) {
     if (this.pentagon !== value) {
       if (value) {
-        this.defines.set('PENTAGON', '1');
+        (this as any).defines.set('PENTAGON', '1');
       } else {
-        this.defines.delete('PENTAGON');
+        (this as any).defines.delete('PENTAGON');
       }
 
       this.setChanged();
