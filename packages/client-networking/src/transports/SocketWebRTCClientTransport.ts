@@ -11,7 +11,7 @@ import { EngineEvents } from "@xr3ngine/engine/src/ecs/classes/EngineEvents";
 import { ClientNetworkSystem } from "@xr3ngine/engine/src/networking/systems/ClientNetworkSystem";
 
 const { publicRuntimeConfig } = getConfig();
-const gameserver = process.env.NODE_ENV === 'production' ? publicRuntimeConfig.gameserver : 'https://127.0.0.1:3030';
+const gameserver = process.env.NODE_ENV === 'production' ? publicRuntimeConfig.gameserver : 'https://127.0.0.1:3031';
 const Device = mediasoupClient.Device;
 
 export class SocketWebRTCClientTransport implements NetworkTransport {
@@ -82,7 +82,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     };
   }
 
-  public async initialize(address = "https://127.0.0.1", port = 3030, instance: boolean, opts?: any): Promise<void> {
+  public async initialize(address = "https://127.0.0.1", port = 3031, instance: boolean, opts?: any): Promise<void> {
     const self = this;
     let socket = instance === true ? this.instanceSocket : this.channelSocket;
     const { token, user, startVideo, videoEnabled, channelType, isHarmonyPage, ...query } = opts;

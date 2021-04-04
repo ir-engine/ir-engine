@@ -20,9 +20,9 @@ export default {
           {
             model: 'identity-provider'
           },
-          {
-            model: 'subscription'
-          },
+          // {
+          //   model: 'subscription'
+          // },
           {
             model: 'location-admin'
           },
@@ -41,9 +41,9 @@ export default {
           {
             model: 'identity-provider'
           },
-          {
-            model: 'subscription'
-          },
+          // {
+          //   model: 'subscription'
+          // },
           {
             model: 'location-admin'
           },
@@ -64,9 +64,9 @@ export default {
           {
             model: 'identity-provider'
           },
-          {
-            model: 'subscription'
-          },
+          // {
+          //   model: 'subscription'
+          // },
           {
             model: 'location-admin'
           },

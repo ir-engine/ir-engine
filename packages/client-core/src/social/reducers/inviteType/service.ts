@@ -1,12 +1,11 @@
 import { Dispatch } from 'redux';
-import { client } from '../feathers';
-import {dispatchAlertSuccess} from '../alert/service';
+import { client } from '../../../feathers';
+import { dispatchAlertError } from '../../../common/reducers/alert/service';
 import {
     fetchingInvitesTypes,
    retrievedInvitesTypes
 } from "./actions";
-import {dispatchAlertError} from '../alert/service';
-import store from "../store";
+import store from "../../../store";
 
 export function retrieveInvites () {
     return async (dispatch: Dispatch, getState: any): Promise<any> => {

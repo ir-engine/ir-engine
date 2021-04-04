@@ -1,8 +1,8 @@
 import { Creator } from '@xr3ngine/common/interfaces/Creator';
 import { Dispatch } from 'redux';
-import Api from '../../components/editor/Api';
-import { dispatchAlertError } from "../alert/service";
-import { client } from '../feathers';
+import Api from '../../../world/components/editor/Api';
+import { dispatchAlertError } from '../../../common/reducers/alert/service';
+import { client } from '../../../feathers';
 import {
   fetchingCreator,
   creatorRetrieved,
