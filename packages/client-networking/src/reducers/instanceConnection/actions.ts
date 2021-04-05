@@ -1,12 +1,5 @@
+import { INSTANCE_SERVER_PROVISIONING, INSTANCE_SERVER_PROVISIONED, INSTANCE_SERVER_CONNECTING, INSTANCE_SERVER_CONNECTED, INSTANCE_SERVER_DISCONNECTED } from '@xr3ngine/client-core/src/world/reducers/actions';
 import { InstanceServerProvisionResult } from '@xr3ngine/common/interfaces/InstanceServerProvisionResult';
-import {
-  INSTANCE_SERVER_CONNECTED,
-  INSTANCE_SERVER_CONNECTING,
-  INSTANCE_SERVER_DISCONNECTED,
-  INSTANCE_SERVER_PROVISIONED,
-  INSTANCE_SERVER_PROVISIONING,
-  SOCKET_CREATED
-} from '../actions';
 
 export interface InstanceServerProvisioningAction {
   type: string;
