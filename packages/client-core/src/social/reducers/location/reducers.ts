@@ -11,7 +11,7 @@ import {
   LOCATION_RETRIEVED,
   LOCATION_BAN_CREATED,
   LOCATION_NOT_FOUND
-} from '../../reducers/actions';
+} from '../actions';
 
 export const initialState = {
   locations: {
