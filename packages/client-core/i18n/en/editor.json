@@ -25,7 +25,7 @@
     "publishingSceneMsg": "Publishing scene...",
     "uploadingThumbnailMsg": "Uploading thumbnail...",
     "uploadingSceneMsg": "Uploading scene: {{percentage}}%",
-    "toolbar": {
+    "menubar": {
         "newProject": "New Project",
         "saveProject": "Save Project",
         "saveAs": "Save As",
@@ -92,6 +92,30 @@
             "triangles": "Triangles",
             "points": "Points",
             "lines": "Lines"
+        }
+    },
+    "toolbar": {
+        "lbl-publish": "Publish",
+        "lbl-published": "Published",
+        "command": {
+            "translate": "Translate",
+            "rotate": "Rotate",
+            "scale": "Scale",
+            "toggleSpace": "Toggle Transform Space",
+            "togglePivot": "Toggle Transform Pivot",
+            "toggleSnapMode": "Toggle Snap Mode",
+            "toggleGrid": "Toggle Grid Visibility",
+            "increaseGridSize": "Increase Grid Size",
+            "descreaseGridSize": "Decrease Grid Size",
+            "stopPreview": "Stop Previewing Scene",
+            "playPreview": "Preview Scene"
+        }
+    },
+    "properties": {
+        "ambientLight": {
+            "description": "A light which illuminates all objects in your scene.",
+            "lbl-intensity": "Intensity",
+            "lbl-color": "Color"
         }
     }
 }

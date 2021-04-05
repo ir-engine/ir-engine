@@ -381,36 +381,36 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
   generateToolbarMenu = () => {
     return [
       {
-        name: this.t('editor:toolbar.newProject'),
+        name: this.t('editor:menubar.newProject'),
         action: this.onNewProject
       },
       {
-        name: this.t('editor:toolbar.saveProject'),
+        name: this.t('editor:menubar.saveProject'),
         hotkey: `${cmdOrCtrlString} + S`,
         action: this.onSaveProject
       },
       {
-        name: this.t('editor:toolbar.saveAs'),
+        name: this.t('editor:menubar.saveAs'),
         action: this.onDuplicateProject
       },
       // {
-      //   name: this.t('editor:toolbar.publishProject'),
+      //   name: this.t('editor:menubar.publishProject'),
       //   action: this.onPublishProject
       // },
       {
-        name: this.t('editor:toolbar.exportGLB'), // TODO: Disabled temporarily till workers are working
+        name: this.t('editor:menubar.exportGLB'), // TODO: Disabled temporarily till workers are working
         action: this.onExportProject
       },
       {
-        name: this.t('editor:toolbar.importProject'),
+        name: this.t('editor:menubar.importProject'),
         action: this.onImportLegacyProject
       },
       {
-        name: this.t('editor:toolbar.exportProject'),
+        name: this.t('editor:menubar.exportProject'),
         action: this.onExportLegacyProject
       },
       {
-        name: this.t('editor:toolbar.quit'),
+        name: this.t('editor:menubar.quit'),
         action: this.onOpenProject
       },
     ];
