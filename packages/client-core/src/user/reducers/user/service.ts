@@ -1,15 +1,15 @@
+import { Relationship } from '@xr3ngine/common/interfaces/Relationship';
+import { User } from '@xr3ngine/common/interfaces/User';
 import { Dispatch } from 'redux';
 import { client } from '../../../feathers';
-import { Relationship } from '@xr3ngine/common/interfaces/Relationship';
 import {
   changedRelation,
-  loadedUsers,
-  loadedLayerUsers,
-  loadedChannelLayerUsers,
-  loadedUserRelationship,
   displayUserToast,
+  loadedChannelLayerUsers,
+  loadedLayerUsers,
+  loadedUserRelationship,
+  loadedUsers
 } from './actions';
-import { User } from '@xr3ngine/common/interfaces/User';
 
 export function getUserRelationship(userId: string) {
   return (dispatch: Dispatch): any => {
