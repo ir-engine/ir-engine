@@ -27,7 +27,7 @@ import { IdentityProviderSeed } from '@xr3ngine/common/interfaces/IdentityProvid
 import { AuthUserSeed } from '@xr3ngine/common/interfaces/AuthUser';
 import {
   LocationsRetrievedAction,
-} from "../../../social/reducers/location/actions";
+} from "@xr3ngine/client-networking/src/reducers/location/actions";
 import {
   LoadedUsersAction
 } from "../../../user/reducers/user/actions";
