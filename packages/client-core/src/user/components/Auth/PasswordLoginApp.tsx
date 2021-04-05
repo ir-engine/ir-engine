@@ -11,13 +11,13 @@ import IconButton from '@material-ui/core/IconButton';
 import { Visibility, VisibilityOff } from '@material-ui/icons';
 import OutlinedInput from '@material-ui/core/OutlinedInput';
 
-import { selectAuthState } from '../../../reducers/auth/selector';
-import { doLoginAuto } from '../../../reducers/auth/service';
+import { selectAuthState } from '../../reducers/auth/selector';
+import { doLoginAuto } from '../../reducers/auth/service';
 import { User } from '@xr3ngine/common/interfaces/User';
 
 import styles from './Auth.module.scss';
-import { createCreator } from '../../../reducers/creator/service';
-import { selectCreatorsState } from '../../../reducers/creator/selector';
+import { createCreator } from '../../../socialmedia/reducers/creator/service';
+import { selectCreatorsState } from '../../../socialmedia/reducers/creator/selector';
 
 const mapStateToProps = (state: any): any => {
   return {

@@ -1,4 +1,10 @@
-import { CHANNEL_SERVER_PROVISIONING, CHANNEL_SERVER_PROVISIONED, CHANNEL_SERVER_CONNECTING, CHANNEL_SERVER_CONNECTED, CHANNEL_SERVER_DISCONNECTED } from '../actions';
+import {
+  CHANNEL_SERVER_PROVISIONING,
+  CHANNEL_SERVER_PROVISIONED,
+  CHANNEL_SERVER_CONNECTING,
+  CHANNEL_SERVER_CONNECTED,
+  CHANNEL_SERVER_DISCONNECTED
+} from '../actions';
 import { InstanceServerProvisionResult } from '@xr3ngine/common/interfaces/InstanceServerProvisionResult';
 
 export interface ChannelServerProvisioningAction {
@@ -43,7 +49,8 @@ export function channelServerProvisioning (): ChannelServerProvisioningAction {
   };
 }
 export function channelServerProvisioned (provisionResult: InstanceServerProvisionResult, channelId: string | null): ChannelServerProvisionedAction {
-  console.log('Calling channelServerProvision');
+  console.log('Channel server provisioned');
+  console.log(provisionResult);
   return {
     type: CHANNEL_SERVER_PROVISIONED,
     ipAddress: provisionResult.ipAddress,

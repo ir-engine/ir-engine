@@ -38,7 +38,6 @@ export class InstanceProvision implements ServiceMethods<Data> {
   async getFreeGameserver(): Promise<any> {
     if (process.env.KUBERNETES !== 'true') {
       console.log('Local server spinning up new instance');
-      (this.app as any).instance = null;
       return getLocalServerIp();
     }
     logger.info('Getting free gameserver');
@@ -72,7 +71,6 @@ export class InstanceProvision implements ServiceMethods<Data> {
     const instanceUserSort = _.sortBy(availableLocationInstances, (instance: typeof instanceModel) => instance.currentUsers);
     if (process.env.KUBERNETES !== 'true') {
       logger.info('Resetting local instance to ' + instanceUserSort[0].id);
-      (this.app as any).instance = instanceUserSort[0];
       return getLocalServerIp();
     }
     const gsCleanup = await this.gsCleanup(instanceUserSort[0]);
@@ -176,9 +174,6 @@ export class InstanceProvision implements ServiceMethods<Data> {
             throw new BadRequest('Invalid instance ID');
           }
           const ipAddressSplit = instance.ipAddress.split(':');
-          if (process.env.KUBERNETES !== 'true') {
-            (this.app as any).instance.id = instanceId;
-          }
           return {
             ipAddress: ipAddressSplit[0],
             port: ipAddressSplit[1]
@@ -288,7 +283,6 @@ export class InstanceProvision implements ServiceMethods<Data> {
           const maxInstance = await this.app.service('instance').get(maxInstanceId);
           if (process.env.KUBERNETES !== 'true') {
             logger.info('Resetting local instance to ' + maxInstanceId);
-            (this.app as any).instance = maxInstance;
             return getLocalServerIp();
           }
           const ipAddressSplit = maxInstance.ipAddress.split(':');
