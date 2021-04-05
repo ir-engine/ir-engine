@@ -12,7 +12,7 @@ import { MobileGamepadProps } from "../ui/MobileGamepad/MobileGamepadProps";
 import { EngineEvents } from '@xr3ngine/engine/src/ecs/classes/EngineEvents';
 import { DefaultInitializationOptions, initializeEngine } from '@xr3ngine/engine/src/initialize';
 import { XRSystem } from '@xr3ngine/engine/src/xr/systems/XRSystem';
-import { testScenes, testUserId, testWorldState } from '@xr3ngine/common/assets/testScenes'
+import { testScenes, testUserId, testWorldState } from '@xr3ngine/common/assets/testScenes';
 import { ClientNetworkSystem } from '@xr3ngine/engine/src/networking/systems/ClientNetworkSystem';
 
 const MobileGamepad = dynamic<MobileGamepadProps>(() => import("../ui/MobileGamepad").then((mod) => mod.MobileGamepad), { ssr: false });
@@ -68,7 +68,7 @@ export const OfflineEnginePage = (props: Props) => {
     });
 
     const getWorldState = new Promise<any>((resolve) => {
-      EngineEvents.instance.dispatchEvent({ type: ClientNetworkSystem.EVENTS.CONNECT, id: testUserId })
+      EngineEvents.instance.dispatchEvent({ type: ClientNetworkSystem.EVENTS.CONNECT, id: testUserId });
       resolve(testWorldState);
     });
     
@@ -97,5 +97,5 @@ export const OfflineEnginePage = (props: Props) => {
         <canvas id={engineRendererCanvasId} width='100%' height='100%' />
         {mobileGamepad}
       </div>}
-    </>)
+    </>);
 };

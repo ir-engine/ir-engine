@@ -18,6 +18,7 @@ import ProfileMenu from "@xr3ngine/client-core/components/ui/UserMenu/menus/Prof
 import ClickAwayListener from "@material-ui/core/ClickAwayListener";
 import styles from "@xr3ngine/client-core/components/ui/Harmony/Harmony.module.scss";
 import {Person} from "@material-ui/icons";
+import { useTranslation } from 'react-i18next';
 
 /**
  * Creating styled component using section.
@@ -219,6 +220,7 @@ const ProjectsPage = (props: Props) => {
   const [profileMenuOpen, setProfileMenuOpen] = useState(false); // constant profileMenuOpen initialized as false
   const authUser = authState.get('authUser');// authUser initialized by getting property from authState object.
   const user = authState.get('user');// user initialized by getting value from authState object.
+  const { t } = useTranslation();
 
   useEffect(() => {
     doLoginAuto(true);
@@ -285,7 +287,7 @@ const ProjectsPage = (props: Props) => {
       <>
       <ContextMenu id={contextMenuId}>
         <MenuItem onClick={e => onDeleteProject(props.trigger.project)}>
-          Delete Project
+          {t('editor.projects.contextMenu.deleteProject')}
         </MenuItem>
       </ContextMenu>
       </>
@@ -320,7 +322,7 @@ const ProjectsPage = (props: Props) => {
         <ProjectsSection>
           <ProjectsContainer>
             <ProjectsHeader>
-                <h1>Please Login</h1>
+                <h1>{t('editor.projects.header')}</h1>
               </ProjectsHeader>
             <ProjectGridContainer>
               <ProjectGridContent>  
@@ -341,14 +343,12 @@ const ProjectsPage = (props: Props) => {
           {(projects.length === 0 && !loading) ? (
               <ProjectsSection flex={0}>
                 <WelcomeContainer>
-                  <h1>Welcome</h1>
+                  <h1>{t('editor.projects.welcomeMsg')}</h1>
                   <h2>
-                    If you&#39;re new here we recommend going through the
-                    tutorial. Otherwise, jump right in and create a project from
-                    scratch or from one of our templates.
+                  {t('editor.projects.description')}
                   </h2>
                   <MediumButton onClick={routeTo("/editor/tutorial")}>
-                    Start Tutorial
+                  {t('editor.projects.lbl-startTutorial')}
                   </MediumButton>
                 </WelcomeContainer>
               </ProjectsSection>
@@ -356,20 +356,20 @@ const ProjectsPage = (props: Props) => {
           <ProjectsSection>
             <ProjectsContainer>
             <ProjectsHeader>
-                <h1>Locations</h1>
+                <h1>{t('editor.projects.locationHeader')}</h1>
               </ProjectsHeader>
               <div className="mb-5">
                 <AdminConsole />
               </div>
               <ProjectsHeader>
-                <h1>Projects</h1>
+                <h1> {t('editor.projects.projectHeader')}</h1>
               </ProjectsHeader>
               <ProjectGridContainer>
                 <ProjectGridHeader>
                   <ProjectGridHeaderRow />
                   <ProjectGridHeaderRow>
                     <Button onClick={routeTo("/editor/create")}>
-                      New Project
+                    {t('editor.projects.lbl-newProject')}
                     </Button>
                   </ProjectGridHeaderRow>
                 </ProjectGridHeader>
@@ -381,7 +381,7 @@ const ProjectsPage = (props: Props) => {
                           projects={projects}
                           // newProjectPath="/editor/templates"
                           newProjectPath="/editor/create"
-                          newProjectLabel="New Project"
+                          newProjectLabel={t('editor.projects.lbl-newProject')}
                           contextMenuId={contextMenuId}
                       />
                   )}
