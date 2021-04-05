@@ -54,7 +54,7 @@
     "precommit"
   ],
   "resolutions": {
-    "socket.io": "^4.0.1"
+    "socket.io": "2.4.1"
   },
   "peerDependencies": {
     "@feathersjs/authentication": "^4.5.9",
@@ -76,7 +76,7 @@
     "graphql-relay": "~0.6.0",
     "graphql-sequelize": "~9.4.0",
     "sequelize": "~5.21.8",
-    "socket.io": "^4.0.1"
+    "socket.io": "2.4.1"
   },
   "dependencies": {
     "@feathersjs/authentication": "^4.5.9",
