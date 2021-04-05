@@ -85,7 +85,9 @@ export default class MyAssetsSource extends BaseSource {
         const nodeClass = assetTypeToNode[result.type];
         const iconComponent = thumbnailUrl
           ? null
-          : this.editor.nodeEditors.get(nodeClass).iconComponent;
+          : this.editor.nodeEditors.get(nodeClass).WrappedComponent
+            ? this.editor.nodeEditors.get(nodeClass).WrappedComponent.iconComponent
+            : this.editor.nodeEditors.get(nodeClass).iconComponent;
         return {
           id: result.id,
           thumbnailUrl,
