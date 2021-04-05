@@ -1,26 +1,26 @@
+import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 import LinkIcon from '@material-ui/icons/Link';
 import PersonIcon from '@material-ui/icons/Person';
 import SettingsIcon from '@material-ui/icons/Settings';
-import ClickAwayListener from '@material-ui/core/ClickAwayListener';
-import React, { useEffect, useState } from 'react';
-import { connect } from 'react-redux';
-import { bindActionCreators, Dispatch } from 'redux';
-import { provisionInstanceServer } from "@xr3ngine/client-networking/src/reducers/instanceConnection/service";
-import { Views, UserMenuProps } from './util';
-//@ts-ignore
-import styles from './style.module.scss';
-import ProfileMenu from './menus/ProfileMenu';
-import AvatarMenu from './menus/AvatarMenu';
-import SettingMenu from './menus/SettingMenu';
-import ShareMenu from './menus/ShareMenu';
-import AvatarSelectMenu from './menus/AvatarSelectMenu';
-import { WebGLRendererSystem } from '@xr3ngine/engine/src/renderer/WebGLRendererSystem';
+// TODO: Reenable me! Disabled because we don't want the client-networking dep in client-core, need to fix this
+// import { provisionInstanceServer } from "@xr3ngine/client-networking/src/reducers/instanceConnection/service";
 import { EngineEvents } from '@xr3ngine/engine/src/ecs/classes/EngineEvents';
 import { ClientInputSystem } from '@xr3ngine/engine/src/input/systems/ClientInputSystem';
+import { WebGLRendererSystem } from '@xr3ngine/engine/src/renderer/WebGLRendererSystem';
+import React, { useState } from 'react';
+import { connect } from 'react-redux';
+import { bindActionCreators, Dispatch } from 'redux';
 import { alertSuccess } from '../../../common/reducers/alert/service';
 import { selectAppOnBoardingStep } from '../../../common/reducers/app/selector';
 import { selectAuthState } from '../../reducers/auth/selector';
-import { updateUserAvatarId, updateUserSettings, uploadAvatarModel, fetchAvatarList, removeAvatar } from '../../reducers/auth/service';
+import { fetchAvatarList, removeAvatar, updateUserAvatarId, updateUserSettings, uploadAvatarModel } from '../../reducers/auth/service';
+import AvatarMenu from './menus/AvatarMenu';
+import AvatarSelectMenu from './menus/AvatarSelectMenu';
+import ProfileMenu from './menus/ProfileMenu';
+import SettingMenu from './menus/SettingMenu';
+import ShareMenu from './menus/ShareMenu';
+import styles from './style.module.scss';
+import { UserMenuProps, Views } from './util';
 
 type StateType = {
   currentActiveMenu: any;
@@ -41,7 +41,7 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
   updateUserAvatarId: bindActionCreators(updateUserAvatarId, dispatch),
   updateUserSettings: bindActionCreators(updateUserSettings, dispatch),
   alertSuccess: bindActionCreators(alertSuccess, dispatch),
-  provisionInstanceServer: bindActionCreators(provisionInstanceServer, dispatch),
+  // provisionInstanceServer: bindActionCreators(provisionInstanceServer, dispatch),
   uploadAvatarModel: bindActionCreators(uploadAvatarModel, dispatch),
   fetchAvatarList: bindActionCreators(fetchAvatarList, dispatch),
   removeAvatar: bindActionCreators(removeAvatar, dispatch),

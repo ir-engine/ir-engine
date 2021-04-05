@@ -1,17 +1,16 @@
-import React from 'react';
 import {
+    Paper,
     Table,
     TableBody,
+    TableCell,
     TableContainer,
     TableHead,
     TableRow,
-    TableCell,
-    TableSortLabel,
-    Paper,
-    Button, MenuItem, Select,
+    TableSortLabel
 } from '@material-ui/core';
-import styles from './Admin.module.scss';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
+import React from 'react';
+import styles from './Admin.module.scss';
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({

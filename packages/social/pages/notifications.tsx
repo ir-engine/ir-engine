@@ -1,9 +1,9 @@
 
 import React from "react";
 
-import AppFooter from "@xr3ngine/client-core/src/components/social/Footer";
-import NotificationList from "@xr3ngine/client-core/src/components/social/NotificationList";
-import AppHeader from "@xr3ngine/client-core/src/components/social/Header";
+import AppFooter from "@xr3ngine/client-core/src/socialmedia/components/Footer";
+import NotificationList from "@xr3ngine/client-core/src/socialmedia/components/NotificationList";
+import AppHeader from "@xr3ngine/client-core/src/socialmedia/components/Header";
 
 import styles from './index.module.scss';
 

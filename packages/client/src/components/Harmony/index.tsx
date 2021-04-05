@@ -84,10 +84,10 @@ import moment from 'moment';
 import React, { useEffect, useRef, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
-import { selectMediastreamState } from '../../reducers/mediastream/selector';
-import { updateCamAudioState, updateCamVideoState } from '../../reducers/mediastream/service';
-import { selectTransportState } from '../../reducers/transport/selector';
-import { changeChannelTypeState, updateChannelTypeState } from '../../reducers/transport/service';
+import { selectMediastreamState } from '@xr3ngine/client-networking/src/reducers/mediastream/selector';
+import { updateCamAudioState, updateCamVideoState } from '@xr3ngine/client-networking/src/reducers/mediastream/service';
+import { selectTransportState } from '@xr3ngine/client-networking/src/reducers/transport/selector';
+import { changeChannelTypeState, updateChannelTypeState } from '@xr3ngine/client-networking/src/reducers/transport/service';
 import {
     configureMediaTransports,
     createCamAudioProducer,
@@ -96,8 +96,8 @@ import {
     leave,
     pauseProducer,
     resumeProducer
-} from '../../transports/SocketWebRTCClientFunctions';
-import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport';
+} from '@xr3ngine/client-networking/src/transports/SocketWebRTCClientFunctions';
+import { SocketWebRTCClientTransport } from '@xr3ngine/client-networking/src/transports/SocketWebRTCClientTransport';
 import styles from './style.module.scss';
 const engineRendererCanvasId = 'engine-renderer-canvas';
 

@@ -1,21 +1,20 @@
+import { MobileGamepadProps } from '@xr3ngine/client-core/src/common/components/MobileGamepad/MobileGamepadProps';
+import { generalStateList, setAppLoaded, setAppOnBoardingStep } from '@xr3ngine/client-core/src/common/reducers/app/actions';
+import store from '@xr3ngine/client-core/src/store';
+import { testScenes, testUserId, testWorldState } from '@xr3ngine/common/assets/testScenes';
 import { isMobileOrTablet } from '@xr3ngine/engine/src/common/functions/isMobile';
+import { EngineEvents } from '@xr3ngine/engine/src/ecs/classes/EngineEvents';
 import { resetEngine } from "@xr3ngine/engine/src/ecs/functions/EngineFunctions";
-import { SocketWebRTCClientTransport } from '@xr3ngine/engine/src/networking/classes/SocketWebRTCClientTransport';
+import { DefaultInitializationOptions, initializeEngine } from '@xr3ngine/engine/src/initialize';
 import { NetworkSchema } from '@xr3ngine/engine/src/networking/interfaces/NetworkSchema';
+import { ClientNetworkSystem } from '@xr3ngine/engine/src/networking/systems/ClientNetworkSystem';
 import { styleCanvas } from '@xr3ngine/engine/src/renderer/functions/styleCanvas';
 import { DefaultNetworkSchema } from '@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema';
+import { XRSystem } from '@xr3ngine/engine/src/xr/systems/XRSystem';
 import dynamic from 'next/dynamic';
 import React, { useEffect, useState } from 'react';
-import { generalStateList, setAppLoaded, setAppOnBoardingStep } from '../../reducers/app/actions';
-import store from '../../reducers/store';
-import { MobileGamepadProps } from "../ui/MobileGamepad/MobileGamepadProps";
-import { EngineEvents } from '@xr3ngine/engine/src/ecs/classes/EngineEvents';
-import { DefaultInitializationOptions, initializeEngine } from '@xr3ngine/engine/src/initialize';
-import { XRSystem } from '@xr3ngine/engine/src/xr/systems/XRSystem';
-import { testScenes, testUserId, testWorldState } from '@xr3ngine/common/assets/testScenes';
-import { ClientNetworkSystem } from '@xr3ngine/engine/src/networking/systems/ClientNetworkSystem';
 
-const MobileGamepad = dynamic<MobileGamepadProps>(() => import("../ui/MobileGamepad").then((mod) => mod.MobileGamepad), { ssr: false });
+const MobileGamepad = dynamic<MobileGamepadProps>(() => import("@xr3ngine/client-core/src/common/components/MobileGamepad").then((mod) => mod.MobileGamepad), { ssr: false });
 const engineRendererCanvasId = 'engine-renderer-canvas';
 
 interface Props {

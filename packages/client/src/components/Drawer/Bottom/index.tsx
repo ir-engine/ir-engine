@@ -1,11 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { bindActionCreators, Dispatch } from 'redux';
-import { connect } from 'react-redux';
-import styles from './Bottom.module.scss';
 import {
     Avatar,
     Button,
-    Divider,
     List,
     ListItem,
     ListItemAvatar,
@@ -14,28 +9,31 @@ import {
     TextField
 } from '@material-ui/core';
 import {
-    getChannels,
-    getChannelMessages,
-    createMessage,
-    removeMessage,
-    updateChatTarget,
-    patchMessage,
-    updateMessageScrollInit
-} from '@xr3ngine/client-core/src/social/reducers/chat/service';
-import { selectAuthState} from '@xr3ngine/client-core/src/user/reducers/auth/selector';
-import { selectChatState } from '@xr3ngine/client-core/src/social/reducers/chat/selector';
-import {
     Clear,
     Delete,
     Edit,
     Save,
     Send
 } from '@material-ui/icons';
-import moment from 'moment';
-import {User} from "@xr3ngine/common/interfaces/User";
+import { selectChatState } from '@xr3ngine/client-core/src/social/reducers/chat/selector';
+import {
+    createMessage,
+    getChannelMessages,
+    getChannels,
+    patchMessage,
+    removeMessage,
+    updateChatTarget,
+    updateMessageScrollInit
+} from '@xr3ngine/client-core/src/social/reducers/chat/service';
+import { selectAuthState } from '@xr3ngine/client-core/src/user/reducers/auth/selector';
 import { Message } from '@xr3ngine/common/interfaces/Message';
-import _ from 'lodash';
+import { User } from "@xr3ngine/common/interfaces/User";
 import classNames from 'classnames';
+import moment from 'moment';
+import React, { useEffect, useState } from 'react';
+import { connect } from 'react-redux';
+import { bindActionCreators, Dispatch } from 'redux';
+import styles from './Bottom.module.scss';
 
 const mapStateToProps = (state: any): any => {
     return {

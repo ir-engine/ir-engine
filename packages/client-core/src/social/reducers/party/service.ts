@@ -2,7 +2,8 @@
 // import { endVideoChat } from '@xr3ngine/client-networking/src/transports/SocketWebRTCClientFunctions';
 import { Dispatch } from 'redux';
 import { client } from '@xr3ngine/client-core/src/feathers';
-import { provisionInstanceServer } from '@xr3ngine/client-networking/src/reducers/instanceConnection/service';
+// TODO: Reenable me! But decoupled, maybe parties need to be in the client-networking lib
+// import { provisionInstanceServer } from '@xr3ngine/client-networking/src/reducers/instanceConnection/service';
 import {
   createdParty,
   createdPartyUser,
@@ -142,7 +143,8 @@ if(!publicRuntimeConfig.offlineMode) {
         const updateUser = dbUser;
         updateUser.partyId = party.id;
         store.dispatch(patchedPartyUser(updateUser));
-        await provisionInstanceServer(instance.locationId, instance.id)(store.dispatch, store.getState);
+        // TODO: Reenable me!
+        // await provisionInstanceServer(instance.locationId, instance.id)(store.dispatch, store.getState);
       }
     }
   });

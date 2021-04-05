@@ -1,7 +1,5 @@
-import Layout from '@xr3ngine/client-core/src/common/components/Layout/HarmonyLayout';
-import { useRouter } from 'next/router';
+import Layout from '../../components/Harmony/Layout';
 import React from 'react';
-import NoSSR from 'react-no-ssr';
 
 const HarmonyPage = () => {
   return (
