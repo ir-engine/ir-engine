@@ -1,4 +1,11 @@
-import { CHANNEL_SERVER_PROVISIONING, CHANNEL_SERVER_PROVISIONED, CHANNEL_SERVER_CONNECTING, CHANNEL_SERVER_CONNECTED, CHANNEL_SERVER_DISCONNECTED, SOCKET_CREATED } from '@xr3ngine/client-core/src/world/reducers/actions';
+import {
+  CHANNEL_SERVER_PROVISIONING,
+  CHANNEL_SERVER_PROVISIONED,
+  CHANNEL_SERVER_CONNECTING,
+  CHANNEL_SERVER_CONNECTED,
+  CHANNEL_SERVER_DISCONNECTED,
+  SOCKET_CREATED
+} from '../actions';
 import Immutable from 'immutable';
 import {
   ChannelServerAction,
@@ -62,7 +69,7 @@ const channelConnectionReducer = (state = immutableState, action: ChannelServerA
           .set('readyToConnect', false);
     case CHANNEL_SERVER_DISCONNECTED:
       if (connectionSocket != null) (connectionSocket as any).close();
-      const newState = state
+      return state
           .set('connected', initialState.connected)
           .set('instanceServerConnecting', initialState.instanceServerConnecting)
           .set('instanceProvisioning', initialState.instanceProvisioning)
@@ -73,7 +80,6 @@ const channelConnectionReducer = (state = immutableState, action: ChannelServerA
           .set('locationId', initialState.locationId)
           .set('sceneId', initialState.sceneId)
           .set('channelId', initialState.channelId);
-      return newState;
     case SOCKET_CREATED:
       if (connectionSocket != null) (connectionSocket as any).close();
       connectionSocket = (action as SocketCreatedAction).socket;

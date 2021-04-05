@@ -2,8 +2,8 @@ import React, { useEffect } from 'react';
 import Box from '@material-ui/core/Box';
 import Typography from '@material-ui/core/Typography';
 import Container from '@material-ui/core/Container';
-import { EmptyLayout }from '../../../media/components/ui/Layout/EmptyLayout';
-import { verifyEmail } from '../../../reducers/auth/service';
+import { EmptyLayout }from '../../../common/components/Layout/EmptyLayout';
+import { verifyEmail } from '../../reducers/auth/service';
 import styles from './Auth.module.scss';
 
 interface Props {
