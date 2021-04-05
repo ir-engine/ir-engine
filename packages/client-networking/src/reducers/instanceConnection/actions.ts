@@ -5,7 +5,6 @@ import {
   INSTANCE_SERVER_DISCONNECTED,
   INSTANCE_SERVER_PROVISIONED,
   INSTANCE_SERVER_PROVISIONING,
-  SOCKET_CREATED
 } from '../actions';
 
 export interface InstanceServerProvisioningAction {

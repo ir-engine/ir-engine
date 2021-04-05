@@ -25,8 +25,7 @@ export const services: Array<ServicesSeedConfig> = [
     MessageStatusSeed,
     ChannelTypeSeed,
     LocationTypeSeed,
-    LocationSetttingsSeed,
-    LocationSeed
+    LocationSeed,
   ];
 
 export default services;
