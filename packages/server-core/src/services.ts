@@ -11,11 +11,11 @@ import GraphQLServices from './graphql/services';
 
 export default (app: Application): void => {
   [
+    ...UserServices,
     ...MediaServices,
     ...WorldServices,
     ...EntityServices,
     ...NetworkingServices,
-    ...UserServices,
     // ...PaymentServices,
     ...SocialServices,
     ...SocialMediaServices,

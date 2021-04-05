@@ -3,6 +3,7 @@ import GroupUserRankSeed from './group-user-rank/group-user-rank.seed';
 import InviteTypeSeed from './invite-type/invite-type.seed';
 import LocationTypeSeed from './location-type/location-type.seed';
 import LocationSeed from './location/location.seed';
+// import LocationSetttingsSeed from './location-settings/location-settings.seed';
 import MessageStatusSeed from './message-status/message-status.seed';
 
 type SeedCallback = (ServicesSeedConfig) => Promise<any>;
@@ -24,6 +25,7 @@ export const services: Array<ServicesSeedConfig> = [
     MessageStatusSeed,
     ChannelTypeSeed,
     LocationTypeSeed,
+    // LocationSetttingsSeed,
     LocationSeed
   ];
 

@@ -1,13 +1,9 @@
 import Immutable from 'immutable';
+import { VIDEOS_FETCHED_SUCCESS, VIDEOS_FETCHED_ERROR } from '../../../user/reducers/actions';
 import {
   VideosFetchedAction,
   PublicVideoState
 } from './actions';
-
-import {
-  VIDEOS_FETCHED_SUCCESS,
-  VIDEOS_FETCHED_ERROR
-} from '../../../actions';
 
 export const initialState: PublicVideoState = {
   videos: [],
