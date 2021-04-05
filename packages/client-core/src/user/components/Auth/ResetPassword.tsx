@@ -3,9 +3,10 @@ import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
 import Container from '@material-ui/core/Container';
-import { EmptyLayout }from '../../../media/components/ui/Layout/EmptyLayout';
-import { resetPassword } from '../../../reducers/auth/service';
+
 import styles from './Auth.module.scss';
+import { EmptyLayout } from '../../../common/components/Layout/EmptyLayout';
+import { resetPassword } from '../../reducers/auth/service';
 
 interface Props {
   resetPassword: typeof resetPassword;

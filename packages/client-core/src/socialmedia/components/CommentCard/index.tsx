@@ -11,10 +11,10 @@ import VerifiedUserIcon from '@material-ui/icons/VerifiedUser';
 import styles from './CommentCard.module.scss';
 import { CommentInterface } from '@xr3ngine/common/interfaces/Comment';
 import { bindActionCreators, Dispatch } from 'redux';
-import { addFireToFeedComment, removeFireToFeedComment, getCommentFires } from '../../../reducers/feedComment/service';
 import { connect } from 'react-redux';
-import { selectFeedCommentsState } from '../../../reducers/feedComment/selector';
 import SimpleModal from '../common/SimpleModal';
+import { addFireToFeedComment, getCommentFires, removeFireToFeedComment } from '../../reducers/feedComment/service';
+import { selectFeedCommentsState } from '../../reducers/feedComment/selector';
 
 const mapStateToProps = (state: any): any => {
     return {
