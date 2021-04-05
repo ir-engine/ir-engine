@@ -1,7 +1,4 @@
-import {
-  VIDEOS_FETCHED_SUCCESS,
-  VIDEOS_FETCHED_ERROR
-} from '../actions';
+import { VIDEOS_FETCHED_SUCCESS, VIDEOS_FETCHED_ERROR } from "../../../user/reducers/actions";
 
 export interface PublicVideoState {
   videos: PublicVideo[];

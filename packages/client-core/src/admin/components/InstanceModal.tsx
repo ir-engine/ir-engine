@@ -20,6 +20,10 @@ import { Router, withRouter } from "next/router";
 import Snackbar from '@material-ui/core/Snackbar';
 import MuiAlert, { AlertProps } from '@material-ui/lab/Alert';
 import { makeStyles, Theme } from '@material-ui/core/styles';
+import { client } from '../../feathers';
+import { selectAppState } from '../../common/reducers/app/selector';
+import { selectAuthState } from '../../user/reducers/auth/selector';
+import { selectAdminState } from '../reducers/admin/selector';
 interface Props {
     router: Router,
     open: boolean;
@@ -232,15 +236,3 @@ const InstanceModal = (props: Props): any => {
 };
 
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(InstanceModal));
-function selectAppState(state: any) {
-    throw new Error('Function not implemented.');
-}
-
-function selectAuthState(state: any) {
-    throw new Error('Function not implemented.');
-}
-
-function selectAdminState(state: any) {
-    throw new Error('Function not implemented.');
-}
-
