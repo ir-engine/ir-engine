@@ -164,3 +164,4 @@ packages/server/upload/
 */.DS_Store
 
 certs/
+*.blend1

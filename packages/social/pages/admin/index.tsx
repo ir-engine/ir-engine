@@ -8,11 +8,10 @@ import Analytics from "@xr3ngine/client-core/components/ui/Admin/Analytics/index
  const AdminPage = () => {
    return (<>
     <div>
-      <Dashboard>        
-      </Dashboard>
+      <Dashboard />
     </div>
   </>
   );
-}
+};
 
 export default AdminPage;

@@ -40,10 +40,10 @@ import {
     Videocam,
     VideocamOff
 } from '@material-ui/icons';
-import PartyParticipantWindow from '@xr3ngine/client-core/components/ui/PartyParticipantWindow';
-import { selectAuthState } from '@xr3ngine/client-core/redux/auth/selector';
-import { doLoginAuto } from '@xr3ngine/client-core/redux/auth/service';
-import { selectChatState } from '@xr3ngine/client-core/redux/chat/selector';
+import PartyParticipantWindow from '../PartyParticipantWindow';
+import { selectAuthState } from '../../../redux/auth/selector';
+import { doLoginAuto } from '../../../redux/auth/service';
+import { selectChatState } from '../../../redux/chat/selector';
 import {
     createMessage,
     getChannelMessages,
@@ -52,14 +52,14 @@ import {
     removeMessage,
     updateChatTarget,
     updateMessageScrollInit
-} from '@xr3ngine/client-core/redux/chat/service';
-import { selectChannelConnectionState } from '@xr3ngine/client-core/redux/channelConnection/selector';
+} from '../../../redux/chat/service';
+import { selectChannelConnectionState } from '../../../redux/channelConnection/selector';
 import {
     connectToChannelServer,
     provisionChannelServer,
     resetChannelServer
-} from '@xr3ngine/client-core/redux/channelConnection/service';
-import { selectUserState } from '@xr3ngine/client-core/redux/user/selector';
+} from '../../../redux/channelConnection/service';
+import { selectUserState } from '../../../redux/user/selector';
 import { Message } from '@xr3ngine/common/interfaces/Message';
 import { User } from '@xr3ngine/common/interfaces/User';
 import { DefaultInitializationOptions, initializeEngine } from '@xr3ngine/engine/src/initialize';
