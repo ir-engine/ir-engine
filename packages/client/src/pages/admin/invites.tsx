@@ -2,7 +2,7 @@
 import React, { useEffect } from 'react';
 import Dashboard  from "@xr3ngine/client-core/src/user/components/Dashboard/Dashboard";
 import { bindActionCreators, Dispatch } from "redux";
-import InvitesConsole from "@xr3ngine/client-core/src/common/components/Admin/Invite/index";
+import InvitesConsole from "@xr3ngine/client-core/src/admin/components/Invite/index";
 import { doLoginAuto } from '@xr3ngine/client-core/src/user/reducers/auth/service';
 import { connect } from 'react-redux';
 

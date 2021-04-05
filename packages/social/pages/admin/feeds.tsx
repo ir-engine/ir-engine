@@ -2,7 +2,7 @@
 import React, { useEffect } from "react";
 
 import Dashboard  from "@xr3ngine/client-core/src/common/components/Layout/SocialDashboard";
-import FeedConsole  from "@xr3ngine/client-core/src/common/components/Admin/FeedConsole";
+import FeedConsole  from "@xr3ngine/client-core/src/admin/components/FeedConsole";
 import { bindActionCreators, Dispatch } from "redux";
 import { connect } from "react-redux";
 import { selectFeedsState } from "@xr3ngine/client-core/reducers/feed/selector";
