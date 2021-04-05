@@ -14,4 +14,4 @@ export default [
   // Comments,
   // CommentsFires,
   // FollowCreator
-]
+];

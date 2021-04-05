@@ -21,7 +21,7 @@ import {
 } from "../../../world/reducers/actions";
 import {
   LOADED_USERS,
-} from '../../../common/reducers/actions'
+} from '../../../common/reducers/actions';
 import { UserSeed } from '@xr3ngine/common/interfaces/User';
 import { IdentityProviderSeed } from '@xr3ngine/common/interfaces/IdentityProvider';
 import { AuthUserSeed } from '@xr3ngine/common/interfaces/AuthUser';

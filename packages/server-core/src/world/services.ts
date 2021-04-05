@@ -18,4 +18,4 @@ export default [
   Meta,
   Scene,
   SceneListing
-]
+];
