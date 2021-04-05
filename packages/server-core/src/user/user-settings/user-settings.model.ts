@@ -37,7 +37,7 @@ export default (app: Application): any => {
   });
 
   (UserSettings as any).associate = (models: any): void => {
-    // (UserSettings as any).belongsTo(models.user, { primaryKey: true, required: true, allowNull: false });
+    (UserSettings as any).belongsTo(models.user, { primaryKey: true, required: true, allowNull: false });
   };
 
   return UserSettings;
