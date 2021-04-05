@@ -57,9 +57,9 @@ export default class ElementsSource extends BaseSource {
       const nodeEditor = editor.nodeEditors.get(nodeType);
       acc.push({
         id: nodeType.nodeName,
-        iconComponent: nodeEditor.iconComponent,
+        iconComponent: nodeEditor.WrappedComponent ? nodeEditor.WrappedComponent.iconComponent : nodeEditor.iconComponent,
         label: nodeType.nodeName,
-        description: nodeEditor.description,
+        description: nodeEditor.WrappedComponent ? nodeEditor.WrappedComponent.description : nodeEditor.description,
         type: ItemTypes.Element,
         nodeClass: nodeType,
         initialProps: nodeType.initialElementProps

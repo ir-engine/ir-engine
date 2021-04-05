@@ -728,7 +728,7 @@ function* treeWalker(editor, collapsedNodes) {
     const { depth, object, childIndex, lastChild } = stack.pop();
 
     const NodeEditor = editor.getNodeEditor(object) || DefaultNodeEditor;
-    const iconComponent = NodeEditor.iconComponent;
+    const iconComponent = NodeEditor.WrappedComponent ? NodeEditor.WrappedComponent.iconComponent : NodeEditor.iconComponent;
 
     const isCollapsed = collapsedNodes[object.id];
 
