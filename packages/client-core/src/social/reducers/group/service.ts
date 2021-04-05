@@ -1,22 +1,21 @@
-import { Dispatch } from 'redux';
-import { client } from '../../../feathers';
-import {
-  loadedGroups,
-  createdGroup,
-  patchedGroup,
-  removedGroup,
-  removedGroupUser,
-  leftGroup,
-  fetchingGroups,
-  loadedInvitableGroups,
-  fetchingInvitableGroups,
-  createdGroupUser,
-  patchedGroupUser
-} from './actions';
-import store from '../../../store';
-
 import getConfig from 'next/config';
+import { Dispatch } from 'redux';
 import { dispatchAlertError } from '../../../common/reducers/alert/service';
+import { client } from '../../../feathers';
+import store from '../../../store';
+import {
+  createdGroup,
+  createdGroupUser,
+  fetchingGroups,
+  fetchingInvitableGroups,
+  loadedGroups,
+  loadedInvitableGroups,
+  patchedGroup,
+  patchedGroupUser,
+  removedGroup,
+  removedGroupUser
+} from './actions';
+
 const { publicRuntimeConfig } = getConfig();
 
 export function getGroups(skip?: number, limit?: number) {
