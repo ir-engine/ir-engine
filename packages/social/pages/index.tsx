@@ -64,7 +64,7 @@ const  Home = ({ authState, creatorsState, createCreator,  doLoginAuto, auth}) =
     setLoginData(data);
   };
 
-  const status = authState.get('authUser')?.identityProvider.type
+  const status = authState.get('authUser')?.identityProvider.type;
   
 
 
@@ -73,7 +73,7 @@ const  Home = ({ authState, creatorsState, createCreator,  doLoginAuto, auth}) =
     if(auth){
       // const user = auth.get('authUser').identityProvider as User;
       const user = auth.get('user') as User;
-      console.log(user)
+      console.log(user);
       const userId = user ? user.id : null;
       if(userId){
         createCreator();
@@ -82,7 +82,7 @@ const  Home = ({ authState, creatorsState, createCreator,  doLoginAuto, auth}) =
   }else{
     if(auth){
        const user = auth.get('authUser').identityProvider as User;
-      console.log(user)
+      console.log(user);
       const userId = user ? user.id : null;
       if(userId){
         createCreator();
