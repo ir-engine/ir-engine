@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import Router from "next/router";
 
 import AddCircleIcon from '@material-ui/icons/AddCircle';
@@ -12,10 +12,16 @@ import { bindActionCreators, Dispatch } from "redux";
 import { getLoggedCreator } from "../../../redux/creator/service";
 import { connect } from "react-redux";
 import { useEffect } from "react";
+import { selectAuthState } from "../../../redux/auth/selector";
+import { PopupLogin } from "../Popup/Popup";
+import IndexPage from "@xr3ngine/social/pages/login"
+
 
 const mapStateToProps = (state: any): any => {
   return {
     creatorState: selectCreatorsState(state),
+    authState: selectAuthState(state),
+ 
   };
 };
 
@@ -23,17 +29,42 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
   getLoggedCreator: bindActionCreators(getLoggedCreator, dispatch),
 });
 
-const AppFooter = ({creatorState, getLoggedCreator}: any) => {
+const AppFooter = ({creatorState, getLoggedCreator,authState}: any) => {
   useEffect(()=>getLoggedCreator(),[]);  
+
+  const [buttonPopup , setButtonPopup] = useState(false)
   const creator = creatorState && creatorState.get('fetching') === false && creatorState.get('currentCreator');
+ 
+console.log('CREATOR',creator)
+
+
+let checkGuest = null
+const status = authState.get('authUser')?.identityProvider.type
+    if(status === 'guest') {
+     
+      checkGuest = true
+    }else {
+   
+      checkGuest = false
+    }
+
+
+ 
+  
+
   return (
     <nav className={styles.footerContainer}>
-        <HomeIcon onClick={()=>Router.push('/')} fontSize="large" className={styles.footerItem}/>
-        <AddCircleIcon onClick={()=>Router.push('/newfeed')} style={{fontSize: '5em'}} className={styles.footerItem}/>
+        <HomeIcon onClick={()=> {checkGuest ? setButtonPopup(true) : Router.push('/')}} fontSize="large" className={styles.footerItem}/>
+          {}
+    <PopupLogin trigger={buttonPopup} setTrigger={setButtonPopup}>
+      <IndexPage />
+     </PopupLogin>
+        <AddCircleIcon onClick={()=> {checkGuest ? setButtonPopup(true) : Router.push('/newfeed')}} style={{fontSize: '5em'}
+} className={styles.footerItem}/>
         {/* <AddCircleIcon onClick={()=>Router.push('/videorecord')} style={{fontSize: '5em'}} className={styles.footerItem}/> */}
-        {creator && <WhatshotIcon htmlColor="#FF6201" onClick={()=>Router.push({ pathname: '/notifications'})} /> }
-        {creator && (
-          <Avatar onClick={()=>Router.push({ pathname: '/creator', query:{ creatorId: creator.id}})} 
+        {creator && <WhatshotIcon htmlColor="#FF6201" onClick={()=>{checkGuest ? setButtonPopup(true) : Router.push({ pathname: '/notifications'})}} /> }
+        {creator && ( 
+          <Avatar onClick={()=> {checkGuest ? setButtonPopup(true) : Router.push({ pathname: '/creator', query:{ creatorId: creator.id}})}} 
           alt={creator.username} src={creator.avatar} />
         )}
     </nav>
@@ -41,4 +72,11 @@ const AppFooter = ({creatorState, getLoggedCreator}: any) => {
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(AppFooter);
+
+
+
+
+// 
+// 
+
 

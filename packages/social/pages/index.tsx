@@ -1,8 +1,9 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect} from "react";
 import AppHeader from "@xr3ngine/client-core/components/social/Header";
 import FeedMenu from "@xr3ngine/client-core/components/social/FeedMenu";
 import AppFooter from "@xr3ngine/client-core/components/social/Footer";
+
 
 import FlatSignIn from '@xr3ngine/client-core/components/social/Login';
 // import { Layout } from "@xr3ngine/client-core/components/social/Layout";
@@ -20,38 +21,96 @@ import styles from './index.module.scss';
 import { selectAuthState } from "@xr3ngine/client-core/redux/auth/selector";
 import { connect } from "react-redux";
 import { selectCreatorsState } from "@xr3ngine/client-core/redux/creator/selector";
+import { createCreator } from "@xr3ngine/client-core/redux/creator/service";
+import { User } from "@xr3ngine/common/interfaces/User";
+import { bindActionCreators, Dispatch } from "redux";
+import { doLoginAuto } from "@xr3ngine/client-core/redux/auth/service";
+
+
+
 const { Example } = Plugins;
 
 const mapStateToProps = (state: any): any => {
   return {
     authState: selectAuthState(state),
+    auth: selectAuthState(state),
     creatorsState: selectCreatorsState(state),
+   
   };
 };
 
-const  Home = ({ authState, creatorsState }) => {
-  const { data, setLoginUser } = LoginUserHook();
+const mapDispatchToProps = (dispatch: Dispatch): any => ({
+  // loginUserByPassword: bindActionCreators(loginUserByPassword, dispatch),
+  doLoginAuto: bindActionCreators(doLoginAuto, dispatch),
+  createCreator: bindActionCreators(createCreator, dispatch)
+});
 
+
+
+const  Home = ({ authState, creatorsState, createCreator,  doLoginAuto, auth}) => {
+  
+ 
+ 
+  const { data, setLoginUser } = LoginUserHook();
   const [loginData, setLoginData] = useState(null);
   const [stories, setStories] = useState(null);
   const [suggestions, setSuggestions] = useState(null);
   const [feed, setFeed] = useState(null);
 
+    
+
   const updateLoginUser = (data: any) => {
     setLoginUser(data);
     setLoginData(data);
   };
+
+  const status = authState.get('authUser')?.identityProvider.type
+  
+
+
+  useEffect(()=>{
+    if (status === 'guest') {
+    if(auth){
+      // const user = auth.get('authUser').identityProvider as User;
+      const user = auth.get('user') as User;
+      console.log(user)
+      const userId = user ? user.id : null;
+      if(userId){
+        createCreator();
+      }
+    }
+  }else{
+    if(auth){
+       const user = auth.get('authUser').identityProvider as User;
+      console.log(user)
+      const userId = user ? user.id : null;
+      if(userId){
+        createCreator();
+      }
+    }
+  }}
+  ,[auth]);
+
+
+ 
+ 
+
   useEffect(() => {
     if (Example) {
       Example.echo({ value: 'Example plugin detected' }).then(data => {
         console.log(data);
       });
     }
+  
   setLoginData({username:'username'});
+  doLoginAuto(true);
   }, []);
 
 
+ 
+
   useEffect(() => {
+   
     fetch("/api/loginUser")
       .then((response) => response.json())
       .then((data) => updateLoginUser(data));
@@ -70,9 +129,10 @@ const  Home = ({ authState, creatorsState }) => {
   }, []);
 
 
+
   return (<>
     <div className={styles.viewport}>
-     {authState.get('user')?.id && creatorsState?.get('currentCreator') ? 
+     {/* {authState.get('user')?.id && creatorsState?.get('currentCreator') ?  */}
       <><AppHeader logo="/assets/logoBlack.png" />
       <FeedMenu />
       {/* <MoreModalItems /> */}
@@ -84,11 +144,11 @@ const  Home = ({ authState, creatorsState }) => {
             })}
         </div> */}
       {/* <HomeRightBar data={suggestions} /> */}
-      <AppFooter /></> : 
-      <FlatSignIn logo="/assets/LogoColored.png" />}
+      <AppFooter /></>  
+       {/* <FlatSignIn logo="/assets/LogoColored.png" />} */}
     </div>
   </>
   );
 };
 
-export default connect(mapStateToProps)(Home);
+export default connect(mapStateToProps,mapDispatchToProps)(Home);
