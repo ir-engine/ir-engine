@@ -3,9 +3,9 @@ import { bindActionCreators, Dispatch } from 'redux';
 import { connect } from 'react-redux';
 
 import { Button, CardMedia, TextField, Typography } from '@material-ui/core';
-import { createFeed, updateFeedAsAdmin } from '../../../reducers/feed/service';
 
 import styles from './FeedForm.module.scss';
+import { createFeed, updateFeedAsAdmin } from '../../reducers/feed/service';
 
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({

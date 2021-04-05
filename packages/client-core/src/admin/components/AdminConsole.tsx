@@ -9,13 +9,13 @@ import InfoIcon from '@material-ui/icons/Info';
 import { connect } from 'react-redux';
 import Container from '@material-ui/core/Container';
 import { bindActionCreators, Dispatch } from 'redux';
-import { fetchAdminVideos } from '../../../reducers/admin/service';
 import styles from './Admin.module.scss';
-import { selectAdminState } from '../../../reducers/admin/selector';
-import { selectVideoState } from '../../../reducers/video/selector';
-import { selectAuthState } from '../../../reducers/auth/selector';
 import VideoModal from './VideoModal';
 import { useRouter } from 'next/router';
+import { selectVideoState } from '../../media/components/video/selector';
+import { selectAuthState } from '../../user/reducers/auth/selector';
+import { selectAdminState } from '../reducers/admin/selector';
+import { fetchAdminVideos } from '../reducers/admin/service';
 
 interface Props {
   auth: any;

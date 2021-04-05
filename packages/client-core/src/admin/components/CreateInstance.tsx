@@ -8,17 +8,13 @@ import {
     TextField
 } from '@material-ui/core';
 import { connect } from 'react-redux';
-import {
-    createInstance,
-    fetchAdminInstances,
-    patchInstance
-} from "../../../reducers/admin/service";
 import { bindActionCreators, Dispatch } from "redux";
-import { selectAppState } from "../../../reducers/app/selector";
-import { selectAuthState } from "../../../reducers/auth/selector";
-import { selectAdminState } from "../../../reducers/admin/selector";
 import styles from './Admin.module.scss';
 import classNames from 'classnames';
+import { selectAppState } from '../../common/reducers/app/selector';
+import { selectAuthState } from '../../user/reducers/auth/selector';
+import { selectAdminState } from '../reducers/admin/selector';
+import { createInstance, fetchAdminInstances, patchInstance } from '../reducers/admin/service';
 
 const mapStateToProps = (state: any): any => {
     return {
