@@ -2,6 +2,7 @@ import { ServiceAddons } from '@feathersjs/feathers';
 import { Application } from '../../../declarations';
 import { StaticResource } from './static-resource.class';
 import createModel from './static-resource.model';
+import createOwnedFileModel from '../owned-file.model';
 import hooks from './static-resource.hooks';
 import staticResourceDocs from './static-resource.docs';
 
@@ -12,6 +13,8 @@ declare module '../../../declarations' {
 }
 
 export default (app: Application): any => {
+  createOwnedFileModel(app);
+  
   const options = {
     Model: createModel(app),
     paginate: app.get('paginate'),
