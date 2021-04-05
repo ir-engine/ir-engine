@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import { Dispatch } from 'redux';
 import { Router, withRouter } from "next/router";
-import { PAGE_LIMIT } from '../../../reducers/admin/reducers';
+import { PAGE_LIMIT } from '../reducers/admin/reducers';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import {
     Table,
@@ -25,10 +25,9 @@ import StarOutlineIcon from '@material-ui/icons/StarOutline';
 import {  Edit } from '@material-ui/icons';
 import Slide from '@material-ui/core/Slide';
 import { TransitionProps } from '@material-ui/core/transitions';
-import { EnhancedTableHead } from '../Common/AdminHelpers';
 import SharedModal from './SharedModal';
-import FeedForm from '../../social/FeedForm';
-
+import FeedForm from '../../socialmedia/components/FeedForm';
+import { EnhancedTableHead } from './AdminHelpers';
 
 if (!global.setImmediate) {
     global.setImmediate = setTimeout as any;

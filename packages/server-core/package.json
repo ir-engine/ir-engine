@@ -23,9 +23,6 @@
   },
   "contributors": [],
   "bugs": {},
-  "directories": {
-    "lib": "src/"
-  },
   "engines": {
     "yarn": ">= 0.18.0"
   },
@@ -44,7 +41,6 @@
     "upload-avatar": "node ./scripts/upload-avatar.js",
     "serve-local-files": "http-server ./upload --ssl --cert ../../certs/cert.pem --key ../../certs/key.pem --port 8642 --cors=*"
   },
-  "types": "lib/",
   "pre-push": [
     "lint",
     "precommit"

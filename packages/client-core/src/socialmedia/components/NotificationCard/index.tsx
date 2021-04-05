@@ -1,11 +1,9 @@
 import React from 'react';
 import Router from "next/router";
-
 import Typography from '@material-ui/core/Typography';
 import Avatar from '@material-ui/core/Avatar';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
-
 import styles from './NotificationCard.module.scss';
 
 const NotificationCard = ({notification} : any) => { 

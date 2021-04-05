@@ -1,10 +1,9 @@
-import React, { useState } from 'react';
-
-import CardMedia from '@material-ui/core/CardMedia';
-import styles from './OnBoarding.module.scss';
-import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
+import CardMedia from '@material-ui/core/CardMedia';
+import Typography from '@material-ui/core/Typography';
 import Router from "next/router";
+import React, { useState } from 'react';
+import styles from './OnBoarding.module.scss';
 
 interface MediaRecord{
     screenBg: string;

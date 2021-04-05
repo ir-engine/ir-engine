@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React from "react";
 import { ModalStateHook } from "./ModalHook";
 
 export function Modal({

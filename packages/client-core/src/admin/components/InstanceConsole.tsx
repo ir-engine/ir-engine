@@ -1,7 +1,6 @@
 import getConfig from 'next/config';
 import React, { useEffect, useState } from 'react';
 import Search from "./Search";
-import { PAGE_LIMIT } from '../../../reducers/admin/reducers';
 import {
     Table,
     TableBody,
@@ -15,17 +14,8 @@ import {
 } from '@material-ui/core';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
-import { selectAdminState } from '../../../reducers/admin/selector';
-import { selectAppState } from '../../../reducers/app/selector';
-import { selectAuthState } from '../../../reducers/auth/selector';
 import styles from './Admin.module.scss';
 import { Router, withRouter } from "next/router";
-import {
-    fetchAdminInstances
-} from '../../../reducers/admin/service';
-import {
-    removeInstance
-} from "../../../reducers/admin/service";
 import InstanceModal from './InstanceModal';
 import CreateInstance from "./CreateInstance";
 import { Delete, Edit } from '@material-ui/icons';
@@ -34,6 +24,11 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Slide from '@material-ui/core/Slide';
 import { TransitionProps } from '@material-ui/core/transitions';
+import { selectAppState } from '../../common/reducers/app/selector';
+import { selectAuthState } from '../../user/reducers/auth/selector';
+import { PAGE_LIMIT } from '../reducers/admin/reducers';
+import { selectAdminState } from '../reducers/admin/selector';
+import { fetchAdminInstances, removeInstance } from '../reducers/admin/service';
 
 if (!global.setImmediate) {
     global.setImmediate = setTimeout as any;

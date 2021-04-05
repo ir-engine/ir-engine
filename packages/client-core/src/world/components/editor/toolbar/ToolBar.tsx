@@ -20,7 +20,7 @@ import { ContextMenu, MenuItem, showMenu, SubMenu } from "../layout/ContextMenu"
 import { InfoTooltip } from "../layout/Tooltip";
 import styledTheme from "../theme";
 import ToolButton from "./ToolButton";
-import LocationModal from '../../../../media/components/ui/Admin/LocationModal';
+import LocationModal from '../../../../admin/components/LocationModal';
 
 const StyledToolbar = (styled as any).div`
   display: flex;

@@ -10,7 +10,6 @@ import {
 } from '../actions';
 import { Location } from '@xr3ngine/common/interfaces/Location';
 
-
 export interface LocationsRetrievedAction {
   type: string;
   locations: any[];
