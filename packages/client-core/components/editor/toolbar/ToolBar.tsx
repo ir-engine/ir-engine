@@ -21,6 +21,7 @@ import { InfoTooltip } from "../layout/Tooltip";
 import styledTheme from "../theme";
 import ToolButton from "./ToolButton";
 import LocationModal from '../../ui/Admin/LocationModal';
+import { withTranslation } from "react-i18next";
 
 const StyledToolbar = (styled as any).div`
   display: flex;
@@ -218,7 +219,7 @@ const initialLocation = {
   }
 };
 type ToolBarProps = {
-
+  t: Function;
 }
 type ToolBarState = {
   locationModalOpen: any;
@@ -228,7 +229,7 @@ type ToolBarState = {
   locationEditing: boolean
 }
 
-export default class ToolBar extends Component<ToolBarProps, ToolBarState> {
+export class ToolBar extends Component<ToolBarProps, ToolBarState> {
   static propTypes = {
     menu: PropTypes.array,
     editor: PropTypes.object,
@@ -248,6 +249,8 @@ export default class ToolBar extends Component<ToolBarProps, ToolBarState> {
       selectedLocation: initialLocation,
       locationEditing: false
     };
+
+    this.t = this.props.t;
   }
 
   componentDidMount() {
@@ -272,6 +275,8 @@ export default class ToolBar extends Component<ToolBarProps, ToolBarState> {
       editor.removeListener("settingsChanged", this.onForceUpdate);
     }
   }
+
+  t: Function;
 
   openModalCreate = () => {
     this.setState({ locationModalOpen: true });
@@ -417,7 +422,7 @@ export default class ToolBar extends Component<ToolBarProps, ToolBarState> {
         onClick={this.openModalCreate}
         className="mr-4 mt-2 mb-2 pl-5 pr-5"
     >
-      Publish
+      {this.t('editor:toolbar.lbl-publish')}
     </Button>;
 
     return (
@@ -426,21 +431,21 @@ export default class ToolBar extends Component<ToolBarProps, ToolBarState> {
           <ToolButton icon={Bars} onClick={this.onMenuSelected} isSelected={menuOpen} id="menu" />
           <ToolButton
             id="translate-button"
-            tooltip="[T] Translate"
+            tooltip={"[T] " + this.t('editor:toolbar.command.translate')}
             icon={ArrowsAlt}
             onClick={this.onSelectTranslate}
             isSelected={transformMode === TransformMode.Translate}
           />
           <ToolButton
             id="rotate-button"
-            tooltip="[R] Rotate"
+            tooltip={"[R] " + this.t('editor:toolbar.command.rotate')}
             icon={SyncAlt}
             onClick={this.onSelectRotate}
             isSelected={transformMode === TransformMode.Rotate}
           />
           <ToolButton
             id="scale-button"
-            tooltip="[Y] Scale"
+            tooltip={"[Y] " + this.t('editor:toolbar.command.scale')}
             icon={ArrowsAltV}
             onClick={this.onSelectScale}
             isSelected={transformMode === TransformMode.Scale}
@@ -448,7 +453,7 @@ export default class ToolBar extends Component<ToolBarProps, ToolBarState> {
         </ToolButtons>
         <ToolToggles>
           <ToolbarInputGroup id="transform-space">
-            <InfoTooltip info="[Z] Toggle Transform Space" position="bottom">
+            <InfoTooltip info={"[Z] " + this.t('editor:toolbar.command.toggleSpace')} position="bottom">
               { /* @ts-ignore */}
               <ToggleButton onClick={this.onToggleTransformSpace}>
                 <Globe size={12} />
@@ -463,7 +468,7 @@ export default class ToolBar extends Component<ToolBarProps, ToolBarState> {
             />
           </ToolbarInputGroup>
           <ToolbarInputGroup id="transform-pivot">
-            <ToggleButton onClick={this.onToggleTransformPivot} tooltip="[X] Toggle Transform Pivot">
+            <ToggleButton onClick={this.onToggleTransformPivot} tooltip={"[X] " + this.t('editor:toolbar.command.togglePivot')}>
               <Bullseye size={12} />
             </ToggleButton>
             { /* @ts-ignore */}
@@ -478,7 +483,7 @@ export default class ToolBar extends Component<ToolBarProps, ToolBarState> {
             <ToggleButton
               value={snapMode === SnapMode.Grid}
               onClick={this.onToggleSnapMode}
-              tooltip={"[C] Toggle Snap Mode"}
+              tooltip={"[C] " + this.t('editor:toolbar.command.toggleSnapMode')}
             >
               <Magnet size={12} />
             </ToggleButton>
@@ -506,7 +511,7 @@ export default class ToolBar extends Component<ToolBarProps, ToolBarState> {
             />
           </ToolbarInputGroup>
           <ToolbarInputGroup id="transform-grid">
-            <ToggleButton onClick={this.onToggleGridVisible} tooltip="Toggle Grid Visibility">
+            <ToggleButton onClick={this.onToggleGridVisible} tooltip={this.t('editor:toolbar.command.toggleGrid')}>
               <Grid size={16} />
             </ToggleButton>
             <ToolbarNumericStepperInput
@@ -517,14 +522,16 @@ export default class ToolBar extends Component<ToolBarProps, ToolBarState> {
               mediumStep={1.5}
               largeStep={4.5}
               unit="m"
-              incrementTooltip="[-] Increment Grid Height"
-              decrementTooltip="[=] Decrement Grid Height"
+              incrementTooltip={"[-] " + this.t('editor:toolbar.command.increaseGridSize')}
+              decrementTooltip={"[=] " + this.t('editor:toolbar.command.descreaseGridSize')}
             />
           </ToolbarInputGroup>
           <ToolbarInputGroup id="preview">
             <ToggleButton
               onClick={this.onTogglePlayMode}
-              tooltip={(this.props as any).editor.playing ? "Stop Previewing Scene" : "Preview Scene"}
+              tooltip={(this.props as any).editor.playing
+                ? this.t('editor:toolbar.command.stopPreview')
+                : this.t('editor:toolbar.command.playPreview')}
             >
               {(this.props as any).editor.playing ? <Pause size={14} /> : <Play size={14} />}
             </ToggleButton>
@@ -540,7 +547,7 @@ export default class ToolBar extends Component<ToolBarProps, ToolBarState> {
           disabled={true}
           className="mr-4 mt-2 mb-2 pl-5 pr-5"
          >
-           Published
+           {this.t('editor:toolbar.lbl-published')}
          </Button>
         }
         <LocationModal
@@ -558,3 +565,5 @@ export default class ToolBar extends Component<ToolBarProps, ToolBarState> {
     );
   }
 }
+
+export default withTranslation()(ToolBar as any);
