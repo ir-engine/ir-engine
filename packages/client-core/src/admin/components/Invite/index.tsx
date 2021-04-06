@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
-import { sendInvite, retrieveSentInvites, retrieveReceivedInvites } from "../../../../reducers/invite/service";
+import { sendInvite, retrieveSentInvites, retrieveReceivedInvites } from "../../../social/reducers/invite/service";
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
-import { selectInviteState } from "../../../../reducers/invite/selector";
+import { selectInviteState } from "../../../social/reducers/invite/selector";
 import { bindActionCreators, Dispatch } from "redux";
 import { withRouter, Router } from "next/router";
 import { connect } from "react-redux";
@@ -17,9 +17,9 @@ import styles from '../Admin.module.scss';
 import InviteModel from "./InviteModel";
 import {
     fetchUsersAsAdmin,
-} from '../../../../reducers/admin/service';
-import { selectAuthState } from '../../../../reducers/auth/selector';
-import { selectAdminState } from "../../../../reducers/admin/selector";
+} from '../../reducers/admin/service';
+import { selectAuthState } from '../../../user/reducers/auth/selector';
+import { selectAdminState } from "../../reducers/admin/selector";
 import { ConfirmProvider } from "material-ui-confirm";
 
 

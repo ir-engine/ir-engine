@@ -62,6 +62,8 @@ export default class EditorInfiniteGridHelper extends Mesh {
   plane: Plane;
   intersectionPointWorld: Vector3;
   intersection: any;
+  position: any;
+  visible: boolean;
   constructor(size1?, size2?, color?, distance?) {
     color = color || new Color("white");
     size1 = size1 || 1;
@@ -92,6 +94,10 @@ export default class EditorInfiniteGridHelper extends Mesh {
       }
     });
     super(geometry, material);
+    this.position = {
+      y: 0
+    };
+    this.visible = true;
     this.name = "EditorInfiniteGridHelper";
     this.layers.set(1);
     addIsHelperFlag(this);
