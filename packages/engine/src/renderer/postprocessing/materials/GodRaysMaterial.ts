@@ -56,7 +56,7 @@ export class GodRaysMaterial extends ShaderMaterial {
     } as any);
 
     /** @ignore */
-    this.toneMapped = false;
+    (this as any).toneMapped = false;
   }
 
   /**
@@ -66,7 +66,7 @@ export class GodRaysMaterial extends ShaderMaterial {
 	 */
 
   get samples () {
-    return Number(this.defines.SAMPLES_INT);
+    return Number((this as any).defines.SAMPLES_INT);
   }
 
   /**
@@ -78,8 +78,8 @@ export class GodRaysMaterial extends ShaderMaterial {
   set samples (value) {
     const s = Math.floor(value);
 
-    this.defines.SAMPLES_INT = s.toFixed(0);
-    this.defines.SAMPLES_FLOAT = s.toFixed(1);
+    (this as any).defines.SAMPLES_INT = s.toFixed(0);
+    (this as any).defines.SAMPLES_FLOAT = s.toFixed(1);
     this.needsUpdate = true;
   }
 }

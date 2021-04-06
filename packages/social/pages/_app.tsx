@@ -1,10 +1,9 @@
-import { initGA, logPageView } from '@xr3ngine/client-core/components/analytics';
-import GlobalStyle from '@xr3ngine/client-core/components/editor/GlobalStyle';
-import theme from "../theme";
-import { dispatchAlertError } from '@xr3ngine/client-core/redux/alert/service';
-import { getDeviceType } from '@xr3ngine/client-core/redux/devicedetect/actions';
-import { restoreState } from '@xr3ngine/client-core/redux/persisted.store';
-import { configureStore } from '@xr3ngine/client-core/redux/store';
+import { ThemeProvider } from '@material-ui/core';
+import { configureStore } from '@xr3ngine/client-core/src/store';
+import { dispatchAlertError } from '@xr3ngine/client-core/src/common/reducers/alert/service';
+import { getDeviceType } from '@xr3ngine/client-core/src/common/reducers/devicedetect/actions';
+import { restoreState } from '@xr3ngine/client-core/src/persisted.store';
+import { initGA, logPageView } from '@xr3ngine/client-core/src/common/components/analytics';
 import DeviceDetector from 'device-detector-js';
 import { fromJS } from 'immutable';
 import withRedux from 'next-redux-wrapper';
@@ -16,8 +15,8 @@ import React, { Fragment, useCallback, useEffect, useState } from 'react';
 import { connect, Provider } from 'react-redux';
 import { Dispatch, Store } from 'redux';
 import url from 'url';
+import theme from "../theme";
 import './styles.scss';
-import { ThemeProvider } from '@material-ui/core';
 
 
 const config = getConfig().publicRuntimeConfig;

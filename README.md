@@ -67,8 +67,15 @@ First, make sure you have [NodeJS](https://nodejs.org/) and [npm](https://www.np
    The default username is 'server', the default password is 'password', the default database name is 'xr3ngine', the default hostname is '127.0.0.1', and the default port is '3306'.
    
    Seeing errors connecting to the local DB? Shut off your local firewall.
+3. ####Have redis installed and running
+   redis must be running in order for feathers-sync to function; it coordinates feathers actions
+   across servers, e.g. the API server can be notified that the gameserver patched a user.
+   ```scrips/docker-compose``` is configured to start a redis container using Docker.
+   Run ```docker-compose up``` from the /scripts directory to build + start it, and after that
+   you can run ```docker start xr3ngine_redis``` to restart the redis container.
+
     
-3. ####Open a new tab and start the Agones sidecar in local mode
+4. ####Open a new tab and start the Agones sidecar in local mode
 
     ```
    cd scripts
@@ -87,14 +94,14 @@ First, make sure you have [NodeJS](https://nodejs.org/) and [npm](https://www.np
    
    ```./sdk-server.darwin.amd64 --local```
 
-4. ####Obtain .env.local file with configuration variable.
+5. ####Obtain .env.local file with configuration variable.
    Many parts of XR3ngine are configured using environment variables.
    For simplicity, it's recommended that you create a file called ```.env.local``` in the top level of xr3ngine,
    and have all of your ENV_VAR definitions here in the form ```<VAR_NAME>=<VALUE>```.
    If you are actively working on this project, contact one of the developers for a copy of the file
    that has all of the development settings and keys in it.
 
-5. ####Start the server in database seed mode
+6. ####Start the server in database seed mode
 
    Several tables in the database need to be seeded with default values.
    Run ```cd packages/server```, then run ```yarn dev-reinit-db```.
@@ -104,11 +111,12 @@ First, make sure you have [NodeJS](https://nodejs.org/) and [npm](https://www.np
    
     At this point, the database has been seeded. You can shut down the server with CTRL+C.
 
-6. #####Open two separate tabs and start the server (non-seeding) and the client
+7. #####Open two/three separate tabs and start the API server (non-seeding), gameserver (if using gameservers), and the client
    In /packages/server, run ```sudo yarn dev```.
-   In the other tab, go to /packages/client and run ```sudo yarn dev```.
+   If you are using gameservers, in another tab go to /packages/gameserver and run ```sudo yarn dev```.
+   In the final tab, go to /packages/client and run ```sudo yarn dev```.
    
-7. ####Open a new tab and start local file server (optional)
+8. ####Open a new tab and start local file server (optional)
    If the .env.local file you have has the line 
    ```STORAGE_PROVIDER=local```
    then the scene editor will save components, models, scenes, etc. locally 
@@ -121,7 +129,7 @@ First, make sure you have [NodeJS](https://nodejs.org/) and [npm](https://www.np
    You may have to accept the invalid self-signed certificate for it in the browser;
    see 'Allow local file http-server connection with invalid certificate' below.
    
-8. ####In a browser, navigate to https://127.0.0.1:3000/location/test
+9. ####In a browser, navigate to https://127.0.0.1:3000/location/test
    The database seeding process creates a test empty location called 'test'.
    It can be navigated to by going to 'https://127.0.0.1:3000/location/test'.
    See the sections below about invalid certificates if you are encountering errors
@@ -226,7 +234,7 @@ Open the dev console for Chrome/Firefox by pressing ```Ctrl+Shift+i``` simultane
 go to the Console or Network tabs. 
 
 If you see errors about not being able to connect to
-something like ```https://192.168.0.81/socket.io/?location=<foobar>```, right click on
+something like ```https://192.168.0.81:3031/socket.io/?location=<foobar>```, right click on
 that URL and open it in a new tab. You should again get a warning page about an invalid
 certificate, and you again need to allow it.  
 
