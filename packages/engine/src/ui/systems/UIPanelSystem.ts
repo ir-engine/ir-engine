@@ -7,6 +7,7 @@ import { Entity } from "../../ecs/classes/Entity";
 import { getComponent } from "../../ecs/functions/EntityFunctions";
 import { Group } from "three";
 import { Engine } from "../../ecs/classes/Engine";
+import SceneGallery from "../components/SceneGallery";
 
 export class UIPanelSystem extends System {
 
@@ -16,7 +17,7 @@ export class UIPanelSystem extends System {
     super(attributes);
     this.panelContainer = new Group();
     Engine.scene.add(this.panelContainer);
-    createPanelComponent({ panel: new Keyboard() })
+    createPanelComponent({ panel: new SceneGallery() })
   }
   execute(): void {
     this.queryResults.panels?.added?.forEach((entity: Entity) => {
