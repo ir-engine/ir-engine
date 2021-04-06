@@ -39,7 +39,7 @@ export class FXAAEffect extends Effect {
   }
 
   update(renderer: WebGLRenderer, inputBuffer: WebGLRenderTarget, deltaTime: number): void {
-    this.uniforms.get('tDiffuse').value = inputBuffer;
+    (this as any).uniforms.get('tDiffuse').value = inputBuffer;
   }
 
   /**
@@ -51,6 +51,6 @@ export class FXAAEffect extends Effect {
   setSize(width: number, height: number): void {
     // console.log('FXAAEffect.setSize', width, height, 1/width, 1/height);
     this.resolution.set(width, height);
-    this.uniforms.get('resolution').value.set(1 / width, 1 / height);
+    (this as any).uniforms.get('resolution').value.set(1 / width, 1 / height);
   }
 }

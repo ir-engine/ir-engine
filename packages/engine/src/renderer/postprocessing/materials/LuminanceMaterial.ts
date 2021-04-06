@@ -53,7 +53,7 @@ export class LuminanceMaterial extends ShaderMaterial {
     } as any);
 
     /** @ignore */
-    this.toneMapped = false;
+    (this as any).toneMapped = false;
 
     this.colorOutput = colorOutput;
     this.useThreshold = true;
@@ -67,7 +67,7 @@ export class LuminanceMaterial extends ShaderMaterial {
 	 */
 
   get threshold () {
-    return this.uniforms.threshold.value;
+    return (this as any).uniforms.threshold.value;
   }
 
   /**
@@ -77,7 +77,7 @@ export class LuminanceMaterial extends ShaderMaterial {
 	 */
 
   set threshold (value) {
-    this.uniforms.threshold.value = value;
+    (this as any).uniforms.threshold.value = value;
   }
 
   /**
@@ -87,7 +87,7 @@ export class LuminanceMaterial extends ShaderMaterial {
 	 */
 
   get smoothing () {
-    return this.uniforms.smoothing.value;
+    return (this as any).uniforms.smoothing.value;
   }
 
   /**
@@ -97,7 +97,7 @@ export class LuminanceMaterial extends ShaderMaterial {
 	 */
 
   set smoothing (value) {
-    this.uniforms.smoothing.value = value;
+    (this as any).uniforms.smoothing.value = value;
   }
 
   /**
@@ -107,7 +107,7 @@ export class LuminanceMaterial extends ShaderMaterial {
 	 */
 
   get useThreshold () {
-    return (this.defines.THRESHOLD !== undefined);
+    return ((this as any).defines.THRESHOLD !== undefined);
   }
 
   /**
@@ -118,12 +118,12 @@ export class LuminanceMaterial extends ShaderMaterial {
 
   set useThreshold (value) {
     if (value) {
-      this.defines.THRESHOLD = '1';
+      (this as any).defines.THRESHOLD = '1';
     } else {
-      delete this.defines.THRESHOLD;
+      delete (this as any).defines.THRESHOLD;
     }
 
-    this.needsUpdate = true;
+    (this as any).needsUpdate = true;
   }
 
   /**
@@ -133,7 +133,7 @@ export class LuminanceMaterial extends ShaderMaterial {
 	 */
 
   get colorOutput () {
-    return (this.defines.COLOR !== undefined);
+    return ((this as any).defines.COLOR !== undefined);
   }
 
   /**
@@ -144,12 +144,12 @@ export class LuminanceMaterial extends ShaderMaterial {
 
   set colorOutput (value) {
     if (value) {
-      this.defines.COLOR = '1';
+      (this as any).defines.COLOR = '1';
     } else {
-      delete this.defines.COLOR;
+      delete (this as any).defines.COLOR;
     }
 
-    this.needsUpdate = true;
+    (this as any).needsUpdate = true;
   }
 
   /**
@@ -170,7 +170,7 @@ export class LuminanceMaterial extends ShaderMaterial {
 	 */
 
   get useRange () {
-    return (this.defines.RANGE !== undefined);
+    return ((this as any).defines.RANGE !== undefined);
   }
 
   /**
@@ -183,12 +183,12 @@ export class LuminanceMaterial extends ShaderMaterial {
 
   set useRange (value) {
     if (value) {
-      this.defines.RANGE = '1';
+      (this as any).defines.RANGE = '1';
     } else {
-      delete this.defines.RANGE;
+      delete (this as any).defines.RANGE;
     }
 
-    this.needsUpdate = true;
+    (this as any).needsUpdate = true;
   }
 
   /**
