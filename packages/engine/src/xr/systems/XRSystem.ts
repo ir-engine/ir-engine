@@ -50,7 +50,7 @@ export class XRSystem extends System {
       const sessionInit = { optionalFeatures: [this.referenceSpaceType] };
       try {
         const session = await (navigator as any).xr.requestSession("immersive-vr", sessionInit)
-        
+
         Engine.xrSession = session;
         Engine.renderer.xr.setReferenceSpaceType(this.referenceSpaceType);
         Engine.renderer.xr.setSession(session);

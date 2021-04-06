@@ -1,5 +1,6 @@
 import { Matrix4, Vector3, Quaternion } from 'three';
 import CANNON, { Vec3 } from 'cannon-es';
+import { Engine } from '../../ecs/classes/Engine';
 
 import { applyVectorMatrixXZ } from '../../common/functions/applyVectorMatrixXZ';
 import { getSignedAngleBetweenVectors } from '../../common/functions/getSignedAngleBetweenVectors';
@@ -20,7 +21,7 @@ import { isServer } from '../../common/functions/isServer';
 import { LocalInputReceiver } from "../../input/components/LocalInputReceiver";
 import { InterpolationComponent } from '../components/InterpolationComponent';
 import TeleportToSpawnPoint from '../../scene/components/TeleportToSpawnPoint';
-
+import { XRUserSettings } from '../../templates/character/XRUserSettings';
 /**
  * @author HydraFire <github.com/HydraFire>
  */
@@ -58,7 +59,21 @@ export const physicsMove: Behavior = (entity: Entity, args: any, deltaTime): voi
     actor.localMovementDirection.z = actor.localMovementDirection.z * 0.8
     //actor.localMovementDirection.multiplyScalar(0.5)
   }
+  if (Engine.xrSession != null) {
 
+    let rotationVector = null;
+    switch (XRUserSettings.moving) {
+      case 'followController':
+        rotationVector = XRUserSettings.invertRotationAndMoveSticks ? inputs.data.get(BaseInput.XR_RIGHT_HAND).value : inputs.data.get(BaseInput.XR_LEFT_HAND).value;
+        break;
+      case 'followHead':
+        rotationVector = inputs.data.get(BaseInput.XR_HEAD).value;
+        break;
+        console.warn(rotationVector);
+        console.warn(actor.orientation);
+    }
+
+  }
   // Figure out angle between current and target orientation
   const angle = getSignedAngleBetweenVectors(actor.orientation, actor.orientationTarget);
   // Simulator
