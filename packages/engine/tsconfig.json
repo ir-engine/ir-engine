@@ -14,32 +14,8 @@
     "noImplicitThis": true,
     "skipLibCheck": true
   },
-  "include": ["src/**/*"],
-  "exclude": [
-        "./node_modules",
-        "dist",
-        // "tsconfig.json"
-    ]
+
+  "include": ["src/**/*", "../client-core/src/ml", "../gameserver/src/transports/WebRtcTransportParams.ts", "../client-core/transports/SocketWebRTCClientFunctions.ts", "../client-core/transports/SocketWebRTCClientTransport.ts"],
+  "exclude": ["node_modules", "dist", "tsconfig.json"]
 }
 
-// {
-//   "compileOnSave": true,
-//   "compilerOptions": {
-//       "outDir": "./built",
-//       "allowJs": true,
-//       "target": "es5",
-//       "allowUnreachableCode": false,
-//       "noImplicitReturns": true,
-//       "noImplicitAny": true,
-//       "typeRoots": [ "./typings" ],
-//       "outFile": "./built/combined.js"
-//   },
-//   "include": [
-//       "./**/*"
-//   ],
-//   "exclude": [
-//       "./plugins/**/*",
-//       "./typings/**/*",
-//       "./built/**/*" // This is what fixed it!
-//   ]
-// }

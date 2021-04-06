@@ -40,7 +40,7 @@ export default class Image extends Object3D {
       this.alphaMode === ImageAlphaMode.Mask ? this._alphaCutoff : 0;
     this._mesh = new Mesh(geometry, material);
     this._mesh.name = "ImageMesh";
-    this.add(this._mesh);
+    (this as any).add(this._mesh);
     this._texture = null;
   }
   get src() {
@@ -92,11 +92,11 @@ export default class Image extends Object3D {
     const nextMesh = new Mesh(geometry, material);
     nextMesh.name = "ImageMesh";
     nextMesh.visible = this._mesh.visible;
-    const meshIndex = this.children.indexOf(this._mesh);
+    const meshIndex = (this as any).children.indexOf(this._mesh);
     if (meshIndex === -1) {
-      this.add(nextMesh);
+      (this as any).add(nextMesh);
     } else {
-      this.children.splice(meshIndex, 1, nextMesh);
+      (this as any).children.splice(meshIndex, 1, nextMesh);
       nextMesh.parent = this;
     }
     this._mesh = nextMesh;
@@ -135,13 +135,13 @@ export default class Image extends Object3D {
   }
   copy(source, recursive = true) {
     if (recursive) {
-      this.remove(this._mesh);
+      (this as any).remove(this._mesh);
     }
     super.copy(source, recursive);
     if (recursive) {
       const _meshIndex = source.children.indexOf(source._mesh);
       if (_meshIndex !== -1) {
-        (this._mesh as any) = this.children[_meshIndex];
+        (this._mesh as any) = (this as any).children[_meshIndex];
       }
     }
     this.projection = source.projection;

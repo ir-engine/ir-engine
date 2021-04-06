@@ -66,6 +66,6 @@ export class ColorDepthEffect extends Effect {
 
   setBitDepth (bits) {
     this.bits = bits;
-    this.uniforms.get('factor').value = Math.pow(2.0, bits / 3.0);
+    (this as any).uniforms.get('factor').value = Math.pow(2.0, bits / 3.0);
   }
 }

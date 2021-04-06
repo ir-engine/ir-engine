@@ -115,7 +115,7 @@ export class GridEffect extends Effect {
     const aspect = width / height;
     const scale = this.scale * (height * 0.125);
 
-    this.uniforms.get('scale').value.set(aspect * scale, scale);
-    this.uniforms.get('lineWidth').value = (scale / height) + this.lineWidth;
+    (this as any).uniforms.get('scale').value.set(aspect * scale, scale);
+    (this as any).uniforms.get('lineWidth').value = (scale / height) + this.lineWidth;
   }
 }

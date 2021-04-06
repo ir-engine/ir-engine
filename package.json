@@ -56,11 +56,12 @@
   ],
   "resolutions": {
     "socket.io": "2.4.1",
-    "terser": "4.8.0",
+    "terser": "^5.6.1",
     "@typescript-eslint/eslint-plugin": "^4.6.0",
     "@typescript-eslint/parser": "^4.6.0"
   },
   "peerDependencies": {
+    "terser": "^5.6.1",
     "@feathersjs/authentication": "^4.5.8",
     "@feathersjs/authentication-local": "^4.5.8",
     "@feathersjs/authentication-oauth": "^4.5.8",
@@ -75,11 +76,12 @@
     "@feathersjs/socketio": "4.5.8",
     "@feathersjs/socketio-client": "^4.5.8",
     "@feathersjs/transport-commons": "^4.5.8",
-    "chokidar": "3.4.2",
-    "mediasoup-client": "^3.6.12",
+    "@typescript-eslint/parser": "^4.16.1",
+    "@typescript-eslint/eslint-plugin": "^4.6.0",
+    "chokidar": "^3.4.2",
     "sequelize": "~5.21.8",
     "socket.io": "2.4.1",
-    "three": "^0.125.0"
+    "three": "^0.127.0"
   },
   "devDependencies": {
     "@babel/preset-env": "^7.11.5",

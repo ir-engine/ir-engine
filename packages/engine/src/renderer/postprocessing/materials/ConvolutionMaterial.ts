@@ -48,7 +48,7 @@ export class ConvolutionMaterial extends ShaderMaterial {
     } as any);
 
     /** @ignore */
-    this.toneMapped = false;
+    (this as any).toneMapped = false;
 
     this.setTexelSize(texelSize.x, texelSize.y);
 
@@ -79,8 +79,8 @@ export class ConvolutionMaterial extends ShaderMaterial {
 	 */
 
   setTexelSize (x, y) {
-    this.uniforms.texelSize.value.set(x, y);
-    this.uniforms.halfTexelSize.value.set(x, y).multiplyScalar(0.5);
+    (this as any).uniforms.texelSize.value.set(x, y);
+    (this as any).uniforms.halfTexelSize.value.set(x, y).multiplyScalar(0.5);
   }
 }
 

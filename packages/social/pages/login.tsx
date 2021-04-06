@@ -1,14 +1,12 @@
-import Layout from '@xr3ngine/client-core/components/ui/Layout/OverlayLayout';
-import { selectAuthState } from "@xr3ngine/client-core/redux/auth/selector";
-import { doLoginAuto, resetPassword } from '@xr3ngine/client-core/redux/auth/service';
-import { selectInstanceConnectionState } from '@xr3ngine/client-core/redux/instanceConnection/selector';
+import { selectAuthState } from "@xr3ngine/client-core/src/user/reducers/auth/selector";
+import FlatSignIn from '@xr3ngine/client-core/src/socialmedia/components/Login';
+import { doLoginAuto, resetPassword } from '@xr3ngine/client-core/src/user/reducers/auth/service';
 import React from 'react';
 import { connect } from "react-redux";
 import { bindActionCreators, Dispatch } from "redux";
 import { ThemeProvider } from "styled-components";
-
-import FlatSignIn from '@xr3ngine/client-core/components/social/Login';
 import theme from '../theme';
+
 
 interface Props {
     authState?: any;
@@ -41,3 +39,7 @@ export const IndexPage = (props: any): any => {
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(IndexPage);
+function selectInstanceConnectionState(state: any) {
+  throw new Error("Function not implemented.");
+}
+
