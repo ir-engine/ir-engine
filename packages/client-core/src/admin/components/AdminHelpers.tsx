@@ -7,7 +7,7 @@ import {
     TableSortLabel
 } from '@material-ui/core';
 
-import styles from '../Admin/Admin.module.scss';
+import styles from '../components/Admin.module.scss';
 
 type Order = 'asc' | 'desc';
 interface EnhancedTableProps {

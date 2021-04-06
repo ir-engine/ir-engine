@@ -5,7 +5,9 @@ import React from "react";
  const AdminPage = () => {
    return (<>
     <div>
-      <Dashboard />
+      <Dashboard>
+          <div/>
+      </Dashboard>
     </div>
   </>
   );
