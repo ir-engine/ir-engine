@@ -43,7 +43,7 @@ export class HueSaturationEffect extends Effect {
   setHue (hue) {
     const s = Math.sin(hue); const c = Math.cos(hue);
 
-    this.uniforms.get('hue').value.set(
+    (this as any).uniforms.get('hue').value.set(
       2.0 * c, -Math.sqrt(3.0) * s - c, Math.sqrt(3.0) * s - c
     ).addScalar(1.0).divideScalar(3.0);
   }

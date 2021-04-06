@@ -73,7 +73,7 @@ export class BloomEffect extends Effect {
     this.renderTarget.texture.name = 'Bloom.Target';
     this.renderTarget.texture.generateMipmaps = false;
 
-    this.uniforms.get('texture').value = this.renderTarget.texture;
+    (this as any).uniforms.get('texture').value = this.renderTarget.texture;
 
     /**
 		 * A blur pass.
@@ -244,7 +244,7 @@ export class BloomEffect extends Effect {
 	 */
 
   get intensity () {
-    return this.uniforms.get('intensity').value;
+    return (this as any).uniforms.get('intensity').value;
   }
 
   /**
@@ -254,7 +254,7 @@ export class BloomEffect extends Effect {
 	 */
 
   set intensity (value) {
-    this.uniforms.get('intensity').value = value;
+    (this as any).uniforms.get('intensity').value = value;
   }
 
   /**

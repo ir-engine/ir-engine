@@ -1,12 +1,11 @@
 
 import React, { useEffect } from "react";
-
-import Dashboard  from "@xr3ngine/client-core/components/ui/Layout/SocialDashboard";
-import CreatorConsole  from "@xr3ngine/client-core/components/ui/Admin/CreatorConsole";
-import { selectCreatorsState } from "@xr3ngine/client-core/redux/creator/selector";
-import { getCreators } from "@xr3ngine/client-core/redux/creator/service";
+import CreatorConsole  from "@xr3ngine/client-core/src/admin/components/CreatorConsole";
 import { bindActionCreators, Dispatch } from "redux";
 import { connect } from "react-redux";
+import { Dashboard } from "@material-ui/icons";
+import { selectCreatorsState } from "@xr3ngine/client-core/src/socialmedia/reducers/creator/selector";
+import { getCreators } from "@xr3ngine/client-core/src/socialmedia/reducers/creator/service";
 
 const mapStateToProps = (state: any): any => {
   return {
