@@ -7,6 +7,7 @@ import NumericInputGroup from "../inputs/NumericInputGroup";
 import CompoundNumericInput from "../inputs/CompoundNumericInput";
 import { AudioType, AudioTypeOptions, DistanceModelOptions, DistanceModelType } from "@xr3ngine/engine/src/scene/classes/AudioSource";
 import useSetPropertySelected from "./useSetPropertySelected";
+import { useTranslation } from "react-i18next";
 
 /**
  * [
@@ -32,36 +33,59 @@ export default function AudioSourceProperties({ node, editor, multiEdit }) {
   const onChangeConeInnerAngle = useSetPropertySelected(editor, "coneInnerAngle");
   const onChangeConeOuterAngle = useSetPropertySelected(editor, "coneOuterAngle");
   const onChangeConeOuterGain = useSetPropertySelected(editor, "coneOuterGain");
+  const { t } = useTranslation();
 
   // TODO: Make node audio settings work with multi-edit
   // returning view containing inputs to customize audio element
   return (
     <>
       { /* @ts-ignore */ }
-      <InputGroup name="Controls" info="Toggle the visibility of the media controls in Hubs.">
+      <InputGroup
+        name="Controls"
+        label={t('editor:properties.audio.lbl-controls')}
+        info={t('editor:properties.audio.info-controls')}
+      >
         <BooleanInput value={node.controls} onChange={onChangeControls} />
       </InputGroup>
       { /* @ts-ignore */ }
-      <InputGroup name="Auto Play" info="If true, the media will play when first entering the scene.">
+      <InputGroup 
+        name="Auto Play"
+        label={t('editor:properties.audio.lbl-autoplay')}
+        info={t('editor:properties.audio.info-autoplay')}
+      >
         <BooleanInput value={node.autoPlay} onChange={onChangeAutoPlay} />
       </InputGroup>
       { /* @ts-ignore */ }
-      <InputGroup name="Loop" info="If true the media will loop indefinitely.">
+      <InputGroup 
+        name="Loop"
+        label={t('editor:properties.audio.lbl-loop')}
+        info={t('editor:properties.audio.info-loop')}
+      >
         <BooleanInput value={node.loop} onChange={onChangeLoop} />
       </InputGroup>
       { /* @ts-ignore */ }
-      <InputGroup name="Audio Type">
+      <InputGroup 
+        name="Audio Type"
+        label={t('editor:properties.audio.lbl-audioType')}
+      >
       { /* @ts-ignore */ }
         <SelectInput options={AudioTypeOptions} value={node.audioType} onChange={onChangeAudioType} />
       </InputGroup>
       { /* @ts-ignore */ }
-      <InputGroup name="Volume">
+      <InputGroup 
+        name="Volume"
+        label={t('editor:properties.audio.lbl-volume')}
+      >
         <CompoundNumericInput value={node.volume} onChange={onChangeVolume} />
       </InputGroup>
       {!multiEdit && node.audioType === AudioType.PannerNode && (
         <>
           { /* @ts-ignore */ }
-          <InputGroup name="Distance Model" info="The algorithim used to calculate audio rolloff.">
+          <InputGroup
+            name="Distance Model"
+            label={t('editor:properties.audio.lbl-distanceModel')}
+            info={t('editor:properties.audio.info-distanceModel')}
+          >
           { /* @ts-ignore */ }
             <SelectInput options={DistanceModelOptions} value={node.distanceModel} onChange={onChangeDistanceModel} />
           </InputGroup>
@@ -70,7 +94,8 @@ export default function AudioSourceProperties({ node, editor, multiEdit }) {
             /* @ts-ignore */
             <InputGroup
               name="Rolloff Factor"
-              info="A double value describing how quickly the volume is reduced as the source moves away from the listener. 0 to 1"
+              label={t('editor:properties.audio.lbl-rolloffFactor')}
+              info={t('editor:properties.audio.info-rolloffFactor')}
             >
               <CompoundNumericInput
                 min={0}
@@ -86,7 +111,8 @@ export default function AudioSourceProperties({ node, editor, multiEdit }) {
             /* @ts-ignore */
             <NumericInputGroup
               name="Rolloff Factor"
-              info="A double value describing how quickly the volume is reduced as the source moves away from the listener. 0 to Infinity"
+              label={t('editor:properties.audio.lbl-rolloffFactor')}
+              info={t('editor:properties.audio.info-rfInfinity')}
               min={0}
               smallStep={0.1}
               mediumStep={1}
@@ -98,7 +124,8 @@ export default function AudioSourceProperties({ node, editor, multiEdit }) {
           { /* @ts-ignore */ }
           <NumericInputGroup
             name="Ref Distance"
-            info="A double value representing the reference distance for reducing volume as the audio source moves further from the listener."
+            label={t('editor:properties.audio.lbl-refDistance')}
+            info={t('editor:properties.audio.info-refDistance')}
             min={0}
             smallStep={0.1}
             mediumStep={1}
@@ -110,7 +137,8 @@ export default function AudioSourceProperties({ node, editor, multiEdit }) {
           { /* @ts-ignore */ }
           <NumericInputGroup
             name="Max Distance"
-            info="A double value representing the maximum distance between the audio source and the listener, after which the volume is not reduced any further."
+            label={t('editor:properties.audio.lbl-maxDistance')}
+            info={t('editor:properties.audio.info-maxDistance')}
             min={0.00001}
             smallStep={0.1}
             mediumStep={1}
@@ -122,7 +150,8 @@ export default function AudioSourceProperties({ node, editor, multiEdit }) {
           { /* @ts-ignore */ }
           <NumericInputGroup
             name="Cone Inner Angle"
-            info="A double value describing the angle, in degrees, of a cone inside of which there will be no volume reduction."
+            label={t('editor:properties.audio.lbl-coneInnerAngle')}
+            info={t('editor:properties.audio.info-coneInnerAngle')}
             min={0}
             max={360}
             smallStep={0.1}
@@ -136,7 +165,8 @@ export default function AudioSourceProperties({ node, editor, multiEdit }) {
           { /* @ts-ignore */ }
           <NumericInputGroup
             name="Cone Outer Angle"
-            info="A double value describing the angle, in degrees, of a cone outside of which the volume will be reduced by a constant value, defined by the coneOuterGain attribute."
+            label={t('editor:properties.audio.lbl-coneOuterAngle')}
+            info={t('editor:properties.audio.info-coneOuterAngle')}
             min={0}
             max={360}
             smallStep={0.1}
@@ -150,7 +180,8 @@ export default function AudioSourceProperties({ node, editor, multiEdit }) {
           { /* @ts-ignore */ }
           <InputGroup
             name="Cone Outer Gain"
-            info="A double value describing the amount of volume reduction outside the cone defined by the coneOuterAngle attribute. Its default value is 0, meaning that no sound can be heard."
+            label={t('editor:properties.audio.lbl-coreOuterGain')}
+            info={t('editor:properties.audio.info-coreOuterGain')}
           >
             <CompoundNumericInput
               min={0}
