@@ -3,16 +3,17 @@ import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
 import Container from '@material-ui/core/Container';
-import { EmptyLayout }from '../../../media/components/ui/Layout/EmptyLayout';
-import { resetPassword } from '../../../reducers/auth/service';
+import { EmptyLayout } from '../../../common/components/Layout/EmptyLayout';
 import styles from './Auth.module.scss';
+import { resetPassword } from '@xr3ngine/client-core/src/user/reducers/auth/service';
 
 interface Props {
+  completeAction?: any,
   resetPassword: typeof resetPassword;
   token: string;
 }
 
-export const ResetPassword = (props: Props): any => {
+export default (props: Props): any => {
   const { resetPassword, token } = props;
   const initialState = { password: '' };
   const [state, setState] = useState(initialState);
@@ -24,6 +25,7 @@ export const ResetPassword = (props: Props): any => {
   const handleReset = (e: any): void => {
     e.preventDefault();
     resetPassword(token, state.password);
+    if(props.completeAction) props.completeAction();
   };
 
   return (

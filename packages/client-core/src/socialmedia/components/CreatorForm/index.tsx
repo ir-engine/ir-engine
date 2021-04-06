@@ -19,8 +19,8 @@ import InstagramIcon from '@material-ui/icons/Instagram';
 import TitleIcon from '@material-ui/icons/Title';
 
 import TextField from '@material-ui/core/TextField';
-import { selectCreatorsState } from '../../../reducers/creator/selector';
-import { updateCreator } from '../../../reducers/creator/service';
+import { selectCreatorsState } from '../../reducers/creator/selector';
+import { updateCreator } from '../../reducers/creator/service';
 import { bindActionCreators, Dispatch } from 'redux';
 
 const mapStateToProps = (state: any): any => {
