@@ -112,10 +112,157 @@
         }
     },
     "properties": {
+        "title": "Properties",
+        "lbl-visible": "Visible",
+        "multipleNodeSelected": "Multiple Nodes of different types selected",
+        "noNodeSelected": "No node selected",
         "ambientLight": {
             "description": "A light which illuminates all objects in your scene.",
             "lbl-intensity": "Intensity",
             "lbl-color": "Color"
+        },
+        "audio": {
+            "description": "Dynamically loads audio.",
+            "lbl-audiourl": "Audio Url",
+            "lbl-controls": "controls",
+            "info-controls": "Toggle the visibility of the media controls in Hubs.",
+            "lbl-autoplay": "Auto Play",
+            "info-autoplay": "If true, the media will play when first entering the scene.",
+            "lbl-loop": "Loop",
+            "info-loop": "If true the media will loop indefinitely.",
+            "lbl-audioType": "Audio Type",
+            "lbl-distanceModel": "Distance Model",
+            "info-distanceModel": "The algorithim used to calculate audio rolloff.",
+            "lbl-rolloffFactor": "Rolloff Factor",
+            "info-rolloffFactor": "A double value describing how quickly the volume is reduced as the source moves away from the listener. 0 to 1",
+            "info-rfInfinity": "A double value describing how quickly the volume is reduced as the source moves away from the listener. 0 to Infinity",
+            "lbl-refDistance": "Ref Distance",
+            "info-refDistance": "A double value representing the reference distance for reducing volume as the audio source moves further from the listener.",
+            "lbl-maxDistance": "Max Distance 132",
+            "info-maxDistance": "A double value representing the maximum distance between the audio source and the listener, after which the volume is not reduced any further.",
+            "lbl-coneInnerAngle": "Cone Inner Angle",
+            "info-coneInnerAngle": "A double value describing the angle, in degrees, of a cone inside of which there will be no volume reduction.",
+            "lbl-coneOuterAngle": "Cone Outer Angle",
+            "info-coneOuterAngle": "A double value describing the angle, in degrees, of a cone outside of which the volume will be reduced by a constant value, defined by the coneOuterGain attribute.",
+            "lbl-coreOuterGain": "Cone Outer Gain",
+            "info-coreOuterGain": "A double value describing the amount of volume reduction outside the cone defined by the coneOuterAngle attribute. Its default value is 0, meaning that no sound can be heard.",
+            "lbl-volume": "Volume"
+        },
+        "boxCollider": {
+            "description": "An invisible box that objects will bounce off of or rest on top of.\nWithout colliders, objects will fall through floors and go through walls.",
+            "lbl-walkable": "Walkable"
+        },
+        "directionalLight": {
+            "description": "A light which illuminates the entire scene, but emits along a single direction.",
+            "lbl-color": "Color",
+            "lbl-intensity": "Intensity",
+            "lbl-castShadow": "Cast Shadow",
+            "lbl-shadowmapResolution": "Shadow Map Resolution",
+            "lbl-shadowBias": "Shadow Bias",
+            "lbl-shadowRadius": "Shadow Radius"
+        },
+        "floorPlan": {
+            "description": "Sets the walkable surface area in your scene.",
+            "generatePlan": "Generating Floor Plan",
+            "generatePlanMsg": "Generating Floor Plan...",
+            "generatePlanError": "Error Generating Floor Plan",
+            "generatePlanErrorMsg": "There was an unknown error.",
+            "lbl-autoCellSize": "Auto Cell Size",
+            "lbl-cellSize": "Cell Size",
+            "lbl-cellHeight": "Cell Height",
+            "lbl-agentHeight": "Agent Height",
+            "lbl-agentRadius": "Agent Radius",
+            "lbl-maxStepHeight": "Maximum Step Height",
+            "lbl-maxSlope": "Maximum Slope",
+            "lbl-minRegionArea": "Minimum Region Area",
+            "lbl-forceTrimesh": "Force Trimesh",
+            "lbl-collisionThreshold": "Collision Geo Triangle Threshold",
+            "lbl-regenerate": "Regenerate"
+        },
+        "groundPlan": {
+            "description": "A flat ground plane that extends into the distance.",
+            "lbl-color": "Color",
+            "lbl-receiveShadow": "Receive Shadow",
+            "lbl-walkable": "Walkable"
+        },
+        "link": {
+            "description": "Link to a room or a website.",
+            "lbl-url": "URL"
+        },
+        "model": {
+            "description": "A 3D model in your scene, loaded from a GLTF URL or file.",
+            "lbl-modelurl": "Model Url",
+            "error-url": "Error Loading From URL",
+            "lbl-loopAnimation": "Loop Animation",
+            "lbl-collidable": "Collidable",
+            "lbl-saveColliders": "Save Colliders",
+            "lbl-walkable": "Walkable",
+            "lbl-castShadow": "Cast Shadow",
+            "lbl-receiveShadow": "Receive Shadow",
+            "lbl-interactable": "Interactable",
+            "lbl-name": "Name",
+            "lbl-url": "Model Url",
+            "lbl-buy": "Buy Url",
+            "lbl-learnMore": "Learn More Url",
+            "lbl-htmlContent": "Html Content",
+            "lbl-interactionText": "Interaction Text",
+            "lbl-interactionType": "Interaction Type"
+        },
+        "group": {
+            "description": "A group of multiple objects that can be moved or duplicated together.\nDrag and drop objects into the Group in the Hierarchy."
+        },
+        "hemisphere": {
+            "description": "A light which illuminates the scene from directly overhead.",
+            "lbl-skyColor": "Sky Color",
+            "lbl-groundColor": "Ground Color",
+            "lbl-intensity": "Intensity"
+        },
+        "image": {
+            "description": "Dynamically loads an image.",
+            "lbl-imgURL": "Image Url",
+            "lbl-controls": "Controls",
+            "lbl-transparency": "Transparency Mode",
+            "lbl-alphaCutoff": "Alpha Cutoff",
+            "lbl-projection": "Projection",
+            "info-controls": "Toggle the visibility of the media controls in Hubs.",
+            "info-transparency": "How to apply transparency:\n'opaque' = no transparency\n'blend' = use the images alpha channel\n'mask' = Use a specified cutoff value for on/off transparency (more performant)",
+            "info-alphaCutoff": "Pixels with alpha values lower than this will be transparent"
+        },
+        "name": {
+            "lbl-name": "Name"
+        },
+        "partileEmitter": {
+            "description": "Particle emitter to create particles.",
+            "lbl-particleCount": "Particle Count",
+            "lbl-image": "Image",
+            "lbl-ageRandomness": "Age Randomness",
+            "lbl-lifetime": "Lifetime",
+            "lbl-lifetimeRandomness": "Lifetime Randomness",
+            "lbl-sizeCurve": "Size Curve",
+            "lbl-startPSize": "Start Particle Size",
+            "lbl-endPSize": "End Particle Size",
+            "lbl-sizeRandomness": "Size Randomness",
+            "lbl-colorCurve": "Color Curve",
+            "lbl-startColor": "Start Color",
+            "lbl-startOpacity": "Start Opacity",
+            "lbl-middleColor": "Middle Color",
+            "lbl-middleOpacity": "Middle Opacity",
+            "lbl-endColor": "End Color",
+            "lbl-endOpacity": "End Opacity",
+            "lbl-velocityCurve": "Velocity Curve",
+            "lbl-startVelocity": "Start Velocity",
+            "lbl-endVelocity": "End Velocity",
+            "lbl-angularVelocity": "Angular Velocity",
+            "info-ageRandomness": "The amount of variation between when particles are spawned.",
+            "info-lifetime": "The maximum age of a particle before it is respawned.",
+            "info-lifetimeRandomness": "The amount of variation between particle lifetimes.",
+            "info-sizeRandomness": "The amount of variation between particle starting sizes."
+        },
+        "pointLight": {
+            "description": "A light which emits in all directions from a single point.",
+            "lbl-color": "Color",
+            "lbl-intensity": "Intensity",
+            "lbl-range": "Range"
         }
     }
 }

@@ -23,12 +23,6 @@ export class AmbientLightNodeEditor extends Component<
   AmbientLightNodeEditorProps,
   {}
 > {
-
-  constructor(props) {
-    super(props);
-    AmbientLightNodeEditor.description = this.props.t('editor:properties.ambientLight.description');
-  }
-
   //iconComponent used to show icon image on the ambient light element
   static iconComponent = Sun;
   static description = i18n.t('editor:properties.ambientLight.description');
@@ -46,6 +40,7 @@ export class AmbientLightNodeEditor extends Component<
    * [rendering ambient light view to customize ambient light element]
    */
   render() {
+    AmbientLightNodeEditor.description = this.props.t('editor:properties.ambientLight.description');
     const node = this.props.node;
     return (
       <NodeEditor

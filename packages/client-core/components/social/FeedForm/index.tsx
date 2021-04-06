@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { bindActionCreators, Dispatch } from 'redux';
 import { connect } from 'react-redux';
-import VideoRecorder from 'react-video-recorder'
+import VideoRecorder from 'react-video-recorder';
 
 import { Button, Card, CardMedia, TextField, Typography } from '@material-ui/core';
 import CameraIcon from '@material-ui/icons/Camera';
@@ -77,7 +77,7 @@ return <section className={styles.feedFormContainer}>
                 <Card className={styles.preCard}>
                     <Typography variant="h2" align="center">
                         <p>Upload Video</p>
-                        <p><BackupIcon onClick={()=>{(videoRef.current as HTMLInputElement).click()}} /></p>
+                        <p><BackupIcon onClick={()=>{(videoRef.current as HTMLInputElement).click();}} /></p>
                         <input required ref={videoRef} type="file" className={styles.displayNone} name="video" onChange={handlePickVideo} placeholder={'Select video'}/>
                     </Typography> 
                 </Card>
