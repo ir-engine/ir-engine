@@ -17,12 +17,11 @@ import TwitterIcon from '@material-ui/icons/Twitter';
 import InstagramIcon from '@material-ui/icons/Instagram';
 import TitleIcon from '@material-ui/icons/Title';
 
-import { selectCreatorsState } from '../../../../reducers/creator/selector';
-import { getCreator, followCreator, unFollowCreator, getFollowersList, getFollowingList } from '../../../../reducers/creator/service';
+import { selectCreatorsState } from '../../reducers/creator/selector';
+import { getCreator, followCreator, unFollowCreator, getFollowersList, getFollowingList } from '../../reducers/creator/service';
 import SimpleModal from '../SimpleModal';
-
+// @ts-ignore
 import styles from './CreatorCard.module.scss';
-
 
 const mapStateToProps = (state: any): any => {
     return {

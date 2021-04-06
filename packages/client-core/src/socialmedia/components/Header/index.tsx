@@ -3,9 +3,9 @@ import Router from "next/router";
 
 import styles from './Header.module.scss';
 import Avatar from "@material-ui/core/Avatar";
-import { selectCreatorsState } from "../../../reducers/creator/selector";
+import { selectCreatorsState } from "../../reducers/creator/selector";
 import { bindActionCreators, Dispatch } from "redux";
-import { getLoggedCreator } from "../../../reducers/creator/service";
+import { getLoggedCreator } from "../../reducers/creator/service";
 import { connect } from "react-redux";
 
 const mapStateToProps = (state: any): any => {

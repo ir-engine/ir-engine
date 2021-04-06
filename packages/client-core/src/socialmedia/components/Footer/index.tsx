@@ -7,9 +7,9 @@ import WhatshotIcon from '@material-ui/icons/Whatshot';
 
 import styles from './Footer.module.scss';
 import Avatar from "@material-ui/core/Avatar";
-import { selectCreatorsState } from "../../../reducers/creator/selector";
+import { selectCreatorsState } from "../../reducers/creator/selector";
 import { bindActionCreators, Dispatch } from "redux";
-import { getLoggedCreator } from "../../../reducers/creator/service";
+import { getLoggedCreator } from "../../reducers/creator/service";
 import { connect } from "react-redux";
 import { useEffect } from "react";
 

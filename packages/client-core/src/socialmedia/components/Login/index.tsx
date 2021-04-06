@@ -7,16 +7,16 @@ import { Facebook } from '@styled-icons/bootstrap/Facebook';
 import Fab from '@material-ui/core/Fab';
 
 import styles from './Login.module.scss';
-import { loginUserByOAuth, registerUserByEmail, resetPassword } from '../../../reducers/auth/service';
+import { loginUserByOAuth, registerUserByEmail, resetPassword } from '../../../user/reducers/auth/service';
 import getConfig from 'next/config';
 
-import PasswordLoginApp from '../../ui/Auth/PasswordLoginApp';
-import RegisterApp from '../../ui/Auth/RegisterApp';
-import { ForgotPassword } from '../../ui/Auth/ForgotPasswordApp';
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
-import { ResetPassword } from "../../ui/Auth/ResetPasswordApp";
+import PasswordLoginApp from "../../../user/components/Auth/PasswordLoginApp";
+import RegisterApp from "../../../user/components/Auth/RegisterApp";
+import ForgotPassword from "../../../user/components/Auth/ForgotPassword";
+import ResetPassword from "../../../user/components/Auth/ResetPassword";
 
 const config = getConfig().publicRuntimeConfig;
 

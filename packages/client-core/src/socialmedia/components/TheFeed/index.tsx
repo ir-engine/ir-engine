@@ -2,8 +2,8 @@ import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 
-import { selectFeedsState } from '../../../reducers/feed/selector';
-import { getFeeds } from '../../../reducers/feed/service';
+import { selectFeedsState } from '../../reducers/feed/selector';
+import { getFeeds } from '../../reducers/feed/service';
 
 import FeedCard from '../common/FeedCard';
 

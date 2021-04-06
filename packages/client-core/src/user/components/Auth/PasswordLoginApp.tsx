@@ -17,7 +17,7 @@ import { User } from '@xr3ngine/common/interfaces/User';
 
 import styles from './Auth.module.scss';
 import { createCreator } from '../../../reducers/creator/service';
-import { selectCreatorsState } from '../../../reducers/creator/selector';
+import { selectCreatorsState } from '../../reducers/creator/selector';
 
 const mapStateToProps = (state: any): any => {
   return {
