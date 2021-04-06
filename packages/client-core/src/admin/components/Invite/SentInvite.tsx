@@ -10,9 +10,9 @@ import {
   retrieveSentInvites,
   sendInvite,
   removeInvite
-} from "../../../../reducers/invite/service";
+} from "../../../social/reducers/invite/service";
 import { makeStyles, createStyles, Theme, useTheme } from '@material-ui/core/styles';
-import { selectInviteState } from "../../../../reducers/invite/selector";
+import { selectInviteState } from "../../../social/reducers/invite/selector";
 import { bindActionCreators, Dispatch } from "redux";
 import { withRouter, Router } from "next/router";
 import { connect } from "react-redux";

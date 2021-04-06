@@ -1,5 +1,5 @@
-import Loading from '@xr3ngine/client-core/src/components/scenes/loading';
-import { OfflineEnginePage } from '@xr3ngine/client-core/src/components/scenes/offlineLocation';
+import Loading from '../components/Scene/loading';
+import { OfflineEnginePage } from '../components/Scene/offlineLocation';
 import { useRouter } from 'next/router';
 import React from 'react';
 import NoSSR from 'react-no-ssr';
