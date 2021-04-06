@@ -7,11 +7,11 @@ import CommentsFires from './comments-fires/comments-fires.service';
 import FollowCreator from './follow-creator/follow-creator.service';
 
 export default [
-  // Creator,
-  // Feed,
-  // FeedFires,
-  // FeedBookmark,
-  // Comments,
-  // CommentsFires,
-  // FollowCreator
+  Creator,
+  Feed,
+  FeedFires,
+  FeedBookmark,
+  Comments,
+  CommentsFires,
+  FollowCreator
 ];

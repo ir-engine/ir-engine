@@ -12,7 +12,7 @@ import styles from './CommentCard.module.scss';
 import { CommentInterface } from '@xr3ngine/common/interfaces/Comment';
 import { bindActionCreators, Dispatch } from 'redux';
 import { connect } from 'react-redux';
-import SimpleModal from '../common/SimpleModal';
+import SimpleModal from '../SimpleModal';
 import { addFireToFeedComment, getCommentFires, removeFireToFeedComment } from '../../reducers/feedComment/service';
 import { selectFeedCommentsState } from '../../reducers/feedComment/selector';
 

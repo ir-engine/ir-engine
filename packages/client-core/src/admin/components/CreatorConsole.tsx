@@ -23,8 +23,8 @@ import Slide from '@material-ui/core/Slide';
 import { TransitionProps } from '@material-ui/core/transitions';
 import { EnhancedTableHead } from './AdminHelpers';
 import CreatorForm from '../../socialmedia/components/CreatorForm';
-import CreatorCard from '../../socialmedia/components/common/CreatorCard';
 import SharedModal from './SharedModal';
+import CreatorCard from '../../socialmedia/components/CreatorCard';
 
 
 if (!global.setImmediate) {
