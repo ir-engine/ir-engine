@@ -1,1 +1,0 @@
-self.onmessage=function(s){s.data.question,self.postMessage({answer:42})},_N_E={};

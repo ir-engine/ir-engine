@@ -37,14 +37,14 @@ export class VideoTextureProxy extends CanvasTexture {
       // encoding,
     );
     this.videoProxy = videoProxy;
-    this.minFilter = minFilter !== undefined ? minFilter : LinearFilter;
-    this.magFilter = magFilter !== undefined ? magFilter : LinearFilter;
-    this.generateMipmaps = false;
-    this.flipY = true;
+    (this as any).minFilter = minFilter !== undefined ? minFilter : LinearFilter;
+    (this as any).magFilter = magFilter !== undefined ? magFilter : LinearFilter;
+    (this as any).generateMipmaps = false;
+    (this as any).flipY = true;
 
     const updateVideo = () => {
-      this.image = this.videoProxy.video;
-      this.needsUpdate = true;
+      (this as any).image = this.videoProxy.video;
+      (this as any).needsUpdate = true;
       videoProxy._requestVideoFrameCallback(updateVideo);
     };
 
@@ -53,7 +53,7 @@ export class VideoTextureProxy extends CanvasTexture {
     }
   }
   clone(): VideoTextureProxy {
-    return new VideoTextureProxy(this.videoProxy).copy(this);
+    return (new VideoTextureProxy(this.videoProxy) as any).copy(this);
   }
 
   update() {
@@ -61,8 +61,8 @@ export class VideoTextureProxy extends CanvasTexture {
       !this.videoProxy._requestVideoFrameCallback &&
       this.videoProxy.readyState >= 2
     ) {
-      this.image = this.videoProxy.video;
-      this.needsUpdate = true;
+      (this as any).image = this.videoProxy.video;
+      (this as any).needsUpdate = true;
     }
   }
 }

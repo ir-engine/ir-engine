@@ -11,7 +11,7 @@ export default class Model extends Object3D {
   activeClipAction: any;
   constructor() {
     super();
-    this.type = "Model";
+    (this as any).type = "Model";
     this.model = null;
     this._src = null;
     this._castShadow = false;
@@ -37,17 +37,13 @@ export default class Model extends Object3D {
   async load(src, ...args) {
     this._src = src;
     if (this.model) {
-      this.remove(this.model);
+      (this as any).remove(this.model);
       this.model = null;
     }
     const model = await this.loadGLTF(src);
-    // const model = await new Promise<{ scene: any; json: any; stats: any }>((resolve)=>{
-    //   const loader = new GLTFLoader()
-    //   loader.load(src, (gltf) => { resolve({ scene: gltf.scene, json: {}, stats: {} }); });
-    //   });
     model.animations = model.animations || [];
     this.model = model;
-    this.add(model);
+    (this as any).add(model);
     if (model.animations && model.animations.length > 0) {
       this.animationMixer = new AnimationMixer(this.model);
     }
@@ -182,7 +178,7 @@ export default class Model extends Object3D {
         clonedChild = child.clone();
       }
       if (clonedChild) {
-        this.add(clonedChild);
+        (this as any).add(clonedChild);
       }
     }
     this._src = source._src;

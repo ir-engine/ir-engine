@@ -40,7 +40,7 @@ export class ChromaticAberrationEffect extends Effect {
 	 */
 
   get offset () {
-    return this.uniforms.get('offset').value;
+    return (this as any).uniforms.get('offset').value;
   }
 
   /**
@@ -48,7 +48,7 @@ export class ChromaticAberrationEffect extends Effect {
 	 */
 
   set offset (value) {
-    this.uniforms.get('offset').value = value;
+    (this as any).uniforms.get('offset').value = value;
   }
 
   /**
@@ -61,9 +61,9 @@ export class ChromaticAberrationEffect extends Effect {
 
   initialize (renderer, alpha, frameBufferType) {
     if (alpha) {
-      this.defines.set('ALPHA', '1');
+      (this as any).defines.set('ALPHA', '1');
     } else {
-      this.defines.delete('ALPHA');
+      (this as any).defines.delete('ALPHA');
     }
   }
 }

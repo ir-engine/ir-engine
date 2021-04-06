@@ -1,1 +1,0 @@
-(self.webpackChunk_N_E=self.webpackChunk_N_E||[]).push([[900],{82108:function(e,r,t){"use strict";t.r(r),t.d(r,{ModelView:function(){return c}});var o=t(27878),n=(t(21010),o.createElement),c=function(e){var r=e.modelUrl,t=e.iosModelUrl;return n("model-viewer",{style:{width:"100%",height:"300px"},src:r,"ios-src":t,ar:!0,"auto-rotate":!0,"camera-controls":!0})}}}]);

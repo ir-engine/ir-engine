@@ -1,12 +1,12 @@
 
 import React, { useEffect } from "react";
 
-import Dashboard  from "@xr3ngine/client-core/components/ui/Layout/SocialDashboard";
-import FeedConsole  from "@xr3ngine/client-core/components/ui/Admin/FeedConsole";
+import Dashboard  from "@xr3ngine/client-core/src/socialmedia/components/Dashboard";
+import FeedConsole  from "@xr3ngine/client-core/src/admin/components/FeedConsole";
 import { bindActionCreators, Dispatch } from "redux";
 import { connect } from "react-redux";
-import { selectFeedsState } from "@xr3ngine/client-core/redux/feed/selector";
-import { getFeeds } from "@xr3ngine/client-core/redux/feed/service";
+import { selectFeedsState } from "@xr3ngine/client-core/src/socialmedia/reducers/feed/selector";
+import { getFeeds } from "@xr3ngine/client-core/src/socialmedia/reducers/feed/service";
 
 const mapStateToProps = (state: any): any => {
   return {

@@ -190,7 +190,7 @@ export class ToneMappingEffect extends Effect {
 	 */
 
   get adaptive () {
-    return this.defines.has('ADAPTED_LUMINANCE');
+    return (this as any).defines.has('ADAPTED_LUMINANCE');
   }
 
   /**
@@ -202,11 +202,11 @@ export class ToneMappingEffect extends Effect {
   set adaptive (value) {
     if (this.adaptive !== value) {
       if (value) {
-        this.defines.set('ADAPTED_LUMINANCE', '1');
-        this.uniforms.get('luminanceMap').value = this.renderTargetAdapted.texture;
+        (this as any).defines.set('ADAPTED_LUMINANCE', '1');
+        (this as any).uniforms.get('luminanceMap').value = this.renderTargetAdapted.texture;
       } else {
-        this.defines.delete('ADAPTED_LUMINANCE');
-        this.uniforms.get('luminanceMap').value = null;
+        (this as any).defines.delete('ADAPTED_LUMINANCE');
+        (this as any).uniforms.get('luminanceMap').value = null;
       }
 
       this.setChanged();
