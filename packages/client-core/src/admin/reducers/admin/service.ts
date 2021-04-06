@@ -12,29 +12,17 @@ import {
   instanceRemoved,
   instancePatched
 } from './actions';
-import {
-  locationCreated,
-  locationPatched,
-  locationRemoved,
-  locationsRetrieved,
-} from "../location/actions";
-import {
-  loadedUsers,
-  userCreated,
-  userRemoved,
-  userPatched,
-} from '../user/actions';
 
-import { LOADED_USERS } from "../actions";
-
-import { client } from '../feathers';
-import { PublicVideo, videosFetchedError, videosFetchedSuccess } from '../video/actions';
 import axios from 'axios';
-import { apiUrl } from '../service.common';
-import { dispatchAlertError, dispatchAlertSuccess } from '../alert/service';
-import {collectionsFetched} from "../scenes/actions";
-import store from "../store";
 import getConfig from 'next/config';
+import { apiUrl } from '../../../service.common';
+import { client } from '../../../feathers';
+import { dispatchAlertSuccess, dispatchAlertError } from '../../../common/reducers/alert/service';
+import { PublicVideo, videosFetchedSuccess, videosFetchedError } from '../../../media/components/video/actions';
+import { locationsRetrieved, locationCreated, locationPatched, locationRemoved } from '../../../social/reducers/location/actions';
+import store from '../../../store';
+import { loadedUsers, userCreated, userPatched, userRemoved } from '../../../user/reducers/user/actions';
+import { collectionsFetched } from '../../../world/reducers/scenes/actions';
 const { publicRuntimeConfig } = getConfig();
 
 export function createVideo (data: VideoCreationForm) {

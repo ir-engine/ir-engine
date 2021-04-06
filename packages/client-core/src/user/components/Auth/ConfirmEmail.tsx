@@ -5,9 +5,9 @@ import Typography from '@material-ui/core/Typography';
 import Container from '@material-ui/core/Container';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
-import { resendVerificationEmail } from '../../../reducers/auth/service';
-import { selectAuthState } from '../../../reducers/auth/selector';
-import { EmptyLayout }from '../../../media/components/ui/Layout/EmptyLayout';
+import { resendVerificationEmail } from '../../reducers/auth/service';
+import { selectAuthState } from '../../reducers/auth/selector';
+import { EmptyLayout }from '../../../common/components/Layout/EmptyLayout';
 import { IdentityProvider } from '@xr3ngine/common/interfaces/IdentityProvider';
 import styles from './Auth.module.scss';
 

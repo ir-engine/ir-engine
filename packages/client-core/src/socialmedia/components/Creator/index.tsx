@@ -1,15 +1,12 @@
-import React, { useState } from 'react';
-import { bindActionCreators, Dispatch } from 'redux';
-import { connect } from 'react-redux';
-import { useEffect } from 'react';
 import Button from '@material-ui/core/Button';
-import styles from './Creator.module.scss';
-
-
+import React, { useEffect, useState } from 'react';
+import { connect } from 'react-redux';
+import { bindActionCreators, Dispatch } from 'redux';
 import { selectCreatorsState } from '../../reducers/creator/selector';
-import { getCreator, followCreator, unFollowCreator, getFollowersList, getFollowingList } from '../../reducers/creator/service';
-import Featured from '../Featured';
+import { followCreator, getCreator, getFollowersList, getFollowingList, unFollowCreator } from '../../reducers/creator/service';
 import CreatorCard from '../common/CreatorCard';
+import Featured from '../Featured';
+import styles from './Creator.module.scss';
 
 const mapStateToProps = (state: any): any => {
     return {

@@ -15,4 +15,4 @@ export default [
   Entity,
   Collection,
   Component
-]
+];

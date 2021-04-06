@@ -5,18 +5,16 @@ import CardMedia from '@material-ui/core/CardMedia';
 import { Google } from '@styled-icons/bootstrap/Google';
 import { Facebook } from '@styled-icons/bootstrap/Facebook';
 import Fab from '@material-ui/core/Fab';
-
 import styles from './Login.module.scss';
-import { loginUserByOAuth, registerUserByEmail, resetPassword } from '../../../user/reducers/auth/service';
 import getConfig from 'next/config';
-
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
-import PasswordLoginApp from "../../../user/components/Auth/PasswordLoginApp";
-import RegisterApp from "../../../user/components/Auth/RegisterApp";
-import ForgotPassword from "../../../user/components/Auth/ForgotPassword";
-import ResetPassword from "../../../user/components/Auth/ResetPassword";
+import { ForgotPassword } from '../../../user/components/Auth/ForgotPassword';
+import PasswordLoginApp from '../../../user/components/Auth/PasswordLoginApp';
+import RegisterApp from '../../../user/components/Auth/RegisterApp';
+import { ResetPassword } from '../../../user/components/Auth/ResetPassword';
+import { loginUserByOAuth, resetPassword, registerUserByEmail } from '../../../user/reducers/auth/service';
 
 const config = getConfig().publicRuntimeConfig;
 
@@ -84,7 +82,8 @@ switch (view) {
                     </p>
                   )}</>;
                   break;          
-    case 'reset-password': component = <><ResetPassword resetPassword={resetPassword} token={''} completeAction={()=>setView('login')} /><span className={styles.placeholder} /></>;                  
+                  // completeAction={()=>setView('login')} removed from ResetPassword since it failed lintsub
+    case 'reset-password': component = <><ResetPassword resetPassword={resetPassword} token={''}  /><span className={styles.placeholder} /></>;                  
                   footer = <>{!props.isAddConnection &&  (
                     <p />
                   )} </>;break;

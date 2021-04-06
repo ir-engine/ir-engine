@@ -1,6 +1,6 @@
 import { Plugins } from '@capacitor/core';
-import Loading from '@xr3ngine/client-core/src/components/scenes/loading';
-import Layout from '@xr3ngine/client-core/src/common/components/Layout/OverlayLayout';
+import Loading from '../components/Scene/loading';
+import Layout from '../components/Layout/Layout';
 import React, { useEffect, useState } from 'react';
 import NoSSR from 'react-no-ssr';
 import { useTranslation } from 'react-i18next';

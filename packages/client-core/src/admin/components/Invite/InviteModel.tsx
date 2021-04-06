@@ -10,10 +10,10 @@ import {
 } from '@material-ui/core';
 import classNames from 'classnames';
 import styles from '../Admin.module.scss';
-import { sendInvite } from "../../../../reducers/invite/service";
-import { retrieveInvites } from "../../../../reducers/inviteType/service";
-import { selectInviteState } from "../../../../reducers/invite/selector";
-import { selectInviteTypesState } from "../../../../reducers/inviteType/selector";
+import { sendInvite } from "../../../social/reducers/invite/service";
+import { retrieveInvites } from "../../../social/reducers/inviteType/service";
+import { selectInviteState } from "../../../social/reducers/invite/selector";
+import { selectInviteTypesState } from "../../../social/reducers/inviteType/selector";
 import { bindActionCreators, Dispatch } from "redux";
 import { withRouter, Router } from "next/router";
 import { connect } from "react-redux";

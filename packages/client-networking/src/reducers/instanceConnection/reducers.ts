@@ -11,8 +11,8 @@ import {
   INSTANCE_SERVER_DISCONNECTED,
   INSTANCE_SERVER_PROVISIONING,
   INSTANCE_SERVER_PROVISIONED,
-  SOCKET_CREATED
-} from '@xr3ngine/client-core/src/world/reducers/actions';
+  SOCKET_CREATED,
+} from '../actions';
 
 export const initialState = {
   instance: {

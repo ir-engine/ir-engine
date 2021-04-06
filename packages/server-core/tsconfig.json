@@ -25,7 +25,6 @@
   "include": [
     "src/**/*.ts",
     "src/**/*.tsx"
-, "../gameserver/src/NetworkFunctions.ts", "../server/src/models.ts", "../server/src/authentication.ts", "../gameserver/src/channels.ts"  ]
 }
 
 

@@ -1,20 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
-import { selectAdminState } from '../../../reducers/admin/selector';
-import { selectAppState } from '../../../reducers/app/selector';
-import { selectAuthState } from '../../../reducers/auth/selector';
-import { client } from "../../../reducers/feathers";
+import { client } from "../../feathers";
 import { Router, withRouter } from "next/router";
-import { PAGE_LIMIT } from '../../../reducers/admin/reducers';
 import FormControl from '@material-ui/core/FormControl';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
-import {
-    fetchUsersAsAdmin,
-} from '../../../reducers/admin/service';
-import {
-    removeUser,
-} from "../../../reducers/admin/service";
 import {
     Table,
     TableBody,
@@ -37,6 +27,11 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Slide from '@material-ui/core/Slide';
 import { TransitionProps } from '@material-ui/core/transitions';
+import { selectAppState } from '../../common/reducers/app/selector';
+import { selectAuthState } from '../../user/reducers/auth/selector';
+import { PAGE_LIMIT } from '../reducers/admin/reducers';
+import { selectAdminState } from '../reducers/admin/selector';
+import { fetchUsersAsAdmin, removeUser } from '../reducers/admin/service';
 
 
 if (!global.setImmediate) {

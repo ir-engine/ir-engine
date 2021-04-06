@@ -1,6 +1,6 @@
 import Immutable from 'immutable';
 import { DeviceDetectAction, DeviceDetectState } from './actions';
-import { DETECT_DEVICE_TYPE } from '../actions';
+import { DETECT_DEVICE_TYPE } from '../../../user/reducers/actions';
 
 export const initialState: DeviceDetectState = {
   isDetected: false,

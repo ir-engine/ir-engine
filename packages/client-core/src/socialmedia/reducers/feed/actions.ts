@@ -16,7 +16,7 @@ import {
   REMOVE_FEED_FEATURED,
   FEEDS_AS_ADMIN_RETRIEVED,
   UPDATE_FEED
-} from '../../../actions';
+} from '../actions';
 import { FeedShort, Feed } from '@xr3ngine/common/interfaces/Feed';
 
 export interface FeedsRetrievedAction {

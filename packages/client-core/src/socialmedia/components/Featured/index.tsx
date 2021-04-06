@@ -9,10 +9,10 @@ import StarIcon from '@material-ui/icons/Star';
 import StarOutlineIcon from '@material-ui/icons/StarOutline';
 
 import styles from './Featured.module.scss';
-import { selectFeedsState } from '../../reducers/feed/selector';
 import { bindActionCreators, Dispatch } from 'redux';
-import { getFeeds, setFeedAsFeatured, setFeedNotFeatured } from '../../reducers/feed/service';
 import { selectCreatorsState } from '../../reducers/creator/selector';
+import { selectFeedsState } from '../../reducers/feed/selector';
+import { getFeeds, setFeedAsFeatured, setFeedNotFeatured } from '../../reducers/feed/service';
 
 const mapStateToProps = (state: any): any => {
     return {

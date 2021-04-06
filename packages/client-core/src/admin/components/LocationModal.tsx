@@ -16,16 +16,15 @@ import classNames from 'classnames';
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from "redux";
-import { selectAdminState } from "../../../reducers/admin/selector";
+import { selectAdminState } from "../reducers/admin/selector";
 import {
     createLocation,
     patchLocation,
     removeLocation
-} from "../../../reducers/admin/service";
-import { selectAppState } from "../../../reducers/app/selector";
-import { selectAuthState } from "../../../reducers/auth/selector";
+} from "../reducers/admin/service";
+import { selectAppState } from "../../common/reducers/app/selector";
+import { selectAuthState } from "../../user/reducers/auth/selector";
 import styles from './Admin.module.scss';
-
 
 interface Props {
     open: boolean;
