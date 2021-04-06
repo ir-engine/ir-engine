@@ -20,7 +20,7 @@
     "watch": "cross-env NODE_ENV=development next --port 3001 --hostname 127.0.0.1",
     "validate": "yarn run lint && yarn run test",
     "test": "echo \"TODO: Add Testing to Client\" && exit 0",
-    "lint": "eslint --fix --quiet **/*.tsx *.ts **/*.ts"
+    "lint": "eslint --fix --quiet \"**/*.tsx\" \"*.ts\" \"**/*.ts\""
   },
   "resolutions": {
     "@types/react": "^17.0.0",

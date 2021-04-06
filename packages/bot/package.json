@@ -17,7 +17,7 @@
     "start": "node run-bot.js",
     "validate": "yarn run lint && yarn run test",
     "test": "echo \"TODO: Add Testing to Client\" && exit 0",
-    "lint": "eslint --fix --quiet *.ts **/*.ts **/*.tsx"
+    "lint": "eslint --fix --quiet \"*.ts\" \"**/*.ts\" \"**/*.tsx\""
   },
   "dependencies": {
     "@google-cloud/agones-sdk": "^1.11.0",
