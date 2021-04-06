@@ -106,7 +106,7 @@ export class ShockWaveEffect extends Effect {
 		 * @private
 		 */
 
-    this.screenPosition = this.uniforms.get('center').value;
+    this.screenPosition = (this as any).uniforms.get('center').value;
 
     /**
 		 * The speed of the shock wave animation.
@@ -142,7 +142,7 @@ export class ShockWaveEffect extends Effect {
   explode () {
     this.time = 0.0;
     this.active = true;
-    this.uniforms.get('active').value = true;
+    (this as any).uniforms.get('active').value = true;
   }
 
   /**

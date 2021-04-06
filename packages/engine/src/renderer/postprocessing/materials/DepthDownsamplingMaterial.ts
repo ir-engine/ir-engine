@@ -38,7 +38,7 @@ export class DepthDownsamplingMaterial extends ShaderMaterial {
     } as any);
 
     /** @ignore */
-    this.toneMapped = false;
+    (this as any).toneMapped = false;
   }
 
   /**
@@ -48,7 +48,7 @@ export class DepthDownsamplingMaterial extends ShaderMaterial {
 	 */
 
   get depthPacking () {
-    return Number(this.defines.DEPTH_PACKING);
+    return Number((this as any).defines.DEPTH_PACKING);
   }
 
   /**
@@ -58,8 +58,8 @@ export class DepthDownsamplingMaterial extends ShaderMaterial {
 	 */
 
   set depthPacking (value) {
-    this.defines.DEPTH_PACKING = value.toFixed(0);
-    this.needsUpdate = true;
+    (this as any).defines.DEPTH_PACKING = value.toFixed(0);
+    (this as any).needsUpdate = true;
   }
 
   /**
@@ -70,6 +70,6 @@ export class DepthDownsamplingMaterial extends ShaderMaterial {
 	 */
 
   setTexelSize (x, y) {
-    this.uniforms.texelSize.value.set(x, y);
+    (this as any).uniforms.texelSize.value.set(x, y);
   }
 }

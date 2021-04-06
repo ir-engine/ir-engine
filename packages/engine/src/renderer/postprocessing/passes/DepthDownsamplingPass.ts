@@ -41,8 +41,8 @@ export class DepthDownsamplingPass extends Pass {
 
     if (normalBuffer !== null) {
       const material = this.getFullscreenMaterial();
-      material.uniforms.normalBuffer.value = normalBuffer;
-      material.defines.DOWNSAMPLE_NORMALS = '1';
+      (material as any).uniforms.normalBuffer.value = normalBuffer;
+      (material as any).defines.DOWNSAMPLE_NORMALS = '1';
     }
 
     /**
@@ -93,8 +93,8 @@ export class DepthDownsamplingPass extends Pass {
 
   setDepthTexture (depthTexture, depthPacking = 0) {
     const material = this.getFullscreenMaterial();
-    material.uniforms.depthBuffer.value = depthTexture;
-    material.depthPacking = depthPacking;
+    (material as any).uniforms.depthBuffer.value = depthTexture;
+    (material as any).depthPacking = depthPacking;
   }
 
   /**

@@ -136,7 +136,7 @@ export class EventDispatcherProxy {//extends ExtendableProxy {
       event.preventDefault = () => {};
       event.stopPropagation = () => {};
       delete event.target;
-      this.dispatchEvent(event, true);
+      (this as any).dispatchEvent(event, true);
     });
     this.messageTypeFunctions.set(
       MessageType.ADD_EVENT,
@@ -242,7 +242,7 @@ export class MessageQueue extends EventDispatcherProxy {
     });
   }
   sendQueue() {
-    this.dispatchEvent({ type: MESSAGE_QUEUE_EVENT_BEFORE_SEND_QUEUE }, true);
+    (this as any).dispatchEvent({ type: MESSAGE_QUEUE_EVENT_BEFORE_SEND_QUEUE }, true);
     if (!this.queue?.length) return;
     const messages: object[] = [];
     this.queue.forEach((message: Message) => {
