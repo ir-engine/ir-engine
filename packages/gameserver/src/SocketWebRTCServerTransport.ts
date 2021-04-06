@@ -86,7 +86,8 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
 
     public handleKick(socket: any): void {
         logger.info("Kicking ", socket.id);
-        logger.info(this.socketIO.sockets.connected[socket.id]);
+        // TODO: Make sure this is right
+        // logger.info(this.socketIO.allSockets()[socket.id]);
         if (this.socketIO != null) this.socketIO.of('/realtime').emit(MessageTypes.Kick.toString(), socket.id);
     }
 

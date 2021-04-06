@@ -1,5 +1,4 @@
 
-import AuthenticationSeeds from './user/seeder-config';
 import EntitySeeds from './entities/seeder-config';
 import MediaSeeds from './media/seeder-config';
 import NetworkingSeeds from './networking/seeder-config';
@@ -22,7 +21,6 @@ interface ServicesSeedConfig {
 }
 
 export const seeds: Array<ServicesSeedConfig> = [
-    ...AuthenticationSeeds,
     ...EntitySeeds,
     ...MediaSeeds,
     ...NetworkingSeeds,

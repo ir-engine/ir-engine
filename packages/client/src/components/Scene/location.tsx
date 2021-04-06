@@ -116,9 +116,6 @@ export const EnginePage = (props: Props) => {
     harmonyOpen
   } = props;
 
-  console.log("Props are");
-  console.log(props);
-
   const currentUser = authState.get('user');
   const [hoveredLabel, setHoveredLabel] = useState('');
   const [infoBoxData, setModalData] = useState(null);
@@ -354,7 +351,7 @@ export const EnginePage = (props: Props) => {
         if (networkUser) {
           const changedAvatar = getComponent(networkUser.component.entity, CharacterComponent);
 
-          if (user.avatarId !== changedAvatar.avatarId) {
+          if (user?.avatarId !== changedAvatar?.avatarId) {
             const characterAvatar = getMutableComponent(networkUser.component.entity, CharacterComponent);
             if (characterAvatar != null) characterAvatar.avatarId = user.avatarId;
             // We can pull this from NetworkPlayerCharacter, but we probably don't want our state update here

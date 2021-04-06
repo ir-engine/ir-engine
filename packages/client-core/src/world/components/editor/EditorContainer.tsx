@@ -27,15 +27,10 @@ import { createEditor } from "./Nodes";
 import PropertiesPanelContainer from "./properties/PropertiesPanelContainer";
 import ToolBar from "./toolbar/ToolBar";
 import ViewportPanelContainer from "./viewport/ViewportPanelContainer";
-import { selectAdminState } from '../../reducers/admin/selector';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
-import {
-  fetchAdminLocations,
-  fetchAdminScenes,
-  fetchLocationTypes
-} from '../../reducers/admin/service';
-
+import { selectAdminState } from "../../../admin/reducers/admin/selector";
+import { fetchAdminLocations, fetchAdminScenes, fetchLocationTypes } from "../../../admin/reducers/admin/service";
 
 /**
  * StyledEditorContainer component is used as root element of new project page.

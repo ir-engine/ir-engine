@@ -1,8 +1,8 @@
 import { useRouter, NextRouter } from 'next/router';
 import React, { useState, useEffect } from 'react';
-import { loginUserByJwt, refreshConnections } from '../../../reducers/auth/service';
+import { loginUserByJwt, refreshConnections } from '../../reducers/auth/service';
 import { Container } from '@material-ui/core';
-import { selectAuthState } from '../../../reducers/auth/selector';
+import { selectAuthState } from '../../reducers/auth/selector';
 import { bindActionCreators, Dispatch } from 'redux';
 import { connect } from 'react-redux';
 

@@ -1,24 +1,24 @@
-import React, { useState, useEffect } from "react";
-import styled from "styled-components";
+import ClickAwayListener from "@material-ui/core/ClickAwayListener";
+import { Person } from "@material-ui/icons";
+import SignIn from "@xr3ngine/client-core/src/user/components/Auth/Login";
+import ProfileMenu from "@xr3ngine/client-core/src/user/components/UserMenu/menus/ProfileMenu";
+import { selectAuthState } from "@xr3ngine/client-core/src/user/reducers/auth/selector";
+import { doLoginAuto, logoutUser } from "@xr3ngine/client-core/src/user/reducers/auth/service";
+import Api from "@xr3ngine/client-core/src/world/components/editor/Api";
 import { withApi } from "@xr3ngine/client-core/src/world/components/editor/contexts/ApiContext";
 import { Button, MediumButton } from "@xr3ngine/client-core/src/world/components/editor/inputs/Button";
 import { connectMenu, ContextMenu, MenuItem } from "@xr3ngine/client-core/src/world/components/editor/layout/ContextMenu";
 import { ErrorMessage, ProjectGrid, ProjectGridContainer, ProjectGridContent, ProjectGridHeader, ProjectGridHeaderRow } from "@xr3ngine/client-core/src/world/components/editor/projects/ProjectGrid";
 import templates from "@xr3ngine/client-core/src/world/components/editor/projects/templates";
-import Api from "@xr3ngine/client-core/src/world/components/editor/Api";
-import { Router, withRouter } from "next/router";
 import { ThemeContext } from "@xr3ngine/client-core/src/world/components/editor/theme";
-import { connect } from 'react-redux';
-import {selectAuthState} from "@xr3ngine/client-core/src/user/reducers/auth/selector";
-import {bindActionCreators, Dispatch} from "redux";
-import {doLoginAuto, logoutUser} from "@xr3ngine/client-core/src/user/reducers/auth/service";
-import SignIn from "@xr3ngine/client-core/src/common/components/Auth/Login";
-import AdminConsole from "@xr3ngine/client-core/src/common/components/Admin";
-import ProfileMenu from "@xr3ngine/client-core/src/common/components/UserMenu/menus/ProfileMenu";
-import ClickAwayListener from "@material-ui/core/ClickAwayListener";
-import styles from "@xr3ngine/client-core/src/common/components/Harmony/Harmony.module.scss";
-import {Person} from "@material-ui/icons";
+import { Router, withRouter } from "next/router";
+import React, { useEffect, useState } from "react";
 import { useTranslation } from 'react-i18next';
+import { connect } from 'react-redux';
+import { bindActionCreators, Dispatch } from "redux";
+import styled from "styled-components";
+import AdminConsole from '@xr3ngine/client-core/src/admin/components';
+
 
 /**
  * Creating styled component using section.
@@ -394,7 +394,8 @@ const ProjectsPage = (props: Props) => {
 
         { profileMenuOpen &&
         <ClickAwayListener onClickAway={() => setProfileMenuOpen(false)}>
-          <div className={styles.profileMenu}>
+          {/* <div className={styles.profileMenu}> */}
+          <div className={"profileMenu"}>
             <ProfileMenu setProfileMenuOpen={setProfileMenuOpen}/>
           </div>
         </ClickAwayListener>

@@ -1,29 +1,29 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { connect } from 'react-redux';
-import { selectAdminState } from "../../../reducers/admin/selector";
-import styles from './Admin.module.scss';
 import {
     Backdrop,
     Button,
     Fade,
     Modal,
-    TableRow,
-    TableCell,
     Table,
     TableBody,
+    TableCell,
     TableContainer,
     TableHead,
+    TableRow,
     TableSortLabel
 } from '@material-ui/core';
-import classNames from 'classnames';
-import { selectAppState } from "../../../reducers/app/selector";
-import { selectAuthState } from "../../../reducers/auth/selector";
-import { bindActionCreators, Dispatch } from "redux";
-import { client } from "../../../reducers/feathers";
-import { Router, withRouter } from "next/router";
 import Snackbar from '@material-ui/core/Snackbar';
-import MuiAlert, { AlertProps } from '@material-ui/lab/Alert';
 import { makeStyles, Theme } from '@material-ui/core/styles';
+import MuiAlert, { AlertProps } from '@material-ui/lab/Alert';
+import classNames from 'classnames';
+import { Router, withRouter } from "next/router";
+import React, { useEffect, useRef, useState } from 'react';
+import { connect } from 'react-redux';
+import { Dispatch } from "redux";
+import { selectAppState } from '../../common/reducers/app/selector';
+import { client } from '../../feathers';
+import { selectAuthState } from '../../user/reducers/auth/selector';
+import { selectAdminState } from '../reducers/admin/selector';
+import styles from './Admin.module.scss';
 interface Props {
     router: Router,
     open: boolean;

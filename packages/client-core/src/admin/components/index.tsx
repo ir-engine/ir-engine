@@ -1,43 +1,41 @@
-import getConfig from 'next/config';
 import {
-    Button, MenuItem, Select,
+    Button,
+    MenuItem,
+    Paper,
+    Select,
     Tab,
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TablePagination,
+    TableRow,
+    TableSortLabel,
     Tabs
 } from '@material-ui/core';
+import FormControl from '@material-ui/core/FormControl';
+import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
+import getConfig from 'next/config';
+import { Router, withRouter } from "next/router";
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
-import { selectAdminState } from '../../../reducers/admin/selector';
-import { selectAppState } from '../../../reducers/app/selector';
-import { selectAuthState } from '../../../reducers/auth/selector';
-import { client } from "../../../reducers/feathers";
-import { Router, withRouter } from "next/router";
-import { PAGE_LIMIT } from '../../../reducers/admin/reducers';
-import FormControl from '@material-ui/core/FormControl';
-import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
+import { selectAppState } from '../../common/reducers/app/selector';
+import { client } from "../../feathers";
+import { selectAuthState } from '../../user/reducers/auth/selector';
+import { PAGE_LIMIT } from '../reducers/admin/reducers';
+import { selectAdminState } from '../reducers/admin/selector';
 import {
-    fetchAdminLocations,
+    fetchAdminInstances, fetchAdminLocations,
     fetchAdminScenes,
     fetchLocationTypes,
-    fetchUsersAsAdmin,
-    fetchAdminInstances
-} from '../../../reducers/admin/service';
-import {
-    Table,
-    TableBody,
-    TableContainer,
-    TableHead,
-    TableRow,
-    TableCell,
-    TableSortLabel,
-    Paper,
-    TablePagination
-} from '@material-ui/core';
+    fetchUsersAsAdmin
+} from '../reducers/admin/service';
 import styles from './Admin.module.scss';
-import LocationModal from './LocationModal';
 import InstanceModal from './InstanceModal';
+import LocationModal from './LocationModal';
 import Search from "./Search";
-
 
 if (!global.setImmediate) {
     global.setImmediate = setTimeout as any;

@@ -21,17 +21,15 @@ import {
 } from "../../../world/reducers/actions";
 import {
   LOADED_USERS,
-} from '../../../common/reducers/actions'
+} from '../../../common/reducers/actions';
 import { UserSeed } from '@xr3ngine/common/interfaces/User';
 import { IdentityProviderSeed } from '@xr3ngine/common/interfaces/IdentityProvider';
 import { AuthUserSeed } from '@xr3ngine/common/interfaces/AuthUser';
 import {
-  LocationsRetrievedAction,
-} from "../../../social/reducers/location/actions";
-import {
   LoadedUsersAction
 } from "../../../user/reducers/user/actions";
 import {CollectionsFetchedAction} from "../../../world/reducers/scenes/actions";
+import { LocationsRetrievedAction } from '../../../social/reducers/location/actions';
 
 export const PAGE_LIMIT = 100;
 

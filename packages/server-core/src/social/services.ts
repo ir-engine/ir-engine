@@ -34,4 +34,4 @@ export default [
   LocationSettings,
   LocationBan,
   LocationAdmin,
-]
+];

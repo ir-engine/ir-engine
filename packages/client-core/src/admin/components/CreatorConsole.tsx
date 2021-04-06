@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import { Dispatch } from 'redux';
 import { Router, withRouter } from "next/router";
-import { PAGE_LIMIT } from '../../../reducers/admin/reducers';
+import { PAGE_LIMIT } from '../reducers/admin/reducers';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import {
     Table,
@@ -21,9 +21,9 @@ import { Edit } from '@material-ui/icons';
 import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
 import Slide from '@material-ui/core/Slide';
 import { TransitionProps } from '@material-ui/core/transitions';
-import { EnhancedTableHead } from '../Common/AdminHelpers';
-import CreatorForm from '../../social/CreatorForm';
-import CreatorCard from '../../social/common/CreatorCard';
+import { EnhancedTableHead } from './AdminHelpers';
+import CreatorForm from '../../socialmedia/components/CreatorForm';
+import CreatorCard from '../../socialmedia/components/common/CreatorCard';
 import SharedModal from './SharedModal';
 
 

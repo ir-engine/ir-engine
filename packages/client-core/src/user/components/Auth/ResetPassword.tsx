@@ -3,9 +3,10 @@ import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
 import Container from '@material-ui/core/Container';
-import { EmptyLayout } from '../../../common/components/Layout/EmptyLayout';
+
 import styles from './Auth.module.scss';
-import { resetPassword } from '@xr3ngine/client-core/src/user/reducers/auth/service';
+import { EmptyLayout } from '../../../common/components/Layout/EmptyLayout';
+import { resetPassword } from '../../reducers/auth/service';
 
 interface Props {
   completeAction?: any,

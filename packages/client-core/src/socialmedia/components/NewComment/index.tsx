@@ -1,14 +1,10 @@
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
-
 import { TextField } from '@material-ui/core';
 import MessageIcon from '@material-ui/icons/Message';
-
-import { addCommentToFeed } from '../../reducers/feedComment/service';
-
 import styles from './NewComment.module.scss';
-
+import { addCommentToFeed } from '../../reducers/feedComment/service';
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
     addCommentToFeed: bindActionCreators(addCommentToFeed, dispatch),
