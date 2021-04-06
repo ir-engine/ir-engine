@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
 import { bindActionCreators, Dispatch } from 'redux';
 import { connect } from 'react-redux';
+import VideoRecorder from 'react-video-recorder';
 
-import { Button, CardMedia, TextField, Typography } from '@material-ui/core';
+import { Button, Card, CardMedia, TextField, Typography } from '@material-ui/core';
+import CameraIcon from '@material-ui/icons/Camera';
+import BackupIcon from '@material-ui/icons/Backup';
 
 import styles from './FeedForm.module.scss';
 import { createFeed, updateFeedAsAdmin } from '../../reducers/feed/service';
