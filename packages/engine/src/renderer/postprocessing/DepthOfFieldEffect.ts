@@ -118,7 +118,7 @@ export class DepthOfFieldEffect extends Effect {
     this.renderTargetNear = this.renderTarget.clone();
     this.renderTargetNear.texture.name = 'DoF.Bokeh.Near';
 
-    this.uniforms.get('nearColorBuffer').value = this.renderTargetNear.texture;
+    (this as any).uniforms.get('nearColorBuffer').value = this.renderTargetNear.texture;
 
     /**
 		 * A render target for the blurred background colors.
@@ -130,7 +130,7 @@ export class DepthOfFieldEffect extends Effect {
     this.renderTargetFar = this.renderTarget.clone();
     this.renderTargetFar.texture.name = 'DoF.Bokeh.Far';
 
-    this.uniforms.get('farColorBuffer').value = this.renderTargetFar.texture;
+    (this as any).uniforms.get('farColorBuffer').value = this.renderTargetFar.texture;
 
     /**
 		 * A render target for the circle of confusion.
@@ -156,7 +156,7 @@ export class DepthOfFieldEffect extends Effect {
     this.renderTargetCoCBlurred = this.renderTargetCoC.clone();
     this.renderTargetCoCBlurred.texture.name = 'DoF.CoC.Blurred';
 
-    this.uniforms.get('nearCoCBuffer').value = this.renderTargetCoCBlurred.texture;
+    (this as any).uniforms.get('nearCoCBuffer').value = this.renderTargetCoCBlurred.texture;
 
     /**
 		 * A circle of confusion pass.
@@ -267,7 +267,7 @@ export class DepthOfFieldEffect extends Effect {
 	 */
 
   get bokehScale () {
-    return this.uniforms.get('scale').value;
+    return (this as any).uniforms.get('scale').value;
   }
 
   /**
@@ -289,7 +289,7 @@ export class DepthOfFieldEffect extends Effect {
     });
 
     this.maskPass.getFullscreenMaterial().uniforms.strength.value = value;
-    this.uniforms.get('scale').value = value;
+    (this as any).uniforms.get('scale').value = value;
   }
 
   /**

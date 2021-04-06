@@ -32,12 +32,12 @@ export class OutlineMaterial extends ShaderMaterial {
     } as any);
 
     /** @ignore */
-    this.toneMapped = false;
+    (this as any).toneMapped = false;
 
     this.setTexelSize(texelSize.x, texelSize.y);
 
     // @todo Added for backward compatibility.
-    this.uniforms.maskTexture = this.uniforms.inputBuffer;
+    (this as any).uniforms.maskTexture = (this as any).uniforms.inputBuffer;
   }
 
   /**
@@ -48,7 +48,7 @@ export class OutlineMaterial extends ShaderMaterial {
 	 */
 
   setTexelSize (x, y) {
-    this.uniforms.texelSize.value.set(x, y);
+    (this as any).uniforms.texelSize.value.set(x, y);
   }
 }
 

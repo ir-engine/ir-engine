@@ -135,7 +135,7 @@ export class SSAOEffect extends Effect {
     this.renderTargetAO.texture.name = 'AO.Target';
     this.renderTargetAO.texture.generateMipmaps = false;
 
-    this.uniforms.get('aoBuffer').value = this.renderTargetAO.texture;
+    (this as any).uniforms.get('aoBuffer').value = this.renderTargetAO.texture;
 
     /**
 		 * The resolution of this effect.
@@ -171,27 +171,27 @@ export class SSAOEffect extends Effect {
 		 */
 
     this.ssaoPass = new ShaderPass((() => {
-      const noiseTexture = new NoiseTexture(NOISE_TEXTURE_SIZE, NOISE_TEXTURE_SIZE);
+      const noiseTexture = new NoiseTexture(NOISE_TEXTURE_SIZE, NOISE_TEXTURE_SIZE) as any;
       noiseTexture.wrapS = noiseTexture.wrapT = RepeatWrapping;
 
       const material = new SSAOMaterial(camera);
-      material.uniforms.noiseTexture.value = noiseTexture;
-      material.uniforms.intensity.value = intensity;
-      material.uniforms.minRadiusScale.value = minRadiusScale;
-      material.uniforms.fade.value = fade;
-      material.uniforms.bias.value = bias;
+      (material as any).uniforms.noiseTexture.value = noiseTexture;
+      (material as any).uniforms.intensity.value = intensity;
+      (material as any).uniforms.minRadiusScale.value = minRadiusScale;
+      (material as any).uniforms.fade.value = fade;
+      (material as any).uniforms.bias.value = bias;
 
       if (normalDepthBuffer !== null) {
-        material.uniforms.normalDepthBuffer.value = normalDepthBuffer;
-        material.defines.NORMAL_DEPTH = '1';
+        (material as any).uniforms.normalDepthBuffer.value = normalDepthBuffer;
+        (material as any).defines.NORMAL_DEPTH = '1';
 
         if (depthAwareUpsampling) {
           this.depthAwareUpsampling = depthAwareUpsampling;
-          this.uniforms.get('normalDepthBuffer').value = normalDepthBuffer;
-          this.defines.set('THRESHOLD', '0.997');
+          (this as any).uniforms.get('normalDepthBuffer').value = normalDepthBuffer;
+          (this as any).defines.set('THRESHOLD', '0.997');
         }
       } else {
-        material.uniforms.normalBuffer.value = normalBuffer;
+        (material as any).uniforms.normalBuffer.value = normalBuffer;
       }
 
       return material;
@@ -297,7 +297,7 @@ export class SSAOEffect extends Effect {
 	 */
 
   get depthAwareUpsampling () {
-    return this.defines.has('DEPTH_AWARE_UPSAMPLING');
+    return (this as any).defines.has('DEPTH_AWARE_UPSAMPLING');
   }
 
   /**
@@ -309,9 +309,9 @@ export class SSAOEffect extends Effect {
   set depthAwareUpsampling (value) {
     if (this.depthAwareUpsampling !== value) {
       if (value) {
-        this.defines.set('DEPTH_AWARE_UPSAMPLING', '1');
+        (this as any).defines.set('DEPTH_AWARE_UPSAMPLING', '1');
       } else {
-        this.defines.delete('DEPTH_AWARE_UPSAMPLING');
+        (this as any).defines.delete('DEPTH_AWARE_UPSAMPLING');
       }
 
       this.setChanged();
@@ -355,7 +355,7 @@ export class SSAOEffect extends Effect {
 	 */
 
   get color () {
-    return this.uniforms.get('color').value;
+    return (this as any).uniforms.get('color').value;
   }
 
   /**

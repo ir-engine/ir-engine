@@ -3,8 +3,8 @@ import fs from 'fs';
 import https from 'https';
 import path from 'path';
 import app from './app';
-import logger from './app/logger';
-import config from './config';
+import logger from '@xr3ngine/server-core/src/logger';
+import config from '@xr3ngine/server-core/src/appconfig';
 import psList from 'ps-list';
 import { exec } from 'child_process';
 
@@ -81,19 +81,6 @@ if (useSSL === true) app.setup(server);
 process.on('unhandledRejection', (reason, p) =>
   logger.error('Unhandled Rejection at: Promise ', p, reason)
 );
-// if (process.env.NODE_ENV === 'production' && fs.existsSync('/var/log')) {
-//   try {
-//     console.log("Writing access log to ", '/var/log/api.access.log');
-//     const access = fs.createWriteStream('/var/log/api.access.log');
-//     process.stdout.write = process.stderr.write = access.write.bind(access);
-//     console.log('Log file write setup successfully');
-//   } catch(err) {
-//     console.log('access log write error');
-//     console.log(err);
-//   }
-// } else {
-//   console.warn("Directory /var/log not found, not writing access log");
-// }
 server.on('listening', () =>
 logger.info('Feathers application started on %s://%s:%d', useSSL ? 'https' : 'http', config.server.hostname, port)
 );

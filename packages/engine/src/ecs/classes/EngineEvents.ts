@@ -113,7 +113,7 @@ export class EngineEventsProxy extends EngineEvents {
     });
     this.messageQueue.addEventListener(ENGINE_EVENTS_PROXY.EVENT, (ev: any) => {
       const { event } = ev.detail;
-      this.dispatchEvent(event, true);
+      (this as any).dispatchEvent(event, true);
     });
   }
   addEventListener(type: string, listener: any, fromSelf?: boolean) {
