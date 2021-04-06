@@ -1,25 +1,18 @@
 import Avatar from '@material-ui/core/Avatar';
 import Box from '@material-ui/core/Box';
 import Grid from '@material-ui/core/Grid';
-import Link from '@material-ui/core/Link';
 import Typography from '@material-ui/core/Typography';
 import { IdentityProviderSeed } from '@xr3ngine/common/interfaces/IdentityProvider';
 import { User } from '@xr3ngine/common/interfaces/User';
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
-import { showAlert } from '../../../reducers/alert/actions';
-import { selectAuthState } from '../../../reducers/auth/selector';
-import {
-  addConnectionByOauth,
-  removeConnection,
-  createMagicLink,
-  loginUserByPassword,
-  addConnectionByPassword
-} from '../../../reducers/auth/service';
-import { showDialog } from '../../../reducers/dialog/service';
+import { showAlert } from '../../../common/reducers/alert/actions';
+import { showDialog } from '../../../common/reducers/dialog/service';
 import MagicLinkEmail from '../../../user/components/Auth/MagicLinkEmail';
 import PasswordLogin from '../../../user/components/Auth/PasswordLogin';
+import { selectAuthState } from '../../reducers/auth/selector';
+import { addConnectionByOauth, addConnectionByPassword, createMagicLink, loginUserByPassword, removeConnection } from '../../reducers/auth/service';
 import { ConnectionTexts } from './ConnectionTexts';
 import styles from './ProfileConnections.module.scss';
 

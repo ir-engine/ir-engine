@@ -1,6 +1,6 @@
 import React from "react";
 import { connect } from 'react-redux';
-import { selectDeviceDetectState } from '../../../reducers/devicedetect/selector';
+import { selectDeviceDetectState } from '../../reducers/devicedetect/selector';
 
 import getConfig from 'next/config';
 const enterVRbuttonSrc = getConfig().publicRuntimeConfig.xr.enterVRbuttonSrc;
