@@ -14,8 +14,7 @@ import { IdentityProvider } from '@xr3ngine/common/interfaces/IdentityProvider';
 import CardMedia from '@material-ui/core/CardMedia';
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
 
-
-import styles from '../../social/Login/Login.module.scss';
+import styles from '../../../socialmedia/components/Login/Login.module.scss';
 
 const mapStateToProps = (state: any): any => {
   return {

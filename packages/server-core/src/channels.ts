@@ -35,19 +35,21 @@ export default (app: Application): void => {
                         logger.info(`user ${identityProvider.userId} joining ${(connection as any).socketQuery.locationId} with sceneId ${(connection as any).socketQuery.sceneId}`);
                         const userId = identityProvider.userId;
                         const user = await app.service('user').get(userId);
-                        const locationId = (connection as any).socketQuery.locationId;
-                        const channelId = (connection as any).socketQuery.channelId;
+                        let locationId = (connection as any).socketQuery.locationId;
+                        let channelId = (connection as any).socketQuery.channelId;
                         const sceneId = (connection as any).socketQuery.sceneId;
 
                         if (sceneId === "") return console.warn("Scene ID is empty, can't init");
 
+                        if (locationId === '') locationId = undefined;
+                        if (channelId === '') channelId = undefined;
                         const agonesSDK = (app as any).agonesSDK;
                         const gsResult = await agonesSDK.getGameServer();
                         const {status} = gsResult;
                         console.log('Creating new GS or updating current one');
                         console.log(status.state);
                         console.log((app as any).instance);
-                        if (status.state === 'Ready' || ((process.env.NODE_ENV === 'development' && status.state === 'Shutdown') || (app as any).instance == null)) {
+                        if (status.state === 'Ready' || ((process.env.NODE_ENV === 'development' && status.state === 'Shutdown') || (process.env.NODE_ENV === 'development' && ((app as any).instance == null || (app as any).instance.locationId !== locationId || (app as any).instance.channelId !== channelId)))) {
                             logger.info('Starting new instance');
                             const localIp = await getLocalServerIp();
                             const selfIpAddress = `${(status.address as string)}:${(status.portsList[0].port as string)}`;
