@@ -38,6 +38,6 @@ export class DepthMaskMaterial extends ShaderMaterial {
     } as any);
 
     /** @ignore */
-    this.toneMapped = false;
+    (this as any).toneMapped = false;
   }
 }

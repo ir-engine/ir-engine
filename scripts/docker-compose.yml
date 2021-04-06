@@ -11,4 +11,8 @@ services:
       MYSQL_PASSWORD: password
     ports:
       - '3306:3306'
-    
+  redis:
+    image: redis
+    container_name: xr3ngine_redis
+    ports:
+      - '6379:6379'

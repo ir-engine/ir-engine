@@ -546,7 +546,7 @@ export class EffectPass extends Pass {
     this.capabilities = renderer.capabilities;
 
     // Initialize effects before building the shader.
-    for (const effect of this.effects) {
+    for (const effect of this.effects as any) {
       effect.initialize(renderer, alpha, frameBufferType);
       effect.addEventListener('change', (event) => this.handleEvent(event));
     }

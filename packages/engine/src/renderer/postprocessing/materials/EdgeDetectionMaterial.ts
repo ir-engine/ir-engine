@@ -45,7 +45,7 @@ export class EdgeDetectionMaterial extends ShaderMaterial {
     } as any);
 
     /** @ignore */
-    this.toneMapped = false;
+    (this as any).toneMapped = false;
 
     this.setEdgeDetectionMode(mode);
   }
@@ -57,7 +57,7 @@ export class EdgeDetectionMaterial extends ShaderMaterial {
 	 */
 
   get depthPacking () {
-    return Number(this.defines.DEPTH_PACKING);
+    return Number((this as any).defines.DEPTH_PACKING);
   }
 
   /**
@@ -67,7 +67,7 @@ export class EdgeDetectionMaterial extends ShaderMaterial {
 	 */
 
   set depthPacking (value) {
-    this.defines.DEPTH_PACKING = value.toFixed(0);
+    (this as any).defines.DEPTH_PACKING = value.toFixed(0);
     this.needsUpdate = true;
   }
 
@@ -97,7 +97,7 @@ export class EdgeDetectionMaterial extends ShaderMaterial {
         break;
     }
 
-    this.defines.EDGE_DETECTION_MODE = mode.toFixed(0);
+    (this as any).defines.EDGE_DETECTION_MODE = mode.toFixed(0);
     this.needsUpdate = true;
   }
 
@@ -116,7 +116,7 @@ export class EdgeDetectionMaterial extends ShaderMaterial {
 	 */
 
   setLocalContrastAdaptationFactor (factor) {
-    this.defines.LOCAL_CONTRAST_ADAPTATION_FACTOR = factor.toFixed('2');
+    (this as any).defines.LOCAL_CONTRAST_ADAPTATION_FACTOR = factor.toFixed('2');
     this.needsUpdate = true;
   }
 
@@ -138,8 +138,8 @@ export class EdgeDetectionMaterial extends ShaderMaterial {
   setEdgeDetectionThreshold (threshold) {
     const t = Math.min(Math.max(threshold, 0.05), 0.5);
 
-    this.defines.EDGE_THRESHOLD = t.toFixed(2);
-    this.defines.DEPTH_THRESHOLD = (t * 0.1).toFixed(3);
+    (this as any).defines.EDGE_THRESHOLD = t.toFixed(2);
+    (this as any).defines.DEPTH_THRESHOLD = (t * 0.1).toFixed(3);
     this.needsUpdate = true;
   }
 }

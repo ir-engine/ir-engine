@@ -36,7 +36,7 @@ export class MaskMaterial extends ShaderMaterial {
     } as any);
 
     /** @ignore */
-    this.toneMapped = false;
+    (this as any).toneMapped = false;
 
     this.colorChannel = ColorChannel.RED;
     this.maskFunction = MaskFunction.DISCARD;
@@ -49,7 +49,7 @@ export class MaskMaterial extends ShaderMaterial {
 	 */
 
   set maskTexture (value) {
-    this.uniforms.maskTexture.value = value;
+    (this as any).uniforms.maskTexture.value = value;
   }
 
   /**
@@ -61,8 +61,8 @@ export class MaskMaterial extends ShaderMaterial {
 	 */
 
   set colorChannel (value) {
-    this.defines.COLOR_CHANNEL = value.toFixed(0);
-    this.needsUpdate = true;
+    (this as any).defines.COLOR_CHANNEL = value.toFixed(0);
+    (this as any).needsUpdate = true;
   }
 
   /**
@@ -74,8 +74,8 @@ export class MaskMaterial extends ShaderMaterial {
 	 */
 
   set maskFunction (value) {
-    this.defines.MASK_FUNCTION = value.toFixed(0);
-    this.needsUpdate = true;
+    (this as any).defines.MASK_FUNCTION = value.toFixed(0);
+    (this as any).needsUpdate = true;
   }
 
   /**
@@ -85,7 +85,7 @@ export class MaskMaterial extends ShaderMaterial {
 	 */
 
   get inverted () {
-    return (this.defines.INVERTED !== undefined);
+    return ((this as any).defines.INVERTED !== undefined);
   }
 
   /**
@@ -96,12 +96,12 @@ export class MaskMaterial extends ShaderMaterial {
 
   set inverted (value) {
     if (this.inverted && !value) {
-      delete this.defines.INVERTED;
+      delete (this as any).defines.INVERTED;
     } else if (value) {
-      this.defines.INVERTED = '1';
+      (this as any).defines.INVERTED = '1';
     }
 
-    this.needsUpdate = true;
+    (this as any).needsUpdate = true;
   }
 
   /**
@@ -113,7 +113,7 @@ export class MaskMaterial extends ShaderMaterial {
 	 */
 
   get strength () {
-    return this.uniforms.strength.value;
+    return (this as any).uniforms.strength.value;
   }
 
   /**
@@ -125,7 +125,7 @@ export class MaskMaterial extends ShaderMaterial {
 	 */
 
   set strength (value) {
-    this.uniforms.strength.value = value;
+    (this as any).uniforms.strength.value = value;
   }
 }
 
