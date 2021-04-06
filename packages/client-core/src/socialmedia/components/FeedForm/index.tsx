@@ -7,7 +7,6 @@ import { Button, CardMedia, TextField, Typography } from '@material-ui/core';
 import styles from './FeedForm.module.scss';
 import { createFeed, updateFeedAsAdmin } from '../../reducers/feed/service';
 
-
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
     createFeed: bindActionCreators(createFeed, dispatch),
     updateFeedAsAdmin: bindActionCreators(updateFeedAsAdmin, dispatch),
@@ -20,12 +19,15 @@ interface Props{
 }
 const FeedForm = ({feed, createFeed, updateFeedAsAdmin} : Props) => { 
     const [isSended, setIsSended] = useState(false);
+    const [isRecordVideo, setRecordVideo] = useState(false);
+    const [isVideo, setIsVideo] = useState(false);
     const [composingTitle, setComposingTitle] = useState(feed ? feed.title : '');
     const [composingText, setComposingText] = useState(feed ? feed.description : '');
     const [video, setVideo] = useState(null);
     const [preview, setPreview] = useState(null);
     const titleRef = React.useRef<HTMLInputElement>();
     const textRef = React.useRef<HTMLInputElement>();
+    const videoRef = React.useRef<HTMLInputElement>();
 
     const handleComposingTitleChange = (event: any): void => setComposingTitle(event.target.value);
     const handleComposingTextChange = (event: any): void => setComposingText(event.target.value);
@@ -60,7 +62,6 @@ return <section className={styles.feedFormContainer}>
         :
         <section>
             <Typography variant="h1" align="center">Share something with the community</Typography>
-
             {feed && <CardMedia   
                     className={styles.previewImage}                  
                     src={feed.videoUrl}
@@ -69,13 +70,29 @@ return <section className={styles.feedFormContainer}>
                     controls  
                     autoPlay={true} 
                 />}
-            <Typography variant="h2" align="center">Video<input type="file" name="video" onChange={handlePickVideo} placeholder={'Select video'}/></Typography> 
+            <section className={styles.flexContainer}>
+                <Card className={styles.preCard}>
+                    <Typography variant="h2" align="center">
+                        <p>Upload Video</p>
+                        <p><BackupIcon onClick={()=>{(videoRef.current as HTMLInputElement).click()}} /></p>
+                        <input required ref={videoRef} type="file" className={styles.displayNone} name="video" onChange={handlePickVideo} placeholder={'Select video'}/>
+                    </Typography> 
+                </Card>
+                <Card className={styles.preCard}>
+                   <Typography variant="h2" align="center">
+                        <p>Record from camera</p>
+                        <p><CameraIcon  onClick={()=>setRecordVideo(true)} /></p>
+                    </Typography> 
+                </Card>
+            </section>
             {feed && <CardMedia   
                     className={styles.previewImage}                  
                     image={feed.previewUrl}
                     title={feed.title}                      
-                />}                     
-            <Typography variant="h2" align="center">Preview image<input type="file" name="preview" onChange={handlePickPreview} placeholder={'Select preview'}/></Typography>  
+                />}  
+            <Card className={styles.preCard}>
+                <Typography variant="h2" align="center">Preview image<input required type="file" name="preview" onChange={handlePickPreview} placeholder={'Select preview'}/></Typography>  
+            </Card>                   
             <TextField ref={titleRef} 
                 value={composingTitle}
                 onChange={handleComposingTitleChange}
@@ -97,6 +114,27 @@ return <section className={styles.feedFormContainer}>
                 >
                 Share
                 </Button>   
+
+            {isRecordVideo === true && 
+                <section className={styles.videoWrapper}>
+                    <VideoRecorder
+                        onRecordingComplete={videoBlob => {
+                            setVideo(videoBlob);
+                            setIsVideo(true);
+                        }}
+                    />
+                    {isVideo && <Button
+                        variant="contained"
+                        color="secondary"
+                        className={styles.submit}
+                        onClick={()=>{
+                            setRecordVideo(false);
+                            setIsVideo(false);
+                        }}
+                        >
+                        Save and go Next
+                        </Button>  }
+                </section>}
         </section>
     }    
 </section>;
