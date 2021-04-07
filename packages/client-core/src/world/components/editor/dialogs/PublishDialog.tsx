@@ -8,13 +8,17 @@ import FormField from "../inputs/FormField";
 
 
 /**
- * [PublishDialog used to show the dialog when we are going to publish scene]
+ * PublishDialog used to show the dialog when we are going to publish scene.
+ * 
+ * @author Robert Long
  * @type {class component}
  */
 export default class PublishDialog extends Component {
 
 /**
- * [Declairing propTypes for publishDialog component]
+ * Declairing propTypes for publishDialog component.
+ * 
+ * @author Robert Long
  * @type {Object}
  */
   static propTypes = {

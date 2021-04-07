@@ -4,7 +4,9 @@ import PreviewDialog from "./PreviewDialog";
 import { Button } from "../inputs/Button";
 
 /**
- * [PublishedSceneDialog used to show dialog when scene get published]
+ * PublishedSceneDialog used to show dialog when scene get published.
+ * 
+ * @author Robert Long
  * @param       {function} onCancel
  * @param       {string} sceneName
  * @param       {string} sceneUrl
@@ -25,7 +27,9 @@ export default function PublishedSceneDialog({ onCancel, sceneName, sceneUrl, sc
 }
 
 /**
- * [Declairing propTypes for PublishedSceneDialog]
+ * Declairing propTypes for PublishedSceneDialog.
+ * 
+ * @author Robert Long
  * @type {Object}
  */
 PublishedSceneDialog.propTypes = {

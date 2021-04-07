@@ -5,7 +5,9 @@ import ProgressBar from "../inputs/ProgressBar";
 import styled from "styled-components";
 
 /**
- * [ProgressContainer used as a wrapper element for the ProgressMessage and ProgressBar components]
+ * ProgressContainer used as a wrapper element for the ProgressMessage and ProgressBar components.
+ * 
+ * @author Robert Long
  * @type {Styled component}
  */
 const ProgressContainer = (styled as any).div`
@@ -19,7 +21,9 @@ const ProgressContainer = (styled as any).div`
 `;
 
 /**
- * [ProgressMessage used to provide styles to the message content on ProgressDialog]
+ * ProgressMessage used to provide styles to the message content on ProgressDialog.
+ * 
+ * @author Robert Long
  * @type {styled component}
  */
 const ProgressMessage = (styled as any).div`
@@ -28,7 +32,9 @@ const ProgressMessage = (styled as any).div`
 `;
 
 /**
- * [ProgressDialog component used to render view ]
+ * ProgressDialog component used to render view.
+ * 
+ * @author Robert Long
  * @param       {string} message    [content to be shown on the ProgressDialog]
  * @param       {function} onConfirm
  * @param       {boolean} cancelable
@@ -48,7 +54,9 @@ export function ProgressDialog({ message, onConfirm, cancelable, onCancel, ...pr
 }
 
 /**
- * [declairing propTypes for ProgressDialog]
+ * declairing propTypes for ProgressDialog.
+ * 
+ * @author Robert Long
  * @type {Object}
  */
 ProgressDialog.propTypes = {
@@ -61,7 +69,9 @@ ProgressDialog.propTypes = {
 };
 
 /**
- * [initializing defaultProps for ProgressDialog]
+ * initializing defaultProps for ProgressDialog.
+ * 
+ * @author Robert Long
  * @type {Object}
  */
 ProgressDialog.defaultProps = {

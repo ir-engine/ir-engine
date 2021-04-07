@@ -5,7 +5,9 @@ import FormField from "../inputs/FormField";
 import PreviewDialog from "./PreviewDialog";
 
 /**
- * [SaveNewProjectDialog used to show dialog when to save new project]
+ * SaveNewProjectDialog used to show dialog when to save new project.
+ * 
+ * @author Robert Long
  * @param       {string} thumbnailUrl
  * @param       {string} initialName
  * @param       {function} onConfirm
@@ -23,7 +25,9 @@ export default function SaveNewProjectDialog({ thumbnailUrl, initialName, onConf
   );
 
   /**
-   * [onConfirmCallback callback function is used handle confirm dialog]
+   * onConfirmCallback callback function is used handle confirm dialog.
+   * 
+   * @author Robert Long
    * @type {function}
    */
   const onConfirmCallback = useCallback(
@@ -35,7 +39,9 @@ export default function SaveNewProjectDialog({ thumbnailUrl, initialName, onConf
   );
 
  /**
-  * [onCancelCallback callback function used to handle cancel of dialog]
+  * onCancelCallback callback function used to handle cancel of dialog.
+  * 
+  * @author Robert Long
   * @type {function}
   */
   const onCancelCallback = useCallback(
@@ -73,7 +79,9 @@ export default function SaveNewProjectDialog({ thumbnailUrl, initialName, onConf
 }
 
 /**
- * [declairing propTypes for SaveNewProjectDialog]
+ * declairing propTypes for SaveNewProjectDialog.
+ * 
+ * @author Robert Long
  * @type {Object}
  */
 SaveNewProjectDialog.propTypes = {
