@@ -2,8 +2,10 @@ import { createGlobalStyle } from "styled-components";
 import { Theme } from "./theme";
 
 /**
- * [GlobalStyle component used to provide common styles all over application]
- * @type {[styled component]}
+ * GlobalStyle component used to provide common styles all over application.
+ * 
+ * @author Robert Long
+ * @type {styled component}
  */
 const GlobalStyle = createGlobalStyle<{ theme: Theme }>`
   /*! minireset.css v0.0.4 | MIT License | github.com/jgthms/minireset.css */

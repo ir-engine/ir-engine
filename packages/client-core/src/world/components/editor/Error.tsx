@@ -22,7 +22,9 @@ const StyledError = (styled as any).div`
   }
 `;
 /**
- * [Error component used to error message]
+ * Error component used to error message.
+ * 
+ * @author Robert Long
  * @type {component class}
  */
 export default class Error extends Component {
