@@ -1,3 +1,4 @@
+import { Transform } from "math/Transform";
 import { Box3, Frustum, Matrix4, Mesh, Object3D, Scene, Vector3 } from "three";
 import { FollowCameraComponent } from "../../camera/components/FollowCameraComponent";
 import { isClient } from "../../common/functions/isClient";
@@ -119,18 +120,6 @@ const interactBoxRaycast: Behavior = (entity: Entity, { raycastList }: InteractB
   if (!followCamera.raycastBoxOn) return;
 
   const transform = getComponent<TransformComponent>(entity, TransformComponent);
-/*
-  const raycastList: Array<Entity> = interactive
-    .filter(interactiveEntity => {
-      // - have object 3d to raycast
-      if (!hasComponent(interactiveEntity, Object3DComponent)) {
-        return false;
-      }
-      const interactive = getComponent(interactiveEntity, Interactable);
-      // - onInteractionCheck is not set or passed
-      return (typeof interactive.onInteractionCheck !== 'function' || interactive.onInteractionCheck(entity, interactiveEntity));
-    });
-*/
 
   if (!raycastList.length) {
     return;
@@ -177,14 +166,15 @@ const interactBoxRaycast: Behavior = (entity: Entity, { raycastList }: InteractB
       }
 
     } else {
-
       if (boundingBox.dynamic) {
         const object3D = getComponent(entityIn, Object3DComponent);
         const aabb = new Box3();
         aabb.copy(boundingBox.box);
         aabb.applyMatrix4(object3D.value.matrixWorld);
+        console.log("aabb.distanceToPoint(transform.position) is " + aabb.distanceToPoint(transform.position));
         return [entityIn, frustum.intersectsBox(aabb), aabb.distanceToPoint(transform.position)];
       } else {
+
         return [entityIn, frustum.intersectsBox(boundingBox.box), boundingBox.box.distanceToPoint(transform.position)];
       }
 
@@ -197,8 +187,18 @@ const interactBoxRaycast: Behavior = (entity: Entity, { raycastList }: InteractB
   interacts.subFocusedArray = subFocusedArray.map((v: any) => [ getComponent(v[0], Object3DComponent).value, v[3] ]);
 
   const newBoxHit = selectNearest.length ? selectNearest[0] : null;
-  (interacts.BoxHitResult as any) = newBoxHit;
-  (interacts.focusedInteractive as any) = newBoxHit ? newBoxHit[0] : null;
+  let resultIsCloseEnough = false;
+  if(newBoxHit) {
+    const interactableTransform = getComponent(newBoxHit[0], TransformComponent);
+    if(interactableTransform.position.distanceTo(transform.position) < 1){
+      resultIsCloseEnough = true;
+    }
+  }
+  if(resultIsCloseEnough){
+    (interacts.BoxHitResult as any) = newBoxHit;
+  }
+  (interacts.focusedInteractive as any) = resultIsCloseEnough && newBoxHit ? newBoxHit[0] : null;
+
 };
 
 
