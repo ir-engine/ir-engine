@@ -1,5 +1,5 @@
 import ThreeMeshUI, { Block, Keyboard } from "../../assets/three-mesh-ui";
-import { Group, Object3D, Color, TextureLoader } from "three";
+import { Group, Object3D, Color, TextureLoader, VideoTexture } from "three";
 
 class SceneOverview extends Object3D {
 	constructor(title, description, image){
@@ -17,12 +17,21 @@ class SceneOverview extends Object3D {
 		container.position.set(0.1, 1.35, 0);
 		this.add(container);
 	
-		// const loader = new TextureLoader();
-		// loader.load(
-		// 	image, (texture) => {
-		// 		container.set({backgroundTexture: texture});
-		// });
+	
 		
+		let video = document.getElementById('video360') as HTMLVideoElement;
+
+		console.log('video360', video);
+		// video.play();
+		// video.addEventListener( 'play', function () {
+
+		// } );
+		
+		let texture = new VideoTexture( video );
+
+		console.log('texture', texture);
+		container.set({backgroundTexture: texture});
+
 		const textBlock = new ThreeMeshUI.Block({
 		  height: 0.1,
 		  width: 0.9,
