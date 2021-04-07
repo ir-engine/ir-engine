@@ -1,11 +1,11 @@
 import ThreeMeshUI, { Block, Keyboard } from "../../assets/three-mesh-ui";
-import { Group, Object3D, Color, TextureLoader } from "three";
+import { Group, Object3D, Color, TextureLoader, VideoTexture } from "three";
 
 class ScenePanel extends Object3D {
     constructor(title, description, image){
       super();
   
-      this.init(title, description, image);
+      this.init(title, description);
     }
   
     init(title, description){
@@ -14,10 +14,18 @@ class ScenePanel extends Object3D {
         height: 0.5
       });
   
+    //   let video = document.getElementById('video') as HTMLCanvasElement;
+    //   video.play();
+    //   video.addEventListener( 'play', function () {
+        //   this.currentTime = 3;
+    //   } );
+    //   let texture = new VideoTexture( video );
+
     //   const loader = new TextureLoader();
     //   loader.load(
-    //       image, (texture) => {
-    //           container.set({backgroundTexture: texture});
+    //       "https://media.nationalgeographic.org/assets/photos/000/181/18167.jpg", (texture) => {
+              
+    // container.set({backgroundTexture: texture});
     //   });
   
       container.position.set(0, 0, 0);
