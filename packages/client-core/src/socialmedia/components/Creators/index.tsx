@@ -42,7 +42,7 @@ const Creators = ({creatorsState, getCreators}:Props) => {
                 />
                 <CardContent>
                     <Typography className={styles.titleContainer} gutterBottom variant="h3" component="h2" align="center">{item.name} 
-                        {item.verified === true && <VerifiedUserIcon htmlColor="#007AFF" style={{fontSize:'13px', margin: '0 0 0 5px'}}/>}
+                        {item.verified === 1 && <VerifiedUserIcon htmlColor="#007AFF" style={{fontSize:'13px', margin: '0 0 0 5px'}}/>}
                     </Typography>
                     <Typography variant="h4" align="center" color="secondary">{item.username}</Typography>
                 </CardContent>
