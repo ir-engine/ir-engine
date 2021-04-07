@@ -14,7 +14,8 @@ import {
   ProjectGridHeaderRow
 } from "./ProjectGrid";
 import templates from "./templates";
-
+import i18n from "i18next";
+import { withTranslation } from "react-i18next";
 
 export const ProjectsSection = (styled as any).section`
   padding-bottom: 100px;
@@ -68,7 +69,7 @@ export const ProjectsHeader = (styled as any).div`
 
 const contextMenuId = "project-menu";
 
-class ProjectsPage extends Component {
+class ProjectsPage extends Component<{t: Function}> {
   static propTypes = {
     api: PropTypes.object.isRequired,
     history: PropTypes.object.isRequired
@@ -150,13 +151,12 @@ class ProjectsPage extends Component {
           {!isAuthenticated || (projects.length === 0 && !loading) ? (
             <ProjectsSection flex={0}>
               <WelcomeContainer>
-                <h1>Welcome</h1>
+                <h1>{this.props.t('editor:projects.page.header')}</h1>
                 <h2>
-                  If you&#39;re new here we recommend going through the tutorial. Otherwise, jump right in and create a
-                  project from scratch or from one of our templates.
+                  {this.props.t('editor:projects.page.headerMsg')}
                 </h2>
                 <MediumButton as="a" href="/projects/tutorial">
-                  Start Tutorial
+                  {this.props.t('editor:projects.page.lbl-startTutorial')}
                 </MediumButton>
               </WelcomeContainer>
             </ProjectsSection>
@@ -165,14 +165,14 @@ class ProjectsPage extends Component {
           <ProjectsSection>
             <ProjectsContainer>
               <ProjectsHeader>
-                <h1>Projects</h1>
+                <h1>{this.props.t('editor:projects.page.projects')}</h1>
               </ProjectsHeader>
               <ProjectGridContainer>
                 <ProjectGridHeader>
                   <ProjectGridHeaderRow />
                   <ProjectGridHeaderRow>
                     <Button as="a" href="/editor/create">
-                      New Project
+                      {this.props.t('editor:projects.page.lbl-newProject')}
                     </Button>
                   </ProjectGridHeaderRow>
                 </ProjectGridHeader>
@@ -198,4 +198,4 @@ class ProjectsPage extends Component {
   }
 }
 
-export default withApi(ProjectsPage);
+export default withTranslation()(withApi(ProjectsPage));

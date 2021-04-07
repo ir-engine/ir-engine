@@ -1,5 +1,7 @@
 import { CubeTextureLoader, RGBFormat } from "three";
 import { RethrownError } from "@xr3ngine/engine/src/editor/functions/errors";
+import i18n from "i18next";
+
 const negx = "/cubemap/negx.jpg";
 const negy = "/cubemap/negy.jpg";
 const negz = "/cubemap/negz.jpg";
@@ -24,10 +26,7 @@ export function loadEnvironmentMap() {
       null,
       error =>
         reject(
-          new RethrownError(
-            `Error loading cubemap images ${cubeMapURLs
-              .map(url => `"${url}"`)
-              .join(", ")}`,
+          new RethrownError(i18n.t('editor:envMapError', { files: cubeMapURLs.map(url => `"${url}"`).join(", ") }),
             error
           )
         )

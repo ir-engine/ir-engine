@@ -25,6 +25,8 @@
     "publishingSceneMsg": "Publishing scene...",
     "uploadingThumbnailMsg": "Uploading thumbnail...",
     "uploadingSceneMsg": "Uploading scene: {{percentage}}%",
+    "envMapError": "Error loading cubemap images {{files}}",
+    "lbl-return": "Return",
     "menubar": {
         "newProject": "New Project",
         "saveProject": "Save Project",
@@ -354,6 +356,170 @@
         "volumetric": {
             "description": "Dynamically loads a volumetric video.",
             "lbl-volumetric": "Volumetric"
+        }
+    },
+    "projects": {
+        "createProject": {
+            "header": "New Project",
+            "backLink": "Back to projects",
+            "featured": "Featured",
+            "all": "All",
+            "newProject": "New Empty Project",
+            "ph-search": "Search scenes..."
+        },
+        "grid": {
+            "loading": "Loading..."
+        },
+        "page": {
+            "header": "Welcome",
+            "headerMsg": "If you're new here we recommend going through the tutorial. Otherwise, jump right in and create a project from scratch or from one of our templates.",
+            "lbl-startTutorial": "Start Tutorial",
+            "projects": "Projects",
+            "lbl-newProject": "New Project"
+        }
+    },
+    "layout": {
+        "assetGrid": {
+            "loading": "Loading...",
+            "placeObject": "Place Object",
+            "placeObjectAtOrigin": "Place Object at Origin",
+            "copyURL": "Copy URL",
+            "openInNewTab": "Open URL in New Tab",
+            "deleteAsset": "Delete Asset"
+        }
+    },
+    "hierarchy": {
+        "lbl-rename": "Rename",
+        "lbl-duplicate": "Duplicate",
+        "lbl-group": "Group",
+        "lbl-delete": "Delete",
+        "lbl-expandAll": "Expand All",
+        "lbl-collapseAll": "Collapse All",
+        "isseus": "Issues:"
+    },
+    "dnd": {
+        "nodes": "{{count}} Nodes Selected",
+        "models": "{{count}} Models Selected",
+        "images": "{{count}} Images Selected",
+        "videos": "{{count}} Videos Selected",
+        "audio": "{{count}} Audio Sources Selected"
+    },
+    "dialog": {
+        "title": "Editor",
+        "lbl-confirm": "Ok",
+        "lbl-cancel": "Cancel",
+        "exportProject": {
+            "title": "Export Project",
+            "lbl-confirm": "Export Project",
+            "lbl-combineMesh": "Combine Meshes",
+            "lbl-removeUnused": "Remove Unused Objects"
+        },
+        "performance": {
+            "title": "Performance Check",
+            "lbl-confirm": "Publish Scene",
+            "learnMore": "Learn More",
+            "lbl-polycount": "Polygon Count",
+            "lbl-material": "Materials",
+            "lbl-texture": "Textures",
+            "lbl-lights": "Lights",
+            "lbl-fileSize": "File Size",
+            "info-polycount": "We recommend your scene use no more than 50,000 triangles for mobile devices.",
+            "info-material": "We recommend using no more than 25 unique materials in your scene to reduce draw calls on mobile devices.",
+            "info-texture": "We recommend your textures use no more than 256MB of video RAM for mobile devices. We also recommend against using textures larger than 2048 x 2048.",
+            "info-lights": "While dynamic lights are not enabled on mobile devices, we recommend using no more than 3 lights in your scene (excluding ambient and hemisphere lights) for your scene to run on low end PCs.",
+            "info-fileSize": "We recommend a final file size of no more than 16MB for low bandwidth connections. Reducing the file size will reduce the time it takes to download your scene.",
+            "txt-polycount": "{{count}} Triangles",
+            "txt-material": "{{count}} Materials",
+            "txt-ram": "~{{count}} Video RAM",
+            "txt-texture": "{{count}} Large Textures",
+            "txt-lights": "{{count}} Lights"
+        },
+        "progress": {
+            "title": "Loading...",
+            "msg": "Loading...",
+            "lbl-cancel": "Cancel"
+        },
+        "publish": {
+            "title": "Publish Scene",
+            "lbl-confirm": "Save and Publish",
+            "lbl-name": "Scene Name",
+            "lbl-yourAttribution": "Your Attribution (optional):",
+            "lbl-remixScene": "Allow other users to remix your scene with <1 /> Creative Commons <3>CC-BY 3.0</3>",
+            "lbl-appearOnFront": "Allow scene to appear on front page",
+            "lbl-modelAttribution": "Model Attribution:",
+            "info-name": "Name must be between 4 and 64 characters and cannot contain underscores"
+        },
+        "published": {
+            "title": "Scene Published",
+            "header": "Your scene has been published.",
+            "lbl-view": "View Your Scene"
+        },
+        "saveNewProject": {
+            "title": "Support",
+            "lbl-name": "Project Name",
+            "info-name": "Name must be between 4 and 64 characters and cannot contain underscores",
+            "lbl-confirm": "Save Project"
+        },
+        "support": {
+            "title": "Support",
+            "header": "Need to report a problem?",
+            "msg": "You can file a <1>GitHub Issue</1> or e-mail us for support at <3>{{mail}}</3>",
+            "discord": "You can also find us on <1>Discord</1>"
+        }
+    },
+    "sources": {
+        "bingImage": {
+            "name": "Bing Images",
+            "search": "Search by Bing"
+        },
+        "bingVideo": {
+            "name": "Bing Videos",
+            "search": "Search by Bing"
+        },
+        "element": {
+            "name": "Elements"
+        },
+        "myAssets": {
+            "name": "My Assets"
+        },
+        "googlePoly": {
+            "name": "Google Poly",
+            "search": "Search by Google"
+        },
+        "tenor": {
+            "name": "Tenor GIFs",
+            "search": "Search by Tenor",
+            "ph-search": "Search GIFs..."
+        },
+        "sketchfab": {
+            "name": "Sketchfab",
+            "search": "Search by Sketchfab"
+        }
+    },
+    "asset": {
+        "dropZone": {
+            "title": "Upload Asset"
+        },
+        "imageSourcePanel": {
+            "ph-search": "Search images..."
+        },
+        "videoSourcePanel": {
+            "ph-search": "Search videos..."
+        },
+        "assetSourcePanel": {
+            "ph-search": "Search assets..."
+        },
+        "modelSourcePanel": {
+            "ph-search": "Search models..."
+        },
+        "useUpload": {
+            "multipleFileError": "Input does not accept multiple files.",
+            "mineTypeError": "\"{{name}}\" does not match the following mime types or extensions: {{types}}",
+            "progressTitle": "Uploading Files",
+            "progressMsg": "Uploading files {{uploaded}} of {{total}}: {{percentage}}%",
+            "uploadError": "Upload Error",
+            "uploadErrorMsg": "Error uploading file: {{message}}",
+            "uploadErrorDefaultMsg": "There was an unknown error"
         }
     }
 }

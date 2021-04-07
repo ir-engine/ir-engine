@@ -3,6 +3,7 @@ import { BaseSource } from "./index";
 import { ItemTypes } from "../../dnd";
 import MediaSourcePanel from "../MediaSourcePanel";
 import Editor from "../../Editor";
+import i18n from "i18next";
 
 
 /**
@@ -26,7 +27,7 @@ export default class ElementsSource extends BaseSource {
     this.component = MediaSourcePanel;
     this.editor = editor;
     this.id = "elements";
-    this.name = "Elements";
+    this.name = i18n.t('editor:sources.element.name');
     this.editor.addListener("settingsChanged", this.onSettingsChanged);
     this.editor.addListener("sceneGraphChanged", this.onSceneGraphChanged);
     this.disableUrl = true;

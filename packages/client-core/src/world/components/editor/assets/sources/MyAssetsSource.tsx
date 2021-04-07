@@ -6,6 +6,7 @@ import VideoNode from "@xr3ngine/engine/src/editor/nodes/VideoNode";
 import ImageNode from "@xr3ngine/engine/src/editor/nodes/ImageNode";
 import AudioNode from "@xr3ngine/engine/src/editor/nodes/AudioNode";
 import { AcceptsAllFileTypes } from "../fileTypes";
+import i18n from "i18next";
 import Editor from "../../Editor";
 const assetTypeToNode = {
   model: ModelNode,
@@ -32,7 +33,7 @@ export default class MyAssetsSource extends BaseSource {
     this.component = UploadSourcePanel;
     this.editor = editor;
     this.id = "assets";
-    this.name = "My Assets";
+    this.name = i18n.t('editor:sources.myAssets.name');
     this.tags = [
       { label: "Models", value: "model" },
       { label: "Images", value: "image" },
