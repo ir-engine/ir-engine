@@ -28,7 +28,7 @@ const  Home = ({ authState, creatorsState }) => {
     for(let i=0;i<20;i++){
       stories.push({
             image:null
-        })
+        });
     }
   // const { data, setLoginUser } = LoginUserHook();
 
