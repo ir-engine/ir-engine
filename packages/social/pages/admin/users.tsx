@@ -1,4 +1,7 @@
 
+/**
+ * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
+ */
 import React, { useEffect } from "react";
 import CreatorConsole  from "@xr3ngine/client-core/src/admin/components/CreatorConsole";
 import { bindActionCreators, Dispatch } from "redux";
