@@ -1,4 +1,3 @@
-import { Flex, Heading, Box } from 'theme-ui'
 import { toSvg } from 'jdenticon'
 import { useStateContext } from '../state'
 import { useHistory } from 'react-router'
@@ -15,29 +14,21 @@ const UserMenu = () => {
   const history = useHistory()
 
   return (
-    <Flex sx={{ ml: 'auto', justifySelf: 'flex-end' }}>
+    <div>
       {isAuthenticated && user && (
         <>
-          <Heading sx={{ color: 'white' }} as="h5">
+          <h5>
             {user.address}
-          </Heading>
-          <Box
+          </h5>
+          <div
             onClick={() => {
               history.push('/profile')
-            }}
-            sx={{
-              cursor: 'pointer',
-              ml: 3,
-              height: 30,
-              width: 30,
-              bg: 'white',
-              borderRadius: '100%',
             }}
             dangerouslySetInnerHTML={{ __html: toSvg(user.address, 30) }}
           />
         </>
       )}
-    </Flex>
+    </div>
   )
 }
 
