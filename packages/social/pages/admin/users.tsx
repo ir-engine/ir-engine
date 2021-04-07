@@ -3,9 +3,9 @@ import React, { useEffect } from "react";
 import CreatorConsole  from "@xr3ngine/client-core/src/admin/components/CreatorConsole";
 import { bindActionCreators, Dispatch } from "redux";
 import { connect } from "react-redux";
-import { Dashboard } from "@material-ui/icons";
 import { selectCreatorsState } from "@xr3ngine/client-core/src/socialmedia/reducers/creator/selector";
 import { getCreators } from "@xr3ngine/client-core/src/socialmedia/reducers/creator/service";
+import Dashboard from "@xr3ngine/client-core/src/socialmedia/components/Dashboard";
 
 const mapStateToProps = (state: any): any => {
   return {
