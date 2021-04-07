@@ -22,7 +22,7 @@ const TooltipContainer = (props: Props) =>{
   return props.message ? 
             <Snackbar anchorOrigin={{vertical: 'bottom',horizontal: 'center'}} 
             className={styles.TooltipSnackBar} open={true} 
-            autoHideDuration={10000}>
+            autoHideDuration={1000}>
               <section className={styles.innerHtml+' MuiSnackbarContent-root'}>
                 <ErrorOutlineIcon color="secondary" />
                 Press {interactTip} to {props.message}
