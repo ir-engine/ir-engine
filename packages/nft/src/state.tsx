@@ -1,8 +1,8 @@
-import { createContext, FC, Reducer, useContext, useReducer } from 'react'
-import { TokenProps } from './components/Token'
-import { ContractProps, UserProps } from './types'
+import { createContext, FC, Reducer, useContext, useReducer } from 'react';
+import { TokenProps } from './components/Token';
+import { ContractProps, UserProps } from './types';
 
-import { reducer, Action } from './reducer'
+import { reducer, Action } from './reducer';
 
 export interface StateContext {
   isAuthenticated: boolean
@@ -18,13 +18,13 @@ export interface Store {
 
 const defaultState: StateContext = {
   isAuthenticated: false,
-}
+};
 
-const myContext = createContext<Store>({ state: defaultState, dispatch: () => {} })
+const myContext = createContext<Store>({ state: defaultState, dispatch: () => {} });
 
-export const useStateContext = () => useContext(myContext)
+export const useStateContext = () => useContext(myContext);
 
 export const StateProvider: FC = ({ children }) => {
-  const [state, dispatch] = useReducer<Reducer<StateContext, Action>>(reducer, defaultState)
-  return <myContext.Provider value={{ state, dispatch }} children={children} />
-}
+  const [state, dispatch] = useReducer<Reducer<StateContext, Action>>(reducer, defaultState);
+  return <myContext.Provider value={{ state, dispatch }} children={children} />;
+};

@@ -1,34 +1,34 @@
-import { useWeb3React } from '@web3-react/core'
-import { utils, BigNumber } from 'ethers'
-import Token from './Token'
-import { updateTokensOnSale, updateUser } from '../actions'
-import { useStateContext } from '../state'
+import { useWeb3React } from '@web3-react/core';
+import { utils, BigNumber } from 'ethers';
+import Token from './Token';
+import { updateTokensOnSale, updateUser } from '../actions';
+import { useStateContext } from '../state';
 
 export type ProfileProps = {}
 
 const Profile = () => {
-  const { state, dispatch } = useStateContext()
-  const { contract, user, tokensOnSale } = state
-  const { library } = useWeb3React()
+  const { state, dispatch } = useStateContext();
+  const { contract, user, tokensOnSale } = state;
+  const { library } = useWeb3React();
 
-  if (!user) return null
+  if (!user) return null;
 
-  const { address, balance, ownedTokens } = user
+  const { address, balance, ownedTokens } = user;
 
   const onConfirmTransfer = async (): Promise<boolean> => {
-    if (!user || !user.address || !library) return false
+    if (!user || !user.address || !library) return false;
     try {
       await updateUser({
         contract: contract?.payload,
         userAccount: user.address,
         library,
         dispatch,
-      })
-      return true
+      });
+      return true;
     } catch (e) {
-      return false
+      return false;
     }
-  }
+  };
 
   const onTransferToken = async ({
     id,
@@ -37,7 +37,7 @@ const Profile = () => {
     id: string
     address: string
   }): Promise<boolean> => {
-    if (!contract?.payload) return false
+    if (!contract?.payload) return false;
 
     try {
       const tx = await contract.payload['safeTransferFrom(address,address,uint256)'](
@@ -47,18 +47,18 @@ const Profile = () => {
         {
           from: user.address,
         }
-      )
-      const receipt = await tx.wait()
+      );
+      const receipt = await tx.wait();
       if (receipt.confirmations >= 1) {
-        return onConfirmTransfer()
+        return onConfirmTransfer();
       } else {
-        return false
+        return false;
       }
     } catch (e) {
-      console.log(e)
-      return false
+      console.log(e);
+      return false;
     }
-  }
+  };
 
   const onSaleToken = async ({
     id,
@@ -69,16 +69,16 @@ const Profile = () => {
     price: BigNumber
     onSale?: boolean
   }): Promise<boolean> => {
-    if (!contract?.payload || !user?.address) return false
+    if (!contract?.payload || !user?.address) return false;
     try {
-      await contract.payload.setTokenSale(id, onSale, price, { from: user.address })
-      await updateTokensOnSale({ dispatch, contract: contract?.payload })
-      return await onConfirmTransfer()
+      await contract.payload.setTokenSale(id, onSale, price, { from: user.address });
+      await updateTokensOnSale({ dispatch, contract: contract?.payload });
+      return await onConfirmTransfer();
     } catch (e) {
-      console.log(e)
-      return false
+      console.log(e);
+      return false;
     }
-  }
+  };
 
   return (
     <div>
@@ -111,7 +111,7 @@ const Profile = () => {
         )}
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Profile
+export default Profile;

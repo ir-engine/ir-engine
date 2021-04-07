@@ -1,9 +1,9 @@
-import { BigNumber, utils } from 'ethers'
-import { FormEvent, MouseEvent, useState } from 'react'
-import useSWR from 'swr'
-import { useStateContext } from '../state'
-import { METADATA_API } from '../utils'
-import { fetcherMetadata } from '../utils/fetchers'
+import { BigNumber, utils } from 'ethers';
+import { FormEvent, MouseEvent, useState } from 'react';
+import useSWR from 'swr';
+import { useStateContext } from '../state';
+import { METADATA_API } from '../utils';
+import { fetcherMetadata } from '../utils/fetchers';
 import { Input, Button } from '@material-ui/core';
 
 export type TokenProps = {
@@ -30,59 +30,59 @@ export type TokenCompProps = {
 }
 
 const Token = ({ token, isOnSale, onTransfer, onBuy, onSale }: TokenCompProps) => {
-  const [transfer, setTransfer] = useState<boolean>(false)
-  const [onSaleActive, setOnSale] = useState<boolean>(false)
-  const [address, setAddress] = useState<string>('')
-  const [price, setPrice] = useState<string>('')
+  const [transfer, setTransfer] = useState<boolean>(false);
+  const [onSaleActive, setOnSale] = useState<boolean>(false);
+  const [address, setAddress] = useState<string>('');
+  const [price, setPrice] = useState<string>('');
   const {
     state: { user, ethPrice, contract },
-  } = useStateContext()
+  } = useStateContext();
 
   const onTransferClick = async (e: FormEvent | MouseEvent) => {
-    e.preventDefault()
+    e.preventDefault();
     try {
       if (onTransfer) {
-        const result = await onTransfer({ id: token.id, address })
+        const result = await onTransfer({ id: token.id, address });
         if (result) {
-          setOnSale(false)
+          setOnSale(false);
         }
       }
     } catch (e) {
-      throw new Error(e)
+      throw new Error(e);
     }
-  }
+  };
 
   const onBuyClick = (e: MouseEvent) => {
-    e.preventDefault()
-    onBuy && onBuy({ id: token.id, price: token.price })
-  }
+    e.preventDefault();
+    onBuy && onBuy({ id: token.id, price: token.price });
+  };
 
   const onSaleClick = async (e: MouseEvent) => {
-    e.preventDefault()
-    if (!onSale) return
+    e.preventDefault();
+    if (!onSale) return;
     try {
-      const result = await onSale({ id: token.id, price: utils.parseEther(price), onSale: true })
+      const result = await onSale({ id: token.id, price: utils.parseEther(price), onSale: true });
       if (result) {
-        setOnSale(false)
+        setOnSale(false);
       }
     } catch (e) {
-      throw new Error(e)
+      throw new Error(e);
     }
-  }
+  };
 
-  const { data } = useSWR(`${METADATA_API}/token?id=${token.id}`, fetcherMetadata)
+  const { data } = useSWR(`${METADATA_API}/token?id=${token.id}`, fetcherMetadata);
 
   const tokenPriceEth = new Intl.NumberFormat('us-GB', {
     style: 'currency',
     currency: 'USD',
-  }).format(Number(utils.formatEther(token.price)) * Number(ethPrice))
+  }).format(Number(utils.formatEther(token.price)) * Number(ethPrice));
 
   if (!data)
     return (
       <div>
         Loading...
       </div>
-    )
+    );
 
   return (
     <div>
@@ -144,7 +144,7 @@ const Token = ({ token, isOnSale, onTransfer, onBuy, onSale }: TokenCompProps) =
       )}
       {onBuy && ( <Button onClick={onBuyClick} > Buy Token </Button> )}
     </div>
-  )
-}
+  );
+};
 
-export default Token
+export default Token;

@@ -1,7 +1,7 @@
-import { utils } from 'ethers'
-import { ActionProps } from '.'
-import { ActionType } from '../state'
-import listTokensFrom from '../utils/listTokensFrom'
+import { utils } from 'ethers';
+import { ActionProps } from '.';
+import { ActionType } from '../state';
+import listTokensFrom from '../utils/listTokensFrom';
 
 type Props = ActionProps<{
   userAccount: string
@@ -10,8 +10,8 @@ type Props = ActionProps<{
 
 const updateUser = async ({ contract, userAccount, library, dispatch }: Props) => {
   try {
-    const balance = utils.formatEther(await library.getBalance(userAccount))
-    const ownedTokens = await listTokensFrom(contract, userAccount)
+    const balance = utils.formatEther(await library.getBalance(userAccount));
+    const ownedTokens = await listTokensFrom(contract, userAccount);
 
     dispatch({
       type: ActionType.UPDATE_USER,
@@ -20,11 +20,11 @@ const updateUser = async ({ contract, userAccount, library, dispatch }: Props) =
         balance,
         ownedTokens,
       },
-    })
+    });
   } catch (e) {
-    console.log(e)
-    throw new Error(e)
+    console.log(e);
+    throw new Error(e);
   }
-}
+};
 
-export default updateUser
+export default updateUser;
