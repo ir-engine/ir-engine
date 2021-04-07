@@ -1,3 +1,6 @@
+/**
+ * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
+ */
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
@@ -156,7 +159,7 @@ const FeedConsole = (props: Props) => {
 
     const handleUpdateFeed = (feed)=>{
         updateFeedAsAdmin(feed.id, feed);
-    }
+    };
 
     return (
         <div>

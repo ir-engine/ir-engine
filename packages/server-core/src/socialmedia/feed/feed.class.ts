@@ -1,3 +1,6 @@
+/**
+ * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
+ */
 import { Service, SequelizeServiceOptions } from 'feathers-sequelize';
 import { Application } from '../../../declarations';
 import { Id, Params } from "@feathersjs/feathers";

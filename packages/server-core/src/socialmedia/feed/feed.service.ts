@@ -1,3 +1,6 @@
+/**
+ * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
+ */
 // Initializes the `feed` service on path `/feed`
 import { ServiceAddons } from '@feathersjs/feathers';
 import { Application } from '../../../declarations';
