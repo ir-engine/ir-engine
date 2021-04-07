@@ -194,9 +194,7 @@ const interactBoxRaycast: Behavior = (entity: Entity, { raycastList }: InteractB
       resultIsCloseEnough = true;
     }
   }
-  if(resultIsCloseEnough){
-    (interacts.BoxHitResult as any) = newBoxHit;
-  }
+  (interacts.BoxHitResult as any) = resultIsCloseEnough ? newBoxHit : null;
   (interacts.focusedInteractive as any) = resultIsCloseEnough && newBoxHit ? newBoxHit[0] : null;
 
 };
