@@ -3,6 +3,8 @@ import PropTypes from "prop-types";
 import MediaSourcePanel from "./MediaSourcePanel";
 /**
  * UploadSourcePanel component used to render MediaSourcePanel.
+ * 
+ * @author Robert Long
  * @param {any} props
  * @constructor
  */

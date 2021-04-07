@@ -2,7 +2,9 @@ import ModelMediaSource from "../ModelMediaSource";
 import { TransformPivot } from "@xr3ngine/engine/src/editor/controls/EditorControls";
 
 /**
- * [SketchfabSource component used to provide visual object from sketchfab]
+ * SketchfabSource component used to provide visual object from sketchfab.
+ * 
+ * @author Robert Long
  * @type {class}
  */
 export default class SketchfabSource extends ModelMediaSource {

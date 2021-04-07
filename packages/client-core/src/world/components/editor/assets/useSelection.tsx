@@ -2,6 +2,8 @@ import { useRef, useState, useCallback, useEffect } from "react";
 
 /**
  * useSelectionHandler function component used to set items selected.
+ * 
+ * @author Robert Long
  * @param  {Array}  items
  * @param  {Array}  selectedItems
  * @param  {function}  setSelectedItems
@@ -51,7 +53,9 @@ export function useSelectionHandler(
 }
 
 /**
- * [useSelection ]
+ * useSelection
+ * 
+ * @author Robert Long
  * @param  {Array}  items
  * @param  {Array}   [initialSelection=[]]
  * @param  {Boolean} [multiselect=false]

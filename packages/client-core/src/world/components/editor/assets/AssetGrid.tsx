@@ -15,7 +15,9 @@ import AudioPreview from "./AudioPreview";
 import Tooltip, { TooltipContainer } from "../layout/Tooltip";
 
 /**
- * [AssetGridTooltipContainer used to provide styles for tooltip shown if we hover the object]
+ * AssetGridTooltipContainer used to provide styles for tooltip shown if we hover the object.
+ * 
+ * @author Robert Long
  * @type {styled component}
  */
 const AssetGridTooltipContainer = (styled as any)(TooltipContainer)`
@@ -24,20 +26,24 @@ const AssetGridTooltipContainer = (styled as any)(TooltipContainer)`
 `;
 
 /**
- * [collectMenuProps returns menu items]
+ * collectMenuProps returns menu items.
+ * 
+ * @author Robert Long
  */
 function collectMenuProps({ item }) {
   return { item };
 }
 
 /**
- * [AssetGridItem used to create grid item view]
- * @param       {[type]} contextMenuId
- * @param       {[type]} tooltipComponent
- * @param       {[type]} disableTooltip
- * @param       {[type]} item
- * @param       {[type]} onClick
- * @param       {[type]} rest
+ * AssetGridItem used to create grid item view.
+ * 
+ * @author Robert Long
+ * @param       {any} contextMenuId
+ * @param       {any} tooltipComponent
+ * @param       {any} disableTooltip
+ * @param       {any} item
+ * @param       {any} onClick
+ * @param       {any} rest
  * @constructor
  */
 function AssetGridItem({ contextMenuId, tooltipComponent, disableTooltip, item, onClick, ...rest }) {
@@ -151,25 +157,29 @@ AssetGridItem.propTypes = {
 let lastId = 0;
 
 /**
- * [
+ * 
  * Memo
  * React renders the component and memoizes the result.
  * Before the next render, if the new props are the same,
  * React reuses the memoized result skipping the next rendering
- * ]
+ * 
+ * 
+ * @author Robert Long
  */
 const MemoAssetGridItem = memo(AssetGridItem);
 
 /**
- * [AssetGrid component used to render AssetGridItems]
+ * AssetGrid component used to render AssetGridItems.
+ * 
+ * @author Robert Long
  * @param       {Boolean} isLoading     [used to render loading if true]
- * @param       {[type]}  selectedItems [ array of items]
- * @param       {[type]}  items         [array of items to render AssetGrid]
- * @param       {[type]}  onSelect
- * @param       {[type]}  onLoadMore
+ * @param       {any}  selectedItems [ array of items]
+ * @param       {any}  items         [array of items to render AssetGrid]
+ * @param       {any}  onSelect
+ * @param       {any}  onLoadMore
  * @param       {Boolean} hasMore
- * @param       {[type]}  tooltip
- * @param       {[type]}  source
+ * @param       {any}  tooltip
+ * @param       {any}  source
  * @constructor
  */
 export default function AssetGrid({ isLoading, selectedItems, items, onSelect, onLoadMore, hasMore, tooltip, source }) {

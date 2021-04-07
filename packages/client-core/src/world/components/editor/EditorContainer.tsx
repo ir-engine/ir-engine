@@ -49,7 +49,7 @@ const StyledEditorContainer = (styled as any).div`
 `;
 
 /**
- * WorkspaceContainer description
+ *Styled component used as workspace container.
  * 
  * @author Robert Long
  * @type {type}
@@ -84,8 +84,9 @@ type EditorContainerState = {
 };
 
 /**
+ * EditorContainer class used for creating container for Editor
  * 
- * 
+ *  @author Robert Long
  */
 class EditorContainer extends Component<EditorContainerProps, EditorContainerState> {
   static propTypes = {

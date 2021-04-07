@@ -9,7 +9,9 @@ import { CloudUploadAlt } from "@styled-icons/fa-solid/CloudUploadAlt";
 
 
 /**
- * [DropZoneBackground provides styles for the view port area where we drag and drop objects]
+ * DropZoneBackground provides styles for the view port area where we drag and drop objects.
+ * 
+ * @author Robert Long
  * @param {styled component}
  */
 const DropZoneBackground = (styled as any).div`
@@ -33,9 +35,11 @@ const DropZoneBackground = (styled as any).div`
 `;
 
 /**
- * [AssetDropZone function used to create view port where we can drag and drop objects]
- * @param       {[type]} afterUpload
- * @param       {[type]} uploadOptions
+ * AssetDropZone function used to create view port where we can drag and drop objects.
+ * 
+ * @author Robert Long
+ * @param       {any} afterUpload
+ * @param       {any} uploadOptions
  * @constructor
  */
 export default function AssetDropZone({ afterUpload, uploadOptions }) {

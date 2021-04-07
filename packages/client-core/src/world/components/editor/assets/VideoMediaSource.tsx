@@ -5,7 +5,9 @@ import VideoNode from "@xr3ngine/engine/src/editor/nodes/VideoNode";
 import Api from "../Api";
 
 /**
- * [VideoMediaSource used as parent class for Videos Source components like BingVideosSource]
+ * VideoMediaSource used as parent class for Videos Source components like BingVideosSource.
+ * 
+ * @author Robert Long
  * @type {class component}
  */
 export default class VideoMediaSource extends BaseSource {
@@ -18,7 +20,9 @@ export default class VideoMediaSource extends BaseSource {
   }
 
   /**
-   * [search used to search media source by calling Api]
+   * search used to search media source by calling Api.
+   * 
+   * @author Robert Long
    * @param  {object}  params
    * @param  {[type]}  cursor
    * @param  {[type]}  abortSignal
