@@ -1,7 +1,6 @@
 import { useWeb3React } from '@web3-react/core'
 import { BigNumber } from 'ethers'
 import { useCallback, useEffect } from 'react'
-import { Box, Grid, Heading } from 'theme-ui'
 import { updateTokensOnSale, updateUser } from '../actions'
 import { useStateContext } from '../state'
 import Token from './Token'
@@ -48,14 +47,14 @@ const Gallery = () => {
   }, [loadTokensForSale, user?.ownedTokens])
 
   return (
-    <Box>
-      <Heading as="h1">Market</Heading>
-      <Grid gap={4} columns="1fr 1fr 1fr 1fr">
+    <div>
+      <h1>Market</h1>
+      <div>
         {tokensOnSale?.map((i, index) => (
           <Token onBuy={onBuyTokenClick} token={i} key={index} />
         ))}
-      </Grid>
-    </Box>
+      </div>
+    </div>
   )
 }
 
