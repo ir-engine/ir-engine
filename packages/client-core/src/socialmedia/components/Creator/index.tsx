@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 import { selectCreatorsState } from '../../reducers/creator/selector';
 import { followCreator, getCreator, getFollowersList, getFollowingList, unFollowCreator } from '../../reducers/creator/service';
-import CreatorCard from '../common/CreatorCard';
+import CreatorCard from '../CreatorCard';
 import Featured from '../Featured';
 import styles from './Creator.module.scss';
 

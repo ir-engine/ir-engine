@@ -1,5 +1,9 @@
 import { Object3D, HemisphereLight } from "three";
 export default class PhysicalHemisphereLight extends HemisphereLight {
+  position: any;
+  color: any;
+  intensity: any;
+  groundColor: any;
   constructor() {
     super();
     this.position.set(0, 0, 0);
