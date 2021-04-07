@@ -1,9 +1,8 @@
 import React from "react";
 import { ProfilePic} from "./ProfilePic";
-import { UsernameText } from "./UsernameText";
 import Router from "next/router";
 
-import styles from './styles/Stories.module.scss';
+import styles from './Stories.module.scss';
 
 export function StoryItem({
   data
@@ -21,10 +20,6 @@ export function StoryItem({
           border
          />
       </div>
-      <UsernameText
-        username={data?.username || "username"}
-        className="story-username text-black text-12-light mt-1"
-      />
     </div>
   );
 }
