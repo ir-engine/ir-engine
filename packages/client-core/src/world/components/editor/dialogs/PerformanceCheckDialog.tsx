@@ -5,7 +5,9 @@ import Dialog from "./Dialog";
 import { bytesToSize } from "@xr3ngine/engine/src/editor/functions/utils";
 
 /**
- * [ColoredText used to provide color property Dynamically]
+ * ColoredText used to provide color property Dynamically.
+ * 
+ * @author Robert Long
  * @type {Styled component}
  */
 const ColoredText = (styled as any).span`
@@ -13,7 +15,9 @@ const ColoredText = (styled as any).span`
 `;
 
 /**
- * [PerformanceItemContainer used as wrapper element for Performance score]
+ * PerformanceItemContainer used as wrapper element for Performance score.
+ * 
+ * @author Robert Long
  * @type {Styled component}
  */
 const PerformanceItemContainer = (styled as any).li`
@@ -61,7 +65,9 @@ const PerformanceItemContainer = (styled as any).li`
 `;
 
 /**
- * [PerformanceCheckItem used to render view for PerformanceCheckDialog]
+ * PerformanceCheckItem used to render view for PerformanceCheckDialog.
+ * 
+ * @author Robert Long
  * @param       {String} score
  * @param       {String} scoreColor
  * @param       {String} title
@@ -94,7 +100,9 @@ function PerformanceCheckItem({ score, scoreColor, title, description, learnMore
 }
 
 /**
- * [declairing propTypes for PerformanceCheckItem]
+ * declairing propTypes for PerformanceCheckItem.
+ * 
+ * @author Robert Long
  * @type {Object}
  */
 PerformanceCheckItem.propTypes = {
@@ -107,7 +115,9 @@ PerformanceCheckItem.propTypes = {
 };
 
 /**
- * [initializing scoreToValue with object containing Low Medium High]
+ * initializing scoreToValue with object containing Low Medium High.
+ * 
+ * @author Robert Long
  * @type {Object}
  */
 const scoreToValue = {
@@ -117,7 +127,9 @@ const scoreToValue = {
 };
 
 /**
- * [PerformanceCheckDialog used render view containing Performance scores]
+ * PerformanceCheckDialog used render view containing Performance scores.
+ * 
+ * @author Robert Long
  * @param       {String} scores
  * @param       {any} rest
  * @constructor

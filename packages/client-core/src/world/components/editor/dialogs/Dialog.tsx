@@ -5,6 +5,8 @@ import styled from "styled-components";
 
 /**
  * DialogContainer used as container element for DialogHeader, DialogContent and DialogBottomNav.
+ *
+ * @author Robert Long
  * @type {Styled component}
  */
 const DialogContainer = (styled as any).form`
@@ -21,6 +23,8 @@ const DialogContainer = (styled as any).form`
 
 /**
  * DialogHeader used for providing styles to header text.
+ * 
+ * @author Robert Long
  * @type {Styled component}
  */
 const DialogHeader = (styled as any).div`
@@ -44,6 +48,8 @@ const DialogHeader = (styled as any).div`
 
 /**
  * DialogContent used to provide styles for dialog body content.
+ * 
+ * @author Robert Long
  * @type {Styled component}
  */
 export const DialogContent = (styled as any).div`
@@ -69,7 +75,9 @@ export const DialogContent = (styled as any).div`
 `;
 
 /**
- * DialogBottomNav used to provide styles for bottom nav of Dialog component
+ * DialogBottomNav used to provide styles for bottom nav of Dialog component.
+ * 
+ * @author Robert Long
  * @type {Styled component}
  */
 const DialogBottomNav = (styled as any).div`
@@ -97,7 +105,9 @@ const DialogBottomNav = (styled as any).div`
 `;
 
 /**
- * declairing props for Dialog component
+ * declairing props for Dialog component.
+ * 
+ * @author Robert Long
  * @type {Props}
  */
 interface Props {
@@ -113,6 +123,8 @@ interface Props {
 
 /**
  * Dialog used to render view for Dialog which contains form.
+ * 
+ * @author Robert Long
  * @param  {Props}
  * @constructor
  */
@@ -168,6 +180,8 @@ export default function Dialog(props: Props) {
 }
 /**
  * propTypes declared for Dialog component.
+ * 
+ * @author Robert Long
  * @param {string} tag
  * @param {string} title
  * @param {func} onCancel
@@ -190,6 +204,8 @@ Dialog.propTypes = {
 
 /**
  * defaultProps defined for  Dialog component
+ * 
+ * @author Robert Long
  */
 Dialog.defaultProps = {
   tag: "form",

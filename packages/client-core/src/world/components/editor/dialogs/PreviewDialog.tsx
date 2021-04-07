@@ -4,7 +4,9 @@ import Dialog from "./Dialog";
 import styled from "styled-components";
 
 /**
- * [LeftContent used to provide styles for left div]
+ * LeftContent used to provide styles for left div.
+ * 
+ * @author Robert Long
  * @type {Styled component}
  */
 const LeftContent = (styled as any).div`
@@ -20,7 +22,9 @@ const LeftContent = (styled as any).div`
 `;
 
 /**
- * [RightContent used to provide styles to Right div]
+ * RightContent used to provide styles to Right div.
+ * 
+ * @author Robert Long
  * @type {Styled component}
  */
 const RightContent = (styled as any).div`
@@ -31,7 +35,9 @@ const RightContent = (styled as any).div`
 `;
 
 /**
- * [PreviewDialog provides the dialog containing image on left side and content on right side]
+ * PreviewDialog provides the dialog containing image on left side and content on right side.
+ * 
+ * @author Robert Long
  * @param       {String} imageSrc
  * @param       {node} children [contains component with message content]
  * @param       {any} props
@@ -49,7 +55,9 @@ export default function PreviewDialog({ imageSrc, children, ...props }) {
 }
 
 /**
- * [declairing propTypes for PreviewDialog]
+ * declairing propTypes for PreviewDialog.
+ * 
+ * @author Robert Long
  * @type {Object}
  */
 PreviewDialog.propTypes = {

@@ -3,7 +3,9 @@ import PropTypes from "prop-types";
 import Dialog from "./Dialog";
 
 /**
- * [SupportDialog used to render content for support]
+ * SupportDialog used to render content for support.
+ * 
+ * @author Robert Long
  * @param       {function} onCancel
  * @param       {any} props
  * @constructor
@@ -34,7 +36,9 @@ export default function SupportDialog({ onCancel, ...props }) {
 }
 
 /**
- * [declairing propTypes for SupportDialog]
+ * declairing propTypes for SupportDialog.
+ * 
+ * @author Robert Long
  * @type {Object}
  */
 SupportDialog.propTypes = {
