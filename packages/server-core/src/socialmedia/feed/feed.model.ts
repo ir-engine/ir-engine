@@ -30,6 +30,11 @@ export default function (app: Application): typeof Model {
       type: DataTypes.BOOLEAN,
       allowNull: false,
       defaultValue: false
+    },
+    featuredByAdmin: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false
     }
   }, {
     hooks: {

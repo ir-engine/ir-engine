@@ -83,9 +83,9 @@ export class Feed extends Service {
     if (action === 'featured') {
       const select = `SELECT feed.id, feed.viewsCount, sr.url as previewUrl 
         FROM \`feed\` as feed
-        JOIN \`follow_creator\` as fc ON fc.creatorId=feed.creatorId
+        LEFT JOIN \`follow_creator\` as fc ON fc.creatorId=feed.creatorId
         JOIN \`static_resource\` as sr ON sr.id=feed.previewId`;
-       let where=` WHERE feed.featured=1 `;
+       let where=` WHERE (feed.featured=1 OR feed.featuredByAdmin=1) `;
        const orderBy = ` ORDER BY feed.createdAt DESC    
         LIMIT :skip, :limit `;
       
@@ -95,6 +95,7 @@ export class Feed extends Service {
       }else{
         where += ` AND feed.creatorId=:creatorId`;
       }
+
       const feeds = await this.app.get('sequelizeClient').query(select+where+orderBy,
         {
           type: QueryTypes.SELECT,
