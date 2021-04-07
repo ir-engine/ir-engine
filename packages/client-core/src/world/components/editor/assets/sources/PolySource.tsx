@@ -2,7 +2,9 @@ import ModelMediaSource from "../ModelMediaSource";
 import { TransformPivot } from "@xr3ngine/engine/src/editor/controls/EditorControls";
 
 /**
- * [PolySource component used to provide visual objects using google poly]
+ * PolySource component used to provide visual objects using google poly.
+ * 
+ * @author Robert Long
  * @type {class}
  */
 export default class PolySource extends ModelMediaSource {

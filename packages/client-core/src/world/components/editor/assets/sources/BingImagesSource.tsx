@@ -1,7 +1,9 @@
 import ImageMediaSource from "../ImageMediaSource";
 
 /**
- * [BingImagesSource component provides an explorer where we can seach images using search bar]
+ * BingImagesSource component provides an explorer where we can seach images using search bar.
+ * 
+ * @author Robert Long
  * @type {class component}
  */
 export default class BingImagesSource extends ImageMediaSource {

@@ -3,7 +3,9 @@ import PropTypes from "prop-types";
 import MediaSourcePanel from "./MediaSourcePanel";
 
 /**
- * [ImageSourcePanel used to render source container]
+ * ImageSourcePanel used to render source container.
+ * 
+ * @author Robert Long
  * @param       {any} props
  * @constructor
  */

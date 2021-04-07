@@ -6,9 +6,11 @@ import { EditorContext } from "../contexts/EditorContext";
 import { AllFileTypes } from "./fileTypes";
 
 /**
- * [useUpload used to upload asset file]
+ * useUpload used to upload asset file.
+ * 
+ * @author Robert Long
  * @param  {object} options
- * @return {[type]}         [assets]
+ * @return {any}         [assets]
  */
 export default function useUpload(options: any = {}) {
 

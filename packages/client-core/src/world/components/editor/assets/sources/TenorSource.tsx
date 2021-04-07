@@ -4,7 +4,9 @@ import VideoNode from "@xr3ngine/engine/src/editor/nodes/VideoNode";
 import Api from "../../Api";
 
 /**
- * [TenorSource component used to provide visual objects]
+ * TenorSource component used to provide visual objects.
+ * 
+ * @author Robert Long
  * @type {class component}
  */
 export default class TenorSource extends VideoMediaSource {

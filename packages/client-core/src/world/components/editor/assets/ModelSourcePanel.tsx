@@ -3,7 +3,9 @@ import PropTypes from "prop-types";
 import MediaSourcePanel from "./MediaSourcePanel";
 
 /**
- * [ModelSourcePanel used to render view containg AssetPanelToolbarContent and AssetPanelContentContainer]
+ * ModelSourcePanel used to render view containg AssetPanelToolbarContent and AssetPanelContentContainer.
+ * 
+ * @author Robert Long
  * @param       {any} props
  * @constructor
  */
