@@ -105,4 +105,4 @@ ImageNodeEditor.propTypes = {
 ImageNodeEditor.iconComponent = Image;
 
 //intailising description and will appears on ImageNodeEditor view.
-ImageNodeEditor.description = i18n.t('editor:properties.audio.description');
+ImageNodeEditor.description = i18n.t('editor:properties.image.description');

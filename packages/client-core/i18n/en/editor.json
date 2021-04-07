@@ -263,6 +263,97 @@
             "lbl-color": "Color",
             "lbl-intensity": "Intensity",
             "lbl-range": "Range"
+        },
+        "scene": {
+            "description": "The root object of the scene.",
+            "lbl-bgcolor": "Background Color",
+            "lbl-fogType": "Fog Type",
+            "lbl-fogColor": "Fog Color",
+            "lbl-forNearDistance": "Fog Near Distance",
+            "lbl-fogFarDistance": "Fog Far Distance",
+            "lbl-fogDensity": "Fog Density",
+            "lbl-audioSettings": "Override Audio Settings",
+            "lbl-avatarDistanceModel": "Avatar Distance Model",
+            "lbl-avatarRolloffFactor": "Avatar Rolloff Factor",
+            "lbl-avatarRefDistance": "Avatar Ref Distance",
+            "lbl-avatarMaxDistance": "Avatar Max Distance",
+            "lbl-mediaVolume": "Media Volume",
+            "lbl-mediaDistanceModel": "Media Distance Model",
+            "lbl-mediaRolloffFactor": "Media Rolloff Factor",
+            "lbl-mediaRefDistance": "Media Ref Distance",
+            "lbl-mediaMaxDistance": "Media Max Distance",
+            "lbl-mediaConeInnerAngle": "Media Cone Inner Angle",
+            "lbl-mediaConeOuterAngle": "Media Cone Outer Angle",
+            "lbl-mediaConeOuterGain": "Media Cone Outer Gain",
+            "info-avatarDistanceModel": "The algorithim used to calculate audio rolloff.",
+            "info-avatarRolloffFactor": "A double value describing how quickly the volume is reduced as the source moves away from the listener. 0 to 1",
+            "info-avatarRolloffFactorInifinity": "A double value describing how quickly the volume is reduced as the source moves away from the listener. 0 to Infinity",
+            "info-avatarRefDistance": "A double value representing the reference distance for reducing volume as the audio source moves further from the listener.",
+            "info-avatarMaxDistance": "A double value representing the maximum distance between the audio source and the listener, after which the volume is not reduced any further.",
+            "info-mediaDistanceModel": "The algorithim used to calculate audio rolloff.",
+            "info-mediaRolloffFactor": "A double value describing how quickly the volume is reduced as the source moves away from the listener. 0 to 1",
+            "info-mediaRolloffFactorInfinity": "A double value describing how quickly the volume is reduced as the source moves away from the listener. 0 to Infinity",
+            "info-mediaRefDistance": "A double value representing the reference distance for reducing volume as the audio source moves further from the listener.",
+            "info-mediaMaxDistance": "A double value representing the maximum distance between the audio source and the listener, after which the volume is not reduced any further.",
+            "info-mediaConeInnerAngle": "A double value describing the angle, in degrees, of a cone inside of which there will be no volume reduction.",
+            "info-mediaConeOuterAngle": "A double value describing the angle, in degrees, of a cone outside of which the volume will be reduced by a constant value, defined by the coneOuterGain attribute.",
+            "info-mediaConeOuterGain": "A double value describing the amount of volume reduction outside the cone defined by the coneOuterAngle attribute. Its default value is 0, meaning that no sound can be heard."
+        },
+        "sceneCamera": {
+            "description": "The camera used to generate the thumbnail for your scene and the starting position for the preview camera in Hubs.",
+            "lbl-setFromViewPort": "Set From Viewport"
+        },
+        "skybox": {
+            "description": "",
+            "lbl-timeOfDay": "Time of Day",
+            "lbl-latitude": "Latitude",
+            "lbl-luminance": "Luminance",
+            "lbl-scattering": "Scattering Amount",
+            "lbl-scatteringDistance": "Scattering Distance",
+            "lbl-horizonStart": "Horizon Start",
+            "lbl-horizonEnd": "Horizon End",
+            "lbl-texture": "Texture",
+            "lbl-skyType": "Sky Type"
+        },
+        "spawnPoint": {
+            "description": "A point where people will appear when they enter your scene.\nThe icon in the Viewport represents the actual size of an avatar."
+        },
+        "spotLight": {
+            "description": "A light which emits along a direction, illuminating objects within a cone.",
+            "lbl-color": "Color",
+            "lbl-intensity": "Intensity",
+            "lbl-innerConeAngle": "Inner Cone Angle",
+            "lbl-outerConeAngle": "Outer Cone Angle",
+            "lbl-range": "Range"
+        },
+        "transform": {
+            "title": "Transform",
+            "lbl-postition": "Position",
+            "lbl-rotation": "Rotation",
+            "lbl-scale": "Scale"
+        },
+        "triggereVolume": {
+            "description": "Sets a property on the target object on enter and leave.",
+            "lbl-target": "Target",
+            "lbl-enterComponent": "Enter Component",
+            "lbl-enterProperty": "Enter Property",
+            "lbl-entervalue": "Enter Value",
+            "lbl-leaveComponent": "Leave Component",
+            "lbl-leaveProperty": "Leave Property",
+            "lbl-leaveValue": "Leave Value",
+            "ph-errorNode": "Error missing node.",
+            "ph-selectNode": "Select node...",
+            "ph-selectComponent": "Select component...",
+            "ph-selectProperty": "Select property..."
+        },
+        "video": {
+            "description": "Dynamically loads a video.",
+            "lbl-video": "Video",
+            "lbl-projection": "Projection"
+        },
+        "volumetric": {
+            "description": "Dynamically loads a volumetric video.",
+            "lbl-volumetric": "Volumetric"
         }
     }
 }
