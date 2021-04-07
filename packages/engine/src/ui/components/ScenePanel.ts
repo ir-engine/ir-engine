@@ -14,20 +14,6 @@ class ScenePanel extends Object3D {
         height: 0.5
       });
   
-    //   let video = document.getElementById('video') as HTMLCanvasElement;
-    //   video.play();
-    //   video.addEventListener( 'play', function () {
-        //   this.currentTime = 3;
-    //   } );
-    //   let texture = new VideoTexture( video );
-
-    //   const loader = new TextureLoader();
-    //   loader.load(
-    //       "https://media.nationalgeographic.org/assets/photos/000/181/18167.jpg", (texture) => {
-              
-    // container.set({backgroundTexture: texture});
-    //   });
-  
       container.position.set(0, 0, 0);
       this.add(container);
   
