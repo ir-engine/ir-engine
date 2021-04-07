@@ -18,6 +18,7 @@ import { ProjectDiagram } from "@styled-icons/fa-solid";
 import useUpload from "../assets/useUpload";
 import { AllFileTypes } from "../assets/fileTypes";
 import NodeIssuesIcon from "./NodeIssuesIcon";
+import { useTranslation } from "react-i18next";
 
 /**
  * [uploadOption initializing object containing Properties multiple, accepts]
@@ -775,6 +776,7 @@ export default function HierarchyPanel() {
   const updateNodeHierarchy = useCallback(() => {
     setNodes(Array.from(treeWalker(editor, collapsedNodes)));
   }, [editor, collapsedNodes]);
+  const { t } = useTranslation();
 
   /**
    * [expandNode callback function used to expand node]
@@ -1187,18 +1189,18 @@ export default function HierarchyPanel() {
       </PanelContainer>
       { /* @ts-ignore */ }
       <ContextMenu id="hierarchy-node-menu">
-        <MenuItem onClick={onRenameNode}>Rename</MenuItem>
+        <MenuItem onClick={onRenameNode}>{t('editor:hierarchy.lbl-rename')}</MenuItem>
         <MenuItem onClick={onDuplicateNode}>
-          Duplicate
+        {t('editor:hierarchy.lbl-duplicate')}
           <div>{cmdOrCtrlString + "+ D"}</div>
         </MenuItem>
         <MenuItem onClick={onGroupNodes}>
-          Group
+        {t('editor:hierarchy.lbl-group')}
           <div>{cmdOrCtrlString + "+ G"}</div>
         </MenuItem>
-        <MenuItem onClick={onDeleteNode}>Delete</MenuItem>
-        <MenuItem onClick={onExpandAllNodes}>Expand All</MenuItem>
-        <MenuItem onClick={onCollapseAllNodes}>Collapse All</MenuItem>
+        <MenuItem onClick={onDeleteNode}>{t('editor:hierarchy.lbl-delete')}</MenuItem>
+        <MenuItem onClick={onExpandAllNodes}>{t('editor:hierarchy.lbl-expandAll')}</MenuItem>
+        <MenuItem onClick={onCollapseAllNodes}>{t('editor:hierarchy.lbl-collapseAll')}</MenuItem>
       </ContextMenu>
     </Panel>
   );
