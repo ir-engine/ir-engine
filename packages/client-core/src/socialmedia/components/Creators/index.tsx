@@ -1,3 +1,6 @@
+/**
+ * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
+ */
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import CardMedia from '@material-ui/core/CardMedia';
