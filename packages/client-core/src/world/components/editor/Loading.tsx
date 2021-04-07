@@ -3,8 +3,10 @@ import PropTypes from "prop-types";
 import styled from "styled-components";
 
 /**
- * [StyledLoading provides the styles for loading component]
- * @type {[styled component]}
+ * StyledLoading provides the styles for loading component.
+ * 
+ * @author Robert Long
+ * @type {styled component}
  */
 const StyledLoading = (styled as any).div`
   display: flex;
@@ -21,7 +23,9 @@ const StyledLoading = (styled as any).div`
 `;
 
 /**
- * [loading class used to render loading message]
+ * loading class used to render loading message.
+ * 
+ * @author Robert Long
  * @type {component class}
  */
 export default class Loading extends Component {

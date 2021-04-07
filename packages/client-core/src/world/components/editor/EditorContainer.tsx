@@ -35,6 +35,8 @@ import { fetchAdminLocations, fetchAdminScenes, fetchLocationTypes } from "../..
 /**
  * StyledEditorContainer component is used as root element of new project page.
  * On this page we have an editor to create a new or modifing an existing project.
+ * 
+ * @author Robert Long
  * @type {Styled component}
  */
 const StyledEditorContainer = (styled as any).div`
@@ -48,7 +50,9 @@ const StyledEditorContainer = (styled as any).div`
 
 /**
  * WorkspaceContainer description
- * @type {[type]}
+ * 
+ * @author Robert Long
+ * @type {type}
  */
 const WorkspaceContainer = (styled as any).div`
   display: flex;
@@ -79,7 +83,10 @@ type EditorContainerState = {
   modified: boolean;
 };
 
-
+/**
+ * 
+ * 
+ */
 class EditorContainer extends Component<EditorContainerProps, EditorContainerState> {
   static propTypes = {
     api: PropTypes.object.isRequired,

@@ -2,10 +2,11 @@ import getConfig from 'next/config';
 const { publicRuntimeConfig } = getConfig();
 
 /**
- * [ Read configs from meta tags if available, otherwise use the process.env injected from build.]
- * @param  (Object) [Provides applcation configs]
+ * Read configs from meta tags if available, otherwise use the process.env injected from build.
  *
- * */
+ * @author Robert Long
+ * @param  (Object) Provides applcation configs.
+ */
 const configs = {};
 const get = (configs, key, defaultValue) => {
   if (!(process as any)?.browser) {

@@ -74,7 +74,7 @@ return <section className={styles.feedFormContainer}>
                 <Card className={styles.preCard}>
                     <Typography variant="h2" align="center">
                         <p>Upload Video</p>
-                        <p><BackupIcon onClick={()=>{(videoRef.current as HTMLInputElement).click()}} /></p>
+                        <p><BackupIcon onClick={()=>{(videoRef.current as HTMLInputElement).click();}} /></p>
                         <input required ref={videoRef} type="file" className={styles.displayNone} name="video" onChange={handlePickVideo} placeholder={'Select video'}/>
                     </Typography> 
                 </Card>
