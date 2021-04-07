@@ -19,6 +19,7 @@ import './styles.scss';
 import i18n from 'i18next';
 import translation from '../../i18n/en/translation.json';
 import { initReactI18next } from 'react-i18next';
+import { initI18N } from '@xr3ngine/client-core';
 import { configureStore } from '@xr3ngine/client-core/src/store';
 import { dispatchAlertError } from '@xr3ngine/client-core/src/common/reducers/alert/service';
 import { getDeviceType } from '@xr3ngine/client-core/src/common/reducers/devicedetect/actions';
@@ -36,6 +37,8 @@ i18n.use(initReactI18next).init({
   lng: 'en',
   resources,
 });
+
+initI18N();
 
 interface Props extends AppProps {
   store: Store;
