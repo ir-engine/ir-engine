@@ -10,6 +10,7 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.media.MediaMetadataRetriever;
@@ -25,6 +26,7 @@ import android.util.Log;
 import android.util.TypedValue;
 import android.view.Display;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
@@ -38,6 +40,7 @@ import com.getcapacitor.PluginResult;
 import com.google.ar.core.Pose;
 import com.google.ar.core.RecordingConfig;
 import com.xr3ngine.xr.videocompressor.VideoCompress;
+import com.xr3ngine.xr.watermark.WatermarkManager;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -882,7 +885,6 @@ public class XRPlugin extends Plugin {
         filePath = callbackContext.getString("filePath");
 
 
-
         if (screenRecord != null) {
             callbackContext.error("screenRecord service is running");
         }
@@ -932,8 +934,12 @@ public class XRPlugin extends Plugin {
 
             callbackContext.success(new JSObject().put("result", "success").put("filePath", mediaStorageDir.getPath() + filePath));
 
+            saveImageFromResourceId(R.drawable.watermark,mediaStorageDir.getPath(),"watermark.png");
+
+            //WatermarkManager.addWatermark(mediaStorageDir.getPath() + filePath,mediaStorageDir.getPath()+"/watermark.png",true);
+            //WatermarkManager.trimVideo(mediaStorageDir.getPath() + filePath,0,0,0,2,true);
             //show recored video
-            fragment.showVideo();
+            fragment.showVideo(mediaStorageDir.getPath() + filePath,mediaStorageDir.getPath()+"/watermark.png");
         }else {
             callbackContext.error("no ScreenRecord in process XX");
         }
@@ -1087,5 +1093,21 @@ public class XRPlugin extends Plugin {
         notifyListeners("cameraIntrinsicsReceived", ret);
     }
 
+    private void saveImageFromResourceId(int resourceId,String path,String name) {
+        //TODO Change logo.png in drawable folder for watermark
+        Bitmap bm = BitmapFactory.decodeResource(bridge.getActivity().getResources(), resourceId);
+        String extStorageDirectory = path;//Environment.getExternalStorageDirectory().toString();
+        File file = new File(extStorageDirectory, name);
+        if (!file.exists()) {
+            try {
+                FileOutputStream outStream = new FileOutputStream(file);
+                bm.compress(Bitmap.CompressFormat.PNG, 100, outStream);
+                outStream.flush();
+                outStream.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
 }
