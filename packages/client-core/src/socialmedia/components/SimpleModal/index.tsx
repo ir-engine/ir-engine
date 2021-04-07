@@ -1,5 +1,5 @@
 import React from 'react';
-
+// @ts-ignore
 import styles from './SimpleModal.module.scss';
 import { Dialog, DialogTitle } from '@material-ui/core';
 import CreatorAsTitle from '../CreatorAsTitle';

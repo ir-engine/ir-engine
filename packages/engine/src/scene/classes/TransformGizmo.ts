@@ -32,6 +32,12 @@ export default class TransformGizmo extends Object3D {
   activeControls: any;
   selectedAxis: any;
   hoveredAxis: any;
+  position: any;
+  quaternion: any;
+  rotation: any;
+  visible: boolean;
+  scale: any;
+  rotateOnAxis: any;
   static async load() {
     if (gizmoGltf) {
       return Promise.resolve(gizmoGltf);

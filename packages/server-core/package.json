@@ -33,7 +33,7 @@
     "dev-reinit-db": "cross-env NODE_ENV=development FORCE_DB_REFRESH=true webpack --watch --mode=development",
     "test": "echo \"TODO: no test specified\" && exit 0",
     "localbuild": "yarn build && cross-env LOCAL_BUILD=true yarn start",
-    "lint": "eslint --fix --ext **/*.js **/*.ts",
+    "lint": "eslint --fix --ext \"**/*.js\" \"**/*.ts\"",
     "validate": "yarn run lint && yarn run build && yarn run test",
     "precommit": "no-master-commits -b master,dev",
     "upload-avatar": "node ./scripts/upload-avatar.js",

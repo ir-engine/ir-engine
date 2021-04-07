@@ -21,7 +21,7 @@
     "watch": "cross-env NODE_ENV=development next --port 3001 --hostname 127.0.0.1",
     "validate": "yarn run lint && yarn run test",
     "test": "echo \"TODO: Add Testing to Client\" && exit 0",
-    "lint": "eslint --fix --quiet *.ts **/*.ts **/*.tsx"
+    "lint": "eslint --fix --quiet \"*.ts\" \"**/*.ts\" \"**/*.tsx\""
   },
   "resolutions": {
     "socket.io": "2.4.1",
@@ -110,7 +110,7 @@
     "string-similarity": "^4.0.2",
     "styled-components": "^5.1.1",
     "three": "^0.127.0",
-    "three-mesh-bvh": "^0.2.0",
+    "three-mesh-bvh": "^0.3.7",
     "url-toolkit": "^2.2.0",
     "use-debounce": "^4.0.0",
     "use-http": "^1.0.13",

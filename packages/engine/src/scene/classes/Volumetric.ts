@@ -31,6 +31,8 @@ export default class Volumetric extends AudioSource {
   audioSource: any;
   audioListener: any;
   audio: any;
+  add: any;
+  children: any;
   constructor(audioListener) {
     super(audioListener, "volumetric");
     // @ts-ignore
