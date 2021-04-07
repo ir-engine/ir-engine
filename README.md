@@ -41,7 +41,7 @@ For on OSX / Linux / WSL2 for Windows:
 
 First, make sure you have [NodeJS](https://nodejs.org/) and [npm](https://www.npmjs.com/) installed (and if you are using it, [docker](https://docs.docker.com/)).
 
-1. ####Install your dependencies 
+1. #### Install your dependencies 
     ```
     cd path/to/xr3ngine
     yarn install
