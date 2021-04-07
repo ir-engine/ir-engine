@@ -56,20 +56,24 @@ export const proxiedUrlFor = url => {
   // return `${SERVER_URL}/${url}`;
   return url;
 };
+
 /**
- * [scaledThumbnailUrlFor function component for providing url for scaled thumbnail]
- * @param  {[type]} url    [contains thumbnail url]
- * @param  {[type]} width
- * @param  {[type]} height
- * @return {[type]}        [returns url to get scaled image]
+ * scaledThumbnailUrlFor function component for providing url for scaled thumbnail.
+ * 
+ * @author Robert Long
+ * @param  {any} url    [contains thumbnail url]
+ * @param  {any} width
+ * @param  {any} height
+ * @return {any}        [returns url to get scaled image]
  */
 export const scaledThumbnailUrlFor = (url, width, height) => {
   return `${SERVER_URL}/thumbnail/${serverEncodeURL(url)}?w=${width}&h=${height}`;
 };
 
 /**
- * CommonKnownContentTypes
- * Object containing common content types.
+ * CommonKnownContentTypes object containing common content types.
+ * 
+ * @author Robert Long
  * @type {Object}
  */
 const CommonKnownContentTypes = {
@@ -82,10 +86,13 @@ const CommonKnownContentTypes = {
   mp4: "video/mp4",
   mp3: "audio/mpeg"
 };
+
 /**
- * [guessContentType function to get contentType from url]
- * @param  {[type]} url
- * @return {[type]}     [contentType]
+ * guessContentType function to get contentType from url.
+ * 
+ * @author Robert Long
+ * @param  {any} url
+ * @return {string}     [contentType]
  */
 function guessContentType(url): string {
   const extension = new URL(url).pathname.split(".").pop();
@@ -95,7 +102,9 @@ function guessContentType(url): string {
 
 
  /**
-  * Api class contains functions to perform common functions.
+  * Api class contains functions to perform common operations.
+  * 
+  * @author Robert Long
   */
 export default class Api extends EventEmitter {
   serverURL: string;
@@ -127,7 +136,8 @@ export default class Api extends EventEmitter {
 
   /**
    * function component to check user is valid or not.
-   * @param  {[type]}
+   * 
+   * @author Robert Long
    * @return {Boolean}   [return true if user is valid else return false]
    */
   isAuthenticated(): boolean {
@@ -137,8 +147,10 @@ export default class Api extends EventEmitter {
   }
 
 /**
- * [getToken used to get the token of logined user]
- * @return {[string]}        [returns token string]
+ * getToken used to get the token of logined user.
+ * 
+ * @author Robert Long
+ * @return {string}        [returns token string]
  */
   getToken(): string {
     const token = localStorage.getItem(FEATHERS_STORE_KEY);
@@ -150,8 +162,10 @@ export default class Api extends EventEmitter {
     return token;
   }
 /**
- * [getAccountId used to get accountId using token]
- * @return {[string]}    [returns accountId]
+ * getAccountId used to get accountId using token.
+ * 
+ * @author Robert Long
+ * @return {string}    [returns accountId]
  */
   getAccountId(): string {
     const token = this.getToken();
@@ -159,10 +173,10 @@ export default class Api extends EventEmitter {
   }
 
 /**
- * [getProjects used to get list projects created by user]
- * @param  {[type]}  Promise       [description]
- * @param  {[type]}  authorization [description]
- * @return {Promise}               [description]
+ * getProjects used to get list projects created by user.
+ * 
+ * @author Robert Long
+ * @return {Promise}            
  */
   async getProjects(): Promise<any> {
     const token = this.getToken();
@@ -187,8 +201,11 @@ export default class Api extends EventEmitter {
   }
 
 /**
- * [Function to get project data]
- * @type {[type]}
+ * Function to get project data.
+ * 
+ * @author Robert Long
+ * @param projectId 
+ * @returns 
  */
   async getProject(projectId): Promise<JSON> {
     const token = this.getToken();
@@ -208,11 +225,12 @@ export default class Api extends EventEmitter {
     return json;
   }
 /**
- * [resolveUrl used to request data from specific url
- * if there exist cacheKey cooresponding to request url then return cache key to access data.
- * ]
- * @param  {[string]}  url
- * @param  {[type]}  index
+ * resolveUrl used to request data from specific url.
+ * If there exist cacheKey cooresponding to request url then return cache key to access data.
+ *
+ * @author Robert Long
+ * @param  {any}  url
+ * @param  {any}  index
  * @return {Promise}       [returns response data ]
  */
   async resolveUrl(url, index?): Promise<any> {
@@ -248,7 +266,9 @@ export default class Api extends EventEmitter {
     return request;
   }
  /**
-  * [fetchContentType is used to get the header content type of response using accessibleUrl]
+  * fetchContentType is used to get the header content type of response using accessibleUrl.
+  * 
+  * @author Robert Long
   * @param  {[type]}  accessibleUrl [ url to make the request]
   * @return {Promise}               [wait for the response and return response]
   */
@@ -260,14 +280,15 @@ export default class Api extends EventEmitter {
   }
 
 /**
- * [
  *  getContentType is used to get content type url.
  *  we firstly call resolve url and get response.
  *  if result Contains meta property and if meta contains expected_content_type  then returns true.
  *  we get canonicalUrl url from response call guessContentType to check contentType.
  *  and if in both ways we unable to find contentType type then call a request for headers using fetchContentType.
- * ]
- * @param  {[string]}  url
+ * 
+ * 
+ * @author Robert Long
+ * @param  {any}  url
  * @return {Promise}     [returns the contentType]
  */
   async getContentType(url): Promise<any> {
@@ -284,9 +305,11 @@ export default class Api extends EventEmitter {
   }
 
 /**
- * [resolveMedia provides canonicalUrl absoluteUrl and contentType]
- * @param  {[string]}  url
- * @param  {[type]}  index
+ * resolveMedia provides canonicalUrl absoluteUrl and contentType.
+ * 
+ * @author Robert Long
+ * @param  {any}  url
+ * @param  {any}  index
  * @return {Promise}
  */
   async resolveMedia(url, index): Promise<any> {
@@ -326,20 +349,26 @@ export default class Api extends EventEmitter {
 
     return request;
   }
+
+
   /**
-   * [proxyUrl used to create an accessibleUrl]
-   * @param  {[string]} url [description]
-   * @return {[string]}     url
+   * proxyUrl used to create an accessibleUrl.
+   * 
+   * @author Robert Long
+   * @param  {any} url 
+   * @return {string}     url
    */
   proxyUrl(url): any {
     return proxiedUrlFor(url);
   }
 
 /**
- * [unproxyUrl provides us absoluteUrl by removing corsProxyPrefix]
- * @param  {[string]} baseUrl
- * @param  {[string]} url
- * @return {[string]}         [absoluteUrl]
+ * unproxyUrl provides us absoluteUrl by removing corsProxyPrefix.
+ * 
+ * @author Robert Long
+ * @param  {any} baseUrl
+ * @param  {any} url
+ * @return {any}         [absoluteUrl]
  */
   unproxyUrl(baseUrl, url): any {
       const corsProxyPrefix = `${SERVER_URL}/`;
@@ -362,11 +391,13 @@ export default class Api extends EventEmitter {
   }
 
 /**
- * [searchMedia function to search media on the basis of provided params.]
- * @param  {[type]}  source
- * @param  {[type]}  params
- * @param  {[type]}  cursor
- * @param  {[type]}  signal
+ * searchMedia function to search media on the basis of provided params.
+ * 
+ * @author Robert Long
+ * @param  {any}  source
+ * @param  {any}  params
+ * @param  {any}  cursor
+ * @param  {any}  signal
  * @return {Promise}        [result , nextCursor, suggestions]
  */
   async searchMedia(source, params, cursor, signal): Promise<any> {
@@ -447,13 +478,15 @@ export default class Api extends EventEmitter {
   }
 
 /**
- * [createProject used to create project]
- * @param  {[type]}  scene         [contains the data related to scene]
- * @param  {[type]}  parentSceneId
- * @param  {[type]}  thumbnailBlob [thumbnail data]
- * @param  {[type]}  signal        [used to check if signal is not aborted]
- * @param  {[type]}  showDialog    [shows the message dialog]
- * @param  {[type]}  hideDialog
+ * createProject used to create project.
+ * 
+ * @author Robert Long
+ * @param  {any}  scene         [contains the data related to scene]
+ * @param  {any}  parentSceneId
+ * @param  {any}  thumbnailBlob [thumbnail data]
+ * @param  {any}  signal        [used to check if signal is not aborted]
+ * @param  {any}  showDialog    [shows the message dialog]
+ * @param  {any}  hideDialog
  * @return {Promise}               [response as json]
  */
   async createProject(scene, parentSceneId, thumbnailBlob, signal, showDialog, hideDialog): Promise<any> {
@@ -526,8 +559,10 @@ export default class Api extends EventEmitter {
   }
 
 /**
- * [deleteProject used to delete project using projectId]
- * @param  {[type]}  projectId
+ * deleteProject used to delete project using projectId.
+ * 
+ * @author Robert Long
+ * @param  {any}  projectId
  * @return {Promise}
  */
   async deleteProject(projectId): Promise<any> {
@@ -555,12 +590,14 @@ export default class Api extends EventEmitter {
   }
 
 /**
- * [saveProject used to save changes in existing project]
- * @param  {[type]}  projectId
- * @param  {[type]}  editor
- * @param  {[type]}  signal
- * @param  {[type]}  showDialog [used to show the message dialog]
- * @param  {[type]}  hideDialog
+ * saveProject used to save changes in existing project.
+ * 
+ * @author Robert Long
+ * @param  {any}  projectId
+ * @param  {any}  editor
+ * @param  {any}  signal
+ * @param  {any}  showDialog [used to show the message dialog]
+ * @param  {any}  hideDialog
  * @return {Promise}
  */
   async saveProject(projectId, editor, signal, showDialog, hideDialog): Promise<any> {
@@ -644,7 +681,9 @@ export default class Api extends EventEmitter {
   }
 
 /**
- * [getProjectFile is used to open the scene using Id]
+ * getProjectFile is used to open the scene using Id.
+ * 
+ * @author Robert Long
  */
   async getProjectFile(sceneId): Promise<any> {
     return await this.props.api.getScene(sceneId);
@@ -654,7 +693,9 @@ export default class Api extends EventEmitter {
   }
 
 /**
- * [getScene used to Calling api to get scene data using id]
+ * getScene used to Calling api to get scene data using id.
+ * 
+ * @author Robert Long
  */
   async getScene(sceneId): Promise<JSON> {
     const headers = {
@@ -673,20 +714,24 @@ export default class Api extends EventEmitter {
   }
 
 /**
- * [getSceneUrl used to create url for the scene]
- * @param  {[String]} sceneId
- * @return {[String]}         [url]
+ * getSceneUrl used to create url for the scene.
+ * 
+ * @author Robert Long
+ * @param  {any} sceneId
+ * @return {string}         [url]
  */
   getSceneUrl(sceneId): string {
       return `${APP_URL}/scenes/${sceneId}`;
   }
 
 /**
- * [publishProject is used to publish project, firstly we save the project the publish]
- * @param  {[type]}  project
- * @param  {[type]}  editor
- * @param  {[type]}  showDialog
- * @param  {[type]}  hideDialog
+ * publishProject is used to publish project, firstly we save the project the publish.
+ * 
+ * @author Robert Long
+ * @param  {any}  project
+ * @param  {any}  editor
+ * @param  {any}  showDialog
+ * @param  {any}  hideDialog
  * @return {Promise}            [returns published project data]
  */
   async publishProject(project, editor, showDialog, hideDialog?): Promise<any> {
@@ -969,12 +1014,13 @@ export default class Api extends EventEmitter {
   }
 
 /**
- * [upload used to upload image as blob data]
- * @param  {[type]}  blob
- * @param  {[type]}  onUploadProgress
- * @param  {[type]}  signal
- * @param  {[type]}  projectId
- * @param  {[type]}  port
+ * upload used to upload image as blob data.
+ * 
+ * @author Robert Long
+ * @param  {any}  blob
+ * @param  {any}  onUploadProgress
+ * @param  {any}  signal
+ * @param  {any}  projectId
  * @return {Promise}
  */
   async upload(blob, onUploadProgress, signal?, projectId?): Promise<void> {
@@ -1036,24 +1082,28 @@ export default class Api extends EventEmitter {
     });
   }
  /**
-  * [uploadAssets used to upload asset files ]
-  * @param  {[type]} editor     [contains editor data]
-  * @param  {[type]} files      [files for upload]
-  * @param  {[type]} onProgress
-  * @param  {[type]} signal
-  * @return {[type]}            [uploaded file assets]
+  * uploadAssets used to upload asset files.
+  * 
+  * @author Robert Long
+  * @param  {any} editor     [contains editor data]
+  * @param  {any} files      [files for upload]
+  * @param  {any} onProgress
+  * @param  {any} signal
+  * @return {any}            [uploaded file assets]
   */
   uploadAssets(editor, files, onProgress, signal): any {
     return this._uploadAssets(`${SERVER_URL}/static-resource`, editor, files, onProgress, signal);
   }
 
 /**
- * [_uploadAssets used as api handler for uploadAsset]
- * @param  {[type]}  endpoint
- * @param  {[type]}  editor
- * @param  {[type]}  files
- * @param  {[type]}  onProgress
- * @param  {[type]}  signal
+ * _uploadAssets used as api handler for uploadAsset.
+ * 
+ * @author Robert Long
+ * @param  {any}  endpoint
+ * @param  {any}  editor
+ * @param  {any}  files
+ * @param  {any}  onProgress
+ * @param  {any}  signal
  * @return {Promise}            [assets file data]
  */
   async _uploadAssets(endpoint, editor, files, onProgress, signal): Promise<any> {
@@ -1088,23 +1138,27 @@ export default class Api extends EventEmitter {
   }
 
 /**
- * [uploadAsset used to upload single file as asset]
- * @param {[type]} editor
- * @param {[type]} file
- * @param {[type]} onProgress
- * @param {[type]} signal
+ * uploadAsset used to upload single file as asset.
+ * 
+ * @author Robert Long
+ * @param {any} editor
+ * @param {any} file
+ * @param {any} onProgress
+ * @param {any} signal
  */
   uploadAsset(editor, file, onProgress, signal): any {
     return this._uploadAsset(`${SERVER_URL}/static-resource`, editor, file, onProgress, signal);
   }
 
 /**
- * [uploadProjectAsset used to call _uploadAsset directly]
- * @param {[type]} editor
- * @param {[type]} projectId
- * @param {[type]} file
- * @param {[type]} onProgress
- * @param {[type]} signal
+ * uploadProjectAsset used to call _uploadAsset directly.
+ * 
+ * @author Robert Long
+ * @param {any} editor
+ * @param {any} projectId
+ * @param {any} file
+ * @param {any} onProgress
+ * @param {any} signal
  */
   uploadProjectAsset(editor, projectId, file, onProgress, signal): any {
     return this._uploadAsset(
@@ -1118,12 +1172,14 @@ export default class Api extends EventEmitter {
 
   lastUploadAssetRequest = 0;
 /**
- * [_uploadAsset used as api handler for the uploadAsset]
- * @param  {[type]}  endpoint
- * @param  {[type]}  editor
- * @param  {[type]}  file
- * @param  {[type]}  onProgress
- * @param  {[type]}  signal
+ * _uploadAsset used as api handler for the uploadAsset.
+ * 
+ * @author Robert Long
+ * @param  {any}  endpoint
+ * @param  {any}  editor
+ * @param  {any}  file
+ * @param  {any}  onProgress
+ * @param  {any}  signal
  * @return {Promise}            [uploaded asset file data]
  */
   async _uploadAsset(endpoint, editor, file, onProgress, signal): Promise<any> {
@@ -1190,9 +1246,10 @@ export default class Api extends EventEmitter {
   }
 
 /**
- * [deleteAsset used to delete existing asset using assetId]
- * @param  {[type]}  assetId
- * @param  {[type]}  authorization
+ * deleteAsset used to delete existing asset using assetId.
+ * 
+ * @author Robert Long
+ * @param  {any}  assetId
  * @return {Promise}               [true if deleted successfully else throw error]
  */
   async deleteAsset(assetId): Promise<any> {
@@ -1220,10 +1277,11 @@ export default class Api extends EventEmitter {
   }
 
 /**
- * [deleteProjectAsset used to delete asset for specific project]
- * @param  {[type]}  projectId
- * @param  {[type]}  assetId
- * @param  {[type]}  authorization
+ * deleteProjectAsset used to delete asset for specific project.
+ * 
+ * @author Robert Long
+ * @param  {any}  projectId
+ * @param  {any}  assetId
  * @return {Promise}               [true if deleted successfully else throw error]
  */
   async deleteProjectAsset(projectId, assetId): Promise<any> {
@@ -1251,7 +1309,9 @@ export default class Api extends EventEmitter {
   }
 
 /**
- * [setUserInfo used to save userInfo as localStorage]
+ * setUserInfo used to save userInfo as localStorage.
+ * 
+ * @author Robert Long
  * @param userInfo [Object contains user data]
  */
   setUserInfo(userInfo): void {
@@ -1259,8 +1319,10 @@ export default class Api extends EventEmitter {
   }
 
 /**
- * [getUserInfo used to provide logined user info from localStorage]
- * @return {[Object]}      [User data]
+ * getUserInfo used to provide logined user info from localStorage.
+ * 
+ * @author Robert Long
+ * @return {Object}      [User data]
  */
   getUserInfo(): JSON {
     return JSON.parse(localStorage.getItem("editor-user-info"));
@@ -1271,9 +1333,11 @@ export default class Api extends EventEmitter {
   }
 
 /**
- * [fetchUrl used as common api handler]
- * @param  {[String]}  url
- * @param  {[type]}  options [contains request options]
+ * fetchUrl used as common api handler.
+ * 
+ * @author Robert Long
+ * @param  {any}  url
+ * @param  {any}  options [contains request options]
  * @return {Promise}         [response from api]
  */
   async fetchUrl(url, options: any = {}): Promise<any> {
@@ -1305,7 +1369,9 @@ export default class Api extends EventEmitter {
   }
 
 /**
- * [handleAuthorization used to save credentials in local storage]
+ * handleAuthorization used to save credentials in local storage.
+ * 
+ * @author Robert Long
  */
   handleAuthorization(): void {
     if ((process as any).browser) {
