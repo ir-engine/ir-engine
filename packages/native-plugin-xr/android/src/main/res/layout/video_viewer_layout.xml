@@ -23,13 +23,38 @@
         android:id="@+id/btn_close_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="169dp"
-        android:layout_marginTop="1dp"
-        android:layout_marginEnd="154dp"
+        android:layout_marginTop="2dp"
+        android:layout_marginEnd="38dp"
         android:layout_marginBottom="1dp"
         android:text="Close"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/videoview1" />
+
+    <Button
+        android:id="@+id/btn_share_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="37dp"
+        android:layout_marginTop="2dp"
+        android:layout_marginEnd="36dp"
+        android:layout_marginBottom="1dp"
+        android:text="Share"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/btn_trim_view"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/videoview1" />
+
+    <Button
+        android:id="@+id/btn_trim_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="1dp"
+        android:layout_marginEnd="36dp"
+        android:layout_marginBottom="1dp"
+        android:text="Trim"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/btn_close_view"
+        app:layout_constraintTop_toBottomOf="@+id/videoview1"
+        app:layout_constraintVertical_bias="1.0" />
 </androidx.constraintlayout.widget.ConstraintLayout>

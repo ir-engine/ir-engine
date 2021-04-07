@@ -16,11 +16,8 @@
 
 package com.xr3ngine.xr;
 
-import android.app.Activity;
 import android.app.Fragment;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.media.Image;
 import android.net.Uri;
 import android.opengl.GLSurfaceView;
@@ -30,20 +27,14 @@ import android.os.Environment;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.MediaController;
-import android.widget.PopupMenu;
 import android.widget.PopupWindow;
 import android.widget.Toast;
 import android.widget.VideoView;
-
-import androidx.appcompat.app.AlertDialog;
 
 
 import com.google.ar.core.Anchor;
@@ -76,7 +67,6 @@ import com.xr3ngine.xr.arcore.helpers.CameraPermissionHelper;
 import com.xr3ngine.xr.arcore.helpers.DepthSettings;
 import com.xr3ngine.xr.arcore.helpers.DisplayRotationHelper;
 import com.xr3ngine.xr.arcore.helpers.InstantPlacementSettings;
-import com.xr3ngine.xr.arcore.helpers.TapHelper;
 import com.xr3ngine.xr.arcore.samplerender.Framebuffer;
 import com.xr3ngine.xr.arcore.samplerender.Mesh;
 import com.xr3ngine.xr.arcore.samplerender.SampleRender;
@@ -85,20 +75,24 @@ import com.xr3ngine.xr.arcore.samplerender.Texture;
 import com.xr3ngine.xr.arcore.samplerender.VertexBuffer;
 import com.xr3ngine.xr.arcore.samplerender.arcore.BackgroundRenderer;
 import com.xr3ngine.xr.arcore.samplerender.arcore.PlaneRenderer;
+import com.xr3ngine.xr.watermark.WatermarkManager;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
+
+import static com.arthenica.mobileffmpeg.Config.RETURN_CODE_CANCEL;
+import static com.arthenica.mobileffmpeg.Config.RETURN_CODE_SUCCESS;
 
 /**
  * This is a simple example that shows how to create an augmented reality (AR) application using the
  * ARCore API. The application will display any detected planes and will allow the user to tap on a
  * plane to place a 3D model.
  */
-public class ARActivity extends Fragment implements SampleRender.Renderer {
+public class ARActivity extends Fragment implements SampleRender.Renderer, View.OnClickListener, WatermarkManager.WMStatus
+{
 
     private static final String TAG = ARActivity.class.getSimpleName();
 
@@ -153,6 +147,10 @@ public class ARActivity extends Fragment implements SampleRender.Renderer {
     // Keep track of the last point cloud rendered to avoid updating the VBO if point cloud
     // was not changed.  Do this using the timestamp since we can't compare PointCloud objects.
     private long lastPointCloudTimestamp = 0;
+
+    private String videoFilePath="";
+    private String imgFilePath ="";
+    private String watermarkedFilePath = "";
 
     // Virtual object (ARCore pawn)
     private Mesh virtualObjectMesh;
@@ -666,18 +664,31 @@ public class ARActivity extends Fragment implements SampleRender.Renderer {
     /*
     Pauses the current ARSession and opens a popwindow and play the recorded video
     * */
-    void showVideo()
+    void showVideo(String filePathVideo,String filePathImg)
     {
+        videoFilePath = filePathVideo;
+        imgFilePath = filePathImg;
+
+        String[] tokens = videoFilePath.split("\\.");
+        int ind = (int)(Math.random()*100000);
+        if(tokens.length>1)
+        {
+            watermarkedFilePath= tokens[0]+"_"+ind+"."+tokens[1];
+        }
 
         pauseARSession = true;
         session.pause();
 
         View popupView = LayoutInflater.from(getActivity()).inflate(R.layout.video_viewer_layout, null);
         VideoView videoView = popupView.findViewById(R.id.videoview1);
-        Button button =popupView.findViewById(R.id.btn_close_view);
+        Button btnClose =popupView.findViewById(R.id.btn_close_view);
+        Button btnShare =popupView.findViewById(R.id.btn_share_view);
+        Button btnTrim =popupView.findViewById(R.id.btn_trim_view);
+
+
 
         //Onclicking the close button popwindow will be closed resuming the ARCore session
-        button.setOnClickListener(new View.OnClickListener()
+       /* button.setOnClickListener(new View.OnClickListener()
         {
             @Override
             public void onClick(View v)
@@ -692,7 +703,10 @@ public class ARActivity extends Fragment implements SampleRender.Renderer {
                     e.printStackTrace();
                 }
             }
-        });
+        });*/
+        btnClose.setOnClickListener(this);
+        btnShare.setOnClickListener(this);
+        btnTrim.setOnClickListener(this);
 
         popupWindow = new PopupWindow(popupView, WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.WRAP_CONTENT);
 
@@ -819,4 +833,69 @@ public class ARActivity extends Fragment implements SampleRender.Renderer {
     }
 
 
+    @Override
+    public void onClick(View v)
+    {
+        int id = v.getId();
+
+        if (id == R.id.btn_share_view)
+        {
+            WatermarkManager.wmStatusInterface= this;
+            WatermarkManager.addWatermark(videoFilePath,watermarkedFilePath,imgFilePath,true);
+
+        }
+        else if (id == R.id.btn_trim_view)
+        {
+            WatermarkManager.wmStatusInterface= this;
+            String[] tokens = videoFilePath.split("\\.");
+            int ind = (int)(Math.random()*100000);
+            String trimmedFilePath="";
+            if(tokens.length>1)
+            {
+                trimmedFilePath= tokens[0]+"_t_"+ind+"."+tokens[1];
+            }
+            WatermarkManager.trimVideo(videoFilePath,trimmedFilePath,0,0,0,2,true);
+        }
+        else if (id == R.id.btn_close_view)
+        {
+            popupWindow.dismiss();
+            pauseARSession =false;
+            try
+            {
+                session.resume();
+            } catch (CameraNotAvailableException e)
+            {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    @Override
+    public void watermarkStatus(int code)
+    {
+        if(code == RETURN_CODE_SUCCESS)
+        {
+            // watermark addition succeeded
+            Intent sendIntent = new Intent(Intent.ACTION_SEND);
+            sendIntent.setType("video/mp4");
+            sendIntent.putExtra(Intent.EXTRA_SUBJECT, "Video");
+            sendIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse(watermarkedFilePath));
+            sendIntent.putExtra(Intent.EXTRA_TEXT, "Enjoy the Video");
+            startActivity(Intent.createChooser(sendIntent, "Email:"));
+        }
+        else if(code == RETURN_CODE_CANCEL)
+        {
+            // watermark addition cancelled
+        }
+        else
+        {
+            // watermark addtion failed with code
+        }
+    }
+
+    @Override
+    public void trimStatus(int code)
+    {
+
+    }
 }
