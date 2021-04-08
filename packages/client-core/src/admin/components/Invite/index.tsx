@@ -13,7 +13,7 @@ import SentInvite from "./SentInvite";
 import RecievedInvite from "./RecievedInvite";
 import Button from "@material-ui/core/Button";
 import Search from "../Search";
-import styles from '../Admin.module.scss';
+import * as styles from '../Admin.module.scss';
 import InviteModel from "./InviteModel";
 import {
     fetchUsersAsAdmin,

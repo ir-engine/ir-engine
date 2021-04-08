@@ -21,7 +21,7 @@ import {
   FETCHING_SENT_INVITES
 } from '../actions';
 
-export const initialState = {
+export const initialInviteState = {
   receivedInvites: {
     invites: [],
     skip: 0,
@@ -43,7 +43,7 @@ export const initialState = {
 };
 
 
-const immutableState = Immutable.fromJS(initialState);
+const immutableState = Immutable.fromJS(initialInviteState);
 
 const inviteReducer = (state = immutableState, action: InviteAction): any => {
   let newValues, updateMap;  

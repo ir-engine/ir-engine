@@ -24,7 +24,7 @@ import {
 } from "../reducers/admin/service";
 import { selectAppState } from "../../common/reducers/app/selector";
 import { selectAuthState } from "../../user/reducers/auth/selector";
-import styles from './Admin.module.scss';
+import * as styles from './Admin.module.scss';
 
 interface Props {
     open: boolean;

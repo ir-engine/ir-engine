@@ -1,5 +1,5 @@
 import React from 'react';
-import styles from './toast.module.scss';
+import * as styles from './toast.module.scss';
 
 const Toast = ({
   messages = [],

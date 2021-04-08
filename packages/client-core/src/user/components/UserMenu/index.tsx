@@ -19,7 +19,7 @@ import AvatarSelectMenu from './menus/AvatarSelectMenu';
 import ProfileMenu from './menus/ProfileMenu';
 import SettingMenu from './menus/SettingMenu';
 import ShareMenu from './menus/ShareMenu';
-import styles from './style.module.scss';
+import * as styles from './style.module.scss';
 import { UserMenuProps, Views } from './util';
 
 type StateType = {

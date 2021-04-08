@@ -14,7 +14,7 @@ import PasswordLogin from '../../../user/components/Auth/PasswordLogin';
 import { selectAuthState } from '../../reducers/auth/selector';
 import { addConnectionByOauth, addConnectionByPassword, createMagicLink, loginUserByPassword, removeConnection } from '../../reducers/auth/service';
 import { ConnectionTexts } from './ConnectionTexts';
-import styles from './ProfileConnections.module.scss';
+import * as styles from './ProfileConnections.module.scss';
 
 interface Props {
   auth?: any;

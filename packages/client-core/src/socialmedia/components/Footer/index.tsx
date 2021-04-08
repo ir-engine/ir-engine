@@ -5,7 +5,7 @@ import AddCircleIcon from '@material-ui/icons/AddCircle';
 import HomeIcon from '@material-ui/icons/Home';
 import WhatshotIcon from '@material-ui/icons/Whatshot';
 
-import styles from './Footer.module.scss';
+import * as styles from './Footer.module.scss';
 import Avatar from "@material-ui/core/Avatar";
 import { bindActionCreators, Dispatch } from "redux";
 import { connect } from "react-redux";

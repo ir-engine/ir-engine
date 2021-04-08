@@ -14,7 +14,7 @@ import _ from 'lodash';
 import {GroupUser} from "@xr3ngine/common/interfaces/GroupUser";
 import { LOADED_GROUPS, LOADED_INVITABLE_GROUPS, CREATED_GROUP, PATCHED_GROUP, REMOVED_GROUP, INVITED_GROUP_USER, LEFT_GROUP, FETCHING_GROUPS, FETCHING_INVITABLE_GROUPS, CREATED_GROUP_USER, PATCHED_GROUP_USER, REMOVED_GROUP_USER } from '@xr3ngine/client-core/src/social/reducers/actions';
 
-export const initialState = {
+export const initialGroupState = {
   groups: {
     groups: [],
     total: 0,
@@ -34,7 +34,7 @@ export const initialState = {
   closeDetails: ''
 };
 
-const immutableState = Immutable.fromJS(initialState);
+const immutableState = Immutable.fromJS(initialGroupState);
 
 const groupReducer = (state = immutableState, action: GroupAction): any => {
   let newValues, updateMap, existingGroups, updateMapGroups, updateMapGroupsChild, updateMapGroupUsers, groupUser, updateGroup;

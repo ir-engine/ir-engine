@@ -4,6 +4,7 @@ import commonjs from '@rollup/plugin-commonjs';
 import babel from 'rollup-plugin-babel';
 import { terser } from 'rollup-plugin-terser';
 import livereload from 'rollup-plugin-livereload';
+import sass from 'rollup-plugin-sass';
 
 const isProd = process.env.NODE_ENV === 'production';
 const extensions = ['.js', '.ts', '.tsx'];
@@ -15,6 +16,7 @@ export default {
     format: 'iife',
   },
   plugins: [
+    sass({ output: false}),
     replace({
       'process.env.NODE_ENV': JSON.stringify(isProd ? 'production' : 'development'),
     }),

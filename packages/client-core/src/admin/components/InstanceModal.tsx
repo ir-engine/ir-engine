@@ -23,7 +23,7 @@ import { selectAppState } from '../../common/reducers/app/selector';
 import { client } from '../../feathers';
 import { selectAuthState } from '../../user/reducers/auth/selector';
 import { selectAdminState } from '../reducers/admin/selector';
-import styles from './Admin.module.scss';
+import * as styles from './Admin.module.scss';
 interface Props {
     router: Router,
     open: boolean;

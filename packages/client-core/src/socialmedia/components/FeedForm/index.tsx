@@ -7,7 +7,7 @@ import { Button, Card, CardMedia, TextField, Typography } from '@material-ui/cor
 import CameraIcon from '@material-ui/icons/Camera';
 import BackupIcon from '@material-ui/icons/Backup';
 
-import styles from './FeedForm.module.scss';
+import * as styles from './FeedForm.module.scss';
 import { createFeed, updateFeedAsAdmin } from '../../reducers/feed/service';
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
