@@ -79,6 +79,7 @@ export * from './src/socialmedia/feed/feed.class';
 export * from './src/socialmedia/follow-creator/follow-creator.class';
 export * from './src/socialmedia/notifications/notifications.class';
 export * from './src/socialmedia/seeder-config';
+export * from './src/socialmedia/util/getCreator';
 export * from './src/types/Client';
 export * from './src/types/MediasoupClientTransportOptions';
 export * from './src/types/SctpParameters';
