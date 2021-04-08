@@ -2,7 +2,6 @@ import replace from '@rollup/plugin-replace';
 import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 import babel from 'rollup-plugin-babel';
-import html from '@rollup/plugin-html';
 import scss from 'rollup-plugin-scss';
 import { terser } from 'rollup-plugin-terser';
 import livereload from 'rollup-plugin-livereload';
@@ -14,9 +13,10 @@ const extensions = ['.js', '.ts', '.tsx'];
 export default {
   input: 'index.ts',
   output: {
-    file: 'build/index.js',
-    format: 'iife',
+    dir: './build/index.js',
+    format: 'cjs',
   },
+  inlineDynamicImports: true,
   plugins: [
     scss({
       exlude: /node_modules/,
@@ -56,26 +56,6 @@ export default {
           useESModules: false,
         }],
       ],
-    }),
-    html({
-      fileName: 'index.html',
-      title: 'Rollup + TypeScript + React = ❤️',
-      template: ({ title }) => {
-        return `
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <title>${title}</title>
-  <link rel="stylesheet" href="index.css">
-</head>
-<body>
-  <div id="app"></div>
-  <script src="index.js"></script>
-</body>
-</html>
-`;
-      },
     }),
     (isProd && terser()),
     (!isProd && livereload({
