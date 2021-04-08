@@ -1,12 +1,12 @@
-export function getComponents(object) {
+export function getObjectComponents(object) {
   return (
     object.userData.gltfExtensions &&
     object.userData.gltfExtensions.componentData &&
     object.userData.gltfExtensions.componentData
   );
 }
-export function getComponent(object, componentName) {
-  const components = getComponents(object);
+export function getObjectComponent(object, componentName) {
+  const components = getObjectComponents(object);
   return components && components[componentName];
 }
 export function getGLTFComponents(gltfDef) {

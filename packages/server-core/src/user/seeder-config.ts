@@ -1,24 +1,12 @@
-import UserRoleSeed from './user-role/user-role.seed';
-import User  from './user/user.seed';
-import UserRelationshipTypeSeed from './user-relationship-type/user-relationship-type.seed';
+import { userRoleSeed } from './user-role/user-role.seed';
+import { userSeed } from './user/user.seed';
+import { userRelationshipTypeSeed } from './user-relationship-type/user-relationship-type.seed';
+import { ServicesSeedConfig } from '../../../common/interfaces/ServicesSeedConfig';
 
-type SeedCallback = (ServicesSeedConfig) => Promise<any>;
-type ServicesSeedCallback = (obj: any, seed: SeedCallback) => Promise<any>;
+export const userSeeds: Array<ServicesSeedConfig> = [
+  userRoleSeed,
+  userRelationshipTypeSeed,
+  userSeed
+];
 
-interface ServicesSeedConfig {
-    count?: number;
-    disabled: boolean;
-    delete: boolean;
-    path: string;
-    randomize?: boolean;
-    templates?: any[];
-    callback?: ServicesSeedCallback;
-}
-
-export const services: Array<ServicesSeedConfig> = [
-  UserRoleSeed,
-  UserRelationshipTypeSeed,
-    User
-  ];
-
-export default services;
+export default userSeeds;

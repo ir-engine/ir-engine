@@ -241,7 +241,7 @@ export class GlitchEffect extends Effect {
 
   generatePerturbationMap (size = 64) {
     const map = new NoiseTexture(size, size, RGBFormat);
-    map.name = tag;
+    (map as any).name = tag;
 
     return map;
   }

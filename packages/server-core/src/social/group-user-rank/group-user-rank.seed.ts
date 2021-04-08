@@ -1,6 +1,6 @@
 import config from '../../appconfig';
 
-export const seed = {
+export const groupUserRankSeed = {
   disabled: !config.db.forceRefresh,
   delete: config.db.forceRefresh,
   path: 'group-user-rank',
@@ -12,5 +12,3 @@ export const seed = {
           { rank: 'user' }
         ]
 };
-
-export default seed;

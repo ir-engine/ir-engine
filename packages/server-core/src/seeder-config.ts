@@ -1,34 +1,23 @@
 
-import EntitySeeds from './entities/seeder-config';
-import MediaSeeds from './media/seeder-config';
-import NetworkingSeeds from './networking/seeder-config';
-import PaymentSeeds from './payments/seeder-config';
-import SocialSeeds from './social/seeder-config';
-import SocialMediaSeeds from './socialmedia/seeder-config';
-import UserSeeds from './user/seeder-config';
-import WorldSeeds from './world/seeder-config';
-type SeedCallback = (ServicesSeedConfig) => Promise<any>;
-type ServicesSeedCallback = (obj: any, seed: SeedCallback) => Promise<any>;
-
-interface ServicesSeedConfig {
-    count?: number;
-    disabled: boolean;
-    delete: boolean;
-    path: string;
-    randomize?: boolean;
-    templates?: any[];
-    callback?: ServicesSeedCallback;
-}
+import { ServicesSeedConfig } from '../../common/interfaces/ServicesSeedConfig';
+import { entitySeeds } from './entities/seeder-config';
+import { mediaSeeds } from './media/seeder-config';
+import { networkingSeeds } from './networking/seeder-config';
+import { paymentSeeds } from './payments/seeder-config';
+import { socialSeeds } from './social/seeder-config';
+import { socialMediaSeeds } from './socialmedia/seeder-config';
+import { userSeeds } from './user/seeder-config';
+import { worldSeeds } from './world/seeder-config';
 
 export const seeds: Array<ServicesSeedConfig> = [
-    ...EntitySeeds,
-    ...MediaSeeds,
-    ...NetworkingSeeds,
-    ...PaymentSeeds,
-    ...SocialSeeds,
-    ...SocialMediaSeeds,
-    ...UserSeeds,
-    ...WorldSeeds
+    ...entitySeeds,
+    ...mediaSeeds,
+    ...networkingSeeds,
+    ...paymentSeeds,
+    ...socialSeeds,
+    ...socialMediaSeeds,
+    ...userSeeds,
+    ...worldSeeds
   ];
 
 export default seeds;
