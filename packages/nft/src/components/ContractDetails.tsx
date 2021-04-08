@@ -1,5 +1,5 @@
-import { useStateContext } from '../state'
-import { ContractPropsDetails } from '../types'
+import { useStateContext } from '../state';
+import { ContractPropsDetails } from '../types';
 
 export type ContractDetailsProps = {
   //
@@ -8,7 +8,7 @@ export type ContractDetailsProps = {
 const ContractDetails = () => {
   const {
     state: { contract },
-  } = useStateContext()
+  } = useStateContext();
   return (
     <div>
       <h1>NFT Contract Details</h1>
@@ -20,7 +20,7 @@ const ContractDetails = () => {
           </p>
         ))}
     </div>
-  )
-}
+  );
+};
 
-export default ContractDetails
+export default ContractDetails;

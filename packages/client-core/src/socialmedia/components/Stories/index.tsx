@@ -1,9 +1,9 @@
 import React, { useState, useRef, useEffect } from "react";
 import { StoryItem } from "./StoryItem";
-import { Box } from "./Box";
-import { ArrowButton} from "./ArrowButton";
+import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
+import ArrowForwardIosIcon from '@material-ui/icons/ArrowForwardIos';
 
-import styles from './styles/Stories.module.scss';
+import styles from './Stories.module.scss';
 
 export function Stories({
   stories
@@ -31,16 +31,13 @@ export function Stories({
   };
 
   return (
-    <Box className={styles.storiesContainer}>
+    <section className={styles.storiesContainer}>
       <div
         className={styles.storiesFeed}
         ref={windowRef}
       >
         {x !== 0 && (
-          <ArrowButton
-            place="left"
-            text="<"
-            onClick={() => calculateTransform(x + 320)}
+          <ArrowBackIosIcon className={styles.backIcon} onClick={() => calculateTransform(x + 320)}
           />
         )}
         <div
@@ -52,14 +49,8 @@ export function Stories({
               return <StoryItem data={item} key={item.username} />;
             })}
         </div>
-        {x !== min_X && stories?.length > maxItems && (
-          <ArrowButton
-            place="right"
-            text=">"
-            onClick={() => calculateTransform(x - 320)}
-          />          
-        )}
+        {x !== min_X && stories?.length > maxItems && <ArrowForwardIosIcon className={styles.forwardIcon} onClick={() => calculateTransform(x - 320)} /> }
       </div>
-    </Box>
+    </section>
   );
 }
