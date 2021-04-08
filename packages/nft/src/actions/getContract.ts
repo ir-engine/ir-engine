@@ -1,23 +1,23 @@
-import { ActionProps } from '.'
+import { ActionProps } from '.';
 // import XR3 from '../../contracts/XR3.json'
-import { Contract } from 'ethers'
-import { ActionType } from '../reducer'
+import { Contract } from 'ethers';
+import { ActionType } from '../reducer';
 
 type Props = ActionProps<{
   chainId: number
 }>
 
 const getContract = async ({ dispatch, library, chainId }: Props) => {
-  if (!library) throw new Error('No Web3 Found')
+  if (!library) throw new Error('No Web3 Found');
 
   const networkid = (id: number) => {
     switch (id) {
       case 1337:
-        return 5777
+        return 5777;
       default:
-        return id
+        return id;
     }
-  }
+  };
 
   // try {
   //   const deployedNetwork = XR3.networks[String(networkid(chainId)) as keyof typeof XR3.networks]
@@ -49,6 +49,6 @@ const getContract = async ({ dispatch, library, chainId }: Props) => {
   //   console.log(e)
   //   throw new Error(e)
   // }
-}
+};
 
-export default getContract
+export default getContract;

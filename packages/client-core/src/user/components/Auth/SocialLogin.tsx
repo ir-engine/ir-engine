@@ -10,6 +10,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 import styles from './Auth.module.scss';
 import { loginUserByOAuth } from '@xr3ngine/client-core/src/user/reducers/auth/service';
+import { useTranslation } from "react-i18next";
 
 const mapStateToProps = (state: any): any => {
   return {};
@@ -38,6 +39,7 @@ const SocialLogin = (props: Props): any => {
     enableTwitterSocial,
     loginUserByOAuth
   } = props;
+  const { t } = useTranslation();
 
   const handleGithubLogin = (e: any): void => {
     e.preventDefault();
@@ -73,7 +75,7 @@ const SocialLogin = (props: Props): any => {
         className={styles.github}
         fullWidth={true}
       >
-        Login with GitHub
+        {t('user:auth.social.gitHub')}
       </Button>
     </Grid>
   ) : (
@@ -87,7 +89,7 @@ const SocialLogin = (props: Props): any => {
         className={styles.google}
         fullWidth={true}
       >
-        Login with Google
+        {t('user:auth.social.google')}
       </Button>
     </Grid>
   ) : (
@@ -102,7 +104,7 @@ const SocialLogin = (props: Props): any => {
         className={styles.facebook}
         fullWidth={true}
       >
-        Login with Facebook
+        {t('user:auth.social.facebook')}
       </Button>
     </Grid>
   ) : (
@@ -118,7 +120,7 @@ const SocialLogin = (props: Props): any => {
         className={styles.facebook}
         fullWidth={true}
       >
-        Login with Linkedin
+        {t('user:auth.social.linkedin')}
       </Button>
     </Grid>
   ) : (
@@ -134,7 +136,7 @@ const SocialLogin = (props: Props): any => {
         className={styles.facebook}
         fullWidth={true}
       >
-        Login with Twitter
+        {t('user:auth.social.twitter')}
       </Button>
     </Grid>
   ) : (

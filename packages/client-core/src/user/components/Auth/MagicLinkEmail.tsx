@@ -14,6 +14,7 @@ import styles from './Auth.module.scss';
 import { User } from '@xr3ngine/common/interfaces/User';
 import { createMagicLink, addConnectionBySms, addConnectionByEmail } from '@xr3ngine/client-core/src/user/reducers/auth/service';
 import { selectAuthState } from '@xr3ngine/client-core/src/user/reducers/auth/selector';
+import { Trans, useTranslation } from "react-i18next";
 
 const config = getConfig().publicRuntimeConfig.staticPages;
 const authConfig = getConfig().publicRuntimeConfig.auth;
@@ -52,6 +53,7 @@ const termsOfService = (config?.termsOfService) ?? '/terms-of-service';
 const MagicLinkEmail = (props: Props): any => {
   const { auth, type, isAddConnection, createMagicLink, addConnectionBySms, addConnectionByEmail } = props;
   const [state, setState] = useState(defaultState);
+  const { t } = useTranslation();
 
   const handleInput = (e: any): any => {
     setState({ ...state, [e.target.name]: e.target.value });
@@ -83,19 +85,16 @@ const MagicLinkEmail = (props: Props): any => {
   useEffect(() => {
     // Pass in a type
     if (type === 'email') {
-      descr =
-        "Please enter your email address and we'll send you a login link via Email.";
-      label = 'Email address';
+      descr = t('user:auth.magiklink.descriptionEmail');
+      label = t('user:auth.magiklink.lbl-email');
       return;
     } else if (type === 'sms') {
-      descr =
-        "Please enter your phone number and we'll send you a login link via SMS.";
-      label = 'Phone number';
+      descr = t('user:auth.magiklink.descriptionSMS');
+      label = t('user:auth.magiklink.lbl-phone');
       return;
     } else if (!authConfig) {
-      descr =
-        "Please enter your email address and we'll send you a login link via Email. ";
-      label = 'Email address';
+      descr = t('user:auth.magiklink.descriptionEmail');
+      label = t('user:auth.magiklink.lbl-email');
       return;
     }
     // Auth config is using Sms and Email, so handle both
@@ -104,17 +103,14 @@ const MagicLinkEmail = (props: Props): any => {
       authConfig.enableEmailMagicLink &&
       !type
     ) {
-      descr =
-        "Please enter your email address or phone number (10 digit, US only) and we'll send you a login link via Email or SMS.";
-      label = 'Email or Phone number';
+      descr = t('user:auth.magiklink.descriptionEmailSMS');
+      label = t('user:auth.magiklink.lbl-emailPhone');
     } else if (authConfig.enableSmsMagicLink) {
-      descr =
-        "Please enter your phone number (10 digit, US only) and we'll send you a login link via SMS.";
-      label = 'Phone number';
+      descr = t('user:auth.magiklink.descriptionSMSUS');
+      label = t('user:auth.magiklink.lbl-phone');
     } else {
-      descr =
-        "Please enter your email address and we'll send you a login link via Email. ";
-      label = 'Email address';
+      descr = t('user:auth.magiklink.descriptionEmail');
+      label = t('user:auth.magiklink.lbl-email');
     }
 
     setState({ ...state, label: label, descr: descr });
@@ -124,7 +120,7 @@ const MagicLinkEmail = (props: Props): any => {
     <Container component="main" maxWidth="xs">
       <div>
         <Typography component="h1" variant="h5">
-          Login Link
+          {t('user:auth.magiklink.header')}
         </Typography>
 
         <Typography variant="body2" color="textSecondary" align="center">
@@ -159,9 +155,9 @@ const MagicLinkEmail = (props: Props): any => {
                 }
                 label={
                   <div className={styles.termsLink}>
-                    I agree to the{' '}
+                    {t('user:auth.magiklink.agree')}
                     <NextLink href={termsOfService} >
-                      Terms &amp; Conditions
+                      {t('user:auth.magiklink.terms')}
                     </NextLink>
                   </div>
                 }
@@ -176,7 +172,7 @@ const MagicLinkEmail = (props: Props): any => {
                 className={styles.submit}
                 disabled={!state.isAgreedTermsOfService}
               >
-                Send Login Link
+                {t('user:auth.magiklink.lbl-submit')}
               </Button>
             </Grid>
           </Grid>

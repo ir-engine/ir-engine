@@ -1,6 +1,6 @@
-import { toSvg } from 'jdenticon'
-import { useStateContext } from '../state'
-import { useHistory } from 'react-router'
+import { toSvg } from 'jdenticon';
+import { useStateContext } from '../state';
+import { useHistory } from 'react-router';
 
 export type UserMenuProps = {
   //
@@ -9,9 +9,9 @@ export type UserMenuProps = {
 const UserMenu = () => {
   const {
     state: { user, isAuthenticated },
-  } = useStateContext()
+  } = useStateContext();
 
-  const history = useHistory()
+  const history = useHistory();
 
   return (
     <div>
@@ -22,14 +22,15 @@ const UserMenu = () => {
           </h5>
           <div
             onClick={() => {
-              history.push('/profile')
+              history.push('/profile');
             }}
+            // eslint-disable-next-line react/no-danger
             dangerouslySetInnerHTML={{ __html: toSvg(user.address, 30) }}
           />
         </>
       )}
     </div>
-  )
-}
+  );
+};
 
-export default UserMenu
+export default UserMenu;
