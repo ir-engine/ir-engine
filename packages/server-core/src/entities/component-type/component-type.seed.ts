@@ -1,6 +1,6 @@
 import config from '../../appconfig';
 
-export const seed = {
+export const componentTypeSeed = {
   disabled: !config.db.forceRefresh,
   delete: config.db.forceRefresh,
   path: 'component-type',
@@ -59,5 +59,3 @@ export const seed = {
         { type: 'grid' }
       ]
 };
-
-export default seed;

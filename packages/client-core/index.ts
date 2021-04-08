@@ -302,6 +302,7 @@ export { default as srcTerminalComponentsPlugin } from './src/terminal/component
 export { default as srcTerminalComponentsTabsIndex } from './src/terminal/components/Tabs/index';
 export { default as srcTerminalComponentsTerminalIndex } from './src/terminal/components/Terminal/index';
 export { default as srcTerminalIndex } from './src/terminal/index';
+export { default as srcTheme } from './theme';
 export { default as srcUserComponentsAuthConfirmEmail } from './src/user/components/Auth/ConfirmEmail';
 export { default as srcUserComponentsAuthConfirmEmailApp } from './src/user/components/Auth/ConfirmEmailApp';
 export { default as srcUserComponentsAuthForgotPassword } from './src/user/components/Auth/ForgotPassword';
@@ -462,4 +463,3 @@ export { default as srcWorldComponentsEditorViewportViewportPanelContainer } fro
 export { default as srcWorldComponentsNamePlateIndex } from './src/world/components/NamePlate/index';
 export { default as srcWorldReducersIndex } from './src/world/reducers/index';
 export { default as srcWorldReducersScenesReducers } from './src/world/reducers/scenes/reducers';
-export { default as theme } from './theme';

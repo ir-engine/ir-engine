@@ -1,6 +1,6 @@
 import config from '../../appconfig';
-import CollectionSeed from '../collection/collection.seed';
-export const seed = {
+import { collectionSeed } from '../collection/collection.seed';
+export const entitySeed = {
   disabled: !config.db.forceRefresh,
   delete: config.db.forceRefresh,
   path: 'entity',
@@ -14,7 +14,7 @@ export const seed = {
       index: null,
       createdAt: "2020-11-12 13:14:45",
       updatedAt: "2020-11-12 13:14:45",
-      collectionId: CollectionSeed.templates.find(template => template.id === "d4457fc0-24e4-11eb-bc2e-e7e742fb069f").id
+      collectionId: collectionSeed.templates.find(template => template.id === "d4457fc0-24e4-11eb-bc2e-e7e742fb069f").id
     },
     {
       id: "08c8a843-24e9-11eb-bc2e-e7e742fb069f",
@@ -24,7 +24,7 @@ export const seed = {
       index: 2,
       createdAt: "2020-11-12 13:14:45",
       updatedAt: "2020-11-12 13:14:45",
-      collectionId: CollectionSeed.templates.find(template => template.id === "d4457fc0-24e4-11eb-bc2e-e7e742fb069f").id
+      collectionId: collectionSeed.templates.find(template => template.id === "d4457fc0-24e4-11eb-bc2e-e7e742fb069f").id
     },
     {
       id: "08c8a846-24e9-11eb-bc2e-e7e742fb069f",
@@ -34,7 +34,7 @@ export const seed = {
       index: 5,
       createdAt: "2020-11-12 13:14:45",
       updatedAt: "2020-11-12 13:14:45",
-      collectionId: CollectionSeed.templates.find(template => template.id === "d4457fc0-24e4-11eb-bc2e-e7e742fb069f").id
+      collectionId: collectionSeed.templates.find(template => template.id === "d4457fc0-24e4-11eb-bc2e-e7e742fb069f").id
     },
     {
       id: "1B698482-C15A-4CEC-9247-03873520DF70",
@@ -44,7 +44,7 @@ export const seed = {
       index: 5,
       createdAt: "2020-11-12 13:14:45",
       updatedAt: "2020-11-12 13:14:45",
-      collectionId: CollectionSeed.templates.find(template => template.id === "d4457fc0-24e4-11eb-bc2e-e7e742fb069f").id
+      collectionId: collectionSeed.templates.find(template => template.id === "d4457fc0-24e4-11eb-bc2e-e7e742fb069f").id
     },
     {
       id: "1B698483-C15A-4CEC-9247-03873520DF70",
@@ -54,7 +54,7 @@ export const seed = {
       index: 6,
       createdAt: "2020-11-12 13:14:45",
       updatedAt: "2020-11-12 13:14:45",
-      collectionId: CollectionSeed.templates.find(template => template.id === "d4457fc0-24e4-11eb-bc2e-e7e742fb069f").id
+      collectionId: collectionSeed.templates.find(template => template.id === "d4457fc0-24e4-11eb-bc2e-e7e742fb069f").id
     },
     {
       id: "1B698484-C15A-4CEC-9247-03873520DF70",
@@ -64,9 +64,7 @@ export const seed = {
       index: 7,
       createdAt: "2020-11-12 13:14:45",
       updatedAt: "2020-11-12 13:14:45",
-      collectionId: CollectionSeed.templates.find(template => template.id === "d4457fc0-24e4-11eb-bc2e-e7e742fb069f").id
+      collectionId: collectionSeed.templates.find(template => template.id === "d4457fc0-24e4-11eb-bc2e-e7e742fb069f").id
     }
   ]
 };
-
-export default seed;

@@ -1,4 +1,5 @@
 import { ParticleMesh, ParticleMeshMaterial, particleMeshOptions, ParticleGeometry } from "../interfaces";
+
 import { DataTexture, RGBFormat, TextureLoader, NormalBlending, InstancedBufferGeometry, BufferGeometry, ShaderLib, UniformsUtils, ShaderMaterial, Mesh, Points, InstancedBufferAttribute, Float32BufferAttribute, Matrix4, Texture } from "three";
 // import { RGBFormat } from "three"
 // import { DataTexture } from "three"
@@ -196,7 +197,7 @@ export function updateGeometry(geometry: ParticleGeometry, config: particleMeshO
  * @param material Material to be updated.
  * @param config Config which will be applied on material.
  */
-export function updateMaterial(material: ParticleMeshMaterial, config: particleMeshOptions): void {
+export function updateMaterial(material: any, config: particleMeshOptions): void {
   updateOriginalMaterialUniforms(material);
 
   material.uniforms.textureAtlas.value[0] = 0; // 0,0 unpacked uvs

@@ -1,12 +1,9 @@
 import { Types } from "../../ecs//types/Types";
 import { Component } from "../../ecs/classes/Component";
-import { SystemStateComponent } from "../../ecs/classes/SystemStateComponent";
-import { FrameStyle, ParticleEmitterInterface } from "../interfaces";
 import { ParticleEmitterMesh } from "../functions/ParticleEmitterMesh";
-import { Vector3, Color, Mesh } from 'three';
 
 /** Class component for particle emitter. */
-export class ParticleEmitter extends Component<ParticleEmitter> {
+export class ParticleEmitterComponent extends Component<ParticleEmitterComponent> {
   particleEmitterMesh: ParticleEmitterMesh
   // particleMesh: Mesh
   // src: string;
@@ -45,8 +42,8 @@ export class ParticleEmitter extends Component<ParticleEmitter> {
   // colors: any[];
 }
 
-ParticleEmitter._schema = {
-  ...ParticleEmitter._schema,
+ParticleEmitterComponent._schema = {
+  ...ParticleEmitterComponent._schema,
   particleEmitterMesh: { type: Types.Ref, default: null },
   // particleMesh: { type: Types.Ref, default: new Mesh() },
   // src: { type: Types.String, default: null },

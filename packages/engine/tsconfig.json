@@ -14,6 +14,6 @@
     "noImplicitThis": true,
     "skipLibCheck": true
   },
-  "include": ["src/**/*", "../client-core/src/ml", "../gameserver/src/transports/WebRtcTransportParams.ts", "../client-core/transports/SocketWebRTCClientFunctions.ts", "../client-core/transports/SocketWebRTCClientTransport.ts"],
+  "include": ["src/**/*.ts", "src/**/*.tsx"],
   "exclude": ["node_modules", "dist", "tsconfig.json"]
 }

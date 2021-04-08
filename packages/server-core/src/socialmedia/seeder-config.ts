@@ -1,17 +1,6 @@
-type SeedCallback = (ServicesSeedConfig) => Promise<any>;
-type ServicesSeedCallback = (obj: any, seed: SeedCallback) => Promise<any>;
+import { ServicesSeedConfig } from "../../../common/interfaces/ServicesSeedConfig";
 
-interface ServicesSeedConfig {
-    count?: number;
-    disabled: boolean;
-    delete: boolean;
-    path: string;
-    randomize?: boolean;
-    templates?: any[];
-    callback?: ServicesSeedCallback;
-}
-
-export const services: Array<ServicesSeedConfig> = [
+export const socialMediaSeeds: Array<ServicesSeedConfig> = [
   ];
 
-export default services;
+export default socialMediaSeeds;
