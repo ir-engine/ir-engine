@@ -33,6 +33,8 @@ export class Feed extends Service {
     const skip = params.query?.$skip ? params.query.$skip : 0;
     const limit = params.query?.$limit ? params.query.$limit : 100;
 
+    console.log('action', action);
+
     const queryParamsReplacements = {
       skip,
       limit,
@@ -71,6 +73,31 @@ export class Feed extends Service {
     const loggedInUser = extractLoggedInUserFromParams(params);
     const creatorId =  params.query?.creatorId ? params.query.creatorId : await getCreatorByUserId(loggedInUser?.userId, this.app.get('sequelizeClient'));
   
+
+    //Featured  menu item for Guest
+    if (action === 'featuredGuest') {
+      const select = `SELECT feed.id, feed.viewsCount, sr.url as previewUrl 
+        FROM \`feed\` as feed
+        LEFT JOIN \`follow_creator\` as fc ON fc.creatorId=feed.creatorId
+        JOIN \`static_resource\` as sr ON sr.id=feed.previewId`;
+       let where=` WHERE (feed.featured=1 OR feed.featuredByAdmin=1) `;
+       const orderBy = ` ORDER BY feed.createdAt DESC    
+        LIMIT :skip, :limit `;
+
+      const feeds = await this.app.get('sequelizeClient').query(select+where+orderBy,
+        {
+          type: QueryTypes.SELECT,
+          raw: true,
+          replacements: queryParamsReplacements
+        });
+
+      return {
+        data: feeds,
+        skip,
+        limit,
+        total: feeds.count,
+      };
+    }
     //Featured menu item
     if (action === 'featured') {
       const select = `SELECT feed.id, feed.viewsCount, sr.url as previewUrl 
@@ -173,6 +200,61 @@ export class Feed extends Service {
         limit,
         total: feeds.count,
       };
+    }
+
+    if(action === 'theFeedGuest'){
+      let select = `SELECT feed.*, creator.id as creatorId, creator.name as creatorName, creator.username as creatorUserName, creator.verified as creatorVerified, 
+      sr3.url as avatar, COUNT(ff.id) as fires, sr1.url as videoUrl, sr2.url as previewUrl `;
+      const from = ` FROM \`feed\` as feed`;
+      let join = ` JOIN \`creator\` as creator ON creator.id=feed.creatorId
+                    LEFT JOIN \`feed_fires\` as ff ON ff.feedId=feed.id 
+                    JOIN \`static_resource\` as sr1 ON sr1.id=feed.videoId
+                    JOIN \`static_resource\` as sr2 ON sr2.id=feed.previewId
+                    LEFT JOIN \`static_resource\` as sr3 ON sr3.id=creator.avatarId
+                    `;
+      const where = ` WHERE 1`;
+      const order = ` GROUP BY feed.id
+      ORDER BY feed.createdAt DESC    
+      LIMIT :skip, :limit `;
+
+      const dataQuery = select + from + join + where + order;
+      const feeds = await this.app.get('sequelizeClient').query(dataQuery,
+        {
+          type: QueryTypes.SELECT,
+          raw: true,
+          replacements: queryParamsReplacements
+        });
+
+      const data = feeds.map(feed => {
+        const newFeed: FeedInterface = {
+          creator: {
+            id:feed.creatorId,
+            avatar: feed.avatar,
+            name: feed.creatorName,
+            username: feed.creatorUserName,
+            verified : !!+feed.creatorVerified,
+          },
+          description: feed.description,
+          fires: feed.fires,
+          isFired: false,
+          isBookmarked: false,
+          id: feed.id,
+          videoUrl: feed.videoUrl,
+          previewUrl: feed.previewUrl,
+          title: feed.title,
+          viewsCount: feed.viewsCount
+        };
+        return newFeed;
+      });
+
+    const feedsResult = {
+      data,
+      skip: skip,
+      limit: limit,
+      total: feeds.length,
+    };
+
+    return feedsResult;
     }
 
     // TheFeed menu item - just for followed creatos!!!!!

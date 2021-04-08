@@ -24,10 +24,10 @@ export function getFeeds(type: string, id?: string, limit?: number) {
     try {
       dispatch(fetchingFeeds());
       const feedsResults = [];
-      if (type && type === 'featured') {
+      if (type && (type === 'featured' || type === 'featuredGuest')) {
         const feedsResults = await client.service('feed').find({
           query: {
-            action: 'featured'
+            action: type
           }
         });
         dispatch(feedsFeaturedRetrieved(feedsResults.data));
@@ -63,8 +63,7 @@ export function getFeeds(type: string, id?: string, limit?: number) {
         });
         dispatch(feedsAdminRetrieved(feedsResults.data));
       } else {
-        const feedsResults = await client.service('feed').find({ query: {} });
-
+        const feedsResults = await client.service('feed').find({ query: {action: type || ''} });
         dispatch(feedsRetrieved(feedsResults.data));
       }
     } catch (err) {
