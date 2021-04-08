@@ -4,6 +4,9 @@ import PropTypes from "prop-types";
 import Select from "react-select";
 import CreatableSelect from "react-select/creatable";
 
+/**
+ * @author Robert Long
+ */
 const staticStyle = {
   container: base => ({
     ...base,
@@ -59,6 +62,20 @@ const staticStyle = {
   })
 };
 
+/**
+ * 
+ * @author Robert Long
+ * @param {any} value
+ * @param {any} options
+ * @param {function} onChange
+ * @param {string} placeholder
+ * @param {boolean} disabled
+ * @param {any} error
+ * @param {any} styles
+ * @param {any} creatable
+ * @param {any} rest
+ * @returns 
+ */
 export default function SelectInput({
   value,
   options,

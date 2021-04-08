@@ -8,7 +8,9 @@ import { Check } from "@styled-icons/fa-solid";
 let uniqueId = 0;
 
 /**
- * [StyledBooleanInput used to provide styles to input box element]
+ * StyledBooleanInput used to provide styles to input box element.
+ * 
+ * @author Robert Long
  * @type {Styled component}
  */
 const StyledBooleanInput = (styled as any).input`
@@ -22,7 +24,9 @@ const StyledBooleanInput = (styled as any).input`
 
 
 /**
- * [BooleanInputLabel used to provide styles to label]
+ * BooleanInputLabel used to provide styles to label.
+ * 
+ * @author Robert Long
  * @type {styled component}
  */
 const BooleanInputLabel = (styled as any)(Input).attrs(() => ({ as: "label" }))`
@@ -35,7 +39,9 @@ const BooleanInputLabel = (styled as any)(Input).attrs(() => ({ as: "label" }))`
 `;
 
 /**
- * [BooleanCheck used to provide styles for check icon]
+ * BooleanCheck used to provide styles for check icon.
+ * 
+ * @author Robert Long
  * @type {styled component}
  */
 const BooleanCheck = (styled as any)(Check)`
@@ -46,7 +52,9 @@ const BooleanCheck = (styled as any)(Check)`
 `;
 
 /**
- * [BooleanInput component used to provide view for checkbox]
+ * BooleanInput component used to provide view for checkbox.
+ * 
+ * @author Robert Long
  * @type {class component}
  */
 export default class BooleanInput extends Component {

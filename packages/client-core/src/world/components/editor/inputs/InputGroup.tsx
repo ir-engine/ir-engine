@@ -4,7 +4,9 @@ import styled from "styled-components";
 import { QuestionCircle } from "@styled-icons/fa-regular/QuestionCircle";
 import { InfoTooltip } from "../layout/Tooltip";
 /**
- * [used to provide styles for InputGroupContainer div]
+ * Used to provide styles for InputGroupContainer div.
+ * 
+ * @author Robert Long
  * @type {Styled component}
  */
 export const InputGroupContainer = (styled as any).div`
@@ -31,7 +33,9 @@ export const InputGroupContainer = (styled as any).div`
 `;
 
 /**
- * [used to provide styles for InputGroupContent div]
+ * Used to provide styles for InputGroupContent div.
+ * 
+ * @author Robert Long
  * @type {Styled component}
  */
 export const InputGroupContent = (styled as any).div`
@@ -42,8 +46,10 @@ export const InputGroupContent = (styled as any).div`
 `;
 
 /**
- * [used to provide styles for InputGroupInfoIcon div]
- * @type {styled component}
+ * Used to provide styles for InputGroupInfoIcon div.
+ *
+ *  @author Robert Long
+ *  @type {styled component}
  */
 export const InputGroupInfoIcon = (styled as any)(QuestionCircle)`
   width: 20px;
@@ -54,7 +60,9 @@ export const InputGroupInfoIcon = (styled as any)(QuestionCircle)`
   align-self: center;
 `;
 /**
- * [used to render InfoTooltip component]
+ * Used to render InfoTooltip component.
+ * 
+ * @author Robert Long
  * @param  {string} info
  * @constructor
  */
@@ -67,7 +75,9 @@ export function InputGroupInfo({ info }) {
 }
 
 /**
- * [declaring proptoTtypes for InputGroupInfo Component]
+ * Declaring proptypes for InputGroupInfo Component.
+ * 
+ * @author Robert Long
  * @type {Object}
  */
 InputGroupInfo.propTypes = {
@@ -75,7 +85,9 @@ InputGroupInfo.propTypes = {
 };
 
 /**
- * [InputGroup used to render the view of component]
+ * InputGroup used to render the view of component.
+ * 
+ * @author Robert Long
  * @param       {string} name
  * @param       {any} children
  * @param       {boolean} disabled
@@ -96,7 +108,9 @@ export default function InputGroup({ name, children, disabled, info, ...rest }) 
 }
 
 /**
- * [declaring proptoTtypes for InputGroup Component]
+ * Declaring proptoTtypes for InputGroup Component.
+ * 
+ * @author Robert Long
  * @type {Object}
  */
 InputGroup.propTypes = {

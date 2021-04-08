@@ -8,7 +8,9 @@ import useUpload from "../assets/useUpload";
 import { AudioFileTypes } from "../assets/fileTypes";
 
 /**
- * [initializing uploadOptions properties]
+ * Initializing uploadOptions properties.
+ * 
+ * @author Robert Long
  * @type {Object}
  */
 const uploadOptions = {
@@ -17,7 +19,9 @@ const uploadOptions = {
 };
 
 /**
- * [AudioInput used to provide view]
+ * AudioInput used to provide view.
+ * 
+ * @author Robert Long
  * @param       {function} onChange
  * @param       {any} rest
  * @constructor
@@ -44,7 +48,9 @@ export default function AudioInput({ onChange, ...rest }) {
   });
 
 /**
- * [retuning view for AudioInput]
+ * Retuning view for AudioInput.
+ * 
+ * @author Robert Long
  */
   return (
     <ControlledStringInput
@@ -59,7 +65,9 @@ export default function AudioInput({ onChange, ...rest }) {
 }
 
 /**
- * [declairing propTypes for AudioInput]
+ * Declairing propTypes for AudioInput.
+ * 
+ * @author Robert Long
  * @type {Object}
  */
 AudioInput.propTypes = {

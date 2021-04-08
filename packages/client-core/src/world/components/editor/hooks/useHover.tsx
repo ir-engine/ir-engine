@@ -1,5 +1,13 @@
 // https://usehooks.com/useHover/
 import { useRef, useState, useEffect } from "react";
+
+/**
+ * Function component used adding and removing to current node.
+ * 
+ * @author Robert Long
+ * @returns Array containing ref and value.
+ * 
+ */
 export default function useHover() {
   const [value, setValue] = useState(false);
   const ref = useRef(null);
