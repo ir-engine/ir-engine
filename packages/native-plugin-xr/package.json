@@ -1,6 +1,6 @@
 {
   "name": "@xr3ngine/native-plugin-xr",
-  "version": "0.2.10",
+  "version": "0.2.11",
   "private": true,
   "description": "Native XR and camera services inside any capacitor app",
   "main": "dist/plugin.js",
