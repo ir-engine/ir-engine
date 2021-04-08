@@ -1,3 +1,6 @@
+/**
+ * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
+ */
 // See http://docs.sequelizejs.com/en/latest/docs/models-definition/
 // for more of what you can do here.
 import { Sequelize, DataTypes, Model } from 'sequelize';
@@ -27,6 +30,11 @@ export default function (app: Application): typeof Model {
       defaultValue: 0
     },
     featured: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false
+    },
+    featuredByAdmin: {
       type: DataTypes.BOOLEAN,
       allowNull: false,
       defaultValue: false
