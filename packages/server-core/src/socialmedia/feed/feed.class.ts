@@ -80,7 +80,7 @@ export class Feed extends Service {
         FROM \`feed\` as feed
         LEFT JOIN \`follow_creator\` as fc ON fc.creatorId=feed.creatorId
         JOIN \`static_resource\` as sr ON sr.id=feed.previewId`;
-       let where=` WHERE (feed.featured=1 OR feed.featuredByAdmin=1) `;
+       const where=` WHERE (feed.featured=1 OR feed.featuredByAdmin=1) `;
        const orderBy = ` ORDER BY feed.createdAt DESC    
         LIMIT :skip, :limit `;
 
@@ -203,10 +203,10 @@ export class Feed extends Service {
     }
 
     if(action === 'theFeedGuest'){
-      let select = `SELECT feed.*, creator.id as creatorId, creator.name as creatorName, creator.username as creatorUserName, creator.verified as creatorVerified, 
+      const select = `SELECT feed.*, creator.id as creatorId, creator.name as creatorName, creator.username as creatorUserName, creator.verified as creatorVerified, 
       sr3.url as avatar, COUNT(ff.id) as fires, sr1.url as videoUrl, sr2.url as previewUrl `;
       const from = ` FROM \`feed\` as feed`;
-      let join = ` JOIN \`creator\` as creator ON creator.id=feed.creatorId
+      const join = ` JOIN \`creator\` as creator ON creator.id=feed.creatorId
                     LEFT JOIN \`feed_fires\` as ff ON ff.feedId=feed.id 
                     JOIN \`static_resource\` as sr1 ON sr1.id=feed.videoId
                     JOIN \`static_resource\` as sr2 ON sr2.id=feed.previewId
