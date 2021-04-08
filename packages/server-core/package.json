@@ -2,7 +2,6 @@
   "name": "@xr3ngine/server-core",
   "description": "Shared components for XR3ngine server",
   "version": "0.2.14",
-  "private": true,
   "homepage": "",
   "main": "dist/server-core.umd.js",
   "module": "dist/server-core.es.js",

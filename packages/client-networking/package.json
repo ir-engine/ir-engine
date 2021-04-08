@@ -1,8 +1,9 @@
 {
   "name": "@xr3ngine/client-networking",
   "version": "0.2.14",
-  "private": true,
-  "main": "./index.ts",
+  "main": "dist/client-networking.umd.js",
+  "module": "dist/client-networking.es.js",
+  "types": "dist/client-networking/index.d.ts",
   "repository": {
     "type": "git",
     "url": "git://github.com/xr3ngine/xr3ngine.git"
@@ -16,6 +17,7 @@
   "npmClient": "yarn",
   "jest": "ts-jest",
   "scripts": {
+    "build": "ctix entrypoint ./src && rimraf build && cross-env NODE_ENV=production rollup -c",
     "lint": "eslint --fix --quiet \"*.ts\" \"**/*.d.ts\" \"**/*.ts\" \"**/*.tsx\""
   },
   "resolutions": {

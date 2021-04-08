@@ -18,9 +18,7 @@
   "npmClient": "yarn",
   "jest": "ts-jest",
   "scripts": {
-    "dev": "rollup -c -w",
-    "index": "ctix entrypoint ./src",
-    "build": "ctix entrypoint ./ -p ../tsconfig.json && rimraf build && cross-env NODE_ENV=production rollup -c",
+    "build": "ctix entrypoint ./src && rimraf build && cross-env NODE_ENV=production rollup -c",
     "lint": "eslint --fix --quiet \"*.ts\" \"**/*.d.ts\" \"**/*.ts\" \"**/*.tsx\""
   },
   "resolutions": {
