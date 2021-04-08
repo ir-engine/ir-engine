@@ -100,7 +100,9 @@ export default class EditorInfiniteGridHelper extends Mesh {
       }
     });
     super(geometry, material);
-    this.position.y = 0;
+    // this.position = {
+    //   y: 0
+    // };
     this.visible = true;
     this.name = "EditorInfiniteGridHelper";
     this.layers.set(1);
