@@ -2,6 +2,7 @@ import React from "react";
 import { useDragLayer } from "react-dnd";
 import styled from "styled-components";
 import { ItemTypes } from "./index";
+import { useTranslation } from "react-i18next";
 
 /**
  * [DragLayerContainer used as wrapper for DragPreviewContainer]
@@ -39,6 +40,7 @@ const DragPreviewContainer = (styled as any).div.attrs(props => ({
  * @constructor
  */
 export default function DragLayer() {
+  const { t } = useTranslation();
 
   //initializing item, itemType, currentOffset, isDragging using monitor properties
   const { item, itemType, currentOffset, isDragging } = useDragLayer(monitor => ({
@@ -61,31 +63,31 @@ export default function DragLayer() {
 
     // if multiple items then show item length else show name of item
     if (item.multiple) {
-      preview = <div>{`${item.value.length} Nodes Selected`}</div>;
+      preview = <div>{t('editor:dnd.nodes', { count: item.value.length })}</div>;
     } else {
       preview = <div>{item.value.name}</div>;
     }
   } else if (itemType === ItemTypes.Model) { //check item of Model type
     if (item.multiple) { //check if item contains multiple then showing length of selected models
-      preview = <div>{`${item.value.length} Models Selected`}</div>;
+      preview = <div>{t('editor:dnd.models', { count: item.value.length })}</div>;
     } else { //showing label of the item
       preview = <div>{item.value.label}</div>;
     }
   } else if (itemType === ItemTypes.Image) { //check for image types
     if (item.multiple) {
-      preview = <div>{`${item.value.length} Images Selected`}</div>;
+      preview = <div>{t('editor:dnd.images', { count: item.value.length })}</div>;
     } else {
       preview = <div>{item.value.label}</div>;
     }
   } else if (itemType === ItemTypes.Video) { //check for video types
     if (item.multiple) {
-      preview = <div>{`${item.value.length} Videos Selected`}</div>;
+      preview = <div>{t('editor:dnd.videos', { count: item.value.length })}</div>;
     } else {
       preview = <div>{item.value.label}</div>;
     }
   } else if (itemType === ItemTypes.Audio) { //check for audio types
     if (item.multiple) {
-      preview = <div>{`${item.value.length} Audio Sources Selected`}</div>;
+      preview = <div>{t('editor:dnd.audio', { count: item.value.length })}</div>;
     } else {
       preview = <div>{item.value.label}</div>;
     }
