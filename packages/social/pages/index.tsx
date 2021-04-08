@@ -31,8 +31,6 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 
 
 const  Home = ({ createCreator,  doLoginAuto, auth}) => {
-  const [stories, setStories] = useState(null);
-
   useEffect(()=>{
     if(auth){
       if (auth.get('authUser')?.identityProvider.type === 'guest') {    

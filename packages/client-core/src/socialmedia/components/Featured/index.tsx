@@ -13,11 +13,13 @@ import { bindActionCreators, Dispatch } from 'redux';
 import { selectCreatorsState } from '../../reducers/creator/selector';
 import { selectFeedsState } from '../../reducers/feed/selector';
 import { getFeeds, setFeedAsFeatured, setFeedNotFeatured } from '../../reducers/feed/service';
+import { selectAuthState } from '../../../user/reducers/auth/selector';
 
 const mapStateToProps = (state: any): any => {
     return {
         feedsState: selectFeedsState(state),
         creatorState: selectCreatorsState(state),
+        authState: selectAuthState(state),
     };
   };
 
@@ -28,6 +30,7 @@ const mapStateToProps = (state: any): any => {
 });
 interface Props{
     feedsState?: any,
+    authState?:any;
     getFeeds?: any,
     type?:string,
     creatorId?: string,
@@ -36,13 +39,14 @@ interface Props{
     setFeedNotFeatured?: typeof setFeedNotFeatured;
 }
 
-const Featured = ({feedsState, getFeeds, type, creatorId, creatorState, setFeedAsFeatured, setFeedNotFeatured} : Props) => { 
+const Featured = ({feedsState, getFeeds, type, creatorId, creatorState, setFeedAsFeatured, setFeedNotFeatured, authState} : Props) => { 
     let feedsList = [];
     useEffect(()=> {
         if(type === 'creator' || type === 'bookmark' || type === 'myFeatured'){
             getFeeds(type, creatorId);
         }else{
-            getFeeds('featured');
+            authState.get('authUser').identityProvider.type === 'guest' ? 
+                getFeeds('featuredGuest') : getFeeds('featured');
         }
     }, [type, creatorId]);
     if(feedsState.get('fetching') === false){
