@@ -9,13 +9,14 @@ import { AudioType, AudioTypeOptions, DistanceModelOptions, DistanceModelType } 
 import useSetPropertySelected from "./useSetPropertySelected";
 
 /**
- * [
+ * 
  * AudioSourceProperties provides properties to custom audio element on the scene
- * used inside AudioNodeEditor component
- * ]
- * @param       {[type]} node
- * @param       {[type]} editor
- * @param       {[type]} multiEdit
+ * used inside AudioNodeEditor component.
+ * 
+ * @author Robert Long
+ * @param       {any} node
+ * @param       {any} editor
+ * @param       {any} multiEdit
  * @constructor
  */
 

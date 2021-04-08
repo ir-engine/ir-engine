@@ -10,7 +10,9 @@ import { Bullseye } from "@styled-icons/fa-solid/Bullseye";
 const radToDeg = _Math.radToDeg;
 
 /**
- * [SpotLightNodeEditorProps declairing SpotLightNodeEditor properties]
+ * SpotLightNodeEditorProps declairing SpotLightNodeEditor properties.
+ * 
+ * @author Robert Long
  * @type {Object}
  */
 type SpotLightNodeEditorProps = {
@@ -20,8 +22,10 @@ type SpotLightNodeEditorProps = {
 };
 
 /**
- * [SpotLightNodeEditor component class used to provide editor view for property customization]
- * @type {class component}
+ * SpotLightNodeEditor component class used to provide editor view for property customization.
+ *
+ *  @author Robert Long
+ *  @type {class component}
  */
 export default class SpotLightNodeEditor extends Component<SpotLightNodeEditorProps, {}> {
 

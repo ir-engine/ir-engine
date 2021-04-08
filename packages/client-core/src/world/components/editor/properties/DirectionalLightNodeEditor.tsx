@@ -7,7 +7,9 @@ import LightShadowProperties from "./LightShadowProperties";
 import { Bolt } from "@styled-icons/fa-solid/Bolt";
 
 /**
- * [Defining properties for DirectionalLightNodeEditor]
+ * Defining properties for DirectionalLightNodeEditor.
+ * 
+ * @author Robert Long
  * @type {Object}
  */
 type DirectionalLightNodeEditorProps = {
@@ -16,8 +18,10 @@ type DirectionalLightNodeEditorProps = {
 };
 
 /**
- * [DirectionalLightNodeEditor is used provides  properties to customize DirectionaLight element]
- * @type {Component class}
+ * DirectionalLightNodeEditor is used provides  properties to customize DirectionaLight element.
+ *
+ *  @author Robert Long
+ *  @type {Component class}
  */
 export default class DirectionalLightNodeEditor extends Component<
   DirectionalLightNodeEditorProps,

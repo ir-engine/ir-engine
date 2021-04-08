@@ -3,6 +3,10 @@ import PropTypes from "prop-types";
 import styled from "styled-components";
 import { InfoTooltip } from "../layout/Tooltip";
 
+/**
+ * 
+ * @author Robert Long
+ */
 const StyledToolButton = (styled as any).button`
   width: 40px;
   height: 40px;
@@ -18,12 +22,26 @@ const StyledToolButton = (styled as any).button`
   }
 `;
 
+/**
+ * 
+ * @author Robert Long
+ */
 const Icon = (styled as any).div`
   width: 14px;
   height: 14px;
   font-size: 14px;
 `;
 
+/**
+ * 
+ * @author Robert Long
+ * @param {any} id
+ * @param {any} icon
+ * @param {any} onClick
+ * @param {any} isSelected
+ * @param {any} tooltip
+ * @returns 
+ */
 export default function ToolButton({ id, icon, onClick, isSelected, tooltip }) {
   return (
     <InfoTooltip id={id} info={tooltip} position="bottom">
@@ -34,6 +52,10 @@ export default function ToolButton({ id, icon, onClick, isSelected, tooltip }) {
   );
 }
 
+/**
+ * 
+ * @author Robert Long
+ */
 ToolButton.propTypes = {
   id: PropTypes.string,
   icon: PropTypes.object,

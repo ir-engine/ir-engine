@@ -2,6 +2,10 @@ import React from "react";
 import PropTypes from "prop-types";
 import styled from "styled-components";
 
+/**
+ * 
+ * @author Robert Long
+ */
 const MediaGridItemContainer = (styled as any).div`
   position: relative;
   display: flex;
@@ -46,6 +50,10 @@ MediaGridItemContainer.defaultProps = {
   borderRadius: 6
 };
 
+/**
+ * 
+ * @author Robert Long
+ */
 const MediaGridItemContent = (styled as any).div`
   display: flex;
   flex-direction: column;
@@ -56,6 +64,10 @@ const MediaGridItemContent = (styled as any).div`
   right: 0;
 `;
 
+/**
+ * 
+ * @author Robert Long
+ */
 const MediaGridItemThumbnailImage = (styled as any).div`
   display: flex;
   flex: 1;
@@ -64,11 +76,19 @@ const MediaGridItemThumbnailImage = (styled as any).div`
   background-repeat: no-repeat;
 `;
 
+/**
+ * 
+ * @author Robert Long
+ */
 const MediaGridItemThumbnailVideo = (styled as any).video`
   display: flex;
   flex: 1;
 `;
 
+/**
+ * 
+ * @author Robert Long
+ */
 const MediaGridItemIconContainer = (styled as any).div`
   display: flex;
   flex: 1;
@@ -88,18 +108,34 @@ const MediaGridItemIconContainer = (styled as any).div`
   }
 `;
 
+/**
+ * 
+ * @author Robert Long
+ */
 const MediaGridItemLabelContainer = (styled as any).div`
   padding-top: 4px;
   display: flex;
   justify-content: center;
 `;
 
+/**
+ * 
+ * @author Robert Long
+ */
 const MediaGridItemLabel = (styled as any).div`
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 `;
 
+/**
+ * 
+ * @author Robert Long
+ * @param {any} label
+ * @param {any} src
+ * @param {any} rest
+ * @returns 
+ */
 export function VideoMediaGridItem({ label, src, ...rest }) {
   return (
     <>
@@ -120,6 +156,14 @@ VideoMediaGridItem.propTypes = {
   label: PropTypes.string
 };
 
+/**
+ * 
+ * @author Robert Long 
+ * @param {any} label
+ * @param {any} src
+ * @param {any} rest
+ * @returns 
+ */
 export function ImageMediaGridItem({ label, src, ...rest }) {
   return (
     <>
@@ -140,6 +184,14 @@ ImageMediaGridItem.propTypes = {
   label: PropTypes.string
 };
 
+/**
+ * 
+ * @author Robert Long 
+ * @param {any} label
+ * @param {IconComponent} IconComponent
+ * @param {any} rest
+ * @returns 
+ */
 export function IconMediaGridItem({ label, iconComponent: IconComponent, ...rest }) {
   return (
     <>
@@ -162,6 +214,10 @@ IconMediaGridItem.propTypes = {
   label: PropTypes.string
 };
 
+/**
+ * 
+ *  @author Robert Long
+ */
 export const MediaGrid = (styled as any).div`
   display: grid;
   grid-gap: ${props => props.gap};

@@ -6,7 +6,9 @@ import BooleanInput from "../inputs/BooleanInput";
 import { SquareFull } from "@styled-icons/fa-solid/SquareFull";
 
 /**
- * [Declairing GroundPlaneNodeEditor properties]
+ * Declairing GroundPlaneNodeEditor properties.
+ * 
+ * @author Robert Long
  * @type {Object}
  */
 
@@ -16,7 +18,9 @@ type GroundPlaneNodeEditorProps = {
 };
 
 /**
- * [iconComponent is used to render GroundPlaneNode and provide inputs to customize floorPlanNode]
+ * IconComponent is used to render GroundPlaneNode and provide inputs to customize floorPlanNode.
+ * 
+ * @author Robert Long
  * @type {class component}
  */
 export default class GroundPlaneNodeEditor extends Component<

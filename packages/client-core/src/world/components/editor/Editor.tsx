@@ -475,10 +475,10 @@ export default class Editor extends EventEmitter {
   }
 
 /**
-* DefaultExportOptions provides properties to export scene.
-* 
-* @author Robert Long
-*/
+ * DefaultExportOptions provides properties to export scene.
+ * 
+ * @author Robert Long
+ */
   static DefaultExportOptions = {
     combineMeshes: true,
     removeUnusedObjects: true
@@ -671,9 +671,9 @@ export default class Editor extends EventEmitter {
  * Function generateFileThumbnail used to create thumbnail from audio as well video file.
  * 
  * @author Robert Long
- * @param  {[type]}  file
- * @param  {[type]}  width
- * @param  {[type]}  height
+ * @param  {any}  file
+ * @param  {any}  width
+ * @param  {any}  height
  * @return {Promise}        [generated thumbnail data as blob]
  */
   async generateFileThumbnail(file, width, height) {
@@ -1032,7 +1032,7 @@ export default class Editor extends EventEmitter {
  * Function setSelection used to set selection various objects.
  * 
  * @author Robert Long
- * @param {[type]}  objects
+ * @param {any}  objects
  * @param {Boolean} [useHistory=true]
  * @param {Boolean} [emitEvent=true]
  * @param {Boolean} [updateTransformRoots=true]

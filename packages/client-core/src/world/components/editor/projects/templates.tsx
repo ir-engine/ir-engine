@@ -1,3 +1,7 @@
+/**
+ * 
+ * @author Robert Long
+ */
 const templates = [
   {
     project_id: "surroundedlake",
@@ -60,6 +64,13 @@ const templates = [
     project_url: "editor/templates/templates/wide-open-space.world"
   }
 ];
+
+/**
+ * 
+ * @author Robert Long
+ * @param templates 
+ * @returns 
+ */
 function transformUrls(templates) {
   const searchParams = new URLSearchParams();
   for (const template of templates) {

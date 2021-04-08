@@ -4,7 +4,9 @@ import { Camera } from "@styled-icons/fa-solid/Camera";
 import { PropertiesPanelButton } from "../inputs/Button";
 
 /**
- * [ScenePreviewCameraNodeEditorProps declairing props for ScenePreviewCameraNodeEditor]
+ * ScenePreviewCameraNodeEditorProps declairing props for ScenePreviewCameraNodeEditor.
+ * 
+ * @author Robert Long
  * @type {Object}
  */
 type ScenePreviewCameraNodeEditorProps = {
@@ -13,7 +15,9 @@ type ScenePreviewCameraNodeEditorProps = {
 };
 
 /**
- * [ScenePreviewCameraNodeEditor provides the editor view to customize properties]
+ * ScenePreviewCameraNodeEditor provides the editor view to customize properties.
+ * 
+ * @author Robert Long
  * @type {Class component}
  */
 export default class ScenePreviewCameraNodeEditor extends Component<

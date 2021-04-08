@@ -6,7 +6,9 @@ import Vector3Input from "../inputs/Vector3Input";
 import EulerInput from "../inputs/EulerInput";
 
 /**
- * [TransformPropertyGroupProps declairing properties for TransformPropertyGroup]
+ * TransformPropertyGroupProps declairing properties for TransformPropertyGroup.
+ * 
+ * @author Robert Long
  * @type {Object}
  */
 type TransformPropertyGroupProps = {
@@ -15,7 +17,9 @@ type TransformPropertyGroupProps = {
 };
 
 /**
- * [TransformPropertyGroup component is used to render editor view to customize properties]
+ * TransformPropertyGroup component is used to render editor view to customize properties.
+ * 
+ * @author Robert Long
  * @type {class component}
  */
 export default class TransformPropertyGroup extends Component<

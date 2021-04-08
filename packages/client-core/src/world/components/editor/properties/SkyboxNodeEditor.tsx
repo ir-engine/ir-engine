@@ -14,7 +14,9 @@ const hoursToRadians = hours => hours / 24;
 const radiansToHours = rads => rads * 24;
 
 /**
- * [SkyOption array containing skyType options]
+ * SkyOption array containing skyType options.
+ * 
+ * @author Robert Long
  * @type {Array}
  */
 const SkyOption = [
@@ -33,7 +35,9 @@ const SkyOption = [
 ];
 
 /**
- * [SkyboxNodeEditorProps declairing props for SkyboxNodeEditor]
+ * SkyboxNodeEditorProps declairing props for SkyboxNodeEditor.
+ * 
+ * @author Robert Long
  * @type {Object}
  */
 type SkyboxNodeEditorProps = {
@@ -42,7 +46,9 @@ type SkyboxNodeEditorProps = {
 };
 
 /**
- * [SkyboxNodeEditor component class used to render editor view to customize component property]
+ * SkyboxNodeEditor component class used to render editor view to customize component property.
+ * 
+ * @author Robert Long
  * @type {class component}
  */
 export default class SkyboxNodeEditor extends Component<

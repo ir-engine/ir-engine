@@ -15,7 +15,10 @@ import {
 } from "./ProjectGrid";
 import templates from "./templates";
 
-
+/**
+ * 
+ * @author Robert Long
+ */
 export const ProjectsSection = (styled as any).section`
   padding-bottom: 100px;
   display: flex;
@@ -34,6 +37,10 @@ export const ProjectsSection = (styled as any).section`
   }
 `;
 
+/**
+ * 
+ * @author Robert Long
+ */
 export const ProjectsContainer = (styled as any).div`
   display: flex;
   flex: 1;
@@ -43,6 +50,10 @@ export const ProjectsContainer = (styled as any).div`
   padding: 0 20px;
 `;
 
+/**
+ * 
+ * @author Robert Long
+ */
 const WelcomeContainer = (styled as any)(ProjectsContainer)`
   align-items: center;
 
@@ -59,6 +70,10 @@ const WelcomeContainer = (styled as any)(ProjectsContainer)`
   }
 `;
 
+/**
+ * 
+ * @author Robert Long
+ */
 export const ProjectsHeader = (styled as any).div`
   margin-bottom: 36px;
   display: flex;
@@ -68,6 +83,10 @@ export const ProjectsHeader = (styled as any).div`
 
 const contextMenuId = "project-menu";
 
+/**
+ * 
+ * @author Robert Long
+ */
 class ProjectsPage extends Component {
   static propTypes = {
     api: PropTypes.object.isRequired,
