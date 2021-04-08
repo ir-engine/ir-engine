@@ -10,10 +10,10 @@ import getConfig from 'next/config';
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
-import { ForgotPassword } from '../../../user/components/Auth/ForgotPassword';
+import ForgotPassword from '../../../user/components/Auth/ForgotPassword';
 import PasswordLoginApp from '../../../user/components/Auth/PasswordLoginApp';
 import RegisterApp from '../../../user/components/Auth/RegisterApp';
-import { ResetPassword } from '../../../user/components/Auth/ResetPassword';
+import ResetPassword from '../../../user/components/Auth/ResetPassword';
 import { loginUserByOAuth, resetPassword, registerUserByEmail } from '../../../user/reducers/auth/service';
 
 const config = getConfig().publicRuntimeConfig;

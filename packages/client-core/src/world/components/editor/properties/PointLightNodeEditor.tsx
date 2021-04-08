@@ -7,18 +7,21 @@ import ColorInput from "../inputs/ColorInput";
 import NumericInputGroup from "../inputs/NumericInputGroup";
 import LightShadowProperties from "./LightShadowProperties";
 import { Lightbulb } from "@styled-icons/fa-solid/Lightbulb";
+import i18n from "i18next";
+import { withTranslation } from "react-i18next";
 
 //Declairing properties for PointLightNodeEditor
 type PointLightNodeEditorProps = {
   editor?: object;
   node?: object;
+  t: Function;
 };
 
 /**
  * [PointLightNodeEditor is used render editor view to customize component properties]
  * @type {class component}
  */
-export default class PointLightNodeEditor extends Component<
+export class PointLightNodeEditor extends Component<
   PointLightNodeEditorProps,
   {}
 > {
@@ -27,7 +30,7 @@ export default class PointLightNodeEditor extends Component<
   static iconComponent = Lightbulb;
 
   //initializing description will appears on editor view
-  static description = "A light which emits in all directions from a single point.";
+  static description = i18n.t('editor:properties.pointLight.description');
 
   //function to handle changes in color property
   onChangeColor = color => {
@@ -46,17 +49,22 @@ export default class PointLightNodeEditor extends Component<
 
   //rendering editor view
   render() {
+    PointLightNodeEditor.description = this.props.t('editor:properties.pointLight.description');
     const { node, editor } = this.props as any;
     return (
       <NodeEditor
         {...this.props}
         description={PointLightNodeEditor.description}
       >
-        <InputGroup name="Color">
+        <InputGroup
+          name="Color"
+          label={this.props.t('editor:properties.pointLight.lbl-color')}
+        >
           <ColorInput value={node.color} onChange={this.onChangeColor} />
         </InputGroup>
         <NumericInputGroup
           name="Intensity"
+          label={this.props.t('editor:properties.pointLight.lbl-intensity')}
           min={0}
           smallStep={0.001}
           mediumStep={0.01}
@@ -67,6 +75,7 @@ export default class PointLightNodeEditor extends Component<
         />
         <NumericInputGroup
           name="Range"
+          label={this.props.t('editor:properties.pointLight.lbl-range')}
           min={0}
           smallStep={0.1}
           mediumStep={1}
@@ -80,3 +89,5 @@ export default class PointLightNodeEditor extends Component<
     );
   }
 }
+
+export default withTranslation()(PointLightNodeEditor);

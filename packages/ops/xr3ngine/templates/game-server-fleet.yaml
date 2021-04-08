@@ -58,7 +58,7 @@ spec:
       ports:
         - name: default
           portPolicy: Dynamic
-          containerPort: 3030
+          containerPort: 3031
           protocol: TCP
         - name: udp-40000
           portPolicy: Dynamic

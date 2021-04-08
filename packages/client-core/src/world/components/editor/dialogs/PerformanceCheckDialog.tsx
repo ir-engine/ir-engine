@@ -3,6 +3,8 @@ import PropTypes from "prop-types";
 import styled, { ThemeContext } from "styled-components";
 import Dialog from "./Dialog";
 import { bytesToSize } from "@xr3ngine/engine/src/editor/functions/utils";
+import i18n from "i18next";
+import { useTranslation } from "react-i18next";
 
 /**
  * [ColoredText used to provide color property Dynamically]
@@ -71,6 +73,7 @@ const PerformanceItemContainer = (styled as any).li`
  * @constructor
  */
 function PerformanceCheckItem({ score, scoreColor, title, description, learnMoreUrl, children }) {
+  const { t } = useTranslation();
   return (
     <PerformanceItemContainer>
       <div>
@@ -85,7 +88,7 @@ function PerformanceCheckItem({ score, scoreColor, title, description, learnMore
         <p>
           {description}{" "}
           <a rel="noopener noreferrer" target="_blank" href={learnMoreUrl}>
-            Learn More
+            {t('editor:dialog.performance.learnMore')}
           </a>
         </p>
       </div>
@@ -124,6 +127,7 @@ const scoreToValue = {
  */
 export default function PerformanceCheckDialog({ scores, ...rest }) {
   const theme: any = useContext(ThemeContext);
+  const { t } = useTranslation();
 
   //initializing scoreToColor using theme
   const scoreToColor = {
@@ -143,54 +147,56 @@ export default function PerformanceCheckDialog({ scores, ...rest }) {
     <Dialog {...rest}>
       <ul>
         <PerformanceCheckItem
-          title="Polygon Count"
-          description="We recommend your scene use no more than 50,000 triangles for mobile devices."
+          title={t('editor:dialog.performance.lbl-polycount')}
+          description={t('editor:dialog.performance.info-polycount')}
           learnMoreUrl="htts://xr3ngine.dev/docs/editor-optimization.html"
           score={scores.polygons.score}
           scoreColor={scoreToColor[scores.polygons.score]}
         >
           <ColoredText color={scoreToColor[scores.polygons.score]}>
-            {scores.polygons.value.toLocaleString()} Triangles
+            {t('editor:dialog.performance.txt-polycount', { count: scores.polygons.value.toLocaleString() })}
           </ColoredText>
         </PerformanceCheckItem>
         <PerformanceCheckItem
-          title="Materials"
-          description="We recommend using no more than 25 unique materials in your scene to reduce draw calls on mobile devices."
+          title={t('editor:dialog.performance.lbl-material')}
+          description={t('editor:dialog.performance.info-material')}
           learnMoreUrl="htts://xr3ngine.dev/docs/editor-optimization.html"
           score={scores.materials.score}
           scoreColor={scoreToColor[scores.materials.score]}
         >
           <ColoredText color={scoreToColor[scores.materials.score]}>
-            {scores.materials.value} Unique Materials
+            {t('editor:dialog.performance.txt-material', { count: scores.materials.value })}
           </ColoredText>
         </PerformanceCheckItem>
         <PerformanceCheckItem
-          title="Textures"
-          description="We recommend your textures use no more than 256MB of video RAM for mobile devices. We also recommend against using textures larger than 2048 x 2048."
+          title={t('editor:dialog.performance.lbl-texture')}
+          description={t('editor:dialog.performance.info-texture')}
           learnMoreUrl="htts://xr3ngine.dev/docs/editor-optimization.html"
           score={texturesScore}
           scoreColor={scoreToColor[texturesScore]}
         >
           <ColoredText color={scoreToColor[scores.textures.score]}>
-            ~{bytesToSize(scores.textures.value)} Video RAM
+            {t('editor:dialog.performance.txt-ram', { count: bytesToSize(scores.textures.value) as any })}
           </ColoredText>
           ,{" "}
           <ColoredText color={scoreToColor[scores.textures.largeTexturesScore]}>
-            {scores.textures.largeTexturesValue} Large Textures
+            {t('editor:dialog.performance.txt-texture', { count: scores.textures.largeTexturesValue })}
           </ColoredText>
         </PerformanceCheckItem>
         <PerformanceCheckItem
-          title="Lights"
-          description="While dynamic lights are not enabled on mobile devices, we recommend using no more than 3 lights in your scene (excluding ambient and hemisphere lights) for your scene to run on low end PCs."
+          title={t('editor:dialog.performance.lbl-lights')}
+          description={t('editor:dialog.performance.info-lights')}
           learnMoreUrl="htts://xr3ngine.dev/docs/editor-optimization.html"
           score={scores.lights.score}
           scoreColor={scoreToColor[scores.lights.score]}
         >
-          <ColoredText color={scoreToColor[scores.lights.score]}>{scores.lights.value} Lights</ColoredText>
+          <ColoredText color={scoreToColor[scores.lights.score]}>
+            {t('editor:dialog.performance.txt-lights', { count: scores.lights.value })}
+          </ColoredText>
         </PerformanceCheckItem>
         <PerformanceCheckItem
-          title="File Size"
-          description="We recommend a final file size of no more than 16MB for low bandwidth connections. Reducing the file size will reduce the time it takes to download your scene."
+          title={t('editor:dialog.performance.lbl-fileSize')}
+          description={t('editor:dialog.performance.info-fileSize')}
           learnMoreUrl="htts://xr3ngine.dev/docs/editor-optimization.html"
           score={scores.fileSize.score}
           scoreColor={scoreToColor[scores.fileSize.score]}
@@ -213,6 +219,6 @@ PerformanceCheckDialog.propTypes = {
 // initializing defaultProps for PerformanceCheckDialog
 PerformanceCheckDialog.defaultProps = {
   tag: "div",
-  title: "Performance Check",
-  confirmLabel: "Publish Scene"
+  title: i18n.t('editor:dialog.performance.info-fileSize') || "Performance Check",
+  confirmLabel: i18n.t('editor:dialog.performance.info-fileSize') || "Publish Scene",
 };

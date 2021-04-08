@@ -6,6 +6,8 @@ import SelectInput from "../inputs/SelectInput";
 import BooleanInput from "../inputs/BooleanInput";
 import StringInput from "../inputs/StringInput";
 import { Running } from "@styled-icons/fa-solid/Running";
+import i18n from "i18next";
+import { withTranslation } from "react-i18next";
 
 //Array containing component options
 const componentOptions = [
@@ -44,6 +46,7 @@ type TriggerVolumeNodeEditorProps = {
   editor?: object;
   node?: object;
   multiEdit?: boolean;
+  t: Function;
 };
 
 //Declairing TriggerVolumeNodeEditor state
@@ -55,7 +58,7 @@ type TriggerVolumeNodeEditorState = {
  * [TriggerVolumeNodeEditor provides the editor view to customize properties]
  * @type {class component}
  */
-export default class TriggerVolumeNodeEditor extends Component<
+export class TriggerVolumeNodeEditor extends Component<
   TriggerVolumeNodeEditorProps,
   TriggerVolumeNodeEditorState
 > {
@@ -84,7 +87,7 @@ export default class TriggerVolumeNodeEditor extends Component<
   static iconComponent = Running;
 
   //initializing description and will appears on editor view
-  static description = "Sets a property on the target object on enter and leave.";
+  static description = i18n.t('editor:properties.triggereVolume.description');
 
   //function to handle the changes in target
   onChangeTarget = target => {
@@ -147,6 +150,7 @@ export default class TriggerVolumeNodeEditor extends Component<
 
  //rendering editor view for property customization
   render() {
+    TriggerVolumeNodeEditor.description = this.props.t('editor:properties.triggereVolume.description');
     const { node, multiEdit } = this.props as any;
     const targetOption = this.state.options.find(o => o.value === node.target);
     const target = targetOption ? targetOption.value : null;
@@ -197,11 +201,14 @@ export default class TriggerVolumeNodeEditor extends Component<
         description={TriggerVolumeNodeEditor.description}
         {...this.props}
       >
-        <InputGroup name="Target">
+        <InputGroup
+          name="Target"
+          label={this.props.t('editor:properties.triggereVolume.lbl-target')}
+        >
           <SelectInput
             error={targetNotFound}
             placeholder={
-              targetNotFound ? "Error missing node." : "Select node..."
+              targetNotFound ? this.props.t('editor:properties.triggereVolume.ph-errorNode') : this.props.t('editor:properties.triggereVolume.ph-selectNode')
             }
             value={node.target}
             onChange={this.onChangeTarget}
@@ -209,25 +216,34 @@ export default class TriggerVolumeNodeEditor extends Component<
             disabled={multiEdit}
           />
         </InputGroup>
-        <InputGroup name="Enter Component">
+        <InputGroup
+          name="Enter Component"
+          label={this.props.t('editor:properties.triggereVolume.lbl-enterComponent')}
+        >
           <SelectInput
-            placeholder={node.enterComponent || "Select component..."}
+            placeholder={node.enterComponent || this.props.t('editor:properties.triggereVolume.ph-selectComponent')}
             value={node.enterComponent}
             onChange={this.onChangeEnterComponent}
             options={filteredComponentOptions}
             disabled={multiEdit || !target}
           />
         </InputGroup>
-        <InputGroup name="Enter Property">
+        <InputGroup
+          name="Enter Property"
+          label={this.props.t('editor:properties.triggereVolume.lbl-enterProperty')}
+        >
           <SelectInput
-            placeholder={node.enterProperty || "Select property..."}
+            placeholder={node.enterProperty || this.props.t('editor:properties.triggereVolume.ph-selectProperty')}
             value={node.enterProperty}
             onChange={this.onChangeEnterProperty}
             options={filteredEnterPropertyOptions}
             disabled={multiEdit || !enterComponent}
           />
         </InputGroup>
-        <InputGroup name="Enter Value">
+        <InputGroup
+          name="Enter Value"
+          label={this.props.t('editor:properties.triggereVolume.lbl-entervalue')}
+        >
           {EnterInput ? (
             <EnterInput
               value={node.enterValue}
@@ -240,25 +256,34 @@ export default class TriggerVolumeNodeEditor extends Component<
             <StringInput disabled />
           )}
         </InputGroup>
-        <InputGroup name="Leave Component">
+        <InputGroup
+          name="Leave Component"
+          label={this.props.t('editor:properties.triggereVolume.lbl-leaveComponent')}
+        >
           <SelectInput
-            placeholder={node.leaveComponent || "Select component..."}
+            placeholder={node.leaveComponent || this.props.t('editor:properties.triggereVolume.ph-selectComponent')}
             value={node.leaveComponent}
             onChange={this.onChangeLeaveComponent}
             options={filteredComponentOptions}
             disabled={multiEdit || !target}
           />
         </InputGroup>
-        <InputGroup name="Leave Property">
+        <InputGroup
+          name="Leave Property"
+          label={this.props.t('editor:properties.triggereVolume.lbl-leaveProperty')}
+        >
           <SelectInput
-            placeholder={node.leaveProperty || "Select property..."}
+            placeholder={node.leaveProperty || this.props.t('editor:properties.triggereVolume.ph-selectProperty')}
             value={node.leaveProperty}
             onChange={this.onChangeLeaveProperty}
             options={filteredLeavePropertyOptions}
             disabled={multiEdit || !leaveComponent}
           />
         </InputGroup>
-        <InputGroup name="Leave Value">
+        <InputGroup
+          name="Leave Value"
+          label={this.props.t('editor:properties.triggereVolume.lbl-leaveValue')}
+        >
           {LeaveInput ? (
             <LeaveInput
               value={node.leaveValue}
@@ -275,3 +300,5 @@ export default class TriggerVolumeNodeEditor extends Component<
     );
   }
 }
+
+export default withTranslation()(TriggerVolumeNodeEditor);

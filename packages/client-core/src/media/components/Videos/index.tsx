@@ -2,10 +2,10 @@ import React, { useEffect } from 'react';
 import styles from './Videos.module.scss';
 import Button from '@material-ui/core/Button';
 import { connect } from 'react-redux';
-import { selectVideoState } from '../../../reducers/video/selector';
 import { bindActionCreators, Dispatch } from 'redux';
-import { fetchPublicVideos } from '../../../reducers/video/service';
-import { PublicVideo } from '../../../reducers/video/actions';
+import { PublicVideo } from '../video/actions';
+import { selectVideoState } from '../video/selector';
+import { fetchPublicVideos } from '../video/service';
 
 const mapStateToProps = (state: any): any => {
   return {

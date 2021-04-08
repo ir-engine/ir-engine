@@ -6,6 +6,7 @@ import { useDrop } from "react-dnd";
 import { ItemTypes } from "../dnd";
 import useUpload from "./useUpload";
 import { CloudUploadAlt } from "@styled-icons/fa-solid/CloudUploadAlt";
+import { useTranslation } from "react-i18next";
 
 
 /**
@@ -40,6 +41,7 @@ const DropZoneBackground = (styled as any).div`
  */
 export default function AssetDropZone({ afterUpload, uploadOptions }) {
   const editor = useContext(EditorContext);
+  const { t } = useTranslation();
 
   const onUpload = useUpload(uploadOptions);
 
@@ -67,7 +69,7 @@ export default function AssetDropZone({ afterUpload, uploadOptions }) {
   return (
     <DropZoneBackground ref={onDropTarget} isDragging={isDragging} canDrop={canDrop} isOver={isOver}>
       <CloudUploadAlt size={48} />
-      <h3>Upload Asset</h3>
+      <h3>{t('editor:asset.dropZone.title')}</h3>
     </DropZoneBackground>
   );
 }

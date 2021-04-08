@@ -13,7 +13,7 @@ import { bindActionCreators, Dispatch } from 'redux';
 import { selectAuthState } from '@xr3ngine/client-core/src/user/reducers/auth/selector';
 import { showDialog, closeDialog } from '@xr3ngine/client-core/src/common/reducers/dialog/service';
 import SignUp from './Register';
-import { ForgotPassword }from './ForgotPassword';
+import ForgotPassword from './ForgotPassword';
 import styles from './Auth.module.scss';
 import { User } from '@xr3ngine/common/interfaces/User';
 import { loginUserByPassword, addConnectionByPassword } from '@xr3ngine/client-core/src/user/reducers/auth/service';

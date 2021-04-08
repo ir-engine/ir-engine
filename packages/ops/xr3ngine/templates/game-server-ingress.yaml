@@ -31,4 +31,4 @@ spec:
               service:
                 name: {{ $fullName }}
                 port:
-                  number: 3030
+                  number: 3031
