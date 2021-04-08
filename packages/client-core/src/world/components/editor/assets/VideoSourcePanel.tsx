@@ -1,6 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import MediaSourcePanel from "./MediaSourcePanel";
+import { useTranslation } from "react-i18next";
 
 /**
  * [VideoSourcePanel used to render view of MediaSourcePanel]
@@ -8,7 +9,8 @@ import MediaSourcePanel from "./MediaSourcePanel";
  * @constructor
  */
 export default function VideoSourcePanel(props) {
-  return <MediaSourcePanel {...props} searchPlaceholder={props.source.searchPlaceholder || "Search videos..."} />;
+  const { t } = useTranslation();
+  return <MediaSourcePanel {...props} searchPlaceholder={props.source.searchPlaceholder || t('editor:asset.videoSourcePanel.ph-search')} />;
 }
 
 /**

@@ -2,6 +2,7 @@ import VideoMediaSource from "../VideoMediaSource";
 import { ItemTypes } from "../../dnd";
 import VideoNode from "@xr3ngine/engine/src/editor/nodes/VideoNode";
 import Api from "../../Api";
+import i18n from "i18next";
 
 /**
  * [TenorSource component used to provide visual objects]
@@ -17,9 +18,9 @@ export default class TenorSource extends VideoMediaSource {
   constructor(api) {
     super(api);
     this.id = "tenor";
-    this.name = "Tenor GIFs";
-    this.searchPlaceholder = "Search GIFs...";
-    this.searchLegalCopy = "Search by Tenor";
+    this.name = i18n.t('editor:sources.tenor.name');
+    this.searchPlaceholder = i18n.t('editor:sources.tenor.ph-search');
+    this.searchLegalCopy = i18n.t('editor:sources.tenor.search');
     this.privacyPolicyUrl = "https://tenor.com/legal-privacy";
   }
 

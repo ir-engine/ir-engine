@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import Dialog from "./Dialog";
 import ProgressBar from "../inputs/ProgressBar";
 import styled from "styled-components";
+import i18n from "i18next";
 
 /**
  * [ProgressContainer used as a wrapper element for the ProgressMessage and ProgressBar components]
@@ -65,8 +66,8 @@ ProgressDialog.propTypes = {
  * @type {Object}
  */
 ProgressDialog.defaultProps = {
-  title: "Loading...",
-  message: "Loading...",
+  title: i18n.t('editor:dialog.progress.title') || 'Loading...',
+  message: i18n.t('editor:dialog.progress.message') || 'Loading...',
   cancelable: false,
-  cancelLabel: "Cancel"
+  cancelLabel: i18n.t('editor:dialog.progress.lbl-cancel') || 'Cancel',
 };

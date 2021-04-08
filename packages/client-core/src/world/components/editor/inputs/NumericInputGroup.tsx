@@ -4,12 +4,12 @@ import { InputGroupContainer, InputGroupContent, InputGroupInfo } from "./InputG
 import Scrubber from "./Scrubber";
 import NumericInput from "./NumericInput";
 
-export default function NumericInputGroup({ name, className, info, ...rest }) {
+export default function NumericInputGroup({ name, className, info, label, ...rest }) {
   const { displayPrecision, ...scrubberProps } = rest;
   return (
     <InputGroupContainer>
       { /* @ts-ignore */ }
-      <Scrubber {...scrubberProps}>{name}:</Scrubber>
+      <Scrubber {...scrubberProps}>{label}:</Scrubber>
       <InputGroupContent>
         <NumericInput {...rest} />
         {info && <InputGroupInfo info={info} />}

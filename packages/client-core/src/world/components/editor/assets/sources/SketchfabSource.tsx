@@ -1,5 +1,6 @@
 import ModelMediaSource from "../ModelMediaSource";
 import { TransformPivot } from "@xr3ngine/engine/src/editor/controls/EditorControls";
+import i18n from "i18next";
 
 /**
  * [SketchfabSource component used to provide visual object from sketchfab]
@@ -15,7 +16,7 @@ export default class SketchfabSource extends ModelMediaSource {
   constructor(api) {
     super(api);
     this.id = "sketchfab";
-    this.name = "Sketchfab";
+    this.name = i18n.t('editor:sources.sketchfab.name');
 
     //Array containing tag options and used to show navbar for tags
     this.tags = [
@@ -548,7 +549,7 @@ export default class SketchfabSource extends ModelMediaSource {
         ]
       }
     ];
-    this.searchLegalCopy = "Search by Sketchfab";
+    this.searchLegalCopy = i18n.t('editor:sources.sketchfab.search');
     this.privacyPolicyUrl = "https://sketchfab.com/privacy";
     this.transformPivot = TransformPivot.Bottom;
   }
