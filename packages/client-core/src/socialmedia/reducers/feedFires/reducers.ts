@@ -9,14 +9,14 @@ import {
   FEED_FIRES_RETRIEVED
 } from '../actions';
 
-export const initialState = {
+export const initialFeedFireState = {
   feedFires: {
     feedFires: [],    
     fetching: false
   },
 };
 
-const immutableState = Immutable.fromJS(initialState);
+const immutableState = Immutable.fromJS(initialFeedFireState);
 
 const feedFiresReducer = (state = immutableState, action: FeedFiresAction): any => {
   switch (action.type) {

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import emailjs from 'emailjs-com';
 //@ts-ignore
-import styles from './style.module.css';
+import * as styles from './style.module.css';
 import { withTranslation } from 'react-i18next';
 
 export class ContactForm extends Component {

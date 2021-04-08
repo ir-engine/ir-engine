@@ -7,7 +7,7 @@ import { logoutUser } from '../../../user/reducers/auth/service';
 import { showDialog } from '../../reducers/dialog/service';
 import SignIn from '../../../user/components/Auth/Login';
 import Dropdown from '../../../user/components/Profile/ProfileDropdown';
-import styles from './NavUserWidget.module.scss';
+import * as styles from './NavUserWidget.module.scss';
 import {Button} from '@material-ui/core';
 
 const mapStateToProps = (state: any): any => {

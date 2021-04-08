@@ -8,7 +8,7 @@ import VisibilityIcon from '@material-ui/icons/Visibility';
 import StarIcon from '@material-ui/icons/Star';
 import StarOutlineIcon from '@material-ui/icons/StarOutline';
 
-import styles from './Featured.module.scss';
+import * as styles from './Featured.module.scss';
 import { bindActionCreators, Dispatch } from 'redux';
 import { selectCreatorsState } from '../../reducers/creator/selector';
 import { selectFeedsState } from '../../reducers/feed/selector';

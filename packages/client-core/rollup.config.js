@@ -6,17 +6,23 @@ import html from '@rollup/plugin-html';
 import scss from 'rollup-plugin-scss';
 import { terser } from 'rollup-plugin-terser';
 import livereload from 'rollup-plugin-livereload';
+import json from '@rollup/plugin-json';
 
 const isProd = process.env.NODE_ENV === 'production';
 const extensions = ['.js', '.ts', '.tsx'];
 
 export default {
-  input: 'src/index.tsx',
+  input: 'index.ts',
   output: {
-    file: 'public/index.js',
+    file: 'build/index.js',
     format: 'iife',
   },
   plugins: [
+    scss({
+      exlude: /node_modules/,
+      output: 'build/index.css',
+    }),
+    json(),
     replace({
       'process.env.NODE_ENV': JSON.stringify(isProd ? 'production' : 'development'),
     }),
@@ -71,12 +77,9 @@ export default {
 `;
       },
     }),
-    scss({
-      output: 'public/index.css',
-    }),
     (isProd && terser()),
     (!isProd && livereload({
-      watch: 'public',
+      watch: 'build',
     })),
   ],
 };
