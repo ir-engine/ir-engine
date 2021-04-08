@@ -8,6 +8,7 @@ import { QueryTypes } from "sequelize";
 import { Feed as FeedInterface } from '../../../../common/interfaces/Feed';
 import { extractLoggedInUserFromParams } from "../../user/auth-management/auth-management.utils";
 import { BadRequest } from '@feathersjs/errors';
+import { getCreatorByUserId } from '../util/getCreator';
 /**
  * A class for ARC Feed service
  */
@@ -67,21 +68,9 @@ export class Feed extends Service {
         total: feeds.count,
       };
     }
-
-    //common  - TODO -move somewhere
-    let creatorId =  params.query?.creatorId ? params.query.creatorId : null;
     const loggedInUser = extractLoggedInUserFromParams(params);
-    if(loggedInUser){
-      const creatorQuery = `SELECT id  FROM \`creator\` WHERE userId=:userId`;
-      const [creator] = await this.app.get('sequelizeClient').query(creatorQuery,
-        {
-          type: QueryTypes.SELECT,
-          raw: true,
-          replacements: {userId:loggedInUser.userId}
-        });  
-      creatorId = creator?.id ;
-    }
-
+    let creatorId =  params.query?.creatorId ? params.query.creatorId : await getCreatorByUserId(loggedInUser?.userId, this.app.get('sequelizeClient'));
+  
     //Featured menu item
     if (action === 'featured') {
       const select = `SELECT feed.id, feed.viewsCount, sr.url as previewUrl 
@@ -120,8 +109,7 @@ export class Feed extends Service {
         JOIN \`static_resource\` as sr ON sr.id=feed.previewId
         WHERE feed.creatorId=:creatorId
         ORDER BY feed.createdAt DESC    
-        LIMIT :skip, :limit 
-        `;
+        LIMIT :skip, :limit `;
       
       queryParamsReplacements.creatorId =  params.query?.creatorId ? params.query.creatorId : creatorId;
       const feeds = await this.app.get('sequelizeClient').query(dataQuery,
@@ -169,8 +157,7 @@ export class Feed extends Service {
         JOIN \`feed_bookmark\` as fb ON fb.feedId=feed.id
         WHERE fb.creatorId=:creatorId
         ORDER BY feed.createdAt DESC    
-        LIMIT :skip, :limit 
-        `;
+        LIMIT :skip, :limit `;
       
       queryParamsReplacements.creatorId = creatorId;
       const feeds = await this.app.get('sequelizeClient').query(dataQuery,
@@ -239,7 +226,6 @@ export class Feed extends Service {
         title: feed.title,
         viewsCount: feed.viewsCount
       };
-
       return newFeed;
     });
 
@@ -277,16 +263,7 @@ export class Feed extends Service {
         id,
       } as any;
 
-      //common  - TODO -move somewhere
-      const loggedInUser = extractLoggedInUserFromParams(params);
-      const creatorQuery = `SELECT id  FROM \`creator\` WHERE userId=:userId`;
-      const [creator] = await this.app.get('sequelizeClient').query(creatorQuery,
-        {
-          type: QueryTypes.SELECT,
-          raw: true,
-          replacements: {userId:loggedInUser.userId}
-        });   
-      const creatorId = creator.id;
+      const creatorId = await getCreatorByUserId(extractLoggedInUserFromParams(params)?.userId, this.app.get('sequelizeClient'));
 
       if(creatorId){
         select += ` , isf.id as fired, isb.id as bookmarked `;
@@ -326,18 +303,7 @@ export class Feed extends Service {
 
     async create (data: any,  params?: Params): Promise<any> {
       const {feed:feedModel} = this.app.get('sequelizeClient').models;
-
-      //common  - TODO -move somewhere
-      const loggedInUser = extractLoggedInUserFromParams(params);
-      const creatorQuery = `SELECT id  FROM \`creator\` WHERE userId=:userId`;
-      const [creator] = await this.app.get('sequelizeClient').query(creatorQuery,
-        {
-          type: QueryTypes.SELECT,
-          raw: true,
-          replacements: {userId:loggedInUser.userId}
-        });   
-
-      data.creatorId = creator.id;
+      data.creatorId = await getCreatorByUserId(extractLoggedInUserFromParams(params)?.userId, this.app.get('sequelizeClient'));
       const newFeed =  await feedModel.create(data);
       return  newFeed;
     }
@@ -364,7 +330,6 @@ export class Feed extends Service {
     }else{
       result = await super.patch(id, data);
     }
-    console.log('result', result);
     return result;
     
   }
