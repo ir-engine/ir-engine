@@ -1,10 +1,12 @@
+/**
+ * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
+ */
 import { Service, SequelizeServiceOptions } from 'feathers-sequelize';
 import { Application } from '../../../declarations';
 import { Id, Params } from "@feathersjs/feathers";
 import { QueryTypes } from "sequelize";
-import { Creator as CreatorInterface } from '../../../../common/interfaces/Creator';
 import { extractLoggedInUserFromParams } from "../../user/auth-management/auth-management.utils";
-import { BadRequest } from '@feathersjs/errors';
+import { getCreatorByUserId } from '../util/getCreator';
 /**
  * A class for ARC Creator service
  */
@@ -85,21 +87,7 @@ export class Creator extends Service {
    * @author Vykliuk Tetiana
    */
     async get (id: Id, params?: Params): Promise<any> {
-
-      //common  - TODO -move somewhere
-      let creatorId = null;
-      const loggedInUser = extractLoggedInUserFromParams(params);
-      if(loggedInUser){
-        const creatorQuery = `SELECT id  FROM \`creator\` WHERE userId=:userId`;
-        const [currentCreator] = await this.app.get('sequelizeClient').query(creatorQuery,
-          {
-            type: QueryTypes.SELECT,
-            raw: true,
-            replacements: {userId:loggedInUser?.userId}
-          });   
-        creatorId = currentCreator?.id;
-      }     
-
+      const creatorId = await getCreatorByUserId(extractLoggedInUserFromParams(params)?.userId, this.app.get('sequelizeClient'));
 
       let select = `SELECT creator.* , sr.url as avatar `;
       let from = ` FROM \`creator\` as creator 
@@ -125,7 +113,6 @@ export class Creator extends Service {
     }
 
     async create (data: any,  params?: Params): Promise<any> {
-      //common  - TODO -move somewhere
       const loggedInUser = extractLoggedInUserFromParams(params);
       const creatorQuery = `SELECT id  FROM \`creator\` WHERE userId=:userId`;
       let [creator] = await this.app.get('sequelizeClient').query(creatorQuery,
@@ -134,7 +121,7 @@ export class Creator extends Service {
           raw: true,
           replacements: {userId:loggedInUser.userId}
         });   
-        const creatorId = creator?.id;
+      const creatorId = creator?.id;
 
       if(!creatorId){
         const {creator:creatorModel} = this.app.get('sequelizeClient').models;
