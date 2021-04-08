@@ -2,15 +2,13 @@ import React, { Fragment, useState } from 'react';
 import EmailIcon from '@material-ui/icons/Email';
 import SocialIcon from '@material-ui/icons/Public';
 import UserIcon from '@material-ui/icons/Person';
-import getConfig from 'next/config';
+import { Config } from '../../../helper';
 import MagicLinkEmail from './MagicLinkEmail';
 import { Tabs, Tab } from '@material-ui/core';
 import styles from './Auth.module.scss';
 import SocialLogin from './SocialLogin';
 import PasswordLogin from './PasswordLogin';
 import { useTranslation } from "react-i18next";
-
-const config = getConfig().publicRuntimeConfig;
 
 const TabPanel = (props: any): any => {
   const { children, value, index } = props;
@@ -40,15 +38,15 @@ const SignIn = (): any => {
     setTabIndex(newValue);
   };
 
-  if (config?.auth) {
-    enableSmsMagicLink = config.auth.enableSmsMagicLink;
-    enableEmailMagicLink = config.auth.enableEmailMagicLink;
-    enableUserPassword = config.auth.enableUserPassword;
-    enableGithubSocial = config.auth.enableGithubSocial;
-    enableGoogleSocial = config.auth.enableGoogleSocial;
-    enableFacebookSocial = config.auth.enableFacebookSocial;
-    enableLinkedInSocial = config.auth.enableLinkedInSocial;
-    enableTwitterSocial = config.auth.enableTwitterSocial;
+  if (Config.publicRuntimeConfig?.auth) {
+    enableSmsMagicLink = Config.publicRuntimeConfig.auth.enableSmsMagicLink;
+    enableEmailMagicLink = Config.publicRuntimeConfig.auth.enableEmailMagicLink;
+    enableUserPassword = Config.publicRuntimeConfig.auth.enableUserPassword;
+    enableGithubSocial = Config.publicRuntimeConfig.auth.enableGithubSocial;
+    enableGoogleSocial = Config.publicRuntimeConfig.auth.enableGoogleSocial;
+    enableFacebookSocial = Config.publicRuntimeConfig.auth.enableFacebookSocial;
+    enableLinkedInSocial = Config.publicRuntimeConfig.auth.enableLinkedInSocial;
+    enableTwitterSocial = Config.publicRuntimeConfig.auth.enableTwitterSocial;
   }
 
   const socials = [

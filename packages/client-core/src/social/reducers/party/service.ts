@@ -14,10 +14,9 @@ import {
   removedPartyUser
 } from './actions';
 
-import getConfig from 'next/config';
+import { Config } from '../../../helper';
 import { dispatchAlertError } from '@xr3ngine/client-core/src/common/reducers/alert/service';
 import store from '@xr3ngine/client-core/src/store';
-const { publicRuntimeConfig } = getConfig();
 
 export function getParty () {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
@@ -128,7 +127,7 @@ export function transferPartyOwner(partyUserId: string) {
   };
 }
 
-if(!publicRuntimeConfig.offlineMode) {
+if(!Config.publicRuntimeConfig.offlineMode) {
   client.service('party-user').on('created', async (params) => {
     const selfUser = (store.getState() as any).get('auth').get('user');
     if ((store.getState() as any).get('party').get('party') == null) {

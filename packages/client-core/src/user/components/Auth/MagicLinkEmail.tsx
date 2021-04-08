@@ -9,15 +9,12 @@ import Grid from '@material-ui/core/Grid';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
 import NextLink from 'next/link';
-import getConfig from 'next/config';
+import { Config } from '../../../helper';
 import styles from './Auth.module.scss';
 import { User } from '@xr3ngine/common/interfaces/User';
 import { createMagicLink, addConnectionBySms, addConnectionByEmail } from '@xr3ngine/client-core/src/user/reducers/auth/service';
 import { selectAuthState } from '@xr3ngine/client-core/src/user/reducers/auth/selector';
 import { Trans, useTranslation } from "react-i18next";
-
-const config = getConfig().publicRuntimeConfig.staticPages;
-const authConfig = getConfig().publicRuntimeConfig.auth;
 
 interface Props {
   auth?: any;
@@ -48,7 +45,7 @@ const defaultState = {
   descr: ''
 };
 
-const termsOfService = (config?.termsOfService) ?? '/terms-of-service';
+const termsOfService = (Config.publicRuntimeConfig.staticPages?.termsOfService) ?? '/terms-of-service';
 
 const MagicLinkEmail = (props: Props): any => {
   const { auth, type, isAddConnection, createMagicLink, addConnectionBySms, addConnectionByEmail } = props;
@@ -92,20 +89,20 @@ const MagicLinkEmail = (props: Props): any => {
       descr = t('user:auth.magiklink.descriptionSMS');
       label = t('user:auth.magiklink.lbl-phone');
       return;
-    } else if (!authConfig) {
+    } else if (!Config.publicRuntimeConfig.auth) {
       descr = t('user:auth.magiklink.descriptionEmail');
       label = t('user:auth.magiklink.lbl-email');
       return;
     }
     // Auth config is using Sms and Email, so handle both
     if (
-      authConfig.enableSmsMagicLink &&
-      authConfig.enableEmailMagicLink &&
+      Config.publicRuntimeConfig.auth.enableSmsMagicLink &&
+      Config.publicRuntimeConfig.auth.enableEmailMagicLink &&
       !type
     ) {
       descr = t('user:auth.magiklink.descriptionEmailSMS');
       label = t('user:auth.magiklink.lbl-emailPhone');
-    } else if (authConfig.enableSmsMagicLink) {
+    } else if (Config.publicRuntimeConfig.auth.enableSmsMagicLink) {
       descr = t('user:auth.magiklink.descriptionSMSUS');
       label = t('user:auth.magiklink.lbl-phone');
     } else {

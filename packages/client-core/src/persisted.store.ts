@@ -1,9 +1,6 @@
-import getConfig from 'next/config';
+import { Config } from './helper';
 
 import { RESTORE } from '@xr3ngine/client-core/src/user/reducers/actions';
-
-const { publicRuntimeConfig } = getConfig();
-const localStorageKey: string = publicRuntimeConfig.localStorageKey;
 
 export function restoreState (): any {
   return {
@@ -15,7 +12,7 @@ export function getStoredState (key: string) {
   if (!window) {
     return undefined;
   }
-  const rawState = localStorage.getItem(localStorageKey);
+  const rawState = localStorage.getItem(Config.publicRuntimeConfig.localStorageKey.localStorageKey);
   if (!rawState) {
     return undefined;
   }
@@ -24,5 +21,5 @@ export function getStoredState (key: string) {
 }
 
 export function saveState (state: any) {
-  localStorage.setItem(localStorageKey, JSON.stringify(state));
+  localStorage.setItem(Config.publicRuntimeConfig.localStorageKey.localStorageKey, JSON.stringify(state));
 }

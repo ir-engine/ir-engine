@@ -4,15 +4,11 @@ import {
   // scenesFetchedError,
   PublicScene
 } from './actions';
-
-import getConfig from 'next/config';
-const config = getConfig().publicRuntimeConfig.xr.vrRoomGrid;
-
-const media: PublicScene[] = config.scenes;
+import { Config } from '../../../helper';
 
 export function fetchPublicScenes () {
   return (dispatch: Dispatch): any => {
-    const scenes = media as PublicScene[];
+    const scenes = Config.publicRuntimeConfig.xr.vrRoomGrid.scenes as PublicScene[];
     return dispatch(scenesFetchedSuccess(scenes));
   };
 }
