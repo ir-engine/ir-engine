@@ -1,4 +1,4 @@
-import { Matrix4, Vector3, Quaternion } from 'three';
+import { Matrix4, Vector3, Euler, Quaternion } from 'three';
 import CANNON, { Vec3 } from 'cannon-es';
 import { Engine } from '../../ecs/classes/Engine';
 
@@ -59,50 +59,67 @@ export const physicsMove: Behavior = (entity: Entity, args: any, deltaTime): voi
     actor.localMovementDirection.z = actor.localMovementDirection.z * 0.8
     //actor.localMovementDirection.multiplyScalar(0.5)
   }
-  if (Engine.xrSession != null) {
 
+  const newVelocity = new Vector3();
+  const arcadeVelocity = new Vector3();
+  const simulatedVelocity = new Vector3();
+
+  if (actor.state) { // Engine.xrSession != null
+    const inputs = getComponent(entity, Input);
     let rotationVector = null;
     switch (XRUserSettings.moving) {
       case 'followController':
         rotationVector = XRUserSettings.invertRotationAndMoveSticks ? inputs.data.get(BaseInput.XR_RIGHT_HAND).value : inputs.data.get(BaseInput.XR_LEFT_HAND).value;
+        rotationVector = new Quaternion().set(rotationVector.qX,rotationVector.qY,rotationVector.qZ,rotationVector.qW)//.invert();
+
+        const flatViewVector = new Vector3(actor.viewVector.x, 0, actor.viewVector.z).normalize();
+        const orientationVector = applyVectorMatrixXZ(flatViewVector, forwardVector);
+        const viewVectorFlatQuaternion = new Quaternion().setFromUnitVectors(forwardVector, orientationVector.setY(0));
+        rotationVector.multiply( viewVectorFlatQuaternion );
+
         break;
       case 'followHead':
         rotationVector = inputs.data.get(BaseInput.XR_HEAD).value;
+        rotationVector = new Quaternion().set(rotationVector.qX,rotationVector.qY,rotationVector.qZ,rotationVector.qW);
         break;
-        console.warn(rotationVector);
-        console.warn(actor.orientation);
     }
+    // Get velocities
+    simulatedVelocity.set(body.velocity.x, body.velocity.y, body.velocity.z);
+    actor.velocity.copy(actor.localMovementDirection);
+    arcadeVelocity.copy(actor.velocity).multiplyScalar(actor.moveSpeed);
+  //  console.warn(rotationVector);
+    arcadeVelocity.applyQuaternion(rotationVector)
 
+  } else {
+    // Figure out angle between current and target orientation
+    const angle = getSignedAngleBetweenVectors(actor.orientation, actor.orientationTarget);
+    // Simulator
+    actor.rotationSimulator.target = angle;
+    actor.rotationSimulator.simulate(deltaTime);
+    const rot = actor.rotationSimulator.position;
+    // Updating values
+    actor.orientation.applyAxisAngle(upVector, rot);
+    actor.angularVelocity = actor.rotationSimulator.velocity;
+    // Handle JUMP
+    if (actor.localMovementDirection.y > 0 && actor.rayHasHit) {
+      actor.wantsToJump = true
+    }
+    // velocitySimulator
+    actor.velocityTarget.copy(actor.localMovementDirection);
+    actor.velocitySimulator.target.copy(actor.velocityTarget);
+    actor.velocitySimulator.simulate(deltaTime);
+    actor.velocity.copy(actor.velocitySimulator.position);
+    actor.acceleration.copy(actor.velocitySimulator.velocity);
+    // add new velocity
+
+    // Get velocities
+    simulatedVelocity.set(body.velocity.x, body.velocity.y, body.velocity.z);
+    // Take local velocity
+    arcadeVelocity.copy(actor.velocity).multiplyScalar(actor.moveSpeed);
+    // Turn local into global
+    arcadeVelocity.copy(applyVectorMatrixXZ(actor.orientation, arcadeVelocity));
   }
-  // Figure out angle between current and target orientation
-  const angle = getSignedAngleBetweenVectors(actor.orientation, actor.orientationTarget);
-  // Simulator
-  actor.rotationSimulator.target = angle;
-  actor.rotationSimulator.simulate(deltaTime);
-  const rot = actor.rotationSimulator.position;
-  // Updating values
-  actor.orientation.applyAxisAngle(upVector, rot);
-  actor.angularVelocity = actor.rotationSimulator.velocity;
-  // Handle JUMP
-  if (actor.localMovementDirection.y > 0 && actor.rayHasHit) {
-    actor.wantsToJump = true
-  }
-  // velocitySimulator
-  actor.velocityTarget.copy(actor.localMovementDirection);
-  actor.velocitySimulator.target.copy(actor.velocityTarget);
-  actor.velocitySimulator.simulate(deltaTime);
-  actor.velocity.copy(actor.velocitySimulator.position);
-  actor.acceleration.copy(actor.velocitySimulator.velocity);
-  // add new velocity
-  const newVelocity = new Vector3();
-  const arcadeVelocity = new Vector3();
-  const simulatedVelocity = new Vector3();
-  // Get velocities
-  simulatedVelocity.set(body.velocity.x, body.velocity.y, body.velocity.z);
-  // Take local velocity
-  arcadeVelocity.copy(actor.velocity).multiplyScalar(actor.moveSpeed);
-  // Turn local into global
-  arcadeVelocity.copy(applyVectorMatrixXZ(actor.orientation, arcadeVelocity));
+
   // Additive velocity mode
   if (actor.arcadeVelocityIsAdditive) {
   	newVelocity.copy(simulatedVelocity);

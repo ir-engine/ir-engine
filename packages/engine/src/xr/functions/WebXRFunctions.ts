@@ -87,6 +87,9 @@ export const startXR = async () => {
     controllerMeshRight.material = new MeshPhongMaterial();
     controllerMeshLeft.material = new MeshPhongMaterial();
 
+    controllerMeshRight.position.z = -0.12;
+    controllerMeshLeft.position.z = -0.12;
+
     controllerGripRight.add(controllerMeshRight);
     controllerGripLeft.add(controllerMeshLeft);
 
