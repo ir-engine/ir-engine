@@ -25,7 +25,8 @@ async function generateEmail (
   const emailAccountTemplatesPath = path.join(
     appPath,
     '..',
-    'src',
+    '..',
+    'server-core',
     'email-templates',
     'invite'
   );
@@ -72,7 +73,8 @@ async function generateSMS (
   const emailAccountTemplatesPath = path.join(
     appPath,
     '..',
-    'src',
+    '..',
+    'server-core',
     'email-templates',
     'account'
   );

@@ -34,7 +34,8 @@ export default (app: Application): any => {
       const emailAccountTemplatesPath = path.join(
           appPath,
           '..',
-          'src',
+          '..',
+          'server-core',
           'email-templates',
           'account'
       );

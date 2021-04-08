@@ -8,7 +8,8 @@ import NodeEditor from "./NodeEditor";
 import { Cloud } from "@styled-icons/fa-solid/Cloud";
 import { EquirectangularOption } from "./EquirectangularList";
 import { CubemapOption } from "./CubemapList";
-import { node } from "prop-types";
+import i18n from "i18next";
+import { withTranslation } from "react-i18next";
 
 const hoursToRadians = hours => hours / 24;
 const radiansToHours = rads => rads * 24;
@@ -39,19 +40,21 @@ const SkyOption = [
 type SkyboxNodeEditorProps = {
   editor?: object;
   node?: object;
+  t: Function;
 };
 
 /**
  * [SkyboxNodeEditor component class used to render editor view to customize component property]
  * @type {class component}
  */
-export default class SkyboxNodeEditor extends Component<
+export class SkyboxNodeEditor extends Component<
   SkyboxNodeEditorProps,
   {}
   > {
 
   //defining iconComponent with icon name
   static iconComponent = Cloud;
+  static description = i18n.t('editor:properties.skybox.description');
 
   //function to handle changes in turbidity Property
   onChangeTurbidity = turbidity => {
@@ -132,6 +135,7 @@ export default class SkyboxNodeEditor extends Component<
       { /* @ts-ignore */}
       <NumericInputGroup
         name="Time of Day"
+        label={this.props.t('editor:properties.skybox.lbl-timeOfDay')}
         smallStep={0.1}
         mediumStep={0.5}
         largeStep={1}
@@ -146,6 +150,7 @@ export default class SkyboxNodeEditor extends Component<
       { /* @ts-ignore */}
       <RadianNumericInputGroup
         name="Latitude"
+        label={this.props.t('editor:properties.skybox.lbl-latitude')}
         min={-90}
         max={90}
         smallStep={0.1}
@@ -155,7 +160,10 @@ export default class SkyboxNodeEditor extends Component<
         onChange={this.onChangeInclination}
       />
       { /* @ts-ignore */}
-      <InputGroup name="Luminance">
+      <InputGroup
+        name="Luminance"
+        label={this.props.t('editor:properties.skybox.lbl-luminance')}
+      >
         <CompoundNumericInput
           min={0.001}
           max={1.189}
@@ -165,7 +173,10 @@ export default class SkyboxNodeEditor extends Component<
         />
       </InputGroup>
       { /* @ts-ignore */}
-      <InputGroup name="Scattering Amount">
+      <InputGroup
+        name="Scattering Amount"
+        label={this.props.t('editor:properties.skybox.lbl-scattering')}
+      >
         <CompoundNumericInput
           min={0}
           max={0.1}
@@ -175,7 +186,10 @@ export default class SkyboxNodeEditor extends Component<
         />
       </InputGroup>
       { /* @ts-ignore */}
-      <InputGroup name="Scattering Distance">
+      <InputGroup
+        name="Scattering Distance"
+        label={this.props.t('editor:properties.skybox.lbl-scatteringDistance')}
+      >
         <CompoundNumericInput
           min={0}
           max={1}
@@ -185,7 +199,10 @@ export default class SkyboxNodeEditor extends Component<
         />
       </InputGroup>
       { /* @ts-ignore */}
-      <InputGroup name="Horizon Start">
+      <InputGroup
+        name="Horizon Start"
+        label={this.props.t('editor:properties.skybox.lbl-horizonStart')}
+      >
         <CompoundNumericInput
           min={1}
           max={20}
@@ -194,7 +211,10 @@ export default class SkyboxNodeEditor extends Component<
         />
       </InputGroup>
       { /* @ts-ignore */}
-      <InputGroup name="Horizon End">
+      <InputGroup
+        name="Horizon End"
+        label={this.props.t('editor:properties.skybox.lbl-horizonEnd')}
+      >
         <CompoundNumericInput
           min={0}
           max={4}
@@ -208,7 +228,10 @@ export default class SkyboxNodeEditor extends Component<
   renderEquirectangularSettings = (node) =>
     <>
       { /* @ts-ignore */}
-      <InputGroup name="Texture">
+      <InputGroup
+        name="Texture"
+        label={this.props.t('editor:properties.skybox.lbl-texture')}
+      >
         { /* @ts-ignore */}
         <SelectInput
           options={EquirectangularOption}
@@ -222,7 +245,10 @@ export default class SkyboxNodeEditor extends Component<
   renderCubemapSettings = (node) =>
     <>
       { /* @ts-ignore */}
-      <InputGroup name="Texture">
+      <InputGroup
+        name="Texture"
+        label={this.props.t('editor:properties.skybox.lbl-texture')}
+      >
         { /* @ts-ignore */}
         <SelectInput
           options={CubemapOption}
@@ -246,12 +272,16 @@ export default class SkyboxNodeEditor extends Component<
 
   // rendering editor view for SkyboxNode
   render() {
+    SkyboxNodeEditor.description = this.props.t('editor:properties.skybox.description');
     const node = this.props.node as any;
     return (
       /* @ts-ignore */
       <NodeEditor description={SkyboxNodeEditor.description} {...this.props}>
         { /* @ts-ignore */}
-        <InputGroup name="Sky Type">
+        <InputGroup
+          name="Sky Type"
+          label={this.props.t('editor:properties.skybox.lbl-skyType')}
+        >
           { /* @ts-ignore */}
           <SelectInput
             options={SkyOption}
@@ -264,3 +294,5 @@ export default class SkyboxNodeEditor extends Component<
     );
   }
 }
+
+export default withTranslation()(SkyboxNodeEditor);

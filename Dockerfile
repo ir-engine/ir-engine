@@ -15,9 +15,13 @@ RUN yarn global add lerna --loglevel notice
 COPY package.json .
 COPY packages/client/package.json ./packages/client/
 COPY packages/client-core/package.json ./packages/client-core/
+COPY packages/client-ml/package.json ./packages/client-ml/
+COPY packages/client-networking/package.json ./packages/client-networking/
 COPY packages/common/package.json ./packages/common/
 COPY packages/engine/package.json ./packages/engine/
+COPY packages/gameserver/package.json ./packages/gameserver/
 COPY packages/server/package.json ./packages/server/
+COPY packages/server-core/package.json ./packages/server-core/
 COPY packages/social/package.json ./packages/social/
 COPY packages/native-plugin-xr/package.json ./packages/native-plugin-xr/
 COPY packages/volumetric/package.json ./packages/volumetric/

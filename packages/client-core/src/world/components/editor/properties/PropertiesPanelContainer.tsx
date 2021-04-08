@@ -9,6 +9,7 @@ import TransformPropertyGroup from "./TransformPropertyGroup";
 import NameInputGroup from "./NameInputGroup";
 import InputGroup from "../inputs/InputGroup";
 import BooleanInput from "../inputs/BooleanInput";
+import { withTranslation } from "react-i18next";
 
 /**
  * [StyledNodeEditor used as wrapper container element properties container]
@@ -79,7 +80,7 @@ const NoNodeSelectedMessage = (styled as any).div`
  * [PropertiesPanelContainer used to render editor view to customize property of selected element]
  * @extends Component
  */
-class PropertiesPanelContainer extends Component {
+class PropertiesPanelContainer extends Component<{t: Function}> {
   static propTypes = {
     editor: PropTypes.object
   };
@@ -141,7 +142,7 @@ class PropertiesPanelContainer extends Component {
     let content;
 
     if (selected.length === 0) {
-      content = <NoNodeSelectedMessage>No node selected</NoNodeSelectedMessage>;
+      content = <NoNodeSelectedMessage>{this.props.t('editor:properties.noNodeSelected')}</NoNodeSelectedMessage>;
     } else {
       const activeNode = selected[selected.length - 1];
       const NodeEditor = editor.getNodeEditor(activeNode) || DefaultNodeEditor;
@@ -162,7 +163,7 @@ class PropertiesPanelContainer extends Component {
       if (showNodeEditor) {
         nodeEditor = <NodeEditor multiEdit={multiEdit} node={activeNode} editor={editor} />;
       } else {
-        nodeEditor = <NoNodeSelectedMessage>Multiple Nodes of different types selected</NoNodeSelectedMessage>;
+        nodeEditor = <NoNodeSelectedMessage>{this.props.t('editor:properties.multipleNodeSelected')}</NoNodeSelectedMessage>;
       }
 
       const disableTransform = selected.some(node => node.disableTransform);
@@ -173,7 +174,7 @@ class PropertiesPanelContainer extends Component {
             <NameInputGroupContainer>
               <NameInputGroup node={activeNode} editor={editor} />
               {activeNode.nodeName !== "Scene" && (
-                <VisibleInputGroup name="Visible">
+                <VisibleInputGroup name="Visible" label={this.props.t('editor:properties.lbl-visible')}>
                   <BooleanInput value={activeNode.visible} onChange={this.onChangeVisible} />
                 </VisibleInputGroup>
               )}
@@ -187,11 +188,11 @@ class PropertiesPanelContainer extends Component {
 
     return (
       /* @ts-ignore */
-      <Panel id="properties-panel" title="Properties" icon={SlidersH}>
+      <Panel id="properties-panel" title={this.props.t('editor:properties.title')} icon={SlidersH}>
         <PropertiesPanelContent>{content}</PropertiesPanelContent>
       </Panel>
     );
   }
 }
 
-export default withEditor(PropertiesPanelContainer);
+export default withTranslation()(withEditor(PropertiesPanelContainer));

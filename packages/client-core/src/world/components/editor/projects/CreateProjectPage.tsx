@@ -22,9 +22,11 @@ import { withApi } from "../contexts/ApiContext";
 import usePaginatedSearch from "./usePaginatedSearch";
 import configs from "../configs";
 import Api from "../Api";
+import { useTranslation } from "react-i18next";
 
 function CreateProjectPage({ api }: { api: Api }) {
   const router = useRouter();
+  const { t } = useTranslation();
 
   const queryParams = new Map(Object.entries(router.query));
 
@@ -105,7 +107,7 @@ function CreateProjectPage({ api }: { api: Api }) {
   })) : [];
 
   //@ts-ignore
-  const searchInput = <SearchInput placeholder="Search scenes..." value={params.q} onChange={onChangeQuery} />;
+  const searchInput = <SearchInput placeholder={t('editor:projects.createProject.ph-search')} value={params.q} onChange={onChangeQuery} />;
 
   return (
     <>
@@ -113,26 +115,26 @@ function CreateProjectPage({ api }: { api: Api }) {
         <ProjectsSection>
           <ProjectsContainer>
             <ProjectsHeader>
-              <h1>New Project</h1>
+              <h1>{t('editor:projects.createProject.header')}</h1>
               <PrimaryLink href="/editor/projects">
-                Back to projects
+                {t('editor:projects.createProject.backLink')}
               </PrimaryLink>
             </ProjectsHeader>
             <ProjectGridContainer>
               <ProjectGridHeader>
               <ProjectGridHeaderRow>
                   <Filter active={params.filter === "featured-remixable"} onClick={onSetFeaturedRemixable}>
-                    Featured
+                    {t('editor:projects.createProject.featured')}
                   </Filter>
                   <Filter active={params.filter === "remixable"} onClick={onSetAll}>
-                    All
+                    {t('editor:projects.createProject.all')}
                   </Filter>
                   <Separator />
                   {searchInput}
                 </ProjectGridHeaderRow>
                 <ProjectGridHeaderRow>
                   <Button onClick={routeTo('/editor/projects/new')}>
-                    New Empty Project
+                    {t('editor:projects.createProject.newProject')}
                   </Button>
                 </ProjectGridHeaderRow>
               </ProjectGridHeader>
@@ -151,7 +153,7 @@ function CreateProjectPage({ api }: { api: Api }) {
                     <ProjectGrid
                       projects={filteredEntries}
                       newProjectPath="/editor/projects/new"
-                      newProjectLabel="New Empty Project"
+                      newProjectLabel={t('editor:projects.createProject.newProject')}
                       /* @ts-ignore */
                       onSelectProject={onSelectScene}
                       loading={loading}

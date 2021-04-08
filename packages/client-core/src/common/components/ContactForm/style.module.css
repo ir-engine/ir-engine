@@ -15,6 +15,8 @@
     background: black;
     padding: 30px 35px;
     border-radius: 5px;
+    position: absolute;
+    right: 100px;
 }
 .emailTitle{
     font-size: 3rem;

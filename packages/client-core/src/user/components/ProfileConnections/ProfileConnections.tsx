@@ -3,10 +3,10 @@ import Grid from '@material-ui/core/Grid';
 import Divider from '@material-ui/core/Divider';
 import Typography from '@material-ui/core/Typography';
 import { connect } from 'react-redux';
-import { selectAuthState } from '../../../reducers/auth/selector';
 import SingleConnection from './SingleConnection';
 import { User } from '@xr3ngine/common/interfaces/User';
 import styles from './ProfileConnections.module.scss';
+import { selectAuthState } from '../../reducers/auth/selector';
 
 interface Props {
   auth: any;
