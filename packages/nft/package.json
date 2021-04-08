@@ -1,6 +1,6 @@
 {
   "name": "@xr3ngine/nft",
-  "version": "0.2.13",
+  "version": "0.2.14",
   "private": true,
   "repository": {
     "type": "git",
@@ -84,10 +84,10 @@
     "@web3-react/trezor-connector": "^6.1.9",
     "@web3-react/walletconnect-connector": "^6.1.9",
     "@web3-react/walletlink-connector": "^6.1.9",
-    "@xr3ngine/client-core": "^0.2.13",
-    "@xr3ngine/common": "^0.2.13",
-    "@xr3ngine/engine": "^0.2.13",
-    "@xr3ngine/native-plugin-xr": "^0.2.13",
+    "@xr3ngine/client-core": "^0.2.14",
+    "@xr3ngine/common": "^0.2.14",
+    "@xr3ngine/engine": "^0.2.14",
+    "@xr3ngine/native-plugin-xr": "^0.2.14",
     "app-root-path": "^3.0.0",
     "autobind-decorator": "^2.4.0",
     "autoprefixer": "^9.7.5",
