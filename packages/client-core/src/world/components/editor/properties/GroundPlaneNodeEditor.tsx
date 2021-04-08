@@ -4,6 +4,8 @@ import InputGroup from "../inputs/InputGroup";
 import ColorInput from "../inputs/ColorInput";
 import BooleanInput from "../inputs/BooleanInput";
 import { SquareFull } from "@styled-icons/fa-solid/SquareFull";
+import i18n from "i18next";
+import { withTranslation } from "react-i18next";
 
 /**
  * [Declairing GroundPlaneNodeEditor properties]
@@ -13,13 +15,14 @@ import { SquareFull } from "@styled-icons/fa-solid/SquareFull";
 type GroundPlaneNodeEditorProps = {
   editor?: object;
   node?: object;
+  t: Function;
 };
 
 /**
  * [iconComponent is used to render GroundPlaneNode and provide inputs to customize floorPlanNode]
  * @type {class component}
  */
-export default class GroundPlaneNodeEditor extends Component<
+export class GroundPlaneNodeEditor extends Component<
   GroundPlaneNodeEditorProps,
   {}
 > {
@@ -27,7 +30,7 @@ export default class GroundPlaneNodeEditor extends Component<
   static iconComponent = SquareFull;
 
   // setting description will show on properties container
-  static description = "A flat ground plane that extends into the distance.";
+  static description = i18n.t('editor:properties.groundPlan.description');
 
   //function handles the changes in color property
   onChangeColor = color => {
@@ -46,6 +49,7 @@ export default class GroundPlaneNodeEditor extends Component<
 
   //rendering GroundPlaneNode node customization view
   render() {
+    GroundPlaneNodeEditor.description = this.props.t('editor:properties.groundPlan.description');
     const node = this.props.node;
     return (
       <NodeEditor
@@ -54,12 +58,12 @@ export default class GroundPlaneNodeEditor extends Component<
         description={GroundPlaneNodeEditor.description}
       >
         { /* @ts-ignore */ }
-        <InputGroup name="Color">
+        <InputGroup name="Color" label={this.props.t('editor:properties.groundPlan.lbl-color')}>
         { /* @ts-ignore */ }
           <ColorInput value={node.color} onChange={this.onChangeColor} />
         </InputGroup>
         { /* @ts-ignore */ }
-        <InputGroup name="Receive Shadow">
+        <InputGroup name="Receive Shadow" label={this.props.t('editor:properties.groundPlan.lbl-receiveShadow')}>
           <BooleanInput
           /* @ts-ignore */
             value={node.receiveShadow}
@@ -67,7 +71,7 @@ export default class GroundPlaneNodeEditor extends Component<
           />
         </InputGroup>
         { /* @ts-ignore */ }
-        <InputGroup name="Walkable">
+        <InputGroup name="Walkable" label={this.props.t('editor:properties.groundPlan.lbl-walkable')}>
           <BooleanInput
             value={(this.props.node as any).walkable}
             onChange={this.onChangeWalkable}
@@ -77,3 +81,5 @@ export default class GroundPlaneNodeEditor extends Component<
     );
   }
 }
+
+export default withTranslation()(GroundPlaneNodeEditor);

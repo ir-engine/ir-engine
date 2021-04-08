@@ -4,7 +4,7 @@ import { bindActionCreators, Dispatch } from 'redux';
 import { selectFeedsState } from '../../reducers/feed/selector';
 import { getFeeds } from '../../reducers/feed/service';
 
-import FeedCard from '../common/FeedCard';
+import FeedCard from '../FeedCard';
 
 import styles from './TheFeed.module.scss';
 

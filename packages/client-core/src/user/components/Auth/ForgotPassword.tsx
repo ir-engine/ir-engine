@@ -5,7 +5,7 @@ import Typography from '@material-ui/core/Typography';
 import Container from '@material-ui/core/Container';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
-import { forgotPassword } from '@xr3ngine/client-core/src/user/reducers/auth/service';
+import { forgotPassword }  from '@xr3ngine/client-core/src/user/reducers/auth/service';
 import Grid from '@material-ui/core/Grid';
 import styles from './Auth.module.scss';
 
@@ -94,4 +94,4 @@ const ForgotPasswordComponent = (props: Props): any => {
 
 const ForgotPasswordWrapper = (props: any): any => <ForgotPasswordComponent {...props} />;
 
-export const ForgotPassword = connect(null, mapDispatchToProps)(ForgotPasswordWrapper);
+export default connect(null, mapDispatchToProps)(ForgotPasswordWrapper);

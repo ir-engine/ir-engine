@@ -1,1 +1,12 @@
-// FIXME: This file is needed to keep next-transpile-module working otherwise set other file in 'main' field of 'package.json' of this package.
+import editor from './i18n/en/editor.json';
+
+export const getI18nConfigs = () => {
+    return {
+        resources : {
+            en: {
+                editor,
+            },
+        },
+        namespace: [ 'editor' ],
+    };
+};
