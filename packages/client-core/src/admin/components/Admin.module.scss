@@ -82,6 +82,8 @@
       }
       &.actionCell{
         display: flex;  
+        flex-direction: row;
+        flex-flow: wrap;
         :global(.MuiButtonBase-root){
           width: fit-content;
           margin-right: 5px;
