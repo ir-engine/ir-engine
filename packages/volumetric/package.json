@@ -1,6 +1,6 @@
 {
   "name": "@xr3ngine/volumetric",
-  "version": "0.2.11",
+  "version": "0.2.12",
   "private": true,
   "repository": {
     "type": "git",
@@ -32,7 +32,7 @@
   },
   "dependencies": {
     "@easydarwin/easywasmplayer": "^4.0.11",
-    "@xr3ngine/engine": "^0.2.11",
+    "@xr3ngine/engine": "^0.2.12",
     "@xr3ngine/volumetric": "0.2.1",
     "broadway-player": "^0.1.1",
     "esm": "^3.2.25",
