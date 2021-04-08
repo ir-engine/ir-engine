@@ -69,7 +69,7 @@ export class Feed extends Service {
       };
     }
     const loggedInUser = extractLoggedInUserFromParams(params);
-    let creatorId =  params.query?.creatorId ? params.query.creatorId : await getCreatorByUserId(loggedInUser?.userId, this.app.get('sequelizeClient'));
+    const creatorId =  params.query?.creatorId ? params.query.creatorId : await getCreatorByUserId(loggedInUser?.userId, this.app.get('sequelizeClient'));
   
     //Featured menu item
     if (action === 'featured') {
