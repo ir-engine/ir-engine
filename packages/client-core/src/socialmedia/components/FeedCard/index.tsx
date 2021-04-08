@@ -23,10 +23,14 @@ import { addViewToFeed } from '../../reducers/feed/service';
 import { addBookmarkToFeed, removeBookmarkToFeed } from '../../reducers/feedBookmark/service';
 import { selectFeedFiresState } from '../../reducers/feedFires/selector';
 import { getFeedFires, addFireToFeed, removeFireToFeed } from '../../reducers/feedFires/service';
+import PopupLogin from '../PopupLogin/PopupLogin';
+import { IndexPage } from '@xr3ngine/social/pages/login';
+import { selectAuthState } from '../../../user/reducers/auth/selector';
 
 const mapStateToProps = (state: any): any => {
     return {
         feedFiresState: selectFeedFiresState(state),
+        authState: selectAuthState(state),
     };
   };
 
@@ -39,8 +43,9 @@ const mapStateToProps = (state: any): any => {
     addViewToFeed : bindActionCreators(addViewToFeed, dispatch),
 });
 interface Props{
-    feed : Feed,
-    feedFiresState?: any,
+    feed : Feed;
+    feedFiresState?: any;
+    authState?: any;
     getFeedFires?: typeof getFeedFires;
     addFireToFeed? : typeof addFireToFeed;
     removeFireToFeed?: typeof removeFireToFeed;
@@ -49,6 +54,7 @@ interface Props{
     addViewToFeed?: typeof addViewToFeed;
 }
 const FeedCard = (props: Props) : any => {
+    const [buttonPopup , setButtonPopup] = useState(false);
     const [isVideo, setIsVideo] = useState(false);
     const [openFiredModal, setOpenFiredModal] = useState(false);
     const {feed, getFeedFires, feedFiresState, addFireToFeed, removeFireToFeed, addBookmarkToFeed, removeBookmarkToFeed, addViewToFeed} = props;
@@ -60,7 +66,7 @@ const FeedCard = (props: Props) : any => {
     const handleRemoveBookmarkClick = (feedId) =>removeBookmarkToFeed(feedId);
 
     const handlePlayVideo = (feedId) => {
-        addViewToFeed(feedId);
+        !checkGuest && addViewToFeed(feedId);
     };
 
     const handleGetFeedFiredUsers = (feedId) => {
@@ -70,6 +76,8 @@ const FeedCard = (props: Props) : any => {
         }
     };
     
+  const checkGuest = props.authState.get('authUser')?.identityProvider.type === 'guest' ? true : false;
+
     return  feed ? <><Card className={styles.tipItem} square={false} elevation={0} key={feed.id}>
                 <CreatorAsTitle creator={feed.creator} />                   
                 {isVideo ? <CardMedia   
@@ -91,20 +99,25 @@ const FeedCard = (props: Props) : any => {
                 <CardContent>
                     <section className={styles.iconsContainer}>
                         {feed.isFired ? 
-                                <WhatshotIcon htmlColor="#FF6201" onClick={()=>handleRemoveFireClick(feed.id)} /> 
+                                <WhatshotIcon htmlColor="#FF6201" onClick={()=>checkGuest ? setButtonPopup(true) : handleRemoveFireClick(feed.id)} /> 
                                 :
-                                <WhatshotIcon htmlColor="#DDDDDD" onClick={()=>handleAddFireClick(feed.id)} />}
+                                <WhatshotIcon htmlColor="#DDDDDD" onClick={()=>checkGuest ? setButtonPopup(true) : handleAddFireClick(feed.id)} />}
                         <TelegramIcon />
-                        {feed.isBookmarked ? <BookmarkIcon onClick={()=>handleRemoveBookmarkClick(feed.id)} /> : <BookmarkBorderIcon onClick={()=>handleAddBookmarkClick(feed.id)} />}
+                        {feed.isBookmarked ? <BookmarkIcon onClick={()=>checkGuest ? setButtonPopup(true) : handleRemoveBookmarkClick(feed.id)} />
+                         : 
+                         <BookmarkBorderIcon onClick={()=>checkGuest ? setButtonPopup(true) : handleAddBookmarkClick(feed.id)} />}
                     </section>
                     <Typography className={styles.titleContainer} gutterBottom variant="h2" onClick={()=>Router.push({ pathname: '/feed', query:{ feedId: feed.id}})}>
                         {feed.title}                      
                     </Typography>
-                    <Typography variant="h2" onClick={()=>handleGetFeedFiredUsers(feed.id)}><span className={styles.flamesCount}>{feed.fires}</span>Flames</Typography>
+                    <Typography variant="h2" onClick={()=>checkGuest ? setButtonPopup(true) : handleGetFeedFiredUsers(feed.id)}><span className={styles.flamesCount}>{feed.fires}</span>Flames</Typography>
                     <Typography variant="h2">{feed.description}</Typography>
                 </CardContent>
             </Card>
             <SimpleModal type={'feed-fires'} list={feedFiresState.get('feedFires')} open={openFiredModal} onClose={()=>setOpenFiredModal(false)} />
+            <PopupLogin trigger={buttonPopup} setTrigger={setButtonPopup}>
+                <IndexPage />
+            </PopupLogin>
             </>
         :'';
 };

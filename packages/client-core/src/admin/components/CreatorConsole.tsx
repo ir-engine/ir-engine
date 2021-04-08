@@ -1,6 +1,9 @@
+/**
+ * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
+ */
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
-import { Dispatch } from 'redux';
+import { bindActionCreators, Dispatch } from 'redux';
 import { Router, withRouter } from "next/router";
 import { PAGE_LIMIT } from '../reducers/admin/reducers';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
@@ -21,10 +24,13 @@ import { Edit } from '@material-ui/icons';
 import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
 import Slide from '@material-ui/core/Slide';
 import { TransitionProps } from '@material-ui/core/transitions';
+import VerifiedUserIcon from '@material-ui/icons/VerifiedUser';
+
 import { EnhancedTableHead } from './AdminHelpers';
 import CreatorForm from '../../socialmedia/components/CreatorForm';
 import SharedModal from './SharedModal';
 import CreatorCard from '../../socialmedia/components/CreatorCard';
+import { updateCreator } from '../../socialmedia/reducers/creator/service';
 
 
 if (!global.setImmediate) {
@@ -44,6 +50,7 @@ interface Props {
     fetchAdminInstances?: any;
     removeUser?: any;
     list?:any;
+    updateCreator?: typeof updateCreator;   
 }
 
 interface HeadCell {
@@ -59,6 +66,7 @@ const mapStateToProps = (state: any): any => {
 };
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
+    updateCreator: bindActionCreators(updateCreator, dispatch)
 });
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -88,12 +96,12 @@ const Transition = React.forwardRef((
 const CreatorConsole = (props: Props) => {
     const classes = useStyles();
     const {
-        list
+        list,
+        updateCreator
     } = props;
-
     const headCells = [
-        // { id: 'id', numeric: false, disablePadding: true, label: 'ID' },
         { id: 'avatar', numeric: false, disablePadding: false, label: '' },
+        { id: 'verified', numeric: false, disablePadding: false, label: 'Verified' },
         { id: 'name', numeric: false, disablePadding: false, label: 'Name' },
         { id: 'username', numeric: false, disablePadding: false, label: 'UserName' },
         { id: 'email', numeric: false, disablePadding: false, label: 'Email' },
@@ -170,6 +178,9 @@ const CreatorConsole = (props: Props) => {
         setCreatorData(null);
     };
 
+    const handleUpdateCreator = (creator) =>{
+        updateCreator(creator);
+    };
     return (
         <div>
             <Typography variant="h2" color='primary'>ARC Creators List</Typography>            
@@ -200,12 +211,12 @@ const CreatorConsole = (props: Props) => {
                                             tabIndex={-1}
                                             key={row.id}
                                         >
-                                            {/* <TableCell className={styles.tcell} component="th" id={row.id.toString()}
-                                                align="right" scope="row" padding="none">
-                                                {row.id}
-                                            </TableCell> */}
                                             <TableCell className={styles.tcell} align="center">
                                                 <Avatar src={row.avatar.toString()} />
+                                            </TableCell>
+                                            <TableCell className={styles.tcell} align="center">
+                                                <VerifiedUserIcon htmlColor={row.verified === 1 ? "#007AFF" : '#FFFFFF'} 
+                                                style={{fontSize:'25px', margin: '0 0 0 5px'}} />                                                
                                             </TableCell>
                                             <TableCell className={styles.tcell} align="left">{row.name}</TableCell>
                                             <TableCell className={styles.tcell} align="left">{row.username}</TableCell>
@@ -213,6 +224,10 @@ const CreatorConsole = (props: Props) => {
                                             <TableCell className={styles.tcell} align="right">{row.userId}</TableCell>
                                             <TableCell className={styles.tcell} align="right">{row.createdAt}</TableCell>
                                             <TableCell className={styles.tcell + ' '+styles.actionCell}>
+                                                {row.verified === 1 ? 
+                                                    <Button variant="outlined" color="secondary" onClick={() => handleUpdateCreator({id:row.id.toString(), verified:0})}>UnVerify</Button>
+                                                    :
+                                                    <Button variant="outlined" color="secondary" onClick={() => handleUpdateCreator({id:row.id.toString(), verified:1})}>Verify</Button>} 
                                                 <Button variant="outlined" color="secondary" onClick={() => handleCreatorView(row.id.toString())}><MoreHorizIcon className="text-success"/></Button>
                                                 <Button variant="outlined" color="secondary" onClick={() => handleCreatorClick(row.id.toString())}><Edit className="text-success" /> </Button>
                                             </TableCell>
