@@ -9,7 +9,7 @@ const getAvatarURL = (avatarName) => {
   }
 };
 
-export const seed = {
+export const staticResourceSeed = {
   disabled: !config.db.forceRefresh,
   delete: config.db.forceRefresh,
   randomize: false,
@@ -106,5 +106,3 @@ export const seed = {
     },
   ]
 };
-
-export default seed;

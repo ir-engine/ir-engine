@@ -6,23 +6,33 @@ import scss from 'rollup-plugin-scss';
 import { terser } from 'rollup-plugin-terser';
 import livereload from 'rollup-plugin-livereload';
 import json from '@rollup/plugin-json';
+import typescript from 'rollup-plugin-typescript2'
+import camelCase from 'lodash.camelcase'
+import nodePolyfills from 'rollup-plugin-node-polyfills';
 
 const isProd = process.env.NODE_ENV === 'production';
 const extensions = ['.js', '.ts', '.tsx'];
+const pkg = require('./package.json')
+
+const libraryName = 'client-core'
 
 export default {
-  input: 'index.ts',
-  output: {
-    dir: './build/index.js',
-    format: 'cjs',
-  },
+  input: './index.ts',
+  output: [{ file: pkg.main, name: camelCase(libraryName), format: 'umd', sourcemap: true },
+  { file: pkg.module, format: 'es', sourcemap: true },
+  ],
   inlineDynamicImports: true,
   plugins: [
+    nodePolyfills(),
     scss({
-      exlude: /node_modules/,
-      output: 'build/index.css',
+      exclude: /node_modules/,
+      output: 'dist/index.css',
     }),
     json(),
+    typescript({
+      jsx: true,
+      rollupCommonJSResolveHack: false
+    }),
     replace({
       'process.env.NODE_ENV': JSON.stringify(isProd ? 'production' : 'development'),
     }),
@@ -59,7 +69,7 @@ export default {
     }),
     (isProd && terser()),
     (!isProd && livereload({
-      watch: 'build',
+      watch: 'dist',
     })),
   ],
 };
