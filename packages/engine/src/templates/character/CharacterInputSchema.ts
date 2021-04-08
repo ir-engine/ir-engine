@@ -348,6 +348,7 @@ const diffDamping = 0.2;
 let switchChangedToZero = true;
 
 const lookFromXRInputs: Behavior = (entity, args): void => {
+  if (isServer) return;
   const actor: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
   const input = getComponent<Input>(entity, Input as any);
   const values = input.data.get(BaseInput.XR_LOOK)?.value;
