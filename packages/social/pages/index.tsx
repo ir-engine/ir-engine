@@ -1,51 +1,69 @@
 
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { connect } from "react-redux";
+import { bindActionCreators, Dispatch } from "redux";
+
 import AppHeader from "@xr3ngine/client-core/src/socialmedia/components/Header";
 import FeedMenu from "@xr3ngine/client-core/src/socialmedia/components/FeedMenu";
 import AppFooter from "@xr3ngine/client-core/src/socialmedia/components/Footer";
-
 import { selectCreatorsState } from "@xr3ngine/client-core/src/socialmedia/reducers/creator/selector";
-import FlatSignIn from '@xr3ngine/client-core/src/socialmedia/components/Login';
 import {Stories} from '@xr3ngine/client-core/src/socialmedia/components/Stories';
+import { selectAuthState } from "@xr3ngine/client-core/src/user/reducers/auth/selector";
+import { User } from "@xr3ngine/common/interfaces/User";
+import { doLoginAuto } from "@xr3ngine/client-core/src/user/reducers/auth/service";
+import { createCreator } from "@xr3ngine/client-core/src/socialmedia/reducers/creator/service";
 
 import styles from './index.module.scss';
-import { selectAuthState } from "@xr3ngine/client-core/src/user/reducers/auth/selector";
-import { connect } from "react-redux";
-import { Dispatch } from "redux";
-
         
 const mapStateToProps = (state: any): any => {
   return {
-    authState: selectAuthState(state),
-    creatorsState: selectCreatorsState(state),
+    auth: selectAuthState(state),
+    creatorsState: selectCreatorsState(state),   
   };
 };
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
+  // loginUserByPassword: bindActionCreators(loginUserByPassword, dispatch),
+  doLoginAuto: bindActionCreators(doLoginAuto, dispatch),
+  createCreator: bindActionCreators(createCreator, dispatch)
 });
 
 
 
-const  Home = ({ authState, creatorsState}) => {
+const  Home = ({ createCreator,  doLoginAuto, auth}) => {
+  const [stories, setStories] = useState(null);
 
-  const stories = [] as any [];
-  for(let i=0;i<20;i++){
-    stories.push({image:null});
-  }
+  useEffect(()=>{
+    if(auth){
+      if (auth.get('authUser')?.identityProvider.type === 'guest') {    
+        const user = auth.get('user') as User;
+        const userId = user ? user.id : null;
+        if(userId){
+          createCreator();
+        }
+      }else{      
+          const user = auth.get('authUser').identityProvider as User;
+          const userId = user ? user.id : null;
+          if(userId){
+            createCreator();
+          }
+      }
+    }
+  },[auth]);
+
+  useEffect(() => doLoginAuto(true), []); 
 
   return (<>
     <div className={styles.viewport}>
-     {authState.get('user')?.id && creatorsState?.get('currentCreator') ? 
       <>
         <AppHeader logo="/assets/logoBlack.png" />
         <Stories stories={stories} />
         <FeedMenu />
         <AppFooter />
-      </> : 
-        <FlatSignIn logo="/assets/LogoColored.png" />}
+      </>
     </div>
   </>
   );
 };
 
-  export default connect(mapStateToProps,mapDispatchToProps)(Home);
+export default connect(mapStateToProps,mapDispatchToProps)(Home);
