@@ -1,50 +1,50 @@
-import { useWeb3React } from '@web3-react/core'
-import { BigNumber } from 'ethers'
-import { useCallback, useEffect } from 'react'
-import { updateTokensOnSale, updateUser } from '../actions'
-import { useStateContext } from '../state'
-import Token from './Token'
+import { useWeb3React } from '@web3-react/core';
+import { BigNumber } from 'ethers';
+import { useCallback, useEffect } from 'react';
+import { updateTokensOnSale, updateUser } from '../actions';
+import { useStateContext } from '../state';
+import Token from './Token';
 
 export type GalleryProps = {}
 
 const Gallery = () => {
-  const { state, dispatch } = useStateContext()
-  const { library } = useWeb3React()
-  const { contract, user, tokensOnSale } = state
+  const { state, dispatch } = useStateContext();
+  const { library } = useWeb3React();
+  const { contract, user, tokensOnSale } = state;
 
   const onConfirmTransfer = async () => {
-    if (!user || !user.address) return
-    await updateUser({ contract: contract?.payload, userAccount: user.address, library, dispatch })
-  }
+    if (!user || !user.address) return;
+    await updateUser({ contract: contract?.payload, userAccount: user.address, library, dispatch });
+  };
 
   const onBuyToken = async ({ id, price }: { id: string; price: BigNumber }) => {
-    if (!contract?.payload) return
+    if (!contract?.payload) return;
 
     try {
-      const tx = await contract.payload.purchaseToken(id, { value: price })
-      const receipt = await tx.wait()
+      const tx = await contract.payload.purchaseToken(id, { value: price });
+      const receipt = await tx.wait();
       if (receipt.confirmations >= 1) {
-        onConfirmTransfer()
+        onConfirmTransfer();
       } else {
-        throw new Error(receipt)
+        throw new Error(receipt);
       }
     } catch (e) {
-      throw new Error(e)
+      throw new Error(e);
     }
-  }
+  };
 
   const loadTokensForSale = useCallback(async () => {
-    if (!dispatch || !contract?.payload) return
-    updateTokensOnSale({ dispatch, contract: contract.payload })
-  }, [dispatch, contract])
+    if (!dispatch || !contract?.payload) return;
+    updateTokensOnSale({ dispatch, contract: contract.payload });
+  }, [dispatch, contract]);
 
   const onBuyTokenClick = ({ id, price }: { id: string; price: BigNumber }) => {
-    onBuyToken && onBuyToken({ id, price })
-  }
+    onBuyToken && onBuyToken({ id, price });
+  };
 
   useEffect(() => {
-    loadTokensForSale()
-  }, [loadTokensForSale, user?.ownedTokens])
+    loadTokensForSale();
+  }, [loadTokensForSale, user?.ownedTokens]);
 
   return (
     <div>
@@ -55,7 +55,7 @@ const Gallery = () => {
         ))}
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Gallery
+export default Gallery;

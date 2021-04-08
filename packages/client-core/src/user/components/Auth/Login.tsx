@@ -8,6 +8,7 @@ import { Tabs, Tab } from '@material-ui/core';
 import styles from './Auth.module.scss';
 import SocialLogin from './SocialLogin';
 import PasswordLogin from './PasswordLogin';
+import { useTranslation } from "react-i18next";
 
 const config = getConfig().publicRuntimeConfig;
 
@@ -32,6 +33,7 @@ const SignIn = (): any => {
   let enableTwitterSocial = false;
 
   const [tabIndex, setTabIndex] = useState(0);
+  const { t } = useTranslation();
 
   const handleChange = (event: any, newValue: number): void => {
     event.preventDefault();
@@ -83,15 +85,15 @@ const SignIn = (): any => {
     }
   } else {
     let index = 0;
-    const emailTab = (enableEmailMagicLink || enableSmsMagicLink) && <Tab icon={<EmailIcon/>} label="Email | SMS"/>;
+    const emailTab = (enableEmailMagicLink || enableSmsMagicLink) && <Tab icon={<EmailIcon/>} label={t('user:auth.login.email')} />;
     const emailTabPanel = (enableEmailMagicLink || enableSmsMagicLink) && <TabPanel value={tabIndex} index={index}><MagicLinkEmail /></TabPanel>;
     (enableEmailMagicLink || enableSmsMagicLink) && ++index;
 
-    const userTab = enableUserPassword && <Tab icon={<UserIcon/>} label="UserName + Password"/>;
+    const userTab = enableUserPassword && <Tab icon={<UserIcon/>} label={t('user:auth.login.username')} />;
     const userTabPanel = enableUserPassword && <TabPanel value={tabIndex} index={index}><PasswordLogin/></TabPanel>;
     enableUserPassword && ++index;
 
-    const socialTab = socialCount > 0 && <Tab icon={<SocialIcon/>} label="Social"/>;
+    const socialTab = socialCount > 0 && <Tab icon={<SocialIcon/>} label={t('user:auth.login.social')} />;
     const socialTabPanel = socialCount > 0 && <TabPanel value={tabIndex} index={index}><SocialLogin enableFacebookSocial={enableFacebookSocial} enableGoogleSocial={enableGoogleSocial} enableGithubSocial={enableGithubSocial} enableLinkedInSocial={enableLinkedInSocial} enableTwitterSocial={enableTwitterSocial}  /></TabPanel>;
     socialCount > 0 && ++index;
 

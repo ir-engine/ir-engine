@@ -1,5 +1,5 @@
-import { Contract } from 'ethers'
-import { TokenProps } from './components/Token'
+import { Contract } from 'ethers';
+import { TokenProps } from './components/Token';
 
 declare global {
   interface Window {
@@ -7,7 +7,7 @@ declare global {
   }
 }
 
-declare const ethereum: any
+declare const ethereum: any;
 
 export type ContractPropsDetails = {
   name?: string

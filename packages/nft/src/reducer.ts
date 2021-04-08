@@ -1,6 +1,6 @@
-import { TokenProps } from './components/Token'
-import { ContractProps, UserProps } from './types'
-import { StateContext } from './state'
+import { TokenProps } from './components/Token';
+import { ContractProps, UserProps } from './types';
+import { StateContext } from './state';
 
 export enum ActionType {
   UPDATE_USER = 'Update User',
@@ -20,21 +20,21 @@ export type Action =
 export const reducer = (state: StateContext, action: Action) => {
   switch (action.type) {
     case ActionType.ETH_PRICE:
-      return { ...state, ethPrice: action.payload }
+      return { ...state, ethPrice: action.payload };
     case ActionType.UPDATE_USER:
-      return { ...state, isAuthenticated: true, user: action.payload }
+      return { ...state, isAuthenticated: true, user: action.payload };
     case ActionType.SIGN_OUT:
-      console.log('asdasdasd')
+      console.log('asdasdasd');
 
-      return { ...state, isAuthenticated: false, user: undefined }
+      return { ...state, isAuthenticated: false, user: undefined };
 
     case ActionType.LOAD_TOKEN_SALE:
-      return { ...state, tokensOnSale: action.payload }
+      return { ...state, tokensOnSale: action.payload };
 
     case ActionType.CONTRACT:
-      return { ...state, contract: action.payload }
+      return { ...state, contract: action.payload };
 
     default:
-      throw new Error('Not among actions')
+      throw new Error('Not among actions');
   }
-}
+};

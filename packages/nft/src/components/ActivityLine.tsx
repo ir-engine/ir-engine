@@ -29,7 +29,7 @@ const ActivityLine = ({ activity }: ActivityLineProps) => {
         </div>
       )}
     </div>
-  )
-}
+  );
+};
 
-export default ActivityLine
+export default ActivityLine;

@@ -15,8 +15,8 @@ import { connect, Provider } from 'react-redux';
 import { Dispatch, Store } from 'redux';
 import url from 'url';
 import { StateProvider } from '../state';
-import { Web3ReactProvider } from '@web3-react/core'
-import { Web3Provider } from '@ethersproject/providers'
+import { Web3ReactProvider } from '@web3-react/core';
+import { Web3Provider } from '@ethersproject/providers';
 
 const config = getConfig().publicRuntimeConfig;
 
@@ -24,9 +24,9 @@ interface Props extends AppProps {
   store: Store;
 }
 function getLibrary(provider: any): Web3Provider {
-  const library = new Web3Provider(provider)
-  library.pollingInterval = 12000
-  return library
+  const library = new Web3Provider(provider);
+  library.pollingInterval = 12000;
+  return library;
 }
 
 const mapStateToProps = (state: any): any => {

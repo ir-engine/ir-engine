@@ -5,6 +5,7 @@ import Container from '@material-ui/core/Container';
 import { EmptyLayout }from '../../../common/components/Layout/EmptyLayout';
 import { verifyEmail } from '../../reducers/auth/service';
 import styles from './Auth.module.scss';
+import { useTranslation } from "react-i18next";
 
 interface Props {
   auth: any;
@@ -15,6 +16,7 @@ interface Props {
 
 export const VerifyEmail = (props: Props): any => {
   const { verifyEmail, token } = props;
+  const { t } = useTranslation();
 
   useEffect(() => {
     verifyEmail(token);
@@ -25,12 +27,12 @@ export const VerifyEmail = (props: Props): any => {
       <Container component="main" maxWidth="md">
         <div className={styles.paper}>
           <Typography component="h1" variant="h5">
-            Verify Email
+            {t('user:auth.verifyEmail.header')}
           </Typography>
 
           <Box mt={3}>
             <Typography variant="body2" color="textSecondary" align="center">
-              Please wait a moment while processing...
+              {t('user:auth.verifyEmail.processing')}
             </Typography>
           </Box>
         </div>
