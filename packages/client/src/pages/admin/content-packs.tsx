@@ -1,9 +1,8 @@
-
 import React, { useEffect } from 'react';
-import Dashboard from "@xr3ngine/client-core/components/ui/Layout/Dashboard";
+import Dashboard from "@xr3ngine/client-core/src/user/components/Dashboard/Dashboard";
 import { bindActionCreators, Dispatch } from "redux";
-import ContentPackConsole from '@xr3ngine/client-core/components/ui/Admin/ContentPack/ContentPackConsole';
-import { doLoginAuto } from '@xr3ngine/client-core/redux/auth/service';
+import ContentPackConsole from '@xr3ngine/client-core/src/admin/components/ContentPack/ContentPackConsole';
+import { doLoginAuto } from '@xr3ngine/client-core/src/user/reducers/auth/service';
 import { connect } from 'react-redux';
 
 interface Props {

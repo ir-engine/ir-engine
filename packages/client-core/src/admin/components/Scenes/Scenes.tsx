@@ -7,12 +7,12 @@ import {
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
-import { selectAdminState } from '../../../../redux/admin/selector';
-import { selectAppState } from '../../../../redux/app/selector';
-import { selectAuthState } from '../../../../redux/auth/selector';
-import { client } from "../../../../redux/feathers";
+import { selectAdminState } from '../../reducers/admin/selector';
+import { selectAppState } from "../../../common/reducers/app/selector";
+import { selectAuthState } from "../../../user/reducers/auth/selector";
+import { client } from "../../../feathers";
 import { Router, withRouter } from "next/router";
-import { PAGE_LIMIT } from '../../../../redux/admin/reducers';
+import { PAGE_LIMIT } from '../../reducers/admin/reducers';
 import FormControl from '@material-ui/core/FormControl';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import {
@@ -21,7 +21,7 @@ import {
     fetchLocationTypes,
     fetchUsersAsAdmin,
     fetchAdminInstances
-} from '../../../../redux/admin/service';
+} from '../../reducers/admin/service';
 import {
     Table,
     TableBody,
@@ -35,7 +35,7 @@ import {
 } from '@material-ui/core';
 import styles from './Scenes.module.scss';
 import AddToContentPackModel from './AddToContentPackModal';
-import UploadModal from "../ContentPack/UploadModal";
+import UploadModal from "../ContentPack/DownloadModal";
 
 
 if (!global.setImmediate) {
@@ -92,7 +92,7 @@ const useStyles = makeStyles((theme: Theme) =>
     }),
 );
 
-const AdminConsole = (props: Props) => {
+const Scenes = (props: Props) => {
     const classes = useStyles();
     const {
         router,
@@ -117,9 +117,6 @@ const AdminConsole = (props: Props) => {
             locationType: 'private'
         }
     };
-
-
-
 
     const initialInstance = {
         id: '',
@@ -335,7 +332,6 @@ const AdminConsole = (props: Props) => {
     };
 
     const handleInstanceClose = (e: any): void => {
-        console.log('handleInstanceClosed');
         setInstanceModalOpen(false);
         setSelectedInstance(initialInstance);
     };
@@ -482,4 +478,4 @@ const AdminConsole = (props: Props) => {
     );
 };
 
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(AdminConsole));
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(Scenes));

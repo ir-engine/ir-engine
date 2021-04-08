@@ -29,7 +29,7 @@ const useStyles = makeStyles((theme: Theme) =>
     }),
 );
 
-export default function CroupsConsole() {
+export default function GroupsConsole() {
     const classes = useStyles();
     const [dense, setDense] = React.useState(false);
 

@@ -23,8 +23,6 @@ const contentPackReducer = (state = immutableState, action: ContentPackAction): 
   let newValues, updateMap;  
   switch (action.type) {
     case LOADED_CONTENT_PACKS:
-      console.log('LOADED_CONTENT_PACKS');
-      console.log(action);
       newValues = (action as LoadedContentPacksAction);
       let contentPacks = state.get('contentPacks');
       contentPacks = newValues.contentPacks;
@@ -32,10 +30,8 @@ const contentPackReducer = (state = immutableState, action: ContentPackAction): 
           .set('updateNeeded', false)
           .set('contentPacks', contentPacks);
     case CONTENT_PACK_CREATED:
-      console.log('CONTENT_PACK_CREATED');
       return state.set('updateNeeded', true);
     case CONTENT_PACK_PATCHED:
-      console.log('CONTENT_PACK_PATCHED');
       return state.set('updateNeeded', true);
   }
 

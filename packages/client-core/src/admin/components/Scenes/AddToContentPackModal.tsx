@@ -14,17 +14,16 @@ import classNames from 'classnames';
 import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from "redux";
-import { selectAdminState } from "../../../../redux/admin/selector";
-import { selectAppState } from "../../../../redux/app/selector";
-import { selectAuthState } from "../../../../redux/auth/selector";
-import { selectContentPackState } from "../../../../redux/contentPack/selector";
+import { selectAppState } from "../../../common/reducers/app/selector";
+import { selectAuthState } from "../../../user/reducers/auth/selector";
+import { selectContentPackState } from "../../reducers/contentPack/selector";
 import styles from './Scenes.module.scss';
 import {
     addSceneToContentPack,
     createContentPack,
     fetchContentPacks,
     uploadAvatars
-} from "../../../../redux/contentPack/service";
+} from "../../reducers/contentPack/service";
 import {
     Create,
     Edit
@@ -34,8 +33,6 @@ import {
     ToggleButtonGroup
 } from "@material-ui/lab";
 import {Cache} from "three";
-import add = Cache.add;
-
 
 interface Props {
     open: boolean;
@@ -50,7 +47,6 @@ const mapStateToProps = (state: any): any => {
     return {
         appState: selectAppState(state),
         authState: selectAuthState(state),
-        adminState: selectAdminState(state),
         contentPackState: selectContentPackState(state)
     };
 };
@@ -69,14 +65,12 @@ const AddToContentPackModal = (props: Props): any => {
         createContentPack,
         open,
         handleClose,
-        adminState,
         scene,
         uploadAvatars,
         contentPackState,
         fetchContentPacks
     } = props;
 
-    const [contentPackUrl, setContentPackUrl] = useState('');
     const [error, setError] = useState('');
     const [createOrPatch, setCreateOrPatch] = useState('patch');
     const [contentPackName, setContentPackName] = useState('');
@@ -99,13 +93,17 @@ const AddToContentPackModal = (props: Props): any => {
             scene: scene,
             contentPack: contentPackName
         });
+        window.location.href = '/admin/content-packs';
+        closeModal();
     }
 
     const createNewContentPack = () => {
         createContentPack({
             scene: scene,
             contentPack: newContentPackName
-        })
+        });
+        window.location.href = '/admin/content-packs';
+        closeModal();
     }
 
     const closeModal = () => {
@@ -115,10 +113,7 @@ const AddToContentPackModal = (props: Props): any => {
     }
 
     useEffect(() => {
-        console.log('contenPackState changed');
-        console.log(contentPackState);
         if (contentPackState.get('updateNeeded') === true) {
-            console.log('call fetchContentPacks');
             fetchContentPacks();
         }
     }, [contentPackState]);
@@ -167,7 +162,7 @@ const AddToContentPackModal = (props: Props): any => {
                                         value={contentPackName}
                                         onChange={(e) => setContentPackName(e.target.value as string)}
                                     >
-                                        {contentPacks.map(contentPack => <MenuItem key={contentPack} value={contentPack}>{contentPack}</MenuItem>)}
+                                        {contentPacks.map(contentPack => <MenuItem key={contentPack.name} value={contentPack.name}>{contentPack.name}</MenuItem>)}
                                     </Select>
                                     <Button
                                         type="submit"
