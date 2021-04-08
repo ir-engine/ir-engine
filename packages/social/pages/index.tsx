@@ -23,49 +23,36 @@ const mapStateToProps = (state: any): any => {
 };
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  // loginUserByPassword: bindActionCreators(loginUserByPassword, dispatch),
   doLoginAuto: bindActionCreators(doLoginAuto, dispatch),
   createCreator: bindActionCreators(createCreator, dispatch)
 });
 
-
-
 const  Home = ({ createCreator,  doLoginAuto, auth}) => {
   useEffect(()=>{
     if(auth){
-      if (auth.get('authUser')?.identityProvider.type === 'guest') {    
-        const user = auth.get('user') as User;
+      const user = auth.get('authUser')?.identityProvider.type === 'guest' ? auth.get('user') as User : auth.get('authUser').identityProvider as User;
         const userId = user ? user.id : null;
         if(userId){
           createCreator();
-        }
-      }else{      
-          const user = auth.get('authUser').identityProvider as User;
-          const userId = user ? user.id : null;
-          if(userId){
-            createCreator();
-          }
-      }
+        }      
     }
   },[auth]);
 
   useEffect(() => doLoginAuto(true), []); 
         
-const stories = [] as any [];
-        for(let i=0;i<20;i++){
-        stories.push({
-            image:null
-        });
-}
+  const stories = [] as any [];
+      for(let i=0;i<20;i++){
+      stories.push({
+          image:null
+      });
+  }
 
   return (<>
     <div className={styles.viewport}>
-      <>
         <AppHeader logo="/assets/logoBlack.png" />
         <Stories stories={stories} />
         <FeedMenu />
         <AppFooter />
-      </>
     </div>
   </>
   );
