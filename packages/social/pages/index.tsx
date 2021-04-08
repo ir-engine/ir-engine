@@ -1,13 +1,14 @@
 
-import React, { useState, useEffect } from "react";
+import React from "react";
 import AppHeader from "@xr3ngine/client-core/src/socialmedia/components/Header";
 import FeedMenu from "@xr3ngine/client-core/src/socialmedia/components/FeedMenu";
 import AppFooter from "@xr3ngine/client-core/src/socialmedia/components/Footer";
 
-import { LoginUserHook } from "@xr3ngine/client-core/src/socialmedia/components/GlobalHook";
 import { selectCreatorsState } from "@xr3ngine/client-core/src/socialmedia/reducers/creator/selector";
+import FlatSignIn from '@xr3ngine/client-core/src/socialmedia/components/Login';
+import {Stories} from '@xr3ngine/client-core/src/socialmedia/components/Stories';
 
-import { Plugins } from '@capacitor/core';
+// import { Plugins } from '@capacitor/core';
 
 import styles from './index.module.scss';
 import { selectAuthState } from "@xr3ngine/client-core/src/user/reducers/auth/selector";
@@ -18,7 +19,7 @@ import { doLoginAuto } from "@xr3ngine/client-core/src/user/reducers/auth/servic
 import { createCreator } from "@xr3ngine/client-core/src/socialmedia/reducers/creator/service";
 
 const { Example } = Plugins;
-
+        
 const mapStateToProps = (state: any): any => {
   return {
     authState: selectAuthState(state),
@@ -95,7 +96,6 @@ const  Home = ({ authState, creatorsState, createCreator,  doLoginAuto, auth}) =
   doLoginAuto(true);
   }, []);
 
-
  
 
   useEffect(() => {
@@ -104,37 +104,23 @@ const  Home = ({ authState, creatorsState, createCreator,  doLoginAuto, auth}) =
       .then((response) => response.json())
       .then((data) => updateLoginUser(data));
 
-    fetch("/api/feed")
-      .then((response) => response.json())
-      .then((data) => setFeed(data));
-
-    fetch("/api/suggestions")
-      .then((response) => response.json())
-      .then((data) => setSuggestions(data));
-
-    fetch("/api/stories")
-      .then((response) => response.json())
-      .then((data) => setStories(data));
-  }, []);
-
-
-
   return (<>
     <div className={styles.viewport}>
-     {/* {authState.get('user')?.id && creatorsState?.get('currentCreator') ?  */}
-      <><AppHeader logo="/assets/logoBlack.png" />
-      <FeedMenu />
-      {/* <MoreModalItems /> */}
-      {/* <Stories stories={stories} /> */}
-      {/* <div className="homepage-feed lg:mr-8 flex flex-col ">
-          {feed &&
-            feed.map((item: any) => {
-              return <FeedItem data={item} key={item.pid} />;
-            })}
-        </div> */}
-      {/* <HomeRightBar data={suggestions} /> */}
-      <AppFooter /></>  
-       {/* <FlatSignIn logo="/assets/LogoColored.png" />} */}
+     {authState.get('user')?.id && creatorsState?.get('currentCreator') ? 
+      <>
+        <AppHeader logo="/assets/logoBlack.png" />
+        <Stories stories={stories} />
+        <FeedMenu />
+        {/* <MoreModalItems /> */}
+        {/* <div className="homepage-feed lg:mr-8 flex flex-col ">
+            {feed &&
+              feed.map((item: any) => {
+                return <FeedItem data={item} key={item.pid} />;
+              })}
+          </div> */}
+        {/* <HomeRightBar data={suggestions} /> */}
+        <AppFooter /></> : 
+        <FlatSignIn logo="/assets/LogoColored.png" />}
     </div>
   </>
   );
