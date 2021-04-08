@@ -5,7 +5,7 @@ import CardMedia from '@material-ui/core/CardMedia';
 import { Google } from '@styled-icons/bootstrap/Google';
 import { Facebook } from '@styled-icons/bootstrap/Facebook';
 import Fab from '@material-ui/core/Fab';
-import styles from './Login.module.scss';
+import * as styles from './Login.module.scss';
 import getConfig from 'next/config';
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';

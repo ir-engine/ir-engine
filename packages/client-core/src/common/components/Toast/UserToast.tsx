@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { selectUserState } from '@xr3ngine/client-core/src/user/reducers/user/selector';
 import Toast from './Toast';
 // @ts-ignore
-import style from "./toast.module.scss";
+import * as style from "./toast.module.scss";
 
 type Props = {
   user?: any;

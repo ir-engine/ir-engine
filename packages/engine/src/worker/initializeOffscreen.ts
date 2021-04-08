@@ -34,7 +34,7 @@ import { CharacterControllerSystem } from '../character/CharacterControllerSyste
 Mesh.prototype.raycast = acceleratedRaycast;
 BufferGeometry.prototype["computeBoundsTree"] = computeBoundsTree;
 
-export const DefaultInitializationOptions = {
+export const DefaultOffscreenInitializationOptions = {
   input: {
     schema: CharacterInputSchema,
   },
@@ -45,7 +45,7 @@ export const DefaultInitializationOptions = {
 
 const initializeEngineOffscreen = async ({ canvas, userArgs }, proxy: MainProxy) => {
   const { initOptions, useOfflineMode, postProcessing } = userArgs;
-  const options = _.defaultsDeep({}, initOptions, DefaultInitializationOptions);
+  const options = _.defaultsDeep({}, initOptions, DefaultOffscreenInitializationOptions);
 
   EngineEvents.instance = new EngineEventsProxy(proxy);
   addIncomingEvents();

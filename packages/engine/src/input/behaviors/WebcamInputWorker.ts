@@ -1,15 +1,16 @@
 import * as Comlink from 'comlink'
-import { detectSingleFace } from '@xr3ngine/client-ml/src/face/globalApi/detectFaces';
-import { nets } from '@xr3ngine/client-ml/src/face/globalApi/nets';
-import { TinyFaceDetectorOptions } from '@xr3ngine/client-ml/src/face/tinyFaceDetector/TinyFaceDetectorOptions';
+// TODO: Separate me into client!
+// import { detectSingleFace } from '@xr3ngine/client-ml/src/face/globalApi/detectFaces';
+// import { nets } from '@xr3ngine/client-ml/src/face/globalApi/nets';
+// import { TinyFaceDetectorOptions } from '@xr3ngine/client-ml/src/face/tinyFaceDetector/TinyFaceDetectorOptions';
 import './faceEnvWorkerPatch.js' // polyfill for face-api in webworker
 let canvas;
 let imageData;
-const faceApiOptions = new TinyFaceDetectorOptions();
+// const faceApiOptions = new TinyFaceDetectorOptions();
 Comlink.expose({
   initialise: async () => {
-    await nets.tinyFaceDetector.loadFromUri('/facetracking');
-    await nets.faceExpressionNet.loadFromUri('/facetracking');
+    // await nets.tinyFaceDetector.loadFromUri('/facetracking');
+    // await nets.faceExpressionNet.loadFromUri('/facetracking');
   },
   create: (width, height) => {
     canvas = new OffscreenCanvas(width, height);
@@ -19,7 +20,7 @@ Comlink.expose({
     if(canvas) {
       imageData.data.set(new Uint8ClampedArray(pixels))
       canvas.getContext('2d').putImageData(imageData, 0, 0)
-      return await detectSingleFace(canvas, faceApiOptions).withFaceExpressions();
+      // return await detectSingleFace(canvas, faceApiOptions).withFaceExpressions();
     }
     return;
   }

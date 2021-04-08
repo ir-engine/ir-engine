@@ -5,7 +5,7 @@ import Typography from '@material-ui/core/Typography';
 import { connect } from 'react-redux';
 import SingleConnection from './SingleConnection';
 import { User } from '@xr3ngine/common/interfaces/User';
-import styles from './ProfileConnections.module.scss';
+import * as styles from './ProfileConnections.module.scss';
 import { selectAuthState } from '../../reducers/auth/selector';
 
 interface Props {

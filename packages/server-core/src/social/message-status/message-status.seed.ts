@@ -1,6 +1,6 @@
 import config from '../../appconfig';
 
-export const seed = {
+export const messageStatusSeed = {
   disabled: !config.db.forceRefresh,
   delete: config.db.forceRefresh,
   path: 'message-status',
@@ -12,5 +12,3 @@ export const seed = {
           { type: 'read' }
         ]
 };
-
-export default seed;

@@ -33,7 +33,7 @@ import { Channel } from '@xr3ngine/common/interfaces/Channel';
 import _ from 'lodash';
 import moment from 'moment';
 
-export const initialState = {
+export const initialChatState = {
   channels: {
     channels: {},
     limit: 5,
@@ -50,7 +50,7 @@ export const initialState = {
   instanceChannelFetched: false
 };
 
-const immutableState = Immutable.fromJS(initialState);
+const immutableState = Immutable.fromJS(initialChatState);
 
 const chatReducer = (state = immutableState, action: ChatAction): any => {
   let updateMap, localAction, updateMapChannels, updateMapChannelsChild, returned;

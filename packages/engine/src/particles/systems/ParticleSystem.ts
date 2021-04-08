@@ -1,4 +1,4 @@
-import { ParticleEmitter } from "../components/ParticleEmitter";
+import { ParticleEmitterComponent } from "../components/ParticleEmitter";
 import { registerComponent } from "../../ecs/functions/ComponentFunctions";
 import { getMutableComponent } from "../../ecs/functions/EntityFunctions";
 import { applyTransform } from "../functions/particleHelpers";
@@ -9,18 +9,18 @@ export class ParticleSystem extends System {
   /** Constructs the system. */
   constructor(attributes?: SystemAttributes) {
     super();
-    registerComponent(ParticleEmitter);
+    registerComponent(ParticleEmitterComponent);
   }
 
   /** Executes the system. */
   execute(deltaTime, time): void {
     for (const entity of this.queryResults.emitters.added) {
-      const emitter = getMutableComponent(entity, ParticleEmitter);
+      const emitter = getMutableComponent(entity, ParticleEmitterComponent);
       this.clearEventQueues();
     }
 
     this.queryResults.emitters.all?.forEach(entity => {
-      const emitter = getMutableComponent(entity, ParticleEmitter);
+      const emitter = getMutableComponent(entity, ParticleEmitterComponent);
       applyTransform(entity, emitter);
       emitter.particleEmitterMesh?.update(deltaTime);
     });
@@ -32,7 +32,7 @@ export class ParticleSystem extends System {
 
 ParticleSystem.queries = {
   emitters: {
-    components: [ParticleEmitter],
+    components: [ParticleEmitterComponent],
     listen: {
       added: true,
       removed: true,

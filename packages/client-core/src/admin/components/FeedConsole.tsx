@@ -17,7 +17,7 @@ import {
     Button, CardMedia, Typography
 } from '@material-ui/core';
 import Avatar from "@material-ui/core/Avatar";
-import styles from './Admin.module.scss';
+import * as styles from './Admin.module.scss';
 import Backdrop from '@material-ui/core/Backdrop';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import VisibilityIcon from '@material-ui/icons/Visibility';

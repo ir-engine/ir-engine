@@ -13,7 +13,7 @@ import { PositionalAudioSystem } from '@xr3ngine/engine/src/audio/systems/Positi
 import React, { ChangeEvent, useState } from 'react';
 import { connect } from "react-redux";
 import { bindActionCreators, Dispatch } from "redux";
-import styles from './Profile.module.scss';
+import * as styles from './Profile.module.scss';
 
 interface Props {
     authState?: any;

@@ -7,10 +7,10 @@ import { parseModelColliders, clearFromColliders } from '../../physics/behaviors
 import { createVehicleFromSceneData } from '../../templates/vehicle/prefabs/NetworkVehicle';
 import { AmbientLight, CircleBufferGeometry, Color, HemisphereLight, Mesh, MeshPhongMaterial, PointLight, SpotLight } from 'three';
 import { ComponentConstructor } from "../../ecs/interfaces/ComponentInterfaces";
-import { createParticleEmitter } from '../../particles/functions/particleHelpers';
+import { createParticleEmitterObject } from '../../particles/functions/particleHelpers';
 import { addObject3DComponent } from '../behaviors/addObject3DComponent';
 import { createBackground } from '../behaviors/createBackground';
-import { createBoxCollider } from '../behaviors/createBoxCollider';
+import { createBoxColliderObject } from '../behaviors/createBoxCollider';
 import { createCollidersFromSceneData } from '../behaviors/createCollidersFromSceneData';
 import { createCommonInteractive } from "../behaviors/createCommonInteractive";
 import { createGroup } from '../behaviors/createGroup';
@@ -380,7 +380,7 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
   'box-collider': {
     behaviors: [
       {
-        behavior: createBoxCollider,
+        behavior: createBoxColliderObject,
         values: ['type', 'position', 'quaternion', 'scale']
       }
     ]
@@ -421,7 +421,7 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
   'particle-emitter': {
     behaviors: [
       {
-        behavior: createParticleEmitter,
+        behavior: createParticleEmitterObject,
         values: ['ageRandomness', 'angularVelocity', 'colorCurve', 'endColor', 'endOpacity', 'endSize', 'endVelocity', 'lifetime', 'lifetimeRandomness', 'middleColor', 'middleOpacity', 'particleCount', 'sizeCurve', 'sizeRandomness', 'src', 'startColor', 'startOpacity', 'startSize', 'startVelocity', 'velocityCurve']
       }
     ],

@@ -1,6 +1,6 @@
 import config from '../../appconfig';
 
-export const seed = {
+export const userRoleSeed = {
   disabled: !config.db.forceRefresh,
   delete: config.db.forceRefresh,
   randomize: false,
@@ -14,5 +14,3 @@ export const seed = {
       { role: 'location-admin' }
     ]
 };
-
-export default seed;
