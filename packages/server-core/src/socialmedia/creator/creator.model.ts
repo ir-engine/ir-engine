@@ -1,3 +1,6 @@
+/**
+ * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
+ */
 import { DataTypes, Sequelize } from 'sequelize';
 import { Application } from '../../../declarations';
 
