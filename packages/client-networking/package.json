@@ -16,7 +16,7 @@
   "npmClient": "yarn",
   "jest": "ts-jest",
   "scripts": {
-    "lint": "eslint --fix --quiet *.ts **/*.d.ts **/*.ts **/*.tsx"
+    "lint": "eslint --fix --quiet \"*.ts\" \"**/*.d.ts\" \"**/*.ts\" \"**/*.tsx\""
   },
   "resolutions": {
     "@types/react": "^17.0.0",
@@ -105,7 +105,7 @@
     "string-similarity": "^4.0.2",
     "styled-components": "^5.1.1",
     "three": "^0.127.0",
-    "three-mesh-bvh": "^0.2.0",
+    "three-mesh-bvh": "^0.3.7",
     "url-toolkit": "^2.2.0",
     "use-debounce": "^4.0.0",
     "use-http": "^1.0.13",

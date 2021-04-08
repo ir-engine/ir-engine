@@ -7,6 +7,8 @@ import VolumetricInput from "../inputs/VolumetricInput";
 import AudioSourceProperties from "./AudioSourceProperties";
 import NodeEditor from "./NodeEditor";
 import useSetPropertySelected from "./useSetPropertySelected";
+import i18n from "i18next";
+import { useTranslation } from "react-i18next";
 
 /**
  * [VolumetricNodeEditor provides the editor view to customize properties]
@@ -15,6 +17,9 @@ import useSetPropertySelected from "./useSetPropertySelected";
  */
 export default function VolumetricNodeEditor(props) {
   const { editor, node } = props;
+  const { t } = useTranslation();
+
+  VolumetricNodeEditor.description = t('editor:properties.volumetric.description');
 
   //function to handle the change in src property
   const onChangeSrc = useSetPropertySelected(editor, "src");
@@ -22,7 +27,7 @@ export default function VolumetricNodeEditor(props) {
    //returning editor view
   return (
     <NodeEditor description={VolumetricNodeEditor.description} {...props}>
-      <InputGroup name="Volumetric">
+      <InputGroup name="Volumetric" label={t('editor:properties.volumetric.lbl-volumetric')}>
         <VolumetricInput value={node.src} onChange={onChangeSrc} />
       </InputGroup>
       <AudioSourceProperties {...props} />
@@ -40,4 +45,4 @@ VolumetricNodeEditor.propTypes = {
 VolumetricNodeEditor.iconComponent = Video;
 
 //setting description and will appear on editor view
-VolumetricNodeEditor.description = "Dynamically loads a volumetric video.";
+VolumetricNodeEditor.description = i18n.t('editor:properties.volumetric.description');

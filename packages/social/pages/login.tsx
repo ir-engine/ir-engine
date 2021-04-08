@@ -1,22 +1,19 @@
-import { selectAuthState } from "@xr3ngine/client-core/src/user/reducers/auth/selector";
-import FlatSignIn from '@xr3ngine/client-core/src/socialmedia/components/Login';
-import { doLoginAuto, resetPassword } from '@xr3ngine/client-core/src/user/reducers/auth/service';
-import React from 'react';
+import { EmptyLayout } from '@xr3ngine/client-core/src/common/components/Layout/EmptyLayout';
+import { doLoginAuto } from '@xr3ngine/client-core/src/user/reducers/auth/service';
+import { selectInstanceConnectionState } from '@xr3ngine/client-networking/src/reducers/instanceConnection/selector';
+import React, {useEffect} from 'react';
 import { connect } from "react-redux";
 import { bindActionCreators, Dispatch } from "redux";
-import { ThemeProvider } from "styled-components";
-import theme from '../theme';
-
+import ProfileMenu from "@xr3ngine/client-core/src/user/components/UserMenu/menus/ProfileMenu";
+import { useTranslation } from 'react-i18next';
 
 interface Props {
-    authState?: any;
     instanceConnectionState?: any;
     doLoginAuto?: any;
 }
 
 const mapStateToProps = (state: any): any => {
     return {
-        authState: selectAuthState(state),
         instanceConnectionState: selectInstanceConnectionState(state)
     };
 };
@@ -25,21 +22,30 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
     doLoginAuto: bindActionCreators(doLoginAuto, dispatch)
 });
 
-export const IndexPage = (props: any): any => {
+export const IndexPage = (props: Props): any => {
   const {
-    authState
+    doLoginAuto
   } = props;
+  const { t } = useTranslation();
 
+    useEffect(() => {
+        doLoginAuto(true);
+    }, []);
+
+  // <Button className="right-bottom" variant="contained" color="secondary" aria-label="scene" onClick={(e) => { setSceneVisible(!sceneIsVisible); e.currentTarget.blur(); }}>scene</Button>
 
   return(
-  <ThemeProvider theme={theme}>
-      <FlatSignIn resetPassword={resetPassword} logo="/assets/LogoColored.png" />
-    </ThemeProvider>
+      <EmptyLayout pageTitle={t('login.pageTitle')}>
+          <style> {`
+                [class*=menuPanel] {
+                    top: 75px;
+                    bottom: initial;
+                }
+            `}</style>
+          <ProfileMenu/>
+      </EmptyLayout>
   );
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(IndexPage);
-function selectInstanceConnectionState(state: any) {
-  throw new Error("Function not implemented.");
-}
 

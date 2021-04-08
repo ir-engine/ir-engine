@@ -4,9 +4,12 @@ import InputGroup from "../inputs/InputGroup";
 import ColorInput from "../inputs/ColorInput";
 import NumericInputGroup from "../inputs/NumericInputGroup";
 import { Sun } from "@styled-icons/fa-solid/Sun";
+import i18n from "i18next";
+import { withTranslation } from "react-i18next";
 type AmbientLightNodeEditorProps = {
   editor?: object;
   node?: object;
+  t: Function;
 };
 
 /**
@@ -16,14 +19,14 @@ type AmbientLightNodeEditorProps = {
  * ]
  * @type {[component class]}
  */
-export default class AmbientLightNodeEditor extends Component<
+export class AmbientLightNodeEditor extends Component<
   AmbientLightNodeEditorProps,
   {}
 > {
   //iconComponent used to show icon image on the ambient light element
   static iconComponent = Sun;
-  // shows this description in NodeEditor  with title of element 
-  static description = "A light which illuminates all objects in your scene.";
+  static description = i18n.t('editor:properties.ambientLight.description');
+
   // used to change the color property of selected scene, when we change color property of ambient light
   onChangeColor = color => {
     (this.props.editor as any).setPropertySelected("color", color);
@@ -37,6 +40,7 @@ export default class AmbientLightNodeEditor extends Component<
    * [rendering ambient light view to customize ambient light element]
    */
   render() {
+    AmbientLightNodeEditor.description = this.props.t('editor:properties.ambientLight.description');
     const node = this.props.node;
     return (
       <NodeEditor
@@ -45,13 +49,14 @@ export default class AmbientLightNodeEditor extends Component<
         description={AmbientLightNodeEditor.description}
       >
         { /* @ts-ignore */ }
-        <InputGroup name="Color">
+        <InputGroup name="Color" label={this.props.t('editor:properties.ambientLight.lbl-color')}>
           { /* @ts-ignore */ }
           <ColorInput value={node.color} onChange={this.onChangeColor} />
         </InputGroup>
         { /* @ts-ignore */ }
         <NumericInputGroup
           name="Intensity"
+          label={this.props.t('editor:properties.ambientLight.lbl-intensity')}
           min={0}
           smallStep={0.001}
           mediumStep={0.01}
@@ -65,3 +70,5 @@ export default class AmbientLightNodeEditor extends Component<
     );
   }
 }
+
+export default withTranslation()(AmbientLightNodeEditor);

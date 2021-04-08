@@ -4,7 +4,7 @@ import Typography from '@material-ui/core/Typography';
 import Container from '@material-ui/core/Container';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
-import { forgotPassword } from '@xr3ngine/client-core/src/user/reducers/auth/service';
+import {forgotPassword} from '@xr3ngine/client-core/src/user/reducers/auth/service';
 import Grid from '@material-ui/core/Grid';
 import styles from './Auth.module.scss';
 import OutlinedInput from '@material-ui/core/OutlinedInput';

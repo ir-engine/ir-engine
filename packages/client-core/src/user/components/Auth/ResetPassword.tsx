@@ -9,11 +9,12 @@ import { EmptyLayout } from '../../../common/components/Layout/EmptyLayout';
 import { resetPassword } from '../../reducers/auth/service';
 
 interface Props {
+  completeAction?: any,
   resetPassword: typeof resetPassword;
   token: string;
 }
 
-export const ResetPassword = (props: Props): any => {
+export default (props: Props): any => {
   const { resetPassword, token } = props;
   const initialState = { password: '' };
   const [state, setState] = useState(initialState);
@@ -25,6 +26,7 @@ export const ResetPassword = (props: Props): any => {
   const handleReset = (e: any): void => {
     e.preventDefault();
     resetPassword(token, state.password);
+    if(props.completeAction) props.completeAction();
   };
 
   return (

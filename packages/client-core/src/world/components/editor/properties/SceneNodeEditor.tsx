@@ -11,6 +11,9 @@ import SelectInput from "../inputs/SelectInput";
 import useSetPropertySelected from "./useSetPropertySelected";
 import BooleanInput from "../inputs/BooleanInput";
 import { DistanceModelOptions, DistanceModelType } from "@xr3ngine/engine/src/scene/classes/AudioSource";
+import i18n from "i18next";
+import { useTranslation } from "react-i18next";
+import SceneNode from "@xr3ngine/engine/src/editor/nodes/SceneNode";
 
 /**
  * [FogTypeOptions array containing fogType options]
@@ -36,9 +39,11 @@ const FogTypeOptions = [
  * @param       props
  * @constructor
  */
-export default function SceneNodeEditor(props) {
+export function SceneNodeEditor(props) {
   const { editor, node } = props;
+  const { t } = useTranslation();
 
+  SceneNodeEditor.description = t('editor:properties.scene.description');
   //creating functions to handle the changes in property of node
   // const onChangeBackground = useSetPropertySelected(editor, "background");
   const onChangeFogType = useSetPropertySelected(editor, "fogType");
@@ -65,18 +70,27 @@ export default function SceneNodeEditor(props) {
   return (
     <NodeEditor {...props} description={SceneNodeEditor.description}>
       { /* @ts-ignore */ }
-      {/* <InputGroup name="Background Color"> */}
+      {/* <InputGroup
+        name="Background Color"
+        label={t('editor:properties.scene.lbl-bgcolor')}
+      > */}
       { /* @ts-ignore */ }
         {/* <ColorInput value={node.background} onChange={onChangeBackground} /> */}
       {/* </InputGroup> */}
       { /* @ts-ignore */ }
-      <InputGroup name="Fog Type">
+      <InputGroup
+        name="Fog Type"
+        label={t('editor:properties.scene.lbl-fogType')}
+      >
       { /* @ts-ignore */ }
         <SelectInput options={FogTypeOptions} value={node.fogType} onChange={onChangeFogType} />
       </InputGroup>
       {node.fogType !== FogType.Disabled && (
         /* @ts-ignore */
-        <InputGroup name="Fog Color">
+        <InputGroup
+          name="Fog Color"
+          label={t('editor:properties.scene.lbl-fogColor')}
+        >
           { /* @ts-ignore */ }
           <ColorInput value={node.fogColor} onChange={onChangeFogColor} />
         </InputGroup>
@@ -86,6 +100,7 @@ export default function SceneNodeEditor(props) {
         { /* @ts-ignore */ }
           <NumericInputGroup
             name="Fog Near Distance"
+            label={t('editor:properties.scene.lbl-forNearDistance')}
             smallStep={0.1}
             mediumStep={1}
             largeStep={10}
@@ -96,6 +111,7 @@ export default function SceneNodeEditor(props) {
           { /* @ts-ignore */ }
           <NumericInputGroup
             name="Fog Far Distance"
+            label={t('editor:properties.scene.lbl-fogFarDistance')}
             smallStep={1}
             mediumStep={100}
             largeStep={1000}
@@ -109,6 +125,7 @@ export default function SceneNodeEditor(props) {
         /* @ts-ignore */
         <NumericInputGroup
           name="Fog Density"
+          label={t('editor:properties.scene.lbl-fogDensity')}
           smallStep={0.01}
           mediumStep={0.1}
           largeStep={0.25}
@@ -118,13 +135,20 @@ export default function SceneNodeEditor(props) {
         />
       )}
       { /* @ts-ignore */ }
-      <InputGroup name="Override Audio Settings">
+      <InputGroup
+        name="Override Audio Settings"
+        label={t('editor:properties.scene.lbl-audioSettings')}
+      >
         <BooleanInput value={node.overrideAudioSettings} onChange={onChangeOverrideAudioSettings} />
       </InputGroup>
       {node.overrideAudioSettings && (
         <>
         { /* @ts-ignore */ }
-          <InputGroup name="Avatar Distance Model" info="The algorithim used to calculate audio rolloff.">
+          <InputGroup
+            name="Avatar Distance Model"
+            label={t('editor:properties.scene.lbl-avatarDistanceModel')}
+            info={t('editor:properties.scene.info-avatarDistanceModel')}
+          >
           { /* @ts-ignore */ }
             <SelectInput
               options={DistanceModelOptions}
@@ -137,7 +161,8 @@ export default function SceneNodeEditor(props) {
             /* @ts-ignore */
             <InputGroup
               name="Avatar Rolloff Factor"
-              info="A double value describing how quickly the volume is reduced as the source moves away from the listener. 0 to 1"
+              label={t('editor:properties.scene.lbl-avatarRolloffFactor')}
+              info={t('editor:properties.scene.info-avatarRolloffFactor')}
             >
               <CompoundNumericInput
                 min={0}
@@ -153,7 +178,8 @@ export default function SceneNodeEditor(props) {
             /* @ts-ignore */
             <NumericInputGroup
               name="Avatar Rolloff Factor"
-              info="A double value describing how quickly the volume is reduced as the source moves away from the listener. 0 to Infinity"
+              label={t('editor:properties.scene.lbl-avatarRolloffFactor')}
+              info={t('editor:properties.scene.info-avatarRolloffFactorInifinity')}
               min={0}
               smallStep={0.1}
               mediumStep={1}
@@ -165,7 +191,8 @@ export default function SceneNodeEditor(props) {
           { /* @ts-ignore */ }
           <NumericInputGroup
             name="Avatar Ref Distance"
-            info="A double value representing the reference distance for reducing volume as the audio source moves further from the listener."
+            label={t('editor:properties.scene.lbl-avatarRefDistance')}
+            info={t('editor:properties.scene.info-avatarRefDistance')}
             min={0}
             smallStep={0.1}
             mediumStep={1}
@@ -177,7 +204,8 @@ export default function SceneNodeEditor(props) {
           { /* @ts-ignore */ }
           <NumericInputGroup
             name="Avatar Max Distance"
-            info="A double value representing the maximum distance between the audio source and the listener, after which the volume is not reduced any further."
+            label={t('editor:properties.scene.lbl-avatarMaxDistance')}
+            info={t('editor:properties.scene.info-avatarMaxDistance')}
             min={0}
             smallStep={0.1}
             mediumStep={1}
@@ -187,11 +215,18 @@ export default function SceneNodeEditor(props) {
             unit="m"
           />
           { /* @ts-ignore */ }
-          <InputGroup name="Media Volume">
+          <InputGroup
+            name="Media Volume"
+            label={t('editor:properties.scene.lbl-mediaVolume')}
+          >
             <CompoundNumericInput value={node.mediaVolume} onChange={onChangeMediaVolume} />
           </InputGroup>
           { /* @ts-ignore */ }
-          <InputGroup name="Media Distance Model" info="The algorithim used to calculate audio rolloff.">
+          <InputGroup
+            name="Media Distance Model"
+            label={t('editor:properties.scene.lbl-mediaDistanceModel')}
+            info={t('editor:properties.scene.info-mediaDistanceModel')}
+          >
           { /* @ts-ignore */ }
             <SelectInput
               options={DistanceModelOptions}
@@ -204,7 +239,8 @@ export default function SceneNodeEditor(props) {
             /* @ts-ignore */
             <InputGroup
               name="Media Rolloff Factor"
-              info="A double value describing how quickly the volume is reduced as the source moves away from the listener. 0 to 1"
+              label={t('editor:properties.scene.lbl-mediaRolloffFactor')}
+              info={t('editor:properties.scene.info-mediaRolloffFactor')}
             >
               <CompoundNumericInput
                 min={0}
@@ -220,7 +256,8 @@ export default function SceneNodeEditor(props) {
             /* @ts-ignore */
             <NumericInputGroup
               name="Media Rolloff Factor"
-              info="A double value describing how quickly the volume is reduced as the source moves away from the listener. 0 to Infinity"
+              label={t('editor:properties.scene.lbl-mediaRolloffFactor')}
+              info={t('editor:properties.scene.info-mediaRolloffFactorInfinity')}
               min={0}
               smallStep={0.1}
               mediumStep={1}
@@ -232,7 +269,8 @@ export default function SceneNodeEditor(props) {
           { /* @ts-ignore */ }
           <NumericInputGroup
             name="Media Ref Distance"
-            info="A double value representing the reference distance for reducing volume as the audio source moves further from the listener."
+            label={t('editor:properties.scene.lbl-mediaRefDistance')}
+            info={t('editor:properties.scene.info-mediaRefDistance')}
             min={0}
             smallStep={0.1}
             mediumStep={1}
@@ -244,7 +282,8 @@ export default function SceneNodeEditor(props) {
           { /* @ts-ignore */ }
           <NumericInputGroup
             name="Media Max Distance"
-            info="A double value representing the maximum distance between the audio source and the listener, after which the volume is not reduced any further."
+            label={t('editor:properties.scene.lbl-mediaMaxDistance')}
+            info={t('editor:properties.scene.info-mediaMaxDistance')}
             min={0}
             smallStep={0.1}
             mediumStep={1}
@@ -256,7 +295,8 @@ export default function SceneNodeEditor(props) {
           { /* @ts-ignore */ }
           <NumericInputGroup
             name="Media Cone Inner Angle"
-            info="A double value describing the angle, in degrees, of a cone inside of which there will be no volume reduction."
+            label={t('editor:properties.scene.lbl-mediaConeInnerAngle')}
+            info={t('editor:properties.scene.info-mediaConeInnerAngle')}
             min={0}
             max={360}
             smallStep={0.1}
@@ -269,7 +309,8 @@ export default function SceneNodeEditor(props) {
           { /* @ts-ignore */ }
           <NumericInputGroup
             name="Media Cone Outer Angle"
-            info="A double value describing the angle, in degrees, of a cone outside of which the volume will be reduced by a constant value, defined by the coneOuterGain attribute."
+            label={t('editor:properties.scene.lbl-mediaConeOuterAngle')}
+            info={t('editor:properties.scene.info-mediaConeOuterAngle')}
             min={0}
             max={360}
             smallStep={0.1}
@@ -282,7 +323,8 @@ export default function SceneNodeEditor(props) {
           { /* @ts-ignore */ }
           <InputGroup
             name="Media Cone Outer Gain"
-            info="A double value describing the amount of volume reduction outside the cone defined by the coneOuterAngle attribute. Its default value is 0, meaning that no sound can be heard."
+            label={t('editor:properties.scene.lbl-mediaConeOuterGain')}
+            info={t('editor:properties.scene.info-mediaConeOuterGain')}
           >
             <CompoundNumericInput
               min={0}
@@ -308,4 +350,4 @@ SceneNodeEditor.propTypes = {
 SceneNodeEditor.iconComponent = Globe;
 
 // setting description and will appear on editor view
-SceneNodeEditor.description = "The root object of the scene.";
+SceneNodeEditor.description = i18n.t('editor:properties.scene.description');

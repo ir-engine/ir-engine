@@ -9,6 +9,8 @@ import loadTexture from "../functions/loadTexture";
 let errorTexturePromise = null;
 let errorTexture = null;
 export default class ErrorIcon extends Mesh {
+  name: string;
+  type: string;
   static async load() {
     if (errorTexturePromise) {
       return errorTexturePromise;
