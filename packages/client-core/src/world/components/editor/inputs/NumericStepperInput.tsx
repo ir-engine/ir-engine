@@ -6,6 +6,10 @@ import { CaretLeft } from "@styled-icons/boxicons-regular/CaretLeft";
 import { CaretRight } from "@styled-icons/boxicons-regular/CaretRight";
 import { InfoTooltip } from "../layout/Tooltip";
 
+/**
+ * 
+ * @author Robert Long
+ */
 const StepperInputContainer = (styled as any).div`
   display: flex;
   flex: 1;
@@ -19,6 +23,10 @@ const StepperInputContainer = (styled as any).div`
   }
 `;
 
+/**
+ * 
+ * @author Robert Long
+ */
 const StepperButton = (styled as any).button`
   display: flex;
   justify-content: center;
@@ -45,6 +53,17 @@ const StepperButton = (styled as any).button`
   }
 `;
 
+/**
+ * 
+ * 
+ * @author Robert Long
+ * @param {any} style
+ * @param {any} className
+ * @param {any} decrementTooltip
+ * @param {any} incrementTooltip
+ * @param {any} rest
+ * @returns 
+ */
 export default function NumericStepperInput({ style, className, decrementTooltip, incrementTooltip, ...rest }) {
   const inputRef = useRef() as any;
 
@@ -73,6 +92,10 @@ export default function NumericStepperInput({ style, className, decrementTooltip
   );
 }
 
+/**
+ * 
+ * @author Robert Long
+ */
 NumericStepperInput.propTypes = {
   style: PropTypes.object,
   className: PropTypes.string,
