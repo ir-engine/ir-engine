@@ -46,7 +46,7 @@ const { authenticate } = authentication.hooks;
 
 export default {
   before: {
-    all: [logRequest(), collectAnalytics(), authenticate('jwt')], /* authenticate('jwt') */
+    all: [collectAnalytics(), authenticate('jwt')], /* authenticate('jwt') */
     find: [
       attachOwnerIdInQuery('userId'),
       addAssociations({

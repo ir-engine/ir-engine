@@ -27,6 +27,7 @@ import {
     Menu,
     NearMe,
     PersonAdd,
+    PhotoAlbum,
     PhotoLibrary,
     SupervisorAccount,
 } from '@material-ui/icons';
@@ -254,9 +255,17 @@ export default function Dashboard({ children }) {
                     <Link href="/admin/content-packs">
                         <ListItem style={{ color: "white" }} onClick={changeComponent} button>
                             <ListItemIcon >
-                                <PhotoLibrary style={{ color: "white" }} />
+                                <PhotoAlbum style={{ color: "white" }} />
                             </ListItemIcon>
                             <ListItemText primary="Content Packs" />
+                        </ListItem>
+                    </Link>
+                    <Link href="/admin/scenes">
+                        <ListItem style={{ color: "white" }} onClick={changeComponent} button>
+                            <ListItemIcon >
+                                <PhotoLibrary style={{ color: "white" }} />
+                            </ListItemIcon>
+                            <ListItemText primary="Scenes" />
                         </ListItem>
                     </Link>
                 </List>

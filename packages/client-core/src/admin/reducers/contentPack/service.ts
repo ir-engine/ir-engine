@@ -1,6 +1,5 @@
 import { Dispatch } from 'redux';
-import { client } from '../feathers';
-import {dispatchAlertSuccess} from '../alert/service';
+import { client } from '../../../feathers';
 import {
   createdContentPack,
   patchedContentPack,
@@ -53,9 +52,7 @@ export function uploadAvatars (data: any) {
 
 export function fetchContentPacks() {
   return async (dispatch: Dispatch, getState: any) => {
-    console.log('retrieving content packs');
     const packs = await client.service('content-pack').find({});
-    console.log(packs);
     dispatch(loadedContentPacks(packs));
   }
 }
@@ -82,8 +79,6 @@ export function addSceneToContentPack(data: any) {
 
 export function downloadContentPack(url: string) {
   return async (dispatch: Dispatch, getState: any) => {
-    console.log('downloadContentPack--');
-    console.log(url);
     const result = await client.service('content-pack').update(null, {
       manifestUrl: url
     });
