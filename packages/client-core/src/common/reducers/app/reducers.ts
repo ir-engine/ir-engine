@@ -27,7 +27,7 @@ type AppState = {
   userHasInteracted: boolean;
 }
 
-export const initialState: AppState = {
+export const initialAppState: AppState = {
   loaded: false,
   inVrMode: false,
   viewport: {
@@ -39,7 +39,7 @@ export const initialState: AppState = {
   userHasInteracted: false
 };
 
-const immutableState = Immutable.fromJS(initialState);
+const immutableState = Immutable.fromJS(initialAppState);
 
 const appReducer = (state = immutableState, action: AppLoadedAction | SetViewportAction): AppState => {
   switch (action.type) {

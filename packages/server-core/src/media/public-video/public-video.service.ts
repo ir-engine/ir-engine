@@ -2,7 +2,7 @@ import { ServiceAddons } from '@feathersjs/feathers';
 import { Application } from '../../../declarations';
 import { PublicVideo } from './public-video.class';
 import hooks from './public-video.hooks';
-import staticResourceModel from './static-resource.model';
+import staticResourceModel from '../static-resource/static-resource.model';
 
 declare module '../../../declarations' {
   interface ServiceTypes {

@@ -1,4 +1,4 @@
-import editor from './i18n/en/editor.json';
+import editor from '../i18n/en/editor.json';
 
 export const getI18nConfigs = () => {
     return {

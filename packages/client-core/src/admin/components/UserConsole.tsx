@@ -16,7 +16,7 @@ import {
     Paper,
     Button, MenuItem, Select,
 } from '@material-ui/core';
-import styles from './Admin.module.scss';
+import * as styles from './Admin.module.scss';
 import UserModel from "./UserModel";
 import Search from "./Search";
 import Backdrop from '@material-ui/core/Backdrop';
@@ -31,7 +31,7 @@ import { selectAppState } from '../../common/reducers/app/selector';
 import { selectAuthState } from '../../user/reducers/auth/selector';
 import { PAGE_LIMIT } from '../reducers/admin/reducers';
 import { selectAdminState } from '../reducers/admin/selector';
-import { fetchUsersAsAdmin, removeUser } from '../reducers/admin/service';
+import { fetchUsersAsAdmin, removeUserAdmin } from '../reducers/admin/service';
 
 
 if (!global.setImmediate) {
@@ -69,7 +69,7 @@ const mapStateToProps = (state: any): any => {
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
     fetchUsersAsAdmin: bindActionCreators(fetchUsersAsAdmin, dispatch),
-    removeUser: bindActionCreators(removeUser, dispatch)
+    removeUser: bindActionCreators(removeUserAdmin, dispatch)
 });
 
 const useStyles = makeStyles((theme: Theme) =>

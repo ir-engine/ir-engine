@@ -20,23 +20,8 @@ import {
     DynamicDrawUsage
   } from "three";
   import * as EasingFunctions from "../../common/functions/EasingFunctions";
-  
-  export function lerp(start: number, end: number, value: number) {
-    return (end - start) * value + start;
-  }
-  
-  export function clamp(min: number, max: number, value: number) {
-    if (value < min) {
-      value = min;
-    }
-  
-    if (value > max) {
-      value = max;
-    }
-  
-    return value;
-  }
-  
+import { clamp, lerp } from "../../common/functions/MathLerpFunctions";
+
   const vertexShader = `
     #include <common>
   
@@ -95,7 +80,7 @@ import {
     }
   }
   
-  export class ParticleEmitter extends Mesh {
+  export class ThreeParticleEmitter extends Mesh {
     initialPositions: number[];
     initialAges: number[];
     startSize: number;
@@ -145,7 +130,7 @@ import {
   
       super(geometry, material);
   
-      this.frustumCulled = false;
+      (this as any).frustumCulled = false;
   
       this.initialPositions = [];
       this.startSize = 0.25;
@@ -178,7 +163,6 @@ import {
     }
   
     updateParticles() {
-      const texture = (this.material as ShaderMaterial).uniforms.map.value;
       const planeGeometry = new PlaneBufferGeometry(1, 1, 1, 1);
       const tempGeo = new InstancedBufferGeometry();
       tempGeo.index = planeGeometry.index;
@@ -193,7 +177,7 @@ import {
       const particleSizeRandomness = [];
       const angles = [];
   
-      this.getWorldScale(this.worldScale);
+      (this as any).getWorldScale(this.worldScale);
   
       for (let i = 0; i < this.particleCount; i++) {
         initialAges[i] = Math.random() * this.ageRandomness - this.ageRandomness;
@@ -219,7 +203,7 @@ import {
       tempGeo.setAttribute("particleColor", new InstancedBufferAttribute(new Float32Array(colors), 4).setUsage(DynamicDrawUsage));
       tempGeo.setAttribute("particleAngle", new InstancedBufferAttribute(new Float32Array(angles), 1).setUsage(DynamicDrawUsage));
   
-      this.geometry = tempGeo as ParticleEmitterGeometry;
+      (this as any).geometry = tempGeo as ParticleEmitterGeometry;
       this.initialPositions = initialPositions;
       this.particleSizeRandomness = particleSizeRandomness;
       this.ages = ages;
@@ -229,21 +213,21 @@ import {
     }
   
     update(dt: number) {
-      const geometry = this.geometry as ParticleEmitterGeometry;
+      const geometry = (this as any).geometry as ParticleEmitterGeometry;
       const particlePosition = geometry.attributes.particlePosition.array as Float32Array;
       const particleColor = geometry.attributes.particleColor.array as Float32Array;
       const particleAngle = geometry.attributes.particleAngle.array as Float32Array;
   
-      this.getWorldScale(this.worldScale);
+      (this as any).getWorldScale(this.worldScale);
       this.inverseWorldScale.set(
         1 / this.worldScale.x,
         1 / this.worldScale.y,
         1 / this.worldScale.z
       );
       
-      const material = this.material as ShaderMaterial;
+      const material = (this as any).material as ShaderMaterial;
       const emitterMatrix: Matrix4 = material.uniforms.emitterMatrix.value;
-      emitterMatrix.copy(this.matrixWorld);
+      emitterMatrix.copy((this as any).matrixWorld);
       emitterMatrix.scale(this.inverseWorldScale);
   
       for (let i = 0; i < this.particleCount; i++) {
@@ -328,8 +312,8 @@ import {
     copy(source: this, recursive = true) {
       super.copy(source, recursive);
   
-      const material = this.material as RawShaderMaterial;
-      const sourceMaterial = source.material as RawShaderMaterial;
+      const material = (this as any).material as RawShaderMaterial;
+      const sourceMaterial = (source as any).material as RawShaderMaterial;
   
       material.uniforms.map.value = sourceMaterial.uniforms.map.value;
       this.startColor.copy(source.startColor);

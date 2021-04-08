@@ -1,10 +1,10 @@
 import React, { useEffect } from "react";
 import Router from "next/router";
+import * as styles from './Header.module.scss';
+import Avatar from "@material-ui/core/Avatar";
 import { bindActionCreators, Dispatch } from "redux";
 import { connect } from "react-redux";
 
-import styles from './Header.module.scss';
-import Avatar from "@material-ui/core/Avatar";
 import { selectCreatorsState } from "../../reducers/creator/selector";
 import { getLoggedCreator } from "../../reducers/creator/service";
 import { selectAuthState } from "../../../user/reducers/auth/selector";

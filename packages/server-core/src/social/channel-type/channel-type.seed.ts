@@ -1,6 +1,6 @@
 import config from '../../appconfig';
 
-export const seed = {
+export const channelTypeSeed = {
   disabled: !config.db.forceRefresh,
   delete: config.db.forceRefresh,
   path: 'channel-type',
@@ -13,5 +13,3 @@ export const seed = {
           { type: 'instance' }
         ]
 };
-
-export default seed;

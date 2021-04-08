@@ -130,7 +130,7 @@
     "eslint-plugin-react": "^7.21.4",
     "gltf-webpack-loader": "https://github.com/MozillaReality/gltf-webpack-loader.git#fix/relative-and-output-paths",
     "node-sass": "^5.0.0",
-    "sass-loader": "^7.1.0",
+    "sass-loader": "^11.0.1",
     "style-loader": "^0.23.1",
     "thread-loader": "^3.0.0",
     "ts-loader": "^8.0.5",

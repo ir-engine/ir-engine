@@ -2,7 +2,8 @@
 import React, { Component, createRef } from "react";
 import PropTypes from "prop-types";
 import styled from "styled-components";
-import { getStepSize, clamp, toPrecision } from "@xr3ngine/engine/src/editor/functions/utils";
+import { getStepSize, toPrecision } from "@xr3ngine/engine/src/editor/functions/utils";
+import { clamp } from "@xr3ngine/engine/src/common/functions/MathLerpFunctions";
 
 function toPrecisionString(value, precision) {
   if (precision && precision <= 1) {

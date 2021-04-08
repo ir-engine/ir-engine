@@ -8,7 +8,7 @@ import WhatshotIcon from '@material-ui/icons/Whatshot';
 import VerifiedUserIcon from '@material-ui/icons/VerifiedUser';
 
 
-import styles from './CommentCard.module.scss';
+import * as styles from './CommentCard.module.scss';
 import { CommentInterface } from '@xr3ngine/common/interfaces/Comment';
 import { bindActionCreators, Dispatch } from 'redux';
 import { connect } from 'react-redux';

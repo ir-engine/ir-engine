@@ -1,14 +1,12 @@
-import {
-  FEED_COMMENTS_RETRIEVED,
-  FEED_COMMENTS_FETCH,
-  ADD_FEED_COMMENT_FIRES,
-  REMOVE_FEED_COMMENT_FIRES,
-  ADD_FEED_COMMENT,
-  COMMENT_FIRES
-} from '../actions';
-
 import { CommentInterface } from '@xr3ngine/common/interfaces/Comment';
 import { CreatorShort } from '@xr3ngine/common/interfaces/Creator';
+import {
+  ADD_FEED_COMMENT,
+  ADD_FEED_COMMENT_FIRES,
+  COMMENT_FIRES,
+  FEED_COMMENTS_FETCH,
+  REMOVE_FEED_COMMENT_FIRES
+} from '../actions';
 
 export interface FeedCommentsRetrievedAction {
   type: string;
@@ -45,19 +43,11 @@ FeedCommentsRetrievedAction
   | AddFeedCommentAction
   | CommentFiresRetrievedAction
 
-export function feedsRetrieved (comments: CommentInterface[]): FeedCommentsRetrievedAction {
-  return {
-    type: FEED_COMMENTS_RETRIEVED,
-    comments: comments
-  };
-}
-
 export function fetchingFeedComments (): FetchingFeedCommentsAction {
   return {
     type: FEED_COMMENTS_FETCH
   };
 }
-
 
 export function addFeedCommentFire (commentId:string) : AddFeedCommentFiresAction{
   return {

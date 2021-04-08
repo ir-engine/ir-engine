@@ -334,14 +334,14 @@ export default class OutlinePass extends Pass {
         }
       });
       this.renderScene.overrideMaterial = this.depthMaskMaterial;
-      this.depthMaskMaterial.uniforms['cameraNearFar'].value = new Vector2(
+      (this.depthMaskMaterial as any).uniforms['cameraNearFar'].value = new Vector2(
         this.renderCamera.near,
         this.renderCamera.far
       );
-      this.depthMaskMaterial.uniforms[
+      (this.depthMaskMaterial as any).uniforms[
         'depthTexture'
       ].value = this.renderTargetDepthBuffer.texture;
-      this.depthMaskMaterial.uniforms[
+      (this.depthMaskMaterial as any).uniforms[
         'textureMatrix'
       ].value = this.textureMatrix;
       renderer.setRenderTarget(this.renderTargetMaskBuffer);
