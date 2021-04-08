@@ -9,7 +9,9 @@ import StringInput from "../inputs/StringInput";
 import ModelNode from "@xr3ngine/engine/src/editor/nodes/ModelNode";
 
 /**
- * [array containing options for InteractableOption ]
+ * Array containing options for InteractableOption.
+ * 
+ * @author Robert Long
  * @type {Array}
  */
 const InteractableOption = [
@@ -28,7 +30,9 @@ const InteractableOption = [
 ];
 
 /**
- * [declairing properties for ModalNodeEditor component]
+ * Declairing properties for ModalNodeEditor component.
+ * 
+ * @author Robert Long
  * @type {Object}
  */
 type ModelNodeEditorProps = {
@@ -38,7 +42,9 @@ type ModelNodeEditorProps = {
 };
 
 /**
- * [ModelNodeEditor used to create editor view for the properties of ModelNode]
+ * ModelNodeEditor used to create editor view for the properties of ModelNode.
+ * 
+ * @author Robert Long
  * @type {class component}
  */
 export default class ModelNodeEditor extends Component<

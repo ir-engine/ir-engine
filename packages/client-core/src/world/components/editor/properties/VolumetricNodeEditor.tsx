@@ -9,8 +9,10 @@ import NodeEditor from "./NodeEditor";
 import useSetPropertySelected from "./useSetPropertySelected";
 
 /**
- * [VolumetricNodeEditor provides the editor view to customize properties]
- * @param       {[type]} props
+ * VolumetricNodeEditor provides the editor view to customize properties.
+ * 
+ * @author Robert Long
+ * @param       {any} props
  * @constructor
  */
 export default function VolumetricNodeEditor(props) {

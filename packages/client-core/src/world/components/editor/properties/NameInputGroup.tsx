@@ -6,7 +6,9 @@ import StringInput from "../inputs/StringInput";
 import styled from "styled-components";
 
 /**
- * [creating styled component using InputGroup component]
+ * Creating styled component using InputGroup component.
+ * 
+ * @author Robert Long
  * @type {Styled Component}
  */
 const StyledNameInputGroup = (styled as any)(InputGroup)`
@@ -17,7 +19,9 @@ const StyledNameInputGroup = (styled as any)(InputGroup)`
 `;
 
 /**
- * [NameInputGroup is used to render input group PropertiesPanelContainer]
+ * NameInputGroup is used to render input group PropertiesPanelContainer.
+ * 
+ * @author Robert Long
  * @type {class component}
  */
 export default class NameInputGroup extends Component {

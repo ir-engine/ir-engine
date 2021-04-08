@@ -9,7 +9,9 @@ type BoxColliderNodeEditorProps = {
 };
 
 /**
- * [BoxColliderNodeEditor is used to provide properties to customize box collider element]
+ * BoxColliderNodeEditor is used to provide properties to customize box collider element.
+ * 
+ * @author Robert Long
  * @type {[component class]}
  */
 export default class BoxColliderNodeEditor extends Component<

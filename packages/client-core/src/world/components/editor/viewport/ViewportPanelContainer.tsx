@@ -16,10 +16,12 @@ import { InfoTooltip } from "../layout/Tooltip";
 import Stats from "./Stats";
 
 /**
- * [borderColor used to get border color ]
- * @param  {[type]} props
- * @param  {[type]} defaultColor
- * @return {[type]} color
+ * BorderColor used to get border color.
+ * 
+ * @author Robert Long
+ * @param  {any} props
+ * @param  {any} defaultColor
+ * @return {any} color
  */
 function borderColor(props, defaultColor) {
   if (props.canDrop) {
@@ -33,6 +35,8 @@ function borderColor(props, defaultColor) {
 
 /**
  * styled component created using canvas to show the viewport.
+ * 
+ * @author Robert Long
  */
 const Viewport = (styled as any).canvas`
   width: 100%;
@@ -41,7 +45,9 @@ const Viewport = (styled as any).canvas`
 `;
 
 /**
- * [ViewportContainer used as wrapper element for Viewport, ControlsText]
+ * ViewportContainer used as wrapper element for Viewport, ControlsText.
+ * 
+ * @author Robert Long
  * @type {[Styled component]}
  */
 const ViewportContainer = (styled as any).div`
@@ -62,7 +68,9 @@ const ViewportContainer = (styled as any).div`
 `;
 
 /**
- * [ControlsText used to show the control keys ]
+ * ControlsText used to show the control keys.
+ * 
+ * @author Robert Long
  * @type {[Styled component]}
  */
 const ControlsText = (styled as any).div`
@@ -76,7 +84,9 @@ const ControlsText = (styled as any).div`
 `;
 
 /**
- * [ViewportToolbarContainer used to show title and options for view port]
+ * ViewportToolbarContainer used to show title and options for view port.
+ * 
+ * @author Robert Long
  * @type {[styled component]}
  */
 const ViewportToolbarContainer = (styled as any).div`
@@ -87,8 +97,10 @@ const ViewportToolbarContainer = (styled as any).div`
 
 
 /**
- * [ToolbarIconContainer provides the styles for icon placed in toolbar]
- * @param {[type]} styled
+ * ToolbarIconContainer provides the styles for icon placed in toolbar.
+ * 
+ * @author Robert Long
+ * @param {any} styled
  */
 const ToolbarIconContainer = (styled as any).div`
   display: flex;
@@ -112,12 +124,14 @@ const ToolbarIconContainer = (styled as any).div`
 const initialPanelSizes = [0.8, 0.2];
 
 /**
- * [IconToggle used to show stats when we click on it, and shows the tooltip info if we hover over the icon]
- * @param       {[elementType]} icon
- * @param       {[bool]} value
+ * IconToggle used to show stats when we click on it, and shows the tooltip info if we hover over the icon.
+ * 
+ * @author      Robert Long
+ * @param       {Icon} icon
+ * @param       {any} value
  * @param       {[function]} onClick
- * @param       {[string]} tooltip
- * @param       {[any]} rest
+ * @param       {any} tooltip
+ * @param       {any} rest
  * @constructor
  */
 function IconToggle({ icon: Icon, value, onClick, tooltip, ...rest }) {
@@ -143,7 +157,9 @@ IconToggle.propTypes = {
 };
 
 /**
- * [ selectInputStyles used to show select input inside ToolBar ]
+ * SelectInputStyles used to show select input inside ToolBar.
+ * 
+ * @author Robert Long
  * @type {Object}
  */
 const selectInputStyles = {
@@ -166,9 +182,11 @@ const selectInputStyles = {
 };
 
 /**
- * [ViewportToolbar used as warpper for IconToggle, SelectInput ]
- * @param       {[type]} onToggleStats
- * @param       {[type]} showStats
+ * ViewportToolbar used as warpper for IconToggle, SelectInput.
+ * 
+ * @author Robert Long
+ * @param  {any} onToggleStats
+ * @param  {any} showStats
  * @constructor
  */
 function ViewportToolbar({ onToggleStats, showStats }) {
@@ -215,7 +233,9 @@ ViewportToolbar.propTypes = {
 };
 
 /**
- * [ViewportPanelContainer used to render viewport ]
+ * ViewportPanelContainer used to render viewport.
+ * 
+ * @author Robert Long
  * @constructor
  */
 export default function ViewportPanelContainer() {

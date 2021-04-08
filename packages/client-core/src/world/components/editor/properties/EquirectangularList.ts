@@ -1,5 +1,7 @@
 /**
- * [EquirectangularOption array containing textures and used in SkyboxNode]
+ * EquirectangularOption array containing textures and used in SkyboxNode.
+ * 
+ * @author Robert Long
  */
 export const EquirectangularOption = [
   {

@@ -5,10 +5,25 @@ import Positioner from "./Positioner";
 import useHover from "../hooks/useHover";
 import styled from "styled-components";
 
+/**
+ * 
+ * @author Robert Long
+ */
 const StyledTooltip = (styled as any).div`
   display: inherit;
 `;
 
+/**
+ * 
+ * @author Robert Long
+ * @param {any} children  
+ * @param {any} padding 
+ * @param {any} position 
+ * @param {any} renderContent 
+ * @param {any} disabled 
+ * @param {any} rest 
+ * @returns 
+ */
 export default function Tooltip({ children, padding, position, renderContent, disabled, ...rest }) {
   const [hoverRef, isHovered] = useHover();
 
@@ -38,6 +53,10 @@ Tooltip.propTypes = {
   renderContent: PropTypes.func.isRequired
 };
 
+/**
+ * 
+ * @author Robert Long
+ */
 export const TooltipContainer = (styled as any).div`
   display: inline-block;
   pointer-events: none;
@@ -54,6 +73,14 @@ export const TooltipContainer = (styled as any).div`
 }
 `;
 
+/**
+ * 
+ * @author Robert Long
+ * @param {any} info 
+ * @param {any} children
+ * @param {any} rest
+ * @returns 
+ */
 export function InfoTooltip({ info, children, ...rest }) {
   if (!info) {
     return <div {...rest}>{children}</div>;

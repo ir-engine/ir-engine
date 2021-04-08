@@ -13,9 +13,12 @@ import useSetPropertySelected from "./useSetPropertySelected";
 const mapValue = v => ({ label: v, value: v });
 const imageProjectionOptions = Object.values(ImageProjection).map(mapValue);
 const imageTransparencyOptions = Object.values(ImageAlphaMode).map(mapValue);
+
 /**
- * [ImageNodeEditor used to dynamicaly adding an image to scene]
- * @param       {[type]} props
+ * ImageNodeEditor used to dynamicaly adding an image to scene.
+ * 
+ * @author Robert Long
+ * @param       {any} props
  * @constructor
  */
 export default function ImageNodeEditor(props) {

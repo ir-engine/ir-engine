@@ -4,8 +4,9 @@ import styled from "styled-components";
 import { ThemeContext } from "./theme";
 
 /**
- * [StyledError styled component used to provide styles for error container]
- * @type {[styled component]}
+ * StyledError styled component used to provide styles for error container.
+ * 
+ * @type {styled component}
  */
 const StyledError = (styled as any).div`
   display: flex;

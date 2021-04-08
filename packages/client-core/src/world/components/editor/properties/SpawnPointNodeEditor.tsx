@@ -3,7 +3,9 @@ import NodeEditor from "./NodeEditor";
 import { StreetView } from "@styled-icons/fa-solid/StreetView";
 
 /**
- * [SpawnPointNodeEditorProps declairing properties for SpawnPointNodeEditor ]
+ * SpawnPointNodeEditorProps declairing properties for SpawnPointNodeEditor.
+ * 
+ * @author Robert Long
  * @type {Object}
  */
 type SpawnPointNodeEditorProps = {
@@ -12,7 +14,9 @@ type SpawnPointNodeEditorProps = {
 };
 
 /**
- * [SpawnPointNodeEditor component used to provide the editor view to customize SpawnPointNode properties]
+ * SpawnPointNodeEditor component used to provide the editor view to customize SpawnPointNode properties.
+ * 
+ * @author Robert Long
  * @type {Class component}
  */
 export default class SpawnPointNodeEditor extends Component<

@@ -7,7 +7,9 @@ type GroupNodeEditorProps = {
 };
 
 /**
- * [GroupNodeEditor used to render group of multiple objects]
+ * GroupNodeEditor used to render group of multiple objects.
+ * 
+ * @author Robert Long
  * @type {class component}
  */
 export default class GroupNodeEditor extends Component<

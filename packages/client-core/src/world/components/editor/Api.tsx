@@ -15,6 +15,12 @@ const SERVER_URL = (configs as any).SERVER_URL;
 const APP_URL = (configs as any).APP_URL;
 const FEATHERS_STORE_KEY = (configs as any).FEATHERS_STORE_KEY;
 
+/**
+ * 
+ * @author Robert Long
+ * @param {string} str 
+ * @returns 
+ */
 function b64EncodeUnicode(str): string {
   // first we use encodeURIComponent to get percent-encoded UTF-8, then we convert the percent-encodings
   // into raw bytes which can be fed into btoa.
@@ -22,6 +28,12 @@ function b64EncodeUnicode(str): string {
   return btoa(encodeURIComponent(str).replace(CHAR_RE, (_, p1) => String.fromCharCode(("0x" + p1) as any)));
 }
 
+/**
+ * 
+ * @author Robert Long
+ * @param {string} url 
+ * @returns 
+ */
 const serverEncodeURL = (url): string => {
   // farspark doesn't know how to read '=' base64 padding characters
   // translate base64 + to - and / to _ for URL safety
@@ -34,6 +46,12 @@ const serverEncodeURL = (url): string => {
 const nonCorsProxyDomains = (SERVER_URL || "").split(",");
   nonCorsProxyDomains.push(SERVER_URL);
 
+  /**
+   * 
+   * @author Robert Long
+   * @param {boolean} url 
+   * @returns 
+   */
 function shouldCorsProxy(url): boolean {
   // Skip known domains that do not require CORS proxying.
   try {
@@ -46,6 +64,12 @@ function shouldCorsProxy(url): boolean {
   return true;
 }
 
+/**
+ * 
+ * @author Robert Long
+ * @param {any} url 
+ * @returns 
+ */
 export const proxiedUrlFor = url => {
   // if (!(url.startsWith("http:") || url.startsWith("https:"))) return url;
 

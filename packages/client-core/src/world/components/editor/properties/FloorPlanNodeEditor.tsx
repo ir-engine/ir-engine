@@ -12,7 +12,9 @@ import { ShoePrints } from "@styled-icons/fa-solid/ShoePrints";
 import FloorPlanNode from "@xr3ngine/engine/src/editor/nodes/FloorPlanNode";
 
 /**
- * [defining properties for FloorPlanNodeEditor]
+ * Defining properties for FloorPlanNodeEditor.
+ * 
+ * @author Robert Long
  * @type {Object}
  */
 type FloorPlanNodeEditorProps = {
@@ -24,7 +26,9 @@ type FloorPlanNodeEditorProps = {
 };
 
 /**
- * [FloorPlanNodeEditor class component used to render view to customize properties of floor plan element]
+ * FloorPlanNodeEditor class component used to render view to customize properties of floor plan element.
+ * 
+ * @author Robert Long
  * @extends Component
  */
 class FloorPlanNodeEditor extends Component<FloorPlanNodeEditorProps, {}> {

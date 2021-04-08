@@ -15,7 +15,9 @@ type PointLightNodeEditorProps = {
 };
 
 /**
- * [PointLightNodeEditor is used render editor view to customize component properties]
+ * PointLightNodeEditor is used render editor view to customize component properties.
+ * 
+ * @author Robert Long
  * @type {class component}
  */
 export default class PointLightNodeEditor extends Component<

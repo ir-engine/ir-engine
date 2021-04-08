@@ -25,7 +25,9 @@ type ParticleEmitterNodeEditorProps = {
 }
 
 /**
- * [ParticleEmitterNodeEditor provides the editor to customize properties]
+ * ParticleEmitterNodeEditor provides the editor to customize properties.
+ * 
+ * @author Robert Long
  * @type {class component}
  */
 export default class ParticleEmitterNodeEditor extends Component<ParticleEmitterNodeEditorProps> {

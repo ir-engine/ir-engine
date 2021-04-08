@@ -14,6 +14,10 @@ function cssNumberProp(value) {
   return typeof value === "number" ? value + "px" : typeof value === "string" ? value : "auto";
 }
 
+/**
+ * 
+ * @author Robert Long
+ */
 export const Column = (styled as any).div`
   display: flex;
   flex-direction: column;
@@ -22,6 +26,10 @@ export const Column = (styled as any).div`
   width: ${props => cssNumberProp(props.width)};
 `;
 
+/**
+ * 
+ * @author Robert Long
+ */
 export const Row = (styled as any).div`
   display: flex;
   flex: ${getFlex};
@@ -29,11 +37,19 @@ export const Row = (styled as any).div`
   width: ${props => cssNumberProp(props.width)};
 `;
 
+/**
+ * 
+ * @author Robert Long
+ */
 export const VerticalScrollContainer = (styled as any)(Column)`
   overflow-y: auto;
   min-height: 0;
 `;
 
+/**
+ * 
+ * @author Robert Long
+ */
 export const HorizontalScrollContainer = (styled as any)(Row)`
   overflow-x: auto;
 `;

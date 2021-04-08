@@ -23,6 +23,12 @@ import usePaginatedSearch from "./usePaginatedSearch";
 import configs from "../configs";
 import Api from "../Api";
 
+/**
+ * 
+ * @author Robert Long
+ * @param {API} api
+ * @returns 
+ */
 function CreateProjectPage({ api }: { api: Api }) {
   const router = useRouter();
 

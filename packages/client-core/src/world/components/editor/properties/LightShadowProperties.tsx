@@ -5,7 +5,12 @@ import BooleanInput from "../inputs/BooleanInput";
 import NumericInputGroup from "../inputs/NumericInputGroup";
 import { Vector2 } from "three";
 
-// array containing options for shadow resolution
+
+/**
+ *  Array containing options for shadow resolution
+ * 
+ * @author Robert Long
+ */
 const ShadowMapResolutionOptions = [
   {
     label: "256px",
@@ -36,9 +41,10 @@ type LightShadowPropertiesProps = {
 };
 
 /**
- * [onChangeShadowMapResolution used to customize properties of LightShadowProperties
- * Used with LightNodeEditors
- * ]
+ * OnChangeShadowMapResolution used to customize properties of LightShadowProperties
+ * Used with LightNodeEditors.
+ * 
+ * @author Robert Long
  * @type {[class component]}
  */
 export default class LightShadowProperties extends Component<
