@@ -56,7 +56,6 @@ class Scrubber extends Component {
     convertFrom: value => value,
     convertTo: value => value
   };
-  scrubberEl: React.RefObject<unknown>;
   constructor(props) {
     super(props);
     this.scrubberEl = createRef();
@@ -67,6 +66,8 @@ class Scrubber extends Component {
     window.removeEventListener("mousemove", this.handleMouseMove);
     window.removeEventListener("mouseup", this.handleMouseUp);
   }
+  
+  scrubberEl: React.RefObject<unknown>;
 
   handleMouseMove = event => {
     const state = this.state as any;

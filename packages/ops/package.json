@@ -1,6 +1,6 @@
 {
   "name": "@xr3ngine/ops",
-  "version": "0.2.12",
+  "version": "0.2.13",
   "private": true,
   "description": "Dev Ops tooling for XR3ngine",
   "repository": "http://github.com/xr3ngine/xr3ngine",

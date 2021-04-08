@@ -24,8 +24,9 @@ const UserMenu = () => {
             onClick={() => {
               history.push('/profile');
             }}
-            dangerouslySetInnerHTML={{ __html: toSvg(user.address, 30) }}
-          />
+          >
+            {user.address}
+            </div>
         </>
       )}
     </div>

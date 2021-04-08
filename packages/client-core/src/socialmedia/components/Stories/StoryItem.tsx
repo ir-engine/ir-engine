@@ -18,4 +18,4 @@ export const StoryItem =({data}: any) => {
       </div>
     </div>
   );
-}
+};
