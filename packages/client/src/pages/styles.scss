@@ -224,9 +224,11 @@ body{
   }
 
   .lander-container{
-    max-width: 2000px;
-    width: 92%;
+    max-width: 2200px;
+    width: 95%;
+    height: 100%;
     margin: 0 auto;
+    min-height:1000px;
     padding-left: 5%;
 
     .right-top-menu-row{
@@ -241,6 +243,7 @@ body{
     .contact-right-div{
       width: 50%;
       z-index: 2;
+
     }
     .lander-logo{
       width: 800px;
