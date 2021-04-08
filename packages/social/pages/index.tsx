@@ -3,67 +3,106 @@ import React from "react";
 import AppHeader from "@xr3ngine/client-core/src/socialmedia/components/Header";
 import FeedMenu from "@xr3ngine/client-core/src/socialmedia/components/FeedMenu";
 import AppFooter from "@xr3ngine/client-core/src/socialmedia/components/Footer";
-import FlatSignIn from '@xr3ngine/client-core/src/socialmedia/components/Login';
-import {Stories} from '@xr3ngine/client-core/src/socialmedia/components/Stories';
 
 import { selectCreatorsState } from "@xr3ngine/client-core/src/socialmedia/reducers/creator/selector";
+import FlatSignIn from '@xr3ngine/client-core/src/socialmedia/components/Login';
+import {Stories} from '@xr3ngine/client-core/src/socialmedia/components/Stories';
 
 // import { Plugins } from '@capacitor/core';
 
 import styles from './index.module.scss';
 import { selectAuthState } from "@xr3ngine/client-core/src/user/reducers/auth/selector";
 import { connect } from "react-redux";
-// const { Example } = Plugins;
+import { User } from "@xr3ngine/common/interfaces/User";
+import { bindActionCreators, Dispatch } from "redux";
+import { doLoginAuto } from "@xr3ngine/client-core/src/user/reducers/auth/service";
+import { createCreator } from "@xr3ngine/client-core/src/socialmedia/reducers/creator/service";
 
+const { Example } = Plugins;
+        
 const mapStateToProps = (state: any): any => {
   return {
     authState: selectAuthState(state),
+    auth: selectAuthState(state),
     creatorsState: selectCreatorsState(state),
+   
   };
 };
 
-const  Home = ({ authState, creatorsState }) => {
+const mapDispatchToProps = (dispatch: Dispatch): any => ({
+  // loginUserByPassword: bindActionCreators(loginUserByPassword, dispatch),
+  doLoginAuto: bindActionCreators(doLoginAuto, dispatch),
+  createCreator: bindActionCreators(createCreator, dispatch)
+});
 
-  const stories = [] as any [];
-    for(let i=0;i<20;i++){
-      stories.push({
-            image:null
-        });
+
+
+const  Home = ({ authState, creatorsState, createCreator,  doLoginAuto, auth}) => {
+  
+ 
+ 
+  const { data, setLoginUser } = LoginUserHook();
+  const [loginData, setLoginData] = useState(null);
+  const [stories, setStories] = useState(null);
+  const [suggestions, setSuggestions] = useState(null);
+  const [feed, setFeed] = useState(null);
+
+    
+
+  const updateLoginUser = (data: any) => {
+    setLoginUser(data);
+    setLoginData(data);
+  };
+
+  const status = authState.get('authUser')?.identityProvider.type;
+  
+
+
+  useEffect(()=>{
+    if (status === 'guest') {
+    if(auth){
+      // const user = auth.get('authUser').identityProvider as User;
+      const user = auth.get('user') as User;
+      console.log(user);
+      const userId = user ? user.id : null;
+      if(userId){
+        createCreator();
+      }
     }
-  // const { data, setLoginUser } = LoginUserHook();
-
-  // const [loginData, setLoginData] = useState(null);
-  // const [suggestions, setSuggestions] = useState(null);
-  // const [feed, setFeed] = useState(null);
-
-  // const updateLoginUser = (data: any) => {
-  //   setLoginUser(data);
-  //   setLoginData(data);
-  // };
-  // useEffect(() => {
-  //   if (Example) {
-  //     Example.echo({ value: 'Example plugin detected' }).then(data => {
-  //       console.log(data);
-  //     });
-  //   }
-  // setLoginData({username:'username'});
-  // }, []);
+  }else{
+    if(auth){
+       const user = auth.get('authUser').identityProvider as User;
+      console.log(user);
+      const userId = user ? user.id : null;
+      if(userId){
+        createCreator();
+      }
+    }
+  }}
+  ,[auth]);
 
 
-  // useEffect(() => {
-  //   fetch("/api/loginUser")
-  //     .then((response) => response.json())
-  //     .then((data) => updateLoginUser(data));
+ 
+ 
 
-  //   fetch("/api/feed")
-  //     .then((response) => response.json())
-  //     .then((data) => setFeed(data));
+  useEffect(() => {
+    if (Example) {
+      Example.echo({ value: 'Example plugin detected' }).then(data => {
+        console.log(data);
+      });
+    }
+  
+  setLoginData({username:'username'});
+  doLoginAuto(true);
+  }, []);
 
-  //   fetch("/api/suggestions")
-  //     .then((response) => response.json())
-  //     .then((data) => setSuggestions(data));
-  // }, []);
+ 
 
+  useEffect(() => {
+   
+    fetch("/api/loginUser")
+      .then((response) => response.json())
+      .then((data) => updateLoginUser(data));
 
   return (<>
     <div className={styles.viewport}>
@@ -87,4 +126,4 @@ const  Home = ({ authState, creatorsState }) => {
   );
 };
 
-export default connect(mapStateToProps)(Home);
+  export default connect(mapStateToProps,mapDispatchToProps)(Home);
