@@ -52,6 +52,13 @@ const  Home = ({ createCreator,  doLoginAuto, auth}) => {
   },[auth]);
 
   useEffect(() => doLoginAuto(true), []); 
+        
+const stories = [] as any [];
+        for(let i=0;i<20;i++){
+        stories.push({
+            image:null
+        });
+}
 
   return (<>
     <div className={styles.viewport}>
