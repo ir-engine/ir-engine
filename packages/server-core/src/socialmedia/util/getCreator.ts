@@ -1,4 +1,7 @@
 
+/**
+ * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
+ */
 import { QueryTypes } from "sequelize";
 
 export const getCreatorByUserId = async (userId, app) =>{
@@ -12,4 +15,4 @@ export const getCreatorByUserId = async (userId, app) =>{
       return creator.id || null;
     }
     return null;
-}
+};
