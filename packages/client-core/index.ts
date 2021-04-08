@@ -1,5 +1,6 @@
 import editor from './i18n/en/editor.json';
 import user from './i18n/en/user.json';
+import { setRuntime } from './src/helper';
 
 export const getI18nConfigs = () => {
     return {
@@ -12,3 +13,5 @@ export const getI18nConfigs = () => {
         namespace: [ 'editor' ],
     };
 };
+
+export const setRuntimeConfig = setRuntime;

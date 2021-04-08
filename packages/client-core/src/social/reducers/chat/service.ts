@@ -18,8 +18,7 @@ import { User } from '@xr3ngine/common/interfaces/User';
 import store from '@xr3ngine/client-core/src/store';
 import { dispatchAlertError } from '@xr3ngine/client-core/src/common/reducers/alert/service';
 
-import getConfig from 'next/config';
-const { publicRuntimeConfig } = getConfig();
+import { Config } from '../../../helper';
 
 export function getChannels(skip?: number, limit?: number) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
@@ -168,7 +167,7 @@ export function updateMessageScrollInit(value: boolean) {
   };
 }
 
-if(!publicRuntimeConfig.offlineMode) {
+if(!Config.publicRuntimeConfig.offlineMode) {
   client.service('message').on('created', (params) => {
     const selfUser = (store.getState() as any).get('auth').get('user') as User;
     store.dispatch(createdMessage(params.message, selfUser));

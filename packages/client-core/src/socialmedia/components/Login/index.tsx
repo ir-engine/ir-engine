@@ -6,7 +6,7 @@ import { Google } from '@styled-icons/bootstrap/Google';
 import { Facebook } from '@styled-icons/bootstrap/Facebook';
 import Fab from '@material-ui/core/Fab';
 import styles from './Login.module.scss';
-import getConfig from 'next/config';
+import { Config } from '../../../helper';
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
@@ -15,8 +15,6 @@ import PasswordLoginApp from '../../../user/components/Auth/PasswordLoginApp';
 import RegisterApp from '../../../user/components/Auth/RegisterApp';
 import ResetPassword from '../../../user/components/Auth/ResetPassword';
 import { loginUserByOAuth, resetPassword, registerUserByEmail } from '../../../user/reducers/auth/service';
-
-const config = getConfig().publicRuntimeConfig;
 
 const mapStateToProps = (state: any): any => {
   return {};
@@ -41,9 +39,9 @@ interface Props {
 }
 const FlatSignIn = (props: Props) => {
   const [view, setView] =  useState('login');
-  const enableUserPassword = config?.auth ? config.auth.enableUserPassword : false;
-  const enableGoogleSocial = config?.auth ? config.auth.enableGoogleSocial : false;
-  const enableFacebookSocial = config?.auth ? config.auth.enableFacebookSocial : false;
+  const enableUserPassword = Config.publicRuntimeConfig?.auth ? Config.publicRuntimeConfig.auth.enableUserPassword : false;
+  const enableGoogleSocial = Config.publicRuntimeConfig?.auth ? Config.publicRuntimeConfig.auth.enableGoogleSocial : false;
+  const enableFacebookSocial = Config.publicRuntimeConfig?.auth ? Config.publicRuntimeConfig.auth.enableFacebookSocial : false;
 
   const socials = [
     enableGoogleSocial,

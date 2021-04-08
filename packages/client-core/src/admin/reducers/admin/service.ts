@@ -14,8 +14,7 @@ import {
 } from './actions';
 
 import axios from 'axios';
-import getConfig from 'next/config';
-import { apiUrl } from '../../../service.common';
+import { Config } from '../../../helper';
 import { client } from '../../../feathers';
 import { dispatchAlertSuccess, dispatchAlertError } from '../../../common/reducers/alert/service';
 import { PublicVideo, videosFetchedSuccess, videosFetchedError } from '../../../media/components/video/actions';
@@ -23,13 +22,12 @@ import { locationsRetrieved, locationCreated, locationPatched, locationRemoved }
 import store from '../../../store';
 import { loadedUsers, userCreated, userPatched, userRemoved } from '../../../user/reducers/user/actions';
 import { collectionsFetched } from '../../../world/reducers/scenes/actions';
-const { publicRuntimeConfig } = getConfig();
 
 export function createVideo (data: VideoCreationForm) {
   return async (dispatch: Dispatch, getState: any) => {
     const token = getState().get('auth').get('authUser').accessToken;
     try {
-      const res = await axios.post(`${apiUrl}/video`, data, {
+      const res = await axios.post(`${Config.apiUrl}/video`, data, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: 'Bearer ' + token
@@ -250,7 +248,7 @@ export function fetchLocationTypes () {
   };
 }
 
-if(!publicRuntimeConfig.offlineMode) {
+if(!Config.publicRuntimeConfig.offlineMode) {
   client.service('instance').on('removed', (params) => {
     store.dispatch(instanceRemovedAction(params.instance));
   });
