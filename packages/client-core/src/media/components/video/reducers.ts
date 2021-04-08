@@ -5,12 +5,12 @@ import {
   PublicVideoState
 } from './actions';
 
-export const initialState: PublicVideoState = {
+export const initialVideoState: PublicVideoState = {
   videos: [],
   error: ''
 };
 
-const immutableState = Immutable.fromJS(initialState);
+const immutableState = Immutable.fromJS(initialVideoState);
 
 export default function videoReducer (state = immutableState, action: VideosFetchedAction): any {
   switch (action.type) {

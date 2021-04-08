@@ -5,7 +5,7 @@ import Container from '@material-ui/core/Container';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 import { registerUserByEmail } from '../../reducers/auth/service';
-import styles from './Auth.module.scss';
+import * as styles from './Auth.module.scss';
 import OutlinedInput from '@material-ui/core/OutlinedInput';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import IconButton from '@material-ui/core/IconButton';

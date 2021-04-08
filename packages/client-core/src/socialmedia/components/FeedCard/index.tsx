@@ -17,7 +17,7 @@ import VisibilityIcon from '@material-ui/icons/Visibility';
 import { Feed } from '@xr3ngine/common/interfaces/Feed';
 import CreatorAsTitle from '../CreatorAsTitle';
 // @ts-ignore
-import styles from './FeedCard.module.scss';
+import * as styles from './FeedCard.module.scss';
 import SimpleModal from '../SimpleModal';
 import { addViewToFeed } from '../../reducers/feed/service';
 import { addBookmarkToFeed, removeBookmarkToFeed } from '../../reducers/feedBookmark/service';

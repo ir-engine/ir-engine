@@ -2,7 +2,7 @@ import Immutable from 'immutable';
 import { CAM_VIDEO_CHANGED, CAM_AUDIO_CHANGED, FACE_TRACKING_CHANGED, CONSUMERS_CHANGED } from '../actions';
 import { BooleanAction } from './actions';
 
-export const initialState = {
+export const initialMediaStreamState = {
   isCamVideoEnabled: false,
   isCamAudioEnabled: false,
   isFaceTrackingEnabled: false,
@@ -11,7 +11,7 @@ export const initialState = {
   }
 };
 
-const immutableState = Immutable.fromJS(initialState);
+const immutableState = Immutable.fromJS(initialMediaStreamState);
 
 export default function mediastreamReducer (state = immutableState, action: any): any {
   switch (action.type) {

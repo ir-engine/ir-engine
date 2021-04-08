@@ -3,7 +3,7 @@ import { StoryItem } from "./StoryItem";
 import { Box } from "./Box";
 import { ArrowButton} from "./ArrowButton";
 
-import styles from './styles/Stories.module.scss';
+import * as styles from './styles/Stories.module.scss';
 
 export function Stories({
   stories

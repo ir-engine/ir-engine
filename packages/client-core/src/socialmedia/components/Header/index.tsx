@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import Router from "next/router";
 
-import styles from './Header.module.scss';
+import * as styles from './Header.module.scss';
 import Avatar from "@material-ui/core/Avatar";
 import { bindActionCreators, Dispatch } from "redux";
 import { connect } from "react-redux";

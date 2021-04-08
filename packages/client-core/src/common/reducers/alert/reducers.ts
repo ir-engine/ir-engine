@@ -5,12 +5,12 @@ import {
   AlertAction
 } from './actions';
 
-export const initialState: AlertState = {
+export const initialAlertState: AlertState = {
   type: 'none',
   message: ''
 };
 
-const immutableState = Immutable.fromJS(initialState);
+const immutableState = Immutable.fromJS(initialAlertState);
 
 const alertReducer = (state = immutableState, action: AlertAction): any => {
   switch (action.type) {

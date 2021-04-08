@@ -39,7 +39,7 @@ import { UserSeed } from '@xr3ngine/common/interfaces/User';
 import { IdentityProviderSeed } from '@xr3ngine/common/interfaces/IdentityProvider';
 import { AuthUserSeed } from '@xr3ngine/common/interfaces/AuthUser';
 
-export const initialState = {
+export const initialAuthState = {
   isLoggedIn: false,
   isProcessing: false,
   error: '',
@@ -49,7 +49,7 @@ export const initialState = {
   avatarList: [],
 };
 
-const immutableState = Immutable.fromJS(initialState);
+const immutableState = Immutable.fromJS(initialAuthState);
 
 const authReducer = (state = immutableState, action: any): any => {
   switch (action.type) {

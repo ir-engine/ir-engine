@@ -13,7 +13,7 @@ import {
   LOCATION_NOT_FOUND
 } from '../actions';
 
-export const initialState = {
+export const initialLocationState = {
   locations: {
     locations: [],
     total: 0,
@@ -29,7 +29,7 @@ export const initialState = {
   fetchingCurrentLocation: false
 };
 
-const immutableState = Immutable.fromJS(initialState);
+const immutableState = Immutable.fromJS(initialLocationState);
 
 const locationReducer = (state = immutableState, action: LocationsAction): any => {
   let newValues, updateMap, existingLocations;

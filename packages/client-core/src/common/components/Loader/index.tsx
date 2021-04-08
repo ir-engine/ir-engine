@@ -4,7 +4,7 @@ import { generalStateList } from '../../reducers/app/actions';
 import { selectAppOnBoardingStep } from '../../reducers/app/selector';
 import { selectCurrentScene } from '../../../world/reducers/scenes/selector';
 import Loader from './SquareLoader';
-import styles from './style.module.scss';
+import * as styles from './style.module.scss';
 interface Props {
   objectsToLoad?: number;
   onBoardingStep?: number;

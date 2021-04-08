@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
-import styles from "./styles.module.scss";
+import * as styles from "./styles.module.scss";
 
 /**
  * [Stats used to show stats of  memory and  render]
