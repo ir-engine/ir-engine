@@ -1,13 +1,15 @@
-import { BadRequest } from '@feathersjs/errors';
+/**
+ * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
+ */
 import { Params } from '@feathersjs/feathers';
 import { Service, SequelizeServiceOptions } from 'feathers-sequelize';
 import { QueryTypes } from 'sequelize';
 import { Application } from '../../../declarations';
-// import creatorModel from './creator.model';
 import { extractLoggedInUserFromParams } from '../../user/auth-management/auth-management.utils';
+import { getCreatorByUserId } from '../util/getCreator';
 
 /**
- * A class for ARC Feed service
+ * A class for ARC Feed Comment service
  */
 export class Comments extends Service {
   app: Application
@@ -28,17 +30,8 @@ export class Comments extends Service {
       const skip = params.query?.$skip ? params.query.$skip : 0;
       const limit = params.query?.$limit ? params.query.$limit : 100;
       const feedId = params.query?.feedId;
-      // const loggedInUser = extractLoggedInUserFromParams(params);
-      //common  - TODO -move somewhere
-      const loggedInUser = extractLoggedInUserFromParams(params);
-      const creatorQuery = `SELECT id  FROM \`creator\` WHERE userId=:userId`;
-      const [creator] = await this.app.get('sequelizeClient').query(creatorQuery,
-        {
-          type: QueryTypes.SELECT,
-          raw: true,
-          replacements: {userId:loggedInUser.userId}
-        });  
-      const creatorId = creator?.id ;
+
+      const creatorId = await getCreatorByUserId(extractLoggedInUserFromParams(params)?.userId, this.app.get('sequelizeClient'));
 
       let select = ` SELECT comments.*, creator.id as creatorId, creator.name as creatorName, creator.username as creatorUserName, 
       creator.verified as creatorVerified,  sr.url as avatar, COUNT(cf.id) as fires `;
@@ -97,16 +90,7 @@ export class Comments extends Service {
     async create (data: any, params?: Params ): Promise<any> {
       const {comments:commentsModel, creator:creatorModel} = this.app.get('sequelizeClient').models;
 
-      //common  - TODO -move somewhere
-      const loggedInUser = extractLoggedInUserFromParams(params);
-      const creatorQuery = `SELECT id  FROM \`creator\` WHERE userId=:userId`;
-      const [creator] = await this.app.get('sequelizeClient').query(creatorQuery,
-        {
-          type: QueryTypes.SELECT,
-          raw: true,
-          replacements: {userId:loggedInUser.userId}
-        });  
-      const creatorId = creator?.id ;
+      const creatorId =  await getCreatorByUserId(extractLoggedInUserFromParams(params)?.userId, this.app.get('sequelizeClient')) ;
 
       const newComment =  await commentsModel.create({feedId:data.feedId, creatorId, text: data.text});
       const commentFromDb = await commentsModel.findOne({
