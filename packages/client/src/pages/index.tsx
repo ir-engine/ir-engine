@@ -33,11 +33,6 @@ export const IndexPage = (): any => {
                         <div className="main-txt width-400">
                             {t('index.description')}
                         </div>
-                        <a href="/location/demo">
-                            <button type="button" className="button main-button">
-                                {t('index.lbl-tryDemo')}
-                            </button>
-                        </a>
                     </div>
                     <object className="main-background" data="static/main-background.png" />
                     <div className="contact-right-div">
