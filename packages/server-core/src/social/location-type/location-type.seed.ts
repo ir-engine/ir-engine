@@ -1,6 +1,6 @@
 import config from '../../appconfig';
 
-export const seed = {
+export const locationTypeSeed = {
   disabled: !config.db.forceRefresh,
   delete: config.db.forceRefresh,
   path: 'location-type',
@@ -11,5 +11,3 @@ export const seed = {
     { type: 'showroom' }
   ]
 };
-
-export default seed;

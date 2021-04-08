@@ -1,6 +1,6 @@
 import config from '../../appconfig';
 
-export const seed = {
+export const collectionSeed = {
   disabled: !config.db.forceRefresh,
   delete: config.db.forceRefresh,
   path: 'collection',
@@ -21,5 +21,3 @@ export const seed = {
     }
   ]
 };
-
-export default seed;
