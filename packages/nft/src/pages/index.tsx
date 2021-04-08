@@ -27,10 +27,10 @@ enum ConnectorNames {
 const connectorsByName: { [connectorName in ConnectorNames]: any } = {
   [ConnectorNames.Injected]: injected,
   [ConnectorNames.WalletConnect]: walletconnect,
-}
+};
 
 const App = () => {
-  const { dispatch, state } = useStateContext()
+  const { dispatch, state } = useStateContext();
   const {
     connector,
     library,
@@ -40,39 +40,39 @@ const App = () => {
     // deactivate,
     setError,
     error,
-  } = useWeb3React()
+  } = useWeb3React();
 
-  const { data: ethPrice } = useSWR(ETHSCAN_API, fetcherETHUSD)
+  const { data: ethPrice } = useSWR(ETHSCAN_API, fetcherETHUSD);
 
   useEffect(() => {
-    dispatch({ type: ActionType.ETH_PRICE, payload: ethPrice })
-  }, [ethPrice, dispatch])
+    dispatch({ type: ActionType.ETH_PRICE, payload: ethPrice });
+  }, [ethPrice, dispatch]);
 
   const signInUser = async () => {
-    if (!account) throw new Error('No Account found')
-    if (!chainId) throw new Error('No chainId')
+    if (!account) throw new Error('No Account found');
+    if (!chainId) throw new Error('No chainId');
     try {
-      await library.getSigner(account).signMessage('👋')
+      await library.getSigner(account).signMessage('👋');
       // const contract = await getContract({ dispatch, library, chainId })
       // await updateUser({ contract, userAccount: account, library, dispatch })
       console.log("Need to get contract here!");
     } catch (e) {
-      setError(e)
+      setError(e);
     }
-  }
+  };
 
-  const [activatingConnector, setActivatingConnector] = useState<any>()
+  const [activatingConnector, setActivatingConnector] = useState<any>();
   useEffect(() => {
     if (activatingConnector && activatingConnector === connector) {
-      setActivatingConnector(undefined)
+      setActivatingConnector(undefined);
     }
-  }, [activatingConnector, connector])
+  }, [activatingConnector, connector]);
 
   // handle logic to eagerly connect to the injected ethereum provider, if it exists and has granted access already
-  const triedEager = useEagerConnect()
+  const triedEager = useEagerConnect();
 
   // handle logic to connect in reaction to certain events on the injected ethereum provider, if it exists
-  useInactiveListener(!triedEager || !!activatingConnector)
+  useInactiveListener(!triedEager || !!activatingConnector);
 
   return (
     <Container>
@@ -80,18 +80,18 @@ const App = () => {
         <>
             {Object.keys(connectorsByName).map((name: string) => {
               //@ts-ignore
-              const currentConnector = connectorsByName[name]
-              const activating = currentConnector === activatingConnector
-              const connected = currentConnector === connector
-              const disabled = !triedEager || !!activatingConnector || connected || !!error
+              const currentConnector = connectorsByName[name];
+              const activating = currentConnector === activatingConnector;
+              const connected = currentConnector === connector;
+              const disabled = !triedEager || !!activatingConnector || connected || !!error;
 
               return (
                 <Button
                   disabled={disabled}
                   key={name}
                   onClick={() => {
-                    setActivatingConnector(currentConnector)
-                    activate(connectorsByName[name])
+                    setActivatingConnector(currentConnector);
+                    activate(connectorsByName[name]);
                   }}
                 >
                   <div
@@ -119,7 +119,7 @@ const App = () => {
                   </div>
                   {name}
                 </Button>
-              )
+              );
             })}
           {!!(library && account) && connector === connectorsByName.Injected && (
             <MetamaskLogin onClickConnect={signInUser} />
@@ -129,7 +129,7 @@ const App = () => {
         <Gallery />
       )}
     </Container>
-  )
-}
+  );
+};
 
-export default App
+export default App;
