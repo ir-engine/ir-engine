@@ -23,14 +23,14 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 });
 
 export const IndexPage = (props: Props): any => {
-  const {
-    doLoginAuto
-  } = props;
+//   const {
+//     doLoginAuto
+//   } = props;
   const { t } = useTranslation();
 
-    useEffect(() => {
-        doLoginAuto(true);
-    }, []);
+    // useEffect(() => {
+    //     doLoginAuto(true);
+    // }, []);
 
   // <Button className="right-bottom" variant="contained" color="secondary" aria-label="scene" onClick={(e) => { setSceneVisible(!sceneIsVisible); e.currentTarget.blur(); }}>scene</Button>
 
