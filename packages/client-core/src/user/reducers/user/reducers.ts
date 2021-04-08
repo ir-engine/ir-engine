@@ -15,7 +15,7 @@ import {
 } from './actions';
 
 
-export const initialState = {
+export const initialUserState = {
   relationship: RelationshipSeed,
   users: [],
   updateNeeded: true,
@@ -26,7 +26,7 @@ export const initialState = {
   toastMessages: [],
 };
 
-const immutableState = Immutable.fromJS(initialState);
+const immutableState = Immutable.fromJS(initialUserState);
 
 const userReducer = (state = immutableState, action: UserAction): any => {
   let layerUsers, match, newUser;

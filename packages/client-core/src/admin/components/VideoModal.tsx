@@ -10,7 +10,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 import { selectAdminState } from '../reducers/admin/selector';
 import { createVideo, deleteVideo, updateVideo } from '../reducers/admin/service';
-import styles from './Admin.module.scss';
+import * as styles from './Admin.module.scss';
 
 interface Props {
   open: boolean;

@@ -32,7 +32,7 @@ import {
     fetchLocationTypes,
     fetchUsersAsAdmin
 } from '../reducers/admin/service';
-import styles from './Admin.module.scss';
+import * as styles from './Admin.module.scss';
 import InstanceModal from './InstanceModal';
 import LocationModal from './LocationModal';
 import Search from "./Search";

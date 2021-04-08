@@ -33,7 +33,7 @@ import { LocationsRetrievedAction } from '../../../social/reducers/location/acti
 
 export const PAGE_LIMIT = 100;
 
-export const initialState = {
+export const initialAdminState = {
   isLoggedIn: false,
   isProcessing: false,
   error: '',
@@ -86,7 +86,7 @@ export const initialState = {
   }
 };
 
-const immutableState = Immutable.fromJS(initialState);
+const immutableState = Immutable.fromJS(initialAdminState);
 
 const adminReducer = (state = immutableState, action: any): any => {
   let result, updateMap;
