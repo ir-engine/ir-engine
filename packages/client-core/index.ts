@@ -430,7 +430,6 @@ export * from './src/world/components/editor/properties/ModelNodeEditor';
 export * from './src/world/components/editor/properties/NameInputGroup';
 export * from './src/world/components/editor/properties/ParticleEmitterNodeEditor';
 export * from './src/world/components/editor/properties/PointLightNodeEditor';
-export * from './src/world/components/editor/properties/SceneNodeEditor';
 export * from './src/world/components/editor/properties/ScenePreviewCameraNodeEditor';
 export * from './src/world/components/editor/properties/SkyboxNodeEditor';
 export * from './src/world/components/editor/properties/SpawnPointNodeEditor';
@@ -949,6 +948,7 @@ export { default as srcWorldComponentsEditorPropertiesParticleEmitterNodeEditor 
 export { default as srcWorldComponentsEditorPropertiesPointLightNodeEditor } from './src/world/components/editor/properties/PointLightNodeEditor';
 export { default as srcWorldComponentsEditorPropertiesPropertiesPanelContainer } from './src/world/components/editor/properties/PropertiesPanelContainer';
 export { default as srcWorldComponentsEditorPropertiesPropertyGroup } from './src/world/components/editor/properties/PropertyGroup';
+export { default as srcWorldComponentsEditorPropertiesSceneNodeEditor } from './src/world/components/editor/properties/SceneNodeEditor';
 export { default as srcWorldComponentsEditorPropertiesScenePreviewCameraNodeEditor } from './src/world/components/editor/properties/ScenePreviewCameraNodeEditor';
 export { default as srcWorldComponentsEditorPropertiesSkyboxNodeEditor } from './src/world/components/editor/properties/SkyboxNodeEditor';
 export { default as srcWorldComponentsEditorPropertiesSpawnPointNodeEditor } from './src/world/components/editor/properties/SpawnPointNodeEditor';

@@ -2,21 +2,37 @@ import replace from '@rollup/plugin-replace';
 import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 import babel from 'rollup-plugin-babel';
-import html from '@rollup/plugin-html';
 import scss from 'rollup-plugin-scss';
 import { terser } from 'rollup-plugin-terser';
 import livereload from 'rollup-plugin-livereload';
+import json from '@rollup/plugin-json';
+import typescript from 'rollup-plugin-typescript2'
+import camelCase from 'lodash.camelcase'
+import nodePolyfills from 'rollup-plugin-node-polyfills';
 
 const isProd = process.env.NODE_ENV === 'production';
 const extensions = ['.js', '.ts', '.tsx'];
+const pkg = require('./package.json')
+
+const libraryName = 'client-networking'
 
 export default {
-  input: 'src/index.tsx',
-  output: {
-    file: 'public/index.js',
-    format: 'iife',
-  },
+  input: './index.ts',
+  output: [{ file: pkg.main, name: camelCase(libraryName), format: 'umd', sourcemap: true },
+  { file: pkg.module, format: 'es', sourcemap: true },
+  ],
+  inlineDynamicImports: true,
   plugins: [
+    nodePolyfills(),
+    scss({
+      exclude: /node_modules/,
+      output: 'dist/index.css',
+    }),
+    json(),
+    typescript({
+      jsx: true,
+      rollupCommonJSResolveHack: false
+    }),
     replace({
       'process.env.NODE_ENV': JSON.stringify(isProd ? 'production' : 'development'),
     }),
@@ -51,32 +67,9 @@ export default {
         }],
       ],
     }),
-    html({
-      fileName: 'index.html',
-      title: 'Rollup + TypeScript + React = ❤️',
-      template: ({ title }) => {
-        return `
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <title>${title}</title>
-  <link rel="stylesheet" href="index.css">
-</head>
-<body>
-  <div id="app"></div>
-  <script src="index.js"></script>
-</body>
-</html>
-`;
-      },
-    }),
-    scss({
-      output: 'public/index.css',
-    }),
     (isProd && terser()),
     (!isProd && livereload({
-      watch: 'public',
+      watch: 'dist',
     })),
   ],
 };
