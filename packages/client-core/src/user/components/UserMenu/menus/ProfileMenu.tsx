@@ -14,7 +14,7 @@ import { getAvatarURLFromNetwork, Views } from '../util';
 import { validateEmail, validatePhoneNumber } from '../../../../helper';
 
 //@ts-ignore
-import * as styles from '../style.module.scss';
+import styles from '../style.module.scss';
 
 interface Props {
 	changeActiveMenu?: any;

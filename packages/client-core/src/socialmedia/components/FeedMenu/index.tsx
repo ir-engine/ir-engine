@@ -6,7 +6,7 @@ import Featured from "../Featured";
 import TheFeed from "../TheFeed";
 import TipsAndTricks from "../TipsAndTricks";
 
-import * as styles from './FeedMenu.module.scss';
+import styles from './FeedMenu.module.scss';
 
 const FeedMenu = () => {
   const containerRef = useRef<HTMLInputElement>();

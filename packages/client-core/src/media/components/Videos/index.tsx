@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import * as styles from './Videos.module.scss';
+import styles from './Videos.module.scss';
 import Button from '@material-ui/core/Button';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';

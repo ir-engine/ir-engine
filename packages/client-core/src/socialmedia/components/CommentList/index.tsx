@@ -7,7 +7,7 @@ import { getFeedComments } from '../../reducers/feedComment/service';
 
 import CommentCard from '../CommentCard';
 
-import * as styles from './CommentList.module.scss';
+import styles from './CommentList.module.scss';
 
 const mapStateToProps = (state: any): any => {
     return {

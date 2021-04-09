@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Card, CardContent } from '@material-ui/core';
 import { NavigateNext, NavigateBefore, Check, ArrowBack, PersonAdd, Delete, Close } from '@material-ui/icons';
 // @ts-ignore
-import * as styles from '../style.module.scss';
+import styles from '../style.module.scss';
 import { LazyImage } from '../../../../common/components/LazyImage';
 import { Views } from '../util';
 

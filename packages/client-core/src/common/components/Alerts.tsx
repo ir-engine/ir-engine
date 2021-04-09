@@ -5,7 +5,7 @@ import { selectAlertState } from '../reducers/alert/selector';
 import { alertCancel } from '../reducers/alert/service';
 import { bindActionCreators, Dispatch } from 'redux';
 import { Box } from '@material-ui/core';
-import * as styles from './Common.module.scss';
+import styles from './Common.module.scss';
 
 interface Props {
   alert: any;

@@ -9,7 +9,7 @@ import {
     Typography
 } from '@material-ui/core';
 import classNames from 'classnames';
-import * as styles from '../Admin.module.scss';
+import styles from '../Admin.module.scss';
 import { sendInvite } from "../../../social/reducers/invite/service";
 import { retrieveInvites } from "../../../social/reducers/inviteType/service";
 import { selectInviteState } from "../../../social/reducers/invite/selector";

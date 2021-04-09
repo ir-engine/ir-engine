@@ -3,7 +3,7 @@ import CardMedia from '@material-ui/core/CardMedia';
 import Typography from '@material-ui/core/Typography';
 import Router from "next/router";
 import React, { useState } from 'react';
-import * as styles from './OnBoarding.module.scss';
+import styles from './OnBoarding.module.scss';
 
 interface MediaRecord{
     screenBg: string;

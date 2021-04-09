@@ -9,7 +9,7 @@ import InfoIcon from '@material-ui/icons/Info';
 import { connect } from 'react-redux';
 import Container from '@material-ui/core/Container';
 import { bindActionCreators, Dispatch } from 'redux';
-import * as styles from './Admin.module.scss';
+import styles from './Admin.module.scss';
 import VideoModal from './VideoModal';
 import { useRouter } from 'next/router';
 import { selectVideoState } from '../../media/components/video/selector';

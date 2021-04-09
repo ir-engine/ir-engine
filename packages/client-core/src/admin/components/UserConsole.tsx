@@ -16,7 +16,7 @@ import {
     Paper,
     Button, MenuItem, Select,
 } from '@material-ui/core';
-import * as styles from './Admin.module.scss';
+import styles from './Admin.module.scss';
 import UserModel from "./UserModel";
 import Search from "./Search";
 import Backdrop from '@material-ui/core/Backdrop';

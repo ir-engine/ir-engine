@@ -3,7 +3,7 @@ import { ProfilePic} from "./ProfilePic";
 import { UsernameText } from "./UsernameText";
 import Router from "next/router";
 
-import * as styles from './styles/Stories.module.scss';
+import styles from './styles/Stories.module.scss';
 
 export function StoryItem({
   data

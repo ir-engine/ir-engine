@@ -12,7 +12,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 import { selectCreatorsState } from '../../reducers/creator/selector';
 import { getCreators } from '../../reducers/creator/service';
-import * as styles from './Creators.module.scss';
+import styles from './Creators.module.scss';
 
 const mapStateToProps = (state: any): any => {
     return {

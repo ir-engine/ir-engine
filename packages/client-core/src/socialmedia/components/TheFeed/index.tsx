@@ -7,7 +7,7 @@ import { getFeeds } from '../../reducers/feed/service';
 
 import FeedCard from '../FeedCard';
 
-import * as styles from './TheFeed.module.scss';
+import styles from './TheFeed.module.scss';
 
 const mapStateToProps = (state: any): any => {
     return {

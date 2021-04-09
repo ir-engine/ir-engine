@@ -4,7 +4,7 @@ import Typography from '@material-ui/core/Typography';
 import Container from '@material-ui/core/Container';
 import { EmptyLayout }from '../../../common/components/Layout/EmptyLayout';
 import { resetPassword } from '../../reducers/auth/service';
-import * as styles from './Auth.module.scss';
+import styles from './Auth.module.scss';
 import OutlinedInput from '@material-ui/core/OutlinedInput';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import IconButton from '@material-ui/core/IconButton';

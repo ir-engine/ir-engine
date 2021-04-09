@@ -1,6 +1,6 @@
 import CardMedia from '@material-ui/core/CardMedia';
 import React from 'react';
-import * as styles from './Splash.module.scss';
+import styles from './Splash.module.scss';
 
 
 interface MediaRecord{
