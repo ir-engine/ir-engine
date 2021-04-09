@@ -6,6 +6,7 @@ export * from './src/reducers/channelConnection/actions';
 export * from './src/reducers/channelConnection/reducers';
 export * from './src/reducers/channelConnection/selector';
 export * from './src/reducers/channelConnection/service';
+export * from './src/reducers/common/SocketCreatedAction';
 export * from './src/reducers/instanceConnection/actions';
 export * from './src/reducers/instanceConnection/reducers';
 export * from './src/reducers/instanceConnection/selector';
