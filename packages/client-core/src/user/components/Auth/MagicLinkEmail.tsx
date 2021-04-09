@@ -11,7 +11,7 @@ import Checkbox from '@material-ui/core/Checkbox';
 import NextLink from 'next/link';
 import getConfig from 'next/config';
 import * as styles from './Auth.module.scss';
-import { User } from '@xr3ngine/common/interfaces/User';
+import { User } from '@xr3ngine/common/src/interfaces/User';
 import { createMagicLink, addConnectionBySms, addConnectionByEmail } from '@xr3ngine/client-core/src/user/reducers/auth/service';
 import { selectAuthState } from '@xr3ngine/client-core/src/user/reducers/auth/selector';
 

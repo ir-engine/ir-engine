@@ -11,11 +11,11 @@ import {
   PATCHED_CHANNEL,
   REMOVED_CHANNEL
 } from '../actions';
-import { User } from '@xr3ngine/common/interfaces/User';
-import { Message } from '@xr3ngine/common/interfaces/Message';
-import { MessageResult } from '@xr3ngine/common/interfaces/MessageResult';
-import { Channel } from '@xr3ngine/common/interfaces/Channel';
-import { ChannelResult } from '@xr3ngine/common/interfaces/ChannelResult';
+import { User } from '@xr3ngine/common/src/interfaces/User';
+import { Message } from '@xr3ngine/common/src/interfaces/Message';
+import { MessageResult } from '@xr3ngine/common/src/interfaces/MessageResult';
+import { Channel } from '@xr3ngine/common/src/interfaces/Channel';
+import { ChannelResult } from '@xr3ngine/common/src/interfaces/ChannelResult';
 
 export interface LoadedChannelsAction {
   type: string;

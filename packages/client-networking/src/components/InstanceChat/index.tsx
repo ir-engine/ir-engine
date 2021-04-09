@@ -22,7 +22,7 @@ import {
     updateMessageScrollInit
 } from '@xr3ngine/client-core/src/social/reducers/chat/service';
 import { selectAuthState } from '@xr3ngine/client-core/src/user/reducers/auth/selector';
-import { User } from "@xr3ngine/common/interfaces/User";
+import { User } from "@xr3ngine/common/src/interfaces/User";
 import { isMobileOrTablet } from '@xr3ngine/engine/src/common/functions/isMobile';
 import classNames from 'classnames';
 import React, { useEffect, useState } from 'react';

@@ -14,7 +14,7 @@ import BookmarkBorderIcon from '@material-ui/icons/BookmarkBorder';
 import BookmarkIcon from '@material-ui/icons/Bookmark';
 import VisibilityIcon from '@material-ui/icons/Visibility';
 
-import { Feed } from '@xr3ngine/common/interfaces/Feed';
+import { Feed } from '@xr3ngine/common/src/interfaces/Feed';
 import CreatorAsTitle from '../CreatorAsTitle';
 // @ts-ignore
 import * as styles from './FeedCard.module.scss';

@@ -5,7 +5,7 @@ import {
   CHANNEL_SERVER_CONNECTED,
   CHANNEL_SERVER_DISCONNECTED
 } from '../actions';
-import { InstanceServerProvisionResult } from '@xr3ngine/common/interfaces/InstanceServerProvisionResult';
+import { InstanceServerProvisionResult } from '@xr3ngine/common/src/interfaces/InstanceServerProvisionResult';
 
 export interface ChannelServerProvisioningAction {
   type: string;

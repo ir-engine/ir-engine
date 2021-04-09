@@ -9,7 +9,7 @@ import VerifiedUserIcon from '@material-ui/icons/VerifiedUser';
 
 
 import * as styles from './CommentCard.module.scss';
-import { CommentInterface } from '@xr3ngine/common/interfaces/Comment';
+import { CommentInterface } from '@xr3ngine/common/src/interfaces/Comment';
 import { bindActionCreators, Dispatch } from 'redux';
 import { connect } from 'react-redux';
 import SimpleModal from '../SimpleModal';

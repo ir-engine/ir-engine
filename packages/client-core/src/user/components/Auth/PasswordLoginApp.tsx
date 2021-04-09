@@ -13,7 +13,7 @@ import OutlinedInput from '@material-ui/core/OutlinedInput';
 
 import { selectAuthState } from '../../reducers/auth/selector';
 import { doLoginAuto } from '../../reducers/auth/service';
-import { User } from '@xr3ngine/common/interfaces/User';
+import { User } from '@xr3ngine/common/src/interfaces/User';
 
 import * as styles from './Auth.module.scss';
 import { createCreator } from '../../../socialmedia/reducers/creator/service';

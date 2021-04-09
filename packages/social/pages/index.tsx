@@ -9,7 +9,7 @@ import AppFooter from "@xr3ngine/client-core/src/socialmedia/components/Footer";
 import { selectCreatorsState } from "@xr3ngine/client-core/src/socialmedia/reducers/creator/selector";
 import {Stories} from '@xr3ngine/client-core/src/socialmedia/components/Stories';
 import { selectAuthState } from "@xr3ngine/client-core/src/user/reducers/auth/selector";
-import { User } from "@xr3ngine/common/interfaces/User";
+import { User } from "@xr3ngine/common/src/interfaces/User";
 import { doLoginAuto } from "@xr3ngine/client-core/src/user/reducers/auth/service";
 import { createCreator } from "@xr3ngine/client-core/src/socialmedia/reducers/creator/service";
 
