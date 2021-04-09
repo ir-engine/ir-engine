@@ -1,9 +1,12 @@
 import Immutable from 'immutable';
 import {
   InstanceServerAction,
-  InstanceServerProvisionedAction,
-  SocketCreatedAction
+  InstanceServerProvisionedAction
 } from './actions';
+
+import {
+  SocketCreatedAction
+} from '../common/SocketCreatedAction'
 
 import {
   INSTANCE_SERVER_CONNECTING,
