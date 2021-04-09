@@ -9,12 +9,12 @@ import {
   SHOW_DIALOG
 } from '../actions';
 
-export const initialState: DialogState = {
+export const initialDialogState: DialogState = {
   isOpened: false,
   content: undefined
 };
 
-const immutableState = Immutable.fromJS(initialState);
+const immutableState = Immutable.fromJS(initialDialogState);
 
 const dialogReducer = (state = immutableState, action: DialogAction): any => {
   switch (action.type) {

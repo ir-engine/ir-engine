@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { bindActionCreators, Dispatch } from 'redux';
 import { connect } from 'react-redux';
 
-import FeedCard from '../common/FeedCard';
+import FeedCard from '../FeedCard';
 import CommentList from '../CommentList';
 import NewComment from '../NewComment';
 import { selectFeedsState } from '../../reducers/feed/selector';

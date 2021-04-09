@@ -80,7 +80,7 @@ module.exports = {
     "react/no-adjacent-inline-elements": "error",
     "react-hooks/exhaustive-deps": "warn"
   },
-  ignorePatterns: ['redux/store.d.ts'],
+  ignorePatterns: ['src/store.d.ts', 'dist/'],
   overrides: [
     {
       "files": ["enums/*.tsx", "enums/*.ts"],

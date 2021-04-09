@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
+import { useTranslation } from "react-i18next";
 import styles from "./styles.module.scss";
 
 /**
@@ -11,6 +12,7 @@ import styles from "./styles.module.scss";
  */
 export default function Stats({ editor }) {
   const [info, setInfo] = useState(0);
+  const { t } = useTranslation();
 
   useEffect(() => {
     editor.renderer.onUpdateStats = info => {
@@ -41,25 +43,25 @@ export default function Stats({ editor }) {
   */
   return (
     <div className={styles.statsContainer}>
-      <h3>Stats:</h3>
+      <h3>{t('editor:viewport.state.header')}</h3>
       {info && (
          <ul>
             <li>
-              Memory:
+            {t('editor:viewport.state.memory')}
               <ul>
-                <li>Geometries: {(info as any).geometries}</li>
-                <li>Textures: {(info as any).textures}</li>
+                <li>{t('editor:viewport.state.geometries')}: {(info as any).geometries}</li>
+                <li>{t('editor:viewport.state.textures')}: {(info as any).textures}</li>
               </ul>
             </li>
           <li>
-            Render:
+            {t('editor:viewport.state.render')}:
             <ul>
-              <li>FPS: {Math.round((info as any).fps)}</li>
-              <li>Frame Time: {Math.round((info as any).frameTime)}ms</li>
-              <li>Calls: {(info as any).calls}</li>
-              <li>Triangles: {(info as any).triangles}</li>
-              <li>Points: {(info as any).points}</li>
-              <li>Lines: {(info as any).lines}</li>
+              <li>{t('editor:viewport.state.FPS')}: {Math.round((info as any).fps)}</li>
+              <li>{t('editor:viewport.state.frameTime')}: {Math.round((info as any).frameTime)}ms</li>
+              <li>{t('editor:viewport.state.calls')}: {(info as any).calls}</li>
+              <li>{t('editor:viewport.state.triangles')}: {(info as any).triangles}</li>
+              <li>{t('editor:viewport.state.points')}: {(info as any).points}</li>
+              <li>{t('editor:viewport.state.lines')}: {(info as any).lines}</li>
             </ul>
           </li>
         </ul>

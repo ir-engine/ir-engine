@@ -9,7 +9,7 @@ import { setUserHasInteracted } from '@xr3ngine/client-core/src/common/reducers/
 import { selectAppOnBoardingStep, selectAppState } from '@xr3ngine/client-core/src/common/reducers/app/selector';
 import { selectAuthState } from '@xr3ngine/client-core/src/user/reducers/auth/selector';
 import { selectLocationState } from '@xr3ngine/client-core/src/social/reducers/location/selector';
-import theme from '@xr3ngine/client-core/theme';
+import theme from '@xr3ngine/client-core/src/theme';
 import Harmony from "../Harmony";
 import InstanceChat from '@xr3ngine/client-networking/src/components/InstanceChat';
 import PartyVideoWindows from '@xr3ngine/client-networking/src/components/PartyVideoWindows';

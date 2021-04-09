@@ -1,4 +1,4 @@
-import { Creator } from '@xr3ngine/common/interfaces/Creator';
+import { Creator } from '@xr3ngine/common/src/interfaces/Creator';
 import { Dispatch } from 'redux';
 import Api from '../../../world/components/editor/Api';
 import { dispatchAlertError } from '../../../common/reducers/alert/service';

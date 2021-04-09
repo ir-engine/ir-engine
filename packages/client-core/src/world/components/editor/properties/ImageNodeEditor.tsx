@@ -9,6 +9,8 @@ import { ImageProjection, ImageAlphaMode } from "@xr3ngine/engine/src/scene/clas
 import ImageInput from "../inputs/ImageInput";
 import { Image } from "@styled-icons/fa-solid/Image";
 import useSetPropertySelected from "./useSetPropertySelected";
+import i18n from "i18next";
+import { useTranslation } from "react-i18next";
 //
 const mapValue = v => ({ label: v, value: v });
 const imageProjectionOptions = Object.values(ImageProjection).map(mapValue);
@@ -23,6 +25,7 @@ const imageTransparencyOptions = Object.values(ImageAlphaMode).map(mapValue);
  */
 export default function ImageNodeEditor(props) {
   const { editor, node } = props;
+  const { t } = useTranslation();
 
   //function used to handle the change in src property  of ImageNodeEditor
   const onChangeSrc = useSetPropertySelected(editor, "src");
@@ -43,21 +46,25 @@ export default function ImageNodeEditor(props) {
   return (
     <NodeEditor description={ImageNodeEditor.description} {...props}>
       { /* @ts-ignore */ }
-      <InputGroup name="Image Url">
+      <InputGroup
+        name="Image Url"
+        label={t('editor:properties.image.lbl-imgURL')}
+      >
         <ImageInput value={node.src} onChange={onChangeSrc} />
       </InputGroup>
       { /* @ts-ignore */ }
-      <InputGroup name="Controls" info="Toggle the visibility of the media controls in Hubs.">
+      <InputGroup
+        name="Controls"
+        label={t('editor:properties.image.lbl-controls')}
+        info={t('editor:properties.image.info-controls')}
+      >
         <BooleanInput value={node.controls} onChange={onChangeControls} />
       </InputGroup>
       { /* @ts-ignore */ }
       <InputGroup
         name="Transparency Mode"
-        info={`How to apply transparency:
-'opaque' = no transparency
-'blend' = use the images alpha channel
-'mask' = Use a specified cutoff value for on/off transparency (more performant)
-`}
+        label={t('editor:properties.image.lbl-transparency')}
+        info={t('editor:properties.image.info-transparency')}
       >
         { /* @ts-ignore */ }
         <SelectInput options={imageTransparencyOptions} value={node.alphaMode} onChange={onChangeTransparencyMode} />
@@ -66,7 +73,8 @@ export default function ImageNodeEditor(props) {
         /* @ts-ignore */
         <NumericInputGroup
           name="Alpha Cutoff"
-          info="Pixels with alpha values lower than this will be transparent"
+          label={t('editor:properties.image.lbl-alphaCutoff')}
+          info={t('editor:properties.image.info-alphaCutoff')}
           min={0}
           max={1}
           smallStep={0.01}
@@ -77,7 +85,10 @@ export default function ImageNodeEditor(props) {
         />
       )}
       { /* @ts-ignore */ }
-      <InputGroup name="Projection">
+      <InputGroup
+        name="Projection"
+        label={t('editor:properties.image.lbl-projection')}
+      >
       { /* @ts-ignore */ }
         <SelectInput options={imageProjectionOptions} value={node.projection} onChange={onChangeProjection} />
       </InputGroup>
@@ -97,4 +108,4 @@ ImageNodeEditor.propTypes = {
 ImageNodeEditor.iconComponent = Image;
 
 //intailising description and will appears on ImageNodeEditor view.
-ImageNodeEditor.description = "Dynamically loads an image.";
+ImageNodeEditor.description = i18n.t('editor:properties.image.description');

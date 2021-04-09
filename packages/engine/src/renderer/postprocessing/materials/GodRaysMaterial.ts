@@ -80,6 +80,6 @@ export class GodRaysMaterial extends ShaderMaterial {
 
     (this as any).defines.SAMPLES_INT = s.toFixed(0);
     (this as any).defines.SAMPLES_FLOAT = s.toFixed(1);
-    this.needsUpdate = true;
+    (this as any).needsUpdate = true;
   }
 }

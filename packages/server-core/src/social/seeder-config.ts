@@ -1,31 +1,20 @@
-import ChannelTypeSeed from './channel-type/channel-type.seed';
-import GroupUserRankSeed from './group-user-rank/group-user-rank.seed';
-import InviteTypeSeed from './invite-type/invite-type.seed';
-import LocationTypeSeed from './location-type/location-type.seed';
-import LocationSeed from './location/location.seed';
-import LocationSetttingsSeed from './location-settings/location-settings.seed';
-import MessageStatusSeed from './message-status/message-status.seed';
+import { channelTypeSeed } from './channel-type/channel-type.seed';
+import { groupUserRankSeed } from './group-user-rank/group-user-rank.seed';
+import { inviteTypeSeed } from './invite-type/invite-type.seed';
+import { locationTypeSeed } from './location-type/location-type.seed';
+import { locationSeed } from './location/location.seed';
+import { locationSettingsSeed } from './location-settings/location-settings.seed';
+import { messageStatusSeed } from './message-status/message-status.seed';
+import { ServicesSeedConfig } from '@xr3ngine/common/src/interfaces/ServicesSeedConfig';
 
-type SeedCallback = (ServicesSeedConfig) => Promise<any>;
-type ServicesSeedCallback = (obj: any, seed: SeedCallback) => Promise<any>;
-
-interface ServicesSeedConfig {
-    count?: number;
-    disabled: boolean;
-    delete: boolean;
-    path: string;
-    randomize?: boolean;
-    templates?: any[];
-    callback?: ServicesSeedCallback;
-}
-
-export const services: Array<ServicesSeedConfig> = [
-    GroupUserRankSeed,
-    InviteTypeSeed,
-    MessageStatusSeed,
-    ChannelTypeSeed,
-    LocationTypeSeed,
-    LocationSeed,
+export const socialSeeds: Array<ServicesSeedConfig> = [
+    groupUserRankSeed,
+    inviteTypeSeed,
+    messageStatusSeed,
+    channelTypeSeed,
+    locationTypeSeed,
+    locationSeed,
+    locationSettingsSeed
   ];
 
-export default services;
+export default socialSeeds;

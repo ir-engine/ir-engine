@@ -14,6 +14,7 @@ import AssetDropZone from "../assets/AssetDropZone";
 import { ChartArea } from "@styled-icons/fa-solid/ChartArea";
 import { InfoTooltip } from "../layout/Tooltip";
 import Stats from "./Stats";
+import { useTranslation } from 'react-i18next';
 
 /**
  * BorderColor used to get border color.
@@ -245,6 +246,7 @@ export default function ViewportPanelContainer() {
   const [objectSelected, setObjectSelected] = useState(false);
   const [transformMode, setTransformMode] = useState(null);
   const [showStats, setShowStats] = useState(false);
+  const { t } = useTranslation();
 
   const onSelectionChanged = useCallback(() => {
     setObjectSelected(editor.selected.length > 0);
@@ -324,28 +326,28 @@ export default function ViewportPanelContainer() {
   let controlsText;
 
   if (flyModeEnabled) {
-    controlsText = "[W][A][S][D] Move Camera | [Shift] Fly faster";
+    controlsText = "[W][A][S][D] " + t('editor:viewport.command.movecamera') + " | [Shift] " + t('editor:viewport.command.flyFast');
   } else {
-    controlsText = "[LMB] Orbit / Select | [MMB] Pan | [RMB] Fly";
+    controlsText = "[LMB] " + t('editor:viewport.command.orbit') + " | [MMB] " + t('editor:viewport.command.pan') + " | [RMB] " + t('editor:viewport.command.fly');
   }
 
   if (objectSelected) {
-    controlsText += " | [F] Focus | [Q] Rotate Left | [E] Rotate Right";
+    controlsText += " | [F] " + t('editor:viewport.command.focus') + " | [Q] " + t('editor:viewport.command.rotateLeft') + " | [E] " + t('editor:viewport.command.rotateRight');
   }
 
   if (transformMode === TransformMode.Placement) {
-    controlsText += " | [ESC / G] Cancel Placement";
+    controlsText += " | [ESC / G] " + t('editor:viewport.command.cancelPlacement');
   } else if (transformMode === TransformMode.Grab) {
-    controlsText += " | [Shift + Click] Place Duplicate | [ESC / G] Cancel Grab";
+    controlsText += " | [Shift + Click] " + t('editor:viewport.command.placeDuplicate') + " | [ESC / G] " + t('editor:viewport.command.cancelGrab');
   } else if (objectSelected) {
-    controlsText += "| [G] Grab | [ESC] Deselect All";
+    controlsText += "| [G] " + t('editor:viewport.command.grab') + " | [ESC] " + t('editor:viewport.command.deselectAll');
   }
 
   return (
     <Panel
     /* @ts-ignore */
       id="viewport-panel"
-      title="Viewport"
+      title={t('editor:viewport.title')}
       icon={WindowMaximize}
       toolbarContent={<ViewportToolbar onToggleStats={setShowStats} showStats={showStats} />}
     >

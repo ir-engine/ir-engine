@@ -1,8 +1,7 @@
 import { Behavior } from '../../common/interfaces/Behavior';
 import { addColliderWithoutEntity } from '../../physics/behaviors/addColliderWithoutEntity';
 
-export const createBoxCollider: Behavior = (entity, args: any) => {
-  // console.log('****** Collider from Scene data, type: '+args.objArgs.type);
+export const createBoxColliderObject: Behavior = (entity, args: any) => {
   addColliderWithoutEntity(
     {type:args.objArgs.type},
     args.objArgs.position,

@@ -105,12 +105,10 @@ const templatesMap = {
 
 const templateMap = config.deployStage ? templatesMap[config.deployStage] : templatesMap.local;
 
-export const seed = {
+export const subscriptionTypeSeed = {
   disabled: !config.db.forceRefresh,
   delete: config.db.forceRefresh,
   path: 'subscription-type',
   randomize: false,
   templates: templateMap
 };
-
-export default seed;

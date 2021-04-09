@@ -3,9 +3,12 @@ import NodeEditor from "./NodeEditor";
 import InputGroup from "../inputs/InputGroup";
 import BooleanInput from "../inputs/BooleanInput";
 import { HandPaper } from "@styled-icons/fa-solid/HandPaper";
+import i18n from "i18next";
+import { withTranslation } from "react-i18next";
 type BoxColliderNodeEditorProps = {
   editor?: object;
   node?: object;
+  t: Function;
 };
 
 /**
@@ -14,7 +17,7 @@ type BoxColliderNodeEditorProps = {
  * @author Robert Long
  * @type {[component class]}
  */
-export default class BoxColliderNodeEditor extends Component<
+export class BoxColliderNodeEditor extends Component<
   BoxColliderNodeEditorProps,
   {}
 > {
@@ -23,14 +26,15 @@ export default class BoxColliderNodeEditor extends Component<
 
   //defining description and shows this description in NodeEditor  with title of elementt,
   // available to add in scene in assets.
-  static description =
-    "An invisible box that objects will bounce off of or rest on top of.\nWithout colliders, objects will fall through floors and go through walls.";
+  static description = i18n.t('editor:properties.boxCollider.description');
   // function to handle the changes on walkable property
   onChangeWalkable = walkable => {
     (this.props.editor as any).setPropertySelected("walkable", walkable);
   };
   //rendering view to cusomize box collider element
   render() {
+    BoxColliderNodeEditor.description = this.props.t('editor:properties.boxCollider.description');
+
     return (
       <NodeEditor
         {...this.props}
@@ -38,7 +42,7 @@ export default class BoxColliderNodeEditor extends Component<
         description={BoxColliderNodeEditor.description}
       >
         { /* @ts-ignore */ }
-        <InputGroup name="Walkable">
+        <InputGroup name="Walkable" label={this.props.t('editor:properties.boxCollider.lbl-walkable')}>
           <BooleanInput
             value={(this.props.node as any).walkable}
             onChange={this.onChangeWalkable}
@@ -48,3 +52,5 @@ export default class BoxColliderNodeEditor extends Component<
     );
   }
 }
+
+export default withTranslation()(BoxColliderNodeEditor);

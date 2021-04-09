@@ -1,6 +1,6 @@
 {
-  "name": "@xr3ngine/cli",
-  "version": "0.2.10",
+  "name": "xr3",
+  "version": "0.2.14",
   "private": true,
   "repository": {
     "type": "git",

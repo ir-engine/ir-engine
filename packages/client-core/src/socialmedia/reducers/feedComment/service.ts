@@ -1,14 +1,13 @@
-import { random } from 'lodash';
 import { Dispatch } from 'redux';
 import { dispatchAlertError } from "../../../common/reducers/alert/service";
 import { client } from '../../../feathers';
+import { feedsRetrieved } from '../feed/actions';
 import {
-  fetchingFeedComments, 
-  feedsRetrieved,
-  addFeedCommentFire,
-  removeFeedCommentFire ,
   addFeedComment,
-  commentFires
+  addFeedCommentFire,
+  commentFires,
+  fetchingFeedComments,
+  removeFeedCommentFire
 } from './actions';
 
 export function getFeedComments(feedId : string, limit?: number) {

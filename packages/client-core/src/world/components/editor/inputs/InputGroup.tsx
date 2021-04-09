@@ -93,12 +93,13 @@ InputGroupInfo.propTypes = {
  * @param       {boolean} disabled
  * @param       {string} info
  * @param       {any} rest
+ * @param       {string} label
  * @constructor
  */
-export default function InputGroup({ name, children, disabled, info, ...rest }) {
+export default function InputGroup({ name, children, disabled, info, label, ...rest }) {
   return (
     <InputGroupContainer disabled={disabled} {...rest}>
-      <label>{name}:</label>
+      <label>{label}:</label>
       <InputGroupContent>
         {children}
         {info && <InputGroupInfo info={info} />}

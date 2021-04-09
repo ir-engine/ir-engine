@@ -13,7 +13,7 @@ import OutlinedInput from '@material-ui/core/OutlinedInput';
 
 import { selectAuthState } from '../../reducers/auth/selector';
 import { doLoginAuto } from '../../reducers/auth/service';
-import { User } from '@xr3ngine/common/interfaces/User';
+import { User } from '@xr3ngine/common/src/interfaces/User';
 
 import styles from './Auth.module.scss';
 import { createCreator } from '../../../socialmedia/reducers/creator/service';
@@ -42,7 +42,7 @@ interface Props {
   creatorsState?:any;
 }
 
-export const PasswordLogin = (props: Props): any => {
+export const PasswordLoginApp = (props: Props): any => {
   const {
     auth,
     // loginUserByPassword,
@@ -150,7 +150,7 @@ export const PasswordLogin = (props: Props): any => {
   );
 };
 
-const PasswordLoginWrapper = (props: Props): any => <PasswordLogin {...props} />;
+const PasswordLoginWrapper = (props: Props): any => <PasswordLoginApp {...props} />;
 
 export default connect(
   mapStateToProps,

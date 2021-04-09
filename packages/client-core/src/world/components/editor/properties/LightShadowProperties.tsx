@@ -4,6 +4,7 @@ import SelectInput from "../inputs/SelectInput";
 import BooleanInput from "../inputs/BooleanInput";
 import NumericInputGroup from "../inputs/NumericInputGroup";
 import { Vector2 } from "three";
+import { withTranslation } from "react-i18next";
 
 
 /**
@@ -38,6 +39,7 @@ const ShadowMapResolutionOptions = [
 type LightShadowPropertiesProps = {
   editor?: object;
   node?: object;
+  t?: Function;
 };
 
 /**
@@ -47,7 +49,7 @@ type LightShadowPropertiesProps = {
  * @author Robert Long
  * @type {[class component]}
  */
-export default class LightShadowProperties extends Component<
+export class LightShadowProperties extends Component<
   LightShadowPropertiesProps,
   {}
 > {
@@ -81,14 +83,20 @@ export default class LightShadowProperties extends Component<
     return (
       <Fragment>
         { /* @ts-ignore */ }
-        <InputGroup name="Cast Shadow">
+        <InputGroup
+          name="Cast Shadow"
+          label={this.props.t('editor:properties.directionalLight.lbl-castShadow')}
+        >
           <BooleanInput
             value={(node as any).castShadow}
             onChange={this.onChangeCastShadow}
           />
         </InputGroup>
         { /* @ts-ignore */ }
-        <InputGroup name="Shadow Map Resolution">
+        <InputGroup
+          name="Shadow Map Resolution"
+          label={this.props.t('editor:properties.directionalLight.lbl-shadowmapResolution')}
+        >
           { /* @ts-ignore */ }
           <SelectInput
             options={ShadowMapResolutionOptions}
@@ -99,6 +107,7 @@ export default class LightShadowProperties extends Component<
         { /* @ts-ignore */ }
         <NumericInputGroup
           name="Shadow Bias"
+          label={this.props.t('editor:properties.directionalLight.lbl-shadowBias')}
           mediumStep={0.00001}
           smallStep={0.0001}
           largeStep={0.001}
@@ -110,6 +119,7 @@ export default class LightShadowProperties extends Component<
         { /* @ts-ignore */ }
         <NumericInputGroup
           name="Shadow Radius"
+          label={this.props.t('editor:properties.directionalLight.lbl-shadowRadius')}
           mediumStep={0.01}
           smallStep={0.1}
           largeStep={1}
@@ -122,3 +132,5 @@ export default class LightShadowProperties extends Component<
     );
   }
 }
+
+export default withTranslation()(LightShadowProperties);

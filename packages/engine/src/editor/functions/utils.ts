@@ -44,14 +44,7 @@ export function getStepSize(event, smallStep, mediumStep, largeStep) {
   }
   return mediumStep;
 }
-export function clamp(value, min, max) {
-  if (value < min) {
-    return min;
-  } else if (value > max) {
-    return max;
-  }
-  return value;
-}
+
 export function toPrecision(value, precision) {
   const p = 1 / precision;
   return Math.round(value * p) / p;

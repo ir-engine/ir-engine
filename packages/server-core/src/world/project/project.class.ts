@@ -15,7 +15,7 @@ import { BadRequest } from '@feathersjs/errors';
 import logger from '../../logger';
 import { Op } from "sequelize";
 import config from '../../appconfig';
-import { contents } from "../../../../common/scenes-templates";
+import { contents } from "@xr3ngine/common/src/scenes-templates";
 interface Data { }
 interface ServiceOptions {}
 

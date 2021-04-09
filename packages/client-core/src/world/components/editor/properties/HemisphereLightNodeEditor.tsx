@@ -4,9 +4,12 @@ import InputGroup from "../inputs/InputGroup";
 import ColorInput from "../inputs/ColorInput";
 import NumericInputGroup from "../inputs/NumericInputGroup";
 import { Certificate } from "@styled-icons/fa-solid/Certificate";
+import i18n from "i18next";
+import { withTranslation } from "react-i18next";
 type HemisphereLightNodeEditorProps = {
   editor?: object;
   node?: object;
+  t: Function;
 };
 
 
@@ -16,7 +19,7 @@ type HemisphereLightNodeEditorProps = {
  * @author Robert Long
  * @type {class Compoment}
  */
-export default class HemisphereLightNodeEditor extends Component<
+export class HemisphereLightNodeEditor extends Component<
   HemisphereLightNodeEditorProps,
   {}
 > {
@@ -25,7 +28,7 @@ export default class HemisphereLightNodeEditor extends Component<
   static iconComponent = Certificate;
 
   //setting description for HemisphereLightNode and will appears on property container
-  static description = "A light which illuminates the scene from directly overhead.";
+  static description = i18n.t('editor:properties.hemisphere.description');
 
   //function handle change in skyColor property
   onChangeSkyColor = skyColor => {
@@ -44,6 +47,7 @@ export default class HemisphereLightNodeEditor extends Component<
 
   //renders view to customize HemisphereLightNode
   render() {
+    HemisphereLightNodeEditor.description = this.props.t('editor:properties.hemisphere.description');
     const node = this.props.node;
     return (
       <NodeEditor
@@ -52,12 +56,12 @@ export default class HemisphereLightNodeEditor extends Component<
         description={HemisphereLightNodeEditor.description}
       >
         { /* @ts-ignore */ }
-        <InputGroup name="Sky Color">
+        <InputGroup name="Sky Color" label={this.props.t('editor:properties.hemisphere.lbl-skyColor')}>
         { /* @ts-ignore */ }
           <ColorInput value={node.skyColor} onChange={this.onChangeSkyColor} />
         </InputGroup>
         { /* @ts-ignore */ }
-        <InputGroup name="Ground Color">
+        <InputGroup name="Ground Color" label={this.props.t('editor:properties.hemisphere.lbl-groundColor')}>
         { /* @ts-ignore */ }
           <ColorInput
             value={(node as any).groundColor}
@@ -67,6 +71,7 @@ export default class HemisphereLightNodeEditor extends Component<
         { /* @ts-ignore */ }
         <NumericInputGroup
           name="Intensity"
+          label={this.props.t('editor:properties.hemisphere.lbl-intensity')}
           min={0}
           smallStep={0.001}
           mediumStep={0.01}
@@ -79,3 +84,5 @@ export default class HemisphereLightNodeEditor extends Component<
     );
   }
 }
+
+export default withTranslation()(HemisphereLightNodeEditor);

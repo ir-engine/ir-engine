@@ -1,4 +1,5 @@
 import ImageMediaSource from "../ImageMediaSource";
+import i18n from "i18next";
 
 /**
  * BingImagesSource component provides an explorer where we can seach images using search bar.
@@ -16,8 +17,8 @@ export default class BingImagesSource extends ImageMediaSource {
   constructor(api) {
     super(api);
     this.id = "bing_images";
-    this.name = "Bing Images";
-    this.searchLegalCopy = "Search by Bing";
+    this.name = i18n.t('editor:sources.bingImage.name');
+    this.searchLegalCopy = i18n.t('editor:sources.bingImage.search');
     this.privacyPolicyUrl =
       "https://privacy.microsoft.com/en-us/privacystatement";
   }

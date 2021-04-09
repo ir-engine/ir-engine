@@ -1,7 +1,7 @@
 import { dispatchAlertError, dispatchAlertSuccess } from '@xr3ngine/client-core/src/common/reducers/alert/service';
-import { resolveAuthUser } from '@xr3ngine/common/interfaces/AuthUser';
-import { IdentityProvider } from '@xr3ngine/common/interfaces/IdentityProvider';
-import { resolveUser } from '@xr3ngine/common/interfaces/User';
+import { resolveAuthUser } from '@xr3ngine/common/src/interfaces/AuthUser';
+import { IdentityProvider } from '@xr3ngine/common/src/interfaces/IdentityProvider';
+import { resolveUser } from '@xr3ngine/common/src/interfaces/User';
 import { EngineEvents } from '@xr3ngine/engine/src/ecs/classes/EngineEvents';
 import { Network } from '@xr3ngine/engine/src/networking/classes/Network';
 import { MessageTypes } from '@xr3ngine/engine/src/networking/enums/MessageTypes';

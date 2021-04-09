@@ -174,7 +174,7 @@ export function patchUser (id: string, user: any) {
 }
 
 
-export function removeUser (id: string) {
+export function removeUserAdmin (id: string) {
   return async (dispatch: Dispatch): Promise<any> => {
     const result = await client.service('user').remove(id);
     dispatch(userRemoved(result));

@@ -1,11 +1,11 @@
-// @ts-nocheck
 import React, { Component, createRef } from "react";
 import PropTypes from "prop-types";
 import Portal from "../layout/Portal";
-import { getStepSize, clamp, toPrecision } from "@xr3ngine/engine/src/editor/functions/utils";
+import { getStepSize, toPrecision } from "@xr3ngine/engine/src/editor/functions/utils";
 import styled from "styled-components";
 import { ArrowsAltH } from "@styled-icons/fa-solid/ArrowsAltH";
 import Overlay from "../layout/Overlay";
+import { clamp } from "@xr3ngine/engine/src/common/functions/MathLerpFunctions";
 
 /**
  * 
@@ -78,6 +78,8 @@ class Scrubber extends Component {
     window.removeEventListener("mousemove", this.handleMouseMove);
     window.removeEventListener("mouseup", this.handleMouseUp);
   }
+  
+  scrubberEl: React.RefObject<unknown>;
 
   handleMouseMove = event => {
     const state = this.state as any;
@@ -108,7 +110,7 @@ class Scrubber extends Component {
       mouseY: event.clientY
     });
 
-    this.scrubberEl.current.requestPointerLock();
+    (this.scrubberEl.current as any).requestPointerLock();
 
     window.addEventListener("mousemove", this.handleMouseMove);
     window.addEventListener("mouseup", this.handleMouseUp);

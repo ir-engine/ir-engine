@@ -1,1 +1,36 @@
-// FIXME: This file is needed to keep next-transpile-module working otherwise set other file in 'main' field of 'package.json' of this package.
+// created from ctix
+
+export * from './src/components/NetworkDebug/index';
+export * from './src/reducers/actions';
+export * from './src/reducers/channelConnection/actions';
+export * from './src/reducers/channelConnection/reducers';
+export * from './src/reducers/channelConnection/selector';
+export * from './src/reducers/channelConnection/service';
+export * from './src/reducers/common/SocketCreatedAction';
+export * from './src/reducers/instanceConnection/actions';
+export * from './src/reducers/instanceConnection/reducers';
+export * from './src/reducers/instanceConnection/selector';
+export * from './src/reducers/instanceConnection/service';
+export * from './src/reducers/mediastream/actions';
+export * from './src/reducers/mediastream/reducers';
+export * from './src/reducers/mediastream/selector';
+export * from './src/reducers/mediastream/service';
+export * from './src/reducers/transport/actions';
+export * from './src/reducers/transport/reducers';
+export * from './src/reducers/transport/selector';
+export * from './src/reducers/transport/service';
+export * from './src/transports/SocketWebRTCClientFunctions';
+export * from './src/transports/SocketWebRTCClientTransport';
+export { default as srcComponentsInstanceChatIndex } from './src/components/InstanceChat/index';
+export { default as srcComponentsMeIndex } from './src/components/Me/index';
+export { default as srcComponentsMediaIconsBoxIndex } from './src/components/MediaIconsBox/index';
+export { default as srcComponentsNetworkDebugIndex } from './src/components/NetworkDebug/index';
+export { default as srcComponentsPartyParticipantWindowDraggable } from './src/components/PartyParticipantWindow/Draggable';
+export { default as srcComponentsPartyParticipantWindowIndex } from './src/components/PartyParticipantWindow/index';
+export { default as srcComponentsPartyVideoWindowsIndex } from './src/components/PartyVideoWindows/index';
+export { default as srcComponentsVideoChatIndex } from './src/components/VideoChat/index';
+export { default as srcReducersChannelConnectionReducers } from './src/reducers/channelConnection/reducers';
+export { default as srcReducersInstanceConnectionReducers } from './src/reducers/instanceConnection/reducers';
+export { default as srcReducersMediastreamReducers } from './src/reducers/mediastream/reducers';
+export { default as srcReducersReducers } from './src/reducers/reducers';
+export { default as srcReducersTransportReducers } from './src/reducers/transport/reducers';

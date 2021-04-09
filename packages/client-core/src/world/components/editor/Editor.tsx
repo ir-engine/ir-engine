@@ -79,7 +79,7 @@ import {
 import Api from "./Api";
 import AssetManifestSource from "./assets/AssetManifestSource";
 import { loadEnvironmentMap } from "./EnvironmentMap";
-
+import i18n from 'i18next';
 
 const tempMatrix1 = new Matrix4();
 const tempMatrix2 = new Matrix4();
@@ -696,7 +696,7 @@ export default class Editor extends EventEmitter {
     URL.revokeObjectURL(url);
 
     if (!blob) {
-      throw new Error(`Unsupported file type for file: "${file.name}". File must be an image, video, or glb model.`);
+      throw new Error(i18n.t('editor:errors.fileTypeNotSupported', { name: file.name }));
     }
     return blob;
   }
@@ -1131,7 +1131,7 @@ export default class Editor extends EventEmitter {
         const index = parent.children.indexOf(before);
 
         if (index === -1) {
-          throw new Error("addObject: before object not found");
+          throw new Error(i18n.t('editor:errors.addObject'));
         }
 
         parent.children.splice(index, 0, object);
@@ -1279,9 +1279,7 @@ export default class Editor extends EventEmitter {
         const index = this.nodes.indexOf(child);
 
         if (index === -1) {
-          throw new Error(
-            "removeObject: node not found. This is due to removing a node that is no longer in the scene."
-          );
+          throw new Error(i18n.t('editor:errors.removeObject'));
         }
 
         this.nodes.splice(index, 1);
@@ -1482,15 +1480,11 @@ export default class Editor extends EventEmitter {
  */
   reparent(object, newParent, newBefore, useHistory = true, emitEvent = true, selectObject = true) {
     if (!object.parent) {
-      throw new Error(
-        `${object.nodeName || object.type} "${
-          object.name
-        }" has no parent. Reparent only works on objects that are currently in the scene.`
-      );
+      throw new Error(i18n.t('editor:errors.noParent', { node: object.nodeName || object.type, name: object.name }));
     }
 
     if (!newParent) {
-      throw new Error("editor.reparent: newParent is undefined");
+      throw new Error(i18n.t('editor:errors.undefinedParent'));
     }
 
     if (emitEvent && selectObject) {

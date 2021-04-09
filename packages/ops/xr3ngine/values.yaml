@@ -316,7 +316,7 @@ gameserver:
 
   service:
     type: ClusterIP
-    port: 3030
+    port: 3031
 
   serviceAccount:
     create: true

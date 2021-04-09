@@ -111,3 +111,5 @@ dist/
 
 .history
 .history/
+
+index.ts.bak

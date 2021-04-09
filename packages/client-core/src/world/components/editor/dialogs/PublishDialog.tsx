@@ -5,7 +5,7 @@ import PreviewDialog from "./PreviewDialog";
 import StringInput from "../inputs/StringInput";
 import BooleanInput from "../inputs/BooleanInput";
 import FormField from "../inputs/FormField";
-
+import { Trans, withTranslation } from "react-i18next";
 
 /**
  * PublishDialog used to show the dialog when we are going to publish scene.
@@ -13,7 +13,7 @@ import FormField from "../inputs/FormField";
  * @author Robert Long
  * @type {class component}
  */
-export default class PublishDialog extends Component {
+export class PublishDialog extends Component<{t: Function}> {
 
 /**
  * Declairing propTypes for publishDialog component.
@@ -28,7 +28,8 @@ export default class PublishDialog extends Component {
     onPublish: PropTypes.func,
     isPublished: PropTypes.bool,
     sceneUrl: PropTypes.string,
-    initialSceneParams: PropTypes.object
+    initialSceneParams: PropTypes.object,
+    t: PropTypes.func,
   };
 
   //initializing state when object of class get invoked.
@@ -70,27 +71,27 @@ export default class PublishDialog extends Component {
     return (
       <PreviewDialog
         imageSrc={screenshotUrl}
-        title="Publish Scene"
+        title={this.props.t('editor:dialog.publish.title')}
         onConfirm={this.onConfirm}
         onCancel={onCancel}
-        confirmLabel="Save and Publish"
+        confirmLabel={this.props.t('editor:dialog.publish.lbl-confirm')}
       >
         { /* @ts-ignore */ }
         <FormField>
-          <label htmlFor="sceneName">Scene Name</label>
+          <label htmlFor="sceneName">{this.props.t('editor:dialog.publish.lbl-name')}</label>
           <StringInput
           //@ts-ignore
             id="sceneName"
             required
             pattern={"[A-Za-z0-9-':\"!@#$%^&*(),.?~ ]{4,64}"}
-            title="Name must be between 4 and 64 characters and cannot contain underscores"
+            title={this.props.t('editor:dialog.publish.info-name')}
             value={name}
             onChange={this.onChangeName}
           />
         </FormField>
         { /* @ts-ignore */ }
         <FormField>
-          <label htmlFor="creatorAttribution">Your Attribution (optional):</label>
+          <label htmlFor="creatorAttribution">{this.props.t('editor:dialog.publish.lbl-yourAttribution')}</label>
           <StringInput
           // @ts-ignore
           id="creatorAttribution" value={creatorAttribution} onChange={this.onChangeCreatorAttribution} />
@@ -98,19 +99,21 @@ export default class PublishDialog extends Component {
         { /* @ts-ignore */ }
         <FormField inline>
           <label htmlFor="allowRemixing">
-            Allow other users to remix your scene with
-            <br />
-            Creative Commons&nbsp;
-            <a href="https://creativecommons.org/licenses/by/3.0/" target="_blank" rel="noopener noreferrer">
-              CC-BY 3.0
-            </a>
+            <Trans i18nKey="editor:dialog.publish.lbl-remixScene" t={this.props.t as any}>
+              Allow other users to remix your scene with
+              <br />
+              Creative Commons&nbsp;
+              <a href="https://creativecommons.org/licenses/by/3.0/" target="_blank" rel="noopener noreferrer">
+                CC-BY 3.0
+              </a>
+            </Trans>
           </label>
           { /* @ts-ignore */ }
           <BooleanInput id="allowRemixing" value={allowRemixing} onChange={this.onChangeAllowRemixing} />
         </FormField>
         <FormField inline>
           <label htmlFor="allowPromotion">
-            Allow scene to appear on front page
+          {this.props.t('editor:dialog.publish.lbl-appearOnFront')}
           </label>
           { /* @ts-ignore */ }
           <BooleanInput id="allowPromotion" value={allowPromotion} onChange={this.onChangeAllowPromotion} />
@@ -118,7 +121,7 @@ export default class PublishDialog extends Component {
         { contentAttributions && (
           /* @ts-ignore */
           <FormField>
-            <label>Model Attribution:</label>
+            <label>{this.props.t('editor:dialog.publish.lbl-modelAttribution')}</label>
             <p>{contentAttributions.map(a => `${a.name} by ${a.author}\n`)}</p>
           </FormField>
         )}
@@ -126,3 +129,5 @@ export default class PublishDialog extends Component {
     );
   }
 }
+
+export default withTranslation()(PublishDialog);

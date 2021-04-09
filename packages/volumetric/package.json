@@ -1,7 +1,6 @@
 {
   "name": "@xr3ngine/volumetric",
-  "version": "0.2.10",
-  "private": true,
+  "version": "0.2.14",
   "repository": {
     "type": "git",
     "url": "git://github.com/xr3ngine/xr3ngine.git"
@@ -32,7 +31,7 @@
   },
   "dependencies": {
     "@easydarwin/easywasmplayer": "^4.0.11",
-    "@xr3ngine/engine": "^0.2.10",
+    "@xr3ngine/engine": "^0.2.14",
     "@xr3ngine/volumetric": "0.2.1",
     "broadway-player": "^0.1.1",
     "esm": "^3.2.25",
@@ -42,5 +41,5 @@
     "three-obj-loader-cjs-module": "^1.0.0",
     "xmlhttprequest": "^1.8.0"
   },
-  "gitHead": "66449f6ffba4d32c424b16b4f0667fe0ad36562c"
+  "gitHead": "b69a8d4eb4d2b39bc013a8eba00b402b21932252"
 }

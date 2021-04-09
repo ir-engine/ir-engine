@@ -4,13 +4,13 @@ import {
   PublicScenesState, ScenesFetchedAction
 } from './actions';
 
-export const initialState: PublicScenesState = {
+export const initialSceneState: PublicScenesState = {
   scenes: [],
   currentScene: null,
   error: ''
 };
 
-const immutableState = Immutable.fromJS(initialState);
+const immutableState = Immutable.fromJS(initialSceneState);
 
 const sceneReducer = (state = immutableState, action: ScenesFetchedAction): any => {
   switch (action.type) {
