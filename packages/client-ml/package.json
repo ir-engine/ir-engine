@@ -8,16 +8,13 @@
   "engines": {
     "yarn": ">= 0.18.0"
   },
-  "main": "dist/client-ml.umd.js",
-  "module": "dist/client-ml.es.js",
-  "types": "dist/client-ml/index.d.ts",
   "publishConfig": {
     "access": "public"
   },
   "npmClient": "yarn",
   "jest": "ts-jest",
   "scripts": {
-    "build": "ctix entrypoint ./src && rimraf build && cross-env NODE_ENV=production rollup -c"
+    "build": "rimraf dist && ctix entrypoint ./src && cross-env NODE_ENV=production rollup -c"
   },
   "resolutions": {
     "@types/react": "^17.0.0",

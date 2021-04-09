@@ -3,10 +3,7 @@ import {
   showAlert,
   hideAlert
 } from './actions';
-import getConfig from 'next/config';
-
-const config = getConfig().publicRuntimeConfig;
-const timeout = (config && config.alert && config.alert.timeout) ?? 10000;
+import { Config } from '../../../helper';
 
 export function alertSuccess (message: string) {
   return (dispatch: Dispatch): any => {
@@ -39,7 +36,7 @@ function clearTimer () {
 
 function restartTimer (dispatch: Dispatch) {
   clearTimer();
-  timerId = setTimeout(() => dispatch(hideAlert()), timeout);
+  timerId = setTimeout(() => dispatch(hideAlert()), Config.publicRuntimeConfig?.alert?.timeout || 10000);
 }
 
 export function dispatchAlertSuccess (dispatch: Dispatch, message: string) {

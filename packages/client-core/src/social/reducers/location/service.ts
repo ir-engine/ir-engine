@@ -1,6 +1,6 @@
-import { dispatchAlertError } from '@xr3ngine/client-core/src/common/reducers/alert/service';
+import { dispatchAlertError } from '../../../common/reducers/alert/service';
 import { Dispatch } from 'redux';
-import { client } from '@xr3ngine/client-core/src/feathers';
+import { client } from '../../../feathers';
 import {
   fetchingCurrentLocation,
   locationsRetrieved,

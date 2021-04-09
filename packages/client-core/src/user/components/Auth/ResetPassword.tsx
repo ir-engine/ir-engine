@@ -7,6 +7,7 @@ import Container from '@material-ui/core/Container';
 import styles from './Auth.module.scss';
 import { EmptyLayout } from '../../../common/components/Layout/EmptyLayout';
 import { resetPassword } from '../../reducers/auth/service';
+import { useTranslation } from "react-i18next";
 
 interface Props {
   completeAction?: any,
@@ -18,6 +19,7 @@ export default (props: Props): any => {
   const { resetPassword, token } = props;
   const initialState = { password: '' };
   const [state, setState] = useState(initialState);
+  const { t } = useTranslation();
 
   const handleInput = (e: any): void => {
     e.preventDefault();
@@ -34,10 +36,10 @@ export default (props: Props): any => {
       <Container component="main" maxWidth="xs">
         <div className={styles.paper}>
           <Typography component="h1" variant="h5">
-            Reset Password
+            {t('user:auth.resetPassword.header')}
           </Typography>
           <Typography variant="body2" color="textSecondary" align="center">
-            Please enter your password for your email address
+            {t('user:auth.resetPassword.description')}
           </Typography>
           <form className={styles.form} noValidate onSubmit={(e) => handleReset(e)}>
             <TextField
@@ -46,7 +48,7 @@ export default (props: Props): any => {
               required
               fullWidth
               id="password"
-              label="Password"
+              label={t('user:auth.resetPassword.lbl-password')}
               name="password"
               autoComplete="password"
               autoFocus
@@ -59,7 +61,7 @@ export default (props: Props): any => {
               color="primary"
               className={styles.submit}
             >
-              Submit
+              {t('user:auth.resetPassword.lbl-submit')}
             </Button>
           </form>
         </div>

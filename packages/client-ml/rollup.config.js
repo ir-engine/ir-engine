@@ -18,8 +18,8 @@ const libraryName = 'client-ml'
 
 export default {
   input: './index.ts',
-  output: [{ file: pkg.main, name: camelCase(libraryName), format: 'umd', sourcemap: true },
-  { file: pkg.module, format: 'es', sourcemap: true },
+  output: [{ file: "dist/client-ml.umd.js", name: camelCase(libraryName), format: 'umd', sourcemap: true },
+  { file: "dist/client-ml.es.js", format: 'es', sourcemap: true },
   ],
   inlineDynamicImports: true,
   plugins: [

@@ -10,6 +10,7 @@ import OutlinedInput from '@material-ui/core/OutlinedInput';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import IconButton from '@material-ui/core/IconButton';
 import { Visibility, VisibilityOff } from '@material-ui/icons';
+import { useTranslation } from "react-i18next";
 
 const mapDispatchToProps = (dispatch: Dispatch): any => {
   return ({
@@ -29,6 +30,7 @@ const SignUp = (props: Props): any => {
     password: '',
   };
   const [state, setState] = useState(initialState);
+  const { t } = useTranslation();
 
   const handleInput = (e: any): void => {
     e.preventDefault();
@@ -62,7 +64,7 @@ const SignUp = (props: Props): any => {
   const confirm_password = useRef<HTMLInputElement>();
   function validatePassword(){
     if(password.current.value != confirm_password.current.value) {
-      confirm_password.current.setCustomValidity("Passwords Don't Match");
+      confirm_password.current.setCustomValidity(t('user:auth.register.passwordNotMatch'));
     } else {
       confirm_password.current.setCustomValidity('');
     }
@@ -79,7 +81,7 @@ const SignUp = (props: Props): any => {
                 required
                 fullWidth
                 id="email"
-                placeholder="Email"
+                placeholder={t('user:auth.register.ph-email')}
                 name="email"
                 autoComplete="email"
                 onChange={(e) => handleInput(e)}
@@ -91,7 +93,7 @@ const SignUp = (props: Props): any => {
                 required
                 fullWidth
                 name="password"
-                placeholder="Password"
+                placeholder={t('user:auth.register.ph-password')}
                 type={values.showPassword ? 'text' : 'password'}
                 id="password"
                 inputRef={password}
@@ -117,7 +119,7 @@ const SignUp = (props: Props): any => {
                 required
                 fullWidth
                 name="confirm_password"
-                placeholder="Password Confirm"
+                placeholder={t('user:auth.register.ph-confirmPassword')}
                 type={values.showPasswordConfirm ? 'text' : 'password'}
                 id="confirm_password"
                 inputRef={confirm_password}
@@ -146,7 +148,7 @@ const SignUp = (props: Props): any => {
                 color="primary"
                 className={styles.submit}
               >
-                Sign up
+                {t('user:auth.register.lbl-signup')}
               </Button>
             </Grid>
           </Grid>

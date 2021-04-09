@@ -2,7 +2,7 @@ const path = require('path')
 const appRootPath = require('app-root-path')
 process.env.NODE_CONFIG_DIR = path.join(appRootPath.path, 'packages/client/config')
 const conf = require('config');
-const withTM = require('next-transpile-modules')(['@xr3ngine/client-networking', '@xr3ngine/client-core', '@xr3ngine/client-ml'], { unstable_webpack5: true });
+const withTM = require('next-transpile-modules')(['@xr3ngine/client-networking', '@xr3ngine/client-core'], { unstable_webpack5: true });
 const publicRuntimeConfig = Object.assign({}, conf.get('publicRuntimeConfig'))
 if(process.env.NODE_ENV === 'offline') {
   publicRuntimeConfig.offlineMode = true;
@@ -68,12 +68,6 @@ module.exports = withTM(
     webpack(config, { webpack, isServer, dev }) {
       console.log('Building client with webpack', webpack.version)
       config.externals.push({ xmlhttprequest: 'xmlhttprequest', fs: 'fs' })
-      config.resolve.alias = {
-        ...config.resolve.alias,
-        '@xr3ngine/client-networking': require.resolve('@xr3ngine/client-networking'),
-        '@xr3ngine/client-ml': require.resolve('@xr3ngine/client-ml'),
-        '@xr3ngine/client-core': require.resolve('@xr3ngine/client-core')
-      };
       config.resolve.alias.utils = path.join(__dirname, 'utils')
       config.output.chunkFilename = isServer
         ? `${dev ? "[name]" : "[name].[fullhash]"}.js`

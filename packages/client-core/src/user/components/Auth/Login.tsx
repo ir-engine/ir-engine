@@ -2,14 +2,13 @@ import React, { Fragment, useState } from 'react';
 import EmailIcon from '@material-ui/icons/Email';
 import SocialIcon from '@material-ui/icons/Public';
 import UserIcon from '@material-ui/icons/Person';
-import getConfig from 'next/config';
+import { Config } from '../../../helper';
 import MagicLinkEmail from './MagicLinkEmail';
 import { Tabs, Tab } from '@material-ui/core';
 import styles from './Auth.module.scss';
 import SocialLogin from './SocialLogin';
 import PasswordLogin from './PasswordLogin';
-
-const config = getConfig().publicRuntimeConfig;
+import { useTranslation } from "react-i18next";
 
 const TabPanel = (props: any): any => {
   const { children, value, index } = props;
@@ -32,21 +31,22 @@ const SignIn = (): any => {
   let enableTwitterSocial = false;
 
   const [tabIndex, setTabIndex] = useState(0);
+  const { t } = useTranslation();
 
   const handleChange = (event: any, newValue: number): void => {
     event.preventDefault();
     setTabIndex(newValue);
   };
 
-  if (config?.auth) {
-    enableSmsMagicLink = config.auth.enableSmsMagicLink;
-    enableEmailMagicLink = config.auth.enableEmailMagicLink;
-    enableUserPassword = config.auth.enableUserPassword;
-    enableGithubSocial = config.auth.enableGithubSocial;
-    enableGoogleSocial = config.auth.enableGoogleSocial;
-    enableFacebookSocial = config.auth.enableFacebookSocial;
-    enableLinkedInSocial = config.auth.enableLinkedInSocial;
-    enableTwitterSocial = config.auth.enableTwitterSocial;
+  if (Config.publicRuntimeConfig?.auth) {
+    enableSmsMagicLink = Config.publicRuntimeConfig.auth.enableSmsMagicLink;
+    enableEmailMagicLink = Config.publicRuntimeConfig.auth.enableEmailMagicLink;
+    enableUserPassword = Config.publicRuntimeConfig.auth.enableUserPassword;
+    enableGithubSocial = Config.publicRuntimeConfig.auth.enableGithubSocial;
+    enableGoogleSocial = Config.publicRuntimeConfig.auth.enableGoogleSocial;
+    enableFacebookSocial = Config.publicRuntimeConfig.auth.enableFacebookSocial;
+    enableLinkedInSocial = Config.publicRuntimeConfig.auth.enableLinkedInSocial;
+    enableTwitterSocial = Config.publicRuntimeConfig.auth.enableTwitterSocial;
   }
 
   const socials = [
@@ -83,15 +83,15 @@ const SignIn = (): any => {
     }
   } else {
     let index = 0;
-    const emailTab = (enableEmailMagicLink || enableSmsMagicLink) && <Tab icon={<EmailIcon/>} label="Email | SMS"/>;
+    const emailTab = (enableEmailMagicLink || enableSmsMagicLink) && <Tab icon={<EmailIcon/>} label={t('user:auth.login.email')} />;
     const emailTabPanel = (enableEmailMagicLink || enableSmsMagicLink) && <TabPanel value={tabIndex} index={index}><MagicLinkEmail /></TabPanel>;
     (enableEmailMagicLink || enableSmsMagicLink) && ++index;
 
-    const userTab = enableUserPassword && <Tab icon={<UserIcon/>} label="UserName + Password"/>;
+    const userTab = enableUserPassword && <Tab icon={<UserIcon/>} label={t('user:auth.login.username')} />;
     const userTabPanel = enableUserPassword && <TabPanel value={tabIndex} index={index}><PasswordLogin/></TabPanel>;
     enableUserPassword && ++index;
 
-    const socialTab = socialCount > 0 && <Tab icon={<SocialIcon/>} label="Social"/>;
+    const socialTab = socialCount > 0 && <Tab icon={<SocialIcon/>} label={t('user:auth.login.social')} />;
     const socialTabPanel = socialCount > 0 && <TabPanel value={tabIndex} index={index}><SocialLogin enableFacebookSocial={enableFacebookSocial} enableGoogleSocial={enableGoogleSocial} enableGithubSocial={enableGithubSocial} enableLinkedInSocial={enableLinkedInSocial} enableTwitterSocial={enableTwitterSocial}  /></TabPanel>;
     socialCount > 0 && ++index;
 
