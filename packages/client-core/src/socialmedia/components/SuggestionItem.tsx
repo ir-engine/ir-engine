@@ -1,5 +1,5 @@
 import React from "react";
-import { ProfilePic } from "./Stories/ProfilePic";
+import { ProfilePic } from "./ProfilePic";
 import { UsernameText } from "./UsernameText";
 
 export function SuggestionItem({
