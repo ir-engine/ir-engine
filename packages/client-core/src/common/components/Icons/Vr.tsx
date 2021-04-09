@@ -1,11 +1,10 @@
 import React from "react";
 import { connect } from 'react-redux';
 import { selectDeviceDetectState } from '../../reducers/devicedetect/selector';
-
-import getConfig from 'next/config';
-const enterVRbuttonSrc = getConfig().publicRuntimeConfig.xr.enterVRbuttonSrc;
+import { Config } from '../../../helper';
 
 const SvgVr = (props: any): any => {
+  const enterVRbuttonSrc = Config.publicRuntimeConfig.xr.enterVRbuttonSrc;
   if (enterVRbuttonSrc !== '') {
     return (
       <img

@@ -4,10 +4,11 @@ import Typography from '@material-ui/core/Typography';
 import Container from '@material-ui/core/Container';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
-import {forgotPassword} from '@xr3ngine/client-core/src/user/reducers/auth/service';
+import {forgotPassword} from '../../reducers/auth/service';
 import Grid from '@material-ui/core/Grid';
 import styles from './Auth.module.scss';
 import OutlinedInput from '@material-ui/core/OutlinedInput';
+import { useTranslation } from "react-i18next";
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
   forgotPassword: bindActionCreators(forgotPassword, dispatch)
@@ -21,6 +22,7 @@ interface Props {
 const ForgotPasswordComponent = (props: Props): any => {
   const { forgotPassword, classes } = props;
   const [state, setState] = useState({ email: '', isSubmitted: false });
+  const { t } = useTranslation();
 
   const handleInput = (e: any): void => {
     e.preventDefault();
@@ -37,12 +39,11 @@ const ForgotPasswordComponent = (props: Props): any => {
     <Container component="main" maxWidth="xs">
       <div className={styles.paper}>
         <Typography component="h1" variant="h5">
-          Forgot Password
+          {t('user:auth.forgotPassword.header')}
         </Typography>
 
         <Typography variant="body2" align="center">
-          Please enter your registered email address and we&apos;ll send you a
-          password reset link.
+          {t('user:auth.forgotPassword.enterEmail')}
         </Typography>
 
         <form
@@ -56,7 +57,7 @@ const ForgotPasswordComponent = (props: Props): any => {
                 required
                 fullWidth
                 id="email"
-                placeholder="Email Address"
+                placeholder={t('user:auth.forgotPassword.lbl-email')}
                 name="email"
                 autoComplete="email"
                 autoFocus
@@ -71,7 +72,7 @@ const ForgotPasswordComponent = (props: Props): any => {
                 color="primary"
                 className={styles.submit}
               >
-                Send Link
+                {t('user:auth.forgotPassword.lbl-submit')}
               </Button>
             </Grid>
           </Grid>
@@ -80,7 +81,7 @@ const ForgotPasswordComponent = (props: Props): any => {
         {state.isSubmitted ? (
           <Typography variant="body2" color="textSecondary" align="center">
             <br />
-            Reset Password Email was sent. Please check your email.
+            {t('user:auth.forgotPassword.emailSent')}
           </Typography>
         ) : (
           ''

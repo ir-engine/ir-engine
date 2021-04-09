@@ -18,6 +18,7 @@ import { User } from '@xr3ngine/common/src/interfaces/User';
 import styles from './Auth.module.scss';
 import { createCreator } from '../../../socialmedia/reducers/creator/service';
 import { selectCreatorsState } from '../../../socialmedia/reducers/creator/selector';
+import { useTranslation } from "react-i18next";
 
 const mapStateToProps = (state: any): any => {
   return {
@@ -50,6 +51,7 @@ export const PasswordLoginApp = (props: Props): any => {
     createCreator,
     creatorsState
   } = props;
+  const { t } = useTranslation();
 
   useEffect(()=>{
     if(auth){
@@ -100,7 +102,7 @@ export const PasswordLoginApp = (props: Props): any => {
                 required
                 fullWidth
                 id="email"
-                placeholder="Email"
+                placeholder={t('user:auth.passwordLogin.ph-email')}
                 name="email"
                 autoComplete="email"
                 autoFocus
@@ -113,7 +115,7 @@ export const PasswordLoginApp = (props: Props): any => {
                 required
                 fullWidth
                 name="password"
-                placeholder="Password"
+                placeholder={t('user:auth.passwordLogin.ph-password')}
                 id="password"
                 autoComplete="current-password"
                 onChange={(e) => handleInput(e)}
@@ -140,7 +142,7 @@ export const PasswordLoginApp = (props: Props): any => {
                 color="primary"
                 className={styles.submit}
               >
-                Log in
+                {t('user:auth.passwordLogin.lbl-login')}
               </Button>
             </Grid> 
           </Grid>
