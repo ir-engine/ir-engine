@@ -1,5 +1,5 @@
 import React from "react";
-import { ProfilePic} from "./Stories/ProfilePic";
+import { ProfilePic} from "./ProfilePic";
 import { MoreSettings} from "./icons/MoreIcon";
 import { UsernameText } from "./UsernameText";
 
