@@ -16,7 +16,7 @@ import PostProcessing from "../../scene/classes/PostProcessing";
  * @author Abhishek Pathak <abhi.pathak401@gmail.com>
  */
 
-export default function configurePostProcessing (node:PostProcessing,scene,camera,renderer,isRemoved:boolean=false){
+export default function configurePostProcessing (node:PostProcessing,scene,camera,renderer,isRemoved=false){
         if(!node.visible || isRemoved)
             return null;
         const composer = new EffectComposer(renderer);
