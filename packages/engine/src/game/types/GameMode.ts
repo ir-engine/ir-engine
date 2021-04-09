@@ -1,7 +1,4 @@
 import { GameStateAction } from "./GameStateAction";
-import { PlayerAction } from "./PlayerAction";
-
-
 export interface GameMode {
   actions: {
     [key: string]: GameStateAction;
@@ -9,6 +6,6 @@ export interface GameMode {
   serverActions: {
     [key: string]: GameStateAction;
   },
-  allowedPlayerActions: PlayerAction[]
-  allowedHostActions: PlayerAction[]
+  allowedPlayerActions: any[]
+  allowedHostActions: any[]
 }
