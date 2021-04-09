@@ -4,8 +4,8 @@
   "version": "0.2.14",
   "private": true,
   "homepage": "",
-  "entry": "./",
-  "main": "./index.ts",
+  "entry": "./src",
+  "main": "./src/index.ts",
   "keywords": [
     "three",
     "three.js",
