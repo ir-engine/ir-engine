@@ -12,6 +12,8 @@ export * from './src/entities/component-type/component-type.class';
 export * from './src/entities/component-type/component-type.seed';
 export * from './src/entities/component/component.class';
 export * from './src/entities/component/component.seed';
+export * from './src/entities/content-pack/content-pack-helper';
+export * from './src/entities/content-pack/content-pack.class';
 export * from './src/entities/entity/entity.class';
 export * from './src/entities/entity/entity.seed';
 export * from './src/entities/license/license.class';
@@ -140,6 +142,9 @@ export { default as srcEntitiesComponentComponentDocs } from './src/entities/com
 export { default as srcEntitiesComponentComponentHooks } from './src/entities/component/component.hooks';
 export { default as srcEntitiesComponentComponentModel } from './src/entities/component/component.model';
 export { default as srcEntitiesComponentComponentService } from './src/entities/component/component.service';
+export { default as srcEntitiesContentPackContentPackDocs } from './src/entities/content-pack/content-pack.docs';
+export { default as srcEntitiesContentPackContentPackHooks } from './src/entities/content-pack/content-pack.hooks';
+export { default as srcEntitiesContentPackContentPackService } from './src/entities/content-pack/content-pack.service';
 export { default as srcEntitiesEntityEntityDocs } from './src/entities/entity/entity.docs';
 export { default as srcEntitiesEntityEntityHooks } from './src/entities/entity/entity.hooks';
 export { default as srcEntitiesEntityEntityModel } from './src/entities/entity/entity.model';
