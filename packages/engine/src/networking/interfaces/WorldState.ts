@@ -1,5 +1,6 @@
 import { LifecycleValue } from "../../common/enums/LifecycleValue";
 import { NumericalType } from "../../common/types/NumericalTypes";
+import { GameStateActionMessage } from "../../game/types/GameStateActionMessage";
 import { InputAlias } from "../../input/types/InputAlias";
 import { StateEntityGroup, StateEntityIKGroup } from "../types/SnapshotDataTypes";
 
@@ -136,7 +137,9 @@ export interface WorldStateInterface {
   /** List of created objects. */
   editObjects: NetworkObjectEditInterface[]
   /** List of destroyed objects. */
-  destroyObjects: NetworkObjectRemoveInterface[]
+  destroyObjects: NetworkObjectRemoveInterface[],
+  gameState: any,
+  gameStateActions: GameStateActionMessage[]
 }
 /** Interface for handling packet network input. */
 export interface PacketNetworkInputInterface {

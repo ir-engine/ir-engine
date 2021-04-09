@@ -1,12 +1,11 @@
-import _ from 'lodash';
 import { BinaryValue } from '../../common/enums/BinaryValue';
 import { LifecycleValue } from '../../common/enums/LifecycleValue';
 import { getBit } from '../../common/functions/bitFunctions';
-import { Behavior } from '../../common/interfaces/Behavior';
+import { isServer } from '../../common/functions/isServer';
 import { NumericalType } from '../../common/types/NumericalTypes';
 import { Entity } from '../../ecs/classes/Entity';
 import { System } from '../../ecs/classes/System';
-import { getComponent, getMutableComponent, hasComponent } from '../../ecs/functions/EntityFunctions';
+import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
 import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType';
 import { DelegatedInputReceiver } from '../../input/components/DelegatedInputReceiver';
 import { Input } from '../../input/components/Input';
@@ -14,8 +13,6 @@ import { BaseInput } from '../../input/enums/BaseInput';
 import { InputType } from '../../input/enums/InputType';
 import { InputValue } from '../../input/interfaces/InputValue';
 import { InputAlias } from '../../input/types/InputAlias';
-import { PlayerInCar } from '../../physics/components/PlayerInCar';
-import { VehicleComponent } from '../../templates/vehicle/components/VehicleComponent';
 import { CharacterComponent, RUN_SPEED, WALK_SPEED } from "../../templates/character/components/CharacterComponent";
 import { CHARACTER_STATES } from '../../templates/character/state/CharacterStates';
 import { initiateIK, stopIK } from '../../xr/functions/IKFunctions';
@@ -23,10 +20,9 @@ import { Network } from '../classes/Network';
 import { NetworkObject } from '../components/NetworkObject';
 import { handleInputFromNonLocalClients } from '../functions/handleInputOnServer';
 import { NetworkSchema } from "../interfaces/NetworkSchema";
-import { NetworkClientInputInterface, NetworkInputInterface } from "../interfaces/WorldState";
+import { NetworkClientInputInterface } from "../interfaces/WorldState";
 import { ClientInputModel } from '../schema/clientInputSchema';
 import { WorldStateModel } from '../schema/worldStateSchema';
-import { isServer } from '../../common/functions/isServer';
 
 // function switchInputs(clientInput) {
 //   if (hasComponent(Network.instance.networkObjects[clientInput.networkId].component.entity, PlayerInCar)) {
@@ -102,7 +98,9 @@ export class ServerNetworkIncomingSystem extends System {
       clientsDisconnected: Network.instance.clientsDisconnected,
       createObjects: Network.instance.createObjects,
       editObjects: Network.instance.editObjects,
-      destroyObjects: Network.instance.destroyObjects
+      destroyObjects: Network.instance.destroyObjects,
+      gameState: Network.instance.gameStateActions.length > 0 ? JSON.stringify(Network.instance.gameState) : [],
+      gameStateActions: Network.instance.gameStateActions
     };
 
     Network.instance.clientsConnected = [];
@@ -110,6 +108,8 @@ export class ServerNetworkIncomingSystem extends System {
     Network.instance.createObjects = [];
     Network.instance.editObjects = [];
     Network.instance.destroyObjects = [];
+    Network.instance.gameStateActions = [];
+
     // Set input values on server to values sent from clients
     // Parse incoming message queue
     while (Network.instance.incomingMessageQueue.getBufferLength() > 0) {
@@ -129,6 +129,16 @@ export class ServerNetworkIncomingSystem extends System {
         }
       }
       if(!clientInput) return;
+
+      // TODO: Handle client incoming state actions
+      // Are they host or not?
+      // Validate against host or non/host actions
+      // If action is valid, apply behavior for server
+      // Game state updated = true
+
+      // Outside of for loop, if game state updated is true, flag update world state
+
+      // Add handlers to game state schema, valid requests should get added to the GameStateActions queue on the server
 
       if (Network.instance.networkObjects[clientInput.networkId] === undefined) {
         console.error('Network object not found for networkId', clientInput.networkId);
