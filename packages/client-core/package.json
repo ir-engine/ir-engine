@@ -11,13 +11,10 @@
   "publishConfig": {
     "access": "public"
   },
-  "main": "dist/client-core.umd.js",
-  "module": "dist/client-core.es.js",
-  "types": "dist/client-core/index.d.ts",
   "npmClient": "yarn",
   "jest": "ts-jest",
   "scripts": {
-    "build": "ctix entrypoint ./src && rimraf build && cross-env NODE_ENV=production rollup -c",
+    "build": " rimraf dist && ctix entrypoint ./src && cross-env NODE_ENV=production rollup -c",
     "lint": "eslint --fix --quiet \"*.ts\" \"**/*.d.ts\" \"**/*.ts\" \"**/*.tsx\""
   },
   "resolutions": {

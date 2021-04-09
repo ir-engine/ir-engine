@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import styles from './style.module.scss';
+import styles from './Me.module.scss';
 import PartyParticipantWindow from '../PartyParticipantWindow';
 import { ChevronRight } from '@material-ui/icons';
 import { MediaStreamSystem } from '@xr3ngine/engine/src/networking/systems/MediaStreamSystem';
