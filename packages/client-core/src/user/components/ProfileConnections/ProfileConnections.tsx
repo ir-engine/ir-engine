@@ -4,7 +4,7 @@ import Divider from '@material-ui/core/Divider';
 import Typography from '@material-ui/core/Typography';
 import { connect } from 'react-redux';
 import SingleConnection from './SingleConnection';
-import { User } from '@xr3ngine/common/interfaces/User';
+import { User } from '@xr3ngine/common/src/interfaces/User';
 import styles from './ProfileConnections.module.scss';
 import { selectAuthState } from '../../reducers/auth/selector';
 

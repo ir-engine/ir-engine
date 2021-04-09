@@ -9,7 +9,7 @@ import {
 } from './actions';
 import {dispatchAlertError} from "../../../common/reducers/alert/service";
 import store from '../../../store';
-import { User } from '@xr3ngine/common/interfaces/User';
+import { User } from '@xr3ngine/common/src/interfaces/User';
 
 import { Config } from '../../../helper';
 

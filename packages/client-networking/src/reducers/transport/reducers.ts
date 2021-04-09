@@ -4,12 +4,12 @@ import {
 } from '../actions';
 import { ChannelTypeAction } from './actions';
 
-export const initialState = {
+export const initialTransportState = {
   channelType: '',
   channelId: ''
 };
 
-const immutableState = Immutable.fromJS(initialState);
+const immutableState = Immutable.fromJS(initialTransportState);
 
 export default function transportReducer (state = immutableState, action: any): any {
   switch (action.type) {

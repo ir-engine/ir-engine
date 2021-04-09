@@ -222,7 +222,7 @@ export class GodRaysEffect extends Effect {
 
     this.depthMaskPass = new ShaderPass(((depthTexture) => {
       const material = new DepthMaskMaterial();
-      material.uniforms.depthBuffer1.value = depthTexture;
+      (material as any).uniforms.depthBuffer1.value = depthTexture;
 
       return material;
     })(this.renderTargetLight.depthTexture));
@@ -235,7 +235,7 @@ export class GodRaysEffect extends Effect {
 		 */
 
     this.godRaysPass = new ShaderPass((() => {
-      const material = new GodRaysMaterial(this.screenPosition);
+      const material = new GodRaysMaterial(this.screenPosition) as any;
       material.uniforms.density.value = density;
       material.uniforms.decay.value = decay;
       material.uniforms.weight.value = weight;

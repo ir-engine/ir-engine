@@ -1,4 +1,4 @@
-import { StaticResource } from '@xr3ngine/common/interfaces/StaticResource';
+import { StaticResource } from '@xr3ngine/common/src/interfaces/StaticResource';
 import { INSTANCE_REMOVED } from '../../../social/reducers/actions';
 import {
   INSTANCES_RETRIEVED,

@@ -51,8 +51,8 @@ import {
 import { selectAuthState } from '@xr3ngine/client-core/src/user/reducers/auth/selector';
 import { selectUserState } from '@xr3ngine/client-core/src/user/reducers/user/selector';
 import { getLayerUsers } from '@xr3ngine/client-core/src/user/reducers/user/service';
-import { Group as GroupType } from '@xr3ngine/common/interfaces/Group';
-import { User } from '@xr3ngine/common/interfaces/User';
+import { Group as GroupType } from '@xr3ngine/common/src/interfaces/Group';
+import { User } from '@xr3ngine/common/src/interfaces/User';
 import classNames from 'classnames';
 import _ from 'lodash';
 import React, { useEffect, useState } from 'react';

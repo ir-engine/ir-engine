@@ -1,7 +1,7 @@
 import config from '../../appconfig';
 import { collectionType } from './collectionType';
 
-export const seed = {
+export const collectionTypeSeed = {
   disabled: !config.db.forceRefresh,
   delete: config.db.forceRefresh,
   path: 'collection-type',
@@ -13,5 +13,3 @@ export const seed = {
       { type: collectionType.project }
     ]
 };
-
-export default seed;

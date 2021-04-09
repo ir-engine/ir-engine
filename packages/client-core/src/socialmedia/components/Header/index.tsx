@@ -1,14 +1,12 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import Router from "next/router";
-
 import styles from './Header.module.scss';
 import Avatar from "@material-ui/core/Avatar";
 import { bindActionCreators, Dispatch } from "redux";
 import { connect } from "react-redux";
+
 import { selectCreatorsState } from "../../reducers/creator/selector";
 import { getLoggedCreator } from "../../reducers/creator/service";
-import { PopupLogin } from "../PopupLogin/PopupLogin";
-import { IndexPage } from "@xr3ngine/social/pages/login";
 import { selectAuthState } from "../../../user/reducers/auth/selector";
 
 const mapStateToProps = (state: any): any => {
@@ -31,29 +29,16 @@ interface Props{
 const AppHeader = ({creatorState, getLoggedCreator, logo, authState}: Props) => {
   useEffect(()=>getLoggedCreator(),[]);  
   const creator = creatorState && creatorState.get('fetching') === false && creatorState.get('currentCreator');
-  let checkGuest = null;
-  const [buttonPopup , setButtonPopup] = useState(false);
-  const status = authState.get('authUser')?.identityProvider.type;
-    if(status === 'guest') {
-
-     checkGuest = true;
-    }else {
-     
-     checkGuest = false;
-    }
+  const checkGuest = authState.get('authUser')?.identityProvider.type === 'guest' ? true : false;
 
   return (
     <nav className={styles.headerContainer}>
-       <PopupLogin trigger={buttonPopup} setTrigger={setButtonPopup}>
-          <IndexPage />
-          </PopupLogin>
-          {logo && <img onClick={()=>Router.push('/')} src={logo} className="header-logo" alt="ARC" />}
-          <button type={"button"} onClick={()=>Router.push('/volumetric')} title={"volumetric"} className="header-logo">VolumetricDemo</button>
-          {creator && (checkGuest? ' ' :
-            <Avatar onClick={()=> Router.push({ pathname: '/creator', query:{ creatorId: creator.id}})} 
-            alt={creator.username} src={creator.avatar} />
-          )}
-         
+        {logo && <img onClick={()=>Router.push('/')} src={logo} className="header-logo" alt="ARC" />}
+        <button type={"button"} onClick={()=>Router.push('/volumetric')} title={"volumetric"} className="header-logo">VolumetricDemo</button>
+        {creator && !checkGuest &&
+          <Avatar onClick={()=> Router.push({ pathname: '/creator', query:{ creatorId: creator.id}})} 
+          alt={creator.username} src={creator.avatar} />
+        }         
     </nav>
   );
 };
