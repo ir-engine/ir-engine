@@ -8,24 +8,24 @@ const urlRegex = /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._~#=]{2,256}\.[a-z]{2,6}\b(
 const thumbnailRegex = /([a-zA-Z0-9_-]+).jpeg/;
 
 const getAssetKey = (value: string, packName: string) => `content-pack/${packName}/assets/${value}`;
-const getAssetS3Key = (value: string) => value.replace('/assets', '0testing');
+const getAssetS3Key = (value: string) => value.replace('/assets', '');
 
 const replaceRelativePath = (value: string) => {
     const stripped = value.replace('/assets', '');
-    return `https://${config.aws.cloudfront.domain}${stripped}`
-}
+    return `https://${config.aws.cloudfront.domain}${stripped}`;
+};
 
 const getThumbnailKey = (value: string) => {
     const regexExec = thumbnailRegex.exec(value);
-    return `000result/${regexExec[0]}`;
-}
+    return `${regexExec[0]}`;
+};
 
 const getContentType = (url: string) => {
     if (/.glb$/.test(url) === true) return 'glb';
     if (/.jpeg$/.test(url) === true) return 'jpeg';
     if (/.json$/.test(url) === true) return 'json';
     return 'octet-stream';
-}
+};
 
 export function assembleScene (scene: any, contentPack: string): any {
     const uploadPromises = [];
@@ -34,12 +34,13 @@ export function assembleScene (scene: any, contentPack: string): any {
         root: scene.entities[0].entityId,
         metadata: JSON.parse(scene.metadata),
         entities: {}
-    }
+    };
     for (const index in scene.entities) {
         const entity = (scene.entities[index] as any);
         const patchedComponents = [];
         for (const index in entity.components) {
             const component = entity.components[index];
+            // eslint-disable-next-line prefer-const
             for (let [key,value] of Object.entries(component.props) as [string, any]) {
                 if (typeof value === 'string' && key !== 'link') {
                     const regexExec = urlRegex.exec(value);
@@ -95,7 +96,7 @@ export function assembleScene (scene: any, contentPack: string): any {
             parent: entity.parent,
             index: entity.index,
             components: patchedComponents
-        }
+        };
     }
     return {
         worldFile,
@@ -103,10 +104,32 @@ export function assembleScene (scene: any, contentPack: string): any {
     };
 }
 
-export async function populateScene (scene: any, app: Application, thumbnailUrl?: string): Promise<any> {
+export async function populateScene (sceneId: string, scene: any, app: Application, thumbnailUrl?: string): Promise<any> {
     const promises = [];
-    const existingScene = await app.service('collection')
+    const existingSceneResult = await app.service('collection').Model.findOne({
+        where: {
+            sid: sceneId
+        }
+    });
+    if (existingSceneResult != null) {
+        if (existingSceneResult.thumbnailOwnedFileId != null) await app.service('static-resource').remove(existingSceneResult.thumbnailOwnedFileId);
+        const entityResult = await app.service('entity').find({
+            query: {
+                collectionId: existingSceneResult.id
+            }
+        });
+        await Promise.all(entityResult.data.map(async entity => {
+            await app.service('component').remove(null, {
+                where: {
+                    entityId: entity.id
+                }
+            });
+            return app.service('entity').remove(entity.id);
+        }));
+        await app.service('collection').remove(existingSceneResult.id);
+    }
     const collection = await app.service('collection').create({
+        sid: sceneId,
         name: scene.metadata.name,
         metadata: scene.metadata,
         version: scene.version,
@@ -143,16 +166,14 @@ export async function populateScene (scene: any, app: Application, thumbnailUrl?
                 mimeType: 'image/jpeg'
             }
         });
-        console.log('newStaticResource:');
         await app.service('static-resource').patch(newStaticResource.data[0].id, {
             key: `${newStaticResource.data[0].id}.jpeg`
         });
-        console.log('Patching collection', collection.id, 'with thumnailId', newStaticResource.data[0].id);
         await app.service('collection').patch(collection.id, {
             thumbnailOwnedFileId: newStaticResource.data[0].id
-        })
+        });
     }
-    for (let [key, value] of Object.entries(scene.entities) as [string, any]) {
+    for (const [key, value] of Object.entries(scene.entities) as [string, any]) {
         const entityResult = await app.service('entity').create({
             entityId: key,
             name: value.name,
@@ -161,7 +182,7 @@ export async function populateScene (scene: any, app: Application, thumbnailUrl?
             index: value.index
         });
         value.components.forEach(async component => {
-            for (let [key, value] of Object.entries(component.props)) {
+            for (const [key, value] of Object.entries(component.props)) {
                 if (typeof value === 'string' && /^\/assets/.test(value) === true) {
                     component.props[key] = replaceRelativePath(value);
                     // Insert Download/S3 upload
@@ -192,5 +213,5 @@ export async function populateScene (scene: any, app: Application, thumbnailUrl?
             });
         });
     }
-    return Promise.all(promises)
+    return Promise.all(promises);
 }

@@ -6,6 +6,9 @@ import {
     Modal,
     TextField
 } from '@material-ui/core';
+import {
+    Done
+} from '@material-ui/icons';
 import classNames from 'classnames';
 import axios from 'axios';
 import React, { useState, useEffect } from 'react';
@@ -39,7 +42,7 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 });
 
 
-const userModel = (props: Props): any => {
+const DownloadModal = (props: Props): any => {
     const {
         open,
         handleClose,
@@ -48,19 +51,26 @@ const userModel = (props: Props): any => {
 
     const [contentPackUrl, setContentPackUrl] = useState('');
     const [error, setError] = useState('');
+    const [success, setSuccess] = useState(false);
 
     const showError = (err: string) => {
         setError(err);
         setTimeout(() => {
             setError('');
         }, 3000);
-    }
+    };
+
+    const showSuccess = () => {
+        setSuccess(true);
+        setTimeout(() => {
+            setSuccess(false);
+        }, 3000);
+    };
 
     const getContentPack = async () => {
         try {
-            console.log('Getting content pack');
-            console.log(contentPackUrl);
             const res = await downloadContentPack(contentPackUrl);
+            showSuccess();
         } catch(err) {
             showError('Invalid URL');
         }
@@ -107,6 +117,12 @@ const userModel = (props: Props): any => {
                             Download Content Pack
                         </Button>
                         { error && error.length > 0 && <h2>{error}</h2> }
+                        { success === true &&
+                            <div>
+                                <Done color='primary' />
+                                <div>Pack download!</div>
+                            </div>
+                        }
                     </div>
                 </Fade>
             </Modal>
@@ -114,4 +130,4 @@ const userModel = (props: Props): any => {
     );
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(userModel);
+export default connect(mapStateToProps, mapDispatchToProps)(DownloadModal);

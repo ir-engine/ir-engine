@@ -1,15 +1,7 @@
 import * as authentication from '@feathersjs/authentication';
 import { disallow } from 'feathers-hooks-common';
-
-import addThumbnailFileId from '../../hooks/add-thumbnail-file-id';
-import addUriToFile from '../../hooks/add-uri-to-file';
-import attachOwnerIdInSavingContact from '../../hooks/set-loggedin-user-in-body';
-import createOwnedFile from '../../hooks/create-owned-file';
 import logRequest from '../../hooks/log-request';
-import makeS3FilesPublic from '../../hooks/make-s3-files-public';
-import reformatUploadResult from '../../hooks/reformat-upload-result';
-import removePreviousThumbnail from '../../hooks/remove-previous-thumbnail';
-import setResponseStatus from '../../hooks/set-response-status-code';
+import restrictUserRole from '@xr3ngine/server-core/src/hooks/restrict-user-role';
 
 // Don't remove this comment. It's needed to format import lines nicely.
 
@@ -20,9 +12,9 @@ export default {
     all: [logRequest()],
     find: [],
     get: [],
-    create: [authenticate('jwt')/*, attachOwnerIdInSavingContact('userId'), addUriToFile(), makeS3FilesPublic()*/],
-    update: [],
-    patch: [authenticate('jwt')],
+    create: [authenticate('jwt'), restrictUserRole('admin')],
+    update: [authenticate('jwt'), restrictUserRole('admin')],
+    patch: [authenticate('jwt'), restrictUserRole('admin')],
     remove: [disallow()]
   },
 

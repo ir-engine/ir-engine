@@ -47,14 +47,14 @@ export function uploadAvatars (data: any) {
         });
       }
     });
-  }
+  };
 }
 
 export function fetchContentPacks() {
   return async (dispatch: Dispatch, getState: any) => {
     const packs = await client.service('content-pack').find({});
     dispatch(loadedContentPacks(packs));
-  }
+  };
 }
 
 export function createContentPack(data: any) {
@@ -64,7 +64,7 @@ export function createContentPack(data: any) {
       contentPack: data.contentPack
     });
     dispatch(createdContentPack());
-  }
+  };
 }
 
 export function addSceneToContentPack(data: any) {
@@ -73,8 +73,10 @@ export function addSceneToContentPack(data: any) {
       scene: data.scene,
       contentPack: data.contentPack
     });
+    console.log('addScene result:');
+    console.log(result);
     dispatch(patchedContentPack());
-  }
+  };
 }
 
 export function downloadContentPack(url: string) {
@@ -82,12 +84,12 @@ export function downloadContentPack(url: string) {
     const result = await client.service('content-pack').update(null, {
       manifestUrl: url
     });
-  }
+  };
 }
 
 export function uploadScenes (data: any) {
   return async (dispatch: Dispatch, getState: any) => {
     data.each(async (data) => {
     });
-  }
+  };
 }

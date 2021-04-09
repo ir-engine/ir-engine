@@ -32,11 +32,11 @@ export function loadedContentPacks(contentPacks: any[]): ContentPackAction {
 export function createdContentPack(): ContentPackAction {
   return {
     type: CONTENT_PACK_CREATED
-  }
+  };
 }
 
 export function patchedContentPack(): ContentPackAction {
   return {
     type: CONTENT_PACK_PATCHED
-  }
+  };
 }

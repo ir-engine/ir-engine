@@ -25,14 +25,15 @@ import {
     uploadAvatars
 } from "../../reducers/contentPack/service";
 import {
-    Create,
+    Add,
     Edit
 } from "@material-ui/icons";
 import {
     ToggleButton,
     ToggleButtonGroup
 } from "@material-ui/lab";
-import {Cache} from "three";
+import IconButton from "@material-ui/core/IconButton";
+import CloseIcon from "@material-ui/icons/Close";
 
 interface Props {
     open: boolean;
@@ -40,7 +41,10 @@ interface Props {
     scene: any;
     adminState?: any;
     contentPackState?: any;
-    uploadAvatar?: any;
+    uploadAvatars?: any;
+    addSceneToContentPack?: any;
+    createContentPack?: any;
+    fetchContentPacks?: any;
 }
 
 const mapStateToProps = (state: any): any => {
@@ -66,7 +70,6 @@ const AddToContentPackModal = (props: Props): any => {
         open,
         handleClose,
         scene,
-        uploadAvatars,
         contentPackState,
         fetchContentPacks
     } = props;
@@ -82,35 +85,43 @@ const AddToContentPackModal = (props: Props): any => {
         setTimeout(() => {
             setError('');
         }, 3000);
-    }
+    };
 
     const handleCreateOrPatch = (event: React.MouseEvent<HTMLElement>, newValue: string | null) => {
         setCreateOrPatch(newValue);
     };
 
-    const addCurrentSceneToContentPack = () => {
-        addSceneToContentPack({
-            scene: scene,
-            contentPack: contentPackName
-        });
-        window.location.href = '/admin/content-packs';
-        closeModal();
-    }
+    const addCurrentSceneToContentPack = async () => {
+        try {
+            await addSceneToContentPack({
+                scene: scene,
+                contentPack: contentPackName
+            });
+            window.location.href = '/admin/content-packs';
+            closeModal();
+        } catch(err) {
+            showError(err.message);
+        }
+    };
 
-    const createNewContentPack = () => {
-        createContentPack({
-            scene: scene,
-            contentPack: newContentPackName
-        });
-        window.location.href = '/admin/content-packs';
-        closeModal();
-    }
+    const createNewContentPack = async () => {
+        try {
+            await createContentPack({
+                scene: scene,
+                contentPack: newContentPackName
+            });
+            window.location.href = '/admin/content-packs';
+            closeModal();
+        } catch(err) {
+            showError(err.message);
+        }
+    };
 
     const closeModal = () => {
         setContentPackName('');
         setNewContentPackName('');
         handleClose();
-    }
+    };
 
     useEffect(() => {
         if (contentPackState.get('updateNeeded') === true) {
@@ -137,6 +148,17 @@ const AddToContentPackModal = (props: Props): any => {
                         [styles.paper]: true,
                         [styles['modal-content']]: true
                     })}>
+                        <div className={styles['modal-header']}>
+                            <div/>
+                            <div className={styles['title']}>{scene.name}</div>
+                            <IconButton
+                                aria-label="close"
+                                className={styles.closeButton}
+                                onClick={handleClose}
+                            >
+                                <CloseIcon />
+                            </IconButton>
+                        </div>
                         <ToggleButtonGroup
                             value={createOrPatch}
                             exclusive
@@ -148,7 +170,7 @@ const AddToContentPackModal = (props: Props): any => {
                                 Add to existing content pack
                             </ToggleButton>
                             <ToggleButton value="create" aria-label="Create new content pack">
-                                <Create />
+                                <Add />
                                 Create New Content Pack
                             </ToggleButton>
                         </ToggleButtonGroup>
@@ -157,6 +179,7 @@ const AddToContentPackModal = (props: Props): any => {
                                 <FormControl>
                                     <InputLabel id="contentPackSelect">Content Pack</InputLabel>
                                     <Select
+                                        className={styles['pack-select']}
                                         labelId="Content Pack"
                                         id="contentPackSelect"
                                         value={contentPackName}
@@ -201,7 +224,7 @@ const AddToContentPackModal = (props: Props): any => {
                                 </FormControl>
                             </div>
                         }
-                        { error && error.length > 0 && <h2>{error}</h2> }
+                        { error && error.length > 0 && <h2 className={styles['error-message']}>{error}</h2> }
                     </div>
                 </Fade>
             </Modal>

@@ -22,7 +22,7 @@ const getThumbnailKey = (packName: string, url: string) => {
 const getThumbnailUrl = (packName: string, url: string) => {
   const uuidRegexExec = thumbnailRegex.exec(url);
   return `https://${config.aws.cloudfront.domain}/content-pack/${packName}/img/${uuidRegexExec[1]}.jpeg`;
-}
+};
 
 /**
  * A class for Upload Media service 
@@ -53,7 +53,6 @@ export class ContentPack implements ServiceMethods<Data> {
       });
     });
     const manifests = (result as any).Contents.filter(result => packRegex.exec(result.Key) != null);
-    console.log(manifests);
     const returned = await Promise.all(manifests.map(async(manifest) => {
       const manifestResult = await new Promise((resolve, reject) => {
         s3.provider.getObject({
@@ -68,13 +67,12 @@ export class ContentPack implements ServiceMethods<Data> {
           }
         });
       }) as any;
-      console.log(manifestResult);
       return {
         name: packRegex.exec(manifest.Key)[1],
+        url: `https://${config.aws.cloudfront.domain}/${manifest.Key}`,
         data: JSON.parse(manifestResult.Body.toString())
-      }
+      };
     }));
-    console.log(returned);
     return returned;
   }
 
@@ -133,6 +131,7 @@ export class ContentPack implements ServiceMethods<Data> {
         });
       });
       body.scenes.push({
+        sid: scene.sid,
         name: scene.name,
         worldFile: getWorldFileUrl(contentPack, worldFile.metadata.name)
       });
@@ -162,10 +161,10 @@ export class ContentPack implements ServiceMethods<Data> {
     const manifestUrl = (data as any).manifestUrl;
     const manifestResult = await axios.get(manifestUrl);
     const { avatars, scenes } = manifestResult.data;
-    for (let index in scenes) {
+    for (const index in scenes) {
       const scene = scenes[index];
       const sceneResult = await axios.get(scene.worldFile);
-      await populateScene(sceneResult.data, this.app, scene.thumbnail);
+      await populateScene(scene.sid, sceneResult.data, this.app, scene.thumbnail );
     }
     return data;
   }
@@ -173,7 +172,6 @@ export class ContentPack implements ServiceMethods<Data> {
   async patch (id: NullableId, data: Data, params?: Params): Promise<Data> {
     let uploadPromises = [];
     const { scene, contentPack } = data as any;
-    console.log(scene);
     const pack = await new Promise((resolve, reject) => {
       s3.provider.getObject({
         Bucket: s3.bucket,
@@ -241,9 +239,10 @@ export class ContentPack implements ServiceMethods<Data> {
           }
         });
       });
-      const existingSceneIndex = body.scenes.findIndex(existingScene => existingScene.name === worldFile.metadata.name);
+      const existingSceneIndex = body.scenes.findIndex(existingScene => existingScene.sid === scene.sid);
       if (existingSceneIndex > -1 ) body.scenes.splice(existingSceneIndex, 1);
       const newScene = {
+        sid: scene.sid,
         name: scene.name,
         worldFile: getWorldFileUrl(contentPack, worldFile.metadata.name)
       };
