@@ -4,7 +4,7 @@ import { Application } from '../../../declarations';
 import { Creator } from './creator.class';
 import createModel from './creator.model';
 import hooks from './creator.hooks';
-import { Creator as CreatorInterface } from '../../../../common/interfaces/Creator';
+import { Creator as CreatorInterface } from '@xr3ngine/common/src/interfaces/Creator';
 import creatorDocs from './creator.docs';
 
 // Add this service to the service type index
