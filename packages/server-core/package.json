@@ -25,8 +25,7 @@
   "contributors": [],
   "bugs": {},
   "engines": {
-    "yarn": ">= 0.18.0",
-    "node": ">=12.13.0"
+    "yarn": ">= 0.18.0"
   },
   "jest": "ts-jest",
   "scripts": {
@@ -159,7 +158,6 @@
     "@types/cors": "^2.8.7",
     "@types/dotenv-flow": "^3.0.0",
     "@types/helmet": "0.0.47",
-    "@types/jest": "^26.0.22",
     "@types/jsonwebtoken": "^8.5.0",
     "@types/lodash": "^4.14.150",
     "@types/mime-types": "^2.1.0",
@@ -178,7 +176,6 @@
     "cross-env": "^7.0.2",
     "eslint": "^7.7.0",
     "feathers-cli": "^2.4.0",
-    "jest": "^26.6.3",
     "no-master-commits": "^1.1.1",
     "nodemon": "^2.0.5",
     "nodemon-webpack-plugin": "^4.4.4",

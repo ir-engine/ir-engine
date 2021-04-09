@@ -6,8 +6,7 @@
     "url": "git://github.com/xr3ngine/xr3ngine.git"
   },
   "engines": {
-    "yarn": ">= 0.18.0",
-    "node": ">=12.13.0"
+    "yarn": ">= 0.18.0"
   },
   "publishConfig": {
     "access": "public"
