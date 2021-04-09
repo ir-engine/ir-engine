@@ -27,8 +27,8 @@ import {
   REMOVED_CHANNEL
 } from '../actions';
 
-import { Message } from '@xr3ngine/common/interfaces/Message';
-import { Channel } from '@xr3ngine/common/interfaces/Channel';
+import { Message } from '@xr3ngine/common/src/interfaces/Message';
+import { Channel } from '@xr3ngine/common/src/interfaces/Channel';
 
 import _ from 'lodash';
 import moment from 'moment';

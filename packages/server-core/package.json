@@ -3,6 +3,9 @@
   "description": "Shared components for XR3ngine server",
   "version": "0.2.14",
   "homepage": "",
+  "publishConfig": {
+    "access": "public"
+  },
   "main": "dist/server-core.umd.js",
   "module": "dist/server-core.es.js",
   "types": "dist/server-core/index.d.ts",
@@ -189,5 +192,5 @@
     "webpack": "^5.25.0",
     "webpack-cli": "^4.0.0"
   },
-  "gitHead": "c42bea8517b911d1bbe9763ee4337a7be996154b"
+  "gitHead": "b69a8d4eb4d2b39bc013a8eba00b402b21932252"
 }
