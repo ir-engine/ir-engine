@@ -1,10 +1,9 @@
-import { Body, Trimesh, Box, ConvexPolyhedron, Cylinder, Plane, Quaternion, Sphere, Vec3 } from 'cannon-es';
+import { Body, Box, ConvexPolyhedron, Cylinder, Plane, Quaternion, Sphere, Trimesh, Vec3 } from 'cannon-es';
 import { Entity } from '../../ecs/classes/Entity';
 import { getComponent } from '../../ecs/functions/EntityFunctions';
 import { TransformComponent } from '../../transform/components/TransformComponent';
 import { threeToCannon } from '../classes/three-to-cannon';
 import { ColliderComponent } from '../components/ColliderComponent';
-import { CollisionGroups } from "../enums/CollisionGroups";
 
 export function createTrimesh (entity: Entity) {
   const collider = getComponent<ColliderComponent>(entity, ColliderComponent);

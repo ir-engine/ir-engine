@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import styled from "styled-components";
 import { ThemeContext } from "./theme";
+import { withTranslation } from "react-i18next";
 
 /**
  * StyledError styled component used to provide styles for error container.
@@ -28,9 +29,10 @@ const StyledError = (styled as any).div`
  * @author Robert Long
  * @type {component class}
  */
-export default class Error extends Component {
+export class Error extends Component<{t: Function}> {
   static propTypes = {
-    message: PropTypes.node
+    message: PropTypes.node,
+    t: PropTypes.func,
   };
 
   static contextType = ThemeContext
@@ -41,10 +43,12 @@ export default class Error extends Component {
     return (
       <StyledError theme={theme}>
         <a href="/">
-          Return
+          {this.props.t('editor:lbl-return')}
         </a>
         {(this.props as any).message}
       </StyledError>
     );
   }
 }
+
+export default withTranslation()(Error);

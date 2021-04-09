@@ -1,9 +1,10 @@
-// @ts-nocheck
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import InputGroup from "../inputs/InputGroup";
 import StringInput from "../inputs/StringInput";
 import styled from "styled-components";
+import i18n from "i18next";
+import { withTranslation } from "react-i18next";
 
 /**
  * Creating styled component using InputGroup component.
@@ -18,13 +19,18 @@ const StyledNameInputGroup = (styled as any)(InputGroup)`
   }
 `;
 
+type Types = {
+  editor: any,
+  node: any
+};
+
 /**
  * NameInputGroup is used to render input group PropertiesPanelContainer.
  * 
  * @author Robert Long
  * @type {class component}
  */
-export default class NameInputGroup extends Component {
+export class NameInputGroup extends Component<Types> {
 
   //declairing propTypes for NameInputGroup
   static propTypes = {
@@ -80,6 +86,7 @@ export default class NameInputGroup extends Component {
     const name = (this.state as any).focusedNode ? (this.state as any).name : ((this.props as any).node as any).name;
 
     return (
+      //  label={this.props.t('editor:properties.name.lbl-name')}
       <StyledNameInputGroup name="Name">
         <StringInput
           /* @ts-ignore */
@@ -93,3 +100,5 @@ export default class NameInputGroup extends Component {
     );
   }
 }
+
+export default withTranslation()(NameInputGroup);

@@ -1,6 +1,9 @@
+/**
+ * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
+ */
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
-import { Dispatch } from 'redux';
+import { bindActionCreators, Dispatch } from 'redux';
 import { Router, withRouter } from "next/router";
 import { PAGE_LIMIT } from '../reducers/admin/reducers';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
@@ -28,6 +31,7 @@ import { TransitionProps } from '@material-ui/core/transitions';
 import SharedModal from './SharedModal';
 import FeedForm from '../../socialmedia/components/FeedForm';
 import { EnhancedTableHead } from './AdminHelpers';
+import { updateFeedAsAdmin } from '../../socialmedia/reducers/feed/service';
 
 if (!global.setImmediate) {
     global.setImmediate = setTimeout as any;
@@ -46,6 +50,7 @@ interface Props {
     fetchAdminInstances?: any;
     removeUser?: any;
     list?:any;
+    updateFeedAsAdmin?: typeof updateFeedAsAdmin;
 }
 const mapStateToProps = (state: any): any => {
     return {
@@ -53,6 +58,7 @@ const mapStateToProps = (state: any): any => {
 };
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
+    updateFeedAsAdmin: bindActionCreators(updateFeedAsAdmin, dispatch),
 });
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -81,10 +87,10 @@ const Transition = React.forwardRef((
 
 const FeedConsole = (props: Props) => {
     const classes = useStyles();
-    const { list } = props;
+    const { list, updateFeedAsAdmin } = props;
 
     const headCells = [
-        // { id: 'id', numeric: false, disablePadding: true, label: 'ID' },
+        { id: 'featuredByAdmin', numeric: false, disablePadding: false, label: 'Featured by Admin' },
         { id: 'preview', numeric: false, disablePadding: false, label: 'Preview' },
         { id: 'video', numeric: false, disablePadding: false, label: 'Video' },
         { id: 'details', numeric: false, disablePadding: false, label: 'Details' },
@@ -151,6 +157,10 @@ const FeedConsole = (props: Props) => {
         setModalOpen(false);
     };
 
+    const handleUpdateFeed = (feed)=>{
+        updateFeedAsAdmin(feed.id, feed);
+    };
+
     return (
         <div>
             <Typography variant="h2" color="primary">ARC Feeds List</Typography>
@@ -181,10 +191,9 @@ const FeedConsole = (props: Props) => {
                                             tabIndex={-1}
                                             key={row.id}
                                         >
-                                            {/* <TableCell className={styles.tcell} component="th" id={row.id.toString()}
-                                                align="right" scope="row" padding="none">
-                                                {row.id}
-                                            </TableCell> */}
+                                            <TableCell className={styles.tcell} align="center">
+                                                <Typography variant="h3" color="textPrimary">{row.featuredByAdmin ? <StarIcon /> : <StarOutlineIcon />}</Typography>
+                                            </TableCell>
                                             <TableCell className={styles.tcell} align="center">
                                                 <CardMedia   
                                                     className={styles.previewImage}                  
@@ -215,11 +224,15 @@ const FeedConsole = (props: Props) => {
                                                 {row.description}
                                             </TableCell>
                                             <TableCell className={styles.tcell} align="left">
-                                                <Avatar src={row.avatar.toString()} />
+                                                <Avatar src={row.avatar?.toString()} />
                                                 {row.creatorName+', '+row.creatorUserName}
                                             </TableCell>
                                             <TableCell className={styles.tcell} align="right">{row.createdAt}</TableCell>
                                             <TableCell className={styles.tcell} >
+                                                    {row.featuredByAdmin === 1 ? 
+                                                    <Button variant="outlined" color="secondary" style={{width:'fit-content'}} onClick={() => handleUpdateFeed({id:row.id.toString(), featuredByAdmin:0})}>UnFeature</Button>
+                                                    :
+                                                    <Button variant="outlined" color="secondary" style={{width:'fit-content'}} onClick={() => handleUpdateFeed({id:row.id.toString(), featuredByAdmin:1})}>Feature</Button>} 
                                                 <Button variant="outlined" color="secondary" style={{width:'fit-content'}} onClick={() => handleView(row.id.toString())}><Edit className="text-success"/></Button>
                                             </TableCell>
                                         </TableRow>

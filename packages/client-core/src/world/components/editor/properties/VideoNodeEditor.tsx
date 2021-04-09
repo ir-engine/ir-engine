@@ -9,6 +9,8 @@ import VideoInput from "../inputs/VideoInput";
 import { Video } from "@styled-icons/fa-solid/Video";
 import AudioSourceProperties from "./AudioSourceProperties";
 import useSetPropertySelected from "./useSetPropertySelected";
+import i18n from "i18next";
+import { useTranslation } from "react-i18next";
 
 /**
  * videoProjectionOptions contains VideoProjection options.
@@ -28,7 +30,9 @@ const videoProjectionOptions = Object.values(VideoProjection).map(v => ({ label:
  */
 export default function VideoNodeEditor(props) {
   const { editor, node } = props;
+  const { t } = useTranslation();
 
+  VideoNodeEditor.description = t('editor:properties.video.description');
   //function to handle changes in src property
   const onChangeSrc = useSetPropertySelected(editor, "src");
 
@@ -39,11 +43,11 @@ export default function VideoNodeEditor(props) {
   return (
     <NodeEditor description={VideoNodeEditor.description} {...props}>
       { /* @ts-ignore */ }
-      <InputGroup name="Video">
+      <InputGroup name="Video" label={t('editor:properties.video.lbl-video')}>
         <VideoInput value={node.src} onChange={onChangeSrc} />
       </InputGroup>
       { /* @ts-ignore */ }
-      <InputGroup name="Projection">
+      <InputGroup name="Projection" label={t('editor:properties.video.lbl-projection')}>
       { /* @ts-ignore */ }
         <SelectInput options={videoProjectionOptions} value={node.projection} onChange={onChangeProjection} />
       </InputGroup>
@@ -63,4 +67,4 @@ VideoNodeEditor.propTypes = {
 VideoNodeEditor.iconComponent = Video;
 
 // setting description will appears on editor view
-VideoNodeEditor.description = "Dynamically loads a video.";
+VideoNodeEditor.description = i18n.t('editor:properties.video.description');

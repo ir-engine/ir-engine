@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import StringInput from "../inputs/StringInput";
 import FormField from "../inputs/FormField";
 import PreviewDialog from "./PreviewDialog";
+import { useTranslation } from "react-i18next";
 
 /**
  * SaveNewProjectDialog used to show dialog when to save new project.
@@ -16,6 +17,7 @@ import PreviewDialog from "./PreviewDialog";
  */
 export default function SaveNewProjectDialog({ thumbnailUrl, initialName, onConfirm, onCancel }) {
   const [name, setName] = useState(initialName);
+  const { t } = useTranslation();
 
   const onChangeName = useCallback(
     value => {
@@ -56,20 +58,20 @@ export default function SaveNewProjectDialog({ thumbnailUrl, initialName, onConf
   return (
     <PreviewDialog
       imageSrc={thumbnailUrl}
-      title="Save Project"
+      title={t('editor:dialog.saveNewProject.title')}
       onConfirm={onConfirmCallback}
       onCancel={onCancelCallback}
-      confirmLabel="Save Project"
+      confirmLabel={t('editor:dialog.saveNewProject.lbl-confirm')}
     >
       { /* @ts-ignore */ }
       <FormField>
-        <label htmlFor="name">Project Name</label>
+        <label htmlFor="name">{t('editor:dialog.saveNewProject.lbl-name')}</label>
         <StringInput
           /* @ts-ignore */
           id="name"
           required
           pattern={"[A-Za-z0-9-':\"!@#$%^&*(),.?~ ]{4,64}"}
-          title="Name must be between 4 and 64 characters and cannot contain underscores"
+          title={t('editor:dialog.saveNewProject.info-name')}
           value={name}
           onChange={onChangeName}
         />

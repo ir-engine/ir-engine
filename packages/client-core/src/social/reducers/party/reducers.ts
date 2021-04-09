@@ -16,15 +16,15 @@ import {
   CREATED_PARTY_USER,
   PATCHED_PARTY_USER
 } from '../actions';
-import { PartyUser } from '@xr3ngine/common/interfaces/PartyUser';
+import { PartyUser } from '@xr3ngine/common/src/interfaces/PartyUser';
 import _ from 'lodash';
 
-export const initialState = {
+export const initialPartyState = {
   party: {},
   updateNeeded: true
 };
 
-const immutableState = Immutable.fromJS(initialState);
+const immutableState = Immutable.fromJS(initialPartyState);
 
 const partyReducer = (state = immutableState, action: PartyAction): any => {
   let newValues, updateMap, partyUser, updateMapPartyUsers;

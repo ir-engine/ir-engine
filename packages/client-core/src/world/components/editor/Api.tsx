@@ -8,6 +8,8 @@ import PerformanceCheckDialog from "./dialogs/PerformanceCheckDialog";
 import { ProgressDialog } from "./dialogs/ProgressDialog";
 import PublishDialog from "./dialogs/PublishDialog";
 import PublishedSceneDialog from "./dialogs/PublishedSceneDialog";
+import i18n from 'i18next';
+
 const resolveUrlCache = new Map();
 const resolveMediaCache = new Map();
 
@@ -180,7 +182,7 @@ export default class Api extends EventEmitter {
     const token = localStorage.getItem(FEATHERS_STORE_KEY);
 
     if (token == null || token.length === 0) {
-      throw new Error("Not authenticated");
+      throw new Error(i18n.t('editor:errors.notAuthenticated'));
     }
 
     return token;
@@ -205,7 +207,7 @@ export default class Api extends EventEmitter {
   async getProjects(): Promise<any> {
     const token = this.getToken();
 
-    const headers = {
+    const headers = { 
       "content-type": "application/json",
       authorization: `Bearer ${token}`
     };
@@ -218,7 +220,7 @@ export default class Api extends EventEmitter {
     });
 
     if (!Array.isArray(json.projects) || json.projects == null) {
-      throw new Error(`Error fetching projects: ${json.error || "Unknown error."}`);
+      throw new Error(i18n.t('editor:errors.fetchingProjectError', { error: json.error || i18n.t('editor:errors.unknownError')}));
     }
 
     return json.projects;
@@ -270,7 +272,7 @@ export default class Api extends EventEmitter {
     // client.service("resolve-media").create({ media: { url, index } })
     .then(async response => {
     if (!response.ok) {
-        const message = `Error resolving url "${url}":\n  `;
+        const message = i18n.t('editor:errors.resolveURL', { url });
         try {
           const body = await response.text();
           throw new Error(message + body.replace(/\n/g, "\n  "));
@@ -363,7 +365,7 @@ export default class Api extends EventEmitter {
           guessContentType(canonicalUrl) ||
           (await this.fetchContentType(accessibleUrl));
       } catch (error) {
-        throw new RethrownError(`Error resolving media "${absoluteUrl}"`, error);
+        throw new RethrownError(i18n.t('editor:errors.resolveURL', { url: absoluteUrl }) , error);
       }
 
       return { canonicalUrl, accessibleUrl, contentType };
@@ -466,7 +468,7 @@ export default class Api extends EventEmitter {
     console.log("Response: " + Object.values(resp));
 
     if (signal.aborted) {
-      const error = new Error("Media search aborted") as any;
+      const error = new Error(i18n.t('editor:errors.mediaSearchAborted')) as any;
       error["aborted"] = true;
       throw error;
     }
@@ -474,7 +476,7 @@ export default class Api extends EventEmitter {
     const json = await resp.json();
 
     if (signal.aborted) {
-      const error = new Error("Media search aborted") as any;
+      const error = new Error(i18n.t('editor:errors.mediaSearchAborted')) as any;
       error["aborted"] = true;
       throw error;
     }
@@ -498,7 +500,7 @@ export default class Api extends EventEmitter {
   }
 
   searchTermFilteringBlacklist(query: any): any {
-    throw new Error("Method not implemented.");
+    throw new Error(i18n.t('editor:errors.methodNotImplemented'));
   }
 
 /**
@@ -517,7 +519,7 @@ export default class Api extends EventEmitter {
     this.emit("project-saving");
 
     if (signal.aborted) {
-      throw new Error("Save project aborted");
+      throw new Error(i18n.t('editor:errors.saveProjectAborted'));
     }
 
    // uploading thumbnail providing file_id and meta
@@ -527,7 +529,7 @@ export default class Api extends EventEmitter {
     } = await this.upload(thumbnailBlob, undefined, signal) as any;
 
     if (signal.aborted) {
-      throw new Error("Save project aborted");
+      throw new Error(i18n.t('editor:errors.saveProjectAborted'));
     }
 
     const serializedScene = scene.serialize();
@@ -538,7 +540,7 @@ export default class Api extends EventEmitter {
     } = await this.upload(projectBlob, undefined, signal) as any;
 
     if (signal.aborted) {
-      throw new Error("Save project aborted");
+      throw new Error(i18n.t('editor:errors.saveProjectAborted'));
     }
 
     const token = this.getToken();
@@ -568,11 +570,11 @@ export default class Api extends EventEmitter {
     console.log("Response: " + Object.values(resp));
 
     if (signal.aborted) {
-      throw new Error("Save project aborted");
+      throw new Error(i18n.t('editor:errors.saveProjectAborted'));
     }
 
     if (resp.status !== 200) {
-      throw new Error(`Project creation failed. ${await resp.text()}`);
+      throw new Error(i18n.t('editor:errors.projectCreationFail', { reason: await resp.text() }));
     }
 
     const json = await resp.json();
@@ -603,11 +605,11 @@ export default class Api extends EventEmitter {
     console.log("Response: " + Object.values(resp));
 
     if (resp.status === 401) {
-      throw new Error("Not authenticated");
+      throw new Error(i18n.t('editor:errors.notAuthenticated'));
     }
 
     if (resp.status !== 200) {
-      throw new Error(`Project deletion failed. ${await resp.text()}`);
+      throw new Error(i18n.t('editor:errors.projectDeletionFail', { reason: await resp.text() }));
     }
 
     return true;
@@ -628,13 +630,13 @@ export default class Api extends EventEmitter {
     this.emit("project-saving");
 
     if (signal.aborted) {
-      throw new Error("Save project aborted");
+      throw new Error(i18n.t('editor:errors.saveProjectAborted'));
     }
 
     const thumbnailBlob = await editor.takeScreenshot(512, 320); // Fixed blob undefined
 
     if (signal.aborted) {
-      throw new Error("Save project aborted");
+      throw new Error(i18n.t('editor:errors.saveProjectAborted'));
     }
 
     const {
@@ -643,7 +645,7 @@ export default class Api extends EventEmitter {
     } = await this.upload(thumbnailBlob, undefined, signal, projectId) as any;
 
     if (signal.aborted) {
-      throw new Error("Save project aborted");
+      throw new Error(i18n.t('editor:errors.saveProjectAborted'));
     }
 
     const serializedScene = editor.scene.serialize();
@@ -654,7 +656,7 @@ export default class Api extends EventEmitter {
     } = await this.upload(projectBlob, undefined, signal) as any;
 
     if (signal.aborted) {
-      throw new Error("Save project aborted");
+      throw new Error(i18n.t('editor:errors.saveProjectAborted'));
     }
 
     const token = this.getToken();
@@ -692,11 +694,11 @@ export default class Api extends EventEmitter {
     const json = await resp.json();
 
     if (signal.aborted) {
-      throw new Error("Save project aborted");
+      throw new Error(i18n.t('editor:errors.saveProjectAborted'));
     }
 
     if (resp.status !== 200) {
-      throw new Error(`Saving project failed. ${await resp.text()}`);
+      throw new Error(i18n.t('editor:errors.savingProjectFail', { reason: await resp.text() }));
     }
 
     this.emit("project-saved");
@@ -769,8 +771,8 @@ export default class Api extends EventEmitter {
       // Save the scene if it has been modified.
       if (editor.sceneModified) {
         showDialog(ProgressDialog, {
-          title: "Saving Project",
-          message: "Saving project...",
+          title: i18n.t('editor:saving'),
+          message: i18n.t('editor:savingMsg'),
           cancelable: true,
           onCancel: () => {
             abortController.abort();
@@ -780,15 +782,15 @@ export default class Api extends EventEmitter {
         project = await this.saveProject(project.project_id, editor, signal, showDialog, hideDialog);
 
         if (signal.aborted) {
-          const error = new Error("Publish project aborted");
+          const error = new Error(i18n.t('editor:errors.publishProjectAborted'));
           error["aborted"] = true;
           throw error;
         }
       }
 
       showDialog(ProgressDialog, {
-        title: "Generating Project Screenshot",
-        message: "Generating project screenshot..."
+        title: i18n.t('editor:generateScreenshot'),
+          message: i18n.t('editor:generateScreenshotMsg'),
       });
 
       // Wait for 5ms so that the ProgressDialog shows up.
@@ -807,7 +809,7 @@ export default class Api extends EventEmitter {
       console.log("Screenshot url is", screenshotUrl);
 
       if (signal.aborted) {
-        const error = new Error("Publish project aborted");
+        const error = new Error(i18n.t('editor:errors.publishProjectAborted'));
         error["aborted"] = true;
         throw error;
       }
@@ -849,7 +851,7 @@ export default class Api extends EventEmitter {
       if (!publishParams) {
         URL.revokeObjectURL(screenshotUrl);
         hideDialog();
-        const error = new Error("Publish project aborted");
+        const error = new Error(i18n.t('editor:errors.publishProjectAborted'));
         error["aborted"] = true;
         throw error;
       }
@@ -867,8 +869,8 @@ export default class Api extends EventEmitter {
       this.setUserInfo({ creatorAttribution: publishParams.creatorAttribution });
 
       showDialog(ProgressDialog, {
-        title: "Publishing Scene",
-        message: "Exporting scene...",
+        title: i18n.t('editor:publishingScene'),
+        message: i18n.t('editor:publishingSceneMsg'),
         cancelable: true,
         onCancel: () => {
           abortController.abort();
@@ -879,7 +881,7 @@ export default class Api extends EventEmitter {
       const { glbBlob, scores } = await editor.exportScene(abortController.signal, { scores: true });
 
       if (signal.aborted) {
-        const error = new Error("Publish project aborted");
+        const error = new Error(i18n.t('editor:errors.publishProjectAborted'));
         error["aborted"] = true;
         throw error;
       }
@@ -893,7 +895,7 @@ export default class Api extends EventEmitter {
       });
 
       if (!performanceCheckResult) {
-        const error = new Error("Publish project canceled");
+        const error = new Error(i18n.t('editor:errors.publishProjectAborted'));
         error["aborted"] = true;
         throw error;
       }
@@ -903,8 +905,8 @@ export default class Api extends EventEmitter {
       const sceneBlob = new Blob([JSON.stringify(serializedScene)], { type: "application/json" });
 
       showDialog(ProgressDialog, {
-        title: "Publishing Scene",
-        message: `Publishing scene`,
+        title: i18n.t('editor:publishingScene'),
+        message: i18n.t('editor:publishingSceneMsg'),
         cancelable: true,
         onCancel: () => {
           abortController.abort();
@@ -914,12 +916,12 @@ export default class Api extends EventEmitter {
       const size = glbBlob.size / 1024 / 1024;
       const maxSize = this.maxUploadSize;
       if (size > maxSize) {
-        throw new Error(`Scene is too large (${size.toFixed(2)}MB) to publish. Maximum size is ${maxSize}MB.`);
+        throw new Error(i18n.t('editor:errors.sceneTooLarge', { size: size.toFixed(2), maxSize }));
       }
 
       showDialog(ProgressDialog, {
-        title: "Publishing Scene",
-        message: "Uploading thumbnail...",
+        title: i18n.t('editor:publishingScene'),
+        message: i18n.t('editor:uploadingThumbnailMsg'),
         cancelable: true,
         onCancel: () => {
           abortController.abort();
@@ -933,7 +935,7 @@ export default class Api extends EventEmitter {
       } = await this.upload(screenshotBlob, undefined, abortController.signal) as any;
 
       if (signal.aborted) {
-        const error = new Error("Publish project aborted");
+        const error = new Error(i18n.t('editor:errors.publishProjectAborted'));
         error["aborted"] = true;
         throw error;
       }
@@ -945,8 +947,8 @@ export default class Api extends EventEmitter {
         showDialog(
           ProgressDialog,
           {
-            title: "Publishing Scene",
-            message: `Uploading scene: ${Math.floor(uploadProgress * 100)}%`,
+            title: i18n.t('editor:publishingScene'),
+            message: i18n.t('editor:uploadingSceneMsg', { percentage: Math.floor(uploadProgress * 100) }),
             onCancel: () => {
               abortController.abort();
             }
@@ -956,7 +958,7 @@ export default class Api extends EventEmitter {
       });
 
       if (signal.aborted) {
-        const error = new Error("Publish project aborted");
+        const error = new Error(i18n.t('editor:errors.publishProjectAborted'));
         error["aborted"] = true;
         throw error;
       }
@@ -967,7 +969,7 @@ export default class Api extends EventEmitter {
       } = await this.upload(sceneBlob, undefined, abortController.signal) as any;
 
       if (signal.aborted) {
-        const error = new Error("Publish project aborted");
+        const error = new Error(i18n.t('editor:errors.publishProjectAborted'));
         error["aborted"] = true;
         throw error;
       }
@@ -1008,13 +1010,13 @@ export default class Api extends EventEmitter {
       console.log("Response: " + Object.values(resp));
 
       if (signal.aborted) {
-        const error = new Error("Publish project aborted");
+        const error = new Error(i18n.t('editor:errors.publishProjectAborted'));
         error["aborted"] = true;
         throw error;
       }
 
       if (resp.status !== 200) {
-        throw new Error(`Scene creation failed. ${await resp.text()}`);
+        throw new Error(i18n.t('editor:errors.sceneCreationFail', { reason: await resp.text() }));
       }
 
       project = await resp.json();
@@ -1055,7 +1057,7 @@ export default class Api extends EventEmitter {
       const request = new XMLHttpRequest();
       const onAbort = () => {
         request.abort();
-        const error = new Error("Upload aborted");
+        const error = new Error(i18n.t('editor:errors.uploadAborted'));
         error.name = "AbortError";
         error["aborted"] = true;
         reject(error);
@@ -1078,7 +1080,7 @@ export default class Api extends EventEmitter {
         if (signal) {
           signal.removeEventListener("abort", onAbort);
         }
-        reject(new RethrownError("Upload failed", error));
+        reject(new RethrownError(i18n.t('editor:errors.uploadFailed'), error));
       });
 
       request.addEventListener("load", () => {
@@ -1090,7 +1092,7 @@ export default class Api extends EventEmitter {
           const response = JSON.parse(request.responseText);
           resolve(response);
         } else {
-          reject(new Error(`Upload failed ${request.statusText}`));
+          reject(new Error(i18n.t('editor:errors.uploadFailed', { reason: request.statusText })));
         }
       });
 
@@ -1290,11 +1292,11 @@ export default class Api extends EventEmitter {
     console.log("Response: " + Object.values(resp));
 
     if (resp.status === 401) {
-      throw new Error("Not authenticated");
+      throw new Error(i18n.t('editor:errors.notAuthenticated'));
     }
 
     if (resp.status !== 200) {
-      throw new Error(`Asset deletion failed. ${await resp.text()}`);
+      throw new Error(i18n.t('editor:errors.assetDeletionFail', { reason: await resp.text() }));
     }
 
     return true;
@@ -1322,11 +1324,11 @@ export default class Api extends EventEmitter {
     console.log("Response: " + Object.values(resp));
 
     if (resp.status === 401) {
-      throw new Error("Not authenticated");
+      throw new Error(i18n.t('editor:errors.notAuthenticated'));
     }
 
     if (resp.status !== 200) {
-      throw new Error(`Project Asset deletion failed. ${await resp.text()}`);
+      throw new Error(i18n.t('editor:errors.projectAssetDeletionFail', { reason: await resp.text() }));
     }
 
     return true;
@@ -1376,9 +1378,9 @@ export default class Api extends EventEmitter {
       const res = await fetch(url, options).catch((error) => {
         console.log(error);
         if (error.message === "Failed to fetch") {
-          error.message += " (Possibly a CORS error)";
+          error.message += " (" + i18n.t('editor:errors.CORS') + ")";
         }
-        throw new RethrownError(`Failed to fetch "${url}"`, error);
+        throw new RethrownError(i18n.t('editor:errors.urlFetchError', { url }), error);
       });
       console.log(res);
       if (res.ok) {
@@ -1386,7 +1388,10 @@ export default class Api extends EventEmitter {
       }
 
       const err = new Error(
-        `Network Error: ${res.status || "Unknown Status."} ${res.statusText || "Unknown Error. Possibly a CORS error."}`
+        i18n.t('editor:errors.networkError', {
+            status: res.status || i18n.t('editor:errors.unknownStatus'),
+            text: res.statusText || i18n.t('editor:errors.unknownError') + ' - ' + i18n.t('editor:errors.CORS')
+        })
       );
       err["response"] = res;
       throw err;

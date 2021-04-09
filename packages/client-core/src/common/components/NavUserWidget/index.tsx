@@ -1,4 +1,4 @@
-import { User } from '@xr3ngine/common/interfaces/User';
+import { User } from '@xr3ngine/common/src/interfaces/User';
 import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';

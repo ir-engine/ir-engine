@@ -1,4 +1,5 @@
 import VideoMediaSource from "../VideoMediaSource";
+import i18n from "i18next";
 
 /**
  * BingVideosSource componant used to provide a video explorer here we can seach bing videos used search bar.
@@ -16,8 +17,8 @@ export default class BingVideosSource extends VideoMediaSource {
   constructor(api) {
     super(api);
     this.id = "bing_videos";
-    this.name = "Bing Videos";
-    this.searchLegalCopy = "Search by Bing";
+    this.name = i18n.t('editor:sources.bingVideo.name');
+    this.searchLegalCopy = i18n.t('editor:sources.bingImage.search');
     this.privacyPolicyUrl =
       "https://privacy.microsoft.com/en-us/privacystatement";
   }

@@ -1,22 +1,10 @@
-import StaticResourceTypeSeed from './static-resource-type/static-resource-type.seed';
-import StaticResourceSeed from './static-resource/static-resource.seed';
+import { ServicesSeedConfig } from "@xr3ngine/common/src/interfaces/ServicesSeedConfig";
+import { staticResourceTypeSeed } from './static-resource-type/static-resource-type.seed';
+import { staticResourceSeed } from './static-resource/static-resource.seed';
 
-type SeedCallback = (ServicesSeedConfig) => Promise<any>;
-type ServicesSeedCallback = (obj: any, seed: SeedCallback) => Promise<any>;
-
-interface ServicesSeedConfig {
-    count?: number;
-    disabled: boolean;
-    delete: boolean;
-    path: string;
-    randomize?: boolean;
-    templates?: any[];
-    callback?: ServicesSeedCallback;
-}
-
-export const services: Array<ServicesSeedConfig> = [
-    StaticResourceTypeSeed,
-    StaticResourceSeed
+export const mediaSeeds: Array<ServicesSeedConfig> = [
+    staticResourceTypeSeed,
+    staticResourceSeed
   ];
 
-export default services;
+export default mediaSeeds;

@@ -35,11 +35,11 @@ import {
   USERAVATARID_UPDATED
 } from '../actions';
 import { getStoredState } from '@xr3ngine/client-core/src/persisted.store';
-import { UserSeed } from '@xr3ngine/common/interfaces/User';
-import { IdentityProviderSeed } from '@xr3ngine/common/interfaces/IdentityProvider';
-import { AuthUserSeed } from '@xr3ngine/common/interfaces/AuthUser';
+import { UserSeed } from '@xr3ngine/common/src/interfaces/User';
+import { IdentityProviderSeed } from '@xr3ngine/common/src/interfaces/IdentityProvider';
+import { AuthUserSeed } from '@xr3ngine/common/src/interfaces/AuthUser';
 
-export const initialState = {
+export const initialAuthState = {
   isLoggedIn: false,
   isProcessing: false,
   error: '',
@@ -49,7 +49,7 @@ export const initialState = {
   avatarList: [],
 };
 
-const immutableState = Immutable.fromJS(initialState);
+const immutableState = Immutable.fromJS(initialAuthState);
 
 const authReducer = (state = immutableState, action: any): any => {
   switch (action.type) {

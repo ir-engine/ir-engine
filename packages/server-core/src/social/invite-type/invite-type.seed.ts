@@ -1,6 +1,6 @@
 import config from '../../appconfig';
 
-export const seed = {
+export const inviteTypeSeed = {
   disabled: !config.db.forceRefresh,
   delete: config.db.forceRefresh,
   path: 'invite-type',
@@ -12,5 +12,3 @@ export const seed = {
           { type: 'party' }
         ]
 };
-
-export default seed;

@@ -1,4 +1,7 @@
 
+/**
+ * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
+ */
 import React, { useEffect } from "react";
 
 import Dashboard  from "@xr3ngine/client-core/src/socialmedia/components/Dashboard";

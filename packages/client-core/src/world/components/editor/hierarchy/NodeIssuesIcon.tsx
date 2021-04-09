@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import styled, { ThemeContext } from "styled-components";
 import { ExclamationTriangle } from "@styled-icons/fa-solid/ExclamationTriangle";
 import Tooltip from "../layout/Tooltip";
+import { useTranslation } from "react-i18next";
 
 /**
  * IssuesTooltipContainer used to provide styles and showing issues list.
@@ -56,6 +57,7 @@ const IssueIcon = (styled as any)(ExclamationTriangle)`
  */
 export default function NodeIssuesIcon({ node }) {
   const theme = useContext(ThemeContext) as any;
+  const { t } = useTranslation();
 
   const severityToColor = useMemo(
     () => ({
@@ -74,7 +76,7 @@ export default function NodeIssuesIcon({ node }) {
   const renderInfo = useCallback(() => {
     return (
       <IssuesTooltipContainer>
-        <h6>Issues:</h6>
+        <h6>{t('editor:hierarchy.isseus')}</h6>
         <ul>
           {node.issues.map((issue, i) => {
             return (

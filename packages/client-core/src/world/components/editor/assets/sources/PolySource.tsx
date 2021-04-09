@@ -1,5 +1,6 @@
 import ModelMediaSource from "../ModelMediaSource";
 import { TransformPivot } from "@xr3ngine/engine/src/editor/controls/EditorControls";
+import i18n from "i18next";
 
 /**
  * PolySource component used to provide visual objects using google poly.
@@ -17,7 +18,7 @@ export default class PolySource extends ModelMediaSource {
   constructor(api) {
     super(api);
     this.id = "poly";
-    this.name = "Google Poly";
+    this.name = i18n.t('editor:sources.googlePoly.name');
 
     //array containing tag options 
     this.tags = [
@@ -32,7 +33,7 @@ export default class PolySource extends ModelMediaSource {
       { label: "Scenes", value: "scenes" },
       { label: "Transport", value: "transport" }
     ];
-    this.searchLegalCopy = "Search by Google";
+    this.searchLegalCopy = i18n.t('editor:sources.googlePoly.search');
     this.privacyPolicyUrl = "https://policies.google.com/privacy";
     this.transformPivot = TransformPivot.Bottom;
   }

@@ -4,6 +4,8 @@ import PropertyGroup from "./PropertyGroup";
 import InputGroup from "../inputs/InputGroup";
 import Vector3Input from "../inputs/Vector3Input";
 import EulerInput from "../inputs/EulerInput";
+import i18n from "i18next";
+import { withTranslation } from "react-i18next";
 
 /**
  * TransformPropertyGroupProps declairing properties for TransformPropertyGroup.
@@ -14,6 +16,7 @@ import EulerInput from "../inputs/EulerInput";
 type TransformPropertyGroupProps = {
   editor?: object;
   node?: object;
+  t: Function;
 };
 
 /**
@@ -22,7 +25,7 @@ type TransformPropertyGroupProps = {
  * @author Robert Long
  * @type {class component}
  */
-export default class TransformPropertyGroup extends Component<
+export class TransformPropertyGroup extends Component<
   TransformPropertyGroupProps,
   {}
 > {
@@ -88,9 +91,12 @@ export default class TransformPropertyGroup extends Component<
   render() {
     const { node } = this.props as any;
     return (
-      <PropertyGroup name="Transform">
+      <PropertyGroup name={this.props.t('editor:properties.transform.title')}>
         { /* @ts-ignore */ }
-        <InputGroup name="Position">
+        <InputGroup
+          name="Position"
+          label={this.props.t('editor:properties.transform.lbl-postition')}
+        >
           <Vector3Input
             value={node.position}
             /* @ts-ignore */
@@ -101,7 +107,10 @@ export default class TransformPropertyGroup extends Component<
           />
         </InputGroup>
         { /* @ts-ignore */ }
-        <InputGroup name="Rotation">
+        <InputGroup
+          name="Rotation"
+          label={this.props.t('editor:properties.transform.lbl-rotation')}
+        >
           <EulerInput
             value={node.rotation}
             onChange={this.onChangeRotation}
@@ -110,7 +119,10 @@ export default class TransformPropertyGroup extends Component<
           />
         </InputGroup>
         { /* @ts-ignore */ }
-        <InputGroup name="Scale">
+        <InputGroup
+          name="Scale"
+          label={this.props.t('editor:properties.transform.lbl-scale')}
+        >
           <Vector3Input
             uniformScaling
             /* @ts-ignore */
@@ -125,3 +137,5 @@ export default class TransformPropertyGroup extends Component<
     );
   }
 }
+
+export default withTranslation()(TransformPropertyGroup);

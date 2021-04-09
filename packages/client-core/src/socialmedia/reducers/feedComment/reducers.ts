@@ -16,7 +16,7 @@ import {
   COMMENT_FIRES
 } from '../actions';
 
-export const initialState = {
+export const initialFeedCommentState = {
   feeds: {
     feedComments: [],
     commentFires:[],
@@ -24,7 +24,7 @@ export const initialState = {
   },
 };
 
-const immutableState = Immutable.fromJS(initialState);
+const immutableState = Immutable.fromJS(initialFeedCommentState);
 
 const feedCommentsReducer = (state = immutableState, action: FeedCommentsAction): any => {
   switch (action.type) {

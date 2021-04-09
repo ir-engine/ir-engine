@@ -1,7 +1,7 @@
 import { MobileGamepadProps } from '@xr3ngine/client-core/src/common/components/MobileGamepad/MobileGamepadProps';
 import { generalStateList, setAppLoaded, setAppOnBoardingStep } from '@xr3ngine/client-core/src/common/reducers/app/actions';
 import store from '@xr3ngine/client-core/src/store';
-import { testScenes, testUserId, testWorldState } from '@xr3ngine/common/assets/testScenes';
+import { testScenes, testUserId, testWorldState } from '@xr3ngine/common/src/assets/testScenes';
 import { isMobileOrTablet } from '@xr3ngine/engine/src/common/functions/isMobile';
 import { EngineEvents } from '@xr3ngine/engine/src/ecs/classes/EngineEvents';
 import { resetEngine } from "@xr3ngine/engine/src/ecs/functions/EngineFunctions";

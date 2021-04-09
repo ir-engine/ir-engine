@@ -1,6 +1,6 @@
 import config from '../../appconfig';
 
-export const seed = {
+export const staticResourceTypeSeed = {
   disabled: !config.db.forceRefresh,
   delete: config.db.forceRefresh,
   path: 'static-resource-type',
@@ -18,5 +18,3 @@ export const seed = {
     { type: 'data' } // arbitrary data of any other type
   ]
 };
-
-export default seed;

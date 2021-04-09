@@ -9,16 +9,20 @@ import VerifiedUserIcon from '@material-ui/icons/VerifiedUser';
 
 
 import styles from './CommentCard.module.scss';
-import { CommentInterface } from '@xr3ngine/common/interfaces/Comment';
+import { CommentInterface } from '@xr3ngine/common/src/interfaces/Comment';
 import { bindActionCreators, Dispatch } from 'redux';
 import { connect } from 'react-redux';
-import SimpleModal from '../common/SimpleModal';
+import SimpleModal from '../SimpleModal';
 import { addFireToFeedComment, getCommentFires, removeFireToFeedComment } from '../../reducers/feedComment/service';
 import { selectFeedCommentsState } from '../../reducers/feedComment/selector';
+import PopupLogin from '../PopupLogin/PopupLogin';
+import { IndexPage } from '@xr3ngine/social/pages/login';
+import { selectAuthState } from '../../../user/reducers/auth/selector';
 
 const mapStateToProps = (state: any): any => {
     return {
         feedCommentsState: selectFeedCommentsState(state),
+        authState: selectAuthState(state), 
     };
   };
 
@@ -34,9 +38,10 @@ interface Props{
     comment: CommentInterface;
     getCommentFires?:typeof getCommentFires;
     feedCommentsState?:any;
+    authState?: any;
 }
 
-const CommentCard = ({comment, addFireToFeedComment, removeFireToFeedComment, getCommentFires, feedCommentsState }: Props) => { 
+const CommentCard = ({comment, addFireToFeedComment, removeFireToFeedComment, getCommentFires, feedCommentsState,authState }: Props) => { 
     const {id, creator, fires, text, isFired } = comment;
     const [openFiredModal, setOpenFiredModal] = useState(false);
 
@@ -47,6 +52,8 @@ const CommentCard = ({comment, addFireToFeedComment, removeFireToFeedComment, ge
         getCommentFires(id);
         setOpenFiredModal(true);
     }; 
+    const [buttonPopup , setButtonPopup] = useState(false);
+    const checkGuest = authState.get('authUser')?.identityProvider.type === 'guest' ? true : false;
 
     return  <><Card className={styles.commentItem} square={false} elevation={0} key={id}>
                 <Avatar className={styles.authorAvatar} src={creator.avatar} />                                
@@ -56,17 +63,20 @@ const CommentCard = ({comment, addFireToFeedComment, removeFireToFeedComment, ge
                         {creator.verified && <VerifiedUserIcon htmlColor="#007AFF" style={{fontSize:'13px', margin: '0 0 0 5px'}}/>}
                     </Typography> 
                     <Typography variant="h2">{text}</Typography>                    
-                    {(fires && fires > 0 ) ? <Typography variant="h2" onClick={()=>handleGetCommentFiredUsers(id)}><span className={styles.flamesCount}>{fires}</span>Flames</Typography> : null}
+                    {(fires && fires > 0 ) ? <Typography variant="h2" onClick={()=>checkGuest ? setButtonPopup(true) : handleGetCommentFiredUsers(id)}><span className={styles.flamesCount}>{fires}</span>Flames</Typography> : null}
                 </CardContent>
                 <section className={styles.fire}>
                     {isFired ? 
-                        <WhatshotIcon htmlColor="#FF6201" onClick={()=>handleRemoveFireClick(id)} /> 
+                        <WhatshotIcon htmlColor="#FF6201" onClick={()=>checkGuest ? setButtonPopup(true) : handleRemoveFireClick(id)} /> 
                         :
-                        <WhatshotIcon htmlColor="#DDDDDD" onClick={()=>handleAddFireClick(id)} />
+                        <WhatshotIcon htmlColor="#DDDDDD" onClick={()=>checkGuest ? setButtonPopup(true) : handleAddFireClick(id)} />
                     }
                 </section>
             </Card>
-        <SimpleModal type={'comment-fires'} list={feedCommentsState.get('commentFires')} open={openFiredModal} onClose={()=>setOpenFiredModal(false)} />
+        <SimpleModal type={'comment-fires'} list={feedCommentsState.get('commentFires')} open={openFiredModal} onClose={()=>checkGuest ? setButtonPopup(true) : setOpenFiredModal(false)} />
+        <PopupLogin trigger={buttonPopup} setTrigger={setButtonPopup}>
+          <IndexPage />
+        </PopupLogin>
 </>;
 };
 

@@ -7,6 +7,7 @@ import StringInput from "../inputs/StringInput";
 // import Link from "next/link"
 import { useRouter } from "next/router";
 import { Plus } from "@styled-icons/fa-solid/Plus";
+import { useTranslation } from "react-i18next";
 
 /**
  * 
@@ -46,7 +47,7 @@ const ProjectGridItemContainer = (styled as any).div`
  */
 export function NewProjectGridItem({ path, label }: { path: string; label: string }) {
   const router = useRouter();
-  
+
   const routeTo = (route: string) => () => {
     router.push(route);
   };
@@ -73,9 +74,11 @@ NewProjectGridItem.defaultProps = {
  * @returns 
  */
 export function LoadingProjectGridItem() {
+  const { t } = useTranslation();
+
   return (
     <ProjectGridItemContainer>
-      <h3>Loading...</h3>
+      <h3>{t('editor:projects.grid.loading')}</h3>
     </ProjectGridItemContainer>
   );
 }

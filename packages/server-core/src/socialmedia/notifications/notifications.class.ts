@@ -1,8 +1,12 @@
+/**
+ * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
+ */
 import { Params } from '@feathersjs/feathers';
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize';
 import { QueryTypes } from 'sequelize';
 import { Application } from '../../../declarations';
 import { extractLoggedInUserFromParams } from '../../user/auth-management/auth-management.utils';
+import { getCreatorByUserId } from '../util/getCreator';
 
 /**
  * A class for ARC Feed service
@@ -27,21 +31,12 @@ export class Notifications extends Service {
 
    async find (params: Params): Promise<any> {
     let action = params.action;   
+    const creatorId = await getCreatorByUserId(extractLoggedInUserFromParams(params)?.userId, this.app.get('sequelizeClient')) ;
     
     if(action === 'getNotificationId'){
       const feedId = params.feedId;
       const type = params.type;
 
-      //common  - TODO -move somewhere
-      const loggedInUser = extractLoggedInUserFromParams(params);
-      const creatorQuery = `SELECT id  FROM \`creator\` WHERE userId=:userId`;
-      const [creator] = await this.app.get('sequelizeClient').query(creatorQuery,
-        {
-          type: QueryTypes.SELECT,
-          raw: true,
-          replacements: {userId:loggedInUser.userId}
-        });  
-      const creatorId = creator?.id ;
       const dataQuery = `SELECT id 
       FROM \`notifications\` 
       WHERE feedId=:feedId AND creatorAuthorId=:creatorId AND type=:type`;
@@ -61,17 +56,6 @@ export class Notifications extends Service {
 
     action = params.query?.action;
     if(action === 'byCurrentCreator'){
-        //common  - TODO -move somewhere
-        const loggedInUser = extractLoggedInUserFromParams(params);
-        const creatorQuery = `SELECT id  FROM \`creator\` WHERE userId=:userId`;
-        const [creator] = await this.app.get('sequelizeClient').query(creatorQuery,
-          {
-            type: QueryTypes.SELECT,
-            raw: true,
-            replacements: {userId:loggedInUser.userId}
-          });  
-        const creatorId = creator?.id ;
-
         const dataQuery = `SELECT notifications.*, sr.url as previewUrl, creator.username as creator_username,  sr2.url as avatar, comments.text as comment_text 
         FROM \`notifications\` as notifications
         LEFT JOIN \`feed\` as feed ON feed.id=notifications.feedId

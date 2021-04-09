@@ -4,6 +4,7 @@ import BooleanInput from "../inputs/BooleanInput";
 import FormField from "../inputs/FormField";
 import Dialog from "./Dialog";
 import styled from "styled-components";
+import { useTranslation } from "react-i18next";
 
 /**
  * FormContainer used as a wrapper element for FormFields.
@@ -27,6 +28,7 @@ const FormContainer = (styled as any).div`
  * @constructor
  */
 export default function ExportProjectDialog({ defaultOptions, onConfirm, onCancel }) {
+  const { t } = useTranslation();
 
   // initializing options using defaultOptions
   const [options, setOptions] = useState(defaultOptions);
@@ -68,22 +70,22 @@ export default function ExportProjectDialog({ defaultOptions, onConfirm, onCance
   // returning view containing FormFields
   return (
     <Dialog
-      title="Export Project"
+      title={t('editor:dialog.exportProject.title')}
       onConfirm={onConfirmCallback}
       onCancel={onCancelCallback}
-      confirmLabel="Export Project"
+      confirmLabel={t('editor:dialog.exportProject.lbl-confirm')}
     >
       <FormContainer>
         { /* @ts-ignore */ }
         <FormField>
-          <label htmlFor="combineMeshes">Combine Meshes</label>
+          <label htmlFor="combineMeshes">{t('editor:dialog.exportProject.lbl-combineMesh')}</label>
           <BooleanInput
           /* @ts-ignore */
           id="combineMeshes" value={options.combineMeshes} onChange={onChangeCombineMeshes} />
         </FormField>
         { /* @ts-ignore */ }
         <FormField>
-          <label htmlFor="removeUnusedObjects">Remove Unused Objects</label>
+          <label htmlFor="removeUnusedObjects">{t('editor:dialog.exportProject.lbl-removeUnused')}</label>
           <BooleanInput
           /* @ts-ignore */
             id="removeUnusedObjects"

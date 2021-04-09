@@ -15,12 +15,6 @@ import isHLS from "../../editor/functions/isHLS";
 import AudioSource from "./AudioSource";
 import { Engine, VideoTexture } from "../../ecs/classes/Engine";
 import { EngineEvents } from "../../ecs/classes/EngineEvents";
-
-export const VideoProjection = {
-  Flat: "flat",
-  Equirectangular360: "360-equirectangular"
-};
-
 export default class Volumetric extends AudioSource {
   _videoTexture: any;
   el: HTMLVideoElement;
@@ -31,6 +25,8 @@ export default class Volumetric extends AudioSource {
   audioSource: any;
   audioListener: any;
   audio: any;
+  add: any;
+  children: any;
   constructor(audioListener) {
     super(audioListener, "volumetric");
     // @ts-ignore
@@ -141,12 +137,6 @@ export default class Volumetric extends AudioSource {
     return this;
   }
   onResize() {
-    if (this.projection === VideoProjection.Flat) {
-      const ratio = ((this.el as any).videoHeight || 1.0) / ((this.el as any).videoWidth || 1.0);
-      const width = Math.min(1.0, 1.0 / ratio);
-      const height = Math.min(1.0, ratio);
-      this._mesh.scale.set(width, height, 1);
-    }
   }
   clone(recursive) {
     return new (this.constructor as any)(this.audioListener).copy(this, recursive);

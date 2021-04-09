@@ -3,6 +3,7 @@ import ErrorDialog from "../dialogs/ErrorDialog";
 import { ProgressDialog } from "../dialogs/ProgressDialog";
 import { DialogContext } from "../contexts/DialogContext";
 import { EditorContext } from "../contexts/EditorContext";
+import { useTranslation } from "react-i18next";
 import { AllFileTypes } from "./fileTypes";
 
 /**
@@ -13,6 +14,7 @@ import { AllFileTypes } from "./fileTypes";
  * @return {any}         [assets]
  */
 export default function useUpload(options: any = {}) {
+  const { t } = useTranslation();
 
   // initializing editor using EditorContext
   const editor = useContext(EditorContext);
@@ -42,7 +44,7 @@ export default function useUpload(options: any = {}) {
 
         //check if not multiple and files contains length greator
         if (!multiple && files.length > 1) {
-          throw new Error("Input does not accept multiple files.");
+          throw new Error(t('editor:asset.useUpload.multipleFileError'));
         }
 
         //check if assets is not empty.
@@ -61,20 +63,20 @@ export default function useUpload(options: any = {}) {
               }
             }
             if (!accepted) {
-              throw new Error(
-                `"${
-                  file.name
-                }" does not match the following mime types or extensions: ${accepts.join(
-                  ", "
-                )}`
-              );
+              throw new Error(t(
+                'editor:asset.useUpload.mineTypeError',
+                { name: file.name, types: accepts.join(", ")}
+              ));
             }
           }
         }
         const abortController = new AbortController();
         showDialog(ProgressDialog, {
-          title: "Uploading Files",
-          message: `Uploading files 1 of ${files.length}: 0%`,
+          title: t('editor:asset.useUpload.progressTitle'),
+          message: t(
+            'editor:asset.useUpload.progressMsg',
+            { uploaded: 0, total: files.length, percentage: 0 }
+          ),
           cancelable: true,
           onCancel: () => {
             abortController.abort();
@@ -87,10 +89,11 @@ export default function useUpload(options: any = {}) {
           files,
           (item, total, progress) => {
             showDialog(ProgressDialog, {
-              title: "Uploading Files",
-              message: `Uploading files: ${item} of ${total}: ${Math.round(
-                progress * 100
-              )}%`,
+              title: t('editor:asset.useUpload.progressTitle'),
+              message: t(
+                'editor:asset.useUpload.progressMsg',
+                { uploaded: item, total, percentage: Math.round(progress * 100) }
+              ),
               cancelable: true,
               onCancel: () => {
                 abortController.abort();
@@ -104,9 +107,11 @@ export default function useUpload(options: any = {}) {
       } catch (error) {
         console.error(error);
         showDialog(ErrorDialog, {
-          title: "Upload Error",
-          message: `Error uploading file: ${error.message ||
-            "There was an unknown error."}`,
+          title: t('editor:asset.useUpload.uploadError'),
+          message: t(
+            'editor:asset.useUpload.uploadErrorMsg',
+            { message: error.message || t('editor:asset.useUpload.uploadErrorDefaultMsg')}
+          ),
           error
         });
         return null;

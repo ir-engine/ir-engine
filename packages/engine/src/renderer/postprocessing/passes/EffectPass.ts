@@ -581,7 +581,7 @@ export class EffectPass extends Pass {
   handleEvent (event) {
     switch (event.type) {
       case 'change':
-        this.needsUpdate = true;
+        (this as any).needsUpdate = true;
         break;
     }
   }

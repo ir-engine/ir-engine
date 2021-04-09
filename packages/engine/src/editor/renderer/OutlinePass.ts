@@ -26,6 +26,10 @@ import { Pass } from 'three/examples/jsm/postprocessing/Pass';
  * Original author spidersharma / http://eduperiment.com/
  */
 class DepthMaskMaterial extends ShaderMaterial {
+  side: any;
+  depthPacking: any;
+  material: any;
+  uniforms: any;
   constructor(camera) {
     const cameraType = camera.isPerspectiveCamera
       ? 'perspective'
@@ -73,6 +77,7 @@ class DepthMaskMaterial extends ShaderMaterial {
   }
 }
 class EdgeDetectionMaterial extends ShaderMaterial {
+  uniforms: any;
   constructor() {
     super({
       uniforms: {
@@ -110,6 +115,7 @@ class EdgeDetectionMaterial extends ShaderMaterial {
   }
 }
 class OverlayMaterial extends ShaderMaterial {
+  uniforms: any;
   constructor() {
     super({
       uniforms: {
@@ -328,14 +334,14 @@ export default class OutlinePass extends Pass {
         }
       });
       this.renderScene.overrideMaterial = this.depthMaskMaterial;
-      this.depthMaskMaterial.uniforms['cameraNearFar'].value = new Vector2(
+      (this.depthMaskMaterial as any).uniforms['cameraNearFar'].value = new Vector2(
         this.renderCamera.near,
         this.renderCamera.far
       );
-      this.depthMaskMaterial.uniforms[
+      (this.depthMaskMaterial as any).uniforms[
         'depthTexture'
       ].value = this.renderTargetDepthBuffer.texture;
-      this.depthMaskMaterial.uniforms[
+      (this.depthMaskMaterial as any).uniforms[
         'textureMatrix'
       ].value = this.textureMatrix;
       renderer.setRenderTarget(this.renderTargetMaskBuffer);

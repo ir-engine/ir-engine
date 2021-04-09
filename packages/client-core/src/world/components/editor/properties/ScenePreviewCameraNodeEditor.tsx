@@ -2,6 +2,8 @@ import React, { Component } from "react";
 import NodeEditor from "./NodeEditor";
 import { Camera } from "@styled-icons/fa-solid/Camera";
 import { PropertiesPanelButton } from "../inputs/Button";
+import i18n from "i18next";
+import { withTranslation } from "react-i18next";
 
 /**
  * ScenePreviewCameraNodeEditorProps declairing props for ScenePreviewCameraNodeEditor.
@@ -12,6 +14,7 @@ import { PropertiesPanelButton } from "../inputs/Button";
 type ScenePreviewCameraNodeEditorProps = {
   editor?: object;
   node?: object;
+  t: Function;
 };
 
 /**
@@ -20,7 +23,7 @@ type ScenePreviewCameraNodeEditorProps = {
  * @author Robert Long
  * @type {Class component}
  */
-export default class ScenePreviewCameraNodeEditor extends Component<
+export class ScenePreviewCameraNodeEditor extends Component<
   ScenePreviewCameraNodeEditorProps,
   {}
 > {
@@ -29,19 +32,21 @@ export default class ScenePreviewCameraNodeEditor extends Component<
   static iconComponent = Camera;
 
   // setting description for ScenePreviewCameraNode and will appear on editor view 
-  static description =
-    "The camera used to generate the thumbnail for your scene and the starting position for the preview camera in Hubs.";
+  static description = i18n.t('editor:properties.sceneCamera.description');
   onSetFromViewport = () => {
     (this.props.node as any).setFromViewport();
   };
   render() {
+    ScenePreviewCameraNodeEditor.description = this.props.t('editor:properties.sceneCamera.description');
     return (
       /* @ts-ignore */
       <NodeEditor {...this.props} description={ScenePreviewCameraNodeEditor.description} >
         <PropertiesPanelButton onClick={this.onSetFromViewport}>
-          Set From Viewport
+          {this.props.t('editor:properties.sceneCamera.lbl-setFromViewPort')}
         </PropertiesPanelButton>
       </NodeEditor>
     );
   }
 }
+
+export default withTranslation()(ScenePreviewCameraNodeEditor);

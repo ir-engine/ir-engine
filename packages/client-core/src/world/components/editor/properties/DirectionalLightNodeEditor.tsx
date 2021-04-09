@@ -5,6 +5,8 @@ import ColorInput from "../inputs/ColorInput";
 import NumericInputGroup from "../inputs/NumericInputGroup";
 import LightShadowProperties from "./LightShadowProperties";
 import { Bolt } from "@styled-icons/fa-solid/Bolt";
+import i18n from "i18next";
+import { withTranslation } from "react-i18next";
 
 /**
  * Defining properties for DirectionalLightNodeEditor.
@@ -15,6 +17,7 @@ import { Bolt } from "@styled-icons/fa-solid/Bolt";
 type DirectionalLightNodeEditorProps = {
   editor?: object;
   node?: object;
+  t?: Function;
 };
 
 /**
@@ -23,7 +26,7 @@ type DirectionalLightNodeEditorProps = {
  *  @author Robert Long
  *  @type {Component class}
  */
-export default class DirectionalLightNodeEditor extends Component<
+export class DirectionalLightNodeEditor extends Component<
   DirectionalLightNodeEditorProps,
   {}
 > {
@@ -31,7 +34,7 @@ export default class DirectionalLightNodeEditor extends Component<
   static iconComponent = Bolt;
 
   //setting description and will appears on the node editor.
-  static description = "A light which illuminates the entire scene, but emits along a single direction.";
+  static description = i18n.t('editor:properties.directionalLight.description');
 
   //function to handle changes in color property
   onChangeColor = color => {
@@ -44,6 +47,7 @@ export default class DirectionalLightNodeEditor extends Component<
 
   // renders editor view, provides inputs to customize properties of DirectionalLight element.
   render() {
+    DirectionalLightNodeEditor.description = this.props.t('editor:properties.directionalLight.description');
     const { node, editor } = this.props as any;
     return (
       <NodeEditor
@@ -52,13 +56,14 @@ export default class DirectionalLightNodeEditor extends Component<
         description={DirectionalLightNodeEditor.description}
       >
         { /* @ts-ignore */ }
-        <InputGroup name="Color">
+        <InputGroup name="Color" label={this.props.t('editor:properties.directionalLight.lbl-color')}>
           { /* @ts-ignore */ }
           <ColorInput value={node.color} onChange={this.onChangeColor} />
         </InputGroup>
         { /* @ts-ignore */ }
         <NumericInputGroup
           name="Intensity"
+          label={this.props.t('editor:properties.directionalLight.lbl-intensity')}
           min={0}
           smallStep={0.001}
           mediumStep={0.01}
@@ -72,3 +77,5 @@ export default class DirectionalLightNodeEditor extends Component<
     );
   }
 }
+
+export default withTranslation()(DirectionalLightNodeEditor);

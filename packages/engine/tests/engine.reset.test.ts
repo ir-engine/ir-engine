@@ -1,5 +1,4 @@
 import { AmbientLight } from "three";
-import { addObject3DComponent } from "../src/scene/behaviors/addObject3DComponent";
 import { Prefab } from "../src/common/interfaces/Prefab";
 import { Component } from "../src/ecs/classes/Component";
 import { Engine } from "../src/ecs/classes/Engine";
@@ -8,9 +7,8 @@ import { execute, resetEngine } from "../src/ecs/functions/EngineFunctions";
 import { addComponent, createEntity } from "../src/ecs/functions/EntityFunctions";
 import { initializeEngine } from "../src/initialize";
 import { Input } from "../src/input/components/Input";
-import { State } from "../src/state/components/State";
+import { addObject3DComponent } from "../src/scene/behaviors/addObject3DComponent";
 import { CharacterInputSchema } from "../src/templates/character/CharacterInputSchema";
-import { CharacterStateSchema } from "../src/templates/character/CharacterStateSchema";
 import { CharacterComponent } from "../src/templates/character/components/CharacterComponent";
 import { DefaultNetworkSchema } from "../src/templates/networking/DefaultNetworkSchema";
 import { TransformComponent } from "../src/transform/components/TransformComponent";
@@ -22,9 +20,6 @@ const options = {
   },
   networking: {
     schema: DefaultNetworkSchema
-  },
-  state: {
-    schema: CharacterStateSchema
   }
 }
 
@@ -37,9 +32,7 @@ export const PlayerCharacter: Prefab = {
     // Transform system applies values from transform component to three.js object (position, rotation, etc)
     { type: TransformComponent },
     // Local player input mapped to behaviors in the input map
-    { type: Input, data: { schema: CharacterInputSchema } },
-    // Current state (isJumping, isidle, etc)
-    { type: State, data: { schema: CharacterStateSchema } }
+    { type: Input, data: { schema: CharacterInputSchema } }
   ],
   onBeforeCreate: [
   ],

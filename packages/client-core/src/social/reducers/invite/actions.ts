@@ -13,8 +13,8 @@ import {
   FETCHING_RECEIVED_INVITES
 } from '../actions';
 
-import { Invite } from '@xr3ngine/common/interfaces/Invite';
-import { InviteResult } from '@xr3ngine/common/interfaces/InviteResult';
+import { Invite } from '@xr3ngine/common/src/interfaces/Invite';
+import { InviteResult } from '@xr3ngine/common/src/interfaces/InviteResult';
 
 export interface InviteCreatedAction {
   type: string;

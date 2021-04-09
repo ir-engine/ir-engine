@@ -2,6 +2,7 @@ import React, { useCallback } from "react";
 import PropTypes from "prop-types";
 import { Button, SecondaryButton } from "../inputs/Button";
 import styled from "styled-components";
+import i18n from "i18next";
 
 /**
  * DialogContainer used as container element for DialogHeader, DialogContent and DialogBottomNav.
@@ -209,7 +210,7 @@ Dialog.propTypes = {
  */
 Dialog.defaultProps = {
   tag: "form",
-  title: "Editor",
-  confirmLabel: "Ok",
-  cancelLabel: "Cancel"
+  title: i18n.t('editor:dialog.title') || "Editor",
+  confirmLabel: i18n.t('editor:dialog.lbl-confirm') || "Ok",
+  cancelLabel: i18n.t('editor:dialog.lbl-cancel') || "Cancel",
 };

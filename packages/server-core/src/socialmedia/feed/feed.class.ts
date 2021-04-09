@@ -1,10 +1,14 @@
+/**
+ * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
+ */
 import { Service, SequelizeServiceOptions } from 'feathers-sequelize';
 import { Application } from '../../../declarations';
 import { Id, Params } from "@feathersjs/feathers";
 import { QueryTypes } from "sequelize";
-import { Feed as FeedInterface } from '../../../../common/interfaces/Feed';
+import { Feed as FeedInterface } from '@xr3ngine/common/src/interfaces/Feed';
 import { extractLoggedInUserFromParams } from "../../user/auth-management/auth-management.utils";
 import { BadRequest } from '@feathersjs/errors';
+import { getCreatorByUserId } from '../util/getCreator';
 /**
  * A class for ARC Feed service
  */
@@ -28,6 +32,8 @@ export class Feed extends Service {
     const action = params.query?.action;
     const skip = params.query?.$skip ? params.query.$skip : 0;
     const limit = params.query?.$limit ? params.query.$limit : 100;
+
+    console.log('action', action);
 
     const queryParamsReplacements = {
       skip,
@@ -64,28 +70,41 @@ export class Feed extends Service {
         total: feeds.count,
       };
     }
-
-    //common  - TODO -move somewhere
-    let creatorId =  params.query?.creatorId ? params.query.creatorId : null;
     const loggedInUser = extractLoggedInUserFromParams(params);
-    if(loggedInUser){
-      const creatorQuery = `SELECT id  FROM \`creator\` WHERE userId=:userId`;
-      const [creator] = await this.app.get('sequelizeClient').query(creatorQuery,
+    const creatorId =  params.query?.creatorId ? params.query.creatorId : await getCreatorByUserId(loggedInUser?.userId, this.app.get('sequelizeClient'));
+  
+
+    //Featured  menu item for Guest
+    if (action === 'featuredGuest') {
+      const select = `SELECT feed.id, feed.viewsCount, sr.url as previewUrl 
+        FROM \`feed\` as feed
+        LEFT JOIN \`follow_creator\` as fc ON fc.creatorId=feed.creatorId
+        JOIN \`static_resource\` as sr ON sr.id=feed.previewId`;
+       const where=` WHERE (feed.featured=1 OR feed.featuredByAdmin=1) `;
+       const orderBy = ` ORDER BY feed.createdAt DESC    
+        LIMIT :skip, :limit `;
+
+      const feeds = await this.app.get('sequelizeClient').query(select+where+orderBy,
         {
           type: QueryTypes.SELECT,
           raw: true,
-          replacements: {userId:loggedInUser.userId}
-        });  
-      creatorId = creator?.id ;
-    }
+          replacements: queryParamsReplacements
+        });
 
+      return {
+        data: feeds,
+        skip,
+        limit,
+        total: feeds.count,
+      };
+    }
     //Featured menu item
     if (action === 'featured') {
       const select = `SELECT feed.id, feed.viewsCount, sr.url as previewUrl 
         FROM \`feed\` as feed
-        JOIN \`follow_creator\` as fc ON fc.creatorId=feed.creatorId
+        LEFT JOIN \`follow_creator\` as fc ON fc.creatorId=feed.creatorId
         JOIN \`static_resource\` as sr ON sr.id=feed.previewId`;
-       let where=` WHERE feed.featured=1 `;
+       let where=` WHERE (feed.featured=1 OR feed.featuredByAdmin=1) `;
        const orderBy = ` ORDER BY feed.createdAt DESC    
         LIMIT :skip, :limit `;
       
@@ -95,6 +114,7 @@ export class Feed extends Service {
       }else{
         where += ` AND feed.creatorId=:creatorId`;
       }
+
       const feeds = await this.app.get('sequelizeClient').query(select+where+orderBy,
         {
           type: QueryTypes.SELECT,
@@ -116,8 +136,7 @@ export class Feed extends Service {
         JOIN \`static_resource\` as sr ON sr.id=feed.previewId
         WHERE feed.creatorId=:creatorId
         ORDER BY feed.createdAt DESC    
-        LIMIT :skip, :limit 
-        `;
+        LIMIT :skip, :limit `;
       
       queryParamsReplacements.creatorId =  params.query?.creatorId ? params.query.creatorId : creatorId;
       const feeds = await this.app.get('sequelizeClient').query(dataQuery,
@@ -165,8 +184,7 @@ export class Feed extends Service {
         JOIN \`feed_bookmark\` as fb ON fb.feedId=feed.id
         WHERE fb.creatorId=:creatorId
         ORDER BY feed.createdAt DESC    
-        LIMIT :skip, :limit 
-        `;
+        LIMIT :skip, :limit `;
       
       queryParamsReplacements.creatorId = creatorId;
       const feeds = await this.app.get('sequelizeClient').query(dataQuery,
@@ -182,6 +200,61 @@ export class Feed extends Service {
         limit,
         total: feeds.count,
       };
+    }
+
+    if(action === 'theFeedGuest'){
+      const select = `SELECT feed.*, creator.id as creatorId, creator.name as creatorName, creator.username as creatorUserName, creator.verified as creatorVerified, 
+      sr3.url as avatar, COUNT(ff.id) as fires, sr1.url as videoUrl, sr2.url as previewUrl `;
+      const from = ` FROM \`feed\` as feed`;
+      const join = ` JOIN \`creator\` as creator ON creator.id=feed.creatorId
+                    LEFT JOIN \`feed_fires\` as ff ON ff.feedId=feed.id 
+                    JOIN \`static_resource\` as sr1 ON sr1.id=feed.videoId
+                    JOIN \`static_resource\` as sr2 ON sr2.id=feed.previewId
+                    LEFT JOIN \`static_resource\` as sr3 ON sr3.id=creator.avatarId
+                    `;
+      const where = ` WHERE 1`;
+      const order = ` GROUP BY feed.id
+      ORDER BY feed.createdAt DESC    
+      LIMIT :skip, :limit `;
+
+      const dataQuery = select + from + join + where + order;
+      const feeds = await this.app.get('sequelizeClient').query(dataQuery,
+        {
+          type: QueryTypes.SELECT,
+          raw: true,
+          replacements: queryParamsReplacements
+        });
+
+      const data = feeds.map(feed => {
+        const newFeed: FeedInterface = {
+          creator: {
+            id:feed.creatorId,
+            avatar: feed.avatar,
+            name: feed.creatorName,
+            username: feed.creatorUserName,
+            verified : !!+feed.creatorVerified,
+          },
+          description: feed.description,
+          fires: feed.fires,
+          isFired: false,
+          isBookmarked: false,
+          id: feed.id,
+          videoUrl: feed.videoUrl,
+          previewUrl: feed.previewUrl,
+          title: feed.title,
+          viewsCount: feed.viewsCount
+        };
+        return newFeed;
+      });
+
+    const feedsResult = {
+      data,
+      skip: skip,
+      limit: limit,
+      total: feeds.length,
+    };
+
+    return feedsResult;
     }
 
     // TheFeed menu item - just for followed creatos!!!!!
@@ -235,7 +308,6 @@ export class Feed extends Service {
         title: feed.title,
         viewsCount: feed.viewsCount
       };
-
       return newFeed;
     });
 
@@ -273,16 +345,7 @@ export class Feed extends Service {
         id,
       } as any;
 
-      //common  - TODO -move somewhere
-      const loggedInUser = extractLoggedInUserFromParams(params);
-      const creatorQuery = `SELECT id  FROM \`creator\` WHERE userId=:userId`;
-      const [creator] = await this.app.get('sequelizeClient').query(creatorQuery,
-        {
-          type: QueryTypes.SELECT,
-          raw: true,
-          replacements: {userId:loggedInUser.userId}
-        });   
-      const creatorId = creator.id;
+      const creatorId = await getCreatorByUserId(extractLoggedInUserFromParams(params)?.userId, this.app.get('sequelizeClient'));
 
       if(creatorId){
         select += ` , isf.id as fired, isb.id as bookmarked `;
@@ -322,18 +385,7 @@ export class Feed extends Service {
 
     async create (data: any,  params?: Params): Promise<any> {
       const {feed:feedModel} = this.app.get('sequelizeClient').models;
-
-      //common  - TODO -move somewhere
-      const loggedInUser = extractLoggedInUserFromParams(params);
-      const creatorQuery = `SELECT id  FROM \`creator\` WHERE userId=:userId`;
-      const [creator] = await this.app.get('sequelizeClient').query(creatorQuery,
-        {
-          type: QueryTypes.SELECT,
-          raw: true,
-          replacements: {userId:loggedInUser.userId}
-        });   
-
-      data.creatorId = creator.id;
+      data.creatorId = await getCreatorByUserId(extractLoggedInUserFromParams(params)?.userId, this.app.get('sequelizeClient'));
       const newFeed =  await feedModel.create(data);
       return  newFeed;
     }
@@ -360,7 +412,6 @@ export class Feed extends Service {
     }else{
       result = await super.patch(id, data);
     }
-    console.log('result', result);
     return result;
     
   }

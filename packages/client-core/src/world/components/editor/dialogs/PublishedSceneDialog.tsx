@@ -2,6 +2,7 @@ import PropTypes from "prop-types";
 import React from "react";
 import PreviewDialog from "./PreviewDialog";
 import { Button } from "../inputs/Button";
+import { useTranslation } from "react-i18next";
 
 /**
  * PublishedSceneDialog used to show dialog when scene get published.
@@ -15,12 +16,13 @@ import { Button } from "../inputs/Button";
  * @constructor
  */
 export default function PublishedSceneDialog({ onCancel, sceneName, sceneUrl, screenshotUrl, ...props }) {
+  const { t } = useTranslation();
   return (
-    <PreviewDialog imageSrc={screenshotUrl} title="Scene Published" {...props}>
+    <PreviewDialog imageSrc={screenshotUrl} title={t('editor:dialog.published.title')} {...props}>
       <h1>{sceneName}</h1>
-      <p>Your scene has been published.</p>
+      <p>{t('editor:dialog.published.header')}</p>
       <Button as="a" href={sceneUrl} target="_blank">
-        View Your Scene
+        {t('editor:dialog.published.lbl-view')}
       </Button>
     </PreviewDialog>
   );

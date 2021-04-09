@@ -17,7 +17,7 @@ import {
   FEEDS_AS_ADMIN_RETRIEVED,
   UPDATE_FEED
 } from '../actions';
-import { FeedShort, Feed } from '@xr3ngine/common/interfaces/Feed';
+import { FeedShort, Feed } from '@xr3ngine/common/src/interfaces/Feed';
 
 export interface FeedsRetrievedAction {
   type: string;

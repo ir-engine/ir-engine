@@ -13,6 +13,7 @@ import { EditorContext } from "../contexts/EditorContext";
 import { ItemTypes } from "../dnd";
 import AudioPreview from "./AudioPreview";
 import Tooltip, { TooltipContainer } from "../layout/Tooltip";
+import { useTranslation } from "react-i18next";
 
 /**
  * AssetGridTooltipContainer used to provide styles for tooltip shown if we hover the object.
@@ -185,6 +186,7 @@ const MemoAssetGridItem = memo(AssetGridItem);
 export default function AssetGrid({ isLoading, selectedItems, items, onSelect, onLoadMore, hasMore, tooltip, source }) {
   const editor = useContext(EditorContext);
   const uniqueId = useRef(`AssetGrid${lastId}`);
+  const { t } = useTranslation();
 
   // incrementig lastId
   useEffect(() => {
@@ -258,17 +260,17 @@ export default function AssetGrid({ isLoading, selectedItems, items, onSelect, o
                 onClick={onSelect}
               />
             ))}
-            {isLoading && <LoadingItem>Loading...</LoadingItem>}
+            {isLoading && <LoadingItem>{t('editor:layout.assetGrid.loading')}</LoadingItem>}
           </MediaGrid>
         </InfiniteScroll>
       </VerticalScrollContainer>
             { /* @ts-ignore */ }
       <ContextMenu id={uniqueId.current}>
-        <MenuItem onClick={placeObject}>Place Object</MenuItem>
-        <MenuItem onClick={placeObjectAtOrigin}>Place Object at Origin</MenuItem>
-        {!source.disableUrl && <MenuItem onClick={copyURL}>Copy URL</MenuItem>}
-        {!source.disableUrl && <MenuItem onClick={openURL}>Open URL in New Tab</MenuItem>}
-        {source.delete && <MenuItem onClick={onDelete}>Delete Asset</MenuItem>}
+        <MenuItem onClick={placeObject}>{t('editor:layout.assetGrid.placeObject')}</MenuItem>
+        <MenuItem onClick={placeObjectAtOrigin}>{t('editor:layout.assetGrid.placeObjectAtOrigin')}</MenuItem>
+        {!source.disableUrl && <MenuItem onClick={copyURL}>{t('editor:layout.assetGrid.copyURL')}</MenuItem>}
+        {!source.disableUrl && <MenuItem onClick={openURL}>{t('editor:layout.assetGrid.openInNewTab')}</MenuItem>}
+        {source.delete && <MenuItem onClick={onDelete}>{t('editor:layout.assetGrid.deleteAsset')}</MenuItem>}
       </ContextMenu>
     </>
   );

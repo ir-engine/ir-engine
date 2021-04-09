@@ -6,7 +6,7 @@ import { selectAppOnBoardingStep, selectAppState } from '@xr3ngine/client-core/s
 import { selectLocationState } from '@xr3ngine/client-core/src/social/reducers/location/selector';
 import { selectAuthState } from '@xr3ngine/client-core/src/user/reducers/auth/selector';
 import { doLoginAuto } from '@xr3ngine/client-core/src/user/reducers/auth/service';
-import theme from '@xr3ngine/client-core/theme';
+import theme from '@xr3ngine/client-core/src/theme';
 import getConfig from 'next/config';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
