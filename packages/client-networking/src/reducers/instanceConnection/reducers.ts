@@ -6,7 +6,7 @@ import {
 
 import {
   SocketCreatedAction
-} from '../common/SocketCreatedAction'
+} from '../common/SocketCreatedAction';
 
 import {
   INSTANCE_SERVER_CONNECTING,
