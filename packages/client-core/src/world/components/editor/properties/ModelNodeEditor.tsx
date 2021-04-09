@@ -27,6 +27,10 @@ const InteractableOption = [
     label: "Equippable",
     value: "equippable"
   },
+  {
+    label: "GameObject",
+    value: "gameobject"
+  },
 ];
 
 /**
@@ -110,6 +114,16 @@ export class ModelNodeEditor extends Component<
     (this.props.editor as any).setPropertySelected("payloadName", payloadName);
   };
 
+  // function to handle changes in payloadName property
+  onChangePayloadRole = payloadRole => {
+    (this.props.editor as any).setPropertySelected("payloadRole.", payloadRole);
+  };
+
+  // function to handle changes in payloadName property
+  onChangePayloadGame = payloadGame => {
+    (this.props.editor as any).setPropertySelected("payloadGame", payloadGame);
+  };
+
   // function to handle changes in payloadUrl
   onChangePayloadUrl = payloadUrl => {
     (this.props.editor as any).setPropertySelected("payloadUrl", payloadUrl);
@@ -144,6 +158,24 @@ export class ModelNodeEditor extends Component<
 // creating view for interactable type
   renderInteractableTypeOptions = (node) =>{
     switch (node.interactionType){
+      case 'gameobject': return<>
+        { /* @ts-ignore */ }
+        <InputGroup name="Role" label={this.props.t('editor:properties.model.lbl-role')}>
+          <StringInput
+            /* @ts-ignore */
+            value={node.payloadRole}
+            onChange={this.onChangePayloadRole}
+          />
+          </InputGroup>
+          { /* @ts-ignore */ }
+          <InputGroup name="Game" label={this.props.t('editor:properties.model.lbl-game')}>
+          <StringInput
+            /* @ts-ignore */
+            value={node.payloadGame}
+            onChange={this.onChangePayloadGame}
+          />
+          </InputGroup>
+      </>
       case 'infoBox': return <>
         { /* @ts-ignore */ }
         <InputGroup name="Name" label={this.props.t('editor:properties.model.lbl-name')}>
