@@ -11,9 +11,6 @@
   "publishConfig": {
     "access": "public"
   },
-  "main": "dist/client-core.umd.js",
-  "module": "dist/client-core.es.js",
-  "types": "dist/client-core/index.d.ts",
   "npmClient": "yarn",
   "jest": "ts-jest",
   "scripts": {

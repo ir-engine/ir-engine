@@ -12,14 +12,13 @@ import nodePolyfills from 'rollup-plugin-node-polyfills';
 
 const isProd = process.env.NODE_ENV === 'production';
 const extensions = ['.js', '.ts', '.tsx'];
-const pkg = require('./package.json')
 
 const libraryName = 'client-core'
 
 export default {
   input: './index.ts',
-  output: [{ file: pkg.main, name: camelCase(libraryName), format: 'umd', sourcemap: true },
-  { file: pkg.module, format: 'es', sourcemap: true },
+  output: [{ file: "dist/client-core.umd.js", name: camelCase(libraryName), format: 'umd', sourcemap: true },
+  { file: "dist/client-core.es.js", format: 'es', sourcemap: true },
   ],
   inlineDynamicImports: true,
   plugins: [
