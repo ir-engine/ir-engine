@@ -52,7 +52,9 @@ export function createRemoteUserOnClient(options:{
         ...rotation,
         snapShotTime: 0
       }
-    ]
+    ],
+    gameState: {},
+    gameStateActions: []
   };
 
   // WorldStateInterface

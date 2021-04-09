@@ -1,16 +1,31 @@
-import { float32, Model, Schema, string, uint32, uint8 } from "superbuffer";
+import { float32, int32, Model, Schema, string, uint32, uint8 } from "superbuffer";
 import { Network } from '../classes/Network';
 import { WorldStateInterface } from "../interfaces/WorldState";
 
+const userObjectSchema = new Schema ({
+  id: string,
+  data: string
+})
+
+const gameStateUpdateSchema = new Schema({
+  gameState: string,
+  userStates: [userObjectSchema]
+});
+
+const gameStateActionSchema = new Schema({
+  type: string,
+  payload: string
+})
+
 /** Schema for input. */
 const clientConnectedSchema = new Schema({
-    userId: string,
-    name: string,
-    avatarDetail: {
-      avatarId: string,
-      avatarURL: string,
-      thumbnailURL: string,
-    },
+  userId: string,
+  name: string,
+  avatarDetail: {
+    avatarId: string,
+    avatarURL: string,
+    thumbnailURL: string,
+  },
 });
 
 const clientDisconnectedSchema = new Schema({
@@ -85,7 +100,9 @@ const worldStateSchema = new Schema({
     timeFP: uint32,
     timeSP: uint32,
     transforms: [transformSchema],
-    ikTransforms: [ikTransformSchema]
+    ikTransforms: [ikTransformSchema],
+    gameState: [gameStateUpdateSchema],
+    gameStateActions: [gameStateActionSchema]
 });
 
 // TODO: convert WorldStateInterface to PacketReadyWorldState in toBuffer and back in fromBuffer
@@ -109,7 +126,9 @@ export class WorldStateModel {
           timeSP: 0,
           transforms: [],
           ikTransforms: [],
-          states: []
+          states: [],
+          gameState: worldState.gameState,
+          gameStateActions: worldState.gameStateActions
         };
         return Network.instance.packetCompression ? WorldStateModel.model.toBuffer(state) : state;
       } else
@@ -136,7 +155,9 @@ export class WorldStateModel {
               snapShotTime: v.snapShotTime,
             }
           }),
-          states: []
+          states: [],
+          gameState: [],
+          gameStateActions: []
         };
         return Network.instance.packetCompression ? WorldStateModel.model.toBuffer(state) : state;
       }
@@ -154,7 +175,6 @@ export class WorldStateModel {
         }
 
         return {
-          // @ts-ignore
           ...state,
           tick: Number(state.tick),
           time: state.timeFP*10000000+state.timeSP, // get uint64 from two uint32

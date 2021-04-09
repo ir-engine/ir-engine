@@ -7,6 +7,9 @@ import { NetworkTransport } from '../interfaces/NetworkTransport';
 import { WorldStateInterface } from "../interfaces/WorldState";
 import { Snapshot } from "../types/SnapshotDataTypes";
 import SocketIO from "socket.io";
+import { GameStateActionMessage } from "../../game/types/GameStateActionMessage";
+import { GameMode } from "../../game/types/GameMode";
+import { DefaultGameMode } from "../../templates/game/DefaultGameMode";
 
 export interface NetworkClientList {
   // Key is socket ID
@@ -57,6 +60,15 @@ export class Network {
   /** List of data consumer nodes. */
   dataConsumers = new Map<string, any>()
 
+  /** Current game state */
+  gameState = {}
+
+  /** Game mode mapping schema */
+  gameModeSchema: GameMode = DefaultGameMode
+
+  /** Game actions that happened this frame */
+  gameStateActions: GameStateActionMessage[] = []
+
   /** Newly created Network Objects in this frame. */
   createObjects = []
   /** Destroyed Network Objects in this frame. */
@@ -104,7 +116,9 @@ export class Network {
     clientsDisconnected: [],
     createObjects: [],
     editObjects: [],
-    destroyObjects: []
+    destroyObjects: [],
+    gameState: {},
+    gameStateActions: []
   };
 
   /**
