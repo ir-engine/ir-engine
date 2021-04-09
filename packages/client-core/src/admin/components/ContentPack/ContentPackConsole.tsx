@@ -19,7 +19,8 @@ import { ConfirmProvider } from "material-ui-confirm";
 import {
     fetchContentPacks
 } from "../../reducers/contentPack/service";
-import ClickAwayListener from '@material-ui/core/ClickAwayListener';
+import ContentPackDetailsModal from './ContentPackDetailsModal';
+import styles from './ContentPack.module.scss';
 
 
 interface TabPanelProps {
@@ -48,8 +49,8 @@ const mapStateToProps = (state: any): any => {
         adminState: selectAdminState(state),
         authState: selectAuthState(state),
         contentPackState: selectContentPackState(state)
-    }
-}
+    };
+};
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
     fetchContentPacks: bindActionCreators(fetchContentPacks, dispatch)
@@ -62,13 +63,25 @@ const ContentPacksConsole = (props: Props) => {
     } = props;
     const classes = useStyles();
     const [downloadModalOpen, setDownloadModalOpen] = useState(false);
-    const contentPacks = contentPackState.get('contentPacks')
+    const [contentPackDetailsModalOpen, setContentPackDetailsModalOpen] = useState(false);
+    const [selectedContentPack, setSelectedContentPack] = useState({ avatars: [], scenes: []});
+    const contentPacks = contentPackState.get('contentPacks');
 
     const openDownloadModal = () => {
         setDownloadModalOpen(true);
     };
     const closeDownloadModal = () => {
         setDownloadModalOpen(false);
+    };
+
+    const openDetailsModal = (contentPack: any) => {
+        setSelectedContentPack(contentPack);
+        setContentPackDetailsModalOpen(true);
+    };
+
+    const closeDetailsModal = () => {
+        setSelectedContentPack({avatars: [], scenes: []});
+        setContentPackDetailsModalOpen(false);
     };
 
     useEffect(() => {
@@ -85,10 +98,11 @@ const ContentPacksConsole = (props: Props) => {
                    color="primary"
                    onClick={openDownloadModal}
                >
-                   Upload content pack
+                   Download From URL
                </Button>
             </ConfirmProvider>
             <List
+                className={styles['pack-list']}
                 component="nav"
                 aria-labelledby="current-packs"
                 subheader={
@@ -98,13 +112,17 @@ const ContentPacksConsole = (props: Props) => {
                 }
             >
                 { contentPacks.map(contentPack =>
-                    <ListItem button>
+                    <ListItem key={contentPack.name} onClick={() => openDetailsModal(contentPack)} button>
                         <ListItemText>{contentPack.name}</ListItemText>
                     </ListItem>
                 )}
             </List>
+            <ContentPackDetailsModal
+                contentPack={selectedContentPack}
+                open={contentPackDetailsModalOpen}
+                handleClose={() => closeDetailsModal()}
+            />
             <DownloadModal
-                className="cool-pants"
                 open={downloadModalOpen}
                 handleClose={closeDownloadModal}
             />

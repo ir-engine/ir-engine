@@ -25,7 +25,7 @@ const getAllChildren = async (service: StaticResource, id: string | number | und
   }
 };
 
-export default (options = {}): Hook => {
+export default (): Hook => {
   return async (context: HookContext): Promise<HookContext> => {
     const provider = new StorageProvider();
     const storage = provider.getStorage();

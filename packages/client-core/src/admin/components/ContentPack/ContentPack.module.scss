@@ -23,10 +23,6 @@
     opacity: 0.75;
   }
 }
-.avatar {
-  margin: 7px;
-  background-color: #3f51b5;
-}
 .form {
   width: 100%;
   margin-top: 14px;
@@ -144,6 +140,51 @@
   @media (max-width: 768px) {
     width: 90%;
   }
+
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  .title {
+    font-size: 2em;
+    text-align: center;
+  }
+
+  .body {
+    .avatars-container,
+    .scenes-container {
+      .header {
+        font-size: 1.5em;
+      }
+
+      .container {
+        display: flex;
+        flex-direction: row;
+
+        .avatar,
+        .scene {
+          display: flex;
+          flex-direction: column;
+          margin-right: 10px;
+
+          .name {
+            font-size: 1.25em;
+          }
+
+          & > :not(:first-child) {
+            margin-top: 5px;
+          }
+
+          img {
+            max-width: 100px;
+          }
+        }
+      }
+    }
+  }
 }
 
 .tableFooter {
@@ -157,4 +198,22 @@
 }
 .locationModalButtons {
   justify-content: space-between;
+}
+
+.closeButton {
+  &:hover {
+    cursor: pointer;
+    color: red;
+  }
+}
+
+.pack-list {
+  margin-top: 10px !important;
+  background-color: white;
+}
+
+.success {
+  display: flex;
+  align-items: center;
+  margin-top: 10px;
 }

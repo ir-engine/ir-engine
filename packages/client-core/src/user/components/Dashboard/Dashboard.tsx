@@ -13,7 +13,7 @@ import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import {
-} from '@material-ui/icons'
+} from '@material-ui/icons';
 import { useRouter } from "next/router";
 import {
     CalendarViewDay,

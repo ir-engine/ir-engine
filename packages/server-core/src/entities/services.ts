@@ -5,7 +5,7 @@ import ComponentType from './component-type/component-type.service';
 import Component from './component/component.service';
 import Entity from './entity/entity.service';
 import License from './license/license.service';
-import ContentPack from './content-pack/content-pack.service'
+import ContentPack from './content-pack/content-pack.service';
 
 export default [
   License,

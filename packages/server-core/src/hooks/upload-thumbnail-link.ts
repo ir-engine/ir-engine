@@ -5,7 +5,7 @@ import config from '../appconfig';
 const fileRegex = /\.([a-zA-Z0-9]+)(?=\?|$)/;
 const getBuffer = bent('buffer');
 
-export default (options = {}): Hook => {
+export default (): Hook => {
   return async (context: HookContext): Promise<HookContext> => {
     const { app, result, data, params } = context;
     const metadata = result?.metadata || data?.metadata;
