@@ -1,4 +1,4 @@
-import { ServicesSeedConfig } from "../../../common/interfaces/ServicesSeedConfig";
+import { ServicesSeedConfig } from "@xr3ngine/common/src/interfaces/ServicesSeedConfig";
 
 export const networkingSeeds: Array<ServicesSeedConfig> = [
   ];

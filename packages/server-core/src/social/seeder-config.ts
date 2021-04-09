@@ -5,7 +5,7 @@ import { locationTypeSeed } from './location-type/location-type.seed';
 import { locationSeed } from './location/location.seed';
 import { locationSettingsSeed } from './location-settings/location-settings.seed';
 import { messageStatusSeed } from './message-status/message-status.seed';
-import { ServicesSeedConfig } from '../../../common/interfaces/ServicesSeedConfig';
+import { ServicesSeedConfig } from '@xr3ngine/common/src/interfaces/ServicesSeedConfig';
 
 export const socialSeeds: Array<ServicesSeedConfig> = [
     groupUserRankSeed,
