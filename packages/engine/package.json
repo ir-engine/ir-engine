@@ -14,7 +14,7 @@
   "description": "A declarative way to build 3D/VR/AR/XR apps that scale. Built with tooling web developers will love, using conventions that game developers and creative coders will find straightforward familiar.",
   "homepage": "https://github.com/xr3ngine/xr3ngine#readme",
   "license": "MIT",
-  "main": "dist/engine.umd.js",
+  "main": "index.ts",
   "module": "dist/engine.es.js",
   "types": "dist/engine/index.d.ts",
   "repository": {
@@ -23,7 +23,7 @@
   },
   "scripts": {
     "lint": "eslint --fix --quiet --ext .ts src/",
-    "build": "ctix entrypoint ./src && rimraf build && cross-env NODE_ENV=production rollup -c",
+    "build": "rimraf dist && ctix entrypoint ./src && cross-env NODE_ENV=production rollup -c",
     "test": "jest",
     "validate": "yarn run lint && yarn run test",
     "generate-doc": "node_modules/.bin/typedoc"
