@@ -1,6 +1,6 @@
 import { Config } from './helper';
 
-import { RESTORE } from '@xr3ngine/client-core/src/user/reducers/actions';
+import { RESTORE } from './user/reducers/actions';
 
 export function restoreState (): any {
   return {

@@ -1,5 +1,5 @@
 import React from "react";
-import { ProfilePic} from "./ProfilePic";
+import { ProfilePic} from "./Stories/ProfilePic";
 import { UsernameText } from "./UsernameText";
 import Router from "next/router";
 

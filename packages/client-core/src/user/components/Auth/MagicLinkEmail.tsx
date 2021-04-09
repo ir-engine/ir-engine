@@ -12,9 +12,9 @@ import NextLink from 'next/link';
 import { Config } from '../../../helper';
 import styles from './Auth.module.scss';
 import { User } from '@xr3ngine/common/src/interfaces/User';
-import { createMagicLink, addConnectionBySms, addConnectionByEmail } from '@xr3ngine/client-core/src/user/reducers/auth/service';
-import { selectAuthState } from '@xr3ngine/client-core/src/user/reducers/auth/selector';
-import { Trans, useTranslation } from "react-i18next";
+import { createMagicLink, addConnectionBySms, addConnectionByEmail } from '../../reducers/auth/service';
+import { selectAuthState } from '../../reducers/auth/selector';
+import { useTranslation } from "react-i18next";
 
 interface Props {
   auth?: any;

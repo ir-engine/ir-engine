@@ -10,13 +10,13 @@ import Typography from '@material-ui/core/Typography';
 import Container from '@material-ui/core/Container';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
-import { selectAuthState } from '@xr3ngine/client-core/src/user/reducers/auth/selector';
-import { showDialog, closeDialog } from '@xr3ngine/client-core/src/common/reducers/dialog/service';
+import { selectAuthState } from '../../reducers/auth/selector';
+import { showDialog, closeDialog } from '../../../common/reducers/dialog/service';
 import SignUp from './Register';
 import ForgotPassword from './ForgotPassword';
 import styles from './Auth.module.scss';
 import { User } from '@xr3ngine/common/src/interfaces/User';
-import { loginUserByPassword, addConnectionByPassword } from '@xr3ngine/client-core/src/user/reducers/auth/service';
+import { loginUserByPassword, addConnectionByPassword } from '../../reducers/auth/service';
 import { useTranslation } from "react-i18next";
 
 const mapStateToProps = (state: any): any => {
