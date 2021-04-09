@@ -16,49 +16,16 @@ import { Dispatch, Store } from 'redux';
 import { ThemeProvider } from "styled-components";
 import url from 'url';
 import './styles.scss';
-import i18n from 'i18next';
-import translation from '../../i18n/en/translation.json';
-import { initReactI18next } from 'react-i18next';
-import { getI18nConfigs } from '@xr3ngine/client-core/src/i18n';
 import { configureStore } from '@xr3ngine/client-core/src/store';
 import { dispatchAlertError } from '@xr3ngine/client-core/src/common/reducers/alert/service';
 import { getDeviceType } from '@xr3ngine/client-core/src/common/reducers/devicedetect/actions';
 import { restoreState } from '@xr3ngine/client-core/src/persisted.store';
-import LanguageDetector from 'i18next-browser-languagedetector';
+import { initialize } from '../util';
 
 const config = getConfig().publicRuntimeConfig;
 
-const resources = {
-  en: {
-    translation,
-  },
-};
-
-const namespace = [ 'translation' ];
-
-const subPackageTranslations = [
-  getI18nConfigs()
-];
-
-for (let t of subPackageTranslations) {
-  for (let key of Object.keys(t.resources)) {
-    if (!resources[key]) resources[key] = t.resources[key];
-    else resources[key] = { ...resources[key], ...t.resources[key] };
-  }
-
-  for (let ns of t.namespace) {
-    if (!namespace.includes(ns)) namespace.push(ns);
-  }
-}
-
-i18n.use(LanguageDetector).use(initReactI18next).init({
-  fallbackLng: 'en',
-  ns: namespace,
-  defaultNS: 'translation',
-  lng: 'en',
-  resources,
-});
-
+// Initialize i18n and client-core
+initialize();
 interface Props extends AppProps {
   store: Store;
 }

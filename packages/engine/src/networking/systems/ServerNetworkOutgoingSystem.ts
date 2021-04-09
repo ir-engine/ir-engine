@@ -90,7 +90,8 @@ export class ServerNetworkOutgoingSystem extends System {
       Network.instance.worldState.clientsDisconnected.length ||
       Network.instance.worldState.createObjects.length ||
       Network.instance.worldState.editObjects.length ||
-      Network.instance.worldState.destroyObjects.length
+      Network.instance.worldState.destroyObjects.length ||
+      Network.instance.worldState.gameStateActions.length
     ) {
       const bufferReliable = WorldStateModel.toBuffer(Network.instance.worldState, 'Reliable');
       if(!bufferReliable){

@@ -9,6 +9,7 @@ import OutlinedInput from '@material-ui/core/OutlinedInput';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import IconButton from '@material-ui/core/IconButton';
 import { Visibility, VisibilityOff } from '@material-ui/icons';
+import { useTranslation } from "react-i18next";
 
 interface Props {
   resetPassword: typeof resetPassword;
@@ -20,6 +21,7 @@ export const ResetPassword = (props: Props): any => {
   const { resetPassword, token, completeAction } = props;
   const initialState = { password: '', isSubmitted:false };
   const [state, setState] = useState(initialState);
+  const { t } = useTranslation();
 
   const handleInput = (e: any): void => {
     e.preventDefault();
@@ -47,7 +49,7 @@ export const ResetPassword = (props: Props): any => {
   const confirm_password = useRef<HTMLInputElement>();
   function validatePassword(){
     if(password.current.value != confirm_password.current.value) {
-      confirm_password.current.setCustomValidity("Passwords Don't Match");
+      confirm_password.current.setCustomValidity(t('user:auth.resetPassword.passwordNotMatch'));
     } else {
       confirm_password.current.setCustomValidity('');
     }
@@ -67,15 +69,15 @@ export const ResetPassword = (props: Props): any => {
               className={styles.submit}
               onClick={completeAction}
             >
-              Log in
+              {t('user:auth.resetPassword.login')}
             </Button>
           </>
         : (<>
           <Typography component="h1" variant="h5">
-            Reset Password
+            {t('user:auth.resetPassword.header')}
           </Typography>
           <Typography variant="body2" align="center">
-            Please enter your password for your email address
+            {t('user:auth.resetPassword.description')}
           </Typography>
           <form className={styles.form} onSubmit={(e) => handleReset(e)}>
               <OutlinedInput
@@ -84,7 +86,7 @@ export const ResetPassword = (props: Props): any => {
                 required
                 fullWidth
                 name="password"
-                placeholder="Password"
+                placeholder={t('user:auth.resetPassword.lbl-password')}
                 type={values.showPassword ? 'text' : 'password'}
                 id="password"
                 autoComplete="current-password"
@@ -108,7 +110,7 @@ export const ResetPassword = (props: Props): any => {
                 fullWidth
                 inputRef={confirm_password}
                 name="confirm_password"
-                placeholder="Password Confirm"
+                placeholder={t('user:auth.resetPassword.lbl-confirmPassword')}
                 type={values.showPasswordConfirm ? 'text' : 'password'}
                 id="confirm_password"
                 autoComplete="current-password"
@@ -134,7 +136,7 @@ export const ResetPassword = (props: Props): any => {
               color="primary"
               className={styles.submit}
             >
-              Reset Password
+              {t('user:auth.resetPassword.lbl-submit')}
             </Button>
           </form>
         </>)}

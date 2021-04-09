@@ -10,6 +10,7 @@ import { selectAuthState } from '../../reducers/auth/selector';
 import { EmptyLayout }from '../../../common/components/Layout/EmptyLayout';
 import { IdentityProvider } from '@xr3ngine/common/src/interfaces/IdentityProvider';
 import styles from './Auth.module.scss';
+import { Trans, useTranslation } from "react-i18next";
 
 const mapStateToProps = (state: any): any => {
   return {
@@ -28,6 +29,7 @@ interface Props {
 
 const ConfirmEmail = (props: Props): any => {
   const { auth, resendVerificationEmail } = props;
+  const { t } = useTranslation();
   const handleResendEmail = (e: any): any => {
     e.preventDefault();
 
@@ -41,13 +43,15 @@ const ConfirmEmail = (props: Props): any => {
       <Container component="main" maxWidth="md">
         <div className={styles.paper}>
           <Typography component="h1" variant="h5">
-            Confirmation Email
+            {t('user:auth.confirmEmail.header')}
           </Typography>
           <Box mt={3}>
             <Typography variant="body2" color="textSecondary" align="center">
-                Please check your email to verify your account.
-                If you didn&apos;t get an email, please click
-              <Button variant="contained" color="primary" onClick={(e) => handleResendEmail(e)}>here</Button> to resend the verification email.
+                <Trans t={t} i18nKey="user:auth.confirmEmail.resendEmail">
+                  Please check your email to verify your account.
+                  If you didn&apos;t get an email, please click
+                  <Button variant="contained" color="primary" onClick={(e) => handleResendEmail(e)}>here</Button> to resend the verification email.
+                </Trans>
             </Typography>
           </Box>
         </div>

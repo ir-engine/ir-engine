@@ -1,6 +1,5 @@
 import React from 'react';
-import getConfig from 'next/config';
-const LogoImg = getConfig().publicRuntimeConfig.logo;
+import { Config } from '../../../helper';
 
 interface Props {
   onClick: any;
@@ -10,7 +9,7 @@ const Logo = (props: Props): any => {
   return (
     <div className="logo">
       <img
-        src={LogoImg}
+        src={Config.publicRuntimeConfig.logo}
         alt="logo"
         crossOrigin="anonymous"
         className="logo"

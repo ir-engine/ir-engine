@@ -1,5 +1,5 @@
 import React from 'react';
-import styles from './style.module.scss';
+import styles from './SpacemanLoader.module.scss';
 
 const SpaceLoader = (): any => {
   return (
