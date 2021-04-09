@@ -6,6 +6,7 @@ import {
   CHANNEL_SERVER_DISCONNECTED
 } from '../actions';
 import { InstanceServerProvisionResult } from '@xr3ngine/common/src/interfaces/InstanceServerProvisionResult';
+import { SocketCreatedAction } from '../common/SocketCreatedAction';
 
 export interface ChannelServerProvisioningAction {
   type: string;
@@ -28,11 +29,6 @@ export interface ChannelServerConnectedAction {
 
 export interface ChannelServerDisconnectedAction {
   type: string;
-}
-
-export interface SocketCreatedAction {
-  type: string;
-  socket: any;
 }
 
 export type ChannelServerAction =
