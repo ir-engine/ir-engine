@@ -5,9 +5,6 @@
     "access": "public"
   },
   "description": "Shared types for other XR3ngine packages",
-  "main": "dist/common.umd.js",
-  "module": "dist/common.es.js",
-  "types": "dist/ccommon/index.d.ts",
   "scripts": {
     "build": "rimraf dist && ctix entrypoint ./src && cross-env NODE_ENV=production rollup -c"
   },

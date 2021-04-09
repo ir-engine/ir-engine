@@ -1,7 +1,7 @@
 {
   "name": "@xr3ngine/client-networking",
   "version": "0.2.14",
-  "main": "dist/client-networking.umd.js",
+  "main": "./index.ts",
   "module": "dist/client-networking.es.js",
   "types": "dist/client-networking/index.d.ts",
   "repository": {

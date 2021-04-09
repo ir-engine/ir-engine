@@ -8,9 +8,6 @@
   "engines": {
     "yarn": ">= 0.18.0"
   },
-  "main": "dist/client-ml.umd.js",
-  "module": "dist/client-ml.es.js",
-  "types": "dist/client-ml/index.d.ts",
   "publishConfig": {
     "access": "public"
   },
