@@ -10,7 +10,7 @@ import {
 } from '@material-ui/icons';
 import classNames from 'classnames';
 import React, { Fragment, useState } from 'react';
-import * as styles from './Profile.module.scss';
+import styles from './Profile.module.scss';
 import UserProfile from './UserIcon';
 import UserSettings from './UserSettings';
 

@@ -1,7 +1,7 @@
 import CardMedia from "@material-ui/core/CardMedia";
 import React, { useState, useEffect } from "react";
 import PermIdentityIcon from '@material-ui/icons/PermIdentity';
-import * as styles from './LazyImage.module.scss';
+import styles from './LazyImage.module.scss';
 
 const placeHolder =
   "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkqAcAAIUAgUW0RjgAAAAASUVORK5CYII=";

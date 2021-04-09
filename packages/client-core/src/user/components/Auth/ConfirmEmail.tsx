@@ -9,7 +9,7 @@ import { resendVerificationEmail } from '../../reducers/auth/service';
 import { selectAuthState } from '../../reducers/auth/selector';
 import { EmptyLayout }from '../../../common/components/Layout/EmptyLayout';
 import { IdentityProvider } from '@xr3ngine/common/src/interfaces/IdentityProvider';
-import * as styles from './Auth.module.scss';
+import styles from './Auth.module.scss';
 
 const mapStateToProps = (state: any): any => {
   return {

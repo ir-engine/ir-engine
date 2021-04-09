@@ -1,7 +1,7 @@
 import React from 'react';
 import NavUserWidget from '../NavUserWidget';
 import AppBar from '@material-ui/core/AppBar';
-import * as styles from './NavMenu.module.scss';
+import styles from './NavMenu.module.scss';
 
 interface Props {
     login?: boolean;

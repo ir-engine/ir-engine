@@ -10,7 +10,7 @@ import { registerUserByEmail } from '@xr3ngine/client-core/src/user/reducers/aut
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
-import * as styles from './Auth.module.scss';
+import styles from './Auth.module.scss';
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
   registerUserByEmail: bindActionCreators(registerUserByEmail, dispatch),

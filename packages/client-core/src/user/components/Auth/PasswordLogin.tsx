@@ -14,7 +14,7 @@ import { selectAuthState } from '@xr3ngine/client-core/src/user/reducers/auth/se
 import { showDialog, closeDialog } from '@xr3ngine/client-core/src/common/reducers/dialog/service';
 import SignUp from './Register';
 import ForgotPassword from './ForgotPassword';
-import * as styles from './Auth.module.scss';
+import styles from './Auth.module.scss';
 import { User } from '@xr3ngine/common/src/interfaces/User';
 import { loginUserByPassword, addConnectionByPassword } from '@xr3ngine/client-core/src/user/reducers/auth/service';
 

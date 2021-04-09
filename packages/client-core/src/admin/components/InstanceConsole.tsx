@@ -14,7 +14,7 @@ import {
 } from '@material-ui/core';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
-import * as styles from './Admin.module.scss';
+import styles from './Admin.module.scss';
 import { Router, withRouter } from "next/router";
 import InstanceModal from './InstanceModal';
 import CreateInstance from "./CreateInstance";
