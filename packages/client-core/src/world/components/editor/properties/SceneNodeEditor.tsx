@@ -1,19 +1,18 @@
-import React from "react";
-import PropTypes from "prop-types";
-import NodeEditor from "./NodeEditor";
 import { Globe } from "@styled-icons/fa-solid/Globe";
-import NumericInputGroup from "../inputs/NumericInputGroup";
-import CompoundNumericInput from "../inputs/CompoundNumericInput";
-import ColorInput from "../inputs/ColorInput";
-import InputGroup from "../inputs/InputGroup";
-import { FogType } from "@xr3ngine/engine/src/scene/constants/FogType";
-import SelectInput from "../inputs/SelectInput";
-import useSetPropertySelected from "./useSetPropertySelected";
-import BooleanInput from "../inputs/BooleanInput";
 import { DistanceModelOptions, DistanceModelType } from "@xr3ngine/engine/src/scene/classes/AudioSource";
+import { FogType } from "@xr3ngine/engine/src/scene/constants/FogType";
 import i18n from "i18next";
+import PropTypes from "prop-types";
+import React from "react";
 import { useTranslation } from "react-i18next";
-import SceneNode from "@xr3ngine/engine/src/editor/nodes/SceneNode";
+import BooleanInput from "../inputs/BooleanInput";
+import ColorInput from "../inputs/ColorInput";
+import CompoundNumericInput from "../inputs/CompoundNumericInput";
+import InputGroup from "../inputs/InputGroup";
+import NumericInputGroup from "../inputs/NumericInputGroup";
+import SelectInput from "../inputs/SelectInput";
+import NodeEditor from "./NodeEditor";
+import useSetPropertySelected from "./useSetPropertySelected";
 
 /**
  * [FogTypeOptions array containing fogType options]
@@ -39,7 +38,7 @@ const FogTypeOptions = [
  * @param       props
  * @constructor
  */
-export function SceneNodeEditor(props) {
+export default function SceneNodeEditor(props) {
   const { editor, node } = props;
   const { t } = useTranslation();
 
