@@ -9,9 +9,8 @@ import {
 import Immutable from 'immutable';
 import {
   ChannelServerAction,
-  ChannelServerProvisionedAction,
-  SocketCreatedAction
-} from './actions';
+  ChannelServerProvisionedAction} from './actions';
+import { SocketCreatedAction } from "../common/SocketCreatedAction";
 
 export const initialChannelConnectionState = {
   instance: {
