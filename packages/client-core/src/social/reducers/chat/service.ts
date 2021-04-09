@@ -1,5 +1,5 @@
 import { Dispatch } from 'redux';
-import { client } from '@xr3ngine/client-core/src/feathers';
+import { client } from '../../../feathers';
 import {
   createdMessage,
   loadedChannel,
@@ -15,8 +15,8 @@ import {
 } from './actions';
 
 import { User } from '@xr3ngine/common/src/interfaces/User';
-import store from '@xr3ngine/client-core/src/store';
-import { dispatchAlertError } from '@xr3ngine/client-core/src/common/reducers/alert/service';
+import store from '../../../store';
+import { dispatchAlertError } from '../../../common/reducers/alert/service';
 
 import { Config } from '../../../helper';
 

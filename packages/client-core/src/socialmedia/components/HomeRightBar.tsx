@@ -1,5 +1,5 @@
 import React from "react";
-import { ProfilePic} from "./ProfilePic";
+import { ProfilePic} from "./Stories/ProfilePic";
 import { RightBarSuggestions} from "./RightBarSuggestions";
 import { UsernameText } from "./UsernameText";
 import { LoginUserHook} from "./GlobalHook";

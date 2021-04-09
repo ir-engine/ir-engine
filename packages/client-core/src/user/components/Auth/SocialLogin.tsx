@@ -9,7 +9,7 @@ import TwitterIcon from '@material-ui/icons/Twitter';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 import styles from './Auth.module.scss';
-import { loginUserByOAuth } from '@xr3ngine/client-core/src/user/reducers/auth/service';
+import { loginUserByOAuth } from '../../reducers/auth/service';
 import { useTranslation } from "react-i18next";
 
 const mapStateToProps = (state: any): any => {

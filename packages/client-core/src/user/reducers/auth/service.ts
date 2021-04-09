@@ -1,4 +1,4 @@
-import { dispatchAlertError, dispatchAlertSuccess } from '@xr3ngine/client-core/src/common/reducers/alert/service';
+import { dispatchAlertError, dispatchAlertSuccess } from '../../../common/reducers/alert/service';
 import { resolveAuthUser } from '@xr3ngine/common/src/interfaces/AuthUser';
 import { IdentityProvider } from '@xr3ngine/common/src/interfaces/IdentityProvider';
 import { resolveUser } from '@xr3ngine/common/src/interfaces/User';
