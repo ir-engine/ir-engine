@@ -1,5 +1,5 @@
 
-import { ServicesSeedConfig } from '../../common/interfaces/ServicesSeedConfig';
+import { ServicesSeedConfig } from '@xr3ngine/common/src/interfaces/ServicesSeedConfig';
 import { entitySeeds } from './entities/seeder-config';
 import { mediaSeeds } from './media/seeder-config';
 import { networkingSeeds } from './networking/seeder-config';
