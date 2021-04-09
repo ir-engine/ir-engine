@@ -3,6 +3,7 @@ import { CommonInteractiveData } from "@xr3ngine/engine/src/interaction/interfac
 import styles from './OpenLink.module.scss';
 import { Button, Dialog, DialogContent, DialogTitle, IconButton, Typography } from "@material-ui/core";
 import CloseIcon from '@material-ui/icons/Close';
+import { useTranslation } from "react-i18next";
 
 export type OpenLinkProps = {
   onClose: unknown;
@@ -10,10 +11,11 @@ export type OpenLinkProps = {
 };
 
 export const OpenLink: FunctionComponent<OpenLinkProps> = ({ onClose, data }: OpenLinkProps) => {
+  const { t } = useTranslation();
 
   if(!data){return null;}
 
-  const handleLinkClick = (url) =>{  
+  const handleLinkClick = (url) =>{
     window.open(url, "_blank");
   };
 
@@ -30,8 +32,8 @@ export const OpenLink: FunctionComponent<OpenLinkProps> = ({ onClose, data }: Op
         </DialogTitle>
         <DialogContent className={styles.dialogContent}>
           {/* eslint-disable-next-line react/no-danger */}
-          <p className={styles.descr}>Please click the Open to navigate to the link.</p>
-          { data.payloadUrl && (<Button  variant="outlined" color="primary" onClick={()=>handleLinkClick(data.payloadUrl)}>Open</Button>)}
+          <p className={styles.descr}>{t('editor:openLink.description')}</p>
+          { data.payloadUrl && (<Button  variant="outlined" color="primary" onClick={()=>handleLinkClick(data.payloadUrl)}>{t('editor:openLink.lbl-open')}</Button>)}
         </DialogContent>
     </Dialog>);
 };

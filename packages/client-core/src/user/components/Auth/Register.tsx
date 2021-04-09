@@ -5,12 +5,13 @@ import Grid from '@material-ui/core/Grid';
 import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
-import { showDialog } from '@xr3ngine/client-core/src/common/reducers/dialog/service';
-import { registerUserByEmail } from '@xr3ngine/client-core/src/user/reducers/auth/service';
+import { showDialog } from '../../../common/reducers/dialog/service';
+import { registerUserByEmail } from '../../reducers/auth/service';
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 import styles from './Auth.module.scss';
+import { useTranslation } from "react-i18next";
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
   registerUserByEmail: bindActionCreators(registerUserByEmail, dispatch),
@@ -30,6 +31,7 @@ const SignUp = (props: Props): any => {
     phone: ''
   };
   const [state, setState] = useState(initialState);
+  const { t } = useTranslation();
 
   const handleInput = (e: any): void => {
     e.preventDefault();
@@ -51,7 +53,7 @@ const SignUp = (props: Props): any => {
           <LockOutlinedIcon />
         </Avatar>
         <Typography component="h1" variant="h5">
-          Sign up
+          {t('user:auth.register.header')}
         </Typography>
         <form className={styles.form} noValidate onSubmit={(e) => handleRegister(e)}>
           <Grid container spacing={2}>
@@ -61,7 +63,7 @@ const SignUp = (props: Props): any => {
                 required
                 fullWidth
                 id="email"
-                label="Email Address"
+                label={t('user:auth.register.lbl-email')}
                 name="email"
                 autoComplete="email"
                 onChange={(e) => handleInput(e)}
@@ -73,7 +75,7 @@ const SignUp = (props: Props): any => {
                 required
                 fullWidth
                 name="password"
-                label="Password"
+                label={t('user:auth.register.lbl-password')}
                 type="password"
                 id="password"
                 autoComplete="current-password"
@@ -88,7 +90,7 @@ const SignUp = (props: Props): any => {
                 color="primary"
                 className={styles.submit}
               >
-                Sign Up
+                {t('user:auth.register.lbl-signup')}
               </Button>
             </Grid>
           </Grid>

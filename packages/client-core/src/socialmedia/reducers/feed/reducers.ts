@@ -16,7 +16,7 @@ import {
   REMOVE_FEED_FEATURED,
   REMOVE_FEED_FIRES,
   UPDATE_FEED
-} from '@xr3ngine/client-core/src/socialmedia/reducers/actions';
+} from '../actions';
 import Immutable from 'immutable';
 import {
   FeedRetrievedAction,
