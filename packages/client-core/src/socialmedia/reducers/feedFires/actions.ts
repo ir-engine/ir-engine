@@ -2,7 +2,7 @@ import {
   FEED_FIRES_RETRIEVED,
   FEED_FIRES_FETCH,
 } from '../actions';
-import { CreatorShort } from '@xr3ngine/common/interfaces/Creator';
+import { CreatorShort } from '@xr3ngine/common/src/interfaces/Creator';
 
 export interface FeedFiresRetriveAction {
   type: string;

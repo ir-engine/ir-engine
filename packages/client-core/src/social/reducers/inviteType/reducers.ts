@@ -1,17 +1,14 @@
 import Immutable from "immutable";
 import {
-   retrievedInvitesTypes,
-   InvitesTypesRetrievedAction,
-   InviteTypeAction
+    LOAD_INVITE_TYPE
+} from "../actions";
+import {
+    InvitesTypesRetrievedAction,
+    InviteTypeAction
 } from "./actions";
 
-import { 
-    INVITE_TYPE_CREATE,
-    LOAD_INVITE_TYPE,
-    REMOVED_INVITE_TYPE
-} from "../actions";
 
-export const initialState = {
+export const initialInviteTypeState = {
  inviteTypeData: {
     invitesType: [],
     skip: 0,
@@ -21,7 +18,7 @@ export const initialState = {
 };
 
 
-const immutableState = Immutable.fromJS(initialState);
+const immutableState = Immutable.fromJS(initialInviteTypeState);
 
 const inviteTypeReducer = (state= immutableState, action: InviteTypeAction ): any => {
     let newValues, updateMap;

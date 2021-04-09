@@ -10,7 +10,7 @@ import { bindActionCreators, Dispatch } from 'redux';
 import { resendVerificationEmail } from '../../reducers/auth/service';
 import { selectAuthState } from '../../reducers/auth/selector';
 import { EmptyLayout }from '../../../common/components/Layout/EmptyLayout';
-import { IdentityProvider } from '@xr3ngine/common/interfaces/IdentityProvider';
+import { IdentityProvider } from '@xr3ngine/common/src/interfaces/IdentityProvider';
 import CardMedia from '@material-ui/core/CardMedia';
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
 import { Trans, useTranslation } from "react-i18next";

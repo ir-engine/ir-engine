@@ -57,7 +57,7 @@ export class ColorEdgesMaterial extends ShaderMaterial {
 
   setLocalContrastAdaptationFactor (factor) {
     (this as any).defines.LOCAL_CONTRAST_ADAPTATION_FACTOR = factor.toFixed('2');
-    this.needsUpdate = true;
+    (this as any).needsUpdate = true;
   }
 
   /**
@@ -78,6 +78,6 @@ export class ColorEdgesMaterial extends ShaderMaterial {
   setEdgeDetectionThreshold (threshold) {
     const t = Math.min(Math.max(threshold, 0.05), 0.5);
     (this as any).defines.EDGE_THRESHOLD = t.toFixed(2);
-    this.needsUpdate = true;
+    (this as any).needsUpdate = true;
   }
 }

@@ -15,7 +15,7 @@ import { showDialog, closeDialog } from '@xr3ngine/client-core/src/common/reduce
 import SignUp from './Register';
 import ForgotPassword from './ForgotPassword';
 import styles from './Auth.module.scss';
-import { User } from '@xr3ngine/common/interfaces/User';
+import { User } from '@xr3ngine/common/src/interfaces/User';
 import { loginUserByPassword, addConnectionByPassword } from '@xr3ngine/client-core/src/user/reducers/auth/service';
 import { useTranslation } from "react-i18next";
 

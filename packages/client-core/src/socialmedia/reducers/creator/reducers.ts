@@ -19,7 +19,7 @@ import {
   CREATORS_FETCH
 } from '../actions';
 
-export const initialState = {
+export const initialCreatorState = {
   creators: {
     creators: [],
     creator: {},
@@ -31,7 +31,7 @@ export const initialState = {
   },
 };
 
-const immutableState = Immutable.fromJS(initialState);
+const immutableState = Immutable.fromJS(initialCreatorState);
 
 const creatorReducer = (state = immutableState, action: CreatorsAction): any => {
   switch (action.type) {

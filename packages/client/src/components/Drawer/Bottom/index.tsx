@@ -26,8 +26,8 @@ import {
     updateMessageScrollInit
 } from '@xr3ngine/client-core/src/social/reducers/chat/service';
 import { selectAuthState } from '@xr3ngine/client-core/src/user/reducers/auth/selector';
-import { Message } from '@xr3ngine/common/interfaces/Message';
-import { User } from "@xr3ngine/common/interfaces/User";
+import { Message } from '@xr3ngine/common/src/interfaces/Message';
+import { User } from "@xr3ngine/common/src/interfaces/User";
 import classNames from 'classnames';
 import moment from 'moment';
 import React, { useEffect, useState } from 'react';

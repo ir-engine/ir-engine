@@ -1,7 +1,6 @@
 {
   "name": "@xr3ngine/native-plugin-xr",
-  "version": "0.2.10",
-  "private": true,
+  "version": "0.2.14",
   "description": "Native XR and camera services inside any capacitor app",
   "main": "dist/plugin.js",
   "module": "dist/esm/index.js",
@@ -70,5 +69,5 @@
     "url": "https://github.com/xr3ngine/xr3ngine/issues"
   },
   "homepage": "https://github.com/xr3ngine/xr3ngine#readme",
-  "gitHead": "66449f6ffba4d32c424b16b4f0667fe0ad36562c"
+  "gitHead": "b69a8d4eb4d2b39bc013a8eba00b402b21932252"
 }

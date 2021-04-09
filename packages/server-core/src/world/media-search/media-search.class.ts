@@ -1,6 +1,6 @@
 import { Id, NullableId, Paginated, Params, ServiceMethods } from '@feathersjs/feathers';
 import { Application } from '../../../declarations';
-import { indexes } from '../../../../common/scenes-templates';
+import { indexes } from '@xr3ngine/common/src/scenes-templates';
 
 interface Data {}
 

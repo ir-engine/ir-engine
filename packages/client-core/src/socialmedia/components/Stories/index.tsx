@@ -2,7 +2,6 @@ import React, { useState, useRef, useEffect } from "react";
 import { StoryItem } from "./StoryItem";
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
 import ArrowForwardIosIcon from '@material-ui/icons/ArrowForwardIos';
-
 import styles from './Stories.module.scss';
 
 export function Stories({
@@ -45,9 +44,7 @@ export function Stories({
           style={{ transform: `translate(${x}px, 0px)` }}
         >
           {stories &&
-            stories.map((item: any) => {
-              return <StoryItem data={item} key={item.username} />;
-            })}
+            stories.map((item: any, index) => <StoryItem data={item} key={index} />)}
         </div>
         {x !== min_X && stories?.length > maxItems && <ArrowForwardIosIcon className={styles.forwardIcon} onClick={() => calculateTransform(x - 320)} /> }
       </div>

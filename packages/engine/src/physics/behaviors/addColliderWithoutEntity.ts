@@ -12,20 +12,20 @@ export function createTrimeshFromMesh (mesh) {
 		return threeToCannon(mesh, {type: threeToCannon.Type.MESH});
 }
 
-export function createBox (scale) {
+export function createBoxCollider (scale) {
   if(scale == undefined) return console.error("Scale is  null");
   return new Box(new Vec3(Math.abs(scale.x), Math.abs(scale.y), Math.abs(scale.z)));
 }
 
-export function createSphere (scale) {
+export function createSphereCollider (scale) {
   return new Sphere(Math.abs(scale.x));
 }
 
-export function createGround () {
+export function createGroundCollider () {
   return new Plane();
 }
 
-export function createCylinder (scale) {
+export function createCylinderCollider (scale) {
   if(scale == undefined) return console.error("Scale is  null");
   return new Cylinder(scale.x, scale.z, scale.y*2, 10);
 }
@@ -41,19 +41,19 @@ export function addColliderWithoutEntity( userData, position, quaternion, scale,
 	const type = userData.type
   switch (type) {
     case 'box':
-      shape = createBox(scale);
+      shape = createBoxCollider(scale);
       break;
 
     case 'ground':
-      shape = createGround()
+      shape = createGroundCollider()
       break;
 
     case 'cylinder':
-      shape = createCylinder(scale);
+      shape = createCylinderCollider(scale);
       break;
 
     case 'sphere':
-      shape = createSphere(scale);
+      shape = createSphereCollider(scale);
       break;
 
     case 'trimesh':
@@ -69,7 +69,7 @@ export function addColliderWithoutEntity( userData, position, quaternion, scale,
 
     default:
       console.warn('create Collider undefined type !!!');
-      shape = createBox(scale || {x:1, y:1, z:1});
+      shape = createBoxCollider(scale || {x:1, y:1, z:1});
       break;
   }
 

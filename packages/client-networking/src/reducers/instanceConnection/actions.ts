@@ -1,5 +1,5 @@
 import { INSTANCE_SERVER_PROVISIONING, INSTANCE_SERVER_PROVISIONED, INSTANCE_SERVER_CONNECTING, INSTANCE_SERVER_CONNECTED, INSTANCE_SERVER_DISCONNECTED } from '@xr3ngine/client-networking/src/reducers/actions';
-import { InstanceServerProvisionResult } from '@xr3ngine/common/interfaces/InstanceServerProvisionResult';
+import { InstanceServerProvisionResult } from '@xr3ngine/common/src/interfaces/InstanceServerProvisionResult';
 
 export interface InstanceServerProvisioningAction {
   type: string;
