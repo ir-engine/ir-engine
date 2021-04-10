@@ -74,10 +74,10 @@ export const initializeEngine = async (options: any = DefaultInitializationOptio
   Engine.xrSupported = await (navigator as any).xr?.isSessionSupported('immersive-vr')
   // offscreen is buggy still, disable it for now and opt in with url query
   // const useOffscreen = !Engine.xrSupported && 'transferControlToOffscreen' in canvas;
-
+  const useOffscreen = false;
   if (!options.renderer) options.renderer = {};
 
-  if (useOffscreen) {
+  if (useOffscreen && !options.editor) {
     const workerProxy: WorkerProxy = await createWorker(
       // @ts-ignore
       new Worker(new URL('./worker/initializeOffscreen.ts', import.meta.url)),
@@ -112,21 +112,22 @@ export const initializeEngine = async (options: any = DefaultInitializationOptio
     registerSystem(ClientInputSystem, { useWebXR: Engine.xrSupported });
   }
 
-  if (!useOffscreen) {
-
-    await AnimationManager.instance.getDefaultModel()
-    if(!options.editor){
-      // registerSystem(StateSystem);
-      registerSystem(CharacterControllerSystem);
-      registerSystem(ServerSpawnSystem, { priority: 899 });
-    }
-    registerSystem(PhysicsSystem);
-    registerSystem(TransformSystem, { priority: 900 });
+  if (!useOffscreen || options.editor) {
 
     Engine.camera = new PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 10000);
     Engine.scene.add(Engine.camera);
-    registerSystem(HighlightSystem);
-    registerSystem(ActionSystem, { useWebXR: Engine.xrSupported });
+
+    if(!options.editor){
+      await AnimationManager.instance.getDefaultModel()
+
+      // registerSystem(StateSystem);
+      registerSystem(CharacterControllerSystem);
+      registerSystem(ServerSpawnSystem, { priority: 899 });
+      registerSystem(HighlightSystem);
+      registerSystem(ActionSystem, { useWebXR: Engine.xrSupported });
+    }
+    registerSystem(PhysicsSystem);
+    registerSystem(TransformSystem, { priority: 900 });
 
     // audio breaks webxr currently
     // Engine.audioListener = new AudioListener();
