@@ -17,8 +17,8 @@ const libraryName = 'server-core'
 
 export default {
   input: './index.ts',
-  output: [{ file: pkg.types, name: camelCase(libraryName), format: 'umd', sourcemap: true },
-  { file: pkg.module, format: 'es', sourcemap: true },
+  output: [{ file: "dist/server-core.umd.js", name: camelCase(libraryName), format: 'umd', sourcemap: true },
+  { file: "dist/server-core.es.js", format: 'es', sourcemap: true },
   ],
   inlineDynamicImports: true,
   plugins: [

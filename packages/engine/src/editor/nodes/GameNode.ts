@@ -7,6 +7,18 @@ export default class GameNode extends EditorNodeMixin(Object3D) {
   static _material = new Material();
   static async deserialize(editor, json) {
     const node = await super.deserialize(editor, json);
+    const {
+      isGlobal,
+      minPlayers,
+      maxPlayers,
+      gameObjects,
+      gameMode
+    } = json.components.find(c => c.name === "game").props;
+    node.isGlobal = isGlobal;
+    node.minPlayers = minPlayers;
+    node.maxPlayers = maxPlayers;
+    node.gameObjects = gameObjects;
+    node.gameMode = gameMode;
     return node;
   }
   constructor(editor) {

@@ -14,12 +14,12 @@ const isProd = process.env.NODE_ENV === 'production';
 const extensions = ['.js', '.ts', '.tsx'];
 const pkg = require('./package.json')
 
-const libraryName = 'client-core'
+const libraryName = 'common'
 
 export default {
   input: './index.ts',
-  output: [{ file: pkg.main, name: camelCase(libraryName), format: 'umd', sourcemap: true },
-  { file: pkg.module, format: 'es', sourcemap: true },
+  output: [{ file: "dist/common.umd.js", name: camelCase(libraryName), format: 'umd', sourcemap: true },
+  { file: "dist/common.es.js", format: 'es', sourcemap: true },
   ],
   inlineDynamicImports: true,
   plugins: [
@@ -30,7 +30,6 @@ export default {
     }),
     json(),
     typescript({
-      resolveJsonModule: true,
       jsx: true,
       rollupCommonJSResolveHack: false
     }),

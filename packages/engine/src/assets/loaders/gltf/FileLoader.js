@@ -1,8 +1,6 @@
 import { Cache, Loader } from 'three';
 import fetch from "cross-fetch"
 
-process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0
-
 const loading = {};
 
 function FileLoader(manager) {
@@ -166,7 +164,7 @@ FileLoader.prototype = Object.assign(Object.create(Loader.prototype), {
 				fetch(url).then(res => res.blob()).then(async (res) => {
 
 					// console.log("***************** URL IS", url);
-					const response = await res.arrayBuffer();
+					const response = res.arrayBuffer !== undefined ? await res.arrayBuffer() : await res.buffer();
 
 					const callbacks = loading[url];
 					scope.manager.itemStart(url);
