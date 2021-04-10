@@ -116,6 +116,8 @@
     "whatkey": "^2.0.1"
   },
   "devDependencies": {
+    "semantic-release": "^17.4.2",
+    "semantic-release-monorepo": "^7.0.4",
     "@babel/core": "^7.12.10",
     "@types/node": "^13.13.0",
     "@types/node-sass": "^4.11.0",
