@@ -21,6 +21,8 @@ import SpotLightNode from "@xr3ngine/engine/src/editor/nodes/SpotLightNode";
 import TriggerVolumeNode from "@xr3ngine/engine/src/editor/nodes/TriggerVolumeNode";
 import VideoNode from "@xr3ngine/engine/src/editor/nodes/VideoNode";
 import VolumetricNode from "@xr3ngine/engine/src/editor/nodes/VolumetricNode";
+import ElementsSource from "./assets/sources/ElementsSource";
+import MyAssetsSource from "./assets/sources/MyAssetsSource";
 import Editor from "./Editor";
 import AmbientLightNodeEditor from "./properties/AmbientLightNodeEditor";
 import AudioNodeEditor from "./properties/AudioNodeEditor";
@@ -54,8 +56,8 @@ import VolumetricNodeEditor from "./properties/VolumetricNodeEditor";
  * @param  {any} settings [provides settings to be Applied]
  * @return {Editor}          [editor]
  */
-export function createEditor(api, settings) {
-  const editor = new Editor(api, settings);
+export function createEditor(api, settings, Engine) {
+  const editor = new Editor(api, settings, Engine);
 
   editor.registerNode(SceneNode, SceneNodeEditor);
   editor.registerNode(GroupNode, GroupNodeEditor);
@@ -74,7 +76,7 @@ export function createEditor(api, settings) {
   editor.registerNode(VideoNode, VideoNodeEditor);
   editor.registerNode(VolumetricNode, VolumetricNodeEditor);
   editor.registerNode(AudioNode, AudioNodeEditor);
-  editor.registerNode(PostProcessingNode,PostProcessingNodeEditor);
+  editor.registerNode(PostProcessingNode, PostProcessingNodeEditor);
   editor.registerNode(TriggerVolumeNode, TriggerVolumeNodeEditor);
   editor.registerNode(LinkNode, LinkNodeEditor);
   editor.registerNode(ScenePreviewCameraNode, ScenePreviewCameraNodeEditor);

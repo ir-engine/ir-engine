@@ -125,9 +125,9 @@ export default class PostProcessingProperties extends PureComponent<props>{
 
     render(){
         { /* @ts-ignore */}
-        const {values,op,onChangeFunction,getProp}=this.props
+        const {values,op,onChangeFunction,getProp}=this.props;
         const onPropertyValueChanged=(event)=>{
-          let address=''
+          let address='';
           op.forEach((element,id) => {
             if(id<op.length-1)
               address+=element+".";
@@ -135,19 +135,19 @@ export default class PostProcessingProperties extends PureComponent<props>{
               address+=element;
           });
           { /* @ts-ignore */}
-          onChangeFunction(address,event)
-        }
+          onChangeFunction(address,event);
+        };
 
         const getPropertyValue=()=>{
           const val=getProp(op);
           return val;
-        }
+        };
 
         { /* @ts-ignore */}
-        if(values.keys==="") return <></>
+        if(values.keys==="") return <></>;
 
 
-        let renderVal=<></>
+        let renderVal=<></>;
         { /* @ts-ignore */}
         switch(values.propertyType){
             case PostProcessingPropertyTypes.Number:
@@ -160,14 +160,14 @@ export default class PostProcessingProperties extends PureComponent<props>{
                     value={getPropertyValue()}
                     onChange={onPropertyValueChanged}
                     />
-                </>
+                </>;
                 break;
 
             case PostProcessingPropertyTypes.Boolean:
                 renderVal= <><BooleanInput
                     onChange={onPropertyValueChanged}
                     value={getPropertyValue()}
-                  /> </>
+                  /> </>;
                 break;
             case PostProcessingPropertyTypes.BlendFunction:
                 renderVal= <>
@@ -176,7 +176,7 @@ export default class PostProcessingProperties extends PureComponent<props>{
                     onChange={onPropertyValueChanged}
                     value={getPropertyValue()}
                     />
-                    </>
+                    </>;
                 break;
 
             case PostProcessingPropertyTypes.Color:
@@ -185,7 +185,7 @@ export default class PostProcessingProperties extends PureComponent<props>{
                   value={getPropertyValue()}
                   onChange={onPropertyValueChanged}
                   isValueAsInteger={true}
-                  />
+                  />;
                 break;
 
             case PostProcessingPropertyTypes.KernelSize:
@@ -196,10 +196,10 @@ export default class PostProcessingProperties extends PureComponent<props>{
                     value={getPropertyValue()}
                     />
 
-                    </>
+                    </>;
                 break;
             default:
-                renderVal= <>Can't Determine type of property</>
+                renderVal= <>Can't Determine type of property</>;
             
         }
 
@@ -213,6 +213,6 @@ export default class PostProcessingProperties extends PureComponent<props>{
                 <InputGroup name={values.name}>
                 {renderVal}
                 </InputGroup>
-            </div>
+            </div>;
     }
 }

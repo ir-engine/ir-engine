@@ -17,6 +17,7 @@ import {bindActionCreators, Dispatch} from "redux";
 import {doLoginAuto} from "@xr3ngine/client-core/src/user/reducers/auth/service";
 import { initializeEngine } from "@xr3ngine/engine/src/initialize";
 import { DefaultGameMode } from "@xr3ngine/engine/src/templates/game/DefaultGameMode";
+import { Engine } from "@xr3ngine/engine/src/ecs/classes/Engine";
 
 /**
  * Declairing Props interface having two props.
@@ -68,7 +69,6 @@ const Project = (props: Props) => {
     
     const InitializationOptions = {
         postProcessing: true,
-        offlineMode: true,
         editor: true,
         gameModes: [
             DefaultGameMode
@@ -77,6 +77,7 @@ const Project = (props: Props) => {
   
     useEffect(() => {
         initializeEngine(InitializationOptions).then(() => {
+            console.log("Setting engine inited")
             setEngineInitialized(true);
         })
     }, [])
@@ -94,11 +95,11 @@ const Project = (props: Props) => {
  * <NoSSR> enabling the defer rendering.
  *
  */
-    return hasMounted && engineIsInitialized &&
+    return hasMounted &&
     <Suspense fallback={React.Fragment}>
         <NoSSR>
             { authUser?.accessToken != null && authUser.accessToken.length > 0 
-              && user?.id != null && <EditorContainer {...props} /> }
+              && user?.id != null && engineIsInitialized && <EditorContainer Engine={Engine} {...props} /> }
         </NoSSR>
     </Suspense>;
 };

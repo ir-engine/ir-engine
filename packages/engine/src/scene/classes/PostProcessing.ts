@@ -14,18 +14,17 @@ import { ToneMappingEffect } from "../../renderer/postprocessing/ToneMappingEffe
 /**
  * @author Abhishek Pathak <abhi.pathak401@gmail.com>
  */
-export default class PostProcessing extends Object3D{
-    postProcessingOptions:any={};
-
-    
-    defaultOptions={
+export default class PostProcessing extends Object3D {
+    postProcessingOptions: any = {};
+    visible = true
+    defaultOptions = {
 
         FXAAEffect: {
-            isActive:false,
+            isActive: false,
             blendFunction: BlendFunction.NORMAL,
         },
         OutlineEffect: {
-            isActive:false,
+            isActive: false,
             blendFunction: BlendFunction.SCREEN,
             patternTexture: null,
             edgeStrength: 1.0,
@@ -40,7 +39,7 @@ export default class PostProcessing extends Object3D{
             xRay: true
         },
         SSAOEffect: {
-            isActive:false,
+            isActive: false,
             blendFunction: BlendFunction.MULTIPLY,
             distanceScaling: false,
             depthAwareUpsampling: false,
@@ -55,14 +54,14 @@ export default class PostProcessing extends Object3D{
             fade: 0.05
         },
         DepthOfFieldEffect: {
-            isActive:false,
+            isActive: false,
             blendFunction: BlendFunction.NORMAL,
             focusDistance: 0.02,
             focalLength: 0.5,
             bokehScale: 1
         },
         BloomEffect: {
-            isActive:false,
+            isActive: false,
             blendFunction: BlendFunction.SCREEN,
             kernelSize: 0,
             luminanceThreshold: 1.05,
@@ -70,7 +69,7 @@ export default class PostProcessing extends Object3D{
             intensity: 1
         },
         ToneMappingEffect: {
-            isActive:false,
+            isActive: false,
             blendFunction: BlendFunction.NORMAL,
             adaptive: false,
             resolution: 512,
@@ -80,69 +79,67 @@ export default class PostProcessing extends Object3D{
             adaptationRate: 2.0
         },
         BrightnessContrastEffect: {
-            isActive:false,
+            isActive: false,
             brightness: 0.05,
             contrast: 0.1
         },
         HueSaturationEffect: {
-            isActive:false,
+            isActive: false,
             hue: 0,
             saturation: -.15
         },
-    
+
         ColorDepthEffect: {
-            isActive:false,
+            isActive: false,
             bits: 16
         },
-        LinearTosRGBEffect:{
-            isActive:false,
+        LinearTosRGBEffect: {
+            isActive: false,
         }
-    
+
     }
 
-    effectType={
+    effectType = {
         FXAAEffect: {
-            effect:FXAAEffect,
+            effect: FXAAEffect,
         },
         OutlineEffect: {
-            effect:OutlineEffect,
+            effect: OutlineEffect,
         },
         SSAOEffect: {
-            effect:SSAOEffect,
+            effect: SSAOEffect,
         },
         DepthOfFieldEffect: {
-            effect:DepthOfFieldEffect,
+            effect: DepthOfFieldEffect,
         },
         BloomEffect: {
-            effect:BloomEffect,
+            effect: BloomEffect,
         },
         ToneMappingEffect: {
-            effect:ToneMappingEffect,
+            effect: ToneMappingEffect,
         },
         BrightnessContrastEffect: {
-            effect:BrightnessContrastEffect,
+            effect: BrightnessContrastEffect,
         },
         HueSaturationEffect: {
-            effect:HueSaturationEffect,
+            effect: HueSaturationEffect,
         },
-    
+
         ColorDepthEffect: {
-            effect:ColorDepthEffect,
+            effect: ColorDepthEffect,
         },
-        LinearTosRGBEffect:{
-            effect:LinearTosRGBEffect,
+        LinearTosRGBEffect: {
+            effect: LinearTosRGBEffect,
         }
     }
-    
 
-
-    getPropertyValue=(schemaArra:[])=>{
-        if(schemaArra.length<1) return null;
-        let value=this.postProcessingOptions;
+    getPropertyValue = (schemaArra: []) => {
+        if (schemaArra.length < 1) return null;
+        let value = this.postProcessingOptions;
         schemaArra.forEach(element => {
-            if(value[element]==="")
+            if (value[element] === "")
                 return null;
-            value=value[element];
+            value = value[element];
         });
         return value;
     }

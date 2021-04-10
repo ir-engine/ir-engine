@@ -390,6 +390,7 @@ export { default as srcEditorCommandsScaleCommand } from './src/editor/commands/
 export { default as srcEditorCommandsScaleMultipleCommand } from './src/editor/commands/ScaleMultipleCommand';
 export { default as srcEditorCommandsSelectCommand } from './src/editor/commands/SelectCommand';
 export { default as srcEditorCommandsSelectMultipleCommand } from './src/editor/commands/SelectMultipleCommand';
+export { default as srcEditorCommandsSetObjectPropertyCommand } from './src/editor/commands/SetObjectPropertyCommand';
 export { default as srcEditorCommandsSetPositionCommand } from './src/editor/commands/SetPositionCommand';
 export { default as srcEditorCommandsSetPositionMultipleCommand } from './src/editor/commands/SetPositionMultipleCommand';
 export { default as srcEditorCommandsSetPropertiesCommand } from './src/editor/commands/SetPropertiesCommand';
@@ -446,6 +447,7 @@ export { default as srcEditorNodesLinkNode } from './src/editor/nodes/LinkNode';
 export { default as srcEditorNodesModelNode } from './src/editor/nodes/ModelNode';
 export { default as srcEditorNodesParticleEmitterNode } from './src/editor/nodes/ParticleEmitterNode';
 export { default as srcEditorNodesPointLightNode } from './src/editor/nodes/PointLightNode';
+export { default as srcEditorNodesPostProcessingNode } from './src/editor/nodes/PostProcessingNode';
 export { default as srcEditorNodesSceneNode } from './src/editor/nodes/SceneNode';
 export { default as srcEditorNodesScenePreviewCameraNode } from './src/editor/nodes/ScenePreviewCameraNode';
 export { default as srcEditorNodesSkyboxNode } from './src/editor/nodes/SkyboxNode';
@@ -458,6 +460,7 @@ export { default as srcEditorRecastRecastClient } from './src/editor/recast/Reca
 export { default as srcEditorRendererMakeRenderer } from './src/editor/renderer/makeRenderer';
 export { default as srcEditorRendererOutlinePass } from './src/editor/renderer/OutlinePass';
 export { default as srcEditorRendererRenderer } from './src/editor/renderer/Renderer';
+export { default as srcEditorRendererRendererPostProcessing } from './src/editor/renderer/RendererPostProcessing';
 export { default as srcEditorRendererThumbnailRenderer } from './src/editor/renderer/ThumbnailRenderer';
 export { default as srcRendererPostprocessingBlendingGlslAddShaderFrag } from './src/renderer/postprocessing/blending/glsl/add/shader.frag';
 export { default as srcRendererPostprocessingBlendingGlslAlphaShaderFrag } from './src/renderer/postprocessing/blending/glsl/alpha/shader.frag';
@@ -544,6 +547,7 @@ export { default as srcSceneClassesPhysicalDirectionalLight } from './src/scene/
 export { default as srcSceneClassesPhysicalHemisphereLight } from './src/scene/classes/PhysicalHemisphereLight';
 export { default as srcSceneClassesPhysicalPointLight } from './src/scene/classes/PhysicalPointLight';
 export { default as srcSceneClassesPhysicalSpotLight } from './src/scene/classes/PhysicalSpotLight';
+export { default as srcSceneClassesPostProcessing } from './src/scene/classes/PostProcessing';
 export { default as srcSceneClassesTransformGizmo } from './src/scene/classes/TransformGizmo';
 export { default as srcSceneClassesVideo } from './src/scene/classes/Video';
 export { default as srcSceneClassesVolumetric } from './src/scene/classes/Volumetric';
