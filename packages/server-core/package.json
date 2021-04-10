@@ -78,6 +78,8 @@
     "socket.io": "2.4.1"
   },
   "dependencies": {
+    "semantic-release": "^17.4.2",
+    "semantic-release-monorepo": "^7.0.4",
     "@feathersjs/authentication": "^4.5.9",
     "@feathersjs/authentication-jwt": "^2.0.10",
     "@feathersjs/authentication-local": "^4.5.9",
