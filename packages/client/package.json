@@ -36,10 +36,10 @@
   },
   "dependencies": {
     "@capacitor-community/electron": "1.4.0",
-    "@capacitor/android": "2.4.6",
+    "@capacitor/android": "2.4.7",
     "@capacitor/cli": "2.4.7",
     "@capacitor/core": "2.4.7",
-    "@capacitor/ios": "2.4.6",
+    "@capacitor/ios": "2.4.7",
     "@feathersjs/client": "4.5.11",
     "@feathersjs/socketio": "4.5.11",
     "@feathersjs/socketio-client": "4.5.11",
