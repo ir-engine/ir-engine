@@ -3,6 +3,10 @@ import { PhysicsSystem } from '../systems/PhysicsSystem';
 import { CollisionGroups } from "../enums/CollisionGroups";
 import { threeToCannon } from '../classes/three-to-cannon';
 
+/**
+ * @author HydraFire <github.com/HydraFire>
+ */
+
 export function createTrimeshFromArrayVertices (vertices, indices) {
 	  indices = indices || vertices.map((v,i) => i);
 		return new Trimesh(vertices, indices);
