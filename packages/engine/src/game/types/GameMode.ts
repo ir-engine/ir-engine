@@ -7,5 +7,6 @@ export interface GameMode {
     [key: string]: GameStateAction;
   },
   allowedPlayerActions: any[]
-  allowedHostActions: any[]
+  allowedHostActions: any[],
+  gameObjectRoles: string[]
 }
