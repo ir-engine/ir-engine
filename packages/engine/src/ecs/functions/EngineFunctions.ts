@@ -27,6 +27,7 @@ export function initialize (options?: EngineOptions): void {
 
 /** Reset the engine and remove everything from memory. */
 export function reset(): void {
+  console.log("RESETTING ENGINE");
   // clear all entities components
   Engine.entities.forEach(entity => {
     removeAllComponents(entity, false);
