@@ -201,6 +201,7 @@ export * from './src/world/components/editor/properties/BoxColliderNodeEditor';
 export * from './src/world/components/editor/properties/CubemapList';
 export * from './src/world/components/editor/properties/DirectionalLightNodeEditor';
 export * from './src/world/components/editor/properties/EquirectangularList';
+export * from './src/world/components/editor/properties/GameNodeEditor';
 export * from './src/world/components/editor/properties/GroundPlaneNodeEditor';
 export * from './src/world/components/editor/properties/GroupNodeEditor';
 export * from './src/world/components/editor/properties/HemisphereLightNodeEditor';
@@ -453,6 +454,7 @@ export { default as srcWorldComponentsEditorPropertiesBoxColliderNodeEditor } fr
 export { default as srcWorldComponentsEditorPropertiesDefaultNodeEditor } from './src/world/components/editor/properties/DefaultNodeEditor';
 export { default as srcWorldComponentsEditorPropertiesDirectionalLightNodeEditor } from './src/world/components/editor/properties/DirectionalLightNodeEditor';
 export { default as srcWorldComponentsEditorPropertiesFloorPlanNodeEditor } from './src/world/components/editor/properties/FloorPlanNodeEditor';
+export { default as srcWorldComponentsEditorPropertiesGameNodeEditor } from './src/world/components/editor/properties/GameNodeEditor';
 export { default as srcWorldComponentsEditorPropertiesGroundPlaneNodeEditor } from './src/world/components/editor/properties/GroundPlaneNodeEditor';
 export { default as srcWorldComponentsEditorPropertiesGroupNodeEditor } from './src/world/components/editor/properties/GroupNodeEditor';
 export { default as srcWorldComponentsEditorPropertiesHemisphereLightNodeEditor } from './src/world/components/editor/properties/HemisphereLightNodeEditor';
