@@ -5,7 +5,9 @@ import i18n from "i18next";
 import { withTranslation } from "react-i18next";
 
 /**
- * [SpawnPointNodeEditorProps declairing properties for SpawnPointNodeEditor ]
+ * SpawnPointNodeEditorProps declairing properties for SpawnPointNodeEditor.
+ * 
+ * @author Robert Long
  * @type {Object}
  */
 type SpawnPointNodeEditorProps = {
@@ -15,7 +17,9 @@ type SpawnPointNodeEditorProps = {
 };
 
 /**
- * [SpawnPointNodeEditor component used to provide the editor view to customize SpawnPointNode properties]
+ * SpawnPointNodeEditor component used to provide the editor view to customize SpawnPointNode properties.
+ * 
+ * @author Robert Long
  * @type {Class component}
  */
 export class SpawnPointNodeEditor extends Component<

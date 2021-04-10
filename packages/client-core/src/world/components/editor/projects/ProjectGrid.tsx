@@ -9,6 +9,10 @@ import { useRouter } from "next/router";
 import { Plus } from "@styled-icons/fa-solid/Plus";
 import { useTranslation } from "react-i18next";
 
+/**
+ * 
+ *@author Robert Long
+ */
 const ProjectGridItemContainer = (styled as any).div`
   display: flex;
   flex-direction: column;
@@ -34,6 +38,13 @@ const ProjectGridItemContainer = (styled as any).div`
   }
 `;
 
+/**
+ * 
+ * @author Robert Long
+ * @param {string} path
+ * @param {string} label
+ * @returns 
+ */
 export function NewProjectGridItem({ path, label }: { path: string; label: string }) {
   const router = useRouter();
 
@@ -57,6 +68,11 @@ NewProjectGridItem.defaultProps = {
   label: "New Project"
 };
 
+/**
+ * 
+ * @author Robert Long
+ * @returns 
+ */
 export function LoadingProjectGridItem() {
   const { t } = useTranslation();
 
@@ -67,6 +83,10 @@ export function LoadingProjectGridItem() {
   );
 }
 
+/**
+ * 
+ * @author Robert Long
+ */
 const StyledProjectGrid = (styled as any).div`
   display: grid;
   grid-gap: 20px;
@@ -74,6 +94,16 @@ const StyledProjectGrid = (styled as any).div`
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
 `;
  
+/**
+ * 
+ * @author Robert Long
+ * @param {any} projects
+ * @param {any} newProjectPath
+ * @param {any} newProjectLabel
+ * @param {any} contextMenuId
+ * @param {any} loading
+ * @returns 
+ */
 export function ProjectGrid({ projects, newProjectPath, newProjectLabel, contextMenuId, loading }) {
   return (
     <StyledProjectGrid>
@@ -94,6 +124,10 @@ ProjectGrid.propTypes = {
   loading: PropTypes.bool
 };
 
+/**
+ * 
+ * @author Robert Long
+ */
 export const ProjectGridContainer = styled.div`
   display: flex;
   flex: 1;
@@ -102,6 +136,10 @@ export const ProjectGridContainer = styled.div`
   border-radius: 3px;
 `;
 
+/**
+ * 
+ * @author Robert Long
+ */
 export const ProjectGridContent = styled.div`
   display: flex;
   flex: 1;
@@ -109,6 +147,10 @@ export const ProjectGridContent = styled.div`
   padding: 20px;
 `;
 
+/**
+ * 
+ * @author Robert Long
+ */
 export const ProjectGridHeader = styled.div`
   display: flex;
   background-color: ${props => props.theme.toolbar2};
@@ -119,18 +161,30 @@ export const ProjectGridHeader = styled.div`
   padding: 0 10px;
 `;
 
+/**
+ * 
+ * @author Robert Long
+ */
 export const Filter = styled.a<{ active?: boolean }>`
   font-size: 1.25em;
   cursor: pointer;
   color: ${props => (props.active ? props.theme.blue : props.theme.text)};
 `;
 
+/**
+ * 
+ * @author Robert Long
+ */
 export const Separator = styled.div`
   height: 48px;
   width: 1px;
   background-color: ${props => props.theme.border};
 `;
 
+/**
+ * 
+ * @author Robert Long
+ */
 export const ProjectGridHeaderRow = styled(Row)`
   align-items: center;
 
@@ -139,12 +193,20 @@ export const ProjectGridHeaderRow = styled(Row)`
   }
 `;
 
+/**
+ * 
+ * @author Robert Long
+ */
 export const SearchInput = styled<any>(StringInput)`
   width: auto;
   min-width: 200px;
   height: 28px;
 `;
 
+/**
+ * 
+ * @author Robert Long
+ */
 export const CenteredMessage = styled.div`
   display: flex;
   flex: 1;
@@ -152,6 +214,10 @@ export const CenteredMessage = styled.div`
   align-items: center;
 `;
 
+/**
+ * 
+ * @author Robert Long
+ */
 export const ErrorMessage = styled(CenteredMessage)`
   color: ${props => props.theme.red};
 `;

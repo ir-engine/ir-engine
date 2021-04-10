@@ -24,6 +24,12 @@ import configs from "../configs";
 import Api from "../Api";
 import { useTranslation } from "react-i18next";
 
+/**
+ * 
+ * @author Robert Long
+ * @param {API} api
+ * @returns 
+ */
 function CreateProjectPage({ api }: { api: Api }) {
   const router = useRouter();
   const { t } = useTranslation();

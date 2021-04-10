@@ -13,10 +13,11 @@ type AmbientLightNodeEditorProps = {
 };
 
 /**
- * [
+ * 
  * AmbientLightNodeEditor component used to customize the ambient light element on the scene
- * ambient light is basically used to illuminates all the objects present inside the scene
- * ]
+ * ambient light is basically used to illuminates all the objects present inside the scene.
+ * 
+ * @author Robert Long
  * @type {[component class]}
  */
 export class AmbientLightNodeEditor extends Component<
@@ -37,7 +38,9 @@ export class AmbientLightNodeEditor extends Component<
   };
 
   /**
-   * [rendering ambient light view to customize ambient light element]
+   * Rendering ambient light view to customize ambient light element.
+   * 
+   * @author Robert Long
    */
   render() {
     AmbientLightNodeEditor.description = this.props.t('editor:properties.ambientLight.description');

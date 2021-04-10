@@ -6,7 +6,9 @@ import { CaretRight } from "@styled-icons/fa-solid/CaretRight";
 import { CaretDown } from "@styled-icons/fa-solid/CaretDown";
 
 /**
- * [CollapsibleContainer used to provide styles for Collapsible div]
+ * CollapsibleContainer used to provide styles for Collapsible div.
+ * 
+ * @author Robert Long
  * @type {styled component}
  */
 const CollapsibleContainer = (styled as any).div`
@@ -16,7 +18,9 @@ const CollapsibleContainer = (styled as any).div`
 `;
 
 /**
- * [CollapsibleLabel used to provide styles for Collapsible label]
+ * CollapsibleLabel used to provide styles for Collapsible label.
+ * 
+ * @author Robert Long
  * @type {styled container}
  */
 const CollapsibleLabel = (styled as any).div`
@@ -30,7 +34,9 @@ const CollapsibleLabel = (styled as any).div`
 `;
 
 /**
- * [CollapsibleContent used to provides styles to Collapsible content]
+ * CollapsibleContent used to provides styles to Collapsible content.
+ * 
+ * @author Robert Long
  * @type {styled component}
  */
 const CollapsibleContent = (styled as any).div`
@@ -40,13 +46,17 @@ const CollapsibleContent = (styled as any).div`
 `;
 
 /**
- * [CollapseIcon used to provide styles to icon]
+ * CollapseIcon used to provide styles to icon.
+ * 
+ * @author Robert Long
  * @type  {styled component}
  */
 const CollapseIcon = (styled as any).div``;
 
 /**
- * [Collapsible used to render the view of component]
+ * Collapsible used to render the view of component.
+ * 
+ * @author Robert Long
  * @param       {string} label
  * @param       {boolean} open
  * @param       {node} children
@@ -56,7 +66,9 @@ export default function Collapsible({ label, open, children }) {
   const [collapsed, setCollapsed] = useState(!open);
 
    /**
-    * [toggleCollapsed callback function used to handle toggle on collapse]
+    * toggleCollapsed callback function used to handle toggle on collapse.
+    * 
+    * @author Robert Long
     * @type {styled component}
     */
   const toggleCollapsed = useCallback(() => {
@@ -75,7 +87,9 @@ export default function Collapsible({ label, open, children }) {
 }
 
 /**
- * [initializing defaultProps for component]
+ * Initializing defaultProps for component.
+ * 
+ * @author Robert Long
  * @type {Object}
  */
 Collapsible.defaultProps = {
@@ -83,7 +97,9 @@ Collapsible.defaultProps = {
 };
 
 /**
- * [declaring propTypes for component]
+ * Declaring propTypes for component.
+ * 
+ * @author Robert Long
  * @type {Object}
  */
 Collapsible.propTypes = {

@@ -10,6 +10,8 @@ import SocketIO from "socket.io";
 import { GameStateActionMessage } from "../../game/types/GameStateActionMessage";
 import { GameMode } from "../../game/types/GameMode";
 import { DefaultGameMode } from "../../templates/game/DefaultGameMode";
+import { DefaultGameStateAction } from "../../templates/game/DefaultGameStateAction";
+import { GameStateAction } from "../../game/types/GameStateAction";
 
 export interface NetworkClientList {
   // Key is socket ID

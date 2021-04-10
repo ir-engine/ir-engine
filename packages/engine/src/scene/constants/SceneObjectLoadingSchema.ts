@@ -29,6 +29,7 @@ import SpawnPointComponent from "../components/SpawnPointComponent";
 import WalkableTagComponent from '../components/Walkable';
 import { LoadingSchema } from '../interfaces/LoadingSchema';
 import Image from '../classes/Image';
+import { createGame } from "../behaviors/createGame";
 
 /**
  * Add Component into Entity from the Behavior.
@@ -58,8 +59,20 @@ export function addTagComponentFromBehavior<C>(
   addComponent(entity, args.component);
 }
 
-
 export const SceneObjectLoadingSchema: LoadingSchema = {
+  'game': {
+    behaviors: [
+      {
+        behavior: createGame,
+        values: [
+          { from: 'isGlobal', to: 'isGlobal' },
+          { from: 'minPlayers', to: 'minPlayers' },
+          { from: 'maxPlayers', to: 'maxPlayers' },
+          { from: 'gameMode', to: 'gameMode' }
+        ]
+      }
+    ]
+  },
   'ambient-light': {
     behaviors: [
       {

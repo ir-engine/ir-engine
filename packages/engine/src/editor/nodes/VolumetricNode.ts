@@ -14,7 +14,7 @@ export default class VolumetricNode extends EditorNodeMixin(Volumetric) {
   // };
   static initialElementProps = {}
   static async deserialize(editor, json, loadAsync, onError) {
-    const node = await super.deserialize(editor, json);
+    const node = await super.deserialize(editor, json) as any;
     const {
       src,
       controls,
@@ -51,6 +51,27 @@ export default class VolumetricNode extends EditorNodeMixin(Volumetric) {
     );
     return node;
   }
+  _canonicalUrl: string;
+  _autoPlay: boolean;
+  volume: number;
+  controls: boolean;
+  issues: any[];
+  _mesh: any;
+  editor: any;
+  el: any;
+  onResize: any;
+  audioListener: any;
+  loop: any;
+  audioType: any;
+  distanceModel: any;
+  rolloffFactor: any;
+  refDistance: any;
+  maxDistance: any;
+  coneInnerAngle: any;
+  coneOuterAngle: any;
+  coneOuterGain: any;
+  projection: any;
+  uuid: any;
   constructor(editor) {
     super(editor, editor.audioListener);
     this._canonicalUrl = "";

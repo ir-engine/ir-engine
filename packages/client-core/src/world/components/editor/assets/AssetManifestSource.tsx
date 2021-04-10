@@ -17,7 +17,9 @@ function hasTags(result, tags) {
 }
 
 /**
- * [declairing assetTypeToNodeClass that contains types of node classes]
+ * Declairing assetTypeToNodeClass that contains types of node classes.
+ * 
+ * @author Robert Long
  * @type {Object}
  */
 const assetTypeToNodeClass = {
@@ -29,7 +31,9 @@ const assetTypeToNodeClass = {
 };
 
 /**
- * [AssetManifestSource used to load sources using manifestUrl]
+ * AssetManifestSource used to load sources using manifestUrl.
+ * 
+ * @author Robert Long
  * @type {class component}
  */
 export default class AssetManifestSource extends BaseSource {
@@ -59,7 +63,9 @@ export default class AssetManifestSource extends BaseSource {
   }
 
   /**
-   * [load used to calling api to load source]
+   * load used to calling api to load source.
+   * 
+   * @author Robert Long
    * @return {Promise}
    */
   async load() {
@@ -114,10 +120,12 @@ export default class AssetManifestSource extends BaseSource {
   }
 
   /**
-   * [function used to search assets]
-   * @param  {[type]}  params
-   * @param  {[type]}  _cursor
-   * @param  {[type]}  _abortSignal
+   * function used to search assets.
+   * 
+   * @author Robert Long
+   * @param  {any}  params
+   * @param  {any}  _cursor
+   * @param  {any}  _abortSignal
    * @return {Promise}
    */
   /* @ts-ignore */

@@ -7,10 +7,20 @@ import { MenuButton } from "../inputs/Button";
 import StylableContextMenuTrigger from "./StylableContextMenuTrigger";
 import { EllipsisV } from "@styled-icons/fa-solid/EllipsisV";
 
+/**
+ * 
+ * @author Robert Long
+ * @param {any} project 
+ * @returns 
+ */
 function collectMenuProps({ project }) {
   return { project };
 }
 
+/**
+ * 
+ * @author Robert Long
+ */
 const StyledProjectGridItem = styled.div`
   display: flex;
   flex-direction: column;
@@ -26,6 +36,10 @@ const StyledProjectGridItem = styled.div`
   }
 `;
 
+/**
+ * 
+ * @author Robert Long
+ */
 const StyledContextMenuTrigger = styled(StylableContextMenuTrigger)`
   display: flex;
   flex-direction: column;
@@ -34,6 +48,10 @@ const StyledContextMenuTrigger = styled(StylableContextMenuTrigger)`
   border-top-right-radius: inherit;
 `;
 
+/**
+ * 
+ * @author Robert Long
+ */
 const TitleContainer = styled.div`
   display: flex;
   height: 50px;
@@ -54,6 +72,10 @@ const TitleContainer = styled.div`
   }
 `;
 
+/**
+ * 
+ * @author Robert Long
+ */
 const ThumbnailContainer = styled.div`
   display: flex;
   flex: 1 0 auto;
@@ -65,6 +87,10 @@ const ThumbnailContainer = styled.div`
   border-top-right-radius: inherit;
 `;
 
+/**
+ * 
+ * @author Robert Long
+ */
 const Thumbnail = styled.div<{ src: string }>`
   display: flex;
   flex: 1;
@@ -74,6 +100,10 @@ const Thumbnail = styled.div<{ src: string }>`
   background-image: url(${props => props.src});
 `;
 
+/**
+ * 
+ * @author Robert Long
+ */
 const Col = styled.div`
   display: flex;
   flex-direction: column;
@@ -83,6 +113,10 @@ const Col = styled.div`
   }
 `;
 
+/**
+ * 
+ * @author Robert Long
+ */
 export default class ProjectGridItem extends Component<{ contextMenuId: string, project: any }> {
   static propTypes = {
     contextMenuId: PropTypes.string,

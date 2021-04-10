@@ -5,7 +5,9 @@ import { Trans, useTranslation } from "react-i18next";
 
 
 /**
- * [SupportDialog used to render content for support]
+ * SupportDialog used to render content for support.
+ * 
+ * @author Robert Long
  * @param       {function} onCancel
  * @param       {any} props
  * @constructor
@@ -41,7 +43,9 @@ export default function SupportDialog({ onCancel, ...props }) {
 }
 
 /**
- * [declairing propTypes for SupportDialog]
+ * declairing propTypes for SupportDialog.
+ * 
+ * @author Robert Long
  * @type {Object}
  */
 SupportDialog.propTypes = {

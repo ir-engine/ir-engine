@@ -1,7 +1,9 @@
 import React from "react";
 
 /**
- * [theme is common component used for providing common UI properties]
+ * theme is common component used for providing common UI properties.
+ * 
+ * @author Robert Long
  * @type {Object}
  */
 const theme = {
@@ -52,8 +54,10 @@ const theme = {
 };
 
 /**
- * [theme creating color chart for application]
- * @type {[type]}
+ * theme creating color chart for application.
+ * 
+ * @author Robert Long
+ * @type {Object}
  */
 theme["chartColors"] = [
   theme.red,

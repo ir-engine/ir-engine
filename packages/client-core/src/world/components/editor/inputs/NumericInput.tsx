@@ -5,6 +5,14 @@ import styled from "styled-components";
 import { getStepSize, toPrecision } from "@xr3ngine/engine/src/editor/functions/utils";
 import { clamp } from "@xr3ngine/engine/src/common/functions/MathLerpFunctions";
 
+/**
+ * 
+ * 
+ * @author Robert Long
+ * @param value 
+ * @param precision 
+ * @returns 
+ */
 function toPrecisionString(value, precision) {
   if (precision && precision <= 1) {
     const numDigits = Math.abs(Math.log10(precision));
@@ -21,6 +29,9 @@ function toPrecisionString(value, precision) {
   }
 }
 
+/**
+ * @author Robert Long
+ */
 const NumericInputContainer = (styled as any).div`
   position: relative;
   display: flex;
@@ -28,6 +39,9 @@ const NumericInputContainer = (styled as any).div`
   max-width: 100px;
 `;
 
+/**
+ * @author Robert Long
+ */
 const StyledNumericInput = (styled as any).input`
   display: flex;
   width: 100%;
@@ -56,6 +70,9 @@ const StyledNumericInput = (styled as any).input`
   }
 `;
 
+/**
+ * @author Robert Long
+ */
 const NumericInputUnit = (styled as any).div`
   position: absolute;
   color: ${props => props.theme.text2};
@@ -70,6 +87,9 @@ const NumericInputUnit = (styled as any).div`
   height: 22px;
 `;
 
+/**
+ * @author Robert Long
+ */
 export default class NumericInput extends Component {
 
   constructor(props) {

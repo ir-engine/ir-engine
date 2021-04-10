@@ -5,7 +5,9 @@ import useHover from "../hooks/useHover";
 const AudioPreviewContext = createContext(new Audio());
 
 /**
- * [AudioPreview cused to provides the options for audio]
+ * AudioPreview cused to provides the options for audio.
+ * 
+ * @author Robert Long
  * @param       {String} src
  * @param       {String} children
  * @constructor
@@ -27,7 +29,9 @@ export default function AudioPreview({ src, children }) {
 }
 
 /**
- * [declairing propTypes for AudioPreview]
+ * Declairing propTypes for AudioPreview.
+ * 
+ * @author Robert Long
  * @type {Object}
  */
 AudioPreview.propTypes = {

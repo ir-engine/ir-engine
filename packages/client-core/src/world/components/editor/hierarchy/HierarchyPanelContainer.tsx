@@ -21,7 +21,9 @@ import NodeIssuesIcon from "./NodeIssuesIcon";
 import { useTranslation } from "react-i18next";
 
 /**
- * [uploadOption initializing object containing Properties multiple, accepts]
+ * uploadOption initializing object containing Properties multiple, accepts.
+ * 
+ * @author Robert Long
  * @type {Object}
  */
 
@@ -32,7 +34,9 @@ const uploadOptions = {
 
 
 /**
- * [function provides node menu properties]
+ * function provides node menu properties.
+ * 
+ * @author Robert Long
  * @param  {object} node
  * @return {object}
  */
@@ -42,7 +46,9 @@ function collectNodeMenuProps({ node }) {
 
 
 /**
- * [PanelContainer used as wrapper element for   penal content]
+ * PanelContainer used as wrapper element for   penal content.
+ * 
+ * @author Robert Long
  * @type {Styled component}
  */
 const PanelContainer = (styled as any).div`
@@ -57,13 +63,17 @@ const PanelContainer = (styled as any).div`
 `;
 
 /**
- * [TreeDepthContainer used to provide the styles for hierarchy tree]
+ * TreeDepthContainer used to provide the styles for hierarchy tree.
+ * 
+ * @author Robert Long
  * @type {Styled component}
  */
 const TreeDepthContainer = (styled as any).li``;
 
 /**
- * [treeNodeBackgroundColor function used to provide background color for tree nodes]
+ * treeNodeBackgroundColor function used to provide background color for tree nodes.
+ * 
+ * @author Robert Long
  * @param  {boolean} root
  * @param  {boolean} selected
  * @param  {boolean} active
@@ -87,7 +97,9 @@ function treeNodeBackgroundColor({ root, selected, active, theme }) {
 }
 
 /**
- * [getNodeKey function used to get object id at given index]
+ * getNodeKey function used to get object id at given index.
+ * 
+ * @author Robert Long
  * @param  {number} index [index of the node to get object id]
  * @param  {object} data
  * @return {string}
@@ -97,7 +109,9 @@ function getNodeKey(index, data) {
 }
 
 /**
- * [getNodeElId function provides id for node]
+ * getNodeElId function provides id for node.
+ * 
+ * @author Robert Long
  * @param  {object} node
  * @return {string}
  */
@@ -106,7 +120,9 @@ function getNodeElId(node) {
 }
 
 /**
- * [TreeNodeContainer used to provide styles to node tree]
+ * TreeNodeContainer used to provide styles to node tree.
+ * 
+ * @author Robert Long
  * @type {Styled component}
  */
 const TreeNodeContainer = (styled as any).div`
@@ -133,7 +149,9 @@ const TreeNodeContainer = (styled as any).div`
 `;
 
 /**
- * [TreeNodeSelectTarget used to provide styles for node inside hierarchy container]
+ * TreeNodeSelectTarget used to provide styles for node inside hierarchy container.
+ * 
+ * @author Robert Long
  * @type {Styled component}
  */
 const TreeNodeSelectTarget = (styled as any).div`
@@ -143,7 +161,9 @@ const TreeNodeSelectTarget = (styled as any).div`
 `;
 
 /**
- * [TreeNodeLabelContainer used to provide styles for label text on hierarchy node]
+ * TreeNodeLabelContainer used to provide styles for label text on hierarchy node.
+ * 
+ * @author Robert Long
  * @type {Styled component}
  */
 const TreeNodeLabelContainer = (styled as any).div`
@@ -152,7 +172,9 @@ const TreeNodeLabelContainer = (styled as any).div`
 `;
 
 /**
- * [TreeNodeContent used to provide styles for container element of TreeNodeIcon TreeNodeLabel]
+ * TreeNodeContent used to provide styles for container element of TreeNodeIcon TreeNodeLabel.
+ * 
+ * @author Robert Long
  * @type {Styled Component}
  */
 const TreeNodeContent = (styled as any).div`
@@ -163,7 +185,9 @@ const TreeNodeContent = (styled as any).div`
 `;
 
 /**
- * [TreeNodeToggle creates element used to toggle node ]
+ * TreeNodeToggle creates element used to toggle node.
+ * 
+ * @author Robert Long
  * @type {Styled component}
  */
 const TreeNodeToggle = (styled as any).div`
@@ -178,7 +202,9 @@ const TreeNodeToggle = (styled as any).div`
 `;
 
 /**
- * [TreeNodeLeafSpacer used to create space between leaf node]
+ * TreeNodeLeafSpacer used to create space between leaf node.
+ * 
+ * @author Robert Long
  * @type {Styled component}
  */
 const TreeNodeLeafSpacer = (styled as any).div`
@@ -186,7 +212,9 @@ const TreeNodeLeafSpacer = (styled as any).div`
 `;
 
 /**
- * [TreeNodeIcon used provide style for icon inside tree node]
+ * TreeNodeIcon used provide style for icon inside tree node.
+ * 
+ * @author Robert Long
  * @type {Styled component}
  */
 const TreeNodeIcon = (styled as any).div`
@@ -196,7 +224,9 @@ const TreeNodeIcon = (styled as any).div`
 `;
 
 /**
- * [TreeNodeLabel used to provide styles for label content of tree node]
+ * TreeNodeLabel used to provide styles for label content of tree node.
+ * 
+ * @author Robert Long
  * @type {Styled component}
  */
 const TreeNodeLabel = (styled as any).div`
@@ -207,7 +237,9 @@ const TreeNodeLabel = (styled as any).div`
 `;
 
 /**
- * [borderStyle function used to provide styles for border]
+ * borderStyle function used to provide styles for border.
+ * 
+ * @author Robert Long
  * @param  {Boolean} isOver
  * @param  {Boolean}  canDrop
  * @param  {string}  position
@@ -223,7 +255,9 @@ function borderStyle({ isOver, canDrop, position }) {
 
 
 /**
- * [TreeNodeDropTarget used to provide styles to drop target node]
+ * TreeNodeDropTarget used to provide styles to drop target node.
+ * 
+ * @author Robert Long
  * @type {Styled component}
  */
 const TreeNodeDropTarget = (styled as any).div`
@@ -234,7 +268,9 @@ const TreeNodeDropTarget = (styled as any).div`
 `;
 
 /**
- * [TreeNodeRenameInput used to provides styles for rename input of node]
+ * TreeNodeRenameInput used to provides styles for rename input of node.
+ * 
+ * @author Robert Long
  * @type {Styled Component}
  */
 const TreeNodeRenameInput = (styled as any).input`
@@ -248,7 +284,9 @@ const TreeNodeRenameInput = (styled as any).input`
 
 
 /**
- * [TreeNodeRenameInputContainer used to provide styles for rename input container of tree node]
+ * TreeNodeRenameInputContainer used to provide styles for rename input container of tree node.
+ * 
+ * @author Robert Long
  * @type {Styled component}
  */
 const TreeNodeRenameInputContainer = (styled as any).div`
@@ -257,7 +295,9 @@ const TreeNodeRenameInputContainer = (styled as any).div`
 `;
 
 /**
- * [isAncestor used to check if object contains leaf nodes or not]
+ * isAncestor used to check if object contains leaf nodes or not.
+ * 
+ * @author Robert Long
  * @param  {object}  object
  * @param  {object}  otherObject
  * @return {Boolean}
@@ -267,7 +307,9 @@ function isAncestor(object, otherObject) {
 }
 
 /**
- * [TreeNode function provides tree node hierarchy view]
+ * TreeNode function provides tree node hierarchy view.
+ * 
+ * @author Robert Long
  * @param       {number} index
  * @param       {object} data
  * @param       {object} renamingNode
@@ -321,7 +363,9 @@ function TreeNode({
   );
 
 /**
- * [onKeyDownNameInput callback function to handle key down event on name input]
+ * onKeyDownNameInput callback function to handle key down event on name input.
+ * 
+ * @author Robert Long
  * @type {function}
  */
   const onKeyDownNameInput = useCallback(
@@ -336,7 +380,9 @@ function TreeNode({
   );
 
 /**
- * [onClickNode callback function used to hanlde click node inside hierarchy panel]
+ * onClickNode callback function used to hanlde click node inside hierarchy panel.
+ * 
+ * @author Robert Long
  * @type {function}
  */
   const onClickNode = useCallback(
@@ -347,7 +393,9 @@ function TreeNode({
   );
 
 /**
- * [onMouseDownNode callback function used to handle mouse down event on node]
+ * onMouseDownNode callback function used to handle mouse down event on node.
+ * 
+ * @author Robert Long
  * @type {function}
  */
   const onMouseDownNode = useCallback(
@@ -358,7 +406,9 @@ function TreeNode({
   );
 
 /**
- * [onChangeNodeName callback function used to handle change in name of node]
+ * onChangeNodeName callback function used to handle change in name of node.
+ * 
+ * @author Robert Long
  * @type {function}
  */
   const onChangeNodeName = useCallback(
@@ -369,7 +419,9 @@ function TreeNode({
   );
 
 /**
- * [onSubmitNodeName callback function to handle submit or rename nade input]
+ * onSubmitNodeName callback function to handle submit or rename nade input.
+ * 
+ * @author Robert Long
  * @type {function}
  */
   const onSubmitNodeName = useCallback(
@@ -380,7 +432,9 @@ function TreeNode({
   );
 
 /**
- * [initializing renaming setting renaming true if renamingNode id equals node id]
+ * initializing renaming setting renaming true if renamingNode id equals node id.
+ * 
+ * @author Robert Long
  * @type {boolean}
  */
   const renaming = renamingNode && renamingNode.id === node.id;
@@ -472,7 +526,9 @@ function TreeNode({
   });
 
   /**
-   * [initializing variable using useDrop]
+   * initializing variable using useDrop.
+   * 
+   * @author Robert Long
    */
   const [{ canDropAfter, isOverAfter }, afterDropTarget] = useDrop({
 
@@ -509,7 +565,9 @@ function TreeNode({
     },
 
     /**
-     * [canDrop used to check item is dropable or not]
+     * canDrop used to check item is dropable or not.
+     * 
+     * @author Robert Long
      * @param  {object} item
      * @param  {object} monitor
      * @return {boolean}
@@ -706,12 +764,16 @@ TreeNode.propTypes = {
 };
 
 /**
- * [initializing MemoTreeNode ]
+ * initializing MemoTreeNode.
+ * 
+ * @author Robert Long
  */
 const MemoTreeNode = memo(TreeNode, areEqual);
 
 /**
- * [treeWalker function used to handle tree]
+ * treeWalker function used to handle tree.
+ * 
+ * @author Robert Long
  * @param  {object}    editor
  * @param  {object}    collapsedNodes
  */
@@ -764,7 +826,9 @@ function* treeWalker(editor, collapsedNodes) {
 }
 
 /**
- * [HierarchyPanel function component provides view for hierarchy tree]
+ * HierarchyPanel function component provides view for hierarchy tree.
+ * 
+ * @author Robert Long
  * @constructor
  */
 export default function HierarchyPanel() {
@@ -779,7 +843,9 @@ export default function HierarchyPanel() {
   const { t } = useTranslation();
 
   /**
-   * [expandNode callback function used to expand node]
+   * expandNode callback function used to expand node.
+   * 
+   * @author Robert Long
    * @type {function}
    */
   const expandNode = useCallback(
@@ -791,7 +857,9 @@ export default function HierarchyPanel() {
   );
 
   /**
-   * [collapseNode function used to collapse node]
+   * collapseNode function used to collapse node.
+   * 
+   * @author Robert Long
    * @type {function}
    */
   const collapseNode = useCallback(
@@ -802,7 +870,9 @@ export default function HierarchyPanel() {
   );
 
   /**
-   * [expandChildren function used to expand children]
+   * expandChildren function used to expand children.
+   * 
+   * @author Robert Long
    * @type {function}
    */
   const expandChildren = useCallback(
@@ -818,7 +888,9 @@ export default function HierarchyPanel() {
   );
 
   /**
-   * [collapseChildren function used to collapse children]
+   * collapseChildren function used to collapse children.
+   * 
+   * @author Robert Long
    * @type {function}
    */
   const collapseChildren = useCallback(
@@ -834,7 +906,9 @@ export default function HierarchyPanel() {
   );
 
   /**
-   * [function used to expand all node]
+   * function used to expand all node.
+   * 
+   * @author Robert Long
    * @type {function}
    */
   const onExpandAllNodes = useCallback(() => {
@@ -842,7 +916,9 @@ export default function HierarchyPanel() {
   }, [setCollapsedNodes]);
 
 /**
- * [function used to collapse all nodes]
+ * function used to collapse all nodes.
+ * 
+ * @author Robert Long
  * @type {function}
  */
   const onCollapseAllNodes = useCallback(() => {
@@ -856,8 +932,10 @@ export default function HierarchyPanel() {
   }, [editor, setCollapsedNodes]);
 
 /**
- * [onObjectChanged callback function used to handle changes on object]
- * @type {[type]}
+ * onObjectChanged callback function used to handle changes on object.
+ * 
+ * @author Robert Long
+ * @type {function}
  */
   const onObjectChanged = useCallback(
     (objects, propertyName) => {
@@ -881,7 +959,9 @@ export default function HierarchyPanel() {
   }, [editor, updateNodeHierarchy, onObjectChanged]);
 
 /**
- * [onMouseDown callback function used to handle mouse down event]
+ * onMouseDown callback function used to handle mouse down event.
+ * 
+ * @author Robert Long
  * @type {function}
  */
   const onMouseDown = useCallback(
@@ -898,7 +978,9 @@ export default function HierarchyPanel() {
   );
 
 /**
- * [onClick callback function for handling onClick event on hierarchy penal item]
+ * onClick callback function for handling onClick event on hierarchy penal item.
+ * 
+ * @author Robert Long
  * @type {function}
  */
   const onClick = useCallback(
@@ -913,7 +995,9 @@ export default function HierarchyPanel() {
   );
 
 /**
- * [onToggle function used to handle toggle on hierarchy penal item]
+ * onToggle function used to handle toggle on hierarchy penal item.
+ * 
+ * @author Robert Long
  * @type {function}
  */
   const onToggle = useCallback(
@@ -928,7 +1012,9 @@ export default function HierarchyPanel() {
   );
 
 /**
- * [onKeyDown callback function to handle onKeyDown event on hierarchy penal item]
+ * onKeyDown callback function to handle onKeyDown event on hierarchy penal item.
+ * 
+ * @author Robert Long
  * @type {function}
  */
   const onKeyDown = useCallback(
@@ -1012,7 +1098,9 @@ export default function HierarchyPanel() {
   );
 
 /**
- * [onDeleteNode callback function used to handle delete on node]
+ * onDeleteNode callback function used to handle delete on node.
+ * 
+ * @author Robert Long
  * @type {function}
  */
   const onDeleteNode = useCallback(
@@ -1027,7 +1115,9 @@ export default function HierarchyPanel() {
   );
 
 /**
- * [onDuplicateNode callback function to handle Duplication of node]
+ * onDuplicateNode callback function to handle Duplication of node.
+ * 
+ * @author Robert Long
  * @type {function}
  */
   const onDuplicateNode = useCallback(
@@ -1042,7 +1132,9 @@ export default function HierarchyPanel() {
   );
 
 /**
- * [onGroupNodes callback function used to handle grouping of nodes]
+ * onGroupNodes callback function used to handle grouping of nodes.
+ * 
+ * @author Robert Long
  * @type {function}
  */
   const onGroupNodes = useCallback(
@@ -1057,7 +1149,9 @@ export default function HierarchyPanel() {
   );
 
 /**
- * [onRenameNode callback function to handle rename node]
+ * onRenameNode callback function to handle rename node.
+ * 
+ * @author Robert Long
  * @type {function}
  */
   const onRenameNode = useCallback(
@@ -1068,7 +1162,9 @@ export default function HierarchyPanel() {
   );
 
 /**
- * [onChangeName callback  function used to handle changes in name]
+ * onChangeName callback  function used to handle changes in name.
+ * 
+ * @author Robert Long
  * @type {function}
  */
   const onChangeName = useCallback(
@@ -1079,7 +1175,9 @@ export default function HierarchyPanel() {
   );
 
 /**
- * [onRenameSubmit callback function used to handle rename input submit]
+ * onRenameSubmit callback function used to handle rename input submit.
+ * 
+ * @author Robert Long
  * @type {function}
  */
   const onRenameSubmit = useCallback(
@@ -1093,7 +1191,9 @@ export default function HierarchyPanel() {
   );
 
 /**
- * [initializing treeContainerDropTarget]
+ * initializing treeContainerDropTarget.
+ * 
+ * @author Robert Long
  * @type {Array}
  */
   const [, treeContainerDropTarget] = useDrop({

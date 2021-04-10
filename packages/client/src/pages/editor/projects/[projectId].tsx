@@ -15,6 +15,9 @@ import { connect } from 'react-redux';
 import {selectAuthState} from "@xr3ngine/client-core/src/user/reducers/auth/selector";
 import {bindActionCreators, Dispatch} from "redux";
 import {doLoginAuto} from "@xr3ngine/client-core/src/user/reducers/auth/service";
+import { initializeEngine } from "@xr3ngine/engine/src/initialize";
+import { DefaultGameMode } from "@xr3ngine/engine/src/templates/game/DefaultGameMode";
+import { Engine } from "@xr3ngine/engine/src/ecs/classes/Engine";
 
 /**
  * Declairing Props interface having two props.
@@ -62,6 +65,23 @@ const Project = (props: Props) => {
     // initialising hasMounted to false. 
     const [hasMounted, setHasMounted] = useState(false);
 
+    const [engineIsInitialized, setEngineInitialized] = useState(false);
+    
+    const InitializationOptions = {
+        postProcessing: true,
+        editor: true,
+        gameModes: [
+            DefaultGameMode
+          ]
+      };
+  
+    useEffect(() => {
+        initializeEngine(InitializationOptions).then(() => {
+            console.log("Setting engine inited")
+            setEngineInitialized(true);
+        })
+    }, [])
+
     // setting hasMounted true once DOM get rendered or get updated.
     useEffect(() => setHasMounted(true), []);
 
@@ -75,11 +95,11 @@ const Project = (props: Props) => {
  * <NoSSR> enabling the defer rendering.
  *
  */
-    return hasMounted && 
+    return hasMounted &&
     <Suspense fallback={React.Fragment}>
         <NoSSR>
             { authUser?.accessToken != null && authUser.accessToken.length > 0 
-              && user?.id != null && <EditorContainer {...props} /> }
+              && user?.id != null && engineIsInitialized && <EditorContainer Engine={Engine} {...props} /> }
         </NoSSR>
     </Suspense>;
 };

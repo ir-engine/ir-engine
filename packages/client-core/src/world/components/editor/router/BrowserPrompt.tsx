@@ -3,6 +3,10 @@ import React from "react";
 type BrowserPromptProps = {
   message: ((...args: any[]) => any) | string;
 };
+/**
+ * 
+ * @author Robert Long
+ */
 export default class BrowserPrompt extends React.Component<
   BrowserPromptProps,
   {}
