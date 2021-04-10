@@ -14,7 +14,7 @@ import BookmarkBorderIcon from '@material-ui/icons/BookmarkBorder';
 import BookmarkIcon from '@material-ui/icons/Bookmark';
 import VisibilityIcon from '@material-ui/icons/Visibility';
 
-import { Feed } from '@xr3ngine/common/interfaces/Feed';
+import { Feed } from '@xr3ngine/common/src/interfaces/Feed';
 import { addFireToFeed, getFeedFires, removeFireToFeed } from '../../../../reducers/feedFires/service';
 import { addViewToFeed } from '../../../../reducers/feed/service';
 import { addBookmarkToFeed, removeBookmarkToFeed } from '../../../../reducers/feedBookmark/service';
