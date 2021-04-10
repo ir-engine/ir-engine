@@ -64,9 +64,6 @@ export class ModelNodeEditor extends Component<
   ModelNodeEditorState
 > {
 
-  //initializing description and will appears on the editor view
-  static description = i18n.t('editor:properties.model.description');
-
   //initializing props and state
   constructor(props) {
     super(props);
@@ -85,6 +82,9 @@ export class ModelNodeEditor extends Component<
     });
     this.setState({ options });
   }
+
+  //initializing description and will appears on the editor view
+  static description = i18n.t('editor:properties.model.description');
 
   //initializing iconComponent with image name
   static iconComponent = Cube;

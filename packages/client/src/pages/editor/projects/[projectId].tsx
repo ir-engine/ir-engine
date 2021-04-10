@@ -77,10 +77,10 @@ const Project = (props: Props) => {
   
     useEffect(() => {
         initializeEngine(InitializationOptions).then(() => {
-            console.log("Setting engine inited")
+            console.log("Setting engine inited");
             setEngineInitialized(true);
-        })
-    }, [])
+        });
+    }, []);
 
     // setting hasMounted true once DOM get rendered or get updated.
     useEffect(() => setHasMounted(true), []);
