@@ -3,7 +3,7 @@ import { v1 as uuidv1 } from 'uuid';
 import config from "../appconfig";
 import getBasicMimetype from "../util/get-basic-mimetype";
 
-export default (options = {}) => {
+export default () => {
   return async (context: HookContext): Promise<HookContext> => {
     const { data, params } = context;
     const body = params.body || {};
