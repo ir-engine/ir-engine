@@ -1,7 +1,7 @@
 // TODO: Reenable me! But decoupled so we don't need to import this lib
 // import { endVideoChat } from '@xr3ngine/client-networking/src/transports/SocketWebRTCClientFunctions';
 import { Dispatch } from 'redux';
-import { client } from '@xr3ngine/client-core/src/feathers';
+import { client } from '../../../feathers';
 // TODO: Reenable me! But decoupled, maybe parties need to be in the client-networking lib
 // import { provisionInstanceServer } from '@xr3ngine/client-networking/src/reducers/instanceConnection/service';
 import {
@@ -14,10 +14,9 @@ import {
   removedPartyUser
 } from './actions';
 
-import getConfig from 'next/config';
-import { dispatchAlertError } from '@xr3ngine/client-core/src/common/reducers/alert/service';
-import store from '@xr3ngine/client-core/src/store';
-const { publicRuntimeConfig } = getConfig();
+import { Config } from '../../../helper';
+import { dispatchAlertError } from '../../../common/reducers/alert/service';
+import store from '../../../store';
 
 export function getParty () {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
@@ -128,7 +127,7 @@ export function transferPartyOwner(partyUserId: string) {
   };
 }
 
-if(!publicRuntimeConfig.offlineMode) {
+if(!Config.publicRuntimeConfig.offlineMode) {
   client.service('party-user').on('created', async (params) => {
     const selfUser = (store.getState() as any).get('auth').get('user');
     if ((store.getState() as any).get('party').get('party') == null) {

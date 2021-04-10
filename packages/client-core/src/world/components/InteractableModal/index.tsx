@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import styles from './style.module.scss';
 import { Button, Dialog, DialogContent, DialogTitle, IconButton, Typography } from "@material-ui/core";
 import CloseIcon from '@material-ui/icons/Close';
+import { useTranslation } from "react-i18next";
 
 type ModelViewProps = {
   modelUrl: string
@@ -17,6 +18,7 @@ export type InteractableModalProps = {
 };
 
 export const InteractableModal: FunctionComponent<InteractableModalProps> = ({ onClose, data }: InteractableModalProps) => {
+  const { t } = useTranslation();
 
   if(!data){return null;}
 
@@ -45,8 +47,8 @@ export const InteractableModal: FunctionComponent<InteractableModalProps> = ({ o
           {/* eslint-disable-next-line react/no-danger */}
           { data.payloadHtmlContent && (<div dangerouslySetInnerHTML={{__html: data.payloadHtmlContent}} />)}
           { data.payloadUrl && (<p>{data.payloadUrl}</p>)}
-          { data.payloadBuyUrl && (<Button  variant="outlined" color="primary" onClick={()=>handleLinkClick(data.payloadBuyUrl)}>Buy</Button>)}
-          { data.payloadLearnMoreUrl && (<Button  variant="outlined" color="secondary" onClick={()=>handleLinkClick(data.payloadLearnMoreUrl)}>Learn more</Button>)}
+          { data.payloadBuyUrl && (<Button  variant="outlined" color="primary" onClick={()=>handleLinkClick(data.payloadBuyUrl)}>{t('editor:interactableModel.lbl-buy')}</Button>)}
+          { data.payloadLearnMoreUrl && (<Button  variant="outlined" color="secondary" onClick={()=>handleLinkClick(data.payloadLearnMoreUrl)}>{t('editor:interactableModel.lbl-learnMore')}</Button>)}
           {/* { data.url? <iframe className="iframe" src={data.url} /> : null } */}
         </DialogContent>
     </Dialog>);

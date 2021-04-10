@@ -1,4 +1,4 @@
-import { dispatchAlertError, dispatchAlertSuccess } from '@xr3ngine/client-core/src/common/reducers/alert/service';
+import { dispatchAlertError, dispatchAlertSuccess } from '../../../common/reducers/alert/service';
 import { resolveAuthUser } from '@xr3ngine/common/src/interfaces/AuthUser';
 import { IdentityProvider } from '@xr3ngine/common/src/interfaces/IdentityProvider';
 import { resolveUser } from '@xr3ngine/common/src/interfaces/User';
@@ -8,14 +8,13 @@ import { MessageTypes } from '@xr3ngine/engine/src/networking/enums/MessageTypes
 // TODO: Decouple this
 // import { endVideoChat, leave } from '@xr3ngine/engine/src/networking/functions/SocketWebRTCClientFunctions';
 import axios from 'axios';
-import getConfig from 'next/config';
+import { Config } from '../../../helper';
 import querystring from 'querystring';
 import { Dispatch } from 'redux';
 import { v1 } from 'uuid';
 import { client } from '../../../feathers';
 import { validateEmail, validatePhoneNumber } from '../../../helper';
 import { getStoredState } from '../../../persisted.store';
-import { apiUrl } from '../../../service.common';
 import store from "../../../store";
 import {
   addedChannelLayerUser,
@@ -46,10 +45,6 @@ import {
   usernameUpdated,
   userUpdated
 } from './actions';
-
-const { publicRuntimeConfig } = getConfig();
-const apiServer: string = publicRuntimeConfig.apiServer;
-const authConfig = publicRuntimeConfig.auth;
 
 export function doLoginAuto (allowGuest?: boolean, forceClientAuthReset?: boolean) {
   return async (dispatch: Dispatch): Promise<any> => {
@@ -201,7 +196,7 @@ export function loginUserByOAuth(service: string) {
       path: path
     } as any;
     if (queryString.instanceId && queryString.instanceId.length > 0) redirectObject.instanceId = queryString.instanceId;
-    let redirectUrl = `${apiServer}/oauth/${service}?feathers_token=${token}&redirect=${JSON.stringify(redirectObject)}`;
+    let redirectUrl = `${Config.publicRuntimeConfig.apiServer}/oauth/${service}?feathers_token=${token}&redirect=${JSON.stringify(redirectObject)}`;
 
     window.location.href = redirectUrl;
   };
@@ -353,8 +348,8 @@ export function createMagicLink (emailPhone: string, linkType?: 'email' | 'sms')
 
     let type = 'email';
     let paramName = 'email';
-    const enableEmailMagicLink = (authConfig && authConfig.enableEmailMagicLink) ?? true;
-    const enableSmsMagicLink = (authConfig && authConfig.enableSmsMagicLink) ?? false;
+    const enableEmailMagicLink = (Config.publicRuntimeConfig.auth && Config.publicRuntimeConfig.auth.enableEmailMagicLink) ?? true;
+    const enableSmsMagicLink = (Config.publicRuntimeConfig.auth && Config.publicRuntimeConfig.auth.enableSmsMagicLink) ?? false;
 
     if (linkType === 'email') {
       type = 'email';
@@ -476,7 +471,7 @@ export function addConnectionBySms (phone: string, userId: string) {
 
 export function addConnectionByOauth (oauth: 'facebook' | 'google' | 'github' | 'linkedin' | 'twitter', userId: string) {
   return (/* dispatch: Dispatch */) => {
-    window.open(`${apiServer}/auth/oauth/${oauth}?userId=${userId}`, '_blank');
+    window.open(`${Config.publicRuntimeConfig.apiServer}/auth/oauth/${oauth}?userId=${userId}`, '_blank');
   };
 }
 
@@ -508,7 +503,7 @@ export function uploadAvatar (data: any) {
   return async (dispatch: Dispatch, getState: any) => {
     const token = getState().get('auth').get('authUser').accessToken;
     const selfUser = getState().get('auth').get('user');
-    const res = await axios.post(`${apiUrl}/upload`, data, {
+    const res = await axios.post(`${Config.apiUrl}/upload`, data, {
       headers: {
         'Content-Type': 'multipart/form-data',
         Authorization: 'Bearer ' + token
@@ -725,7 +720,7 @@ const loadAvatarForUpdatedUser = async (user) => {
   });
 };
 
-if(!publicRuntimeConfig.offlineMode) {
+if(!Config.publicRuntimeConfig.offlineMode) {
   client.service('user').on('patched', async (params) => {
     console.log('User patched');
     const selfUser = (store.getState() as any).get('auth').get('user');

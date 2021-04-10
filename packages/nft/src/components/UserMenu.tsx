@@ -1,4 +1,3 @@
-import { toSvg } from 'jdenticon';
 import { useStateContext } from '../state';
 import { useHistory } from 'react-router';
 
