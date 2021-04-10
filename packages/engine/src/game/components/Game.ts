@@ -1,4 +1,5 @@
 import { Component } from "../../ecs/classes/Component";
+import { Types } from "../../ecs/types/Types";
 import { GameObjectPrefab } from "../interfaces/GameObjectPrefab";
 import { GameMode } from "../types/GameMode";
 import { GameObject } from "./GameObject";
@@ -15,4 +16,11 @@ export class Game extends Component<Game> {
         [key: string]: GameObjectPrefab[]
     }
     state: {}
+}
+
+Game._schema = {
+    isGlobal: { type: Types.Boolean, default: false }, 
+    minPlayers: { type: Types.Number, default: null }, 
+    maxPlayers: { type: Types.Number, default: null }, 
+    gameMode: { type: Types.Ref, default: null }, 
 }
