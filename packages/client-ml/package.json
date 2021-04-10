@@ -54,7 +54,7 @@
     "@xr3ngine/client-core": "^0.2.14",
     "@xr3ngine/common": "^0.2.14",
     "@xr3ngine/engine": "^0.2.14",
-    "antd": "4.15.0",
+    "antd": "4.15.1",
     "app-root-path": "3.0.0",
     "autobind-decorator": "2.4.0",
     "autoprefixer": "9.8.6",
