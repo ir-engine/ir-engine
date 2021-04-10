@@ -1,8 +1,8 @@
 import { IdentityProvider } from './IdentityProvider';
 import { LocationAdmin } from './LocationAdmin';
 import { LocationBan } from './LocationBan';
+import { RelationshipType } from './UserRelationship';
 
-export type RelationshipType = 'friend' | 'requested' | 'blocked' | 'blocking'
 export interface User {
   id: string;
   name: string;

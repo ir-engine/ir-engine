@@ -36,7 +36,7 @@
     "dev": "cross-env NODE_ENV=development webpack --watch --mode=development",
     "dev-reinit-db": "cross-env NODE_ENV=development FORCE_DB_REFRESH=true webpack --watch --mode=development",
     "test": "echo \"TODO: no test specified\" && exit 0",
-    "build": "rimraf dist && tix entrypoint ./src && cross-env NODE_ENV=production rollup -c",
+    "build": "rimraf dist && ctix entrypoint ./src && cross-env NODE_ENV=production rollup -c",
     "localbuild": "yarn build && cross-env LOCAL_BUILD=true yarn start",
     "lint": "eslint --fix --ext \"**/*.js\" \"**/*.ts\"",
     "validate": "yarn run lint && yarn run build && yarn run test",

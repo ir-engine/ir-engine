@@ -12,7 +12,7 @@ export function getStoredState (key: string) {
   if (!window) {
     return undefined;
   }
-  const rawState = localStorage.getItem(Config.publicRuntimeConfig.localStorageKey.localStorageKey);
+  const rawState = localStorage.getItem(Config.publicRuntimeConfig.localStorageKey);
   if (!rawState) {
     return undefined;
   }
@@ -21,5 +21,5 @@ export function getStoredState (key: string) {
 }
 
 export function saveState (state: any) {
-  localStorage.setItem(Config.publicRuntimeConfig.localStorageKey.localStorageKey, JSON.stringify(state));
+  localStorage.setItem(Config.publicRuntimeConfig.localStorageKey, JSON.stringify(state));
 }

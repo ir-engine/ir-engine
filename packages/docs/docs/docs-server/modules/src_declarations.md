@@ -20,4 +20,4 @@ hide_title: true
 
 Ƭ **Application**: *ExpressFeathers*<any\>
 
-Defined in: [packages/server/src/declarations.d.ts:7](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/declarations.d.ts#L7)
+Defined in: [packages/server/src/declarations.ts:7](https://github.com/xr3ngine/xr3ngine/blob/66a84a950/packages/server/src/declarations.d.ts#L7)

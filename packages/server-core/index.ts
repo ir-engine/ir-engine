@@ -1,5 +1,6 @@
 // created from ctix
 
+export * from './declarations';
 export * from './src/appconfig';
 export * from './src/config';
 export * from './src/entities/attribution/attribution.class';
