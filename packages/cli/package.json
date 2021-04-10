@@ -22,7 +22,7 @@
     "xr3": "node ./index.js "
   },
   "dependencies": {
-    "cli-color": "^2.0.0"
+    "cli-color": "2.0.0"
   },
   "license": "ISC",
   "gitHead": "66449f6ffba4d32c424b16b4f0667fe0ad36562c",
