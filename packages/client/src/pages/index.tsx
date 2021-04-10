@@ -5,7 +5,7 @@ import { useRouter } from 'next/router';
 import { Capacitor } from '@capacitor/core';
 import { useTranslation } from 'react-i18next';
 
-export const IndexPage = (): any => {
+export const Banana = (): any => {
     const router = useRouter();
     const { t } = useTranslation();
     useEffect(() => {
@@ -59,4 +59,4 @@ export const IndexPage = (): any => {
     );
 };
 
-export default IndexPage;
+export default Banana;
