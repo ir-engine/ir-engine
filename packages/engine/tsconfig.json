@@ -12,8 +12,9 @@
     "resolveJsonModule": true,
     "allowJs": true,
     "noImplicitThis": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "types": ["node", "jest"]
   },
   "include": ["src/**/*.ts", "src/**/*.tsx"],
-  "exclude": ["node_modules", "dist", "tsconfig.json"]
+  "exclude": ["node_modules", "dist", "tsconfig.json", "tests/"]
 }

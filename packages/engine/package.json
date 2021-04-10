@@ -38,6 +38,8 @@
     "@pixiv/three-vrm": "^0.5.2",
     "@tensorflow/tfjs-core": "^3.3.0",
     "@tensorflow/tfjs-node": "^3.3.0",
+    "@types/jest": "^26.0.22",
+    "browserfs": "^1.4.3",
     "cannon-es": "^0.15.1",
     "cannon-es-debugger": "^0.0.3",
     "canvas": "^2.7.0",
