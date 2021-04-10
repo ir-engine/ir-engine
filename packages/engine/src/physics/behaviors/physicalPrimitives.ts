@@ -5,6 +5,10 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { threeToCannon } from '../classes/three-to-cannon';
 import { ColliderComponent } from '../components/ColliderComponent';
 
+/**
+ * @author HydraFire <github.com/HydraFire>
+ */
+
 export function createTrimesh (entity: Entity) {
   const collider = getComponent<ColliderComponent>(entity, ColliderComponent);
   const transformComponent = getComponent<TransformComponent>(entity, TransformComponent);
