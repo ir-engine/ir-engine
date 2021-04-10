@@ -4,7 +4,7 @@ import * as path from 'path';
 import _ from 'lodash';
 import { extension } from 'mime-types';
 
-export default (options = {}): Hook => {
+export default (): Hook => {
   return async (context: HookContext): Promise<HookContext> => {
     if (!context.data.uri && context.params.file) {
       const file = context.params.file;

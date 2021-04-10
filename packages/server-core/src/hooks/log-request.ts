@@ -1,6 +1,6 @@
 import { HookContext } from '@feathersjs/feathers';
 
-export default (options = {}) => {
+export default () => {
   return async (context: HookContext): Promise<HookContext> => {
     const { params } = context;
     if (context.error) {

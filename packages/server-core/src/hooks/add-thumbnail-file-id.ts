@@ -1,6 +1,6 @@
 import { HookContext } from "@feathersjs/feathers";
 
-export default (options = {}) => {
+export default () => {
   return async (context: HookContext): Promise<HookContext> => {
     if (context.params.body.projectId) {
       const { thumbnailOwnedFileId } = await context.app

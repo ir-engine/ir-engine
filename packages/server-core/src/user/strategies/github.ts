@@ -36,9 +36,6 @@ export default class GithubStrategy extends CustomOAuthStrategy {
   }
 
   async getRedirect (data: any, params?: Params): Promise<string> {
-    console.log('Github getRedirect');
-    console.log(data);
-    console.log(params);
     const redirectHost = config.authentication.callback.github;
 
     const type = (params?.query?.userId) ? 'connection' : 'login';

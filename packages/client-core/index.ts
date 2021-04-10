@@ -1,20 +1,3 @@
-import editor from './i18n/en/editor.json';
-import user from './i18n/en/user.json';
-import { setRuntime } from './src/helper';
-
-export const getI18nConfigs = () => {
-    return {
-        resources : {
-            en: {
-                editor,
-                user,
-            },
-        },
-        namespace: [ 'editor' ],
-    };
-};
-
-export const setRuntimeConfig = setRuntime;
 // created from ctix
 
 export * from './src/admin/components/AdminHelpers';
@@ -23,6 +6,10 @@ export * from './src/admin/reducers/admin/actions';
 export * from './src/admin/reducers/admin/reducers';
 export * from './src/admin/reducers/admin/selector';
 export * from './src/admin/reducers/admin/service';
+export * from './src/admin/reducers/contentPack/actions';
+export * from './src/admin/reducers/contentPack/reducers';
+export * from './src/admin/reducers/contentPack/selector';
+export * from './src/admin/reducers/contentPack/service';
 export * from './src/common/components/Alerts';
 export * from './src/common/components/analytics';
 export * from './src/common/components/ContactForm/index';
@@ -248,10 +235,13 @@ export { default as srcAdminComponentsAnalyticsApiLinks } from './src/admin/comp
 export { default as srcAdminComponentsAnalyticsCardNumber } from './src/admin/components/Analytics/CardNumber';
 export { default as srcAdminComponentsAnalyticsGraph } from './src/admin/components/Analytics/Graph';
 export { default as srcAdminComponentsAnalyticsIndex } from './src/admin/components/Analytics/index';
+export { default as srcAdminComponentsContentPackContentPackConsole } from './src/admin/components/ContentPack/ContentPackConsole';
+export { default as srcAdminComponentsContentPackContentPackDetailsModal } from './src/admin/components/ContentPack/ContentPackDetailsModal';
+export { default as srcAdminComponentsContentPackDownloadModal } from './src/admin/components/ContentPack/DownloadModal';
 export { default as srcAdminComponentsCreateInstance } from './src/admin/components/CreateInstance';
 export { default as srcAdminComponentsCreatorConsole } from './src/admin/components/CreatorConsole';
-export { default as srcAdminComponentsCroupsConsole } from './src/admin/components/CroupsConsole';
 export { default as srcAdminComponentsFeedConsole } from './src/admin/components/FeedConsole';
+export { default as srcAdminComponentsGroupsConsole } from './src/admin/components/GroupsConsole';
 export { default as srcAdminComponentsIndex } from './src/admin/components/index';
 export { default as srcAdminComponentsInstanceConsole } from './src/admin/components/InstanceConsole';
 export { default as srcAdminComponentsInstanceModal } from './src/admin/components/InstanceModal';
@@ -260,12 +250,15 @@ export { default as srcAdminComponentsInviteInviteModel } from './src/admin/comp
 export { default as srcAdminComponentsInviteRecievedInvite } from './src/admin/components/Invite/RecievedInvite';
 export { default as srcAdminComponentsInviteSentInvite } from './src/admin/components/Invite/SentInvite';
 export { default as srcAdminComponentsLocationModal } from './src/admin/components/LocationModal';
+export { default as srcAdminComponentsScenesAddToContentPackModal } from './src/admin/components/Scenes/AddToContentPackModal';
+export { default as srcAdminComponentsScenesScenes } from './src/admin/components/Scenes/Scenes';
 export { default as srcAdminComponentsSearch } from './src/admin/components/Search';
 export { default as srcAdminComponentsSharedModal } from './src/admin/components/SharedModal';
 export { default as srcAdminComponentsUserConsole } from './src/admin/components/UserConsole';
 export { default as srcAdminComponentsUserModel } from './src/admin/components/UserModel';
 export { default as srcAdminComponentsVideoModal } from './src/admin/components/VideoModal';
 export { default as srcAdminReducersAdminReducers } from './src/admin/reducers/admin/reducers';
+export { default as srcAdminReducersContentPackReducers } from './src/admin/reducers/contentPack/reducers';
 export { default as srcAdminReducersIndex } from './src/admin/reducers/index';
 export { default as srcCommonComponentsContactFormIndex } from './src/common/components/ContactForm/index';
 export { default as srcCommonComponentsIconsIconLeftClick } from './src/common/components/Icons/IconLeftClick';

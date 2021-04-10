@@ -1,7 +1,7 @@
 import { Hook, HookContext } from '@feathersjs/feathers';
 import getBasicMimetype from '../util/get-basic-mimetype';
 
-export default (options = {}): Hook => {
+export default (): Hook => {
   return async (context: HookContext): Promise<HookContext> => {
     const { data, params } = context;
     const body = params.body || {};
