@@ -4,6 +4,10 @@ import { setDefaults } from "../../common/functions/setDefaults";
 import { Types } from "../../ecs/types/Types";
 import { CollisionGroups } from "../enums/CollisionGroups";
 
+/**
+ * @author Shaw 
+ */
+
 export class CapsuleCollider extends Component<CapsuleCollider>
 {
 	public options: any;

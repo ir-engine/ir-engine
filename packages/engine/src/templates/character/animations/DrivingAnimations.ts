@@ -15,6 +15,10 @@ import { BaseInput } from '../../../input/enums/BaseInput';
 import { CameraModes } from '../../../camera/types/CameraModes';
 import { AnimationComponent } from '../../../character/components/AnimationComponent';
 
+/**
+ * @author HydraFire <github.com/HydraFire>
+ */
+
 let prevState;
 const emptyInputValue = [0, 0] as NumericalType;
 /**

@@ -24,7 +24,7 @@ const emptyInputValue = [0, 0] as NumericalType;
  *
  * @returns Input value from input component.
  */
- const getInputData = (inputComponent: Input, inputAxes: number, prevValue: NumericalType ): { 
+ const getInputData = (inputComponent: Input, inputAxes: number, prevValue: NumericalType ): {
   currentInputValue: NumericalType;
   inputValue: NumericalType
 } => {
@@ -54,7 +54,7 @@ export const updateCharacterOrientation = (entity, deltaTime: number): void => {
 	const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
 	if (!actor.initialized) return console.warn("Actor no initialized");
   const actorTransform = getMutableComponent(entity, TransformComponent);
-  
+
 	const localMovementDirection = actor.localMovementDirection; //getLocalMovementDirection(entity);
 
   if(actor.moveVectorSmooth.position.length() < 0.1) { actor.moveVectorSmooth.velocity.multiplyScalar(0.9) }
@@ -69,7 +69,7 @@ export const updateCharacterOrientation = (entity, deltaTime: number): void => {
   const inputComponent = getComponent(entity, Input) as Input;
   const followCamera = getMutableComponent<FollowCameraComponent>(entity, FollowCameraComponent) as FollowCameraComponent;
   if(followCamera) {
-    
+
     // this is for future integration of MMO style pointer lock controls
     // let inputAxes;
     // if (cameraFollow.mode === CameraModes.FirstPerson || cameraFollow.mode === CameraModes.ShoulderCam) {
@@ -98,9 +98,9 @@ export const updateCharacterOrientation = (entity, deltaTime: number): void => {
       actorTransform.rotation.setFromUnitVectors(forwardVector, actor.orientation.clone().setY(0));
     }
   }
-  
+
   if(XRSystem.instance?.cameraDolly) XRSystem.instance.cameraDolly.setRotationFromAxisAngle(downVector, Math.atan2(actor.viewVector.z, actor.viewVector.x))
-  
+
 	const flatViewVector = new Vector3(actor.viewVector.x, 0, actor.viewVector.z).normalize();
 	const moveVector = localMovementDirection.length() ? applyVectorMatrixXZ(flatViewVector, forwardVector) : emptyVector.setScalar(0);
 
@@ -111,4 +111,3 @@ export const updateCharacterOrientation = (entity, deltaTime: number): void => {
 	else
 		actor.orientationTarget.copy(new Vector3().copy(moveVector).setY(0).normalize());
 };
-

@@ -2,6 +2,10 @@ import { float32, Model, Schema, uint32, uint8 } from "superbuffer";
 import { Network } from '../classes/Network';
 import { NetworkClientInputInterface } from "../interfaces/WorldState";
 
+/** 
+* @author HydraFire <github.com/HydraFire>
+ */
+
 export const inputKeySchema = new Schema({
   input: uint8,
   value: uint8, // float32

@@ -13,6 +13,10 @@ import {
 } from './physicalPrimitives';
 import { PhysicsLifecycleState } from '../enums/PhysicsStates';
 
+/**
+ * @author HydraFire <github.com/HydraFire>
+ */
+
 export const handleCollider: Behavior = (entity: Entity, args: { phase?: PhysicsLifecycleState }): void => {
   if (args.phase === PhysicsLifecycleState.onRemoved) {
     const colliderComponent = getComponent<ColliderComponent>(entity, ColliderComponent, true);

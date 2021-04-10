@@ -17,6 +17,12 @@ import { Network } from '../../../networking/classes/Network';
 import { LocalInputReceiver } from '../../../input/components/LocalInputReceiver';
 import { FollowCameraComponent } from '../../../camera/components/FollowCameraComponent';
 
+/**
+ * @author HydraFire <github.com/HydraFire>
+ * @param entity is the entity to handle state changes to
+ * @param seat idex array of seats
+ */
+
 function positionEnter(entity, entityCar, seat) {
   const transform = getMutableComponent<TransformComponent>(entity, TransformComponent);
   const vehicle = getComponent<VehicleComponent>(entityCar, VehicleComponent);
@@ -57,7 +63,7 @@ export const onAddedInCar = (entity: Entity, entityCar: Entity, seat: number, de
 
   // CLIENT
   initializeDriverState(entity)
-  
+
   changeAnimation(entity, {
     animationId: CharacterAnimations.ENTERING_VEHICLE,
 	  transitionDuration: 0.3

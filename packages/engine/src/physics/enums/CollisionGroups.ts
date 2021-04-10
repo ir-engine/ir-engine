@@ -1,3 +1,8 @@
+
+/**
+ * @author HydraFire <github.com/HydraFire>
+ */
+
 export enum CollisionGroups {
 	Default = 1,
 	Characters = 2,

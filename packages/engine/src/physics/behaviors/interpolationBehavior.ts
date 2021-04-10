@@ -12,6 +12,10 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { VehicleComponent } from '../../templates/vehicle/components/VehicleComponent';
 import { Object3DComponent } from '../../scene/components/Object3DComponent';
 
+/**
+ * @author HydraFire <github.com/HydraFire>
+ */
+
 export const findOne = (entity, snapshot) => {
   const networkId = getComponent(entity, NetworkObject).networkId;
   if (snapshot != null) {
