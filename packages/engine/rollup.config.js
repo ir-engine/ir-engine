@@ -18,8 +18,8 @@ const libraryName = 'engine'
 
 export default {
   input: './index.ts',
-  output: [{ file: pkg.main, name: camelCase(libraryName), format: 'umd', sourcemap: true },
-  { file: pkg.module, format: 'es', sourcemap: true },
+  output: [{ file: "dist/engine.umd.js", name: camelCase(libraryName), format: 'umd', sourcemap: true },
+  { file: "dist/engine.es.js", format: 'es', sourcemap: true },
   ],
   inlineDynamicImports: true,
   plugins: [

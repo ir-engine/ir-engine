@@ -3,7 +3,9 @@ import PropTypes from "prop-types";
 import styled from "styled-components";
 
 /**
- * [TooltipContainer used as container tooltip]
+ * TooltipContainer used as container tooltip.
+ * 
+ * @author Robert Long
  * @type {styled component}
  */
 const TooltipContainer = (styled as any).div`
@@ -13,7 +15,9 @@ const TooltipContainer = (styled as any).div`
 `;
 
 /**
- * [TooltipThumbnailContainer used to show thumbnail]
+ * TooltipThumbnailContainer used to show thumbnail.
+ * 
+ * @author Robert Long
  * @type {Styled Component}
  */
 const TooltipThumbnailContainer = (styled as any).div`
@@ -25,7 +29,9 @@ const TooltipThumbnailContainer = (styled as any).div`
 `;
 
 /**
- * [TooltipContent used to provide styles for tool tip]
+ * TooltipContent used to provide styles for tool tip.
+ * 
+ * @author Robert Long
  * @type {Styled component}
  */
 const TooltipContent = (styled as any).div`
@@ -39,8 +45,10 @@ const TooltipContent = (styled as any).div`
 `;
 
 /**
- * [AssetTooltip used to show tooltip on elements available in asset penal]
- * @param       {[type]} item
+ * AssetTooltip used to show tooltip on elements available in asset penal.
+ * 
+ * @author Robert Long
+ * @param       {any} item
  * @constructor
  */
 export default function AssetTooltip({ item }) {

@@ -1,5 +1,6 @@
 // created from ctix
 
+export * from './declarations';
 export * from './src/appconfig';
 export * from './src/config';
 export * from './src/entities/attribution/attribution.class';
@@ -12,6 +13,8 @@ export * from './src/entities/component-type/component-type.class';
 export * from './src/entities/component-type/component-type.seed';
 export * from './src/entities/component/component.class';
 export * from './src/entities/component/component.seed';
+export * from './src/entities/content-pack/content-pack-helper';
+export * from './src/entities/content-pack/content-pack.class';
 export * from './src/entities/entity/entity.class';
 export * from './src/entities/entity/entity.seed';
 export * from './src/entities/license/license.class';
@@ -140,6 +143,9 @@ export { default as srcEntitiesComponentComponentDocs } from './src/entities/com
 export { default as srcEntitiesComponentComponentHooks } from './src/entities/component/component.hooks';
 export { default as srcEntitiesComponentComponentModel } from './src/entities/component/component.model';
 export { default as srcEntitiesComponentComponentService } from './src/entities/component/component.service';
+export { default as srcEntitiesContentPackContentPackDocs } from './src/entities/content-pack/content-pack.docs';
+export { default as srcEntitiesContentPackContentPackHooks } from './src/entities/content-pack/content-pack.hooks';
+export { default as srcEntitiesContentPackContentPackService } from './src/entities/content-pack/content-pack.service';
 export { default as srcEntitiesEntityEntityDocs } from './src/entities/entity/entity.docs';
 export { default as srcEntitiesEntityEntityHooks } from './src/entities/entity/entity.hooks';
 export { default as srcEntitiesEntityEntityModel } from './src/entities/entity/entity.model';
@@ -186,6 +192,7 @@ export { default as srcHooksRemoveRelatedResources } from './src/hooks/remove-re
 export { default as srcHooksReplaceThumbnailLink } from './src/hooks/replace-thumbnail-link';
 export { default as srcHooksRestrictUserRole } from './src/hooks/restrict-user-role';
 export { default as srcHooksSendInvite } from './src/hooks/send-invite';
+export { default as srcHooksServices } from './src/hooks/services';
 export { default as srcHooksSetLoggedinUserInBody } from './src/hooks/set-loggedin-user-in-body';
 export { default as srcHooksSetLoggedinUserInQuery } from './src/hooks/set-loggedin-user-in-query';
 export { default as srcHooksSetProjectIdInQuery } from './src/hooks/set-project-id-in-query';
@@ -441,6 +448,7 @@ export { default as srcWorldProjectAssetProjectAssetHooks } from './src/world/pr
 export { default as srcWorldProjectAssetProjectAssetModel } from './src/world/project-asset/project-asset.model';
 export { default as srcWorldProjectAssetProjectAssetService } from './src/world/project-asset/project-asset.service';
 export { default as srcWorldProjectGenerateCollectionHook } from './src/world/project/generate-collection.hook';
+export { default as srcWorldProjectProjectAssetModel } from './src/world/project/project-asset.model';
 export { default as srcWorldProjectProjectAccessControl } from './src/world/project/project.access-control';
 export { default as srcWorldProjectProjectDocs } from './src/world/project/project.docs';
 export { default as srcWorldProjectProjectHooks } from './src/world/project/project.hooks';

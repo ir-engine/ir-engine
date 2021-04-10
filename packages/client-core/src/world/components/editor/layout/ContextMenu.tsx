@@ -11,12 +11,18 @@ import {
 } from "react-contextmenu/dist/react-contextmenu";
 import { Theme, ThemeContext } from "../theme";
 import { createGlobalStyle } from "styled-components";
+import { ReactNode } from "react";
 export const connectMenu = _connectMenu;
 export const MenuItem = _MenuItem;
 export const showMenu = _showMenu;
 export const SubMenu = _SubMenu;
 export const ContextMenuTrigger = _ContextMenuTrigger;
 // @ts-ignore
+
+/**
+ * 
+ * @author Robert Long
+ */
 export const ContextMenuStyles = createGlobalStyle<{ theme: Theme}>`
   .react-contextmenu {
     background-color: ${props => props.theme.dropdown};
@@ -86,6 +92,15 @@ export const ContextMenuStyles = createGlobalStyle<{ theme: Theme}>`
     vertical-align: middle;
   }
 `;
+
+/**
+ * 
+ * @author Robert Long
+ * @param {ReactNode} children
+ * @param {string} id
+ * @param {any} rest 
+ * @returns 
+ */
 export const ContextMenu: React.FC<{ id: string }> = ({ children, id, ...rest }) => {
   return (
     <>

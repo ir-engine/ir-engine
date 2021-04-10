@@ -15,7 +15,9 @@ type LinkNodeEditorProps = {
 };
 
 /**
- * [LinkNodeEditor provides the editor for properties of LinkNode]
+ * LinkNodeEditor provides the editor for properties of LinkNode.
+ * 
+ * @author Robert Long
  * @type {class component}
  */
 export class LinkNodeEditor extends Component<LinkNodeEditorProps, {}> {

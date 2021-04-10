@@ -4,8 +4,10 @@ import { useTranslation } from "react-i18next";
 import styles from "./Stats.module.scss";
 
 /**
- * [Stats used to show stats of  memory and  render]
- * @param       {[type]} editor
+ * Stats used to show stats of  memory and  render.
+ * 
+ * @author Robert Long
+ * @param   {any} editor
  * @constructor
  */
 export default function Stats({ editor }) {
@@ -35,7 +37,9 @@ export default function Stats({ editor }) {
   }, [editor]);
 
  /**
-  * rendering stats view in ViewportToolbar and shows when click on toggleStats
+  * Rendering stats view in ViewportToolbar and shows when click on toggleStats
+  * 
+  * @author Robert Long
   */
   return (
     <div className={styles.statsContainer}>

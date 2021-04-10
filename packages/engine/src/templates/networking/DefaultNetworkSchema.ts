@@ -9,6 +9,7 @@ export const DefaultPrefabs = {
   [PrefabType.Player]: NetworkPlayerCharacter,
   [PrefabType.RigidBody]: NetworkRigidBody,
   [PrefabType.Vehicle]: NetworkVehicle
+
 };
 
 export const DefaultNetworkSchema: NetworkSchema = {

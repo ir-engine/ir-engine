@@ -4,7 +4,9 @@ import Hidden from "../layout/Hidden";
 let nextId = 0;
 
 /**
- * [ aliase created for FileInput properties]
+ * Properties for created FileInput class.
+ * 
+ * @author Robert Long
  * @type {Object}
  * @property [String]
  * @property [function]
@@ -16,7 +18,9 @@ type FileInputProps = {
 };
 
 /**
- * [ type aliase created for FileInputState]
+ * State created for for FileInput class.
+ * 
+ * @author Robert Long
  * @type {Object}
  * @property {string} id
  */
@@ -25,7 +29,9 @@ type FileInputState = {
 };
 
 /**
- * [FileInput used to render the view of component for File input]
+ * FileInput used to render the view of component for File input.
+ * 
+ * @author Robert Long
  * @type {Object}
  */
 export default class FileInput extends Component<
@@ -34,7 +40,9 @@ export default class FileInput extends Component<
 > {
 
   /**
-   * [constructor used to initilize FileInput component ]
+   * constructor used to initilize FileInput component.
+   * 
+   * @author Robert Long
    * @param {Object} props
    */
   constructor(props) {
@@ -45,7 +53,9 @@ export default class FileInput extends Component<
   }
 
   /**
-   * [onChange onchange trigger Change method for FileInput Component]
+   * onChange trigger Change method for FileInput Component.
+   * 
+   * @author Robert Long
    * @param  {Object} e.target.file
    * @return {Object}   e
    */

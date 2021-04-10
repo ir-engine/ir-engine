@@ -14,6 +14,8 @@ import ScenePreviewCameraNode from "../nodes/ScenePreviewCameraNode";
 import { getCanvasBlob } from "../functions/thumbnails";
 import makeRenderer from "./makeRenderer";
 import OutlinePass from "./OutlinePass";
+import configurePostProcessing from "./RendererPostProcessing";
+import PostProcessingNode from "../nodes/PostProcessingNode";
 /**
  * @author mrdoob / http://mrdoob.com/
  */
@@ -162,6 +164,10 @@ export default class Renderer {
   screenshotRenderer: any;
   camera: any;
   onUpdateStats: any;
+  willusePostProcessing:boolean;
+  composer:any;
+  node:any;
+
   constructor(editor, canvas) {
     this.editor = editor;
     this.canvas = canvas;
@@ -192,10 +198,19 @@ export default class Renderer {
     this.screenshotRenderer = makeRenderer(1920, 1080);
     const camera = editor.camera;
     this.camera = camera;
+    this.willusePostProcessing=false;
+    PostProcessingNode.postProcessingCallback=(node,isRemoved=false)=>{
+      this.node=node;
+      this.composer=configurePostProcessing(node,this.renderMode.renderPass.scene,camera,renderer,isRemoved);
+      this.willusePostProcessing=(this.composer!==null);
+    };
   }
   update(dt, _time) {
     this.renderer.info.reset();
-    this.renderMode.render(dt);
+    if(this.willusePostProcessing)
+      this.composer.render(dt);
+    else
+      this.renderMode.render(dt);
     if (this.onUpdateStats) {
       this.renderer.info.render.fps = 1 / dt;
       this.renderer.info.render.frameTime = dt * 1000;
@@ -228,6 +243,10 @@ export default class Renderer {
       false
     );
     this.renderMode.onResize();
+
+    if(this.willusePostProcessing){
+      PostProcessingNode.postProcessingCallback(this.node);
+    }
   };
   takeScreenshot = async (width = 1920, height = 1080) => {
     console.log("Taking screenshot");
@@ -280,5 +299,6 @@ export default class Renderer {
   dispose() {
     this.renderer.dispose();
     this.screenshotRenderer.dispose();
+    this.composer?.dispose();
   }
 }

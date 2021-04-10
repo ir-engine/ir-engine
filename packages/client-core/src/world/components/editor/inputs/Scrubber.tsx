@@ -7,11 +7,19 @@ import { ArrowsAltH } from "@styled-icons/fa-solid/ArrowsAltH";
 import Overlay from "../layout/Overlay";
 import { clamp } from "@xr3ngine/engine/src/common/functions/MathLerpFunctions";
 
+/**
+ * 
+ * @author Robert Long
+ */
 const ScrubberContainer = (styled as any).div`
   cursor: ew-resize;
   user-select: none;
 `;
 
+/**
+ * 
+ * @author Robert Long
+ */
 const Cursor = (styled as any)(ArrowsAltH).attrs(({ x, y }) => ({
   style: {
     transform: `translate(${x}px,${y}px)`
@@ -27,6 +35,10 @@ const Cursor = (styled as any)(ArrowsAltH).attrs(({ x, y }) => ({
   }
 `;
 
+/**
+ * 
+ * @author Robert Long
+ */
 class Scrubber extends Component {
   static propTypes = {
     tag: PropTypes.string,
@@ -159,5 +171,8 @@ class Scrubber extends Component {
     );
   }
 }
-
+/**
+ * 
+ * @author Robert Long
+ */
 export default React.memo(Scrubber);

@@ -14,7 +14,9 @@ type HemisphereLightNodeEditorProps = {
 
 
 /**
- * [HemisphereLightNodeEditor used to provide property customization view for HemisphereLightNode]
+ * HemisphereLightNodeEditor used to provide property customization view for HemisphereLightNode.
+ * 
+ * @author Robert Long
  * @type {class Compoment}
  */
 export class HemisphereLightNodeEditor extends Component<

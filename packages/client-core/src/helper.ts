@@ -3,7 +3,43 @@ export function validateEmail (email: string): boolean { return (/^\w+([.-]?\w+)
 export function validatePhoneNumber (phone: string): boolean { return (/^(\+\d{1,2}\s?)?1?\-?\.?\s?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}$/).test(phone); }
 
 export class Config {
-    static publicRuntimeConfig = null;
+    static publicRuntimeConfig = {
+        title: '',
+        dev: false,
+        loginDisabled: false,
+        logo: '',
+        apiServer: '',
+        apiServerBuild: '',
+        appServer: '',
+        gameserver: '',
+        gameserverDomain: '',
+        siteTitle: '',
+        siteDescription: '',
+        feathersStoreKey: '',
+        localStorageKey: '',
+        auth: {
+            enableSmsMagicLink: true,
+            enableEmailMagicLink: true,
+            enableUserPassword: true,
+            enableGithubSocial: true,
+            enableFacebookSocial: true,
+            enableGoogleSocial: true,
+            enableLinkedInSocial: true,
+            enableTwitterSocial: true
+        },
+        alert: {
+            timeout: 10000
+        },
+        offlineMode: false,
+        staticPages: {
+            termsOfService: ''
+        },
+        xr: {
+            vrRoomGrid: {
+                scenes: []
+            }
+        }
+    };
     static apiUrl = '';
 }
 

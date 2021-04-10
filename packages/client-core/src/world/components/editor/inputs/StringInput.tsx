@@ -4,17 +4,26 @@ import PropTypes from "prop-types";
 import styled from "styled-components";
 import Input from "./Input";
 
+/**
+ * @author Robert Long
+ */
 const StyledStringInput = (styled as any)(Input)`
   display: flex;
   width: 100%;
 `;
 
+/**
+ * @author Robert Long
+ */
 const StringInput = React.forwardRef(({ onChange, ...rest }, ref) => (
   <StyledStringInput onChange={e => onChange(e.target.value, e)} {...rest} ref={ref} />
 ));
 
 StringInput.displayName = "StringInput";
 
+/**
+ * @author Robert Long
+ */
 StringInput.defaultProps = {
   value: "",
   onChange: () => {},
@@ -39,6 +48,9 @@ const DropContainer = (styled as any).div`
   width: 100%;
 `;
 
+/**
+ * @author Robert Long
+ */
 export const ControlledStringInput = React.forwardRef((values, ref) => {
   const { onChange, value, ...rest } = values as any;
   const inputRef = useRef();

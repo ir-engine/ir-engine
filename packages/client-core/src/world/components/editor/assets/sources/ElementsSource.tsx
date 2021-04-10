@@ -7,10 +7,10 @@ import i18n from "i18next";
 
 
 /**
- * [
- * ElementsSource component used to provide a container for EditorNodes
- * Here we can use search elements using search bar
- *   ]
+ * ElementsSource component used to provide a container for EditorNodes.
+ * Here we can use search elements using search bar.
+ * 
+ * @author Robert Long
  * @type {class component}
  */
 export default class ElementsSource extends BaseSource {

@@ -13,15 +13,19 @@ import i18n from "i18next";
 import { useTranslation } from "react-i18next";
 
 /**
- * [videoProjectionOptions contains VideoProjection options]
+ * videoProjectionOptions contains VideoProjection options.
+ * 
+ * @author Robert Long
  * @type {object}
  */
 const videoProjectionOptions = Object.values(VideoProjection).map(v => ({ label: v, value: v }));
 
 
 /**
- * [VideoNodeEditor used to render editor view for property customization]
- * @param       {[type]} props
+ * VideoNodeEditor used to render editor view for property customization.
+ * 
+ * @author Robert Long
+ * @param       {any} props
  * @constructor
  */
 export default function VideoNodeEditor(props) {

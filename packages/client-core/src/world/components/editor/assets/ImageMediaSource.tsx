@@ -5,7 +5,9 @@ import ImageNode from "@xr3ngine/engine/src/editor/nodes/ImageNode";
 import Api from "../Api";
 
 /**
- * [ImageMediaSource used to get image source by calling api]
+ * ImageMediaSource used to get image source by calling api.
+ * 
+ * @author Robert Long
  * @type {class component}
  */
 export default class ImageMediaSource extends BaseSource {

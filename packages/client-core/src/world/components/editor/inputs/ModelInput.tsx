@@ -11,6 +11,14 @@ const uploadOptions = {
   accepts: ModelFileTypes
 };
 
+/**
+ * Function component used for rendering ControlledStringInput.
+ * 
+ * @author Robert Long
+ * @param {function} onChange
+ * @param {any} rest 
+ * @returns 
+ */
 export default function ModelInput({ onChange, ...rest }) {
   const onUpload = useUpload();
   const [{ canDrop, isOver }, dropRef] = useDrop({

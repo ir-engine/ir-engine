@@ -11,8 +11,10 @@ import i18n from "i18next";
 import { useTranslation } from "react-i18next";
 
 /**
- * [VolumetricNodeEditor provides the editor view to customize properties]
- * @param       {[type]} props
+ * VolumetricNodeEditor provides the editor view to customize properties.
+ * 
+ * @author Robert Long
+ * @param       {any} props
  * @constructor
  */
 export default function VolumetricNodeEditor(props) {

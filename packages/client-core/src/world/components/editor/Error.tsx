@@ -5,8 +5,9 @@ import { ThemeContext } from "./theme";
 import { withTranslation } from "react-i18next";
 
 /**
- * [StyledError styled component used to provide styles for error container]
- * @type {[styled component]}
+ * StyledError styled component used to provide styles for error container.
+ * 
+ * @type {styled component}
  */
 const StyledError = (styled as any).div`
   display: flex;
@@ -23,7 +24,9 @@ const StyledError = (styled as any).div`
   }
 `;
 /**
- * [Error component used to error message]
+ * Error component used to error message.
+ * 
+ * @author Robert Long
  * @type {component class}
  */
 export class Error extends Component<{t: Function}> {

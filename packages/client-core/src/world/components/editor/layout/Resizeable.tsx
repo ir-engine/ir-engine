@@ -2,18 +2,30 @@ import React, { Component, Children, createRef, Fragment } from "react";
 import styled, { createGlobalStyle } from "styled-components";
 import PropTypes from "prop-types";
 
+/**
+ * 
+ * @author Robert Long
+ */
 const ResizeCursorState = createGlobalStyle`
   body {
     cursor: ${props => ((props as any).resizing ? ((props as any).axis === "y" ? "ns-resize" : "ew-resize") : "inherit")};
   }
 `;
 
+/**
+ * 
+ * @author Robert Long
+ */
 const HorizontalContainer = (styled as any).div`
   display: flex;
   flex: 1;
   overflow: hidden;
 `;
 
+/**
+ * 
+ * @author Robert Long
+ */
 const HorizontalResizer = (styled as any).div`
   display: flex;
   height: 6px;
@@ -28,6 +40,10 @@ const HorizontalResizer = (styled as any).div`
   }
 `;
 
+/**
+ * 
+ * @author Robert Long
+ */
 const VerticalContainer = (styled as any).div`
   display: flex;
   flex: 1;
@@ -35,6 +51,10 @@ const VerticalContainer = (styled as any).div`
   overflow: hidden;
 `;
 
+/**
+ * 
+ * @author Robert Long
+ */
 const VerticalResizer = (styled as any).div`
   display: flex;
   width: 6px;
@@ -49,6 +69,10 @@ const VerticalResizer = (styled as any).div`
   }
 `;
 
+/**
+ * 
+ * @author Robert Long
+ */
 const ResizeContainer = (styled as any).div.attrs(props => ({
   style: {
     flex: props.size === undefined ? 1 : props.size
@@ -58,6 +82,10 @@ const ResizeContainer = (styled as any).div.attrs(props => ({
   overflow: hidden;
 `;
 
+/**
+ * 
+ * @author Robert Long
+ */
 export default class Resizeable extends Component {
   static propTypes = {
     children: PropTypes.node,

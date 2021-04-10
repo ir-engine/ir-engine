@@ -1,5 +1,10 @@
 import { Component } from "react";
 import { createPortal } from "react-dom";
+
+/**
+ * 
+ * @author Robert Long
+ */
 export default class Portal extends Component<{}, {}> {
   constructor(props) {
     super(props);
