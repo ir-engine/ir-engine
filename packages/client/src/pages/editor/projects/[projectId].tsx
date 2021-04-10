@@ -16,6 +16,7 @@ import {selectAuthState} from "@xr3ngine/client-core/src/user/reducers/auth/sele
 import {bindActionCreators, Dispatch} from "redux";
 import {doLoginAuto} from "@xr3ngine/client-core/src/user/reducers/auth/service";
 import { initializeEngine } from "@xr3ngine/engine/src/initialize";
+import { DefaultGameMode } from "@xr3ngine/engine/src/templates/game/DefaultGameMode";
 
 /**
  * Declairing Props interface having two props.
@@ -68,7 +69,10 @@ const Project = (props: Props) => {
     const InitializationOptions = {
         postProcessing: true,
         offlineMode: true,
-        editor: true
+        editor: true,
+        gameModes: [
+            DefaultGameMode
+          ]
       };
   
     useEffect(() => {
