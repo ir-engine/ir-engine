@@ -160,7 +160,7 @@
     "@types/compression": "^1.7.0",
     "@types/cors": "^2.8.7",
     "@types/dotenv-flow": "^3.0.0",
-    "@types/helmet": "0.0.47",
+    "@types/helmet": "0.0.48",
     "@types/jsonwebtoken": "^8.5.0",
     "@types/lodash": "^4.14.150",
     "@types/mime-types": "^2.1.0",
