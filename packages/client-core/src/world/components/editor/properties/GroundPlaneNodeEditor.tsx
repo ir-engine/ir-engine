@@ -8,7 +8,9 @@ import i18n from "i18next";
 import { withTranslation } from "react-i18next";
 
 /**
- * [Declairing GroundPlaneNodeEditor properties]
+ * Declairing GroundPlaneNodeEditor properties.
+ * 
+ * @author Robert Long
  * @type {Object}
  */
 
@@ -19,7 +21,9 @@ type GroundPlaneNodeEditorProps = {
 };
 
 /**
- * [iconComponent is used to render GroundPlaneNode and provide inputs to customize floorPlanNode]
+ * IconComponent is used to render GroundPlaneNode and provide inputs to customize floorPlanNode.
+ * 
+ * @author Robert Long
  * @type {class component}
  */
 export class GroundPlaneNodeEditor extends Component<

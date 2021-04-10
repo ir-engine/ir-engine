@@ -4,7 +4,9 @@ import MediaSourcePanel from "./MediaSourcePanel";
 import { useTranslation } from "react-i18next";
 
 /**
- * [ModelSourcePanel used to render view containg AssetPanelToolbarContent and AssetPanelContentContainer]
+ * ModelSourcePanel used to render view containg AssetPanelToolbarContent and AssetPanelContentContainer.
+ * 
+ * @author Robert Long
  * @param       {any} props
  * @constructor
  */

@@ -14,7 +14,9 @@ import i18n from "i18next";
 import { withTranslation } from "react-i18next";
 
 /**
- * [defining properties for FloorPlanNodeEditor]
+ * Defining properties for FloorPlanNodeEditor.
+ * 
+ * @author Robert Long
  * @type {Object}
  */
 type FloorPlanNodeEditorProps = {
@@ -27,7 +29,9 @@ type FloorPlanNodeEditorProps = {
 };
 
 /**
- * [FloorPlanNodeEditor class component used to render view to customize properties of floor plan element]
+ * FloorPlanNodeEditor class component used to render view to customize properties of floor plan element.
+ * 
+ * @author Robert Long
  * @extends Component
  */
 class FloorPlanNodeEditor extends Component<FloorPlanNodeEditorProps, {}> {

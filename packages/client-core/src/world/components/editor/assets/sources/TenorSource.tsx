@@ -5,7 +5,9 @@ import Api from "../../Api";
 import i18n from "i18next";
 
 /**
- * [TenorSource component used to provide visual objects]
+ * TenorSource component used to provide visual objects.
+ * 
+ * @author Robert Long
  * @type {class component}
  */
 export default class TenorSource extends VideoMediaSource {

@@ -8,10 +8,21 @@ import { MathUtils as _Math } from "three";
 const radToDeg = _Math.radToDeg;
 const degToRad = _Math.degToRad;
 
+/**
+ * 
+ * @author Robert Long
+ * @param {any} convertTo
+ * @param {any} convertFrom
+ * @param {any} rest
+ * @returns 
+ */
 export default function RadianNumericInputGroup({ convertTo, convertFrom, ...rest }) {
   return <NumericInputGroup {...rest} convertFrom={radToDeg} convertTo={degToRad} />;
 }
 
+/**
+ * @author Robert Long
+ */
 RadianNumericInputGroup.propTypes = {
   value: PropTypes.number.isRequired,
   onChange: PropTypes.func.isRequired,
@@ -25,6 +36,9 @@ RadianNumericInputGroup.propTypes = {
   convertFrom: PropTypes.func
 };
 
+/**
+ * @author Robert Long
+ */
 RadianNumericInputGroup.defaultProps = {
   min: 0,
   max: 360,

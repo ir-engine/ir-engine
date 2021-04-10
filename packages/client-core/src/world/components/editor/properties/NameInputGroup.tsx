@@ -7,7 +7,9 @@ import i18n from "i18next";
 import { withTranslation } from "react-i18next";
 
 /**
- * [creating styled component using InputGroup component]
+ * Creating styled component using InputGroup component.
+ * 
+ * @author Robert Long
  * @type {Styled Component}
  */
 const StyledNameInputGroup = (styled as any)(InputGroup)`
@@ -23,7 +25,9 @@ type Types = {
 };
 
 /**
- * [NameInputGroup is used to render input group PropertiesPanelContainer]
+ * NameInputGroup is used to render input group PropertiesPanelContainer.
+ * 
+ * @author Robert Long
  * @type {class component}
  */
 export class NameInputGroup extends Component<Types> {

@@ -55,7 +55,9 @@ type TriggerVolumeNodeEditorState = {
 };
 
 /**
- * [TriggerVolumeNodeEditor provides the editor view to customize properties]
+ * TriggerVolumeNodeEditor provides the editor view to customize properties.
+ * 
+ * @author Robert Long
  * @type {class component}
  */
 export class TriggerVolumeNodeEditor extends Component<

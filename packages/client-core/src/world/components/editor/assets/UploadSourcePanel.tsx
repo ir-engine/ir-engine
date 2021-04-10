@@ -4,6 +4,8 @@ import MediaSourcePanel from "./MediaSourcePanel";
 import { useTranslation } from "react-i18next";
 /**
  * UploadSourcePanel component used to render MediaSourcePanel.
+ * 
+ * @author Robert Long
  * @param {any} props
  * @constructor
  */

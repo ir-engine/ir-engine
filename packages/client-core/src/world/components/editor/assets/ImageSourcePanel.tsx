@@ -4,7 +4,9 @@ import MediaSourcePanel from "./MediaSourcePanel";
 import { useTranslation } from "react-i18next";
 
 /**
- * [ImageSourcePanel used to render source container]
+ * ImageSourcePanel used to render source container.
+ * 
+ * @author Robert Long
  * @param       {any} props
  * @constructor
  */

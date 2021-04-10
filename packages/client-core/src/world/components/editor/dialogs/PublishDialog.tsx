@@ -8,13 +8,17 @@ import FormField from "../inputs/FormField";
 import { Trans, withTranslation } from "react-i18next";
 
 /**
- * [PublishDialog used to show the dialog when we are going to publish scene]
+ * PublishDialog used to show the dialog when we are going to publish scene.
+ * 
+ * @author Robert Long
  * @type {class component}
  */
 export class PublishDialog extends Component<{t: Function}> {
 
 /**
- * [Declairing propTypes for publishDialog component]
+ * Declairing propTypes for publishDialog component.
+ * 
+ * @author Robert Long
  * @type {Object}
  */
   static propTypes = {

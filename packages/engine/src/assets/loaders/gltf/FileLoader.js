@@ -1,7 +1,8 @@
 import { Cache, Loader } from 'three';
 import fetch from "cross-fetch"
 
-process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0
+if(process.env.NODE_ENV !== "production")
+	process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = "0"
 
 const loading = {};
 

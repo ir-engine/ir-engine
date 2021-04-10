@@ -27,6 +27,7 @@ import ScaleCommand from "@xr3ngine/engine/src/editor/commands/ScaleCommand";
 import ScaleMultipleCommand from "@xr3ngine/engine/src/editor/commands/ScaleMultipleCommand";
 import SelectCommand from "@xr3ngine/engine/src/editor/commands/SelectCommand";
 import SelectMultipleCommand from "@xr3ngine/engine/src/editor/commands/SelectMultipleCommand";
+import SetObjectPropertyCommand from "@xr3ngine/engine/src/editor/commands/SetObjectPropertyCommand";
 import SetPositionCommand from "@xr3ngine/engine/src/editor/commands/SetPositionCommand";
 import SetPositionMultipleCommand from "@xr3ngine/engine/src/editor/commands/SetPositionMultipleCommand";
 import SetPropertiesCommand from "@xr3ngine/engine/src/editor/commands/SetPropertiesCommand";
@@ -66,7 +67,9 @@ import VolumetricNode from "@xr3ngine/engine/src/editor/nodes/VolumetricNode";
 import Renderer from "@xr3ngine/engine/src/editor/renderer/Renderer";
 import ThumbnailRenderer from "@xr3ngine/engine/src/editor/renderer/ThumbnailRenderer";
 import TransformGizmo from "@xr3ngine/engine/src/scene/classes/TransformGizmo";
+import { AnyRecordWithTtl } from "dns";
 import EventEmitter from "eventemitter3";
+import i18n from 'i18next';
 import {
   AudioListener,
   Clock, Matrix4,
@@ -78,7 +81,6 @@ import {
 import Api from "./Api";
 import AssetManifestSource from "./assets/AssetManifestSource";
 import { loadEnvironmentMap } from "./EnvironmentMap";
-import i18n from 'i18next';
 
 const tempMatrix1 = new Matrix4();
 const tempMatrix2 = new Matrix4();
@@ -99,8 +101,10 @@ const rendererPromise = new Promise((resolve, reject) => {
 const removeObjectsRoots = [];
 
 /**
- * [Editor used to provide the various tools and properties to create or edit scene]
- * @type {[class]}
+ * Editor used to provide the various tools and properties to create or edit scene.
+ * 
+ * @author Robert Long
+ * @type class
  */
 export default class Editor extends EventEmitter {
   api: Api;
@@ -140,11 +144,13 @@ export default class Editor extends EventEmitter {
   playing: boolean;
 
   // initializing component properties with default value.
-  constructor(api, settings = {}) {
+  constructor(api, settings = {}, Engine) {
     super();
+    this.camera = Engine.camera;
     this.api = api;
     this.settings = settings;
     this.project = null;
+    this.helperScene = Engine.scene;
 
     this.selected = [];
     this.selectedTransformRoots = [];
@@ -169,13 +175,13 @@ export default class Editor extends EventEmitter {
     this.sceneModified = false;
     this.projectLoaded = false;
 
-    this.camera = new PerspectiveCamera(80, window.innerWidth / window.innerHeight, 0.2, 8000);
+    // this.camera = new PerspectiveCamera(80, window.innerWidth / window.innerHeight, 0.2, 8000);
     this.audioListener = new AudioListener();
+    console.log("This camera is", this.camera);
     this.camera.add(this.audioListener);
     this.camera.layers.enable(1);
     this.camera.name = "Camera";
 
-    this.helperScene = new Scene();
 
     this.grid = new EditorInfiniteGridHelper();
     this.helperScene.add(this.grid as any);
@@ -190,12 +196,14 @@ export default class Editor extends EventEmitter {
     this.initializing = false;
     this.initialized = false;
     this.sceneLoading = false;
-  }
+}
 
 /**
- * [registerNode used to add new object to the scene]
- * @param  {[type]} nodeConstructor [contains constructor properties]
- * @param  {[type]} nodeEditor      [contains editor properties]
+ * Function registerNode used to add new object to the scene.
+ * 
+ * @author Robert Long
+ * @param  {any} nodeConstructor contains constructor properties
+ * @param  {any} nodeEditor      contains editor properties
  */
   registerNode(nodeConstructor, nodeEditor) {
     this.nodeTypes.add(nodeConstructor);
@@ -203,16 +211,20 @@ export default class Editor extends EventEmitter {
   }
 
 /**
- * [getNodeEditor used to get properties of currently selected node]
- * @param  {[type]} node [contains properties of node]
+ * Function getNodeEditor used to get properties of currently selected node.
+ * 
+ * @author Robert Long
+ * @param  {any} node contains properties of node
  */
   getNodeEditor(node) {
     return this.nodeEditors.get(node.constructor);
   }
 
 /**
- * [registerSource used to add image, audio, video, asset files to the scene]
- * @param  {[type]} source [contains source file data]
+ * Function registerSource used to add image, audio, video, asset files to the scene.
+ * 
+ * @author Robert Long
+ * @param  {any} source contains source file data
  */
   registerSource(source) {
     this.sources.push(source);
@@ -223,8 +235,10 @@ export default class Editor extends EventEmitter {
   }
 
 /**
- * [installAssetSource adding asset using url]
- * @param  {[type]}  manifestUrl [contains url of source]
+ * Function installAssetSource adding asset using url.
+ * 
+ * @author Robert Long
+ * @param  {any}  manifestUrl contains url of source
  */
   async installAssetSource(manifestUrl) {
     const proxiedUrl = this.api.proxyUrl(new URL(manifestUrl, (window as any).location).href);
@@ -235,26 +249,33 @@ export default class Editor extends EventEmitter {
   }
 
 /**
- * [getSource used to get source from sources array using sourceId]
- * @param  {[type]} sourceId
- * @return {[type]}    source data
+ * Function getSource used to get source from sources array using sourceId.
+ * 
+ * @author Robert Long
+ * @param  {any} sourceId
+ * @return {any} source data
  */
   getSource(sourceId) {
     return this.sources.find(source => source.id === sourceId);
   }
 
 /**
- * [setSource emitting event setSource using sourceId]
+ * Function setSource emitting event setSource using sourceId.
+ * 
+ * @author Robert Long 
+ * @param sourceId 
  */
   setSource(sourceId) {
     this.emit("setSource", sourceId);
   }
 
 /**
- * [emit overriding function to emit events to exicute functions]
- * @param  {[type]} eventName
- * @param  {[type]} args      [contains data used by  event]
- * @return {[type]}           [true if scene is not loading]
+ * Emit overriding function to emit events to exicute functions.
+ * 
+ * @author Robert Long
+ * @param  {string | symbol} eventName
+ * @param  {any} args      [contains data used by  event]
+ * @return {boolean}          [true if scene is not loading]
  */
   emit(eventName: string | symbol, ...args: any[]): boolean {
     if (!this.sceneLoading) {
@@ -265,7 +286,9 @@ export default class Editor extends EventEmitter {
   }
 
 /**
- * [init called when component get initialized]
+ * init called when component get initialized.
+ * 
+ * @author Robert Long
  * @return {Promise}         [void]
  */
   async init(): Promise<void> {
@@ -338,7 +361,9 @@ export default class Editor extends EventEmitter {
   }
 
 /**
- * [onEmitSceneModified called when scene get modified]
+ * Function onEmitSceneModified called when scene get modified.
+ * 
+ * @author Robert Long
  */
   onEmitSceneModified() {
     this.sceneModified = true;
@@ -346,8 +371,10 @@ export default class Editor extends EventEmitter {
   }
 
 /**
- * [initializeRenderer used to render canvas]
- * @param  {[type]} canvas [ contains canvas data ]
+ * Function initializeRenderer used to render canvas.
+ * 
+ * @author Robert Long
+ * @param  {any} canvas [ contains canvas data ]
  */
   initializeRenderer(canvas) {
     try {
@@ -360,7 +387,9 @@ export default class Editor extends EventEmitter {
   }
 
 /**
- * [clearCaches used to clear cashe]
+ * Function clearCaches used to clear cashe.
+ * 
+ * @author Robert Long
  */
   clearCaches() {
     this.textureCache.disposeAndClear();
@@ -368,8 +397,10 @@ export default class Editor extends EventEmitter {
   }
 
 /**
- * [loadProject used to load the scene]
- * @param  {[type]}  projectFile [contains scene data]
+ * Function loadProject used to load the scene.
+ * 
+ * @author Robert Long
+ * @param  {any}  projectFile [contains scene data]
  * @return {Promise}             [scene to render]
  */
   async loadProject(projectFile) {
@@ -446,17 +477,21 @@ export default class Editor extends EventEmitter {
     return scene;
   }
 
- /**
-  * [DefaultExportOptions provides properties to export scene]
-  */
+/**
+ * DefaultExportOptions provides properties to export scene.
+ * 
+ * @author Robert Long
+ */
   static DefaultExportOptions = {
     combineMeshes: true,
     removeUnusedObjects: true
   };
 
 /**
- * [exportScene used to export scene]
- * @param  {[type]}  signal       [ show the Network status]
+ * Function exportScene used to export scene.
+ * 
+ * @author Robert Long
+ * @param  {any}  signal       [show the Network status]
  * @param  {Object}  [options={}]
  * @return {Promise}              [scene data as object]
  */
@@ -555,13 +590,24 @@ export default class Editor extends EventEmitter {
   }
 
 /**
- * [getSpawnPosition provides the postion of object inside scene]
- * @return {[type]}        [Spwan position]
+ * Function getSpawnPosition provides the postion of object inside scene.
+ * 
+ * @author Robert Long
+ * @param target 
+ * @return {any}        [Spwan position]
  */
   getSpawnPosition(target) {
     return this.getScreenSpaceSpawnPosition(this.centerScreenSpace, target);
   }
 
+/**
+ * Function provides the cursor spawn position.
+ * 
+ * @author Robert Long
+ * @param mousePos 
+ * @param target 
+ * @returns 
+ */
   getCursorSpawnPosition(mousePos, target) {
     const rect = this.renderer.canvas.getBoundingClientRect();
     const position = new Vector2();
@@ -570,6 +616,13 @@ export default class Editor extends EventEmitter {
     return this.getScreenSpaceSpawnPosition(position, target);
   }
 
+  /**
+   * Function provides the screen space spawn position.
+   * 
+   * @author Robert Long
+   * @param screenSpacePosition 
+   * @param target 
+   */
   getScreenSpaceSpawnPosition(screenSpacePosition, target) {
     this.raycaster.setFromCamera(screenSpacePosition, this.camera);
     const results = this.raycaster.intersectObject(this.scene as any, true);
@@ -592,6 +645,13 @@ export default class Editor extends EventEmitter {
     }
   }
 
+  /**
+   * Function reparentToSceneAtCursorPosition used to reparent scene at cursor position.
+   * 
+   * @author Robert Long
+   * @param objects 
+   * @param mousePos 
+   */
   reparentToSceneAtCursorPosition(objects, mousePos) {
     const newPosition = new Vector3();
     this.getCursorSpawnPosition(mousePos, newPosition);
@@ -599,9 +659,11 @@ export default class Editor extends EventEmitter {
   }
 
 /**
- * [takeScreenshot ]
- * @param  {[type]}  width
- * @param  {[type]}  height
+ * Function takeScreenshot used for taking screenshots.
+ * 
+ * @author Robert Long
+ * @param  {any}  width
+ * @param  {any}  height
  * @return {Promise}        [generated screenshot according to height and width]
  */
   async takeScreenshot(width, height) {
@@ -609,10 +671,12 @@ export default class Editor extends EventEmitter {
   }
 
 /**
- * [generateFileThumbnail used to create thumbnail from audio as well video file]
- * @param  {[type]}  file
- * @param  {[type]}  width
- * @param  {[type]}  height
+ * Function generateFileThumbnail used to create thumbnail from audio as well video file.
+ * 
+ * @author Robert Long
+ * @param  {any}  file
+ * @param  {any}  width
+ * @param  {any}  height
  * @return {Promise}        [generated thumbnail data as blob]
  */
   async generateFileThumbnail(file, width, height) {
@@ -641,8 +705,9 @@ export default class Editor extends EventEmitter {
   }
 
 /**
- * [enterPlayMode used to enable play mode]
+ *Function enterPlayMode used to enable play mode.
  *
+ * @author Robert Long
  */
   enterPlayMode() {
     this.playing = true;
@@ -658,7 +723,9 @@ export default class Editor extends EventEmitter {
   }
 
 /**
- * [leavePlayMode used to disable play mode]
+ *Function leavePlayMode used to disable play mode.
+ *
+ * @author Robert Long
  */
   leavePlayMode() {
     this.playing = false;
@@ -673,7 +740,9 @@ export default class Editor extends EventEmitter {
   }
 
 /**
- * [update used to update components used in editor]
+ * Function update used to update components used in editor.
+ * 
+ * @author Robert Long
  */
   update = () => {
     if (!this.disableUpdate) {
@@ -704,7 +773,9 @@ export default class Editor extends EventEmitter {
   };
 
 /**
- * [onResize event handler for resize containers]
+ * Function onResize event handler for resize containers.
+ * 
+ * @author Robert Long
  */
   onResize = () => {
     this.inputManager.onResize();
@@ -713,34 +784,42 @@ export default class Editor extends EventEmitter {
   };
 
 /**
- * [revert used to revert back the recent changes on the basis of checkpoint]
- * @param  {[type]} checkpointId
+ * Function revert used to revert back the recent changes on the basis of checkpoint.
+ * 
+ * @author Robert Long
+ * @param  {type} checkpointId
  */
   revert(checkpointId) {
     this.history.revert(checkpointId);
   }
 
 /**
- * [undo used to undo changes using history of this component]
+ * Function undo used to undo changes using history of this component.
+ * 
+ * @author Robert Long
  */
   undo() {
     this.history.undo();
   }
 
 /**
- * [redo used to redo changes on the basis of history of component]
+ * Function redo used to redo changes on the basis of history of component.
+ * 
+ * @author Robert Long
  */
   redo() {
     this.history.redo();
   }
 
 /**
- * [select called if we select object on the scene]
- * @param  {[type]}  object
+ * Function select called if we select object on the scene.
+ * 
+ * @author Robert Long
+ * @param  {any}  object
  * @param  {Boolean} [useHistory=true]
  * @param  {Boolean} [emitEvent=true]
  * @param  {Boolean} [updateTransformRoots=true]
- * @return {[type]}                              [data of selected object]
+ * @return {any[]}                              [data of selected object]
  */
   select(object, useHistory = true, emitEvent = true, updateTransformRoots = true) {
     if (this.selected.indexOf(object) !== -1) {
@@ -773,12 +852,14 @@ export default class Editor extends EventEmitter {
   }
 
 /**
- * [selectMultiple used to select multiple objects on the scene]
- * @param  {[type]}  objects
+ * Function selectMultiple used to select multiple objects on the scene.
+ * 
+ * @author Robert Long
+ * @param  {any}  objects
  * @param  {Boolean} [useHistory=true]
  * @param  {Boolean} [emitEvent=true]
  * @param  {Boolean} [updateTransformRoots=true]
- * @return {[type]}                              [data of selected objects]
+ * @return {any[]}                              [data of selected objects]
  */
   selectMultiple(objects, useHistory = true, emitEvent = true, updateTransformRoots = true) {
     let selectionChanged = false;
@@ -818,11 +899,13 @@ export default class Editor extends EventEmitter {
   }
 
 /**
- * [selectAll used to select all objects available in the scene ]
+ * Function selectAll used to select all objects available in the scene.
+ * 
+ * @author Robert Long
  * @param  {Boolean} [useHistory=true]
  * @param  {Boolean} [emitEvent=true]
  * @param  {Boolean} [updateTransformRoots=true]
- * @return {[type]}                              [selected objects]
+ * @return {type}                              [selected objects]
  */
   selectAll(useHistory = true, emitEvent = true, updateTransformRoots = true) {
     return this.setSelection(this.nodes, useHistory, emitEvent, updateTransformRoots);
@@ -830,12 +913,14 @@ export default class Editor extends EventEmitter {
 
 
 /**
- * [deselect used to unselect the selected object]
- * @param  {[type]}  object
+ * Function deselect used to unselect the selected object.
+ * 
+ * @author Robert Long
+ * @param  {any}  object
  * @param  {Boolean} [useHistory=true]
  * @param  {Boolean} [emitEvent=true]
  * @param  {Boolean} [updateTransformRoots=true]
- * @return {[type]}                              [return selected object]
+ * @return {any}                              [return selected object]
  */
   deselect(object, useHistory = true, emitEvent = true, updateTransformRoots = true) {
     const index = this.selected.indexOf(object);
@@ -871,12 +956,14 @@ export default class Editor extends EventEmitter {
 
 
 /**
- * [deselectMultiple  deselect multiple selected objects]
- * @param  {[type]}  objects
+ * Function deselectMultiple  deselect multiple selected objects.
+ * 
+ * @author Robert Long
+ * @param  {any}  objects
  * @param  {Boolean} [useHistory=true]
  * @param  {Boolean} [emitEvent=true]
  * @param  {Boolean} [updateTransformRoots=true]
- * @return {[type]}                              [selected object]
+ * @return {any}                              [selected object]
  */
   deselectMultiple(objects, useHistory = true, emitEvent = true, updateTransformRoots = true) {
     let selectionChanged = false;
@@ -916,7 +1003,9 @@ export default class Editor extends EventEmitter {
   }
 
 /**
- * [deselectAll used to deselect all selected]
+ * Function deselectAll used to deselect all selected.
+ * 
+ * @author Robert Long
  * @param  {Boolean} [useHistory=true]
  * @param  {Boolean} [emitEvent=true]
  * @param  {Boolean} [updateTransformRoots=true]
@@ -926,8 +1015,10 @@ export default class Editor extends EventEmitter {
   }
 
 /**
- * [toggleSelection used to toggle select and unselect object ]
- * @param  {[type]}  object
+ * Function toggleSelection used to toggle select and unselect object.
+ * 
+ * @author Robert Long
+ * @param  {any}  object
  * @param  {Boolean} [useHistory=true]
  * @param  {Boolean} [emitEvent=true]
  * @param  {Boolean} [updateTransformRoots=true]
@@ -941,8 +1032,10 @@ export default class Editor extends EventEmitter {
   }
 
 /**
- * [setSelection used to set selection various objects]
- * @param {[type]}  objects
+ * Function setSelection used to set selection various objects.
+ * 
+ * @author Robert Long
+ * @param {any}  objects
  * @param {Boolean} [useHistory=true]
  * @param {Boolean} [emitEvent=true]
  * @param {Boolean} [updateTransformRoots=true]
@@ -1005,10 +1098,12 @@ export default class Editor extends EventEmitter {
 
 
 /**
- * [addObject used to add an object to the scene]
- * @param {[type]}  object
- * @param {[type]}  parent
- * @param {[type]}  before
+ * Function addObject used to add an object to the scene.
+ * 
+ * @author Robert Long
+ * @param {any}  object
+ * @param {any}  parent
+ * @param {any}  before
  * @param {Boolean} [useHistory=true]
  * @param {Boolean} [emitEvent=true]
  * @param {Boolean} [selectObject=true]
@@ -1080,10 +1175,12 @@ export default class Editor extends EventEmitter {
   }
 
 /**
- * [addMultipleObjects used to add multiple objects to the scene]
- * @param {[type]}  objects
- * @param {[type]}  parent
- * @param {[type]}  before
+ * Function addMultipleObjects used to add multiple objects to the scene.
+ * 
+ * @author Robert Long
+ * @param {any}  objects
+ * @param {any}  parent
+ * @param {any}  before
  * @param {Boolean} [useHistory=true]
  * @param {Boolean} [emitEvent=true]
  * @param {Boolean} [selectObjects=true]
@@ -1128,6 +1225,17 @@ export default class Editor extends EventEmitter {
     return rootObjects;
   }
 
+
+/**
+ * Function to add multiple objects with parents and befores.
+ * 
+ * @author Robert Long 
+ * @param objects 
+ * @param parents 
+ * @param befores 
+ * @param oldNodes 
+ * @param emitEvent 
+ */
   _addMultipleObjectsWithParentsAndBefores(objects, parents, befores, oldNodes, emitEvent = true) {
     // Only use the roots of the objects array so that we don't add objects multiple times
     const rootObjects = getDetachedObjectsRoots(objects);
@@ -1152,14 +1260,15 @@ export default class Editor extends EventEmitter {
   }
 
 /**
- * [removeObject used to remove object from scene]
- * @param  {[type]}  object
+ * Function removeObject used to remove object from scene.
+ * 
+ * @author Robert Long
+ * @param  {any}  object
  * @param  {Boolean} [useHistory=true]
  * @param  {Boolean} [emitEvent=true]
  * @param  {Boolean} [deselectObject=true]
- * @return {[type]}                        [description]
+ * @return {any}                        [description]
  */
-
   removeObject(object, useHistory = true, emitEvent = true, deselectObject = true) {
     if (object.parent === null) return null; // avoid deleting the camera or scene
 
@@ -1194,12 +1303,14 @@ export default class Editor extends EventEmitter {
   }
 
 /**
- * [removeMultipleObjects used to remove multiple objects from scene]
- * @param  {[type]}  objects
+ * Function removeMultipleObjects used to remove multiple objects from scene.
+ * 
+ * @author Robert Long
+ * @param  {any}  objects
  * @param  {Boolean} [useHistory=true]
  * @param  {Boolean} [emitEvent=true]
  * @param  {Boolean} [deselectObjects=true]
- * @return {[type]}
+ * @return {any}
  */
   removeMultipleObjects(objects, useHistory = true, emitEvent = true, deselectObjects = true) {
     this.getRootObjects(objects, removeObjectsRoots);
@@ -1224,21 +1335,25 @@ export default class Editor extends EventEmitter {
   }
 
 /**
- * [removeSelectedObjects used to remove selected objects from scene]
+ * Function removeSelectedObjects used to remove selected objects from scene.
+ * 
+ * @author Robert Long
  * @param  {Boolean} [useHistory=true]
  * @param  {Boolean} [emitEvent=true]
  * @param  {Boolean} [deselectObjects=true]
- * @return {[type]}
+ * @return {any}
  */
   removeSelectedObjects(useHistory = true, emitEvent = true, deselectObjects = true) {
     return this.removeMultipleObjects(this.selected, useHistory, emitEvent, deselectObjects);
   }
 
 /**
- * [duplicate used to create duplicate of selected object]
- * @param  {[type]}  object
- * @param  {[type]}  parent
- * @param  {[type]}  before
+ * Function duplicate used to create duplicate of selected object.
+ * 
+ * @author Robert Long
+ * @param  {any}  object
+ * @param  {any}  parent
+ * @param  {any}  before
  * @param  {Boolean} [useHistory=true]
  * @param  {Boolean} [emitEvent=true]
  * @param  {Boolean} [selectObject=true]
@@ -1284,14 +1399,16 @@ export default class Editor extends EventEmitter {
   }
 
 /**
- * [duplicateMultiple used to create duplicate of selected objects]
- * @param  {[type]}  objects              [description]
- * @param  {[type]}  parent               [description]
- * @param  {[type]}  before               [description]
- * @param  {Boolean} [useHistory=true]    [description]
- * @param  {Boolean} [emitEvent=true]     [description]
- * @param  {Boolean} [selectObjects=true] [description]
- * @return {[type]}                       [description]
+ * Function duplicateMultiple used to create duplicate of selected objects.
+ * 
+ * @author Robert Long
+ * @param  {any}  objects             
+ * @param  {any}  parent               
+ * @param  {any}  before               
+ * @param  {Boolean} [useHistory=true]    
+ * @param  {Boolean} [emitEvent=true]     
+ * @param  {Boolean} [selectObjects=true] 
+ * @return {any}                       
  */
   duplicateMultiple(objects, parent, before, useHistory = true, emitEvent = true, selectObjects = true) {
     if (emitEvent && selectObjects) {
@@ -1332,13 +1449,15 @@ export default class Editor extends EventEmitter {
   }
 
 /**
- * [duplicateSelected used to create duplicate of selected object]
- * @param  {[type]}  [parent=undefined]
- * @param  {[type]}  [before=undefined]
+ * Function duplicateSelected used to create duplicate of selected object.
+ * 
+ * @author Robert Long
+ * @param  {any}  [parent=undefined]
+ * @param  {any}  [before=undefined]
  * @param  {Boolean} [useHistory=true]
  * @param  {Boolean} [emitEvent=true]
  * @param  {Boolean} [selectObject=true]
- * @return {[type]}
+ * @return {any}
  */
   duplicateSelected(
     parent = undefined,
@@ -1351,14 +1470,16 @@ export default class Editor extends EventEmitter {
   }
 
 /**
- * [reparent used to change the parent object of selected object]
- * @param  {[type]}  object
- * @param  {[type]}  newParent
- * @param  {[type]}  newBefore
+ * Function reparent used to change the parent object of selected object.
+ * 
+ * @author Robert Long
+ * @param  {any}  object
+ * @param  {any}  newParent
+ * @param  {any}  newBefore
  * @param  {Boolean} [useHistory=true]
  * @param  {Boolean} [emitEvent=true]
  * @param  {Boolean} [selectObject=true]
- * @return {[type]}
+ * @return {any}
  */
   reparent(object, newParent, newBefore, useHistory = true, emitEvent = true, selectObject = true) {
     if (!object.parent) {
@@ -1423,14 +1544,16 @@ export default class Editor extends EventEmitter {
   }
 
   /**
-   * [reparentMultiple used to change the parent objects of multiple selected  objects]
-   * @param  {[type]}  objects
-   * @param  {[type]}  newParent
-   * @param  {[type]}  newBefore
+   * Function reparentMultiple used to change the parent objects of multiple selected  objects.
+   * 
+   * @author Robert Long
+   * @param  {any}  objects
+   * @param  {any}  newParent
+   * @param  {any}  newBefore
    * @param  {Boolean} [useHistory=true]
    * @param  {Boolean} [emitEvent=true]
    * @param  {Boolean} [selectObjects=true]
-   * @return {[object]}  [selected objects]
+   * @return {any}  [selected objects]
    */
   reparentMultiple(objects, newParent, newBefore, useHistory = true, emitEvent = true, selectObjects = true) {
     if (emitEvent && selectObjects) {
@@ -1463,9 +1586,11 @@ export default class Editor extends EventEmitter {
   }
 
 /**
- * [reparentSelected used to change the parent object of selected object]
- * @param  {[type]}  newParent
- * @param  {[type]}  newBefore
+ * Function reparentSelected used to change the parent object of selected object.
+ * 
+ * @author Robert Long
+ * @param  {any}  newParent
+ * @param  {any}  newBefore
  * @param  {Boolean} [useHistory=true]
  * @param  {Boolean} [emitEvent=true]
  * @param  {Boolean} [selectObjects=true]
@@ -1475,14 +1600,16 @@ export default class Editor extends EventEmitter {
   }
 
 /**
- * [groupMultiple used to group multiple objects]
- * @param  {[type]}  objects
- * @param  {[type]}  groupParent
- * @param  {[type]}  groupBefore
+ * Function groupMultiple used to group multiple objects.
+ * 
+ * @author Robert Long
+ * @param  {any}  objects
+ * @param  {any}  groupParent
+ * @param  {any}  groupBefore
  * @param  {Boolean} [useHistory=true]
  * @param  {Boolean} [emitEvent=true]
  * @param  {Boolean} [selectObject=true]
- * @return {[type]}        [group node]
+ * @return {any}        [group node]
  */
   groupMultiple(objects, groupParent, groupBefore, useHistory = true, emitEvent = true, selectObject = true) {
     if (emitEvent && selectObject) {
@@ -1517,13 +1644,15 @@ export default class Editor extends EventEmitter {
   }
 
 /**
- * [groupSelected used to group selected objects]
- * @param  {[type]}  [groupParent=undefined]
- * @param  {[type]}  [groupBefore=undefined]
+ * Function groupSelected used to group selected objects.
+ * 
+ * @author Robert Long
+ * @param  {any}  [groupParent=undefined]
+ * @param  {any}  [groupBefore=undefined]
  * @param  {Boolean} [useHistory=true]
  * @param  {Boolean} [emitEvent=true]
  * @param  {Boolean} [selectObject=true]
- * @return {[type]}
+ * @return {any}
  */
   groupSelected(
      groupParent = undefined,
@@ -1543,10 +1672,12 @@ export default class Editor extends EventEmitter {
   }
 
 /**
- * [setPosition used to position object on scene]
- * @param {[type]}  object
- * @param {[type]}  position
- * @param {[type]}  [space=TransformSpace.Local]
+ * Function setPosition used to position object on scene.
+ * 
+ * @author Robert Long
+ * @param {any}  object
+ * @param {any}  position
+ * @param {any}  [space=TransformSpace.Local]
  * @param {Boolean} [useHistory=true]
  * @param {Boolean} [emitEvent=true]
  */
@@ -1595,10 +1726,12 @@ export default class Editor extends EventEmitter {
   }
 
 /**
- * [setPositionMultiple used to position multiple objects on the scene]
- * @param {[type]}  objects
- * @param {[type]}  position
- * @param {[type]}  [space=TransformSpace.Local]
+ * Function setPositionMultiple used to position multiple objects on the scene.
+ * 
+ * @author Robert Long
+ * @param {any}  objects
+ * @param {any}  position
+ * @param {any}  [space=TransformSpace.Local]
  * @param {Boolean} [useHistory=true]
  * @param {Boolean} [emitEvent=true]
  */
@@ -1629,9 +1762,11 @@ export default class Editor extends EventEmitter {
   }
 
 /**
- * [setPositionSelected used to position select object]
- * @param {[type]}  position
- * @param {[type]}  [space=TransformSpace.Local]
+ * Function setPositionSelected used to position select object.
+ * 
+ * @author Robert Long
+ * @param {any}  position
+ * @param {any}  [space=TransformSpace.Local]
  * @param {Boolean} [useHistory=true]
  * @param {Boolean} [emitEvent=true]
  */
@@ -1640,13 +1775,15 @@ export default class Editor extends EventEmitter {
   }
 
 /**
- * [translate used to move an object to specific postion]
- * @param  {[type]}  object
- * @param  {[type]}  translation
- * @param  {[type]}  [space=TransformSpace.Local]
+ * Function translate used to move an object to specific postion.
+ * 
+ * @author Robert Long
+ * @param  {any}  object
+ * @param  {any}  translation
+ * @param  {any}  [space=TransformSpace.Local]
  * @param  {Boolean} [useHistory=true]
  * @param  {Boolean} [emitEvent=true]
- * @return {[type]}  [object]
+ * @return {any}  [object]
  */
   translate(object, translation, space = TransformSpace.Local, useHistory = true, emitEvent = true) {
     if (useHistory) {
@@ -1693,13 +1830,15 @@ export default class Editor extends EventEmitter {
   }
 
 /**
- * [translateMultiple is used when multiple objects are selected]
- * @param  {[type]}  objects
- * @param  {[type]}  translation
- * @param  {[type]}  [space=TransformSpace.Local]
+ * FUnction translateMultiple is used when multiple objects are selected.
+ * 
+ * @author Robert Long
+ * @param  {any}  objects
+ * @param  {any}  translation
+ * @param  {any}  [space=TransformSpace.Local]
  * @param  {Boolean} [useHistory=true]
  * @param  {Boolean} [emitEvent=true]
- * @return {[type]}  [selected objects]
+ * @return {any}  [selected objects]
  */
   translateMultiple(objects, translation, space = TransformSpace.Local, useHistory = true, emitEvent = true) {
     if (useHistory) {
@@ -1728,22 +1867,26 @@ export default class Editor extends EventEmitter {
   }
 
 /**
- * [translateSelected handler to transform multiple selected objects]
- * @param  {[type]}  translation
- * @param  {[type]}  [space=TransformSpace.Local]
+ * Function translateSelected handler to transform multiple selected objects.
+ * 
+ * @author Robert Long
+ * @param  {any}  translation
+ * @param  {any}  [space=TransformSpace.Local]
  * @param  {Boolean} [useHistory=true]
  * @param  {Boolean} [emitEvent=true]
- * @return {[type]}  [multiple selected objects]
+ * @return {AnyRecordWithTtl}  [multiple selected objects]
  */
   translateSelected(translation, space = TransformSpace.Local, useHistory = true, emitEvent = true) {
     return this.translateMultiple(this.selectedTransformRoots, translation, space, useHistory, emitEvent);
   }
 
 /**
- * [setRotation used to rotate a single object]
- * @param {[type]}  object
- * @param {[type]}  rotation
- * @param {[type]}  [space=TransformSpace.Local]
+ * Function setRotation used to rotate a single object.
+ * 
+ * @author Robert Long
+ * @param {any}  object
+ * @param {any}  rotation
+ * @param {any}  [space=TransformSpace.Local]
  * @param {Boolean} [useHistory=true]
  * @param {Boolean} [emitEvent=true]
  */
@@ -1790,6 +1933,17 @@ export default class Editor extends EventEmitter {
     return object;
   }
 
+  /**
+   * Function setRotationMultiple used to set multiple rotations.
+   * 
+   * @author Robert Long
+   * @param objects 
+   * @param rotation 
+   * @param space 
+   * @param useHistory 
+   * @param emitEvent 
+   * @returns 
+   */
   setRotationMultiple(objects, rotation, space = TransformSpace.Local, useHistory = true, emitEvent = true) {
     if (useHistory) {
       return this.history.execute(new SetRotationMultipleCommand(this, objects, rotation, space));
@@ -1817,9 +1971,11 @@ export default class Editor extends EventEmitter {
   }
 
 /**
- * [setRotationSelected used when multiple objects are selected to rotate]
- * @param {[type]}  rotation
- * @param {[type]}  [space=TransformSpace.Local]
+ * Function setRotationSelected used when multiple objects are selected to rotate.
+ * 
+ * @author Robert Long
+ * @param {any}  rotation
+ * @param {any}  [space=TransformSpace.Local]
  * @param {Boolean} [useHistory=true]
  * @param {Boolean} [emitEvent=true]
  */
@@ -1828,11 +1984,13 @@ export default class Editor extends EventEmitter {
   }
 
 /**
- * [rotateOnAxis used to rotate selected object on given axis]
- * @param  {[type]}  object
- * @param  {[type]}  axis
- * @param  {[type]}  angle
- * @param  {[type]}  [space=TransformSpace.Local]
+ * Function rotateOnAxis used to rotate selected object on given axis.
+ * 
+ * @author Robert Long
+ * @param  {any}  object
+ * @param  {any}  axis
+ * @param  {any}  angle
+ * @param  {any}  [space=TransformSpace.Local]
  * @param  {Boolean} [useHistory=true]
  * @param  {Boolean} [emitEvent=true]
  * @return {Boolean}
@@ -1881,14 +2039,16 @@ export default class Editor extends EventEmitter {
   }
 
 /**
- * [rotateOnAxisMultiple multiple selected objects on the given axis]
- * @param  {[type]}  objects
- * @param  {[type]}  axis
- * @param  {[type]}  angle
- * @param  {[type]}  [space=TransformSpace.Local]
+ * Function rotateOnAxisMultiple multiple selected objects on the given axis.
+ * 
+ * @author Robert Long
+ * @param  {any}  objects
+ * @param  {any}  axis
+ * @param  {any}  angle
+ * @param  {any}  [space=TransformSpace.Local]
  * @param  {Boolean} [useHistory=true]
  * @param  {Boolean} [emitEvent=true]
- * @return {[type]}
+ * @return {any}
  */
   rotateOnAxisMultiple(objects, axis, angle, space = TransformSpace.Local, useHistory = true, emitEvent = true) {
     if (useHistory) {
@@ -1917,13 +2077,15 @@ export default class Editor extends EventEmitter {
   }
 
 /**
- * [rotateOnAxisSelected is used when multiple objects are selected to rotate]
- * @param  {[type]}  axis
- * @param  {[type]}  angle
- * @param  {[type]}  [space=TransformSpace.Local]
+ * FUnction rotateOnAxisSelected is used when multiple objects are selected to rotate.
+ * 
+ * @author Robert Long
+ * @param  {any}  axis
+ * @param  {any}  angle
+ * @param  {String}  [space=TransformSpace.Local]
  * @param  {Boolean} [useHistory=true]
  * @param  {Boolean} [emitEvent=true]
- * @return {[type]}
+ * @return {any}
  */
   rotateOnAxisSelected(axis, angle, space = TransformSpace.Local, useHistory = true, emitEvent = true) {
     return this.rotateOnAxisMultiple(this.selectedTransformRoots, axis, angle, space, useHistory, emitEvent);
@@ -1971,14 +2133,16 @@ export default class Editor extends EventEmitter {
   }
 
 /**
- * [rotateAroundMultiple modifies both the position and the rotation of the multiple objects ]
- * @param  {[type]}  objects
- * @param  {[type]}  pivot
- * @param  {[type]}  axis
- * @param  {[type]}  angle
+ * Function rotateAroundMultiple modifies both the position and the rotation of the multiple objects.
+ * 
+ * @author Robert Long
+ * @param  {any}  objects
+ * @param  {any}  pivot
+ * @param  {any}  axis
+ * @param  {any}  angle
  * @param  {Boolean} [useHistory=true]
  * @param  {Boolean} [emitEvent=true]
- * @return {[type]}
+ * @return {any}
  */
   rotateAroundMultiple(objects, pivot, axis, angle, useHistory = true, emitEvent = true) {
     if (useHistory) {
@@ -1997,26 +2161,30 @@ export default class Editor extends EventEmitter {
   }
 
 /**
- * [rotateAroundSelected used when multiple objects are selected]
- * @param  {[type]}  pivot
- * @param  {[type]}  axis
- * @param  {[type]}  angle
+ * Function rotateAroundSelected used when multiple objects are selected.
+ * 
+ * @author Robert Long
+ * @param  {any}  pivot
+ * @param  {any}  axis
+ * @param  {any}  angle
  * @param  {Boolean} [useHistory=true]
  * @param  {Boolean} [emitEvent=true]
- * @return {[type]}
+ * @return {any}
  */
   rotateAroundSelected(pivot, axis, angle, useHistory = true, emitEvent = true) {
     return this.rotateAroundMultiple(this.selectedTransformRoots, pivot, axis, angle, useHistory, emitEvent);
   }
 
 /**
- * [scale used to increase size of object according to the scaling coordinates]
- * @param  {[type]}  object                       [selected object to scale]
- * @param  {[type]}  scale                        [contains coordinates to scale]
- * @param  {[type]}  [space=TransformSpace.Local]
+ * Function scale used to increase size of object according to the scaling coordinates.
+ * 
+ * @author Robert Long
+ * @param  {any}  object                       [selected object to scale]
+ * @param  {any}  scale                        [contains coordinates to scale]
+ * @param  {String}  [space=TransformSpace.Local]
  * @param  {Boolean} [useHistory=true]
  * @param  {Boolean} [emitEvent=true]
- * @return {[type]}                               [selected object]
+ * @return {any}                               [selected object]
  */
   scale(object, scale, space = TransformSpace.Local, useHistory = true, emitEvent = true) {
     if (useHistory) {
@@ -2041,13 +2209,15 @@ export default class Editor extends EventEmitter {
   }
 
 /**
- * [scaleMultiple used to increase size of multiple selected objects]
- * @param  {[type]}  objects                      [contains array of select objects]
- * @param  {[type]}  scale                        [contains scaling coordinates]
- * @param  {[type]}  [space=TransformSpace.Local]
+ * Function scaleMultiple used to increase size of multiple selected objects.
+ * 
+ * @author Robert Long
+ * @param  {any}  objects                      [contains array of select objects]
+ * @param  {any}  scale                        [contains scaling coordinates]
+ * @param  {String}  [space=TransformSpace.Local]
  * @param  {Boolean} [useHistory=true]
  * @param  {Boolean} [emitEvent=true]
- * @return {[type]}                               [selected objects]
+ * @return {any}                               [selected objects]
  */
   scaleMultiple(objects, scale, space = TransformSpace.Local, useHistory = true, emitEvent = true) {
     if (useHistory) {
@@ -2066,22 +2236,26 @@ export default class Editor extends EventEmitter {
   }
 
 /**
- * [scaleSelected used when multiple objects are selected]
- * @param  {[type]}  scale
- * @param  {[type]}  [space=TransformSpace.Local]
+ * Function scaleSelected used when multiple objects are selected.
+ * 
+ * @author Robert Long
+ * @param  {any}  scale
+ * @param  {Sting}  [space=TransformSpace.Local]
  * @param  {Boolean} [useHistory=true]
  * @param  {Boolean} [emitEvent=true]
- * @return {[type]}
+ * @return {any}
  */
   scaleSelected(scale, space = TransformSpace.Local, useHistory = true, emitEvent = true) {
     return this.scaleMultiple(this.selectedTransformRoots, scale, space, useHistory, emitEvent);
   }
 
 /**
- * [setScale used to scale object according to scaling coordinates]
- * @param {[type]}  object
- * @param {[type]}  scale
- * @param {[type]}  [space=TransformSpace.Local]
+ * Function setScale used to scale object according to scaling coordinates.
+ * 
+ * @author Robert Long
+ * @param {any}  object
+ * @param {any}  scale
+ * @param {String}  [space=TransformSpace.Local]
  * @param {Boolean} [useHistory=true]
  * @param {Boolean} [emitEvent=true]
  */
@@ -2143,10 +2317,12 @@ export default class Editor extends EventEmitter {
   }
 
 /**
- * [setScaleMultiple used to scale multiple objects]
- * @param {[type]}  objects
- * @param {[type]}  scale
- * @param {[type]}  [space=TransformSpace.Local]
+ * Function setScaleMultiple used to scale multiple objects.
+ * 
+ * @author Robert Long
+ * @param {any}  objects
+ * @param {any}  scale
+ * @param {String}  [space=TransformSpace.Local]
  * @param {Boolean} [useHistory=true]
  * @param {Boolean} [emitEvent=true]
  */
@@ -2177,9 +2353,11 @@ export default class Editor extends EventEmitter {
   }
 
 /**
- * [setScaleSelected used when multiple objects are selected]
- * @param {[type]}  scale
- * @param {[type]}  [space=TransformSpace.Local]
+ * Function setScaleSelected used when multiple objects are selected.
+ * 
+ * @author Robert Long
+ * @param {any}  scale
+ * @param {any}  [space=TransformSpace.Local]
  * @param {Boolean} [useHistory=true]
  * @param {Boolean} [emitEvent=true]
  */
@@ -2188,10 +2366,12 @@ export default class Editor extends EventEmitter {
   }
 
 /**
- * [setProperty used to set specific property to the selected object]
- * @param {[type]}  object
- * @param {[type]}  propertyName
- * @param {[type]}  value
+ * Function setProperty used to set specific property to the selected object.
+ * 
+ * @author Robert Long
+ * @param {any}  object
+ * @param {any}  propertyName
+ * @param {any}  value
  * @param {Boolean} [useHistory=true]
  * @param {Boolean} [emitEvent=true]
  * @param {Boolean} [disableCopy=false]
@@ -2217,12 +2397,44 @@ export default class Editor extends EventEmitter {
 
     return object;
   }
-
 /**
- * [setPropertyMultiple used to set propery to multiple selected objects]
- * @param {[type]}  objects
+ * [setObjectProperty used to set propery to selected object]
  * @param {[type]}  propertyName
  * @param {[type]}  value
+ * @param {Boolean} [useHistory=true]
+ */
+
+  setObjectProperty(propertyName, value,useHistory=true) {
+    if(useHistory)
+      return this.history.execute(new SetObjectPropertyCommand(this, this.selected[0], propertyName, value));
+      const object =this.selected[0];
+      const nestProp=propertyName.split(".");
+      let interestObj=object;
+      nestProp.forEach((element,id) => {
+          if(id<nestProp.length-1)
+            interestObj=interestObj[element];
+      });
+      if (value && value.copy) {
+        interestObj[nestProp[nestProp.length - 1]].copy(value);
+      } else {
+        interestObj[nestProp[nestProp.length - 1]] = value;
+      }
+      if (object.onChange) {
+        object.onChange(propertyName);
+      }
+      this.emit("objectsChanged", [object], propertyName);
+      return object;
+  }
+
+  
+
+/**
+ * Function setPropertyMultiple used to set propery to multiple selected objects.
+ * 
+ * @author Robert Long
+ * @param {any}  objects
+ * @param {any}  propertyName
+ * @param {any}  value
  * @param {Boolean} [useHistory=true]
  * @param {Boolean} [emitEvent=true]
  */
@@ -2242,9 +2454,11 @@ export default class Editor extends EventEmitter {
     return objects;
   }
 /**
- * [setPropertySelected used when multiple objects are selected]
- * @param {[type]}  propertyName
- * @param {[type]}  value
+ * Function setPropertySelected used when multiple objects are selected.
+ * 
+ * @author Robert Long
+ * @param {any}  propertyName
+ * @param {any}  value
  * @param {Boolean} [useHistory=true]
  * @param {Boolean} [emitEvent=true]
  */
@@ -2253,9 +2467,11 @@ export default class Editor extends EventEmitter {
   }
 
 /**
- * [setProperties used to set multiple properties to selected object]
- * @param {[type]}  object
- * @param {[type]}  properties
+ * Function setProperties used to set multiple properties to selected object.
+ * 
+ * @author Robert Long
+ * @param {any}  object
+ * @param {any}  properties
  * @param {Boolean} [useHistory=true]
  * @param {Boolean} [emitEvent=true]
  */
@@ -2286,9 +2502,11 @@ export default class Editor extends EventEmitter {
   }
 
 /**
- * [setPropertiesMultiple used to set multiple properties of multiple selected objects]
- * @param {[type]}  objects
- * @param {[type]}  properties
+ * Function setPropertiesMultiple used to set multiple properties of multiple selected objects.
+ * 
+ * @author Robert Long
+ * @param {any}  objects
+ * @param {any}  properties
  * @param {Boolean} [useHistory=true]
  * @param {Boolean} [emitEvent=true]
  */
@@ -2309,8 +2527,10 @@ export default class Editor extends EventEmitter {
   }
 
 /**
- * [setPropertiesSelected used when multiple objects are selected]
- * @param {[type]}  properties
+ * Function setPropertiesSelected used when multiple objects are selected.
+ * 
+ * @author Robert Long
+ * @param {any}  properties
  * @param {Boolean} [useHistory=true]
  * @param {Boolean} [emitEvent=true]
  */
@@ -2318,6 +2538,18 @@ export default class Editor extends EventEmitter {
     return this.setPropertiesMultiple(this.selected, properties, useHistory, emitEvent);
   }
 
+/**
+ * Function to loading meterial slots.
+ * 
+ * @author Robert Long
+ * @param object 
+ * @param subPieceId 
+ * @param materialSlotId 
+ * @param materialId 
+ * @param useHistory 
+ * @param emitEvent 
+ * @returns 
+ */
   loadMaterialSlot(object, subPieceId, materialSlotId, materialId, useHistory = true, emitEvent = true) {
     if (useHistory) {
       return this.history.execute(new LoadMaterialSlotCommand(this, object, subPieceId, materialSlotId, materialId));
@@ -2336,6 +2568,18 @@ export default class Editor extends EventEmitter {
     return object;
   }
 
+/**
+ * Function loadMaterialSlotMultiple used to load multiple material slots.
+ * 
+ * @author Robert Long
+ * @param objects 
+ * @param subPieceId 
+ * @param materialSlotId 
+ * @param materialId 
+ * @param useHistory 
+ * @param emitEvent 
+ * @returns 
+ */
   loadMaterialSlotMultiple(objects, subPieceId, materialSlotId, materialId, useHistory = true, emitEvent = true) {
     if (useHistory) {
       return this.history.execute(
@@ -2358,17 +2602,30 @@ export default class Editor extends EventEmitter {
     return objects;
   }
 
+/**
+ * Function to load selected material slot.
+ * 
+ * @author Robert Long
+ * @param subPieceId 
+ * @param materialSlotId 
+ * @param materialId 
+ * @param useHistory 
+ * @param emitEvent 
+ * @returns 
+ */
   loadMaterialSlotSelected(subPieceId, materialSlotId, materialId, useHistory = true, emitEvent = true) {
     return this.loadMaterialSlotMultiple(this.selected, subPieceId, materialSlotId, materialId, useHistory, emitEvent);
   }
 
 /**
- * [getRootObjects used to find root objects ]
- * @param  {[type]}  objects
+ * Function getRootObjects used to find root objects.
+ * 
+ * @author Robert Long
+ * @param  {any}  objects
  * @param  {Array}   [target=[]]
  * @param  {Boolean} [filterUnremovable=true]
  * @param  {Boolean} [filterUntransformable=false]
- * @return {[type]}                                
+ * @return {any}                                
  */
   getRootObjects(objects, target = [], filterUnremovable = true, filterUntransformable = false) {
     target.length = 0;
@@ -2400,10 +2657,23 @@ export default class Editor extends EventEmitter {
     return target;
   }
 
+  /**
+   * Function getTransformRoots provides root objects 
+   * 
+   * @author Robert Long
+   * @param objects 
+   * @param target 
+   * @returns 
+   */
   getTransformRoots(objects, target = []) {
     return this.getRootObjects(objects, target, true, true);
   }
 
+  /**
+   * Function to update transform roots.
+   * 
+   * @author Robert Long
+   */
   updateTransformRoots() {
     this.getTransformRoots(this.selected, this.selectedTransformRoots);
   }

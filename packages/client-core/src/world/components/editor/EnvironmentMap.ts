@@ -10,6 +10,12 @@ const posy = "/cubemap/posy.jpg";
 const posz = "/cubemap/posz.jpg";
 let cubeMapTexturePromise = null;
 export let environmentMap = null;
+
+/**
+ * 
+ * @author Robert Long
+ * @returns 
+ */
 export function loadEnvironmentMap() {
   if (cubeMapTexturePromise) {
     return cubeMapTexturePromise;

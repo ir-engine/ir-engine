@@ -4,7 +4,7 @@ import { Hook, HookContext } from '@feathersjs/feathers';
 import ua from 'universal-analytics';
 import config from '../appconfig';
 
-export default (options = {}): Hook => {
+export default (): Hook => {
   return async (context: HookContext): Promise<HookContext> => {
     if (context.method === 'remove') return context;
     if (!context.params.user) {

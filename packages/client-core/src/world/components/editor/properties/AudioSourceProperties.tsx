@@ -10,13 +10,14 @@ import useSetPropertySelected from "./useSetPropertySelected";
 import { useTranslation } from "react-i18next";
 
 /**
- * [
+ * 
  * AudioSourceProperties provides properties to custom audio element on the scene
- * used inside AudioNodeEditor component
- * ]
- * @param       {[type]} node
- * @param       {[type]} editor
- * @param       {[type]} multiEdit
+ * used inside AudioNodeEditor component.
+ * 
+ * @author Robert Long
+ * @param       {any} node
+ * @param       {any} editor
+ * @param       {any} multiEdit
  * @constructor
  */
 

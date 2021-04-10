@@ -22,6 +22,10 @@ import styledTheme from "../theme";
 import ToolButton from "./ToolButton";
 import LocationModal from '../../../../admin/components/LocationModal';
 
+/**
+ * 
+ * @author Robert Long
+ */
 const StyledToolbar = (styled as any).div`
   display: flex;
   flex-direction: row;
@@ -30,6 +34,10 @@ const StyledToolbar = (styled as any).div`
   user-select: none;
 `;
 
+/**
+ * 
+ * @author Robert Long
+ */
 const ToolButtons = (styled as any).div`
   width: auto;
   height: inherit;
@@ -37,6 +45,10 @@ const ToolButtons = (styled as any).div`
   flex-direction: row;
 `;
 
+/**
+ * 
+ * @author Robert Long
+ */
 const ToolToggles = (styled as any).div`
   width: auto;
   height: inherit;
@@ -47,16 +59,28 @@ const ToolToggles = (styled as any).div`
   padding: 0 16px;
 `;
 
+/**
+ * 
+ * @author Robert Long
+ */
 const Spacer = (styled as any).div`
   flex: 1;
 `;
 
+/**
+ * 
+ * @author Robert Long
+ */
 const PublishButton = (styled as any)(Button)`
   align-self: center;
   margin: 1em;
   padding: 0 2em;
 `;
 
+/**
+ * 
+ * @author Robert Long
+ */
 const snapInputStyles = {
   container: base => ({
     ...base,
@@ -74,6 +98,10 @@ const snapInputStyles = {
   })
 };
 
+/**
+ * 
+ * @author Robert Long
+ */
 const rightSnapInputStyles = {
   container: base => ({
     ...base,
@@ -96,6 +124,10 @@ const rightSnapInputStyles = {
   })
 };
 
+/**
+ * 
+ * @author Robert Long
+ */
 const selectInputStyles = {
   container: base => ({
     ...base,
@@ -114,6 +146,10 @@ const selectInputStyles = {
   })
 };
 
+/**
+ * 
+ * @author Robert Long
+ */
 const StyledToggleButton = (styled as any).div`
   display: flex;
   justify-content: center;
@@ -133,6 +169,14 @@ const StyledToggleButton = (styled as any).div`
   }
 `;
 
+/**
+ * 
+ * @author Robert Long
+ * @param {any} tooltip
+ * @param {any} children
+ * @param {any} rest
+ * @returns 
+ */
 function ToggleButton({ tooltip, children, ...rest }) {
   return (
     <InfoTooltip info={tooltip}>
@@ -146,6 +190,10 @@ ToggleButton.propTypes = {
   children: PropTypes.node
 };
 
+/**
+ * 
+ * @author Robert Long
+ */
 const ToolbarInputGroup = (styled as any).div`
   display: flex;
   align-items: center;
@@ -154,6 +202,10 @@ const ToolbarInputGroup = (styled as any).div`
   margin: 0 4px;
 `;
 
+/**
+ * 
+ * @author Robert Long
+ */
 const ToolbarNumericStepperInput = (styled as any)(NumericStepperInput)`
   width: 100px;
 
@@ -174,6 +226,10 @@ const ToolbarNumericStepperInput = (styled as any)(NumericStepperInput)`
   }
 `;
 
+/**
+ * 
+ * @author Robert Long
+ */
 const translationSnapOptions = [
   { label: "0.1m", value: 0.1 },
   { label: "0.125m", value: 0.125 },
@@ -184,6 +240,10 @@ const translationSnapOptions = [
   { label: "4m", value: 4 }
 ];
 
+/**
+ * 
+ * @author Robert Long
+ */
 const rotationSnapOptions = [
   { label: "1°", value: 1 },
   { label: "5°", value: 5 },
@@ -194,17 +254,29 @@ const rotationSnapOptions = [
   { label: "90°", value: 90 }
 ];
 
+/**
+ * 
+ * @author Robert Long
+ */
 const transformPivotOptions = [
   { label: "Selection", value: TransformPivot.Selection },
   { label: "Center", value: TransformPivot.Center },
   { label: "Bottom", value: TransformPivot.Bottom }
 ];
 
+/**
+ * 
+ * @author Robert Long
+ */
 const transformSpaceOptions = [
   { label: "Selection", value: TransformSpace.LocalSelection },
   { label: "World", value: TransformSpace.World }
 ];
 
+/**
+ * 
+ * @author Robert Long
+ */
 const initialLocation = {
   id: null,
   name: "",
@@ -220,6 +292,11 @@ const initialLocation = {
 type ToolBarProps = {
 
 }
+
+/**
+ * 
+ * @author Robert Long
+ */
 type ToolBarState = {
   locationModalOpen: any;
   selectedLocation: any;
@@ -228,6 +305,10 @@ type ToolBarState = {
   locationEditing: boolean
 }
 
+/**
+ * 
+ * @author Robert Long
+ */
 export default class ToolBar extends Component<ToolBarProps, ToolBarState> {
   static propTypes = {
     menu: PropTypes.array,

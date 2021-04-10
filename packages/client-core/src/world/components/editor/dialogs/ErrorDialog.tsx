@@ -5,6 +5,8 @@ import styled from "styled-components";
 
 /**
  * ErrorDialogContainer used as wrapper element for ErrorMessage.
+ * 
+ * @author Robert Long
  * @param {any} styled
  * @type {Styled component}
  */
@@ -17,7 +19,9 @@ const ErrorDialogContainer = (styled as any)(Dialog)`
 `;
 
 /**
- * [ErrorMessage used to provide styles for error message content]
+ * ErrorMessage used to provide styles for error message content.
+ * 
+ * @author Robert Long
  * @type {Styled component}
  */
 const ErrorMessage = (styled as any).code`
@@ -31,7 +35,9 @@ const ErrorMessage = (styled as any).code`
 
 
 /**
- * [ErrorDialog is used to render error message]
+ * ErrorDialog is used to render error message.
+ * 
+ * @author Robert Long
  * @type {Object}
  */
 export default class ErrorDialog extends Component {

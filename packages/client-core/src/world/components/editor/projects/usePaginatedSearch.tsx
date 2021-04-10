@@ -1,6 +1,15 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import { useFetch } from "use-http";
 
+
+/**
+ * 
+ * @author Robert Long
+ * @param path 
+ * @param queryParams 
+ * @param options 
+ * @returns 
+ */
 export default function usePaginatedSearch(path:string, queryParams:Record<string, any>, options = {}): { loading: boolean, error: unknown, entries: Array<unknown>, loadMore: () => void, hasMore: boolean } {
   const urlRef = useRef() as any;
 
