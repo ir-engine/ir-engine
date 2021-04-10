@@ -4,6 +4,15 @@ import { InputGroupContainer, InputGroupContent, InputGroupInfo } from "./InputG
 import Scrubber from "./Scrubber";
 import NumericInput from "./NumericInput";
 
+
+/**
+ * 
+ * @author Robert Long
+ * @param {any} name
+ * @param {any} className
+ * @param {any} rest
+ * @returns 
+ */
 export default function NumericInputGroup({ name, className, info, label, ...rest }) {
   const { displayPrecision, ...scrubberProps } = rest;
   return (
@@ -18,6 +27,9 @@ export default function NumericInputGroup({ name, className, info, label, ...res
   );
 }
 
+/**
+ * @author Robert Long
+ */
 NumericInputGroup.propTypes = {
   name: PropTypes.string.isRequired,
   className: PropTypes.string,

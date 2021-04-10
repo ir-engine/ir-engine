@@ -6,7 +6,9 @@ import i18n from "i18next";
 import { withTranslation } from "react-i18next";
 
 /**
- * [ScenePreviewCameraNodeEditorProps declairing props for ScenePreviewCameraNodeEditor]
+ * ScenePreviewCameraNodeEditorProps declairing props for ScenePreviewCameraNodeEditor.
+ * 
+ * @author Robert Long
  * @type {Object}
  */
 type ScenePreviewCameraNodeEditorProps = {
@@ -16,7 +18,9 @@ type ScenePreviewCameraNodeEditorProps = {
 };
 
 /**
- * [ScenePreviewCameraNodeEditor provides the editor view to customize properties]
+ * ScenePreviewCameraNodeEditor provides the editor view to customize properties.
+ * 
+ * @author Robert Long
  * @type {Class component}
  */
 export class ScenePreviewCameraNodeEditor extends Component<

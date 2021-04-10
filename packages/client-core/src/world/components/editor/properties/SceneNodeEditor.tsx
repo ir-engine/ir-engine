@@ -15,7 +15,9 @@ import NodeEditor from "./NodeEditor";
 import useSetPropertySelected from "./useSetPropertySelected";
 
 /**
- * [FogTypeOptions array containing fogType options]
+ * FogTypeOptions array containing fogType options.
+ * 
+ * @author Robert Long
  * @type {Array}
  */
 const FogTypeOptions = [
@@ -34,7 +36,9 @@ const FogTypeOptions = [
 ];
 
 /**
- * [SceneNodeEditor provides the editor view for property customization]
+ * SceneNodeEditor provides the editor view for property customization.
+ * 
+ * @author Robert Long
  * @param       props
  * @constructor
  */

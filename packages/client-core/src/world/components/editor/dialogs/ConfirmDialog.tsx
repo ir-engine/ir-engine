@@ -4,7 +4,9 @@ import Dialog from "./Dialog";
 
 
 /**
- * [declairing props for ConfirmDialog component]
+ * Declairing props for ConfirmDialog component.
+ * 
+ * @author Robert Long
  * @type {interface}
  */
 interface Props {
@@ -19,8 +21,10 @@ interface Props {
 }
 
 /**
- * [ConfirmDialog function component used to show dialog]
- * @param       {} props [description]
+ * ConfirmDialog function component used to show dialog.
+ * 
+ * @author Robert Long
+ * @param       {interface} props 
  * @constructor
  */
 export default function ConfirmDialog(props: Props) {
@@ -29,7 +33,9 @@ export default function ConfirmDialog(props: Props) {
 }
 
 /**
- * [propTypes for ConfirmDialog]
+ * propTypes for ConfirmDialog.
+ * 
+ * @author Robert Long
  * @type {Object}
  */
 ConfirmDialog.propTypes = {
@@ -44,7 +50,9 @@ ConfirmDialog.propTypes = {
 };
 
 /**
- * [defaultProps for ConfirmDialog]
+ * defaultProps for ConfirmDialog.
+ * 
+ * @author Robert Long
  * @type {Object}
  */
 ConfirmDialog.defaultProps = {

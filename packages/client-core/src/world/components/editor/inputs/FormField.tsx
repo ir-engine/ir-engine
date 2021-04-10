@@ -4,7 +4,9 @@ import PropTypes from "prop-types";
 import styled from "styled-components";
 
 /**
- * [BlockFormField used to provide styles for block FormField div]
+ * BlockFormField used to provide styles for block FormField div.
+ * 
+ * @author Robert Long
  * @type {styled component}
  */
 const BlockFormField = (styled as any).div`
@@ -17,7 +19,9 @@ const BlockFormField = (styled as any).div`
 `;
 
 /**
- * [InlineFormField used to provide styles for inline FormField div]
+ * InlineFormField used to provide styles for inline FormField div.
+ * 
+ * @author Robert Long
  * @type {styled component}
  */
 const InlineFormField = (styled as any).div`
@@ -35,7 +39,9 @@ const InlineFormField = (styled as any).div`
 `;
 
 /**
- * [FormField function component used to render form fields]
+ * FormField function component used to render form fields.
+ * 
+ * @author Robert Long
  * @param       {boolean} inline
  * @param       {string} children
  * @param       {any} rest  
@@ -50,7 +56,9 @@ export default function FormField({ inline, children, ...rest }) {
 }
 
 /**
- * [declairing propTypes for component]
+ * Declairing propTypes for component.
+ * 
+ * @author Robert Long
  * @type {Object}
  */
 FormField.propTypes = {

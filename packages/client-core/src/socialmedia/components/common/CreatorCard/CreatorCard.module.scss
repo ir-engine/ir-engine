@@ -1,0 +1,43 @@
+    .bgImage{
+        width: 100%;
+        height: 290px;
+        background-color: #CCCCCC;
+    }
+    .controls{
+        .backButton{
+            width: fit-content;
+            transform: translate(40px);
+        }
+    }
+    .meControls{
+        display: flex;
+        flex-wrap: wrap;
+
+        .moreButton,
+        .backButton{
+            width: fit-content;
+        }
+    }
+    
+    .avatarImage{
+        height: 110px;
+        width: 110px;
+        border-radius: 50%;
+        margin: 0 auto;
+        transform: translate(0, -115px);
+        background-color: #CA3E7B;
+    }
+    .content{
+        transform: translate(0, -115px);
+    }
+    .countersButtons{
+        position: absolute;
+        transform: translate(0, -120px);
+        width: 100%;
+        .countersButtonsSub{
+            display: flex;
+            .followButton{
+                width: fit-content;
+            }
+        }
+    }

@@ -2,7 +2,9 @@ import React from "react";
 import PropTypes from "prop-types";
 
 /**
- * [Icon used to render view for icon component]
+ * Icon used to render view for icon component.
+ * 
+ * @author Robert Long
  * @param {object} props
  * @constructor
  */
@@ -11,7 +13,9 @@ export default function Icon(props) {
 }
 
 /**
- * [declaring propTypes for Component]
+ * Declaring propTypes for Component.
+ * 
+ * @author Robert Long
  * @type {Object}
  */
 Icon.propTypes = {
@@ -21,7 +25,9 @@ Icon.propTypes = {
 };
 
 /**
- * [assign default properties for component]
+ * assign default properties for component.
+ * 
+ * @author Robert Long
  * @type {Object}
  */
 Icon.defaultProps = {

@@ -42,6 +42,10 @@ const UniformButtonContainer = (styled as any).div`
 
 let uniqueId = 0;
 
+/**
+ * 
+ * @author Robert Long
+ */
 export default class Vector2Input extends Component {
   static propTypes = {
     uniformScaling: PropTypes.bool,

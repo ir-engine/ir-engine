@@ -12,7 +12,9 @@ import BooleanInput from "../inputs/BooleanInput";
 import { withTranslation } from "react-i18next";
 
 /**
- * [StyledNodeEditor used as wrapper container element properties container]
+ * StyledNodeEditor used as wrapper container element properties container.
+ * 
+ * @author Robert Long
  * @type {styled component}
  */
 const StyledNodeEditor = (styled as any).div`
@@ -22,7 +24,9 @@ const StyledNodeEditor = (styled as any).div`
 `;
 
 /**
- * [PropertiesHeader used as a wrapper for NameInputGroupContainer component
+ * PropertiesHeader used as a wrapper for NameInputGroupContainer component.
+ * 
+ * @author Robert Long
  */
 const PropertiesHeader = (styled as any).div`
   background-color: ${props => props.theme.panel2};
@@ -32,8 +36,10 @@ const PropertiesHeader = (styled as any).div`
 
 
 /**
- * [NameInputGroupContainer used to provides styles and contains NameInputGroup and VisibleInputGroup]
- * @type {Styled Component}
+ * NameInputGroupContainer used to provides styles and contains NameInputGroup and VisibleInputGroup.
+ *
+ *  @author Robert Long
+ *  @type {Styled Component}
  */
 const NameInputGroupContainer = (styled as any).div`
   display: flex;
@@ -42,7 +48,9 @@ const NameInputGroupContainer = (styled as any).div`
   padding: 8px 0;
 `;
 /**
- * [Styled component used to provide styles for visiblity checkbox ]
+ * Styled component used to provide styles for visiblity checkbox.
+ * 
+ * @author Robert Long
  */
 const VisibleInputGroup = (styled as any)(InputGroup)`
   display: flex;
@@ -55,7 +63,9 @@ const VisibleInputGroup = (styled as any)(InputGroup)`
 `;
 
 /**
- * [PropertiesPanelContent used as container element contains content of editor view]
+ * PropertiesPanelContent used as container element contains content of editor view.
+ * 
+ * @author Robert Long
  * @type {Styled Component}
  */
 const PropertiesPanelContent = (styled as any).div`
@@ -66,7 +76,9 @@ const PropertiesPanelContent = (styled as any).div`
 `;
 
 /**
- * [NoNodeSelectedMessage used to show the message when no selected no is there]
+ * NoNodeSelectedMessage used to show the message when no selected no is there.
+ * 
+ * @author Robert Long
  * @type {Styled component}
  */
 const NoNodeSelectedMessage = (styled as any).div`
@@ -77,7 +89,9 @@ const NoNodeSelectedMessage = (styled as any).div`
 `;
 
 /**
- * [PropertiesPanelContainer used to render editor view to customize property of selected element]
+ * PropertiesPanelContainer used to render editor view to customize property of selected element.
+ * 
+ * @author Robert Long
  * @extends Component
  */
 class PropertiesPanelContainer extends Component<{t: Function}> {

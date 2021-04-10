@@ -4,8 +4,10 @@ import styled from "styled-components";
 import { withTranslation } from "react-i18next";
 
 /**
- * [StyledLoading provides the styles for loading component]
- * @type {[styled component]}
+ * StyledLoading provides the styles for loading component.
+ * 
+ * @author Robert Long
+ * @type {styled component}
  */
 const StyledLoading = (styled as any).div`
   display: flex;
@@ -22,7 +24,9 @@ const StyledLoading = (styled as any).div`
 `;
 
 /**
- * [loading class used to render loading message]
+ * loading class used to render loading message.
+ * 
+ * @author Robert Long
  * @type {component class}
  */
 export class Loading extends Component<{t: Function}> {

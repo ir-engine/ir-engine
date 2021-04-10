@@ -4,16 +4,35 @@ import Portal from "./Portal";
 import Positioner from "./Positioner";
 import Overlay from "./Overlay";
 
+/**
+ * 
+ * @author Robert Long
+ * @param {any} children
+ * @param {any} padding  
+ * @param {any} position
+ * @param {any} renderContent
+ * @param {any} disabled
+ * @param {any} rest 
+ * @returns 
+ */
 export default function Popover({ children, padding, position, renderContent, disabled, ...rest }) {
   const popoverTriggerRef = useRef();
   const [isOpen, setIsOpen] = useState(false);
 
+  /**
+   * 
+   * @author Robert Long
+   */
   const onOpen = useCallback(() => {
     if (!disabled) {
       setIsOpen(true);
     }
   }, [setIsOpen, disabled]);
 
+  /**
+   * 
+   * @author Robert Long
+   */
   const onClose = useCallback(
     e => {
       setIsOpen(false);
@@ -22,10 +41,18 @@ export default function Popover({ children, padding, position, renderContent, di
     [setIsOpen]
   );
 
+  /**
+   * 
+   * @author Robert Long
+   */
   const onPreventClose = useCallback(e => {
     e.stopPropagation();
   }, []);
 
+  /**
+   * 
+   * @author Robert Long
+   */
   const getTargetRef = useCallback(() => {
     return popoverTriggerRef;
   }, [popoverTriggerRef]);
