@@ -162,7 +162,7 @@ FileLoader.prototype = Object.assign(Object.create(Loader.prototype), {
 
 			});
 
-			if (url === "" || !url) {
+			try {
 				fetch(url).then(res => res.blob()).then(async (res) => {
 
 					// console.log("***************** URL IS", url);
@@ -209,8 +209,8 @@ FileLoader.prototype = Object.assign(Object.create(Loader.prototype), {
 					scope.manager.itemError(url);
 					scope.manager.itemEnd(url);
 				});
-			} else {
-				console.warn("File loader URL was null, skipping");
+			} catch(error) {
+				console.error("File loader URL was null, skipping", error);
 			}
 		}
 	},

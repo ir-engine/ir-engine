@@ -79,6 +79,8 @@ import Api from "./Api";
 import AssetManifestSource from "./assets/AssetManifestSource";
 import { loadEnvironmentMap } from "./EnvironmentMap";
 import i18n from 'i18next';
+import { Engine } from "@xr3ngine/engine/src/ecs/classes/Engine";
+import { node } from "prop-types";
 
 const tempMatrix1 = new Matrix4();
 const tempMatrix2 = new Matrix4();
@@ -142,6 +144,10 @@ export default class Editor extends EventEmitter {
   // initializing component properties with default value.
   constructor(api, settings = {}) {
     super();
+    const InitializationOptions = {
+      postProcessing: true
+    };
+    this.camera = Engine.camera;
     this.api = api;
     this.settings = settings;
     this.project = null;
@@ -169,13 +175,13 @@ export default class Editor extends EventEmitter {
     this.sceneModified = false;
     this.projectLoaded = false;
 
-    this.camera = new PerspectiveCamera(80, window.innerWidth / window.innerHeight, 0.2, 8000);
+    // this.camera = new PerspectiveCamera(80, window.innerWidth / window.innerHeight, 0.2, 8000);
     this.audioListener = new AudioListener();
     this.camera.add(this.audioListener);
     this.camera.layers.enable(1);
     this.camera.name = "Camera";
 
-    this.helperScene = new Scene();
+    this.helperScene = Engine.scene;
 
     this.grid = new EditorInfiniteGridHelper();
     this.helperScene.add(this.grid as any);
@@ -190,7 +196,7 @@ export default class Editor extends EventEmitter {
     this.initializing = false;
     this.initialized = false;
     this.sceneLoading = false;
-  }
+}
 
 /**
  * [registerNode used to add new object to the scene]
