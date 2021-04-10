@@ -5,7 +5,7 @@ import { addColliderWithoutEntity } from '../../physics/behaviors/addColliderWit
  * @author HydraFire <github.com/HydraFire>
  */
 
-export const createBoxCollider: Behavior = (entity, args: any) => {
+export const createBoxColliderObject: Behavior = (entity, args: any) => {
   // console.log('****** Collider from Scene data, type: '+args.objArgs.type);
   addColliderWithoutEntity(
     {type:args.objArgs.type},
