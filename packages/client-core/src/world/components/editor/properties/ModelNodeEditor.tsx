@@ -175,7 +175,7 @@ export class ModelNodeEditor extends Component<
             onChange={this.onChangePayloadGame}
           />
           </InputGroup>
-      </>
+      </>;
       case 'infoBox': return <>
         { /* @ts-ignore */ }
         <InputGroup name="Name" label={this.props.t('editor:properties.model.lbl-name')}>

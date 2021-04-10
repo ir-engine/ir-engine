@@ -9,10 +9,10 @@ export class Game extends Component<Game> {
     players: Player[]
     minPlayers: number
     maxPlayers: number
+    gameMode: GameMode
     gameObjects: GameObject[]
     gameObjectPrefabs: {
         [key: string]: GameObjectPrefab[]
     }
     state: {}
-    mode: GameMode<any>
 }

@@ -162,52 +162,56 @@ FileLoader.prototype = Object.assign(Object.create(Loader.prototype), {
 
 			});
 
+			if (url === "" || !url) {
+				fetch(url).then(res => res.blob()).then(async (res) => {
 
-			fetch(url).then(res => res.blob()).then(async (res) => {
-				// console.log("***************** URL IS", url);
-				const response = await res.arrayBuffer();
+					// console.log("***************** URL IS", url);
+					const response = await res.arrayBuffer();
 
-				const callbacks = loading[url];
-				scope.manager.itemStart(url);
+					const callbacks = loading[url];
+					scope.manager.itemStart(url);
 
-				delete loading[url];
+					delete loading[url];
 
-				// console.log("********* FileLoader LOADED")
-				// console.log(res);
+					// console.log("********* FileLoader LOADED")
+					// console.log(res);
 
-				// Some browsers return HTTP Status 0 when using non-http protocol
-				// e.g. 'file://' or 'data://'. Handle as success.
+					// Some browsers return HTTP Status 0 when using non-http protocol
+					// e.g. 'file://' or 'data://'. Handle as success.
 
-				if (res.status === 0) console.warn('THREE.FileLoader: HTTP Status 0 received.');
+					if (res.status === 0) console.warn('THREE.FileLoader: HTTP Status 0 received.');
 
-				// Add to cache only on HTTP success, so that we do not cache
-				// error response bodies as proper responses to requests.
-				Cache.add(url, res);
+					// Add to cache only on HTTP success, so that we do not cache
+					// error response bodies as proper responses to requests.
+					Cache.add(url, res);
 
-				for (let i = 0, il = callbacks.length; i < il; i++) {
-					// console.log("*************** CALLBACK")
+					for (let i = 0, il = callbacks.length; i < il; i++) {
+						// console.log("*************** CALLBACK")
 
-					const callback = callbacks[i];
-					if (callback.onLoad) callback.onLoad(response);
+						const callback = callbacks[i];
+						if (callback.onLoad) callback.onLoad(response);
 
-				}
+					}
 
-				scope.manager.itemEnd(url);
-			}).catch((event) => {
-				const callbacks = loading[url];
+					scope.manager.itemEnd(url);
+				}).catch((event) => {
+					const callbacks = loading[url];
 
-				delete loading[url];
+					delete loading[url];
 
-				for (let i = 0, il = callbacks.length; i < il; i++) {
+					for (let i = 0, il = callbacks.length; i < il; i++) {
 
-					const callback = callbacks[i];
-					if (callback.onError) callback.onError(event);
+						const callback = callbacks[i];
+						if (callback.onError) callback.onError(event);
 
-				}
+					}
 
-				scope.manager.itemError(url);
-				scope.manager.itemEnd(url);
-			});
+					scope.manager.itemError(url);
+					scope.manager.itemEnd(url);
+				});
+			} else {
+				console.warn("File loader URL was null, skipping");
+			}
 		}
 	},
 
