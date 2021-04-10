@@ -14,8 +14,8 @@
   "author": "XR3ngine",
   "license": "MIT",
   "devDependencies": {
-    "semantic-release": "^17.4.2",
-    "semantic-release-monorepo": "^7.0.4",
+    "semantic-release": "17.4.2",
+    "semantic-release-monorepo": "7.0.4",
     "@rollup/plugin-commonjs": "18.0.0",
     "@rollup/plugin-html": "0.2.3",
     "@rollup/plugin-json": "4.1.0",
