@@ -205,7 +205,7 @@ Let's explain step by step about the login process.
         LOGIN_USER_ERROR
     } from "../actions"
 
-    export const initialState: AuthState = {
+    export const initialAuthState: AuthState = {
         isLoggedIn: false,
         user: undefined,
         error: '',
@@ -214,7 +214,8 @@ Let's explain step by step about the login process.
     }
 
     // Note: In next.js, we should use Immutable variable for state type.
-    const immutableState = Immutable.fromJS(initialState)
+    const immutableState = Immutable.fromJS(    export const initialAuthState: AuthState = {
+)
 
     const authReducer = (state = immutableState, action: any): any => {
         switch(action.type) {

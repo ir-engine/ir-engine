@@ -68,7 +68,7 @@ export class EdgeDetectionMaterial extends ShaderMaterial {
 
   set depthPacking (value) {
     (this as any).defines.DEPTH_PACKING = value.toFixed(0);
-    this.needsUpdate = true;
+    (this as any).needsUpdate = true;
   }
 
   /**
@@ -84,21 +84,21 @@ export class EdgeDetectionMaterial extends ShaderMaterial {
   setEdgeDetectionMode (mode) {
     switch (mode) {
       case EdgeDetectionMode.DEPTH:
-        this.fragmentShader = fragmentShaderDepth;
+        (this as any).fragmentShader = fragmentShaderDepth;
         break;
 
       case EdgeDetectionMode.LUMA:
-        this.fragmentShader = fragmentShaderLuma;
+        (this as any).fragmentShader = fragmentShaderLuma;
         break;
 
       case EdgeDetectionMode.COLOR:
       default:
-        this.fragmentShader = fragmentShaderColor;
+        (this as any).fragmentShader = fragmentShaderColor;
         break;
     }
 
     (this as any).defines.EDGE_DETECTION_MODE = mode.toFixed(0);
-    this.needsUpdate = true;
+    (this as any).needsUpdate = true;
   }
 
   /**
@@ -117,7 +117,7 @@ export class EdgeDetectionMaterial extends ShaderMaterial {
 
   setLocalContrastAdaptationFactor (factor) {
     (this as any).defines.LOCAL_CONTRAST_ADAPTATION_FACTOR = factor.toFixed('2');
-    this.needsUpdate = true;
+    (this as any).needsUpdate = true;
   }
 
   /**
@@ -140,7 +140,7 @@ export class EdgeDetectionMaterial extends ShaderMaterial {
 
     (this as any).defines.EDGE_THRESHOLD = t.toFixed(2);
     (this as any).defines.DEPTH_THRESHOLD = (t * 0.1).toFixed(3);
-    this.needsUpdate = true;
+    (this as any).needsUpdate = true;
   }
 }
 

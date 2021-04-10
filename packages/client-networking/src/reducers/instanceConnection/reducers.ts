@@ -1,9 +1,12 @@
 import Immutable from 'immutable';
 import {
   InstanceServerAction,
-  InstanceServerProvisionedAction,
-  SocketCreatedAction
+  InstanceServerProvisionedAction
 } from './actions';
+
+import {
+  SocketCreatedAction
+} from '../common/SocketCreatedAction';
 
 import {
   INSTANCE_SERVER_CONNECTING,
@@ -14,7 +17,7 @@ import {
   SOCKET_CREATED,
 } from '../actions';
 
-export const initialState = {
+export const initialInstanceConnectionState = {
   instance: {
     ipAddress: '',
     port: ''
@@ -33,14 +36,14 @@ export const initialState = {
 
 let connectionSocket = null;
 
-const immutableState = Immutable.fromJS(initialState);
+const immutableState = Immutable.fromJS(initialInstanceConnectionState);
 
 const instanceConnectionReducer = (state = immutableState, action: InstanceServerAction): any => {
   let newValues, newInstance, newClient;
   switch (action.type) {
     case INSTANCE_SERVER_PROVISIONING:
       return state
-          .set('instance', new Map(Object.entries(initialState.instance)))
+          .set('instance', new Map(Object.entries(initialInstanceConnectionState.instance)))
           .set('socket', {})
           .set('connected', false)
           .set('instanceProvisioned', false)
@@ -72,16 +75,16 @@ const instanceConnectionReducer = (state = immutableState, action: InstanceServe
     case INSTANCE_SERVER_DISCONNECTED:
       if (connectionSocket != null) (connectionSocket as any).close();
       return state
-        .set('connected', initialState.connected)
-        .set('instanceServerConnecting', initialState.instanceServerConnecting)
-        .set('instanceProvisioning', initialState.instanceProvisioning)
-        .set('instanceProvisioned', initialState.instanceProvisioned)
-        .set('readyToConnect', initialState.readyToConnect)
-        .set('updateNeeded', initialState.updateNeeded)
-        .set('instance', new Map(Object.entries(initialState.instance)))
-        .set('locationId', initialState.locationId)
-        .set('sceneId', initialState.sceneId)
-        .set('channelId', initialState.channelId);
+        .set('connected', initialInstanceConnectionState.connected)
+        .set('instanceServerConnecting', initialInstanceConnectionState.instanceServerConnecting)
+        .set('instanceProvisioning', initialInstanceConnectionState.instanceProvisioning)
+        .set('instanceProvisioned', initialInstanceConnectionState.instanceProvisioned)
+        .set('readyToConnect', initialInstanceConnectionState.readyToConnect)
+        .set('updateNeeded', initialInstanceConnectionState.updateNeeded)
+        .set('instance', new Map(Object.entries(initialInstanceConnectionState.instance)))
+        .set('locationId', initialInstanceConnectionState.locationId)
+        .set('sceneId', initialInstanceConnectionState.sceneId)
+        .set('channelId', initialInstanceConnectionState.channelId);
     case SOCKET_CREATED:
       if (connectionSocket != null) (connectionSocket as any).close();
       connectionSocket = (action as SocketCreatedAction).socket;

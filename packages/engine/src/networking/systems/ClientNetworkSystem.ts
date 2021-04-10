@@ -34,7 +34,7 @@ export class ClientNetworkSystem extends System {
   }
 
   /**
-   * Executes the system.\
+   * Executes the system.
    * Call logic based on whether system is on the server or on the client.
    *
    * @param delta Time since last frame.

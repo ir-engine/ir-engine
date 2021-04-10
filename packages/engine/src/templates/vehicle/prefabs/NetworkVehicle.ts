@@ -10,7 +10,7 @@ import { Input } from '../../../input/components/Input';
 import { Interactable } from '../../../interaction/components/Interactable';
 import { TransformComponent } from '../../../transform/components/TransformComponent';
 import { InterpolationComponent } from "../../../physics/components/InterpolationComponent";
-import { createTrimeshFromArrayVertices, createTrimeshFromMesh, createCylinder, createBox, createSphere } from '../../../physics/behaviors/addColliderWithoutEntity';
+import { createTrimeshFromArrayVertices, createTrimeshFromMesh, createCylinderCollider, createBoxCollider, createSphereCollider } from '../../../physics/behaviors/addColliderWithoutEntity';
 import { getInCar } from '../behaviors/getInCarBehavior';
 import { getInCarPossible } from '../behaviors/getInCarPossible';
 import { VehicleComponent } from "../components/VehicleComponent";
@@ -146,15 +146,15 @@ export function addCollidersToNetworkVehicle( args:{ parameters?: any, entity?: 
   let shape = null;
   switch (args.parameters.type) {
     case 'box':
-      shape = createBox(args.parameters.scale);
+      shape = createBoxCollider(args.parameters.scale);
       break;
 
     case 'cylinder':
-      shape = createCylinder(args.parameters.scale);
+      shape = createCylinderCollider(args.parameters.scale);
       break;
 
     case 'sphere':
-      shape = createSphere(args.parameters.scale);
+      shape = createSphereCollider(args.parameters.scale);
       break;
 
     case 'trimesh':
@@ -170,7 +170,7 @@ export function addCollidersToNetworkVehicle( args:{ parameters?: any, entity?: 
 
     default:
       console.warn('create Collider undefined type !!!');
-      shape = createBox(args.parameters.scale || {x:1, y:1, z:1});
+      shape = createBoxCollider(args.parameters.scale || {x:1, y:1, z:1});
       break;
   }
   return { shape: shape, position: args.parameters.position};

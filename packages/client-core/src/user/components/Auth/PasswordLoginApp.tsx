@@ -13,11 +13,12 @@ import OutlinedInput from '@material-ui/core/OutlinedInput';
 
 import { selectAuthState } from '../../reducers/auth/selector';
 import { doLoginAuto } from '../../reducers/auth/service';
-import { User } from '@xr3ngine/common/interfaces/User';
+import { User } from '@xr3ngine/common/src/interfaces/User';
 
 import styles from './Auth.module.scss';
 import { createCreator } from '../../../socialmedia/reducers/creator/service';
 import { selectCreatorsState } from '../../../socialmedia/reducers/creator/selector';
+import { useTranslation } from "react-i18next";
 
 const mapStateToProps = (state: any): any => {
   return {
@@ -42,7 +43,7 @@ interface Props {
   creatorsState?:any;
 }
 
-export const PasswordLogin = (props: Props): any => {
+export const PasswordLoginApp = (props: Props): any => {
   const {
     auth,
     // loginUserByPassword,
@@ -50,6 +51,7 @@ export const PasswordLogin = (props: Props): any => {
     createCreator,
     creatorsState
   } = props;
+  const { t } = useTranslation();
 
   useEffect(()=>{
     if(auth){
@@ -100,7 +102,7 @@ export const PasswordLogin = (props: Props): any => {
                 required
                 fullWidth
                 id="email"
-                placeholder="Email"
+                placeholder={t('user:auth.passwordLogin.ph-email')}
                 name="email"
                 autoComplete="email"
                 autoFocus
@@ -113,7 +115,7 @@ export const PasswordLogin = (props: Props): any => {
                 required
                 fullWidth
                 name="password"
-                placeholder="Password"
+                placeholder={t('user:auth.passwordLogin.ph-password')}
                 id="password"
                 autoComplete="current-password"
                 onChange={(e) => handleInput(e)}
@@ -140,7 +142,7 @@ export const PasswordLogin = (props: Props): any => {
                 color="primary"
                 className={styles.submit}
               >
-                Log in
+                {t('user:auth.passwordLogin.lbl-login')}
               </Button>
             </Grid> 
           </Grid>
@@ -150,7 +152,7 @@ export const PasswordLogin = (props: Props): any => {
   );
 };
 
-const PasswordLoginWrapper = (props: Props): any => <PasswordLogin {...props} />;
+const PasswordLoginWrapper = (props: Props): any => <PasswordLoginApp {...props} />;
 
 export default connect(
   mapStateToProps,

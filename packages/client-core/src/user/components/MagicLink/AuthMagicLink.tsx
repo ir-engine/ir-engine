@@ -13,7 +13,7 @@ import Typography from '@material-ui/core/Typography';
 import Container from '@material-ui/core/Container';
 import ResetPassword from '../Auth/ResetPassword';
 import { VerifyEmail } from '../Auth/VerifyEmail';
-import { User } from '@xr3ngine/common/interfaces/User';
+import { User } from '@xr3ngine/common/src/interfaces/User';
 
 interface Props {
   router: NextRouter;

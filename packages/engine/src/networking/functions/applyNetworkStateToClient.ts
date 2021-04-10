@@ -12,6 +12,7 @@ import { addSnapshot, createSnapshot } from '../functions/NetworkInterpolationFu
 import { WorldStateInterface } from "../interfaces/WorldState";
 import { StateEntityIK } from "../types/SnapshotDataTypes";
 import { PrefabType } from '../../templates/networking/PrefabType';
+import { GameStateActionMessage } from '../../game/types/GameStateActionMessage';
 
 /**
  * Apply State received over the network to the client.
@@ -98,6 +99,17 @@ export function applyNetworkStateToClient(worldStateBuffer: WorldStateInterface,
         }
     }
 
+    if(worldStateBuffer.gameStateActions.length > 0){
+      // We have a new world state
+      Network.instance.worldState = JSON.parse(worldStateBuffer.gameState);
+      worldStateBuffer.gameStateActions.forEach(({type, payload}: GameStateActionMessage) => {
+        try {
+          Network.instance.gameModeSchema[type](payload);
+        } catch(error) {
+          console.error("Unable to call action on current game mode schema");
+        }
+      })
+    }
 
 
     // Handle all network objects created this frame

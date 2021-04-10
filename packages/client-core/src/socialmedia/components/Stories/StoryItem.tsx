@@ -1,16 +1,12 @@
 import React from "react";
-import { ProfilePic} from "./ProfilePic";
-import Router from "next/router";
+import { ProfilePic} from "../ProfilePic";
 
 import styles from './Stories.module.scss';
 
-export function StoryItem({
-  data
-}: any) {
+export const StoryItem =({data}: any) => {
   return (
     <div
       className={styles.storyItem}
-      onClick={() => Router.push("/[pid]", `/${data?.username || "username"}`)}
     >
       <div className="story-photo-container">
         <ProfilePic
@@ -22,4 +18,4 @@ export function StoryItem({
       </div>
     </div>
   );
-}
+};

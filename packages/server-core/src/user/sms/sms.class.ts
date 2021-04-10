@@ -1,6 +1,6 @@
 import { Id, NullableId, Paginated, Params, ServiceMethods } from '@feathersjs/feathers';
 import { Application } from '../../../declarations';
-import { sendSms } from './awssns';
+import { sendSmsWithAWS } from './awssns';
 
 interface Data {}
 
@@ -36,7 +36,7 @@ export class Sms implements ServiceMethods<Data> {
       return await Promise.all(data.map(current => this.create(current, params)));
     }
 
-    await sendSms(data.mobile, data.text);
+    await sendSmsWithAWS(data.mobile, data.text);
     return data;
   }
 

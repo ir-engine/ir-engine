@@ -1,4 +1,4 @@
-import getConfig from 'next/config';
+import { Config } from '../../../helper';
 import { Dispatch } from 'redux';
 import { dispatchAlertError } from '../../../common/reducers/alert/service';
 import { client } from '../../../feathers';
@@ -15,8 +15,6 @@ import {
   removedGroup,
   removedGroupUser
 } from './actions';
-
-const { publicRuntimeConfig } = getConfig();
 
 export function getGroups(skip?: number, limit?: number) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
@@ -117,7 +115,7 @@ export function getInvitableGroups(skip?: number, limit?: number) {
     }
   };
 }
-if(!publicRuntimeConfig.offlineMode) {
+if(!Config.publicRuntimeConfig.offlineMode) {
   client.service('group-user').on('created', (params) => {
     store.dispatch(createdGroupUser(params.groupUser));
   });

@@ -1,7 +1,7 @@
 import AWS from 'aws-sdk';
 import config from '../../appconfig';
 
-export async function sendSms (phone: string, text: string): Promise<void> {
+export async function sendSmsWithAWS (phone: string, text: string): Promise<void> {
   const params = {
     Message: text,
     PhoneNumber: phone

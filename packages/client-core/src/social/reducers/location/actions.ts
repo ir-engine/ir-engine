@@ -8,7 +8,7 @@ import {
   LOCATION_BAN_CREATED,
   LOCATION_NOT_FOUND,
 } from '../actions';
-import { Location } from '@xr3ngine/common/interfaces/Location';
+import { Location } from '@xr3ngine/common/src/interfaces/Location';
 
 export interface LocationsRetrievedAction {
   type: string;

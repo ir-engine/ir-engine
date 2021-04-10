@@ -1,6 +1,6 @@
 import { ActionProps } from '.';
 import { TokenProps } from '../components/Token';
-import { ActionType } from '../state';
+import { ActionType } from '../reducer';
 
 type Props = ActionProps<{
   contract: any

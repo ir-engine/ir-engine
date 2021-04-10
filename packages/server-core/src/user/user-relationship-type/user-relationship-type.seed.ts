@@ -1,6 +1,6 @@
 import config from '../../appconfig';
 
-export const seed = {
+export const userRelationshipTypeSeed = {
   disabled: !config.db.forceRefresh,
   delete: config.db.forceRefresh,
   path: 'user-relationship-type',
@@ -13,5 +13,3 @@ export const seed = {
       { type: 'blocked' } // Blocked by other user
     ]
 };
-
-export default seed;

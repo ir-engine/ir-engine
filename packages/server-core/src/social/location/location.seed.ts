@@ -1,7 +1,7 @@
 import config from '../../appconfig';
-import LocationSettingsSeed from '../location-settings/location-settings.seed';
+import { locationSettingsSeed } from '../location-settings/location-settings.seed';
 
-export const seed = {
+export const locationSeed = {
   disabled: !config.db.forceRefresh,
   delete: config.db.forceRefresh,
   randomize: false,
@@ -14,9 +14,7 @@ export const seed = {
           slugifiedName: 'test',
           maxUsersPerInstance: 30,
           sceneId: 'j9o2NLiD',
-          location_setting: LocationSettingsSeed.templates.find(template => template.locationId === '98cbcc30-fd2d-11ea-bc7c-cd4cac9a8d61')
+          location_setting: locationSettingsSeed.templates.find(template => template.locationId === '98cbcc30-fd2d-11ea-bc7c-cd4cac9a8d61')
       }
     ]
 };
-
-export default seed;

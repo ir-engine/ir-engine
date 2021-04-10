@@ -14,18 +14,17 @@ import {
   fetchingReceivedInvites,
   fetchingSentInvites,
 } from './actions';
-import { Invite } from '@xr3ngine/common/interfaces/Invite';
+import { Invite } from '@xr3ngine/common/src/interfaces/Invite';
 import store from "../../../store";
-import {User} from "@xr3ngine/common/interfaces/User";
+import {User} from "@xr3ngine/common/src/interfaces/User";
 
 const emailRegex = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/;
 const phoneRegex = /^[0-9]{10}$/;
 const userIdRegex = /^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$/;
 const inviteCodeRegex = /^[0-9a-fA-F]{8}$/;
 
-import getConfig from 'next/config';
-import { dispatchAlertError, dispatchAlertSuccess } from '@xr3ngine/client-core/src/common/reducers/alert/service';
-const { publicRuntimeConfig } = getConfig();
+import { Config } from '../../../helper';
+import { dispatchAlertError, dispatchAlertSuccess } from '../../../common/reducers/alert/service';
 
 export function sendInvite (data: any) {
   return async (dispatch: Dispatch, getState: any) => {
@@ -181,7 +180,7 @@ export function updateInviteTarget(targetObjectType?: string, targetObjectId?: s
     dispatch(setInviteTarget(targetObjectType, targetObjectId));
   };
 }
-if(!publicRuntimeConfig.offlineMode) {
+if(!Config.publicRuntimeConfig.offlineMode) {
   client.service('invite').on('created', (params) => {
     const invite = params.invite;
     const selfUser = (store.getState() as any).get('auth').get('user') as User;

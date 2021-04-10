@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import InputGroup from "../inputs/InputGroup";
@@ -18,11 +17,16 @@ const StyledNameInputGroup = (styled as any)(InputGroup)`
   }
 `;
 
+type Types = {
+  editor: any,
+  node: any
+};
+
 /**
  * [NameInputGroup is used to render input group PropertiesPanelContainer]
  * @type {class component}
  */
-export class NameInputGroup extends Component {
+export class NameInputGroup extends Component<Types> {
 
   //declairing propTypes for NameInputGroup
   static propTypes = {
@@ -78,7 +82,8 @@ export class NameInputGroup extends Component {
     const name = (this.state as any).focusedNode ? (this.state as any).name : ((this.props as any).node as any).name;
 
     return (
-      <StyledNameInputGroup name="Name" label={this.props.t('editor:properties.name.lbl-name')}>
+      //  label={this.props.t('editor:properties.name.lbl-name')}
+      <StyledNameInputGroup name="Name">
         <StringInput
           /* @ts-ignore */
           value={name}
