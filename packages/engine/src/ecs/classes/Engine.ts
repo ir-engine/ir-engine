@@ -231,6 +231,8 @@ export class Engine {
   static inputState = new Map();
   static prevInputState = new Map();
 
+  static isInitialized = false;
+
   /**
    * Input inherits from BehaviorComponent, which adds .map and .data
    * 
