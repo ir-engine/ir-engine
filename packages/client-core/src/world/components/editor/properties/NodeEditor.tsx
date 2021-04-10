@@ -11,7 +11,9 @@ type NodeEditorProps = {
 };
 
 /**
- * [NodeEditor component used to render editor view]
+ * NodeEditor component used to render editor view.
+ * 
+ * @author Robert Long
  * @type {class component}
  */
 export default class NodeEditor extends Component<NodeEditorProps, {}> {

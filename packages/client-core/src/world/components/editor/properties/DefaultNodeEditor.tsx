@@ -8,6 +8,8 @@ type DefaultNodeEditorProps = {
 
 /**
  * DefaultNodeEditor  used to render view when no element is selected
+ * 
+ * @author Robert Long
  */
 export default class DefaultNodeEditor extends Component<
   DefaultNodeEditorProps,

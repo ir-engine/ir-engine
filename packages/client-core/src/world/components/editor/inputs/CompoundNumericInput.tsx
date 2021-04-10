@@ -5,7 +5,9 @@ import NumericInput from "./NumericInput";
 import styled from "styled-components";
 
 /**
- * [StyledCompoundNumericInput used to provide styles for CompoundNumericInput]
+ * StyledCompoundNumericInput used to provide styles for CompoundNumericInput.
+ * 
+ * @author Robert Long
  * @type {Styled component}
  */
 const StyledCompoundNumericInput = (styled as any).div`
@@ -17,7 +19,9 @@ const StyledCompoundNumericInput = (styled as any).div`
 `;
 
 /**
- * [CompoundNumericInput used to render the view of component]
+ * CompoundNumericInput used to render the view of component.
+ * 
+ * @author Robert Long
  * @param       {number} value
  * @param       {function} onChange
  * @param       {any} extras
@@ -35,7 +39,9 @@ export default function CompoundNumericInput({ value, onChange, ...extras }) {
 }
 
 /**
- * [defaultProps used to set default properties for CompoundNumericInput component]
+ * defaultProps used to set default properties for CompoundNumericInput component.
+ * 
+ * @author Robert Long
  * @type {Object}
  */
 
@@ -48,7 +54,9 @@ CompoundNumericInput.defaultProps = {
 };
 
 /**
- * [declaring protoTypes for CompoundNumericInput]
+ * Declaring protoTypes for CompoundNumericInput.
+ * 
+ * @author Robert Long
  * @type {Object}
  */
 CompoundNumericInput.propTypes = {

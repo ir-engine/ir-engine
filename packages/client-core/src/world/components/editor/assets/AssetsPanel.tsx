@@ -7,7 +7,9 @@ import { EditorContext } from "../contexts/EditorContext";
 import AssetDropZone from "./AssetDropZone";
 
 /**
- * [AssetsPanelContainer used as container element for asset penal]
+ * AssetsPanelContainer used as container element for asset penal.
+ * 
+ * @author Robert Long
  * @type {Styled component}
  */
 const AssetsPanelContainer = (styled as any)(Row)`
@@ -17,7 +19,9 @@ const AssetsPanelContainer = (styled as any)(Row)`
 `;
 
 /**
- * [AssetsPanelToolbarContainer used as container element for tools like search input]
+ * AssetsPanelToolbarContainer used as container element for tools like search input.
+ * 
+ * @author Robert Long
  * @type {Styled component}
  */
 const AssetsPanelToolbarContainer = (styled as any).div`
@@ -31,7 +35,9 @@ const AssetsPanelToolbarContainer = (styled as any).div`
 `;
 
 /**
- * [AssetPanelToolbarContent used to provide styles toolbar content]
+ * AssetPanelToolbarContent used to provide styles toolbar content.
+ * 
+ * @author Robert Long
  * @type {Styled component}
  */
 export const AssetPanelToolbarContent = (styled as any)(Row)`
@@ -44,7 +50,9 @@ export const AssetPanelToolbarContent = (styled as any)(Row)`
 `;
 
 /**
- * [AssetsPanelToolbar used to create view elements for toolbar on asset penal]
+ * AssetsPanelToolbar used to create view elements for toolbar on asset penal.
+ * 
+ * @author Robert Long
  * @param       {string} title    [contains the title for toolbar]
  * @param       {node} children
  * @param       {any} rest
@@ -60,7 +68,9 @@ export function AssetsPanelToolbar({ title, children, ...rest }) {
 }
 
 /**
- * [declairing propTypes for AssetsPanelToolbar]
+ * Declairing propTypes for AssetsPanelToolbar.
+ * 
+ * @author Robert Long
  * @type {Object}
  */
 AssetsPanelToolbar.propTypes = {
@@ -69,7 +79,9 @@ AssetsPanelToolbar.propTypes = {
 };
 
 /**
- * [AssetsPanelColumn ]
+ * AssetsPanelColumn
+ * 
+ * @author Robert Long
  * @type {Styled component}
  */
 const AssetsPanelColumn = (styled as any)(Column)`
@@ -78,7 +90,9 @@ const AssetsPanelColumn = (styled as any)(Column)`
 `;
 
 /**
- * [AssetPanelContentContainer container element for asset panel]
+ * AssetPanelContentContainer container element for asset panel.
+ * 
+ * @author Robert Long
  * @type {Styled component}
  * */
 export const AssetPanelContentContainer = (styled as any)(Row)`
@@ -87,9 +101,11 @@ export const AssetPanelContentContainer = (styled as any)(Row)`
 `;
 
 /**
- * [getSources used to get sources out of editor and filter sources on the basis of requiresAuthentication or isAuthenticated]
+ * getSources used to get sources out of editor and filter sources on the basis of requiresAuthentication or isAuthenticated.
+ * 
+ * @author Robert Long
  * @param  {Object} editor
- * @return {[type]}        [description]
+ * @return {any}        [description]
  */
 function getSources(editor) {
   const isAuthenticated = editor.api.isAuthenticated();
@@ -97,7 +113,9 @@ function getSources(editor) {
 }
 
 /**
- * [AssetsPanel used to render view for AssetsPanel]
+ * AssetsPanel used to render view for AssetsPanel.
+ * 
+ * @author Robert Long
  * @constructor
  */
 export default function AssetsPanel() {

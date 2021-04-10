@@ -2,7 +2,7 @@ import { HookContext } from '@feathersjs/feathers';
 import config from '../appconfig';
 import StorageProvider from '../media/storageprovider/storageprovider';
 
-export default (options = {}) => {
+export default () => {
   return async (context: HookContext): Promise<HookContext> => {
     if (context.params.thumbnailOwnedFileId) {
       // Fetch Key of the thumbnail file and use the key to remove from local-store or AWS S3

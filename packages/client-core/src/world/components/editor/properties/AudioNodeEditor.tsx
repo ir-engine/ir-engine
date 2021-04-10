@@ -10,7 +10,9 @@ import i18n from "i18next";
 import { useTranslation } from "react-i18next";
 
 /**
- * [AudioNodeEditor used to customize audio element on the scene]
+ * AudioNodeEditor used to customize audio element on the scene.
+ * 
+ * @author Robert Long
  * @param       {Object} props
  * @constructor
  */
@@ -34,7 +36,9 @@ export default function AudioNodeEditor(props) {
 }
 
 /**
- * [propTypes Defining properties for AudioNodeEditor component]
+ * PropTypes Defining properties for AudioNodeEditor component.
+ * 
+ * @author Robert Long
  * @type {Object}
  */
 AudioNodeEditor.propTypes = {

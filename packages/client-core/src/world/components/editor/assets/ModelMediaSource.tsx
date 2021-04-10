@@ -5,7 +5,9 @@ import ModelNode from "@xr3ngine/engine/src/editor/nodes/ModelNode";
 import Api from "../Api";
 
 /**
- * [ModelMediaSource used to provide model media by calling api]
+ * ModelMediaSource used to provide model media by calling api.
+ * 
+ * @author Robert Long
  * @type {class component}
  */
 export default class ModelMediaSource extends BaseSource {

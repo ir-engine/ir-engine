@@ -34,8 +34,8 @@
   "jest": "ts-jest",
   "scripts": {
     "start": "yarn run build && node dist/server.js",
-    "dev": "concurrently \"cross-env NODE_ENV=development webpack --watch --mode=development\" \"cd ../gameserver && cross-env NODE_ENV=development webpack --watch --mode=development\"",
-    "dev-reinit-db": "cross-env NODE_ENV=development FORCE_DB_REFRESH=true webpack --watch --mode=development",
+    "dev": "NODE_TLS_REJECT_UNAUTHORIZED=0 && concurrently \"cross-env NODE_ENV=development webpack --watch --mode=development\" \"cd ../gameserver && cross-env NODE_ENV=development webpack --watch --mode=development\"",
+    "dev-reinit-db": "NODE_TLS_REJECT_UNAUTHORIZED=0 && cross-env NODE_ENV=development FORCE_DB_REFRESH=true webpack --watch --mode=development",
     "build": "cross-env NODE_ENV=production webpack --mode=production",
     "test": "echo \"TODO: no test specified\" && exit 0",
     "localbuild": "yarn build && cross-env LOCAL_BUILD=true yarn start",

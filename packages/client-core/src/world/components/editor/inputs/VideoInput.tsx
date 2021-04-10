@@ -12,6 +12,13 @@ const uploadOptions = {
   accepts: VideoFileTypes
 };
 
+/**
+ * 
+ * @author Robert Long
+ * @param {function} onChange
+ * @param {any} rest 
+ * @returns 
+ */
 export default function VideoInput({ onChange, ...rest }) {
   const onUpload = useUpload(uploadOptions);
   const [{ canDrop, isOver }, dropRef] = useDrop({

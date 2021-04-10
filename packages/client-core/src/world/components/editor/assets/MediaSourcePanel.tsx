@@ -7,7 +7,9 @@ import FileInput from "../inputs/FileInput";
 import useUpload from "./useUpload";
 
 /**
- * [MediaSourcePanel used to render view for AssetsPanelContainer and AssetsPanelToolbarContainer]
+ * MediaSourcePanel used to render view for AssetsPanelContainer and AssetsPanelToolbarContainer.
+ * 
+ * @author Robert Long
  * @param       {object} editor
  * @param       {object} source
  * @constructor

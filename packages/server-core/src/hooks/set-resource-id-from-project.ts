@@ -1,6 +1,6 @@
 import { HookContext, Hook } from '@feathersjs/feathers';
 
-export default (options = {}): Hook => async (context: HookContext): Promise<HookContext> => {
+export default (): Hook => async (context: HookContext): Promise<HookContext> => {
   if (!context.id || !context.params.query.userId) return context;
   const { collection } = context.app.get('sequelizeClient').models;
 

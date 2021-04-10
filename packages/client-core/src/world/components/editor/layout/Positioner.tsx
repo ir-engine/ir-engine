@@ -2,6 +2,10 @@ import React, { useState, useRef, useEffect, Children, cloneElement } from "reac
 import PropTypes from "prop-types";
 import styled from "styled-components";
 
+/**
+ * 
+ * @author Robert Long
+ */
 const Position = {
   TOP: 'top',
   TOP_LEFT: 'top-left',
@@ -12,8 +16,11 @@ const Position = {
   LEFT: 'left',
   RIGHT: 'right'
 };
+
 /**
  * Function to create a Rect.
+ * 
+ * @author Robert Long
  * @param {Object} dimensions
  * @param {Number} dimensions.width
  * @param {Number} dimensions.height
@@ -37,6 +44,7 @@ const makeRect = ({ width, height }, { left, top }) => {
 
 /**
  * Function to flip a position upside down.
+ * 
  * @param {Position} position
  * @return {Position} flipped position
  */
@@ -60,6 +68,7 @@ const flipHorizontal = position => {
 
 /**
  * Function that returns if position is aligned on top.
+ * 
  * @param {Position} position
  * @return {Boolean}
  */
@@ -76,6 +85,7 @@ const isAlignedOnTop = position => {
 
 /**
  * Function that returns if position is aligned left or right.
+ * 
  * @param {Position} position
  * @return {Boolean}
  */
@@ -91,6 +101,7 @@ const isAlignedHorizontal = position => {
 
 /**
  * Function that returns if a rect fits on bottom.
+ * 
  * @param {Rect} rect
  * @param {Object} viewport
  * @param {Number} viewportOffset
@@ -102,6 +113,7 @@ const getFitsOnBottom = (rect, viewport, viewportOffset) => {
 
 /**
  * Function that returns if a rect fits on top.
+ * 
  * @param {Rect} rect
  * @param {Number} viewportOffset
  * @return {Boolean}
@@ -112,6 +124,7 @@ const getFitsOnTop = (rect, viewportOffset) => {
 
 /**
  * Function that returns if a rect fits on right.
+ * 
  * @param {Rect} rect
  * @param {Object} viewport
  * @param {Number} viewportOffset
@@ -123,6 +136,7 @@ const getFitsOnRight = (rect, viewport, viewportOffset) => {
 
 /**
  * Function that returns if a rect fits on left.
+ * 
  * @param {Rect} rect
  * @param {Number} viewportOffset
  * @return {Boolean}
@@ -134,6 +148,7 @@ const getFitsOnLeft = (rect, viewportOffset) => {
 /**
  * https://developer.mozilla.org/en-US/docs/Web/CSS/transform-origin
  * Function that returns the CSS `tranform-origin` property.
+ * 
  * @param {Rect} rect
  * @param {Position} position
  * @param {Object} dimensions — the dimensions of the positioner.
@@ -166,6 +181,7 @@ const getTransformOrigin = ({ rect, position, dimensions, targetCenter }) => {
 
 /**
  * Function that takes in numbers and position and gives the final coords.
+ * 
  * @param {Position} position — the position the positioner should be on.
  * @param {Object} dimensions — the dimensions of the positioner.
  * @param {Rect} targetRect — the rect of the target.
@@ -348,6 +364,7 @@ function getPosition({
 
 /**
  * Function that takes in numbers and position and gives the final coords.
+ * 
  * @param {Position} position
  * @param {Number} targetOffset - offset from the target.
  * @param {Object} dimensions — the dimensions of the positioner.
@@ -407,6 +424,10 @@ function getRect({ position, targetOffset, dimensions, targetRect }) {
   }
 }
 
+/**
+ * 
+ * @author Robert Long
+ */
 const PositionerContainer = (styled as any).div.attrs(({ transform, transformOrigin, opacity }) => ({
   style: {
     transform,
@@ -419,6 +440,16 @@ const PositionerContainer = (styled as any).div.attrs(({ transform, transformOri
   left: 0;
 `;
 
+/**
+ * 
+ * @author Robert Long
+ * @param {any} children 
+ * @param {any} position 
+ * @param {any} padding 
+ * @param {any} getTargetRef 
+ * @param {any} rest  
+ * @returns 
+ */
 export default function Positioner({ children, position, padding, getTargetRef, ...rest }) {
   const positionerContainerRef = useRef();
 

@@ -33,13 +33,14 @@ import { isMobileOrTablet } from './common/functions/isMobile';
 import { AnimationManager } from './templates/character/prefabs/NetworkPlayerCharacter';
 import { CharacterControllerSystem } from './character/CharacterControllerSystem';
 import { useOffscreen } from './common/functions/getURLParams';
+import { DefaultGameMode } from './templates/game/DefaultGameMode';
 
 // import { PositionalAudioSystem } from './audio/systems/PositionalAudioSystem';
 
 Mesh.prototype.raycast = acceleratedRaycast;
 BufferGeometry.prototype["computeBoundsTree"] = computeBoundsTree;
 
-if(typeof window !== 'undefined') {
+if (typeof window !== 'undefined') {
   // Add iOS and safari flag to window object -- To use it for creating an iOS compatible WebGLRenderer for example
   (window as any).iOS = !window.MSStream && /iPad|iPhone|iPod/.test(navigator.userAgent);
   (window as any).safariWebBrowser = !window.MSStream && /Safari/.test(navigator.userAgent);
@@ -52,26 +53,35 @@ export const DefaultInitializationOptions = {
   networking: {
     schema: DefaultNetworkSchema
   },
+  gameModes: [
+    DefaultGameMode
+  ],
   publicPath: '',
   useOfflineMode: false,
-  postProcessing: true
+  postProcessing: true,
+  editor: false // this will be changed, just a hack for now
 };
 
-export const initializeEngine = async (initOptions: any = DefaultInitializationOptions): Promise<void> => {
-  const options = _.defaultsDeep({}, initOptions, DefaultInitializationOptions);
-  const canvas = options.renderer.canvas || createCanvas();
+export const initializeEngine = async (options: any = DefaultInitializationOptions): Promise<void> => {
+  // const options = _.defaultsDeep({}, initOptions, DefaultInitializationOptions);
+  const canvas = options.renderer && options.renderer.canvas ? options.renderer.canvas : null;
 
-  const { postProcessing, useOfflineMode } = options;
+  const { postProcessing } = options;
+  let { useOfflineMode } = options;
+
+  useOfflineMode = useOfflineMode && options.networking;
 
   Engine.xrSupported = await (navigator as any).xr?.isSessionSupported('immersive-vr')
   // offscreen is buggy still, disable it for now and opt in with url query
   // const useOffscreen = !Engine.xrSupported && 'transferControlToOffscreen' in canvas;
 
-  if(useOffscreen) {
+  if (!options.renderer) options.renderer = {};
+
+  if (useOffscreen) {
     const workerProxy: WorkerProxy = await createWorker(
       // @ts-ignore
       new Worker(new URL('./worker/initializeOffscreen.ts', import.meta.url)),
-      (options.renderer.canvas || createCanvas()),
+      (canvas),
       {
         postProcessing,
         useOfflineMode
@@ -90,21 +100,27 @@ export const initializeEngine = async (initOptions: any = DefaultInitializationO
   initialize();
   Engine.publicPath = location.origin;
 
-  const networkSystemOptions = { schema: options.networking.schema, app: options.networking.app };
-  Network.instance.schema = networkSystemOptions.schema;
-  if(!useOfflineMode) {
-    registerSystem(ClientNetworkSystem, { ...networkSystemOptions, priority: -1 });
+  if (options.networking && options.networking.schema) {
+    const networkSystemOptions = { schema: options.networking.schema, app: options.networking.app };
+    Network.instance.schema = networkSystemOptions.schema;
+    if (!useOfflineMode) {
+      registerSystem(ClientNetworkSystem, { ...networkSystemOptions, priority: -1 });
+      registerSystem(MediaStreamSystem);
+    }
   }
-  registerSystem(MediaStreamSystem);
-  registerSystem(ClientInputSystem, { useWebXR: Engine.xrSupported });
+  if (options.input) {
+    registerSystem(ClientInputSystem, { useWebXR: Engine.xrSupported });
+  }
 
-  if(!useOffscreen) {
+  if (!useOffscreen) {
 
     await AnimationManager.instance.getDefaultModel()
-    registerSystem(StateSystem);
-    registerSystem(CharacterControllerSystem);
+    if(!options.editor){
+      // registerSystem(StateSystem);
+      registerSystem(CharacterControllerSystem);
+      registerSystem(ServerSpawnSystem, { priority: 899 });
+    }
     registerSystem(PhysicsSystem);
-    registerSystem(ServerSpawnSystem, { priority: 899 });
     registerSystem(TransformSystem, { priority: 900 });
 
     Engine.camera = new PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 10000);
@@ -112,26 +128,30 @@ export const initializeEngine = async (initOptions: any = DefaultInitializationO
     registerSystem(HighlightSystem);
     registerSystem(ActionSystem, { useWebXR: Engine.xrSupported });
 
-// audio breaks webxr currently
+    // audio breaks webxr currently
     // Engine.audioListener = new AudioListener();
     // Engine.camera.add(Engine.audioListener);
     // registerSystem(PositionalAudioSystem);
 
-    registerSystem(InteractiveSystem);
+
     registerSystem(ParticleSystem);
     registerSystem(DebugHelpersSystem);
-    registerSystem(CameraSystem);
-    registerSystem(WebGLRendererSystem, { priority: 1001, canvas, postProcessing });
-    registerSystem(XRSystem);
-    Engine.viewportElement = Engine.renderer.domElement;
-    Engine.renderer.xr.enabled = Engine.xrSupported;
+    if(!options.editor){
+      registerSystem(InteractiveSystem);
+      registerSystem(CameraSystem);
+      registerSystem(WebGLRendererSystem, { priority: 1001, canvas, postProcessing });
+      registerSystem(XRSystem);
+      Engine.viewportElement = Engine.renderer.domElement;
+      Engine.renderer.xr.enabled = Engine.xrSupported;
+    }
+
   }
 
   Engine.engineTimerTimeout = setTimeout(() => {
     Engine.engineTimer = Timer(
       {
-        networkUpdate: (delta:number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Network),
-        fixedUpdate: (delta:number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Fixed),
+        networkUpdate: (delta: number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Network),
+        fixedUpdate: (delta: number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Fixed),
         update: (delta, elapsedTime) => execute(delta, elapsedTime, SystemUpdateType.Free)
       }, Engine.physicsFrameRate, Engine.networkFramerate).start();
   }, 1000);
@@ -174,8 +194,8 @@ export const initializeServer = async (initOptions: any = DefaultInitializationO
   Engine.engineTimerTimeout = setTimeout(() => {
     Engine.engineTimer = Timer(
       {
-        networkUpdate: (delta:number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Network),
-        fixedUpdate: (delta:number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Fixed),
+        networkUpdate: (delta: number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Network),
+        fixedUpdate: (delta: number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Fixed),
         update: (delta, elapsedTime) => execute(delta, elapsedTime, SystemUpdateType.Free)
       }, Engine.physicsFrameRate, Engine.networkFramerate).start();
   }, 1000);

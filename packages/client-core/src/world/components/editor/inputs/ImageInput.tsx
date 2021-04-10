@@ -7,7 +7,9 @@ import useUpload from "../assets/useUpload";
 import { ImageFileTypes } from "../assets/fileTypes";
 
 /**
- * [used to set uploadOptions]
+ * used to set uploadOptions.
+ * 
+ * @author Robert Long
  * @type {Object}
  */
 const uploadOptions = {
@@ -16,7 +18,9 @@ const uploadOptions = {
 };
 
 /**
- * [ImageInput used to render component view for image inputs]
+ * ImageInput used to render component view for image inputs.
+ * 
+ * @author Robert Long
  * @param       {function} onChange
  * @param       {any} rest
  * @constructor
@@ -55,7 +59,9 @@ export default function ImageInput({ onChange, ...rest }) {
 }
 
 /**
- * [declaring proptoTtypes for Component]
+ * Declaring proptoTtypes for Component.
+ * 
+ * @author Robert Long
  * @type {Object}
  */
 ImageInput.propTypes = {

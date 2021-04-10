@@ -21,6 +21,7 @@ export * from './src/reducers/transport/selector';
 export * from './src/reducers/transport/service';
 export * from './src/transports/SocketWebRTCClientFunctions';
 export * from './src/transports/SocketWebRTCClientTransport';
+export { default as srcComponentsHarmonyIndex } from './src/components/Harmony/index';
 export { default as srcComponentsInstanceChatIndex } from './src/components/InstanceChat/index';
 export { default as srcComponentsMeIndex } from './src/components/Me/index';
 export { default as srcComponentsMediaIconsBoxIndex } from './src/components/MediaIconsBox/index';

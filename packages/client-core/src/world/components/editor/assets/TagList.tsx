@@ -8,7 +8,9 @@ import { CaretDown } from "@styled-icons/fa-solid/CaretDown";
 
 
 /**
- * [StyledTagList used to provide styles for tag list]
+ * StyledTagList used to provide styles for tag list.
+ * 
+ * @author Robert Long
  * @type {styled component}
  */
 const StyledTagList = (styled as any)(Column)`
@@ -19,7 +21,9 @@ const StyledTagList = (styled as any)(Column)`
 `;
 
 /**
- * [TagListHeader used to provide styles for tag list header]
+ * TagListHeader used to provide styles for tag list header.
+ * 
+ * @author Robert Long
  * @type {Styled component}
  */
 const TagListHeader = (styled as any)(Row)`
@@ -33,7 +37,9 @@ const TagListHeader = (styled as any)(Row)`
 `;
 
 /**
- * [TagListContainer used as container element for tag list]
+ * TagListContainer used as container element for tag list.
+ * 
+ * @author Robert Long
  * @type {Styled component}
  */
 const TagListContainer = (styled as any).div`
@@ -42,7 +48,9 @@ const TagListContainer = (styled as any).div`
   overflow-x: auto;
 `;
 /**
- * [TagListToggle styled componet used to create view for toggle list]
+ * TagListToggle styled componet used to create view for toggle list.
+ * 
+ * @author Robert Long
  * @type {Styled component}
  */
 const TagListToggle = (styled as any).div`
@@ -57,7 +65,9 @@ const TagListToggle = (styled as any).div`
 `;
 
 /**
- * TagContent used to provide styles to tag content
+ * TagContent used to provide styles to tag content.
+ * 
+ * @author Robert Long
  * @type {styled component}
  */
 const TagContent = (styled as any).div`
@@ -84,7 +94,9 @@ const TagContent = (styled as any).div`
 `;
 
 /**
- * [TreeListItem used to provide styles for list ]
+ * TreeListItem used to provide styles for list.
+ * 
+ * @author Robert Long
  * @type {styled component}
  */
 export const TreeListItem = (styled as any).li`
@@ -98,7 +110,9 @@ export const TreeListItem = (styled as any).li`
 `;
 
 /**
- * [TagChildrenList used to provides styles for tag child list]
+ * TagChildrenList used to provides styles for tag child list.
+ * 
+ * @author Robert Long
  * @type {styled component}
  */
 const TagChildrenList = (styled as any).ul`
@@ -107,7 +121,9 @@ const TagChildrenList = (styled as any).ul`
 `;
 
 /**
- * [TreeLeafSpacer used to provide styles for leaf spacer]
+ * TreeLeafSpacer used to provide styles for leaf spacer.
+ * 
+ * @author Robert Long
  * @type {Styled component}
  */
 const TreeLeafSpacer = (styled as any).div`
@@ -115,7 +131,9 @@ const TreeLeafSpacer = (styled as any).div`
 `;
 
 /**
- * [TagListItem used to render tag list item]
+ * TagListItem used to render tag list item.
+ * 
+ * @author Robert Long
  * @param       {object} tag
  * @param       {number} depth
  * @param       {function} onClick
@@ -281,6 +299,8 @@ export default function TagList({
 
 /**
  * declaring TagList propTypes
+ * 
+ * @author Robert Long
  * @type {Object} propTypes
  */
 TagList.propTypes  = {
@@ -293,6 +313,8 @@ TagList.propTypes  = {
 };
 /**
  * declaring TagList Default Props
+ * 
+ * @author Robert Long
  */
 TagList.defaultProps = {
   tags: [],

@@ -41,6 +41,8 @@ import { withTranslation } from 'react-i18next';
 /**
  * StyledEditorContainer component is used as root element of new project page.
  * On this page we have an editor to create a new or modifing an existing project.
+ * 
+ * @author Robert Long
  * @type {Styled component}
  */
 const StyledEditorContainer = (styled as any).div`
@@ -53,8 +55,10 @@ const StyledEditorContainer = (styled as any).div`
 `;
 
 /**
- * WorkspaceContainer description
- * @type {[type]}
+ *Styled component used as workspace container.
+ * 
+ * @author Robert Long
+ * @type {type}
  */
 const WorkspaceContainer = (styled as any).div`
   display: flex;
@@ -86,7 +90,11 @@ type EditorContainerState = {
   modified: boolean;
 };
 
-
+/**
+ * EditorContainer class used for creating container for Editor
+ * 
+ *  @author Robert Long
+ */
 class EditorContainer extends Component<EditorContainerProps, EditorContainerState> {
   static propTypes = {
     api: PropTypes.object.isRequired,

@@ -2,7 +2,7 @@
 module.exports = {
   title: 'xr3ngine',
   tagline: 'An end-to-end solution for hosting humans and AI in a virtual space, built on top of react, three.js and express/feathers.',
-  url: 'https://your-docusaurus-test-site.com',
+  url: 'http://localhost',
   baseUrl: '/',
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
@@ -10,25 +10,25 @@ module.exports = {
   organizationName: 'facebook', // Usually your GitHub org/user name.
   projectName: 'jsdoc-docusaurus', // Usually your repo name.
   plugins: [
-    // [
-    //   'docusaurus-plugin-typedoc',
-    //   {
-    //     id:'api-1',
-    //     entryPoints: [
-    //                     '../client-core',
-    //                  ],
-    //     exclude: '../client-core/components/ui/InteractableModal',
-    //     tsconfig: '../client-core/tsconfig.json',
-    //     exclude: [
-    //         '**/node_modules/**'
-    //     ],
-    //     out: 'docs-client-core',
-    //     readme: 'none',
-    //     sidebar: {
-    //        sidebarFile: 'sidebar/typedoc-client-core.js',
-    //     }
-    //   },
-    // ],
+    [
+      'docusaurus-plugin-typedoc',
+      {
+        id:'api-1',
+        entryPoints: [
+                        '../client-core',
+                     ],
+        exclude: '../client-core/components/ui/InteractableModal',
+        tsconfig: '../client-core/tsconfig.json',
+        exclude: [
+            '**/node_modules/**'
+        ],
+        out: 'docs-client-core',
+        readme: 'none',
+        sidebar: {
+           sidebarFile: 'sidebar/typedoc-client-core.js',
+        }
+      },
+    ],
     // [
     //     'docusaurus-plugin-typedoc',
     //     {

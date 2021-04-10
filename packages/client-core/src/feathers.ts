@@ -1,10 +1,10 @@
 import io from 'socket.io-client';
 import feathers from '@feathersjs/client';
-import { Config } from './helper'
+import { Config } from './helper';
 
 const apiServer = process.env.NODE_ENV === 'production' ? Config.publicRuntimeConfig.apiServer : 'https://127.0.0.1:3030';
 
-const featherStoreKey: string = Config.publicRuntimeConfig.featherStoreKey;
+const feathersStoreKey: string = Config.publicRuntimeConfig.feathersStoreKey;
 
 // Socket.io is exposed as the `io` global.
 
@@ -17,6 +17,6 @@ if(!Config.publicRuntimeConfig.offlineMode) {
   client.configure(feathers.socketio(socket, { timeout: 10000 }));
   // @ts-ignore
   client.configure(feathers.authentication({
-    storageKey: featherStoreKey
+    storageKey: feathersStoreKey
   }));
 }

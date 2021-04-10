@@ -1,7 +1,9 @@
 import { NativeTypes } from "react-dnd-html5-backend";
 
 /**
- * [ItemTypes object containing types of items used]
+ * ItemTypes object containing types of items used.
+ * 
+ * @author Robert Long
  * @type {Object}
  */
 export const ItemTypes = {
@@ -16,7 +18,9 @@ export const ItemTypes = {
 };
 
 /**
- * [AssetTypes array containing types of items used]
+ * AssetTypes array containing types of items used.
+ * 
+ * @author Robert Long
  * @type {Array}
  */
 export const AssetTypes = [
@@ -29,7 +33,9 @@ export const AssetTypes = [
 ];
 
 /**
- * [isAsset function to check item exists in array types or not]
+ * isAsset function to check item exists in array types or not.
+ * 
+ * @author Robert Long
  * @param {object} item
  */
 export function isAsset(item) {
@@ -37,7 +43,9 @@ export function isAsset(item) {
 }
 
 /**
- * [addAssetOnDrop used to adding assets to the editor scene]
+ * addAssetOnDrop used to adding assets to the editor scene.
+ * 
+ * @author Robert Long
  * @param {Object} editor
  * @param {Object} item
  * @param {Object} parent
@@ -57,7 +65,9 @@ export function addAssetOnDrop(editor, item, parent?, before?) {
 }
 
 /**
- * [addAssetAtCursorPositionOnDrop used to add element on editor scene position using cursor]
+ * addAssetAtCursorPositionOnDrop used to add element on editor scene position using cursor.
+ * 
+ * @author Robert Long
  * @param {Object} editor
  * @param {Object} item
  * @param {Object} mousePos
