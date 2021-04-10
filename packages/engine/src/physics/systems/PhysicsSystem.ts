@@ -34,6 +34,10 @@ import { VehicleState } from '../../templates/vehicle/enums/VehicleStateEnum';
 import { PhysicsLifecycleState } from '../enums/PhysicsStates';
 import { isClient } from '../../common/functions/isClient';
 
+/**
+ * @author HydraFire <github.com/HydraFire>
+ */
+
 
 const vec3 = new Vector3();
 const lastRightGamePad = null;

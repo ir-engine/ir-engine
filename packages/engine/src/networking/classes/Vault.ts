@@ -2,9 +2,9 @@ import { Component } from '../../ecs/classes/Component';
 import { ID, Snapshot } from '../types/SnapshotDataTypes';
 
 /**
- * Component class for Snapshot interpolation.\
- * Snapshot is based on this {@link https://github.com/geckosio/snapshot-interpolation | library by yandeu}.
+ * @author HydraFire <github.com/HydraFire>
  */
+ 
 export class Vault {
   /** Static instance for Component. */
   static instance: Vault = new Vault();

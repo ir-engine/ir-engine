@@ -9,6 +9,9 @@ import { CollisionGroups } from "../enums/CollisionGroups";
 import { PhysicsSystem } from '../systems/PhysicsSystem';
 import { PhysicsLifecycleState } from "../enums/PhysicsStates";
 
+/**
+ * @author HydraFire <github.com/HydraFire>
+ */
 
 function createVehicleComponent (entity: Entity ) {
   const vehicleComponent = getMutableComponent<VehicleComponent>(entity, VehicleComponent);

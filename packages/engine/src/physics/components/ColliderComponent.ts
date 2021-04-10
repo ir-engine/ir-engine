@@ -2,6 +2,10 @@ import { Body } from 'cannon-es'
 import { Component } from '../../ecs/classes/Component';
 import { Types } from '../../ecs/types/Types';
 
+/**
+ * @author HydraFire <github.com/HydraFire>
+ */
+
 export class ColliderComponent extends Component<ColliderComponent> {
   collider: Body
   type: string

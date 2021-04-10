@@ -28,6 +28,7 @@ import { IKComponent } from '../../character/components/IKComponent';
 import { EquippedComponent } from '../../interaction/components/EquippedComponent';
 import { unequipEntity } from '../../interaction/functions/equippableFunctions';
 import { TransformComponent } from '../../transform/components/TransformComponent';
+import { XRUserSettings } from './XRUserSettings';
 
 /**
  *
@@ -83,7 +84,7 @@ const interact: Behavior = (entity: Entity, args: any = { }, delta): void => {
   const interactive = getComponent(focusedEntity, Interactable);
   const intPosition = getComponent(focusedEntity, TransformComponent).position;
   const position = getComponent(entity, TransformComponent).position;
-  
+
   if (position.distanceTo(intPosition) < 3) {
     if (interactive && typeof interactive.onInteraction === 'function') {
       if (!hasComponent(focusedEntity, VehicleComponent)) {
@@ -333,7 +334,7 @@ const moveFromXRInputs: Behavior = (entity, args): void => {
   const actor: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
   const input = getComponent<Input>(entity, Input as any);
   const values = input.data.get(BaseInput.XR_MOVE)?.value;
-  
+
   if(values) {
     actor.localMovementDirection.x = values[0] ?? actor.localMovementDirection.x;
     actor.localMovementDirection.z = values[1] ?? actor.localMovementDirection.z;
@@ -341,19 +342,42 @@ const moveFromXRInputs: Behavior = (entity, args): void => {
   }
 };
 
-const forwardVector = new Vector3(0, 0, 1);
-const upDirection = new Vector3(0, 1, 0)
+//const forwardVector = new Vector3(0, 0, 1);
+//const upDirection = new Vector3(0, 1, 0);
+const diffDamping = 0.2;
+let switchChangedToZero = true;
 
 const lookFromXRInputs: Behavior = (entity, args): void => {
+  if (isServer) return;
   const actor: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
   const input = getComponent<Input>(entity, Input as any);
   const values = input.data.get(BaseInput.XR_LOOK)?.value;
+  const rotationAngle = XRUserSettings.rotationAngle * diffDamping;
+  //console.warn(values[0]);
+  switch (XRUserSettings.rotation) {
 
-  // todo: finish this
-  if(values) {
-    actor.changedViewAngle = values[0];
+    case 'angler':
+      if(switchChangedToZero && values[0] != 0) {
+        const plus = XRUserSettings.rotationInvertAxes ? -1 : 1;
+        const minus = XRUserSettings.rotationInvertAxes ? 1 : -1;
+        const directedAngle = values[0] > 0 ? rotationAngle * plus : rotationAngle * minus;
+        actor.changedViewAngle = directedAngle;
+        switchChangedToZero = false;
+      } else if (!switchChangedToZero && values[0] == 0) {
+        switchChangedToZero = true;
+      } else if (!switchChangedToZero) {
+        actor.changedViewAngle = 0;
+      } else if (switchChangedToZero && values[0] == 0) {
+        actor.changedViewAngle = 0;
+      }
+      break;
+
+    case 'smooth':
+      actor.changedViewAngle = (values[0] * XRUserSettings.rotationSmoothSpeed) * (XRUserSettings.rotationInvertAxes ? -1 : 1);
+      break;
   }
 };
+
 
 const lookByInputAxis = (
   entity: Entity,
@@ -409,14 +433,14 @@ const updateIKRig: Behavior = (entity, args): void => {
   if(!avatarIK?.avatarIKRig) return console.warn('no ik rig attached');
   const obj3d = getComponent(entity, Object3DComponent).value as Object3D;
 
-  if(args.type === BaseInput.XR_HEAD) { 
-    
+  if(args.type === BaseInput.XR_HEAD) {
+
     const cam = inputs.data.get(BaseInput.XR_HEAD).value as SIXDOFType;
     avatarIK.avatarIKRig.inputs.hmd.position.set(cam.x, cam.y, cam.z).sub(obj3d.position);
     avatarIK.avatarIKRig.inputs.hmd.quaternion.set(cam.qX, cam.qY, cam.qZ, cam.qW)
     // avatarIK.avatarIKRig.inputs.hmd.rotateY(Math.PI / 2)
 
-  } else if(args.type === BaseInput.XR_LEFT_HAND) { 
+  } else if(args.type === BaseInput.XR_LEFT_HAND) {
 
     const left = inputs.data.get(BaseInput.XR_LEFT_HAND).value as SIXDOFType;
     avatarIK.avatarIKRig.inputs.leftGamepad.position.set(left.x, left.y, left.z);
@@ -424,12 +448,12 @@ const updateIKRig: Behavior = (entity, args): void => {
     // avatar.inputs.leftGamepad.pointer = ; // for finger animation
     // avatar.inputs.leftGamepad.grip = ;
 
-  } else if(args.type === BaseInput.XR_RIGHT_HAND) { 
+  } else if(args.type === BaseInput.XR_RIGHT_HAND) {
 
     const right = inputs.data.get(BaseInput.XR_RIGHT_HAND).value as SIXDOFType;
     avatarIK.avatarIKRig.inputs.rightGamepad.position.set(right.x, right.y, right.z);
     avatarIK.avatarIKRig.inputs.rightGamepad.quaternion.set( right.qX, right.qY, right.qZ, right.qW);
-    
+
   }
 }
 
@@ -466,8 +490,13 @@ export const createCharacterInput = () => {
   map.set(GamepadAxis.Left, BaseInput.MOVEMENT_PLAYERONE);
   map.set(GamepadAxis.Right, BaseInput.GAMEPAD_STICK_RIGHT);
 
-  map.set(XRAxes.Left, BaseInput.XR_MOVE);
-  map.set(XRAxes.Right, BaseInput.XR_LOOK);
+  if (XRUserSettings.invertRotationAndMoveSticks) {
+    map.set(XRAxes.Left, BaseInput.XR_LOOK);
+    map.set(XRAxes.Right, BaseInput.XR_MOVE);
+  } else {
+    map.set(XRAxes.Left, BaseInput.XR_MOVE);
+    map.set(XRAxes.Right, BaseInput.XR_LOOK);
+  }
 
   map.set('w', BaseInput.FORWARD);
   map.set('a', BaseInput.LEFT);

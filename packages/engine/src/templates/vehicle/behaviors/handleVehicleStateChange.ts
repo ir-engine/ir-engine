@@ -7,17 +7,18 @@ import { PlayerInCar } from "../../../physics/components/PlayerInCar";
 import { VehicleState, VehicleStateUpdateSchema } from "../enums/VehicleStateEnum";
 
 /**
- * 
+ * @author HydraFire <github.com/HydraFire>
  * @param entity is the entity to handle state changes to
  * @param args is the data sent
  */
+
 export const handleVehicleStateChange = (editObject: NetworkObjectEditInterface): void => {
 
   const networkDriverId = editObject.networkId;
   const [state, networkCarId, currentFocusedPart] = editObject.values as VehicleStateUpdateSchema;
 
   const driver: Entity = Network.instance.networkObjects[networkDriverId].component.entity;
-  
+
   if (state == VehicleState.onAddedEnding) {
     if (driver === Network.instance.localClientEntity) {
       removeComponent(driver, LocalInputReceiver);
@@ -31,7 +32,7 @@ export const handleVehicleStateChange = (editObject: NetworkObjectEditInterface)
       });
     }
   }
-  
+
   if (state == VehicleState.onStartRemove) {
     if (hasComponent(driver, PlayerInCar)) {
       getMutableComponent(driver, PlayerInCar).state = state;

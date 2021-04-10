@@ -242,7 +242,7 @@ export class ActionSystem extends System {
         });
 
         // let sendSwitchInputs = false;
-        
+
         // if (!hasComponent(Network.instance.networkObjects[Network.instance.localAvatarNetworkId].component.entity, LocalInputReceiver) && !this.needSend) {
         //   this.needSend = true;
         //   sendSwitchInputs = true;
@@ -297,7 +297,7 @@ export class ActionSystem extends System {
                 y: value.value.y,
                 z: value.value.z,
                 qX: value.value.qX,
-                qY: value.value.qX,
+                qY: value.value.qY,
                 qZ: value.value.qZ,
                 qW: value.value.qW,
               });
