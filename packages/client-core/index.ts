@@ -480,6 +480,8 @@ export { default as srcWorldComponentsEditorPropertiesNameInputGroup } from './s
 export { default as srcWorldComponentsEditorPropertiesNodeEditor } from './src/world/components/editor/properties/NodeEditor';
 export { default as srcWorldComponentsEditorPropertiesParticleEmitterNodeEditor } from './src/world/components/editor/properties/ParticleEmitterNodeEditor';
 export { default as srcWorldComponentsEditorPropertiesPointLightNodeEditor } from './src/world/components/editor/properties/PointLightNodeEditor';
+export { default as srcWorldComponentsEditorPropertiesPostProcessingNodeEditor } from './src/world/components/editor/properties/PostProcessingNodeEditor';
+export { default as srcWorldComponentsEditorPropertiesPostProcessingProperties } from './src/world/components/editor/properties/PostProcessingProperties';
 export { default as srcWorldComponentsEditorPropertiesPropertiesPanelContainer } from './src/world/components/editor/properties/PropertiesPanelContainer';
 export { default as srcWorldComponentsEditorPropertiesPropertyGroup } from './src/world/components/editor/properties/PropertyGroup';
 export { default as srcWorldComponentsEditorPropertiesSceneNodeEditor } from './src/world/components/editor/properties/SceneNodeEditor';

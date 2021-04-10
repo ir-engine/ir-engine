@@ -30,7 +30,9 @@
     "typescript": "4.2.4"
   },
   "dependencies": {
-    "@easydarwin/easywasmplayer": "4.0.12",
+    "semantic-release": "^17.4.2",
+    "semantic-release-monorepo": "^7.0.4",
+    "@easydarwin/easywasmplayer": "^4.0.12",
     "@xr3ngine/engine": "^0.2.14",
     "@xr3ngine/volumetric": "0.2.1",
     "broadway-player": "0.1.1",
