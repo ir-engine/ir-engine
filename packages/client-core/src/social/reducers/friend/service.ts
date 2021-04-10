@@ -11,8 +11,7 @@ import {dispatchAlertError} from "../../../common/reducers/alert/service";
 import store from '../../../store';
 import { User } from '@xr3ngine/common/src/interfaces/User';
 
-import getConfig from 'next/config';
-const { publicRuntimeConfig } = getConfig();
+import { Config } from '../../../helper';
 
 // export function getUserRelationship(userId: string) {
 //   return (dispatch: Dispatch): any => {
@@ -121,7 +120,7 @@ export function unfriend(relatedUserId: string) {
   return removeFriend(relatedUserId);
 }
 
-if(!publicRuntimeConfig.offlineMode) {
+if(!Config.publicRuntimeConfig.offlineMode) {
   client.service('user-relationship').on('created', (params) => {
     if (params.userRelationship.userRelationshipType === 'friend') {
       store.dispatch(createdFriend(params.userRelationship));

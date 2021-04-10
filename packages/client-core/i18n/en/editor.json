@@ -521,5 +521,13 @@
             "uploadErrorMsg": "Error uploading file: {{message}}",
             "uploadErrorDefaultMsg": "There was an unknown error"
         }
+    },
+    "openLink": {
+        "description": "Please click the Open to navigate to the link.",
+        "lbl-open": "Open"
+    },
+    "interactableModel": {
+        "lbl-buy": "Buy",
+        "lbl-learnMore": "Learn More"
     }
 }

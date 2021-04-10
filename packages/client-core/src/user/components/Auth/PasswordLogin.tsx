@@ -10,13 +10,14 @@ import Typography from '@material-ui/core/Typography';
 import Container from '@material-ui/core/Container';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
-import { selectAuthState } from '@xr3ngine/client-core/src/user/reducers/auth/selector';
-import { showDialog, closeDialog } from '@xr3ngine/client-core/src/common/reducers/dialog/service';
+import { selectAuthState } from '../../reducers/auth/selector';
+import { showDialog, closeDialog } from '../../../common/reducers/dialog/service';
 import SignUp from './Register';
 import ForgotPassword from './ForgotPassword';
 import styles from './Auth.module.scss';
 import { User } from '@xr3ngine/common/src/interfaces/User';
-import { loginUserByPassword, addConnectionByPassword } from '@xr3ngine/client-core/src/user/reducers/auth/service';
+import { loginUserByPassword, addConnectionByPassword } from '../../reducers/auth/service';
+import { useTranslation } from "react-i18next";
 
 const mapStateToProps = (state: any): any => {
   return {
@@ -55,6 +56,7 @@ export const PasswordLogin = (props: Props): any => {
     showDialog
   } = props;
   const [state, setState] = useState(initialState);
+  const { t } = useTranslation();
 
   const handleInput = (e: any): void =>
     setState({ ...state, [e.target.name]: e.target.value });
@@ -89,7 +91,7 @@ export const PasswordLogin = (props: Props): any => {
           <LockOutlinedIcon />
         </Avatar>
         <Typography component="h1" variant="h5">
-          Sign in
+          {t('user:auth.passwordLogin.header')}
         </Typography>
         <form
           className={styles.form}
@@ -104,7 +106,7 @@ export const PasswordLogin = (props: Props): any => {
                 required
                 fullWidth
                 id="email"
-                label="Email Address"
+                label={t('user:auth.passwordLogin.lbl-email')}
                 name="email"
                 autoComplete="email"
                 autoFocus
@@ -118,7 +120,7 @@ export const PasswordLogin = (props: Props): any => {
                 required
                 fullWidth
                 name="password"
-                label="Password"
+                label={t('user:auth.passwordLogin.lbl-password')}
                 type="password"
                 id="password"
                 autoComplete="current-password"
@@ -128,7 +130,7 @@ export const PasswordLogin = (props: Props): any => {
             <Grid item xs={12}>
               <FormControlLabel
                 control={<Checkbox value="remember" color="primary" />}
-                label="Remember me"
+                label={t('user:auth.passwordLogin.lbl-rememberMe')}
               />
             </Grid>
             <Grid item xs={12}>
@@ -139,7 +141,7 @@ export const PasswordLogin = (props: Props): any => {
                 color="primary"
                 className={styles.submit}
               >
-                Sign In
+                {t('user:auth.passwordLogin.lbl-signin')}
               </Button>
             </Grid>
 
@@ -154,7 +156,7 @@ export const PasswordLogin = (props: Props): any => {
                     })
                   }
                 >
-                  Forgot password?
+                  {t('user:auth.passwordLogin.forgotPassword')}
                 </a>
               )}
             </Grid>
@@ -169,7 +171,7 @@ export const PasswordLogin = (props: Props): any => {
                     })
                   }
                 >
-                  Don&apos;t have an account? Sign Up
+                  {t('user:auth.passwordLogin.signup')}
                 </a>
               )}
             </Grid>

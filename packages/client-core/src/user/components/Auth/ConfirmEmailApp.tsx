@@ -13,6 +13,7 @@ import { EmptyLayout }from '../../../common/components/Layout/EmptyLayout';
 import { IdentityProvider } from '@xr3ngine/common/src/interfaces/IdentityProvider';
 import CardMedia from '@material-ui/core/CardMedia';
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
+import { Trans, useTranslation } from "react-i18next";
 
 import styles from '../../../socialmedia/components/Login/Login.module.scss';
 
@@ -34,6 +35,7 @@ interface Props {
 
 const ConfirmEmail = (props: Props): any => {
   const { auth, resendVerificationEmail } = props;
+  const { t } = useTranslation();
   const handleResendEmail = (e: any): any => {
     e.preventDefault();
 
@@ -52,18 +54,24 @@ const ConfirmEmail = (props: Props): any => {
           />
           <span className={styles.placeholder} />
           <Typography component="h1" variant="h5" align="center">
-            Confirmation Email
+            {t('user:auth.confirmEmail.header')}
           </Typography>
           <section className={styles.content}>
             <Typography variant="body2" color="textSecondary" align="center">
-                Please check your email to verify your account.
-                If you didn&apos;t get an email, please click
-              <Button variant="contained" color="primary" onClick={(e) => handleResendEmail(e)}>here</Button><br />
-               to resend the verification email.
+                <Trans t={t} i18nKey="user:auth.confirmEmail.resendEmail">
+                  Please check your email to verify your account.
+                  If you didn&apos;t get an email, please click
+                  <Button variant="contained" color="primary" onClick={(e) => handleResendEmail(e)}>here</Button><br />
+                  to resend the verification email.
+                </Trans>
             </Typography>
           </section>
           <span className={styles.placeholder} />
-          <section className={styles.footer}><p>Have an account? <span onClick={()=>Router.push('/login')}> Log in</span></p></section>
+          <section className={styles.footer}>
+            <p>
+              <Trans t={t} i18nKey="user:auth.confirmEmail.resendEmail">Have an account? <span onClick={()=>Router.push('/login')}> Log in</span></Trans>
+            </p>
+          </section>
     </section>
   );
 };

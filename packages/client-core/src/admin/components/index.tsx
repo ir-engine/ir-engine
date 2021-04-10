@@ -16,7 +16,7 @@ import {
 } from '@material-ui/core';
 import FormControl from '@material-ui/core/FormControl';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
-import getConfig from 'next/config';
+import { Config } from '../../helper';
 import { Router, withRouter } from "next/router";
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
@@ -40,8 +40,6 @@ import Search from "./Search";
 if (!global.setImmediate) {
     global.setImmediate = setTimeout as any;
 }
-
-const { publicRuntimeConfig } = getConfig();
 
 interface Props {
     router: Router;
@@ -307,7 +305,7 @@ const AdminConsole = (props: Props) => {
             currentUsers: instance.currentUsers,
             locationId: instance.locationId,
             gsId: instance.gameserver_subdomain_provision?.gs_id,
-            serverAddress: instance.gameserver_subdomain_provision != null ? `https://${instance.gameserver_subdomain_provision.gs_number}.${publicRuntimeConfig.gameserverDomain}` : ''
+            serverAddress: instance.gameserver_subdomain_provision != null ? `https://${instance.gameserver_subdomain_provision.gs_number}.${Config.publicRuntimeConfig.gameserverDomain}` : ''
         };
     });
 
