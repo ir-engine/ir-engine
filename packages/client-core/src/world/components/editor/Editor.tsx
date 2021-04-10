@@ -30,6 +30,7 @@ import SelectMultipleCommand from "@xr3ngine/engine/src/editor/commands/SelectMu
 import SetPositionCommand from "@xr3ngine/engine/src/editor/commands/SetPositionCommand";
 import SetPositionMultipleCommand from "@xr3ngine/engine/src/editor/commands/SetPositionMultipleCommand";
 import SetPropertiesCommand from "@xr3ngine/engine/src/editor/commands/SetPropertiesCommand";
+import SetObjectPropertyCommand from "@xr3ngine/engine/src/editor/commands/SetObjectPropertyCommand";
 import SetPropertiesMultipleCommand from "@xr3ngine/engine/src/editor/commands/SetPropertiesMultipleCommand";
 import SetPropertyCommand from "@xr3ngine/engine/src/editor/commands/SetPropertyCommand";
 import SetPropertyMultipleCommand from "@xr3ngine/engine/src/editor/commands/SetPropertyMultipleCommand";
@@ -2217,6 +2218,36 @@ export default class Editor extends EventEmitter {
 
     return object;
   }
+/**
+ * [setObjectProperty used to set propery to selected object]
+ * @param {[type]}  propertyName
+ * @param {[type]}  value
+ * @param {Boolean} [useHistory=true]
+ */
+
+  setObjectProperty(propertyName, value,useHistory=true) {
+    if(useHistory)
+      return this.history.execute(new SetObjectPropertyCommand(this, this.selected[0], propertyName, value));
+      const object =this.selected[0];
+      const nestProp=propertyName.split(".");
+      let interestObj=object;
+      nestProp.forEach((element,id) => {
+          if(id<nestProp.length-1)
+            interestObj=interestObj[element];
+      });
+      if (value && value.copy) {
+        interestObj[nestProp[nestProp.length - 1]].copy(value);
+      } else {
+        interestObj[nestProp[nestProp.length - 1]] = value;
+      }
+      if (object.onChange) {
+        object.onChange(propertyName);
+      }
+      this.emit("objectsChanged", [object], propertyName);
+      return object;
+  }
+
+  
 
 /**
  * [setPropertyMultiple used to set propery to multiple selected objects]
