@@ -215,7 +215,7 @@ import PostProcesssingProperties from "./PostProcessingProperties";
       },
       LinearTosRGBEffect:{
       }
-}
+};
 
 /**
  * @author Abhishek Pathak <abhi.pathak401@gmail.com>
@@ -229,7 +229,7 @@ export default class PostProcessingNodeEditor extends Component<PostProcessingNo
     
         
   onChangeNodeSetting=(key,op)=>{
-    (this.props.editor as any).setObjectProperty("postProcessingOptions."+key,op)
+    (this.props.editor as any).setObjectProperty("postProcessingOptions."+key,op);
   };
 
   getPropertyValue=(arr:[])=>{
@@ -243,7 +243,7 @@ export default class PostProcessingNodeEditor extends Component<PostProcessingNo
     const item=Object.values(effectOptions).map((values,index) => {
           const op=[id,Object.keys(effectOptions)[index]];
           { /* @ts-ignore */}
-          return <PostProcesssingProperties key={id+index} values={values} op={op} onChangeFunction={this.onChangeNodeSetting} getProp={this.getPropertyValue}/>
+          return <PostProcesssingProperties key={id+index} values={values} op={op} onChangeFunction={this.onChangeNodeSetting} getProp={this.getPropertyValue}/>;
     }
       );
     return (<>{item}</>);
@@ -263,9 +263,9 @@ export default class PostProcessingNodeEditor extends Component<PostProcessingNo
           <div>{this.renderEffectsTypes(key)}</div>
         }
         </div>
-      )
+      );
     }
-    )
+    );
     return (<div>{items}</div>);
   }
 
