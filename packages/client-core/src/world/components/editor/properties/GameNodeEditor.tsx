@@ -1,4 +1,5 @@
 import { HandPaper } from "@styled-icons/fa-solid/HandPaper";
+import { Engine } from "@xr3ngine/engine/src/ecs/classes/Engine";
 import i18n from "i18next";
 import React from "react";
 import { withTranslation } from "react-i18next";
@@ -46,15 +47,15 @@ export function GameNodeEditor(props: {
       <InputGroup
         name="Game Mode"
         label={t('editor:properties.game.lbl-gameMode')}
-        info={t('editor:properties.game.info-gameMode')}
-      >
+              >
         { /* @ts-ignore */}
-          <StringInput
-            /* @ts-ignore */
-            value={node.gameMode}
-            onChange={onChangePayloadGameMode}
-          />
+        <SelectInput
+          options={Object.keys(Engine.gameModes)}
+          value={node.gameMode}
+          onChange={onChangePayloadGameMode}
+        />
       </InputGroup>
+
       { /* @ts-ignore */}
       <InputGroup
         name="Is Global?"

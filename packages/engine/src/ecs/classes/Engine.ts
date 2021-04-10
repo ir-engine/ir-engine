@@ -52,6 +52,8 @@ export class Engine {
   public static engineTimer: { start: Function; stop: Function } = null
   public static engineTimerTimeout = null;
 
+  public static gameModes = [];
+
   public static xrSupported = false;
 
   //public static stats: Stats
