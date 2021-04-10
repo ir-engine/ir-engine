@@ -8,7 +8,9 @@ import i18n from "i18next";
 import { withTranslation } from "react-i18next";
 
 /**
- * [TransformPropertyGroupProps declairing properties for TransformPropertyGroup]
+ * TransformPropertyGroupProps declairing properties for TransformPropertyGroup.
+ * 
+ * @author Robert Long
  * @type {Object}
  */
 type TransformPropertyGroupProps = {
@@ -18,7 +20,9 @@ type TransformPropertyGroupProps = {
 };
 
 /**
- * [TransformPropertyGroup component is used to render editor view to customize properties]
+ * TransformPropertyGroup component is used to render editor view to customize properties.
+ * 
+ * @author Robert Long
  * @type {class component}
  */
 export class TransformPropertyGroup extends Component<

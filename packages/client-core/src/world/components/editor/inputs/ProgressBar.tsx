@@ -1,6 +1,10 @@
 import React from "react";
 import styled from "styled-components";
 
+/**
+ * 
+ * @author Robert Long
+ */
 const ProgressBarContainer = (styled as any).div`
   height: 20px;
   position: relative;
@@ -74,6 +78,11 @@ const ProgressBarContainer = (styled as any).div`
   }
 `;
 
+/**
+ * 
+ * @author Robert Long
+ * @returns 
+ */
 export default function ProgressBar() {
   return (
     <ProgressBarContainer>

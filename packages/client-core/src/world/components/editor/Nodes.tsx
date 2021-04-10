@@ -47,10 +47,12 @@ import VideoNodeEditor from "./properties/VideoNodeEditor";
 import VolumetricNodeEditor from "./properties/VolumetricNodeEditor";
 
 /**
- * [createEditor used to create editor object and register nodes available to create scene]
- * @param  {[type]} api      [provides the api object]
- * @param  {[type]} settings [provides settings to be Applied]
- * @return {[type]}          [editor]
+ * createEditor used to create editor object and register nodes available to create scene.
+ * 
+ * @author Robert Long
+ * @param  {any} api      [provides the api object]
+ * @param  {any} settings [provides settings to be Applied]
+ * @return {Editor}          [editor]
  */
 export function createEditor(api, settings) {
   const editor = new Editor(api, settings);

@@ -2,7 +2,9 @@ import { useRef, useState, useCallback, useEffect } from "react";
 import { useDebouncedCallback } from "use-debounce";
 
 /**
- * [useIsMounted function used to check that component get mounted or not]
+ * useIsMounted function used to check that component get mounted or not.
+ * 
+ * @author Robert Long
  */
 function useIsMounted() {
   const ref = useRef(false);
@@ -16,6 +18,8 @@ function useIsMounted() {
 }
 /**
  * useLoadAsyncfunction used to load AssetPanelContent by calling API.
+ * 
+ * @author Robert Long
  * @param  {Function} callback
  * @param  {Array}    [initialResults=[]]
  * @param  {Number}   [initialCursor=0]
@@ -139,8 +143,10 @@ export function useLoadAsync(callback, initialResults = [], initialCursor = 0){
 }
 
 /**
- * useAssetSearch used for providing search on MediaSourcePanel
- * @param {[type]} source
+ * useAssetSearch used for providing search on MediaSourcePanel.
+ * 
+ * @author Robert Long
+ * @param {any} source
  * @param {Object} [initialParams={}]
  * @param {Array}  [initialResults=[]]
  * @param {Number} [initialCursor=0]
@@ -187,10 +193,10 @@ export function useAssetSearch(
 
 
 /**
- * [
  * debouncedLoadAsync  initializing by debounced function
  * will only call the passed function when it hasn't been called for the wait period
- * ]
+ * 
+ * @author Robert Long
  * @param        {function} loadAsync [func The function to be called]
  * @param        {number} source.searchDebounceTimeout [Wait period after function hasn't been called for]
  * @returns      [A memoized function that is debounced]
@@ -216,7 +222,9 @@ export function useAssetSearch(
 }
 
 /**
- * [useAddRemoveItems function component provides callback function for adding and removing items]
+ * useAddRemoveItems function component provides callback function for adding and removing items.
+ * 
+ * @author Robert Long
  * @param  {Array} items
  * @param  {Array}  [dependencies=[]]
  * @return {Array}  [returns array containing finalItems, addItem, removeItem]

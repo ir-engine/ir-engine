@@ -5,7 +5,9 @@ import { Vector3InputContainer, Vector3Scrubber } from "./Vector3Input";
 const { RAD2DEG, DEG2RAD } = _Math;
 
 /**
- * [ type aliase created EulerInputProps]
+ * Type aliase created EulerInputProps.
+ * 
+ * @author Robert Long
  * @type {Object}
  */
 type EulerInputProps = {
@@ -18,13 +20,17 @@ type EulerInputProps = {
 };
 
  /**
-  * [FileIEulerInputnput used to show EulerInput]
+  * FileIEulerInputnput used to show EulerInput.
+  * 
+  * @author Robert Long
   * @type {Object}
   */
 export default class EulerInput extends Component<EulerInputProps, {}> {
 
   /**
-   * [onChange onchange trigger Change method for EulerInput Component]
+   * onChange onchange trigger Change method for EulerInput Component.
+   * 
+   * @author Robert Long
    * @param  {Object} e.target.file
    * @return {Object}   e
    */

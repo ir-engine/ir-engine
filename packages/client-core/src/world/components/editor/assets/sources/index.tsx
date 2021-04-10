@@ -1,7 +1,9 @@
 import EventEmitter from "eventemitter3";
 
 /**
- * [BaseSource]
+ * BaseSource Parent class for all source classes.
+ * 
+ * @author Robert Long
  */
 export class BaseSource extends EventEmitter {
   id: string;

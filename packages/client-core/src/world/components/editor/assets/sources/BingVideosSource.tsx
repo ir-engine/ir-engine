@@ -2,7 +2,9 @@ import VideoMediaSource from "../VideoMediaSource";
 import i18n from "i18next";
 
 /**
- * [BingVideosSource componant used to provide a video explorer here we can seach bing videos used search bar]
+ * BingVideosSource componant used to provide a video explorer here we can seach bing videos used search bar.
+ * 
+ * @author Robert Long
  * @type {class component}
  */
 export default class BingVideosSource extends VideoMediaSource {

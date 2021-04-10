@@ -6,7 +6,9 @@ import Tooltip from "../layout/Tooltip";
 import { useTranslation } from "react-i18next";
 
 /**
- * [IssuesTooltipContainer used to provide styles and showing issues list]
+ * IssuesTooltipContainer used to provide styles and showing issues list.
+ * 
+ * @author Robert Long
  * @type {styled component}
  */
 const IssuesTooltipContainer = (styled as any).div`
@@ -37,7 +39,9 @@ const IssuesTooltipContainer = (styled as any).div`
 `;
 
 /**
- * [IssueIcon used to provide styles to issue icon]
+ * IssueIcon used to provide styles to issue icon.
+ * 
+ * @author Robert Long
  * @param {styled component} styled
  */
 const IssueIcon = (styled as any)(ExclamationTriangle)`
@@ -45,7 +49,9 @@ const IssueIcon = (styled as any)(ExclamationTriangle)`
 `;
 
 /**
- * [NodeIssuesIcon function component used to provide view of issues list ]
+ * NodeIssuesIcon function component used to provide view of issues list.
+ * 
+ * @author Robert Long
  * @param       {function component} node
  * @constructor
  */
@@ -62,7 +68,9 @@ export default function NodeIssuesIcon({ node }) {
   );
 
 /**
- * [renderInfo function used to return view ]
+ * renderInfo function used to return view.
+ * 
+ * @author Robert Long
  * @type {function}
  */
   const renderInfo = useCallback(() => {

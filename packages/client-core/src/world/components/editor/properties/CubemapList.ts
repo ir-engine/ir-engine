@@ -1,7 +1,9 @@
 
 
 /**
- * [CubemapOption array containing textures used for SkyboxNode]
+ * CubemapOption array containing textures used for SkyboxNode.
+ * 
+ * @author Robert Long
  */
 export const CubemapOption = [
   {

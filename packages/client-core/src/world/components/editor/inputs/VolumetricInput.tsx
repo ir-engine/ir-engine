@@ -12,6 +12,13 @@ const uploadOptions = {
   accepts: VideoFileTypes
 };
 
+/**
+ * 
+ * @author Robert Long
+ * @param {function} onChange
+ * @param {any} rest 
+ * @returns 
+ */
 export default function VolumetricInput({ onChange, ...rest }) {
   return (
     <ControlledStringInput

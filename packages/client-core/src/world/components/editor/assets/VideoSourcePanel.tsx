@@ -4,7 +4,9 @@ import MediaSourcePanel from "./MediaSourcePanel";
 import { useTranslation } from "react-i18next";
 
 /**
- * [VideoSourcePanel used to render view of MediaSourcePanel]
+ * VideoSourcePanel used to render view of MediaSourcePanel.
+ * 
+ * @author Robert Long
  * @param       {object} props
  * @constructor
  */
@@ -14,7 +16,9 @@ export default function VideoSourcePanel(props) {
 }
 
 /**
- * [declairing propTypes for VideoSourcePanel]
+ * declairing propTypes for VideoSourcePanel.
+ * 
+ * @author Robert Long
  * @type {Object}
  */
 VideoSourcePanel.propTypes = {
