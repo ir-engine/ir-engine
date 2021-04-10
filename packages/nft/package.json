@@ -62,7 +62,7 @@
     "@styled-icons/fa-solid": "^10.22.0",
     "@styled-icons/material": "^10.18.0",
     "@truffle/contract": "^4.3.9",
-    "@truffle/hdwallet-provider": "1.2.3",
+    "@truffle/hdwallet-provider": "1.2.6",
     "@types/node": "^14.14.37",
     "@types/react": "^17.0.0",
     "@types/react-dom": "^17.0.0",
