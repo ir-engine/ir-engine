@@ -69,9 +69,9 @@ import {
     provisionChannelServer,
     resetChannelServer
 } from '@xr3ngine/client-networking/src/reducers/channelConnection/service';
-import { Group as GroupType } from "@xr3ngine/common/interfaces/Group";
-import { Message } from '@xr3ngine/common/interfaces/Message';
-import { User } from '@xr3ngine/common/interfaces/User';
+import { Group as GroupType } from "@xr3ngine/common/src/interfaces/Group";
+import { Message } from '@xr3ngine/common/src/interfaces/Message';
+import { User } from '@xr3ngine/common/src/interfaces/User';
 import { isMobileOrTablet } from '@xr3ngine/engine/src/common/functions/isMobile';
 import { EngineEvents } from '@xr3ngine/engine/src/ecs/classes/EngineEvents';
 import { DefaultInitializationOptions, initializeEngine } from '@xr3ngine/engine/src/initialize';
