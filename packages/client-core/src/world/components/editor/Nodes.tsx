@@ -48,6 +48,8 @@ import BingVideosSource from "./assets/sources/BingVideosSource";
 import PolySource from "./assets/sources/PolySource";
 import SketchfabSource from "./assets/sources/SketchfabSource";
 import TenorSource from "./assets/sources/TenorSource";
+import PostProcessingNodeEditor from "./properties/PostProcessingNodeEditor";
+import PostProcessingNode from "@xr3ngine/engine/src/editor/nodes/PostProcessingNode";
 
 /**
  * [createEditor used to create editor object and register nodes available to create scene]
@@ -75,6 +77,7 @@ export function createEditor(api, settings) {
   editor.registerNode(VideoNode, VideoNodeEditor);
   editor.registerNode(VolumetricNode, VolumetricNodeEditor);
   editor.registerNode(AudioNode, AudioNodeEditor);
+  editor.registerNode(PostProcessingNode,PostProcessingNodeEditor);
   editor.registerNode(TriggerVolumeNode, TriggerVolumeNodeEditor);
   editor.registerNode(LinkNode, LinkNodeEditor);
   editor.registerNode(ScenePreviewCameraNode, ScenePreviewCameraNodeEditor);
