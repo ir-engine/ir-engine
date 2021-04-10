@@ -77,16 +77,17 @@ const ColorInputPopover = (styled as any).div`
  * @constructor
  */
 
-export default function ColorInput({ value, onChange, disabled, ...rest }) {
-  const onChangePicker = useCallback(
-    ({ hex }) => {
-      onChange(new Color(hex));
-    },
-    [onChange]
-  );
+export default function ColorInput({ value, onChange, disabled,isValueAsInteger=false, ...rest }) {
 
-  //initializing hexColor by getting hexString
-  const hexColor = "#" + value.getHexString();
+    const onChangePicker = useCallback(
+      ({ hex }) => {
+        onChange(isValueAsInteger?(new Color(hex)).getHex():(new Color(hex)));
+      },
+      [onChange]
+    );
+
+    //initializing hexColor by getting hexString
+    const hexColor = "#" + (isValueAsInteger?value.toString(16):value.getHexString());
 
   //creating view for ColorInput
   return (
