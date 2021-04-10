@@ -27,6 +27,15 @@ export default class ModelNode extends EditorNodeMixin(Model) {
           c => c.name === "gltf-model"
         ).props;
 
+        const gameObject = json.components.find(
+          c => c.name === "game-object"
+        );
+
+        if(gameObject){
+          node.target = gameObject.props.target;
+          node.role = gameObject.props.role;
+        }
+
         await node.load(src, onError);
         // Legacy, might be a raw string left over before switch to JSON.
         if (attribution && typeof attribution === "string") {
@@ -89,6 +98,7 @@ export default class ModelNode extends EditorNodeMixin(Model) {
     this._canonicalUrl = "";
     this.collidable = true;
     this.saveColliders = false;
+    this.target = null;
     this.walkable = true;
     this.initialScale = 1;
     this.boundingBox = new Box3();
@@ -373,6 +383,14 @@ parseColliders( data, type, mass, position, quaternion, scale, mesh ) {
         payloadModelUrl : this._canonicalUrl,
       }
     };
+
+    if(this.interactionType === "gameobject"){
+      this.components['game-object'] = {
+        target: this.target,
+        role: this.role
+      }
+    }
+    
     if (this.saveColliders) {
       this.parseAndSaveColliders(components);
     }
@@ -399,6 +417,7 @@ parseColliders( data, type, mass, position, quaternion, scale, mesh ) {
       this.gltfJson = source.gltfJson;
       this._canonicalUrl = source._canonicalUrl;
     }
+    this.target = source.target;
     this.attribution = source.attribution;
     this.collidable = source.collidable;
     this.saveColliders = source.saveColliders;
