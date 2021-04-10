@@ -16,7 +16,7 @@ import {
   REMOVE_FEED_FEATURED,
   REMOVE_FEED_FIRES,
   UPDATE_FEED
-} from '@xr3ngine/client-core/src/socialmedia/reducers/actions';
+} from '../actions';
 import Immutable from 'immutable';
 import {
   FeedRetrievedAction,
@@ -25,7 +25,7 @@ import {
   oneFeedAction
 } from './actions';
 
-export const initialState = {
+export const initialFeedState = {
   feeds: {
     feeds: [],
     feedsFeatured: [],
@@ -38,7 +38,7 @@ export const initialState = {
   },
 };
 
-const immutableState = Immutable.fromJS(initialState);
+const immutableState = Immutable.fromJS(initialFeedState);
 
 const feedReducer = (state = immutableState, action: FeedsAction): any => {
   const currentFeed = state.get('feed');

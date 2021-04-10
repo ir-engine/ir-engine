@@ -1,28 +1,14 @@
-import CollectionTypeSeed from './collection-type/collection-type.seed';
-import CollectionSeed from './collection/collection.seed';
-import ComponentTypeSeed from './component-type/component-type.seed';
-import ComponentSeed from './component/component.seed';
-import EntitySeed from './entity/entity.seed';
+import { ServicesSeedConfig } from "@xr3ngine/common/src/interfaces/ServicesSeedConfig";
+import { collectionTypeSeed } from './collection-type/collection-type.seed';
+import { collectionSeed } from './collection/collection.seed';
+import { componentTypeSeed } from './component-type/component-type.seed';
+import { componentSeed } from './component/component.seed';
+import { entitySeed } from './entity/entity.seed';
 
-type SeedCallback = (ServicesSeedConfig) => Promise<any>;
-type ServicesSeedCallback = (obj: any, seed: SeedCallback) => Promise<any>;
-
-interface ServicesSeedConfig {
-    count?: number;
-    disabled: boolean;
-    delete: boolean;
-    path: string;
-    randomize?: boolean;
-    templates?: any[];
-    callback?: ServicesSeedCallback;
-}
-
-export const services: Array<ServicesSeedConfig> = [
-    CollectionTypeSeed,
-    CollectionSeed,
-    EntitySeed,
-    ComponentTypeSeed,
-    ComponentSeed,
+export const entitySeeds: Array<ServicesSeedConfig> = [
+    collectionTypeSeed,
+    collectionSeed,
+    entitySeed,
+    componentTypeSeed,
+    componentSeed,
   ];
-
-export default services;

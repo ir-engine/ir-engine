@@ -3,15 +3,15 @@ import {
   NetworkObjectCreateInterface,
   WorldStateInterface
 } from "../../src/networking/interfaces/WorldState";
-import { PrefabType } from "../../src/templates/networking/DefaultNetworkSchema";
 import { Engine } from "../../src/ecs/classes/Engine";
 import { WorldStateModel } from "../../src/networking/schema/worldStateSchema";
 import { execute } from "../../src/ecs/functions/EngineFunctions";
 import { SystemUpdateType } from "../../src/ecs/functions/SystemUpdateType";
 import { NetworkObject } from "../../src/networking/components/NetworkObject";
+import { PrefabType } from "../../src/templates/networking/PrefabType";
 
 export function createRemoteUserOnClient(options:{
-  initializeNetworkObjectMocked:  jest.SpyInstance,
+  initializeNetworkObjectMocked:  any,
   position?:{ x: number, y: number, z: number},
   rotation?:{ qX: number, qY: number, qZ: number, qW: number},
 }): {
@@ -29,10 +29,14 @@ export function createRemoteUserOnClient(options:{
   const message: WorldStateInterface = {
     clientsConnected: [],
     clientsDisconnected: [],
+    time: 0,
+    ikTransforms: [],
+    editObjects: [],
     createObjects: [
       {
         networkId,
         ownerId: Math.random().toString(),
+        uniqueId: "asd123",
         prefabType: PrefabType.Player,
         ...position,
         ...rotation
@@ -40,7 +44,6 @@ export function createRemoteUserOnClient(options:{
     ],
     destroyObjects: [],
     inputs: [],
-    states: [],
     tick: Engine.tick,
     transforms: [
       {
@@ -49,11 +52,13 @@ export function createRemoteUserOnClient(options:{
         ...rotation,
         snapShotTime: 0
       }
-    ]
+    ],
+    gameState: {},
+    gameStateActions: []
   };
 
   // WorldStateInterface
-  Network.instance.incomingMessageQueue.add(WorldStateModel.toBuffer(message));
+  Network.instance.incomingMessageQueue.add(WorldStateModel.toBuffer(message, "Unreliable"));
   execute(1, 1 / Engine.physicsFrameRate, SystemUpdateType.Fixed);
 
   return {

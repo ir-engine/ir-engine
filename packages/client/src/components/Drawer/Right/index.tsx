@@ -46,7 +46,7 @@ import {
 } from '@xr3ngine/client-core/src/social/reducers/invite/service';
 import { selectLocationState } from '@xr3ngine/client-core/src/social/reducers/location/selector';
 import { getLocations } from '@xr3ngine/client-core/src/social/reducers/location/service';
-import { User } from '@xr3ngine/common/interfaces/User';
+import { User } from '@xr3ngine/common/src/interfaces/User';
 import classNames from 'classnames';
 import _ from 'lodash';
 import React, { useEffect, useState } from 'react';

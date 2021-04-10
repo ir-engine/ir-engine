@@ -1,6 +1,6 @@
 import { utils } from 'ethers';
 import { ActionProps } from '.';
-import { ActionType } from '../state';
+import { ActionType } from '../reducer';
 import listTokensFrom from '../utils/listTokensFrom';
 
 type Props = ActionProps<{

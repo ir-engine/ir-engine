@@ -9,7 +9,7 @@ import FaceIcon from '@material-ui/icons/Face';
 import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
 import { selectAppOnBoardingStep } from "@xr3ngine/client-core/src/common/reducers/app/selector";
-import styles from './style.module.scss';
+import styles from './MediaIconsBox.module.scss';
 import { MediaStreamSystem } from "@xr3ngine/engine/src/networking/systems/MediaStreamSystem";
 import {
     configureMediaTransports,

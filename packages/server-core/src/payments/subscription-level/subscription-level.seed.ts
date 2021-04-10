@@ -1,6 +1,6 @@
 import config from '../../appconfig';
 
-export const seed = {
+export const subscriptionLevelSeed = {
   disabled: !config.db.forceRefresh,
   delete: config.db.forceRefresh,
   path: 'subscription-level',
@@ -10,5 +10,3 @@ export const seed = {
     { level: 'paid' }
   ]
 };
-
-export default seed;

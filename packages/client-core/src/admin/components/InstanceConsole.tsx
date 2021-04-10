@@ -1,4 +1,4 @@
-import getConfig from 'next/config';
+import { Config } from '../../helper';
 import React, { useEffect, useState } from 'react';
 import Search from "./Search";
 import {
@@ -33,8 +33,6 @@ import { fetchAdminInstances, removeInstance } from '../reducers/admin/service';
 if (!global.setImmediate) {
     global.setImmediate = setTimeout as any;
 }
-
-const { publicRuntimeConfig } = getConfig();
 
 interface Props {
     router: Router;
@@ -194,7 +192,7 @@ function InstanceConsole(props: Props) {
             currentUsers: instance.currentUsers,
             locationId: instance.locationId,
             gsId: instance.gameserver_subdomain_provision?.gs_id,
-            serverAddress: instance.gameserver_subdomain_provision != null ? `https://${instance.gameserver_subdomain_provision.gs_number}.${publicRuntimeConfig.gameserverDomain}` : ''
+            serverAddress: instance.gameserver_subdomain_provision != null ? `https://${instance.gameserver_subdomain_provision.gs_number}.${Config.publicRuntimeConfig.gameserverDomain}` : ''
         };
     });
     const handleRequestSort = (event: React.MouseEvent<unknown>, property) => {

@@ -1,6 +1,6 @@
 import config from '../../appconfig';
 
-export const seed = {
+export const locationSettingsSeed = {
   disabled: !config.db.forceRefresh,
   delete: config.db.forceRefresh,
   randomize: false,
@@ -16,5 +16,3 @@ export const seed = {
       }
     ]
 };
-
-export default seed;

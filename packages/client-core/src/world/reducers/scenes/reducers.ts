@@ -1,16 +1,16 @@
-import { SCENES_FETCHED_ERROR, SCENES_FETCHED_SUCCESS, SET_CURRENT_SCENE } from '@xr3ngine/client-core/src/world/reducers/actions';
+import { SCENES_FETCHED_ERROR, SCENES_FETCHED_SUCCESS, SET_CURRENT_SCENE } from '../../reducers/actions';
 import Immutable from 'immutable';
 import {
   PublicScenesState, ScenesFetchedAction
 } from './actions';
 
-export const initialState: PublicScenesState = {
+export const initialSceneState: PublicScenesState = {
   scenes: [],
   currentScene: null,
   error: ''
 };
 
-const immutableState = Immutable.fromJS(initialState);
+const immutableState = Immutable.fromJS(initialSceneState);
 
 const sceneReducer = (state = immutableState, action: ScenesFetchedAction): any => {
   switch (action.type) {

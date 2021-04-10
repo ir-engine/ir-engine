@@ -13,11 +13,11 @@ import {
   REMOVED_FRIEND,
   FETCHING_FRIENDS
 } from '../actions';
-import { User } from '@xr3ngine/common/interfaces/User';
-import { UserRelationship } from '@xr3ngine/common/interfaces/UserRelationship';
+import { User } from '@xr3ngine/common/src/interfaces/User';
+import { UserRelationship } from '@xr3ngine/common/src/interfaces/UserRelationship';
 import _ from 'lodash';
 
-export const initialState = {
+export const initialFriendState = {
   friends: {
     friends: [],
     total: 0,
@@ -28,7 +28,7 @@ export const initialState = {
   updateNeeded: true
 };
 
-const immutableState = Immutable.fromJS(initialState);
+const immutableState = Immutable.fromJS(initialFriendState);
 
 const friendReducer = (state = immutableState, action: FriendAction): any => {
   let newValues, updateMap, updateMapFriends, updateMapFriendsChild, selfUser, otherUser, otherUserId;

@@ -1,7 +1,7 @@
 import { DEFAULT_AVATAR_ID } from "@xr3ngine/engine/src/common/constants/AvatarConstants";
 import config from '../../appconfig';
 
-export const seed = {
+export const userSeed = {
     count: 3,
     disabled: !config.db.forceRefresh,
     delete: config.db.forceRefresh,
@@ -20,5 +20,3 @@ export const seed = {
             }
         ]
 };
-
-export default seed;

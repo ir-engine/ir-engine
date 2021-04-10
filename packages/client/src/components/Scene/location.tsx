@@ -27,7 +27,7 @@ import {
 import { selectPartyState } from '@xr3ngine/client-core/src/social/reducers/party/selector';
 import MediaIconsBox from "@xr3ngine/client-networking/src/components/MediaIconsBox";
 import { SocketWebRTCClientTransport } from '@xr3ngine/client-networking/src/transports/SocketWebRTCClientTransport';
-import { testScenes, testUserId, testWorldState } from '@xr3ngine/common/assets/testScenes';
+import { testScenes, testUserId, testWorldState } from '@xr3ngine/common/src/assets/testScenes';
 import { isMobileOrTablet } from '@xr3ngine/engine/src/common/functions/isMobile';
 import { EngineEvents } from '@xr3ngine/engine/src/ecs/classes/EngineEvents';
 import { resetEngine } from "@xr3ngine/engine/src/ecs/functions/EngineFunctions";
