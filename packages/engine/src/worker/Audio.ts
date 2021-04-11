@@ -1,6 +1,11 @@
+  /**
+   * Proxies for offscreen threejs audio
+   * 
+   * @author Josh Field <github.com/hexafield>
+   */
+
 import { Event as DispatchEvent } from 'three'
 import { Object3DProxy, AudioDocumentElementProxy, MessageType, Message, MainProxy } from './MessageQueue'
-
 class AudioGainProxy {
 
   gain: any;
