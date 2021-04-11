@@ -63,18 +63,21 @@ export function connectToInstanceServer(channelType: string, channelId?: string)
         await endVideoChat({ endConsumers: true });
         await leave(true);
       }
-
-      await Network.instance.transport.initialize(instance.get('ipAddress'), instance.get('port'), channelType === 'instance', {
-        locationId: locationId,
-        token: token,
-        user: user,
-        sceneId: sceneId,
-        startVideo: videoActive,
-        channelType: channelType,
-        channelId: channelId,
-        videoEnabled: currentLocation?.locationSettings?.videoEnabled === true || !(currentLocation?.locationSettings?.locationType === 'showroom' && user.locationAdmins?.find(locationAdmin => locationAdmin.locationId === currentLocation.id) == null)
-      });
-
+      try{
+        await Network.instance.transport.initialize(instance.get('ipAddress'), instance.get('port'), channelType === 'instance', {
+          locationId: locationId,
+          token: token,
+          user: user,
+          sceneId: sceneId,
+          startVideo: videoActive,
+          channelType: channelType,
+          channelId: channelId,
+          videoEnabled: currentLocation?.locationSettings?.videoEnabled === true || !(currentLocation?.locationSettings?.locationType === 'showroom' && user.locationAdmins?.find(locationAdmin => locationAdmin.locationId === currentLocation.id) == null)
+        });
+      } catch (error){
+        console.error("Network transport could not initialize, transport is: ", Network.instance.transport);
+      }
+      
       EngineEvents.instance.addEventListener(MediaStreamSystem.EVENTS.TRIGGER_UPDATE_CONSUMERS, triggerUpdateConsumers);
 
       dispatch(instanceServerConnected());

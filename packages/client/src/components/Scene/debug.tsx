@@ -9,13 +9,13 @@ import {
 } from '@xr3ngine/client-core/src/social/reducers/location/service';
 import { setCurrentScene } from '@xr3ngine/client-core/src/world/reducers/scenes/actions';
 import { selectUserState } from '@xr3ngine/client-core/src/user/reducers/user/selector';
-import { selectInstanceConnectionState } from '@xr3ngine/client-networking/src/reducers/instanceConnection/selector';
+import { selectInstanceConnectionState } from '../../reducers/instanceConnection/selector';
 import {
   connectToInstanceServer,
   provisionInstanceServer
-} from '@xr3ngine/client-networking/src/reducers/instanceConnection/service';
+} from '../../reducers/instanceConnection/service';
 import { selectPartyState } from '@xr3ngine/client-core/src/social/reducers/party/selector';
-import { SocketWebRTCClientTransport } from '@xr3ngine/client-networking/src/transports/SocketWebRTCClientTransport';
+import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport';
 import { EngineEvents } from '@xr3ngine/engine/src/ecs/classes/EngineEvents';
 import { DefaultInitializationOptions, initializeEngine } from '@xr3ngine/engine/src/initialize';
 import { Network } from '@xr3ngine/engine/src/networking/classes/Network';
