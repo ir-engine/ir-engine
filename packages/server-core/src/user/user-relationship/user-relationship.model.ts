@@ -19,7 +19,7 @@ export default (app: Application): any => {
     indexes: [
       {
         unique: true,
-        fields: ['userId', 'relatedUserId']
+        fields: ['id']
       }
     ]
   });
