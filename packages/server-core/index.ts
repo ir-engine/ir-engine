@@ -19,7 +19,6 @@ export * from './src/entities/entity/entity.class';
 export * from './src/entities/entity/entity.seed';
 export * from './src/entities/license/license.class';
 export * from './src/entities/seeder-config';
-export * from './src/graphql/graphql.class';
 export * from './src/hooks/notifications';
 export * from './src/hooks/validatePresignedRequest';
 export * from './src/media/public-video/public-video.class';
@@ -155,9 +154,6 @@ export { default as srcEntitiesLicenseLicenseHooks } from './src/entities/licens
 export { default as srcEntitiesLicenseLicenseModel } from './src/entities/license/license.model';
 export { default as srcEntitiesLicenseLicenseService } from './src/entities/license/license.service';
 export { default as srcEntitiesServices } from './src/entities/services';
-export { default as srcGraphqlGraphqlHooks } from './src/graphql/graphql.hooks';
-export { default as srcGraphqlGraphqlService } from './src/graphql/graphql.service';
-export { default as srcGraphqlServices } from './src/graphql/services';
 export { default as srcHooksAddAssociations } from './src/hooks/add-associations';
 export { default as srcHooksAddAttribution } from './src/hooks/add-attribution';
 export { default as srcHooksAddThumbnailFileId } from './src/hooks/add-thumbnail-file-id';
@@ -192,7 +188,6 @@ export { default as srcHooksRemoveRelatedResources } from './src/hooks/remove-re
 export { default as srcHooksReplaceThumbnailLink } from './src/hooks/replace-thumbnail-link';
 export { default as srcHooksRestrictUserRole } from './src/hooks/restrict-user-role';
 export { default as srcHooksSendInvite } from './src/hooks/send-invite';
-export { default as srcHooksServices } from './src/hooks/services';
 export { default as srcHooksSetLoggedinUserInBody } from './src/hooks/set-loggedin-user-in-body';
 export { default as srcHooksSetLoggedinUserInQuery } from './src/hooks/set-loggedin-user-in-query';
 export { default as srcHooksSetProjectIdInQuery } from './src/hooks/set-project-id-in-query';
