@@ -6,20 +6,23 @@
     "declaration": true,
     "noImplicitAny": false,
     "target": "ESNext",
-    "outFile": "dist/index.js",
     "moduleResolution": "node",
     "sourceMap": true,
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "resolveJsonModule": true,
-    "allowJs": true,
+    "allowJs": false,
     "noImplicitThis": false,
-    "skipLibCheck": false,
-    "noEmit": true,
+    "skipLibCheck": true,
+    "outDir": "dist",
+    "rootDir": "src",
     "types": ["node", "jest", "vite/client"],
+    "typeRoots": [
+      "node_modules/@types",
+    ],
     "jsx": "react"
   },
 
-  "include": ["src/**/*.ts", "src/**/*.tsx"],
-  "exclude": ["node_modules", "dist", "tsconfig.json", "tests/"]
+  "include": ["./src/**/*.ts", "./src/**/*.tsx"],
+  "exclude": ["**/*.d.ts", "node_modules", "dist", "tsconfig.json", "tests/", "../../node_modules"]
 }
