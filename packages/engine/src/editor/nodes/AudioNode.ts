@@ -92,10 +92,10 @@ export default class AudioNode extends EditorNodeMixin(AudioSource) {
       (this.el as any).pause();
     }
     try {
-      const { accessibleUrl, contentType } = await this.editor.api.resolveMedia(
+      const { url, contentType } = await this.editor.api.resolveMedia(
         src
       );
-      await super.load(accessibleUrl, contentType);
+      await super.load(url, contentType);
       if (this.editor.playing && this.autoPlay) {
         (this.el as any).play();
       }
