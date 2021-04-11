@@ -149,7 +149,7 @@
     "config": "3.3.6",
     "create-ts-index": "1.13.6",
     "cross-env": "7.0.3",
-    "css-loader": "1.0.1",
+    "css-loader": "5.2.1",
     "css-modules-typescript-loader": "2.0.4",
     "dotenv-webpack": "7.0.2",
     "eslint": "7.24.0",
