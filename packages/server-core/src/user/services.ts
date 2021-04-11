@@ -14,6 +14,7 @@ import UserSettings from './user-settings/user-settings.service';
 export default [
   UserRole,
   UserSettings,
+  User,
   UserRelationshipType,
   UserRelationship,
   IdentityProvider,
@@ -22,7 +23,6 @@ export default [
   Login,
   LoginToken,
   MagicLink,
-  User,
   Email,
   SMS
 ];

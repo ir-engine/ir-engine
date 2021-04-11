@@ -32,15 +32,15 @@ export default (app: Application): any => {
     },
     indexes: [
       {
-        fields: ['userId']
+        fields: ['id']
       },
       {
         unique: true,
-        fields: ['userId', 'token']
+        fields: ['id', 'token']
       },
       {
         unique: true,
-        fields: ['userId', 'type']
+        fields: ['id', 'type']
       }
     ]
   });
