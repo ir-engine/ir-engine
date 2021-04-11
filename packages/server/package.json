@@ -124,7 +124,7 @@
     "feathers-swagger": "1.2.1",
     "feathers-sync": "2.3.0",
     "fork-ts-checker-webpack-plugin": "5.2.1",
-    "fs-blob-store": "5.2.1",
+    "fs-blob-store": "6.0.0",
     "graphql": "15.5.0",
     "graphql-relay": "0.6.0",
     "graphql-sequelize": "9.4.3",
