@@ -99,7 +99,7 @@ export function applyNetworkStateToClient(worldStateBuffer: WorldStateInterface,
         }
     }
 
-    if(worldStateBuffer.gameStateActions.length > 0){
+    if(worldStateBuffer.gameStateActions && worldStateBuffer.gameStateActions.length > 0){
       // We have a new world state
       Network.instance.worldState = JSON.parse(worldStateBuffer.gameState);
       worldStateBuffer.gameStateActions.forEach(({type, payload}: GameStateActionMessage) => {
