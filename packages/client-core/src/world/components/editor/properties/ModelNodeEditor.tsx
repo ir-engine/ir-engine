@@ -63,10 +63,6 @@ export class ModelNodeEditor extends Component<
   ModelNodeEditorProps,
   ModelNodeEditorState
 > {
-
-  //initializing description and will appears on the editor view
-  static description = i18n.t('editor:properties.model.description');
-
   //initializing props and state
   constructor(props) {
     super(props);
@@ -85,6 +81,9 @@ export class ModelNodeEditor extends Component<
     });
     this.setState({ options });
   }
+
+  //initializing description and will appears on the editor view
+  static description = i18n.t('editor:properties.model.description');
 
   //initializing iconComponent with image name
   static iconComponent = Cube;
@@ -197,7 +196,7 @@ export class ModelNodeEditor extends Component<
     const target = targetOption ? targetOption.value : null;
     const targetNotFound = node.target && target === null;
 
-    let selectValues = []
+    let selectValues = [];
     if(node.target){
     // Get current game mode -- check target game mode
     console.log("Target is", node.target);
@@ -215,7 +214,7 @@ export class ModelNodeEditor extends Component<
     
     console.log("gameObjectRoles are", gameObjectRoles);
 
-    selectValues = gameObjectRoles.map((role, index) => { return { label: role, value: index } });
+    selectValues = gameObjectRoles.map((role, index) => { return { label: role, value: index }; });
 
     console.log("SelectValues are", selectValues);
     }  
