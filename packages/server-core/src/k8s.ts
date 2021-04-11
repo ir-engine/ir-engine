@@ -25,7 +25,7 @@
 
 
 const spawn = require('child_process').spawn
-const _ = require('underscore')
+const _ = require('lodash')
 const request = require('request')
 const Rx = require('rx')
 const fs = require('fs')
