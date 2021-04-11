@@ -1,5 +1,6 @@
 import { GameStateAction } from "./GameStateAction";
 export interface GameMode {
+  name: string,
   actions: {
     [key: string]: GameStateAction;
   },

@@ -56,6 +56,8 @@ export class Engine {
 
   public static xrSupported = false;
 
+  public static offlineMode = false;
+
   //public static stats: Stats
   // Move for sure
   // public static sky: Sky;

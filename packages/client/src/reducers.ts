@@ -4,7 +4,7 @@ import socialReducer from '@xr3ngine/client-core/src/social/reducers';
 import socialmediaReducer from '@xr3ngine/client-core/src/socialmedia/reducers';
 import userReducer from '@xr3ngine/client-core/src/user/reducers';
 import worldReducer from '@xr3ngine/client-core/src/world/reducers';
-import networkingReducer from '@xr3ngine/client-networking/src/reducers/reducers';
+import networkingReducer from './reducers/reducers';
 
 import { combineReducers } from 'redux-immutable';
 

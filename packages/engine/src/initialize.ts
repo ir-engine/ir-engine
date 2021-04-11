@@ -62,16 +62,16 @@ export const DefaultInitializationOptions = {
   editor: false // this will be changed, just a hack for now
 };
 
-export const initializeEngine = async (options: any = DefaultInitializationOptions): Promise<void> => {
+export const initializeEngine = async (options): Promise<void> => {
   // const options = _.defaultsDeep({}, initOptions, DefaultInitializationOptions);
   const canvas = options.renderer && options.renderer.canvas ? options.renderer.canvas : null;
 
-  Engine.gameModes = options.gameModes || [];
+  Engine.gameModes = options.gameModes;
 
   const { postProcessing } = options;
-  let { useOfflineMode } = options;
+  const { useOfflineMode } = options;
 
-  useOfflineMode = useOfflineMode && options.networking;
+  Engine.offlineMode = useOfflineMode;
 
   Engine.xrSupported = await (navigator as any).xr?.isSessionSupported('immersive-vr')
   // offscreen is buggy still, disable it for now and opt in with url query
@@ -99,17 +99,21 @@ export const initializeEngine = async (options: any = DefaultInitializationOptio
   }
   addOutgoingEvents()
 
-  initialize();
   Engine.publicPath = location.origin;
 
-  if (options.networking && options.networking.schema) {
+  if (options.networking && !useOfflineMode) {
     const networkSystemOptions = { schema: options.networking.schema, app: options.networking.app };
+    console.log("Network system options are", networkSystemOptions);
+    console.log("Network system schema is", networkSystemOptions.schema);
+    Network.instance = new Network();
+
     Network.instance.schema = networkSystemOptions.schema;
-    if (!useOfflineMode) {
       registerSystem(ClientNetworkSystem, { ...networkSystemOptions, priority: -1 });
       registerSystem(MediaStreamSystem);
-    }
   }
+
+  initialize();
+
   if (options.input) {
     registerSystem(ClientInputSystem, { useWebXR: Engine.xrSupported });
   }
@@ -178,6 +182,7 @@ export const initializeServer = async (initOptions: any = DefaultInitializationO
   EngineEvents.instance = new EngineEvents();
   Engine.scene = new Scene();
   Engine.publicPath = options.publicPath;
+  Network.instance = new Network();
 
   addIncomingEvents()
   addOutgoingEvents()
