@@ -69,7 +69,7 @@ export const initializeEngine = async (options): Promise<void> => {
   Engine.gameModes = options.gameModes;
 
   const { postProcessing } = options;
-  let { useOfflineMode } = options;
+  const { useOfflineMode } = options;
 
   Engine.offlineMode = useOfflineMode;
 
