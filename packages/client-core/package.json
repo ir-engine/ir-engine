@@ -101,7 +101,7 @@
     "react-virtualized-auto-sizer": "1.0.5",
     "react-window": "1.8.6",
     "recast-wasm": "0.1.1",
-    "recharts": "1.8.5",
+    "recharts": "2.0.9",
     "recoil": "0.2.0",
     "redux": "4.0.5",
     "redux-devtools-extension": "2.13.9",
