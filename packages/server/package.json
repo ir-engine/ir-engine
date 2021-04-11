@@ -78,7 +78,7 @@
     "graphql-relay": "~0.6.0",
     "graphql-sequelize": "~9.4.0",
     "regenerator-runtime": "^0.13.7",
-    "sequelize": "~5.21.8 || ~5.22.0",
+    "sequelize": "~5.21.8 || ~5.22.0 || ~6.6.0",
     "socket.io": "2.4.1"
   },
   "dependencies": {
@@ -147,7 +147,7 @@
     "regenerator-runtime": "0.13.7",
     "require-main-filename": "2.0.0",
     "s3-blob-store": "4.1.1",
-    "sequelize": "5.22.4",
+    "sequelize": "6.6.2",
     "serve-favicon": "2.5.0",
     "slugify": "1.5.0",
     "text-encoding": "0.7.0",
