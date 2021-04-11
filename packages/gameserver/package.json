@@ -95,7 +95,7 @@
     "@xr3ngine/server-core": "^0.2.14",
     "aws-sdk": "2.884.0",
     "bent": "7.3.12",
-    "cannon-es-debugger": "0.0.4",
+    "cannon-es-debugger": "0.1.2",
     "chargebee": "2.6.5",
     "clean-webpack-plugin": "3.0.0",
     "comlink": "4.3.0",
