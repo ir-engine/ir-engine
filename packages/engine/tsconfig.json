@@ -2,18 +2,22 @@
   "compilerOptions": {
     "experimentalDecorators": true,
     "module": "esnext",
+    "lib": ["DOM", "DOM.Iterable", "ESNext"],
     "declaration": true,
     "noImplicitAny": false,
-    "target": "es2015",
+    "target": "ESNext",
+    "outFile": "dist/index.js",
     "moduleResolution": "node",
     "sourceMap": true,
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "resolveJsonModule": true,
     "allowJs": true,
-    "noImplicitThis": true,
-    "skipLibCheck": true,
-    "types": ["node", "jest"]
+    "noImplicitThis": false,
+    "skipLibCheck": false,
+    "noEmit": true,
+    "types": ["node", "jest", "vite/client"],
+    "jsx": "react"
   },
 
   "include": ["src/**/*.ts", "src/**/*.tsx"],
