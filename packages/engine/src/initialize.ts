@@ -66,7 +66,7 @@ export const initializeEngine = async (options: any = DefaultInitializationOptio
   // const options = _.defaultsDeep({}, initOptions, DefaultInitializationOptions);
   const canvas = options.renderer && options.renderer.canvas ? options.renderer.canvas : null;
 
-  Engine.gameModes = options.gameModes || [];
+  Engine.gameModes = options.gameModes;
 
   const { postProcessing } = options;
   let { useOfflineMode } = options;

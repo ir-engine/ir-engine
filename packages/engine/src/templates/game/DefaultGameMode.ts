@@ -76,6 +76,7 @@ export const playerScoreActionServer: GameStateAction = (data: any): void => {
 }
 
 export const DefaultGameMode: GameMode = {
+  name: "Default",
   actions: {
     [DefaultGameStateAction.onGameStarted]: gameStartAction,
     [DefaultGameStateAction.onGameEnded]: gameEndAction,
