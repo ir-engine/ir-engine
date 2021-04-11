@@ -3,7 +3,7 @@ import { InteractableModal } from '@xr3ngine/client-core/src/world/components/In
 import LoadingScreen from '@xr3ngine/client-core/src/common/components/Loader';
 import { MobileGamepadProps } from "@xr3ngine/client-core/src/common/components/MobileGamepad/MobileGamepadProps";
 import NamePlate from '@xr3ngine/client-core/src/world/components/NamePlate';
-import NetworkDebug from '../../components/NetworkDebug';
+import NetworkDebug from '../NetworkDebug';
 import { OpenLink } from '@xr3ngine/client-core/src/world/components/OpenLink';
 import TooltipContainer from '@xr3ngine/client-core/src/common/components/TooltipContainer';
 import UserMenu from '@xr3ngine/client-core/src/user/components/UserMenu';
@@ -25,7 +25,7 @@ import {
   provisionInstanceServer
 } from '../../reducers/instanceConnection/service';
 import { selectPartyState } from '@xr3ngine/client-core/src/social/reducers/party/selector';
-import MediaIconsBox from "../../components/MediaIconsBox";
+import MediaIconsBox from "../MediaIconsBox";
 import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport';
 import { testScenes, testUserId, testWorldState } from '@xr3ngine/common/src/assets/testScenes';
 import { isMobileOrTablet } from '@xr3ngine/engine/src/common/functions/isMobile';
@@ -53,7 +53,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 import url from 'url';
 import { CharacterInputSchema } from '@xr3ngine/engine/src/templates/character/CharacterInputSchema';
-import { DefaultGameMode } from '@xr3ngine/engine/src/templates/game/DefaultGameMode';
+import { GolfGameMode } from '@xr3ngine/engine/src/templates/game/GolfGameMode';
 const { publicRuntimeConfig } = getConfig();
 
 const goHome = () => window.location.href = window.location.origin;
@@ -241,15 +241,12 @@ export const EnginePage = (props: Props) => {
     const canvas = document.getElementById(engineRendererCanvasId) as HTMLCanvasElement;
     styleCanvas(canvas);
 
-
-
-    
     const InitializationOptions = {
       input: {
         schema: CharacterInputSchema,
       },
       gameModes: [
-        DefaultGameMode
+        GolfGameMode
       ],
       publicPath: '',
       postProcessing: true,

@@ -1,6 +1,5 @@
 import { EmptyLayout } from '@xr3ngine/client-core/src/common/components/Layout/EmptyLayout';
 import { doLoginAuto } from '@xr3ngine/client-core/src/user/reducers/auth/service';
-import { selectInstanceConnectionState } from '@xr3ngine/client-networking/src/reducers/instanceConnection/selector';
 import React, {useEffect} from 'react';
 import { connect } from "react-redux";
 import { bindActionCreators, Dispatch } from "redux";
@@ -8,13 +7,11 @@ import ProfileMenu from "@xr3ngine/client-core/src/user/components/UserMenu/menu
 import { useTranslation } from 'react-i18next';
 
 interface Props {
-    instanceConnectionState?: any;
     doLoginAuto?: any;
 }
 
 const mapStateToProps = (state: any): any => {
     return {
-        instanceConnectionState: selectInstanceConnectionState(state)
     };
 };
 

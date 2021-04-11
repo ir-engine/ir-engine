@@ -1,4 +1,4 @@
-import { endVideoChat, leave } from "@xr3ngine/client-networking/src/transports/SocketWebRTCClientFunctions";
+import { endVideoChat, leave } from "../../transports/SocketWebRTCClientFunctions";
 import { Network } from "@xr3ngine/engine/src/networking/classes/Network";
 import { MediaStreamSystem } from "@xr3ngine/engine/src/networking/systems/MediaStreamSystem";
 import getConfig from 'next/config';

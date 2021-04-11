@@ -19,7 +19,7 @@ import { selectLocationState } from '@xr3ngine/client-core/src/social/reducers/l
 import { getAvatarURLFromNetwork } from '@xr3ngine/client-core/src/user/components/UserMenu/util';
 import { selectAuthState } from '@xr3ngine/client-core/src/user/reducers/auth/selector';
 import { selectUserState } from '@xr3ngine/client-core/src/user/reducers/user/selector';
-import { updateCamAudioState, updateCamVideoState } from '@xr3ngine/client-networking/src/reducers/mediastream/service';
+import { updateCamAudioState, updateCamVideoState } from '../../reducers/mediastream/service';
 import { PositionalAudioSystem } from "@xr3ngine/engine/src/audio/systems/PositionalAudioSystem";
 import { Network } from "@xr3ngine/engine/src/networking/classes/Network";
 import { MessageTypes } from "@xr3ngine/engine/src/networking/enums/MessageTypes";

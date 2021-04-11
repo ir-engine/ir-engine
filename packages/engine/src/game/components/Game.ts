@@ -3,7 +3,7 @@ import { Types } from "../../ecs/types/Types";
 import { GameObjectPrefab } from "../interfaces/GameObjectPrefab";
 import { GameMode } from "../types/GameMode";
 import { GameObject } from "./GameObject";
-import { Player } from "./Player";
+import { Player } from "../types/Player";
 
 export class Game extends Component<Game> {
     isGlobal: boolean

@@ -385,7 +385,7 @@ parseColliders( data, type, mass, position, quaternion, scale, mesh ) {
     };
 
     if(this.interactionType === "gameobject"){
-      this.components['game-object'] = {
+      components['game-object'] = {
         target: this.target,
         role: this.role
       }
