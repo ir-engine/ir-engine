@@ -141,11 +141,11 @@ export default class ModelNode extends EditorNodeMixin(Model) {
     try {
       console.log("Try");
       this.isValidURL=true;
-      const { accessibleUrl, files } = await this.editor.api.resolveMedia(src);
+      const { url, files } = await this.editor.api.resolveMedia(src);
       if (this.model) {
         this.editor.renderer.removeBatchedObject(this.model);
       }
-      await super.load(accessibleUrl);
+      await super.load(url);
 
       if (this.initialScale === "fit") {
         this.scale.set(1, 1, 1);
