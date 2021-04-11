@@ -17,7 +17,6 @@ module.exports = {
         entryPoints: [
                         '../client-core',
                      ],
-        exclude: '../client-core/components/ui/InteractableModal',
         tsconfig: '../client-core/tsconfig.json',
         exclude: [
             '**/node_modules/**'

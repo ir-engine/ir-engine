@@ -38,7 +38,8 @@ export interface NetworkClientList {
 /** Component Class for Network. */
 export class Network {
   /** Static instance to access everywhere. */
-  static instance: Network = new Network();
+  static instance: Network = null
+
   /** Indication of whether the network is initialized or not. */
   isInitialized: boolean
   /** Whether to apply compression on packet or not. */

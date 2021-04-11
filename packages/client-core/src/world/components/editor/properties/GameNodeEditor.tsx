@@ -1,10 +1,10 @@
 import { HandPaper } from "@styled-icons/fa-solid/HandPaper";
-import { Engine } from "@xr3ngine/engine/src/ecs/classes/Engine";
 import i18n from "i18next";
 import React from "react";
 import { withTranslation } from "react-i18next";
 import BooleanInput from "../inputs/BooleanInput";
 import InputGroup from "../inputs/InputGroup";
+import SelectInput from "../inputs/SelectInput";
 import StringInput from "../inputs/StringInput";
 import NodeEditor from "./NodeEditor";
 
@@ -41,6 +41,7 @@ export function GameNodeEditor(props: {
   // available to add in scene in assets.
   const description = i18n.t('editor:properties.game.description');
 
+  const selectValues = editor.Engine.gameModes.map((mode, index) => { return { label: mode.name, value: index }; });  
   return (
     <NodeEditor {...props} description={description}>
       { /* @ts-ignore */}
@@ -50,7 +51,7 @@ export function GameNodeEditor(props: {
               >
         { /* @ts-ignore */}
         <SelectInput
-          options={Object.keys(Engine.gameModes)}
+          options={selectValues}
           value={node.gameMode}
           onChange={onChangePayloadGameMode}
         />

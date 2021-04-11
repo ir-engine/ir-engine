@@ -127,7 +127,11 @@ SelectInput.defaultProps = {
   value: null,
   placeholder: "Select...",
   optionNotFoundPlaceholder: "Error",
-  onChange: () => {}
+  onChange: () => {},
+  styles: {},
+  error: false,
+  disabled: false,
+  creatable: false
 };
 
 SelectInput.propTypes = {

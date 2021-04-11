@@ -60,6 +60,8 @@ const initializeEngineOffscreen = async ({ canvas, userArgs }, proxy: MainProxy)
   // @ts-ignore
   Network.instance.transport = { isServer: false }
 
+  console.log("***** OFFSCREEN CALLED");
+
   registerSystem(PhysicsSystem);
   registerSystem(ActionSystem, { useWebXR: false });
   registerSystem(StateSystem);

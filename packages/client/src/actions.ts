@@ -4,4 +4,4 @@ export * from "@xr3ngine/client-core/src/social/reducers/actions";
 export * from "@xr3ngine/client-core/src/socialmedia/reducers/actions";
 export * from "@xr3ngine/client-core/src/user/reducers/actions";
 export * from "@xr3ngine/client-core/src/world/reducers/actions";
-export * from "@xr3ngine/client-networking/src/reducers/actions";
+export * from "./reducers/actions";
