@@ -127,9 +127,15 @@
     "cache-loader": "4.1.0",
     "config": "3.3.6",
     "cross-env": "7.0.3",
+<<<<<<< HEAD
     "css-loader": "5.2.1",
     "css-modules-typescript-loader": "2.0.4",
     "dotenv-webpack": "7.0.2",
+=======
+    "css-loader": "1.0.1",
+    "css-modules-typescript-loader": "4.0.1",
+    "dotenv-webpack": "3.0.0",
+>>>>>>> origin/renovate/css-modules-typescript-loader-4.x
     "eslint": "7.24.0",
     "eslint-plugin-react": "7.23.2",
     "gltf-webpack-loader": "https://github.com/MozillaReality/gltf-webpack-loader.git#fix/relative-and-output-paths",
