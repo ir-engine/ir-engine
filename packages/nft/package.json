@@ -168,7 +168,7 @@
     "next-images": "1.7.0",
     "next-optimized-images": "2.6.2",
     "next-plugin-node-config": "1.0.2",
-    "next-redux-wrapper": "6.0.2",
+    "next-redux-wrapper": "5.0.0",
     "prettier": "2.2.1",
     "thread-loader": "3.0.1",
     "ts-loader": "8.1.0",
