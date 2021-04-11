@@ -21,7 +21,7 @@ import {
 } from "../../transports/SocketWebRTCClientFunctions";
 import { selectAuthState } from "@xr3ngine/client-core/src/user/reducers/auth/selector";
 import { selectLocationState } from "@xr3ngine/client-core/src/social/reducers/location/selector";
-import { updateCamAudioState, updateCamVideoState, changeFaceTrackingState } from "@xr3ngine/client-networking/src/reducers/mediastream/service";
+import { updateCamAudioState, updateCamVideoState, changeFaceTrackingState } from "../../reducers/mediastream/service";
 import {
     startFaceTracking,
     startLipsyncTracking,
