@@ -100,7 +100,7 @@
     "@xr3ngine/engine": "^0.2.14",
     "aws-sdk": "^2.811.0",
     "bent": "^7.3.0",
-    "cannon-es-debugger": "^0.0.4",
+    "cannon-es-debugger": "^0.1.0",
     "chargebee": "^2.5.7",
     "clean-webpack-plugin": "^3.0.0",
     "comlink": "^4.3.0",
