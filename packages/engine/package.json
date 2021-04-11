@@ -23,7 +23,7 @@
   },
   "scripts": {
     "lint": "eslint --fix --quiet --ext .ts src/",
-    "build": "rimraf dist && ctix entrypoint ./src && cross-env NODE_ENV=production rollup -c",
+    "build-publish": "rimraf dist && ctix entrypoint ./src && cross-env NODE_ENV=production rollup -c",
     "test": "jest",
     "validate": "yarn run lint && yarn run test",
     "generate-doc": "node_modules/.bin/typedoc"
