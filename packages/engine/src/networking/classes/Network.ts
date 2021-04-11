@@ -40,21 +40,6 @@ export class Network {
   /** Static instance to access everywhere. */
   static instance: Network = null
 
-  constructor(){
-    console.log("Creating new Network instance!");
-
-    const globalWindow = global || window;
-
-    if(typeof globalWindow !== undefined){
-      if((globalWindow as any).NetworkInstance === undefined) {
-        ((globalWindow as any).NetworkInstance) = this;
-        Network.instance = this;
-      } else {
-        Network.instance = (globalWindow as any).NetworkInstance;
-      }
-    }
-  }
-
   /** Indication of whether the network is initialized or not. */
   isInitialized: boolean
   /** Whether to apply compression on packet or not. */
