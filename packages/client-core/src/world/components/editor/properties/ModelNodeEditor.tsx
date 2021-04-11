@@ -1,14 +1,14 @@
-import React, { Component } from "react";
-import NodeEditor from "./NodeEditor";
-import SelectInput from "../inputs/SelectInput";
-import InputGroup from "../inputs/InputGroup";
-import BooleanInput from "../inputs/BooleanInput";
-import ModelInput from "../inputs/ModelInput";
 import { Cube } from "@styled-icons/fa-solid/Cube";
-import StringInput from "../inputs/StringInput";
 import ModelNode from "@xr3ngine/engine/src/editor/nodes/ModelNode";
 import i18n from "i18next";
+import React, { Component } from "react";
 import { withTranslation } from "react-i18next";
+import BooleanInput from "../inputs/BooleanInput";
+import InputGroup from "../inputs/InputGroup";
+import ModelInput from "../inputs/ModelInput";
+import SelectInput from "../inputs/SelectInput";
+import StringInput from "../inputs/StringInput";
+import NodeEditor from "./NodeEditor";
 
 /**
  * Array containing options for InteractableOption.
@@ -42,7 +42,7 @@ const InteractableOption = [
  * @type {Object}
  */
 type ModelNodeEditorProps = {
-  editor?: object;
+  editor?: any;
   node?: object;
   multiEdit?: boolean;
   t: Function;
@@ -147,7 +147,7 @@ export class ModelNodeEditor extends Component<
   };
 
   // function to handle changes in payloadName property
-  onChangePayloadRole = role => {
+  onChangeRole = role => {
     (this.props.editor as any).setPropertySelected("role", role);
   };
 
@@ -191,20 +191,37 @@ export class ModelNodeEditor extends Component<
 
   // creating view for interactable type
   renderInteractableTypeOptions = (node) => {
+
+
     const targetOption = this.state.options.find(o => o.value === node.target);
     const target = targetOption ? targetOption.value : null;
     const targetNotFound = node.target && target === null;
+
+    let selectValues = []
+    if(node.target){
+    // Get current game mode -- check target game mode
+    console.log("Target is", node.target);
+
+    console.log("Editor nodes are", this.props.editor.nodes);
+
+    const nodeTarget = this.props.editor.nodes.find(node => node.uuid === target);
+    
+    if(nodeTarget){
+    console.log("nodeTarget", nodeTarget);
+
+    const gameMode = nodeTarget.gameMode;
+
+    const gameObjectRoles = this.props.editor.Engine.gameModes[gameMode].gameObjectRoles;
+    
+    console.log("gameObjectRoles are", gameObjectRoles);
+
+    selectValues = gameObjectRoles.map((role, index) => { return { label: role, value: index } });
+
+    console.log("SelectValues are", selectValues);
+    }  
+  }
     switch (node.interactionType) {
       case 'gameobject': return <>
-        { /* @ts-ignore */}
-        <InputGroup name="Role" label={this.props.t('editor:properties.model.lbl-role')}>
-          <StringInput
-            /* @ts-ignore */
-            value={node.payloadRole}
-            onChange={this.onChangePayloadRole}
-          />
-        </InputGroup>
-
         { /* @ts-ignore */}
         <InputGroup
           name="Game Target"
@@ -222,8 +239,20 @@ export class ModelNodeEditor extends Component<
             disabled={this.props.multiEdit}
           />
         </InputGroup>
-
-
+        { node.target &&
+          /* @ts-ignore */
+          <InputGroup
+            name="Role"
+            label={i18n.t('editor:properties.model.lbl-role')}
+          >
+            { /* @ts-ignore */}
+            <SelectInput
+              options={selectValues}
+              value={node.role}
+              onChange={this.onChangeRole}
+            />
+          </InputGroup>
+        }
 
       </>;
       case 'infoBox': return <>
