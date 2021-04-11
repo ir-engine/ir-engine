@@ -121,7 +121,6 @@
     "helmet": "4.4.1",
     "http-server": "^0.12.3",
     "internal-ip": "^6.1.0",
-    "k8s": "^0.4.15",
     "lodash": "^4.17.15",
     "mime-types": "^2.1.27",
     "moment": "^2.27.0",
