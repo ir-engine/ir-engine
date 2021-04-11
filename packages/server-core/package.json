@@ -124,7 +124,7 @@
     "graphql": "^15.0.0",
     "graphql-relay": "^0.6.0",
     "graphql-sequelize": "^9.4.0",
-    "graphql-sequelize-generator": "^5.5.0",
+    "graphql-sequelize-generator": "^7.0.0",
     "graphql-subscriptions": "^1.1.0",
     "helmet": "4.4.1",
     "http-server": "^0.12.3",
