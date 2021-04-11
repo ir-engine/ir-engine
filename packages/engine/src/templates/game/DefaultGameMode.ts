@@ -1,6 +1,5 @@
 import { GameMode } from "../../game/types/GameMode";
 import { GameStateAction } from "../../game/types/GameStateAction";
-import { DefaultGameObjectRoles } from "./DefaultGameObjectRoles";
 import { DefaultGameStateAction } from "./DefaultGameStateAction";
 
 export const gameStartAction: GameStateAction = (data: any): void => {
@@ -102,5 +101,9 @@ export const DefaultGameMode: GameMode = {
     DefaultGameStateAction.onGameStarted,
     DefaultGameStateAction.onGameEnded
   ],
-  gameObjectRoles: DefaultGameObjectRoles
+  gameObjectRoles: [
+    "goal",
+    "ballStart",
+    "ball"
+  ]
 };
