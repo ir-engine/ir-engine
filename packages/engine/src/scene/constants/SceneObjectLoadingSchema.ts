@@ -60,6 +60,17 @@ export function addTagComponentFromBehavior<C>(
 }
 
 export const SceneObjectLoadingSchema: LoadingSchema = {
+  'game-object': {
+    behaviors: [{
+      behavior: addComponentFromBehavior,
+      values: [
+        { from: 'target', to: 'target' },
+        { from: 'role', to: 'role' }
+      ]
+    },
+    { behavior: (entity, args: {}) => { console.log("***** LOADED GAMEOBJECT ON", entity) } }
+    ]
+  },
   'game': {
     behaviors: [
       {
@@ -70,7 +81,8 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
           { from: 'maxPlayers', to: 'maxPlayers' },
           { from: 'gameMode', to: 'gameMode' }
         ]
-      }
+      },
+      { behavior: (entity, args: {}) => { console.log("***** LOADED GAME ON", entity) } }
     ]
   },
   'ambient-light': {

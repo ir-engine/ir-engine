@@ -1,4 +1,4 @@
-import { INSTANCE_SERVER_PROVISIONING, INSTANCE_SERVER_PROVISIONED, INSTANCE_SERVER_CONNECTING, INSTANCE_SERVER_CONNECTED, INSTANCE_SERVER_DISCONNECTED } from '@xr3ngine/client-networking/src/reducers/actions';
+import { INSTANCE_SERVER_PROVISIONING, INSTANCE_SERVER_PROVISIONED, INSTANCE_SERVER_CONNECTING, INSTANCE_SERVER_CONNECTED, INSTANCE_SERVER_DISCONNECTED } from '../../reducers/actions';
 import { InstanceServerProvisionResult } from '@xr3ngine/common/src/interfaces/InstanceServerProvisionResult';
 import { SocketCreatedAction } from '../common/SocketCreatedAction';
 

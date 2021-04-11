@@ -62,13 +62,13 @@ import { selectAuthState } from '@xr3ngine/client-core/src/user/reducers/auth/se
 import { doLoginAuto } from '@xr3ngine/client-core/src/user/reducers/auth/service';
 import { selectUserState } from '@xr3ngine/client-core/src/user/reducers/user/selector';
 import { getLayerUsers } from "@xr3ngine/client-core/src/user/reducers/user/service";
-import PartyParticipantWindow from '@xr3ngine/client-networking/src/components/PartyParticipantWindow';
-import { selectChannelConnectionState } from '@xr3ngine/client-networking/src/reducers/channelConnection/selector';
+import PartyParticipantWindow from '../../components/PartyParticipantWindow';
+import { selectChannelConnectionState } from '../../reducers/channelConnection/selector';
 import {
     connectToChannelServer,
     provisionChannelServer,
     resetChannelServer
-} from '@xr3ngine/client-networking/src/reducers/channelConnection/service';
+} from '../../reducers/channelConnection/service';
 import { Group as GroupType } from "@xr3ngine/common/src/interfaces/Group";
 import { Message } from '@xr3ngine/common/src/interfaces/Message';
 import { User } from '@xr3ngine/common/src/interfaces/User';
@@ -84,10 +84,10 @@ import moment from 'moment';
 import React, { useEffect, useRef, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
-import { selectMediastreamState } from '@xr3ngine/client-networking/src/reducers/mediastream/selector';
-import { updateCamAudioState, updateCamVideoState } from '@xr3ngine/client-networking/src/reducers/mediastream/service';
-import { selectTransportState } from '@xr3ngine/client-networking/src/reducers/transport/selector';
-import { changeChannelTypeState, updateChannelTypeState } from '@xr3ngine/client-networking/src/reducers/transport/service';
+import { selectMediastreamState } from '../../reducers/mediastream/selector';
+import { updateCamAudioState, updateCamVideoState } from '../../reducers/mediastream/service';
+import { selectTransportState } from '../../reducers/transport/selector';
+import { changeChannelTypeState, updateChannelTypeState } from '../../reducers/transport/service';
 import {
     configureMediaTransports,
     createCamAudioProducer,
@@ -96,8 +96,8 @@ import {
     leave,
     pauseProducer,
     resumeProducer
-} from '@xr3ngine/client-networking/src/transports/SocketWebRTCClientFunctions';
-import { SocketWebRTCClientTransport } from '@xr3ngine/client-networking/src/transports/SocketWebRTCClientTransport';
+} from '../../transports/SocketWebRTCClientFunctions';
+import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport';
 import styles from './style.module.scss';
 const engineRendererCanvasId = 'engine-renderer-canvas';
 

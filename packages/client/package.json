@@ -60,7 +60,6 @@
       "@types/styled-components": "5.1.9",
       "@xr3ngine/client-core": "^0.2.14",
       "@xr3ngine/client-ml": "^0.2.14",
-      "@xr3ngine/client-networking": "^0.2.14",
       "@xr3ngine/common": "^0.2.14",
       "@xr3ngine/engine": "^0.2.14",
       "@xr3ngine/native-plugin-xr": "^0.2.14",
