@@ -1,5 +1,6 @@
 import { LoadGLTF } from "@xr3ngine/engine/src/assets/functions/LoadGLTF";
 import { GLTFExporter } from "@xr3ngine/engine/src/assets/loaders/gltf/GLTFExporter";
+import { Engine } from "@xr3ngine/engine/src/ecs/classes/Engine";
 import GLTFCache from "@xr3ngine/engine/src/editor/caches/GLTFCache";
 import TextureCache from "@xr3ngine/engine/src/editor/caches/TextureCache";
 import EditorInfiniteGridHelper from "@xr3ngine/engine/src/editor/classes/EditorInfiniteGridHelper";
@@ -142,10 +143,12 @@ export default class Editor extends EventEmitter {
   rafId: number;
   thumbnailRenderer: ThumbnailRenderer;
   playing: boolean;
+  Engine: Engine
 
   // initializing component properties with default value.
   constructor(api, settings = {}, Engine) {
     super();
+    this.Engine = Engine;
     this.camera = Engine.camera;
     this.api = api;
     this.settings = settings;
