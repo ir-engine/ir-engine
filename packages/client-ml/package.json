@@ -57,7 +57,7 @@
     "antd": "4.15.1",
     "app-root-path": "3.0.0",
     "autobind-decorator": "2.4.0",
-    "autoprefixer": "9.8.6",
+    "autoprefixer": "10.2.5",
     "axios": "0.21.1",
     "child_process": "1.0.2",
     "classnames": "2.3.1",
