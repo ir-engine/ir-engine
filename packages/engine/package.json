@@ -41,7 +41,7 @@
     "@types/jest": "^26.0.22",
     "browserfs": "^1.4.3",
     "cannon-es": "^0.17.0",
-    "cannon-es-debugger": "^0.0.3",
+    "cannon-es-debugger": "^0.1.0",
     "canvas": "^2.7.0",
     "cross-blob": "^2.0.0",
     "cross-fetch": "^3.0.6",
