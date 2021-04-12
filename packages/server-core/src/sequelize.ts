@@ -26,6 +26,12 @@ export default (app: Application): void => {
           .query('SET FOREIGN_KEY_CHECKS = 0')
           .then(() => {
             // Sync to the database
+            for (let model of Object.keys(sequelize.models)) {
+              console.log('creating associations for =>', sequelize.models[model]);
+              if (typeof ((sequelize.models[model] as any).associate) === 'function') {
+                (sequelize.models[model] as any).associate(sequelize.models);
+              }
+            }
               return sequelize
                   .sync({force: forceRefresh})
                   .then(() => {

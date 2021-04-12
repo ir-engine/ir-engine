@@ -36,11 +36,11 @@ export default (app: Application): any => {
       },
       {
         unique: true,
-        fields: ['id', 'token']
+        fields: ['userId', 'token']
       },
       {
         unique: true,
-        fields: ['id', 'type']
+        fields: ['userId', 'type']
       }
     ]
   });
