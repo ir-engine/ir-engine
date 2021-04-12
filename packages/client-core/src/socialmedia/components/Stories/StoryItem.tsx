@@ -5,7 +5,7 @@ import { Avatar } from "@material-ui/core";
 import styles from './Stories.module.scss';
 
 export const StoryItem =({data}: any) => {
-  const size = 56
+  const size = 56;
   return (
     <div
       className={styles.storyItem}
