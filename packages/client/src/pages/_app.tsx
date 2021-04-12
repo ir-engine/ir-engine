@@ -4,15 +4,13 @@ import { ApiContext } from '@xr3ngine/client-core/src/world/components/editor/co
 import GlobalStyle from '@xr3ngine/client-core/src/world/components/editor/GlobalStyle';
 import theme from "@xr3ngine/client-core/src/world/components/editor/theme";
 import DeviceDetector from 'device-detector-js';
-import { fromJS } from 'immutable';
-import withRedux from 'next-redux-wrapper';
+import { createWrapper } from 'next-redux-wrapper';
 import { AppProps } from 'next/app';
 import getConfig from 'next/config';
 import Head from 'next/head';
 import querystring from 'querystring';
 import React, { Fragment, useCallback, useEffect, useState } from 'react';
-import { connect, Provider } from 'react-redux';
-import { Dispatch, Store } from 'redux';
+import { useDispatch } from 'react-redux';
 import { ThemeProvider } from "styled-components";
 import url from 'url';
 import './styles.scss';
@@ -26,19 +24,11 @@ const config = getConfig().publicRuntimeConfig;
 
 // Initialize i18n and client-core
 initialize();
-interface Props extends AppProps {
-  store: Store;
-}
-
-const mapStateToProps = (state: any): any => {
-  return {};
-};
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-});
+interface Props extends AppProps {}
 
 const MyApp = (props: Props): any => {
-  const { Component, pageProps, store } = props;
+  const { Component, pageProps } = props;
+  const dispatch = useDispatch();
 
   const [api, setApi] = useState<Api>();
   // State that is used to render the page component if this one is mounted on client side.
@@ -54,7 +44,7 @@ const MyApp = (props: Props): any => {
     } else {
       deviceInfo.WebXRSupported = await (navigator as any).xr.isSessionSupported('immersive-vr');
     }
-    store.dispatch(getDeviceType(deviceInfo));
+    dispatch(getDeviceType(deviceInfo));
   };
   const initApp = useCallback(() => {
     const jssStyles = document.querySelector('#jss-server-side');
@@ -64,14 +54,14 @@ const MyApp = (props: Props): any => {
     // NOTE: getDeviceInfo is an async function, but here is running
     // without `await`.
 
-    store.dispatch(restoreState());
+    dispatch(restoreState());
     initGA();
     logPageView();
     getDeviceInfo();
     const urlParts = url.parse(window.location.href);
     const query = querystring.parse(urlParts.query);
     if (query.error != null) {
-      store.dispatch(dispatchAlertError(store.dispatch, query.error as string));
+      dispatch(dispatchAlertError(dispatch, query.error as string));
       delete query.error;
       const stringifiedQuery = querystring.stringify(query);
       window.history.replaceState(
@@ -100,15 +90,12 @@ const MyApp = (props: Props): any => {
         <ApiContext.Provider value={api}>
           {/* <CssBaseline /> */}
           <GlobalStyle />
-          <Provider store={store}>
-            {isMounted && <Component {...pageProps} />}
-          </Provider>
+          {isMounted && <Component {...pageProps} />}
         </ApiContext.Provider>
       </ThemeProvider>
     </Fragment>
   );
 };
-export default withRedux(configureStore, {
-  serializeState: (state) => state.toJS(),
-  deserializeState: (state) => fromJS(state)
-})(connect(mapStateToProps, mapDispatchToProps)(MyApp));
+
+const wrapper = createWrapper(() => configureStore(), { debug: true });
+export default wrapper.withRedux(MyApp);
