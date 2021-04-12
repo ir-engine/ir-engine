@@ -244,8 +244,7 @@ export default class Editor extends EventEmitter {
  * @param  {any}  manifestUrl contains url of source
  */
   async installAssetSource(manifestUrl) {
-    const proxiedUrl = this.api.proxyUrl(new URL(manifestUrl, (window as any).location).href);
-    const res = await this.api.fetchUrl(proxiedUrl);
+    const res = await this.api.fetchUrl(new URL(manifestUrl, (window as any).location).href);
     const json = await res.json();
     this.sources.push(new AssetManifestSource(this, json.name, manifestUrl));
     this.emit("settingsChanged");
