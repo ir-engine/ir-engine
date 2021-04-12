@@ -1,20 +1,15 @@
 import { Camera, Object3D, Raycaster, Renderer, Vector2 } from "three";
 
-class RayCast extends Object3D{
+export class RayCast extends Object3D{
 
-    renderer : Renderer;
     rayCaster : Raycaster;
     // vrControl: VRControl;
     mouse:Vector2;
-    camera:Camera;
     selectState:Boolean;
     objsToTest: [];
 
-    constructor(renderer, camera){
+    constructor(){
         super();
-
-        this.renderer = renderer;
-        this.camera = camera;
         this.init();
     }
 
@@ -49,9 +44,11 @@ class RayCast extends Object3D{
             this.mouse.x = null;
             this.mouse.y = null;
         });
+
+        this.objsToTest = [];
     }
 
-    update(){
+    update(camera){
         // Find closest intersecting object
 
         let intersect;
@@ -64,10 +61,10 @@ class RayCast extends Object3D{
         // } else
          if ( this.mouse.x !== null && this.mouse.y !== null ) {
 
-            this.rayCaster.setFromCamera( this.mouse, this.camera );
+            this.rayCaster.setFromCamera( this.mouse, camera );
 
             intersect = this.raycast();
-        };
+        }
 
         // Update targeted button state (if any)
 
@@ -78,8 +75,8 @@ class RayCast extends Object3D{
             } else {
                 // Component.setState internally call component.set with the options you defined in component.setupState
                 intersect.object.setState( 'hovered' );
-            };
-        };
+            }
+        }
 
         // Update non-targeted buttons state
 
@@ -89,7 +86,7 @@ class RayCast extends Object3D{
 
                 // Component.setState internally call component.set with the options you defined in component.setupState
                 obj.setState( 'idle' );
-            };
+            }
         });
     }
 
@@ -110,9 +107,9 @@ class RayCast extends Object3D{
     
                 return closestIntersection
     
-            };
+            }
     
         }, null );
     
-    };
+    }
 }
