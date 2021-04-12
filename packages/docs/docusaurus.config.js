@@ -20,7 +20,7 @@ module.exports = {
                      ],
         tsconfig: '../client-core/tsconfig.json',
         exclude: [
-            '**/node_modules/**', '*.d.ts', /node_modules/
+            '**/node_modules/**', '*.d.ts', /node_modules/, /_next/, /.next/
         ],
         out: 'docs-client-core',
         readme: 'none',
@@ -39,7 +39,7 @@ module.exports = {
                        ],
           tsconfig: '../client/tsconfig.json',
           exclude: [
-              '**/node_modules/**', /node_modules/
+              '**/node_modules/**', /node_modules/, /_next/, /.next/
           ],
           out: 'docs-client',
           readme: 'none',
@@ -58,7 +58,7 @@ module.exports = {
                          ],
             tsconfig: '../server/tsconfig.json',
             exclude: [
-                '**/node_modules/**', /node_modules/        
+                '**/node_modules/**', /node_modules/, /_next/, /.next/      
             ],
             out: 'docs-server',
             readme: 'none',
@@ -77,7 +77,7 @@ module.exports = {
                          ],
             tsconfig: '../server-core/tsconfig.json',
             exclude: [
-                '**/node_modules/**', /node_modules/
+                '**/node_modules/**', /node_modules/, /_next/, /.next/
             ],
             out: 'docs-server-core',
             readme: 'none',
