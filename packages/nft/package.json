@@ -30,14 +30,14 @@
     "migrate:rinkeby": "yarn clean && truffle migrate --network rinkeby --reset && yarn copy-contracts"
   },
   "resolutions": {
-    "socket.io": "2.4.1",
+    "socket.io": "4.0.1",
     "@types/react": "17.0.3",
     "react": "17.0.2"
   },
   "peerDependencies": {
     "@types/react": "^17.0.0",
     "react": "^17.0.0",
-    "socket.io": "2.4.1"
+    "socket.io": "4.0.1"
   },
   "dependencies": {
     "@capacitor-community/electron": "1.4.0",
@@ -136,7 +136,7 @@
     "redux-thunk": "2.3.0",
     "reselect": "4.0.0",
     "sass": "1.32.8",
-    "socket.io-client": "2.4.0",
+    "socket.io-client": "4.0.1",
     "string-similarity": "4.0.4",
     "styled-components": "5.2.3",
     "swr": "0.5.5",
