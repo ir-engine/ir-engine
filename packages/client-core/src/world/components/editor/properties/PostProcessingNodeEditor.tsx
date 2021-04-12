@@ -229,7 +229,7 @@ export const PostProcessingNodeEditor = (props: PostProcessingNodeEditorPropType
 
   const getPropertyValue = (arr: []) => {
     return (props.node as any).getPropertyValue(arr);
-  }
+  };
 
   const renderEffectsTypes = (id) => {
     const effectOptions = EffectsOptions[id];
@@ -238,7 +238,7 @@ export const PostProcessingNodeEditor = (props: PostProcessingNodeEditorPropType
       return <PostProcessingProperties key={id + index} values={values} op={op} onChangeFunction={onChangeNodeSetting} getProp={getPropertyValue} />;
     });
     return (<>{item}</>);
-  }
+  };
 
   const renderEffects = (node) => {
     const items = Object.keys(EffectsOptions).map((key) => {
@@ -258,7 +258,7 @@ export const PostProcessingNodeEditor = (props: PostProcessingNodeEditorPropType
     }
     );
     return (<div>{items}</div>);
-  }
+  };
 
     const node = props.node;
     return (
@@ -267,7 +267,7 @@ export const PostProcessingNodeEditor = (props: PostProcessingNodeEditorPropType
         { /* @ts-ignore */}
       </NodeEditor>
     );
-}
+};
 PostProcessingNodeEditor.iconComponent = Rainbow;
 PostProcessingNodeEditor.description = "For applying Post Processing effects to you scene";
 export default PostProcessingNodeEditor;

@@ -81,7 +81,7 @@ export default class AssetManifestSource extends BaseSource {
     // loop over manifest assets
     for (const asset of manifest.assets) {
       // get proxied asset url using manifestUrl
-      const assetUrl = new URL(asset.url, this.manifestUrl).href
+      const assetUrl = new URL(asset.url, this.manifestUrl).href;
       const nodeClass = assetTypeToNodeClass[asset.type];
       const nodeEditor = this.editor.nodeEditors.get(nodeClass);
       //creationg array assets by pushing assets one by one

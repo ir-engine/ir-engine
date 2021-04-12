@@ -214,5 +214,5 @@ export const PostProcessingProperties = (props: Props) => {
       {renderVal}
     </InputGroup>
   </div>
-  )
-}
+  );
+};
