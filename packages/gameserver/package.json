@@ -52,7 +52,7 @@
     "precommit"
   ],
   "resolutions": {
-    "socket.io": "2.4.1"
+    "socket.io": "4.0.1"
   },
   "peerDependencies": {
     "@feathersjs/authentication": "^4.5.9",
@@ -69,7 +69,7 @@
     "@feathersjs/socketio-client": "^4.5.9",
     "@feathersjs/transport-commons": "^4.5.9",
     "chokidar": "^3.4.2",
-    "socket.io": "2.4.1"
+    "socket.io": "4.0.1"
   },
   "dependencies": {
     "@feathersjs/authentication": "4.5.11",
