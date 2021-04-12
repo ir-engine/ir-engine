@@ -118,12 +118,6 @@ function CreateProjectPage({ api }: { api: Api }) {
             </ProjectsHeader>
             <ProjectGridContainer>
               <ProjectGridHeader>
-              <ProjectGridHeaderRow>
-                    {t('editor:projects.createProject.all')}
-                  </Filter>
-                  <Separator />
-                  {searchInput}
-                </ProjectGridHeaderRow>
                 <ProjectGridHeaderRow>
                   <Button onClick={routeTo('/editor/projects/new')}>
                     {t('editor:projects.createProject.newProject')}

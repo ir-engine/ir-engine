@@ -8,6 +8,12 @@ class Draggable extends React.Component<PropsType> {
     MARGIN = 20;
     dragStarted = false;
     prev = { x: 0, y: 0 };
+    
+    props
+    constructor(props: PropsType){
+        super(props)
+        this.props = props;
+    }
 
     clamp = (low, value, high) => {
         if (value < low) return low;

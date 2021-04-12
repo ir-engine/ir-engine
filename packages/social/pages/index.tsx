@@ -13,6 +13,7 @@ import { User } from "@xr3ngine/common/src/interfaces/User";
 import { doLoginAuto } from "@xr3ngine/client-core/src/user/reducers/auth/service";
 import { createCreator } from "@xr3ngine/client-core/src/socialmedia/reducers/creator/service";
 
+// @ts-ignore
 import styles from './index.module.scss';
         
 const mapStateToProps = (state: any): any => {

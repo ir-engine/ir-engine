@@ -1,4 +1,5 @@
 import React from 'react';
+// @ts-ignore
 import styles from "./Scene.module.scss";
 const Loading = () => (
   <div className={styles.loading}>

@@ -6,6 +6,7 @@ import AppFooter from "@xr3ngine/client-core/src/socialmedia/components/Footer";
 import Feed from "@xr3ngine/client-core/src/socialmedia/components/Feed";
 import AppHeader from "@xr3ngine/client-core/src/socialmedia/components/Header";
 
+// @ts-ignore
 import styles from './index.module.scss';
 
 export default function FeedPage() {

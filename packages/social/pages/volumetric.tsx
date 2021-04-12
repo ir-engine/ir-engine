@@ -1,4 +1,5 @@
 import React from 'react';
+// @ts-ignore
 import styles from './index.module.scss';
 import NoSSR from 'react-no-ssr';
 import dynamic from 'next/dynamic';

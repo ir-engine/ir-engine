@@ -32,6 +32,7 @@ import {
     fetchLocationTypes,
     fetchUsersAsAdmin
 } from '../reducers/admin/service';
+// @ts-ignore
 import styles from './Admin.module.scss';
 import InstanceModal from './InstanceModal';
 import LocationModal from './LocationModal';

@@ -6,6 +6,7 @@ import { selectCreatorsState } from '../../reducers/creator/selector';
 import { followCreator, getCreator, getFollowersList, getFollowingList, unFollowCreator } from '../../reducers/creator/service';
 import CreatorCard from '../CreatorCard';
 import Featured from '../Featured';
+// @ts-ignore
 import styles from './Creator.module.scss';
 
 const mapStateToProps = (state: any): any => {

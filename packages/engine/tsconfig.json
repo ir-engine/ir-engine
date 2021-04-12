@@ -17,5 +17,5 @@
   },
 
   "include": ["src/**/*.ts", "src/**/*.tsx"],
-  "exclude": ["node_modules", "dist", "tsconfig.json", "tests/"]
+  "exclude": ["src/**/*.d.ts", "node_modules", "dist", "tsconfig.json", "tests/"]
 }

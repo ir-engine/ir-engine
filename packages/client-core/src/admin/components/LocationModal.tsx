@@ -24,6 +24,7 @@ import {
 } from "../reducers/admin/service";
 import { selectAppState } from "../../common/reducers/app/selector";
 import { selectAuthState } from "../../user/reducers/auth/selector";
+// @ts-ignore
 import styles from './Admin.module.scss';
 
 interface Props {

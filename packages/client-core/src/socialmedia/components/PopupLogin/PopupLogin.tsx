@@ -1,4 +1,5 @@
 import React from 'react';
+// @ts-ignore
 import styles from './PopupLogin.module.scss';
 
 export const PopupLogin = (props): any => {

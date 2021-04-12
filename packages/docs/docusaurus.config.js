@@ -15,11 +15,11 @@ module.exports = {
       {
         id:'api-1',
         entryPoints: [
-                        '../client-core',
+                        '../client-core/index.ts',
                      ],
         tsconfig: '../client-core/tsconfig.json',
         exclude: [
-            '**/node_modules/**'
+            '**/node_modules/**', '*.d.ts', /node_modules/
         ],
         out: 'docs-client-core',
         readme: 'none',
@@ -28,42 +28,60 @@ module.exports = {
         }
       },
     ],
-    // [
-    //     'docusaurus-plugin-typedoc',
-    //     {
-    //       id:'api-2',
-    //       entryPoints: [
-    //                       '../client'
-    //                    ],
-    //       tsconfig: '../client/tsconfig.json',
-    //       exclude: [
-    //           '**/node_modules/**'
-    //       ],
-    //       out: 'docs-client',
-    //       readme: 'none',
-    //       sidebar: {
-    //          sidebarFile: 'sidebar/typedoc-client.js',
-    //       }
-    //     },
-    //   ],
-      // [
-      //     'docusaurus-plugin-typedoc',
-      //     {
-      //       id:'api-3',
-      //       entryPoints: [
-      //                       '../server'
-      //                    ],
-      //       tsconfig: '../server/tsconfig.json',
-      //       exclude: [
-      //           '**/node_modules/**',         
-      //       ],
-      //       out: 'docs-server',
-      //       readme: 'none',
-      //       sidebar: {
-      //          sidebarFile: 'sidebar/typedoc-server.js',
-      //       }
-      //     },
-      //   ],
+    [
+        'docusaurus-plugin-typedoc',
+        {
+          id:'api-2',
+          entryPoints: [
+                          '../client'
+                       ],
+          tsconfig: '../client/tsconfig.json',
+          exclude: [
+              '**/node_modules/**', /node_modules/
+          ],
+          out: 'docs-client',
+          readme: 'none',
+          sidebar: {
+             sidebarFile: 'sidebar/typedoc-client.js',
+          }
+        },
+      ],
+      [
+          'docusaurus-plugin-typedoc',
+          {
+            id:'api-4',
+            entryPoints: [
+                            '../server'
+                         ],
+            tsconfig: '../server/tsconfig.json',
+            exclude: [
+                '**/node_modules/**', /node_modules/        
+            ],
+            out: 'docs-server',
+            readme: 'none',
+            sidebar: {
+               sidebarFile: 'sidebar/typedoc-server.js',
+            }
+          },
+        ],
+        [
+          'docusaurus-plugin-typedoc',
+          {
+            id:'api-3',
+            entryPoints: [
+                            '../server-core'
+                         ],
+            tsconfig: '../server-core/tsconfig.json',
+            exclude: [
+                '**/node_modules/**', /node_modules/
+            ],
+            out: 'docs-server-core',
+            readme: 'none',
+            sidebar: {
+               sidebarFile: 'sidebar/typedoc-server-core.js',
+            }
+          },
+        ],
   ],
   themeConfig: {
     navbar: {

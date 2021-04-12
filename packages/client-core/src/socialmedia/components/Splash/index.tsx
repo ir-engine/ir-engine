@@ -1,5 +1,6 @@
 import CardMedia from '@material-ui/core/CardMedia';
 import React from 'react';
+// @ts-ignore
 import styles from './Splash.module.scss';
 
 

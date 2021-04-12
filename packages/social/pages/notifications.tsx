@@ -5,6 +5,7 @@ import AppFooter from "@xr3ngine/client-core/src/socialmedia/components/Footer";
 import NotificationList from "@xr3ngine/client-core/src/socialmedia/components/NotificationList";
 import AppHeader from "@xr3ngine/client-core/src/socialmedia/components/Header";
 
+// @ts-ignore
 import styles from './index.module.scss';
 
 export default function NotificationsPage() {

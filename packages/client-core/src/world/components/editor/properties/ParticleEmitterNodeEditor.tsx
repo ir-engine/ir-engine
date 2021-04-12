@@ -20,7 +20,7 @@ const CurveOptions = Object.keys(EasingFunctions).map(name => ({
   value: name
 }));
 
-//declairing properties for ParticleEmitterNodeEditor
+//declaring properties for ParticleEmitterNodeEditor
 type ParticleEmitterNodeEditorProps = {
   editor: any,
   node: any,
@@ -35,6 +35,8 @@ type ParticleEmitterNodeEditorProps = {
  */
 export class ParticleEmitterNodeEditor extends Component<ParticleEmitterNodeEditorProps> {
 
+  props: ParticleEmitterNodeEditorProps
+
   // declairing propTypes for ParticleEmitterNodeEditor
   static propTypes = {
     editor: PropTypes.object,
@@ -46,6 +48,11 @@ export class ParticleEmitterNodeEditor extends Component<ParticleEmitterNodeEdit
 
   //setting description and will appears on editor view
   static description = i18n.t('editor:properties.partileEmitter.description');
+
+  constructor(props: ParticleEmitterNodeEditorProps){
+    super(props);
+    this.props = props;
+  }
 
   //function used to reflect the change in any property of ParticleEmitterNodeEditor
   updateParticles() {
