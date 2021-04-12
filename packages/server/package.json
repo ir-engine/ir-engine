@@ -143,7 +143,7 @@
     "serve-favicon": "2.5.0",
     "slugify": "1.5.0",
     "text-encoding": "0.7.0",
-    "three-stdlib": "1.2.2",
+    "three-stdlib": "1.2.3",
     "universal-analytics": "0.4.23",
     "uuid": "8.3.2",
     "winston": "3.3.3",
