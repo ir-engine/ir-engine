@@ -10,6 +10,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 import { selectAdminState } from '../reducers/admin/selector';
 import { createVideo, deleteVideo, updateVideo } from '../reducers/admin/service';
+// @ts-ignore
 import styles from './Admin.module.scss';
 
 interface Props {
@@ -102,10 +103,10 @@ const VideoModal = (props: Props): any => {
 
     if (props.mode === 'create') {
       delete form.id;
-      props.createVideo(form);
+      props.createVideo(form as any);
       props.handleClose();
     } else {
-      props.updateVideo(form);
+      props.updateVideo(form as any);
       props.handleClose();
     }
   };

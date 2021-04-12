@@ -10,6 +10,7 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
 import NextLink from 'next/link';
 import { Config } from '../../../helper';
+// @ts-ignore
 import styles from './Auth.module.scss';
 import { User } from '@xr3ngine/common/src/interfaces/User';
 import { createMagicLink, addConnectionBySms, addConnectionByEmail } from '../../reducers/auth/service';

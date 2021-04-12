@@ -4,6 +4,7 @@ import { generalStateList } from '../../reducers/app/actions';
 import { selectAppOnBoardingStep } from '../../reducers/app/selector';
 import { selectCurrentScene } from '../../../world/reducers/scenes/selector';
 import Loader from './SquareLoader';
+// @ts-ignore
 import styles from './Loader.module.scss';
 interface Props {
   objectsToLoad?: number;

@@ -201,7 +201,7 @@ export function useAssetSearch(
  * @param        {number} source.searchDebounceTimeout [Wait period after function hasn't been called for]
  * @returns      [A memoized function that is debounced]
  */
-  const [debouncedLoadAsync] = useDebouncedCallback(
+  const debouncedLoadAsync = useDebouncedCallback(
     loadAsync,
     source.searchDebounceTimeout
   );

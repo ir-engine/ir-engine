@@ -3,6 +3,7 @@ import CardMedia from '@material-ui/core/CardMedia';
 import Typography from '@material-ui/core/Typography';
 import Router from "next/router";
 import React, { useState } from 'react';
+// @ts-ignore
 import styles from './OnBoarding.module.scss';
 
 interface MediaRecord{

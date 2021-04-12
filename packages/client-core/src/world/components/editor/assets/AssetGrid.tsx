@@ -88,7 +88,7 @@ function AssetGridItem({ contextMenuId, tooltipComponent, disableTooltip, item, 
     type: item.type,
     item,
     multiple: false
-  }))
+  }));
 
  /**
   * [renderTooltip  used to render tooltip for AssetGrid]

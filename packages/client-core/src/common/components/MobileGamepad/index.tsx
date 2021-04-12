@@ -2,6 +2,7 @@ import { TouchApp } from '@styled-icons/material/TouchApp';
 import { GamepadAxis, GamepadButtons } from "@xr3ngine/engine/src/input/enums/InputEnums";
 import nipplejs from 'nipplejs';
 import React, { FunctionComponent, useEffect, useRef } from 'react';
+// @ts-ignore
 import styles from './MobileGamepad.module.scss';
 import { MobileGamepadProps } from './MobileGamepadProps';
 

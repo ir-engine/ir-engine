@@ -6,6 +6,7 @@ import Featured from "../Featured";
 import TheFeed from "../TheFeed";
 import TipsAndTricks from "../TipsAndTricks";
 
+// @ts-ignore
 import styles from './FeedMenu.module.scss';
 
 const FeedMenu = () => {

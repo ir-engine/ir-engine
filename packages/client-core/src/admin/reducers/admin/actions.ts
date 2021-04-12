@@ -17,7 +17,6 @@ export interface VideoCreationForm {
   name: string;
   description: string;
   url: string;
-  creator: string;
   metadata: object;
 }
 
@@ -26,7 +25,6 @@ export interface VideoUpdateForm {
   name: string;
   description: string;
   url: string;
-  creator: string;
   metadata: object;
 }
 

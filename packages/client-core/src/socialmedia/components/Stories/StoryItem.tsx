@@ -1,6 +1,7 @@
 import React from "react";
 import { ProfilePic} from "../ProfilePic";
 
+// @ts-ignore
 import styles from './Stories.module.scss';
 
 export const StoryItem =({data}: any) => {

@@ -17,6 +17,7 @@ import { bindActionCreators, Dispatch } from "redux";
 import { selectAppState } from "../../../common/reducers/app/selector";
 import { selectAuthState } from "../../../user/reducers/auth/selector";
 import { selectContentPackState } from "../../reducers/contentPack/selector";
+// @ts-ignore
 import styles from './Scenes.module.scss';
 import {
     addSceneToContentPack,

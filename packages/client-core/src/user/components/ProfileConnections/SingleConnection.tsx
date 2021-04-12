@@ -14,6 +14,7 @@ import PasswordLogin from '../../../user/components/Auth/PasswordLogin';
 import { selectAuthState } from '../../reducers/auth/selector';
 import { addConnectionByOauth, addConnectionByPassword, createMagicLink, loginUserByPassword, removeConnection } from '../../reducers/auth/service';
 import { ConnectionTexts } from './ConnectionTexts';
+// @ts-ignore
 import styles from './ProfileConnections.module.scss';
 
 interface Props {

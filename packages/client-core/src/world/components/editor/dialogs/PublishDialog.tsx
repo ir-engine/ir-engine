@@ -66,6 +66,7 @@ export class PublishDialog extends Component<{t: Function}> {
         <FormField>
           <label htmlFor="sceneName">{this.props.t('editor:dialog.publish.lbl-name')}</label>
           <StringInput
+            /* @ts-ignore */
             id="sceneName"
             required
             pattern={"[A-Za-z0-9-':\"!@#$%^&*(),.?~ ]{4,64}"}
