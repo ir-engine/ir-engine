@@ -14,6 +14,7 @@ import { getAvatarURLFromNetwork, Views } from '../util';
 import { validateEmail, validatePhoneNumber } from '../../../../helper';
 
 //@ts-ignore
+// @ts-ignore
 import styles from '../style.module.scss';
 
 interface Props {

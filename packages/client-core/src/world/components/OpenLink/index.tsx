@@ -1,5 +1,6 @@
 import React, { FunctionComponent } from "react";
 import { CommonInteractiveData } from "@xr3ngine/engine/src/interaction/interfaces/CommonInteractiveData";
+// @ts-ignore
 import styles from './OpenLink.module.scss';
 import { Button, Dialog, DialogContent, DialogTitle, IconButton, Typography } from "@material-ui/core";
 import CloseIcon from '@material-ui/icons/Close';

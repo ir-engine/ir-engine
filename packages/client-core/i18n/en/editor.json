@@ -446,10 +446,6 @@
             "title": "Publish Scene",
             "lbl-confirm": "Save and Publish",
             "lbl-name": "Scene Name",
-            "lbl-yourAttribution": "Your Attribution (optional):",
-            "lbl-remixScene": "Allow other users to remix your scene with <1 /> Creative Commons <3>CC-BY 3.0</3>",
-            "lbl-appearOnFront": "Allow scene to appear on front page",
-            "lbl-modelAttribution": "Model Attribution:",
             "info-name": "Name must be between 4 and 64 characters and cannot contain underscores"
         },
         "published": {

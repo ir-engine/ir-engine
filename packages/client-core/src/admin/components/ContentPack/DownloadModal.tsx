@@ -17,6 +17,7 @@ import { bindActionCreators, Dispatch } from "redux";
 import { selectAdminState } from '../../reducers/admin/selector';
 import { selectAppState } from "../../../common/reducers/app/selector";
 import { selectAuthState } from "../../../user/reducers/auth/selector";
+// @ts-ignore
 import styles from './ContentPack.module.scss';
 import { downloadContentPack } from "../../reducers/contentPack/service";
 

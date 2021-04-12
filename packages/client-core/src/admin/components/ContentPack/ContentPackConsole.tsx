@@ -20,8 +20,8 @@ import {
     fetchContentPacks
 } from "../../reducers/contentPack/service";
 import ContentPackDetailsModal from './ContentPackDetailsModal';
+// @ts-ignore
 import styles from './ContentPack.module.scss';
-
 
 interface TabPanelProps {
     children?: React.ReactNode;

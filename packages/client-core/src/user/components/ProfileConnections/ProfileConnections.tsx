@@ -5,6 +5,7 @@ import Typography from '@material-ui/core/Typography';
 import { connect } from 'react-redux';
 import SingleConnection from './SingleConnection';
 import { User } from '@xr3ngine/common/src/interfaces/User';
+// @ts-ignore
 import styles from './ProfileConnections.module.scss';
 import { selectAuthState } from '../../reducers/auth/selector';
 

@@ -4,7 +4,7 @@ module.exports = {
   tagline: 'An end-to-end solution for hosting humans and AI in a virtual space, built on top of react, three.js and express/feathers.',
   url: 'http://localhost',
   baseUrl: '/',
-  onBrokenLinks: 'throw',
+  onBrokenLinks: 'warn',
   onBrokenMarkdownLinks: 'warn',
   favicon: 'img/favicon.ico',
   organizationName: 'facebook', // Usually your GitHub org/user name.
@@ -14,12 +14,13 @@ module.exports = {
       'docusaurus-plugin-typedoc',
       {
         id:'api-1',
+        excludeExternals: true,
         entryPoints: [
-                        '../client-core',
+                        '../client-core/index.ts',
                      ],
         tsconfig: '../client-core/tsconfig.json',
         exclude: [
-            '**/node_modules/**'
+            '**/node_modules/**', '*.d.ts', /node_modules/, /_next/, /.next/
         ],
         out: 'docs-client-core',
         readme: 'none',
@@ -28,42 +29,63 @@ module.exports = {
         }
       },
     ],
-    // [
-    //     'docusaurus-plugin-typedoc',
-    //     {
-    //       id:'api-2',
-    //       entryPoints: [
-    //                       '../client'
-    //                    ],
-    //       tsconfig: '../client/tsconfig.json',
-    //       exclude: [
-    //           '**/node_modules/**'
-    //       ],
-    //       out: 'docs-client',
-    //       readme: 'none',
-    //       sidebar: {
-    //          sidebarFile: 'sidebar/typedoc-client.js',
-    //       }
-    //     },
-    //   ],
-      // [
-      //     'docusaurus-plugin-typedoc',
-      //     {
-      //       id:'api-3',
-      //       entryPoints: [
-      //                       '../server'
-      //                    ],
-      //       tsconfig: '../server/tsconfig.json',
-      //       exclude: [
-      //           '**/node_modules/**',         
-      //       ],
-      //       out: 'docs-server',
-      //       readme: 'none',
-      //       sidebar: {
-      //          sidebarFile: 'sidebar/typedoc-server.js',
-      //       }
-      //     },
-      //   ],
+    [
+        'docusaurus-plugin-typedoc',
+        {
+          id:'api-2',
+          excludeExternals: true,
+          entryPoints: [
+                          '../client'
+                       ],
+          tsconfig: '../client/tsconfig.json',
+          exclude: [
+              '**/node_modules/**', /node_modules/, /_next/, /.next/
+          ],
+          out: 'docs-client',
+          readme: 'none',
+          sidebar: {
+             sidebarFile: 'sidebar/typedoc-client.js',
+          }
+        },
+      ],
+      [
+          'docusaurus-plugin-typedoc',
+          {
+            id:'api-4',
+            excludeExternals: true,
+            entryPoints: [
+                            '../server'
+                         ],
+            tsconfig: '../server/tsconfig.json',
+            exclude: [
+                '**/node_modules/**', /node_modules/, /_next/, /.next/      
+            ],
+            out: 'docs-server',
+            readme: 'none',
+            sidebar: {
+               sidebarFile: 'sidebar/typedoc-server.js',
+            }
+          },
+        ],
+        [
+          'docusaurus-plugin-typedoc',
+          {
+            id:'api-3',
+            excludeExternals: true,
+            entryPoints: [
+                            '../server-core'
+                         ],
+            tsconfig: '../server-core/tsconfig.json',
+            exclude: [
+                '**/node_modules/**', /node_modules/, /_next/, /.next/
+            ],
+            out: 'docs-server-core',
+            readme: 'none',
+            sidebar: {
+               sidebarFile: 'sidebar/typedoc-server-core.js',
+            }
+          },
+        ],
   ],
   themeConfig: {
     navbar: {

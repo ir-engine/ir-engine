@@ -23,13 +23,12 @@
 // TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
-const spawn = require('child_process').spawn;
-const _ = require('lodash');
-const request = require('request');
-const Rx = require('rx');
-const fs = require('fs');
-const jsyaml = require('js-yaml');
+import { spawn } from 'child_process';
+import _ from 'lodash';
+import request from 'request';
+import Rx from 'rx';
+import fs from 'fs';
+import jsyaml from 'js-yaml';
 
 class Kubectl {
     private type
@@ -210,7 +209,7 @@ class Kubectl {
         return this.command(action, done);
     }
 
-    public apply(name: string, json: Object, flags?, done?: (err, data) => void) {
+    public apply(name: string, json: any, flags?, done?: (err, data) => void) {
         if (!this.type)
             throw new Error('not a function');
 
@@ -366,9 +365,9 @@ export const kubectl = (conf): any => {
         , ing: new Kubectl('ingress', conf)
         , job: new Kubectl('job', conf)
         , context: new Kubectl('context', conf)
-        , command: function () {
-            arguments[0] = arguments[0].split(' ');
-            return this.pod.command.apply(this.pod, arguments);
+        , command: function (action, ...args) {
+            args[0] = args[0].split(' ');
+            return action.apply(this.pod, args);
         }
     };
 };

@@ -7,6 +7,7 @@ import { selectCreatorsState } from '../../reducers/creator/selector';
 import { getCreatorNotificationList } from '../../reducers/creator/service';
 import NotificationCard from '../NotificationCard';
 
+// @ts-ignore
 import styles from './NotificationList.module.scss';
 
 const mapStateToProps = (state: any): any => {
