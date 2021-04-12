@@ -757,33 +757,16 @@ export default class Api extends EventEmitter {
         throw error;
       }
 
-      const userInfo = this.getUserInfo() as any;
-
-      // Gather all the info needed to display the publish dialog
-      let { name, creatorAttribution, allowRemixing, allowPromotion } = scene.metadata;
+      let { name } = scene.metadata;
 
       name = (project.scene && project.scene.name) || name || editor.scene.name;
-
-      if (project.scene) {
-        allowPromotion = project.scene.allow_promotion;
-        allowRemixing = project.scene.allow_remixing;
-        creatorAttribution = project.scene.attributions.creator || "";
-      } else if ((!creatorAttribution || creatorAttribution.length === 0) && userInfo && userInfo.creatorAttribution) {
-        creatorAttribution = userInfo.creatorAttribution;
-      }
-
-      const contentAttributions = scene.getContentAttributions();
 
       // Display the publish dialog and wait for the user to submit / cancel
       const publishParams: any = await new Promise(resolve => {
         showDialog(PublishDialog, {
           screenshotUrl,
-          contentAttributions,
           initialSceneParams: {
-            name,
-            creatorAttribution: creatorAttribution || "",
-            allowRemixing: typeof allowRemixing !== "undefined" ? allowRemixing : false,
-            allowPromotion: typeof allowPromotion !== "undefined" ? allowPromotion : false
+            name
           },
           onCancel: () => resolve(null),
           onPublish: resolve
@@ -802,14 +785,8 @@ export default class Api extends EventEmitter {
       // Update the scene with the metadata from the publishDialog
       scene.setMetadata({
         name: publishParams.name,
-        creatorAttribution: publishParams.creatorAttribution,
-        allowRemixing: publishParams.allowRemixing,
-        allowPromotion: publishParams.allowPromotion,
         previewCameraTransform: screenshotCameraTransform
       });
-
-      // Save the creatorAttribution to localStorage so that the user doesn't have to input it again
-      this.setUserInfo({ creatorAttribution: publishParams.creatorAttribution });
 
       showDialog(ProgressDialog, {
         title: i18n.t('editor:publishingScene'),
@@ -924,13 +901,7 @@ export default class Api extends EventEmitter {
         model_file_token: glbToken,
         scene_file_id: sceneFileId,
         scene_file_token: sceneFileToken,
-        allow_remixing: publishParams.allowRemixing,
-        allow_promotion: publishParams.allowPromotion,
-        name: publishParams.name,
-        attributions: {
-          creator: publishParams.creatorAttribution,
-          content: publishParams.contentAttributions
-        }
+        name: publishParams.name
       };
 
       const token = this.getToken();
@@ -1207,7 +1178,6 @@ export default class Api extends EventEmitter {
       name: file.name,
       url: origin,
       type: 'application/octet-stream',
-      attributions: {},
       images: {
         preview: { url: file.thumbnail_url }
       }
@@ -1275,26 +1245,6 @@ export default class Api extends EventEmitter {
     }
 
     return true;
-  }
-
-/**
- * setUserInfo used to save userInfo as localStorage.
- * 
- * @author Robert Long
- * @param userInfo [Object contains user data]
- */
-  setUserInfo(userInfo): void {
-    localStorage.setItem("editor-user-info", JSON.stringify(userInfo));
-  }
-
-/**
- * getUserInfo used to provide logined user info from localStorage.
- * 
- * @author Robert Long
- * @return {Object}      [User data]
- */
-  getUserInfo(): JSON {
-    return JSON.parse(localStorage.getItem("editor-user-info"));
   }
 
   saveCredentials(email, token): void {

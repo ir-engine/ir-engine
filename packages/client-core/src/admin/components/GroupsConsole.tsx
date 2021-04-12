@@ -10,6 +10,7 @@ import {
 } from '@material-ui/core';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import React from 'react';
+// @ts-ignore
 import styles from './Admin.module.scss';
 
 const useStyles = makeStyles((theme: Theme) =>

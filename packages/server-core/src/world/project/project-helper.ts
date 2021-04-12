@@ -24,62 +24,7 @@ export function defaultProjectImport (models: any): any[] {
       as: 'thumbnail_owned_file',
       attributes: ['url']
     }
-    /* {
-      model: models.collection,
-      attributes: ['collectionType', 'userId', 'allow_promotion', 'allow_remixing', 'attribution', 'description', 'name', 'parentSceneId', 'sceneId', 'slug', 'sid'],
-      include: [
-        {
-          model: models.static_resource,
-          as: 'model_owned_file',
-          attributes: ['staticResourceType', 'url']
-        },
-        {
-          model: models.static_resource,
-          as: 'screenshot_owned_file',
-          attributes: ['staticResourceType', 'url']
-        }
-      ]
-    },
-    {
-      model: models.collection,
-      attributes: ['collectionType', 'ownerUserId', 'allow_promotion', 'allow_remixing', 'attribution', 'description', 'name', 'parentSceneId', 'sceneId', 'slug', 'sid'],
-      as: 'parent_scene',
-      include: [
-        {
-          model: models.static_resource,
-          as: 'model_owned_file',
-          attributes: ['staticResourceType', 'url']
-        },
-        {
-          model: models.static_resource,
-          as: 'screenshot_owned_file',
-          attributes: ['staticResourceType', 'url']
-        }
-      ]
-    } */
-    /* {
-          model: ParentSceneListingModel,
-          include: [
-            {
-              model: OwnedFileModel,
-              as: 'model_owned_file'
-            },
-            {
-              model: OwnedFileModel,
-              as: 'screenshot_owned_file'
-            },
-            {
-              model: OwnedFileModel,
-              as: 'scene_owned_file'
-            }
-            // :model_owned_file,
-            // :screenshot_owned_file,
-            // :scene_owned_file,
-            // :project,
-            // :account,
-            // scene: ^Scene.scene_preloads()
-          ]
-        } */
+  
   ];
   return includedEntities;
 }
@@ -123,21 +68,6 @@ export function mapProjectTemplateDetailData (projectTemplate: any): any {
     model_url: null,
     screenshot_url: projectTemplate?.thumbnail_file?.url
   };
-  /*
-id: "251dd580-5caa-11eb-88f7-41085bb160dd"
-isPublic: true
-locationId: null
-metadata: "{"name":"Sky Island"}"
-name: "Sky Island"
-root: "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC"
-sid: "rjexuC2v"
-thumbnailOwnedFileId: "25001450-5caa-11eb-816b-4782c6a01287"
-type: "project"
-updatedAt: "2021-01-22T12:05:40.000Z"
-url: "https://127.0.0.1:3030/collection/251dd580-5caa-11eb-88f7-41085bb160dd"
-userId: "084ffae0-5c15-11eb-9c41-59a7d7252cfc"
-version: 4
-   */
 
   const _proj = {
     name: projectTemplate.name,

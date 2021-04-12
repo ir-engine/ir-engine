@@ -14,12 +14,14 @@
     "pretty": true,
     "sourceMap": true,
     "strict": true,
-    "target": "es2015"
+    "target": "es2015",
+    "skipLibCheck": true
   },
   "files": [
     "src/index.ts"
   ],
   "exclude": [
+    "*.d.ts",
     "node_modules",
     "./node_modules",
     "./node_modules/*",

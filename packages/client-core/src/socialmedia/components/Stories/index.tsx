@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { StoryItem } from "./StoryItem";
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
 import ArrowForwardIosIcon from '@material-ui/icons/ArrowForwardIos';
+// @ts-ignore
 import styles from './Stories.module.scss';
 
 export function Stories({

@@ -2,6 +2,8 @@ import React from "react";
 import { connect } from 'react-redux';
 import { selectUserState } from '../../../user/reducers/user/selector';
 import Toast from './Toast';
+// @ts-ignore
+// @ts-ignore
 import styles from "./toast.module.scss";
 
 type Props = {

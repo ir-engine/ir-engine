@@ -517,23 +517,6 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
     });
     return animations;
   }
-  getContentAttributions() {
-    const contentAttributions = [];
-    const seenAttributions = new Set();
-    this.traverse(obj => {
-      if (!(obj.isNode && obj.type === "Model")) return;
-      const attribution = obj.attribution;
-      if (!attribution) return;
-      if (attribution) {
-        const attributionKey =
-          attribution.url || `${attribution.name}_${attribution.author}`;
-        if (seenAttributions.has(attributionKey)) return;
-        seenAttributions.add(attributionKey);
-        contentAttributions.push(attribution);
-      }
-    });
-    return contentAttributions;
-  }
   clearMetadata() {
     this.metadata = {};
   }

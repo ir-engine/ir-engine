@@ -9,6 +9,7 @@ import {
 } from '@material-ui/core';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from "redux";
+// @ts-ignore
 import styles from './Admin.module.scss';
 import classNames from 'classnames';
 import { selectAppState } from '../../common/reducers/app/selector';

@@ -10,6 +10,7 @@ import { registerUserByEmail } from '../../reducers/auth/service';
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
+// @ts-ignore
 import styles from './Auth.module.scss';
 import { useTranslation } from "react-i18next";
 
