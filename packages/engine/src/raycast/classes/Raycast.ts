@@ -60,32 +60,17 @@ export class RayCast extends Object3D{
         //     if ( intersect ) vrControl.setPointerAt( 0, intersect.point );
         // } else
          if ( this.mouse.x !== null && this.mouse.y !== null ) {
-
             this.rayCaster.setFromCamera( this.mouse, camera );
-
             intersect = this.raycast();
         }
 
-        // Update targeted button state (if any)
-
-        if ( intersect && intersect.object.isUI ) {
-            if ( this.selectState ) {
-                // Component.setState internally call component.set with the options you defined in component.setupState
-                intersect.object.setState( 'selected' );
-            } else {
-                // Component.setState internally call component.set with the options you defined in component.setupState
-                intersect.object.setState( 'hovered' );
-            }
-        }
-
-        // Update non-targeted buttons state
+        // console.log('intersect', intersect);
+        if(intersect && intersect.object && intersect.object.pick)
+            intersect.object.pick(this.selectState);
 
         this.objsToTest.forEach( (obj)=> {
-
-            if ( (!intersect || obj !== intersect.object) && obj.isUI ) {
-
-                // Component.setState internally call component.set with the options you defined in component.setupState
-                obj.setState( 'idle' );
+            if ( (!intersect || obj !== intersect.object) && obj.unpick ) {
+                obj.unpick();
             }
         });
     }

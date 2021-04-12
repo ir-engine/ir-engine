@@ -2,6 +2,8 @@ import ThreeMeshUI, { Block, Keyboard } from "../../assets/three-mesh-ui";
 import { Group, Object3D, Color, TextureLoader, VideoTexture } from "three";
 
 class ScenePanel extends Object3D {
+  container:ThreeMeshUI.Block;
+
     constructor(title, description, image){
       super();
   
@@ -9,13 +11,13 @@ class ScenePanel extends Object3D {
     }
   
     init(title, description){
-      const container = new ThreeMeshUI.Block({
+      this.container = new ThreeMeshUI.Block({
         width: 1,
         height: 0.5
       });
   
-      container.position.set(0, 0, 0);
-      this.add(container);
+      this.container.position.set(0, 0, 0);
+      this.add(this.container);
   
       const textBlock = new ThreeMeshUI.Block({
         height: 0.1,
@@ -44,6 +46,21 @@ class ScenePanel extends Object3D {
       textBlock.position.set(0, -0.13, 0.1);
   
       this.add(textBlock);
+    }
+
+    pick(state){
+      if(state){
+        console.log('panel picked');
+        // this.container.width = 2;
+        // this.container.height = 1;
+        // this.needsUpdate = true;
+
+        this.container.set({width: 2, height: 1});
+        this.position.set(0, 2, 0);
+      }
+      else{
+
+      }
     }
   }
 
