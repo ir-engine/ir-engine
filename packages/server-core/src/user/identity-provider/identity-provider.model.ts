@@ -34,14 +34,14 @@ export default (app: Application): any => {
       {
         fields: ['id']
       },
-      // {
-      //   unique: true,
-      //   fields: ['userId', 'token']
-      // },
-      // {
-      //   unique: true,
-      //   fields: ['userId', 'type']
-      // }
+      {
+        unique: true,
+        fields: ['userId', 'token']
+      },
+      {
+        unique: true,
+        fields: ['userId', 'type']
+      }
     ]
   });
 

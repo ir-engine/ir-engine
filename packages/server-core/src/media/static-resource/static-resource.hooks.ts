@@ -12,7 +12,7 @@ export default {
   before: {
     all: [],
     find: [
-      collectAnalytics()
+      collectAnalytics(),
     ],
     get: [],
     create: [
