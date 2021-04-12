@@ -441,10 +441,8 @@ function TreeNode({
 
   //initializing _dragProps, drag, preview
   const [_dragProps, drag, preview] = useDrag({
-    /* @ts-ignore */
-    item: { type: ItemTypes.Node },
-    /* @ts-ignore */
-    begin() {
+    type: ItemTypes.Node,
+    item() {
       const multiple = editor.selected.length > 1;
       return { type: ItemTypes.Node, multiple, value: multiple ? editor.selected : editor.selected[0] };
     },
