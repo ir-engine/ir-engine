@@ -58,10 +58,10 @@ export class FeedFires extends Service {
         const creator = fire.creator.dataValues;
         return { // TODO: get creator from corresponding table
             id:creator.id,
-            avatar: 'https://picsum.photos/40/40',
+            avatar: creator.avatar,
             name: creator.name,
             username: creator.username,
-            verified : true,
+            verified : !!+creator.verified,
         };  
       });
       const feedsResult = {
