@@ -29,7 +29,7 @@ export class UIPanelSystem extends System {
       const raycast = getComponent(entity, RaycastComponent);
       this.panelContainer.add(raycast.raycast);
       
-      uiPanel.panel.panel.children.forEach(element => {
+      uiPanel.panel.panel.pickables.forEach(element => {
         raycast.raycast.addObject(element);
       });
     })

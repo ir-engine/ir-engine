@@ -22,7 +22,7 @@ class SceneButton extends Object3D {
 				break;
 		}
 	
-		const textBlock = new ThreeMeshUI.Block({
+		this.textBlock = new ThreeMeshUI.Block({
 		  height: 0.1,
 		  width: 0.4,
 		  margin: 0,
@@ -44,10 +44,10 @@ class SceneButton extends Object3D {
 		  })
 		);
 	
-		textBlock.position.set(pos[0], pos[1], pos[2]);
+		this.textBlock.position.set(pos[0], pos[1], pos[2]);
 	
 
-		this.add(textBlock);
+		this.add(this.textBlock);
 
 
 		const hoveredStateAttributes = {
@@ -82,11 +82,24 @@ class SceneButton extends Object3D {
 			}
 		};
 
-		textBlock.setupState(hoveredStateAttributes);
-		textBlock.setupState(idleStateAttributes);
-		textBlock.setupState(selectStateAttributes);
+		this.textBlock.setupState(hoveredStateAttributes);
+		this.textBlock.setupState(idleStateAttributes);
+		this.textBlock.setupState(selectStateAttributes);
 	  }
 
+	picked(state){
+		if ( state ) {
+			// Component.setState internally call component.set with the options you defined in component.setupState
+			this.textBlock.setState( 'selected' );
+		} else {
+			// Component.setState internally call component.set with the options you defined in component.setupState
+			this.textBlock.setState( 'hovered' );
+		}
+	}
+
+	unpick(){
+		this.textBlock.setState( 'idle' );
+	}
 }
 
 export default SceneButton;
