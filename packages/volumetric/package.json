@@ -37,7 +37,7 @@
     "broadway-player": "0.1.1",
     "demuxer": "2.1.3",
     "esm": "3.2.25",
-    "h265-wasm-player": "^0.1.1",
+    "h265-wasm-player": "0.1.1",
     "h265web.js": "2.2.2",
     "http-range-fetcher": "1.2.4",
     "loadjs": "4.2.0",
