@@ -7,6 +7,9 @@
   "workspaces": [
     "packages/*"
   ],
+  "nohoist": [
+    "*/@docusaurus/*"
+  ],
   "keywords": [
     "three",
     "three.js",
@@ -57,6 +60,7 @@
   "resolutions": {
     "socket.io": "2.4.1",
     "terser": "^5.6.1",
+    "**/terser-webpack-plugin": "^1.4.3",
     "@typescript-eslint/eslint-plugin": "4.21.0",
     "@typescript-eslint/parser": "4.21.0"
   },
