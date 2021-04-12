@@ -15,7 +15,7 @@
   "jest": "ts-jest",
   "scripts": {
     "build-publish": "rimraf dist && ctix entrypoint ./src && cross-env NODE_ENV=production rollup -c",
-    "lint": "eslint --fix --quiet \"*.ts\" \"**/*.d.ts\" \"**/*.ts\" \"**/*.tsx\""
+    "lint": "eslint --fix --quiet \"*.ts\" \"**/*.ts\" \"**/*.tsx\""
   },
   "resolutions": {
     "@types/react": "17.0.3",
