@@ -1,21 +1,29 @@
 import React from "react";
-import { ProfilePic} from "../ProfilePic";
+import { Avatar } from "@material-ui/core";
 
 // @ts-ignore
 import styles from './Stories.module.scss';
 
 export const StoryItem =({data}: any) => {
+  const size = 56
   return (
     <div
       className={styles.storyItem}
     >
       <div className="story-photo-container">
-        <ProfilePic
-          src={data?.image || "https://picsum.photos/seed/picsum/200/200"}
-          username={data?.username}
-          size={56}
-          border
-         />
+        <Avatar
+          alt={`${data?.username}'s profile pic`}
+          data-testid="user-avatar"
+          draggable="false"
+          src={data?.image}
+          style={{
+            width: size,
+            height: size,
+            borderRadius: size,
+            border: "2px solid white",
+            cursor: "pointer",
+          }}
+        />      
       </div>
     </div>
   );

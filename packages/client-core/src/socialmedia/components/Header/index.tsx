@@ -30,7 +30,7 @@ interface Props{
 const AppHeader = ({creatorState, getLoggedCreator, logo, authState}: Props) => {
   useEffect(()=>getLoggedCreator(),[]);  
   const creator = creatorState && creatorState.get('fetching') === false && creatorState.get('currentCreator');
-  const checkGuest = authState.get('authUser')?.identityProvider.type === 'guest' ? true : false;
+  const checkGuest = authState.get('authUser')?.identityProvider?.type === 'guest' ? true : false;
 
   return (
     <nav className={styles.headerContainer}>

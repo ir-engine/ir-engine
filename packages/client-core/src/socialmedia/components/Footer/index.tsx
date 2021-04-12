@@ -33,7 +33,7 @@ const AppFooter = ({creatorState, getLoggedCreator,authState}: any) => {
 
   const [buttonPopup , setButtonPopup] = useState(false);
   const creator = creatorState && creatorState.get('fetching') === false && creatorState.get('currentCreator'); 
-  const checkGuest = authState.get('authUser')?.identityProvider.type === 'guest' ? true : false;
+  const checkGuest = authState.get('authUser')?.identityProvider?.type === 'guest' ? true : false;
   return (
     <nav className={styles.footerContainer}>
         <HomeIcon onClick={()=> {checkGuest ? setButtonPopup(true) : Router.push('/');}} fontSize="large" className={styles.footerItem}/>
