@@ -1,0 +1,39 @@
+---
+id: "index.apploadedaction"
+title: "Interface: AppLoadedAction"
+sidebar_label: "AppLoadedAction"
+custom_edit_url: null
+hide_title: true
+---
+
+# Interface: AppLoadedAction
+
+[index](../modules/index.md).AppLoadedAction
+
+## Hierarchy
+
+* *Action*
+
+  ↳ **AppLoadedAction**
+
+## Indexable
+
+▪ [payload: *string*]: *any*
+
+## Properties
+
+### loaded
+
+• **loaded**: *boolean*
+
+Defined in: [packages/client-core/src/common/reducers/app/actions.ts:18](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/common/reducers/app/actions.ts#L18)
+
+___
+
+### type
+
+• **type**: *string*
+
+Inherited from: void
+
+Defined in: [packages/client-core/src/common/reducers/app/actions.ts:14](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/common/reducers/app/actions.ts#L14)

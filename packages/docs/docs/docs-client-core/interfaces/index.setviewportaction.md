@@ -1,0 +1,42 @@
+---
+id: "index.setviewportaction"
+title: "Interface: SetViewportAction"
+sidebar_label: "SetViewportAction"
+custom_edit_url: null
+hide_title: true
+---
+
+# Interface: SetViewportAction
+
+[index](../modules/index.md).SetViewportAction
+
+## Hierarchy
+
+* *Action*
+
+  ↳ **SetViewportAction**
+
+## Properties
+
+### type
+
+• **type**: *string*
+
+Inherited from: void
+
+Defined in: [packages/client-core/src/common/reducers/app/actions.ts:14](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/common/reducers/app/actions.ts#L14)
+
+___
+
+### viewportSize
+
+• **viewportSize**: *object*
+
+#### Type declaration:
+
+Name | Type |
+:------ | :------ |
+`height` | *number* |
+`width` | *number* |
+
+Defined in: [packages/client-core/src/common/reducers/app/actions.ts:23](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/common/reducers/app/actions.ts#L23)
