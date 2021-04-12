@@ -13,11 +13,11 @@ import UserRole from './user-role/user-role.service';
 import UserSettings from './user-settings/user-settings.service';
 export default [
   UserRole,
-  UserSettings,
   User,
+  UserSettings,
+  IdentityProvider,
   UserRelationshipType,
   UserRelationship,
-  IdentityProvider,
   AcceptInvite,
   Auth,
   Login,

@@ -33,11 +33,6 @@ export default (app: Application): any => {
       allowNull: true
     },
     // TODO: Think about it, in reticulum it is jsonB
-    attributions: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    // TODO: Think about it, in reticulum it is jsonB
     tags: {
       type: DataTypes.STRING,
       allowNull: false

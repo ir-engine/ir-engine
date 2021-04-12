@@ -38,7 +38,7 @@ function CreateProjectPage({ api }: { api: Api }) {
 
   const [params, setParams] = useState({
     source: "scene_listings",
-    filter: queryParams.get("filter") || "featured-remixable",
+    filter: queryParams.get("filter"),
     q: queryParams.get("q") || ""
   });
 
@@ -70,25 +70,15 @@ function CreateProjectPage({ api }: { api: Api }) {
     value => {
       updateParams({
         source: "scene_listings",
-        filter: "remixable",
         q: value
       });
     },
     [updateParams]
   );
 
-  const onSetFeaturedRemixable = useCallback(() => {
-    updateParams({
-      ...params,
-      filter: "featured-remixable",
-      q: ""
-    });
-  }, [updateParams, params]);
-
   const onSetAll = useCallback(() => {
     updateParams({
       ...params,
-      filter: "remixable",
       q: ""
     });
   }, [updateParams, params]);
@@ -129,10 +119,6 @@ function CreateProjectPage({ api }: { api: Api }) {
             <ProjectGridContainer>
               <ProjectGridHeader>
               <ProjectGridHeaderRow>
-                  <Filter active={params.filter === "featured-remixable"} onClick={onSetFeaturedRemixable}>
-                    {t('editor:projects.createProject.featured')}
-                  </Filter>
-                  <Filter active={params.filter === "remixable"} onClick={onSetAll}>
                     {t('editor:projects.createProject.all')}
                   </Filter>
                   <Separator />

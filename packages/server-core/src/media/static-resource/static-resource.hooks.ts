@@ -12,15 +12,7 @@ export default {
   before: {
     all: [],
     find: [
-      collectAnalytics(),
-      addAssociations({
-        models: [
-          {
-            model: 'attribution',
-            as: 'attribution'
-          }
-        ]
-      })
+      collectAnalytics()
     ],
     get: [],
     create: [

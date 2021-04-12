@@ -75,7 +75,7 @@ export class PublishProject implements ServiceMethods<Data> {
       const savedScene = await CollectionModel.create(data, {
         type: collectionType.scene,
         transaction: trans,
-        fields: ['screenshotOwnedFileId', 'modelOwnedFileId', 'allow_remixing', 'allow_promotion', 'name', 'ownerUserId', 'slug', 'state', 'sceneId', 'sid', 'collectionId']
+        fields: ['screenshotOwnedFileId', 'modelOwnedFileId', 'name', 'ownerUserId', 'slug', 'state', 'sceneId', 'sid', 'collectionId']
       });
       project.sceneId = savedScene.id;
 

@@ -224,9 +224,6 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
       if (templateFile.metadata) {
         delete templateFile.metadata.sceneUrl;
         delete templateFile.metadata.sceneId;
-        delete templateFile.metadata.creatorAttribution;
-        delete templateFile.metadata.allowRemixing;
-        delete templateFile.metadata.allowPromotion;
       }
 
       await editor.loadProject(templateFile);
@@ -261,16 +258,6 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
       const scene: any = await this.props.api.getScene(sceneId);
       console.warn('loadScene:scene', scene);
       const projectFile = scene.data;
-      // const projectFile = await this.props.api.fetchUrl(scene.scene_project_url).then(response => response.json());
-      // console.warn('loadScene:projectFile', projectFile);
-      //
-      // if (projectFile.metadata) {
-      //   delete projectFile.metadata.sceneUrl;
-      //   delete projectFile.metadata.sceneId;
-      //   delete projectFile.metadata.creatorAttribution;
-      //   delete projectFile.metadata.allowRemixing;
-      //   delete projectFile.metadata.allowPromotion;
-      // }
 
       await editor.init();
 
@@ -397,10 +384,6 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
         name: this.t('editor:menubar.saveAs'),
         action: this.onDuplicateProject
       },
-      // {
-      //   name: this.t('editor:menubar.publishProject'),
-      //   action: this.onPublishProject
-      // },
       {
         name: this.t('editor:menubar.exportGLB'), // TODO: Disabled temporarily till workers are working
         action: this.onExportProject

@@ -47,22 +47,6 @@ export class ResolveMedia implements ServiceMethods<Data> {
     const SelectedMediaType = this.processAndGetMediaTypeHandler(data.media.url);
     const modelId = SelectedMediaType.modelId;
 
-    // const asset = await StaticResourceModel.findOne({
-    //   where: {
-    //     key: modelId
-    //   },
-    //   include: [
-    //     {
-    //       model: this.models.attribution
-    //     }
-    //   ]
-    // })
-
-    // if (asset) {
-    //   // TODO: Process response
-    //   return asset
-    // }
-
     let model;
     if (SelectedMediaType.Handler) {
       const selectedMediaInstance = new SelectedMediaType.Handler();
@@ -72,7 +56,6 @@ export class ResolveMedia implements ServiceMethods<Data> {
         meta: {
           author: '',
           expected_content_type: 'model/gltf',
-          license: '',
           name: '',
         },
         origin: data.media.url
