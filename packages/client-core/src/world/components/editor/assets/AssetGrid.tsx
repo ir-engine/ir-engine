@@ -85,8 +85,8 @@ function AssetGridItem({ contextMenuId, tooltipComponent, disableTooltip, item, 
   }
 
   // @ts-ignore
-  const [_dragProps, drag, preview] = useDrag({ item: { type: item.type },
-    begin() {
+  const [_dragProps, drag, preview] = useDrag({ type: item.type ,
+    item() {
       return { type: item.type, multiple: false, value: item };
     }
   });
