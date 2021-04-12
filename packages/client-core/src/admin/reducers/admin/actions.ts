@@ -38,7 +38,6 @@ export interface VideoCreatedResponse {
   metadata: object;
   userId: string;
   mimeType: string;
-  attributionId: string;
   staticResourceType: string;
 }
 
@@ -50,7 +49,6 @@ export interface VideoUpdatedResponse {
   metadata: object;
   userId: string;
   mimeType: string;
-  attributionId: string;
   staticResourceType: string;
 }
 
@@ -62,7 +60,6 @@ export interface VideoDeletedResponse {
   metadata: object;
   userId: string;
   mimeType: string;
-  attributionId: string;
   staticResourceType: string;
 }
 

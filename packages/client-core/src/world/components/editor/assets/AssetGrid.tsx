@@ -84,12 +84,11 @@ function AssetGridItem({ contextMenuId, tooltipComponent, disableTooltip, item, 
     content = <AudioPreview src={item.url}>{content}</AudioPreview>;
   }
 
-  // @ts-ignore
-  const [_dragProps, drag, preview] = useDrag({ item: { type: item.type },
-    begin() {
-      return { type: item.type, multiple: false, value: item };
-    }
-  });
+  const [_dragProps, drag, preview] = useDrag(() => ({
+    type: item.type,
+    item,
+    multiple: false
+  }))
 
  /**
   * [renderTooltip  used to render tooltip for AssetGrid]

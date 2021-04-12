@@ -34,18 +34,19 @@ export default (app: Application): any => {
       {
         fields: ['id']
       },
-      {
-        unique: true,
-        fields: ['id', 'token']
-      },
-      {
-        unique: true,
-        fields: ['id', 'type']
-      }
+      // {
+      //   unique: true,
+      //   fields: ['userId', 'token']
+      // },
+      // {
+      //   unique: true,
+      //   fields: ['userId', 'type']
+      // }
     ]
   });
 
   (identityProvider as any).associate = (models: any): void => {
+    console.log("********** ASSOCIATING IDENTITY PROVIDER");
     (identityProvider as any).belongsTo(models.user, { required: true });
     (identityProvider as any).hasMany(models.login_token);
   };

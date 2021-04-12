@@ -1,8 +1,4 @@
-// import * as authentication from '@feathersjs/authentication'
 import { disallow } from 'feathers-hooks-common';
-import addAttribution from '@xr3ngine/server-core/src/hooks/add-attribution';
-// import createResource from '@xr3ngine/server-core/src/hooks/create-resource'
-// Don't remove this comment. It's needed to format import lines nicely.
 
 export default {
   before: {
@@ -19,7 +15,7 @@ export default {
     all: [],
     find: [],
     get: [],
-    create: [addAttribution],
+    create: [],
     update: [],
     patch: [],
     remove: []

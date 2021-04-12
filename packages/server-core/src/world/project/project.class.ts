@@ -305,14 +305,14 @@ export class Project implements ServiceMethods<Data> {
     if (loadedProject?.sceneId) {
       projectIncludes.push({
         model: CollectionModel,
-        attributes: ['userId', 'allow_promotion', 'allow_remixing', 'attribution', 'description', 'name', 'parentSceneId', 'sceneId', 'sid']
+        attributes: ['userId', 'description', 'name', 'parentSceneId', 'sceneId', 'sid']
       });
     }
 
     if (loadedProject?.parentSceneId) {
       projectIncludes.push({
         model: CollectionModel,
-        attributes: ['userId', 'allow_promotion', 'allow_remixing', 'attribution', 'description', 'name', 'parentSceneId', 'sceneId', 'sid'],
+        attributes: ['userId', 'description', 'name', 'parentSceneId', 'sceneId', 'sid'],
         as: 'parent_scene'
       });
     }

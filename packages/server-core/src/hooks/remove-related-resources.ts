@@ -85,16 +85,11 @@ export default (): Hook => {
         });
       });
 
-      const attributionRemovePromise = staticResource.attributionId
-        ? app.service('attribution').remove(staticResource.attributionId)
-        : Promise.resolve(true);
-
       const staticResourceChildrenRemovePromise = Promise.all(childRemovalPromises);
 
       await Promise.all([
         storageRemovePromise,
-        staticResourceChildrenRemovePromise,
-        attributionRemovePromise
+        staticResourceChildrenRemovePromise
       ]);
 
       await staticResourceService.Model.destroy({ // Remove static resource itself
