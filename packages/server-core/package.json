@@ -135,7 +135,7 @@
     "s3-blob-store": "^4.1.1",
     "semantic-release": "^17.4.2",
     "semantic-release-monorepo": "^7.0.4",
-    "sequelize": " 5.22.0",
+    "sequelize": "5.22.4",
     "serve-favicon": "^2.5.0",
     "slugify": "^1.4.5",
     "text-encoding": "^0.7.0",
