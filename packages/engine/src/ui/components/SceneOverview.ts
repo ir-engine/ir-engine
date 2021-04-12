@@ -19,7 +19,7 @@ class SceneOverview extends Object3D {
 	
 	
 		
-		let video = document.getElementById('video360') as HTMLVideoElement;
+		const video = document.getElementById('video360') as HTMLVideoElement;
 
 		console.log('video360', video);
 		// video.play();
@@ -27,7 +27,7 @@ class SceneOverview extends Object3D {
 
 		// } );
 		
-		let texture = new VideoTexture( video );
+		const texture = new VideoTexture( video );
 
 		console.log('texture', texture);
 		container.set({backgroundTexture: texture});
