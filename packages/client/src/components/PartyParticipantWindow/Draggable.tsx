@@ -3,17 +3,15 @@ import React, { useState } from 'react';
 type PropsType = {
     isPiP: boolean;
 }
-
 class Draggable extends React.Component<PropsType> {
-    MARGIN = 20;
-    dragStarted = false;
-    prev = { x: 0, y: 0 };
-    
-    props
-    constructor(props: PropsType){
-        super(props)
+    constructor(props: PropsType) {
+        super(props);
         this.props = props;
     }
+    props
+    prev = { x: 0, y: 0 };
+    MARGIN = 20;
+    dragStarted = false;
 
     clamp = (low, value, high) => {
         if (value < low) return low;
@@ -36,7 +34,7 @@ class Draggable extends React.Component<PropsType> {
         const container = e.currentTarget;
 
         const boundingRect = container.getBoundingClientRect();
-        container.style.left = this.clamp(this.MARGIN, (boundingRect.left + point.x  - this.prev.x), window.innerWidth - boundingRect.width - this.MARGIN) + 'px';
+        container.style.left = this.clamp(this.MARGIN, (boundingRect.left + point.x - this.prev.x), window.innerWidth - boundingRect.width - this.MARGIN) + 'px';
         container.style.top = this.clamp(this.MARGIN, (boundingRect.top + point.y - this.prev.y), window.innerHeight - boundingRect.height - this.MARGIN) + 'px';
         this.prev = point;
     }
@@ -74,7 +72,7 @@ class Draggable extends React.Component<PropsType> {
         }
     }
 
-    getStyle = () =>  {
+    getStyle = () => {
         if (this.props.isPiP)
             return {
                 touchAction: 'none',
@@ -89,7 +87,7 @@ class Draggable extends React.Component<PropsType> {
         }
     }
 
-    render()  {
+    render() {
         const handles = this.props.isPiP ? {
             onTouchStart: this.handleMouseDown,
             onTouchMove: this.handleMouseMove,
