@@ -1,8 +1,10 @@
 import ThreeMeshUI, { Block, Keyboard } from "../../assets/three-mesh-ui";
 import { Group, Object3D, Color, TextureLoader, VideoTexture } from "three";
+import { Engine } from "../../ecs/classes/Engine";
 
 class ScenePanel extends Object3D {
   container:ThreeMeshUI.Block;
+  siblings:[];  
 
     constructor(title, description, image){
       super();
@@ -11,6 +13,7 @@ class ScenePanel extends Object3D {
     }
   
     init(title, description){
+      this.siblings = [];
       this.container = new ThreeMeshUI.Block({
         width: 1,
         height: 0.5
@@ -50,17 +53,22 @@ class ScenePanel extends Object3D {
 
     pick(state){
       if(state){
+        // this.visible = true;
         console.log('panel picked');
         // this.container.width = 2;
         // this.container.height = 1;
         // this.needsUpdate = true;
 
-        this.container.set({width: 2, height: 1});
-        this.position.set(0, 2, 0);
+        this.container.set({width: 3, height: 1.5});
+        this.position.set(0, 1, 0);
       }
       else{
 
       }
+    }
+
+    update(){
+      console.log('engine last time:', Engine.lastTime);
     }
   }
 

@@ -100,6 +100,9 @@ class SceneButton extends Object3D {
 	unpick(){
 		this.textBlock.setState( 'idle' );
 	}
+
+	update(){
+	}
 }
 
 export default SceneButton;

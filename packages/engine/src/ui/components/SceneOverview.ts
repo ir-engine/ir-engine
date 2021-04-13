@@ -30,7 +30,7 @@ class SceneOverview extends Object3D {
 		const texture = new VideoTexture( video );
 
 		console.log('texture', texture);
-		container.set({backgroundTexture: texture});
+		// container.set({backgroundTexture: texture});
 
 		const textBlock = new ThreeMeshUI.Block({
 		  height: 0.1,
@@ -60,6 +60,9 @@ class SceneOverview extends Object3D {
 		textBlock.position.set(-0.95, 1.1, 0.04);
 	
 		this.add(textBlock);
+	  }
+
+	  update(){
 	  }
 }
 
