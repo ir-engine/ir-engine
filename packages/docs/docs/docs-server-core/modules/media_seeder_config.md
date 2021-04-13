@@ -20,4 +20,4 @@ Renames and exports: [mediaSeeds](media_seeder_config.md#mediaseeds)
 
 • `Const` **mediaSeeds**: ServicesSeedConfig[]
 
-Defined in: [packages/server-core/src/media/seeder-config.ts:5](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/media/seeder-config.ts#L5)
+Defined in: [packages/server-core/src/media/seeder-config.ts:5](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/media/seeder-config.ts#L5)

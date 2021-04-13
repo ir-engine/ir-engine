@@ -24,7 +24,7 @@ hide_title: true
 
 **Returns:** [*StorageProviderInterface*](media_storageprovider_storageprovider_interface.storageproviderinterface.md)
 
-Defined in: [packages/server-core/src/media/storageprovider/storageprovider.interface.ts:2](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/media/storageprovider/storageprovider.interface.ts#L2)
+Defined in: [packages/server-core/src/media/storageprovider/storageprovider.interface.ts:2](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/media/storageprovider/storageprovider.interface.ts#L2)
 
 ___
 
@@ -34,4 +34,4 @@ ___
 
 **Returns:** *any*
 
-Defined in: [packages/server-core/src/media/storageprovider/storageprovider.interface.ts:3](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/media/storageprovider/storageprovider.interface.ts#L3)
+Defined in: [packages/server-core/src/media/storageprovider/storageprovider.interface.ts:3](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/media/storageprovider/storageprovider.interface.ts#L3)

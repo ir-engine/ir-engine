@@ -18,4 +18,4 @@ Function for routing the request to editor/projects.
 
 **Returns:** *any*
 
-Defined in: [packages/client/src/pages/editor/index.tsx:9](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client/src/pages/editor/index.tsx#L9)
+Defined in: [packages/client/src/pages/editor/index.tsx:9](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client/src/pages/editor/index.tsx#L9)

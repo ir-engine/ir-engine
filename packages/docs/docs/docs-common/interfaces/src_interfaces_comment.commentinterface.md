@@ -16,7 +16,7 @@ hide_title: true
 
 • **creator**: [*CreatorShort*](src_interfaces_creator.creatorshort.md)
 
-Defined in: [src/interfaces/Comment.ts:7](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/common/src/interfaces/Comment.ts#L7)
+Defined in: [interfaces/Comment.ts:7](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/common/src/interfaces/Comment.ts#L7)
 
 ___
 
@@ -24,7 +24,7 @@ ___
 
 • **feedId**: *string*
 
-Defined in: [src/interfaces/Comment.ts:6](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/common/src/interfaces/Comment.ts#L6)
+Defined in: [interfaces/Comment.ts:6](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/common/src/interfaces/Comment.ts#L6)
 
 ___
 
@@ -32,7 +32,7 @@ ___
 
 • **fires**: *number*
 
-Defined in: [src/interfaces/Comment.ts:9](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/common/src/interfaces/Comment.ts#L9)
+Defined in: [interfaces/Comment.ts:9](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/common/src/interfaces/Comment.ts#L9)
 
 ___
 
@@ -40,7 +40,7 @@ ___
 
 • **id**: *string*
 
-Defined in: [src/interfaces/Comment.ts:5](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/common/src/interfaces/Comment.ts#L5)
+Defined in: [interfaces/Comment.ts:5](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/common/src/interfaces/Comment.ts#L5)
 
 ___
 
@@ -48,7 +48,7 @@ ___
 
 • `Optional` **isFired**: *boolean*
 
-Defined in: [src/interfaces/Comment.ts:10](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/common/src/interfaces/Comment.ts#L10)
+Defined in: [interfaces/Comment.ts:10](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/common/src/interfaces/Comment.ts#L10)
 
 ___
 
@@ -56,4 +56,4 @@ ___
 
 • **text**: *string*
 
-Defined in: [src/interfaces/Comment.ts:8](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/common/src/interfaces/Comment.ts#L8)
+Defined in: [interfaces/Comment.ts:8](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/common/src/interfaces/Comment.ts#L8)

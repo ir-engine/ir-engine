@@ -16,7 +16,7 @@ hide_title: true
 
 • `Optional` **contract**: [*ContractProps*](../modules/types.md#contractprops)
 
-Defined in: [packages/nft/src/state.tsx:9](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/nft/src/state.tsx#L9)
+Defined in: [packages/nft/src/state.tsx:9](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/nft/src/state.tsx#L9)
 
 ___
 
@@ -24,7 +24,7 @@ ___
 
 • `Optional` **ethPrice**: *string*
 
-Defined in: [packages/nft/src/state.tsx:12](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/nft/src/state.tsx#L12)
+Defined in: [packages/nft/src/state.tsx:12](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/nft/src/state.tsx#L12)
 
 ___
 
@@ -32,7 +32,7 @@ ___
 
 • **isAuthenticated**: *boolean*
 
-Defined in: [packages/nft/src/state.tsx:8](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/nft/src/state.tsx#L8)
+Defined in: [packages/nft/src/state.tsx:8](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/nft/src/state.tsx#L8)
 
 ___
 
@@ -40,7 +40,7 @@ ___
 
 • `Optional` **tokensOnSale**: [*TokenProps*](../modules/components_token.md#tokenprops)[]
 
-Defined in: [packages/nft/src/state.tsx:11](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/nft/src/state.tsx#L11)
+Defined in: [packages/nft/src/state.tsx:11](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/nft/src/state.tsx#L11)
 
 ___
 
@@ -48,4 +48,4 @@ ___
 
 • `Optional` **user**: [*UserProps*](../modules/types.md#userprops)
 
-Defined in: [packages/nft/src/state.tsx:10](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/nft/src/state.tsx#L10)
+Defined in: [packages/nft/src/state.tsx:10](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/nft/src/state.tsx#L10)

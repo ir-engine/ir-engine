@@ -26,14 +26,14 @@ A class for Video service
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`options` | ServiceOptions |
-`app` | Application |
+Name | Type | Default value |
+:------ | :------ | :------ |
+`options` | ServiceOptions | {} |
+`app` | Application | - |
 
 **Returns:** [*Video*](media_video_video_class.video.md)
 
-Defined in: [packages/server-core/src/media/video/video.class.ts:16](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/media/video/video.class.ts#L16)
+Defined in: [packages/server-core/src/media/video/video.class.ts:16](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/media/video/video.class.ts#L16)
 
 ## Properties
 
@@ -41,7 +41,7 @@ Defined in: [packages/server-core/src/media/video/video.class.ts:16](https://git
 
 • **app**: Application
 
-Defined in: [packages/server-core/src/media/video/video.class.ts:15](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/media/video/video.class.ts#L15)
+Defined in: [packages/server-core/src/media/video/video.class.ts:15](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/media/video/video.class.ts#L15)
 
 ___
 
@@ -49,7 +49,7 @@ ___
 
 • **options**: ServiceOptions
 
-Defined in: [packages/server-core/src/media/video/video.class.ts:16](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/media/video/video.class.ts#L16)
+Defined in: [packages/server-core/src/media/video/video.class.ts:16](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/media/video/video.class.ts#L16)
 
 ## Methods
 
@@ -66,9 +66,9 @@ Name | Type |
 
 **Returns:** *Promise*<Data\>
 
-Implementation of: void
+Implementation of: ServiceMethods.create
 
-Defined in: [packages/server-core/src/media/video/video.class.ts:33](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/media/video/video.class.ts#L33)
+Defined in: [packages/server-core/src/media/video/video.class.ts:33](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/media/video/video.class.ts#L33)
 
 ___
 
@@ -84,9 +84,9 @@ Name | Type |
 
 **Returns:** *Promise*<Data[] \| Paginated<Data\>\>
 
-Implementation of: void
+Implementation of: ServiceMethods.find
 
-Defined in: [packages/server-core/src/media/video/video.class.ts:23](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/media/video/video.class.ts#L23)
+Defined in: [packages/server-core/src/media/video/video.class.ts:23](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/media/video/video.class.ts#L23)
 
 ___
 
@@ -103,65 +103,65 @@ Name | Type |
 
 **Returns:** *Promise*<Data\>
 
-Implementation of: void
+Implementation of: ServiceMethods.get
 
-Defined in: [packages/server-core/src/media/video/video.class.ts:27](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/media/video/video.class.ts#L27)
+Defined in: [packages/server-core/src/media/video/video.class.ts:27](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/media/video/video.class.ts#L27)
 
 ___
 
 ### patch
 
-▸ **patch**(`id`: Id, `data`: Data, `params?`: Params): *Promise*<Data\>
+▸ **patch**(`id`: NullableId, `data`: Data, `params?`: Params): *Promise*<Data\>
 
 #### Parameters:
 
 Name | Type |
 :------ | :------ |
-`id` | Id |
+`id` | NullableId |
 `data` | Data |
 `params?` | Params |
 
 **Returns:** *Promise*<Data\>
 
-Implementation of: void
+Implementation of: ServiceMethods.patch
 
-Defined in: [packages/server-core/src/media/video/video.class.ts:48](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/media/video/video.class.ts#L48)
+Defined in: [packages/server-core/src/media/video/video.class.ts:48](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/media/video/video.class.ts#L48)
 
 ___
 
 ### remove
 
-▸ **remove**(`id`: Id, `params?`: Params): *Promise*<Data\>
+▸ **remove**(`id`: NullableId, `params?`: Params): *Promise*<Data\>
 
 #### Parameters:
 
 Name | Type |
 :------ | :------ |
-`id` | Id |
+`id` | NullableId |
 `params?` | Params |
 
 **Returns:** *Promise*<Data\>
 
-Implementation of: void
+Implementation of: ServiceMethods.remove
 
-Defined in: [packages/server-core/src/media/video/video.class.ts:52](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/media/video/video.class.ts#L52)
+Defined in: [packages/server-core/src/media/video/video.class.ts:52](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/media/video/video.class.ts#L52)
 
 ___
 
 ### update
 
-▸ **update**(`id`: Id, `data`: Data, `params?`: Params): *Promise*<Data\>
+▸ **update**(`id`: NullableId, `data`: Data, `params?`: Params): *Promise*<Data\>
 
 #### Parameters:
 
 Name | Type |
 :------ | :------ |
-`id` | Id |
+`id` | NullableId |
 `data` | Data |
 `params?` | Params |
 
 **Returns:** *Promise*<Data\>
 
-Implementation of: void
+Implementation of: ServiceMethods.update
 
-Defined in: [packages/server-core/src/media/video/video.class.ts:44](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/media/video/video.class.ts#L44)
+Defined in: [packages/server-core/src/media/video/video.class.ts:44](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/media/video/video.class.ts#L44)

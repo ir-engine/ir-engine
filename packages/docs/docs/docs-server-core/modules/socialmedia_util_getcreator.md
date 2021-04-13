@@ -23,4 +23,4 @@ Name | Type |
 
 **Returns:** *Promise*<any\>
 
-Defined in: [packages/server-core/src/socialmedia/util/getCreator.ts:7](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/socialmedia/util/getCreator.ts#L7)
+Defined in: [packages/server-core/src/socialmedia/util/getCreator.ts:7](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/socialmedia/util/getCreator.ts#L7)

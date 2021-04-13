@@ -22,7 +22,7 @@ Name | Type |
 
 **Returns:** *Promise*<any\>
 
-Defined in: [packages/nft/src/utils/fetchers.ts:1](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/nft/src/utils/fetchers.ts#L1)
+Defined in: [packages/nft/src/utils/fetchers.ts:1](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/nft/src/utils/fetchers.ts#L1)
 
 ___
 
@@ -38,4 +38,4 @@ Name | Type |
 
 **Returns:** *Promise*<any\>
 
-Defined in: [packages/nft/src/utils/fetchers.ts:4](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/nft/src/utils/fetchers.ts#L4)
+Defined in: [packages/nft/src/utils/fetchers.ts:4](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/nft/src/utils/fetchers.ts#L4)

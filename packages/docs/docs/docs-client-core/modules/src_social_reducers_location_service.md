@@ -23,7 +23,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/src/social/reducers/location/service.ts:61](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/social/reducers/location/service.ts#L61)
+Defined in: [packages/client-core/src/social/reducers/location/service.ts:61](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/location/service.ts#L61)
 
 ___
 
@@ -39,7 +39,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/src/social/reducers/location/service.ts:30](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/social/reducers/location/service.ts#L30)
+Defined in: [packages/client-core/src/social/reducers/location/service.ts:30](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/location/service.ts#L30)
 
 ___
 
@@ -55,7 +55,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/src/social/reducers/location/service.ts:43](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/social/reducers/location/service.ts#L43)
+Defined in: [packages/client-core/src/social/reducers/location/service.ts:43](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/location/service.ts#L43)
 
 ___
 
@@ -72,4 +72,4 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>, `getState`: *any*) => *Promise*<any\>
 
-Defined in: [packages/client-core/src/social/reducers/location/service.ts:12](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/social/reducers/location/service.ts#L12)
+Defined in: [packages/client-core/src/social/reducers/location/service.ts:12](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/location/service.ts#L12)

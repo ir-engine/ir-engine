@@ -7,9 +7,3 @@ hide_title: true
 ---
 
 # Module: src/types/s3-blob-store
-
-## Table of contents
-
-### Classes
-
-- [export&#x3D;](../classes/src_types_s3_blob_store.export_.md)

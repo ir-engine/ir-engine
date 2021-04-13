@@ -24,7 +24,7 @@ DialogContent used to provide styles for dialog body content.
 
 **`author`** Robert Long
 
-Defined in: [packages/client-core/src/world/components/editor/dialogs/Dialog.tsx:56](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/dialogs/Dialog.tsx#L56)
+Defined in: [packages/client-core/src/world/components/editor/dialogs/Dialog.tsx:56](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/dialogs/Dialog.tsx#L56)
 
 ## Functions
 
@@ -44,4 +44,4 @@ Name | Type |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/dialogs/Dialog.tsx:132](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/dialogs/Dialog.tsx#L132)
+Defined in: [packages/client-core/src/world/components/editor/dialogs/Dialog.tsx:132](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/dialogs/Dialog.tsx#L132)

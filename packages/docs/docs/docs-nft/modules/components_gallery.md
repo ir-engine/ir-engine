@@ -16,7 +16,7 @@ hide_title: true
 
 #### Type declaration:
 
-Defined in: [packages/nft/src/components/Gallery.tsx:8](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/nft/src/components/Gallery.tsx#L8)
+Defined in: [packages/nft/src/components/Gallery.tsx:8](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/nft/src/components/Gallery.tsx#L8)
 
 ## Functions
 
@@ -26,4 +26,4 @@ Defined in: [packages/nft/src/components/Gallery.tsx:8](https://github.com/xr3ng
 
 **Returns:** *Element*
 
-Defined in: [packages/nft/src/components/Gallery.tsx:10](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/nft/src/components/Gallery.tsx#L10)
+Defined in: [packages/nft/src/components/Gallery.tsx:10](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/nft/src/components/Gallery.tsx#L10)

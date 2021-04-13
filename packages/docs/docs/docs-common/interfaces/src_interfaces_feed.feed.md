@@ -22,7 +22,7 @@ hide_title: true
 
 • **creator**: [*CreatorShort*](src_interfaces_creator.creatorshort.md)
 
-Defined in: [src/interfaces/Feed.ts:10](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/common/src/interfaces/Feed.ts#L10)
+Defined in: [interfaces/Feed.ts:10](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/common/src/interfaces/Feed.ts#L10)
 
 ___
 
@@ -30,7 +30,7 @@ ___
 
 • **description**: *string*
 
-Defined in: [src/interfaces/Feed.ts:15](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/common/src/interfaces/Feed.ts#L15)
+Defined in: [interfaces/Feed.ts:15](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/common/src/interfaces/Feed.ts#L15)
 
 ___
 
@@ -38,7 +38,7 @@ ___
 
 • **fires**: *number*
 
-Defined in: [src/interfaces/Feed.ts:13](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/common/src/interfaces/Feed.ts#L13)
+Defined in: [interfaces/Feed.ts:13](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/common/src/interfaces/Feed.ts#L13)
 
 ___
 
@@ -48,7 +48,7 @@ ___
 
 Inherited from: [FeedShort](src_interfaces_feed.feedshort.md).[id](src_interfaces_feed.feedshort.md#id)
 
-Defined in: [src/interfaces/Feed.ts:4](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/common/src/interfaces/Feed.ts#L4)
+Defined in: [interfaces/Feed.ts:4](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/common/src/interfaces/Feed.ts#L4)
 
 ___
 
@@ -56,7 +56,7 @@ ___
 
 • `Optional` **isBookmarked**: *boolean*
 
-Defined in: [src/interfaces/Feed.ts:17](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/common/src/interfaces/Feed.ts#L17)
+Defined in: [interfaces/Feed.ts:17](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/common/src/interfaces/Feed.ts#L17)
 
 ___
 
@@ -64,7 +64,7 @@ ___
 
 • `Optional` **isFired**: *boolean*
 
-Defined in: [src/interfaces/Feed.ts:16](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/common/src/interfaces/Feed.ts#L16)
+Defined in: [interfaces/Feed.ts:16](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/common/src/interfaces/Feed.ts#L16)
 
 ___
 
@@ -74,7 +74,7 @@ ___
 
 Overrides: [FeedShort](src_interfaces_feed.feedshort.md).[previewUrl](src_interfaces_feed.feedshort.md#previewurl)
 
-Defined in: [src/interfaces/Feed.ts:12](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/common/src/interfaces/Feed.ts#L12)
+Defined in: [interfaces/Feed.ts:12](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/common/src/interfaces/Feed.ts#L12)
 
 ___
 
@@ -82,7 +82,7 @@ ___
 
 • **title**: *string*
 
-Defined in: [src/interfaces/Feed.ts:14](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/common/src/interfaces/Feed.ts#L14)
+Defined in: [interfaces/Feed.ts:14](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/common/src/interfaces/Feed.ts#L14)
 
 ___
 
@@ -90,7 +90,7 @@ ___
 
 • **videoUrl**: *string*
 
-Defined in: [src/interfaces/Feed.ts:11](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/common/src/interfaces/Feed.ts#L11)
+Defined in: [interfaces/Feed.ts:11](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/common/src/interfaces/Feed.ts#L11)
 
 ___
 
@@ -100,4 +100,4 @@ ___
 
 Inherited from: [FeedShort](src_interfaces_feed.feedshort.md).[viewsCount](src_interfaces_feed.feedshort.md#viewscount)
 
-Defined in: [src/interfaces/Feed.ts:6](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/common/src/interfaces/Feed.ts#L6)
+Defined in: [interfaces/Feed.ts:6](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/common/src/interfaces/Feed.ts#L6)

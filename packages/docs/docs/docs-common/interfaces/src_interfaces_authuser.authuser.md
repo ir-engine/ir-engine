@@ -16,7 +16,7 @@ hide_title: true
 
 • **accessToken**: *string*
 
-Defined in: [src/interfaces/AuthUser.ts:4](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/common/src/interfaces/AuthUser.ts#L4)
+Defined in: [interfaces/AuthUser.ts:4](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/common/src/interfaces/AuthUser.ts#L4)
 
 ___
 
@@ -30,7 +30,7 @@ Name | Type |
 :------ | :------ |
 `strategy` | *string* |
 
-Defined in: [src/interfaces/AuthUser.ts:5](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/common/src/interfaces/AuthUser.ts#L5)
+Defined in: [interfaces/AuthUser.ts:5](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/common/src/interfaces/AuthUser.ts#L5)
 
 ___
 
@@ -38,4 +38,4 @@ ___
 
 • **identityProvider**: [*IdentityProvider*](src_interfaces_identityprovider.identityprovider.md)
 
-Defined in: [src/interfaces/AuthUser.ts:8](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/common/src/interfaces/AuthUser.ts#L8)
+Defined in: [interfaces/AuthUser.ts:8](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/common/src/interfaces/AuthUser.ts#L8)

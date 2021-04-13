@@ -22,4 +22,4 @@ Name | Type |
 
 **Returns:** *boolean*
 
-Defined in: [src/utils/isExternalUrl.ts:2](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/common/src/utils/isExternalUrl.ts#L2)
+Defined in: [utils/isExternalUrl.ts:2](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/common/src/utils/isExternalUrl.ts#L2)

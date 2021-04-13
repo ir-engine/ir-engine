@@ -12,14 +12,14 @@ hide_title: true
 
 ### default
 
-Renames and exports: [IndexPage](src_pages.md#indexpage)
+Renames and exports: [HomePage](src_pages.md#homepage)
 
 ## Functions
 
-### IndexPage
+### HomePage
 
-▸ `Const`**IndexPage**(): *any*
+▸ `Const`**HomePage**(): *any*
 
 **Returns:** *any*
 
-Defined in: [packages/client/src/pages/index.tsx:8](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client/src/pages/index.tsx#L8)
+Defined in: [packages/client/src/pages/index.tsx:8](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client/src/pages/index.tsx#L8)

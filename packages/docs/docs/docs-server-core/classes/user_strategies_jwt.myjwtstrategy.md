@@ -24,7 +24,7 @@ hide_title: true
 
 **Returns:** [*MyJwtStrategy*](user_strategies_jwt.myjwtstrategy.md)
 
-Inherited from: void
+Inherited from: JWTStrategy.constructor
 
 ## Properties
 
@@ -32,7 +32,7 @@ Inherited from: void
 
 • `Optional` **app**: *Application*<{}\>
 
-Inherited from: void
+Inherited from: JWTStrategy.app
 
 Defined in: node_modules/@feathersjs/authentication/lib/strategy.d.ts:5
 
@@ -42,7 +42,7 @@ ___
 
 • `Optional` **authentication**: *AuthenticationBase*
 
-Inherited from: void
+Inherited from: JWTStrategy.authentication
 
 Defined in: node_modules/@feathersjs/authentication/lib/strategy.d.ts:4
 
@@ -52,7 +52,7 @@ ___
 
 • **expirationTimers**: *WeakMap*<object, any\>
 
-Inherited from: void
+Inherited from: JWTStrategy.expirationTimers
 
 Defined in: node_modules/@feathersjs/authentication/lib/jwt.d.ts:7
 
@@ -62,7 +62,7 @@ ___
 
 • `Optional` **name**: *string*
 
-Inherited from: void
+Inherited from: JWTStrategy.name
 
 Defined in: node_modules/@feathersjs/authentication/lib/strategy.d.ts:6
 
@@ -101,7 +101,7 @@ Name | Type |
 
 **Returns:** *Promise*<{ `accessToken`: *any* ; `authentication`: { `accessToken`: *any* ; `payload`: *any* ; `strategy`: *string*  }  }\>
 
-Inherited from: void
+Inherited from: JWTStrategy.authenticate
 
 Defined in: node_modules/@feathersjs/authentication/lib/jwt.d.ts:19
 
@@ -120,9 +120,9 @@ Name | Type |
 
 **Returns:** *Promise*<any\>
 
-Overrides: void
+Overrides: JWTStrategy.getEntity
 
-Defined in: [packages/server-core/src/user/strategies/jwt.ts:6](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/user/strategies/jwt.ts#L6)
+Defined in: [packages/server-core/src/user/strategies/jwt.ts:6](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/user/strategies/jwt.ts#L6)
 
 ___
 
@@ -139,7 +139,7 @@ Name | Type |
 
 **Returns:** *Promise*<any\>
 
-Inherited from: void
+Inherited from: JWTStrategy.getEntityId
 
 Defined in: node_modules/@feathersjs/authentication/lib/jwt.d.ts:18
 
@@ -157,7 +157,7 @@ Name | Type |
 
 **Returns:** *Promise*<{}\>
 
-Inherited from: void
+Inherited from: JWTStrategy.getEntityQuery
 
 Defined in: node_modules/@feathersjs/authentication/lib/jwt.d.ts:11
 
@@ -177,7 +177,7 @@ Name | Type |
 
 **Returns:** *Promise*<void\>
 
-Inherited from: void
+Inherited from: JWTStrategy.handleConnection
 
 Defined in: node_modules/@feathersjs/authentication/lib/jwt.d.ts:9
 
@@ -195,7 +195,7 @@ Name | Type |
 
 **Returns:** *Promise*<{ `accessToken`: *string* ; `strategy`: *string*  }\>
 
-Inherited from: void
+Inherited from: JWTStrategy.parse
 
 Defined in: node_modules/@feathersjs/authentication/lib/jwt.d.ts:27
 
@@ -213,7 +213,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Inherited from: void
+Inherited from: JWTStrategy.setApplication
 
 Defined in: node_modules/@feathersjs/authentication/lib/strategy.d.ts:8
 
@@ -231,7 +231,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Inherited from: void
+Inherited from: JWTStrategy.setAuthentication
 
 Defined in: node_modules/@feathersjs/authentication/lib/strategy.d.ts:7
 
@@ -249,7 +249,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Inherited from: void
+Inherited from: JWTStrategy.setName
 
 Defined in: node_modules/@feathersjs/authentication/lib/strategy.d.ts:9
 
@@ -261,6 +261,6 @@ ___
 
 **Returns:** *void*
 
-Inherited from: void
+Inherited from: JWTStrategy.verifyConfiguration
 
 Defined in: node_modules/@feathersjs/authentication/lib/jwt.d.ts:10

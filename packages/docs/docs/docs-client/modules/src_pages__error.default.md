@@ -28,4 +28,4 @@ Name | Type |
 :------ | :------ |
 `statusCode` | *any* |
 
-Defined in: [packages/client/src/pages/_error.tsx:17](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client/src/pages/_error.tsx#L17)
+Defined in: [packages/client/src/pages/_error.tsx:17](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client/src/pages/_error.tsx#L17)

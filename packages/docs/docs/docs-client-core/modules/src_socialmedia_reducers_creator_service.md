@@ -16,7 +16,7 @@ hide_title: true
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>, `getState`: *any*) => *Promise*<any\>
 
-Defined in: [packages/client-core/src/socialmedia/reducers/creator/service.ts:19](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/socialmedia/reducers/creator/service.ts#L19)
+Defined in: [packages/client-core/src/socialmedia/reducers/creator/service.ts:19](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/socialmedia/reducers/creator/service.ts#L19)
 
 ___
 
@@ -32,7 +32,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/src/socialmedia/reducers/creator/service.ts:104](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/socialmedia/reducers/creator/service.ts#L104)
+Defined in: [packages/client-core/src/socialmedia/reducers/creator/service.ts:104](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/socialmedia/reducers/creator/service.ts#L104)
 
 ___
 
@@ -48,7 +48,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/src/socialmedia/reducers/creator/service.ts:57](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/socialmedia/reducers/creator/service.ts#L57)
+Defined in: [packages/client-core/src/socialmedia/reducers/creator/service.ts:57](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/socialmedia/reducers/creator/service.ts#L57)
 
 ___
 
@@ -58,7 +58,7 @@ ___
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/src/socialmedia/reducers/creator/service.ts:91](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/socialmedia/reducers/creator/service.ts#L91)
+Defined in: [packages/client-core/src/socialmedia/reducers/creator/service.ts:91](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/socialmedia/reducers/creator/service.ts#L91)
 
 ___
 
@@ -74,7 +74,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>, `getState`: *any*) => *Promise*<any\>
 
-Defined in: [packages/client-core/src/socialmedia/reducers/creator/service.ts:31](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/socialmedia/reducers/creator/service.ts#L31)
+Defined in: [packages/client-core/src/socialmedia/reducers/creator/service.ts:31](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/socialmedia/reducers/creator/service.ts#L31)
 
 ___
 
@@ -90,7 +90,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/src/socialmedia/reducers/creator/service.ts:128](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/socialmedia/reducers/creator/service.ts#L128)
+Defined in: [packages/client-core/src/socialmedia/reducers/creator/service.ts:128](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/socialmedia/reducers/creator/service.ts#L128)
 
 ___
 
@@ -106,7 +106,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/src/socialmedia/reducers/creator/service.ts:140](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/socialmedia/reducers/creator/service.ts#L140)
+Defined in: [packages/client-core/src/socialmedia/reducers/creator/service.ts:140](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/socialmedia/reducers/creator/service.ts#L140)
 
 ___
 
@@ -116,7 +116,7 @@ ___
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/src/socialmedia/reducers/creator/service.ts:44](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/socialmedia/reducers/creator/service.ts#L44)
+Defined in: [packages/client-core/src/socialmedia/reducers/creator/service.ts:44](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/socialmedia/reducers/creator/service.ts#L44)
 
 ___
 
@@ -132,7 +132,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/src/socialmedia/reducers/creator/service.ts:116](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/socialmedia/reducers/creator/service.ts#L116)
+Defined in: [packages/client-core/src/socialmedia/reducers/creator/service.ts:116](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/socialmedia/reducers/creator/service.ts#L116)
 
 ___
 
@@ -148,4 +148,4 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/src/socialmedia/reducers/creator/service.ts:71](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/socialmedia/reducers/creator/service.ts#L71)
+Defined in: [packages/client-core/src/socialmedia/reducers/creator/service.ts:71](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/socialmedia/reducers/creator/service.ts#L71)

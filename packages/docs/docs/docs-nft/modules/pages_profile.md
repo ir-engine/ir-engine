@@ -16,4 +16,4 @@ hide_title: true
 
 **Returns:** *Element*
 
-Defined in: [packages/nft/src/pages/profile.tsx:3](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/nft/src/pages/profile.tsx#L3)
+Defined in: [packages/nft/src/pages/profile.tsx:3](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/nft/src/pages/profile.tsx#L3)

@@ -12,4 +12,4 @@ hide_title: true
 
 ### default
 
-• **default**: *ComponentType*<*Omit*<Subtract<ExcludeRouterProps<any\> \| *ExcludeRouterProps*<any\> & { `children?`: *boolean* \| *ReactElement*<any, string \| JSXElementConstructor<any\>\> \| ReactText \| ReactFragment \| *ReactPortal*  }, WithTranslationProps\>, keyof *WithTranslation*<N\>\> & WithTranslationProps\>
+• **default**: *ComponentType*<*Omit*<Subtract<ExcludeRouterProps<any\> \| *ExcludeRouterProps*<any\> & { `children?`: ReactNode  }, WithTranslationProps\>, keyof *WithTranslation*<N\>\> & WithTranslationProps\>

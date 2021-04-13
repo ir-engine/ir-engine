@@ -20,7 +20,7 @@ hide_title: true
 
 Ƭ **Action**: { `payload`: *string* ; `type`: [*ETH\_PRICE*](../enums/reducer.actiontype.md#eth_price)  } \| { `payload`: [*ContractProps*](types.md#contractprops) ; `type`: [*CONTRACT*](../enums/reducer.actiontype.md#contract)  } \| { `payload`: [*UserProps*](types.md#userprops) ; `type`: [*UPDATE\_USER*](../enums/reducer.actiontype.md#update_user)  } \| { `payload?`: *any* ; `type`: [*SIGN\_OUT*](../enums/reducer.actiontype.md#sign_out)  } \| { `payload?`: [*TokenProps*](components_token.md#tokenprops)[] ; `type`: [*LOAD\_TOKEN\_SALE*](../enums/reducer.actiontype.md#load_token_sale)  }
 
-Defined in: [packages/nft/src/reducer.ts:13](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/nft/src/reducer.ts#L13)
+Defined in: [packages/nft/src/reducer.ts:13](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/nft/src/reducer.ts#L13)
 
 ## Functions
 
@@ -37,4 +37,4 @@ Name | Type |
 
 **Returns:** { `contract?`: [*ContractProps*](types.md#contractprops) ; `ethPrice`: *string* ; `isAuthenticated`: *boolean* ; `tokensOnSale?`: [*TokenProps*](components_token.md#tokenprops)[] ; `user?`: [*UserProps*](types.md#userprops)  } \| { `contract?`: [*ContractProps*](types.md#contractprops) ; `ethPrice?`: *string* ; `isAuthenticated`: *boolean* = true; `tokensOnSale?`: [*TokenProps*](components_token.md#tokenprops)[] ; `user`: [*UserProps*](types.md#userprops)  } \| { `contract?`: [*ContractProps*](types.md#contractprops) ; `ethPrice?`: *string* ; `isAuthenticated`: *boolean* ; `tokensOnSale`: [*TokenProps*](components_token.md#tokenprops)[] ; `user?`: [*UserProps*](types.md#userprops)  } \| { `contract`: [*ContractProps*](types.md#contractprops) ; `ethPrice?`: *string* ; `isAuthenticated`: *boolean* ; `tokensOnSale?`: [*TokenProps*](components_token.md#tokenprops)[] ; `user?`: [*UserProps*](types.md#userprops)  }
 
-Defined in: [packages/nft/src/reducer.ts:20](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/nft/src/reducer.ts#L20)
+Defined in: [packages/nft/src/reducer.ts:20](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/nft/src/reducer.ts#L20)

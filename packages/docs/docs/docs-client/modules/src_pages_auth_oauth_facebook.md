@@ -22,4 +22,4 @@ Renames and exports: [FacebookHomePage](src_pages_auth_oauth_facebook.md#faceboo
 
 **Returns:** *Element*
 
-Defined in: [packages/client/src/pages/auth/oauth/facebook.tsx:4](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client/src/pages/auth/oauth/facebook.tsx#L4)
+Defined in: [packages/client/src/pages/auth/oauth/facebook.tsx:4](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client/src/pages/auth/oauth/facebook.tsx#L4)

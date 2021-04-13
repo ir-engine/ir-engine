@@ -34,9 +34,12 @@ Name | Type |
 
 **Returns:** [*TransformPropertyGroup*](src_world_components_editor_properties_transformpropertygroup.transformpropertygroup.md)
 
-Overrides: void
+Overrides: Component&lt;
+  TransformPropertyGroupProps,
+  {}
+&gt;.constructor
 
-Defined in: [packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx:31](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx#L31)
+Defined in: [packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx:31](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx#L31)
 
 ## Properties
 
@@ -58,7 +61,7 @@ declare context: React.ContextType<typeof MyContext>
 
 **`see`** https://reactjs.org/docs/context.html
 
-Inherited from: void
+Inherited from: Component.context
 
 Defined in: node_modules/@types/react/index.d.ts:469
 
@@ -66,9 +69,9 @@ ___
 
 ### props
 
-• `Readonly` **props**: *Readonly*<TransformPropertyGroupProps\> & *Readonly*<{ `children?`: *boolean* \| *ReactElement*<any, string \| JSXElementConstructor<any\>\> \| ReactText \| ReactFragment \| *ReactPortal*  }\>
+• `Readonly` **props**: *Readonly*<TransformPropertyGroupProps\> & *Readonly*<{ `children?`: ReactNode  }\>
 
-Inherited from: void
+Inherited from: Component.props
 
 Defined in: node_modules/@types/react/index.d.ts:494
 
@@ -83,7 +86,7 @@ https://reactjs.org/docs/refs-and-the-dom.html#legacy-api-string-refs
 
 #### Type declaration:
 
-Inherited from: void
+Inherited from: Component.refs
 
 Defined in: node_modules/@types/react/index.d.ts:500
 
@@ -93,7 +96,7 @@ ___
 
 • **state**: *Readonly*<{}\>
 
-Inherited from: void
+Inherited from: Component.state
 
 Defined in: node_modules/@types/react/index.d.ts:495
 
@@ -103,13 +106,13 @@ ___
 
 • **translation**: *any*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx:55](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx#L55)
+Defined in: [packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx:55](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx#L55)
 
 ___
 
 ### contextType
 
-▪ `Optional` `Static` **contextType**: *Context*<any\>
+▪ `Static` `Optional` **contextType**: *Context*<any\>
 
 If set, `this.context` will be set at runtime to the current value of the given Context.
 
@@ -130,7 +133,7 @@ class Foo extends React.Component {
 
 **`see`** https://reactjs.org/docs/context.html#classcontexttype
 
-Inherited from: void
+Inherited from: Component.contextType
 
 Defined in: node_modules/@types/react/index.d.ts:451
 
@@ -156,7 +159,7 @@ prevents this from being invoked.
 
 **Returns:** *void*
 
-Inherited from: void
+Inherited from: Component.UNSAFE_componentWillMount
 
 Defined in: node_modules/@types/react/index.d.ts:707
 
@@ -192,7 +195,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Inherited from: void
+Inherited from: Component.UNSAFE_componentWillReceiveProps
 
 Defined in: node_modules/@types/react/index.d.ts:739
 
@@ -227,7 +230,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Inherited from: void
+Inherited from: Component.UNSAFE_componentWillUpdate
 
 Defined in: node_modules/@types/react/index.d.ts:767
 
@@ -249,7 +252,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Inherited from: void
+Inherited from: Component.componentDidCatch
 
 Defined in: node_modules/@types/react/index.d.ts:636
 
@@ -261,9 +264,9 @@ ___
 
 **Returns:** *void*
 
-Overrides: void
+Overrides: Component.componentDidMount
 
-Defined in: [packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx:40](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx#L40)
+Defined in: [packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx:40](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx#L40)
 
 ___
 
@@ -285,7 +288,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Inherited from: void
+Inherited from: Component.componentDidUpdate
 
 Defined in: node_modules/@types/react/index.d.ts:678
 
@@ -309,7 +312,7 @@ prevents this from being invoked.
 
 **Returns:** *void*
 
-Inherited from: void
+Inherited from: Component.componentWillMount
 
 Defined in: node_modules/@types/react/index.d.ts:693
 
@@ -343,7 +346,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Inherited from: void
+Inherited from: Component.componentWillReceiveProps
 
 Defined in: node_modules/@types/react/index.d.ts:722
 
@@ -355,9 +358,9 @@ ___
 
 **Returns:** *void*
 
-Overrides: void
+Overrides: Component.componentWillUnmount
 
-Defined in: [packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx:50](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx#L50)
+Defined in: [packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx:50](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx#L50)
 
 ___
 
@@ -388,7 +391,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Inherited from: void
+Inherited from: Component.componentWillUpdate
 
 Defined in: node_modules/@types/react/index.d.ts:752
 
@@ -406,7 +409,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Inherited from: void
+Inherited from: Component.forceUpdate
 
 Defined in: node_modules/@types/react/index.d.ts:486
 
@@ -432,7 +435,7 @@ Name | Type |
 
 **Returns:** *any*
 
-Inherited from: void
+Inherited from: Component.getSnapshotBeforeUpdate
 
 Defined in: node_modules/@types/react/index.d.ts:672
 
@@ -450,7 +453,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx:75](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx#L75)
+Defined in: [packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx:75](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx#L75)
 
 ___
 
@@ -466,7 +469,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx:81](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx#L81)
+Defined in: [packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx:81](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx#L81)
 
 ___
 
@@ -482,7 +485,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx:86](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx#L86)
+Defined in: [packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx:86](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx#L86)
 
 ___
 
@@ -499,7 +502,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx:58](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx#L58)
+Defined in: [packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx:58](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx#L58)
 
 ___
 
@@ -509,9 +512,9 @@ ___
 
 **Returns:** *Element*
 
-Overrides: void
+Overrides: Component.render
 
-Defined in: [packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx:91](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx#L91)
+Defined in: [packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx:91](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx#L91)
 
 ___
 
@@ -534,7 +537,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Inherited from: void
+Inherited from: Component.setState
 
 Defined in: node_modules/@types/react/index.d.ts:481
 
@@ -552,6 +555,6 @@ Name | Type |
 
 **Returns:** *boolean*
 
-Overrides: void
+Overrides: Component.shouldComponentUpdate
 
-Defined in: [packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx:45](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx#L45)
+Defined in: [packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx:45](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx#L45)

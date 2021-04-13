@@ -21,7 +21,7 @@ hide_title: true
 
 • `Const` **StateProvider**: FC
 
-Defined in: [packages/nft/src/state.tsx:27](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/nft/src/state.tsx#L27)
+Defined in: [packages/nft/src/state.tsx:27](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/nft/src/state.tsx#L27)
 
 ## Functions
 
@@ -31,4 +31,4 @@ Defined in: [packages/nft/src/state.tsx:27](https://github.com/xr3ngine/xr3ngine
 
 **Returns:** [*Store*](../interfaces/state.store.md)
 
-Defined in: [packages/nft/src/state.tsx:25](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/nft/src/state.tsx#L25)
+Defined in: [packages/nft/src/state.tsx:25](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/nft/src/state.tsx#L25)

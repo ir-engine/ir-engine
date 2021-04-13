@@ -24,4 +24,4 @@ Name | Type |
 `skip` | *number* |
 `total` | *number* |
 
-Defined in: [src/interfaces/MessageResult.ts:3](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/common/src/interfaces/MessageResult.ts#L3)
+Defined in: [interfaces/MessageResult.ts:3](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/common/src/interfaces/MessageResult.ts#L3)

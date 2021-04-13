@@ -29,7 +29,7 @@ Name | Type |
 `before` | *object* |
 `before.all` | *any*[] |
 `before.create` | ((`context`: *HookContext*<any, Service<any\>\>) => *Promise*<HookContext<any, Service<any\>\>\> \| (`context`: *HookContext*<any, Service<any\>\>) => *HookContext*<any, Service<any\>\>)[] |
-`before.find` | *any*[] |
+`before.find` | *Hook*<any, Service<any\>\>[] |
 `before.get` | *any*[] |
 `before.patch` | *Hook*<any, Service<any\>\>[] |
 `before.remove` | *Hook*<any, Service<any\>\>[] |

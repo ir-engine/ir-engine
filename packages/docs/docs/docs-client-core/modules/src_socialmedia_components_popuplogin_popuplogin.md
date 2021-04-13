@@ -28,4 +28,4 @@ Name | Type |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/src/socialmedia/components/PopupLogin/PopupLogin.tsx:4](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/socialmedia/components/PopupLogin/PopupLogin.tsx#L4)
+Defined in: [packages/client-core/src/socialmedia/components/PopupLogin/PopupLogin.tsx:5](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/socialmedia/components/PopupLogin/PopupLogin.tsx#L5)

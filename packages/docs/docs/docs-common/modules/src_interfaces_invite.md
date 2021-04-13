@@ -24,7 +24,7 @@ Name | Type |
 `token` | *string* |
 `user` | [*User*](../interfaces/src_interfaces_user.user.md) |
 
-Defined in: [src/interfaces/Invite.ts:3](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/common/src/interfaces/Invite.ts#L3)
+Defined in: [interfaces/Invite.ts:3](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/common/src/interfaces/Invite.ts#L3)
 
 ## Variables
 
@@ -38,4 +38,4 @@ Name | Type |
 :------ | :------ |
 `id` | *string* |
 
-Defined in: [src/interfaces/Invite.ts:11](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/common/src/interfaces/Invite.ts#L11)
+Defined in: [interfaces/Invite.ts:11](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/common/src/interfaces/Invite.ts#L11)

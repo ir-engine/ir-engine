@@ -16,7 +16,7 @@ ModelNodeEditor used to create editor view for the properties of ModelNode.
 
 ## Hierarchy
 
-* *Component*<ModelNodeEditorProps, {}\>
+* *Component*<ModelNodeEditorProps, ModelNodeEditorState\>
 
   ↳ **ModelNodeEditor**
 
@@ -24,38 +24,22 @@ ModelNodeEditor used to create editor view for the properties of ModelNode.
 
 ### constructor
 
-\+ **new ModelNodeEditor**(`props`: ModelNodeEditorProps \| *Readonly*<ModelNodeEditorProps\>): [*ModelNodeEditor*](src_world_components_editor_properties_modelnodeeditor.modelnodeeditor.md)
+\+ **new ModelNodeEditor**(`props`: *any*): [*ModelNodeEditor*](src_world_components_editor_properties_modelnodeeditor.modelnodeeditor.md)
 
 #### Parameters:
 
 Name | Type |
 :------ | :------ |
-`props` | ModelNodeEditorProps \| *Readonly*<ModelNodeEditorProps\> |
+`props` | *any* |
 
 **Returns:** [*ModelNodeEditor*](src_world_components_editor_properties_modelnodeeditor.modelnodeeditor.md)
 
-Inherited from: void
+Overrides: Component&lt;
+  ModelNodeEditorProps,
+  ModelNodeEditorState
+&gt;.constructor
 
-Defined in: node_modules/@types/react/index.d.ts:469
-
-\+ **new ModelNodeEditor**(`props`: ModelNodeEditorProps, `context`: *any*): [*ModelNodeEditor*](src_world_components_editor_properties_modelnodeeditor.modelnodeeditor.md)
-
-**`deprecated`** 
-
-**`see`** https://reactjs.org/docs/legacy-context.html
-
-#### Parameters:
-
-Name | Type |
-:------ | :------ |
-`props` | ModelNodeEditorProps |
-`context` | *any* |
-
-**Returns:** [*ModelNodeEditor*](src_world_components_editor_properties_modelnodeeditor.modelnodeeditor.md)
-
-Inherited from: void
-
-Defined in: node_modules/@types/react/index.d.ts:471
+Defined in: [packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx:65](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx#L65)
 
 ## Properties
 
@@ -77,7 +61,7 @@ declare context: React.ContextType<typeof MyContext>
 
 **`see`** https://reactjs.org/docs/context.html
 
-Inherited from: void
+Inherited from: Component.context
 
 Defined in: node_modules/@types/react/index.d.ts:469
 
@@ -85,9 +69,9 @@ ___
 
 ### props
 
-• `Readonly` **props**: *Readonly*<ModelNodeEditorProps\> & *Readonly*<{ `children?`: *boolean* \| *ReactElement*<any, string \| JSXElementConstructor<any\>\> \| ReactText \| ReactFragment \| *ReactPortal*  }\>
+• `Readonly` **props**: *Readonly*<ModelNodeEditorProps\> & *Readonly*<{ `children?`: ReactNode  }\>
 
-Inherited from: void
+Inherited from: Component.props
 
 Defined in: node_modules/@types/react/index.d.ts:494
 
@@ -102,7 +86,7 @@ https://reactjs.org/docs/refs-and-the-dom.html#legacy-api-string-refs
 
 #### Type declaration:
 
-Inherited from: void
+Inherited from: Component.refs
 
 Defined in: node_modules/@types/react/index.d.ts:500
 
@@ -110,9 +94,9 @@ ___
 
 ### state
 
-• **state**: *Readonly*<{}\>
+• **state**: *Readonly*<ModelNodeEditorState\>
 
-Inherited from: void
+Inherited from: Component.state
 
 Defined in: node_modules/@types/react/index.d.ts:495
 
@@ -120,7 +104,7 @@ ___
 
 ### contextType
 
-▪ `Optional` `Static` **contextType**: *Context*<any\>
+▪ `Static` `Optional` **contextType**: *Context*<any\>
 
 If set, `this.context` will be set at runtime to the current value of the given Context.
 
@@ -141,7 +125,7 @@ class Foo extends React.Component {
 
 **`see`** https://reactjs.org/docs/context.html#classcontexttype
 
-Inherited from: void
+Inherited from: Component.contextType
 
 Defined in: node_modules/@types/react/index.d.ts:451
 
@@ -151,7 +135,7 @@ ___
 
 ▪ `Static` **description**: *string*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx:62](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx#L62)
+Defined in: [packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx:87](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx#L87)
 
 ___
 
@@ -159,7 +143,7 @@ ___
 
 ▪ `Static` **iconComponent**: StyledIcon
 
-Defined in: [packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx:59](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx#L59)
+Defined in: [packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx:90](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx#L90)
 
 ## Methods
 
@@ -183,7 +167,7 @@ prevents this from being invoked.
 
 **Returns:** *void*
 
-Inherited from: void
+Inherited from: Component.UNSAFE_componentWillMount
 
 Defined in: node_modules/@types/react/index.d.ts:707
 
@@ -219,7 +203,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Inherited from: void
+Inherited from: Component.UNSAFE_componentWillReceiveProps
 
 Defined in: node_modules/@types/react/index.d.ts:739
 
@@ -227,7 +211,7 @@ ___
 
 ### UNSAFE\_componentWillUpdate
 
-▸ `Optional`**UNSAFE_componentWillUpdate**(`nextProps`: *Readonly*<ModelNodeEditorProps\>, `nextState`: *Readonly*<{}\>, `nextContext`: *any*): *void*
+▸ `Optional`**UNSAFE_componentWillUpdate**(`nextProps`: *Readonly*<ModelNodeEditorProps\>, `nextState`: *Readonly*<ModelNodeEditorState\>, `nextContext`: *any*): *void*
 
 Called immediately before rendering when new props or state is received. Not called for the initial render.
 
@@ -249,12 +233,12 @@ prevents this from being invoked.
 Name | Type |
 :------ | :------ |
 `nextProps` | *Readonly*<ModelNodeEditorProps\> |
-`nextState` | *Readonly*<{}\> |
+`nextState` | *Readonly*<ModelNodeEditorState\> |
 `nextContext` | *any* |
 
 **Returns:** *void*
 
-Inherited from: void
+Inherited from: Component.UNSAFE_componentWillUpdate
 
 Defined in: node_modules/@types/react/index.d.ts:767
 
@@ -276,7 +260,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Inherited from: void
+Inherited from: Component.componentDidCatch
 
 Defined in: node_modules/@types/react/index.d.ts:636
 
@@ -284,21 +268,19 @@ ___
 
 ### componentDidMount
 
-▸ `Optional`**componentDidMount**(): *void*
-
-Called immediately after a component is mounted. Setting state here will trigger re-rendering.
+▸ **componentDidMount**(): *void*
 
 **Returns:** *void*
 
-Inherited from: void
+Overrides: Component.componentDidMount
 
-Defined in: node_modules/@types/react/index.d.ts:615
+Defined in: [packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx:75](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx#L75)
 
 ___
 
 ### componentDidUpdate
 
-▸ `Optional`**componentDidUpdate**(`prevProps`: *Readonly*<ModelNodeEditorProps\>, `prevState`: *Readonly*<{}\>, `snapshot?`: *any*): *void*
+▸ `Optional`**componentDidUpdate**(`prevProps`: *Readonly*<ModelNodeEditorProps\>, `prevState`: *Readonly*<ModelNodeEditorState\>, `snapshot?`: *any*): *void*
 
 Called immediately after updating occurs. Not called for the initial render.
 
@@ -309,12 +291,12 @@ The snapshot is only present if getSnapshotBeforeUpdate is present and returns n
 Name | Type |
 :------ | :------ |
 `prevProps` | *Readonly*<ModelNodeEditorProps\> |
-`prevState` | *Readonly*<{}\> |
+`prevState` | *Readonly*<ModelNodeEditorState\> |
 `snapshot?` | *any* |
 
 **Returns:** *void*
 
-Inherited from: void
+Inherited from: Component.componentDidUpdate
 
 Defined in: node_modules/@types/react/index.d.ts:678
 
@@ -338,7 +320,7 @@ prevents this from being invoked.
 
 **Returns:** *void*
 
-Inherited from: void
+Inherited from: Component.componentWillMount
 
 Defined in: node_modules/@types/react/index.d.ts:693
 
@@ -372,7 +354,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Inherited from: void
+Inherited from: Component.componentWillReceiveProps
 
 Defined in: node_modules/@types/react/index.d.ts:722
 
@@ -387,7 +369,7 @@ cancelled network requests, or cleaning up any DOM elements created in `componen
 
 **Returns:** *void*
 
-Inherited from: void
+Inherited from: Component.componentWillUnmount
 
 Defined in: node_modules/@types/react/index.d.ts:631
 
@@ -395,7 +377,7 @@ ___
 
 ### componentWillUpdate
 
-▸ `Optional`**componentWillUpdate**(`nextProps`: *Readonly*<ModelNodeEditorProps\>, `nextState`: *Readonly*<{}\>, `nextContext`: *any*): *void*
+▸ `Optional`**componentWillUpdate**(`nextProps`: *Readonly*<ModelNodeEditorProps\>, `nextState`: *Readonly*<ModelNodeEditorState\>, `nextContext`: *any*): *void*
 
 Called immediately before rendering when new props or state is received. Not called for the initial render.
 
@@ -415,12 +397,12 @@ prevents this from being invoked.
 Name | Type |
 :------ | :------ |
 `nextProps` | *Readonly*<ModelNodeEditorProps\> |
-`nextState` | *Readonly*<{}\> |
+`nextState` | *Readonly*<ModelNodeEditorState\> |
 `nextContext` | *any* |
 
 **Returns:** *void*
 
-Inherited from: void
+Inherited from: Component.componentWillUpdate
 
 Defined in: node_modules/@types/react/index.d.ts:752
 
@@ -438,7 +420,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Inherited from: void
+Inherited from: Component.forceUpdate
 
 Defined in: node_modules/@types/react/index.d.ts:486
 
@@ -446,7 +428,7 @@ ___
 
 ### getSnapshotBeforeUpdate
 
-▸ `Optional`**getSnapshotBeforeUpdate**(`prevProps`: *Readonly*<ModelNodeEditorProps\>, `prevState`: *Readonly*<{}\>): *any*
+▸ `Optional`**getSnapshotBeforeUpdate**(`prevProps`: *Readonly*<ModelNodeEditorProps\>, `prevState`: *Readonly*<ModelNodeEditorState\>): *any*
 
 Runs before React applies the result of `render` to the document, and
 returns an object to be given to componentDidUpdate. Useful for saving
@@ -460,11 +442,11 @@ lifecycle events from running.
 Name | Type |
 :------ | :------ |
 `prevProps` | *Readonly*<ModelNodeEditorProps\> |
-`prevState` | *Readonly*<{}\> |
+`prevState` | *Readonly*<ModelNodeEditorState\> |
 
 **Returns:** *any*
 
-Inherited from: void
+Inherited from: Component.getSnapshotBeforeUpdate
 
 Defined in: node_modules/@types/react/index.d.ts:672
 
@@ -476,7 +458,7 @@ ___
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx:140](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx#L140)
+Defined in: [packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx:182](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx#L182)
 
 ___
 
@@ -492,7 +474,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx:70](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx#L70)
+Defined in: [packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx:100](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx#L100)
 
 ___
 
@@ -508,7 +490,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx:90](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx#L90)
+Defined in: [packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx:120](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx#L120)
 
 ___
 
@@ -524,7 +506,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx:75](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx#L75)
+Defined in: [packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx:105](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx#L105)
 
 ___
 
@@ -540,7 +522,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx:100](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx#L100)
+Defined in: [packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx:130](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx#L130)
 
 ___
 
@@ -556,7 +538,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx:110](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx#L110)
+Defined in: [packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx:140](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx#L140)
 
 ___
 
@@ -572,7 +554,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx:105](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx#L105)
+Defined in: [packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx:135](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx#L135)
 
 ___
 
@@ -588,7 +570,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx:125](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx#L125)
+Defined in: [packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx:167](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx#L167)
 
 ___
 
@@ -604,7 +586,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx:135](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx#L135)
+Defined in: [packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx:177](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx#L177)
 
 ___
 
@@ -620,7 +602,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx:130](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx#L130)
+Defined in: [packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx:172](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx#L172)
 
 ___
 
@@ -636,7 +618,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx:115](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx#L115)
+Defined in: [packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx:145](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx#L145)
 
 ___
 
@@ -652,7 +634,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx:120](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx#L120)
+Defined in: [packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx:162](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx#L162)
 
 ___
 
@@ -668,7 +650,23 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx:95](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx#L95)
+Defined in: [packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx:125](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx#L125)
+
+___
+
+### onChangeRole
+
+▸ **onChangeRole**(`role`: *any*): *void*
+
+#### Parameters:
+
+Name | Type |
+:------ | :------ |
+`role` | *any* |
+
+**Returns:** *void*
+
+Defined in: [packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx:150](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx#L150)
 
 ___
 
@@ -684,7 +682,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx:80](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx#L80)
+Defined in: [packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx:110](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx#L110)
 
 ___
 
@@ -701,7 +699,23 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx:65](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx#L65)
+Defined in: [packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx:93](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx#L93)
+
+___
+
+### onChangeTarget
+
+▸ **onChangeTarget**(`target`: *any*): *void*
+
+#### Parameters:
+
+Name | Type |
+:------ | :------ |
+`target` | *any* |
+
+**Returns:** *void*
+
+Defined in: [packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx:155](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx#L155)
 
 ___
 
@@ -717,7 +731,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx:85](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx#L85)
+Defined in: [packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx:115](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx#L115)
 
 ___
 
@@ -727,9 +741,9 @@ ___
 
 **Returns:** *Element*
 
-Overrides: void
+Overrides: Component.render
 
-Defined in: [packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx:228](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx#L228)
+Defined in: [packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx:333](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx#L333)
 
 ___
 
@@ -745,7 +759,7 @@ Name | Type |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx:200](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx#L200)
+Defined in: [packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx:305](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx#L305)
 
 ___
 
@@ -761,30 +775,30 @@ Name | Type |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx:151](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx#L151)
+Defined in: [packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx:193](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx#L193)
 
 ___
 
 ### setState
 
-▸ **setState**<K\>(`state`: {} \| (`prevState`: *Readonly*<{}\>, `props`: *Readonly*<ModelNodeEditorProps\>) => {} \| *Pick*<{}, K\> \| *Pick*<{}, K\>, `callback?`: () => *void*): *void*
+▸ **setState**<K\>(`state`: ModelNodeEditorState \| (`prevState`: *Readonly*<ModelNodeEditorState\>, `props`: *Readonly*<ModelNodeEditorProps\>) => ModelNodeEditorState \| *Pick*<ModelNodeEditorState, K\> \| *Pick*<ModelNodeEditorState, K\>, `callback?`: () => *void*): *void*
 
 #### Type parameters:
 
 Name | Type |
 :------ | :------ |
-`K` | *never* |
+`K` | *options* |
 
 #### Parameters:
 
 Name | Type |
 :------ | :------ |
-`state` | {} \| (`prevState`: *Readonly*<{}\>, `props`: *Readonly*<ModelNodeEditorProps\>) => {} \| *Pick*<{}, K\> \| *Pick*<{}, K\> |
+`state` | ModelNodeEditorState \| (`prevState`: *Readonly*<ModelNodeEditorState\>, `props`: *Readonly*<ModelNodeEditorProps\>) => ModelNodeEditorState \| *Pick*<ModelNodeEditorState, K\> \| *Pick*<ModelNodeEditorState, K\> |
 `callback?` | () => *void* |
 
 **Returns:** *void*
 
-Inherited from: void
+Inherited from: Component.setState
 
 Defined in: node_modules/@types/react/index.d.ts:481
 
@@ -792,7 +806,7 @@ ___
 
 ### shouldComponentUpdate
 
-▸ `Optional`**shouldComponentUpdate**(`nextProps`: *Readonly*<ModelNodeEditorProps\>, `nextState`: *Readonly*<{}\>, `nextContext`: *any*): *boolean*
+▸ `Optional`**shouldComponentUpdate**(`nextProps`: *Readonly*<ModelNodeEditorProps\>, `nextState`: *Readonly*<ModelNodeEditorState\>, `nextContext`: *any*): *boolean*
 
 Called to determine whether the change in props and state should trigger a re-render.
 
@@ -808,11 +822,11 @@ and `componentDidUpdate` will not be called.
 Name | Type |
 :------ | :------ |
 `nextProps` | *Readonly*<ModelNodeEditorProps\> |
-`nextState` | *Readonly*<{}\> |
+`nextState` | *Readonly*<ModelNodeEditorState\> |
 `nextContext` | *any* |
 
 **Returns:** *boolean*
 
-Inherited from: void
+Inherited from: Component.shouldComponentUpdate
 
 Defined in: node_modules/@types/react/index.d.ts:626

@@ -16,7 +16,7 @@ hide_title: true
 
 • **ipAddress**: *string*
 
-Defined in: [src/interfaces/InstanceServerProvisionResult.ts:2](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/common/src/interfaces/InstanceServerProvisionResult.ts#L2)
+Defined in: [interfaces/InstanceServerProvisionResult.ts:2](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/common/src/interfaces/InstanceServerProvisionResult.ts#L2)
 
 ___
 
@@ -24,4 +24,4 @@ ___
 
 • **port**: *string*
 
-Defined in: [src/interfaces/InstanceServerProvisionResult.ts:3](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/common/src/interfaces/InstanceServerProvisionResult.ts#L3)
+Defined in: [interfaces/InstanceServerProvisionResult.ts:3](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/common/src/interfaces/InstanceServerProvisionResult.ts#L3)

@@ -24,7 +24,7 @@ Name | Type |
 `onSale`? | (`\_\_namedParameters`: { `id`: *string* ; `onSale?`: *boolean* ; `price`: BigNumber  }) => *Promise*<boolean\> |
 `onTransfer`? | (`\_\_namedParameters`: { `address`: *string* ; `id`: *string*  }) => *Promise*<boolean\> |
 
-Defined in: [packages/nft/src/components/Token.tsx:16](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/nft/src/components/Token.tsx#L16)
+Defined in: [packages/nft/src/components/Token.tsx:16](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/nft/src/components/Token.tsx#L16)
 
 ___
 
@@ -41,7 +41,7 @@ Name | Type |
 `price` | BigNumber |
 `uri` | *string* |
 
-Defined in: [packages/nft/src/components/Token.tsx:9](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/nft/src/components/Token.tsx#L9)
+Defined in: [packages/nft/src/components/Token.tsx:9](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/nft/src/components/Token.tsx#L9)
 
 ## Functions
 
@@ -57,4 +57,4 @@ Name | Type |
 
 **Returns:** *Element*
 
-Defined in: [packages/nft/src/components/Token.tsx:32](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/nft/src/components/Token.tsx#L32)
+Defined in: [packages/nft/src/components/Token.tsx:32](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/nft/src/components/Token.tsx#L32)

@@ -32,7 +32,7 @@ Name | Type |
 
 Overrides: [BaseSource](src_world_components_editor_assets_sources.basesource.md)
 
-Defined in: [packages/client-core/src/world/components/editor/assets/sources/MyAssetsSource.tsx:30](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/assets/sources/MyAssetsSource.tsx#L30)
+Defined in: [packages/client-core/src/world/components/editor/assets/sources/MyAssetsSource.tsx:30](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/assets/sources/MyAssetsSource.tsx#L30)
 
 ## Properties
 
@@ -40,7 +40,7 @@ Defined in: [packages/client-core/src/world/components/editor/assets/sources/MyA
 
 • **acceptFileTypes**: *string*
 
-Defined in: [packages/client-core/src/world/components/editor/assets/sources/MyAssetsSource.tsx:30](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/assets/sources/MyAssetsSource.tsx#L30)
+Defined in: [packages/client-core/src/world/components/editor/assets/sources/MyAssetsSource.tsx:30](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/assets/sources/MyAssetsSource.tsx#L30)
 
 ___
 
@@ -50,7 +50,7 @@ ___
 
 Inherited from: [BaseSource](src_world_components_editor_assets_sources.basesource.md).[assetPanelComponent](src_world_components_editor_assets_sources.basesource.md#assetpanelcomponent)
 
-Defined in: [packages/client-core/src/world/components/editor/assets/sources/index.tsx:12](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/assets/sources/index.tsx#L12)
+Defined in: [packages/client-core/src/world/components/editor/assets/sources/index.tsx:12](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/assets/sources/index.tsx#L12)
 
 ___
 
@@ -58,7 +58,7 @@ ___
 
 • **component**: *typeof* [*default*](../modules/src_world_components_editor_assets_uploadsourcepanel.md#default)
 
-Defined in: [packages/client-core/src/world/components/editor/assets/sources/MyAssetsSource.tsx:24](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/assets/sources/MyAssetsSource.tsx#L24)
+Defined in: [packages/client-core/src/world/components/editor/assets/sources/MyAssetsSource.tsx:24](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/assets/sources/MyAssetsSource.tsx#L24)
 
 ___
 
@@ -66,7 +66,7 @@ ___
 
 • **editor**: [*default*](src_world_components_editor_editor.default.md)
 
-Defined in: [packages/client-core/src/world/components/editor/assets/sources/MyAssetsSource.tsx:25](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/assets/sources/MyAssetsSource.tsx#L25)
+Defined in: [packages/client-core/src/world/components/editor/assets/sources/MyAssetsSource.tsx:25](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/assets/sources/MyAssetsSource.tsx#L25)
 
 ___
 
@@ -76,7 +76,7 @@ ___
 
 Inherited from: [BaseSource](src_world_components_editor_assets_sources.basesource.md).[iconComponent](src_world_components_editor_assets_sources.basesource.md#iconcomponent)
 
-Defined in: [packages/client-core/src/world/components/editor/assets/sources/index.tsx:11](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/assets/sources/index.tsx#L11)
+Defined in: [packages/client-core/src/world/components/editor/assets/sources/index.tsx:11](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/assets/sources/index.tsx#L11)
 
 ___
 
@@ -86,7 +86,7 @@ ___
 
 Inherited from: [BaseSource](src_world_components_editor_assets_sources.basesource.md).[id](src_world_components_editor_assets_sources.basesource.md#id)
 
-Defined in: [packages/client-core/src/world/components/editor/assets/sources/index.tsx:9](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/assets/sources/index.tsx#L9)
+Defined in: [packages/client-core/src/world/components/editor/assets/sources/index.tsx:9](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/assets/sources/index.tsx#L9)
 
 ___
 
@@ -96,7 +96,7 @@ ___
 
 Inherited from: [BaseSource](src_world_components_editor_assets_sources.basesource.md).[name](src_world_components_editor_assets_sources.basesource.md#name)
 
-Defined in: [packages/client-core/src/world/components/editor/assets/sources/index.tsx:10](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/assets/sources/index.tsx#L10)
+Defined in: [packages/client-core/src/world/components/editor/assets/sources/index.tsx:10](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/assets/sources/index.tsx#L10)
 
 ___
 
@@ -104,7 +104,7 @@ ___
 
 • **privacyPolicyUrl**: *string*
 
-Defined in: [packages/client-core/src/world/components/editor/assets/sources/MyAssetsSource.tsx:28](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/assets/sources/MyAssetsSource.tsx#L28)
+Defined in: [packages/client-core/src/world/components/editor/assets/sources/MyAssetsSource.tsx:28](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/assets/sources/MyAssetsSource.tsx#L28)
 
 ___
 
@@ -114,7 +114,7 @@ ___
 
 Inherited from: [BaseSource](src_world_components_editor_assets_sources.basesource.md).[requiresAuthentication](src_world_components_editor_assets_sources.basesource.md#requiresauthentication)
 
-Defined in: [packages/client-core/src/world/components/editor/assets/sources/index.tsx:13](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/assets/sources/index.tsx#L13)
+Defined in: [packages/client-core/src/world/components/editor/assets/sources/index.tsx:13](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/assets/sources/index.tsx#L13)
 
 ___
 
@@ -124,7 +124,7 @@ ___
 
 Inherited from: [BaseSource](src_world_components_editor_assets_sources.basesource.md).[searchDebounceTimeout](src_world_components_editor_assets_sources.basesource.md#searchdebouncetimeout)
 
-Defined in: [packages/client-core/src/world/components/editor/assets/sources/index.tsx:15](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/assets/sources/index.tsx#L15)
+Defined in: [packages/client-core/src/world/components/editor/assets/sources/index.tsx:15](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/assets/sources/index.tsx#L15)
 
 ___
 
@@ -132,7 +132,7 @@ ___
 
 • **searchLegalCopy**: *string*
 
-Defined in: [packages/client-core/src/world/components/editor/assets/sources/MyAssetsSource.tsx:27](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/assets/sources/MyAssetsSource.tsx#L27)
+Defined in: [packages/client-core/src/world/components/editor/assets/sources/MyAssetsSource.tsx:27](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/assets/sources/MyAssetsSource.tsx#L27)
 
 ___
 
@@ -140,7 +140,7 @@ ___
 
 • **tags**: { `label`: *string* ; `value`: *string*  }[]
 
-Defined in: [packages/client-core/src/world/components/editor/assets/sources/MyAssetsSource.tsx:26](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/assets/sources/MyAssetsSource.tsx#L26)
+Defined in: [packages/client-core/src/world/components/editor/assets/sources/MyAssetsSource.tsx:26](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/assets/sources/MyAssetsSource.tsx#L26)
 
 ___
 
@@ -148,7 +148,7 @@ ___
 
 • **uploadMultiple**: *boolean*
 
-Defined in: [packages/client-core/src/world/components/editor/assets/sources/MyAssetsSource.tsx:29](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/assets/sources/MyAssetsSource.tsx#L29)
+Defined in: [packages/client-core/src/world/components/editor/assets/sources/MyAssetsSource.tsx:29](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/assets/sources/MyAssetsSource.tsx#L29)
 
 ___
 
@@ -158,7 +158,7 @@ ___
 
 Inherited from: [BaseSource](src_world_components_editor_assets_sources.basesource.md).[uploadSource](src_world_components_editor_assets_sources.basesource.md#uploadsource)
 
-Defined in: [packages/client-core/src/world/components/editor/assets/sources/index.tsx:14](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/assets/sources/index.tsx#L14)
+Defined in: [packages/client-core/src/world/components/editor/assets/sources/index.tsx:14](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/assets/sources/index.tsx#L14)
 
 ___
 
@@ -210,7 +210,7 @@ Name | Type |
 
 **Returns:** *Promise*<void\>
 
-Defined in: [packages/client-core/src/world/components/editor/assets/sources/MyAssetsSource.tsx:61](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/assets/sources/MyAssetsSource.tsx#L61)
+Defined in: [packages/client-core/src/world/components/editor/assets/sources/MyAssetsSource.tsx:61](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/assets/sources/MyAssetsSource.tsx#L61)
 
 ___
 
@@ -450,7 +450,7 @@ Name | Type |
 
 Overrides: [BaseSource](src_world_components_editor_assets_sources.basesource.md)
 
-Defined in: [packages/client-core/src/world/components/editor/assets/sources/MyAssetsSource.tsx:65](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/assets/sources/MyAssetsSource.tsx#L65)
+Defined in: [packages/client-core/src/world/components/editor/assets/sources/MyAssetsSource.tsx:65](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/assets/sources/MyAssetsSource.tsx#L65)
 
 ___
 
@@ -468,4 +468,4 @@ Name | Type |
 
 **Returns:** *Promise*<any\>
 
-Defined in: [packages/client-core/src/world/components/editor/assets/sources/MyAssetsSource.tsx:51](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/assets/sources/MyAssetsSource.tsx#L51)
+Defined in: [packages/client-core/src/world/components/editor/assets/sources/MyAssetsSource.tsx:51](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/assets/sources/MyAssetsSource.tsx#L51)

@@ -24,7 +24,7 @@ hide_title: true
 
 **Returns:** [*MyLocalStrategy*](user_strategies_local.mylocalstrategy.md)
 
-Inherited from: void
+Inherited from: LocalStrategy.constructor
 
 ## Properties
 
@@ -32,7 +32,7 @@ Inherited from: void
 
 • `Optional` **app**: *Application*<{}\>
 
-Inherited from: void
+Inherited from: LocalStrategy.app
 
 Defined in: node_modules/@feathersjs/authentication/lib/strategy.d.ts:5
 
@@ -42,7 +42,7 @@ ___
 
 • `Optional` **authentication**: *AuthenticationBase*
 
-Inherited from: void
+Inherited from: LocalStrategy.authentication
 
 Defined in: node_modules/@feathersjs/authentication/lib/strategy.d.ts:4
 
@@ -52,7 +52,7 @@ ___
 
 • `Optional` **name**: *string*
 
-Inherited from: void
+Inherited from: LocalStrategy.name
 
 Defined in: node_modules/@feathersjs/authentication/lib/strategy.d.ts:6
 
@@ -91,7 +91,7 @@ Name | Type |
 
 **Returns:** *Promise*<{ [x: number]: *any*; `authentication`: { `strategy`: *string*  }  }\>
 
-Inherited from: void
+Inherited from: LocalStrategy.authenticate
 
 Defined in: node_modules/@feathersjs/authentication-local/lib/strategy.d.ts:13
 
@@ -110,7 +110,7 @@ Name | Type |
 
 **Returns:** *Promise*<any\>
 
-Inherited from: void
+Inherited from: LocalStrategy.comparePassword
 
 Defined in: node_modules/@feathersjs/authentication-local/lib/strategy.d.ts:11
 
@@ -129,9 +129,9 @@ Name | Type |
 
 **Returns:** *Promise*<any\>
 
-Overrides: void
+Overrides: LocalStrategy.findEntity
 
-Defined in: [packages/server-core/src/user/strategies/local.ts:7](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/user/strategies/local.ts#L7)
+Defined in: [packages/server-core/src/user/strategies/local.ts:7](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/user/strategies/local.ts#L7)
 
 ___
 
@@ -148,7 +148,7 @@ Name | Type |
 
 **Returns:** *Promise*<any\>
 
-Inherited from: void
+Inherited from: LocalStrategy.getEntity
 
 Defined in: node_modules/@feathersjs/authentication-local/lib/strategy.d.ts:10
 
@@ -167,7 +167,7 @@ Name | Type |
 
 **Returns:** *Promise*<{ `$limit`: *number*  }\>
 
-Inherited from: void
+Inherited from: LocalStrategy.getEntityQuery
 
 Defined in: node_modules/@feathersjs/authentication-local/lib/strategy.d.ts:6
 
@@ -186,7 +186,7 @@ Name | Type |
 
 **Returns:** *Promise*<string\>
 
-Inherited from: void
+Inherited from: LocalStrategy.hashPassword
 
 Defined in: node_modules/@feathersjs/authentication-local/lib/strategy.d.ts:12
 
@@ -204,7 +204,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Inherited from: void
+Inherited from: LocalStrategy.setApplication
 
 Defined in: node_modules/@feathersjs/authentication/lib/strategy.d.ts:8
 
@@ -222,7 +222,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Inherited from: void
+Inherited from: LocalStrategy.setAuthentication
 
 Defined in: node_modules/@feathersjs/authentication/lib/strategy.d.ts:7
 
@@ -240,7 +240,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Inherited from: void
+Inherited from: LocalStrategy.setName
 
 Defined in: node_modules/@feathersjs/authentication/lib/strategy.d.ts:9
 
@@ -252,6 +252,6 @@ ___
 
 **Returns:** *void*
 
-Inherited from: void
+Inherited from: LocalStrategy.verifyConfiguration
 
 Defined in: node_modules/@feathersjs/authentication-local/lib/strategy.d.ts:4

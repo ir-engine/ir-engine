@@ -21,7 +21,7 @@ Name | Type |
 `httpPeerStale` | *number* |
 `mediasoup` | *object* |
 `mediasoup.router` | *object* |
-`mediasoup.router.mediaCodecs` | ({ `channels`: *number* = 2; `clockRate`: *number* = 48000; `kind`: *string* = "audio"; `mimeType`: *string* = "audio/opus"; `parameters`: *undefined*  } \| { `channels`: *undefined* = 2; `clockRate`: *number* = 90000; `kind`: *string* = "video"; `mimeType`: *string* = "video/VP8"; `parameters`: { `level-asymmetry-allowed`: *undefined* = 1; `packetization-mode`: *undefined* = 1; `profile-level-id`: *undefined* = "4d0032" }  } \| { `channels`: *undefined* = 2; `clockRate`: *number* = 90000; `kind`: *string* = "video"; `mimeType`: *string* = "video/h264"; `parameters`: { `level-asymmetry-allowed`: *number* = 1; `packetization-mode`: *number* = 1; `profile-level-id`: *string* = "4d0032" }  })[] |
+`mediasoup.router.mediaCodecs` | ({ `channels`: *number* = 2; `clockRate`: *number* = 48000; `kind`: *string* = "audio"; `mimeType`: *string* = "audio/opus"; `parameters`: *undefined*  } \| { `channels`: *undefined* = 2; `clockRate`: *number* = 90000; `kind`: *string* = "video"; `mimeType`: *string* = "video/VP8"; `parameters`: { `level-asymmetry-allowed`: *undefined* = 1; `packetization-mode`: *undefined* = 1; `profile-level-id`: *undefined* = "4d0032" } = {} } \| { `channels`: *undefined* = 2; `clockRate`: *number* = 90000; `kind`: *string* = "video"; `mimeType`: *string* = "video/h264"; `parameters`: { `level-asymmetry-allowed`: *number* = 1; `packetization-mode`: *number* = 1; `profile-level-id`: *string* = "4d0032" }  })[] |
 `mediasoup.webRtcTransport` | *object* |
 `mediasoup.webRtcTransport.initialAvailableOutgoingBitrate` | *number* |
 `mediasoup.webRtcTransport.listenIps` | { `announcedIp`: *any* = null; `ip`: *string* = "192.168.0.81" }[] |
@@ -32,7 +32,7 @@ Name | Type |
 `mediasoup.worker.rtcMaxPort` | *number* |
 `mediasoup.worker.rtcMinPort` | *number* |
 
-Defined in: [packages/server-core/src/config.ts:11](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/config.ts#L11)
+Defined in: [packages/server-core/src/config.ts:11](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/config.ts#L11)
 
 ___
 
@@ -47,7 +47,7 @@ Name | Type |
 `httpPeerStale` | *number* |
 `mediasoup` | *object* |
 `mediasoup.router` | *object* |
-`mediasoup.router.mediaCodecs` | ({ `channels`: *number* = 2; `clockRate`: *number* = 48000; `kind`: *string* = "audio"; `mimeType`: *string* = "audio/opus"; `parameters`: *undefined*  } \| { `channels`: *undefined* = 2; `clockRate`: *number* = 90000; `kind`: *string* = "video"; `mimeType`: *string* = "video/VP8"; `parameters`: { `level-asymmetry-allowed`: *undefined* = 1; `packetization-mode`: *undefined* = 1; `profile-level-id`: *undefined* = "4d0032" }  } \| { `channels`: *undefined* = 2; `clockRate`: *number* = 90000; `kind`: *string* = "video"; `mimeType`: *string* = "video/h264"; `parameters`: { `level-asymmetry-allowed`: *number* = 1; `packetization-mode`: *number* = 1; `profile-level-id`: *string* = "4d0032" }  })[] |
+`mediasoup.router.mediaCodecs` | ({ `channels`: *number* = 2; `clockRate`: *number* = 48000; `kind`: *string* = "audio"; `mimeType`: *string* = "audio/opus"; `parameters`: *undefined*  } \| { `channels`: *undefined* = 2; `clockRate`: *number* = 90000; `kind`: *string* = "video"; `mimeType`: *string* = "video/VP8"; `parameters`: { `level-asymmetry-allowed`: *undefined* = 1; `packetization-mode`: *undefined* = 1; `profile-level-id`: *undefined* = "4d0032" } = {} } \| { `channels`: *undefined* = 2; `clockRate`: *number* = 90000; `kind`: *string* = "video"; `mimeType`: *string* = "video/h264"; `parameters`: { `level-asymmetry-allowed`: *number* = 1; `packetization-mode`: *number* = 1; `profile-level-id`: *string* = "4d0032" }  })[] |
 `mediasoup.webRtcTransport` | *object* |
 `mediasoup.webRtcTransport.initialAvailableOutgoingBitrate` | *number* |
 `mediasoup.webRtcTransport.listenIps` | { `announcedIp`: *any* = null; `ip`: *string* = "192.168.0.81" }[] |
@@ -58,7 +58,7 @@ Name | Type |
 `mediasoup.worker.rtcMaxPort` | *number* |
 `mediasoup.worker.rtcMinPort` | *number* |
 
-Defined in: [packages/server-core/src/config.ts:70](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/config.ts#L70)
+Defined in: [packages/server-core/src/config.ts:70](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/config.ts#L70)
 
 ___
 
@@ -66,4 +66,4 @@ ___
 
 • `Const` **sctpParameters**: [*SctpParameters*](types_sctpparameters.md#sctpparameters)
 
-Defined in: [packages/server-core/src/config.ts:4](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/config.ts#L4)
+Defined in: [packages/server-core/src/config.ts:4](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/config.ts#L4)

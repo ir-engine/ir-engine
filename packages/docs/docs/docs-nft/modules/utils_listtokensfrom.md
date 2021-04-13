@@ -23,4 +23,4 @@ Name | Type |
 
 **Returns:** *Promise*<[*TokenProps*](components_token.md#tokenprops)[]\>
 
-Defined in: [packages/nft/src/utils/listTokensFrom.ts:4](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/nft/src/utils/listTokensFrom.ts#L4)
+Defined in: [packages/nft/src/utils/listTokensFrom.ts:4](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/nft/src/utils/listTokensFrom.ts#L4)

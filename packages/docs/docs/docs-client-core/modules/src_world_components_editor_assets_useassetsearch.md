@@ -20,16 +20,16 @@ useAddRemoveItems function component provides callback function for adding and r
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`items` | *any* |
-`dependencies` | *any*[] |
+Name | Type | Default value |
+:------ | :------ | :------ |
+`items` | *any* | - |
+`dependencies` | *any*[] | [] |
 
 **Returns:** *any*[]
 
 [returns array containing finalItems, addItem, removeItem]
 
-Defined in: [packages/client-core/src/world/components/editor/assets/useAssetSearch.tsx:232](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/assets/useAssetSearch.tsx#L232)
+Defined in: [packages/client-core/src/world/components/editor/assets/useAssetSearch.tsx:232](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/assets/useAssetSearch.tsx#L232)
 
 ___
 
@@ -46,8 +46,8 @@ useAssetSearch used for providing search on MediaSourcePanel.
 Name | Type | Default value |
 :------ | :------ | :------ |
 `source` | *any* | - |
-`initialParams` | *object* | - |
-`initialResults` | *any*[] | - |
+`initialParams` | *object* | {} |
+`initialResults` | *any*[] | [] |
 `initialCursor` | *number* | 0 |
 
 **Returns:** *object*
@@ -63,7 +63,7 @@ Name | Type |
 `setParams` | (`nextParams`: *any*) => *void* |
 `suggestions` | *any*[] |
 
-Defined in: [packages/client-core/src/world/components/editor/assets/useAssetSearch.tsx:154](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/assets/useAssetSearch.tsx#L154)
+Defined in: [packages/client-core/src/world/components/editor/assets/useAssetSearch.tsx:154](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/assets/useAssetSearch.tsx#L154)
 
 ___
 
@@ -80,7 +80,7 @@ useLoadAsyncfunction used to load AssetPanelContent by calling API.
 Name | Type | Default value |
 :------ | :------ | :------ |
 `callback` | *any* | - |
-`initialResults` | *any*[] | - |
+`initialResults` | *any*[] | [] |
 `initialCursor` | *number* | 0 |
 
 **Returns:** *object*
@@ -97,4 +97,4 @@ Name | Type |
 
 Object
 
-Defined in: [packages/client-core/src/world/components/editor/assets/useAssetSearch.tsx:28](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/assets/useAssetSearch.tsx#L28)
+Defined in: [packages/client-core/src/world/components/editor/assets/useAssetSearch.tsx:28](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/assets/useAssetSearch.tsx#L28)

@@ -16,7 +16,7 @@ hide_title: true
 
 • **content**: *any*
 
-Defined in: [packages/client-core/src/common/reducers/devicedetect/actions.tsx:10](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/common/reducers/devicedetect/actions.tsx#L10)
+Defined in: [packages/client-core/src/common/reducers/devicedetect/actions.tsx:10](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/common/reducers/devicedetect/actions.tsx#L10)
 
 ___
 
@@ -24,4 +24,4 @@ ___
 
 • **type**: *string*
 
-Defined in: [packages/client-core/src/common/reducers/devicedetect/actions.tsx:9](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/common/reducers/devicedetect/actions.tsx#L9)
+Defined in: [packages/client-core/src/common/reducers/devicedetect/actions.tsx:9](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/common/reducers/devicedetect/actions.tsx#L9)

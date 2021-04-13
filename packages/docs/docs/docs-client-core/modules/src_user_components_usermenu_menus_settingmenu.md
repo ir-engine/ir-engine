@@ -22,4 +22,4 @@ Name | Type |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/user/components/UserMenu/menus/SettingMenu.tsx:18](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/user/components/UserMenu/menus/SettingMenu.tsx#L18)
+Defined in: [packages/client-core/src/user/components/UserMenu/menus/SettingMenu.tsx:19](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/user/components/UserMenu/menus/SettingMenu.tsx#L19)

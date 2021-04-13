@@ -12,7 +12,6 @@ hide_title: true
 
 ### Interfaces
 
-- [Attribution](../interfaces/src_media_components_video_actions.attribution.md)
 - [Image](../interfaces/src_media_components_video_actions.image.md)
 - [PublicVideo](../interfaces/src_media_components_video_actions.publicvideo.md)
 - [PublicVideoState](../interfaces/src_media_components_video_actions.publicvideostate.md)
@@ -34,7 +33,7 @@ Name | Type |
 
 **Returns:** [*VideosFetchedAction*](../interfaces/src_media_components_video_actions.videosfetchedaction.md)
 
-Defined in: [packages/client-core/src/media/components/video/actions.ts:54](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/media/components/video/actions.ts#L54)
+Defined in: [packages/client-core/src/media/components/video/actions.ts:49](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/media/components/video/actions.ts#L49)
 
 ___
 
@@ -50,4 +49,4 @@ Name | Type |
 
 **Returns:** [*VideosFetchedAction*](../interfaces/src_media_components_video_actions.videosfetchedaction.md)
 
-Defined in: [packages/client-core/src/media/components/video/actions.ts:47](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/media/components/video/actions.ts#L47)
+Defined in: [packages/client-core/src/media/components/video/actions.ts:42](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/media/components/video/actions.ts#L42)

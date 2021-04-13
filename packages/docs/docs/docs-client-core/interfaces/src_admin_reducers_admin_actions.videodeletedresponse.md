@@ -12,19 +12,11 @@ hide_title: true
 
 ## Properties
 
-### attributionId
-
-• **attributionId**: *string*
-
-Defined in: [packages/client-core/src/admin/reducers/admin/actions.ts:65](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/admin/reducers/admin/actions.ts#L65)
-
-___
-
 ### description
 
 • **description**: *string*
 
-Defined in: [packages/client-core/src/admin/reducers/admin/actions.ts:61](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/admin/reducers/admin/actions.ts#L61)
+Defined in: [packages/client-core/src/admin/reducers/admin/actions.ts:57](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/admin/reducers/admin/actions.ts#L57)
 
 ___
 
@@ -32,7 +24,7 @@ ___
 
 • **id**: *string*
 
-Defined in: [packages/client-core/src/admin/reducers/admin/actions.ts:58](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/admin/reducers/admin/actions.ts#L58)
+Defined in: [packages/client-core/src/admin/reducers/admin/actions.ts:54](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/admin/reducers/admin/actions.ts#L54)
 
 ___
 
@@ -40,7 +32,7 @@ ___
 
 • **metadata**: *object*
 
-Defined in: [packages/client-core/src/admin/reducers/admin/actions.ts:62](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/admin/reducers/admin/actions.ts#L62)
+Defined in: [packages/client-core/src/admin/reducers/admin/actions.ts:58](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/admin/reducers/admin/actions.ts#L58)
 
 ___
 
@@ -48,7 +40,7 @@ ___
 
 • **mimeType**: *string*
 
-Defined in: [packages/client-core/src/admin/reducers/admin/actions.ts:64](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/admin/reducers/admin/actions.ts#L64)
+Defined in: [packages/client-core/src/admin/reducers/admin/actions.ts:60](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/admin/reducers/admin/actions.ts#L60)
 
 ___
 
@@ -56,7 +48,7 @@ ___
 
 • **name**: *string*
 
-Defined in: [packages/client-core/src/admin/reducers/admin/actions.ts:59](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/admin/reducers/admin/actions.ts#L59)
+Defined in: [packages/client-core/src/admin/reducers/admin/actions.ts:55](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/admin/reducers/admin/actions.ts#L55)
 
 ___
 
@@ -64,7 +56,7 @@ ___
 
 • **staticResourceType**: *string*
 
-Defined in: [packages/client-core/src/admin/reducers/admin/actions.ts:66](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/admin/reducers/admin/actions.ts#L66)
+Defined in: [packages/client-core/src/admin/reducers/admin/actions.ts:61](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/admin/reducers/admin/actions.ts#L61)
 
 ___
 
@@ -72,7 +64,7 @@ ___
 
 • **url**: *string*
 
-Defined in: [packages/client-core/src/admin/reducers/admin/actions.ts:60](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/admin/reducers/admin/actions.ts#L60)
+Defined in: [packages/client-core/src/admin/reducers/admin/actions.ts:56](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/admin/reducers/admin/actions.ts#L56)
 
 ___
 
@@ -80,4 +72,4 @@ ___
 
 • **userId**: *string*
 
-Defined in: [packages/client-core/src/admin/reducers/admin/actions.ts:63](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/admin/reducers/admin/actions.ts#L63)
+Defined in: [packages/client-core/src/admin/reducers/admin/actions.ts:59](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/admin/reducers/admin/actions.ts#L59)

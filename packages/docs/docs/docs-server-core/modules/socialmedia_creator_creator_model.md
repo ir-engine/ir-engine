@@ -28,4 +28,4 @@ Name | Type |
 
 **Returns:** *any*
 
-Defined in: [packages/server-core/src/socialmedia/creator/creator.model.ts:5](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/socialmedia/creator/creator.model.ts#L5)
+Defined in: [packages/server-core/src/socialmedia/creator/creator.model.ts:5](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/socialmedia/creator/creator.model.ts#L5)

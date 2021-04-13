@@ -14,7 +14,7 @@ hide_title: true
 
 • `Const` **initialAlertState**: [*AlertState*](../interfaces/src_common_reducers_alert_actions.alertstate.md)
 
-Defined in: [packages/client-core/src/common/reducers/alert/reducers.ts:8](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/common/reducers/alert/reducers.ts#L8)
+Defined in: [packages/client-core/src/common/reducers/alert/reducers.ts:8](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/common/reducers/alert/reducers.ts#L8)
 
 ## Functions
 
@@ -31,4 +31,4 @@ Name | Type |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/src/common/reducers/alert/reducers.ts:15](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/common/reducers/alert/reducers.ts#L15)
+Defined in: [packages/client-core/src/common/reducers/alert/reducers.ts:15](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/common/reducers/alert/reducers.ts#L15)

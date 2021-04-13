@@ -20,9 +20,13 @@ hide_title: true
 
 Name | Type |
 :------ | :------ |
+`creatable` | *boolean* |
+`disabled` | *boolean* |
+`error` | *boolean* |
 `onChange` | () => *void* |
 `optionNotFoundPlaceholder` | *string* |
 `placeholder` | *string* |
+`styles` | *object* |
 `value` | *any* |
 
 ___

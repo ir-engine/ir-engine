@@ -18,6 +18,6 @@ Renames and exports: [socialMediaSeeds](socialmedia_seeder_config.md#socialmedia
 
 ### socialMediaSeeds
 
-• `Const` **socialMediaSeeds**: ServicesSeedConfig[]
+• `Const` **socialMediaSeeds**: ServicesSeedConfig[]= []
 
-Defined in: [packages/server-core/src/socialmedia/seeder-config.ts:3](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/socialmedia/seeder-config.ts#L3)
+Defined in: [packages/server-core/src/socialmedia/seeder-config.ts:3](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/socialmedia/seeder-config.ts#L3)

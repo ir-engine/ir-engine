@@ -32,4 +32,4 @@ Name | Type |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/assets/ImageSourcePanel.tsx:13](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/assets/ImageSourcePanel.tsx#L13)
+Defined in: [packages/client-core/src/world/components/editor/assets/ImageSourcePanel.tsx:13](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/assets/ImageSourcePanel.tsx#L13)

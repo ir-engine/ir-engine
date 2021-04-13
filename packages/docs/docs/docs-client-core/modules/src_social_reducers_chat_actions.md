@@ -30,7 +30,7 @@ hide_title: true
 
 Ƭ **ChatAction**: [*LoadedChannelsAction*](../interfaces/src_social_reducers_chat_actions.loadedchannelsaction.md) \| [*LoadedChannelAction*](../interfaces/src_social_reducers_chat_actions.loadedchannelaction.md) \| [*CreatedMessageAction*](../interfaces/src_social_reducers_chat_actions.createdmessageaction.md) \| [*LoadedMessagesAction*](../interfaces/src_social_reducers_chat_actions.loadedmessagesaction.md) \| [*PatchedMessageAction*](../interfaces/src_social_reducers_chat_actions.patchedmessageaction.md) \| [*RemovedMessageAction*](../interfaces/src_social_reducers_chat_actions.removedmessageaction.md) \| [*ChatTargetSetAction*](../interfaces/src_social_reducers_chat_actions.chattargetsetaction.md) \| [*SetMessageScrollInitAction*](../interfaces/src_social_reducers_chat_actions.setmessagescrollinitaction.md) \| [*CreatedChannelAction*](../interfaces/src_social_reducers_chat_actions.createdchannelaction.md) \| [*PatchedChannelAction*](../interfaces/src_social_reducers_chat_actions.patchedchannelaction.md) \| [*RemovedChannelAction*](../interfaces/src_social_reducers_chat_actions.removedchannelaction.md)
 
-Defined in: [packages/client-core/src/social/reducers/chat/actions.ts:86](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/social/reducers/chat/actions.ts#L86)
+Defined in: [packages/client-core/src/social/reducers/chat/actions.ts:86](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/chat/actions.ts#L86)
 
 ## Functions
 
@@ -51,7 +51,7 @@ Name | Type |
 `channel` | Channel |
 `type` | *string* |
 
-Defined in: [packages/client-core/src/social/reducers/chat/actions.ts:166](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/social/reducers/chat/actions.ts#L166)
+Defined in: [packages/client-core/src/social/reducers/chat/actions.ts:166](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/chat/actions.ts#L166)
 
 ___
 
@@ -68,7 +68,7 @@ Name | Type |
 
 **Returns:** [*ChatAction*](src_social_reducers_chat_actions.md#chataction)
 
-Defined in: [packages/client-core/src/social/reducers/chat/actions.ts:117](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/social/reducers/chat/actions.ts#L117)
+Defined in: [packages/client-core/src/social/reducers/chat/actions.ts:117](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/chat/actions.ts#L117)
 
 ___
 
@@ -85,7 +85,7 @@ Name | Type |
 
 **Returns:** [*ChatAction*](src_social_reducers_chat_actions.md#chataction)
 
-Defined in: [packages/client-core/src/social/reducers/chat/actions.ts:99](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/social/reducers/chat/actions.ts#L99)
+Defined in: [packages/client-core/src/social/reducers/chat/actions.ts:99](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/chat/actions.ts#L99)
 
 ___
 
@@ -101,7 +101,7 @@ Name | Type |
 
 **Returns:** [*ChatAction*](src_social_reducers_chat_actions.md#chataction)
 
-Defined in: [packages/client-core/src/social/reducers/chat/actions.ts:107](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/social/reducers/chat/actions.ts#L107)
+Defined in: [packages/client-core/src/social/reducers/chat/actions.ts:107](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/chat/actions.ts#L107)
 
 ___
 
@@ -118,7 +118,7 @@ Name | Type |
 
 **Returns:** [*ChatAction*](src_social_reducers_chat_actions.md#chataction)
 
-Defined in: [packages/client-core/src/social/reducers/chat/actions.ts:139](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/social/reducers/chat/actions.ts#L139)
+Defined in: [packages/client-core/src/social/reducers/chat/actions.ts:139](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/chat/actions.ts#L139)
 
 ___
 
@@ -139,7 +139,7 @@ Name | Type |
 `channel` | Channel |
 `type` | *string* |
 
-Defined in: [packages/client-core/src/social/reducers/chat/actions.ts:173](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/social/reducers/chat/actions.ts#L173)
+Defined in: [packages/client-core/src/social/reducers/chat/actions.ts:173](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/chat/actions.ts#L173)
 
 ___
 
@@ -155,7 +155,7 @@ Name | Type |
 
 **Returns:** [*ChatAction*](src_social_reducers_chat_actions.md#chataction)
 
-Defined in: [packages/client-core/src/social/reducers/chat/actions.ts:125](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/social/reducers/chat/actions.ts#L125)
+Defined in: [packages/client-core/src/social/reducers/chat/actions.ts:125](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/chat/actions.ts#L125)
 
 ___
 
@@ -176,7 +176,7 @@ Name | Type |
 `channel` | Channel |
 `type` | *string* |
 
-Defined in: [packages/client-core/src/social/reducers/chat/actions.ts:180](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/social/reducers/chat/actions.ts#L180)
+Defined in: [packages/client-core/src/social/reducers/chat/actions.ts:180](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/chat/actions.ts#L180)
 
 ___
 
@@ -192,7 +192,7 @@ Name | Type |
 
 **Returns:** [*ChatAction*](src_social_reducers_chat_actions.md#chataction)
 
-Defined in: [packages/client-core/src/social/reducers/chat/actions.ts:132](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/social/reducers/chat/actions.ts#L132)
+Defined in: [packages/client-core/src/social/reducers/chat/actions.ts:132](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/chat/actions.ts#L132)
 
 ___
 
@@ -210,7 +210,7 @@ Name | Type |
 
 **Returns:** [*ChatAction*](src_social_reducers_chat_actions.md#chataction)
 
-Defined in: [packages/client-core/src/social/reducers/chat/actions.ts:150](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/social/reducers/chat/actions.ts#L150)
+Defined in: [packages/client-core/src/social/reducers/chat/actions.ts:150](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/chat/actions.ts#L150)
 
 ___
 
@@ -226,4 +226,4 @@ Name | Type |
 
 **Returns:** [*ChatAction*](src_social_reducers_chat_actions.md#chataction)
 
-Defined in: [packages/client-core/src/social/reducers/chat/actions.ts:159](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/social/reducers/chat/actions.ts#L159)
+Defined in: [packages/client-core/src/social/reducers/chat/actions.ts:159](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/chat/actions.ts#L159)

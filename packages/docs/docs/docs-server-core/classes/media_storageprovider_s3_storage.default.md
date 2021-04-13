@@ -28,7 +28,7 @@ hide_title: true
 
 • **blob**: *any*
 
-Defined in: [packages/server-core/src/media/storageprovider/s3.storage.ts:14](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/media/storageprovider/s3.storage.ts#L14)
+Defined in: [packages/server-core/src/media/storageprovider/s3.storage.ts:14](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/media/storageprovider/s3.storage.ts#L14)
 
 ___
 
@@ -36,7 +36,7 @@ ___
 
 • **bucket**: *string*
 
-Defined in: [packages/server-core/src/media/storageprovider/s3.storage.ts:7](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/media/storageprovider/s3.storage.ts#L7)
+Defined in: [packages/server-core/src/media/storageprovider/s3.storage.ts:7](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/media/storageprovider/s3.storage.ts#L7)
 
 ___
 
@@ -44,7 +44,7 @@ ___
 
 • **provider**: *S3*
 
-Defined in: [packages/server-core/src/media/storageprovider/s3.storage.ts:8](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/media/storageprovider/s3.storage.ts#L8)
+Defined in: [packages/server-core/src/media/storageprovider/s3.storage.ts:8](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/media/storageprovider/s3.storage.ts#L8)
 
 ## Methods
 
@@ -60,7 +60,7 @@ Name | Type |
 
 **Returns:** *Promise*<any\>
 
-Defined in: [packages/server-core/src/media/storageprovider/s3.storage.ts:43](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/media/storageprovider/s3.storage.ts#L43)
+Defined in: [packages/server-core/src/media/storageprovider/s3.storage.ts:43](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/media/storageprovider/s3.storage.ts#L43)
 
 ___
 
@@ -72,7 +72,7 @@ ___
 
 Implementation of: [StorageProviderInterface](../interfaces/media_storageprovider_storageprovider_interface.storageproviderinterface.md)
 
-Defined in: [packages/server-core/src/media/storageprovider/s3.storage.ts:21](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/media/storageprovider/s3.storage.ts#L21)
+Defined in: [packages/server-core/src/media/storageprovider/s3.storage.ts:21](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/media/storageprovider/s3.storage.ts#L21)
 
 ___
 
@@ -90,7 +90,7 @@ Name | Type |
 
 **Returns:** *Promise*<any\>
 
-Defined in: [packages/server-core/src/media/storageprovider/s3.storage.ts:27](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/media/storageprovider/s3.storage.ts#L27)
+Defined in: [packages/server-core/src/media/storageprovider/s3.storage.ts:27](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/media/storageprovider/s3.storage.ts#L27)
 
 ___
 
@@ -102,4 +102,4 @@ ___
 
 Implementation of: [StorageProviderInterface](../interfaces/media_storageprovider_storageprovider_interface.storageproviderinterface.md)
 
-Defined in: [packages/server-core/src/media/storageprovider/s3.storage.ts:25](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/media/storageprovider/s3.storage.ts#L25)
+Defined in: [packages/server-core/src/media/storageprovider/s3.storage.ts:25](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/media/storageprovider/s3.storage.ts#L25)

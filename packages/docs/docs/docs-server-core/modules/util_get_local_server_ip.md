@@ -20,4 +20,4 @@ hide_title: true
 
 **Returns:** *Promise*<ServerAddress\>
 
-Defined in: [packages/server-core/src/util/get-local-server-ip.ts:6](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/util/get-local-server-ip.ts#L6)
+Defined in: [packages/server-core/src/util/get-local-server-ip.ts:6](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/util/get-local-server-ip.ts#L6)

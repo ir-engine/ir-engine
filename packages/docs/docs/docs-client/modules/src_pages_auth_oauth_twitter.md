@@ -22,4 +22,4 @@ Renames and exports: [TwitterHomePage](src_pages_auth_oauth_twitter.md#twitterho
 
 **Returns:** *Element*
 
-Defined in: [packages/client/src/pages/auth/oauth/twitter.tsx:5](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client/src/pages/auth/oauth/twitter.tsx#L5)
+Defined in: [packages/client/src/pages/auth/oauth/twitter.tsx:5](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client/src/pages/auth/oauth/twitter.tsx#L5)

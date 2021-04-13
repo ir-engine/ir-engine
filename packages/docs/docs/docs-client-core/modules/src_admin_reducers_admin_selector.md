@@ -14,4 +14,4 @@ hide_title: true
 
 • `Const` **selectAdminState**: *OutputSelector*<any, any, (`res`: *any*) => *any*\>
 
-Defined in: [packages/client-core/src/admin/reducers/admin/selector.ts:4](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/admin/reducers/admin/selector.ts#L4)
+Defined in: [packages/client-core/src/admin/reducers/admin/selector.ts:4](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/admin/reducers/admin/selector.ts#L4)

@@ -26,4 +26,4 @@ Name | Type |
 
 **Returns:** *any*
 
-Defined in: [packages/server-core/src/entities/component-type/service.ts:11](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/entities/component-type/service.ts#L11)
+Defined in: [packages/server-core/src/entities/component-type/service.ts:11](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/entities/component-type/service.ts#L11)

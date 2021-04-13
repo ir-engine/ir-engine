@@ -12,7 +12,7 @@ hide_title: true
 
 ### createEditor
 
-▸ **createEditor**(`api`: *any*, `settings`: *any*): [*default*](../classes/src_world_components_editor_editor.default.md)
+▸ **createEditor**(`api`: *any*, `settings`: *any*, `Engine`: *any*): [*default*](../classes/src_world_components_editor_editor.default.md)
 
 createEditor used to create editor object and register nodes available to create scene.
 
@@ -24,9 +24,10 @@ Name | Type |
 :------ | :------ |
 `api` | *any* |
 `settings` | *any* |
+`Engine` | *any* |
 
 **Returns:** [*default*](../classes/src_world_components_editor_editor.default.md)
 
 [editor]
 
-Defined in: [packages/client-core/src/world/components/editor/Nodes.tsx:60](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Nodes.tsx#L60)
+Defined in: [packages/client-core/src/world/components/editor/Nodes.tsx:59](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Nodes.tsx#L59)

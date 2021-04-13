@@ -74,12 +74,8 @@ Name | Type |
 `resources.en.editor.dialog.progress.title` | *string* |
 `resources.en.editor.dialog.publish` | *object* |
 `resources.en.editor.dialog.publish.info-name` | *string* |
-`resources.en.editor.dialog.publish.lbl-appearOnFront` | *string* |
 `resources.en.editor.dialog.publish.lbl-confirm` | *string* |
-`resources.en.editor.dialog.publish.lbl-modelAttribution` | *string* |
 `resources.en.editor.dialog.publish.lbl-name` | *string* |
-`resources.en.editor.dialog.publish.lbl-remixScene` | *string* |
-`resources.en.editor.dialog.publish.lbl-yourAttribution` | *string* |
 `resources.en.editor.dialog.publish.title` | *string* |
 `resources.en.editor.dialog.published` | *object* |
 `resources.en.editor.dialog.published.header` | *string* |
@@ -253,6 +249,7 @@ Name | Type |
 `resources.en.editor.properties.floorPlan.lbl-maxStepHeight` | *string* |
 `resources.en.editor.properties.floorPlan.lbl-minRegionArea` | *string* |
 `resources.en.editor.properties.floorPlan.lbl-regenerate` | *string* |
+`resources.en.editor.properties.game` | *object* |
 `resources.en.editor.properties.groundPlan` | *object* |
 `resources.en.editor.properties.groundPlan.description` | *string* |
 `resources.en.editor.properties.groundPlan.lbl-color` | *string* |
@@ -490,4 +487,4 @@ Name | Type |
 `resources.en.editor.viewport.state.triangles` | *string* |
 `resources.en.editor.viewport.title` | *string* |
 
-Defined in: [packages/client-core/src/i18n.ts:3](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/i18n.ts#L3)
+Defined in: [packages/client-core/src/i18n.ts:3](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/i18n.ts#L3)

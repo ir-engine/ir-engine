@@ -26,7 +26,7 @@ Name | Type |
 `getFriendsInProgress` | *boolean* |
 `updateNeeded` | *boolean* |
 
-Defined in: [packages/client-core/src/social/reducers/friend/reducers.ts:20](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/social/reducers/friend/reducers.ts#L20)
+Defined in: [packages/client-core/src/social/reducers/friend/reducers.ts:20](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/friend/reducers.ts#L20)
 
 ## Functions
 
@@ -43,4 +43,4 @@ Name | Type |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/src/social/reducers/friend/reducers.ts:33](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/social/reducers/friend/reducers.ts#L33)
+Defined in: [packages/client-core/src/social/reducers/friend/reducers.ts:33](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/friend/reducers.ts#L33)

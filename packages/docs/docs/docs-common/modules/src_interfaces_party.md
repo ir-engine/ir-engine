@@ -21,4 +21,4 @@ Name | Type |
 `id` | *string* |
 `partyUsers` | [*PartyUser*](src_interfaces_partyuser.md#partyuser)[] |
 
-Defined in: [src/interfaces/Party.ts:3](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/common/src/interfaces/Party.ts#L3)
+Defined in: [interfaces/Party.ts:3](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/common/src/interfaces/Party.ts#L3)

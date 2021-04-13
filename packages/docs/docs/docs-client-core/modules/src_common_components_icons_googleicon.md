@@ -22,4 +22,4 @@ Name | Type |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/common/components/Icons/GoogleIcon.tsx:4](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/common/components/Icons/GoogleIcon.tsx#L4)
+Defined in: [packages/client-core/src/common/components/Icons/GoogleIcon.tsx:4](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/common/components/Icons/GoogleIcon.tsx#L4)

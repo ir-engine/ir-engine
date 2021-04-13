@@ -28,7 +28,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/helper.ts:10](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/helper.ts#L10)
+Defined in: [packages/client-core/src/helper.ts:46](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/helper.ts#L46)
 
 ___
 
@@ -44,7 +44,7 @@ Name | Type |
 
 **Returns:** *boolean*
 
-Defined in: [packages/client-core/src/helper.ts:1](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/helper.ts#L1)
+Defined in: [packages/client-core/src/helper.ts:1](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/helper.ts#L1)
 
 ___
 
@@ -60,4 +60,4 @@ Name | Type |
 
 **Returns:** *boolean*
 
-Defined in: [packages/client-core/src/helper.ts:3](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/helper.ts#L3)
+Defined in: [packages/client-core/src/helper.ts:3](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/helper.ts#L3)

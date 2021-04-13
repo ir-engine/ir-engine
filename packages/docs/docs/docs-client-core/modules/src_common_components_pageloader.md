@@ -16,4 +16,4 @@ hide_title: true
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/src/common/components/PageLoader.tsx:4](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/common/components/PageLoader.tsx#L4)
+Defined in: [packages/client-core/src/common/components/PageLoader.tsx:5](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/common/components/PageLoader.tsx#L5)

@@ -23,7 +23,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/src/socialmedia/reducers/feedComment/service.ts:26](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/socialmedia/reducers/feedComment/service.ts#L26)
+Defined in: [packages/client-core/src/socialmedia/reducers/feedComment/service.ts:26](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/socialmedia/reducers/feedComment/service.ts#L26)
 
 ___
 
@@ -39,7 +39,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/src/socialmedia/reducers/feedComment/service.ts:39](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/socialmedia/reducers/feedComment/service.ts#L39)
+Defined in: [packages/client-core/src/socialmedia/reducers/feedComment/service.ts:39](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/socialmedia/reducers/feedComment/service.ts#L39)
 
 ___
 
@@ -56,7 +56,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>, `getState`: *any*) => *Promise*<any\>
 
-Defined in: [packages/client-core/src/socialmedia/reducers/feedComment/service.ts:64](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/socialmedia/reducers/feedComment/service.ts#L64)
+Defined in: [packages/client-core/src/socialmedia/reducers/feedComment/service.ts:64](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/socialmedia/reducers/feedComment/service.ts#L64)
 
 ___
 
@@ -73,7 +73,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>, `getState`: *any*) => *Promise*<any\>
 
-Defined in: [packages/client-core/src/socialmedia/reducers/feedComment/service.ts:13](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/socialmedia/reducers/feedComment/service.ts#L13)
+Defined in: [packages/client-core/src/socialmedia/reducers/feedComment/service.ts:13](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/socialmedia/reducers/feedComment/service.ts#L13)
 
 ___
 
@@ -89,4 +89,4 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/src/socialmedia/reducers/feedComment/service.ts:51](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/socialmedia/reducers/feedComment/service.ts#L51)
+Defined in: [packages/client-core/src/socialmedia/reducers/feedComment/service.ts:51](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/socialmedia/reducers/feedComment/service.ts#L51)

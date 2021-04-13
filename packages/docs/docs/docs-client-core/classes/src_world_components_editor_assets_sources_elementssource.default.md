@@ -37,7 +37,7 @@ Name | Type |
 
 Overrides: [BaseSource](src_world_components_editor_assets_sources.basesource.md)
 
-Defined in: [packages/client-core/src/world/components/editor/assets/sources/ElementsSource.tsx:22](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/assets/sources/ElementsSource.tsx#L22)
+Defined in: [packages/client-core/src/world/components/editor/assets/sources/ElementsSource.tsx:22](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/assets/sources/ElementsSource.tsx#L22)
 
 ## Properties
 
@@ -47,7 +47,7 @@ Defined in: [packages/client-core/src/world/components/editor/assets/sources/Ele
 
 Inherited from: [BaseSource](src_world_components_editor_assets_sources.basesource.md).[assetPanelComponent](src_world_components_editor_assets_sources.basesource.md#assetpanelcomponent)
 
-Defined in: [packages/client-core/src/world/components/editor/assets/sources/index.tsx:12](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/assets/sources/index.tsx#L12)
+Defined in: [packages/client-core/src/world/components/editor/assets/sources/index.tsx:12](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/assets/sources/index.tsx#L12)
 
 ___
 
@@ -55,7 +55,7 @@ ___
 
 • **component**: *typeof* [*default*](../modules/src_world_components_editor_assets_mediasourcepanel.md#default)
 
-Defined in: [packages/client-core/src/world/components/editor/assets/sources/ElementsSource.tsx:17](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/assets/sources/ElementsSource.tsx#L17)
+Defined in: [packages/client-core/src/world/components/editor/assets/sources/ElementsSource.tsx:17](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/assets/sources/ElementsSource.tsx#L17)
 
 ___
 
@@ -63,7 +63,7 @@ ___
 
 • **disableUrl**: *boolean*
 
-Defined in: [packages/client-core/src/world/components/editor/assets/sources/ElementsSource.tsx:21](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/assets/sources/ElementsSource.tsx#L21)
+Defined in: [packages/client-core/src/world/components/editor/assets/sources/ElementsSource.tsx:21](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/assets/sources/ElementsSource.tsx#L21)
 
 ___
 
@@ -71,7 +71,7 @@ ___
 
 • **editor**: [*default*](src_world_components_editor_editor.default.md)
 
-Defined in: [packages/client-core/src/world/components/editor/assets/sources/ElementsSource.tsx:18](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/assets/sources/ElementsSource.tsx#L18)
+Defined in: [packages/client-core/src/world/components/editor/assets/sources/ElementsSource.tsx:18](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/assets/sources/ElementsSource.tsx#L18)
 
 ___
 
@@ -81,7 +81,7 @@ ___
 
 Inherited from: [BaseSource](src_world_components_editor_assets_sources.basesource.md).[iconComponent](src_world_components_editor_assets_sources.basesource.md#iconcomponent)
 
-Defined in: [packages/client-core/src/world/components/editor/assets/sources/index.tsx:11](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/assets/sources/index.tsx#L11)
+Defined in: [packages/client-core/src/world/components/editor/assets/sources/index.tsx:11](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/assets/sources/index.tsx#L11)
 
 ___
 
@@ -91,7 +91,7 @@ ___
 
 Overrides: [BaseSource](src_world_components_editor_assets_sources.basesource.md).[id](src_world_components_editor_assets_sources.basesource.md#id)
 
-Defined in: [packages/client-core/src/world/components/editor/assets/sources/ElementsSource.tsx:19](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/assets/sources/ElementsSource.tsx#L19)
+Defined in: [packages/client-core/src/world/components/editor/assets/sources/ElementsSource.tsx:19](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/assets/sources/ElementsSource.tsx#L19)
 
 ___
 
@@ -101,7 +101,7 @@ ___
 
 Overrides: [BaseSource](src_world_components_editor_assets_sources.basesource.md).[name](src_world_components_editor_assets_sources.basesource.md#name)
 
-Defined in: [packages/client-core/src/world/components/editor/assets/sources/ElementsSource.tsx:20](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/assets/sources/ElementsSource.tsx#L20)
+Defined in: [packages/client-core/src/world/components/editor/assets/sources/ElementsSource.tsx:20](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/assets/sources/ElementsSource.tsx#L20)
 
 ___
 
@@ -111,7 +111,7 @@ ___
 
 Inherited from: [BaseSource](src_world_components_editor_assets_sources.basesource.md).[requiresAuthentication](src_world_components_editor_assets_sources.basesource.md#requiresauthentication)
 
-Defined in: [packages/client-core/src/world/components/editor/assets/sources/index.tsx:13](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/assets/sources/index.tsx#L13)
+Defined in: [packages/client-core/src/world/components/editor/assets/sources/index.tsx:13](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/assets/sources/index.tsx#L13)
 
 ___
 
@@ -121,7 +121,7 @@ ___
 
 Overrides: [BaseSource](src_world_components_editor_assets_sources.basesource.md).[searchDebounceTimeout](src_world_components_editor_assets_sources.basesource.md#searchdebouncetimeout)
 
-Defined in: [packages/client-core/src/world/components/editor/assets/sources/ElementsSource.tsx:22](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/assets/sources/ElementsSource.tsx#L22)
+Defined in: [packages/client-core/src/world/components/editor/assets/sources/ElementsSource.tsx:22](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/assets/sources/ElementsSource.tsx#L22)
 
 ___
 
@@ -131,7 +131,7 @@ ___
 
 Inherited from: [BaseSource](src_world_components_editor_assets_sources.basesource.md).[uploadSource](src_world_components_editor_assets_sources.basesource.md#uploadsource)
 
-Defined in: [packages/client-core/src/world/components/editor/assets/sources/index.tsx:14](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/assets/sources/index.tsx#L14)
+Defined in: [packages/client-core/src/world/components/editor/assets/sources/index.tsx:14](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/assets/sources/index.tsx#L14)
 
 ___
 
@@ -320,7 +320,7 @@ ___
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/assets/sources/ElementsSource.tsx:43](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/assets/sources/ElementsSource.tsx#L43)
+Defined in: [packages/client-core/src/world/components/editor/assets/sources/ElementsSource.tsx:43](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/assets/sources/ElementsSource.tsx#L43)
 
 ___
 
@@ -330,7 +330,7 @@ ___
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/assets/sources/ElementsSource.tsx:38](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/assets/sources/ElementsSource.tsx#L38)
+Defined in: [packages/client-core/src/world/components/editor/assets/sources/ElementsSource.tsx:38](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/assets/sources/ElementsSource.tsx#L38)
 
 ___
 
@@ -425,4 +425,4 @@ Name | Type |
 
 Overrides: [BaseSource](src_world_components_editor_assets_sources.basesource.md)
 
-Defined in: [packages/client-core/src/world/components/editor/assets/sources/ElementsSource.tsx:49](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/assets/sources/ElementsSource.tsx#L49)
+Defined in: [packages/client-core/src/world/components/editor/assets/sources/ElementsSource.tsx:49](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/assets/sources/ElementsSource.tsx#L49)

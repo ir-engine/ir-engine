@@ -16,7 +16,7 @@ hide_title: true
 
 • **avatarId**: *string*
 
-Defined in: [src/interfaces/User.ts:10](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/common/src/interfaces/User.ts#L10)
+Defined in: [interfaces/User.ts:10](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/common/src/interfaces/User.ts#L10)
 
 ___
 
@@ -24,7 +24,7 @@ ___
 
 • `Optional` **avatarUrl**: *string*
 
-Defined in: [src/interfaces/User.ts:15](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/common/src/interfaces/User.ts#L15)
+Defined in: [interfaces/User.ts:15](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/common/src/interfaces/User.ts#L15)
 
 ___
 
@@ -32,7 +32,7 @@ ___
 
 • `Optional` **channelInstanceId**: *string*
 
-Defined in: [src/interfaces/User.ts:17](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/common/src/interfaces/User.ts#L17)
+Defined in: [interfaces/User.ts:17](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/common/src/interfaces/User.ts#L17)
 
 ___
 
@@ -40,7 +40,7 @@ ___
 
 • **id**: *string*
 
-Defined in: [src/interfaces/User.ts:7](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/common/src/interfaces/User.ts#L7)
+Defined in: [interfaces/User.ts:7](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/common/src/interfaces/User.ts#L7)
 
 ___
 
@@ -48,7 +48,7 @@ ___
 
 • **identityProviders**: [*IdentityProvider*](src_interfaces_identityprovider.identityprovider.md)[]
 
-Defined in: [src/interfaces/User.ts:11](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/common/src/interfaces/User.ts#L11)
+Defined in: [interfaces/User.ts:11](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/common/src/interfaces/User.ts#L11)
 
 ___
 
@@ -56,15 +56,15 @@ ___
 
 • `Optional` **instanceId**: *string*
 
-Defined in: [src/interfaces/User.ts:16](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/common/src/interfaces/User.ts#L16)
+Defined in: [interfaces/User.ts:16](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/common/src/interfaces/User.ts#L16)
 
 ___
 
 ### inverseRelationType
 
-• `Optional` **inverseRelationType**: [*RelationshipType*](../modules/src_interfaces_user.md#relationshiptype)
+• `Optional` **inverseRelationType**: [*RelationshipType*](../modules/src_interfaces_userrelationship.md#relationshiptype)
 
-Defined in: [src/interfaces/User.ts:14](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/common/src/interfaces/User.ts#L14)
+Defined in: [interfaces/User.ts:14](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/common/src/interfaces/User.ts#L14)
 
 ___
 
@@ -72,7 +72,7 @@ ___
 
 • **locationAdmins**: [*LocationAdmin*](src_interfaces_locationadmin.locationadmin.md)[]
 
-Defined in: [src/interfaces/User.ts:12](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/common/src/interfaces/User.ts#L12)
+Defined in: [interfaces/User.ts:12](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/common/src/interfaces/User.ts#L12)
 
 ___
 
@@ -80,7 +80,7 @@ ___
 
 • `Optional` **locationBans**: [*LocationBan*](src_interfaces_locationban.locationban.md)[]
 
-Defined in: [src/interfaces/User.ts:19](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/common/src/interfaces/User.ts#L19)
+Defined in: [interfaces/User.ts:19](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/common/src/interfaces/User.ts#L19)
 
 ___
 
@@ -88,7 +88,7 @@ ___
 
 • **name**: *string*
 
-Defined in: [src/interfaces/User.ts:8](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/common/src/interfaces/User.ts#L8)
+Defined in: [interfaces/User.ts:8](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/common/src/interfaces/User.ts#L8)
 
 ___
 
@@ -96,15 +96,15 @@ ___
 
 • `Optional` **partyId**: *string*
 
-Defined in: [src/interfaces/User.ts:18](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/common/src/interfaces/User.ts#L18)
+Defined in: [interfaces/User.ts:18](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/common/src/interfaces/User.ts#L18)
 
 ___
 
 ### relationType
 
-• `Optional` **relationType**: [*RelationshipType*](../modules/src_interfaces_user.md#relationshiptype)
+• `Optional` **relationType**: [*RelationshipType*](../modules/src_interfaces_userrelationship.md#relationshiptype)
 
-Defined in: [src/interfaces/User.ts:13](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/common/src/interfaces/User.ts#L13)
+Defined in: [interfaces/User.ts:13](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/common/src/interfaces/User.ts#L13)
 
 ___
 
@@ -112,4 +112,4 @@ ___
 
 • **userRole**: *string*
 
-Defined in: [src/interfaces/User.ts:9](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/common/src/interfaces/User.ts#L9)
+Defined in: [interfaces/User.ts:9](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/common/src/interfaces/User.ts#L9)

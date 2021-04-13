@@ -24,14 +24,14 @@ authManagement class for GET, CREATE, UPDATE AND REMOVE.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`options` | ServiceOptions |
-`app` | Application |
+Name | Type | Default value |
+:------ | :------ | :------ |
+`options` | ServiceOptions | {} |
+`app` | Application | - |
 
 **Returns:** [*Authmanagement*](user_auth_management_auth_management_class.authmanagement.md)
 
-Defined in: [packages/server-core/src/user/auth-management/auth-management.class.ts:15](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/user/auth-management/auth-management.class.ts#L15)
+Defined in: [packages/server-core/src/user/auth-management/auth-management.class.ts:15](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/user/auth-management/auth-management.class.ts#L15)
 
 ## Properties
 
@@ -39,7 +39,7 @@ Defined in: [packages/server-core/src/user/auth-management/auth-management.class
 
 • **app**: Application
 
-Defined in: [packages/server-core/src/user/auth-management/auth-management.class.ts:13](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/user/auth-management/auth-management.class.ts#L13)
+Defined in: [packages/server-core/src/user/auth-management/auth-management.class.ts:13](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/user/auth-management/auth-management.class.ts#L13)
 
 ___
 
@@ -47,7 +47,7 @@ ___
 
 • **docs**: *any*
 
-Defined in: [packages/server-core/src/user/auth-management/auth-management.class.ts:15](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/user/auth-management/auth-management.class.ts#L15)
+Defined in: [packages/server-core/src/user/auth-management/auth-management.class.ts:15](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/user/auth-management/auth-management.class.ts#L15)
 
 ___
 
@@ -55,7 +55,7 @@ ___
 
 • **options**: ServiceOptions
 
-Defined in: [packages/server-core/src/user/auth-management/auth-management.class.ts:14](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/user/auth-management/auth-management.class.ts#L14)
+Defined in: [packages/server-core/src/user/auth-management/auth-management.class.ts:14](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/user/auth-management/auth-management.class.ts#L14)
 
 ## Methods
 
@@ -76,9 +76,9 @@ Name | Type | Description |
 
 **Returns:** *Promise*<Data\>
 
-Implementation of: void
+Implementation of: ServiceMethods.create
 
-Defined in: [packages/server-core/src/user/auth-management/auth-management.class.ts:56](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/user/auth-management/auth-management.class.ts#L56)
+Defined in: [packages/server-core/src/user/auth-management/auth-management.class.ts:56](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/user/auth-management/auth-management.class.ts#L56)
 
 ___
 
@@ -100,9 +100,9 @@ Name | Type |
 
 {@Array} all listed auth
 
-Implementation of: void
+Implementation of: ServiceMethods.find
 
-Defined in: [packages/server-core/src/user/auth-management/auth-management.class.ts:30](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/user/auth-management/auth-management.class.ts#L30)
+Defined in: [packages/server-core/src/user/auth-management/auth-management.class.ts:30](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/user/auth-management/auth-management.class.ts#L30)
 
 ___
 
@@ -125,15 +125,15 @@ Name | Type | Description |
 
 {@Object} contain single auth
 
-Implementation of: void
+Implementation of: ServiceMethods.get
 
-Defined in: [packages/server-core/src/user/auth-management/auth-management.class.ts:43](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/user/auth-management/auth-management.class.ts#L43)
+Defined in: [packages/server-core/src/user/auth-management/auth-management.class.ts:43](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/user/auth-management/auth-management.class.ts#L43)
 
 ___
 
 ### patch
 
-▸ **patch**(`id`: Id, `data`: Data, `params?`: Params): *Promise*<Data\>
+▸ **patch**(`id`: NullableId, `data`: Data, `params?`: Params): *Promise*<Data\>
 
 A function which update auth
 
@@ -141,7 +141,7 @@ A function which update auth
 
 Name | Type | Description |
 :------ | :------ | :------ |
-`id` | Id |  |
+`id` | NullableId |  |
 `data` | Data | of updating auth   |
 `params?` | Params |  |
 
@@ -149,15 +149,15 @@ Name | Type | Description |
 
 {@Object} data which contains auth
 
-Implementation of: void
+Implementation of: ServiceMethods.patch
 
-Defined in: [packages/server-core/src/user/auth-management/auth-management.class.ts:85](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/user/auth-management/auth-management.class.ts#L85)
+Defined in: [packages/server-core/src/user/auth-management/auth-management.class.ts:85](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/user/auth-management/auth-management.class.ts#L85)
 
 ___
 
 ### remove
 
-▸ **remove**(`id`: Id, `params?`: Params): *Promise*<Data\>
+▸ **remove**(`id`: NullableId, `params?`: Params): *Promise*<Data\>
 
 A function which remove specific auth
 
@@ -165,22 +165,22 @@ A function which remove specific auth
 
 Name | Type | Description |
 :------ | :------ | :------ |
-`id` | Id | of specific auth   |
+`id` | NullableId | of specific auth   |
 `params?` | Params |  |
 
 **Returns:** *Promise*<Data\>
 
 id
 
-Implementation of: void
+Implementation of: ServiceMethods.remove
 
-Defined in: [packages/server-core/src/user/auth-management/auth-management.class.ts:96](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/user/auth-management/auth-management.class.ts#L96)
+Defined in: [packages/server-core/src/user/auth-management/auth-management.class.ts:96](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/user/auth-management/auth-management.class.ts#L96)
 
 ___
 
 ### update
 
-▸ **update**(`id`: Id, `data`: Data, `params?`: Params): *Promise*<Data\>
+▸ **update**(`id`: NullableId, `data`: Data, `params?`: Params): *Promise*<Data\>
 
 A function which update auth
 
@@ -190,12 +190,12 @@ A function which update auth
 
 Name | Type | Description |
 :------ | :------ | :------ |
-`id` | Id |  |
+`id` | NullableId |  |
 `data` | Data | for updating auth   |
 `params?` | Params |  |
 
 **Returns:** *Promise*<Data\>
 
-Implementation of: void
+Implementation of: ServiceMethods.update
 
-Defined in: [packages/server-core/src/user/auth-management/auth-management.class.ts:73](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/user/auth-management/auth-management.class.ts#L73)
+Defined in: [packages/server-core/src/user/auth-management/auth-management.class.ts:73](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/user/auth-management/auth-management.class.ts#L73)

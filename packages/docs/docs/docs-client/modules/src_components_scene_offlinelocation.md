@@ -22,4 +22,4 @@ Name | Type |
 
 **Returns:** *Element*
 
-Defined in: [packages/client/src/components/Scene/offlineLocation.tsx:24](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client/src/components/Scene/offlineLocation.tsx#L24)
+Defined in: [packages/client/src/components/Scene/offlineLocation.tsx:24](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client/src/components/Scene/offlineLocation.tsx#L24)

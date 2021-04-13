@@ -21,7 +21,7 @@ Name | Type |
 `data` | CommonInteractiveData |
 `onClose` | *unknown* |
 
-Defined in: [packages/client-core/src/world/components/OpenLink/index.tsx:8](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/OpenLink/index.tsx#L8)
+Defined in: [packages/client-core/src/world/components/OpenLink/index.tsx:9](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/OpenLink/index.tsx#L9)
 
 ## Variables
 
@@ -29,4 +29,4 @@ Defined in: [packages/client-core/src/world/components/OpenLink/index.tsx:8](htt
 
 • `Const` **OpenLink**: *FunctionComponent*<[*OpenLinkProps*](src_world_components_openlink.md#openlinkprops)\>
 
-Defined in: [packages/client-core/src/world/components/OpenLink/index.tsx:13](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/OpenLink/index.tsx#L13)
+Defined in: [packages/client-core/src/world/components/OpenLink/index.tsx:14](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/OpenLink/index.tsx#L14)

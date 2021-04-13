@@ -16,4 +16,4 @@ hide_title: true
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *any*
 
-Defined in: [packages/client-core/src/world/reducers/scenes/service.ts:9](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/reducers/scenes/service.ts#L9)
+Defined in: [packages/client-core/src/world/reducers/scenes/service.ts:9](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/reducers/scenes/service.ts#L9)

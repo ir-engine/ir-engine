@@ -22,4 +22,4 @@ Renames and exports: [ConfirmEmailPage](src_pages_auth_confirm.md#confirmemailpa
 
 **Returns:** *Element*
 
-Defined in: [packages/client/src/pages/auth/confirm.tsx:4](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client/src/pages/auth/confirm.tsx#L4)
+Defined in: [packages/client/src/pages/auth/confirm.tsx:4](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client/src/pages/auth/confirm.tsx#L4)

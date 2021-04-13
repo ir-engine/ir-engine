@@ -16,7 +16,7 @@ hide_title: true
 
 • **currentScene**: [*PublicScene*](src_world_reducers_scenes_actions.publicscene.md)
 
-Defined in: [packages/client-core/src/world/reducers/scenes/actions.ts:10](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/reducers/scenes/actions.ts#L10)
+Defined in: [packages/client-core/src/world/reducers/scenes/actions.ts:10](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/reducers/scenes/actions.ts#L10)
 
 ___
 
@@ -24,7 +24,7 @@ ___
 
 • **error**: *string*
 
-Defined in: [packages/client-core/src/world/reducers/scenes/actions.ts:11](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/reducers/scenes/actions.ts#L11)
+Defined in: [packages/client-core/src/world/reducers/scenes/actions.ts:11](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/reducers/scenes/actions.ts#L11)
 
 ___
 
@@ -32,4 +32,4 @@ ___
 
 • **scenes**: [*PublicScene*](src_world_reducers_scenes_actions.publicscene.md)[]
 
-Defined in: [packages/client-core/src/world/reducers/scenes/actions.ts:9](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/reducers/scenes/actions.ts#L9)
+Defined in: [packages/client-core/src/world/reducers/scenes/actions.ts:9](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/reducers/scenes/actions.ts#L9)

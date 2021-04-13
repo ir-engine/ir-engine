@@ -12,18 +12,12 @@ hide_title: true
 
 ### default
 
-• **default**: (`options`: {}) => *Hook*<any, Service<any\>\>
+• **default**: () => *Hook*<any, Service<any\>\>
 
 #### Type declaration:
 
-▸ (`options?`: {}): *Hook*<any, Service<any\>\>
-
-#### Parameters:
-
-Name | Type |
-:------ | :------ |
-`options` | *object* |
+▸ (): *Hook*<any, Service<any\>\>
 
 **Returns:** *Hook*<any, Service<any\>\>
 
-Defined in: [packages/server-core/src/hooks/reformat-upload-result.ts:2](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/hooks/reformat-upload-result.ts#L2)
+Defined in: [packages/server-core/src/hooks/reformat-upload-result.ts:2](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/hooks/reformat-upload-result.ts#L2)

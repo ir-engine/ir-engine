@@ -27,4 +27,4 @@ Name | Type |
 `text` | *string* |
 `updatedAt` | *string* |
 
-Defined in: [src/interfaces/Message.ts:4](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/common/src/interfaces/Message.ts#L4)
+Defined in: [interfaces/Message.ts:4](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/common/src/interfaces/Message.ts#L4)

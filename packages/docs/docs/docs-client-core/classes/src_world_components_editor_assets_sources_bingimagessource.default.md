@@ -36,7 +36,7 @@ Name | Type |
 
 Overrides: [default](src_world_components_editor_assets_imagemediasource.default.md)
 
-Defined in: [packages/client-core/src/world/components/editor/assets/sources/BingImagesSource.tsx:14](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/assets/sources/BingImagesSource.tsx#L14)
+Defined in: [packages/client-core/src/world/components/editor/assets/sources/BingImagesSource.tsx:14](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/assets/sources/BingImagesSource.tsx#L14)
 
 ## Properties
 
@@ -46,7 +46,7 @@ Defined in: [packages/client-core/src/world/components/editor/assets/sources/Bin
 
 Inherited from: [default](src_world_components_editor_assets_imagemediasource.default.md).[api](src_world_components_editor_assets_imagemediasource.default.md#api)
 
-Defined in: [packages/client-core/src/world/components/editor/assets/ImageMediaSource.tsx:19](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/assets/ImageMediaSource.tsx#L19)
+Defined in: [packages/client-core/src/world/components/editor/assets/ImageMediaSource.tsx:19](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/assets/ImageMediaSource.tsx#L19)
 
 ___
 
@@ -56,7 +56,7 @@ ___
 
 Inherited from: [default](src_world_components_editor_assets_imagemediasource.default.md).[assetPanelComponent](src_world_components_editor_assets_imagemediasource.default.md#assetpanelcomponent)
 
-Defined in: [packages/client-core/src/world/components/editor/assets/sources/index.tsx:12](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/assets/sources/index.tsx#L12)
+Defined in: [packages/client-core/src/world/components/editor/assets/sources/index.tsx:12](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/assets/sources/index.tsx#L12)
 
 ___
 
@@ -66,7 +66,7 @@ ___
 
 Inherited from: [default](src_world_components_editor_assets_imagemediasource.default.md).[component](src_world_components_editor_assets_imagemediasource.default.md#component)
 
-Defined in: [packages/client-core/src/world/components/editor/assets/ImageMediaSource.tsx:16](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/assets/ImageMediaSource.tsx#L16)
+Defined in: [packages/client-core/src/world/components/editor/assets/ImageMediaSource.tsx:16](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/assets/ImageMediaSource.tsx#L16)
 
 ___
 
@@ -76,7 +76,7 @@ ___
 
 Inherited from: [default](src_world_components_editor_assets_imagemediasource.default.md).[iconComponent](src_world_components_editor_assets_imagemediasource.default.md#iconcomponent)
 
-Defined in: [packages/client-core/src/world/components/editor/assets/sources/index.tsx:11](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/assets/sources/index.tsx#L11)
+Defined in: [packages/client-core/src/world/components/editor/assets/sources/index.tsx:11](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/assets/sources/index.tsx#L11)
 
 ___
 
@@ -86,7 +86,7 @@ ___
 
 Overrides: [default](src_world_components_editor_assets_imagemediasource.default.md).[id](src_world_components_editor_assets_imagemediasource.default.md#id)
 
-Defined in: [packages/client-core/src/world/components/editor/assets/sources/BingImagesSource.tsx:11](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/assets/sources/BingImagesSource.tsx#L11)
+Defined in: [packages/client-core/src/world/components/editor/assets/sources/BingImagesSource.tsx:11](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/assets/sources/BingImagesSource.tsx#L11)
 
 ___
 
@@ -96,7 +96,7 @@ ___
 
 Overrides: [default](src_world_components_editor_assets_imagemediasource.default.md).[name](src_world_components_editor_assets_imagemediasource.default.md#name)
 
-Defined in: [packages/client-core/src/world/components/editor/assets/sources/BingImagesSource.tsx:12](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/assets/sources/BingImagesSource.tsx#L12)
+Defined in: [packages/client-core/src/world/components/editor/assets/sources/BingImagesSource.tsx:12](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/assets/sources/BingImagesSource.tsx#L12)
 
 ___
 
@@ -104,7 +104,7 @@ ___
 
 • **privacyPolicyUrl**: *string*
 
-Defined in: [packages/client-core/src/world/components/editor/assets/sources/BingImagesSource.tsx:14](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/assets/sources/BingImagesSource.tsx#L14)
+Defined in: [packages/client-core/src/world/components/editor/assets/sources/BingImagesSource.tsx:14](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/assets/sources/BingImagesSource.tsx#L14)
 
 ___
 
@@ -114,7 +114,7 @@ ___
 
 Inherited from: [default](src_world_components_editor_assets_imagemediasource.default.md).[requiresAuthentication](src_world_components_editor_assets_imagemediasource.default.md#requiresauthentication)
 
-Defined in: [packages/client-core/src/world/components/editor/assets/sources/index.tsx:13](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/assets/sources/index.tsx#L13)
+Defined in: [packages/client-core/src/world/components/editor/assets/sources/index.tsx:13](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/assets/sources/index.tsx#L13)
 
 ___
 
@@ -124,7 +124,7 @@ ___
 
 Inherited from: [default](src_world_components_editor_assets_imagemediasource.default.md).[searchDebounceTimeout](src_world_components_editor_assets_imagemediasource.default.md#searchdebouncetimeout)
 
-Defined in: [packages/client-core/src/world/components/editor/assets/sources/index.tsx:15](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/assets/sources/index.tsx#L15)
+Defined in: [packages/client-core/src/world/components/editor/assets/sources/index.tsx:15](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/assets/sources/index.tsx#L15)
 
 ___
 
@@ -132,7 +132,7 @@ ___
 
 • **searchLegalCopy**: *string*
 
-Defined in: [packages/client-core/src/world/components/editor/assets/sources/BingImagesSource.tsx:13](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/assets/sources/BingImagesSource.tsx#L13)
+Defined in: [packages/client-core/src/world/components/editor/assets/sources/BingImagesSource.tsx:13](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/assets/sources/BingImagesSource.tsx#L13)
 
 ___
 
@@ -142,7 +142,7 @@ ___
 
 Inherited from: [default](src_world_components_editor_assets_imagemediasource.default.md).[uploadSource](src_world_components_editor_assets_imagemediasource.default.md#uploadsource)
 
-Defined in: [packages/client-core/src/world/components/editor/assets/sources/index.tsx:14](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/assets/sources/index.tsx#L14)
+Defined in: [packages/client-core/src/world/components/editor/assets/sources/index.tsx:14](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/assets/sources/index.tsx#L14)
 
 ___
 
@@ -418,4 +418,4 @@ Name | Type |
 
 Inherited from: [default](src_world_components_editor_assets_imagemediasource.default.md)
 
-Defined in: [packages/client-core/src/world/components/editor/assets/ImageMediaSource.tsx:29](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/assets/ImageMediaSource.tsx#L29)
+Defined in: [packages/client-core/src/world/components/editor/assets/ImageMediaSource.tsx:29](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/assets/ImageMediaSource.tsx#L29)

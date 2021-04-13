@@ -22,4 +22,4 @@ Name | Type |
 
 **Returns:** *string*
 
-Defined in: [src/utils/capitalizeFirstLetter.ts:1](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/common/src/utils/capitalizeFirstLetter.ts#L1)
+Defined in: [utils/capitalizeFirstLetter.ts:1](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/common/src/utils/capitalizeFirstLetter.ts#L1)

@@ -4,7 +4,6 @@ module.exports = [
     "type": "category",
     "label": "Modules",
     "items": [
-      "docs-common/modules/index",
       "docs-common/modules/src_assets_testscenepreset",
       "docs-common/modules/src_assets_testscenes",
       "docs-common/modules/src_enums_avatar_model",
@@ -47,7 +46,6 @@ module.exports = [
       "docs-common/modules/src_types_feathers_blob",
       "docs-common/modules/src_types_fs_blob_store",
       "docs-common/modules/src_types_s3_blob_store",
-      "docs-common/modules/src_types_shaka_player",
       "docs-common/modules/src_types_youtube_dl",
       "docs-common/modules/src_utils_capitalizefirstletter",
       "docs-common/modules/src_utils_isexternalurl",
@@ -65,33 +63,8 @@ module.exports = [
   },
   {
     "type": "category",
-    "label": "Classes",
-    "items": [
-      "docs-common/classes/src_types_s3_blob_store.export_"
-    ]
-  },
-  {
-    "type": "category",
     "label": "Interfaces",
     "items": [
-      "docs-common/interfaces/index.authuser",
-      "docs-common/interfaces/index.commentinterface",
-      "docs-common/interfaces/index.creator",
-      "docs-common/interfaces/index.creatorshort",
-      "docs-common/interfaces/index.feed",
-      "docs-common/interfaces/index.feeddatabaserow",
-      "docs-common/interfaces/index.feedshort",
-      "docs-common/interfaces/index.identityprovider",
-      "docs-common/interfaces/index.instance",
-      "docs-common/interfaces/index.instanceserverprovisionresult",
-      "docs-common/interfaces/index.location",
-      "docs-common/interfaces/index.locationadmin",
-      "docs-common/interfaces/index.locationban",
-      "docs-common/interfaces/index.locationsettings",
-      "docs-common/interfaces/index.relationship",
-      "docs-common/interfaces/index.servicesseedconfig",
-      "docs-common/interfaces/index.staticresource",
-      "docs-common/interfaces/index.user",
       "docs-common/interfaces/src_interfaces_authuser.authuser",
       "docs-common/interfaces/src_interfaces_comment.commentinterface",
       "docs-common/interfaces/src_interfaces_creator.creator",

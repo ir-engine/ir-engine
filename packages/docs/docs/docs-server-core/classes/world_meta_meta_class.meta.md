@@ -22,14 +22,14 @@ hide_title: true
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`options` | ServiceOptions |
-`app` | Application |
+Name | Type | Default value |
+:------ | :------ | :------ |
+`options` | ServiceOptions | {} |
+`app` | Application | - |
 
 **Returns:** [*Meta*](world_meta_meta_class.meta.md)
 
-Defined in: [packages/server-core/src/world/meta/meta.class.ts:11](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/world/meta/meta.class.ts#L11)
+Defined in: [packages/server-core/src/world/meta/meta.class.ts:11](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/world/meta/meta.class.ts#L11)
 
 ## Properties
 
@@ -37,7 +37,7 @@ Defined in: [packages/server-core/src/world/meta/meta.class.ts:11](https://githu
 
 • **app**: Application
 
-Defined in: [packages/server-core/src/world/meta/meta.class.ts:9](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/world/meta/meta.class.ts#L9)
+Defined in: [packages/server-core/src/world/meta/meta.class.ts:9](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/world/meta/meta.class.ts#L9)
 
 ___
 
@@ -45,7 +45,7 @@ ___
 
 • **docs**: *any*
 
-Defined in: [packages/server-core/src/world/meta/meta.class.ts:11](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/world/meta/meta.class.ts#L11)
+Defined in: [packages/server-core/src/world/meta/meta.class.ts:11](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/world/meta/meta.class.ts#L11)
 
 ___
 
@@ -53,7 +53,7 @@ ___
 
 • **options**: ServiceOptions
 
-Defined in: [packages/server-core/src/world/meta/meta.class.ts:10](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/world/meta/meta.class.ts#L10)
+Defined in: [packages/server-core/src/world/meta/meta.class.ts:10](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/world/meta/meta.class.ts#L10)
 
 ## Methods
 
@@ -76,9 +76,9 @@ Name | Type | Description |
 
 {@Object} created meta
 
-Implementation of: void
+Implementation of: ServiceMethods.create
 
-Defined in: [packages/server-core/src/world/meta/meta.class.ts:53](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/world/meta/meta.class.ts#L53)
+Defined in: [packages/server-core/src/world/meta/meta.class.ts:53](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/world/meta/meta.class.ts#L53)
 
 ___
 
@@ -98,9 +98,9 @@ Name | Type |
 
 {@Object}
 
-Implementation of: void
+Implementation of: ServiceMethods.find
 
-Defined in: [packages/server-core/src/world/meta/meta.class.ts:24](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/world/meta/meta.class.ts#L24)
+Defined in: [packages/server-core/src/world/meta/meta.class.ts:24](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/world/meta/meta.class.ts#L24)
 
 ___
 
@@ -123,15 +123,15 @@ Name | Type | Description |
 
 {@Object} contains meta id and message
 
-Implementation of: void
+Implementation of: ServiceMethods.get
 
-Defined in: [packages/server-core/src/world/meta/meta.class.ts:39](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/world/meta/meta.class.ts#L39)
+Defined in: [packages/server-core/src/world/meta/meta.class.ts:39](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/world/meta/meta.class.ts#L39)
 
 ___
 
 ### patch
 
-▸ **patch**(`id`: Id, `data`: Data, `params?`: Params): *Promise*<Data\>
+▸ **patch**(`id`: NullableId, `data`: Data, `params?`: Params): *Promise*<Data\>
 
 A function which used to update meta
 
@@ -141,7 +141,7 @@ A function which used to update meta
 
 Name | Type | Description |
 :------ | :------ | :------ |
-`id` | Id |  |
+`id` | NullableId |  |
 `data` | Data | used to update meta   |
 `params?` | Params |  |
 
@@ -149,15 +149,15 @@ Name | Type | Description |
 
 {@Object} update meta
 
-Implementation of: void
+Implementation of: ServiceMethods.patch
 
-Defined in: [packages/server-core/src/world/meta/meta.class.ts:83](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/world/meta/meta.class.ts#L83)
+Defined in: [packages/server-core/src/world/meta/meta.class.ts:83](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/world/meta/meta.class.ts#L83)
 
 ___
 
 ### remove
 
-▸ **remove**(`id`: Id, `params?`: Params): *Promise*<Data\>
+▸ **remove**(`id`: NullableId, `params?`: Params): *Promise*<Data\>
 
 A function which is used to remove specific meta
 
@@ -165,22 +165,22 @@ A function which is used to remove specific meta
 
 Name | Type | Description |
 :------ | :------ | :------ |
-`id` | Id | of specific meta   |
+`id` | NullableId | of specific meta   |
 `params?` | Params |  |
 
 **Returns:** *Promise*<Data\>
 
 {@Object} removed data
 
-Implementation of: void
+Implementation of: ServiceMethods.remove
 
-Defined in: [packages/server-core/src/world/meta/meta.class.ts:94](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/world/meta/meta.class.ts#L94)
+Defined in: [packages/server-core/src/world/meta/meta.class.ts:94](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/world/meta/meta.class.ts#L94)
 
 ___
 
 ### update
 
-▸ **update**(`id`: Id, `data`: Data, `params?`: Params): *Promise*<Data\>
+▸ **update**(`id`: NullableId, `data`: Data, `params?`: Params): *Promise*<Data\>
 
 A function which used to update meta
 
@@ -190,7 +190,7 @@ A function which used to update meta
 
 Name | Type | Description |
 :------ | :------ | :------ |
-`id` | Id |  |
+`id` | NullableId |  |
 `data` | Data | used to update meta   |
 `params?` | Params |  |
 
@@ -198,6 +198,6 @@ Name | Type | Description |
 
 {@Object} update meta
 
-Implementation of: void
+Implementation of: ServiceMethods.update
 
-Defined in: [packages/server-core/src/world/meta/meta.class.ts:70](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/world/meta/meta.class.ts#L70)
+Defined in: [packages/server-core/src/world/meta/meta.class.ts:70](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/world/meta/meta.class.ts#L70)

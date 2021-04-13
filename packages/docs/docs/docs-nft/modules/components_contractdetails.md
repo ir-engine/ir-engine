@@ -16,7 +16,7 @@ hide_title: true
 
 #### Type declaration:
 
-Defined in: [packages/nft/src/components/ContractDetails.tsx:4](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/nft/src/components/ContractDetails.tsx#L4)
+Defined in: [packages/nft/src/components/ContractDetails.tsx:4](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/nft/src/components/ContractDetails.tsx#L4)
 
 ## Functions
 
@@ -26,4 +26,4 @@ Defined in: [packages/nft/src/components/ContractDetails.tsx:4](https://github.c
 
 **Returns:** *Element*
 
-Defined in: [packages/nft/src/components/ContractDetails.tsx:8](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/nft/src/components/ContractDetails.tsx#L8)
+Defined in: [packages/nft/src/components/ContractDetails.tsx:8](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/nft/src/components/ContractDetails.tsx#L8)

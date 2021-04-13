@@ -30,9 +30,9 @@ Api class contains functions to perform common operations.
 
 **Returns:** [*default*](src_world_components_editor_api.default.md)
 
-Overrides: void
+Overrides: EventEmitter.constructor
 
-Defined in: [packages/client-core/src/world/components/editor/Api.tsx:140](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Api.tsx#L140)
+Defined in: [packages/client-core/src/world/components/editor/Api.tsx:103](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Api.tsx#L103)
 
 ## Properties
 
@@ -40,7 +40,7 @@ Defined in: [packages/client-core/src/world/components/editor/Api.tsx:140](https
 
 • **apiURL**: *string*
 
-Defined in: [packages/client-core/src/world/components/editor/Api.tsx:137](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Api.tsx#L137)
+Defined in: [packages/client-core/src/world/components/editor/Api.tsx:100](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Api.tsx#L100)
 
 ___
 
@@ -48,7 +48,7 @@ ___
 
 • **lastUploadAssetRequest**: *number*= 0
 
-Defined in: [packages/client-core/src/world/components/editor/Api.tsx:1199](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Api.tsx#L1199)
+Defined in: [packages/client-core/src/world/components/editor/Api.tsx:1113](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Api.tsx#L1113)
 
 ___
 
@@ -56,7 +56,7 @@ ___
 
 • **maxUploadSize**: *number*
 
-Defined in: [packages/client-core/src/world/components/editor/Api.tsx:139](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Api.tsx#L139)
+Defined in: [packages/client-core/src/world/components/editor/Api.tsx:102](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Api.tsx#L102)
 
 ___
 
@@ -64,7 +64,7 @@ ___
 
 • **projectDirectoryPath**: *string*
 
-Defined in: [packages/client-core/src/world/components/editor/Api.tsx:138](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Api.tsx#L138)
+Defined in: [packages/client-core/src/world/components/editor/Api.tsx:101](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Api.tsx#L101)
 
 ___
 
@@ -72,7 +72,7 @@ ___
 
 • **props**: *any*
 
-Defined in: [packages/client-core/src/world/components/editor/Api.tsx:140](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Api.tsx#L140)
+Defined in: [packages/client-core/src/world/components/editor/Api.tsx:103](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Api.tsx#L103)
 
 ___
 
@@ -80,7 +80,7 @@ ___
 
 • **serverURL**: *string*
 
-Defined in: [packages/client-core/src/world/components/editor/Api.tsx:136](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Api.tsx#L136)
+Defined in: [packages/client-core/src/world/components/editor/Api.tsx:99](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Api.tsx#L99)
 
 ___
 
@@ -88,7 +88,7 @@ ___
 
 ▪ `Static` **prefixed**: *string* \| *boolean*
 
-Inherited from: void
+Inherited from: EventEmitter.prefixed
 
 Defined in: node_modules/eventemitter3/index.d.ts:9
 
@@ -116,7 +116,7 @@ Name | Type |
 
 [uploaded asset file data]
 
-Defined in: [packages/client-core/src/world/components/editor/Api.tsx:1211](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Api.tsx#L1211)
+Defined in: [packages/client-core/src/world/components/editor/Api.tsx:1125](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Api.tsx#L1125)
 
 ___
 
@@ -142,7 +142,7 @@ Name | Type |
 
 [assets file data]
 
-Defined in: [packages/client-core/src/world/components/editor/Api.tsx:1135](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Api.tsx#L1135)
+Defined in: [packages/client-core/src/world/components/editor/Api.tsx:1049](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Api.tsx#L1049)
 
 ___
 
@@ -166,7 +166,7 @@ Name | Type |
 
 **Returns:** [*default*](src_world_components_editor_api.default.md)
 
-Inherited from: void
+Inherited from: EventEmitter.addListener
 
 Defined in: node_modules/eventemitter3/index.d.ts:45
 
@@ -195,7 +195,7 @@ Name | Type |
 
 [response as json]
 
-Defined in: [packages/client-core/src/world/components/editor/Api.tsx:518](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Api.tsx#L518)
+Defined in: [packages/client-core/src/world/components/editor/Api.tsx:461](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Api.tsx#L461)
 
 ___
 
@@ -217,7 +217,7 @@ Name | Type |
 
 [true if deleted successfully else throw error]
 
-Defined in: [packages/client-core/src/world/components/editor/Api.tsx:1281](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Api.tsx#L1281)
+Defined in: [packages/client-core/src/world/components/editor/Api.tsx:1194](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Api.tsx#L1194)
 
 ___
 
@@ -237,7 +237,7 @@ Name | Type |
 
 **Returns:** *Promise*<any\>
 
-Defined in: [packages/client-core/src/world/components/editor/Api.tsx:594](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Api.tsx#L594)
+Defined in: [packages/client-core/src/world/components/editor/Api.tsx:537](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Api.tsx#L537)
 
 ___
 
@@ -260,7 +260,7 @@ Name | Type |
 
 [true if deleted successfully else throw error]
 
-Defined in: [packages/client-core/src/world/components/editor/Api.tsx:1313](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Api.tsx#L1313)
+Defined in: [packages/client-core/src/world/components/editor/Api.tsx:1226](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Api.tsx#L1226)
 
 ___
 
@@ -285,7 +285,7 @@ Name | Type |
 
 **Returns:** *boolean*
 
-Inherited from: void
+Inherited from: EventEmitter.emit
 
 Defined in: node_modules/eventemitter3/index.d.ts:32
 
@@ -300,7 +300,7 @@ listeners.
 
 **Returns:** (*string* \| *symbol*)[]
 
-Inherited from: void
+Inherited from: EventEmitter.eventNames
 
 Defined in: node_modules/eventemitter3/index.d.ts:15
 
@@ -308,9 +308,9 @@ ___
 
 ### fetchContentType
 
-▸ **fetchContentType**(`accessibleUrl`: *any*): *Promise*<any\>
+▸ **fetchContentType**(`url`: *any*): *Promise*<any\>
 
-fetchContentType is used to get the header content type of response using accessibleUrl.
+fetchContentType is used to get the header content type of response using url.
 
 **`author`** Robert Long
 
@@ -318,13 +318,13 @@ fetchContentType is used to get the header content type of response using access
 
 Name | Type |
 :------ | :------ |
-`accessibleUrl` | *any* |
+`url` | *any* |
 
 **Returns:** *Promise*<any\>
 
 [wait for the response and return response]
 
-Defined in: [packages/client-core/src/world/components/editor/Api.tsx:301](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Api.tsx#L301)
+Defined in: [packages/client-core/src/world/components/editor/Api.tsx:261](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Api.tsx#L261)
 
 ___
 
@@ -338,16 +338,16 @@ fetchUrl used as common api handler.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`url` | *any* |
-`options` | *any* |
+Name | Type | Default value |
+:------ | :------ | :------ |
+`url` | *any* | - |
+`options` | *any* | {} |
 
 **Returns:** *Promise*<any\>
 
 [response from api]
 
-Defined in: [packages/client-core/src/world/components/editor/Api.tsx:1369](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Api.tsx#L1369)
+Defined in: [packages/client-core/src/world/components/editor/Api.tsx:1262](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Api.tsx#L1262)
 
 ___
 
@@ -357,24 +357,22 @@ ___
 
 getAccountId used to get accountId using token.
 
-**`author`** Robert Long
-
 **Returns:** *string*
 
 [returns accountId]
 
-Defined in: [packages/client-core/src/world/components/editor/Api.tsx:196](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Api.tsx#L196)
+Defined in: [packages/client-core/src/world/components/editor/Api.tsx:158](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Api.tsx#L158)
 
 ___
 
 ### getContentType
 
-▸ **getContentType**(`url`: *any*): *Promise*<any\>
+▸ **getContentType**(`contentUrl`: *any*): *Promise*<any\>
 
  getContentType is used to get content type url.
  we firstly call resolve url and get response.
  if result Contains meta property and if meta contains expected_content_type  then returns true.
- we get canonicalUrl url from response call guessContentType to check contentType.
+ we get url url from response call guessContentType to check contentType.
  and if in both ways we unable to find contentType type then call a request for headers using fetchContentType.
 
 **`author`** Robert Long
@@ -383,13 +381,13 @@ ___
 
 Name | Type |
 :------ | :------ |
-`url` | *any* |
+`contentUrl` | *any* |
 
 **Returns:** *Promise*<any\>
 
 [returns the contentType]
 
-Defined in: [packages/client-core/src/world/components/editor/Api.tsx:320](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Api.tsx#L320)
+Defined in: [packages/client-core/src/world/components/editor/Api.tsx:280](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Api.tsx#L280)
 
 ___
 
@@ -399,8 +397,6 @@ ___
 
 Function to get project data.
 
-**`author`** Robert Long
-
 #### Parameters:
 
 Name | Type |
@@ -409,7 +405,7 @@ Name | Type |
 
 **Returns:** *Promise*<JSON\>
 
-Defined in: [packages/client-core/src/world/components/editor/Api.tsx:236](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Api.tsx#L236)
+Defined in: [packages/client-core/src/world/components/editor/Api.tsx:196](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Api.tsx#L196)
 
 ___
 
@@ -429,7 +425,7 @@ Name | Type |
 
 **Returns:** *Promise*<any\>
 
-Defined in: [packages/client-core/src/world/components/editor/Api.tsx:714](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Api.tsx#L714)
+Defined in: [packages/client-core/src/world/components/editor/Api.tsx:657](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Api.tsx#L657)
 
 ___
 
@@ -439,11 +435,9 @@ ___
 
 getProjects used to get list projects created by user.
 
-**`author`** Robert Long
-
 **Returns:** *Promise*<any\>
 
-Defined in: [packages/client-core/src/world/components/editor/Api.tsx:207](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Api.tsx#L207)
+Defined in: [packages/client-core/src/world/components/editor/Api.tsx:168](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Api.tsx#L168)
 
 ___
 
@@ -463,7 +457,7 @@ Name | Type |
 
 **Returns:** *Promise*<JSON\>
 
-Defined in: [packages/client-core/src/world/components/editor/Api.tsx:726](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Api.tsx#L726)
+Defined in: [packages/client-core/src/world/components/editor/Api.tsx:669](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Api.tsx#L669)
 
 ___
 
@@ -485,7 +479,7 @@ Name | Type |
 
 [url]
 
-Defined in: [packages/client-core/src/world/components/editor/Api.tsx:749](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Api.tsx#L749)
+Defined in: [packages/client-core/src/world/components/editor/Api.tsx:692](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Api.tsx#L692)
 
 ___
 
@@ -501,23 +495,7 @@ getToken used to get the token of logined user.
 
 [returns token string]
 
-Defined in: [packages/client-core/src/world/components/editor/Api.tsx:181](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Api.tsx#L181)
-
-___
-
-### getUserInfo
-
-▸ **getUserInfo**(): JSON
-
-getUserInfo used to provide logined user info from localStorage.
-
-**`author`** Robert Long
-
-**Returns:** JSON
-
-[User data]
-
-Defined in: [packages/client-core/src/world/components/editor/Api.tsx:1353](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Api.tsx#L1353)
+Defined in: [packages/client-core/src/world/components/editor/Api.tsx:144](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Api.tsx#L144)
 
 ___
 
@@ -531,7 +509,7 @@ handleAuthorization used to save credentials in local storage.
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/Api.tsx:1405](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Api.tsx#L1405)
+Defined in: [packages/client-core/src/world/components/editor/Api.tsx:1298](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Api.tsx#L1298)
 
 ___
 
@@ -547,7 +525,7 @@ function component to check user is valid or not.
 
 [return true if user is valid else return false]
 
-Defined in: [packages/client-core/src/world/components/editor/Api.tsx:169](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Api.tsx#L169)
+Defined in: [packages/client-core/src/world/components/editor/Api.tsx:132](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Api.tsx#L132)
 
 ___
 
@@ -565,7 +543,7 @@ Name | Type |
 
 **Returns:** *number*
 
-Inherited from: void
+Inherited from: EventEmitter.listenerCount
 
 Defined in: node_modules/eventemitter3/index.d.ts:27
 
@@ -591,7 +569,7 @@ Name | Type |
 
 **Returns:** (...`args`: *any*[]) => *void*[]
 
-Inherited from: void
+Inherited from: EventEmitter.listeners
 
 Defined in: node_modules/eventemitter3/index.d.ts:20
 
@@ -618,7 +596,7 @@ Name | Type |
 
 **Returns:** [*default*](src_world_components_editor_api.default.md)
 
-Inherited from: void
+Inherited from: EventEmitter.off
 
 Defined in: node_modules/eventemitter3/index.d.ts:69
 
@@ -646,7 +624,7 @@ Name | Type |
 
 **Returns:** [*default*](src_world_components_editor_api.default.md)
 
-Inherited from: void
+Inherited from: EventEmitter.on
 
 Defined in: node_modules/eventemitter3/index.d.ts:40
 
@@ -674,31 +652,9 @@ Name | Type |
 
 **Returns:** [*default*](src_world_components_editor_api.default.md)
 
-Inherited from: void
+Inherited from: EventEmitter.once
 
 Defined in: node_modules/eventemitter3/index.d.ts:54
-
-___
-
-### proxyUrl
-
-▸ **proxyUrl**(`url`: *any*): *any*
-
-proxyUrl used to create an accessibleUrl.
-
-**`author`** Robert Long
-
-#### Parameters:
-
-Name | Type |
-:------ | :------ |
-`url` | *any* |
-
-**Returns:** *any*
-
-url
-
-Defined in: [packages/client-core/src/world/components/editor/Api.tsx:387](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Api.tsx#L387)
 
 ___
 
@@ -723,7 +679,7 @@ Name | Type |
 
 [returns published project data]
 
-Defined in: [packages/client-core/src/world/components/editor/Api.tsx:763](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Api.tsx#L763)
+Defined in: [packages/client-core/src/world/components/editor/Api.tsx:706](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Api.tsx#L706)
 
 ___
 
@@ -741,7 +697,7 @@ Name | Type |
 
 **Returns:** [*default*](src_world_components_editor_api.default.md)
 
-Inherited from: void
+Inherited from: EventEmitter.removeAllListeners
 
 Defined in: node_modules/eventemitter3/index.d.ts:79
 
@@ -770,7 +726,7 @@ Name | Type |
 
 **Returns:** [*default*](src_world_components_editor_api.default.md)
 
-Inherited from: void
+Inherited from: EventEmitter.removeListener
 
 Defined in: node_modules/eventemitter3/index.d.ts:63
 
@@ -780,7 +736,7 @@ ___
 
 ▸ **resolveMedia**(`url`: *any*, `index`: *any*): *Promise*<any\>
 
-resolveMedia provides canonicalUrl absoluteUrl and contentType.
+resolveMedia provides url absoluteUrl and contentType.
 
 **`author`** Robert Long
 
@@ -793,7 +749,7 @@ Name | Type |
 
 **Returns:** *Promise*<any\>
 
-Defined in: [packages/client-core/src/world/components/editor/Api.tsx:341](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Api.tsx#L341)
+Defined in: [packages/client-core/src/world/components/editor/Api.tsx:300](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Api.tsx#L300)
 
 ___
 
@@ -817,7 +773,7 @@ Name | Type |
 
 [returns response data ]
 
-Defined in: [packages/client-core/src/world/components/editor/Api.tsx:262](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Api.tsx#L262)
+Defined in: [packages/client-core/src/world/components/editor/Api.tsx:222](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Api.tsx#L222)
 
 ___
 
@@ -834,7 +790,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/Api.tsx:1357](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Api.tsx#L1357)
+Defined in: [packages/client-core/src/world/components/editor/Api.tsx:1250](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Api.tsx#L1250)
 
 ___
 
@@ -858,7 +814,7 @@ Name | Type |
 
 **Returns:** *Promise*<any\>
 
-Defined in: [packages/client-core/src/world/components/editor/Api.tsx:629](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Api.tsx#L629)
+Defined in: [packages/client-core/src/world/components/editor/Api.tsx:572](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Api.tsx#L572)
 
 ___
 
@@ -883,7 +839,7 @@ Name | Type |
 
 [result , nextCursor, suggestions]
 
-Defined in: [packages/client-core/src/world/components/editor/Api.tsx:429](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Api.tsx#L429)
+Defined in: [packages/client-core/src/world/components/editor/Api.tsx:376](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Api.tsx#L376)
 
 ___
 
@@ -899,27 +855,7 @@ Name | Type |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/src/world/components/editor/Api.tsx:502](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Api.tsx#L502)
-
-___
-
-### setUserInfo
-
-▸ **setUserInfo**(`userInfo`: *any*): *void*
-
-setUserInfo used to save userInfo as localStorage.
-
-**`author`** Robert Long
-
-#### Parameters:
-
-Name | Type |
-:------ | :------ |
-`userInfo` | *any* |
-
-**Returns:** *void*
-
-Defined in: [packages/client-core/src/world/components/editor/Api.tsx:1343](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Api.tsx#L1343)
+Defined in: [packages/client-core/src/world/components/editor/Api.tsx:445](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Api.tsx#L445)
 
 ___
 
@@ -942,7 +878,7 @@ Name | Type |
 
 [absoluteUrl]
 
-Defined in: [packages/client-core/src/world/components/editor/Api.tsx:399](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Api.tsx#L399)
+Defined in: [packages/client-core/src/world/components/editor/Api.tsx:346](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Api.tsx#L346)
 
 ___
 
@@ -965,7 +901,7 @@ Name | Type |
 
 **Returns:** *Promise*<void\>
 
-Defined in: [packages/client-core/src/world/components/editor/Api.tsx:1052](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Api.tsx#L1052)
+Defined in: [packages/client-core/src/world/components/editor/Api.tsx:966](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Api.tsx#L966)
 
 ___
 
@@ -988,7 +924,7 @@ Name | Type |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/src/world/components/editor/Api.tsx:1175](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Api.tsx#L1175)
+Defined in: [packages/client-core/src/world/components/editor/Api.tsx:1089](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Api.tsx#L1089)
 
 ___
 
@@ -1013,7 +949,7 @@ Name | Type |
 
 [uploaded file assets]
 
-Defined in: [packages/client-core/src/world/components/editor/Api.tsx:1120](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Api.tsx#L1120)
+Defined in: [packages/client-core/src/world/components/editor/Api.tsx:1034](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Api.tsx#L1034)
 
 ___
 
@@ -1037,4 +973,4 @@ Name | Type |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/src/world/components/editor/Api.tsx:1189](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Api.tsx#L1189)
+Defined in: [packages/client-core/src/world/components/editor/Api.tsx:1103](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Api.tsx#L1103)

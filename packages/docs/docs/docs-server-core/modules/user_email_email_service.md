@@ -26,4 +26,4 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/server-core/src/user/email/email.service.ts:14](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/user/email/email.service.ts#L14)
+Defined in: [packages/server-core/src/user/email/email.service.ts:14](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/user/email/email.service.ts#L14)

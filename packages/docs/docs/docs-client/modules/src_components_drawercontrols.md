@@ -28,4 +28,4 @@ Name | Type |
 
 **Returns:** *Element*
 
-Defined in: [packages/client/src/components/DrawerControls/index.tsx:48](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client/src/components/DrawerControls/index.tsx#L48)
+Defined in: [packages/client/src/components/DrawerControls/index.tsx:49](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client/src/components/DrawerControls/index.tsx#L49)

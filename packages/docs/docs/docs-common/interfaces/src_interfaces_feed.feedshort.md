@@ -16,15 +16,13 @@ hide_title: true
 
   ↳ [*Feed*](src_interfaces_feed.feed.md)
 
-  ↳ [*Feed*](index.feed.md)
-
 ## Properties
 
 ### id
 
 • **id**: *string*
 
-Defined in: [src/interfaces/Feed.ts:4](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/common/src/interfaces/Feed.ts#L4)
+Defined in: [interfaces/Feed.ts:4](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/common/src/interfaces/Feed.ts#L4)
 
 ___
 
@@ -32,7 +30,7 @@ ___
 
 • **previewUrl**: *string*
 
-Defined in: [src/interfaces/Feed.ts:5](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/common/src/interfaces/Feed.ts#L5)
+Defined in: [interfaces/Feed.ts:5](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/common/src/interfaces/Feed.ts#L5)
 
 ___
 
@@ -40,4 +38,4 @@ ___
 
 • **viewsCount**: *number*
 
-Defined in: [src/interfaces/Feed.ts:6](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/common/src/interfaces/Feed.ts#L6)
+Defined in: [interfaces/Feed.ts:6](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/common/src/interfaces/Feed.ts#L6)

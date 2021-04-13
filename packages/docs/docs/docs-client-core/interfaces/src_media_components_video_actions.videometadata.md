@@ -16,7 +16,7 @@ hide_title: true
 
 • `Optional` **360\_format**: *string*
 
-Defined in: [packages/client-core/src/media/components/video/actions.ts:9](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/media/components/video/actions.ts#L9)
+Defined in: [packages/client-core/src/media/components/video/actions.ts:9](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/media/components/video/actions.ts#L9)
 
 ___
 
@@ -24,7 +24,7 @@ ___
 
 • `Optional` **categories**: *string*[]
 
-Defined in: [packages/client-core/src/media/components/video/actions.ts:12](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/media/components/video/actions.ts#L12)
+Defined in: [packages/client-core/src/media/components/video/actions.ts:12](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/media/components/video/actions.ts#L12)
 
 ___
 
@@ -32,7 +32,7 @@ ___
 
 • `Optional` **rating**: *string*
 
-Defined in: [packages/client-core/src/media/components/video/actions.ts:11](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/media/components/video/actions.ts#L11)
+Defined in: [packages/client-core/src/media/components/video/actions.ts:11](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/media/components/video/actions.ts#L11)
 
 ___
 
@@ -40,7 +40,7 @@ ___
 
 • `Optional` **runtime**: *string*
 
-Defined in: [packages/client-core/src/media/components/video/actions.ts:13](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/media/components/video/actions.ts#L13)
+Defined in: [packages/client-core/src/media/components/video/actions.ts:13](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/media/components/video/actions.ts#L13)
 
 ___
 
@@ -48,4 +48,4 @@ ___
 
 • `Optional` **thumbnailUrl**: *string*
 
-Defined in: [packages/client-core/src/media/components/video/actions.ts:9](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/media/components/video/actions.ts#L9)
+Defined in: [packages/client-core/src/media/components/video/actions.ts:9](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/media/components/video/actions.ts#L9)

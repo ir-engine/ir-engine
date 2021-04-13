@@ -23,7 +23,7 @@ hide_title: true
 
 **`author`** Robert Long
 
-Defined in: [packages/client-core/src/world/components/editor/layout/Tooltip.tsx:60](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/layout/Tooltip.tsx#L60)
+Defined in: [packages/client-core/src/world/components/editor/layout/Tooltip.tsx:60](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/layout/Tooltip.tsx#L60)
 
 ## Functions
 
@@ -41,7 +41,7 @@ Name | Type |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/layout/Tooltip.tsx:84](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/layout/Tooltip.tsx#L84)
+Defined in: [packages/client-core/src/world/components/editor/layout/Tooltip.tsx:84](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/layout/Tooltip.tsx#L84)
 
 ___
 
@@ -59,4 +59,4 @@ Name | Type |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/layout/Tooltip.tsx:27](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/layout/Tooltip.tsx#L27)
+Defined in: [packages/client-core/src/world/components/editor/layout/Tooltip.tsx:27](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/layout/Tooltip.tsx#L27)

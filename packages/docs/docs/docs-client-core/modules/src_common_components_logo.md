@@ -22,4 +22,4 @@ Name | Type |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/src/common/components/Logo/index.tsx:8](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/common/components/Logo/index.tsx#L8)
+Defined in: [packages/client-core/src/common/components/Logo/index.tsx:8](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/common/components/Logo/index.tsx#L8)

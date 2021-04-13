@@ -37,4 +37,4 @@ Name | Type |
 `user.readScope` | *string* |
 `user.updateScope` | *string* |
 
-Defined in: [packages/server-core/src/world/project/project.access-control.ts:1](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/world/project/project.access-control.ts#L1)
+Defined in: [packages/server-core/src/world/project/project.access-control.ts:1](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/world/project/project.access-control.ts#L1)

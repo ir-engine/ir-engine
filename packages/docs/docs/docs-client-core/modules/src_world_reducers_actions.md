@@ -14,7 +14,7 @@ hide_title: true
 
 • `Const` **ADDED\_CHANNEL\_LAYER\_USER**: *ADDED_CHANNEL_LAYER_USER*= 'ADDED\_CHANNEL\_LAYER\_USER'
 
-Defined in: [packages/client-core/src/world/reducers/actions.ts:9](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/reducers/actions.ts#L9)
+Defined in: [packages/client-core/src/world/reducers/actions.ts:9](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/reducers/actions.ts#L9)
 
 ___
 
@@ -22,7 +22,7 @@ ___
 
 • `Const` **CLEAR\_CHANNEL\_LAYER\_USERS**: *CLEAR_CHANNEL_LAYER_USERS*= 'CLEAR\_CHANNEL\_LAYER\_USERS'
 
-Defined in: [packages/client-core/src/world/reducers/actions.ts:7](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/reducers/actions.ts#L7)
+Defined in: [packages/client-core/src/world/reducers/actions.ts:7](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/reducers/actions.ts#L7)
 
 ___
 
@@ -30,7 +30,7 @@ ___
 
 • `Const` **INSTANCES\_RETRIEVED**: *INSTANCES_RETRIEVED*= "INSTANCES\_RETRIEVED"
 
-Defined in: [packages/client-core/src/world/reducers/actions.ts:12](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/reducers/actions.ts#L12)
+Defined in: [packages/client-core/src/world/reducers/actions.ts:12](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/reducers/actions.ts#L12)
 
 ___
 
@@ -38,7 +38,7 @@ ___
 
 • `Const` **INSTANCE\_CREATE**: *INSTANCE_CREATE*= "INSTANCE\_CREATE"
 
-Defined in: [packages/client-core/src/world/reducers/actions.ts:13](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/reducers/actions.ts#L13)
+Defined in: [packages/client-core/src/world/reducers/actions.ts:13](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/reducers/actions.ts#L13)
 
 ___
 
@@ -46,7 +46,7 @@ ___
 
 • `Const` **INSTANCE\_PATCHED**: *INSTANCE_PATCHED*= "INSTANCE\_PATCHED"
 
-Defined in: [packages/client-core/src/world/reducers/actions.ts:15](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/reducers/actions.ts#L15)
+Defined in: [packages/client-core/src/world/reducers/actions.ts:15](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/reducers/actions.ts#L15)
 
 ___
 
@@ -54,7 +54,7 @@ ___
 
 • `Const` **INSTANCE\_REMOVED\_ROW**: *INSTANCE_REMOVED_ROW*= "INSTANCE\_REMOVED\_ROW"
 
-Defined in: [packages/client-core/src/world/reducers/actions.ts:14](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/reducers/actions.ts#L14)
+Defined in: [packages/client-core/src/world/reducers/actions.ts:14](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/reducers/actions.ts#L14)
 
 ___
 
@@ -62,7 +62,7 @@ ___
 
 • `Const` **LOADED\_CHANNEL\_LAYER\_USERS**: *LOADED_CHANNEL_LAYER_USERS*= 'LOADED\_CHANNEL\_LAYER\_USERS'
 
-Defined in: [packages/client-core/src/world/reducers/actions.ts:8](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/reducers/actions.ts#L8)
+Defined in: [packages/client-core/src/world/reducers/actions.ts:8](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/reducers/actions.ts#L8)
 
 ___
 
@@ -70,7 +70,7 @@ ___
 
 • `Const` **LOCATION\_TYPES\_RETRIEVED**: *LOCATION_TYPES_RETRIEVED*= 'LOCATION\_TYPES\_RETRIEVED'
 
-Defined in: [packages/client-core/src/world/reducers/actions.ts:2](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/reducers/actions.ts#L2)
+Defined in: [packages/client-core/src/world/reducers/actions.ts:2](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/reducers/actions.ts#L2)
 
 ___
 
@@ -78,7 +78,7 @@ ___
 
 • `Const` **REMOVED\_CHANNEL\_LAYER\_USER**: *REMOVED_CHANNEL_LAYER_USER*= 'REMOVED\_CHANNEL\_LAYER\_USER'
 
-Defined in: [packages/client-core/src/world/reducers/actions.ts:10](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/reducers/actions.ts#L10)
+Defined in: [packages/client-core/src/world/reducers/actions.ts:10](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/reducers/actions.ts#L10)
 
 ___
 
@@ -86,7 +86,7 @@ ___
 
 • `Const` **SCENES\_FETCHED\_ERROR**: *SCENES_FETCHED_ERROR*= 'SCENES\_FETCHED\_ERROR'
 
-Defined in: [packages/client-core/src/world/reducers/actions.ts:5](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/reducers/actions.ts#L5)
+Defined in: [packages/client-core/src/world/reducers/actions.ts:5](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/reducers/actions.ts#L5)
 
 ___
 
@@ -94,7 +94,7 @@ ___
 
 • `Const` **SCENES\_FETCHED\_SUCCESS**: *SCENES_FETCHED_SUCCESS*= 'SCENES\_FETCHED\_SUCCESS'
 
-Defined in: [packages/client-core/src/world/reducers/actions.ts:4](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/reducers/actions.ts#L4)
+Defined in: [packages/client-core/src/world/reducers/actions.ts:4](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/reducers/actions.ts#L4)
 
 ___
 
@@ -102,7 +102,7 @@ ___
 
 • `Const` **SCENES\_RETRIEVED**: *SCENES_RETRIEVED*= 'SCENES\_RETRIEVED'
 
-Defined in: [packages/client-core/src/world/reducers/actions.ts:1](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/reducers/actions.ts#L1)
+Defined in: [packages/client-core/src/world/reducers/actions.ts:1](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/reducers/actions.ts#L1)
 
 ___
 
@@ -110,4 +110,4 @@ ___
 
 • `Const` **SET\_CURRENT\_SCENE**: *SET_CURRENT_SCENE*= 'SET\_CURRENT\_SCENE'
 
-Defined in: [packages/client-core/src/world/reducers/actions.ts:3](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/reducers/actions.ts#L3)
+Defined in: [packages/client-core/src/world/reducers/actions.ts:3](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/reducers/actions.ts#L3)

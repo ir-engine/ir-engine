@@ -32,9 +32,9 @@ Name | Type |
 
 **Returns:** [*default*](src_world_components_editor_toolbar_toolbar.default.md)
 
-Overrides: void
+Overrides: Component&lt;ToolBarProps, ToolBarState&gt;.constructor
 
-Defined in: [packages/client-core/src/world/components/editor/toolbar/ToolBar.tsx:320](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/toolbar/ToolBar.tsx#L320)
+Defined in: [packages/client-core/src/world/components/editor/toolbar/ToolBar.tsx:320](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/toolbar/ToolBar.tsx#L320)
 
 ## Properties
 
@@ -56,7 +56,7 @@ declare context: React.ContextType<typeof MyContext>
 
 **`see`** https://reactjs.org/docs/context.html
 
-Inherited from: void
+Inherited from: Component.context
 
 Defined in: node_modules/@types/react/index.d.ts:469
 
@@ -64,9 +64,9 @@ ___
 
 ### props
 
-• `Readonly` **props**: *Readonly*<ToolBarProps\> & *Readonly*<{ `children?`: *boolean* \| *ReactElement*<any, string \| JSXElementConstructor<any\>\> \| ReactText \| ReactFragment \| *ReactPortal*  }\>
+• `Readonly` **props**: *Readonly*<ToolBarProps\> & *Readonly*<{ `children?`: ReactNode  }\>
 
-Inherited from: void
+Inherited from: Component.props
 
 Defined in: node_modules/@types/react/index.d.ts:494
 
@@ -81,7 +81,7 @@ https://reactjs.org/docs/refs-and-the-dom.html#legacy-api-string-refs
 
 #### Type declaration:
 
-Inherited from: void
+Inherited from: Component.refs
 
 Defined in: node_modules/@types/react/index.d.ts:500
 
@@ -91,7 +91,7 @@ ___
 
 • **state**: *Readonly*<ToolBarState\>
 
-Inherited from: void
+Inherited from: Component.state
 
 Defined in: node_modules/@types/react/index.d.ts:495
 
@@ -99,7 +99,7 @@ ___
 
 ### contextType
 
-▪ `Optional` `Static` **contextType**: *Context*<any\>
+▪ `Static` `Optional` **contextType**: *Context*<any\>
 
 If set, `this.context` will be set at runtime to the current value of the given Context.
 
@@ -120,7 +120,7 @@ class Foo extends React.Component {
 
 **`see`** https://reactjs.org/docs/context.html#classcontexttype
 
-Inherited from: void
+Inherited from: Component.contextType
 
 Defined in: node_modules/@types/react/index.d.ts:451
 
@@ -141,7 +141,7 @@ Name | Type |
 `onPublish` | *Requireable*<(...`args`: *any*[]) => *any*\> |
 `queryParams` | *Requireable*<object\> |
 
-Defined in: [packages/client-core/src/world/components/editor/toolbar/ToolBar.tsx:313](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/toolbar/ToolBar.tsx#L313)
+Defined in: [packages/client-core/src/world/components/editor/toolbar/ToolBar.tsx:313](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/toolbar/ToolBar.tsx#L313)
 
 ## Methods
 
@@ -165,7 +165,7 @@ prevents this from being invoked.
 
 **Returns:** *void*
 
-Inherited from: void
+Inherited from: Component.UNSAFE_componentWillMount
 
 Defined in: node_modules/@types/react/index.d.ts:707
 
@@ -201,7 +201,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Inherited from: void
+Inherited from: Component.UNSAFE_componentWillReceiveProps
 
 Defined in: node_modules/@types/react/index.d.ts:739
 
@@ -236,7 +236,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Inherited from: void
+Inherited from: Component.UNSAFE_componentWillUpdate
 
 Defined in: node_modules/@types/react/index.d.ts:767
 
@@ -258,7 +258,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Inherited from: void
+Inherited from: Component.componentDidCatch
 
 Defined in: node_modules/@types/react/index.d.ts:636
 
@@ -270,9 +270,9 @@ ___
 
 **Returns:** *void*
 
-Overrides: void
+Overrides: Component.componentDidMount
 
-Defined in: [packages/client-core/src/world/components/editor/toolbar/ToolBar.tsx:334](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/toolbar/ToolBar.tsx#L334)
+Defined in: [packages/client-core/src/world/components/editor/toolbar/ToolBar.tsx:334](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/toolbar/ToolBar.tsx#L334)
 
 ___
 
@@ -294,7 +294,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Inherited from: void
+Inherited from: Component.componentDidUpdate
 
 Defined in: node_modules/@types/react/index.d.ts:678
 
@@ -318,7 +318,7 @@ prevents this from being invoked.
 
 **Returns:** *void*
 
-Inherited from: void
+Inherited from: Component.componentWillMount
 
 Defined in: node_modules/@types/react/index.d.ts:693
 
@@ -352,7 +352,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Inherited from: void
+Inherited from: Component.componentWillReceiveProps
 
 Defined in: node_modules/@types/react/index.d.ts:722
 
@@ -364,9 +364,9 @@ ___
 
 **Returns:** *void*
 
-Overrides: void
+Overrides: Component.componentWillUnmount
 
-Defined in: [packages/client-core/src/world/components/editor/toolbar/ToolBar.tsx:341](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/toolbar/ToolBar.tsx#L341)
+Defined in: [packages/client-core/src/world/components/editor/toolbar/ToolBar.tsx:341](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/toolbar/ToolBar.tsx#L341)
 
 ___
 
@@ -397,7 +397,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Inherited from: void
+Inherited from: Component.componentWillUpdate
 
 Defined in: node_modules/@types/react/index.d.ts:752
 
@@ -415,7 +415,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Inherited from: void
+Inherited from: Component.forceUpdate
 
 Defined in: node_modules/@types/react/index.d.ts:486
 
@@ -441,7 +441,7 @@ Name | Type |
 
 **Returns:** *any*
 
-Inherited from: void
+Inherited from: Component.getSnapshotBeforeUpdate
 
 Defined in: node_modules/@types/react/index.d.ts:672
 
@@ -459,7 +459,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/toolbar/ToolBar.tsx:361](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/toolbar/ToolBar.tsx#L361)
+Defined in: [packages/client-core/src/world/components/editor/toolbar/ToolBar.tsx:361](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/toolbar/ToolBar.tsx#L361)
 
 ___
 
@@ -475,7 +475,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/toolbar/ToolBar.tsx:461](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/toolbar/ToolBar.tsx#L461)
+Defined in: [packages/client-core/src/world/components/editor/toolbar/ToolBar.tsx:461](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/toolbar/ToolBar.tsx#L461)
 
 ___
 
@@ -491,7 +491,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/toolbar/ToolBar.tsx:456](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/toolbar/ToolBar.tsx#L456)
+Defined in: [packages/client-core/src/world/components/editor/toolbar/ToolBar.tsx:456](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/toolbar/ToolBar.tsx#L456)
 
 ___
 
@@ -507,7 +507,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/toolbar/ToolBar.tsx:452](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/toolbar/ToolBar.tsx#L452)
+Defined in: [packages/client-core/src/world/components/editor/toolbar/ToolBar.tsx:452](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/toolbar/ToolBar.tsx#L452)
 
 ___
 
@@ -523,7 +523,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/toolbar/ToolBar.tsx:435](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/toolbar/ToolBar.tsx#L435)
+Defined in: [packages/client-core/src/world/components/editor/toolbar/ToolBar.tsx:435](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/toolbar/ToolBar.tsx#L435)
 
 ___
 
@@ -539,7 +539,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/toolbar/ToolBar.tsx:447](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/toolbar/ToolBar.tsx#L447)
+Defined in: [packages/client-core/src/world/components/editor/toolbar/ToolBar.tsx:447](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/toolbar/ToolBar.tsx#L447)
 
 ___
 
@@ -549,7 +549,7 @@ ___
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/toolbar/ToolBar.tsx:365](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/toolbar/ToolBar.tsx#L365)
+Defined in: [packages/client-core/src/world/components/editor/toolbar/ToolBar.tsx:365](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/toolbar/ToolBar.tsx#L365)
 
 ___
 
@@ -559,7 +559,7 @@ ___
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/toolbar/ToolBar.tsx:376](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/toolbar/ToolBar.tsx#L376)
+Defined in: [packages/client-core/src/world/components/editor/toolbar/ToolBar.tsx:376](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/toolbar/ToolBar.tsx#L376)
 
 ___
 
@@ -575,7 +575,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/toolbar/ToolBar.tsx:380](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/toolbar/ToolBar.tsx#L380)
+Defined in: [packages/client-core/src/world/components/editor/toolbar/ToolBar.tsx:380](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/toolbar/ToolBar.tsx#L380)
 
 ___
 
@@ -585,7 +585,7 @@ ___
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/toolbar/ToolBar.tsx:423](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/toolbar/ToolBar.tsx#L423)
+Defined in: [packages/client-core/src/world/components/editor/toolbar/ToolBar.tsx:423](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/toolbar/ToolBar.tsx#L423)
 
 ___
 
@@ -595,7 +595,7 @@ ___
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/toolbar/ToolBar.tsx:427](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/toolbar/ToolBar.tsx#L427)
+Defined in: [packages/client-core/src/world/components/editor/toolbar/ToolBar.tsx:427](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/toolbar/ToolBar.tsx#L427)
 
 ___
 
@@ -605,7 +605,7 @@ ___
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/toolbar/ToolBar.tsx:419](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/toolbar/ToolBar.tsx#L419)
+Defined in: [packages/client-core/src/world/components/editor/toolbar/ToolBar.tsx:419](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/toolbar/ToolBar.tsx#L419)
 
 ___
 
@@ -615,7 +615,7 @@ ___
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/toolbar/ToolBar.tsx:465](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/toolbar/ToolBar.tsx#L465)
+Defined in: [packages/client-core/src/world/components/editor/toolbar/ToolBar.tsx:465](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/toolbar/ToolBar.tsx#L465)
 
 ___
 
@@ -625,7 +625,7 @@ ___
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/toolbar/ToolBar.tsx:469](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/toolbar/ToolBar.tsx#L469)
+Defined in: [packages/client-core/src/world/components/editor/toolbar/ToolBar.tsx:469](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/toolbar/ToolBar.tsx#L469)
 
 ___
 
@@ -635,7 +635,7 @@ ___
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/toolbar/ToolBar.tsx:443](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/toolbar/ToolBar.tsx#L443)
+Defined in: [packages/client-core/src/world/components/editor/toolbar/ToolBar.tsx:443](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/toolbar/ToolBar.tsx#L443)
 
 ___
 
@@ -645,7 +645,7 @@ ___
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/toolbar/ToolBar.tsx:439](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/toolbar/ToolBar.tsx#L439)
+Defined in: [packages/client-core/src/world/components/editor/toolbar/ToolBar.tsx:439](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/toolbar/ToolBar.tsx#L439)
 
 ___
 
@@ -655,7 +655,7 @@ ___
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/toolbar/ToolBar.tsx:431](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/toolbar/ToolBar.tsx#L431)
+Defined in: [packages/client-core/src/world/components/editor/toolbar/ToolBar.tsx:431](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/toolbar/ToolBar.tsx#L431)
 
 ___
 
@@ -665,7 +665,7 @@ ___
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/toolbar/ToolBar.tsx:395](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/toolbar/ToolBar.tsx#L395)
+Defined in: [packages/client-core/src/world/components/editor/toolbar/ToolBar.tsx:395](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/toolbar/ToolBar.tsx#L395)
 
 ___
 
@@ -675,7 +675,7 @@ ___
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/toolbar/ToolBar.tsx:357](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/toolbar/ToolBar.tsx#L357)
+Defined in: [packages/client-core/src/world/components/editor/toolbar/ToolBar.tsx:357](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/toolbar/ToolBar.tsx#L357)
 
 ___
 
@@ -685,9 +685,9 @@ ___
 
 **Returns:** *Element*
 
-Overrides: void
+Overrides: Component.render
 
-Defined in: [packages/client-core/src/world/components/editor/toolbar/ToolBar.tsx:477](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/toolbar/ToolBar.tsx#L477)
+Defined in: [packages/client-core/src/world/components/editor/toolbar/ToolBar.tsx:477](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/toolbar/ToolBar.tsx#L477)
 
 ___
 
@@ -703,7 +703,7 @@ Name | Type |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/toolbar/ToolBar.tsx:400](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/toolbar/ToolBar.tsx#L400)
+Defined in: [packages/client-core/src/world/components/editor/toolbar/ToolBar.tsx:400](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/toolbar/ToolBar.tsx#L400)
 
 ___
 
@@ -726,7 +726,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Inherited from: void
+Inherited from: Component.setState
 
 Defined in: node_modules/@types/react/index.d.ts:481
 
@@ -755,6 +755,6 @@ Name | Type |
 
 **Returns:** *boolean*
 
-Inherited from: void
+Inherited from: Component.shouldComponentUpdate
 
 Defined in: node_modules/@types/react/index.d.ts:626

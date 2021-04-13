@@ -22,14 +22,14 @@ hide_title: true
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`options` | ServiceOptions |
-`app` | Application |
+Name | Type | Default value |
+:------ | :------ | :------ |
+`options` | ServiceOptions | {} |
+`app` | Application | - |
 
 **Returns:** [*Magiclink*](user_magic_link_magic_link_class.magiclink.md)
 
-Defined in: [packages/server-core/src/user/magic-link/magic-link.class.ts:29](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/user/magic-link/magic-link.class.ts#L29)
+Defined in: [packages/server-core/src/user/magic-link/magic-link.class.ts:29](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/user/magic-link/magic-link.class.ts#L29)
 
 ## Properties
 
@@ -37,7 +37,7 @@ Defined in: [packages/server-core/src/user/magic-link/magic-link.class.ts:29](ht
 
 • **app**: Application
 
-Defined in: [packages/server-core/src/user/magic-link/magic-link.class.ts:27](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/user/magic-link/magic-link.class.ts#L27)
+Defined in: [packages/server-core/src/user/magic-link/magic-link.class.ts:27](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/user/magic-link/magic-link.class.ts#L27)
 
 ___
 
@@ -45,7 +45,7 @@ ___
 
 • **docs**: *any*
 
-Defined in: [packages/server-core/src/user/magic-link/magic-link.class.ts:29](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/user/magic-link/magic-link.class.ts#L29)
+Defined in: [packages/server-core/src/user/magic-link/magic-link.class.ts:29](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/user/magic-link/magic-link.class.ts#L29)
 
 ___
 
@@ -53,7 +53,7 @@ ___
 
 • **options**: ServiceOptions
 
-Defined in: [packages/server-core/src/user/magic-link/magic-link.class.ts:28](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/user/magic-link/magic-link.class.ts#L28)
+Defined in: [packages/server-core/src/user/magic-link/magic-link.class.ts:28](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/user/magic-link/magic-link.class.ts#L28)
 
 ## Methods
 
@@ -76,9 +76,9 @@ Name | Type | Description |
 
 creted data
 
-Implementation of: void
+Implementation of: ServiceMethods.create
 
-Defined in: [packages/server-core/src/user/magic-link/magic-link.class.ts:213](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/user/magic-link/magic-link.class.ts#L213)
+Defined in: [packages/server-core/src/user/magic-link/magic-link.class.ts:213](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/user/magic-link/magic-link.class.ts#L213)
 
 ___
 
@@ -100,9 +100,9 @@ Name | Type |
 
 {@Array} all magic link
 
-Implementation of: void
+Implementation of: ServiceMethods.find
 
-Defined in: [packages/server-core/src/user/magic-link/magic-link.class.ts:43](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/user/magic-link/magic-link.class.ts#L43)
+Defined in: [packages/server-core/src/user/magic-link/magic-link.class.ts:43](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/user/magic-link/magic-link.class.ts#L43)
 
 ___
 
@@ -125,15 +125,15 @@ Name | Type | Description |
 
 {@Object} contains id of magic link and message
 
-Implementation of: void
+Implementation of: ServiceMethods.get
 
-Defined in: [packages/server-core/src/user/magic-link/magic-link.class.ts:55](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/user/magic-link/magic-link.class.ts#L55)
+Defined in: [packages/server-core/src/user/magic-link/magic-link.class.ts:55](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/user/magic-link/magic-link.class.ts#L55)
 
 ___
 
 ### patch
 
-▸ **patch**(`id`: Id, `data`: Data, `params?`: Params): *Promise*<Data\>
+▸ **patch**(`id`: NullableId, `data`: Data, `params?`: Params): *Promise*<Data\>
 
 A function which is used to update magic link
 
@@ -141,7 +141,7 @@ A function which is used to update magic link
 
 Name | Type | Description |
 :------ | :------ | :------ |
-`id` | Id |  |
+`id` | NullableId |  |
 `data` | Data | used to update   |
 `params?` | Params |  |
 
@@ -149,15 +149,15 @@ Name | Type | Description |
 
 data
 
-Implementation of: void
+Implementation of: ServiceMethods.patch
 
-Defined in: [packages/server-core/src/user/magic-link/magic-link.class.ts:82](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/user/magic-link/magic-link.class.ts#L82)
+Defined in: [packages/server-core/src/user/magic-link/magic-link.class.ts:82](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/user/magic-link/magic-link.class.ts#L82)
 
 ___
 
 ### remove
 
-▸ **remove**(`id`: Id, `params?`: Params): *Promise*<Data\>
+▸ **remove**(`id`: NullableId, `params?`: Params): *Promise*<Data\>
 
 A function which is used to remove magic link
 
@@ -165,16 +165,16 @@ A function which is used to remove magic link
 
 Name | Type | Description |
 :------ | :------ | :------ |
-`id` | Id | of magic link used to remove data   |
+`id` | NullableId | of magic link used to remove data   |
 `params?` | Params |  |
 
 **Returns:** *Promise*<Data\>
 
 id
 
-Implementation of: void
+Implementation of: ServiceMethods.remove
 
-Defined in: [packages/server-core/src/user/magic-link/magic-link.class.ts:92](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/user/magic-link/magic-link.class.ts#L92)
+Defined in: [packages/server-core/src/user/magic-link/magic-link.class.ts:92](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/user/magic-link/magic-link.class.ts#L92)
 
 ___
 
@@ -200,7 +200,7 @@ Name | Type | Description |
 
 {@function} sent email
 
-Defined in: [packages/server-core/src/user/magic-link/magic-link.class.ts:106](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/user/magic-link/magic-link.class.ts#L106)
+Defined in: [packages/server-core/src/user/magic-link/magic-link.class.ts:106](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/user/magic-link/magic-link.class.ts#L106)
 
 ___
 
@@ -224,13 +224,13 @@ Name | Type | Description |
 
 {@function}  send sms
 
-Defined in: [packages/server-core/src/user/magic-link/magic-link.class.ts:174](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/user/magic-link/magic-link.class.ts#L174)
+Defined in: [packages/server-core/src/user/magic-link/magic-link.class.ts:174](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/user/magic-link/magic-link.class.ts#L174)
 
 ___
 
 ### update
 
-▸ **update**(`id`: Id, `data`: Data, `params?`: Params): *Promise*<Data\>
+▸ **update**(`id`: NullableId, `data`: Data, `params?`: Params): *Promise*<Data\>
 
 A function which is used to update magic link
 
@@ -240,7 +240,7 @@ A function which is used to update magic link
 
 Name | Type | Description |
 :------ | :------ | :------ |
-`id` | Id |  |
+`id` | NullableId |  |
 `data` | Data | which will be used for updating magic link   |
 `params?` | Params |  |
 
@@ -248,6 +248,6 @@ Name | Type | Description |
 
 updated data
 
-Implementation of: void
+Implementation of: ServiceMethods.update
 
-Defined in: [packages/server-core/src/user/magic-link/magic-link.class.ts:70](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/user/magic-link/magic-link.class.ts#L70)
+Defined in: [packages/server-core/src/user/magic-link/magic-link.class.ts:70](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/user/magic-link/magic-link.class.ts#L70)

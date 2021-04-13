@@ -38,7 +38,7 @@ Name | Type |
 
 **Returns:** [*InstanceRemovedResponse*](../interfaces/src_admin_reducers_admin_actions.instanceremovedresponse.md)
 
-Defined in: [packages/client-core/src/admin/reducers/admin/actions.ts:140](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/admin/reducers/admin/actions.ts#L140)
+Defined in: [packages/client-core/src/admin/reducers/admin/actions.ts:135](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/admin/reducers/admin/actions.ts#L135)
 
 ___
 
@@ -54,7 +54,7 @@ Name | Type |
 
 **Returns:** [*InstanceRemovedResponse*](../interfaces/src_admin_reducers_admin_actions.instanceremovedresponse.md)
 
-Defined in: [packages/client-core/src/admin/reducers/admin/actions.ts:154](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/admin/reducers/admin/actions.ts#L154)
+Defined in: [packages/client-core/src/admin/reducers/admin/actions.ts:149](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/admin/reducers/admin/actions.ts#L149)
 
 ___
 
@@ -70,7 +70,7 @@ Name | Type |
 
 **Returns:** [*InstanceRemovedResponse*](../interfaces/src_admin_reducers_admin_actions.instanceremovedresponse.md)
 
-Defined in: [packages/client-core/src/admin/reducers/admin/actions.ts:147](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/admin/reducers/admin/actions.ts#L147)
+Defined in: [packages/client-core/src/admin/reducers/admin/actions.ts:142](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/admin/reducers/admin/actions.ts#L142)
 
 ___
 
@@ -86,7 +86,7 @@ Name | Type |
 
 **Returns:** [*InstanceRemovedResponse*](../interfaces/src_admin_reducers_admin_actions.instanceremovedresponse.md)
 
-Defined in: [packages/client-core/src/admin/reducers/admin/actions.ts:133](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/admin/reducers/admin/actions.ts#L133)
+Defined in: [packages/client-core/src/admin/reducers/admin/actions.ts:128](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/admin/reducers/admin/actions.ts#L128)
 
 ___
 
@@ -102,7 +102,7 @@ Name | Type |
 
 **Returns:** [*InstancesRetrievedResponse*](../interfaces/src_admin_reducers_admin_actions.instancesretrievedresponse.md)
 
-Defined in: [packages/client-core/src/admin/reducers/admin/actions.ts:126](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/admin/reducers/admin/actions.ts#L126)
+Defined in: [packages/client-core/src/admin/reducers/admin/actions.ts:121](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/admin/reducers/admin/actions.ts#L121)
 
 ___
 
@@ -118,7 +118,7 @@ Name | Type |
 
 **Returns:** [*LocationTypesRetrievedResponse*](../interfaces/src_admin_reducers_admin_actions.locationtypesretrievedresponse.md)
 
-Defined in: [packages/client-core/src/admin/reducers/admin/actions.ts:119](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/admin/reducers/admin/actions.ts#L119)
+Defined in: [packages/client-core/src/admin/reducers/admin/actions.ts:114](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/admin/reducers/admin/actions.ts#L114)
 
 ___
 
@@ -134,7 +134,7 @@ Name | Type |
 
 **Returns:** [*VideoCreatedAction*](../interfaces/src_admin_reducers_admin_actions.videocreatedaction.md)
 
-Defined in: [packages/client-core/src/admin/reducers/admin/actions.ts:98](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/admin/reducers/admin/actions.ts#L98)
+Defined in: [packages/client-core/src/admin/reducers/admin/actions.ts:93](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/admin/reducers/admin/actions.ts#L93)
 
 ___
 
@@ -150,7 +150,7 @@ Name | Type |
 
 **Returns:** [*VideoDeletedAction*](../interfaces/src_admin_reducers_admin_actions.videodeletedaction.md)
 
-Defined in: [packages/client-core/src/admin/reducers/admin/actions.ts:112](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/admin/reducers/admin/actions.ts#L112)
+Defined in: [packages/client-core/src/admin/reducers/admin/actions.ts:107](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/admin/reducers/admin/actions.ts#L107)
 
 ___
 
@@ -166,4 +166,4 @@ Name | Type |
 
 **Returns:** [*VideoUpdatedAction*](../interfaces/src_admin_reducers_admin_actions.videoupdatedaction.md)
 
-Defined in: [packages/client-core/src/admin/reducers/admin/actions.ts:105](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/admin/reducers/admin/actions.ts#L105)
+Defined in: [packages/client-core/src/admin/reducers/admin/actions.ts:100](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/admin/reducers/admin/actions.ts#L100)

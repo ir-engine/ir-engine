@@ -23,7 +23,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *any*
 
-Defined in: [packages/client-core/src/user/reducers/user/service.ts:105](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/user/reducers/user/service.ts#L105)
+Defined in: [packages/client-core/src/user/reducers/user/service.ts:105](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/user/reducers/user/service.ts#L105)
 
 ___
 
@@ -40,7 +40,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *any*
 
-Defined in: [packages/client-core/src/user/reducers/user/service.ts:101](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/user/reducers/user/service.ts#L101)
+Defined in: [packages/client-core/src/user/reducers/user/service.ts:101](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/user/reducers/user/service.ts#L101)
 
 ___
 
@@ -57,7 +57,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *any*
 
-Defined in: [packages/client-core/src/user/reducers/user/service.ts:113](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/user/reducers/user/service.ts#L113)
+Defined in: [packages/client-core/src/user/reducers/user/service.ts:113](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/user/reducers/user/service.ts#L113)
 
 ___
 
@@ -74,7 +74,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *any*
 
-Defined in: [packages/client-core/src/user/reducers/user/service.ts:109](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/user/reducers/user/service.ts#L109)
+Defined in: [packages/client-core/src/user/reducers/user/service.ts:109](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/user/reducers/user/service.ts#L109)
 
 ___
 
@@ -90,7 +90,7 @@ Name | Type | Default value |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/src/user/reducers/user/service.ts:46](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/user/reducers/user/service.ts#L46)
+Defined in: [packages/client-core/src/user/reducers/user/service.ts:46](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/user/reducers/user/service.ts#L46)
 
 ___
 
@@ -106,7 +106,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *any*
 
-Defined in: [packages/client-core/src/user/reducers/user/service.ts:14](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/user/reducers/user/service.ts#L14)
+Defined in: [packages/client-core/src/user/reducers/user/service.ts:14](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/user/reducers/user/service.ts#L14)
 
 ___
 
@@ -123,7 +123,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *any*
 
-Defined in: [packages/client-core/src/user/reducers/user/service.ts:29](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/user/reducers/user/service.ts#L29)
+Defined in: [packages/client-core/src/user/reducers/user/service.ts:29](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/user/reducers/user/service.ts#L29)
 
 ___
 
@@ -140,7 +140,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *any*
 
-Defined in: [packages/client-core/src/user/reducers/user/service.ts:97](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/user/reducers/user/service.ts#L97)
+Defined in: [packages/client-core/src/user/reducers/user/service.ts:97](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/user/reducers/user/service.ts#L97)
 
 ___
 
@@ -157,4 +157,4 @@ Name | Type |
 
 **Returns:** [*UserToastAction*](../interfaces/src_user_reducers_user_actions.usertoastaction.md)
 
-Defined in: [packages/client-core/src/user/reducers/user/service.ts:117](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/user/reducers/user/service.ts#L117)
+Defined in: [packages/client-core/src/user/reducers/user/service.ts:117](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/user/reducers/user/service.ts#L117)

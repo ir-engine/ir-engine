@@ -16,7 +16,7 @@ hide_title: true
 
 • **Local**: = 0
 
-Defined in: [packages/server-core/src/media/storageprovider/storagetypes.enum.ts:2](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/media/storageprovider/storagetypes.enum.ts#L2)
+Defined in: [packages/server-core/src/media/storageprovider/storagetypes.enum.ts:2](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/media/storageprovider/storagetypes.enum.ts#L2)
 
 ___
 
@@ -24,4 +24,4 @@ ___
 
 • **S3**: = 1
 
-Defined in: [packages/server-core/src/media/storageprovider/storagetypes.enum.ts:3](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/media/storageprovider/storagetypes.enum.ts#L3)
+Defined in: [packages/server-core/src/media/storageprovider/storagetypes.enum.ts:3](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/media/storageprovider/storagetypes.enum.ts#L3)

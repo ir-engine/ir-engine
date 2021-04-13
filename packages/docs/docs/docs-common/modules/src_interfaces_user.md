@@ -14,14 +14,6 @@ hide_title: true
 
 - [User](../interfaces/src_interfaces_user.user.md)
 
-## Type aliases
-
-### RelationshipType
-
-Ƭ **RelationshipType**: *friend* \| *requested* \| *blocked* \| *blocking*
-
-Defined in: [src/interfaces/User.ts:5](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/common/src/interfaces/User.ts#L5)
-
 ## Variables
 
 ### UserSeed
@@ -36,7 +28,7 @@ Name | Type |
 `identityProviders` | *any*[] |
 `name` | *string* |
 
-Defined in: [src/interfaces/User.ts:22](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/common/src/interfaces/User.ts#L22)
+Defined in: [interfaces/User.ts:22](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/common/src/interfaces/User.ts#L22)
 
 ## Functions
 
@@ -52,4 +44,4 @@ Name | Type |
 
 **Returns:** [*User*](../interfaces/src_interfaces_user.user.md)
 
-Defined in: [src/interfaces/User.ts:28](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/common/src/interfaces/User.ts#L28)
+Defined in: [interfaces/User.ts:28](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/common/src/interfaces/User.ts#L28)

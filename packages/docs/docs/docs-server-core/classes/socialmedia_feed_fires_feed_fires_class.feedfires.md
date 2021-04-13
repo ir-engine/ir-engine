@@ -33,9 +33,9 @@ Name | Type |
 
 **Returns:** [*FeedFires*](socialmedia_feed_fires_feed_fires_class.feedfires.md)
 
-Overrides: void
+Overrides: Service.constructor
 
-Defined in: [packages/server-core/src/socialmedia/feed-fires/feed-fires.class.ts:18](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/socialmedia/feed-fires/feed-fires.class.ts#L18)
+Defined in: [packages/server-core/src/socialmedia/feed-fires/feed-fires.class.ts:18](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/socialmedia/feed-fires/feed-fires.class.ts#L18)
 
 ## Properties
 
@@ -43,7 +43,7 @@ Defined in: [packages/server-core/src/socialmedia/feed-fires/feed-fires.class.ts
 
 • **Model**: *any*
 
-Inherited from: void
+Inherited from: Service.Model
 
 Defined in: node_modules/feathers-sequelize/types/index.d.ts:11
 
@@ -53,7 +53,7 @@ ___
 
 • **app**: Application
 
-Defined in: [packages/server-core/src/socialmedia/feed-fires/feed-fires.class.ts:17](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/socialmedia/feed-fires/feed-fires.class.ts#L17)
+Defined in: [packages/server-core/src/socialmedia/feed-fires/feed-fires.class.ts:17](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/socialmedia/feed-fires/feed-fires.class.ts#L17)
 
 ___
 
@@ -61,7 +61,7 @@ ___
 
 • **docs**: *any*
 
-Defined in: [packages/server-core/src/socialmedia/feed-fires/feed-fires.class.ts:18](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/socialmedia/feed-fires/feed-fires.class.ts#L18)
+Defined in: [packages/server-core/src/socialmedia/feed-fires/feed-fires.class.ts:18](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/socialmedia/feed-fires/feed-fires.class.ts#L18)
 
 ___
 
@@ -69,7 +69,7 @@ ___
 
 • **options**: SequelizeServiceOptions
 
-Inherited from: void
+Inherited from: Service.options
 
 Defined in: node_modules/feathers-sequelize/types/index.d.ts:12
 
@@ -108,7 +108,7 @@ Name | Type |
 
 **Returns:** *Promise*<any\>
 
-Inherited from: void
+Inherited from: Service._create
 
 Defined in: node_modules/feathers-sequelize/types/index.d.ts:20
 
@@ -126,7 +126,7 @@ Name | Type |
 
 **Returns:** *Promise*<any\>
 
-Inherited from: void
+Inherited from: Service._find
 
 Defined in: node_modules/feathers-sequelize/types/index.d.ts:18
 
@@ -145,7 +145,7 @@ Name | Type |
 
 **Returns:** *Promise*<any\>
 
-Inherited from: void
+Inherited from: Service._get
 
 Defined in: node_modules/feathers-sequelize/types/index.d.ts:19
 
@@ -153,19 +153,19 @@ ___
 
 ### \_patch
 
-▸ **_patch**(`id`: Id, `data`: *Partial*<any\>, `params?`: Params): *Promise*<any\>
+▸ **_patch**(`id`: NullableId, `data`: *Partial*<any\>, `params?`: Params): *Promise*<any\>
 
 #### Parameters:
 
 Name | Type |
 :------ | :------ |
-`id` | Id |
+`id` | NullableId |
 `data` | *Partial*<any\> |
 `params?` | Params |
 
 **Returns:** *Promise*<any\>
 
-Inherited from: void
+Inherited from: Service._patch
 
 Defined in: node_modules/feathers-sequelize/types/index.d.ts:22
 
@@ -173,18 +173,18 @@ ___
 
 ### \_remove
 
-▸ **_remove**(`id`: Id, `params?`: Params): *Promise*<any\>
+▸ **_remove**(`id`: NullableId, `params?`: Params): *Promise*<any\>
 
 #### Parameters:
 
 Name | Type |
 :------ | :------ |
-`id` | Id |
+`id` | NullableId |
 `params?` | Params |
 
 **Returns:** *Promise*<any\>
 
-Inherited from: void
+Inherited from: Service._remove
 
 Defined in: node_modules/feathers-sequelize/types/index.d.ts:23
 
@@ -192,19 +192,19 @@ ___
 
 ### \_update
 
-▸ **_update**(`id`: Id, `data`: *any*, `params?`: Params): *Promise*<any\>
+▸ **_update**(`id`: NullableId, `data`: *any*, `params?`: Params): *Promise*<any\>
 
 #### Parameters:
 
 Name | Type |
 :------ | :------ |
-`id` | Id |
+`id` | NullableId |
 `data` | *any* |
 `params?` | Params |
 
 **Returns:** *Promise*<any\>
 
-Inherited from: void
+Inherited from: Service._update
 
 Defined in: node_modules/feathers-sequelize/types/index.d.ts:21
 
@@ -222,7 +222,7 @@ Name | Type |
 
 **Returns:** *boolean*
 
-Inherited from: void
+Inherited from: Service.allowsMulti
 
 Defined in: node_modules/@feathersjs/adapter-commons/lib/service.d.ts:95
 
@@ -241,9 +241,9 @@ Name | Type |
 
 **Returns:** *Promise*<any\>
 
-Overrides: void
+Overrides: Service.create
 
-Defined in: [packages/server-core/src/socialmedia/feed-fires/feed-fires.class.ts:77](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/socialmedia/feed-fires/feed-fires.class.ts#L77)
+Defined in: [packages/server-core/src/socialmedia/feed-fires/feed-fires.class.ts:77](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/socialmedia/feed-fires/feed-fires.class.ts#L77)
 
 ___
 
@@ -260,7 +260,7 @@ Name | Type |
 
 **Returns:** { [key: string]: *any*;  } & { `paginate`: *false* \| *Pick*<PaginationOptions, *max*\> \| { `default?`: *number* ; `max?`: *number*  }  }
 
-Inherited from: void
+Inherited from: Service.filterQuery
 
 Defined in: node_modules/@feathersjs/adapter-commons/lib/service.d.ts:87
 
@@ -282,9 +282,9 @@ Name | Type | Description |
 
 {@Array} of found users
 
-Overrides: void
+Overrides: Service.find
 
-Defined in: [packages/server-core/src/socialmedia/feed-fires/feed-fires.class.ts:32](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/socialmedia/feed-fires/feed-fires.class.ts#L32)
+Defined in: [packages/server-core/src/socialmedia/feed-fires/feed-fires.class.ts:32](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/socialmedia/feed-fires/feed-fires.class.ts#L32)
 
 ___
 
@@ -301,7 +301,7 @@ Name | Type |
 
 **Returns:** *Promise*<any\>
 
-Inherited from: void
+Inherited from: Service.get
 
 Defined in: node_modules/@feathersjs/adapter-commons/lib/service.d.ts:97
 
@@ -319,7 +319,7 @@ Name | Type |
 
 **Returns:** *any*
 
-Inherited from: void
+Inherited from: Service.getModel
 
 Defined in: node_modules/feathers-sequelize/types/index.d.ts:16
 
@@ -327,19 +327,19 @@ ___
 
 ### patch
 
-▸ **patch**(`id`: Id, `data`: *Partial*<any\>, `params?`: Params): *Promise*<any\>
+▸ **patch**(`id`: NullableId, `data`: *Partial*<any\>, `params?`: Params): *Promise*<any\>
 
 #### Parameters:
 
 Name | Type |
 :------ | :------ |
-`id` | Id |
+`id` | NullableId |
 `data` | *Partial*<any\> |
 `params?` | Params |
 
 **Returns:** *Promise*<any\>
 
-Inherited from: void
+Inherited from: Service.patch
 
 Defined in: node_modules/@feathersjs/adapter-commons/lib/service.d.ts:100
 
@@ -358,9 +358,9 @@ Name | Type |
 
 **Returns:** *Promise*<any\>
 
-Overrides: void
+Overrides: Service.remove
 
-Defined in: [packages/server-core/src/socialmedia/feed-fires/feed-fires.class.ts:84](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/socialmedia/feed-fires/feed-fires.class.ts#L84)
+Defined in: [packages/server-core/src/socialmedia/feed-fires/feed-fires.class.ts:84](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/socialmedia/feed-fires/feed-fires.class.ts#L84)
 
 ___
 
@@ -378,6 +378,6 @@ Name | Type |
 
 **Returns:** *Promise*<any\>
 
-Inherited from: void
+Inherited from: Service.update
 
 Defined in: node_modules/@feathersjs/adapter-commons/lib/service.d.ts:99

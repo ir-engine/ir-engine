@@ -26,14 +26,14 @@ A class for Upload Media service
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`options` | ServiceOptions |
-`app` | Application |
+Name | Type | Default value |
+:------ | :------ | :------ |
+`options` | ServiceOptions | {} |
+`app` | Application | - |
 
 **Returns:** [*UploadMedia*](media_upload_media_upload_media_class.uploadmedia.md)
 
-Defined in: [packages/server-core/src/media/upload-media/upload-media.class.ts:15](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/media/upload-media/upload-media.class.ts#L15)
+Defined in: [packages/server-core/src/media/upload-media/upload-media.class.ts:15](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/media/upload-media/upload-media.class.ts#L15)
 
 ## Properties
 
@@ -41,7 +41,7 @@ Defined in: [packages/server-core/src/media/upload-media/upload-media.class.ts:1
 
 • **app**: Application
 
-Defined in: [packages/server-core/src/media/upload-media/upload-media.class.ts:14](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/media/upload-media/upload-media.class.ts#L14)
+Defined in: [packages/server-core/src/media/upload-media/upload-media.class.ts:14](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/media/upload-media/upload-media.class.ts#L14)
 
 ___
 
@@ -49,7 +49,7 @@ ___
 
 • **options**: ServiceOptions
 
-Defined in: [packages/server-core/src/media/upload-media/upload-media.class.ts:15](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/media/upload-media/upload-media.class.ts#L15)
+Defined in: [packages/server-core/src/media/upload-media/upload-media.class.ts:15](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/media/upload-media/upload-media.class.ts#L15)
 
 ## Methods
 
@@ -66,9 +66,9 @@ Name | Type |
 
 **Returns:** *Promise*<Data\>
 
-Implementation of: void
+Implementation of: ServiceMethods.create
 
-Defined in: [packages/server-core/src/media/upload-media/upload-media.class.ts:30](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/media/upload-media/upload-media.class.ts#L30)
+Defined in: [packages/server-core/src/media/upload-media/upload-media.class.ts:30](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/media/upload-media/upload-media.class.ts#L30)
 
 ___
 
@@ -84,9 +84,9 @@ Name | Type |
 
 **Returns:** *Promise*<Data[] \| Paginated<Data\>\>
 
-Implementation of: void
+Implementation of: ServiceMethods.find
 
-Defined in: [packages/server-core/src/media/upload-media/upload-media.class.ts:22](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/media/upload-media/upload-media.class.ts#L22)
+Defined in: [packages/server-core/src/media/upload-media/upload-media.class.ts:22](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/media/upload-media/upload-media.class.ts#L22)
 
 ___
 
@@ -103,65 +103,65 @@ Name | Type |
 
 **Returns:** *Promise*<Data\>
 
-Implementation of: void
+Implementation of: ServiceMethods.get
 
-Defined in: [packages/server-core/src/media/upload-media/upload-media.class.ts:26](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/media/upload-media/upload-media.class.ts#L26)
+Defined in: [packages/server-core/src/media/upload-media/upload-media.class.ts:26](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/media/upload-media/upload-media.class.ts#L26)
 
 ___
 
 ### patch
 
-▸ **patch**(`id`: Id, `data`: Data, `params?`: Params): *Promise*<Data\>
+▸ **patch**(`id`: NullableId, `data`: Data, `params?`: Params): *Promise*<Data\>
 
 #### Parameters:
 
 Name | Type |
 :------ | :------ |
-`id` | Id |
+`id` | NullableId |
 `data` | Data |
 `params?` | Params |
 
 **Returns:** *Promise*<Data\>
 
-Implementation of: void
+Implementation of: ServiceMethods.patch
 
-Defined in: [packages/server-core/src/media/upload-media/upload-media.class.ts:42](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/media/upload-media/upload-media.class.ts#L42)
+Defined in: [packages/server-core/src/media/upload-media/upload-media.class.ts:42](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/media/upload-media/upload-media.class.ts#L42)
 
 ___
 
 ### remove
 
-▸ **remove**(`id`: Id, `params?`: Params): *Promise*<Data\>
+▸ **remove**(`id`: NullableId, `params?`: Params): *Promise*<Data\>
 
 #### Parameters:
 
 Name | Type |
 :------ | :------ |
-`id` | Id |
+`id` | NullableId |
 `params?` | Params |
 
 **Returns:** *Promise*<Data\>
 
-Implementation of: void
+Implementation of: ServiceMethods.remove
 
-Defined in: [packages/server-core/src/media/upload-media/upload-media.class.ts:46](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/media/upload-media/upload-media.class.ts#L46)
+Defined in: [packages/server-core/src/media/upload-media/upload-media.class.ts:46](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/media/upload-media/upload-media.class.ts#L46)
 
 ___
 
 ### update
 
-▸ **update**(`id`: Id, `data`: Data, `params?`: Params): *Promise*<Data\>
+▸ **update**(`id`: NullableId, `data`: Data, `params?`: Params): *Promise*<Data\>
 
 #### Parameters:
 
 Name | Type |
 :------ | :------ |
-`id` | Id |
+`id` | NullableId |
 `data` | Data |
 `params?` | Params |
 
 **Returns:** *Promise*<Data\>
 
-Implementation of: void
+Implementation of: ServiceMethods.update
 
-Defined in: [packages/server-core/src/media/upload-media/upload-media.class.ts:38](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/media/upload-media/upload-media.class.ts#L38)
+Defined in: [packages/server-core/src/media/upload-media/upload-media.class.ts:38](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/media/upload-media/upload-media.class.ts#L38)

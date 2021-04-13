@@ -22,7 +22,7 @@ hide_title: true
 
 **`author`** Robert Long
 
-Defined in: [packages/client-core/src/world/components/editor/layout/Panel.tsx:9](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/layout/Panel.tsx#L9)
+Defined in: [packages/client-core/src/world/components/editor/layout/Panel.tsx:9](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/layout/Panel.tsx#L9)
 
 ___
 
@@ -32,7 +32,7 @@ ___
 
 **`author`** Robert Long
 
-Defined in: [packages/client-core/src/world/components/editor/layout/Panel.tsx:49](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/layout/Panel.tsx#L49)
+Defined in: [packages/client-core/src/world/components/editor/layout/Panel.tsx:49](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/layout/Panel.tsx#L49)
 
 ___
 
@@ -42,7 +42,7 @@ ___
 
 **`author`** Robert Long
 
-Defined in: [packages/client-core/src/world/components/editor/layout/Panel.tsx:35](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/layout/Panel.tsx#L35)
+Defined in: [packages/client-core/src/world/components/editor/layout/Panel.tsx:35](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/layout/Panel.tsx#L35)
 
 ___
 
@@ -52,7 +52,7 @@ ___
 
 **`author`** Robert Long
 
-Defined in: [packages/client-core/src/world/components/editor/layout/Panel.tsx:43](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/layout/Panel.tsx#L43)
+Defined in: [packages/client-core/src/world/components/editor/layout/Panel.tsx:43](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/layout/Panel.tsx#L43)
 
 ___
 
@@ -62,4 +62,4 @@ ___
 
 **`author`** Robert Long
 
-Defined in: [packages/client-core/src/world/components/editor/layout/Panel.tsx:23](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/layout/Panel.tsx#L23)
+Defined in: [packages/client-core/src/world/components/editor/layout/Panel.tsx:23](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/layout/Panel.tsx#L23)

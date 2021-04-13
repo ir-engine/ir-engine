@@ -21,7 +21,7 @@ Name | Type |
 `details` | [*ContractPropsDetails*](types.md#contractpropsdetails) |
 `payload` | Contract |
 
-Defined in: [packages/nft/src/types.d.ts:18](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/nft/src/types.d.ts#L18)
+Defined in: [packages/nft/src/types.d.ts:18](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/nft/src/types.d.ts#L18)
 
 ___
 
@@ -37,7 +37,7 @@ Name | Type |
 `name`? | *string* |
 `symbol`? | *string* |
 
-Defined in: [packages/nft/src/types.d.ts:12](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/nft/src/types.d.ts#L12)
+Defined in: [packages/nft/src/types.d.ts:12](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/nft/src/types.d.ts#L12)
 
 ___
 
@@ -53,7 +53,7 @@ Name | Type |
 `balance` | *string* |
 `ownedTokens` | [*TokenProps*](components_token.md#tokenprops)[] |
 
-Defined in: [packages/nft/src/types.d.ts:23](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/nft/src/types.d.ts#L23)
+Defined in: [packages/nft/src/types.d.ts:23](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/nft/src/types.d.ts#L23)
 
 ## Variables
 
@@ -61,4 +61,4 @@ Defined in: [packages/nft/src/types.d.ts:23](https://github.com/xr3ngine/xr3ngin
 
 • `Const` **ethereum**: *any*
 
-Defined in: [packages/nft/src/types.d.ts:10](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/nft/src/types.d.ts#L10)
+Defined in: [packages/nft/src/types.d.ts:10](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/nft/src/types.d.ts#L10)

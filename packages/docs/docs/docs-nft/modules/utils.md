@@ -20,7 +20,7 @@ Renames and exports: [default](utils_listtokensfrom.md#default)
 
 • `Const` **ETHSCAN\_API**: *string*
 
-Defined in: [packages/nft/src/utils/index.ts:5](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/nft/src/utils/index.ts#L5)
+Defined in: [packages/nft/src/utils/index.ts:5](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/nft/src/utils/index.ts#L5)
 
 ___
 
@@ -28,4 +28,4 @@ ___
 
 • `Const` **METADATA\_API**: *string*
 
-Defined in: [packages/nft/src/utils/index.ts:7](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/nft/src/utils/index.ts#L7)
+Defined in: [packages/nft/src/utils/index.ts:7](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/nft/src/utils/index.ts#L7)

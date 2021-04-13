@@ -16,4 +16,4 @@ hide_title: true
 
 • **type**: *string*
 
-Defined in: [packages/client-core/src/social/reducers/location/actions.ts:24](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/social/reducers/location/actions.ts#L24)
+Defined in: [packages/client-core/src/social/reducers/location/actions.ts:24](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/location/actions.ts#L24)

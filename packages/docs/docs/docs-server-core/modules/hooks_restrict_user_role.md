@@ -26,4 +26,4 @@ Name | Type |
 
 **Returns:** (`context`: *HookContext*<any, Service<any\>\>) => *Promise*<HookContext<any, Service<any\>\>\>
 
-Defined in: [packages/server-core/src/hooks/restrict-user-role.ts:5](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/hooks/restrict-user-role.ts#L5)
+Defined in: [packages/server-core/src/hooks/restrict-user-role.ts:5](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/hooks/restrict-user-role.ts#L5)

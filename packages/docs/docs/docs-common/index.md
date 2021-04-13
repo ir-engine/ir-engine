@@ -13,7 +13,6 @@ hide_title: true
 
 ### Modules
 
-- [index](modules/index.md)
 - [src/assets/testScenePreset](modules/src_assets_testscenepreset.md)
 - [src/assets/testScenes](modules/src_assets_testscenes.md)
 - [src/enums/avatar-model](modules/src_enums_avatar_model.md)
@@ -56,7 +55,6 @@ hide_title: true
 - [src/types/feathers-blob](modules/src_types_feathers_blob.md)
 - [src/types/fs-blob-store](modules/src_types_fs_blob_store.md)
 - [src/types/s3-blob-store](modules/src_types_s3_blob_store.md)
-- [src/types/shaka-player](modules/src_types_shaka_player.md)
 - [src/types/youtube-dl](modules/src_types_youtube_dl.md)
 - [src/utils/capitalizeFirstLetter](modules/src_utils_capitalizefirstletter.md)
 - [src/utils/isExternalUrl](modules/src_utils_isexternalurl.md)

@@ -20,12 +20,12 @@ useUpload used to upload asset file.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`options` | *any* |
+Name | Type | Default value |
+:------ | :------ | :------ |
+`options` | *any* | {} |
 
 **Returns:** (`files`: *any*) => *Promise*<any[]\>
 
 [assets]
 
-Defined in: [packages/client-core/src/world/components/editor/assets/useUpload.tsx:16](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/assets/useUpload.tsx#L16)
+Defined in: [packages/client-core/src/world/components/editor/assets/useUpload.tsx:16](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/assets/useUpload.tsx#L16)

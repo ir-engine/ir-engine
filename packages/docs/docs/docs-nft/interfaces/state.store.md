@@ -16,7 +16,7 @@ hide_title: true
 
 • **dispatch**: *Dispatch*<[*Action*](../modules/reducer.md#action)\>
 
-Defined in: [packages/nft/src/state.tsx:16](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/nft/src/state.tsx#L16)
+Defined in: [packages/nft/src/state.tsx:16](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/nft/src/state.tsx#L16)
 
 ___
 
@@ -24,4 +24,4 @@ ___
 
 • **state**: [*StateContext*](state.statecontext.md)
 
-Defined in: [packages/nft/src/state.tsx:15](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/nft/src/state.tsx#L15)
+Defined in: [packages/nft/src/state.tsx:15](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/nft/src/state.tsx#L15)

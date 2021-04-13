@@ -32,9 +32,9 @@ Name | Type |
 
 **Returns:** [*default*](src_world_components_editor_inputs_vector3input.default.md)
 
-Overrides: void
+Overrides: Component.constructor
 
-Defined in: [packages/client-core/src/world/components/editor/inputs/Vector3Input.tsx:63](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/inputs/Vector3Input.tsx#L63)
+Defined in: [packages/client-core/src/world/components/editor/inputs/Vector3Input.tsx:63](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/inputs/Vector3Input.tsx#L63)
 
 ## Properties
 
@@ -56,7 +56,7 @@ declare context: React.ContextType<typeof MyContext>
 
 **`see`** https://reactjs.org/docs/context.html
 
-Inherited from: void
+Inherited from: Component.context
 
 Defined in: node_modules/@types/react/index.d.ts:469
 
@@ -66,7 +66,7 @@ ___
 
 • **id**: *number*
 
-Defined in: [packages/client-core/src/world/components/editor/inputs/Vector3Input.tsx:80](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/inputs/Vector3Input.tsx#L80)
+Defined in: [packages/client-core/src/world/components/editor/inputs/Vector3Input.tsx:80](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/inputs/Vector3Input.tsx#L80)
 
 ___
 
@@ -74,15 +74,15 @@ ___
 
 • **newValue**: *any*
 
-Defined in: [packages/client-core/src/world/components/editor/inputs/Vector3Input.tsx:81](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/inputs/Vector3Input.tsx#L81)
+Defined in: [packages/client-core/src/world/components/editor/inputs/Vector3Input.tsx:81](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/inputs/Vector3Input.tsx#L81)
 
 ___
 
 ### props
 
-• `Readonly` **props**: *Readonly*<{}\> & *Readonly*<{ `children?`: *boolean* \| *ReactElement*<any, string \| JSXElementConstructor<any\>\> \| ReactText \| ReactFragment \| *ReactPortal*  }\>
+• `Readonly` **props**: *Readonly*<{}\> & *Readonly*<{ `children?`: ReactNode  }\>
 
-Inherited from: void
+Inherited from: Component.props
 
 Defined in: node_modules/@types/react/index.d.ts:494
 
@@ -97,7 +97,7 @@ https://reactjs.org/docs/refs-and-the-dom.html#legacy-api-string-refs
 
 #### Type declaration:
 
-Inherited from: void
+Inherited from: Component.refs
 
 Defined in: node_modules/@types/react/index.d.ts:500
 
@@ -113,15 +113,15 @@ Name | Type |
 :------ | :------ |
 `uniformEnabled` | *any* |
 
-Overrides: void
+Overrides: Component.state
 
-Defined in: [packages/client-core/src/world/components/editor/inputs/Vector3Input.tsx:77](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/inputs/Vector3Input.tsx#L77)
+Defined in: [packages/client-core/src/world/components/editor/inputs/Vector3Input.tsx:77](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/inputs/Vector3Input.tsx#L77)
 
 ___
 
 ### contextType
 
-▪ `Optional` `Static` **contextType**: *Context*<any\>
+▪ `Static` `Optional` **contextType**: *Context*<any\>
 
 If set, `this.context` will be set at runtime to the current value of the given Context.
 
@@ -142,7 +142,7 @@ class Foo extends React.Component {
 
 **`see`** https://reactjs.org/docs/context.html#classcontexttype
 
-Inherited from: void
+Inherited from: Component.contextType
 
 Defined in: node_modules/@types/react/index.d.ts:451
 
@@ -159,7 +159,7 @@ Name | Type |
 `onChange` | () => *void* |
 `value` | *any* |
 
-Defined in: [packages/client-core/src/world/components/editor/inputs/Vector3Input.tsx:60](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/inputs/Vector3Input.tsx#L60)
+Defined in: [packages/client-core/src/world/components/editor/inputs/Vector3Input.tsx:60](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/inputs/Vector3Input.tsx#L60)
 
 ___
 
@@ -178,7 +178,7 @@ Name | Type |
 `uniformScaling` | *Requireable*<boolean\> |
 `value` | *Requireable*<object\> |
 
-Defined in: [packages/client-core/src/world/components/editor/inputs/Vector3Input.tsx:51](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/inputs/Vector3Input.tsx#L51)
+Defined in: [packages/client-core/src/world/components/editor/inputs/Vector3Input.tsx:51](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/inputs/Vector3Input.tsx#L51)
 
 ## Methods
 
@@ -202,7 +202,7 @@ prevents this from being invoked.
 
 **Returns:** *void*
 
-Inherited from: void
+Inherited from: Component.UNSAFE_componentWillMount
 
 Defined in: node_modules/@types/react/index.d.ts:707
 
@@ -238,7 +238,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Inherited from: void
+Inherited from: Component.UNSAFE_componentWillReceiveProps
 
 Defined in: node_modules/@types/react/index.d.ts:739
 
@@ -273,7 +273,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Inherited from: void
+Inherited from: Component.UNSAFE_componentWillUpdate
 
 Defined in: node_modules/@types/react/index.d.ts:767
 
@@ -295,7 +295,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Inherited from: void
+Inherited from: Component.componentDidCatch
 
 Defined in: node_modules/@types/react/index.d.ts:636
 
@@ -309,7 +309,7 @@ Called immediately after a component is mounted. Setting state here will trigger
 
 **Returns:** *void*
 
-Inherited from: void
+Inherited from: Component.componentDidMount
 
 Defined in: node_modules/@types/react/index.d.ts:615
 
@@ -333,7 +333,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Inherited from: void
+Inherited from: Component.componentDidUpdate
 
 Defined in: node_modules/@types/react/index.d.ts:678
 
@@ -357,7 +357,7 @@ prevents this from being invoked.
 
 **Returns:** *void*
 
-Inherited from: void
+Inherited from: Component.componentWillMount
 
 Defined in: node_modules/@types/react/index.d.ts:693
 
@@ -391,7 +391,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Inherited from: void
+Inherited from: Component.componentWillReceiveProps
 
 Defined in: node_modules/@types/react/index.d.ts:722
 
@@ -406,7 +406,7 @@ cancelled network requests, or cleaning up any DOM elements created in `componen
 
 **Returns:** *void*
 
-Inherited from: void
+Inherited from: Component.componentWillUnmount
 
 Defined in: node_modules/@types/react/index.d.ts:631
 
@@ -439,7 +439,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Inherited from: void
+Inherited from: Component.componentWillUpdate
 
 Defined in: node_modules/@types/react/index.d.ts:752
 
@@ -457,7 +457,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Inherited from: void
+Inherited from: Component.forceUpdate
 
 Defined in: node_modules/@types/react/index.d.ts:486
 
@@ -483,7 +483,7 @@ Name | Type |
 
 **Returns:** *any*
 
-Inherited from: void
+Inherited from: Component.getSnapshotBeforeUpdate
 
 Defined in: node_modules/@types/react/index.d.ts:672
 
@@ -502,7 +502,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/inputs/Vector3Input.tsx:87](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/inputs/Vector3Input.tsx#L87)
+Defined in: [packages/client-core/src/world/components/editor/inputs/Vector3Input.tsx:87](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/inputs/Vector3Input.tsx#L87)
 
 ___
 
@@ -518,7 +518,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/inputs/Vector3Input.tsx:105](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/inputs/Vector3Input.tsx#L105)
+Defined in: [packages/client-core/src/world/components/editor/inputs/Vector3Input.tsx:105](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/inputs/Vector3Input.tsx#L105)
 
 ___
 
@@ -534,7 +534,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/inputs/Vector3Input.tsx:107](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/inputs/Vector3Input.tsx#L107)
+Defined in: [packages/client-core/src/world/components/editor/inputs/Vector3Input.tsx:107](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/inputs/Vector3Input.tsx#L107)
 
 ___
 
@@ -550,7 +550,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/inputs/Vector3Input.tsx:109](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/inputs/Vector3Input.tsx#L109)
+Defined in: [packages/client-core/src/world/components/editor/inputs/Vector3Input.tsx:109](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/inputs/Vector3Input.tsx#L109)
 
 ___
 
@@ -560,7 +560,7 @@ ___
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/inputs/Vector3Input.tsx:83](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/inputs/Vector3Input.tsx#L83)
+Defined in: [packages/client-core/src/world/components/editor/inputs/Vector3Input.tsx:83](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/inputs/Vector3Input.tsx#L83)
 
 ___
 
@@ -570,9 +570,9 @@ ___
 
 **Returns:** *Element*
 
-Overrides: void
+Overrides: Component.render
 
-Defined in: [packages/client-core/src/world/components/editor/inputs/Vector3Input.tsx:111](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/inputs/Vector3Input.tsx#L111)
+Defined in: [packages/client-core/src/world/components/editor/inputs/Vector3Input.tsx:111](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/inputs/Vector3Input.tsx#L111)
 
 ___
 
@@ -595,7 +595,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Inherited from: void
+Inherited from: Component.setState
 
 Defined in: node_modules/@types/react/index.d.ts:481
 
@@ -624,6 +624,6 @@ Name | Type |
 
 **Returns:** *boolean*
 
-Inherited from: void
+Inherited from: Component.shouldComponentUpdate
 
 Defined in: node_modules/@types/react/index.d.ts:626

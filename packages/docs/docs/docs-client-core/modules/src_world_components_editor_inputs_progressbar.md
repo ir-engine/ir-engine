@@ -18,4 +18,4 @@ hide_title: true
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/inputs/ProgressBar.tsx:86](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/inputs/ProgressBar.tsx#L86)
+Defined in: [packages/client-core/src/world/components/editor/inputs/ProgressBar.tsx:86](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/inputs/ProgressBar.tsx#L86)

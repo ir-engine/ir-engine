@@ -20,4 +20,4 @@ hide_title: true
 
 **Returns:** (`context`: *HookContext*<any, Service<any\>\>) => *HookContext*<any, Service<any\>\>
 
-Defined in: [packages/server-core/src/hooks/generate-invite-passcode.ts:3](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/hooks/generate-invite-passcode.ts#L3)
+Defined in: [packages/server-core/src/hooks/generate-invite-passcode.ts:2](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/hooks/generate-invite-passcode.ts#L2)

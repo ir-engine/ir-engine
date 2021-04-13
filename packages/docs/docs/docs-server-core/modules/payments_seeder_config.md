@@ -18,6 +18,6 @@ Renames and exports: [paymentSeeds](payments_seeder_config.md#paymentseeds)
 
 ### paymentSeeds
 
-• `Const` **paymentSeeds**: ServicesSeedConfig[]
+• `Const` **paymentSeeds**: ServicesSeedConfig[]= []
 
-Defined in: [packages/server-core/src/payments/seeder-config.ts:3](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/payments/seeder-config.ts#L3)
+Defined in: [packages/server-core/src/payments/seeder-config.ts:3](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/payments/seeder-config.ts#L3)

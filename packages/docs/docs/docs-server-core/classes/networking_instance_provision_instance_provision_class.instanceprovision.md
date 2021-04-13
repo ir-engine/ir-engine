@@ -24,14 +24,14 @@ hide_title: true
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`options` | ServiceOptions |
-`app` | Application |
+Name | Type | Default value |
+:------ | :------ | :------ |
+`options` | ServiceOptions | {} |
+`app` | Application | - |
 
 **Returns:** [*InstanceProvision*](networking_instance_provision_instance_provision_class.instanceprovision.md)
 
-Defined in: [packages/server-core/src/networking/instance-provision/instance-provision.class.ts:28](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/networking/instance-provision/instance-provision.class.ts#L28)
+Defined in: [packages/server-core/src/networking/instance-provision/instance-provision.class.ts:28](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/networking/instance-provision/instance-provision.class.ts#L28)
 
 ## Properties
 
@@ -39,7 +39,7 @@ Defined in: [packages/server-core/src/networking/instance-provision/instance-pro
 
 • **app**: Application
 
-Defined in: [packages/server-core/src/networking/instance-provision/instance-provision.class.ts:26](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/networking/instance-provision/instance-provision.class.ts#L26)
+Defined in: [packages/server-core/src/networking/instance-provision/instance-provision.class.ts:26](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/networking/instance-provision/instance-provision.class.ts#L26)
 
 ___
 
@@ -47,7 +47,7 @@ ___
 
 • **docs**: *any*
 
-Defined in: [packages/server-core/src/networking/instance-provision/instance-provision.class.ts:28](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/networking/instance-provision/instance-provision.class.ts#L28)
+Defined in: [packages/server-core/src/networking/instance-provision/instance-provision.class.ts:28](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/networking/instance-provision/instance-provision.class.ts#L28)
 
 ___
 
@@ -55,7 +55,7 @@ ___
 
 • **options**: ServiceOptions
 
-Defined in: [packages/server-core/src/networking/instance-provision/instance-provision.class.ts:27](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/networking/instance-provision/instance-provision.class.ts#L27)
+Defined in: [packages/server-core/src/networking/instance-provision/instance-provision.class.ts:27](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/networking/instance-provision/instance-provision.class.ts#L27)
 
 ## Methods
 
@@ -76,9 +76,9 @@ Name | Type | Description |
 
 data of instance
 
-Implementation of: void
+Implementation of: ServiceMethods.create
 
-Defined in: [packages/server-core/src/networking/instance-provision/instance-provision.class.ts:340](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/networking/instance-provision/instance-provision.class.ts#L340)
+Defined in: [packages/server-core/src/networking/instance-provision/instance-provision.class.ts:340](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/networking/instance-provision/instance-provision.class.ts#L340)
 
 ___
 
@@ -100,9 +100,9 @@ Name | Type | Description |
 
 {@function} getFreeGameserver and getGSInService
 
-Implementation of: void
+Implementation of: ServiceMethods.find
 
-Defined in: [packages/server-core/src/networking/instance-provision/instance-provision.class.ts:132](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/networking/instance-provision/instance-provision.class.ts#L132)
+Defined in: [packages/server-core/src/networking/instance-provision/instance-provision.class.ts:132](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/networking/instance-provision/instance-provision.class.ts#L132)
 
 ___
 
@@ -123,9 +123,9 @@ Name | Type | Description |
 
 id and text
 
-Implementation of: void
+Implementation of: ServiceMethods.get
 
-Defined in: [packages/server-core/src/networking/instance-provision/instance-provision.class.ts:326](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/networking/instance-provision/instance-provision.class.ts#L326)
+Defined in: [packages/server-core/src/networking/instance-provision/instance-provision.class.ts:326](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/networking/instance-provision/instance-provision.class.ts#L326)
 
 ___
 
@@ -139,7 +139,7 @@ An method which start server for instance
 
 **Returns:** *Promise*<any\>
 
-Defined in: [packages/server-core/src/networking/instance-provision/instance-provision.class.ts:38](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/networking/instance-provision/instance-provision.class.ts#L38)
+Defined in: [packages/server-core/src/networking/instance-provision/instance-provision.class.ts:38](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/networking/instance-provision/instance-provision.class.ts#L38)
 
 ___
 
@@ -161,7 +161,7 @@ Name | Type | Description |
 
 ipAddress and port
 
-Defined in: [packages/server-core/src/networking/instance-provision/instance-provision.class.ts:69](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/networking/instance-provision/instance-provision.class.ts#L69)
+Defined in: [packages/server-core/src/networking/instance-provision/instance-provision.class.ts:69](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/networking/instance-provision/instance-provision.class.ts#L69)
 
 ___
 
@@ -183,33 +183,33 @@ Name | Type | Description |
 
 {@Boolean}
 
-Defined in: [packages/server-core/src/networking/instance-provision/instance-provision.class.ts:97](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/networking/instance-provision/instance-provision.class.ts#L97)
+Defined in: [packages/server-core/src/networking/instance-provision/instance-provision.class.ts:97](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/networking/instance-provision/instance-provision.class.ts#L97)
 
 ___
 
 ### patch
 
-▸ **patch**(`id`: Id, `data`: Data, `params?`: Params): *Promise*<Data\>
+▸ **patch**(`id`: NullableId, `data`: Data, `params?`: Params): *Promise*<Data\>
 
 #### Parameters:
 
 Name | Type |
 :------ | :------ |
-`id` | Id |
+`id` | NullableId |
 `data` | Data |
 `params?` | Params |
 
 **Returns:** *Promise*<Data\>
 
-Implementation of: void
+Implementation of: ServiceMethods.patch
 
-Defined in: [packages/server-core/src/networking/instance-provision/instance-provision.class.ts:367](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/networking/instance-provision/instance-provision.class.ts#L367)
+Defined in: [packages/server-core/src/networking/instance-provision/instance-provision.class.ts:367](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/networking/instance-provision/instance-provision.class.ts#L367)
 
 ___
 
 ### remove
 
-▸ **remove**(`id`: Id, `params?`: Params): *Promise*<Data\>
+▸ **remove**(`id`: NullableId, `params?`: Params): *Promise*<Data\>
 
 A method used to remove specific instance
 
@@ -217,22 +217,22 @@ A method used to remove specific instance
 
 Name | Type | Description |
 :------ | :------ | :------ |
-`id` | Id | of instance   |
+`id` | NullableId | of instance   |
 `params?` | Params |  |
 
 **Returns:** *Promise*<Data\>
 
 id
 
-Implementation of: void
+Implementation of: ServiceMethods.remove
 
-Defined in: [packages/server-core/src/networking/instance-provision/instance-provision.class.ts:379](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/networking/instance-provision/instance-provision.class.ts#L379)
+Defined in: [packages/server-core/src/networking/instance-provision/instance-provision.class.ts:379](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/networking/instance-provision/instance-provision.class.ts#L379)
 
 ___
 
 ### update
 
-▸ **update**(`id`: Id, `data`: Data, `params?`: Params): *Promise*<Data\>
+▸ **update**(`id`: NullableId, `data`: Data, `params?`: Params): *Promise*<Data\>
 
 A method used to update instance
 
@@ -240,7 +240,7 @@ A method used to update instance
 
 Name | Type | Description |
 :------ | :------ | :------ |
-`id` | Id |  |
+`id` | NullableId |  |
 `data` | Data | which is used to update instance   |
 `params?` | Params |  |
 
@@ -248,6 +248,6 @@ Name | Type | Description |
 
 data of updated instance
 
-Implementation of: void
+Implementation of: ServiceMethods.update
 
-Defined in: [packages/server-core/src/networking/instance-provision/instance-provision.class.ts:356](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/networking/instance-provision/instance-provision.class.ts#L356)
+Defined in: [packages/server-core/src/networking/instance-provision/instance-provision.class.ts:356](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/networking/instance-provision/instance-provision.class.ts#L356)

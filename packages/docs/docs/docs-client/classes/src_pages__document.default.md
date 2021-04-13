@@ -30,7 +30,7 @@ Name | Type |
 
 **Returns:** [*default*](src_pages__document.default.md)
 
-Inherited from: void
+Inherited from: Document.constructor
 
 Defined in: node_modules/@types/react/index.d.ts:469
 
@@ -49,7 +49,7 @@ Name | Type |
 
 **Returns:** [*default*](src_pages__document.default.md)
 
-Inherited from: void
+Inherited from: Document.constructor
 
 Defined in: node_modules/@types/react/index.d.ts:471
 
@@ -73,7 +73,7 @@ declare context: React.ContextType<typeof MyContext>
 
 **`see`** https://reactjs.org/docs/context.html
 
-Inherited from: void
+Inherited from: Document.context
 
 Defined in: node_modules/@types/react/index.d.ts:469
 
@@ -81,9 +81,9 @@ ___
 
 ### props
 
-• `Readonly` **props**: *Readonly*<RenderPageResult & { `styles?`: ReactFragment \| *ReactElement*<any, string \| JSXElementConstructor<any\>\>[]  } & { `__NEXT_DATA__`: NEXT\_DATA ; `ampPath`: *string* ; `assetPrefix?`: *string* ; `buildManifest`: BuildManifest ; `canonicalBase`: *string* ; `dangerousAsPath`: *string* ; `devOnlyCacheBusterQueryString`: *string* ; `docComponentsRendered`: { `Head?`: *boolean* ; `Html?`: *boolean* ; `Main?`: *boolean* ; `NextScript?`: *boolean*  } ; `dynamicImports`: ManifestItem[] ; `headTags`: *any*[] ; `hybridAmp`: *boolean* ; `inAmpMode`: *boolean* ; `isDevelopment`: *boolean* ; `locale?`: *string* ; `scriptLoader`: { `defer?`: *string*[] ; `eager?`: *any*[]  } ; `unstable_JsPreload?`: *false* ; `unstable_runtimeJS?`: *false*  }\> & *Readonly*<{ `children?`: *boolean* \| *ReactElement*<any, string \| JSXElementConstructor<any\>\> \| ReactText \| ReactFragment \| *ReactPortal*  }\>
+• `Readonly` **props**: *Readonly*<RenderPageResult & { `styles?`: ReactFragment \| *ReactElement*<any, string \| JSXElementConstructor<any\>\>[]  } & { `__NEXT_DATA__`: NEXT\_DATA ; `ampPath`: *string* ; `assetPrefix?`: *string* ; `buildManifest`: BuildManifest ; `canonicalBase`: *string* ; `dangerousAsPath`: *string* ; `devOnlyCacheBusterQueryString`: *string* ; `docComponentsRendered`: { `Head?`: *boolean* ; `Html?`: *boolean* ; `Main?`: *boolean* ; `NextScript?`: *boolean*  } ; `dynamicImports`: ManifestItem[] ; `headTags`: *any*[] ; `hybridAmp`: *boolean* ; `inAmpMode`: *boolean* ; `isDevelopment`: *boolean* ; `locale?`: *string* ; `scriptLoader`: { `defer?`: *string*[] ; `eager?`: *any*[]  } ; `unstable_JsPreload?`: *false* ; `unstable_runtimeJS?`: *false*  }\> & *Readonly*<{ `children?`: ReactNode  }\>
 
-Inherited from: void
+Inherited from: Document.props
 
 Defined in: node_modules/@types/react/index.d.ts:494
 
@@ -98,7 +98,7 @@ https://reactjs.org/docs/refs-and-the-dom.html#legacy-api-string-refs
 
 #### Type declaration:
 
-Inherited from: void
+Inherited from: Document.refs
 
 Defined in: node_modules/@types/react/index.d.ts:500
 
@@ -108,7 +108,7 @@ ___
 
 • **state**: *Readonly*<{}\>
 
-Inherited from: void
+Inherited from: Document.state
 
 Defined in: node_modules/@types/react/index.d.ts:495
 
@@ -116,7 +116,7 @@ ___
 
 ### contextType
 
-▪ `Optional` `Static` **contextType**: *Context*<any\>
+▪ `Static` `Optional` **contextType**: *Context*<any\>
 
 If set, `this.context` will be set at runtime to the current value of the given Context.
 
@@ -137,7 +137,7 @@ class Foo extends React.Component {
 
 **`see`** https://reactjs.org/docs/context.html#classcontexttype
 
-Inherited from: void
+Inherited from: Document.contextType
 
 Defined in: node_modules/@types/react/index.d.ts:451
 
@@ -147,7 +147,7 @@ ___
 
 ▪ `Static` **headTagsMiddleware**: *Promise*<any\> \| () => *never*[]
 
-Inherited from: void
+Inherited from: Document.headTagsMiddleware
 
 Defined in: node_modules/next/dist/pages/_document.d.ts:20
 
@@ -173,7 +173,7 @@ prevents this from being invoked.
 
 **Returns:** *void*
 
-Inherited from: void
+Inherited from: Document.UNSAFE_componentWillMount
 
 Defined in: node_modules/@types/react/index.d.ts:707
 
@@ -209,7 +209,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Inherited from: void
+Inherited from: Document.UNSAFE_componentWillReceiveProps
 
 Defined in: node_modules/@types/react/index.d.ts:739
 
@@ -244,7 +244,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Inherited from: void
+Inherited from: Document.UNSAFE_componentWillUpdate
 
 Defined in: node_modules/@types/react/index.d.ts:767
 
@@ -266,7 +266,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Inherited from: void
+Inherited from: Document.componentDidCatch
 
 Defined in: node_modules/@types/react/index.d.ts:636
 
@@ -280,7 +280,7 @@ Called immediately after a component is mounted. Setting state here will trigger
 
 **Returns:** *void*
 
-Inherited from: void
+Inherited from: Document.componentDidMount
 
 Defined in: node_modules/@types/react/index.d.ts:615
 
@@ -304,7 +304,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Inherited from: void
+Inherited from: Document.componentDidUpdate
 
 Defined in: node_modules/@types/react/index.d.ts:678
 
@@ -328,7 +328,7 @@ prevents this from being invoked.
 
 **Returns:** *void*
 
-Inherited from: void
+Inherited from: Document.componentWillMount
 
 Defined in: node_modules/@types/react/index.d.ts:693
 
@@ -362,7 +362,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Inherited from: void
+Inherited from: Document.componentWillReceiveProps
 
 Defined in: node_modules/@types/react/index.d.ts:722
 
@@ -377,7 +377,7 @@ cancelled network requests, or cleaning up any DOM elements created in `componen
 
 **Returns:** *void*
 
-Inherited from: void
+Inherited from: Document.componentWillUnmount
 
 Defined in: node_modules/@types/react/index.d.ts:631
 
@@ -410,7 +410,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Inherited from: void
+Inherited from: Document.componentWillUpdate
 
 Defined in: node_modules/@types/react/index.d.ts:752
 
@@ -428,7 +428,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Inherited from: void
+Inherited from: Document.forceUpdate
 
 Defined in: node_modules/@types/react/index.d.ts:486
 
@@ -454,7 +454,7 @@ Name | Type |
 
 **Returns:** *any*
 
-Inherited from: void
+Inherited from: Document.getSnapshotBeforeUpdate
 
 Defined in: node_modules/@types/react/index.d.ts:672
 
@@ -466,9 +466,9 @@ ___
 
 **Returns:** *Element*
 
-Overrides: void
+Overrides: Document.render
 
-Defined in: [packages/client/src/pages/_document.tsx:61](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client/src/pages/_document.tsx#L61)
+Defined in: [packages/client/src/pages/_document.tsx:61](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client/src/pages/_document.tsx#L61)
 
 ___
 
@@ -491,7 +491,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Inherited from: void
+Inherited from: Document.setState
 
 Defined in: node_modules/@types/react/index.d.ts:481
 
@@ -520,7 +520,7 @@ Name | Type |
 
 **Returns:** *boolean*
 
-Inherited from: void
+Inherited from: Document.shouldComponentUpdate
 
 Defined in: node_modules/@types/react/index.d.ts:626
 
@@ -538,9 +538,9 @@ Name | Type |
 
 **Returns:** *Promise*<{ `head?`: *Element*[] ; `html`: *string* ; `styles`: *Element*  }\>
 
-Overrides: void
+Overrides: Document.getInitialProps
 
-Defined in: [packages/client/src/pages/_document.tsx:12](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client/src/pages/_document.tsx#L12)
+Defined in: [packages/client/src/pages/_document.tsx:12](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client/src/pages/_document.tsx#L12)
 
 ___
 
@@ -563,6 +563,6 @@ Name | Type |
 
 **Returns:** *ReactElement*<any, string \| JSXElementConstructor<any\>\>
 
-Inherited from: void
+Inherited from: Document.renderDocument
 
 Defined in: node_modules/next/dist/pages/_document.d.ts:26

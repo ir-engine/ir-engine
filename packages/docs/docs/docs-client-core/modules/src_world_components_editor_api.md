@@ -16,24 +16,6 @@ hide_title: true
 
 ## Functions
 
-### proxiedUrlFor
-
-▸ `Const`**proxiedUrlFor**(`url`: *any*): *any*
-
-**`author`** Robert Long
-
-#### Parameters:
-
-Name | Type |
-:------ | :------ |
-`url` | *any* |
-
-**Returns:** *any*
-
-Defined in: [packages/client-core/src/world/components/editor/Api.tsx:75](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Api.tsx#L75)
-
-___
-
 ### scaledThumbnailUrlFor
 
 ▸ `Const`**scaledThumbnailUrlFor**(`url`: *any*, `width`: *any*, `height`: *any*): *string*
@@ -54,4 +36,4 @@ Name | Type |
 
 [returns url to get scaled image]
 
-Defined in: [packages/client-core/src/world/components/editor/Api.tsx:95](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Api.tsx#L95)
+Defined in: [packages/client-core/src/world/components/editor/Api.tsx:58](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Api.tsx#L58)

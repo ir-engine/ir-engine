@@ -12,12 +12,4 @@ hide_title: true
 
 ### default
 
-• **default**: *object*
-
-#### Type declaration:
-
-Name | Type |
-:------ | :------ |
-`contextType`? | *Context*<any\> |
-`displayName` | *string* |
-`getInitialProps` | (`appCtx`: *AppContextType*<default\>) => *Promise*<{ `initialProps`: {} ; `initialState`: *any* ; `isServer`: *boolean*  }\> |
+• **default**: *FunctionComponent*<WrapperProps\> & { `getInitialProps?`: (`context`: *NextPageContext*<any, AnyAction\>) => WrapperProps \| *Promise*<WrapperProps\>  }

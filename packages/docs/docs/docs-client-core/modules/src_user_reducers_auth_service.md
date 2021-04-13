@@ -23,7 +23,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *any*
 
-Defined in: [packages/client-core/src/user/reducers/auth/service.ts:425](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/user/reducers/auth/service.ts#L425)
+Defined in: [packages/client-core/src/user/reducers/auth/service.ts:425](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/user/reducers/auth/service.ts#L425)
 
 ___
 
@@ -40,7 +40,7 @@ Name | Type |
 
 **Returns:** () => *void*
 
-Defined in: [packages/client-core/src/user/reducers/auth/service.ts:472](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/user/reducers/auth/service.ts#L472)
+Defined in: [packages/client-core/src/user/reducers/auth/service.ts:472](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/user/reducers/auth/service.ts#L472)
 
 ___
 
@@ -57,7 +57,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *any*
 
-Defined in: [packages/client-core/src/user/reducers/auth/service.ts:403](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/user/reducers/auth/service.ts#L403)
+Defined in: [packages/client-core/src/user/reducers/auth/service.ts:403](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/user/reducers/auth/service.ts#L403)
 
 ___
 
@@ -74,7 +74,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *any*
 
-Defined in: [packages/client-core/src/user/reducers/auth/service.ts:446](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/user/reducers/auth/service.ts#L446)
+Defined in: [packages/client-core/src/user/reducers/auth/service.ts:446](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/user/reducers/auth/service.ts#L446)
 
 ___
 
@@ -91,7 +91,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *any*
 
-Defined in: [packages/client-core/src/user/reducers/auth/service.ts:345](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/user/reducers/auth/service.ts#L345)
+Defined in: [packages/client-core/src/user/reducers/auth/service.ts:345](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/user/reducers/auth/service.ts#L345)
 
 ___
 
@@ -108,7 +108,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/src/user/reducers/auth/service.ts:49](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/user/reducers/auth/service.ts#L49)
+Defined in: [packages/client-core/src/user/reducers/auth/service.ts:49](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/user/reducers/auth/service.ts#L49)
 
 ___
 
@@ -118,7 +118,7 @@ ___
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<void\>
 
-Defined in: [packages/client-core/src/user/reducers/auth/service.ts:604](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/user/reducers/auth/service.ts#L604)
+Defined in: [packages/client-core/src/user/reducers/auth/service.ts:604](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/user/reducers/auth/service.ts#L604)
 
 ___
 
@@ -134,7 +134,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *any*
 
-Defined in: [packages/client-core/src/user/reducers/auth/service.ts:306](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/user/reducers/auth/service.ts#L306)
+Defined in: [packages/client-core/src/user/reducers/auth/service.ts:306](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/user/reducers/auth/service.ts#L306)
 
 ___
 
@@ -151,7 +151,7 @@ Name | Type |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/src/user/reducers/auth/service.ts:116](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/user/reducers/auth/service.ts#L116)
+Defined in: [packages/client-core/src/user/reducers/auth/service.ts:116](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/user/reducers/auth/service.ts#L116)
 
 ___
 
@@ -169,7 +169,7 @@ Name | Type |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/src/user/reducers/auth/service.ts:205](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/user/reducers/auth/service.ts#L205)
+Defined in: [packages/client-core/src/user/reducers/auth/service.ts:205](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/user/reducers/auth/service.ts#L205)
 
 ___
 
@@ -185,7 +185,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>, `getState`: *any*) => *any*
 
-Defined in: [packages/client-core/src/user/reducers/auth/service.ts:189](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/user/reducers/auth/service.ts#L189)
+Defined in: [packages/client-core/src/user/reducers/auth/service.ts:189](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/user/reducers/auth/service.ts#L189)
 
 ___
 
@@ -201,7 +201,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *any*
 
-Defined in: [packages/client-core/src/user/reducers/auth/service.ts:148](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/user/reducers/auth/service.ts#L148)
+Defined in: [packages/client-core/src/user/reducers/auth/service.ts:148](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/user/reducers/auth/service.ts#L148)
 
 ___
 
@@ -211,7 +211,7 @@ ___
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *any*
 
-Defined in: [packages/client-core/src/user/reducers/auth/service.ts:231](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/user/reducers/auth/service.ts#L231)
+Defined in: [packages/client-core/src/user/reducers/auth/service.ts:231](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/user/reducers/auth/service.ts#L231)
 
 ___
 
@@ -227,7 +227,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/user/reducers/auth/service.ts:494](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/user/reducers/auth/service.ts#L494)
+Defined in: [packages/client-core/src/user/reducers/auth/service.ts:494](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/user/reducers/auth/service.ts#L494)
 
 ___
 
@@ -243,7 +243,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *any*
 
-Defined in: [packages/client-core/src/user/reducers/auth/service.ts:244](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/user/reducers/auth/service.ts#L244)
+Defined in: [packages/client-core/src/user/reducers/auth/service.ts:244](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/user/reducers/auth/service.ts#L244)
 
 ___
 
@@ -259,7 +259,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>, `getState`: *any*) => *Promise*<void\>
 
-Defined in: [packages/client-core/src/user/reducers/auth/service.ts:593](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/user/reducers/auth/service.ts#L593)
+Defined in: [packages/client-core/src/user/reducers/auth/service.ts:593](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/user/reducers/auth/service.ts#L593)
 
 ___
 
@@ -276,7 +276,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *any*
 
-Defined in: [packages/client-core/src/user/reducers/auth/service.ts:478](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/user/reducers/auth/service.ts#L478)
+Defined in: [packages/client-core/src/user/reducers/auth/service.ts:478](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/user/reducers/auth/service.ts#L478)
 
 ___
 
@@ -292,7 +292,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/src/user/reducers/auth/service.ts:648](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/user/reducers/auth/service.ts#L648)
+Defined in: [packages/client-core/src/user/reducers/auth/service.ts:648](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/user/reducers/auth/service.ts#L648)
 
 ___
 
@@ -308,7 +308,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *any*
 
-Defined in: [packages/client-core/src/user/reducers/auth/service.ts:289](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/user/reducers/auth/service.ts#L289)
+Defined in: [packages/client-core/src/user/reducers/auth/service.ts:289](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/user/reducers/auth/service.ts#L289)
 
 ___
 
@@ -325,7 +325,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *any*
 
-Defined in: [packages/client-core/src/user/reducers/auth/service.ts:323](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/user/reducers/auth/service.ts#L323)
+Defined in: [packages/client-core/src/user/reducers/auth/service.ts:323](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/user/reducers/auth/service.ts#L323)
 
 ___
 
@@ -344,7 +344,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *any*
 
-Defined in: [packages/client-core/src/user/reducers/auth/service.ts:636](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/user/reducers/auth/service.ts#L636)
+Defined in: [packages/client-core/src/user/reducers/auth/service.ts:636](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/user/reducers/auth/service.ts#L636)
 
 ___
 
@@ -361,7 +361,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *any*) => *Promise*<void\>
 
-Defined in: [packages/client-core/src/user/reducers/auth/service.ts:496](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/user/reducers/auth/service.ts#L496)
+Defined in: [packages/client-core/src/user/reducers/auth/service.ts:496](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/user/reducers/auth/service.ts#L496)
 
 ___
 
@@ -378,7 +378,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *any*
 
-Defined in: [packages/client-core/src/user/reducers/auth/service.ts:624](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/user/reducers/auth/service.ts#L624)
+Defined in: [packages/client-core/src/user/reducers/auth/service.ts:624](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/user/reducers/auth/service.ts#L624)
 
 ___
 
@@ -394,7 +394,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>, `getState`: *any*) => *Promise*<void\>
 
-Defined in: [packages/client-core/src/user/reducers/auth/service.ts:502](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/user/reducers/auth/service.ts#L502)
+Defined in: [packages/client-core/src/user/reducers/auth/service.ts:502](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/user/reducers/auth/service.ts#L502)
 
 ___
 
@@ -411,7 +411,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>, `getState`: *any*) => *Promise*<void\>
 
-Defined in: [packages/client-core/src/user/reducers/auth/service.ts:521](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/user/reducers/auth/service.ts#L521)
+Defined in: [packages/client-core/src/user/reducers/auth/service.ts:521](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/user/reducers/auth/service.ts#L521)
 
 ___
 
@@ -427,4 +427,4 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *any*
 
-Defined in: [packages/client-core/src/user/reducers/auth/service.ts:268](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/user/reducers/auth/service.ts#L268)
+Defined in: [packages/client-core/src/user/reducers/auth/service.ts:268](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/user/reducers/auth/service.ts#L268)

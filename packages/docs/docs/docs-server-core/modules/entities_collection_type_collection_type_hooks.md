@@ -20,7 +20,7 @@ Name | Type |
 :------ | :------ |
 `after` | *object* |
 `after.all` | *any*[] |
-`after.create` | (`context`: *any*) => *Promise*<void\>[] |
+`after.create` | *any*[] |
 `after.find` | *any*[] |
 `after.get` | *any*[] |
 `after.patch` | *any*[] |

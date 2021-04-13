@@ -26,4 +26,4 @@ Name | Type |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/src/user/components/Auth/ResetPassword.tsx:16](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/user/components/Auth/ResetPassword.tsx#L16)
+Defined in: [packages/client-core/src/user/components/Auth/ResetPassword.tsx:17](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/user/components/Auth/ResetPassword.tsx#L17)

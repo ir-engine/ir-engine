@@ -16,7 +16,7 @@ hide_title: true
 
 • **email**: *string*
 
-Defined in: [packages/client-core/src/user/reducers/auth/actions.ts:33](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/user/reducers/auth/actions.ts#L33)
+Defined in: [packages/client-core/src/user/reducers/auth/actions.ts:33](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/user/reducers/auth/actions.ts#L33)
 
 ___
 
@@ -24,4 +24,4 @@ ___
 
 • **password**: *string*
 
-Defined in: [packages/client-core/src/user/reducers/auth/actions.ts:34](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/user/reducers/auth/actions.ts#L34)
+Defined in: [packages/client-core/src/user/reducers/auth/actions.ts:34](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/user/reducers/auth/actions.ts#L34)

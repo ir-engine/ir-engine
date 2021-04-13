@@ -14,7 +14,7 @@ hide_title: true
 
 • `Const` **selectImageState**: *OutputSelector*<any, any, (`res`: *any*) => *any*\>
 
-Defined in: [packages/client-core/src/media/components/video/selector.ts:6](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/media/components/video/selector.ts#L6)
+Defined in: [packages/client-core/src/media/components/video/selector.ts:6](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/media/components/video/selector.ts#L6)
 
 ___
 
@@ -22,4 +22,4 @@ ___
 
 • `Const` **selectVideoState**: *OutputSelector*<any, any, (`res`: *any*) => *any*\>
 
-Defined in: [packages/client-core/src/media/components/video/selector.ts:5](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/media/components/video/selector.ts#L5)
+Defined in: [packages/client-core/src/media/components/video/selector.ts:5](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/media/components/video/selector.ts#L5)

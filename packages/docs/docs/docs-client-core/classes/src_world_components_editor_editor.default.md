@@ -24,28 +24,37 @@ Editor used to provide the various tools and properties to create or edit scene.
 
 ### constructor
 
-\+ **new default**(`api`: *any*, `settings?`: {}): [*default*](src_world_components_editor_editor.default.md)
+\+ **new default**(`api`: *any*, `settings?`: {}, `Engine`: *any*): [*default*](src_world_components_editor_editor.default.md)
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`api` | *any* |
-`settings` | *object* |
+Name | Type | Default value |
+:------ | :------ | :------ |
+`api` | *any* | - |
+`settings` | *object* | {} |
+`Engine` | *any* | - |
 
 **Returns:** [*default*](src_world_components_editor_editor.default.md)
 
-Overrides: void
+Overrides: EventEmitter.constructor
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:143](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L143)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:146](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L146)
 
 ## Properties
+
+### Engine
+
+• **Engine**: *Engine*
+
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:146](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L146)
+
+___
 
 ### api
 
 • **api**: [*default*](src_world_components_editor_api.default.md)
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:109](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L109)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:111](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L111)
 
 ___
 
@@ -53,7 +62,7 @@ ___
 
 • **audioListener**: *any*
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:130](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L130)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:132](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L132)
 
 ___
 
@@ -61,7 +70,7 @@ ___
 
 • **camera**: *any*
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:129](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L129)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:131](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L131)
 
 ___
 
@@ -69,7 +78,7 @@ ___
 
 • **centerScreenSpace**: *any*
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:135](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L135)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:137](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L137)
 
 ___
 
@@ -77,7 +86,7 @@ ___
 
 • **clock**: *any*
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:136](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L136)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:138](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L138)
 
 ___
 
@@ -85,7 +94,7 @@ ___
 
 • **defaultUploadSource**: *any*
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:123](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L123)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:125](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L125)
 
 ___
 
@@ -93,7 +102,7 @@ ___
 
 • **disableUpdate**: *boolean*
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:137](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L137)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:139](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L139)
 
 ___
 
@@ -101,7 +110,7 @@ ___
 
 • **editorControls**: *default*
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:117](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L117)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:119](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L119)
 
 ___
 
@@ -109,7 +118,7 @@ ___
 
 • **flyControls**: *any*
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:118](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L118)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:120](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L120)
 
 ___
 
@@ -117,7 +126,7 @@ ___
 
 • **gltfCache**: *default*
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:125](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L125)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:127](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L127)
 
 ___
 
@@ -125,7 +134,7 @@ ___
 
 • **grid**: *default*
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:132](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L132)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:134](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L134)
 
 ___
 
@@ -133,7 +142,7 @@ ___
 
 • **helperScene**: *any*
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:131](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L131)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:133](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L133)
 
 ___
 
@@ -141,7 +150,7 @@ ___
 
 • **history**: *default*
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:114](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L114)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:116](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L116)
 
 ___
 
@@ -149,7 +158,7 @@ ___
 
 • **initialized**: *boolean*
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:139](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L139)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:141](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L141)
 
 ___
 
@@ -157,7 +166,7 @@ ___
 
 • **initializing**: *boolean*
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:138](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L138)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:140](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L140)
 
 ___
 
@@ -165,7 +174,7 @@ ___
 
 • **inputManager**: *default*
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:116](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L116)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:118](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L118)
 
 ___
 
@@ -173,7 +182,7 @@ ___
 
 • **nodeEditors**: *Map*<any, any\>
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:121](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L121)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:123](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L123)
 
 ___
 
@@ -181,7 +190,7 @@ ___
 
 • **nodeTypes**: *any*
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:120](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L120)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:122](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L122)
 
 ___
 
@@ -189,7 +198,7 @@ ___
 
 • **nodes**: *any*[]
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:133](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L133)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:135](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L135)
 
 ___
 
@@ -197,7 +206,7 @@ ___
 
 • **playModeControls**: *any*
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:119](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L119)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:121](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L121)
 
 ___
 
@@ -205,7 +214,7 @@ ___
 
 • **playing**: *boolean*
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:143](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L143)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:145](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L145)
 
 ___
 
@@ -213,7 +222,7 @@ ___
 
 • **project**: *any*
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:111](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L111)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:113](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L113)
 
 ___
 
@@ -221,7 +230,7 @@ ___
 
 • **projectLoaded**: *boolean*
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:128](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L128)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:130](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L130)
 
 ___
 
@@ -229,7 +238,7 @@ ___
 
 • **rafId**: *number*
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:141](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L141)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:143](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L143)
 
 ___
 
@@ -237,7 +246,7 @@ ___
 
 • **raycaster**: *any*
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:134](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L134)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:136](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L136)
 
 ___
 
@@ -245,7 +254,7 @@ ___
 
 • **renderer**: *default*
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:115](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L115)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:117](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L117)
 
 ___
 
@@ -253,7 +262,7 @@ ___
 
 • **scene**: *default*
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:126](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L126)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:128](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L128)
 
 ___
 
@@ -261,7 +270,7 @@ ___
 
 • **sceneLoading**: *boolean*
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:140](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L140)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:142](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L142)
 
 ___
 
@@ -269,7 +278,7 @@ ___
 
 • **sceneModified**: *boolean*
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:127](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L127)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:129](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L129)
 
 ___
 
@@ -277,7 +286,7 @@ ___
 
 • **selected**: *any*[]
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:112](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L112)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:114](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L114)
 
 ___
 
@@ -285,7 +294,7 @@ ___
 
 • **selectedTransformRoots**: *any*[]
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:113](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L113)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:115](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L115)
 
 ___
 
@@ -293,7 +302,7 @@ ___
 
 • **settings**: *any*
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:110](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L110)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:112](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L112)
 
 ___
 
@@ -301,7 +310,7 @@ ___
 
 • **sources**: *any*[]
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:122](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L122)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:124](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L124)
 
 ___
 
@@ -309,7 +318,7 @@ ___
 
 • **textureCache**: *default*
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:124](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L124)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:126](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L126)
 
 ___
 
@@ -317,7 +326,7 @@ ___
 
 • **thumbnailRenderer**: *default*
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:142](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L142)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:144](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L144)
 
 ___
 
@@ -336,7 +345,7 @@ Name | Type |
 `combineMeshes` | *boolean* |
 `removeUnusedObjects` | *boolean* |
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:482](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L482)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:487](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L487)
 
 ___
 
@@ -344,7 +353,7 @@ ___
 
 ▪ `Static` **prefixed**: *string* \| *boolean*
 
-Inherited from: void
+Inherited from: EventEmitter.prefixed
 
 Defined in: node_modules/eventemitter3/index.d.ts:9
 
@@ -370,7 +379,7 @@ Name | Type | Default value |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:1236](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L1236)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:1241](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L1241)
 
 ___
 
@@ -394,7 +403,7 @@ Name | Type |
 
 **Returns:** [*default*](src_world_components_editor_editor.default.md)
 
-Inherited from: void
+Inherited from: EventEmitter.addListener
 
 Defined in: node_modules/eventemitter3/index.d.ts:45
 
@@ -414,7 +423,7 @@ Name | Type |
 
 **Returns:** *Promise*<any\>
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:2693](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L2693)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:2728](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L2728)
 
 ___
 
@@ -440,7 +449,7 @@ Name | Type | Default value |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:1187](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L1187)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:1192](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L1192)
 
 ___
 
@@ -466,7 +475,7 @@ Name | Type | Default value |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:1109](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L1109)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:1114](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L1114)
 
 ___
 
@@ -480,7 +489,7 @@ Function clearCaches used to clear cashe.
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:391](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L391)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:396](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L396)
 
 ___
 
@@ -490,7 +499,7 @@ ___
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:2763](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L2763)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:2798](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L2798)
 
 ___
 
@@ -515,7 +524,7 @@ Name | Type | Default value |
 
 [return selected object]
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:922](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L922)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:927](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L927)
 
 ___
 
@@ -537,7 +546,7 @@ Name | Type | Default value |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:1010](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L1010)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:1015](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L1015)
 
 ___
 
@@ -562,7 +571,7 @@ Name | Type | Default value |
 
 [selected object]
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:965](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L965)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:970](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L970)
 
 ___
 
@@ -572,7 +581,7 @@ ___
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:2777](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L2777)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:2812](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L2812)
 
 ___
 
@@ -597,7 +606,7 @@ Name | Type | Default value |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:1358](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L1358)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:1363](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L1363)
 
 ___
 
@@ -622,7 +631,7 @@ Name | Type | Default value |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:1410](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L1410)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:1415](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L1415)
 
 ___
 
@@ -646,7 +655,7 @@ Name | Type | Default value |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:1459](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L1459)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:1464](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L1464)
 
 ___
 
@@ -669,9 +678,9 @@ Name | Type |
 
 [true if scene is not loading]
 
-Overrides: void
+Overrides: EventEmitter.emit
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:277](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L277)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:282](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L282)
 
 ___
 
@@ -685,7 +694,7 @@ Function enterPlayMode used to enable play mode.
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:709](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L709)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:714](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L714)
 
 ___
 
@@ -698,7 +707,7 @@ listeners.
 
 **Returns:** (*string* \| *symbol*)[]
 
-Inherited from: void
+Inherited from: EventEmitter.eventNames
 
 Defined in: node_modules/eventemitter3/index.d.ts:15
 
@@ -714,16 +723,16 @@ Function exportScene used to export scene.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`signal` | *any* |
-`options` | *object* |
+Name | Type | Default value |
+:------ | :------ | :------ |
+`signal` | *any* | - |
+`options` | *object* | {} |
 
 **Returns:** *Promise*<{ `chunks`: *any* ; `glbBlob`: Blob  }\>
 
 [scene data as object]
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:495](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L495)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:500](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L500)
 
 ___
 
@@ -747,7 +756,7 @@ Name | Type |
 
 [generated thumbnail data as blob]
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:679](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L679)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:684](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L684)
 
 ___
 
@@ -768,7 +777,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:608](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L608)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:613](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L613)
 
 ___
 
@@ -788,7 +797,7 @@ Name | Type | Description |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:216](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L216)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:222](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L222)
 
 ___
 
@@ -805,13 +814,13 @@ Function getRootObjects used to find root objects.
 Name | Type | Default value |
 :------ | :------ | :------ |
 `objects` | *any* | - |
-`target` | *any*[] | - |
+`target` | *any*[] | [] |
 `filterUnremovable` | *boolean* | true |
 `filterUntransformable` | *boolean* | false |
 
 **Returns:** *any*[]
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:2597](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L2597)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:2632](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L2632)
 
 ___
 
@@ -832,7 +841,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:623](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L623)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:628](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L628)
 
 ___
 
@@ -854,7 +863,7 @@ Name | Type |
 
 source data
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:255](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L255)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:260](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L260)
 
 ___
 
@@ -876,7 +885,7 @@ Name | Type |
 
 [Spwan position]
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:596](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L596)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:601](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L601)
 
 ___
 
@@ -890,14 +899,14 @@ Function getTransformRoots provides root objects
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`objects` | *any* |
-`target` | *any*[] |
+Name | Type | Default value |
+:------ | :------ | :------ |
+`objects` | *any* | - |
+`target` | *any*[] | [] |
 
 **Returns:** *any*[]
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:2635](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L2635)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:2670](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L2670)
 
 ___
 
@@ -924,7 +933,7 @@ Name | Type | Default value |
 
 [group node]
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:1611](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L1611)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:1616](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L1616)
 
 ___
 
@@ -948,7 +957,7 @@ Name | Type | Default value |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:1654](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L1654)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:1659](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L1659)
 
 ___
 
@@ -958,7 +967,7 @@ ___
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:2759](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L2759)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:2794](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L2794)
 
 ___
 
@@ -974,7 +983,7 @@ init called when component get initialized.
 
 [void]
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:291](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L291)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:296](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L296)
 
 ___
 
@@ -994,7 +1003,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:376](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L376)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:381](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L381)
 
 ___
 
@@ -1014,7 +1023,7 @@ Name | Type | Description |
 
 **Returns:** *Promise*<void\>
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:240](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L240)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:246](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L246)
 
 ___
 
@@ -1028,7 +1037,7 @@ Function leavePlayMode used to disable play mode.
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:727](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L727)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:732](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L732)
 
 ___
 
@@ -1046,7 +1055,7 @@ Name | Type |
 
 **Returns:** *number*
 
-Inherited from: void
+Inherited from: EventEmitter.listenerCount
 
 Defined in: node_modules/eventemitter3/index.d.ts:27
 
@@ -1072,7 +1081,7 @@ Name | Type |
 
 **Returns:** (...`args`: *any*[]) => *void*[]
 
-Inherited from: void
+Inherited from: EventEmitter.listeners
 
 Defined in: node_modules/eventemitter3/index.d.ts:20
 
@@ -1099,7 +1108,7 @@ Name | Type | Default value |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:2520](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L2520)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:2555](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L2555)
 
 ___
 
@@ -1124,7 +1133,7 @@ Name | Type | Default value |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:2550](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L2550)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:2585](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L2585)
 
 ___
 
@@ -1148,7 +1157,7 @@ Name | Type | Default value |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:2583](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L2583)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:2618](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L2618)
 
 ___
 
@@ -1170,7 +1179,7 @@ Name | Type |
 
 [scene to render]
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:403](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L403)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:408](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L408)
 
 ___
 
@@ -1195,7 +1204,7 @@ Name | Type |
 
 **Returns:** [*default*](src_world_components_editor_editor.default.md)
 
-Inherited from: void
+Inherited from: EventEmitter.off
 
 Defined in: node_modules/eventemitter3/index.d.ts:69
 
@@ -1223,7 +1232,7 @@ Name | Type |
 
 **Returns:** [*default*](src_world_components_editor_editor.default.md)
 
-Inherited from: void
+Inherited from: EventEmitter.on
 
 Defined in: node_modules/eventemitter3/index.d.ts:40
 
@@ -1241,7 +1250,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:2648](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L2648)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:2683](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L2683)
 
 ___
 
@@ -1255,7 +1264,7 @@ Function onEmitSceneModified called when scene get modified.
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:365](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L365)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:370](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L370)
 
 ___
 
@@ -1271,7 +1280,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:2664](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L2664)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:2699](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L2699)
 
 ___
 
@@ -1285,7 +1294,7 @@ Function onResize event handler for resize containers.
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:777](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L777)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:782](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L782)
 
 ___
 
@@ -1311,7 +1320,7 @@ Name | Type |
 
 **Returns:** [*default*](src_world_components_editor_editor.default.md)
 
-Inherited from: void
+Inherited from: EventEmitter.once
 
 Defined in: node_modules/eventemitter3/index.d.ts:54
 
@@ -1327,7 +1336,7 @@ Function redo used to redo changes on the basis of history of component.
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:807](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L807)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:812](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L812)
 
 ___
 
@@ -1348,7 +1357,7 @@ Name | Type | Description |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:205](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L205)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:211](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L211)
 
 ___
 
@@ -1368,7 +1377,7 @@ Name | Type | Description |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:226](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L226)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:232](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L232)
 
 ___
 
@@ -1386,7 +1395,7 @@ Name | Type |
 
 **Returns:** [*default*](src_world_components_editor_editor.default.md)
 
-Inherited from: void
+Inherited from: EventEmitter.removeAllListeners
 
 Defined in: node_modules/eventemitter3/index.d.ts:79
 
@@ -1415,7 +1424,7 @@ Name | Type |
 
 **Returns:** [*default*](src_world_components_editor_editor.default.md)
 
-Inherited from: void
+Inherited from: EventEmitter.removeListener
 
 Defined in: node_modules/eventemitter3/index.d.ts:63
 
@@ -1440,7 +1449,7 @@ Name | Type | Default value |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:1312](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L1312)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:1317](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L1317)
 
 ___
 
@@ -1465,7 +1474,7 @@ Name | Type | Default value |
 
 [description]
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:1269](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L1269)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:1274](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L1274)
 
 ___
 
@@ -1487,7 +1496,7 @@ Name | Type | Default value |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:1343](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L1343)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:1348](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L1348)
 
 ___
 
@@ -1512,7 +1521,7 @@ Name | Type | Default value |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:1481](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L1481)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:1486](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L1486)
 
 ___
 
@@ -1539,7 +1548,7 @@ Name | Type | Default value |
 
 [selected objects]
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:1555](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L1555)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:1560](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L1560)
 
 ___
 
@@ -1563,7 +1572,7 @@ Name | Type | Default value |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:1595](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L1595)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:1600](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L1600)
 
 ___
 
@@ -1584,7 +1593,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:652](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L652)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:657](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L657)
 
 ___
 
@@ -1604,7 +1613,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:789](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L789)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:794](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L794)
 
 ___
 
@@ -1627,7 +1636,7 @@ Name | Type | Default value |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:2101](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L2101)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:2106](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L2106)
 
 ___
 
@@ -1652,7 +1661,7 @@ Name | Type | Default value |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:2144](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L2144)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:2149](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L2149)
 
 ___
 
@@ -1676,7 +1685,7 @@ Name | Type | Default value |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:2171](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L2171)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:2176](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L2176)
 
 ___
 
@@ -1701,7 +1710,7 @@ Name | Type | Default value |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:1995](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L1995)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:2000](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L2000)
 
 ___
 
@@ -1726,7 +1735,7 @@ Name | Type | Default value |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:2050](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L2050)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:2055](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L2055)
 
 ___
 
@@ -1750,7 +1759,7 @@ Name | Type | Default value |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:2087](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L2087)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:2092](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L2092)
 
 ___
 
@@ -1776,7 +1785,7 @@ Name | Type | Default value |
 
 [selected object]
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:2186](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L2186)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:2191](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L2191)
 
 ___
 
@@ -1802,7 +1811,7 @@ Name | Type | Default value |
 
 [selected objects]
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:2219](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L2219)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:2224](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L2224)
 
 ___
 
@@ -1825,7 +1834,7 @@ Name | Type | Default value |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:2245](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L2245)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:2250](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L2250)
 
 ___
 
@@ -1850,7 +1859,7 @@ Name | Type | Default value |
 
 [data of selected object]
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:821](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L821)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:826](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L826)
 
 ___
 
@@ -1874,7 +1883,7 @@ Name | Type | Default value |
 
 [selected objects]
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:907](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L907)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:912](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L912)
 
 ___
 
@@ -1899,7 +1908,7 @@ Name | Type | Default value |
 
 [data of selected objects]
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:861](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L861)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:866](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L866)
 
 ___
 
@@ -1915,7 +1924,27 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:2767](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L2767)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:2802](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L2802)
+
+___
+
+### setObjectProperty
+
+▸ **setObjectProperty**(`propertyName`: *any*, `value`: *any*, `useHistory?`: *boolean*): *any*
+
+[setObjectProperty used to set propery to selected object]
+
+#### Parameters:
+
+Name | Type | Default value |
+:------ | :------ | :------ |
+`propertyName` | *any* | - |
+`value` | *any* | - |
+`useHistory` | *boolean* | true |
+
+**Returns:** *any*
+
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:2409](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L2409)
 
 ___
 
@@ -1939,7 +1968,7 @@ Name | Type | Default value |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:1681](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L1681)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:1686](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L1686)
 
 ___
 
@@ -1963,7 +1992,7 @@ Name | Type | Default value |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:1735](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L1735)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:1740](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L1740)
 
 ___
 
@@ -1986,7 +2015,7 @@ Name | Type | Default value |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:1770](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L1770)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:1775](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L1775)
 
 ___
 
@@ -2009,7 +2038,7 @@ Name | Type | Default value |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:2445](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L2445)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:2480](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L2480)
 
 ___
 
@@ -2032,7 +2061,7 @@ Name | Type | Default value |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:2480](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L2480)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:2515](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L2515)
 
 ___
 
@@ -2054,7 +2083,7 @@ Name | Type | Default value |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:2504](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L2504)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:2539](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L2539)
 
 ___
 
@@ -2079,7 +2108,7 @@ Name | Type | Default value |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:2376](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L2376)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:2381](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L2381)
 
 ___
 
@@ -2103,7 +2132,7 @@ Name | Type | Default value |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:2408](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L2408)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:2443](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L2443)
 
 ___
 
@@ -2126,7 +2155,7 @@ Name | Type | Default value |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:2432](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L2432)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:2467](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L2467)
 
 ___
 
@@ -2150,7 +2179,7 @@ Name | Type | Default value |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:1890](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L1890)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:1895](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L1895)
 
 ___
 
@@ -2174,7 +2203,7 @@ Name | Type | Default value |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:1944](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L1944)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:1949](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L1949)
 
 ___
 
@@ -2197,7 +2226,7 @@ Name | Type | Default value |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:1979](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L1979)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:1984](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L1984)
 
 ___
 
@@ -2221,7 +2250,7 @@ Name | Type | Default value |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:2259](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L2259)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:2264](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L2264)
 
 ___
 
@@ -2245,7 +2274,7 @@ Name | Type | Default value |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:2326](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L2326)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:2331](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L2331)
 
 ___
 
@@ -2268,7 +2297,7 @@ Name | Type | Default value |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:2361](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L2361)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:2366](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L2366)
 
 ___
 
@@ -2291,7 +2320,7 @@ Name | Type | Default value |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:1040](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L1040)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:1045](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L1045)
 
 ___
 
@@ -2311,7 +2340,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:265](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L265)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:270](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L270)
 
 ___
 
@@ -2327,7 +2356,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:2743](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L2743)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:2778](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L2778)
 
 ___
 
@@ -2350,7 +2379,7 @@ Name | Type |
 
 [generated screenshot according to height and width]
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:666](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L666)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:671](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L671)
 
 ___
 
@@ -2360,7 +2389,7 @@ ___
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:2772](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L2772)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:2807](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L2807)
 
 ___
 
@@ -2383,7 +2412,7 @@ Name | Type | Default value |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:1023](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L1023)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:1028](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L1028)
 
 ___
 
@@ -2409,7 +2438,7 @@ Name | Type | Default value |
 
 [object]
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:1785](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L1785)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:1790](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L1790)
 
 ___
 
@@ -2435,7 +2464,7 @@ Name | Type | Default value |
 
 [selected objects]
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:1840](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L1840)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:1845](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L1845)
 
 ___
 
@@ -2460,7 +2489,7 @@ Name | Type | Default value |
 
 [multiple selected objects]
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:1876](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L1876)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:1881](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L1881)
 
 ___
 
@@ -2474,7 +2503,7 @@ Function undo used to undo changes using history of this component.
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:798](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L798)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:803](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L803)
 
 ___
 
@@ -2488,7 +2517,7 @@ Function update used to update components used in editor.
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:744](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L744)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:749](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L749)
 
 ___
 
@@ -2502,4 +2531,4 @@ Function to update transform roots.
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:2644](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/Editor.tsx#L2644)
+Defined in: [packages/client-core/src/world/components/editor/Editor.tsx:2679](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Editor.tsx#L2679)

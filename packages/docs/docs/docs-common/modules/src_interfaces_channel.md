@@ -27,4 +27,4 @@ Name | Type |
 `userId1` | *string* \| *null* |
 `userId2` | *string* \| *null* |
 
-Defined in: [src/interfaces/Channel.ts:3](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/common/src/interfaces/Channel.ts#L3)
+Defined in: [interfaces/Channel.ts:3](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/common/src/interfaces/Channel.ts#L3)

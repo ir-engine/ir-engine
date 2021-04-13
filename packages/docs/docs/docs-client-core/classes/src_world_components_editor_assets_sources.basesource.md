@@ -40,9 +40,9 @@ BaseSource Parent class for all source classes.
 
 **Returns:** [*BaseSource*](src_world_components_editor_assets_sources.basesource.md)
 
-Overrides: void
+Overrides: EventEmitter.constructor
 
-Defined in: [packages/client-core/src/world/components/editor/assets/sources/index.tsx:15](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/assets/sources/index.tsx#L15)
+Defined in: [packages/client-core/src/world/components/editor/assets/sources/index.tsx:15](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/assets/sources/index.tsx#L15)
 
 ## Properties
 
@@ -50,7 +50,7 @@ Defined in: [packages/client-core/src/world/components/editor/assets/sources/ind
 
 • **assetPanelComponent**: *any*
 
-Defined in: [packages/client-core/src/world/components/editor/assets/sources/index.tsx:12](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/assets/sources/index.tsx#L12)
+Defined in: [packages/client-core/src/world/components/editor/assets/sources/index.tsx:12](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/assets/sources/index.tsx#L12)
 
 ___
 
@@ -58,7 +58,7 @@ ___
 
 • **iconComponent**: *any*
 
-Defined in: [packages/client-core/src/world/components/editor/assets/sources/index.tsx:11](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/assets/sources/index.tsx#L11)
+Defined in: [packages/client-core/src/world/components/editor/assets/sources/index.tsx:11](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/assets/sources/index.tsx#L11)
 
 ___
 
@@ -66,7 +66,7 @@ ___
 
 • **id**: *string*
 
-Defined in: [packages/client-core/src/world/components/editor/assets/sources/index.tsx:9](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/assets/sources/index.tsx#L9)
+Defined in: [packages/client-core/src/world/components/editor/assets/sources/index.tsx:9](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/assets/sources/index.tsx#L9)
 
 ___
 
@@ -74,7 +74,7 @@ ___
 
 • **name**: *string*
 
-Defined in: [packages/client-core/src/world/components/editor/assets/sources/index.tsx:10](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/assets/sources/index.tsx#L10)
+Defined in: [packages/client-core/src/world/components/editor/assets/sources/index.tsx:10](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/assets/sources/index.tsx#L10)
 
 ___
 
@@ -82,7 +82,7 @@ ___
 
 • **requiresAuthentication**: *boolean*
 
-Defined in: [packages/client-core/src/world/components/editor/assets/sources/index.tsx:13](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/assets/sources/index.tsx#L13)
+Defined in: [packages/client-core/src/world/components/editor/assets/sources/index.tsx:13](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/assets/sources/index.tsx#L13)
 
 ___
 
@@ -90,7 +90,7 @@ ___
 
 • **searchDebounceTimeout**: *number*
 
-Defined in: [packages/client-core/src/world/components/editor/assets/sources/index.tsx:15](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/assets/sources/index.tsx#L15)
+Defined in: [packages/client-core/src/world/components/editor/assets/sources/index.tsx:15](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/assets/sources/index.tsx#L15)
 
 ___
 
@@ -98,7 +98,7 @@ ___
 
 • **uploadSource**: *boolean*
 
-Defined in: [packages/client-core/src/world/components/editor/assets/sources/index.tsx:14](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/assets/sources/index.tsx#L14)
+Defined in: [packages/client-core/src/world/components/editor/assets/sources/index.tsx:14](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/assets/sources/index.tsx#L14)
 
 ___
 
@@ -106,7 +106,7 @@ ___
 
 ▪ `Static` **prefixed**: *string* \| *boolean*
 
-Inherited from: void
+Inherited from: EventEmitter.prefixed
 
 Defined in: node_modules/eventemitter3/index.d.ts:9
 
@@ -132,7 +132,7 @@ Name | Type |
 
 **Returns:** [*BaseSource*](src_world_components_editor_assets_sources.basesource.md)
 
-Inherited from: void
+Inherited from: EventEmitter.addListener
 
 Defined in: node_modules/eventemitter3/index.d.ts:45
 
@@ -159,7 +159,7 @@ Name | Type |
 
 **Returns:** *boolean*
 
-Inherited from: void
+Inherited from: EventEmitter.emit
 
 Defined in: node_modules/eventemitter3/index.d.ts:32
 
@@ -174,7 +174,7 @@ listeners.
 
 **Returns:** (*string* \| *symbol*)[]
 
-Inherited from: void
+Inherited from: EventEmitter.eventNames
 
 Defined in: node_modules/eventemitter3/index.d.ts:15
 
@@ -194,7 +194,7 @@ Name | Type |
 
 **Returns:** *number*
 
-Inherited from: void
+Inherited from: EventEmitter.listenerCount
 
 Defined in: node_modules/eventemitter3/index.d.ts:27
 
@@ -220,7 +220,7 @@ Name | Type |
 
 **Returns:** (...`args`: *any*[]) => *void*[]
 
-Inherited from: void
+Inherited from: EventEmitter.listeners
 
 Defined in: node_modules/eventemitter3/index.d.ts:20
 
@@ -247,7 +247,7 @@ Name | Type |
 
 **Returns:** [*BaseSource*](src_world_components_editor_assets_sources.basesource.md)
 
-Inherited from: void
+Inherited from: EventEmitter.off
 
 Defined in: node_modules/eventemitter3/index.d.ts:69
 
@@ -275,7 +275,7 @@ Name | Type |
 
 **Returns:** [*BaseSource*](src_world_components_editor_assets_sources.basesource.md)
 
-Inherited from: void
+Inherited from: EventEmitter.on
 
 Defined in: node_modules/eventemitter3/index.d.ts:40
 
@@ -303,7 +303,7 @@ Name | Type |
 
 **Returns:** [*BaseSource*](src_world_components_editor_assets_sources.basesource.md)
 
-Inherited from: void
+Inherited from: EventEmitter.once
 
 Defined in: node_modules/eventemitter3/index.d.ts:54
 
@@ -323,7 +323,7 @@ Name | Type |
 
 **Returns:** [*BaseSource*](src_world_components_editor_assets_sources.basesource.md)
 
-Inherited from: void
+Inherited from: EventEmitter.removeAllListeners
 
 Defined in: node_modules/eventemitter3/index.d.ts:79
 
@@ -352,7 +352,7 @@ Name | Type |
 
 **Returns:** [*BaseSource*](src_world_components_editor_assets_sources.basesource.md)
 
-Inherited from: void
+Inherited from: EventEmitter.removeListener
 
 Defined in: node_modules/eventemitter3/index.d.ts:63
 
@@ -360,7 +360,7 @@ ___
 
 ### search
 
-▸ **search**(`_params`: *any*, `_cursor?`: *any*, `_abortSignal?`: *any*): *Promise*<{ `hasMore`: *boolean* = false; `nextCursor`: *number* = 0; `results`: *any*[] ; `suggestions`: *any*[]  }\>
+▸ **search**(`_params`: *any*, `_cursor?`: *any*, `_abortSignal?`: *any*): *Promise*<{ `hasMore`: *boolean* = false; `nextCursor`: *number* = 0; `results`: *any*[] = []; `suggestions`: *any*[] = [] }\>
 
 #### Parameters:
 
@@ -370,6 +370,6 @@ Name | Type |
 `_cursor?` | *any* |
 `_abortSignal?` | *any* |
 
-**Returns:** *Promise*<{ `hasMore`: *boolean* = false; `nextCursor`: *number* = 0; `results`: *any*[] ; `suggestions`: *any*[]  }\>
+**Returns:** *Promise*<{ `hasMore`: *boolean* = false; `nextCursor`: *number* = 0; `results`: *any*[] = []; `suggestions`: *any*[] = [] }\>
 
-Defined in: [packages/client-core/src/world/components/editor/assets/sources/index.tsx:26](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/assets/sources/index.tsx#L26)
+Defined in: [packages/client-core/src/world/components/editor/assets/sources/index.tsx:26](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/assets/sources/index.tsx#L26)

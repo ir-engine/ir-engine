@@ -29,4 +29,4 @@ Name | Type | Default value |
 
 **Returns:** *string*
 
-Defined in: [packages/server-core/src/util/generate-short-id.ts:1](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/util/generate-short-id.ts#L1)
+Defined in: [packages/server-core/src/util/generate-short-id.ts:1](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/util/generate-short-id.ts#L1)

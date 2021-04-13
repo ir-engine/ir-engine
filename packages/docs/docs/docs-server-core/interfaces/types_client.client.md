@@ -16,7 +16,7 @@ hide_title: true
 
 • **consumerLayers**: *any*
 
-Defined in: [packages/server-core/src/types/Client.ts:7](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/types/Client.ts#L7)
+Defined in: [packages/server-core/src/types/Client.ts:7](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/types/Client.ts#L7)
 
 ___
 
@@ -24,7 +24,7 @@ ___
 
 • **joinTs**: *number*
 
-Defined in: [packages/server-core/src/types/Client.ts:5](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/types/Client.ts#L5)
+Defined in: [packages/server-core/src/types/Client.ts:5](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/types/Client.ts#L5)
 
 ___
 
@@ -32,7 +32,7 @@ ___
 
 • **lastSeenTs**: *number*
 
-Defined in: [packages/server-core/src/types/Client.ts:4](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/types/Client.ts#L4)
+Defined in: [packages/server-core/src/types/Client.ts:4](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/types/Client.ts#L4)
 
 ___
 
@@ -40,7 +40,7 @@ ___
 
 • **media**: *any*
 
-Defined in: [packages/server-core/src/types/Client.ts:6](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/types/Client.ts#L6)
+Defined in: [packages/server-core/src/types/Client.ts:6](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/types/Client.ts#L6)
 
 ___
 
@@ -48,7 +48,7 @@ ___
 
 • **socket**: *Socket*
 
-Defined in: [packages/server-core/src/types/Client.ts:3](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/types/Client.ts#L3)
+Defined in: [packages/server-core/src/types/Client.ts:3](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/types/Client.ts#L3)
 
 ___
 
@@ -56,4 +56,4 @@ ___
 
 • **stats**: *any*
 
-Defined in: [packages/server-core/src/types/Client.ts:8](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/types/Client.ts#L8)
+Defined in: [packages/server-core/src/types/Client.ts:8](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/types/Client.ts#L8)

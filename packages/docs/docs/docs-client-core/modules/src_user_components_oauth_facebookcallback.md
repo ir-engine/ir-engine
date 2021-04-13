@@ -14,4 +14,4 @@ hide_title: true
 
 • `Const` **FacebookCallback**: *ConnectedComponent*<(`props`: *any*) => *any*, Omit<any, string \| number \| symbol\>\>
 
-Defined in: [packages/client-core/src/user/components/Oauth/FacebookCallback.tsx:67](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/user/components/Oauth/FacebookCallback.tsx#L67)
+Defined in: [packages/client-core/src/user/components/Oauth/FacebookCallback.tsx:67](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/user/components/Oauth/FacebookCallback.tsx#L67)

@@ -12,18 +12,12 @@ hide_title: true
 
 ### default
 
-• **default**: (`options`: {}) => (`context`: *HookContext*<any, Service<any\>\>) => *Promise*<HookContext<any, Service<any\>\>\>
+• **default**: () => (`context`: *HookContext*<any, Service<any\>\>) => *Promise*<HookContext<any, Service<any\>\>\>
 
 #### Type declaration:
 
-▸ (`options?`: {}): *function*
-
-#### Parameters:
-
-Name | Type |
-:------ | :------ |
-`options` | *object* |
+▸ (): *function*
 
 **Returns:** (`context`: *HookContext*<any, Service<any\>\>) => *Promise*<HookContext<any, Service<any\>\>\>
 
-Defined in: [packages/server-core/src/hooks/create-owned-file.ts:4](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/hooks/create-owned-file.ts#L4)
+Defined in: [packages/server-core/src/hooks/create-owned-file.ts:4](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/hooks/create-owned-file.ts#L4)

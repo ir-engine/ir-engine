@@ -34,7 +34,7 @@ hide_title: true
 
 **Returns:** [*default*](user_strategies_custom_oauth.default.md)
 
-Inherited from: void
+Inherited from: OAuthStrategy.constructor
 
 ## Properties
 
@@ -42,7 +42,7 @@ Inherited from: void
 
 • `Optional` **app**: *Application*<{}\>
 
-Inherited from: void
+Inherited from: OAuthStrategy.app
 
 Defined in: node_modules/@feathersjs/authentication/lib/strategy.d.ts:5
 
@@ -52,7 +52,7 @@ ___
 
 • `Optional` **authentication**: *AuthenticationBase*
 
-Inherited from: void
+Inherited from: OAuthStrategy.authentication
 
 Defined in: node_modules/@feathersjs/authentication/lib/strategy.d.ts:4
 
@@ -62,7 +62,7 @@ ___
 
 • `Optional` **name**: *string*
 
-Inherited from: void
+Inherited from: OAuthStrategy.name
 
 Defined in: node_modules/@feathersjs/authentication/lib/strategy.d.ts:6
 
@@ -111,7 +111,7 @@ Name | Type |
 
 **Returns:** *Promise*<{ [x: string]: *any*; `authentication`: { `strategy`: *string*  }  }\>
 
-Inherited from: void
+Inherited from: OAuthStrategy.authenticate
 
 Defined in: node_modules/@feathersjs/authentication-oauth/lib/strategy.d.ts:23
 
@@ -130,7 +130,7 @@ Name | Type |
 
 **Returns:** *Promise*<any\>
 
-Inherited from: void
+Inherited from: OAuthStrategy.createEntity
 
 Defined in: node_modules/@feathersjs/authentication-oauth/lib/strategy.d.ts:20
 
@@ -149,7 +149,7 @@ Name | Type |
 
 **Returns:** *Promise*<any\>
 
-Inherited from: void
+Inherited from: OAuthStrategy.findEntity
 
 Defined in: node_modules/@feathersjs/authentication-oauth/lib/strategy.d.ts:19
 
@@ -167,7 +167,7 @@ Name | Type |
 
 **Returns:** *Promise*<any\>
 
-Inherited from: void
+Inherited from: OAuthStrategy.getCurrentEntity
 
 Defined in: node_modules/@feathersjs/authentication-oauth/lib/strategy.d.ts:17
 
@@ -186,7 +186,7 @@ Name | Type |
 
 **Returns:** *Promise*<any\>
 
-Inherited from: void
+Inherited from: OAuthStrategy.getEntity
 
 Defined in: node_modules/@feathersjs/authentication-oauth/lib/strategy.d.ts:22
 
@@ -206,9 +206,9 @@ Name | Type |
 
 **Returns:** *Promise*<any\>
 
-Overrides: void
+Overrides: OAuthStrategy.getEntityData
 
-Defined in: [packages/server-core/src/user/strategies/custom-oauth.ts:12](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/user/strategies/custom-oauth.ts#L12)
+Defined in: [packages/server-core/src/user/strategies/custom-oauth.ts:12](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/user/strategies/custom-oauth.ts#L12)
 
 ___
 
@@ -225,9 +225,9 @@ Name | Type |
 
 **Returns:** *Promise*<any\>
 
-Overrides: void
+Overrides: OAuthStrategy.getEntityQuery
 
-Defined in: [packages/server-core/src/user/strategies/custom-oauth.ts:6](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/user/strategies/custom-oauth.ts#L6)
+Defined in: [packages/server-core/src/user/strategies/custom-oauth.ts:6](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/user/strategies/custom-oauth.ts#L6)
 
 ___
 
@@ -244,7 +244,7 @@ Name | Type |
 
 **Returns:** *Promise*<any\>
 
-Inherited from: void
+Inherited from: OAuthStrategy.getProfile
 
 Defined in: node_modules/@feathersjs/authentication-oauth/lib/strategy.d.ts:16
 
@@ -263,7 +263,7 @@ Name | Type |
 
 **Returns:** *Promise*<string\>
 
-Inherited from: void
+Inherited from: OAuthStrategy.getRedirect
 
 Defined in: node_modules/@feathersjs/authentication-oauth/lib/strategy.d.ts:18
 
@@ -281,7 +281,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Inherited from: void
+Inherited from: OAuthStrategy.setApplication
 
 Defined in: node_modules/@feathersjs/authentication/lib/strategy.d.ts:8
 
@@ -299,7 +299,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Inherited from: void
+Inherited from: OAuthStrategy.setAuthentication
 
 Defined in: node_modules/@feathersjs/authentication/lib/strategy.d.ts:7
 
@@ -317,7 +317,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Inherited from: void
+Inherited from: OAuthStrategy.setName
 
 Defined in: node_modules/@feathersjs/authentication/lib/strategy.d.ts:9
 
@@ -337,6 +337,6 @@ Name | Type |
 
 **Returns:** *Promise*<any[]\>
 
-Inherited from: void
+Inherited from: OAuthStrategy.updateEntity
 
 Defined in: node_modules/@feathersjs/authentication-oauth/lib/strategy.d.ts:21

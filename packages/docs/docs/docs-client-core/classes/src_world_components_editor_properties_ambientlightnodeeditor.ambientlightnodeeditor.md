@@ -35,7 +35,10 @@ Name | Type |
 
 **Returns:** [*AmbientLightNodeEditor*](src_world_components_editor_properties_ambientlightnodeeditor.ambientlightnodeeditor.md)
 
-Inherited from: void
+Inherited from: Component<
+  AmbientLightNodeEditorProps,
+  {}
+>.constructor
 
 Defined in: node_modules/@types/react/index.d.ts:469
 
@@ -54,7 +57,10 @@ Name | Type |
 
 **Returns:** [*AmbientLightNodeEditor*](src_world_components_editor_properties_ambientlightnodeeditor.ambientlightnodeeditor.md)
 
-Inherited from: void
+Inherited from: Component<
+  AmbientLightNodeEditorProps,
+  {}
+>.constructor
 
 Defined in: node_modules/@types/react/index.d.ts:471
 
@@ -78,7 +84,7 @@ declare context: React.ContextType<typeof MyContext>
 
 **`see`** https://reactjs.org/docs/context.html
 
-Inherited from: void
+Inherited from: Component.context
 
 Defined in: node_modules/@types/react/index.d.ts:469
 
@@ -86,9 +92,9 @@ ___
 
 ### props
 
-• `Readonly` **props**: *Readonly*<AmbientLightNodeEditorProps\> & *Readonly*<{ `children?`: *boolean* \| *ReactElement*<any, string \| JSXElementConstructor<any\>\> \| ReactText \| ReactFragment \| *ReactPortal*  }\>
+• `Readonly` **props**: *Readonly*<AmbientLightNodeEditorProps\> & *Readonly*<{ `children?`: ReactNode  }\>
 
-Inherited from: void
+Inherited from: Component.props
 
 Defined in: node_modules/@types/react/index.d.ts:494
 
@@ -103,7 +109,7 @@ https://reactjs.org/docs/refs-and-the-dom.html#legacy-api-string-refs
 
 #### Type declaration:
 
-Inherited from: void
+Inherited from: Component.refs
 
 Defined in: node_modules/@types/react/index.d.ts:500
 
@@ -113,7 +119,7 @@ ___
 
 • **state**: *Readonly*<{}\>
 
-Inherited from: void
+Inherited from: Component.state
 
 Defined in: node_modules/@types/react/index.d.ts:495
 
@@ -121,7 +127,7 @@ ___
 
 ### contextType
 
-▪ `Optional` `Static` **contextType**: *Context*<any\>
+▪ `Static` `Optional` **contextType**: *Context*<any\>
 
 If set, `this.context` will be set at runtime to the current value of the given Context.
 
@@ -142,7 +148,7 @@ class Foo extends React.Component {
 
 **`see`** https://reactjs.org/docs/context.html#classcontexttype
 
-Inherited from: void
+Inherited from: Component.contextType
 
 Defined in: node_modules/@types/react/index.d.ts:451
 
@@ -152,7 +158,7 @@ ___
 
 ▪ `Static` **description**: *string*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/AmbientLightNodeEditor.tsx:29](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/properties/AmbientLightNodeEditor.tsx#L29)
+Defined in: [packages/client-core/src/world/components/editor/properties/AmbientLightNodeEditor.tsx:29](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/properties/AmbientLightNodeEditor.tsx#L29)
 
 ___
 
@@ -160,7 +166,7 @@ ___
 
 ▪ `Static` **iconComponent**: StyledIcon
 
-Defined in: [packages/client-core/src/world/components/editor/properties/AmbientLightNodeEditor.tsx:28](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/properties/AmbientLightNodeEditor.tsx#L28)
+Defined in: [packages/client-core/src/world/components/editor/properties/AmbientLightNodeEditor.tsx:28](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/properties/AmbientLightNodeEditor.tsx#L28)
 
 ## Methods
 
@@ -184,7 +190,7 @@ prevents this from being invoked.
 
 **Returns:** *void*
 
-Inherited from: void
+Inherited from: Component.UNSAFE_componentWillMount
 
 Defined in: node_modules/@types/react/index.d.ts:707
 
@@ -220,7 +226,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Inherited from: void
+Inherited from: Component.UNSAFE_componentWillReceiveProps
 
 Defined in: node_modules/@types/react/index.d.ts:739
 
@@ -255,7 +261,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Inherited from: void
+Inherited from: Component.UNSAFE_componentWillUpdate
 
 Defined in: node_modules/@types/react/index.d.ts:767
 
@@ -277,7 +283,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Inherited from: void
+Inherited from: Component.componentDidCatch
 
 Defined in: node_modules/@types/react/index.d.ts:636
 
@@ -291,7 +297,7 @@ Called immediately after a component is mounted. Setting state here will trigger
 
 **Returns:** *void*
 
-Inherited from: void
+Inherited from: Component.componentDidMount
 
 Defined in: node_modules/@types/react/index.d.ts:615
 
@@ -315,7 +321,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Inherited from: void
+Inherited from: Component.componentDidUpdate
 
 Defined in: node_modules/@types/react/index.d.ts:678
 
@@ -339,7 +345,7 @@ prevents this from being invoked.
 
 **Returns:** *void*
 
-Inherited from: void
+Inherited from: Component.componentWillMount
 
 Defined in: node_modules/@types/react/index.d.ts:693
 
@@ -373,7 +379,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Inherited from: void
+Inherited from: Component.componentWillReceiveProps
 
 Defined in: node_modules/@types/react/index.d.ts:722
 
@@ -388,7 +394,7 @@ cancelled network requests, or cleaning up any DOM elements created in `componen
 
 **Returns:** *void*
 
-Inherited from: void
+Inherited from: Component.componentWillUnmount
 
 Defined in: node_modules/@types/react/index.d.ts:631
 
@@ -421,7 +427,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Inherited from: void
+Inherited from: Component.componentWillUpdate
 
 Defined in: node_modules/@types/react/index.d.ts:752
 
@@ -439,7 +445,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Inherited from: void
+Inherited from: Component.forceUpdate
 
 Defined in: node_modules/@types/react/index.d.ts:486
 
@@ -465,7 +471,7 @@ Name | Type |
 
 **Returns:** *any*
 
-Inherited from: void
+Inherited from: Component.getSnapshotBeforeUpdate
 
 Defined in: node_modules/@types/react/index.d.ts:672
 
@@ -483,7 +489,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/AmbientLightNodeEditor.tsx:32](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/properties/AmbientLightNodeEditor.tsx#L32)
+Defined in: [packages/client-core/src/world/components/editor/properties/AmbientLightNodeEditor.tsx:32](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/properties/AmbientLightNodeEditor.tsx#L32)
 
 ___
 
@@ -499,7 +505,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/AmbientLightNodeEditor.tsx:36](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/properties/AmbientLightNodeEditor.tsx#L36)
+Defined in: [packages/client-core/src/world/components/editor/properties/AmbientLightNodeEditor.tsx:36](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/properties/AmbientLightNodeEditor.tsx#L36)
 
 ___
 
@@ -513,9 +519,9 @@ Rendering ambient light view to customize ambient light element.
 
 **Returns:** *Element*
 
-Overrides: void
+Overrides: Component.render
 
-Defined in: [packages/client-core/src/world/components/editor/properties/AmbientLightNodeEditor.tsx:45](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/world/components/editor/properties/AmbientLightNodeEditor.tsx#L45)
+Defined in: [packages/client-core/src/world/components/editor/properties/AmbientLightNodeEditor.tsx:45](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/properties/AmbientLightNodeEditor.tsx#L45)
 
 ___
 
@@ -538,7 +544,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Inherited from: void
+Inherited from: Component.setState
 
 Defined in: node_modules/@types/react/index.d.ts:481
 
@@ -567,6 +573,6 @@ Name | Type |
 
 **Returns:** *boolean*
 
-Inherited from: void
+Inherited from: Component.shouldComponentUpdate
 
 Defined in: node_modules/@types/react/index.d.ts:626

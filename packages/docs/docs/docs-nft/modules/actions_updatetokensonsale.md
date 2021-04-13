@@ -22,4 +22,4 @@ Name | Type |
 
 **Returns:** *Promise*<void\>
 
-Defined in: [packages/nft/src/actions/updateTokensOnSale.ts:9](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/nft/src/actions/updateTokensOnSale.ts#L9)
+Defined in: [packages/nft/src/actions/updateTokensOnSale.ts:9](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/nft/src/actions/updateTokensOnSale.ts#L9)

@@ -14,7 +14,7 @@ hide_title: true
 
 • `Const` **selectAppIsTutorial**: *OutputSelector*<any, any, (`res`: *any*) => *any*\>
 
-Defined in: [packages/client-core/src/common/reducers/app/selector.ts:16](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/common/reducers/app/selector.ts#L16)
+Defined in: [packages/client-core/src/common/reducers/app/selector.ts:16](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/common/reducers/app/selector.ts#L16)
 
 ___
 
@@ -22,7 +22,7 @@ ___
 
 • `Const` **selectAppLoadPercent**: *OutputSelector*<any, any, (`res`: *any*) => *any*\>
 
-Defined in: [packages/client-core/src/common/reducers/app/selector.ts:7](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/common/reducers/app/selector.ts#L7)
+Defined in: [packages/client-core/src/common/reducers/app/selector.ts:7](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/common/reducers/app/selector.ts#L7)
 
 ___
 
@@ -30,7 +30,7 @@ ___
 
 • `Const` **selectAppOnBoardingStep**: *OutputSelector*<any, any, (`res`: *any*) => *any*\>
 
-Defined in: [packages/client-core/src/common/reducers/app/selector.ts:13](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/common/reducers/app/selector.ts#L13)
+Defined in: [packages/client-core/src/common/reducers/app/selector.ts:13](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/common/reducers/app/selector.ts#L13)
 
 ___
 
@@ -38,7 +38,7 @@ ___
 
 • `Const` **selectAppState**: *OutputSelector*<any, any, (`res`: *any*) => *any*\>
 
-Defined in: [packages/client-core/src/common/reducers/app/selector.ts:4](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/common/reducers/app/selector.ts#L4)
+Defined in: [packages/client-core/src/common/reducers/app/selector.ts:4](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/common/reducers/app/selector.ts#L4)
 
 ___
 
@@ -46,4 +46,4 @@ ___
 
 • `Const` **selectInVrModeState**: *OutputSelector*<any, any, (`res`: *any*) => *any*\>
 
-Defined in: [packages/client-core/src/common/reducers/app/selector.ts:10](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/common/reducers/app/selector.ts#L10)
+Defined in: [packages/client-core/src/common/reducers/app/selector.ts:10](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/common/reducers/app/selector.ts#L10)

@@ -23,4 +23,4 @@ Name | Type |
 `skip` | *number* |
 `total` | *number* |
 
-Defined in: [src/interfaces/GroupResult.ts:3](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/common/src/interfaces/GroupResult.ts#L3)
+Defined in: [interfaces/GroupResult.ts:3](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/common/src/interfaces/GroupResult.ts#L3)

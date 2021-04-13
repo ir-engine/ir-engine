@@ -45,5 +45,5 @@ Name | Type |
 `definitions.subscription_list.type` | *string* |
 `operations` | *object* |
 `operations.find` | *object* |
-`operations.find.security` | { `bearer`: *any*[]  }[] |
+`operations.find.security` | { `bearer`: *any*[] = [] }[] |
 `securities` | *string*[] |

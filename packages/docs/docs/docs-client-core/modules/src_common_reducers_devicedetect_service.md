@@ -22,4 +22,4 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *any*
 
-Defined in: [packages/client-core/src/common/reducers/devicedetect/service.tsx:4](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/client-core/src/common/reducers/devicedetect/service.tsx#L4)
+Defined in: [packages/client-core/src/common/reducers/devicedetect/service.tsx:4](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/common/reducers/devicedetect/service.tsx#L4)

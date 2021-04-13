@@ -26,14 +26,14 @@ A class for Resolve Media service
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`options` | ServiceOptions |
-`app` | Application |
+Name | Type | Default value |
+:------ | :------ | :------ |
+`options` | ServiceOptions | {} |
+`app` | Application | - |
 
 **Returns:** [*ResolveMedia*](world_resolve_media_resolve_media_class.resolvemedia.md)
 
-Defined in: [packages/server-core/src/world/resolve-media/resolve-media.class.ts:22](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/world/resolve-media/resolve-media.class.ts#L22)
+Defined in: [packages/server-core/src/world/resolve-media/resolve-media.class.ts:22](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/world/resolve-media/resolve-media.class.ts#L22)
 
 ## Properties
 
@@ -41,7 +41,7 @@ Defined in: [packages/server-core/src/world/resolve-media/resolve-media.class.ts
 
 • **app**: Application
 
-Defined in: [packages/server-core/src/world/resolve-media/resolve-media.class.ts:18](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/world/resolve-media/resolve-media.class.ts#L18)
+Defined in: [packages/server-core/src/world/resolve-media/resolve-media.class.ts:18](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/world/resolve-media/resolve-media.class.ts#L18)
 
 ___
 
@@ -49,7 +49,7 @@ ___
 
 • **docs**: *any*
 
-Defined in: [packages/server-core/src/world/resolve-media/resolve-media.class.ts:22](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/world/resolve-media/resolve-media.class.ts#L22)
+Defined in: [packages/server-core/src/world/resolve-media/resolve-media.class.ts:22](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/world/resolve-media/resolve-media.class.ts#L22)
 
 ___
 
@@ -57,7 +57,7 @@ ___
 
 • **models**: *any*
 
-Defined in: [packages/server-core/src/world/resolve-media/resolve-media.class.ts:20](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/world/resolve-media/resolve-media.class.ts#L20)
+Defined in: [packages/server-core/src/world/resolve-media/resolve-media.class.ts:20](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/world/resolve-media/resolve-media.class.ts#L20)
 
 ___
 
@@ -65,7 +65,7 @@ ___
 
 • **options**: ServiceOptions
 
-Defined in: [packages/server-core/src/world/resolve-media/resolve-media.class.ts:19](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/world/resolve-media/resolve-media.class.ts#L19)
+Defined in: [packages/server-core/src/world/resolve-media/resolve-media.class.ts:19](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/world/resolve-media/resolve-media.class.ts#L19)
 
 ___
 
@@ -73,7 +73,7 @@ ___
 
 • **storage**: *any*
 
-Defined in: [packages/server-core/src/world/resolve-media/resolve-media.class.ts:21](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/world/resolve-media/resolve-media.class.ts#L21)
+Defined in: [packages/server-core/src/world/resolve-media/resolve-media.class.ts:21](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/world/resolve-media/resolve-media.class.ts#L21)
 
 ## Methods
 
@@ -90,9 +90,9 @@ Name | Type |
 
 **Returns:** *Promise*<Data\>
 
-Implementation of: void
+Implementation of: ServiceMethods.create
 
-Defined in: [packages/server-core/src/world/resolve-media/resolve-media.class.ts:41](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/world/resolve-media/resolve-media.class.ts#L41)
+Defined in: [packages/server-core/src/world/resolve-media/resolve-media.class.ts:41](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/world/resolve-media/resolve-media.class.ts#L41)
 
 ___
 
@@ -108,9 +108,9 @@ Name | Type |
 
 **Returns:** *Promise*<Data[] \| Paginated<Data\>\>
 
-Implementation of: void
+Implementation of: ServiceMethods.find
 
-Defined in: [packages/server-core/src/world/resolve-media/resolve-media.class.ts:31](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/world/resolve-media/resolve-media.class.ts#L31)
+Defined in: [packages/server-core/src/world/resolve-media/resolve-media.class.ts:31](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/world/resolve-media/resolve-media.class.ts#L31)
 
 ___
 
@@ -127,29 +127,29 @@ Name | Type |
 
 **Returns:** *Promise*<Data\>
 
-Implementation of: void
+Implementation of: ServiceMethods.get
 
-Defined in: [packages/server-core/src/world/resolve-media/resolve-media.class.ts:35](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/world/resolve-media/resolve-media.class.ts#L35)
+Defined in: [packages/server-core/src/world/resolve-media/resolve-media.class.ts:35](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/world/resolve-media/resolve-media.class.ts#L35)
 
 ___
 
 ### patch
 
-▸ **patch**(`id`: Id, `data`: Data, `params?`: Params): *Promise*<Data\>
+▸ **patch**(`id`: NullableId, `data`: Data, `params?`: Params): *Promise*<Data\>
 
 #### Parameters:
 
 Name | Type |
 :------ | :------ |
-`id` | Id |
+`id` | NullableId |
 `data` | Data |
 `params?` | Params |
 
 **Returns:** *Promise*<Data\>
 
-Implementation of: void
+Implementation of: ServiceMethods.patch
 
-Defined in: [packages/server-core/src/world/resolve-media/resolve-media.class.ts:90](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/world/resolve-media/resolve-media.class.ts#L90)
+Defined in: [packages/server-core/src/world/resolve-media/resolve-media.class.ts:73](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/world/resolve-media/resolve-media.class.ts#L73)
 
 ___
 
@@ -165,43 +165,43 @@ Name | Type |
 
 **Returns:** *any*
 
-Defined in: [packages/server-core/src/world/resolve-media/resolve-media.class.ts:98](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/world/resolve-media/resolve-media.class.ts#L98)
+Defined in: [packages/server-core/src/world/resolve-media/resolve-media.class.ts:81](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/world/resolve-media/resolve-media.class.ts#L81)
 
 ___
 
 ### remove
 
-▸ **remove**(`id`: Id, `params?`: Params): *Promise*<Data\>
+▸ **remove**(`id`: NullableId, `params?`: Params): *Promise*<Data\>
 
 #### Parameters:
 
 Name | Type |
 :------ | :------ |
-`id` | Id |
+`id` | NullableId |
 `params?` | Params |
 
 **Returns:** *Promise*<Data\>
 
-Implementation of: void
+Implementation of: ServiceMethods.remove
 
-Defined in: [packages/server-core/src/world/resolve-media/resolve-media.class.ts:94](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/world/resolve-media/resolve-media.class.ts#L94)
+Defined in: [packages/server-core/src/world/resolve-media/resolve-media.class.ts:77](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/world/resolve-media/resolve-media.class.ts#L77)
 
 ___
 
 ### update
 
-▸ **update**(`id`: Id, `data`: Data, `params?`: Params): *Promise*<Data\>
+▸ **update**(`id`: NullableId, `data`: Data, `params?`: Params): *Promise*<Data\>
 
 #### Parameters:
 
 Name | Type |
 :------ | :------ |
-`id` | Id |
+`id` | NullableId |
 `data` | Data |
 `params?` | Params |
 
 **Returns:** *Promise*<Data\>
 
-Implementation of: void
+Implementation of: ServiceMethods.update
 
-Defined in: [packages/server-core/src/world/resolve-media/resolve-media.class.ts:86](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/world/resolve-media/resolve-media.class.ts#L86)
+Defined in: [packages/server-core/src/world/resolve-media/resolve-media.class.ts:69](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/world/resolve-media/resolve-media.class.ts#L69)

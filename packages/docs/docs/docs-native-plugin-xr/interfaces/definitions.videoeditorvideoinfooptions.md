@@ -18,4 +18,4 @@ hide_title: true
 
 Path to the video on the device.
 
-Defined in: [packages/native-plugin-xr/src/definitions.ts:169](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/native-plugin-xr/src/definitions.ts#L169)
+Defined in: [packages/native-plugin-xr/src/definitions.ts:169](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/native-plugin-xr/src/definitions.ts#L169)

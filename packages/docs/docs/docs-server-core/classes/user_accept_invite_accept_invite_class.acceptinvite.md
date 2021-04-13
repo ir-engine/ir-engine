@@ -24,14 +24,14 @@ accept invite class for get, create, update and remove user invite
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`options` | ServiceOptions |
-`app` | Application |
+Name | Type | Default value |
+:------ | :------ | :------ |
+`options` | ServiceOptions | {} |
+`app` | Application | - |
 
 **Returns:** [*AcceptInvite*](user_accept_invite_accept_invite_class.acceptinvite.md)
 
-Defined in: [packages/server-core/src/user/accept-invite/accept-invite.class.ts:17](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/user/accept-invite/accept-invite.class.ts#L17)
+Defined in: [packages/server-core/src/user/accept-invite/accept-invite.class.ts:17](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/user/accept-invite/accept-invite.class.ts#L17)
 
 ## Properties
 
@@ -39,7 +39,7 @@ Defined in: [packages/server-core/src/user/accept-invite/accept-invite.class.ts:
 
 • **app**: Application
 
-Defined in: [packages/server-core/src/user/accept-invite/accept-invite.class.ts:15](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/user/accept-invite/accept-invite.class.ts#L15)
+Defined in: [packages/server-core/src/user/accept-invite/accept-invite.class.ts:15](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/user/accept-invite/accept-invite.class.ts#L15)
 
 ___
 
@@ -47,7 +47,7 @@ ___
 
 • **docs**: *any*
 
-Defined in: [packages/server-core/src/user/accept-invite/accept-invite.class.ts:17](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/user/accept-invite/accept-invite.class.ts#L17)
+Defined in: [packages/server-core/src/user/accept-invite/accept-invite.class.ts:17](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/user/accept-invite/accept-invite.class.ts#L17)
 
 ___
 
@@ -55,7 +55,7 @@ ___
 
 • **options**: ServiceOptions
 
-Defined in: [packages/server-core/src/user/accept-invite/accept-invite.class.ts:16](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/user/accept-invite/accept-invite.class.ts#L16)
+Defined in: [packages/server-core/src/user/accept-invite/accept-invite.class.ts:16](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/user/accept-invite/accept-invite.class.ts#L16)
 
 ## Methods
 
@@ -76,9 +76,9 @@ Name | Type | Description |
 
 **Returns:** *Promise*<Data\>
 
-Implementation of: void
+Implementation of: ServiceMethods.create
 
-Defined in: [packages/server-core/src/user/accept-invite/accept-invite.class.ts:284](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/user/accept-invite/accept-invite.class.ts#L284)
+Defined in: [packages/server-core/src/user/accept-invite/accept-invite.class.ts:284](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/user/accept-invite/accept-invite.class.ts#L284)
 
 ___
 
@@ -100,9 +100,9 @@ Name | Type | Description |
 
 {@Array} all listed invite
 
-Implementation of: void
+Implementation of: ServiceMethods.find
 
-Defined in: [packages/server-core/src/user/accept-invite/accept-invite.class.ts:32](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/user/accept-invite/accept-invite.class.ts#L32)
+Defined in: [packages/server-core/src/user/accept-invite/accept-invite.class.ts:32](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/user/accept-invite/accept-invite.class.ts#L32)
 
 ___
 
@@ -125,15 +125,15 @@ Name | Type | Description |
 
 {@Object} contains single invite
 
-Implementation of: void
+Implementation of: ServiceMethods.get
 
-Defined in: [packages/server-core/src/user/accept-invite/accept-invite.class.ts:45](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/user/accept-invite/accept-invite.class.ts#L45)
+Defined in: [packages/server-core/src/user/accept-invite/accept-invite.class.ts:45](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/user/accept-invite/accept-invite.class.ts#L45)
 
 ___
 
 ### patch
 
-▸ **patch**(`id`: Id, `data`: Data, `params?`: Params): *Promise*<Data\>
+▸ **patch**(`id`: NullableId, `data`: Data, `params?`: Params): *Promise*<Data\>
 
 A function for updating accept invite
 
@@ -143,7 +143,7 @@ A function for updating accept invite
 
 Name | Type | Description |
 :------ | :------ | :------ |
-`id` | Id | of specific accept invite   |
+`id` | NullableId | of specific accept invite   |
 `data` | Data | for updaing accept invite   |
 `params?` | Params |  |
 
@@ -151,15 +151,15 @@ Name | Type | Description |
 
 Data
 
-Implementation of: void
+Implementation of: ServiceMethods.patch
 
-Defined in: [packages/server-core/src/user/accept-invite/accept-invite.class.ts:314](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/user/accept-invite/accept-invite.class.ts#L314)
+Defined in: [packages/server-core/src/user/accept-invite/accept-invite.class.ts:314](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/user/accept-invite/accept-invite.class.ts#L314)
 
 ___
 
 ### remove
 
-▸ **remove**(`id`: Id, `params?`: Params): *Promise*<Data\>
+▸ **remove**(`id`: NullableId, `params?`: Params): *Promise*<Data\>
 
 A function for removing accept invite
 
@@ -169,22 +169,22 @@ A function for removing accept invite
 
 Name | Type | Description |
 :------ | :------ | :------ |
-`id` | Id | of specific accept invite   |
+`id` | NullableId | of specific accept invite   |
 `params?` | Params |  |
 
 **Returns:** *Promise*<Data\>
 
 id
 
-Implementation of: void
+Implementation of: ServiceMethods.remove
 
-Defined in: [packages/server-core/src/user/accept-invite/accept-invite.class.ts:325](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/user/accept-invite/accept-invite.class.ts#L325)
+Defined in: [packages/server-core/src/user/accept-invite/accept-invite.class.ts:325](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/user/accept-invite/accept-invite.class.ts#L325)
 
 ___
 
 ### update
 
-▸ **update**(`id`: Id, `data`: Data, `params?`: Params): *Promise*<Data\>
+▸ **update**(`id`: NullableId, `data`: Data, `params?`: Params): *Promise*<Data\>
 
 A function to update accept invite
 
@@ -194,7 +194,7 @@ A function to update accept invite
 
 Name | Type | Description |
 :------ | :------ | :------ |
-`id` | Id | of specific accept invite   |
+`id` | NullableId | of specific accept invite   |
 `data` | Data | for updating accept invite   |
 `params?` | Params |  |
 
@@ -202,6 +202,6 @@ Name | Type | Description |
 
 Data
 
-Implementation of: void
+Implementation of: ServiceMethods.update
 
-Defined in: [packages/server-core/src/user/accept-invite/accept-invite.class.ts:301](https://github.com/xr3ngine/xr3ngine/blob/716a06460/packages/server-core/src/user/accept-invite/accept-invite.class.ts#L301)
+Defined in: [packages/server-core/src/user/accept-invite/accept-invite.class.ts:301](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/user/accept-invite/accept-invite.class.ts#L301)
