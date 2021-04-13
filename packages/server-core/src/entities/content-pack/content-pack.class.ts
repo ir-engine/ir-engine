@@ -109,11 +109,40 @@ export class ContentPack implements ServiceMethods<Data> {
       scenes: []
     };
     if (scene != null) {
+      const thumbnailFind = await this.app.service('static-resource').find({
+        query: {
+          sid: scene.sid
+        }
+      });
+
       const assembleResponse = assembleScene(scene, contentPack);
       const worldFile = assembleResponse.worldFile;
       uploadPromises = assembleResponse.uploadPromises;
       if (typeof worldFile.metadata === 'string') worldFile.metadata = JSON.parse(worldFile.metadata);
       const worldFileKey = getWorldFileKey(contentPack, worldFile.metadata.name);
+      let thumbnailLink;
+      if (thumbnailFind.total > 0) {
+        const thumbnail = thumbnailFind.data[0];
+        const url = thumbnail.url;
+        const thumbnailDownload = await axios.get(url, { responseType: 'arraybuffer' });
+        await new Promise((resolve, reject) => {
+          s3.provider.putObject({
+            ACL: "public-read",
+            Body: thumbnailDownload.data,
+            Bucket: s3.bucket,
+            ContentType: "jpeg",
+            Key: getThumbnailKey(contentPack, url)
+          }, (err, data) => {
+            if (err) {
+              console.error(err);
+              reject(err);
+            } else {
+              resolve(data);
+            }
+          });
+        });
+        thumbnailLink = getThumbnailUrl(contentPack, url);
+      }
       await new Promise((resolve, reject) => {
         s3.provider.putObject({
           ACL: "public-read",
@@ -130,11 +159,13 @@ export class ContentPack implements ServiceMethods<Data> {
           }
         });
       });
-      body.scenes.push({
+      const newScene = {
         sid: scene.sid,
         name: scene.name,
         worldFile: getWorldFileUrl(contentPack, worldFile.metadata.name)
-      });
+      };
+      if (thumbnailLink != null) (newScene as any).thumbnail = thumbnailLink;
+      body.scenes.push(newScene);
     }
 
     await new Promise((resolve, reject) => {
