@@ -23,7 +23,7 @@
     "clsx": "1.1.1",
     "react": "17.0.2",
     "react-dom": "17.0.2",
-    "terser-webpack-plugin": "^5.1.1"
+    "terser-webpack-plugin": "5.1.1"
   },
   "browserslist": {
     "production": [
@@ -41,7 +41,7 @@
     "@types/react": "17.0.3",
     "react": "17.0.2",
     "terser": "4.8.0",
-    "**/terser-webpack-plugin": "^1.4.3"
+    "**/terser-webpack-plugin": "5.1.1"
   },
   "peerDependencies": {
     "@types/react": "^17.0.0",
