@@ -165,3 +165,4 @@ packages/server/upload/
 
 certs/
 *.blend1
+*.ts.bak

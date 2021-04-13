@@ -44,14 +44,14 @@ export const startXR = async () => {
 
     // obviously unfinished
     [controllerLeft, controllerRight].forEach((controller) => {
-
+/*
       controller.addEventListener('select', (ev) => {})
       controller.addEventListener('selectstart', (ev) => {})
       controller.addEventListener('selectend', (ev) => {})
       controller.addEventListener('squeeze', (ev) => {})
       controller.addEventListener('squeezestart', (ev) => {})
       controller.addEventListener('squeezeend', (ev) => {})
-
+*/
       controller.addEventListener('connected', (ev) => {
         if(controller.targetRay) {
           controller.targetRay.visible = true;
@@ -70,7 +70,7 @@ export const startXR = async () => {
 
     controllerGripLeft = Engine.renderer.xr.getControllerGrip(0);
     controllerGripRight = Engine.renderer.xr.getControllerGrip(1);
-    
+
     addComponent(Network.instance.localClientEntity, XRInputReceiver, {
       head: head,
       controllerLeft: controllerLeft,
@@ -79,29 +79,33 @@ export const startXR = async () => {
       controllerGripRight: controllerGripRight
     })
 
-    console.warn(getComponent(Network.instance.localClientEntity, XRInputReceiver));
-    // console.warn(controllerLeft);
+    console.log(getComponent(Network.instance.localClientEntity, XRInputReceiver));
 
     const obj: GLTF = await new Promise((resolve) => { getLoader().load('/models/webxr/controllers/valve_controller_knu_1_0_right.glb', obj => { resolve(obj) }, console.warn, console.error)});
-    
-    const controllerMeshLeft = obj.scene.children[2] as any;
-    controllerMeshLeft.material = new MeshPhongMaterial()
-    controllerMeshLeft.position.z = -0.08;
-    const controllerMeshRight = controllerMeshLeft.clone()
+    const controller3DModel = obj.scene.children[2] as any;
 
-    controllerMeshRight.scale.multiply(new Vector3(-1, 1, 1));
+    const controllerMeshRight = controller3DModel.clone();
+    const controllerMeshLeft = controller3DModel.clone();
 
-    controllerGripLeft.add(controllerMeshLeft);
-    dolly.add(controllerGripLeft);
+    controllerMeshLeft.scale.multiply(new Vector3(-1, 1, 1));
+
+    controllerMeshRight.material = new MeshPhongMaterial();
+    controllerMeshLeft.material = new MeshPhongMaterial();
+
+    controllerMeshRight.position.z = -0.12;
+    controllerMeshLeft.position.z = -0.12;
 
     controllerGripRight.add(controllerMeshRight);
-    dolly.add(controllerGripRight);
+    controllerGripLeft.add(controllerMeshLeft);
 
-    console.warn('Loaded Model Controllers Done');
-    
+    dolly.add(controllerGripRight);
+    dolly.add(controllerGripLeft);
+
+    console.log('Loaded Model Controllers Done');
+
     return true;
   } catch (e) {
-    console.log('Could not create VR session', e)
+    console.error('Could not create VR session', e)
     return false;
   }
 }

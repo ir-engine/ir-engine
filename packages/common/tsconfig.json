@@ -1,36 +1,21 @@
 {
   "compilerOptions": {
-    "target": "es2019",
-    "lib": [
-      "es2019",
-      "dom",
-      "dom.iterable"
-    ],
-    "allowJs": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": false,
-    "noEmit": false,
+    "experimentalDecorators": true,
     "module": "esnext",
-    "strict": false,
+    "declaration": true,
     "noImplicitAny": false,
-    "resolveJsonModule": true,
-    "esModuleInterop": true,
+    "target": "es2015",
     "moduleResolution": "node",
     "sourceMap": true,
-    "jsx": "react",
-    "isolatedModules": false,
-    "preserveConstEnums": true,
     "allowSyntheticDefaultImports": true,
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
-    "declaration": true
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "allowJs": true,
+    "noImplicitThis": true,
+    "skipLibCheck": true,
+    "types": ["node", "jest"]
   },
-  "exclude": [
-    "node_modules",
-    "tests/**"
-  ],
-  "include": [
-    "./**/*.ts",
-    "./**/*.tsx"
-  ]
+
+  "include": ["src/**/*.ts", "src/**/*.tsx"],
+  "exclude": ["node_modules", "dist", "tsconfig.json", "tests/"]
 }

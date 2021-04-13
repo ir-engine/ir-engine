@@ -56,7 +56,11 @@ export class Engine {
   public static engineTimer: { start: Function; stop: Function } = null
   public static engineTimerTimeout = null;
 
+  public static gameModes = [];
+
   public static xrSupported = false;
+
+  public static offlineMode = false;
 
   //public static stats: Stats
   // Move for sure
@@ -284,6 +288,8 @@ export class Engine {
 
   static inputState = new Map();
   static prevInputState = new Map();
+
+  static isInitialized = false;
 
   /**
    * Input inherits from BehaviorComponent, which adds .map and .data
