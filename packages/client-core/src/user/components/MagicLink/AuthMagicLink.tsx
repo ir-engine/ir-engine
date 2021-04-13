@@ -38,16 +38,18 @@ const AuthMagicLink = (props: Props): any => {
     const type = router.query.type as string;
     const token = router.query.token as string;
 
-    if (type === 'login') {
-      loginUserByJwt(token, '/', '/');
-    } else if (type === 'connection') {
-      const user = auth.get('user') as User;
-      if (user) {
-        refreshConnections(user.id);
+    if (router.isReady === true) {
+      if (type === 'login') {
+        loginUserByJwt(token, '/', '/');
+      } else if (type === 'connection') {
+        const user = auth.get('user') as User;
+        if (user) {
+          refreshConnections(user.id);
+        }
+        window.location.href = '/profile-connections';
       }
-      window.location.href = '/profile-connections';
     }
-  }, []);
+  }, [router.isReady]);
 
   return (
     <Container component="main" maxWidth="md">
