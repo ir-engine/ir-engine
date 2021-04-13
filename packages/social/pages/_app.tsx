@@ -2,7 +2,7 @@ import { initGA, logPageView } from '@xr3ngine/client-core/src/common/components
 import Api from "@xr3ngine/client-core/src/world/components/editor/Api";
 import { ApiContext } from '@xr3ngine/client-core/src/world/components/editor/contexts/ApiContext';
 import GlobalStyle from '@xr3ngine/client-core/src/world/components/editor/GlobalStyle';
-import theme from "@xr3ngine/client-core/src/world/components/editor/theme";
+import theme from "../theme";
 import DeviceDetector from 'device-detector-js';
 import { createWrapper } from 'next-redux-wrapper';
 import { AppProps } from 'next/app';
