@@ -1,4 +1,7 @@
-
+/**
+ * 
+ * @author Abhinav Shah
+ */
 module.exports = {
   sidebar: {
     'Getting Started': [
