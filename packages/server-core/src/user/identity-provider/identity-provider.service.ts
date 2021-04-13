@@ -10,18 +10,18 @@ declare module '../../../declarations' {
   }
 }
 
+  /**
+   * Initialize our service with any options it requires and docs 
+   * 
+   * @author Vyacheslav Solovjov
+   */
 export default (app: Application): void => {
   const options = {
     Model: createModel(app),
     paginate: app.get('paginate'),
     multi: true
   };
-
-  /**
-   * Initialize our service with any options it requires and docs 
-   * 
-   * @author Vyacheslav Solovjov
-   */
+  
   const event = new IdentityProvider(options, app);
   event.docs = identyDocs;
 

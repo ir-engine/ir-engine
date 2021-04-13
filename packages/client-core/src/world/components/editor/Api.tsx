@@ -19,7 +19,6 @@ const FEATHERS_STORE_KEY = (configs as any).FEATHERS_STORE_KEY;
 
 /**
  * 
- * @author Robert Long
  * @param {string} str 
  * @returns 
  */
@@ -32,7 +31,6 @@ function b64EncodeUnicode(str): string {
 
 /**
  * 
- * @author Robert Long
  * @param {string} url 
  * @returns 
  */
@@ -47,41 +45,6 @@ const serverEncodeURL = (url): string => {
 
 const nonCorsProxyDomains = (SERVER_URL || "").split(",");
   nonCorsProxyDomains.push(SERVER_URL);
-
-  /**
-   * 
-   * @author Robert Long
-   * @param {boolean} url 
-   * @returns 
-   */
-function shouldCorsProxy(url): boolean {
-  // Skip known domains that do not require CORS proxying.
-  try {
-    const parsedUrl = new URL(url);
-    if (nonCorsProxyDomains.find(domain => parsedUrl.hostname.endsWith(domain))) return false;
-  } catch (e) {
-    // Ignore
-  }
-
-  return true;
-}
-
-/**
- * 
- * @author Robert Long
- * @param {any} url 
- * @returns 
- */
-export const proxiedUrlFor = url => {
-  // if (!(url.startsWith("http:") || url.startsWith("https:"))) return url;
-
-  // if (!shouldCorsProxy(url)) {
-  //   return url;
-  // }
-
-  // return `${SERVER_URL}/${url}`;
-  return url;
-};
 
 /**
  * scaledThumbnailUrlFor function component for providing url for scaled thumbnail.
@@ -190,18 +153,16 @@ export default class Api extends EventEmitter {
 /**
  * getAccountId used to get accountId using token.
  * 
- * @author Robert Long
  * @return {string}    [returns accountId]
  */
   getAccountId(): string {
     const token = this.getToken();
-    return jwtDecode(token).sub;
+    return (jwtDecode(token) as any).sub;
   }
 
 /**
  * getProjects used to get list projects created by user.
  * 
- * @author Robert Long
  * @return {Promise}            
  */
   async getProjects(): Promise<any> {
@@ -229,7 +190,6 @@ export default class Api extends EventEmitter {
 /**
  * Function to get project data.
  * 
- * @author Robert Long
  * @param projectId 
  * @returns 
  */
@@ -292,14 +252,14 @@ export default class Api extends EventEmitter {
     return request;
   }
  /**
-  * fetchContentType is used to get the header content type of response using accessibleUrl.
+  * fetchContentType is used to get the header content type of response using url.
   * 
   * @author Robert Long
-  * @param  {[type]}  accessibleUrl [ url to make the request]
+  * @param  {[type]}  url [ url to make the request]
   * @return {Promise}               [wait for the response and return response]
   */
-  async fetchContentType(accessibleUrl): Promise<any> {
-    const f = await this.fetchUrl(accessibleUrl, { method: "HEAD" }).then(r => r.headers.get("content-type"));
+  async fetchContentType(url): Promise<any> {
+    const f = await this.fetchUrl(url, { method: "HEAD" }).then(r => r.headers.get("content-type"));
     console.log("Response: " + Object.values(f));
 
     return f;
@@ -309,29 +269,28 @@ export default class Api extends EventEmitter {
  *  getContentType is used to get content type url.
  *  we firstly call resolve url and get response.
  *  if result Contains meta property and if meta contains expected_content_type  then returns true.
- *  we get canonicalUrl url from response call guessContentType to check contentType.
+ *  we get url url from response call guessContentType to check contentType.
  *  and if in both ways we unable to find contentType type then call a request for headers using fetchContentType.
  * 
  * 
  * @author Robert Long
- * @param  {any}  url
+ * @param  {any}  contentUrl
  * @return {Promise}     [returns the contentType]
  */
-  async getContentType(url): Promise<any> {
-    const result = await this.resolveUrl(url);
+  async getContentType(contentUrl): Promise<any> {
+    const result = await this.resolveUrl(contentUrl);
     console.log("CONTEXT TYPE IS", result);
-    const canonicalUrl = result.origin;
-    const accessibleUrl = proxiedUrlFor(canonicalUrl);
+    const url = result.origin;
 
     return (
       (result.meta && result.meta.expected_content_type) ||
-      guessContentType(canonicalUrl) ||
-      (await this.fetchContentType(accessibleUrl))
+      guessContentType(url) ||
+      (await this.fetchContentType(url))
     );
   }
 
 /**
- * resolveMedia provides canonicalUrl absoluteUrl and contentType.
+ * resolveMedia provides url absoluteUrl and contentType.
  * 
  * @author Robert Long
  * @param  {any}  url
@@ -342,7 +301,7 @@ export default class Api extends EventEmitter {
     const absoluteUrl = new URL(url, (window as any).location).href;
 
     if (absoluteUrl.startsWith(this.serverURL)) {
-      return { accessibleUrl: absoluteUrl };
+      return { url: absoluteUrl };
     }
 
     // createing cacheKey for absoluteUrl
@@ -352,41 +311,29 @@ export default class Api extends EventEmitter {
 
 
     const request = (async () => {
-      let contentType, canonicalUrl, accessibleUrl;
+      let contentType, url;
 
-      // getting contentType, canonicalUrl, accessibleUrl using absoluteUrl.
+      // getting contentType, url using absoluteUrl.
       try {
         const result = await this.resolveUrl(absoluteUrl);
-        canonicalUrl = result.origin;
-        accessibleUrl = proxiedUrlFor(canonicalUrl);
+        url = result.origin;
 
         contentType =
           (result.meta && result.meta.expected_content_type) ||
-          guessContentType(canonicalUrl) ||
-          (await this.fetchContentType(accessibleUrl));
+          guessContentType(url) ||
+          (await this.fetchContentType(url));
       } catch (error) {
         throw new RethrownError(i18n.t('editor:errors.resolveURL', { url: absoluteUrl }) , error);
       }
 
-      return { canonicalUrl, accessibleUrl, contentType };
+      return { url, contentType };
     })();
-     // setting cache key for data containing canonicalUrl, accessibleUrl, contentType
+     // setting cache key for data containing url, contentType
     resolveMediaCache.set(cacheKey, request);
 
     return request;
   }
 
-
-  /**
-   * proxyUrl used to create an accessibleUrl.
-   * 
-   * @author Robert Long
-   * @param  {any} url 
-   * @return {string}     url
-   */
-  proxyUrl(url): any {
-    return proxiedUrlFor(url);
-  }
 
 /**
  * unproxyUrl provides us absoluteUrl by removing corsProxyPrefix.
@@ -413,7 +360,7 @@ export default class Api extends EventEmitter {
       url = buildAbsoluteURL(baseUrl, url.startsWith("/") ? url : `/${url}`);
     }
 
-    return proxiedUrlFor(url);
+    return url;
   }
 
 /**
@@ -483,11 +430,7 @@ export default class Api extends EventEmitter {
 
     const thumbnailedEntries = json && json.entries && json.entries.length > 0 && json.entries.map(entry => {
       if (entry.images && entry.images.preview && entry.images.preview.url) {
-        if (entry.images.preview.type === "mp4") {
-          entry.images.preview.url = proxiedUrlFor(entry.images.preview.url);
-        } else {
           entry.images.preview.url = scaledThumbnailUrlFor(entry.images.preview.url, 200, 200);
-        }
       }
       return entry;
     });
@@ -814,33 +757,16 @@ export default class Api extends EventEmitter {
         throw error;
       }
 
-      const userInfo = this.getUserInfo() as any;
-
-      // Gather all the info needed to display the publish dialog
-      let { name, creatorAttribution, allowRemixing, allowPromotion } = scene.metadata;
+      let { name } = scene.metadata;
 
       name = (project.scene && project.scene.name) || name || editor.scene.name;
-
-      if (project.scene) {
-        allowPromotion = project.scene.allow_promotion;
-        allowRemixing = project.scene.allow_remixing;
-        creatorAttribution = project.scene.attributions.creator || "";
-      } else if ((!creatorAttribution || creatorAttribution.length === 0) && userInfo && userInfo.creatorAttribution) {
-        creatorAttribution = userInfo.creatorAttribution;
-      }
-
-      const contentAttributions = scene.getContentAttributions();
 
       // Display the publish dialog and wait for the user to submit / cancel
       const publishParams: any = await new Promise(resolve => {
         showDialog(PublishDialog, {
           screenshotUrl,
-          contentAttributions,
           initialSceneParams: {
-            name,
-            creatorAttribution: creatorAttribution || "",
-            allowRemixing: typeof allowRemixing !== "undefined" ? allowRemixing : false,
-            allowPromotion: typeof allowPromotion !== "undefined" ? allowPromotion : false
+            name
           },
           onCancel: () => resolve(null),
           onPublish: resolve
@@ -859,14 +785,8 @@ export default class Api extends EventEmitter {
       // Update the scene with the metadata from the publishDialog
       scene.setMetadata({
         name: publishParams.name,
-        creatorAttribution: publishParams.creatorAttribution,
-        allowRemixing: publishParams.allowRemixing,
-        allowPromotion: publishParams.allowPromotion,
         previewCameraTransform: screenshotCameraTransform
       });
-
-      // Save the creatorAttribution to localStorage so that the user doesn't have to input it again
-      this.setUserInfo({ creatorAttribution: publishParams.creatorAttribution });
 
       showDialog(ProgressDialog, {
         title: i18n.t('editor:publishingScene'),
@@ -981,13 +901,7 @@ export default class Api extends EventEmitter {
         model_file_token: glbToken,
         scene_file_id: sceneFileId,
         scene_file_token: sceneFileToken,
-        allow_remixing: publishParams.allowRemixing,
-        allow_promotion: publishParams.allowPromotion,
-        name: publishParams.name,
-        attributions: {
-          creator: publishParams.creatorAttribution,
-          content: publishParams.contentAttributions
-        }
+        name: publishParams.name
       };
 
       const token = this.getToken();
@@ -1264,7 +1178,6 @@ export default class Api extends EventEmitter {
       name: file.name,
       url: origin,
       type: 'application/octet-stream',
-      attributions: {},
       images: {
         preview: { url: file.thumbnail_url }
       }
@@ -1332,26 +1245,6 @@ export default class Api extends EventEmitter {
     }
 
     return true;
-  }
-
-/**
- * setUserInfo used to save userInfo as localStorage.
- * 
- * @author Robert Long
- * @param userInfo [Object contains user data]
- */
-  setUserInfo(userInfo): void {
-    localStorage.setItem("editor-user-info", JSON.stringify(userInfo));
-  }
-
-/**
- * getUserInfo used to provide logined user info from localStorage.
- * 
- * @author Robert Long
- * @return {Object}      [User data]
- */
-  getUserInfo(): JSON {
-    return JSON.parse(localStorage.getItem("editor-user-info"));
   }
 
   saveCredentials(email, token): void {

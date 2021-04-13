@@ -4,5 +4,7 @@
   ],
   "version": "0.2.14",
   "npmClient": "yarn",
-  "useWorkspaces": true
+  "useWorkspaces": true,
+  "hoist": true,
+  "nohoist": ["@docusaurus/*"]
 }

@@ -58,6 +58,7 @@ import _ from 'lodash';
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
+// @ts-ignore
 import styles from './Left.module.scss';
 
 const mapStateToProps = (state: any): any => {

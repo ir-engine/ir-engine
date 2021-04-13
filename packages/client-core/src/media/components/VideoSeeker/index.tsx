@@ -1,3 +1,4 @@
+// @ts-ignore
 import styles from './VideoSeeker.module.scss';
 import React, { useState, useEffect } from 'react';
 // import PlayArrowIcon from '@material-ui/icons/PlayArrow'

@@ -13,16 +13,16 @@ import UserRole from './user-role/user-role.service';
 import UserSettings from './user-settings/user-settings.service';
 export default [
   UserRole,
+  User,
   UserSettings,
+  IdentityProvider,
   UserRelationshipType,
   UserRelationship,
-  IdentityProvider,
   AcceptInvite,
   Auth,
   Login,
   LoginToken,
   MagicLink,
-  User,
   Email,
   SMS
 ];

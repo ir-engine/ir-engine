@@ -21,7 +21,7 @@
   },
   "dependencies": {
     "@google-cloud/agones-sdk": "1.13.0",
-    "puppeteer": "5.5.0",
+    "puppeteer": "8.0.0",
     "three": "0.127.0"
   },
   "devDependencies": {
@@ -35,18 +35,17 @@
     "cache-loader": "4.1.0",
     "config": "3.3.6",
     "cross-env": "7.0.3",
-    "dotenv-webpack": "3.0.0",
+    "dotenv-webpack": "7.0.2",
     "eslint": "7.24.0",
     "eslint-plugin-react": "7.23.2",
     "next-images": "1.7.0",
     "next-optimized-images": "2.6.2",
     "next-plugin-node-config": "1.0.2",
-    "next-redux-wrapper": "5.0.0",
     "thread-loader": "3.0.1",
     "ts-loader": "8.1.0",
     "ts-shader-loader": "1.0.6",
     "typescript": "4.2.4",
-    "uuid": "3.4.0",
+    "uuid": "8.3.2",
     "webpack": "5.31.2",
     "webpack-cli": "4.6.0"
   },

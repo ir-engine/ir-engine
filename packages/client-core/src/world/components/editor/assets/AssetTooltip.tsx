@@ -75,7 +75,6 @@ export default function AssetTooltip({ item }) {
       <TooltipThumbnailContainer>{thumbnail}</TooltipThumbnailContainer>
       <TooltipContent>
         <b>{item.label}</b>
-        {item.attributions && item.attributions.creator && <div>by {item.attributions.creator.name}</div>}
         {item.description && <div>{item.description}</div>}
       </TooltipContent>
     </TooltipContainer>

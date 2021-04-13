@@ -15,7 +15,7 @@ import channels from '@xr3ngine/server-core/src/channels';
 import authentication from '@xr3ngine/server-core/src/user/authentication';
 import config from '@xr3ngine/server-core/src/appconfig';
 import sync from 'feathers-sync';
-import K8s from 'k8s';
+import { api } from '@xr3ngine/server-core/src/k8s';
 import { WebRTCGameServer } from "./WebRTCGameServer";
 import winston from 'winston';
 import feathersLogger from 'feathers-logger';
@@ -130,7 +130,7 @@ if (config.gameserver.enabled) {
     // Configure a middleware for 404s and the error handler
 
     if (config.gameserver.mode === 'realtime') {
-      (app as any).k8AgonesClient = K8s.api({
+      (app as any).k8AgonesClient = api({
         endpoint: `https://${process.env.KUBERNETES_SERVICE_HOST}:${process.env.KUBERNETES_PORT_443_TCP_PORT}`,
         version: '/apis/agones.dev/v1',
         auth: {
@@ -138,7 +138,7 @@ if (config.gameserver.enabled) {
           token: fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/token')
         }
       });
-      (app as any).k8DefaultClient = K8s.api({
+      (app as any).k8DefaultClient = api({
         endpoint: `https://${process.env.KUBERNETES_SERVICE_HOST}:${process.env.KUBERNETES_PORT_443_TCP_PORT}`,
         version: '/api/v1',
         auth: {

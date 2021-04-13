@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import Router from "next/router";
+// @ts-ignore
 import styles from './Header.module.scss';
 import Avatar from "@material-ui/core/Avatar";
 import { bindActionCreators, Dispatch } from "redux";
@@ -29,7 +30,7 @@ interface Props{
 const AppHeader = ({creatorState, getLoggedCreator, logo, authState}: Props) => {
   useEffect(()=>getLoggedCreator(),[]);  
   const creator = creatorState && creatorState.get('fetching') === false && creatorState.get('currentCreator');
-  const checkGuest = authState.get('authUser')?.identityProvider.type === 'guest' ? true : false;
+  const checkGuest = authState.get('authUser')?.identityProvider?.type === 'guest' ? true : false;
 
   return (
     <nav className={styles.headerContainer}>

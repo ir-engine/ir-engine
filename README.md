@@ -296,8 +296,6 @@ Test user Admin privliges by going to `/admin`
 ## API Reference
 [Open API](https://api-dev.theoverlay.io/openapi/)
 
-[GraphQL](https://api-dev.theoverlay.io/graphql/) 
-
 ## Code Reference
 
 ### [Developer Reference](https://docs.google.com/document/d/1_nCi0CL5b7wVPi-Mj77XZ939xo5ztXLaxtYAfzHsvPo)

@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { useTranslation } from "react-i18next";
+// @ts-ignore
+// @ts-ignore
 import styles from "./Stats.module.scss";
 
 /**

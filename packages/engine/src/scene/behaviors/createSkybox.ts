@@ -11,27 +11,55 @@ export default function createSkybox(entity, args: {
   obj3d;
   objArgs: any
 }): void {
+  
   if (!isClient) {
     return;
   }
+  
+  console.log(args);
+  console.log(entity);
+  
   
   const renderer = Engine.renderer
 
   const pmremGenerator = new PMREMGenerator(renderer);
 
+  args.objArgs.skytype = "cubemap";
+  args.objArgs.texture = "cubemap/"
+  const negx = "/cubemap/negx.jpg";
+  const negy = "/cubemap/negy.jpg";
+  const negz = "/cubemap/negz.jpg";
+  const posx = "/cubemap/posx.jpg";
+  const posy = "/cubemap/posy.jpg";
+  const posz = "/cubemap/posz.jpg";
+  
   if (args.objArgs.skytype === "cubemap") {
+  
+    
     Engine.scene.background = new CubeTextureLoader()
-      .setPath(args.objArgs.texture)
-      .load(['posx.jpg', 'negx.jpg', 'posy.jpg', 'negy.jpg', 'posz.jpg', 'negz.jpg'], (texture) => {
+      // .setPath(args.objArgs.texture)
+      .load([posx, negx, posy, negy, posz, negz],
+      (texture) => {
 
-        const EnvMap = pmremGenerator.fromCubemap(texture).texture;
+        console.log(texture);
+        
+       const EnvMap = pmremGenerator.fromCubemap(texture).texture;
 
-        Engine.scene.background = EnvMap;
-        Engine.scene.environment = EnvMap;
+       console.log(EnvMap);
+        
+       Engine.scene.background = EnvMap;
+       Engine.scene.environment = EnvMap;
 
-        texture.dispose();
-        pmremGenerator.dispose();
-      });
+       texture.dispose();
+       pmremGenerator.dispose();
+      },
+      (res)=> {
+        console.log(res);
+      },
+      (erro) => {
+        console.log(erro);
+      }
+      );
   }
   else if (args.objArgs.skytype === "equirectangular") {
     new TextureLoader().load(args.objArgs.texture, (texture) => {

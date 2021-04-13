@@ -13,14 +13,6 @@ export default {
     all: [],
     find: [
       collectAnalytics(),
-      addAssociations({
-        models: [
-          {
-            model: 'attribution',
-            as: 'attribution'
-          }
-        ]
-      })
     ],
     get: [],
     create: [

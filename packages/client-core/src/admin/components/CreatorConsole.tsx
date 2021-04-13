@@ -17,6 +17,7 @@ import {
     Button, Typography
 } from '@material-ui/core';
 import Avatar from "@material-ui/core/Avatar";
+// @ts-ignore
 import styles from './Admin.module.scss';
 import Backdrop from '@material-ui/core/Backdrop';
 import CircularProgress from '@material-ui/core/CircularProgress';

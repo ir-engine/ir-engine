@@ -18,11 +18,6 @@ export const contents = [
 
 export const indexes = contents.map(value => {
   return {
-    allow_remixing: true,
-    attributions: {
-      content: [{ author: "", name: value.name }],
-      creator: "xr3ngine"
-    },
     description: null,
     id: value.id,
     images: { preview: { url: value.image } },

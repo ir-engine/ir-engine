@@ -6,7 +6,6 @@ export interface StaticResource {
   mimeType: string
   metadata: object
   staticResourceType: string
-  attributionId: string
   userId: string
 }
 
@@ -18,6 +17,5 @@ export const StaticResourceSeed: StaticResource = {
   mimeType: '',
   metadata: {},
   staticResourceType: '',
-  attributionId: '',
   userId: ''
 }

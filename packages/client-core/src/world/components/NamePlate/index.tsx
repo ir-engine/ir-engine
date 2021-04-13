@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 
+// @ts-ignore
 import styles from './NamePlate.module.scss';
 import Snackbar from '@material-ui/core/Snackbar';
 import { connect } from "react-redux";

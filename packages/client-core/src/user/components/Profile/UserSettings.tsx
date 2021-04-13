@@ -13,6 +13,7 @@ import { PositionalAudioSystem } from '@xr3ngine/engine/src/audio/systems/Positi
 import React, { ChangeEvent, useState } from 'react';
 import { connect } from "react-redux";
 import { bindActionCreators, Dispatch } from "redux";
+// @ts-ignore
 import styles from './Profile.module.scss';
 
 interface Props {

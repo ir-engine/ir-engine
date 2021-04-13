@@ -14,7 +14,7 @@ export const socialSeeds: Array<ServicesSeedConfig> = [
     channelTypeSeed,
     locationTypeSeed,
     locationSeed,
-    locationSettingsSeed
+    // locationSettingsSeed
   ];
 
 export default socialSeeds;
