@@ -45,6 +45,10 @@ if(typeof window !== 'undefined') {
   (window as any).safariWebBrowser = !window.MSStream && /Safari/.test(navigator.userAgent);
 }
 
+/**
+ * 
+ * @author Avaer Kazmer
+ */
 export const DefaultInitializationOptions = {
   input: {
     schema: CharacterInputSchema,
@@ -57,6 +61,11 @@ export const DefaultInitializationOptions = {
   postProcessing: true
 };
 
+/**
+ * 
+ * @author Avaer Kazmer
+ * @param initOptions 
+ */
 export const initializeEngine = async (initOptions: any = DefaultInitializationOptions): Promise<void> => {
   const options = _.defaultsDeep({}, initOptions, DefaultInitializationOptions);
   const canvas = options.renderer.canvas || createCanvas();
@@ -149,6 +158,11 @@ export const initializeEngine = async (initOptions: any = DefaultInitializationO
   })
 }
 
+/**
+ * 
+ * @author Avaer Kazmer
+ * @param initOptions 
+ */
 export const initializeServer = async (initOptions: any = DefaultInitializationOptions): Promise<void> => {
   const options = _.defaultsDeep({}, initOptions, DefaultInitializationOptions);
 
