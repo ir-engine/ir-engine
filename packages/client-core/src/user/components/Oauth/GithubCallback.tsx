@@ -37,7 +37,7 @@ const GithubCallbackComponent = (props: Props): any => {
     const path = router.query.path as string;
     const instanceId = router.query.instanceId as string;
 
-    if (!error) {
+    if (router.isReady === true && !error) {
       if (type === 'connection') {
         const user = auth.get('user');
         refreshConnections(user.id);
@@ -49,7 +49,7 @@ const GithubCallbackComponent = (props: Props): any => {
     }
 
     setState({ ...state, error, token });
-  }, []);
+  }, [router.isReady]);
 
   return state.error && state.error !== '' ? (
     <Container>
