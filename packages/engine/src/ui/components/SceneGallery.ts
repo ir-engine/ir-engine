@@ -3,6 +3,7 @@ import { Group, Object3D, Color, TextureLoader } from "three";
 import SceneOverview from "../components/SceneOverview";
 import ScenePanel from '../components/ScenePanel';
 import SceneButton from "../components/SceneButton";
+import { Engine } from "../../ecs/classes/Engine";
 
 class SceneGallery extends Object3D {
   marketPlace:Object3D;
@@ -40,6 +41,13 @@ class SceneGallery extends Object3D {
         this.marketPlace.add(panel);
 
         this.pickables.push(panel);
+        // panel.pick = (state) => {
+        //   if(state){
+        //     // this.library.visible = false;
+        //     // this.marketPlace.visible = false;  
+        //   }
+        //   panel.picked(state);
+        // }
       }
     }
 
@@ -55,6 +63,13 @@ class SceneGallery extends Object3D {
         this.library.add(panel);
 
         this.pickables.push(panel);
+        // panel.pick = (state) => {
+        //   if(state){
+        //     // this.library.visible = false;
+        //     // this.marketPlace.visible = false;  
+        //   }
+        //   panel.picked(state);
+        // }
       }
     }
 
@@ -86,7 +101,15 @@ class SceneGallery extends Object3D {
 
     this.pickables.push(button1);
     this.pickables.push(button2);
-}
+  }
+
+  update(){
+    console.log('updateee engine last time:', Engine.tick, Engine.lastTime);
+
+    this.pickables.forEach(element => {
+      element.update();      
+    });
+  }
 }
 
 export default SceneGallery;

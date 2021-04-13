@@ -39,7 +39,9 @@ export class UIPanelSystem extends System {
       const uiPanel = getComponent(entity, UIPanelComponent);
 
       const raycast = getComponent(entity, RaycastComponent);
-      // console.log('execute', raycast.raycast);
+      
+      console.log('ui panel', uiPanel.panel.panel);
+      uiPanel.panel.panel.update();
 
       raycaster = raycast.raycast;
     })

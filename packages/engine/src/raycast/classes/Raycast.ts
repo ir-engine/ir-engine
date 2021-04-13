@@ -77,7 +77,9 @@ export class RayCast extends Object3D{
 
     raycast() {
         return this.objsToTest.reduce( (closestIntersection, obj)=> {
-    
+            if (!obj.visible)
+                return closestIntersection;
+
             const intersection = this.rayCaster.intersectObject( obj, true );
     
             if ( !intersection[0] ) return closestIntersection
