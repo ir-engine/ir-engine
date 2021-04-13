@@ -109,7 +109,7 @@
     "redux-thunk": "2.3.0",
     "reselect": "4.0.0",
     "sass": "1.32.8",
-    "socket.io-client": "4.0.1",
+    "socket.io-client": "2.4.0",
     "string-similarity": "4.0.4",
     "styled-components": "5.2.3",
     "three": "0.127.0",
