@@ -141,7 +141,6 @@ export default class ProjectGridItem extends Component<{ contextMenuId: string, 
 
   render() {
     const { project, contextMenuId } = this.props as any;
-    const creatorAttribution = project.attributions && project.attributions.creator;
 
     const content = (
       <>
@@ -149,7 +148,6 @@ export default class ProjectGridItem extends Component<{ contextMenuId: string, 
         <TitleContainer>
           <Col>
             <h3>{project.name}</h3>
-            {creatorAttribution && <p>{creatorAttribution}</p>}
           </Col>
           {contextMenuId && (
             <MenuButton onClick={this.onShowMenu}>

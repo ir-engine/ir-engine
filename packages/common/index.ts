@@ -37,7 +37,6 @@ export * from './src/interfaces/UserRelationship';
 export * from './src/scenes-templates/index';
 export { default as srcEnumsAvatarModel } from './src/enums/avatar-model';
 export { default as srcEnumsAxis } from './src/enums/axis';
-export { default as srcTypesS3BlobStoreIndex } from './src/types/s3-blob-store/index';
 export { default as srcUtilsCapitalizeFirstLetter } from './src/utils/capitalizeFirstLetter';
 export { default as srcUtilsIsExternalUrl } from './src/utils/isExternalUrl';
 export { default as srcUtilsSecondsToString } from './src/utils/secondsToString';

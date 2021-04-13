@@ -7,7 +7,10 @@ import { RigidBody } from '../../physics/components/RigidBody';
 import { initializeNetworkObject } from '../../networking/functions/initializeNetworkObject';
 import { PrefabType } from '../../templates/networking/PrefabType';
 
-
+/**
+* @author HydraFire <github.com/HydraFire>
+ */
+ 
 export function createNetworkRigidBody( args:{ parameters?: any, networkId?: string | number, uniqueId: string, entity?: Entity }) {
   if (args.parameters === undefined) {
 

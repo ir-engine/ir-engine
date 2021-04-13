@@ -34,27 +34,6 @@ export default (app: Application): any => {
       allowNull: false,
       defaultValue: 'active'
     },
-    attribution: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    allow_remixing: {
-      type: DataTypes.BOOLEAN,
-      allowNull: false
-    },
-    allow_promotion: {
-      type: DataTypes.BOOLEAN,
-      allowNull: false
-    },
-    // TODO: In reticulum, it is json type, but sql does not support json so need to think about it!
-    attributions: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    reviewed_at: {
-      type: DataTypes.DATE,
-      allowNull: true
-    },
     imported_from_host: {
       type: DataTypes.STRING,
       allowNull: true

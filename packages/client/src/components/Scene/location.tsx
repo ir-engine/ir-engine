@@ -3,7 +3,7 @@ import { InteractableModal } from '@xr3ngine/client-core/src/world/components/In
 import LoadingScreen from '@xr3ngine/client-core/src/common/components/Loader';
 import { MobileGamepadProps } from "@xr3ngine/client-core/src/common/components/MobileGamepad/MobileGamepadProps";
 import NamePlate from '@xr3ngine/client-core/src/world/components/NamePlate';
-import NetworkDebug from '@xr3ngine/client-networking/src/components/NetworkDebug';
+import NetworkDebug from '../../components/NetworkDebug';
 import { OpenLink } from '@xr3ngine/client-core/src/world/components/OpenLink';
 import TooltipContainer from '@xr3ngine/client-core/src/common/components/TooltipContainer';
 import UserMenu from '@xr3ngine/client-core/src/user/components/UserMenu';
@@ -19,14 +19,14 @@ import {
 import { setCurrentScene } from '@xr3ngine/client-core/src/world/reducers/scenes/actions';
 import store from '@xr3ngine/client-core/src/store';
 import { selectUserState } from '@xr3ngine/client-core/src/user/reducers/user/selector';
-import { selectInstanceConnectionState } from '@xr3ngine/client-networking/src/reducers/instanceConnection/selector';
+import { selectInstanceConnectionState } from '../../reducers/instanceConnection/selector';
 import {
   connectToInstanceServer,
   provisionInstanceServer
-} from '@xr3ngine/client-networking/src/reducers/instanceConnection/service';
+} from '../../reducers/instanceConnection/service';
 import { selectPartyState } from '@xr3ngine/client-core/src/social/reducers/party/selector';
-import MediaIconsBox from "@xr3ngine/client-networking/src/components/MediaIconsBox";
-import { SocketWebRTCClientTransport } from '@xr3ngine/client-networking/src/transports/SocketWebRTCClientTransport';
+import MediaIconsBox from "../../components/MediaIconsBox";
+import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport';
 import { testScenes, testUserId, testWorldState } from '@xr3ngine/common/src/assets/testScenes';
 import { isMobileOrTablet } from '@xr3ngine/engine/src/common/functions/isMobile';
 import { EngineEvents } from '@xr3ngine/engine/src/ecs/classes/EngineEvents';
@@ -52,6 +52,8 @@ import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 import url from 'url';
+import { CharacterInputSchema } from '@xr3ngine/engine/src/templates/character/CharacterInputSchema';
+import { DefaultGameMode } from '@xr3ngine/engine/src/templates/game/DefaultGameMode';
 const { publicRuntimeConfig } = getConfig();
 
 const goHome = () => window.location.href = window.location.origin;
@@ -235,18 +237,29 @@ export const EnginePage = (props: Props) => {
       }
       sceneData = await client.service(service).get(serviceId);
     }
-    const networkSchema
-      : NetworkSchema = {
-      ...DefaultNetworkSchema,
-      transport: SocketWebRTCClientTransport,
-    };
 
     const canvas = document.getElementById(engineRendererCanvasId) as HTMLCanvasElement;
     styleCanvas(canvas);
+
+
+
+    
     const InitializationOptions = {
-      ...DefaultInitializationOptions,
+      input: {
+        schema: CharacterInputSchema,
+      },
+      gameModes: [
+        DefaultGameMode
+      ],
+      publicPath: '',
+      postProcessing: true,
+      editor: false,
       networking: {
-        schema: networkSchema,
+        schema: {
+        ...DefaultNetworkSchema,
+        transport: SocketWebRTCClientTransport,
+        } as NetworkSchema,
+        transport: SocketWebRTCClientTransport
       },
       renderer: {
         canvas,
@@ -254,11 +267,17 @@ export const EnginePage = (props: Props) => {
       useOfflineMode: publicRuntimeConfig.offlineMode
     };
 
+    console.log("Initialization options are: ", InitializationOptions);
+
     await initializeEngine(InitializationOptions);
+
+    console.log("Engine initialized");
 
     document.dispatchEvent(new CustomEvent('ENGINE_LOADED')); // this is the only time we should use document events. would be good to replace this with react state
 
     addUIEvents();
+
+    console.log("**** OFFLINE MODE? ", publicRuntimeConfig.offlineMode);
 
     if(!publicRuntimeConfig.offlineMode) await connectToInstanceServer('instance');
 

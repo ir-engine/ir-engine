@@ -17,7 +17,6 @@ export interface VideoCreationForm {
   name: string;
   description: string;
   url: string;
-  creator: string;
   metadata: object;
 }
 
@@ -26,7 +25,6 @@ export interface VideoUpdateForm {
   name: string;
   description: string;
   url: string;
-  creator: string;
   metadata: object;
 }
 
@@ -38,7 +36,6 @@ export interface VideoCreatedResponse {
   metadata: object;
   userId: string;
   mimeType: string;
-  attributionId: string;
   staticResourceType: string;
 }
 
@@ -50,7 +47,6 @@ export interface VideoUpdatedResponse {
   metadata: object;
   userId: string;
   mimeType: string;
-  attributionId: string;
   staticResourceType: string;
 }
 
@@ -62,7 +58,6 @@ export interface VideoDeletedResponse {
   metadata: object;
   userId: string;
   mimeType: string;
-  attributionId: string;
   staticResourceType: string;
 }
 

@@ -3,7 +3,7 @@
 # this is ok in development and internal builds initially and once optimized we can switch to 2-stage builds
 
 # not slim because we need github depedencies
-FROM node:12.16
+FROM node:12.22
 
 # Create app directory
 WORKDIR /app

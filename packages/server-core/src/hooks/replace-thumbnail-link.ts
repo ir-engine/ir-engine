@@ -4,7 +4,7 @@ import uploadThumbnailLinkHook from './upload-thumbnail-link';
 import StorageProvider from '../media/storageprovider/storageprovider';
 import _ from 'lodash';
 
-export default (options = {}): Hook => {
+export default (): Hook => {
   return async (context: HookContext): Promise<HookContext> => {
     const { app, data, params } = context;
     if (data.id) {

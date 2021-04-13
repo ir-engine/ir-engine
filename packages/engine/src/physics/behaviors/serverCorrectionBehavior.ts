@@ -12,6 +12,10 @@ import { interpolationBehavior, findOne } from './interpolationBehavior';
 import { Network } from '../../networking/classes/Network';
 import { ColliderComponent } from '../components/ColliderComponent';
 
+/**
+ * @author HydraFire <github.com/HydraFire>
+ */
+
 export const serverCorrectionBehavior: Behavior = (entity: Entity, args): void => {
   if (args.snapshot == null) return;
   const collider = getMutableComponent(entity, ColliderComponent)
@@ -135,7 +139,7 @@ export const serverCorrectionInterpolationBehavior: Behavior = (entity: Entity, 
 
     }
 
-    
+
 
     for (let i = 0; i < wheels.length; i++) {
       wheels[i].position.set(

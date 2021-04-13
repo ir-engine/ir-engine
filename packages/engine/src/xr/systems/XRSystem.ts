@@ -1,7 +1,6 @@
 import { Group, sRGBEncoding, Vector3 } from 'three';
 import { BinaryValue } from '../../common/enums/BinaryValue';
 import { LifecycleValue } from '../../common/enums/LifecycleValue';
-import { isWebWorker } from '../../common/functions/getEnvironment';
 import { Engine } from '../../ecs/classes/Engine';
 import { EngineEvents } from '../../ecs/classes/EngineEvents';
 import { System, SystemAttributes } from '../../ecs/classes/System';
@@ -9,12 +8,12 @@ import { gamepadMapping } from '../../input/behaviors/GamepadInputBehaviors';
 import { InputType } from '../../input/enums/InputType';
 import { endXR, startXR } from '../functions/WebXRFunctions';
 import { XRFrame, XRReferenceSpace, XRReferenceSpaceType, XRWebGLLayer } from '../../input/types/WebXR';
-import { getComponent, getMutableComponent } from "../../ecs/functions/EntityFunctions";
-import { CharacterComponent } from "../../templates/character/components/CharacterComponent";
-import { isClient } from '../../common/functions/isClient';
-import { Input } from '../../input/components/Input';
-import { BaseInput } from '../../input/enums/BaseInput';
-import { SIXDOFType } from '../../common/types/NumericalTypes';
+
+/**
+ * System for XR session and input handling
+ * 
+ * @author Josh Field <github.com/hexafield>
+ */
 
 export class XRSystem extends System {
 
@@ -50,7 +49,7 @@ export class XRSystem extends System {
       const sessionInit = { optionalFeatures: [this.referenceSpaceType] };
       try {
         const session = await (navigator as any).xr.requestSession("immersive-vr", sessionInit)
-        
+
         Engine.xrSession = session;
         Engine.renderer.xr.setReferenceSpaceType(this.referenceSpaceType);
         Engine.renderer.xr.setSession(session);

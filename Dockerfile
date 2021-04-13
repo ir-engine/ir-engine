@@ -1,5 +1,5 @@
 # not slim because we need github depedencies
-FROM node:12.16-buster
+FROM node:12.22-buster
 
 RUN echo "deb [arch=amd64] http://nginx.org/packages/mainline/ubuntu/ eoan nginx\ndeb-src http://nginx.org/packages/mainline/ubuntu/ eoan nginx" >> /etc/apt/sources.list.d/nginx.list
 RUN wget http://nginx.org/keys/nginx_signing.key
@@ -16,7 +16,6 @@ COPY package.json .
 COPY packages/client/package.json ./packages/client/
 COPY packages/client-core/package.json ./packages/client-core/
 COPY packages/client-ml/package.json ./packages/client-ml/
-COPY packages/client-networking/package.json ./packages/client-networking/
 COPY packages/common/package.json ./packages/common/
 COPY packages/engine/package.json ./packages/engine/
 COPY packages/gameserver/package.json ./packages/gameserver/

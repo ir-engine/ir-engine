@@ -76,7 +76,6 @@ export default class ModelMediaSource extends BaseSource {
           result.images &&
           result.images.preview &&
           result.images.preview.url,
-        attributions: result.attributions,
         label: result.name,
         type: ItemTypes.Model,
         url: result.url,

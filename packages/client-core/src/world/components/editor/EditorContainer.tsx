@@ -37,7 +37,6 @@ import {
 } from "../../../admin/reducers/admin/service";
 import { withTranslation } from 'react-i18next';
 
-
 /**
  * StyledEditorContainer component is used as root element of new project page.
  * On this page we have an editor to create a new or modifing an existing project.
@@ -75,6 +74,7 @@ type EditorContainerProps = {
   fetchAdminScenes?: any;
   fetchLocationTypes?: any;
   t: any;
+  Engine: any
 };
 type EditorContainerState = {
   project: any;
@@ -98,23 +98,19 @@ type EditorContainerState = {
 class EditorContainer extends Component<EditorContainerProps, EditorContainerState> {
   static propTypes = {
     api: PropTypes.object.isRequired,
-    adminState: PropTypes.object,
-    // These aren't needed since we are using nextjs route now
-    // history: PropTypes.object.isRequired,
-    // match: PropTypes.object.isRequired,
-    // location: PropTypes.object.isRequired
+    adminState: PropTypes.object
   };
 
   constructor(props) {
     super(props);
-
+    const {   Engine    } = props;
     let settings = defaultSettings;
     const storedSettings = localStorage.getItem("editor-settings");
     if (storedSettings) {
       settings = JSON.parse(storedSettings);
     }
 
-    const editor = createEditor(props.api, settings);
+    const editor = createEditor(props.api, settings, Engine);
     (window as any).editor = editor;
     editor.init();
     editor.addListener("initialized", this.onEditorInitialized);
@@ -228,9 +224,6 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
       if (templateFile.metadata) {
         delete templateFile.metadata.sceneUrl;
         delete templateFile.metadata.sceneId;
-        delete templateFile.metadata.creatorAttribution;
-        delete templateFile.metadata.allowRemixing;
-        delete templateFile.metadata.allowPromotion;
       }
 
       await editor.loadProject(templateFile);
@@ -265,16 +258,6 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
       const scene: any = await this.props.api.getScene(sceneId);
       console.warn('loadScene:scene', scene);
       const projectFile = scene.data;
-      // const projectFile = await this.props.api.fetchUrl(scene.scene_project_url).then(response => response.json());
-      // console.warn('loadScene:projectFile', projectFile);
-      //
-      // if (projectFile.metadata) {
-      //   delete projectFile.metadata.sceneUrl;
-      //   delete projectFile.metadata.sceneId;
-      //   delete projectFile.metadata.creatorAttribution;
-      //   delete projectFile.metadata.allowRemixing;
-      //   delete projectFile.metadata.allowPromotion;
-      // }
 
       await editor.init();
 
@@ -401,10 +384,6 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
         name: this.t('editor:menubar.saveAs'),
         action: this.onDuplicateProject
       },
-      // {
-      //   name: this.t('editor:menubar.publishProject'),
-      //   action: this.onPublishProject
-      // },
       {
         name: this.t('editor:menubar.exportGLB'), // TODO: Disabled temporarily till workers are working
         action: this.onExportProject

@@ -2,7 +2,7 @@ import { ThemeProvider } from '@material-ui/core';
 import { Forum, FullscreenExit, People, ZoomOutMap } from '@material-ui/icons';
 import { Alerts } from '@xr3ngine/client-core/src/common/components/Alerts';
 import { UIDialog } from '@xr3ngine/client-core/src/common/components/Dialog/Dialog';
-import Me from '@xr3ngine/client-networking/src/components/Me';
+import Me from '../Me';
 import NavMenu from '@xr3ngine/client-core/src/common/components/NavMenu';
 import UserToast from "@xr3ngine/client-core/src/common/components/Toast/UserToast";
 import { setUserHasInteracted } from '@xr3ngine/client-core/src/common/reducers/app/actions';
@@ -11,8 +11,8 @@ import { selectAuthState } from '@xr3ngine/client-core/src/user/reducers/auth/se
 import { selectLocationState } from '@xr3ngine/client-core/src/social/reducers/location/selector';
 import theme from '@xr3ngine/client-core/src/theme';
 import Harmony from "../Harmony";
-import InstanceChat from '@xr3ngine/client-networking/src/components/InstanceChat';
-import PartyVideoWindows from '@xr3ngine/client-networking/src/components/PartyVideoWindows';
+import InstanceChat from '../InstanceChat';
+import PartyVideoWindows from '../PartyVideoWindows';
 import getConfig from 'next/config';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
@@ -22,6 +22,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 import LeftDrawer from '../Drawer/Left';
 import RightDrawer from '../Drawer/Right';
+// @ts-ignore
 import styles from './Layout.module.scss';
 
 const { publicRuntimeConfig } = getConfig();

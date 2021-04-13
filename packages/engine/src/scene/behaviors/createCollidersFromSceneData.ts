@@ -4,6 +4,10 @@ import { addColliderWithoutEntity } from '../../physics/behaviors/addColliderWit
 import { createNetworkRigidBody } from '../../interaction/prefabs/NetworkRigidBody';
 import { addCollidersToNetworkVehicle } from '../../templates/vehicle/prefabs/NetworkVehicle';
 
+/**
+ * @author HydraFire <github.com/HydraFire>
+ */
+
 export const createCollidersFromSceneData: Behavior = ( entity: Entity, args: any ) => { //{ data:string, type: string,}
   // console.log('****** Collider from Scene data: ')
   // console.log(args);

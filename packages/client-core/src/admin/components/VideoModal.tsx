@@ -10,6 +10,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 import { selectAdminState } from '../reducers/admin/selector';
 import { createVideo, deleteVideo, updateVideo } from '../reducers/admin/service';
+// @ts-ignore
 import styles from './Admin.module.scss';
 
 interface Props {
@@ -40,7 +41,6 @@ const VideoModal = (props: Props): any => {
     name: props.video?.name ? props.video.name : '',
     url: props.video?.url ? props.video.url : '',
     description: props.video?.description ? props.video.description : '',
-    creator: props.video?.attribution?.creator ? props.video.attribution.creator : '',
     rating: props.video?.metadata?.rating ? props.video.metadata.rating : '',
     category1: props.video?.metadata?.categories ? props.video.metadata.categories[0] : '',
     category2: props.video?.metadata?.categories ? props.video.metadata.categories[1] : '',
@@ -57,7 +57,6 @@ const VideoModal = (props: Props): any => {
       name: props.video?.name ? props.video.name : '',
       url: props.video?.url ? props.video.url : '',
       description: props.video?.description ? props.video.description : '',
-      creator: props.video?.attribution?.creator ? props.video.attribution.creator : '',
       rating: props.video?.metadata?.rating ? props.video.metadata.rating : '',
       category1: props.video?.metadata?.categories ? props.video.metadata.categories[0] : '',
       category2: props.video?.metadata?.categories ? props.video.metadata.categories[1] : '',
@@ -86,7 +85,6 @@ const VideoModal = (props: Props): any => {
       name: state.name,
       description: state.description,
       url: state.url,
-      creator: state.creator,
       metadata: {
         rating: state.rating,
         thumbnailUrl: state.thumbnailUrl,
@@ -105,10 +103,10 @@ const VideoModal = (props: Props): any => {
 
     if (props.mode === 'create') {
       delete form.id;
-      props.createVideo(form);
+      props.createVideo(form as any);
       props.handleClose();
     } else {
-      props.updateVideo(form);
+      props.updateVideo(form as any);
       props.handleClose();
     }
   };
@@ -182,20 +180,6 @@ const VideoModal = (props: Props): any => {
                   id="description"
                   autoComplete="description"
                   defaultValue={state.description}
-                  onChange={(e) => handleInput(e)}
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  variant="outlined"
-                  margin="normal"
-                  required
-                  fullWidth
-                  name="creator"
-                  label="Video production credit"
-                  id="creator"
-                  autoComplete="creator"
-                  defaultValue={state.creator}
                   onChange={(e) => handleInput(e)}
                 />
               </Grid>

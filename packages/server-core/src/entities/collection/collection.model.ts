@@ -65,7 +65,6 @@ export default (app: Application): any => {
 
   (collection as any).associate = (models: any): void => {
     (collection as any).belongsTo(models.collection_type, { foreignKey: 'type', required: true });
-    (collection as any).hasOne(models.attribution);
     (collection as any).belongsTo(models.static_resource, { as: 'thumbnail_owned_file', required: false, constraints: false });
     (collection as any).hasMany(models.entity, { required: false, constraints: false, delete: 'cascade' });
     (collection as any).belongsTo(models.location);

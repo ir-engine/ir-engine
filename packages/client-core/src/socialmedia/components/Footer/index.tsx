@@ -5,6 +5,7 @@ import AddCircleIcon from '@material-ui/icons/AddCircle';
 import HomeIcon from '@material-ui/icons/Home';
 import WhatshotIcon from '@material-ui/icons/Whatshot';
 
+// @ts-ignore
 import styles from './Footer.module.scss';
 import Avatar from "@material-ui/core/Avatar";
 import { bindActionCreators, Dispatch } from "redux";
@@ -32,7 +33,7 @@ const AppFooter = ({creatorState, getLoggedCreator,authState}: any) => {
 
   const [buttonPopup , setButtonPopup] = useState(false);
   const creator = creatorState && creatorState.get('fetching') === false && creatorState.get('currentCreator'); 
-  const checkGuest = authState.get('authUser')?.identityProvider.type === 'guest' ? true : false;
+  const checkGuest = authState.get('authUser')?.identityProvider?.type === 'guest' ? true : false;
   return (
     <nav className={styles.footerContainer}>
         <HomeIcon onClick={()=> {checkGuest ? setButtonPopup(true) : Router.push('/');}} fontSize="large" className={styles.footerItem}/>

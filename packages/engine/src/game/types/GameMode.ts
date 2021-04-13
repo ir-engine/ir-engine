@@ -1,14 +1,13 @@
 import { GameStateAction } from "./GameStateAction";
-import { PlayerAction } from "./PlayerAction";
-
-
 export interface GameMode {
+  name: string,
   actions: {
     [key: string]: GameStateAction;
   },
   serverActions: {
     [key: string]: GameStateAction;
   },
-  allowedPlayerActions: PlayerAction[]
-  allowedHostActions: PlayerAction[]
+  allowedPlayerActions: any[]
+  allowedHostActions: any[],
+  gameObjectRoles: string[]
 }

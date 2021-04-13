@@ -1,5 +1,6 @@
 import { LoadGLTF } from "@xr3ngine/engine/src/assets/functions/LoadGLTF";
 import { GLTFExporter } from "@xr3ngine/engine/src/assets/loaders/gltf/GLTFExporter";
+import { Engine } from "@xr3ngine/engine/src/ecs/classes/Engine";
 import GLTFCache from "@xr3ngine/engine/src/editor/caches/GLTFCache";
 import TextureCache from "@xr3ngine/engine/src/editor/caches/TextureCache";
 import EditorInfiniteGridHelper from "@xr3ngine/engine/src/editor/classes/EditorInfiniteGridHelper";
@@ -27,6 +28,7 @@ import ScaleCommand from "@xr3ngine/engine/src/editor/commands/ScaleCommand";
 import ScaleMultipleCommand from "@xr3ngine/engine/src/editor/commands/ScaleMultipleCommand";
 import SelectCommand from "@xr3ngine/engine/src/editor/commands/SelectCommand";
 import SelectMultipleCommand from "@xr3ngine/engine/src/editor/commands/SelectMultipleCommand";
+import SetObjectPropertyCommand from "@xr3ngine/engine/src/editor/commands/SetObjectPropertyCommand";
 import SetPositionCommand from "@xr3ngine/engine/src/editor/commands/SetPositionCommand";
 import SetPositionMultipleCommand from "@xr3ngine/engine/src/editor/commands/SetPositionMultipleCommand";
 import SetPropertiesCommand from "@xr3ngine/engine/src/editor/commands/SetPropertiesCommand";
@@ -68,6 +70,7 @@ import ThumbnailRenderer from "@xr3ngine/engine/src/editor/renderer/ThumbnailRen
 import TransformGizmo from "@xr3ngine/engine/src/scene/classes/TransformGizmo";
 import { AnyRecordWithTtl } from "dns";
 import EventEmitter from "eventemitter3";
+import i18n from 'i18next';
 import {
   AudioListener,
   Clock, Matrix4,
@@ -79,7 +82,6 @@ import {
 import Api from "./Api";
 import AssetManifestSource from "./assets/AssetManifestSource";
 import { loadEnvironmentMap } from "./EnvironmentMap";
-import i18n from 'i18next';
 
 const tempMatrix1 = new Matrix4();
 const tempMatrix2 = new Matrix4();
@@ -141,13 +143,17 @@ export default class Editor extends EventEmitter {
   rafId: number;
   thumbnailRenderer: ThumbnailRenderer;
   playing: boolean;
+  Engine: Engine
 
   // initializing component properties with default value.
-  constructor(api, settings = {}) {
+  constructor(api, settings = {}, Engine) {
     super();
+    this.Engine = Engine;
+    this.camera = Engine.camera;
     this.api = api;
     this.settings = settings;
     this.project = null;
+    this.helperScene = Engine.scene;
 
     this.selected = [];
     this.selectedTransformRoots = [];
@@ -172,13 +178,13 @@ export default class Editor extends EventEmitter {
     this.sceneModified = false;
     this.projectLoaded = false;
 
-    this.camera = new PerspectiveCamera(80, window.innerWidth / window.innerHeight, 0.2, 8000);
+    // this.camera = new PerspectiveCamera(80, window.innerWidth / window.innerHeight, 0.2, 8000);
     this.audioListener = new AudioListener();
+    console.log("This camera is", this.camera);
     this.camera.add(this.audioListener);
     this.camera.layers.enable(1);
     this.camera.name = "Camera";
 
-    this.helperScene = new Scene();
 
     this.grid = new EditorInfiniteGridHelper();
     this.helperScene.add(this.grid as any);
@@ -193,7 +199,7 @@ export default class Editor extends EventEmitter {
     this.initializing = false;
     this.initialized = false;
     this.sceneLoading = false;
-  }
+}
 
 /**
  * Function registerNode used to add new object to the scene.
@@ -238,8 +244,7 @@ export default class Editor extends EventEmitter {
  * @param  {any}  manifestUrl contains url of source
  */
   async installAssetSource(manifestUrl) {
-    const proxiedUrl = this.api.proxyUrl(new URL(manifestUrl, (window as any).location).href);
-    const res = await this.api.fetchUrl(proxiedUrl);
+    const res = await this.api.fetchUrl(new URL(manifestUrl, (window as any).location).href);
     const json = await res.json();
     this.sources.push(new AssetManifestSource(this, json.name, manifestUrl));
     this.emit("settingsChanged");
@@ -2394,6 +2399,36 @@ export default class Editor extends EventEmitter {
 
     return object;
   }
+/**
+ * [setObjectProperty used to set propery to selected object]
+ * @param {[type]}  propertyName
+ * @param {[type]}  value
+ * @param {Boolean} [useHistory=true]
+ */
+
+  setObjectProperty(propertyName, value,useHistory=true) {
+    if(useHistory)
+      return this.history.execute(new SetObjectPropertyCommand(this, this.selected[0], propertyName, value));
+      const object =this.selected[0];
+      const nestProp=propertyName.split(".");
+      let interestObj=object;
+      nestProp.forEach((element,id) => {
+          if(id<nestProp.length-1)
+            interestObj=interestObj[element];
+      });
+      if (value && value.copy) {
+        interestObj[nestProp[nestProp.length - 1]].copy(value);
+      } else {
+        interestObj[nestProp[nestProp.length - 1]] = value;
+      }
+      if (object.onChange) {
+        object.onChange(propertyName);
+      }
+      this.emit("objectsChanged", [object], propertyName);
+      return object;
+  }
+
+  
 
 /**
  * Function setPropertyMultiple used to set propery to multiple selected objects.

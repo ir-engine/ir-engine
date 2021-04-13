@@ -13,17 +13,12 @@ export interface VideoMetaData {
   runtime?: string;
 }
 
-export interface Attribution {
-  creator?: string;
-  url?: string;
-}
 export interface PublicVideo {
   id: number;
   name: string;
   description: string;
   url: string;
   metadata: Partial<VideoMetaData>;
-  attribution?: Partial<Attribution>;
 }
 export interface Image {
   id: number;

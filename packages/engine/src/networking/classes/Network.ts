@@ -10,6 +10,8 @@ import SocketIO from "socket.io";
 import { GameStateActionMessage } from "../../game/types/GameStateActionMessage";
 import { GameMode } from "../../game/types/GameMode";
 import { DefaultGameMode } from "../../templates/game/DefaultGameMode";
+import { DefaultGameStateAction } from "../../templates/game/DefaultGameStateAction";
+import { GameStateAction } from "../../game/types/GameStateAction";
 
 export interface NetworkClientList {
   // Key is socket ID
@@ -36,7 +38,8 @@ export interface NetworkClientList {
 /** Component Class for Network. */
 export class Network {
   /** Static instance to access everywhere. */
-  static instance: Network = new Network();
+  static instance: Network = null
+
   /** Indication of whether the network is initialized or not. */
   isInitialized: boolean
   /** Whether to apply compression on packet or not. */

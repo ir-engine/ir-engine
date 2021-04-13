@@ -101,8 +101,8 @@ export default class ParticleEmitterNode extends EditorNodeMixin(ParticleEmitter
     this._canonicalUrl = nextSrc;
 
     try {
-      const { accessibleUrl } = await this.editor.api.resolveMedia(src);
-      (this.material.uniforms as any).map.value = await loadTexture(accessibleUrl);
+      const { url } = await this.editor.api.resolveMedia(src);
+      (this.material.uniforms as any).map.value = await loadTexture(url);
     } catch (error) {
       if (onError) {
         onError(this, error);

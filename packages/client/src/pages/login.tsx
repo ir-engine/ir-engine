@@ -1,6 +1,6 @@
 import { EmptyLayout } from '@xr3ngine/client-core/src/common/components/Layout/EmptyLayout';
 import { doLoginAuto } from '@xr3ngine/client-core/src/user/reducers/auth/service';
-import { selectInstanceConnectionState } from '@xr3ngine/client-networking/src/reducers/instanceConnection/selector';
+import { selectInstanceConnectionState } from '../reducers/instanceConnection/selector';
 import React, {useEffect} from 'react';
 import { connect } from "react-redux";
 import { bindActionCreators, Dispatch } from "redux";

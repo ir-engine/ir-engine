@@ -1,14 +1,14 @@
-import React, { Component } from "react";
-import NodeEditor from "./NodeEditor";
-import SelectInput from "../inputs/SelectInput";
-import InputGroup from "../inputs/InputGroup";
-import BooleanInput from "../inputs/BooleanInput";
-import ModelInput from "../inputs/ModelInput";
 import { Cube } from "@styled-icons/fa-solid/Cube";
-import StringInput from "../inputs/StringInput";
 import ModelNode from "@xr3ngine/engine/src/editor/nodes/ModelNode";
 import i18n from "i18next";
+import React, { Component } from "react";
 import { withTranslation } from "react-i18next";
+import BooleanInput from "../inputs/BooleanInput";
+import InputGroup from "../inputs/InputGroup";
+import ModelInput from "../inputs/ModelInput";
+import SelectInput from "../inputs/SelectInput";
+import StringInput from "../inputs/StringInput";
+import NodeEditor from "./NodeEditor";
 
 /**
  * Array containing options for InteractableOption.
@@ -29,6 +29,10 @@ const InteractableOption = [
     label: "Equippable",
     value: "equippable"
   },
+  {
+    label: "GameObject",
+    value: "gameobject"
+  },
 ];
 
 /**
@@ -38,10 +42,15 @@ const InteractableOption = [
  * @type {Object}
  */
 type ModelNodeEditorProps = {
-  editor?: object;
+  editor?: any;
   node?: object;
   multiEdit?: boolean;
   t: Function;
+};
+
+//Declairing TriggerVolumeNodeEditor state
+type ModelNodeEditorState = {
+  options: any[];
 };
 
 /**
@@ -52,19 +61,40 @@ type ModelNodeEditorProps = {
  */
 export class ModelNodeEditor extends Component<
   ModelNodeEditorProps,
-  {}
+  ModelNodeEditorState
 > {
+  
+  //initializing props and state
+  constructor(props) {
+    super(props);
+    this.state = {
+      options: []
+    };
+  }
 
-  //initializing iconComponent with image name
-  static iconComponent = Cube;
+  componentDidMount() {
+    const options = [];
+    const sceneNode = (this.props.editor as any).scene;
+    sceneNode.traverse(o => {
+      if (o.isNode && o !== sceneNode && o.nodeName === "Game") {
+        options.push({ label: o.name, value: o.uuid, nodeName: o.nodeName });
+      }
+    });
+    this.setState({ options });
+  }
 
   //initializing description and will appears on the editor view
   static description = i18n.t('editor:properties.model.description');
+
+  //initializing iconComponent with image name
+  static iconComponent = Cube;
 
   //function to handle change in property src
   onChangeSrc = (src, initialProps) => {
     (this.props.editor as any).setPropertiesSelected({ ...initialProps, src });
   };
+
+
 
   //fucntion to handle changes in activeChipIndex property
   onChangeAnimation = activeClipIndex => {
@@ -116,6 +146,18 @@ export class ModelNodeEditor extends Component<
     (this.props.editor as any).setPropertySelected("payloadName", payloadName);
   };
 
+  // function to handle changes in payloadName property
+  onChangeRole = role => {
+    (this.props.editor as any).setPropertySelected("role", role);
+  };
+
+  //function to handle the changes in target
+  onChangeTarget = target => {
+    (this.props.editor as any).setPropertySelected(
+      "target", target
+    );
+  };
+
   // function to handle changes in payloadUrl
   onChangePayloadUrl = payloadUrl => {
     (this.props.editor as any).setPropertySelected("payloadUrl", payloadUrl);
@@ -147,11 +189,74 @@ export class ModelNodeEditor extends Component<
     return false;
   }
 
-// creating view for interactable type
-  renderInteractableTypeOptions = (node) =>{
-    switch (node.interactionType){
+  // creating view for interactable type
+  renderInteractableTypeOptions = (node) => {
+
+
+    const targetOption = this.state.options.find(o => o.value === node.target);
+    const target = targetOption ? targetOption.value : null;
+    const targetNotFound = node.target && target === null;
+
+    let selectValues = [];
+    if(node.target){
+    // Get current game mode -- check target game mode
+    console.log("Target is", node.target);
+
+    console.log("Editor nodes are", this.props.editor.nodes);
+
+    const nodeTarget = this.props.editor.nodes.find(node => node.uuid === target);
+    
+    if(nodeTarget){
+    console.log("nodeTarget", nodeTarget);
+
+    const gameMode = nodeTarget.gameMode;
+
+    const gameObjectRoles = this.props.editor.Engine.gameModes[gameMode].gameObjectRoles;
+    
+    console.log("gameObjectRoles are", gameObjectRoles);
+
+    selectValues = gameObjectRoles.map((role, index) => { return { label: role, value: index }; });
+
+    console.log("SelectValues are", selectValues);
+    }  
+  }
+    switch (node.interactionType) {
+      case 'gameobject': return <>
+        { /* @ts-ignore */}
+        <InputGroup
+          name="Game Target"
+          label={this.props.t('editor:properties.model.lbl-target')}
+        >
+          { /* @ts-ignore */}
+          <SelectInput
+            error={targetNotFound}
+            placeholder={
+              targetNotFound ? this.props.t('editor:properties.model.ph-errorNode') : this.props.t('editor:properties.triggereVolume.ph-selectNode')
+            }
+            value={node.target}
+            onChange={this.onChangeTarget}
+            options={this.state.options}
+            disabled={this.props.multiEdit}
+          />
+        </InputGroup>
+        { node.target &&
+          /* @ts-ignore */
+          <InputGroup
+            name="Role"
+            label={i18n.t('editor:properties.model.lbl-role')}
+          >
+            { /* @ts-ignore */}
+            <SelectInput
+              options={selectValues}
+              value={node.role}
+              onChange={this.onChangeRole}
+            />
+          </InputGroup>
+        }
+
+      </>;
       case 'infoBox': return <>
-        { /* @ts-ignore */ }
+        { /* @ts-ignore */}
         <InputGroup name="Name" label={this.props.t('editor:properties.model.lbl-name')}>
           <StringInput
             /* @ts-ignore */
@@ -159,7 +264,7 @@ export class ModelNodeEditor extends Component<
             onChange={this.onChangePayloadName}
           />
         </InputGroup>
-        { /* @ts-ignore */ }
+        { /* @ts-ignore */}
         <InputGroup name="Url" label={this.props.t('editor:properties.model.lbl-url')}>
           <StringInput
             /* @ts-ignore */
@@ -167,7 +272,7 @@ export class ModelNodeEditor extends Component<
             onChange={this.onChangePayloadUrl}
           />
         </InputGroup>
-         { /* @ts-ignore */ }
+        { /* @ts-ignore */}
         <InputGroup name="BuyUrl" label={this.props.t('editor:properties.model.lbl-buy')}>
           <StringInput
             /* @ts-ignore */
@@ -175,7 +280,7 @@ export class ModelNodeEditor extends Component<
             onChange={this.onChangePayloadBuyUrl}
           />
         </InputGroup>
-        { /* @ts-ignore */ }
+        { /* @ts-ignore */}
         <InputGroup name="LearnMoreUrl" label={this.props.t('editor:properties.model.lbl-learnMore')}>
           <StringInput
             /* @ts-ignore */
@@ -183,7 +288,7 @@ export class ModelNodeEditor extends Component<
             onChange={this.onChangePayloadLearnMoreUrl}
           />
         </InputGroup>
-        { /* @ts-ignore */ }
+        { /* @ts-ignore */}
         <InputGroup name="HtmlContent" label={this.props.t('editor:properties.model.lbl-htmlContent')}>
           <StringInput
             /* @ts-ignore */
@@ -198,18 +303,18 @@ export class ModelNodeEditor extends Component<
 
   // creating view for dependent fields
   renderInteractableDependantFields = (node) => {
-    switch (node.interactable){
+    switch (node.interactable) {
       case true: return <>
-        { /* @ts-ignore */ }
+        { /* @ts-ignore */}
         <InputGroup name="Interaction Text" label={this.props.t('editor:properties.model.lbl-interactionText')}>
-        { /* @ts-ignore */ }
+          { /* @ts-ignore */}
           <StringInput
             /* @ts-ignore */
             value={node.interactionText}
             onChange={this.onChangeInteractionText}
           />
         </InputGroup>
-        { /* @ts-ignore */ }
+        { /* @ts-ignore */}
         <InputGroup name="Interaction Type" label={this.props.t('editor:properties.model.lbl-interactionType')}>
           { /* @ts-ignore */}
           <SelectInput
@@ -231,12 +336,12 @@ export class ModelNodeEditor extends Component<
     return (
       /* @ts-ignore */
       <NodeEditor description={ModelNodeEditor.description} {...this.props}>
-        { /* @ts-ignore */ }
+        { /* @ts-ignore */}
         <InputGroup name="Model Url" label={this.props.t('editor:properties.model.lbl-modelurl')}>
           <ModelInput value={node.src} onChange={this.onChangeSrc} />
           {!(this.props.node as ModelNode).isValidURL && <div>{this.props.t('editor:properties.model.error-url')}</div>}
         </InputGroup>
-        { /* @ts-ignore */ }
+        { /* @ts-ignore */}
         <InputGroup name="Loop Animation" label={this.props.t('editor:properties.model.lbl-loopAnimation')}>
           { /* @ts-ignore */}
           <SelectInput
@@ -246,42 +351,42 @@ export class ModelNodeEditor extends Component<
             onChange={this.onChangeAnimation}
           />
         </InputGroup>
-        { /* @ts-ignore */ }
+        { /* @ts-ignore */}
         <InputGroup name="Collidable" label={this.props.t('editor:properties.model.lbl-collidable')}>
           <BooleanInput
             value={node.collidable}
             onChange={this.onChangeCollidable}
           />
         </InputGroup>
-        { /* @ts-ignore */ }
+        { /* @ts-ignore */}
         <InputGroup name="Save Colliders" label={this.props.t('editor:properties.model.lbl-saveColliders')}>
           <BooleanInput
             value={node.saveColliders}
             onChange={this.onChangeSaveColliders}
           />
         </InputGroup>
-        { /* @ts-ignore */ }
+        { /* @ts-ignore */}
         <InputGroup name="Walkable" label={this.props.t('editor:properties.model.lbl-walkable')}>
           <BooleanInput
             value={node.walkable}
             onChange={this.onChangeWalkable}
           />
         </InputGroup>
-        { /* @ts-ignore */ }
+        { /* @ts-ignore */}
         <InputGroup name="Cast Shadow" label={this.props.t('editor:properties.model.lbl-castShadow')}>
           <BooleanInput
             value={node.castShadow}
             onChange={this.onChangeCastShadow}
           />
         </InputGroup>
-        { /* @ts-ignore */ }
+        { /* @ts-ignore */}
         <InputGroup name="Receive Shadow" label={this.props.t('editor:properties.model.lbl-receiveShadow')}>
           <BooleanInput
             value={node.receiveShadow}
             onChange={this.onChangeReceiveShadow}
           />
         </InputGroup>
-        { /* @ts-ignore */ }
+        { /* @ts-ignore */}
         <InputGroup name="Interactable" label={this.props.t('editor:properties.model.lbl-interactable')}>
           <BooleanInput
             value={node.interactable}

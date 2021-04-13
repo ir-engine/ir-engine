@@ -7,6 +7,7 @@ import { logoutUser } from '../../../user/reducers/auth/service';
 import { showDialog } from '../../reducers/dialog/service';
 import SignIn from '../../../user/components/Auth/Login';
 import Dropdown from '../../../user/components/Profile/ProfileDropdown';
+// @ts-ignore
 import styles from './NavUserWidget.module.scss';
 import {Button} from '@material-ui/core';
 

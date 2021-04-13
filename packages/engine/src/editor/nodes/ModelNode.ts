@@ -23,18 +23,20 @@ export default class ModelNode extends EditorNodeMixin(Model) {
     const node = await super.deserialize(editor, json);
     loadAsync(
       (async () => {
-        const { src, attribution } = json.components.find(
+        const { src } = json.components.find(
           c => c.name === "gltf-model"
         ).props;
 
-        await node.load(src, onError);
-        // Legacy, might be a raw string left over before switch to JSON.
-        if (attribution && typeof attribution === "string") {
-          const [name, author] = attribution.split(" by ");
-          node.attribution = { name, author };
-        } else {
-          node.attribution = attribution;
+        const gameObject = json.components.find(
+          c => c.name === "game-object"
+        );
+
+        if(gameObject){
+          node.target = gameObject.props.target;
+          node.role = gameObject.props.role;
         }
+
+        await node.load(src, onError);
         node.collidable = !!json.components.find(c => c.name === "collidable");
         node.saveColliders = !!json.components.find(c => c.name === "mesh-collider-0");
         node.walkable = !!json.components.find(c => c.name === "walkable");
@@ -85,10 +87,10 @@ export default class ModelNode extends EditorNodeMixin(Model) {
   }
   constructor(editor) {
     super(editor);
-    this.attribution = null;
     this._canonicalUrl = "";
     this.collidable = true;
     this.saveColliders = false;
+    this.target = null;
     this.walkable = true;
     this.initialScale = 1;
     this.boundingBox = new Box3();
@@ -119,7 +121,6 @@ export default class ModelNode extends EditorNodeMixin(Model) {
       return;
     }
     this._canonicalUrl = nextSrc;
-    this.attribution = null;
     this.issues = [];
     this.gltfJson = null;
     if (this.model) {
@@ -131,11 +132,11 @@ export default class ModelNode extends EditorNodeMixin(Model) {
     try {
       console.log("Try");
       this.isValidURL=true;
-      const { accessibleUrl, files } = await this.editor.api.resolveMedia(src);
+      const { url, files } = await this.editor.api.resolveMedia(src);
       if (this.model) {
         this.editor.renderer.removeBatchedObject(this.model);
       }
-      await super.load(accessibleUrl);
+      await super.load(url);
 
       if (this.initialScale === "fit") {
         this.scale.set(1, 1, 1);
@@ -354,7 +355,6 @@ parseColliders( data, type, mass, position, quaternion, scale, mesh ) {
     const components = {
       "gltf-model": {
         src: this._canonicalUrl,
-        attribution: this.attribution,
         dontParseModel: this.saveColliders
       },
       shadow: {
@@ -373,6 +373,14 @@ parseColliders( data, type, mass, position, quaternion, scale, mesh ) {
         payloadModelUrl : this._canonicalUrl,
       }
     };
+
+    if(this.interactionType === "gameobject"){
+      components['game-object'] = {
+        target: this.target,
+        role: this.role
+      }
+    }
+    
     if (this.saveColliders) {
       this.parseAndSaveColliders(components);
     }
@@ -399,7 +407,7 @@ parseColliders( data, type, mass, position, quaternion, scale, mesh ) {
       this.gltfJson = source.gltfJson;
       this._canonicalUrl = source._canonicalUrl;
     }
-    this.attribution = source.attribution;
+    this.target = source.target;
     this.collidable = source.collidable;
     this.saveColliders = source.saveColliders;
     this.walkable = source.walkable;

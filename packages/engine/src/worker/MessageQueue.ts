@@ -1,3 +1,10 @@
+
+/**
+ * Multithreaded threejs polyfills, proxies and utilities using offscreen canvas API
+ * 
+ * @author Josh Field <github.com/hexafield>
+ */
+
 import {
   Audio as THREE_Audio,
   AudioListener as THREE_AudioListener,
@@ -28,7 +35,6 @@ import {
   XRTransientInputHitTestOptionsInit,
   XRTransientInputHitTestSource
 } from '../input/types/WebXR';
-
 
 const { generateUUID } = MathUtils;
 

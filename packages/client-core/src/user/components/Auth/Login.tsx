@@ -5,6 +5,7 @@ import UserIcon from '@material-ui/icons/Person';
 import { Config } from '../../../helper';
 import MagicLinkEmail from './MagicLinkEmail';
 import { Tabs, Tab } from '@material-ui/core';
+// @ts-ignore
 import styles from './Auth.module.scss';
 import SocialLogin from './SocialLogin';
 import PasswordLogin from './PasswordLogin';
