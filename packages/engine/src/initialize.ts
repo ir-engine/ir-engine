@@ -69,7 +69,7 @@ export const initializeEngine = async (options): Promise<void> => {
   Engine.gameModes = options.gameModes;
 
   const { postProcessing } = options;
-  let { useOfflineMode } = options;
+  const { useOfflineMode } = options;
 
   Engine.offlineMode = useOfflineMode;
 
@@ -207,5 +207,5 @@ export const initializeServer = async (initOptions: any = DefaultInitializationO
         update: (delta, elapsedTime) => execute(delta, elapsedTime, SystemUpdateType.Free)
       }, Engine.physicsFrameRate, Engine.networkFramerate).start();
   }, 1000);
-  await AnimationManager.instance.getDefaultModel()
+  // await AnimationManager.instance.getDefaultModel()
 }

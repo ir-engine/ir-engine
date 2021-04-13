@@ -46,7 +46,6 @@ export default class ImageMediaSource extends BaseSource {
           result.images &&
           result.images.preview &&
           result.images.preview.url,
-        attributions: result.attributions,
         label: result.name,
         type: ItemTypes.Image,
         url: result.url,

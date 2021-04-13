@@ -1,6 +1,5 @@
 
 import Fuse from "fuse.js";
-import { proxiedUrlFor } from "../Api";
 import { BaseSource } from "./sources";
 import { ItemTypes } from "../dnd";
 import ImageNode from "@xr3ngine/engine/src/editor/nodes/ImageNode";
@@ -53,9 +52,7 @@ export default class AssetManifestSource extends BaseSource {
     this.editor = editor;
     this.id = manifestUrl;
     this.name = name;
-    this.manifestUrl = proxiedUrlFor(
-      new URL(manifestUrl, (window as any).location).href
-    );
+    this.manifestUrl = new URL(manifestUrl, (window as any).location).href;
     this.assets = [];
     this.tags = [];
     this.loaded = false;
@@ -84,7 +81,7 @@ export default class AssetManifestSource extends BaseSource {
     // loop over manifest assets
     for (const asset of manifest.assets) {
       // get proxied asset url using manifestUrl
-      const assetUrl = proxiedUrlFor(new URL(asset.url, this.manifestUrl).href);
+      const assetUrl = new URL(asset.url, this.manifestUrl).href;
       const nodeClass = assetTypeToNodeClass[asset.type];
       const nodeEditor = this.editor.nodeEditors.get(nodeClass);
       //creationg array assets by pushing assets one by one

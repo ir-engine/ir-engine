@@ -7,6 +7,7 @@ import {
     TableSortLabel
 } from '@material-ui/core';
 
+// @ts-ignore
 import styles from './Admin.module.scss';
 
 type Order = 'asc' | 'desc';

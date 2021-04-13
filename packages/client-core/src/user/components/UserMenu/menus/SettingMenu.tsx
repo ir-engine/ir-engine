@@ -11,6 +11,7 @@ import {
     Slider,
     Typography
 } from '@material-ui/core';
+// @ts-ignore
 import styles from '../style.module.scss';
 import { WebGLRendererSystem } from '@xr3ngine/engine/src/renderer/WebGLRendererSystem';
 import { EngineEvents } from '@xr3ngine/engine/src/ecs/classes/EngineEvents';

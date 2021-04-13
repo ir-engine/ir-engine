@@ -1,4 +1,5 @@
 import React from 'react';
+// @ts-ignore
 import styles from './Common.module.scss';
 
 const PageLoader = (): any => (

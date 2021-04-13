@@ -15,6 +15,7 @@ import CardMedia from '@material-ui/core/CardMedia';
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
 import { Trans, useTranslation } from "react-i18next";
 
+// @ts-ignore
 import styles from '../../../socialmedia/components/Login/Login.module.scss';
 
 const mapStateToProps = (state: any): any => {

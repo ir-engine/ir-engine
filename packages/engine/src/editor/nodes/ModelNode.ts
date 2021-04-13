@@ -23,7 +23,7 @@ export default class ModelNode extends EditorNodeMixin(Model) {
     const node = await super.deserialize(editor, json);
     loadAsync(
       (async () => {
-        const { src, attribution } = json.components.find(
+        const { src } = json.components.find(
           c => c.name === "gltf-model"
         ).props;
 
@@ -37,13 +37,6 @@ export default class ModelNode extends EditorNodeMixin(Model) {
         }
 
         await node.load(src, onError);
-        // Legacy, might be a raw string left over before switch to JSON.
-        if (attribution && typeof attribution === "string") {
-          const [name, author] = attribution.split(" by ");
-          node.attribution = { name, author };
-        } else {
-          node.attribution = attribution;
-        }
         node.collidable = !!json.components.find(c => c.name === "collidable");
         node.saveColliders = !!json.components.find(c => c.name === "mesh-collider-0");
         node.walkable = !!json.components.find(c => c.name === "walkable");
@@ -94,7 +87,6 @@ export default class ModelNode extends EditorNodeMixin(Model) {
   }
   constructor(editor) {
     super(editor);
-    this.attribution = null;
     this._canonicalUrl = "";
     this.collidable = true;
     this.saveColliders = false;
@@ -129,7 +121,6 @@ export default class ModelNode extends EditorNodeMixin(Model) {
       return;
     }
     this._canonicalUrl = nextSrc;
-    this.attribution = null;
     this.issues = [];
     this.gltfJson = null;
     if (this.model) {
@@ -141,11 +132,11 @@ export default class ModelNode extends EditorNodeMixin(Model) {
     try {
       console.log("Try");
       this.isValidURL=true;
-      const { accessibleUrl, files } = await this.editor.api.resolveMedia(src);
+      const { url, files } = await this.editor.api.resolveMedia(src);
       if (this.model) {
         this.editor.renderer.removeBatchedObject(this.model);
       }
-      await super.load(accessibleUrl);
+      await super.load(url);
 
       if (this.initialScale === "fit") {
         this.scale.set(1, 1, 1);
@@ -364,7 +355,6 @@ parseColliders( data, type, mass, position, quaternion, scale, mesh ) {
     const components = {
       "gltf-model": {
         src: this._canonicalUrl,
-        attribution: this.attribution,
         dontParseModel: this.saveColliders
       },
       shadow: {
@@ -418,7 +408,6 @@ parseColliders( data, type, mass, position, quaternion, scale, mesh ) {
       this._canonicalUrl = source._canonicalUrl;
     }
     this.target = source.target;
-    this.attribution = source.attribution;
     this.collidable = source.collidable;
     this.saveColliders = source.saveColliders;
     this.walkable = source.walkable;

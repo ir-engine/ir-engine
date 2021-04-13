@@ -16,6 +16,7 @@ import {
     Paper,
     Button, MenuItem, Select,
 } from '@material-ui/core';
+// @ts-ignore
 import styles from './Admin.module.scss';
 import UserModel from "./UserModel";
 import Search from "./Search";

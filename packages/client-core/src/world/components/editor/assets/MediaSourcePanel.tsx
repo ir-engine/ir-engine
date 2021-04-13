@@ -23,7 +23,6 @@ export default function MediaSourcePanel({
   const { params, setParams, isLoading, loadMore, hasMore, results } = useAssetSearch(
     source
   );
-
   //callback function to handle select on media source
   const onSelect = useCallback(
     item => {

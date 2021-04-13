@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+// @ts-ignore
 import styles from './PartyVideoWindows.module.scss';
 import { ChevronRight } from '@material-ui/icons';
 import PartyParticipantWindow from '../PartyParticipantWindow';

@@ -24,6 +24,7 @@ import {
     Paper,
     TablePagination
 } from '@material-ui/core';
+// @ts-ignore
 import styles from './Scenes.module.scss';
 import AddToContentPackModel from './AddToContentPackModal';
 

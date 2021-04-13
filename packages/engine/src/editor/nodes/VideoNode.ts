@@ -83,7 +83,7 @@ export default class VideoNode extends EditorNodeMixin(Video) {
       (this.el as any).pause();
     }
     try {
-      const { accessibleUrl, contentType } = await this.editor.api.resolveMedia(
+      const { url, contentType } = await this.editor.api.resolveMedia(
         src
       );
       const isHls = isHLS(src, contentType);
@@ -94,7 +94,7 @@ export default class VideoNode extends EditorNodeMixin(Video) {
           }
         });
       }
-      await super.load(accessibleUrl, contentType);
+      await super.load(url, contentType);
       if (isHls && this.hls) {
         this.hls.stopLoad();
       } else if ((this.el as any).duration) {

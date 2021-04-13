@@ -1,11 +1,8 @@
 import { hooks } from '@feathersjs/authentication';
 import { iff, disallow } from 'feathers-hooks-common';
-// import convertVideo from '@xr3ngine/server-core/src/hooks/convert-video';
-import addAttribution from '@xr3ngine/server-core/src/hooks/add-attribution';
 import restrictUserRole from '@xr3ngine/server-core/src/hooks/restrict-user-role';
 import addUserToBody from '@xr3ngine/server-core/src/hooks/set-loggedin-user-in-body';
 import config from '../../appconfig';
-// Don't remove this comment. It's needed to format import lines nicely.
 
 const { authenticate } = hooks;
 
@@ -31,7 +28,7 @@ export default {
     all: [],
     find: [],
     get: [],
-    create: [addAttribution/*, convertVideo*/],
+    create: [],
     update: [],
     patch: [],
     remove: []

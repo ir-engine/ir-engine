@@ -8,6 +8,7 @@ import LinkedinIcon from '@material-ui/icons/LinkedIn';
 import TwitterIcon from '@material-ui/icons/Twitter';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
+// @ts-ignore
 import styles from './Auth.module.scss';
 import { loginUserByOAuth } from '../../reducers/auth/service';
 import { useTranslation } from "react-i18next";

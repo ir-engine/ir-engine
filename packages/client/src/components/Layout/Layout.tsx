@@ -22,6 +22,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 import LeftDrawer from '../Drawer/Left';
 import RightDrawer from '../Drawer/Right';
+// @ts-ignore
 import styles from './Layout.module.scss';
 
 const { publicRuntimeConfig } = getConfig();

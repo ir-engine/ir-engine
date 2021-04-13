@@ -1,4 +1,5 @@
 import React from "react";
+// @ts-ignore
 import styles from './ToolTipContainer.module.scss';
 import { isMobileOrTablet } from "@xr3ngine/engine/src/common/functions/isMobile";
 import Snackbar from '@material-ui/core/Snackbar';

@@ -103,7 +103,6 @@ export * from './src/editor/functions/utils';
 export * from './src/editor/renderer/EnvironmentMap';
 export * from './src/game/components/Game';
 export * from './src/game/components/GameObject';
-export * from './src/game/components/GamePlayer';
 export * from './src/game/interfaces/GameObjectPrefab';
 export * from './src/game/systems/GameManagerSystem';
 export * from './src/game/types/GameMode';

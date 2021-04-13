@@ -6,6 +6,7 @@ import Typography from '@material-ui/core/Typography';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 
+// @ts-ignore
 import styles from './TipsAndTricks.module.scss';
 
 export const TipsAndTricks = () => { 

@@ -9,6 +9,7 @@ import InfoIcon from '@material-ui/icons/Info';
 import { connect } from 'react-redux';
 import Container from '@material-ui/core/Container';
 import { bindActionCreators, Dispatch } from 'redux';
+// @ts-ignore
 import styles from './Admin.module.scss';
 import VideoModal from './VideoModal';
 import { useRouter } from 'next/router';

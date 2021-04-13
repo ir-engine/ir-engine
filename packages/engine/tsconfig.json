@@ -23,6 +23,6 @@
     "jsx": "react"
   },
 
-  "include": ["./src/**/*.ts", "./src/**/*.tsx"],
-  "exclude": ["**/*.d.ts", "node_modules", "dist", "tsconfig.json", "tests/", "../../node_modules"]
+  "include": ["src/**/*.ts", "src/**/*.tsx"],
+  "exclude": ["src/**/*.d.ts", "node_modules", "dist", "tsconfig.json", "tests/"]
 }
