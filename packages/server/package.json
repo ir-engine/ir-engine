@@ -159,7 +159,7 @@
     "@types/lodash": "4.14.168",
     "@types/mime-types": "2.1.0",
     "@types/multer": "1.4.5",
-    "@types/node": "13.13.48",
+    "@types/node": "13.13.49",
     "@types/node-fetch": "2.5.10",
     "@types/nodemailer-smtp-transport": "2.7.4",
     "@types/pug": "2.0.4",
