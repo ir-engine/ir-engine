@@ -1,4 +1,4 @@
-import { useRouter } from 'next/router';
+import { useHistory } from 'react-router-dom';
 import { useEffect } from "react";
 
 
@@ -9,7 +9,7 @@ import { useEffect } from "react";
 export default function LandingPage () {
 	
 	// Creating router object.
-	  const router = useRouter();
+	  const router = useHistory();
 	  useEffect(() => {
 	    router.push("/editor/projects");
 	  });

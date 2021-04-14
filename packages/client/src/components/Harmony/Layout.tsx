@@ -7,9 +7,8 @@ import { selectLocationState } from '@xr3ngine/client-core/src/social/reducers/l
 import { selectAuthState } from '@xr3ngine/client-core/src/user/reducers/auth/selector';
 import { doLoginAuto } from '@xr3ngine/client-core/src/user/reducers/auth/service';
 import theme from '@xr3ngine/client-core/src/theme';
-import getConfig from 'next/config';
-import Head from 'next/head';
-import { useRouter } from 'next/router';
+import { Config } from '@xr3ngine/client-core/src/helper';
+import { Helmet } from 'react-helmet';
 import React, { Fragment, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
@@ -17,8 +16,7 @@ import Harmony from '.';
 import LeftDrawer from '../Drawer/Left';
 import RightDrawer from '../Drawer/Right';
 
-const {publicRuntimeConfig} = getConfig();
-const siteTitle: string = publicRuntimeConfig.siteTitle;
+const siteTitle: string = Config.publicRuntimeConfig.siteTitle;
 
 const initialSelectedUserState = {
     id: '',
@@ -64,7 +62,6 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 });
 
 const Layout = (props: Props): any => {
-    const path = useRouter().pathname;
     const {
         pageTitle,
         children,
@@ -123,11 +120,11 @@ const Layout = (props: Props): any => {
     return (
         <ThemeProvider theme={theme}>
             <section>
-                <Head>
+                <Helmet>
                     <title>
                         {siteTitle} | {pageTitle}
                     </title>
-                </Head>
+                </Helmet>
                 <Harmony
                     isHarmonyPage={true}
                     setHarmonyOpen={setHarmonyOpen}
