@@ -11,10 +11,9 @@ import { ClientNetworkSystem } from '@xr3ngine/engine/src/networking/systems/Cli
 import { styleCanvas } from '@xr3ngine/engine/src/renderer/functions/styleCanvas';
 import { DefaultNetworkSchema } from '@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema';
 import { XRSystem } from '@xr3ngine/engine/src/xr/systems/XRSystem';
-import dynamic from 'next/dynamic';
 import React, { useEffect, useState } from 'react';
 
-const MobileGamepad = dynamic<MobileGamepadProps>(() => import("@xr3ngine/client-core/src/common/components/MobileGamepad").then((mod) => mod.MobileGamepad), { ssr: false });
+const MobileGamepad = React.lazy(() => import("@xr3ngine/client-core/src/common/components/MobileGamepad"));
 const engineRendererCanvasId = 'engine-renderer-canvas';
 
 interface Props {

@@ -1,12 +1,12 @@
-import Head from 'next/head';
+import { Helmet } from 'react-helmet';
 import React, { useEffect } from 'react';
 import ContactForm from '@xr3ngine/client-core/src/common/components/ContactForm';
-import { useRouter } from 'next/router';
+import { useHistory } from 'react-router-dom';
 import { Capacitor } from '@capacitor/core';
 import { useTranslation } from 'react-i18next';
 
 export const HomePage = (): any => {
-    const router = useRouter();
+    const router = useHistory();
     const { t } = useTranslation();
     useEffect(() => {
         if(Capacitor.isNative){
@@ -16,9 +16,9 @@ export const HomePage = (): any => {
 
     return (
         <div className="lander">
-            <Head>
+            <Helmet>
                 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;400;600;800&display=swap" rel="stylesheet"/>
-            </Head>
+            </Helmet>
             <div className="lander-container">
                 <div className="row mb-padding">
                     <object className="lander-logo" data="static/overlay_mark.svg" />

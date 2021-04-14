@@ -76,7 +76,7 @@ const playerScoreActionServer: GameStateAction = (data: any): void => {
   console.log("data is", data);
 }
 
-const GolfGameMode: GameMode = {
+export const GolfGameMode: GameMode = {
   name: "Default",
   actions: {
     [DefaultGameStateAction.onGameStarted]: gameStartAction,
