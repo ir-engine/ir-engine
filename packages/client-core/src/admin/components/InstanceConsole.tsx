@@ -16,7 +16,6 @@ import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 // @ts-ignore
 import styles from './Admin.module.scss';
-import { Router, withRouter } from "next/router";
 import InstanceModal from './InstanceModal';
 import CreateInstance from "./CreateInstance";
 import { Delete, Edit } from '@material-ui/icons';
@@ -36,7 +35,6 @@ if (!global.setImmediate) {
 }
 
 interface Props {
-    router: Router;
     adminState?: any;
     authState?: any;
     locationState?: any;
@@ -67,7 +65,6 @@ const Transition = React.forwardRef((
   
 function InstanceConsole(props: Props) {
     const {
-        router,
         adminState,
         authState,
         fetchAdminInstances,
@@ -368,4 +365,4 @@ function InstanceConsole(props: Props) {
 }
 
 
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(InstanceConsole));
+export default connect(mapStateToProps, mapDispatchToProps)(InstanceConsole);

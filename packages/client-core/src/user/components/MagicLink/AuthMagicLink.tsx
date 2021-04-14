@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { useRouter, NextRouter } from 'next/router';
+import { withRouter } from 'react-router-dom';
 import {
   loginUserByJwt,
   refreshConnections,
@@ -16,7 +16,7 @@ import { VerifyEmail } from '../Auth/VerifyEmail';
 import { User } from '@xr3ngine/common/src/interfaces/User';
 
 interface Props {
-  router: NextRouter;
+  match: any;
   auth: any;
   verifyEmail: typeof verifyEmail;
   resetPassword: typeof resetPassword;
@@ -32,11 +32,11 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 });
 
 const AuthMagicLink = (props: Props): any => {
-  const { auth, loginUserByJwt, refreshConnections, router } = props;
+  const { auth, loginUserByJwt, refreshConnections, match } = props;
 
   useEffect(() => {
-    const type = router.query.type as string;
-    const token = router.query.token as string;
+    const type = match.params.type as string;
+    const token = match.params.token as string;
 
     if (type === 'login') {
       loginUserByJwt(token, '/', '/');
@@ -61,16 +61,15 @@ const AuthMagicLink = (props: Props): any => {
 };
 
 const AuthMagicLinkWrapper = (props: any): any => {
-  const router = useRouter();
-  const type = router.query.type as string;
-  const token = router.query.token as string;
+  const type = props.match.params.type as string;
+  const token = props.match.params.token as string;
 
   if (type === 'verify') {
     return <VerifyEmail {...props} type={type} token={token} />;
   } else if (type === 'reset') {
     return <ResetPassword {...props} type={type} token={token} />;
   }
-  return <AuthMagicLink {...props} router={router} />;
+  return <AuthMagicLink {...props} match={props.match} />;
 };
 
-export default connect(null, mapDispatchToProps)(AuthMagicLinkWrapper);
+export default withRouter(connect(null, mapDispatchToProps)(AuthMagicLinkWrapper));

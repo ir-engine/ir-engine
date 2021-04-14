@@ -1,5 +1,5 @@
-import React, { Suspense } from 'react'
-import ReactDOM from 'react-dom'
+import React, { Suspense } from 'react';
+import ReactDOM from 'react-dom';
 import { initialize } from './util';
 
 // Initialize i18n and client-core
@@ -13,5 +13,5 @@ initialize()
             <StoreProvider />
         </Suspense>,
         document.getElementById('root')
-    )
+    );
 });

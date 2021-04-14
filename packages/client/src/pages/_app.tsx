@@ -77,7 +77,7 @@ const StroreProvider = () => {
         <App />
       </BrowserRouter>
     </Provider>
-  )
-}
+  );
+};
 
 export default StroreProvider;

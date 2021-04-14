@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 import { client } from "../../feathers";
-import { Router, withRouter } from "next/router";
 import FormControl from '@material-ui/core/FormControl';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import {
@@ -41,7 +40,6 @@ if (!global.setImmediate) {
 
 
 interface Props {
-    router: Router;
     adminState?: any;
     authState?: any;
     locationState?: any;
@@ -100,7 +98,6 @@ const Transition = React.forwardRef((
 const UserConsole = (props: Props) => {
     const classes = useStyles();
     const {
-        router,
         adminState,
         authState,
         fetchUsersAsAdmin,
@@ -421,4 +418,4 @@ const UserConsole = (props: Props) => {
 };
 
 
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(UserConsole));
+export default connect(mapStateToProps, mapDispatchToProps)(UserConsole);

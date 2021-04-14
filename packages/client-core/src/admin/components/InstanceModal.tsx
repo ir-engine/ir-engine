@@ -15,7 +15,7 @@ import Snackbar from '@material-ui/core/Snackbar';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import MuiAlert, { AlertProps } from '@material-ui/lab/Alert';
 import classNames from 'classnames';
-import { Router, withRouter } from "next/router";
+import { useHistory } from "react-router-dom";
 import React, { useEffect, useRef, useState } from 'react';
 import { connect } from 'react-redux';
 import { Dispatch } from "redux";
@@ -26,7 +26,6 @@ import { selectAdminState } from '../reducers/admin/selector';
 // @ts-ignore
 import styles from './Admin.module.scss';
 interface Props {
-    router: Router,
     open: boolean;
     handleClose: any;
     instance: any;
@@ -58,12 +57,12 @@ const useStyles = makeStyles((theme: Theme) => ({
 
 const InstanceModal = (props: Props): any => {
     const {
-        router,
         open,
         handleClose,
         instance
     } = props;
 
+    const router = useHistory();
     const classes = useStyles();
     const [openToast, setOpenToast] = React.useState(false);
     const [message, setMessage] = React.useState('');
@@ -236,4 +235,4 @@ const InstanceModal = (props: Props): any => {
     );
 };
 
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(InstanceModal));
+export default connect(mapStateToProps, mapDispatchToProps)(InstanceModal);
