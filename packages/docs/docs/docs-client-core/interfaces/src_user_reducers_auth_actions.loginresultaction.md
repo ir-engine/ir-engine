@@ -16,7 +16,7 @@ hide_title: true
 
 • `Optional` **authUser**: AuthUser
 
-Defined in: [packages/client-core/src/user/reducers/auth/actions.ts:63](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/user/reducers/auth/actions.ts#L63)
+Defined in: [packages/client-core/src/user/reducers/auth/actions.ts:63](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/user/reducers/auth/actions.ts#L63)
 
 ___
 
@@ -24,7 +24,7 @@ ___
 
 • **message**: *string*
 
-Defined in: [packages/client-core/src/user/reducers/auth/actions.ts:64](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/user/reducers/auth/actions.ts#L64)
+Defined in: [packages/client-core/src/user/reducers/auth/actions.ts:64](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/user/reducers/auth/actions.ts#L64)
 
 ___
 
@@ -32,4 +32,4 @@ ___
 
 • **type**: *string*
 
-Defined in: [packages/client-core/src/user/reducers/auth/actions.ts:62](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/user/reducers/auth/actions.ts#L62)
+Defined in: [packages/client-core/src/user/reducers/auth/actions.ts:62](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/user/reducers/auth/actions.ts#L62)

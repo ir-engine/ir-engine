@@ -12,4 +12,10 @@ hide_title: true
 
 ### Classes
 
-- [default](../classes/src_world_components_editor_inputs_fileinput.default.md)
+- [FileInput](../classes/src_world_components_editor_inputs_fileinput.fileinput.md)
+
+## References
+
+### default
+
+Renames and exports: [FileInput](../classes/src_world_components_editor_inputs_fileinput.fileinput.md)

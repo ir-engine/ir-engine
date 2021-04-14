@@ -16,7 +16,7 @@ hide_title: true
 
 • **id**: *string*
 
-Defined in: [interfaces/LocationSettings.ts:2](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/common/src/interfaces/LocationSettings.ts#L2)
+Defined in: [interfaces/LocationSettings.ts:2](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/common/src/interfaces/LocationSettings.ts#L2)
 
 ___
 
@@ -24,7 +24,7 @@ ___
 
 • **instanceMediaChatEnabled**: *boolean*
 
-Defined in: [interfaces/LocationSettings.ts:5](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/common/src/interfaces/LocationSettings.ts#L5)
+Defined in: [interfaces/LocationSettings.ts:5](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/common/src/interfaces/LocationSettings.ts#L5)
 
 ___
 
@@ -32,7 +32,7 @@ ___
 
 • **locationId**: *string*
 
-Defined in: [interfaces/LocationSettings.ts:3](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/common/src/interfaces/LocationSettings.ts#L3)
+Defined in: [interfaces/LocationSettings.ts:3](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/common/src/interfaces/LocationSettings.ts#L3)
 
 ___
 
@@ -40,7 +40,7 @@ ___
 
 • **locationType**: *string*
 
-Defined in: [interfaces/LocationSettings.ts:6](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/common/src/interfaces/LocationSettings.ts#L6)
+Defined in: [interfaces/LocationSettings.ts:6](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/common/src/interfaces/LocationSettings.ts#L6)
 
 ___
 
@@ -48,4 +48,4 @@ ___
 
 • **videoEnabled**: *boolean*
 
-Defined in: [interfaces/LocationSettings.ts:4](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/common/src/interfaces/LocationSettings.ts#L4)
+Defined in: [interfaces/LocationSettings.ts:4](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/common/src/interfaces/LocationSettings.ts#L4)

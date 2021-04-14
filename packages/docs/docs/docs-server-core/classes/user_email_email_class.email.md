@@ -37,7 +37,7 @@ Name | Type |
 
 Overrides: Service.constructor
 
-Defined in: [packages/server-core/src/user/email/email.class.ts:9](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/user/email/email.class.ts#L9)
+Defined in: [packages/server-core/src/user/email/email.class.ts:9](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/user/email/email.class.ts#L9)
 
 ## Properties
 

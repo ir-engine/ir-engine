@@ -16,7 +16,7 @@ hide_title: true
 
 • **name**: *any*
 
-Defined in: [packages/client-core/src/user/reducers/auth/actions.ts:96](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/user/reducers/auth/actions.ts#L96)
+Defined in: [packages/client-core/src/user/reducers/auth/actions.ts:96](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/user/reducers/auth/actions.ts#L96)
 
 ___
 
@@ -24,4 +24,4 @@ ___
 
 • **type**: *string*
 
-Defined in: [packages/client-core/src/user/reducers/auth/actions.ts:95](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/user/reducers/auth/actions.ts#L95)
+Defined in: [packages/client-core/src/user/reducers/auth/actions.ts:95](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/user/reducers/auth/actions.ts#L95)

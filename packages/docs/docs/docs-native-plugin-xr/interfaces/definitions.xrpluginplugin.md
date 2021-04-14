@@ -28,7 +28,7 @@ Name | Type |
 
 **Returns:** *Promise*<{ `path`: *string* ; `status`: *string*  }\>
 
-Defined in: [packages/native-plugin-xr/src/definitions.ts:232](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/native-plugin-xr/src/definitions.ts#L232)
+Defined in: [packages/native-plugin-xr/src/definitions.ts:232](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/native-plugin-xr/src/definitions.ts#L232)
 
 ___
 
@@ -44,7 +44,7 @@ Name | Type |
 
 **Returns:** *Promise*<{ `status`: *string*  }\>
 
-Defined in: [packages/native-plugin-xr/src/definitions.ts:224](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/native-plugin-xr/src/definitions.ts#L224)
+Defined in: [packages/native-plugin-xr/src/definitions.ts:224](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/native-plugin-xr/src/definitions.ts#L224)
 
 ___
 
@@ -60,7 +60,7 @@ Name | Type |
 
 **Returns:** *Promise*<{ `status`: *string*  }\>
 
-Defined in: [packages/native-plugin-xr/src/definitions.ts:206](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/native-plugin-xr/src/definitions.ts#L206)
+Defined in: [packages/native-plugin-xr/src/definitions.ts:206](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/native-plugin-xr/src/definitions.ts#L206)
 
 ___
 
@@ -76,7 +76,7 @@ Name | Type |
 
 **Returns:** *Promise*<{ `info`: [*VideoEditorVideoInfoOptions*](definitions.videoeditorvideoinfooptions.md)  }\>
 
-Defined in: [packages/native-plugin-xr/src/definitions.ts:234](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/native-plugin-xr/src/definitions.ts#L234)
+Defined in: [packages/native-plugin-xr/src/definitions.ts:234](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/native-plugin-xr/src/definitions.ts#L234)
 
 ___
 
@@ -86,7 +86,7 @@ ___
 
 **Returns:** *void*
 
-Defined in: [packages/native-plugin-xr/src/definitions.ts:193](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/native-plugin-xr/src/definitions.ts#L193)
+Defined in: [packages/native-plugin-xr/src/definitions.ts:193](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/native-plugin-xr/src/definitions.ts#L193)
 
 ___
 
@@ -102,7 +102,7 @@ Name | Type |
 
 **Returns:** *Promise*<{ `status`: *string*  }\>
 
-Defined in: [packages/native-plugin-xr/src/definitions.ts:216](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/native-plugin-xr/src/definitions.ts#L216)
+Defined in: [packages/native-plugin-xr/src/definitions.ts:216](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/native-plugin-xr/src/definitions.ts#L216)
 
 ___
 
@@ -118,7 +118,7 @@ Name | Type |
 
 **Returns:** *Promise*<{ `status`: *string*  }\>
 
-Defined in: [packages/native-plugin-xr/src/definitions.ts:188](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/native-plugin-xr/src/definitions.ts#L188)
+Defined in: [packages/native-plugin-xr/src/definitions.ts:188](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/native-plugin-xr/src/definitions.ts#L188)
 
 ___
 
@@ -134,7 +134,7 @@ Name | Type |
 
 **Returns:** *Promise*<{ `status`: *string*  }\>
 
-Defined in: [packages/native-plugin-xr/src/definitions.ts:220](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/native-plugin-xr/src/definitions.ts#L220)
+Defined in: [packages/native-plugin-xr/src/definitions.ts:220](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/native-plugin-xr/src/definitions.ts#L220)
 
 ___
 
@@ -150,7 +150,7 @@ Name | Type |
 
 **Returns:** *Promise*<{ `status`: *string*  }\>
 
-Defined in: [packages/native-plugin-xr/src/definitions.ts:218](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/native-plugin-xr/src/definitions.ts#L218)
+Defined in: [packages/native-plugin-xr/src/definitions.ts:218](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/native-plugin-xr/src/definitions.ts#L218)
 
 ___
 
@@ -166,7 +166,7 @@ Name | Type |
 
 **Returns:** *Promise*<{ `status`: *string*  }\>
 
-Defined in: [packages/native-plugin-xr/src/definitions.ts:210](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/native-plugin-xr/src/definitions.ts#L210)
+Defined in: [packages/native-plugin-xr/src/definitions.ts:210](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/native-plugin-xr/src/definitions.ts#L210)
 
 ___
 
@@ -182,7 +182,7 @@ Name | Type |
 
 **Returns:** *Promise*<{ `status`: *string*  }\>
 
-Defined in: [packages/native-plugin-xr/src/definitions.ts:226](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/native-plugin-xr/src/definitions.ts#L226)
+Defined in: [packages/native-plugin-xr/src/definitions.ts:226](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/native-plugin-xr/src/definitions.ts#L226)
 
 ___
 
@@ -198,7 +198,7 @@ Name | Type |
 
 **Returns:** *Promise*<{ `status`: *string*  }\>
 
-Defined in: [packages/native-plugin-xr/src/definitions.ts:222](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/native-plugin-xr/src/definitions.ts#L222)
+Defined in: [packages/native-plugin-xr/src/definitions.ts:222](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/native-plugin-xr/src/definitions.ts#L222)
 
 ___
 
@@ -214,7 +214,7 @@ Name | Type |
 
 **Returns:** *Promise*<{ `status`: *string*  }\>
 
-Defined in: [packages/native-plugin-xr/src/definitions.ts:212](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/native-plugin-xr/src/definitions.ts#L212)
+Defined in: [packages/native-plugin-xr/src/definitions.ts:212](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/native-plugin-xr/src/definitions.ts#L212)
 
 ___
 
@@ -230,7 +230,7 @@ Name | Type |
 
 **Returns:** *Promise*<{ `status`: *string*  }\>
 
-Defined in: [packages/native-plugin-xr/src/definitions.ts:214](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/native-plugin-xr/src/definitions.ts#L214)
+Defined in: [packages/native-plugin-xr/src/definitions.ts:214](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/native-plugin-xr/src/definitions.ts#L214)
 
 ___
 
@@ -246,7 +246,7 @@ Name | Type |
 
 **Returns:** *Promise*<{}\>
 
-Defined in: [packages/native-plugin-xr/src/definitions.ts:190](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/native-plugin-xr/src/definitions.ts#L190)
+Defined in: [packages/native-plugin-xr/src/definitions.ts:190](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/native-plugin-xr/src/definitions.ts#L190)
 
 ___
 
@@ -267,7 +267,7 @@ Name | Type |
 
 **Returns:** *Promise*<{ `status`: *string*  }\>
 
-Defined in: [packages/native-plugin-xr/src/definitions.ts:195](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/native-plugin-xr/src/definitions.ts#L195)
+Defined in: [packages/native-plugin-xr/src/definitions.ts:195](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/native-plugin-xr/src/definitions.ts#L195)
 
 ___
 
@@ -277,7 +277,7 @@ ___
 
 **Returns:** *Promise*<{}\>
 
-Defined in: [packages/native-plugin-xr/src/definitions.ts:191](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/native-plugin-xr/src/definitions.ts#L191)
+Defined in: [packages/native-plugin-xr/src/definitions.ts:191](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/native-plugin-xr/src/definitions.ts#L191)
 
 ___
 
@@ -293,7 +293,7 @@ Name | Type |
 
 **Returns:** *Promise*<{ `status`: *string*  }\>
 
-Defined in: [packages/native-plugin-xr/src/definitions.ts:204](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/native-plugin-xr/src/definitions.ts#L204)
+Defined in: [packages/native-plugin-xr/src/definitions.ts:204](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/native-plugin-xr/src/definitions.ts#L204)
 
 ___
 
@@ -309,7 +309,7 @@ Name | Type |
 
 **Returns:** *Promise*<{ `status`: *string*  }\>
 
-Defined in: [packages/native-plugin-xr/src/definitions.ts:208](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/native-plugin-xr/src/definitions.ts#L208)
+Defined in: [packages/native-plugin-xr/src/definitions.ts:208](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/native-plugin-xr/src/definitions.ts#L208)
 
 ___
 
@@ -325,7 +325,7 @@ Name | Type |
 
 **Returns:** *Promise*<{ `path`: *string* ; `status`: *string*  }\>
 
-Defined in: [packages/native-plugin-xr/src/definitions.ts:228](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/native-plugin-xr/src/definitions.ts#L228)
+Defined in: [packages/native-plugin-xr/src/definitions.ts:228](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/native-plugin-xr/src/definitions.ts#L228)
 
 ___
 
@@ -341,4 +341,4 @@ Name | Type |
 
 **Returns:** *Promise*<{ `path`: *string* ; `status`: *string*  }\>
 
-Defined in: [packages/native-plugin-xr/src/definitions.ts:230](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/native-plugin-xr/src/definitions.ts#L230)
+Defined in: [packages/native-plugin-xr/src/definitions.ts:230](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/native-plugin-xr/src/definitions.ts#L230)

@@ -16,7 +16,7 @@ PolySource component used to provide visual objects using google poly.
 
 ## Hierarchy
 
-* [*default*](src_world_components_editor_assets_modelmediasource.default.md)
+* [*ModelMediaSource*](src_world_components_editor_assets_modelmediasource.modelmediasource.md)
 
   ↳ **default**
 
@@ -34,19 +34,19 @@ Name | Type |
 
 **Returns:** [*default*](src_world_components_editor_assets_sources_polysource.default.md)
 
-Overrides: [default](src_world_components_editor_assets_modelmediasource.default.md)
+Overrides: [ModelMediaSource](src_world_components_editor_assets_modelmediasource.modelmediasource.md)
 
-Defined in: [packages/client-core/src/world/components/editor/assets/sources/PolySource.tsx:15](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/assets/sources/PolySource.tsx#L15)
+Defined in: [packages/client-core/src/world/components/editor/assets/sources/PolySource.tsx:15](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/assets/sources/PolySource.tsx#L15)
 
 ## Properties
 
 ### api
 
-• **api**: [*default*](src_world_components_editor_api.default.md)
+• **api**: [*Api*](src_world_components_editor_api.api.md)
 
-Inherited from: [default](src_world_components_editor_assets_modelmediasource.default.md).[api](src_world_components_editor_assets_modelmediasource.default.md#api)
+Inherited from: [ModelMediaSource](src_world_components_editor_assets_modelmediasource.modelmediasource.md).[api](src_world_components_editor_assets_modelmediasource.modelmediasource.md#api)
 
-Defined in: [packages/client-core/src/world/components/editor/assets/ModelMediaSource.tsx:19](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/assets/ModelMediaSource.tsx#L19)
+Defined in: [packages/client-core/src/world/components/editor/assets/ModelMediaSource.tsx:19](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/assets/ModelMediaSource.tsx#L19)
 
 ___
 
@@ -54,9 +54,9 @@ ___
 
 • **assetPanelComponent**: *any*
 
-Inherited from: [default](src_world_components_editor_assets_modelmediasource.default.md).[assetPanelComponent](src_world_components_editor_assets_modelmediasource.default.md#assetpanelcomponent)
+Inherited from: [ModelMediaSource](src_world_components_editor_assets_modelmediasource.modelmediasource.md).[assetPanelComponent](src_world_components_editor_assets_modelmediasource.modelmediasource.md#assetpanelcomponent)
 
-Defined in: [packages/client-core/src/world/components/editor/assets/sources/index.tsx:12](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/assets/sources/index.tsx#L12)
+Defined in: [packages/client-core/src/world/components/editor/assets/sources/index.tsx:12](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/assets/sources/index.tsx#L12)
 
 ___
 
@@ -64,9 +64,9 @@ ___
 
 • **component**: *typeof* [*default*](../modules/src_world_components_editor_assets_modelsourcepanel.md#default)
 
-Inherited from: [default](src_world_components_editor_assets_modelmediasource.default.md).[component](src_world_components_editor_assets_modelmediasource.default.md#component)
+Inherited from: [ModelMediaSource](src_world_components_editor_assets_modelmediasource.modelmediasource.md).[component](src_world_components_editor_assets_modelmediasource.modelmediasource.md#component)
 
-Defined in: [packages/client-core/src/world/components/editor/assets/ModelMediaSource.tsx:16](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/assets/ModelMediaSource.tsx#L16)
+Defined in: [packages/client-core/src/world/components/editor/assets/ModelMediaSource.tsx:16](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/assets/ModelMediaSource.tsx#L16)
 
 ___
 
@@ -74,9 +74,9 @@ ___
 
 • **iconComponent**: *any*
 
-Inherited from: [default](src_world_components_editor_assets_modelmediasource.default.md).[iconComponent](src_world_components_editor_assets_modelmediasource.default.md#iconcomponent)
+Inherited from: [ModelMediaSource](src_world_components_editor_assets_modelmediasource.modelmediasource.md).[iconComponent](src_world_components_editor_assets_modelmediasource.modelmediasource.md#iconcomponent)
 
-Defined in: [packages/client-core/src/world/components/editor/assets/sources/index.tsx:11](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/assets/sources/index.tsx#L11)
+Defined in: [packages/client-core/src/world/components/editor/assets/sources/index.tsx:11](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/assets/sources/index.tsx#L11)
 
 ___
 
@@ -84,9 +84,9 @@ ___
 
 • **id**: *string*
 
-Inherited from: [default](src_world_components_editor_assets_modelmediasource.default.md).[id](src_world_components_editor_assets_modelmediasource.default.md#id)
+Inherited from: [ModelMediaSource](src_world_components_editor_assets_modelmediasource.modelmediasource.md).[id](src_world_components_editor_assets_modelmediasource.modelmediasource.md#id)
 
-Defined in: [packages/client-core/src/world/components/editor/assets/sources/index.tsx:9](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/assets/sources/index.tsx#L9)
+Defined in: [packages/client-core/src/world/components/editor/assets/sources/index.tsx:9](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/assets/sources/index.tsx#L9)
 
 ___
 
@@ -94,9 +94,9 @@ ___
 
 • **name**: *string*
 
-Inherited from: [default](src_world_components_editor_assets_modelmediasource.default.md).[name](src_world_components_editor_assets_modelmediasource.default.md#name)
+Inherited from: [ModelMediaSource](src_world_components_editor_assets_modelmediasource.modelmediasource.md).[name](src_world_components_editor_assets_modelmediasource.modelmediasource.md#name)
 
-Defined in: [packages/client-core/src/world/components/editor/assets/sources/index.tsx:10](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/assets/sources/index.tsx#L10)
+Defined in: [packages/client-core/src/world/components/editor/assets/sources/index.tsx:10](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/assets/sources/index.tsx#L10)
 
 ___
 
@@ -104,7 +104,7 @@ ___
 
 • **privacyPolicyUrl**: *string*
 
-Defined in: [packages/client-core/src/world/components/editor/assets/sources/PolySource.tsx:14](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/assets/sources/PolySource.tsx#L14)
+Defined in: [packages/client-core/src/world/components/editor/assets/sources/PolySource.tsx:14](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/assets/sources/PolySource.tsx#L14)
 
 ___
 
@@ -112,9 +112,9 @@ ___
 
 • **requiresAuthentication**: *boolean*
 
-Inherited from: [default](src_world_components_editor_assets_modelmediasource.default.md).[requiresAuthentication](src_world_components_editor_assets_modelmediasource.default.md#requiresauthentication)
+Inherited from: [ModelMediaSource](src_world_components_editor_assets_modelmediasource.modelmediasource.md).[requiresAuthentication](src_world_components_editor_assets_modelmediasource.modelmediasource.md#requiresauthentication)
 
-Defined in: [packages/client-core/src/world/components/editor/assets/sources/index.tsx:13](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/assets/sources/index.tsx#L13)
+Defined in: [packages/client-core/src/world/components/editor/assets/sources/index.tsx:13](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/assets/sources/index.tsx#L13)
 
 ___
 
@@ -122,9 +122,9 @@ ___
 
 • **searchDebounceTimeout**: *number*
 
-Inherited from: [default](src_world_components_editor_assets_modelmediasource.default.md).[searchDebounceTimeout](src_world_components_editor_assets_modelmediasource.default.md#searchdebouncetimeout)
+Inherited from: [ModelMediaSource](src_world_components_editor_assets_modelmediasource.modelmediasource.md).[searchDebounceTimeout](src_world_components_editor_assets_modelmediasource.modelmediasource.md#searchdebouncetimeout)
 
-Defined in: [packages/client-core/src/world/components/editor/assets/sources/index.tsx:15](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/assets/sources/index.tsx#L15)
+Defined in: [packages/client-core/src/world/components/editor/assets/sources/index.tsx:15](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/assets/sources/index.tsx#L15)
 
 ___
 
@@ -132,7 +132,7 @@ ___
 
 • **searchLegalCopy**: *string*
 
-Defined in: [packages/client-core/src/world/components/editor/assets/sources/PolySource.tsx:13](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/assets/sources/PolySource.tsx#L13)
+Defined in: [packages/client-core/src/world/components/editor/assets/sources/PolySource.tsx:13](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/assets/sources/PolySource.tsx#L13)
 
 ___
 
@@ -140,7 +140,7 @@ ___
 
 • **tags**: { `label`: *string* ; `value`: *string*  }[]
 
-Defined in: [packages/client-core/src/world/components/editor/assets/sources/PolySource.tsx:12](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/assets/sources/PolySource.tsx#L12)
+Defined in: [packages/client-core/src/world/components/editor/assets/sources/PolySource.tsx:12](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/assets/sources/PolySource.tsx#L12)
 
 ___
 
@@ -148,7 +148,7 @@ ___
 
 • **transformPivot**: *any*
 
-Defined in: [packages/client-core/src/world/components/editor/assets/sources/PolySource.tsx:15](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/assets/sources/PolySource.tsx#L15)
+Defined in: [packages/client-core/src/world/components/editor/assets/sources/PolySource.tsx:15](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/assets/sources/PolySource.tsx#L15)
 
 ___
 
@@ -156,9 +156,9 @@ ___
 
 • **uploadSource**: *boolean*
 
-Inherited from: [default](src_world_components_editor_assets_modelmediasource.default.md).[uploadSource](src_world_components_editor_assets_modelmediasource.default.md#uploadsource)
+Inherited from: [ModelMediaSource](src_world_components_editor_assets_modelmediasource.modelmediasource.md).[uploadSource](src_world_components_editor_assets_modelmediasource.modelmediasource.md#uploadsource)
 
-Defined in: [packages/client-core/src/world/components/editor/assets/sources/index.tsx:14](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/assets/sources/index.tsx#L14)
+Defined in: [packages/client-core/src/world/components/editor/assets/sources/index.tsx:14](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/assets/sources/index.tsx#L14)
 
 ___
 
@@ -166,7 +166,7 @@ ___
 
 ▪ `Static` **prefixed**: *string* \| *boolean*
 
-Inherited from: [default](src_world_components_editor_assets_modelmediasource.default.md).[prefixed](src_world_components_editor_assets_modelmediasource.default.md#prefixed)
+Inherited from: [ModelMediaSource](src_world_components_editor_assets_modelmediasource.modelmediasource.md).[prefixed](src_world_components_editor_assets_modelmediasource.modelmediasource.md#prefixed)
 
 Defined in: node_modules/eventemitter3/index.d.ts:9
 
@@ -192,7 +192,7 @@ Name | Type |
 
 **Returns:** [*default*](src_world_components_editor_assets_sources_polysource.default.md)
 
-Inherited from: [default](src_world_components_editor_assets_modelmediasource.default.md)
+Inherited from: [ModelMediaSource](src_world_components_editor_assets_modelmediasource.modelmediasource.md)
 
 Defined in: node_modules/eventemitter3/index.d.ts:45
 
@@ -219,7 +219,7 @@ Name | Type |
 
 **Returns:** *boolean*
 
-Inherited from: [default](src_world_components_editor_assets_modelmediasource.default.md)
+Inherited from: [ModelMediaSource](src_world_components_editor_assets_modelmediasource.modelmediasource.md)
 
 Defined in: node_modules/eventemitter3/index.d.ts:32
 
@@ -234,7 +234,7 @@ listeners.
 
 **Returns:** (*string* \| *symbol*)[]
 
-Inherited from: [default](src_world_components_editor_assets_modelmediasource.default.md)
+Inherited from: [ModelMediaSource](src_world_components_editor_assets_modelmediasource.modelmediasource.md)
 
 Defined in: node_modules/eventemitter3/index.d.ts:15
 
@@ -254,7 +254,7 @@ Name | Type |
 
 **Returns:** *number*
 
-Inherited from: [default](src_world_components_editor_assets_modelmediasource.default.md)
+Inherited from: [ModelMediaSource](src_world_components_editor_assets_modelmediasource.modelmediasource.md)
 
 Defined in: node_modules/eventemitter3/index.d.ts:27
 
@@ -280,7 +280,7 @@ Name | Type |
 
 **Returns:** (...`args`: *any*[]) => *void*[]
 
-Inherited from: [default](src_world_components_editor_assets_modelmediasource.default.md)
+Inherited from: [ModelMediaSource](src_world_components_editor_assets_modelmediasource.modelmediasource.md)
 
 Defined in: node_modules/eventemitter3/index.d.ts:20
 
@@ -307,7 +307,7 @@ Name | Type |
 
 **Returns:** [*default*](src_world_components_editor_assets_sources_polysource.default.md)
 
-Inherited from: [default](src_world_components_editor_assets_modelmediasource.default.md)
+Inherited from: [ModelMediaSource](src_world_components_editor_assets_modelmediasource.modelmediasource.md)
 
 Defined in: node_modules/eventemitter3/index.d.ts:69
 
@@ -335,7 +335,7 @@ Name | Type |
 
 **Returns:** [*default*](src_world_components_editor_assets_sources_polysource.default.md)
 
-Inherited from: [default](src_world_components_editor_assets_modelmediasource.default.md)
+Inherited from: [ModelMediaSource](src_world_components_editor_assets_modelmediasource.modelmediasource.md)
 
 Defined in: node_modules/eventemitter3/index.d.ts:40
 
@@ -363,7 +363,7 @@ Name | Type |
 
 **Returns:** [*default*](src_world_components_editor_assets_sources_polysource.default.md)
 
-Inherited from: [default](src_world_components_editor_assets_modelmediasource.default.md)
+Inherited from: [ModelMediaSource](src_world_components_editor_assets_modelmediasource.modelmediasource.md)
 
 Defined in: node_modules/eventemitter3/index.d.ts:54
 
@@ -383,7 +383,7 @@ Name | Type |
 
 **Returns:** [*default*](src_world_components_editor_assets_sources_polysource.default.md)
 
-Inherited from: [default](src_world_components_editor_assets_modelmediasource.default.md)
+Inherited from: [ModelMediaSource](src_world_components_editor_assets_modelmediasource.modelmediasource.md)
 
 Defined in: node_modules/eventemitter3/index.d.ts:79
 
@@ -412,7 +412,7 @@ Name | Type |
 
 **Returns:** [*default*](src_world_components_editor_assets_sources_polysource.default.md)
 
-Inherited from: [default](src_world_components_editor_assets_modelmediasource.default.md)
+Inherited from: [ModelMediaSource](src_world_components_editor_assets_modelmediasource.modelmediasource.md)
 
 Defined in: node_modules/eventemitter3/index.d.ts:63
 
@@ -432,6 +432,6 @@ Name | Type |
 
 **Returns:** *Promise*<{ `hasMore`: *boolean* = !!nextCursor; `nextCursor`: *any* ; `results`: *any* ; `suggestions`: *any*  }\>
 
-Inherited from: [default](src_world_components_editor_assets_modelmediasource.default.md)
+Inherited from: [ModelMediaSource](src_world_components_editor_assets_modelmediasource.modelmediasource.md)
 
-Defined in: [packages/client-core/src/world/components/editor/assets/ModelMediaSource.tsx:29](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/assets/ModelMediaSource.tsx#L29)
+Defined in: [packages/client-core/src/world/components/editor/assets/ModelMediaSource.tsx:29](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/assets/ModelMediaSource.tsx#L29)

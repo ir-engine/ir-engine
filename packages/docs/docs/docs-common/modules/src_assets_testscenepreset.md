@@ -93,4 +93,4 @@ Name | Type |
 `userId` | *any* |
 `version` | *number* |
 
-Defined in: [assets/testScenePreset.ts:1](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/common/src/assets/testScenePreset.ts#L1)
+Defined in: [assets/testScenePreset.ts:1](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/common/src/assets/testScenePreset.ts#L1)

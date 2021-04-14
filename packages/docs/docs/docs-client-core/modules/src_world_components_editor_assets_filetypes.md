@@ -14,7 +14,7 @@ hide_title: true
 
 • `Const` **AcceptsAllFileTypes**: *string*
 
-Defined in: [packages/client-core/src/world/components/editor/assets/fileTypes.tsx:26](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/assets/fileTypes.tsx#L26)
+Defined in: [packages/client-core/src/world/components/editor/assets/fileTypes.tsx:26](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/assets/fileTypes.tsx#L26)
 
 ___
 
@@ -22,7 +22,7 @@ ___
 
 • `Const` **AllFileTypes**: *string*[]
 
-Defined in: [packages/client-core/src/world/components/editor/assets/fileTypes.tsx:18](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/assets/fileTypes.tsx#L18)
+Defined in: [packages/client-core/src/world/components/editor/assets/fileTypes.tsx:18](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/assets/fileTypes.tsx#L18)
 
 ___
 
@@ -30,7 +30,7 @@ ___
 
 • `Const` **AudioFileTypes**: *string*[]
 
-Defined in: [packages/client-core/src/world/components/editor/assets/fileTypes.tsx:2](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/assets/fileTypes.tsx#L2)
+Defined in: [packages/client-core/src/world/components/editor/assets/fileTypes.tsx:2](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/assets/fileTypes.tsx#L2)
 
 ___
 
@@ -38,7 +38,7 @@ ___
 
 • `Const` **ImageFileTypes**: *string*[]
 
-Defined in: [packages/client-core/src/world/components/editor/assets/fileTypes.tsx:6](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/assets/fileTypes.tsx#L6)
+Defined in: [packages/client-core/src/world/components/editor/assets/fileTypes.tsx:6](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/assets/fileTypes.tsx#L6)
 
 ___
 
@@ -46,7 +46,7 @@ ___
 
 • `Const` **ModelFileTypes**: *string*[]
 
-Defined in: [packages/client-core/src/world/components/editor/assets/fileTypes.tsx:16](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/assets/fileTypes.tsx#L16)
+Defined in: [packages/client-core/src/world/components/editor/assets/fileTypes.tsx:16](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/assets/fileTypes.tsx#L16)
 
 ___
 
@@ -54,7 +54,7 @@ ___
 
 • `Const` **VideoFileTypes**: *string*[]
 
-Defined in: [packages/client-core/src/world/components/editor/assets/fileTypes.tsx:4](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/assets/fileTypes.tsx#L4)
+Defined in: [packages/client-core/src/world/components/editor/assets/fileTypes.tsx:4](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/assets/fileTypes.tsx#L4)
 
 ## Functions
 
@@ -77,4 +77,4 @@ Name | Type |
 
 [true if file type found in existing fileTypes]
 
-Defined in: [packages/client-core/src/world/components/editor/assets/fileTypes.tsx:36](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/assets/fileTypes.tsx#L36)
+Defined in: [packages/client-core/src/world/components/editor/assets/fileTypes.tsx:36](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/assets/fileTypes.tsx#L36)

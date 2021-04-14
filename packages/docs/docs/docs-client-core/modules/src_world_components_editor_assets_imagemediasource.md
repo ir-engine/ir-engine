@@ -12,4 +12,10 @@ hide_title: true
 
 ### Classes
 
-- [default](../classes/src_world_components_editor_assets_imagemediasource.default.md)
+- [ImageMediaSource](../classes/src_world_components_editor_assets_imagemediasource.imagemediasource.md)
+
+## References
+
+### default
+
+Renames and exports: [ImageMediaSource](../classes/src_world_components_editor_assets_imagemediasource.imagemediasource.md)

@@ -468,7 +468,7 @@ ___
 
 Overrides: Document.render
 
-Defined in: [packages/client/src/pages/_document.tsx:61](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client/src/pages/_document.tsx#L61)
+Defined in: [packages/client/src/pages/_document.tsx:61](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client/src/pages/_document.tsx#L61)
 
 ___
 
@@ -540,7 +540,7 @@ Name | Type |
 
 Overrides: Document.getInitialProps
 
-Defined in: [packages/client/src/pages/_document.tsx:12](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client/src/pages/_document.tsx#L12)
+Defined in: [packages/client/src/pages/_document.tsx:12](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client/src/pages/_document.tsx#L12)
 
 ___
 

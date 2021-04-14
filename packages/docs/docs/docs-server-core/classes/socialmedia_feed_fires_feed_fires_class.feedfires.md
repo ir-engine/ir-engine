@@ -35,7 +35,7 @@ Name | Type |
 
 Overrides: Service.constructor
 
-Defined in: [packages/server-core/src/socialmedia/feed-fires/feed-fires.class.ts:18](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/socialmedia/feed-fires/feed-fires.class.ts#L18)
+Defined in: [packages/server-core/src/socialmedia/feed-fires/feed-fires.class.ts:18](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/socialmedia/feed-fires/feed-fires.class.ts#L18)
 
 ## Properties
 
@@ -53,7 +53,7 @@ ___
 
 • **app**: Application
 
-Defined in: [packages/server-core/src/socialmedia/feed-fires/feed-fires.class.ts:17](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/socialmedia/feed-fires/feed-fires.class.ts#L17)
+Defined in: [packages/server-core/src/socialmedia/feed-fires/feed-fires.class.ts:17](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/socialmedia/feed-fires/feed-fires.class.ts#L17)
 
 ___
 
@@ -61,7 +61,7 @@ ___
 
 • **docs**: *any*
 
-Defined in: [packages/server-core/src/socialmedia/feed-fires/feed-fires.class.ts:18](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/socialmedia/feed-fires/feed-fires.class.ts#L18)
+Defined in: [packages/server-core/src/socialmedia/feed-fires/feed-fires.class.ts:18](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/socialmedia/feed-fires/feed-fires.class.ts#L18)
 
 ___
 
@@ -243,7 +243,7 @@ Name | Type |
 
 Overrides: Service.create
 
-Defined in: [packages/server-core/src/socialmedia/feed-fires/feed-fires.class.ts:77](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/socialmedia/feed-fires/feed-fires.class.ts#L77)
+Defined in: [packages/server-core/src/socialmedia/feed-fires/feed-fires.class.ts:77](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/socialmedia/feed-fires/feed-fires.class.ts#L77)
 
 ___
 
@@ -284,7 +284,7 @@ Name | Type | Description |
 
 Overrides: Service.find
 
-Defined in: [packages/server-core/src/socialmedia/feed-fires/feed-fires.class.ts:32](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/socialmedia/feed-fires/feed-fires.class.ts#L32)
+Defined in: [packages/server-core/src/socialmedia/feed-fires/feed-fires.class.ts:32](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/socialmedia/feed-fires/feed-fires.class.ts#L32)
 
 ___
 
@@ -360,7 +360,7 @@ Name | Type |
 
 Overrides: Service.remove
 
-Defined in: [packages/server-core/src/socialmedia/feed-fires/feed-fires.class.ts:84](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/socialmedia/feed-fires/feed-fires.class.ts#L84)
+Defined in: [packages/server-core/src/socialmedia/feed-fires/feed-fires.class.ts:84](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/socialmedia/feed-fires/feed-fires.class.ts#L84)
 
 ___
 

@@ -18,4 +18,4 @@ hide_title: true
 
 **`param`** The url to a USDZ model which will be used on supported iOS 12+ devices via AR Quick Look on Safari.
 
-Defined in: [packages/client-core/src/world/components/InteractableModal/modelView.tsx:15](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/InteractableModal/modelView.tsx#L15)
+Defined in: [packages/client-core/src/world/components/InteractableModal/modelView.tsx:15](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/InteractableModal/modelView.tsx#L15)

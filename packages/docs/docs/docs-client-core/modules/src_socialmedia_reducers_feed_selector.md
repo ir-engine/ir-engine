@@ -14,4 +14,4 @@ hide_title: true
 
 • `Const` **selectFeedsState**: *OutputSelector*<any, any, (`res`: *any*) => *any*\>
 
-Defined in: [packages/client-core/src/socialmedia/reducers/feed/selector.ts:4](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/socialmedia/reducers/feed/selector.ts#L4)
+Defined in: [packages/client-core/src/socialmedia/reducers/feed/selector.ts:4](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/socialmedia/reducers/feed/selector.ts#L4)

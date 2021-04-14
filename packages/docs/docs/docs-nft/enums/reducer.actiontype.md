@@ -16,7 +16,7 @@ hide_title: true
 
 • **CONTRACT**: = "Contract"
 
-Defined in: [packages/nft/src/reducer.ts:8](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/nft/src/reducer.ts#L8)
+Defined in: [packages/nft/src/reducer.ts:8](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/nft/src/reducer.ts#L8)
 
 ___
 
@@ -24,7 +24,7 @@ ___
 
 • **ETH\_PRICE**: = "Eth price"
 
-Defined in: [packages/nft/src/reducer.ts:10](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/nft/src/reducer.ts#L10)
+Defined in: [packages/nft/src/reducer.ts:10](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/nft/src/reducer.ts#L10)
 
 ___
 
@@ -32,7 +32,7 @@ ___
 
 • **LOAD\_TOKEN\_SALE**: = "Load tokens on Sale"
 
-Defined in: [packages/nft/src/reducer.ts:9](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/nft/src/reducer.ts#L9)
+Defined in: [packages/nft/src/reducer.ts:9](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/nft/src/reducer.ts#L9)
 
 ___
 
@@ -40,7 +40,7 @@ ___
 
 • **SIGN\_OUT**: = "Sign out"
 
-Defined in: [packages/nft/src/reducer.ts:7](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/nft/src/reducer.ts#L7)
+Defined in: [packages/nft/src/reducer.ts:7](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/nft/src/reducer.ts#L7)
 
 ___
 
@@ -48,4 +48,4 @@ ___
 
 • **UPDATE\_USER**: = "Update User"
 
-Defined in: [packages/nft/src/reducer.ts:6](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/nft/src/reducer.ts#L6)
+Defined in: [packages/nft/src/reducer.ts:6](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/nft/src/reducer.ts#L6)

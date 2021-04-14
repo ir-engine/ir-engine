@@ -16,7 +16,7 @@ hide_title: true
 
 • **blocked**: [*User*](src_interfaces_user.user.md)[]
 
-Defined in: [interfaces/Relationship.ts:8](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/common/src/interfaces/Relationship.ts#L8)
+Defined in: [interfaces/Relationship.ts:8](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/common/src/interfaces/Relationship.ts#L8)
 
 ___
 
@@ -24,7 +24,7 @@ ___
 
 • **blocking**: [*User*](src_interfaces_user.user.md)[]
 
-Defined in: [interfaces/Relationship.ts:7](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/common/src/interfaces/Relationship.ts#L7)
+Defined in: [interfaces/Relationship.ts:7](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/common/src/interfaces/Relationship.ts#L7)
 
 ___
 
@@ -32,7 +32,7 @@ ___
 
 • **friend**: [*User*](src_interfaces_user.user.md)[]
 
-Defined in: [interfaces/Relationship.ts:5](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/common/src/interfaces/Relationship.ts#L5)
+Defined in: [interfaces/Relationship.ts:5](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/common/src/interfaces/Relationship.ts#L5)
 
 ___
 
@@ -40,7 +40,7 @@ ___
 
 • **requested**: [*User*](src_interfaces_user.user.md)[]
 
-Defined in: [interfaces/Relationship.ts:6](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/common/src/interfaces/Relationship.ts#L6)
+Defined in: [interfaces/Relationship.ts:6](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/common/src/interfaces/Relationship.ts#L6)
 
 ___
 
@@ -48,4 +48,4 @@ ___
 
 • **userId**: *string*
 
-Defined in: [interfaces/Relationship.ts:4](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/common/src/interfaces/Relationship.ts#L4)
+Defined in: [interfaces/Relationship.ts:4](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/common/src/interfaces/Relationship.ts#L4)

@@ -12,4 +12,10 @@ hide_title: true
 
 ### Classes
 
-- [default](../classes/src_world_components_editor_projects_projectgriditem.default.md)
+- [ProjectGridItem](../classes/src_world_components_editor_projects_projectgriditem.projectgriditem.md)
+
+## References
+
+### default
+
+Renames and exports: [ProjectGridItem](../classes/src_world_components_editor_projects_projectgriditem.projectgriditem.md)

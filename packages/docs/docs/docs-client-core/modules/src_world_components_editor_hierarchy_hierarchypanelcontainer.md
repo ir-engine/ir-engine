@@ -20,4 +20,4 @@ HierarchyPanel function component provides view for hierarchy tree.
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/hierarchy/HierarchyPanelContainer.tsx:833](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/hierarchy/HierarchyPanelContainer.tsx#L833)
+Defined in: [packages/client-core/src/world/components/editor/hierarchy/HierarchyPanelContainer.tsx:833](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/hierarchy/HierarchyPanelContainer.tsx#L833)

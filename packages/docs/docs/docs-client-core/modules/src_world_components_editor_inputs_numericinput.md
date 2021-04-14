@@ -12,4 +12,10 @@ hide_title: true
 
 ### Classes
 
-- [default](../classes/src_world_components_editor_inputs_numericinput.default.md)
+- [NumericInput](../classes/src_world_components_editor_inputs_numericinput.numericinput.md)
+
+## References
+
+### default
+
+Renames and exports: [NumericInput](../classes/src_world_components_editor_inputs_numericinput.numericinput.md)

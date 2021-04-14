@@ -22,7 +22,7 @@ hide_title: true
 
 **`author`** Robert Long
 
-Defined in: [packages/client-core/src/world/components/editor/projects/ProjectsPage.tsx:46](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/projects/ProjectsPage.tsx#L46)
+Defined in: [packages/client-core/src/world/components/editor/projects/ProjectsPage.tsx:46](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/projects/ProjectsPage.tsx#L46)
 
 ___
 
@@ -32,7 +32,7 @@ ___
 
 **`author`** Robert Long
 
-Defined in: [packages/client-core/src/world/components/editor/projects/ProjectsPage.tsx:79](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/projects/ProjectsPage.tsx#L79)
+Defined in: [packages/client-core/src/world/components/editor/projects/ProjectsPage.tsx:79](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/projects/ProjectsPage.tsx#L79)
 
 ___
 
@@ -42,4 +42,4 @@ ___
 
 **`author`** Robert Long
 
-Defined in: [packages/client-core/src/world/components/editor/projects/ProjectsPage.tsx:24](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/projects/ProjectsPage.tsx#L24)
+Defined in: [packages/client-core/src/world/components/editor/projects/ProjectsPage.tsx:24](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/projects/ProjectsPage.tsx#L24)

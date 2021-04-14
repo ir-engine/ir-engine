@@ -37,7 +37,7 @@ Name | Type |
 
 Overrides: Service.constructor
 
-Defined in: [packages/server-core/src/user/login-token/login-token.class.ts:14](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/user/login-token/login-token.class.ts#L14)
+Defined in: [packages/server-core/src/user/login-token/login-token.class.ts:14](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/user/login-token/login-token.class.ts#L14)
 
 ## Properties
 
@@ -55,7 +55,7 @@ ___
 
 • **app**: Application
 
-Defined in: [packages/server-core/src/user/login-token/login-token.class.ts:13](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/user/login-token/login-token.class.ts#L13)
+Defined in: [packages/server-core/src/user/login-token/login-token.class.ts:13](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/user/login-token/login-token.class.ts#L13)
 
 ___
 
@@ -63,7 +63,7 @@ ___
 
 • **docs**: *any*
 
-Defined in: [packages/server-core/src/user/login-token/login-token.class.ts:14](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/user/login-token/login-token.class.ts#L14)
+Defined in: [packages/server-core/src/user/login-token/login-token.class.ts:14](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/user/login-token/login-token.class.ts#L14)
 
 ___
 
@@ -250,7 +250,7 @@ Name | Type | Description |
 
 Overrides: Service.create
 
-Defined in: [packages/server-core/src/user/login-token/login-token.class.ts:27](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/user/login-token/login-token.class.ts#L27)
+Defined in: [packages/server-core/src/user/login-token/login-token.class.ts:27](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/user/login-token/login-token.class.ts#L27)
 
 ___
 

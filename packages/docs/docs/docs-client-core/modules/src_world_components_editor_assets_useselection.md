@@ -37,7 +37,7 @@ Name | Type |
 
 [returns object containing selectedItems array, setSelectedItems  onSelect clearSelection  function callbacks]
 
-Defined in: [packages/client-core/src/world/components/editor/assets/useSelection.tsx:64](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/assets/useSelection.tsx#L64)
+Defined in: [packages/client-core/src/world/components/editor/assets/useSelection.tsx:64](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/assets/useSelection.tsx#L64)
 
 ___
 
@@ -62,4 +62,4 @@ Name | Type | Default value |
 
 containing callback handlers onSelect and clearSelection.
 
-Defined in: [packages/client-core/src/world/components/editor/assets/useSelection.tsx:13](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/assets/useSelection.tsx#L13)
+Defined in: [packages/client-core/src/world/components/editor/assets/useSelection.tsx:13](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/assets/useSelection.tsx#L13)

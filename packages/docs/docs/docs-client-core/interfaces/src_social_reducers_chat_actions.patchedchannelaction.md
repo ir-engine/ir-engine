@@ -16,7 +16,7 @@ hide_title: true
 
 • **channel**: Channel
 
-Defined in: [packages/client-core/src/social/reducers/chat/actions.ts:78](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/chat/actions.ts#L78)
+Defined in: [packages/client-core/src/social/reducers/chat/actions.ts:78](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/chat/actions.ts#L78)
 
 ___
 
@@ -24,4 +24,4 @@ ___
 
 • **type**: *string*
 
-Defined in: [packages/client-core/src/social/reducers/chat/actions.ts:77](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/chat/actions.ts#L77)
+Defined in: [packages/client-core/src/social/reducers/chat/actions.ts:77](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/chat/actions.ts#L77)

@@ -18,4 +18,4 @@ CubemapOption array containing textures used for SkyboxNode.
 
 **`author`** Andrii Blashchuk
 
-Defined in: [packages/client-core/src/world/components/editor/properties/CubemapList.ts:8](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/properties/CubemapList.ts#L8)
+Defined in: [packages/client-core/src/world/components/editor/properties/CubemapList.ts:8](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/properties/CubemapList.ts#L8)

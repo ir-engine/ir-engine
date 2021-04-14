@@ -22,4 +22,4 @@ Name | Type |
 
 **Returns:** *typeof* Model
 
-Defined in: [packages/server-core/src/socialmedia/comments/comments.model.ts:8](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/socialmedia/comments/comments.model.ts#L8)
+Defined in: [packages/server-core/src/socialmedia/comments/comments.model.ts:8](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/socialmedia/comments/comments.model.ts#L8)

@@ -16,7 +16,7 @@ hide_title: true
 
 • **name**: *string*
 
-Defined in: [packages/client-core/src/world/reducers/scenes/actions.ts:16](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/reducers/scenes/actions.ts#L16)
+Defined in: [packages/client-core/src/world/reducers/scenes/actions.ts:16](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/reducers/scenes/actions.ts#L16)
 
 ___
 
@@ -24,7 +24,7 @@ ___
 
 • `Optional` **thumbnailUrl**: *string*
 
-Defined in: [packages/client-core/src/world/reducers/scenes/actions.ts:17](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/reducers/scenes/actions.ts#L17)
+Defined in: [packages/client-core/src/world/reducers/scenes/actions.ts:17](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/reducers/scenes/actions.ts#L17)
 
 ___
 
@@ -32,4 +32,4 @@ ___
 
 • **url**: *string*
 
-Defined in: [packages/client-core/src/world/reducers/scenes/actions.ts:15](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/reducers/scenes/actions.ts#L15)
+Defined in: [packages/client-core/src/world/reducers/scenes/actions.ts:15](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/reducers/scenes/actions.ts#L15)

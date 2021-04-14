@@ -12,4 +12,10 @@ hide_title: true
 
 ### Classes
 
-- [default](../classes/src_user_components_usermenu_menus_avatarselectmenu.default.md)
+- [AvatarSelectMenu](../classes/src_user_components_usermenu_menus_avatarselectmenu.avatarselectmenu.md)
+
+## References
+
+### default
+
+Renames and exports: [AvatarSelectMenu](../classes/src_user_components_usermenu_menus_avatarselectmenu.avatarselectmenu.md)

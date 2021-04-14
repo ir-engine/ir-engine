@@ -26,4 +26,4 @@ Name | Type |
 
 **Returns:** *any*
 
-Defined in: [packages/server-core/src/world/project-asset/project-asset.service.ts:14](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/world/project-asset/project-asset.service.ts#L14)
+Defined in: [packages/server-core/src/world/project-asset/project-asset.service.ts:14](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/world/project-asset/project-asset.service.ts#L14)

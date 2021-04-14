@@ -12,4 +12,10 @@ hide_title: true
 
 ### Classes
 
-- [default](../classes/src_world_components_editor_assets_sources_sketchfabsource.default.md)
+- [SketchfabSource](../classes/src_world_components_editor_assets_sources_sketchfabsource.sketchfabsource.md)
+
+## References
+
+### default
+
+Renames and exports: [SketchfabSource](../classes/src_world_components_editor_assets_sources_sketchfabsource.sketchfabsource.md)

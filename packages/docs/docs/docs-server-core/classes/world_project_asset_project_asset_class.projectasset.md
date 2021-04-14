@@ -37,7 +37,7 @@ Name | Type |
 
 Overrides: Service.constructor
 
-Defined in: [packages/server-core/src/world/project-asset/project-asset.class.ts:10](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/world/project-asset/project-asset.class.ts#L10)
+Defined in: [packages/server-core/src/world/project-asset/project-asset.class.ts:10](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/world/project-asset/project-asset.class.ts#L10)
 
 ## Properties
 

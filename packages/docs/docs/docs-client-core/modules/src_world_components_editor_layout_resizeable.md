@@ -12,4 +12,10 @@ hide_title: true
 
 ### Classes
 
-- [default](../classes/src_world_components_editor_layout_resizeable.default.md)
+- [Resizeable](../classes/src_world_components_editor_layout_resizeable.resizeable.md)
+
+## References
+
+### default
+
+Renames and exports: [Resizeable](../classes/src_world_components_editor_layout_resizeable.resizeable.md)

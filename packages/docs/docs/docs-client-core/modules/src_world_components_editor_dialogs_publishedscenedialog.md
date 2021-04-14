@@ -32,4 +32,4 @@ Name | Type |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/dialogs/PublishedSceneDialog.tsx:18](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/dialogs/PublishedSceneDialog.tsx#L18)
+Defined in: [packages/client-core/src/world/components/editor/dialogs/PublishedSceneDialog.tsx:18](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/dialogs/PublishedSceneDialog.tsx#L18)

@@ -24,7 +24,7 @@ hide_title: true
 
 **`author`** Robert Long
 
-Defined in: [packages/client-core/src/world/components/editor/layout/MediaGrid.tsx:221](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/layout/MediaGrid.tsx#L221)
+Defined in: [packages/client-core/src/world/components/editor/layout/MediaGrid.tsx:221](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/layout/MediaGrid.tsx#L221)
 
 ## Functions
 
@@ -42,7 +42,7 @@ Name | Type |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/layout/MediaGrid.tsx:195](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/layout/MediaGrid.tsx#L195)
+Defined in: [packages/client-core/src/world/components/editor/layout/MediaGrid.tsx:195](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/layout/MediaGrid.tsx#L195)
 
 ___
 
@@ -60,7 +60,7 @@ Name | Type |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/layout/MediaGrid.tsx:167](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/layout/MediaGrid.tsx#L167)
+Defined in: [packages/client-core/src/world/components/editor/layout/MediaGrid.tsx:167](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/layout/MediaGrid.tsx#L167)
 
 ___
 
@@ -78,4 +78,4 @@ Name | Type |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/layout/MediaGrid.tsx:139](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/layout/MediaGrid.tsx#L139)
+Defined in: [packages/client-core/src/world/components/editor/layout/MediaGrid.tsx:139](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/layout/MediaGrid.tsx#L139)

@@ -12,4 +12,10 @@ hide_title: true
 
 ### Classes
 
-- [default](../classes/src_world_components_editor_assets_sources_elementssource.default.md)
+- [ElementsSource](../classes/src_world_components_editor_assets_sources_elementssource.elementssource.md)
+
+## References
+
+### default
+
+Renames and exports: [ElementsSource](../classes/src_world_components_editor_assets_sources_elementssource.elementssource.md)

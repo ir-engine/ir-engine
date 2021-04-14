@@ -12,4 +12,10 @@ hide_title: true
 
 ### Classes
 
-- [default](../classes/src_world_components_editor_properties_defaultnodeeditor.default.md)
+- [DefaultNodeEditor](../classes/src_world_components_editor_properties_defaultnodeeditor.defaultnodeeditor.md)
+
+## References
+
+### default
+
+Renames and exports: [DefaultNodeEditor](../classes/src_world_components_editor_properties_defaultnodeeditor.defaultnodeeditor.md)

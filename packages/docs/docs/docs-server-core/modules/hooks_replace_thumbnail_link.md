@@ -20,4 +20,4 @@ hide_title: true
 
 **Returns:** *Hook*<any, Service<any\>\>
 
-Defined in: [packages/server-core/src/hooks/replace-thumbnail-link.ts:5](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/hooks/replace-thumbnail-link.ts#L5)
+Defined in: [packages/server-core/src/hooks/replace-thumbnail-link.ts:5](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/hooks/replace-thumbnail-link.ts#L5)

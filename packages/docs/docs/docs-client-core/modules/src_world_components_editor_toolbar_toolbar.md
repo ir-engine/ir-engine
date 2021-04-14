@@ -12,4 +12,10 @@ hide_title: true
 
 ### Classes
 
-- [default](../classes/src_world_components_editor_toolbar_toolbar.default.md)
+- [ToolBar](../classes/src_world_components_editor_toolbar_toolbar.toolbar.md)
+
+## References
+
+### default
+
+Renames and exports: [ToolBar](../classes/src_world_components_editor_toolbar_toolbar.toolbar.md)

@@ -12,4 +12,10 @@ hide_title: true
 
 ### Classes
 
-- [default](../classes/src_world_components_editor_router_browserprompt.default.md)
+- [BrowserPrompt](../classes/src_world_components_editor_router_browserprompt.browserprompt.md)
+
+## References
+
+### default
+
+Renames and exports: [BrowserPrompt](../classes/src_world_components_editor_router_browserprompt.browserprompt.md)

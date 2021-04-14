@@ -16,7 +16,7 @@ hide_title: true
 
 • **friends**: User[]
 
-Defined in: [packages/client-core/src/social/reducers/friend/actions.ts:14](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/friend/actions.ts#L14)
+Defined in: [packages/client-core/src/social/reducers/friend/actions.ts:14](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/friend/actions.ts#L14)
 
 ___
 
@@ -24,7 +24,7 @@ ___
 
 • **limit**: *number*
 
-Defined in: [packages/client-core/src/social/reducers/friend/actions.ts:16](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/friend/actions.ts#L16)
+Defined in: [packages/client-core/src/social/reducers/friend/actions.ts:16](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/friend/actions.ts#L16)
 
 ___
 
@@ -32,7 +32,7 @@ ___
 
 • **skip**: *number*
 
-Defined in: [packages/client-core/src/social/reducers/friend/actions.ts:17](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/friend/actions.ts#L17)
+Defined in: [packages/client-core/src/social/reducers/friend/actions.ts:17](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/friend/actions.ts#L17)
 
 ___
 
@@ -40,7 +40,7 @@ ___
 
 • **total**: *number*
 
-Defined in: [packages/client-core/src/social/reducers/friend/actions.ts:15](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/friend/actions.ts#L15)
+Defined in: [packages/client-core/src/social/reducers/friend/actions.ts:15](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/friend/actions.ts#L15)
 
 ___
 
@@ -48,4 +48,4 @@ ___
 
 • **type**: *string*
 
-Defined in: [packages/client-core/src/social/reducers/friend/actions.ts:13](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/friend/actions.ts#L13)
+Defined in: [packages/client-core/src/social/reducers/friend/actions.ts:13](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/friend/actions.ts#L13)

@@ -16,7 +16,7 @@ hide_title: true
 
 • **creators**: CreatorShort[]
 
-Defined in: [packages/client-core/src/socialmedia/reducers/feedComment/actions.ts:37](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/socialmedia/reducers/feedComment/actions.ts#L37)
+Defined in: [packages/client-core/src/socialmedia/reducers/feedComment/actions.ts:37](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/socialmedia/reducers/feedComment/actions.ts#L37)
 
 ___
 
@@ -24,4 +24,4 @@ ___
 
 • **type**: *string*
 
-Defined in: [packages/client-core/src/socialmedia/reducers/feedComment/actions.ts:36](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/socialmedia/reducers/feedComment/actions.ts#L36)
+Defined in: [packages/client-core/src/socialmedia/reducers/feedComment/actions.ts:36](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/socialmedia/reducers/feedComment/actions.ts#L36)

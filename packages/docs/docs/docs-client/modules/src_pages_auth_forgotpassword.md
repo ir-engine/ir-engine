@@ -22,4 +22,4 @@ Renames and exports: [ForgotPasswordPage](src_pages_auth_forgotpassword.md#forgo
 
 **Returns:** *Element*
 
-Defined in: [packages/client/src/pages/auth/forgotpassword.tsx:4](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client/src/pages/auth/forgotpassword.tsx#L4)
+Defined in: [packages/client/src/pages/auth/forgotpassword.tsx:4](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client/src/pages/auth/forgotpassword.tsx#L4)

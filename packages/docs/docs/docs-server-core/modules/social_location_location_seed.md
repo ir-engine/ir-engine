@@ -24,4 +24,4 @@ Name | Type |
 `randomize` | *boolean* |
 `templates` | { `id`: *string* = '98cbcc30-fd2d-11ea-bc7c-cd4cac9a8d61'; `location_setting`: { `id`: *string* = '37ce32f0-208d-11eb-b02f-37cfdadfe58c'; `instanceMediaChatEnabled`: *boolean* = true; `locationId`: *string* = '98cbcc30-fd2d-11ea-bc7c-cd4cac9a8d61'; `locationType`: *string* = 'public'; `videoEnabled`: *boolean* = true } ; `maxUsersPerInstance`: *number* = 30; `name`: *string* = 'Test'; `sceneId`: *string* = 'j9o2NLiD'; `slugifiedName`: *string* = 'test' }[] |
 
-Defined in: [packages/server-core/src/social/location/location.seed.ts:4](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/social/location/location.seed.ts#L4)
+Defined in: [packages/server-core/src/social/location/location.seed.ts:4](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/social/location/location.seed.ts#L4)

@@ -32,7 +32,7 @@ Name | Type |
 
 Overrides: [default](user_strategies_custom_oauth.default.md)
 
-Defined in: [packages/server-core/src/user/strategies/facebook.ts:6](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/user/strategies/facebook.ts#L6)
+Defined in: [packages/server-core/src/user/strategies/facebook.ts:6](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/user/strategies/facebook.ts#L6)
 
 ## Properties
 
@@ -42,7 +42,7 @@ Defined in: [packages/server-core/src/user/strategies/facebook.ts:6](https://git
 
 Overrides: [default](user_strategies_custom_oauth.default.md).[app](user_strategies_custom_oauth.default.md#app)
 
-Defined in: [packages/server-core/src/user/strategies/facebook.ts:6](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/user/strategies/facebook.ts#L6)
+Defined in: [packages/server-core/src/user/strategies/facebook.ts:6](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/user/strategies/facebook.ts#L6)
 
 ___
 
@@ -206,7 +206,7 @@ Name | Type |
 
 Overrides: [default](user_strategies_custom_oauth.default.md)
 
-Defined in: [packages/server-core/src/user/strategies/facebook.ts:11](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/user/strategies/facebook.ts#L11)
+Defined in: [packages/server-core/src/user/strategies/facebook.ts:11](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/user/strategies/facebook.ts#L11)
 
 ___
 
@@ -225,7 +225,7 @@ Name | Type |
 
 Inherited from: [default](user_strategies_custom_oauth.default.md)
 
-Defined in: [packages/server-core/src/user/strategies/custom-oauth.ts:6](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/user/strategies/custom-oauth.ts#L6)
+Defined in: [packages/server-core/src/user/strategies/custom-oauth.ts:6](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/user/strategies/custom-oauth.ts#L6)
 
 ___
 
@@ -263,7 +263,7 @@ Name | Type |
 
 Overrides: [default](user_strategies_custom_oauth.default.md)
 
-Defined in: [packages/server-core/src/user/strategies/facebook.ts:36](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/user/strategies/facebook.ts#L36)
+Defined in: [packages/server-core/src/user/strategies/facebook.ts:36](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/user/strategies/facebook.ts#L36)
 
 ___
 
@@ -337,4 +337,4 @@ Name | Type |
 
 Overrides: [default](user_strategies_custom_oauth.default.md)
 
-Defined in: [packages/server-core/src/user/strategies/facebook.ts:22](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/user/strategies/facebook.ts#L22)
+Defined in: [packages/server-core/src/user/strategies/facebook.ts:22](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/user/strategies/facebook.ts#L22)

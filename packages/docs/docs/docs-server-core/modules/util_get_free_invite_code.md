@@ -22,4 +22,4 @@ Name | Type |
 
 **Returns:** *Promise*<string\>
 
-Defined in: [packages/server-core/src/util/get-free-invite-code.ts:3](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/util/get-free-invite-code.ts#L3)
+Defined in: [packages/server-core/src/util/get-free-invite-code.ts:3](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/util/get-free-invite-code.ts#L3)

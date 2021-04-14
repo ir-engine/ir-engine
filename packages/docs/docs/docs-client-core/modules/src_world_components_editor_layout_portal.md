@@ -12,4 +12,10 @@ hide_title: true
 
 ### Classes
 
-- [default](../classes/src_world_components_editor_layout_portal.default.md)
+- [Portal](../classes/src_world_components_editor_layout_portal.portal.md)
+
+## References
+
+### default
+
+Renames and exports: [Portal](../classes/src_world_components_editor_layout_portal.portal.md)

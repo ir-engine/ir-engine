@@ -12,4 +12,10 @@ hide_title: true
 
 ### Classes
 
-- [default](../classes/src_world_components_editor_assets_sources_bingimagessource.default.md)
+- [BingImagesSource](../classes/src_world_components_editor_assets_sources_bingimagessource.bingimagessource.md)
+
+## References
+
+### default
+
+Renames and exports: [BingImagesSource](../classes/src_world_components_editor_assets_sources_bingimagessource.bingimagessource.md)

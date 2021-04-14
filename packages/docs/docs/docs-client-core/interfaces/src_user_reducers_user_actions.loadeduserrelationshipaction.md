@@ -16,7 +16,7 @@ hide_title: true
 
 • **relationship**: Relationship
 
-Defined in: [packages/client-core/src/user/reducers/user/actions.ts:9](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/user/reducers/user/actions.ts#L9)
+Defined in: [packages/client-core/src/user/reducers/user/actions.ts:9](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/user/reducers/user/actions.ts#L9)
 
 ___
 
@@ -24,4 +24,4 @@ ___
 
 • **type**: *string*
 
-Defined in: [packages/client-core/src/user/reducers/user/actions.ts:8](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/user/reducers/user/actions.ts#L8)
+Defined in: [packages/client-core/src/user/reducers/user/actions.ts:8](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/user/reducers/user/actions.ts#L8)

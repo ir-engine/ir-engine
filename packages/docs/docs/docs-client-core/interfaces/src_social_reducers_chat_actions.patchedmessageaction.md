@@ -16,7 +16,7 @@ hide_title: true
 
 • **message**: Message
 
-Defined in: [packages/client-core/src/social/reducers/chat/actions.ts:57](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/chat/actions.ts#L57)
+Defined in: [packages/client-core/src/social/reducers/chat/actions.ts:57](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/chat/actions.ts#L57)
 
 ___
 
@@ -24,4 +24,4 @@ ___
 
 • **type**: *string*
 
-Defined in: [packages/client-core/src/social/reducers/chat/actions.ts:56](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/chat/actions.ts#L56)
+Defined in: [packages/client-core/src/social/reducers/chat/actions.ts:56](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/chat/actions.ts#L56)

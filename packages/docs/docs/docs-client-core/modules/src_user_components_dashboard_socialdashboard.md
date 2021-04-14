@@ -22,4 +22,4 @@ Name | Type |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/user/components/Dashboard/SocialDashboard.tsx:105](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/user/components/Dashboard/SocialDashboard.tsx#L105)
+Defined in: [packages/client-core/src/user/components/Dashboard/SocialDashboard.tsx:105](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/user/components/Dashboard/SocialDashboard.tsx#L105)

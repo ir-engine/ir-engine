@@ -28,7 +28,7 @@ hide_title: true
 
 • **path**: *string*= './upload'
 
-Defined in: [packages/server-core/src/media/storageprovider/local.storage.ts:5](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/media/storageprovider/local.storage.ts#L5)
+Defined in: [packages/server-core/src/media/storageprovider/local.storage.ts:5](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/media/storageprovider/local.storage.ts#L5)
 
 ## Methods
 
@@ -40,7 +40,7 @@ Defined in: [packages/server-core/src/media/storageprovider/local.storage.ts:5](
 
 Implementation of: [StorageProviderInterface](../interfaces/media_storageprovider_storageprovider_interface.storageproviderinterface.md)
 
-Defined in: [packages/server-core/src/media/storageprovider/local.storage.ts:7](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/media/storageprovider/local.storage.ts#L7)
+Defined in: [packages/server-core/src/media/storageprovider/local.storage.ts:7](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/media/storageprovider/local.storage.ts#L7)
 
 ___
 
@@ -52,4 +52,4 @@ ___
 
 Implementation of: [StorageProviderInterface](../interfaces/media_storageprovider_storageprovider_interface.storageproviderinterface.md)
 
-Defined in: [packages/server-core/src/media/storageprovider/local.storage.ts:8](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/media/storageprovider/local.storage.ts#L8)
+Defined in: [packages/server-core/src/media/storageprovider/local.storage.ts:8](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/media/storageprovider/local.storage.ts#L8)

@@ -20,4 +20,4 @@ hide_title: true
 
 **Returns:** (`context`: *HookContext*<any, Service<any\>\>) => *Promise*<HookContext<any, Service<any\>\>\>
 
-Defined in: [packages/server-core/src/hooks/create-party-owner.ts:2](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/hooks/create-party-owner.ts#L2)
+Defined in: [packages/server-core/src/hooks/create-party-owner.ts:2](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/hooks/create-party-owner.ts#L2)

@@ -12,7 +12,7 @@ hide_title: true
 
 ### ApiContext
 
-• `Const` **ApiContext**: *Context*<[*default*](../classes/src_world_components_editor_api.default.md)\>
+• `Const` **ApiContext**: *Context*<[*Api*](../classes/src_world_components_editor_api.api.md)\>
 
 Context lets us pass a value deep into the component tree
 without explicitly threading it through every component.
@@ -20,7 +20,7 @@ ApiContext used to context API component.
 
 **`author`** Robert Long
 
-Defined in: [packages/client-core/src/world/components/editor/contexts/ApiContext.tsx:12](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/contexts/ApiContext.tsx#L12)
+Defined in: [packages/client-core/src/world/components/editor/contexts/ApiContext.tsx:12](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/contexts/ApiContext.tsx#L12)
 
 ## Functions
 
@@ -40,4 +40,4 @@ Name | Type |
 
 **Returns:** (`props`: *any*) => *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/contexts/ApiContext.tsx:19](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/contexts/ApiContext.tsx#L19)
+Defined in: [packages/client-core/src/world/components/editor/contexts/ApiContext.tsx:19](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/contexts/ApiContext.tsx#L19)

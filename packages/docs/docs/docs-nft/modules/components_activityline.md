@@ -24,7 +24,7 @@ Name | Type |
 `time` | Date |
 `to`? | *string* |
 
-Defined in: [packages/nft/src/components/ActivityLine.tsx:2](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/nft/src/components/ActivityLine.tsx#L2)
+Defined in: [packages/nft/src/components/ActivityLine.tsx:2](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/nft/src/components/ActivityLine.tsx#L2)
 
 ___
 
@@ -38,7 +38,7 @@ Name | Type |
 :------ | :------ |
 `activity` | [*ActivityHistory*](components_activityline.md#activityhistory) |
 
-Defined in: [packages/nft/src/components/ActivityLine.tsx:10](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/nft/src/components/ActivityLine.tsx#L10)
+Defined in: [packages/nft/src/components/ActivityLine.tsx:10](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/nft/src/components/ActivityLine.tsx#L10)
 
 ## Functions
 
@@ -54,4 +54,4 @@ Name | Type |
 
 **Returns:** *Element*
 
-Defined in: [packages/nft/src/components/ActivityLine.tsx:14](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/nft/src/components/ActivityLine.tsx#L14)
+Defined in: [packages/nft/src/components/ActivityLine.tsx:14](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/nft/src/components/ActivityLine.tsx#L14)

@@ -14,7 +14,7 @@ hide_title: true
 
 • `Const` **ACCEPTED\_INVITE**: *ACCEPTED_INVITE*= 'ACCEPTED\_INVITE'
 
-Defined in: [packages/client-core/src/social/reducers/actions.ts:14](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/actions.ts#L14)
+Defined in: [packages/client-core/src/social/reducers/actions.ts:14](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/actions.ts#L14)
 
 ___
 
@@ -22,7 +22,7 @@ ___
 
 • `Const` **CHAT\_TARGET\_SET**: *CHAT_TARGET_SET*= 'CHAT\_TARGET\_SET'
 
-Defined in: [packages/client-core/src/social/reducers/actions.ts:43](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/actions.ts#L43)
+Defined in: [packages/client-core/src/social/reducers/actions.ts:43](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/actions.ts#L43)
 
 ___
 
@@ -30,7 +30,7 @@ ___
 
 • `Const` **CREATED\_CHANNEL**: *CREATED_CHANNEL*= 'CREATED\_CHANNEL'
 
-Defined in: [packages/client-core/src/social/reducers/actions.ts:47](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/actions.ts#L47)
+Defined in: [packages/client-core/src/social/reducers/actions.ts:47](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/actions.ts#L47)
 
 ___
 
@@ -38,7 +38,7 @@ ___
 
 • `Const` **CREATED\_FRIEND**: *CREATED_FRIEND*= 'CREATED\_FRIEND'
 
-Defined in: [packages/client-core/src/social/reducers/actions.ts:2](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/actions.ts#L2)
+Defined in: [packages/client-core/src/social/reducers/actions.ts:2](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/actions.ts#L2)
 
 ___
 
@@ -46,7 +46,7 @@ ___
 
 • `Const` **CREATED\_GROUP**: *CREATED_GROUP*= 'CREATED\_GROUP'
 
-Defined in: [packages/client-core/src/social/reducers/actions.ts:21](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/actions.ts#L21)
+Defined in: [packages/client-core/src/social/reducers/actions.ts:21](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/actions.ts#L21)
 
 ___
 
@@ -54,7 +54,7 @@ ___
 
 • `Const` **CREATED\_GROUP\_USER**: *CREATED_GROUP_USER*= 'CREATED\_GROUP\_USER'
 
-Defined in: [packages/client-core/src/social/reducers/actions.ts:24](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/actions.ts#L24)
+Defined in: [packages/client-core/src/social/reducers/actions.ts:24](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/actions.ts#L24)
 
 ___
 
@@ -62,7 +62,7 @@ ___
 
 • `Const` **CREATED\_MESSAGE**: *CREATED_MESSAGE*= 'CREATED\_MESSAGE'
 
-Defined in: [packages/client-core/src/social/reducers/actions.ts:50](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/actions.ts#L50)
+Defined in: [packages/client-core/src/social/reducers/actions.ts:50](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/actions.ts#L50)
 
 ___
 
@@ -70,7 +70,7 @@ ___
 
 • `Const` **CREATED\_PARTY**: *CREATED_PARTY*= 'CREATED\_PARTY'
 
-Defined in: [packages/client-core/src/social/reducers/actions.ts:34](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/actions.ts#L34)
+Defined in: [packages/client-core/src/social/reducers/actions.ts:34](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/actions.ts#L34)
 
 ___
 
@@ -78,7 +78,7 @@ ___
 
 • `Const` **CREATED\_PARTY\_USER**: *CREATED_PARTY_USER*= 'CREATED\_PARTY\_USER'
 
-Defined in: [packages/client-core/src/social/reducers/actions.ts:37](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/actions.ts#L37)
+Defined in: [packages/client-core/src/social/reducers/actions.ts:37](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/actions.ts#L37)
 
 ___
 
@@ -86,7 +86,7 @@ ___
 
 • `Const` **CREATED\_RECEIVED\_INVITE**: *CREATED_RECEIVED_INVITE*= 'CREATED\_RECEIVED\_INVITE'
 
-Defined in: [packages/client-core/src/social/reducers/actions.ts:10](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/actions.ts#L10)
+Defined in: [packages/client-core/src/social/reducers/actions.ts:10](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/actions.ts#L10)
 
 ___
 
@@ -94,7 +94,7 @@ ___
 
 • `Const` **CREATED\_SENT\_INVITE**: *CREATED_SENT_INVITE*= 'CREATED\_SENT\_INVITE'
 
-Defined in: [packages/client-core/src/social/reducers/actions.ts:12](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/actions.ts#L12)
+Defined in: [packages/client-core/src/social/reducers/actions.ts:12](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/actions.ts#L12)
 
 ___
 
@@ -102,7 +102,7 @@ ___
 
 • `Const` **DECLINED\_INVITE**: *DECLINED_INVITE*= 'DECLINED\_INVITE'
 
-Defined in: [packages/client-core/src/social/reducers/actions.ts:15](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/actions.ts#L15)
+Defined in: [packages/client-core/src/social/reducers/actions.ts:15](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/actions.ts#L15)
 
 ___
 
@@ -110,7 +110,7 @@ ___
 
 • `Const` **FETCHING\_FRIENDS**: *FETCHING_FRIENDS*= 'FETCHING\_FRIENDS'
 
-Defined in: [packages/client-core/src/social/reducers/actions.ts:5](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/actions.ts#L5)
+Defined in: [packages/client-core/src/social/reducers/actions.ts:5](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/actions.ts#L5)
 
 ___
 
@@ -118,7 +118,7 @@ ___
 
 • `Const` **FETCHING\_GROUPS**: *FETCHING_GROUPS*= 'FETCHING\_GROUPS'
 
-Defined in: [packages/client-core/src/social/reducers/actions.ts:29](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/actions.ts#L29)
+Defined in: [packages/client-core/src/social/reducers/actions.ts:29](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/actions.ts#L29)
 
 ___
 
@@ -126,7 +126,7 @@ ___
 
 • `Const` **FETCHING\_INSTANCE\_CHANNEL**: *FETCHING_INSTANCE_CHANNEL*= 'FETCHING\_INSTANCE\_CHANNEL'
 
-Defined in: [packages/client-core/src/social/reducers/actions.ts:44](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/actions.ts#L44)
+Defined in: [packages/client-core/src/social/reducers/actions.ts:44](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/actions.ts#L44)
 
 ___
 
@@ -134,7 +134,7 @@ ___
 
 • `Const` **FETCHING\_INVITABLE\_GROUPS**: *FETCHING_INVITABLE_GROUPS*= 'FETCHING\_INVITABLE\_GROUPS'
 
-Defined in: [packages/client-core/src/social/reducers/actions.ts:31](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/actions.ts#L31)
+Defined in: [packages/client-core/src/social/reducers/actions.ts:31](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/actions.ts#L31)
 
 ___
 
@@ -142,7 +142,7 @@ ___
 
 • `Const` **FETCHING\_RECEIVED\_INVITES**: *FETCHING_RECEIVED_INVITES*= 'FETCHING\_RECEIVED\_INVITES'
 
-Defined in: [packages/client-core/src/social/reducers/actions.ts:18](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/actions.ts#L18)
+Defined in: [packages/client-core/src/social/reducers/actions.ts:18](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/actions.ts#L18)
 
 ___
 
@@ -150,7 +150,7 @@ ___
 
 • `Const` **FETCHING\_RECEIVED\_INVITES\_TYPES**: *FETCHING_RECEIVED_INVITES_TYPES*= "FETCHING\_RECEIVED\_INVITES\_TYPES"
 
-Defined in: [packages/client-core/src/social/reducers/actions.ts:59](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/actions.ts#L59)
+Defined in: [packages/client-core/src/social/reducers/actions.ts:59](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/actions.ts#L59)
 
 ___
 
@@ -158,7 +158,7 @@ ___
 
 • `Const` **FETCHING\_SENT\_INVITES**: *FETCHING_SENT_INVITES*= 'FETCHING\_SENT\_INVITES'
 
-Defined in: [packages/client-core/src/social/reducers/actions.ts:17](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/actions.ts#L17)
+Defined in: [packages/client-core/src/social/reducers/actions.ts:17](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/actions.ts#L17)
 
 ___
 
@@ -166,7 +166,7 @@ ___
 
 • `Const` **FETCH\_CURRENT\_LOCATION**: *FETCH_CURRENT_LOCATION*= 'FETCH\_CURRENT\_LOCATION'
 
-Defined in: [packages/client-core/src/social/reducers/actions.ts:63](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/actions.ts#L63)
+Defined in: [packages/client-core/src/social/reducers/actions.ts:63](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/actions.ts#L63)
 
 ___
 
@@ -174,7 +174,7 @@ ___
 
 • `Const` **INSTANCE\_REMOVED**: *INSTANCE_REMOVED*= 'INSTANCE\_REMOVED'
 
-Defined in: [packages/client-core/src/social/reducers/actions.ts:61](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/actions.ts#L61)
+Defined in: [packages/client-core/src/social/reducers/actions.ts:61](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/actions.ts#L61)
 
 ___
 
@@ -182,7 +182,7 @@ ___
 
 • `Const` **INVITED\_GROUP\_USER**: *INVITED_GROUP_USER*= 'INVITED\_GROUP\_USER'
 
-Defined in: [packages/client-core/src/social/reducers/actions.ts:26](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/actions.ts#L26)
+Defined in: [packages/client-core/src/social/reducers/actions.ts:26](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/actions.ts#L26)
 
 ___
 
@@ -190,7 +190,7 @@ ___
 
 • `Const` **INVITED\_PARTY\_USER**: *INVITED_PARTY_USER*= 'INVITED\_PARTY\_USER'
 
-Defined in: [packages/client-core/src/social/reducers/actions.ts:39](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/actions.ts#L39)
+Defined in: [packages/client-core/src/social/reducers/actions.ts:39](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/actions.ts#L39)
 
 ___
 
@@ -198,7 +198,7 @@ ___
 
 • `Const` **INVITE\_SENT**: *INVITE_SENT*= 'INVITE\_SENT'
 
-Defined in: [packages/client-core/src/social/reducers/actions.ts:7](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/actions.ts#L7)
+Defined in: [packages/client-core/src/social/reducers/actions.ts:7](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/actions.ts#L7)
 
 ___
 
@@ -206,7 +206,7 @@ ___
 
 • `Const` **INVITE\_TARGET\_SET**: *INVITE_TARGET_SET*= 'INVITE\_TARGET\_SET'
 
-Defined in: [packages/client-core/src/social/reducers/actions.ts:16](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/actions.ts#L16)
+Defined in: [packages/client-core/src/social/reducers/actions.ts:16](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/actions.ts#L16)
 
 ___
 
@@ -214,7 +214,7 @@ ___
 
 • `Const` **INVITE\_TYPE\_CREATE**: *INVITE_TYPE_CREATE*= "INVITE\_TYPE\_CREATE"
 
-Defined in: [packages/client-core/src/social/reducers/actions.ts:56](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/actions.ts#L56)
+Defined in: [packages/client-core/src/social/reducers/actions.ts:56](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/actions.ts#L56)
 
 ___
 
@@ -222,7 +222,7 @@ ___
 
 • `Const` **LEFT\_GROUP**: *LEFT_GROUP*= 'LEFT\_GROUP'
 
-Defined in: [packages/client-core/src/social/reducers/actions.ts:28](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/actions.ts#L28)
+Defined in: [packages/client-core/src/social/reducers/actions.ts:28](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/actions.ts#L28)
 
 ___
 
@@ -230,7 +230,7 @@ ___
 
 • `Const` **LEFT\_PARTY**: *LEFT_PARTY*= 'LEFT\_PARTY'
 
-Defined in: [packages/client-core/src/social/reducers/actions.ts:41](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/actions.ts#L41)
+Defined in: [packages/client-core/src/social/reducers/actions.ts:41](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/actions.ts#L41)
 
 ___
 
@@ -238,7 +238,7 @@ ___
 
 • `Const` **LOADED\_CHANNEL**: *LOADED_CHANNEL*= 'LOADED\_CHANNEL'
 
-Defined in: [packages/client-core/src/social/reducers/actions.ts:45](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/actions.ts#L45)
+Defined in: [packages/client-core/src/social/reducers/actions.ts:45](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/actions.ts#L45)
 
 ___
 
@@ -246,7 +246,7 @@ ___
 
 • `Const` **LOADED\_CHANNELS**: *LOADED_CHANNELS*= 'LOADED\_CHANNELS'
 
-Defined in: [packages/client-core/src/social/reducers/actions.ts:46](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/actions.ts#L46)
+Defined in: [packages/client-core/src/social/reducers/actions.ts:46](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/actions.ts#L46)
 
 ___
 
@@ -254,7 +254,7 @@ ___
 
 • `Const` **LOADED\_FRIENDS**: *LOADED_FRIENDS*= 'LOADED\_FRIENDS'
 
-Defined in: [packages/client-core/src/social/reducers/actions.ts:1](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/actions.ts#L1)
+Defined in: [packages/client-core/src/social/reducers/actions.ts:1](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/actions.ts#L1)
 
 ___
 
@@ -262,7 +262,7 @@ ___
 
 • `Const` **LOADED\_GROUPS**: *LOADED_GROUPS*= 'LOADED\_GROUPS'
 
-Defined in: [packages/client-core/src/social/reducers/actions.ts:20](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/actions.ts#L20)
+Defined in: [packages/client-core/src/social/reducers/actions.ts:20](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/actions.ts#L20)
 
 ___
 
@@ -270,7 +270,7 @@ ___
 
 • `Const` **LOADED\_INVITABLE\_GROUPS**: *LOADED_INVITABLE_GROUPS*= 'LOADED\_INVITABLE\_GROUPS'
 
-Defined in: [packages/client-core/src/social/reducers/actions.ts:30](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/actions.ts#L30)
+Defined in: [packages/client-core/src/social/reducers/actions.ts:30](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/actions.ts#L30)
 
 ___
 
@@ -278,7 +278,7 @@ ___
 
 • `Const` **LOADED\_MESSAGES**: *LOADED_MESSAGES*= 'LOADED\_MESSAGES'
 
-Defined in: [packages/client-core/src/social/reducers/actions.ts:51](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/actions.ts#L51)
+Defined in: [packages/client-core/src/social/reducers/actions.ts:51](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/actions.ts#L51)
 
 ___
 
@@ -286,7 +286,7 @@ ___
 
 • `Const` **LOADED\_PARTY**: *LOADED_PARTY*= 'LOADED\_PARTY'
 
-Defined in: [packages/client-core/src/social/reducers/actions.ts:33](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/actions.ts#L33)
+Defined in: [packages/client-core/src/social/reducers/actions.ts:33](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/actions.ts#L33)
 
 ___
 
@@ -294,7 +294,7 @@ ___
 
 • `Const` **LOAD\_INVITE\_TYPE**: *LOAD_INVITE_TYPE*= "LOAD\_INVITE\_TYPE"
 
-Defined in: [packages/client-core/src/social/reducers/actions.ts:57](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/actions.ts#L57)
+Defined in: [packages/client-core/src/social/reducers/actions.ts:57](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/actions.ts#L57)
 
 ___
 
@@ -302,7 +302,7 @@ ___
 
 • `Const` **LOCATIONS\_RETRIEVED**: *LOCATIONS_RETRIEVED*= 'LOCATIONS\_RETRIEVED'
 
-Defined in: [packages/client-core/src/social/reducers/actions.ts:64](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/actions.ts#L64)
+Defined in: [packages/client-core/src/social/reducers/actions.ts:64](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/actions.ts#L64)
 
 ___
 
@@ -310,7 +310,7 @@ ___
 
 • `Const` **LOCATION\_BAN\_CREATED**: *LOCATION_BAN_CREATED*= 'LOCATION\_BAN\_CREATED'
 
-Defined in: [packages/client-core/src/social/reducers/actions.ts:69](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/actions.ts#L69)
+Defined in: [packages/client-core/src/social/reducers/actions.ts:69](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/actions.ts#L69)
 
 ___
 
@@ -318,7 +318,7 @@ ___
 
 • `Const` **LOCATION\_CREATED**: *LOCATION_CREATED*= 'LOCATION\_CREATED'
 
-Defined in: [packages/client-core/src/social/reducers/actions.ts:66](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/actions.ts#L66)
+Defined in: [packages/client-core/src/social/reducers/actions.ts:66](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/actions.ts#L66)
 
 ___
 
@@ -326,7 +326,7 @@ ___
 
 • `Const` **LOCATION\_NOT\_FOUND**: *LOCATION_NOT_FOUND*= 'LOCATION\_NOT\_FOUND'
 
-Defined in: [packages/client-core/src/social/reducers/actions.ts:70](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/actions.ts#L70)
+Defined in: [packages/client-core/src/social/reducers/actions.ts:70](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/actions.ts#L70)
 
 ___
 
@@ -334,7 +334,7 @@ ___
 
 • `Const` **LOCATION\_PATCHED**: *LOCATION_PATCHED*= 'LOCATION\_PATCHED'
 
-Defined in: [packages/client-core/src/social/reducers/actions.ts:67](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/actions.ts#L67)
+Defined in: [packages/client-core/src/social/reducers/actions.ts:67](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/actions.ts#L67)
 
 ___
 
@@ -342,7 +342,7 @@ ___
 
 • `Const` **LOCATION\_REMOVED**: *LOCATION_REMOVED*= 'LOCATION\_REMOVED'
 
-Defined in: [packages/client-core/src/social/reducers/actions.ts:68](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/actions.ts#L68)
+Defined in: [packages/client-core/src/social/reducers/actions.ts:68](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/actions.ts#L68)
 
 ___
 
@@ -350,7 +350,7 @@ ___
 
 • `Const` **LOCATION\_RETRIEVED**: *LOCATION_RETRIEVED*= 'LOCATION\_RETRIEVED'
 
-Defined in: [packages/client-core/src/social/reducers/actions.ts:65](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/actions.ts#L65)
+Defined in: [packages/client-core/src/social/reducers/actions.ts:65](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/actions.ts#L65)
 
 ___
 
@@ -358,7 +358,7 @@ ___
 
 • `Const` **PATCHED\_CHANNEL**: *PATCHED_CHANNEL*= 'PATCHED\_CHANNEL'
 
-Defined in: [packages/client-core/src/social/reducers/actions.ts:48](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/actions.ts#L48)
+Defined in: [packages/client-core/src/social/reducers/actions.ts:48](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/actions.ts#L48)
 
 ___
 
@@ -366,7 +366,7 @@ ___
 
 • `Const` **PATCHED\_FRIEND**: *PATCHED_FRIEND*= 'PATCHED\_FRIEND'
 
-Defined in: [packages/client-core/src/social/reducers/actions.ts:3](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/actions.ts#L3)
+Defined in: [packages/client-core/src/social/reducers/actions.ts:3](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/actions.ts#L3)
 
 ___
 
@@ -374,7 +374,7 @@ ___
 
 • `Const` **PATCHED\_GROUP**: *PATCHED_GROUP*= 'PATCHED\_GROUP'
 
-Defined in: [packages/client-core/src/social/reducers/actions.ts:22](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/actions.ts#L22)
+Defined in: [packages/client-core/src/social/reducers/actions.ts:22](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/actions.ts#L22)
 
 ___
 
@@ -382,7 +382,7 @@ ___
 
 • `Const` **PATCHED\_GROUP\_USER**: *PATCHED_GROUP_USER*= 'PATCHED\_GROUP\_USER'
 
-Defined in: [packages/client-core/src/social/reducers/actions.ts:25](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/actions.ts#L25)
+Defined in: [packages/client-core/src/social/reducers/actions.ts:25](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/actions.ts#L25)
 
 ___
 
@@ -390,7 +390,7 @@ ___
 
 • `Const` **PATCHED\_MESSAGE**: *PATCHED_MESSAGE*= 'PATCHED\_MESSAGE'
 
-Defined in: [packages/client-core/src/social/reducers/actions.ts:52](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/actions.ts#L52)
+Defined in: [packages/client-core/src/social/reducers/actions.ts:52](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/actions.ts#L52)
 
 ___
 
@@ -398,7 +398,7 @@ ___
 
 • `Const` **PATCHED\_PARTY**: *PATCHED_PARTY*= 'PATCHED\_PARTY'
 
-Defined in: [packages/client-core/src/social/reducers/actions.ts:35](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/actions.ts#L35)
+Defined in: [packages/client-core/src/social/reducers/actions.ts:35](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/actions.ts#L35)
 
 ___
 
@@ -406,7 +406,7 @@ ___
 
 • `Const` **PATCHED\_PARTY\_USER**: *PATCHED_PARTY_USER*= 'PATCHED\_PARTY\_USER'
 
-Defined in: [packages/client-core/src/social/reducers/actions.ts:38](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/actions.ts#L38)
+Defined in: [packages/client-core/src/social/reducers/actions.ts:38](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/actions.ts#L38)
 
 ___
 
@@ -414,7 +414,7 @@ ___
 
 • `Const` **RECEIVED\_INVITES\_RETRIEVED**: *RECEIVED_INVITES_RECEIVED*= 'RECEIVED\_INVITES\_RECEIVED'
 
-Defined in: [packages/client-core/src/social/reducers/actions.ts:9](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/actions.ts#L9)
+Defined in: [packages/client-core/src/social/reducers/actions.ts:9](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/actions.ts#L9)
 
 ___
 
@@ -422,7 +422,7 @@ ___
 
 • `Const` **REMOVED\_CHANNEL**: *REMOVED_CHANNEL*= 'REMOVED\_CHANNEL'
 
-Defined in: [packages/client-core/src/social/reducers/actions.ts:49](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/actions.ts#L49)
+Defined in: [packages/client-core/src/social/reducers/actions.ts:49](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/actions.ts#L49)
 
 ___
 
@@ -430,7 +430,7 @@ ___
 
 • `Const` **REMOVED\_FRIEND**: *REMOVED_FRIEND*= 'REMOVED\_FRIEND'
 
-Defined in: [packages/client-core/src/social/reducers/actions.ts:4](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/actions.ts#L4)
+Defined in: [packages/client-core/src/social/reducers/actions.ts:4](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/actions.ts#L4)
 
 ___
 
@@ -438,7 +438,7 @@ ___
 
 • `Const` **REMOVED\_GROUP**: *REMOVED_GROUP*= 'REMOVED\_GROUP'
 
-Defined in: [packages/client-core/src/social/reducers/actions.ts:23](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/actions.ts#L23)
+Defined in: [packages/client-core/src/social/reducers/actions.ts:23](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/actions.ts#L23)
 
 ___
 
@@ -446,7 +446,7 @@ ___
 
 • `Const` **REMOVED\_GROUP\_USER**: *REMOVED_GROUP_USER*= 'REMOVED\_GROUP\_USER'
 
-Defined in: [packages/client-core/src/social/reducers/actions.ts:27](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/actions.ts#L27)
+Defined in: [packages/client-core/src/social/reducers/actions.ts:27](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/actions.ts#L27)
 
 ___
 
@@ -454,7 +454,7 @@ ___
 
 • `Const` **REMOVED\_INVITE\_TYPE**: *REMOVED_INVITE_TYPE*= "REMOVED\_INVITE\_TYPE"
 
-Defined in: [packages/client-core/src/social/reducers/actions.ts:58](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/actions.ts#L58)
+Defined in: [packages/client-core/src/social/reducers/actions.ts:58](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/actions.ts#L58)
 
 ___
 
@@ -462,7 +462,7 @@ ___
 
 • `Const` **REMOVED\_MESSAGE**: *REMOVED_MESSAGE*= 'REMOVED\_MESSAGE'
 
-Defined in: [packages/client-core/src/social/reducers/actions.ts:53](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/actions.ts#L53)
+Defined in: [packages/client-core/src/social/reducers/actions.ts:53](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/actions.ts#L53)
 
 ___
 
@@ -470,7 +470,7 @@ ___
 
 • `Const` **REMOVED\_PARTY**: *REMOVED_PARTY*= 'REMOVED\_PARTY'
 
-Defined in: [packages/client-core/src/social/reducers/actions.ts:36](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/actions.ts#L36)
+Defined in: [packages/client-core/src/social/reducers/actions.ts:36](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/actions.ts#L36)
 
 ___
 
@@ -478,7 +478,7 @@ ___
 
 • `Const` **REMOVED\_PARTY\_USER**: *REMOVED_PARTY_USER*= 'REMOVED\_PARTY\_USER'
 
-Defined in: [packages/client-core/src/social/reducers/actions.ts:40](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/actions.ts#L40)
+Defined in: [packages/client-core/src/social/reducers/actions.ts:40](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/actions.ts#L40)
 
 ___
 
@@ -486,7 +486,7 @@ ___
 
 • `Const` **REMOVED\_RECEIVED\_INVITE**: *REMOVED_RECEIVED_INVITE*= 'REMOVED\_RECEIVED\_INVITE'
 
-Defined in: [packages/client-core/src/social/reducers/actions.ts:11](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/actions.ts#L11)
+Defined in: [packages/client-core/src/social/reducers/actions.ts:11](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/actions.ts#L11)
 
 ___
 
@@ -494,7 +494,7 @@ ___
 
 • `Const` **REMOVED\_SENT\_INVITE**: *REMOVED_SENT_INVITE*= 'REMOVED\_SENT\_INVITE'
 
-Defined in: [packages/client-core/src/social/reducers/actions.ts:13](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/actions.ts#L13)
+Defined in: [packages/client-core/src/social/reducers/actions.ts:13](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/actions.ts#L13)
 
 ___
 
@@ -502,7 +502,7 @@ ___
 
 • `Const` **SENT\_INVITES\_RETRIEVED**: *SENT_INVITES_RETRIEVED*= 'SENT\_INVITES\_RETRIEVED'
 
-Defined in: [packages/client-core/src/social/reducers/actions.ts:8](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/actions.ts#L8)
+Defined in: [packages/client-core/src/social/reducers/actions.ts:8](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/actions.ts#L8)
 
 ___
 
@@ -510,4 +510,4 @@ ___
 
 • `Const` **SET\_MESSAGE\_SCROLL\_INIT**: *SET_MESSAGE_SCROLL_INIT*= 'SET\_MESSAGE\_SCROLL\_INIT'
 
-Defined in: [packages/client-core/src/social/reducers/actions.ts:54](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/actions.ts#L54)
+Defined in: [packages/client-core/src/social/reducers/actions.ts:54](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/actions.ts#L54)

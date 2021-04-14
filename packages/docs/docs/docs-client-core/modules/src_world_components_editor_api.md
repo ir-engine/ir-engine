@@ -12,7 +12,13 @@ hide_title: true
 
 ### Classes
 
-- [default](../classes/src_world_components_editor_api.default.md)
+- [Api](../classes/src_world_components_editor_api.api.md)
+
+## References
+
+### default
+
+Renames and exports: [Api](../classes/src_world_components_editor_api.api.md)
 
 ## Functions
 
@@ -36,4 +42,4 @@ Name | Type |
 
 [returns url to get scaled image]
 
-Defined in: [packages/client-core/src/world/components/editor/Api.tsx:58](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/Api.tsx#L58)
+Defined in: [packages/client-core/src/world/components/editor/Api.tsx:58](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/Api.tsx#L58)

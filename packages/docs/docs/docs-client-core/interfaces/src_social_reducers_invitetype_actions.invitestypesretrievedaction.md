@@ -16,7 +16,7 @@ hide_title: true
 
 • **invitesType**: *any*
 
-Defined in: [packages/client-core/src/social/reducers/inviteType/actions.ts:22](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/inviteType/actions.ts#L22)
+Defined in: [packages/client-core/src/social/reducers/inviteType/actions.ts:22](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/inviteType/actions.ts#L22)
 
 ___
 
@@ -24,7 +24,7 @@ ___
 
 • **limit**: *number*
 
-Defined in: [packages/client-core/src/social/reducers/inviteType/actions.ts:20](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/inviteType/actions.ts#L20)
+Defined in: [packages/client-core/src/social/reducers/inviteType/actions.ts:20](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/inviteType/actions.ts#L20)
 
 ___
 
@@ -32,7 +32,7 @@ ___
 
 • **skip**: *number*
 
-Defined in: [packages/client-core/src/social/reducers/inviteType/actions.ts:21](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/inviteType/actions.ts#L21)
+Defined in: [packages/client-core/src/social/reducers/inviteType/actions.ts:21](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/inviteType/actions.ts#L21)
 
 ___
 
@@ -40,7 +40,7 @@ ___
 
 • **total**: *number*
 
-Defined in: [packages/client-core/src/social/reducers/inviteType/actions.ts:19](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/inviteType/actions.ts#L19)
+Defined in: [packages/client-core/src/social/reducers/inviteType/actions.ts:19](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/inviteType/actions.ts#L19)
 
 ___
 
@@ -48,4 +48,4 @@ ___
 
 • **type**: *string*
 
-Defined in: [packages/client-core/src/social/reducers/inviteType/actions.ts:18](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/inviteType/actions.ts#L18)
+Defined in: [packages/client-core/src/social/reducers/inviteType/actions.ts:18](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/inviteType/actions.ts#L18)

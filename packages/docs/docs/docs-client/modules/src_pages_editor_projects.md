@@ -20,7 +20,7 @@ hide_title: true
 
 • `Const` **ProfileButton**: *any*
 
-Defined in: [packages/client/src/pages/editor/projects.tsx:96](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client/src/pages/editor/projects.tsx#L96)
+Defined in: [packages/client/src/pages/editor/projects.tsx:96](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client/src/pages/editor/projects.tsx#L96)
 
 ___
 
@@ -33,7 +33,7 @@ Used to contain ProjectsHeader and ProjectGridContainer.
 
 **`projectscontainer`** 
 
-Defined in: [packages/client/src/pages/editor/projects.tsx:55](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client/src/pages/editor/projects.tsx#L55)
+Defined in: [packages/client/src/pages/editor/projects.tsx:55](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client/src/pages/editor/projects.tsx#L55)
 
 ___
 
@@ -46,7 +46,7 @@ Used to show the projects page header content.
 
 **`projectsheader`** 
 
-Defined in: [packages/client/src/pages/editor/projects.tsx:89](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client/src/pages/editor/projects.tsx#L89)
+Defined in: [packages/client/src/pages/editor/projects.tsx:89](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client/src/pages/editor/projects.tsx#L89)
 
 ___
 
@@ -59,4 +59,4 @@ Used as a parent container in view.
 
 **`projectssection`** 
 
-Defined in: [packages/client/src/pages/editor/projects.tsx:30](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client/src/pages/editor/projects.tsx#L30)
+Defined in: [packages/client/src/pages/editor/projects.tsx:30](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client/src/pages/editor/projects.tsx#L30)

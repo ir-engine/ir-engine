@@ -32,7 +32,7 @@ Name | Type |
 
 Overrides: [default](user_strategies_custom_oauth.default.md)
 
-Defined in: [packages/server-core/src/user/strategies/github.ts:6](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/user/strategies/github.ts#L6)
+Defined in: [packages/server-core/src/user/strategies/github.ts:6](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/user/strategies/github.ts#L6)
 
 ## Properties
 
@@ -42,7 +42,7 @@ Defined in: [packages/server-core/src/user/strategies/github.ts:6](https://githu
 
 Overrides: [default](user_strategies_custom_oauth.default.md).[app](user_strategies_custom_oauth.default.md#app)
 
-Defined in: [packages/server-core/src/user/strategies/github.ts:6](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/user/strategies/github.ts#L6)
+Defined in: [packages/server-core/src/user/strategies/github.ts:6](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/user/strategies/github.ts#L6)
 
 ___
 
@@ -206,7 +206,7 @@ Name | Type |
 
 Overrides: [default](user_strategies_custom_oauth.default.md)
 
-Defined in: [packages/server-core/src/user/strategies/github.ts:12](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/user/strategies/github.ts#L12)
+Defined in: [packages/server-core/src/user/strategies/github.ts:12](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/user/strategies/github.ts#L12)
 
 ___
 
@@ -225,7 +225,7 @@ Name | Type |
 
 Inherited from: [default](user_strategies_custom_oauth.default.md)
 
-Defined in: [packages/server-core/src/user/strategies/custom-oauth.ts:6](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/user/strategies/custom-oauth.ts#L6)
+Defined in: [packages/server-core/src/user/strategies/custom-oauth.ts:6](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/user/strategies/custom-oauth.ts#L6)
 
 ___
 
@@ -263,7 +263,7 @@ Name | Type |
 
 Overrides: [default](user_strategies_custom_oauth.default.md)
 
-Defined in: [packages/server-core/src/user/strategies/github.ts:38](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/user/strategies/github.ts#L38)
+Defined in: [packages/server-core/src/user/strategies/github.ts:38](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/user/strategies/github.ts#L38)
 
 ___
 
@@ -337,4 +337,4 @@ Name | Type |
 
 Overrides: [default](user_strategies_custom_oauth.default.md)
 
-Defined in: [packages/server-core/src/user/strategies/github.ts:23](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/user/strategies/github.ts#L23)
+Defined in: [packages/server-core/src/user/strategies/github.ts:23](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/user/strategies/github.ts#L23)

@@ -33,7 +33,7 @@ Name | Type |
 
 Overrides: Service.constructor
 
-Defined in: [packages/server-core/src/social/channel/channel.class.ts:11](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/social/channel/channel.class.ts#L11)
+Defined in: [packages/server-core/src/social/channel/channel.class.ts:11](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/social/channel/channel.class.ts#L11)
 
 ## Properties
 
@@ -51,7 +51,7 @@ ___
 
 • **app**: Application
 
-Defined in: [packages/server-core/src/social/channel/channel.class.ts:10](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/social/channel/channel.class.ts#L10)
+Defined in: [packages/server-core/src/social/channel/channel.class.ts:10](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/social/channel/channel.class.ts#L10)
 
 ___
 
@@ -59,7 +59,7 @@ ___
 
 • **docs**: *any*
 
-Defined in: [packages/server-core/src/social/channel/channel.class.ts:11](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/social/channel/channel.class.ts#L11)
+Defined in: [packages/server-core/src/social/channel/channel.class.ts:11](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/social/channel/channel.class.ts#L11)
 
 ___
 
@@ -284,7 +284,7 @@ Name | Type | Description |
 
 Overrides: Service.find
 
-Defined in: [packages/server-core/src/social/channel/channel.class.ts:25](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/social/channel/channel.class.ts#L25)
+Defined in: [packages/server-core/src/social/channel/channel.class.ts:25](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/social/channel/channel.class.ts#L25)
 
 ___
 

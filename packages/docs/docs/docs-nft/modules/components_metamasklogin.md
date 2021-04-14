@@ -20,7 +20,7 @@ Name | Type |
 :------ | :------ |
 `onClickConnect` | () => *void* |
 
-Defined in: [packages/nft/src/components/MetamaskLogin.tsx:4](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/nft/src/components/MetamaskLogin.tsx#L4)
+Defined in: [packages/nft/src/components/MetamaskLogin.tsx:4](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/nft/src/components/MetamaskLogin.tsx#L4)
 
 ## Functions
 
@@ -36,4 +36,4 @@ Name | Type |
 
 **Returns:** *Element*
 
-Defined in: [packages/nft/src/components/MetamaskLogin.tsx:8](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/nft/src/components/MetamaskLogin.tsx#L8)
+Defined in: [packages/nft/src/components/MetamaskLogin.tsx:8](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/nft/src/components/MetamaskLogin.tsx#L8)

@@ -12,4 +12,10 @@ hide_title: true
 
 ### Classes
 
-- [default](../classes/src_world_components_editor_assets_sources_tenorsource.default.md)
+- [TenorSource](../classes/src_world_components_editor_assets_sources_tenorsource.tenorsource.md)
+
+## References
+
+### default
+
+Renames and exports: [TenorSource](../classes/src_world_components_editor_assets_sources_tenorsource.tenorsource.md)

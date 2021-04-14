@@ -16,7 +16,7 @@ hide_title: true
 
 • `Optional` **cameraPosition**: Vector3
 
-Defined in: [packages/native-plugin-xr/src/definitions.ts:22](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/native-plugin-xr/src/definitions.ts#L22)
+Defined in: [packages/native-plugin-xr/src/definitions.ts:22](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/native-plugin-xr/src/definitions.ts#L22)
 
 ___
 
@@ -24,7 +24,7 @@ ___
 
 • `Optional` **cameraRotation**: Quaternion
 
-Defined in: [packages/native-plugin-xr/src/definitions.ts:23](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/native-plugin-xr/src/definitions.ts#L23)
+Defined in: [packages/native-plugin-xr/src/definitions.ts:23](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/native-plugin-xr/src/definitions.ts#L23)
 
 ___
 
@@ -32,7 +32,7 @@ ___
 
 • **hasData**: *boolean*
 
-Defined in: [packages/native-plugin-xr/src/definitions.ts:21](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/native-plugin-xr/src/definitions.ts#L21)
+Defined in: [packages/native-plugin-xr/src/definitions.ts:21](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/native-plugin-xr/src/definitions.ts#L21)
 
 ___
 
@@ -40,7 +40,7 @@ ___
 
 • `Optional` **stagePosition**: Vector3
 
-Defined in: [packages/native-plugin-xr/src/definitions.ts:24](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/native-plugin-xr/src/definitions.ts#L24)
+Defined in: [packages/native-plugin-xr/src/definitions.ts:24](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/native-plugin-xr/src/definitions.ts#L24)
 
 ___
 
@@ -48,4 +48,4 @@ ___
 
 • `Optional` **stageRotation**: Quaternion
 
-Defined in: [packages/native-plugin-xr/src/definitions.ts:25](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/native-plugin-xr/src/definitions.ts#L25)
+Defined in: [packages/native-plugin-xr/src/definitions.ts:25](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/native-plugin-xr/src/definitions.ts#L25)

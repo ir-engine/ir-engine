@@ -22,4 +22,4 @@ Read configs from meta tags if available, otherwise use the process.env injected
 
 #### Type declaration:
 
-Defined in: [packages/client-core/src/world/components/editor/configs.ts:9](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/configs.ts#L9)
+Defined in: [packages/client-core/src/world/components/editor/configs.ts:9](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/configs.ts#L9)

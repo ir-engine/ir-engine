@@ -12,4 +12,10 @@ hide_title: true
 
 ### Classes
 
-- [default](../classes/src_world_components_editor_inputs_booleaninput.default.md)
+- [BooleanInput](../classes/src_world_components_editor_inputs_booleaninput.booleaninput.md)
+
+## References
+
+### default
+
+Renames and exports: [BooleanInput](../classes/src_world_components_editor_inputs_booleaninput.booleaninput.md)

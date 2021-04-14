@@ -16,7 +16,7 @@ hide_title: true
 
 • **id**: *string*
 
-Defined in: [interfaces/Location.ts:4](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/common/src/interfaces/Location.ts#L4)
+Defined in: [interfaces/Location.ts:4](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/common/src/interfaces/Location.ts#L4)
 
 ___
 
@@ -24,7 +24,7 @@ ___
 
 • **locationSettings**: [*LocationSettings*](src_interfaces_locationsettings.locationsettings.md)
 
-Defined in: [interfaces/Location.ts:9](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/common/src/interfaces/Location.ts#L9)
+Defined in: [interfaces/Location.ts:9](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/common/src/interfaces/Location.ts#L9)
 
 ___
 
@@ -32,7 +32,7 @@ ___
 
 • **locationSettingsId**: *string*
 
-Defined in: [interfaces/Location.ts:7](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/common/src/interfaces/Location.ts#L7)
+Defined in: [interfaces/Location.ts:7](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/common/src/interfaces/Location.ts#L7)
 
 ___
 
@@ -40,7 +40,7 @@ ___
 
 • **maxUsersPerInstance**: *number*
 
-Defined in: [interfaces/Location.ts:8](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/common/src/interfaces/Location.ts#L8)
+Defined in: [interfaces/Location.ts:8](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/common/src/interfaces/Location.ts#L8)
 
 ___
 
@@ -48,7 +48,7 @@ ___
 
 • **name**: *string*
 
-Defined in: [interfaces/Location.ts:5](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/common/src/interfaces/Location.ts#L5)
+Defined in: [interfaces/Location.ts:5](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/common/src/interfaces/Location.ts#L5)
 
 ___
 
@@ -56,4 +56,4 @@ ___
 
 • **sceneId**: *string*
 
-Defined in: [interfaces/Location.ts:6](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/common/src/interfaces/Location.ts#L6)
+Defined in: [interfaces/Location.ts:6](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/common/src/interfaces/Location.ts#L6)

@@ -12,4 +12,10 @@ hide_title: true
 
 ### Classes
 
-- [default](../classes/src_world_components_editor_assets_assetmanifestsource.default.md)
+- [AssetManifestSource](../classes/src_world_components_editor_assets_assetmanifestsource.assetmanifestsource.md)
+
+## References
+
+### default
+
+Renames and exports: [AssetManifestSource](../classes/src_world_components_editor_assets_assetmanifestsource.assetmanifestsource.md)

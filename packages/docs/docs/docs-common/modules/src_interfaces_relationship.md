@@ -20,4 +20,4 @@ hide_title: true
 
 • `Const` **RelationshipSeed**: [*Relationship*](../interfaces/src_interfaces_relationship.relationship.md)
 
-Defined in: [interfaces/Relationship.ts:11](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/common/src/interfaces/Relationship.ts#L11)
+Defined in: [interfaces/Relationship.ts:11](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/common/src/interfaces/Relationship.ts#L11)

@@ -157,7 +157,7 @@ ___
 
 ▪ `Static` **description**: *string*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/HemisphereLightNodeEditor.tsx:31](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/properties/HemisphereLightNodeEditor.tsx#L31)
+Defined in: [packages/client-core/src/world/components/editor/properties/HemisphereLightNodeEditor.tsx:31](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/properties/HemisphereLightNodeEditor.tsx#L31)
 
 ___
 
@@ -165,7 +165,7 @@ ___
 
 ▪ `Static` **iconComponent**: StyledIcon
 
-Defined in: [packages/client-core/src/world/components/editor/properties/HemisphereLightNodeEditor.tsx:28](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/properties/HemisphereLightNodeEditor.tsx#L28)
+Defined in: [packages/client-core/src/world/components/editor/properties/HemisphereLightNodeEditor.tsx:28](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/properties/HemisphereLightNodeEditor.tsx#L28)
 
 ## Methods
 
@@ -488,7 +488,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/HemisphereLightNodeEditor.tsx:39](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/properties/HemisphereLightNodeEditor.tsx#L39)
+Defined in: [packages/client-core/src/world/components/editor/properties/HemisphereLightNodeEditor.tsx:39](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/properties/HemisphereLightNodeEditor.tsx#L39)
 
 ___
 
@@ -504,7 +504,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/HemisphereLightNodeEditor.tsx:44](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/properties/HemisphereLightNodeEditor.tsx#L44)
+Defined in: [packages/client-core/src/world/components/editor/properties/HemisphereLightNodeEditor.tsx:44](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/properties/HemisphereLightNodeEditor.tsx#L44)
 
 ___
 
@@ -520,7 +520,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/HemisphereLightNodeEditor.tsx:34](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/properties/HemisphereLightNodeEditor.tsx#L34)
+Defined in: [packages/client-core/src/world/components/editor/properties/HemisphereLightNodeEditor.tsx:34](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/properties/HemisphereLightNodeEditor.tsx#L34)
 
 ___
 
@@ -532,7 +532,7 @@ ___
 
 Overrides: Component.render
 
-Defined in: [packages/client-core/src/world/components/editor/properties/HemisphereLightNodeEditor.tsx:49](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/world/components/editor/properties/HemisphereLightNodeEditor.tsx#L49)
+Defined in: [packages/client-core/src/world/components/editor/properties/HemisphereLightNodeEditor.tsx:49](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/properties/HemisphereLightNodeEditor.tsx#L49)
 
 ___
 

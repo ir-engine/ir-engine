@@ -26,7 +26,7 @@ hide_title: true
 
 Ƭ **InviteAction**: [*InviteSentAction*](../interfaces/src_social_reducers_invite_actions.invitesentaction.md) \| [*InvitesRetrievedAction*](../interfaces/src_social_reducers_invite_actions.invitesretrievedaction.md) \| [*InviteCreatedAction*](../interfaces/src_social_reducers_invite_actions.invitecreatedaction.md) \| [*InviteRemovedAction*](../interfaces/src_social_reducers_invite_actions.inviteremovedaction.md) \| [*InviteTargetSetAction*](../interfaces/src_social_reducers_invite_actions.invitetargetsetaction.md) \| [*FetchingReceivedInvitesAction*](../interfaces/src_social_reducers_invite_actions.fetchingreceivedinvitesaction.md) \| [*FetchingSentInvitesAction*](../interfaces/src_social_reducers_invite_actions.fetchingsentinvitesaction.md)
 
-Defined in: [packages/client-core/src/social/reducers/invite/actions.ts:58](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/invite/actions.ts#L58)
+Defined in: [packages/client-core/src/social/reducers/invite/actions.ts:58](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/invite/actions.ts#L58)
 
 ## Functions
 
@@ -36,7 +36,7 @@ Defined in: [packages/client-core/src/social/reducers/invite/actions.ts:58](http
 
 **Returns:** [*InviteAction*](src_social_reducers_invite_actions.md#inviteaction)
 
-Defined in: [packages/client-core/src/social/reducers/invite/actions.ts:116](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/invite/actions.ts#L116)
+Defined in: [packages/client-core/src/social/reducers/invite/actions.ts:116](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/invite/actions.ts#L116)
 
 ___
 
@@ -46,7 +46,7 @@ ___
 
 **Returns:** [*InviteCreatedAction*](../interfaces/src_social_reducers_invite_actions.invitecreatedaction.md)
 
-Defined in: [packages/client-core/src/social/reducers/invite/actions.ts:94](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/invite/actions.ts#L94)
+Defined in: [packages/client-core/src/social/reducers/invite/actions.ts:94](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/invite/actions.ts#L94)
 
 ___
 
@@ -56,7 +56,7 @@ ___
 
 **Returns:** [*InviteCreatedAction*](../interfaces/src_social_reducers_invite_actions.invitecreatedaction.md)
 
-Defined in: [packages/client-core/src/social/reducers/invite/actions.ts:105](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/invite/actions.ts#L105)
+Defined in: [packages/client-core/src/social/reducers/invite/actions.ts:105](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/invite/actions.ts#L105)
 
 ___
 
@@ -66,7 +66,7 @@ ___
 
 **Returns:** [*InviteAction*](src_social_reducers_invite_actions.md#inviteaction)
 
-Defined in: [packages/client-core/src/social/reducers/invite/actions.ts:122](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/invite/actions.ts#L122)
+Defined in: [packages/client-core/src/social/reducers/invite/actions.ts:122](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/invite/actions.ts#L122)
 
 ___
 
@@ -76,7 +76,7 @@ ___
 
 **Returns:** [*InviteAction*](src_social_reducers_invite_actions.md#inviteaction)
 
-Defined in: [packages/client-core/src/social/reducers/invite/actions.ts:142](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/invite/actions.ts#L142)
+Defined in: [packages/client-core/src/social/reducers/invite/actions.ts:142](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/invite/actions.ts#L142)
 
 ___
 
@@ -86,7 +86,7 @@ ___
 
 **Returns:** [*InviteAction*](src_social_reducers_invite_actions.md#inviteaction)
 
-Defined in: [packages/client-core/src/social/reducers/invite/actions.ts:136](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/invite/actions.ts#L136)
+Defined in: [packages/client-core/src/social/reducers/invite/actions.ts:136](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/invite/actions.ts#L136)
 
 ___
 
@@ -96,7 +96,7 @@ ___
 
 **Returns:** [*InviteRemovedAction*](../interfaces/src_social_reducers_invite_actions.inviteremovedaction.md)
 
-Defined in: [packages/client-core/src/social/reducers/invite/actions.ts:99](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/invite/actions.ts#L99)
+Defined in: [packages/client-core/src/social/reducers/invite/actions.ts:99](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/invite/actions.ts#L99)
 
 ___
 
@@ -106,7 +106,7 @@ ___
 
 **Returns:** [*InviteRemovedAction*](../interfaces/src_social_reducers_invite_actions.inviteremovedaction.md)
 
-Defined in: [packages/client-core/src/social/reducers/invite/actions.ts:110](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/invite/actions.ts#L110)
+Defined in: [packages/client-core/src/social/reducers/invite/actions.ts:110](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/invite/actions.ts#L110)
 
 ___
 
@@ -122,7 +122,7 @@ Name | Type |
 
 **Returns:** [*InviteAction*](src_social_reducers_invite_actions.md#inviteaction)
 
-Defined in: [packages/client-core/src/social/reducers/invite/actions.ts:84](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/invite/actions.ts#L84)
+Defined in: [packages/client-core/src/social/reducers/invite/actions.ts:84](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/invite/actions.ts#L84)
 
 ___
 
@@ -138,7 +138,7 @@ Name | Type |
 
 **Returns:** [*InviteAction*](src_social_reducers_invite_actions.md#inviteaction)
 
-Defined in: [packages/client-core/src/social/reducers/invite/actions.ts:74](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/invite/actions.ts#L74)
+Defined in: [packages/client-core/src/social/reducers/invite/actions.ts:74](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/invite/actions.ts#L74)
 
 ___
 
@@ -154,7 +154,7 @@ Name | Type |
 
 **Returns:** [*InviteAction*](src_social_reducers_invite_actions.md#inviteaction)
 
-Defined in: [packages/client-core/src/social/reducers/invite/actions.ts:67](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/invite/actions.ts#L67)
+Defined in: [packages/client-core/src/social/reducers/invite/actions.ts:67](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/invite/actions.ts#L67)
 
 ___
 
@@ -171,4 +171,4 @@ Name | Type |
 
 **Returns:** [*InviteAction*](src_social_reducers_invite_actions.md#inviteaction)
 
-Defined in: [packages/client-core/src/social/reducers/invite/actions.ts:128](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/social/reducers/invite/actions.ts#L128)
+Defined in: [packages/client-core/src/social/reducers/invite/actions.ts:128](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/invite/actions.ts#L128)

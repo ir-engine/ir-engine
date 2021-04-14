@@ -23,4 +23,4 @@ Name | Type |
 `id` | *string* |
 `name` | *string* |
 
-Defined in: [interfaces/Group.ts:3](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/common/src/interfaces/Group.ts#L3)
+Defined in: [interfaces/Group.ts:3](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/common/src/interfaces/Group.ts#L3)

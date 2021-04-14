@@ -12,4 +12,10 @@ hide_title: true
 
 ### Classes
 
-- [default](../classes/src_world_components_editor_editor.default.md)
+- [Editor](../classes/src_world_components_editor_editor.editor.md)
+
+## References
+
+### default
+
+Renames and exports: [Editor](../classes/src_world_components_editor_editor.editor.md)

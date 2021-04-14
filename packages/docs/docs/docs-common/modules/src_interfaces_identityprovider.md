@@ -20,4 +20,4 @@ hide_title: true
 
 • `Const` **IdentityProviderSeed**: [*IdentityProvider*](../interfaces/src_interfaces_identityprovider.identityprovider.md)
 
-Defined in: [interfaces/IdentityProvider.ts:9](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/common/src/interfaces/IdentityProvider.ts#L9)
+Defined in: [interfaces/IdentityProvider.ts:9](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/common/src/interfaces/IdentityProvider.ts#L9)

@@ -12,4 +12,10 @@ hide_title: true
 
 ### Classes
 
-- [default](../classes/src_world_components_editor_assets_sources_myassetssource.default.md)
+- [MyAssetsSource](../classes/src_world_components_editor_assets_sources_myassetssource.myassetssource.md)
+
+## References
+
+### default
+
+Renames and exports: [MyAssetsSource](../classes/src_world_components_editor_assets_sources_myassetssource.myassetssource.md)

@@ -12,4 +12,10 @@ hide_title: true
 
 ### Classes
 
-- [default](../classes/src_world_components_editor_assets_sources_bingvideossource.default.md)
+- [BingVideosSource](../classes/src_world_components_editor_assets_sources_bingvideossource.bingvideossource.md)
+
+## References
+
+### default
+
+Renames and exports: [BingVideosSource](../classes/src_world_components_editor_assets_sources_bingvideossource.bingvideossource.md)

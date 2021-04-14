@@ -16,7 +16,7 @@ hide_title: true
 
 • **description**: *string*
 
-Defined in: [packages/client-core/src/admin/reducers/admin/actions.ts:26](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/admin/reducers/admin/actions.ts#L26)
+Defined in: [packages/client-core/src/admin/reducers/admin/actions.ts:26](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/admin/reducers/admin/actions.ts#L26)
 
 ___
 
@@ -24,7 +24,7 @@ ___
 
 • **id**: *string*
 
-Defined in: [packages/client-core/src/admin/reducers/admin/actions.ts:24](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/admin/reducers/admin/actions.ts#L24)
+Defined in: [packages/client-core/src/admin/reducers/admin/actions.ts:24](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/admin/reducers/admin/actions.ts#L24)
 
 ___
 
@@ -32,7 +32,7 @@ ___
 
 • **metadata**: *object*
 
-Defined in: [packages/client-core/src/admin/reducers/admin/actions.ts:28](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/admin/reducers/admin/actions.ts#L28)
+Defined in: [packages/client-core/src/admin/reducers/admin/actions.ts:28](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/admin/reducers/admin/actions.ts#L28)
 
 ___
 
@@ -40,7 +40,7 @@ ___
 
 • **name**: *string*
 
-Defined in: [packages/client-core/src/admin/reducers/admin/actions.ts:25](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/admin/reducers/admin/actions.ts#L25)
+Defined in: [packages/client-core/src/admin/reducers/admin/actions.ts:25](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/admin/reducers/admin/actions.ts#L25)
 
 ___
 
@@ -48,4 +48,4 @@ ___
 
 • **url**: *string*
 
-Defined in: [packages/client-core/src/admin/reducers/admin/actions.ts:27](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/admin/reducers/admin/actions.ts#L27)
+Defined in: [packages/client-core/src/admin/reducers/admin/actions.ts:27](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/admin/reducers/admin/actions.ts#L27)

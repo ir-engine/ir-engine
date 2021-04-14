@@ -16,7 +16,7 @@ hide_title: true
 
 **Returns:** *boolean*
 
-Defined in: [packages/nft/src/web3.ts:8](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/nft/src/web3.ts#L8)
+Defined in: [packages/nft/src/web3.ts:8](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/nft/src/web3.ts#L8)
 
 ___
 
@@ -32,4 +32,4 @@ Name | Type | Default value |
 
 **Returns:** *void*
 
-Defined in: [packages/nft/src/web3.ts:35](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/nft/src/web3.ts#L35)
+Defined in: [packages/nft/src/web3.ts:35](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/nft/src/web3.ts#L35)

@@ -35,7 +35,7 @@ Name | Type |
 
 Overrides: Service.constructor
 
-Defined in: [packages/server-core/src/socialmedia/notifications/notifications.class.ts:17](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/socialmedia/notifications/notifications.class.ts#L17)
+Defined in: [packages/server-core/src/socialmedia/notifications/notifications.class.ts:17](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/socialmedia/notifications/notifications.class.ts#L17)
 
 ## Properties
 
@@ -53,7 +53,7 @@ ___
 
 • **app**: Application
 
-Defined in: [packages/server-core/src/socialmedia/notifications/notifications.class.ts:16](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/socialmedia/notifications/notifications.class.ts#L16)
+Defined in: [packages/server-core/src/socialmedia/notifications/notifications.class.ts:16](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/socialmedia/notifications/notifications.class.ts#L16)
 
 ___
 
@@ -61,7 +61,7 @@ ___
 
 • **docs**: *any*
 
-Defined in: [packages/server-core/src/socialmedia/notifications/notifications.class.ts:17](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/socialmedia/notifications/notifications.class.ts#L17)
+Defined in: [packages/server-core/src/socialmedia/notifications/notifications.class.ts:17](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/socialmedia/notifications/notifications.class.ts#L17)
 
 ___
 
@@ -284,7 +284,7 @@ Name | Type | Description |
 
 Overrides: Service.find
 
-Defined in: [packages/server-core/src/socialmedia/notifications/notifications.class.ts:32](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/socialmedia/notifications/notifications.class.ts#L32)
+Defined in: [packages/server-core/src/socialmedia/notifications/notifications.class.ts:32](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/socialmedia/notifications/notifications.class.ts#L32)
 
 ___
 

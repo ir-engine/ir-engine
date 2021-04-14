@@ -22,4 +22,4 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/server-core/src/socialmedia/creator/creator.service.ts:15](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/socialmedia/creator/creator.service.ts#L15)
+Defined in: [packages/server-core/src/socialmedia/creator/creator.service.ts:15](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/socialmedia/creator/creator.service.ts#L15)

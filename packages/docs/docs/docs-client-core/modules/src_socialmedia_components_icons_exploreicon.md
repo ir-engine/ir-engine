@@ -22,4 +22,4 @@ Name | Type |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/socialmedia/components/icons/ExploreIcon.tsx:3](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/socialmedia/components/icons/ExploreIcon.tsx#L3)
+Defined in: [packages/client-core/src/socialmedia/components/icons/ExploreIcon.tsx:3](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/socialmedia/components/icons/ExploreIcon.tsx#L3)

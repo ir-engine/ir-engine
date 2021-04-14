@@ -22,4 +22,4 @@ Name | Type |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/common/components/Toast/Toast.tsx:5](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/client-core/src/common/components/Toast/Toast.tsx#L5)
+Defined in: [packages/client-core/src/common/components/Toast/Toast.tsx:5](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/common/components/Toast/Toast.tsx#L5)

@@ -208,7 +208,7 @@ Name | Type |
 
 Overrides: OAuthStrategy.getEntityData
 
-Defined in: [packages/server-core/src/user/strategies/custom-oauth.ts:12](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/user/strategies/custom-oauth.ts#L12)
+Defined in: [packages/server-core/src/user/strategies/custom-oauth.ts:12](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/user/strategies/custom-oauth.ts#L12)
 
 ___
 
@@ -227,7 +227,7 @@ Name | Type |
 
 Overrides: OAuthStrategy.getEntityQuery
 
-Defined in: [packages/server-core/src/user/strategies/custom-oauth.ts:6](https://github.com/xr3ngine/xr3ngine/blob/a16a45d7e/packages/server-core/src/user/strategies/custom-oauth.ts#L6)
+Defined in: [packages/server-core/src/user/strategies/custom-oauth.ts:6](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/user/strategies/custom-oauth.ts#L6)
 
 ___
 
