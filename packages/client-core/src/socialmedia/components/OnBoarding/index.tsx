@@ -1,7 +1,7 @@
 import Button from '@material-ui/core/Button';
 import CardMedia from '@material-ui/core/CardMedia';
 import Typography from '@material-ui/core/Typography';
-import Router from "next/router";
+import { useHistory } from "react-router-dom";
 import React, { useState } from 'react';
 // @ts-ignore
 import styles from './OnBoarding.module.scss';
@@ -16,6 +16,7 @@ interface Props {
 
 const OnBoardingComponent = ({media}: Props) => { 
     const [step, setStep] = useState(0);
+    const history = useHistory();
     let content = null;
     switch (step) {
         case 0:
@@ -41,7 +42,7 @@ const OnBoardingComponent = ({media}: Props) => {
                     break;    
         default:
             content = <section className={styles.step_2}>   
-                        <Button variant="contained" color="primary" onClick={()=>Router.push("/login")}>Next</Button>
+                        <Button variant="contained" color="primary" onClick={()=>history.push("/login")}>Next</Button>
                         <span className={styles.placeholder} />
                         <Typography variant="h1" align="center">Meet up with <br /> friends.</Typography>
                         <Typography variant="h2" align="center">It is those feelings that drive our love of astronomy and our desire.</Typography>

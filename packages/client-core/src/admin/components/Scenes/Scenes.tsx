@@ -7,7 +7,6 @@ import { bindActionCreators, Dispatch } from 'redux';
 import { selectAdminState } from '../../reducers/admin/selector';
 import { selectAppState } from "../../../common/reducers/app/selector";
 import { selectAuthState } from "../../../user/reducers/auth/selector";
-import { Router, withRouter } from "next/router";
 import { PAGE_LIMIT } from '../../reducers/admin/reducers';
 import {
     fetchAdminScenes,
@@ -34,7 +33,6 @@ if (!global.setImmediate) {
 }
 
 interface Props {
-    router: Router;
     adminState?: any;
     authState?: any;
     locationState?: any;
@@ -286,4 +284,4 @@ const Scenes = (props: Props) => {
     );
 };
 
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(Scenes));
+export default connect(mapStateToProps, mapDispatchToProps)(Scenes);

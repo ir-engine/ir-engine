@@ -4,7 +4,6 @@
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
-import { Router, withRouter } from "next/router";
 import { PAGE_LIMIT } from '../reducers/admin/reducers';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import {
@@ -40,7 +39,6 @@ if (!global.setImmediate) {
 
 
 interface Props {
-    router: Router;
     adminState?: any;
     authState?: any;
     locationState?: any;
@@ -257,4 +255,4 @@ const FeedConsole = (props: Props) => {
     );
 };
 
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(FeedConsole));
+export default connect(mapStateToProps, mapDispatchToProps)(FeedConsole);

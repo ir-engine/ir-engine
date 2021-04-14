@@ -12,6 +12,6 @@ export const RouterComp = () => {
             <Route path="/location/:locationName" component={LocationPage} />
         </Switch>
     );
-}
+};
 
 export default RouterComp;

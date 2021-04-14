@@ -14,7 +14,6 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import {
 } from '@material-ui/icons';
-import { useRouter } from "next/router";
 import {
     CalendarViewDay,
     ChevronLeft,
@@ -31,7 +30,7 @@ import {
     PhotoLibrary,
     SupervisorAccount,
 } from '@material-ui/icons';
-import Link from "next/link";
+import { Link } from "react-router-dom";
 import Backdrop from '@material-ui/core/Backdrop';
 import CircularProgress from '@material-ui/core/CircularProgress';
 
@@ -112,7 +111,6 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 export default function Dashboard({ children }) {
-    const router = useRouter();
     const classes = useStyles();
     const theme = useTheme();
     const [open, setOpen] = React.useState(false);
@@ -180,7 +178,7 @@ export default function Dashboard({ children }) {
                 </div>
                 <Divider />
                 <List>
-                    <Link href="/admin">
+                    <Link to="/admin">
                             <ListItem style={{ color: "white" }} onClick={changeComponent} button>
                                 <ListItemIcon >
                                     <DashboardIcon style={{ color: "white" }} />
@@ -188,7 +186,7 @@ export default function Dashboard({ children }) {
                                 <ListItemText primary="Dashboard" />
                             </ListItem>
                     </Link>
-                    <Link href="/admin/users" >
+                    <Link to="/admin/users" >
                         <ListItem style={{ color: "white" }} onClick={changeComponent} button>
                             <ListItemIcon >
                                 <SupervisorAccount style={{ color: "white" }} />
@@ -196,7 +194,7 @@ export default function Dashboard({ children }) {
                             <ListItemText primary="Users" />
                         </ListItem>
                     </Link>
-                    <Link href="/admin/instance">
+                    <Link to="/admin/instance">
                         <ListItem style={{ color: "white"}} onClick={changeComponent} button>
                             <ListItemIcon >
                                 <DirectionsRun style={{ color: "white" }} />
@@ -204,7 +202,7 @@ export default function Dashboard({ children }) {
                             <ListItemText primary="Instance" />
                         </ListItem>
                     </Link>
-                    <Link href="/admin/locations">
+                    <Link to="/admin/locations">
                         <ListItem style={{ color: "white"}} onClick={changeComponent}  button>
                             <ListItemIcon >
                                 <NearMe style={{ color: "white" }} />
@@ -212,7 +210,7 @@ export default function Dashboard({ children }) {
                             <ListItemText primary="Locations" />
                         </ListItem>
                     </Link>
-                    <Link href="/admin/invites">
+                    <Link to="/admin/invites">
                         <ListItem style={{ color: "white" }} onClick={changeComponent} button>
                             <ListItemIcon >
                                 <PersonAdd style={{ color: "white" }} />
@@ -220,7 +218,7 @@ export default function Dashboard({ children }) {
                             <ListItemText primary="Invites" />
                         </ListItem>
                     </Link>
-                    <Link href="/admin/sessions">
+                    <Link to="/admin/sessions">
                         <ListItem style={{ color: "white"}} onClick={changeComponent} button>
                             <ListItemIcon >
                                 <DragIndicator style={{ color: "white" }} />
@@ -228,7 +226,7 @@ export default function Dashboard({ children }) {
                             <ListItemText primary="Sessions" />
                         </ListItem>
                     </Link>
-                    <Link href="/admin/groups">
+                    <Link to="/admin/groups">
                         <ListItem style={{color: "white"}} onClick={changeComponent} button>
                             <ListItemIcon >
                                 <GroupAdd style={{ color: "white" }} />
@@ -236,7 +234,7 @@ export default function Dashboard({ children }) {
                             <ListItemText primary="Groups" />
                         </ListItem>
                     </Link>
-                    <Link href="/admin/parties">
+                    <Link to="/admin/parties">
                         <ListItem style={{ color: "white"}} onClick={changeComponent} button>
                             <ListItemIcon >
                                 <CalendarViewDay style={{ color: "white" }} />
@@ -244,7 +242,7 @@ export default function Dashboard({ children }) {
                             <ListItemText primary="Parties" />
                         </ListItem>
                     </Link>
-                    <Link href="/admin/chats">
+                    <Link to="/admin/chats">
                         <ListItem style={{ color: "white" }} onClick={changeComponent} button>
                             <ListItemIcon >
                                 <Forum style={{ color: "white" }} />
@@ -252,7 +250,7 @@ export default function Dashboard({ children }) {
                             <ListItemText primary="Chats" />
                         </ListItem>
                     </Link>
-                    <Link href="/admin/content-packs">
+                    <Link to="/admin/content-packs">
                         <ListItem style={{ color: "white" }} onClick={changeComponent} button>
                             <ListItemIcon >
                                 <PhotoAlbum style={{ color: "white" }} />
@@ -260,7 +258,7 @@ export default function Dashboard({ children }) {
                             <ListItemText primary="Content Packs" />
                         </ListItem>
                     </Link>
-                    <Link href="/admin/scenes">
+                    <Link to="/admin/scenes">
                         <ListItem style={{ color: "white" }} onClick={changeComponent} button>
                             <ListItemIcon >
                                 <PhotoLibrary style={{ color: "white" }} />

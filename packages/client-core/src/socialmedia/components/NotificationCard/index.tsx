@@ -1,5 +1,5 @@
 import React from 'react';
-import Router from "next/router";
+import { useHistory } from "react-router-dom";
 import Typography from '@material-ui/core/Typography';
 import Avatar from '@material-ui/core/Avatar';
 import Card from '@material-ui/core/Card';
@@ -8,6 +8,7 @@ import CardContent from '@material-ui/core/CardContent';
 import styles from './NotificationCard.module.scss';
 
 const NotificationCard = ({notification} : any) => { 
+    const history = useHistory();
     const checkNotificationAction = (type) =>{
         switch (type) {
             case 'feed-fire': return ' fired your feed';
@@ -20,7 +21,7 @@ const NotificationCard = ({notification} : any) => {
         }
     };
     return  <Card className={styles.commentItem} square={false} elevation={0} key={notification.id}>
-                <Avatar onClick={()=>Router.push({ pathname: '/creator', query:{ creatorId: notification.creatorAuthorId}})}
+                <Avatar onClick={()=>history.push('/creator?creatorId=' + notification.creatorAuthorId)}
                      className={styles.authorAvatar} src={notification.avatar} />                                
                 <CardContent className={styles.commentCard}>
                     <Typography variant="h2">
@@ -31,7 +32,7 @@ const NotificationCard = ({notification} : any) => {
                 </CardContent>
                 {notification.type !== 'follow' && notification.type !== 'unfollow' &&
                     <section className={styles.fire}>
-                        <Avatar variant="rounded" onClick={()=>Router.push({ pathname: '/feed', query:{ feedId: notification.feedId}})}
+                        <Avatar variant="rounded" onClick={()=>history.push('/feed?feedId=' + notification.feedId)}
                             className={styles.authorAvatar} src={notification.previewUrl} />  
                     </section>
                 }

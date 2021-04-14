@@ -17,7 +17,7 @@ import {
 import FormControl from '@material-ui/core/FormControl';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import { Config } from '../../helper';
-import { Router, withRouter } from "next/router";
+import { useHistory } from "react-router-dom";
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
@@ -43,7 +43,6 @@ if (!global.setImmediate) {
 }
 
 interface Props {
-    router: Router;
     adminState?: any;
     authState?: any;
     locationState?: any;
@@ -93,7 +92,6 @@ const useStyles = makeStyles((theme: Theme) =>
 const AdminConsole = (props: Props) => {
     const classes = useStyles();
     const {
-        router,
         adminState,
         authState,
         fetchAdminLocations,
@@ -102,6 +100,8 @@ const AdminConsole = (props: Props) => {
         fetchUsersAsAdmin,
         fetchAdminInstances
     } = props;
+
+    const router = useHistory();
 
     const initialLocation = {
         id: null,
@@ -646,4 +646,4 @@ const AdminConsole = (props: Props) => {
     );
 };
 
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(AdminConsole));
+export default connect(mapStateToProps, mapDispatchToProps)(AdminConsole);

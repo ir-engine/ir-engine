@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import { bindActionCreators, Dispatch } from "redux";
-import { withRouter, Router } from "next/router";
 import { connect } from "react-redux";
 import {
     Box,
@@ -37,7 +36,6 @@ const useStyles = makeStyles((theme: Theme) => ({
 }));
 
 interface Props {
-    router: Router,
     adminState?: any,
     authState?: any
     contentPackState?: any
@@ -130,4 +128,4 @@ const ContentPacksConsole = (props: Props) => {
     );
 };
 
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(ContentPacksConsole));
+export default connect(mapStateToProps, mapDispatchToProps)(ContentPacksConsole);
