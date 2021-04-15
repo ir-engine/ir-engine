@@ -109,7 +109,7 @@
     "dotenv-flow": "3.2.0",
     "feathers-authentication-hooks": "1.0.2",
     "feathers-authentication-management": "3.1.0",
-    "feathers-blob": "2.3.0",
+    "feathers-blob": "2.4.0",
     "feathers-hooks-common": "5.0.5",
     "feathers-logger": "0.3.2",
     "feathers-mailer": "3.0.1",
