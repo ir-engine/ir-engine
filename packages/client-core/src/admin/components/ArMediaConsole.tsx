@@ -84,7 +84,7 @@ const Transition = React.forwardRef((
     return <Slide direction="up" ref={ref} {...props} />;
   });
 
-const ClipConsole = (props: Props) => {
+const ArMediaConsole = (props: Props) => {
     const classes = useStyles();
     const { list, updateFeedAsAdmin } = props;
 
@@ -259,4 +259,4 @@ const ClipConsole = (props: Props) => {
     );
 };
 
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(ClipConsole));
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(ArMediaConsole));

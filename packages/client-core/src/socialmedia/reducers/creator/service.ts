@@ -1,3 +1,6 @@
+/**
+ * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
+ */
 import { Creator } from '@xr3ngine/common/src/interfaces/Creator';
 import { Dispatch } from 'redux';
 import Api from '../../../world/components/editor/Api';

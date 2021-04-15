@@ -16,16 +16,17 @@ import {
 } from '../actions';
 import { FeedFiresAction, FeedFiresRetriveAction } from '../feedFires/actions';
 
-export const initialFeedBookmarkState = {
-  feedFires: {
-    feedFires: [],
+export const initialArMediaState = {
+  arMedia: {
+    admin: [],
+    list: [],
     fetching: false
   },
 };
 
-const immutableState = Immutable.fromJS(initialFeedBookmarkState);
+const immutableState = Immutable.fromJS(initialArMediaState);
 
-const feedFiresReducer = (state = immutableState, action: FeedFiresAction): any => {
+const arMediaReducer = (state = immutableState, action: FeedFiresAction): any => {
   switch (action.type) {
     case FEED_FIRES_FETCH : return state.set('fetching', true);
     case FEED_FIRES_RETRIEVED:
@@ -35,4 +36,4 @@ const feedFiresReducer = (state = immutableState, action: FeedFiresAction): any 
   return state;
 };
 
-export default feedFiresReducer;
+export default arMediaReducer;
