@@ -27,6 +27,7 @@ export default defineConfig(() => {
         },
         define: {
             'process.env': process.env,
+            'process.browser': process.browser,
         },
         build: {
             sourcemap: 'inline',
