@@ -32,7 +32,6 @@ import { Network } from './networking/classes/Network';
 import { isMobileOrTablet } from './common/functions/isMobile';
 import { AnimationManager } from './templates/character/prefabs/NetworkPlayerCharacter';
 import { CharacterControllerSystem } from './character/CharacterControllerSystem';
-import { useOffscreen } from './common/functions/getURLParams';
 import { DefaultGameMode } from './templates/game/DefaultGameMode';
 
 // import { PositionalAudioSystem } from './audio/systems/PositionalAudioSystem';
@@ -58,8 +57,7 @@ export const DefaultInitializationOptions = {
   ],
   publicPath: '',
   useOfflineMode: false,
-  postProcessing: true,
-  editor: false // this will be changed, just a hack for now
+  postProcessing: true
 };
 
 export const initializeEngine = async (options): Promise<void> => {
@@ -79,7 +77,7 @@ export const initializeEngine = async (options): Promise<void> => {
   const useOffscreen = false;
   if (!options.renderer) options.renderer = {};
 
-  if (useOffscreen && !options.editor) {
+  if (useOffscreen) {
     const workerProxy: WorkerProxy = await createWorker(
       // @ts-ignore
       new Worker(new URL('./worker/initializeOffscreen.ts', import.meta.url)),
@@ -118,20 +116,17 @@ export const initializeEngine = async (options): Promise<void> => {
     registerSystem(ClientInputSystem, { useWebXR: Engine.xrSupported });
   }
 
-  if (!useOffscreen || options.editor) {
+  if (!useOffscreen) {
 
     Engine.camera = new PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 10000);
     Engine.scene.add(Engine.camera);
 
-    if(!options.editor){
       await AnimationManager.instance.getDefaultModel()
 
-      // registerSystem(StateSystem);
-      registerSystem(CharacterControllerSystem);
-      registerSystem(ServerSpawnSystem, { priority: 899 });
-      registerSystem(HighlightSystem);
-      registerSystem(ActionSystem, { useWebXR: Engine.xrSupported });
-    }
+    registerSystem(CharacterControllerSystem);
+    registerSystem(ServerSpawnSystem, { priority: 899 });
+    registerSystem(HighlightSystem);
+    registerSystem(ActionSystem, { useWebXR: Engine.xrSupported });
     registerSystem(PhysicsSystem);
     registerSystem(TransformSystem, { priority: 900 });
 
@@ -140,17 +135,14 @@ export const initializeEngine = async (options): Promise<void> => {
     // Engine.camera.add(Engine.audioListener);
     // registerSystem(PositionalAudioSystem);
 
-
     registerSystem(ParticleSystem);
     registerSystem(DebugHelpersSystem);
-    if(!options.editor){
-      registerSystem(InteractiveSystem);
-      registerSystem(CameraSystem);
-      registerSystem(WebGLRendererSystem, { priority: 1001, canvas, postProcessing });
-      registerSystem(XRSystem);
-      Engine.viewportElement = Engine.renderer.domElement;
-      Engine.renderer.xr.enabled = Engine.xrSupported;
-    }
+    registerSystem(InteractiveSystem);
+    registerSystem(CameraSystem);
+    registerSystem(WebGLRendererSystem, { priority: 1001, canvas, postProcessing });
+    registerSystem(XRSystem);
+    Engine.viewportElement = Engine.renderer.domElement;
+    Engine.renderer.xr.enabled = Engine.xrSupported;
 
   }
 
@@ -174,6 +166,36 @@ export const initializeEngine = async (options): Promise<void> => {
     Network.instance.isInitialized = true;
     Network.instance.userId = id;
   })
+}
+
+
+export const initializeEditor = async (options): Promise<void> => {
+
+  EngineEvents.instance = new EngineEvents();
+  Engine.scene = new Scene();
+
+  Engine.gameModes = options.gameModes;
+  Engine.publicPath = location.origin;
+
+  initialize();
+
+  Engine.camera = new PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 10000);
+  Engine.scene.add(Engine.camera);
+
+  registerSystem(PhysicsSystem);
+  registerSystem(TransformSystem, { priority: 900 });
+
+  registerSystem(ParticleSystem);
+  registerSystem(DebugHelpersSystem);
+
+  Engine.engineTimerTimeout = setTimeout(() => {
+    Engine.engineTimer = Timer(
+      {
+        networkUpdate: (delta: number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Network),
+        fixedUpdate: (delta: number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Fixed),
+        update: (delta, elapsedTime) => execute(delta, elapsedTime, SystemUpdateType.Free)
+      }, Engine.physicsFrameRate, Engine.networkFramerate).start();
+  }, 1000);
 }
 
 export const initializeServer = async (initOptions: any = DefaultInitializationOptions): Promise<void> => {
