@@ -4,7 +4,7 @@ import { loginUserByJwt, refreshConnections } from '../../reducers/auth/service'
 import { selectAuthState } from '../../reducers/auth/selector';
 import { bindActionCreators, Dispatch } from 'redux';
 import { connect } from 'react-redux';
-import { Container } from '@material-ui/core';
+import Container from '@material-ui/core/Container';
 
 const mapStateToProps = (state: any): any => {
   return {

@@ -1,4 +1,4 @@
-import { ThemeProvider } from '@material-ui/core';
+import { ThemeProvider } from "styled-components";
 import { Alerts } from '@xr3ngine/client-core/src/common/components/Alerts';
 import { UIDialog } from '@xr3ngine/client-core/src/common/components/Dialog/Dialog';
 import { setUserHasInteracted } from '@xr3ngine/client-core/src/common/reducers/app/actions';

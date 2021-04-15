@@ -6,15 +6,14 @@ import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 import { PAGE_LIMIT } from '../reducers/admin/reducers';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
-import {
-    Table,
-    TableBody,
-    TableContainer,
-    TableRow,
-    TableCell,
-    Paper,
-    Button, Typography
-} from '@material-ui/core';
+import Table from "@material-ui/core/Table";
+import TableBody from "@material-ui/core/TableBody";
+import TableContainer from "@material-ui/core/TableContainer";
+import TableRow from "@material-ui/core/TableRow";
+import TableCell from "@material-ui/core/TableCell";
+import Paper from "@material-ui/core/Paper";
+import Button from "@material-ui/core/Button";
+import Typography from "@material-ui/core/Typography";
 import Avatar from "@material-ui/core/Avatar";
 // @ts-ignore
 import styles from './Admin.module.scss';

@@ -4,7 +4,7 @@ import { useHistory } from "react-router-dom";
 import Typography from '@material-ui/core/Typography';
 import CardHeader from '@material-ui/core/CardHeader';
 import VerifiedUserIcon from '@material-ui/icons/VerifiedUser';
-import { Avatar } from '@material-ui/core';
+import Avatar from '@material-ui/core/Avatar';
 
 const CreatorAsTitle = ({creator}) : any => { 
     const history = useHistory();

@@ -1,7 +1,7 @@
 import { withRouter } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
 import { loginUserByJwt, refreshConnections } from '../../reducers/auth/service';
-import { Container } from '@material-ui/core';
+import Container from '@material-ui/core/Container';
 import { selectAuthState } from '../../reducers/auth/selector';
 import { bindActionCreators, Dispatch } from 'redux';
 import { connect } from 'react-redux';

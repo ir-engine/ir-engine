@@ -4,17 +4,17 @@ import { bindActionCreators, Dispatch } from 'redux';
 import { client } from "../../feathers";
 import FormControl from '@material-ui/core/FormControl';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
-import {
-    Table,
-    TableBody,
-    TableContainer,
-    TableHead,
-    TableRow,
-    TableCell,
-    TableSortLabel,
-    Paper,
-    Button, MenuItem, Select,
-} from '@material-ui/core';
+import Table from '@material-ui/core/Table';
+import TableBody from '@material-ui/core/TableBody';
+import TableContainer from '@material-ui/core/TableContainer';
+import TableHead from '@material-ui/core/TableHead';
+import TableRow from '@material-ui/core/TableRow';
+import TableCell from '@material-ui/core/TableCell';
+import TableSortLabel from '@material-ui/core/TableSortLabel';
+import Paper from '@material-ui/core/Paper';
+import Button from '@material-ui/core/Button';
+import MenuItem from '@material-ui/core/MenuItem';
+import Select from '@material-ui/core/Select';
 // @ts-ignore
 import styles from './Admin.module.scss';
 import UserModel from "./UserModel";
