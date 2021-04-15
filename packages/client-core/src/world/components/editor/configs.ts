@@ -8,7 +8,8 @@ import { Config } from '../../../helper';
  */
 const configs = {};
 const get = (configs, key, defaultValue) => {
-  if (!(process as any)?.browser) {
+  // @ts-ignore
+  if (!process.browser) {
     return;
   }
   const el = document.querySelector(`meta[name='env:${key.toLowerCase()}']`);
