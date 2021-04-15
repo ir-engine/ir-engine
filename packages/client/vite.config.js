@@ -1,8 +1,8 @@
 import fs from 'fs';
-import { defineConfig, loadEnv } from 'vite'
+import { defineConfig, loadEnv } from 'vite';
 import config from "config";
 
-export default defineConfig((props) => {
+export default defineConfig(() => {
     const env = loadEnv('', process.cwd() + '../../');
     process.env = {
         ...process.env,
@@ -28,5 +28,14 @@ export default defineConfig((props) => {
         define: {
             'process.env': process.env,
         },
+        build: {
+            sourcemap: 'inline',
+            rollupOptions: {
+                output: {
+                    dir: 'dist',
+                    format: 'es',
+                },
+            }
+        }
     }
 })
