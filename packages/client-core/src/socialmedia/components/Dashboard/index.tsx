@@ -13,6 +13,8 @@ import MenuIcon from '@material-ui/icons/Menu';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ViewModuleIcon from '@material-ui/icons/ViewModule';
+import EmojiPeopleIcon from '@material-ui/icons/EmojiPeople';
+import GradientIcon from '@material-ui/icons/Gradient';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
@@ -191,7 +193,23 @@ export default function Dashboard({ children }) {
                             </ListItemIcon>
                             <ListItemText primary="Feeds" />
                         </ListItem>
-                    </Link>                    
+                    </Link>       
+                    <Link href="/admin/clips">
+                        <ListItem style={{ color: "white"}} onClick={changeComponent} button>
+                            <ListItemIcon >
+                                <EmojiPeopleIcon style={{ color: "white" }} />
+                            </ListItemIcon>
+                            <ListItemText primary="Clips" />
+                        </ListItem>
+                    </Link> 
+                    <Link href="/editor/projects/create">
+                        <ListItem style={{ color: "white"}} onClick={changeComponent} button>
+                            <ListItemIcon >
+                                <GradientIcon style={{ color: "white" }} />
+                            </ListItemIcon>
+                            <ListItemText primary="Editor" />
+                        </ListItem>
+                    </Link> 
                 </List>
             </Drawer>
             <main className={classes.content}>
