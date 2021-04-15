@@ -81,7 +81,7 @@ export function addSceneToContentPack(data: any) {
 
 export function downloadContentPack(url: string) {
   return async (dispatch: Dispatch, getState: any) => {
-    const result = await client.service('content-pack').update(null, {
+    await client.service('content-pack').update(null, {
       manifestUrl: url
     });
   };

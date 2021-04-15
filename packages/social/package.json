@@ -24,14 +24,14 @@
     "lint": "eslint --fix --quiet \"*.ts\" \"**/*.ts\" \"**/*.tsx\""
   },
   "resolutions": {
-    "socket.io": "4.0.1",
+    "socket.io": "2.4.1",
     "@types/react": "17.0.3",
     "react": "17.0.2"
   },
   "peerDependencies": {
     "@types/react": "^17.0.0",
     "react": "^17.0.0",
-    "socket.io": "4.0.1"
+    "socket.io": "2.4.1"
   },
   "dependencies": {
     "@babel/helper-builder-react-jsx": "7.12.13",
@@ -90,7 +90,7 @@
     "react-infinite-scroller": "1.2.4",
     "react-json-tree": "0.15.0",
     "react-loaders": "3.0.1",
-    "react-modal": "3.12.1",
+    "react-modal": "3.13.1",
     "react-no-ssr": "1.1.0",
     "react-object-inspector": "0.2.1",
     "react-redux": "7.2.3",
@@ -107,7 +107,7 @@
     "reselect": "4.0.0",
     "resolve": "1.20.0",
     "sass": "1.32.8",
-    "socket.io-client": "4.0.1",
+    "socket.io-client": "2.4.0",
     "string-similarity": "4.0.4",
     "styled-components": "5.2.3",
     "three": "0.127.0",
@@ -121,7 +121,7 @@
   },
   "devDependencies": {
     "@babel/core": "7.13.15",
-    "@types/node": "13.13.48",
+    "@types/node": "13.13.49",
     "@types/react": "17.0.3",
     "@types/react-dom": "17.0.3",
     "babel-loader": "8.2.2",
@@ -136,11 +136,11 @@
     "next-optimized-images": "2.6.2",
     "next-plugin-node-config": "1.0.2",
     "next-redux-wrapper": "6.0.2",
-    "thread-loader": "3.0.2",
+    "thread-loader": "3.0.3",
     "ts-loader": "8.1.0",
     "ts-shader-loader": "1.0.6",
     "typescript": "4.2.4",
-    "webpack": "5.32.0",
+    "webpack": "5.33.2",
     "webpack-cli": "4.6.0"
   },
   "browser": {
