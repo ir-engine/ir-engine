@@ -1,5 +1,6 @@
 import ThreeMeshUI, { Block, Keyboard } from "../../assets/three-mesh-ui";
-import { Group, Object3D, Color, TextureLoader, VideoTexture } from "three";
+import { Group, Object3D, Color, TextureLoader, VideoTexture, Vector3 } from "three";
+import SceneButton from "../components/SceneButton";
 import { Engine } from "../../ecs/classes/Engine";
 
 class ScenePanel extends Object3D {
@@ -49,26 +50,87 @@ class ScenePanel extends Object3D {
       textBlock.position.set(0, -0.13, 0.1);
   
       this.add(textBlock);
+
+      this.button1 = new SceneButton('Back', 0);
+      this.button2 = new SceneButton('Play', 0);
+      this.button3 = new SceneButton('Download', 1);
+
+      this.button1.position.set(-0.8, -1, 0);
+      this.button2.position.set(1.3, -2.7, 0);
+      this.button3.position.set(1.3, -2.7, 0);
+  
+      this.add(this.button1);
+      this.add(this.button2);
+      this.add(this.button3);
+
+      this.button1.visible = false;
+      this.button2.visible = false;
+      this.button3.visible = false;
+
+      this.button1.pick = (state) => {
+        console.log('back button clicked');
+
+        if(state){
+          this.goback();         
+        }
+
+        this.button1.picked(state);
+      }
+
+      this.container.pick = (state) => {
+        if(state){
+          this.enlarge();
+        }
+        else{
+        }
+      }
     }
 
-    pick(state){
-      if(state){
-        // this.visible = true;
-        console.log('panel picked');
-        // this.container.width = 2;
-        // this.container.height = 1;
-        // this.needsUpdate = true;
+    enlarge(){
+      this.siblings.forEach(element => {
+        element.visible = false;
+        element.needsUpdate = true;
+      });
 
-        this.container.set({width: 3, height: 1.5});
-        this.position.set(0, 1, 0);
-      }
-      else{
+      this.visible = true;
+      console.log('panel picked');
+      // this.container.width = 2;
+      // this.container.height = 1;
+      this.needsUpdate = true;
 
-      }
+      this.container.set({width: 3, height: 1.5});
+      this.oldPosX = this.position.x;
+      this.oldPosY = this.position.y;
+      this.oldPosZ = this.position.z;
+
+      console.log('before position : ', this.oldPosX, this.oldPosY, this.oldPosZ);
+
+      this.position.set(0, 1, 0);
+
+      this.button1.visible = true;
+      this.button2.visible = true;
+      this.button3.visible = true;
+    }
+
+    goback(){
+      console.log('go back called');
+
+      this.siblings.forEach(element => {
+        element.visible = true;
+        element.needsUpdate = true;
+      });
+
+      this.container.set({width: 1, height: 0.5});
+      this.position.set(this.oldPosX, this.oldPosY, this.oldPosZ);
+      console.log('back position : ', this.oldPosX, this.oldPosY, this.oldPosZ);
+
+      this.button1.visible = false;
+      this.button2.visible = false;
+      this.button3.visible = false;
     }
 
     update(){
-      console.log('engine last time:', Engine.lastTime);
+      // console.log('engine last time:', Engine.lastTime);
     }
   }
 
