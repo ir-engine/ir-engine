@@ -13,7 +13,7 @@ export default {
     find: [],
     get: [],
     create: [authenticate('jwt'), restrictUserRole('admin')],
-    update: [authenticate('jwt'), restrictUserRole('admin')],
+    update: [authenticate('jwt')],
     patch: [authenticate('jwt'), restrictUserRole('admin')],
     remove: [disallow()]
   },
