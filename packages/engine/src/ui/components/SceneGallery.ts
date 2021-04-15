@@ -30,6 +30,8 @@ class SceneGallery extends Object3D {
     this.pickables.push(ov);    
 
     var marketPlacePanels = [];
+    marketPlacePanels.push(ov);
+
     for(let i= 0;i<3;i++){
       for(let j=0;j<2;j++){
 
@@ -38,6 +40,10 @@ class SceneGallery extends Object3D {
 
         const panel = new ScenePanel("Scene Title", "Scene Description", null);
         panel.position.set(x, y, 0);
+
+        panel.oldPosX = panel.position.x;
+        panel.oldPosY = panel.position.y;
+        panel.oldPosZ = panel.position.z;
       
         this.marketPlace.add(panel);
 
@@ -58,10 +64,6 @@ class SceneGallery extends Object3D {
       }
     }
 
-    marketPlacePanels.forEach(e => {
-      e.siblings = marketPlacePanels;
-    });
-
     var libraryPanels = [];
     for(let i= 0;i<3;i++){
       for(let j=0;j<3;j++){
@@ -71,6 +73,10 @@ class SceneGallery extends Object3D {
 
         const panel = new ScenePanel("Scene Title", "Scene Description", null);
         panel.position.set(x, y, 0);
+
+        panel.oldPosX = panel.position.x;
+        panel.oldPosY = panel.position.y;
+        panel.oldPosZ = panel.position.z;
       
         this.library.add(panel);
 
@@ -90,12 +96,22 @@ class SceneGallery extends Object3D {
       }
     }
 
+    const button1 = new SceneButton('Marketplace', 0);
+    const button2 = new SceneButton('Library', 1);
+
+    marketPlacePanels.push(button1);
+    marketPlacePanels.push(button2);
+
+    libraryPanels.push(button1);
+    libraryPanels.push(button2);
+
+    marketPlacePanels.forEach(e => {
+      e.siblings = marketPlacePanels;
+    });    
+    
     libraryPanels.forEach(e => {
       e.siblings = libraryPanels;
     });
-
-    const button1 = new SceneButton('Marketplace', 0);
-    const button2 = new SceneButton('Library', 1);
 
     this.add(button1);
     this.add(button2);
