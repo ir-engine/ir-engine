@@ -99,9 +99,6 @@ class ScenePanel extends Object3D {
       this.needsUpdate = true;
 
       this.container.set({width: 3, height: 1.5});
-      this.oldPosX = this.position.x;
-      this.oldPosY = this.position.y;
-      this.oldPosZ = this.position.z;
 
       console.log('before position : ', this.oldPosX, this.oldPosY, this.oldPosZ);
 
