@@ -23,6 +23,10 @@ type onMeshBufferingCallback = (progress:number) => void;
 type onFrameShowCallback = (frame:number) => void;
 
 
+const boxLength = 32; // length of the databox
+const byteLength = 16;
+const videoSize = 2048;
+
 export default class DracosisPlayer {
   // Public Fields
   public frameRate = 30;
@@ -236,12 +240,11 @@ export default class DracosisPlayer {
       // this._video.addEventListener('timeupdate', this.videoAnimationFrame);
       console.log("****** This platform has no requestVideoFrameCallback!")
       this.counterCanvas = document.createElement('canvas') as HTMLCanvasElement;
-      this.counterCanvas.width = 256;
-      this.counterCanvas.height = 32;
+      this.counterCanvas.width = byteLength;
+      this.counterCanvas.height = 1;
       this.counterCtx = this.counterCanvas.getContext('2d');
       this.actorCtx = document.createElement('canvas').getContext('2d');
-      this.actorCtx.canvas.width = 2048;
-      this.actorCtx.canvas.height = 2048;
+      this.actorCtx.canvas.width = this.actorCtx.canvas.height = videoSize;
       this.actorCtx.fillStyle = '#FFF';
       this.actorCtx.fillRect(0, 0, this.actorCtx.canvas.width, this.actorCtx.canvas.height);
       this._canvasTexture = new VideoTexture(this.actorCtx.canvas);
@@ -310,13 +313,14 @@ export default class DracosisPlayer {
     this.lastTimeReported = this._video.currentTime;
     this.lastDate = Date.now() / 1000;
 
-    this.counterCtx.clearRect(0, 0, 64, 1);
-    this.counterCtx.drawImage(this._video, 0, 2048-32, 256, 32, 0, 0, 8, 1);
+    this.counterCtx.clearRect(0, 0, byteLength, 1);
 
-    const imgData = this.counterCtx.getImageData(0, 0, 8, 1);
-    const frameIn =
-    imgData.data[0]/255*128 + imgData.data[4]/255*64 + imgData.data[8]/255*32 + imgData.data[12]/255*16 +
-    imgData.data[16]/255*8 + imgData.data[20]/255*4 + imgData.data[24]/255*2 + imgData.data[28]/255*1
+    this.counterCtx.drawImage(this._video, 0, videoSize-boxLength, boxLength*byteLength, boxLength, 0, 0, byteLength, 1);
+
+    const imgData = this.counterCtx.getImageData(0, 0, byteLength, 1);
+    let frameIn = 0;
+    for(let i = 0; i < byteLength; i++)
+      frameIn += imgData.data[i*4]/255*Math.pow(2, byteLength - i);
 
     console.log("********* FRAME IN IS", frameIn);
 
@@ -324,7 +328,7 @@ export default class DracosisPlayer {
     this.videoUpdateHandler(0, {
       timeIsNotExact: true,
       mediaTime: this._video.currentTime,
-      presentedFrames: Math.floor(frameIn) // we use presentedFrames only for check, so no need to be precise here
+      presentedFrames: Math.round(frameIn) // we use presentedFrames only for check, so no need to be precise here
     });
   }
 
