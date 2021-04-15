@@ -96,7 +96,7 @@
     "@xr3ngine/common": "^0.2.14",
     "@xr3ngine/engine": "^0.2.14",
     "@xr3ngine/server-core": "^0.2.14",
-    "aws-sdk": "2.886.0",
+    "aws-sdk": "2.887.0",
     "bent": "7.3.12",
     "cannon-es-debugger": "0.1.2",
     "chargebee": "2.6.5",
