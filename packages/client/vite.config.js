@@ -20,7 +20,6 @@ export default defineConfig((props) => {
         },
         resolve: {
             alias: {
-                '@material-ui/core': '@material-ui/core/esm',
                 '@material-ui/icons': '@material-ui/icons/esm',
                 "socket.io-client": "socket.io-client/dist/socket.io.js",
                 "react-infinite-scroller": "react-infinite-scroller/dist/InfiniteScroll",
@@ -28,7 +27,6 @@ export default defineConfig((props) => {
         },
         define: {
             'process.env': process.env,
-            'global': "window"
         },
     }
 })

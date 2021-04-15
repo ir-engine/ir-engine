@@ -1,4 +1,5 @@
-import { Button, Snackbar } from '@material-ui/core';
+import Button from '@material-ui/core/Button';
+import Snackbar from '@material-ui/core/Snackbar';
 import { InteractableModal } from '@xr3ngine/client-core/src/world/components/InteractableModal';
 import LoadingScreen from '@xr3ngine/client-core/src/common/components/Loader';
 import { MobileGamepadProps } from "@xr3ngine/client-core/src/common/components/MobileGamepad/MobileGamepadProps";

@@ -122,7 +122,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
       project: null,
       parentSceneId: null,
       editor,
-      queryParams: new Map(Object.entries(props.router.query)),
+      queryParams: new Map(Object.entries(props.match.params)),
       settingsContext: {
         settings,
         updateSetting: this.updateSetting
