@@ -98,7 +98,7 @@
     "parallel-webpack": "2.6.0",
     "pre-push": "0.1.1",
     "supertest": "6.1.3",
-    "ts-jest": "26.5.4",
+    "ts-jest": "26.5.5",
     "@typescript-eslint/eslint-plugin": "4.22.0",
     "@typescript-eslint/parser": "4.22.0"
   },
@@ -106,7 +106,7 @@
     "ps-list": "7.2.0",
     "ps-node": "0.1.6",
     "text-encoding": "0.7.0",
-    "ts-jest": "26.5.4",
+    "ts-jest": "26.5.5",
     "tsdoc": "0.0.4"
   }
 }
