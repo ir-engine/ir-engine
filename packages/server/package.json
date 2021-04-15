@@ -35,6 +35,7 @@
   "scripts": {
     "start": "yarn run build && node dist/server.js",
     "dev": "concurrently \"cross-env NODE_ENV=development webpack --watch --mode=development\" \"cd ../gameserver && cross-env NODE_ENV=development webpack --watch --mode=development\"",
+    "dev-social": "cross-env NODE_ENV=development NOSSL=true webpack --watch --mode=development",
     "dev-reinit-db": "cross-env NODE_ENV=development FORCE_DB_REFRESH=true webpack --watch --mode=development",
     "build": "cross-env NODE_ENV=production webpack --mode=production",
     "test": "echo \"TODO: no test specified\" && exit 0",
