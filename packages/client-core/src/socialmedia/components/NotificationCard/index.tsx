@@ -1,3 +1,6 @@
+/**
+ * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
+ */
 import React from 'react';
 import Router from "next/router";
 import Typography from '@material-ui/core/Typography';
