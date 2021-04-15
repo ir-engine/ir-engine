@@ -246,14 +246,14 @@ const Scenes = (props: Props) => {
                                             <TableCell className={styles.tcell}
                                                        align="right">{row.description}</TableCell>
                                             <TableCell className={styles.tcell} align="right">
-                                                <Button
+                                                { user.userRole === 'admin' && <Button
                                                     type="button"
                                                     variant="contained"
                                                     color="primary"
                                                     onClick={() => openAddToContentPackModal(row)}
                                                 >
                                                     Add to Content Pack
-                                                </Button>
+                                                </Button> }
                                             </TableCell>
                                         </TableRow>
                                     );

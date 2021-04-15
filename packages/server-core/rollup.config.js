@@ -10,7 +10,7 @@ import { terser } from 'rollup-plugin-terser';
 import typescript from 'rollup-plugin-typescript2';
 
 const isProd = process.env.NODE_ENV === 'production';
-const extensions = ['.js', '.ts', '.tsx'];
+const extensions = ['.js', '.ts', '.tsx', '.json'];
 const pkg = require('./package.json')
 
 const libraryName = 'server-core'
