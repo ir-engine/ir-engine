@@ -12,13 +12,19 @@ hide_title: true
 
 ### Namespaces
 
-- [default](src_world_components_editor_dialogs_publishedscenedialog.default.md)
+- [PublishedSceneDialog](src_world_components_editor_dialogs_publishedscenedialog.publishedscenedialog.md)
 
-## Functions
+## References
 
 ### default
 
-▸ **default**(`__namedParameters`: *Object*): *Element*
+Renames and exports: [PublishedSceneDialog](src_world_components_editor_dialogs_publishedscenedialog.md#publishedscenedialog)
+
+## Functions
+
+### PublishedSceneDialog
+
+▸ **PublishedSceneDialog**(`__namedParameters`: *Object*): *Element*
 
 PublishedSceneDialog used to show dialog when scene get published.
 
@@ -32,4 +38,4 @@ Name | Type |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/dialogs/PublishedSceneDialog.tsx:18](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/dialogs/PublishedSceneDialog.tsx#L18)
+Defined in: [packages/client-core/src/world/components/editor/dialogs/PublishedSceneDialog.tsx:18](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/dialogs/PublishedSceneDialog.tsx#L18)

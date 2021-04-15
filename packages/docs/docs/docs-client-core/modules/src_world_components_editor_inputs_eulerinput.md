@@ -12,4 +12,10 @@ hide_title: true
 
 ### Classes
 
-- [default](../classes/src_world_components_editor_inputs_eulerinput.default.md)
+- [EulerInput](../classes/src_world_components_editor_inputs_eulerinput.eulerinput.md)
+
+## References
+
+### default
+
+Renames and exports: [EulerInput](../classes/src_world_components_editor_inputs_eulerinput.eulerinput.md)

@@ -38,4 +38,4 @@ Name |
 :------ |
 `Props` |
 
-Defined in: [packages/nft/src/actions/index.ts:8](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/nft/src/actions/index.ts#L8)
+Defined in: [packages/nft/src/actions/index.ts:8](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/nft/src/actions/index.ts#L8)

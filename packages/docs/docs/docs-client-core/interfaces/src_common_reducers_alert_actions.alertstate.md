@@ -16,7 +16,7 @@ hide_title: true
 
 • **message**: *string*
 
-Defined in: [packages/client-core/src/common/reducers/alert/actions.ts:5](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/common/reducers/alert/actions.ts#L5)
+Defined in: [packages/client-core/src/common/reducers/alert/actions.ts:5](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/common/reducers/alert/actions.ts#L5)
 
 ___
 
@@ -24,4 +24,4 @@ ___
 
 • **type**: [*AlertType*](../modules/src_common_reducers_alert_actions.md#alerttype)
 
-Defined in: [packages/client-core/src/common/reducers/alert/actions.ts:6](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/common/reducers/alert/actions.ts#L6)
+Defined in: [packages/client-core/src/common/reducers/alert/actions.ts:6](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/common/reducers/alert/actions.ts#L6)

@@ -12,13 +12,19 @@ hide_title: true
 
 ### Namespaces
 
-- [default](src_world_components_editor_inputs_formfield.default.md)
+- [FormField](src_world_components_editor_inputs_formfield.formfield.md)
 
-## Functions
+## References
 
 ### default
 
-▸ **default**(`__namedParameters`: *Object*): *Element*
+Renames and exports: [FormField](src_world_components_editor_inputs_formfield.md#formfield)
+
+## Functions
+
+### FormField
+
+▸ **FormField**(`__namedParameters`: *Object*): *Element*
 
 FormField function component used to render form fields.
 
@@ -32,4 +38,4 @@ Name | Type |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/inputs/FormField.tsx:50](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/inputs/FormField.tsx#L50)
+Defined in: [packages/client-core/src/world/components/editor/inputs/FormField.tsx:50](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/inputs/FormField.tsx#L50)

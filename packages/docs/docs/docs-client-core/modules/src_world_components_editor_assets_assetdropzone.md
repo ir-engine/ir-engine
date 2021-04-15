@@ -12,13 +12,19 @@ hide_title: true
 
 ### Namespaces
 
-- [default](src_world_components_editor_assets_assetdropzone.default.md)
+- [AssetDropZone](src_world_components_editor_assets_assetdropzone.assetdropzone.md)
 
-## Functions
+## References
 
 ### default
 
-▸ **default**(`__namedParameters`: *Object*): *Element*
+Renames and exports: [AssetDropZone](src_world_components_editor_assets_assetdropzone.md#assetdropzone)
+
+## Functions
+
+### AssetDropZone
+
+▸ **AssetDropZone**(`__namedParameters`: *Object*): *Element*
 
 AssetDropZone function used to create view port where we can drag and drop objects.
 
@@ -32,4 +38,4 @@ Name | Type |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/assets/AssetDropZone.tsx:46](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/assets/AssetDropZone.tsx#L46)
+Defined in: [packages/client-core/src/world/components/editor/assets/AssetDropZone.tsx:46](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/assets/AssetDropZone.tsx#L46)

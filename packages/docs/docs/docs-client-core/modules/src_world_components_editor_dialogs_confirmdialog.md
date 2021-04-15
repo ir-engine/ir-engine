@@ -12,13 +12,19 @@ hide_title: true
 
 ### Namespaces
 
-- [default](src_world_components_editor_dialogs_confirmdialog.default.md)
+- [ConfirmDialog](src_world_components_editor_dialogs_confirmdialog.confirmdialog.md)
 
-## Functions
+## References
 
 ### default
 
-▸ **default**(`props`: Props): *Element*
+Renames and exports: [ConfirmDialog](src_world_components_editor_dialogs_confirmdialog.md#confirmdialog)
+
+## Functions
+
+### ConfirmDialog
+
+▸ **ConfirmDialog**(`props`: Props): *Element*
 
 ConfirmDialog function component used to show dialog.
 
@@ -32,4 +38,4 @@ Name | Type |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/dialogs/ConfirmDialog.tsx:30](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/dialogs/ConfirmDialog.tsx#L30)
+Defined in: [packages/client-core/src/world/components/editor/dialogs/ConfirmDialog.tsx:30](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/dialogs/ConfirmDialog.tsx#L30)

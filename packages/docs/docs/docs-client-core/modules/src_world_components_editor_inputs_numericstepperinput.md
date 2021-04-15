@@ -12,13 +12,19 @@ hide_title: true
 
 ### Namespaces
 
-- [default](src_world_components_editor_inputs_numericstepperinput.default.md)
+- [NumericStepperInput](src_world_components_editor_inputs_numericstepperinput.numericstepperinput.md)
 
-## Functions
+## References
 
 ### default
 
-▸ **default**(`__namedParameters`: *Object*): *Element*
+Renames and exports: [NumericStepperInput](src_world_components_editor_inputs_numericstepperinput.md#numericstepperinput)
+
+## Functions
+
+### NumericStepperInput
+
+▸ **NumericStepperInput**(`__namedParameters`: *Object*): *Element*
 
 **`author`** Robert Long
 
@@ -30,4 +36,4 @@ Name | Type |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/inputs/NumericStepperInput.tsx:67](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/inputs/NumericStepperInput.tsx#L67)
+Defined in: [packages/client-core/src/world/components/editor/inputs/NumericStepperInput.tsx:67](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/inputs/NumericStepperInput.tsx#L67)

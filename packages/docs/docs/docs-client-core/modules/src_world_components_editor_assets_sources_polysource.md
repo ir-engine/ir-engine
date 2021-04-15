@@ -12,4 +12,10 @@ hide_title: true
 
 ### Classes
 
-- [default](../classes/src_world_components_editor_assets_sources_polysource.default.md)
+- [PolySource](../classes/src_world_components_editor_assets_sources_polysource.polysource.md)
+
+## References
+
+### default
+
+Renames and exports: [PolySource](../classes/src_world_components_editor_assets_sources_polysource.polysource.md)

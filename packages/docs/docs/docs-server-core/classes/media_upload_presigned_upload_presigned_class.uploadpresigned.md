@@ -33,7 +33,7 @@ Name | Type | Default value |
 
 **Returns:** [*UploadPresigned*](media_upload_presigned_upload_presigned_class.uploadpresigned.md)
 
-Defined in: [packages/server-core/src/media/upload-presigned/upload-presigned.class.ts:20](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/media/upload-presigned/upload-presigned.class.ts#L20)
+Defined in: [packages/server-core/src/media/upload-presigned/upload-presigned.class.ts:20](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/media/upload-presigned/upload-presigned.class.ts#L20)
 
 ## Properties
 
@@ -41,7 +41,7 @@ Defined in: [packages/server-core/src/media/upload-presigned/upload-presigned.cl
 
 • **app**: Application
 
-Defined in: [packages/server-core/src/media/upload-presigned/upload-presigned.class.ts:17](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/media/upload-presigned/upload-presigned.class.ts#L17)
+Defined in: [packages/server-core/src/media/upload-presigned/upload-presigned.class.ts:17](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/media/upload-presigned/upload-presigned.class.ts#L17)
 
 ___
 
@@ -49,7 +49,7 @@ ___
 
 • **docs**: *any*
 
-Defined in: [packages/server-core/src/media/upload-presigned/upload-presigned.class.ts:19](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/media/upload-presigned/upload-presigned.class.ts#L19)
+Defined in: [packages/server-core/src/media/upload-presigned/upload-presigned.class.ts:19](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/media/upload-presigned/upload-presigned.class.ts#L19)
 
 ___
 
@@ -57,15 +57,15 @@ ___
 
 • **options**: ServiceOptions
 
-Defined in: [packages/server-core/src/media/upload-presigned/upload-presigned.class.ts:18](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/media/upload-presigned/upload-presigned.class.ts#L18)
+Defined in: [packages/server-core/src/media/upload-presigned/upload-presigned.class.ts:18](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/media/upload-presigned/upload-presigned.class.ts#L18)
 
 ___
 
 ### s3
 
-• **s3**: [*default*](media_storageprovider_s3_storage.default.md)
+• **s3**: [*S3Provider*](media_storageprovider_s3_storage.s3provider.md)
 
-Defined in: [packages/server-core/src/media/upload-presigned/upload-presigned.class.ts:20](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/media/upload-presigned/upload-presigned.class.ts#L20)
+Defined in: [packages/server-core/src/media/upload-presigned/upload-presigned.class.ts:20](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/media/upload-presigned/upload-presigned.class.ts#L20)
 
 ## Methods
 
@@ -84,7 +84,7 @@ Name | Type |
 
 Implementation of: ServiceMethods.create
 
-Defined in: [packages/server-core/src/media/upload-presigned/upload-presigned.class.ts:43](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/media/upload-presigned/upload-presigned.class.ts#L43)
+Defined in: [packages/server-core/src/media/upload-presigned/upload-presigned.class.ts:43](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/media/upload-presigned/upload-presigned.class.ts#L43)
 
 ___
 
@@ -102,7 +102,7 @@ Name | Type |
 
 Implementation of: ServiceMethods.find
 
-Defined in: [packages/server-core/src/media/upload-presigned/upload-presigned.class.ts:27](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/media/upload-presigned/upload-presigned.class.ts#L27)
+Defined in: [packages/server-core/src/media/upload-presigned/upload-presigned.class.ts:27](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/media/upload-presigned/upload-presigned.class.ts#L27)
 
 ___
 
@@ -121,7 +121,7 @@ Name | Type |
 
 Implementation of: ServiceMethods.get
 
-Defined in: [packages/server-core/src/media/upload-presigned/upload-presigned.class.ts:31](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/media/upload-presigned/upload-presigned.class.ts#L31)
+Defined in: [packages/server-core/src/media/upload-presigned/upload-presigned.class.ts:31](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/media/upload-presigned/upload-presigned.class.ts#L31)
 
 ___
 
@@ -137,7 +137,7 @@ Name | Type |
 
 **Returns:** *string*
 
-Defined in: [packages/server-core/src/media/upload-presigned/upload-presigned.class.ts:67](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/media/upload-presigned/upload-presigned.class.ts#L67)
+Defined in: [packages/server-core/src/media/upload-presigned/upload-presigned.class.ts:67](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/media/upload-presigned/upload-presigned.class.ts#L67)
 
 ___
 
@@ -157,7 +157,7 @@ Name | Type |
 
 Implementation of: ServiceMethods.patch
 
-Defined in: [packages/server-core/src/media/upload-presigned/upload-presigned.class.ts:51](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/media/upload-presigned/upload-presigned.class.ts#L51)
+Defined in: [packages/server-core/src/media/upload-presigned/upload-presigned.class.ts:51](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/media/upload-presigned/upload-presigned.class.ts#L51)
 
 ___
 
@@ -176,7 +176,7 @@ Name | Type |
 
 Implementation of: ServiceMethods.remove
 
-Defined in: [packages/server-core/src/media/upload-presigned/upload-presigned.class.ts:55](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/media/upload-presigned/upload-presigned.class.ts#L55)
+Defined in: [packages/server-core/src/media/upload-presigned/upload-presigned.class.ts:55](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/media/upload-presigned/upload-presigned.class.ts#L55)
 
 ___
 
@@ -196,4 +196,4 @@ Name | Type |
 
 Implementation of: ServiceMethods.update
 
-Defined in: [packages/server-core/src/media/upload-presigned/upload-presigned.class.ts:47](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/media/upload-presigned/upload-presigned.class.ts#L47)
+Defined in: [packages/server-core/src/media/upload-presigned/upload-presigned.class.ts:47](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/media/upload-presigned/upload-presigned.class.ts#L47)

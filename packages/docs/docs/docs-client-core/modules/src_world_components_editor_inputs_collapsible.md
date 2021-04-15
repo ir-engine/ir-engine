@@ -12,13 +12,19 @@ hide_title: true
 
 ### Namespaces
 
-- [default](src_world_components_editor_inputs_collapsible.default.md)
+- [Collapsible](src_world_components_editor_inputs_collapsible.collapsible.md)
 
-## Functions
+## References
 
 ### default
 
-▸ **default**(`__namedParameters`: *Object*): *Element*
+Renames and exports: [Collapsible](src_world_components_editor_inputs_collapsible.md#collapsible)
+
+## Functions
+
+### Collapsible
+
+▸ **Collapsible**(`__namedParameters`: *Object*): *Element*
 
 Collapsible used to render the view of component.
 
@@ -32,4 +38,4 @@ Name | Type |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/inputs/Collapsible.tsx:65](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/inputs/Collapsible.tsx#L65)
+Defined in: [packages/client-core/src/world/components/editor/inputs/Collapsible.tsx:65](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/inputs/Collapsible.tsx#L65)

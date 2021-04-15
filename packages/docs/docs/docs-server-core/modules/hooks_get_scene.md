@@ -20,4 +20,4 @@ hide_title: true
 
 **Returns:** *Hook*<any, Service<any\>\>
 
-Defined in: [packages/server-core/src/hooks/get-scene.ts:1](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/hooks/get-scene.ts#L1)
+Defined in: [packages/server-core/src/hooks/get-scene.ts:1](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/hooks/get-scene.ts#L1)

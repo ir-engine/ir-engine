@@ -8,11 +8,17 @@ hide_title: true
 
 # Module: src/world/components/editor/viewport/ViewportPanelContainer
 
-## Functions
+## References
 
 ### default
 
-▸ **default**(): *Element*
+Renames and exports: [ViewportPanelContainer](src_world_components_editor_viewport_viewportpanelcontainer.md#viewportpanelcontainer)
+
+## Functions
+
+### ViewportPanelContainer
+
+▸ **ViewportPanelContainer**(): *Element*
 
 ViewportPanelContainer used to render viewport.
 
@@ -20,4 +26,4 @@ ViewportPanelContainer used to render viewport.
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/viewport/ViewportPanelContainer.tsx:242](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/viewport/ViewportPanelContainer.tsx#L242)
+Defined in: [packages/client-core/src/world/components/editor/viewport/ViewportPanelContainer.tsx:242](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/viewport/ViewportPanelContainer.tsx#L242)

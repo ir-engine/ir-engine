@@ -35,7 +35,7 @@ Name | Type |
 
 Overrides: Service.constructor
 
-Defined in: [packages/server-core/src/socialmedia/comments-fires/comments-fires.class.ts:17](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/socialmedia/comments-fires/comments-fires.class.ts#L17)
+Defined in: [packages/server-core/src/socialmedia/comments-fires/comments-fires.class.ts:17](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/socialmedia/comments-fires/comments-fires.class.ts#L17)
 
 ## Properties
 
@@ -53,7 +53,7 @@ ___
 
 • **app**: Application
 
-Defined in: [packages/server-core/src/socialmedia/comments-fires/comments-fires.class.ts:16](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/socialmedia/comments-fires/comments-fires.class.ts#L16)
+Defined in: [packages/server-core/src/socialmedia/comments-fires/comments-fires.class.ts:16](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/socialmedia/comments-fires/comments-fires.class.ts#L16)
 
 ___
 
@@ -61,7 +61,7 @@ ___
 
 • **docs**: *any*
 
-Defined in: [packages/server-core/src/socialmedia/comments-fires/comments-fires.class.ts:17](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/socialmedia/comments-fires/comments-fires.class.ts#L17)
+Defined in: [packages/server-core/src/socialmedia/comments-fires/comments-fires.class.ts:17](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/socialmedia/comments-fires/comments-fires.class.ts#L17)
 
 ___
 
@@ -243,7 +243,7 @@ Name | Type |
 
 Overrides: Service.create
 
-Defined in: [packages/server-core/src/socialmedia/comments-fires/comments-fires.class.ts:69](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/socialmedia/comments-fires/comments-fires.class.ts#L69)
+Defined in: [packages/server-core/src/socialmedia/comments-fires/comments-fires.class.ts:69](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/socialmedia/comments-fires/comments-fires.class.ts#L69)
 
 ___
 
@@ -284,7 +284,7 @@ Name | Type | Description |
 
 Overrides: Service.find
 
-Defined in: [packages/server-core/src/socialmedia/comments-fires/comments-fires.class.ts:31](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/socialmedia/comments-fires/comments-fires.class.ts#L31)
+Defined in: [packages/server-core/src/socialmedia/comments-fires/comments-fires.class.ts:31](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/socialmedia/comments-fires/comments-fires.class.ts#L31)
 
 ___
 
@@ -360,7 +360,7 @@ Name | Type |
 
 Overrides: Service.remove
 
-Defined in: [packages/server-core/src/socialmedia/comments-fires/comments-fires.class.ts:77](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/socialmedia/comments-fires/comments-fires.class.ts#L77)
+Defined in: [packages/server-core/src/socialmedia/comments-fires/comments-fires.class.ts:77](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/socialmedia/comments-fires/comments-fires.class.ts#L77)
 
 ___
 

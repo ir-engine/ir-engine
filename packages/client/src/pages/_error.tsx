@@ -2,7 +2,7 @@ import { UserTagDimensions } from '@styled-icons/fa-solid/UserTag';
 import React, { Fragment } from 'react';
 import { useTranslation } from 'react-i18next';
 
-const Error = ({ statusCode }: { statusCode?: number }): any => {
+export const Error = ({ statusCode }: { statusCode?: number }): any => {
   const { t } = useTranslation();
   return (
     <Fragment>

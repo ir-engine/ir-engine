@@ -27,7 +27,7 @@ hide_title: true
 
 Ƭ **LocationsAction**: [*LocationsRetrievedAction*](../interfaces/src_social_reducers_location_actions.locationsretrievedaction.md) \| [*LocationRetrievedAction*](../interfaces/src_social_reducers_location_actions.locationretrievedaction.md) \| [*LocationBanCreatedAction*](../interfaces/src_social_reducers_location_actions.locationbancreatedaction.md) \| [*FetchingCurrentLocationAction*](../interfaces/src_social_reducers_location_actions.fetchingcurrentlocationaction.md) \| [*LocationNotFoundAction*](../interfaces/src_social_reducers_location_actions.locationnotfoundaction.md)
 
-Defined in: [packages/client-core/src/social/reducers/location/actions.ts:48](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/location/actions.ts#L48)
+Defined in: [packages/client-core/src/social/reducers/location/actions.ts:48](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/social/reducers/location/actions.ts#L48)
 
 ## Functions
 
@@ -37,7 +37,7 @@ Defined in: [packages/client-core/src/social/reducers/location/actions.ts:48](ht
 
 **Returns:** [*FetchingCurrentLocationAction*](../interfaces/src_social_reducers_location_actions.fetchingcurrentlocationaction.md)
 
-Defined in: [packages/client-core/src/social/reducers/location/actions.ts:97](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/location/actions.ts#L97)
+Defined in: [packages/client-core/src/social/reducers/location/actions.ts:97](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/social/reducers/location/actions.ts#L97)
 
 ___
 
@@ -47,7 +47,7 @@ ___
 
 **Returns:** [*LocationBanCreatedAction*](../interfaces/src_social_reducers_location_actions.locationbancreatedaction.md)
 
-Defined in: [packages/client-core/src/social/reducers/location/actions.ts:91](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/location/actions.ts#L91)
+Defined in: [packages/client-core/src/social/reducers/location/actions.ts:91](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/social/reducers/location/actions.ts#L91)
 
 ___
 
@@ -63,7 +63,7 @@ Name | Type |
 
 **Returns:** [*LocationCreatedAction*](../interfaces/src_social_reducers_location_actions.locationcreatedaction.md)
 
-Defined in: [packages/client-core/src/social/reducers/location/actions.ts:69](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/location/actions.ts#L69)
+Defined in: [packages/client-core/src/social/reducers/location/actions.ts:69](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/social/reducers/location/actions.ts#L69)
 
 ___
 
@@ -73,7 +73,7 @@ ___
 
 **Returns:** [*LocationNotFoundAction*](../interfaces/src_social_reducers_location_actions.locationnotfoundaction.md)
 
-Defined in: [packages/client-core/src/social/reducers/location/actions.ts:103](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/location/actions.ts#L103)
+Defined in: [packages/client-core/src/social/reducers/location/actions.ts:103](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/social/reducers/location/actions.ts#L103)
 
 ___
 
@@ -89,7 +89,7 @@ Name | Type |
 
 **Returns:** [*LocationCreatedAction*](../interfaces/src_social_reducers_location_actions.locationcreatedaction.md)
 
-Defined in: [packages/client-core/src/social/reducers/location/actions.ts:77](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/location/actions.ts#L77)
+Defined in: [packages/client-core/src/social/reducers/location/actions.ts:77](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/social/reducers/location/actions.ts#L77)
 
 ___
 
@@ -105,7 +105,7 @@ Name | Type |
 
 **Returns:** [*LocationCreatedAction*](../interfaces/src_social_reducers_location_actions.locationcreatedaction.md)
 
-Defined in: [packages/client-core/src/social/reducers/location/actions.ts:84](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/location/actions.ts#L84)
+Defined in: [packages/client-core/src/social/reducers/location/actions.ts:84](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/social/reducers/location/actions.ts#L84)
 
 ___
 
@@ -121,7 +121,7 @@ Name | Type |
 
 **Returns:** [*LocationRetrievedAction*](../interfaces/src_social_reducers_location_actions.locationretrievedaction.md)
 
-Defined in: [packages/client-core/src/social/reducers/location/actions.ts:62](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/location/actions.ts#L62)
+Defined in: [packages/client-core/src/social/reducers/location/actions.ts:62](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/social/reducers/location/actions.ts#L62)
 
 ___
 
@@ -137,4 +137,4 @@ Name | Type |
 
 **Returns:** [*LocationsRetrievedAction*](../interfaces/src_social_reducers_location_actions.locationsretrievedaction.md)
 
-Defined in: [packages/client-core/src/social/reducers/location/actions.ts:55](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/location/actions.ts#L55)
+Defined in: [packages/client-core/src/social/reducers/location/actions.ts:55](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/social/reducers/location/actions.ts#L55)

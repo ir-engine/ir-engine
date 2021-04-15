@@ -11,7 +11,7 @@ module.exports = {
   baseUrl: '/',
   onBrokenLinks: 'warn',
   onBrokenMarkdownLinks: 'warn',
-  favicon: 'img/favicon.ico',
+  favicon: 'https://github.com/xr3ngine/xr3ngine/raw/dev/xrengine%20black.png',
   organizationName: 'facebook', // Usually your GitHub org/user name.
   projectName: 'jsdoc-docusaurus', // Usually your repo name.
   plugins: [

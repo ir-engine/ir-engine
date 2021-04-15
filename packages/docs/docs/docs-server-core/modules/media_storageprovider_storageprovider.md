@@ -12,4 +12,10 @@ hide_title: true
 
 ### Classes
 
-- [default](../classes/media_storageprovider_storageprovider.default.md)
+- [StorageProvider](../classes/media_storageprovider_storageprovider.storageprovider.md)
+
+## References
+
+### default
+
+Renames and exports: [StorageProvider](../classes/media_storageprovider_storageprovider.storageprovider.md)

@@ -12,13 +12,19 @@ hide_title: true
 
 ### Namespaces
 
-- [default](src_world_components_editor_inputs_colorinput.default.md)
+- [ColorInput](src_world_components_editor_inputs_colorinput.colorinput.md)
 
-## Functions
+## References
 
 ### default
 
-▸ **default**(`__namedParameters`: *Object*): *Element*
+Renames and exports: [ColorInput](src_world_components_editor_inputs_colorinput.md#colorinput)
+
+## Functions
+
+### ColorInput
+
+▸ **ColorInput**(`__namedParameters`: *Object*): *Element*
 
 ColorInput used to render the view of component.
 
@@ -32,4 +38,4 @@ Name | Type |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/inputs/ColorInput.tsx:80](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/inputs/ColorInput.tsx#L80)
+Defined in: [packages/client-core/src/world/components/editor/inputs/ColorInput.tsx:80](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/inputs/ColorInput.tsx#L80)

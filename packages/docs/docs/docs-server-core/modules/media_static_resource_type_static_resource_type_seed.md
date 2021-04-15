@@ -24,4 +24,4 @@ Name | Type |
 `randomize` | *boolean* |
 `templates` | { `type`: *string* = 'image' }[] |
 
-Defined in: [packages/server-core/src/media/static-resource-type/static-resource-type.seed.ts:3](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/media/static-resource-type/static-resource-type.seed.ts#L3)
+Defined in: [packages/server-core/src/media/static-resource-type/static-resource-type.seed.ts:3](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/media/static-resource-type/static-resource-type.seed.ts#L3)

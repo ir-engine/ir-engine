@@ -90,15 +90,15 @@ module.exports = [
     "type": "category",
     "label": "Namespaces",
     "items": [
-      "docs-client/modules/src_pages__error.default"
+      "docs-client/modules/src_pages__error.error"
     ]
   },
   {
     "type": "category",
     "label": "Classes",
     "items": [
-      "docs-client/classes/src_components_partyparticipantwindow_draggable.default",
-      "docs-client/classes/src_pages__document.default",
+      "docs-client/classes/src_components_partyparticipantwindow_draggable.draggable",
+      "docs-client/classes/src_pages__document.mydocument",
       "docs-client/classes/src_transports_socketwebrtcclienttransport.socketwebrtcclienttransport"
     ]
   },

@@ -12,13 +12,19 @@ hide_title: true
 
 ### Namespaces
 
-- [default](src_world_components_editor_properties_imagenodeeditor.default.md)
+- [ImageNodeEditor](src_world_components_editor_properties_imagenodeeditor.imagenodeeditor.md)
 
-## Functions
+## References
 
 ### default
 
-▸ **default**(`props`: *any*): *Element*
+Renames and exports: [ImageNodeEditor](src_world_components_editor_properties_imagenodeeditor.md#imagenodeeditor)
+
+## Functions
+
+### ImageNodeEditor
+
+▸ **ImageNodeEditor**(`props`: *any*): *Element*
 
 ImageNodeEditor used to dynamicaly adding an image to scene.
 
@@ -32,4 +38,4 @@ Name | Type |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/ImageNodeEditor.tsx:26](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/properties/ImageNodeEditor.tsx#L26)
+Defined in: [packages/client-core/src/world/components/editor/properties/ImageNodeEditor.tsx:26](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/properties/ImageNodeEditor.tsx#L26)

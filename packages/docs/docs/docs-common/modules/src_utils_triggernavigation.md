@@ -22,4 +22,4 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [utils/triggerNavigation.ts:4](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/common/src/utils/triggerNavigation.ts#L4)
+Defined in: [utils/triggerNavigation.ts:4](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/common/src/utils/triggerNavigation.ts#L4)

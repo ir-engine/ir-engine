@@ -28,4 +28,4 @@ Name | Type |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/src/user/components/Auth/PasswordLogin.tsx:50](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/user/components/Auth/PasswordLogin.tsx#L50)
+Defined in: [packages/client-core/src/user/components/Auth/PasswordLogin.tsx:50](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/user/components/Auth/PasswordLogin.tsx#L50)

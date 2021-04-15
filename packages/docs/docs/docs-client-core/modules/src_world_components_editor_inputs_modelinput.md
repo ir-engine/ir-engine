@@ -12,13 +12,19 @@ hide_title: true
 
 ### Namespaces
 
-- [default](src_world_components_editor_inputs_modelinput.default.md)
+- [ModelInput](src_world_components_editor_inputs_modelinput.modelinput.md)
 
-## Functions
+## References
 
 ### default
 
-▸ **default**(`__namedParameters`: *Object*): *Element*
+Renames and exports: [ModelInput](src_world_components_editor_inputs_modelinput.md#modelinput)
+
+## Functions
+
+### ModelInput
+
+▸ **ModelInput**(`__namedParameters`: *Object*): *Element*
 
 Function component used for rendering ControlledStringInput.
 
@@ -32,4 +38,4 @@ Name | Type |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/inputs/ModelInput.tsx:22](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/inputs/ModelInput.tsx#L22)
+Defined in: [packages/client-core/src/world/components/editor/inputs/ModelInput.tsx:22](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/inputs/ModelInput.tsx#L22)

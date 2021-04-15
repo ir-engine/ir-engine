@@ -16,4 +16,4 @@ hide_title: true
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/admin/components/Analytics/index.tsx:300](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/admin/components/Analytics/index.tsx#L300)
+Defined in: [packages/client-core/src/admin/components/Analytics/index.tsx:300](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/admin/components/Analytics/index.tsx#L300)

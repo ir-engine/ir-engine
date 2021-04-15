@@ -30,4 +30,4 @@ Name | Type |
 `randomize` | *boolean* |
 `templates` | { `status`: *string* = 'pending' }[] |
 
-Defined in: [packages/server-core/src/payments/seat-status/seat-status.seed.ts:3](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/payments/seat-status/seat-status.seed.ts#L3)
+Defined in: [packages/server-core/src/payments/seat-status/seat-status.seed.ts:3](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/payments/seat-status/seat-status.seed.ts#L3)

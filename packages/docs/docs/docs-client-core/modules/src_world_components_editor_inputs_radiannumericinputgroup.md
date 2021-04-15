@@ -12,13 +12,19 @@ hide_title: true
 
 ### Namespaces
 
-- [default](src_world_components_editor_inputs_radiannumericinputgroup.default.md)
+- [RadianNumericInputGroup](src_world_components_editor_inputs_radiannumericinputgroup.radiannumericinputgroup.md)
 
-## Functions
+## References
 
 ### default
 
-▸ **default**(`__namedParameters`: *Object*): *Element*
+Renames and exports: [RadianNumericInputGroup](src_world_components_editor_inputs_radiannumericinputgroup.md#radiannumericinputgroup)
+
+## Functions
+
+### RadianNumericInputGroup
+
+▸ **RadianNumericInputGroup**(`__namedParameters`: *Object*): *Element*
 
 **`author`** Robert Long
 
@@ -30,4 +36,4 @@ Name | Type |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/inputs/RadianNumericInputGroup.tsx:19](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/inputs/RadianNumericInputGroup.tsx#L19)
+Defined in: [packages/client-core/src/world/components/editor/inputs/RadianNumericInputGroup.tsx:19](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/inputs/RadianNumericInputGroup.tsx#L19)

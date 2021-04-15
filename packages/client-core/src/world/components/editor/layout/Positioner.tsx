@@ -450,7 +450,7 @@ const PositionerContainer = (styled as any).div.attrs(({ transform, transformOri
  * @param {any} rest  
  * @returns 
  */
-export default function Positioner({ children, position, padding, getTargetRef, ...rest }) {
+export function Positioner({ children, position, padding, getTargetRef, ...rest }) {
   const positionerContainerRef = useRef();
 
   const [transformProps, setTransformProps] = useState({
@@ -517,3 +517,4 @@ Positioner.defaultProps = {
   padding: 8,
   position: "bottom"
 };
+export default Positioner;

@@ -12,8 +12,14 @@ hide_title: true
 
 ### Namespaces
 
+- [InputGroup](src_world_components_editor_inputs_inputgroup.inputgroup.md)
 - [InputGroupInfo](src_world_components_editor_inputs_inputgroup.inputgroupinfo.md)
-- [default](src_world_components_editor_inputs_inputgroup.default.md)
+
+## References
+
+### default
+
+Renames and exports: [InputGroup](src_world_components_editor_inputs_inputgroup.md#inputgroup)
 
 ## Variables
 
@@ -25,7 +31,7 @@ Used to provide styles for InputGroupContainer div.
 
 **`author`** Robert Long
 
-Defined in: [packages/client-core/src/world/components/editor/inputs/InputGroup.tsx:12](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/inputs/InputGroup.tsx#L12)
+Defined in: [packages/client-core/src/world/components/editor/inputs/InputGroup.tsx:12](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/inputs/InputGroup.tsx#L12)
 
 ___
 
@@ -37,7 +43,7 @@ Used to provide styles for InputGroupContent div.
 
 **`author`** Robert Long
 
-Defined in: [packages/client-core/src/world/components/editor/inputs/InputGroup.tsx:41](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/inputs/InputGroup.tsx#L41)
+Defined in: [packages/client-core/src/world/components/editor/inputs/InputGroup.tsx:41](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/inputs/InputGroup.tsx#L41)
 
 ___
 
@@ -49,9 +55,29 @@ Used to provide styles for InputGroupInfoIcon div.
 
 **`author`** Robert Long
 
-Defined in: [packages/client-core/src/world/components/editor/inputs/InputGroup.tsx:54](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/inputs/InputGroup.tsx#L54)
+Defined in: [packages/client-core/src/world/components/editor/inputs/InputGroup.tsx:54](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/inputs/InputGroup.tsx#L54)
 
 ## Functions
+
+### InputGroup
+
+▸ **InputGroup**(`__namedParameters`: *Object*): *Element*
+
+InputGroup used to render the view of component.
+
+**`author`** Robert Long
+
+#### Parameters:
+
+Name | Type |
+:------ | :------ |
+`__namedParameters` | *Object* |
+
+**Returns:** *Element*
+
+Defined in: [packages/client-core/src/world/components/editor/inputs/InputGroup.tsx:99](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/inputs/InputGroup.tsx#L99)
+
+___
 
 ### InputGroupInfo
 
@@ -69,24 +95,4 @@ Name | Type |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/inputs/InputGroup.tsx:69](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/inputs/InputGroup.tsx#L69)
-
-___
-
-### default
-
-▸ **default**(`__namedParameters`: *Object*): *Element*
-
-InputGroup used to render the view of component.
-
-**`author`** Robert Long
-
-#### Parameters:
-
-Name | Type |
-:------ | :------ |
-`__namedParameters` | *Object* |
-
-**Returns:** *Element*
-
-Defined in: [packages/client-core/src/world/components/editor/inputs/InputGroup.tsx:99](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/inputs/InputGroup.tsx#L99)
+Defined in: [packages/client-core/src/world/components/editor/inputs/InputGroup.tsx:69](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/inputs/InputGroup.tsx#L69)

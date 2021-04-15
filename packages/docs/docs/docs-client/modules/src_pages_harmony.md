@@ -16,4 +16,4 @@ hide_title: true
 
 **Returns:** *Element*
 
-Defined in: [packages/client/src/pages/harmony/index.tsx:4](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client/src/pages/harmony/index.tsx#L4)
+Defined in: [packages/client/src/pages/harmony/index.tsx:4](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client/src/pages/harmony/index.tsx#L4)

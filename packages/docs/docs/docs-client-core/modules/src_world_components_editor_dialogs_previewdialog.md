@@ -12,13 +12,19 @@ hide_title: true
 
 ### Namespaces
 
-- [default](src_world_components_editor_dialogs_previewdialog.default.md)
+- [PreviewDialog](src_world_components_editor_dialogs_previewdialog.previewdialog.md)
 
-## Functions
+## References
 
 ### default
 
-▸ **default**(`__namedParameters`: *Object*): *Element*
+Renames and exports: [PreviewDialog](src_world_components_editor_dialogs_previewdialog.md#previewdialog)
+
+## Functions
+
+### PreviewDialog
+
+▸ **PreviewDialog**(`__namedParameters`: *Object*): *Element*
 
 PreviewDialog provides the dialog containing image on left side and content on right side.
 
@@ -32,4 +38,4 @@ Name | Type |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/dialogs/PreviewDialog.tsx:46](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/dialogs/PreviewDialog.tsx#L46)
+Defined in: [packages/client-core/src/world/components/editor/dialogs/PreviewDialog.tsx:46](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/dialogs/PreviewDialog.tsx#L46)

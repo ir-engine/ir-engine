@@ -23,4 +23,4 @@ Name | Type |
 
 **Returns:** *Promise*<void\>
 
-Defined in: [packages/server-core/src/user/sms/awssns.ts:4](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/user/sms/awssns.ts#L4)
+Defined in: [packages/server-core/src/user/sms/awssns.ts:4](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/user/sms/awssns.ts#L4)

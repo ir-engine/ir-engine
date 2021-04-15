@@ -12,13 +12,19 @@ hide_title: true
 
 ### Namespaces
 
-- [default](src_world_components_editor_properties_audiosourceproperties.default.md)
+- [AudioSourceProperties](src_world_components_editor_properties_audiosourceproperties.audiosourceproperties.md)
 
-## Functions
+## References
 
 ### default
 
-▸ **default**(`__namedParameters`: *Object*): *Element*
+Renames and exports: [AudioSourceProperties](src_world_components_editor_properties_audiosourceproperties.md#audiosourceproperties)
+
+## Functions
+
+### AudioSourceProperties
+
+▸ **AudioSourceProperties**(`__namedParameters`: *Object*): *Element*
 
 AudioSourceProperties provides properties to custom audio element on the scene
 used inside AudioNodeEditor component.
@@ -33,4 +39,4 @@ Name | Type |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/AudioSourceProperties.tsx:24](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/properties/AudioSourceProperties.tsx#L24)
+Defined in: [packages/client-core/src/world/components/editor/properties/AudioSourceProperties.tsx:24](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/properties/AudioSourceProperties.tsx#L24)

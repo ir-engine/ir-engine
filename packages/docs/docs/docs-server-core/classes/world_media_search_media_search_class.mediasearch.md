@@ -33,7 +33,7 @@ Name | Type |
 
 **Returns:** [*MediaSearch*](world_media_search_media_search_class.mediasearch.md)
 
-Defined in: [packages/server-core/src/world/media-search/media-search.class.ts:22](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/world/media-search/media-search.class.ts#L22)
+Defined in: [packages/server-core/src/world/media-search/media-search.class.ts:22](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/world/media-search/media-search.class.ts#L22)
 
 ## Properties
 
@@ -41,7 +41,7 @@ Defined in: [packages/server-core/src/world/media-search/media-search.class.ts:2
 
 • **app**: Application
 
-Defined in: [packages/server-core/src/world/media-search/media-search.class.ts:18](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/world/media-search/media-search.class.ts#L18)
+Defined in: [packages/server-core/src/world/media-search/media-search.class.ts:18](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/world/media-search/media-search.class.ts#L18)
 
 ___
 
@@ -49,7 +49,7 @@ ___
 
 • **docs**: *any*
 
-Defined in: [packages/server-core/src/world/media-search/media-search.class.ts:20](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/world/media-search/media-search.class.ts#L20)
+Defined in: [packages/server-core/src/world/media-search/media-search.class.ts:20](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/world/media-search/media-search.class.ts#L20)
 
 ___
 
@@ -57,7 +57,7 @@ ___
 
 • **options**: ServiceOptions
 
-Defined in: [packages/server-core/src/world/media-search/media-search.class.ts:19](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/world/media-search/media-search.class.ts#L19)
+Defined in: [packages/server-core/src/world/media-search/media-search.class.ts:19](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/world/media-search/media-search.class.ts#L19)
 
 ___
 
@@ -65,7 +65,7 @@ ___
 
 • `Private` `Readonly` **pageSize**: *24*= 24
 
-Defined in: [packages/server-core/src/world/media-search/media-search.class.ts:22](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/world/media-search/media-search.class.ts#L22)
+Defined in: [packages/server-core/src/world/media-search/media-search.class.ts:22](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/world/media-search/media-search.class.ts#L22)
 
 ## Methods
 
@@ -86,7 +86,7 @@ Name | Type |
 
 Implementation of: ServiceMethods.create
 
-Defined in: [packages/server-core/src/world/media-search/media-search.class.ts:90](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/world/media-search/media-search.class.ts#L90)
+Defined in: [packages/server-core/src/world/media-search/media-search.class.ts:90](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/world/media-search/media-search.class.ts#L90)
 
 ___
 
@@ -110,7 +110,7 @@ Name | Type | Description |
 
 Implementation of: ServiceMethods.find
 
-Defined in: [packages/server-core/src/world/media-search/media-search.class.ts:36](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/world/media-search/media-search.class.ts#L36)
+Defined in: [packages/server-core/src/world/media-search/media-search.class.ts:36](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/world/media-search/media-search.class.ts#L36)
 
 ___
 
@@ -135,7 +135,7 @@ Name | Type | Description |
 
 Implementation of: ServiceMethods.get
 
-Defined in: [packages/server-core/src/world/media-search/media-search.class.ts:77](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/world/media-search/media-search.class.ts#L77)
+Defined in: [packages/server-core/src/world/media-search/media-search.class.ts:77](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/world/media-search/media-search.class.ts#L77)
 
 ___
 
@@ -159,7 +159,7 @@ data
 
 Implementation of: ServiceMethods.patch
 
-Defined in: [packages/server-core/src/world/media-search/media-search.class.ts:114](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/world/media-search/media-search.class.ts#L114)
+Defined in: [packages/server-core/src/world/media-search/media-search.class.ts:114](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/world/media-search/media-search.class.ts#L114)
 
 ___
 
@@ -182,7 +182,7 @@ id
 
 Implementation of: ServiceMethods.remove
 
-Defined in: [packages/server-core/src/world/media-search/media-search.class.ts:125](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/world/media-search/media-search.class.ts#L125)
+Defined in: [packages/server-core/src/world/media-search/media-search.class.ts:125](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/world/media-search/media-search.class.ts#L125)
 
 ___
 
@@ -206,4 +206,4 @@ data
 
 Implementation of: ServiceMethods.update
 
-Defined in: [packages/server-core/src/world/media-search/media-search.class.ts:103](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/world/media-search/media-search.class.ts#L103)
+Defined in: [packages/server-core/src/world/media-search/media-search.class.ts:103](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/world/media-search/media-search.class.ts#L103)

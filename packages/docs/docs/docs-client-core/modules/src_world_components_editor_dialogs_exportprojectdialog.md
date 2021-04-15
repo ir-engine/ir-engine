@@ -12,13 +12,19 @@ hide_title: true
 
 ### Namespaces
 
-- [default](src_world_components_editor_dialogs_exportprojectdialog.default.md)
+- [ExportProjectDialog](src_world_components_editor_dialogs_exportprojectdialog.exportprojectdialog.md)
 
-## Functions
+## References
 
 ### default
 
-▸ **default**(`__namedParameters`: *Object*): *Element*
+Renames and exports: [ExportProjectDialog](src_world_components_editor_dialogs_exportprojectdialog.md#exportprojectdialog)
+
+## Functions
+
+### ExportProjectDialog
+
+▸ **ExportProjectDialog**(`__namedParameters`: *Object*): *Element*
 
 ExportProjectDialog used to provide view containing FormFields.
 
@@ -32,4 +38,4 @@ Name | Type |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/dialogs/ExportProjectDialog.tsx:30](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/dialogs/ExportProjectDialog.tsx#L30)
+Defined in: [packages/client-core/src/world/components/editor/dialogs/ExportProjectDialog.tsx:30](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/dialogs/ExportProjectDialog.tsx#L30)

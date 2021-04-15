@@ -12,13 +12,19 @@ hide_title: true
 
 ### Namespaces
 
-- [default](src_pages__error.default.md)
+- [Error](src_pages__error.error.md)
 
-## Variables
+## References
 
 ### default
 
-• `Const` **default**: (`\_\_namedParameters`: { `statusCode?`: *number*  }) => *any*
+Renames and exports: [Error](src_pages__error.md#error)
+
+## Variables
+
+### Error
+
+• `Const` **Error**: (`\_\_namedParameters`: { `statusCode?`: *number*  }) => *any*
 
 #### Type declaration:
 
@@ -33,10 +39,10 @@ Name | Type |
 
 **Returns:** *any*
 
-Defined in: [packages/client/src/pages/_error.tsx:5](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client/src/pages/_error.tsx#L5)
+Defined in: [packages/client/src/pages/_error.tsx:5](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client/src/pages/_error.tsx#L5)
 
 Name | Type |
 :------ | :------ |
 `getInitialProps` | (`\_\_namedParameters`: *Object*) => { `statusCode`: *any*  } |
 
-Defined in: [packages/client/src/pages/_error.tsx:5](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client/src/pages/_error.tsx#L5)
+Defined in: [packages/client/src/pages/_error.tsx:5](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client/src/pages/_error.tsx#L5)

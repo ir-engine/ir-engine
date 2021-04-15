@@ -16,7 +16,7 @@ hide_title: true
 
 • **activeMenu**: *any*
 
-Defined in: [packages/client-core/src/user/components/UserMenu/util.tsx:29](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/user/components/UserMenu/util.tsx#L29)
+Defined in: [packages/client-core/src/user/components/UserMenu/util.tsx:29](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/user/components/UserMenu/util.tsx#L29)
 
 ___
 
@@ -24,4 +24,4 @@ ___
 
 • `Optional` **setActiveMenu**: Function
 
-Defined in: [packages/client-core/src/user/components/UserMenu/util.tsx:30](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/user/components/UserMenu/util.tsx#L30)
+Defined in: [packages/client-core/src/user/components/UserMenu/util.tsx:30](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/user/components/UserMenu/util.tsx#L30)

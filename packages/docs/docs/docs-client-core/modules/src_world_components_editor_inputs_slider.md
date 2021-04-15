@@ -24,4 +24,4 @@ Name | Type |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/inputs/Slider.tsx:83](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/inputs/Slider.tsx#L83)
+Defined in: [packages/client-core/src/world/components/editor/inputs/Slider.tsx:83](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/inputs/Slider.tsx#L83)

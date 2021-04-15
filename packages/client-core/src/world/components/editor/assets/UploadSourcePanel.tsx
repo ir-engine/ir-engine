@@ -9,7 +9,7 @@ import { useTranslation } from "react-i18next";
  * @param {any} props
  * @constructor
  */
-export default function UploadSourcePanel(props) {
+export function UploadSourcePanel(props) {
   const { t } = useTranslation();
   return <MediaSourcePanel {...props} searchPlaceholder={props.source.searchPlaceholder || t('editor:asset.assetSourcePanel.ph-search')} />;
 }
@@ -20,3 +20,4 @@ export default function UploadSourcePanel(props) {
 UploadSourcePanel.propTypes = {
   source: PropTypes.object
 };
+export default  UploadSourcePanel;

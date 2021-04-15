@@ -12,13 +12,19 @@ hide_title: true
 
 ### Namespaces
 
-- [default](src_world_components_editor_assets_mediasourcepanel.default.md)
+- [MediaSourcePanel](src_world_components_editor_assets_mediasourcepanel.mediasourcepanel.md)
 
-## Functions
+## References
 
 ### default
 
-▸ **default**(`__namedParameters`: *Object*): *Element*
+Renames and exports: [MediaSourcePanel](src_world_components_editor_assets_mediasourcepanel.md#mediasourcepanel)
+
+## Functions
+
+### MediaSourcePanel
+
+▸ **MediaSourcePanel**(`__namedParameters`: *Object*): *Element*
 
 MediaSourcePanel used to render view for AssetsPanelContainer and AssetsPanelToolbarContainer.
 
@@ -32,4 +38,4 @@ Name | Type |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/assets/MediaSourcePanel.tsx:17](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/assets/MediaSourcePanel.tsx#L17)
+Defined in: [packages/client-core/src/world/components/editor/assets/MediaSourcePanel.tsx:17](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/assets/MediaSourcePanel.tsx#L17)

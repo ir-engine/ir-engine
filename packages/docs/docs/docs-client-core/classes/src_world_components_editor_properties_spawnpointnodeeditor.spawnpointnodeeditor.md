@@ -157,7 +157,7 @@ ___
 
 ▪ `Static` **description**: *string*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/SpawnPointNodeEditor.tsx:34](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/properties/SpawnPointNodeEditor.tsx#L34)
+Defined in: [packages/client-core/src/world/components/editor/properties/SpawnPointNodeEditor.tsx:34](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/properties/SpawnPointNodeEditor.tsx#L34)
 
 ___
 
@@ -165,7 +165,7 @@ ___
 
 ▪ `Static` **iconComponent**: StyledIcon
 
-Defined in: [packages/client-core/src/world/components/editor/properties/SpawnPointNodeEditor.tsx:31](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/properties/SpawnPointNodeEditor.tsx#L31)
+Defined in: [packages/client-core/src/world/components/editor/properties/SpawnPointNodeEditor.tsx:31](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/properties/SpawnPointNodeEditor.tsx#L31)
 
 ## Methods
 
@@ -484,7 +484,7 @@ ___
 
 Overrides: Component.render
 
-Defined in: [packages/client-core/src/world/components/editor/properties/SpawnPointNodeEditor.tsx:35](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/properties/SpawnPointNodeEditor.tsx#L35)
+Defined in: [packages/client-core/src/world/components/editor/properties/SpawnPointNodeEditor.tsx:35](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/properties/SpawnPointNodeEditor.tsx#L35)
 
 ___
 

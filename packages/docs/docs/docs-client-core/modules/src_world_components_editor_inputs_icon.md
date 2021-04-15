@@ -12,13 +12,19 @@ hide_title: true
 
 ### Namespaces
 
-- [default](src_world_components_editor_inputs_icon.default.md)
+- [Icon](src_world_components_editor_inputs_icon.icon.md)
 
-## Functions
+## References
 
 ### default
 
-▸ **default**(`props`: *any*): *Element*
+Renames and exports: [Icon](src_world_components_editor_inputs_icon.md#icon)
+
+## Functions
+
+### Icon
+
+▸ **Icon**(`props`: *any*): *Element*
 
 Icon used to render view for icon component.
 
@@ -32,4 +38,4 @@ Name | Type |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/inputs/Icon.tsx:11](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/inputs/Icon.tsx#L11)
+Defined in: [packages/client-core/src/world/components/editor/inputs/Icon.tsx:11](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/inputs/Icon.tsx#L11)

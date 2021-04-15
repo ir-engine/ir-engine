@@ -12,13 +12,19 @@ hide_title: true
 
 ### Namespaces
 
-- [default](src_world_components_editor_viewport_stats.default.md)
+- [Stats](src_world_components_editor_viewport_stats.stats.md)
 
-## Functions
+## References
 
 ### default
 
-▸ **default**(`__namedParameters`: *Object*): *Element*
+Renames and exports: [Stats](src_world_components_editor_viewport_stats.md#stats)
+
+## Functions
+
+### Stats
+
+▸ **Stats**(`__namedParameters`: *Object*): *Element*
 
 Stats used to show stats of  memory and  render.
 
@@ -32,4 +38,4 @@ Name | Type |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/viewport/Stats.tsx:15](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/viewport/Stats.tsx#L15)
+Defined in: [packages/client-core/src/world/components/editor/viewport/Stats.tsx:15](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/viewport/Stats.tsx#L15)

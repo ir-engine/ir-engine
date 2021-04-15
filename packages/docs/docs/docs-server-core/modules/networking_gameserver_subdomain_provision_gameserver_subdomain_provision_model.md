@@ -22,4 +22,4 @@ Name | Type |
 
 **Returns:** *typeof* Model
 
-Defined in: [packages/server-core/src/networking/gameserver-subdomain-provision/gameserver-subdomain-provision.model.ts:5](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/networking/gameserver-subdomain-provision/gameserver-subdomain-provision.model.ts#L5)
+Defined in: [packages/server-core/src/networking/gameserver-subdomain-provision/gameserver-subdomain-provision.model.ts:5](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/networking/gameserver-subdomain-provision/gameserver-subdomain-provision.model.ts#L5)

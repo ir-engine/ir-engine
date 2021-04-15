@@ -129,7 +129,7 @@ interface Props {
  * @param  {Props}
  * @constructor
  */
-export default function Dialog(props: Props) {
+export function Dialog(props: Props) {
 
  // initializing component properties using props.
   const {
@@ -214,3 +214,4 @@ Dialog.defaultProps = {
   confirmLabel: i18n.t('editor:dialog.lbl-confirm') || "Ok",
   cancelLabel: i18n.t('editor:dialog.lbl-cancel') || "Cancel",
 };
+export default Dialog;

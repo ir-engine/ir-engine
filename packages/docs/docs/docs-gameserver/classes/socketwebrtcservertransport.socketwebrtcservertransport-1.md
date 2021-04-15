@@ -28,7 +28,7 @@ Name | Type |
 
 **Returns:** [*SocketWebRTCServerTransport*](socketwebrtcservertransport.socketwebrtcservertransport-1.md)
 
-Defined in: [SocketWebRTCServerTransport.ts:60](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/gameserver/src/SocketWebRTCServerTransport.ts#L60)
+Defined in: [SocketWebRTCServerTransport.ts:60](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/gameserver/src/SocketWebRTCServerTransport.ts#L60)
 
 ## Properties
 
@@ -36,7 +36,7 @@ Defined in: [SocketWebRTCServerTransport.ts:60](https://github.com/xr3ngine/xr3n
 
 • **app**: *any*
 
-Defined in: [SocketWebRTCServerTransport.ts:56](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/gameserver/src/SocketWebRTCServerTransport.ts#L56)
+Defined in: [SocketWebRTCServerTransport.ts:56](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/gameserver/src/SocketWebRTCServerTransport.ts#L56)
 
 ___
 
@@ -44,7 +44,7 @@ ___
 
 • **dataProducers**: *DataProducer*[]= []
 
-Defined in: [SocketWebRTCServerTransport.ts:57](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/gameserver/src/SocketWebRTCServerTransport.ts#L57)
+Defined in: [SocketWebRTCServerTransport.ts:57](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/gameserver/src/SocketWebRTCServerTransport.ts#L57)
 
 ___
 
@@ -52,7 +52,7 @@ ___
 
 • **gameServer**: *any*
 
-Defined in: [SocketWebRTCServerTransport.ts:60](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/gameserver/src/SocketWebRTCServerTransport.ts#L60)
+Defined in: [SocketWebRTCServerTransport.ts:60](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/gameserver/src/SocketWebRTCServerTransport.ts#L60)
 
 ___
 
@@ -60,7 +60,7 @@ ___
 
 • **outgoingDataProducer**: *DataProducer*
 
-Defined in: [SocketWebRTCServerTransport.ts:59](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/gameserver/src/SocketWebRTCServerTransport.ts#L59)
+Defined in: [SocketWebRTCServerTransport.ts:59](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/gameserver/src/SocketWebRTCServerTransport.ts#L59)
 
 ___
 
@@ -68,7 +68,7 @@ ___
 
 • **outgoingDataTransport**: *Transport*
 
-Defined in: [SocketWebRTCServerTransport.ts:58](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/gameserver/src/SocketWebRTCServerTransport.ts#L58)
+Defined in: [SocketWebRTCServerTransport.ts:58](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/gameserver/src/SocketWebRTCServerTransport.ts#L58)
 
 ___
 
@@ -76,7 +76,7 @@ ___
 
 • **routers**: *Record*<string, Router\>
 
-Defined in: [SocketWebRTCServerTransport.ts:54](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/gameserver/src/SocketWebRTCServerTransport.ts#L54)
+Defined in: [SocketWebRTCServerTransport.ts:54](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/gameserver/src/SocketWebRTCServerTransport.ts#L54)
 
 ___
 
@@ -84,7 +84,7 @@ ___
 
 • **server**: *Server*
 
-Defined in: [SocketWebRTCServerTransport.ts:51](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/gameserver/src/SocketWebRTCServerTransport.ts#L51)
+Defined in: [SocketWebRTCServerTransport.ts:51](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/gameserver/src/SocketWebRTCServerTransport.ts#L51)
 
 ___
 
@@ -92,7 +92,7 @@ ___
 
 • **socketIO**: Server
 
-Defined in: [SocketWebRTCServerTransport.ts:52](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/gameserver/src/SocketWebRTCServerTransport.ts#L52)
+Defined in: [SocketWebRTCServerTransport.ts:52](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/gameserver/src/SocketWebRTCServerTransport.ts#L52)
 
 ___
 
@@ -100,7 +100,7 @@ ___
 
 • **transport**: *Transport*
 
-Defined in: [SocketWebRTCServerTransport.ts:55](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/gameserver/src/SocketWebRTCServerTransport.ts#L55)
+Defined in: [SocketWebRTCServerTransport.ts:55](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/gameserver/src/SocketWebRTCServerTransport.ts#L55)
 
 ___
 
@@ -108,7 +108,7 @@ ___
 
 • **worker**: *Worker*
 
-Defined in: [SocketWebRTCServerTransport.ts:53](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/gameserver/src/SocketWebRTCServerTransport.ts#L53)
+Defined in: [SocketWebRTCServerTransport.ts:53](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/gameserver/src/SocketWebRTCServerTransport.ts#L53)
 
 ## Methods
 
@@ -126,7 +126,7 @@ Name | Type |
 
 Implementation of: NetworkTransport.handleKick
 
-Defined in: [SocketWebRTCServerTransport.ts:87](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/gameserver/src/SocketWebRTCServerTransport.ts#L87)
+Defined in: [SocketWebRTCServerTransport.ts:87](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/gameserver/src/SocketWebRTCServerTransport.ts#L87)
 
 ___
 
@@ -138,7 +138,7 @@ ___
 
 Implementation of: NetworkTransport.initialize
 
-Defined in: [SocketWebRTCServerTransport.ts:94](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/gameserver/src/SocketWebRTCServerTransport.ts#L94)
+Defined in: [SocketWebRTCServerTransport.ts:94](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/gameserver/src/SocketWebRTCServerTransport.ts#L94)
 
 ___
 
@@ -156,7 +156,7 @@ Name | Type |
 
 Implementation of: NetworkTransport.sendData
 
-Defined in: [SocketWebRTCServerTransport.ts:83](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/gameserver/src/SocketWebRTCServerTransport.ts#L83)
+Defined in: [SocketWebRTCServerTransport.ts:83](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/gameserver/src/SocketWebRTCServerTransport.ts#L83)
 
 ___
 
@@ -172,7 +172,7 @@ Name | Type |
 
 **Returns:** *any*
 
-Defined in: [SocketWebRTCServerTransport.ts:70](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/gameserver/src/SocketWebRTCServerTransport.ts#L70)
+Defined in: [SocketWebRTCServerTransport.ts:70](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/gameserver/src/SocketWebRTCServerTransport.ts#L70)
 
 ___
 
@@ -190,7 +190,7 @@ Name | Type |
 
 Implementation of: NetworkTransport.sendReliableData
 
-Defined in: [SocketWebRTCServerTransport.ts:66](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/gameserver/src/SocketWebRTCServerTransport.ts#L66)
+Defined in: [SocketWebRTCServerTransport.ts:66](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/gameserver/src/SocketWebRTCServerTransport.ts#L66)
 
 ___
 
@@ -206,4 +206,4 @@ Name | Type |
 
 **Returns:** *any*
 
-Defined in: [SocketWebRTCServerTransport.ts:74](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/gameserver/src/SocketWebRTCServerTransport.ts#L74)
+Defined in: [SocketWebRTCServerTransport.ts:74](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/gameserver/src/SocketWebRTCServerTransport.ts#L74)

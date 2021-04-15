@@ -160,7 +160,7 @@ Name | Type |
 `message` | *Requireable*<string\> |
 `t` | *Requireable*<(...`args`: *any*[]) => *any*\> |
 
-Defined in: [packages/client-core/src/world/components/editor/Loading.tsx:33](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/Loading.tsx#L33)
+Defined in: [packages/client-core/src/world/components/editor/Loading.tsx:33](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/Loading.tsx#L33)
 
 ## Methods
 
@@ -479,7 +479,7 @@ ___
 
 Overrides: Component.render
 
-Defined in: [packages/client-core/src/world/components/editor/Loading.tsx:40](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/Loading.tsx#L40)
+Defined in: [packages/client-core/src/world/components/editor/Loading.tsx:40](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/Loading.tsx#L40)
 
 ___
 

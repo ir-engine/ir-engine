@@ -16,7 +16,7 @@ hide_title: true
 
 • **error**: *string*
 
-Defined in: [packages/client-core/src/media/components/video/actions.ts:5](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/media/components/video/actions.ts#L5)
+Defined in: [packages/client-core/src/media/components/video/actions.ts:5](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/media/components/video/actions.ts#L5)
 
 ___
 
@@ -24,4 +24,4 @@ ___
 
 • **videos**: [*PublicVideo*](src_media_components_video_actions.publicvideo.md)[]
 
-Defined in: [packages/client-core/src/media/components/video/actions.ts:4](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/media/components/video/actions.ts#L4)
+Defined in: [packages/client-core/src/media/components/video/actions.ts:4](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/media/components/video/actions.ts#L4)

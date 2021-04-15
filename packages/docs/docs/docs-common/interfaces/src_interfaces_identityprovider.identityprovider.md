@@ -16,7 +16,7 @@ hide_title: true
 
 • **id**: *number*
 
-Defined in: [interfaces/IdentityProvider.ts:2](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/common/src/interfaces/IdentityProvider.ts#L2)
+Defined in: [interfaces/IdentityProvider.ts:2](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/common/src/interfaces/IdentityProvider.ts#L2)
 
 ___
 
@@ -24,7 +24,7 @@ ___
 
 • **isVerified**: *boolean*
 
-Defined in: [interfaces/IdentityProvider.ts:5](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/common/src/interfaces/IdentityProvider.ts#L5)
+Defined in: [interfaces/IdentityProvider.ts:5](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/common/src/interfaces/IdentityProvider.ts#L5)
 
 ___
 
@@ -32,7 +32,7 @@ ___
 
 • **token**: *string*
 
-Defined in: [interfaces/IdentityProvider.ts:3](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/common/src/interfaces/IdentityProvider.ts#L3)
+Defined in: [interfaces/IdentityProvider.ts:3](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/common/src/interfaces/IdentityProvider.ts#L3)
 
 ___
 
@@ -40,7 +40,7 @@ ___
 
 • **type**: *string*
 
-Defined in: [interfaces/IdentityProvider.ts:4](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/common/src/interfaces/IdentityProvider.ts#L4)
+Defined in: [interfaces/IdentityProvider.ts:4](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/common/src/interfaces/IdentityProvider.ts#L4)
 
 ___
 
@@ -48,4 +48,4 @@ ___
 
 • **userId**: *string*
 
-Defined in: [interfaces/IdentityProvider.ts:6](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/common/src/interfaces/IdentityProvider.ts#L6)
+Defined in: [interfaces/IdentityProvider.ts:6](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/common/src/interfaces/IdentityProvider.ts#L6)

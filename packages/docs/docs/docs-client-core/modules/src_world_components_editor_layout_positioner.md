@@ -12,13 +12,19 @@ hide_title: true
 
 ### Namespaces
 
-- [default](src_world_components_editor_layout_positioner.default.md)
+- [Positioner](src_world_components_editor_layout_positioner.positioner.md)
 
-## Functions
+## References
 
 ### default
 
-▸ **default**(`__namedParameters`: *Object*): *Element*
+Renames and exports: [Positioner](src_world_components_editor_layout_positioner.md#positioner)
+
+## Functions
+
+### Positioner
+
+▸ **Positioner**(`__namedParameters`: *Object*): *Element*
 
 **`author`** Robert Long
 
@@ -30,4 +36,4 @@ Name | Type |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/layout/Positioner.tsx:453](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/layout/Positioner.tsx#L453)
+Defined in: [packages/client-core/src/world/components/editor/layout/Positioner.tsx:453](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/layout/Positioner.tsx#L453)

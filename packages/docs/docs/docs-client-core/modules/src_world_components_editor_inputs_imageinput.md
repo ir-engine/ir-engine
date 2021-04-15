@@ -12,13 +12,19 @@ hide_title: true
 
 ### Namespaces
 
-- [default](src_world_components_editor_inputs_imageinput.default.md)
+- [ImageInput](src_world_components_editor_inputs_imageinput.imageinput.md)
 
-## Functions
+## References
 
 ### default
 
-▸ **default**(`__namedParameters`: *Object*): *Element*
+Renames and exports: [ImageInput](src_world_components_editor_inputs_imageinput.md#imageinput)
+
+## Functions
+
+### ImageInput
+
+▸ **ImageInput**(`__namedParameters`: *Object*): *Element*
 
 ImageInput used to render component view for image inputs.
 
@@ -32,4 +38,4 @@ Name | Type |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/inputs/ImageInput.tsx:28](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/inputs/ImageInput.tsx#L28)
+Defined in: [packages/client-core/src/world/components/editor/inputs/ImageInput.tsx:28](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/inputs/ImageInput.tsx#L28)

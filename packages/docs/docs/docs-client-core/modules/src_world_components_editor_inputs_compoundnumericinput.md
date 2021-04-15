@@ -12,13 +12,19 @@ hide_title: true
 
 ### Namespaces
 
-- [default](src_world_components_editor_inputs_compoundnumericinput.default.md)
+- [CompoundNumericInput](src_world_components_editor_inputs_compoundnumericinput.compoundnumericinput.md)
 
-## Functions
+## References
 
 ### default
 
-▸ **default**(`__namedParameters`: *Object*): *Element*
+Renames and exports: [CompoundNumericInput](src_world_components_editor_inputs_compoundnumericinput.md#compoundnumericinput)
+
+## Functions
+
+### CompoundNumericInput
+
+▸ **CompoundNumericInput**(`__namedParameters`: *Object*): *Element*
 
 CompoundNumericInput used to render the view of component.
 
@@ -32,4 +38,4 @@ Name | Type |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/inputs/CompoundNumericInput.tsx:30](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/inputs/CompoundNumericInput.tsx#L30)
+Defined in: [packages/client-core/src/world/components/editor/inputs/CompoundNumericInput.tsx:30](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/inputs/CompoundNumericInput.tsx#L30)

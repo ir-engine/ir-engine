@@ -131,7 +131,7 @@ Name | Type |
 
 Overrides: LocalStrategy.findEntity
 
-Defined in: [packages/server-core/src/user/strategies/local.ts:7](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/user/strategies/local.ts#L7)
+Defined in: [packages/server-core/src/user/strategies/local.ts:7](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/user/strategies/local.ts#L7)
 
 ___
 

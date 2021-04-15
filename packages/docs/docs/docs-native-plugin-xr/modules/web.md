@@ -20,4 +20,4 @@ hide_title: true
 
 • `Const` **XRPlugin**: [*XRPluginWeb*](../classes/web.xrpluginweb.md)
 
-Defined in: [packages/native-plugin-xr/src/web.ts:227](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/native-plugin-xr/src/web.ts#L227)
+Defined in: [packages/native-plugin-xr/src/web.ts:227](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/native-plugin-xr/src/web.ts#L227)

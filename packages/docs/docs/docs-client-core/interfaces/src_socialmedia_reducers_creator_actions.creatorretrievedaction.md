@@ -16,7 +16,7 @@ hide_title: true
 
 • **creator**: Creator
 
-Defined in: [packages/client-core/src/socialmedia/reducers/creator/actions.ts:16](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/socialmedia/reducers/creator/actions.ts#L16)
+Defined in: [packages/client-core/src/socialmedia/reducers/creator/actions.ts:16](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/socialmedia/reducers/creator/actions.ts#L16)
 
 ___
 
@@ -24,4 +24,4 @@ ___
 
 • **type**: *string*
 
-Defined in: [packages/client-core/src/socialmedia/reducers/creator/actions.ts:15](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/socialmedia/reducers/creator/actions.ts#L15)
+Defined in: [packages/client-core/src/socialmedia/reducers/creator/actions.ts:15](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/socialmedia/reducers/creator/actions.ts#L15)

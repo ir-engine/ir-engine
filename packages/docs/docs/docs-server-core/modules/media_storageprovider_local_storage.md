@@ -12,4 +12,10 @@ hide_title: true
 
 ### Classes
 
-- [default](../classes/media_storageprovider_local_storage.default.md)
+- [LocalStorage](../classes/media_storageprovider_local_storage.localstorage.md)
+
+## References
+
+### default
+
+Renames and exports: [LocalStorage](../classes/media_storageprovider_local_storage.localstorage.md)

@@ -12,4 +12,10 @@ hide_title: true
 
 ### Classes
 
-- [default](../classes/user_strategies_facebook.default.md)
+- [FacebookStrategy](../classes/user_strategies_facebook.facebookstrategy.md)
+
+## References
+
+### default
+
+Renames and exports: [FacebookStrategy](../classes/user_strategies_facebook.facebookstrategy.md)

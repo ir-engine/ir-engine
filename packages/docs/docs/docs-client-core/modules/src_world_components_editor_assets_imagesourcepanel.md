@@ -12,13 +12,19 @@ hide_title: true
 
 ### Namespaces
 
-- [default](src_world_components_editor_assets_imagesourcepanel.default.md)
+- [ImageSourcePanel](src_world_components_editor_assets_imagesourcepanel.imagesourcepanel.md)
 
-## Functions
+## References
 
 ### default
 
-▸ **default**(`props`: *any*): *Element*
+Renames and exports: [ImageSourcePanel](src_world_components_editor_assets_imagesourcepanel.md#imagesourcepanel)
+
+## Functions
+
+### ImageSourcePanel
+
+▸ **ImageSourcePanel**(`props`: *any*): *Element*
 
 ImageSourcePanel used to render source container.
 
@@ -32,4 +38,4 @@ Name | Type |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/assets/ImageSourcePanel.tsx:13](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/assets/ImageSourcePanel.tsx#L13)
+Defined in: [packages/client-core/src/world/components/editor/assets/ImageSourcePanel.tsx:13](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/assets/ImageSourcePanel.tsx#L13)

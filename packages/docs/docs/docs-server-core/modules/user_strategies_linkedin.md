@@ -12,4 +12,10 @@ hide_title: true
 
 ### Classes
 
-- [default](../classes/user_strategies_linkedin.default.md)
+- [LinkedInStrategy](../classes/user_strategies_linkedin.linkedinstrategy.md)
+
+## References
+
+### default
+
+Renames and exports: [LinkedInStrategy](../classes/user_strategies_linkedin.linkedinstrategy.md)

@@ -12,13 +12,19 @@ hide_title: true
 
 ### Namespaces
 
-- [default](src_world_components_editor_router_redirectroute.default.md)
+- [RedirectRoute](src_world_components_editor_router_redirectroute.redirectroute.md)
 
-## Functions
+## References
 
 ### default
 
-▸ **default**(`__namedParameters`: *Object*): *Element*
+Renames and exports: [RedirectRoute](src_world_components_editor_router_redirectroute.md#redirectroute)
+
+## Functions
+
+### RedirectRoute
+
+▸ **RedirectRoute**(`__namedParameters`: *Object*): *Element*
 
 **`author`** Robert Long
 
@@ -30,4 +36,4 @@ Name | Type |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/router/RedirectRoute.tsx:12](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/router/RedirectRoute.tsx#L12)
+Defined in: [packages/client-core/src/world/components/editor/router/RedirectRoute.tsx:12](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/router/RedirectRoute.tsx#L12)

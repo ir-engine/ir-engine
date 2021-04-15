@@ -12,13 +12,19 @@ hide_title: true
 
 ### Namespaces
 
-- [default](src_world_components_editor_assets_assettooltip.default.md)
+- [AssetTooltip](src_world_components_editor_assets_assettooltip.assettooltip.md)
 
-## Functions
+## References
 
 ### default
 
-▸ **default**(`__namedParameters`: *Object*): *Element*
+Renames and exports: [AssetTooltip](src_world_components_editor_assets_assettooltip.md#assettooltip)
+
+## Functions
+
+### AssetTooltip
+
+▸ **AssetTooltip**(`__namedParameters`: *Object*): *Element*
 
 AssetTooltip used to show tooltip on elements available in asset penal.
 
@@ -32,4 +38,4 @@ Name | Type |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/assets/AssetTooltip.tsx:54](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/assets/AssetTooltip.tsx#L54)
+Defined in: [packages/client-core/src/world/components/editor/assets/AssetTooltip.tsx:54](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/assets/AssetTooltip.tsx#L54)

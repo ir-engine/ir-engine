@@ -26,4 +26,4 @@ Name | Type | Default value |
 
 **Returns:** *any*
 
-Defined in: [packages/server-core/src/hooks/add-associations.ts:14](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/hooks/add-associations.ts#L14)
+Defined in: [packages/server-core/src/hooks/add-associations.ts:14](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/hooks/add-associations.ts#L14)

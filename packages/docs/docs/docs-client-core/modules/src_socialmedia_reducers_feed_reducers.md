@@ -28,7 +28,7 @@ Name | Type |
 `feeds.fetching` | *boolean* |
 `feeds.myFeatured` | *any*[] |
 
-Defined in: [packages/client-core/src/socialmedia/reducers/feed/reducers.ts:28](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/socialmedia/reducers/feed/reducers.ts#L28)
+Defined in: [packages/client-core/src/socialmedia/reducers/feed/reducers.ts:28](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/socialmedia/reducers/feed/reducers.ts#L28)
 
 ## Functions
 
@@ -45,4 +45,4 @@ Name | Type |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/src/socialmedia/reducers/feed/reducers.ts:43](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/socialmedia/reducers/feed/reducers.ts#L43)
+Defined in: [packages/client-core/src/socialmedia/reducers/feed/reducers.ts:43](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/socialmedia/reducers/feed/reducers.ts#L43)

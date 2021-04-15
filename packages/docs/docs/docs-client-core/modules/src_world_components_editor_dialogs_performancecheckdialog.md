@@ -12,13 +12,19 @@ hide_title: true
 
 ### Namespaces
 
-- [default](src_world_components_editor_dialogs_performancecheckdialog.default.md)
+- [PerformanceCheckDialog](src_world_components_editor_dialogs_performancecheckdialog.performancecheckdialog.md)
 
-## Functions
+## References
 
 ### default
 
-▸ **default**(`__namedParameters`: *Object*): *Element*
+Renames and exports: [PerformanceCheckDialog](src_world_components_editor_dialogs_performancecheckdialog.md#performancecheckdialog)
+
+## Functions
+
+### PerformanceCheckDialog
+
+▸ **PerformanceCheckDialog**(`__namedParameters`: *Object*): *Element*
 
 PerformanceCheckDialog used render view containing Performance scores.
 
@@ -32,4 +38,4 @@ Name | Type |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/dialogs/PerformanceCheckDialog.tsx:140](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/dialogs/PerformanceCheckDialog.tsx#L140)
+Defined in: [packages/client-core/src/world/components/editor/dialogs/PerformanceCheckDialog.tsx:140](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/dialogs/PerformanceCheckDialog.tsx#L140)

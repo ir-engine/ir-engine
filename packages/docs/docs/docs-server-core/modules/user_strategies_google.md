@@ -12,4 +12,10 @@ hide_title: true
 
 ### Classes
 
-- [default](../classes/user_strategies_google.default.md)
+- [Googlestrategy](../classes/user_strategies_google.googlestrategy.md)
+
+## References
+
+### default
+
+Renames and exports: [Googlestrategy](../classes/user_strategies_google.googlestrategy.md)

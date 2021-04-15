@@ -12,4 +12,10 @@ hide_title: true
 
 ### Classes
 
-- [default](../classes/user_strategies_github.default.md)
+- [GithubStrategy](../classes/user_strategies_github.githubstrategy.md)
+
+## References
+
+### default
+
+Renames and exports: [GithubStrategy](../classes/user_strategies_github.githubstrategy.md)

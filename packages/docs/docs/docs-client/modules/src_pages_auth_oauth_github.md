@@ -22,4 +22,4 @@ Renames and exports: [GithubHomePage](src_pages_auth_oauth_github.md#githubhomep
 
 **Returns:** *Element*
 
-Defined in: [packages/client/src/pages/auth/oauth/github.tsx:5](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client/src/pages/auth/oauth/github.tsx#L5)
+Defined in: [packages/client/src/pages/auth/oauth/github.tsx:5](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client/src/pages/auth/oauth/github.tsx#L5)

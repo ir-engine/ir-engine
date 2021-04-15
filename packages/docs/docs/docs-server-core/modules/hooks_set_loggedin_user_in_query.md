@@ -26,4 +26,4 @@ Name | Type |
 
 **Returns:** (`context`: *HookContext*<any, Service<any\>\>) => *any*
 
-Defined in: [packages/server-core/src/hooks/set-loggedin-user-in-query.ts:2](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/hooks/set-loggedin-user-in-query.ts#L2)
+Defined in: [packages/server-core/src/hooks/set-loggedin-user-in-query.ts:2](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/hooks/set-loggedin-user-in-query.ts#L2)

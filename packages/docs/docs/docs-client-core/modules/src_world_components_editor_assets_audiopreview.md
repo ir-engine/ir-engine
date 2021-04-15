@@ -12,13 +12,19 @@ hide_title: true
 
 ### Namespaces
 
-- [default](src_world_components_editor_assets_audiopreview.default.md)
+- [AudioPreview](src_world_components_editor_assets_audiopreview.audiopreview.md)
 
-## Functions
+## References
 
 ### default
 
-▸ **default**(`__namedParameters`: *Object*): *Element*
+Renames and exports: [AudioPreview](src_world_components_editor_assets_audiopreview.md#audiopreview)
+
+## Functions
+
+### AudioPreview
+
+▸ **AudioPreview**(`__namedParameters`: *Object*): *Element*
 
 AudioPreview cused to provides the options for audio.
 
@@ -32,4 +38,4 @@ Name | Type |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/assets/AudioPreview.tsx:15](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/assets/AudioPreview.tsx#L15)
+Defined in: [packages/client-core/src/world/components/editor/assets/AudioPreview.tsx:15](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/assets/AudioPreview.tsx#L15)

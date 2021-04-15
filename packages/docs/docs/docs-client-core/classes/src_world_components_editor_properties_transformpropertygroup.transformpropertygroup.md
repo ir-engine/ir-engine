@@ -39,7 +39,7 @@ Overrides: Component&lt;
   {}
 &gt;.constructor
 
-Defined in: [packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx:31](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx#L31)
+Defined in: [packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx:31](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx#L31)
 
 ## Properties
 
@@ -106,7 +106,7 @@ ___
 
 • **translation**: *any*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx:55](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx#L55)
+Defined in: [packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx:55](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx#L55)
 
 ___
 
@@ -266,7 +266,7 @@ ___
 
 Overrides: Component.componentDidMount
 
-Defined in: [packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx:40](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx#L40)
+Defined in: [packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx:40](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx#L40)
 
 ___
 
@@ -360,7 +360,7 @@ ___
 
 Overrides: Component.componentWillUnmount
 
-Defined in: [packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx:50](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx#L50)
+Defined in: [packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx:50](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx#L50)
 
 ___
 
@@ -453,7 +453,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx:75](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx#L75)
+Defined in: [packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx:75](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx#L75)
 
 ___
 
@@ -469,7 +469,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx:81](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx#L81)
+Defined in: [packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx:81](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx#L81)
 
 ___
 
@@ -485,7 +485,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx:86](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx#L86)
+Defined in: [packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx:86](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx#L86)
 
 ___
 
@@ -502,7 +502,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx:58](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx#L58)
+Defined in: [packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx:58](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx#L58)
 
 ___
 
@@ -514,7 +514,7 @@ ___
 
 Overrides: Component.render
 
-Defined in: [packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx:91](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx#L91)
+Defined in: [packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx:91](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx#L91)
 
 ___
 
@@ -557,4 +557,4 @@ Name | Type |
 
 Overrides: Component.shouldComponentUpdate
 
-Defined in: [packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx:45](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx#L45)
+Defined in: [packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx:45](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx#L45)

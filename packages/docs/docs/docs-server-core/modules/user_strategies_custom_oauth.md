@@ -12,4 +12,10 @@ hide_title: true
 
 ### Classes
 
-- [default](../classes/user_strategies_custom_oauth.default.md)
+- [CustomOAuthStrategy](../classes/user_strategies_custom_oauth.customoauthstrategy.md)
+
+## References
+
+### default
+
+Renames and exports: [CustomOAuthStrategy](../classes/user_strategies_custom_oauth.customoauthstrategy.md)

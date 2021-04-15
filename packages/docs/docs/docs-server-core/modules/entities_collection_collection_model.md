@@ -26,4 +26,4 @@ Name | Type |
 
 **Returns:** *any*
 
-Defined in: [packages/server-core/src/entities/collection/collection.model.ts:6](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/entities/collection/collection.model.ts#L6)
+Defined in: [packages/server-core/src/entities/collection/collection.model.ts:6](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/entities/collection/collection.model.ts#L6)

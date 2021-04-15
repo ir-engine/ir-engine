@@ -487,4 +487,4 @@ Name | Type |
 `resources.en.editor.viewport.state.triangles` | *string* |
 `resources.en.editor.viewport.title` | *string* |
 
-Defined in: [packages/client-core/src/i18n.ts:3](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/i18n.ts#L3)
+Defined in: [packages/client-core/src/i18n.ts:3](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/i18n.ts#L3)

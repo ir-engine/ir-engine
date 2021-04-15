@@ -12,13 +12,19 @@ hide_title: true
 
 ### Namespaces
 
-- [default](src_world_components_editor_inputs_videoinput.default.md)
+- [VideoInput](src_world_components_editor_inputs_videoinput.videoinput.md)
 
-## Functions
+## References
 
 ### default
 
-▸ **default**(`__namedParameters`: *Object*): *Element*
+Renames and exports: [VideoInput](src_world_components_editor_inputs_videoinput.md#videoinput)
+
+## Functions
+
+### VideoInput
+
+▸ **VideoInput**(`__namedParameters`: *Object*): *Element*
 
 **`author`** Robert Long
 
@@ -30,4 +36,4 @@ Name | Type |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/inputs/VideoInput.tsx:22](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/inputs/VideoInput.tsx#L22)
+Defined in: [packages/client-core/src/world/components/editor/inputs/VideoInput.tsx:22](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/inputs/VideoInput.tsx#L22)

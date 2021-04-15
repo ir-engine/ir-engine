@@ -14,7 +14,7 @@ hide_title: true
 
 • `Const` **initialDeviceDetectState**: [*DeviceDetectState*](../interfaces/src_common_reducers_devicedetect_actions.devicedetectstate.md)
 
-Defined in: [packages/client-core/src/common/reducers/devicedetect/reducers.tsx:5](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/common/reducers/devicedetect/reducers.tsx#L5)
+Defined in: [packages/client-core/src/common/reducers/devicedetect/reducers.tsx:5](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/common/reducers/devicedetect/reducers.tsx#L5)
 
 ## Functions
 
@@ -31,4 +31,4 @@ Name | Type |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/src/common/reducers/devicedetect/reducers.tsx:12](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/common/reducers/devicedetect/reducers.tsx#L12)
+Defined in: [packages/client-core/src/common/reducers/devicedetect/reducers.tsx:12](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/common/reducers/devicedetect/reducers.tsx#L12)

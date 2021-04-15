@@ -16,7 +16,7 @@ hide_title: true
 
 • **id**: *number*
 
-Defined in: [packages/client-core/src/media/components/video/actions.ts:24](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/media/components/video/actions.ts#L24)
+Defined in: [packages/client-core/src/media/components/video/actions.ts:24](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/media/components/video/actions.ts#L24)
 
 ___
 
@@ -24,7 +24,7 @@ ___
 
 • **name**: *string*
 
-Defined in: [packages/client-core/src/media/components/video/actions.ts:25](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/media/components/video/actions.ts#L25)
+Defined in: [packages/client-core/src/media/components/video/actions.ts:25](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/media/components/video/actions.ts#L25)
 
 ___
 
@@ -32,7 +32,7 @@ ___
 
 • **type**: *string*
 
-Defined in: [packages/client-core/src/media/components/video/actions.ts:26](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/media/components/video/actions.ts#L26)
+Defined in: [packages/client-core/src/media/components/video/actions.ts:26](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/media/components/video/actions.ts#L26)
 
 ___
 
@@ -40,4 +40,4 @@ ___
 
 • **url**: *string*
 
-Defined in: [packages/client-core/src/media/components/video/actions.ts:27](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/media/components/video/actions.ts#L27)
+Defined in: [packages/client-core/src/media/components/video/actions.ts:27](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/media/components/video/actions.ts#L27)

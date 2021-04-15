@@ -12,4 +12,10 @@ hide_title: true
 
 ### Classes
 
-- [default](../classes/user_strategies_twitter.default.md)
+- [TwitterStrategy](../classes/user_strategies_twitter.twitterstrategy.md)
+
+## References
+
+### default
+
+Renames and exports: [TwitterStrategy](../classes/user_strategies_twitter.twitterstrategy.md)

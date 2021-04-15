@@ -18,7 +18,7 @@ hide_title: true
 
 Name | Type |
 :------ | :------ |
-`component` | *typeof* [*default*](src_world_components_editor_dialogs_dialog.md#default) |
+`component` | *typeof* [*Dialog*](src_world_components_editor_dialogs_dialog.md#dialog) |
 `title` | *string* |
 
 ## Functions
@@ -33,4 +33,4 @@ dialog used to render dialog view.
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/dialogs/Dialog.stories.tsx:19](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/dialogs/Dialog.stories.tsx#L19)
+Defined in: [packages/client-core/src/world/components/editor/dialogs/Dialog.stories.tsx:19](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/dialogs/Dialog.stories.tsx#L19)

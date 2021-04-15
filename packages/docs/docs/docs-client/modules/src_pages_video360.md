@@ -16,4 +16,4 @@ hide_title: true
 
 **Returns:** *Element*
 
-Defined in: [packages/client/src/pages/video360.tsx:7](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client/src/pages/video360.tsx#L7)
+Defined in: [packages/client/src/pages/video360.tsx:7](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client/src/pages/video360.tsx#L7)

@@ -12,13 +12,19 @@ hide_title: true
 
 ### Namespaces
 
-- [default](src_world_components_editor_assets_assetgrid.default.md)
+- [AssetGrid](src_world_components_editor_assets_assetgrid.assetgrid.md)
 
-## Functions
+## References
 
 ### default
 
-▸ **default**(`__namedParameters`: *Object*): *Element*
+Renames and exports: [AssetGrid](src_world_components_editor_assets_assetgrid.md#assetgrid)
+
+## Functions
+
+### AssetGrid
+
+▸ **AssetGrid**(`__namedParameters`: *Object*): *Element*
 
 AssetGrid component used to render AssetGridItems.
 
@@ -32,4 +38,4 @@ Name | Type |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/assets/AssetGrid.tsx:185](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/assets/AssetGrid.tsx#L185)
+Defined in: [packages/client-core/src/world/components/editor/assets/AssetGrid.tsx:185](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/assets/AssetGrid.tsx#L185)

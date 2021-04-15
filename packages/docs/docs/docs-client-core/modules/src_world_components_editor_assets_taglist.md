@@ -12,7 +12,13 @@ hide_title: true
 
 ### Namespaces
 
-- [default](src_world_components_editor_assets_taglist.default.md)
+- [TagList](src_world_components_editor_assets_taglist.taglist.md)
+
+## References
+
+### default
+
+Renames and exports: [TagList](src_world_components_editor_assets_taglist.md#taglist)
 
 ## Variables
 
@@ -24,13 +30,13 @@ TreeListItem used to provide styles for list.
 
 **`author`** Robert Long
 
-Defined in: [packages/client-core/src/world/components/editor/assets/TagList.tsx:102](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/assets/TagList.tsx#L102)
+Defined in: [packages/client-core/src/world/components/editor/assets/TagList.tsx:102](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/assets/TagList.tsx#L102)
 
 ## Functions
 
-### default
+### TagList
 
-▸ **default**(`__namedParameters`: *Object*): *Element*
+▸ **TagList**(`__namedParameters`: *Object*): *Element*
 
 define and export TagList component
 
@@ -42,4 +48,4 @@ Name | Type |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/assets/TagList.tsx:234](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/assets/TagList.tsx#L234)
+Defined in: [packages/client-core/src/world/components/editor/assets/TagList.tsx:234](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/assets/TagList.tsx#L234)

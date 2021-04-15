@@ -158,7 +158,7 @@ ___
 
 ▪ `Static` **description**: *string*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/AmbientLightNodeEditor.tsx:29](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/properties/AmbientLightNodeEditor.tsx#L29)
+Defined in: [packages/client-core/src/world/components/editor/properties/AmbientLightNodeEditor.tsx:29](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/properties/AmbientLightNodeEditor.tsx#L29)
 
 ___
 
@@ -166,7 +166,7 @@ ___
 
 ▪ `Static` **iconComponent**: StyledIcon
 
-Defined in: [packages/client-core/src/world/components/editor/properties/AmbientLightNodeEditor.tsx:28](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/properties/AmbientLightNodeEditor.tsx#L28)
+Defined in: [packages/client-core/src/world/components/editor/properties/AmbientLightNodeEditor.tsx:28](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/properties/AmbientLightNodeEditor.tsx#L28)
 
 ## Methods
 
@@ -489,7 +489,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/AmbientLightNodeEditor.tsx:32](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/properties/AmbientLightNodeEditor.tsx#L32)
+Defined in: [packages/client-core/src/world/components/editor/properties/AmbientLightNodeEditor.tsx:32](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/properties/AmbientLightNodeEditor.tsx#L32)
 
 ___
 
@@ -505,7 +505,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/AmbientLightNodeEditor.tsx:36](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/properties/AmbientLightNodeEditor.tsx#L36)
+Defined in: [packages/client-core/src/world/components/editor/properties/AmbientLightNodeEditor.tsx:36](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/properties/AmbientLightNodeEditor.tsx#L36)
 
 ___
 
@@ -521,7 +521,7 @@ Rendering ambient light view to customize ambient light element.
 
 Overrides: Component.render
 
-Defined in: [packages/client-core/src/world/components/editor/properties/AmbientLightNodeEditor.tsx:45](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/properties/AmbientLightNodeEditor.tsx#L45)
+Defined in: [packages/client-core/src/world/components/editor/properties/AmbientLightNodeEditor.tsx:45](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/properties/AmbientLightNodeEditor.tsx#L45)
 
 ___
 

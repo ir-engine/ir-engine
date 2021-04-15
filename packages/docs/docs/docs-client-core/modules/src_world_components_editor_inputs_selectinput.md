@@ -12,13 +12,19 @@ hide_title: true
 
 ### Namespaces
 
-- [default](src_world_components_editor_inputs_selectinput.default.md)
+- [SelectInput](src_world_components_editor_inputs_selectinput.selectinput.md)
 
-## Functions
+## References
 
 ### default
 
-▸ **default**(`__namedParameters`: *Object*): *Element*
+Renames and exports: [SelectInput](src_world_components_editor_inputs_selectinput.md#selectinput)
+
+## Functions
+
+### SelectInput
+
+▸ **SelectInput**(`__namedParameters`: *Object*): *Element*
 
 **`author`** Robert Long
 
@@ -30,4 +36,4 @@ Name | Type |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/inputs/SelectInput.tsx:79](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/inputs/SelectInput.tsx#L79)
+Defined in: [packages/client-core/src/world/components/editor/inputs/SelectInput.tsx:79](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/inputs/SelectInput.tsx#L79)

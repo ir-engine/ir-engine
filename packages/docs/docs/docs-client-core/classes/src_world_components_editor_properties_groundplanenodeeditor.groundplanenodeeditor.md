@@ -157,7 +157,7 @@ ___
 
 ▪ `Static` **description**: *string*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/GroundPlaneNodeEditor.tsx:37](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/properties/GroundPlaneNodeEditor.tsx#L37)
+Defined in: [packages/client-core/src/world/components/editor/properties/GroundPlaneNodeEditor.tsx:37](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/properties/GroundPlaneNodeEditor.tsx#L37)
 
 ___
 
@@ -165,7 +165,7 @@ ___
 
 ▪ `Static` **iconComponent**: StyledIcon
 
-Defined in: [packages/client-core/src/world/components/editor/properties/GroundPlaneNodeEditor.tsx:34](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/properties/GroundPlaneNodeEditor.tsx#L34)
+Defined in: [packages/client-core/src/world/components/editor/properties/GroundPlaneNodeEditor.tsx:34](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/properties/GroundPlaneNodeEditor.tsx#L34)
 
 ## Methods
 
@@ -488,7 +488,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/GroundPlaneNodeEditor.tsx:40](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/properties/GroundPlaneNodeEditor.tsx#L40)
+Defined in: [packages/client-core/src/world/components/editor/properties/GroundPlaneNodeEditor.tsx:40](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/properties/GroundPlaneNodeEditor.tsx#L40)
 
 ___
 
@@ -504,7 +504,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/GroundPlaneNodeEditor.tsx:45](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/properties/GroundPlaneNodeEditor.tsx#L45)
+Defined in: [packages/client-core/src/world/components/editor/properties/GroundPlaneNodeEditor.tsx:45](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/properties/GroundPlaneNodeEditor.tsx#L45)
 
 ___
 
@@ -520,7 +520,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/GroundPlaneNodeEditor.tsx:50](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/properties/GroundPlaneNodeEditor.tsx#L50)
+Defined in: [packages/client-core/src/world/components/editor/properties/GroundPlaneNodeEditor.tsx:50](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/properties/GroundPlaneNodeEditor.tsx#L50)
 
 ___
 
@@ -532,7 +532,7 @@ ___
 
 Overrides: Component.render
 
-Defined in: [packages/client-core/src/world/components/editor/properties/GroundPlaneNodeEditor.tsx:55](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/properties/GroundPlaneNodeEditor.tsx#L55)
+Defined in: [packages/client-core/src/world/components/editor/properties/GroundPlaneNodeEditor.tsx:55](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/properties/GroundPlaneNodeEditor.tsx#L55)
 
 ___
 

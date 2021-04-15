@@ -12,13 +12,19 @@ hide_title: true
 
 ### Namespaces
 
-- [default](src_world_components_editor_properties_audionodeeditor.default.md)
+- [AudioNodeEditor](src_world_components_editor_properties_audionodeeditor.audionodeeditor.md)
 
-## Functions
+## References
 
 ### default
 
-▸ **default**(`props`: *any*): *Element*
+Renames and exports: [AudioNodeEditor](src_world_components_editor_properties_audionodeeditor.md#audionodeeditor)
+
+## Functions
+
+### AudioNodeEditor
+
+▸ **AudioNodeEditor**(`props`: *any*): *Element*
 
 AudioNodeEditor used to customize audio element on the scene.
 
@@ -32,4 +38,4 @@ Name | Type |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/AudioNodeEditor.tsx:19](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/properties/AudioNodeEditor.tsx#L19)
+Defined in: [packages/client-core/src/world/components/editor/properties/AudioNodeEditor.tsx:19](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/properties/AudioNodeEditor.tsx#L19)

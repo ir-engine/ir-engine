@@ -12,4 +12,10 @@ hide_title: true
 
 ### Classes
 
-- [default](../classes/src_pages__document.default.md)
+- [MyDocument](../classes/src_pages__document.mydocument.md)
+
+## References
+
+### default
+
+Renames and exports: [MyDocument](../classes/src_pages__document.mydocument.md)

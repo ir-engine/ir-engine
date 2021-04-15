@@ -12,13 +12,19 @@ hide_title: true
 
 ### Namespaces
 
-- [default](src_world_components_editor_assets_videosourcepanel.default.md)
+- [VideoSourcePanel](src_world_components_editor_assets_videosourcepanel.videosourcepanel.md)
 
-## Functions
+## References
 
 ### default
 
-▸ **default**(`props`: *any*): *Element*
+Renames and exports: [VideoSourcePanel](src_world_components_editor_assets_videosourcepanel.md#videosourcepanel)
+
+## Functions
+
+### VideoSourcePanel
+
+▸ **VideoSourcePanel**(`props`: *any*): *Element*
 
 VideoSourcePanel used to render view of MediaSourcePanel.
 
@@ -32,4 +38,4 @@ Name | Type |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/assets/VideoSourcePanel.tsx:13](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/assets/VideoSourcePanel.tsx#L13)
+Defined in: [packages/client-core/src/world/components/editor/assets/VideoSourcePanel.tsx:13](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/assets/VideoSourcePanel.tsx#L13)

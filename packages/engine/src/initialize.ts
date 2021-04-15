@@ -66,16 +66,11 @@ export const DefaultInitializationOptions = {
   editor: false // this will be changed, just a hack for now
 };
 
-<<<<<<< HEAD
 /**
  * 
  * @author Avaer Kazmer
  * @param initOptions 
  */
-export const initializeEngine = async (initOptions: any = DefaultInitializationOptions): Promise<void> => {
-  const options = _.defaultsDeep({}, initOptions, DefaultInitializationOptions);
-  const canvas = options.renderer.canvas || createCanvas();
-=======
 export const initializeEngine = async (options): Promise<void> => {
   // const options = _.defaultsDeep({}, initOptions, DefaultInitializationOptions);
   const canvas = options.renderer && options.renderer.canvas ? options.renderer.canvas : null;
@@ -84,7 +79,6 @@ export const initializeEngine = async (options): Promise<void> => {
 
   const { postProcessing } = options;
   const { useOfflineMode } = options;
->>>>>>> dev
 
   Engine.offlineMode = useOfflineMode;
 

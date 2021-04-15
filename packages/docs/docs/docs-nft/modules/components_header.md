@@ -16,7 +16,7 @@ hide_title: true
 
 #### Type declaration:
 
-Defined in: [packages/nft/src/components/Header.tsx:3](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/nft/src/components/Header.tsx#L3)
+Defined in: [packages/nft/src/components/Header.tsx:3](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/nft/src/components/Header.tsx#L3)
 
 ## Functions
 
@@ -26,4 +26,4 @@ Defined in: [packages/nft/src/components/Header.tsx:3](https://github.com/xr3ngi
 
 **Returns:** *Element*
 
-Defined in: [packages/nft/src/components/Header.tsx:7](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/nft/src/components/Header.tsx#L7)
+Defined in: [packages/nft/src/components/Header.tsx:7](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/nft/src/components/Header.tsx#L7)

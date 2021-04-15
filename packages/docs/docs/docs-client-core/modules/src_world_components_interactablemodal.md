@@ -21,7 +21,7 @@ Name | Type |
 `data` | CommonInteractiveData |
 `onClose` | *unknown* |
 
-Defined in: [packages/client-core/src/world/components/InteractableModal/index.tsx:16](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/InteractableModal/index.tsx#L16)
+Defined in: [packages/client-core/src/world/components/InteractableModal/index.tsx:16](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/InteractableModal/index.tsx#L16)
 
 ## Variables
 
@@ -29,4 +29,4 @@ Defined in: [packages/client-core/src/world/components/InteractableModal/index.t
 
 • `Const` **InteractableModal**: *FunctionComponent*<[*InteractableModalProps*](src_world_components_interactablemodal.md#interactablemodalprops)\>
 
-Defined in: [packages/client-core/src/world/components/InteractableModal/index.tsx:21](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/InteractableModal/index.tsx#L21)
+Defined in: [packages/client-core/src/world/components/InteractableModal/index.tsx:21](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/InteractableModal/index.tsx#L21)

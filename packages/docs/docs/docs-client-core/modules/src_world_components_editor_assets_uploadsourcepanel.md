@@ -12,13 +12,19 @@ hide_title: true
 
 ### Namespaces
 
-- [default](src_world_components_editor_assets_uploadsourcepanel.default.md)
+- [UploadSourcePanel](src_world_components_editor_assets_uploadsourcepanel.uploadsourcepanel.md)
 
-## Functions
+## References
 
 ### default
 
-▸ **default**(`props`: *any*): *Element*
+Renames and exports: [UploadSourcePanel](src_world_components_editor_assets_uploadsourcepanel.md#uploadsourcepanel)
+
+## Functions
+
+### UploadSourcePanel
+
+▸ **UploadSourcePanel**(`props`: *any*): *Element*
 
 UploadSourcePanel component used to render MediaSourcePanel.
 
@@ -32,4 +38,4 @@ Name | Type |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/assets/UploadSourcePanel.tsx:12](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/assets/UploadSourcePanel.tsx#L12)
+Defined in: [packages/client-core/src/world/components/editor/assets/UploadSourcePanel.tsx:12](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/assets/UploadSourcePanel.tsx#L12)

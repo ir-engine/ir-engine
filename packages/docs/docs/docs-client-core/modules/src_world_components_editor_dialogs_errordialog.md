@@ -12,4 +12,10 @@ hide_title: true
 
 ### Classes
 
-- [default](../classes/src_world_components_editor_dialogs_errordialog.default.md)
+- [ErrorDialog](../classes/src_world_components_editor_dialogs_errordialog.errordialog.md)
+
+## References
+
+### default
+
+Renames and exports: [ErrorDialog](../classes/src_world_components_editor_dialogs_errordialog.errordialog.md)

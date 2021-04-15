@@ -29,4 +29,4 @@ Name | Type |
 `proprietaryConstraints`? | *any* |
 `sctpParameters`? | SctpParameters |
 
-Defined in: [packages/server-core/src/types/MediasoupClientTransportOptions.ts:4](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/types/MediasoupClientTransportOptions.ts#L4)
+Defined in: [packages/server-core/src/types/MediasoupClientTransportOptions.ts:4](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/types/MediasoupClientTransportOptions.ts#L4)

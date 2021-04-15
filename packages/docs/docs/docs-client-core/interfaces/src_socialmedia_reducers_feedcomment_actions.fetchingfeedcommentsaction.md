@@ -16,4 +16,4 @@ hide_title: true
 
 • **type**: *string*
 
-Defined in: [packages/client-core/src/socialmedia/reducers/feedComment/actions.ts:22](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/socialmedia/reducers/feedComment/actions.ts#L22)
+Defined in: [packages/client-core/src/socialmedia/reducers/feedComment/actions.ts:22](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/socialmedia/reducers/feedComment/actions.ts#L22)

@@ -16,7 +16,7 @@ hide_title: true
 
 **Returns:** *Promise*<void\>
 
-Defined in: [NetworkFunctions.ts:63](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/gameserver/src/NetworkFunctions.ts#L63)
+Defined in: [NetworkFunctions.ts:63](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/gameserver/src/NetworkFunctions.ts#L63)
 
 ___
 
@@ -33,7 +33,7 @@ Name | Type |
 
 **Returns:** *Promise*<string\>
 
-Defined in: [NetworkFunctions.ts:17](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/gameserver/src/NetworkFunctions.ts#L17)
+Defined in: [NetworkFunctions.ts:17](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/gameserver/src/NetworkFunctions.ts#L17)
 
 ___
 
@@ -49,7 +49,7 @@ Name | Type |
 
 **Returns:** *string* \| *null*
 
-Defined in: [NetworkFunctions.ts:95](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/gameserver/src/NetworkFunctions.ts#L95)
+Defined in: [NetworkFunctions.ts:95](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/gameserver/src/NetworkFunctions.ts#L95)
 
 ___
 
@@ -70,7 +70,7 @@ Name | Type |
 
 **Returns:** *Promise*<any\>
 
-Defined in: [NetworkFunctions.ts:181](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/gameserver/src/NetworkFunctions.ts#L181)
+Defined in: [NetworkFunctions.ts:181](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/gameserver/src/NetworkFunctions.ts#L181)
 
 ___
 
@@ -86,7 +86,7 @@ Name | Type |
 
 **Returns:** *Promise*<any\>
 
-Defined in: [NetworkFunctions.ts:361](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/gameserver/src/NetworkFunctions.ts#L361)
+Defined in: [NetworkFunctions.ts:361](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/gameserver/src/NetworkFunctions.ts#L361)
 
 ___
 
@@ -102,7 +102,7 @@ Name | Type |
 
 **Returns:** *Promise*<any\>
 
-Defined in: [NetworkFunctions.ts:354](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/gameserver/src/NetworkFunctions.ts#L354)
+Defined in: [NetworkFunctions.ts:354](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/gameserver/src/NetworkFunctions.ts#L354)
 
 ___
 
@@ -119,7 +119,7 @@ Name | Type |
 
 **Returns:** *Promise*<any\>
 
-Defined in: [NetworkFunctions.ts:350](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/gameserver/src/NetworkFunctions.ts#L350)
+Defined in: [NetworkFunctions.ts:350](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/gameserver/src/NetworkFunctions.ts#L350)
 
 ___
 
@@ -139,7 +139,7 @@ Name | Type |
 
 **Returns:** *Promise*<any\>
 
-Defined in: [NetworkFunctions.ts:273](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/gameserver/src/NetworkFunctions.ts#L273)
+Defined in: [NetworkFunctions.ts:273](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/gameserver/src/NetworkFunctions.ts#L273)
 
 ___
 
@@ -157,7 +157,7 @@ Name | Type |
 
 **Returns:** *Promise*<any\>
 
-Defined in: [NetworkFunctions.ts:405](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/gameserver/src/NetworkFunctions.ts#L405)
+Defined in: [NetworkFunctions.ts:405](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/gameserver/src/NetworkFunctions.ts#L405)
 
 ___
 
@@ -167,4 +167,4 @@ ___
 
 **Returns:** *void*
 
-Defined in: [NetworkFunctions.ts:108](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/gameserver/src/NetworkFunctions.ts#L108)
+Defined in: [NetworkFunctions.ts:108](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/gameserver/src/NetworkFunctions.ts#L108)

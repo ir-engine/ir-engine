@@ -12,4 +12,10 @@ hide_title: true
 
 ### Classes
 
-- [default](../classes/media_storageprovider_s3_storage.default.md)
+- [S3Provider](../classes/media_storageprovider_s3_storage.s3provider.md)
+
+## References
+
+### default
+
+Renames and exports: [S3Provider](../classes/media_storageprovider_s3_storage.s3provider.md)

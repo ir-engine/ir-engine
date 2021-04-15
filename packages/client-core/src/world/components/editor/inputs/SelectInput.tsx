@@ -76,7 +76,7 @@ const staticStyle = {
  * @param {any} rest
  * @returns 
  */
-export default function SelectInput({
+export function SelectInput({
   value,
   options,
   onChange,
@@ -149,3 +149,4 @@ SelectInput.propTypes = {
   disabled: PropTypes.bool,
   creatable: PropTypes.bool
 };
+export default SelectInput;

@@ -12,13 +12,19 @@ hide_title: true
 
 ### Namespaces
 
-- [default](src_world_components_editor_assets_modelsourcepanel.default.md)
+- [ModelSourcePanel](src_world_components_editor_assets_modelsourcepanel.modelsourcepanel.md)
 
-## Functions
+## References
 
 ### default
 
-▸ **default**(`props`: *any*): *Element*
+Renames and exports: [ModelSourcePanel](src_world_components_editor_assets_modelsourcepanel.md#modelsourcepanel)
+
+## Functions
+
+### ModelSourcePanel
+
+▸ **ModelSourcePanel**(`props`: *any*): *Element*
 
 ModelSourcePanel used to render view containg AssetPanelToolbarContent and AssetPanelContentContainer.
 
@@ -32,4 +38,4 @@ Name | Type |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/assets/ModelSourcePanel.tsx:13](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/assets/ModelSourcePanel.tsx#L13)
+Defined in: [packages/client-core/src/world/components/editor/assets/ModelSourcePanel.tsx:13](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/assets/ModelSourcePanel.tsx#L13)

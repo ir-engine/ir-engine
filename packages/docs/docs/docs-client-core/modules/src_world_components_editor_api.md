@@ -42,4 +42,4 @@ Name | Type |
 
 [returns url to get scaled image]
 
-Defined in: [packages/client-core/src/world/components/editor/Api.tsx:58](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/Api.tsx#L58)
+Defined in: [packages/client-core/src/world/components/editor/Api.tsx:58](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/Api.tsx#L58)

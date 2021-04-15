@@ -24,4 +24,4 @@ Name | Type |
 `randomize` | *boolean* |
 `templates` | { `type`: *string* = 'friend' }[] |
 
-Defined in: [packages/server-core/src/social/invite-type/invite-type.seed.ts:3](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/social/invite-type/invite-type.seed.ts#L3)
+Defined in: [packages/server-core/src/social/invite-type/invite-type.seed.ts:3](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/social/invite-type/invite-type.seed.ts#L3)

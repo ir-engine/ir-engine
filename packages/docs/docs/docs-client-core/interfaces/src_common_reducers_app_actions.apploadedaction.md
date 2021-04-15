@@ -26,7 +26,7 @@ hide_title: true
 
 • **loaded**: *boolean*
 
-Defined in: [packages/client-core/src/common/reducers/app/actions.ts:18](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/common/reducers/app/actions.ts#L18)
+Defined in: [packages/client-core/src/common/reducers/app/actions.ts:18](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/common/reducers/app/actions.ts#L18)
 
 ___
 
@@ -36,4 +36,4 @@ ___
 
 Inherited from: Action.type
 
-Defined in: [packages/client-core/src/common/reducers/app/actions.ts:14](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/common/reducers/app/actions.ts#L14)
+Defined in: [packages/client-core/src/common/reducers/app/actions.ts:14](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/common/reducers/app/actions.ts#L14)

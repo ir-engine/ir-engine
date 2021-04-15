@@ -16,7 +16,7 @@ hide_title: true
 
 • **selfUser**: User
 
-Defined in: [packages/client-core/src/social/reducers/friend/actions.ts:28](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/friend/actions.ts#L28)
+Defined in: [packages/client-core/src/social/reducers/friend/actions.ts:28](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/social/reducers/friend/actions.ts#L28)
 
 ___
 
@@ -24,7 +24,7 @@ ___
 
 • **type**: *string*
 
-Defined in: [packages/client-core/src/social/reducers/friend/actions.ts:26](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/friend/actions.ts#L26)
+Defined in: [packages/client-core/src/social/reducers/friend/actions.ts:26](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/social/reducers/friend/actions.ts#L26)
 
 ___
 
@@ -32,4 +32,4 @@ ___
 
 • **userRelationship**: UserRelationship
 
-Defined in: [packages/client-core/src/social/reducers/friend/actions.ts:27](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/friend/actions.ts#L27)
+Defined in: [packages/client-core/src/social/reducers/friend/actions.ts:27](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/social/reducers/friend/actions.ts#L27)

@@ -18,7 +18,7 @@ initializing EditorContext.
 
 **`author`** Robert Long
 
-Defined in: [packages/client-core/src/world/components/editor/contexts/EditorContext.tsx:8](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/contexts/EditorContext.tsx#L8)
+Defined in: [packages/client-core/src/world/components/editor/contexts/EditorContext.tsx:8](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/contexts/EditorContext.tsx#L8)
 
 ___
 
@@ -30,7 +30,7 @@ EditorContextProvider used to access value of component context.
 
 **`author`** Robert Long
 
-Defined in: [packages/client-core/src/world/components/editor/contexts/EditorContext.tsx:15](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/contexts/EditorContext.tsx#L15)
+Defined in: [packages/client-core/src/world/components/editor/contexts/EditorContext.tsx:15](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/contexts/EditorContext.tsx#L15)
 
 ## Functions
 
@@ -50,4 +50,4 @@ Name | Type |
 
 **Returns:** (`props`: *any*) => *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/contexts/EditorContext.tsx:22](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/contexts/EditorContext.tsx#L22)
+Defined in: [packages/client-core/src/world/components/editor/contexts/EditorContext.tsx:22](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/contexts/EditorContext.tsx#L22)

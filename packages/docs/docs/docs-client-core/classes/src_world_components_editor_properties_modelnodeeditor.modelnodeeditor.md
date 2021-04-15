@@ -39,7 +39,7 @@ Overrides: Component&lt;
   ModelNodeEditorState
 &gt;.constructor
 
-Defined in: [packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx:65](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx#L65)
+Defined in: [packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx:65](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx#L65)
 
 ## Properties
 
@@ -135,7 +135,7 @@ ___
 
 ▪ `Static` **description**: *string*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx:87](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx#L87)
+Defined in: [packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx:87](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx#L87)
 
 ___
 
@@ -143,7 +143,7 @@ ___
 
 ▪ `Static` **iconComponent**: StyledIcon
 
-Defined in: [packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx:90](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx#L90)
+Defined in: [packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx:90](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx#L90)
 
 ## Methods
 
@@ -274,7 +274,7 @@ ___
 
 Overrides: Component.componentDidMount
 
-Defined in: [packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx:75](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx#L75)
+Defined in: [packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx:75](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx#L75)
 
 ___
 
@@ -458,7 +458,7 @@ ___
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx:182](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx#L182)
+Defined in: [packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx:182](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx#L182)
 
 ___
 
@@ -474,7 +474,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx:100](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx#L100)
+Defined in: [packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx:100](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx#L100)
 
 ___
 
@@ -490,7 +490,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx:120](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx#L120)
+Defined in: [packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx:120](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx#L120)
 
 ___
 
@@ -506,7 +506,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx:105](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx#L105)
+Defined in: [packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx:105](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx#L105)
 
 ___
 
@@ -522,7 +522,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx:130](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx#L130)
+Defined in: [packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx:130](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx#L130)
 
 ___
 
@@ -538,7 +538,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx:140](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx#L140)
+Defined in: [packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx:140](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx#L140)
 
 ___
 
@@ -554,7 +554,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx:135](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx#L135)
+Defined in: [packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx:135](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx#L135)
 
 ___
 
@@ -570,7 +570,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx:167](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx#L167)
+Defined in: [packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx:167](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx#L167)
 
 ___
 
@@ -586,7 +586,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx:177](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx#L177)
+Defined in: [packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx:177](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx#L177)
 
 ___
 
@@ -602,7 +602,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx:172](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx#L172)
+Defined in: [packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx:172](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx#L172)
 
 ___
 
@@ -618,7 +618,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx:145](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx#L145)
+Defined in: [packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx:145](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx#L145)
 
 ___
 
@@ -634,7 +634,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx:162](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx#L162)
+Defined in: [packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx:162](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx#L162)
 
 ___
 
@@ -650,7 +650,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx:125](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx#L125)
+Defined in: [packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx:125](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx#L125)
 
 ___
 
@@ -666,7 +666,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx:150](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx#L150)
+Defined in: [packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx:150](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx#L150)
 
 ___
 
@@ -682,7 +682,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx:110](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx#L110)
+Defined in: [packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx:110](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx#L110)
 
 ___
 
@@ -699,7 +699,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx:93](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx#L93)
+Defined in: [packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx:93](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx#L93)
 
 ___
 
@@ -715,7 +715,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx:155](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx#L155)
+Defined in: [packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx:155](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx#L155)
 
 ___
 
@@ -731,7 +731,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx:115](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx#L115)
+Defined in: [packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx:115](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx#L115)
 
 ___
 
@@ -743,7 +743,7 @@ ___
 
 Overrides: Component.render
 
-Defined in: [packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx:333](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx#L333)
+Defined in: [packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx:333](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx#L333)
 
 ___
 
@@ -759,7 +759,7 @@ Name | Type |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx:305](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx#L305)
+Defined in: [packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx:305](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx#L305)
 
 ___
 
@@ -775,7 +775,7 @@ Name | Type |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx:193](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx#L193)
+Defined in: [packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx:193](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/properties/ModelNodeEditor.tsx#L193)
 
 ___
 

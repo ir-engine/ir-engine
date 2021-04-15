@@ -20,7 +20,7 @@ const assetTypeToItemType = {
   video: ItemTypes.Video,
   audio: ItemTypes.Audio
 };
-export default class MyAssetsSource extends BaseSource {
+export class MyAssetsSource extends BaseSource {
   component: typeof UploadSourcePanel;
   editor: Editor;
   tags: { label: string; value: string }[];
@@ -109,3 +109,4 @@ export default class MyAssetsSource extends BaseSource {
     };
   }
 }
+export default MyAssetsSource;

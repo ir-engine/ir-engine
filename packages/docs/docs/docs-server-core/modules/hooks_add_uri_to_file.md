@@ -20,4 +20,4 @@ hide_title: true
 
 **Returns:** *Hook*<any, Service<any\>\>
 
-Defined in: [packages/server-core/src/hooks/add-uri-to-file.ts:5](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/hooks/add-uri-to-file.ts#L5)
+Defined in: [packages/server-core/src/hooks/add-uri-to-file.ts:5](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/hooks/add-uri-to-file.ts#L5)

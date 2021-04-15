@@ -12,7 +12,13 @@ hide_title: true
 
 ### Namespaces
 
-- [default](src_world_components_editor_dialogs_dialog.default.md)
+- [Dialog](src_world_components_editor_dialogs_dialog.dialog.md)
+
+## References
+
+### default
+
+Renames and exports: [Dialog](src_world_components_editor_dialogs_dialog.md#dialog)
 
 ## Variables
 
@@ -24,13 +30,13 @@ DialogContent used to provide styles for dialog body content.
 
 **`author`** Robert Long
 
-Defined in: [packages/client-core/src/world/components/editor/dialogs/Dialog.tsx:56](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/dialogs/Dialog.tsx#L56)
+Defined in: [packages/client-core/src/world/components/editor/dialogs/Dialog.tsx:56](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/dialogs/Dialog.tsx#L56)
 
 ## Functions
 
-### default
+### Dialog
 
-▸ **default**(`props`: Props): *Element*
+▸ **Dialog**(`props`: Props): *Element*
 
 Dialog used to render view for Dialog which contains form.
 
@@ -44,4 +50,4 @@ Name | Type |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/dialogs/Dialog.tsx:132](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/dialogs/Dialog.tsx#L132)
+Defined in: [packages/client-core/src/world/components/editor/dialogs/Dialog.tsx:132](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/dialogs/Dialog.tsx#L132)

@@ -20,4 +20,4 @@ Renames and exports: [paymentSeeds](payments_seeder_config.md#paymentseeds)
 
 • `Const` **paymentSeeds**: ServicesSeedConfig[]= []
 
-Defined in: [packages/server-core/src/payments/seeder-config.ts:3](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/payments/seeder-config.ts#L3)
+Defined in: [packages/server-core/src/payments/seeder-config.ts:3](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/payments/seeder-config.ts#L3)

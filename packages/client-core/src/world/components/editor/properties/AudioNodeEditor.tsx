@@ -16,7 +16,7 @@ import { useTranslation } from "react-i18next";
  * @param       {Object} props
  * @constructor
  */
-export default function AudioNodeEditor(props) {
+export function AudioNodeEditor(props) {
   const { editor, node } = props;
   const { t } = useTranslation();
   
@@ -53,3 +53,4 @@ AudioNodeEditor.iconComponent = VolumeUp;
 //setting description for the element
 //shows this description in NodeEditor with title of element
 AudioNodeEditor.description = i18n.t('editor:properties.audio.description');
+export default AudioNodeEditor;

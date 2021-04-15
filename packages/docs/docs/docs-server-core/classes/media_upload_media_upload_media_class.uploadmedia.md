@@ -33,7 +33,7 @@ Name | Type | Default value |
 
 **Returns:** [*UploadMedia*](media_upload_media_upload_media_class.uploadmedia.md)
 
-Defined in: [packages/server-core/src/media/upload-media/upload-media.class.ts:15](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/media/upload-media/upload-media.class.ts#L15)
+Defined in: [packages/server-core/src/media/upload-media/upload-media.class.ts:15](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/media/upload-media/upload-media.class.ts#L15)
 
 ## Properties
 
@@ -41,7 +41,7 @@ Defined in: [packages/server-core/src/media/upload-media/upload-media.class.ts:1
 
 • **app**: Application
 
-Defined in: [packages/server-core/src/media/upload-media/upload-media.class.ts:14](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/media/upload-media/upload-media.class.ts#L14)
+Defined in: [packages/server-core/src/media/upload-media/upload-media.class.ts:14](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/media/upload-media/upload-media.class.ts#L14)
 
 ___
 
@@ -49,7 +49,7 @@ ___
 
 • **options**: ServiceOptions
 
-Defined in: [packages/server-core/src/media/upload-media/upload-media.class.ts:15](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/media/upload-media/upload-media.class.ts#L15)
+Defined in: [packages/server-core/src/media/upload-media/upload-media.class.ts:15](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/media/upload-media/upload-media.class.ts#L15)
 
 ## Methods
 
@@ -68,7 +68,7 @@ Name | Type |
 
 Implementation of: ServiceMethods.create
 
-Defined in: [packages/server-core/src/media/upload-media/upload-media.class.ts:30](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/media/upload-media/upload-media.class.ts#L30)
+Defined in: [packages/server-core/src/media/upload-media/upload-media.class.ts:30](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/media/upload-media/upload-media.class.ts#L30)
 
 ___
 
@@ -86,7 +86,7 @@ Name | Type |
 
 Implementation of: ServiceMethods.find
 
-Defined in: [packages/server-core/src/media/upload-media/upload-media.class.ts:22](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/media/upload-media/upload-media.class.ts#L22)
+Defined in: [packages/server-core/src/media/upload-media/upload-media.class.ts:22](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/media/upload-media/upload-media.class.ts#L22)
 
 ___
 
@@ -105,7 +105,7 @@ Name | Type |
 
 Implementation of: ServiceMethods.get
 
-Defined in: [packages/server-core/src/media/upload-media/upload-media.class.ts:26](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/media/upload-media/upload-media.class.ts#L26)
+Defined in: [packages/server-core/src/media/upload-media/upload-media.class.ts:26](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/media/upload-media/upload-media.class.ts#L26)
 
 ___
 
@@ -125,7 +125,7 @@ Name | Type |
 
 Implementation of: ServiceMethods.patch
 
-Defined in: [packages/server-core/src/media/upload-media/upload-media.class.ts:42](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/media/upload-media/upload-media.class.ts#L42)
+Defined in: [packages/server-core/src/media/upload-media/upload-media.class.ts:42](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/media/upload-media/upload-media.class.ts#L42)
 
 ___
 
@@ -144,7 +144,7 @@ Name | Type |
 
 Implementation of: ServiceMethods.remove
 
-Defined in: [packages/server-core/src/media/upload-media/upload-media.class.ts:46](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/media/upload-media/upload-media.class.ts#L46)
+Defined in: [packages/server-core/src/media/upload-media/upload-media.class.ts:46](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/media/upload-media/upload-media.class.ts#L46)
 
 ___
 
@@ -164,4 +164,4 @@ Name | Type |
 
 Implementation of: ServiceMethods.update
 
-Defined in: [packages/server-core/src/media/upload-media/upload-media.class.ts:38](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/media/upload-media/upload-media.class.ts#L38)
+Defined in: [packages/server-core/src/media/upload-media/upload-media.class.ts:38](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/media/upload-media/upload-media.class.ts#L38)

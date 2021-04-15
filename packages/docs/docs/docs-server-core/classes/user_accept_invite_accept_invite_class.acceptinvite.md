@@ -31,7 +31,7 @@ Name | Type | Default value |
 
 **Returns:** [*AcceptInvite*](user_accept_invite_accept_invite_class.acceptinvite.md)
 
-Defined in: [packages/server-core/src/user/accept-invite/accept-invite.class.ts:17](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/user/accept-invite/accept-invite.class.ts#L17)
+Defined in: [packages/server-core/src/user/accept-invite/accept-invite.class.ts:17](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/user/accept-invite/accept-invite.class.ts#L17)
 
 ## Properties
 
@@ -39,7 +39,7 @@ Defined in: [packages/server-core/src/user/accept-invite/accept-invite.class.ts:
 
 • **app**: Application
 
-Defined in: [packages/server-core/src/user/accept-invite/accept-invite.class.ts:15](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/user/accept-invite/accept-invite.class.ts#L15)
+Defined in: [packages/server-core/src/user/accept-invite/accept-invite.class.ts:15](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/user/accept-invite/accept-invite.class.ts#L15)
 
 ___
 
@@ -47,7 +47,7 @@ ___
 
 • **docs**: *any*
 
-Defined in: [packages/server-core/src/user/accept-invite/accept-invite.class.ts:17](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/user/accept-invite/accept-invite.class.ts#L17)
+Defined in: [packages/server-core/src/user/accept-invite/accept-invite.class.ts:17](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/user/accept-invite/accept-invite.class.ts#L17)
 
 ___
 
@@ -55,7 +55,7 @@ ___
 
 • **options**: ServiceOptions
 
-Defined in: [packages/server-core/src/user/accept-invite/accept-invite.class.ts:16](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/user/accept-invite/accept-invite.class.ts#L16)
+Defined in: [packages/server-core/src/user/accept-invite/accept-invite.class.ts:16](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/user/accept-invite/accept-invite.class.ts#L16)
 
 ## Methods
 
@@ -78,7 +78,7 @@ Name | Type | Description |
 
 Implementation of: ServiceMethods.create
 
-Defined in: [packages/server-core/src/user/accept-invite/accept-invite.class.ts:284](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/user/accept-invite/accept-invite.class.ts#L284)
+Defined in: [packages/server-core/src/user/accept-invite/accept-invite.class.ts:284](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/user/accept-invite/accept-invite.class.ts#L284)
 
 ___
 
@@ -102,7 +102,7 @@ Name | Type | Description |
 
 Implementation of: ServiceMethods.find
 
-Defined in: [packages/server-core/src/user/accept-invite/accept-invite.class.ts:32](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/user/accept-invite/accept-invite.class.ts#L32)
+Defined in: [packages/server-core/src/user/accept-invite/accept-invite.class.ts:32](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/user/accept-invite/accept-invite.class.ts#L32)
 
 ___
 
@@ -127,7 +127,7 @@ Name | Type | Description |
 
 Implementation of: ServiceMethods.get
 
-Defined in: [packages/server-core/src/user/accept-invite/accept-invite.class.ts:45](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/user/accept-invite/accept-invite.class.ts#L45)
+Defined in: [packages/server-core/src/user/accept-invite/accept-invite.class.ts:45](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/user/accept-invite/accept-invite.class.ts#L45)
 
 ___
 
@@ -153,7 +153,7 @@ Data
 
 Implementation of: ServiceMethods.patch
 
-Defined in: [packages/server-core/src/user/accept-invite/accept-invite.class.ts:314](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/user/accept-invite/accept-invite.class.ts#L314)
+Defined in: [packages/server-core/src/user/accept-invite/accept-invite.class.ts:314](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/user/accept-invite/accept-invite.class.ts#L314)
 
 ___
 
@@ -178,7 +178,7 @@ id
 
 Implementation of: ServiceMethods.remove
 
-Defined in: [packages/server-core/src/user/accept-invite/accept-invite.class.ts:325](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/user/accept-invite/accept-invite.class.ts#L325)
+Defined in: [packages/server-core/src/user/accept-invite/accept-invite.class.ts:325](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/user/accept-invite/accept-invite.class.ts#L325)
 
 ___
 
@@ -204,4 +204,4 @@ Data
 
 Implementation of: ServiceMethods.update
 
-Defined in: [packages/server-core/src/user/accept-invite/accept-invite.class.ts:301](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/user/accept-invite/accept-invite.class.ts#L301)
+Defined in: [packages/server-core/src/user/accept-invite/accept-invite.class.ts:301](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/user/accept-invite/accept-invite.class.ts#L301)

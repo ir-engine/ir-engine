@@ -30,7 +30,7 @@ Name | Type |
 `locations.total` | *number* |
 `updateNeeded` | *boolean* |
 
-Defined in: [packages/client-core/src/social/reducers/location/reducers.ts:16](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/location/reducers.ts#L16)
+Defined in: [packages/client-core/src/social/reducers/location/reducers.ts:16](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/social/reducers/location/reducers.ts#L16)
 
 ## Functions
 
@@ -47,4 +47,4 @@ Name | Type |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/src/social/reducers/location/reducers.ts:34](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/location/reducers.ts#L34)
+Defined in: [packages/client-core/src/social/reducers/location/reducers.ts:34](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/social/reducers/location/reducers.ts#L34)

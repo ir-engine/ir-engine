@@ -12,13 +12,19 @@ hide_title: true
 
 ### Namespaces
 
-- [default](src_world_components_editor_inputs_audioinput.default.md)
+- [AudioInput](src_world_components_editor_inputs_audioinput.audioinput.md)
 
-## Functions
+## References
 
 ### default
 
-▸ **default**(`__namedParameters`: *Object*): *Element*
+Renames and exports: [AudioInput](src_world_components_editor_inputs_audioinput.md#audioinput)
+
+## Functions
+
+### AudioInput
+
+▸ **AudioInput**(`__namedParameters`: *Object*): *Element*
 
 AudioInput used to provide view.
 
@@ -32,4 +38,4 @@ Name | Type |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/inputs/AudioInput.tsx:29](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/inputs/AudioInput.tsx#L29)
+Defined in: [packages/client-core/src/world/components/editor/inputs/AudioInput.tsx:29](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/inputs/AudioInput.tsx#L29)

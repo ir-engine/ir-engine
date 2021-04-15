@@ -12,13 +12,19 @@ hide_title: true
 
 ### Namespaces
 
-- [default](src_world_components_editor_toolbar_toolbutton.default.md)
+- [ToolButton](src_world_components_editor_toolbar_toolbutton.toolbutton.md)
 
-## Functions
+## References
 
 ### default
 
-▸ **default**(`__namedParameters`: *Object*): *Element*
+Renames and exports: [ToolButton](src_world_components_editor_toolbar_toolbutton.md#toolbutton)
+
+## Functions
+
+### ToolButton
+
+▸ **ToolButton**(`__namedParameters`: *Object*): *Element*
 
 **`author`** Robert Long
 
@@ -30,4 +36,4 @@ Name | Type |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/toolbar/ToolButton.tsx:45](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/toolbar/ToolButton.tsx#L45)
+Defined in: [packages/client-core/src/world/components/editor/toolbar/ToolButton.tsx:45](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/toolbar/ToolButton.tsx#L45)

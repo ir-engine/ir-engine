@@ -12,13 +12,19 @@ hide_title: true
 
 ### Namespaces
 
-- [default](src_world_components_editor_dialogs_savenewprojectdialog.default.md)
+- [SaveNewProjectDialog](src_world_components_editor_dialogs_savenewprojectdialog.savenewprojectdialog.md)
 
-## Functions
+## References
 
 ### default
 
-▸ **default**(`__namedParameters`: *Object*): *Element*
+Renames and exports: [SaveNewProjectDialog](src_world_components_editor_dialogs_savenewprojectdialog.md#savenewprojectdialog)
+
+## Functions
+
+### SaveNewProjectDialog
+
+▸ **SaveNewProjectDialog**(`__namedParameters`: *Object*): *Element*
 
 SaveNewProjectDialog used to show dialog when to save new project.
 
@@ -32,4 +38,4 @@ Name | Type |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/dialogs/SaveNewProjectDialog.tsx:18](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/dialogs/SaveNewProjectDialog.tsx#L18)
+Defined in: [packages/client-core/src/world/components/editor/dialogs/SaveNewProjectDialog.tsx:18](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/dialogs/SaveNewProjectDialog.tsx#L18)

@@ -12,7 +12,7 @@ import styles from "./Stats.module.scss";
  * @param   {any} editor
  * @constructor
  */
-export default function Stats({ editor }) {
+export function Stats({ editor }) {
   const [info, setInfo] = useState(0);
   const { t } = useTranslation();
 
@@ -75,3 +75,4 @@ export default function Stats({ editor }) {
 Stats.propTypes = {
   editor: PropTypes.object
 };
+export default Stats;

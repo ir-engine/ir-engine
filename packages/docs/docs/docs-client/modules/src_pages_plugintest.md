@@ -22,4 +22,4 @@ Renames and exports: [IndexPage](src_pages_plugintest.md#indexpage)
 
 **Returns:** *any*
 
-Defined in: [packages/client/src/pages/plugintest.tsx:6](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client/src/pages/plugintest.tsx#L6)
+Defined in: [packages/client/src/pages/plugintest.tsx:6](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client/src/pages/plugintest.tsx#L6)

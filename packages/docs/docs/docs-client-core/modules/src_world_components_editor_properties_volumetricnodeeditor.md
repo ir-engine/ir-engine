@@ -12,13 +12,19 @@ hide_title: true
 
 ### Namespaces
 
-- [default](src_world_components_editor_properties_volumetricnodeeditor.default.md)
+- [VolumetricNodeEditor](src_world_components_editor_properties_volumetricnodeeditor.volumetricnodeeditor.md)
 
-## Functions
+## References
 
 ### default
 
-▸ **default**(`props`: *any*): *Element*
+Renames and exports: [VolumetricNodeEditor](src_world_components_editor_properties_volumetricnodeeditor.md#volumetricnodeeditor)
+
+## Functions
+
+### VolumetricNodeEditor
+
+▸ **VolumetricNodeEditor**(`props`: *any*): *Element*
 
 VolumetricNodeEditor provides the editor view to customize properties.
 
@@ -32,4 +38,4 @@ Name | Type |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/VolumetricNodeEditor.tsx:20](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/properties/VolumetricNodeEditor.tsx#L20)
+Defined in: [packages/client-core/src/world/components/editor/properties/VolumetricNodeEditor.tsx:20](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/properties/VolumetricNodeEditor.tsx#L20)

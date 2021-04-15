@@ -12,13 +12,19 @@ hide_title: true
 
 ### Namespaces
 
-- [default](src_world_components_editor_projects_stylablecontextmenutrigger.default.md)
+- [StylableContextMenuTrigger](src_world_components_editor_projects_stylablecontextmenutrigger.stylablecontextmenutrigger.md)
 
-## Functions
+## References
 
 ### default
 
-▸ **default**(`__namedParameters`: *Object*): *Element*
+Renames and exports: [StylableContextMenuTrigger](src_world_components_editor_projects_stylablecontextmenutrigger.md#stylablecontextmenutrigger)
+
+## Functions
+
+### StylableContextMenuTrigger
+
+▸ **StylableContextMenuTrigger**(`__namedParameters`: *Object*): *Element*
 
 **`author`** Robert Long
 
@@ -30,4 +36,4 @@ Name | Type |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/projects/StylableContextMenuTrigger.tsx:14](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/projects/StylableContextMenuTrigger.tsx#L14)
+Defined in: [packages/client-core/src/world/components/editor/projects/StylableContextMenuTrigger.tsx:14](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/projects/StylableContextMenuTrigger.tsx#L14)

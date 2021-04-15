@@ -12,13 +12,19 @@ hide_title: true
 
 ### Namespaces
 
-- [default](src_world_components_editor_hierarchy_nodeissuesicon.default.md)
+- [NodeIssuesIcon](src_world_components_editor_hierarchy_nodeissuesicon.nodeissuesicon.md)
 
-## Functions
+## References
 
 ### default
 
-▸ **default**(`__namedParameters`: *Object*): *Element*
+Renames and exports: [NodeIssuesIcon](src_world_components_editor_hierarchy_nodeissuesicon.md#nodeissuesicon)
+
+## Functions
+
+### NodeIssuesIcon
+
+▸ **NodeIssuesIcon**(`__namedParameters`: *Object*): *Element*
 
 NodeIssuesIcon function component used to provide view of issues list.
 
@@ -32,4 +38,4 @@ Name | Type |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/hierarchy/NodeIssuesIcon.tsx:58](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/hierarchy/NodeIssuesIcon.tsx#L58)
+Defined in: [packages/client-core/src/world/components/editor/hierarchy/NodeIssuesIcon.tsx:58](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/hierarchy/NodeIssuesIcon.tsx#L58)

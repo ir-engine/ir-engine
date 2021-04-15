@@ -24,4 +24,4 @@ Name | Type |
 `peerId`? | *string* |
 `sctpCapabilities` | SctpCapabilities |
 
-Defined in: [packages/server-core/src/types/WebRtcTransportParams.ts:18](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/types/WebRtcTransportParams.ts#L18)
+Defined in: [packages/server-core/src/types/WebRtcTransportParams.ts:18](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/types/WebRtcTransportParams.ts#L18)

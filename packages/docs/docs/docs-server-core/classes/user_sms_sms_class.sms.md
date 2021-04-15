@@ -33,7 +33,7 @@ Name | Type | Default value |
 
 **Returns:** [*Sms*](user_sms_sms_class.sms.md)
 
-Defined in: [packages/server-core/src/user/sms/sms.class.ts:17](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/user/sms/sms.class.ts#L17)
+Defined in: [packages/server-core/src/user/sms/sms.class.ts:17](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/user/sms/sms.class.ts#L17)
 
 ## Properties
 
@@ -41,7 +41,7 @@ Defined in: [packages/server-core/src/user/sms/sms.class.ts:17](https://github.c
 
 • **app**: Application
 
-Defined in: [packages/server-core/src/user/sms/sms.class.ts:15](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/user/sms/sms.class.ts#L15)
+Defined in: [packages/server-core/src/user/sms/sms.class.ts:15](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/user/sms/sms.class.ts#L15)
 
 ___
 
@@ -49,7 +49,7 @@ ___
 
 • **docs**: *any*
 
-Defined in: [packages/server-core/src/user/sms/sms.class.ts:17](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/user/sms/sms.class.ts#L17)
+Defined in: [packages/server-core/src/user/sms/sms.class.ts:17](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/user/sms/sms.class.ts#L17)
 
 ___
 
@@ -57,7 +57,7 @@ ___
 
 • **options**: ServiceOptions
 
-Defined in: [packages/server-core/src/user/sms/sms.class.ts:16](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/user/sms/sms.class.ts#L16)
+Defined in: [packages/server-core/src/user/sms/sms.class.ts:16](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/user/sms/sms.class.ts#L16)
 
 ## Methods
 
@@ -76,7 +76,7 @@ Name | Type |
 
 Implementation of: ServiceMethods.create
 
-Defined in: [packages/server-core/src/user/sms/sms.class.ts:34](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/user/sms/sms.class.ts#L34)
+Defined in: [packages/server-core/src/user/sms/sms.class.ts:34](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/user/sms/sms.class.ts#L34)
 
 ___
 
@@ -94,7 +94,7 @@ Name | Type |
 
 Implementation of: ServiceMethods.find
 
-Defined in: [packages/server-core/src/user/sms/sms.class.ts:24](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/user/sms/sms.class.ts#L24)
+Defined in: [packages/server-core/src/user/sms/sms.class.ts:24](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/user/sms/sms.class.ts#L24)
 
 ___
 
@@ -113,7 +113,7 @@ Name | Type |
 
 Implementation of: ServiceMethods.get
 
-Defined in: [packages/server-core/src/user/sms/sms.class.ts:28](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/user/sms/sms.class.ts#L28)
+Defined in: [packages/server-core/src/user/sms/sms.class.ts:28](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/user/sms/sms.class.ts#L28)
 
 ___
 
@@ -133,7 +133,7 @@ Name | Type |
 
 Implementation of: ServiceMethods.patch
 
-Defined in: [packages/server-core/src/user/sms/sms.class.ts:47](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/user/sms/sms.class.ts#L47)
+Defined in: [packages/server-core/src/user/sms/sms.class.ts:47](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/user/sms/sms.class.ts#L47)
 
 ___
 
@@ -152,7 +152,7 @@ Name | Type |
 
 Implementation of: ServiceMethods.remove
 
-Defined in: [packages/server-core/src/user/sms/sms.class.ts:51](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/user/sms/sms.class.ts#L51)
+Defined in: [packages/server-core/src/user/sms/sms.class.ts:51](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/user/sms/sms.class.ts#L51)
 
 ___
 
@@ -172,4 +172,4 @@ Name | Type |
 
 Implementation of: ServiceMethods.update
 
-Defined in: [packages/server-core/src/user/sms/sms.class.ts:43](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/server-core/src/user/sms/sms.class.ts#L43)
+Defined in: [packages/server-core/src/user/sms/sms.class.ts:43](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/user/sms/sms.class.ts#L43)

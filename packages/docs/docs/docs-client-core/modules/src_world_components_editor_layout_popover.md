@@ -12,13 +12,19 @@ hide_title: true
 
 ### Namespaces
 
-- [default](src_world_components_editor_layout_popover.default.md)
+- [Popover](src_world_components_editor_layout_popover.popover.md)
 
-## Functions
+## References
 
 ### default
 
-▸ **default**(`__namedParameters`: *Object*): *Element*
+Renames and exports: [Popover](src_world_components_editor_layout_popover.md#popover)
+
+## Functions
+
+### Popover
+
+▸ **Popover**(`__namedParameters`: *Object*): *Element*
 
 **`author`** Robert Long
 
@@ -30,4 +36,4 @@ Name | Type |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/layout/Popover.tsx:18](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/world/components/editor/layout/Popover.tsx#L18)
+Defined in: [packages/client-core/src/world/components/editor/layout/Popover.tsx:18](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/layout/Popover.tsx#L18)

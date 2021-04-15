@@ -16,7 +16,7 @@ hide_title: true
 
 • **invites**: Invite[]
 
-Defined in: [packages/client-core/src/social/reducers/invite/actions.ts:34](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/invite/actions.ts#L34)
+Defined in: [packages/client-core/src/social/reducers/invite/actions.ts:34](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/social/reducers/invite/actions.ts#L34)
 
 ___
 
@@ -24,7 +24,7 @@ ___
 
 • **limit**: *number*
 
-Defined in: [packages/client-core/src/social/reducers/invite/actions.ts:36](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/invite/actions.ts#L36)
+Defined in: [packages/client-core/src/social/reducers/invite/actions.ts:36](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/social/reducers/invite/actions.ts#L36)
 
 ___
 
@@ -32,7 +32,7 @@ ___
 
 • **skip**: *number*
 
-Defined in: [packages/client-core/src/social/reducers/invite/actions.ts:37](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/invite/actions.ts#L37)
+Defined in: [packages/client-core/src/social/reducers/invite/actions.ts:37](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/social/reducers/invite/actions.ts#L37)
 
 ___
 
@@ -40,7 +40,7 @@ ___
 
 • **total**: *number*
 
-Defined in: [packages/client-core/src/social/reducers/invite/actions.ts:35](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/invite/actions.ts#L35)
+Defined in: [packages/client-core/src/social/reducers/invite/actions.ts:35](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/social/reducers/invite/actions.ts#L35)
 
 ___
 
@@ -48,4 +48,4 @@ ___
 
 • **type**: *string*
 
-Defined in: [packages/client-core/src/social/reducers/invite/actions.ts:33](https://github.com/xr3ngine/xr3ngine/blob/77d12cea0/packages/client-core/src/social/reducers/invite/actions.ts#L33)
+Defined in: [packages/client-core/src/social/reducers/invite/actions.ts:33](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/social/reducers/invite/actions.ts#L33)

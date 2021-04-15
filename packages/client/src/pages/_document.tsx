@@ -8,7 +8,7 @@ import { ServerStyleSheet } from 'styled-components';
 const { publicRuntimeConfig } = getConfig();
 const siteDescription: string = publicRuntimeConfig.siteDescription;
 
-export default class MyDocument extends Document {
+export class MyDocument extends Document {
   static async getInitialProps(ctx) {
     // Resolution order
     //
@@ -82,3 +82,4 @@ export default class MyDocument extends Document {
     );
   }
 }
+export default MyDocument;
