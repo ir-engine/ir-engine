@@ -29,6 +29,7 @@ class SceneGallery extends Object3D {
     this.marketPlace.add(ov);
     this.pickables.push(ov);    
 
+    var marketPlacePanels = [];
     for(let i= 0;i<3;i++){
       for(let j=0;j<2;j++){
 
@@ -40,7 +41,13 @@ class SceneGallery extends Object3D {
       
         this.marketPlace.add(panel);
 
-        this.pickables.push(panel);
+        this.pickables.push(panel.container);
+        this.pickables.push(panel.button1);
+        this.pickables.push(panel.button2);
+        this.pickables.push(panel.button3);
+
+        marketPlacePanels.push(panel);
+
         // panel.pick = (state) => {
         //   if(state){
         //     // this.library.visible = false;
@@ -51,6 +58,11 @@ class SceneGallery extends Object3D {
       }
     }
 
+    marketPlacePanels.forEach(e => {
+      e.siblings = marketPlacePanels;
+    });
+
+    var libraryPanels = [];
     for(let i= 0;i<3;i++){
       for(let j=0;j<3;j++){
 
@@ -62,7 +74,12 @@ class SceneGallery extends Object3D {
       
         this.library.add(panel);
 
-        this.pickables.push(panel);
+        this.pickables.push(panel.container);
+        this.pickables.push(panel.button1);
+        this.pickables.push(panel.button2);
+        this.pickables.push(panel.button3);
+
+        libraryPanels.push(panel);
         // panel.pick = (state) => {
         //   if(state){
         //     // this.library.visible = false;
@@ -72,6 +89,10 @@ class SceneGallery extends Object3D {
         // }
       }
     }
+
+    libraryPanels.forEach(e => {
+      e.siblings = libraryPanels;
+    });
 
     const button1 = new SceneButton('Marketplace', 0);
     const button2 = new SceneButton('Library', 1);
@@ -101,13 +122,16 @@ class SceneGallery extends Object3D {
 
     this.pickables.push(button1);
     this.pickables.push(button2);
+
+    this.position.set(0, 1, 0);
+    this.rotation.y = Math.PI;
   }
 
   update(){
-    console.log('updateee engine last time:', Engine.tick, Engine.lastTime);
+    // console.log('updateee engine last time:', Engine.tick, Engine.lastTime);
 
     this.pickables.forEach(element => {
-      element.update();      
+      // element.update();      
     });
   }
 }
