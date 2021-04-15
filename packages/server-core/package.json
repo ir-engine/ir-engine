@@ -182,7 +182,7 @@
     "ts-loader": "8.1.0",
     "typedoc": "0.20.35",
     "typescript": "4.2.4",
-    "webpack": "5.32.0",
+    "webpack": "5.33.2",
     "webpack-cli": "4.6.0"
   },
   "gitHead": "b69a8d4eb4d2b39bc013a8eba00b402b21932252"
