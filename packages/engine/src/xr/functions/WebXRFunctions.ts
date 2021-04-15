@@ -1,7 +1,7 @@
 import { Engine } from "../../ecs/classes/Engine";
 import { AdditiveBlending, BufferGeometry, Float32BufferAttribute, Group, Line, LineBasicMaterial, Mesh, MeshBasicMaterial, MeshPhongMaterial, RingGeometry, Vector3 } from 'three';
 import { getLoader } from "../../assets/functions/LoadGLTF";
-import { GLTF } from "../../assets/loaders/gltf/GLTFLoader";
+// import { GLTF } from "../../assets/loaders/gltf/GLTFLoader";
 import { FollowCameraComponent } from "../../camera/components/FollowCameraComponent";
 import { CameraModes } from "../../camera/types/CameraModes";
 import { addComponent, getComponent, getMutableComponent, removeComponent } from '../../ecs/functions/EntityFunctions';
@@ -81,7 +81,7 @@ export const startXR = async () => {
 
     console.log(getComponent(Network.instance.localClientEntity, XRInputReceiver));
 
-    const obj: GLTF = await new Promise((resolve) => { getLoader().load('/models/webxr/controllers/valve_controller_knu_1_0_right.glb', obj => { resolve(obj) }, console.warn, console.error)});
+    const obj: any = await new Promise((resolve) => { getLoader().load('/models/webxr/controllers/valve_controller_knu_1_0_right.glb', obj => { resolve(obj) }, console.warn, console.error)});
     const controller3DModel = obj.scene.children[2] as any;
 
     const controllerMeshRight = controller3DModel.clone();

@@ -24,9 +24,9 @@ else {
     (dracoLoader as any).getDecoderModule = () => {};
     (dracoLoader as any).preload = () => {};
 }
-loader.setDRACOLoader(dracoLoader);
+(loader as any).setDRACOLoader(dracoLoader);
 
-export function getLoader(): GLTFLoader {
+export function getLoader(): any {
     return loader;
 }
 
