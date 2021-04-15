@@ -14,23 +14,19 @@ import {
     TableRow,
     TableCell,
     Paper,
-    Button, CardMedia, Typography
+    Button, Typography
 } from '@material-ui/core';
-import Avatar from "@material-ui/core/Avatar";
 // @ts-ignore
 import styles from './Admin.module.scss';
 import Backdrop from '@material-ui/core/Backdrop';
 import CircularProgress from '@material-ui/core/CircularProgress';
-import VisibilityIcon from '@material-ui/icons/Visibility';
-import WhatshotIcon from '@material-ui/icons/Whatshot';
-import BookmarkIcon from '@material-ui/icons/Bookmark';
-import StarIcon from '@material-ui/icons/Star';
-import StarOutlineIcon from '@material-ui/icons/StarOutline';
 import {  Edit } from '@material-ui/icons';
 import Slide from '@material-ui/core/Slide';
 import { TransitionProps } from '@material-ui/core/transitions';
 import { EnhancedTableHead } from './AdminHelpers';
 import { updateFeedAsAdmin } from '../../socialmedia/reducers/feed/service';
+import SharedModal from './SharedModal';
+import ArMediaForm from '../../socialmedia/components/ArMediaForm';
 
 if (!global.setImmediate) {
     global.setImmediate = setTimeout as any;
@@ -89,11 +85,8 @@ const ArMediaConsole = (props: Props) => {
     const { list, updateFeedAsAdmin } = props;
 
     const headCells = [
-        { id: 'featuredByAdmin', numeric: false, disablePadding: false, label: 'Featured by Admin' },
-        { id: 'preview', numeric: false, disablePadding: false, label: 'Preview' },
-        { id: 'video', numeric: false, disablePadding: false, label: 'Video' },
-        { id: 'details', numeric: false, disablePadding: false, label: 'Details' },
-        { id: 'creatorId', numeric: false, disablePadding: false, label: 'Creator' },
+        { id: 'type', numeric: false, disablePadding: false, label: 'Type' },
+        { id: 'title', numeric: false, disablePadding: false, label: 'Title' },        
         { id: 'createdAt', numeric: false, disablePadding: false, label: 'Created' },
         { id: 'action', numeric: false, disablePadding: false, label: '' }
     ];
@@ -166,7 +159,8 @@ const ArMediaConsole = (props: Props) => {
 
     return (
         <div>
-            <Typography variant="h2" color="primary">ARC Clips List</Typography>                   
+            <Typography variant="h2" color="primary">ARC Ar Media recourses List</Typography>       
+            <Button variant="outlined" color="secondary" onClick={()=>setModalOpen(true)} style={{width:'fit-content'}}>Create</Button>                                                                
             <Paper className={styles.adminRoot}>            
                 <TableContainer className={styles.tableContainer}>
                     <Table
@@ -182,7 +176,7 @@ const ArMediaConsole = (props: Props) => {
                             onRequestSort={handleRequestSort}
                             headCells={headCells}
                         />
-                        <TableBody className={styles.thead}>
+                        {list && list.lenggth > 0 && <TableBody className={styles.thead}>
                             {stableSort(list, getComparator(order, orderBy))
                                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                                 .map((row, index) => {
@@ -195,41 +189,9 @@ const ArMediaConsole = (props: Props) => {
                                             key={row.id}
                                         >
                                             <TableCell className={styles.tcell} align="center">
-                                                <Typography variant="h3" color="textPrimary">{row.featuredByAdmin ? <StarIcon /> : <StarOutlineIcon />}</Typography>
+                                                <Typography variant="h3" color="textPrimary">{row.type}</Typography>
                                             </TableCell>
-                                            <TableCell className={styles.tcell} align="center">
-                                                <CardMedia   
-                                                    className={styles.previewImage}                  
-                                                    image={row.previewUrl.toString()}
-                                                    title={row.title.toString()}                      
-                                                />
-                                            </TableCell>  
-                                            <TableCell className={styles.tcell}>
-                                                <CardMedia   
-                                                    className={styles.previewImage}                  
-                                                    src={row.videoUrl.toString()}
-                                                    title={row.title.toString()}  
-                                                    component='video'      
-                                                    controls  
-                                                    autoPlay={false} 
-                                                /> 
-                                            </TableCell>
-                                            <TableCell className={styles.tcell} align="left">
-                                                <section className={styles.iconsContainer}>
-                                                    <Typography variant="h3" color="textPrimary">{row.featured ? <StarIcon /> : <StarOutlineIcon />}</Typography>
-                                                    <Typography variant="h3" color="textPrimary"><VisibilityIcon style={{fontSize: '16px'}}/>{row.viewsCount}</Typography>
-                                                    <Typography variant="h3" color="textPrimary"><WhatshotIcon htmlColor="#FF6201" />{row.fires}</Typography>
-                                                    <Typography variant="h3" color="textPrimary"><BookmarkIcon />{row.bookmarks}</Typography>
-                                                </section>
-                                                <br />
-                                                {row.title}
-                                                <br />
-                                                {row.description}
-                                            </TableCell>
-                                            <TableCell className={styles.tcell} align="left">
-                                                <Avatar src={row.avatar?.toString()} />
-                                                {row.creatorName+', '+row.creatorUserName}
-                                            </TableCell>
+                                            <TableCell className={styles.tcell} align="center">{row.title}</TableCell>                                              
                                             <TableCell className={styles.tcell} align="right">{row.createdAt}</TableCell>
                                             <TableCell className={styles.tcell} >
                                                     {row.featuredByAdmin === 1 ? 
@@ -241,16 +203,16 @@ const ArMediaConsole = (props: Props) => {
                                         </TableRow>
                                     );
                                 })}
-                        </TableBody>
+                        </TableBody>}
                     </Table>
                 </TableContainer>   
-                {/* {view && <SharedModal
+                {modalOpen &&  <SharedModal 
                     open={modalOpen}
-                    TransitionComponent={Transition}
-                    onClose={handleClose}                    
+                    TransitionComponent={Transition}                    
+                    onClose={handleClose} 
                 >
-                    <FeedForm feed={view} />                    
-                </SharedModal>}              */}
+                    <ArMediaForm />
+                </SharedModal>}
             </Paper>
             <Backdrop className={classes.backdrop} open={loading}>
                 <CircularProgress color="inherit" />

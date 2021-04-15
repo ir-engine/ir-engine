@@ -4,15 +4,14 @@
 import { Dispatch } from 'redux';
 import { dispatchAlertError } from "../../../common/reducers/alert/service";
 import { client } from '../../../feathers';
-import {
-  addFeedBookmark, removeFeedBookmark
-} from '../feed/actions';
+import { fetchingArMedia, setAdminArMedia, setArMedia } from '../arMedia/actions';
 
-export function addBookmarkToFeed(feedId: string) {
+export function getArMediaService(type?: string) {
   return async (dispatch: Dispatch): Promise<any> => {
     try {
-      await client.service('feed-bookmark').create({feedId});
-      dispatch(addFeedBookmark(feedId));
+      dispatch(fetchingArMedia());
+      const list = await client.service('ar-media').find({query:{action:type}});
+      dispatch(setAdminArMedia(list));
     } catch(err) {
       console.log(err);
       dispatchAlertError(dispatch, err.message);
@@ -20,11 +19,12 @@ export function addBookmarkToFeed(feedId: string) {
   };
 }
 
-export function removeBookmarkToFeed(feedId: string) {
+export function getArMedia(type?: string) {
   return async (dispatch: Dispatch): Promise<any> => {
     try {
-      await client.service('feed-bookmark').remove(feedId);
-      dispatch(removeFeedBookmark(feedId));
+      dispatch(fetchingArMedia());
+      const list = await client.service('ar-media').find({query:{action:type}});
+      dispatch(setArMedia(list));
     } catch(err) {
       console.log(err);
       dispatchAlertError(dispatch, err.message);

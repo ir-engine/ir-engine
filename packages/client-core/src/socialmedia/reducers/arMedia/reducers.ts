@@ -11,14 +11,15 @@ import Immutable from 'immutable';
  */
 
 import {
-  FEED_FIRES_FETCH,
-  FEED_FIRES_RETRIEVED
+  ARMEDIA_FETCHING,
+  ARMEDIA_ADMIN_RETRIEVED,
+  ARMEDIA_RETRIEVED
 } from '../actions';
-import { FeedFiresAction, FeedFiresRetriveAction } from '../feedFires/actions';
+import { ArMediaAction, ArMediaRetriveAction } from './actions';
 
 export const initialArMediaState = {
   arMedia: {
-    admin: [],
+    adminList: [],
     list: [],
     fetching: false
   },
@@ -26,11 +27,13 @@ export const initialArMediaState = {
 
 const immutableState = Immutable.fromJS(initialArMediaState);
 
-const arMediaReducer = (state = immutableState, action: FeedFiresAction): any => {
+const arMediaReducer = (state = immutableState, action: ArMediaAction): any => {
   switch (action.type) {
-    case FEED_FIRES_FETCH : return state.set('fetching', true);
-    case FEED_FIRES_RETRIEVED:
-      return state.set('feedFires', (action as FeedFiresRetriveAction).feedFires).set('fetching', false);
+    case ARMEDIA_FETCHING : return state.set('fetching', true);
+    case ARMEDIA_ADMIN_RETRIEVED:
+      return state.set('adminList', (action as ArMediaRetriveAction).list).set('fetching', false);
+    case ARMEDIA_RETRIEVED:
+        return state.set('list', (action as ArMediaRetriveAction).list).set('fetching', false);
   }
 
   return state;

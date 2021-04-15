@@ -8,17 +8,18 @@ import Dashboard  from "@xr3ngine/client-core/src/socialmedia/components/Dashboa
 import ArMediaConsole  from "@xr3ngine/client-core/src/admin/components/ArMediaConsole";
 import { bindActionCreators, Dispatch } from "redux";
 import { connect } from "react-redux";
-import { selectArMediaState } from "@xr3ngine/client-core/src/socialmedia/reducers/arMedia/selector";
-import { getArMedia } from "@xr3ngine/client-core/src/socialmedia/reducers/arMedia/service";
+
+import { selectAdMediaState } from "@xr3ngine/client-core/src/socialmedia/reducers/arMedia/selector";
+import { getArMediaService } from "@xr3ngine/client-core/src/socialmedia/reducers/arMedia/service";
 
 const mapStateToProps = (state: any): any => {
   return {
-    arMediaState: selectArMediaState(state),
+    arMediaState: selectAdMediaState(state),
   };
 };
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  getArMedia: bindActionCreators(getArMedia, dispatch),
+  getArMedia: bindActionCreators(getArMediaService, dispatch),
 });
 interface Props{
   arMediaState?: any,
@@ -27,7 +28,7 @@ interface Props{
 
  const ArMediaPage = ({arMediaState, getArMedia}:Props) => {
     useEffect(()=> getArMedia('admin'), []);
-    const arMediaList = arMediaState.get('fetching') === false && arMediaState?.get('arMediaAdmin') ? arMediaState.get('arMediaAdmin') : null;
+    const arMediaList = arMediaState.get('fetching') === false && arMediaState?.get('adminList') ? arMediaState.get('adminList') : null;
    return (<>
     <div>
       <Dashboard>

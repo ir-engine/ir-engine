@@ -40,23 +40,16 @@ export class ArMedia extends Service {
       limit,
     } as any;
 
-    //All Feeds as Admin
+    //All ArMedia as Admin
     if (action === 'admin') {
-      const dataQuery = `SELECT feed.*, creator.id as creatorId, creator.name as creatorName, creator.username as creatorUserName, 
-      sr2.url as previewUrl, sr1.url as videoUrl, sr3.url as avatar, COUNT(ff.id) as fires, COUNT(fb.id) as bookmarks 
-        FROM \`feed\` as feed
-        JOIN \`creator\` as creator ON creator.id=feed.creatorId
-        JOIN \`static_resource\` as sr1 ON sr1.id=feed.videoId
-        JOIN \`static_resource\` as sr2 ON sr2.id=feed.previewId
-        LEFT JOIN \`static_resource\` as sr3 ON sr3.id=creator.avatarId
-        LEFT JOIN \`feed_fires\` as ff ON ff.feedId=feed.id
-        LEFT JOIN \`feed_bookmark\` as fb ON fb.feedId=feed.id
+      const dataQuery = `SELECT ar.*, col.*
+        FROM \`ar_media\` as ar
+        JOIN \`collection\` as col ON col.id=ar.collectionId        
         WHERE 1
-        GROUP BY feed.id
-        ORDER BY feed.createdAt DESC    
+        ORDER BY ar.createdAt DESC    
         LIMIT :skip, :limit `;
 
-      const feeds = await this.app.get('sequelizeClient').query(dataQuery,
+      const list = await this.app.get('sequelizeClient').query(dataQuery,
         {
           type: QueryTypes.SELECT,
           raw: true,
@@ -64,10 +57,10 @@ export class ArMedia extends Service {
         });
 
       return {
-        data: feeds,
+        data: list,
         skip,
         limit,
-        total: feeds.count,
+        total: list.count,
       };
     }
    }
