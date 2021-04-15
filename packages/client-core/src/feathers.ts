@@ -2,7 +2,7 @@ import io from 'socket.io-client';
 import feathers from '@feathersjs/client';
 import { Config } from './helper';
 
-const apiServer = process.env.NODE_ENV === 'production' ? Config.publicRuntimeConfig.apiServer : 'https://127.0.0.1:3030';
+const apiServer = Config.publicRuntimeConfig.apiServer ?? (process.env.NODE_ENV === 'production' ? null : 'https://127.0.0.1:3030');
 
 const feathersStoreKey: string = Config.publicRuntimeConfig.feathersStoreKey;
 

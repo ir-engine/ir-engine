@@ -18,8 +18,10 @@ import { configureStore } from '@xr3ngine/client-core/src/store';
 import { dispatchAlertError } from '@xr3ngine/client-core/src/common/reducers/alert/service';
 import { getDeviceType } from '@xr3ngine/client-core/src/common/reducers/devicedetect/actions';
 import { restoreState } from '@xr3ngine/client-core/src/persisted.store';
+import { setRuntime } from "@xr3ngine/client-core/src/helper";
 
 const config = getConfig().publicRuntimeConfig;
+setRuntime(config);
 
 interface Props extends AppProps {}
 
