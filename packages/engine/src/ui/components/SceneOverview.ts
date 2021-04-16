@@ -15,7 +15,7 @@ class SceneOverview extends Object3D {
     });
 
     container.position.set(0.1, 1.35, 0);
-    this.add(container);
+    this.add(container as any);
 
 
 

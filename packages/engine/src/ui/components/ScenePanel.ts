@@ -4,7 +4,14 @@ import SceneButton from "../components/SceneButton";
 
 class ScenePanel extends Object3D {
   container: Block;
-  siblings: [];
+  button1: SceneButton;
+  button2: SceneButton;
+  button3: SceneButton;
+  oldPosX: number;
+  oldPosY: number;
+  oldPosZ: number;
+  siblings: any[];
+  needsUpdate: boolean;
 
   constructor(title, description, image) {
     super();
@@ -20,7 +27,7 @@ class ScenePanel extends Object3D {
     });
 
     this.container.position.set(0, 0, 0);
-    this.add(this.container);
+    this.add(this.container as any);
 
     const textBlock = new Block({
       height: 0.1,

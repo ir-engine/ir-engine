@@ -189,7 +189,7 @@ const interactBoxRaycast: Behavior = (entity: Entity, { raycastList }: InteractB
   const newBoxHit = selectNearest.length ? selectNearest[0] : null;
   let resultIsCloseEnough = false;
   if(newBoxHit) {
-    const interactableTransform = getComponent(newBoxHit[0], TransformComponent);
+    const interactableTransform = getComponent(newBoxHit[0] as Entity, TransformComponent);
     if(interactableTransform.position.distanceTo(transform.position) < 1){
       resultIsCloseEnough = true;
     }

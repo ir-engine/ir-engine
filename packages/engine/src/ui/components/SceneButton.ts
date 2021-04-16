@@ -2,6 +2,8 @@ import { Block, Text } from "../../assets/three-mesh-ui";
 import { Object3D, Color } from "three";
 
 class SceneButton extends Object3D {
+  textBlock: Block;
+
   constructor(title, index) {
     super();
     this.init(title, index);
@@ -47,7 +49,7 @@ class SceneButton extends Object3D {
     this.textBlock.position.set(pos[0], pos[1], pos[2]);
 
 
-    this.add(this.textBlock);
+    this.add(this.textBlock as any);
 
 
     const hoveredStateAttributes = {
@@ -86,6 +88,8 @@ class SceneButton extends Object3D {
     this.textBlock.setupState(idleStateAttributes);
     this.textBlock.setupState(selectStateAttributes);
   }
+
+  pick: Function;
 
   picked(state) {
     if (state) {

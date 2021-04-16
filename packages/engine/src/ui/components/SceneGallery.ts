@@ -6,7 +6,7 @@ import SceneButton from "../components/SceneButton";
 class SceneGallery extends Object3D {
   marketPlace:Object3D;
   library:Object3D;
-  pickables:[];
+  pickables: any[];
 
   constructor(){
     super();
@@ -25,7 +25,7 @@ class SceneGallery extends Object3D {
 
     const ov = new SceneOverview("Scene Title", "Scene Description\nSecode line of description", null);
     this.marketPlace.add(ov);
-    this.pickables.push(ov);    
+    this.pickables.push(ov);
 
     const marketPlacePanels = [];
     marketPlacePanels.push(ov);
