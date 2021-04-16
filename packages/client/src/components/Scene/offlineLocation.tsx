@@ -47,7 +47,7 @@ export const OfflineEnginePage = (props: Props) => {
       useOfflineMode: true,
       postProcessing: false,
     };
-    console.log(InitializationOptions)
+    console.log(InitializationOptions);
     await initializeEngine(InitializationOptions);
 
     document.dispatchEvent(new CustomEvent('ENGINE_LOADED')); // this is the only time we should use document events. would be good to replace this with react state
