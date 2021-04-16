@@ -1,9 +1,7 @@
-import ThreeMeshUI, { Block, Keyboard } from "../../assets/three-mesh-ui";
-import { Group, Object3D, Color, TextureLoader } from "three";
+import { Object3D } from "three";
 import SceneOverview from "../components/SceneOverview";
 import ScenePanel from '../components/ScenePanel';
 import SceneButton from "../components/SceneButton";
-import { Engine } from "../../ecs/classes/Engine";
 
 class SceneGallery extends Object3D {
   marketPlace:Object3D;
