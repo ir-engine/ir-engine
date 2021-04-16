@@ -122,7 +122,7 @@
     "@types/node-sass": "4.11.1",
     "@types/react": "17.0.3",
     "@types/react-dom": "17.0.3",
-    "@types/three": "^0.127.0",
+    "@types/three": "0.127.1",
     "babel-loader": "8.2.2",
     "cache-loader": "4.1.0",
     "config": "3.3.6",
