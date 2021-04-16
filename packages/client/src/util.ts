@@ -8,7 +8,9 @@ import translation from '../i18n/en/translation.json';
 
 export const initialize = () => {
     // Set Runtime config to client core
-    const config = getConfig().publicRuntimeConfig;
+    let config;
+    if (typeof window !== 'undefined' && (window as any).env?.publicRuntimeConfig != null) config = (window as any).env.publicRuntimeConfig;
+    else config = getConfig().publicRuntimeConfig;
     setRuntime(config);
 
     // Setup I18N

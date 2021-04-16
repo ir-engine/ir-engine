@@ -5,6 +5,16 @@ import SceneButton from "../components/SceneButton";
 class ScenePanel extends Object3D {
   container: Block;
   siblings: [];
+  add: any;
+  button1: SceneButton;
+  button2: SceneButton;
+  button3: SceneButton;
+  position: any;
+  needsUpdate: boolean;
+  oldPosX: number;
+  oldPosY: number;
+  oldPosZ: number;
+  visible: boolean;
 
   constructor(title, description, image) {
     super();
@@ -86,7 +96,7 @@ class ScenePanel extends Object3D {
   }
 
   enlarge() {
-    this.siblings.forEach(element => {
+    this.siblings.forEach((element: any) => {
       element.visible = false;
       element.needsUpdate = true;
     });
@@ -111,7 +121,7 @@ class ScenePanel extends Object3D {
   goback() {
     console.log('go back called');
 
-    this.siblings.forEach(element => {
+    this.siblings.forEach((element: any) => {
       element.visible = true;
       element.needsUpdate = true;
     });
