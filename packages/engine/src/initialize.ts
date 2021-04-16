@@ -103,15 +103,17 @@ export const initializeEngine = async (options): Promise<void> => {
 
   Engine.publicPath = location.origin;
 
-  if (options.networking && !useOfflineMode) {
+  if (options.networking) {
     const networkSystemOptions = { schema: options.networking.schema, app: options.networking.app };
     console.log("Network system options are", networkSystemOptions);
     console.log("Network system schema is", networkSystemOptions.schema);
     Network.instance = new Network();
 
     Network.instance.schema = networkSystemOptions.schema;
+    if(!useOfflineMode) {
       registerSystem(ClientNetworkSystem, { ...networkSystemOptions, priority: -1 });
-      registerSystem(MediaStreamSystem);
+    }
+    registerSystem(MediaStreamSystem);
   }
 
   initialize();
@@ -133,7 +135,7 @@ export const initializeEngine = async (options): Promise<void> => {
     Engine.camera = new PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 10000);
     Engine.scene.add(Engine.camera);
 
-    if(!options.editor){
+    if (!options.editor) {
       await AnimationManager.instance.getDefaultModel()
 
       // registerSystem(StateSystem);
@@ -153,7 +155,7 @@ export const initializeEngine = async (options): Promise<void> => {
 
     registerSystem(ParticleSystem);
     registerSystem(DebugHelpersSystem);
-    if(!options.editor){
+    if (!options.editor) {
       registerSystem(InteractiveSystem);
       registerSystem(CameraSystem);
       registerSystem(WebGLRendererSystem, { priority: 1001, canvas, postProcessing });

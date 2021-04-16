@@ -17,9 +17,6 @@ export class UIPanelSystem extends System {
     super(attributes);
     this.panelContainer = new Group();
     Engine.scene.add(this.panelContainer);
-    
-    
-    createPanelComponent({ panel: new UIPanelComponent(), raycast: new RaycastComponent() });
   }
   execute(): void {
     this.queryResults.panels?.added?.forEach((entity: Entity) => {
