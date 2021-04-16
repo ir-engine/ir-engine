@@ -27,10 +27,6 @@ export class UIPanel extends UIBaseElement {
 
   init(title, description) {
     this.siblings = [];
-    this.container = new Block({
-      width: 1,
-      height: 0.5
-    });
 
     this.container.position.set(0, 0, 0);
     // TODO: fix typings for three-mesh-ui
@@ -100,7 +96,7 @@ export class UIPanel extends UIBaseElement {
     // this.container.height = 1;
     this.needsUpdate = true;
 
-    this.container.set({ width: 3, height: 1.5 });
+    this.container.resize({ width: 3, height: 1.5 });
 
     console.log('before position : ', this.oldPosX, this.oldPosY, this.oldPosZ);
 
@@ -119,7 +115,7 @@ export class UIPanel extends UIBaseElement {
       element.needsUpdate = true;
     });
 
-    this.container.set({ width: 1, height: 0.5 });
+    this.container.resize({ width: 1, height: 0.5 });
     this.position.set(this.oldPosX, this.oldPosY, this.oldPosZ);
     console.log('back position : ', this.oldPosX, this.oldPosY, this.oldPosZ);
 

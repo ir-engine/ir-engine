@@ -10,60 +10,9 @@ export class UIOverview extends UIBaseElement {
   }
 
   init(title, description, image) {
-    const container = new Block({
-      width: 3.2,
-      height: 0.8
-    });
-
-    container.position.set(0.1, 1.35, 0);
-    this.add(container);
-
-    const tag = document.getElementById('video360');
-
-    let video = document.createElement( 'video' );
-    video.setAttribute('crossorigin', 'anonymous');
-    video.style.display = 'none';
-    tag.append( video );
-    video.loop = "loop";
-    video.src = "https://archive.org/download/BigBuckBunny_124/Content/big_buck_bunny_720p_surround.mp4";
-    video.muted = true;
-    video.volume = 0.5;
-    video.autoplay = true;
-
-    const texture = new VideoTexture(video);
-    // texture.minFilter = LinearFilter;
-    // texture.magFilter = LinearFilter;
-
-    texture.wrapS = texture.wrapT = ClampToEdgeWrapping;
-    texture.offset.set( 0, 0 );
-    texture.repeat.set( 1, 1 );
-
-    // texture.format = RGBAFormat;
-
-    const videoMaterial =  new MeshBasicMaterial( {map: texture, side: FrontSide, toneMapped: false} );
-    const screen = new PlaneGeometry(3, 1, 32);
-    const videoScreen = new Mesh(screen, videoMaterial);
-    videoScreen.position.set(0, 0, 0.3);
-    super.add(videoScreen);
-
-    const loader = new TextureLoader();
-    loader.load('https://threejsfundamentals.org/threejs/resources/images/wall.jpg', (texture) => {
-      // container.set({backgroundTexture: texture});
-    });
-  
-    container.set({backgroundTexture: texture});
-
-    video.addEventListener( 'canplaythrough', function () {
-      var promise = video.play();
-      if (promise !== undefined) {
-        promise.then(_ => {
-        }).catch(error => {
-        });
-      }
-    } );
-
-    video.addEventListener( 'play', function () {
-    } );
+    const url = "https://archive.org/download/BigBuckBunny_124/Content/big_buck_bunny_720p_surround.mp4";
+    const videoElement = new VideoElement(3.2, 0.8, 0.1, 1.35, url);
+    this.add(videoElement);
 
     const textBlock = new Block({
       height: 0.1,
