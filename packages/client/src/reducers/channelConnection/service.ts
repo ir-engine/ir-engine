@@ -1,7 +1,6 @@
 import { endVideoChat, leave } from "../../transports/SocketWebRTCClientFunctions";
 import { Network } from "@xr3ngine/engine/src/networking/classes/Network";
 import { MediaStreamSystem } from "@xr3ngine/engine/src/networking/systems/MediaStreamSystem";
-import getConfig from 'next/config';
 import { Dispatch } from 'redux';
 import { client } from '@xr3ngine/client-core/src/feathers';
 import store from "@xr3ngine/client-core/src/store";
@@ -13,7 +12,7 @@ import {
   channelServerProvisioned,
   channelServerProvisioning
 } from './actions';
-const { publicRuntimeConfig } = getConfig();
+import { Config } from '@xr3ngine/client-core/src/helper';
 
 export function provisionChannelServer(instanceId?: string, channelId?: string) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
@@ -88,7 +87,7 @@ export function resetChannelServer() {
   };
 }
 
-if(!publicRuntimeConfig.offlineMode) {
+if(!Config.publicRuntimeConfig.offlineMode) {
   client.service('instance-provision').on('created', (params) => {
     if (params.channelId != null) store.dispatch(channelServerProvisioned(params, params.channelId));
   });
