@@ -2,6 +2,7 @@ import { Block, Text } from "../../assets/three-mesh-ui";
 import { Object3D, Color, VideoTexture } from "three";
 
 class SceneOverview extends Object3D {
+  add: any;
   constructor(title, description, image) {
     super();
 
