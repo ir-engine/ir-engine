@@ -1,7 +1,7 @@
 
 /**
  * Proxies for offscreen threejs video texture
- * 
+ *
  * @author Josh Field <github.com/hexafield>
  */
 
