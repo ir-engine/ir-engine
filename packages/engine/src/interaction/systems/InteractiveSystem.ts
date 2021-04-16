@@ -141,7 +141,7 @@ const interactBoxRaycast: Behavior = (entity: Entity, { raycastList }: InteractB
   const frustum = new Frustum().setFromProjectionMatrix(viewProjectionMatrix);
 
 
-  const subFocusedArray = raycastList.map(entityIn => {
+  const subFocusedArray: any = raycastList.map(entityIn => {
 
     const boundingBox = getComponent(entityIn, BoundingBox);
     const interactive = getComponent(entityIn, Interactable);
