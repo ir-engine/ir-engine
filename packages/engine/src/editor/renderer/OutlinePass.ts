@@ -254,7 +254,7 @@ export default class OutlinePass extends Pass {
   }
   render(renderer, writeBuffer, readBuffer, delta, maskActive) {
     if (this.selectedObjects.length > 0) {
-      this.oldClearColor.copy(renderer.getClearColor(Color.black));
+      this.oldClearColor.copy(renderer.getClearColor(new Color('black')));
       this.oldClearAlpha = renderer.getClearAlpha();
       const oldAutoClear = renderer.autoClear;
       renderer.autoClear = false;
