@@ -6,7 +6,10 @@ import SceneButton from "../components/SceneButton";
 class SceneGallery extends Object3D {
   marketPlace:Object3D;
   library:Object3D;
-  pickables:[];
+  pickables: any[];
+  add: any;
+  position: any;
+  rotation: any;
 
   constructor(){
     super();
