@@ -8,8 +8,11 @@ import { resetEngine } from "@xr3ngine/engine/src/ecs/functions/EngineFunctions"
 import { DefaultInitializationOptions, initializeEngine } from '@xr3ngine/engine/src/initialize';
 import { NetworkSchema } from '@xr3ngine/engine/src/networking/interfaces/NetworkSchema';
 import { ClientNetworkSystem } from '@xr3ngine/engine/src/networking/systems/ClientNetworkSystem';
+import { RaycastComponent } from '@xr3ngine/engine/src/raycast/components/RaycastComponent';
 import { styleCanvas } from '@xr3ngine/engine/src/renderer/functions/styleCanvas';
 import { DefaultNetworkSchema } from '@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema';
+import { UIPanelComponent } from '@xr3ngine/engine/src/ui/components/UIPanelComponent';
+import { createPanelComponent } from '@xr3ngine/engine/src/ui/functions/createPanelComponent';
 import { XRSystem } from '@xr3ngine/engine/src/xr/systems/XRSystem';
 import dynamic from 'next/dynamic';
 import React, { useEffect, useState } from 'react';
@@ -33,24 +36,18 @@ export const OfflineEnginePage = (props: Props) => {
 
   async function init(sceneId: string): Promise<any> {
     const sceneData = testScenes[sceneId] || testScenes.test;
-    const networkSchema: NetworkSchema = {
-      ...DefaultNetworkSchema,
-    };
   
     const canvas = document.getElementById(engineRendererCanvasId) as HTMLCanvasElement;
     styleCanvas(canvas);
     const InitializationOptions = {
       ...DefaultInitializationOptions,
-      networking: {
-        schema: networkSchema,
-      },
       renderer: {
         canvas,
       },
       useOfflineMode: true,
       postProcessing: false,
     };
-    
+    console.log(InitializationOptions);
     await initializeEngine(InitializationOptions);
 
     document.dispatchEvent(new CustomEvent('ENGINE_LOADED')); // this is the only time we should use document events. would be good to replace this with react state
@@ -74,6 +71,8 @@ export const OfflineEnginePage = (props: Props) => {
     const [sceneLoaded, worldState] = await Promise.all([ loadScene, getWorldState ]);
 
     EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.JOINED_WORLD, worldState });
+
+    createPanelComponent({ panel: new UIPanelComponent(), raycast: new RaycastComponent() });
   }
 
   const addUIEvents = () => {

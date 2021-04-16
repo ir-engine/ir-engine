@@ -34,6 +34,8 @@ import { AnimationManager } from './templates/character/prefabs/NetworkPlayerCha
 import { CharacterControllerSystem } from './character/CharacterControllerSystem';
 import { useOffscreen } from './common/functions/getURLParams';
 import { DefaultGameMode } from './templates/game/DefaultGameMode';
+import { UIPanelSystem } from './ui/systems/UIPanelSystem';
+import { RaycastSystem } from './raycast/systems/RaycastSystem';
 
 // import { PositionalAudioSystem } from './audio/systems/PositionalAudioSystem';
 
@@ -101,15 +103,17 @@ export const initializeEngine = async (options): Promise<void> => {
 
   Engine.publicPath = location.origin;
 
-  if (options.networking && !useOfflineMode) {
+  if (options.networking) {
     const networkSystemOptions = { schema: options.networking.schema, app: options.networking.app };
     console.log("Network system options are", networkSystemOptions);
     console.log("Network system schema is", networkSystemOptions.schema);
     Network.instance = new Network();
 
     Network.instance.schema = networkSystemOptions.schema;
+    if(!useOfflineMode) {
       registerSystem(ClientNetworkSystem, { ...networkSystemOptions, priority: -1 });
-      registerSystem(MediaStreamSystem);
+    }
+    registerSystem(MediaStreamSystem);
   }
 
   initialize();
@@ -119,11 +123,19 @@ export const initializeEngine = async (options): Promise<void> => {
   }
 
   if (!useOffscreen || options.editor) {
+    await AnimationManager.instance.getDefaultModel()
+    registerSystem(RaycastSystem);
+    registerSystem(StateSystem);
+    registerSystem(CharacterControllerSystem);
+    registerSystem(PhysicsSystem);
+    registerSystem(ServerSpawnSystem, { priority: 899 });
+    registerSystem(TransformSystem, { priority: 900 });
+    registerSystem(UIPanelSystem);
 
     Engine.camera = new PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 10000);
     Engine.scene.add(Engine.camera);
 
-    if(!options.editor){
+    if (!options.editor) {
       await AnimationManager.instance.getDefaultModel()
 
       // registerSystem(StateSystem);
@@ -143,7 +155,7 @@ export const initializeEngine = async (options): Promise<void> => {
 
     registerSystem(ParticleSystem);
     registerSystem(DebugHelpersSystem);
-    if(!options.editor){
+    if (!options.editor) {
       registerSystem(InteractiveSystem);
       registerSystem(CameraSystem);
       registerSystem(WebGLRendererSystem, { priority: 1001, canvas, postProcessing });
@@ -193,6 +205,7 @@ export const initializeServer = async (initOptions: any = DefaultInitializationO
   registerSystem(ServerNetworkIncomingSystem, { ...networkSystemOptions, priority: -1 });
   registerSystem(ServerNetworkOutgoingSystem, { ...networkSystemOptions, priority: 10000 });
   registerSystem(MediaStreamSystem);
+  registerSystem(RaycastSystem);
   registerSystem(StateSystem);
   registerSystem(CharacterControllerSystem);
   registerSystem(PhysicsSystem);
