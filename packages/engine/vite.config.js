@@ -34,7 +34,6 @@ export default defineConfig(() => {
           json(),
           typescript({
             tsconfig: 'tsconfig.json',
-            // rollupCommonJSResolveHack: false
           }),
           replace({
             'process.env.NODE_ENV': JSON.stringify(isProd ? 'production' : 'development'),
@@ -57,9 +56,7 @@ export default defineConfig(() => {
               '@babel/preset-typescript',
             ],
             plugins: [
-              'react-require',
               '@babel/plugin-syntax-dynamic-import',
-              '@babel/plugin-proposal-class-properties',
               ['@babel/plugin-proposal-object-rest-spread', {
                 useBuiltIns: true,
               }],
