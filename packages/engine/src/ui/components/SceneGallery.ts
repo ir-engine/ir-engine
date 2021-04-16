@@ -27,7 +27,7 @@ class SceneGallery extends Object3D {
     this.marketPlace.add(ov);
     this.pickables.push(ov);    
 
-    var marketPlacePanels = [];
+    const marketPlacePanels = [];
     marketPlacePanels.push(ov);
 
     for(let i= 0;i<3;i++){
@@ -62,7 +62,7 @@ class SceneGallery extends Object3D {
       }
     }
 
-    var libraryPanels = [];
+    const libraryPanels = [];
     for(let i= 0;i<3;i++){
       for(let j=0;j<3;j++){
 
