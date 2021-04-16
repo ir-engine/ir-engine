@@ -125,6 +125,10 @@ const ProfileMenu = (props: Props): any => {
 		window.location.reload();
 	};
 
+	const handleWalletLoginClick = (e) => {
+		console.log('Logging in..');
+	};
+
 	return (
 		<div className={styles.menuPanel}>
 			<section className={styles.profilePanel}>
@@ -188,6 +192,12 @@ const ProfileMenu = (props: Props): any => {
 							}}
 						/>
 					</form>
+				</section>}
+				{ selfUser?.userRole === 'guest' && <section className={styles.walletSection}>
+					<Typography variant="h3" className={styles.textBlock}>Or</Typography>
+					<Button onClick={handleWalletLoginClick} className={styles.walletBtn}>
+						Login with Wallet
+					</Button>
 				</section>}
 				{ selfUser?.userRole === 'guest' && <section className={styles.socialBlock}>
 					<Typography variant="h3" className={styles.textBlock}>Or connect with social accounts</Typography>

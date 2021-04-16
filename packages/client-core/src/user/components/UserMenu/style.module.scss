@@ -508,6 +508,26 @@
             }
         }
 
+        .walletSection {
+            text-align: center;
+
+            .textBlock {
+                font-size: 14px;
+                font-weight: normal;
+                text-align: center;
+                display: block;
+                cursor: initial;
+            }
+
+            .walletBtn {
+                height: 35px;
+                background: #5F5FF1;
+                margin: 15px 0 20px 0;
+    
+                &:hover { opacity: 0.8; }
+            }
+        }
+
         .socialBlock {
             .socialContainer {
                 display: flex;
