@@ -15,7 +15,7 @@ export default class PostProcessingNode extends EditorNodeMixin(PostProcessing){
 
     constructor(editor){
         super(editor);
-        this.postProcessingOptions=this.defaultOptions;
+        this.postProcessingOptions=PostProcessing.defaultOptions;
         PostProcessingNode.postProcessingCallback(this);
     }
     
@@ -28,7 +28,7 @@ export default class PostProcessingNode extends EditorNodeMixin(PostProcessing){
         const node=await super.deserialize(editor,json);
         const postProcessing = json.components.find(c => c.name === "postprocessing");
         const {options}=postProcessing.props;
-        node.postProcessingOptions=options??node.defaultOptions;
+        node.postProcessingOptions=options??PostProcessing.defaultOptions;
         return node;
     }
 
