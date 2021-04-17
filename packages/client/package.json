@@ -15,7 +15,7 @@
       "find:unused": "next-unused",
       "dev-old": "cross-env NODE_ENV=development node --max-old-space-size=4096 ./index.js --port 3000",
       "dev": "vite",
-      "build": "vite build",
+      "build": "cross-env NODE_OPTIONS=--max_old_space_size=4096 vite build",
       "offline": "cross-env NODE_ENV=offline node --max-old-space-size=4096 ./index.js --port 3000",
       "build-old": "cross-env NODE_OPTIONS=--max_old_space_size=6144 next build ./ && yarn run export",
       "export": "next export -o www/ && mv www/404.html www/index.html",
