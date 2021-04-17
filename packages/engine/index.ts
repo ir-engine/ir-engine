@@ -215,7 +215,6 @@ export * from './src/renderer/postprocessing/core/OverrideMaterialManager';
 export * from './src/renderer/postprocessing/core/Resizable';
 export * from './src/renderer/postprocessing/core/Resizer';
 export * from './src/renderer/postprocessing/core/Selection';
-export * from './src/renderer/postprocessing/DefaultPostProcessingSchema';
 export * from './src/renderer/postprocessing/DepthEffect';
 export * from './src/renderer/postprocessing/DepthOfFieldEffect';
 export * from './src/renderer/postprocessing/DotScreenEffect';
