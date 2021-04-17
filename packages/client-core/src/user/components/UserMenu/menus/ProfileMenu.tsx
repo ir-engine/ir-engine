@@ -74,7 +74,7 @@ const ProfileMenu = (props: Props): any => {
 			await (window as any).credentialHandlerPolyfill.loadOnce();
 			console.log('Polyfill loaded.');
 		} catch(e) {
-			console.error('Error loading polyfill:', e)
+			console.error('Error loading polyfill:', e);
 		}
 	};
 
