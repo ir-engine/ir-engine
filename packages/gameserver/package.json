@@ -113,7 +113,7 @@
     "feathers-swagger": "1.2.1",
     "feathers-sync": "2.3.0",
     "fs-blob-store": "6.0.0",
-    "helmet": "4.4.1",
+    "helmet": "4.5.0",
     "http-server": "0.12.3",
     "internal-ip": "6.2.0",
     "js-yaml": "4.1.0",
