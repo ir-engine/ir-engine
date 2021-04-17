@@ -93,8 +93,6 @@ class SceneButton extends Object3D {
     this.textBlock.setupState(selectStateAttributes);
   }
 
-  pick: Function;
-
   picked(state) {
     if (state) {
       // Component.setState internally call component.set with the options you defined in component.setupState
