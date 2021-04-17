@@ -210,7 +210,7 @@ export const PostProcessingProperties = (props: Props) => {
     alignItems: "center"
   }}>
     { /* @ts-ignore */}
-    <InputGroup name={values.name}>
+    <InputGroup name={values.name} label={values.name}>
       {renderVal}
     </InputGroup>
   </div>

@@ -12,6 +12,9 @@ class ScenePanel extends Object3D {
   oldPosZ: number;
   siblings: any[];
   needsUpdate: boolean;
+  add: any;
+  position: any;
+  visible: boolean;
 
   constructor(title, description, image) {
     super();
@@ -93,7 +96,7 @@ class ScenePanel extends Object3D {
   }
 
   enlarge() {
-    this.siblings.forEach(element => {
+    this.siblings.forEach((element: any) => {
       element.visible = false;
       element.needsUpdate = true;
     });
@@ -118,7 +121,7 @@ class ScenePanel extends Object3D {
   goback() {
     console.log('go back called');
 
-    this.siblings.forEach(element => {
+    this.siblings.forEach((element: any) => {
       element.visible = true;
       element.needsUpdate = true;
     });

@@ -54,6 +54,7 @@ const App = (): any => {
     <>
       <Helmet>
         <title>{Config.publicRuntimeConfig.title}</title>
+        <script src='/env-config.js' />
         <meta
           name="viewport"
           content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=0', shrink-to-fit=no"

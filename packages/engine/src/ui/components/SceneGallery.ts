@@ -7,6 +7,9 @@ class SceneGallery extends Object3D {
   marketPlace:Object3D;
   library:Object3D;
   pickables: any[];
+  add: any;
+  position: any;
+  rotation: any;
 
   constructor(){
     super();
