@@ -9,7 +9,7 @@ const LocationPage = () => {
   return (
     <NoSSR onSSR={<Loading />}>
 
-    <div id="video360" style={{display:'none'}}/>      
+    <div id="video360" style={{display:'none'}}/>
       <OfflineEnginePage locationName={locationName}/>
     </NoSSR>
   );

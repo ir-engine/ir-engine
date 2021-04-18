@@ -10,7 +10,7 @@ export class UIOverview extends UIBaseElement {
   }
 
   init(title, description, image) {
-    const url = "https://archive.org/download/BigBuckBunny_124/Content/big_buck_bunny_720p_surround.mp4";
+    const url = "ITN_Wrecks_FOR_REVIEW_4kx2k_360_h264_40Mbps.mp4";
     const videoElement = new VideoElement(3.2, 0.8, 0.1, 1.35, url);
     this.add(videoElement);
 
