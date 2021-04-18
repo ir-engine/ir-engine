@@ -1,4 +1,4 @@
-import DracosisPlayer from "@xr3ngine/volumetric/src/Player";
+import DracosisPlayer from "@xr3ngine/volumetric/src/CanvasPlayer";
 
 import React, { useEffect, useRef, useState } from 'react';
 import { PerspectiveCamera, Scene, sRGBEncoding, Vector3, WebGLRenderer } from "three";
