@@ -21,12 +21,11 @@ type AdvancedHTMLVideoElement = HTMLVideoElement & { requestVideoFrameCallback: 
 type onMeshBufferingCallback = (progress: number) => void;
 type onFrameShowCallback = (frame: number) => void;
 
-
 const boxLength = 8; // length of the databox
 const byteLength = 16;
 const videoSize = 1024;
 
-export default class DracosisPlayer {
+export default class CanvasPlayer {
   // Public Fields
   public frameRate = 30;
   public speed = 1.0; // Multiplied by framerate for final playback output rate
@@ -79,17 +78,10 @@ export default class DracosisPlayer {
   get loop(): boolean {
     return this._loop;
   }
+  
   set loop(value: boolean) {
     this._loop = value;
   }
-
-  // request
-  // performAnimation = () => {
-  //   if (this._video !== null) {
-  //     this.videoAnimationFrame(null);
-  //   }
-  //   this.request = requestAnimationFrame(this.performAnimation)
-  // }
 
   currentEncode = false;
   textureBatchChanged = false;
