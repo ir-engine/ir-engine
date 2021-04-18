@@ -9,7 +9,7 @@ import { NormalPass } from "../../renderer/postprocessing/passes/NormalPass";
 import { RenderPass } from "../../renderer/postprocessing/passes/RenderPass";
 import { SSAOEffect } from "../../renderer/postprocessing/SSAOEffect";
 import { TextureEffect } from "../../renderer/postprocessing/TextureEffect";
-import PostProcessing from "../../scene/classes/PostProcessing";
+import PostProcessing, { effectType } from "../../scene/classes/PostProcessing";
 
 
 /**
@@ -39,7 +39,7 @@ export default function configurePostProcessing(node: PostProcessing, scene, cam
     let pass;
     Object.keys(node.postProcessingOptions).forEach((key: any) => {
         pass = node.postProcessingOptions[key];
-        const effect = node.effectType[key].effect;
+        const effect = effectType[key].effect;
 
         if (pass.isActive)
             if (effect === SSAOEffect) {
