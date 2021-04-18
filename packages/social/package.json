@@ -1,6 +1,6 @@
 {
   "name": "@xr3ngine/social",
-  "version": "0.2.15",
+  "version": "0.2.16",
   "private": true,
   "repository": {
     "type": "git",
@@ -58,10 +58,10 @@
     "@types/react-redux": "7.1.16",
     "@types/redux-immutable": "4.0.1",
     "@types/styled-components": "5.1.9",
-    "@xr3ngine/client-core": "^0.2.15",
-    "@xr3ngine/common": "^0.2.15",
-    "@xr3ngine/engine": "^0.2.15",
-    "@xr3ngine/native-plugin-xr": "^0.2.15",
+    "@xr3ngine/client-core": "^0.2.16",
+    "@xr3ngine/common": "^0.2.16",
+    "@xr3ngine/engine": "^0.2.16",
+    "@xr3ngine/native-plugin-xr": "^0.2.16",
     "app-root-path": "3.0.0",
     "autobind-decorator": "2.4.0",
     "autoprefixer": "10.2.5",
