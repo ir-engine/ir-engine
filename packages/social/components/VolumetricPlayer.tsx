@@ -74,8 +74,8 @@ export const VolumetricPlayer = (props: VolumetricPlayerProps) => {
     setCameraOffset();
 
     function render() {
-      animationFrameId = requestAnimationFrame(render);
-      renderer.render(scene, camera);
+      requestAnimationFrame(render);
+      playerRef.current.handleRender(renderer, scene, camera);
       // controls.update();
     }
 
@@ -92,7 +92,6 @@ export const VolumetricPlayer = (props: VolumetricPlayerProps) => {
     const DracosisSequence = playerRef.current;
 
     render();
-
     return () => {
       window.removeEventListener("resize", onResize);
       cancelAnimationFrame(animationFrameId);
