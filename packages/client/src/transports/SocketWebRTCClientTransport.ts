@@ -4,14 +4,13 @@ import { MessageTypes } from "@xr3ngine/engine/src/networking/enums/MessageTypes
 import { NetworkTransport } from "@xr3ngine/engine/src/networking/interfaces/NetworkTransport";
 import * as mediasoupClient from "mediasoup-client";
 import { Transport as MediaSoupTransport } from "mediasoup-client/lib/types";
-import getConfig from "next/config";
 import ioclient from "socket.io-client";
 import { createDataProducer, endVideoChat, initReceiveTransport, initSendTransport, leave, subscribeToTrack } from "./SocketWebRTCClientFunctions";
 import { EngineEvents } from "@xr3ngine/engine/src/ecs/classes/EngineEvents";
 import { ClientNetworkSystem } from "@xr3ngine/engine/src/networking/systems/ClientNetworkSystem";
+import { Config } from '@xr3ngine/client-core/src/helper';
 
-const { publicRuntimeConfig } = getConfig();
-const gameserver = process.env.NODE_ENV === 'production' ? publicRuntimeConfig.gameserver : 'https://127.0.0.1:3031';
+const gameserver = process.env.NODE_ENV === 'production' ? Config.publicRuntimeConfig.gameserver : 'https://127.0.0.1:3031';
 const Device = mediasoupClient.Device;
 
 export class SocketWebRTCClientTransport implements NetworkTransport {
