@@ -124,7 +124,7 @@
     "cache-loader": "4.1.0",
     "config": "3.3.6",
     "cross-env": "7.0.3",
-    "css-loader": "5.2.2",
+    "css-loader": "5.2.4",
     "dotenv-webpack": "7.0.2",
     "eslint": "7.24.0",
     "eslint-plugin-react": "7.23.2",
