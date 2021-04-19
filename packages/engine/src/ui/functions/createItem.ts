@@ -58,7 +58,8 @@ export const createRow = (width, height, elements, gap) => {
     height: height,
     contentDirection: 'row',
     alignContent: 'center',
-    justifyContent: 'center'
+    justifyContent: 'center',
+    backgroundOpacity: 0.0,
   });
 
   elements.forEach(element => {
@@ -75,7 +76,8 @@ export const createCol = (width, height, elements, gap) => {
     height: height,
     contentDirection: 'column',
     alignContent: 'center',
-    justifyContent: 'center'
+    justifyContent: 'center',
+    backgroundOpacity: 0.0,
   });
 
   elements.forEach(element => {
