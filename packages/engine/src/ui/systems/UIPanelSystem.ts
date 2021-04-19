@@ -25,7 +25,6 @@ export class UIPanelSystem extends System {
 
   raycaster: Raycaster = new Raycaster();
   panelContainer: Group = new Group();
-  panelRaycastTargets: UIBaseElement[] = [];
   lastRaycastTargets: UIBaseElement[] = [];
 
   constructor(attributes?: SystemAttributes) {
@@ -38,10 +37,6 @@ export class UIPanelSystem extends System {
     this.queryResults.panels?.added?.forEach((entity: Entity) => {
       const uiPanel = getComponent(entity, UIPanelComponent);
       this.panelContainer.add(uiPanel.panel);
-
-      uiPanel.panel.elements.forEach(element => {
-        this.panelRaycastTargets.push(element);
-      });
     })
 
     this.queryResults.panels?.removed?.forEach((entity: Entity) => {
