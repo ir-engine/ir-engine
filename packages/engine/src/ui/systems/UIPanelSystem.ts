@@ -1,7 +1,7 @@
 
 import { System, SystemAttributes } from "../../ecs/classes/System";
 import { UIPanelComponent } from "../components/UIPanelComponent";
-import { update } from "../../assets/three-mesh-ui";
+import { Block, update } from "../../assets/three-mesh-ui";
 import { Entity } from "../../ecs/classes/Entity";
 import { getComponent } from "../../ecs/functions/EntityFunctions";
 import { Group, Object3D, Raycaster } from "three";
@@ -13,11 +13,16 @@ import { NumericalType } from "../../common/types/NumericalTypes";
 import { LifecycleValue } from "../../common/enums/LifecycleValue";
 
 const getUIPanelFromHit = (hit: any) => {
-  if(!hit.isUIElement) {
+  if (!( hit instanceof Block ))
+  {
     if(!hit.parent) return null;
     return getUIPanelFromHit(hit.parent);
   }
-  return hit;
+
+  if (!hit.setSelectState)
+    return null;
+
+    return hit;
 }
 
 // for internal use
@@ -25,7 +30,7 @@ export class UIPanelSystem extends System {
 
   raycaster: Raycaster = new Raycaster();
   panelContainer: Group = new Group();
-  lastRaycastTargets: UIBaseElement[] = [];
+  lastRaycastTargets: Block[] = [];
 
   constructor(attributes?: SystemAttributes) {
     super(attributes);
@@ -66,10 +71,10 @@ export class UIPanelSystem extends System {
       const hits = this.raycaster.intersectObjects(this.panelContainer.children, true)
       
       if(!hits || !hits[0]) return;
-      const hit = hits[0].object as UIBaseElement;
+      const hit = hits[0].object;
 
       const uiElement = getUIPanelFromHit(hit);
-      if(!uiElement) return console.warn('UIPanelSystem: Intersected with a object that does not belong to a panel, this should never happen.');
+      if(!uiElement) return;
 
       if(this.lastRaycastTargets[0] !== uiElement) {
         this.lastRaycastTargets[0]?.setSelectState(UI_ELEMENT_SELECT_STATE.IDLE);
