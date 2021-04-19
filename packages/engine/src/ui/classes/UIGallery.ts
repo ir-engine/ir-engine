@@ -160,40 +160,32 @@ export class UIGallery extends UIBaseElement {
       }
     }
 
-    const button1 = new UIButton('Marketplace', 0);
-    const button2 = new UIButton('Library', 1);
+    this.add(buttonMarket);
+    this.add(buttonLibrary);
 
-    marketPlacePanels.push(button1);
-    marketPlacePanels.push(button2);
+    buttonMarket.position.set(-0.5, 1, 0);
+    buttonLibrary.position.set(-0.05, 1, 0);
 
-    libraryPanels.push(button1);
-    libraryPanels.push(button2);
-
-    marketPlacePanels.forEach(e => {
-      e.siblings = marketPlacePanels;
-    });
-
-    libraryPanels.forEach(e => {
-      e.siblings = libraryPanels;
-    });
-
-    this.add(button1);
-    this.add(button2);
-
-    button1.addEventListener(UI_ELEMENT_SELECT_STATE.SELECTED, () => {
+    buttonMarket.addEventListener(UI_ELEMENT_SELECT_STATE.SELECTED, () => {
       this.library.visible = false;
       this.marketPlace.visible = true;
     })
 
-    button2.addEventListener(UI_ELEMENT_SELECT_STATE.SELECTED, () => {
+    buttonLibrary.addEventListener(UI_ELEMENT_SELECT_STATE.SELECTED, () => {
       this.library.visible = true;
       this.marketPlace.visible = false;
     })
 
+    buttonNext.addEventListener(UI_ELEMENT_SELECT_STATE.SELECTED, () => {
+      this.library.visible = false;
+      this.marketPlace.visible = true;
+    })
+
     this.library.visible = false;
 
-    this.elements.push(button1);
-    this.elements.push(button2);
+    this.elements.push(buttonMarket);
+    this.elements.push(buttonLibrary);
+    this.elements.push(buttonNext);
 
     this.position.set(0, 1, 0);
     this.rotation.y = Math.PI;
