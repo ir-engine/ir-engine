@@ -6,13 +6,12 @@ export class UIOverview extends UIBaseElement {
   constructor(title, description, image) {
     super();
 
-    this.init(title, description, image);
+    this.init(title, description, imageUrl);
   }
 
-  init(title, description, image) {
-    const url = "ITN_Wrecks_FOR_REVIEW_4kx2k_360_h264_40Mbps.mp4";
-    const videoElement = new VideoElement(3.2, 0.8, 0.1, 1.35, url);
-    this.add(videoElement);
+  init(title, description, url) {
+    const imageElement = new ImageElement(3.2, 0.8, 0.1, 1.35, url);
+    this.add(imageElement);
 
     const textBlock = new Block({
       height: 0.1,
