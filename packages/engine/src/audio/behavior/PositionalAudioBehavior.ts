@@ -18,7 +18,7 @@ for (let i = 0; i < soundList.length; i++) {
     const positionalAudio = new PositionalAudio(listener);
     audioLoader.load(soundList[i], (buffer) => {
 
-        positionalAudio.setBuffer(buffer);
+        positionalAudio.setBuffer(buffer as string & AudioBuffer);
         positionalAudio.setRefDistance(20);
         positionalAudio.loop = true;
         positionalAudio.play();

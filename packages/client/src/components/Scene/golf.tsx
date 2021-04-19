@@ -1,4 +1,5 @@
-import { Button, Snackbar } from '@material-ui/core';
+import Button from '@material-ui/core/Button';
+import Snackbar from '@material-ui/core/Snackbar';
 import { InteractableModal } from '@xr3ngine/client-core/src/world/components/InteractableModal';
 import LoadingScreen from '@xr3ngine/client-core/src/common/components/Loader';
 import { MobileGamepadProps } from "@xr3ngine/client-core/src/common/components/MobileGamepad/MobileGamepadProps";
@@ -44,8 +45,8 @@ import { CharacterComponent } from '@xr3ngine/engine/src/templates/character/com
 import { DefaultNetworkSchema } from '@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema';
 import { PrefabType } from '@xr3ngine/engine/src/templates/networking/PrefabType';
 import { XRSystem } from '@xr3ngine/engine/src/xr/systems/XRSystem';
-import dynamic from 'next/dynamic';
-import { useRouter } from 'next/router';
+import { Config } from '@xr3ngine/client-core/src/helper';
+import { useHistory } from 'react-router-dom';
 import querystring from 'querystring';
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
@@ -53,11 +54,10 @@ import { bindActionCreators, Dispatch } from 'redux';
 import url from 'url';
 import { CharacterInputSchema } from '@xr3ngine/engine/src/templates/character/CharacterInputSchema';
 import { GolfGameMode } from '@xr3ngine/engine/src/templates/game/GolfGameMode';
-import { Config } from '@xr3ngine/client-core/src/helper';
 
 const goHome = () => window.location.href = window.location.origin;
 
-const MobileGamepad = dynamic<MobileGamepadProps>(() => import("@xr3ngine/client-core/src/common/components/MobileGamepad").then((mod) => mod.MobileGamepad), { ssr: false });
+const MobileGamepad = React.lazy(() => import("@xr3ngine/client-core/src/common/components/MobileGamepad"));
 
 const engineRendererCanvasId = 'engine-renderer-canvas';
 
@@ -122,7 +122,7 @@ export const EnginePage = (props: Props) => {
   const [infoBoxData, setModalData] = useState(null);
   const [userBanned, setUserBannedState] = useState(false);
   const [openLinkData, setOpenLinkData] = useState(null);
-  const router = useRouter();
+  const router = useHistory();
 
   const [progressEntity, setProgressEntity] = useState(99);
   const [userHovered, setonUserHover] = useState(false);

@@ -3,6 +3,7 @@ import store from "@xr3ngine/client-core/src/store";
 import { EngineEvents } from "@xr3ngine/engine/src/ecs/classes/EngineEvents";
 import { Network } from "@xr3ngine/engine/src/networking/classes/Network";
 import { MediaStreamSystem } from "@xr3ngine/engine/src/networking/systems/MediaStreamSystem";
+import { Config } from '@xr3ngine/client-core/src/helper';
 import { Dispatch } from 'redux';
 import { endVideoChat, leave } from "../../transports/SocketWebRTCClientFunctions";
 import { triggerUpdateConsumers } from '../mediastream/service';
@@ -12,8 +13,6 @@ import {
   instanceServerProvisioned,
   instanceServerProvisioning
 } from './actions';
-
-import { Config } from '@xr3ngine/client-core/src/helper';
 
 export function provisionInstanceServer(locationId?: string, instanceId?: string, sceneId?: string) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {

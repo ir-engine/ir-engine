@@ -3,13 +3,12 @@
  *@Param :- projectId
  */
 
-import dynamic from "next/dynamic";
 import React, { lazy, Suspense, useEffect, useState } from "react";
 import NoSSR from "react-no-ssr";
 
 
 // importing component EditorContainer.
-const EditorContainer = dynamic(() => import("@xr3ngine/client-core/src/world/components/editor/EditorContainer"), { ssr: false });
+const EditorContainer = lazy(() => import("@xr3ngine/client-core/src/world/components/editor/EditorContainer"));
 
 import { connect } from 'react-redux';
 import {selectAuthState} from "@xr3ngine/client-core/src/user/reducers/auth/selector";

@@ -304,9 +304,9 @@ export default class CanvasPlayer {
 
       this.mesh.material.needsUpdate = true;
 
-      this.mesh.geometry = this.meshBuffer.get(meshBufferPosition).bufferGeometry;
+      this.mesh.geometry = this.meshBuffer.get(meshBufferPosition).bufferGeometry as BufferGeometry;
       this.mesh.geometry.attributes.position.needsUpdate = true;
-      this.mesh.geometry.needsUpdate = true;
+      (this.mesh.geometry as any).needsUpdate = true;
 
       if (typeof this.onFrameShow === "function") {
         this.onFrameShow(frameToPlay);

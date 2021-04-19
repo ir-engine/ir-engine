@@ -1,10 +1,8 @@
-import {
-  Backdrop,
-  Fade,
-  Modal,
-  Tab,
-  Tabs
-} from '@material-ui/core';
+import Backdrop from '@material-ui/core/Backdrop';
+import Fade from '@material-ui/core/Fade';
+import Modal from '@material-ui/core/Modal';
+import Tab from '@material-ui/core/Tab';
+import Tabs from '@material-ui/core/Tabs';
 import {
   AccountCircle, Settings
 } from '@material-ui/icons';

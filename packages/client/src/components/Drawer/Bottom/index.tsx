@@ -1,13 +1,11 @@
-import {
-    Avatar,
-    Button,
-    List,
-    ListItem,
-    ListItemAvatar,
-    ListItemText,
-    SwipeableDrawer,
-    TextField
-} from '@material-ui/core';
+import Avatar from '@material-ui/core/Avatar';
+import Button from '@material-ui/core/Button';
+import List from '@material-ui/core/List';
+import ListItem from '@material-ui/core/ListItem';
+import ListItemAvatar from '@material-ui/core/ListItemAvatar';
+import ListItemText from '@material-ui/core/ListItemText';
+import SwipeableDrawer from '@material-ui/core/SwipeableDrawer';
+import TextField from '@material-ui/core/TextField';
 import {
     Clear,
     Delete,
