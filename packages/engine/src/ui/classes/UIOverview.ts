@@ -7,7 +7,7 @@ export class UIOverview extends UIBaseElement {
   constructor(title, description, image) {
     super();
 
-    this.init(title, description, image);
+    this.init(title, description, imageUrl);
   }
 
   init(title, description, image) {
