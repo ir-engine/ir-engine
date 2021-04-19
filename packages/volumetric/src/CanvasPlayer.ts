@@ -66,9 +66,9 @@ export default class CanvasPlayer {
   totalFrames = 0;
   counterCtx: CanvasRenderingContext2D;
   actorCtx: CanvasRenderingContext2D;
-  lastActorCtx: CanvasRenderingContext2D;
 
   numberOfFrames: any;
+  actorCanvas: HTMLCanvasElement;
 
   // public getters and settings
   get currentFrame(): number {
@@ -193,7 +193,7 @@ export default class CanvasPlayer {
     this._loop = loop;
     this._scale = scale;
     this._video = video ?? createElement('video', {
-      crossorigin: "anonymous",
+      crossorigin: "",
       playsInline: "true",
       loop: true,
       src: videoFilePath,
@@ -208,6 +208,8 @@ export default class CanvasPlayer {
       playbackRate: 1
     });
 
+    this._video.setAttribute('crossorigin', '');
+
     this.frameRate = frameRate;
 
     // Create a default mesh
@@ -215,12 +217,14 @@ export default class CanvasPlayer {
     const counterCanvas = document.createElement('canvas') as HTMLCanvasElement;
     counterCanvas.width = byteLength;
     counterCanvas.height = 1;
-    this.counterCtx = counterCanvas.getContext('2d');
-    this.actorCtx = document.createElement('canvas').getContext('2d');
-    this.actorCtx.canvas.width = this.actorCtx.canvas.height = videoSize;
 
-    this.lastActorCtx = document.createElement('canvas').getContext('2d');
-    this.lastActorCtx.canvas.width = this.lastActorCtx.canvas.height = videoSize;
+    this.counterCtx = counterCanvas.getContext('2d');
+    this.actorCanvas = document.createElement('canvas')
+    this.actorCtx = this.actorCanvas.getContext('2d');
+    
+    this.actorCtx.canvas.width = this.actorCtx.canvas.height = videoSize;
+    this.counterCtx.canvas.setAttribute('crossOrigin', 'Anonymous');
+    this.actorCtx.canvas.setAttribute('crossOrigin', 'Anonymous');
 
     this.actorCtx.fillStyle = '#ACC';
     this.actorCtx.fillRect(0, 0, this.actorCtx.canvas.width, this.actorCtx.canvas.height);
@@ -266,7 +270,6 @@ export default class CanvasPlayer {
     this.actorCtx.drawImage(this._video, 0, 0);
 
     this.counterCtx.drawImage(this.actorCtx.canvas, 0, videoSize - (boxLength / 2), boxLength * byteLength, (boxLength / 2), 0, 0, byteLength, 1);
-    
     const imgData = this.counterCtx.getImageData(0, 0, byteLength, 1);
 
     let frameToPlay = 0;
