@@ -17,22 +17,22 @@ export class UIPanel extends UIBaseElement {
   oldPosZ: number;
   visible: boolean;
 
-  constructor(title, description, image) {
+  constructor(title, description, imageUrl) {
     super();
 
-    this.init(title, description);
+    this.init(title, description, imageUrl);
   }
   
   setSelectState: (state: UI_ELEMENT_SELECT_STATE) => void;
 
-  init(title, description) {
+  init(title, description, url) {
     this.siblings = [];
 
     this.container.position.set(0, 0, 0);
     // TODO: fix typings for three-mesh-ui
     this.add(this.container as any);
 
-    const textBlock = new Block({
+    this.textBlock = new Block({
       height: 0.1,
       width: 0.9,
       margin: 0.01,
@@ -56,9 +56,10 @@ export class UIPanel extends UIBaseElement {
       })
     );
 
-    textBlock.position.set(0, -0.13, 0.1);
+    this.textBlock.position.set(0, -0.13, 0.1);
 
-    this.add(textBlock);
+    this.renderOrder = 1;
+    this.add(this.textBlock);
 
     this.button1 = new UIButton('Back', 0);
     this.button2 = new UIButton('Play', 0);
@@ -91,20 +92,15 @@ export class UIPanel extends UIBaseElement {
     });
 
     this.visible = true;
-    console.log('panel picked');
-    // this.container.width = 2;
-    // this.container.height = 1;
-    this.needsUpdate = true;
-
     this.container.resize({ width: 3, height: 1.5 });
-
-    console.log('before position : ', this.oldPosX, this.oldPosY, this.oldPosZ);
 
     this.position.set(0, 1, 0);
 
     this.button1.visible = true;
     this.button2.visible = true;
     this.button3.visible = true;
+
+    this.textBlock.position.set(-1, -0.8, 0.1);
   }
 
   goback() {
@@ -122,5 +118,7 @@ export class UIPanel extends UIBaseElement {
     this.button1.visible = false;
     this.button2.visible = false;
     this.button3.visible = false;
+
+    this.textBlock.position.set(0, -0.13, 0.1);
   }
 }
