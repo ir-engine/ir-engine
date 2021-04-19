@@ -54,6 +54,37 @@ export const createItem = (param) =>{
           }
     );
 
+    if ( param.selectable ){
+      makeSelectable(container, [
+        {
+          state: "hovered",
+          // attributes: {
+          //   // offset: 0.035,
+          //   backgroundColor: new Color(0x999999),
+          //   backgroundOpacity: 1,
+          //   fontColor: new Color(0xffffff)
+          // },
+        },
+        {
+          state: "idle",
+          // attributes: {
+          //   // offset: 0.035,
+          //   backgroundColor: new Color(0x666666),
+          //   backgroundOpacity: 0.3,
+          //   fontColor: new Color(0xffffff)
+          // },
+        },
+        {
+          state: "selected",
+          // attributes: {
+          //   // offset: 0.02,
+          //   backgroundColor: new Color(0x777777),
+          //   fontColor: new Color(0x222222)
+          // }
+        }
+      ]);
+    }
+
     return container;
 }
 
@@ -156,48 +187,49 @@ export const createButton = (param) => {
     })
   );
 
-  makeSelectable(button);
+  makeSelectable(button, [buttonHoveredStateAttributes, buttonIdleStateAttributes, buttonSelectStateAttributes]);
 
   return button;
 }
 
-export const makeSelectable = (block) => {
-  
-  const hoveredStateAttributes = {
-    state: "hovered",
-    attributes: {
-      // offset: 0.035,
-      backgroundColor: new Color(0x999999),
-      backgroundOpacity: 1,
-      fontColor: new Color(0xffffff)
-    },
-  };
+const buttonHoveredStateAttributes = {
+  state: "hovered",
+  attributes: {
+    // offset: 0.035,
+    backgroundColor: new Color(0x999999),
+    backgroundOpacity: 1,
+    fontColor: new Color(0xffffff)
+  },
+};
 
-  const idleStateAttributes = {
-    state: "idle",
-    attributes: {
-      // offset: 0.035,
-      backgroundColor: new Color(0x666666),
-      backgroundOpacity: 0.3,
-      fontColor: new Color(0xffffff)
-    },
-  };
+const buttonIdleStateAttributes = {
+  state: "idle",
+  attributes: {
+    // offset: 0.035,
+    backgroundColor: new Color(0x666666),
+    backgroundOpacity: 0.3,
+    fontColor: new Color(0xffffff)
+  },
+};
 
-  const selectStateAttributes = {
-    state: "selected",
-    attributes: {
-      // offset: 0.02,
-      backgroundColor: new Color(0x777777),
-      fontColor: new Color(0x222222)
-    },
-    onSet: () => {
-      console.log('seleteced');
-    }
-  };
+const buttonSelectStateAttributes = {
+  state: "selected",
+  attributes: {
+    // offset: 0.02,
+    backgroundColor: new Color(0x777777),
+    fontColor: new Color(0x222222)
+  },
+  onSet: () => {
+    console.log('seleteced');
+  }
+};
 
-  block.setupState(hoveredStateAttributes);
-  block.setupState(idleStateAttributes);
-  block.setupState(selectStateAttributes);
+export const makeSelectable = (block, states) => {
+  if (states){
+    block.setupState(states[0]);
+    block.setupState(states[1]);
+    block.setupState(states[2]);  
+  }
 
   block.setSelectState = (state) => {
     block.dispatchEvent({ type: state });

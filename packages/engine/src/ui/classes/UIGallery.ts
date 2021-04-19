@@ -10,6 +10,7 @@ export class UIGallery extends UIBaseElement {
   marketPlace: Block;
   library: Block;
   purchasePanel: Block;
+  oldPanel: Block;
 
   constructor() {
     super();
@@ -50,7 +51,13 @@ export class UIGallery extends UIBaseElement {
       imageUrl: url(urlIndex++),
       width: totalWidth,
       height: 0.8,
+      selectable: true
     });
+    ov.addEventListener(UI_ELEMENT_SELECT_STATE.SELECTED, () => {
+      this.purchasePanel.visible = true;
+      this.marketPlace.visible = false;
+      this.oldPanel = this.marketPlace;
+    })
 
     let cols = [];
     cols.push(ov);
@@ -134,18 +141,14 @@ export class UIGallery extends UIBaseElement {
 
     this.library.visible = false;
 
-    this.elements.push(buttonMarket);
-    this.elements.push(buttonLibrary);
-    this.elements.push(buttonNext);
-
     this.position.set(0, 1, 0);
     this.rotation.y = Math.PI;
-
-    this.marketPlace.visible = false;
+    
     this.purchasePanel = this.createPurchaseSession({
       width: totalWidth,
       height: itemHeight*2.5,
     });
+    this.purchasePanel.visible = false;
 
     this.add(this.purchasePanel);
   }
@@ -157,7 +160,6 @@ export class UIGallery extends UIBaseElement {
     let backButton = createButton({
       title: "Back"
     });
-    ;
 
     let image = createItem({
       width: width,
@@ -186,6 +188,16 @@ export class UIGallery extends UIBaseElement {
         purchaseButton
       ], 
       (width - text.width - purchaseButton.width)*0.5);
+
+    backButton.addEventListener(UI_ELEMENT_SELECT_STATE.SELECTED, () => {
+      this.purchasePanel.visible = false;
+      this.oldPanel.visible = true;
+    });
+
+    purchaseButton.addEventListener(UI_ELEMENT_SELECT_STATE.SELECTED, () => {
+      // this.library.visible = false;
+      // this.marketPlace.visible = true;
+    });
     
     return createCol(
       width, height, 

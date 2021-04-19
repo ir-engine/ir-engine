@@ -13,8 +13,7 @@ import { NumericalType } from "../../common/types/NumericalTypes";
 import { LifecycleValue } from "../../common/enums/LifecycleValue";
 
 const getUIPanelFromHit = (hit: any) => {
-  if (!( hit instanceof Block ))
-  {
+  if (!( hit instanceof Block )) {
     if(!hit.parent) return null;
     return getUIPanelFromHit(hit.parent);
   }
@@ -22,7 +21,22 @@ const getUIPanelFromHit = (hit: any) => {
   if (!hit.setSelectState)
     return null;
 
-    return hit;
+  if (!getVisiblity(hit))
+    return null;
+
+  return hit;
+}
+
+const getVisiblity = (obj) => {
+  if (obj && obj.visible === false)
+    return false;
+
+  let bool = true;
+  obj.traverseAncestors((parent) => {
+      if (parent && !parent.visible)
+        bool = false;
+  });
+  return bool;
 }
 
 // for internal use
@@ -71,9 +85,15 @@ export class UIPanelSystem extends System {
       const hits = this.raycaster.intersectObjects(this.panelContainer.children, true)
       
       if(!hits || !hits[0]) return;
-      const hit = hits[0].object;
+      
+      let uiElement = null;
+      for(let i = 0 ; i < hits.length; i++){
+        const hit = hits[i].object;
+        uiElement = getUIPanelFromHit(hit);
+        if(uiElement)
+          break;
+      }
 
-      const uiElement = getUIPanelFromHit(hit);
       if(!uiElement) return;
 
       if(this.lastRaycastTargets[0] !== uiElement) {
