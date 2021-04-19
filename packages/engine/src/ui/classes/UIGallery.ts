@@ -11,6 +11,10 @@ export class UIGallery extends UIBaseElement {
   library: Block;
   purchasePanel: Block;
   oldPanel: Block;
+  playButton: Block;
+  purchaseButton: Block;
+  buttonMarket: Block;
+  buttonLibrary: Block;
 
   constructor() {
     super();
@@ -57,6 +61,8 @@ export class UIGallery extends UIBaseElement {
       this.purchasePanel.visible = true;
       this.marketPlace.visible = false;
       this.oldPanel = this.marketPlace;
+      this.buttonMarket.visible = false;
+      this.buttonLibrary.visible = false;
     })
 
     let cols = [];
@@ -72,8 +78,18 @@ export class UIGallery extends UIBaseElement {
           imageUrl: url(urlIndex++),
           width: itemWidth,
           height: itemHeight,
+          selectable: true
         });
         rows.push(panel);
+
+        panel.addEventListener(UI_ELEMENT_SELECT_STATE.SELECTED, () => {
+          this.purchasePanel.visible = true;
+          this.marketPlace.visible = false;
+          this.oldPanel = this.marketPlace;
+          this.setPurchase(true);
+          this.buttonMarket.visible = false;
+          this.buttonLibrary.visible = false;
+        })
       }
       cols.push(createRow(totalWidth, itemHeight, rows, gap));
     }
@@ -92,8 +108,18 @@ export class UIGallery extends UIBaseElement {
           imageUrl: url(urlIndex++),
           width: itemWidth,
           height: itemHeight,
+          selectable: true
         });
         rows.push(panel);
+
+        panel.addEventListener(UI_ELEMENT_SELECT_STATE.SELECTED, () => {
+          this.purchasePanel.visible = true;
+          this.library.visible = false;
+          this.oldPanel = this.library;
+          this.setPurchase(false);
+          this.buttonMarket.visible = false;
+          this.buttonLibrary.visible = false;
+        })
       }
       cols.push(createRow(totalWidth, itemHeight, rows, gap));
     }
@@ -115,21 +141,21 @@ export class UIGallery extends UIBaseElement {
     this.library = createCol(totalWidth, totalHeight, cols, gap);
     this.add(this.library);
 
-    let buttonMarket = createButton({title:"Marketplace"});
-    let buttonLibrary = createButton({title:"Library"});
+    this.buttonMarket = createButton({title:"Marketplace"});
+    this.buttonLibrary = createButton({title:"Library"});
 
-    this.add(buttonMarket);
-    this.add(buttonLibrary);
+    this.add(this.buttonMarket);
+    this.add(this.buttonLibrary);
 
-    buttonMarket.position.set(-0.5, 1, 0);
-    buttonLibrary.position.set(-0.05, 1, 0);
+    this.buttonMarket.position.set(-0.5, 1, 0);
+    this.buttonLibrary.position.set(-0.05, 1, 0);
 
-    buttonMarket.addEventListener(UI_ELEMENT_SELECT_STATE.SELECTED, () => {
+    this.buttonMarket.addEventListener(UI_ELEMENT_SELECT_STATE.SELECTED, () => {
       this.library.visible = false;
       this.marketPlace.visible = true;
     })
 
-    buttonLibrary.addEventListener(UI_ELEMENT_SELECT_STATE.SELECTED, () => {
+    this.buttonLibrary.addEventListener(UI_ELEMENT_SELECT_STATE.SELECTED, () => {
       this.library.visible = true;
       this.marketPlace.visible = false;
     })
@@ -153,6 +179,21 @@ export class UIGallery extends UIBaseElement {
     this.add(this.purchasePanel);
   }
 
+  setPurchase(isPurchase){
+    if(isPurchase){
+      this.playButton.visible = false;
+      this.purchaseButton.children[1].set({
+        content: "Purchase"
+      });
+    }
+    else{
+      this.playButton.visible = true;
+      this.purchaseButton.children[1].set({
+        content: "Download"
+      });
+    };
+  }
+
   createPurchaseSession(param){
     const width = param.width;
     const height = param.height;
@@ -168,7 +209,7 @@ export class UIGallery extends UIBaseElement {
     });
 
     let text = createItem({
-      width: width*0.5,
+      width: width-0.8-0.025*4,
       height: 0.1,
       title: "SceneTitle",
       description: "Scene Description",
@@ -177,24 +218,38 @@ export class UIGallery extends UIBaseElement {
       backgroundOpacity: 0.0,      
     })
 
-    let purchaseButton = createButton({
+    this.purchaseButton = createButton({
       title: "Purchase"
+    });
+
+    this.playButton = createButton({
+      title: "Play"
     });
 
     let bottomBar = createRow(
       width, 0.2, 
       [
         text, 
-        purchaseButton
+        this.playButton,
+        this.purchaseButton
       ], 
-      (width - text.width - purchaseButton.width)*0.5);
+      0.025);
+
+    this.playButton.visible = false;
 
     backButton.addEventListener(UI_ELEMENT_SELECT_STATE.SELECTED, () => {
       this.purchasePanel.visible = false;
       this.oldPanel.visible = true;
+      this.buttonMarket.visible = true;
+      this.buttonLibrary.visible = true;
     });
 
-    purchaseButton.addEventListener(UI_ELEMENT_SELECT_STATE.SELECTED, () => {
+    this.playButton.addEventListener(UI_ELEMENT_SELECT_STATE.SELECTED, () => {
+      // this.library.visible = false;
+      // this.marketPlace.visible = true;
+    });
+
+    this.purchaseButton.addEventListener(UI_ELEMENT_SELECT_STATE.SELECTED, () => {
       // this.library.visible = false;
       // this.marketPlace.visible = true;
     });
