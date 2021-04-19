@@ -1,59 +1,77 @@
 
 import { System, SystemAttributes } from "../../ecs/classes/System";
 import { UIPanelComponent } from "../components/UIPanelComponent";
-import { Keyboard, update } from "../../assets/three-mesh-ui";
-import { createPanelComponent } from "../functions/createPanelComponent";
+import { update } from "../../assets/three-mesh-ui";
 import { Entity } from "../../ecs/classes/Entity";
 import { getComponent } from "../../ecs/functions/EntityFunctions";
-import { Group } from "three";
+import { Group, Raycaster } from "three";
 import { Engine } from "../../ecs/classes/Engine";
-import { RaycastComponent } from "../../raycast/components/RaycastComponent";
+import { MouseInput } from "../../input/enums/InputEnums";
+import { UIBaseElement, UI_ELEMENT_SELECT_STATE } from "../classes/UIBaseElement";
 
+
+// for internal use
 export class UIPanelSystem extends System {
 
-  panelContainer: Group;
+  raycaster: Raycaster = new Raycaster();
+  panelContainer: Group = new Group();
+  panelRaycastTargets: UIBaseElement[] = [];
+  lastRaycastTargets: UIBaseElement[] = [];
 
   constructor(attributes?: SystemAttributes) {
     super(attributes);
-    this.panelContainer = new Group();
+    this.panelContainer;
     Engine.scene.add(this.panelContainer);
   }
+
   execute(): void {
     this.queryResults.panels?.added?.forEach((entity: Entity) => {
       const uiPanel = getComponent(entity, UIPanelComponent);
-      this.panelContainer.add(uiPanel.panel.panel);
-    
-      const raycast = getComponent(entity, RaycastComponent);
-      this.panelContainer.add(raycast.raycast);
-      
-      uiPanel.panel.panel.pickables.forEach(element => {
-        raycast.raycast.addObject(element);
+      this.panelContainer.add(uiPanel.panel);
+
+      uiPanel.panel.elements.forEach(element => {
+        this.panelRaycastTargets.push(element);
       });
     })
 
-    let raycaster = null;
-    this.queryResults.panels?.all?.forEach((entity: Entity) => {
-      const uiPanel = getComponent(entity, UIPanelComponent);
-
-      const raycast = getComponent(entity, RaycastComponent);
-      
-      // console.log('ui panel', uiPanel.panel.panel);
-      uiPanel.panel.panel.update();
-
-      raycaster = raycast.raycast;
-    })
     this.queryResults.panels?.removed?.forEach((entity: Entity) => {
       const uiPanel = getComponent(entity, UIPanelComponent);
       this.panelContainer.remove(uiPanel.panel)
+
+      uiPanel.panel.elements.forEach(element => {
+        this.panelRaycastTargets.splice(this.panelRaycastTargets.indexOf(element), 1);
+      });
     })
-    if(this.queryResults.panels?.all?.length) {
+
+    if (Engine.xrSession) {
+
+      // TODO
+      // extend the raycast functionality to be a function that takes input state (pos & click, controller & squeeze)
+
+    } else {
+      const mousePos = Engine.inputState.get(MouseInput.MousePosition);
+      const mouseDown = Engine.inputState.get(MouseInput.LeftButton);
+      if(!mousePos) return;
+
+      this.raycaster.setFromCamera(mousePos.value, Engine.camera);
+
+      const hits = this.raycaster.intersectObjects(this.panelRaycastTargets)
+      if(!hits || !hits[0]) return;
+      const hit = hits[0].object as UIBaseElement;
+
+      if(this.lastRaycastTargets[0] != hit) {
+        this.lastRaycastTargets[0].setSelectState(UI_ELEMENT_SELECT_STATE.IDLE);
+      }
+
+      hit.setSelectState(mouseDown.value ? UI_ELEMENT_SELECT_STATE.SELECTED : UI_ELEMENT_SELECT_STATE.HOVERED);
+    }
+
+    if (this.queryResults.panels?.all?.length) {
       update();
-      raycaster.update(Engine.camera);
-      // console.log('update!!!!', raycaster);
     }
   }
 
-  dispose() {}
+  dispose() { }
 }
 
 UIPanelSystem.queries = {
