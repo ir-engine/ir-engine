@@ -17,15 +17,24 @@ export class UIPanel extends UIBaseElement {
   oldPosZ: number;
   visible: boolean;
 
+<<<<<<< HEAD
   constructor(title, description, imageUrl) {
     super();
 
     this.init(title, description, imageUrl);
+=======
+  constructor(param) {
+    super();
+    // this.init(param);
+>>>>>>> Refine UIGallary with create util funcs
   }
 
   setSelectState: (state: UI_ELEMENT_SELECT_STATE) => void;
 
-  init(title, description, url) {
+  init(param) {
+    const title = param.title;
+    const description = param.description;
+    const url = param.url;
     this.siblings = [];
 
     this.container.position.set(0, 0, 0);
