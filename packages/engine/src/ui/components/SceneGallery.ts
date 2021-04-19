@@ -3,6 +3,7 @@ import SceneOverview from "../components/SceneOverview";
 import ScenePanel from '../components/ScenePanel';
 import SceneButton from "../components/SceneButton";
 import PurchaseElement from './PurchaseElement';
+import {createItem, createCol, createRow} from '../functions/createItem';
 
 class SceneGallery extends Object3D {
   marketPlace:Object3D;
@@ -44,44 +45,45 @@ class SceneGallery extends Object3D {
     }
 
     let urlIndex = 0;
-    const ov = new SceneOverview("Scene Title", "Scene Description\nSecode line of description", url(urlIndex++));
+
+    let ov = createItem({
+      title: "Scene Title", 
+      description: "Scene Description\nSecode line of description", 
+      imageUrl: url(urlIndex++),
+      width: 3,
+      height: 0.8,
+    });
+    ov.position.set(0, 1.3, 0);
+
     // this.marketPlace.add(ov);
-    this.pickables.push(ov);    
+    // this.pickables.push(ov);    
 
     const marketPlacePanels = [];
-    marketPlacePanels.push(ov);
+    // marketPlacePanels.push(ov);
 
-    for(let i= 0;i<3;i++){
-      for(let j=0;j<2;j++){
+    let cols = [];
+    cols.push(ov);
 
-        const x = 1.1*i-1;
-        const y = j*0.6;
-
-        const panel = new ScenePanel("Scene Title", "Scene Description", url(urlIndex++));
-        panel.position.set(x, y, 0);
-
-        panel.oldPosX = panel.position.x;
-        panel.oldPosY = panel.position.y;
-        panel.oldPosZ = panel.position.z;
-      
-        // this.marketPlace.add(panel);
-
-        this.pickables.push(panel.container);
-        this.pickables.push(panel.button1);
-        this.pickables.push(panel.button2);
-        this.pickables.push(panel.button3);
-
-        marketPlacePanels.push(panel);
-
-        // panel.pick = (state) => {
-        //   if(state){
-        //     // this.library.visible = false;
-        //     // this.marketPlace.visible = false;  
-        //   }
-        //   panel.picked(state);
-        // }
+    for(let j=0;j<2;j++){
+      let rows = [];
+      for(let i = 0 ; i < 3;i++)
+      {
+        const panel = createItem({
+          title: "Scene Title", 
+          description: "Scene Description", 
+          imageUrl: url(urlIndex++),
+          width: 1,
+          height: 0.5,
+        });
+        rows.push(panel);
       }
+      cols.push(createRow(3, 0.5, rows, 0.1));
     }
+
+    let mm = createCol(3, 1.5, cols, 0.1);
+    this.marketPlace.add( mm );
+
+    
 
     const libraryPanels = [];
     for(let i= 0;i<3;i++){
@@ -90,19 +92,25 @@ class SceneGallery extends Object3D {
         const x = 1.1*i-1;
         const y = j*0.6+0.2;
 
-        const panel = new ScenePanel("Scene Title", "Scene Description", url(urlIndex++));
+        const panel = createItem({
+          title: "Scene Title", 
+          description: "Scene Description", 
+          imageUrl: url(urlIndex++),
+          width: 1,
+          height: 0.5,
+        });
         panel.position.set(x, y, 0);
 
-        panel.oldPosX = panel.position.x;
-        panel.oldPosY = panel.position.y;
-        panel.oldPosZ = panel.position.z;
+        // panel.oldPosX = panel.position.x;
+        // panel.oldPosY = panel.position.y;
+        // panel.oldPosZ = panel.position.z;
       
         this.library.add(panel);
 
-        this.pickables.push(panel.container);
-        this.pickables.push(panel.button1);
-        this.pickables.push(panel.button2);
-        this.pickables.push(panel.button3);
+        // this.pickables.push(panel.container);
+        // this.pickables.push(panel.button1);
+        // this.pickables.push(panel.button2);
+        // this.pickables.push(panel.button3);
 
         libraryPanels.push(panel);
         // panel.pick = (state) => {
@@ -153,12 +161,12 @@ class SceneGallery extends Object3D {
       button2.picked(state);
     };
 
-    let purchaseElement = new PurchaseElement({
-        width: 2,
-        height: 1,
-        root: this, 
-        thumbnailUrls: [url(0), url(1), url(2), url(3), url(4), url(5)]
-      });
+    // let purchaseElement = new PurchaseElement({
+    //     width: 2,
+    //     height: 1,
+    //     root: this, 
+    //     thumbnailUrls: [url(0), url(1), url(2), url(3), url(4), url(5)]
+    //   });
 
     this.library.visible = false;
 
