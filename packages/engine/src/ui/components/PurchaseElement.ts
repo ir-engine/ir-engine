@@ -19,6 +19,8 @@ class PurchaseElement {
       let container = new Block({
             width: width,
             height: height,
+            fontFamily: "https://unpkg.com/three-mesh-ui/examples/assets/Roboto-msdf.json",
+            fontTexture: "https://unpkg.com/three-mesh-ui/examples/assets/Roboto-msdf.png"
         });
       root.add(container);
       container.position.set(0, height, 0);
@@ -27,8 +29,7 @@ class PurchaseElement {
       let topBar = new Block({
         width: width,
         height: 0.2,
-        backgroundColor: new Color('green'),
-        // backgroundOpacity: 0.0,
+        backgroundOpacity: 0.0,
         contentDirection: 'row'
       });
       container.add(topBar);
@@ -38,20 +39,12 @@ class PurchaseElement {
         width: 0.1,
         margin: 0,
         padding: 0.01,
-        // fontSize: 0.025,
         alignContent: "center",
-        backgroundColor: new Color('blue'),
-        // backgroundOpacity: 0.0,
-  
-        fontFamily:
-          "https://unpkg.com/three-mesh-ui/examples/assets/Roboto-msdf.json",
-        fontTexture:
-          "https://unpkg.com/three-mesh-ui/examples/assets/Roboto-msdf.png"
+        backgroundOpacity: 0.0,
       }).add(
         new Text({
           content: "x",
-          fontSize: 0.05,
-          // fontColor: new THREE.Color(0x96ffba)
+          fontSize: 0.05
         })
       );
       topBar.add(closeButton);
@@ -62,28 +55,19 @@ class PurchaseElement {
         margin: 0,
         padding: 0.07,
         alignContent: "center",
-        backgroundColor: new Color('red'),
-        // backgroundOpacity: 0.0,
-  
-        fontFamily:
-          "https://unpkg.com/three-mesh-ui/examples/assets/Roboto-msdf.json",
-        fontTexture:
-          "https://unpkg.com/three-mesh-ui/examples/assets/Roboto-msdf.png"
+        backgroundOpacity: 0.0,
       }).add(
         new Text({
           content: "This video is part of the ",
           fontSize: 0.05,
-          // fontColor: new THREE.Color(0x96ffba)
         }),
         new Text({
             content: "Oceania 2021",
             fontSize: 0.07,
-            // fontColor: new THREE.Color(0x96ffba)
           }),
           new Text({
             content: " Bundle.",
             fontSize: 0.05,
-            // fontColor: new THREE.Color(0x96ffba)
           })
       );
       topBar.add(title);
@@ -91,8 +75,7 @@ class PurchaseElement {
       let middleBar = new Block({
         width: width,
         height: height*0.7,
-        backgroundColor: new Color('blue'),
-        // backgroundOpacity: 0.0,
+        backgroundOpacity: 0.0,
         contentDirection: 'row'
       });
       container.add(middleBar);
@@ -100,11 +83,11 @@ class PurchaseElement {
       let leftBar = new Block({
         width: width*0.4*1.2,
         height: height*0.7,
-        backgroundColor: new Color('red'),
-        // backgroundOpacity: 0.0,
-        // padding: 0.1,
+        backgroundOpacity: 0.0,
+        padding: 0.1,
         // margin: 0.1,
-        alignContent: "center",
+        alignContent: "left",
+        justifyContent: "start",
         contentDirection: 'column'
       });
       middleBar.add(leftBar);
@@ -115,8 +98,8 @@ class PurchaseElement {
             height: thumbWidth*0.6,
             backgroundSize: 'cover',
             contentDirection: 'row',
-            margin: 0.01,
-            alignContent: "top",
+            margin: 0.005,
+            alignContent: "center",
           });//contain, cover, stretch
       
       const loader = new TextureLoader();
@@ -132,10 +115,10 @@ class PurchaseElement {
       let thumbBar = new Block({
         width: thumbWidth,
         height: thumbWidth/6*0.6,
-        backgroundColor: new Color('red'),
-        // backgroundOpacity: 0.0,
+        backgroundOpacity: 0.0,
         contentDirection: 'row',
-        alignContent: "bottom",
+        alignContent: "center",
+        margin: 0.005,
       });
       leftBar.add(thumbBar);  
     
@@ -146,6 +129,7 @@ class PurchaseElement {
               backgroundSize: 'cover',
               margin: 0.005,
               padding: 0,
+              alignContent: "center",
           });//contain, cover, stretch
         
           loader.load(
@@ -158,128 +142,77 @@ class PurchaseElement {
           thumbBar.add(subitem);
       });
 
+      let leftTextCol = new Block({
+        width: width*0.25,
+        height: height*0.7,
+        backgroundOpacity: 0.0,
+        padding: 0.1,
+        alignContent: "left",
+        justifyContent: "start",
+        contentDirection: 'column',
+      });
+      middleBar.add(leftTextCol);
 
-        
+      leftTextCol.add(
+        new Text({
+          content: "Complete Bundle",
+          fontSize: 0.04,
+        }),
+        new Text({
+            content: "\nIncludes 12 Experiences",
+            fontSize: 0.03,
+        }),
+        new Text({
+          content: "\n\n\n\n            Total",
+          fontSize: 0.04,
+        })
+      );
 
-        let description = new Block({
-          height: 0.5,
-          width: 1,
-          margin: 0,
-          padding: 0.03,
-          fontSize: 0.025,
-          alignContent: "center",
-          // backgroundColor: new Color('blue'),
+      let rightTextCol = new Block({
+        width: width*0.25,
+        height: height*0.7,
+        backgroundOpacity: 0.0,
+        padding: 0.1,
+        alignContent: "right",
+        justifyContent: "start",
+        contentDirection: 'column',
+      });
+      middleBar.add(rightTextCol);
+
+      let buyButton = new Block({
+        height: 0.1,
+        width: 0.2,
+        backgroundColor: new Color('blue'),
+        backgroundOpacity: 1.0,
+        alignContent: "center",
+        justifyContent: "center",
+      }).add(
+        new Text({
+          content: "Buy",
+          fontSize: 0.05,
+        })
+      );
+
+      rightTextCol.add( 
+        new Block({
+          height: 0.4,
+          width: 0.2,
           backgroundOpacity: 0.0,
-    
-          fontFamily:
-            "https://unpkg.com/three-mesh-ui/examples/assets/Roboto-msdf.json",
-          fontTexture:
-            "https://unpkg.com/three-mesh-ui/examples/assets/Roboto-msdf.png"
+          alignContent: "right",
+          justifyContent: "start",
+          contentDirection: 'column',
         }).add(
           new Text({
-            content: "Complete Bundle",
+            content: "$9.99",
             fontSize: 0.04,
-            // fontColor: new THREE.Color(0x96ffba)
           }),
           new Text({
-              content: "\nIncludes 12 Experiences",
-              fontSize: 0.02,
-              // fontColor: new THREE.Color(0x96ffba)
-            })
-        );
-        container.add(description);
-
-        let price1 = new Block({
-          height: 0.5,
-          width: 1,
-          margin: 0,
-          padding: 0.03,
-          fontSize: 0.025,
-          alignContent: "center",
-          // backgroundColor: new Color('blue'),
-          backgroundOpacity: 0.0,
-    
-          fontFamily:
-            "https://unpkg.com/three-mesh-ui/examples/assets/Roboto-msdf.json",
-          fontTexture:
-            "https://unpkg.com/three-mesh-ui/examples/assets/Roboto-msdf.png"
-        }).add(
-          new Text({
-            content: "$9.99",
+            content: "\n\n\n\n\n$9.99",
             fontSize: 0.04,
-            // fontColor: new THREE.Color(0x96ffba)
           })
-        );
-        container.add(price1);
-
-        let total = new Block({
-          height: 0.5,
-          width: 1,
-          margin: 0,
-          padding: 0.03,
-          fontSize: 0.025,
-          alignContent: "center",
-          // backgroundColor: new Color('blue'),
-          backgroundOpacity: 0.0,
-    
-          fontFamily:
-            "https://unpkg.com/three-mesh-ui/examples/assets/Roboto-msdf.json",
-          fontTexture:
-            "https://unpkg.com/three-mesh-ui/examples/assets/Roboto-msdf.png"
-        }).add(
-          new Text({
-            content: "Total",
-            fontSize: 0.04,
-            // fontColor: new THREE.Color(0x96ffba)
-          })
-        );
-        container.add(total);
-
-        let price2 = new Block({
-          height: 0.5,
-          width: 1,
-          margin: 0,
-          padding: 0.03,
-          fontSize: 0.025,
-          alignContent: "center",
-          // backgroundColor: new Color('blue'),
-          backgroundOpacity: 0.0,
-    
-          fontFamily:
-            "https://unpkg.com/three-mesh-ui/examples/assets/Roboto-msdf.json",
-          fontTexture:
-            "https://unpkg.com/three-mesh-ui/examples/assets/Roboto-msdf.png"
-        }).add(
-          new Text({
-            content: "$9.99",
-            fontSize: 0.04,
-            // fontColor: new THREE.Color(0x96ffba)
-          })
-        );
-        container.add(price2);
-        
-        let buyButton = new Block({
-            height: 0.1,
-            width: 0.4,
-            margin: 0,
-            padding: 0.03,
-            fontSize: 0.025,
-            alignContent: "center",
-            backgroundColor: new Color('blue'),
-            backgroundOpacity: 1.0,
-      
-            fontFamily:
-              "https://unpkg.com/three-mesh-ui/examples/assets/Roboto-msdf.json",
-            fontTexture:
-              "https://unpkg.com/three-mesh-ui/examples/assets/Roboto-msdf.png"
-          }).add(
-            new Text({
-              content: "Buy",
-              fontSize: 0.05,
-              // fontColor: new THREE.Color(0x96ffba)
-            })
-          );
-          container.add(buyButton);
+        ),
+        buyButton
+      );
     }
 }
 
