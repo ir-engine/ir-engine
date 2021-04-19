@@ -6,9 +6,16 @@ import { UIBaseElement, UI_ELEMENT_SELECT_STATE } from "./UIBaseElement";
 export class UIPanel extends UIBaseElement {
   container: Block;
   siblings: [];
+  add: any;
   button1: UIButton;
   button2: UIButton;
   button3: UIButton;
+  position: any;
+  needsUpdate: boolean;
+  oldPosX: number;
+  oldPosY: number;
+  oldPosZ: number;
+  visible: boolean;
 
   constructor(title, description, image) {
     super();
@@ -82,7 +89,7 @@ export class UIPanel extends UIBaseElement {
   }
 
   enlarge() {
-    this.siblings.forEach(element => {
+    this.siblings.forEach((element: any) => {
       element.visible = false;
       element.needsUpdate = true;
     });
@@ -107,7 +114,7 @@ export class UIPanel extends UIBaseElement {
   goback() {
     console.log('go back called');
 
-    this.siblings.forEach(element => {
+    this.siblings.forEach((element: any) => {
       element.visible = true;
       element.needsUpdate = true;
     });

@@ -7,6 +7,10 @@ import { UIBaseElement, UI_ELEMENT_SELECT_STATE } from "./UIBaseElement";
 export class UIGallery extends UIBaseElement {
   marketPlace: Object3D;
   library: Object3D;
+  pickables: any[];
+  add: any;
+  position: any;
+  rotation: any;
 
   constructor() {
     super();

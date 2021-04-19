@@ -7,6 +7,7 @@ export enum UI_ELEMENT_SELECT_STATE {
 }
 
 export class UIBaseElement extends Object3D {
+  add: any; // overwrite three
   elements: UIBaseElement[] = [];
   isUIElement = true;
 
