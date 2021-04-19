@@ -1,9 +1,9 @@
 import React, { Fragment, useEffect } from 'react';
-import { useRouter } from 'next/router';
+import { useHistory } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
 export const Custom404 = (): any => {
-  const router = useRouter();
+  const router = useHistory();
   const { t } = useTranslation();
   useEffect(() => {
     router.push("/");

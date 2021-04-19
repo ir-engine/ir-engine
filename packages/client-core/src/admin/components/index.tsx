@@ -1,23 +1,21 @@
-import {
-    Button,
-    MenuItem,
-    Paper,
-    Select,
-    Tab,
-    Table,
-    TableBody,
-    TableCell,
-    TableContainer,
-    TableHead,
-    TablePagination,
-    TableRow,
-    TableSortLabel,
-    Tabs
-} from '@material-ui/core';
+import Button from '@material-ui/core/Button';
+import MenuItem from '@material-ui/core/MenuItem';
+import Paper from '@material-ui/core/Paper';
+import Select from '@material-ui/core/Select';
+import Tab from '@material-ui/core/Tab';
+import Table from '@material-ui/core/Table';
+import TableBody from '@material-ui/core/TableBody';
+import TableCell from '@material-ui/core/TableCell';
+import TableContainer from '@material-ui/core/TableContainer';
+import TableHead from '@material-ui/core/TableHead';
+import TablePagination from '@material-ui/core/TablePagination';
+import TableRow from '@material-ui/core/TableRow';
+import TableSortLabel from '@material-ui/core/TableSortLabel';
+import Tabs from '@material-ui/core/Tabs';
 import FormControl from '@material-ui/core/FormControl';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import { Config } from '../../helper';
-import { Router, withRouter } from "next/router";
+import { useHistory } from "react-router-dom";
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
@@ -43,7 +41,6 @@ if (!global.setImmediate) {
 }
 
 interface Props {
-    router: Router;
     adminState?: any;
     authState?: any;
     locationState?: any;
@@ -93,7 +90,6 @@ const useStyles = makeStyles((theme: Theme) =>
 const AdminConsole = (props: Props) => {
     const classes = useStyles();
     const {
-        router,
         adminState,
         authState,
         fetchAdminLocations,
@@ -102,6 +98,8 @@ const AdminConsole = (props: Props) => {
         fetchUsersAsAdmin,
         fetchAdminInstances
     } = props;
+
+    const router = useHistory();
 
     const initialLocation = {
         id: null,
@@ -646,4 +644,4 @@ const AdminConsole = (props: Props) => {
     );
 };
 
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(AdminConsole));
+export default connect(mapStateToProps, mapDispatchToProps)(AdminConsole);

@@ -27,7 +27,8 @@ import { createElement } from '../functions/createElement';
 import { isWebWorker } from '../../common/functions/getEnvironment';
 import { VideoTextureProxy } from '../../worker/VideoTexture';
 import { PositionalAudioObjectProxy, AudioObjectProxy, AudioListenerProxy, AudioLoaderProxy } from '../../worker/Audio';
-import { BinaryType } from '../../common/types/NumericalTypes';
+import { BinaryType, NumericalType } from '../../common/types/NumericalTypes';
+import { InputValue } from '../../input/interfaces/InputValue';
 
 
 export const Audio = isWebWorker ? AudioObjectProxy : THREE_Audio;
@@ -232,8 +233,8 @@ export class Engine {
 
   static useAudioSystem = false;
 
-  static inputState = new Map();
-  static prevInputState = new Map();
+  static inputState = new Map<any, InputValue<NumericalType>>();
+  static prevInputState = new Map<any, InputValue<NumericalType>>();
 
   static isInitialized = false;
 

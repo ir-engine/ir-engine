@@ -1,17 +1,15 @@
-import {
-    Backdrop,
-    Button,
-    Fade,
-    FormControl,
-    FormControlLabel,
-    FormGroup,
-    InputLabel,
-    MenuItem,
-    Modal,
-    Select,
-    Switch,
-    TextField
-} from '@material-ui/core';
+import Backdrop from '@material-ui/core/Backdrop';
+import Button from '@material-ui/core/Button';
+import Fade from '@material-ui/core/Fade';
+import FormControl from '@material-ui/core/FormControl';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import FormGroup from '@material-ui/core/FormGroup';
+import InputLabel from '@material-ui/core/InputLabel';
+import MenuItem from '@material-ui/core/MenuItem';
+import Modal from '@material-ui/core/Modal';
+import Select from '@material-ui/core/Select';
+import Switch from '@material-ui/core/Switch';
+import TextField from '@material-ui/core/TextField';
 import classNames from 'classnames';
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';

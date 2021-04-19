@@ -1,29 +1,31 @@
-// import Blob from 'cross-blob';
+import { VideoTexture } from '@xr3ngine/engine/src/ecs/classes/Engine';
+import { createElement } from "@xr3ngine/engine/src/ecs/functions/createElement";
 import {
   BufferGeometry,
-  Float32BufferAttribute, Mesh,
-  MeshBasicMaterial, Object3D,
-  NoToneMapping,
+  Float32BufferAttribute,
+  Mesh,
+  MeshBasicMaterial,
+  Object3D,
   PlaneBufferGeometry,
   Renderer,
-  Scene,
   sRGBEncoding,
-  Uint32BufferAttribute, WebGLRenderer
+  Uint32BufferAttribute,
+  WebGLRenderer
 } from 'three';
 import {
   IFrameBuffer,
   KeyframeBuffer
 } from './Interfaces';
-
 import RingBuffer from './RingBuffer';
-import { VideoTexture } from '@xr3ngine/engine/src/ecs/classes/Engine';
-// import { Engine } from '@xr3ngine/engine/src/ecs/classes/Engine';
-// import { EngineEvents } from '@xr3ngine/engine/src/ecs/classes/EngineEvents';
-import { createElement } from "@xr3ngine/engine/src/ecs/functions/createElement";
 
 type AdvancedHTMLVideoElement = HTMLVideoElement & { requestVideoFrameCallback: (callback: (number, {}) => void) => void };
 type onMeshBufferingCallback = (progress:number) => void;
 type onFrameShowCallback = (frame:number) => void;
+
+
+const boxLength = 32; // length of the databox
+const byteLength = 16;
+const videoSize = 2048;
 
 export default class DracosisPlayer {
   // Public Fields
@@ -67,9 +69,13 @@ export default class DracosisPlayer {
   keyframesToBufferBeforeStart: number;
   numberOfKeyframes = 0;
   numberOfIframes = 0;
-  canvas: HTMLCanvasElement;
-  ctx: CanvasRenderingContext2D;
+  counterCanvas: HTMLCanvasElement;
+  counterCtx: CanvasRenderingContext2D;
+  actorCanvas: HTMLCanvasElement;
+  actorCtx: CanvasRenderingContext2D;
+
   numberOfFrames: any;
+  private _canvasTexture: any;
 
   // public getters and settings
   get currentFrame(): number {
@@ -90,6 +96,14 @@ export default class DracosisPlayer {
     }
     this.request = requestAnimationFrame(this.performAnimation)
   }
+
+  currentEncode = false;
+  textureBatchChanged = false;
+
+  lastTimeReported = 0;
+  lastDate = -1;
+  delta = 0;
+  lastDeltadFrame = 0;
 
   constructor({
     scene,
@@ -193,7 +207,6 @@ export default class DracosisPlayer {
     this._loop = loop;
     this._scale = scale;
     this._video = video ?? createElement('video', {
-      id: "broadway",
       crossorigin: "anonymous",
       playsInline: "true",
       loop: true,
@@ -209,32 +222,36 @@ export default class DracosisPlayer {
       playbackRate: 1
     });
 
-    this._videoTexture = new VideoTexture(this._video as any);
-    this._videoTexture.encoding = sRGBEncoding;
     this.frameRate = frameRate;
-    this.canvas = document.createElement('canvas') as HTMLCanvasElement;
-    // document.body.append(this.canvas);
-    this.canvas.width = 16;
-    this.canvas.height = 16;
-
-    this.ctx = this.canvas.getContext('2d');
-
 
     this.videoUpdateHandler = this.videoUpdateHandler.bind(this)
     this.videoAnimationFrame = this.videoAnimationFrame.bind(this)
 
+    // Create a default mesh
+
     if ("requestVideoFrameCallback" in this._video) {
       this._video.requestVideoFrameCallback(this.videoUpdateHandler);
+      this._videoTexture = new VideoTexture(this._video as any);
+      this._videoTexture.encoding = sRGBEncoding;
+      this.material = new MeshBasicMaterial({ map: this._videoTexture });
+
       console.log("****** This platform has requestVideoFrameCallback!")
     } else {
       // this._video.addEventListener('timeupdate', this.videoAnimationFrame);
       console.log("****** This platform has no requestVideoFrameCallback!")
+      this.counterCanvas = document.createElement('canvas') as HTMLCanvasElement;
+      this.counterCanvas.width = byteLength;
+      this.counterCanvas.height = 1;
+      this.counterCtx = this.counterCanvas.getContext('2d');
+      this.actorCtx = document.createElement('canvas').getContext('2d');
+      this.actorCtx.canvas.width = this.actorCtx.canvas.height = videoSize;
+      this.actorCtx.fillStyle = '#FFF';
+      this.actorCtx.fillRect(0, 0, this.actorCtx.canvas.width, this.actorCtx.canvas.height);
+      this._canvasTexture = new VideoTexture(this.actorCtx.canvas as any);
+      this.material = new MeshBasicMaterial({ map: this._canvasTexture });
+
       this.performAnimation();
     }
-
-
-    // Create a default mesh
-    this.material = new MeshBasicMaterial({ map: this._videoTexture });
     this.failMaterial = new MeshBasicMaterial({ color: '#555555' });
     this.mesh = new Mesh(new PlaneBufferGeometry(0.00001, 0.00001), this.material);
     this.mesh.scale.set(this._scale, this._scale, this._scale);
@@ -276,10 +293,6 @@ export default class DracosisPlayer {
     xhr.send();
   }
 
-  lastTimeReported = 0;
-  lastDate = 0;
-  delta = 0;
-  lastDeltadFrame = 0;
   /**
    * emulated video frame callback
    * bridge from video.timeupdate event to videoUpdateHandler
@@ -288,9 +301,7 @@ export default class DracosisPlayer {
   videoAnimationFrame(e) {
     if (!this.fileHeader || !this._isinitialized) return;
     if (this._video.currentTime === 0 || this._video.paused) return;
-
-    if (this.lastDate === 0) return this.lastDate = Date.now() / 1000;
-
+    if (this.lastDate < 0) this.lastDate = Date.now() / 1000;
     // Check if current time reported is same as last reported frame
     // If it is the same, add the delta from last frame
     if (this._video.currentTime === this.lastTimeReported) {
@@ -302,13 +313,22 @@ export default class DracosisPlayer {
     this.lastTimeReported = this._video.currentTime;
     this.lastDate = Date.now() / 1000;
 
-    let newFrame = Math.min(this.numberOfFrames - 1, Math.round((this._video.currentTime + this.delta) * this.frameRate));
+    this.counterCtx.clearRect(0, 0, byteLength, 1);
+
+    this.counterCtx.drawImage(this._video, 0, videoSize-boxLength, boxLength*byteLength, boxLength, 0, 0, byteLength, 1);
+
+    const imgData = this.counterCtx.getImageData(0, 0, byteLength, 1);
+    let frameIn = 0;
+    for(let i = 0; i < byteLength; i++)
+      frameIn += imgData.data[i*4]/255*Math.pow(2, byteLength - i);
+
+    console.log("********* FRAME IN IS", frameIn);
 
     // now is not used, so no matter what we pass
     this.videoUpdateHandler(0, {
       timeIsNotExact: true,
       mediaTime: this._video.currentTime,
-      presentedFrames: newFrame // we use presentedFrames only for check, so no need to be precise here
+      presentedFrames: Math.round(frameIn) // we use presentedFrames only for check, so no need to be precise here
     });
   }
 

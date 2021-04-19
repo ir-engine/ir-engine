@@ -1,22 +1,19 @@
 import { Config } from '../../helper';
 import React, { useEffect, useState } from 'react';
 import Search from "./Search";
-import {
-    Table,
-    TableBody,
-    TableContainer,
-    TableHead,
-    TableRow,
-    TableCell,
-    TableSortLabel,
-    Paper,
-    Button,
-} from '@material-ui/core';
+import Table from '@material-ui/core/Table';
+import TableBody from '@material-ui/core/TableBody';
+import TableContainer from '@material-ui/core/TableContainer';
+import TableHead from '@material-ui/core/TableHead';
+import TableRow from '@material-ui/core/TableRow';
+import TableCell from '@material-ui/core/TableCell';
+import TableSortLabel from '@material-ui/core/TableSortLabel';
+import Paper from '@material-ui/core/Paper';
+import Button from '@material-ui/core/Button';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 // @ts-ignore
 import styles from './Admin.module.scss';
-import { Router, withRouter } from "next/router";
 import InstanceModal from './InstanceModal';
 import CreateInstance from "./CreateInstance";
 import { Delete, Edit } from '@material-ui/icons';
@@ -36,7 +33,6 @@ if (!global.setImmediate) {
 }
 
 interface Props {
-    router: Router;
     adminState?: any;
     authState?: any;
     locationState?: any;
@@ -67,7 +63,6 @@ const Transition = React.forwardRef((
   
 function InstanceConsole(props: Props) {
     const {
-        router,
         adminState,
         authState,
         fetchAdminInstances,
@@ -368,4 +363,4 @@ function InstanceConsole(props: Props) {
 }
 
 
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(InstanceConsole));
+export default connect(mapStateToProps, mapDispatchToProps)(InstanceConsole);

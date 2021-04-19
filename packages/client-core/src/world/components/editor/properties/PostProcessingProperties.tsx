@@ -115,7 +115,7 @@ const KernelSizeSelect = [
   },
 ];
 interface Props {
-  values?: any,
+  value?: any,
   onChangeFunction?: any,
   op?: any,
   getProp?: any
@@ -125,7 +125,7 @@ interface Props {
  * @author Abhishek Pathak <abhi.pathak401@gmail.com>
  */
 export const PostProcessingProperties = (props: Props) => {
-  const { values, op, onChangeFunction, getProp } = props;
+  const { value, op, onChangeFunction, getProp } = props;
   const onPropertyValueChanged = (event) => {
     let address = '';
     op.forEach((element, id) => {
@@ -144,19 +144,19 @@ export const PostProcessingProperties = (props: Props) => {
   };
 
   { /* @ts-ignore */ }
-  if (values.keys === "") return <></>;
+  if (value.keys === "") return <></>;
 
 
   let renderVal = <></>;
   { /* @ts-ignore */ }
-  switch (values.propertyType) {
+  switch (value.propertyType) {
     case PostProcessingPropertyTypes.Number:
       renderVal = <>
         { /* @ts-ignore */}
         <CompoundNumericInput
-          min={0}
-          max={100}
-          step={0.001}
+          min={value.min}
+          max={value.max}
+          step={value.step}
           value={getPropertyValue()}
           onChange={onPropertyValueChanged}
         />
@@ -210,7 +210,7 @@ export const PostProcessingProperties = (props: Props) => {
     alignItems: "center"
   }}>
     { /* @ts-ignore */}
-    <InputGroup name={values.name}>
+    <InputGroup name={value.name} label={value.name}>
       {renderVal}
     </InputGroup>
   </div>

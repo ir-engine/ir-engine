@@ -8,7 +8,7 @@ import { bindActionCreators, Dispatch } from 'redux';
 import Grid from '@material-ui/core/Grid';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
-import NextLink from 'next/link';
+import { Link } from 'react-router-dom';
 import { Config } from '../../../helper';
 // @ts-ignore
 import styles from './Auth.module.scss';
@@ -154,9 +154,9 @@ const MagicLinkEmail = (props: Props): any => {
                 label={
                   <div className={styles.termsLink}>
                     {t('user:auth.magiklink.agree')}
-                    <NextLink href={termsOfService} >
+                    <Link to={termsOfService} >
                       {t('user:auth.magiklink.terms')}
-                    </NextLink>
+                    </Link>
                   </div>
                 }
               />

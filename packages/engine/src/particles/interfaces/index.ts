@@ -27,8 +27,8 @@ export interface ParticleMeshMaterial extends ShaderMaterial {
   map: Texture;
   /** Original material of particle. */
   originalMaterial: Material;
-  uniforms?: any;
-  transparent?: boolean;
+  uniforms: any;
+  transparent: boolean;
 }
 
 /** Interface for frame of texture. */
