@@ -72,6 +72,19 @@ const ProfileMenu = (props: Props): any => {
 
 	let type = '';
 
+	const loadCredentialHandler = async () => {
+		try {
+			await (window as any).credentialHandlerPolyfill.loadOnce();
+			console.log('Polyfill loaded.');
+		} catch(e) {
+			console.error('Error loading polyfill:', e);
+		}
+	};
+
+	useEffect(() => {
+		loadCredentialHandler();
+	}, []); // Only run once
+
 	useEffect(() => {
 		selfUser && setUsername(selfUser.name);
 	}, [selfUser.name]);
@@ -126,6 +139,31 @@ const ProfileMenu = (props: Props): any => {
 		else if (setProfileMenuOpen != null) setProfileMenuOpen(false);
 		await logoutUser();
 		window.location.reload();
+	};
+
+	const handleWalletLoginClick = async (e) => {
+		const domain = window.location.origin;
+		const challenge = '99612b24-63d9-11ea-b99f-4f66f3e4f81a'; // TODO: generate
+
+		console.log('Sending DIDAuth query...');
+
+		const didAuthQuery: any = {
+			web: {
+				VerifiablePresentation: {
+					query: [
+						{
+							type: 'DIDAuth'
+						}
+					],
+					challenge,
+					domain // e.g.: requestingparty.example.com
+				}
+			}
+		};
+
+		// Use Credential Handler API to authenticate
+		const result: any = await navigator.credentials.get(didAuthQuery);
+		console.log(result);
 	};
 
 	return (
@@ -191,6 +229,12 @@ const ProfileMenu = (props: Props): any => {
 							}}
 						/>
 					</form>
+				</section>}
+				{ selfUser?.userRole === 'guest' && <section className={styles.walletSection}>
+					<Typography variant="h3" className={styles.textBlock}>Or</Typography>
+					<Button onClick={handleWalletLoginClick} className={styles.walletBtn}>
+						Login with Wallet
+					</Button>
 				</section>}
 				{ selfUser?.userRole === 'guest' && <section className={styles.socialBlock}>
 					<Typography variant="h3" className={styles.textBlock}>Or connect with social accounts</Typography>
