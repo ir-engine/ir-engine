@@ -74,8 +74,12 @@ const ProfileMenu = (props: Props): any => {
 
 	const loadCredentialHandler = async () => {
 		try {
+			if((window as any).credentialHandlerPolyfill){
 			await (window as any).credentialHandlerPolyfill.loadOnce();
 			console.log('Polyfill loaded.');
+			} else {
+				console.warn("CHAPI polyfill could not be loaded");
+			}
 		} catch(e) {
 			console.error('Error loading polyfill:', e);
 		}
