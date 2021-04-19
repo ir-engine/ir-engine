@@ -1,14 +1,15 @@
 import { Block, Text } from "../../assets/three-mesh-ui";
 import { Object3D, Color, } from "three";
-import SceneButton from "../components/SceneButton";
+import { UIButton } from "./UIButton";
+import { UIBaseElement, UI_ELEMENT_SELECT_STATE } from "./UIBaseElement";
 
-class ScenePanel extends Object3D {
+export class UIPanel extends UIBaseElement {
   container: Block;
   siblings: [];
   add: any;
-  button1: SceneButton;
-  button2: SceneButton;
-  button3: SceneButton;
+  button1: UIButton;
+  button2: UIButton;
+  button3: UIButton;
   position: any;
   needsUpdate: boolean;
   oldPosX: number;
@@ -21,6 +22,8 @@ class ScenePanel extends Object3D {
 
     this.init(title, description);
   }
+  
+  setSelectState: (state: UI_ELEMENT_SELECT_STATE) => void;
 
   init(title, description) {
     this.siblings = [];
@@ -30,7 +33,8 @@ class ScenePanel extends Object3D {
     });
 
     this.container.position.set(0, 0, 0);
-    this.add(this.container);
+    // TODO: fix typings for three-mesh-ui
+    this.add(this.container as any);
 
     const textBlock = new Block({
       height: 0.1,
@@ -60,9 +64,9 @@ class ScenePanel extends Object3D {
 
     this.add(textBlock);
 
-    this.button1 = new SceneButton('Back', 0);
-    this.button2 = new SceneButton('Play', 0);
-    this.button3 = new SceneButton('Download', 1);
+    this.button1 = new UIButton('Back', 0);
+    this.button2 = new UIButton('Play', 0);
+    this.button3 = new UIButton('Download', 1);
 
     this.button1.position.set(-0.8, -1, 0);
     this.button2.position.set(1.3, -2.7, 0);
@@ -76,23 +80,12 @@ class ScenePanel extends Object3D {
     this.button2.visible = false;
     this.button3.visible = false;
 
-    this.button1.pick = (state) => {
-      console.log('back button clicked');
-
-      if (state) {
-        this.goback();
-      }
-
-      this.button1.picked(state);
-    }
-
-    this.container.pick = (state) => {
-      if (state) {
-        this.enlarge();
-      }
-      else {
-      }
-    }
+    this.button1.addEventListener(UI_ELEMENT_SELECT_STATE.SELECTED, () => {
+      this.goback();
+    })
+    this.container.addEventListener(UI_ELEMENT_SELECT_STATE.SELECTED, () => {
+      this.enlarge();
+    })
   }
 
   enlarge() {
@@ -134,10 +127,4 @@ class ScenePanel extends Object3D {
     this.button2.visible = false;
     this.button3.visible = false;
   }
-
-  update() {
-    // console.log('engine last time:', Engine.lastTime);
-  }
 }
-
-export default ScenePanel;
