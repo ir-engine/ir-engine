@@ -122,7 +122,7 @@
     "redux-thunk": "2.3.0",
     "reselect": "4.0.0",
     "rollup-plugin-typescript2": "0.30.0",
-    "sass": "1.32.10",
+    "sass": "1.32.11",
     "semantic-ui-css": "2.4.1",
     "semantic-ui-react": "2.0.3",
     "socket.io-client": "2.4.0",
