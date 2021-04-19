@@ -8,6 +8,7 @@ export enum UI_ELEMENT_SELECT_STATE {
 
 export class UIBaseElement extends Object3D {
   elements: UIBaseElement[] = [];
+  isUIElement = true;
 
   constructor() {
     super();
