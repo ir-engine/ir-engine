@@ -1,11 +1,9 @@
-import {
-  Checkbox,
-  FormControlLabel,
-  Radio,
-  RadioGroup,
-  Slider,
-  Typography
-} from '@material-ui/core';
+import Checkbox from '@material-ui/core/Checkbox';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Radio from '@material-ui/core/Radio';
+import RadioGroup from '@material-ui/core/RadioGroup';
+import Slider from '@material-ui/core/Slider';
+import Typography from '@material-ui/core/Typography';
 import { Image, Mic, VolumeUp } from '@material-ui/icons';
 import { selectAuthState } from '../../reducers/auth/selector';
 import { updateUserSettings } from '../../reducers/auth/service';

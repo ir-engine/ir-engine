@@ -1,8 +1,6 @@
 import { BufferAttribute, InterleavedBufferAttribute } from "three";
 export default class ClonableInterleavedBufferAttribute extends InterleavedBufferAttribute {
-  count: any;
   itemSize: any;
-  array: any;
   getX: any;
   getY: any;
   getZ: any;

@@ -140,8 +140,8 @@ const interactBoxRaycast: Behavior = (entity: Entity, { raycastList }: InteractB
   const viewProjectionMatrix = new Matrix4().multiplyMatrices(projectionMatrix, Engine.camera.matrixWorldInverse);
   const frustum = new Frustum().setFromProjectionMatrix(viewProjectionMatrix);
 
-
-  const subFocusedArray = raycastList.map(entityIn => {
+  type raycastResult = [ Entity, boolean, number?, number? ];
+  const subFocusedArray = raycastList.map((entityIn):raycastResult => {
 
     const boundingBox = getComponent(entityIn, BoundingBox);
     const interactive = getComponent(entityIn, Interactable);
@@ -149,7 +149,7 @@ const interactBoxRaycast: Behavior = (entity: Entity, { raycastList }: InteractB
       // TO DO: static group object
 
       if (boundingBox.dynamic) {
-        const arr = boundingBox.boxArray.map((object3D, index) => {
+        const arr = boundingBox.boxArray.map((object3D, index): raycastResult => {
           if (interactive.onInteractionCheck(entity, entityIn, index)) {
             const aabb = new Box3();
             aabb.setFromObject(object3D);
@@ -174,10 +174,8 @@ const interactBoxRaycast: Behavior = (entity: Entity, { raycastList }: InteractB
         console.log("aabb.distanceToPoint(transform.position) is " + aabb.distanceToPoint(transform.position));
         return [entityIn, frustum.intersectsBox(aabb), aabb.distanceToPoint(transform.position)];
       } else {
-
         return [entityIn, frustum.intersectsBox(boundingBox.box), boundingBox.box.distanceToPoint(transform.position)];
       }
-
     }
   }).filter(value => value[1]);
 
@@ -189,7 +187,7 @@ const interactBoxRaycast: Behavior = (entity: Entity, { raycastList }: InteractB
   const newBoxHit = selectNearest.length ? selectNearest[0] : null;
   let resultIsCloseEnough = false;
   if(newBoxHit) {
-    const interactableTransform = getComponent(newBoxHit[0], TransformComponent);
+    const interactableTransform = getComponent(newBoxHit[0] as Entity, TransformComponent);
     if(interactableTransform.position.distanceTo(transform.position) < 1){
       resultIsCloseEnough = true;
     }

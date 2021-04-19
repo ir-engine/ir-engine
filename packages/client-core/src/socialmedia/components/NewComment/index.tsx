@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
-import { TextField } from '@material-ui/core';
+import TextField from '@material-ui/core/TextField';
 import MessageIcon from '@material-ui/icons/Message';
 // @ts-ignore
 import styles from './NewComment.module.scss';

@@ -3,7 +3,6 @@ import React, { Component } from "react";
 import styled from "styled-components";
 import { withApi } from "../contexts/ApiContext";
 import { Button, MediumButton } from "../inputs/Button";
-// import Link from "next/link";
 import { connectMenu, ContextMenu, MenuItem } from "../layout/ContextMenu";
 import {
   ErrorMessage, ProjectGrid,

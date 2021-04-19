@@ -1,29 +1,24 @@
-import {
-    Button,
-} from '@material-ui/core';
 import React, { useEffect, useState } from 'react';
+import Button from '@material-ui/core/Button';
+import Table from '@material-ui/core/Table';
+import TableBody from '@material-ui/core/TableBody';
+import TableContainer from '@material-ui/core/TableContainer';
+import TableHead from '@material-ui/core/TableHead';
+import TableRow from '@material-ui/core/TableRow';
+import TableCell from '@material-ui/core/TableCell';
+import TableSortLabel from '@material-ui/core/TableSortLabel';
+import Paper from '@material-ui/core/Paper';
+import TablePagination from '@material-ui/core/TablePagination';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 import { selectAdminState } from '../../reducers/admin/selector';
 import { selectAppState } from "../../../common/reducers/app/selector";
 import { selectAuthState } from "../../../user/reducers/auth/selector";
-import { Router, withRouter } from "next/router";
 import { PAGE_LIMIT } from '../../reducers/admin/reducers';
 import {
     fetchAdminScenes,
     fetchLocationTypes,
 } from '../../reducers/admin/service';
-import {
-    Table,
-    TableBody,
-    TableContainer,
-    TableHead,
-    TableRow,
-    TableCell,
-    TableSortLabel,
-    Paper,
-    TablePagination
-} from '@material-ui/core';
 // @ts-ignore
 import styles from './Scenes.module.scss';
 import AddToContentPackModel from './AddToContentPackModal';
@@ -34,7 +29,6 @@ if (!global.setImmediate) {
 }
 
 interface Props {
-    router: Router;
     adminState?: any;
     authState?: any;
     locationState?: any;
@@ -286,4 +280,4 @@ const Scenes = (props: Props) => {
     );
 };
 
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(Scenes));
+export default connect(mapStateToProps, mapDispatchToProps)(Scenes);

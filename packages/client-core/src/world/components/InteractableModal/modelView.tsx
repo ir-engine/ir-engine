@@ -16,3 +16,5 @@ export const ModelView: FunctionComponent<ModelViewProps> = ({ modelUrl, iosMode
   // @ts-ignore
   return <model-viewer style={{width: '100%', height: '300px'}} src={modelUrl} ios-src={iosModelUrl} ar auto-rotate camera-controls />;
 };
+
+export default ModelView;

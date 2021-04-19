@@ -2,8 +2,11 @@ import React, { useState } from 'react';
 import { bindActionCreators, Dispatch } from 'redux';
 import { connect } from 'react-redux';
 import VideoRecorder from 'react-video-recorder';
-
-import { Button, Card, CardMedia, TextField, Typography } from '@material-ui/core';
+import Button from '@material-ui/core/Button';
+import Card from '@material-ui/core/Card';
+import CardMedia from '@material-ui/core/CardMedia';
+import TextField from '@material-ui/core/TextField';
+import Typography from '@material-ui/core/Typography';
 import CameraIcon from '@material-ui/icons/Camera';
 import BackupIcon from '@material-ui/icons/Backup';
 

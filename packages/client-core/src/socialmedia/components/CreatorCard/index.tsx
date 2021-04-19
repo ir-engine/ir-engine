@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import Router from "next/router";
+import { useHistory } from "react-router-dom";
 import { bindActionCreators, Dispatch } from 'redux';
 import { connect } from 'react-redux';
 import { useEffect } from 'react';
@@ -51,6 +51,7 @@ const CreatorCard = ({creator,creatorState, followCreator, unFollowCreator, getF
     const [isMe, setIsMe] = useState(false);
     const [openFiredModal, setOpenFiredModal] = useState(false);
     const [creatorsType, setCreatorsType] = useState('followers');
+    const history = useHistory();
     useEffect(()=>{
         if(creatorState && creatorState.get('currentCreator') && creator.id === creatorState.get('currentCreator').id){
             setIsMe(true);
@@ -66,7 +67,7 @@ const CreatorCard = ({creator,creatorState, followCreator, unFollowCreator, getF
     };
     const handleEditClick = () =>{
         handleClose();
-        Router.push('/creatorEdit');
+        history.push('/creatorEdit');
     }; 
 
     const handleFollowCreator = creatorId => followCreator(creatorId);
@@ -98,7 +99,7 @@ const CreatorCard = ({creator,creatorState, followCreator, unFollowCreator, getF
                 />
                {isMe ?  
                     <section className={styles.meControls}>
-                        <Button variant="text" className={styles.backButton} onClick={()=>Router.push('/')}><ArrowBackIosIcon />Back</Button>
+                        <Button variant="text" className={styles.backButton} onClick={()=>history.push('/')}><ArrowBackIosIcon />Back</Button>
                         <Button variant="text" className={styles.moreButton} aria-controls="owner-menu" aria-haspopup="true" onClick={handleClick}><MoreHorizIcon /></Button>
                         <Menu id="owner-menu" 
                             anchorEl={anchorEl} 
@@ -110,7 +111,7 @@ const CreatorCard = ({creator,creatorState, followCreator, unFollowCreator, getF
                         </Menu>
                         </section>
                         : <section className={styles.controls}>
-                        <Button variant="text" className={styles.backButton} onClick={()=>Router.push('/')}><ArrowBackIosIcon />Back</Button>                    
+                        <Button variant="text" className={styles.backButton} onClick={()=>history.push('/')}><ArrowBackIosIcon />Back</Button>                    
                     </section>
                 }
                 <section className={styles.countersButtons}>

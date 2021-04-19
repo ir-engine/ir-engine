@@ -1,4 +1,3 @@
-import { UserTagDimensions } from '@styled-icons/fa-solid/UserTag';
 import React, { Fragment } from 'react';
 import { useTranslation } from 'react-i18next';
 

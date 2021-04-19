@@ -70,7 +70,6 @@ export default function createSkybox(entity, args: {
       Engine.scene.environment = EnvMap;
 
       Engine.scene.background.encoding = sRGBEncoding;
-      Engine.scene.background.mapping = EquirectangularReflectionMapping;
 
       texture.dispose();
       pmremGenerator.dispose();

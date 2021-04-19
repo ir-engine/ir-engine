@@ -7,7 +7,7 @@ import Popper from '@material-ui/core/Popper';
 import MenuItem from '@material-ui/core/MenuItem';
 import MenuList from '@material-ui/core/MenuList';
 import ProfileModal from './index';
-import Router from 'next/router';
+import { useHistory } from 'react-router-dom';
 
 import Avatar from '@material-ui/core/Avatar';
 import SupervisedUserCircleIcon from '@material-ui/icons/SupervisedUserCircle';
@@ -19,6 +19,7 @@ interface Props {
 }
 
 const MenuListComposition = (props: Props): any => {
+  const history = useHistory();
   const { avatarUrl, logoutUser, auth } = props;
   const [open, setOpen] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
@@ -54,11 +55,11 @@ const MenuListComposition = (props: Props): any => {
   };
 
   // const handleContacts = () => {
-  //   Router.push('/friends/friends')
+  //   history.push('/friends/friends')
   // }
   const handleAdminConsole = (): any => {
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    Router.push('/admin');
+    history.push('/admin');
   };
   const modalClose = (): any => {
     setModalOpen(false);
