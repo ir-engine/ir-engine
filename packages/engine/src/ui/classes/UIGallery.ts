@@ -46,12 +46,17 @@ export class UIGallery extends UIBaseElement {
     }
 
     let urlIndex = 0;
+    const gap = 0.02;
+    const itemWidth = 1;
+    const itemHeight = 0.5;
+    const totalWidth = itemWidth*3+gap*4;
+    const totalHeight = itemHeight*3+gap*4;
 
     let ov = createItem({
       title: "Scene Title", 
       description: "Scene Description\nSecode line of description", 
       imageUrl: url(urlIndex++),
-      width: 3,
+      width: totalWidth,
       height: 0.8,
     });
 
@@ -66,26 +71,40 @@ export class UIGallery extends UIBaseElement {
           title: "Scene Title", 
           description: "Scene Description", 
           imageUrl: url(urlIndex++),
-          width: 1,
-          height: 0.5,
+          width: itemWidth,
+          height: itemHeight,
         });
         rows.push(panel);
       }
-      cols.push(createRow(3, 0.5, rows, 0.1));
+      cols.push(createRow(totalWidth, itemHeight, rows, gap));
     }
 
-    let mm = createCol(3, 1.5, cols, 0.1);
-    this.marketPlace.add( mm );
+    let me = createCol(totalWidth, totalHeight, cols, gap);
+    this.marketPlace.add( me );
 
-    // const ov = new UIOverview("Scene Title", "Scene Description\nSecode line of description", null);
-    // this.marketPlace.add(ov);
-    // this.elements.push(ov);
+    cols = [];
+    for (let j = 0; j < 3; j++) {
+      let rows = [];
+      for(let i = 0 ; i < 3;i++)
+      {
+        const panel = createItem({
+          title: "Scene Title", 
+          description: "Scene Description", 
+          imageUrl: url(urlIndex++),
+          width: itemWidth,
+          height: itemHeight,
+        });
+        rows.push(panel);
+      }
+      cols.push(createRow(totalWidth, itemHeight, rows, gap));
+    }
+    let le = createCol(totalWidth, totalHeight, cols, gap);
+    this.library.add( le );
 
     const marketPlacePanels = [];
     // marketPlacePanels.push(ov);
 
-    // for (let i = 0; i < 3; i++) {
-    //   for (let j = 0; j < 2; j++) {
+   
 
     //     const x = 1.1 * i - 1;
     //     const y = j * 0.6;
