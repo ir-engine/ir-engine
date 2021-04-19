@@ -1,6 +1,6 @@
 {
   "name": "@xr3ngine/client-ml",
-  "version": "0.2.14",
+  "version": "0.2.17",
   "repository": {
     "type": "git",
     "url": "git://github.com/xr3ngine/xr3ngine.git"
@@ -51,9 +51,9 @@
     "@types/react-redux": "7.1.16",
     "@types/redux-immutable": "4.0.1",
     "@types/styled-components": "5.1.9",
-    "@xr3ngine/client-core": "^0.2.14",
-    "@xr3ngine/common": "^0.2.14",
-    "@xr3ngine/engine": "^0.2.14",
+    "@xr3ngine/client-core": "^0.2.17",
+    "@xr3ngine/common": "^0.2.17",
+    "@xr3ngine/engine": "^0.2.17",
     "antd": "4.15.1",
     "app-root-path": "3.0.0",
     "autobind-decorator": "2.4.0",
@@ -114,8 +114,6 @@
     "whatkey": "2.0.1"
   },
   "devDependencies": {
-    "semantic-release": "17.4.2",
-    "semantic-release-monorepo": "7.0.4",
     "@babel/core": "7.13.15",
     "@types/node": "13.13.50",
     "@types/node-sass": "4.11.1",
@@ -133,6 +131,8 @@
     "gltf-webpack-loader": "https://github.com/MozillaReality/gltf-webpack-loader.git#fix/relative-and-output-paths",
     "node-sass": "5.0.0",
     "sass-loader": "11.0.1",
+    "semantic-release": "17.4.2",
+    "semantic-release-monorepo": "7.0.4",
     "style-loader": "2.0.0",
     "thread-loader": "3.0.3",
     "ts-loader": "8.1.0",
@@ -142,5 +142,5 @@
     "webpack-cli": "4.6.0"
   },
   "license": "ISC",
-  "gitHead": "b69a8d4eb4d2b39bc013a8eba00b402b21932252"
+  "gitHead": "5ff55be1619e188226c4ac91c92a44b7ba18edf4"
 }

@@ -1,7 +1,7 @@
 {
   "name": "@xr3ngine/server-core",
   "description": "Shared components for XR3ngine server",
-  "version": "0.2.14",
+  "version": "0.2.17",
   "homepage": "",
   "publishConfig": {
     "access": "public"
@@ -89,8 +89,8 @@
     "@feathersjs/socketio-client": "^4.5.9",
     "@feathersjs/transport-commons": "^4.5.9",
     "@google-cloud/agones-sdk": "^1.7.0",
-    "@xr3ngine/common": "^0.2.14",
-    "@xr3ngine/engine": "^0.2.14",
+    "@xr3ngine/common": "^0.2.17",
+    "@xr3ngine/engine": "^0.2.17",
     "aws-sdk": "^2.811.0",
     "bent": "^7.3.0",
     "cannon-es-debugger": "^0.1.0",
@@ -115,7 +115,7 @@
     "feathers-sync": "^2.1.0",
     "fork-ts-checker-webpack-plugin": "^6.0.0",
     "fs-blob-store": "6.0.0",
-    "helmet": "4.4.1",
+    "helmet": "4.5.0",
     "http-server": "^0.12.3",
     "internal-ip": "^6.1.0",
     "js-yaml": "^4.0.0",
@@ -186,5 +186,5 @@
     "webpack": "5.33.2",
     "webpack-cli": "4.6.0"
   },
-  "gitHead": "b69a8d4eb4d2b39bc013a8eba00b402b21932252"
+  "gitHead": "5ff55be1619e188226c4ac91c92a44b7ba18edf4"
 }
