@@ -14,7 +14,7 @@ import { connect } from 'react-redux';
 import {selectAuthState} from "@xr3ngine/client-core/src/user/reducers/auth/selector";
 import {bindActionCreators, Dispatch} from "redux";
 import {doLoginAuto} from "@xr3ngine/client-core/src/user/reducers/auth/service";
-import { initializeEngine } from "@xr3ngine/engine/src/initialize";
+import { initializeEditor } from "@xr3ngine/engine/src/initialize";
 import { DefaultGameMode } from "@xr3ngine/engine/src/templates/game/DefaultGameMode";
 import { Engine } from "@xr3ngine/engine/src/ecs/classes/Engine";
 
@@ -68,14 +68,13 @@ const Project = (props: Props) => {
     
     const InitializationOptions = {
         postProcessing: true,
-        editor: true,
         gameModes: [
             DefaultGameMode
           ]
       };
   
     useEffect(() => {
-        initializeEngine(InitializationOptions).then(() => {
+        initializeEditor(InitializationOptions).then(() => {
             console.log("Setting engine inited");
             setEngineInitialized(true);
         });
