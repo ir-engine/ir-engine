@@ -18,12 +18,16 @@ export class UIPanel extends UIBaseElement {
   visible: boolean;
 
   constructor(param) {
-    this.init(param);
+    super();
+    // this.init(param);
   }
   
   setSelectState: (state: UI_ELEMENT_SELECT_STATE) => void;
 
-  init(title, description, url) {
+  init(param) {
+    const title = param.title;
+    const description = param.description;
+    const url = param.url;
     this.siblings = [];
 
     this.container.position.set(0, 0, 0);
