@@ -47,8 +47,9 @@ const Featured = ({feedsState, getFeeds, type, creatorId, creatorState, setFeedA
         if(type === 'creator' || type === 'bookmark' || type === 'myFeatured'){
             getFeeds(type, creatorId);
         }else{
-            authState.get('authUser').identityProvider.type === 'guest' ? 
-                getFeeds('featuredGuest') : getFeeds('featured');
+          const userIdentityType = authState.get('authUser')?.identityProvider?.type ?? 'guest';
+          userIdentityType !== 'guest' ?
+                getFeeds('featured') : getFeeds('featuredGuest');
         }
     }, [type, creatorId]);
     if(feedsState.get('fetching') === false){
@@ -62,7 +63,7 @@ const Featured = ({feedsState, getFeeds, type, creatorId, creatorState, setFeedA
             feedsList = feedsState?.get('feedsFeatured');
         }
     }
-    
+
     const featureFeed = feedId =>setFeedAsFeatured(feedId);
     const unfeatureFeed = feedId =>setFeedNotFeatured(feedId);
 
@@ -73,10 +74,10 @@ const Featured = ({feedsState, getFeeds, type, creatorId, creatorState, setFeedA
     };
     return <section className={styles.feedContainer}>
         {feedsList && feedsList.length > 0  && feedsList.map((item, itemIndex)=>
-            <Card className={styles.creatorItem} elevation={0} key={itemIndex}>         
-                    {renderFeaturedStar( item.id, item.creatorId, !!+item.featured)}        
-                <CardMedia   
-                    className={styles.previewImage}                  
+            <Card className={styles.creatorItem} elevation={0} key={itemIndex}>
+                    {renderFeaturedStar( item.id, item.creatorId, !!+item.featured)}
+                <CardMedia
+                    className={styles.previewImage}
                     image={item.previewUrl}
                     onClick={()=>history.push('/feed?feedId=' + item.id)}
                 />
