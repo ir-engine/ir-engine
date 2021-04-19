@@ -247,8 +247,7 @@ export default class DracosisPlayer {
       this.actorCtx.canvas.width = this.actorCtx.canvas.height = videoSize;
       this.actorCtx.fillStyle = '#FFF';
       this.actorCtx.fillRect(0, 0, this.actorCtx.canvas.width, this.actorCtx.canvas.height);
-      // @ts-ignore
-      this._canvasTexture = new VideoTexture(this.actorCtx.canvas);
+      this._canvasTexture = new VideoTexture(this.actorCtx.canvas as any);
       this.material = new MeshBasicMaterial({ map: this._canvasTexture });
 
       this.performAnimation();

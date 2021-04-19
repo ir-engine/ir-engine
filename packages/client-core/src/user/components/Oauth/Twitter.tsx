@@ -1,17 +1,10 @@
-import { useRouter, NextRouter } from 'next/router';
+import { withRouter } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
 import { loginUserByJwt, refreshConnections } from '../../reducers/auth/service';
-import { Container } from '@material-ui/core';
+import Container from '@material-ui/core/Container';
 import { selectAuthState } from '../../reducers/auth/selector';
 import { bindActionCreators, Dispatch } from 'redux';
 import { connect } from 'react-redux';
-
-interface Props {
-  auth: any;
-  router: NextRouter;
-  loginUserByJwt: typeof loginUserByJwt;
-  refreshConnections: typeof refreshConnections;
-}
 
 const mapStateToProps = (state: any): any => {
   return {
@@ -25,20 +18,20 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 });
 
 
-const TwitterCallbackComponent = (props: Props): any => {
-  const { auth, loginUserByJwt, refreshConnections, router } = props;
+const TwitterCallbackComponent = (props): any => {
+  const { auth, loginUserByJwt, refreshConnections, match } = props;
 
   const initialState = { error: '', token: '' };
   const [state, setState] = useState(initialState);
 
   useEffect(() => {
-    const error = router.query.error as string;
-    const token = router.query.token as string;
-    const type = router.query.type as string;
-    const path = router.query.path as string;
-    const instanceId = router.query.instanceId as string;
+    const error = match.params.error as string;
+    const token = match.params.token as string;
+    const type = match.params.type as string;
+    const path = match.params.path as string;
+    const instanceId = match.params.instanceId as string;
 
-    if (router.isReady === true && !error) {
+    if (!error) {
       if (type === 'connection') {
         const user = auth.get('user');
         refreshConnections(user.id);
@@ -50,7 +43,7 @@ const TwitterCallbackComponent = (props: Props): any => {
     }
 
     setState({ ...state, error, token });
-  }, [router.isReady]);
+  }, []);
 
   return state.error && state.error !== '' ? (
     <Container>
@@ -63,6 +56,4 @@ const TwitterCallbackComponent = (props: Props): any => {
   );
 };
 
-const TwitterHomeWrapper = (props: any): any => <TwitterCallbackComponent {...props} router={ useRouter() } />;
-
-export const TwitterCallback = connect(mapStateToProps, mapDispatchToProps)(TwitterHomeWrapper);
+export const TwitterCallback = withRouter(connect(mapStateToProps, mapDispatchToProps)(TwitterCallbackComponent));

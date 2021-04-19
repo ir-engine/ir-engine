@@ -43,6 +43,6 @@ export class Config {
 }
 
 export const setRuntime = (runtime) => {
-    Config.publicRuntimeConfig = runtime;
+    Config.publicRuntimeConfig = JSON.parse(runtime);
     Config.apiUrl = process.env.NODE_ENV === 'production' ? Config.publicRuntimeConfig.apiServer : 'https://127.0.0.1:3030';
 };

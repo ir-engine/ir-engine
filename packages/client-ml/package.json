@@ -59,7 +59,6 @@
     "autobind-decorator": "2.4.0",
     "autoprefixer": "10.2.5",
     "axios": "0.21.1",
-    "child_process": "1.0.2",
     "classnames": "2.3.1",
     "device-detector-js": "2.2.9",
     "draco3dgltf": "1.4.1",

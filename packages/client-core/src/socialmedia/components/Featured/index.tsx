@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
-import Router from "next/router";
 
 import CardMedia from '@material-ui/core/CardMedia';
 import Card from '@material-ui/core/Card';
@@ -15,6 +14,7 @@ import { selectCreatorsState } from '../../reducers/creator/selector';
 import { selectFeedsState } from '../../reducers/feed/selector';
 import { getFeeds, setFeedAsFeatured, setFeedNotFeatured } from '../../reducers/feed/service';
 import { selectAuthState } from '../../../user/reducers/auth/selector';
+import { useHistory } from 'react-router-dom';
 
 const mapStateToProps = (state: any): any => {
     return {
@@ -41,6 +41,7 @@ interface Props{
 }
 
 const Featured = ({feedsState, getFeeds, type, creatorId, creatorState, setFeedAsFeatured, setFeedNotFeatured, authState} : Props) => { 
+    const history = useHistory();
     let feedsList = [];
     useEffect(()=> {
         if(type === 'creator' || type === 'bookmark' || type === 'myFeatured'){
@@ -77,7 +78,7 @@ const Featured = ({feedsState, getFeeds, type, creatorId, creatorState, setFeedA
                 <CardMedia   
                     className={styles.previewImage}                  
                     image={item.previewUrl}
-                    onClick={()=>Router.push({ pathname: '/feed', query:{ feedId: item.id}})}
+                    onClick={()=>history.push('/feed?feedId=' + item.id)}
                 />
                 <span className={styles.eyeLine}>{item.viewsCount}<VisibilityIcon style={{fontSize: '16px'}}/></span>
             </Card>

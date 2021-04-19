@@ -1,14 +1,15 @@
 import React from "react";
-import Router from "next/router";
+import { useHistory } from "react-router-dom";
 
 export function UsernameText({
   username,
   ...props
 }: any) {
+  const history = useHistory();
   return (
     <a
       className="text-14-bold mr-1 cursor-pointer"
-      onClick={() => Router.push("/[pid]", `/${username}`)}
+      onClick={() => history.push(`/${username}`)}
       {...props}
     >
       {username || "username"}

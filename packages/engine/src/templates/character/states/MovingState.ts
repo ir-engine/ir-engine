@@ -2,10 +2,10 @@ import { Behavior } from '@xr3ngine/engine/src/common/interfaces/Behavior';
 import { StateSchemaValue } from '../../../state/interfaces/StateSchema';
 import { physicsMove } from '../../../physics/behaviors/physicsMove';
 import { triggerActionIfMovementHasChanged } from '../behaviors/triggerActionIfMovementHasChanged';
-import { CharacterStateTypes } from '../CharacterStateTypes';
+import { CharacterAnimations } from '../CharacterAnimations';
 import { CharacterComponent } from '../components/CharacterComponent';
 import { TransformComponent } from '../../../transform/components/TransformComponent';
-import { updateVectorAnimation, clearAnimOnChange, changeAnimation } from "../behaviors/updateVectorAnimation";
+import { updateVectorAnimation, clearAnimOnChange, changeAnimation } from '../../../character/functions/updateVectorAnimation';
 import { getComponent, getMutableComponent } from '../../../ecs/functions/EntityFunctions';
 import { MathUtils, Vector3 } from "three";
 
@@ -13,7 +13,7 @@ import { isMyPlayer } from '../../../common/functions/isMyPlayer';
 import { isOtherPlayer } from '../../../common/functions/isOtherPlayer';
 import { isMobileOrTablet } from '../../../common/functions/isMobile';
 import { Engine } from '../../../ecs/classes/Engine';
-import { WebXRRendererSystem } from '../../../renderer/WebXRRendererSystem';
+// import { WebXRRendererSystem } from '../../../renderer/WebXRRendererSystem';
 import { applyVectorMatrixXZ } from '../../../common/functions/applyVectorMatrixXZ';
 import { FollowCameraComponent } from '../../../camera/components/FollowCameraComponent';
 import { CameraModes } from '../../../camera/types/CameraModes';
@@ -111,7 +111,7 @@ export const updateCharacterState: Behavior = (entity, args: { }, deltaTime: num
     }
   }
   
-  if(WebXRRendererSystem.instance?.cameraDolly) WebXRRendererSystem.instance.cameraDolly.setRotationFromAxisAngle(downVector, Math.atan2(actor.viewVector.z, actor.viewVector.x))
+  // if(WebXRRendererSystem.instance?.cameraDolly) WebXRRendererSystem.instance.cameraDolly.setRotationFromAxisAngle(downVector, Math.atan2(actor.viewVector.z, actor.viewVector.x))
   
 	const flatViewVector = new Vector3(actor.viewVector.x, 0, actor.viewVector.z).normalize();
 	const moveVector = localMovementDirection.length() ? applyVectorMatrixXZ(flatViewVector, forwardVector) : emptyVector.setScalar(0);
@@ -129,7 +129,7 @@ const {
   IDLE,
   WALK_FORWARD, WALK_BACKWARD, WALK_STRAFE_LEFT, WALK_STRAFE_RIGHT,
   RUN_FORWARD, RUN_BACKWARD, RUN_STRAFE_LEFT, RUN_STRAFE_RIGHT, JUMP, FALLING, DROP, DROP_ROLLING
-} = CharacterStateTypes;
+} = CharacterAnimations;
 
 const animationsSchema = [
   {
@@ -213,8 +213,8 @@ const initializeCharacterState: Behavior = (entity, args: { x?: number, y?: numb
 	if (actor.velocitySimulator === undefined ) {
 		actor.velocitySimulator.init();
 	}
-  if (actor.vactorAnimSimulator === undefined ) {
-    actor.vactorAnimSimulator.init();
+  if ((actor as any).vactorAnimSimulator === undefined ) {
+    (actor as any).vactorAnimSimulator.init();
   }
   if (actor.moveVectorSmooth === undefined ) {
     actor.moveVectorSmooth.init();
@@ -223,8 +223,8 @@ const initializeCharacterState: Behavior = (entity, args: { x?: number, y?: numb
 	actor.velocitySimulator.damping = actor.defaultVelocitySimulatorDamping;
 	actor.velocitySimulator.mass = actor.defaultVelocitySimulatorMass;
 
-  actor.vactorAnimSimulator.damping = 0.5;
-	actor.vactorAnimSimulator.mass = 35;
+  (actor as any).vactorAnimSimulator.damping = 0.5;
+	(actor as any).vactorAnimSimulator.mass = 35;
 
   actor.moveVectorSmooth.damping = 0.7;
 	actor.moveVectorSmooth.mass = 35;
@@ -266,9 +266,9 @@ const getMovementValues: Behavior = (entity, args: {}, deltaTime: number) => {
   const actorVelocity = actor.moveVectorSmooth.position;
 
   customVector.setY(actor.rayHasHit ? 0 : 1);
-  actor.vactorAnimSimulator.target.copy(customVector);
-  actor.vactorAnimSimulator.simulate(deltaTime);
-  let dontHasHit = actor.vactorAnimSimulator.position.y;
+  (actor as any).vactorAnimSimulator.target.copy(customVector);
+  (actor as any).vactorAnimSimulator.simulate(deltaTime);
+  let dontHasHit = (actor as any).vactorAnimSimulator.position.y;
 
   dontHasHit < 0.00001 ? dontHasHit = 0:'';
   dontHasHit = Math.min(dontHasHit, 1);

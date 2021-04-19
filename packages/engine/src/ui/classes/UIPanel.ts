@@ -1,7 +1,7 @@
+import { Color } from "three";
 import { Block, Text } from "../../assets/three-mesh-ui";
-import { Object3D, Color, } from "three";
-import { UIButton } from "./UIButton";
 import { UIBaseElement, UI_ELEMENT_SELECT_STATE } from "./UIBaseElement";
+import { UIButton } from "./UIButton";
 
 export class UIPanel extends UIBaseElement {
   container: Block;
@@ -80,7 +80,8 @@ export class UIPanel extends UIBaseElement {
     this.button2.visible = false;
     this.button3.visible = false;
 
-    this.button1.addEventListener(UI_ELEMENT_SELECT_STATE.SELECTED, () => {
+    // Todo: type this
+    (this.button1 as any).addEventListener(UI_ELEMENT_SELECT_STATE.SELECTED, () => {
       this.goback();
     })
     this.container.addEventListener(UI_ELEMENT_SELECT_STATE.SELECTED, () => {
