@@ -36,7 +36,7 @@
     "@capacitor/cli": "2.4.7",
     "@capacitor/core": "2.4.7",
     "@capacitor/ios": "2.4.7",
-    "@xr3ngine/native-plugin-xr": "0.2.10",
+    "@xr3ngine/native-plugin-xr": "^0.2.15",
     "next-transpile-modules": "6.4.0",
     "react": "17.0.2"
   },
