@@ -21,22 +21,30 @@ class VideoElement extends Object3D {
       this.container.position.set(x, y, 0);
       this.add(this.container);
   
-      const tag = document.getElementById('video360');
-  
       let video = document.createElement( 'video' );
-      // video.setAttribute('crossorigin', 'anonymous');
-      // video.style.display = 'none';
       document.documentElement.append( video );
+      // video.setAttribute('crossorigin', 'anonymous');
+      video.style.display = 'none';
       // video.loop = "loop";
       // video.src = url;
       // video.muted = true;
       // video.volume = 0.5;
-      video.controls = true;
-      video.autoplay = true;
+      // video.controls = true;
+      // video.autoplay = true;
       const texture = new VideoTexture(video);
       this.container.set({backgroundTexture: texture});
   
-      video.addEventListener( 'canplaythrough', function () {
+      // video.addEventListener( 'canplaythrough', function () {
+      //   var promise = video.play();
+      //   console.log('playing');
+      //   if (promise !== undefined) {
+      //     promise.then(_ => {
+      //     }).catch(error => {
+      //     });
+      //   }
+      // } );
+          
+      document.addEventListener("click", function(){
         var promise = video.play();
         console.log('playing');
         if (promise !== undefined) {
@@ -44,7 +52,7 @@ class VideoElement extends Object3D {
           }).catch(error => {
           });
         }
-      } );
+      });
   
       // video.addEventListener( 'play', function () {
       //       //   video.pause();
