@@ -15,6 +15,7 @@ export class UIGallery extends UIBaseElement {
   purchaseButton: Block;
   buttonMarket: Block;
   buttonLibrary: Block;
+  preview: Block;
 
   constructor() {
     super();
@@ -63,6 +64,10 @@ export class UIGallery extends UIBaseElement {
       this.oldPanel = this.marketPlace;
       this.buttonMarket.visible = false;
       this.buttonLibrary.visible = false;
+      this.purchasePanel
+      this.preview.set({
+        backgroundTexture: ov.backgroundTexture
+      });
     })
 
     let cols = [];
@@ -89,6 +94,9 @@ export class UIGallery extends UIBaseElement {
           this.setPurchase(true);
           this.buttonMarket.visible = false;
           this.buttonLibrary.visible = false;
+          this.preview.set({
+            backgroundTexture: panel.backgroundTexture
+          });
         })
       }
       cols.push(createRow(totalWidth, itemHeight, rows, gap));
@@ -119,6 +127,9 @@ export class UIGallery extends UIBaseElement {
           this.setPurchase(false);
           this.buttonMarket.visible = false;
           this.buttonLibrary.visible = false;
+          this.preview.set({
+            backgroundTexture: panel.backgroundTexture
+          });
         })
       }
       cols.push(createRow(totalWidth, itemHeight, rows, gap));
@@ -248,7 +259,7 @@ export class UIGallery extends UIBaseElement {
       title: "Back"
     });
 
-    let image = createItem({
+    this.preview = createItem({
       width: width,
       height: height,
       texture: param.texture,
@@ -304,7 +315,7 @@ export class UIGallery extends UIBaseElement {
       width, height, 
       [
         makeLeftItem({item: backButton, containerWidth: width}), 
-        image, 
+        this.preview, 
         bottomBar
       ], 
       0.01);
