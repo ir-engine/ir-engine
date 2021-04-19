@@ -4,7 +4,7 @@ import { Object3D, Color, VideoTexture } from "three";
 import { UIBaseElement, UI_ELEMENT_SELECT_STATE } from "./UIBaseElement";
 
 export class UIOverview extends UIBaseElement {
-  constructor(title, description, image) {
+  constructor(title, description, imageUrl) {
     super();
 
     this.init(title, description, imageUrl);
