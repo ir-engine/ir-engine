@@ -1,5 +1,5 @@
 import { Block, Text } from "../../assets/three-mesh-ui";
-import { TextureLoader } from "three";
+import { TextureLoader, Color } from "three";
 
 export const createItem = (param) =>{
     const title = param.title;
@@ -86,4 +86,28 @@ export const createCol = (width, height, elements, gap) => {
   });
 
   return container;
+}
+
+export const createButton = (param) => {
+  const title = param.title;
+
+  let button = new Block({
+    height: 0.1,
+    width: 0.4,
+    alignContent: "center",
+    justifyContent: 'center',
+    backgroundColor: new Color('blue'),
+    backgroundOpacity: 1.0,
+    fontFamily:
+      "https://unpkg.com/three-mesh-ui/examples/assets/Roboto-msdf.json",
+    fontTexture:
+      "https://unpkg.com/three-mesh-ui/examples/assets/Roboto-msdf.png"
+  }).add(
+    new Text({
+      content: title,
+      fontSize: 0.05,
+    })
+  );
+
+  return button;
 }
