@@ -82,7 +82,7 @@
     "immutable": "4.0.0-rc.12",
     "jwt-decode": "3.1.2",
     "lodash": "4.17.21",
-    "mediasoup-client": "3.6.29",
+    "mediasoup-client": "3.6.30",
     "minimist": "1.2.5",
     "moment": "2.29.1",
     "platform": "1.3.6",
