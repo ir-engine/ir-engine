@@ -30,6 +30,7 @@ import WalkableTagComponent from '../components/Walkable';
 import { LoadingSchema } from '../interfaces/LoadingSchema';
 import Image from '../classes/Image';
 import { createGame } from "../behaviors/createGame";
+import { setPostProcessing } from "../behaviors/setPostProcessing";
 
 /**
  * Add Component into Entity from the Behavior.
@@ -450,5 +451,15 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
         values: ['ageRandomness', 'angularVelocity', 'colorCurve', 'endColor', 'endOpacity', 'endSize', 'endVelocity', 'lifetime', 'lifetimeRandomness', 'middleColor', 'middleOpacity', 'particleCount', 'sizeCurve', 'sizeRandomness', 'src', 'startColor', 'startOpacity', 'startSize', 'startVelocity', 'velocityCurve']
       }
     ],
+  },
+
+  'postprocessing':
+  {
+    behaviors:[
+      {
+        behavior:setPostProcessing,
+        values:["options"]
+      }
+    ]
   }
 };

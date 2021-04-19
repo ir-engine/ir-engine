@@ -44,7 +44,6 @@ import { CharacterComponent } from '@xr3ngine/engine/src/templates/character/com
 import { DefaultNetworkSchema } from '@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema';
 import { PrefabType } from '@xr3ngine/engine/src/templates/networking/PrefabType';
 import { XRSystem } from '@xr3ngine/engine/src/xr/systems/XRSystem';
-import getConfig from 'next/config';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import querystring from 'querystring';
@@ -54,7 +53,7 @@ import { bindActionCreators, Dispatch } from 'redux';
 import url from 'url';
 import { CharacterInputSchema } from '@xr3ngine/engine/src/templates/character/CharacterInputSchema';
 import { GolfGameMode } from '@xr3ngine/engine/src/templates/game/GolfGameMode';
-const { publicRuntimeConfig } = getConfig();
+import { Config } from '@xr3ngine/client-core/src/helper';
 
 const goHome = () => window.location.href = window.location.origin;
 
@@ -143,7 +142,7 @@ export const EnginePage = (props: Props) => {
   let locationId = null;
 
   useEffect(() => {
-    if(publicRuntimeConfig.offlineMode) {
+    if(Config.publicRuntimeConfig.offlineMode) {
       init(locationName);
     } else {
       doLoginAuto(true);
@@ -223,11 +222,11 @@ export const EnginePage = (props: Props) => {
 
   async function init(sceneId: string): Promise<any> { // auth: any,
     let sceneData;
-    if(publicRuntimeConfig.offlineMode) {
+    if(Config.publicRuntimeConfig.offlineMode) {
       sceneData = testScenes[sceneId] || testScenes.test;
     } else {
       let service, serviceId;
-      const projectResult = !publicRuntimeConfig.offlineMode ? await client.service('project').get(sceneId) : '';
+      const projectResult = !Config.publicRuntimeConfig.offlineMode ? await client.service('project').get(sceneId) : '';
       setCurrentScene(projectResult);
       const projectUrl = projectResult.project_url;
       const regexResult = projectUrl.match(projectRegex);
@@ -261,7 +260,7 @@ export const EnginePage = (props: Props) => {
       renderer: {
         canvas,
       },
-      useOfflineMode: publicRuntimeConfig.offlineMode
+      useOfflineMode: Config.publicRuntimeConfig.offlineMode
     };
 
     console.log("Initialization options are: ", InitializationOptions);
@@ -274,9 +273,9 @@ export const EnginePage = (props: Props) => {
 
     addUIEvents();
 
-    console.log("**** OFFLINE MODE? ", publicRuntimeConfig.offlineMode);
+    console.log("**** OFFLINE MODE? ", Config.publicRuntimeConfig.offlineMode);
 
-    if(!publicRuntimeConfig.offlineMode) await connectToInstanceServer('instance');
+    if(!Config.publicRuntimeConfig.offlineMode) await connectToInstanceServer('instance');
 
     const loadScene = new Promise<void>((resolve) => {
       EngineEvents.instance.once(EngineEvents.EVENTS.SCENE_LOADED, () => {
@@ -290,7 +289,7 @@ export const EnginePage = (props: Props) => {
     });
 
     const getWorldState = new Promise<any>((resolve) => {
-      if(publicRuntimeConfig.offlineMode) {
+      if(Config.publicRuntimeConfig.offlineMode) {
         EngineEvents.instance.dispatchEvent({ type: ClientNetworkSystem.EVENTS.CONNECT, id: testUserId });
         resolve(testWorldState);
       } else {

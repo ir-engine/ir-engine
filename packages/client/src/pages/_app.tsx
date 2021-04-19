@@ -6,7 +6,6 @@ import theme from "@xr3ngine/client-core/src/world/components/editor/theme";
 import DeviceDetector from 'device-detector-js';
 import { createWrapper } from 'next-redux-wrapper';
 import { AppProps } from 'next/app';
-import getConfig from 'next/config';
 import Head from 'next/head';
 import querystring from 'querystring';
 import React, { Fragment, useCallback, useEffect, useState } from 'react';
@@ -20,7 +19,7 @@ import { getDeviceType } from '@xr3ngine/client-core/src/common/reducers/deviced
 import { restoreState } from '@xr3ngine/client-core/src/persisted.store';
 import { initialize } from '../util';
 
-const config = getConfig().publicRuntimeConfig;
+import { Config } from '@xr3ngine/client-core/src/helper';
 
 // Initialize i18n and client-core
 initialize();
@@ -80,7 +79,8 @@ const MyApp = (props: Props): any => {
   return (
     <Fragment>
       <Head>
-        <title>{config.title}</title>
+        <title>{Config.publicRuntimeConfig.title}</title>
+        <script src='/env-config.js' />
         <meta
           name="viewport"
           content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=0', shrink-to-fit=no"
