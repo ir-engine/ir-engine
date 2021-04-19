@@ -1,13 +1,14 @@
-import { Object3D } from "three";
+import { Object3D, Color } from "three";
 import { UIOverview } from "./UIOverview";
 import { UIPanel } from './UIPanel';
 import { UIButton } from "./UIButton";
 import { UIBaseElement, UI_ELEMENT_SELECT_STATE } from "./UIBaseElement";
-import {createItem, createCol, createRow} from '../functions/createItem';
+import {createItem, createCol, createRow, createButton} from '../functions/createItem';
+import { Block } from "../../assets/three-mesh-ui";
 
 export class UIGallery extends UIBaseElement {
-  marketPlace: Object3D;
-  library: Object3D;
+  marketPlace: Block;
+  library: Block;
   pickables: any[];
   add: any;
   position: any;
@@ -20,12 +21,6 @@ export class UIGallery extends UIBaseElement {
   }
 
   init() {
-    this.marketPlace = new Object3D();
-    this.add(this.marketPlace);
-
-    this.library = new Object3D();
-    this.add(this.library);
-
     // const url = "360/ITN_Wrecks_FOR_REVIEW_4kx2k_360_h264_40Mbps.mp4";
     // const videoElement = new VideoElement(3.2, 0.8, 0.1, 1.35, url);
     const urls = [
@@ -79,8 +74,8 @@ export class UIGallery extends UIBaseElement {
       cols.push(createRow(totalWidth, itemHeight, rows, gap));
     }
 
-    let me = createCol(totalWidth, totalHeight, cols, gap);
-    this.marketPlace.add( me );
+    this.marketPlace = createCol(totalWidth, totalHeight, cols, gap);
+    this.add(this.marketPlace);
 
     cols = [];
     for (let j = 0; j < 3; j++) {
@@ -129,16 +124,10 @@ export class UIGallery extends UIBaseElement {
 
     //     marketPlacePanels.push(panel);
 
-    //     // panel.pick = (state) => {
-    //     //   if(state){
-    //     //     // this.library.visible = false;
-    //     //     // this.marketPlace.visible = false;  
-    //     //   }
-    //     //   panel.picked(state);
-    //     // }
-    //   }
-    // }
+    this.library = createCol(totalWidth, totalHeight, cols, gap);
+    this.add(this.library);
 
+    const marketPlacePanels = [];
     const libraryPanels = [];
     for (let i = 0; i < 3; i++) {
       for (let j = 0; j < 3; j++) {
