@@ -1,8 +1,10 @@
 import { Block, Text } from "../../assets/three-mesh-ui";
 import { Object3D, Color } from "three";
+import { UI_ELEMENT_SELECT_STATE, UIBaseElement } from "./UIBaseElement";
 
-class SceneButton extends Object3D {
-  textBlock: any;
+export class UIButton extends UIBaseElement {
+
+  textBlock: Block;
   add: any;
   pick: any;
   position: any;
@@ -53,7 +55,8 @@ class SceneButton extends Object3D {
     this.textBlock.position.set(pos[0], pos[1], pos[2]);
 
 
-    this.add(this.textBlock);
+    // TODO: fix typings for three-mesh-ui
+    this.add(this.textBlock as any);
 
 
     const hoveredStateAttributes = {
@@ -93,22 +96,8 @@ class SceneButton extends Object3D {
     this.textBlock.setupState(selectStateAttributes);
   }
 
-  picked(state) {
-    if (state) {
-      // Component.setState internally call component.set with the options you defined in component.setupState
-      this.textBlock.setState('selected');
-    } else {
-      // Component.setState internally call component.set with the options you defined in component.setupState
-      this.textBlock.setState('hovered');
-    }
-  }
-
-  unpick() {
-    this.textBlock.setState('idle');
-  }
-
-  update() {
+  setSelectState(state: UI_ELEMENT_SELECT_STATE) {
+    this.dispatchEvent({ type: state });
+    this.textBlock.setState(state);
   }
 }
-
-export default SceneButton;

@@ -1,8 +1,8 @@
 import { Block, Text } from "../../assets/three-mesh-ui";
 import { Object3D, Color, VideoTexture } from "three";
+import { UIBaseElement, UI_ELEMENT_SELECT_STATE } from "./UIBaseElement";
 
-class SceneOverview extends Object3D {
-  add: any;
+export class UIOverview extends UIBaseElement {
   constructor(title, description, image) {
     super();
 
@@ -66,5 +66,3 @@ class SceneOverview extends Object3D {
   update() {
   }
 }
-
-export default SceneOverview;

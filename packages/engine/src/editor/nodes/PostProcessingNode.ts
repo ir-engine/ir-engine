@@ -1,4 +1,3 @@
-import { WebGLRendererSystem } from "../../renderer/WebGLRendererSystem";
 import PostProcessing from "../../scene/classes/PostProcessing";
 import EditorNodeMixin from "./EditorNodeMixin";
 /**
@@ -38,7 +37,6 @@ export default class PostProcessingNode extends EditorNodeMixin(PostProcessing){
 
     serialize(){
         let data:any={}
-        const da=this.postProcessingOptions;
         data={
             options:this.postProcessingOptions
         };
