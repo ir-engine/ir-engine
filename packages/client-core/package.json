@@ -1,6 +1,6 @@
 {
   "name": "@xr3ngine/client-core",
-  "version": "0.2.14",
+  "version": "0.2.17",
   "repository": {
     "type": "git",
     "url": "git://github.com/xr3ngine/xr3ngine.git"
@@ -53,8 +53,8 @@
     "@types/styled-components": "5.1.9",
     "@typescript-eslint/eslint-plugin": "4.22.0",
     "@typescript-eslint/parser": "4.22.0",
-    "@xr3ngine/common": "^0.2.14",
-    "@xr3ngine/engine": "^0.2.14",
+    "@xr3ngine/common": "^0.2.17",
+    "@xr3ngine/engine": "^0.2.17",
     "antd": "4.15.1",
     "app-root-path": "3.0.0",
     "autobind-decorator": "2.4.0",
@@ -122,8 +122,6 @@
     "whatkey": "2.0.1"
   },
   "devDependencies": {
-    "semantic-release": "17.4.2",
-    "semantic-release-monorepo": "7.0.4",
     "@babel/core": "7.13.15",
     "@babel/plugin-proposal-class-properties": "7.13.0",
     "@babel/plugin-proposal-object-rest-spread": "7.13.8",
@@ -167,6 +165,8 @@
     "rollup-plugin-typescript2": "0.30.0",
     "sass": "1.32.10",
     "sass-loader": "11.0.1",
+    "semantic-release": "17.4.2",
+    "semantic-release-monorepo": "7.0.4",
     "serve": "11.3.2",
     "style-loader": "2.0.0",
     "thread-loader": "3.0.3",
@@ -177,5 +177,5 @@
     "webpack-cli": "4.6.0"
   },
   "license": "ISC",
-  "gitHead": "66449f6ffba4d32c424b16b4f0667fe0ad36562c"
+  "gitHead": "5ff55be1619e188226c4ac91c92a44b7ba18edf4"
 }
