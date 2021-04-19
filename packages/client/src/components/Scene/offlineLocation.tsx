@@ -6,15 +6,14 @@ import { isMobileOrTablet } from '@xr3ngine/engine/src/common/functions/isMobile
 import { EngineEvents } from '@xr3ngine/engine/src/ecs/classes/EngineEvents';
 import { resetEngine } from "@xr3ngine/engine/src/ecs/functions/EngineFunctions";
 import { DefaultInitializationOptions, initializeEngine } from '@xr3ngine/engine/src/initialize';
-import { NetworkSchema } from '@xr3ngine/engine/src/networking/interfaces/NetworkSchema';
 import { ClientNetworkSystem } from '@xr3ngine/engine/src/networking/systems/ClientNetworkSystem';
+import { UIGallery } from '@xr3ngine/engine/src/ui/classes/UIGallery';
 import { styleCanvas } from '@xr3ngine/engine/src/renderer/functions/styleCanvas';
-import { DefaultNetworkSchema } from '@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema';
+import { createPanelComponent } from '@xr3ngine/engine/src/ui/functions/createPanelComponent';
 import { XRSystem } from '@xr3ngine/engine/src/xr/systems/XRSystem';
-import dynamic from 'next/dynamic';
 import React, { useEffect, useState } from 'react';
 
-const MobileGamepad = dynamic<MobileGamepadProps>(() => import("@xr3ngine/client-core/src/common/components/MobileGamepad").then((mod) => mod.MobileGamepad), { ssr: false });
+const MobileGamepad = React.lazy(() => import("@xr3ngine/client-core/src/common/components/MobileGamepad"));
 const engineRendererCanvasId = 'engine-renderer-canvas';
 
 interface Props {
@@ -33,24 +32,18 @@ export const OfflineEnginePage = (props: Props) => {
 
   async function init(sceneId: string): Promise<any> {
     const sceneData = testScenes[sceneId] || testScenes.test;
-    const networkSchema: NetworkSchema = {
-      ...DefaultNetworkSchema,
-    };
   
     const canvas = document.getElementById(engineRendererCanvasId) as HTMLCanvasElement;
     styleCanvas(canvas);
     const InitializationOptions = {
       ...DefaultInitializationOptions,
-      networking: {
-        schema: networkSchema,
-      },
       renderer: {
         canvas,
       },
       useOfflineMode: true,
       postProcessing: false,
     };
-    
+    console.log(InitializationOptions);
     await initializeEngine(InitializationOptions);
 
     document.dispatchEvent(new CustomEvent('ENGINE_LOADED')); // this is the only time we should use document events. would be good to replace this with react state
@@ -74,6 +67,8 @@ export const OfflineEnginePage = (props: Props) => {
     const [sceneLoaded, worldState] = await Promise.all([ loadScene, getWorldState ]);
 
     EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.JOINED_WORLD, worldState });
+
+    createPanelComponent({ panel: new UIGallery() });
   }
 
   const addUIEvents = () => {

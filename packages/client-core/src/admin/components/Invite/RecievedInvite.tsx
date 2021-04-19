@@ -9,7 +9,6 @@ import { retrieveReceivedInvites, retrieveSentInvites, sendInvite } from "../../
 import { createStyles, makeStyles, Theme, useTheme } from '@material-ui/core/styles';
 import { selectInviteState } from "../../../social/reducers/invite/selector";
 import { bindActionCreators, Dispatch } from "redux";
-import { withRouter, Router } from "next/router";
 import { connect } from "react-redux";
 import { Delete } from "@material-ui/icons";
 import IconButton from '@material-ui/core/IconButton';
@@ -21,7 +20,6 @@ import TableFooter from '@material-ui/core/TableFooter';
 import TablePagination from '@material-ui/core/TablePagination';
 
 interface Props {
-  router: Router,
   receivedInvites?: any,
   retrieveReceivedInvites?: any,
   sendInvite?: any,
@@ -206,4 +204,4 @@ const RecievedInvite = (props: Props) => {
 };
 
 
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(RecievedInvite));
+export default connect(mapStateToProps, mapDispatchToProps)(RecievedInvite);

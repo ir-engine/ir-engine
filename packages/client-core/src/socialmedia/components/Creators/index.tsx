@@ -6,7 +6,7 @@ import CardContent from '@material-ui/core/CardContent';
 import CardMedia from '@material-ui/core/CardMedia';
 import Typography from '@material-ui/core/Typography';
 import VerifiedUserIcon from '@material-ui/icons/VerifiedUser';
-import Router from "next/router";
+import { useHistory } from "react-router-dom";
 import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
@@ -32,9 +32,10 @@ interface Props{
 
 const Creators = ({creatorsState, getCreators}:Props) => { 
     useEffect(()=> getCreators(), []);
+    const history = useHistory();
     const creators= creatorsState && creatorsState.get('creators') ? creatorsState.get('creators') : null;
     const handleCreatorView = (id) =>{
-        Router.push({ pathname: '/creator', query:{ creatorId: id}});
+        history.push('/creator?creatorId=' + id);
     };
     return <section className={styles.creatorContainer}>
         {creators?.map((item, itemIndex)=>

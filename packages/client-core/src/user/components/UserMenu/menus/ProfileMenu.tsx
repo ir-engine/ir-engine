@@ -1,4 +1,7 @@
-import { Button, InputAdornment, TextField, Typography } from '@material-ui/core';
+import Button from '@material-ui/core/Button';
+import InputAdornment from '@material-ui/core/InputAdornment';
+import TextField from '@material-ui/core/TextField';
+import Typography from '@material-ui/core/Typography';
 import { Check, Close, Create, GitHub, Send } from '@material-ui/icons';
 import { selectAuthState } from '../../../reducers/auth/selector';
 import { addConnectionByEmail, addConnectionBySms, loginUserByOAuth, logoutUser, removeUser, updateUserAvatarId, updateUsername, updateUserSettings } from '../../../reducers/auth/service';

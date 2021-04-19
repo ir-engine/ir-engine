@@ -1,5 +1,5 @@
 import React from 'react';
-import { AppBar } from '@material-ui/core';
+import AppBar from '@material-ui/core/AppBar';
 import Fab from '@material-ui/core/Fab';
 import {
   Forum,

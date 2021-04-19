@@ -3,7 +3,6 @@ import { sendInvite, retrieveSentInvites, retrieveReceivedInvites } from "../../
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import { selectInviteState } from "../../../social/reducers/invite/selector";
 import { bindActionCreators, Dispatch } from "redux";
-import { withRouter, Router } from "next/router";
 import { connect } from "react-redux";
 import AppBar from '@material-ui/core/AppBar';
 import Tabs from '@material-ui/core/Tabs';
@@ -67,7 +66,6 @@ const useStyles = makeStyles((theme: Theme) => ({
 
 
 interface Props {
-    router: Router,
     receivedInvites?: any,
     retrieveReceivedInvites?: any,
     retrieveSentInvites?: any;
@@ -189,4 +187,4 @@ const InvitesConsole = (props: Props) => {
     );
 };
 
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(InvitesConsole));
+export default connect(mapStateToProps, mapDispatchToProps)(InvitesConsole);
