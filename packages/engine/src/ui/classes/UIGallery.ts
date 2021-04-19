@@ -4,6 +4,7 @@ import { VideoPlayer } from "@xrengine/engine/src/ui/classes/VideoPlayer";
 import { Control } from "@xrengine/engine/src/ui/classes/Control";
 import { UIBaseElement, UI_ELEMENT_SELECT_STATE } from "./UIBaseElement";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { createItem, createCol, createRow, createButton, makeLeftItem } from '../functions/createItem';
 =======
 import {createItem, createCol, createRow} from '../functions/createItem';
@@ -49,6 +50,23 @@ class TextElement extends UIBaseElement {
     
     addElement(element){
     }
+=======
+import {createItem, createCol, createRow, createButton, makeLeftItem} from '../functions/createItem';
+import { Block } from "../../assets/three-mesh-ui";
+
+export class UIGallery extends UIBaseElement {
+  marketPlace: Block;
+  library: Block;
+  purchasePanel: Block;
+  oldPanel: Block;
+  playButton: Block;
+  purchaseButton: Block;
+  buttonMarket: Block;
+  buttonLibrary: Block;
+
+  constructor() {
+    super();
+>>>>>>> add play, download button
 
     
 }
@@ -150,6 +168,16 @@ export const createGalleryPanel = () => {
       width: 3,
       height: 0.8,
     });
+<<<<<<< HEAD
+=======
+    ov.addEventListener(UI_ELEMENT_SELECT_STATE.SELECTED, () => {
+      this.purchasePanel.visible = true;
+      this.marketPlace.visible = false;
+      this.oldPanel = this.marketPlace;
+      this.buttonMarket.visible = false;
+      this.buttonLibrary.visible = false;
+    })
+>>>>>>> add play, download button
 
     let cols = [];
     cols.push(ov);
@@ -162,10 +190,25 @@ export const createGalleryPanel = () => {
           title: "Scene Title", 
           description: "Scene Description", 
           imageUrl: url(urlIndex++),
+<<<<<<< HEAD
           width: 1,
           height: 0.5,
+=======
+          width: itemWidth,
+          height: itemHeight,
+          selectable: true
+>>>>>>> add play, download button
         });
         rows.push(panel);
+
+        panel.addEventListener(UI_ELEMENT_SELECT_STATE.SELECTED, () => {
+          this.purchasePanel.visible = true;
+          this.marketPlace.visible = false;
+          this.oldPanel = this.marketPlace;
+          this.setPurchase(true);
+          this.buttonMarket.visible = false;
+          this.buttonLibrary.visible = false;
+        })
       }
       cols.push(createRow(3, 0.5, rows, 0.1));
     }
@@ -173,9 +216,40 @@ export const createGalleryPanel = () => {
     let mm = createCol(3, 1.5, cols, 0.1);
     this.marketPlace.add( mm );
 
+<<<<<<< HEAD
     // const ov = new UIOverview("Scene Title", "Scene Description\nSecode line of description", null);
     // this.marketPlace.add(ov);
     // this.elements.push(ov);
+=======
+    cols = [];
+    for (let j = 0; j < 3; j++) {
+      let rows = [];
+      for(let i = 0 ; i < 3;i++)
+      {
+        const panel = createItem({
+          title: "Scene Title", 
+          description: "Scene Description", 
+          imageUrl: url(urlIndex++),
+          width: itemWidth,
+          height: itemHeight,
+          selectable: true
+        });
+        rows.push(panel);
+
+        panel.addEventListener(UI_ELEMENT_SELECT_STATE.SELECTED, () => {
+          this.purchasePanel.visible = true;
+          this.library.visible = false;
+          this.oldPanel = this.library;
+          this.setPurchase(false);
+          this.buttonMarket.visible = false;
+          this.buttonLibrary.visible = false;
+        })
+      }
+      cols.push(createRow(totalWidth, itemHeight, rows, gap));
+    }
+    let le = createCol(totalWidth, totalHeight, cols, gap);
+    this.library.add( le );
+>>>>>>> add play, download button
 
     const marketPlacePanels = [];
     // marketPlacePanels.push(ov);
@@ -230,12 +304,18 @@ export const createGalleryPanel = () => {
     buttonMarket = createButton({ title: "Marketplace" });
     buttonLibrary = createButton({ title: "Library" });
 
+<<<<<<< HEAD
     container.add(buttonMarket);
     container.add(buttonLibrary);
+=======
+    this.add(this.buttonMarket);
+    this.add(this.buttonLibrary);
+>>>>>>> add play, download button
 
-    buttonMarket.position.set(-0.5, 1, 0);
-    buttonLibrary.position.set(-0.05, 1, 0);
+    this.buttonMarket.position.set(-0.5, 1, 0);
+    this.buttonLibrary.position.set(-0.05, 1, 0);
 
+<<<<<<< HEAD
     buttonMarket.addEventListener(UI_ELEMENT_SELECT_STATE.SELECTED, () => {
       library.visible = false;
       marketPlace.visible = true;
@@ -244,6 +324,21 @@ export const createGalleryPanel = () => {
     buttonLibrary.addEventListener(UI_ELEMENT_SELECT_STATE.SELECTED, () => {
       library.visible = true;
       marketPlace.visible = false;
+=======
+    this.buttonMarket.addEventListener(UI_ELEMENT_SELECT_STATE.SELECTED, () => {
+      this.library.visible = false;
+      this.marketPlace.visible = true;
+    })
+
+    this.buttonLibrary.addEventListener(UI_ELEMENT_SELECT_STATE.SELECTED, () => {
+      this.library.visible = true;
+      this.marketPlace.visible = false;
+    })
+
+    buttonNext.addEventListener(UI_ELEMENT_SELECT_STATE.SELECTED, () => {
+      this.library.visible = false;
+      this.marketPlace.visible = true;
+>>>>>>> add play, download button
     })
 
     library.visible = false;
@@ -279,7 +374,28 @@ export const createGalleryPanel = () => {
     setPurchase = play.setPurchase;
     purchasePanel.visible = false;
 
+<<<<<<< HEAD
     container.add(purchasePanel);
+=======
+  setPurchase(isPurchase){
+    if(isPurchase){
+      this.playButton.visible = false;
+      this.purchaseButton.children[1].set({
+        content: "Purchase"
+      });
+    }
+    else{
+      this.playButton.visible = true;
+      this.purchaseButton.children[1].set({
+        content: "Download"
+      });
+    };
+  }
+
+  createPurchaseSession(param){
+    const width = param.width;
+    const height = param.height;
+>>>>>>> add play, download button
 
     buyPanel = createBuyPanel({
         width: totalWidth*0.5,
@@ -307,6 +423,7 @@ export const createGalleryPanel = () => {
     });
     container.add(control);
 
+<<<<<<< HEAD
     player.control = control;
 
     control.visible = false;
@@ -400,6 +517,62 @@ const createGallery = (param) => {
   return {
       marketPlace: marketPlace,
       library: library,
+=======
+    let text = createItem({
+      width: width-0.8-0.025*4,
+      height: 0.1,
+      title: "SceneTitle",
+      description: "Scene Description",
+    });
+    text.set({
+      backgroundOpacity: 0.0,      
+    })
+
+    this.purchaseButton = createButton({
+      title: "Purchase"
+    });
+
+    this.playButton = createButton({
+      title: "Play"
+    });
+
+    let bottomBar = createRow(
+      width, 0.2, 
+      [
+        text, 
+        this.playButton,
+        this.purchaseButton
+      ], 
+      0.025);
+
+    this.playButton.visible = false;
+
+    backButton.addEventListener(UI_ELEMENT_SELECT_STATE.SELECTED, () => {
+      this.purchasePanel.visible = false;
+      this.oldPanel.visible = true;
+      this.buttonMarket.visible = true;
+      this.buttonLibrary.visible = true;
+    });
+
+    this.playButton.addEventListener(UI_ELEMENT_SELECT_STATE.SELECTED, () => {
+      // this.library.visible = false;
+      // this.marketPlace.visible = true;
+    });
+
+    this.purchaseButton.addEventListener(UI_ELEMENT_SELECT_STATE.SELECTED, () => {
+      // this.library.visible = false;
+      // this.marketPlace.visible = true;
+    });
+    
+    return createCol(
+      width, height, 
+      [
+        makeLeftItem({item: backButton, containerWidth: width}), 
+        image, 
+        bottomBar
+      ], 
+      0.01);
+>>>>>>> add play, download button
   }
 }
 
