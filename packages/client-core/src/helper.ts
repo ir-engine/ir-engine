@@ -9,7 +9,6 @@ export class Config {
         loginDisabled: false,
         logo: '',
         apiServer: '',
-        apiServerBuild: '',
         appServer: '',
         gameserver: '',
         gameserverDomain: '',

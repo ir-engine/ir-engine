@@ -2,6 +2,12 @@ import { Block, Text } from "../../assets/three-mesh-ui";
 import { Object3D, Color } from "three";
 
 class SceneButton extends Object3D {
+  textBlock: any;
+  add: any;
+  pick: any;
+  position: any;
+  visible: boolean;
+
   constructor(title, index) {
     super();
     this.init(title, index);

@@ -6,7 +6,7 @@ export class RayCast extends Object3D{
     // vrControl: VRControl;
     mouse:Vector2;
     selectState:Boolean;
-    objsToTest: [];
+    objsToTest: any[];
 
     constructor(){
         super();

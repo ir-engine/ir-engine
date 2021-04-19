@@ -2,9 +2,11 @@
   "packages": [
     "packages/*"
   ],
-  "version": "0.2.14",
+  "version": "0.2.17",
   "npmClient": "yarn",
   "useWorkspaces": true,
   "hoist": true,
-  "nohoist": ["@docusaurus/*"]
+  "nohoist": [
+    "@docusaurus/*"
+  ]
 }
