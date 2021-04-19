@@ -42,7 +42,7 @@ export class ArMedia extends Service {
 
     //All ArMedia as Admin
     if (action === 'admin') {
-      const dataQuery = `SELECT ar.*, col.*
+      const dataQuery = `SELECT ar.id as ar_id, ar.title as ar_title, ar.type as ar_type, ar.createdAt as ar_createdAt, col.*
         FROM \`ar_media\` as ar
         JOIN \`collection\` as col ON col.id=ar.collectionId        
         WHERE 1
@@ -128,8 +128,8 @@ export class ArMedia extends Service {
     }
 
     async create (data: any,  params?: Params): Promise<any> {
-      const {arMedia:arMediaModel} = this.app.get('sequelizeClient').models;
-      return await arMediaModel.create(data);
+      const {ar_media:ArMediaModel} = this.app.get('sequelizeClient').models;
+      return await ArMediaModel.create(data);
     }
 
       /**
@@ -137,7 +137,7 @@ export class ArMedia extends Service {
    * 
    * @param id to update 
    * @param params 
-   * @returns updated feed
+   * @returns updated 
    * @author Vykliuk Tetiana <tanya.vykliuk@gmail.com>
    */
   async patch (id: string, data?: any, params?: Params): Promise<any> {

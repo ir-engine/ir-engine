@@ -13,9 +13,10 @@ import Immutable from 'immutable';
 import {
   ARMEDIA_FETCHING,
   ARMEDIA_ADMIN_RETRIEVED,
-  ARMEDIA_RETRIEVED
+  ARMEDIA_RETRIEVED,
+  ADD_ARMEDIA
 } from '../actions';
-import { ArMediaAction, ArMediaRetriveAction } from './actions';
+import { ArMediaAction, ArMediaOneAction, ArMediaRetriveAction } from './actions';
 
 export const initialArMediaState = {
   arMedia: {
@@ -34,6 +35,8 @@ const arMediaReducer = (state = immutableState, action: ArMediaAction): any => {
       return state.set('adminList', (action as ArMediaRetriveAction).list).set('fetching', false);
     case ARMEDIA_RETRIEVED:
         return state.set('list', (action as ArMediaRetriveAction).list).set('fetching', false);
+    case ADD_ARMEDIA:
+      return state.set('adminList', [...state.get('adminList'), (action as ArMediaOneAction).item]);
   }
 
   return state;

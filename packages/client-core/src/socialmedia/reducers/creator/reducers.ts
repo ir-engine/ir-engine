@@ -49,7 +49,6 @@ const creatorReducer = (state = immutableState, action: CreatorsAction): any => 
       return state.set('currentCreator', (action as CreatorRetrievedAction).creator).set('fetching', false);
 
     case CREATOR_RETRIEVED: 
-    console.log('CREATOR_RETRIEVED', (action as CreatorRetrievedAction).creator);
       return state.set('creator', (action as CreatorRetrievedAction).creator).set('fetching', false);
 
     case CREATOR_NOTIFICATION_LIST_RETRIEVED:

@@ -3,18 +3,18 @@
  */
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
-import Router from "next/router";
+import { bindActionCreators, Dispatch } from 'redux';
 
-import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
+import TextField from '@material-ui/core/TextField';
+import { FormControl, InputLabel, MenuItem, Select } from '@material-ui/core';
+
 
 // @ts-ignore
 import styles from './ArMediaForm.module.scss';
 
-import TextField from '@material-ui/core/TextField';
-import { bindActionCreators, Dispatch } from 'redux';
 import { selectCreatorsState } from '../../reducers/creator/selector';
-import { updateCreator } from '../../reducers/creator/service';
+import { createArMedia } from '../../reducers/arMedia/service';
 
 const mapStateToProps = (state: any): any => {
     return {
@@ -23,19 +23,24 @@ const mapStateToProps = (state: any): any => {
   };
 
   const mapDispatchToProps = (dispatch: Dispatch): any => ({
-      updateCreator: bindActionCreators(updateCreator, dispatch)
+    createArMedia: bindActionCreators(createArMedia, dispatch)
 });
   interface Props{
-    creatorData?:any;
+    projects?:any[];
     creatorsState?: any;
-    updateCreator?: typeof updateCreator;   
+    createArMedia?: typeof createArMedia;   
   }
   
-const ArMediaForm = ({creatorData, creatorsState, updateCreator}:Props) => {
+const ArMediaForm = ({projects, createArMedia}:Props) => {
+  const [type, setType] = useState(null);
+  const [title, setTitle] = useState('');
+  const [collectionId, setCollectionId] = useState(null);
+ 
+  console.log('projects',projects)
      
     const handleSubmit = (e:any) =>{
         e.preventDefault();
-        // updateCreator(creator);
+        createArMedia({type, title, collectionId});
     };
 
     return <section className={styles.creatorContainer}>
@@ -46,7 +51,34 @@ const ArMediaForm = ({creatorData, creatorsState, updateCreator}:Props) => {
         >                     
             <section className={styles.content}>
                 <div className={styles.formLine}>                   
-                    <TextField className={styles.textFieldContainer} fullWidth id="title" placeholder="Title"  />
+                    <TextField className={styles.textFieldContainer} value={title} onChange={(e)=>setTitle(e.target.value)} fullWidth id="title" placeholder="Title"  />
+                </div>
+                <div className={styles.formLine}>                   
+                  <FormControl className={styles.formLine}>
+                    <InputLabel id="demo-simple-select-label">Type</InputLabel>
+                    <Select
+                      labelId="demo-simple-select-label"
+                      id="demo-simple-select"
+                      value={type}
+                      onChange={(e)=>setType(e.target.value)}
+                    >
+                      <MenuItem value='clip'>Clip</MenuItem>
+                      <MenuItem value='background'>Background</MenuItem>
+                    </Select>
+                  </FormControl>
+                </div>
+                <div className={styles.formLine}>
+                  <FormControl className={styles.formLine}>
+                    <InputLabel id="demo-simple-select-label">Scene</InputLabel>
+                    <Select
+                      labelId="demo-simple-select-label"
+                      id="demo-simple-select"
+                      value={collectionId}
+                      onChange={(e)=>setCollectionId(e.target.value)}
+                    >
+                      {projects.map(project=><MenuItem value={project.id}>{project.name}</MenuItem>)}
+                    </Select>
+                  </FormControl>
                 </div>
                 <Button
                 variant="contained"

@@ -5,11 +5,16 @@
     ARMEDIA_ADMIN_RETRIEVED,
     ARMEDIA_FETCHING,
     ARMEDIA_RETRIEVED,
+    ADD_ARMEDIA
   } from '../actions';
   
   export interface ArMediaRetriveAction {
     type: string;
     list: any[];
+  }
+  export interface ArMediaOneAction {
+    type: string;
+    item: any;
   }
   
   export interface FetchingAction {
@@ -19,6 +24,7 @@
   export type ArMediaAction =
   ArMediaRetriveAction
   | FetchingAction
+  | ArMediaOneAction
   
   export function setAdminArMedia (list: any[]): ArMediaRetriveAction {
     return {
@@ -40,3 +46,9 @@
     };
   }
   
+  export function addAdminArMedia(item): ArMediaOneAction{
+    return {
+      type: ADD_ARMEDIA,
+      item
+    };
+  }

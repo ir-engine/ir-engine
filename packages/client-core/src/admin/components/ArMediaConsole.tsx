@@ -1,7 +1,7 @@
 /**
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 import { Router, withRouter , useRouter} from "next/router";
@@ -27,6 +27,9 @@ import { EnhancedTableHead } from './AdminHelpers';
 import { updateFeedAsAdmin } from '../../socialmedia/reducers/feed/service';
 import SharedModal from './SharedModal';
 import ArMediaForm from '../../socialmedia/components/ArMediaForm';
+import { fetchAdminScenes } from '../reducers/admin/service';
+import { selectAdminState } from '../reducers/admin/selector';
+import { doLoginAuto } from '../../user/reducers/auth/service';
 
 if (!global.setImmediate) {
     global.setImmediate = setTimeout as any;
@@ -46,14 +49,18 @@ interface Props {
     removeUser?: any;
     list?:any;
     updateFeedAsAdmin?: typeof updateFeedAsAdmin;
+    doLoginAuto?: typeof doLoginAuto;
 }
 const mapStateToProps = (state: any): any => {
     return {
+        adminState: selectAdminState(state)
     };
 };
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
     updateFeedAsAdmin: bindActionCreators(updateFeedAsAdmin, dispatch),
+    fetchAdminScenes: bindActionCreators(fetchAdminScenes, dispatch),
+    doLoginAuto: bindActionCreators(doLoginAuto, dispatch),
 });
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -82,7 +89,10 @@ const Transition = React.forwardRef((
 
 const ArMediaConsole = (props: Props) => {
     const classes = useStyles();
-    const { list, updateFeedAsAdmin } = props;
+    const { list, updateFeedAsAdmin, fetchAdminScenes, adminState, doLoginAuto } = props;
+    const adminScenes = adminState.get('scenes').get('scenes');
+
+    console.log('list', list);
 
     const headCells = [
         { id: 'type', numeric: false, disablePadding: false, label: 'Type' },
@@ -123,6 +133,15 @@ const ArMediaConsole = (props: Props) => {
         });
     }
 
+    useEffect(() => {    
+        doLoginAuto(true);
+    }, []);
+
+    useEffect(() => {
+        fetchAdminScenes();
+    }, []);
+
+
     const [modalOpen, setModalOpen] = useState(false);
     const [order, setOrder] = React.useState<Order>('asc');
     const [orderBy, setOrderBy] = React.useState<any>('name');
@@ -157,9 +176,11 @@ const ArMediaConsole = (props: Props) => {
         router.push(route);
       };
 
+    console.log('adminScenes',adminScenes);
+
     return (
         <div>
-            <Typography variant="h2" color="primary">ARC Ar Media recourses List</Typography>       
+            <Typography variant="h2" color="primary">ARC Ar Media resources List</Typography>       
             <Button variant="outlined" color="secondary" onClick={()=>setModalOpen(true)} style={{width:'fit-content'}}>Create</Button>                                                                
             <Paper className={styles.adminRoot}>            
                 <TableContainer className={styles.tableContainer}>
@@ -176,7 +197,7 @@ const ArMediaConsole = (props: Props) => {
                             onRequestSort={handleRequestSort}
                             headCells={headCells}
                         />
-                        {list && list.lenggth > 0 && <TableBody className={styles.thead}>
+                        {list && list.length > 0 && <TableBody className={styles.thead}>
                             {stableSort(list, getComparator(order, orderBy))
                                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                                 .map((row, index) => {
@@ -188,11 +209,9 @@ const ArMediaConsole = (props: Props) => {
                                             tabIndex={-1}
                                             key={row.id}
                                         >
-                                            <TableCell className={styles.tcell} align="center">
-                                                <Typography variant="h3" color="textPrimary">{row.type}</Typography>
-                                            </TableCell>
-                                            <TableCell className={styles.tcell} align="center">{row.title}</TableCell>                                              
-                                            <TableCell className={styles.tcell} align="right">{row.createdAt}</TableCell>
+                                            <TableCell className={styles.tcell} align="center">{row.ar_type}</TableCell>
+                                            <TableCell className={styles.tcell} align="center">{row.ar_title}</TableCell>                                              
+                                            <TableCell className={styles.tcell} align="right">{row.ar_createdAt}</TableCell>
                                             <TableCell className={styles.tcell} >
                                                     {row.featuredByAdmin === 1 ? 
                                                     <Button variant="outlined" color="secondary" style={{width:'fit-content'}} onClick={() => handleUpdateFeed({id:row.id.toString(), featuredByAdmin:0})}>UnFeature</Button>
@@ -211,7 +230,7 @@ const ArMediaConsole = (props: Props) => {
                     TransitionComponent={Transition}                    
                     onClose={handleClose} 
                 >
-                    <ArMediaForm />
+                    <ArMediaForm projects={adminScenes} />
                 </SharedModal>}
             </Paper>
             <Backdrop className={classes.backdrop} open={loading}>
