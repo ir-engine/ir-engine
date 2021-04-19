@@ -1,12 +1,11 @@
 import React, { Children } from 'react';
-import getConfig from 'next/config';
 import Document, { Html, Head, Main, NextScript } from 'next/document';
 // import { ServerStyleSheet } from '@material-ui/core/styles';
 import theme from '../../theme';
 import { ServerStyleSheet } from 'styled-components';
 
-const { publicRuntimeConfig } = getConfig();
-const siteDescription: string = publicRuntimeConfig.siteDescription;
+import { Config } from '@xr3ngine/client-core/src/helper';
+const siteDescription: string = Config.publicRuntimeConfig.siteDescription;
 
 export default class MyDocument extends Document {
   static async getInitialProps(ctx) {

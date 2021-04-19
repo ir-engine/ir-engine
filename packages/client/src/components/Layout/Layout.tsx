@@ -13,7 +13,6 @@ import theme from '@xr3ngine/client-core/src/theme';
 import Harmony from "../Harmony";
 import InstanceChat from '../InstanceChat';
 import PartyVideoWindows from '../PartyVideoWindows';
-import getConfig from 'next/config';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import React, { Fragment, useCallback, useEffect, useState } from 'react';
@@ -25,8 +24,8 @@ import RightDrawer from '../Drawer/Right';
 // @ts-ignore
 import styles from './Layout.module.scss';
 
-const { publicRuntimeConfig } = getConfig();
-const siteTitle: string = publicRuntimeConfig.siteTitle;
+import { Config } from '@xr3ngine/client-core/src/helper';
+const siteTitle: string = Config.publicRuntimeConfig.siteTitle;
 
 const engineRendererCanvasId = 'engine-renderer-canvas';
 
