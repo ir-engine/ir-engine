@@ -3,15 +3,15 @@ import { Object3D, Color, VideoTexture } from "three";
 import { UIBaseElement, UI_ELEMENT_SELECT_STATE } from "./UIBaseElement";
 
 export class UIOverview extends UIBaseElement {
-  constructor(title, description, image) {
+  constructor(title, description, imageUrl) {
     super();
 
     this.init(title, description, imageUrl);
   }
 
   init(title, description, url) {
-    const imageElement = new ImageElement(3.2, 0.8, 0.1, 1.35, url);
-    this.add(imageElement);
+    // const imageElement = new ImageElement(3.2, 0.8, 0.1, 1.35, url);
+    // this.add(imageElement);
 
     const textBlock = new Block({
       height: 0.1,
