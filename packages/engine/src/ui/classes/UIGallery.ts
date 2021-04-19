@@ -3,16 +3,13 @@ import { UIOverview } from "./UIOverview";
 import { UIPanel } from './UIPanel';
 import { UIButton } from "./UIButton";
 import { UIBaseElement, UI_ELEMENT_SELECT_STATE } from "./UIBaseElement";
-import {createItem, createCol, createRow, createButton} from '../functions/createItem';
+import {createItem, createCol, createRow, createButton, makeLeftItem} from '../functions/createItem';
 import { Block } from "../../assets/three-mesh-ui";
 
 export class UIGallery extends UIBaseElement {
   marketPlace: Block;
   library: Block;
-  pickables: any[];
-  add: any;
-  position: any;
-  rotation: any;
+  purchasePanel: Block;
 
   constructor() {
     super();
@@ -189,5 +186,60 @@ export class UIGallery extends UIBaseElement {
 
     this.position.set(0, 1, 0);
     this.rotation.y = Math.PI;
+
+    this.marketPlace.visible = false;
+    this.purchasePanel = this.createPurchaseSession({
+      width: totalWidth,
+      height: itemHeight*2.5,
+    });
+
+    this.add(this.purchasePanel);
+  }
+
+  createPurchaseSession(param){
+    const width = param.width;
+    const height = param.height;
+
+    let backButton = createButton({
+      title: "Back"
+    });
+    ;
+
+    let image = createItem({
+      width: width,
+      height: height,
+      texture: param.texture,
+    });
+
+    let text = createItem({
+      width: width*0.5,
+      height: 0.1,
+      title: "SceneTitle",
+      description: "Scene Description",
+    });
+    text.set({
+      backgroundOpacity: 0.0,      
+    })
+
+    let purchaseButton = createButton({
+      title: "Purchase"
+    });
+
+    let bottomBar = createRow(
+      width, 0.2, 
+      [
+        text, 
+        purchaseButton
+      ], 
+      (width - text.width - purchaseButton.width)*0.5);
+    
+    return createCol(
+      width, height, 
+      [
+        makeLeftItem({item: backButton, containerWidth: width}), 
+        image, 
+        bottomBar
+      ], 
+      0.01);
   }
 }

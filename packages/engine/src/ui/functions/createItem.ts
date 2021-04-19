@@ -20,16 +20,21 @@ export const createItem = (param) =>{
         "https://unpkg.com/three-mesh-ui/examples/assets/Roboto-msdf.json",
       fontTexture:
         "https://unpkg.com/three-mesh-ui/examples/assets/Roboto-msdf.png"
-    }).add(
-      new Text({
+    });
+
+    if(title){
+      container.add(new Text({
         content: title + '\n',
         fontSize: 0.05,
-      }),
-      new Text({
+      }));    
+    }
+      
+    if(description){
+      container.add(new Text({
         content: description,
         fontSize: 0.03,
-      })
-    );
+      }));
+    }
 
     const loader = new TextureLoader();
     loader.load(
@@ -88,6 +93,48 @@ export const createCol = (width, height, elements, gap) => {
   return container;
 }
 
+export const makeLeftItem = (param) => {
+  const item = param.item;
+  const containerWidth = param.containerWidth;
+  const itemWidth = item.width;
+  const itemHeight = item.height;
+
+  let dummy = new Block({
+    width: itemWidth,
+    height: itemHeight,
+    backgroundOpacity: 0.0,
+  });
+ 
+  let bar = createRow(containerWidth, itemHeight, [item, dummy], 0);
+  bar.set({
+    alignContent: 'center',
+    justifyContent: 'start',
+  });
+
+  return bar;
+}
+
+export const makeRightItem = (param) => {
+  const item = param.item;
+  const containerWidth = param.containerWidth;
+  const itemWidth = item.width;
+  const itemHeight = item.height;
+
+  let dummy = new Block({
+    width: itemWidth,
+    height: itemHeight,
+    backgroundOpacity: 0.0,
+  });
+ 
+  let bar = createRow(containerWidth, itemHeight, [dummy, item], 0);
+  bar.set({
+    alignContent: 'center',
+    justifyContent: 'end',
+  });
+
+  return bar;
+}
+
 export const createButton = (param) => {
   const title = param.title;
 
@@ -110,7 +157,7 @@ export const createButton = (param) => {
   );
 
   makeSelectable(button);
-  
+
   return button;
 }
 
