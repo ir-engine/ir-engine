@@ -1,4 +1,5 @@
-import { Button, Snackbar } from '@material-ui/core';
+import Button from '@material-ui/core/Button';
+import Snackbar from '@material-ui/core/Snackbar';
 import { InteractableModal } from '@xr3ngine/client-core/src/world/components/InteractableModal';
 import LoadingScreen from '@xr3ngine/client-core/src/common/components/Loader';
 import { MobileGamepadProps } from "@xr3ngine/client-core/src/common/components/MobileGamepad/MobileGamepadProps";
@@ -44,9 +45,8 @@ import { CharacterComponent } from '@xr3ngine/engine/src/templates/character/com
 import { DefaultNetworkSchema } from '@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema';
 import { PrefabType } from '@xr3ngine/engine/src/templates/networking/PrefabType';
 import { XRSystem } from '@xr3ngine/engine/src/xr/systems/XRSystem';
-import getConfig from 'next/config';
-import dynamic from 'next/dynamic';
-import { useRouter } from 'next/router';
+import { Config } from '@xr3ngine/client-core/src/helper';
+import { useHistory } from 'react-router-dom';
 import querystring from 'querystring';
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
@@ -54,11 +54,10 @@ import { bindActionCreators, Dispatch } from 'redux';
 import url from 'url';
 import { CharacterInputSchema } from '@xr3ngine/engine/src/templates/character/CharacterInputSchema';
 import { DefaultGameMode } from '@xr3ngine/engine/src/templates/game/DefaultGameMode';
-const { publicRuntimeConfig } = getConfig();
 
 const goHome = () => window.location.href = window.location.origin;
 
-const MobileGamepad = dynamic<MobileGamepadProps>(() => import("@xr3ngine/client-core/src/common/components/MobileGamepad").then((mod) => mod.MobileGamepad), { ssr: false });
+const MobileGamepad = React.lazy(() => import("@xr3ngine/client-core/src/common/components/MobileGamepad"));
 
 const engineRendererCanvasId = 'engine-renderer-canvas';
 
@@ -123,7 +122,7 @@ export const EnginePage = (props: Props) => {
   const [infoBoxData, setModalData] = useState(null);
   const [userBanned, setUserBannedState] = useState(false);
   const [openLinkData, setOpenLinkData] = useState(null);
-  const router = useRouter();
+  const router = useHistory();
 
   const [progressEntity, setProgressEntity] = useState(99);
   const [userHovered, setonUserHover] = useState(false);
@@ -143,7 +142,7 @@ export const EnginePage = (props: Props) => {
   let locationId = null;
 
   useEffect(() => {
-    if(publicRuntimeConfig.offlineMode) {
+    if(Config.publicRuntimeConfig.offlineMode) {
       init(locationName);
     } else {
       doLoginAuto(true);
@@ -223,11 +222,11 @@ export const EnginePage = (props: Props) => {
 
   async function init(sceneId: string): Promise<any> { // auth: any,
     let sceneData;
-    if(publicRuntimeConfig.offlineMode) {
+    if(Config.publicRuntimeConfig.offlineMode) {
       sceneData = testScenes[sceneId] || testScenes.test;
     } else {
       let service, serviceId;
-      const projectResult = !publicRuntimeConfig.offlineMode ? await client.service('project').get(sceneId) : '';
+      const projectResult = !Config.publicRuntimeConfig.offlineMode ? await client.service('project').get(sceneId) : '';
       setCurrentScene(projectResult);
       const projectUrl = projectResult.project_url;
       const regexResult = projectUrl.match(projectRegex);
@@ -264,7 +263,7 @@ export const EnginePage = (props: Props) => {
       renderer: {
         canvas,
       },
-      useOfflineMode: publicRuntimeConfig.offlineMode
+      useOfflineMode: Config.publicRuntimeConfig.offlineMode
     };
 
     console.log("Initialization options are: ", InitializationOptions);
@@ -277,9 +276,9 @@ export const EnginePage = (props: Props) => {
 
     addUIEvents();
 
-    console.log("**** OFFLINE MODE? ", publicRuntimeConfig.offlineMode);
+    console.log("**** OFFLINE MODE? ", Config.publicRuntimeConfig.offlineMode);
 
-    if(!publicRuntimeConfig.offlineMode) await connectToInstanceServer('instance');
+    if(!Config.publicRuntimeConfig.offlineMode) await connectToInstanceServer('instance');
 
     const loadScene = new Promise<void>((resolve) => {
       EngineEvents.instance.once(EngineEvents.EVENTS.SCENE_LOADED, () => {
@@ -293,7 +292,7 @@ export const EnginePage = (props: Props) => {
     });
 
     const getWorldState = new Promise<any>((resolve) => {
-      if(publicRuntimeConfig.offlineMode) {
+      if(Config.publicRuntimeConfig.offlineMode) {
         EngineEvents.instance.dispatchEvent({ type: ClientNetworkSystem.EVENTS.CONNECT, id: testUserId });
         resolve(testWorldState);
       } else {

@@ -1,5 +1,5 @@
 import React from "react";
-import Router from "next/router";
+import { useHistory } from "react-router-dom";
 import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 
 export function ProfilePic({
@@ -10,8 +10,9 @@ export function ProfilePic({
   href,
   ...props
 }: any) {
+  const history = useHistory();
   return (
-    <span {...props} onClick={() => Router.push("/[pid]", `/${username}`)}>
+    <span {...props} onClick={() => history.push(`/${username}`)}>
       {src ? <img
         alt={`${username}'s profile pic`}
         data-testid="user-avatar"

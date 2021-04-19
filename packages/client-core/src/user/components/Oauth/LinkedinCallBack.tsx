@@ -1,55 +1,48 @@
-import { useRouter, NextRouter } from "next/router";
+import { withRouter } from "react-router-dom";
 import React, { useEffect, useState } from "react";
 import { loginUserByJwt, refreshConnections } from '../../reducers/auth/service';
 import { selectAuthState } from '../../reducers/auth/selector';
 import { bindActionCreators, Dispatch } from 'redux';
 import { connect } from 'react-redux';
-import { Container } from '@material-ui/core';
-
-interface Props {
-auth: any;
-router: NextRouter;
-loginUserByJwt: typeof loginUserByJwt;
-refreshConnections: typeof refreshConnections;
-}
+import Container from '@material-ui/core/Container';
 
 const mapStateToProps = (state: any): any => {
-return {
-  auth: selectAuthState(state)
-};
+  return {
+    auth: selectAuthState(state)
+  };
 };
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
-loginUserByJwt: bindActionCreators(loginUserByJwt, dispatch),
-refreshConnections: bindActionCreators(refreshConnections, dispatch)
+  loginUserByJwt: bindActionCreators(loginUserByJwt, dispatch),
+  refreshConnections: bindActionCreators(refreshConnections, dispatch)
 });
 
-const LinkedinCallbackComponent = (props: Props): any => {
-  const { auth, loginUserByJwt, refreshConnections, router } = props;
+const LinkedinCallbackComponent = (props): any => {
+  const { auth, loginUserByJwt, refreshConnections, match } = props;
 
   const initialState = { error: '', token: '' };
   const [state, setState] = useState(initialState);
 
   useEffect(() => {
-      const error = router.query.error as string;
-      const token = router.query.token as string;
-      const type = router.query.type as string;
-      const path = router.query.path as string;
-      const instanceId = router.query.instanceId as string;
+    const error = match.params.error as string;
+    const token = match.params.token as string;
+    const type = match.params.type as string;
+    const path = match.params.path as string;
+    const instanceId = match.params.instanceId as string;
 
-      if (router.isReady === true && !error) {
-          if (type === 'connection') {
-              const user = auth.get('user');
-              refreshConnections(user.id);
-          } else {
-              let redirectSuccess = `${path}`;
-              if (instanceId != null) redirectSuccess += `?instanceId=${instanceId}`;
-              loginUserByJwt(token, redirectSuccess || '/', '/');
-          }
+    if (!error) {
+      if (type === 'connection') {
+        const user = auth.get('user');
+        refreshConnections(user.id);
+      } else {
+        let redirectSuccess = `${path}`;
+        if (instanceId != null) redirectSuccess += `?instanceId=${instanceId}`;
+        loginUserByJwt(token, redirectSuccess || '/', '/');
       }
+    }
 
-      setState({ ...state, error, token });
-  }, [router.isReady]);
+    setState({ ...state, error, token });
+  }, []);
 
   return state.error && state.error !== '' ? (
     <Container>
@@ -62,6 +55,4 @@ const LinkedinCallbackComponent = (props: Props): any => {
   );
 };
 
-const LinkedInHomeWrapper = (props: any): any => <LinkedinCallbackComponent {...props} router={ useRouter() } />;
-
-export const LinkedinCallback = connect(mapStateToProps, mapDispatchToProps)(LinkedInHomeWrapper);
+export const LinkedinCallback = withRouter(connect(mapStateToProps, mapDispatchToProps)(LinkedinCallbackComponent));

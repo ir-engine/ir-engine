@@ -1,13 +1,11 @@
 import React, { useEffect } from "react";
-import {
-    Backdrop,
-    Button,
-    Fade,
-    FormGroup,
-    Modal,
-    TextField,
-    Typography
-} from '@material-ui/core';
+import Backdrop from '@material-ui/core/Backdrop';
+import Button from '@material-ui/core/Button';
+import Fade from '@material-ui/core/Fade';
+import FormGroup from '@material-ui/core/FormGroup';
+import Modal from '@material-ui/core/Modal';
+import TextField from '@material-ui/core/TextField';
+import Typography from '@material-ui/core/Typography';
 import classNames from 'classnames';
 // @ts-ignore
 import styles from '../Admin.module.scss';
@@ -16,7 +14,6 @@ import { retrieveInvites } from "../../../social/reducers/inviteType/service";
 import { selectInviteState } from "../../../social/reducers/invite/selector";
 import { selectInviteTypesState } from "../../../social/reducers/inviteType/selector";
 import { bindActionCreators, Dispatch } from "redux";
-import { withRouter, Router } from "next/router";
 import { connect } from "react-redux";
 import { Dropdown } from 'semantic-ui-react';
 import Snackbar from '@material-ui/core/Snackbar';
@@ -24,10 +21,9 @@ import _ from 'lodash';
 import Grid from '@material-ui/core/Grid';
 import MuiAlert, { AlertProps } from '@material-ui/lab/Alert';
 import { ValidatorForm, TextValidator } from 'react-material-ui-form-validator';
-import { useRouter } from "next/router";
+import { useHistory } from "react-router-dom";
 
 interface Props {
-    router: Router;
     open: boolean;
     handleClose: any;
     sendInvite?: any;
@@ -69,7 +65,7 @@ const InviteModel = (props: Props) => {
         inviteTypeData,
         users
     } = props;
-    const router = useRouter();
+    const router = useHistory();
 
     const [currency, setCurrency] = React.useState('friend');
     const inviteType = inviteTypeData.get("inviteTypeData").get("inviteType");
@@ -95,7 +91,7 @@ const InviteModel = (props: Props) => {
     };
 
     const refreshData = () => {
-        router.replace(router.asPath);
+        router.go(0);
     };
 
     const handleChangeType = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -339,4 +335,4 @@ const InviteModel = (props: Props) => {
     );
 };
 
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(InviteModel));
+export default connect(mapStateToProps, mapDispatchToProps)(InviteModel);

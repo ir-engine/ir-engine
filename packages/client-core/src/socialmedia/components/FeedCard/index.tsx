@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { bindActionCreators, Dispatch } from 'redux';
 
-import Router from "next/router";
+import { useHistory } from "react-router-dom";
 import { connect } from 'react-redux';
 
 import CardMedia from '@material-ui/core/CardMedia';
@@ -55,6 +55,7 @@ interface Props{
     addViewToFeed?: typeof addViewToFeed;
 }
 const FeedCard = (props: Props) : any => {
+    const history = useHistory();
     const [buttonPopup , setButtonPopup] = useState(false);
     const [isVideo, setIsVideo] = useState(false);
     const [openFiredModal, setOpenFiredModal] = useState(false);
@@ -108,7 +109,7 @@ const FeedCard = (props: Props) : any => {
                          : 
                          <BookmarkBorderIcon onClick={()=>checkGuest ? setButtonPopup(true) : handleAddBookmarkClick(feed.id)} />}
                     </section>
-                    <Typography className={styles.titleContainer} gutterBottom variant="h2" onClick={()=>Router.push({ pathname: '/feed', query:{ feedId: feed.id}})}>
+                    <Typography className={styles.titleContainer} gutterBottom variant="h2" onClick={()=>history.push('/feed?feedId=' + feed.id)}>
                         {feed.title}                      
                     </Typography>
                     <Typography variant="h2" onClick={()=>checkGuest ? setButtonPopup(true) : handleGetFeedFiredUsers(feed.id)}><span className={styles.flamesCount}>{feed.fires}</span>Flames</Typography>

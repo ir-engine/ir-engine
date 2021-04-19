@@ -11,7 +11,7 @@ import { connectMenu, ContextMenu, MenuItem } from "@xr3ngine/client-core/src/wo
 import { ErrorMessage, ProjectGrid, ProjectGridContainer, ProjectGridContent, ProjectGridHeader, ProjectGridHeaderRow } from "@xr3ngine/client-core/src/world/components/editor/projects/ProjectGrid";
 import templates from "@xr3ngine/client-core/src/world/components/editor/projects/templates";
 import { ThemeContext } from "@xr3ngine/client-core/src/world/components/editor/theme";
-import { Router, withRouter } from "next/router";
+import { useHistory } from "react-router-dom";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from 'react-i18next';
 import { connect } from 'react-redux';
@@ -155,7 +155,6 @@ const contextMenuId = "project-menu";
 type Props = {
 	  api: Api;
 	  history: object;
-	  router: Router;
 	  authState?: any;
 	  doLoginAuto?: any;
 	  logoutUser?: typeof logoutUser;
@@ -206,12 +205,12 @@ const ProjectsPage = (props: Props) => {
  // creating types using props.
   const {
     api,
-    history,
-    router,
     authState,
     doLoginAuto,
     logoutUser
   } = props;
+
+  const router = useHistory();
 
   const [projects, setProjects] = useState([]); // constant projects initialized with an empty array.
   const [loading, setLoading] = useState(false);// constant loading initialized with false.
@@ -404,4 +403,4 @@ const ProjectsPage = (props: Props) => {
     );
 };
 
-export default withRouter(withApi(connect(mapStateToProps,mapDispatchToProps)(ProjectsPage)));
+export default withApi(connect(mapStateToProps,mapDispatchToProps)(ProjectsPage));

@@ -1,6 +1,6 @@
 {
   "name": "@xr3ngine/bot",
-  "version": "0.2.14",
+  "version": "0.2.15",
   "private": true,
   "repository": {
     "type": "git",
@@ -25,12 +25,11 @@
     "three": "0.127.0"
   },
   "devDependencies": {
-    "semantic-release": "17.4.2",
-    "semantic-release-monorepo": "7.0.4",
     "@babel/core": "7.13.15",
-    "@types/node": "13.13.48",
+    "@types/node": "13.13.50",
     "@types/react": "17.0.3",
     "@types/react-dom": "17.0.3",
+    "@types/three": "0.127.1",
     "babel-loader": "8.2.2",
     "cache-loader": "4.1.0",
     "config": "3.3.6",
@@ -41,12 +40,14 @@
     "next-images": "1.7.0",
     "next-optimized-images": "2.6.2",
     "next-plugin-node-config": "1.0.2",
+    "semantic-release": "17.4.2",
+    "semantic-release-monorepo": "7.0.4",
     "thread-loader": "3.0.3",
-    "ts-loader": "8.1.0",
+    "ts-loader": "9.0.0",
     "ts-shader-loader": "1.0.6",
     "typescript": "4.2.4",
     "uuid": "8.3.2",
-    "webpack": "5.32.0",
+    "webpack": "5.33.2",
     "webpack-cli": "4.6.0"
   },
   "license": "ISC"
