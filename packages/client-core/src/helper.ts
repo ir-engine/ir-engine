@@ -12,6 +12,7 @@ export class Config {
         appServer: '',
         gameserver: '',
         gameserverDomain: '',
+        mediatorServer: '',
         siteTitle: '',
         siteDescription: '',
         feathersStoreKey: '',

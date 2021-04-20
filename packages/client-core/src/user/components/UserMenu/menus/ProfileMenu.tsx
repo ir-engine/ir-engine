@@ -14,7 +14,8 @@ import { GoogleIcon } from '../../../../common/components/Icons/GoogleIcon';
 import { LinkedInIcon } from '../../../../common/components/Icons/LinkedInIcon';
 import { TwitterIcon } from '../../../../common/components/Icons/TwitterIcon';
 import { getAvatarURLFromNetwork, Views } from '../util';
-import { validateEmail, validatePhoneNumber } from '../../../../helper';
+import { Config, validateEmail, validatePhoneNumber } from '../../../../helper';
+import * as polyfill from 'credential-handler-polyfill';
 
 //@ts-ignore
 // @ts-ignore
@@ -74,13 +75,12 @@ const ProfileMenu = (props: Props): any => {
 
 	const loadCredentialHandler = async () => {
 		try {
-			if((window as any).credentialHandlerPolyfill){
-			await (window as any).credentialHandlerPolyfill.loadOnce();
-			console.log('Polyfill loaded.');
-			} else {
-				console.warn("CHAPI polyfill could not be loaded");
-			}
-		} catch(e) {
+			let mediator = process.env.NODE_ENV === 'production' ? Config.publicRuntimeConfig.mediatorServer : 'https://authorization.127.0.0.1:33443';
+			mediator = `${mediator}?origin=${encodeURIComponent(window.location.origin)}`;
+
+			await polyfill.loadOnce();
+			console.log('Ready to work with credentials!');
+		} catch (e) {
 			console.error('Error loading polyfill:', e);
 		}
 	};
