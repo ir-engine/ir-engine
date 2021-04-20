@@ -9,9 +9,9 @@ import { Engine } from "../../ecs/classes/Engine";
 import {createGallery} from '../components/GalleryPanel';
 import {createBuyPanel} from '../components/BuyPanel';
 import {createPlayPanel} from '../components/PlayPanel';
-import {createDome, createPlayer} from '../components/SkyDome';
-import {totalWidth, totalHeight, itemWidth, itemHeight, gap, url, envUrl} from '../constants/Constant';
-
+import {VideoPlayer} from '../components/VideoPlayer';
+import {totalWidth, totalHeight, itemWidth, itemHeight, gap, url, envUrl, videoUrl} from '../constants/Constant';
+import shaka from 'shaka-player';
 
 export class UIGallery extends UIBaseElement {
   marketPlace: Block;
@@ -24,7 +24,8 @@ export class UIGallery extends UIBaseElement {
   buttonLibrary: Block;
   preview: Block;
   buyPanel: Block;
-  skyDomeMaterial: MeshBasicMaterial;
+  isPurchase: Boolean;
+  player: VideoPlayer;
 
   constructor() {
     super();
@@ -44,27 +45,33 @@ export class UIGallery extends UIBaseElement {
     let setPurchase;
 
     const marketPlaceItemClickCB = (panel) => {
-      this.purchasePanel.visible = true;
-      this.marketPlace.visible = false;
-      this.oldPanel = this.marketPlace;
-      setPurchase(true);
-      this.buttonMarket.visible = false;
-      this.buttonLibrary.visible = false;
-      this.preview.set({
-        backgroundTexture: panel.backgroundTexture
-      });
+      if(this.purchasePanel){
+        this.purchasePanel.visible = true;
+        this.marketPlace.visible = false;
+        this.oldPanel = this.marketPlace;
+        this.isPurchase = true;
+        setPurchase(true);
+        this.buttonMarket.visible = false;
+        this.buttonLibrary.visible = false;
+        this.preview.set({
+          backgroundTexture: panel.backgroundTexture
+        });
+      }        
     };
 
     const libraryItemClickCB = (panel) => {
-      this.purchasePanel.visible = true;
-      this.library.visible = false;
-      this.oldPanel = this.library;
-      setPurchase(false);
-      this.buttonMarket.visible = false;
-      this.buttonLibrary.visible = false;
-      this.preview.set({
-        backgroundTexture: panel.backgroundTexture
-      });
+      if(this.purchasePanel){
+        this.purchasePanel.visible = true;
+        this.library.visible = false;
+        this.oldPanel = this.library;
+        this.isPurchase = false;
+        setPurchase(false);
+        this.buttonMarket.visible = false;
+        this.buttonLibrary.visible = false;
+        this.preview.set({
+          backgroundTexture: panel.backgroundTexture
+        });  
+      }
     };
 
         panel.addEventListener(UI_ELEMENT_SELECT_STATE.SELECTED, () => {
@@ -176,15 +183,23 @@ export class UIGallery extends UIBaseElement {
         this.oldPanel.visible = true;
         this.buttonMarket.visible = true;
         this.buttonLibrary.visible = true;
+        this.buyPanel.visible = false;
       },
       playCB: () => {
-
+        this.purchasePanel.visible = false;
+        this.player.playVideo(videoUrl);
       },
       purchaseCB: () => {
+        if (this.isPurchase){
+          this.buyPanel.visible = true;
+        }
+        else{
 
+        }
       }
     });
     
+    this.preview = play.preview;
     this.purchasePanel = play.panel;
     setPurchase = play.setPurchase;
     this.purchasePanel.visible = false;
@@ -198,11 +213,9 @@ export class UIGallery extends UIBaseElement {
     });
     // this.add(this.buyPanel);
     // this.buyPanel.position.set(0, 0, 0.1);
+    this.buyPanel.visible = false;
     this.preview.add(this.buyPanel);
 
-    let dome = createDome(envUrl);
-    dome.skyDome;
-    dome.skyDomeMaterial;
-    // createPlayer(dome.skyDomeMaterial);
+    this.player = new VideoPlayer(this, envUrl);
   }
 }
