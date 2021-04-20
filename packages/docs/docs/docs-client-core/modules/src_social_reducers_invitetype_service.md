@@ -16,4 +16,4 @@ hide_title: true
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>, `getState`: *any*) => *Promise*<any\>
 
-Defined in: [packages/client-core/src/social/reducers/inviteType/service.ts:10](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/social/reducers/inviteType/service.ts#L10)
+Defined in: [packages/client-core/src/social/reducers/inviteType/service.ts:10](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/social/reducers/inviteType/service.ts#L10)

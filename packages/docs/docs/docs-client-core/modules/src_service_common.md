@@ -23,7 +23,7 @@ Name | Type |
 
 **Returns:** *Promise*<any\>
 
-Defined in: [packages/client-core/src/service.common.ts:7](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/service.common.ts#L7)
+Defined in: [packages/client-core/src/service.common.ts:7](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/service.common.ts#L7)
 
 ___
 
@@ -42,7 +42,7 @@ Name | Type |
 
 **Returns:** *Promise*<any\>
 
-Defined in: [packages/client-core/src/service.common.ts:18](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/service.common.ts#L18)
+Defined in: [packages/client-core/src/service.common.ts:18](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/service.common.ts#L18)
 
 ___
 
@@ -60,7 +60,7 @@ Name | Type |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/src/service.common.ts:44](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/service.common.ts#L44)
+Defined in: [packages/client-core/src/service.common.ts:44](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/service.common.ts#L44)
 
 ___
 
@@ -70,4 +70,4 @@ ___
 
 **Returns:** *object*
 
-Defined in: [packages/client-core/src/service.common.ts:3](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/service.common.ts#L3)
+Defined in: [packages/client-core/src/service.common.ts:3](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/service.common.ts#L3)

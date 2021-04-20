@@ -22,4 +22,4 @@ Name | Type |
 `modalData` | *object* |
 `setModal` | (`status`: *any*, `newData`: *any*) => *void* |
 
-Defined in: [packages/client-core/src/socialmedia/components/ModalHook.tsx:3](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/socialmedia/components/ModalHook.tsx#L3)
+Defined in: [packages/client-core/src/socialmedia/components/ModalHook.tsx:3](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/socialmedia/components/ModalHook.tsx#L3)

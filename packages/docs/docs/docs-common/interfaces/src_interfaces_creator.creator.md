@@ -24,7 +24,7 @@ hide_title: true
 
 Inherited from: [CreatorShort](src_interfaces_creator.creatorshort.md).[avatar](src_interfaces_creator.creatorshort.md#avatar)
 
-Defined in: [interfaces/Creator.ts:5](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/common/src/interfaces/Creator.ts#L5)
+Defined in: [interfaces/Creator.ts:5](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/common/src/interfaces/Creator.ts#L5)
 
 ___
 
@@ -32,7 +32,7 @@ ___
 
 • **background**: *string*
 
-Defined in: [interfaces/Creator.ts:15](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/common/src/interfaces/Creator.ts#L15)
+Defined in: [interfaces/Creator.ts:15](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/common/src/interfaces/Creator.ts#L15)
 
 ___
 
@@ -40,7 +40,7 @@ ___
 
 • **bio**: *string*
 
-Defined in: [interfaces/Creator.ts:17](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/common/src/interfaces/Creator.ts#L17)
+Defined in: [interfaces/Creator.ts:17](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/common/src/interfaces/Creator.ts#L17)
 
 ___
 
@@ -48,7 +48,7 @@ ___
 
 • **email**: *string*
 
-Defined in: [interfaces/Creator.ts:13](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/common/src/interfaces/Creator.ts#L13)
+Defined in: [interfaces/Creator.ts:13](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/common/src/interfaces/Creator.ts#L13)
 
 ___
 
@@ -58,7 +58,7 @@ ___
 
 Inherited from: [CreatorShort](src_interfaces_creator.creatorshort.md).[id](src_interfaces_creator.creatorshort.md#id)
 
-Defined in: [interfaces/Creator.ts:3](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/common/src/interfaces/Creator.ts#L3)
+Defined in: [interfaces/Creator.ts:3](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/common/src/interfaces/Creator.ts#L3)
 
 ___
 
@@ -66,7 +66,7 @@ ___
 
 • **link**: *string*
 
-Defined in: [interfaces/Creator.ts:14](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/common/src/interfaces/Creator.ts#L14)
+Defined in: [interfaces/Creator.ts:14](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/common/src/interfaces/Creator.ts#L14)
 
 ___
 
@@ -76,7 +76,7 @@ ___
 
 Inherited from: [CreatorShort](src_interfaces_creator.creatorshort.md).[name](src_interfaces_creator.creatorshort.md#name)
 
-Defined in: [interfaces/Creator.ts:7](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/common/src/interfaces/Creator.ts#L7)
+Defined in: [interfaces/Creator.ts:7](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/common/src/interfaces/Creator.ts#L7)
 
 ___
 
@@ -86,7 +86,7 @@ ___
 
 Inherited from: [CreatorShort](src_interfaces_creator.creatorshort.md).[newAvatar](src_interfaces_creator.creatorshort.md#newavatar)
 
-Defined in: [interfaces/Creator.ts:6](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/common/src/interfaces/Creator.ts#L6)
+Defined in: [interfaces/Creator.ts:6](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/common/src/interfaces/Creator.ts#L6)
 
 ___
 
@@ -94,7 +94,7 @@ ___
 
 • **tags**: *string*
 
-Defined in: [interfaces/Creator.ts:16](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/common/src/interfaces/Creator.ts#L16)
+Defined in: [interfaces/Creator.ts:16](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/common/src/interfaces/Creator.ts#L16)
 
 ___
 
@@ -104,7 +104,7 @@ ___
 
 Inherited from: [CreatorShort](src_interfaces_creator.creatorshort.md).[userId](src_interfaces_creator.creatorshort.md#userid)
 
-Defined in: [interfaces/Creator.ts:4](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/common/src/interfaces/Creator.ts#L4)
+Defined in: [interfaces/Creator.ts:4](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/common/src/interfaces/Creator.ts#L4)
 
 ___
 
@@ -114,7 +114,7 @@ ___
 
 Inherited from: [CreatorShort](src_interfaces_creator.creatorshort.md).[username](src_interfaces_creator.creatorshort.md#username)
 
-Defined in: [interfaces/Creator.ts:8](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/common/src/interfaces/Creator.ts#L8)
+Defined in: [interfaces/Creator.ts:8](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/common/src/interfaces/Creator.ts#L8)
 
 ___
 
@@ -124,4 +124,4 @@ ___
 
 Inherited from: [CreatorShort](src_interfaces_creator.creatorshort.md).[verified](src_interfaces_creator.creatorshort.md#verified)
 
-Defined in: [interfaces/Creator.ts:9](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/common/src/interfaces/Creator.ts#L9)
+Defined in: [interfaces/Creator.ts:9](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/common/src/interfaces/Creator.ts#L9)

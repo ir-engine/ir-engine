@@ -16,7 +16,7 @@ hide_title: true
 
 • **description**: *string*
 
-Defined in: [interfaces/StaticResource.ts:4](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/common/src/interfaces/StaticResource.ts#L4)
+Defined in: [interfaces/StaticResource.ts:4](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/common/src/interfaces/StaticResource.ts#L4)
 
 ___
 
@@ -24,7 +24,7 @@ ___
 
 • **id**: *string*
 
-Defined in: [interfaces/StaticResource.ts:2](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/common/src/interfaces/StaticResource.ts#L2)
+Defined in: [interfaces/StaticResource.ts:2](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/common/src/interfaces/StaticResource.ts#L2)
 
 ___
 
@@ -32,7 +32,7 @@ ___
 
 • **metadata**: *object*
 
-Defined in: [interfaces/StaticResource.ts:7](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/common/src/interfaces/StaticResource.ts#L7)
+Defined in: [interfaces/StaticResource.ts:7](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/common/src/interfaces/StaticResource.ts#L7)
 
 ___
 
@@ -40,7 +40,7 @@ ___
 
 • **mimeType**: *string*
 
-Defined in: [interfaces/StaticResource.ts:6](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/common/src/interfaces/StaticResource.ts#L6)
+Defined in: [interfaces/StaticResource.ts:6](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/common/src/interfaces/StaticResource.ts#L6)
 
 ___
 
@@ -48,7 +48,7 @@ ___
 
 • **name**: *string*
 
-Defined in: [interfaces/StaticResource.ts:3](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/common/src/interfaces/StaticResource.ts#L3)
+Defined in: [interfaces/StaticResource.ts:3](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/common/src/interfaces/StaticResource.ts#L3)
 
 ___
 
@@ -56,7 +56,7 @@ ___
 
 • **staticResourceType**: *string*
 
-Defined in: [interfaces/StaticResource.ts:8](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/common/src/interfaces/StaticResource.ts#L8)
+Defined in: [interfaces/StaticResource.ts:8](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/common/src/interfaces/StaticResource.ts#L8)
 
 ___
 
@@ -64,7 +64,7 @@ ___
 
 • **url**: *string*
 
-Defined in: [interfaces/StaticResource.ts:5](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/common/src/interfaces/StaticResource.ts#L5)
+Defined in: [interfaces/StaticResource.ts:5](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/common/src/interfaces/StaticResource.ts#L5)
 
 ___
 
@@ -72,4 +72,4 @@ ___
 
 • **userId**: *string*
 
-Defined in: [interfaces/StaticResource.ts:9](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/common/src/interfaces/StaticResource.ts#L9)
+Defined in: [interfaces/StaticResource.ts:9](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/common/src/interfaces/StaticResource.ts#L9)

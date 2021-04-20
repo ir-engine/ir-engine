@@ -35,7 +35,7 @@ Name | Type |
 `targetObjectId` | *string* |
 `targetObjectType` | *string* |
 
-Defined in: [packages/client-core/src/social/reducers/invite/reducers.ts:24](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/social/reducers/invite/reducers.ts#L24)
+Defined in: [packages/client-core/src/social/reducers/invite/reducers.ts:24](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/social/reducers/invite/reducers.ts#L24)
 
 ## Functions
 
@@ -52,4 +52,4 @@ Name | Type |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/src/social/reducers/invite/reducers.ts:48](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/social/reducers/invite/reducers.ts#L48)
+Defined in: [packages/client-core/src/social/reducers/invite/reducers.ts:48](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/social/reducers/invite/reducers.ts#L48)

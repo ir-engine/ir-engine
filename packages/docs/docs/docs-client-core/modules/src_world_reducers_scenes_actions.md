@@ -31,7 +31,7 @@ Name | Type |
 
 **Returns:** [*CollectionsFetchedAction*](../interfaces/src_world_reducers_scenes_actions.collectionsfetchedaction.md)
 
-Defined in: [packages/client-core/src/world/reducers/scenes/actions.ts:46](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/reducers/scenes/actions.ts#L46)
+Defined in: [packages/client-core/src/world/reducers/scenes/actions.ts:46](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/reducers/scenes/actions.ts#L46)
 
 ___
 
@@ -47,7 +47,7 @@ Name | Type |
 
 **Returns:** [*ScenesFetchedAction*](../interfaces/src_world_reducers_scenes_actions.scenesfetchedaction.md)
 
-Defined in: [packages/client-core/src/world/reducers/scenes/actions.ts:39](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/reducers/scenes/actions.ts#L39)
+Defined in: [packages/client-core/src/world/reducers/scenes/actions.ts:39](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/reducers/scenes/actions.ts#L39)
 
 ___
 
@@ -63,7 +63,7 @@ Name | Type |
 
 **Returns:** [*ScenesFetchedAction*](../interfaces/src_world_reducers_scenes_actions.scenesfetchedaction.md)
 
-Defined in: [packages/client-core/src/world/reducers/scenes/actions.ts:32](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/reducers/scenes/actions.ts#L32)
+Defined in: [packages/client-core/src/world/reducers/scenes/actions.ts:32](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/reducers/scenes/actions.ts#L32)
 
 ___
 
@@ -79,4 +79,4 @@ Name | Type |
 
 **Returns:** [*ScenesFetchedAction*](../interfaces/src_world_reducers_scenes_actions.scenesfetchedaction.md)
 
-Defined in: [packages/client-core/src/world/reducers/scenes/actions.ts:53](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/reducers/scenes/actions.ts#L53)
+Defined in: [packages/client-core/src/world/reducers/scenes/actions.ts:53](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/reducers/scenes/actions.ts#L53)

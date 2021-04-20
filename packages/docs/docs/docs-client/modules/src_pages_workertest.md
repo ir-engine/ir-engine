@@ -22,4 +22,4 @@ Renames and exports: [IndexPage](src_pages_workertest.md#indexpage)
 
 **Returns:** *any*
 
-Defined in: [packages/client/src/pages/WorkerTest.tsx:8](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client/src/pages/WorkerTest.tsx#L8)
+Defined in: [packages/client/src/pages/WorkerTest.tsx:8](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client/src/pages/WorkerTest.tsx#L8)

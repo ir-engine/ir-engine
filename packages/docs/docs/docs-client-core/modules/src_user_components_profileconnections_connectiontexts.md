@@ -68,4 +68,4 @@ Name | Type |
 `sms.notConnected.descr` | *string*[] |
 `sms.notConnected.header` | *string* |
 
-Defined in: [packages/client-core/src/user/components/ProfileConnections/ConnectionTexts.ts:1](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/user/components/ProfileConnections/ConnectionTexts.ts#L1)
+Defined in: [packages/client-core/src/user/components/ProfileConnections/ConnectionTexts.ts:1](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/user/components/ProfileConnections/ConnectionTexts.ts#L1)

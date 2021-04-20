@@ -26,4 +26,4 @@ Name | Type |
 
 **Returns:** *any*
 
-Defined in: [packages/server-core/src/payments/subscription/subscription.model.ts:2](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/payments/subscription/subscription.model.ts#L2)
+Defined in: [packages/server-core/src/payments/subscription/subscription.model.ts:2](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/payments/subscription/subscription.model.ts#L2)

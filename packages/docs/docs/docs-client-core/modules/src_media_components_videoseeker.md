@@ -22,4 +22,4 @@ Name | Type |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/src/media/components/VideoSeeker/index.tsx:35](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/media/components/VideoSeeker/index.tsx#L35)
+Defined in: [packages/client-core/src/media/components/VideoSeeker/index.tsx:35](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/media/components/VideoSeeker/index.tsx#L35)

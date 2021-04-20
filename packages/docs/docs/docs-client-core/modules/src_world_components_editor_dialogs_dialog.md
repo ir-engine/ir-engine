@@ -30,7 +30,7 @@ DialogContent used to provide styles for dialog body content.
 
 **`author`** Robert Long
 
-Defined in: [packages/client-core/src/world/components/editor/dialogs/Dialog.tsx:56](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/dialogs/Dialog.tsx#L56)
+Defined in: [packages/client-core/src/world/components/editor/dialogs/Dialog.tsx:56](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/dialogs/Dialog.tsx#L56)
 
 ## Functions
 
@@ -50,4 +50,4 @@ Name | Type |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/dialogs/Dialog.tsx:132](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/dialogs/Dialog.tsx#L132)
+Defined in: [packages/client-core/src/world/components/editor/dialogs/Dialog.tsx:132](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/dialogs/Dialog.tsx#L132)

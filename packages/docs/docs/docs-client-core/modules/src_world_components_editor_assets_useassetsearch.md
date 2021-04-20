@@ -29,7 +29,7 @@ Name | Type | Default value |
 
 [returns array containing finalItems, addItem, removeItem]
 
-Defined in: [packages/client-core/src/world/components/editor/assets/useAssetSearch.tsx:232](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/assets/useAssetSearch.tsx#L232)
+Defined in: [packages/client-core/src/world/components/editor/assets/useAssetSearch.tsx:232](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/assets/useAssetSearch.tsx#L232)
 
 ___
 
@@ -63,7 +63,7 @@ Name | Type |
 `setParams` | (`nextParams`: *any*) => *void* |
 `suggestions` | *any*[] |
 
-Defined in: [packages/client-core/src/world/components/editor/assets/useAssetSearch.tsx:154](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/assets/useAssetSearch.tsx#L154)
+Defined in: [packages/client-core/src/world/components/editor/assets/useAssetSearch.tsx:154](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/assets/useAssetSearch.tsx#L154)
 
 ___
 
@@ -97,4 +97,4 @@ Name | Type |
 
 Object
 
-Defined in: [packages/client-core/src/world/components/editor/assets/useAssetSearch.tsx:28](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/assets/useAssetSearch.tsx#L28)
+Defined in: [packages/client-core/src/world/components/editor/assets/useAssetSearch.tsx:28](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/assets/useAssetSearch.tsx#L28)

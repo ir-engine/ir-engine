@@ -14,7 +14,7 @@ hide_title: true
 
 • `Const` **initialVideoState**: [*PublicVideoState*](../interfaces/src_media_components_video_actions.publicvideostate.md)
 
-Defined in: [packages/client-core/src/media/components/video/reducers.ts:8](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/media/components/video/reducers.ts#L8)
+Defined in: [packages/client-core/src/media/components/video/reducers.ts:8](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/media/components/video/reducers.ts#L8)
 
 ## Functions
 
@@ -31,4 +31,4 @@ Name | Type |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/src/media/components/video/reducers.ts:15](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/media/components/video/reducers.ts#L15)
+Defined in: [packages/client-core/src/media/components/video/reducers.ts:15](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/media/components/video/reducers.ts#L15)

@@ -31,7 +31,7 @@ Used to provide styles for InputGroupContainer div.
 
 **`author`** Robert Long
 
-Defined in: [packages/client-core/src/world/components/editor/inputs/InputGroup.tsx:12](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/inputs/InputGroup.tsx#L12)
+Defined in: [packages/client-core/src/world/components/editor/inputs/InputGroup.tsx:12](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/inputs/InputGroup.tsx#L12)
 
 ___
 
@@ -43,7 +43,7 @@ Used to provide styles for InputGroupContent div.
 
 **`author`** Robert Long
 
-Defined in: [packages/client-core/src/world/components/editor/inputs/InputGroup.tsx:41](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/inputs/InputGroup.tsx#L41)
+Defined in: [packages/client-core/src/world/components/editor/inputs/InputGroup.tsx:41](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/inputs/InputGroup.tsx#L41)
 
 ___
 
@@ -55,7 +55,7 @@ Used to provide styles for InputGroupInfoIcon div.
 
 **`author`** Robert Long
 
-Defined in: [packages/client-core/src/world/components/editor/inputs/InputGroup.tsx:54](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/inputs/InputGroup.tsx#L54)
+Defined in: [packages/client-core/src/world/components/editor/inputs/InputGroup.tsx:54](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/inputs/InputGroup.tsx#L54)
 
 ## Functions
 
@@ -75,7 +75,7 @@ Name | Type |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/inputs/InputGroup.tsx:99](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/inputs/InputGroup.tsx#L99)
+Defined in: [packages/client-core/src/world/components/editor/inputs/InputGroup.tsx:99](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/inputs/InputGroup.tsx#L99)
 
 ___
 
@@ -95,4 +95,4 @@ Name | Type |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/inputs/InputGroup.tsx:69](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/inputs/InputGroup.tsx#L69)
+Defined in: [packages/client-core/src/world/components/editor/inputs/InputGroup.tsx:69](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/inputs/InputGroup.tsx#L69)

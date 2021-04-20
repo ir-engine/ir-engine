@@ -16,7 +16,7 @@ hide_title: true
 
 • `Optional` **message**: *string*
 
-Defined in: [packages/client-core/src/world/reducers/scenes/actions.ts:24](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/reducers/scenes/actions.ts#L24)
+Defined in: [packages/client-core/src/world/reducers/scenes/actions.ts:24](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/reducers/scenes/actions.ts#L24)
 
 ___
 
@@ -24,7 +24,7 @@ ___
 
 • `Optional` **scene**: [*PublicScene*](src_world_reducers_scenes_actions.publicscene.md)
 
-Defined in: [packages/client-core/src/world/reducers/scenes/actions.ts:23](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/reducers/scenes/actions.ts#L23)
+Defined in: [packages/client-core/src/world/reducers/scenes/actions.ts:23](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/reducers/scenes/actions.ts#L23)
 
 ___
 
@@ -32,7 +32,7 @@ ___
 
 • `Optional` **scenes**: [*PublicScene*](src_world_reducers_scenes_actions.publicscene.md)[]
 
-Defined in: [packages/client-core/src/world/reducers/scenes/actions.ts:22](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/reducers/scenes/actions.ts#L22)
+Defined in: [packages/client-core/src/world/reducers/scenes/actions.ts:22](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/reducers/scenes/actions.ts#L22)
 
 ___
 
@@ -40,4 +40,4 @@ ___
 
 • **type**: *string*
 
-Defined in: [packages/client-core/src/world/reducers/scenes/actions.ts:21](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/reducers/scenes/actions.ts#L21)
+Defined in: [packages/client-core/src/world/reducers/scenes/actions.ts:21](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/reducers/scenes/actions.ts#L21)

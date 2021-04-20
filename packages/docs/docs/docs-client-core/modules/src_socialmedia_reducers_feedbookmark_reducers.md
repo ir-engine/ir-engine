@@ -22,7 +22,7 @@ Name | Type |
 `feedFires.feedFires` | *any*[] |
 `feedFires.fetching` | *boolean* |
 
-Defined in: [packages/client-core/src/socialmedia/reducers/feedBookmark/reducers.ts:16](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/socialmedia/reducers/feedBookmark/reducers.ts#L16)
+Defined in: [packages/client-core/src/socialmedia/reducers/feedBookmark/reducers.ts:16](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/socialmedia/reducers/feedBookmark/reducers.ts#L16)
 
 ## Functions
 
@@ -39,4 +39,4 @@ Name | Type |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/src/socialmedia/reducers/feedBookmark/reducers.ts:25](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/socialmedia/reducers/feedBookmark/reducers.ts#L25)
+Defined in: [packages/client-core/src/socialmedia/reducers/feedBookmark/reducers.ts:25](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/socialmedia/reducers/feedBookmark/reducers.ts#L25)

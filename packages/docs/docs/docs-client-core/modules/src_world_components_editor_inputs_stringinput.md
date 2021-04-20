@@ -16,7 +16,7 @@ hide_title: true
 
 **`author`** Robert Long
 
-Defined in: [packages/client-core/src/world/components/editor/inputs/StringInput.tsx:54](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/inputs/StringInput.tsx#L54)
+Defined in: [packages/client-core/src/world/components/editor/inputs/StringInput.tsx:54](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/inputs/StringInput.tsx#L54)
 
 ___
 
@@ -26,4 +26,4 @@ ___
 
 **`author`** Robert Long
 
-Defined in: [packages/client-core/src/world/components/editor/inputs/StringInput.tsx:18](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/inputs/StringInput.tsx#L18)
+Defined in: [packages/client-core/src/world/components/editor/inputs/StringInput.tsx:18](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/inputs/StringInput.tsx#L18)

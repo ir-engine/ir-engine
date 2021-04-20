@@ -14,7 +14,7 @@ hide_title: true
 
 • `Const` **ADDED\_LAYER\_USER**: *ADDED_LAYER_USER*= 'ADDED\_LAYER\_USER'
 
-Defined in: [packages/client-core/src/common/reducers/actions.ts:8](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/common/reducers/actions.ts#L8)
+Defined in: [packages/client-core/src/common/reducers/actions.ts:8](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/common/reducers/actions.ts#L8)
 
 ___
 
@@ -22,7 +22,7 @@ ___
 
 • `Const` **CANCELED\_INVITATION**: *CANCELED_INVITATION*= 'CANCELED\_INVITATION'
 
-Defined in: [packages/client-core/src/common/reducers/actions.ts:14](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/common/reducers/actions.ts#L14)
+Defined in: [packages/client-core/src/common/reducers/actions.ts:14](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/common/reducers/actions.ts#L14)
 
 ___
 
@@ -30,7 +30,7 @@ ___
 
 • `Const` **CHANGED\_RELATION**: *CHANGED_RELATION*= 'CHANGED\_RELATION'
 
-Defined in: [packages/client-core/src/common/reducers/actions.ts:5](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/common/reducers/actions.ts#L5)
+Defined in: [packages/client-core/src/common/reducers/actions.ts:5](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/common/reducers/actions.ts#L5)
 
 ___
 
@@ -38,7 +38,7 @@ ___
 
 • `Const` **CLEAR\_LAYER\_USERS**: *CLEAR_LAYER_USERS*= 'CLEAR\_LAYER\_USERS'
 
-Defined in: [packages/client-core/src/common/reducers/actions.ts:6](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/common/reducers/actions.ts#L6)
+Defined in: [packages/client-core/src/common/reducers/actions.ts:6](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/common/reducers/actions.ts#L6)
 
 ___
 
@@ -46,7 +46,7 @@ ___
 
 • `Const` **CLOSE\_DIALOG**: *CLOSE_DIALOG*= 'CLOSE\_DIALOG'
 
-Defined in: [packages/client-core/src/common/reducers/actions.ts:29](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/common/reducers/actions.ts#L29)
+Defined in: [packages/client-core/src/common/reducers/actions.ts:29](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/common/reducers/actions.ts#L29)
 
 ___
 
@@ -54,7 +54,7 @@ ___
 
 • `Const` **INVITED\_USER**: *INVITED_USER*= 'INVITED\_USER'
 
-Defined in: [packages/client-core/src/common/reducers/actions.ts:13](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/common/reducers/actions.ts#L13)
+Defined in: [packages/client-core/src/common/reducers/actions.ts:13](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/common/reducers/actions.ts#L13)
 
 ___
 
@@ -62,7 +62,7 @@ ___
 
 • `Const` **LOADED\_LAYER\_USERS**: *LOADED_LAYER_USERS*= 'LOADED\_LAYER\_USERS'
 
-Defined in: [packages/client-core/src/common/reducers/actions.ts:7](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/common/reducers/actions.ts#L7)
+Defined in: [packages/client-core/src/common/reducers/actions.ts:7](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/common/reducers/actions.ts#L7)
 
 ___
 
@@ -70,7 +70,7 @@ ___
 
 • `Const` **LOADED\_RELATIONSHIP**: *LOADED_RELATIONSHIP*= 'LOADED\_RELATIONSHIP'
 
-Defined in: [packages/client-core/src/common/reducers/actions.ts:3](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/common/reducers/actions.ts#L3)
+Defined in: [packages/client-core/src/common/reducers/actions.ts:3](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/common/reducers/actions.ts#L3)
 
 ___
 
@@ -78,7 +78,7 @@ ___
 
 • `Const` **LOADED\_SEATS**: *LOADED_SEATS*= 'LOADED\_SEATS'
 
-Defined in: [packages/client-core/src/common/reducers/actions.ts:12](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/common/reducers/actions.ts#L12)
+Defined in: [packages/client-core/src/common/reducers/actions.ts:12](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/common/reducers/actions.ts#L12)
 
 ___
 
@@ -86,7 +86,7 @@ ___
 
 • `Const` **LOADED\_USERS**: *LOADED_USERS*= 'LOADED\_USERS'
 
-Defined in: [packages/client-core/src/common/reducers/actions.ts:4](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/common/reducers/actions.ts#L4)
+Defined in: [packages/client-core/src/common/reducers/actions.ts:4](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/common/reducers/actions.ts#L4)
 
 ___
 
@@ -94,7 +94,7 @@ ___
 
 • `Const` **REMOVED\_LAYER\_USER**: *REMOVED_LAYER_USER*= 'REMOVED\_LAYER\_USER'
 
-Defined in: [packages/client-core/src/common/reducers/actions.ts:9](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/common/reducers/actions.ts#L9)
+Defined in: [packages/client-core/src/common/reducers/actions.ts:9](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/common/reducers/actions.ts#L9)
 
 ___
 
@@ -102,7 +102,7 @@ ___
 
 • `Const` **REMOVED\_SEAT**: *REMOVED_SEAT*= 'REMOVED\_SEAT'
 
-Defined in: [packages/client-core/src/common/reducers/actions.ts:15](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/common/reducers/actions.ts#L15)
+Defined in: [packages/client-core/src/common/reducers/actions.ts:15](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/common/reducers/actions.ts#L15)
 
 ___
 
@@ -110,7 +110,7 @@ ___
 
 • `Const` **SET\_APP\_LOADED**: *SET_APP_LOADED*= 'SET\_APP\_LOADED'
 
-Defined in: [packages/client-core/src/common/reducers/actions.ts:1](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/common/reducers/actions.ts#L1)
+Defined in: [packages/client-core/src/common/reducers/actions.ts:1](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/common/reducers/actions.ts#L1)
 
 ___
 
@@ -118,7 +118,7 @@ ___
 
 • `Const` **SET\_APP\_LOADING\_PERCENT**: *SET_APP_LOADING_PERCENT*= 'SET\_APP\_LOADING\_PERCENT'
 
-Defined in: [packages/client-core/src/common/reducers/actions.ts:17](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/common/reducers/actions.ts#L17)
+Defined in: [packages/client-core/src/common/reducers/actions.ts:17](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/common/reducers/actions.ts#L17)
 
 ___
 
@@ -126,7 +126,7 @@ ___
 
 • `Const` **SET\_APP\_ONBOARDING\_STEP**: *SET_APP_ONBOARDING_STEP*= 'SET\_APP\_ONBOARDING\_STEP'
 
-Defined in: [packages/client-core/src/common/reducers/actions.ts:25](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/common/reducers/actions.ts#L25)
+Defined in: [packages/client-core/src/common/reducers/actions.ts:25](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/common/reducers/actions.ts#L25)
 
 ___
 
@@ -134,7 +134,7 @@ ___
 
 • `Const` **SET\_APP\_SPECIFIC\_ONBOARDING\_STEP**: *SET_APP_SPECIFIC_ONBOARDING_STEP*= 'SET\_APP\_SPECIFIC\_ONBOARDING\_STEP'
 
-Defined in: [packages/client-core/src/common/reducers/actions.ts:26](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/common/reducers/actions.ts#L26)
+Defined in: [packages/client-core/src/common/reducers/actions.ts:26](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/common/reducers/actions.ts#L26)
 
 ___
 
@@ -142,7 +142,7 @@ ___
 
 • `Const` **SET\_IN\_VR\_MODE**: *SET_IN_VR_MODE*= 'SET\_IN\_VR\_MODE'
 
-Defined in: [packages/client-core/src/common/reducers/actions.ts:21](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/common/reducers/actions.ts#L21)
+Defined in: [packages/client-core/src/common/reducers/actions.ts:21](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/common/reducers/actions.ts#L21)
 
 ___
 
@@ -150,7 +150,7 @@ ___
 
 • `Const` **SET\_USER\_HAS\_INTERACTED**: *SET_USER_HAS_INTERACTED*= 'SET\_USER\_HAS\_INTERACTED'
 
-Defined in: [packages/client-core/src/common/reducers/actions.ts:23](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/common/reducers/actions.ts#L23)
+Defined in: [packages/client-core/src/common/reducers/actions.ts:23](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/common/reducers/actions.ts#L23)
 
 ___
 
@@ -158,7 +158,7 @@ ___
 
 • `Const` **SET\_VIEWPORT\_SIZE**: *SET_VIEWPORT_SIZE*= 'SET\_VIEWPORT\_SIZE'
 
-Defined in: [packages/client-core/src/common/reducers/actions.ts:19](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/common/reducers/actions.ts#L19)
+Defined in: [packages/client-core/src/common/reducers/actions.ts:19](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/common/reducers/actions.ts#L19)
 
 ___
 
@@ -166,7 +166,7 @@ ___
 
 • `Const` **SHOW\_DIALOG**: *SHOW_DIALOG*= 'SHOW\_DIALOG'
 
-Defined in: [packages/client-core/src/common/reducers/actions.ts:28](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/common/reducers/actions.ts#L28)
+Defined in: [packages/client-core/src/common/reducers/actions.ts:28](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/common/reducers/actions.ts#L28)
 
 ___
 
@@ -174,4 +174,4 @@ ___
 
 • `Const` **USER\_TOAST**: *USER_TOAST*= 'USER\_TOAST'
 
-Defined in: [packages/client-core/src/common/reducers/actions.ts:10](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/common/reducers/actions.ts#L10)
+Defined in: [packages/client-core/src/common/reducers/actions.ts:10](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/common/reducers/actions.ts#L10)

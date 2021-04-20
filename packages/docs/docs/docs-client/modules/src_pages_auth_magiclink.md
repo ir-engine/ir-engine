@@ -22,4 +22,4 @@ Renames and exports: [AuthMagicLinkPage](src_pages_auth_magiclink.md#authmagicli
 
 **Returns:** *Element*
 
-Defined in: [packages/client/src/pages/auth/magiclink.tsx:4](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client/src/pages/auth/magiclink.tsx#L4)
+Defined in: [packages/client/src/pages/auth/magiclink.tsx:4](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client/src/pages/auth/magiclink.tsx#L4)

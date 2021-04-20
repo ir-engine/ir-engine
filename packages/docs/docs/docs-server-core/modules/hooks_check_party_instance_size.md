@@ -20,4 +20,4 @@ hide_title: true
 
 **Returns:** (`context`: *HookContext*<any, Service<any\>\>) => *Promise*<HookContext<any, Service<any\>\>\>
 
-Defined in: [packages/server-core/src/hooks/check-party-instance-size.ts:5](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/hooks/check-party-instance-size.ts#L5)
+Defined in: [packages/server-core/src/hooks/check-party-instance-size.ts:5](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/hooks/check-party-instance-size.ts#L5)

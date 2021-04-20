@@ -29,4 +29,4 @@ Name | Type |
 
 **Returns:** [*DeviceDetectAction*](../interfaces/src_common_reducers_devicedetect_actions.devicedetectaction.md)
 
-Defined in: [packages/client-core/src/common/reducers/devicedetect/actions.tsx:13](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/common/reducers/devicedetect/actions.tsx#L13)
+Defined in: [packages/client-core/src/common/reducers/devicedetect/actions.tsx:13](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/common/reducers/devicedetect/actions.tsx#L13)

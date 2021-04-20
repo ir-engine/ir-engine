@@ -14,5 +14,5 @@ export class CustomOAuthStrategy extends OAuthStrategy {
       token: profile.sub ? `${this.name}:::${(profile.sub as string)}` : `${this.name}:::${(profile.id as string)}`
     };
   }
-};
+}
 export default CustomOAuthStrategy;

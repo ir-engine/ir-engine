@@ -14,4 +14,4 @@ hide_title: true
 
 • `Const` **default**: *Logger*
 
-Defined in: [packages/server-core/src/logger.ts:4](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/logger.ts#L4)
+Defined in: [packages/server-core/src/logger.ts:4](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/logger.ts#L4)

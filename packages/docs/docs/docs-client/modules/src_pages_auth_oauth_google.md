@@ -22,4 +22,4 @@ Renames and exports: [GoogleHomePage](src_pages_auth_oauth_google.md#googlehomep
 
 **Returns:** *Element*
 
-Defined in: [packages/client/src/pages/auth/oauth/google.tsx:5](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client/src/pages/auth/oauth/google.tsx#L5)
+Defined in: [packages/client/src/pages/auth/oauth/google.tsx:5](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client/src/pages/auth/oauth/google.tsx#L5)

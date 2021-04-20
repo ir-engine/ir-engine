@@ -24,4 +24,4 @@ Name | Type |
 `updatedAt` | *string* |
 `userId` | *string* |
 
-Defined in: [interfaces/MessageStatus.ts:1](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/common/src/interfaces/MessageStatus.ts#L1)
+Defined in: [interfaces/MessageStatus.ts:1](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/common/src/interfaces/MessageStatus.ts#L1)

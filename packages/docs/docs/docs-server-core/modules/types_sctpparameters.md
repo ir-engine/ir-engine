@@ -23,4 +23,4 @@ Name | Type | Description |
 `maxMessageSize` | *number* | Maximum allowed size for SCTP messages.   |
 `port` | *number* | Must always equal 5000.   |
 
-Defined in: [packages/server-core/src/types/SctpParameters.ts:3](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/types/SctpParameters.ts#L3)
+Defined in: [packages/server-core/src/types/SctpParameters.ts:3](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/types/SctpParameters.ts#L3)

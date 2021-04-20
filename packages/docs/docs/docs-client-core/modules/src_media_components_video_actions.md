@@ -33,7 +33,7 @@ Name | Type |
 
 **Returns:** [*VideosFetchedAction*](../interfaces/src_media_components_video_actions.videosfetchedaction.md)
 
-Defined in: [packages/client-core/src/media/components/video/actions.ts:49](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/media/components/video/actions.ts#L49)
+Defined in: [packages/client-core/src/media/components/video/actions.ts:49](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/media/components/video/actions.ts#L49)
 
 ___
 
@@ -49,4 +49,4 @@ Name | Type |
 
 **Returns:** [*VideosFetchedAction*](../interfaces/src_media_components_video_actions.videosfetchedaction.md)
 
-Defined in: [packages/client-core/src/media/components/video/actions.ts:42](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/media/components/video/actions.ts#L42)
+Defined in: [packages/client-core/src/media/components/video/actions.ts:42](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/media/components/video/actions.ts#L42)

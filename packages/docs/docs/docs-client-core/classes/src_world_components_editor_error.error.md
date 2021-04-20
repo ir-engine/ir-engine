@@ -125,7 +125,7 @@ ___
 
 Overrides: Component.contextType
 
-Defined in: [packages/client-core/src/world/components/editor/Error.tsx:38](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/Error.tsx#L38)
+Defined in: [packages/client-core/src/world/components/editor/Error.tsx:38](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/Error.tsx#L38)
 
 ___
 
@@ -140,7 +140,7 @@ Name | Type |
 `message` | *Requireable*<ReactNodeLike\> |
 `t` | *Requireable*<(...`args`: *any*[]) => *any*\> |
 
-Defined in: [packages/client-core/src/world/components/editor/Error.tsx:33](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/Error.tsx#L33)
+Defined in: [packages/client-core/src/world/components/editor/Error.tsx:33](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/Error.tsx#L33)
 
 ## Methods
 
@@ -459,7 +459,7 @@ ___
 
 Overrides: Component.render
 
-Defined in: [packages/client-core/src/world/components/editor/Error.tsx:41](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/Error.tsx#L41)
+Defined in: [packages/client-core/src/world/components/editor/Error.tsx:41](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/Error.tsx#L41)
 
 ___
 

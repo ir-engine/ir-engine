@@ -37,7 +37,7 @@ Name | Type |
 
 Overrides: Service.constructor
 
-Defined in: [packages/server-core/src/payments/seat/seat.class.ts:13](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/payments/seat/seat.class.ts#L13)
+Defined in: [packages/server-core/src/payments/seat/seat.class.ts:13](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/payments/seat/seat.class.ts#L13)
 
 ## Properties
 
@@ -55,7 +55,7 @@ ___
 
 • **app**: Application
 
-Defined in: [packages/server-core/src/payments/seat/seat.class.ts:12](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/payments/seat/seat.class.ts#L12)
+Defined in: [packages/server-core/src/payments/seat/seat.class.ts:12](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/payments/seat/seat.class.ts#L12)
 
 ___
 
@@ -63,7 +63,7 @@ ___
 
 • **docs**: *any*
 
-Defined in: [packages/server-core/src/payments/seat/seat.class.ts:13](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/payments/seat/seat.class.ts#L13)
+Defined in: [packages/server-core/src/payments/seat/seat.class.ts:13](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/payments/seat/seat.class.ts#L13)
 
 ___
 
@@ -245,7 +245,7 @@ Name | Type |
 
 Overrides: Service.create
 
-Defined in: [packages/server-core/src/payments/seat/seat.class.ts:19](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/payments/seat/seat.class.ts#L19)
+Defined in: [packages/server-core/src/payments/seat/seat.class.ts:19](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/payments/seat/seat.class.ts#L19)
 
 ___
 
@@ -339,7 +339,7 @@ Name | Type |
 
 Overrides: Service.patch
 
-Defined in: [packages/server-core/src/payments/seat/seat.class.ts:104](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/payments/seat/seat.class.ts#L104)
+Defined in: [packages/server-core/src/payments/seat/seat.class.ts:104](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/payments/seat/seat.class.ts#L104)
 
 ___
 

@@ -22,4 +22,4 @@ Name | Type | Default value |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *any*
 
-Defined in: [packages/client-core/src/media/components/video/service.ts:9](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/media/components/video/service.ts#L9)
+Defined in: [packages/client-core/src/media/components/video/service.ts:9](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/media/components/video/service.ts#L9)

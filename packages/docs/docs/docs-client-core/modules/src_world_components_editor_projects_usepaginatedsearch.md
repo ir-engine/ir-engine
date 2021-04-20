@@ -34,4 +34,4 @@ Name | Type |
 `loadMore` | () => *void* |
 `loading` | *boolean* |
 
-Defined in: [packages/client-core/src/world/components/editor/projects/usePaginatedSearch.tsx:13](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/projects/usePaginatedSearch.tsx#L13)
+Defined in: [packages/client-core/src/world/components/editor/projects/usePaginatedSearch.tsx:13](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/projects/usePaginatedSearch.tsx#L13)

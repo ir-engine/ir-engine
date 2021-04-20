@@ -24,7 +24,7 @@ hide_title: true
 
 **`returns`** 
 
-Defined in: [packages/client-core/src/world/components/editor/layout/ContextMenu.tsx:104](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/layout/ContextMenu.tsx#L104)
+Defined in: [packages/client-core/src/world/components/editor/layout/ContextMenu.tsx:104](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/layout/ContextMenu.tsx#L104)
 
 ___
 
@@ -34,7 +34,7 @@ ___
 
 **`author`** Robert Long
 
-Defined in: [packages/client-core/src/world/components/editor/layout/ContextMenu.tsx:26](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/layout/ContextMenu.tsx#L26)
+Defined in: [packages/client-core/src/world/components/editor/layout/ContextMenu.tsx:26](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/layout/ContextMenu.tsx#L26)
 
 ___
 
@@ -42,7 +42,7 @@ ___
 
 • `Const` **ContextMenuTrigger**: *any*
 
-Defined in: [packages/client-core/src/world/components/editor/layout/ContextMenu.tsx:19](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/layout/ContextMenu.tsx#L19)
+Defined in: [packages/client-core/src/world/components/editor/layout/ContextMenu.tsx:19](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/layout/ContextMenu.tsx#L19)
 
 ___
 
@@ -50,7 +50,7 @@ ___
 
 • `Const` **MenuItem**: *any*
 
-Defined in: [packages/client-core/src/world/components/editor/layout/ContextMenu.tsx:16](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/layout/ContextMenu.tsx#L16)
+Defined in: [packages/client-core/src/world/components/editor/layout/ContextMenu.tsx:16](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/layout/ContextMenu.tsx#L16)
 
 ___
 
@@ -58,7 +58,7 @@ ___
 
 • `Const` **SubMenu**: *any*
 
-Defined in: [packages/client-core/src/world/components/editor/layout/ContextMenu.tsx:18](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/layout/ContextMenu.tsx#L18)
+Defined in: [packages/client-core/src/world/components/editor/layout/ContextMenu.tsx:18](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/layout/ContextMenu.tsx#L18)
 
 ___
 
@@ -66,7 +66,7 @@ ___
 
 • `Const` **connectMenu**: *any*
 
-Defined in: [packages/client-core/src/world/components/editor/layout/ContextMenu.tsx:15](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/layout/ContextMenu.tsx#L15)
+Defined in: [packages/client-core/src/world/components/editor/layout/ContextMenu.tsx:15](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/layout/ContextMenu.tsx#L15)
 
 ___
 
@@ -74,4 +74,4 @@ ___
 
 • `Const` **showMenu**: *any*
 
-Defined in: [packages/client-core/src/world/components/editor/layout/ContextMenu.tsx:17](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/layout/ContextMenu.tsx#L17)
+Defined in: [packages/client-core/src/world/components/editor/layout/ContextMenu.tsx:17](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/layout/ContextMenu.tsx#L17)

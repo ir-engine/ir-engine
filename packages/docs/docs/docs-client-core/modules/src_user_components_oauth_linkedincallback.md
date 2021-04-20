@@ -14,4 +14,4 @@ hide_title: true
 
 • `Const` **LinkedinCallback**: *ConnectedComponent*<(`props`: *any*) => *any*, Omit<any, string \| number \| symbol\>\>
 
-Defined in: [packages/client-core/src/user/components/Oauth/LinkedinCallBack.tsx:67](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/user/components/Oauth/LinkedinCallBack.tsx#L67)
+Defined in: [packages/client-core/src/user/components/Oauth/LinkedinCallBack.tsx:67](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/user/components/Oauth/LinkedinCallBack.tsx#L67)

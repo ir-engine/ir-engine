@@ -32,4 +32,4 @@ Name | Type |
 
 {@function} sentEmail with app and email
 
-Defined in: [packages/server-core/src/user/auth-management/auth-management.notifier.ts:6](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/user/auth-management/auth-management.notifier.ts#L6)
+Defined in: [packages/server-core/src/user/auth-management/auth-management.notifier.ts:6](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/user/auth-management/auth-management.notifier.ts#L6)

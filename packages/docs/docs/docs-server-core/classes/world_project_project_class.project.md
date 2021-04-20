@@ -29,7 +29,7 @@ Name | Type | Default value |
 
 **Returns:** [*Project*](world_project_project_class.project.md)
 
-Defined in: [packages/server-core/src/world/project/project.class.ts:26](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/world/project/project.class.ts#L26)
+Defined in: [packages/server-core/src/world/project/project.class.ts:26](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/world/project/project.class.ts#L26)
 
 ## Properties
 
@@ -37,7 +37,7 @@ Defined in: [packages/server-core/src/world/project/project.class.ts:26](https:/
 
 • **app**: Application
 
-Defined in: [packages/server-core/src/world/project/project.class.ts:23](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/world/project/project.class.ts#L23)
+Defined in: [packages/server-core/src/world/project/project.class.ts:23](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/world/project/project.class.ts#L23)
 
 ___
 
@@ -45,7 +45,7 @@ ___
 
 • **docs**: *any*
 
-Defined in: [packages/server-core/src/world/project/project.class.ts:26](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/world/project/project.class.ts#L26)
+Defined in: [packages/server-core/src/world/project/project.class.ts:26](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/world/project/project.class.ts#L26)
 
 ___
 
@@ -53,7 +53,7 @@ ___
 
 • **models**: *any*
 
-Defined in: [packages/server-core/src/world/project/project.class.ts:25](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/world/project/project.class.ts#L25)
+Defined in: [packages/server-core/src/world/project/project.class.ts:25](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/world/project/project.class.ts#L25)
 
 ___
 
@@ -61,7 +61,7 @@ ___
 
 • **options**: ServiceOptions
 
-Defined in: [packages/server-core/src/world/project/project.class.ts:24](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/world/project/project.class.ts#L24)
+Defined in: [packages/server-core/src/world/project/project.class.ts:24](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/world/project/project.class.ts#L24)
 
 ## Methods
 
@@ -86,7 +86,7 @@ Name | Type | Description |
 
 Implementation of: ServiceMethods.create
 
-Defined in: [packages/server-core/src/world/project/project.class.ts:101](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/world/project/project.class.ts#L101)
+Defined in: [packages/server-core/src/world/project/project.class.ts:101](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/world/project/project.class.ts#L101)
 
 ___
 
@@ -110,7 +110,7 @@ Name | Type | Description |
 
 Implementation of: ServiceMethods.find
 
-Defined in: [packages/server-core/src/world/project/project.class.ts:41](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/world/project/project.class.ts#L41)
+Defined in: [packages/server-core/src/world/project/project.class.ts:41](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/world/project/project.class.ts#L41)
 
 ___
 
@@ -135,7 +135,7 @@ Name | Type | Description |
 
 Implementation of: ServiceMethods.get
 
-Defined in: [packages/server-core/src/world/project/project.class.ts:65](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/world/project/project.class.ts#L65)
+Defined in: [packages/server-core/src/world/project/project.class.ts:65](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/world/project/project.class.ts#L65)
 
 ___
 
@@ -155,7 +155,7 @@ Name | Type |
 
 Implementation of: ServiceMethods.patch
 
-Defined in: [packages/server-core/src/world/project/project.class.ts:132](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/world/project/project.class.ts#L132)
+Defined in: [packages/server-core/src/world/project/project.class.ts:132](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/world/project/project.class.ts#L132)
 
 ___
 
@@ -178,7 +178,7 @@ Name | Type | Description |
 
 {@Object} of loaded Project
 
-Defined in: [packages/server-core/src/world/project/project.class.ts:292](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/world/project/project.class.ts#L292)
+Defined in: [packages/server-core/src/world/project/project.class.ts:292](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/world/project/project.class.ts#L292)
 
 ___
 
@@ -201,7 +201,7 @@ Name | Type | Description |
 
 Implementation of: ServiceMethods.remove
 
-Defined in: [packages/server-core/src/world/project/project.class.ts:270](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/world/project/project.class.ts#L270)
+Defined in: [packages/server-core/src/world/project/project.class.ts:270](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/world/project/project.class.ts#L270)
 
 ___
 
@@ -227,4 +227,4 @@ Name | Type | Description |
 
 Implementation of: ServiceMethods.update
 
-Defined in: [packages/server-core/src/world/project/project.class.ts:128](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/world/project/project.class.ts#L128)
+Defined in: [packages/server-core/src/world/project/project.class.ts:128](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/world/project/project.class.ts#L128)

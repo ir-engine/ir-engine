@@ -39,10 +39,10 @@ Name | Type |
 
 **Returns:** *any*
 
-Defined in: [packages/client/src/pages/_error.tsx:5](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client/src/pages/_error.tsx#L5)
+Defined in: [packages/client/src/pages/_error.tsx:5](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client/src/pages/_error.tsx#L5)
 
 Name | Type |
 :------ | :------ |
 `getInitialProps` | (`\_\_namedParameters`: *Object*) => { `statusCode`: *any*  } |
 
-Defined in: [packages/client/src/pages/_error.tsx:5](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client/src/pages/_error.tsx#L5)
+Defined in: [packages/client/src/pages/_error.tsx:5](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client/src/pages/_error.tsx#L5)

@@ -36,4 +36,4 @@ Name | Type |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/toolbar/ToolButton.tsx:45](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/toolbar/ToolButton.tsx#L45)
+Defined in: [packages/client-core/src/world/components/editor/toolbar/ToolButton.tsx:45](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/toolbar/ToolButton.tsx#L45)

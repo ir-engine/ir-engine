@@ -22,4 +22,4 @@ Name | Type |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/socialmedia/components/Stories/index.tsx:8](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/socialmedia/components/Stories/index.tsx#L8)
+Defined in: [packages/client-core/src/socialmedia/components/Stories/index.tsx:8](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/socialmedia/components/Stories/index.tsx#L8)

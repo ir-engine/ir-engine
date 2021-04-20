@@ -28,4 +28,4 @@ Name | Type |
 
 **Returns:** *any*
 
-Defined in: [packages/client/src/pages/login.tsx:25](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client/src/pages/login.tsx#L25)
+Defined in: [packages/client/src/pages/login.tsx:25](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client/src/pages/login.tsx#L25)

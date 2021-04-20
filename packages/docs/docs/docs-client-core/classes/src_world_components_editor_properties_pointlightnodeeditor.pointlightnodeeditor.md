@@ -157,7 +157,7 @@ ___
 
 ▪ `Static` **description**: *string*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/PointLightNodeEditor.tsx:35](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/properties/PointLightNodeEditor.tsx#L35)
+Defined in: [packages/client-core/src/world/components/editor/properties/PointLightNodeEditor.tsx:35](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/properties/PointLightNodeEditor.tsx#L35)
 
 ___
 
@@ -165,7 +165,7 @@ ___
 
 ▪ `Static` **iconComponent**: StyledIcon
 
-Defined in: [packages/client-core/src/world/components/editor/properties/PointLightNodeEditor.tsx:32](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/properties/PointLightNodeEditor.tsx#L32)
+Defined in: [packages/client-core/src/world/components/editor/properties/PointLightNodeEditor.tsx:32](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/properties/PointLightNodeEditor.tsx#L32)
 
 ## Methods
 
@@ -488,7 +488,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/PointLightNodeEditor.tsx:38](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/properties/PointLightNodeEditor.tsx#L38)
+Defined in: [packages/client-core/src/world/components/editor/properties/PointLightNodeEditor.tsx:38](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/properties/PointLightNodeEditor.tsx#L38)
 
 ___
 
@@ -504,7 +504,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/PointLightNodeEditor.tsx:43](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/properties/PointLightNodeEditor.tsx#L43)
+Defined in: [packages/client-core/src/world/components/editor/properties/PointLightNodeEditor.tsx:43](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/properties/PointLightNodeEditor.tsx#L43)
 
 ___
 
@@ -520,7 +520,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/PointLightNodeEditor.tsx:48](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/properties/PointLightNodeEditor.tsx#L48)
+Defined in: [packages/client-core/src/world/components/editor/properties/PointLightNodeEditor.tsx:48](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/properties/PointLightNodeEditor.tsx#L48)
 
 ___
 
@@ -532,7 +532,7 @@ ___
 
 Overrides: Component.render
 
-Defined in: [packages/client-core/src/world/components/editor/properties/PointLightNodeEditor.tsx:53](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/properties/PointLightNodeEditor.tsx#L53)
+Defined in: [packages/client-core/src/world/components/editor/properties/PointLightNodeEditor.tsx:53](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/properties/PointLightNodeEditor.tsx#L53)
 
 ___
 

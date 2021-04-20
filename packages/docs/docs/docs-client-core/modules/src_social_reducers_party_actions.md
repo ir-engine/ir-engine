@@ -30,7 +30,7 @@ hide_title: true
 
 Ƭ **PartyAction**: [*LoadedPartyAction*](../interfaces/src_social_reducers_party_actions.loadedpartyaction.md) \| [*CreatedPartyAction*](../interfaces/src_social_reducers_party_actions.createdpartyaction.md) \| [*PatchedPartyAction*](../interfaces/src_social_reducers_party_actions.patchedpartyaction.md) \| [*RemovedPartyAction*](../interfaces/src_social_reducers_party_actions.removedpartyaction.md) \| [*LeftPartyAction*](../interfaces/src_social_reducers_party_actions.leftpartyaction.md) \| [*CreatedPartyUserAction*](../interfaces/src_social_reducers_party_actions.createdpartyuseraction.md) \| [*PatchedPartyUserAction*](../interfaces/src_social_reducers_party_actions.patchedpartyuseraction.md)
 
-Defined in: [packages/client-core/src/social/reducers/party/actions.ts:49](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/social/reducers/party/actions.ts#L49)
+Defined in: [packages/client-core/src/social/reducers/party/actions.ts:49](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/social/reducers/party/actions.ts#L49)
 
 ___
 
@@ -38,7 +38,7 @@ ___
 
 Ƭ **PartyUserAction**: [*LoadedPartyUsersAction*](../interfaces/src_social_reducers_party_actions.loadedpartyusersaction.md) \| [*RemovedPartyUserAction*](../interfaces/src_social_reducers_party_actions.removedpartyuseraction.md) \| [*LoadedSelfPartyUserAction*](../interfaces/src_social_reducers_party_actions.loadedselfpartyuseraction.md)
 
-Defined in: [packages/client-core/src/social/reducers/party/actions.ts:116](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/social/reducers/party/actions.ts#L116)
+Defined in: [packages/client-core/src/social/reducers/party/actions.ts:116](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/social/reducers/party/actions.ts#L116)
 
 ## Functions
 
@@ -54,7 +54,7 @@ Name | Type |
 
 **Returns:** [*CreatedPartyAction*](../interfaces/src_social_reducers_party_actions.createdpartyaction.md)
 
-Defined in: [packages/client-core/src/social/reducers/party/actions.ts:65](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/social/reducers/party/actions.ts#L65)
+Defined in: [packages/client-core/src/social/reducers/party/actions.ts:65](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/social/reducers/party/actions.ts#L65)
 
 ___
 
@@ -70,7 +70,7 @@ Name | Type |
 
 **Returns:** [*CreatedPartyUserAction*](../interfaces/src_social_reducers_party_actions.createdpartyuseraction.md)
 
-Defined in: [packages/client-core/src/social/reducers/party/actions.ts:122](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/social/reducers/party/actions.ts#L122)
+Defined in: [packages/client-core/src/social/reducers/party/actions.ts:122](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/social/reducers/party/actions.ts#L122)
 
 ___
 
@@ -80,7 +80,7 @@ ___
 
 **Returns:** [*InvitedPartyUserAction*](../interfaces/src_social_reducers_party_actions.invitedpartyuseraction.md)
 
-Defined in: [packages/client-core/src/social/reducers/party/actions.ts:86](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/social/reducers/party/actions.ts#L86)
+Defined in: [packages/client-core/src/social/reducers/party/actions.ts:86](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/social/reducers/party/actions.ts#L86)
 
 ___
 
@@ -90,7 +90,7 @@ ___
 
 **Returns:** [*LeftPartyAction*](../interfaces/src_social_reducers_party_actions.leftpartyaction.md)
 
-Defined in: [packages/client-core/src/social/reducers/party/actions.ts:92](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/social/reducers/party/actions.ts#L92)
+Defined in: [packages/client-core/src/social/reducers/party/actions.ts:92](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/social/reducers/party/actions.ts#L92)
 
 ___
 
@@ -106,7 +106,7 @@ Name | Type |
 
 **Returns:** [*PartyAction*](src_social_reducers_party_actions.md#partyaction)
 
-Defined in: [packages/client-core/src/social/reducers/party/actions.ts:58](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/social/reducers/party/actions.ts#L58)
+Defined in: [packages/client-core/src/social/reducers/party/actions.ts:58](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/social/reducers/party/actions.ts#L58)
 
 ___
 
@@ -122,7 +122,7 @@ Name | Type |
 
 **Returns:** [*PatchedPartyAction*](../interfaces/src_social_reducers_party_actions.patchedpartyaction.md)
 
-Defined in: [packages/client-core/src/social/reducers/party/actions.ts:72](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/social/reducers/party/actions.ts#L72)
+Defined in: [packages/client-core/src/social/reducers/party/actions.ts:72](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/social/reducers/party/actions.ts#L72)
 
 ___
 
@@ -138,7 +138,7 @@ Name | Type |
 
 **Returns:** [*PatchedPartyUserAction*](../interfaces/src_social_reducers_party_actions.patchedpartyuseraction.md)
 
-Defined in: [packages/client-core/src/social/reducers/party/actions.ts:129](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/social/reducers/party/actions.ts#L129)
+Defined in: [packages/client-core/src/social/reducers/party/actions.ts:129](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/social/reducers/party/actions.ts#L129)
 
 ___
 
@@ -154,7 +154,7 @@ Name | Type |
 
 **Returns:** [*RemovedPartyAction*](../interfaces/src_social_reducers_party_actions.removedpartyaction.md)
 
-Defined in: [packages/client-core/src/social/reducers/party/actions.ts:79](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/social/reducers/party/actions.ts#L79)
+Defined in: [packages/client-core/src/social/reducers/party/actions.ts:79](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/social/reducers/party/actions.ts#L79)
 
 ___
 
@@ -170,4 +170,4 @@ Name | Type |
 
 **Returns:** [*RemovedPartyUserAction*](../interfaces/src_social_reducers_party_actions.removedpartyuseraction.md)
 
-Defined in: [packages/client-core/src/social/reducers/party/actions.ts:136](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/social/reducers/party/actions.ts#L136)
+Defined in: [packages/client-core/src/social/reducers/party/actions.ts:136](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/social/reducers/party/actions.ts#L136)

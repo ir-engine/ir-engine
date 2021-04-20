@@ -26,4 +26,4 @@ Name | Type |
 
 **Returns:** *any*
 
-Defined in: [packages/server-core/src/networking/instance-provision/instance-provision.service.ts:14](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/networking/instance-provision/instance-provision.service.ts#L14)
+Defined in: [packages/server-core/src/networking/instance-provision/instance-provision.service.ts:14](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/networking/instance-provision/instance-provision.service.ts#L14)

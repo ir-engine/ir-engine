@@ -37,7 +37,7 @@ Name | Type |
 
 Overrides: Service.constructor
 
-Defined in: [packages/server-core/src/user/identity-provider/identity-provider.class.ts:20](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/user/identity-provider/identity-provider.class.ts#L20)
+Defined in: [packages/server-core/src/user/identity-provider/identity-provider.class.ts:20](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/user/identity-provider/identity-provider.class.ts#L20)
 
 ## Properties
 
@@ -55,7 +55,7 @@ ___
 
 • **app**: Application
 
-Defined in: [packages/server-core/src/user/identity-provider/identity-provider.class.ts:19](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/user/identity-provider/identity-provider.class.ts#L19)
+Defined in: [packages/server-core/src/user/identity-provider/identity-provider.class.ts:19](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/user/identity-provider/identity-provider.class.ts#L19)
 
 ___
 
@@ -63,7 +63,7 @@ ___
 
 • **docs**: *any*
 
-Defined in: [packages/server-core/src/user/identity-provider/identity-provider.class.ts:20](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/user/identity-provider/identity-provider.class.ts#L20)
+Defined in: [packages/server-core/src/user/identity-provider/identity-provider.class.ts:20](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/user/identity-provider/identity-provider.class.ts#L20)
 
 ___
 
@@ -249,7 +249,7 @@ accessToken
 
 Overrides: Service.create
 
-Defined in: [packages/server-core/src/user/identity-provider/identity-provider.class.ts:34](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/user/identity-provider/identity-provider.class.ts#L34)
+Defined in: [packages/server-core/src/user/identity-provider/identity-provider.class.ts:34](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/user/identity-provider/identity-provider.class.ts#L34)
 
 ___
 

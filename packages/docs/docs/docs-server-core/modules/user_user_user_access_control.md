@@ -40,4 +40,4 @@ Name | Type |
 `user.readScope` | *string* |
 `user.updateScope` | *string* |
 
-Defined in: [packages/server-core/src/user/user/user.access-control.ts:6](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/user/user/user.access-control.ts#L6)
+Defined in: [packages/server-core/src/user/user/user.access-control.ts:6](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/user/user/user.access-control.ts#L6)

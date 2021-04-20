@@ -37,7 +37,7 @@ Name | Type |
 
 Overrides: Service.constructor
 
-Defined in: [packages/server-core/src/social/invite/invite.class.ts:14](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/social/invite/invite.class.ts#L14)
+Defined in: [packages/server-core/src/social/invite/invite.class.ts:14](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/social/invite/invite.class.ts#L14)
 
 ## Properties
 
@@ -55,7 +55,7 @@ ___
 
 • **app**: Application
 
-Defined in: [packages/server-core/src/social/invite/invite.class.ts:13](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/social/invite/invite.class.ts#L13)
+Defined in: [packages/server-core/src/social/invite/invite.class.ts:13](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/social/invite/invite.class.ts#L13)
 
 ___
 
@@ -63,7 +63,7 @@ ___
 
 • **docs**: *any*
 
-Defined in: [packages/server-core/src/social/invite/invite.class.ts:14](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/social/invite/invite.class.ts#L14)
+Defined in: [packages/server-core/src/social/invite/invite.class.ts:14](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/social/invite/invite.class.ts#L14)
 
 ___
 
@@ -288,7 +288,7 @@ invite data
 
 Overrides: Service.find
 
-Defined in: [packages/server-core/src/social/invite/invite.class.ts:28](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/social/invite/invite.class.ts#L28)
+Defined in: [packages/server-core/src/social/invite/invite.class.ts:28](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/social/invite/invite.class.ts#L28)
 
 ___
 

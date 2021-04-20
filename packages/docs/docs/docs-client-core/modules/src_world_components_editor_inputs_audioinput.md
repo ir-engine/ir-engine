@@ -38,4 +38,4 @@ Name | Type |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/inputs/AudioInput.tsx:29](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/inputs/AudioInput.tsx#L29)
+Defined in: [packages/client-core/src/world/components/editor/inputs/AudioInput.tsx:29](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/inputs/AudioInput.tsx#L29)

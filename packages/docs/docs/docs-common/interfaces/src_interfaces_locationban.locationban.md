@@ -16,7 +16,7 @@ hide_title: true
 
 • **id**: *number*
 
-Defined in: [interfaces/LocationBan.ts:2](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/common/src/interfaces/LocationBan.ts#L2)
+Defined in: [interfaces/LocationBan.ts:2](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/common/src/interfaces/LocationBan.ts#L2)
 
 ___
 
@@ -24,7 +24,7 @@ ___
 
 • **locationId**: *string*
 
-Defined in: [interfaces/LocationBan.ts:3](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/common/src/interfaces/LocationBan.ts#L3)
+Defined in: [interfaces/LocationBan.ts:3](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/common/src/interfaces/LocationBan.ts#L3)
 
 ___
 
@@ -32,4 +32,4 @@ ___
 
 • **userId**: *string*
 
-Defined in: [interfaces/LocationBan.ts:4](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/common/src/interfaces/LocationBan.ts#L4)
+Defined in: [interfaces/LocationBan.ts:4](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/common/src/interfaces/LocationBan.ts#L4)

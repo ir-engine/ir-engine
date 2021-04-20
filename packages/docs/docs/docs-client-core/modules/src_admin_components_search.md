@@ -22,4 +22,4 @@ Name | Type |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/admin/components/Search.tsx:31](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/admin/components/Search.tsx#L31)
+Defined in: [packages/client-core/src/admin/components/Search.tsx:31](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/admin/components/Search.tsx#L31)

@@ -18,7 +18,7 @@ AssetTypes array containing types of items used.
 
 **`author`** Robert Long
 
-Defined in: [packages/client-core/src/world/components/editor/dnd/index.tsx:26](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/dnd/index.tsx#L26)
+Defined in: [packages/client-core/src/world/components/editor/dnd/index.tsx:26](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/dnd/index.tsx#L26)
 
 ___
 
@@ -43,7 +43,7 @@ Name | Type |
 `Video` | *string* |
 `Volumetric` | *string* |
 
-Defined in: [packages/client-core/src/world/components/editor/dnd/index.tsx:9](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/dnd/index.tsx#L9)
+Defined in: [packages/client-core/src/world/components/editor/dnd/index.tsx:9](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/dnd/index.tsx#L9)
 
 ## Functions
 
@@ -65,7 +65,7 @@ Name | Type |
 
 **Returns:** *boolean*
 
-Defined in: [packages/client-core/src/world/components/editor/dnd/index.tsx:75](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/dnd/index.tsx#L75)
+Defined in: [packages/client-core/src/world/components/editor/dnd/index.tsx:75](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/dnd/index.tsx#L75)
 
 ___
 
@@ -88,7 +88,7 @@ Name | Type |
 
 **Returns:** *boolean*
 
-Defined in: [packages/client-core/src/world/components/editor/dnd/index.tsx:54](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/dnd/index.tsx#L54)
+Defined in: [packages/client-core/src/world/components/editor/dnd/index.tsx:54](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/dnd/index.tsx#L54)
 
 ___
 
@@ -108,4 +108,4 @@ Name | Type |
 
 **Returns:** *boolean*
 
-Defined in: [packages/client-core/src/world/components/editor/dnd/index.tsx:41](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/dnd/index.tsx#L41)
+Defined in: [packages/client-core/src/world/components/editor/dnd/index.tsx:41](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/dnd/index.tsx#L41)

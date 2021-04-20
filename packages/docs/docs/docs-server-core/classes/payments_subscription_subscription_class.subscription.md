@@ -33,7 +33,7 @@ Name | Type |
 
 Overrides: Service.constructor
 
-Defined in: [packages/server-core/src/payments/subscription/subscription.class.ts:8](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/payments/subscription/subscription.class.ts#L8)
+Defined in: [packages/server-core/src/payments/subscription/subscription.class.ts:8](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/payments/subscription/subscription.class.ts#L8)
 
 ## Properties
 
@@ -51,7 +51,7 @@ ___
 
 • **app**: Application
 
-Defined in: [packages/server-core/src/payments/subscription/subscription.class.ts:7](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/payments/subscription/subscription.class.ts#L7)
+Defined in: [packages/server-core/src/payments/subscription/subscription.class.ts:7](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/payments/subscription/subscription.class.ts#L7)
 
 ___
 
@@ -59,7 +59,7 @@ ___
 
 • **docs**: *any*
 
-Defined in: [packages/server-core/src/payments/subscription/subscription.class.ts:8](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/payments/subscription/subscription.class.ts#L8)
+Defined in: [packages/server-core/src/payments/subscription/subscription.class.ts:8](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/payments/subscription/subscription.class.ts#L8)
 
 ___
 
@@ -245,7 +245,7 @@ Name | Type | Description |
 
 Overrides: Service.create
 
-Defined in: [packages/server-core/src/payments/subscription/subscription.class.ts:22](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/payments/subscription/subscription.class.ts#L22)
+Defined in: [packages/server-core/src/payments/subscription/subscription.class.ts:22](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/payments/subscription/subscription.class.ts#L22)
 
 ___
 

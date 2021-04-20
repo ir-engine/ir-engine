@@ -14,4 +14,4 @@ hide_title: true
 
 • `Const` **selectDeviceDetectState**: *OutputSelector*<any, any, (`res`: *any*) => *any*\>
 
-Defined in: [packages/client-core/src/common/reducers/devicedetect/selector.tsx:4](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/common/reducers/devicedetect/selector.tsx#L4)
+Defined in: [packages/client-core/src/common/reducers/devicedetect/selector.tsx:4](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/common/reducers/devicedetect/selector.tsx#L4)

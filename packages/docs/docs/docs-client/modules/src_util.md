@@ -16,4 +16,4 @@ hide_title: true
 
 **Returns:** *void*
 
-Defined in: [packages/client/src/util.ts:9](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client/src/util.ts#L9)
+Defined in: [packages/client/src/util.ts:9](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client/src/util.ts#L9)

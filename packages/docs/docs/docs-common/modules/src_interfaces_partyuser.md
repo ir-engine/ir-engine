@@ -22,4 +22,4 @@ Name | Type |
 `isOwner` | *boolean* |
 `user` | [*User*](../interfaces/src_interfaces_user.user.md) |
 
-Defined in: [interfaces/PartyUser.ts:3](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/common/src/interfaces/PartyUser.ts#L3)
+Defined in: [interfaces/PartyUser.ts:3](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/common/src/interfaces/PartyUser.ts#L3)

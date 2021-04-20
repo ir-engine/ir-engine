@@ -33,7 +33,7 @@ Name | Type | Default value |
 
 **Returns:** [*Login*](user_login_login_class.login.md)
 
-Defined in: [packages/server-core/src/user/login/login.class.ts:17](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/user/login/login.class.ts#L17)
+Defined in: [packages/server-core/src/user/login/login.class.ts:17](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/user/login/login.class.ts#L17)
 
 ## Properties
 
@@ -41,7 +41,7 @@ Defined in: [packages/server-core/src/user/login/login.class.ts:17](https://gith
 
 • **app**: Application
 
-Defined in: [packages/server-core/src/user/login/login.class.ts:15](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/user/login/login.class.ts#L15)
+Defined in: [packages/server-core/src/user/login/login.class.ts:15](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/user/login/login.class.ts#L15)
 
 ___
 
@@ -49,7 +49,7 @@ ___
 
 • **docs**: *any*
 
-Defined in: [packages/server-core/src/user/login/login.class.ts:17](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/user/login/login.class.ts#L17)
+Defined in: [packages/server-core/src/user/login/login.class.ts:17](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/user/login/login.class.ts#L17)
 
 ___
 
@@ -57,7 +57,7 @@ ___
 
 • **options**: ServiceOptions
 
-Defined in: [packages/server-core/src/user/login/login.class.ts:16](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/user/login/login.class.ts#L16)
+Defined in: [packages/server-core/src/user/login/login.class.ts:16](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/user/login/login.class.ts#L16)
 
 ## Methods
 
@@ -82,7 +82,7 @@ created data
 
 Implementation of: ServiceMethods.create
 
-Defined in: [packages/server-core/src/user/login/login.class.ts:82](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/user/login/login.class.ts#L82)
+Defined in: [packages/server-core/src/user/login/login.class.ts:82](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/user/login/login.class.ts#L82)
 
 ___
 
@@ -106,7 +106,7 @@ Name | Type |
 
 Implementation of: ServiceMethods.find
 
-Defined in: [packages/server-core/src/user/login/login.class.ts:31](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/user/login/login.class.ts#L31)
+Defined in: [packages/server-core/src/user/login/login.class.ts:31](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/user/login/login.class.ts#L31)
 
 ___
 
@@ -131,7 +131,7 @@ Name | Type | Description |
 
 Implementation of: ServiceMethods.get
 
-Defined in: [packages/server-core/src/user/login/login.class.ts:43](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/user/login/login.class.ts#L43)
+Defined in: [packages/server-core/src/user/login/login.class.ts:43](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/user/login/login.class.ts#L43)
 
 ___
 
@@ -155,7 +155,7 @@ data
 
 Implementation of: ServiceMethods.patch
 
-Defined in: [packages/server-core/src/user/login/login.class.ts:111](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/user/login/login.class.ts#L111)
+Defined in: [packages/server-core/src/user/login/login.class.ts:111](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/user/login/login.class.ts#L111)
 
 ___
 
@@ -178,7 +178,7 @@ id
 
 Implementation of: ServiceMethods.remove
 
-Defined in: [packages/server-core/src/user/login/login.class.ts:123](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/user/login/login.class.ts#L123)
+Defined in: [packages/server-core/src/user/login/login.class.ts:123](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/user/login/login.class.ts#L123)
 
 ___
 
@@ -204,4 +204,4 @@ updated data
 
 Implementation of: ServiceMethods.update
 
-Defined in: [packages/server-core/src/user/login/login.class.ts:99](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/user/login/login.class.ts#L99)
+Defined in: [packages/server-core/src/user/login/login.class.ts:99](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/user/login/login.class.ts#L99)

@@ -28,4 +28,4 @@ Name | Type | Default value |
 
 [assets]
 
-Defined in: [packages/client-core/src/world/components/editor/assets/useUpload.tsx:16](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/assets/useUpload.tsx#L16)
+Defined in: [packages/client-core/src/world/components/editor/assets/useUpload.tsx:16](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/assets/useUpload.tsx#L16)

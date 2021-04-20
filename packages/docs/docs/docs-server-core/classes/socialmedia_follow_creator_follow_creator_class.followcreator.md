@@ -35,7 +35,7 @@ Name | Type |
 
 Overrides: Service.constructor
 
-Defined in: [packages/server-core/src/socialmedia/follow-creator/follow-creator.class.ts:17](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/socialmedia/follow-creator/follow-creator.class.ts#L17)
+Defined in: [packages/server-core/src/socialmedia/follow-creator/follow-creator.class.ts:17](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/socialmedia/follow-creator/follow-creator.class.ts#L17)
 
 ## Properties
 
@@ -53,7 +53,7 @@ ___
 
 • **app**: Application
 
-Defined in: [packages/server-core/src/socialmedia/follow-creator/follow-creator.class.ts:16](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/socialmedia/follow-creator/follow-creator.class.ts#L16)
+Defined in: [packages/server-core/src/socialmedia/follow-creator/follow-creator.class.ts:16](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/socialmedia/follow-creator/follow-creator.class.ts#L16)
 
 ___
 
@@ -61,7 +61,7 @@ ___
 
 • **docs**: *any*
 
-Defined in: [packages/server-core/src/socialmedia/follow-creator/follow-creator.class.ts:17](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/socialmedia/follow-creator/follow-creator.class.ts#L17)
+Defined in: [packages/server-core/src/socialmedia/follow-creator/follow-creator.class.ts:17](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/socialmedia/follow-creator/follow-creator.class.ts#L17)
 
 ___
 
@@ -243,7 +243,7 @@ Name | Type |
 
 Overrides: Service.create
 
-Defined in: [packages/server-core/src/socialmedia/follow-creator/follow-creator.class.ts:93](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/socialmedia/follow-creator/follow-creator.class.ts#L93)
+Defined in: [packages/server-core/src/socialmedia/follow-creator/follow-creator.class.ts:93](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/socialmedia/follow-creator/follow-creator.class.ts#L93)
 
 ___
 
@@ -284,7 +284,7 @@ Name | Type |
 
 Overrides: Service.find
 
-Defined in: [packages/server-core/src/socialmedia/follow-creator/follow-creator.class.ts:31](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/socialmedia/follow-creator/follow-creator.class.ts#L31)
+Defined in: [packages/server-core/src/socialmedia/follow-creator/follow-creator.class.ts:31](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/socialmedia/follow-creator/follow-creator.class.ts#L31)
 
 ___
 
@@ -360,7 +360,7 @@ Name | Type |
 
 Overrides: Service.remove
 
-Defined in: [packages/server-core/src/socialmedia/follow-creator/follow-creator.class.ts:101](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/socialmedia/follow-creator/follow-creator.class.ts#L101)
+Defined in: [packages/server-core/src/socialmedia/follow-creator/follow-creator.class.ts:101](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/socialmedia/follow-creator/follow-creator.class.ts#L101)
 
 ___
 

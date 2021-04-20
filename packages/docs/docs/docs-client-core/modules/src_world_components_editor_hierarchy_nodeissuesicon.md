@@ -38,4 +38,4 @@ Name | Type |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/hierarchy/NodeIssuesIcon.tsx:58](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/hierarchy/NodeIssuesIcon.tsx#L58)
+Defined in: [packages/client-core/src/world/components/editor/hierarchy/NodeIssuesIcon.tsx:58](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/hierarchy/NodeIssuesIcon.tsx#L58)

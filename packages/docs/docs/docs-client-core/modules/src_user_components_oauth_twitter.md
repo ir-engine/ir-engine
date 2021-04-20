@@ -14,4 +14,4 @@ hide_title: true
 
 • `Const` **TwitterCallback**: *ConnectedComponent*<(`props`: *any*) => *any*, Omit<any, string \| number \| symbol\>\>
 
-Defined in: [packages/client-core/src/user/components/Oauth/Twitter.tsx:68](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/user/components/Oauth/Twitter.tsx#L68)
+Defined in: [packages/client-core/src/user/components/Oauth/Twitter.tsx:68](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/user/components/Oauth/Twitter.tsx#L68)

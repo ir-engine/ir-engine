@@ -35,7 +35,7 @@ Name | Type |
 
 Overrides: Service.constructor
 
-Defined in: [packages/server-core/src/socialmedia/comments/comments.class.ts:16](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/socialmedia/comments/comments.class.ts#L16)
+Defined in: [packages/server-core/src/socialmedia/comments/comments.class.ts:16](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/socialmedia/comments/comments.class.ts#L16)
 
 ## Properties
 
@@ -53,7 +53,7 @@ ___
 
 • **app**: Application
 
-Defined in: [packages/server-core/src/socialmedia/comments/comments.class.ts:15](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/socialmedia/comments/comments.class.ts#L15)
+Defined in: [packages/server-core/src/socialmedia/comments/comments.class.ts:15](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/socialmedia/comments/comments.class.ts#L15)
 
 ___
 
@@ -61,7 +61,7 @@ ___
 
 • **docs**: *any*
 
-Defined in: [packages/server-core/src/socialmedia/comments/comments.class.ts:16](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/socialmedia/comments/comments.class.ts#L16)
+Defined in: [packages/server-core/src/socialmedia/comments/comments.class.ts:16](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/socialmedia/comments/comments.class.ts#L16)
 
 ___
 
@@ -243,7 +243,7 @@ Name | Type |
 
 Overrides: Service.create
 
-Defined in: [packages/server-core/src/socialmedia/comments/comments.class.ts:90](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/socialmedia/comments/comments.class.ts#L90)
+Defined in: [packages/server-core/src/socialmedia/comments/comments.class.ts:90](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/socialmedia/comments/comments.class.ts#L90)
 
 ___
 
@@ -284,7 +284,7 @@ Name | Type | Description |
 
 Overrides: Service.find
 
-Defined in: [packages/server-core/src/socialmedia/comments/comments.class.ts:29](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/socialmedia/comments/comments.class.ts#L29)
+Defined in: [packages/server-core/src/socialmedia/comments/comments.class.ts:29](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/socialmedia/comments/comments.class.ts#L29)
 
 ___
 

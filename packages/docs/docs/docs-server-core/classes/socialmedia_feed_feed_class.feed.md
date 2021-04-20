@@ -35,7 +35,7 @@ Name | Type |
 
 Overrides: Service.constructor
 
-Defined in: [packages/server-core/src/socialmedia/feed/feed.class.ts:17](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/socialmedia/feed/feed.class.ts#L17)
+Defined in: [packages/server-core/src/socialmedia/feed/feed.class.ts:17](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/socialmedia/feed/feed.class.ts#L17)
 
 ## Properties
 
@@ -53,7 +53,7 @@ ___
 
 • **app**: Application
 
-Defined in: [packages/server-core/src/socialmedia/feed/feed.class.ts:16](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/socialmedia/feed/feed.class.ts#L16)
+Defined in: [packages/server-core/src/socialmedia/feed/feed.class.ts:16](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/socialmedia/feed/feed.class.ts#L16)
 
 ___
 
@@ -61,7 +61,7 @@ ___
 
 • **docs**: *any*
 
-Defined in: [packages/server-core/src/socialmedia/feed/feed.class.ts:17](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/socialmedia/feed/feed.class.ts#L17)
+Defined in: [packages/server-core/src/socialmedia/feed/feed.class.ts:17](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/socialmedia/feed/feed.class.ts#L17)
 
 ___
 
@@ -243,7 +243,7 @@ Name | Type |
 
 Overrides: Service.create
 
-Defined in: [packages/server-core/src/socialmedia/feed/feed.class.ts:386](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/socialmedia/feed/feed.class.ts#L386)
+Defined in: [packages/server-core/src/socialmedia/feed/feed.class.ts:386](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/socialmedia/feed/feed.class.ts#L386)
 
 ___
 
@@ -284,7 +284,7 @@ Name | Type |
 
 Overrides: Service.find
 
-Defined in: [packages/server-core/src/socialmedia/feed/feed.class.ts:31](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/socialmedia/feed/feed.class.ts#L31)
+Defined in: [packages/server-core/src/socialmedia/feed/feed.class.ts:31](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/socialmedia/feed/feed.class.ts#L31)
 
 ___
 
@@ -309,7 +309,7 @@ Name | Type | Description |
 
 Overrides: Service.get
 
-Defined in: [packages/server-core/src/socialmedia/feed/feed.class.ts:332](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/socialmedia/feed/feed.class.ts#L332)
+Defined in: [packages/server-core/src/socialmedia/feed/feed.class.ts:332](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/socialmedia/feed/feed.class.ts#L332)
 
 ___
 
@@ -353,7 +353,7 @@ updated feed
 
 Overrides: Service.patch
 
-Defined in: [packages/server-core/src/socialmedia/feed/feed.class.ts:401](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/socialmedia/feed/feed.class.ts#L401)
+Defined in: [packages/server-core/src/socialmedia/feed/feed.class.ts:401](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/socialmedia/feed/feed.class.ts#L401)
 
 ___
 

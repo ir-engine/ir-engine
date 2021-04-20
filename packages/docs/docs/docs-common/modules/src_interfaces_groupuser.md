@@ -22,4 +22,4 @@ Name | Type |
 `id` | *string* |
 `user` | [*User*](../interfaces/src_interfaces_user.user.md) |
 
-Defined in: [interfaces/GroupUser.ts:3](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/common/src/interfaces/GroupUser.ts#L3)
+Defined in: [interfaces/GroupUser.ts:3](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/common/src/interfaces/GroupUser.ts#L3)

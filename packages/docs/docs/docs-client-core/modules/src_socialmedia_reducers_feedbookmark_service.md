@@ -22,7 +22,7 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/src/socialmedia/reducers/feedBookmark/service.ts:8](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/socialmedia/reducers/feedBookmark/service.ts#L8)
+Defined in: [packages/client-core/src/socialmedia/reducers/feedBookmark/service.ts:8](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/socialmedia/reducers/feedBookmark/service.ts#L8)
 
 ___
 
@@ -38,4 +38,4 @@ Name | Type |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/src/socialmedia/reducers/feedBookmark/service.ts:20](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/socialmedia/reducers/feedBookmark/service.ts#L20)
+Defined in: [packages/client-core/src/socialmedia/reducers/feedBookmark/service.ts:20](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/socialmedia/reducers/feedBookmark/service.ts#L20)

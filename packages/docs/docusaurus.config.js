@@ -128,24 +128,6 @@ module.exports = {
       [
         'docusaurus-plugin-typedoc',
         {
-          id:'api-6',
-          entryPoints: [
-                          '../nft/src/'
-                       ],
-          tsconfig: '../nft/tsconfig.json',
-          exclude: [
-              '**/node_modules/**',       
-          ],
-          out: 'docs-nft',
-          readme: 'none',
-          sidebar: {
-             sidebarFile: 'sidebar/typedoc-nft.js',
-          }
-        },
-      ],
-      [
-        'docusaurus-plugin-typedoc',
-        {
           id:'api-7',
           entryPoints: [
                           '../native-plugin-xr/src/'

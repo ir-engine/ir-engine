@@ -33,7 +33,7 @@ Name | Type | Default value |
 
 **Returns:** [*Video*](media_video_video_class.video.md)
 
-Defined in: [packages/server-core/src/media/video/video.class.ts:16](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/media/video/video.class.ts#L16)
+Defined in: [packages/server-core/src/media/video/video.class.ts:16](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/media/video/video.class.ts#L16)
 
 ## Properties
 
@@ -41,7 +41,7 @@ Defined in: [packages/server-core/src/media/video/video.class.ts:16](https://git
 
 • **app**: Application
 
-Defined in: [packages/server-core/src/media/video/video.class.ts:15](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/media/video/video.class.ts#L15)
+Defined in: [packages/server-core/src/media/video/video.class.ts:15](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/media/video/video.class.ts#L15)
 
 ___
 
@@ -49,7 +49,7 @@ ___
 
 • **options**: ServiceOptions
 
-Defined in: [packages/server-core/src/media/video/video.class.ts:16](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/media/video/video.class.ts#L16)
+Defined in: [packages/server-core/src/media/video/video.class.ts:16](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/media/video/video.class.ts#L16)
 
 ## Methods
 
@@ -68,7 +68,7 @@ Name | Type |
 
 Implementation of: ServiceMethods.create
 
-Defined in: [packages/server-core/src/media/video/video.class.ts:33](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/media/video/video.class.ts#L33)
+Defined in: [packages/server-core/src/media/video/video.class.ts:33](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/media/video/video.class.ts#L33)
 
 ___
 
@@ -86,7 +86,7 @@ Name | Type |
 
 Implementation of: ServiceMethods.find
 
-Defined in: [packages/server-core/src/media/video/video.class.ts:23](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/media/video/video.class.ts#L23)
+Defined in: [packages/server-core/src/media/video/video.class.ts:23](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/media/video/video.class.ts#L23)
 
 ___
 
@@ -105,7 +105,7 @@ Name | Type |
 
 Implementation of: ServiceMethods.get
 
-Defined in: [packages/server-core/src/media/video/video.class.ts:27](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/media/video/video.class.ts#L27)
+Defined in: [packages/server-core/src/media/video/video.class.ts:27](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/media/video/video.class.ts#L27)
 
 ___
 
@@ -125,7 +125,7 @@ Name | Type |
 
 Implementation of: ServiceMethods.patch
 
-Defined in: [packages/server-core/src/media/video/video.class.ts:48](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/media/video/video.class.ts#L48)
+Defined in: [packages/server-core/src/media/video/video.class.ts:48](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/media/video/video.class.ts#L48)
 
 ___
 
@@ -144,7 +144,7 @@ Name | Type |
 
 Implementation of: ServiceMethods.remove
 
-Defined in: [packages/server-core/src/media/video/video.class.ts:52](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/media/video/video.class.ts#L52)
+Defined in: [packages/server-core/src/media/video/video.class.ts:52](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/media/video/video.class.ts#L52)
 
 ___
 
@@ -164,4 +164,4 @@ Name | Type |
 
 Implementation of: ServiceMethods.update
 
-Defined in: [packages/server-core/src/media/video/video.class.ts:44](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/media/video/video.class.ts#L44)
+Defined in: [packages/server-core/src/media/video/video.class.ts:44](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/media/video/video.class.ts#L44)

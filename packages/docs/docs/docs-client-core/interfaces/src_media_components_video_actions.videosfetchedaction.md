@@ -16,7 +16,7 @@ hide_title: true
 
 • `Optional` **image**: [*Image*](src_media_components_video_actions.image.md)
 
-Defined in: [packages/client-core/src/media/components/video/actions.ts:32](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/media/components/video/actions.ts#L32)
+Defined in: [packages/client-core/src/media/components/video/actions.ts:32](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/media/components/video/actions.ts#L32)
 
 ___
 
@@ -24,7 +24,7 @@ ___
 
 • `Optional` **message**: *string*
 
-Defined in: [packages/client-core/src/media/components/video/actions.ts:33](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/media/components/video/actions.ts#L33)
+Defined in: [packages/client-core/src/media/components/video/actions.ts:33](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/media/components/video/actions.ts#L33)
 
 ___
 
@@ -32,7 +32,7 @@ ___
 
 • **type**: *string*
 
-Defined in: [packages/client-core/src/media/components/video/actions.ts:30](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/media/components/video/actions.ts#L30)
+Defined in: [packages/client-core/src/media/components/video/actions.ts:30](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/media/components/video/actions.ts#L30)
 
 ___
 
@@ -40,4 +40,4 @@ ___
 
 • `Optional` **videos**: [*PublicVideo*](src_media_components_video_actions.publicvideo.md)[]
 
-Defined in: [packages/client-core/src/media/components/video/actions.ts:31](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/media/components/video/actions.ts#L31)
+Defined in: [packages/client-core/src/media/components/video/actions.ts:31](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/media/components/video/actions.ts#L31)

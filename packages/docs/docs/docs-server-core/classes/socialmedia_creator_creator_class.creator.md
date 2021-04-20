@@ -35,7 +35,7 @@ Name | Type |
 
 Overrides: Service.constructor
 
-Defined in: [packages/server-core/src/socialmedia/creator/creator.class.ts:15](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/socialmedia/creator/creator.class.ts#L15)
+Defined in: [packages/server-core/src/socialmedia/creator/creator.class.ts:15](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/socialmedia/creator/creator.class.ts#L15)
 
 ## Properties
 
@@ -53,7 +53,7 @@ ___
 
 • **app**: Application
 
-Defined in: [packages/server-core/src/socialmedia/creator/creator.class.ts:14](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/socialmedia/creator/creator.class.ts#L14)
+Defined in: [packages/server-core/src/socialmedia/creator/creator.class.ts:14](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/socialmedia/creator/creator.class.ts#L14)
 
 ___
 
@@ -61,7 +61,7 @@ ___
 
 • **docs**: *any*
 
-Defined in: [packages/server-core/src/socialmedia/creator/creator.class.ts:15](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/socialmedia/creator/creator.class.ts#L15)
+Defined in: [packages/server-core/src/socialmedia/creator/creator.class.ts:15](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/socialmedia/creator/creator.class.ts#L15)
 
 ___
 
@@ -243,7 +243,7 @@ Name | Type |
 
 Overrides: Service.create
 
-Defined in: [packages/server-core/src/socialmedia/creator/creator.class.ts:115](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/socialmedia/creator/creator.class.ts#L115)
+Defined in: [packages/server-core/src/socialmedia/creator/creator.class.ts:115](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/socialmedia/creator/creator.class.ts#L115)
 
 ___
 
@@ -284,7 +284,7 @@ Name | Type | Description |
 
 Overrides: Service.find
 
-Defined in: [packages/server-core/src/socialmedia/creator/creator.class.ts:29](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/socialmedia/creator/creator.class.ts#L29)
+Defined in: [packages/server-core/src/socialmedia/creator/creator.class.ts:29](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/socialmedia/creator/creator.class.ts#L29)
 
 ___
 
@@ -309,7 +309,7 @@ Name | Type | Description |
 
 Overrides: Service.get
 
-Defined in: [packages/server-core/src/socialmedia/creator/creator.class.ts:89](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/socialmedia/creator/creator.class.ts#L89)
+Defined in: [packages/server-core/src/socialmedia/creator/creator.class.ts:89](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/socialmedia/creator/creator.class.ts#L89)
 
 ___
 
@@ -353,7 +353,7 @@ updated feed
 
 Overrides: Service.patch
 
-Defined in: [packages/server-core/src/socialmedia/creator/creator.class.ts:142](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/socialmedia/creator/creator.class.ts#L142)
+Defined in: [packages/server-core/src/socialmedia/creator/creator.class.ts:142](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/socialmedia/creator/creator.class.ts#L142)
 
 ___
 

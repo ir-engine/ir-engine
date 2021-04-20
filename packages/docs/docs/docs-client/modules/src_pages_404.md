@@ -22,4 +22,4 @@ Renames and exports: [Custom404](src_pages_404.md#custom404)
 
 **Returns:** *any*
 
-Defined in: [packages/client/src/pages/404.tsx:5](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client/src/pages/404.tsx#L5)
+Defined in: [packages/client/src/pages/404.tsx:5](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client/src/pages/404.tsx#L5)

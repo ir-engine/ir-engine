@@ -24,4 +24,4 @@ Name | Type |
 `randomize` | *boolean* |
 `templates` | *any* |
 
-Defined in: [packages/server-core/src/payments/subscription-type/subscription-type.seed.ts:108](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/payments/subscription-type/subscription-type.seed.ts#L108)
+Defined in: [packages/server-core/src/payments/subscription-type/subscription-type.seed.ts:108](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/payments/subscription-type/subscription-type.seed.ts#L108)

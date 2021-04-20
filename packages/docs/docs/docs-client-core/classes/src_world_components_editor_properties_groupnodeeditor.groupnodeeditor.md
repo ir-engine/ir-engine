@@ -157,7 +157,7 @@ ___
 
 ▪ `Static` **description**: *string*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/GroupNodeEditor.tsx:27](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/properties/GroupNodeEditor.tsx#L27)
+Defined in: [packages/client-core/src/world/components/editor/properties/GroupNodeEditor.tsx:27](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/properties/GroupNodeEditor.tsx#L27)
 
 ___
 
@@ -165,7 +165,7 @@ ___
 
 ▪ `Static` **iconComponent**: StyledIcon
 
-Defined in: [packages/client-core/src/world/components/editor/properties/GroupNodeEditor.tsx:24](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/properties/GroupNodeEditor.tsx#L24)
+Defined in: [packages/client-core/src/world/components/editor/properties/GroupNodeEditor.tsx:24](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/properties/GroupNodeEditor.tsx#L24)
 
 ## Methods
 
@@ -484,7 +484,7 @@ ___
 
 Overrides: Component.render
 
-Defined in: [packages/client-core/src/world/components/editor/properties/GroupNodeEditor.tsx:28](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/properties/GroupNodeEditor.tsx#L28)
+Defined in: [packages/client-core/src/world/components/editor/properties/GroupNodeEditor.tsx:28](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/properties/GroupNodeEditor.tsx#L28)
 
 ___
 

@@ -14,4 +14,4 @@ hide_title: true
 
 • `Const` **ForgotPassword**: *ConnectedComponent*<(`props`: *any*) => *any*, Omit<any, string \| number \| symbol\>\>
 
-Defined in: [packages/client-core/src/user/components/Auth/ForgotPasswordApp.tsx:97](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/user/components/Auth/ForgotPasswordApp.tsx#L97)
+Defined in: [packages/client-core/src/user/components/Auth/ForgotPasswordApp.tsx:97](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/user/components/Auth/ForgotPasswordApp.tsx#L97)

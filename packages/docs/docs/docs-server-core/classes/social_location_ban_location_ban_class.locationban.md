@@ -37,7 +37,7 @@ Name | Type |
 
 Overrides: Service.constructor
 
-Defined in: [packages/server-core/src/social/location-ban/location-ban.class.ts:10](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/social/location-ban/location-ban.class.ts#L10)
+Defined in: [packages/server-core/src/social/location-ban/location-ban.class.ts:10](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/social/location-ban/location-ban.class.ts#L10)
 
 ## Properties
 
@@ -55,7 +55,7 @@ ___
 
 • **docs**: *any*
 
-Defined in: [packages/server-core/src/social/location-ban/location-ban.class.ts:10](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/social/location-ban/location-ban.class.ts#L10)
+Defined in: [packages/server-core/src/social/location-ban/location-ban.class.ts:10](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/social/location-ban/location-ban.class.ts#L10)
 
 ___
 

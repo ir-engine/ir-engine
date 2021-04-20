@@ -32,4 +32,4 @@ Name | Type |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/dialogs/ProgressDialog.tsx:46](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/dialogs/ProgressDialog.tsx#L46)
+Defined in: [packages/client-core/src/world/components/editor/dialogs/ProgressDialog.tsx:46](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/dialogs/ProgressDialog.tsx#L46)

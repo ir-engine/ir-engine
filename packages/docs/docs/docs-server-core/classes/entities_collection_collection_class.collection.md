@@ -33,7 +33,7 @@ Name | Type |
 
 Overrides: Service.constructor
 
-Defined in: [packages/server-core/src/entities/collection/collection.class.ts:7](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/entities/collection/collection.class.ts#L7)
+Defined in: [packages/server-core/src/entities/collection/collection.class.ts:7](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/entities/collection/collection.class.ts#L7)
 
 ## Properties
 
@@ -51,7 +51,7 @@ ___
 
 • **app**: Application
 
-Defined in: [packages/server-core/src/entities/collection/collection.class.ts:6](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/entities/collection/collection.class.ts#L6)
+Defined in: [packages/server-core/src/entities/collection/collection.class.ts:6](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/entities/collection/collection.class.ts#L6)
 
 ___
 
@@ -59,7 +59,7 @@ ___
 
 • **docs**: *any*
 
-Defined in: [packages/server-core/src/entities/collection/collection.class.ts:7](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/entities/collection/collection.class.ts#L7)
+Defined in: [packages/server-core/src/entities/collection/collection.class.ts:7](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/entities/collection/collection.class.ts#L7)
 
 ___
 
@@ -284,7 +284,7 @@ Name | Type | Description |
 
 Overrides: Service.find
 
-Defined in: [packages/server-core/src/entities/collection/collection.class.ts:21](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/entities/collection/collection.class.ts#L21)
+Defined in: [packages/server-core/src/entities/collection/collection.class.ts:21](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/entities/collection/collection.class.ts#L21)
 
 ___
 

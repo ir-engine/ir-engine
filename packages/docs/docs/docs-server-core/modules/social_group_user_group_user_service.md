@@ -26,4 +26,4 @@ Name | Type |
 
 **Returns:** *any*
 
-Defined in: [packages/server-core/src/social/group-user/group-user.service.ts:13](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/server-core/src/social/group-user/group-user.service.ts#L13)
+Defined in: [packages/server-core/src/social/group-user/group-user.service.ts:13](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/social/group-user/group-user.service.ts#L13)

@@ -16,7 +16,7 @@ hide_title: true
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/src/feathers-instance.ts:12](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/feathers-instance.ts#L12)
+Defined in: [packages/client-core/src/feathers-instance.ts:12](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/feathers-instance.ts#L12)
 
 ___
 
@@ -26,7 +26,7 @@ ___
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/src/feathers-instance.ts:4](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/feathers-instance.ts#L4)
+Defined in: [packages/client-core/src/feathers-instance.ts:4](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/feathers-instance.ts#L4)
 
 ___
 
@@ -42,4 +42,4 @@ Name | Type |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/src/feathers-instance.ts:8](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/feathers-instance.ts#L8)
+Defined in: [packages/client-core/src/feathers-instance.ts:8](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/feathers-instance.ts#L8)

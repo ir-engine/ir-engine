@@ -28,4 +28,4 @@ Name | Type |
 
 **Returns:** *Element*
 
-Defined in: [packages/client/src/components/Scene/debug.tsx:69](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client/src/components/Scene/debug.tsx#L69)
+Defined in: [packages/client/src/components/Scene/debug.tsx:69](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client/src/components/Scene/debug.tsx#L69)

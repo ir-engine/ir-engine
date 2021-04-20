@@ -22,4 +22,4 @@ Name | Type |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/common/components/LazyImage/index.tsx:10](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/common/components/LazyImage/index.tsx#L10)
+Defined in: [packages/client-core/src/common/components/LazyImage/index.tsx:10](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/common/components/LazyImage/index.tsx#L10)

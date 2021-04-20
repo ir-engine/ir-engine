@@ -16,4 +16,4 @@ hide_title: true
 
 **`author`** Robert Long
 
-Defined in: [packages/client-core/src/world/components/editor/layout/Hidden.tsx:3](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/client-core/src/world/components/editor/layout/Hidden.tsx#L3)
+Defined in: [packages/client-core/src/world/components/editor/layout/Hidden.tsx:3](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/layout/Hidden.tsx#L3)

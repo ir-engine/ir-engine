@@ -29,7 +29,7 @@ Name | Type |
 `authentication.strategy` | *string* |
 `identityProvider` | [*IdentityProvider*](../interfaces/src_interfaces_identityprovider.identityprovider.md) |
 
-Defined in: [interfaces/AuthUser.ts:11](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/common/src/interfaces/AuthUser.ts#L11)
+Defined in: [interfaces/AuthUser.ts:11](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/common/src/interfaces/AuthUser.ts#L11)
 
 ## Functions
 
@@ -45,4 +45,4 @@ Name | Type |
 
 **Returns:** [*AuthUser*](../interfaces/src_interfaces_authuser.authuser.md)
 
-Defined in: [interfaces/AuthUser.ts:19](https://github.com/xr3ngine/xr3ngine/blob/673ad6a5f/packages/common/src/interfaces/AuthUser.ts#L19)
+Defined in: [interfaces/AuthUser.ts:19](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/common/src/interfaces/AuthUser.ts#L19)
