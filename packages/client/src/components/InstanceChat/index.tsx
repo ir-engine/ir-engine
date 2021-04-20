@@ -1,15 +1,13 @@
-import {
-    Avatar,
-    Badge,
-    Button,
-    Card,
-    CardContent,
-    Fab,
-    ListItem,
-    ListItemAvatar,
-    ListItemText,
-    TextField
-} from '@material-ui/core';
+import Avatar from '@material-ui/core/Avatar';
+import Badge from '@material-ui/core/Badge';
+import Button from '@material-ui/core/Button';
+import Card from '@material-ui/core/Card';
+import CardContent from '@material-ui/core/CardContent';
+import Fab from '@material-ui/core/Fab';
+import ListItem from '@material-ui/core/ListItem';
+import ListItemAvatar from '@material-ui/core/ListItemAvatar';
+import ListItemText from '@material-ui/core/ListItemText';
+import TextField from '@material-ui/core/TextField';
 import {
     Message as MessageIcon,
     Send

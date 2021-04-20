@@ -9,7 +9,6 @@ export class Config {
         loginDisabled: false,
         logo: '',
         apiServer: '',
-        apiServerBuild: '',
         appServer: '',
         gameserver: '',
         gameserverDomain: '',
@@ -43,7 +42,7 @@ export class Config {
     static apiUrl = '';
 }
 
-export const setRuntime = (runtime) => {
-    Config.publicRuntimeConfig = runtime;
+export const setRuntime = (runtime: string): void => {
+    Config.publicRuntimeConfig = JSON.parse(runtime);
     Config.apiUrl = process.env.NODE_ENV === 'production' ? Config.publicRuntimeConfig.apiServer : 'https://127.0.0.1:3030';
 };

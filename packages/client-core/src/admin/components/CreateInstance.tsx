@@ -1,12 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import {
-    Backdrop,
-    Button,
-    Fade,
-    FormGroup,
-    Modal,
-    TextField
-} from '@material-ui/core';
+import Backdrop from '@material-ui/core/Backdrop';
+import Button from '@material-ui/core/Button';
+import Fade from '@material-ui/core/Fade';
+import FormGroup from '@material-ui/core/FormGroup';
+import Modal from '@material-ui/core/Modal';
+import TextField from '@material-ui/core/TextField';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from "redux";
 // @ts-ignore

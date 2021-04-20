@@ -4,8 +4,7 @@ import styled from "styled-components";
 import ProjectGridItem from "./ProjectGridItem";
 import { Row } from "../layout/Flex";
 import StringInput from "../inputs/StringInput";
-// import Link from "next/link"
-import { useRouter } from "next/router";
+import { useHistory } from "react-router-dom";
 import { Plus } from "@styled-icons/fa-solid/Plus";
 import { useTranslation } from "react-i18next";
 
@@ -46,10 +45,10 @@ const ProjectGridItemContainer = (styled as any).div`
  * @returns 
  */
 export function NewProjectGridItem({ path, label }: { path: string; label: string }) {
-  const router = useRouter();
+  const history = useHistory();
 
   const routeTo = (route: string) => () => {
-    router.push(route);
+    history.push(route);
   };
   return (
     <ProjectGridItemContainer as="button" onClick={routeTo(path)}>

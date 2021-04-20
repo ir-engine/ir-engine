@@ -1,4 +1,7 @@
-import { Button, InputAdornment, TextField, Typography } from '@material-ui/core';
+import Button from '@material-ui/core/Button';
+import InputAdornment from '@material-ui/core/InputAdornment';
+import TextField from '@material-ui/core/TextField';
+import Typography from '@material-ui/core/Typography';
 import { Check, Close, Create, GitHub, Send } from '@material-ui/icons';
 import { selectAuthState } from '../../../reducers/auth/selector';
 import { addConnectionByEmail, addConnectionBySms, loginUserByOAuth, logoutUser, removeUser, updateUserAvatarId, updateUsername, updateUserSettings } from '../../../reducers/auth/service';
@@ -69,6 +72,23 @@ const ProfileMenu = (props: Props): any => {
 
 	let type = '';
 
+	const loadCredentialHandler = async () => {
+		try {
+			if((window as any).credentialHandlerPolyfill){
+			await (window as any).credentialHandlerPolyfill.loadOnce();
+			console.log('Polyfill loaded.');
+			} else {
+				console.warn("CHAPI polyfill could not be loaded");
+			}
+		} catch(e) {
+			console.error('Error loading polyfill:', e);
+		}
+	};
+
+	useEffect(() => {
+		loadCredentialHandler();
+	}, []); // Only run once
+
 	useEffect(() => {
 		selfUser && setUsername(selfUser.name);
 	}, [selfUser.name]);
@@ -123,6 +143,31 @@ const ProfileMenu = (props: Props): any => {
 		else if (setProfileMenuOpen != null) setProfileMenuOpen(false);
 		await logoutUser();
 		window.location.reload();
+	};
+
+	const handleWalletLoginClick = async (e) => {
+		const domain = window.location.origin;
+		const challenge = '99612b24-63d9-11ea-b99f-4f66f3e4f81a'; // TODO: generate
+
+		console.log('Sending DIDAuth query...');
+
+		const didAuthQuery: any = {
+			web: {
+				VerifiablePresentation: {
+					query: [
+						{
+							type: 'DIDAuth'
+						}
+					],
+					challenge,
+					domain // e.g.: requestingparty.example.com
+				}
+			}
+		};
+
+		// Use Credential Handler API to authenticate
+		const result: any = await navigator.credentials.get(didAuthQuery);
+		console.log(result);
 	};
 
 	return (
@@ -188,6 +233,12 @@ const ProfileMenu = (props: Props): any => {
 							}}
 						/>
 					</form>
+				</section>}
+				{ selfUser?.userRole === 'guest' && <section className={styles.walletSection}>
+					<Typography variant="h3" className={styles.textBlock}>Or</Typography>
+					<Button onClick={handleWalletLoginClick} className={styles.walletBtn}>
+						Login with Wallet
+					</Button>
 				</section>}
 				{ selfUser?.userRole === 'guest' && <section className={styles.socialBlock}>
 					<Typography variant="h3" className={styles.textBlock}>Or connect with social accounts</Typography>

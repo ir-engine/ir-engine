@@ -14,7 +14,6 @@ import {
 import { makeStyles, createStyles, Theme, useTheme } from '@material-ui/core/styles';
 import { selectInviteState } from "../../../social/reducers/invite/selector";
 import { bindActionCreators, Dispatch } from "redux";
-import { withRouter, Router } from "next/router";
 import { connect } from "react-redux";
 import { Delete } from "@material-ui/icons";
 import { useConfirm } from "material-ui-confirm";
@@ -28,7 +27,6 @@ import TablePagination from '@material-ui/core/TablePagination';
 
 
 interface Props {
-  router: Router,
   receivedInvites?: any,
   retrieveReceivedInvites?: any,
   sendInvite?: any,
@@ -220,6 +218,6 @@ const SentInvite = (props: Props) => {
 };
 
 
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(SentInvite));
+export default connect(mapStateToProps, mapDispatchToProps)(SentInvite);
 
 

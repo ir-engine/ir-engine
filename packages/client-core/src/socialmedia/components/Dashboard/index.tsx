@@ -18,8 +18,7 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import SuperviosorAccount from "@material-ui/icons/SupervisorAccount";
 import DashboardIcon from "@material-ui/icons/Dashboard";
-import { useRouter } from "next/router";
-import Link from "next/link";
+import { Link } from "react-router-dom";
 import Backdrop from '@material-ui/core/Backdrop';
 import CircularProgress from '@material-ui/core/CircularProgress';
 
@@ -100,7 +99,6 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 export default function Dashboard({ children }) {
-    const router = useRouter();
     const classes = useStyles();
     const theme = useTheme();
     const [open, setOpen] = React.useState(false);
@@ -168,7 +166,7 @@ export default function Dashboard({ children }) {
                 </div>
                 <Divider />
                 <List>
-                    <Link href="/admin">
+                    <Link to="/admin">
                             <ListItem style={{ color: "white" }} onClick={changeComponent} button>
                                 <ListItemIcon >
                                     <DashboardIcon style={{ color: "white" }} />
@@ -176,7 +174,7 @@ export default function Dashboard({ children }) {
                                 <ListItemText primary="Dashboard" />
                             </ListItem>
                     </Link>
-                    <Link href="/admin/users" >
+                    <Link to="/admin/users" >
                         <ListItem style={{ color: "white" }} onClick={changeComponent} button>
                             <ListItemIcon >
                                 <SuperviosorAccount style={{ color: "white" }} />
@@ -184,7 +182,7 @@ export default function Dashboard({ children }) {
                             <ListItemText primary="Users" />
                         </ListItem>
                     </Link>
-                    <Link href="/admin/feeds">
+                    <Link to="/admin/feeds">
                         <ListItem style={{ color: "white"}} onClick={changeComponent} button>
                             <ListItemIcon >
                                 <ViewModuleIcon style={{ color: "white" }} />

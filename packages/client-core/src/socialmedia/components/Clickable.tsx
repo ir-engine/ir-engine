@@ -1,5 +1,5 @@
 import React from "react";
-import Link from "next/link";
+import { Link } from "react-router-dom";
 
 export function Clickable({
   href,
@@ -7,7 +7,7 @@ export function Clickable({
   ...props
 }: any) {
   return (
-    <Link href={href || ""}>
+    <Link to={href || ""}>
       <div {...props} style={{ cursor: "pointer" }}>
         {children}
       </div>

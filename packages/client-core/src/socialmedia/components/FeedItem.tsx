@@ -5,11 +5,12 @@ import { FeedItemButtons} from "./FeedItemButtons";
 import { FeedItemComment} from "./FeedItemComment";
 import { AddComment} from "./AddComment";
 import { FeedItemPhotos} from "./FeedItemPhotos";
-import Router from "next/router";
+import { useHistory } from "react-router-dom";
 import { ModalStateHook } from "./ModalHook";
 
 export function FeedItem({ data }) {
   const {hideModal, setModal } = ModalStateHook();
+  const history = useHistory();
 
   const moreClickEvent = () => {
     setModal(true, data);
@@ -34,7 +35,7 @@ export function FeedItem({ data }) {
         className="overflow-hidden mx-4 text-14-light cursor-pointer"
         style={{ color: "#9a9a9a", display: "flex" }}
         onClick={() =>
-          Router.push("/post/[pid]", `/post/${data?.pid || "post-test"}`)
+          history.push(`/post/${data?.pid || "post-test"}`)
         }
       >
         View all {data?.commentCount || "0"} comment
@@ -50,7 +51,7 @@ export function FeedItem({ data }) {
       <a
         className="feed-item-date-text cursor-pointer uppercase"
         onClick={() =>
-          Router.push("/post/[pid]", `/post/${data?.pid || "post-test"}`)
+          history.push(`/post/${data?.pid || "post-test"}`)
         }
       >
         {data.time}

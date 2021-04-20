@@ -9,7 +9,7 @@ import Typography from '@material-ui/core/Typography';
 import { selectDialogState } from '../../reducers/dialog/selector';
 import { closeDialog } from '../../reducers/dialog/service';
 import { bindActionCreators, Dispatch } from 'redux';
-import Router from 'next/router';
+import { useHistory } from 'react-router-dom';
 // @ts-ignore
 import styles from './Dialog.module.scss';
 
@@ -32,9 +32,10 @@ const DialogComponent = (props: Props): any => {
   const { dialog, closeDialog } = props;
   const isOpened = dialog.get('isOpened');
   const content = dialog.get('content');
+  const history = useHistory();
 
   useEffect(() => {
-    Router.events.on('routeChangeStart', () => {
+    history.listen(() => {
       closeDialog();
     });
   }, []);

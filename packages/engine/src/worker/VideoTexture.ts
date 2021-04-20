@@ -1,7 +1,7 @@
 
 /**
  * Proxies for offscreen threejs video texture
- * 
+ *
  * @author Josh Field <github.com/hexafield>
  */
 
@@ -60,7 +60,7 @@ export class VideoTextureProxy extends CanvasTexture {
       videoProxy._requestVideoFrameCallback(updateVideo);
     }
   }
-  clone(): VideoTextureProxy {
+  clone() {
     return (new VideoTextureProxy(this.videoProxy) as any).copy(this);
   }
 
