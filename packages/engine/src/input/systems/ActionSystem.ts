@@ -23,7 +23,7 @@ import { ClientNetworkSystem } from "../../networking/systems/ClientNetworkSyste
 import { EngineEvents } from "../../ecs/classes/EngineEvents";
 import { ClientInputSystem } from "./ClientInputSystem";
 
-var isBrowser=new Function("try {return this===window;}catch(e){ return false;}");
+const isBrowser=new Function("try {return this===window;}catch(e){ return false;}");
 
 let faceToInput, lipToInput, WEBCAM_INPUT_EVENTS;
 

@@ -14,7 +14,7 @@ import { addComponent, getMutableComponent } from '../../ecs/functions/EntityFun
 import { EngineEvents } from '../../ecs/classes/EngineEvents';
 import { InteractiveSystem } from '../../interaction/systems/InteractiveSystem';
 
-var isBrowser=new Function("try {return this===window;}catch(e){ return false;}");
+const isBrowser=new Function("try {return this===window;}catch(e){ return false;}");
 
 let DracosisPlayer = null;
 if (isBrowser())
