@@ -1,4 +1,4 @@
-export function CortoDecoder(data, byteOffset?, byteLength?) {
+export function CortoDecoder(data, byteOffset = null, byteLength = null) {
   if (byteOffset & 0x3) throw "Memory aligned on 4 bytes is mandatory";
   var t = this;
   var stream = t.stream = new Stream(data, byteOffset, byteLength);
@@ -672,7 +672,7 @@ NormalAttr.prototype.toOcta = function (i, input, o, output, unit) {
 /* INDEX ATTRIBUTE */
 
 
-function IndexAttr(nvert, nface, type?) {
+function IndexAttr(nvert, nface, type = null) {
   var t = this;
   if (!type && nface < 1 << 16 || type == 0) //uint16
     t.faces = new Uint16Array(nface * 3);else if (!type || type == 2) //uint32 

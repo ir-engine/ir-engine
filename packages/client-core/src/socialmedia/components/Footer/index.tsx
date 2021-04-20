@@ -15,7 +15,7 @@ import { selectCreatorsState } from "../../reducers/creator/selector";
 import { getLoggedCreator } from "../../reducers/creator/service";
 import { selectAuthState } from "../../../user/reducers/auth/selector";
 import { PopupLogin } from "../PopupLogin/PopupLogin";
-import IndexPage from "@xr3ngine/social/pages/login";
+// import IndexPage from "@xr3ngine/social/pages/login";
 
 const mapStateToProps = (state: any): any => {
   return {
@@ -39,7 +39,7 @@ const AppFooter = ({creatorState, getLoggedCreator,authState}: any) => {
     <nav className={styles.footerContainer}>
         <HomeIcon onClick={()=> {checkGuest ? setButtonPopup(true) : history.push('/');}} fontSize="large" className={styles.footerItem}/>
         <PopupLogin trigger={buttonPopup} setTrigger={setButtonPopup}>
-          <IndexPage />
+          {/* <IndexPage /> */}
         </PopupLogin>
         <AddCircleIcon onClick={()=> {checkGuest ? setButtonPopup(true) : history.push('/newfeed');}} style={{fontSize: '5em'}} className={styles.footerItem}/>
         {creator && <WhatshotIcon htmlColor="#FF6201" onClick={()=>{checkGuest ? setButtonPopup(true) : history.push('/notifications');}} /> }

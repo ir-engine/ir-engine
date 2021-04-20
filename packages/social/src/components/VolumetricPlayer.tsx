@@ -2,7 +2,6 @@ import CanvasPlayer from "@xr3ngine/volumetric/src/CanvasPlayer";
 
 import React, { useEffect, useRef, useState } from 'react';
 import { PerspectiveCamera, Scene, sRGBEncoding, Vector3, WebGLRenderer } from "three";
-// import { THREETrackballControls } from "@xr3ngine/engine/src/input/classes/THREETrackballControls";
 
 interface VolumetricPlayerProps extends React.HTMLAttributes<any> {
   meshFilePath: string,

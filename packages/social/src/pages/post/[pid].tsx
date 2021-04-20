@@ -1,10 +1,9 @@
 import React from "react";
-import { useRouter } from "next/router";
+import { useLocation } from "react-router-dom";
 import AppHeader from "@xr3ngine/client-core/src/socialmedia/components/Header";
 
 export default function PostPage() {
-  const router = useRouter();
-  const { pid } = router.query;
+  const pid = new URLSearchParams(useLocation().search).get('pid').toString();
 
   return (
     <div className="container">

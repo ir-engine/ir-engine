@@ -2,7 +2,6 @@ import { CortoDecoder } from "./corto";
 let _meshFilePath;
 let fetchLoop;
 let lastRequestedKeyframe = 0;
-let _numberOfKeyframes;
 let _lastFrameId;
 let _fileHeader;
 function startFetching({
@@ -12,15 +11,14 @@ function startFetching({
   fileHeader
 }) {
   _meshFilePath = meshFilePath;
-  _numberOfKeyframes = numberOfKeyframes;
   _lastFrameId = numberOfKeyframes - 1;
   _fileHeader = fileHeader;
-  (globalThis as any).postMessage({ type: "initialized" });
+  globalThis.postMessage({ type: "initialized" });
 
 
   fetchLoop = async () => {
     if (lastRequestedKeyframe >= _lastFrameId) {
-      (globalThis as any).postMessage({ type: "complete" });
+      globalThis.postMessage({ type: "complete" });
       return;
     }
 
@@ -52,7 +50,7 @@ function startFetching({
       }).catch(err=> {console.error("WORKERERROR: ", err)});
 
     let messages = []
-    const buffer = await (response as Response).arrayBuffer().catch(err => {console.error("Weird error", err)});
+    const buffer = await response.arrayBuffer().catch(err => {console.error("Weird error", err)});
     for (let i = startFrame; i <= endFrame; i++) {
 
       const currentFrameData = _fileHeader.frameData[i];
@@ -62,10 +60,9 @@ function startFetching({
 
       // console.log("fileReadStartPosition", fileReadStartPosition);
       // console.log("fileReadEndPosition", fileReadEndPosition);
-      const sliced = (buffer as ArrayBuffer).slice(fileReadStartPosition, fileReadEndPosition);
+      const sliced = buffer.slice(fileReadStartPosition, fileReadEndPosition);
 
       let decoder = new CortoDecoder(sliced);
-
 
       let bufferGeometry = decoder.decode();
 
@@ -79,14 +76,14 @@ function startFetching({
       messages.push(bufferObject);
     }
     // console.log("Posting payload", messages);
-    (globalThis as any).postMessage({ type: 'framedata', payload: messages });
+    globalThis.postMessage({ type: 'framedata', payload: messages });
     fetchLoop();
   }
   fetchLoop();
 
 }
 
-(globalThis as any).onmessage = function (e) {
+globalThis.onmessage = function (e) {
   // console.log('Received input: ', e.data); // message received from main thread
   if (e.data.type === 'initialize')
     startFetching(e.data.payload);

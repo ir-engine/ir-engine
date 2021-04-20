@@ -1,10 +1,10 @@
 import  AppHeader  from "@xr3ngine/client-core/src/socialmedia/components/Header";
-import { useRouter } from "next/router";
+import { useLocation } from "react-router-dom";
 import React from "react";
 
 export default function ProfilePage() {
-  const router = useRouter();
-  const { pid } = router.query;
+
+  const pid = new URLSearchParams(useLocation().search).get('pid').toString();
 
   return (
     <div className="container">

@@ -16,6 +16,7 @@ import {
   KeyframeBuffer
 } from './Interfaces';
 import RingBuffer from './RingBuffer';
+import Worker from './workerFunction?worker'
 
 type AdvancedHTMLVideoElement = HTMLVideoElement & { requestVideoFrameCallback: (callback: (number, { }) => void) => void };
 type onMeshBufferingCallback = (progress: number) => void;

@@ -8,7 +8,7 @@ import styles from './NewComment.module.scss';
 import { addCommentToFeed } from '../../reducers/feedComment/service';
 import { selectAuthState } from '../../../user/reducers/auth/selector';
 import PopupLogin from '../PopupLogin/PopupLogin';
-import { IndexPage } from '@xr3ngine/social/pages/login';
+// import { IndexPage } from '@xr3ngine/social/pages/login';
 
 const mapStateToProps = (state: any): any => {
     return {

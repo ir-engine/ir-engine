@@ -15,9 +15,6 @@ kubernetes/**
 .vscode
 config/prod.json
 
-.next/
-client/.next/
-packages/client/.next/
 .env
 .env.local
 .idea/

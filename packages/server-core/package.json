@@ -33,8 +33,8 @@
   "jest": "ts-jest",
   "scripts": {
     "start": "yarn run build && node dist/server.js",
-    "dev": "cross-env NODE_ENV=development webpack --watch --mode=development",
-    "dev-reinit-db": "cross-env NODE_ENV=development FORCE_DB_REFRESH=true webpack --watch --mode=development",
+    "dev": "cross-env NODE_ENV=development vite",
+    "dev-reinit-db": "cross-env NODE_ENV=development FORCE_DB_REFRESH=true vite",
     "test": "echo \"TODO: no test specified\" && exit 0",
     "build-publish": "rimraf dist && ctix entrypoint ./src && cross-env NODE_ENV=production rollup -c",
     "localbuild": "yarn build && cross-env LOCAL_BUILD=true yarn start",
@@ -96,7 +96,6 @@
     "cannon-es-debugger": "^0.1.0",
     "chargebee": "^2.5.7",
     "child_process": "1.0.2",
-    "clean-webpack-plugin": "^3.0.0",
     "comlink": "^4.3.0",
     "compression": "^1.7.4",
     "cors": "^2.8.5",
@@ -113,7 +112,6 @@
     "feathers-sequelize": "https://github.com/feathersjs-ecosystem/feathers-sequelize.git",
     "feathers-swagger": "^1.2.1",
     "feathers-sync": "^2.1.0",
-    "fork-ts-checker-webpack-plugin": "^6.0.0",
     "fs-blob-store": "6.0.0",
     "helmet": "4.5.0",
     "http-server": "^0.12.3",
@@ -175,16 +173,13 @@
     "feathers-cli": "2.4.0",
     "no-master-commits": "1.1.1",
     "nodemon": "2.0.7",
-    "nodemon-webpack-plugin": "4.5.2",
     "rollup-plugin-babel": "4.4.0",
     "rollup-plugin-livereload": "2.0.0",
     "rollup-plugin-terser": "7.0.2",
     "rollup-plugin-typescript2": "0.30.0",
     "ts-loader": "9.0.0",
     "typedoc": "0.20.35",
-    "typescript": "4.2.4",
-    "webpack": "5.34.0",
-    "webpack-cli": "4.6.0"
+    "typescript": "4.2.4"
   },
   "gitHead": "5ff55be1619e188226c4ac91c92a44b7ba18edf4"
 }
