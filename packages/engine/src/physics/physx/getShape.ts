@@ -49,14 +49,18 @@ const getGeometry = ({ shape, transform, options }): PhysX.PxGeometry => {
     case PhysXModelShapes.Plane:
       geometry = new PhysX.PxPlaneGeometry();
       break;
-    case PhysXModelShapes.TriangleMesh: geometry = createTrimesh(transform, PhysXManager.instance.cooking, PhysXManager.instance.physics, vertices, indices); break;
-    default: case PhysXModelShapes.ConvexMesh: geometry = createConvexMesh(transform, PhysXManager.instance.cooking, PhysXManager.instance.physics, vertices); break;
+    case PhysXModelShapes.TriangleMesh:
+      geometry = createTrimesh(transform, PhysXManager.instance.cooking, PhysXManager.instance.physics, vertices, indices);
+      break;
+    default:
+    case PhysXModelShapes.ConvexMesh:
+      geometry = createConvexMesh(transform, PhysXManager.instance.cooking, PhysXManager.instance.physics, vertices);
+      break;
   }
   return geometry;
 };
 
 const createTrimesh = (transform: PhysXBodyTransform, cooking: PhysX.PxCooking, physics: PhysX.PxPhysics, vertices: ArrayLike<number>, indices: ArrayLike<number>): PhysX.PxTriangleMeshGeometry => {
-
   const verticesPtr = createArrayPointers(vertices);
   const indicesPtr = createArrayPointers(indices);
   const trimesh = cooking.createTriMesh(verticesPtr, vertices.length / 3, indicesPtr, indices.length / 3, false, physics);

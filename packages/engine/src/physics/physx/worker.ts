@@ -115,7 +115,7 @@ export class PhysXManager {
     this.scene = this.physics.createScene(this.sceneDesc);
     this.controllerManager = PhysX.PxCreateControllerManager(this.scene, false);
 
-    if(config.start) {
+    if (config.start) {
       this.startPhysX(true);
     }
   };
@@ -343,7 +343,7 @@ export class PhysXManager {
 
   createController = async ({ id, config }: { id: number; config: ControllerConfig }) => {
     const controllerDesc = config.isCapsule ? new PhysX.PxCapsuleControllerDesc() : new PhysX.PxBoxControllerDesc();
-    controllerDesc.position = (config.position as Vec3) ?? { x: 0, y: 0, z: 0 };
+    controllerDesc.position = { x: config.position?.x ?? 0, y: config.position?.y ?? 0, z: config.position?.z ?? 0 };
     if (config.isCapsule) {
       (controllerDesc as PhysX.PxCapsuleControllerDesc).height = config.height;
       (controllerDesc as PhysX.PxCapsuleControllerDesc).radius = config.radius;

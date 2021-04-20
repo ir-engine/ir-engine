@@ -8,7 +8,7 @@ const pos = new Vector3();
 const rot = new Quaternion();
 const scale = new Vector3(1, 1, 1);
 
-export const getShapes = (object: any) => {
+export const getShapesFromObject = (object: any) => {
   const shapes: PhysXShapeConfig[] = [];
   object.updateMatrixWorld(true);
   iterateGeometries(object, { includeInvisible: true }, (data) => {
@@ -25,9 +25,9 @@ export const createShapeFromConfig = (shape) => {
   shape.config = getShapeConfig(shape ?? {});
   shape.config.id = id;
   return shape;
-}
+};
 
-const createShapes = (mesh, root): PhysXShapeConfig[] => {
+const createShapesFromUserData = (mesh, root): PhysXShapeConfig[] => {
   if (!mesh.userData.physx) {
     mesh.userData.physx = {};
   }
@@ -45,8 +45,7 @@ const createShapes = (mesh, root): PhysXShapeConfig[] => {
       data.config.id = id;
       shapes.push(data);
     });
-  } 
-  else {
+  } else {
     const data = getThreeGeometryShape(mesh);
     if (!data) return [];
     const transform = getTransformRelativeToRoot(mesh, root);
@@ -65,7 +64,7 @@ export const iterateGeometries = (function () {
   return function (root, options, cb) {
     root.traverse((mesh: Mesh) => {
       if (mesh.isMesh && (options.includeInvisible || mesh.visible)) {
-        cb(createShapes(mesh, root));
+        cb(createShapesFromUserData(mesh, root));
       }
     });
   };
@@ -166,6 +165,7 @@ const getBoxExtents = function (mesh: Mesh) {
 };
 const matrix = new Matrix4();
 export const getTransformFromWorldPos = (obj: Object3D) => {
+  obj.updateWorldMatrix(true, true);
   obj.matrixWorld.decompose(pos, rot, scale);
   return {
     translation: { x: pos.x, y: pos.y, z: pos.z },
