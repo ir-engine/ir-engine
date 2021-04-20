@@ -1,5 +1,5 @@
 import { Behavior } from '../../common/interfaces/Behavior';
-import { addColliderWithoutEntity } from '../../physics/behaviors/addColliderWithoutEntity';
+import { addColliderWithoutEntity } from '../../physics/behaviors/colliderCreateFunctions';
 
 /**
  * @author HydraFire <github.com/HydraFire>

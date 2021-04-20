@@ -5,7 +5,7 @@ import { getComponent, getMutableComponent, hasComponent } from '../../ecs/funct
 import { Network } from '../../networking/classes/Network';
 import { NetworkObject } from '../../networking/components/NetworkObject';
 import { CharacterComponent } from '../../templates/character/components/CharacterComponent';
-import { CapsuleCollider } from '../components/CapsuleCollider';
+import { ControllerColliderComponent } from '../components/ControllerColliderComponent';
 import { ColliderComponent } from '../components/ColliderComponent';
 import { InterpolationComponent } from '../components/InterpolationComponent';
 import { TransformComponent } from '../../transform/components/TransformComponent';
@@ -31,7 +31,7 @@ export const interpolationBehavior: Behavior = (entity: Entity, args): void => {
   // FOR CHARACTERS
   if (hasComponent(entity, CharacterComponent)) {
     const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
-    const capsule = getMutableComponent<CapsuleCollider>(entity, CapsuleCollider);
+    const capsule = getMutableComponent<ControllerColliderComponent>(entity, ControllerColliderComponent);
     /*
     if (actor.actorCapsule.body.mass > 0) {
       actor.actorCapsule.body.mass = 0;

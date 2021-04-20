@@ -4,7 +4,7 @@ import { Entity } from '../../ecs/classes/Entity';
 import { getComponent, getMutableComponent, hasComponent } from '../../ecs/functions/EntityFunctions';
 import { LocalInputReceiver } from '../../input/components/LocalInputReceiver';
 import { CharacterComponent } from '../../templates/character/components/CharacterComponent';
-import { CapsuleCollider } from '../components/CapsuleCollider';
+import { ControllerColliderComponent } from '../components/ControllerColliderComponent';
 import { Engine } from '../../ecs/classes/Engine';
 import { TransformComponent } from '../../transform/components/TransformComponent';
 import { VehicleComponent } from '../../templates/vehicle/components/VehicleComponent';
@@ -29,8 +29,8 @@ let correctionSpeed = 180;
 export const serverCorrectionInterpolationBehavior: Behavior = (entity: Entity, args): void => {
   if (args.correction == null || args.snapshot == null) return;
 
-  if (hasComponent(entity, CapsuleCollider)) {
-    const capsule = getComponent<CapsuleCollider>(entity, CapsuleCollider);
+  if (hasComponent(entity, ControllerColliderComponent)) {
+    const capsule = getComponent<ControllerColliderComponent>(entity, ControllerColliderComponent);
     const transform = getComponent<TransformComponent>(entity, TransformComponent);
     const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
     if (!actor.initialized) return;
@@ -159,8 +159,8 @@ export const serverCorrectionInterpolationBehavior: Behavior = (entity: Entity, 
 
 export const createNewCorrection: Behavior = (entity: Entity, args): void => {
   //
-  if (hasComponent(entity, CapsuleCollider)) {
-    const capsule = getComponent<CapsuleCollider>(entity, CapsuleCollider);
+  if (hasComponent(entity, ControllerColliderComponent)) {
+    const capsule = getComponent<ControllerColliderComponent>(entity, ControllerColliderComponent);
     args.state.push({
        networkId: args.networkId,
        x: capsule.body.position.x,

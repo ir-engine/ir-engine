@@ -7,15 +7,14 @@ import { Entity } from "../../ecs/classes/Entity";
 import { TransformComponent } from "../../transform/components/TransformComponent";
 import { BoundingBox } from "../../interaction/components/BoundingBox";
 import { Object3DComponent } from "../../scene/components/Object3DComponent";
-import { CannonDebugRenderer} from './CannonDebugRenderer';
-import { PhysicsSystem } from "../../physics/systems/PhysicsSystem";
 import { EngineEvents } from "../../ecs/classes/EngineEvents";
+import { DebugRenderer } from "../../physics/physx";
 
 type ComponentHelpers = 'viewVector' | 'velocityArrow';
 
 export class DebugHelpersSystem extends System {
   private helpersByEntity: Record<ComponentHelpers, Map<Entity,Object3D>>;
-  physicsDebugRenderer: CannonDebugRenderer;
+  physicsDebugRenderer: DebugRenderer;
   static instance: DebugHelpersSystem;
   static EVENTS = {
     TOGGLE_PHYSICS: 'DEBUG_HELPERS_SYSTEM_TOGGLE_PHYSICS',
@@ -25,7 +24,7 @@ export class DebugHelpersSystem extends System {
   constructor() {
     super();
     DebugHelpersSystem.instance = this;
-    this.physicsDebugRenderer = new CannonDebugRenderer(Engine.scene, PhysicsSystem.physicsWorld)
+    this.physicsDebugRenderer = new DebugRenderer(Engine.scene);
 
     this.helpersByEntity = {
       viewVector: new Map(),

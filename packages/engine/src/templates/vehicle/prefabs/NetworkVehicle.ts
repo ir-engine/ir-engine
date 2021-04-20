@@ -1,4 +1,4 @@
-import { Body, Vec3 } from 'cannon-es';
+// import { Body, Vec3 } from 'cannon-es';
 import { Engine } from "../../../ecs/classes/Engine";
 import { Entity } from "../../../ecs/classes/Entity";
 import { isClient } from "../../../common/functions/isClient";
@@ -10,7 +10,6 @@ import { Input } from '../../../input/components/Input';
 import { Interactable } from '../../../interaction/components/Interactable';
 import { TransformComponent } from '../../../transform/components/TransformComponent';
 import { InterpolationComponent } from "../../../physics/components/InterpolationComponent";
-import { createTrimeshFromArrayVertices, createTrimeshFromMesh, createCylinderCollider, createBoxCollider, createSphereCollider } from '../../../physics/behaviors/addColliderWithoutEntity';
 import { getInCar } from '../behaviors/getInCarBehavior';
 import { getInCarPossible } from '../behaviors/getInCarPossible';
 import { VehicleComponent } from "../components/VehicleComponent";
@@ -125,55 +124,58 @@ export const parseCarModel = ( groupMeshes: any, notEditor = true) => {
 
 
 function addCollidersShapeInOneBody( entity: Entity, addShapeArray, mass = 0) {
-  console.warn(mass);
-  const body = new Body({mass});
-  for (let i = 0; i < addShapeArray.length; i++) {
-    const shape = addCollidersToNetworkVehicle({ entity,
-      parameters: {
-        type: addShapeArray[i].userData.type,
-        scale: addShapeArray[i].scale,
-        position: addShapeArray[i].position,
-        quaternion: addShapeArray[i].quaternion,
-        mesh: addShapeArray[i].userData.type === 'trimesh' ? addShapeArray[i] : null
-      }
-    });
-    body.addShape(shape.shape, new Vec3(shape.position.x, shape.position.y, shape.position.z));
-  }
-  return body;
+
+  throw new Error('VEHICLES NOT IMPLEMENTED - PHYSX REFACTOR')
+  // console.warn(mass);
+  // const body = new Body({mass});
+  // for (let i = 0; i < addShapeArray.length; i++) {
+  //   const shape = addCollidersToNetworkVehicle({ entity,
+  //     parameters: {
+  //       type: addShapeArray[i].userData.type,
+  //       scale: addShapeArray[i].scale,
+  //       position: addShapeArray[i].position,
+  //       quaternion: addShapeArray[i].quaternion,
+  //       mesh: addShapeArray[i].userData.type === 'trimesh' ? addShapeArray[i] : null
+  //     }
+  //   });
+  //   body.addShape(shape.shape, new Vec3(shape.position.x, shape.position.y, shape.position.z));
+  // }
+  // return body;
 }
 
 export function addCollidersToNetworkVehicle( args:{ parameters?: any, entity?: Entity }) {
-  let shape = null;
-  switch (args.parameters.type) {
-    case 'box':
-      shape = createBoxCollider(args.parameters.scale);
-      break;
+  throw new Error('VEHICLES NOT IMPLEMENTED - PHYSX REFACTOR')
+  // let shape = null;
+  // switch (args.parameters.type) {
+  //   case 'box':
+  //     shape = createBoxCollider(args.parameters.scale);
+  //     break;
 
-    case 'cylinder':
-      shape = createCylinderCollider(args.parameters.scale);
-      break;
+  //   case 'cylinder':
+  //     shape = createCylinderCollider(args.parameters.scale);
+  //     break;
 
-    case 'sphere':
-      shape = createSphereCollider(args.parameters.scale);
-      break;
+  //   case 'sphere':
+  //     shape = createSphereCollider(args.parameters.scale);
+  //     break;
 
-    case 'trimesh':
-			if (args.parameters.mesh != null && args.parameters.mesh != undefined) {
-				shape = createTrimeshFromMesh(args.parameters.mesh);
-			} else if (args.parameters.vertices != null && args.parameters.vertices != undefined) {
-				shape = createTrimeshFromArrayVertices(args.parameters.vertices, args.parameters.indices);
-			} else {
-				console.warn('!!! dont have any mesh or vertices array to create trimesh');
-				return;
-			}
-      break;
+  //   case 'trimesh':
+	// 		if (args.parameters.mesh != null && args.parameters.mesh != undefined) {
+	// 			shape = createTrimeshFromMesh(args.parameters.mesh);
+	// 		} else if (args.parameters.vertices != null && args.parameters.vertices != undefined) {
+	// 			shape = createTrimeshFromArrayVertices(args.parameters.vertices, args.parameters.indices);
+	// 		} else {
+	// 			console.warn('!!! dont have any mesh or vertices array to create trimesh');
+	// 			return;
+	// 		}
+  //     break;
 
-    default:
-      console.warn('create Collider undefined type !!!');
-      shape = createBoxCollider(args.parameters.scale || {x:1, y:1, z:1});
-      break;
-  }
-  return { shape: shape, position: args.parameters.position};
+  //   default:
+  //     console.warn('create Collider undefined type !!!');
+  //     shape = createBoxCollider(args.parameters.scale || {x:1, y:1, z:1});
+  //     break;
+  // }
+  // return { shape: shape, position: args.parameters.position};
 }
 
 export function createVehicleFromSceneData( entity: Entity, args: any) {

@@ -2,10 +2,11 @@
 import { Types } from '../../../ecs/types/Types';
 import { Component } from '../../../ecs/classes/Component';
 import { Vector3, Group, Material, AnimationMixer, Mesh, BoxBufferGeometry, AnimationAction } from 'three';
-import { CapsuleCollider } from '../../../physics/components/CapsuleCollider';
+import { ControllerColliderComponent } from '../../../physics/components/ControllerColliderComponent';
 import { VectorSpringSimulator } from '../../../physics/classes/VectorSpringSimulator';
 import { RelativeSpringSimulator } from '../../../physics/classes/SpringSimulator';
-import { RaycastResult, Vec3 } from 'cannon-es';
+// import { RaycastResult, Vec3 } from 'cannon-es';
+import { Transform } from '../../../physics/physx';
 
 // idle|   idle  +  walk     |    walk      |    walk + run     |   run
 // 0   | > WALK_START_SPEED  | > WALK_SPEED | > RUN_START_SPEED | > RUN_SPEED
@@ -74,7 +75,7 @@ export class CharacterComponent extends Component<CharacterComponent> {
 	public viewVector: Vector3;
 	public changedViewAngle = 0;
 	public actions: any;
-	public actorCapsule: CapsuleCollider;
+	public actorCapsule: ControllerColliderComponent;
 
 	// Actor collision Capsule
 	public actorMass = 1;
@@ -82,13 +83,13 @@ export class CharacterComponent extends Component<CharacterComponent> {
 	public capsuleRadius = 0.25;
 	public capsuleSegments = 8;
 	public capsuleFriction = 0.1;
-	public capsulePosition: Vec3 = new Vec3();
+	public capsulePosition: Transform;
 	// Ray casting
 	public rayResult: RaycastResult = new RaycastResult();
-	public rayDontStuckX: RaycastResult = new RaycastResult();
-	public rayDontStuckZ: RaycastResult = new RaycastResult();
-	public rayDontStuckXm: RaycastResult = new RaycastResult();
-	public rayDontStuckZm: RaycastResult = new RaycastResult();
+	// public rayDontStuckX: RaycastResult = new RaycastResult();
+	// public rayDontStuckZ: RaycastResult = new RaycastResult();
+	// public rayDontStuckXm: RaycastResult = new RaycastResult();
+	// public rayDontStuckZm: RaycastResult = new RaycastResult();
 	public rayHasHit = false;
 	public rayGroundHit = false;
 	public rayGroundY = null;
@@ -102,7 +103,6 @@ export class CharacterComponent extends Component<CharacterComponent> {
 
 	public controlledObject: any;
 
-	public raycastBox: Mesh;
   public vehicleEntryInstance: any;
   public occupyingSeat: any;
   quaternion: any;

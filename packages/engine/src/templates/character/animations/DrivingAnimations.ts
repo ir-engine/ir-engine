@@ -140,7 +140,7 @@ const getDrivingValues: Behavior = (entity, args: {}, deltaTime: number): any =>
   const testDrive = playerInCar.networkCarId != undefined;
   const entityCar = Network.instance.networkObjects[playerInCar.networkCarId].component.entity;
 //  const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
-//  PhysicsSystem.physicsWorld.removeBody(actor.actorCapsule.body);
+//  PhysicsSystem.instance.removeBody(actor.actorCapsule.body);
 
   //const orientation = positionEnter(entity, entityCar, seat);
   //getMutableComponent(entity, PlayerInCar).state = 'onAddInCar';

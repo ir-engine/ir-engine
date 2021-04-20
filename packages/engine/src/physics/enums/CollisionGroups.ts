@@ -4,9 +4,9 @@
  */
 
 export enum CollisionGroups {
-	Default = 1,
-	Characters = 2,
-	Car = 4,
-	TrimeshColliders = 8,
-	ActiveCollider = 16
+	Default = 1 << 0,
+	Characters = 1 << 1,
+	Car = 1 << 2,
+	TrimeshColliders = 1 << 3,
+	ActiveCollider = 1 << 4
 }

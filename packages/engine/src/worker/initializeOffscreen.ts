@@ -30,6 +30,8 @@ import { receiveWorker } from './MessageQueue';
 import { AnimationManager } from '../templates/character/prefabs/NetworkPlayerCharacter';
 import { CharacterControllerSystem } from '../character/CharacterControllerSystem';
 import { UIPanelSystem } from '../ui/systems/UIPanelSystem';
+import PhysXWorker from './physics/physx/worker?worker';
+import { PhysXInstance } from '../physics/physx';
 
 
 Mesh.prototype.raycast = acceleratedRaycast;
@@ -62,6 +64,8 @@ const initializeEngineOffscreen = async ({ canvas, userArgs }, proxy: MainProxy)
   Network.instance.transport = { isServer: false }
 
   registerSystem(PhysicsSystem);
+  PhysXInstance.instance = new PhysXInstance(new PhysXWorker());
+  await PhysXInstance.instance.initPhysX({ jsPath: '/physx/physx.release.js', wasmPath: '/physx/physx.release.wasm' });
   registerSystem(ActionSystem, { useWebXR: false });
   registerSystem(StateSystem);
   registerSystem(CharacterControllerSystem);

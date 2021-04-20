@@ -219,6 +219,10 @@ export const initializeServer = async (initOptions: any = DefaultInitializationO
   registerSystem(StateSystem);
   registerSystem(CharacterControllerSystem);
   registerSystem(PhysicsSystem);
+
+  PhysXInstance.instance = new PhysXInstance(new PhysXWorker());
+  await PhysXInstance.instance.initPhysX({ jsPath: Engine.publicPath + '/physx/physx.release.js', wasmPath: Engine.publicPath + '/physx/physx.release.wasm' });
+  
   registerSystem(ServerSpawnSystem, { priority: 899 });
   registerSystem(TransformSystem, { priority: 900 });
 

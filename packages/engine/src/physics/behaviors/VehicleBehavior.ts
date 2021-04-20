@@ -1,4 +1,3 @@
-import { RaycastVehicle, Vec3  } from "cannon-es";
 import { isServer } from "../../common/functions/isServer";
 import { Behavior } from '../../common/interfaces/Behavior';
 import { Entity } from '../../ecs/classes/Entity';
@@ -8,6 +7,7 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { CollisionGroups } from "../enums/CollisionGroups";
 import { PhysicsSystem } from '../systems/PhysicsSystem';
 import { PhysicsLifecycleState } from "../enums/PhysicsStates";
+import { Vector3 } from "three";
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -16,9 +16,9 @@ import { PhysicsLifecycleState } from "../enums/PhysicsStates";
 function createVehicleComponent (entity: Entity ) {
   const vehicleComponent = getMutableComponent<VehicleComponent>(entity, VehicleComponent);
   // @ts-ignore
-  const colliderTrimOffset = new Vec3().set(...vehicleComponent.colliderTrimOffset);
+  const colliderTrimOffset = new Vector3().set(...vehicleComponent.colliderTrimOffset);
   // @ts-ignore
-  const collidersSphereOffset = new Vec3().set(...vehicleComponent.collidersSphereOffset);
+  const collidersSphereOffset = new Vector3().set(...vehicleComponent.collidersSphereOffset);
   const wheelsPositions = vehicleComponent.arrayWheelsPosition;
   const wheelRadius = vehicleComponent.wheelRadius;
   const chassisBody = vehicleComponent.vehicleCollider;
@@ -30,7 +30,7 @@ function createVehicleComponent (entity: Entity ) {
 
   const options = {
     radius: wheelRadius,
-    directionLocal: new Vec3(0, -1, 0),
+    directionLocal: new Vector3(0, -1, 0),
     suspensionStiffness: 30,
     suspensionRestLength: vehicleComponent.suspensionRestLength,
     frictionSlip: 5,
@@ -38,25 +38,27 @@ function createVehicleComponent (entity: Entity ) {
     dampingCompression: 1.4,
     maxSuspensionForce: 100000,
     rollInfluence: 0.01,
-    axleLocal: new Vec3(-1, 0, 0),
-    chassisConnectionPointLocal: new Vec3(),
+    axleLocal: new Vector3(-1, 0, 0),
+    chassisConnectionPointLocal: new Vector3(),
     maxSuspensionTravel: 0.3,
     customSlidingRotationalSpeed: -30,
     useCustomSlidingRotationalSpeed: true
   };
 
-  // Create the vehicle
-  const vehicle = new RaycastVehicle({
-    chassisBody: chassisBody,
-    indexUpAxis: 1,
-    indexRightAxis: 0,
-    indexForwardAxis: 2
-  });
+  // TODO: implement vehicles in physx
 
-  for (let i = 0; i < wheelsPositions.length; i++) {
-    options.chassisConnectionPointLocal.set( wheelsPositions[i][0], wheelsPositions[i][1], wheelsPositions[i][2]);
-    vehicle.addWheel(options);
-  }
+  // // Create the vehicle
+  // const vehicle = new RaycastVehicle({
+  //   chassisBody: chassisBody,
+  //   indexUpAxis: 1,
+  //   indexRightAxis: 0,
+  //   indexForwardAxis: 2
+  // });
+
+  // for (let i = 0; i < wheelsPositions.length; i++) {
+  //   options.chassisConnectionPointLocal.set( wheelsPositions[i][0], wheelsPositions[i][1], wheelsPositions[i][2]);
+  //   vehicle.addWheel(options);
+  // }
 
 
   /*
@@ -74,14 +76,15 @@ function createVehicleComponent (entity: Entity ) {
     }
   */
 
-  vehicle.addToWorld(PhysicsSystem.physicsWorld);
+  // vehicle.addToWorld(PhysicsSystem.instance);
 
 /*
   for (let i = 0; i < wheelBodies.length; i++) {
-    PhysicsSystem.physicsWorld.addBody(wheelBodies[i]);
+    PhysicsSystem.instance.addBody(wheelBodies[i]);
   }
   */
-  return vehicle;
+  // return vehicle;
+  return null;
 }
 
 export const VehicleBehavior: Behavior = (entity: Entity, args): void => {
@@ -151,7 +154,7 @@ export const VehicleBehavior: Behavior = (entity: Entity, args): void => {
     }
     const body = object.userData.vehicle;
     delete object.userData.vehicle;
-    PhysicsSystem.physicsWorld.removeBody(body);
+    PhysicsSystem.instance.removeBody(body);
     */
   }
 };

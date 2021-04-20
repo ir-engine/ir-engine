@@ -1,6 +1,6 @@
 import { Behavior } from '../../common/interfaces/Behavior';
 import { Entity } from '../../ecs/classes/Entity';
-import { addColliderWithoutEntity } from '../../physics/behaviors/addColliderWithoutEntity';
+import { addColliderWithoutEntity } from '../../physics/behaviors/colliderCreateFunctions';
 import { createNetworkRigidBody } from '../../interaction/prefabs/NetworkRigidBody';
 import { addCollidersToNetworkVehicle } from '../../templates/vehicle/prefabs/NetworkVehicle';
 

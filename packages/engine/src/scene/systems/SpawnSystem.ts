@@ -7,7 +7,7 @@ import { TransformComponent } from "../../transform/components/TransformComponen
 import SpawnPointComponent from "../components/SpawnPointComponent";
 import TeleportToSpawnPoint from "../components/TeleportToSpawnPoint";
 import { Engine } from "../../ecs/classes/Engine";
-import { CapsuleCollider } from "../../physics/components/CapsuleCollider";
+import { ControllerColliderComponent } from "../../physics/components/ControllerColliderComponent";
 
 //import { CharacterComponent } from '../../templates/character/components/CharacterComponent';
 
@@ -49,7 +49,7 @@ export class ServerSpawnSystem extends System {
             this.spawnPoints.push(entity);
         });
         this.queryResults.toBeSpawned.all?.forEach(entity => {
-          const capsule = getMutableComponent(entity, CapsuleCollider);
+          const capsule = getMutableComponent(entity, ControllerColliderComponent);
           // on production is NaN at start (dont know why)
           isNaN(this.lastSpawnIndex) ? this.lastSpawnIndex = 0:'';
           let spawnTransform = { position: { x: 0, y: 0, z: 0 } };
@@ -74,7 +74,7 @@ export class ServerSpawnSystem extends System {
 
 ServerSpawnSystem.queries = {
     toBeSpawned: {
-        components: [TeleportToSpawnPoint, CapsuleCollider],
+        components: [TeleportToSpawnPoint, ControllerColliderComponent],
         listen: {
             added: true,
             removed: true

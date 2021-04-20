@@ -1,5 +1,5 @@
-import CANNON, { Body, ContactMaterial, Material, SAPBroadphase, Shape, Vec3, World } from 'cannon-es';
-import { Mesh, Vector3 } from 'three';
+// import CANNON, { Body, ContactMaterial, Material, SAPBroadphase, Shape, Vec3, World } from 'cannon-es';
+import { Mesh, Quaternion, Vector3 } from 'three';
 import { isServer } from '../../common/functions/isServer';
 import { Not } from '../../ecs/functions/ComponentFunctions';
 import { Engine } from '../../ecs/classes/Engine';
@@ -21,18 +21,18 @@ import { onRemovedFromCar } from '../../templates/vehicle/behaviors/onRemovedFro
 import { onStartRemoveFromCar } from '../../templates/vehicle/behaviors/onStartRemoveFromCar';
 import { onUpdatePlayerInCar } from '../../templates/vehicle/behaviors/onUpdatePlayerInCar';
 import { TransformComponent } from '../../transform/components/TransformComponent';
-import { capsuleColliderBehavior, updateVelocityVector } from '../behaviors/capsuleColliderBehavior';
-import { handleCollider } from '../behaviors/ColliderBehavior';
 import { VehicleBehavior } from '../behaviors/VehicleBehavior';
-import { CapsuleCollider } from "../components/CapsuleCollider";
+import { ControllerColliderComponent } from "../components/ControllerColliderComponent";
 import { ColliderComponent } from '../components/ColliderComponent';
 import { PlayerInCar } from '../components/PlayerInCar';
 import { RigidBody } from "../components/RigidBody";
 import { VehicleComponent } from "../../templates/vehicle/components/VehicleComponent";
 import { InterpolationComponent } from "../components/InterpolationComponent";
-import { VehicleState } from '../../templates/vehicle/enums/VehicleStateEnum';
 import { PhysicsLifecycleState } from '../enums/PhysicsStates';
 import { isClient } from '../../common/functions/isClient';
+import { PhysXInstance } from '../physx';
+import PhysXWorker from './physics/physx/worker?worker';
+import { addColliderWithEntity } from '../behaviors/colliderCreateFunctions';
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -56,128 +56,94 @@ export class PhysicsSystem extends System {
   static frame: number
   diffSpeed: number = Engine.physicsFrameRate / Engine.networkFramerate;
 
-  static physicsWorld: World
-  static simulate: boolean
-  static serverOnlyRigidBodyCollides: boolean
+  static isSimulating: boolean
   static serverCorrectionForRigidBodyTick = 1000
 
   freezeTimes = 0
   clientSnapshotFreezeTime = 0
   serverSnapshotFreezeTime = 0
 
-  groundMaterial = new Material('groundMaterial')
-  wheelMaterial = new Material('wheelMaterial')
-  trimMeshMaterial = new Material('trimMeshMaterial')
-
-  wheelGroundContactMaterial = new ContactMaterial(this.wheelMaterial, this.groundMaterial, {
-    friction: 0.3,
-    restitution: 0.3,
-    contactEquationStiffness: 1e8,
-    contactEquationRelaxation: 3,
-    frictionEquationStiffness: 1e8
-  })
-
-  parallelPairs: any[];
   physicsFrameRate: number;
   physicsFrameTime: number;
-  physicsMaxPrediction: number;
+
   constructor() {
     super();
     this.physicsFrameRate = Engine.physicsFrameRate;
     this.physicsFrameTime = 1 / this.physicsFrameRate;
-    this.physicsMaxPrediction = this.physicsFrameRate;
-    PhysicsSystem.serverOnlyRigidBodyCollides = false;
-    // Physics
-    PhysicsSystem.simulate = isServer;
+
+    PhysXInstance.instance = new PhysXInstance(new PhysXWorker());
+    PhysXInstance.instance.initPhysX({ jsPath: '/physx/physx.release.js', wasmPath: '/physx/physx.release.wasm' });
+
+    PhysicsSystem.isSimulating = isServer;
     PhysicsSystem.frame = 0;
-    PhysicsSystem.physicsWorld = new World();
-    PhysicsSystem.physicsWorld.allowSleep = false;
-    PhysicsSystem.physicsWorld.gravity.set(0, -9.81, 0);
-    PhysicsSystem.physicsWorld.broadphase = new SAPBroadphase(PhysicsSystem.physicsWorld);
-
-    this.parallelPairs = [];
-
-    const DebugOptions = {
-      onInit: (body: Body, mesh: Mesh, shape: Shape) => {
-        // console.log("PH INIT: body: ", body, " | mesh: ", mesh, " | shape: ", shape)
-      },
-      onUpdate: (body: Body, mesh: Mesh, shape: Shape) => {
-        //console.log("PH  UPD: body position: ", body.position, " | body: ", body, " | mesh: ", mesh, " | shape: ", shape) }
-      }
-    };
 
     EngineEvents.instance.addEventListener(EngineEvents.EVENTS.ENABLE_SCENE, (ev: any) => {
-      PhysicsSystem.simulate = ev.enable;
+      PhysicsSystem.isSimulating = ev.enable;
     });
-
-    // window["physicsDebugView"] = () => {
-    //   debug(Engine.scene, PhysicsSystem.physicsWorld.bodies, DebugOptions);
-    // };
-    // if (DEBUG_PHYSICS) {
-    //   debug(Engine.scene, PhysicsSystem.physicsWorld.bodies, DebugOptions);
-    // }
   }
 
   dispose(): void {
     super.dispose();
-    this.groundMaterial = null;
-    this.wheelMaterial = null;
-    this.trimMeshMaterial = null;
-    this.wheelGroundContactMaterial = null;
     PhysicsSystem.frame = 0;
-    PhysicsSystem.physicsWorld.broadphase = null;
-    // PhysicsSystem.physicsWorld = null;
+    PhysicsSystem.instance.broadphase = null;
+    // PhysicsSystem.instance = null;
   }
 
   execute(delta: number): void {
-
-    // Collider
-
     this.queryResults.collider.added?.forEach(entity => {
-      handleCollider(entity, { phase: PhysicsLifecycleState.onAdded });
+      addColliderWithEntity(entity)
     });
 
     this.queryResults.collider.removed?.forEach(entity => {
-      handleCollider(entity, { phase: PhysicsLifecycleState.onRemoved });
-    });
-
-    // Capsule
-
-    this.queryResults.capsuleCollider.all?.forEach(entity => {
-      capsuleColliderBehavior(entity, { phase: PhysicsLifecycleState.onAdded });
-    });
-
-    this.queryResults.capsuleCollider.all?.forEach(entity => {
-      capsuleColliderBehavior(entity, { phase: PhysicsLifecycleState.onUpdate });
-    });
-
-    this.queryResults.capsuleCollider.removed?.forEach(entity => {
-      capsuleColliderBehavior(entity, { phase: PhysicsLifecycleState.onRemoved });
+      const colliderComponent = getComponent<ColliderComponent>(entity, ColliderComponent, true);
+      if (colliderComponent) {
+        this.removeBody(colliderComponent.collider);
+      }
     });
 
     // Update velocity vector for Animations
     this.queryResults.character.all?.forEach(entity => {
-      updateVelocityVector(entity, { phase: PhysicsLifecycleState.onUpdate });
+      const lastPos = { x:0, y:0, z:0 };
+      if (!hasComponent(entity, ControllerColliderComponent)) return;
+      const capsule = getComponent<ControllerColliderComponent>(entity, ControllerColliderComponent);
+      const transform = getComponent<TransformComponent>(entity, TransformComponent);
+      const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
+      if (!actor.initialized) return;
+  
+      const x = capsule.body.transform.translation.x - lastPos.x;
+      const y = capsule.body.transform.translation.y - lastPos.y;
+      const z = capsule.body.transform.translation.z - lastPos.z;
+  
+      if(isNaN(x)) {
+        actor.animationVelocity = new Vector3(0,1,0);
+        return;
+      }
+  
+      lastPos.x = capsule.body.transform.translation.x;
+      lastPos.y = capsule.body.transform.translation.y;
+      lastPos.z = capsule.body.transform.translation.z;
+  
+      const q = new Quaternion().copy(transform.rotation).invert();
+      actor.animationVelocity = new Vector3(x,y,z).applyQuaternion(q);
     });
 
     // RigidBody
-    this.queryResults.rigidBody.added?.forEach(entity => {
-    });
+    this.queryResults.rigidBody.added?.forEach(entity => { });
 
     this.queryResults.rigidBody.all?.forEach(entity => {
       if (!hasComponent(entity, ColliderComponent)) return;
       const colliderComponent = getComponent<ColliderComponent>(entity, ColliderComponent);
       const transform = getComponent<TransformComponent>(entity, TransformComponent);
       transform.position.set(
-        colliderComponent.collider.position.x,
-        colliderComponent.collider.position.y,
-        colliderComponent.collider.position.z
+        colliderComponent.collider.transform.translation.x,
+        colliderComponent.collider.transform.translation.y,
+        colliderComponent.collider.transform.translation.z
       );
       transform.rotation.set(
-        colliderComponent.collider.quaternion.x,
-        colliderComponent.collider.quaternion.y,
-        colliderComponent.collider.quaternion.z,
-        colliderComponent.collider.quaternion.w
+        colliderComponent.collider.transform.rotation.x,
+        colliderComponent.collider.transform.rotation.y,
+        colliderComponent.collider.transform.rotation.z,
+        colliderComponent.collider.transform.rotation.w
         );
     });
 
@@ -273,17 +239,32 @@ export class PhysicsSystem extends System {
         });
       });
     }
+  }
 
-    if (PhysicsSystem.simulate) { // pause physics until loading all component scene
-      PhysicsSystem.frame++;
-      PhysicsSystem.physicsWorld.step(this.physicsFrameTime);
-    }
+  get gravity() {
+    return { x: 0, y: -9.81, z: 0 };
+  }
+
+  set gravity(value: { x: 0, y: -9.81, z: 0 }){
+    
+  }
+
+  raycastClosest(startPos: Vector3, endPos: Vector3, options: any, rayResult: any) {
+
+  }
+
+  addBody() {
+
+  }
+
+  removeBody() {
+
   }
 }
 
 PhysicsSystem.queries = {
   character: {
-    components: [LocalInputReceiver, CapsuleCollider, CharacterComponent, NetworkObject],
+    components: [LocalInputReceiver, ControllerColliderComponent, CharacterComponent, NetworkObject],
   },
   serverInterpolatedCorrection: {
     components: [LocalInputReceiver, InterpolationComponent, NetworkObject],
@@ -293,13 +274,6 @@ PhysicsSystem.queries = {
   },
   networkInterpolation: {
     components: [Not(LocalInputReceiver), InterpolationComponent, NetworkObject],
-  },
-  capsuleCollider: {
-    components: [CapsuleCollider, TransformComponent],
-    listen: {
-      added: true,
-      removed: true
-    }
   },
   collider: {
     components: [ColliderComponent, TransformComponent],

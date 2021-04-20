@@ -1,6 +1,5 @@
-import { Matrix4, Vector3, Euler, Quaternion } from 'three';
-import CANNON, { Vec3 } from 'cannon-es';
-import { Engine } from '../../ecs/classes/Engine';
+import { Vector3, Quaternion } from 'three';
+// import CANNON, { Vec3 } from 'cannon-es';
 
 import { applyVectorMatrixXZ } from '../../common/functions/applyVectorMatrixXZ';
 import { getSignedAngleBetweenVectors } from '../../common/functions/getSignedAngleBetweenVectors';
@@ -14,7 +13,7 @@ import { Input } from '../../input/components/Input';
 import { BinaryValue } from "../../common/enums/BinaryValue";
 import { BaseInput } from '../../input/enums/BaseInput';
 
-import { CapsuleCollider } from '../components/CapsuleCollider';
+import { ControllerColliderComponent } from '../components/ControllerColliderComponent';
 import { CharacterComponent } from '../../templates/character/components/CharacterComponent';
 import { TransformComponent } from '../../transform/components/TransformComponent';
 import { isServer } from '../../common/functions/isServer';
@@ -22,27 +21,24 @@ import { LocalInputReceiver } from "../../input/components/LocalInputReceiver";
 import { InterpolationComponent } from '../components/InterpolationComponent';
 import TeleportToSpawnPoint from '../../scene/components/TeleportToSpawnPoint';
 import { XRUserSettings } from '../../templates/character/XRUserSettings';
+import { PhysXInstance } from '../physx';
+
 /**
  * @author HydraFire <github.com/HydraFire>
  */
 
 const forwardVector = new Vector3(0, 0, 1);
 const upVector = new Vector3(0, 1, 0);
+
 function haveDifferentSigns(n1: number, n2: number): boolean {
   return (n1 < 0) !== (n2 < 0);
-}
-function threeFromCannonVector(vec: CANNON.Vec3): Vector3 {
-  return new Vector3(vec.x, vec.y, vec.z);
-}
-function threeFromCannonQuat(quat: CANNON.Quaternion): Quaternion {
-  return new Quaternion(quat.x, quat.y, quat.z, quat.w);
 }
 
 export const physicsMove: Behavior = (entity: Entity, args: any, deltaTime): void => {
   const actor: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
   if(!actor.initialized) return;
   const transform: TransformComponent = getMutableComponent<TransformComponent>(entity, TransformComponent as any);
-  const capsule = getMutableComponent<CapsuleCollider>(entity, CapsuleCollider);
+  const capsule = getMutableComponent<ControllerColliderComponent>(entity, ControllerColliderComponent);
   // if we rotation character here, lets server will do his rotation here too
   if (isServer) {
     const flatViewVector = new Vector3(actor.viewVector.x, 0, actor.viewVector.z).normalize();
@@ -84,7 +80,7 @@ export const physicsMove: Behavior = (entity: Entity, args: any, deltaTime): voi
         break;
     }
     // Get velocities
-    simulatedVelocity.set(body.velocity.x, body.velocity.y, body.velocity.z);
+    simulatedVelocity.set(body.transform.linearVelocity.x, body.transform.linearVelocity.y, body.transform.linearVelocity.z);
     actor.velocity.copy(actor.localMovementDirection);
     arcadeVelocity.copy(actor.velocity).multiplyScalar(actor.moveSpeed);
   //  console.warn(rotationVector);
@@ -113,7 +109,7 @@ export const physicsMove: Behavior = (entity: Entity, args: any, deltaTime): voi
     // add new velocity
 
     // Get velocities
-    simulatedVelocity.set(body.velocity.x, body.velocity.y, body.velocity.z);
+    simulatedVelocity.set(body.controller.velocity.x, body.controller.velocity.y, body.controller.velocity.z);
     // Take local velocity
     arcadeVelocity.copy(actor.velocity).multiplyScalar(actor.moveSpeed);
     // Turn local into global
@@ -142,53 +138,48 @@ export const physicsMove: Behavior = (entity: Entity, args: any, deltaTime): voi
   }
   // Jumping
   if (actor.wantsToJump && !actor.alreadyJumped) {
-    /*
-  	// Moving objects compensation
-  	const add = new Vec3();
-  	actor.rayResult.body.getVelocityAtWorldPoint(actor.rayResult.hitPointWorld, add);
-  	newVelocity.vsub(add, newVelocity.velocity);
-    */
-  	// Add positive vertical velocity
-  	newVelocity.y += 5;
+    newVelocity.y += 5;
+    body.controller.velocity.y = newVelocity.y;
+    
   	// Move above ground by 2x safe offset value
-  	body.position.y += actor.raySafeOffset * 2;
+  	body.controller.delta.y = actor.raySafeOffset * 2;
   	// Reset flag
   	actor.wantsToJump = false;
     actor.alreadyJumped = true;
     actor.arcadeVelocityIsAdditive = true;
-  } else
+  } 
   // If we're hitting the ground, stick to ground
-  if (actor.rayHasHit) {
-  	// console.log("We are hitting the ground")
-  	// Flatten velocity
-  	newVelocity.y = 0;
-  	// Move on top of moving objects
-  	if (actor.rayGroundHit && actor.rayResult.body.mass > 0) {
-  		const pointVelocity = new Vec3();
-  		actor.rayResult.body.getVelocityAtWorldPoint(actor.rayResult.hitPointWorld, pointVelocity);
-  		newVelocity.add(threeFromCannonVector(pointVelocity));
-  	}
-  	// Measure the normal vector offset from direct "up" vector
-  	// and transform it into a matrix
-    if (actor.rayGroundHit) {
-    	const normal = new Vector3(actor.rayResult.hitNormalWorld.x, actor.rayResult.hitNormalWorld.y, actor.rayResult.hitNormalWorld.z);
-    	const q = new Quaternion().setFromUnitVectors(upVector, normal);
-    	const m = new Matrix4().makeRotationFromQuaternion(q);
-    	// Rotate the velocity vector
-    	newVelocity.applyMatrix4(m);
-    }
-  	// Compensate for gravity
-  	// newVelocity.y -= body.world.physicsWorld.gravity.y / body.actor.world.physicsFrameRate;
-  	// Apply velocity
-  	// Ground actor
-  	body.position.y = actor.rayGroundY + actor.rayCastLength //+ newVelocity.y// / Engine.physicsFrameRate);
-    actor.arcadeVelocityIsAdditive = false;
-    actor.alreadyJumped = false;
-  }
+  // if (actor.rayHasHit) {
+  // 	// console.log("We are hitting the ground")
+  // 	// Flatten velocity
+  // 	newVelocity.y = 0;
+  // 	// Move on top of moving objects
+  // 	if (actor.rayGroundHit && actor.rayResult.body.mass > 0) {
+  // 		const pointVelocity = new Vec3();
+  // 		actor.rayResult.body.getVelocityAtWorldPoint(actor.rayResult.hitPointWorld, pointVelocity);
+  // 		newVelocity.add(threeFromCannonVector(pointVelocity));
+  // 	}
+  // 	// Measure the normal vector offset from direct "up" vector
+  // 	// and transform it into a matrix
+  //   if (actor.rayGroundHit) {
+  //   	const normal = new Vector3(actor.rayResult.hitNormalWorld.x, actor.rayResult.hitNormalWorld.y, actor.rayResult.hitNormalWorld.z);
+  //   	const q = new Quaternion().setFromUnitVectors(upVector, normal);
+  //   	const m = new Matrix4().makeRotationFromQuaternion(q);
+  //   	// Rotate the velocity vector
+  //   	newVelocity.applyMatrix4(m);
+  //   }
+  // 	// Compensate for gravity
+  // 	// newVelocity.y -= body.world.physicsWorld.gravity.y / body.actor.world.physicsFrameRate;
+  // 	// Apply velocity
+  // 	// Ground actor
+  // 	body.position.y = actor.rayGroundY + actor.rayCastLength //+ newVelocity.y// / Engine.physicsFrameRate);
+  //   actor.arcadeVelocityIsAdditive = false;
+  //   actor.alreadyJumped = false;
+  // }
   // Update Velocity
-  body.velocity.x = newVelocity.x;
-  body.velocity.y = newVelocity.y;
-  body.velocity.z = newVelocity.z;
+  // body.velocity.x = newVelocity.x;
+  // body.velocity.y = newVelocity.y;
+  // body.velocity.z = newVelocity.z;
   // NOTES
       //updateIK(entity);
 

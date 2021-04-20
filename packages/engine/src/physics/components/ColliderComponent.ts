@@ -1,4 +1,4 @@
-import { Body } from 'cannon-es'
+import { RigidBodyProxy } from "../physx";
 import { Component } from '../../ecs/classes/Component';
 import { Types } from '../../ecs/types/Types';
 
@@ -7,7 +7,7 @@ import { Types } from '../../ecs/types/Types';
  */
 
 export class ColliderComponent extends Component<ColliderComponent> {
-  collider: Body
+  collider: RigidBodyProxy
   type: string
   mass: number
   position: any

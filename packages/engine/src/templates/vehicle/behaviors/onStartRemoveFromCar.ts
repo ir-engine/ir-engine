@@ -56,7 +56,7 @@ function positionExit(entity, entityCar, seat) {
     position.z
   );
 
-  PhysicsSystem.physicsWorld.addBody(actor.actorCapsule.body);
+  PhysicsSystem.instance.addBody(actor.actorCapsule.body);
 }
 
 

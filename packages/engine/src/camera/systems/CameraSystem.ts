@@ -5,9 +5,7 @@ import { isMobileOrTablet } from "../../common/functions/isMobile";
 import { NumericalType } from "../../common/types/NumericalTypes";
 import { Engine } from '../../ecs/classes/Engine';
 import { System } from '../../ecs/classes/System';
-import {
-  addComponent, createEntity, getComponent, getMutableComponent, hasComponent
-} from '../../ecs/functions/EntityFunctions';
+import { addComponent, createEntity, getMutableComponent } from '../../ecs/functions/EntityFunctions';
 import { CharacterComponent } from "../../templates/character/components/CharacterComponent";
 import { DesiredTransformComponent } from '../../transform/components/DesiredTransformComponent';
 import { TransformComponent } from '../../transform/components/TransformComponent';
@@ -17,7 +15,6 @@ import { CameraModes } from "../types/CameraModes";
 import { Entity } from "../../ecs/classes/Entity";
 import { PhysicsSystem } from "../../physics/systems/PhysicsSystem";
 import { CollisionGroups } from "../../physics/enums/CollisionGroups";
-import { Vec3 } from "cannon-es";
 
 let direction = new Vector3();
 const upVector = new Vector3(0, 1, 0);
@@ -94,9 +91,9 @@ export class CameraSystem extends System {
       }
 
       // Raycast for camera
-      const cameraRaycastStart = new Vec3(targetPosition.x, targetPosition.y, targetPosition.z);
+      const cameraRaycastStart = new Vector3(targetPosition.x, targetPosition.y, targetPosition.z);
       const cameraTransform: TransformComponent = getMutableComponent(CameraSystem.activeCamera, TransformComponent)
-      const cameraRaycastEnd = new Vec3(cameraTransform.position.x, cameraTransform.position.y, cameraTransform.position.z);
+      const cameraRaycastEnd = new Vector3(cameraTransform.position.x, cameraTransform.position.y, cameraTransform.position.z);
 
       const cameraRaycastOptions = {
         collisionFilterMask: CollisionGroups.Default | CollisionGroups.Car,
@@ -107,7 +104,7 @@ export class CameraSystem extends System {
         cameraRaycastOptions.collisionFilterMask = CollisionGroups.Default;
       }
 
-      cameraFollow.rayHasHit = PhysicsSystem.physicsWorld.raycastClosest(cameraRaycastStart, cameraRaycastEnd, cameraRaycastOptions, cameraFollow.rayResult);
+      cameraFollow.rayHasHit = PhysicsSystem.instance.raycastClosest(cameraRaycastStart, cameraRaycastEnd, cameraRaycastOptions, cameraFollow.rayResult);
 
       if(cameraFollow.mode !== CameraModes.FirstPerson && cameraFollow.rayHasHit && cameraFollow.rayResult.distance < camDist && cameraFollow.rayResult.distance > 0.1) {
         camDist = cameraFollow.rayResult.distance - 0.5;

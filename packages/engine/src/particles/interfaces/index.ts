@@ -1,5 +1,4 @@
 import { InstancedBufferGeometry, BufferGeometry, ShaderMaterial, Texture, Blending } from "three";
-import { Material } from "cannon-es";
 
 /** Particle geometry type. */
 export type ParticleGeometry = InstancedBufferGeometry | BufferGeometry
@@ -26,7 +25,8 @@ export interface ParticleMeshMaterial extends ShaderMaterial {
   /** Texture of particle */
   map: Texture;
   /** Original material of particle. */
-  originalMaterial: Material;
+  // TODO: this was a CANNON.material, when it seems like it should be a threejs material...
+  // originalMaterial: Material;
   uniforms: any;
   transparent: boolean;
 }
