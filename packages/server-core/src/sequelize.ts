@@ -27,7 +27,6 @@ export default (app: Application): void => {
           .then(() => {
             // Sync to the database
             for (const model of Object.keys(sequelize.models)) {
-              console.log('creating associations for =>', sequelize.models[model]);
               if (typeof ((sequelize.models[model] as any).associate) === 'function') {
                 (sequelize.models[model] as any).associate(sequelize.models);
               }
@@ -39,7 +38,7 @@ export default (app: Application): void => {
                           .configure(seeder({services: seederConfig}))
                           .seed()
                           .then(() => {
-                              console.log('Seeded');
+                              console.log('Server Ready');
                               return Promise.resolve();
                           })
                           .catch((err) => {
