@@ -6,6 +6,7 @@ import { UIBaseElement, UI_ELEMENT_SELECT_STATE } from "./UIBaseElement";
 import {createItem, createCol, createRow, createButton, makeLeftItem} from '../functions/createItem';
 import { Block, Text } from "../../assets/three-mesh-ui";
 import shaka from 'shaka-player';
+import { Engine } from "../../ecs/classes/Engine";
 
 export class UIGallery extends UIBaseElement {
   marketPlace: Block;
@@ -26,6 +27,13 @@ export class UIGallery extends UIBaseElement {
   }
 
   init() {
+    console.log(Engine.scene);
+    // Engine.scene.children[0].visible = false;      
+    
+    Engine.scene.children[10].visible = false;      //ground
+    Engine.scene.children[12].visible = false;      //character
+
+
     // const url = "360/ITN_Wrecks_FOR_REVIEW_4kx2k_360_h264_40Mbps.mp4";
     // const videoElement = new VideoElement(3.2, 0.8, 0.1, 1.35, url);
     const urls = [
@@ -384,7 +392,7 @@ export class UIGallery extends UIBaseElement {
       new SphereGeometry( 10, 60, 40 ), 
       material);
       
-    // mesh.scale.x = -1;
+    mesh.scale.x = -1;
     mesh.rotation.y = Math.PI*1.5;
     this.add( mesh );
   }
