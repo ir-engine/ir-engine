@@ -17,6 +17,8 @@ import {
   KeyframeBuffer
 } from './Interfaces';
 import RingBuffer from './RingBuffer';
+// @ts-ignore
+import Worker from './workerFunction?worker'
 
 type AdvancedHTMLVideoElement = HTMLVideoElement & { requestVideoFrameCallback: (callback: (number, {}) => void) => void };
 type onMeshBufferingCallback = (progress:number) => void;
@@ -138,7 +140,7 @@ export default class DracosisPlayer {
     this.onMeshBuffering = onMeshBuffering;
     this.onFrameShow = onFrameShow;
 
-    const worker = new Worker(new URL('./workerFunction.ts', import.meta.url)); // spawn new worker
+    const worker = new Worker('./workerFunction.ts'); // spawn new worker
     this._worker = worker;
 
     const handleFrameData = (messages) => {

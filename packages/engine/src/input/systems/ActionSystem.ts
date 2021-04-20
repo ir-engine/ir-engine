@@ -12,7 +12,6 @@ import { NetworkObject } from "../../networking/components/NetworkObject";
 import { NetworkClientInputInterface } from "../../networking/interfaces/WorldState";
 import { ClientInputModel } from '../../networking/schema/clientInputSchema';
 import { CharacterComponent, RUN_SPEED, WALK_SPEED } from "../../templates/character/components/CharacterComponent";
-import { faceToInput,  lipToInput,  WEBCAM_INPUT_EVENTS } from "../behaviors/WebcamInputBehaviors";
 import { Input } from '../components/Input';
 import { LocalInputReceiver } from "../components/LocalInputReceiver";
 import { XRInputReceiver } from '../components/XRInputReceiver';
@@ -23,6 +22,17 @@ import { BaseInput } from "../enums/BaseInput";
 import { ClientNetworkSystem } from "../../networking/systems/ClientNetworkSystem";
 import { EngineEvents } from "../../ecs/classes/EngineEvents";
 import { ClientInputSystem } from "./ClientInputSystem";
+
+var isBrowser=new Function("try {return this===window;}catch(e){ return false;}");
+
+let faceToInput, lipToInput, WEBCAM_INPUT_EVENTS;
+
+if (isBrowser())
+  import("../behaviors/WebcamInputBehaviors").then(imported => {
+    faceToInput = imported.faceToInput;
+    lipToInput = imported.lipToInput;
+    WEBCAM_INPUT_EVENTS = imported.WEBCAM_INPUT_EVENTS;
+  });
 
 /**
  * Input System

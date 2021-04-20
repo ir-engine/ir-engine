@@ -3,7 +3,6 @@ import {
   Float32BufferAttribute,
   Uint16BufferAttribute
 } from "three";
-// @ts-ignore
 import RecastWorker from "./recast.worker";
 
 const statuses = [
@@ -30,10 +29,7 @@ export default class RecastClient {
   workerUrl: string;
   constructor() {
     this.working = false;
-    // Creating blob out of worker script as a workaround.
-    const blob = new Blob([RecastWorker]);
-    this.workerUrl = URL.createObjectURL(blob)
-    this.worker = new Worker(this.workerUrl)
+    this.worker = new RecastWorker()
   }
   async buildNavMesh(geometry, params, signal) {
     if (this.working) {
@@ -62,7 +58,7 @@ export default class RecastClient {
       };
       const onAbort = () => {
         this.worker.terminate();
-        this.worker = new Worker(this.workerUrl);
+        this.worker = new RecastWorker();
         const error = new Error("Canceled navmesh generation.");
         error["aborted"] = true;
         reject(error);

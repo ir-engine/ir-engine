@@ -1,12 +1,11 @@
-import { Behavior } from "../../common/interfaces/Behavior";
+import * as Comlink from 'comlink';
+import { EngineEvents } from "../../ecs/classes/EngineEvents";
 import { getMutableComponent } from "../../ecs/functions/EntityFunctions";
+import { MediaStreamSystem } from "../../networking/systems/MediaStreamSystem";
 import { Input } from "../components/Input";
 import { CameraInput } from "../enums/InputEnums";
 import { InputType } from "../enums/InputType";
-import * as Comlink from 'comlink'
-import { EngineEvents } from "../../ecs/classes/EngineEvents";
-import { Engine } from "../../ecs/classes/Engine";
-import { MediaStreamSystem } from "../../networking/systems/MediaStreamSystem";
+import Worker from './WebcamInputWorker?worker';
 
 export const WEBCAM_INPUT_EVENTS = {
   FACE_INPUT: 'WEBCAM_INPUT_EVENTS_FACE_INPUT',
@@ -36,9 +35,9 @@ export const stopLipsyncTracking = () => {
 }
 
 export const startFaceTracking = async () => {
-  
+
   if(!faceWorker) {
-      faceWorker = Comlink.wrap(new Worker(new URL('./WebcamInputWorker.ts', import.meta.url)));
+      faceWorker = Comlink.wrap(new Worker());
       await faceWorker.initialise();
   }
 

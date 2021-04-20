@@ -125,7 +125,7 @@ export default class CanvasPlayer {
     this.onMeshBuffering = onMeshBuffering;
     this.onFrameShow = onFrameShow;
 
-    const worker = new Worker(new URL('./workerFunction.ts', import.meta.url)); // spawn new worker
+    const worker = new Worker(); // spawn new worker
     this._worker = worker;
 
     const handleFrameData = (messages) => {

@@ -32,7 +32,8 @@ import { DefaultNetworkSchema } from './templates/networking/DefaultNetworkSchem
 import { TransformSystem } from './transform/systems/TransformSystem';
 import { createWorker, WorkerProxy } from './worker/MessageQueue';
 import { XRSystem } from './xr/systems/XRSystem';
-
+//@ts-ignore
+import OffscreenWorker from './worker/initializeOffscreen.ts';
 // import { PositionalAudioSystem } from './audio/systems/PositionalAudioSystem';
 
 Mesh.prototype.raycast = acceleratedRaycast;
@@ -78,8 +79,7 @@ export const initializeEngine = async (options): Promise<void> => {
 
   if (useOffscreen) {
     const workerProxy: WorkerProxy = await createWorker(
-      // @ts-ignore
-      new Worker(new URL('./worker/initializeOffscreen.ts', import.meta.url)),
+      new OffscreenWorker(),
       (canvas),
       {
         postProcessing,
