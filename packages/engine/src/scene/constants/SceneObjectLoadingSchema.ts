@@ -30,6 +30,8 @@ import WalkableTagComponent from '../components/Walkable';
 import { LoadingSchema } from '../interfaces/LoadingSchema';
 import Image from '../classes/Image';
 import { createGame } from "../behaviors/createGame";
+import { GameObject } from "../../game/components/GameObject";
+
 
 /**
  * Add Component into Entity from the Behavior.
@@ -60,30 +62,29 @@ export function addTagComponentFromBehavior<C>(
 }
 
 export const SceneObjectLoadingSchema: LoadingSchema = {
-  'game-object': {
-    behaviors: [{
-      behavior: addComponentFromBehavior,
-      values: [
-        { from: 'target', to: 'target' },
-        { from: 'role', to: 'role' }
-      ]
-    },
-    { behavior: (entity, args: {}) => { console.log("***** LOADED GAMEOBJECT ON", entity) } }
-    ]
-  },
   'game': {
     behaviors: [
       {
         behavior: createGame,
         values: [
+          { from: 'name', to: 'name' },
           { from: 'isGlobal', to: 'isGlobal' },
           { from: 'minPlayers', to: 'minPlayers' },
           { from: 'maxPlayers', to: 'maxPlayers' },
           { from: 'gameMode', to: 'gameMode' }
         ]
-      },
-      { behavior: (entity, args: {}) => { console.log("***** LOADED GAME ON", entity) } }
+      }
     ]
+  },
+  'game-object': {
+    behaviors: [{
+      behavior: addComponentFromBehavior,
+      args: { component: GameObject },
+      values: [
+        { from: 'gameName', to: 'gameName' },
+        { from: 'role', to: 'role' }
+      ]
+    }]
   },
   'ambient-light': {
     behaviors: [

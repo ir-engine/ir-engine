@@ -5,7 +5,7 @@ import { setStaticMode, StaticModes } from "../functions/StaticMode";
 import cloneObject3D from "../functions/cloneObject3D";
 import { RethrownError } from "../functions/errors";
 import { getGeometry } from '../../physics/classes/three-to-cannon';
-import { plusParameter } from "../../physics/behaviors/parseModelColliders";
+import { plusParameter, clearFromColliders } from "../../physics/behaviors/parseModelColliders";
 import { parseCarModel } from "../../templates/vehicle/prefabs/NetworkVehicle";
 
 export default class ModelNode extends EditorNodeMixin(Model) {
@@ -35,10 +35,12 @@ export default class ModelNode extends EditorNodeMixin(Model) {
           node.target = gameObject.props.target;
           node.role = gameObject.props.role;
         }
+        // its need be first then load
+        node.saveColliders = !!json.components.find(c => c.name === "mesh-collider-0");
 
         await node.load(src, onError);
+
         node.collidable = !!json.components.find(c => c.name === "collidable");
-        node.saveColliders = !!json.components.find(c => c.name === "mesh-collider-0");
         node.walkable = !!json.components.find(c => c.name === "walkable");
         const loopAnimationComponent = json.components.find(
           c => c.name === "loop-animation"
@@ -169,6 +171,7 @@ export default class ModelNode extends EditorNodeMixin(Model) {
           }
         });
       }
+      this.saveColliders ? clearFromColliders( null , { asset: this.model, onlyHide: true }):'';
       this.updateStaticModes();
     } catch (error) {
       this.showErrorIcon();
@@ -215,7 +218,7 @@ export default class ModelNode extends EditorNodeMixin(Model) {
     return arr.map((v: number) => parseFloat((Math.round(v * 10000)/10000).toFixed(4)));
   }
   parseVehicle(group) {
-    const vehicleCompData = parseCarModel(group, false); // false means thet we parse in editor
+    const vehicleCompData = parseCarModel(group, 'editor');
     const deepColliders = [];
 
     const vehicleSaved = {
@@ -374,15 +377,17 @@ parseColliders( data, type, mass, position, quaternion, scale, mesh ) {
       }
     };
 
-    if(this.interactionType === "gameobject"){
+    if(this.interactionType === "gameobject") {
       components['game-object'] = {
-        target: this.target,
-        role: this.role
+        gameName: this.editor.nodes.find(node => node.uuid === this.target).name,
+        role: this.role,
+        target: this.target
       }
     }
-    
+
     if (this.saveColliders) {
       this.parseAndSaveColliders(components);
+      clearFromColliders( null , { asset: this.model, onlyHide: true });
     }
     if (this.activeClipIndex !== -1) {
       components["loop-animation"] = {

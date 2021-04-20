@@ -27,6 +27,7 @@ import { TransformSystem } from './transform/systems/TransformSystem';
 import { EngineEvents, addIncomingEvents, addOutgoingEvents, EngineEventsProxy } from './ecs/classes/EngineEvents';
 import { ClientInputSystem } from './input/systems/ClientInputSystem';
 import { XRSystem } from './xr/systems/XRSystem';
+import { GameManagerSystem } from './game/systems/GameManagerSystem';
 import { createWorker, WorkerProxy } from './worker/MessageQueue';
 import { Network } from './networking/classes/Network';
 import { isMobileOrTablet } from './common/functions/isMobile';
@@ -34,6 +35,7 @@ import { AnimationManager } from './templates/character/prefabs/NetworkPlayerCha
 import { CharacterControllerSystem } from './character/CharacterControllerSystem';
 import { useOffscreen } from './common/functions/getURLParams';
 import { DefaultGameMode } from './templates/game/DefaultGameMode';
+import { GolfGameMode } from './templates/game/GolfGameMode';
 import { UIPanelSystem } from './ui/systems/UIPanelSystem';
 import { RaycastSystem } from './raycast/systems/RaycastSystem';
 
@@ -56,7 +58,8 @@ export const DefaultInitializationOptions = {
     schema: DefaultNetworkSchema
   },
   gameModes: [
-    DefaultGameMode
+    DefaultGameMode,
+    GolfGameMode
   ],
   publicPath: '',
   useOfflineMode: false,
@@ -123,35 +126,30 @@ export const initializeEngine = async (options): Promise<void> => {
   }
 
   if (!useOffscreen || options.editor) {
-    await AnimationManager.instance.getDefaultModel()
+    //await AnimationManager.instance.getDefaultModel()
+
     registerSystem(RaycastSystem);
-    registerSystem(StateSystem);
-    registerSystem(CharacterControllerSystem);
     registerSystem(PhysicsSystem);
-    registerSystem(ServerSpawnSystem, { priority: 899 });
-    registerSystem(TransformSystem, { priority: 900 });
-    registerSystem(UIPanelSystem);
+    registerSystem(GameManagerSystem);
 
     Engine.camera = new PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 10000);
     Engine.scene.add(Engine.camera);
 
     if (!options.editor) {
       await AnimationManager.instance.getDefaultModel()
-
-      // registerSystem(StateSystem);
+      registerSystem(StateSystem);
       registerSystem(CharacterControllerSystem);
       registerSystem(ServerSpawnSystem, { priority: 899 });
       registerSystem(HighlightSystem);
       registerSystem(ActionSystem, { useWebXR: Engine.xrSupported });
     }
-    registerSystem(PhysicsSystem);
-    registerSystem(TransformSystem, { priority: 900 });
 
+    registerSystem(TransformSystem, { priority: 900 });
+    registerSystem(UIPanelSystem);
     // audio breaks webxr currently
     // Engine.audioListener = new AudioListener();
     // Engine.camera.add(Engine.audioListener);
     // registerSystem(PositionalAudioSystem);
-
 
     registerSystem(ParticleSystem);
     registerSystem(DebugHelpersSystem);

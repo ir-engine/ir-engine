@@ -5,7 +5,7 @@ import { Types } from "../../ecs/types/Types";
 import { CollisionGroups } from "../enums/CollisionGroups";
 
 /**
- * @author Shaw 
+ * @author Shaw
  */
 
 export class CapsuleCollider extends Component<CapsuleCollider>
@@ -63,7 +63,8 @@ export class CapsuleCollider extends Component<CapsuleCollider>
 
 		capsuleBody.addShape(sphereShape, new Vec3(0, 0, 0));
 		capsuleBody.addShape(sphereShape, new Vec3(0, options.height / 2, 0));
-		capsuleBody.addShape(cylinderShape, new Vec3(0, -options.height / 3 , 0));
+		capsuleBody.addShape(sphereShape, new Vec3(0, -options.height / 2, 0));
+		//capsuleBody.addShape(cylinderShape, new Vec3(0, -options.height / 3 , 0));
 		capsuleBody.angularDamping = 0;
 		capsuleBody.linearDamping = 0;
 	//	capsuleBody.fixedRotation = true;

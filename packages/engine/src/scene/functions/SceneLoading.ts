@@ -14,6 +14,11 @@ export function loadScene(scene: SceneData): void {
   const loadPromises = [];
   let loaded = 0;
 
+  if (isClient) {
+    console.warn(scene);
+    console.warn(Engine.scene);
+  }
+
   Object.keys(scene.entities).forEach(key => {
     const sceneEntity = scene.entities[key];
     const entity = createEntity();
@@ -34,7 +39,6 @@ export function loadScene(scene: SceneData): void {
           });
         }));
       }
-
       loadComponent(entity, component);
     });
   });
@@ -76,7 +80,7 @@ export function loadComponent(entity: Entity, component: SceneDataComponent): vo
     });
 
     // run behavior after load model
-    if ((b as any).onLoaded) values['onLoaded'] = (b as any).onLoaded;
+  //  if ((b as any).onLoaded) values['onLoaded'] = (b as any).onLoaded;
 
     // Invoke behavior with args and spread args
     b.behavior(entity, { ...b.args, objArgs: { ...b.args?.objArgs, ...values } });

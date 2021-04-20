@@ -68,7 +68,11 @@ export const clearFromColliders: Behavior = (entity: Entity, args: any) => {
   // its for diferent files with models
   args.asset.scene ? args.asset.scene.traverse(parseColliders) : args.asset.traverse(parseColliders);
   // its for delete mesh from view scene
-  arr.forEach(v => v.parent.remove(v));
+//
+  if (args.onlyHide)
+    arr.forEach(v => v.visible = false);
+  else
+    arr.forEach(v => v.parent.remove(v));
 }
 
 // parse Function

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Object3D } from "three";
 import SceneOverview from "../components/SceneOverview";
 import ScenePanel from '../components/ScenePanel';
@@ -16,7 +17,7 @@ class SceneGallery extends Object3D {
 
   init(){
     this.pickables = [];
-    
+
     this.marketPlace = new Object3D();
     this.add(this.marketPlace);
 
@@ -25,7 +26,7 @@ class SceneGallery extends Object3D {
 
     const ov = new SceneOverview("Scene Title", "Scene Description\nSecode line of description", null);
     this.marketPlace.add(ov);
-    this.pickables.push(ov);    
+    this.pickables.push(ov);
 
     const marketPlacePanels = [];
     marketPlacePanels.push(ov);
@@ -42,7 +43,7 @@ class SceneGallery extends Object3D {
         panel.oldPosX = panel.position.x;
         panel.oldPosY = panel.position.y;
         panel.oldPosZ = panel.position.z;
-      
+
         this.marketPlace.add(panel);
 
         this.pickables.push(panel.container);
@@ -55,7 +56,7 @@ class SceneGallery extends Object3D {
         // panel.pick = (state) => {
         //   if(state){
         //     // this.library.visible = false;
-        //     // this.marketPlace.visible = false;  
+        //     // this.marketPlace.visible = false;
         //   }
         //   panel.picked(state);
         // }
@@ -75,7 +76,7 @@ class SceneGallery extends Object3D {
         panel.oldPosX = panel.position.x;
         panel.oldPosY = panel.position.y;
         panel.oldPosZ = panel.position.z;
-      
+
         this.library.add(panel);
 
         this.pickables.push(panel.container);
@@ -87,7 +88,7 @@ class SceneGallery extends Object3D {
         // panel.pick = (state) => {
         //   if(state){
         //     // this.library.visible = false;
-        //     // this.marketPlace.visible = false;  
+        //     // this.marketPlace.visible = false;
         //   }
         //   panel.picked(state);
         // }
@@ -105,8 +106,8 @@ class SceneGallery extends Object3D {
 
     marketPlacePanels.forEach(e => {
       e.siblings = marketPlacePanels;
-    });    
-    
+    });
+
     libraryPanels.forEach(e => {
       e.siblings = libraryPanels;
     });
@@ -122,7 +123,7 @@ class SceneGallery extends Object3D {
 
       button1.picked(state);
     };
-    
+
     button2.pick = (state) => {
       if(state){
         this.library.visible = true;
@@ -145,7 +146,7 @@ class SceneGallery extends Object3D {
     // console.log('updateee engine last time:', Engine.tick, Engine.lastTime);
 
     this.pickables.forEach(element => {
-      // element.update();      
+      // element.update();
     });
   }
 }

@@ -53,7 +53,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 import url from 'url';
 import { CharacterInputSchema } from '@xr3ngine/engine/src/templates/character/CharacterInputSchema';
-import { DefaultGameMode } from '@xr3ngine/engine/src/templates/game/DefaultGameMode';
+import { GamesSchema } from "@xr3ngine/engine/src/templates/game/GamesSchema";
 const { publicRuntimeConfig } = getConfig();
 
 const goHome = () => window.location.href = window.location.origin;
@@ -243,14 +243,14 @@ export const EnginePage = (props: Props) => {
 
 
 
-    
+
     const InitializationOptions = {
       input: {
         schema: CharacterInputSchema,
       },
-      gameModes: [
-        DefaultGameMode
-      ],
+      gameModes: {
+        schema: GamesSchema
+      },
       publicPath: '',
       postProcessing: true,
       editor: false,

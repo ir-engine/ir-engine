@@ -9,7 +9,7 @@ import { HighlightComponent } from './components/HighlightComponent'
  * This system will highlight the entity with {@link effects/components/HighlightComponent.HighlightComponent | Highlight} Component attached.
  */
 export class HighlightSystem extends System {
-  /** Update type of the system. **Default** value is 
+  /** Update type of the system. **Default** value is
    * {@link ecs/functions/SystemUpdateType.SystemUpdateType.Fixed | Fixed} type.
    */
   updateType = SystemUpdateType.Fixed;
@@ -23,9 +23,12 @@ export class HighlightSystem extends System {
   execute(deltaTime, time): void {
     for (const entity of this.queryResults.highlights.added) {
       const highlightedObject = getComponent(entity, Object3DComponent).value;
+      const compHL = getComponent(entity, HighlightComponent);
       highlightedObject.traverse(obj => {
         if (obj !== undefined) {
           WebGLRendererSystem.composer?.outlineEffect?.selection.add(obj);
+          WebGLRendererSystem.composer?.outlineEffect?.setEdgeColor(compHL.color);
+          WebGLRendererSystem.composer?.outlineEffect?.setHiddenEdgeColor(compHL.hiddenColor);
         }
       });
     }

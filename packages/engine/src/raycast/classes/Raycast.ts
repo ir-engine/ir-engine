@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Camera, Object3D, Raycaster, Renderer, Vector2 } from "three";
 
 export class RayCast extends Object3D{
@@ -81,22 +82,22 @@ export class RayCast extends Object3D{
                 return closestIntersection;
 
             const intersection = this.rayCaster.intersectObject( obj, true );
-    
+
             if ( !intersection[0] ) return closestIntersection
-    
+
             if ( !closestIntersection || intersection[0].distance < closestIntersection.distance ) {
-    
+
                 intersection[0].object = obj;
-    
+
                 return intersection[0]
-    
+
             } else {
-    
+
                 return closestIntersection
-    
+
             }
-    
+
         }, null );
-    
+
     }
 }

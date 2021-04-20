@@ -3,15 +3,26 @@ import { Types } from "../../ecs/types/Types";
 import { GameObjectPrefab } from "../interfaces/GameObjectPrefab";
 import { GameMode } from "../types/GameMode";
 import { GameObject } from "./GameObject";
-import { Player } from "../types/Player";
+import { GamePlayer } from "./GamePlayer";
+
+export type GameName = string
 
 export class Game extends Component<Game> {
+    name: string
+    gameMode: string
     isGlobal: boolean
-    players: Player[]
     minPlayers: number
     maxPlayers: number
-    gameMode: GameMode
-    gameObjects: GameObject[]
+    gameArea: {
+      min: { x: number, y: number, z: number},
+      max: { x: number, y: number, z: number}
+    }
+    gamePlayers: {
+      [key: string]: GamePlayer[]
+    }
+    gameObjects: {
+      [key: string]: GameObject[]
+    }
     gameObjectPrefabs: {
         [key: string]: GameObjectPrefab[]
     }
@@ -19,8 +30,13 @@ export class Game extends Component<Game> {
 }
 
 Game._schema = {
-    isGlobal: { type: Types.Boolean, default: false }, 
-    minPlayers: { type: Types.Number, default: null }, 
-    maxPlayers: { type: Types.Number, default: null }, 
-    gameMode: { type: Types.Ref, default: null }, 
+    name: { type: Types.String, default: null },
+    isGlobal: { type: Types.Boolean, default: false },
+    gameArea: { type: Types.Ref, default: null },
+    gamePlayers: { type: Types.Ref, default: {} },
+    gameObjects: { type: Types.Ref, default: {} },
+    minPlayers: { type: Types.Number, default: null },
+    maxPlayers: { type: Types.Number, default: null },
+    gameMode: { type: Types.String, default: null },
+    state: { type: Types.Ref, default: {} }
 }

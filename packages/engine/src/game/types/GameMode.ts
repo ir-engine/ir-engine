@@ -9,5 +9,12 @@ export interface GameMode {
   },
   allowedPlayerActions: any[]
   allowedHostActions: any[],
-  gameObjectRoles: string[]
+  gameObjectRoles: {
+    [key: string]: {
+      [key: string]: Array<{
+        behavior: any;
+        args?: any;
+      }>;
+    };
+  }
 }

@@ -75,7 +75,7 @@ export const playerScoreActionServer: GameStateAction = (data: any): void => {
 }
 
 export const GolfGameMode: GameMode = {
-  name: "Default",
+  name: "Golf",
   actions: {
     [DefaultGameStateAction.onGameStarted]: gameStartAction,
     [DefaultGameStateAction.onGameEnded]: gameEndAction,
@@ -101,9 +101,57 @@ export const GolfGameMode: GameMode = {
     DefaultGameStateAction.onGameStarted,
     DefaultGameStateAction.onGameEnded
   ],
-  gameObjectRoles: [
-    "goal",
-    "ballStart",
-    "ball"
-  ]
+  gameObjectRoles: {
+    'joinGame': {
+      behaviors: [
+        /*
+        {
+          behavior: joinGameBehavior,
+          args: { objArgs: 'test' }
+        },
+        */
+        { behavior: (entity, args: {}) => { console.log("***** joinGame", entity) } }
+      ]
+    },
+    'leaveGame': {
+      behaviors: [
+        { behavior: (entity, args: {}) => { console.log("***** leaveGame") } }
+      ]
+    },
+    'gameInfoTablet': {
+      behaviors: [
+        { behavior: (entity, args: {}) => { console.log("***** gameInfoTablet") } }
+      ]
+    },
+    'golfHole': {
+      behaviors: [
+        { behavior: (entity, args: {}) => { console.log("***** golfHole") } }
+      ]
+    },
+    'golfBall_startPosition': {
+      behaviors: [
+        { behavior: (entity, args: {}) => { console.log("***** golfBall_startPosition") } }
+      ]
+    },
+    'golfBall': {
+      behaviors: [
+        { behavior: (entity, args: {}) => { console.log("***** golfBall") } }
+      ]
+    },
+    'golfClub': {
+      behaviors: [
+        { behavior: (entity, args: {}) => { console.log("***** golfClub") } }
+      ]
+    },
+    'golfClub_startPosition': {
+      behaviors: [
+        { behavior: (entity, args: {}) => { console.log("***** golfClub_startPosition") } }
+      ]
+    },
+    'golfLocation': {
+      behaviors: [
+        { behavior: (entity, args: {}) => { console.log("***** golfLocation") } }
+      ]
+    }
+  }
 };

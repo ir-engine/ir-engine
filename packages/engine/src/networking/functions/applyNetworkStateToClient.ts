@@ -35,6 +35,9 @@ function syncNetworkObjectsTest( createObjects ) {
         objectToCreate.ownerId === Network.instance.networkObjects[objectToCreate.networkId]?.ownerId ) return;
 
     Object.keys(Network.instance.networkObjects).map(Number).forEach( key => {
+      if (Network.instance.networkObjects[key].component == null) {
+        console.warn('TRY RESTART SERVER, MAYBE ON SERVER DONT CREATE THIS LOCATION');
+      }
       if(Network.instance.networkObjects[key].component.uniqueId === objectToCreate.uniqueId && Network.instance.networkObjects[key].component.ownerId === objectToCreate.ownerId) {
         console.warn('*createObjects* Correctiong networkObjects as a server id: '+objectToCreate.networkId+' and we now have id: '+key);
         const tempCorrect = Network.instance.networkObjects[key];
@@ -162,7 +165,7 @@ export function applyNetworkStateToClient(worldStateBuffer: WorldStateInterface,
       Network.instance.snapshot = newServerSnapshot;
       addSnapshot(newServerSnapshot);
     }
-    
+
     worldStateBuffer.ikTransforms?.forEach((ikTransform: StateEntityIK) => {
       if(!Network.instance.networkObjects[ikTransform.networkId]) return;
       const entity = Network.instance.networkObjects[ikTransform.networkId].component.entity;
@@ -186,11 +189,11 @@ export function applyNetworkStateToClient(worldStateBuffer: WorldStateInterface,
     })
 
     worldStateBuffer.editObjects?.forEach((editObject) => {
-      NetworkObjectUpdateSchema[editObject.type]?.forEach((element) => { 
+      NetworkObjectUpdateSchema[editObject.type]?.forEach((element) => {
         element.behavior(editObject);
       })
     });
-    
+
     // Handle all network objects destroyed this frame
     worldStateBuffer.destroyObjects?.forEach(({ networkId }) => {
       console.log("Destroying ", networkId);
