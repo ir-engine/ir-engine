@@ -114,7 +114,7 @@
     "whatkey": "2.0.1"
   },
   "devDependencies": {
-    "@babel/core": "7.13.15",
+    "@babel/core": "7.13.16",
     "@types/node": "13.13.50",
     "@types/node-sass": "4.11.1",
     "@types/react": "17.0.3",
