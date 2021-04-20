@@ -75,7 +75,7 @@ const ProfileMenu = (props: Props): any => {
 
 	const loadCredentialHandler = async () => {
 		try {
-			let mediator = process.env.NODE_ENV === 'production' ? Config.publicRuntimeConfig.mediatorServer : 'https://authorization.127.0.0.1:33443';
+			let mediator = process.env.NODE_ENV === 'production' ? Config.publicRuntimeConfig.mediatorServer : 'https://authorization.localhost:33443';
 			mediator = `${mediator}?origin=${encodeURIComponent(window.location.origin)}`;
 
 			await polyfill.loadOnce();
