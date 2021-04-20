@@ -1,6 +1,6 @@
 import { createItem, createCol, createRow, createButton, makeLeftItem } from '../functions/createItem';
 import { Block, Text } from "../../assets/three-mesh-ui";
-import { UIBaseElement, UI_ELEMENT_SELECT_STATE } from "./UIBaseElement";
+import { UI_ELEMENT_SELECT_STATE } from '../classes/UIBaseElement'
 import {totalWidth, totalHeight, itemWidth, itemHeight, gap, url} from '../constants/Constant';
 
 export const createGallery = (param) => {
@@ -17,7 +17,9 @@ export const createGallery = (param) => {
         height: 0.8,
         selectable: true
     });
-    ov.addEventListener(UI_ELEMENT_SELECT_STATE.SELECTED, marketPlaceItemClickCB(ov));
+    ov.addEventListener(UI_ELEMENT_SELECT_STATE.SELECTED, ()=>{
+        marketPlaceItemClickCB(ov);
+    });
 
     let cols = [];
     cols.push(ov);
@@ -35,7 +37,9 @@ export const createGallery = (param) => {
             });
             rows.push(panel);
 
-            panel.addEventListener(UI_ELEMENT_SELECT_STATE.SELECTED, marketPlaceItemClickCB(panel));
+            panel.addEventListener(UI_ELEMENT_SELECT_STATE.SELECTED, ()=>{
+                marketPlaceItemClickCB(panel);
+            });
         }
         cols.push(createRow(totalWidth, itemHeight, rows, gap));
     }
@@ -56,7 +60,9 @@ export const createGallery = (param) => {
             });
             rows.push(panel);
 
-            panel.addEventListener(UI_ELEMENT_SELECT_STATE.SELECTED, libraryItemClickCB(panel));
+            panel.addEventListener(UI_ELEMENT_SELECT_STATE.SELECTED, ()=>{
+                libraryItemClickCB(panel);
+            });
         }
         cols.push(createRow(totalWidth, itemHeight, rows, gap));
     }

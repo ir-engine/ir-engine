@@ -22,3 +22,6 @@ export const url = (index) => {
 }
 
 export const envUrl = '360/env/table_mountain_2.jpg';
+
+export const videoUrl = "360/ITN_Wrecks_FOR_REVIEW_4kx2k_360_h264_40Mbps.mp4";
+

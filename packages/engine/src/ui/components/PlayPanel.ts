@@ -1,5 +1,5 @@
 import {createItem, createCol, createRow, createButton, makeLeftItem} from '../functions/createItem';
-import { UIBaseElement, UI_ELEMENT_SELECT_STATE } from ".classes/UIBaseElement";
+import { UI_ELEMENT_SELECT_STATE } from "../classes/UIBaseElement";
 
 export const createPlayPanel = (param) => {
     const width = param.width;
@@ -62,6 +62,7 @@ export const createPlayPanel = (param) => {
     purchaseButton.addEventListener(UI_ELEMENT_SELECT_STATE.SELECTED, param.purchaseCB);
 
     return {
+        preview: preview,
         panel: panel,
         setPurchase: (isPurchase) => {
           if(isPurchase){
