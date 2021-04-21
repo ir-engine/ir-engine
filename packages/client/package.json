@@ -12,18 +12,12 @@
   "npmClient": "yarn",
   "jest": "ts-jest",
   "scripts": {
-    "find:unused": "next-unused",
-    "dev-old": "cross-env NODE_ENV=development node --max-old-space-size=4096 ./index.js --port 3000",
     "dev": "vite",
     "build": "cross-env NODE_OPTIONS=--max_old_space_size=4096 vite build",
+    "serve": "serve dist --ssl-cert ../../certs/cert.pem --ssl-key ../../certs/key.pem -s",
     "offline": "cross-env NODE_ENV=offline node --max-old-space-size=4096 ./index.js --port 3000",
-    "build-old": "cross-env NODE_OPTIONS=--max_old_space_size=6144 next build ./ && yarn run export",
-    "export": "next export -o www/ && mv www/404.html www/index.html",
-    "start": "next start",
-    "watch": "cross-env NODE_ENV=development next --port 3001 --hostname 127.0.0.1",
     "validate": "yarn run lint && yarn run test",
     "test": "echo \"TODO: Add Testing to Client\" && exit 0",
-    "localbuild": "NEXT_PUBLIC_LOCAL_BUILD=true yarn build && yarn start",
     "lint": "eslint --fix --quiet \"*.ts\" \"**/*.ts\" \"**/*.tsx\""
   },
   "resolutions": {
@@ -105,7 +99,6 @@
     "react-loaders": "3.0.1",
     "react-material-ui-form-validator": "2.1.4",
     "react-modal": "3.13.1",
-    "react-no-ssr": "1.1.0",
     "react-object-inspector": "0.2.1",
     "react-redux": "7.2.3",
     "react-router-dom": "5.2.0",
@@ -121,7 +114,6 @@
     "redux-immutable": "4.0.0",
     "redux-thunk": "2.3.0",
     "reselect": "4.0.0",
-    "rollup-plugin-typescript2": "0.30.0",
     "sass": "1.32.10",
     "semantic-ui-css": "2.4.1",
     "semantic-ui-react": "2.0.3",
@@ -149,15 +141,13 @@
     "comlink": "4.3.0",
     "config": "3.3.6",
     "cross-env": "7.0.3",
-    "dotenv-webpack": "7.0.2",
     "eslint": "7.24.0",
     "eslint-plugin-react": "7.23.2",
-    "gltf-webpack-loader": "https://github.com/MozillaReality/gltf-webpack-loader.git#fix/relative-and-output-paths",
+    "serve": "11.3.2",
     "thread-loader": "3.0.3",
     "ts-loader": "9.0.0",
     "ts-shader-loader": "1.0.6",
-    "typescript": "4.2.4",
-    "webpack-cli": "4.6.0"
+    "typescript": "4.2.4"
   },
   "license": "ISC"
 }

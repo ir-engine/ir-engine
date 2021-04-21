@@ -4,8 +4,6 @@
  */
 
 import React, { lazy, Suspense, useEffect, useState } from "react";
-import NoSSR from "react-no-ssr";
-
 
 // importing component EditorContainer.
 const EditorContainer = lazy(() => import("@xr3ngine/client-core/src/world/components/editor/EditorContainer"));
@@ -95,10 +93,8 @@ const Project = (props: Props) => {
  */
     return hasMounted &&
     <Suspense fallback={React.Fragment}>
-        <NoSSR>
-            { authUser?.accessToken != null && authUser.accessToken.length > 0 
-              && user?.id != null && engineIsInitialized && <EditorContainer Engine={Engine} {...props} /> }
-        </NoSSR>
+        { authUser?.accessToken != null && authUser.accessToken.length > 0 
+            && user?.id != null && engineIsInitialized && <EditorContainer Engine={Engine} {...props} /> }
     </Suspense>;
 };
 

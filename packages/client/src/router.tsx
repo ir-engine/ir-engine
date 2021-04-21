@@ -40,6 +40,7 @@ export const RouterComp = () => {
             <Route path="/editor/create" component={React.lazy(() => import('./pages/editor/create'))} />
             <Redirect path="/editor" to="/editor/projects" />
 
+            <Route path="/workerTest" component={React.lazy(() => import('./pages/WorkerTest'))} />
             <Route path="*" component={React.lazy(() => import('./pages/404'))} />
         </Switch>
     );
