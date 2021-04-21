@@ -30,8 +30,9 @@ const Feed = ({feedsState, getFeed, feedId} : Props) => {
 
     return <section style={{overflow: 'scroll'}}>
             {feed && <FeedCard feed={feed} />}      
-            {feed && <CommentList feedId={feed.id} />}  
-            {feed && <NewComment feedId={feed.id} />}  
+            {/*hided for now*/}
+            {/* {feed && <CommentList feedId={feed.id} />}   */}
+            {/* {feed && <NewComment feedId={feed.id} />}   */}
         </section>;
 };
 

@@ -10,8 +10,8 @@ import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import WhatshotIcon from '@material-ui/icons/Whatshot';
 import TelegramIcon from '@material-ui/icons/Telegram';
-import BookmarkBorderIcon from '@material-ui/icons/BookmarkBorder';
-import BookmarkIcon from '@material-ui/icons/Bookmark';
+// import BookmarkBorderIcon from '@material-ui/icons/BookmarkBorder';
+// import BookmarkIcon from '@material-ui/icons/Bookmark';
 import VisibilityIcon from '@material-ui/icons/Visibility';
 
 import { Feed } from '@xr3ngine/common/src/interfaces/Feed';
@@ -21,7 +21,7 @@ import CreatorAsTitle from '../CreatorAsTitle';
 import styles from './FeedCard.module.scss';
 import SimpleModal from '../SimpleModal';
 import { addViewToFeed } from '../../reducers/feed/service';
-import { addBookmarkToFeed, removeBookmarkToFeed } from '../../reducers/feedBookmark/service';
+// import { addBookmarkToFeed, removeBookmarkToFeed } from '../../reducers/feedBookmark/service';
 import { selectFeedFiresState } from '../../reducers/feedFires/selector';
 import { getFeedFires, addFireToFeed, removeFireToFeed } from '../../reducers/feedFires/service';
 import PopupLogin from '../PopupLogin/PopupLogin';
@@ -39,8 +39,8 @@ const mapStateToProps = (state: any): any => {
     getFeedFires: bindActionCreators(getFeedFires, dispatch),
     addFireToFeed: bindActionCreators(addFireToFeed, dispatch),
     removeFireToFeed: bindActionCreators(removeFireToFeed, dispatch),
-    addBookmarkToFeed: bindActionCreators(addBookmarkToFeed, dispatch),
-    removeBookmarkToFeed: bindActionCreators(removeBookmarkToFeed, dispatch),
+    // addBookmarkToFeed: bindActionCreators(addBookmarkToFeed, dispatch),
+    // removeBookmarkToFeed: bindActionCreators(removeBookmarkToFeed, dispatch),
     addViewToFeed : bindActionCreators(addViewToFeed, dispatch),
 });
 interface Props{
@@ -50,8 +50,8 @@ interface Props{
     getFeedFires?: typeof getFeedFires;
     addFireToFeed? : typeof addFireToFeed;
     removeFireToFeed?: typeof removeFireToFeed;
-    addBookmarkToFeed?: typeof addBookmarkToFeed;
-    removeBookmarkToFeed?: typeof removeBookmarkToFeed;
+    // addBookmarkToFeed?: typeof addBookmarkToFeed;
+    // removeBookmarkToFeed?: typeof removeBookmarkToFeed;
     addViewToFeed?: typeof addViewToFeed;
 }
 const FeedCard = (props: Props) : any => {
@@ -59,13 +59,14 @@ const FeedCard = (props: Props) : any => {
     const [buttonPopup , setButtonPopup] = useState(false);
     const [isVideo, setIsVideo] = useState(false);
     const [openFiredModal, setOpenFiredModal] = useState(false);
-    const {feed, getFeedFires, feedFiresState, addFireToFeed, removeFireToFeed, addBookmarkToFeed, removeBookmarkToFeed, addViewToFeed} = props;
+    const {feed, getFeedFires, feedFiresState, addFireToFeed, removeFireToFeed, addViewToFeed} = props;
     
     const handleAddFireClick = (feedId) =>addFireToFeed(feedId);
     const handleRemoveFireClick = (feedId) =>removeFireToFeed(feedId);
 
-    const handleAddBookmarkClick = (feedId) =>addBookmarkToFeed(feedId);
-    const handleRemoveBookmarkClick = (feedId) =>removeBookmarkToFeed(feedId);
+    //hided for now
+    // const handleAddBookmarkClick = (feedId) =>addBookmarkToFeed(feedId);
+    // const handleRemoveBookmarkClick = (feedId) =>removeBookmarkToFeed(feedId);
 
     const handlePlayVideo = (feedId) => {
         !checkGuest && addViewToFeed(feedId);
@@ -105,9 +106,10 @@ const FeedCard = (props: Props) : any => {
                                 :
                                 <WhatshotIcon htmlColor="#DDDDDD" onClick={()=>checkGuest ? setButtonPopup(true) : handleAddFireClick(feed.id)} />}
                         <TelegramIcon />
-                        {feed.isBookmarked ? <BookmarkIcon onClick={()=>checkGuest ? setButtonPopup(true) : handleRemoveBookmarkClick(feed.id)} />
+                        {/*hided for now*/}
+                        {/* {feed.isBookmarked ? <BookmarkIcon onClick={()=>checkGuest ? setButtonPopup(true) : handleRemoveBookmarkClick(feed.id)} />
                          : 
-                         <BookmarkBorderIcon onClick={()=>checkGuest ? setButtonPopup(true) : handleAddBookmarkClick(feed.id)} />}
+                         <BookmarkBorderIcon onClick={()=>checkGuest ? setButtonPopup(true) : handleAddBookmarkClick(feed.id)} />} */}
                     </section>
                     <Typography className={styles.titleContainer} gutterBottom variant="h2" onClick={()=>history.push('/feed?feedId=' + feed.id)}>
                         {feed.title}                      
