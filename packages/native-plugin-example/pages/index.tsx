@@ -129,7 +129,8 @@ export const IndexPage = (): any => {
                     y: data.y
                 }));
 
-                camera.setFocalLength(data.y);
+                // camera.setFocalLength(data.fY);
+                // camera.setFocalLength(50);
 
                 // TODO:
                 // Set camera position and rotation
