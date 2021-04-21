@@ -1,5 +1,5 @@
 import { Matrix4, Quaternion, Vector3 } from 'three';
-import { PhysXBodyTransform, PhysXModelShapes } from './types/ThreePhysX';
+import { Transform, PhysXModelShapes } from './types/ThreePhysX';
 import { PhysXManager } from './worker';
 
 const quat1 = new Quaternion();
@@ -60,7 +60,7 @@ const getGeometry = ({ shape, transform, options }): PhysX.PxGeometry => {
   return geometry;
 };
 
-const createTrimesh = (transform: PhysXBodyTransform, cooking: PhysX.PxCooking, physics: PhysX.PxPhysics, vertices: ArrayLike<number>, indices: ArrayLike<number>): PhysX.PxTriangleMeshGeometry => {
+const createTrimesh = (transform: Transform, cooking: PhysX.PxCooking, physics: PhysX.PxPhysics, vertices: ArrayLike<number>, indices: ArrayLike<number>): PhysX.PxTriangleMeshGeometry => {
   const verticesPtr = createArrayPointers(vertices);
   const indicesPtr = createArrayPointers(indices);
   const trimesh = cooking.createTriMesh(verticesPtr, vertices.length / 3, indicesPtr, indices.length / 3, false, physics);
@@ -80,7 +80,7 @@ const createTrimesh = (transform: PhysXBodyTransform, cooking: PhysX.PxCooking, 
   return geometry;
 };
 
-const createConvexMesh = (transform: PhysXBodyTransform, cooking: PhysX.PxCooking, physics: PhysX.PxPhysics, vertices: ArrayLike<number>): PhysX.PxTriangleMeshGeometry => {
+const createConvexMesh = (transform: Transform, cooking: PhysX.PxCooking, physics: PhysX.PxPhysics, vertices: ArrayLike<number>): PhysX.PxTriangleMeshGeometry => {
   const verticesPtr = createArrayPointers(vertices);
 
   const convexMesh = cooking.createConvexMesh(verticesPtr, vertices.length / 3, physics);

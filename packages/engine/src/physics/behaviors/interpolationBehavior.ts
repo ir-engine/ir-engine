@@ -11,6 +11,7 @@ import { InterpolationComponent } from '../components/InterpolationComponent';
 import { TransformComponent } from '../../transform/components/TransformComponent';
 import { VehicleComponent } from '../../templates/vehicle/components/VehicleComponent';
 import { Object3DComponent } from '../../scene/components/Object3DComponent';
+import { PhysicsSystem } from '../systems/PhysicsSystem';
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -53,13 +54,12 @@ export const interpolationBehavior: Behavior = (entity: Entity, args): void => {
       args.snapshot.vZ
     );
 
-    capsule.body.velocity.set(0, 0, 0);
 
-    capsule.body.position.set(
-      args.snapshot.x,
-      args.snapshot.y,
-      args.snapshot.z
-    )
+    capsule.body.updateTransform({
+      translation: { x: args.snapshot.x, y: args.snapshot.y, z: args.snapshot.z },
+    })
+
+    PhysicsSystem.instance.updateBody(capsule.body, { linearVelocity: { x: 0, y: 0, z: 0 }});
 
     // actor.actorCapsule.body.rotation.qX = snapshot.qX;
     // actor.actorCapsule.body.rotation.qY = snapshot.qY;
@@ -83,17 +83,10 @@ export const interpolationBehavior: Behavior = (entity: Entity, args): void => {
 
     // if (inter.lastUpdate + inter.updateDaley < Date.now() && args.snapshot.qX != undefined) {
 
-      colliderComponent.collider.position.set(
-        args.snapshot.x,
-        args.snapshot.y,
-        args.snapshot.z
-      );
-      colliderComponent.collider.quaternion.set(
-        args.snapshot.qX,
-        args.snapshot.qY,
-        args.snapshot.qZ,
-        args.snapshot.qW
-      );
+      colliderComponent.body.updateTransform({
+        translation: { x: args.snapshot.x, y: args.snapshot.y, z: args.snapshot.z },
+        rotation: { x: args.snapshot.qX, y: args.snapshot.qY, z: args.snapshot.qZ, w: args.snapshot.qW }
+      })
 
       // inter.lastUpdate = Date.now();
     // }

@@ -23,6 +23,13 @@ export interface Vec3Fragment {
   y?: number;
   z?: number;
 }
+export interface QuatFragment {
+  x?: number;
+  y?: number;
+  z?: number;
+  w?: number;
+}
+
 
 export interface Vec3 {
   x: number;
@@ -96,6 +103,7 @@ export interface BodyConfig {
 export interface RigidBodyProxy {
   id: number;
   transform: Transform;
+  updateTransform?: ({ translation, rotation }: { translation?: Vec3Fragment, rotation?: QuatFragment }) => void;
   shapes: PhysXShapeConfig[];
   options: BodyConfig;
   controller?: {
@@ -159,6 +167,8 @@ export interface SceneQuery {
   id?: number;
   type: SceneQueryType;
   flags?: number;
+  collisionLayer?: number;
+  collisionMask?: number;
   origin?: Vec3;
   direction?: Vec3;
   maxDistance?: number;

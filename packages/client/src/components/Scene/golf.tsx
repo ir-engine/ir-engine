@@ -33,7 +33,8 @@ import { isMobileOrTablet } from '@xr3ngine/engine/src/common/functions/isMobile
 import { EngineEvents } from '@xr3ngine/engine/src/ecs/classes/EngineEvents';
 import { resetEngine } from "@xr3ngine/engine/src/ecs/functions/EngineFunctions";
 import { getComponent, getMutableComponent } from '@xr3ngine/engine/src/ecs/functions/EntityFunctions';
-import { DefaultInitializationOptions, initializeEngine } from '@xr3ngine/engine/src/initialize';
+import { initializeEngine } from '@xr3ngine/engine/src/initialize';
+import { DefaultInitializationOptions } from '@xr3ngine/engine/src/DefaultInitializationOptions';
 import { InteractiveSystem } from '@xr3ngine/engine/src/interaction/systems/InteractiveSystem';
 import { Network } from '@xr3ngine/engine/src/networking/classes/Network';
 import { MessageTypes } from '@xr3ngine/engine/src/networking/enums/MessageTypes';

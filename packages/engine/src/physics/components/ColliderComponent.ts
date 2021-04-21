@@ -7,7 +7,7 @@ import { Types } from '../../ecs/types/Types';
  */
 
 export class ColliderComponent extends Component<ColliderComponent> {
-  collider: RigidBodyProxy
+  body: RigidBodyProxy
   type: string
   mass: number
   position: any

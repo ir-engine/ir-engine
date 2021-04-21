@@ -42,6 +42,7 @@ export function stopIK(entity) {
   }
   if(!hasComponent(entity, FollowCameraComponent)) {
     addComponent(entity, FollowCameraComponent);
+    // TODO: add params for follow cam
   }
   if(hasComponent(entity, IKComponent)) {
     removeComponent(entity, IKComponent);

@@ -33,6 +33,7 @@ import { initializeMovingState } from "../animations/MovingAnimations";
 import { IKComponent } from "../../../character/components/IKComponent";
 import { initiateIK } from "../../../xr/functions/IKFunctions";
 import { AnimationComponent } from "../../../character/components/AnimationComponent";
+import { CollisionGroups } from '../../../physics/enums/CollisionGroups';
 
 export class AnimationManager {
 	static _instance: AnimationManager;

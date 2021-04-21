@@ -4,6 +4,20 @@ declare module '*.wasm' {
 }
 
 declare namespace PhysX {
+  class PxQueryFlag {
+    static eSTATIC: { value: number };
+    static eDYNAMIC: { value: number };
+    static ePREFILTER: { value: number };
+    static ePOSTFILTER: { value: number };
+    static eANY_HIT: { value: number };
+    static eNO_BLOCK: { value: number };
+  }
+  class PxQueryHitType {
+    static eNONE: { value: number };
+    static eBLOCK: { value: number };
+    static eTOUCH: { value: number };
+  } 
+
   class PxShapeFlag {
     static eSIMULATION_SHAPE: { value: number };
     static eSCENE_QUERY_SHAPE: { value: number };

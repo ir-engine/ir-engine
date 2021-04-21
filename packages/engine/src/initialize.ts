@@ -17,21 +17,17 @@ import { InteractiveSystem } from "./interaction/systems/InteractiveSystem";
 import { Network } from './networking/classes/Network';
 import { ClientNetworkSystem } from './networking/systems/ClientNetworkSystem';
 import { MediaStreamSystem } from './networking/systems/MediaStreamSystem';
-import { ServerNetworkIncomingSystem } from './networking/systems/ServerNetworkIncomingSystem';
-import { ServerNetworkOutgoingSystem } from './networking/systems/ServerNetworkOutgoingSystem';
 import { ParticleSystem } from './particles/systems/ParticleSystem';
 import { PhysicsSystem } from './physics/systems/PhysicsSystem';
 import { HighlightSystem } from './renderer/HighlightSystem';
 import { WebGLRendererSystem } from './renderer/WebGLRendererSystem';
 import { ServerSpawnSystem } from './scene/systems/SpawnSystem';
-import { StateSystem } from './state/systems/StateSystem';
-import { CharacterInputSchema } from './templates/character/CharacterInputSchema';
 import { AnimationManager } from './templates/character/prefabs/NetworkPlayerCharacter';
-import { DefaultGameMode } from './templates/game/DefaultGameMode';
-import { DefaultNetworkSchema } from './templates/networking/DefaultNetworkSchema';
 import { TransformSystem } from './transform/systems/TransformSystem';
 import { createWorker, WorkerProxy } from './worker/MessageQueue';
 import { XRSystem } from './xr/systems/XRSystem';
+import PhysXWorker from './physics/physx/worker.ts?worker';
+import { PhysXInstance } from './physics/physx';
 
 // import { PositionalAudioSystem } from './audio/systems/PositionalAudioSystem';
 
@@ -43,21 +39,6 @@ if (typeof window !== 'undefined') {
   (window as any).iOS = !window.MSStream && /iPad|iPhone|iPod/.test(navigator.userAgent);
   (window as any).safariWebBrowser = !window.MSStream && /Safari/.test(navigator.userAgent);
 }
-
-export const DefaultInitializationOptions = {
-  input: {
-    schema: CharacterInputSchema,
-  },
-  networking: {
-    schema: DefaultNetworkSchema
-  },
-  gameModes: [
-    DefaultGameMode
-  ],
-  publicPath: '',
-  useOfflineMode: false,
-  postProcessing: true
-};
 
 export const initializeEngine = async (options): Promise<void> => {
   // const options = _.defaultsDeep({}, initOptions, DefaultInitializationOptions);
@@ -129,6 +110,9 @@ export const initializeEngine = async (options): Promise<void> => {
     registerSystem(HighlightSystem);
     registerSystem(ActionSystem, { useWebXR: Engine.xrSupported });
     registerSystem(PhysicsSystem);
+
+    await PhysXInstance.instance.initPhysX(new PhysXWorker(), { jsPath: '/physx/physx.release.js', wasmPath: '/physx/physx.release.wasm' });
+
     registerSystem(TransformSystem, { priority: 900 });
 
     // audio breaks webxr currently
@@ -184,47 +168,13 @@ export const initializeEditor = async (options): Promise<void> => {
   Engine.scene.add(Engine.camera);
 
   registerSystem(PhysicsSystem);
+
+  await PhysXInstance.instance.initPhysX(new PhysXWorker(), { jsPath: '/physx/physx.release.js', wasmPath: '/physx/physx.release.wasm' });
+  
   registerSystem(TransformSystem, { priority: 900 });
 
   registerSystem(ParticleSystem);
   registerSystem(DebugHelpersSystem);
-
-  Engine.engineTimerTimeout = setTimeout(() => {
-    Engine.engineTimer = Timer(
-      {
-        networkUpdate: (delta: number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Network),
-        fixedUpdate: (delta: number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Fixed),
-        update: (delta, elapsedTime) => execute(delta, elapsedTime, SystemUpdateType.Free)
-      }, Engine.physicsFrameRate, Engine.networkFramerate).start();
-  }, 1000);
-}
-
-export const initializeServer = async (initOptions: any = DefaultInitializationOptions): Promise<void> => {
-  const options = _.defaultsDeep({}, initOptions, DefaultInitializationOptions);
-
-  EngineEvents.instance = new EngineEvents();
-  Engine.scene = new Scene();
-  Engine.publicPath = options.publicPath;
-  Network.instance = new Network();
-
-  addIncomingEvents()
-  addOutgoingEvents()
-
-  initialize();
-
-  const networkSystemOptions = { schema: options.networking.schema, app: options.networking.app };
-  registerSystem(ServerNetworkIncomingSystem, { ...networkSystemOptions, priority: -1 });
-  registerSystem(ServerNetworkOutgoingSystem, { ...networkSystemOptions, priority: 10000 });
-  registerSystem(MediaStreamSystem);
-  registerSystem(StateSystem);
-  registerSystem(CharacterControllerSystem);
-  registerSystem(PhysicsSystem);
-
-  PhysXInstance.instance = new PhysXInstance(new PhysXWorker());
-  await PhysXInstance.instance.initPhysX({ jsPath: Engine.publicPath + '/physx/physx.release.js', wasmPath: Engine.publicPath + '/physx/physx.release.wasm' });
-  
-  registerSystem(ServerSpawnSystem, { priority: 899 });
-  registerSystem(TransformSystem, { priority: 900 });
 
   Engine.engineTimerTimeout = setTimeout(() => {
     Engine.engineTimer = Timer(

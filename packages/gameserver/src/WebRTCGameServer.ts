@@ -1,4 +1,4 @@
-import { initializeServer } from "@xr3ngine/engine/src/initialize";
+import { initializeServer } from "@xr3ngine/engine/src/initializeServer";
 import { DefaultNetworkSchema } from "@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema";
 import { SocketWebRTCServerTransport } from "./SocketWebRTCServerTransport";
 

@@ -43,7 +43,7 @@ export function addColliderWithEntity(entity: Entity) {
     transformComponent.scale,
     { mesh, vertices, indices }
   );
-  colliderComponent.collider = body;
+  colliderComponent.body = body;
 }
 
 export function addColliderWithoutEntity(userData, pos, rot, scale, model = { mesh: null, vertices: null, indices: null }): RigidBodyProxy {

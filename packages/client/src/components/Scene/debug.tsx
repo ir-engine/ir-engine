@@ -17,7 +17,8 @@ import {
 import { selectPartyState } from '@xr3ngine/client-core/src/social/reducers/party/selector';
 import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport';
 import { EngineEvents } from '@xr3ngine/engine/src/ecs/classes/EngineEvents';
-import { DefaultInitializationOptions, initializeEngine } from '@xr3ngine/engine/src/initialize';
+import { initializeEngine } from '@xr3ngine/engine/src/initialize';
+import { DefaultInitializationOptions } from '@xr3ngine/engine/src/DefaultInitializationOptions';
 import { Network } from '@xr3ngine/engine/src/networking/classes/Network';
 import { MessageTypes } from '@xr3ngine/engine/src/networking/enums/MessageTypes';
 import { NetworkSchema } from '@xr3ngine/engine/src/networking/interfaces/NetworkSchema';

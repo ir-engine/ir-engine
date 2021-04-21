@@ -1,11 +1,11 @@
 import { Matrix4, Vector3 } from 'three';
 import { CharacterComponent } from "../../character/components/CharacterComponent";
-import { isPlayerInVehicle } from '../../../common/functions/isPlayerInVehicle';
 import { VehicleComponent } from '../components/VehicleComponent';
 import { Entity } from '../../../ecs/classes/Entity';
 import { TransformComponent } from '../../../transform/components/TransformComponent';
-import { getComponent, getMutableComponent } from '../../../ecs/functions/EntityFunctions';
+import { getComponent, getMutableComponent, hasComponent } from '../../../ecs/functions/EntityFunctions';
 import { PhysicsSystem } from '../../../physics/systems/PhysicsSystem';
+import { PlayerInCar } from '../../../physics/components/PlayerInCar';
 
 
 /**
@@ -22,7 +22,7 @@ export const onUpdatePlayerInCar = (entity: Entity, entityCar: Entity, seat: num
 
 
   // its then connected player seen other player in car
-  if ( !isPlayerInVehicle(entity) ) {
+  if (!hasComponent<PlayerInCar>(entity, PlayerInCar) ) {
     const actor = getComponent<CharacterComponent>(entity, CharacterComponent);
     PhysicsSystem.instance.removeBody(actor.actorCapsule.body);
   }

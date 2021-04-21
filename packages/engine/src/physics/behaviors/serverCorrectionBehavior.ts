@@ -20,8 +20,19 @@ export const serverCorrectionBehavior: Behavior = (entity: Entity, args): void =
   if (args.snapshot == null) return;
   const collider = getMutableComponent(entity, ColliderComponent)
   if(collider) {
-    collider.collider.position.set(args.snapshot.x, args.snapshot.y, args.snapshot.z);
-    collider.collider.quaternion.set(args.snapshot.qX, args.snapshot.qY, args.snapshot.qZ, args.snapshot.qW);
+    collider.body.updateTransform({ 
+      translation: {
+        x: args.snapshot.x,
+        y: args.snapshot.y,
+        z: args.snapshot.z,
+      },
+      rotation: {
+        x: args.snapshot.qX,
+        y: args.snapshot.qY,
+        z: args.snapshot.qZ,
+        w: args.snapshot.qW,
+      }
+    });
   }
 }
 
@@ -42,17 +53,21 @@ export const serverCorrectionInterpolationBehavior: Behavior = (entity: Entity, 
       const offsetZ = args.correction.z - args.snapshot.z;
 
       if (Math.abs(offsetX) + Math.abs(offsetY) + Math.abs(offsetZ) > 3) {
-        capsule.body.position.set(
-          args.snapshot.x,
-          args.snapshot.y,
-          args.snapshot.z
-        );
+        capsule.body.updateTransform({ 
+          translation: {
+            x: args.snapshot.x,
+            y: args.snapshot.y,
+            z: args.snapshot.z,
+          },
+        });
       } else {
-        capsule.body.position.set(
-          capsule.body.position.x - (offsetX / correctionSpeed),
-          capsule.body.position.y - (offsetY / correctionSpeed),
-          capsule.body.position.z - (offsetZ / correctionSpeed)
-        );
+        capsule.body.updateTransform({ 
+          translation: {
+            x: args.snapshot.x - (offsetX / correctionSpeed),
+            y: args.snapshot.y - (offsetY / correctionSpeed),
+            z: args.snapshot.z - (offsetZ / correctionSpeed),
+          },
+        });
       }
   } else if (hasComponent(entity, VehicleComponent)) {
 
@@ -163,13 +178,13 @@ export const createNewCorrection: Behavior = (entity: Entity, args): void => {
     const capsule = getComponent<ControllerColliderComponent>(entity, ControllerColliderComponent);
     args.state.push({
        networkId: args.networkId,
-       x: capsule.body.position.x,
-       y: capsule.body.position.y,
-       z: capsule.body.position.z,
-       qX: capsule.body.quaternion.x,
-       qY: capsule.body.quaternion.y,
-       qZ: capsule.body.quaternion.z,
-       qW: capsule.body.quaternion.w
+       x: capsule.body.transform.translation.x,
+       y: capsule.body.transform.translation.y,
+       z: capsule.body.transform.translation.z,
+       qX: capsule.body.transform.rotation.x,
+       qY: capsule.body.transform.rotation.y,
+       qZ: capsule.body.transform.rotation.z,
+       qW: capsule.body.transform.rotation.w
      })
    } else if (hasComponent(entity, VehicleComponent)) {
      const vehicleComponent = getComponent(entity, VehicleComponent) as VehicleComponent;

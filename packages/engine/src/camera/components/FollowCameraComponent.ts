@@ -2,6 +2,8 @@
 import { Vector3 } from 'three';
 import { Component } from '../../ecs/classes/Component';
 import { Types } from '../../ecs/types/Types';
+import { CollisionGroups } from '../../physics/enums/CollisionGroups';
+import { PhysXInstance, SceneQuery, SceneQueryType } from '../../physics/physx';
 import { CameraModes } from '../types/CameraModes';
 
 /** The component is added to any entity and hangs the camera watching it. */
@@ -40,10 +42,23 @@ export class FollowCameraComponent extends Component<FollowCameraComponent> {
   /** Whether the camera auto-rotates toward the target **Default** value is true. */
   locked: boolean
   /** Camera physics raycast data */
-	rayResult: RaycastResult = new RaycastResult();
+	raycastQuery: SceneQuery;
   /** Camera physics raycast has hit */
 	rayHasHit = false;
+  collisionMask: CollisionGroups = CollisionGroups.All;
+
+  constructor() {
+    super();
+    this.raycastQuery = PhysXInstance.instance.addRaycastQuery({ 
+      type: SceneQueryType.Closest,
+      origin: new Vector3(),
+      direction: new Vector3(0, -1, 0),
+      maxDistance: 1,
+      collisionMask: this.collisionMask,
+    });
+  }
 }
+
 
 FollowCameraComponent._schema = {
   mode: { type: Types.String, default: CameraModes.ThirdPerson },
@@ -61,6 +76,7 @@ FollowCameraComponent._schema = {
   phi: { type: Types.Number, default: 0 },
   shoulderSide: { type: Types.Boolean, default: true },
   locked: { type: Types.Boolean, default: true },
-  rayResult: { type: Types.Ref, default: new RaycastResult() },
+  raycastQuery: { type: Types.Ref, default: null },
   rayHasHit: { type: Types.Boolean, default: false },
+  collisionMask: { type: Types.Number, default: CollisionGroups.All },
 };

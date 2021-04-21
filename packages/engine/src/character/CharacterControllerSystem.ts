@@ -12,6 +12,7 @@ import { PhysicsSystem } from "../physics/systems/PhysicsSystem";
 import { CollisionGroups } from "../physics/enums/CollisionGroups";
 import { Vector3 } from "three";
 import { TransformComponent } from "../transform/components/TransformComponent";
+import { SceneQueryType } from "../physics/physx";
 export class CharacterControllerSystem extends System {
 
   constructor(attributes?: SystemAttributes) {
@@ -28,7 +29,18 @@ export class CharacterControllerSystem extends System {
    * @param delta Time since last frame.
    */
   execute(delta: number): void {
-    this.queryResults.character.all.forEach((entity) => {
+    this.queryResults.controller.added.forEach((entity) => {
+      const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
+      actor.raycastQuery = PhysicsSystem.instance.addRaycastQuery({ 
+        type: SceneQueryType.Closest,
+        origin: new Vector3(),
+        direction: new Vector3(0, -1, 0),
+        maxDistance: 1,
+        collisionMask: actor.collisionMask,
+      });
+    });
+
+    this.queryResults.characterInput.all.forEach((entity) => {
       const actor = getComponent(entity, CharacterComponent)
       
       updateCharacterOrientation(entity, delta)
@@ -68,16 +80,13 @@ export class CharacterControllerSystem extends System {
         capsule.body.transform.translation.y,
         capsule.body.transform.translation.z
       );
-      const actorRaycastOptions = {
-        collisionFilterMask: CollisionGroups.Default | CollisionGroups.Car | CollisionGroups.ActiveCollider,
-        skipBackfaces: true /* ignore back faces */
-      };
       
       const actorRaycastStart = new Vector3(capsule.body.transform.translation.x, capsule.body.transform.translation.y, capsule.body.transform.translation.z);
-      const actorRaycastEnd = new Vector3(capsule.body.transform.translation.x, capsule.body.transform.translation.y - actor.rayCastLength - actor.raySafeOffset, capsule.body.transform.translation.z);
-    
-      const m = PhysicsSystem.instance.raycastClosest(actorRaycastStart, actorRaycastEnd, actorRaycastOptions, actor.rayResult);
+      actor.raycastQuery.origin = new Vector3(actorRaycastStart.x, actorRaycastStart.y, actorRaycastStart.z);
+      actor.raycastQuery.direction = new Vector3(0, -1, 0);
       
+      const closestHit = actor.raycastQuery.hits[0];
+
       // TODO: replace this with ControllerCollider collision event
 
       // if (isClient && m && actor.rayResult.body.collisionFilterGroup == CollisionGroups.ActiveCollider) {
@@ -102,7 +111,7 @@ export class CharacterControllerSystem extends System {
 }
 
 CharacterControllerSystem.queries = {
-  character: {
+  characterInput: {
     components: [CharacterComponent, Input],
     listen: {
       added: true,
@@ -111,6 +120,13 @@ CharacterControllerSystem.queries = {
   },
   controllerCollider: {
     components: [ControllerColliderComponent, TransformComponent],
+    listen: {
+      added: true,
+      removed: true
+    }
+  },
+  character: {
+    components: [CharacterComponent],
     listen: {
       added: true,
       removed: true

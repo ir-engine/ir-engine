@@ -6,7 +6,9 @@ import { ControllerColliderComponent } from '../../../physics/components/Control
 import { VectorSpringSimulator } from '../../../physics/classes/VectorSpringSimulator';
 import { RelativeSpringSimulator } from '../../../physics/classes/SpringSimulator';
 // import { RaycastResult, Vec3 } from 'cannon-es';
-import { Transform } from '../../../physics/physx';
+import { PhysXInstance, SceneQuery, SceneQueryType, Transform } from '../../../physics/physx';
+import { PhysicsSystem } from '../../../physics/systems/PhysicsSystem';
+import { CollisionGroups } from '../../../physics/enums/CollisionGroups';
 
 // idle|   idle  +  walk     |    walk      |    walk + run     |   run
 // 0   | > WALK_START_SPEED  | > WALK_SPEED | > RUN_START_SPEED | > RUN_SPEED
@@ -85,7 +87,7 @@ export class CharacterComponent extends Component<CharacterComponent> {
 	public capsuleFriction = 0.1;
 	public capsulePosition: Transform;
 	// Ray casting
-	public rayResult: RaycastResult = new RaycastResult();
+	public raycastQuery: SceneQuery;
 	// public rayDontStuckX: RaycastResult = new RaycastResult();
 	// public rayDontStuckZ: RaycastResult = new RaycastResult();
 	// public rayDontStuckXm: RaycastResult = new RaycastResult();
@@ -111,8 +113,11 @@ export class CharacterComponent extends Component<CharacterComponent> {
 	canLeaveVehicles: boolean;
   alreadyJumped: boolean;
 	rotationSpeed: any;
-}
 
-CharacterComponent._schema = {
-	tiltContainer: { type: Types.Ref, default: null },
-};
+  collisionMask: number = CollisionGroups.Default | CollisionGroups.Car | CollisionGroups.ActiveCollider;
+
+  static _schema = {
+    tiltContainer: { type: Types.Ref, default: null },
+    collisionMask: { type: Types.Number, default: CollisionGroups.Default | CollisionGroups.Car | CollisionGroups.ActiveCollider },
+  };
+}

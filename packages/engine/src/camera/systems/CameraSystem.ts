@@ -91,23 +91,15 @@ export class CameraSystem extends System {
       }
 
       // Raycast for camera
-      const cameraRaycastStart = new Vector3(targetPosition.x, targetPosition.y, targetPosition.z);
       const cameraTransform: TransformComponent = getMutableComponent(CameraSystem.activeCamera, TransformComponent)
-      const cameraRaycastEnd = new Vector3(cameraTransform.position.x, cameraTransform.position.y, cameraTransform.position.z);
+      const raycastDirection = new Vector3().subVectors(cameraTransform.position, targetPosition).normalize();
+      cameraFollow.raycastQuery.origin = new Vector3(targetPosition.x, targetPosition.y, targetPosition.z);
+      cameraFollow.raycastQuery.direction = new Vector3(raycastDirection.x, raycastDirection.y, raycastDirection.z);
+      
+      const closestHit = cameraFollow.raycastQuery.hits[0];
 
-      const cameraRaycastOptions = {
-        collisionFilterMask: CollisionGroups.Default | CollisionGroups.Car,
-        skipBackfaces: true /* ignore back faces */
-      };
-
-      if (!actor) { // this is for cars
-        cameraRaycastOptions.collisionFilterMask = CollisionGroups.Default;
-      }
-
-      cameraFollow.rayHasHit = PhysicsSystem.instance.raycastClosest(cameraRaycastStart, cameraRaycastEnd, cameraRaycastOptions, cameraFollow.rayResult);
-
-      if(cameraFollow.mode !== CameraModes.FirstPerson && cameraFollow.rayHasHit && cameraFollow.rayResult.distance < camDist && cameraFollow.rayResult.distance > 0.1) {
-        camDist = cameraFollow.rayResult.distance - 0.5;
+      if(cameraFollow.mode !== CameraModes.FirstPerson && cameraFollow.rayHasHit && closestHit.distance < camDist && closestHit.distance > 0.1) {
+        camDist = closestHit.distance - 0.5;
       }
 
       cameraDesiredTransform.position.set(

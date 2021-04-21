@@ -53,7 +53,7 @@ export class ControllerColliderComponent extends Component<ControllerColliderCom
 		options = setDefaults(options, defaults);
 		this.options = options;
 
-		PhysXInstance.instance.createController({
+		this.body = PhysXInstance.instance.createController({
 			isCapsule: true,
       collisionLayer: CollisionGroups.Characters,
       collisionMask: CollisionGroups.Default | CollisionGroups.Characters | CollisionGroups.Car | CollisionGroups.TrimeshColliders,
@@ -65,9 +65,7 @@ export class ControllerColliderComponent extends Component<ControllerColliderCom
       material: {
         dynamicFriction: options.friction,
       }
-		}).then((body) => {
-      this.body = body;
-    })
+    });
 	}
 }
 

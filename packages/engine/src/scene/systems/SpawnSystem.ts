@@ -58,12 +58,8 @@ export class ServerSpawnSystem extends System {
           }
           if ( capsule.body != null && capsule.playerStuck > 180 ) {
             this.lastSpawnIndex = (this.lastSpawnIndex + 1) % this.spawnPoints.length;
-            capsule.body.position.set(
-              spawnTransform.position.x,
-              spawnTransform.position.y,
-              spawnTransform.position.z
-            );
-            capsule.playerStuck = 0;
+            capsule.body.controller.velocity = { x: 0, y: 0, z: 0 };
+            PhysicsSystem.instance.updateController(capsule.body, { position: { x: spawnTransform.position.x, y: spawnTransform.position.y, z: spawnTransform.position.z }});
           }
         });
         this.queryResults.spawnPoint.removed?.forEach(entity => {

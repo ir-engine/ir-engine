@@ -30,8 +30,7 @@ import { VehicleComponent } from "../../templates/vehicle/components/VehicleComp
 import { InterpolationComponent } from "../components/InterpolationComponent";
 import { PhysicsLifecycleState } from '../enums/PhysicsStates';
 import { isClient } from '../../common/functions/isClient';
-import { PhysXInstance } from '../physx';
-import PhysXWorker from './physics/physx/worker?worker';
+import { BodyConfig, PhysXInstance, RigidBodyProxy, SceneQuery } from '../physx';
 import { addColliderWithEntity } from '../behaviors/colliderCreateFunctions';
 
 /**
@@ -71,9 +70,6 @@ export class PhysicsSystem extends System {
     this.physicsFrameRate = Engine.physicsFrameRate;
     this.physicsFrameTime = 1 / this.physicsFrameRate;
 
-    PhysXInstance.instance = new PhysXInstance(new PhysXWorker());
-    PhysXInstance.instance.initPhysX({ jsPath: '/physx/physx.release.js', wasmPath: '/physx/physx.release.wasm' });
-
     PhysicsSystem.isSimulating = isServer;
     PhysicsSystem.frame = 0;
 
@@ -97,7 +93,7 @@ export class PhysicsSystem extends System {
     this.queryResults.collider.removed?.forEach(entity => {
       const colliderComponent = getComponent<ColliderComponent>(entity, ColliderComponent, true);
       if (colliderComponent) {
-        this.removeBody(colliderComponent.collider);
+        this.removeBody(colliderComponent.body);
       }
     });
 
@@ -135,15 +131,15 @@ export class PhysicsSystem extends System {
       const colliderComponent = getComponent<ColliderComponent>(entity, ColliderComponent);
       const transform = getComponent<TransformComponent>(entity, TransformComponent);
       transform.position.set(
-        colliderComponent.collider.transform.translation.x,
-        colliderComponent.collider.transform.translation.y,
-        colliderComponent.collider.transform.translation.z
+        colliderComponent.body.transform.translation.x,
+        colliderComponent.body.transform.translation.y,
+        colliderComponent.body.transform.translation.z
       );
       transform.rotation.set(
-        colliderComponent.collider.transform.rotation.x,
-        colliderComponent.collider.transform.rotation.y,
-        colliderComponent.collider.transform.rotation.z,
-        colliderComponent.collider.transform.rotation.w
+        colliderComponent.body.transform.rotation.x,
+        colliderComponent.body.transform.rotation.y,
+        colliderComponent.body.transform.rotation.z,
+        colliderComponent.body.transform.rotation.w
         );
     });
 
@@ -246,20 +242,17 @@ export class PhysicsSystem extends System {
   }
 
   set gravity(value: { x: 0, y: -9.81, z: 0 }){
-    
+    // todo
   }
 
-  raycastClosest(startPos: Vector3, endPos: Vector3, options: any, rayResult: any) {
-
-  }
-
-  addBody() {
-
-  }
-
-  removeBody() {
-
-  }
+  addRaycastQuery = PhysXInstance.instance.addRaycastQuery;
+  removeRaycastQuery = PhysXInstance.instance.removeRaycastQuery;
+  addBody = PhysXInstance.instance.addBody;
+  updateBody = PhysXInstance.instance.updateBody;
+  removeBody = PhysXInstance.instance.removeBody;
+  createController = PhysXInstance.instance.createController;
+  updateController = PhysXInstance.instance.updateController;
+  removeController = PhysXInstance.instance.removeController;
 }
 
 PhysicsSystem.queries = {
