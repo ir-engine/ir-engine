@@ -88,8 +88,8 @@ export const IndexPage = (): any => {
                     cameraRotationW
                 }));
 
-                camera.setRotationFromQuaternion(new Quaternion(cameraRotationX, cameraRotationY, cameraRotationZ, cameraRotationW));
-                
+                camera.quaternion.set(cameraRotationX, cameraRotationY, cameraRotationZ, cameraRotationW);
+
                 camera.position.set(cameraPositionX, cameraPositionY, cameraPositionZ);
 
                 if (data.placed) {
@@ -113,7 +113,7 @@ export const IndexPage = (): any => {
                         anchorRotationW
                     }));
 
-                    anchor.setRotationFromQuaternion(new Quaternion(anchorRotationX, anchorRotationY, anchorRotationZ, anchorRotationW));
+                    anchor.quaternion.set(anchorRotationX, anchorRotationY, anchorRotationZ, anchorRotationW);
                     anchor.position.set(anchorPositionX, anchorPositionY, anchorPositionZ);
                 }
 
