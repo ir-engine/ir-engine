@@ -15,7 +15,7 @@ import Paper from '@material-ui/core/Paper';
 import Button from '@material-ui/core/Button';
 import MenuItem from '@material-ui/core/MenuItem';
 import Select from '@material-ui/core/Select';
-import Grid from "@material-ui/core/Grid"
+import Grid from "@material-ui/core/Grid";
 // @ts-ignore
 import styles from './Admin.module.scss';
 import UserModel from "./UserModel";
