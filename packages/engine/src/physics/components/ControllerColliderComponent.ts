@@ -4,7 +4,7 @@ import { setDefaults } from "../../common/functions/setDefaults";
 import { Types } from "../../ecs/types/Types";
 import { CollisionGroups } from "../enums/CollisionGroups";
 import { Vector3 } from "three";
-import { PhysXInstance, PhysXModelShapes, RigidBodyProxy } from "../physx";
+import { PhysXInstance, PhysXModelShapes, RigidBodyProxy } from "three-physx";
 
 /**
  * @author Shaw 

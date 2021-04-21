@@ -1,7 +1,7 @@
 // import { Body, Trimesh, Box, Sphere, Cylinder, Plane, Vec3 } from 'cannon-es';
 import { PhysicsSystem } from '../systems/PhysicsSystem';
 import { CollisionGroups } from "../enums/CollisionGroups";
-import { createShapeFromConfig, PhysXBodyType, PhysXModelShapes, PhysXShapeConfig, RigidBodyProxy } from '../physx';
+import { createShapeFromConfig, PhysXBodyType, PhysXModelShapes, PhysXShapeConfig, RigidBodyProxy } from 'three-physx';
 import { Entity } from '../../ecs/classes/Entity';
 import { ColliderComponent } from '../components/ColliderComponent';
 import { getComponent, getMutableComponent, hasComponent } from '../../ecs/functions/EntityFunctions';

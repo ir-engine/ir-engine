@@ -30,7 +30,7 @@ import { VehicleComponent } from "../../templates/vehicle/components/VehicleComp
 import { InterpolationComponent } from "../components/InterpolationComponent";
 import { PhysicsLifecycleState } from '../enums/PhysicsStates';
 import { isClient } from '../../common/functions/isClient';
-import { BodyConfig, PhysXInstance, RigidBodyProxy, SceneQuery } from '../physx';
+import { BodyConfig, PhysXInstance, RigidBodyProxy, SceneQuery } from 'three-physx';
 import { addColliderWithEntity } from '../behaviors/colliderCreateFunctions';
 
 /**

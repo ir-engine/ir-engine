@@ -12,7 +12,7 @@ import { PhysicsSystem } from "../physics/systems/PhysicsSystem";
 import { CollisionGroups } from "../physics/enums/CollisionGroups";
 import { Vector3 } from "three";
 import { TransformComponent } from "../transform/components/TransformComponent";
-import { SceneQueryType } from "../physics/physx";
+import { SceneQueryType } from "three-physx";
 export class CharacterControllerSystem extends System {
 
   constructor(attributes?: SystemAttributes) {

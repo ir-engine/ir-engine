@@ -26,8 +26,8 @@ import { AnimationManager } from './templates/character/prefabs/NetworkPlayerCha
 import { TransformSystem } from './transform/systems/TransformSystem';
 import { createWorker, WorkerProxy } from './worker/MessageQueue';
 import { XRSystem } from './xr/systems/XRSystem';
-import PhysXWorker from './physics/physx/worker.ts?worker&inline';
-import { PhysXInstance } from './physics/physx';
+import PhysXWorker from './physics/functions/loadPhysX.ts?worker';
+import { PhysXInstance } from 'three-physx';
 
 // import { PositionalAudioSystem } from './audio/systems/PositionalAudioSystem';
 
@@ -169,7 +169,7 @@ export const initializeEditor = async (options): Promise<void> => {
 
   registerSystem(PhysicsSystem);
 
-  await PhysXInstance.instance.initPhysX(new PhysXWorker(), { jsPath: '/physx/physx.release.js', wasmPath: '/physx/physx.release.wasm' });
+  // await PhysXInstance.instance.initPhysX(new PhysXWorker(), { jsPath: '/physx/physx.release.js', wasmPath: '/physx/physx.release.wasm' });
   
   registerSystem(TransformSystem, { priority: 900 });
 

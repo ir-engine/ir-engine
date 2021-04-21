@@ -61,6 +61,7 @@
     "three-mesh-bvh": "^0.3.7",
     "three-stdlib": "^1.2.1",
     "three-to-cannon": "^3.0.2",
+    "three-physx": "^1.0.0",
     "typescript": "^4.0.3",
     "url": "^0.11.0",
     "vite": "^2.1.5"
