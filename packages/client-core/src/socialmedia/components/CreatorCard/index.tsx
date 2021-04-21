@@ -1,3 +1,6 @@
+/**
+ * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
+ */
 import React, { useState } from 'react';
 import { useHistory } from "react-router-dom";
 import { bindActionCreators, Dispatch } from 'redux';
@@ -17,7 +20,6 @@ import TwitterIcon from '@material-ui/icons/Twitter';
 import InstagramIcon from '@material-ui/icons/Instagram';
 import TitleIcon from '@material-ui/icons/Title';
 import SimpleModal from '../SimpleModal';
-// @ts-ignore
 // @ts-ignore
 import styles from './CreatorCard.module.scss';
 import { selectCreatorsState } from '../../reducers/creator/selector';

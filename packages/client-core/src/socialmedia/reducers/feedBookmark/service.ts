@@ -1,3 +1,6 @@
+/**
+ * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
+ */
 import { Dispatch } from 'redux';
 import { dispatchAlertError } from "../../../common/reducers/alert/service";
 import { client } from '../../../feathers';
