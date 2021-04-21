@@ -1,3 +1,3 @@
 export default () => {
-    window.env = {publicRuntimeConfig: { coolio: 'pants'}}
+    window.env = {publicRuntimeConfig: {}}
 }

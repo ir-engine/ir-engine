@@ -192,7 +192,7 @@ export default function Dashboard({ children }) {
                             <ListItemText primary="Feeds" />
                         </ListItem>
                     </Link>       
-                    <Link href="/admin/ar-media">
+                    <Link to="/admin/ar-media">
                         <ListItem style={{ color: "white"}} onClick={changeComponent} button>
                             <ListItemIcon >
                                 <EmojiPeopleIcon style={{ color: "white" }} />
@@ -200,7 +200,7 @@ export default function Dashboard({ children }) {
                             <ListItemText primary="Ar Media" />
                         </ListItem>
                     </Link> 
-                    <Link href="/editor/projects/create">
+                    <Link to="/editor/projects/create">
                         <ListItem style={{ color: "white"}} onClick={changeComponent} button>
                             <ListItemIcon >
                                 <GradientIcon style={{ color: "white" }} />

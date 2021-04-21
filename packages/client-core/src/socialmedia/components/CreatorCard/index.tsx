@@ -114,7 +114,7 @@ const CreatorCard = ({creator,creatorState}:Props) => {
                         // </section>
                // :*/} 
                         <section className={styles.controls}>
-                        <Button variant="text" className={styles.backButton} onClick={()=>history.push('/')}><ArrowBackIosIcon />Back</Button>                    
+                        <Button variant="text" className={styles.backButton} onClick={()=>(history as any).push('/')}><ArrowBackIosIcon />Back</Button>
                     </section>
                 {/* } */}
                 {/*hided for now*/}

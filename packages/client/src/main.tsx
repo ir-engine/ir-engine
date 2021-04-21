@@ -5,7 +5,7 @@ import {initialize} from './util';
 import('./env-config').then((module) => {
     const envConfig = module.default;
     // Initialize i18n and client-core
-    envConfig()
+    envConfig();
     initialize()
         // then load the app
         .then(_ => {
