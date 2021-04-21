@@ -1,4 +1,4 @@
-import { Checkbox } from "@material-ui/core";
+import Checkbox from "@material-ui/core/Checkbox";
 import { Rainbow } from "@styled-icons/fa-solid/Rainbow";
 import React, { Component } from "react";
 import NodeEditor from "./NodeEditor";
@@ -33,10 +33,16 @@ const EffectsOptions = {
     edgeStrength: {
       propertyType: PostProcessingPropertyTypes.Number,
       name: "Edge Strength",
+      min:-1,
+      max:1,
+      step:0.01,
     },
     pulseSpeed: {
       propertyType: PostProcessingPropertyTypes.Number,
       name: "Pulse Speed",
+      min:-1,
+      max:1,
+      step:0.01,
     },
     visibleEdgeColor: {
       propertyType: PostProcessingPropertyTypes.Color,
@@ -49,6 +55,9 @@ const EffectsOptions = {
     resolutionScale: {
       propertyType: PostProcessingPropertyTypes.Number,
       name: "Resolution Scale",
+      min:-1,
+      max:1,
+      step:0.01,
     },
     kernelSize: {
       propertyType: PostProcessingPropertyTypes.KernelSize,
@@ -81,40 +90,67 @@ const EffectsOptions = {
     samples: {
       propertyType: PostProcessingPropertyTypes.Number,
       name: "Samples",
+      min:-1,
+      max:1,
+      step:0.01,
     },
 
     rings: {
       propertyType: PostProcessingPropertyTypes.Number,
       name: "Rings",
+      min:-1,
+      max:1,
+      step:0.01,
     },
 
     distanceThreshold: {       // Render up to a distance of ~20 world units
       propertyType: PostProcessingPropertyTypes.Number,
       name: "Distance Threshold",
+      min:-1,
+      max:1,
+      step:0.01,
     },
     distanceFalloff: {         // with an additional ~2.5 units of falloff.
       propertyType: PostProcessingPropertyTypes.Number,
       name: "Distance Falloff",
+      min:-1,
+      max:1,
+      step:0.01,
     },
     minRadiusScale: {
       propertyType: PostProcessingPropertyTypes.Number,
       name: "Min Radius Scale",
+      min:-1,
+      max:1,
+      step:0.01,
     },
     bias: {
       propertyType: PostProcessingPropertyTypes.Number,
       name: "Bias",
+      min:-1,
+      max:1,
+      step:0.01,
     },
     radius: {
       propertyType: PostProcessingPropertyTypes.Number,
       name: "Radius",
+      min:-1,
+      max:1,
+      step:0.01,
     },
     intensity: {
       propertyType: PostProcessingPropertyTypes.Number,
       name: "Intensity",
+      min:-1,
+      max:1,
+      step:0.01,
     },
     fade: {
       propertyType: PostProcessingPropertyTypes.Number,
       name: "Fade",
+      min:-1,
+      max:1,
+      step:0.01,
     },
   },
   DepthOfFieldEffect: {
@@ -125,14 +161,23 @@ const EffectsOptions = {
     bokehScale: {
       propertyType: PostProcessingPropertyTypes.Number,
       name: "Bokeh Scale",
+      min:-1,
+      max:1,
+      step:0.01,
     },
     focalLength: {
       propertyType: PostProcessingPropertyTypes.Number,
       name: "Focal Length",
+      min:-1,
+      max:1,
+      step:0.01,
     },
     focusDistance: {
       propertyType: PostProcessingPropertyTypes.Number,
       name: "Focus Distance",
+      min:-1,
+      max:1,
+      step:0.01,
     },
   },
   BloomEffect: {
@@ -147,14 +192,23 @@ const EffectsOptions = {
     intensity: {
       propertyType: PostProcessingPropertyTypes.Number,
       name: "Intensity",
+      min:-1,
+      max:1,
+      step:0.01,
     },
     luminanceSmoothing: {
       propertyType: PostProcessingPropertyTypes.Number,
       name: "Luminance Smoothing",
+      min:-1,
+      max:1,
+      step:0.01,
     },
     luminanceThreshold: {
       propertyType: PostProcessingPropertyTypes.Number,
       name: "Luminance Threshold",
+      min:-1,
+      max:1,
+      step:0.01,
     },
   },
   ToneMappingEffect: {
@@ -169,18 +223,30 @@ const EffectsOptions = {
     adaptationRate: {
       propertyType: PostProcessingPropertyTypes.Number,
       name: "Adaptation Rate",
+      min:-1,
+      max:1,
+      step:0.01,
     },
     averageLuminance: {
       propertyType: PostProcessingPropertyTypes.Number,
       name: "Average Luminance",
+      min:-1,
+      max:1,
+      step:0.01,
     },
     maxLuminance: {
       propertyType: PostProcessingPropertyTypes.Number,
       name: "Max Luminance",
+      min:-1,
+      max:1,
+      step:0.01,
     },
     middleGrey: {
       propertyType: PostProcessingPropertyTypes.Number,
       name: "Middle Grey",
+      min:-1,
+      max:1,
+      step:0.01,
     },
     // resolution:{
     //   propertyType:PostProcessingPropertyTypes.Number,
@@ -191,26 +257,41 @@ const EffectsOptions = {
     brightness: {
       propertyType: PostProcessingPropertyTypes.Number,
       name: "Brightness",
+      min:-1,
+      max:1,
+      step:0.01,
     },
     contrast: {
       propertyType: PostProcessingPropertyTypes.Number,
       name: "Contrast",
+      min:-1,
+      max:1,
+      step:0.01,
     }
   },
   HueSaturationEffect: {
     hue: {
       propertyType: PostProcessingPropertyTypes.Number,
       name: "Hue",
+      min:-1,
+      max:1,
+      step:0.01,
     },
     saturation: {
       propertyType: PostProcessingPropertyTypes.Number,
       name: "Saturation",
+      min:-1,
+      max:1,
+      step:0.01,
     }
   },
   ColorDepthEffect: {
     bits: {
       propertyType: PostProcessingPropertyTypes.Number,
       name: "Bits",
+      min:-1,
+      max:1,
+      step:0.01,
     }
   },
   LinearTosRGBEffect: {
@@ -233,9 +314,9 @@ export const PostProcessingNodeEditor = (props: PostProcessingNodeEditorPropType
 
   const renderEffectsTypes = (id) => {
     const effectOptions = EffectsOptions[id];
-    const item = Object.values(effectOptions).map((values, index) => {
+    const item = Object.values(effectOptions).map((value, index) => {
       const op = [id, Object.keys(effectOptions)[index]];
-      return <PostProcessingProperties key={id + index} values={values} op={op} onChangeFunction={onChangeNodeSetting} getProp={getPropertyValue} />;
+      return <PostProcessingProperties key={id + index} value={value} op={op} onChangeFunction={onChangeNodeSetting} getProp={getPropertyValue} />;
     });
     return (<>{item}</>);
   };

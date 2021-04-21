@@ -98,11 +98,11 @@ export function reset(): void {
  */
 export function execute (delta?: number, time?: number, updateType = SystemUpdateType.Free): void {
   Engine.tick++;
+  time = now() / 1000;
   if (!delta) {
-    time = now() / 1000;
     delta = time - Engine.lastTime;
-    Engine.lastTime = time;
   }
+  Engine.lastTime = time;
 
   if (Engine.enabled) {
     Engine.systemsToExecute

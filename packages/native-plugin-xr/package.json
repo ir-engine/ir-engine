@@ -1,6 +1,6 @@
 {
   "name": "@xr3ngine/native-plugin-xr",
-  "version": "0.2.14",
+  "version": "0.2.17",
   "description": "Native XR and camera services inside any capacitor app",
   "main": "dist/plugin.js",
   "module": "dist/esm/index.js",
@@ -24,11 +24,15 @@
   "author": "XR3 Group",
   "license": "MIT",
   "devDependencies": {
+    "@capacitor/android": "2.4.7",
     "@capacitor/core": "2.4.7",
     "@ionic/prettier-config": "1.0.1",
     "@rollup/plugin-node-resolve": "11.2.1",
     "prettier": "2.2.1",
     "rimraf": "3.0.2",
+    "rollup": "2.45.2",
+    "semantic-release": "17.4.2",
+    "semantic-release-monorepo": "7.0.4",
     "swiftlint": "1.0.1",
     "typescript": "4.2.4"
   },
@@ -64,5 +68,5 @@
     "url": "https://github.com/xr3ngine/xr3ngine/issues"
   },
   "homepage": "https://github.com/xr3ngine/xr3ngine#readme",
-  "gitHead": "b69a8d4eb4d2b39bc013a8eba00b402b21932252"
+  "gitHead": "5ff55be1619e188226c4ac91c92a44b7ba18edf4"
 }

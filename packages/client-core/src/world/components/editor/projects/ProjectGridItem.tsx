@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
-// import Link from "next/link";
 import styled from "styled-components";
 import { showMenu } from "../layout/ContextMenu";
 import { MenuButton } from "../inputs/Button";

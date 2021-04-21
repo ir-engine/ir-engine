@@ -1,5 +1,5 @@
 import React, { useCallback } from "react";
-import PropTypes from "prop-types";
+import PropTypes, { any } from "prop-types";
 import SketchPicker from "react-color/lib/Sketch";
 import Input from "./Input";
 import { Color } from "three";
@@ -70,7 +70,7 @@ const ColorInputPopover = (styled as any).div`
  * ColorInput used to render the view of component.
  * 
  * @author Robert Long
- * @param       {object} value
+ * @param       {any} value
  * @param       {function} onChange
  * @param       {boolean} disabled
  * @param       {any} rest
@@ -118,7 +118,7 @@ export function ColorInput({ value, onChange, disabled,isValueAsInteger=false, .
  */
 ColorInput.propTypes = {
   disabled: PropTypes.bool,
-  value: PropTypes.object.isRequired,
+  value: PropTypes.any.isRequired,
   onChange: PropTypes.func
 };
 
