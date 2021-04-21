@@ -12,6 +12,8 @@ import TablePagination from '@material-ui/core/TablePagination';
 import TableRow from '@material-ui/core/TableRow';
 import TableSortLabel from '@material-ui/core/TableSortLabel';
 import Tabs from '@material-ui/core/Tabs';
+import Avatar from '@material-ui/core/Avatar';
+import Chip from '@material-ui/core/Chip';
 import FormControl from '@material-ui/core/FormControl';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import { Config } from '../../helper';
@@ -144,6 +146,7 @@ const AdminConsole = (props: Props) => {
             { id: 'sceneId', numeric: false, disablePadding: false, label: 'Scene' },
             { id: 'maxUsersPerInstance', numeric: true, disablePadding: false, label: 'Max Users' },
             { id: 'type', numeric: false, disablePadding: false, label: 'Type' },
+            { id: 'tags', numeric: false, disablePadding: false, label: 'Tags' },
             { id: 'instanceMediaChatEnabled', numeric: false, disablePadding: false, label: 'Enable public media chat' },
             { id: 'videoEnabled', numeric: false, disablePadding: false, label: 'Video Enabled' }
         ],
@@ -249,7 +252,7 @@ const AdminConsole = (props: Props) => {
                         <TableCell
                             className={styles.tcell}
                             key={headCell.id}
-                            align='right'
+                            align='center'
                             padding={headCell.disablePadding ? 'none' : 'default'}
                             sortDirection={orderBy === headCell.id ? order : false}
                         >
@@ -294,6 +297,10 @@ const AdminConsole = (props: Props) => {
             sceneId: location.sceneId,
             maxUsersPerInstance: location.maxUsersPerInstance,
             type: location?.location_setting?.locationType,
+            tags: {
+                isFeatured: location?.isFeatured,
+                isLobby: location?.isLobby
+            },
             instanceMediaChatEnabled: location?.location_setting?.instanceMediaChatEnabled?.toString(),
             videoEnabled: location?.location_setting?.videoEnabled?.toString()
         };
@@ -452,6 +459,9 @@ const AdminConsole = (props: Props) => {
         setRefetch(false);
     }, [authState, adminState, refetch]);
 
+    const handleClick = () => {
+        console.info('You clicked the Chip.');
+    };
     return (
         <div>
             <Grid container spacing={3} className={classes.marginBottom}>
@@ -512,13 +522,32 @@ const AdminConsole = (props: Props) => {
                                             </TableCell>
                                             <TableCell className={styles.tcell} align="right">{row.name}</TableCell>
                                             <TableCell className={styles.tcell}
-                                                align="right">{getScene(row.sceneId as string)}</TableCell>
+                                                align="center">{getScene(row.sceneId as string)}</TableCell>
                                             <TableCell className={styles.tcell}
-                                                align="right">{row.maxUsersPerInstance}</TableCell>
-                                            <TableCell className={styles.tcell} align="right">{row.type}</TableCell>
-                                            <TableCell className={styles.tcell} align="right">{row.videoEnabled}</TableCell>
+                                                align="center">{row.maxUsersPerInstance}</TableCell>
+                                            <TableCell className={styles.tcell} align="center">{row.type}</TableCell>
+                                            <TableCell className={styles.tcell} align="center">
+                                                {
+                                                    (row.tags as any).isLobby &&
+                                                    <Chip
+                                                        avatar={<Avatar>L</Avatar>}
+                                                        label="Lobby"
+                                                        onClick={handleClick}
+                                                    />
+                                                }
+                                                {
+                                                    (row.tags as any).isFeatured &&
+                                                    <Chip
+                                                        style={{ marginLeft: "5px"}}
+                                                        avatar={<Avatar>F</Avatar>}
+                                                        label="Featured"
+                                                        onClick={handleClick}
+                                                    />
+                                                }
+                                            </TableCell>
+                                            <TableCell className={styles.tcell} align="center">{row.videoEnabled}</TableCell>
                                             <TableCell className={styles.tcell}
-                                                align="right">{row.instanceMediaChatEnabled}</TableCell>
+                                                align="center">{row.instanceMediaChatEnabled}</TableCell>
                                         </TableRow>
                                     );
                                 })}
