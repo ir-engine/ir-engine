@@ -12,7 +12,7 @@ import {createPlayPanel} from '../components/PlayPanel';
 import {VideoPlayer} from '../components/VideoPlayer';
 import {totalWidth, totalHeight, itemWidth, itemHeight, gap, url, envUrl, videoUrl} from '../constants/Constant';
 import shaka from 'shaka-player';
-import {createSeekbar} from '../components/Control';
+import {Control} from '../components/Control';
 
 export class UIGallery extends UIBaseElement {
   marketPlace: Block;
@@ -176,7 +176,7 @@ export class UIGallery extends UIBaseElement {
     this.position.set(0, 1, 0);
     this.rotation.y = Math.PI;
     
-    let play = createPlayPanel({
+    const play = createPlayPanel({
       width: totalWidth,
       height: itemHeight*2.5,
       backCB: () => {
@@ -219,7 +219,9 @@ export class UIGallery extends UIBaseElement {
 
     this.player = new VideoPlayer(this, envUrl);
 
-    let control = createSeekbar();
+    const control = new Control();
     this.add(control);
+
+    this.marketPlace.visible = false;
   }
 }

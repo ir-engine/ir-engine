@@ -9,7 +9,7 @@ export const createGallery = (param) => {
 
     let urlIndex = 0;
 
-    let ov = createItem({
+    const ov = createItem({
         title: "Scene Title",
         description: "Scene Description\nSecode line of description",
         imageUrl: url(urlIndex++),
@@ -25,7 +25,7 @@ export const createGallery = (param) => {
     cols.push(ov);
 
     for (let j = 0; j < 2; j++) {
-        let rows = [];
+        const rows = [];
         for (let i = 0; i < 3; i++) {
             const panel = createItem({
                 title: "Scene Title",
@@ -44,11 +44,11 @@ export const createGallery = (param) => {
         cols.push(createRow(totalWidth, itemHeight, rows, gap));
     }
 
-    let marketPlace = createCol(totalWidth, totalHeight, cols, gap);
+    const marketPlace = createCol(totalWidth, totalHeight, cols, gap);
 
     cols = [];
     for (let j = 0; j < 3; j++) {
-        let rows = [];
+        const rows = [];
         for (let i = 0; i < 3; i++) {
             const panel = createItem({
                 title: "Scene Title",
@@ -68,20 +68,20 @@ export const createGallery = (param) => {
     }
 
     const buttonHeight = 0.1;
-    let dummy = new Block({
+    const dummy = new Block({
         width: itemWidth,
         height: buttonHeight,
         backgroundOpacity: 0.0,
     });
-    let buttonNext = createButton({ title: "Next" });
-    let buttonBar = createRow(totalWidth, buttonHeight, [dummy, buttonNext], 0);
+    const buttonNext = createButton({ title: "Next" });
+    const buttonBar = createRow(totalWidth, buttonHeight, [dummy, buttonNext], 0);
     buttonBar.set({
         alignContent: 'center',
         justifyContent: 'end',
     });
     cols.push(buttonBar);
 
-    let library = createCol(totalWidth, totalHeight, cols, gap);
+    const library = createCol(totalWidth, totalHeight, cols, gap);
 
     buttonNext.addEventListener(UI_ELEMENT_SELECT_STATE.SELECTED, () => {
         library.visible = false;

@@ -5,11 +5,11 @@ export const createPlayPanel = (param) => {
     const width = param.width;
     const height = param.height;
 
-    let backButton = createButton({
+    const backButton = createButton({
       title: "Back"
     });
 
-    let preview = createItem({
+    const preview = createItem({
       width: width,
       height: height,
       texture: param.texture,
@@ -19,7 +19,7 @@ export const createPlayPanel = (param) => {
       justifyContent: 'center',
     });
 
-    let text = createItem({
+    const text = createItem({
       width: width-0.8-0.025*4,
       height: 0.1,
       title: "SceneTitle",
@@ -29,15 +29,15 @@ export const createPlayPanel = (param) => {
       backgroundOpacity: 0.0,      
     })
 
-    let purchaseButton = createButton({
+    const purchaseButton = createButton({
       title: "Purchase"
     });
 
-    let playButton = createButton({
+    const playButton = createButton({
       title: "Play"
     });
 
-    let bottomBar = createRow(
+    const bottomBar = createRow(
       width, 0.2, 
       [
         text, 
@@ -48,7 +48,7 @@ export const createPlayPanel = (param) => {
 
     playButton.visible = false;
 
-    let panel = createCol(
+    const panel = createCol(
       width, height, 
       [
         makeLeftItem({item: backButton, containerWidth: width}), 
@@ -76,7 +76,7 @@ export const createPlayPanel = (param) => {
             purchaseButton.children[1].set({
               content: "Download"
             });
-          };
+          }
         }
     };
 }
