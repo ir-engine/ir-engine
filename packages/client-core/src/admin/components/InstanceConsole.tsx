@@ -61,6 +61,14 @@ const Transition = React.forwardRef((
   });
 
   
+/**
+ * Function for instance index admin dashboard 
+ * 
+ * @param param0 children props 
+ * @returns @ReactDomElements
+ * @author Kevin KIMENYI <kimenyikevin@gmail.com>
+ */
+
 function InstanceConsole(props: Props) {
     const {
         adminState,

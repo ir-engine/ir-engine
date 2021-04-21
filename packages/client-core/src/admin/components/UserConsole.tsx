@@ -95,6 +95,13 @@ const Transition = React.forwardRef((
     return <Slide direction="up" ref={ref} {...props} />;
   });
 
+/**
+ * Function for user management on  admin dashboard 
+ * 
+ * @param param0 children props 
+ * @returns @ReactDomElements
+ * @author Kevin KIMENYI <kimenyikevin@gmail.com>
+ */
 const UserConsole = (props: Props) => {
     const classes = useStyles();
     const {
