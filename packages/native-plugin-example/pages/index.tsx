@@ -159,7 +159,7 @@ export const IndexPage = (): any => {
             Plugins.XRPlugin.addListener('cameraIntrinsicsReceived', (data: any) => {
                 setCameraIntrinsicsState(JSON.stringify({
                     fX: data.fX,
-                    fY: data.fy,
+                    fY: data.fY,
                     cX: data.cX,
                     cY: data.cy,
                     x: data.x,
