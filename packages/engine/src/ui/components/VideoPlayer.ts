@@ -60,12 +60,12 @@ export class VideoPlayer {
   }
 
   playVideo(url){
-    var promise = this.player.load(url);
+    const promise = this.player.load(url);
     if (promise !== undefined) {
       promise.then(_ => {
         
         document.addEventListener("click", ()=>{
-          var p = this.video.play();
+          const p = this.video.play();
           console.log('playing');
 
           const texture = new VideoTexture(this.video);

@@ -17,7 +17,7 @@ const urls = [
 ];
 
 export const url = (index) => {
-    let i = index % urls.length;
+    const i = index % urls.length;
     return urls[i];
 }
 

@@ -6,7 +6,7 @@ export const createBuyPanel = (param) => {
     const height = param.height;
     const urls = param.thumbnailUrls;
 
-    let container = new Block({
+    const container = new Block({
       width: width,
       height: height,
       fontFamily: "https://unpkg.com/three-mesh-ui/examples/assets/Roboto-msdf.json",
@@ -14,7 +14,7 @@ export const createBuyPanel = (param) => {
       backgroundOpacity: 1.0,
     });
 
-    let topBar = new Block({
+    const topBar = new Block({
       width: width,
       height: 0.2,
       backgroundOpacity: 0.0,
@@ -22,7 +22,7 @@ export const createBuyPanel = (param) => {
     });
     container.add(topBar);
     
-    let closeButton = new Block({
+    const closeButton = new Block({
       height: 0.1,
       width: 0.1,
       margin: 0,
@@ -37,7 +37,7 @@ export const createBuyPanel = (param) => {
     );
     topBar.add(closeButton);
 
-    let title = new Block({
+    const title = new Block({
       height: 0.2,
       width: width-0.2,
       margin: 0,
@@ -60,7 +60,7 @@ export const createBuyPanel = (param) => {
     );
     topBar.add(title);
     
-    let middleBar = new Block({
+    const middleBar = new Block({
       width: width,
       height: height*0.7,
       backgroundOpacity: 0.0,
@@ -68,7 +68,7 @@ export const createBuyPanel = (param) => {
     });
     container.add(middleBar);
 
-    let leftBar = new Block({
+    const leftBar = new Block({
       width: width*0.4*1.2,
       height: height*0.7,
       backgroundOpacity: 0.0,
@@ -81,7 +81,7 @@ export const createBuyPanel = (param) => {
     middleBar.add(leftBar);
 
     const thumbWidth = width*0.4*0.8;
-    let overview = new Block({
+    const overview = new Block({
           width: thumbWidth+6*0.01,
           height: thumbWidth*0.6,
           backgroundSize: 'cover',
@@ -100,7 +100,7 @@ export const createBuyPanel = (param) => {
     
     leftBar.add(overview);
       
-    let thumbBar = new Block({
+    const thumbBar = new Block({
       width: thumbWidth,
       height: thumbWidth/6*0.6,
       backgroundOpacity: 0.0,
@@ -111,7 +111,7 @@ export const createBuyPanel = (param) => {
     leftBar.add(thumbBar);  
   
     urls.forEach(u => {
-        let subitem = new Block({
+        const subitem = new Block({
             width: thumbWidth/6,
             height: thumbWidth/6*0.6,
             backgroundSize: 'cover',
@@ -130,7 +130,7 @@ export const createBuyPanel = (param) => {
         thumbBar.add(subitem);
     });
 
-    let leftTextCol = new Block({
+    const leftTextCol = new Block({
       width: width*0.25,
       height: height*0.7,
       backgroundOpacity: 0.0,
@@ -156,7 +156,7 @@ export const createBuyPanel = (param) => {
       })
     );
 
-    let rightTextCol = new Block({
+    const rightTextCol = new Block({
       width: width*0.25,
       height: height*0.7,
       backgroundOpacity: 0.0,
@@ -167,7 +167,7 @@ export const createBuyPanel = (param) => {
     });
     middleBar.add(rightTextCol);
 
-    let buyButton = new Block({
+    const buyButton = new Block({
       height: 0.1,
       width: 0.2,
       backgroundColor: new Color('blue'),

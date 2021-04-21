@@ -8,7 +8,7 @@ export const createItem = (param) =>{
     const width = param.width;
     const height = param.height;
 
-    let container = new Block({
+    const container = new Block({
       width: width,
       height: height,
       backgroundSize: 'cover',
@@ -89,7 +89,7 @@ export const createItem = (param) =>{
 }
 
 export const createRow = (width, height, elements, gap) => {
-  let container = new Block({
+  const container = new Block({
     width: width,
     height: height,
     contentDirection: 'row',
@@ -107,7 +107,7 @@ export const createRow = (width, height, elements, gap) => {
 }
 
 export const createCol = (width, height, elements, gap) => {
-  let container = new Block({
+  const container = new Block({
     width: width,
     height: height,
     contentDirection: 'column',
@@ -130,13 +130,13 @@ export const makeLeftItem = (param) => {
   const itemWidth = item.width;
   const itemHeight = item.height;
 
-  let dummy = new Block({
+  const dummy = new Block({
     width: itemWidth,
     height: itemHeight,
     backgroundOpacity: 0.0,
   });
  
-  let bar = createRow(containerWidth, itemHeight, [item, dummy], 0);
+  const bar = createRow(containerWidth, itemHeight, [item, dummy], 0);
   bar.set({
     alignContent: 'center',
     justifyContent: 'start',
@@ -151,13 +151,13 @@ export const makeRightItem = (param) => {
   const itemWidth = item.width;
   const itemHeight = item.height;
 
-  let dummy = new Block({
+  const dummy = new Block({
     width: itemWidth,
     height: itemHeight,
     backgroundOpacity: 0.0,
   });
  
-  let bar = createRow(containerWidth, itemHeight, [dummy, item], 0);
+  const bar = createRow(containerWidth, itemHeight, [dummy, item], 0);
   bar.set({
     alignContent: 'center',
     justifyContent: 'end',
@@ -169,7 +169,7 @@ export const makeRightItem = (param) => {
 export const createButton = (param) => {
   const title = param.title;
 
-  let button = new Block({
+  const button = new Block({
     height: 0.1,
     width: 0.4,
     alignContent: "center",

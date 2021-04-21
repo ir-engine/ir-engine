@@ -39,14 +39,14 @@ class SceneGallery extends Object3D {
       "360/VR THUMBNAIL/WRECKS AND CAVES/_DSC2512.JPG",
     ];
     
-    let url = (index)=>{
-      let i = index % urls.length;
+    const url = (index)=>{
+      const i = index % urls.length;
       return urls[i];
     }
 
     let urlIndex = 0;
 
-    let ov = createItem({
+    const ov = createItem({
       title: "Scene Title", 
       description: "Scene Description\nSecode line of description", 
       imageUrl: url(urlIndex++),
@@ -61,11 +61,11 @@ class SceneGallery extends Object3D {
     const marketPlacePanels = [];
     // marketPlacePanels.push(ov);
 
-    let cols = [];
+    const cols = [];
     cols.push(ov);
 
     for(let j=0;j<2;j++){
-      let rows = [];
+      const rows = [];
       for(let i = 0 ; i < 3;i++)
       {
         const panel = createItem({
@@ -80,7 +80,7 @@ class SceneGallery extends Object3D {
       cols.push(createRow(3, 0.5, rows, 0.1));
     }
 
-    let mm = createCol(3, 1.5, cols, 0.1);
+    const mm = createCol(3, 1.5, cols, 0.1);
     this.marketPlace.add( mm );
 
     
