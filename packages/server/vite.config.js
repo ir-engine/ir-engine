@@ -1,6 +1,9 @@
 import fs from 'fs';
+import path from 'path';
 import { defineConfig, loadEnv } from 'vite';
-
+import builtins from 'rollup-plugin-node-builtins';
+const builtinsPlugin = builtins({child_process: true});
+builtinsPlugin.name = 'builtins';
 export default defineConfig(() => {
     const env = loadEnv('', process.cwd() + '../../');
     process.env = {
@@ -28,8 +31,13 @@ export default defineConfig(() => {
             'process.browser': process.browser,
         },
         build: {
+            lib: {
+                entry: path.resolve(__dirname, 'src/index.ts'),
+                name: 'xr3ngine-server'
+            },
             sourcemap: 'inline',
             rollupOptions: {
+                plugins: [builtinsPlugin],
                 output: {
                     dir: 'dist',
                     format: 'es',
@@ -38,3 +46,5 @@ export default defineConfig(() => {
         }
     }
 })
+
+process.env.VITE_IS_LIB_MODE = true;

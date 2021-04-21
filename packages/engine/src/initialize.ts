@@ -33,7 +33,7 @@ import { TransformSystem } from './transform/systems/TransformSystem';
 import { createWorker, WorkerProxy } from './worker/MessageQueue';
 import { XRSystem } from './xr/systems/XRSystem';
 //@ts-ignore
-import OffscreenWorker from './worker/initializeOffscreen.ts';
+import OffscreenWorker from './worker/initializeOffscreen.ts?worker';
 // import { PositionalAudioSystem } from './audio/systems/PositionalAudioSystem';
 
 Mesh.prototype.raycast = acceleratedRaycast;

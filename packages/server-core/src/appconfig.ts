@@ -2,7 +2,7 @@
 import appRootPath from 'app-root-path';
 import * as chargebeeInst from 'chargebee';
 // Load all the ENV variables from `.env`, then `.env.local`, into process.env
-import dotenv from 'dotenv-flow';
+import dotenv from 'dotenv';
 import path from 'path';
 import url from 'url';
 if (process.env.KUBERNETES !== 'true') {

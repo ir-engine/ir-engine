@@ -6,7 +6,7 @@ import app from './app';
 import logger from '@xr3ngine/server-core/src/logger';
 import config from '@xr3ngine/server-core/src/appconfig';
 import psList from 'ps-list';
-import { exec } from 'child_process';
+// import { exec } from 'child_process';
 
 /**
  * @param status
@@ -37,11 +37,11 @@ process.on('unhandledRejection', (error, promise) => {
     if (!databaseService) {
 
       // Check for child process with mac OSX
-        exec("docker ps | grep mariadb", (err, stdout, stderr) => {
-          if(!stdout.includes("mariadb")){
-            throw new Error('\x1b[33mError: DB proccess is not running or Docker is not running!. If you are in local development, please run xr3ngine/scripts/start-db.sh and restart server\x1b[0m');
-          }
-        });
+        // exec("docker ps | grep mariadb", (err, stdout, stderr) => {
+        //   if(!stdout.includes("mariadb")){
+        //     throw new Error('\x1b[33mError: DB proccess is not running or Docker is not running!. If you are in local development, please run xr3ngine/scripts/start-db.sh and restart server\x1b[0m');
+        //   }
+        // });
       }
   }
 })();
