@@ -16,7 +16,7 @@ class PurchaseElement {
       const root = param.root;
       const urls = param.thumbnailUrls;
 
-      let container = new Block({
+      const container = new Block({
             width: width,
             height: height,
             fontFamily: "https://unpkg.com/three-mesh-ui/examples/assets/Roboto-msdf.json",
@@ -26,7 +26,7 @@ class PurchaseElement {
       container.position.set(0, height, 0);
 
 
-      let topBar = new Block({
+      const topBar = new Block({
         width: width,
         height: 0.2,
         backgroundOpacity: 0.0,
@@ -34,7 +34,7 @@ class PurchaseElement {
       });
       container.add(topBar);
       
-      let closeButton = new Block({
+      const closeButton = new Block({
         height: 0.1,
         width: 0.1,
         margin: 0,
@@ -49,7 +49,7 @@ class PurchaseElement {
       );
       topBar.add(closeButton);
 
-      let title = new Block({
+      const title = new Block({
         height: 0.2,
         width: width-0.2,
         margin: 0,
@@ -72,7 +72,7 @@ class PurchaseElement {
       );
       topBar.add(title);
       
-      let middleBar = new Block({
+      const middleBar = new Block({
         width: width,
         height: height*0.7,
         backgroundOpacity: 0.0,
@@ -80,7 +80,7 @@ class PurchaseElement {
       });
       container.add(middleBar);
 
-      let leftBar = new Block({
+      const leftBar = new Block({
         width: width*0.4*1.2,
         height: height*0.7,
         backgroundOpacity: 0.0,
@@ -93,7 +93,7 @@ class PurchaseElement {
       middleBar.add(leftBar);
 
       const thumbWidth = width*0.4*0.8;
-      let overview = new Block({
+      const overview = new Block({
             width: thumbWidth+6*0.01,
             height: thumbWidth*0.6,
             backgroundSize: 'cover',
@@ -112,7 +112,7 @@ class PurchaseElement {
       
       leftBar.add(overview);
         
-      let thumbBar = new Block({
+      const thumbBar = new Block({
         width: thumbWidth,
         height: thumbWidth/6*0.6,
         backgroundOpacity: 0.0,
@@ -123,7 +123,7 @@ class PurchaseElement {
       leftBar.add(thumbBar);  
     
       urls.forEach(u => {
-          let subitem = new Block({
+          const subitem = new Block({
               width: thumbWidth/6,
               height: thumbWidth/6*0.6,
               backgroundSize: 'cover',
@@ -142,7 +142,7 @@ class PurchaseElement {
           thumbBar.add(subitem);
       });
 
-      let leftTextCol = new Block({
+      const leftTextCol = new Block({
         width: width*0.25,
         height: height*0.7,
         backgroundOpacity: 0.0,
@@ -168,7 +168,7 @@ class PurchaseElement {
         })
       );
 
-      let rightTextCol = new Block({
+      const rightTextCol = new Block({
         width: width*0.25,
         height: height*0.7,
         backgroundOpacity: 0.0,
@@ -179,7 +179,7 @@ class PurchaseElement {
       });
       middleBar.add(rightTextCol);
 
-      let buyButton = new Block({
+      const buyButton = new Block({
         height: 0.1,
         width: 0.2,
         backgroundColor: new Color('blue'),
