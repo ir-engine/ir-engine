@@ -36,12 +36,6 @@ const App = (): any => {
   };
 
   const initApp = useCallback(() => {
-    if(process.env && process.env.NODE_CONFIG){
-      (window as any).env = process.env.NODE_CONFIG;
-    } else {
-      (window as any).env = "";
-    }
-
     dispatch(restoreState());
 
     initGA();
@@ -63,8 +57,8 @@ const App = (): any => {
           name="viewport"
           content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=0', shrink-to-fit=no"
         />
-				<script src="https://unpkg.com/credential-handler-polyfill@2.1.1/dist/credential-handler-polyfill.min.js" />
-				<script src="https://unpkg.com/web-credential-handler@1.0.1/dist/web-credential-handler.min.js" />
+        <script src="https://unpkg.com/credential-handler-polyfill@2.1.1/dist/credential-handler-polyfill.min.js" />
+        <script src="https://unpkg.com/web-credential-handler@1.0.1/dist/web-credential-handler.min.js" />
       </Helmet>
       <ThemeProvider theme={theme}>
         <ApiContext.Provider value={api}>

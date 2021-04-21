@@ -5,6 +5,7 @@ import FeedBookmark from './feed-bookmark/feed-bookmark.service';
 import Comments from './comments/comments.service';
 import CommentsFires from './comments-fires/comments-fires.service';
 import FollowCreator from './follow-creator/follow-creator.service';
+import ArMedia from './ar-media/ar-media.service';
 
 export default [
   Creator,
@@ -13,5 +14,6 @@ export default [
   FeedBookmark,
   Comments,
   CommentsFires,
-  FollowCreator
+  FollowCreator,
+  ArMedia
 ];
