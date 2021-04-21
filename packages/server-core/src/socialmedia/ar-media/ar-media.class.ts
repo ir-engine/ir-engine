@@ -133,7 +133,7 @@ export class ArMedia extends Service {
     }
 
       /**
-   * A function which is used to update viewsCount field of feed 
+   * A function which is used to update
    * 
    * @param id to update 
    * @param params 

@@ -27,16 +27,16 @@ const mapStateToProps = (state: any): any => {
 });
   interface Props{
     projects?:any[];
+    view?:any;
     creatorsState?: any;
     createArMedia?: typeof createArMedia;   
   }
   
-const ArMediaForm = ({projects, createArMedia}:Props) => {
+const ArMediaForm = ({projects, createArMedia, view}:Props) => {
   const [type, setType] = useState(null);
   const [title, setTitle] = useState('');
   const [collectionId, setCollectionId] = useState(null);
  
-  console.log('projects',projects)
      
     const handleSubmit = (e:any) =>{
         e.preventDefault();

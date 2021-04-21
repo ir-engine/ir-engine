@@ -30,6 +30,7 @@ import ArMediaForm from '../../socialmedia/components/ArMediaForm';
 import { fetchAdminScenes } from '../reducers/admin/service';
 import { selectAdminState } from '../reducers/admin/selector';
 import { doLoginAuto } from '../../user/reducers/auth/service';
+import { removeArMedia } from '../../socialmedia/reducers/arMedia/service';
 
 if (!global.setImmediate) {
     global.setImmediate = setTimeout as any;
@@ -50,6 +51,7 @@ interface Props {
     list?:any;
     updateFeedAsAdmin?: typeof updateFeedAsAdmin;
     doLoginAuto?: typeof doLoginAuto;
+    removeArMedia?: typeof removeArMedia;
 }
 const mapStateToProps = (state: any): any => {
     return {
@@ -61,6 +63,7 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
     updateFeedAsAdmin: bindActionCreators(updateFeedAsAdmin, dispatch),
     fetchAdminScenes: bindActionCreators(fetchAdminScenes, dispatch),
     doLoginAuto: bindActionCreators(doLoginAuto, dispatch),
+    removeArMedia: bindActionCreators(removeArMedia, dispatch),
 });
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -89,7 +92,7 @@ const Transition = React.forwardRef((
 
 const ArMediaConsole = (props: Props) => {
     const classes = useStyles();
-    const { list, updateFeedAsAdmin, fetchAdminScenes, adminState, doLoginAuto } = props;
+    const { list, updateFeedAsAdmin, fetchAdminScenes, adminState, doLoginAuto, removeArMedia } = props;
     const adminScenes = adminState.get('scenes').get('scenes');
 
     console.log('list', list);
@@ -159,24 +162,25 @@ const ArMediaConsole = (props: Props) => {
         setOrderBy(property);
     };
 
-    const handleView = (id: string) => {
-        setView(list.find(item => item.id === id));
-        setModalOpen(true);
-    };
+    // const handleView = (id: string) => {
+    //     setView(list.find(item => item.id === id));
+    //     setModalOpen(true);
+    // };
 
+    const handleDelete = (id: string) => {
+        removeArMedia(id);        
+    };
     const handleClose = () => {
         setModalOpen(false);
     };
 
-    const handleUpdateFeed = (feed)=>{
-        updateFeedAsAdmin(feed.id, feed);
-    };
-    const router = useRouter();
-    const routeTo = (route: string) => () => {
-        router.push(route);
-      };
-
-    console.log('adminScenes',adminScenes);
+    // const handleUpdateFeed = (feed)=>{
+    //     updateFeedAsAdmin(feed.id, feed);
+    // };
+    // const router = useRouter();
+    // const routeTo = (route: string) => () => {
+    //     router.push(route);
+    //   };
 
     return (
         <div>
@@ -213,11 +217,8 @@ const ArMediaConsole = (props: Props) => {
                                             <TableCell className={styles.tcell} align="center">{row.ar_title}</TableCell>                                              
                                             <TableCell className={styles.tcell} align="right">{row.ar_createdAt}</TableCell>
                                             <TableCell className={styles.tcell} >
-                                                    {row.featuredByAdmin === 1 ? 
-                                                    <Button variant="outlined" color="secondary" style={{width:'fit-content'}} onClick={() => handleUpdateFeed({id:row.id.toString(), featuredByAdmin:0})}>UnFeature</Button>
-                                                    :
-                                                    <Button variant="outlined" color="secondary" style={{width:'fit-content'}} onClick={() => handleUpdateFeed({id:row.id.toString(), featuredByAdmin:1})}>Feature</Button>} 
-                                                <Button variant="outlined" color="secondary" style={{width:'fit-content'}} onClick={() => handleView(row.id.toString())}><Edit className="text-success"/></Button>
+                                                {/* <Button variant="outlined" color="secondary" style={{width:'fit-content'}} onClick={() => handleView(row.id.toString())}><Edit className="text-success"/>Edit</Button> */}
+                                                <Button variant="outlined" color="secondary" style={{width:'fit-content'}} onClick={() => handleDelete(row.ar_id.toString())}>Delete</Button>
                                             </TableCell>
                                         </TableRow>
                                     );
@@ -230,7 +231,7 @@ const ArMediaConsole = (props: Props) => {
                     TransitionComponent={Transition}                    
                     onClose={handleClose} 
                 >
-                    <ArMediaForm projects={adminScenes} />
+                    <ArMediaForm projects={adminScenes} view={view}  />
                 </SharedModal>}
             </Paper>
             <Backdrop className={classes.backdrop} open={loading}>

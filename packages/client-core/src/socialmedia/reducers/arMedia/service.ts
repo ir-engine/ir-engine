@@ -4,7 +4,7 @@
 import { Dispatch } from 'redux';
 import { dispatchAlertError } from "../../../common/reducers/alert/service";
 import { client } from '../../../feathers';
-import { fetchingArMedia, setAdminArMedia, setArMedia, addAdminArMedia } from '../arMedia/actions';
+import { fetchingArMedia, setAdminArMedia, setArMedia, addAdminArMedia, removeArMediaItem } from '../arMedia/actions';
 
 export function getArMediaService(type?: string) {
   return async (dispatch: Dispatch): Promise<any> => {
@@ -44,3 +44,16 @@ export function createArMedia(mediaItem:any){
     }
   };
 }
+
+export function removeArMedia(mediaItemId: string) {
+  return async (dispatch: Dispatch): Promise<any> => {
+    try {
+      await client.service('ar-media').remove(mediaItemId);
+      dispatch(removeArMediaItem(mediaItemId));
+    } catch(err) {
+      console.log(err);
+      dispatchAlertError(dispatch, err.message);
+    }
+  };
+}
+

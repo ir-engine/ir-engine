@@ -1,11 +1,13 @@
 /**
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
- import {
+ import { func } from 'prop-types';
+import {
     ARMEDIA_ADMIN_RETRIEVED,
     ARMEDIA_FETCHING,
     ARMEDIA_RETRIEVED,
-    ADD_ARMEDIA
+    ADD_ARMEDIA,
+    REMOVE_ARMEDIA
   } from '../actions';
   
   export interface ArMediaRetriveAction {
@@ -20,11 +22,17 @@
   export interface FetchingAction {
     type: string;
   }
+
+  export interface FetchingArMediaItemAction {
+    type: string;
+    id:string;
+  }
   
   export type ArMediaAction =
   ArMediaRetriveAction
   | FetchingAction
   | ArMediaOneAction
+  | FetchingArMediaItemAction
   
   export function setAdminArMedia (list: any[]): ArMediaRetriveAction {
     return {
@@ -50,5 +58,12 @@
     return {
       type: ADD_ARMEDIA,
       item
+    };
+  }
+
+  export function removeArMediaItem(id):FetchingArMediaItemAction{
+    return {
+      type: REMOVE_ARMEDIA,
+      id
     };
   }
