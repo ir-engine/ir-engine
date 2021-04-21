@@ -12,6 +12,7 @@ import {createPlayPanel} from '../components/PlayPanel';
 import {VideoPlayer} from '../components/VideoPlayer';
 import {totalWidth, totalHeight, itemWidth, itemHeight, gap, url, envUrl, videoUrl} from '../constants/Constant';
 import shaka from 'shaka-player';
+import {createSeekbar} from '../components/Control';
 
 export class UIGallery extends UIBaseElement {
   marketPlace: Block;
@@ -217,5 +218,8 @@ export class UIGallery extends UIBaseElement {
     this.preview.add(this.buyPanel);
 
     this.player = new VideoPlayer(this, envUrl);
+
+    let control = createSeekbar();
+    this.add(control);
   }
 }
