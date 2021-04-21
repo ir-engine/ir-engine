@@ -83,7 +83,7 @@
     "@feathersjs/errors": "4.5.11",
     "@feathersjs/express": "^4.5.9",
     "@feathersjs/feathers": "4.5.11",
-    "@feathersjs/hooks": "0.6.4",
+    "@feathersjs/hooks": "0.6.5",
     "@feathersjs/rest-client": "4.5.11",
     "@feathersjs/socketio": "4.5.11",
     "@feathersjs/socketio-client": "^4.5.9",
