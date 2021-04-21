@@ -16,24 +16,24 @@ hide_title: true
 
 #### Type declaration:
 
-Name | Type |
-:------ | :------ |
-`authUser` | *object* |
-`authUser.accessToken` | *string* |
-`authUser.authentication` | *object* |
-`authUser.authentication.strategy` | *string* |
-`authUser.identityProvider` | IdentityProvider |
-`avatarList` | *any*[] |
-`error` | *string* |
-`identityProvider` | IdentityProvider |
-`isLoggedIn` | *boolean* |
-`isProcessing` | *boolean* |
-`user` | *object* |
-`user.id` | *string* |
-`user.identityProviders` | *any*[] |
-`user.name` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `authUser` | *object* |
+| `authUser.accessToken` | *string* |
+| `authUser.authentication` | *object* |
+| `authUser.authentication.strategy` | *string* |
+| `authUser.identityProvider` | IdentityProvider |
+| `avatarList` | *any*[] |
+| `error` | *string* |
+| `identityProvider` | IdentityProvider |
+| `isLoggedIn` | *boolean* |
+| `isProcessing` | *boolean* |
+| `user` | *object* |
+| `user.id` | *string* |
+| `user.identityProviders` | *any*[] |
+| `user.name` | *string* |
 
-Defined in: [packages/client-core/src/user/reducers/auth/reducers.ts:42](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/user/reducers/auth/reducers.ts#L42)
+Defined in: [packages/client-core/src/user/reducers/auth/reducers.ts:42](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/user/reducers/auth/reducers.ts#L42)
 
 ## Functions
 
@@ -43,11 +43,11 @@ Defined in: [packages/client-core/src/user/reducers/auth/reducers.ts:42](https:/
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`state` | *any* |
-`action` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `state` | *any* |
+| `action` | *any* |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/src/user/reducers/auth/reducers.ts:54](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/user/reducers/auth/reducers.ts#L54)
+Defined in: [packages/client-core/src/user/reducers/auth/reducers.ts:54](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/user/reducers/auth/reducers.ts#L54)

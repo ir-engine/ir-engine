@@ -24,7 +24,7 @@ hide_title: true
 
 Ƭ **FeedCommentsAction**: [*FeedCommentsRetrievedAction*](../interfaces/src_socialmedia_reducers_feedcomment_actions.feedcommentsretrievedaction.md) \| [*FetchingFeedCommentsAction*](../interfaces/src_socialmedia_reducers_feedcomment_actions.fetchingfeedcommentsaction.md) \| [*AddFeedCommentAction*](../interfaces/src_socialmedia_reducers_feedcomment_actions.addfeedcommentaction.md) \| [*CommentFiresRetrievedAction*](../interfaces/src_socialmedia_reducers_feedcomment_actions.commentfiresretrievedaction.md)
 
-Defined in: [packages/client-core/src/socialmedia/reducers/feedComment/actions.ts:40](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/socialmedia/reducers/feedComment/actions.ts#L40)
+Defined in: [packages/client-core/src/socialmedia/reducers/feedComment/actions.ts:40](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/reducers/feedComment/actions.ts#L40)
 
 ## Functions
 
@@ -34,13 +34,13 @@ Defined in: [packages/client-core/src/socialmedia/reducers/feedComment/actions.t
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`comment` | CommentInterface |
+| Name | Type |
+| :------ | :------ |
+| `comment` | CommentInterface |
 
 **Returns:** [*AddFeedCommentAction*](../interfaces/src_socialmedia_reducers_feedcomment_actions.addfeedcommentaction.md)
 
-Defined in: [packages/client-core/src/socialmedia/reducers/feedComment/actions.ts:66](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/socialmedia/reducers/feedComment/actions.ts#L66)
+Defined in: [packages/client-core/src/socialmedia/reducers/feedComment/actions.ts:66](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/reducers/feedComment/actions.ts#L66)
 
 ___
 
@@ -50,13 +50,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`commentId` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `commentId` | *string* |
 
 **Returns:** [*AddFeedCommentFiresAction*](../interfaces/src_socialmedia_reducers_feedcomment_actions.addfeedcommentfiresaction.md)
 
-Defined in: [packages/client-core/src/socialmedia/reducers/feedComment/actions.ts:52](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/socialmedia/reducers/feedComment/actions.ts#L52)
+Defined in: [packages/client-core/src/socialmedia/reducers/feedComment/actions.ts:52](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/reducers/feedComment/actions.ts#L52)
 
 ___
 
@@ -66,13 +66,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`creators` | CreatorShort[] |
+| Name | Type |
+| :------ | :------ |
+| `creators` | CreatorShort[] |
 
 **Returns:** [*CommentFiresRetrievedAction*](../interfaces/src_socialmedia_reducers_feedcomment_actions.commentfiresretrievedaction.md)
 
-Defined in: [packages/client-core/src/socialmedia/reducers/feedComment/actions.ts:73](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/socialmedia/reducers/feedComment/actions.ts#L73)
+Defined in: [packages/client-core/src/socialmedia/reducers/feedComment/actions.ts:73](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/reducers/feedComment/actions.ts#L73)
 
 ___
 
@@ -82,7 +82,7 @@ ___
 
 **Returns:** [*FetchingFeedCommentsAction*](../interfaces/src_socialmedia_reducers_feedcomment_actions.fetchingfeedcommentsaction.md)
 
-Defined in: [packages/client-core/src/socialmedia/reducers/feedComment/actions.ts:46](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/socialmedia/reducers/feedComment/actions.ts#L46)
+Defined in: [packages/client-core/src/socialmedia/reducers/feedComment/actions.ts:46](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/reducers/feedComment/actions.ts#L46)
 
 ___
 
@@ -92,10 +92,10 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`commentId` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `commentId` | *string* |
 
 **Returns:** [*AddFeedCommentFiresAction*](../interfaces/src_socialmedia_reducers_feedcomment_actions.addfeedcommentfiresaction.md)
 
-Defined in: [packages/client-core/src/socialmedia/reducers/feedComment/actions.ts:59](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/socialmedia/reducers/feedComment/actions.ts#L59)
+Defined in: [packages/client-core/src/socialmedia/reducers/feedComment/actions.ts:59](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/reducers/feedComment/actions.ts#L59)

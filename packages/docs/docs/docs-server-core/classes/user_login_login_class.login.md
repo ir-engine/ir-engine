@@ -26,14 +26,14 @@ A class for Login service
 
 #### Parameters:
 
-Name | Type | Default value |
-:------ | :------ | :------ |
-`options` | ServiceOptions | {} |
-`app` | Application | - |
+| Name | Type | Default value |
+| :------ | :------ | :------ |
+| `options` | ServiceOptions | {} |
+| `app` | Application | - |
 
 **Returns:** [*Login*](user_login_login_class.login.md)
 
-Defined in: [packages/server-core/src/user/login/login.class.ts:17](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/user/login/login.class.ts#L17)
+Defined in: [packages/server-core/src/user/login/login.class.ts:17](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/user/login/login.class.ts#L17)
 
 ## Properties
 
@@ -41,7 +41,7 @@ Defined in: [packages/server-core/src/user/login/login.class.ts:17](https://gith
 
 • **app**: Application
 
-Defined in: [packages/server-core/src/user/login/login.class.ts:15](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/user/login/login.class.ts#L15)
+Defined in: [packages/server-core/src/user/login/login.class.ts:15](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/user/login/login.class.ts#L15)
 
 ___
 
@@ -49,7 +49,7 @@ ___
 
 • **docs**: *any*
 
-Defined in: [packages/server-core/src/user/login/login.class.ts:17](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/user/login/login.class.ts#L17)
+Defined in: [packages/server-core/src/user/login/login.class.ts:17](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/user/login/login.class.ts#L17)
 
 ___
 
@@ -57,7 +57,7 @@ ___
 
 • **options**: ServiceOptions
 
-Defined in: [packages/server-core/src/user/login/login.class.ts:16](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/user/login/login.class.ts#L16)
+Defined in: [packages/server-core/src/user/login/login.class.ts:16](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/user/login/login.class.ts#L16)
 
 ## Methods
 
@@ -71,10 +71,10 @@ A function which is used for login
 
 #### Parameters:
 
-Name | Type | Description |
-:------ | :------ | :------ |
-`data` | Data | of new login details   |
-`params?` | Params | contain user info   |
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `data` | Data | of new login details |
+| `params?` | Params | contain user info |
 
 **Returns:** *Promise*<Data\>
 
@@ -82,7 +82,7 @@ created data
 
 Implementation of: ServiceMethods.create
 
-Defined in: [packages/server-core/src/user/login/login.class.ts:82](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/user/login/login.class.ts#L82)
+Defined in: [packages/server-core/src/user/login/login.class.ts:82](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/user/login/login.class.ts#L82)
 
 ___
 
@@ -96,9 +96,9 @@ A function which find login details and display it
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`params?` | Params |
+| Name | Type |
+| :------ | :------ |
+| `params?` | Params |
 
 **Returns:** *Promise*<Data[] \| Paginated<Data\>\>
 
@@ -106,7 +106,7 @@ Name | Type |
 
 Implementation of: ServiceMethods.find
 
-Defined in: [packages/server-core/src/user/login/login.class.ts:31](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/user/login/login.class.ts#L31)
+Defined in: [packages/server-core/src/user/login/login.class.ts:31](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/user/login/login.class.ts#L31)
 
 ___
 
@@ -120,10 +120,10 @@ A function which find specific login details
 
 #### Parameters:
 
-Name | Type | Description |
-:------ | :------ | :------ |
-`id` | Id | of specific login detail   |
-`params?` | Params |  |
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `id` | Id | of specific login detail |
+| `params?` | Params |  |
 
 **Returns:** *Promise*<any\>
 
@@ -131,7 +131,7 @@ Name | Type | Description |
 
 Implementation of: ServiceMethods.get
 
-Defined in: [packages/server-core/src/user/login/login.class.ts:43](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/user/login/login.class.ts#L43)
+Defined in: [packages/server-core/src/user/login/login.class.ts:43](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/user/login/login.class.ts#L43)
 
 ___
 
@@ -143,11 +143,11 @@ A function which is used to update data
 
 #### Parameters:
 
-Name | Type | Description |
-:------ | :------ | :------ |
-`id` | NullableId |  |
-`data` | Data | to be updated   |
-`params?` | Params |  |
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `id` | NullableId |  |
+| `data` | Data | to be updated |
+| `params?` | Params |  |
 
 **Returns:** *Promise*<Data\>
 
@@ -155,7 +155,7 @@ data
 
 Implementation of: ServiceMethods.patch
 
-Defined in: [packages/server-core/src/user/login/login.class.ts:111](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/user/login/login.class.ts#L111)
+Defined in: [packages/server-core/src/user/login/login.class.ts:111](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/user/login/login.class.ts#L111)
 
 ___
 
@@ -167,10 +167,10 @@ A function which is used to remove login details
 
 #### Parameters:
 
-Name | Type | Description |
-:------ | :------ | :------ |
-`id` | NullableId | of login to be removed   |
-`params?` | Params |  |
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `id` | NullableId | of login to be removed |
+| `params?` | Params |  |
 
 **Returns:** *Promise*<Data\>
 
@@ -178,7 +178,7 @@ id
 
 Implementation of: ServiceMethods.remove
 
-Defined in: [packages/server-core/src/user/login/login.class.ts:123](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/user/login/login.class.ts#L123)
+Defined in: [packages/server-core/src/user/login/login.class.ts:123](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/user/login/login.class.ts#L123)
 
 ___
 
@@ -192,11 +192,11 @@ A function which is used to update login details
 
 #### Parameters:
 
-Name | Type | Description |
-:------ | :------ | :------ |
-`id` | NullableId | of login detail   |
-`data` | Data | which will be used for updating login   |
-`params?` | Params |  |
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `id` | NullableId | of login detail |
+| `data` | Data | which will be used for updating login |
+| `params?` | Params |  |
 
 **Returns:** *Promise*<Data\>
 
@@ -204,4 +204,4 @@ updated data
 
 Implementation of: ServiceMethods.update
 
-Defined in: [packages/server-core/src/user/login/login.class.ts:99](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/user/login/login.class.ts#L99)
+Defined in: [packages/server-core/src/user/login/login.class.ts:99](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/user/login/login.class.ts#L99)

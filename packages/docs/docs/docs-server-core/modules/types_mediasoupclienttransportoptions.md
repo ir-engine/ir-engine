@@ -16,17 +16,17 @@ hide_title: true
 
 #### Type declaration:
 
-Name | Type |
-:------ | :------ |
-`additionalSettings`? | *any* |
-`appData`? | *any* |
-`dtlsParameters` | DtlsParameters |
-`iceCandidates` | IceCandidate[] |
-`iceParameters` | IceParameters |
-`iceServers`? | RTCIceServer[] |
-`iceTransportPolicy`? | RTCIceTransportPolicy |
-`id` | *string* |
-`proprietaryConstraints`? | *any* |
-`sctpParameters`? | SctpParameters |
+| Name | Type |
+| :------ | :------ |
+| `additionalSettings?` | *any* |
+| `appData?` | *any* |
+| `dtlsParameters` | DtlsParameters |
+| `iceCandidates` | IceCandidate[] |
+| `iceParameters` | IceParameters |
+| `iceServers?` | RTCIceServer[] |
+| `iceTransportPolicy?` | RTCIceTransportPolicy |
+| `id` | *string* |
+| `proprietaryConstraints?` | *any* |
+| `sctpParameters?` | SctpParameters |
 
-Defined in: [packages/server-core/src/types/MediasoupClientTransportOptions.ts:4](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/types/MediasoupClientTransportOptions.ts#L4)
+Defined in: [packages/server-core/src/types/MediasoupClientTransportOptions.ts:4](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/types/MediasoupClientTransportOptions.ts#L4)

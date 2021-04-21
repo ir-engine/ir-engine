@@ -22,14 +22,14 @@ hide_title: true
 
 #### Type declaration:
 
-Name | Type |
-:------ | :------ |
-`accessToken` | *string* |
-`authentication` | *object* |
-`authentication.strategy` | *string* |
-`identityProvider` | [*IdentityProvider*](../interfaces/src_interfaces_identityprovider.identityprovider.md) |
+| Name | Type |
+| :------ | :------ |
+| `accessToken` | *string* |
+| `authentication` | *object* |
+| `authentication.strategy` | *string* |
+| `identityProvider` | [*IdentityProvider*](../interfaces/src_interfaces_identityprovider.identityprovider.md) |
 
-Defined in: [interfaces/AuthUser.ts:11](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/common/src/interfaces/AuthUser.ts#L11)
+Defined in: [interfaces/AuthUser.ts:11](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/common/src/interfaces/AuthUser.ts#L11)
 
 ## Functions
 
@@ -39,10 +39,10 @@ Defined in: [interfaces/AuthUser.ts:11](https://github.com/xr3ngine/xr3ngine/blo
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`res` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `res` | *any* |
 
 **Returns:** [*AuthUser*](../interfaces/src_interfaces_authuser.authuser.md)
 
-Defined in: [interfaces/AuthUser.ts:19](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/common/src/interfaces/AuthUser.ts#L19)
+Defined in: [interfaces/AuthUser.ts:19](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/common/src/interfaces/AuthUser.ts#L19)

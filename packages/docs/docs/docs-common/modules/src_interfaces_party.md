@@ -16,9 +16,9 @@ hide_title: true
 
 #### Type declaration:
 
-Name | Type |
-:------ | :------ |
-`id` | *string* |
-`partyUsers` | [*PartyUser*](src_interfaces_partyuser.md#partyuser)[] |
+| Name | Type |
+| :------ | :------ |
+| `id` | *string* |
+| `partyUsers` | [*PartyUser*](src_interfaces_partyuser.md#partyuser)[] |
 
-Defined in: [interfaces/Party.ts:3](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/common/src/interfaces/Party.ts#L3)
+Defined in: [interfaces/Party.ts:3](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/common/src/interfaces/Party.ts#L3)

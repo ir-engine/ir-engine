@@ -16,7 +16,7 @@ hide_title: true
 
 #### Type declaration:
 
-Name | Type |
-:------ | :------ |
-`admin` | (`state`: *any*, `action`: *any*) => *any* |
-`contentPack` | (`state`: *any*, `action`: [*ContentPackAction*](src_admin_reducers_contentpack_actions.md#contentpackaction)) => *any* |
+| Name | Type |
+| :------ | :------ |
+| `admin` | (`state`: *any*, `action`: *any*) => *any* |
+| `contentPack` | (`state`: *any*, `action`: [*ContentPackAction*](src_admin_reducers_contentpack_actions.md#contentpackaction)) => *any* |

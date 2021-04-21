@@ -16,17 +16,17 @@ hide_title: true
 
 #### Type declaration:
 
-Name | Type |
-:------ | :------ |
-`definitions` | *object* |
-`definitions.seat` | *object* |
-`definitions.seat.properties` | *object* |
-`definitions.seat.type` | *string* |
-`definitions.seat_list` | *object* |
-`definitions.seat_list.items` | *object* |
-`definitions.seat_list.items.$ref` | *string* |
-`definitions.seat_list.type` | *string* |
-`operations` | *object* |
-`operations.find` | *object* |
-`operations.find.security` | { `bearer`: *any*[] = [] }[] |
-`securities` | *string*[] |
+| Name | Type |
+| :------ | :------ |
+| `definitions` | *object* |
+| `definitions.seat` | *object* |
+| `definitions.seat.properties` | *object* |
+| `definitions.seat.type` | *string* |
+| `definitions.seat_list` | *object* |
+| `definitions.seat_list.items` | *object* |
+| `definitions.seat_list.items.$ref` | *string* |
+| `definitions.seat_list.type` | *string* |
+| `operations` | *object* |
+| `operations.find` | *object* |
+| `operations.find.security` | { `bearer`: *any*[] = [] }[] |
+| `securities` | *string*[] |

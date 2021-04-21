@@ -18,12 +18,12 @@ hide_title: true
 
 #### Type declaration:
 
-Name | Type |
-:------ | :------ |
-`cancelLabel` | *string* |
-`cancelable` | *boolean* |
-`message` | *string* |
-`title` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `cancelLabel` | *string* |
+| `cancelable` | *boolean* |
+| `message` | *string* |
+| `title` | *string* |
 
 ___
 
@@ -33,11 +33,11 @@ ___
 
 #### Type declaration:
 
-Name | Type |
-:------ | :------ |
-`cancelLabel` | *Requireable*<string\> |
-`cancelable` | *Requireable*<boolean\> |
-`message` | *Validator*<string\> |
-`onCancel` | *Requireable*<(...`args`: *any*[]) => *any*\> |
-`onConfirm` | *Requireable*<(...`args`: *any*[]) => *any*\> |
-`title` | *Validator*<string\> |
+| Name | Type |
+| :------ | :------ |
+| `cancelLabel` | *Requireable*<string\> |
+| `cancelable` | *Requireable*<boolean\> |
+| `message` | *Validator*<string\> |
+| `onCancel` | *Requireable*<(...`args`: *any*[]) => *any*\> |
+| `onConfirm` | *Requireable*<(...`args`: *any*[]) => *any*\> |
+| `title` | *Validator*<string\> |

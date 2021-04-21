@@ -16,13 +16,13 @@ hide_title: true
 
 #### Type declaration:
 
-Name | Type |
-:------ | :------ |
-`definitions` | *object* |
-`definitions.feed-fires` | *object* |
-`definitions.feed-fires.properties` | *object* |
-`definitions.feed-fires.type` | *string* |
-`definitions.feed-fires_list` | *object* |
-`definitions.feed-fires_list.items` | *object* |
-`definitions.feed-fires_list.items.$ref` | *string* |
-`definitions.feed-fires_list.type` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `definitions` | *object* |
+| `definitions.feed-fires` | *object* |
+| `definitions.feed-fires.properties` | *object* |
+| `definitions.feed-fires.type` | *string* |
+| `definitions.feed-fires_list` | *object* |
+| `definitions.feed-fires_list.items` | *object* |
+| `definitions.feed-fires_list.items.$ref` | *string* |
+| `definitions.feed-fires_list.type` | *string* |

@@ -18,13 +18,13 @@ hide_title: true
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`app` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `app` | *any* |
 
 **Returns:** [*WebRTCGameServer*](webrtcgameserver.webrtcgameserver-1.md)
 
-Defined in: [WebRTCGameServer.ts:26](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/gameserver/src/WebRTCGameServer.ts#L26)
+Defined in: [WebRTCGameServer.ts:26](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/gameserver/src/WebRTCGameServer.ts#L26)
 
 ## Properties
 
@@ -32,4 +32,4 @@ Defined in: [WebRTCGameServer.ts:26](https://github.com/xr3ngine/xr3ngine/blob/6
 
 ▪ `Static` **instance**: [*WebRTCGameServer*](webrtcgameserver.webrtcgameserver-1.md)= null
 
-Defined in: [WebRTCGameServer.ts:26](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/gameserver/src/WebRTCGameServer.ts#L26)
+Defined in: [WebRTCGameServer.ts:26](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/gameserver/src/WebRTCGameServer.ts#L26)

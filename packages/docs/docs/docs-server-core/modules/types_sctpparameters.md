@@ -16,11 +16,11 @@ hide_title: true
 
 #### Type declaration:
 
-Name | Type | Description |
-:------ | :------ | :------ |
-`MIS` | *number* | Maximum number of incoming SCTP streams.   |
-`OS` | *number* | Initially requested number of outgoing SCTP streams.   |
-`maxMessageSize` | *number* | Maximum allowed size for SCTP messages.   |
-`port` | *number* | Must always equal 5000.   |
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `MIS` | *number* | Maximum number of incoming SCTP streams. |
+| `OS` | *number* | Initially requested number of outgoing SCTP streams. |
+| `maxMessageSize` | *number* | Maximum allowed size for SCTP messages. |
+| `port` | *number* | Must always equal 5000. |
 
-Defined in: [packages/server-core/src/types/SctpParameters.ts:3](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/types/SctpParameters.ts#L3)
+Defined in: [packages/server-core/src/types/SctpParameters.ts:3](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/types/SctpParameters.ts#L3)

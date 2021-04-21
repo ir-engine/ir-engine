@@ -16,10 +16,10 @@ hide_title: true
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`props` | EnhancedTableProps |
+| Name | Type |
+| :------ | :------ |
+| `props` | EnhancedTableProps |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/admin/components/AdminHelpers.tsx:21](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/admin/components/AdminHelpers.tsx#L21)
+Defined in: [packages/client-core/src/admin/components/AdminHelpers.tsx:18](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/admin/components/AdminHelpers.tsx#L18)

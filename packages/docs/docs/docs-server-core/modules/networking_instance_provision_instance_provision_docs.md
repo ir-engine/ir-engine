@@ -16,17 +16,17 @@ hide_title: true
 
 #### Type declaration:
 
-Name | Type |
-:------ | :------ |
-`definitions` | *object* |
-`definitions.instance-provision` | *object* |
-`definitions.instance-provision.properties` | *object* |
-`definitions.instance-provision.type` | *string* |
-`definitions.instance-provision_list` | *object* |
-`definitions.instance-provision_list.items` | *object* |
-`definitions.instance-provision_list.items.$ref` | *string* |
-`definitions.instance-provision_list.type` | *string* |
-`operations` | *object* |
-`operations.find` | *object* |
-`operations.find.security` | { `bearer`: *any*[] = [] }[] |
-`securities` | *string*[] |
+| Name | Type |
+| :------ | :------ |
+| `definitions` | *object* |
+| `definitions.instance-provision` | *object* |
+| `definitions.instance-provision.properties` | *object* |
+| `definitions.instance-provision.type` | *string* |
+| `definitions.instance-provision_list` | *object* |
+| `definitions.instance-provision_list.items` | *object* |
+| `definitions.instance-provision_list.items.$ref` | *string* |
+| `definitions.instance-provision_list.type` | *string* |
+| `operations` | *object* |
+| `operations.find` | *object* |
+| `operations.find.security` | { `bearer`: *any*[] = [] }[] |
+| `securities` | *string*[] |

@@ -16,13 +16,13 @@ hide_title: true
 
 #### Type declaration:
 
-Name | Type |
-:------ | :------ |
-`definitions` | *object* |
-`definitions.resolve-media` | *object* |
-`definitions.resolve-media.properties` | *object* |
-`definitions.resolve-media.type` | *string* |
-`definitions.resolve-media_list` | *object* |
-`definitions.resolve-media_list.items` | *object* |
-`definitions.resolve-media_list.items.$ref` | *string* |
-`definitions.resolve-media_list.type` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `definitions` | *object* |
+| `definitions.resolve-media` | *object* |
+| `definitions.resolve-media.properties` | *object* |
+| `definitions.resolve-media.type` | *string* |
+| `definitions.resolve-media_list` | *object* |
+| `definitions.resolve-media_list.items` | *object* |
+| `definitions.resolve-media_list.items.$ref` | *string* |
+| `definitions.resolve-media_list.type` | *string* |

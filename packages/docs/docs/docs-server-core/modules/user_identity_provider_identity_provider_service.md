@@ -24,10 +24,10 @@ Initialize our service with any options it requires and docs
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`app` | Application |
+| Name | Type |
+| :------ | :------ |
+| `app` | Application |
 
 **Returns:** *void*
 
-Defined in: [packages/server-core/src/user/identity-provider/identity-provider.service.ts:11](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/user/identity-provider/identity-provider.service.ts#L11)
+Defined in: [packages/server-core/src/user/identity-provider/identity-provider.service.ts:11](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/user/identity-provider/identity-provider.service.ts#L11)

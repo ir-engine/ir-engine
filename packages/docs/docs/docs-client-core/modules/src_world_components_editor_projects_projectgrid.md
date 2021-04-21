@@ -19,61 +19,61 @@ hide_title: true
 
 ### CenteredMessage
 
-• `Const` **CenteredMessage**: *StyledComponent*<*div*, any, {}, never\>
+• `Const` **CenteredMessage**: *StyledComponent*<``"div"``, any, {}, never\>
 
 **`author`** Robert Long
 
-Defined in: [packages/client-core/src/world/components/editor/projects/ProjectGrid.tsx:210](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/projects/ProjectGrid.tsx#L210)
+Defined in: [packages/client-core/src/world/components/editor/projects/ProjectGrid.tsx:209](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/projects/ProjectGrid.tsx#L209)
 
 ___
 
 ### ErrorMessage
 
-• `Const` **ErrorMessage**: *StyledComponent*<*div*, any, {}, never\>
+• `Const` **ErrorMessage**: *StyledComponent*<``"div"``, any, {}, never\>
 
 **`author`** Robert Long
 
-Defined in: [packages/client-core/src/world/components/editor/projects/ProjectGrid.tsx:221](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/projects/ProjectGrid.tsx#L221)
+Defined in: [packages/client-core/src/world/components/editor/projects/ProjectGrid.tsx:220](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/projects/ProjectGrid.tsx#L220)
 
 ___
 
 ### Filter
 
-• `Const` **Filter**: *StyledComponent*<*a*, any, { `active?`: *boolean*  }, never\>
+• `Const` **Filter**: *StyledComponent*<``"a"``, any, { `active?`: *boolean*  }, never\>
 
 **`author`** Robert Long
 
-Defined in: [packages/client-core/src/world/components/editor/projects/ProjectGrid.tsx:168](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/projects/ProjectGrid.tsx#L168)
+Defined in: [packages/client-core/src/world/components/editor/projects/ProjectGrid.tsx:167](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/projects/ProjectGrid.tsx#L167)
 
 ___
 
 ### ProjectGridContainer
 
-• `Const` **ProjectGridContainer**: *StyledComponent*<*div*, any, {}, never\>
+• `Const` **ProjectGridContainer**: *StyledComponent*<``"div"``, any, {}, never\>
 
 **`author`** Robert Long
 
-Defined in: [packages/client-core/src/world/components/editor/projects/ProjectGrid.tsx:131](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/projects/ProjectGrid.tsx#L131)
+Defined in: [packages/client-core/src/world/components/editor/projects/ProjectGrid.tsx:130](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/projects/ProjectGrid.tsx#L130)
 
 ___
 
 ### ProjectGridContent
 
-• `Const` **ProjectGridContent**: *StyledComponent*<*div*, any, {}, never\>
+• `Const` **ProjectGridContent**: *StyledComponent*<``"div"``, any, {}, never\>
 
 **`author`** Robert Long
 
-Defined in: [packages/client-core/src/world/components/editor/projects/ProjectGrid.tsx:143](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/projects/ProjectGrid.tsx#L143)
+Defined in: [packages/client-core/src/world/components/editor/projects/ProjectGrid.tsx:142](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/projects/ProjectGrid.tsx#L142)
 
 ___
 
 ### ProjectGridHeader
 
-• `Const` **ProjectGridHeader**: *StyledComponent*<*div*, any, {}, never\>
+• `Const` **ProjectGridHeader**: *StyledComponent*<``"div"``, any, {}, never\>
 
 **`author`** Robert Long
 
-Defined in: [packages/client-core/src/world/components/editor/projects/ProjectGrid.tsx:154](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/projects/ProjectGrid.tsx#L154)
+Defined in: [packages/client-core/src/world/components/editor/projects/ProjectGrid.tsx:153](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/projects/ProjectGrid.tsx#L153)
 
 ___
 
@@ -83,7 +83,7 @@ ___
 
 **`author`** Robert Long
 
-Defined in: [packages/client-core/src/world/components/editor/projects/ProjectGrid.tsx:188](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/projects/ProjectGrid.tsx#L188)
+Defined in: [packages/client-core/src/world/components/editor/projects/ProjectGrid.tsx:187](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/projects/ProjectGrid.tsx#L187)
 
 ___
 
@@ -93,17 +93,17 @@ ___
 
 **`author`** Robert Long
 
-Defined in: [packages/client-core/src/world/components/editor/projects/ProjectGrid.tsx:200](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/projects/ProjectGrid.tsx#L200)
+Defined in: [packages/client-core/src/world/components/editor/projects/ProjectGrid.tsx:199](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/projects/ProjectGrid.tsx#L199)
 
 ___
 
 ### Separator
 
-• `Const` **Separator**: *StyledComponent*<*div*, any, {}, never\>
+• `Const` **Separator**: *StyledComponent*<``"div"``, any, {}, never\>
 
 **`author`** Robert Long
 
-Defined in: [packages/client-core/src/world/components/editor/projects/ProjectGrid.tsx:178](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/projects/ProjectGrid.tsx#L178)
+Defined in: [packages/client-core/src/world/components/editor/projects/ProjectGrid.tsx:177](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/projects/ProjectGrid.tsx#L177)
 
 ## Functions
 
@@ -115,7 +115,7 @@ Defined in: [packages/client-core/src/world/components/editor/projects/ProjectGr
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/projects/ProjectGrid.tsx:76](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/projects/ProjectGrid.tsx#L76)
+Defined in: [packages/client-core/src/world/components/editor/projects/ProjectGrid.tsx:75](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/projects/ProjectGrid.tsx#L75)
 
 ___
 
@@ -127,15 +127,15 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`__namedParameters` | *object* |
-`__namedParameters.label` | *string* |
-`__namedParameters.path` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `__namedParameters` | *object* |
+| `__namedParameters.label` | *string* |
+| `__namedParameters.path` | *string* |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/projects/ProjectGrid.tsx:48](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/projects/ProjectGrid.tsx#L48)
+Defined in: [packages/client-core/src/world/components/editor/projects/ProjectGrid.tsx:47](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/projects/ProjectGrid.tsx#L47)
 
 ___
 
@@ -147,10 +147,10 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`__namedParameters` | *Object* |
+| Name | Type |
+| :------ | :------ |
+| `__namedParameters` | *Object* |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/projects/ProjectGrid.tsx:107](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/projects/ProjectGrid.tsx#L107)
+Defined in: [packages/client-core/src/world/components/editor/projects/ProjectGrid.tsx:106](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/projects/ProjectGrid.tsx#L106)

@@ -16,7 +16,7 @@ hide_title: true
 
 • **groupUser**: GroupUser
 
-Defined in: [packages/client-core/src/social/reducers/group/actions.ts:37](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/social/reducers/group/actions.ts#L37)
+Defined in: [packages/client-core/src/social/reducers/group/actions.ts:37](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/social/reducers/group/actions.ts#L37)
 
 ___
 
@@ -24,4 +24,4 @@ ___
 
 • **type**: *string*
 
-Defined in: [packages/client-core/src/social/reducers/group/actions.ts:36](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/social/reducers/group/actions.ts#L36)
+Defined in: [packages/client-core/src/social/reducers/group/actions.ts:36](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/social/reducers/group/actions.ts#L36)

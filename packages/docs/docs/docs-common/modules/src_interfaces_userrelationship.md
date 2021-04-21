@@ -12,9 +12,9 @@ hide_title: true
 
 ### RelationshipType
 
-Ƭ **RelationshipType**: *friend* \| *requested* \| *blocked* \| *blocking*
+Ƭ **RelationshipType**: ``"friend"`` \| ``"requested"`` \| ``"blocked"`` \| ``"blocking"``
 
-Defined in: [interfaces/UserRelationship.ts:1](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/common/src/interfaces/UserRelationship.ts#L1)
+Defined in: [interfaces/UserRelationship.ts:1](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/common/src/interfaces/UserRelationship.ts#L1)
 
 ___
 
@@ -24,13 +24,13 @@ ___
 
 #### Type declaration:
 
-Name | Type |
-:------ | :------ |
-`createdAt` | *string* |
-`id` | *string* |
-`relatedUserId` | *string* |
-`updatedAt` | *string* |
-`userId` | *string* |
-`userRelationshipType` | [*RelationshipType*](src_interfaces_userrelationship.md#relationshiptype) |
+| Name | Type |
+| :------ | :------ |
+| `createdAt` | *string* |
+| `id` | *string* |
+| `relatedUserId` | *string* |
+| `updatedAt` | *string* |
+| `userId` | *string* |
+| `userRelationshipType` | [*RelationshipType*](src_interfaces_userrelationship.md#relationshiptype) |
 
-Defined in: [interfaces/UserRelationship.ts:2](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/common/src/interfaces/UserRelationship.ts#L2)
+Defined in: [interfaces/UserRelationship.ts:2](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/common/src/interfaces/UserRelationship.ts#L2)

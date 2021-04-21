@@ -16,10 +16,10 @@ hide_title: true
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`__namedParameters` | *Object* |
+| Name | Type |
+| :------ | :------ |
+| `__namedParameters` | *Object* |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/user/components/Dashboard/SocialDashboard.tsx:105](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/user/components/Dashboard/SocialDashboard.tsx#L105)
+Defined in: [packages/client-core/src/user/components/Dashboard/SocialDashboard.tsx:104](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/user/components/Dashboard/SocialDashboard.tsx#L104)

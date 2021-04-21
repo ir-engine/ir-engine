@@ -32,10 +32,10 @@ NodeIssuesIcon function component used to provide view of issues list.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`__namedParameters` | *Object* |
+| Name | Type |
+| :------ | :------ |
+| `__namedParameters` | *Object* |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/hierarchy/NodeIssuesIcon.tsx:58](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/hierarchy/NodeIssuesIcon.tsx#L58)
+Defined in: [packages/client-core/src/world/components/editor/hierarchy/NodeIssuesIcon.tsx:58](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/hierarchy/NodeIssuesIcon.tsx#L58)

@@ -12,4 +12,4 @@ hide_title: true
 
 ### default
 
-• **default**: *ConnectedComponent*<(`\_\_namedParameters`: Props) => *Element*, Omit<Props, never\>\>
+• **default**: *ConnectedComponent*<(`__namedParameters`: Props) => *Element*, Omit<Props, never\>\>

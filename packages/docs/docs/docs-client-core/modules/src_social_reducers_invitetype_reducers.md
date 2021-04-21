@@ -16,15 +16,15 @@ hide_title: true
 
 #### Type declaration:
 
-Name | Type |
-:------ | :------ |
-`inviteTypeData` | *object* |
-`inviteTypeData.invitesType` | *any*[] |
-`inviteTypeData.limit` | *number* |
-`inviteTypeData.skip` | *number* |
-`inviteTypeData.total` | *number* |
+| Name | Type |
+| :------ | :------ |
+| `inviteTypeData` | *object* |
+| `inviteTypeData.invitesType` | *any*[] |
+| `inviteTypeData.limit` | *number* |
+| `inviteTypeData.skip` | *number* |
+| `inviteTypeData.total` | *number* |
 
-Defined in: [packages/client-core/src/social/reducers/inviteType/reducers.ts:11](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/social/reducers/inviteType/reducers.ts#L11)
+Defined in: [packages/client-core/src/social/reducers/inviteType/reducers.ts:11](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/social/reducers/inviteType/reducers.ts#L11)
 
 ## Functions
 
@@ -34,11 +34,11 @@ Defined in: [packages/client-core/src/social/reducers/inviteType/reducers.ts:11]
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`state` | *any* |
-`action` | [*InviteTypeAction*](src_social_reducers_invitetype_actions.md#invitetypeaction) |
+| Name | Type |
+| :------ | :------ |
+| `state` | *any* |
+| `action` | [*InviteTypeAction*](src_social_reducers_invitetype_actions.md#invitetypeaction) |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/src/social/reducers/inviteType/reducers.ts:23](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/social/reducers/inviteType/reducers.ts#L23)
+Defined in: [packages/client-core/src/social/reducers/inviteType/reducers.ts:23](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/social/reducers/inviteType/reducers.ts#L23)

@@ -16,6 +16,6 @@ hide_title: true
 
 #### Type declaration:
 
-Name | Type |
-:------ | :------ |
-`scenes` | (`state`: *any*, `action`: [*ScenesFetchedAction*](../interfaces/src_world_reducers_scenes_actions.scenesfetchedaction.md)) => *any* |
+| Name | Type |
+| :------ | :------ |
+| `scenes` | (`state`: *any*, `action`: [*ScenesFetchedAction*](../interfaces/src_world_reducers_scenes_actions.scenesfetchedaction.md)) => *any* |

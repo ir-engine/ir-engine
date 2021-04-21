@@ -28,9 +28,9 @@ PointLightNodeEditor is used render editor view to customize component propertie
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`props` | PointLightNodeEditorProps \| *Readonly*<PointLightNodeEditorProps\> |
+| Name | Type |
+| :------ | :------ |
+| `props` | PointLightNodeEditorProps \| *Readonly*<PointLightNodeEditorProps\> |
 
 **Returns:** [*PointLightNodeEditor*](src_world_components_editor_properties_pointlightnodeeditor.pointlightnodeeditor.md)
 
@@ -49,10 +49,10 @@ Defined in: node_modules/@types/react/index.d.ts:469
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`props` | PointLightNodeEditorProps |
-`context` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `props` | PointLightNodeEditorProps |
+| `context` | *any* |
 
 **Returns:** [*PointLightNodeEditor*](src_world_components_editor_properties_pointlightnodeeditor.pointlightnodeeditor.md)
 
@@ -157,7 +157,7 @@ ___
 
 ▪ `Static` **description**: *string*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/PointLightNodeEditor.tsx:35](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/properties/PointLightNodeEditor.tsx#L35)
+Defined in: [packages/client-core/src/world/components/editor/properties/PointLightNodeEditor.tsx:35](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/PointLightNodeEditor.tsx#L35)
 
 ___
 
@@ -165,7 +165,7 @@ ___
 
 ▪ `Static` **iconComponent**: StyledIcon
 
-Defined in: [packages/client-core/src/world/components/editor/properties/PointLightNodeEditor.tsx:32](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/properties/PointLightNodeEditor.tsx#L32)
+Defined in: [packages/client-core/src/world/components/editor/properties/PointLightNodeEditor.tsx:32](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/PointLightNodeEditor.tsx#L32)
 
 ## Methods
 
@@ -218,10 +218,10 @@ prevents this from being invoked.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`nextProps` | *Readonly*<PointLightNodeEditorProps\> |
-`nextContext` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `nextProps` | *Readonly*<PointLightNodeEditorProps\> |
+| `nextContext` | *any* |
 
 **Returns:** *void*
 
@@ -252,11 +252,11 @@ prevents this from being invoked.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`nextProps` | *Readonly*<PointLightNodeEditorProps\> |
-`nextState` | *Readonly*<{}\> |
-`nextContext` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `nextProps` | *Readonly*<PointLightNodeEditorProps\> |
+| `nextState` | *Readonly*<{}\> |
+| `nextContext` | *any* |
 
 **Returns:** *void*
 
@@ -275,10 +275,10 @@ the entire component tree to unmount.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`error` | Error |
-`errorInfo` | ErrorInfo |
+| Name | Type |
+| :------ | :------ |
+| `error` | Error |
+| `errorInfo` | ErrorInfo |
 
 **Returns:** *void*
 
@@ -312,11 +312,11 @@ The snapshot is only present if getSnapshotBeforeUpdate is present and returns n
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`prevProps` | *Readonly*<PointLightNodeEditorProps\> |
-`prevState` | *Readonly*<{}\> |
-`snapshot?` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `prevProps` | *Readonly*<PointLightNodeEditorProps\> |
+| `prevState` | *Readonly*<{}\> |
+| `snapshot?` | *any* |
 
 **Returns:** *void*
 
@@ -371,10 +371,10 @@ prevents this from being invoked.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`nextProps` | *Readonly*<PointLightNodeEditorProps\> |
-`nextContext` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `nextProps` | *Readonly*<PointLightNodeEditorProps\> |
+| `nextContext` | *any* |
 
 **Returns:** *void*
 
@@ -418,11 +418,11 @@ prevents this from being invoked.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`nextProps` | *Readonly*<PointLightNodeEditorProps\> |
-`nextState` | *Readonly*<{}\> |
-`nextContext` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `nextProps` | *Readonly*<PointLightNodeEditorProps\> |
+| `nextState` | *Readonly*<{}\> |
+| `nextContext` | *any* |
 
 **Returns:** *void*
 
@@ -438,9 +438,9 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`callback?` | () => *void* |
+| Name | Type |
+| :------ | :------ |
+| `callback?` | () => *void* |
 
 **Returns:** *void*
 
@@ -463,10 +463,10 @@ lifecycle events from running.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`prevProps` | *Readonly*<PointLightNodeEditorProps\> |
-`prevState` | *Readonly*<{}\> |
+| Name | Type |
+| :------ | :------ |
+| `prevProps` | *Readonly*<PointLightNodeEditorProps\> |
+| `prevState` | *Readonly*<{}\> |
 
 **Returns:** *any*
 
@@ -482,13 +482,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`color` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `color` | *any* |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/PointLightNodeEditor.tsx:38](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/properties/PointLightNodeEditor.tsx#L38)
+Defined in: [packages/client-core/src/world/components/editor/properties/PointLightNodeEditor.tsx:38](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/PointLightNodeEditor.tsx#L38)
 
 ___
 
@@ -498,13 +498,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`intensity` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `intensity` | *any* |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/PointLightNodeEditor.tsx:43](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/properties/PointLightNodeEditor.tsx#L43)
+Defined in: [packages/client-core/src/world/components/editor/properties/PointLightNodeEditor.tsx:43](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/PointLightNodeEditor.tsx#L43)
 
 ___
 
@@ -514,13 +514,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`range` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `range` | *any* |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/PointLightNodeEditor.tsx:48](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/properties/PointLightNodeEditor.tsx#L48)
+Defined in: [packages/client-core/src/world/components/editor/properties/PointLightNodeEditor.tsx:48](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/PointLightNodeEditor.tsx#L48)
 
 ___
 
@@ -532,7 +532,7 @@ ___
 
 Overrides: Component.render
 
-Defined in: [packages/client-core/src/world/components/editor/properties/PointLightNodeEditor.tsx:53](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/properties/PointLightNodeEditor.tsx#L53)
+Defined in: [packages/client-core/src/world/components/editor/properties/PointLightNodeEditor.tsx:53](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/PointLightNodeEditor.tsx#L53)
 
 ___
 
@@ -542,16 +542,16 @@ ___
 
 #### Type parameters:
 
-Name | Type |
-:------ | :------ |
-`K` | *never* |
+| Name | Type |
+| :------ | :------ |
+| `K` | *never* |
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`state` | {} \| (`prevState`: *Readonly*<{}\>, `props`: *Readonly*<PointLightNodeEditorProps\>) => {} \| *Pick*<{}, K\> \| *Pick*<{}, K\> |
-`callback?` | () => *void* |
+| Name | Type |
+| :------ | :------ |
+| `state` | {} \| (`prevState`: *Readonly*<{}\>, `props`: *Readonly*<PointLightNodeEditorProps\>) => {} \| *Pick*<{}, K\> \| *Pick*<{}, K\> |
+| `callback?` | () => *void* |
 
 **Returns:** *void*
 
@@ -576,11 +576,11 @@ and `componentDidUpdate` will not be called.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`nextProps` | *Readonly*<PointLightNodeEditorProps\> |
-`nextState` | *Readonly*<{}\> |
-`nextContext` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `nextProps` | *Readonly*<PointLightNodeEditorProps\> |
+| `nextState` | *Readonly*<{}\> |
+| `nextContext` | *any* |
 
 **Returns:** *boolean*
 

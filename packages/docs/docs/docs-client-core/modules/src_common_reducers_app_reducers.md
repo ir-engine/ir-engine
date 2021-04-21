@@ -14,7 +14,7 @@ hide_title: true
 
 • `Const` **initialAppState**: AppState
 
-Defined in: [packages/client-core/src/common/reducers/app/reducers.ts:30](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/common/reducers/app/reducers.ts#L30)
+Defined in: [packages/client-core/src/common/reducers/app/reducers.ts:30](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/common/reducers/app/reducers.ts#L30)
 
 ## Functions
 
@@ -24,11 +24,11 @@ Defined in: [packages/client-core/src/common/reducers/app/reducers.ts:30](https:
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`state` | *any* |
-`action` | [*AppLoadedAction*](../interfaces/src_common_reducers_app_actions.apploadedaction.md) \| [*SetViewportAction*](../interfaces/src_common_reducers_app_actions.setviewportaction.md) |
+| Name | Type |
+| :------ | :------ |
+| `state` | *any* |
+| `action` | [*AppLoadedAction*](../interfaces/src_common_reducers_app_actions.apploadedaction.md) \| [*SetViewportAction*](../interfaces/src_common_reducers_app_actions.setviewportaction.md) |
 
 **Returns:** AppState
 
-Defined in: [packages/client-core/src/common/reducers/app/reducers.ts:44](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/common/reducers/app/reducers.ts#L44)
+Defined in: [packages/client-core/src/common/reducers/app/reducers.ts:44](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/common/reducers/app/reducers.ts#L44)

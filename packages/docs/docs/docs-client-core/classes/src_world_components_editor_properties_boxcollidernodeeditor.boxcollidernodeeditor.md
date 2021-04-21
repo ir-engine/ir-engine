@@ -28,9 +28,9 @@ BoxColliderNodeEditor is used to provide properties to customize box collider el
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`props` | BoxColliderNodeEditorProps \| *Readonly*<BoxColliderNodeEditorProps\> |
+| Name | Type |
+| :------ | :------ |
+| `props` | BoxColliderNodeEditorProps \| *Readonly*<BoxColliderNodeEditorProps\> |
 
 **Returns:** [*BoxColliderNodeEditor*](src_world_components_editor_properties_boxcollidernodeeditor.boxcollidernodeeditor.md)
 
@@ -49,10 +49,10 @@ Defined in: node_modules/@types/react/index.d.ts:469
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`props` | BoxColliderNodeEditorProps |
-`context` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `props` | BoxColliderNodeEditorProps |
+| `context` | *any* |
 
 **Returns:** [*BoxColliderNodeEditor*](src_world_components_editor_properties_boxcollidernodeeditor.boxcollidernodeeditor.md)
 
@@ -157,7 +157,7 @@ ___
 
 ▪ `Static` **description**: *string*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/BoxColliderNodeEditor.tsx:29](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/properties/BoxColliderNodeEditor.tsx#L29)
+Defined in: [packages/client-core/src/world/components/editor/properties/BoxColliderNodeEditor.tsx:29](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/BoxColliderNodeEditor.tsx#L29)
 
 ___
 
@@ -165,7 +165,7 @@ ___
 
 ▪ `Static` **iconComponent**: StyledIcon
 
-Defined in: [packages/client-core/src/world/components/editor/properties/BoxColliderNodeEditor.tsx:25](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/properties/BoxColliderNodeEditor.tsx#L25)
+Defined in: [packages/client-core/src/world/components/editor/properties/BoxColliderNodeEditor.tsx:25](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/BoxColliderNodeEditor.tsx#L25)
 
 ## Methods
 
@@ -218,10 +218,10 @@ prevents this from being invoked.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`nextProps` | *Readonly*<BoxColliderNodeEditorProps\> |
-`nextContext` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `nextProps` | *Readonly*<BoxColliderNodeEditorProps\> |
+| `nextContext` | *any* |
 
 **Returns:** *void*
 
@@ -252,11 +252,11 @@ prevents this from being invoked.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`nextProps` | *Readonly*<BoxColliderNodeEditorProps\> |
-`nextState` | *Readonly*<{}\> |
-`nextContext` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `nextProps` | *Readonly*<BoxColliderNodeEditorProps\> |
+| `nextState` | *Readonly*<{}\> |
+| `nextContext` | *any* |
 
 **Returns:** *void*
 
@@ -275,10 +275,10 @@ the entire component tree to unmount.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`error` | Error |
-`errorInfo` | ErrorInfo |
+| Name | Type |
+| :------ | :------ |
+| `error` | Error |
+| `errorInfo` | ErrorInfo |
 
 **Returns:** *void*
 
@@ -312,11 +312,11 @@ The snapshot is only present if getSnapshotBeforeUpdate is present and returns n
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`prevProps` | *Readonly*<BoxColliderNodeEditorProps\> |
-`prevState` | *Readonly*<{}\> |
-`snapshot?` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `prevProps` | *Readonly*<BoxColliderNodeEditorProps\> |
+| `prevState` | *Readonly*<{}\> |
+| `snapshot?` | *any* |
 
 **Returns:** *void*
 
@@ -371,10 +371,10 @@ prevents this from being invoked.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`nextProps` | *Readonly*<BoxColliderNodeEditorProps\> |
-`nextContext` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `nextProps` | *Readonly*<BoxColliderNodeEditorProps\> |
+| `nextContext` | *any* |
 
 **Returns:** *void*
 
@@ -418,11 +418,11 @@ prevents this from being invoked.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`nextProps` | *Readonly*<BoxColliderNodeEditorProps\> |
-`nextState` | *Readonly*<{}\> |
-`nextContext` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `nextProps` | *Readonly*<BoxColliderNodeEditorProps\> |
+| `nextState` | *Readonly*<{}\> |
+| `nextContext` | *any* |
 
 **Returns:** *void*
 
@@ -438,9 +438,9 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`callback?` | () => *void* |
+| Name | Type |
+| :------ | :------ |
+| `callback?` | () => *void* |
 
 **Returns:** *void*
 
@@ -463,10 +463,10 @@ lifecycle events from running.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`prevProps` | *Readonly*<BoxColliderNodeEditorProps\> |
-`prevState` | *Readonly*<{}\> |
+| Name | Type |
+| :------ | :------ |
+| `prevProps` | *Readonly*<BoxColliderNodeEditorProps\> |
+| `prevState` | *Readonly*<{}\> |
 
 **Returns:** *any*
 
@@ -482,13 +482,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`walkable` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `walkable` | *any* |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/BoxColliderNodeEditor.tsx:31](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/properties/BoxColliderNodeEditor.tsx#L31)
+Defined in: [packages/client-core/src/world/components/editor/properties/BoxColliderNodeEditor.tsx:31](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/BoxColliderNodeEditor.tsx#L31)
 
 ___
 
@@ -500,7 +500,7 @@ ___
 
 Overrides: Component.render
 
-Defined in: [packages/client-core/src/world/components/editor/properties/BoxColliderNodeEditor.tsx:35](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/properties/BoxColliderNodeEditor.tsx#L35)
+Defined in: [packages/client-core/src/world/components/editor/properties/BoxColliderNodeEditor.tsx:35](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/BoxColliderNodeEditor.tsx#L35)
 
 ___
 
@@ -510,16 +510,16 @@ ___
 
 #### Type parameters:
 
-Name | Type |
-:------ | :------ |
-`K` | *never* |
+| Name | Type |
+| :------ | :------ |
+| `K` | *never* |
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`state` | {} \| (`prevState`: *Readonly*<{}\>, `props`: *Readonly*<BoxColliderNodeEditorProps\>) => {} \| *Pick*<{}, K\> \| *Pick*<{}, K\> |
-`callback?` | () => *void* |
+| Name | Type |
+| :------ | :------ |
+| `state` | {} \| (`prevState`: *Readonly*<{}\>, `props`: *Readonly*<BoxColliderNodeEditorProps\>) => {} \| *Pick*<{}, K\> \| *Pick*<{}, K\> |
+| `callback?` | () => *void* |
 
 **Returns:** *void*
 
@@ -544,11 +544,11 @@ and `componentDidUpdate` will not be called.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`nextProps` | *Readonly*<BoxColliderNodeEditorProps\> |
-`nextState` | *Readonly*<{}\> |
-`nextContext` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `nextProps` | *Readonly*<BoxColliderNodeEditorProps\> |
+| `nextState` | *Readonly*<{}\> |
+| `nextContext` | *any* |
 
 **Returns:** *boolean*
 

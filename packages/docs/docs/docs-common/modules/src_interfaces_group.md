@@ -16,11 +16,11 @@ hide_title: true
 
 #### Type declaration:
 
-Name | Type |
-:------ | :------ |
-`description` | *string* |
-`groupUsers` | [*GroupUser*](src_interfaces_groupuser.md#groupuser)[] |
-`id` | *string* |
-`name` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `description` | *string* |
+| `groupUsers` | [*GroupUser*](src_interfaces_groupuser.md#groupuser)[] |
+| `id` | *string* |
+| `name` | *string* |
 
-Defined in: [interfaces/Group.ts:3](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/common/src/interfaces/Group.ts#L3)
+Defined in: [interfaces/Group.ts:3](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/common/src/interfaces/Group.ts#L3)

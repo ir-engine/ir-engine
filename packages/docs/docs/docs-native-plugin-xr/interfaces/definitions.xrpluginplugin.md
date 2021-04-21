@@ -22,13 +22,13 @@ hide_title: true
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`options` | [*VideoEditorThumbnailProperties*](definitions.videoeditorthumbnailproperties.md) |
+| Name | Type |
+| :------ | :------ |
+| `options` | [*VideoEditorThumbnailProperties*](definitions.videoeditorthumbnailproperties.md) |
 
 **Returns:** *Promise*<{ `path`: *string* ; `status`: *string*  }\>
 
-Defined in: [packages/native-plugin-xr/src/definitions.ts:232](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/native-plugin-xr/src/definitions.ts#L232)
+Defined in: [packages/native-plugin-xr/src/definitions.ts:232](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/native-plugin-xr/src/definitions.ts#L232)
 
 ___
 
@@ -38,13 +38,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`options` | *object* |
+| Name | Type |
+| :------ | :------ |
+| `options` | *object* |
 
 **Returns:** *Promise*<{ `status`: *string*  }\>
 
-Defined in: [packages/native-plugin-xr/src/definitions.ts:224](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/native-plugin-xr/src/definitions.ts#L224)
+Defined in: [packages/native-plugin-xr/src/definitions.ts:224](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/native-plugin-xr/src/definitions.ts#L224)
 
 ___
 
@@ -54,13 +54,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`options` | *object* |
+| Name | Type |
+| :------ | :------ |
+| `options` | *object* |
 
 **Returns:** *Promise*<{ `status`: *string*  }\>
 
-Defined in: [packages/native-plugin-xr/src/definitions.ts:206](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/native-plugin-xr/src/definitions.ts#L206)
+Defined in: [packages/native-plugin-xr/src/definitions.ts:206](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/native-plugin-xr/src/definitions.ts#L206)
 
 ___
 
@@ -70,13 +70,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`options` | [*VideoEditorVideoInfoDetails*](definitions.videoeditorvideoinfodetails.md) |
+| Name | Type |
+| :------ | :------ |
+| `options` | [*VideoEditorVideoInfoDetails*](definitions.videoeditorvideoinfodetails.md) |
 
 **Returns:** *Promise*<{ `info`: [*VideoEditorVideoInfoOptions*](definitions.videoeditorvideoinfooptions.md)  }\>
 
-Defined in: [packages/native-plugin-xr/src/definitions.ts:234](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/native-plugin-xr/src/definitions.ts#L234)
+Defined in: [packages/native-plugin-xr/src/definitions.ts:234](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/native-plugin-xr/src/definitions.ts#L234)
 
 ___
 
@@ -86,7 +86,7 @@ ___
 
 **Returns:** *void*
 
-Defined in: [packages/native-plugin-xr/src/definitions.ts:193](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/native-plugin-xr/src/definitions.ts#L193)
+Defined in: [packages/native-plugin-xr/src/definitions.ts:193](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/native-plugin-xr/src/definitions.ts#L193)
 
 ___
 
@@ -96,13 +96,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`options` | *object* |
+| Name | Type |
+| :------ | :------ |
+| `options` | *object* |
 
 **Returns:** *Promise*<{ `status`: *string*  }\>
 
-Defined in: [packages/native-plugin-xr/src/definitions.ts:216](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/native-plugin-xr/src/definitions.ts#L216)
+Defined in: [packages/native-plugin-xr/src/definitions.ts:216](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/native-plugin-xr/src/definitions.ts#L216)
 
 ___
 
@@ -112,13 +112,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`options` | *object* |
+| Name | Type |
+| :------ | :------ |
+| `options` | *object* |
 
 **Returns:** *Promise*<{ `status`: *string*  }\>
 
-Defined in: [packages/native-plugin-xr/src/definitions.ts:188](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/native-plugin-xr/src/definitions.ts#L188)
+Defined in: [packages/native-plugin-xr/src/definitions.ts:188](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/native-plugin-xr/src/definitions.ts#L188)
 
 ___
 
@@ -128,13 +128,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`options` | *object* |
+| Name | Type |
+| :------ | :------ |
+| `options` | *object* |
 
 **Returns:** *Promise*<{ `status`: *string*  }\>
 
-Defined in: [packages/native-plugin-xr/src/definitions.ts:220](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/native-plugin-xr/src/definitions.ts#L220)
+Defined in: [packages/native-plugin-xr/src/definitions.ts:220](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/native-plugin-xr/src/definitions.ts#L220)
 
 ___
 
@@ -144,13 +144,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`options` | *object* |
+| Name | Type |
+| :------ | :------ |
+| `options` | *object* |
 
 **Returns:** *Promise*<{ `status`: *string*  }\>
 
-Defined in: [packages/native-plugin-xr/src/definitions.ts:218](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/native-plugin-xr/src/definitions.ts#L218)
+Defined in: [packages/native-plugin-xr/src/definitions.ts:218](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/native-plugin-xr/src/definitions.ts#L218)
 
 ___
 
@@ -160,13 +160,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`options` | *object* |
+| Name | Type |
+| :------ | :------ |
+| `options` | *object* |
 
 **Returns:** *Promise*<{ `status`: *string*  }\>
 
-Defined in: [packages/native-plugin-xr/src/definitions.ts:210](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/native-plugin-xr/src/definitions.ts#L210)
+Defined in: [packages/native-plugin-xr/src/definitions.ts:210](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/native-plugin-xr/src/definitions.ts#L210)
 
 ___
 
@@ -176,13 +176,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`options` | *object* |
+| Name | Type |
+| :------ | :------ |
+| `options` | *object* |
 
 **Returns:** *Promise*<{ `status`: *string*  }\>
 
-Defined in: [packages/native-plugin-xr/src/definitions.ts:226](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/native-plugin-xr/src/definitions.ts#L226)
+Defined in: [packages/native-plugin-xr/src/definitions.ts:226](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/native-plugin-xr/src/definitions.ts#L226)
 
 ___
 
@@ -192,13 +192,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`positionInTrack` | *number* |
+| Name | Type |
+| :------ | :------ |
+| `positionInTrack` | *number* |
 
 **Returns:** *Promise*<{ `status`: *string*  }\>
 
-Defined in: [packages/native-plugin-xr/src/definitions.ts:222](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/native-plugin-xr/src/definitions.ts#L222)
+Defined in: [packages/native-plugin-xr/src/definitions.ts:222](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/native-plugin-xr/src/definitions.ts#L222)
 
 ___
 
@@ -208,13 +208,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`options` | *object* |
+| Name | Type |
+| :------ | :------ |
+| `options` | *object* |
 
 **Returns:** *Promise*<{ `status`: *string*  }\>
 
-Defined in: [packages/native-plugin-xr/src/definitions.ts:212](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/native-plugin-xr/src/definitions.ts#L212)
+Defined in: [packages/native-plugin-xr/src/definitions.ts:212](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/native-plugin-xr/src/definitions.ts#L212)
 
 ___
 
@@ -224,13 +224,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`options` | *object* |
+| Name | Type |
+| :------ | :------ |
+| `options` | *object* |
 
 **Returns:** *Promise*<{ `status`: *string*  }\>
 
-Defined in: [packages/native-plugin-xr/src/definitions.ts:214](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/native-plugin-xr/src/definitions.ts#L214)
+Defined in: [packages/native-plugin-xr/src/definitions.ts:214](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/native-plugin-xr/src/definitions.ts#L214)
 
 ___
 
@@ -240,13 +240,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`options` | [*CameraOptions*](definitions.cameraoptions.md) |
+| Name | Type |
+| :------ | :------ |
+| `options` | [*CameraOptions*](definitions.cameraoptions.md) |
 
 **Returns:** *Promise*<{}\>
 
-Defined in: [packages/native-plugin-xr/src/definitions.ts:190](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/native-plugin-xr/src/definitions.ts#L190)
+Defined in: [packages/native-plugin-xr/src/definitions.ts:190](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/native-plugin-xr/src/definitions.ts#L190)
 
 ___
 
@@ -256,18 +256,18 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`isAudio` | *any* |
-`width` | *number* |
-`height` | *number* |
-`bitRate` | *number* |
-`dpi` | *number* |
-`filePath` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `isAudio` | *any* |
+| `width` | *number* |
+| `height` | *number* |
+| `bitRate` | *number* |
+| `dpi` | *number* |
+| `filePath` | *string* |
 
 **Returns:** *Promise*<{ `status`: *string*  }\>
 
-Defined in: [packages/native-plugin-xr/src/definitions.ts:195](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/native-plugin-xr/src/definitions.ts#L195)
+Defined in: [packages/native-plugin-xr/src/definitions.ts:195](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/native-plugin-xr/src/definitions.ts#L195)
 
 ___
 
@@ -277,7 +277,7 @@ ___
 
 **Returns:** *Promise*<{}\>
 
-Defined in: [packages/native-plugin-xr/src/definitions.ts:191](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/native-plugin-xr/src/definitions.ts#L191)
+Defined in: [packages/native-plugin-xr/src/definitions.ts:191](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/native-plugin-xr/src/definitions.ts#L191)
 
 ___
 
@@ -287,13 +287,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`options` | *object* |
+| Name | Type |
+| :------ | :------ |
+| `options` | *object* |
 
 **Returns:** *Promise*<{ `status`: *string*  }\>
 
-Defined in: [packages/native-plugin-xr/src/definitions.ts:204](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/native-plugin-xr/src/definitions.ts#L204)
+Defined in: [packages/native-plugin-xr/src/definitions.ts:204](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/native-plugin-xr/src/definitions.ts#L204)
 
 ___
 
@@ -303,13 +303,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`options` | *object* |
+| Name | Type |
+| :------ | :------ |
+| `options` | *object* |
 
 **Returns:** *Promise*<{ `status`: *string*  }\>
 
-Defined in: [packages/native-plugin-xr/src/definitions.ts:208](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/native-plugin-xr/src/definitions.ts#L208)
+Defined in: [packages/native-plugin-xr/src/definitions.ts:208](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/native-plugin-xr/src/definitions.ts#L208)
 
 ___
 
@@ -319,13 +319,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`options` | [*VideoEditorTranscodeProperties*](definitions.videoeditortranscodeproperties.md) |
+| Name | Type |
+| :------ | :------ |
+| `options` | [*VideoEditorTranscodeProperties*](definitions.videoeditortranscodeproperties.md) |
 
 **Returns:** *Promise*<{ `path`: *string* ; `status`: *string*  }\>
 
-Defined in: [packages/native-plugin-xr/src/definitions.ts:228](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/native-plugin-xr/src/definitions.ts#L228)
+Defined in: [packages/native-plugin-xr/src/definitions.ts:228](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/native-plugin-xr/src/definitions.ts#L228)
 
 ___
 
@@ -335,10 +335,10 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`options` | [*VideoEditorTrimProperties*](definitions.videoeditortrimproperties.md) |
+| Name | Type |
+| :------ | :------ |
+| `options` | [*VideoEditorTrimProperties*](definitions.videoeditortrimproperties.md) |
 
 **Returns:** *Promise*<{ `path`: *string* ; `status`: *string*  }\>
 
-Defined in: [packages/native-plugin-xr/src/definitions.ts:230](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/native-plugin-xr/src/definitions.ts#L230)
+Defined in: [packages/native-plugin-xr/src/definitions.ts:230](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/native-plugin-xr/src/definitions.ts#L230)

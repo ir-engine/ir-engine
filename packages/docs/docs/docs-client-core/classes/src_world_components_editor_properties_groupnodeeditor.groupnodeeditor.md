@@ -28,9 +28,9 @@ GroupNodeEditor used to render group of multiple objects.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`props` | GroupNodeEditorProps \| *Readonly*<GroupNodeEditorProps\> |
+| Name | Type |
+| :------ | :------ |
+| `props` | GroupNodeEditorProps \| *Readonly*<GroupNodeEditorProps\> |
 
 **Returns:** [*GroupNodeEditor*](src_world_components_editor_properties_groupnodeeditor.groupnodeeditor.md)
 
@@ -49,10 +49,10 @@ Defined in: node_modules/@types/react/index.d.ts:469
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`props` | GroupNodeEditorProps |
-`context` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `props` | GroupNodeEditorProps |
+| `context` | *any* |
 
 **Returns:** [*GroupNodeEditor*](src_world_components_editor_properties_groupnodeeditor.groupnodeeditor.md)
 
@@ -157,7 +157,7 @@ ___
 
 ▪ `Static` **description**: *string*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/GroupNodeEditor.tsx:27](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/properties/GroupNodeEditor.tsx#L27)
+Defined in: [packages/client-core/src/world/components/editor/properties/GroupNodeEditor.tsx:27](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/GroupNodeEditor.tsx#L27)
 
 ___
 
@@ -165,7 +165,7 @@ ___
 
 ▪ `Static` **iconComponent**: StyledIcon
 
-Defined in: [packages/client-core/src/world/components/editor/properties/GroupNodeEditor.tsx:24](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/properties/GroupNodeEditor.tsx#L24)
+Defined in: [packages/client-core/src/world/components/editor/properties/GroupNodeEditor.tsx:24](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/GroupNodeEditor.tsx#L24)
 
 ## Methods
 
@@ -218,10 +218,10 @@ prevents this from being invoked.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`nextProps` | *Readonly*<GroupNodeEditorProps\> |
-`nextContext` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `nextProps` | *Readonly*<GroupNodeEditorProps\> |
+| `nextContext` | *any* |
 
 **Returns:** *void*
 
@@ -252,11 +252,11 @@ prevents this from being invoked.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`nextProps` | *Readonly*<GroupNodeEditorProps\> |
-`nextState` | *Readonly*<{}\> |
-`nextContext` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `nextProps` | *Readonly*<GroupNodeEditorProps\> |
+| `nextState` | *Readonly*<{}\> |
+| `nextContext` | *any* |
 
 **Returns:** *void*
 
@@ -275,10 +275,10 @@ the entire component tree to unmount.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`error` | Error |
-`errorInfo` | ErrorInfo |
+| Name | Type |
+| :------ | :------ |
+| `error` | Error |
+| `errorInfo` | ErrorInfo |
 
 **Returns:** *void*
 
@@ -312,11 +312,11 @@ The snapshot is only present if getSnapshotBeforeUpdate is present and returns n
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`prevProps` | *Readonly*<GroupNodeEditorProps\> |
-`prevState` | *Readonly*<{}\> |
-`snapshot?` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `prevProps` | *Readonly*<GroupNodeEditorProps\> |
+| `prevState` | *Readonly*<{}\> |
+| `snapshot?` | *any* |
 
 **Returns:** *void*
 
@@ -371,10 +371,10 @@ prevents this from being invoked.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`nextProps` | *Readonly*<GroupNodeEditorProps\> |
-`nextContext` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `nextProps` | *Readonly*<GroupNodeEditorProps\> |
+| `nextContext` | *any* |
 
 **Returns:** *void*
 
@@ -418,11 +418,11 @@ prevents this from being invoked.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`nextProps` | *Readonly*<GroupNodeEditorProps\> |
-`nextState` | *Readonly*<{}\> |
-`nextContext` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `nextProps` | *Readonly*<GroupNodeEditorProps\> |
+| `nextState` | *Readonly*<{}\> |
+| `nextContext` | *any* |
 
 **Returns:** *void*
 
@@ -438,9 +438,9 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`callback?` | () => *void* |
+| Name | Type |
+| :------ | :------ |
+| `callback?` | () => *void* |
 
 **Returns:** *void*
 
@@ -463,10 +463,10 @@ lifecycle events from running.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`prevProps` | *Readonly*<GroupNodeEditorProps\> |
-`prevState` | *Readonly*<{}\> |
+| Name | Type |
+| :------ | :------ |
+| `prevProps` | *Readonly*<GroupNodeEditorProps\> |
+| `prevState` | *Readonly*<{}\> |
 
 **Returns:** *any*
 
@@ -484,7 +484,7 @@ ___
 
 Overrides: Component.render
 
-Defined in: [packages/client-core/src/world/components/editor/properties/GroupNodeEditor.tsx:28](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/properties/GroupNodeEditor.tsx#L28)
+Defined in: [packages/client-core/src/world/components/editor/properties/GroupNodeEditor.tsx:28](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/GroupNodeEditor.tsx#L28)
 
 ___
 
@@ -494,16 +494,16 @@ ___
 
 #### Type parameters:
 
-Name | Type |
-:------ | :------ |
-`K` | *never* |
+| Name | Type |
+| :------ | :------ |
+| `K` | *never* |
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`state` | {} \| (`prevState`: *Readonly*<{}\>, `props`: *Readonly*<GroupNodeEditorProps\>) => {} \| *Pick*<{}, K\> \| *Pick*<{}, K\> |
-`callback?` | () => *void* |
+| Name | Type |
+| :------ | :------ |
+| `state` | {} \| (`prevState`: *Readonly*<{}\>, `props`: *Readonly*<GroupNodeEditorProps\>) => {} \| *Pick*<{}, K\> \| *Pick*<{}, K\> |
+| `callback?` | () => *void* |
 
 **Returns:** *void*
 
@@ -528,11 +528,11 @@ and `componentDidUpdate` will not be called.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`nextProps` | *Readonly*<GroupNodeEditorProps\> |
-`nextState` | *Readonly*<{}\> |
-`nextContext` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `nextProps` | *Readonly*<GroupNodeEditorProps\> |
+| `nextState` | *Readonly*<{}\> |
+| `nextContext` | *any* |
 
 **Returns:** *boolean*
 

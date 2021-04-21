@@ -28,9 +28,9 @@ ScenePreviewCameraNodeEditor provides the editor view to customize properties.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`props` | ScenePreviewCameraNodeEditorProps \| *Readonly*<ScenePreviewCameraNodeEditorProps\> |
+| Name | Type |
+| :------ | :------ |
+| `props` | ScenePreviewCameraNodeEditorProps \| *Readonly*<ScenePreviewCameraNodeEditorProps\> |
 
 **Returns:** [*ScenePreviewCameraNodeEditor*](src_world_components_editor_properties_scenepreviewcameranodeeditor.scenepreviewcameranodeeditor.md)
 
@@ -49,10 +49,10 @@ Defined in: node_modules/@types/react/index.d.ts:469
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`props` | ScenePreviewCameraNodeEditorProps |
-`context` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `props` | ScenePreviewCameraNodeEditorProps |
+| `context` | *any* |
 
 **Returns:** [*ScenePreviewCameraNodeEditor*](src_world_components_editor_properties_scenepreviewcameranodeeditor.scenepreviewcameranodeeditor.md)
 
@@ -157,7 +157,7 @@ ___
 
 ▪ `Static` **description**: *string*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/ScenePreviewCameraNodeEditor.tsx:35](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/properties/ScenePreviewCameraNodeEditor.tsx#L35)
+Defined in: [packages/client-core/src/world/components/editor/properties/ScenePreviewCameraNodeEditor.tsx:35](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/ScenePreviewCameraNodeEditor.tsx#L35)
 
 ___
 
@@ -165,7 +165,7 @@ ___
 
 ▪ `Static` **iconComponent**: StyledIcon
 
-Defined in: [packages/client-core/src/world/components/editor/properties/ScenePreviewCameraNodeEditor.tsx:32](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/properties/ScenePreviewCameraNodeEditor.tsx#L32)
+Defined in: [packages/client-core/src/world/components/editor/properties/ScenePreviewCameraNodeEditor.tsx:32](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/ScenePreviewCameraNodeEditor.tsx#L32)
 
 ## Methods
 
@@ -218,10 +218,10 @@ prevents this from being invoked.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`nextProps` | *Readonly*<ScenePreviewCameraNodeEditorProps\> |
-`nextContext` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `nextProps` | *Readonly*<ScenePreviewCameraNodeEditorProps\> |
+| `nextContext` | *any* |
 
 **Returns:** *void*
 
@@ -252,11 +252,11 @@ prevents this from being invoked.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`nextProps` | *Readonly*<ScenePreviewCameraNodeEditorProps\> |
-`nextState` | *Readonly*<{}\> |
-`nextContext` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `nextProps` | *Readonly*<ScenePreviewCameraNodeEditorProps\> |
+| `nextState` | *Readonly*<{}\> |
+| `nextContext` | *any* |
 
 **Returns:** *void*
 
@@ -275,10 +275,10 @@ the entire component tree to unmount.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`error` | Error |
-`errorInfo` | ErrorInfo |
+| Name | Type |
+| :------ | :------ |
+| `error` | Error |
+| `errorInfo` | ErrorInfo |
 
 **Returns:** *void*
 
@@ -312,11 +312,11 @@ The snapshot is only present if getSnapshotBeforeUpdate is present and returns n
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`prevProps` | *Readonly*<ScenePreviewCameraNodeEditorProps\> |
-`prevState` | *Readonly*<{}\> |
-`snapshot?` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `prevProps` | *Readonly*<ScenePreviewCameraNodeEditorProps\> |
+| `prevState` | *Readonly*<{}\> |
+| `snapshot?` | *any* |
 
 **Returns:** *void*
 
@@ -371,10 +371,10 @@ prevents this from being invoked.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`nextProps` | *Readonly*<ScenePreviewCameraNodeEditorProps\> |
-`nextContext` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `nextProps` | *Readonly*<ScenePreviewCameraNodeEditorProps\> |
+| `nextContext` | *any* |
 
 **Returns:** *void*
 
@@ -418,11 +418,11 @@ prevents this from being invoked.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`nextProps` | *Readonly*<ScenePreviewCameraNodeEditorProps\> |
-`nextState` | *Readonly*<{}\> |
-`nextContext` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `nextProps` | *Readonly*<ScenePreviewCameraNodeEditorProps\> |
+| `nextState` | *Readonly*<{}\> |
+| `nextContext` | *any* |
 
 **Returns:** *void*
 
@@ -438,9 +438,9 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`callback?` | () => *void* |
+| Name | Type |
+| :------ | :------ |
+| `callback?` | () => *void* |
 
 **Returns:** *void*
 
@@ -463,10 +463,10 @@ lifecycle events from running.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`prevProps` | *Readonly*<ScenePreviewCameraNodeEditorProps\> |
-`prevState` | *Readonly*<{}\> |
+| Name | Type |
+| :------ | :------ |
+| `prevProps` | *Readonly*<ScenePreviewCameraNodeEditorProps\> |
+| `prevState` | *Readonly*<{}\> |
 
 **Returns:** *any*
 
@@ -482,7 +482,7 @@ ___
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/ScenePreviewCameraNodeEditor.tsx:36](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/properties/ScenePreviewCameraNodeEditor.tsx#L36)
+Defined in: [packages/client-core/src/world/components/editor/properties/ScenePreviewCameraNodeEditor.tsx:36](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/ScenePreviewCameraNodeEditor.tsx#L36)
 
 ___
 
@@ -494,7 +494,7 @@ ___
 
 Overrides: Component.render
 
-Defined in: [packages/client-core/src/world/components/editor/properties/ScenePreviewCameraNodeEditor.tsx:39](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/properties/ScenePreviewCameraNodeEditor.tsx#L39)
+Defined in: [packages/client-core/src/world/components/editor/properties/ScenePreviewCameraNodeEditor.tsx:39](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/ScenePreviewCameraNodeEditor.tsx#L39)
 
 ___
 
@@ -504,16 +504,16 @@ ___
 
 #### Type parameters:
 
-Name | Type |
-:------ | :------ |
-`K` | *never* |
+| Name | Type |
+| :------ | :------ |
+| `K` | *never* |
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`state` | {} \| (`prevState`: *Readonly*<{}\>, `props`: *Readonly*<ScenePreviewCameraNodeEditorProps\>) => {} \| *Pick*<{}, K\> \| *Pick*<{}, K\> |
-`callback?` | () => *void* |
+| Name | Type |
+| :------ | :------ |
+| `state` | {} \| (`prevState`: *Readonly*<{}\>, `props`: *Readonly*<ScenePreviewCameraNodeEditorProps\>) => {} \| *Pick*<{}, K\> \| *Pick*<{}, K\> |
+| `callback?` | () => *void* |
 
 **Returns:** *void*
 
@@ -538,11 +538,11 @@ and `componentDidUpdate` will not be called.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`nextProps` | *Readonly*<ScenePreviewCameraNodeEditorProps\> |
-`nextState` | *Readonly*<{}\> |
-`nextContext` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `nextProps` | *Readonly*<ScenePreviewCameraNodeEditorProps\> |
+| `nextState` | *Readonly*<{}\> |
+| `nextContext` | *any* |
 
 **Returns:** *boolean*
 

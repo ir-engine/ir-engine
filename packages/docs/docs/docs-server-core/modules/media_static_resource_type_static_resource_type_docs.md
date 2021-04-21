@@ -16,15 +16,15 @@ hide_title: true
 
 #### Type declaration:
 
-Name | Type |
-:------ | :------ |
-`definitions` | *object* |
-`definitions.static-resource-type` | *object* |
-`definitions.static-resource-type.properties` | *object* |
-`definitions.static-resource-type.properties.type` | *object* |
-`definitions.static-resource-type.properties.type.type` | *string* |
-`definitions.static-resource-type.type` | *string* |
-`definitions.static-resource-type_list` | *object* |
-`definitions.static-resource-type_list.items` | *object* |
-`definitions.static-resource-type_list.items.$ref` | *string* |
-`definitions.static-resource-type_list.type` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `definitions` | *object* |
+| `definitions.static-resource-type` | *object* |
+| `definitions.static-resource-type.properties` | *object* |
+| `definitions.static-resource-type.properties.type` | *object* |
+| `definitions.static-resource-type.properties.type.type` | *string* |
+| `definitions.static-resource-type.type` | *string* |
+| `definitions.static-resource-type_list` | *object* |
+| `definitions.static-resource-type_list.items` | *object* |
+| `definitions.static-resource-type_list.items.$ref` | *string* |
+| `definitions.static-resource-type_list.type` | *string* |

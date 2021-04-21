@@ -12,4 +12,4 @@ hide_title: true
 
 ### default
 
-• **default**: *ConnectedComponent*<(`\_\_namedParameters`: *any*) => *Element*, Omit<any, string \| number \| symbol\>\>
+• **default**: *ConnectedComponent*<(`__namedParameters`: *any*) => *Element*, Omit<any, string \| number \| symbol\>\>

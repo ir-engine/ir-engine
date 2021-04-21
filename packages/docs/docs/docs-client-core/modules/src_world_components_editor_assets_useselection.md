@@ -20,24 +20,24 @@ useSelection
 
 #### Parameters:
 
-Name | Type | Default value |
-:------ | :------ | :------ |
-`items` | *any* | - |
-`initialSelection` | *any*[] | [] |
-`multiselect` | *boolean* | false |
+| Name | Type | Default value |
+| :------ | :------ | :------ |
+| `items` | *any* | - |
+| `initialSelection` | *any*[] | [] |
+| `multiselect` | *boolean* | false |
 
 **Returns:** *object*
 
-Name | Type |
-:------ | :------ |
-`clearSelection` | (`item`: *any*, `e`: *any*) => *void* |
-`onSelect` | (`item`: *any*, `e`: *any*) => *void* |
-`selectedItems` | *any*[] |
-`setSelectedItems` | *Dispatch*<SetStateAction<any[]\>\> |
+| Name | Type |
+| :------ | :------ |
+| `clearSelection` | (`item`: *any*, `e`: *any*) => *void* |
+| `onSelect` | (`item`: *any*, `e`: *any*) => *void* |
+| `selectedItems` | *any*[] |
+| `setSelectedItems` | *Dispatch*<SetStateAction<any[]\>\> |
 
 [returns object containing selectedItems array, setSelectedItems  onSelect clearSelection  function callbacks]
 
-Defined in: [packages/client-core/src/world/components/editor/assets/useSelection.tsx:64](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/assets/useSelection.tsx#L64)
+Defined in: [packages/client-core/src/world/components/editor/assets/useSelection.tsx:64](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/assets/useSelection.tsx#L64)
 
 ___
 
@@ -51,15 +51,15 @@ useSelectionHandler function component used to set items selected.
 
 #### Parameters:
 
-Name | Type | Default value |
-:------ | :------ | :------ |
-`items` | *any* | - |
-`selectedItems` | *any* | - |
-`setSelectedItems` | *any* | - |
-`multiselect` | *boolean* | false |
+| Name | Type | Default value |
+| :------ | :------ | :------ |
+| `items` | *any* | - |
+| `selectedItems` | *any* | - |
+| `setSelectedItems` | *any* | - |
+| `multiselect` | *boolean* | false |
 
 **Returns:** (`item`: *any*, `e`: *any*) => *void*[]
 
 containing callback handlers onSelect and clearSelection.
 
-Defined in: [packages/client-core/src/world/components/editor/assets/useSelection.tsx:13](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/assets/useSelection.tsx#L13)
+Defined in: [packages/client-core/src/world/components/editor/assets/useSelection.tsx:13](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/assets/useSelection.tsx#L13)

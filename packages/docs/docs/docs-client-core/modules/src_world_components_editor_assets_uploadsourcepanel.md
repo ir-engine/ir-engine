@@ -32,10 +32,10 @@ UploadSourcePanel component used to render MediaSourcePanel.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`props` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `props` | *any* |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/assets/UploadSourcePanel.tsx:12](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/assets/UploadSourcePanel.tsx#L12)
+Defined in: [packages/client-core/src/world/components/editor/assets/UploadSourcePanel.tsx:12](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/assets/UploadSourcePanel.tsx#L12)

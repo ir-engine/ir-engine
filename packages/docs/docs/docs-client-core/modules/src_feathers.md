@@ -14,4 +14,4 @@ hide_title: true
 
 • `Const` **client**: *any*
 
-Defined in: [packages/client-core/src/feathers.ts:13](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/feathers.ts#L13)
+Defined in: [packages/client-core/src/feathers.ts:17](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/feathers.ts#L17)

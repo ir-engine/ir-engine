@@ -16,15 +16,15 @@ hide_title: true
 
 #### Type declaration:
 
-Name | Type |
-:------ | :------ |
-`definitions` | *object* |
-`definitions.comments` | *object* |
-`definitions.comments.properties` | *object* |
-`definitions.comments.properties.text` | *object* |
-`definitions.comments.properties.text.type` | *string* |
-`definitions.comments.type` | *string* |
-`definitions.comments_list` | *object* |
-`definitions.comments_list.items` | *object* |
-`definitions.comments_list.items.$ref` | *string* |
-`definitions.comments_list.type` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `definitions` | *object* |
+| `definitions.comments` | *object* |
+| `definitions.comments.properties` | *object* |
+| `definitions.comments.properties.text` | *object* |
+| `definitions.comments.properties.text.type` | *string* |
+| `definitions.comments.type` | *string* |
+| `definitions.comments_list` | *object* |
+| `definitions.comments_list.items` | *object* |
+| `definitions.comments_list.items.$ref` | *string* |
+| `definitions.comments_list.type` | *string* |

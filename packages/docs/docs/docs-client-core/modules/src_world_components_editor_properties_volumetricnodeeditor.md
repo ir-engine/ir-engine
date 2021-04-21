@@ -32,10 +32,10 @@ VolumetricNodeEditor provides the editor view to customize properties.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`props` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `props` | *any* |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/VolumetricNodeEditor.tsx:20](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/properties/VolumetricNodeEditor.tsx#L20)
+Defined in: [packages/client-core/src/world/components/editor/properties/VolumetricNodeEditor.tsx:20](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/VolumetricNodeEditor.tsx#L20)

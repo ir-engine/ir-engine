@@ -84,10 +84,10 @@ Defined in: node_modules/@feathersjs/authentication/lib/strategy.d.ts:11
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`data` | AuthenticationRequest |
-`params` | Params |
+| Name | Type |
+| :------ | :------ |
+| `data` | AuthenticationRequest |
+| `params` | Params |
 
 **Returns:** *Promise*<{ [x: number]: *any*; `authentication`: { `strategy`: *string*  }  }\>
 
@@ -103,10 +103,10 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`entity` | *any* |
-`password` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `entity` | *any* |
+| `password` | *string* |
 
 **Returns:** *Promise*<any\>
 
@@ -122,16 +122,16 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`username` | *string* |
-`params` | Params |
+| Name | Type |
+| :------ | :------ |
+| `username` | *string* |
+| `params` | Params |
 
 **Returns:** *Promise*<any\>
 
 Overrides: LocalStrategy.findEntity
 
-Defined in: [packages/server-core/src/user/strategies/local.ts:7](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/user/strategies/local.ts#L7)
+Defined in: [packages/server-core/src/user/strategies/local.ts:7](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/user/strategies/local.ts#L7)
 
 ___
 
@@ -141,10 +141,10 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`result` | *any* |
-`params` | Params |
+| Name | Type |
+| :------ | :------ |
+| `result` | *any* |
+| `params` | Params |
 
 **Returns:** *Promise*<any\>
 
@@ -160,10 +160,10 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`query` | Query |
-`_params` | Params |
+| Name | Type |
+| :------ | :------ |
+| `query` | Query |
+| `_params` | Params |
 
 **Returns:** *Promise*<{ `$limit`: *number*  }\>
 
@@ -179,10 +179,10 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`password` | *string* |
-`_params` | Params |
+| Name | Type |
+| :------ | :------ |
+| `password` | *string* |
+| `_params` | Params |
 
 **Returns:** *Promise*<string\>
 
@@ -198,9 +198,9 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`app` | *Application*<{}\> |
+| Name | Type |
+| :------ | :------ |
+| `app` | *Application*<{}\> |
 
 **Returns:** *void*
 
@@ -216,9 +216,9 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`auth` | *AuthenticationBase* |
+| Name | Type |
+| :------ | :------ |
+| `auth` | *AuthenticationBase* |
 
 **Returns:** *void*
 
@@ -234,9 +234,9 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`name` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `name` | *string* |
 
 **Returns:** *void*
 

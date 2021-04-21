@@ -16,10 +16,10 @@ hide_title: true
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`__namedParameters` | Props |
+| Name | Type |
+| :------ | :------ |
+| `__namedParameters` | Props |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/src/media/components/VideoSeeker/index.tsx:35](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/media/components/VideoSeeker/index.tsx#L35)
+Defined in: [packages/client-core/src/media/components/VideoSeeker/index.tsx:35](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/media/components/VideoSeeker/index.tsx#L35)

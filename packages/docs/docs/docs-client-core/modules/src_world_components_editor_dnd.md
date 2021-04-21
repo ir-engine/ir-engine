@@ -18,7 +18,7 @@ AssetTypes array containing types of items used.
 
 **`author`** Robert Long
 
-Defined in: [packages/client-core/src/world/components/editor/dnd/index.tsx:26](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/dnd/index.tsx#L26)
+Defined in: [packages/client-core/src/world/components/editor/dnd/index.tsx:26](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/dnd/index.tsx#L26)
 
 ___
 
@@ -32,18 +32,18 @@ ItemTypes object containing types of items used.
 
 #### Type declaration:
 
-Name | Type |
-:------ | :------ |
-`Audio` | *string* |
-`Element` | *string* |
-`File` | *string* |
-`Image` | *string* |
-`Model` | *string* |
-`Node` | *string* |
-`Video` | *string* |
-`Volumetric` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `Audio` | *string* |
+| `Element` | *string* |
+| `File` | *string* |
+| `Image` | *string* |
+| `Model` | *string* |
+| `Node` | *string* |
+| `Video` | *string* |
+| `Volumetric` | *string* |
 
-Defined in: [packages/client-core/src/world/components/editor/dnd/index.tsx:9](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/dnd/index.tsx#L9)
+Defined in: [packages/client-core/src/world/components/editor/dnd/index.tsx:9](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/dnd/index.tsx#L9)
 
 ## Functions
 
@@ -57,15 +57,15 @@ addAssetAtCursorPositionOnDrop used to add element on editor scene position usin
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`editor` | *any* |
-`item` | *any* |
-`mousePos` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `editor` | *any* |
+| `item` | *any* |
+| `mousePos` | *any* |
 
 **Returns:** *boolean*
 
-Defined in: [packages/client-core/src/world/components/editor/dnd/index.tsx:75](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/dnd/index.tsx#L75)
+Defined in: [packages/client-core/src/world/components/editor/dnd/index.tsx:75](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/dnd/index.tsx#L75)
 
 ___
 
@@ -79,16 +79,16 @@ addAssetOnDrop used to adding assets to the editor scene.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`editor` | *any* |
-`item` | *any* |
-`parent?` | *any* |
-`before?` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `editor` | *any* |
+| `item` | *any* |
+| `parent?` | *any* |
+| `before?` | *any* |
 
 **Returns:** *boolean*
 
-Defined in: [packages/client-core/src/world/components/editor/dnd/index.tsx:54](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/dnd/index.tsx#L54)
+Defined in: [packages/client-core/src/world/components/editor/dnd/index.tsx:54](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/dnd/index.tsx#L54)
 
 ___
 
@@ -102,10 +102,10 @@ isAsset function to check item exists in array types or not.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`item` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `item` | *any* |
 
 **Returns:** *boolean*
 
-Defined in: [packages/client-core/src/world/components/editor/dnd/index.tsx:41](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/dnd/index.tsx#L41)
+Defined in: [packages/client-core/src/world/components/editor/dnd/index.tsx:41](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/dnd/index.tsx#L41)

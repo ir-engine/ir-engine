@@ -16,7 +16,7 @@ hide_title: true
 
 • **groupUser**: GroupUser
 
-Defined in: [packages/client-core/src/social/reducers/group/actions.ts:42](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/social/reducers/group/actions.ts#L42)
+Defined in: [packages/client-core/src/social/reducers/group/actions.ts:42](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/social/reducers/group/actions.ts#L42)
 
 ___
 
@@ -24,7 +24,7 @@ ___
 
 • **self**: *boolean*
 
-Defined in: [packages/client-core/src/social/reducers/group/actions.ts:43](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/social/reducers/group/actions.ts#L43)
+Defined in: [packages/client-core/src/social/reducers/group/actions.ts:43](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/social/reducers/group/actions.ts#L43)
 
 ___
 
@@ -32,4 +32,4 @@ ___
 
 • **type**: *string*
 
-Defined in: [packages/client-core/src/social/reducers/group/actions.ts:41](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/social/reducers/group/actions.ts#L41)
+Defined in: [packages/client-core/src/social/reducers/group/actions.ts:41](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/social/reducers/group/actions.ts#L41)

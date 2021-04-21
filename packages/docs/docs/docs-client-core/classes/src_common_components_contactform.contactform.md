@@ -24,9 +24,9 @@ hide_title: true
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`props` | {} \| *Readonly*<{}\> |
+| Name | Type |
+| :------ | :------ |
+| `props` | {} \| *Readonly*<{}\> |
 
 **Returns:** [*ContactForm*](src_common_components_contactform.contactform.md)
 
@@ -42,10 +42,10 @@ Defined in: node_modules/@types/react/index.d.ts:469
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`props` | *object* |
-`context` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `props` | *object* |
+| `context` | *any* |
 
 **Returns:** [*ContactForm*](src_common_components_contactform.contactform.md)
 
@@ -110,16 +110,16 @@ ___
 
 #### Type declaration:
 
-Name | Type |
-:------ | :------ |
-`companyName` | *string* |
-`emailAddress` | *string* |
-`message` | *string* |
-`userName` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `companyName` | *string* |
+| `emailAddress` | *string* |
+| `message` | *string* |
+| `userName` | *string* |
 
 Overrides: Component.state
 
-Defined in: [packages/client-core/src/common/components/ContactForm/index.tsx:9](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/common/components/ContactForm/index.tsx#L9)
+Defined in: [packages/client-core/src/common/components/ContactForm/index.tsx:9](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/common/components/ContactForm/index.tsx#L9)
 
 ___
 
@@ -201,10 +201,10 @@ prevents this from being invoked.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`nextProps` | *Readonly*<{}\> |
-`nextContext` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `nextProps` | *Readonly*<{}\> |
+| `nextContext` | *any* |
 
 **Returns:** *void*
 
@@ -235,11 +235,11 @@ prevents this from being invoked.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`nextProps` | *Readonly*<{}\> |
-`nextState` | *Readonly*<{}\> |
-`nextContext` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `nextProps` | *Readonly*<{}\> |
+| `nextState` | *Readonly*<{}\> |
+| `nextContext` | *any* |
 
 **Returns:** *void*
 
@@ -258,10 +258,10 @@ the entire component tree to unmount.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`error` | Error |
-`errorInfo` | ErrorInfo |
+| Name | Type |
+| :------ | :------ |
+| `error` | Error |
+| `errorInfo` | ErrorInfo |
 
 **Returns:** *void*
 
@@ -295,11 +295,11 @@ The snapshot is only present if getSnapshotBeforeUpdate is present and returns n
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`prevProps` | *Readonly*<{}\> |
-`prevState` | *Readonly*<{}\> |
-`snapshot?` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `prevProps` | *Readonly*<{}\> |
+| `prevState` | *Readonly*<{}\> |
+| `snapshot?` | *any* |
 
 **Returns:** *void*
 
@@ -354,10 +354,10 @@ prevents this from being invoked.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`nextProps` | *Readonly*<{}\> |
-`nextContext` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `nextProps` | *Readonly*<{}\> |
+| `nextContext` | *any* |
 
 **Returns:** *void*
 
@@ -401,11 +401,11 @@ prevents this from being invoked.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`nextProps` | *Readonly*<{}\> |
-`nextState` | *Readonly*<{}\> |
-`nextContext` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `nextProps` | *Readonly*<{}\> |
+| `nextState` | *Readonly*<{}\> |
+| `nextContext` | *any* |
 
 **Returns:** *void*
 
@@ -421,9 +421,9 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`callback?` | () => *void* |
+| Name | Type |
+| :------ | :------ |
+| `callback?` | () => *void* |
 
 **Returns:** *void*
 
@@ -446,10 +446,10 @@ lifecycle events from running.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`prevProps` | *Readonly*<{}\> |
-`prevState` | *Readonly*<{}\> |
+| Name | Type |
+| :------ | :------ |
+| `prevProps` | *Readonly*<{}\> |
+| `prevState` | *Readonly*<{}\> |
 
 **Returns:** *any*
 
@@ -465,13 +465,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`e` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `e` | *any* |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/common/components/ContactForm/index.tsx:55](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/common/components/ContactForm/index.tsx#L55)
+Defined in: [packages/client-core/src/common/components/ContactForm/index.tsx:55](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/common/components/ContactForm/index.tsx#L55)
 
 ___
 
@@ -481,13 +481,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`e` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `e` | *any* |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/common/components/ContactForm/index.tsx:16](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/common/components/ContactForm/index.tsx#L16)
+Defined in: [packages/client-core/src/common/components/ContactForm/index.tsx:16](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/common/components/ContactForm/index.tsx#L16)
 
 ___
 
@@ -499,7 +499,7 @@ ___
 
 Overrides: Component.render
 
-Defined in: [packages/client-core/src/common/components/ContactForm/index.tsx:63](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/common/components/ContactForm/index.tsx#L63)
+Defined in: [packages/client-core/src/common/components/ContactForm/index.tsx:63](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/common/components/ContactForm/index.tsx#L63)
 
 ___
 
@@ -509,16 +509,16 @@ ___
 
 #### Type parameters:
 
-Name | Type |
-:------ | :------ |
-`K` | *never* |
+| Name | Type |
+| :------ | :------ |
+| `K` | *never* |
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`state` | {} \| (`prevState`: *Readonly*<{}\>, `props`: *Readonly*<{}\>) => {} \| *Pick*<{}, K\> \| *Pick*<{}, K\> |
-`callback?` | () => *void* |
+| Name | Type |
+| :------ | :------ |
+| `state` | {} \| (`prevState`: *Readonly*<{}\>, `props`: *Readonly*<{}\>) => {} \| *Pick*<{}, K\> \| *Pick*<{}, K\> |
+| `callback?` | () => *void* |
 
 **Returns:** *void*
 
@@ -543,11 +543,11 @@ and `componentDidUpdate` will not be called.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`nextProps` | *Readonly*<{}\> |
-`nextState` | *Readonly*<{}\> |
-`nextContext` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `nextProps` | *Readonly*<{}\> |
+| `nextState` | *Readonly*<{}\> |
+| `nextContext` | *any* |
 
 **Returns:** *boolean*
 

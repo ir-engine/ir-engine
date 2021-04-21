@@ -16,15 +16,15 @@ hide_title: true
 
 #### Type declaration:
 
-Name | Type |
-:------ | :------ |
-`definitions` | *object* |
-`definitions.component-type` | *object* |
-`definitions.component-type.properties` | *object* |
-`definitions.component-type.properties.type` | *object* |
-`definitions.component-type.properties.type.type` | *string* |
-`definitions.component-type.type` | *string* |
-`definitions.component-type_list` | *object* |
-`definitions.component-type_list.items` | *object* |
-`definitions.component-type_list.items.$ref` | *string* |
-`definitions.component-type_list.type` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `definitions` | *object* |
+| `definitions.component-type` | *object* |
+| `definitions.component-type.properties` | *object* |
+| `definitions.component-type.properties.type` | *object* |
+| `definitions.component-type.properties.type.type` | *string* |
+| `definitions.component-type.type` | *string* |
+| `definitions.component-type_list` | *object* |
+| `definitions.component-type_list.items` | *object* |
+| `definitions.component-type_list.items.$ref` | *string* |
+| `definitions.component-type_list.type` | *string* |

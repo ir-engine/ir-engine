@@ -26,14 +26,14 @@ A class for Upload service
 
 #### Parameters:
 
-Name | Type | Default value |
-:------ | :------ | :------ |
-`options` | ServiceOptions | {} |
-`app` | Application | - |
+| Name | Type | Default value |
+| :------ | :------ | :------ |
+| `options` | ServiceOptions | {} |
+| `app` | Application | - |
 
 **Returns:** [*Upload*](media_upload_upload_class.upload.md)
 
-Defined in: [packages/server-core/src/media/upload/upload.class.ts:16](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/media/upload/upload.class.ts#L16)
+Defined in: [packages/server-core/src/media/upload/upload.class.ts:16](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/media/upload/upload.class.ts#L16)
 
 ## Properties
 
@@ -41,7 +41,7 @@ Defined in: [packages/server-core/src/media/upload/upload.class.ts:16](https://g
 
 • **app**: Application
 
-Defined in: [packages/server-core/src/media/upload/upload.class.ts:14](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/media/upload/upload.class.ts#L14)
+Defined in: [packages/server-core/src/media/upload/upload.class.ts:14](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/media/upload/upload.class.ts#L14)
 
 ___
 
@@ -49,7 +49,7 @@ ___
 
 • **docs**: *any*
 
-Defined in: [packages/server-core/src/media/upload/upload.class.ts:16](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/media/upload/upload.class.ts#L16)
+Defined in: [packages/server-core/src/media/upload/upload.class.ts:16](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/media/upload/upload.class.ts#L16)
 
 ___
 
@@ -57,7 +57,7 @@ ___
 
 • **options**: ServiceOptions
 
-Defined in: [packages/server-core/src/media/upload/upload.class.ts:15](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/media/upload/upload.class.ts#L15)
+Defined in: [packages/server-core/src/media/upload/upload.class.ts:15](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/media/upload/upload.class.ts#L15)
 
 ## Methods
 
@@ -67,16 +67,16 @@ Defined in: [packages/server-core/src/media/upload/upload.class.ts:15](https://g
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`data` | Data |
-`params?` | Params |
+| Name | Type |
+| :------ | :------ |
+| `data` | Data |
+| `params?` | Params |
 
 **Returns:** *Promise*<Data\>
 
 Implementation of: ServiceMethods.create
 
-Defined in: [packages/server-core/src/media/upload/upload.class.ts:33](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/media/upload/upload.class.ts#L33)
+Defined in: [packages/server-core/src/media/upload/upload.class.ts:33](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/media/upload/upload.class.ts#L33)
 
 ___
 
@@ -86,15 +86,15 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`params?` | Params |
+| Name | Type |
+| :------ | :------ |
+| `params?` | Params |
 
 **Returns:** *Promise*<Data[] \| Paginated<Data\>\>
 
 Implementation of: ServiceMethods.find
 
-Defined in: [packages/server-core/src/media/upload/upload.class.ts:23](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/media/upload/upload.class.ts#L23)
+Defined in: [packages/server-core/src/media/upload/upload.class.ts:23](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/media/upload/upload.class.ts#L23)
 
 ___
 
@@ -104,16 +104,16 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`id` | Id |
-`params?` | Params |
+| Name | Type |
+| :------ | :------ |
+| `id` | Id |
+| `params?` | Params |
 
 **Returns:** *Promise*<Data\>
 
 Implementation of: ServiceMethods.get
 
-Defined in: [packages/server-core/src/media/upload/upload.class.ts:27](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/media/upload/upload.class.ts#L27)
+Defined in: [packages/server-core/src/media/upload/upload.class.ts:27](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/media/upload/upload.class.ts#L27)
 
 ___
 
@@ -123,17 +123,17 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`id` | NullableId |
-`data` | Data |
-`params?` | Params |
+| Name | Type |
+| :------ | :------ |
+| `id` | NullableId |
+| `data` | Data |
+| `params?` | Params |
 
 **Returns:** *Promise*<Data\>
 
 Implementation of: ServiceMethods.patch
 
-Defined in: [packages/server-core/src/media/upload/upload.class.ts:52](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/media/upload/upload.class.ts#L52)
+Defined in: [packages/server-core/src/media/upload/upload.class.ts:52](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/media/upload/upload.class.ts#L52)
 
 ___
 
@@ -143,16 +143,16 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`id` | NullableId |
-`params?` | Params |
+| Name | Type |
+| :------ | :------ |
+| `id` | NullableId |
+| `params?` | Params |
 
 **Returns:** *Promise*<Data\>
 
 Implementation of: ServiceMethods.remove
 
-Defined in: [packages/server-core/src/media/upload/upload.class.ts:56](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/media/upload/upload.class.ts#L56)
+Defined in: [packages/server-core/src/media/upload/upload.class.ts:56](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/media/upload/upload.class.ts#L56)
 
 ___
 
@@ -162,14 +162,14 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`id` | NullableId |
-`data` | Data |
-`params?` | Params |
+| Name | Type |
+| :------ | :------ |
+| `id` | NullableId |
+| `data` | Data |
+| `params?` | Params |
 
 **Returns:** *Promise*<Data\>
 
 Implementation of: ServiceMethods.update
 
-Defined in: [packages/server-core/src/media/upload/upload.class.ts:48](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/media/upload/upload.class.ts#L48)
+Defined in: [packages/server-core/src/media/upload/upload.class.ts:48](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/media/upload/upload.class.ts#L48)

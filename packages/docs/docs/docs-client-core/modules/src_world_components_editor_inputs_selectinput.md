@@ -30,10 +30,10 @@ Renames and exports: [SelectInput](src_world_components_editor_inputs_selectinpu
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`__namedParameters` | *Object* |
+| Name | Type |
+| :------ | :------ |
+| `__namedParameters` | *Object* |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/inputs/SelectInput.tsx:79](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/inputs/SelectInput.tsx#L79)
+Defined in: [packages/client-core/src/world/components/editor/inputs/SelectInput.tsx:79](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/inputs/SelectInput.tsx#L79)

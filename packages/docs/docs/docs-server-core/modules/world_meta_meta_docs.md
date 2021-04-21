@@ -16,13 +16,13 @@ hide_title: true
 
 #### Type declaration:
 
-Name | Type |
-:------ | :------ |
-`definitions` | *object* |
-`definitions.meta` | *object* |
-`definitions.meta.properties` | *object* |
-`definitions.meta.type` | *string* |
-`definitions.meta_list` | *object* |
-`definitions.meta_list.items` | *object* |
-`definitions.meta_list.items.$ref` | *string* |
-`definitions.meta_list.type` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `definitions` | *object* |
+| `definitions.meta` | *object* |
+| `definitions.meta.properties` | *object* |
+| `definitions.meta.type` | *string* |
+| `definitions.meta_list` | *object* |
+| `definitions.meta_list.items` | *object* |
+| `definitions.meta_list.items.$ref` | *string* |
+| `definitions.meta_list.type` | *string* |

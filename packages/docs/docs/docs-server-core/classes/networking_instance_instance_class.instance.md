@@ -28,16 +28,16 @@ A class for Intance service
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`options` | *Partial*<SequelizeServiceOptions\> |
-`app` | Application |
+| Name | Type |
+| :------ | :------ |
+| `options` | *Partial*<SequelizeServiceOptions\> |
+| `app` | Application |
 
 **Returns:** [*Instance*](networking_instance_instance_class.instance.md)
 
 Overrides: Service.constructor
 
-Defined in: [packages/server-core/src/networking/instance/instance.class.ts:13](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/networking/instance/instance.class.ts#L13)
+Defined in: [packages/server-core/src/networking/instance/instance.class.ts:13](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/networking/instance/instance.class.ts#L13)
 
 ## Properties
 
@@ -55,7 +55,7 @@ ___
 
 • **docs**: *any*
 
-Defined in: [packages/server-core/src/networking/instance/instance.class.ts:13](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/networking/instance/instance.class.ts#L13)
+Defined in: [packages/server-core/src/networking/instance/instance.class.ts:13](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/networking/instance/instance.class.ts#L13)
 
 ___
 
@@ -95,10 +95,10 @@ Defined in: node_modules/@feathersjs/adapter-commons/lib/service.d.ts:85
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`data` | *Partial*<any\> \| *Partial*<any\>[] |
-`params?` | Params |
+| Name | Type |
+| :------ | :------ |
+| `data` | *Partial*<any\> \| *Partial*<any\>[] |
+| `params?` | Params |
 
 **Returns:** *Promise*<any\>
 
@@ -114,9 +114,9 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`params?` | Params |
+| Name | Type |
+| :------ | :------ |
+| `params?` | Params |
 
 **Returns:** *Promise*<any\>
 
@@ -132,10 +132,10 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`id` | Id |
-`params?` | Params |
+| Name | Type |
+| :------ | :------ |
+| `id` | Id |
+| `params?` | Params |
 
 **Returns:** *Promise*<any\>
 
@@ -151,11 +151,11 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`id` | NullableId |
-`data` | *Partial*<any\> |
-`params?` | Params |
+| Name | Type |
+| :------ | :------ |
+| `id` | NullableId |
+| `data` | *Partial*<any\> |
+| `params?` | Params |
 
 **Returns:** *Promise*<any\>
 
@@ -171,10 +171,10 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`id` | NullableId |
-`params?` | Params |
+| Name | Type |
+| :------ | :------ |
+| `id` | NullableId |
+| `params?` | Params |
 
 **Returns:** *Promise*<any\>
 
@@ -190,11 +190,11 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`id` | NullableId |
-`data` | *any* |
-`params?` | Params |
+| Name | Type |
+| :------ | :------ |
+| `id` | NullableId |
+| `data` | *any* |
+| `params?` | Params |
 
 **Returns:** *Promise*<any\>
 
@@ -210,9 +210,9 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`method` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `method` | *string* |
 
 **Returns:** *boolean*
 
@@ -228,10 +228,10 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`data` | *Partial*<any\> \| *Partial*<any\>[] |
-`params?` | Params |
+| Name | Type |
+| :------ | :------ |
+| `data` | *Partial*<any\> \| *Partial*<any\>[] |
+| `params?` | Params |
 
 **Returns:** *Promise*<any\>
 
@@ -243,16 +243,16 @@ ___
 
 ### filterQuery
 
-▸ **filterQuery**(`params?`: Params, `opts?`: *any*): { [key: string]: *any*;  } & { `paginate`: *false* \| *Pick*<PaginationOptions, *max*\> \| { `default?`: *number* ; `max?`: *number*  }  }
+▸ **filterQuery**(`params?`: Params, `opts?`: *any*): { [key: string]: *any*;  } & { `paginate`: ``false`` \| *Pick*<PaginationOptions, ``"max"``\> \| { `default?`: *number* ; `max?`: *number*  }  }
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`params?` | Params |
-`opts?` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `params?` | Params |
+| `opts?` | *any* |
 
-**Returns:** { [key: string]: *any*;  } & { `paginate`: *false* \| *Pick*<PaginationOptions, *max*\> \| { `default?`: *number* ; `max?`: *number*  }  }
+**Returns:** { [key: string]: *any*;  } & { `paginate`: ``false`` \| *Pick*<PaginationOptions, ``"max"``\> \| { `default?`: *number* ; `max?`: *number*  }  }
 
 Inherited from: Service.filterQuery
 
@@ -268,9 +268,9 @@ A method which find instance of user
 
 #### Parameters:
 
-Name | Type | Description |
-:------ | :------ | :------ |
-`params` | Params | of query with an acton or user role   |
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `params` | Params | of query with an acton or user role |
 
 **Returns:** *Promise*<any\>
 
@@ -278,7 +278,7 @@ user object
 
 Overrides: Service.find
 
-Defined in: [packages/server-core/src/networking/instance/instance.class.ts:23](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/networking/instance/instance.class.ts#L23)
+Defined in: [packages/server-core/src/networking/instance/instance.class.ts:23](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/networking/instance/instance.class.ts#L23)
 
 ___
 
@@ -288,10 +288,10 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`id` | Id |
-`params?` | Params |
+| Name | Type |
+| :------ | :------ |
+| `id` | Id |
+| `params?` | Params |
 
 **Returns:** *Promise*<any\>
 
@@ -307,9 +307,9 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`params` | Params |
+| Name | Type |
+| :------ | :------ |
+| `params` | Params |
 
 **Returns:** *any*
 
@@ -325,11 +325,11 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`id` | NullableId |
-`data` | *Partial*<any\> |
-`params?` | Params |
+| Name | Type |
+| :------ | :------ |
+| `id` | NullableId |
+| `data` | *Partial*<any\> |
+| `params?` | Params |
 
 **Returns:** *Promise*<any\>
 
@@ -345,10 +345,10 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`id` | NullableId |
-`params?` | Params |
+| Name | Type |
+| :------ | :------ |
+| `id` | NullableId |
+| `params?` | Params |
 
 **Returns:** *Promise*<any\>
 
@@ -364,11 +364,11 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`id` | Id |
-`data` | *any* |
-`params?` | Params |
+| Name | Type |
+| :------ | :------ |
+| `id` | Id |
+| `data` | *any* |
+| `params?` | Params |
 
 **Returns:** *Promise*<any\>
 

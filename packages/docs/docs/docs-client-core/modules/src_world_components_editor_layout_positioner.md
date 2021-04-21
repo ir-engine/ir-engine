@@ -30,10 +30,10 @@ Renames and exports: [Positioner](src_world_components_editor_layout_positioner.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`__namedParameters` | *Object* |
+| Name | Type |
+| :------ | :------ |
+| `__namedParameters` | *Object* |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/layout/Positioner.tsx:453](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/layout/Positioner.tsx#L453)
+Defined in: [packages/client-core/src/world/components/editor/layout/Positioner.tsx:453](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/layout/Positioner.tsx#L453)

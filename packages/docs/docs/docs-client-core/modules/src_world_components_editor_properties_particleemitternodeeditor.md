@@ -18,4 +18,4 @@ hide_title: true
 
 ### default
 
-• **default**: *ComponentType*<*Omit*<*Pick*<Subtract<ParticleEmitterNodeEditorProps, WithTranslationProps\>, *t*\> & *Pick*<InferProps<{ `editor`: *Requireable*<object\> ; `node`: *Requireable*<object\>  }\>, *editor* \| *node*\>, keyof *WithTranslation*<N\>\> & WithTranslationProps\>
+• **default**: *ComponentType*<*Omit*<*Pick*<Subtract<ParticleEmitterNodeEditorProps, WithTranslationProps\>, ``"t"``\> & *Pick*<InferProps<{ `editor`: *Requireable*<object\> ; `node`: *Requireable*<object\>  }\>, ``"editor"`` \| ``"node"``\>, keyof *WithTranslation*<N\>\> & WithTranslationProps\>

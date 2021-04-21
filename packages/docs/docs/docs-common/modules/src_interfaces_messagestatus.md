@@ -16,12 +16,12 @@ hide_title: true
 
 #### Type declaration:
 
-Name | Type |
-:------ | :------ |
-`createdAt` | *string* |
-`id` | *string* |
-`status` | *string* |
-`updatedAt` | *string* |
-`userId` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `createdAt` | *string* |
+| `id` | *string* |
+| `status` | *string* |
+| `updatedAt` | *string* |
+| `userId` | *string* |
 
-Defined in: [interfaces/MessageStatus.ts:1](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/common/src/interfaces/MessageStatus.ts#L1)
+Defined in: [interfaces/MessageStatus.ts:1](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/common/src/interfaces/MessageStatus.ts#L1)

@@ -28,9 +28,9 @@ Error component used to error message.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`props` | { `t`: Function  } \| *Readonly*<{ `t`: Function  }\> |
+| Name | Type |
+| :------ | :------ |
+| `props` | { `t`: Function  } \| *Readonly*<{ `t`: Function  }\> |
 
 **Returns:** [*Error*](src_world_components_editor_error.error.md)
 
@@ -46,11 +46,11 @@ Defined in: node_modules/@types/react/index.d.ts:469
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`props` | *object* |
-`props.t` | Function |
-`context` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `props` | *object* |
+| `props.t` | Function |
+| `context` | *any* |
 
 **Returns:** [*Error*](src_world_components_editor_error.error.md)
 
@@ -125,7 +125,7 @@ ___
 
 Overrides: Component.contextType
 
-Defined in: [packages/client-core/src/world/components/editor/Error.tsx:38](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/Error.tsx#L38)
+Defined in: [packages/client-core/src/world/components/editor/Error.tsx:38](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/Error.tsx#L38)
 
 ___
 
@@ -135,12 +135,12 @@ ___
 
 #### Type declaration:
 
-Name | Type |
-:------ | :------ |
-`message` | *Requireable*<ReactNodeLike\> |
-`t` | *Requireable*<(...`args`: *any*[]) => *any*\> |
+| Name | Type |
+| :------ | :------ |
+| `message` | *Requireable*<ReactNodeLike\> |
+| `t` | *Requireable*<(...`args`: *any*[]) => *any*\> |
 
-Defined in: [packages/client-core/src/world/components/editor/Error.tsx:33](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/Error.tsx#L33)
+Defined in: [packages/client-core/src/world/components/editor/Error.tsx:33](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/Error.tsx#L33)
 
 ## Methods
 
@@ -193,10 +193,10 @@ prevents this from being invoked.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`nextProps` | *Readonly*<{ `t`: Function  }\> |
-`nextContext` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `nextProps` | *Readonly*<{ `t`: Function  }\> |
+| `nextContext` | *any* |
 
 **Returns:** *void*
 
@@ -227,11 +227,11 @@ prevents this from being invoked.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`nextProps` | *Readonly*<{ `t`: Function  }\> |
-`nextState` | *Readonly*<{}\> |
-`nextContext` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `nextProps` | *Readonly*<{ `t`: Function  }\> |
+| `nextState` | *Readonly*<{}\> |
+| `nextContext` | *any* |
 
 **Returns:** *void*
 
@@ -250,10 +250,10 @@ the entire component tree to unmount.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`error` | Error |
-`errorInfo` | ErrorInfo |
+| Name | Type |
+| :------ | :------ |
+| `error` | Error |
+| `errorInfo` | ErrorInfo |
 
 **Returns:** *void*
 
@@ -287,11 +287,11 @@ The snapshot is only present if getSnapshotBeforeUpdate is present and returns n
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`prevProps` | *Readonly*<{ `t`: Function  }\> |
-`prevState` | *Readonly*<{}\> |
-`snapshot?` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `prevProps` | *Readonly*<{ `t`: Function  }\> |
+| `prevState` | *Readonly*<{}\> |
+| `snapshot?` | *any* |
 
 **Returns:** *void*
 
@@ -346,10 +346,10 @@ prevents this from being invoked.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`nextProps` | *Readonly*<{ `t`: Function  }\> |
-`nextContext` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `nextProps` | *Readonly*<{ `t`: Function  }\> |
+| `nextContext` | *any* |
 
 **Returns:** *void*
 
@@ -393,11 +393,11 @@ prevents this from being invoked.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`nextProps` | *Readonly*<{ `t`: Function  }\> |
-`nextState` | *Readonly*<{}\> |
-`nextContext` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `nextProps` | *Readonly*<{ `t`: Function  }\> |
+| `nextState` | *Readonly*<{}\> |
+| `nextContext` | *any* |
 
 **Returns:** *void*
 
@@ -413,9 +413,9 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`callback?` | () => *void* |
+| Name | Type |
+| :------ | :------ |
+| `callback?` | () => *void* |
 
 **Returns:** *void*
 
@@ -438,10 +438,10 @@ lifecycle events from running.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`prevProps` | *Readonly*<{ `t`: Function  }\> |
-`prevState` | *Readonly*<{}\> |
+| Name | Type |
+| :------ | :------ |
+| `prevProps` | *Readonly*<{ `t`: Function  }\> |
+| `prevState` | *Readonly*<{}\> |
 
 **Returns:** *any*
 
@@ -459,7 +459,7 @@ ___
 
 Overrides: Component.render
 
-Defined in: [packages/client-core/src/world/components/editor/Error.tsx:41](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/Error.tsx#L41)
+Defined in: [packages/client-core/src/world/components/editor/Error.tsx:41](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/Error.tsx#L41)
 
 ___
 
@@ -469,16 +469,16 @@ ___
 
 #### Type parameters:
 
-Name | Type |
-:------ | :------ |
-`K` | *never* |
+| Name | Type |
+| :------ | :------ |
+| `K` | *never* |
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`state` | {} \| (`prevState`: *Readonly*<{}\>, `props`: *Readonly*<{ `t`: Function  }\>) => {} \| *Pick*<{}, K\> \| *Pick*<{}, K\> |
-`callback?` | () => *void* |
+| Name | Type |
+| :------ | :------ |
+| `state` | {} \| (`prevState`: *Readonly*<{}\>, `props`: *Readonly*<{ `t`: Function  }\>) => {} \| *Pick*<{}, K\> \| *Pick*<{}, K\> |
+| `callback?` | () => *void* |
 
 **Returns:** *void*
 
@@ -503,11 +503,11 @@ and `componentDidUpdate` will not be called.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`nextProps` | *Readonly*<{ `t`: Function  }\> |
-`nextState` | *Readonly*<{}\> |
-`nextContext` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `nextProps` | *Readonly*<{ `t`: Function  }\> |
+| `nextState` | *Readonly*<{}\> |
+| `nextContext` | *any* |
 
 **Returns:** *boolean*
 

@@ -12,8 +12,14 @@ hide_title: true
 
 ### default
 
-▸ `Const`**default**(): *Element*
+▸ `Const`**default**(`props`: *any*): *Element*
+
+#### Parameters:
+
+| Name | Type |
+| :------ | :------ |
+| `props` | *any* |
 
 **Returns:** *Element*
 
-Defined in: [packages/client/src/pages/location/[locationName].tsx:9](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client/src/pages/location/[locationName].tsx#L9)
+Defined in: [packages/client/src/pages/location/[locationName].tsx:6](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client/src/pages/location/[locationName].tsx#L6)

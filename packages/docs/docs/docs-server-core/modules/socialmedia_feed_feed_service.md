@@ -16,10 +16,10 @@ hide_title: true
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`app` | Application |
+| Name | Type |
+| :------ | :------ |
+| `app` | Application |
 
 **Returns:** *void*
 
-Defined in: [packages/server-core/src/socialmedia/feed/feed.service.ts:17](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/socialmedia/feed/feed.service.ts#L17)
+Defined in: [packages/server-core/src/socialmedia/feed/feed.service.ts:17](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/socialmedia/feed/feed.service.ts#L17)

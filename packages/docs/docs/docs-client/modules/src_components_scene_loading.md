@@ -16,4 +16,4 @@ hide_title: true
 
 **Returns:** *Element*
 
-Defined in: [packages/client/src/components/Scene/loading.tsx:4](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client/src/components/Scene/loading.tsx#L4)
+Defined in: [packages/client/src/components/Scene/loading.tsx:4](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client/src/components/Scene/loading.tsx#L4)

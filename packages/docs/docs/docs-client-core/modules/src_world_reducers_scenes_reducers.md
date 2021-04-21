@@ -14,7 +14,7 @@ hide_title: true
 
 • `Const` **initialSceneState**: [*PublicScenesState*](../interfaces/src_world_reducers_scenes_actions.publicscenesstate.md)
 
-Defined in: [packages/client-core/src/world/reducers/scenes/reducers.ts:7](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/reducers/scenes/reducers.ts#L7)
+Defined in: [packages/client-core/src/world/reducers/scenes/reducers.ts:7](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/reducers/scenes/reducers.ts#L7)
 
 ## Functions
 
@@ -24,11 +24,11 @@ Defined in: [packages/client-core/src/world/reducers/scenes/reducers.ts:7](https
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`state` | *any* |
-`action` | [*ScenesFetchedAction*](../interfaces/src_world_reducers_scenes_actions.scenesfetchedaction.md) |
+| Name | Type |
+| :------ | :------ |
+| `state` | *any* |
+| `action` | [*ScenesFetchedAction*](../interfaces/src_world_reducers_scenes_actions.scenesfetchedaction.md) |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/src/world/reducers/scenes/reducers.ts:15](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/reducers/scenes/reducers.ts#L15)
+Defined in: [packages/client-core/src/world/reducers/scenes/reducers.ts:15](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/reducers/scenes/reducers.ts#L15)

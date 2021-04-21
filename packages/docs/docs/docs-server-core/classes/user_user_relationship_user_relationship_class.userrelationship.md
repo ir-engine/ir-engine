@@ -28,16 +28,16 @@ A class for User Relationship service
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`options` | *Partial*<SequelizeServiceOptions\> |
-`app` | Application |
+| Name | Type |
+| :------ | :------ |
+| `options` | *Partial*<SequelizeServiceOptions\> |
+| `app` | Application |
 
 **Returns:** [*UserRelationship*](user_user_relationship_user_relationship_class.userrelationship.md)
 
 Overrides: Service.constructor
 
-Defined in: [packages/server-core/src/user/user-relationship/user-relationship.class.ts:20](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/user/user-relationship/user-relationship.class.ts#L20)
+Defined in: [packages/server-core/src/user/user-relationship/user-relationship.class.ts:20](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/user/user-relationship/user-relationship.class.ts#L20)
 
 ## Properties
 
@@ -55,7 +55,7 @@ ___
 
 • **app**: Application
 
-Defined in: [packages/server-core/src/user/user-relationship/user-relationship.class.ts:19](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/user/user-relationship/user-relationship.class.ts#L19)
+Defined in: [packages/server-core/src/user/user-relationship/user-relationship.class.ts:19](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/user/user-relationship/user-relationship.class.ts#L19)
 
 ___
 
@@ -63,7 +63,7 @@ ___
 
 • **docs**: *any*
 
-Defined in: [packages/server-core/src/user/user-relationship/user-relationship.class.ts:20](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/user/user-relationship/user-relationship.class.ts#L20)
+Defined in: [packages/server-core/src/user/user-relationship/user-relationship.class.ts:20](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/user/user-relationship/user-relationship.class.ts#L20)
 
 ___
 
@@ -103,10 +103,10 @@ Defined in: node_modules/@feathersjs/adapter-commons/lib/service.d.ts:85
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`data` | *Partial*<any\> \| *Partial*<any\>[] |
-`params?` | Params |
+| Name | Type |
+| :------ | :------ |
+| `data` | *Partial*<any\> \| *Partial*<any\>[] |
+| `params?` | Params |
 
 **Returns:** *Promise*<any\>
 
@@ -122,9 +122,9 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`params?` | Params |
+| Name | Type |
+| :------ | :------ |
+| `params?` | Params |
 
 **Returns:** *Promise*<any\>
 
@@ -140,10 +140,10 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`id` | Id |
-`params?` | Params |
+| Name | Type |
+| :------ | :------ |
+| `id` | Id |
+| `params?` | Params |
 
 **Returns:** *Promise*<any\>
 
@@ -159,11 +159,11 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`id` | NullableId |
-`data` | *Partial*<any\> |
-`params?` | Params |
+| Name | Type |
+| :------ | :------ |
+| `id` | NullableId |
+| `data` | *Partial*<any\> |
+| `params?` | Params |
 
 **Returns:** *Promise*<any\>
 
@@ -179,10 +179,10 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`id` | NullableId |
-`params?` | Params |
+| Name | Type |
+| :------ | :------ |
+| `id` | NullableId |
+| `params?` | Params |
 
 **Returns:** *Promise*<any\>
 
@@ -198,11 +198,11 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`id` | NullableId |
-`data` | *any* |
-`params?` | Params |
+| Name | Type |
+| :------ | :------ |
+| `id` | NullableId |
+| `data` | *any* |
+| `params?` | Params |
 
 **Returns:** *Promise*<any\>
 
@@ -218,9 +218,9 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`method` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `method` | *string* |
 
 **Returns:** *boolean*
 
@@ -236,31 +236,31 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`data` | *any* |
-`params` | Params |
+| Name | Type |
+| :------ | :------ |
+| `data` | *any* |
+| `params` | Params |
 
 **Returns:** *Promise*<any\>
 
 Overrides: Service.create
 
-Defined in: [packages/server-core/src/user/user-relationship/user-relationship.class.ts:72](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/user/user-relationship/user-relationship.class.ts#L72)
+Defined in: [packages/server-core/src/user/user-relationship/user-relationship.class.ts:72](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/user/user-relationship/user-relationship.class.ts#L72)
 
 ___
 
 ### filterQuery
 
-▸ **filterQuery**(`params?`: Params, `opts?`: *any*): { [key: string]: *any*;  } & { `paginate`: *false* \| *Pick*<PaginationOptions, *max*\> \| { `default?`: *number* ; `max?`: *number*  }  }
+▸ **filterQuery**(`params?`: Params, `opts?`: *any*): { [key: string]: *any*;  } & { `paginate`: ``false`` \| *Pick*<PaginationOptions, ``"max"``\> \| { `default?`: *number* ; `max?`: *number*  }  }
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`params?` | Params |
-`opts?` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `params?` | Params |
+| `opts?` | *any* |
 
-**Returns:** { [key: string]: *any*;  } & { `paginate`: *false* \| *Pick*<PaginationOptions, *max*\> \| { `default?`: *number* ; `max?`: *number*  }  }
+**Returns:** { [key: string]: *any*;  } & { `paginate`: ``false`` \| *Pick*<PaginationOptions, ``"max"``\> \| { `default?`: *number* ; `max?`: *number*  }  }
 
 Inherited from: Service.filterQuery
 
@@ -274,9 +274,9 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`params?` | Params |
+| Name | Type |
+| :------ | :------ |
+| `params?` | Params |
 
 **Returns:** *Promise*<any[] \| Paginated<any\>\>
 
@@ -292,13 +292,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`params` | Params |
+| Name | Type |
+| :------ | :------ |
+| `params` | Params |
 
 **Returns:** *Promise*<any\>
 
-Defined in: [packages/server-core/src/user/user-relationship/user-relationship.class.ts:27](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/user/user-relationship/user-relationship.class.ts#L27)
+Defined in: [packages/server-core/src/user/user-relationship/user-relationship.class.ts:27](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/user/user-relationship/user-relationship.class.ts#L27)
 
 ___
 
@@ -308,10 +308,10 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`id` | Id |
-`params?` | Params |
+| Name | Type |
+| :------ | :------ |
+| `id` | Id |
+| `params?` | Params |
 
 **Returns:** *Promise*<any\>
 
@@ -327,9 +327,9 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`params` | Params |
+| Name | Type |
+| :------ | :------ |
+| `params` | Params |
 
 **Returns:** *any*
 
@@ -345,17 +345,17 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`id` | NullableId |
-`data` | *any* |
-`params` | Params |
+| Name | Type |
+| :------ | :------ |
+| `id` | NullableId |
+| `data` | *any* |
+| `params` | Params |
 
 **Returns:** *Promise*<any\>
 
 Overrides: Service.patch
 
-Defined in: [packages/server-core/src/user/user-relationship/user-relationship.class.ts:99](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/user/user-relationship/user-relationship.class.ts#L99)
+Defined in: [packages/server-core/src/user/user-relationship/user-relationship.class.ts:99](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/user/user-relationship/user-relationship.class.ts#L99)
 
 ___
 
@@ -365,16 +365,16 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`id` | NullableId |
-`params` | Params |
+| Name | Type |
+| :------ | :------ |
+| `id` | NullableId |
+| `params` | Params |
 
 **Returns:** *Promise*<any\>
 
 Overrides: Service.remove
 
-Defined in: [packages/server-core/src/user/user-relationship/user-relationship.class.ts:118](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/user/user-relationship/user-relationship.class.ts#L118)
+Defined in: [packages/server-core/src/user/user-relationship/user-relationship.class.ts:118](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/user/user-relationship/user-relationship.class.ts#L118)
 
 ___
 
@@ -384,11 +384,11 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`id` | Id |
-`data` | *any* |
-`params?` | Params |
+| Name | Type |
+| :------ | :------ |
+| `id` | Id |
+| `data` | *any* |
+| `params?` | Params |
 
 **Returns:** *Promise*<any\>
 

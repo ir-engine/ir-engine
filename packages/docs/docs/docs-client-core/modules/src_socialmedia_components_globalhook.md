@@ -16,9 +16,9 @@ hide_title: true
 
 **Returns:** *object*
 
-Name | Type |
-:------ | :------ |
-`data` | *any* |
-`setLoginUser` | (`newData`: *any*) => *void* |
+| Name | Type |
+| :------ | :------ |
+| `data` | *any* |
+| `setLoginUser` | (`newData`: *any*) => *void* |
 
-Defined in: [packages/client-core/src/socialmedia/components/GlobalHook.tsx:3](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/socialmedia/components/GlobalHook.tsx#L3)
+Defined in: [packages/client-core/src/socialmedia/components/GlobalHook.tsx:3](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/components/GlobalHook.tsx#L3)

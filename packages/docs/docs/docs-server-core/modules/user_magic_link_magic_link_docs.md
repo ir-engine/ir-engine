@@ -16,13 +16,13 @@ hide_title: true
 
 #### Type declaration:
 
-Name | Type |
-:------ | :------ |
-`definitions` | *object* |
-`definitions.magic-link` | *object* |
-`definitions.magic-link.properties` | *object* |
-`definitions.magic-link.type` | *string* |
-`definitions.magic-link_list` | *object* |
-`definitions.magic-link_list.items` | *object* |
-`definitions.magic-link_list.items.$ref` | *string* |
-`definitions.magic-link_list.type` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `definitions` | *object* |
+| `definitions.magic-link` | *object* |
+| `definitions.magic-link.properties` | *object* |
+| `definitions.magic-link.type` | *string* |
+| `definitions.magic-link_list` | *object* |
+| `definitions.magic-link_list.items` | *object* |
+| `definitions.magic-link_list.items.$ref` | *string* |
+| `definitions.magic-link_list.type` | *string* |

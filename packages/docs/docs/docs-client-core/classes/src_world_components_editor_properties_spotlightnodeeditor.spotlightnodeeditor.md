@@ -28,9 +28,9 @@ SpotLightNodeEditor component class used to provide editor view for property cus
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`props` | SpotLightNodeEditorProps \| *Readonly*<SpotLightNodeEditorProps\> |
+| Name | Type |
+| :------ | :------ |
+| `props` | SpotLightNodeEditorProps \| *Readonly*<SpotLightNodeEditorProps\> |
 
 **Returns:** [*SpotLightNodeEditor*](src_world_components_editor_properties_spotlightnodeeditor.spotlightnodeeditor.md)
 
@@ -46,10 +46,10 @@ Defined in: node_modules/@types/react/index.d.ts:469
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`props` | SpotLightNodeEditorProps |
-`context` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `props` | SpotLightNodeEditorProps |
+| `context` | *any* |
 
 **Returns:** [*SpotLightNodeEditor*](src_world_components_editor_properties_spotlightnodeeditor.spotlightnodeeditor.md)
 
@@ -151,7 +151,7 @@ ___
 
 ▪ `Static` **description**: *string*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/SpotLightNodeEditor.tsx:39](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/properties/SpotLightNodeEditor.tsx#L39)
+Defined in: [packages/client-core/src/world/components/editor/properties/SpotLightNodeEditor.tsx:39](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/SpotLightNodeEditor.tsx#L39)
 
 ___
 
@@ -159,7 +159,7 @@ ___
 
 ▪ `Static` **iconComponent**: StyledIcon
 
-Defined in: [packages/client-core/src/world/components/editor/properties/SpotLightNodeEditor.tsx:36](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/properties/SpotLightNodeEditor.tsx#L36)
+Defined in: [packages/client-core/src/world/components/editor/properties/SpotLightNodeEditor.tsx:36](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/SpotLightNodeEditor.tsx#L36)
 
 ## Methods
 
@@ -212,10 +212,10 @@ prevents this from being invoked.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`nextProps` | *Readonly*<SpotLightNodeEditorProps\> |
-`nextContext` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `nextProps` | *Readonly*<SpotLightNodeEditorProps\> |
+| `nextContext` | *any* |
 
 **Returns:** *void*
 
@@ -246,11 +246,11 @@ prevents this from being invoked.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`nextProps` | *Readonly*<SpotLightNodeEditorProps\> |
-`nextState` | *Readonly*<{}\> |
-`nextContext` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `nextProps` | *Readonly*<SpotLightNodeEditorProps\> |
+| `nextState` | *Readonly*<{}\> |
+| `nextContext` | *any* |
 
 **Returns:** *void*
 
@@ -269,10 +269,10 @@ the entire component tree to unmount.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`error` | Error |
-`errorInfo` | ErrorInfo |
+| Name | Type |
+| :------ | :------ |
+| `error` | Error |
+| `errorInfo` | ErrorInfo |
 
 **Returns:** *void*
 
@@ -306,11 +306,11 @@ The snapshot is only present if getSnapshotBeforeUpdate is present and returns n
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`prevProps` | *Readonly*<SpotLightNodeEditorProps\> |
-`prevState` | *Readonly*<{}\> |
-`snapshot?` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `prevProps` | *Readonly*<SpotLightNodeEditorProps\> |
+| `prevState` | *Readonly*<{}\> |
+| `snapshot?` | *any* |
 
 **Returns:** *void*
 
@@ -365,10 +365,10 @@ prevents this from being invoked.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`nextProps` | *Readonly*<SpotLightNodeEditorProps\> |
-`nextContext` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `nextProps` | *Readonly*<SpotLightNodeEditorProps\> |
+| `nextContext` | *any* |
 
 **Returns:** *void*
 
@@ -412,11 +412,11 @@ prevents this from being invoked.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`nextProps` | *Readonly*<SpotLightNodeEditorProps\> |
-`nextState` | *Readonly*<{}\> |
-`nextContext` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `nextProps` | *Readonly*<SpotLightNodeEditorProps\> |
+| `nextState` | *Readonly*<{}\> |
+| `nextContext` | *any* |
 
 **Returns:** *void*
 
@@ -432,9 +432,9 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`callback?` | () => *void* |
+| Name | Type |
+| :------ | :------ |
+| `callback?` | () => *void* |
 
 **Returns:** *void*
 
@@ -457,10 +457,10 @@ lifecycle events from running.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`prevProps` | *Readonly*<SpotLightNodeEditorProps\> |
-`prevState` | *Readonly*<{}\> |
+| Name | Type |
+| :------ | :------ |
+| `prevProps` | *Readonly*<SpotLightNodeEditorProps\> |
+| `prevState` | *Readonly*<{}\> |
 
 **Returns:** *any*
 
@@ -476,13 +476,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`color` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `color` | *any* |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/SpotLightNodeEditor.tsx:42](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/properties/SpotLightNodeEditor.tsx#L42)
+Defined in: [packages/client-core/src/world/components/editor/properties/SpotLightNodeEditor.tsx:42](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/SpotLightNodeEditor.tsx#L42)
 
 ___
 
@@ -492,13 +492,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`innerConeAngle` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `innerConeAngle` | *any* |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/SpotLightNodeEditor.tsx:52](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/properties/SpotLightNodeEditor.tsx#L52)
+Defined in: [packages/client-core/src/world/components/editor/properties/SpotLightNodeEditor.tsx:52](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/SpotLightNodeEditor.tsx#L52)
 
 ___
 
@@ -508,13 +508,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`intensity` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `intensity` | *any* |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/SpotLightNodeEditor.tsx:47](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/properties/SpotLightNodeEditor.tsx#L47)
+Defined in: [packages/client-core/src/world/components/editor/properties/SpotLightNodeEditor.tsx:47](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/SpotLightNodeEditor.tsx#L47)
 
 ___
 
@@ -524,13 +524,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`outerConeAngle` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `outerConeAngle` | *any* |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/SpotLightNodeEditor.tsx:57](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/properties/SpotLightNodeEditor.tsx#L57)
+Defined in: [packages/client-core/src/world/components/editor/properties/SpotLightNodeEditor.tsx:57](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/SpotLightNodeEditor.tsx#L57)
 
 ___
 
@@ -540,13 +540,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`range` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `range` | *any* |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/SpotLightNodeEditor.tsx:62](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/properties/SpotLightNodeEditor.tsx#L62)
+Defined in: [packages/client-core/src/world/components/editor/properties/SpotLightNodeEditor.tsx:62](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/SpotLightNodeEditor.tsx#L62)
 
 ___
 
@@ -558,7 +558,7 @@ ___
 
 Overrides: Component.render
 
-Defined in: [packages/client-core/src/world/components/editor/properties/SpotLightNodeEditor.tsx:67](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/properties/SpotLightNodeEditor.tsx#L67)
+Defined in: [packages/client-core/src/world/components/editor/properties/SpotLightNodeEditor.tsx:67](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/SpotLightNodeEditor.tsx#L67)
 
 ___
 
@@ -568,16 +568,16 @@ ___
 
 #### Type parameters:
 
-Name | Type |
-:------ | :------ |
-`K` | *never* |
+| Name | Type |
+| :------ | :------ |
+| `K` | *never* |
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`state` | {} \| (`prevState`: *Readonly*<{}\>, `props`: *Readonly*<SpotLightNodeEditorProps\>) => {} \| *Pick*<{}, K\> \| *Pick*<{}, K\> |
-`callback?` | () => *void* |
+| Name | Type |
+| :------ | :------ |
+| `state` | {} \| (`prevState`: *Readonly*<{}\>, `props`: *Readonly*<SpotLightNodeEditorProps\>) => {} \| *Pick*<{}, K\> \| *Pick*<{}, K\> |
+| `callback?` | () => *void* |
 
 **Returns:** *void*
 
@@ -602,11 +602,11 @@ and `componentDidUpdate` will not be called.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`nextProps` | *Readonly*<SpotLightNodeEditorProps\> |
-`nextState` | *Readonly*<{}\> |
-`nextContext` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `nextProps` | *Readonly*<SpotLightNodeEditorProps\> |
+| `nextState` | *Readonly*<{}\> |
+| `nextContext` | *any* |
 
 **Returns:** *boolean*
 

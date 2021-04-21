@@ -32,10 +32,10 @@ SupportDialog used to render content for support.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`__namedParameters` | *Object* |
+| Name | Type |
+| :------ | :------ |
+| `__namedParameters` | *Object* |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/dialogs/SupportDialog.tsx:15](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/dialogs/SupportDialog.tsx#L15)
+Defined in: [packages/client-core/src/world/components/editor/dialogs/SupportDialog.tsx:15](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/dialogs/SupportDialog.tsx#L15)

@@ -20,4 +20,4 @@ DragLayer component used to provide area in editor where we can drag and drop el
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/dnd/DragLayer.tsx:48](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/dnd/DragLayer.tsx#L48)
+Defined in: [packages/client-core/src/world/components/editor/dnd/DragLayer.tsx:48](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/dnd/DragLayer.tsx#L48)

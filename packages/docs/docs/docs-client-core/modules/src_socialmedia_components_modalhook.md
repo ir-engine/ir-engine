@@ -16,10 +16,10 @@ hide_title: true
 
 **Returns:** *object*
 
-Name | Type |
-:------ | :------ |
-`hideModal` | *boolean* |
-`modalData` | *object* |
-`setModal` | (`status`: *any*, `newData`: *any*) => *void* |
+| Name | Type |
+| :------ | :------ |
+| `hideModal` | *boolean* |
+| `modalData` | *object* |
+| `setModal` | (`status`: *any*, `newData`: *any*) => *void* |
 
-Defined in: [packages/client-core/src/socialmedia/components/ModalHook.tsx:3](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/socialmedia/components/ModalHook.tsx#L3)
+Defined in: [packages/client-core/src/socialmedia/components/ModalHook.tsx:3](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/components/ModalHook.tsx#L3)

@@ -29,9 +29,9 @@ ambient light is basically used to illuminates all the objects present inside th
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`props` | AmbientLightNodeEditorProps \| *Readonly*<AmbientLightNodeEditorProps\> |
+| Name | Type |
+| :------ | :------ |
+| `props` | AmbientLightNodeEditorProps \| *Readonly*<AmbientLightNodeEditorProps\> |
 
 **Returns:** [*AmbientLightNodeEditor*](src_world_components_editor_properties_ambientlightnodeeditor.ambientlightnodeeditor.md)
 
@@ -50,10 +50,10 @@ Defined in: node_modules/@types/react/index.d.ts:469
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`props` | AmbientLightNodeEditorProps |
-`context` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `props` | AmbientLightNodeEditorProps |
+| `context` | *any* |
 
 **Returns:** [*AmbientLightNodeEditor*](src_world_components_editor_properties_ambientlightnodeeditor.ambientlightnodeeditor.md)
 
@@ -158,7 +158,7 @@ ___
 
 ▪ `Static` **description**: *string*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/AmbientLightNodeEditor.tsx:29](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/properties/AmbientLightNodeEditor.tsx#L29)
+Defined in: [packages/client-core/src/world/components/editor/properties/AmbientLightNodeEditor.tsx:29](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/AmbientLightNodeEditor.tsx#L29)
 
 ___
 
@@ -166,7 +166,7 @@ ___
 
 ▪ `Static` **iconComponent**: StyledIcon
 
-Defined in: [packages/client-core/src/world/components/editor/properties/AmbientLightNodeEditor.tsx:28](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/properties/AmbientLightNodeEditor.tsx#L28)
+Defined in: [packages/client-core/src/world/components/editor/properties/AmbientLightNodeEditor.tsx:28](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/AmbientLightNodeEditor.tsx#L28)
 
 ## Methods
 
@@ -219,10 +219,10 @@ prevents this from being invoked.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`nextProps` | *Readonly*<AmbientLightNodeEditorProps\> |
-`nextContext` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `nextProps` | *Readonly*<AmbientLightNodeEditorProps\> |
+| `nextContext` | *any* |
 
 **Returns:** *void*
 
@@ -253,11 +253,11 @@ prevents this from being invoked.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`nextProps` | *Readonly*<AmbientLightNodeEditorProps\> |
-`nextState` | *Readonly*<{}\> |
-`nextContext` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `nextProps` | *Readonly*<AmbientLightNodeEditorProps\> |
+| `nextState` | *Readonly*<{}\> |
+| `nextContext` | *any* |
 
 **Returns:** *void*
 
@@ -276,10 +276,10 @@ the entire component tree to unmount.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`error` | Error |
-`errorInfo` | ErrorInfo |
+| Name | Type |
+| :------ | :------ |
+| `error` | Error |
+| `errorInfo` | ErrorInfo |
 
 **Returns:** *void*
 
@@ -313,11 +313,11 @@ The snapshot is only present if getSnapshotBeforeUpdate is present and returns n
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`prevProps` | *Readonly*<AmbientLightNodeEditorProps\> |
-`prevState` | *Readonly*<{}\> |
-`snapshot?` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `prevProps` | *Readonly*<AmbientLightNodeEditorProps\> |
+| `prevState` | *Readonly*<{}\> |
+| `snapshot?` | *any* |
 
 **Returns:** *void*
 
@@ -372,10 +372,10 @@ prevents this from being invoked.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`nextProps` | *Readonly*<AmbientLightNodeEditorProps\> |
-`nextContext` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `nextProps` | *Readonly*<AmbientLightNodeEditorProps\> |
+| `nextContext` | *any* |
 
 **Returns:** *void*
 
@@ -419,11 +419,11 @@ prevents this from being invoked.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`nextProps` | *Readonly*<AmbientLightNodeEditorProps\> |
-`nextState` | *Readonly*<{}\> |
-`nextContext` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `nextProps` | *Readonly*<AmbientLightNodeEditorProps\> |
+| `nextState` | *Readonly*<{}\> |
+| `nextContext` | *any* |
 
 **Returns:** *void*
 
@@ -439,9 +439,9 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`callback?` | () => *void* |
+| Name | Type |
+| :------ | :------ |
+| `callback?` | () => *void* |
 
 **Returns:** *void*
 
@@ -464,10 +464,10 @@ lifecycle events from running.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`prevProps` | *Readonly*<AmbientLightNodeEditorProps\> |
-`prevState` | *Readonly*<{}\> |
+| Name | Type |
+| :------ | :------ |
+| `prevProps` | *Readonly*<AmbientLightNodeEditorProps\> |
+| `prevState` | *Readonly*<{}\> |
 
 **Returns:** *any*
 
@@ -483,13 +483,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`color` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `color` | *any* |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/AmbientLightNodeEditor.tsx:32](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/properties/AmbientLightNodeEditor.tsx#L32)
+Defined in: [packages/client-core/src/world/components/editor/properties/AmbientLightNodeEditor.tsx:32](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/AmbientLightNodeEditor.tsx#L32)
 
 ___
 
@@ -499,13 +499,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`intensity` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `intensity` | *any* |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/AmbientLightNodeEditor.tsx:36](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/properties/AmbientLightNodeEditor.tsx#L36)
+Defined in: [packages/client-core/src/world/components/editor/properties/AmbientLightNodeEditor.tsx:36](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/AmbientLightNodeEditor.tsx#L36)
 
 ___
 
@@ -521,7 +521,7 @@ Rendering ambient light view to customize ambient light element.
 
 Overrides: Component.render
 
-Defined in: [packages/client-core/src/world/components/editor/properties/AmbientLightNodeEditor.tsx:45](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/properties/AmbientLightNodeEditor.tsx#L45)
+Defined in: [packages/client-core/src/world/components/editor/properties/AmbientLightNodeEditor.tsx:45](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/AmbientLightNodeEditor.tsx#L45)
 
 ___
 
@@ -531,16 +531,16 @@ ___
 
 #### Type parameters:
 
-Name | Type |
-:------ | :------ |
-`K` | *never* |
+| Name | Type |
+| :------ | :------ |
+| `K` | *never* |
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`state` | {} \| (`prevState`: *Readonly*<{}\>, `props`: *Readonly*<AmbientLightNodeEditorProps\>) => {} \| *Pick*<{}, K\> \| *Pick*<{}, K\> |
-`callback?` | () => *void* |
+| Name | Type |
+| :------ | :------ |
+| `state` | {} \| (`prevState`: *Readonly*<{}\>, `props`: *Readonly*<AmbientLightNodeEditorProps\>) => {} \| *Pick*<{}, K\> \| *Pick*<{}, K\> |
+| `callback?` | () => *void* |
 
 **Returns:** *void*
 
@@ -565,11 +565,11 @@ and `componentDidUpdate` will not be called.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`nextProps` | *Readonly*<AmbientLightNodeEditorProps\> |
-`nextState` | *Readonly*<{}\> |
-`nextContext` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `nextProps` | *Readonly*<AmbientLightNodeEditorProps\> |
+| `nextState` | *Readonly*<{}\> |
+| `nextContext` | *any* |
 
 **Returns:** *boolean*
 

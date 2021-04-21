@@ -22,10 +22,10 @@ Renames and exports: [PopupLogin](src_socialmedia_components_popuplogin_popuplog
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`props` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `props` | *any* |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/src/socialmedia/components/PopupLogin/PopupLogin.tsx:5](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/socialmedia/components/PopupLogin/PopupLogin.tsx#L5)
+Defined in: [packages/client-core/src/socialmedia/components/PopupLogin/PopupLogin.tsx:5](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/components/PopupLogin/PopupLogin.tsx#L5)

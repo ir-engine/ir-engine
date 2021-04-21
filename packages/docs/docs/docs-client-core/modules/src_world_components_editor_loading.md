@@ -18,4 +18,4 @@ hide_title: true
 
 ### default
 
-• **default**: *ComponentType*<*Omit*<*Pick*<Subtract<{ `t`: Function  }, WithTranslationProps\>, *t*\> & *Pick*<InferProps<{ `isFullscreen`: *Requireable*<boolean\> ; `message`: *Requireable*<string\> ; `t`: *Requireable*<(...`args`: *any*[]) => *any*\>  }\>, *message* \| *isFullscreen*\> & *Pick*<Subtract<{ `t`: Function  }, WithTranslationProps\>, never\>, keyof *WithTranslation*<N\>\> & WithTranslationProps\>
+• **default**: *ComponentType*<*Omit*<*Pick*<Subtract<{ `t`: Function  }, WithTranslationProps\>, ``"t"``\> & *Pick*<InferProps<{ `isFullscreen`: *Requireable*<boolean\> ; `message`: *Requireable*<string\> ; `t`: *Requireable*<(...`args`: *any*[]) => *any*\>  }\>, ``"message"`` \| ``"isFullscreen"``\> & *Pick*<Subtract<{ `t`: Function  }, WithTranslationProps\>, never\>, keyof *WithTranslation*<N\>\> & WithTranslationProps\>

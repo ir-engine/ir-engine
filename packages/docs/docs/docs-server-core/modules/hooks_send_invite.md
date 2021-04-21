@@ -20,4 +20,4 @@ hide_title: true
 
 **Returns:** (`context`: *HookContext*<any, Service<any\>\>) => *Promise*<HookContext<any, Service<any\>\>\>
 
-Defined in: [packages/server-core/src/hooks/send-invite.ts:101](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/hooks/send-invite.ts#L101)
+Defined in: [packages/server-core/src/hooks/send-invite.ts:101](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/hooks/send-invite.ts#L101)

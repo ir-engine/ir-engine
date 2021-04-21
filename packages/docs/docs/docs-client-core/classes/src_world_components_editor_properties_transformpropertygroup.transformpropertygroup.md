@@ -28,9 +28,9 @@ TransformPropertyGroup component is used to render editor view to customize prop
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`props` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `props` | *any* |
 
 **Returns:** [*TransformPropertyGroup*](src_world_components_editor_properties_transformpropertygroup.transformpropertygroup.md)
 
@@ -39,7 +39,7 @@ Overrides: Component&lt;
   {}
 &gt;.constructor
 
-Defined in: [packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx:31](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx#L31)
+Defined in: [packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx:31](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx#L31)
 
 ## Properties
 
@@ -104,9 +104,9 @@ ___
 
 ### translation
 
-• **translation**: *any*
+• **translation**: *Vector3*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx:55](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx#L55)
+Defined in: [packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx:55](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx#L55)
 
 ___
 
@@ -188,10 +188,10 @@ prevents this from being invoked.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`nextProps` | *Readonly*<TransformPropertyGroupProps\> |
-`nextContext` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `nextProps` | *Readonly*<TransformPropertyGroupProps\> |
+| `nextContext` | *any* |
 
 **Returns:** *void*
 
@@ -222,11 +222,11 @@ prevents this from being invoked.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`nextProps` | *Readonly*<TransformPropertyGroupProps\> |
-`nextState` | *Readonly*<{}\> |
-`nextContext` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `nextProps` | *Readonly*<TransformPropertyGroupProps\> |
+| `nextState` | *Readonly*<{}\> |
+| `nextContext` | *any* |
 
 **Returns:** *void*
 
@@ -245,10 +245,10 @@ the entire component tree to unmount.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`error` | Error |
-`errorInfo` | ErrorInfo |
+| Name | Type |
+| :------ | :------ |
+| `error` | Error |
+| `errorInfo` | ErrorInfo |
 
 **Returns:** *void*
 
@@ -266,7 +266,7 @@ ___
 
 Overrides: Component.componentDidMount
 
-Defined in: [packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx:40](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx#L40)
+Defined in: [packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx:40](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx#L40)
 
 ___
 
@@ -280,11 +280,11 @@ The snapshot is only present if getSnapshotBeforeUpdate is present and returns n
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`prevProps` | *Readonly*<TransformPropertyGroupProps\> |
-`prevState` | *Readonly*<{}\> |
-`snapshot?` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `prevProps` | *Readonly*<TransformPropertyGroupProps\> |
+| `prevState` | *Readonly*<{}\> |
+| `snapshot?` | *any* |
 
 **Returns:** *void*
 
@@ -339,10 +339,10 @@ prevents this from being invoked.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`nextProps` | *Readonly*<TransformPropertyGroupProps\> |
-`nextContext` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `nextProps` | *Readonly*<TransformPropertyGroupProps\> |
+| `nextContext` | *any* |
 
 **Returns:** *void*
 
@@ -360,7 +360,7 @@ ___
 
 Overrides: Component.componentWillUnmount
 
-Defined in: [packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx:50](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx#L50)
+Defined in: [packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx:50](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx#L50)
 
 ___
 
@@ -383,11 +383,11 @@ prevents this from being invoked.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`nextProps` | *Readonly*<TransformPropertyGroupProps\> |
-`nextState` | *Readonly*<{}\> |
-`nextContext` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `nextProps` | *Readonly*<TransformPropertyGroupProps\> |
+| `nextState` | *Readonly*<{}\> |
+| `nextContext` | *any* |
 
 **Returns:** *void*
 
@@ -403,9 +403,9 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`callback?` | () => *void* |
+| Name | Type |
+| :------ | :------ |
+| `callback?` | () => *void* |
 
 **Returns:** *void*
 
@@ -428,10 +428,10 @@ lifecycle events from running.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`prevProps` | *Readonly*<TransformPropertyGroupProps\> |
-`prevState` | *Readonly*<{}\> |
+| Name | Type |
+| :------ | :------ |
+| `prevProps` | *Readonly*<TransformPropertyGroupProps\> |
+| `prevState` | *Readonly*<{}\> |
 
 **Returns:** *any*
 
@@ -447,13 +447,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`value` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `value` | *any* |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx:75](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx#L75)
+Defined in: [packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx:75](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx#L75)
 
 ___
 
@@ -463,13 +463,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`value` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `value` | *any* |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx:81](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx#L81)
+Defined in: [packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx:81](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx#L81)
 
 ___
 
@@ -479,13 +479,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`value` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `value` | *any* |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx:86](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx#L86)
+Defined in: [packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx:86](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx#L86)
 
 ___
 
@@ -495,14 +495,14 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`objects` | *any* |
-`property` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `objects` | *any* |
+| `property` | *any* |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx:58](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx#L58)
+Defined in: [packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx:58](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx#L58)
 
 ___
 
@@ -514,7 +514,7 @@ ___
 
 Overrides: Component.render
 
-Defined in: [packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx:91](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx#L91)
+Defined in: [packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx:91](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx#L91)
 
 ___
 
@@ -524,16 +524,16 @@ ___
 
 #### Type parameters:
 
-Name | Type |
-:------ | :------ |
-`K` | *never* |
+| Name | Type |
+| :------ | :------ |
+| `K` | *never* |
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`state` | {} \| (`prevState`: *Readonly*<{}\>, `props`: *Readonly*<TransformPropertyGroupProps\>) => {} \| *Pick*<{}, K\> \| *Pick*<{}, K\> |
-`callback?` | () => *void* |
+| Name | Type |
+| :------ | :------ |
+| `state` | {} \| (`prevState`: *Readonly*<{}\>, `props`: *Readonly*<TransformPropertyGroupProps\>) => {} \| *Pick*<{}, K\> \| *Pick*<{}, K\> |
+| `callback?` | () => *void* |
 
 **Returns:** *void*
 
@@ -549,12 +549,12 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`nextProps` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `nextProps` | *any* |
 
 **Returns:** *boolean*
 
 Overrides: Component.shouldComponentUpdate
 
-Defined in: [packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx:45](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx#L45)
+Defined in: [packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx:45](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/TransformPropertyGroup.tsx#L45)

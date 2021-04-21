@@ -16,7 +16,7 @@ hide_title: true
 
 • **data**: StaticResource
 
-Defined in: [packages/client-core/src/admin/reducers/admin/actions.ts:90](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/admin/reducers/admin/actions.ts#L90)
+Defined in: [packages/client-core/src/admin/reducers/admin/actions.ts:90](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/admin/reducers/admin/actions.ts#L90)
 
 ___
 
@@ -24,4 +24,4 @@ ___
 
 • **type**: *string*
 
-Defined in: [packages/client-core/src/admin/reducers/admin/actions.ts:89](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/admin/reducers/admin/actions.ts#L89)
+Defined in: [packages/client-core/src/admin/reducers/admin/actions.ts:89](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/admin/reducers/admin/actions.ts#L89)

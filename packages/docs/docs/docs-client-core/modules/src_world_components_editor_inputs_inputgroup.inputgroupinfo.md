@@ -18,6 +18,6 @@ hide_title: true
 
 #### Type declaration:
 
-Name | Type |
-:------ | :------ |
-`info` | *Requireable*<string\> |
+| Name | Type |
+| :------ | :------ |
+| `info` | *Requireable*<string\> |

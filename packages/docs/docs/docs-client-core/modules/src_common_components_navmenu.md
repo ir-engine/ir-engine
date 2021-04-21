@@ -22,10 +22,10 @@ Renames and exports: [NavMenu](src_common_components_navmenu.md#navmenu)
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`props` | Props |
+| Name | Type |
+| :------ | :------ |
+| `props` | Props |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/src/common/components/NavMenu/index.tsx:11](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/common/components/NavMenu/index.tsx#L11)
+Defined in: [packages/client-core/src/common/components/NavMenu/index.tsx:11](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/common/components/NavMenu/index.tsx#L11)

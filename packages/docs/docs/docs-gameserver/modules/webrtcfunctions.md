@@ -16,13 +16,13 @@ hide_title: true
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`consumer` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `consumer` | *any* |
 
 **Returns:** *Promise*<void\>
 
-Defined in: [WebRTCFunctions.ts:161](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/gameserver/src/WebRTCFunctions.ts#L161)
+Defined in: [WebRTCFunctions.ts:161](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/gameserver/src/WebRTCFunctions.ts#L161)
 
 ___
 
@@ -32,13 +32,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`producer` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `producer` | *any* |
 
 **Returns:** *Promise*<void\>
 
-Defined in: [WebRTCFunctions.ts:133](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/gameserver/src/WebRTCFunctions.ts#L133)
+Defined in: [WebRTCFunctions.ts:133](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/gameserver/src/WebRTCFunctions.ts#L133)
 
 ___
 
@@ -48,14 +48,14 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`producer` | *any* |
-`peerId` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `producer` | *any* |
+| `peerId` | *any* |
 
 **Returns:** *Promise*<void\>
 
-Defined in: [WebRTCFunctions.ts:142](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/gameserver/src/WebRTCFunctions.ts#L142)
+Defined in: [WebRTCFunctions.ts:142](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/gameserver/src/WebRTCFunctions.ts#L142)
 
 ___
 
@@ -65,13 +65,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`transport` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `transport` | *any* |
 
 **Returns:** *Promise*<void\>
 
-Defined in: [WebRTCFunctions.ts:125](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/gameserver/src/WebRTCFunctions.ts#L125)
+Defined in: [WebRTCFunctions.ts:125](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/gameserver/src/WebRTCFunctions.ts#L125)
 
 ___
 
@@ -81,14 +81,14 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`dataProducer` | DataProducer |
-`userId` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `dataProducer` | DataProducer |
+| `userId` | *string* |
 
 **Returns:** *Promise*<DataConsumer\>
 
-Defined in: [WebRTCFunctions.ts:200](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/gameserver/src/WebRTCFunctions.ts#L200)
+Defined in: [WebRTCFunctions.ts:200](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/gameserver/src/WebRTCFunctions.ts#L200)
 
 ___
 
@@ -98,13 +98,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`__namedParameters` | WebRtcTransportParams |
+| Name | Type |
+| :------ | :------ |
+| `__namedParameters` | WebRtcTransportParams |
 
 **Returns:** *Promise*<WebRtcTransport\>
 
-Defined in: [WebRTCFunctions.ts:173](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/gameserver/src/WebRTCFunctions.ts#L173)
+Defined in: [WebRTCFunctions.ts:173](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/gameserver/src/WebRTCFunctions.ts#L173)
 
 ___
 
@@ -114,13 +114,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`socket` | *Socket* |
+| Name | Type |
+| :------ | :------ |
+| `socket` | *Socket* |
 
 **Returns:** (`dataProducer`: *DataProducer*) => *Promise*<void\>
 
-Defined in: [WebRTCFunctions.ts:83](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/gameserver/src/WebRTCFunctions.ts#L83)
+Defined in: [WebRTCFunctions.ts:83](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/gameserver/src/WebRTCFunctions.ts#L83)
 
 ___
 
@@ -130,15 +130,15 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`socket` | *any* |
-`data` | *any* |
-`callback` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `socket` | *any* |
+| `data` | *any* |
+| `callback` | *any* |
 
 **Returns:** *Promise*<any\>
 
-Defined in: [WebRTCFunctions.ts:472](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/gameserver/src/WebRTCFunctions.ts#L472)
+Defined in: [WebRTCFunctions.ts:472](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/gameserver/src/WebRTCFunctions.ts#L472)
 
 ___
 
@@ -148,15 +148,15 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`socket` | *any* |
-`data` | *any* |
-`callback` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `socket` | *any* |
+| `data` | *any* |
+| `callback` | *any* |
 
 **Returns:** *Promise*<any\>
 
-Defined in: [WebRTCFunctions.ts:328](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/gameserver/src/WebRTCFunctions.ts#L328)
+Defined in: [WebRTCFunctions.ts:328](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/gameserver/src/WebRTCFunctions.ts#L328)
 
 ___
 
@@ -166,15 +166,15 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`socket` | *any* |
-`data` | *any* |
-`callback` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `socket` | *any* |
+| `data` | *any* |
+| `callback` | *any* |
 
 **Returns:** *Promise*<any\>
 
-Defined in: [WebRTCFunctions.ts:480](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/gameserver/src/WebRTCFunctions.ts#L480)
+Defined in: [WebRTCFunctions.ts:480](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/gameserver/src/WebRTCFunctions.ts#L480)
 
 ___
 
@@ -184,15 +184,15 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`socket` | *any* |
-`data` | *any* |
-`callback` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `socket` | *any* |
+| `data` | *any* |
+| `callback` | *any* |
 
 **Returns:** *Promise*<any\>
 
-Defined in: [WebRTCFunctions.ts:534](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/gameserver/src/WebRTCFunctions.ts#L534)
+Defined in: [WebRTCFunctions.ts:534](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/gameserver/src/WebRTCFunctions.ts#L534)
 
 ___
 
@@ -202,15 +202,15 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`socket` | *any* |
-`data` | *any* |
-`callback` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `socket` | *any* |
+| `data` | *any* |
+| `callback` | *any* |
 
 **Returns:** *Promise*<any\>
 
-Defined in: [WebRTCFunctions.ts:452](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/gameserver/src/WebRTCFunctions.ts#L452)
+Defined in: [WebRTCFunctions.ts:452](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/gameserver/src/WebRTCFunctions.ts#L452)
 
 ___
 
@@ -220,15 +220,15 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`socket` | *any* |
-`data` | *any* |
-`callback` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `socket` | *any* |
+| `data` | *any* |
+| `callback` | *any* |
 
 **Returns:** *Promise*<any\>
 
-Defined in: [WebRTCFunctions.ts:507](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/gameserver/src/WebRTCFunctions.ts#L507)
+Defined in: [WebRTCFunctions.ts:507](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/gameserver/src/WebRTCFunctions.ts#L507)
 
 ___
 
@@ -238,15 +238,15 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`socket` | *any* |
-`data` | *any* |
-`callback` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `socket` | *any* |
+| `data` | *any* |
+| `callback` | *any* |
 
 **Returns:** *Promise*<any\>
 
-Defined in: [WebRTCFunctions.ts:273](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/gameserver/src/WebRTCFunctions.ts#L273)
+Defined in: [WebRTCFunctions.ts:273](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/gameserver/src/WebRTCFunctions.ts#L273)
 
 ___
 
@@ -256,15 +256,15 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`socket` | *any* |
-`data` | *any* |
-`callback` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `socket` | *any* |
+| `data` | *any* |
+| `callback` | *any* |
 
 **Returns:** *Promise*<any\>
 
-Defined in: [WebRTCFunctions.ts:373](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/gameserver/src/WebRTCFunctions.ts#L373)
+Defined in: [WebRTCFunctions.ts:373](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/gameserver/src/WebRTCFunctions.ts#L373)
 
 ___
 
@@ -274,15 +274,15 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`socket` | *any* |
-`data` | *any* |
-`callback` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `socket` | *any* |
+| `data` | *any* |
+| `callback` | *any* |
 
 **Returns:** *Promise*<any\>
 
-Defined in: [WebRTCFunctions.ts:527](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/gameserver/src/WebRTCFunctions.ts#L527)
+Defined in: [WebRTCFunctions.ts:527](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/gameserver/src/WebRTCFunctions.ts#L527)
 
 ___
 
@@ -292,15 +292,15 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`socket` | *any* |
-`data` | *any* |
-`callback` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `socket` | *any* |
+| `data` | *any* |
+| `callback` | *any* |
 
 **Returns:** *Promise*<any\>
 
-Defined in: [WebRTCFunctions.ts:462](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/gameserver/src/WebRTCFunctions.ts#L462)
+Defined in: [WebRTCFunctions.ts:462](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/gameserver/src/WebRTCFunctions.ts#L462)
 
 ___
 
@@ -310,15 +310,15 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`socket` | *any* |
-`data` | *any* |
-`callback` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `socket` | *any* |
+| `data` | *any* |
+| `callback` | *any* |
 
 **Returns:** *Promise*<any\>
 
-Defined in: [WebRTCFunctions.ts:488](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/gameserver/src/WebRTCFunctions.ts#L488)
+Defined in: [WebRTCFunctions.ts:488](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/gameserver/src/WebRTCFunctions.ts#L488)
 
 ___
 
@@ -328,15 +328,15 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`socket` | *any* |
-`data` | *any* |
-`callback` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `socket` | *any* |
+| `data` | *any* |
+| `callback` | *any* |
 
 **Returns:** *Promise*<any\>
 
-Defined in: [WebRTCFunctions.ts:335](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/gameserver/src/WebRTCFunctions.ts#L335)
+Defined in: [WebRTCFunctions.ts:335](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/gameserver/src/WebRTCFunctions.ts#L335)
 
 ___
 
@@ -346,15 +346,15 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`socket` | *any* |
-`data` | *any* |
-`callback` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `socket` | *any* |
+| `data` | *any* |
+| `callback` | *any* |
 
 **Returns:** *Promise*<any\>
 
-Defined in: [WebRTCFunctions.ts:307](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/gameserver/src/WebRTCFunctions.ts#L307)
+Defined in: [WebRTCFunctions.ts:307](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/gameserver/src/WebRTCFunctions.ts#L307)
 
 ___
 
@@ -364,15 +364,15 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`socket` | *any* |
-`data` | *any* |
-`callback` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `socket` | *any* |
+| `data` | *any* |
+| `callback` | *any* |
 
 **Returns:** *Promise*<any\>
 
-Defined in: [WebRTCFunctions.ts:316](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/gameserver/src/WebRTCFunctions.ts#L316)
+Defined in: [WebRTCFunctions.ts:316](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/gameserver/src/WebRTCFunctions.ts#L316)
 
 ___
 
@@ -382,15 +382,15 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`socket` | *any* |
-`data` | WebRtcTransportParams |
-`callback` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `socket` | *any* |
+| `data` | WebRtcTransportParams |
+| `callback` | *any* |
 
 **Returns:** *Promise*<any\>
 
-Defined in: [WebRTCFunctions.ts:215](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/gameserver/src/WebRTCFunctions.ts#L215)
+Defined in: [WebRTCFunctions.ts:215](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/gameserver/src/WebRTCFunctions.ts#L215)
 
 ___
 
@@ -400,15 +400,15 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`socket` | *Socket* |
-`channelType` | *string* |
-`channelId?` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `socket` | *Socket* |
+| `channelType` | *string* |
+| `channelId?` | *string* |
 
 **Returns:** (`producer`: *Producer*) => *Promise*<void\>
 
-Defined in: [WebRTCFunctions.ts:48](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/gameserver/src/WebRTCFunctions.ts#L48)
+Defined in: [WebRTCFunctions.ts:48](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/gameserver/src/WebRTCFunctions.ts#L48)
 
 ___
 
@@ -418,15 +418,15 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`socket` | *Socket* |
-`channelType` | *string* |
-`channelId?` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `socket` | *Socket* |
+| `channelType` | *string* |
+| `channelId?` | *string* |
 
 **Returns:** *Promise*<void\>
 
-Defined in: [WebRTCFunctions.ts:67](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/gameserver/src/WebRTCFunctions.ts#L67)
+Defined in: [WebRTCFunctions.ts:67](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/gameserver/src/WebRTCFunctions.ts#L67)
 
 ___
 
@@ -436,4 +436,4 @@ ___
 
 **Returns:** *Promise*<void\>
 
-Defined in: [WebRTCFunctions.ts:23](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/gameserver/src/WebRTCFunctions.ts#L23)
+Defined in: [WebRTCFunctions.ts:23](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/gameserver/src/WebRTCFunctions.ts#L23)

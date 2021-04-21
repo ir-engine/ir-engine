@@ -32,10 +32,10 @@ Collapsible used to render the view of component.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`__namedParameters` | *Object* |
+| Name | Type |
+| :------ | :------ |
+| `__namedParameters` | *Object* |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/inputs/Collapsible.tsx:65](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/inputs/Collapsible.tsx#L65)
+Defined in: [packages/client-core/src/world/components/editor/inputs/Collapsible.tsx:65](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/inputs/Collapsible.tsx#L65)

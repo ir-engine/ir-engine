@@ -16,9 +16,9 @@ hide_title: true
 
 #### Type declaration:
 
-Name | Type |
-:------ | :------ |
-`definitions` | *object* |
-`definitions.follow-creator` | *object* |
-`definitions.follow-creator.properties` | *object* |
-`definitions.follow-creator.type` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `definitions` | *object* |
+| `definitions.follow-creator` | *object* |
+| `definitions.follow-creator.properties` | *object* |
+| `definitions.follow-creator.type` | *string* |

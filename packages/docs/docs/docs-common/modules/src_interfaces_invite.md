@@ -16,15 +16,15 @@ hide_title: true
 
 #### Type declaration:
 
-Name | Type |
-:------ | :------ |
-`createdAt` | *any* |
-`id` | *string* |
-`invitee` | [*User*](../interfaces/src_interfaces_user.user.md) |
-`token` | *string* |
-`user` | [*User*](../interfaces/src_interfaces_user.user.md) |
+| Name | Type |
+| :------ | :------ |
+| `createdAt` | *any* |
+| `id` | *string* |
+| `invitee` | [*User*](../interfaces/src_interfaces_user.user.md) |
+| `token` | *string* |
+| `user` | [*User*](../interfaces/src_interfaces_user.user.md) |
 
-Defined in: [interfaces/Invite.ts:3](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/common/src/interfaces/Invite.ts#L3)
+Defined in: [interfaces/Invite.ts:3](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/common/src/interfaces/Invite.ts#L3)
 
 ## Variables
 
@@ -34,8 +34,8 @@ Defined in: [interfaces/Invite.ts:3](https://github.com/xr3ngine/xr3ngine/blob/6
 
 #### Type declaration:
 
-Name | Type |
-:------ | :------ |
-`id` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `id` | *string* |
 
-Defined in: [interfaces/Invite.ts:11](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/common/src/interfaces/Invite.ts#L11)
+Defined in: [interfaces/Invite.ts:11](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/common/src/interfaces/Invite.ts#L11)

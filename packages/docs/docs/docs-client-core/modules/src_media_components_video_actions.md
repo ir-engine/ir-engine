@@ -27,13 +27,13 @@ hide_title: true
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`err` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `err` | *string* |
 
 **Returns:** [*VideosFetchedAction*](../interfaces/src_media_components_video_actions.videosfetchedaction.md)
 
-Defined in: [packages/client-core/src/media/components/video/actions.ts:49](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/media/components/video/actions.ts#L49)
+Defined in: [packages/client-core/src/media/components/video/actions.ts:49](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/media/components/video/actions.ts#L49)
 
 ___
 
@@ -43,10 +43,10 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`videos` | [*PublicVideo*](../interfaces/src_media_components_video_actions.publicvideo.md)[] |
+| Name | Type |
+| :------ | :------ |
+| `videos` | [*PublicVideo*](../interfaces/src_media_components_video_actions.publicvideo.md)[] |
 
 **Returns:** [*VideosFetchedAction*](../interfaces/src_media_components_video_actions.videosfetchedaction.md)
 
-Defined in: [packages/client-core/src/media/components/video/actions.ts:42](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/media/components/video/actions.ts#L42)
+Defined in: [packages/client-core/src/media/components/video/actions.ts:42](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/media/components/video/actions.ts#L42)

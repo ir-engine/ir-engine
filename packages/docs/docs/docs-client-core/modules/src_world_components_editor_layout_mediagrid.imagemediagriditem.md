@@ -18,7 +18,7 @@ hide_title: true
 
 #### Type declaration:
 
-Name | Type |
-:------ | :------ |
-`label` | *Requireable*<string\> |
-`src` | *Requireable*<string\> |
+| Name | Type |
+| :------ | :------ |
+| `label` | *Requireable*<string\> |
+| `src` | *Requireable*<string\> |

@@ -22,10 +22,10 @@ hide_title: true
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`props` | Props |
+| Name | Type |
+| :------ | :------ |
+| `props` | Props |
 
 **Returns:** *Element*
 
-Defined in: [packages/client/src/components/DrawerControls/index.tsx:49](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client/src/components/DrawerControls/index.tsx#L49)
+Defined in: [packages/client/src/components/DrawerControls/index.tsx:49](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client/src/components/DrawerControls/index.tsx#L49)

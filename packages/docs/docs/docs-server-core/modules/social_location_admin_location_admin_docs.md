@@ -16,17 +16,17 @@ hide_title: true
 
 #### Type declaration:
 
-Name | Type |
-:------ | :------ |
-`definitions` | *object* |
-`definitions.location-admin` | *object* |
-`definitions.location-admin.properties` | *object* |
-`definitions.location-admin.type` | *string* |
-`definitions.location-admin_list` | *object* |
-`definitions.location-admin_list.items` | *object* |
-`definitions.location-admin_list.items.$ref` | *string* |
-`definitions.location-admin_list.type` | *string* |
-`operations` | *object* |
-`operations.find` | *object* |
-`operations.find.security` | { `bearer`: *any*[] = [] }[] |
-`securities` | *string*[] |
+| Name | Type |
+| :------ | :------ |
+| `definitions` | *object* |
+| `definitions.location-admin` | *object* |
+| `definitions.location-admin.properties` | *object* |
+| `definitions.location-admin.type` | *string* |
+| `definitions.location-admin_list` | *object* |
+| `definitions.location-admin_list.items` | *object* |
+| `definitions.location-admin_list.items.$ref` | *string* |
+| `definitions.location-admin_list.type` | *string* |
+| `operations` | *object* |
+| `operations.find` | *object* |
+| `operations.find.security` | { `bearer`: *any*[] = [] }[] |
+| `securities` | *string*[] |

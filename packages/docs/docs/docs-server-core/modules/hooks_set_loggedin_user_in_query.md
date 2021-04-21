@@ -20,10 +20,10 @@ hide_title: true
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`propertyName` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `propertyName` | *string* |
 
 **Returns:** (`context`: *HookContext*<any, Service<any\>\>) => *any*
 
-Defined in: [packages/server-core/src/hooks/set-loggedin-user-in-query.ts:2](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/hooks/set-loggedin-user-in-query.ts#L2)
+Defined in: [packages/server-core/src/hooks/set-loggedin-user-in-query.ts:2](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/hooks/set-loggedin-user-in-query.ts#L2)

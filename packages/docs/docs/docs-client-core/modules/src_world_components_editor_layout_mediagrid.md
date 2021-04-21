@@ -24,7 +24,7 @@ hide_title: true
 
 **`author`** Robert Long
 
-Defined in: [packages/client-core/src/world/components/editor/layout/MediaGrid.tsx:221](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/layout/MediaGrid.tsx#L221)
+Defined in: [packages/client-core/src/world/components/editor/layout/MediaGrid.tsx:221](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/layout/MediaGrid.tsx#L221)
 
 ## Functions
 
@@ -36,13 +36,13 @@ Defined in: [packages/client-core/src/world/components/editor/layout/MediaGrid.t
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`__namedParameters` | *Object* |
+| Name | Type |
+| :------ | :------ |
+| `__namedParameters` | *Object* |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/layout/MediaGrid.tsx:195](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/layout/MediaGrid.tsx#L195)
+Defined in: [packages/client-core/src/world/components/editor/layout/MediaGrid.tsx:195](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/layout/MediaGrid.tsx#L195)
 
 ___
 
@@ -54,13 +54,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`__namedParameters` | *Object* |
+| Name | Type |
+| :------ | :------ |
+| `__namedParameters` | *Object* |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/layout/MediaGrid.tsx:167](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/layout/MediaGrid.tsx#L167)
+Defined in: [packages/client-core/src/world/components/editor/layout/MediaGrid.tsx:167](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/layout/MediaGrid.tsx#L167)
 
 ___
 
@@ -72,10 +72,10 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`__namedParameters` | *Object* |
+| Name | Type |
+| :------ | :------ |
+| `__namedParameters` | *Object* |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/layout/MediaGrid.tsx:139](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/layout/MediaGrid.tsx#L139)
+Defined in: [packages/client-core/src/world/components/editor/layout/MediaGrid.tsx:139](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/layout/MediaGrid.tsx#L139)

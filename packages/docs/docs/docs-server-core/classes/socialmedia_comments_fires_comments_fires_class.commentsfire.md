@@ -26,16 +26,16 @@ A class for ARC Feed Comment fires service
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`options` | *Partial*<SequelizeServiceOptions\> |
-`app` | Application |
+| Name | Type |
+| :------ | :------ |
+| `options` | *Partial*<SequelizeServiceOptions\> |
+| `app` | Application |
 
 **Returns:** [*CommentsFire*](socialmedia_comments_fires_comments_fires_class.commentsfire.md)
 
 Overrides: Service.constructor
 
-Defined in: [packages/server-core/src/socialmedia/comments-fires/comments-fires.class.ts:17](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/socialmedia/comments-fires/comments-fires.class.ts#L17)
+Defined in: [packages/server-core/src/socialmedia/comments-fires/comments-fires.class.ts:17](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/socialmedia/comments-fires/comments-fires.class.ts#L17)
 
 ## Properties
 
@@ -53,7 +53,7 @@ ___
 
 • **app**: Application
 
-Defined in: [packages/server-core/src/socialmedia/comments-fires/comments-fires.class.ts:16](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/socialmedia/comments-fires/comments-fires.class.ts#L16)
+Defined in: [packages/server-core/src/socialmedia/comments-fires/comments-fires.class.ts:16](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/socialmedia/comments-fires/comments-fires.class.ts#L16)
 
 ___
 
@@ -61,7 +61,7 @@ ___
 
 • **docs**: *any*
 
-Defined in: [packages/server-core/src/socialmedia/comments-fires/comments-fires.class.ts:17](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/socialmedia/comments-fires/comments-fires.class.ts#L17)
+Defined in: [packages/server-core/src/socialmedia/comments-fires/comments-fires.class.ts:17](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/socialmedia/comments-fires/comments-fires.class.ts#L17)
 
 ___
 
@@ -101,10 +101,10 @@ Defined in: node_modules/@feathersjs/adapter-commons/lib/service.d.ts:85
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`data` | *Partial*<any\> \| *Partial*<any\>[] |
-`params?` | Params |
+| Name | Type |
+| :------ | :------ |
+| `data` | *Partial*<any\> \| *Partial*<any\>[] |
+| `params?` | Params |
 
 **Returns:** *Promise*<any\>
 
@@ -120,9 +120,9 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`params?` | Params |
+| Name | Type |
+| :------ | :------ |
+| `params?` | Params |
 
 **Returns:** *Promise*<any\>
 
@@ -138,10 +138,10 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`id` | Id |
-`params?` | Params |
+| Name | Type |
+| :------ | :------ |
+| `id` | Id |
+| `params?` | Params |
 
 **Returns:** *Promise*<any\>
 
@@ -157,11 +157,11 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`id` | NullableId |
-`data` | *Partial*<any\> |
-`params?` | Params |
+| Name | Type |
+| :------ | :------ |
+| `id` | NullableId |
+| `data` | *Partial*<any\> |
+| `params?` | Params |
 
 **Returns:** *Promise*<any\>
 
@@ -177,10 +177,10 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`id` | NullableId |
-`params?` | Params |
+| Name | Type |
+| :------ | :------ |
+| `id` | NullableId |
+| `params?` | Params |
 
 **Returns:** *Promise*<any\>
 
@@ -196,11 +196,11 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`id` | NullableId |
-`data` | *any* |
-`params?` | Params |
+| Name | Type |
+| :------ | :------ |
+| `id` | NullableId |
+| `data` | *any* |
+| `params?` | Params |
 
 **Returns:** *Promise*<any\>
 
@@ -216,9 +216,9 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`method` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `method` | *string* |
 
 **Returns:** *boolean*
 
@@ -234,31 +234,31 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`data` | *any* |
-`params?` | Params |
+| Name | Type |
+| :------ | :------ |
+| `data` | *any* |
+| `params?` | Params |
 
 **Returns:** *Promise*<any\>
 
 Overrides: Service.create
 
-Defined in: [packages/server-core/src/socialmedia/comments-fires/comments-fires.class.ts:69](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/socialmedia/comments-fires/comments-fires.class.ts#L69)
+Defined in: [packages/server-core/src/socialmedia/comments-fires/comments-fires.class.ts:69](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/socialmedia/comments-fires/comments-fires.class.ts#L69)
 
 ___
 
 ### filterQuery
 
-▸ **filterQuery**(`params?`: Params, `opts?`: *any*): { [key: string]: *any*;  } & { `paginate`: *false* \| *Pick*<PaginationOptions, *max*\> \| { `default?`: *number* ; `max?`: *number*  }  }
+▸ **filterQuery**(`params?`: Params, `opts?`: *any*): { [key: string]: *any*;  } & { `paginate`: ``false`` \| *Pick*<PaginationOptions, ``"max"``\> \| { `default?`: *number* ; `max?`: *number*  }  }
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`params?` | Params |
-`opts?` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `params?` | Params |
+| `opts?` | *any* |
 
-**Returns:** { [key: string]: *any*;  } & { `paginate`: *false* \| *Pick*<PaginationOptions, *max*\> \| { `default?`: *number* ; `max?`: *number*  }  }
+**Returns:** { [key: string]: *any*;  } & { `paginate`: ``false`` \| *Pick*<PaginationOptions, ``"max"``\> \| { `default?`: *number* ; `max?`: *number*  }  }
 
 Inherited from: Service.filterQuery
 
@@ -274,9 +274,9 @@ ___
 
 #### Parameters:
 
-Name | Type | Description |
-:------ | :------ | :------ |
-`params` | Params | user id   |
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `params` | Params | user id |
 
 **Returns:** *Promise*<any\>
 
@@ -284,7 +284,7 @@ Name | Type | Description |
 
 Overrides: Service.find
 
-Defined in: [packages/server-core/src/socialmedia/comments-fires/comments-fires.class.ts:31](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/socialmedia/comments-fires/comments-fires.class.ts#L31)
+Defined in: [packages/server-core/src/socialmedia/comments-fires/comments-fires.class.ts:31](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/socialmedia/comments-fires/comments-fires.class.ts#L31)
 
 ___
 
@@ -294,10 +294,10 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`id` | Id |
-`params?` | Params |
+| Name | Type |
+| :------ | :------ |
+| `id` | Id |
+| `params?` | Params |
 
 **Returns:** *Promise*<any\>
 
@@ -313,9 +313,9 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`params` | Params |
+| Name | Type |
+| :------ | :------ |
+| `params` | Params |
 
 **Returns:** *any*
 
@@ -331,11 +331,11 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`id` | NullableId |
-`data` | *Partial*<any\> |
-`params?` | Params |
+| Name | Type |
+| :------ | :------ |
+| `id` | NullableId |
+| `data` | *Partial*<any\> |
+| `params?` | Params |
 
 **Returns:** *Promise*<any\>
 
@@ -351,16 +351,16 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`commentId` | *string* |
-`params?` | Params |
+| Name | Type |
+| :------ | :------ |
+| `commentId` | *string* |
+| `params?` | Params |
 
 **Returns:** *Promise*<any\>
 
 Overrides: Service.remove
 
-Defined in: [packages/server-core/src/socialmedia/comments-fires/comments-fires.class.ts:77](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/socialmedia/comments-fires/comments-fires.class.ts#L77)
+Defined in: [packages/server-core/src/socialmedia/comments-fires/comments-fires.class.ts:77](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/socialmedia/comments-fires/comments-fires.class.ts#L77)
 
 ___
 
@@ -370,11 +370,11 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`id` | Id |
-`data` | *any* |
-`params?` | Params |
+| Name | Type |
+| :------ | :------ |
+| `id` | Id |
+| `data` | *any* |
+| `params?` | Params |
 
 **Returns:** *Promise*<any\>
 

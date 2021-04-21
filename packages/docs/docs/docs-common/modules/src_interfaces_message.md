@@ -16,15 +16,15 @@ hide_title: true
 
 #### Type declaration:
 
-Name | Type |
-:------ | :------ |
-`channelId` | *string* |
-`createdAt` | *string* |
-`id` | *string* |
-`messageStatus` | [*MessageStatus*](src_interfaces_messagestatus.md#messagestatus) |
-`sender` | [*User*](../interfaces/src_interfaces_user.user.md) |
-`senderId` | *string* |
-`text` | *string* |
-`updatedAt` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `channelId` | *string* |
+| `createdAt` | *string* |
+| `id` | *string* |
+| `messageStatus` | [*MessageStatus*](src_interfaces_messagestatus.md#messagestatus) |
+| `sender` | [*User*](../interfaces/src_interfaces_user.user.md) |
+| `senderId` | *string* |
+| `text` | *string* |
+| `updatedAt` | *string* |
 
-Defined in: [interfaces/Message.ts:4](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/common/src/interfaces/Message.ts#L4)
+Defined in: [interfaces/Message.ts:4](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/common/src/interfaces/Message.ts#L4)

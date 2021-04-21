@@ -16,10 +16,10 @@ hide_title: true
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`props` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `props` | *any* |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/src/user/components/UserMenu/menus/ShareMenu.tsx:9](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/user/components/UserMenu/menus/ShareMenu.tsx#L9)
+Defined in: [packages/client-core/src/user/components/UserMenu/menus/ShareMenu.tsx:12](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/user/components/UserMenu/menus/ShareMenu.tsx#L12)

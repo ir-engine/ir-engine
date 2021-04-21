@@ -16,15 +16,15 @@ hide_title: true
 
 #### Type declaration:
 
-Name | Type |
-:------ | :------ |
-`definitions` | *object* |
-`definitions.location-type` | *object* |
-`definitions.location-type.properties` | *object* |
-`definitions.location-type.properties.type` | *object* |
-`definitions.location-type.properties.type.type` | *string* |
-`definitions.location-type.type` | *string* |
-`definitions.location-type_list` | *object* |
-`definitions.location-type_list.items` | *object* |
-`definitions.location-type_list.items.$ref` | *string* |
-`definitions.location-type_list.type` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `definitions` | *object* |
+| `definitions.location-type` | *object* |
+| `definitions.location-type.properties` | *object* |
+| `definitions.location-type.properties.type` | *object* |
+| `definitions.location-type.properties.type.type` | *string* |
+| `definitions.location-type.type` | *string* |
+| `definitions.location-type_list` | *object* |
+| `definitions.location-type_list.items` | *object* |
+| `definitions.location-type_list.items.$ref` | *string* |
+| `definitions.location-type_list.type` | *string* |

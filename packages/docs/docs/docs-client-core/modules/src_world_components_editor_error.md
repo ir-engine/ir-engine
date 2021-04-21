@@ -18,4 +18,4 @@ hide_title: true
 
 ### default
 
-• **default**: *ComponentType*<*Omit*<*Pick*<Subtract<{ `t`: Function  }, WithTranslationProps\>, *t*\> & *Pick*<InferProps<{ `message`: *Requireable*<ReactNodeLike\> ; `t`: *Requireable*<(...`args`: *any*[]) => *any*\>  }\>, *message*\> & *Pick*<Subtract<{ `t`: Function  }, WithTranslationProps\>, never\>, keyof *WithTranslation*<N\>\> & WithTranslationProps\>
+• **default**: *ComponentType*<*Omit*<*Pick*<Subtract<{ `t`: Function  }, WithTranslationProps\>, ``"t"``\> & *Pick*<InferProps<{ `message`: *Requireable*<ReactNodeLike\> ; `t`: *Requireable*<(...`args`: *any*[]) => *any*\>  }\>, ``"message"``\> & *Pick*<Subtract<{ `t`: Function  }, WithTranslationProps\>, never\>, keyof *WithTranslation*<N\>\> & WithTranslationProps\>

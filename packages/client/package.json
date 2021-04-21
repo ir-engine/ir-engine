@@ -37,65 +37,55 @@
     "socket.io": "2.4.1"
   },
   "dependencies": {
-    "@capacitor-community/electron": "1.4.0",
-    "@capacitor/android": "2.4.7",
-    "@capacitor/cli": "2.4.7",
+    
     "@capacitor/core": "2.4.7",
-    "@capacitor/ios": "2.4.7",
+    
     "@feathersjs/client": "4.5.11",
-    "@feathersjs/socketio": "4.5.11",
-    "@feathersjs/socketio-client": "4.5.11",
-    "@google/model-viewer": "1.6.0",
+    
+    
     "@material-ui/core": "4.11.3",
-    "@material-ui/data-grid": "4.0.0-alpha.25",
+   
     "@material-ui/icons": "4.11.2",
-    "@material-ui/lab": "4.0.0-alpha.57",
-    "@material-ui/styles": "4.11.3",
+   
     "@styled-icons/boxicons-regular": "10.23.0",
-    "@styled-icons/evaicons-outline": "10.18.0",
+  
     "@styled-icons/fa-regular": "10.26.0",
     "@styled-icons/fa-solid": "10.32.0",
-    "@styled-icons/material": "10.28.0",
-    "@types/react-infinite-scroller": "1.2.1",
+   
     "@types/react-redux": "7.1.16",
     "@types/redux-immutable": "4.0.1",
     "@types/styled-components": "5.1.9",
-    "apexcharts": "3.26.1",
-    "app-root-path": "3.0.0",
-    "autobind-decorator": "2.4.0",
-    "autoprefixer": "10.2.5",
+  
     "axios": "0.21.1",
     "browserfs": "1.4.3",
-    "chartist": "0.11.4",
+   
     "classnames": "2.3.1",
-    "copyfiles": "2.4.1",
+   
     "cross-blob": "2.0.0",
     "device-detector-js": "2.2.9",
     "draco3dgltf": "1.4.1",
-    "emailjs-com": "2.6.4",
+    
     "eventemitter3": "4.0.7",
-    "faker": "5.5.3",
-    "file-loader": "6.2.0",
+    "emailjs-com": "2.6.4",
     "fuse.js": "6.4.6",
-    "history": "5.0.0",
+    "react-full-screen": "^1.0.2",
     "i18next": "20.2.1",
+    "i18next-browser-languagedetector": "6.1.0",
     "immutable": "4.0.0-rc.12",
     "jwt-decode": "3.1.2",
     "lodash": "4.17.21",
     "mediasoup-client": "3.6.30",
-    "minimist": "1.2.5",
+    
     "moment": "2.29.1",
-    "platform": "1.3.6",
+    
     "prop-types": "15.7.2",
-    "ra-data-json-server": "3.14.4",
-    "ra-data-simple-rest": "3.13.4",
+    
     "rc-slider": "9.7.2",
     "react": "17.0.2",
-    "react-apexcharts": "1.3.9",
-    "react-chartist": "0.14.4",
+    
     "react-color": "2.19.3",
     "react-contextmenu": "2.14.0",
-    "react-dnd": "14.0.2",
+    
     "react-dnd-html5-backend": "14.0.0",
     "react-dom": "17.0.2",
     "react-ga": "3.3.0",
@@ -103,62 +93,46 @@
     "react-i18next": "11.8.13",
     "react-infinite-scroller": "1.2.4",
     "react-json-tree": "0.15.0",
-    "react-loaders": "3.0.1",
-    "react-material-ui-form-validator": "2.1.4",
+    
+   
     "react-modal": "3.13.1",
     "react-no-ssr": "1.1.0",
-    "react-object-inspector": "0.2.1",
+   
     "react-redux": "7.2.3",
     "react-router-dom": "5.2.0",
     "react-select": "4.3.0",
-    "react-toast-notifications": "2.4.3",
-    "react-toastify": "7.0.3",
+   
     "react-virtualized-auto-sizer": "1.0.5",
     "react-window": "1.8.6",
-    "recast-wasm": "0.1.1",
-    "recharts": "2.0.9",
+    
     "redux": "4.0.5",
     "redux-devtools-extension": "2.13.9",
     "redux-immutable": "4.0.0",
     "redux-thunk": "2.3.0",
     "reselect": "4.0.0",
-    "rollup-plugin-typescript2": "0.30.0",
+   
     "sass": "1.32.11",
-    "semantic-ui-css": "2.4.1",
-    "semantic-ui-react": "2.0.3",
+  
     "socket.io-client": "2.4.0",
-    "string-similarity": "4.0.4",
+   
     "styled-components": "5.2.3",
     "three": "0.127.0",
     "three-mesh-bvh": "0.3.7",
     "url-toolkit": "2.2.1",
     "use-debounce": "6.0.1",
-    "use-http": "1.0.20",
+   
     "uuid": "8.3.2",
-    "vite": "2.2.1",
-    "wasm-loader": "1.3.0",
-    "whatkey": "2.0.1"
+    "vite": "2.2.1"
   },
   "devDependencies": {
-    "@babel/core": "7.13.16",
     "@types/node": "13.13.50",
     "@types/react": "17.0.3",
     "@types/react-dom": "17.0.3",
-    "@types/three": "0.127.1",
     "babel-loader": "8.2.2",
-    "cache-loader": "4.1.0",
     "comlink": "4.3.0",
     "config": "3.3.6",
     "cross-env": "7.0.3",
-    "dotenv-webpack": "7.0.2",
-    "eslint": "7.24.0",
-    "eslint-plugin-react": "7.23.2",
-    "gltf-webpack-loader": "https://github.com/MozillaReality/gltf-webpack-loader.git#fix/relative-and-output-paths",
-    "thread-loader": "3.0.3",
-    "ts-loader": "9.0.2",
-    "ts-shader-loader": "1.0.6",
-    "typescript": "4.2.4",
-    "webpack-cli": "4.6.0"
+    "eslint": "7.24.0"
   },
   "license": "ISC"
 }

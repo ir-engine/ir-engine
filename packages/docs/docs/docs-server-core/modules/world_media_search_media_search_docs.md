@@ -16,13 +16,13 @@ hide_title: true
 
 #### Type declaration:
 
-Name | Type |
-:------ | :------ |
-`definitions` | *object* |
-`definitions.media-search` | *object* |
-`definitions.media-search.properties` | *object* |
-`definitions.media-search.type` | *string* |
-`definitions.media-search_list` | *object* |
-`definitions.media-search_list.items` | *object* |
-`definitions.media-search_list.items.$ref` | *string* |
-`definitions.media-search_list.type` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `definitions` | *object* |
+| `definitions.media-search` | *object* |
+| `definitions.media-search.properties` | *object* |
+| `definitions.media-search.type` | *string* |
+| `definitions.media-search_list` | *object* |
+| `definitions.media-search_list.items` | *object* |
+| `definitions.media-search_list.items.$ref` | *string* |
+| `definitions.media-search_list.type` | *string* |

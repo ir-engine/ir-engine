@@ -16,13 +16,13 @@ hide_title: true
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`context` | *HookContext*<any, Service<any\>\> |
+| Name | Type |
+| :------ | :------ |
+| `context` | *HookContext*<any, Service<any\>\> |
 
 **Returns:** *Promise*<HookContext<any, Service<any\>\>\>
 
-Defined in: [packages/server-core/src/hooks/validatePresignedRequest.ts:25](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/hooks/validatePresignedRequest.ts#L25)
+Defined in: [packages/server-core/src/hooks/validatePresignedRequest.ts:25](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/hooks/validatePresignedRequest.ts#L25)
 
 ___
 
@@ -32,10 +32,10 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`context` | *HookContext*<any, Service<any\>\> |
+| Name | Type |
+| :------ | :------ |
+| `context` | *HookContext*<any, Service<any\>\> |
 
 **Returns:** *Promise*<HookContext<any, Service<any\>\>\>
 
-Defined in: [packages/server-core/src/hooks/validatePresignedRequest.ts:4](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/hooks/validatePresignedRequest.ts#L4)
+Defined in: [packages/server-core/src/hooks/validatePresignedRequest.ts:4](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/hooks/validatePresignedRequest.ts#L4)

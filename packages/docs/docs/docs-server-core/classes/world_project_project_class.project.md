@@ -22,14 +22,14 @@ hide_title: true
 
 #### Parameters:
 
-Name | Type | Default value |
-:------ | :------ | :------ |
-`options` | ServiceOptions | {} |
-`app` | Application | - |
+| Name | Type | Default value |
+| :------ | :------ | :------ |
+| `options` | ServiceOptions | {} |
+| `app` | Application | - |
 
 **Returns:** [*Project*](world_project_project_class.project.md)
 
-Defined in: [packages/server-core/src/world/project/project.class.ts:26](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/world/project/project.class.ts#L26)
+Defined in: [packages/server-core/src/world/project/project.class.ts:26](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/world/project/project.class.ts#L26)
 
 ## Properties
 
@@ -37,7 +37,7 @@ Defined in: [packages/server-core/src/world/project/project.class.ts:26](https:/
 
 • **app**: Application
 
-Defined in: [packages/server-core/src/world/project/project.class.ts:23](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/world/project/project.class.ts#L23)
+Defined in: [packages/server-core/src/world/project/project.class.ts:23](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/world/project/project.class.ts#L23)
 
 ___
 
@@ -45,7 +45,7 @@ ___
 
 • **docs**: *any*
 
-Defined in: [packages/server-core/src/world/project/project.class.ts:26](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/world/project/project.class.ts#L26)
+Defined in: [packages/server-core/src/world/project/project.class.ts:26](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/world/project/project.class.ts#L26)
 
 ___
 
@@ -53,7 +53,7 @@ ___
 
 • **models**: *any*
 
-Defined in: [packages/server-core/src/world/project/project.class.ts:25](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/world/project/project.class.ts#L25)
+Defined in: [packages/server-core/src/world/project/project.class.ts:25](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/world/project/project.class.ts#L25)
 
 ___
 
@@ -61,7 +61,7 @@ ___
 
 • **options**: ServiceOptions
 
-Defined in: [packages/server-core/src/world/project/project.class.ts:24](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/world/project/project.class.ts#L24)
+Defined in: [packages/server-core/src/world/project/project.class.ts:24](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/world/project/project.class.ts#L24)
 
 ## Methods
 
@@ -75,10 +75,10 @@ A function which is used to create new project
 
 #### Parameters:
 
-Name | Type | Description |
-:------ | :------ | :------ |
-`data` | *any* | used to create new project   |
-`params` | Params | contains user info   |
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `data` | *any* | used to create new project |
+| `params` | Params | contains user info |
 
 **Returns:** *Promise*<any\>
 
@@ -86,7 +86,7 @@ Name | Type | Description |
 
 Implementation of: ServiceMethods.create
 
-Defined in: [packages/server-core/src/world/project/project.class.ts:101](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/world/project/project.class.ts#L101)
+Defined in: [packages/server-core/src/world/project/project.class.ts:101](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/world/project/project.class.ts#L101)
 
 ___
 
@@ -100,9 +100,9 @@ A function which is used to display all projects
 
 #### Parameters:
 
-Name | Type | Description |
-:------ | :------ | :------ |
-`params` | Params | contains current user   |
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `params` | Params | contains current user |
 
 **Returns:** *Promise*<any\>
 
@@ -110,7 +110,7 @@ Name | Type | Description |
 
 Implementation of: ServiceMethods.find
 
-Defined in: [packages/server-core/src/world/project/project.class.ts:41](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/world/project/project.class.ts#L41)
+Defined in: [packages/server-core/src/world/project/project.class.ts:41](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/world/project/project.class.ts#L41)
 
 ___
 
@@ -124,10 +124,10 @@ A function which is used to find specific project
 
 #### Parameters:
 
-Name | Type | Description |
-:------ | :------ | :------ |
-`id` | Id | of single project   |
-`params` | Params | contains current user   |
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `id` | Id | of single project |
+| `params` | Params | contains current user |
 
 **Returns:** *Promise*<any\>
 
@@ -135,7 +135,7 @@ Name | Type | Description |
 
 Implementation of: ServiceMethods.get
 
-Defined in: [packages/server-core/src/world/project/project.class.ts:65](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/world/project/project.class.ts#L65)
+Defined in: [packages/server-core/src/world/project/project.class.ts:65](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/world/project/project.class.ts#L65)
 
 ___
 
@@ -145,17 +145,17 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`projectId` | NullableId |
-`data` | *any* |
-`params` | Params |
+| Name | Type |
+| :------ | :------ |
+| `projectId` | NullableId |
+| `data` | *any* |
+| `params` | Params |
 
 **Returns:** *Promise*<any\>
 
 Implementation of: ServiceMethods.patch
 
-Defined in: [packages/server-core/src/world/project/project.class.ts:132](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/world/project/project.class.ts#L132)
+Defined in: [packages/server-core/src/world/project/project.class.ts:132](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/world/project/project.class.ts#L132)
 
 ___
 
@@ -169,16 +169,16 @@ A function which is used to reload project
 
 #### Parameters:
 
-Name | Type | Description |
-:------ | :------ | :------ |
-`projectId` | *string* | of specific project   |
-`loadedProject?` | *any* | data of loaded project   |
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `projectId` | *string* | of specific project |
+| `loadedProject?` | *any* | data of loaded project |
 
 **Returns:** *Promise*<any\>
 
 {@Object} of loaded Project
 
-Defined in: [packages/server-core/src/world/project/project.class.ts:292](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/world/project/project.class.ts#L292)
+Defined in: [packages/server-core/src/world/project/project.class.ts:292](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/world/project/project.class.ts#L292)
 
 ___
 
@@ -190,10 +190,10 @@ A function which is used to remove specific project
 
 #### Parameters:
 
-Name | Type | Description |
-:------ | :------ | :------ |
-`id` | NullableId | of specific project   |
-`params?` | Params |  |
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `id` | NullableId | of specific project |
+| `params?` | Params |  |
 
 **Returns:** *Promise*<Data\>
 
@@ -201,7 +201,7 @@ Name | Type | Description |
 
 Implementation of: ServiceMethods.remove
 
-Defined in: [packages/server-core/src/world/project/project.class.ts:270](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/world/project/project.class.ts#L270)
+Defined in: [packages/server-core/src/world/project/project.class.ts:270](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/world/project/project.class.ts#L270)
 
 ___
 
@@ -215,11 +215,11 @@ A function which is used to update new project
 
 #### Parameters:
 
-Name | Type | Description |
-:------ | :------ | :------ |
-`id` | NullableId |  |
-`data` | Data | of new project   |
-`params?` | Params |  |
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `id` | NullableId |  |
+| `data` | Data | of new project |
+| `params?` | Params |  |
 
 **Returns:** *Promise*<Data\>
 
@@ -227,4 +227,4 @@ Name | Type | Description |
 
 Implementation of: ServiceMethods.update
 
-Defined in: [packages/server-core/src/world/project/project.class.ts:128](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/world/project/project.class.ts#L128)
+Defined in: [packages/server-core/src/world/project/project.class.ts:128](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/world/project/project.class.ts#L128)

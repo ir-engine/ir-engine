@@ -94,10 +94,10 @@ Defined in: node_modules/@feathersjs/authentication/lib/strategy.d.ts:11
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`authentication` | AuthenticationRequest |
-`params` | Params |
+| Name | Type |
+| :------ | :------ |
+| `authentication` | AuthenticationRequest |
+| `params` | Params |
 
 **Returns:** *Promise*<{ `accessToken`: *any* ; `authentication`: { `accessToken`: *any* ; `payload`: *any* ; `strategy`: *string*  }  }\>
 
@@ -113,16 +113,16 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`id` | *string* |
-`params` | Params |
+| Name | Type |
+| :------ | :------ |
+| `id` | *string* |
+| `params` | Params |
 
 **Returns:** *Promise*<any\>
 
 Overrides: JWTStrategy.getEntity
 
-Defined in: [packages/server-core/src/user/strategies/jwt.ts:6](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/user/strategies/jwt.ts#L6)
+Defined in: [packages/server-core/src/user/strategies/jwt.ts:6](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/user/strategies/jwt.ts#L6)
 
 ___
 
@@ -132,10 +132,10 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`authResult` | AuthenticationResult |
-`_params` | Params |
+| Name | Type |
+| :------ | :------ |
+| `authResult` | AuthenticationResult |
+| `_params` | Params |
 
 **Returns:** *Promise*<any\>
 
@@ -151,9 +151,9 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`_params` | Params |
+| Name | Type |
+| :------ | :------ |
+| `_params` | Params |
 
 **Returns:** *Promise*<{}\>
 
@@ -169,11 +169,11 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`event` | ConnectionEvent |
-`connection` | *any* |
-`authResult?` | AuthenticationResult |
+| Name | Type |
+| :------ | :------ |
+| `event` | ConnectionEvent |
+| `connection` | *any* |
+| `authResult?` | AuthenticationResult |
 
 **Returns:** *Promise*<void\>
 
@@ -189,9 +189,9 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`req` | *IncomingMessage* |
+| Name | Type |
+| :------ | :------ |
+| `req` | *IncomingMessage* |
 
 **Returns:** *Promise*<{ `accessToken`: *string* ; `strategy`: *string*  }\>
 
@@ -207,9 +207,9 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`app` | *Application*<{}\> |
+| Name | Type |
+| :------ | :------ |
+| `app` | *Application*<{}\> |
 
 **Returns:** *void*
 
@@ -225,9 +225,9 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`auth` | *AuthenticationBase* |
+| Name | Type |
+| :------ | :------ |
+| `auth` | *AuthenticationBase* |
 
 **Returns:** *void*
 
@@ -243,9 +243,9 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`name` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `name` | *string* |
 
 **Returns:** *void*
 

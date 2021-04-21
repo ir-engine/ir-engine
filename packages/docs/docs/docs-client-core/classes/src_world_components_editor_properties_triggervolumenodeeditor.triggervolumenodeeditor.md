@@ -28,9 +28,9 @@ TriggerVolumeNodeEditor provides the editor view to customize properties.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`props` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `props` | *any* |
 
 **Returns:** [*TriggerVolumeNodeEditor*](src_world_components_editor_properties_triggervolumenodeeditor.triggervolumenodeeditor.md)
 
@@ -39,7 +39,7 @@ Overrides: Component&lt;
   TriggerVolumeNodeEditorState
 &gt;.constructor
 
-Defined in: [packages/client-core/src/world/components/editor/properties/TriggerVolumeNodeEditor.tsx:66](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/properties/TriggerVolumeNodeEditor.tsx#L66)
+Defined in: [packages/client-core/src/world/components/editor/properties/TriggerVolumeNodeEditor.tsx:66](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/TriggerVolumeNodeEditor.tsx#L66)
 
 ## Properties
 
@@ -135,7 +135,7 @@ ___
 
 ▪ `Static` **description**: *string*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/TriggerVolumeNodeEditor.tsx:92](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/properties/TriggerVolumeNodeEditor.tsx#L92)
+Defined in: [packages/client-core/src/world/components/editor/properties/TriggerVolumeNodeEditor.tsx:92](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/TriggerVolumeNodeEditor.tsx#L92)
 
 ___
 
@@ -143,7 +143,7 @@ ___
 
 ▪ `Static` **iconComponent**: StyledIcon
 
-Defined in: [packages/client-core/src/world/components/editor/properties/TriggerVolumeNodeEditor.tsx:89](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/properties/TriggerVolumeNodeEditor.tsx#L89)
+Defined in: [packages/client-core/src/world/components/editor/properties/TriggerVolumeNodeEditor.tsx:89](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/TriggerVolumeNodeEditor.tsx#L89)
 
 ## Methods
 
@@ -196,10 +196,10 @@ prevents this from being invoked.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`nextProps` | *Readonly*<TriggerVolumeNodeEditorProps\> |
-`nextContext` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `nextProps` | *Readonly*<TriggerVolumeNodeEditorProps\> |
+| `nextContext` | *any* |
 
 **Returns:** *void*
 
@@ -230,11 +230,11 @@ prevents this from being invoked.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`nextProps` | *Readonly*<TriggerVolumeNodeEditorProps\> |
-`nextState` | *Readonly*<TriggerVolumeNodeEditorState\> |
-`nextContext` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `nextProps` | *Readonly*<TriggerVolumeNodeEditorProps\> |
+| `nextState` | *Readonly*<TriggerVolumeNodeEditorState\> |
+| `nextContext` | *any* |
 
 **Returns:** *void*
 
@@ -253,10 +253,10 @@ the entire component tree to unmount.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`error` | Error |
-`errorInfo` | ErrorInfo |
+| Name | Type |
+| :------ | :------ |
+| `error` | Error |
+| `errorInfo` | ErrorInfo |
 
 **Returns:** *void*
 
@@ -274,7 +274,7 @@ ___
 
 Overrides: Component.componentDidMount
 
-Defined in: [packages/client-core/src/world/components/editor/properties/TriggerVolumeNodeEditor.tsx:77](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/properties/TriggerVolumeNodeEditor.tsx#L77)
+Defined in: [packages/client-core/src/world/components/editor/properties/TriggerVolumeNodeEditor.tsx:77](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/TriggerVolumeNodeEditor.tsx#L77)
 
 ___
 
@@ -288,11 +288,11 @@ The snapshot is only present if getSnapshotBeforeUpdate is present and returns n
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`prevProps` | *Readonly*<TriggerVolumeNodeEditorProps\> |
-`prevState` | *Readonly*<TriggerVolumeNodeEditorState\> |
-`snapshot?` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `prevProps` | *Readonly*<TriggerVolumeNodeEditorProps\> |
+| `prevState` | *Readonly*<TriggerVolumeNodeEditorState\> |
+| `snapshot?` | *any* |
 
 **Returns:** *void*
 
@@ -347,10 +347,10 @@ prevents this from being invoked.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`nextProps` | *Readonly*<TriggerVolumeNodeEditorProps\> |
-`nextContext` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `nextProps` | *Readonly*<TriggerVolumeNodeEditorProps\> |
+| `nextContext` | *any* |
 
 **Returns:** *void*
 
@@ -394,11 +394,11 @@ prevents this from being invoked.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`nextProps` | *Readonly*<TriggerVolumeNodeEditorProps\> |
-`nextState` | *Readonly*<TriggerVolumeNodeEditorState\> |
-`nextContext` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `nextProps` | *Readonly*<TriggerVolumeNodeEditorProps\> |
+| `nextState` | *Readonly*<TriggerVolumeNodeEditorState\> |
+| `nextContext` | *any* |
 
 **Returns:** *void*
 
@@ -414,9 +414,9 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`callback?` | () => *void* |
+| Name | Type |
+| :------ | :------ |
+| `callback?` | () => *void* |
 
 **Returns:** *void*
 
@@ -439,10 +439,10 @@ lifecycle events from running.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`prevProps` | *Readonly*<TriggerVolumeNodeEditorProps\> |
-`prevState` | *Readonly*<TriggerVolumeNodeEditorState\> |
+| Name | Type |
+| :------ | :------ |
+| `prevProps` | *Readonly*<TriggerVolumeNodeEditorProps\> |
+| `prevState` | *Readonly*<TriggerVolumeNodeEditorState\> |
 
 **Returns:** *any*
 
@@ -458,13 +458,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`value` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `value` | *any* |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/TriggerVolumeNodeEditor.tsx:108](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/properties/TriggerVolumeNodeEditor.tsx#L108)
+Defined in: [packages/client-core/src/world/components/editor/properties/TriggerVolumeNodeEditor.tsx:108](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/TriggerVolumeNodeEditor.tsx#L108)
 
 ___
 
@@ -474,14 +474,14 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`value` | *any* |
-`option` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `value` | *any* |
+| `option` | *any* |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/TriggerVolumeNodeEditor.tsx:117](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/properties/TriggerVolumeNodeEditor.tsx#L117)
+Defined in: [packages/client-core/src/world/components/editor/properties/TriggerVolumeNodeEditor.tsx:117](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/TriggerVolumeNodeEditor.tsx#L117)
 
 ___
 
@@ -491,13 +491,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`value` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `value` | *any* |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/TriggerVolumeNodeEditor.tsx:125](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/properties/TriggerVolumeNodeEditor.tsx#L125)
+Defined in: [packages/client-core/src/world/components/editor/properties/TriggerVolumeNodeEditor.tsx:125](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/TriggerVolumeNodeEditor.tsx#L125)
 
 ___
 
@@ -507,13 +507,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`value` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `value` | *any* |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/TriggerVolumeNodeEditor.tsx:130](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/properties/TriggerVolumeNodeEditor.tsx#L130)
+Defined in: [packages/client-core/src/world/components/editor/properties/TriggerVolumeNodeEditor.tsx:130](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/TriggerVolumeNodeEditor.tsx#L130)
 
 ___
 
@@ -523,14 +523,14 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`value` | *any* |
-`option` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `value` | *any* |
+| `option` | *any* |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/TriggerVolumeNodeEditor.tsx:140](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/properties/TriggerVolumeNodeEditor.tsx#L140)
+Defined in: [packages/client-core/src/world/components/editor/properties/TriggerVolumeNodeEditor.tsx:140](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/TriggerVolumeNodeEditor.tsx#L140)
 
 ___
 
@@ -540,13 +540,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`value` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `value` | *any* |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/TriggerVolumeNodeEditor.tsx:148](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/properties/TriggerVolumeNodeEditor.tsx#L148)
+Defined in: [packages/client-core/src/world/components/editor/properties/TriggerVolumeNodeEditor.tsx:148](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/TriggerVolumeNodeEditor.tsx#L148)
 
 ___
 
@@ -556,13 +556,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`target` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `target` | *any* |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/TriggerVolumeNodeEditor.tsx:95](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/properties/TriggerVolumeNodeEditor.tsx#L95)
+Defined in: [packages/client-core/src/world/components/editor/properties/TriggerVolumeNodeEditor.tsx:95](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/TriggerVolumeNodeEditor.tsx#L95)
 
 ___
 
@@ -574,7 +574,7 @@ ___
 
 Overrides: Component.render
 
-Defined in: [packages/client-core/src/world/components/editor/properties/TriggerVolumeNodeEditor.tsx:154](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/properties/TriggerVolumeNodeEditor.tsx#L154)
+Defined in: [packages/client-core/src/world/components/editor/properties/TriggerVolumeNodeEditor.tsx:154](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/TriggerVolumeNodeEditor.tsx#L154)
 
 ___
 
@@ -584,16 +584,16 @@ ___
 
 #### Type parameters:
 
-Name | Type |
-:------ | :------ |
-`K` | *options* |
+| Name | Type |
+| :------ | :------ |
+| `K` | ``"options"`` |
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`state` | TriggerVolumeNodeEditorState \| (`prevState`: *Readonly*<TriggerVolumeNodeEditorState\>, `props`: *Readonly*<TriggerVolumeNodeEditorProps\>) => TriggerVolumeNodeEditorState \| *Pick*<TriggerVolumeNodeEditorState, K\> \| *Pick*<TriggerVolumeNodeEditorState, K\> |
-`callback?` | () => *void* |
+| Name | Type |
+| :------ | :------ |
+| `state` | TriggerVolumeNodeEditorState \| (`prevState`: *Readonly*<TriggerVolumeNodeEditorState\>, `props`: *Readonly*<TriggerVolumeNodeEditorProps\>) => TriggerVolumeNodeEditorState \| *Pick*<TriggerVolumeNodeEditorState, K\> \| *Pick*<TriggerVolumeNodeEditorState, K\> |
+| `callback?` | () => *void* |
 
 **Returns:** *void*
 
@@ -618,11 +618,11 @@ and `componentDidUpdate` will not be called.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`nextProps` | *Readonly*<TriggerVolumeNodeEditorProps\> |
-`nextState` | *Readonly*<TriggerVolumeNodeEditorState\> |
-`nextContext` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `nextProps` | *Readonly*<TriggerVolumeNodeEditorProps\> |
+| `nextState` | *Readonly*<TriggerVolumeNodeEditorState\> |
+| `nextContext` | *any* |
 
 **Returns:** *boolean*
 

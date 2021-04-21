@@ -16,4 +16,4 @@ hide_title: true
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/src/user/components/Auth/Login.tsx:24](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/user/components/Auth/Login.tsx#L24)
+Defined in: [packages/client-core/src/user/components/Auth/Login.tsx:23](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/user/components/Auth/Login.tsx#L23)

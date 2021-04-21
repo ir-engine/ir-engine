@@ -20,7 +20,7 @@ Transcode options that are required to reencode or change the coding of the vide
 
 Sample rate for the audio. iOS only. Defaults to 4410.
 
-Defined in: [packages/native-plugin-xr/src/definitions.ts:128](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/native-plugin-xr/src/definitions.ts#L128)
+Defined in: [packages/native-plugin-xr/src/definitions.ts:128](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/native-plugin-xr/src/definitions.ts#L128)
 
 ___
 
@@ -30,7 +30,7 @@ ___
 
 Number of audio channels. iOS only. Defaults to 2.
 
-Defined in: [packages/native-plugin-xr/src/definitions.ts:126](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/native-plugin-xr/src/definitions.ts#L126)
+Defined in: [packages/native-plugin-xr/src/definitions.ts:126](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/native-plugin-xr/src/definitions.ts#L126)
 
 ___
 
@@ -40,7 +40,7 @@ ___
 
 Not supported in windows, delete the orginal video
 
-Defined in: [packages/native-plugin-xr/src/definitions.ts:114](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/native-plugin-xr/src/definitions.ts#L114)
+Defined in: [packages/native-plugin-xr/src/definitions.ts:114](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/native-plugin-xr/src/definitions.ts#L114)
 
 ___
 
@@ -50,7 +50,7 @@ ___
 
 Not supported in windows, the duration in seconds from the start of the video
 
-Defined in: [packages/native-plugin-xr/src/definitions.ts:110](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/native-plugin-xr/src/definitions.ts#L110)
+Defined in: [packages/native-plugin-xr/src/definitions.ts:110](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/native-plugin-xr/src/definitions.ts#L110)
 
 ___
 
@@ -60,7 +60,7 @@ ___
 
 A well-known location where the editable video lives.
 
-Defined in: [packages/native-plugin-xr/src/definitions.ts:100](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/native-plugin-xr/src/definitions.ts#L100)
+Defined in: [packages/native-plugin-xr/src/definitions.ts:100](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/native-plugin-xr/src/definitions.ts#L100)
 
 ___
 
@@ -70,7 +70,7 @@ ___
 
 Frames per second of the result. Android only. Defaults to 24.
 
-Defined in: [packages/native-plugin-xr/src/definitions.ts:124](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/native-plugin-xr/src/definitions.ts#L124)
+Defined in: [packages/native-plugin-xr/src/definitions.ts:124](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/native-plugin-xr/src/definitions.ts#L124)
 
 ___
 
@@ -80,7 +80,7 @@ ___
 
 Height of the result
 
-Defined in: [packages/native-plugin-xr/src/definitions.ts:120](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/native-plugin-xr/src/definitions.ts#L120)
+Defined in: [packages/native-plugin-xr/src/definitions.ts:120](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/native-plugin-xr/src/definitions.ts#L120)
 
 ___
 
@@ -90,7 +90,7 @@ ___
 
 iOS only. Defaults to true
 
-Defined in: [packages/native-plugin-xr/src/definitions.ts:116](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/native-plugin-xr/src/definitions.ts#L116)
+Defined in: [packages/native-plugin-xr/src/definitions.ts:116](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/native-plugin-xr/src/definitions.ts#L116)
 
 ___
 
@@ -100,7 +100,7 @@ ___
 
 Should the video be processed with quailty or speed in mind
 
-Defined in: [packages/native-plugin-xr/src/definitions.ts:108](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/native-plugin-xr/src/definitions.ts#L108)
+Defined in: [packages/native-plugin-xr/src/definitions.ts:108](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/native-plugin-xr/src/definitions.ts#L108)
 
 ___
 
@@ -110,7 +110,7 @@ ___
 
 A string that indicates what type of field this is, home for example.
 
-Defined in: [packages/native-plugin-xr/src/definitions.ts:102](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/native-plugin-xr/src/definitions.ts#L102)
+Defined in: [packages/native-plugin-xr/src/definitions.ts:102](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/native-plugin-xr/src/definitions.ts#L102)
 
 ___
 
@@ -120,7 +120,7 @@ ___
 
 Instructions on how to encode the video.
 
-Defined in: [packages/native-plugin-xr/src/definitions.ts:106](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/native-plugin-xr/src/definitions.ts#L106)
+Defined in: [packages/native-plugin-xr/src/definitions.ts:106](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/native-plugin-xr/src/definitions.ts#L106)
 
 ___
 
@@ -136,15 +136,15 @@ Not supported in windows, progress on the transcode
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`info` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `info` | *any* |
 
 **Returns:** *void*
 
-Defined in: [packages/native-plugin-xr/src/definitions.ts:130](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/native-plugin-xr/src/definitions.ts#L130)
+Defined in: [packages/native-plugin-xr/src/definitions.ts:130](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/native-plugin-xr/src/definitions.ts#L130)
 
-Defined in: [packages/native-plugin-xr/src/definitions.ts:130](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/native-plugin-xr/src/definitions.ts#L130)
+Defined in: [packages/native-plugin-xr/src/definitions.ts:130](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/native-plugin-xr/src/definitions.ts#L130)
 
 ___
 
@@ -154,7 +154,7 @@ ___
 
 The quality of the result.
 
-Defined in: [packages/native-plugin-xr/src/definitions.ts:104](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/native-plugin-xr/src/definitions.ts#L104)
+Defined in: [packages/native-plugin-xr/src/definitions.ts:104](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/native-plugin-xr/src/definitions.ts#L104)
 
 ___
 
@@ -164,7 +164,7 @@ ___
 
 Not supported in windows, save into the device library
 
-Defined in: [packages/native-plugin-xr/src/definitions.ts:112](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/native-plugin-xr/src/definitions.ts#L112)
+Defined in: [packages/native-plugin-xr/src/definitions.ts:112](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/native-plugin-xr/src/definitions.ts#L112)
 
 ___
 
@@ -174,7 +174,7 @@ ___
 
 Bitrate in bits. Defaults to 1 megabit (1000000).
 
-Defined in: [packages/native-plugin-xr/src/definitions.ts:122](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/native-plugin-xr/src/definitions.ts#L122)
+Defined in: [packages/native-plugin-xr/src/definitions.ts:122](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/native-plugin-xr/src/definitions.ts#L122)
 
 ___
 
@@ -184,4 +184,4 @@ ___
 
 Width of the result
 
-Defined in: [packages/native-plugin-xr/src/definitions.ts:118](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/native-plugin-xr/src/definitions.ts#L118)
+Defined in: [packages/native-plugin-xr/src/definitions.ts:118](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/native-plugin-xr/src/definitions.ts#L118)

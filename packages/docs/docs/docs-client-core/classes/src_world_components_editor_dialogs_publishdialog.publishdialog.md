@@ -28,15 +28,15 @@ PublishDialog used to show the dialog when we are going to publish scene.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`props` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `props` | *any* |
 
 **Returns:** [*PublishDialog*](src_world_components_editor_dialogs_publishdialog.publishdialog.md)
 
 Overrides: Component&lt;{t: Function}&gt;.constructor
 
-Defined in: [packages/client-core/src/world/components/editor/dialogs/PublishDialog.tsx:32](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/dialogs/PublishDialog.tsx#L32)
+Defined in: [packages/client-core/src/world/components/editor/dialogs/PublishDialog.tsx:32](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/dialogs/PublishDialog.tsx#L32)
 
 ## Properties
 
@@ -138,17 +138,17 @@ Declairing propTypes for publishDialog component.
 
 #### Type declaration:
 
-Name | Type |
-:------ | :------ |
-`initialSceneParams` | *Requireable*<object\> |
-`isPublished` | *Requireable*<boolean\> |
-`onCancel` | *Requireable*<(...`args`: *any*[]) => *any*\> |
-`onPublish` | *Requireable*<(...`args`: *any*[]) => *any*\> |
-`sceneUrl` | *Requireable*<string\> |
-`screenshotUrl` | *Requireable*<string\> |
-`t` | *Requireable*<(...`args`: *any*[]) => *any*\> |
+| Name | Type |
+| :------ | :------ |
+| `initialSceneParams` | *Requireable*<object\> |
+| `isPublished` | *Requireable*<boolean\> |
+| `onCancel` | *Requireable*<(...`args`: *any*[]) => *any*\> |
+| `onPublish` | *Requireable*<(...`args`: *any*[]) => *any*\> |
+| `sceneUrl` | *Requireable*<string\> |
+| `screenshotUrl` | *Requireable*<string\> |
+| `t` | *Requireable*<(...`args`: *any*[]) => *any*\> |
 
-Defined in: [packages/client-core/src/world/components/editor/dialogs/PublishDialog.tsx:24](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/dialogs/PublishDialog.tsx#L24)
+Defined in: [packages/client-core/src/world/components/editor/dialogs/PublishDialog.tsx:24](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/dialogs/PublishDialog.tsx#L24)
 
 ## Methods
 
@@ -201,10 +201,10 @@ prevents this from being invoked.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`nextProps` | *Readonly*<{ `t`: Function  }\> |
-`nextContext` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `nextProps` | *Readonly*<{ `t`: Function  }\> |
+| `nextContext` | *any* |
 
 **Returns:** *void*
 
@@ -235,11 +235,11 @@ prevents this from being invoked.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`nextProps` | *Readonly*<{ `t`: Function  }\> |
-`nextState` | *Readonly*<{}\> |
-`nextContext` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `nextProps` | *Readonly*<{ `t`: Function  }\> |
+| `nextState` | *Readonly*<{}\> |
+| `nextContext` | *any* |
 
 **Returns:** *void*
 
@@ -258,10 +258,10 @@ the entire component tree to unmount.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`error` | Error |
-`errorInfo` | ErrorInfo |
+| Name | Type |
+| :------ | :------ |
+| `error` | Error |
+| `errorInfo` | ErrorInfo |
 
 **Returns:** *void*
 
@@ -295,11 +295,11 @@ The snapshot is only present if getSnapshotBeforeUpdate is present and returns n
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`prevProps` | *Readonly*<{ `t`: Function  }\> |
-`prevState` | *Readonly*<{}\> |
-`snapshot?` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `prevProps` | *Readonly*<{ `t`: Function  }\> |
+| `prevState` | *Readonly*<{}\> |
+| `snapshot?` | *any* |
 
 **Returns:** *void*
 
@@ -354,10 +354,10 @@ prevents this from being invoked.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`nextProps` | *Readonly*<{ `t`: Function  }\> |
-`nextContext` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `nextProps` | *Readonly*<{ `t`: Function  }\> |
+| `nextContext` | *any* |
 
 **Returns:** *void*
 
@@ -401,11 +401,11 @@ prevents this from being invoked.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`nextProps` | *Readonly*<{ `t`: Function  }\> |
-`nextState` | *Readonly*<{}\> |
-`nextContext` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `nextProps` | *Readonly*<{ `t`: Function  }\> |
+| `nextState` | *Readonly*<{}\> |
+| `nextContext` | *any* |
 
 **Returns:** *void*
 
@@ -421,9 +421,9 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`callback?` | () => *void* |
+| Name | Type |
+| :------ | :------ |
+| `callback?` | () => *void* |
 
 **Returns:** *void*
 
@@ -446,10 +446,10 @@ lifecycle events from running.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`prevProps` | *Readonly*<{ `t`: Function  }\> |
-`prevState` | *Readonly*<{}\> |
+| Name | Type |
+| :------ | :------ |
+| `prevProps` | *Readonly*<{ `t`: Function  }\> |
+| `prevState` | *Readonly*<{}\> |
 
 **Returns:** *any*
 
@@ -465,13 +465,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`name` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `name` | *any* |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/dialogs/PublishDialog.tsx:44](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/dialogs/PublishDialog.tsx#L44)
+Defined in: [packages/client-core/src/world/components/editor/dialogs/PublishDialog.tsx:44](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/dialogs/PublishDialog.tsx#L44)
 
 ___
 
@@ -481,7 +481,7 @@ ___
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/dialogs/PublishDialog.tsx:47](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/dialogs/PublishDialog.tsx#L47)
+Defined in: [packages/client-core/src/world/components/editor/dialogs/PublishDialog.tsx:47](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/dialogs/PublishDialog.tsx#L47)
 
 ___
 
@@ -493,7 +493,7 @@ ___
 
 Overrides: Component.render
 
-Defined in: [packages/client-core/src/world/components/editor/dialogs/PublishDialog.tsx:54](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/dialogs/PublishDialog.tsx#L54)
+Defined in: [packages/client-core/src/world/components/editor/dialogs/PublishDialog.tsx:54](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/dialogs/PublishDialog.tsx#L54)
 
 ___
 
@@ -503,16 +503,16 @@ ___
 
 #### Type parameters:
 
-Name | Type |
-:------ | :------ |
-`K` | *never* |
+| Name | Type |
+| :------ | :------ |
+| `K` | *never* |
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`state` | {} \| (`prevState`: *Readonly*<{}\>, `props`: *Readonly*<{ `t`: Function  }\>) => {} \| *Pick*<{}, K\> \| *Pick*<{}, K\> |
-`callback?` | () => *void* |
+| Name | Type |
+| :------ | :------ |
+| `state` | {} \| (`prevState`: *Readonly*<{}\>, `props`: *Readonly*<{ `t`: Function  }\>) => {} \| *Pick*<{}, K\> \| *Pick*<{}, K\> |
+| `callback?` | () => *void* |
 
 **Returns:** *void*
 
@@ -537,11 +537,11 @@ and `componentDidUpdate` will not be called.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`nextProps` | *Readonly*<{ `t`: Function  }\> |
-`nextState` | *Readonly*<{}\> |
-`nextContext` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `nextProps` | *Readonly*<{ `t`: Function  }\> |
+| `nextState` | *Readonly*<{}\> |
+| `nextContext` | *any* |
 
 **Returns:** *boolean*
 

@@ -22,13 +22,13 @@ hide_title: true
 
 #### Type declaration:
 
-Name | Type |
-:------ | :------ |
-`id` | *string* |
-`identityProviders` | *any*[] |
-`name` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `id` | *string* |
+| `identityProviders` | *any*[] |
+| `name` | *string* |
 
-Defined in: [interfaces/User.ts:22](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/common/src/interfaces/User.ts#L22)
+Defined in: [interfaces/User.ts:22](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/common/src/interfaces/User.ts#L22)
 
 ## Functions
 
@@ -38,10 +38,10 @@ Defined in: [interfaces/User.ts:22](https://github.com/xr3ngine/xr3ngine/blob/65
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`user` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `user` | *any* |
 
 **Returns:** [*User*](../interfaces/src_interfaces_user.user.md)
 
-Defined in: [interfaces/User.ts:28](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/common/src/interfaces/User.ts#L28)
+Defined in: [interfaces/User.ts:28](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/common/src/interfaces/User.ts#L28)

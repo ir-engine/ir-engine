@@ -16,13 +16,13 @@ hide_title: true
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`feedId` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `feedId` | *string* |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/src/socialmedia/reducers/feed/service.ts:89](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/socialmedia/reducers/feed/service.ts#L89)
+Defined in: [packages/client-core/src/socialmedia/reducers/feed/service.ts:89](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/reducers/feed/service.ts#L89)
 
 ___
 
@@ -32,13 +32,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`__namedParameters` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `__namedParameters` | *any* |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/src/socialmedia/reducers/feed/service.ts:101](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/socialmedia/reducers/feed/service.ts#L101)
+Defined in: [packages/client-core/src/socialmedia/reducers/feed/service.ts:101](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/reducers/feed/service.ts#L101)
 
 ___
 
@@ -48,13 +48,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`feedId` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `feedId` | *string* |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/src/socialmedia/reducers/feed/service.ts:76](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/socialmedia/reducers/feed/service.ts#L76)
+Defined in: [packages/client-core/src/socialmedia/reducers/feed/service.ts:76](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/reducers/feed/service.ts#L76)
 
 ___
 
@@ -64,15 +64,15 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`type` | *string* |
-`id?` | *string* |
-`limit?` | *number* |
+| Name | Type |
+| :------ | :------ |
+| `type` | *string* |
+| `id?` | *string* |
+| `limit?` | *number* |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>, `getState`: *any*) => *Promise*<any\>
 
-Defined in: [packages/client-core/src/socialmedia/reducers/feed/service.ts:22](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/socialmedia/reducers/feed/service.ts#L22)
+Defined in: [packages/client-core/src/socialmedia/reducers/feed/service.ts:22](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/reducers/feed/service.ts#L22)
 
 ___
 
@@ -82,13 +82,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`feedId` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `feedId` | *string* |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/src/socialmedia/reducers/feed/service.ts:147](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/socialmedia/reducers/feed/service.ts#L147)
+Defined in: [packages/client-core/src/socialmedia/reducers/feed/service.ts:147](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/reducers/feed/service.ts#L147)
 
 ___
 
@@ -98,13 +98,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`feedId` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `feedId` | *string* |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/src/socialmedia/reducers/feed/service.ts:159](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/socialmedia/reducers/feed/service.ts#L159)
+Defined in: [packages/client-core/src/socialmedia/reducers/feed/service.ts:159](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/reducers/feed/service.ts#L159)
 
 ___
 
@@ -114,11 +114,11 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`feedId` | *string* |
-`feed` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `feedId` | *string* |
+| `feed` | *any* |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/src/socialmedia/reducers/feed/service.ts:120](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/socialmedia/reducers/feed/service.ts#L120)
+Defined in: [packages/client-core/src/socialmedia/reducers/feed/service.ts:120](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/reducers/feed/service.ts#L120)

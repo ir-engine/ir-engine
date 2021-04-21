@@ -16,4 +16,4 @@ hide_title: true
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/admin/components/Analytics/ApiLinks.tsx:245](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/admin/components/Analytics/ApiLinks.tsx#L245)
+Defined in: [packages/client-core/src/admin/components/Analytics/ApiLinks.tsx:245](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/admin/components/Analytics/ApiLinks.tsx#L245)

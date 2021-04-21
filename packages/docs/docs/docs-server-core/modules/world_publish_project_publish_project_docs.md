@@ -16,17 +16,17 @@ hide_title: true
 
 #### Type declaration:
 
-Name | Type |
-:------ | :------ |
-`definitions` | *object* |
-`definitions.publish-project` | *object* |
-`definitions.publish-project.properties` | *object* |
-`definitions.publish-project.type` | *string* |
-`definitions.publish-project_list` | *object* |
-`definitions.publish-project_list.items` | *object* |
-`definitions.publish-project_list.items.$ref` | *string* |
-`definitions.publish-project_list.type` | *string* |
-`operations` | *object* |
-`operations.find` | *object* |
-`operations.find.security` | { `bearer`: *any*[] = [] }[] |
-`securities` | *string*[] |
+| Name | Type |
+| :------ | :------ |
+| `definitions` | *object* |
+| `definitions.publish-project` | *object* |
+| `definitions.publish-project.properties` | *object* |
+| `definitions.publish-project.type` | *string* |
+| `definitions.publish-project_list` | *object* |
+| `definitions.publish-project_list.items` | *object* |
+| `definitions.publish-project_list.items.$ref` | *string* |
+| `definitions.publish-project_list.type` | *string* |
+| `operations` | *object* |
+| `operations.find` | *object* |
+| `operations.find.security` | { `bearer`: *any*[] = [] }[] |
+| `securities` | *string*[] |

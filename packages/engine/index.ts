@@ -101,17 +101,12 @@ export * from './src/editor/functions/StaticMode';
 export * from './src/editor/functions/thumbnails';
 export * from './src/editor/functions/utils';
 export * from './src/editor/renderer/EnvironmentMap';
-<<<<<<< HEAD
-export * from './src/game/systems/GameManagerSystem';
-export * from './src/game/types/GameMode';
-=======
 export * from './src/game/components/Game';
 export * from './src/game/components/GameObject';
 export * from './src/game/interfaces/GameObjectPrefab';
 export * from './src/game/systems/GameManagerSystem';
 export * from './src/game/types/GameMode';
 export * from './src/game/types/GameObjectRole';
->>>>>>> dev
 export * from './src/game/types/GameStateAction';
 export * from './src/game/types/GameStateActionMessage';
 export * from './src/game/types/Player';

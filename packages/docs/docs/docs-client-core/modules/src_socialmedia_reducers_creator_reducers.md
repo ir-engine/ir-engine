@@ -16,18 +16,18 @@ hide_title: true
 
 #### Type declaration:
 
-Name | Type |
-:------ | :------ |
-`creators` | *object* |
-`creators.creator` | *object* |
-`creators.creators` | *any*[] |
-`creators.currentCreator` | *object* |
-`creators.currentCreatorNotifications` | *object* |
-`creators.fetching` | *boolean* |
-`creators.followers` | *any*[] |
-`creators.following` | *any*[] |
+| Name | Type |
+| :------ | :------ |
+| `creators` | *object* |
+| `creators.creator` | *object* |
+| `creators.creators` | *any*[] |
+| `creators.currentCreator` | *object* |
+| `creators.currentCreatorNotifications` | *object* |
+| `creators.fetching` | *boolean* |
+| `creators.followers` | *any*[] |
+| `creators.following` | *any*[] |
 
-Defined in: [packages/client-core/src/socialmedia/reducers/creator/reducers.ts:22](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/socialmedia/reducers/creator/reducers.ts#L22)
+Defined in: [packages/client-core/src/socialmedia/reducers/creator/reducers.ts:22](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/reducers/creator/reducers.ts#L22)
 
 ## Functions
 
@@ -37,11 +37,11 @@ Defined in: [packages/client-core/src/socialmedia/reducers/creator/reducers.ts:2
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`state` | *any* |
-`action` | [*CreatorsAction*](src_socialmedia_reducers_creator_actions.md#creatorsaction) |
+| Name | Type |
+| :------ | :------ |
+| `state` | *any* |
+| `action` | [*CreatorsAction*](src_socialmedia_reducers_creator_actions.md#creatorsaction) |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/src/socialmedia/reducers/creator/reducers.ts:36](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/socialmedia/reducers/creator/reducers.ts#L36)
+Defined in: [packages/client-core/src/socialmedia/reducers/creator/reducers.ts:36](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/reducers/creator/reducers.ts#L36)

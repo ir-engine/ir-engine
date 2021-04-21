@@ -16,10 +16,10 @@ hide_title: true
 
 #### Type declaration:
 
-Name | Type |
-:------ | :------ |
-`inventory` | *string* |
-`project` | *string* |
-`scene` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `inventory` | *string* |
+| `project` | *string* |
+| `scene` | *string* |
 
-Defined in: [packages/server-core/src/entities/collection-type/collectionType.ts:1](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/entities/collection-type/collectionType.ts#L1)
+Defined in: [packages/server-core/src/entities/collection-type/collectionType.ts:1](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/entities/collection-type/collectionType.ts#L1)

@@ -18,20 +18,20 @@ hide_title: true
 
 #### Parameters:
 
-Name | Type | Default value |
-:------ | :------ | :------ |
-`path` | *string* | - |
-`queryParams` | *Record*<string, any\> | - |
-`options` | *object* | {} |
+| Name | Type | Default value |
+| :------ | :------ | :------ |
+| `path` | *string* | - |
+| `queryParams` | *Record*<string, any\> | - |
+| `options` | *object* | {} |
 
 **Returns:** *object*
 
-Name | Type |
-:------ | :------ |
-`entries` | *unknown*[] |
-`error` | *unknown* |
-`hasMore` | *boolean* |
-`loadMore` | () => *void* |
-`loading` | *boolean* |
+| Name | Type |
+| :------ | :------ |
+| `entries` | *unknown*[] |
+| `error` | *unknown* |
+| `hasMore` | *boolean* |
+| `loadMore` | () => *void* |
+| `loading` | *boolean* |
 
-Defined in: [packages/client-core/src/world/components/editor/projects/usePaginatedSearch.tsx:13](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/projects/usePaginatedSearch.tsx#L13)
+Defined in: [packages/client-core/src/world/components/editor/projects/usePaginatedSearch.tsx:13](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/projects/usePaginatedSearch.tsx#L13)

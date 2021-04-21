@@ -16,7 +16,7 @@ hide_title: true
 
 • **authorId**: *string*
 
-Defined in: [interfaces/Feed.ts:30](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/common/src/interfaces/Feed.ts#L30)
+Defined in: [interfaces/Feed.ts:30](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/common/src/interfaces/Feed.ts#L30)
 
 ___
 
@@ -24,7 +24,7 @@ ___
 
 • **createdAt**: *string*
 
-Defined in: [interfaces/Feed.ts:28](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/common/src/interfaces/Feed.ts#L28)
+Defined in: [interfaces/Feed.ts:28](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/common/src/interfaces/Feed.ts#L28)
 
 ___
 
@@ -32,7 +32,7 @@ ___
 
 • **description**: *string*
 
-Defined in: [interfaces/Feed.ts:23](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/common/src/interfaces/Feed.ts#L23)
+Defined in: [interfaces/Feed.ts:23](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/common/src/interfaces/Feed.ts#L23)
 
 ___
 
@@ -40,7 +40,7 @@ ___
 
 • **featured**: *boolean*
 
-Defined in: [interfaces/Feed.ts:24](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/common/src/interfaces/Feed.ts#L24)
+Defined in: [interfaces/Feed.ts:24](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/common/src/interfaces/Feed.ts#L24)
 
 ___
 
@@ -48,7 +48,7 @@ ___
 
 • **id**: *string*
 
-Defined in: [interfaces/Feed.ts:21](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/common/src/interfaces/Feed.ts#L21)
+Defined in: [interfaces/Feed.ts:21](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/common/src/interfaces/Feed.ts#L21)
 
 ___
 
@@ -56,7 +56,7 @@ ___
 
 • **previewUrl**: *string*
 
-Defined in: [interfaces/Feed.ts:26](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/common/src/interfaces/Feed.ts#L26)
+Defined in: [interfaces/Feed.ts:26](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/common/src/interfaces/Feed.ts#L26)
 
 ___
 
@@ -64,7 +64,7 @@ ___
 
 • **title**: *string*
 
-Defined in: [interfaces/Feed.ts:22](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/common/src/interfaces/Feed.ts#L22)
+Defined in: [interfaces/Feed.ts:22](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/common/src/interfaces/Feed.ts#L22)
 
 ___
 
@@ -72,7 +72,7 @@ ___
 
 • **updatedAt**: *string*
 
-Defined in: [interfaces/Feed.ts:29](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/common/src/interfaces/Feed.ts#L29)
+Defined in: [interfaces/Feed.ts:29](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/common/src/interfaces/Feed.ts#L29)
 
 ___
 
@@ -80,7 +80,7 @@ ___
 
 • **videoUrl**: *string*
 
-Defined in: [interfaces/Feed.ts:25](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/common/src/interfaces/Feed.ts#L25)
+Defined in: [interfaces/Feed.ts:25](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/common/src/interfaces/Feed.ts#L25)
 
 ___
 
@@ -88,4 +88,4 @@ ___
 
 • **viewsCount**: *number*
 
-Defined in: [interfaces/Feed.ts:27](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/common/src/interfaces/Feed.ts#L27)
+Defined in: [interfaces/Feed.ts:27](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/common/src/interfaces/Feed.ts#L27)

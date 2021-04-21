@@ -16,12 +16,12 @@ hide_title: true
 
 #### Type declaration:
 
-Name | Type |
-:------ | :------ |
-`data` | CommonInteractiveData |
-`onClose` | *unknown* |
+| Name | Type |
+| :------ | :------ |
+| `data` | CommonInteractiveData |
+| `onClose` | *unknown* |
 
-Defined in: [packages/client-core/src/world/components/OpenLink/index.tsx:9](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/OpenLink/index.tsx#L9)
+Defined in: [packages/client-core/src/world/components/OpenLink/index.tsx:14](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/OpenLink/index.tsx#L14)
 
 ## Variables
 
@@ -29,4 +29,4 @@ Defined in: [packages/client-core/src/world/components/OpenLink/index.tsx:9](htt
 
 • `Const` **OpenLink**: *FunctionComponent*<[*OpenLinkProps*](src_world_components_openlink.md#openlinkprops)\>
 
-Defined in: [packages/client-core/src/world/components/OpenLink/index.tsx:14](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/OpenLink/index.tsx#L14)
+Defined in: [packages/client-core/src/world/components/OpenLink/index.tsx:19](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/OpenLink/index.tsx#L19)

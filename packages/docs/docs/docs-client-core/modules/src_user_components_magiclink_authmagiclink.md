@@ -12,4 +12,4 @@ hide_title: true
 
 ### default
 
-• **default**: *ConnectedComponent*<(`props`: *any*) => *any*, Omit<any, string \| number \| symbol\>\>
+• **default**: *ComponentClass*<Pick<RouteComponentProps<any, StaticContext, unknown\>, never\>, any\> & *WithRouterStatics*<ConnectedComponent<(`props`: *any*) => *any*, Omit<any, string \| number \| symbol\>\>\>

@@ -16,14 +16,14 @@ hide_title: true
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`userId` | *string* |
-`relatedUserId` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `userId` | *string* |
+| `relatedUserId` | *string* |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *any*
 
-Defined in: [packages/client-core/src/user/reducers/user/service.ts:105](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/user/reducers/user/service.ts#L105)
+Defined in: [packages/client-core/src/user/reducers/user/service.ts:105](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/user/reducers/user/service.ts#L105)
 
 ___
 
@@ -33,14 +33,14 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`userId` | *string* |
-`relatedUserId` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `userId` | *string* |
+| `relatedUserId` | *string* |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *any*
 
-Defined in: [packages/client-core/src/user/reducers/user/service.ts:101](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/user/reducers/user/service.ts#L101)
+Defined in: [packages/client-core/src/user/reducers/user/service.ts:101](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/user/reducers/user/service.ts#L101)
 
 ___
 
@@ -50,14 +50,14 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`userId` | *string* |
-`relatedUserId` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `userId` | *string* |
+| `relatedUserId` | *string* |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *any*
 
-Defined in: [packages/client-core/src/user/reducers/user/service.ts:113](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/user/reducers/user/service.ts#L113)
+Defined in: [packages/client-core/src/user/reducers/user/service.ts:113](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/user/reducers/user/service.ts#L113)
 
 ___
 
@@ -67,14 +67,14 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`userId` | *string* |
-`relatedUserId` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `userId` | *string* |
+| `relatedUserId` | *string* |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *any*
 
-Defined in: [packages/client-core/src/user/reducers/user/service.ts:109](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/user/reducers/user/service.ts#L109)
+Defined in: [packages/client-core/src/user/reducers/user/service.ts:109](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/user/reducers/user/service.ts#L109)
 
 ___
 
@@ -84,13 +84,13 @@ ___
 
 #### Parameters:
 
-Name | Type | Default value |
-:------ | :------ | :------ |
-`instance` | *boolean* | true |
+| Name | Type | Default value |
+| :------ | :------ | :------ |
+| `instance` | *boolean* | true |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/src/user/reducers/user/service.ts:46](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/user/reducers/user/service.ts#L46)
+Defined in: [packages/client-core/src/user/reducers/user/service.ts:46](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/user/reducers/user/service.ts#L46)
 
 ___
 
@@ -100,13 +100,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`userId` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `userId` | *string* |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *any*
 
-Defined in: [packages/client-core/src/user/reducers/user/service.ts:14](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/user/reducers/user/service.ts#L14)
+Defined in: [packages/client-core/src/user/reducers/user/service.ts:14](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/user/reducers/user/service.ts#L14)
 
 ___
 
@@ -116,14 +116,14 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`userId` | *string* |
-`search` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `userId` | *string* |
+| `search` | *string* |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *any*
 
-Defined in: [packages/client-core/src/user/reducers/user/service.ts:29](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/user/reducers/user/service.ts#L29)
+Defined in: [packages/client-core/src/user/reducers/user/service.ts:29](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/user/reducers/user/service.ts#L29)
 
 ___
 
@@ -133,14 +133,14 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`userId` | *string* |
-`relatedUserId` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `userId` | *string* |
+| `relatedUserId` | *string* |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *any*
 
-Defined in: [packages/client-core/src/user/reducers/user/service.ts:97](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/user/reducers/user/service.ts#L97)
+Defined in: [packages/client-core/src/user/reducers/user/service.ts:97](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/user/reducers/user/service.ts#L97)
 
 ___
 
@@ -150,11 +150,11 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`user` | User |
-`args` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `user` | User |
+| `args` | *string* |
 
 **Returns:** [*UserToastAction*](../interfaces/src_user_reducers_user_actions.usertoastaction.md)
 
-Defined in: [packages/client-core/src/user/reducers/user/service.ts:117](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/user/reducers/user/service.ts#L117)
+Defined in: [packages/client-core/src/user/reducers/user/service.ts:117](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/user/reducers/user/service.ts#L117)

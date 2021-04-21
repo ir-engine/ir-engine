@@ -14,7 +14,7 @@ hide_title: true
 
 • `Const` **initialDeviceDetectState**: [*DeviceDetectState*](../interfaces/src_common_reducers_devicedetect_actions.devicedetectstate.md)
 
-Defined in: [packages/client-core/src/common/reducers/devicedetect/reducers.tsx:5](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/common/reducers/devicedetect/reducers.tsx#L5)
+Defined in: [packages/client-core/src/common/reducers/devicedetect/reducers.tsx:5](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/common/reducers/devicedetect/reducers.tsx#L5)
 
 ## Functions
 
@@ -24,11 +24,11 @@ Defined in: [packages/client-core/src/common/reducers/devicedetect/reducers.tsx:
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`state` | *any* |
-`action` | [*DeviceDetectAction*](../interfaces/src_common_reducers_devicedetect_actions.devicedetectaction.md) |
+| Name | Type |
+| :------ | :------ |
+| `state` | *any* |
+| `action` | [*DeviceDetectAction*](../interfaces/src_common_reducers_devicedetect_actions.devicedetectaction.md) |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/src/common/reducers/devicedetect/reducers.tsx:12](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/common/reducers/devicedetect/reducers.tsx#L12)
+Defined in: [packages/client-core/src/common/reducers/devicedetect/reducers.tsx:12](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/common/reducers/devicedetect/reducers.tsx#L12)

@@ -16,13 +16,13 @@ hide_title: true
 
 #### Type declaration:
 
-Name | Type |
-:------ | :------ |
-`definitions` | *object* |
-`definitions.comments-fires` | *object* |
-`definitions.comments-fires.properties` | *object* |
-`definitions.comments-fires.type` | *string* |
-`definitions.comments-fires_list` | *object* |
-`definitions.comments-fires_list.items` | *object* |
-`definitions.comments-fires_list.items.$ref` | *string* |
-`definitions.comments-fires_list.type` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `definitions` | *object* |
+| `definitions.comments-fires` | *object* |
+| `definitions.comments-fires.properties` | *object* |
+| `definitions.comments-fires.type` | *string* |
+| `definitions.comments-fires_list` | *object* |
+| `definitions.comments-fires_list.items` | *object* |
+| `definitions.comments-fires_list.items.$ref` | *string* |
+| `definitions.comments-fires_list.type` | *string* |

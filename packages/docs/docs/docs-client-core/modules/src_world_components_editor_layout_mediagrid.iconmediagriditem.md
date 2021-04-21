@@ -18,7 +18,7 @@ hide_title: true
 
 #### Type declaration:
 
-Name | Type |
-:------ | :------ |
-`iconComponent` | *Requireable*<object\> |
-`label` | *Requireable*<string\> |
+| Name | Type |
+| :------ | :------ |
+| `iconComponent` | *Requireable*<object\> |
+| `label` | *Requireable*<string\> |

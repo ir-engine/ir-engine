@@ -18,17 +18,17 @@ hide_title: true
 
 ### setRuntime
 
-▸ `Const`**setRuntime**(`runtime`: *any*): *void*
+▸ `Const`**setRuntime**(`runtime`: *string*): *void*
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`runtime` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `runtime` | *string* |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/helper.ts:46](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/helper.ts#L46)
+Defined in: [packages/client-core/src/helper.ts:45](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/helper.ts#L45)
 
 ___
 
@@ -38,13 +38,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`email` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `email` | *string* |
 
 **Returns:** *boolean*
 
-Defined in: [packages/client-core/src/helper.ts:1](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/helper.ts#L1)
+Defined in: [packages/client-core/src/helper.ts:1](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/helper.ts#L1)
 
 ___
 
@@ -54,10 +54,10 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`phone` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `phone` | *string* |
 
 **Returns:** *boolean*
 
-Defined in: [packages/client-core/src/helper.ts:3](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/helper.ts#L3)
+Defined in: [packages/client-core/src/helper.ts:3](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/helper.ts#L3)

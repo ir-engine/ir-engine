@@ -16,13 +16,13 @@ hide_title: true
 
 #### Type declaration:
 
-Name | Type |
-:------ | :------ |
-`definitions` | *object* |
-`definitions.subscription-confirm` | *object* |
-`definitions.subscription-confirm.properties` | *object* |
-`definitions.subscription-confirm.type` | *string* |
-`definitions.subscription-confirm_list` | *object* |
-`definitions.subscription-confirm_list.items` | *object* |
-`definitions.subscription-confirm_list.items.$ref` | *string* |
-`definitions.subscription-confirm_list.type` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `definitions` | *object* |
+| `definitions.subscription-confirm` | *object* |
+| `definitions.subscription-confirm.properties` | *object* |
+| `definitions.subscription-confirm.type` | *string* |
+| `definitions.subscription-confirm_list` | *object* |
+| `definitions.subscription-confirm_list.items` | *object* |
+| `definitions.subscription-confirm_list.items.$ref` | *string* |
+| `definitions.subscription-confirm_list.type` | *string* |

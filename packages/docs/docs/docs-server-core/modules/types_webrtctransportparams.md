@@ -16,12 +16,12 @@ hide_title: true
 
 #### Type declaration:
 
-Name | Type |
-:------ | :------ |
-`channelId`? | *string* |
-`channelType` | *string* |
-`direction` | *recv* \| *send* |
-`peerId`? | *string* |
-`sctpCapabilities` | SctpCapabilities |
+| Name | Type |
+| :------ | :------ |
+| `channelId?` | *string* |
+| `channelType` | *string* |
+| `direction` | ``"recv"`` \| ``"send"`` |
+| `peerId?` | *string* |
+| `sctpCapabilities` | SctpCapabilities |
 
-Defined in: [packages/server-core/src/types/WebRtcTransportParams.ts:18](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/types/WebRtcTransportParams.ts#L18)
+Defined in: [packages/server-core/src/types/WebRtcTransportParams.ts:18](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/types/WebRtcTransportParams.ts#L18)

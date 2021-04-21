@@ -29,9 +29,9 @@ Used with LightNodeEditors.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`props` | LightShadowPropertiesProps \| *Readonly*<LightShadowPropertiesProps\> |
+| Name | Type |
+| :------ | :------ |
+| `props` | LightShadowPropertiesProps \| *Readonly*<LightShadowPropertiesProps\> |
 
 **Returns:** [*LightShadowProperties*](src_world_components_editor_properties_lightshadowproperties.lightshadowproperties.md)
 
@@ -50,10 +50,10 @@ Defined in: node_modules/@types/react/index.d.ts:469
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`props` | LightShadowPropertiesProps |
-`context` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `props` | LightShadowPropertiesProps |
+| `context` | *any* |
 
 **Returns:** [*LightShadowProperties*](src_world_components_editor_properties_lightshadowproperties.lightshadowproperties.md)
 
@@ -203,10 +203,10 @@ prevents this from being invoked.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`nextProps` | *Readonly*<LightShadowPropertiesProps\> |
-`nextContext` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `nextProps` | *Readonly*<LightShadowPropertiesProps\> |
+| `nextContext` | *any* |
 
 **Returns:** *void*
 
@@ -237,11 +237,11 @@ prevents this from being invoked.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`nextProps` | *Readonly*<LightShadowPropertiesProps\> |
-`nextState` | *Readonly*<{}\> |
-`nextContext` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `nextProps` | *Readonly*<LightShadowPropertiesProps\> |
+| `nextState` | *Readonly*<{}\> |
+| `nextContext` | *any* |
 
 **Returns:** *void*
 
@@ -260,10 +260,10 @@ the entire component tree to unmount.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`error` | Error |
-`errorInfo` | ErrorInfo |
+| Name | Type |
+| :------ | :------ |
+| `error` | Error |
+| `errorInfo` | ErrorInfo |
 
 **Returns:** *void*
 
@@ -297,11 +297,11 @@ The snapshot is only present if getSnapshotBeforeUpdate is present and returns n
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`prevProps` | *Readonly*<LightShadowPropertiesProps\> |
-`prevState` | *Readonly*<{}\> |
-`snapshot?` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `prevProps` | *Readonly*<LightShadowPropertiesProps\> |
+| `prevState` | *Readonly*<{}\> |
+| `snapshot?` | *any* |
 
 **Returns:** *void*
 
@@ -356,10 +356,10 @@ prevents this from being invoked.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`nextProps` | *Readonly*<LightShadowPropertiesProps\> |
-`nextContext` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `nextProps` | *Readonly*<LightShadowPropertiesProps\> |
+| `nextContext` | *any* |
 
 **Returns:** *void*
 
@@ -403,11 +403,11 @@ prevents this from being invoked.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`nextProps` | *Readonly*<LightShadowPropertiesProps\> |
-`nextState` | *Readonly*<{}\> |
-`nextContext` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `nextProps` | *Readonly*<LightShadowPropertiesProps\> |
+| `nextState` | *Readonly*<{}\> |
+| `nextContext` | *any* |
 
 **Returns:** *void*
 
@@ -423,9 +423,9 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`callback?` | () => *void* |
+| Name | Type |
+| :------ | :------ |
+| `callback?` | () => *void* |
 
 **Returns:** *void*
 
@@ -448,10 +448,10 @@ lifecycle events from running.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`prevProps` | *Readonly*<LightShadowPropertiesProps\> |
-`prevState` | *Readonly*<{}\> |
+| Name | Type |
+| :------ | :------ |
+| `prevProps` | *Readonly*<LightShadowPropertiesProps\> |
+| `prevState` | *Readonly*<{}\> |
 
 **Returns:** *any*
 
@@ -467,13 +467,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`castShadow` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `castShadow` | *any* |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/LightShadowProperties.tsx:66](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/properties/LightShadowProperties.tsx#L66)
+Defined in: [packages/client-core/src/world/components/editor/properties/LightShadowProperties.tsx:66](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/LightShadowProperties.tsx#L66)
 
 ___
 
@@ -483,13 +483,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`shadowBias` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `shadowBias` | *any* |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/LightShadowProperties.tsx:71](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/properties/LightShadowProperties.tsx#L71)
+Defined in: [packages/client-core/src/world/components/editor/properties/LightShadowProperties.tsx:71](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/LightShadowProperties.tsx#L71)
 
 ___
 
@@ -499,13 +499,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`shadowMapResolution` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `shadowMapResolution` | *any* |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/LightShadowProperties.tsx:58](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/properties/LightShadowProperties.tsx#L58)
+Defined in: [packages/client-core/src/world/components/editor/properties/LightShadowProperties.tsx:58](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/LightShadowProperties.tsx#L58)
 
 ___
 
@@ -515,13 +515,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`shadowRadius` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `shadowRadius` | *any* |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/LightShadowProperties.tsx:76](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/properties/LightShadowProperties.tsx#L76)
+Defined in: [packages/client-core/src/world/components/editor/properties/LightShadowProperties.tsx:76](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/LightShadowProperties.tsx#L76)
 
 ___
 
@@ -533,7 +533,7 @@ ___
 
 Overrides: Component.render
 
-Defined in: [packages/client-core/src/world/components/editor/properties/LightShadowProperties.tsx:81](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/properties/LightShadowProperties.tsx#L81)
+Defined in: [packages/client-core/src/world/components/editor/properties/LightShadowProperties.tsx:81](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/LightShadowProperties.tsx#L81)
 
 ___
 
@@ -543,16 +543,16 @@ ___
 
 #### Type parameters:
 
-Name | Type |
-:------ | :------ |
-`K` | *never* |
+| Name | Type |
+| :------ | :------ |
+| `K` | *never* |
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`state` | {} \| (`prevState`: *Readonly*<{}\>, `props`: *Readonly*<LightShadowPropertiesProps\>) => {} \| *Pick*<{}, K\> \| *Pick*<{}, K\> |
-`callback?` | () => *void* |
+| Name | Type |
+| :------ | :------ |
+| `state` | {} \| (`prevState`: *Readonly*<{}\>, `props`: *Readonly*<LightShadowPropertiesProps\>) => {} \| *Pick*<{}, K\> \| *Pick*<{}, K\> |
+| `callback?` | () => *void* |
 
 **Returns:** *void*
 
@@ -577,11 +577,11 @@ and `componentDidUpdate` will not be called.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`nextProps` | *Readonly*<LightShadowPropertiesProps\> |
-`nextState` | *Readonly*<{}\> |
-`nextContext` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `nextProps` | *Readonly*<LightShadowPropertiesProps\> |
+| `nextState` | *Readonly*<{}\> |
+| `nextContext` | *any* |
 
 **Returns:** *boolean*
 

@@ -12,70 +12,70 @@ hide_title: true
 
 ### Button
 
-• `Const` **Button**: *StyledComponent*<*button*, any, { `type`: *button* \| *submit* \| *reset*  }, *type*\>
+• `Const` **Button**: *StyledComponent*<``"button"``, any, { `type`: ``"button"`` \| ``"submit"`` \| ``"reset"``  }, ``"type"``\>
 
 Button used to provide styles to button input.
 
 **`author`** Robert Long
 
-Defined in: [packages/client-core/src/world/components/editor/inputs/Button.tsx:10](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/inputs/Button.tsx#L10)
+Defined in: [packages/client-core/src/world/components/editor/inputs/Button.tsx:10](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/inputs/Button.tsx#L10)
 
 ___
 
 ### LargeButton
 
-• `Const` **LargeButton**: *StyledComponent*<*button*, any, { `type`: *button* \| *submit* \| *reset*  }, *type*\>
+• `Const` **LargeButton**: *StyledComponent*<``"button"``, any, { `type`: ``"button"`` \| ``"submit"`` \| ``"reset"``  }, ``"type"``\>
 
 LargeButton used to create large size button.
 
 **`author`** Robert Long
 
-Defined in: [packages/client-core/src/world/components/editor/inputs/Button.tsx:67](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/inputs/Button.tsx#L67)
+Defined in: [packages/client-core/src/world/components/editor/inputs/Button.tsx:67](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/inputs/Button.tsx#L67)
 
 ___
 
 ### MediumButton
 
-• `Const` **MediumButton**: *StyledComponent*<*button*, any, { `type`: *button* \| *submit* \| *reset*  }, *type*\>
+• `Const` **MediumButton**: *StyledComponent*<``"button"``, any, { `type`: ``"button"`` \| ``"submit"`` \| ``"reset"``  }, ``"type"``\>
 
 MediumButton used to create medium size button.
 
 **`author`** Robert Long
 
-Defined in: [packages/client-core/src/world/components/editor/inputs/Button.tsx:55](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/inputs/Button.tsx#L55)
+Defined in: [packages/client-core/src/world/components/editor/inputs/Button.tsx:55](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/inputs/Button.tsx#L55)
 
 ___
 
 ### MenuButton
 
-• `Const` **MenuButton**: *StyledComponent*<*button*, any, { `type`: *button* \| *submit* \| *reset*  }, *type*\>
+• `Const` **MenuButton**: *StyledComponent*<``"button"``, any, { `type`: ``"button"`` \| ``"submit"`` \| ``"reset"``  }, ``"type"``\>
 
 MenuButton used to show menus like context menus.
 
 **`author`** Robert Long
 
-Defined in: [packages/client-core/src/world/components/editor/inputs/Button.tsx:107](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/inputs/Button.tsx#L107)
+Defined in: [packages/client-core/src/world/components/editor/inputs/Button.tsx:107](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/inputs/Button.tsx#L107)
 
 ___
 
 ### PropertiesPanelButton
 
-• `Const` **PropertiesPanelButton**: *StyledComponent*<*button*, any, { `type`: *button* \| *submit* \| *reset*  }, *type*\>
+• `Const` **PropertiesPanelButton**: *StyledComponent*<``"button"``, any, { `type`: ``"button"`` \| ``"submit"`` \| ``"reset"``  }, ``"type"``\>
 
 PropertiesPanelButton used in property penal like in ScenePreviewCamera nodes we using it as set from viewport.
 
 **`author`** Robert Long
 
-Defined in: [packages/client-core/src/world/components/editor/inputs/Button.tsx:136](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/inputs/Button.tsx#L136)
+Defined in: [packages/client-core/src/world/components/editor/inputs/Button.tsx:136](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/inputs/Button.tsx#L136)
 
 ___
 
 ### SecondaryButton
 
-• `Const` **SecondaryButton**: *StyledComponent*<*button*, any, { `type`: *button* \| *submit* \| *reset*  }, *type*\>
+• `Const` **SecondaryButton**: *StyledComponent*<``"button"``, any, { `type`: ``"button"`` \| ``"submit"`` \| ``"reset"``  }, ``"type"``\>
 
 SecondaryButton is the button used for performing secondary action like cancel.
 
 **`author`** Robert Long
 
-Defined in: [packages/client-core/src/world/components/editor/inputs/Button.tsx:79](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/inputs/Button.tsx#L79)
+Defined in: [packages/client-core/src/world/components/editor/inputs/Button.tsx:79](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/inputs/Button.tsx#L79)

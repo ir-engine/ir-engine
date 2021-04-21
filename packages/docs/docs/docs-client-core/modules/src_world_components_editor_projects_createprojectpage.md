@@ -12,18 +12,4 @@ hide_title: true
 
 ### default
 
-• **default**: (`props`: *any*) => *Element*
-
-#### Type declaration:
-
-▸ (`props`: *any*): *Element*
-
-#### Parameters:
-
-Name | Type |
-:------ | :------ |
-`props` | *any* |
-
-**Returns:** *Element*
-
-Defined in: [packages/client-core/src/world/components/editor/contexts/ApiContext.tsx:19](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/contexts/ApiContext.tsx#L19)
+• **default**: *ComponentClass*<Pick<any, string \| number \| symbol\>, any\> & *WithRouterStatics*<(`props`: *any*) => *Element*\>

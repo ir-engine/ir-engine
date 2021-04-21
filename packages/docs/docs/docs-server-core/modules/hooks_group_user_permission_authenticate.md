@@ -20,4 +20,4 @@ hide_title: true
 
 **Returns:** (`context`: *HookContext*<any, Service<any\>\>) => *Promise*<any\>
 
-Defined in: [packages/server-core/src/hooks/group-user-permission-authenticate.ts:4](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/hooks/group-user-permission-authenticate.ts#L4)
+Defined in: [packages/server-core/src/hooks/group-user-permission-authenticate.ts:4](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/hooks/group-user-permission-authenticate.ts#L4)

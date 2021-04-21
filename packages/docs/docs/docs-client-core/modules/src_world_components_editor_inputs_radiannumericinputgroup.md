@@ -30,10 +30,10 @@ Renames and exports: [RadianNumericInputGroup](src_world_components_editor_input
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`__namedParameters` | *Object* |
+| Name | Type |
+| :------ | :------ |
+| `__namedParameters` | *Object* |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/inputs/RadianNumericInputGroup.tsx:19](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/inputs/RadianNumericInputGroup.tsx#L19)
+Defined in: [packages/client-core/src/world/components/editor/inputs/RadianNumericInputGroup.tsx:19](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/inputs/RadianNumericInputGroup.tsx#L19)

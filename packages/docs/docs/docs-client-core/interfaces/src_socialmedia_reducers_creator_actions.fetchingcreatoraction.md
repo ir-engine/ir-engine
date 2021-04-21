@@ -16,4 +16,4 @@ hide_title: true
 
 • **type**: *string*
 
-Defined in: [packages/client-core/src/socialmedia/reducers/creator/actions.ts:24](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/socialmedia/reducers/creator/actions.ts#L24)
+Defined in: [packages/client-core/src/socialmedia/reducers/creator/actions.ts:24](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/reducers/creator/actions.ts#L24)

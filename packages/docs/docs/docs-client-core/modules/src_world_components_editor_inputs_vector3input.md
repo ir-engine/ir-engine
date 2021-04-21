@@ -26,7 +26,7 @@ Renames and exports: [Vector3Input](../classes/src_world_components_editor_input
 
 • `Const` **Vector3InputContainer**: *any*
 
-Defined in: [packages/client-core/src/world/components/editor/inputs/Vector3Input.tsx:12](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/inputs/Vector3Input.tsx#L12)
+Defined in: [packages/client-core/src/world/components/editor/inputs/Vector3Input.tsx:12](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/inputs/Vector3Input.tsx#L12)
 
 ___
 
@@ -34,4 +34,4 @@ ___
 
 • `Const` **Vector3Scrubber**: *any*
 
-Defined in: [packages/client-core/src/world/components/editor/inputs/Vector3Input.tsx:20](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/inputs/Vector3Input.tsx#L20)
+Defined in: [packages/client-core/src/world/components/editor/inputs/Vector3Input.tsx:20](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/inputs/Vector3Input.tsx#L20)

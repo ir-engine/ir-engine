@@ -24,7 +24,7 @@ Renames and exports: [Error](src_pages__error.md#error)
 
 ### Error
 
-• `Const` **Error**: (`\_\_namedParameters`: { `statusCode?`: *number*  }) => *any*
+• `Const` **Error**: (`__namedParameters`: { `statusCode?`: *number*  }) => *any*
 
 #### Type declaration:
 
@@ -32,17 +32,17 @@ Renames and exports: [Error](src_pages__error.md#error)
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`__namedParameters` | *object* |
-`__namedParameters.statusCode?` | *number* |
+| Name | Type |
+| :------ | :------ |
+| `__namedParameters` | *object* |
+| `__namedParameters.statusCode?` | *number* |
 
 **Returns:** *any*
 
-Defined in: [packages/client/src/pages/_error.tsx:5](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client/src/pages/_error.tsx#L5)
+Defined in: [packages/client/src/pages/_error.tsx:4](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client/src/pages/_error.tsx#L4)
 
-Name | Type |
-:------ | :------ |
-`getInitialProps` | (`\_\_namedParameters`: *Object*) => { `statusCode`: *any*  } |
+| Name | Type |
+| :------ | :------ |
+| `getInitialProps` | (`__namedParameters`: *Object*) => { `statusCode`: *any*  } |
 
-Defined in: [packages/client/src/pages/_error.tsx:5](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client/src/pages/_error.tsx#L5)
+Defined in: [packages/client/src/pages/_error.tsx:4](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client/src/pages/_error.tsx#L4)

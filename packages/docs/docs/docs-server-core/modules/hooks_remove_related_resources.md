@@ -20,4 +20,4 @@ hide_title: true
 
 **Returns:** *Hook*<any, Service<any\>\>
 
-Defined in: [packages/server-core/src/hooks/remove-related-resources.ts:26](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/hooks/remove-related-resources.ts#L26)
+Defined in: [packages/server-core/src/hooks/remove-related-resources.ts:26](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/hooks/remove-related-resources.ts#L26)

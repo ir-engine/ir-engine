@@ -16,7 +16,7 @@ hide_title: true
 
 #### Type declaration:
 
-Name | Type |
-:------ | :------ |
-`auth` | (`state`: *any*, `action`: *any*) => *any* |
-`user` | (`state`: *any*, `action`: [*UserAction*](src_user_reducers_user_actions.md#useraction)) => *any* |
+| Name | Type |
+| :------ | :------ |
+| `auth` | (`state`: *any*, `action`: *any*) => *any* |
+| `user` | (`state`: *any*, `action`: [*UserAction*](src_user_reducers_user_actions.md#useraction)) => *any* |

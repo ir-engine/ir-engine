@@ -8,8 +8,12 @@ hide_title: true
 
 # Module: src/pages/\_app
 
-## Properties
+## Functions
 
 ### default
 
-• **default**: *FunctionComponent*<WrapperProps\> & { `getInitialProps?`: (`context`: *NextPageContext*<any, AnyAction\>) => WrapperProps \| *Promise*<WrapperProps\>  }
+▸ `Const`**default**(): *Element*
+
+**Returns:** *Element*
+
+Defined in: [packages/client/src/pages/_app.tsx:80](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client/src/pages/_app.tsx#L80)

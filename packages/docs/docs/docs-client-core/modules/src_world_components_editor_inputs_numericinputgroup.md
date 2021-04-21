@@ -30,10 +30,10 @@ Renames and exports: [NumericInputGroup](src_world_components_editor_inputs_nume
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`__namedParameters` | *Object* |
+| Name | Type |
+| :------ | :------ |
+| `__namedParameters` | *Object* |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/inputs/NumericInputGroup.tsx:16](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/inputs/NumericInputGroup.tsx#L16)
+Defined in: [packages/client-core/src/world/components/editor/inputs/NumericInputGroup.tsx:16](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/inputs/NumericInputGroup.tsx#L16)

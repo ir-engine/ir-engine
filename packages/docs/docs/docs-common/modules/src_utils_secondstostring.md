@@ -16,10 +16,10 @@ hide_title: true
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`seconds` | *number* |
+| Name | Type |
+| :------ | :------ |
+| `seconds` | *number* |
 
 **Returns:** *string*
 
-Defined in: [utils/secondsToString.ts:3](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/common/src/utils/secondsToString.ts#L3)
+Defined in: [utils/secondsToString.ts:3](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/common/src/utils/secondsToString.ts#L3)

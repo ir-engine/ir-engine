@@ -28,9 +28,9 @@ SkyboxNodeEditor component class used to render editor view to customize compone
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`props` | SkyboxNodeEditorProps \| *Readonly*<SkyboxNodeEditorProps\> |
+| Name | Type |
+| :------ | :------ |
+| `props` | SkyboxNodeEditorProps \| *Readonly*<SkyboxNodeEditorProps\> |
 
 **Returns:** [*SkyboxNodeEditor*](src_world_components_editor_properties_skyboxnodeeditor.skyboxnodeeditor.md)
 
@@ -49,10 +49,10 @@ Defined in: node_modules/@types/react/index.d.ts:469
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`props` | SkyboxNodeEditorProps |
-`context` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `props` | SkyboxNodeEditorProps |
+| `context` | *any* |
 
 **Returns:** [*SkyboxNodeEditor*](src_world_components_editor_properties_skyboxnodeeditor.skyboxnodeeditor.md)
 
@@ -157,7 +157,7 @@ ___
 
 ▪ `Static` **description**: *string*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/SkyboxNodeEditor.tsx:63](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/properties/SkyboxNodeEditor.tsx#L63)
+Defined in: [packages/client-core/src/world/components/editor/properties/SkyboxNodeEditor.tsx:63](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/SkyboxNodeEditor.tsx#L63)
 
 ___
 
@@ -165,7 +165,7 @@ ___
 
 ▪ `Static` **iconComponent**: StyledIcon
 
-Defined in: [packages/client-core/src/world/components/editor/properties/SkyboxNodeEditor.tsx:62](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/properties/SkyboxNodeEditor.tsx#L62)
+Defined in: [packages/client-core/src/world/components/editor/properties/SkyboxNodeEditor.tsx:62](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/SkyboxNodeEditor.tsx#L62)
 
 ## Methods
 
@@ -218,10 +218,10 @@ prevents this from being invoked.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`nextProps` | *Readonly*<SkyboxNodeEditorProps\> |
-`nextContext` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `nextProps` | *Readonly*<SkyboxNodeEditorProps\> |
+| `nextContext` | *any* |
 
 **Returns:** *void*
 
@@ -252,11 +252,11 @@ prevents this from being invoked.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`nextProps` | *Readonly*<SkyboxNodeEditorProps\> |
-`nextState` | *Readonly*<{}\> |
-`nextContext` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `nextProps` | *Readonly*<SkyboxNodeEditorProps\> |
+| `nextState` | *Readonly*<{}\> |
+| `nextContext` | *any* |
 
 **Returns:** *void*
 
@@ -275,10 +275,10 @@ the entire component tree to unmount.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`error` | Error |
-`errorInfo` | ErrorInfo |
+| Name | Type |
+| :------ | :------ |
+| `error` | Error |
+| `errorInfo` | ErrorInfo |
 
 **Returns:** *void*
 
@@ -312,11 +312,11 @@ The snapshot is only present if getSnapshotBeforeUpdate is present and returns n
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`prevProps` | *Readonly*<SkyboxNodeEditorProps\> |
-`prevState` | *Readonly*<{}\> |
-`snapshot?` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `prevProps` | *Readonly*<SkyboxNodeEditorProps\> |
+| `prevState` | *Readonly*<{}\> |
+| `snapshot?` | *any* |
 
 **Returns:** *void*
 
@@ -371,10 +371,10 @@ prevents this from being invoked.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`nextProps` | *Readonly*<SkyboxNodeEditorProps\> |
-`nextContext` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `nextProps` | *Readonly*<SkyboxNodeEditorProps\> |
+| `nextContext` | *any* |
 
 **Returns:** *void*
 
@@ -418,11 +418,11 @@ prevents this from being invoked.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`nextProps` | *Readonly*<SkyboxNodeEditorProps\> |
-`nextState` | *Readonly*<{}\> |
-`nextContext` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `nextProps` | *Readonly*<SkyboxNodeEditorProps\> |
+| `nextState` | *Readonly*<{}\> |
+| `nextContext` | *any* |
 
 **Returns:** *void*
 
@@ -438,9 +438,9 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`callback?` | () => *void* |
+| Name | Type |
+| :------ | :------ |
+| `callback?` | () => *void* |
 
 **Returns:** *void*
 
@@ -463,10 +463,10 @@ lifecycle events from running.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`prevProps` | *Readonly*<SkyboxNodeEditorProps\> |
-`prevState` | *Readonly*<{}\> |
+| Name | Type |
+| :------ | :------ |
+| `prevProps` | *Readonly*<SkyboxNodeEditorProps\> |
+| `prevState` | *Readonly*<{}\> |
 
 **Returns:** *any*
 
@@ -482,13 +482,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`azimuth` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `azimuth` | *any* |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/SkyboxNodeEditor.tsx:96](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/properties/SkyboxNodeEditor.tsx#L96)
+Defined in: [packages/client-core/src/world/components/editor/properties/SkyboxNodeEditor.tsx:96](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/SkyboxNodeEditor.tsx#L96)
 
 ___
 
@@ -498,13 +498,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`distance` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `distance` | *any* |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/SkyboxNodeEditor.tsx:101](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/properties/SkyboxNodeEditor.tsx#L101)
+Defined in: [packages/client-core/src/world/components/editor/properties/SkyboxNodeEditor.tsx:101](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/SkyboxNodeEditor.tsx#L101)
 
 ___
 
@@ -514,13 +514,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`inclination` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `inclination` | *any* |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/SkyboxNodeEditor.tsx:91](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/properties/SkyboxNodeEditor.tsx#L91)
+Defined in: [packages/client-core/src/world/components/editor/properties/SkyboxNodeEditor.tsx:91](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/SkyboxNodeEditor.tsx#L91)
 
 ___
 
@@ -530,13 +530,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`luminance` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `luminance` | *any* |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/SkyboxNodeEditor.tsx:76](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/properties/SkyboxNodeEditor.tsx#L76)
+Defined in: [packages/client-core/src/world/components/editor/properties/SkyboxNodeEditor.tsx:76](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/SkyboxNodeEditor.tsx#L76)
 
 ___
 
@@ -546,13 +546,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`mieCoefficient` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `mieCoefficient` | *any* |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/SkyboxNodeEditor.tsx:81](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/properties/SkyboxNodeEditor.tsx#L81)
+Defined in: [packages/client-core/src/world/components/editor/properties/SkyboxNodeEditor.tsx:81](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/SkyboxNodeEditor.tsx#L81)
 
 ___
 
@@ -562,13 +562,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`mieDirectionalG` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `mieDirectionalG` | *any* |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/SkyboxNodeEditor.tsx:86](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/properties/SkyboxNodeEditor.tsx#L86)
+Defined in: [packages/client-core/src/world/components/editor/properties/SkyboxNodeEditor.tsx:86](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/SkyboxNodeEditor.tsx#L86)
 
 ___
 
@@ -578,13 +578,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`rayleigh` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `rayleigh` | *any* |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/SkyboxNodeEditor.tsx:71](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/properties/SkyboxNodeEditor.tsx#L71)
+Defined in: [packages/client-core/src/world/components/editor/properties/SkyboxNodeEditor.tsx:71](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/SkyboxNodeEditor.tsx#L71)
 
 ___
 
@@ -594,13 +594,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`skyOptionValue` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `skyOptionValue` | *any* |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/SkyboxNodeEditor.tsx:106](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/properties/SkyboxNodeEditor.tsx#L106)
+Defined in: [packages/client-core/src/world/components/editor/properties/SkyboxNodeEditor.tsx:106](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/SkyboxNodeEditor.tsx#L106)
 
 ___
 
@@ -610,13 +610,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`textureOptionValue` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `textureOptionValue` | *any* |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/SkyboxNodeEditor.tsx:116](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/properties/SkyboxNodeEditor.tsx#L116)
+Defined in: [packages/client-core/src/world/components/editor/properties/SkyboxNodeEditor.tsx:116](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/SkyboxNodeEditor.tsx#L116)
 
 ___
 
@@ -626,13 +626,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`turbidity` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `turbidity` | *any* |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/SkyboxNodeEditor.tsx:66](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/properties/SkyboxNodeEditor.tsx#L66)
+Defined in: [packages/client-core/src/world/components/editor/properties/SkyboxNodeEditor.tsx:66](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/SkyboxNodeEditor.tsx#L66)
 
 ___
 
@@ -644,7 +644,7 @@ ___
 
 Overrides: Component.render
 
-Defined in: [packages/client-core/src/world/components/editor/properties/SkyboxNodeEditor.tsx:280](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/properties/SkyboxNodeEditor.tsx#L280)
+Defined in: [packages/client-core/src/world/components/editor/properties/SkyboxNodeEditor.tsx:280](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/SkyboxNodeEditor.tsx#L280)
 
 ___
 
@@ -654,13 +654,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`node` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `node` | *any* |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/SkyboxNodeEditor.tsx:251](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/properties/SkyboxNodeEditor.tsx#L251)
+Defined in: [packages/client-core/src/world/components/editor/properties/SkyboxNodeEditor.tsx:251](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/SkyboxNodeEditor.tsx#L251)
 
 ___
 
@@ -670,13 +670,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`node` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `node` | *any* |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/SkyboxNodeEditor.tsx:234](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/properties/SkyboxNodeEditor.tsx#L234)
+Defined in: [packages/client-core/src/world/components/editor/properties/SkyboxNodeEditor.tsx:234](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/SkyboxNodeEditor.tsx#L234)
 
 ___
 
@@ -686,13 +686,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`node` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `node` | *any* |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/SkyboxNodeEditor.tsx:268](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/properties/SkyboxNodeEditor.tsx#L268)
+Defined in: [packages/client-core/src/world/components/editor/properties/SkyboxNodeEditor.tsx:268](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/SkyboxNodeEditor.tsx#L268)
 
 ___
 
@@ -702,13 +702,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`node` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `node` | *any* |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/SkyboxNodeEditor.tsx:139](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/properties/SkyboxNodeEditor.tsx#L139)
+Defined in: [packages/client-core/src/world/components/editor/properties/SkyboxNodeEditor.tsx:139](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/SkyboxNodeEditor.tsx#L139)
 
 ___
 
@@ -718,13 +718,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`skyOptionValue` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `skyOptionValue` | *any* |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/SkyboxNodeEditor.tsx:124](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/properties/SkyboxNodeEditor.tsx#L124)
+Defined in: [packages/client-core/src/world/components/editor/properties/SkyboxNodeEditor.tsx:124](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/SkyboxNodeEditor.tsx#L124)
 
 ___
 
@@ -734,16 +734,16 @@ ___
 
 #### Type parameters:
 
-Name | Type |
-:------ | :------ |
-`K` | *never* |
+| Name | Type |
+| :------ | :------ |
+| `K` | *never* |
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`state` | {} \| (`prevState`: *Readonly*<{}\>, `props`: *Readonly*<SkyboxNodeEditorProps\>) => {} \| *Pick*<{}, K\> \| *Pick*<{}, K\> |
-`callback?` | () => *void* |
+| Name | Type |
+| :------ | :------ |
+| `state` | {} \| (`prevState`: *Readonly*<{}\>, `props`: *Readonly*<SkyboxNodeEditorProps\>) => {} \| *Pick*<{}, K\> \| *Pick*<{}, K\> |
+| `callback?` | () => *void* |
 
 **Returns:** *void*
 
@@ -768,11 +768,11 @@ and `componentDidUpdate` will not be called.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`nextProps` | *Readonly*<SkyboxNodeEditorProps\> |
-`nextState` | *Readonly*<{}\> |
-`nextContext` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `nextProps` | *Readonly*<SkyboxNodeEditorProps\> |
+| `nextState` | *Readonly*<{}\> |
+| `nextContext` | *any* |
 
 **Returns:** *boolean*
 

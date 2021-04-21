@@ -16,10 +16,10 @@ hide_title: true
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`__namedParameters` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `__namedParameters` | *any* |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/socialmedia/components/FeedItemPhotos.tsx:4](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/socialmedia/components/FeedItemPhotos.tsx#L4)
+Defined in: [packages/client-core/src/socialmedia/components/FeedItemPhotos.tsx:4](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/components/FeedItemPhotos.tsx#L4)

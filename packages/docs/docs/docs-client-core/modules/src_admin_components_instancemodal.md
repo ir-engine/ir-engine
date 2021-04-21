@@ -12,4 +12,4 @@ hide_title: true
 
 ### default
 
-• **default**: *ComponentType*<ExcludeRouterProps<Omit<Props, never\>\>\>
+• **default**: *ConnectedComponent*<(`props`: Props) => *any*, Omit<Props, never\>\>

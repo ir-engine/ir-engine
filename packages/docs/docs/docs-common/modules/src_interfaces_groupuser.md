@@ -16,10 +16,10 @@ hide_title: true
 
 #### Type declaration:
 
-Name | Type |
-:------ | :------ |
-`groupUserRank` | *string* |
-`id` | *string* |
-`user` | [*User*](../interfaces/src_interfaces_user.user.md) |
+| Name | Type |
+| :------ | :------ |
+| `groupUserRank` | *string* |
+| `id` | *string* |
+| `user` | [*User*](../interfaces/src_interfaces_user.user.md) |
 
-Defined in: [interfaces/GroupUser.ts:3](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/common/src/interfaces/GroupUser.ts#L3)
+Defined in: [interfaces/GroupUser.ts:3](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/common/src/interfaces/GroupUser.ts#L3)

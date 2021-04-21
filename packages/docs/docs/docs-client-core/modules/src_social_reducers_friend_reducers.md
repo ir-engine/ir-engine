@@ -16,17 +16,17 @@ hide_title: true
 
 #### Type declaration:
 
-Name | Type |
-:------ | :------ |
-`friends` | *object* |
-`friends.friends` | *any*[] |
-`friends.limit` | *number* |
-`friends.skip` | *number* |
-`friends.total` | *number* |
-`getFriendsInProgress` | *boolean* |
-`updateNeeded` | *boolean* |
+| Name | Type |
+| :------ | :------ |
+| `friends` | *object* |
+| `friends.friends` | *any*[] |
+| `friends.limit` | *number* |
+| `friends.skip` | *number* |
+| `friends.total` | *number* |
+| `getFriendsInProgress` | *boolean* |
+| `updateNeeded` | *boolean* |
 
-Defined in: [packages/client-core/src/social/reducers/friend/reducers.ts:20](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/social/reducers/friend/reducers.ts#L20)
+Defined in: [packages/client-core/src/social/reducers/friend/reducers.ts:20](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/social/reducers/friend/reducers.ts#L20)
 
 ## Functions
 
@@ -36,11 +36,11 @@ Defined in: [packages/client-core/src/social/reducers/friend/reducers.ts:20](htt
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`state` | *any* |
-`action` | [*FriendAction*](src_social_reducers_friend_actions.md#friendaction) |
+| Name | Type |
+| :------ | :------ |
+| `state` | *any* |
+| `action` | [*FriendAction*](src_social_reducers_friend_actions.md#friendaction) |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/src/social/reducers/friend/reducers.ts:33](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/social/reducers/friend/reducers.ts#L33)
+Defined in: [packages/client-core/src/social/reducers/friend/reducers.ts:33](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/social/reducers/friend/reducers.ts#L33)

@@ -42,7 +42,7 @@ BaseSource Parent class for all source classes.
 
 Overrides: EventEmitter.constructor
 
-Defined in: [packages/client-core/src/world/components/editor/assets/sources/index.tsx:15](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/assets/sources/index.tsx#L15)
+Defined in: [packages/client-core/src/world/components/editor/assets/sources/index.tsx:15](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/assets/sources/index.tsx#L15)
 
 ## Properties
 
@@ -50,7 +50,7 @@ Defined in: [packages/client-core/src/world/components/editor/assets/sources/ind
 
 • **assetPanelComponent**: *any*
 
-Defined in: [packages/client-core/src/world/components/editor/assets/sources/index.tsx:12](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/assets/sources/index.tsx#L12)
+Defined in: [packages/client-core/src/world/components/editor/assets/sources/index.tsx:12](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/assets/sources/index.tsx#L12)
 
 ___
 
@@ -58,7 +58,7 @@ ___
 
 • **iconComponent**: *any*
 
-Defined in: [packages/client-core/src/world/components/editor/assets/sources/index.tsx:11](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/assets/sources/index.tsx#L11)
+Defined in: [packages/client-core/src/world/components/editor/assets/sources/index.tsx:11](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/assets/sources/index.tsx#L11)
 
 ___
 
@@ -66,7 +66,7 @@ ___
 
 • **id**: *string*
 
-Defined in: [packages/client-core/src/world/components/editor/assets/sources/index.tsx:9](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/assets/sources/index.tsx#L9)
+Defined in: [packages/client-core/src/world/components/editor/assets/sources/index.tsx:9](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/assets/sources/index.tsx#L9)
 
 ___
 
@@ -74,7 +74,7 @@ ___
 
 • **name**: *string*
 
-Defined in: [packages/client-core/src/world/components/editor/assets/sources/index.tsx:10](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/assets/sources/index.tsx#L10)
+Defined in: [packages/client-core/src/world/components/editor/assets/sources/index.tsx:10](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/assets/sources/index.tsx#L10)
 
 ___
 
@@ -82,7 +82,7 @@ ___
 
 • **requiresAuthentication**: *boolean*
 
-Defined in: [packages/client-core/src/world/components/editor/assets/sources/index.tsx:13](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/assets/sources/index.tsx#L13)
+Defined in: [packages/client-core/src/world/components/editor/assets/sources/index.tsx:13](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/assets/sources/index.tsx#L13)
 
 ___
 
@@ -90,7 +90,7 @@ ___
 
 • **searchDebounceTimeout**: *number*
 
-Defined in: [packages/client-core/src/world/components/editor/assets/sources/index.tsx:15](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/assets/sources/index.tsx#L15)
+Defined in: [packages/client-core/src/world/components/editor/assets/sources/index.tsx:15](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/assets/sources/index.tsx#L15)
 
 ___
 
@@ -98,7 +98,7 @@ ___
 
 • **uploadSource**: *boolean*
 
-Defined in: [packages/client-core/src/world/components/editor/assets/sources/index.tsx:14](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/assets/sources/index.tsx#L14)
+Defined in: [packages/client-core/src/world/components/editor/assets/sources/index.tsx:14](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/assets/sources/index.tsx#L14)
 
 ___
 
@@ -118,17 +118,17 @@ Defined in: node_modules/eventemitter3/index.d.ts:9
 
 #### Type parameters:
 
-Name | Type |
-:------ | :------ |
-`T` | *string* \| *symbol* |
+| Name | Type |
+| :------ | :------ |
+| `T` | *string* \| *symbol* |
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`event` | T |
-`fn` | (...`args`: *any*[]) => *void* |
-`context?` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `event` | T |
+| `fn` | (...`args`: *any*[]) => *void* |
+| `context?` | *any* |
 
 **Returns:** [*BaseSource*](src_world_components_editor_assets_sources.basesource.md)
 
@@ -146,16 +146,16 @@ Calls each of the listeners registered for a given event.
 
 #### Type parameters:
 
-Name | Type |
-:------ | :------ |
-`T` | *string* \| *symbol* |
+| Name | Type |
+| :------ | :------ |
+| `T` | *string* \| *symbol* |
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`event` | T |
-`...args` | *any*[] |
+| Name | Type |
+| :------ | :------ |
+| `event` | T |
+| `...args` | *any*[] |
 
 **Returns:** *boolean*
 
@@ -188,9 +188,9 @@ Return the number of listeners listening to a given event.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`event` | *string* \| *symbol* |
+| Name | Type |
+| :------ | :------ |
+| `event` | *string* \| *symbol* |
 
 **Returns:** *number*
 
@@ -208,15 +208,15 @@ Return the listeners registered for a given event.
 
 #### Type parameters:
 
-Name | Type |
-:------ | :------ |
-`T` | *string* \| *symbol* |
+| Name | Type |
+| :------ | :------ |
+| `T` | *string* \| *symbol* |
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`event` | T |
+| Name | Type |
+| :------ | :------ |
+| `event` | T |
 
 **Returns:** (...`args`: *any*[]) => *void*[]
 
@@ -232,18 +232,18 @@ ___
 
 #### Type parameters:
 
-Name | Type |
-:------ | :------ |
-`T` | *string* \| *symbol* |
+| Name | Type |
+| :------ | :------ |
+| `T` | *string* \| *symbol* |
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`event` | T |
-`fn?` | (...`args`: *any*[]) => *void* |
-`context?` | *any* |
-`once?` | *boolean* |
+| Name | Type |
+| :------ | :------ |
+| `event` | T |
+| `fn?` | (...`args`: *any*[]) => *void* |
+| `context?` | *any* |
+| `once?` | *boolean* |
 
 **Returns:** [*BaseSource*](src_world_components_editor_assets_sources.basesource.md)
 
@@ -261,17 +261,17 @@ Add a listener for a given event.
 
 #### Type parameters:
 
-Name | Type |
-:------ | :------ |
-`T` | *string* \| *symbol* |
+| Name | Type |
+| :------ | :------ |
+| `T` | *string* \| *symbol* |
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`event` | T |
-`fn` | (...`args`: *any*[]) => *void* |
-`context?` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `event` | T |
+| `fn` | (...`args`: *any*[]) => *void* |
+| `context?` | *any* |
 
 **Returns:** [*BaseSource*](src_world_components_editor_assets_sources.basesource.md)
 
@@ -289,17 +289,17 @@ Add a one-time listener for a given event.
 
 #### Type parameters:
 
-Name | Type |
-:------ | :------ |
-`T` | *string* \| *symbol* |
+| Name | Type |
+| :------ | :------ |
+| `T` | *string* \| *symbol* |
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`event` | T |
-`fn` | (...`args`: *any*[]) => *void* |
-`context?` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `event` | T |
+| `fn` | (...`args`: *any*[]) => *void* |
+| `context?` | *any* |
 
 **Returns:** [*BaseSource*](src_world_components_editor_assets_sources.basesource.md)
 
@@ -317,9 +317,9 @@ Remove all listeners, or those of the specified event.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`event?` | *string* \| *symbol* |
+| Name | Type |
+| :------ | :------ |
+| `event?` | *string* \| *symbol* |
 
 **Returns:** [*BaseSource*](src_world_components_editor_assets_sources.basesource.md)
 
@@ -337,18 +337,18 @@ Remove the listeners of a given event.
 
 #### Type parameters:
 
-Name | Type |
-:------ | :------ |
-`T` | *string* \| *symbol* |
+| Name | Type |
+| :------ | :------ |
+| `T` | *string* \| *symbol* |
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`event` | T |
-`fn?` | (...`args`: *any*[]) => *void* |
-`context?` | *any* |
-`once?` | *boolean* |
+| Name | Type |
+| :------ | :------ |
+| `event` | T |
+| `fn?` | (...`args`: *any*[]) => *void* |
+| `context?` | *any* |
+| `once?` | *boolean* |
 
 **Returns:** [*BaseSource*](src_world_components_editor_assets_sources.basesource.md)
 
@@ -364,12 +364,12 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`_params` | *any* |
-`_cursor?` | *any* |
-`_abortSignal?` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `_params` | *any* |
+| `_cursor?` | *any* |
+| `_abortSignal?` | *any* |
 
 **Returns:** *Promise*<{ `hasMore`: *boolean* = false; `nextCursor`: *number* = 0; `results`: *any*[] = []; `suggestions`: *any*[] = [] }\>
 
-Defined in: [packages/client-core/src/world/components/editor/assets/sources/index.tsx:26](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/assets/sources/index.tsx#L26)
+Defined in: [packages/client-core/src/world/components/editor/assets/sources/index.tsx:26](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/assets/sources/index.tsx#L26)

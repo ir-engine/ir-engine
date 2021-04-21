@@ -16,10 +16,10 @@ hide_title: true
 
 #### Type declaration:
 
-Name | Type |
-:------ | :------ |
-`component` | *typeof* [*Dialog*](src_world_components_editor_dialogs_dialog.md#dialog) |
-`title` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `component` | *typeof* [*Dialog*](src_world_components_editor_dialogs_dialog.md#dialog) |
+| `title` | *string* |
 
 ## Functions
 
@@ -33,4 +33,4 @@ dialog used to render dialog view.
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/dialogs/Dialog.stories.tsx:19](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/dialogs/Dialog.stories.tsx#L19)
+Defined in: [packages/client-core/src/world/components/editor/dialogs/Dialog.stories.tsx:19](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/dialogs/Dialog.stories.tsx#L19)

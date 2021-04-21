@@ -16,11 +16,11 @@ hide_title: true
 
 #### Type declaration:
 
-Name | Type |
-:------ | :------ |
-`definitions` | *object* |
-`definitions.email` | *object* |
-`definitions.email.properties` | *object* |
-`definitions.email.properties.email` | *object* |
-`definitions.email.properties.email.type` | *string* |
-`definitions.email.type` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `definitions` | *object* |
+| `definitions.email` | *object* |
+| `definitions.email.properties` | *object* |
+| `definitions.email.properties.email` | *object* |
+| `definitions.email.properties.email.type` | *string* |
+| `definitions.email.type` | *string* |

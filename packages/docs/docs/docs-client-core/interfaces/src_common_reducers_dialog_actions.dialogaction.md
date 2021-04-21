@@ -16,7 +16,7 @@ hide_title: true
 
 • **content**: *any*
 
-Defined in: [packages/client-core/src/common/reducers/dialog/actions.ts:12](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/common/reducers/dialog/actions.ts#L12)
+Defined in: [packages/client-core/src/common/reducers/dialog/actions.ts:12](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/common/reducers/dialog/actions.ts#L12)
 
 ___
 
@@ -24,4 +24,4 @@ ___
 
 • **type**: *string*
 
-Defined in: [packages/client-core/src/common/reducers/dialog/actions.ts:11](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/common/reducers/dialog/actions.ts#L11)
+Defined in: [packages/client-core/src/common/reducers/dialog/actions.ts:11](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/common/reducers/dialog/actions.ts#L11)

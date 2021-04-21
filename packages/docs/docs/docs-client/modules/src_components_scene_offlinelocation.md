@@ -16,10 +16,10 @@ hide_title: true
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`props` | Props |
+| Name | Type |
+| :------ | :------ |
+| `props` | Props |
 
 **Returns:** *Element*
 
-Defined in: [packages/client/src/components/Scene/offlineLocation.tsx:24](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client/src/components/Scene/offlineLocation.tsx#L24)
+Defined in: [packages/client/src/components/Scene/offlineLocation.tsx:23](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client/src/components/Scene/offlineLocation.tsx#L23)

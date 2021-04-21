@@ -32,10 +32,10 @@ SaveNewProjectDialog used to show dialog when to save new project.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`__namedParameters` | *Object* |
+| Name | Type |
+| :------ | :------ |
+| `__namedParameters` | *Object* |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/dialogs/SaveNewProjectDialog.tsx:18](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/dialogs/SaveNewProjectDialog.tsx#L18)
+Defined in: [packages/client-core/src/world/components/editor/dialogs/SaveNewProjectDialog.tsx:18](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/dialogs/SaveNewProjectDialog.tsx#L18)

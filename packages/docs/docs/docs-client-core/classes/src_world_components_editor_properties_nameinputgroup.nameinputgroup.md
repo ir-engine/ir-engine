@@ -28,15 +28,15 @@ NameInputGroup is used to render input group PropertiesPanelContainer.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`props` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `props` | *any* |
 
 **Returns:** [*NameInputGroup*](src_world_components_editor_properties_nameinputgroup.nameinputgroup.md)
 
 Overrides: Component&lt;Types&gt;.constructor
 
-Defined in: [packages/client-core/src/world/components/editor/properties/NameInputGroup.tsx:39](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/properties/NameInputGroup.tsx#L39)
+Defined in: [packages/client-core/src/world/components/editor/properties/NameInputGroup.tsx:39](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/NameInputGroup.tsx#L39)
 
 ## Properties
 
@@ -134,12 +134,12 @@ ___
 
 #### Type declaration:
 
-Name | Type |
-:------ | :------ |
-`editor` | *Validator*<object\> |
-`node` | *Validator*<object\> |
+| Name | Type |
+| :------ | :------ |
+| `editor` | *Validator*<object\> |
+| `node` | *Validator*<object\> |
 
-Defined in: [packages/client-core/src/world/components/editor/properties/NameInputGroup.tsx:36](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/properties/NameInputGroup.tsx#L36)
+Defined in: [packages/client-core/src/world/components/editor/properties/NameInputGroup.tsx:36](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/NameInputGroup.tsx#L36)
 
 ## Methods
 
@@ -192,10 +192,10 @@ prevents this from being invoked.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`nextProps` | *Readonly*<Types\> |
-`nextContext` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `nextProps` | *Readonly*<Types\> |
+| `nextContext` | *any* |
 
 **Returns:** *void*
 
@@ -226,11 +226,11 @@ prevents this from being invoked.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`nextProps` | *Readonly*<Types\> |
-`nextState` | *Readonly*<{}\> |
-`nextContext` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `nextProps` | *Readonly*<Types\> |
+| `nextState` | *Readonly*<{}\> |
+| `nextContext` | *any* |
 
 **Returns:** *void*
 
@@ -249,10 +249,10 @@ the entire component tree to unmount.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`error` | Error |
-`errorInfo` | ErrorInfo |
+| Name | Type |
+| :------ | :------ |
+| `error` | Error |
+| `errorInfo` | ErrorInfo |
 
 **Returns:** *void*
 
@@ -286,11 +286,11 @@ The snapshot is only present if getSnapshotBeforeUpdate is present and returns n
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`prevProps` | *Readonly*<Types\> |
-`prevState` | *Readonly*<{}\> |
-`snapshot?` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `prevProps` | *Readonly*<Types\> |
+| `prevState` | *Readonly*<{}\> |
+| `snapshot?` | *any* |
 
 **Returns:** *void*
 
@@ -345,10 +345,10 @@ prevents this from being invoked.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`nextProps` | *Readonly*<Types\> |
-`nextContext` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `nextProps` | *Readonly*<Types\> |
+| `nextContext` | *any* |
 
 **Returns:** *void*
 
@@ -392,11 +392,11 @@ prevents this from being invoked.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`nextProps` | *Readonly*<Types\> |
-`nextState` | *Readonly*<{}\> |
-`nextContext` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `nextProps` | *Readonly*<Types\> |
+| `nextState` | *Readonly*<{}\> |
+| `nextContext` | *any* |
 
 **Returns:** *void*
 
@@ -412,9 +412,9 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`callback?` | () => *void* |
+| Name | Type |
+| :------ | :------ |
+| `callback?` | () => *void* |
 
 **Returns:** *void*
 
@@ -437,10 +437,10 @@ lifecycle events from running.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`prevProps` | *Readonly*<Types\> |
-`prevState` | *Readonly*<{}\> |
+| Name | Type |
+| :------ | :------ |
+| `prevProps` | *Readonly*<Types\> |
+| `prevState` | *Readonly*<{}\> |
 
 **Returns:** *any*
 
@@ -456,7 +456,7 @@ ___
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/NameInputGroup.tsx:66](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/properties/NameInputGroup.tsx#L66)
+Defined in: [packages/client-core/src/world/components/editor/properties/NameInputGroup.tsx:66](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/NameInputGroup.tsx#L66)
 
 ___
 
@@ -466,7 +466,7 @@ ___
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/NameInputGroup.tsx:58](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/properties/NameInputGroup.tsx#L58)
+Defined in: [packages/client-core/src/world/components/editor/properties/NameInputGroup.tsx:58](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/NameInputGroup.tsx#L58)
 
 ___
 
@@ -476,13 +476,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`e` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `e` | *any* |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/NameInputGroup.tsx:77](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/properties/NameInputGroup.tsx#L77)
+Defined in: [packages/client-core/src/world/components/editor/properties/NameInputGroup.tsx:77](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/NameInputGroup.tsx#L77)
 
 ___
 
@@ -492,13 +492,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`name` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `name` | *any* |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/NameInputGroup.tsx:52](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/properties/NameInputGroup.tsx#L52)
+Defined in: [packages/client-core/src/world/components/editor/properties/NameInputGroup.tsx:52](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/NameInputGroup.tsx#L52)
 
 ___
 
@@ -510,7 +510,7 @@ ___
 
 Overrides: Component.render
 
-Defined in: [packages/client-core/src/world/components/editor/properties/NameInputGroup.tsx:85](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/properties/NameInputGroup.tsx#L85)
+Defined in: [packages/client-core/src/world/components/editor/properties/NameInputGroup.tsx:85](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/NameInputGroup.tsx#L85)
 
 ___
 
@@ -520,16 +520,16 @@ ___
 
 #### Type parameters:
 
-Name | Type |
-:------ | :------ |
-`K` | *never* |
+| Name | Type |
+| :------ | :------ |
+| `K` | *never* |
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`state` | {} \| (`prevState`: *Readonly*<{}\>, `props`: *Readonly*<Types\>) => {} \| *Pick*<{}, K\> \| *Pick*<{}, K\> |
-`callback?` | () => *void* |
+| Name | Type |
+| :------ | :------ |
+| `state` | {} \| (`prevState`: *Readonly*<{}\>, `props`: *Readonly*<Types\>) => {} \| *Pick*<{}, K\> \| *Pick*<{}, K\> |
+| `callback?` | () => *void* |
 
 **Returns:** *void*
 
@@ -554,11 +554,11 @@ and `componentDidUpdate` will not be called.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`nextProps` | *Readonly*<Types\> |
-`nextState` | *Readonly*<{}\> |
-`nextContext` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `nextProps` | *Readonly*<Types\> |
+| `nextState` | *Readonly*<{}\> |
+| `nextContext` | *any* |
 
 **Returns:** *boolean*
 

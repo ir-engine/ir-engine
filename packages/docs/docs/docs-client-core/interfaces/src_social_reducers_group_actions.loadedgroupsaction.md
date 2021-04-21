@@ -16,7 +16,7 @@ hide_title: true
 
 • **groups**: Group[]
 
-Defined in: [packages/client-core/src/social/reducers/group/actions.ts:9](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/social/reducers/group/actions.ts#L9)
+Defined in: [packages/client-core/src/social/reducers/group/actions.ts:9](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/social/reducers/group/actions.ts#L9)
 
 ___
 
@@ -24,7 +24,7 @@ ___
 
 • **limit**: *number*
 
-Defined in: [packages/client-core/src/social/reducers/group/actions.ts:11](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/social/reducers/group/actions.ts#L11)
+Defined in: [packages/client-core/src/social/reducers/group/actions.ts:11](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/social/reducers/group/actions.ts#L11)
 
 ___
 
@@ -32,7 +32,7 @@ ___
 
 • **skip**: *number*
 
-Defined in: [packages/client-core/src/social/reducers/group/actions.ts:12](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/social/reducers/group/actions.ts#L12)
+Defined in: [packages/client-core/src/social/reducers/group/actions.ts:12](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/social/reducers/group/actions.ts#L12)
 
 ___
 
@@ -40,7 +40,7 @@ ___
 
 • **total**: *number*
 
-Defined in: [packages/client-core/src/social/reducers/group/actions.ts:10](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/social/reducers/group/actions.ts#L10)
+Defined in: [packages/client-core/src/social/reducers/group/actions.ts:10](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/social/reducers/group/actions.ts#L10)
 
 ___
 
@@ -48,4 +48,4 @@ ___
 
 • **type**: *string*
 
-Defined in: [packages/client-core/src/social/reducers/group/actions.ts:8](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/social/reducers/group/actions.ts#L8)
+Defined in: [packages/client-core/src/social/reducers/group/actions.ts:8](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/social/reducers/group/actions.ts#L8)

@@ -16,20 +16,20 @@ hide_title: true
 
 #### Type declaration:
 
-Name | Type |
-:------ | :------ |
-`definitions` | *object* |
-`definitions.group-user-rank` | *object* |
-`definitions.group-user-rank.properties` | *object* |
-`definitions.group-user-rank.properties.rank` | *object* |
-`definitions.group-user-rank.properties.rank.type` | *string* |
-`definitions.group-user-rank.required` | *string*[] |
-`definitions.group-user-rank.type` | *string* |
-`definitions.group-user-rank_list` | *object* |
-`definitions.group-user-rank_list.items` | *object* |
-`definitions.group-user-rank_list.items.$ref` | *string* |
-`definitions.group-user-rank_list.type` | *string* |
-`operations` | *object* |
-`operations.find` | *object* |
-`operations.find.security` | { `bearer`: *any*[] = [] }[] |
-`securities` | *string*[] |
+| Name | Type |
+| :------ | :------ |
+| `definitions` | *object* |
+| `definitions.group-user-rank` | *object* |
+| `definitions.group-user-rank.properties` | *object* |
+| `definitions.group-user-rank.properties.rank` | *object* |
+| `definitions.group-user-rank.properties.rank.type` | *string* |
+| `definitions.group-user-rank.required` | *string*[] |
+| `definitions.group-user-rank.type` | *string* |
+| `definitions.group-user-rank_list` | *object* |
+| `definitions.group-user-rank_list.items` | *object* |
+| `definitions.group-user-rank_list.items.$ref` | *string* |
+| `definitions.group-user-rank_list.type` | *string* |
+| `operations` | *object* |
+| `operations.find` | *object* |
+| `operations.find.security` | { `bearer`: *any*[] = [] }[] |
+| `securities` | *string*[] |

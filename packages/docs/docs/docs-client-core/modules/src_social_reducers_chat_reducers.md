@@ -16,23 +16,23 @@ hide_title: true
 
 #### Type declaration:
 
-Name | Type |
-:------ | :------ |
-`channels` | *object* |
-`channels.channels` | *object* |
-`channels.limit` | *number* |
-`channels.skip` | *number* |
-`channels.total` | *number* |
-`channels.updateNeeded` | *boolean* |
-`instanceChannelFetched` | *boolean* |
-`instanceChannelFetching` | *boolean* |
-`messageScrollInit` | *boolean* |
-`targetChannelId` | *string* |
-`targetObject` | *object* |
-`targetObjectType` | *string* |
-`updateMessageScroll` | *boolean* |
+| Name | Type |
+| :------ | :------ |
+| `channels` | *object* |
+| `channels.channels` | *object* |
+| `channels.limit` | *number* |
+| `channels.skip` | *number* |
+| `channels.total` | *number* |
+| `channels.updateNeeded` | *boolean* |
+| `instanceChannelFetched` | *boolean* |
+| `instanceChannelFetching` | *boolean* |
+| `messageScrollInit` | *boolean* |
+| `targetChannelId` | *string* |
+| `targetObject` | *object* |
+| `targetObjectType` | *string* |
+| `updateMessageScroll` | *boolean* |
 
-Defined in: [packages/client-core/src/social/reducers/chat/reducers.ts:36](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/social/reducers/chat/reducers.ts#L36)
+Defined in: [packages/client-core/src/social/reducers/chat/reducers.ts:36](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/social/reducers/chat/reducers.ts#L36)
 
 ## Functions
 
@@ -42,11 +42,11 @@ Defined in: [packages/client-core/src/social/reducers/chat/reducers.ts:36](https
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`state` | *any* |
-`action` | [*ChatAction*](src_social_reducers_chat_actions.md#chataction) |
+| Name | Type |
+| :------ | :------ |
+| `state` | *any* |
+| `action` | [*ChatAction*](src_social_reducers_chat_actions.md#chataction) |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/src/social/reducers/chat/reducers.ts:55](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/social/reducers/chat/reducers.ts#L55)
+Defined in: [packages/client-core/src/social/reducers/chat/reducers.ts:55](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/social/reducers/chat/reducers.ts#L55)

@@ -16,11 +16,11 @@ hide_title: true
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`phone` | *string* |
-`text` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `phone` | *string* |
+| `text` | *string* |
 
 **Returns:** *Promise*<void\>
 
-Defined in: [packages/server-core/src/user/sms/awssns.ts:4](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/user/sms/awssns.ts#L4)
+Defined in: [packages/server-core/src/user/sms/awssns.ts:4](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/user/sms/awssns.ts#L4)

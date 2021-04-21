@@ -18,4 +18,4 @@ hide_title: true
 
 ### default
 
-• **default**: *ComponentType*<*Omit*<*Pick*<Subtract<Types, WithTranslationProps\>, never\> & *Pick*<InferProps<{ `editor`: *Validator*<object\> ; `node`: *Validator*<object\>  }\>, *editor* \| *node*\>, keyof *WithTranslation*<N\>\> & WithTranslationProps\>
+• **default**: *ComponentType*<*Omit*<*Pick*<Subtract<Types, WithTranslationProps\>, never\> & *Pick*<InferProps<{ `editor`: *Validator*<object\> ; `node`: *Validator*<object\>  }\>, ``"editor"`` \| ``"node"``\>, keyof *WithTranslation*<N\>\> & WithTranslationProps\>

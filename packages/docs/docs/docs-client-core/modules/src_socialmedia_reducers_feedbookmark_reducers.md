@@ -16,13 +16,13 @@ hide_title: true
 
 #### Type declaration:
 
-Name | Type |
-:------ | :------ |
-`feedFires` | *object* |
-`feedFires.feedFires` | *any*[] |
-`feedFires.fetching` | *boolean* |
+| Name | Type |
+| :------ | :------ |
+| `feedFires` | *object* |
+| `feedFires.feedFires` | *any*[] |
+| `feedFires.fetching` | *boolean* |
 
-Defined in: [packages/client-core/src/socialmedia/reducers/feedBookmark/reducers.ts:16](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/socialmedia/reducers/feedBookmark/reducers.ts#L16)
+Defined in: [packages/client-core/src/socialmedia/reducers/feedBookmark/reducers.ts:16](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/reducers/feedBookmark/reducers.ts#L16)
 
 ## Functions
 
@@ -32,11 +32,11 @@ Defined in: [packages/client-core/src/socialmedia/reducers/feedBookmark/reducers
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`state` | *any* |
-`action` | [*FeedFiresAction*](src_socialmedia_reducers_feedfires_actions.md#feedfiresaction) |
+| Name | Type |
+| :------ | :------ |
+| `state` | *any* |
+| `action` | [*FeedFiresAction*](src_socialmedia_reducers_feedfires_actions.md#feedfiresaction) |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/src/socialmedia/reducers/feedBookmark/reducers.ts:25](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/socialmedia/reducers/feedBookmark/reducers.ts#L25)
+Defined in: [packages/client-core/src/socialmedia/reducers/feedBookmark/reducers.ts:25](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/reducers/feedBookmark/reducers.ts#L25)

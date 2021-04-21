@@ -16,15 +16,15 @@ hide_title: true
 
 #### Type declaration:
 
-Name | Type |
-:------ | :------ |
-`definitions` | *object* |
-`definitions.invite-type` | *object* |
-`definitions.invite-type.properties` | *object* |
-`definitions.invite-type.properties.type` | *object* |
-`definitions.invite-type.properties.type.type` | *string* |
-`definitions.invite-type.type` | *string* |
-`definitions.invite-type_list` | *object* |
-`definitions.invite-type_list.items` | *object* |
-`definitions.invite-type_list.items.$ref` | *string* |
-`definitions.invite-type_list.type` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `definitions` | *object* |
+| `definitions.invite-type` | *object* |
+| `definitions.invite-type.properties` | *object* |
+| `definitions.invite-type.properties.type` | *object* |
+| `definitions.invite-type.properties.type.type` | *string* |
+| `definitions.invite-type.type` | *string* |
+| `definitions.invite-type_list` | *object* |
+| `definitions.invite-type_list.items` | *object* |
+| `definitions.invite-type_list.items.$ref` | *string* |
+| `definitions.invite-type_list.type` | *string* |

@@ -22,4 +22,4 @@ Renames and exports: [HomePage](src_pages.md#homepage)
 
 **Returns:** *any*
 
-Defined in: [packages/client/src/pages/index.tsx:8](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client/src/pages/index.tsx#L8)
+Defined in: [packages/client/src/pages/index.tsx:8](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client/src/pages/index.tsx#L8)

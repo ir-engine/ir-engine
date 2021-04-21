@@ -16,10 +16,10 @@ hide_title: true
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`app` | Application |
+| Name | Type |
+| :------ | :------ |
+| `app` | Application |
 
 **Returns:** *typeof* Model
 
-Defined in: [packages/server-core/src/socialmedia/comments/comments.model.ts:8](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/socialmedia/comments/comments.model.ts#L8)
+Defined in: [packages/server-core/src/socialmedia/comments/comments.model.ts:8](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/socialmedia/comments/comments.model.ts#L8)

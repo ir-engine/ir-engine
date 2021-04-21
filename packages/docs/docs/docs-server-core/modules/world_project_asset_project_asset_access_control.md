@@ -16,25 +16,25 @@ hide_title: true
 
 #### Type declaration:
 
-Name | Type |
-:------ | :------ |
-`admin` | *object* |
-`admin.createScope` | *string* |
-`admin.deleteScope` | *string* |
-`admin.listScope` | *string* |
-`admin.readScope` | *string* |
-`admin.updateScope` | *string* |
-`guest` | *object* |
-`guest.createScope` | *string* |
-`guest.deleteScope` | *string* |
-`guest.listScope` | *string* |
-`guest.readScope` | *string* |
-`guest.updateScope` | *string* |
-`user` | *object* |
-`user.createScope` | *string* |
-`user.deleteScope` | *string* |
-`user.listScope` | *string* |
-`user.readScope` | *string* |
-`user.updateScope` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `admin` | *object* |
+| `admin.createScope` | *string* |
+| `admin.deleteScope` | *string* |
+| `admin.listScope` | *string* |
+| `admin.readScope` | *string* |
+| `admin.updateScope` | *string* |
+| `guest` | *object* |
+| `guest.createScope` | *string* |
+| `guest.deleteScope` | *string* |
+| `guest.listScope` | *string* |
+| `guest.readScope` | *string* |
+| `guest.updateScope` | *string* |
+| `user` | *object* |
+| `user.createScope` | *string* |
+| `user.deleteScope` | *string* |
+| `user.listScope` | *string* |
+| `user.readScope` | *string* |
+| `user.updateScope` | *string* |
 
-Defined in: [packages/server-core/src/world/project-asset/project-asset.access-control.ts:1](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/world/project-asset/project-asset.access-control.ts#L1)
+Defined in: [packages/server-core/src/world/project-asset/project-asset.access-control.ts:1](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/world/project-asset/project-asset.access-control.ts#L1)

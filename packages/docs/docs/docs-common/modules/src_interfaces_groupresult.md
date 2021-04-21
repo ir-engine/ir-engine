@@ -16,11 +16,11 @@ hide_title: true
 
 #### Type declaration:
 
-Name | Type |
-:------ | :------ |
-`data` | [*Group*](src_interfaces_group.md#group)[] |
-`limit` | *number* |
-`skip` | *number* |
-`total` | *number* |
+| Name | Type |
+| :------ | :------ |
+| `data` | [*Group*](src_interfaces_group.md#group)[] |
+| `limit` | *number* |
+| `skip` | *number* |
+| `total` | *number* |
 
-Defined in: [interfaces/GroupResult.ts:3](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/common/src/interfaces/GroupResult.ts#L3)
+Defined in: [interfaces/GroupResult.ts:3](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/common/src/interfaces/GroupResult.ts#L3)

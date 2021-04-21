@@ -16,19 +16,19 @@ hide_title: true
 
 #### Type declaration:
 
-Name | Type |
-:------ | :------ |
-`definitions` | *object* |
-`definitions.message` | *object* |
-`definitions.message.properties` | *object* |
-`definitions.message.properties.text` | *object* |
-`definitions.message.properties.text.type` | *string* |
-`definitions.message.type` | *string* |
-`definitions.message_list` | *object* |
-`definitions.message_list.items` | *object* |
-`definitions.message_list.items.$ref` | *string* |
-`definitions.message_list.type` | *string* |
-`operations` | *object* |
-`operations.find` | *object* |
-`operations.find.security` | { `bearer`: *any*[] = [] }[] |
-`securities` | *string*[] |
+| Name | Type |
+| :------ | :------ |
+| `definitions` | *object* |
+| `definitions.message` | *object* |
+| `definitions.message.properties` | *object* |
+| `definitions.message.properties.text` | *object* |
+| `definitions.message.properties.text.type` | *string* |
+| `definitions.message.type` | *string* |
+| `definitions.message_list` | *object* |
+| `definitions.message_list.items` | *object* |
+| `definitions.message_list.items.$ref` | *string* |
+| `definitions.message_list.type` | *string* |
+| `operations` | *object* |
+| `operations.find` | *object* |
+| `operations.find.security` | { `bearer`: *any*[] = [] }[] |
+| `securities` | *string*[] |

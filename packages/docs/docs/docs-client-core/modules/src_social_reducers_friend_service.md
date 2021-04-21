@@ -16,15 +16,15 @@ hide_title: true
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`search` | *string* |
-`skip?` | *number* |
-`limit?` | *number* |
+| Name | Type |
+| :------ | :------ |
+| `search` | *string* |
+| `skip?` | *number* |
+| `limit?` | *number* |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>, `getState`: *any*) => *Promise*<any\>
 
-Defined in: [packages/client-core/src/social/reducers/friend/service.ts:36](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/social/reducers/friend/service.ts#L36)
+Defined in: [packages/client-core/src/social/reducers/friend/service.ts:36](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/social/reducers/friend/service.ts#L36)
 
 ___
 
@@ -34,10 +34,10 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`relatedUserId` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `relatedUserId` | *string* |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/src/social/reducers/friend/service.ts:119](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/social/reducers/friend/service.ts#L119)
+Defined in: [packages/client-core/src/social/reducers/friend/service.ts:119](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/social/reducers/friend/service.ts#L119)

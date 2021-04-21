@@ -16,11 +16,11 @@ hide_title: true
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`userId` | *any* |
-`app` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `userId` | *any* |
+| `app` | *any* |
 
 **Returns:** *Promise*<any\>
 
-Defined in: [packages/server-core/src/socialmedia/util/getCreator.ts:7](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/socialmedia/util/getCreator.ts#L7)
+Defined in: [packages/server-core/src/socialmedia/util/getCreator.ts:7](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/socialmedia/util/getCreator.ts#L7)

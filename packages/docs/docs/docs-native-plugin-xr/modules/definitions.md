@@ -25,9 +25,9 @@ hide_title: true
 
 ### CameraPosition
 
-Ƭ **CameraPosition**: *rear* \| *front*
+Ƭ **CameraPosition**: ``"rear"`` \| ``"front"``
 
-Defined in: [packages/native-plugin-xr/src/definitions.ts:28](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/native-plugin-xr/src/definitions.ts#L28)
+Defined in: [packages/native-plugin-xr/src/definitions.ts:28](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/native-plugin-xr/src/definitions.ts#L28)
 
 ## Variables
 
@@ -39,15 +39,15 @@ Enumerations for transcoding
 
 #### Type declaration:
 
-Name | Type |
-:------ | :------ |
-`OptimizeForNetworkUse` | *object* |
-`OptimizeForNetworkUse.NO` | *number* |
-`OptimizeForNetworkUse.YES` | *number* |
-`OutputFileType` | *object* |
-`OutputFileType.M4A` | *number* |
-`OutputFileType.M4V` | *number* |
-`OutputFileType.MPEG4` | *number* |
-`OutputFileType.QUICK_TIME` | *number* |
+| Name | Type |
+| :------ | :------ |
+| `OptimizeForNetworkUse` | *object* |
+| `OptimizeForNetworkUse.NO` | *number* |
+| `OptimizeForNetworkUse.YES` | *number* |
+| `OutputFileType` | *object* |
+| `OutputFileType.M4A` | *number* |
+| `OutputFileType.M4V` | *number* |
+| `OutputFileType.MPEG4` | *number* |
+| `OutputFileType.QUICK_TIME` | *number* |
 
-Defined in: [packages/native-plugin-xr/src/definitions.ts:63](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/native-plugin-xr/src/definitions.ts#L63)
+Defined in: [packages/native-plugin-xr/src/definitions.ts:63](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/native-plugin-xr/src/definitions.ts#L63)

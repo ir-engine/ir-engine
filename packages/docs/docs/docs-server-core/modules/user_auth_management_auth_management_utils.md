@@ -20,15 +20,15 @@ This method will extract the loggedIn User from params
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`params` | Params |
+| Name | Type |
+| :------ | :------ |
+| `params` | Params |
 
 **Returns:** *any*
 
 extracted user
 
-Defined in: [packages/server-core/src/user/auth-management/auth-management.utils.ts:77](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/user/auth-management/auth-management.utils.ts#L77)
+Defined in: [packages/server-core/src/user/auth-management/auth-management.utils.ts:77](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/user/auth-management/auth-management.utils.ts#L77)
 
 ___
 
@@ -42,17 +42,17 @@ A method which get an invite link
 
 #### Parameters:
 
-Name | Type | Description |
-:------ | :------ | :------ |
-`type` | *string* |  |
-`id` | *string* | of accept invite   |
-`passcode` | *string* |  |
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `type` | *string* |  |
+| `id` | *string* | of accept invite |
+| `passcode` | *string* |  |
 
 **Returns:** *string*
 
 invite link
 
-Defined in: [packages/server-core/src/user/auth-management/auth-management.utils.ts:28](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/user/auth-management/auth-management.utils.ts#L28)
+Defined in: [packages/server-core/src/user/auth-management/auth-management.utils.ts:28](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/user/auth-management/auth-management.utils.ts#L28)
 
 ___
 
@@ -66,17 +66,17 @@ A method which get link
 
 #### Parameters:
 
-Name | Type | Description |
-:------ | :------ | :------ |
-`type` | *string* |  |
-`hash` | *string* | hashed link   |
-`subscriptionId?` | *string* | - |
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `type` | *string* |  |
+| `hash` | *string* | hashed link |
+| `subscriptionId?` | *string* | - |
 
 **Returns:** *string*
 
 login url
 
-Defined in: [packages/server-core/src/user/auth-management/auth-management.utils.ts:13](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/user/auth-management/auth-management.utils.ts#L13)
+Defined in: [packages/server-core/src/user/auth-management/auth-management.utils.ts:13](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/user/auth-management/auth-management.utils.ts#L13)
 
 ___
 
@@ -90,14 +90,14 @@ A method which send an email
 
 #### Parameters:
 
-Name | Type | Description |
-:------ | :------ | :------ |
-`app` | Application |  |
-`email` | *any* | which is going to recieve message Text message links can't have HTML escaped ampersands.   |
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `app` | Application |  |
+| `email` | *any* | which is going to recieve message Text message links can't have HTML escaped ampersands. |
 
 **Returns:** *Promise*<void\>
 
-Defined in: [packages/server-core/src/user/auth-management/auth-management.utils.ts:40](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/user/auth-management/auth-management.utils.ts#L40)
+Defined in: [packages/server-core/src/user/auth-management/auth-management.utils.ts:40](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/user/auth-management/auth-management.utils.ts#L40)
 
 ___
 
@@ -111,11 +111,11 @@ A function which send sms
 
 #### Parameters:
 
-Name | Type | Description |
-:------ | :------ | :------ |
-`app` | Application |  |
-`sms` | *any* | text which is going to be sent   |
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `app` | Application |  |
+| `sms` | *any* | text which is going to be sent |
 
 **Returns:** *Promise*<void\>
 
-Defined in: [packages/server-core/src/user/auth-management/auth-management.utils.ts:62](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/user/auth-management/auth-management.utils.ts#L62)
+Defined in: [packages/server-core/src/user/auth-management/auth-management.utils.ts:62](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/user/auth-management/auth-management.utils.ts#L62)

@@ -20,10 +20,10 @@ hide_title: true
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`userRole` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `userRole` | *string* |
 
 **Returns:** (`context`: *HookContext*<any, Service<any\>\>) => *Promise*<HookContext<any, Service<any\>\>\>
 
-Defined in: [packages/server-core/src/hooks/restrict-user-role.ts:5](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/hooks/restrict-user-role.ts#L5)
+Defined in: [packages/server-core/src/hooks/restrict-user-role.ts:5](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/hooks/restrict-user-role.ts#L5)

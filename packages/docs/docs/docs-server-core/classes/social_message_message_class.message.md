@@ -24,16 +24,16 @@ hide_title: true
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`options` | *Partial*<SequelizeServiceOptions\> |
-`app` | Application |
+| Name | Type |
+| :------ | :------ |
+| `options` | *Partial*<SequelizeServiceOptions\> |
+| `app` | Application |
 
 **Returns:** [*Message*](social_message_message_class.message.md)
 
 Overrides: Service.constructor
 
-Defined in: [packages/server-core/src/social/message/message.class.ts:10](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/social/message/message.class.ts#L10)
+Defined in: [packages/server-core/src/social/message/message.class.ts:10](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/social/message/message.class.ts#L10)
 
 ## Properties
 
@@ -51,7 +51,7 @@ ___
 
 • **app**: Application
 
-Defined in: [packages/server-core/src/social/message/message.class.ts:9](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/social/message/message.class.ts#L9)
+Defined in: [packages/server-core/src/social/message/message.class.ts:9](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/social/message/message.class.ts#L9)
 
 ___
 
@@ -59,7 +59,7 @@ ___
 
 • **docs**: *any*
 
-Defined in: [packages/server-core/src/social/message/message.class.ts:10](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/social/message/message.class.ts#L10)
+Defined in: [packages/server-core/src/social/message/message.class.ts:10](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/social/message/message.class.ts#L10)
 
 ___
 
@@ -99,10 +99,10 @@ Defined in: node_modules/@feathersjs/adapter-commons/lib/service.d.ts:85
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`data` | *Partial*<any\> \| *Partial*<any\>[] |
-`params?` | Params |
+| Name | Type |
+| :------ | :------ |
+| `data` | *Partial*<any\> \| *Partial*<any\>[] |
+| `params?` | Params |
 
 **Returns:** *Promise*<any\>
 
@@ -118,9 +118,9 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`params?` | Params |
+| Name | Type |
+| :------ | :------ |
+| `params?` | Params |
 
 **Returns:** *Promise*<any\>
 
@@ -136,10 +136,10 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`id` | Id |
-`params?` | Params |
+| Name | Type |
+| :------ | :------ |
+| `id` | Id |
+| `params?` | Params |
 
 **Returns:** *Promise*<any\>
 
@@ -155,11 +155,11 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`id` | NullableId |
-`data` | *Partial*<any\> |
-`params?` | Params |
+| Name | Type |
+| :------ | :------ |
+| `id` | NullableId |
+| `data` | *Partial*<any\> |
+| `params?` | Params |
 
 **Returns:** *Promise*<any\>
 
@@ -175,10 +175,10 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`id` | NullableId |
-`params?` | Params |
+| Name | Type |
+| :------ | :------ |
+| `id` | NullableId |
+| `params?` | Params |
 
 **Returns:** *Promise*<any\>
 
@@ -194,11 +194,11 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`id` | NullableId |
-`data` | *any* |
-`params?` | Params |
+| Name | Type |
+| :------ | :------ |
+| `id` | NullableId |
+| `data` | *any* |
+| `params?` | Params |
 
 **Returns:** *Promise*<any\>
 
@@ -214,9 +214,9 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`method` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `method` | *string* |
 
 **Returns:** *boolean*
 
@@ -234,10 +234,10 @@ A function which is used to create a message
 
 #### Parameters:
 
-Name | Type | Description |
-:------ | :------ | :------ |
-`data` | *any* | for new message   |
-`params` | Params | contain user info   |
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `data` | *any* | for new message |
+| `params` | Params | contain user info |
 
 **Returns:** *Promise*<any\>
 
@@ -245,22 +245,22 @@ Name | Type | Description |
 
 Overrides: Service.create
 
-Defined in: [packages/server-core/src/social/message/message.class.ts:23](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/social/message/message.class.ts#L23)
+Defined in: [packages/server-core/src/social/message/message.class.ts:23](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/social/message/message.class.ts#L23)
 
 ___
 
 ### filterQuery
 
-▸ **filterQuery**(`params?`: Params, `opts?`: *any*): { [key: string]: *any*;  } & { `paginate`: *false* \| *Pick*<PaginationOptions, *max*\> \| { `default?`: *number* ; `max?`: *number*  }  }
+▸ **filterQuery**(`params?`: Params, `opts?`: *any*): { [key: string]: *any*;  } & { `paginate`: ``false`` \| *Pick*<PaginationOptions, ``"max"``\> \| { `default?`: *number* ; `max?`: *number*  }  }
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`params?` | Params |
-`opts?` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `params?` | Params |
+| `opts?` | *any* |
 
-**Returns:** { [key: string]: *any*;  } & { `paginate`: *false* \| *Pick*<PaginationOptions, *max*\> \| { `default?`: *number* ; `max?`: *number*  }  }
+**Returns:** { [key: string]: *any*;  } & { `paginate`: ``false`` \| *Pick*<PaginationOptions, ``"max"``\> \| { `default?`: *number* ; `max?`: *number*  }  }
 
 Inherited from: Service.filterQuery
 
@@ -274,9 +274,9 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`params?` | Params |
+| Name | Type |
+| :------ | :------ |
+| `params?` | Params |
 
 **Returns:** *Promise*<any[] \| Paginated<any\>\>
 
@@ -292,10 +292,10 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`id` | Id |
-`params?` | Params |
+| Name | Type |
+| :------ | :------ |
+| `id` | Id |
+| `params?` | Params |
 
 **Returns:** *Promise*<any\>
 
@@ -311,9 +311,9 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`params` | Params |
+| Name | Type |
+| :------ | :------ |
+| `params` | Params |
 
 **Returns:** *any*
 
@@ -329,11 +329,11 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`id` | NullableId |
-`data` | *Partial*<any\> |
-`params?` | Params |
+| Name | Type |
+| :------ | :------ |
+| `id` | NullableId |
+| `data` | *Partial*<any\> |
+| `params?` | Params |
 
 **Returns:** *Promise*<any\>
 
@@ -349,10 +349,10 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`id` | NullableId |
-`params?` | Params |
+| Name | Type |
+| :------ | :------ |
+| `id` | NullableId |
+| `params?` | Params |
 
 **Returns:** *Promise*<any\>
 
@@ -368,11 +368,11 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`id` | Id |
-`data` | *any* |
-`params?` | Params |
+| Name | Type |
+| :------ | :------ |
+| `id` | Id |
+| `data` | *any* |
+| `params?` | Params |
 
 **Returns:** *Promise*<any\>
 

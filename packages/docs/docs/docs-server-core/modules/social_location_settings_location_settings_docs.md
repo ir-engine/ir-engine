@@ -16,17 +16,17 @@ hide_title: true
 
 #### Type declaration:
 
-Name | Type |
-:------ | :------ |
-`definitions` | *object* |
-`definitions.location-settings` | *object* |
-`definitions.location-settings.properties` | *object* |
-`definitions.location-settings.properties.instanceMediaChatEnabled` | *object* |
-`definitions.location-settings.properties.instanceMediaChatEnabled.type` | *string* |
-`definitions.location-settings.properties.videoEnabled` | *object* |
-`definitions.location-settings.properties.videoEnabled.type` | *string* |
-`definitions.location-settings.type` | *string* |
-`definitions.location-settings_list` | *object* |
-`definitions.location-settings_list.items` | *object* |
-`definitions.location-settings_list.items.$ref` | *string* |
-`definitions.location-settings_list.type` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `definitions` | *object* |
+| `definitions.location-settings` | *object* |
+| `definitions.location-settings.properties` | *object* |
+| `definitions.location-settings.properties.instanceMediaChatEnabled` | *object* |
+| `definitions.location-settings.properties.instanceMediaChatEnabled.type` | *string* |
+| `definitions.location-settings.properties.videoEnabled` | *object* |
+| `definitions.location-settings.properties.videoEnabled.type` | *string* |
+| `definitions.location-settings.type` | *string* |
+| `definitions.location-settings_list` | *object* |
+| `definitions.location-settings_list.items` | *object* |
+| `definitions.location-settings_list.items.$ref` | *string* |
+| `definitions.location-settings_list.type` | *string* |

@@ -20,16 +20,16 @@ useAddRemoveItems function component provides callback function for adding and r
 
 #### Parameters:
 
-Name | Type | Default value |
-:------ | :------ | :------ |
-`items` | *any* | - |
-`dependencies` | *any*[] | [] |
+| Name | Type | Default value |
+| :------ | :------ | :------ |
+| `items` | *any* | - |
+| `dependencies` | *any*[] | [] |
 
 **Returns:** *any*[]
 
 [returns array containing finalItems, addItem, removeItem]
 
-Defined in: [packages/client-core/src/world/components/editor/assets/useAssetSearch.tsx:232](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/assets/useAssetSearch.tsx#L232)
+Defined in: [packages/client-core/src/world/components/editor/assets/useAssetSearch.tsx:232](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/assets/useAssetSearch.tsx#L232)
 
 ___
 
@@ -43,27 +43,27 @@ useAssetSearch used for providing search on MediaSourcePanel.
 
 #### Parameters:
 
-Name | Type | Default value |
-:------ | :------ | :------ |
-`source` | *any* | - |
-`initialParams` | *object* | {} |
-`initialResults` | *any*[] | [] |
-`initialCursor` | *number* | 0 |
+| Name | Type | Default value |
+| :------ | :------ | :------ |
+| `source` | *any* | - |
+| `initialParams` | *object* | {} |
+| `initialResults` | *any*[] | [] |
+| `initialCursor` | *number* | 0 |
 
 **Returns:** *object*
 
-Name | Type |
-:------ | :------ |
-`error` | *any* |
-`hasMore` | *boolean* |
-`isLoading` | *boolean* |
-`loadMore` | (`params`: *any*) => *void* |
-`params` | *object* |
-`results` | *any*[] |
-`setParams` | (`nextParams`: *any*) => *void* |
-`suggestions` | *any*[] |
+| Name | Type |
+| :------ | :------ |
+| `error` | *any* |
+| `hasMore` | *boolean* |
+| `isLoading` | *boolean* |
+| `loadMore` | (`params`: *any*) => *void* |
+| `params` | *object* |
+| `results` | *any*[] |
+| `setParams` | (`nextParams`: *any*) => *void* |
+| `suggestions` | *any*[] |
 
-Defined in: [packages/client-core/src/world/components/editor/assets/useAssetSearch.tsx:154](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/assets/useAssetSearch.tsx#L154)
+Defined in: [packages/client-core/src/world/components/editor/assets/useAssetSearch.tsx:154](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/assets/useAssetSearch.tsx#L154)
 
 ___
 
@@ -77,24 +77,24 @@ useLoadAsyncfunction used to load AssetPanelContent by calling API.
 
 #### Parameters:
 
-Name | Type | Default value |
-:------ | :------ | :------ |
-`callback` | *any* | - |
-`initialResults` | *any*[] | [] |
-`initialCursor` | *number* | 0 |
+| Name | Type | Default value |
+| :------ | :------ | :------ |
+| `callback` | *any* | - |
+| `initialResults` | *any*[] | [] |
+| `initialCursor` | *number* | 0 |
 
 **Returns:** *object*
 
-Name | Type |
-:------ | :------ |
-`error` | *any* |
-`hasMore` | *boolean* |
-`isLoading` | *boolean* |
-`loadAsync` | (`params`: *any*) => *void* |
-`loadMore` | (`params`: *any*) => *void* |
-`results` | *any*[] |
-`suggestions` | *any*[] |
+| Name | Type |
+| :------ | :------ |
+| `error` | *any* |
+| `hasMore` | *boolean* |
+| `isLoading` | *boolean* |
+| `loadAsync` | (`params`: *any*) => *void* |
+| `loadMore` | (`params`: *any*) => *void* |
+| `results` | *any*[] |
+| `suggestions` | *any*[] |
 
 Object
 
-Defined in: [packages/client-core/src/world/components/editor/assets/useAssetSearch.tsx:28](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/assets/useAssetSearch.tsx#L28)
+Defined in: [packages/client-core/src/world/components/editor/assets/useAssetSearch.tsx:28](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/assets/useAssetSearch.tsx#L28)

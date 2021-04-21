@@ -16,14 +16,14 @@ hide_title: true
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`url` | *string* |
-`noAuth` | *boolean* |
+| Name | Type |
+| :------ | :------ |
+| `url` | *string* |
+| `noAuth` | *boolean* |
 
 **Returns:** *Promise*<any\>
 
-Defined in: [packages/client-core/src/service.common.ts:7](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/service.common.ts#L7)
+Defined in: [packages/client-core/src/service.common.ts:7](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/service.common.ts#L7)
 
 ___
 
@@ -33,16 +33,16 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`url` | *string* |
-`data` | *any* |
-`noAuth` | *boolean* |
-`image` | *boolean* |
+| Name | Type |
+| :------ | :------ |
+| `url` | *string* |
+| `data` | *any* |
+| `noAuth` | *boolean* |
+| `image` | *boolean* |
 
 **Returns:** *Promise*<any\>
 
-Defined in: [packages/client-core/src/service.common.ts:18](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/service.common.ts#L18)
+Defined in: [packages/client-core/src/service.common.ts:18](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/service.common.ts#L18)
 
 ___
 
@@ -52,15 +52,15 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`method` | *any* |
-`url` | *any* |
-`data?` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `method` | *any* |
+| `url` | *any* |
+| `data?` | *any* |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/src/service.common.ts:44](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/service.common.ts#L44)
+Defined in: [packages/client-core/src/service.common.ts:44](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/service.common.ts#L44)
 
 ___
 
@@ -70,4 +70,4 @@ ___
 
 **Returns:** *object*
 
-Defined in: [packages/client-core/src/service.common.ts:3](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/service.common.ts#L3)
+Defined in: [packages/client-core/src/service.common.ts:3](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/service.common.ts#L3)

@@ -20,7 +20,7 @@ Trim options that are required to locate, reduce start/ end and save the video.
 
 A well-known location where the editable video lives.
 
-Defined in: [packages/native-plugin-xr/src/definitions.ts:138](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/native-plugin-xr/src/definitions.ts#L138)
+Defined in: [packages/native-plugin-xr/src/definitions.ts:138](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/native-plugin-xr/src/definitions.ts#L138)
 
 ___
 
@@ -30,7 +30,7 @@ ___
 
 A string that indicates what type of field this is, home for example.
 
-Defined in: [packages/native-plugin-xr/src/definitions.ts:144](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/native-plugin-xr/src/definitions.ts#L144)
+Defined in: [packages/native-plugin-xr/src/definitions.ts:144](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/native-plugin-xr/src/definitions.ts#L144)
 
 ___
 
@@ -46,15 +46,15 @@ Progress on transcode.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`info` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `info` | *any* |
 
 **Returns:** *void*
 
-Defined in: [packages/native-plugin-xr/src/definitions.ts:146](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/native-plugin-xr/src/definitions.ts#L146)
+Defined in: [packages/native-plugin-xr/src/definitions.ts:146](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/native-plugin-xr/src/definitions.ts#L146)
 
-Defined in: [packages/native-plugin-xr/src/definitions.ts:146](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/native-plugin-xr/src/definitions.ts#L146)
+Defined in: [packages/native-plugin-xr/src/definitions.ts:146](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/native-plugin-xr/src/definitions.ts#L146)
 
 ___
 
@@ -64,7 +64,7 @@ ___
 
 A number of seconds to trim the front of the video.
 
-Defined in: [packages/native-plugin-xr/src/definitions.ts:142](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/native-plugin-xr/src/definitions.ts#L142)
+Defined in: [packages/native-plugin-xr/src/definitions.ts:142](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/native-plugin-xr/src/definitions.ts#L142)
 
 ___
 
@@ -74,4 +74,4 @@ ___
 
 A number of seconds to trim the front of the video.
 
-Defined in: [packages/native-plugin-xr/src/definitions.ts:140](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/native-plugin-xr/src/definitions.ts#L140)
+Defined in: [packages/native-plugin-xr/src/definitions.ts:140](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/native-plugin-xr/src/definitions.ts#L140)

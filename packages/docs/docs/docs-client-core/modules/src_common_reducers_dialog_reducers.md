@@ -14,7 +14,7 @@ hide_title: true
 
 • `Const` **initialDialogState**: [*DialogState*](../interfaces/src_common_reducers_dialog_actions.dialogstate.md)
 
-Defined in: [packages/client-core/src/common/reducers/dialog/reducers.ts:12](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/common/reducers/dialog/reducers.ts#L12)
+Defined in: [packages/client-core/src/common/reducers/dialog/reducers.ts:12](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/common/reducers/dialog/reducers.ts#L12)
 
 ## Functions
 
@@ -24,11 +24,11 @@ Defined in: [packages/client-core/src/common/reducers/dialog/reducers.ts:12](htt
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`state` | *any* |
-`action` | [*DialogAction*](../interfaces/src_common_reducers_dialog_actions.dialogaction.md) |
+| Name | Type |
+| :------ | :------ |
+| `state` | *any* |
+| `action` | [*DialogAction*](../interfaces/src_common_reducers_dialog_actions.dialogaction.md) |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/src/common/reducers/dialog/reducers.ts:19](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/common/reducers/dialog/reducers.ts#L19)
+Defined in: [packages/client-core/src/common/reducers/dialog/reducers.ts:19](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/common/reducers/dialog/reducers.ts#L19)

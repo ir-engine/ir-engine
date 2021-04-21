@@ -18,10 +18,10 @@ hide_title: true
 
 #### Type declaration:
 
-Name | Type |
-:------ | :------ |
-`contextMenuId` | *Requireable*<string\> |
-`loading` | *Requireable*<boolean\> |
-`newProjectLabel` | *Requireable*<string\> |
-`newProjectPath` | *Requireable*<string \| object\> |
-`projects` | *Validator*<object[]\> |
+| Name | Type |
+| :------ | :------ |
+| `contextMenuId` | *Requireable*<string\> |
+| `loading` | *Requireable*<boolean\> |
+| `newProjectLabel` | *Requireable*<string\> |
+| `newProjectPath` | *Requireable*<string \| object\> |
+| `projects` | *Validator*<object[]\> |

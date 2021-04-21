@@ -12,4 +12,4 @@ hide_title: true
 
 ### default
 
-• **default**: *ComponentType*<any\>
+• **default**: *LazyExoticComponent*<*ComponentClass*<Pick<any, string \| number \| symbol\>, any\> & *WithRouterStatics*<(`props`: *any*) => *Element*\>\>

@@ -16,15 +16,15 @@ hide_title: true
 
 #### Type declaration:
 
-Name | Type |
-:------ | :------ |
-`definitions` | *object* |
-`definitions.user-role` | *object* |
-`definitions.user-role.properties` | *object* |
-`definitions.user-role.properties.role` | *object* |
-`definitions.user-role.properties.role.type` | *string* |
-`definitions.user-role.type` | *string* |
-`definitions.user-role_list` | *object* |
-`definitions.user-role_list.items` | *object* |
-`definitions.user-role_list.items.$ref` | *string* |
-`definitions.user-role_list.type` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `definitions` | *object* |
+| `definitions.user-role` | *object* |
+| `definitions.user-role.properties` | *object* |
+| `definitions.user-role.properties.role` | *object* |
+| `definitions.user-role.properties.role.type` | *string* |
+| `definitions.user-role.type` | *string* |
+| `definitions.user-role_list` | *object* |
+| `definitions.user-role_list.items` | *object* |
+| `definitions.user-role_list.items.$ref` | *string* |
+| `definitions.user-role_list.type` | *string* |

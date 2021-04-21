@@ -12,14 +12,14 @@ hide_title: true
 
 ### FacebookIcon
 
-▸ `Const`**FacebookIcon**(`props`: *SvgIconProps*<*svg*, {}\>): *Element*
+▸ `Const`**FacebookIcon**(`props`: *SvgIconProps*<``"svg"``, {}\>): *Element*
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`props` | *SvgIconProps*<*svg*, {}\> |
+| Name | Type |
+| :------ | :------ |
+| `props` | *SvgIconProps*<``"svg"``, {}\> |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/common/components/Icons/FacebookIcon.tsx:4](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/common/components/Icons/FacebookIcon.tsx#L4)
+Defined in: [packages/client-core/src/common/components/Icons/FacebookIcon.tsx:4](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/common/components/Icons/FacebookIcon.tsx#L4)

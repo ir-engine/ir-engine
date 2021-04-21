@@ -12,7 +12,7 @@ hide_title: true
 
 ### default
 
-• **default**: (`\_\_namedParameters`: *any*) => *Element*
+• **default**: (`__namedParameters`: *any*) => *Element*
 
 #### Type declaration:
 
@@ -20,10 +20,10 @@ hide_title: true
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`__namedParameters` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `__namedParameters` | *any* |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/socialmedia/components/NotificationCard/index.tsx:10](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/socialmedia/components/NotificationCard/index.tsx#L10)
+Defined in: [packages/client-core/src/socialmedia/components/NotificationCard/index.tsx:10](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/components/NotificationCard/index.tsx#L10)

@@ -20,14 +20,14 @@ createEditor used to create editor object and register nodes available to create
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`api` | *any* |
-`settings` | *any* |
-`Engine` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `api` | *any* |
+| `settings` | *any* |
+| `Engine` | *any* |
 
 **Returns:** [*Editor*](../classes/src_world_components_editor_editor.editor.md)
 
 [editor]
 
-Defined in: [packages/client-core/src/world/components/editor/Nodes.tsx:59](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/Nodes.tsx#L59)
+Defined in: [packages/client-core/src/world/components/editor/Nodes.tsx:59](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/Nodes.tsx#L59)

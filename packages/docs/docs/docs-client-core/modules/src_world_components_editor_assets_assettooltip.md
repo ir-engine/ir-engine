@@ -32,10 +32,10 @@ AssetTooltip used to show tooltip on elements available in asset penal.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`__namedParameters` | *Object* |
+| Name | Type |
+| :------ | :------ |
+| `__namedParameters` | *Object* |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/assets/AssetTooltip.tsx:54](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/assets/AssetTooltip.tsx#L54)
+Defined in: [packages/client-core/src/world/components/editor/assets/AssetTooltip.tsx:54](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/assets/AssetTooltip.tsx#L54)

@@ -16,12 +16,12 @@ hide_title: true
 
 #### Type declaration:
 
-Name | Type |
-:------ | :------ |
-`party` | *object* |
-`updateNeeded` | *boolean* |
+| Name | Type |
+| :------ | :------ |
+| `party` | *object* |
+| `updateNeeded` | *boolean* |
 
-Defined in: [packages/client-core/src/social/reducers/party/reducers.ts:22](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/social/reducers/party/reducers.ts#L22)
+Defined in: [packages/client-core/src/social/reducers/party/reducers.ts:22](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/social/reducers/party/reducers.ts#L22)
 
 ## Functions
 
@@ -31,11 +31,11 @@ Defined in: [packages/client-core/src/social/reducers/party/reducers.ts:22](http
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`state` | *any* |
-`action` | [*PartyAction*](src_social_reducers_party_actions.md#partyaction) |
+| Name | Type |
+| :------ | :------ |
+| `state` | *any* |
+| `action` | [*PartyAction*](src_social_reducers_party_actions.md#partyaction) |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/src/social/reducers/party/reducers.ts:29](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/social/reducers/party/reducers.ts#L29)
+Defined in: [packages/client-core/src/social/reducers/party/reducers.ts:29](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/social/reducers/party/reducers.ts#L29)

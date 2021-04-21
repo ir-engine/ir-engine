@@ -16,31 +16,31 @@ hide_title: true
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`email` | *string* |
-`userId` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `email` | *string* |
+| `userId` | *string* |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *any*
 
-Defined in: [packages/client-core/src/user/reducers/auth/service.ts:425](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/user/reducers/auth/service.ts#L425)
+Defined in: [packages/client-core/src/user/reducers/auth/service.ts:425](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/user/reducers/auth/service.ts#L425)
 
 ___
 
 ### addConnectionByOauth
 
-▸ **addConnectionByOauth**(`oauth`: *facebook* \| *google* \| *github* \| *linkedin* \| *twitter*, `userId`: *string*): *function*
+▸ **addConnectionByOauth**(`oauth`: ``"facebook"`` \| ``"google"`` \| ``"github"`` \| ``"linkedin"`` \| ``"twitter"``, `userId`: *string*): *function*
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`oauth` | *facebook* \| *google* \| *github* \| *linkedin* \| *twitter* |
-`userId` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `oauth` | ``"facebook"`` \| ``"google"`` \| ``"github"`` \| ``"linkedin"`` \| ``"twitter"`` |
+| `userId` | *string* |
 
 **Returns:** () => *void*
 
-Defined in: [packages/client-core/src/user/reducers/auth/service.ts:472](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/user/reducers/auth/service.ts#L472)
+Defined in: [packages/client-core/src/user/reducers/auth/service.ts:472](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/user/reducers/auth/service.ts#L472)
 
 ___
 
@@ -50,14 +50,14 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`form` | [*EmailLoginForm*](../interfaces/src_user_reducers_auth_actions.emailloginform.md) |
-`userId` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `form` | [*EmailLoginForm*](../interfaces/src_user_reducers_auth_actions.emailloginform.md) |
+| `userId` | *string* |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *any*
 
-Defined in: [packages/client-core/src/user/reducers/auth/service.ts:403](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/user/reducers/auth/service.ts#L403)
+Defined in: [packages/client-core/src/user/reducers/auth/service.ts:403](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/user/reducers/auth/service.ts#L403)
 
 ___
 
@@ -67,31 +67,31 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`phone` | *string* |
-`userId` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `phone` | *string* |
+| `userId` | *string* |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *any*
 
-Defined in: [packages/client-core/src/user/reducers/auth/service.ts:446](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/user/reducers/auth/service.ts#L446)
+Defined in: [packages/client-core/src/user/reducers/auth/service.ts:446](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/user/reducers/auth/service.ts#L446)
 
 ___
 
 ### createMagicLink
 
-▸ **createMagicLink**(`emailPhone`: *string*, `linkType?`: *email* \| *sms*): *function*
+▸ **createMagicLink**(`emailPhone`: *string*, `linkType?`: ``"email"`` \| ``"sms"``): *function*
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`emailPhone` | *string* |
-`linkType?` | *email* \| *sms* |
+| Name | Type |
+| :------ | :------ |
+| `emailPhone` | *string* |
+| `linkType?` | ``"email"`` \| ``"sms"`` |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *any*
 
-Defined in: [packages/client-core/src/user/reducers/auth/service.ts:345](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/user/reducers/auth/service.ts#L345)
+Defined in: [packages/client-core/src/user/reducers/auth/service.ts:345](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/user/reducers/auth/service.ts#L345)
 
 ___
 
@@ -101,14 +101,14 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`allowGuest?` | *boolean* |
-`forceClientAuthReset?` | *boolean* |
+| Name | Type |
+| :------ | :------ |
+| `allowGuest?` | *boolean* |
+| `forceClientAuthReset?` | *boolean* |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/src/user/reducers/auth/service.ts:49](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/user/reducers/auth/service.ts#L49)
+Defined in: [packages/client-core/src/user/reducers/auth/service.ts:49](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/user/reducers/auth/service.ts#L49)
 
 ___
 
@@ -118,7 +118,7 @@ ___
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<void\>
 
-Defined in: [packages/client-core/src/user/reducers/auth/service.ts:604](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/user/reducers/auth/service.ts#L604)
+Defined in: [packages/client-core/src/user/reducers/auth/service.ts:604](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/user/reducers/auth/service.ts#L604)
 
 ___
 
@@ -128,13 +128,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`email` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `email` | *string* |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *any*
 
-Defined in: [packages/client-core/src/user/reducers/auth/service.ts:306](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/user/reducers/auth/service.ts#L306)
+Defined in: [packages/client-core/src/user/reducers/auth/service.ts:306](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/user/reducers/auth/service.ts#L306)
 
 ___
 
@@ -144,14 +144,14 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`dispatch` | Dispatch |
-`userId` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `dispatch` | Dispatch |
+| `userId` | *string* |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/src/user/reducers/auth/service.ts:116](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/user/reducers/auth/service.ts#L116)
+Defined in: [packages/client-core/src/user/reducers/auth/service.ts:116](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/user/reducers/auth/service.ts#L116)
 
 ___
 
@@ -161,15 +161,15 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`accessToken` | *string* |
-`redirectSuccess` | *string* |
-`redirectError` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `accessToken` | *string* |
+| `redirectSuccess` | *string* |
+| `redirectError` | *string* |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/src/user/reducers/auth/service.ts:205](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/user/reducers/auth/service.ts#L205)
+Defined in: [packages/client-core/src/user/reducers/auth/service.ts:205](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/user/reducers/auth/service.ts#L205)
 
 ___
 
@@ -179,13 +179,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`service` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `service` | *string* |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>, `getState`: *any*) => *any*
 
-Defined in: [packages/client-core/src/user/reducers/auth/service.ts:189](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/user/reducers/auth/service.ts#L189)
+Defined in: [packages/client-core/src/user/reducers/auth/service.ts:189](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/user/reducers/auth/service.ts#L189)
 
 ___
 
@@ -195,13 +195,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`form` | [*EmailLoginForm*](../interfaces/src_user_reducers_auth_actions.emailloginform.md) |
+| Name | Type |
+| :------ | :------ |
+| `form` | [*EmailLoginForm*](../interfaces/src_user_reducers_auth_actions.emailloginform.md) |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *any*
 
-Defined in: [packages/client-core/src/user/reducers/auth/service.ts:148](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/user/reducers/auth/service.ts#L148)
+Defined in: [packages/client-core/src/user/reducers/auth/service.ts:148](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/user/reducers/auth/service.ts#L148)
 
 ___
 
@@ -211,7 +211,7 @@ ___
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *any*
 
-Defined in: [packages/client-core/src/user/reducers/auth/service.ts:231](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/user/reducers/auth/service.ts#L231)
+Defined in: [packages/client-core/src/user/reducers/auth/service.ts:231](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/user/reducers/auth/service.ts#L231)
 
 ___
 
@@ -221,13 +221,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`userId` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `userId` | *string* |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/user/reducers/auth/service.ts:494](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/user/reducers/auth/service.ts#L494)
+Defined in: [packages/client-core/src/user/reducers/auth/service.ts:494](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/user/reducers/auth/service.ts#L494)
 
 ___
 
@@ -237,13 +237,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`form` | [*EmailRegistrationForm*](../interfaces/src_user_reducers_auth_actions.emailregistrationform.md) |
+| Name | Type |
+| :------ | :------ |
+| `form` | [*EmailRegistrationForm*](../interfaces/src_user_reducers_auth_actions.emailregistrationform.md) |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *any*
 
-Defined in: [packages/client-core/src/user/reducers/auth/service.ts:244](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/user/reducers/auth/service.ts#L244)
+Defined in: [packages/client-core/src/user/reducers/auth/service.ts:244](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/user/reducers/auth/service.ts#L244)
 
 ___
 
@@ -253,13 +253,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`keys` | [*string*] |
+| Name | Type |
+| :------ | :------ |
+| `keys` | [*string*] |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>, `getState`: *any*) => *Promise*<void\>
 
-Defined in: [packages/client-core/src/user/reducers/auth/service.ts:593](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/user/reducers/auth/service.ts#L593)
+Defined in: [packages/client-core/src/user/reducers/auth/service.ts:593](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/user/reducers/auth/service.ts#L593)
 
 ___
 
@@ -269,14 +269,14 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`identityProviderId` | *number* |
-`userId` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `identityProviderId` | *number* |
+| `userId` | *string* |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *any*
 
-Defined in: [packages/client-core/src/user/reducers/auth/service.ts:478](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/user/reducers/auth/service.ts#L478)
+Defined in: [packages/client-core/src/user/reducers/auth/service.ts:478](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/user/reducers/auth/service.ts#L478)
 
 ___
 
@@ -286,13 +286,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`userId` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `userId` | *string* |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/src/user/reducers/auth/service.ts:648](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/user/reducers/auth/service.ts#L648)
+Defined in: [packages/client-core/src/user/reducers/auth/service.ts:648](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/user/reducers/auth/service.ts#L648)
 
 ___
 
@@ -302,13 +302,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`email` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `email` | *string* |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *any*
 
-Defined in: [packages/client-core/src/user/reducers/auth/service.ts:289](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/user/reducers/auth/service.ts#L289)
+Defined in: [packages/client-core/src/user/reducers/auth/service.ts:289](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/user/reducers/auth/service.ts#L289)
 
 ___
 
@@ -318,14 +318,14 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`token` | *string* |
-`password` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `token` | *string* |
+| `password` | *string* |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *any*
 
-Defined in: [packages/client-core/src/user/reducers/auth/service.ts:323](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/user/reducers/auth/service.ts#L323)
+Defined in: [packages/client-core/src/user/reducers/auth/service.ts:323](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/user/reducers/auth/service.ts#L323)
 
 ___
 
@@ -335,16 +335,16 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`userId` | *string* |
-`avatarId` | *string* |
-`avatarURL` | *string* |
-`thumbnailURL` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `userId` | *string* |
+| `avatarId` | *string* |
+| `avatarURL` | *string* |
+| `thumbnailURL` | *string* |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *any*
 
-Defined in: [packages/client-core/src/user/reducers/auth/service.ts:636](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/user/reducers/auth/service.ts#L636)
+Defined in: [packages/client-core/src/user/reducers/auth/service.ts:636](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/user/reducers/auth/service.ts#L636)
 
 ___
 
@@ -354,14 +354,14 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`id` | *any* |
-`data` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `id` | *any* |
+| `data` | *any* |
 
 **Returns:** (`dispatch`: *any*) => *Promise*<void\>
 
-Defined in: [packages/client-core/src/user/reducers/auth/service.ts:496](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/user/reducers/auth/service.ts#L496)
+Defined in: [packages/client-core/src/user/reducers/auth/service.ts:496](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/user/reducers/auth/service.ts#L496)
 
 ___
 
@@ -371,14 +371,14 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`userId` | *string* |
-`name` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `userId` | *string* |
+| `name` | *string* |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *any*
 
-Defined in: [packages/client-core/src/user/reducers/auth/service.ts:624](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/user/reducers/auth/service.ts#L624)
+Defined in: [packages/client-core/src/user/reducers/auth/service.ts:624](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/user/reducers/auth/service.ts#L624)
 
 ___
 
@@ -388,13 +388,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`data` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `data` | *any* |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>, `getState`: *any*) => *Promise*<void\>
 
-Defined in: [packages/client-core/src/user/reducers/auth/service.ts:502](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/user/reducers/auth/service.ts#L502)
+Defined in: [packages/client-core/src/user/reducers/auth/service.ts:502](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/user/reducers/auth/service.ts#L502)
 
 ___
 
@@ -404,14 +404,14 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`model` | *any* |
-`thumbnail` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `model` | *any* |
+| `thumbnail` | *any* |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>, `getState`: *any*) => *Promise*<void\>
 
-Defined in: [packages/client-core/src/user/reducers/auth/service.ts:521](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/user/reducers/auth/service.ts#L521)
+Defined in: [packages/client-core/src/user/reducers/auth/service.ts:521](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/user/reducers/auth/service.ts#L521)
 
 ___
 
@@ -421,10 +421,10 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`token` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `token` | *string* |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *any*
 
-Defined in: [packages/client-core/src/user/reducers/auth/service.ts:268](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/user/reducers/auth/service.ts#L268)
+Defined in: [packages/client-core/src/user/reducers/auth/service.ts:268](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/user/reducers/auth/service.ts#L268)

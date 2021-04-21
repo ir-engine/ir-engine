@@ -16,13 +16,13 @@ hide_title: true
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`values` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `values` | *any* |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/src/social/reducers/party/service.ts:74](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/social/reducers/party/service.ts#L74)
+Defined in: [packages/client-core/src/social/reducers/party/service.ts:74](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/social/reducers/party/service.ts#L74)
 
 ___
 
@@ -32,7 +32,7 @@ ___
 
 **Returns:** *Promise*<void\>
 
-Defined in: [packages/client-core/src/social/reducers/party/service.ts:36](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/social/reducers/party/service.ts#L36)
+Defined in: [packages/client-core/src/social/reducers/party/service.ts:36](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/social/reducers/party/service.ts#L36)
 
 ___
 
@@ -42,7 +42,7 @@ ___
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>, `getState`: *any*) => *Promise*<any\>
 
-Defined in: [packages/client-core/src/social/reducers/party/service.ts:21](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/social/reducers/party/service.ts#L21)
+Defined in: [packages/client-core/src/social/reducers/party/service.ts:21](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/social/reducers/party/service.ts#L21)
 
 ___
 
@@ -52,13 +52,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`partyId` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `partyId` | *string* |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/src/social/reducers/party/service.ts:86](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/social/reducers/party/service.ts#L86)
+Defined in: [packages/client-core/src/social/reducers/party/service.ts:86](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/social/reducers/party/service.ts#L86)
 
 ___
 
@@ -68,13 +68,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`partyUserId` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `partyUserId` | *string* |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/src/social/reducers/party/service.ts:106](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/social/reducers/party/service.ts#L106)
+Defined in: [packages/client-core/src/social/reducers/party/service.ts:106](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/social/reducers/party/service.ts#L106)
 
 ___
 
@@ -84,10 +84,10 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`partyUserId` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `partyUserId` | *string* |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/src/social/reducers/party/service.ts:117](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/social/reducers/party/service.ts#L117)
+Defined in: [packages/client-core/src/social/reducers/party/service.ts:117](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/social/reducers/party/service.ts#L117)

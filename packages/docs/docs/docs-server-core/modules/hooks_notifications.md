@@ -16,13 +16,13 @@ hide_title: true
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`context` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `context` | *any* |
 
 **Returns:** *Promise*<HookContext\>
 
-Defined in: [packages/server-core/src/hooks/notifications.ts:33](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/hooks/notifications.ts#L33)
+Defined in: [packages/server-core/src/hooks/notifications.ts:33](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/hooks/notifications.ts#L33)
 
 ___
 
@@ -32,13 +32,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`context` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `context` | *any* |
 
 **Returns:** *Promise*<HookContext\>
 
-Defined in: [packages/server-core/src/hooks/notifications.ts:62](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/hooks/notifications.ts#L62)
+Defined in: [packages/server-core/src/hooks/notifications.ts:62](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/hooks/notifications.ts#L62)
 
 ___
 
@@ -48,13 +48,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`context` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `context` | *any* |
 
 **Returns:** *Promise*<HookContext\>
 
-Defined in: [packages/server-core/src/hooks/notifications.ts:80](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/hooks/notifications.ts#L80)
+Defined in: [packages/server-core/src/hooks/notifications.ts:80](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/hooks/notifications.ts#L80)
 
 ___
 
@@ -64,13 +64,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`context` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `context` | *any* |
 
 **Returns:** *Promise*<HookContext\>
 
-Defined in: [packages/server-core/src/hooks/notifications.ts:4](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/hooks/notifications.ts#L4)
+Defined in: [packages/server-core/src/hooks/notifications.ts:4](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/hooks/notifications.ts#L4)
 
 ___
 
@@ -80,13 +80,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`context` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `context` | *any* |
 
 **Returns:** *Promise*<HookContext\>
 
-Defined in: [packages/server-core/src/hooks/notifications.ts:116](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/hooks/notifications.ts#L116)
+Defined in: [packages/server-core/src/hooks/notifications.ts:116](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/hooks/notifications.ts#L116)
 
 ___
 
@@ -96,13 +96,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`context` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `context` | *any* |
 
 **Returns:** *Promise*<HookContext\>
 
-Defined in: [packages/server-core/src/hooks/notifications.ts:50](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/hooks/notifications.ts#L50)
+Defined in: [packages/server-core/src/hooks/notifications.ts:50](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/hooks/notifications.ts#L50)
 
 ___
 
@@ -112,13 +112,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`context` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `context` | *any* |
 
 **Returns:** *Promise*<HookContext\>
 
-Defined in: [packages/server-core/src/hooks/notifications.ts:100](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/hooks/notifications.ts#L100)
+Defined in: [packages/server-core/src/hooks/notifications.ts:100](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/hooks/notifications.ts#L100)
 
 ___
 
@@ -128,13 +128,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`context` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `context` | *any* |
 
 **Returns:** *Promise*<HookContext\>
 
-Defined in: [packages/server-core/src/hooks/notifications.ts:21](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/hooks/notifications.ts#L21)
+Defined in: [packages/server-core/src/hooks/notifications.ts:21](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/hooks/notifications.ts#L21)
 
 ___
 
@@ -144,10 +144,10 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`context` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `context` | *any* |
 
 **Returns:** *Promise*<HookContext\>
 
-Defined in: [packages/server-core/src/hooks/notifications.ts:131](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/hooks/notifications.ts#L131)
+Defined in: [packages/server-core/src/hooks/notifications.ts:131](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/hooks/notifications.ts#L131)

@@ -20,10 +20,10 @@ hide_title: true
 
 #### Parameters:
 
-Name | Type | Default value |
-:------ | :------ | :------ |
-`statusCode` | *number* | 200 |
+| Name | Type | Default value |
+| :------ | :------ | :------ |
+| `statusCode` | *number* | 200 |
 
 **Returns:** (`context`: *HookContext*<any, Service<any\>\>) => *HookContext*<any, Service<any\>\>
 
-Defined in: [packages/server-core/src/hooks/set-response-status-code.ts:1](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/hooks/set-response-status-code.ts#L1)
+Defined in: [packages/server-core/src/hooks/set-response-status-code.ts:1](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/hooks/set-response-status-code.ts#L1)

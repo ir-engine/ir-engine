@@ -12,6 +12,6 @@ hide_title: true
 
 ### TwitterCallback
 
-• `Const` **TwitterCallback**: *ConnectedComponent*<(`props`: *any*) => *any*, Omit<any, string \| number \| symbol\>\>
+• `Const` **TwitterCallback**: *ComponentClass*<Pick<RouteComponentProps<any, StaticContext, unknown\>, never\>, any\> & *WithRouterStatics*<ConnectedComponent<(`props`: *any*) => *any*, Omit<any, string \| number \| symbol\>\>\>
 
-Defined in: [packages/client-core/src/user/components/Oauth/Twitter.tsx:68](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/user/components/Oauth/Twitter.tsx#L68)
+Defined in: [packages/client-core/src/user/components/Oauth/Twitter.tsx:59](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/user/components/Oauth/Twitter.tsx#L59)

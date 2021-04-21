@@ -12,8 +12,8 @@ hide_title: true
 
 ### initialize
 
-▸ `Const`**initialize**(): *void*
+▸ `Const`**initialize**(): *Promise*<void\>
 
-**Returns:** *void*
+**Returns:** *Promise*<void\>
 
-Defined in: [packages/client/src/util.ts:9](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client/src/util.ts#L9)
+Defined in: [packages/client/src/util.ts:8](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client/src/util.ts#L8)

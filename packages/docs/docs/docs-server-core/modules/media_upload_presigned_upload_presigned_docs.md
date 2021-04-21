@@ -16,10 +16,10 @@ hide_title: true
 
 #### Type declaration:
 
-Name | Type |
-:------ | :------ |
-`definitions` | *object* |
-`definitions.upload` | *object* |
-`definitions.upload.properties` | *object* |
-`definitions.upload.type` | *string* |
-`overwriteTagSpec` | *boolean* |
+| Name | Type |
+| :------ | :------ |
+| `definitions` | *object* |
+| `definitions.upload` | *object* |
+| `definitions.upload.properties` | *object* |
+| `definitions.upload.type` | *string* |
+| `overwriteTagSpec` | *boolean* |

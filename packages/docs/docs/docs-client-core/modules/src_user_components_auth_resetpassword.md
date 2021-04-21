@@ -20,10 +20,10 @@ hide_title: true
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`props` | Props |
+| Name | Type |
+| :------ | :------ |
+| `props` | Props |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/src/user/components/Auth/ResetPassword.tsx:17](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/user/components/Auth/ResetPassword.tsx#L17)
+Defined in: [packages/client-core/src/user/components/Auth/ResetPassword.tsx:17](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/user/components/Auth/ResetPassword.tsx#L17)

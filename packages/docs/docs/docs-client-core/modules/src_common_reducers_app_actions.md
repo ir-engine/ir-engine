@@ -29,18 +29,18 @@ hide_title: true
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`inVrMode` | *boolean* |
+| Name | Type |
+| :------ | :------ |
+| `inVrMode` | *boolean* |
 
 **Returns:** *object*
 
-Name | Type |
-:------ | :------ |
-`inVrMode` | *boolean* |
-`type` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `inVrMode` | *boolean* |
+| `type` | *string* |
 
-Defined in: [packages/client-core/src/common/reducers/app/actions.ts:53](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/common/reducers/app/actions.ts#L53)
+Defined in: [packages/client-core/src/common/reducers/app/actions.ts:53](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/common/reducers/app/actions.ts#L53)
 
 ___
 
@@ -50,13 +50,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`loadPercent` | *number* |
+| Name | Type |
+| :------ | :------ |
+| `loadPercent` | *number* |
 
 **Returns:** [*AppLoadPercentAction*](../interfaces/src_common_reducers_app_actions.apploadpercentaction.md)
 
-Defined in: [packages/client-core/src/common/reducers/app/actions.ts:41](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/common/reducers/app/actions.ts#L41)
+Defined in: [packages/client-core/src/common/reducers/app/actions.ts:41](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/common/reducers/app/actions.ts#L41)
 
 ___
 
@@ -66,13 +66,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`loaded` | *boolean* |
+| Name | Type |
+| :------ | :------ |
+| `loaded` | *boolean* |
 
 **Returns:** [*AppLoadedAction*](../interfaces/src_common_reducers_app_actions.apploadedaction.md)
 
-Defined in: [packages/client-core/src/common/reducers/app/actions.ts:39](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/common/reducers/app/actions.ts#L39)
+Defined in: [packages/client-core/src/common/reducers/app/actions.ts:39](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/common/reducers/app/actions.ts#L39)
 
 ___
 
@@ -82,13 +82,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`onBoardingStep` | *number* |
+| Name | Type |
+| :------ | :------ |
+| `onBoardingStep` | *number* |
 
 **Returns:** [*AppOnBoardingStepAction*](../interfaces/src_common_reducers_app_actions.apponboardingstepaction.md)
 
-Defined in: [packages/client-core/src/common/reducers/app/actions.ts:43](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/common/reducers/app/actions.ts#L43)
+Defined in: [packages/client-core/src/common/reducers/app/actions.ts:43](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/common/reducers/app/actions.ts#L43)
 
 ___
 
@@ -98,14 +98,14 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`onBoardingStep` | *number* |
-`isTutorial` | *boolean* |
+| Name | Type |
+| :------ | :------ |
+| `onBoardingStep` | *number* |
+| `isTutorial` | *boolean* |
 
 **Returns:** [*AppOnBoardingStepAction*](../interfaces/src_common_reducers_app_actions.apponboardingstepaction.md)
 
-Defined in: [packages/client-core/src/common/reducers/app/actions.ts:45](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/common/reducers/app/actions.ts#L45)
+Defined in: [packages/client-core/src/common/reducers/app/actions.ts:45](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/common/reducers/app/actions.ts#L45)
 
 ___
 
@@ -115,11 +115,11 @@ ___
 
 **Returns:** *object*
 
-Name | Type |
-:------ | :------ |
-`type` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `type` | *string* |
 
-Defined in: [packages/client-core/src/common/reducers/app/actions.ts:58](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/common/reducers/app/actions.ts#L58)
+Defined in: [packages/client-core/src/common/reducers/app/actions.ts:58](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/common/reducers/app/actions.ts#L58)
 
 ___
 
@@ -129,17 +129,17 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`width` | *number* |
-`height` | *number* |
+| Name | Type |
+| :------ | :------ |
+| `width` | *number* |
+| `height` | *number* |
 
 **Returns:** *object*
 
-Name | Type |
-:------ | :------ |
-`height` | *number* |
-`type` | *string* |
-`width` | *number* |
+| Name | Type |
+| :------ | :------ |
+| `height` | *number* |
+| `type` | *string* |
+| `width` | *number* |
 
-Defined in: [packages/client-core/src/common/reducers/app/actions.ts:47](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/common/reducers/app/actions.ts#L47)
+Defined in: [packages/client-core/src/common/reducers/app/actions.ts:47](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/common/reducers/app/actions.ts#L47)

@@ -16,10 +16,10 @@ hide_title: true
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`props` | Props |
+| Name | Type |
+| :------ | :------ |
+| `props` | Props |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/src/common/components/Slider.tsx:10](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/common/components/Slider.tsx#L10)
+Defined in: [packages/client-core/src/common/components/Slider.tsx:10](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/common/components/Slider.tsx#L10)

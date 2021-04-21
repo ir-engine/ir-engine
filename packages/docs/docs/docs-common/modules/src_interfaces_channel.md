@@ -16,15 +16,15 @@ hide_title: true
 
 #### Type declaration:
 
-Name | Type |
-:------ | :------ |
-`Messages` | [*Message*](src_interfaces_message.md#message)[] |
-`channelType` | *string* |
-`groupId` | *string* \| *null* |
-`id` | *string* |
-`instanceId` | *string* \| *null* |
-`partyId` | *string* \| *null* |
-`userId1` | *string* \| *null* |
-`userId2` | *string* \| *null* |
+| Name | Type |
+| :------ | :------ |
+| `Messages` | [*Message*](src_interfaces_message.md#message)[] |
+| `channelType` | *string* |
+| `groupId` | *string* \| ``null`` |
+| `id` | *string* |
+| `instanceId` | *string* \| ``null`` |
+| `partyId` | *string* \| ``null`` |
+| `userId1` | *string* \| ``null`` |
+| `userId2` | *string* \| ``null`` |
 
-Defined in: [interfaces/Channel.ts:3](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/common/src/interfaces/Channel.ts#L3)
+Defined in: [interfaces/Channel.ts:3](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/common/src/interfaces/Channel.ts#L3)

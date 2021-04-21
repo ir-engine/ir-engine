@@ -16,13 +16,13 @@ hide_title: true
 
 #### Type declaration:
 
-Name | Type |
-:------ | :------ |
-`definitions` | *object* |
-`definitions.feed-bookmark` | *object* |
-`definitions.feed-bookmark.properties` | *object* |
-`definitions.feed-bookmark.type` | *string* |
-`definitions.feed-bookmark_list` | *object* |
-`definitions.feed-bookmark_list.items` | *object* |
-`definitions.feed-bookmark_list.items.$ref` | *string* |
-`definitions.feed-bookmark_list.type` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `definitions` | *object* |
+| `definitions.feed-bookmark` | *object* |
+| `definitions.feed-bookmark.properties` | *object* |
+| `definitions.feed-bookmark.type` | *string* |
+| `definitions.feed-bookmark_list` | *object* |
+| `definitions.feed-bookmark_list.items` | *object* |
+| `definitions.feed-bookmark_list.items.$ref` | *string* |
+| `definitions.feed-bookmark_list.type` | *string* |

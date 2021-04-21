@@ -16,14 +16,14 @@ hide_title: true
 
 #### Type declaration:
 
-Name | Type |
-:------ | :------ |
-`feeds` | *object* |
-`feeds.commentFires` | *any*[] |
-`feeds.feedComments` | *any*[] |
-`feeds.fetching` | *boolean* |
+| Name | Type |
+| :------ | :------ |
+| `feeds` | *object* |
+| `feeds.commentFires` | *any*[] |
+| `feeds.feedComments` | *any*[] |
+| `feeds.fetching` | *boolean* |
 
-Defined in: [packages/client-core/src/socialmedia/reducers/feedComment/reducers.ts:19](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/socialmedia/reducers/feedComment/reducers.ts#L19)
+Defined in: [packages/client-core/src/socialmedia/reducers/feedComment/reducers.ts:19](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/reducers/feedComment/reducers.ts#L19)
 
 ## Functions
 
@@ -33,11 +33,11 @@ Defined in: [packages/client-core/src/socialmedia/reducers/feedComment/reducers.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`state` | *any* |
-`action` | [*FeedCommentsAction*](src_socialmedia_reducers_feedcomment_actions.md#feedcommentsaction) |
+| Name | Type |
+| :------ | :------ |
+| `state` | *any* |
+| `action` | [*FeedCommentsAction*](src_socialmedia_reducers_feedcomment_actions.md#feedcommentsaction) |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/src/socialmedia/reducers/feedComment/reducers.ts:29](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/socialmedia/reducers/feedComment/reducers.ts#L29)
+Defined in: [packages/client-core/src/socialmedia/reducers/feedComment/reducers.ts:29](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/reducers/feedComment/reducers.ts#L29)

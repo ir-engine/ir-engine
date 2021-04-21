@@ -16,13 +16,13 @@ hide_title: true
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`values` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `values` | *any* |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/src/social/reducers/chat/service.ts:91](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/social/reducers/chat/service.ts#L91)
+Defined in: [packages/client-core/src/social/reducers/chat/service.ts:91](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/social/reducers/chat/service.ts#L91)
 
 ___
 
@@ -32,15 +32,15 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`channelId` | *string* |
-`skip?` | *number* |
-`limit?` | *number* |
+| Name | Type |
+| :------ | :------ |
+| `channelId` | *string* |
+| `skip?` | *number* |
+| `limit?` | *number* |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>, `getState`: *any*) => *Promise*<any\>
 
-Defined in: [packages/client-core/src/social/reducers/chat/service.ts:106](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/social/reducers/chat/service.ts#L106)
+Defined in: [packages/client-core/src/social/reducers/chat/service.ts:106](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/social/reducers/chat/service.ts#L106)
 
 ___
 
@@ -50,14 +50,14 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`skip?` | *number* |
-`limit?` | *number* |
+| Name | Type |
+| :------ | :------ |
+| `skip?` | *number* |
+| `limit?` | *number* |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>, `getState`: *any*) => *Promise*<any\>
 
-Defined in: [packages/client-core/src/social/reducers/chat/service.ts:23](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/social/reducers/chat/service.ts#L23)
+Defined in: [packages/client-core/src/social/reducers/chat/service.ts:23](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/social/reducers/chat/service.ts#L23)
 
 ___
 
@@ -67,7 +67,7 @@ ___
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>, `getState`: *any*) => *Promise*<any\>
 
-Defined in: [packages/client-core/src/social/reducers/chat/service.ts:76](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/social/reducers/chat/service.ts#L76)
+Defined in: [packages/client-core/src/social/reducers/chat/service.ts:76](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/social/reducers/chat/service.ts#L76)
 
 ___
 
@@ -77,14 +77,14 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`messageId` | *string* |
-`text` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `messageId` | *string* |
+| `text` | *string* |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/src/social/reducers/chat/service.ts:138](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/social/reducers/chat/service.ts#L138)
+Defined in: [packages/client-core/src/social/reducers/chat/service.ts:138](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/social/reducers/chat/service.ts#L138)
 
 ___
 
@@ -94,13 +94,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`messageId` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `messageId` | *string* |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/src/social/reducers/chat/service.ts:127](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/social/reducers/chat/service.ts#L127)
+Defined in: [packages/client-core/src/social/reducers/chat/service.ts:127](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/social/reducers/chat/service.ts#L127)
 
 ___
 
@@ -110,14 +110,14 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`targetObjectType` | *string* |
-`targetObject` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `targetObjectType` | *string* |
+| `targetObject` | *any* |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/src/social/reducers/chat/service.ts:151](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/social/reducers/chat/service.ts#L151)
+Defined in: [packages/client-core/src/social/reducers/chat/service.ts:151](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/social/reducers/chat/service.ts#L151)
 
 ___
 
@@ -127,10 +127,10 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`value` | *boolean* |
+| Name | Type |
+| :------ | :------ |
+| `value` | *boolean* |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/src/social/reducers/chat/service.ts:164](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/social/reducers/chat/service.ts#L164)
+Defined in: [packages/client-core/src/social/reducers/chat/service.ts:164](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/social/reducers/chat/service.ts#L164)

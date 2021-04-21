@@ -16,10 +16,10 @@ hide_title: true
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`app` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `app` | *any* |
 
 **Returns:** *Promise*<string\>
 
-Defined in: [packages/server-core/src/util/get-free-invite-code.ts:3](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/util/get-free-invite-code.ts#L3)
+Defined in: [packages/server-core/src/util/get-free-invite-code.ts:3](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/util/get-free-invite-code.ts#L3)

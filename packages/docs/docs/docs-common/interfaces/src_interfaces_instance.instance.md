@@ -16,7 +16,7 @@ hide_title: true
 
 • **currentUsers**: *number*
 
-Defined in: [interfaces/Instance.ts:3](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/common/src/interfaces/Instance.ts#L3)
+Defined in: [interfaces/Instance.ts:3](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/common/src/interfaces/Instance.ts#L3)
 
 ___
 
@@ -24,7 +24,7 @@ ___
 
 • **id**: *number*
 
-Defined in: [interfaces/Instance.ts:2](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/common/src/interfaces/Instance.ts#L2)
+Defined in: [interfaces/Instance.ts:2](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/common/src/interfaces/Instance.ts#L2)
 
 ___
 
@@ -32,7 +32,7 @@ ___
 
 • **ipAddress**: *string*
 
-Defined in: [interfaces/Instance.ts:4](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/common/src/interfaces/Instance.ts#L4)
+Defined in: [interfaces/Instance.ts:4](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/common/src/interfaces/Instance.ts#L4)
 
 ___
 
@@ -40,4 +40,4 @@ ___
 
 • **locationId**: *string*
 
-Defined in: [interfaces/Instance.ts:5](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/common/src/interfaces/Instance.ts#L5)
+Defined in: [interfaces/Instance.ts:5](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/common/src/interfaces/Instance.ts#L5)

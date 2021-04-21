@@ -16,15 +16,15 @@ hide_title: true
 
 #### Type declaration:
 
-Name | Type |
-:------ | :------ |
-`definitions` | *object* |
-`definitions.user-relationship-type` | *object* |
-`definitions.user-relationship-type.properties` | *object* |
-`definitions.user-relationship-type.properties.type` | *object* |
-`definitions.user-relationship-type.properties.type.type` | *string* |
-`definitions.user-relationship-type.type` | *string* |
-`definitions.user-relationship-type_list` | *object* |
-`definitions.user-relationship-type_list.items` | *object* |
-`definitions.user-relationship-type_list.items.$ref` | *string* |
-`definitions.user-relationship-type_list.type` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `definitions` | *object* |
+| `definitions.user-relationship-type` | *object* |
+| `definitions.user-relationship-type.properties` | *object* |
+| `definitions.user-relationship-type.properties.type` | *object* |
+| `definitions.user-relationship-type.properties.type.type` | *string* |
+| `definitions.user-relationship-type.type` | *string* |
+| `definitions.user-relationship-type_list` | *object* |
+| `definitions.user-relationship-type_list.items` | *object* |
+| `definitions.user-relationship-type_list.items.$ref` | *string* |
+| `definitions.user-relationship-type_list.type` | *string* |

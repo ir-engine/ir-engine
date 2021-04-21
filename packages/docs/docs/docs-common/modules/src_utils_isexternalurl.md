@@ -16,10 +16,10 @@ hide_title: true
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`url` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `url` | *string* |
 
 **Returns:** *boolean*
 
-Defined in: [utils/isExternalUrl.ts:2](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/common/src/utils/isExternalUrl.ts#L2)
+Defined in: [utils/isExternalUrl.ts:2](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/common/src/utils/isExternalUrl.ts#L2)

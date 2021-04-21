@@ -16,14 +16,14 @@ hide_title: true
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`feedId` | *string* |
-`text` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `feedId` | *string* |
+| `text` | *string* |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/src/socialmedia/reducers/feedComment/service.ts:26](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/socialmedia/reducers/feedComment/service.ts#L26)
+Defined in: [packages/client-core/src/socialmedia/reducers/feedComment/service.ts:26](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/reducers/feedComment/service.ts#L26)
 
 ___
 
@@ -33,13 +33,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`commentId` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `commentId` | *string* |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/src/socialmedia/reducers/feedComment/service.ts:39](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/socialmedia/reducers/feedComment/service.ts#L39)
+Defined in: [packages/client-core/src/socialmedia/reducers/feedComment/service.ts:39](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/reducers/feedComment/service.ts#L39)
 
 ___
 
@@ -49,14 +49,14 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`commentId` | *string* |
-`limit?` | *number* |
+| Name | Type |
+| :------ | :------ |
+| `commentId` | *string* |
+| `limit?` | *number* |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>, `getState`: *any*) => *Promise*<any\>
 
-Defined in: [packages/client-core/src/socialmedia/reducers/feedComment/service.ts:64](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/socialmedia/reducers/feedComment/service.ts#L64)
+Defined in: [packages/client-core/src/socialmedia/reducers/feedComment/service.ts:64](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/reducers/feedComment/service.ts#L64)
 
 ___
 
@@ -66,14 +66,14 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`feedId` | *string* |
-`limit?` | *number* |
+| Name | Type |
+| :------ | :------ |
+| `feedId` | *string* |
+| `limit?` | *number* |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>, `getState`: *any*) => *Promise*<any\>
 
-Defined in: [packages/client-core/src/socialmedia/reducers/feedComment/service.ts:13](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/socialmedia/reducers/feedComment/service.ts#L13)
+Defined in: [packages/client-core/src/socialmedia/reducers/feedComment/service.ts:13](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/reducers/feedComment/service.ts#L13)
 
 ___
 
@@ -83,10 +83,10 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`commentId` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `commentId` | *string* |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/src/socialmedia/reducers/feedComment/service.ts:51](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/socialmedia/reducers/feedComment/service.ts#L51)
+Defined in: [packages/client-core/src/socialmedia/reducers/feedComment/service.ts:51](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/reducers/feedComment/service.ts#L51)

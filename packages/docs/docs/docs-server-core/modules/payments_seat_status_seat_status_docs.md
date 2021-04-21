@@ -16,15 +16,15 @@ hide_title: true
 
 #### Type declaration:
 
-Name | Type |
-:------ | :------ |
-`definitions` | *object* |
-`definitions.seat-status` | *object* |
-`definitions.seat-status.properties` | *object* |
-`definitions.seat-status.properties.status` | *object* |
-`definitions.seat-status.properties.status.type` | *string* |
-`definitions.seat-status.type` | *string* |
-`definitions.seat-status_list` | *object* |
-`definitions.seat-status_list.items` | *object* |
-`definitions.seat-status_list.items.$ref` | *string* |
-`definitions.seat-status_list.type` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `definitions` | *object* |
+| `definitions.seat-status` | *object* |
+| `definitions.seat-status.properties` | *object* |
+| `definitions.seat-status.properties.status` | *object* |
+| `definitions.seat-status.properties.status.type` | *string* |
+| `definitions.seat-status.type` | *string* |
+| `definitions.seat-status_list` | *object* |
+| `definitions.seat-status_list.items` | *object* |
+| `definitions.seat-status_list.items.$ref` | *string* |
+| `definitions.seat-status_list.type` | *string* |

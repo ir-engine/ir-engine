@@ -12,6 +12,6 @@ hide_title: true
 
 ### GoogleCallback
 
-• `Const` **GoogleCallback**: *ConnectedComponent*<(`props`: *any*) => *any*, Omit<any, string \| number \| symbol\>\>
+• `Const` **GoogleCallback**: *ComponentClass*<Pick<RouteComponentProps<any, StaticContext, unknown\>, never\>, any\> & *WithRouterStatics*<ConnectedComponent<(`props`: *any*) => *any*, Omit<any, string \| number \| symbol\>\>\>
 
-Defined in: [packages/client-core/src/user/components/Oauth/GoogleCallback.tsx:68](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/user/components/Oauth/GoogleCallback.tsx#L68)
+Defined in: [packages/client-core/src/user/components/Oauth/GoogleCallback.tsx:57](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/user/components/Oauth/GoogleCallback.tsx#L57)

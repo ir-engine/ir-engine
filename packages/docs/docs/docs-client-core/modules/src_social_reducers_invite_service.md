@@ -16,14 +16,14 @@ hide_title: true
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`inviteId` | *string* |
-`passcode` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `inviteId` | *string* |
+| `passcode` | *string* |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/src/social/reducers/invite/service.ts:153](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/social/reducers/invite/service.ts#L153)
+Defined in: [packages/client-core/src/social/reducers/invite/service.ts:153](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/social/reducers/invite/service.ts#L153)
 
 ___
 
@@ -33,13 +33,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`invite` | Invite |
+| Name | Type |
+| :------ | :------ |
+| `invite` | Invite |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/src/social/reducers/invite/service.ts:168](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/social/reducers/invite/service.ts#L168)
+Defined in: [packages/client-core/src/social/reducers/invite/service.ts:168](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/social/reducers/invite/service.ts#L168)
 
 ___
 
@@ -49,13 +49,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`invite` | Invite |
+| Name | Type |
+| :------ | :------ |
+| `invite` | Invite |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/src/social/reducers/invite/service.ts:142](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/social/reducers/invite/service.ts#L142)
+Defined in: [packages/client-core/src/social/reducers/invite/service.ts:142](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/social/reducers/invite/service.ts#L142)
 
 ___
 
@@ -65,14 +65,14 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`skip?` | *number* |
-`limit?` | *number* |
+| Name | Type |
+| :------ | :------ |
+| `skip?` | *number* |
+| `limit?` | *number* |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>, `getState`: *any*) => *Promise*<any\>
 
-Defined in: [packages/client-core/src/social/reducers/invite/service.ts:102](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/social/reducers/invite/service.ts#L102)
+Defined in: [packages/client-core/src/social/reducers/invite/service.ts:102](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/social/reducers/invite/service.ts#L102)
 
 ___
 
@@ -82,14 +82,14 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`skip?` | *number* |
-`limit?` | *number* |
+| Name | Type |
+| :------ | :------ |
+| `skip?` | *number* |
+| `limit?` | *number* |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>, `getState`: *any*) => *Promise*<any\>
 
-Defined in: [packages/client-core/src/social/reducers/invite/service.ts:121](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/social/reducers/invite/service.ts#L121)
+Defined in: [packages/client-core/src/social/reducers/invite/service.ts:121](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/social/reducers/invite/service.ts#L121)
 
 ___
 
@@ -99,13 +99,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`data` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `data` | *any* |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>, `getState`: *any*) => *Promise*<void\>
 
-Defined in: [packages/client-core/src/social/reducers/invite/service.ts:29](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/social/reducers/invite/service.ts#L29)
+Defined in: [packages/client-core/src/social/reducers/invite/service.ts:29](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/social/reducers/invite/service.ts#L29)
 
 ___
 
@@ -115,11 +115,11 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`targetObjectType?` | *string* |
-`targetObjectId?` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `targetObjectType?` | *string* |
+| `targetObjectId?` | *string* |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/src/social/reducers/invite/service.ts:178](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/social/reducers/invite/service.ts#L178)
+Defined in: [packages/client-core/src/social/reducers/invite/service.ts:178](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/social/reducers/invite/service.ts#L178)

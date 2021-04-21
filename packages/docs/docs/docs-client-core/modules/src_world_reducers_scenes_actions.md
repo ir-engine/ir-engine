@@ -25,13 +25,13 @@ hide_title: true
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`collections` | *any*[] |
+| Name | Type |
+| :------ | :------ |
+| `collections` | *any*[] |
 
 **Returns:** [*CollectionsFetchedAction*](../interfaces/src_world_reducers_scenes_actions.collectionsfetchedaction.md)
 
-Defined in: [packages/client-core/src/world/reducers/scenes/actions.ts:46](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/reducers/scenes/actions.ts#L46)
+Defined in: [packages/client-core/src/world/reducers/scenes/actions.ts:46](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/reducers/scenes/actions.ts#L46)
 
 ___
 
@@ -41,13 +41,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`err` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `err` | *string* |
 
 **Returns:** [*ScenesFetchedAction*](../interfaces/src_world_reducers_scenes_actions.scenesfetchedaction.md)
 
-Defined in: [packages/client-core/src/world/reducers/scenes/actions.ts:39](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/reducers/scenes/actions.ts#L39)
+Defined in: [packages/client-core/src/world/reducers/scenes/actions.ts:39](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/reducers/scenes/actions.ts#L39)
 
 ___
 
@@ -57,13 +57,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`scenes` | [*PublicScene*](../interfaces/src_world_reducers_scenes_actions.publicscene.md)[] |
+| Name | Type |
+| :------ | :------ |
+| `scenes` | [*PublicScene*](../interfaces/src_world_reducers_scenes_actions.publicscene.md)[] |
 
 **Returns:** [*ScenesFetchedAction*](../interfaces/src_world_reducers_scenes_actions.scenesfetchedaction.md)
 
-Defined in: [packages/client-core/src/world/reducers/scenes/actions.ts:32](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/reducers/scenes/actions.ts#L32)
+Defined in: [packages/client-core/src/world/reducers/scenes/actions.ts:32](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/reducers/scenes/actions.ts#L32)
 
 ___
 
@@ -73,10 +73,10 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`scene` | [*PublicScene*](../interfaces/src_world_reducers_scenes_actions.publicscene.md) |
+| Name | Type |
+| :------ | :------ |
+| `scene` | [*PublicScene*](../interfaces/src_world_reducers_scenes_actions.publicscene.md) |
 
 **Returns:** [*ScenesFetchedAction*](../interfaces/src_world_reducers_scenes_actions.scenesfetchedaction.md)
 
-Defined in: [packages/client-core/src/world/reducers/scenes/actions.ts:53](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/reducers/scenes/actions.ts#L53)
+Defined in: [packages/client-core/src/world/reducers/scenes/actions.ts:53](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/reducers/scenes/actions.ts#L53)

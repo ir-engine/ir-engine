@@ -16,16 +16,16 @@ hide_title: true
 
 #### Type declaration:
 
-Name | Type |
-:------ | :------ |
-`definitions` | *object* |
-`definitions.channel-type` | *object* |
-`definitions.channel-type.properties` | *object* |
-`definitions.channel-type.properties.type` | *object* |
-`definitions.channel-type.properties.type.type` | *string* |
-`definitions.channel-type.required` | *string*[] |
-`definitions.channel-type.type` | *string* |
-`definitions.channel-type_list` | *object* |
-`definitions.channel-type_list.items` | *object* |
-`definitions.channel-type_list.items.$ref` | *string* |
-`definitions.channel-type_list.type` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `definitions` | *object* |
+| `definitions.channel-type` | *object* |
+| `definitions.channel-type.properties` | *object* |
+| `definitions.channel-type.properties.type` | *object* |
+| `definitions.channel-type.properties.type.type` | *string* |
+| `definitions.channel-type.required` | *string*[] |
+| `definitions.channel-type.type` | *string* |
+| `definitions.channel-type_list` | *object* |
+| `definitions.channel-type_list.items` | *object* |
+| `definitions.channel-type_list.items.$ref` | *string* |
+| `definitions.channel-type_list.type` | *string* |

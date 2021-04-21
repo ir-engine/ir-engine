@@ -28,16 +28,16 @@ A class for identity-provider service
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`options` | *Partial*<SequelizeServiceOptions\> |
-`app` | Application |
+| Name | Type |
+| :------ | :------ |
+| `options` | *Partial*<SequelizeServiceOptions\> |
+| `app` | Application |
 
 **Returns:** [*IdentityProvider*](user_identity_provider_identity_provider_class.identityprovider.md)
 
 Overrides: Service.constructor
 
-Defined in: [packages/server-core/src/user/identity-provider/identity-provider.class.ts:20](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/user/identity-provider/identity-provider.class.ts#L20)
+Defined in: [packages/server-core/src/user/identity-provider/identity-provider.class.ts:20](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/user/identity-provider/identity-provider.class.ts#L20)
 
 ## Properties
 
@@ -55,7 +55,7 @@ ___
 
 • **app**: Application
 
-Defined in: [packages/server-core/src/user/identity-provider/identity-provider.class.ts:19](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/user/identity-provider/identity-provider.class.ts#L19)
+Defined in: [packages/server-core/src/user/identity-provider/identity-provider.class.ts:19](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/user/identity-provider/identity-provider.class.ts#L19)
 
 ___
 
@@ -63,7 +63,7 @@ ___
 
 • **docs**: *any*
 
-Defined in: [packages/server-core/src/user/identity-provider/identity-provider.class.ts:20](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/user/identity-provider/identity-provider.class.ts#L20)
+Defined in: [packages/server-core/src/user/identity-provider/identity-provider.class.ts:20](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/user/identity-provider/identity-provider.class.ts#L20)
 
 ___
 
@@ -103,10 +103,10 @@ Defined in: node_modules/@feathersjs/adapter-commons/lib/service.d.ts:85
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`data` | *Partial*<any\> \| *Partial*<any\>[] |
-`params?` | Params |
+| Name | Type |
+| :------ | :------ |
+| `data` | *Partial*<any\> \| *Partial*<any\>[] |
+| `params?` | Params |
 
 **Returns:** *Promise*<any\>
 
@@ -122,9 +122,9 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`params?` | Params |
+| Name | Type |
+| :------ | :------ |
+| `params?` | Params |
 
 **Returns:** *Promise*<any\>
 
@@ -140,10 +140,10 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`id` | Id |
-`params?` | Params |
+| Name | Type |
+| :------ | :------ |
+| `id` | Id |
+| `params?` | Params |
 
 **Returns:** *Promise*<any\>
 
@@ -159,11 +159,11 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`id` | NullableId |
-`data` | *Partial*<any\> |
-`params?` | Params |
+| Name | Type |
+| :------ | :------ |
+| `id` | NullableId |
+| `data` | *Partial*<any\> |
+| `params?` | Params |
 
 **Returns:** *Promise*<any\>
 
@@ -179,10 +179,10 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`id` | NullableId |
-`params?` | Params |
+| Name | Type |
+| :------ | :------ |
+| `id` | NullableId |
+| `params?` | Params |
 
 **Returns:** *Promise*<any\>
 
@@ -198,11 +198,11 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`id` | NullableId |
-`data` | *any* |
-`params?` | Params |
+| Name | Type |
+| :------ | :------ |
+| `id` | NullableId |
+| `data` | *any* |
+| `params?` | Params |
 
 **Returns:** *Promise*<any\>
 
@@ -218,9 +218,9 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`method` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `method` | *string* |
 
 **Returns:** *boolean*
 
@@ -238,10 +238,10 @@ A method used to create accessToken
 
 #### Parameters:
 
-Name | Type | Description |
-:------ | :------ | :------ |
-`data` | *any* | which contains token and type   |
-`params` | *any* |  |
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `data` | *any* | which contains token and type |
+| `params` | *any* |  |
 
 **Returns:** *Promise*<any\>
 
@@ -249,22 +249,22 @@ accessToken
 
 Overrides: Service.create
 
-Defined in: [packages/server-core/src/user/identity-provider/identity-provider.class.ts:34](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/user/identity-provider/identity-provider.class.ts#L34)
+Defined in: [packages/server-core/src/user/identity-provider/identity-provider.class.ts:34](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/user/identity-provider/identity-provider.class.ts#L34)
 
 ___
 
 ### filterQuery
 
-▸ **filterQuery**(`params?`: Params, `opts?`: *any*): { [key: string]: *any*;  } & { `paginate`: *false* \| *Pick*<PaginationOptions, *max*\> \| { `default?`: *number* ; `max?`: *number*  }  }
+▸ **filterQuery**(`params?`: Params, `opts?`: *any*): { [key: string]: *any*;  } & { `paginate`: ``false`` \| *Pick*<PaginationOptions, ``"max"``\> \| { `default?`: *number* ; `max?`: *number*  }  }
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`params?` | Params |
-`opts?` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `params?` | Params |
+| `opts?` | *any* |
 
-**Returns:** { [key: string]: *any*;  } & { `paginate`: *false* \| *Pick*<PaginationOptions, *max*\> \| { `default?`: *number* ; `max?`: *number*  }  }
+**Returns:** { [key: string]: *any*;  } & { `paginate`: ``false`` \| *Pick*<PaginationOptions, ``"max"``\> \| { `default?`: *number* ; `max?`: *number*  }  }
 
 Inherited from: Service.filterQuery
 
@@ -278,9 +278,9 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`params?` | Params |
+| Name | Type |
+| :------ | :------ |
+| `params?` | Params |
 
 **Returns:** *Promise*<any[] \| Paginated<any\>\>
 
@@ -296,10 +296,10 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`id` | Id |
-`params?` | Params |
+| Name | Type |
+| :------ | :------ |
+| `id` | Id |
+| `params?` | Params |
 
 **Returns:** *Promise*<any\>
 
@@ -315,9 +315,9 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`params` | Params |
+| Name | Type |
+| :------ | :------ |
+| `params` | Params |
 
 **Returns:** *any*
 
@@ -333,11 +333,11 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`id` | NullableId |
-`data` | *Partial*<any\> |
-`params?` | Params |
+| Name | Type |
+| :------ | :------ |
+| `id` | NullableId |
+| `data` | *Partial*<any\> |
+| `params?` | Params |
 
 **Returns:** *Promise*<any\>
 
@@ -353,10 +353,10 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`id` | NullableId |
-`params?` | Params |
+| Name | Type |
+| :------ | :------ |
+| `id` | NullableId |
+| `params?` | Params |
 
 **Returns:** *Promise*<any\>
 
@@ -372,11 +372,11 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`id` | Id |
-`data` | *any* |
-`params?` | Params |
+| Name | Type |
+| :------ | :------ |
+| `id` | Id |
+| `data` | *any* |
+| `params?` | Params |
 
 **Returns:** *Promise*<any\>
 

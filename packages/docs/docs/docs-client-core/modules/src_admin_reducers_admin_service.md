@@ -16,13 +16,13 @@ hide_title: true
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`instance` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `instance` | *any* |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/src/admin/reducers/admin/service.ts:182](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/admin/reducers/admin/service.ts#L182)
+Defined in: [packages/client-core/src/admin/reducers/admin/service.ts:182](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/admin/reducers/admin/service.ts#L182)
 
 ___
 
@@ -32,13 +32,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`location` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `location` | *any* |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/src/admin/reducers/admin/service.ts:140](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/admin/reducers/admin/service.ts#L140)
+Defined in: [packages/client-core/src/admin/reducers/admin/service.ts:140](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/admin/reducers/admin/service.ts#L140)
 
 ___
 
@@ -48,13 +48,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`user` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `user` | *any* |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/src/admin/reducers/admin/service.ts:151](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/admin/reducers/admin/service.ts#L151)
+Defined in: [packages/client-core/src/admin/reducers/admin/service.ts:151](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/admin/reducers/admin/service.ts#L151)
 
 ___
 
@@ -64,13 +64,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`data` | [*VideoCreationForm*](../interfaces/src_admin_reducers_admin_actions.videocreationform.md) |
+| Name | Type |
+| :------ | :------ |
+| `data` | [*VideoCreationForm*](../interfaces/src_admin_reducers_admin_actions.videocreationform.md) |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>, `getState`: *any*) => *Promise*<void\>
 
-Defined in: [packages/client-core/src/admin/reducers/admin/service.ts:26](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/admin/reducers/admin/service.ts#L26)
+Defined in: [packages/client-core/src/admin/reducers/admin/service.ts:26](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/admin/reducers/admin/service.ts#L26)
 
 ___
 
@@ -80,13 +80,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`id` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `id` | *string* |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *any*
 
-Defined in: [packages/client-core/src/admin/reducers/admin/service.ts:56](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/admin/reducers/admin/service.ts#L56)
+Defined in: [packages/client-core/src/admin/reducers/admin/service.ts:56](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/admin/reducers/admin/service.ts#L56)
 
 ___
 
@@ -96,7 +96,7 @@ ___
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>, `getState`: *any*) => *Promise*<any\>
 
-Defined in: [packages/client-core/src/admin/reducers/admin/service.ts:123](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/admin/reducers/admin/service.ts#L123)
+Defined in: [packages/client-core/src/admin/reducers/admin/service.ts:123](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/admin/reducers/admin/service.ts#L123)
 
 ___
 
@@ -106,7 +106,7 @@ ___
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>, `getState`: *any*) => *Promise*<any\>
 
-Defined in: [packages/client-core/src/admin/reducers/admin/service.ts:85](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/admin/reducers/admin/service.ts#L85)
+Defined in: [packages/client-core/src/admin/reducers/admin/service.ts:85](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/admin/reducers/admin/service.ts#L85)
 
 ___
 
@@ -116,7 +116,7 @@ ___
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/src/admin/reducers/admin/service.ts:230](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/admin/reducers/admin/service.ts#L230)
+Defined in: [packages/client-core/src/admin/reducers/admin/service.ts:230](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/admin/reducers/admin/service.ts#L230)
 
 ___
 
@@ -126,7 +126,7 @@ ___
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *any*
 
-Defined in: [packages/client-core/src/admin/reducers/admin/service.ts:66](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/admin/reducers/admin/service.ts#L66)
+Defined in: [packages/client-core/src/admin/reducers/admin/service.ts:66](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/admin/reducers/admin/service.ts#L66)
 
 ___
 
@@ -136,7 +136,7 @@ ___
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/src/admin/reducers/admin/service.ts:244](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/admin/reducers/admin/service.ts#L244)
+Defined in: [packages/client-core/src/admin/reducers/admin/service.ts:244](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/admin/reducers/admin/service.ts#L244)
 
 ___
 
@@ -146,13 +146,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`offset` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `offset` | *string* |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>, `getState`: *any*) => *Promise*<any\>
 
-Defined in: [packages/client-core/src/admin/reducers/admin/service.ts:101](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/admin/reducers/admin/service.ts#L101)
+Defined in: [packages/client-core/src/admin/reducers/admin/service.ts:101](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/admin/reducers/admin/service.ts#L101)
 
 ___
 
@@ -162,14 +162,14 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`id` | *string* |
-`instance` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `id` | *string* |
+| `instance` | *any* |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/src/admin/reducers/admin/service.ts:193](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/admin/reducers/admin/service.ts#L193)
+Defined in: [packages/client-core/src/admin/reducers/admin/service.ts:193](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/admin/reducers/admin/service.ts#L193)
 
 ___
 
@@ -179,14 +179,14 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`id` | *string* |
-`location` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `id` | *string* |
+| `location` | *any* |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/src/admin/reducers/admin/service.ts:211](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/admin/reducers/admin/service.ts#L211)
+Defined in: [packages/client-core/src/admin/reducers/admin/service.ts:211](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/admin/reducers/admin/service.ts#L211)
 
 ___
 
@@ -196,14 +196,14 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`id` | *string* |
-`user` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `id` | *string* |
+| `user` | *any* |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/src/admin/reducers/admin/service.ts:162](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/admin/reducers/admin/service.ts#L162)
+Defined in: [packages/client-core/src/admin/reducers/admin/service.ts:162](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/admin/reducers/admin/service.ts#L162)
 
 ___
 
@@ -213,13 +213,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`id` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `id` | *string* |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/src/admin/reducers/admin/service.ts:204](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/admin/reducers/admin/service.ts#L204)
+Defined in: [packages/client-core/src/admin/reducers/admin/service.ts:204](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/admin/reducers/admin/service.ts#L204)
 
 ___
 
@@ -229,13 +229,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`id` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `id` | *string* |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/src/admin/reducers/admin/service.ts:223](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/admin/reducers/admin/service.ts#L223)
+Defined in: [packages/client-core/src/admin/reducers/admin/service.ts:223](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/admin/reducers/admin/service.ts#L223)
 
 ___
 
@@ -245,13 +245,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`id` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `id` | *string* |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/src/admin/reducers/admin/service.ts:175](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/admin/reducers/admin/service.ts#L175)
+Defined in: [packages/client-core/src/admin/reducers/admin/service.ts:175](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/admin/reducers/admin/service.ts#L175)
 
 ___
 
@@ -261,10 +261,10 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`data` | [*VideoUpdateForm*](../interfaces/src_admin_reducers_admin_actions.videoupdateform.md) |
+| Name | Type |
+| :------ | :------ |
+| `data` | [*VideoUpdateForm*](../interfaces/src_admin_reducers_admin_actions.videoupdateform.md) |
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *any*
 
-Defined in: [packages/client-core/src/admin/reducers/admin/service.ts:46](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/admin/reducers/admin/service.ts#L46)
+Defined in: [packages/client-core/src/admin/reducers/admin/service.ts:46](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/admin/reducers/admin/service.ts#L46)

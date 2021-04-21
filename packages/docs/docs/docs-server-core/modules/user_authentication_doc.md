@@ -16,20 +16,20 @@ hide_title: true
 
 #### Type declaration:
 
-Name | Type |
-:------ | :------ |
-`definitions` | *object* |
-`definitions.authentication` | *object* |
-`definitions.authentication.properties` | *object* |
-`definitions.authentication.properties.email` | *object* |
-`definitions.authentication.properties.email.type` | *string* |
-`definitions.authentication.properties.password` | *object* |
-`definitions.authentication.properties.password.type` | *string* |
-`definitions.authentication.properties.strategy` | *object* |
-`definitions.authentication.properties.strategy.default` | *string* |
-`definitions.authentication.properties.strategy.type` | *string* |
-`definitions.authentication.type` | *string* |
-`operations` | *object* |
-`operations.find` | *object* |
-`operations.find.security` | { `bearer`: *any*[] = [] }[] |
-`securities` | *string*[] |
+| Name | Type |
+| :------ | :------ |
+| `definitions` | *object* |
+| `definitions.authentication` | *object* |
+| `definitions.authentication.properties` | *object* |
+| `definitions.authentication.properties.email` | *object* |
+| `definitions.authentication.properties.email.type` | *string* |
+| `definitions.authentication.properties.password` | *object* |
+| `definitions.authentication.properties.password.type` | *string* |
+| `definitions.authentication.properties.strategy` | *object* |
+| `definitions.authentication.properties.strategy.default` | *string* |
+| `definitions.authentication.properties.strategy.type` | *string* |
+| `definitions.authentication.type` | *string* |
+| `operations` | *object* |
+| `operations.find` | *object* |
+| `operations.find.security` | { `bearer`: *any*[] = [] }[] |
+| `securities` | *string*[] |

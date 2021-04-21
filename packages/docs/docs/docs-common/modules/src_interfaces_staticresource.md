@@ -20,4 +20,4 @@ hide_title: true
 
 • `Const` **StaticResourceSeed**: [*StaticResource*](../interfaces/src_interfaces_staticresource.staticresource.md)
 
-Defined in: [interfaces/StaticResource.ts:12](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/common/src/interfaces/StaticResource.ts#L12)
+Defined in: [interfaces/StaticResource.ts:12](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/common/src/interfaces/StaticResource.ts#L12)

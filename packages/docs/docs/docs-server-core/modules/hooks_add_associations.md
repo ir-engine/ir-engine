@@ -20,10 +20,10 @@ hide_title: true
 
 #### Parameters:
 
-Name | Type | Default value |
-:------ | :------ | :------ |
-`options` | *object* | {} |
+| Name | Type | Default value |
+| :------ | :------ | :------ |
+| `options` | *object* | {} |
 
 **Returns:** *any*
 
-Defined in: [packages/server-core/src/hooks/add-associations.ts:14](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/hooks/add-associations.ts#L14)
+Defined in: [packages/server-core/src/hooks/add-associations.ts:14](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/hooks/add-associations.ts#L14)

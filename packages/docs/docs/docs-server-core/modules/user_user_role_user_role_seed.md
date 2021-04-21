@@ -16,12 +16,12 @@ hide_title: true
 
 #### Type declaration:
 
-Name | Type |
-:------ | :------ |
-`delete` | *any* |
-`disabled` | *boolean* |
-`path` | *string* |
-`randomize` | *boolean* |
-`templates` | { `role`: *string* = 'admin' }[] |
+| Name | Type |
+| :------ | :------ |
+| `delete` | *any* |
+| `disabled` | *boolean* |
+| `path` | *string* |
+| `randomize` | *boolean* |
+| `templates` | { `role`: *string* = 'admin' }[] |
 
-Defined in: [packages/server-core/src/user/user-role/user-role.seed.ts:3](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/user/user-role/user-role.seed.ts#L3)
+Defined in: [packages/server-core/src/user/user-role/user-role.seed.ts:3](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/user/user-role/user-role.seed.ts#L3)

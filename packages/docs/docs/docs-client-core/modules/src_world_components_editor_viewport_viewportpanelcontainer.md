@@ -26,4 +26,4 @@ ViewportPanelContainer used to render viewport.
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/viewport/ViewportPanelContainer.tsx:242](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/viewport/ViewportPanelContainer.tsx#L242)
+Defined in: [packages/client-core/src/world/components/editor/viewport/ViewportPanelContainer.tsx:242](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/viewport/ViewportPanelContainer.tsx#L242)

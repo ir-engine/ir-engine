@@ -16,15 +16,15 @@ hide_title: true
 
 #### Type declaration:
 
-Name | Type |
-:------ | :------ |
-`definitions` | *object* |
-`definitions.login-token` | *object* |
-`definitions.login-token.properties` | *object* |
-`definitions.login-token.properties.identityProviderId` | *object* |
-`definitions.login-token.properties.identityProviderId.type` | *string* |
-`definitions.login-token.type` | *string* |
-`definitions.login-token_list` | *object* |
-`definitions.login-token_list.items` | *object* |
-`definitions.login-token_list.items.$ref` | *string* |
-`definitions.login-token_list.type` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `definitions` | *object* |
+| `definitions.login-token` | *object* |
+| `definitions.login-token.properties` | *object* |
+| `definitions.login-token.properties.identityProviderId` | *object* |
+| `definitions.login-token.properties.identityProviderId.type` | *string* |
+| `definitions.login-token.type` | *string* |
+| `definitions.login-token_list` | *object* |
+| `definitions.login-token_list.items` | *object* |
+| `definitions.login-token_list.items.$ref` | *string* |
+| `definitions.login-token_list.type` | *string* |

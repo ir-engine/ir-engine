@@ -12,8 +12,8 @@ hide_title: true
 
 ### default
 
-• `Const` **default**: *StyledComponent*<*a*, any, {}, never\>
+• `Const` **default**: *StyledComponent*<``"a"``, any, {}, never\>
 
 **`author`** Robert Long
 
-Defined in: [packages/client-core/src/world/components/editor/inputs/PrimaryLink.tsx:6](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/inputs/PrimaryLink.tsx#L6)
+Defined in: [packages/client-core/src/world/components/editor/inputs/PrimaryLink.tsx:6](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/inputs/PrimaryLink.tsx#L6)

@@ -18,7 +18,7 @@ SettingsContextProvider provides component context value.
 
 **`author`** Robert Long
 
-Defined in: [packages/client-core/src/world/components/editor/contexts/SettingsContext.tsx:27](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/contexts/SettingsContext.tsx#L27)
+Defined in: [packages/client-core/src/world/components/editor/contexts/SettingsContext.tsx:27](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/contexts/SettingsContext.tsx#L27)
 
 ___
 
@@ -32,7 +32,7 @@ initializing defaultSettings with empty context.
 
 #### Type declaration:
 
-Defined in: [packages/client-core/src/world/components/editor/contexts/SettingsContext.tsx:9](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/contexts/SettingsContext.tsx#L9)
+Defined in: [packages/client-core/src/world/components/editor/contexts/SettingsContext.tsx:9](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/contexts/SettingsContext.tsx#L9)
 
 ## Functions
 
@@ -46,10 +46,10 @@ withSettings setting component context value.
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`Component` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `Component` | *any* |
 
 **Returns:** (`props`: *any*) => *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/contexts/SettingsContext.tsx:34](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/contexts/SettingsContext.tsx#L34)
+Defined in: [packages/client-core/src/world/components/editor/contexts/SettingsContext.tsx:34](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/contexts/SettingsContext.tsx#L34)

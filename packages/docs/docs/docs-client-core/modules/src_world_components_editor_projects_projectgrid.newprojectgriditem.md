@@ -18,9 +18,9 @@ hide_title: true
 
 #### Type declaration:
 
-Name | Type |
-:------ | :------ |
-`label` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `label` | *string* |
 
 ___
 
@@ -30,7 +30,7 @@ ___
 
 #### Type declaration:
 
-Name | Type |
-:------ | :------ |
-`label` | *Validator*<string\> |
-`path` | *Validator*<string \| object\> |
+| Name | Type |
+| :------ | :------ |
+| `label` | *Validator*<string\> |
+| `path` | *Validator*<string \| object\> |

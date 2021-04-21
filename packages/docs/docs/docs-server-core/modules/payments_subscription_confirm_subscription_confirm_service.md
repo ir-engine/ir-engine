@@ -20,10 +20,10 @@ hide_title: true
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`app` | Application |
+| Name | Type |
+| :------ | :------ |
+| `app` | Application |
 
 **Returns:** *any*
 
-Defined in: [packages/server-core/src/payments/subscription-confirm/subscription-confirm.service.ts:13](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/payments/subscription-confirm/subscription-confirm.service.ts#L13)
+Defined in: [packages/server-core/src/payments/subscription-confirm/subscription-confirm.service.ts:13](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/payments/subscription-confirm/subscription-confirm.service.ts#L13)

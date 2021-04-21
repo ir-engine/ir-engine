@@ -26,16 +26,16 @@ A class for ARC Feed service
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`options` | *Partial*<SequelizeServiceOptions\> |
-`app` | Application |
+| Name | Type |
+| :------ | :------ |
+| `options` | *Partial*<SequelizeServiceOptions\> |
+| `app` | Application |
 
 **Returns:** [*Feed*](socialmedia_feed_feed_class.feed.md)
 
 Overrides: Service.constructor
 
-Defined in: [packages/server-core/src/socialmedia/feed/feed.class.ts:17](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/socialmedia/feed/feed.class.ts#L17)
+Defined in: [packages/server-core/src/socialmedia/feed/feed.class.ts:17](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/socialmedia/feed/feed.class.ts#L17)
 
 ## Properties
 
@@ -53,7 +53,7 @@ ___
 
 • **app**: Application
 
-Defined in: [packages/server-core/src/socialmedia/feed/feed.class.ts:16](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/socialmedia/feed/feed.class.ts#L16)
+Defined in: [packages/server-core/src/socialmedia/feed/feed.class.ts:16](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/socialmedia/feed/feed.class.ts#L16)
 
 ___
 
@@ -61,7 +61,7 @@ ___
 
 • **docs**: *any*
 
-Defined in: [packages/server-core/src/socialmedia/feed/feed.class.ts:17](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/socialmedia/feed/feed.class.ts#L17)
+Defined in: [packages/server-core/src/socialmedia/feed/feed.class.ts:17](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/socialmedia/feed/feed.class.ts#L17)
 
 ___
 
@@ -101,10 +101,10 @@ Defined in: node_modules/@feathersjs/adapter-commons/lib/service.d.ts:85
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`data` | *Partial*<any\> \| *Partial*<any\>[] |
-`params?` | Params |
+| Name | Type |
+| :------ | :------ |
+| `data` | *Partial*<any\> \| *Partial*<any\>[] |
+| `params?` | Params |
 
 **Returns:** *Promise*<any\>
 
@@ -120,9 +120,9 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`params?` | Params |
+| Name | Type |
+| :------ | :------ |
+| `params?` | Params |
 
 **Returns:** *Promise*<any\>
 
@@ -138,10 +138,10 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`id` | Id |
-`params?` | Params |
+| Name | Type |
+| :------ | :------ |
+| `id` | Id |
+| `params?` | Params |
 
 **Returns:** *Promise*<any\>
 
@@ -157,11 +157,11 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`id` | NullableId |
-`data` | *Partial*<any\> |
-`params?` | Params |
+| Name | Type |
+| :------ | :------ |
+| `id` | NullableId |
+| `data` | *Partial*<any\> |
+| `params?` | Params |
 
 **Returns:** *Promise*<any\>
 
@@ -177,10 +177,10 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`id` | NullableId |
-`params?` | Params |
+| Name | Type |
+| :------ | :------ |
+| `id` | NullableId |
+| `params?` | Params |
 
 **Returns:** *Promise*<any\>
 
@@ -196,11 +196,11 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`id` | NullableId |
-`data` | *any* |
-`params?` | Params |
+| Name | Type |
+| :------ | :------ |
+| `id` | NullableId |
+| `data` | *any* |
+| `params?` | Params |
 
 **Returns:** *Promise*<any\>
 
@@ -216,9 +216,9 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`method` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `method` | *string* |
 
 **Returns:** *boolean*
 
@@ -234,31 +234,31 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`data` | *any* |
-`params?` | Params |
+| Name | Type |
+| :------ | :------ |
+| `data` | *any* |
+| `params?` | Params |
 
 **Returns:** *Promise*<any\>
 
 Overrides: Service.create
 
-Defined in: [packages/server-core/src/socialmedia/feed/feed.class.ts:386](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/socialmedia/feed/feed.class.ts#L386)
+Defined in: [packages/server-core/src/socialmedia/feed/feed.class.ts:386](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/socialmedia/feed/feed.class.ts#L386)
 
 ___
 
 ### filterQuery
 
-▸ **filterQuery**(`params?`: Params, `opts?`: *any*): { [key: string]: *any*;  } & { `paginate`: *false* \| *Pick*<PaginationOptions, *max*\> \| { `default?`: *number* ; `max?`: *number*  }  }
+▸ **filterQuery**(`params?`: Params, `opts?`: *any*): { [key: string]: *any*;  } & { `paginate`: ``false`` \| *Pick*<PaginationOptions, ``"max"``\> \| { `default?`: *number* ; `max?`: *number*  }  }
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`params?` | Params |
-`opts?` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `params?` | Params |
+| `opts?` | *any* |
 
-**Returns:** { [key: string]: *any*;  } & { `paginate`: *false* \| *Pick*<PaginationOptions, *max*\> \| { `default?`: *number* ; `max?`: *number*  }  }
+**Returns:** { [key: string]: *any*;  } & { `paginate`: ``false`` \| *Pick*<PaginationOptions, ``"max"``\> \| { `default?`: *number* ; `max?`: *number*  }  }
 
 Inherited from: Service.filterQuery
 
@@ -274,9 +274,9 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`params` | Params |
+| Name | Type |
+| :------ | :------ |
+| `params` | Params |
 
 **Returns:** *Promise*<any\>
 
@@ -284,7 +284,7 @@ Name | Type |
 
 Overrides: Service.find
 
-Defined in: [packages/server-core/src/socialmedia/feed/feed.class.ts:31](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/socialmedia/feed/feed.class.ts#L31)
+Defined in: [packages/server-core/src/socialmedia/feed/feed.class.ts:31](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/socialmedia/feed/feed.class.ts#L31)
 
 ___
 
@@ -298,10 +298,10 @@ A function which is used to find specific project
 
 #### Parameters:
 
-Name | Type | Description |
-:------ | :------ | :------ |
-`id` | Id | of single feed   |
-`params?` | Params | contains current user   |
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `id` | Id | of single feed |
+| `params?` | Params | contains current user |
 
 **Returns:** *Promise*<any\>
 
@@ -309,7 +309,7 @@ Name | Type | Description |
 
 Overrides: Service.get
 
-Defined in: [packages/server-core/src/socialmedia/feed/feed.class.ts:332](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/socialmedia/feed/feed.class.ts#L332)
+Defined in: [packages/server-core/src/socialmedia/feed/feed.class.ts:332](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/socialmedia/feed/feed.class.ts#L332)
 
 ___
 
@@ -319,9 +319,9 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`params` | Params |
+| Name | Type |
+| :------ | :------ |
+| `params` | Params |
 
 **Returns:** *any*
 
@@ -341,11 +341,11 @@ A function which is used to update viewsCount field of feed
 
 #### Parameters:
 
-Name | Type | Description |
-:------ | :------ | :------ |
-`id` | *string* | of feed to update   |
-`data?` | *any* | - |
-`params?` | Params |  |
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `id` | *string* | of feed to update |
+| `data?` | *any* | - |
+| `params?` | Params |  |
 
 **Returns:** *Promise*<any\>
 
@@ -353,7 +353,7 @@ updated feed
 
 Overrides: Service.patch
 
-Defined in: [packages/server-core/src/socialmedia/feed/feed.class.ts:401](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/socialmedia/feed/feed.class.ts#L401)
+Defined in: [packages/server-core/src/socialmedia/feed/feed.class.ts:401](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/socialmedia/feed/feed.class.ts#L401)
 
 ___
 
@@ -363,10 +363,10 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`id` | NullableId |
-`params?` | Params |
+| Name | Type |
+| :------ | :------ |
+| `id` | NullableId |
+| `params?` | Params |
 
 **Returns:** *Promise*<any\>
 
@@ -382,11 +382,11 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`id` | Id |
-`data` | *any* |
-`params?` | Params |
+| Name | Type |
+| :------ | :------ |
+| `id` | Id |
+| `data` | *any* |
+| `params?` | Params |
 
 **Returns:** *Promise*<any\>
 

@@ -18,8 +18,8 @@ hide_title: true
 
 #### Type declaration:
 
-Name | Type |
-:------ | :------ |
-`children` | *Requireable*<ReactNodeLike\> |
-`description` | *Requireable*<string\> |
-`name` | *Requireable*<string\> |
+| Name | Type |
+| :------ | :------ |
+| `children` | *Requireable*<ReactNodeLike\> |
+| `description` | *Requireable*<string\> |
+| `name` | *Requireable*<string\> |

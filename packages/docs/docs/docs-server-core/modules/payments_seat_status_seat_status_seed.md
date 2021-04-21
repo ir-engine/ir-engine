@@ -22,12 +22,12 @@ Renames and exports: [seed](payments_seat_status_seat_status_seed.md#seed)
 
 #### Type declaration:
 
-Name | Type |
-:------ | :------ |
-`delete` | *any* |
-`disabled` | *boolean* |
-`path` | *string* |
-`randomize` | *boolean* |
-`templates` | { `status`: *string* = 'pending' }[] |
+| Name | Type |
+| :------ | :------ |
+| `delete` | *any* |
+| `disabled` | *boolean* |
+| `path` | *string* |
+| `randomize` | *boolean* |
+| `templates` | { `status`: *string* = 'pending' }[] |
 
-Defined in: [packages/server-core/src/payments/seat-status/seat-status.seed.ts:3](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/payments/seat-status/seat-status.seed.ts#L3)
+Defined in: [packages/server-core/src/payments/seat-status/seat-status.seed.ts:3](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/payments/seat-status/seat-status.seed.ts#L3)

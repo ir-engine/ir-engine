@@ -22,10 +22,10 @@ hide_title: true
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`props` | Props |
+| Name | Type |
+| :------ | :------ |
+| `props` | Props |
 
 **Returns:** *Element*
 
-Defined in: [packages/client/src/components/Scene/location.tsx:103](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client/src/components/Scene/location.tsx#L103)
+Defined in: [packages/client/src/components/Scene/location.tsx:102](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client/src/components/Scene/location.tsx#L102)

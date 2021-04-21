@@ -21,7 +21,7 @@ hide_title: true
 
 Ƭ **FeedFiresAction**: [*FeedFiresRetriveAction*](../interfaces/src_socialmedia_reducers_feedfires_actions.feedfiresretriveaction.md) \| [*FetchingFeedFiresAction*](../interfaces/src_socialmedia_reducers_feedfires_actions.fetchingfeedfiresaction.md)
 
-Defined in: [packages/client-core/src/socialmedia/reducers/feedFires/actions.ts:16](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/socialmedia/reducers/feedFires/actions.ts#L16)
+Defined in: [packages/client-core/src/socialmedia/reducers/feedFires/actions.ts:16](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/reducers/feedFires/actions.ts#L16)
 
 ## Functions
 
@@ -31,13 +31,13 @@ Defined in: [packages/client-core/src/socialmedia/reducers/feedFires/actions.ts:
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`feedFires` | CreatorShort[] |
+| Name | Type |
+| :------ | :------ |
+| `feedFires` | CreatorShort[] |
 
 **Returns:** [*FeedFiresRetriveAction*](../interfaces/src_socialmedia_reducers_feedfires_actions.feedfiresretriveaction.md)
 
-Defined in: [packages/client-core/src/socialmedia/reducers/feedFires/actions.ts:20](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/socialmedia/reducers/feedFires/actions.ts#L20)
+Defined in: [packages/client-core/src/socialmedia/reducers/feedFires/actions.ts:20](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/reducers/feedFires/actions.ts#L20)
 
 ___
 
@@ -47,4 +47,4 @@ ___
 
 **Returns:** [*FetchingFeedFiresAction*](../interfaces/src_socialmedia_reducers_feedfires_actions.fetchingfeedfiresaction.md)
 
-Defined in: [packages/client-core/src/socialmedia/reducers/feedFires/actions.ts:28](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/socialmedia/reducers/feedFires/actions.ts#L28)
+Defined in: [packages/client-core/src/socialmedia/reducers/feedFires/actions.ts:28](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/reducers/feedFires/actions.ts#L28)

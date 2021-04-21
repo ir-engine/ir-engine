@@ -16,13 +16,13 @@ hide_title: true
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`models` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `models` | *any* |
 
 **Returns:** *any*[]
 
-Defined in: [packages/server-core/src/world/project/project-helper.ts:20](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/world/project/project-helper.ts#L20)
+Defined in: [packages/server-core/src/world/project/project-helper.ts:20](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/world/project/project-helper.ts#L20)
 
 ___
 
@@ -32,13 +32,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`project` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `project` | *any* |
 
 **Returns:** *any*
 
-Defined in: [packages/server-core/src/world/project/project-helper.ts:50](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/world/project/project-helper.ts#L50)
+Defined in: [packages/server-core/src/world/project/project-helper.ts:50](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/world/project/project-helper.ts#L50)
 
 ___
 
@@ -48,13 +48,13 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`projectTemplate` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `projectTemplate` | *any* |
 
 **Returns:** *any*
 
-Defined in: [packages/server-core/src/world/project/project-helper.ts:62](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/world/project/project-helper.ts#L62)
+Defined in: [packages/server-core/src/world/project/project-helper.ts:62](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/world/project/project-helper.ts#L62)
 
 ___
 
@@ -64,14 +64,14 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`scene` | *any* |
-`projectId` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `scene` | *any* |
+| `projectId` | *string* |
 
 **Returns:** *any*
 
-Defined in: [packages/server-core/src/world/project/project-helper.ts:3](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/world/project/project-helper.ts#L3)
+Defined in: [packages/server-core/src/world/project/project-helper.ts:3](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/world/project/project-helper.ts#L3)
 
 ___
 
@@ -81,11 +81,11 @@ ___
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`storage` | *any* |
-`key` | *any* |
+| Name | Type |
+| :------ | :------ |
+| `storage` | *any* |
+| `key` | *any* |
 
 **Returns:** *any*
 
-Defined in: [packages/server-core/src/world/project/project-helper.ts:32](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/server-core/src/world/project/project-helper.ts#L32)
+Defined in: [packages/server-core/src/world/project/project-helper.ts:32](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/world/project/project-helper.ts#L32)

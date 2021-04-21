@@ -16,13 +16,13 @@ hide_title: true
 
 #### Type declaration:
 
-Name | Type |
-:------ | :------ |
-`definitions` | *object* |
-`definitions.notification` | *object* |
-`definitions.notification.properties` | *object* |
-`definitions.notification.type` | *string* |
-`definitions.notification_list` | *object* |
-`definitions.notification_list.items` | *object* |
-`definitions.notification_list.items.$ref` | *string* |
-`definitions.notification_list.type` | *string* |
+| Name | Type |
+| :------ | :------ |
+| `definitions` | *object* |
+| `definitions.notification` | *object* |
+| `definitions.notification.properties` | *object* |
+| `definitions.notification.type` | *string* |
+| `definitions.notification_list` | *object* |
+| `definitions.notification_list.items` | *object* |
+| `definitions.notification_list.items.$ref` | *string* |
+| `definitions.notification_list.type` | *string* |

@@ -30,10 +30,10 @@ Renames and exports: [VolumetricInput](src_world_components_editor_inputs_volume
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`__namedParameters` | *Object* |
+| Name | Type |
+| :------ | :------ |
+| `__namedParameters` | *Object* |
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/inputs/VolumetricInput.tsx:22](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/world/components/editor/inputs/VolumetricInput.tsx#L22)
+Defined in: [packages/client-core/src/world/components/editor/inputs/VolumetricInput.tsx:22](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/inputs/VolumetricInput.tsx#L22)

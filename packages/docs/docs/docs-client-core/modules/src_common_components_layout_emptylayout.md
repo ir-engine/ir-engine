@@ -16,10 +16,10 @@ hide_title: true
 
 #### Parameters:
 
-Name | Type |
-:------ | :------ |
-`__namedParameters` | Props |
+| Name | Type |
+| :------ | :------ |
+| `__namedParameters` | Props |
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/src/common/components/Layout/EmptyLayout.tsx:10](https://github.com/xr3ngine/xr3ngine/blob/65dfcf39a/packages/client-core/src/common/components/Layout/EmptyLayout.tsx#L10)
+Defined in: [packages/client-core/src/common/components/Layout/EmptyLayout.tsx:10](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/common/components/Layout/EmptyLayout.tsx#L10)
