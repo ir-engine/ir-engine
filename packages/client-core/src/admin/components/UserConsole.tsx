@@ -15,6 +15,7 @@ import Paper from '@material-ui/core/Paper';
 import Button from '@material-ui/core/Button';
 import MenuItem from '@material-ui/core/MenuItem';
 import Select from '@material-ui/core/Select';
+import Grid from "@material-ui/core/Grid"
 // @ts-ignore
 import styles from './Admin.module.scss';
 import UserModel from "./UserModel";
@@ -84,6 +85,9 @@ const useStyles = makeStyles((theme: Theme) =>
         backdrop: {
             zIndex: theme.zIndex.drawer + 1,
             color: '#fff',
+        },
+        marginBottom: {
+            marginBottom: "10px"
         }
     }),
 );
@@ -306,11 +310,11 @@ const UserConsole = (props: Props) => {
 
     return (
         <div>
-            <div className="row mb-5">
-                <div className="col-lg-9">
+            <Grid container spacing={3} className={classes.marginBottom}>
+                <Grid item xs={9}>
                     <Search typeName="users" />
-                </div>
-                <div className="col-lg-3">
+                </Grid>
+                <Grid item xs={3}>
                     <Button
                         className={styles.createLocation}
                         type="submit"
@@ -320,8 +324,8 @@ const UserConsole = (props: Props) => {
                     >
                         Create New User
                     </Button>
-                </div>
-            </div>
+                </Grid>
+            </Grid>
             <Paper className={styles.adminRoot}>
                 <TableContainer className={styles.tableContainer}>
                     <Table
