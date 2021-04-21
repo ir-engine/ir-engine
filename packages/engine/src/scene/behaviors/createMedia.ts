@@ -77,7 +77,7 @@ export const createVolumetric: Behavior = (entity, args: { objArgs }) => {
     autoplay: args.objArgs.autoPlay,
     scale: 1,
     frameRate: 25,
-    keyframesToBufferBeforeStart: 250
+    framesToBuffer: 250
   });
   volumetricComponent.player = DracosisSequence;
   addObject3DComponent(entity, { obj3d: container });//, objArgs: args.objArgs });
