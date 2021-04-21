@@ -145,7 +145,7 @@ new Promise(async (resolve, reject) => {
             await processFile(avatar, MODEL_EXTENSION, MODEL_PATH, AVATAR_RESOURCE_TYPE);
 
             console.log('Uploading Avatar Thumbnail =>', avatar);
-            await processFile(avatar, THUMBNAIL_EXTENSION, THUMBNAIL_PATH, THUMBNAIL_RESOURCE_TYPE);
+            await processFile(avatar.toLowerCase(), THUMBNAIL_EXTENSION, THUMBNAIL_PATH, THUMBNAIL_RESOURCE_TYPE);
         }
         resolve(true);
     } catch (err) {
