@@ -168,6 +168,19 @@ const ProfileMenu = (props: Props): any => {
 		// Use Credential Handler API to authenticate
 		const result: any = await navigator.credentials.get(didAuthQuery);
 		console.log(result);
+		const credentials: any = parseUserWalletCredentials(result);
+		console.log(credentials);
+	};
+
+	const parseUserWalletCredentials = (result) => {
+		return {
+			user: {
+				id: 'did:web:example.com',
+				displayName: 'alice',
+				icon: '<image data url of a sample user avatar icon goes here>',
+				// session // this will contain the access token and helper methods
+			}
+		};
 	};
 
 	return (
