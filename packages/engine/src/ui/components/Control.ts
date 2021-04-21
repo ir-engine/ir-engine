@@ -1,12 +1,12 @@
 import { Color, Object3D, CircleGeometry, MeshPhongMaterial, Mesh } from "three";
 import { Block } from '../../assets/three-mesh-ui';
 import { createButton, createItem, createRow, createCol } from '../functions/createItem';
-
+import { UIBaseElement, UI_ELEMENT_SELECT_STATE } from "../classes/UIBaseElement";
 export class Control extends Object3D{
-  constructor(){
+  constructor(callbacks){
     super();
 
-    let bar = this.createSeekbar();
+    let bar = this.createSeekbar(callbacks);
     this.add(bar);
 
     // let seeker = new Block({
@@ -27,7 +27,7 @@ export class Control extends Object3D{
     this.add(seeker);
   }
 
-  createSeekbar() {
+  createSeekbar(callbacks) {
     const backButton = createButton({
       title: "Library"
     });
@@ -72,6 +72,14 @@ export class Control extends Object3D{
     })
     bar.set({
       borderRadius: 0.015
+    })
+
+    playButton.addEventListener(UI_ELEMENT_SELECT_STATE.SELECTED, () => {
+      callbacks.play();      
+    })
+    
+    backButton.addEventListener(UI_ELEMENT_SELECT_STATE.SELECTED, () => {
+      callbacks.back();
     })
 
     return control;
