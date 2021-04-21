@@ -21,8 +21,8 @@
   },
   "homepage": "https://github.com/xr3ngine/xr3ngine/packages/volumetric#readme",
   "devDependencies": {
-    "@babel/cli": "7.13.14",
-    "@babel/core": "7.13.15",
+    "@babel/cli": "7.13.16",
+    "@babel/core": "7.13.16",
     "@babel/plugin-transform-modules-commonjs": "7.13.8",
     "@types/glob": "7.1.3",
     "@types/three": "0.127.1",
