@@ -120,7 +120,7 @@
     "feathers-sequelize": "https://github.com/feathersjs-ecosystem/feathers-sequelize.git",
     "feathers-swagger": "1.2.1",
     "feathers-sync": "2.3.0",
-    "fork-ts-checker-webpack-plugin": "6.2.1",
+    "fork-ts-checker-webpack-plugin": "6.2.4",
     "fs-blob-store": "6.0.0",
     "helmet": "4.5.0",
     "http-server": "0.12.3",
