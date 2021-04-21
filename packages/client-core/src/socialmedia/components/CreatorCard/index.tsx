@@ -51,11 +51,11 @@ const CreatorCard = ({creator,creatorState}:Props) => {
     // const [openFiredModal, setOpenFiredModal] = useState(false);
     // const [creatorsType, setCreatorsType] = useState('followers');
     // const history = useHistory();
-    useEffect(()=>{
-        if(creatorState && creatorState.get('currentCreator') && creator.id === creatorState.get('currentCreator').id){
-            setIsMe(true);
-        }
-    },[]);
+//     useEffect(()=>{
+//         if(creatorState && creatorState.get('currentCreator') && creator.id === creatorState.get('currentCreator').id){
+//             setIsMe(true);
+//         }
+//     },[]);
    
     // const [anchorEl, setAnchorEl] = useState(null);
     // const handleClick = (event) => {
