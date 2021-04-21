@@ -1,7 +1,18 @@
 import { Capacitor, Plugins } from '@capacitor/core';
 import "@xr3ngine/native-plugin-xr/src/index.ts";
 import React, { useEffect, useState } from 'react';
-import { BoxGeometry, Mesh, MeshBasicMaterial, PerspectiveCamera, Quaternion, Scene, Vector3, WebGLRenderer } from 'three';
+import {
+    AxesHelper,
+    BoxGeometry, CameraHelper,
+    GridHelper, Group,
+    Mesh,
+    MeshBasicMaterial,
+    PerspectiveCamera,
+    Quaternion,
+    Scene,
+    Vector3,
+    WebGLRenderer
+} from 'three';
 
 
 
@@ -26,25 +37,43 @@ export const IndexPage = (): any => {
     const [savedFilePath, setSavedFilePath] = useState("");
 
     const [recordingState, setRecordingState] = useState(RecordingStates.OFF);
-    let renderer, scene, camera;
+    let renderer, scene, camera, camera2;
     const raf = () => {
-        renderer.render(scene, camera);
+        renderer.render(scene, camera2);
         requestAnimationFrame(raf);
     };
     useEffect(() => {
         (async function () {
             scene = new Scene();
-            const geometry = new BoxGeometry(.2, .2, .2);
-            const material = new MeshBasicMaterial({ color: 0x00ff00 });
-            const anchor = new Mesh(geometry, material);
-            camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-            scene.background = null;
-            renderer = new WebGLRenderer({ alpha: true });
+            //scene.rotation.z = Math.PI / 2;
+
+            const geometry = new BoxGeometry(.1, .1, .1);
+            const materialX = new MeshBasicMaterial({ color: 0xff0000 });
+            const materialY = new MeshBasicMaterial({ color: 0x00ff00 });
+            const materialZ = new MeshBasicMaterial({ color: 0x0000ff });
+            const anchor = new Group();
+            anchor.add(new AxesHelper(0.25));
+            const anchorX = new Mesh(geometry, materialX);
+            anchorX.position.x = 1;
+            anchor.add(anchorX);
+            const anchorY = new Mesh(geometry, materialY);
+            anchorY.position.y = 1;
+            anchor.add(anchorY);
+            const anchorZ = new Mesh(geometry, materialZ);
+            anchorZ.position.z = 1;
+            anchor.add(anchorZ);
+
+            camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.001, 1);
+            camera2 = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.001, 100);
+            camera2.position.set(3,3,3);
+            camera2.lookAt(new Vector3());
+            //scene.background = null;
+            renderer = new WebGLRenderer({ alpha: false });
             renderer.setSize(window.innerWidth, window.innerHeight);
             document.body.appendChild(renderer.domElement);
             renderer.domElement.style.position = "absolute";
-            renderer.domElement.style.width = "100%";
-            renderer.domElement.style.height = "100%";
+            renderer.domElement.style.width = "100vw";
+            renderer.domElement.style.height = "100vh";
             renderer.domElement.style.zIndex = "-1";
 
             renderer.domElement.style.top = 0;
@@ -52,8 +81,15 @@ export const IndexPage = (): any => {
             renderer.domElement.style.padding = 0;
             scene.add(camera);
 
+            const ch = new CameraHelper(camera);
+            scene.add(ch);
+
             scene.add(anchor);
             anchor.position.set(0, 0, -2);
+
+            scene.add(new AxesHelper(2));
+            const gh = new GridHelper(2);
+            scene.add(gh);
 
             requestAnimationFrame(raf);
 
@@ -91,6 +127,7 @@ export const IndexPage = (): any => {
                 camera.quaternion.set(cameraRotationX, cameraRotationY, cameraRotationZ, cameraRotationW);
 
                 camera.position.set(cameraPositionX, cameraPositionY, cameraPositionZ);
+                camera.updateProjectionMatrix();
 
                 if (data.placed) {
                     const {
