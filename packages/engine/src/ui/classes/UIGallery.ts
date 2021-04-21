@@ -27,6 +27,7 @@ export class UIGallery extends UIBaseElement {
   buyPanel: Block;
   isPurchase: Boolean;
   player: VideoPlayer;
+  control: Object3D;
 
   constructor() {
     super();
@@ -188,7 +189,7 @@ export class UIGallery extends UIBaseElement {
       },
       playCB: () => {
         this.purchasePanel.visible = false;
-        this.player.playVideo(videoUrl);
+        this.control.visible = true;
       },
       purchaseCB: () => {
         if (this.isPurchase){
@@ -219,9 +220,18 @@ export class UIGallery extends UIBaseElement {
 
     this.player = new VideoPlayer(this, envUrl);
 
-    const control = new Control();
-    this.add(control);
+    this.control = new Control({
+      play:()=>{
+        this.player.playVideo(videoUrl);
+      },
+      back:()=>{
+        this.player.stopVideo();
+        this.control.visible = false;
+        this.library.visible = true;
+      }
+    });
+    this.add(this.control);
 
-    this.marketPlace.visible = false;
+    this.control.visible = false;
   }
 }

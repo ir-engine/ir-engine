@@ -1,11 +1,12 @@
 import shaka from 'shaka-player';
-import { Object3D, Color, TextureLoader, VideoTexture, Mesh, SphereGeometry, MeshBasicMaterial, BackSide } from "three";
+import { Object3D, Color, TextureLoader, VideoTexture, Mesh, SphereGeometry, MeshBasicMaterial, BackSide, Texture } from "three";
 
 export class VideoPlayer {
   player: shaka.Player;
   video: HTMLVideoElement;
   skyDomeMaterial: MeshBasicMaterial;
   skyDome: Mesh;
+  skyDomeTexture: Texture;
 
   constructor(root, envUrl){
     this.skyDomeMaterial = new MeshBasicMaterial( { 
@@ -29,6 +30,7 @@ export class VideoPlayer {
           // onLoad callback
           (texture) => {
             this.skyDomeMaterial.map = texture;
+            this.skyDomeTexture = texture;
           },
 
           // onProgress callback currently not supported
@@ -57,6 +59,8 @@ export class VideoPlayer {
     
     shaka.polyfill.installAll();
     this.player = new shaka.Player(this.video);
+
+    navigator.mediaSession.setActionHandler('stop', this.stopVideo);
   }
 
   playVideo(url){
@@ -66,13 +70,10 @@ export class VideoPlayer {
         
         document.addEventListener("click", ()=>{
           const p = this.video.play();
-          console.log('playing');
 
           const texture = new VideoTexture(this.video);
-          console.log('texture', this.skyDomeMaterial, texture);
           this.skyDomeMaterial.map = texture;
           this.skyDomeMaterial.needsUpdate = true;
-          // this.skyDome.needsUpdate = true;
           
           if (p !== undefined) {
             p.then(_ => {
@@ -87,4 +88,16 @@ export class VideoPlayer {
       });
     }
   }
+
+  play(){
+
+  }
+
+  stopVideo(){
+    // this.video.pause();
+    // this.player.stop();
+
+    this.skyDomeMaterial.map = this.skyDomeTexture;
+    this.skyDomeMaterial.needsUpdate = true;
+}
 }
