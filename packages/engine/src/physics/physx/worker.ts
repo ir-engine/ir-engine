@@ -48,8 +48,8 @@ export class PhysXManager {
 
   initPhysX = async (config: PhysXConfig): Promise<void> => {
     // @ts-ignore
-    console.log(config.jsPath)
-    await import(/* @vite-ignore */config.jsPath)
+    importScripts(config.jsPath)
+    // await import('/physx/physx.release.js');
     console.log(globalThis, globalThis.PHYSX);
     if (config?.tps) {
       this.tps = config.tps;

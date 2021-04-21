@@ -26,7 +26,7 @@ import { AnimationManager } from './templates/character/prefabs/NetworkPlayerCha
 import { TransformSystem } from './transform/systems/TransformSystem';
 import { createWorker, WorkerProxy } from './worker/MessageQueue';
 import { XRSystem } from './xr/systems/XRSystem';
-import PhysXWorker from './physics/physx/worker.ts?worker';
+import PhysXWorker from './physics/physx/worker.ts?worker&inline';
 import { PhysXInstance } from './physics/physx';
 
 // import { PositionalAudioSystem } from './audio/systems/PositionalAudioSystem';
