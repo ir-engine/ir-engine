@@ -113,9 +113,9 @@ const CreatorCard = ({creator,creatorState}:Props) => {
                         //     </Menu>
                         // </section>
                // :*/} 
-                        <section className={styles.controls}>
+                        {/* <section className={styles.controls}>
                         <Button variant="text" className={styles.backButton} onClick={()=>history.push('/')}><ArrowBackIosIcon />Back</Button>                    
-                    </section>
+                    </section> */}
                 {/* } */}
                 {/*hided for now*/}
                 {/* <section className={styles.countersButtons}>

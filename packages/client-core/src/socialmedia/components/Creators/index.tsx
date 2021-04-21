@@ -7,13 +7,15 @@ import CardMedia from '@material-ui/core/CardMedia';
 import Typography from '@material-ui/core/Typography';
 import VerifiedUserIcon from '@material-ui/icons/VerifiedUser';
 import { useHistory } from "react-router-dom";
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 import { selectCreatorsState } from '../../reducers/creator/selector';
 import { getCreators } from '../../reducers/creator/service';
 // @ts-ignore
 import styles from './Creators.module.scss';
+import SharedModal from '../SharedModal';
+import Creator from '../Creator';
 
 const mapStateToProps = (state: any): any => {
     return {
@@ -31,11 +33,16 @@ interface Props{
 }
 
 const Creators = ({creatorsState, getCreators}:Props) => { 
+    const [creator, setCreator] = useState(false);
+    const [creatorId, setCreatorId] = useState(null);
     useEffect(()=> getCreators(), []);
-    const history = useHistory();
     const creators= creatorsState && creatorsState.get('creators') ? creatorsState.get('creators') : null;
     const handleCreatorView = (id) =>{
-        history.push('/creator?creatorId=' + id);
+        setCreatorId(id)
+        setCreator(true);
+    };
+    const handleClose = () => {
+        setCreator(false);
     };
     return <section className={styles.creatorContainer}>
         {creators?.map((item, itemIndex)=>
@@ -53,6 +60,12 @@ const Creators = ({creatorsState, getCreators}:Props) => {
                 </CardContent>
             </Card>
         )}
+        {creator && creatorId &&  <SharedModal 
+                    open={creator}
+                    onClose={handleClose} 
+                >
+                    <Creator creatorId={creatorId} />
+                </SharedModal>}
         </section>;
 };
 

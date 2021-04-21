@@ -19,6 +19,8 @@ import { getLoggedCreator } from "../../reducers/creator/service";
 import { selectAuthState } from "../../../user/reducers/auth/selector";
 import { PopupLogin } from "../PopupLogin/PopupLogin";
 import IndexPage from "@xr3ngine/social/pages/login";
+import SharedModal from "../SharedModal";
+import Creator from "../Creator";
 
 const mapStateToProps = (state: any): any => {
   return {
@@ -32,13 +34,23 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 });
 
 const AppFooter = ({creatorState, getLoggedCreator,authState}: any) => {
+  const [creatorView, setCreatorView] = useState(false);
+
   useEffect(()=>getLoggedCreator(),[]);  
   const history = useHistory();
 
   const [buttonPopup , setButtonPopup] = useState(false);
   const creator = creatorState && creatorState.get('fetching') === false && creatorState.get('currentCreator'); 
   const checkGuest = authState.get('authUser')?.identityProvider?.type === 'guest' ? true : false;
+  const handleOpenCreatorPage = (id) =>{
+    setCreatorView(creator.id);
+    setCreatorView(true);
+  }
+  const handleClose = () => {
+    setCreatorView(false);
+  };
   return (
+    <>
     <nav className={styles.footerContainer}>
         <HomeIcon onClick={()=> {checkGuest ? setButtonPopup(true) : history.push('/');}} fontSize="large" className={styles.footerItem}/>
         <PopupLogin trigger={buttonPopup} setTrigger={setButtonPopup}>
@@ -48,10 +60,16 @@ const AppFooter = ({creatorState, getLoggedCreator,authState}: any) => {
         {/*hided for now*/}
         {/* {creator && <WhatshotIcon htmlColor="#FF6201" onClick={()=>{checkGuest ? setButtonPopup(true) : history.push('/notifications');}} /> } */}
         {creator && ( 
-          <Avatar onClick={()=> {checkGuest ? setButtonPopup(true) : history.push('/creator?creatorId=' + creator.id);}} 
+          <Avatar onClick={()=> {checkGuest ? setButtonPopup(true) : handleOpenCreatorPage(creator.id);}} 
           alt={creator.username} src={creator.avatar} />
         )}
     </nav>
+      {creatorView && creator.id &&  <SharedModal 
+        open={creator}
+        onClose={handleClose} 
+    >
+        <Creator creatorId={creator.id} />
+    </SharedModal>}</>
   );
 };
 
