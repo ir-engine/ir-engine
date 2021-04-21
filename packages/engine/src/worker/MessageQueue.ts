@@ -1,4 +1,3 @@
-
 /**
  * Multithreaded threejs polyfills, proxies and utilities using offscreen canvas API
  * 

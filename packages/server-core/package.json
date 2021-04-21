@@ -83,7 +83,7 @@
     "@feathersjs/errors": "4.5.11",
     "@feathersjs/express": "^4.5.9",
     "@feathersjs/feathers": "4.5.11",
-    "@feathersjs/hooks": "0.6.4",
+    "@feathersjs/hooks": "0.6.5",
     "@feathersjs/rest-client": "4.5.11",
     "@feathersjs/socketio": "4.5.11",
     "@feathersjs/socketio-client": "^4.5.9",
@@ -177,7 +177,6 @@
     "rollup-plugin-livereload": "2.0.0",
     "rollup-plugin-terser": "7.0.2",
     "rollup-plugin-typescript2": "0.30.0",
-    "ts-loader": "9.0.0",
     "typedoc": "0.20.35",
     "typescript": "4.2.4"
   },

@@ -17,7 +17,7 @@
     "build": "cross-env NODE_OPTIONS=--max_old_space_size=4096 vite build",
     "offline": "cross-env NODE_ENV=offline node --max-old-space-size=4096 ./index.js --port 3000",
     "validate": "yarn run lint && yarn run test",
-    "localbuild": "NEXT_PUBLIC_LOCAL_BUILD=true yarn build && yarn start",
+    "localbuild": "LOCAL_BUILD=true yarn build && yarn start",
     "lint": "eslint --fix --quiet \"*.ts\" \"**/*.ts\" \"**/*.tsx\""
   },
   "resolutions": {
@@ -69,7 +69,6 @@
     "emailjs-com": "2.6.4",
     "eventemitter3": "4.0.7",
     "faker": "5.5.3",
-    "file-loader": "6.2.0",
     "fuse.js": "6.4.6",
     "history": "5.0.0",
     "i18next": "20.2.1",
@@ -93,7 +92,7 @@
     "react-dnd-html5-backend": "14.0.0",
     "react-dom": "17.0.2",
     "react-ga": "3.3.0",
-    "react-helmet": "^6.1.0",
+    "react-helmet": "6.1.0",
     "react-i18next": "11.8.13",
     "react-infinite-scroller": "1.2.4",
     "react-json-tree": "0.15.0",
@@ -138,15 +137,11 @@
     "@types/react": "17.0.3",
     "@types/react-dom": "17.0.3",
     "@types/three": "0.127.1",
-    "babel-loader": "8.2.2",
-    "cache-loader": "4.1.0",
     "comlink": "4.3.0",
     "config": "3.3.6",
     "cross-env": "7.0.3",
     "eslint": "7.24.0",
     "eslint-plugin-react": "7.23.2",
-    "ts-loader": "9.0.0",
-    "ts-shader-loader": "1.0.6",
     "typescript": "4.2.4"
   },
   "license": "ISC"

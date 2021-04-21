@@ -23,7 +23,7 @@ import { ClientNetworkSystem } from "../../networking/systems/ClientNetworkSyste
 import { EngineEvents } from "../../ecs/classes/EngineEvents";
 import { ClientInputSystem } from "./ClientInputSystem";
 
-const isBrowser=new Function("try {return this===window;}catch(e){ return false;}");
+const isBrowser = new Function("try {return this===window;}catch(e){ return false;}");
 
 let faceToInput, lipToInput, WEBCAM_INPUT_EVENTS;
 
@@ -150,7 +150,7 @@ export class ActionSystem extends System {
 
         // key is the input type enu, value is the input value
         stateUpdate.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
-          if(input.schema.inputMap.has(key)) {
+          if (input.schema.inputMap.has(key)) {
             input.data.set(input.schema.inputMap.get(key), value);
           }
         });
@@ -190,7 +190,7 @@ export class ActionSystem extends System {
 
         // For each input currently on the input object:
         input.data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
-            // If the input exists on the input map (otherwise ignore it)
+          // If the input exists on the input map (otherwise ignore it)
           if (input.schema.inputButtonBehaviors[key]) {
             // If the button is pressed
             if (value.value === BinaryValue.ON) {
@@ -301,8 +301,9 @@ export class ActionSystem extends System {
               inputs.axes1d.push({ input: key, value: value.value, lifecycleState: value.lifecycleState });
             else if (value.type === InputType.TWODIM) //  && value.lifecycleState !== LifecycleValue.UNCHANGED
               inputs.axes2d.push({ input: key, value: value.value, lifecycleState: value.lifecycleState }); // : LifecycleValue.ENDED
-            else if (value.type === InputType.SIXDOF){ //  && value.lifecycleState !== LifecycleValue.UNCHANGED
-              inputs.axes6DOF.push({ input: key,
+            else if (value.type === InputType.SIXDOF) { //  && value.lifecycleState !== LifecycleValue.UNCHANGED
+              inputs.axes6DOF.push({
+                input: key,
                 x: value.value.x,
                 y: value.value.y,
                 z: value.value.z,

@@ -48,7 +48,7 @@ const NewComment = ({addCommentToFeed, feedId, authState}:Props) => {
                     />     
                 <MessageIcon className={styles.sendButton} onClick={()=>checkGuest ? setButtonPopup(true) : handleAddComment()} />
                 <PopupLogin trigger={buttonPopup} setTrigger={setButtonPopup}>
-                    <IndexPage />
+                    {/* <IndexPage /> */}
                 </PopupLogin>
             </section>;
 };
