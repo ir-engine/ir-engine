@@ -74,10 +74,9 @@ First, make sure you have [NodeJS](https://nodejs.org/) and [npm](https://www.np
    Run ```docker-compose up``` from the /scripts directory to build + start it, and after that
    you can run ```docker start xr3ngine_redis``` to restart the redis container.
 
-    
 #### 4. Open a new tab and start the Agones sidecar in local mode
 
-    ```
+   ```
    cd scripts
    sudo bash start-agones.sh
    ```
