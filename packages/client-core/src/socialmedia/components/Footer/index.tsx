@@ -39,7 +39,7 @@ const AppFooter = ({creatorState, getLoggedCreator,authState}: any) => {
    /* Hided for now */
   // const [buttonPopup , setButtonPopup] = useState(false);
   // const checkGuest = authState.get('authUser')?.identityProvider?.type === 'guest' ? true : false;
-  console.log(creator)
+  
 
   return (
     <nav className={styles.footerContainer}>
