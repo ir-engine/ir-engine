@@ -1,3 +1,6 @@
+/**
+ * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
+ */
 import Button from '@material-ui/core/Button';
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';

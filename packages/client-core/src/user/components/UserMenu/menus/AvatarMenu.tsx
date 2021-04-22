@@ -4,7 +4,7 @@ import CardContent from '@material-ui/core/CardContent';
 import { NavigateNext, NavigateBefore, Check, ArrowBack, PersonAdd, Delete, Close } from '@material-ui/icons';
 // @ts-ignore
 // @ts-ignore
-import styles from '../style.module.scss';
+import styles from '../UserMenu.module.scss';
 import { LazyImage } from '../../../../common/components/LazyImage';
 import { Views } from '../util';
 

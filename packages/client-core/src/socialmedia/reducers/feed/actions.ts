@@ -1,3 +1,6 @@
+/**
+ * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
+ */
 import {
   FEEDS_RETRIEVED,
   FEED_RETRIEVED,

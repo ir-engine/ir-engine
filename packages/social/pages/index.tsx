@@ -51,7 +51,8 @@ const  Home = ({ createCreator,  doLoginAuto, auth}) => {
   return (<>
     <div className={styles.viewport}>
         <AppHeader logo="/assets/logoBlack.png" />
-        <Stories stories={stories} />
+        {/*hided for now*/}
+        {/* <Stories stories={stories} /> */}
         <FeedMenu />
         <AppFooter />
     </div>

@@ -1,6 +1,6 @@
 {
   "name": "@xr3ngine/social",
-  "version": "0.2.17",
+  "version": "0.2.18",
   "private": true,
   "repository": {
     "type": "git",
@@ -42,10 +42,10 @@
     "@types/react-redux": "7.1.16",
    
     "@types/styled-components": "5.1.9",
-    "@xr3ngine/client-core": "^0.2.17",
-    "@xr3ngine/common": "^0.2.17",
-    "@xr3ngine/engine": "^0.2.17",
-    "@xr3ngine/native-plugin-xr": "^0.2.17",
+    "@xr3ngine/client-core": "^0.2.18",
+    "@xr3ngine/common": "^0.2.18",
+    "@xr3ngine/engine": "^0.2.18",
+    "@xr3ngine/native-plugin-xr": "^0.2.18",
     "app-root-path": "3.0.0",
     
     "device-detector-js": "2.2.9",
@@ -83,9 +83,11 @@
     "cross-env": "7.0.3",
     "eslint": "7.24.0",
     "next-redux-wrapper": "6.0.2",
-    "eslint-plugin-react": "^7.23.2",
-    "eslint-plugin-react-hooks": "^4.2.0",
-    "webpack": "5.32.0",
+    "thread-loader": "3.0.3",
+    "ts-loader": "9.1.0",
+    "ts-shader-loader": "1.0.6",
+    "typescript": "4.2.4",
+    "webpack": "5.35.0",
     "webpack-cli": "4.6.0"
   },
   "browser": {

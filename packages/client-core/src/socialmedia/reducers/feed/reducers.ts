@@ -1,3 +1,6 @@
+/**
+ * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
+ */
 import {
   ADD_FEED,
   ADD_FEED_BOOKMARK,
