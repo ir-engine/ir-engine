@@ -96,7 +96,7 @@ InputGroupInfo.propTypes = {
  * @param       {string} label
  * @constructor
  */
-export default function InputGroup({ name, children, disabled, info, label, ...rest }) {
+export function InputGroup({ name, children, disabled, info, label, ...rest }) {
   return (
     <InputGroupContainer disabled={disabled} {...rest}>
       <label>{label}:</label>
@@ -121,3 +121,4 @@ InputGroup.propTypes = {
   className: PropTypes.string,
   info: PropTypes.string
 };
+export default InputGroup;

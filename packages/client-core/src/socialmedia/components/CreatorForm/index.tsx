@@ -1,6 +1,9 @@
+/**
+ * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
+ */
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
-import Router from "next/router";
+import { useHistory } from "react-router-dom";
 
 import CardMedia from '@material-ui/core/CardMedia';
 import Typography from '@material-ui/core/Typography';
@@ -15,9 +18,9 @@ import MailOutlineIcon from '@material-ui/icons/MailOutline';
 import EditIcon from '@material-ui/icons/Edit';
 import LinkIcon from '@material-ui/icons/Link';
 import SubjectIcon from '@material-ui/icons/Subject';
-import TwitterIcon from '@material-ui/icons/Twitter';
-import InstagramIcon from '@material-ui/icons/Instagram';
-import TitleIcon from '@material-ui/icons/Title';
+// import TwitterIcon from '@material-ui/icons/Twitter';
+// import InstagramIcon from '@material-ui/icons/Instagram';
+// import TitleIcon from '@material-ui/icons/Title';
 
 import TextField from '@material-ui/core/TextField';
 import { bindActionCreators, Dispatch } from 'redux';
@@ -40,6 +43,7 @@ const mapStateToProps = (state: any): any => {
   }
   
 const CreatorForm = ({creatorData, creatorsState, updateCreator}:Props) => {
+    const history = useHistory();
     const [creator, setCreator] = useState(creatorData ? creatorData : creatorsState && creatorsState.get('currentCreator')); 
     const handleUpdateUser = (e:any) =>{
         e.preventDefault();
@@ -54,7 +58,7 @@ const CreatorForm = ({creatorData, creatorsState, updateCreator}:Props) => {
           onSubmit={(e) => handleUpdateUser(e)}
         >
             <nav className={styles.headerContainer}>               
-                {!creatorData && <Button variant="text" className={styles.backButton} onClick={()=>Router.push('/')}><ArrowBackIosIcon />Back</Button>}
+                {!creatorData && <Button variant="text" className={styles.backButton} onClick={()=>history.push('/')}><ArrowBackIosIcon />Back</Button>}
                 {!creatorData && <Typography variant="h2" className={styles.pageTitle}>Edit Profile</Typography>}
                 <Button variant="text" type="submit" className={styles.saveButton}>Save</Button>
             </nav>  
@@ -90,7 +94,8 @@ const CreatorForm = ({creatorData, creatorsState, updateCreator}:Props) => {
                     <SubjectIcon className={styles.fieldLabelIcon} />
                     <TextField className={styles.textFieldContainer} onChange={(e)=>setCreator({...creator, bio: e.target.value})} fullWidth multiline id="bio" placeholder="More about you" value={creator.bio} />
                 </div>    
-                <div className={styles.formLine}>
+                {/*hided for now*/}
+                {/* <div className={styles.formLine}>
                     <TwitterIcon className={styles.fieldLabelIcon} />
                     <TextField className={styles.textFieldContainer} onChange={(e)=>setCreator({...creator, twitter: e.target.value})} fullWidth id="twitter" placeholder="twitter" value={creator.twitter} />
                 </div> 
@@ -105,7 +110,7 @@ const CreatorForm = ({creatorData, creatorsState, updateCreator}:Props) => {
                 <div className={styles.formLine}>
                     <InstagramIcon className={styles.fieldLabelIcon} />
                     <TextField className={styles.textFieldContainer} onChange={(e)=>setCreator({...creator, instagram: e.target.value})} fullWidth id="instagram" placeholder="instagram" value={creator.instagram} />
-                </div>   
+                </div>    */}
                 <br />
                 {!creatorData && <Button className={styles.logOutButton} variant="contained" color="primary">Sign-out</Button>}
             </section>    

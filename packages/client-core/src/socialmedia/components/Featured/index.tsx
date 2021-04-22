@@ -1,6 +1,8 @@
+/**
+ * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
+ */
 import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
-import Router from "next/router";
 
 import CardMedia from '@material-ui/core/CardMedia';
 import Card from '@material-ui/core/Card';
@@ -15,6 +17,7 @@ import { selectCreatorsState } from '../../reducers/creator/selector';
 import { selectFeedsState } from '../../reducers/feed/selector';
 import { getFeeds, setFeedAsFeatured, setFeedNotFeatured } from '../../reducers/feed/service';
 import { selectAuthState } from '../../../user/reducers/auth/selector';
+import { useHistory } from 'react-router-dom';
 
 const mapStateToProps = (state: any): any => {
     return {
@@ -41,13 +44,15 @@ interface Props{
 }
 
 const Featured = ({feedsState, getFeeds, type, creatorId, creatorState, setFeedAsFeatured, setFeedNotFeatured, authState} : Props) => { 
+    const history = useHistory();
     let feedsList = [];
     useEffect(()=> {
         if(type === 'creator' || type === 'bookmark' || type === 'myFeatured'){
             getFeeds(type, creatorId);
         }else{
-            authState.get('authUser').identityProvider.type === 'guest' ? 
-                getFeeds('featuredGuest') : getFeeds('featured');
+          const userIdentityType = authState.get('authUser')?.identityProvider?.type ?? 'guest';
+          userIdentityType !== 'guest' ?
+                getFeeds('featured') : getFeeds('featuredGuest');
         }
     }, [type, creatorId]);
     if(feedsState.get('fetching') === false){
@@ -61,7 +66,7 @@ const Featured = ({feedsState, getFeeds, type, creatorId, creatorState, setFeedA
             feedsList = feedsState?.get('feedsFeatured');
         }
     }
-    
+
     const featureFeed = feedId =>setFeedAsFeatured(feedId);
     const unfeatureFeed = feedId =>setFeedNotFeatured(feedId);
 
@@ -72,12 +77,12 @@ const Featured = ({feedsState, getFeeds, type, creatorId, creatorState, setFeedA
     };
     return <section className={styles.feedContainer}>
         {feedsList && feedsList.length > 0  && feedsList.map((item, itemIndex)=>
-            <Card className={styles.creatorItem} elevation={0} key={itemIndex}>         
-                    {renderFeaturedStar( item.id, item.creatorId, !!+item.featured)}        
-                <CardMedia   
-                    className={styles.previewImage}                  
+            <Card className={styles.creatorItem} elevation={0} key={itemIndex}>
+                    {renderFeaturedStar( item.id, item.creatorId, !!+item.featured)}
+                <CardMedia
+                    className={styles.previewImage}
                     image={item.previewUrl}
-                    onClick={()=>Router.push({ pathname: '/feed', query:{ feedId: item.id}})}
+                    onClick={()=>history.push('/feed?feedId=' + item.id)}
                 />
                 <span className={styles.eyeLine}>{item.viewsCount}<VisibilityIcon style={{fontSize: '16px'}}/></span>
             </Card>

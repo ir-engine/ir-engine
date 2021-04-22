@@ -18,8 +18,12 @@ import { configureStore } from '@xr3ngine/client-core/src/store';
 import { dispatchAlertError } from '@xr3ngine/client-core/src/common/reducers/alert/service';
 import { getDeviceType } from '@xr3ngine/client-core/src/common/reducers/devicedetect/actions';
 import { restoreState } from '@xr3ngine/client-core/src/persisted.store';
+import { Config, setRuntime } from "@xr3ngine/client-core/src/helper";
 
-const config = getConfig().publicRuntimeConfig;
+let config:string;
+if (typeof window !== 'undefined' && (window as any).env?.publicRuntimeConfig != null) config = (window as any).env.publicRuntimeConfig;
+else config = JSON.stringify(getConfig().publicRuntimeConfig);
+setRuntime(config);
 
 interface Props extends AppProps {}
 
@@ -77,7 +81,7 @@ const MyApp = (props: Props): any => {
   return (
     <Fragment>
       <Head>
-        <title>{config.title}</title>
+        <title>{Config.publicRuntimeConfig.title}</title>
         <meta
           name="viewport"
           content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no"

@@ -1,10 +1,13 @@
 import React, { useRef } from 'react';
-import { Typography, InputAdornment, TextField, Button } from '@material-ui/core';
+import Typography from '@material-ui/core/Typography';
+import InputAdornment from '@material-ui/core/InputAdornment';
+import TextField from '@material-ui/core/TextField';
+import Button from '@material-ui/core/Button';
 import { Send, FileCopy } from '@material-ui/icons';
 import { isMobileOrTablet } from '@xr3ngine/engine/src/common/functions/isMobile';
 //@ts-ignore
 // @ts-ignore
-import styles from '../style.module.scss';
+import styles from '../UserMenu.module.scss';
 
 const ShareMenu = (props: any): any => {
 	const refLink = useRef(null);

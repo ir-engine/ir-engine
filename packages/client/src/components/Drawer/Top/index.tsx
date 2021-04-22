@@ -1,4 +1,4 @@
-import { AppBar } from '@material-ui/core';
+import AppBar from '@material-ui/core/AppBar';
 import { selectFriendState } from '@xr3ngine/client-core/src/social/reducers/friend/selector';
 import {
     getFriends,

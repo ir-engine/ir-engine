@@ -49,7 +49,7 @@ process.on('unhandledRejection', (error, promise) => {
 // SSL setup
 const certPath = path.join(appRootPath.path, process.env.CERT ?? 'certs/cert.pem');
 const certKeyPath = path.join(appRootPath.path, process.env.KEY ?? 'certs/key.pem');
-const useSSL = process.env.LOCAL_BUILD === 'true' || process.env.NODE_ENV !== 'production' && fs.existsSync(certKeyPath);
+const useSSL = process.env.NOSSL !== 'true' && (process.env.LOCAL_BUILD === 'true' || process.env.NODE_ENV !== 'production') && fs.existsSync(certKeyPath);
 
 const certOptions = {
   key: useSSL && (process.env.LOCAL_BUILD === 'true' || process.env.NODE_ENV !== 'production') ? fs.readFileSync(certKeyPath) : null,

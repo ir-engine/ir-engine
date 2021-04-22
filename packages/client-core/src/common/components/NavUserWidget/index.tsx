@@ -9,7 +9,7 @@ import SignIn from '../../../user/components/Auth/Login';
 import Dropdown from '../../../user/components/Profile/ProfileDropdown';
 // @ts-ignore
 import styles from './NavUserWidget.module.scss';
-import {Button} from '@material-ui/core';
+import Button from '@material-ui/core/Button';
 
 const mapStateToProps = (state: any): any => {
   return { auth: selectAuthState(state) };

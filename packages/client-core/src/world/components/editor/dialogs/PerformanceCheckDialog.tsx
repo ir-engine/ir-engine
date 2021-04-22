@@ -137,7 +137,7 @@ const scoreToValue = {
  * @param       {any} rest
  * @constructor
  */
-export default function PerformanceCheckDialog({ scores, ...rest }) {
+export function PerformanceCheckDialog({ scores, ...rest }) {
   const theme: any = useContext(ThemeContext);
   const { t } = useTranslation();
 
@@ -234,3 +234,4 @@ PerformanceCheckDialog.defaultProps = {
   title: i18n.t('editor:dialog.performance.info-fileSize') || "Performance Check",
   confirmLabel: i18n.t('editor:dialog.performance.info-fileSize') || "Publish Scene",
 };
+export default PerformanceCheckDialog;

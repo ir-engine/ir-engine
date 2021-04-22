@@ -9,6 +9,7 @@ import { SystemUpdateType } from './SystemUpdateType';
  * Register a system with the simulation.\
  * System will automatically register all components in queries and be added to execution queue.
  * 
+ * @author Fernando Serrano, Robert Long
  * @param SystemClass Type of system to be registered.
  * @param attributes Attributes of the system being created.
  * @returns Registered system.
@@ -35,6 +36,7 @@ export function registerSystem (SystemClass: SystemConstructor<any>, attributes?
  * Remove a system from the simulation.\
  * **NOTE:** System won't unregister components, so make sure you clean up!
  * 
+ * @author Fernando Serrano, Robert Long
  * @param SystemClass Type of system being unregistered.
  */
 export function unregisterSystem (SystemClass: SystemConstructor<any>): void {
@@ -51,6 +53,7 @@ export function unregisterSystem (SystemClass: SystemConstructor<any>): void {
 /**
  * Get a system from the simulation.
  * 
+ * @author Fernando Serrano, Robert Long
  * @param SystemClass Type ot the system.
  * @returns System instance.
  */
@@ -60,6 +63,8 @@ export function getSystem<S extends System> (SystemClass: SystemConstructor<S>):
 
 /**
  * Get all systems from the simulation.
+ * 
+ * @author Fernando Serrano, Robert Long
  * @returns Array of system instances.
  */
 export function getSystems (): System[] {
@@ -69,6 +74,7 @@ export function getSystems (): System[] {
 /**
  * Calls execute() function on a system instance.
  * 
+ * @author Fernando Serrano, Robert Long
  * @param system System to be executed.
  * @param delta Delta of the system.
  * @param time Current time of the system.
@@ -85,6 +91,8 @@ export function executeSystem (system: System, delta: number, time: number, upda
 
 /**
  * Sort systems by order if order has been set explicitly.
+ * 
+ * @author Fernando Serrano, Robert Long
  */
 export function sortSystems (): void {
   Engine.systemsToExecute.sort((a, b) => {

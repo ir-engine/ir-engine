@@ -95,7 +95,7 @@ function guessContentType(url): string {
   * 
   * @author Robert Long
   */
-export default class Api extends EventEmitter {
+export class Api extends EventEmitter {
   serverURL: string;
   apiURL: string;
   projectDirectoryPath: string;
@@ -107,7 +107,8 @@ export default class Api extends EventEmitter {
    */
   constructor() {
     super();
-    if ((process as any).browser) {
+    // @ts-ignore
+    if (process.browser) {
       const { protocol, host } = new URL((window as any).location.href);
       this.serverURL = SERVER_URL;
     }
@@ -1296,7 +1297,8 @@ export default class Api extends EventEmitter {
  * @author Robert Long
  */
   handleAuthorization(): void {
-    if ((process as any).browser) {
+    // @ts-ignore
+    if (process.browser) {
       const accessToken = localStorage.getItem(FEATHERS_STORE_KEY);
       const email = 'test@test.com';
       if((accessToken && email) || this.isAuthenticated()){
@@ -1305,3 +1307,5 @@ export default class Api extends EventEmitter {
     }
   }
 }
+
+export default  Api;

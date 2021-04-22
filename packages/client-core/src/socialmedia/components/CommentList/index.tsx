@@ -1,4 +1,7 @@
-import React from 'react';
+/**
+ * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
+ */
+ import React from 'react';
 import { useEffect } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';

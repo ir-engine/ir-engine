@@ -39,7 +39,8 @@ export default class HeightfieldClient {
       };
       onAbort = () => {
         this.worker.terminate();
-        if ((process as any).browser) {
+        // @ts-ignore
+        if (process.browser) {
           this.worker = new Worker(this.workerUrl);
         }
         const error = new Error("Canceled heightfield generation.");

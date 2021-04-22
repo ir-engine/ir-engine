@@ -25,7 +25,7 @@ type EulerInputProps = {
   * @author Robert Long
   * @type {Object}
   */
-export default class EulerInput extends Component<EulerInputProps, {}> {
+export class EulerInput extends Component<EulerInputProps, {}> {
 
   /**
    * onChange onchange trigger Change method for EulerInput Component.
@@ -89,3 +89,4 @@ export default class EulerInput extends Component<EulerInputProps, {}> {
     );
   }
 }
+export default EulerInput;

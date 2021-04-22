@@ -5,14 +5,12 @@ import {
     BlurLinear,
     CropOriginal,
 } from '@material-ui/icons';
-import {
-    Checkbox,
-    FormControlLabel,
-    Slider,
-    Typography
-} from '@material-ui/core';
+import Checkbox from '@material-ui/core/Checkbox';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Slider from '@material-ui/core/Slider';
+import Typography from '@material-ui/core/Typography';
 // @ts-ignore
-import styles from '../style.module.scss';
+import styles from '../UserMenu.module.scss';
 import { WebGLRendererSystem } from '@xr3ngine/engine/src/renderer/WebGLRendererSystem';
 import { EngineEvents } from '@xr3ngine/engine/src/ecs/classes/EngineEvents';
 

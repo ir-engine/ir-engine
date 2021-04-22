@@ -1,4 +1,4 @@
-import DracosisPlayer from "@xr3ngine/volumetric/src/Player";
+import Player from "@xr3ngine/volumetric/src/Player";
 
 import React, { useEffect, useRef, useState } from 'react';
 import { PerspectiveCamera, Scene, sRGBEncoding, Vector3, WebGLRenderer } from "three";
@@ -14,7 +14,7 @@ export const VolumetricPlayer = (props: VolumetricPlayerProps) => {
   const [ playPressed, setPlayPressed ] = useState(false);
   const containerRef = useRef<HTMLDivElement>();
   const rendererRef = useRef<WebGLRenderer>(null);
-  const playerRef = useRef<DracosisPlayer>(null);
+  const playerRef = useRef<Player>(null);
   let animationFrameId:number;
   const cameraVerticalOffset = props.cameraVerticalOffset || 0;
   // const mesh: any = useRef();
@@ -74,14 +74,16 @@ export const VolumetricPlayer = (props: VolumetricPlayerProps) => {
     setCameraOffset();
 
     function render() {
-      animationFrameId = requestAnimationFrame(render);
-      renderer.render(scene, camera);
+      requestAnimationFrame(render);
+      playerRef.current.handleRender(() => {
+        renderer.render(scene, camera);
+      });
       // controls.update();
     }
 
     console.log('create new player');
     if (!playerRef.current) {
-      playerRef.current = new DracosisPlayer({
+      playerRef.current = new Player({
         scene,
         renderer,
         meshFilePath: props.meshFilePath,
@@ -92,7 +94,6 @@ export const VolumetricPlayer = (props: VolumetricPlayerProps) => {
     const DracosisSequence = playerRef.current;
 
     render();
-
     return () => {
       window.removeEventListener("resize", onResize);
       cancelAnimationFrame(animationFrameId);

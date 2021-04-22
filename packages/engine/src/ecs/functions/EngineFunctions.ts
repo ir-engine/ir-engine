@@ -14,6 +14,8 @@ import { SystemUpdateType } from "./SystemUpdateType";
  * Initialize options on the engine object and fire a command for devtools.\
  * **WARNING:** This is called by {@link initialize.initializeEngine | initializeEngine()}.\
  * You probably don't want to use this.
+ * 
+ * @author Fernando Serrano, Robert Long
  */
 export function initialize (options?: EngineOptions): void {
   Engine.options = { ...Engine.options, ...options };
@@ -91,14 +93,16 @@ export function reset(): void {
  * This is typically called on a loop.
  * **WARNING:** This is called by {@link initialize.initializeEngine | initializeEngine()}.\
  * You probably don't want to use this. 
+ * 
+ * @author Fernando Serrano, Robert Long
  */
 export function execute (delta?: number, time?: number, updateType = SystemUpdateType.Free): void {
   Engine.tick++;
+  time = now() / 1000;
   if (!delta) {
-    time = now() / 1000;
     delta = time - Engine.lastTime;
-    Engine.lastTime = time;
   }
+  Engine.lastTime = time;
 
   if (Engine.enabled) {
     Engine.systemsToExecute
@@ -110,6 +114,8 @@ export function execute (delta?: number, time?: number, updateType = SystemUpdat
 /**
  * Remove entities at the end of a simulation frame.
  * **NOTE:** By default, the engine is set to process deferred removal, so this will be called.
+ * 
+ * @author Fernando Serrano, Robert Long
  */
 function processDeferredEntityRemoval () {
   if (!Engine.deferredRemovalEnabled) {
@@ -143,6 +149,8 @@ function processDeferredEntityRemoval () {
 
 /**
  * Disable execution of systems without stopping timer.
+ * 
+ * @author Fernando Serrano, Robert Long
  */
 export function pause (): void {
   Engine.enabled = false;
@@ -151,6 +159,8 @@ export function pause (): void {
 
 /**
  * Get stats for all entities, components and systems in the simulation.
+ * 
+ * @author Fernando Serrano, Robert Long
  */
 export function stats (): { entities: any; system: any } {
   const queryStats = {};

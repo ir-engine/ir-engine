@@ -64,7 +64,7 @@ const StepperButton = (styled as any).button`
  * @param {any} rest
  * @returns 
  */
-export default function NumericStepperInput({ style, className, decrementTooltip, incrementTooltip, ...rest }) {
+export function NumericStepperInput({ style, className, decrementTooltip, incrementTooltip, ...rest }) {
   const inputRef = useRef() as any;
 
   const onDecrement = useCallback(() => {
@@ -102,3 +102,4 @@ NumericStepperInput.propTypes = {
   decrementTooltip: PropTypes.string,
   incrementTooltip: PropTypes.string
 };
+export default NumericStepperInput;

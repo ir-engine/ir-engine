@@ -13,7 +13,7 @@ import NumericInput from "./NumericInput";
  * @param {any} rest
  * @returns 
  */
-export default function NumericInputGroup({ name, className, info, label, ...rest }) {
+export function NumericInputGroup({ name, className, info, label, ...rest }) {
   const { displayPrecision, ...scrubberProps } = rest;
   return (
     <InputGroupContainer>
@@ -35,3 +35,4 @@ NumericInputGroup.propTypes = {
   className: PropTypes.string,
   info: PropTypes.string
 };
+export default NumericInputGroup;

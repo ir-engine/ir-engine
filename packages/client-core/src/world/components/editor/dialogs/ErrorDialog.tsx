@@ -40,7 +40,7 @@ const ErrorMessage = (styled as any).code`
  * @author Robert Long
  * @type {Object}
  */
-export default class ErrorDialog extends Component {
+export class ErrorDialog extends Component {
   state = { eventId: null }; //eslint-disable-line react/no-unused-state
 
   //updating state once the component get mounted.
@@ -60,3 +60,5 @@ export default class ErrorDialog extends Component {
     );
   }
 }
+
+export default ErrorDialog;

@@ -1,5 +1,8 @@
+/**
+ * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
+ */
 import React, { useState } from "react";
-import Router from "next/router";
+import { useHistory } from "react-router-dom";
 
 import AddCircleIcon from '@material-ui/icons/AddCircle';
 import HomeIcon from '@material-ui/icons/Home';
@@ -30,20 +33,25 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 
 const AppFooter = ({creatorState, getLoggedCreator,authState}: any) => {
   useEffect(()=>getLoggedCreator(),[]);  
+  const history = useHistory();
 
-  const [buttonPopup , setButtonPopup] = useState(false);
   const creator = creatorState && creatorState.get('fetching') === false && creatorState.get('currentCreator'); 
-  const checkGuest = authState.get('authUser')?.identityProvider?.type === 'guest' ? true : false;
+   /* Hided for now */
+  // const [buttonPopup , setButtonPopup] = useState(false);
+  // const checkGuest = authState.get('authUser')?.identityProvider?.type === 'guest' ? true : false;
+  
+
   return (
     <nav className={styles.footerContainer}>
-        <HomeIcon onClick={()=> {checkGuest ? setButtonPopup(true) : Router.push('/');}} fontSize="large" className={styles.footerItem}/>
-        <PopupLogin trigger={buttonPopup} setTrigger={setButtonPopup}>
+        <HomeIcon onClick={()=> history.push('/')} fontSize="large" className={styles.footerItem}/>
+        {/* <PopupLogin trigger={buttonPopup} setTrigger={setButtonPopup}>
           <IndexPage />
-        </PopupLogin>
-        <AddCircleIcon onClick={()=> {checkGuest ? setButtonPopup(true) : Router.push('/newfeed');}} style={{fontSize: '5em'}} className={styles.footerItem}/>
-        {creator && <WhatshotIcon htmlColor="#FF6201" onClick={()=>{checkGuest ? setButtonPopup(true) : Router.push({ pathname: '/notifications'});}} /> }
+        </PopupLogin> */}
+        <AddCircleIcon onClick={()=> history.push('/newfeed')} style={{fontSize: '5em'}} className={styles.footerItem}/>
+        {/*hided for now*/}
+        {/* {creator && <WhatshotIcon htmlColor="#FF6201" onClick={()=>{checkGuest ? setButtonPopup(true) : history.push('/notifications');}} /> } */}
         {creator && ( 
-          <Avatar onClick={()=> {checkGuest ? setButtonPopup(true) : Router.push({ pathname: '/creator', query:{ creatorId: creator.id}});}} 
+          <Avatar onClick={()=> history.push('/creator?creatorId=' + creator.id)} 
           alt={creator.username} src={creator.avatar} />
         )}
     </nav>

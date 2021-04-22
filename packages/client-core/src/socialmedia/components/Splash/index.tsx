@@ -1,3 +1,6 @@
+/**
+ * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
+ */
 import CardMedia from '@material-ui/core/CardMedia';
 import React from 'react';
 // @ts-ignore

@@ -4,7 +4,6 @@ module.exports = [
     "type": "category",
     "label": "Modules",
     "items": [
-      "docs-client/modules/next_env",
       "docs-client/modules/src_actions",
       "docs-client/modules/src_components_drawer_bottom",
       "docs-client/modules/src_components_drawer_left",
@@ -27,11 +26,11 @@ module.exports = [
       "docs-client/modules/src_components_scene_location",
       "docs-client/modules/src_components_scene_offlinelocation",
       "docs-client/modules/src_components_videochat",
+      "docs-client/modules/src_main",
       "docs-client/modules/src_pages",
       "docs-client/modules/src_pages_404",
       "docs-client/modules/src_pages_workertest",
       "docs-client/modules/src_pages__app",
-      "docs-client/modules/src_pages__document",
       "docs-client/modules/src_pages__error",
       "docs-client/modules/src_pages_admin",
       "docs-client/modules/src_pages_admin_content_packs",
@@ -50,7 +49,6 @@ module.exports = [
       "docs-client/modules/src_pages_auth_oauth_linkedin",
       "docs-client/modules/src_pages_auth_oauth_twitter",
       "docs-client/modules/src_pages_dev",
-      "docs-client/modules/src_pages_editor",
       "docs-client/modules/src_pages_editor_create",
       "docs-client/modules/src_pages_editor_projects",
       "docs-client/modules/src_pages_editor_projects__projectid_",
@@ -79,6 +77,7 @@ module.exports = [
       "docs-client/modules/src_reducers_transport_reducers",
       "docs-client/modules/src_reducers_transport_selector",
       "docs-client/modules/src_reducers_transport_service",
+      "docs-client/modules/src_router",
       "docs-client/modules/src_transports_socketwebrtcclientfunctions",
       "docs-client/modules/src_transports_socketwebrtcclienttransport",
       "docs-client/modules/src_util",
@@ -90,15 +89,14 @@ module.exports = [
     "type": "category",
     "label": "Namespaces",
     "items": [
-      "docs-client/modules/src_pages__error.default"
+      "docs-client/modules/src_pages__error.error"
     ]
   },
   {
     "type": "category",
     "label": "Classes",
     "items": [
-      "docs-client/classes/src_components_partyparticipantwindow_draggable.default",
-      "docs-client/classes/src_pages__document.default",
+      "docs-client/classes/src_components_partyparticipantwindow_draggable.draggable",
       "docs-client/classes/src_transports_socketwebrtcclienttransport.socketwebrtcclienttransport"
     ]
   },

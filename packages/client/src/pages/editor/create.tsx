@@ -1,6 +1,6 @@
-import dynamic from "next/dynamic";
+import React from "react";
 
 /**
  * Exporting component by dynamicaly loaded component.
  */
-export default dynamic(() => import("@xr3ngine/client-core/src/world/components/editor/projects/CreateProjectPage"));
+export default React.lazy(() => import("@xr3ngine/client-core/src/world/components/editor/projects/CreateProjectPage"));

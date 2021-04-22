@@ -3,19 +3,20 @@
  *@Param :- projectId
  */
 
-import dynamic from "next/dynamic";
 import React, { lazy, Suspense, useEffect, useState } from "react";
-import NoSSR from "react-no-ssr";
+// Hack to get around a bug in Vite/rollup:  https://github.com/vitejs/vite/issues/2139
+import nossr from "react-no-ssr";
+const NoSSR = nossr.default ? nossr.default : nossr;
 
 
 // importing component EditorContainer.
-const EditorContainer = dynamic(() => import("@xr3ngine/client-core/src/world/components/editor/EditorContainer"), { ssr: false });
+const EditorContainer = lazy(() => import("@xr3ngine/client-core/src/world/components/editor/EditorContainer"));
 
 import { connect } from 'react-redux';
 import {selectAuthState} from "@xr3ngine/client-core/src/user/reducers/auth/selector";
 import {bindActionCreators, Dispatch} from "redux";
 import {doLoginAuto} from "@xr3ngine/client-core/src/user/reducers/auth/service";
-import { initializeEngine } from "@xr3ngine/engine/src/initialize";
+import { initializeEditor } from "@xr3ngine/engine/src/initialize";
 import { DefaultGameMode } from "@xr3ngine/engine/src/templates/game/DefaultGameMode";
 import { Engine } from "@xr3ngine/engine/src/ecs/classes/Engine";
 
@@ -69,14 +70,13 @@ const Project = (props: Props) => {
     
     const InitializationOptions = {
         postProcessing: true,
-        editor: true,
         gameModes: [
             DefaultGameMode
           ]
       };
   
     useEffect(() => {
-        initializeEngine(InitializationOptions).then(() => {
+        initializeEditor(InitializationOptions).then(() => {
             console.log("Setting engine inited");
             setEngineInitialized(true);
         });

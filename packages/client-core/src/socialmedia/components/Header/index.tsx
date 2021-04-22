@@ -1,5 +1,8 @@
+/**
+ * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
+ */
 import React, { useEffect } from "react";
-import Router from "next/router";
+import { useHistory } from "react-router-dom";
 // @ts-ignore
 import styles from './Header.module.scss';
 import Avatar from "@material-ui/core/Avatar";
@@ -28,16 +31,18 @@ interface Props{
   authState?:any
 }
 const AppHeader = ({creatorState, getLoggedCreator, logo, authState}: Props) => {
+  const history = useHistory();
   useEffect(()=>getLoggedCreator(),[]);  
   const creator = creatorState && creatorState.get('fetching') === false && creatorState.get('currentCreator');
-  const checkGuest = authState.get('authUser')?.identityProvider?.type === 'guest' ? true : false;
+ /* Hided for now */
+  // const checkGuest = authState.get('authUser')?.identityProvider?.type === 'guest' ? true : false;
 
   return (
     <nav className={styles.headerContainer}>
-        {logo && <img onClick={()=>Router.push('/')} src={logo} className="header-logo" alt="ARC" />}
-        <button type={"button"} onClick={()=>Router.push('/volumetric')} title={"volumetric"} className="header-logo">VolumetricDemo</button>
-        {creator && !checkGuest &&
-          <Avatar onClick={()=> Router.push({ pathname: '/creator', query:{ creatorId: creator.id}})} 
+        {logo && <img onClick={()=>history.push('/')} src={logo} className="header-logo" alt="ARC" />}
+        <button type={"button"} onClick={()=>history.push('/volumetric')} title={"volumetric"} className="header-logo">VolumetricDemo</button>
+        {creator && {/*!checkGuest*/} &&
+          <Avatar onClick={()=> history.push('/creator?creatorId=' + creator.id)} 
           alt={creator.username} src={creator.avatar} />
         }         
     </nav>
