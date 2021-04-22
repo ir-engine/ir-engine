@@ -18,7 +18,7 @@ import { validateEmail, validatePhoneNumber } from '../../../../helper';
 
 //@ts-ignore
 // @ts-ignore
-import styles from '../style.module.scss';
+import styles from '../UserMenu.module.scss';
 
 interface Props {
 	changeActiveMenu?: any;
