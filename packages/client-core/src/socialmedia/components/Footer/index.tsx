@@ -1,3 +1,6 @@
+/**
+ * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
+ */
 import React, { useState } from "react";
 import { useHistory } from "react-router-dom";
 
@@ -42,7 +45,8 @@ const AppFooter = ({creatorState, getLoggedCreator,authState}: any) => {
           <IndexPage />
         </PopupLogin>
         <AddCircleIcon onClick={()=> {checkGuest ? setButtonPopup(true) : history.push('/newfeed');}} style={{fontSize: '5em'}} className={styles.footerItem}/>
-        {creator && <WhatshotIcon htmlColor="#FF6201" onClick={()=>{checkGuest ? setButtonPopup(true) : history.push('/notifications');}} /> }
+        {/*hided for now*/}
+        {/* {creator && <WhatshotIcon htmlColor="#FF6201" onClick={()=>{checkGuest ? setButtonPopup(true) : history.push('/notifications');}} /> } */}
         {creator && ( 
           <Avatar onClick={()=> {checkGuest ? setButtonPopup(true) : history.push('/creator?creatorId=' + creator.id);}} 
           alt={creator.username} src={creator.avatar} />
