@@ -43,20 +43,15 @@ export default class Player {
   private readonly _scale: number = 1;
   private _video: HTMLVideoElement | AdvancedHTMLVideoElement = null;
   private _videoTexture = null;
-  private meshBuffer: Map<number, KeyframeBuffer> = new Map();
+  private meshBuffer: Map<number, BufferGeometry> = new Map();
   private _worker: Worker;
   private onMeshBuffering: onMeshBufferingCallback | null = null;
   private onFrameShow: onFrameShowCallback | null = null;
   private rendererCallback: onRenderingCallback | null = null;
   fileHeader: any;
-  tempBufferObject: KeyframeBuffer = {
-    frameNumber: 0,
-    keyframeNumber: 0,
-    bufferGeometry: null
-  }
+  tempBufferObject: BufferGeometry;
 
   private manifestFilePath: any;
-  private framesToBuffer: number;
   private counterCtx: CanvasRenderingContext2D;
   private actorCtx: CanvasRenderingContext2D;
 
@@ -64,17 +59,18 @@ export default class Player {
   private actorCanvas: HTMLCanvasElement;
   currentFrame: number = 0;
   lastFrameRequested: number = 0;
-  targetFramesToRequest: number = 250;
+  targetFramesToRequest: number = 30;
 
   bufferLoop = () => {
-    const minimumBufferLength = this.framesToBuffer;
-    const bufferedEnough = this.meshBuffer.size >= minimumBufferLength;
+    const minimumBufferLength = this.targetFramesToRequest * 2;
+    const meshBufferHasEnoughToPlay = this.meshBuffer.size >= minimumBufferLength;
 
-    if (bufferedEnough) {
-
+    if (meshBufferHasEnoughToPlay) {
+      if(this._video.paused && this.hasPlayed)
+        this._video.play();
     }
     else {
-      if (moduloBy(this.lastFrameRequested - this.currentFrame, this.numberOfFrames) < minimumBufferLength) {
+      if (moduloBy(this.lastFrameRequested - this.currentFrame, this.numberOfFrames) <= minimumBufferLength * 2) {
         const newLastFrame = Math.max(this.lastFrameRequested + minimumBufferLength, this.lastFrameRequested + this.targetFramesToRequest);
         const payload = {
           frameStart: this.lastFrameRequested,
@@ -90,10 +86,6 @@ export default class Player {
       }
     }
 
-    setTimeout(() => this.bufferLoop(), 100);
-  }
-
-  removeOldFrames = () => {
     const oldFrames = [];
     this.meshBuffer.forEach((value, key) => {
       // If key is between current keyframe and last requested, don't delete
@@ -101,24 +93,32 @@ export default class Player {
 
       if ((isOnLoop && (key > this.lastFrameRequested && key < this.currentFrame)) ||
         (!isOnLoop && key < this.currentFrame)) {
+          console.log("Destroying", key);
         oldFrames.push(key);
       }
     })
     oldFrames.forEach(frameNumber => {
+      const buffer = this.meshBuffer.get(frameNumber);
+      if (buffer && buffer instanceof BufferGeometry) {
+        buffer?.dispose();
+      }
       this.meshBuffer.delete(frameNumber);
     })
+
+    requestAnimationFrame(() => this.bufferLoop());
   }
+
+  hasPlayed: boolean;
 
   constructor({
     scene,
     renderer,
     meshFilePath,
     videoFilePath,
-    targetFramesToRequest = 100,
+    targetFramesToRequest = 90,
     frameRate = 30,
     loop = true,
     scale = 1,
-    framesToBuffer = 250,
     encoderWindowSize = 8,
     encoderByteLength = 16,
     videoSize = 1024,
@@ -136,7 +136,6 @@ export default class Player {
     loop?: boolean,
     autoplay?: boolean,
     scale?: number,
-    framesToBuffer?: number,
     video?: any,
     encoderWindowSize?: number,
     encoderByteLength?: number,
@@ -159,7 +158,6 @@ export default class Player {
     const worker = new Worker(new URL('./workerFunction.ts', import.meta.url)); // spawn new worker
     this._worker = worker;
 
-    this.framesToBuffer = framesToBuffer;
     this.scene = scene;
     this.renderer = renderer;
     this.meshFilePath = meshFilePath;
@@ -212,7 +210,6 @@ export default class Player {
 
 
     const handleFrameData = (messages) => {
-      this.removeOldFrames();
       messages.forEach(frameData => {
         let geometry = new BufferGeometry();
         geometry.setIndex(
@@ -227,7 +224,7 @@ export default class Player {
           new Float32BufferAttribute(frameData.bufferGeometry.uv, 2)
         );
 
-        this.meshBuffer.set(frameData.keyframeNumber, { ...frameData, bufferGeometry: geometry });
+        this.meshBuffer.set(frameData.keyframeNumber, geometry );
       })
     }
 
@@ -265,7 +262,9 @@ export default class Player {
    * @param {Event} e
    */
   handleRender(cb?: onRenderingCallback) {
-    if (!this.fileHeader || this._video.currentTime === 0 || this._video.paused) return console.log(this.fileHeader, this._video.currentTime, this._video.paused)
+    if (!this.fileHeader || this._video.currentTime === 0 || this._video.paused)
+      return;
+
     this.actorCtx.clearRect(0, 0, this._video.width, this._video.height);
     this.actorCtx.drawImage(this._video, 0, 0);
 
@@ -309,7 +308,7 @@ export default class Player {
 
       this.mesh.material.needsUpdate = true;
 
-      this.mesh.geometry = this.meshBuffer.get(frameToPlay).bufferGeometry as BufferGeometry;
+      this.mesh.geometry = this.meshBuffer.get(frameToPlay) as BufferGeometry;
       this.mesh.geometry.attributes.position.needsUpdate = true;
       (this.mesh.geometry as any).needsUpdate = true;
 
@@ -326,7 +325,7 @@ export default class Player {
 
   // Start loop to check if we're ready to play
   play() {
-    console.log("****** PLAYING");
+    this.hasPlayed = true;
     this._video.playsInline = true;
         this.mesh.visible = true
         this._video.play()
@@ -342,8 +341,8 @@ export default class Player {
     if (this.meshBuffer) {
       for (let i = 0; i < this.meshBuffer.size; i++) {
         const buffer = this.meshBuffer.get(i);
-        if (buffer && buffer.bufferGeometry instanceof BufferGeometry) {
-          buffer.bufferGeometry?.dispose();
+        if (buffer && buffer instanceof BufferGeometry) {
+          buffer?.dispose();
         }
       }
       this.meshBuffer.clear();

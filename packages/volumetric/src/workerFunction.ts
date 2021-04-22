@@ -1,6 +1,5 @@
 import { CortoDecoder } from "./corto";
 let _meshFilePath;
-let fetchLoop;
 let _fileHeader;
 
 type requestPayload = {
@@ -12,7 +11,7 @@ const messageQueue: requestPayload[] = [];
 
 function addMessageToQueue(payload: requestPayload) {
   messageQueue.push(payload);
-  console.log("Message added to queue", addMessageToQueue);
+  console.log("Message added to queue", payload);
 }
 
 function startHandlerLoop({
@@ -24,8 +23,9 @@ function startHandlerLoop({
   _fileHeader = fileHeader;
   (globalThis as any).postMessage({ type: "initialized" });
 
-  fetchLoop = async () => {
-    if (messageQueue.length > 0) {
+  setInterval(async () => {
+    if (messageQueue.length < 1)
+      return;
 
       let {
         frameStart,
@@ -76,11 +76,8 @@ function startHandlerLoop({
         });
       }
       // console.log("Posting payload", messages);
-      (globalThis as any).postMessage({ type: 'framedata', payload: outgoingMessages });
-      fetchLoop();
-    }
-  }
-  fetchLoop();
+      (globalThis as any).postMessage({ type: 'framedata', payload: outgoingMessages });    
+  }, 100);
 }
 
 (globalThis as any).onmessage = function (e) {
