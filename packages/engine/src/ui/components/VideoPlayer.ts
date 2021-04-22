@@ -1,12 +1,19 @@
 import shaka from 'shaka-player';
 import { Object3D, Color, TextureLoader, VideoTexture, Mesh, SphereGeometry, MeshBasicMaterial, BackSide, Texture } from "three";
 
+enum PLAYER_STATE {
+  INIT,
+  PLAYING,
+  PAUSED,
+}
 export class VideoPlayer {
   player: shaka.Player;
   video: HTMLVideoElement;
   skyDomeMaterial: MeshBasicMaterial;
   skyDome: Mesh;
   skyDomeTexture: Texture;
+  
+  state: PLAYER_STATE;
 
   constructor(root, envUrl){
     this.skyDomeMaterial = new MeshBasicMaterial( { 
@@ -60,44 +67,57 @@ export class VideoPlayer {
     shaka.polyfill.installAll();
     this.player = new shaka.Player(this.video);
 
-    navigator.mediaSession.setActionHandler('stop', this.stopVideo);
+    this.state = PLAYER_STATE.INIT;
+    // navigator.mediaSession.setActionHandler('stop', this.stopVideo);
   }
 
   playVideo(url){
-    const promise = this.player.load(url);
-    if (promise !== undefined) {
-      promise.then(_ => {
-        
-        document.addEventListener("click", ()=>{
-          const p = this.video.play();
-
-          const texture = new VideoTexture(this.video);
-          this.skyDomeMaterial.map = texture;
-          this.skyDomeMaterial.needsUpdate = true;
-          
-          if (p !== undefined) {
-            p.then(_ => {
-
-            }).catch(error => {
-            });
-          }
-
-        });
-        
-        }).catch(error => {
-      });
+    switch(this.state){
+      case PLAYER_STATE.INIT:
+        this.play(url);
+        this.state = PLAYER_STATE.PLAYING;
+        break;
+      case PLAYER_STATE.PLAYING:
+        this.video.pause();        
+        this.state = PLAYER_STATE.PAUSED;
+        break;
+      case PLAYER_STATE.PAUSED:
+        this.video.play();
+        this.state = PLAYER_STATE.PLAYING;
+        break;
     }
   }
 
-  play(){
-
+  play(url){
+    const promise = this.player.load(url);
+      if (promise !== undefined) {
+        promise.then(_ => {
+          
+          // document.addEventListener("click", ()=>{
+            const p = this.video.play();
+  
+            const texture = new VideoTexture(this.video);
+            this.skyDomeMaterial.map = texture;
+            this.skyDomeMaterial.needsUpdate = true;
+            
+            if (p !== undefined) {
+              p.then(_ => {
+  
+              }).catch(error => {
+              });
+            }
+  
+          // });
+          
+          }).catch(error => {
+        });
+      }
   }
 
   stopVideo(){
-    // this.video.pause();
-    // this.player.stop();
-
+    this.video.pause();
     this.skyDomeMaterial.map = this.skyDomeTexture;
     this.skyDomeMaterial.needsUpdate = true;
-}
+    this.state = PLAYER_STATE.INIT;
+  }
 }
