@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import {
     AxesHelper,
     BoxGeometry, CameraHelper,
-    GridHelper, Group,
+    GridHelper, Group, Matrix4,
     Mesh,
     MeshBasicMaterial,
     PerspectiveCamera,
@@ -27,11 +27,20 @@ enum RecordingStates {
 
 const meshFilePath = typeof location !== 'undefined' ? location.origin + "/volumetric/liam.drcs" : "";
 const videoFilePath = typeof location !== 'undefined' ? location.origin + "/volumetric/liam.mp4" : "";
+const PI2 = Math.PI * 2;
+const testData = {
+    cameraIntrinsics: null,
+    checkpoints: [],
+};
+const cameraLink = {
+    camera: null
+};
 
 export const IndexPage = (): any => {
     const [initializationResponse, setInitializationResponse] = useState("");
     const [cameraStartedState, setCameraStartedState] = useState("");
     const [cameraPoseState, setCameraPoseState] = useState("");
+    const [cameraPoseRState, setCameraPoseRState] = useState("");
     const [anchorPoseState, setAnchorPoseState] = useState("");
     const [intrinsicsState, setCameraIntrinsicsState] = useState("");
     const [savedFilePath, setSavedFilePath] = useState("");
@@ -64,6 +73,8 @@ export const IndexPage = (): any => {
             anchor.add(anchorZ);
 
             camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.001, 1);
+            cameraLink.camera = camera;
+
             camera2 = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.001, 100);
             camera2.position.set(3,3,3);
             camera2.lookAt(new Vector3());
@@ -100,7 +111,32 @@ export const IndexPage = (): any => {
                 setInitializationResponse(response.status);
             });
 
-            Plugins.XRPlugin.addListener('poseDataReceived', (data: any) => {
+            const correctionQuaternion = new Quaternion().setFromAxisAngle(new Vector3(1,0,0), Math.PI/2);
+            const correctionMatrix = new Matrix4().set(
+              1,   0,   0,   0,
+              0,   0,   1,   0,
+              0, - 1,   0,   0,
+              0,   0,   0,   1
+            );
+
+            Plugins.XRPlugin.addListener('poseDataReceived', (_data: any) => {
+                // TODO: this is temporary to be able to modify axes in one place
+                const data = {
+                    ..._data,
+                    // cameraPositionY: _data.cameraPositionZ * 1,
+                    // cameraPositionZ: _data.cameraPositionY,
+
+                    // cameraRotationX: _data.cameraRotationY,
+                    // cameraRotationY: _data.cameraRotationZ * -1,
+                    // cameraRotationZ: _data.cameraRotationX,
+
+                    // anchorPositionY: _data.anchorPositionZ * 1,
+                    // anchorPositionZ: _data.anchorPositionY,
+                    // anchorRotationX: _data.anchorRotationX * -1,
+                    // anchorRotationY: _data.anchorRotationZ * 1,
+                    // anchorRotationZ: _data.anchorRotationY * -1,
+                };
+
                 const {
                     cameraPositionX,
                     cameraPositionY,
@@ -125,8 +161,17 @@ export const IndexPage = (): any => {
                 }));
 
                 camera.quaternion.set(cameraRotationX, cameraRotationY, cameraRotationZ, cameraRotationW);
-
                 camera.position.set(cameraPositionX, cameraPositionY, cameraPositionZ);
+                camera.updateMatrix();
+
+                // apply coordinates convertion
+                {
+                    const matrixInverse = correctionMatrix.clone().transpose();
+                    camera.matrix.premultiply(correctionMatrix).multiply(matrixInverse);
+                    camera.matrix.decompose( camera.position, camera.quaternion, camera.scale );
+                    camera.updateMatrixWorld();
+                }
+
                 camera.updateProjectionMatrix();
 
                 if (data.placed) {
@@ -165,6 +210,7 @@ export const IndexPage = (): any => {
                     x: data.x,
                     y: data.y
                 }));
+                testData.cameraIntrinsics = data;
 
                 // camera.setFocalLength(data.fY);
                 // camera.setFocalLength(50);
@@ -224,6 +270,20 @@ export const IndexPage = (): any => {
         Plugins.XRPlugin.clearAnchors();
     };
 
+    const storeCheckpoint = () => {
+      if (!cameraLink.camera) {
+        return;
+      }
+      testData.checkpoints.push({
+        position: camera.position.toArray(),
+        rotation: camera.quaternion.toArray(),
+      })
+    }
+
+    const dumpCheckpoints = () => {
+      console.log('testData', testData);
+    }
+
     // useEffect(() => {
     //     setSecondState("Initialized and effected");
     // }, [initializationResponse]);
@@ -231,22 +291,27 @@ export const IndexPage = (): any => {
     return (<>
         <div className="plugintest">
             <div className="plugintestReadout">
-                <p>{initializationResponse}</p>
-                <p>{cameraStartedState}</p>
-                <p>{cameraPoseState}</p>
-                <p>{anchorPoseState}</p>
-                <p>{intrinsicsState}</p>
+                <p>IR:{initializationResponse}</p>
+                <p>CSS:{cameraStartedState}</p>
+                <p>CRS:{cameraPoseRState}</p>
+                <p>IS:{intrinsicsState}</p>
+                {/*
+                    <p>CPS:{cameraPoseState}</p>
+                    <p>APS:{anchorPoseState}</p>
 
-                <button type="button" style={{ padding: "1em" }} onClick={() => toggleRecording()}>{recordingState === RecordingStates.OFF ? "Record" : "Stop Recording"}</button>
-                <button type="button" style={{ padding: "1em" }} onClick={() => handleTap()}>Place AR</button>
-                <button type="button" style={{ padding: "1em" }} onClick={() => clearAnchors()}>clearAnchors</button>
-                <button type="button" style={{ padding: "1em" }} onClick={() => playVideo()}>playVideo</button>
-                <button type="button" style={{ padding: "1em" }} onClick={() => pauseVideo()}>pauseVideo</button>
-
-
+                */}
             </div>
-
         </div>
+
+          <div className="plugintestControls">
+              <button type="button" style={{ padding: "1em" }} onClick={() => toggleRecording()}>{recordingState === RecordingStates.OFF ? "Record" : "Stop Recording"}</button>
+              <button type="button" style={{ padding: "1em" }} onClick={() => handleTap()}>Place AR</button>
+              <button type="button" style={{ padding: "1em" }} onClick={() => clearAnchors()}>clearAnchors</button>
+              <button type="button" style={{ padding: "1em" }} onClick={() => playVideo()}>playVideo</button>
+              <button type="button" style={{ padding: "1em" }} onClick={() => pauseVideo()}>pauseVideo</button>
+              <button type="button" style={{ padding: "1em" }} onClick={() => storeCheckpoint()}>CP</button>
+              <button type="button" style={{ padding: "1em" }} onClick={() => dumpCheckpoints()}>DMP</button>
+          </div>
         {/* <VolumetricPlayer
                         meshFilePath={meshFilePath}
                         videoFilePath={videoFilePath}
