@@ -8,7 +8,7 @@ import translation from '../i18n/en/translation.json';
 export const initialize = (): Promise<void> => {
     return new Promise((resolve) => {
         // Set Runtime config to client core
-        setRuntime(process.env.publicRuntimeConfig);
+        setRuntime(process.env.NODE_ENV === 'development' ? process.env.publicRuntimeConfig : window.env.publicRuntimeConfig);
         delete process.env.publicRuntimeConfig;
 
         // Setup I18N
