@@ -34,6 +34,8 @@
   "scripts": {
     "dev": "concurrently \"cross-env NODE_ENV=development ts-eager src/index.ts\" \"cd ../gameserver && cross-env NODE_ENV=development ts-eager src/index.ts\"",
     "start": "cross-env NODE_ENV=production ts-eager src/index.ts",
+    "dev-api-server": "ts-eager src/index.ts",
+    "dev-api-server-nossl": "cross-env NOSSL=true ts-eager src/index.ts",
     "dev-nossl": "concurrently \"cross-env NOSSL=true ts-eager src/index.ts\" \"cd ../gameserver && cross-env NOSSL=true ts-eager src/index.ts\"",
     "dev-reinit-db": "concurrently \"cross-env FORCE_DB_REFRESH=true NOSSL=true ts-eager src/index.ts\" \"cd ../gameserver && cross-env NOSSL=true ts-eager src/index.ts\"",
     "test": "echo \"TODO: no test specified\" && exit 0",

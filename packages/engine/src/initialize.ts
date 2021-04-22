@@ -32,9 +32,15 @@ import { DefaultNetworkSchema } from './templates/networking/DefaultNetworkSchem
 import { TransformSystem } from './transform/systems/TransformSystem';
 import { createWorker, WorkerProxy } from './worker/MessageQueue';
 import { XRSystem } from './xr/systems/XRSystem';
-//@ts-ignore
-import OffscreenWorker from './worker/initializeOffscreen.ts?worker';
+import { isNode } from './common/functions/getEnvironment';
 // import { PositionalAudioSystem } from './audio/systems/PositionalAudioSystem';
+
+let OffscreenWorker;
+if(!isNode)
+  import('./worker/initializeOffscreen.ts?worker')
+  .then((module) => {
+    OffscreenWorker = module;
+  })
 
 Mesh.prototype.raycast = acceleratedRaycast;
 BufferGeometry.prototype["computeBoundsTree"] = computeBoundsTree;
