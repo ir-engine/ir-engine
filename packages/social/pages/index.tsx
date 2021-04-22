@@ -15,20 +15,26 @@ import { createCreator } from "@xr3ngine/client-core/src/socialmedia/reducers/cr
 
 // @ts-ignore
 import styles from './index.module.scss';
+import { selectPopupsState } from "@xr3ngine/client-core/src/socialmedia/reducers/popupsState/selector";
+import { updateCreatorPageState } from "@xr3ngine/client-core/src/socialmedia/reducers/popupsState/service";
+import SharedModal from "@xr3ngine/client-core/src/socialmedia/components/SharedModal";
+import Creator from "@xr3ngine/client-core/src/socialmedia/components/Creator";
         
 const mapStateToProps = (state: any): any => {
   return {
     auth: selectAuthState(state),
     creatorsState: selectCreatorsState(state),   
+    popupsState: selectPopupsState(state),
   };
 };
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
   doLoginAuto: bindActionCreators(doLoginAuto, dispatch),
-  createCreator: bindActionCreators(createCreator, dispatch)
+  createCreator: bindActionCreators(createCreator, dispatch),
+  updateCreatorPageState: bindActionCreators(updateCreatorPageState, dispatch),
 });
 
-const  Home = ({ createCreator,  doLoginAuto, auth}) => {
+const  Home = ({ createCreator,  doLoginAuto, auth, popupsState, updateCreatorPageState }) => {
   useEffect(()=>{
     if(auth){
       const user = auth.get('authUser')?.identityProvider.type === 'guest' ? auth.get('user') as User : auth.get('authUser')?.identityProvider as User;
@@ -48,6 +54,23 @@ const  Home = ({ createCreator,  doLoginAuto, auth}) => {
       });
   }
 
+   //common for creator page
+   const handleClose = () => {
+    updateCreatorPageState(false);
+  };
+const renderModal = () =>
+    (popupsState?.get('creatorPage') === true && popupsState?.get('creatorId')) ?  
+        (<SharedModal 
+            open={popupsState?.get('creatorPage')}
+            onClose={handleClose} 
+            className={styles.creatorPopup}
+        >
+        <Creator creatorId={popupsState?.get('creatorId')} />
+        </SharedModal>) 
+        : 
+        <></>
+  useEffect(()=> {renderModal();}, [popupsState.get('creatorPage')]);
+
   return (<>
     <div className={styles.viewport}>
         <AppHeader logo="/assets/logoBlack.png" />
@@ -55,6 +78,7 @@ const  Home = ({ createCreator,  doLoginAuto, auth}) => {
         {/* <Stories stories={stories} /> */}
         <FeedMenu />
         <AppFooter />
+        {renderModal()}
     </div>
   </>
   );

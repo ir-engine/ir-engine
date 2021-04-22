@@ -9,36 +9,37 @@ interface Props {
     TransitionComponent?: any;
     onClose?: any;
     title?: string;    
+    className?: string;
 }
 
 import { TransitionProps } from '@material-ui/core/transitions';
 import Slide from '@material-ui/core/Slide';
 
-const Transition = React.forwardRef(function Transition(
+const Transition = React.forwardRef((
   props: TransitionProps & { children?: React.ReactElement<any, any> },
   ref: React.Ref<unknown>,
-) {
+) => {
   return <Slide direction="up" ref={ref} {...props} />;
 });
 
 const SharedModal = (props: Props) => {
-    const {children, open, TransitionComponent, onClose, title} = props;
+    const {children, open, onClose, title, className} = props;
     return <Dialog
               open={open}
               TransitionComponent={Transition}
               keepMounted
               onClose={onClose}
+              className={className}
               aria-labelledby="alert-dialog-slide-title"
               aria-describedby="alert-dialog-slide-description"
           >
-            <DialogActions>
+              {/* <DialogActions>
                   <Button  variant="outlined" onClick={onClose} color="primary">
                       Close
                   </Button>                        
-              </DialogActions>
+              </DialogActions> */}
               {title && <DialogTitle id="alert-dialog-slide-title">{title}</DialogTitle>}
-              {children}
-              
+              {children}              
           </Dialog>;
 };
 

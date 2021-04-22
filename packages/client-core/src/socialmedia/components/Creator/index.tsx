@@ -9,6 +9,7 @@ import { selectCreatorsState } from '../../reducers/creator/selector';
 import { followCreator, getCreator, getFollowersList, getFollowingList, unFollowCreator } from '../../reducers/creator/service';
 import CreatorCard from '../CreatorCard';
 import Featured from '../Featured';
+import AppFooter from '../Footer';
 // @ts-ignore
 import styles from './Creator.module.scss';
 
@@ -53,16 +54,17 @@ const Creator = ({creatorId, creatorState, getCreator, followCreator, unFollowCr
         creator = isMe === true ? creatorState.get('currentCreator') : creatorData ? creatorData : creatorState.get('creator');
     }
     const [videoType, setVideoType] = useState('creator');
-    return  creator ?  (<section className={styles.creatorContainer}>
+    return  <><section className={styles.creatorContainer}>
             <CreatorCard creator={creator} />
             {isMe && <section className={styles.videosSwitcher}>
-                    <Button variant={videoType === 'myFeatured' ? 'contained' : 'text'} color='secondary' className={styles.switchButton+(videoType === 'myFeatured' ? ' '+styles.active : '')} onClick={()=>setVideoType('myFeatured')}>Featured</Button>
+                    {/* <Button variant={videoType === 'myFeatured' ? 'contained' : 'text'} color='secondary' className={styles.switchButton+(videoType === 'myFeatured' ? ' '+styles.active : '')} onClick={()=>setVideoType('myFeatured')}>Featured</Button> */}
                     <Button variant={videoType === 'creator' ? 'contained' : 'text'} color='secondary' className={styles.switchButton+(videoType === 'creator' ? ' '+styles.active : '')} onClick={()=>setVideoType('creator')}>My Videos</Button>
                     <Button variant={videoType === 'bookmark' ? 'contained' : 'text'} color='secondary' className={styles.switchButton+(videoType === 'bookmark' ? ' '+styles.active : '')} onClick={()=>setVideoType('bookmark')}>Saved Videos</Button>
             </section>}
             {creator?.id && <section className={styles.feedsWrapper}><Featured creatorId={creator.id} type={videoType}/></section>}
-        </section>) 
-    : <></>;
+        </section>
+        <AppFooter />
+        </>;
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(Creator);

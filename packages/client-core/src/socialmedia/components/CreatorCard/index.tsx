@@ -2,7 +2,6 @@
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
 import React, { useState } from 'react';
-import { useHistory } from "react-router-dom";
 import { bindActionCreators, Dispatch } from 'redux';
 import { connect } from 'react-redux';
 import { useEffect } from 'react';
@@ -24,6 +23,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import styles from './CreatorCard.module.scss';
 import { selectCreatorsState } from '../../reducers/creator/selector';
 import { getCreator} from '../../reducers/creator/service';
+import { updateCreatorPageState } from '../../reducers/popupsState/service';
 
 const mapStateToProps = (state: any): any => {
     return {
@@ -33,6 +33,8 @@ const mapStateToProps = (state: any): any => {
   
   const mapDispatchToProps = (dispatch: Dispatch): any => ({
     getCreator: bindActionCreators(getCreator, dispatch),
+    updateCreatorPageState: bindActionCreators(updateCreatorPageState, dispatch),
+
     // followCreator: bindActionCreators(followCreator, dispatch),
     // unFollowCreator: bindActionCreators(unFollowCreator, dispatch),
     // getFollowersList: bindActionCreators(getFollowersList, dispatch),
@@ -42,14 +44,16 @@ const mapStateToProps = (state: any): any => {
   interface Props{
     creator: any;
     creatorState?: any;
+    popupsState?: any;
     getCreator?: typeof getCreator;
+    updateCreatorPageState?: typeof updateCreatorPageState,
     // followCreator?: typeof followCreator;
     // unFollowCreator?: typeof unFollowCreator;
     // getFollowersList?:typeof getFollowersList;
     // getFollowingList?:typeof getFollowingList;
   }
 
-const CreatorCard = ({creator,creatorState}:Props) => { 
+const CreatorCard = ({creator,creatorState, updateCreatorPageState}:Props) => { 
     // const [isMe, setIsMe] = useState(false);
     // const [openFiredModal, setOpenFiredModal] = useState(false);
     // const [creatorsType, setCreatorsType] = useState('followers');
@@ -59,6 +63,8 @@ const CreatorCard = ({creator,creatorState}:Props) => {
 //             setIsMe(true);
 //         }
 //     },[]);
+
+// useEffect(()=>console.log('popupsState', popupsState); )
    
     // const [anchorEl, setAnchorEl] = useState(null);
     // const handleClick = (event) => {
@@ -113,9 +119,10 @@ const CreatorCard = ({creator,creatorState}:Props) => {
                         //     </Menu>
                         // </section>
                // :*/} 
-                        {/* <section className={styles.controls}>
-                        <Button variant="text" className={styles.backButton} onClick={()=>history.push('/')}><ArrowBackIosIcon />Back</Button>                    
-                    </section> */}
+                        <section className={styles.controls}>
+                        <Button variant="text" className={styles.backButton} 
+                        onClick={()=>updateCreatorPageState(false)}><ArrowBackIosIcon />Back</Button>                    
+                    </section>
                 {/* } */}
                 {/*hided for now*/}
                 {/* <section className={styles.countersButtons}>
