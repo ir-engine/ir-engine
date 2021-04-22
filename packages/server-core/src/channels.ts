@@ -25,7 +25,8 @@ export default (app: Application): void => {
     // }
 
     app.on('connection', async (connection) => {
-        if ((process.env.KUBERNETES === 'true' && config.gameserver.mode === 'realtime') || (process.env.NODE_ENV === 'development') || config.gameserver.mode === 'local') {
+      if ((process.env.KUBERNETES === 'true' && config.gameserver.mode === 'realtime') || (process.env.NODE_ENV === 'development') || config.gameserver.mode === 'local') {
+          if(!Engine.isInitialized) return;
             try {
                 const token = (connection as any).socketQuery?.token;
                 if (token != null) {

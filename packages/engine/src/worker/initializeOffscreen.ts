@@ -103,6 +103,7 @@ const initializeEngineOffscreen = async ({ canvas, userArgs }, proxy: MainProxy)
     Network.instance.userId = id;
   })
 
+  Engine.isInitialized = true;
 }
 
 receiveWorker(initializeEngineOffscreen)

@@ -252,7 +252,7 @@ export const EnginePage = (props: Props) => {
         DefaultGameMode
       ],
       publicPath: '',
-      postProcessing: true,
+      postProcessing: false,
       editor: false,
       networking: {
         schema: {

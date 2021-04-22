@@ -61,7 +61,7 @@ export class WebGLRendererSystem extends System {
 
   static automatic = true;
   static usePBR = true;
-  static usePostProcessing = true;
+  static usePostProcessing = false;
   static shadowQuality = 5; 
   /** Resoulion scale. **Default** value is 1. */
   static scaleFactor = 1;
@@ -170,7 +170,7 @@ export class WebGLRendererSystem extends System {
     */
   public configurePostProcessing(postProcessingSchema:PostProcessingSchema=PostProcessing.defaultOptions): void {
     this.postProcessingSchema=postProcessingSchema;
-    WebGLRendererSystem.usePostProcessing=true;
+    // WebGLRendererSystem.usePostProcessing=true;
     this.renderPass = new RenderPass(Engine.scene, Engine.camera);
     this.renderPass.scene = Engine.scene;
     this.renderPass.camera = Engine.camera;
@@ -251,7 +251,6 @@ export class WebGLRendererSystem extends System {
       }
 
       Engine.csm.update();
-
       if (WebGLRendererSystem.usePostProcessing) {
         WebGLRendererSystem.composer.render(delta);
       } else {

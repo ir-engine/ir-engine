@@ -18,8 +18,7 @@ import { PhysicsSystem } from './physics/systems/PhysicsSystem';
 import { ServerSpawnSystem } from './scene/systems/SpawnSystem';
 import { StateSystem } from './state/systems/StateSystem';
 import { TransformSystem } from './transform/systems/TransformSystem';
-import { Worker } from 'worker_threads'
-import { wrapNodeWorker } from './common/functions/wrapNodeWorker';
+import Worker from 'web-worker'
 // import { PositionalAudioSystem } from './audio/systems/PositionalAudioSystem';
 
 Mesh.prototype.raycast = acceleratedRaycast;
@@ -47,7 +46,7 @@ export const initializeServer = async (initOptions: any = DefaultInitializationO
   registerSystem(PhysicsSystem);
 
   // replace this with vite worker once webpack is gone
-  await PhysXInstance.instance.initPhysX(wrapNodeWorker(new Worker("./physics/functions/loadPhysX.js")), { });
+  await PhysXInstance.instance.initPhysX(new Worker(new URL("./physics/functions/loadPhysX.ts", import.meta.url)), { });
 
   registerSystem(ServerSpawnSystem, { priority: 899 });
   registerSystem(TransformSystem, { priority: 900 });
@@ -57,4 +56,6 @@ export const initializeServer = async (initOptions: any = DefaultInitializationO
     fixedUpdate: (delta: number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Fixed),
     update: (delta, elapsedTime) => execute(delta, elapsedTime, SystemUpdateType.Free)
   }, Engine.physicsFrameRate, Engine.networkFramerate).start();
+
+  Engine.isInitialized = true;
 }

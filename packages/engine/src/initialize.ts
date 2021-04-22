@@ -81,8 +81,8 @@ export const initializeEngine = async (options): Promise<void> => {
 
   if (options.networking) {
     const networkSystemOptions = { schema: options.networking.schema, app: options.networking.app };
-    console.log("Network system options are", networkSystemOptions);
-    console.log("Network system schema is", networkSystemOptions.schema);
+    // console.log("Network system options are", networkSystemOptions);
+    // console.log("Network system schema is", networkSystemOptions.schema);
     Network.instance = new Network();
 
     Network.instance.schema = networkSystemOptions.schema;
@@ -147,8 +147,9 @@ export const initializeEngine = async (options): Promise<void> => {
     Network.instance.isInitialized = true;
     Network.instance.userId = id;
   })
-}
 
+  Engine.isInitialized = true;
+}
 
 export const initializeEditor = async (options): Promise<void> => {
 
@@ -177,4 +178,6 @@ export const initializeEditor = async (options): Promise<void> => {
     fixedUpdate: (delta: number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Fixed),
     update: (delta, elapsedTime) => execute(delta, elapsedTime, SystemUpdateType.Free)
   }, Engine.physicsFrameRate, Engine.networkFramerate).start();
+
+  Engine.isInitialized = true;
 }
