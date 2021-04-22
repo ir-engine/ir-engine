@@ -163,6 +163,8 @@ export class UIGallery extends UIBaseElement {
     });
     this.add(this.control);
 
+    this.player.control = this.control;
+
     this.control.visible = false;
   }
 }

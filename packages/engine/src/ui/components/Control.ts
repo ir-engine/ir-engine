@@ -3,6 +3,10 @@ import { Block } from '../../assets/three-mesh-ui';
 import { createButton, createItem, createRow, createCol } from '../functions/createItem';
 import { UIBaseElement, UI_ELEMENT_SELECT_STATE } from "../classes/UIBaseElement";
 export class Control extends Object3D{
+  seeker: Mesh;
+  durationWidth: number;
+  duration: number;
+
   constructor(callbacks){
     super();
 
@@ -21,10 +25,24 @@ export class Control extends Object3D{
 
     const geometry = new CircleGeometry( 0.05, 32 );
     const material = new MeshPhongMaterial( { color: 0xeeeeee, transparent: true, opacity: 1 } );
-    const seeker = new Mesh( geometry, material );
-    seeker.position.set(0, 0.15, 0.025);
+    this.seeker = new Mesh( geometry, material );
+    this.seeker.position.set(this.durationWidth/2.0, 0.15, 0.025);
+    const minPos = 0;
 
-    this.add(seeker);
+    this.add(this.seeker);
+  }
+
+  updateDuration(duration){
+    this.duration = duration;
+    console.log("UpdateDuration", duration);
+  }
+
+  updatePos(time){
+    if( this.duration < 0 )
+      return;
+
+    const pos = this.durationWidth * time/this.duration - this.durationWidth/2.0;
+    this.seeker.position.set(pos, 0.15, 0.025);
   }
 
   createSeekbar(callbacks) {
@@ -53,8 +71,10 @@ export class Control extends Object3D{
       alignContent: 'bottom',
     });
 
+    this.durationWidth = width*0.8;
+
     const progressBar = new Block({
-      width: width*0.8,
+      width: this.durationWidth,
       height: 0.02,
       backgroundColor: new Color('yellow'),
       backgroundOpacity: 1.0,

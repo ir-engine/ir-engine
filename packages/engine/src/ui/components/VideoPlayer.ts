@@ -1,5 +1,6 @@
 import shaka from 'shaka-player';
 import { Object3D, Color, TextureLoader, VideoTexture, Mesh, SphereGeometry, MeshBasicMaterial, BackSide, Texture } from "three";
+import { Control } from './Control';
 
 enum PLAYER_STATE {
   INIT,
@@ -12,6 +13,7 @@ export class VideoPlayer {
   skyDomeMaterial: MeshBasicMaterial;
   skyDome: Mesh;
   skyDomeTexture: Texture;
+  control: Control;
   
   state: PLAYER_STATE;
 
@@ -69,6 +71,14 @@ export class VideoPlayer {
 
     this.state = PLAYER_STATE.INIT;
     // navigator.mediaSession.setActionHandler('stop', this.stopVideo);
+
+    this.video.ondurationchange = () => {
+      this.control.updateDuration(this.video.duration);
+    };
+
+    this.video.ontimeupdate = () => {
+      this.control.updatePos(this.video.currentTime);
+    };
   }
 
   playVideo(url){
