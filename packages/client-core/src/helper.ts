@@ -4,18 +4,17 @@ export function validatePhoneNumber (phone: string): boolean { return (/^(\+\d{1
 
 export class Config {
     static publicRuntimeConfig = {
-        title: '',
+        title: "The Overlay",
         dev: false,
         loginDisabled: false,
-        logo: '',
-        apiServer: '',
-        appServer: '',
-        gameserver: '',
-        gameserverDomain: '',
-        siteTitle: '',
-        siteDescription: '',
-        feathersStoreKey: '',
-        localStorageKey: '',
+        logo: "./logo.svg",
+        apiServer: "https://127.0.0.1:3030",
+        appServer: "https://127.0.0.1:3000",
+        gameserver: "https://127.0.0.1:3030",
+        siteTitle: "The Overlay",
+        siteDescription: "Connected Worlds for Everyone",
+        feathersStoreKey: "TheOverlay-Auth-Store",
+        localStorageKey: "theoverlay-client-store-key-v1",
         auth: {
             enableSmsMagicLink: true,
             enableEmailMagicLink: true,
