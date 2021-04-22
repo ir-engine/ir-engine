@@ -53,6 +53,7 @@
     "axios": "0.21.1",
     "classnames": "2.3.1",
     "ctix": "0.3.1",
+    "emailjs-com": "^2.6.4",
     "esbuild-plugin-sass": "^0.4.1",
     "eventemitter3": "4.0.7",
     "i18next": "20.2.1",

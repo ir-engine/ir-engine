@@ -1,10 +1,10 @@
+// TODO: Make sure this is handled with routing
 /**
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
-import { Router, withRouter , useRouter} from "next/router";
 import { PAGE_LIMIT } from '../reducers/admin/reducers';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import {
@@ -38,7 +38,7 @@ if (!global.setImmediate) {
 
 
 interface Props {
-    router: Router;
+    router: any;
     adminState?: any;
     authState?: any;
     locationState?: any;
@@ -241,4 +241,4 @@ const ArMediaConsole = (props: Props) => {
     );
 };
 
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(ArMediaConsole));
+export default connect(mapStateToProps, mapDispatchToProps)(ArMediaConsole);
