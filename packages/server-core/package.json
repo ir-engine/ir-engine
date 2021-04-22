@@ -124,7 +124,6 @@
     "cross-env": "7.0.3",
     "eslint": "7.24.0",
     "no-master-commits": "1.1.1",
-    "rollup-plugin-babel": "4.4.0",
     "rollup-plugin-livereload": "2.0.0",
     "rollup-plugin-terser": "7.0.2",
     "rollup-plugin-typescript2": "0.30.0",

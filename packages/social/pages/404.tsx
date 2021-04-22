@@ -1,11 +1,6 @@
-import React, { Fragment, useEffect } from 'react';
-import { useRouter } from 'next/router';
+import React, { Fragment } from 'react';
 
 export const Custom404 = (): any => {
-  const router = useRouter();
-  useEffect(() => {
-    router.push("/");
-  });
   return (
     <Fragment>
       <h1>404 - Page Not Found</h1>

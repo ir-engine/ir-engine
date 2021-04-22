@@ -5,7 +5,15 @@ import { MediaStreamSystem } from "../../networking/systems/MediaStreamSystem";
 import { Input } from "../components/Input";
 import { CameraInput } from "../enums/InputEnums";
 import { InputType } from "../enums/InputType";
-import Worker from './WebcamInputWorker?worker';
+
+const isBrowser = new Function("try {return this===window;}catch(e){ return false;}");
+
+let Worker;
+
+if (isBrowser())
+  import("./WebcamInputWorker?worker").then(worker => {
+    Worker = worker.default
+  });
 
 export const WEBCAM_INPUT_EVENTS = {
   FACE_INPUT: 'WEBCAM_INPUT_EVENTS_FACE_INPUT',
