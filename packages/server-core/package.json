@@ -80,6 +80,7 @@
     "bent": "^7.3.0",
     "chargebee": "^2.5.7",
     "dauria": "^2.0.0",
+    "dotenv-flow": "^3.2.0",
     "feathers-authentication-hooks": "^1.0.2",
     "feathers-authentication-management": "^3.0.0",
     "feathers-blob": "^2.2.0",
