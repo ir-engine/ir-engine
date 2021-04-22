@@ -255,7 +255,9 @@ check which process is using port 3030 and kill
 ```
     killall -9 node
 ```
-    OR
+
+Or
+
 ```
     lsof -i :3030
 	kill -3 <proccessIDfromPreviousCommand>
