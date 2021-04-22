@@ -75,7 +75,7 @@
     "three": "0.127.0"
   },
   "devDependencies": {
-    "@types/node": "13.13.48",
+    "@types/node": "13.13.50",
     "@types/react": "17.0.3",
     "babel-loader": "8.2.2",
     "cache-loader": "4.1.0",
