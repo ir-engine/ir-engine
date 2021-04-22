@@ -27,7 +27,7 @@ import { TransformSystem } from './transform/systems/TransformSystem';
 import { createWorker, WorkerProxy } from './worker/MessageQueue';
 import { XRSystem } from './xr/systems/XRSystem';
 import PhysXWorker from './physics/functions/loadPhysX.ts?worker';
-import { PhysXInstance } from 'three-physx';
+import { PhysXInstance } from "@xr3ngine/three-physx";
 
 // import { PositionalAudioSystem } from './audio/systems/PositionalAudioSystem';
 
@@ -110,8 +110,8 @@ export const initializeEngine = async (options): Promise<void> => {
     registerSystem(HighlightSystem);
     registerSystem(ActionSystem, { useWebXR: Engine.xrSupported });
     registerSystem(PhysicsSystem);
-
-    await PhysXInstance.instance.initPhysX(new PhysXWorker(), { jsPath: '/physx/physx.release.js', wasmPath: '/physx/physx.release.wasm' });
+    
+    await PhysXInstance.instance.initPhysX(new PhysXWorker(), { });
 
     registerSystem(TransformSystem, { priority: 900 });
 
@@ -131,14 +131,14 @@ export const initializeEngine = async (options): Promise<void> => {
 
   }
 
-  Engine.engineTimerTimeout = setTimeout(() => {
+  // Engine.engineTimerTimeout = setTimeout(() => {
     Engine.engineTimer = Timer(
       {
         networkUpdate: (delta: number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Network),
         fixedUpdate: (delta: number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Fixed),
         update: (delta, elapsedTime) => execute(delta, elapsedTime, SystemUpdateType.Free)
       }, Engine.physicsFrameRate, Engine.networkFramerate).start();
-  }, 1000);
+  // }, 1000);
 
   const engageType = isMobileOrTablet() ? 'touchstart' : 'click'
   const onUserEngage = () => {
@@ -169,19 +169,19 @@ export const initializeEditor = async (options): Promise<void> => {
 
   registerSystem(PhysicsSystem);
 
-  // await PhysXInstance.instance.initPhysX(new PhysXWorker(), { jsPath: '/physx/physx.release.js', wasmPath: '/physx/physx.release.wasm' });
+  await PhysXInstance.instance.initPhysX(new PhysXWorker(), { });
   
   registerSystem(TransformSystem, { priority: 900 });
 
   registerSystem(ParticleSystem);
   registerSystem(DebugHelpersSystem);
 
-  Engine.engineTimerTimeout = setTimeout(() => {
+  // Engine.engineTimerTimeout = setTimeout(() => {
     Engine.engineTimer = Timer(
       {
         networkUpdate: (delta: number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Network),
         fixedUpdate: (delta: number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Fixed),
         update: (delta, elapsedTime) => execute(delta, elapsedTime, SystemUpdateType.Free)
       }, Engine.physicsFrameRate, Engine.networkFramerate).start();
-  }, 1000);
+  // }, 1000);
 }

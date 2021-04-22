@@ -21,7 +21,7 @@ import { LocalInputReceiver } from "../../input/components/LocalInputReceiver";
 import { InterpolationComponent } from '../components/InterpolationComponent';
 import TeleportToSpawnPoint from '../../scene/components/TeleportToSpawnPoint';
 import { XRUserSettings } from '../../templates/character/XRUserSettings';
-import { PhysXInstance } from 'three-physx';
+import { PhysXInstance } from "@xr3ngine/three-physx";
 
 /**
  * @author HydraFire <github.com/HydraFire>

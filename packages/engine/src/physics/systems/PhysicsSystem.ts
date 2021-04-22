@@ -30,7 +30,7 @@ import { VehicleComponent } from "../../templates/vehicle/components/VehicleComp
 import { InterpolationComponent } from "../components/InterpolationComponent";
 import { PhysicsLifecycleState } from '../enums/PhysicsStates';
 import { isClient } from '../../common/functions/isClient';
-import { BodyConfig, PhysXInstance, RigidBodyProxy, SceneQuery } from 'three-physx';
+import { BodyConfig, PhysXInstance, RigidBodyProxy, SceneQuery } from "@xr3ngine/three-physx";
 import { addColliderWithEntity } from '../behaviors/colliderCreateFunctions';
 
 /**
@@ -67,6 +67,7 @@ export class PhysicsSystem extends System {
 
   constructor() {
     super();
+    PhysicsSystem.instance = this;
     this.physicsFrameRate = Engine.physicsFrameRate;
     this.physicsFrameTime = 1 / this.physicsFrameRate;
 
@@ -245,14 +246,14 @@ export class PhysicsSystem extends System {
     // todo
   }
 
-  addRaycastQuery = PhysXInstance.instance.addRaycastQuery;
-  removeRaycastQuery = PhysXInstance.instance.removeRaycastQuery;
-  addBody = PhysXInstance.instance.addBody;
-  updateBody = PhysXInstance.instance.updateBody;
-  removeBody = PhysXInstance.instance.removeBody;
-  createController = PhysXInstance.instance.createController;
-  updateController = PhysXInstance.instance.updateController;
-  removeController = PhysXInstance.instance.removeController;
+  addRaycastQuery(query) { return PhysXInstance.instance.addRaycastQuery(query); };
+  removeRaycastQuery(query) { return PhysXInstance.instance.removeRaycastQuery(query); };
+  addBody(args) { return PhysXInstance.instance.addBody(args); };
+  updateBody(body, options) { return PhysXInstance.instance.updateBody(body, options); };
+  removeBody(body) { return PhysXInstance.instance.removeBody(body); };
+  createController(options) { return PhysXInstance.instance.createController(options); };
+  updateController(body, config) { return PhysXInstance.instance.updateController(body, config); };
+  removeController(id) { return PhysXInstance.instance.removeController(id); };
 }
 
 PhysicsSystem.queries = {

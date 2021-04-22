@@ -6,7 +6,7 @@ import { ControllerColliderComponent } from '../../../physics/components/Control
 import { VectorSpringSimulator } from '../../../physics/classes/VectorSpringSimulator';
 import { RelativeSpringSimulator } from '../../../physics/classes/SpringSimulator';
 // import { RaycastResult, Vec3 } from 'cannon-es';
-import { PhysXInstance, SceneQuery, SceneQueryType, Transform } from 'three-physx';
+import { PhysXInstance, SceneQuery, SceneQueryType, Transform } from "@xr3ngine/three-physx";
 import { PhysicsSystem } from '../../../physics/systems/PhysicsSystem';
 import { CollisionGroups } from '../../../physics/enums/CollisionGroups';
 

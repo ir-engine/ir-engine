@@ -1,3 +1,4 @@
-// import * as PhysX from 'three-physx/src/worker';
+import { receiveWorker } from "@xr3ngine/three-physx";
+import PHYSX from './physx.release.js';
 
-console.log(globalThis)
+PHYSX().then(receiveWorker);

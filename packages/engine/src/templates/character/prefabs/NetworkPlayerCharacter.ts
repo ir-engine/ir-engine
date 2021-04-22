@@ -196,7 +196,6 @@ const initializeCharacter: Behavior = (entity): void => {
 	});
 
 	actor.actorCapsule = getMutableComponent<ControllerColliderComponent>(entity, ControllerColliderComponent);
-
 	PhysicsSystem.instance.addBody(actor.actorCapsule.body);
 
 	// Physics pre/post step callback bindings

@@ -12,7 +12,7 @@ import { PhysicsSystem } from "../physics/systems/PhysicsSystem";
 import { CollisionGroups } from "../physics/enums/CollisionGroups";
 import { Vector3 } from "three";
 import { TransformComponent } from "../transform/components/TransformComponent";
-import { SceneQueryType } from "three-physx";
+import { SceneQueryType } from "@xr3ngine/three-physx";
 export class CharacterControllerSystem extends System {
 
   constructor(attributes?: SystemAttributes) {
@@ -29,7 +29,7 @@ export class CharacterControllerSystem extends System {
    * @param delta Time since last frame.
    */
   execute(delta: number): void {
-    this.queryResults.controller.added.forEach((entity) => {
+    this.queryResults.character.added.forEach((entity) => {
       const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
       actor.raycastQuery = PhysicsSystem.instance.addRaycastQuery({ 
         type: SceneQueryType.Closest,

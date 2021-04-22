@@ -1,12 +1,12 @@
 // import { Body, Trimesh, Box, Sphere, Cylinder, Plane, Vec3 } from 'cannon-es';
 import { PhysicsSystem } from '../systems/PhysicsSystem';
 import { CollisionGroups } from "../enums/CollisionGroups";
-import { createShapeFromConfig, PhysXBodyType, PhysXModelShapes, PhysXShapeConfig, RigidBodyProxy } from 'three-physx';
+import { createShapeFromConfig, PhysXBodyType, PhysXModelShapes, PhysXShapeConfig, RigidBodyProxy } from "@xr3ngine/three-physx";
 import { Entity } from '../../ecs/classes/Entity';
 import { ColliderComponent } from '../components/ColliderComponent';
 import { getComponent, getMutableComponent, hasComponent } from '../../ecs/functions/EntityFunctions';
 import { Object3DComponent } from '../../scene/components/Object3DComponent';
-import { Mesh } from 'three';
+import { Mesh, Vector3, Quaternion } from 'three';
 import { TransformComponent } from '../../transform/components/TransformComponent';
 
 /**
@@ -46,39 +46,39 @@ export function addColliderWithEntity(entity: Entity) {
   colliderComponent.body = body;
 }
 
-export function addColliderWithoutEntity(userData, pos, rot, scale, model = { mesh: null, vertices: null, indices: null }): RigidBodyProxy {
-
+export function addColliderWithoutEntity(userData, pos = new Vector3(), rot = new Quaternion(), scale = new Vector3(), model = { mesh: null, vertices: null, indices: null }): RigidBodyProxy {
+  console.log(userData, pos, rot, scale, model)
   const shapeArgs: any = {};
   switch (userData.type) {
     case 'box':
-      shapeArgs.type = PhysXModelShapes.Box;
+      shapeArgs.shape = PhysXModelShapes.Box;
       shapeArgs.options = { boxExtents: { x: Math.abs(scale.x), y: Math.abs(scale.y), z: Math.abs(scale.z) } };
       break;
 
     case 'ground':
-      shapeArgs.type = PhysXModelShapes.Plane;
+      shapeArgs.shape = PhysXModelShapes.Plane;
       break;
 
     case 'sphere':
-      shapeArgs.type = PhysXModelShapes.Sphere;
+      shapeArgs.shape = PhysXModelShapes.Sphere;
       shapeArgs.options = { radius: Math.abs(scale.x) };
       break;
 
     case 'capsule':
-      shapeArgs.type = PhysXModelShapes.Capsule;
+      shapeArgs.shape = PhysXModelShapes.Capsule;
       shapeArgs.options = { halfHeight: Math.abs(scale.y), radius: Math.abs(scale.x) };
       break;
 
     // physx doesnt have cylinder shapes, default to convex
     case 'cylinder':
     case 'convex':
-      shapeArgs.type = PhysXModelShapes.ConvexMesh;
+      shapeArgs.shape = PhysXModelShapes.ConvexMesh;
       shapeArgs.options = { vertices: model.vertices, indices: model.indices };
       break;
 
     case 'trimesh':
     default:
-      shapeArgs.type = PhysXModelShapes.TriangleMesh;
+      shapeArgs.shape = PhysXModelShapes.TriangleMesh;
       shapeArgs.options = { vertices: model.vertices, indices: model.indices };
       break;
   }
@@ -86,6 +86,7 @@ export function addColliderWithoutEntity(userData, pos, rot, scale, model = { me
   const shape: PhysXShapeConfig = createShapeFromConfig(shapeArgs);
 
   shape.config.collisionLayer = userData.action === 'portal' ? CollisionGroups.ActiveCollider : CollisionGroups.Default;
+  shape.config.collisionMask = CollisionGroups.All;
 
   const bodyConfig = {
     shapes: [shape],
@@ -98,8 +99,7 @@ export function addColliderWithoutEntity(userData, pos, rot, scale, model = { me
       angularVelocity: { x: 0, y: 0, z: 0 },
     }
   }
-
+  console.log(bodyConfig)
   const body = PhysicsSystem.instance.addBody(bodyConfig);
-  console.log(body)
   return body;
 }

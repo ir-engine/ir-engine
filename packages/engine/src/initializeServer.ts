@@ -13,7 +13,7 @@ import { Network } from './networking/classes/Network';
 import { MediaStreamSystem } from './networking/systems/MediaStreamSystem';
 import { ServerNetworkIncomingSystem } from './networking/systems/ServerNetworkIncomingSystem';
 import { ServerNetworkOutgoingSystem } from './networking/systems/ServerNetworkOutgoingSystem';
-import { PhysXInstance } from 'three-physx';
+import { PhysXInstance } from "@xr3ngine/three-physx";
 import { PhysicsSystem } from './physics/systems/PhysicsSystem';
 import { ServerSpawnSystem } from './scene/systems/SpawnSystem';
 import { StateSystem } from './state/systems/StateSystem';
@@ -46,17 +46,19 @@ export const initializeServer = async (initOptions: any = DefaultInitializationO
   registerSystem(CharacterControllerSystem);
   registerSystem(PhysicsSystem);
 
-  await PhysXInstance.instance.initPhysX(wrapNodeWorker(new Worker('three-physx/worker.js')), { jsPath: '/physx/physx.release.js', wasmPath: '/physx/physx.release.wasm' });
+  // replace this with vite worker once webpack is gone
+  await PhysXInstance.instance.initPhysX(wrapNodeWorker(new Worker("./physics/functions/loadPhysX.js")), { });
+  console.log(PhysXInstance.instance)
 
   registerSystem(ServerSpawnSystem, { priority: 899 });
   registerSystem(TransformSystem, { priority: 900 });
 
-  Engine.engineTimerTimeout = setTimeout(() => {
+  // Engine.engineTimerTimeout = setTimeout(() => {
     Engine.engineTimer = Timer(
       {
         networkUpdate: (delta: number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Network),
         fixedUpdate: (delta: number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Fixed),
         update: (delta, elapsedTime) => execute(delta, elapsedTime, SystemUpdateType.Free)
       }, Engine.physicsFrameRate, Engine.networkFramerate).start();
-  }, 1000);
+  // }, 1000);
 }
