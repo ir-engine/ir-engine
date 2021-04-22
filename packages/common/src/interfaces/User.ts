@@ -50,3 +50,17 @@ export function resolveUser (user: any): User {
   // console.log(returned)
   return returned
 }
+
+export function resolveWalletUser (credentials: any): User {
+  let returned = {
+    id: credentials.user.id,
+    name: credentials.user.displayName,
+    userRole: "guest",
+    avatarId: credentials.user.id,
+    identityProviders: [],
+    locationAdmins: [],
+    avatarUrl: credentials.user.icon,
+  };
+
+  return returned
+}

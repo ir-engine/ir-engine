@@ -4,7 +4,7 @@ import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
 import { Check, Close, Create, GitHub, Send } from '@material-ui/icons';
 import { selectAuthState } from '../../../reducers/auth/selector';
-import { addConnectionByEmail, addConnectionBySms, loginUserByOAuth, logoutUser, removeUser, updateUserAvatarId, updateUsername, updateUserSettings } from '../../../reducers/auth/service';
+import { addConnectionByEmail, addConnectionBySms, loginUserByOAuth, loginUserByXRWallet, logoutUser, removeUser, updateUserAvatarId, updateUsername, updateUserSettings } from '../../../reducers/auth/service';
 import { Network } from '@xr3ngine/engine/src/networking/classes/Network';
 import React, { useEffect, useState } from 'react';
 import { connect } from "react-redux";
@@ -29,6 +29,7 @@ interface Props {
 	updateUserAvatarId?: any;
 	updateUserSettings?: any;
 	loginUserByOAuth?: any;
+	loginUserByXRWallet?: any
 	addConnectionBySms?: any;
 	addConnectionByEmail?: any;
 	logoutUser?: any;
@@ -46,6 +47,7 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 	updateUserAvatarId: bindActionCreators(updateUserAvatarId, dispatch),
 	updateUserSettings: bindActionCreators(updateUserSettings, dispatch),
 	loginUserByOAuth: bindActionCreators(loginUserByOAuth, dispatch),
+	loginUserByXRWallet: bindActionCreators(loginUserByXRWallet, dispatch),
 	addConnectionBySms: bindActionCreators(addConnectionBySms, dispatch),
 	addConnectionByEmail: bindActionCreators(addConnectionByEmail, dispatch),
 	logoutUser: bindActionCreators(logoutUser, dispatch),
@@ -59,6 +61,7 @@ const ProfileMenu = (props: Props): any => {
 		addConnectionByEmail,
 		addConnectionBySms,
 		loginUserByOAuth,
+		loginUserByXRWallet,
 		logoutUser,
 		changeActiveMenu,
 		setProfileMenuOpen
@@ -168,19 +171,8 @@ const ProfileMenu = (props: Props): any => {
 		// Use Credential Handler API to authenticate
 		const result: any = await navigator.credentials.get(didAuthQuery);
 		console.log(result);
-		const credentials: any = parseUserWalletCredentials(result);
-		console.log(credentials);
-	};
 
-	const parseUserWalletCredentials = (result) => {
-		return {
-			user: {
-				id: 'did:web:example.com',
-				displayName: 'alice',
-				icon: '<image data url of a sample user avatar icon goes here>',
-				// session // this will contain the access token and helper methods
-			}
-		};
+		loginUserByXRWallet(result);
 	};
 
 	return (

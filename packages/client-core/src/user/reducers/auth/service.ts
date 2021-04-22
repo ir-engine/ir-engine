@@ -1,7 +1,7 @@
 import { dispatchAlertError, dispatchAlertSuccess } from '../../../common/reducers/alert/service';
 import { resolveAuthUser } from '@xr3ngine/common/src/interfaces/AuthUser';
 import { IdentityProvider } from '@xr3ngine/common/src/interfaces/IdentityProvider';
-import { resolveUser } from '@xr3ngine/common/src/interfaces/User';
+import { resolveUser, resolveWalletUser } from '@xr3ngine/common/src/interfaces/User';
 import { EngineEvents } from '@xr3ngine/engine/src/ecs/classes/EngineEvents';
 import { Network } from '@xr3ngine/engine/src/networking/classes/Network';
 import { MessageTypes } from '@xr3ngine/engine/src/networking/enums/MessageTypes';
@@ -183,6 +183,37 @@ export function loginUserByPassword (form: EmailLoginForm) {
         dispatchAlertError(dispatch, err.message);
       })
       .finally(() => dispatch(actionProcessing(false)));
+  };
+}
+
+const parseUserWalletCredentials = (wallet) => {
+  return {
+    user: {
+      id: 'did:web:example.com',
+      displayName: 'alice',
+      icon: 'https://material-ui.com/static/images/avatar/1.jpg',
+      // session // this will contain the access token and helper methods
+    }
+  };
+};
+
+export function loginUserByXRWallet(wallet: any) {
+  return (dispatch: Dispatch): any => {
+    try {
+      dispatch(actionProcessing(true));
+
+      const credentials: any = parseUserWalletCredentials(wallet);
+      console.log(credentials);
+
+      const walletUser = resolveWalletUser(credentials);
+      dispatch(loadedUserData(walletUser));
+    } catch(err) {
+      console.log(err);
+      dispatch(loginUserError('Failed to login'));
+      dispatchAlertError(dispatch, err.message);
+    } finally {
+      dispatch(actionProcessing(false));
+    }
   };
 }
 
