@@ -60,19 +60,6 @@
     "socket.io": "2.4.1"
   },
   "peerDependencies": {
-    "@feathersjs/authentication": "^4.5.9",
-    "@feathersjs/authentication-local": "^4.5.9",
-    "@feathersjs/authentication-oauth": "^4.5.9",
-    "@feathersjs/cli": "^4.4.0",
-    "@feathersjs/commons": "4.5.11",
-    "@feathersjs/configuration": "^4.5.9",
-    "@feathersjs/errors": "4.5.11",
-    "@feathersjs/express": "^4.5.9",
-    "@feathersjs/feathers": "4.5.11",
-    "@feathersjs/rest-client": "4.5.11",
-    "@feathersjs/socketio": "4.5.11",
-    "@feathersjs/socketio-client": "^4.5.9",
-    "@feathersjs/transport-commons": "^4.5.9",
     "chokidar": "^3.4.2",
     "regenerator-runtime": "^0.13.7",
     "socket.io": "2.4.1"
