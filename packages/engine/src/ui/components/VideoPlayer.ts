@@ -81,19 +81,22 @@ export class VideoPlayer {
     };
   }
 
-  playVideo(url){
+  playVideo(url, played, paused){
     switch(this.state){
       case PLAYER_STATE.INIT:
         this.play(url);
         this.state = PLAYER_STATE.PLAYING;
+        played();
         break;
       case PLAYER_STATE.PLAYING:
         this.video.pause();        
         this.state = PLAYER_STATE.PAUSED;
+        paused();
         break;
       case PLAYER_STATE.PAUSED:
         this.video.play();
         this.state = PLAYER_STATE.PLAYING;
+        played();
         break;
     }
   }
@@ -129,5 +132,9 @@ export class VideoPlayer {
     this.skyDomeMaterial.map = this.skyDomeTexture;
     this.skyDomeMaterial.needsUpdate = true;
     this.state = PLAYER_STATE.INIT;
+  }
+
+  seek(time) {
+    this.video.currentTime = time;
   }
 }

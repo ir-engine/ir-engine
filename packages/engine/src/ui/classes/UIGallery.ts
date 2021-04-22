@@ -152,13 +152,16 @@ export class UIGallery extends UIBaseElement {
     this.player = new VideoPlayer(this, envUrl);
 
     this.control = new Control({
-      play:()=>{
-        this.player.playVideo(videoUrl);
+      play:(played, paused)=>{
+        this.player.playVideo(videoUrl, played, paused);
       },
       back:()=>{
         this.player.stopVideo();
         this.control.visible = false;
         this.library.visible = true;
+      },
+      seek:(time)=>{
+        this.player.seek(time);
       }
     });
     this.add(this.control);
