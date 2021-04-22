@@ -14,7 +14,7 @@
   "scripts": {
     "dev-old": "cross-env NODE_ENV=development node --max-old-space-size=4096 ./index.js --port 3000",
     "dev": "vite",
-    "build": "cross-env NODE_OPTIONS=--max_old_space_size=4096 vite build && cp src/server.js dist/server.js",
+    "build": "cross-env NODE_OPTIONS=--max_old_space_size=4096 vite build",
     "offline": "cross-env NODE_ENV=offline node --max-old-space-size=4096 ./index.js --port 3000",
     "validate": "yarn run lint && yarn run test",
     "localbuild": "LOCAL_BUILD=true yarn build && yarn start",

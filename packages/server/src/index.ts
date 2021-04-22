@@ -1,3 +1,10 @@
+import dotenv from 'dotenv-flow';
+if (process.env.KUBERNETES !== 'true') {
+  dotenv.config({
+    path: appRootPath.path
+  });
+}
+
 import appRootPath from 'app-root-path';
 import fs from 'fs';
 import https from 'https';
@@ -8,16 +15,11 @@ import config from '@xr3ngine/server-core/src/appconfig';
 import psList from 'ps-list';
 // import { exec } from 'child_process';
 
-import dotenv from 'dotenv-flow';
-if (process.env.KUBERNETES !== 'true') {
-  dotenv.config({
-    path: appRootPath.path
-  });
-}
-
 /**
  * @param status
  */
+
+console.log("Config is", config);
 
 process.on('unhandledRejection', (error, promise) => {
   console.error('UNHANDLED REJECTION - Promise: ', promise, ', Error: ', error, ').');
@@ -28,16 +30,16 @@ process.on('unhandledRejection', (error, promise) => {
   if (process.env.KUBERNETES !== 'true') {
     const processList = await (await psList()).filter(e => {
       const regexp = /docker-compose up|docker-proxy|mysql/gi;
-      return e[key].match(regexp);
+      return e[key]?.match(regexp);
     });
     const dockerProcess = processList.find(
-        c => c[key].match(/docker-compose/)
+        c => c[key]?.match(/docker-compose/)
     );
     const dockerProxy = processList.find(
-        c => c[key].match(/docker-proxy/)
+        c => c[key]?.match(/docker-proxy/)
     );
     const processMysql = processList.find(
-        c => c[key].match(/mysql/)
+        c => c[key]?.match(/mysql/)
     );
     const databaseService = (dockerProcess && dockerProxy) || processMysql;
 
