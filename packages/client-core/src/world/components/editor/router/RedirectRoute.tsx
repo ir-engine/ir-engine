@@ -9,10 +9,12 @@ import { Route, Redirect } from "react-router-dom";
  * @param {any} rest
  * @returns 
  */
-export default function RedirectRoute({ to, ...rest }) {
+export function RedirectRoute({ to, ...rest }) {
   return <Route {...rest} render={() => <Redirect to={to} />} />;
 }
 
 RedirectRoute.propTypes = {
   to: PropTypes.any
 };
+
+export default RedirectRoute;

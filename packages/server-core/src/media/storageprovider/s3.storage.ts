@@ -3,7 +3,7 @@ import S3BlobStore from 's3-blob-store';
 import config from '../../appconfig';
 import { StorageProviderInterface } from './storageprovider.interface';
 
-export default class S3Provider implements StorageProviderInterface {
+export class S3Provider implements StorageProviderInterface {
   bucket = config.aws.s3.staticResourceBucket;
   provider: AWS.S3 = new AWS.S3({
     accessKeyId: config.aws.keys.accessKeyId,
@@ -54,3 +54,4 @@ export default class S3Provider implements StorageProviderInterface {
     });
   }
 }
+export default S3Provider;

@@ -24,7 +24,7 @@ interface State {
 	obj: any;
 }
 
-export default class AvatarSelectMenu extends React.Component<Props, State> {
+export class AvatarSelectMenu extends React.Component<Props, State> {
 	constructor(props) {
 		super(props);
 
@@ -226,3 +226,5 @@ export default class AvatarSelectMenu extends React.Component<Props, State> {
 		);
 	}
 }
+
+export default AvatarSelectMenu;

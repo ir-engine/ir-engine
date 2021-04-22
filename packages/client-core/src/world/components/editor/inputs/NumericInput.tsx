@@ -90,7 +90,7 @@ const NumericInputUnit = (styled as any).div`
 /**
  * @author Robert Long
  */
-export default class NumericInput extends Component {
+export class NumericInput extends Component {
 
   constructor(props) {
     super(props);
@@ -268,3 +268,5 @@ export default class NumericInput extends Component {
   convertTo: value => value,
   convertFrom: value => value
 };
+
+export default NumericInput;

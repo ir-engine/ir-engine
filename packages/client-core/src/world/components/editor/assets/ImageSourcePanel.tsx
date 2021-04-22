@@ -10,7 +10,7 @@ import { useTranslation } from "react-i18next";
  * @param       {any} props
  * @constructor
  */
-export default function ImageSourcePanel(props) {
+export function ImageSourcePanel(props) {
   const { t } = useTranslation();
   return <MediaSourcePanel {...props} searchPlaceholder={props.source.searchPlaceholder ||  t('editor:asset.imageSourcePanel.ph-search')} />;
 }
@@ -19,3 +19,4 @@ export default function ImageSourcePanel(props) {
 ImageSourcePanel.propTypes = {
   source: PropTypes.object
 };
+export default ImageSourcePanel;

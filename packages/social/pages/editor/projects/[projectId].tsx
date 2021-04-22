@@ -2,24 +2,17 @@
  *Compoment to render existing project on the basis of projectId.
  *@Param :- projectId
  */
-
-import dynamic from "next/dynamic";
-import React, { lazy, Suspense, useEffect, useState } from "react";
-import NoSSR from "react-no-ssr";
-
-
-// importing component EditorContainer.
-const EditorContainer = dynamic(() => import("@xr3ngine/client-core/src/world/components/editor/EditorContainer"), { ssr: false });
-
+import { Suspense, Fragment, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
-import {selectAuthState} from "@xr3ngine/client-core/src/user/reducers/auth/selector";
-import {bindActionCreators, Dispatch} from "redux";
-import {doLoginAuto} from "@xr3ngine/client-core/src/user/reducers/auth/service";
+import { selectAuthState } from "@xr3ngine/client-core/src/user/reducers/auth/selector";
+import { bindActionCreators, Dispatch } from "redux";
+import { doLoginAuto } from "@xr3ngine/client-core/src/user/reducers/auth/service";
 import { initializeEngine } from "@xr3ngine/engine/src/initialize";
 import { DefaultGameMode } from "@xr3ngine/engine/src/templates/game/DefaultGameMode";
 import { Engine } from "@xr3ngine/engine/src/ecs/classes/Engine";
 import { ThemeProvider } from "styled-components";
 import theme from "@xr3ngine/client-core/src/world/components/editor/theme";
+import EditorContainer from "@xr3ngine/client-core/src/world/components/editor/EditorContainer";
 
 /**
  * Declairing Props interface having two props.
@@ -54,7 +47,7 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
  */
 const Project = (props: Props) => {
 
-	// initialising consts using props interface.
+    // initialising consts using props interface.
     const {
         authState,
         doLoginAuto
@@ -68,15 +61,15 @@ const Project = (props: Props) => {
     const [hasMounted, setHasMounted] = useState(false);
 
     const [engineIsInitialized, setEngineInitialized] = useState(false);
-    
+
     const InitializationOptions = {
         postProcessing: true,
         editor: true,
         gameModes: [
             DefaultGameMode
-          ]
-      };
-  
+        ]
+    };
+
     useEffect(() => {
         initializeEngine(InitializationOptions).then(() => {
             console.log("Setting engine inited");
@@ -92,20 +85,16 @@ const Project = (props: Props) => {
         doLoginAuto(true);
     }, []);
 
-/**
- * validating user and rendering EditorContainer component.
- * <NoSSR> enabling the defer rendering.
- *
- */
+    /**
+     * validating user and rendering EditorContainer component.
+     */
     return hasMounted &&
-    <ThemeProvider theme={theme}>
-    <Suspense fallback={React.Fragment}>
-        <NoSSR>
-            { authUser?.accessToken != null && authUser.accessToken.length > 0 
-              && user?.id != null && engineIsInitialized && <EditorContainer Engine={Engine} {...props} /> }
-        </NoSSR>
-    </Suspense>
-    </ThemeProvider>;
+        <ThemeProvider theme={theme}>
+            <Suspense fallback={Fragment}>
+                {authUser?.accessToken != null && authUser.accessToken.length > 0
+                    && user?.id != null && engineIsInitialized && <EditorContainer Engine={Engine} {...props} />}
+            </Suspense>
+        </ThemeProvider>;
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(Project);

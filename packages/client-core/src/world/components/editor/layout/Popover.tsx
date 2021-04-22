@@ -15,7 +15,7 @@ import Overlay from "./Overlay";
  * @param {any} rest 
  * @returns 
  */
-export default function Popover({ children, padding, position, renderContent, disabled, ...rest }) {
+export function Popover({ children, padding, position, renderContent, disabled, ...rest }) {
   const popoverTriggerRef = useRef();
   const [isOpen, setIsOpen] = useState(false);
 
@@ -79,3 +79,4 @@ Popover.propTypes = {
   position: PropTypes.string,
   renderContent: PropTypes.func.isRequired
 };
+export default Popover;

@@ -3,6 +3,8 @@ import { Entity } from './Entity';
 
 /**
  * This class provides methods to manage events dispatches.
+ * 
+ * @author Fernando Serrano, Robert Long
  */
 export class EntityEventDispatcher {
   /** Map to store listeners by event names. */
@@ -29,6 +31,8 @@ export class EntityEventDispatcher {
 
   /**
    * Adds an event listener.
+   * 
+   * @author Fernando Serrano, Robert Long
    * @param eventName Name of the event to listen.
    * @param listener Callback to trigger when the event is fired.
    */
@@ -45,6 +49,8 @@ export class EntityEventDispatcher {
 
   /**
    * Checks if an event listener is already added to the list of listeners.
+   * 
+   * @author Fernando Serrano, Robert Long
    * @param eventName Name of the event to check.
    * @param listener Callback for the specified event.
    */
@@ -54,6 +60,8 @@ export class EntityEventDispatcher {
 
   /**
    * Removes an event listener.
+   * 
+   * @author Fernando Serrano, Robert Long
    * @param eventName Name of the event to remove.
    * @param listener Callback for the specified event.
    */
@@ -88,6 +96,8 @@ export class EntityEventDispatcher {
 
   /**
    * Reset stats counters.
+   * 
+   * @author Fernando Serrano, Robert Long
    */
   resetCounters (): void {
     this.stats.fired = this.stats.handled = 0;

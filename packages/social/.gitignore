@@ -29,6 +29,6 @@ yarn-error.log*
 .env.test.local
 .env.production.local
 
-*.manifest
-*.drcs
 *.mp4
+*.drcs
+public/*.manifest

@@ -19,7 +19,7 @@ const uploadOptions = {
  * @param {any} rest 
  * @returns 
  */
-export default function ModelInput({ onChange, ...rest }) {
+export function ModelInput({ onChange, ...rest }) {
   const onUpload = useUpload();
   const [{ canDrop, isOver }, dropRef] = useDrop({
     accept: [ItemTypes.Model, ItemTypes.File],
@@ -56,3 +56,4 @@ export default function ModelInput({ onChange, ...rest }) {
 ModelInput.propTypes = {
   onChange: PropTypes.func.isRequired
 };
+export default ModelInput;

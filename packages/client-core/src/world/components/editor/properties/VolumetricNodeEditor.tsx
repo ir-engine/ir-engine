@@ -17,7 +17,7 @@ import { useTranslation } from "react-i18next";
  * @param       {any} props
  * @constructor
  */
-export default function VolumetricNodeEditor(props) {
+export function VolumetricNodeEditor(props) {
   const { editor, node } = props;
   const { t } = useTranslation();
 
@@ -48,3 +48,4 @@ VolumetricNodeEditor.iconComponent = Video;
 
 //setting description and will appear on editor view
 VolumetricNodeEditor.description = i18n.t('editor:properties.volumetric.description');
+export default VolumetricNodeEditor;

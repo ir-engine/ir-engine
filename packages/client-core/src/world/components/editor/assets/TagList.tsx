@@ -231,7 +231,7 @@ TagListItem.defaultProps = {
  * @param       {function} onChangeExpandedTags
  * @constructor
  */
-export default function TagList({
+export function TagList({
   tags,
   selectedTags,
   onChange,
@@ -323,3 +323,4 @@ TagList.defaultProps = {
   initialExpandedTags: {},
   onChangeExpandedTags: () => {}
 };
+export default TagList;

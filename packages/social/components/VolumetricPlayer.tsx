@@ -75,7 +75,9 @@ export const VolumetricPlayer = (props: VolumetricPlayerProps) => {
 
     function render() {
       requestAnimationFrame(render);
-      playerRef.current.handleRender(renderer, scene, camera);
+      playerRef.current.handleRender(() => {
+        renderer.render(scene, camera);
+      });
       // controls.update();
     }
 
