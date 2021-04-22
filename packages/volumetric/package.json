@@ -1,6 +1,6 @@
 {
   "name": "@xr3ngine/volumetric",
-  "version": "0.2.17",
+  "version": "0.2.18",
   "repository": {
     "type": "git",
     "url": "git://github.com/xr3ngine/xr3ngine.git"
@@ -31,7 +31,7 @@
     "typescript": "4.2.4"
   },
   "dependencies": {
-    "@xr3ngine/engine": "^0.2.17",
+    "@xr3ngine/engine": "^0.2.18",
     "@xr3ngine/volumetric": "0.2.1",
     "babel-runtime": "6.26.0",
     "demuxer": "2.1.3",
