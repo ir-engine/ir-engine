@@ -54,19 +54,6 @@
     "socket.io": "2.4.1"
   },
   "peerDependencies": {
-    "@feathersjs/authentication": "^4.5.9",
-    "@feathersjs/authentication-local": "^4.5.9",
-    "@feathersjs/authentication-oauth": "^4.5.9",
-    "@feathersjs/cli": "^4.4.0",
-    "@feathersjs/commons": "4.5.11",
-    "@feathersjs/configuration": "^4.5.9",
-    "@feathersjs/errors": "4.5.11",
-    "@feathersjs/express": "^4.5.9",
-    "@feathersjs/feathers": "4.5.11",
-    "@feathersjs/rest-client": "4.5.11",
-    "@feathersjs/socketio": "4.5.11",
-    "@feathersjs/socketio-client": "^4.5.9",
-    "@feathersjs/transport-commons": "^4.5.9",
     "chokidar": "^3.4.2",
     "socket.io": "2.4.1"
   },
@@ -90,7 +77,7 @@
     "@xr3ngine/common": "^0.2.17",
     "@xr3ngine/engine": "^0.2.17",
     "@xr3ngine/server-core": "^0.2.17",
-    "aws-sdk": "2.889.0",
+    "aws-sdk": "2.890.0",
     "bent": "7.3.12",
     "cannon-es-debugger": "0.1.2",
     "chargebee": "2.6.5",

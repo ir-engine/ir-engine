@@ -24,6 +24,16 @@ export default (app: Application): any => {
       allowNull: false,
       unique: true
     },
+    isLobby: {
+      type: DataTypes.BOOLEAN,
+      allowNull: true,
+      defaultValue: true
+    },
+    isFeatured: {
+        type: DataTypes.BOOLEAN,
+        allowNull: true,
+        defaultValue: false
+    },
     maxUsersPerInstance: {
       type: DataTypes.INTEGER,
       allowNull: false,

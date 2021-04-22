@@ -8,6 +8,13 @@ import config from '@xr3ngine/server-core/src/appconfig';
 import psList from 'ps-list';
 // import { exec } from 'child_process';
 
+import dotenv from 'dotenv-flow';
+if (process.env.KUBERNETES !== 'true') {
+  dotenv.config({
+    path: appRootPath.path
+  });
+}
+
 /**
  * @param status
  */
