@@ -7,8 +7,8 @@ import dynamic from 'next/dynamic';
 const VolumetricPlayer = dynamic<any>(() => import("../components/VolumetricPlayer").then((mod) => mod.VolumetricPlayer), { ssr: false });
 
 export const IndexPage = (props: any): any => {
-    const meshFilePath = typeof location !== 'undefined'? location.origin + "/volumetric/hula.drcs" : "";
-    const videoFilePath = typeof location !== 'undefined'? location.origin + "/volumetric/hula.mp4" : "";
+    const meshFilePath = typeof location !== 'undefined'? location.origin + "/sam_low_fuse.drcs" : "";
+    const videoFilePath = typeof location !== 'undefined'? location.origin + "/sam_low_fuse.mp4" : "";
     console.log("Mesh file path is", meshFilePath);
     return (
         <div className={styles.viewport}>

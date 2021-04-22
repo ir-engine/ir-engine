@@ -1,93 +1,91 @@
 import { CortoDecoder } from "./corto";
 let _meshFilePath;
 let fetchLoop;
-let lastRequestedKeyframe = 0;
-let _numberOfKeyframes;
-let _lastFrameId;
 let _fileHeader;
-function startFetching({
-  targetFramesToRequest,
+
+type requestPayload = {
+  frameStart: number,
+  frameEnd: number
+}
+
+const messageQueue: requestPayload[] = [];
+
+function addMessageToQueue(payload: requestPayload) {
+  messageQueue.push(payload);
+  console.log("Message added to queue", addMessageToQueue);
+}
+
+function startHandlerLoop({
   meshFilePath,
-  numberOfKeyframes,
+  numberOfFrames,
   fileHeader
 }) {
   _meshFilePath = meshFilePath;
-  _numberOfKeyframes = numberOfKeyframes;
-  _lastFrameId = numberOfKeyframes - 1;
   _fileHeader = fileHeader;
   (globalThis as any).postMessage({ type: "initialized" });
 
-
   fetchLoop = async () => {
-    if (lastRequestedKeyframe >= _lastFrameId) {
-      (globalThis as any).postMessage({ type: "complete" });
-      return;
-    }
+    if (messageQueue.length > 0) {
 
-    let startFrame
+      let {
+        frameStart,
+        frameEnd
+      } = messageQueue.pop();
 
-    let numberOfFramesRequested = 1;
+      const requestedOverLoop = frameEnd < frameStart;
+      if (requestedOverLoop) {
+        // We have a loop!
+        // Split the request into two
+        addMessageToQueue({
+          frameStart: 0,
+          frameEnd
+        })
+      }
 
-    startFrame = lastRequestedKeyframe
-    while (numberOfFramesRequested < targetFramesToRequest && lastRequestedKeyframe < _lastFrameId) {
-      numberOfFramesRequested++;
-      lastRequestedKeyframe++;
-    }
+      const startFrameData = _fileHeader.frameData[frameStart];
+      const endFrameData = _fileHeader.frameData[requestedOverLoop ? frameEnd : numberOfFrames - 1];
 
-    const startFrameData = _fileHeader.frameData[startFrame];
-    const requestStartBytePosition = startFrameData.startBytePosition;
+      const requestStartBytePosition = startFrameData.startBytePosition;
+      const requestEndBytePosition = endFrameData.startBytePosition + endFrameData.meshLength;
 
-    let endFrame = lastRequestedKeyframe;
-    const endFrameData = _fileHeader.frameData[endFrame];
+      const outgoingMessages = []
 
-    numberOfFramesRequested++;
-    lastRequestedKeyframe++;
-
-    const requestEndBytePosition = endFrameData.startBytePosition + endFrameData.meshLength;
-
-    const response = await fetch(_meshFilePath, {
+      const response = await fetch(_meshFilePath, {
         headers: {
-            'range': `bytes=${requestStartBytePosition}-${requestEndBytePosition}`,
+          'range': `bytes=${requestStartBytePosition}-${requestEndBytePosition}`,
         }
-      }).catch(err=> {console.error("WORKERERROR: ", err)});
+      }).catch(err => { console.error("WORKERERROR: ", err) });
 
-    let messages = []
-    const buffer = await (response as Response).arrayBuffer().catch(err => {console.error("Weird error", err)});
-    for (let i = startFrame; i <= endFrame; i++) {
+      const buffer = await (response as Response).arrayBuffer().catch(err => { console.error("Weird error", err) });
+      for (let i = frameStart; i <= frameEnd; i++) {
+        const currentFrameData = _fileHeader.frameData[i];
 
-      const currentFrameData = _fileHeader.frameData[i];
-      // Slice keyframe out by byte position
-      const fileReadStartPosition = currentFrameData.startBytePosition - startFrameData.startBytePosition;
-      const fileReadEndPosition = fileReadStartPosition + currentFrameData.meshLength;
+        const fileReadStartPosition = currentFrameData.startBytePosition - startFrameData.startBytePosition;
+        const fileReadEndPosition = fileReadStartPosition + currentFrameData.meshLength;
 
-      // console.log("fileReadStartPosition", fileReadStartPosition);
-      // console.log("fileReadEndPosition", fileReadEndPosition);
-      const sliced = (buffer as ArrayBuffer).slice(fileReadStartPosition, fileReadEndPosition);
+        // Decode the geometry using Corto codec
+        const slice = (buffer as ArrayBuffer).slice(fileReadStartPosition, fileReadEndPosition);
+        const decoder = new CortoDecoder(slice);
+        const bufferGeometry = decoder.decode();
 
-      let decoder = new CortoDecoder(sliced);
-
-
-      let bufferGeometry = decoder.decode();
-
-      // decode corto data and create a temp buffer geometry
-      const bufferObject = {
-        frameNumber: currentFrameData.frameNumber,
-        keyframeNumber: currentFrameData.keyframeNumber,
-        bufferGeometry
-      };
-      // console.log("i", i, bufferObject);
-      messages.push(bufferObject);
+        // Add to the messageQueue
+        outgoingMessages.push({
+          frameNumber: currentFrameData.frameNumber,
+          keyframeNumber: currentFrameData.keyframeNumber,
+          bufferGeometry
+        });
+      }
+      // console.log("Posting payload", messages);
+      (globalThis as any).postMessage({ type: 'framedata', payload: outgoingMessages });
+      fetchLoop();
     }
-    // console.log("Posting payload", messages);
-    (globalThis as any).postMessage({ type: 'framedata', payload: messages });
-    fetchLoop();
   }
   fetchLoop();
-
 }
 
 (globalThis as any).onmessage = function (e) {
-  // console.log('Received input: ', e.data); // message received from main thread
   if (e.data.type === 'initialize')
-    startFetching(e.data.payload);
+    startHandlerLoop(e.data.payload);
+  if (e.data.type === 'request')
+    addMessageToQueue(e.data.payload);
 };
