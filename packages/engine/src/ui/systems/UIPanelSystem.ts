@@ -8,6 +8,7 @@ import { Group, Object3D, Raycaster } from "three";
 import { Engine } from "../../ecs/classes/Engine";
 import { MouseInput } from "../../input/enums/InputEnums";
 import { UIBaseElement, UI_ELEMENT_SELECT_STATE } from "../classes/UIBaseElement";
+import { Movable } from "../components/Movable";
 import { InputValue } from "../../input/interfaces/InputValue";
 import { NumericalType } from "../../common/types/NumericalTypes";
 import { LifecycleValue } from "../../common/enums/LifecycleValue";
@@ -21,6 +22,21 @@ const getUIPanelFromHit = (hit: any) => {
   if (!hit.setSelectState)
     return null;
 
+  if (!getVisiblity(hit))
+    return null;
+
+  return hit;
+}
+
+const getMovableFromHit = (hit: any) => {
+  if (!( hit instanceof Block )) {
+    if(!hit.parent) return null;
+    return getMovableFromHit(hit.parent);
+  }
+
+  if (!hit.setMoveHandler)
+    return null;
+  
   if (!getVisiblity(hit))
     return null;
 
@@ -86,6 +102,17 @@ export class UIPanelSystem extends System {
       
       if(!hits || !hits[0]) return;
       
+      let movable = null;
+      for(let i = 0 ; i < hits.length; i++){
+        const hit = hits[i].object;
+        movable = getMovableFromHit(hit);
+        if(movable){
+          console.log(hits[i], mouseDown);
+          movable.setMoveHandler(hits[i].point, mouseDown);
+          return;
+        }
+      }
+
       let uiElement = null;
       for(let i = 0 ; i < hits.length; i++){
         const hit = hits[i].object;
