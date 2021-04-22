@@ -1,3 +1,6 @@
+/**
+ * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
+ */
 import React, { useEffect } from "react";
 import { useHistory } from "react-router-dom";
 // @ts-ignore

@@ -1,3 +1,6 @@
+/**
+ * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
+ */
 import { CommentInterface } from '@xr3ngine/common/src/interfaces/Comment';
 import { CreatorShort } from '@xr3ngine/common/src/interfaces/Creator';
 import {

@@ -1,3 +1,6 @@
+/**
+ * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
+ */
 import {
   CREATOR_RETRIEVED, 
   CREATOR_FETCH,
