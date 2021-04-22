@@ -1,6 +1,6 @@
 {
   "name": "xr3",
-  "version": "0.2.15",
+  "version": "0.2.18",
   "private": true,
   "repository": {
     "type": "git",
@@ -22,8 +22,8 @@
     "xr3": "node ./index.js "
   },
   "dependencies": {
-    "cli-color": "2.0.0",
-    "child_process": "1.0.2"
+    "child_process": "1.0.2",
+    "cli-color": "2.0.0"
   },
   "license": "ISC",
   "gitHead": "66449f6ffba4d32c424b16b4f0667fe0ad36562c",

@@ -1,6 +1,6 @@
 {
   "name": "@xr3ngine/native-plugin-example",
-  "version": "0.2.15",
+  "version": "0.2.18",
   "private": true,
   "repository": {
     "type": "git",
@@ -36,7 +36,7 @@
     "@capacitor/cli": "2.4.7",
     "@capacitor/core": "2.4.7",
     "@capacitor/ios": "2.4.7",
-    "@xr3ngine/native-plugin-xr": "^0.2.15",
+    "@xr3ngine/native-plugin-xr": "^0.2.18",
     "next-transpile-modules": "6.4.0",
     "react": "17.0.2"
   },
