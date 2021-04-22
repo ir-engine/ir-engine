@@ -9,6 +9,7 @@ export class Config {
         loginDisabled: false,
         logo: "./logo.svg",
         apiServer: "https://127.0.0.1:3030",
+        appServer: "https://127.0.0.1:3000",
         gameserver: "https://127.0.0.1:3030",
         siteTitle: "The Overlay",
         siteDescription: "Connected Worlds for Everyone",
