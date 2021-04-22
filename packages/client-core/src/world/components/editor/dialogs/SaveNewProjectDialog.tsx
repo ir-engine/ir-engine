@@ -15,7 +15,7 @@ import { useTranslation } from "react-i18next";
  * @param       {function} onCancel
  * @constructor
  */
-export default function SaveNewProjectDialog({ thumbnailUrl, initialName, onConfirm, onCancel }) {
+export function SaveNewProjectDialog({ thumbnailUrl, initialName, onConfirm, onCancel }) {
   const [name, setName] = useState(initialName);
   const { t } = useTranslation();
 
@@ -92,3 +92,4 @@ SaveNewProjectDialog.propTypes = {
   onConfirm: PropTypes.func.isRequired,
   onCancel: PropTypes.func.isRequired
 };
+export default SaveNewProjectDialog;

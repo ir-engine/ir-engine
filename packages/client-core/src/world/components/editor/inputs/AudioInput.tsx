@@ -26,7 +26,7 @@ const uploadOptions = {
  * @param       {any} rest
  * @constructor
  */
-export default function AudioInput({ onChange, ...rest }) {
+export function AudioInput({ onChange, ...rest }) {
   const onUpload = useUpload(uploadOptions);
   const [{ canDrop, isOver }, dropRef] = useDrop({
     accept: [ItemTypes.Audio, ItemTypes.File],
@@ -73,3 +73,4 @@ export default function AudioInput({ onChange, ...rest }) {
 AudioInput.propTypes = {
   onChange: PropTypes.func.isRequired
 };
+export default AudioInput;

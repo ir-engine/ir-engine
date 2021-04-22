@@ -47,7 +47,7 @@ const InlineFormField = (styled as any).div`
  * @param       {any} rest  
  * @constructor
  */
-export default function FormField({ inline, children, ...rest }) {
+export function FormField({ inline, children, ...rest }) {
   if (inline) {
     return <InlineFormField {...rest}>{children}</InlineFormField>;
   }
@@ -65,3 +65,4 @@ FormField.propTypes = {
   inline: PropTypes.bool,
   children: PropTypes.node
 };
+export default FormField;

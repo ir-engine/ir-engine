@@ -35,7 +35,7 @@ const assetTypeToNodeClass = {
  * @author Robert Long
  * @type {class component}
  */
-export default class AssetManifestSource extends BaseSource {
+export class AssetManifestSource extends BaseSource {
   editor: any;
   id: any;
   name: any;
@@ -152,3 +152,5 @@ export default class AssetManifestSource extends BaseSource {
     };
   }
 }
+
+export default  AssetManifestSource;

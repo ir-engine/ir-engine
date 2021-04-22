@@ -8,6 +8,11 @@ import ShoulderTransforms from './ShoulderTransforms';
 import { fixSkeletonZForward } from './SkeletonUtils';
 
 type AvatarOptions = { debug: boolean, top: boolean, bottom: boolean, visemes: boolean, hair: boolean }
+
+/**
+ * 
+ * @author Avaer Kazmer
+ */
 export class Avatar {
   shoulderTransforms: any;
   legsManager: any;

@@ -57,7 +57,7 @@ const BooleanCheck = (styled as any)(Check)`
  * @author Robert Long
  * @type {class component}
  */
-export default class BooleanInput extends Component {
+export class BooleanInput extends Component {
 
   // declairing propTypes for BooleanInput
   static propTypes = {
@@ -99,3 +99,4 @@ export default class BooleanInput extends Component {
     );
   }
 }
+export default BooleanInput;

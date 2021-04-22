@@ -10,7 +10,7 @@ import { useTranslation } from "react-i18next";
  * @param       {object} props
  * @constructor
  */
-export default function VideoSourcePanel(props) {
+export function VideoSourcePanel(props) {
   const { t } = useTranslation();
   return <MediaSourcePanel {...props} searchPlaceholder={props.source.searchPlaceholder || t('editor:asset.videoSourcePanel.ph-search')} />;
 }
@@ -24,3 +24,4 @@ export default function VideoSourcePanel(props) {
 VideoSourcePanel.propTypes = {
   source: PropTypes.object
 };
+export default VideoSourcePanel;

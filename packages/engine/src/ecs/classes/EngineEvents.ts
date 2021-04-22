@@ -12,6 +12,10 @@ import { MessageQueue } from "../../worker/MessageQueue";
 import { getEntityByID, getMutableComponent } from "../functions/EntityFunctions";
 import { Engine } from "./Engine";
 
+/**
+ * 
+ * @author Fernando Serrano, Robert Long
+ */
 const EVENTS = {
 
   // INITALIZATION
@@ -36,6 +40,10 @@ const EVENTS = {
   ENTITY_DEBUG_DATA: 'CORE_ENTITY_DEBUG_DATA', // to pipe offscreen entity data to UI
 };
 
+/**
+ * 
+ * @author Fernando Serrano, Robert Long
+ */
 export class EngineEvents extends EventDispatcher {
   static instance: EngineEvents = new EngineEvents();
   static EVENTS = EVENTS;
@@ -44,6 +52,10 @@ export class EngineEvents extends EventDispatcher {
   }
 }
 
+/**
+ * 
+ * @author Fernando Serrano, Robert Long
+ */
 export const addIncomingEvents = () => {
 
   // INITIALIZATION
@@ -70,6 +82,10 @@ export const addIncomingEvents = () => {
   })
 }
 
+/**
+ * 
+ * @author Fernando Serrano, Robert Long
+ */
 export const addOutgoingEvents = () => {
 
   // RUNTIME
@@ -78,7 +94,10 @@ export const addOutgoingEvents = () => {
     // Network.instance.transport.sendData(buffer);
   });
 }
-
+/**
+ * 
+ * @author Fernando Serrano, Robert Long
+ */
 const ENGINE_EVENTS_PROXY = {
   EVENT: 'ENGINE_EVENTS_PROXY_EVENT',
   EVENT_ADD: 'ENGINE_EVENTS_PROXY_EVENT_ADD',
@@ -87,6 +106,10 @@ const ENGINE_EVENTS_PROXY = {
   EVENT_REMOVE_ALL: 'ENGINE_EVENTS_PROXY_EVENT_REMOVE_ALL',
 };
 
+/**
+ * 
+ * @author Fernando Serrano, Robert Long
+ */
 export class EngineEventsProxy extends EngineEvents {
   messageQueue: MessageQueue;
   constructor(messageQueue: MessageQueue) {

@@ -8,7 +8,7 @@ import i18n from "i18next";
  * @author Robert Long
  * @type {class}
  */
-export default class SketchfabSource extends ModelMediaSource {
+export  class SketchfabSource extends ModelMediaSource {
   tags: any;
   searchLegalCopy: string;
   privacyPolicyUrl: string;
@@ -556,3 +556,5 @@ export default class SketchfabSource extends ModelMediaSource {
     this.transformPivot = TransformPivot.Bottom;
   }
 }
+
+export default SketchfabSource;

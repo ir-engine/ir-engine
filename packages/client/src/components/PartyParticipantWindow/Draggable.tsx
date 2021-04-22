@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 type PropsType = {
     isPiP: boolean;
 }
-class Draggable extends React.Component<PropsType> {
+export class Draggable extends React.Component<PropsType> {
     constructor(props: PropsType) {
         super(props);
         this.props = props;

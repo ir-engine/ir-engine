@@ -182,7 +182,7 @@ const MemoAssetGridItem = memo(AssetGridItem);
  * @param       {any}  source
  * @constructor
  */
-export default function AssetGrid({ isLoading, selectedItems, items, onSelect, onLoadMore, hasMore, tooltip, source }) {
+export function AssetGrid({ isLoading, selectedItems, items, onSelect, onLoadMore, hasMore, tooltip, source }) {
   const editor = useContext(EditorContext);
   const uniqueId = useRef(`AssetGrid${lastId}`);
   const { t } = useTranslation();
@@ -306,3 +306,4 @@ AssetGrid.defaultProps = {
   selectedItems: [],
   tooltip: AssetTooltip
 };
+export default AssetGrid;

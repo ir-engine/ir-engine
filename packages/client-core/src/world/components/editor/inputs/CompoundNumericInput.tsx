@@ -27,7 +27,7 @@ const StyledCompoundNumericInput = (styled as any).div`
  * @param       {any} extras
  * @constructor
  */
-export default function CompoundNumericInput({ value, onChange, ...extras }) {
+export function CompoundNumericInput({ value, onChange, ...extras }) {
   const { min, max, step } = extras;
   return (
     <StyledCompoundNumericInput>
@@ -63,3 +63,4 @@ CompoundNumericInput.propTypes = {
   value: PropTypes.number,
   onChange: PropTypes.func
 };
+export default CompoundNumericInput;

@@ -5,6 +5,7 @@
 *
 * Must rebind the model to it's skeleton after this function.
 *
+*@author Avaer Kazmer
 * @param {Bone} rootBone
 * @param {Object} context - options and buffer for stateful bone calculations
 *                 context.exclude: [ boneNames to exclude ]
@@ -13,6 +14,13 @@
 
 import { Quaternion, Vector3, Matrix4 } from "three";
 
+/**
+ * 
+ * @author Avaer Kazmer
+ * @param rootBone 
+ * @param context 
+ * @returns 
+ */
 function fixSkeletonZForward(rootBone, context) {
   context = context || {};
   precalculateZForwards(rootBone, context);
@@ -38,6 +46,7 @@ const Y_AXIS = new Vector3(0,1,0);
 *
 * Must rebind the model to it's skeleton after this function.
 *
+*@author Avaer Kazmer
 * @param {BONE} rootBone
 */
 
@@ -51,6 +60,13 @@ function precalculateZForwards(rootBone, context) {
   return context;
 }
 
+/**
+ * 
+ * @author Avaer Kazmer
+ * @param rootBone 
+ * @param context 
+ * @returns 
+ */
 function setZForward(rootBone, context) {
   if (!context || !context.worldPos) {
     context = context || {};
@@ -60,6 +76,13 @@ function setZForward(rootBone, context) {
   return context;
 }
 
+/**
+ * 
+ * @author Avaer Kazmer
+ * @param parentBone 
+ * @param worldPos 
+ * @param averagedDirs 
+ */
 function calculateAverages(parentBone, worldPos, averagedDirs) {
   const averagedDir = new Vector3();
   const childBones = parentBone.children.filter(c => c.isBone);
@@ -77,6 +100,14 @@ function calculateAverages(parentBone, worldPos, averagedDirs) {
   });
 }
 
+/**
+ * 
+ * @author Avaer Kazmer
+ * @param parentBone 
+ * @param worldPos 
+ * @param averagedDirs 
+ * @param preRotations 
+ */
 function updateTransformations(parentBone, worldPos, averagedDirs, preRotations) {
 
       const averagedDir = averagedDirs[parentBone.id];
@@ -117,6 +148,15 @@ const t1 = new Vector3();
 const t2 = new Vector3();
 const t3 = new Vector3();
 const m1 = new Matrix4();
+
+/**
+ * 
+ * @author Avaer Kazmer
+ * @param direction 
+ * @param up 
+ * @param target 
+ * @returns 
+ */
 function setQuaternionFromDirection(direction, up, target) {
   const x = t1;
   const y = t2;
@@ -148,6 +188,12 @@ function setQuaternionFromDirection(direction, up, target) {
   return target.setFromRotationMatrix(m);
 }
 
+/**
+ * 
+ * @author Avaer Kazmer
+ * @param rootBone 
+ * @param worldPos 
+ */
 function getOriginalWorldPositions(rootBone, worldPos) {
   const rootBoneWorldPos = rootBone.getWorldPosition(new Vector3())
   worldPos[rootBone.id] = [rootBoneWorldPos];
@@ -156,12 +202,26 @@ function getOriginalWorldPositions(rootBone, worldPos) {
   })
 }
 
+/**
+ * 
+ * @author Avaer Kazmer
+ * @param direction 
+ * @param parent 
+ * @returns 
+ */
 function _worldToLocalDirection(direction, parent) {
     const inverseParent = new Matrix4().getInverse(parent.matrixWorld);
     direction.transformDirection(inverseParent);
   return direction;
 }
 
+/**
+ * 
+ * @author Avaer Kazmer
+ * @param direction 
+ * @param parent 
+ * @returns 
+ */
 function _localToWorldDirection(direction, parent) {
   const parentMat = parent.matrixWorld;
   direction.transformDirection(parentMat);

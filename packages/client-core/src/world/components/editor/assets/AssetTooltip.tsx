@@ -51,7 +51,7 @@ const TooltipContent = (styled as any).div`
  * @param       {any} item
  * @constructor
  */
-export default function AssetTooltip({ item }) {
+export function AssetTooltip({ item }) {
   let thumbnail;
 
   // check if item contains thumbnailUrl then initializing thumbnail
@@ -84,3 +84,4 @@ export default function AssetTooltip({ item }) {
 AssetTooltip.propTypes = {
   item: PropTypes.object
 };
+export default AssetTooltip;

@@ -95,7 +95,7 @@ function guessContentType(url): string {
   * 
   * @author Robert Long
   */
-export default class Api extends EventEmitter {
+export class Api extends EventEmitter {
   serverURL: string;
   apiURL: string;
   projectDirectoryPath: string;
@@ -1307,3 +1307,5 @@ export default class Api extends EventEmitter {
     }
   }
 }
+
+export default  Api;

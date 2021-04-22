@@ -10,7 +10,7 @@ import Api from "../Api";
  * @author Robert Long
  * @type {class component}
  */
-export default class ModelMediaSource extends BaseSource {
+export class ModelMediaSource extends BaseSource {
 
   //declairing component type of ModelSourcePanel
   component: typeof ModelSourcePanel;
@@ -93,3 +93,5 @@ export default class ModelMediaSource extends BaseSource {
     };
   }
 }
+
+export default  ModelMediaSource;
