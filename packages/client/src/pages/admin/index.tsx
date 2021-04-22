@@ -24,7 +24,6 @@ const AdminConsolePage = (props: Props) => {
 
   useEffect(() => {
     doLoginAuto(true);
-      document.getElementById('__next').classList.add('adminPage');
   }, []);
 
   return (
