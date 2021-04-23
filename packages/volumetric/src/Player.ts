@@ -79,10 +79,11 @@ export default class Player {
         console.log("Posting request", payload);
         this._worker.postMessage({ type: "request", payload }); // Send data to our worker.
         this.lastFrameRequested = newLastFrame;
-      }
 
-      if (typeof this.onMeshBuffering === "function") {
-        this.onMeshBuffering(this.meshBuffer.size / minimumBufferLength);
+        if (!meshBufferHasEnoughToPlay && typeof this.onMeshBuffering === "function") {
+          // console.log('buffering ', this.meshBuffer.size / minimumBufferLength,',  have: ', this.meshBuffer.size, ', need: ', minimumBufferLength )
+          this.onMeshBuffering(this.meshBuffer.size / minimumBufferLength);
+        }
       }
     }
 
@@ -226,6 +227,12 @@ export default class Player {
 
         this.meshBuffer.set(frameData.keyframeNumber, geometry );
       })
+
+      if (typeof this.onMeshBuffering === "function") {
+        const minimumBufferLength = this.targetFramesToRequest * 2;
+        // console.log('buffering ', this.meshBuffer.size / minimumBufferLength,',  have: ', this.meshBuffer.size, ', need: ', minimumBufferLength )
+        this.onMeshBuffering(this.meshBuffer.size / minimumBufferLength);
+      }
     }
 
     worker.onmessage = (e) => {
