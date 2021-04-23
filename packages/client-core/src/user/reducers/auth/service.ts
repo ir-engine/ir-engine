@@ -198,7 +198,7 @@ const parseUserWalletCredentials = (wallet) => {
 };
 
 export function loginUserByXRWallet(wallet: any) {
-  return (dispatch: Dispatch): any => {
+  return (dispatch: Dispatch, getState: any): any => {
     try {
       dispatch(actionProcessing(true));
 
@@ -206,6 +206,12 @@ export function loginUserByXRWallet(wallet: any) {
       console.log(credentials);
 
       const walletUser = resolveWalletUser(credentials);
+
+      //TODO: This is temp until we move completely to XR wallet
+      const oldId = getState().get('auth').get('user').id;
+      walletUser.id = oldId;
+
+      loadXRAvatarForUpdatedUser(walletUser);
       dispatch(loadedUserData(walletUser));
     } catch(err) {
       console.log(err);
@@ -745,6 +751,43 @@ const loadAvatarForUpdatedUser = async (user) => {
           });
           break;
         }
+      }
+    }
+    resolve(true);
+  });
+};
+
+const loadXRAvatarForUpdatedUser = async (user) => {
+  if (!user || !user.id) Promise.resolve(true);
+
+  return new Promise(async resolve => {
+    const networkUser = Network.instance.clients[user.id];
+
+    // If network is not initialized then wait to be initialized.
+    if (!networkUser) {
+      setTimeout(async () => {
+        await loadAvatarForUpdatedUser(user);
+        resolve(true);
+      }, 200);
+      return;
+    }
+
+    const avatarURL = user.avatarUrl;
+    const thumbnailURL = user.avatarUrl;
+
+    networkUser.avatarDetail = { avatarURL, thumbnailURL, avatarId: user.avatarId };
+
+    //Find entityId from network objects of updated user and dispatch avatar load event.
+    for (let key of Object.keys(Network.instance.networkObjects)) {
+      const obj = Network.instance.networkObjects[key];
+      if (obj?.ownerId === user.id) {
+        EngineEvents.instance.dispatchEvent({
+          type: EngineEvents.EVENTS.LOAD_AVATAR,
+          entityID: obj.component.entity.id,
+          avatarId: user.avatarId,
+          avatarURL
+        });
+        break;
       }
     }
     resolve(true);

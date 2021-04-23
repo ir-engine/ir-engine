@@ -53,7 +53,8 @@ export function resolveUser (user: any): User {
 
 export function resolveWalletUser (credentials: any): User {
   let returned = {
-    id: credentials.user.id,
+    id: '',
+    instanceId: credentials.user.id,
     name: credentials.user.displayName,
     userRole: "guest",
     avatarId: credentials.user.id,
@@ -62,5 +63,5 @@ export function resolveWalletUser (credentials: any): User {
     avatarUrl: credentials.user.icon,
   };
 
-  return returned
+  return returned;
 }

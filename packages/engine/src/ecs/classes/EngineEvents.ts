@@ -72,6 +72,7 @@ export const addIncomingEvents = () => {
     applyNetworkStateToClient(unbufferedState, delta);
   })
   EngineEvents.instance.addEventListener(EngineEvents.EVENTS.LOAD_AVATAR, ({ entityID, avatarId, avatarURL }) => {
+    console.log("LOAD_AVATAR listener");
     const entity = getEntityByID(entityID)
     const characterAvatar = getMutableComponent(entity, CharacterComponent);
     if (characterAvatar != null) {
