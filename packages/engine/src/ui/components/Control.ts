@@ -1,8 +1,7 @@
 import { Color, Object3D, CircleGeometry, MeshPhongMaterial, Mesh, Texture, TextureLoader } from "three";
 import { Block } from '../../assets/three-mesh-ui';
 import { createButton, createItem, createRow, createCol } from '../functions/createItem';
-import { UIBaseElement, UI_ELEMENT_SELECT_STATE } from "../classes/UIBaseElement";
-import { Movable } from './Movable';
+import { UI_ELEMENT_SELECT_STATE } from "../classes/UIBaseElement";
 export class Control extends Object3D{
   seeker: Mesh;
   durationWidth: number;
@@ -49,18 +48,8 @@ export class Control extends Object3D{
         }
     );
 
-    let bar = this.createSeekbar(callbacks);
+    const bar = this.createSeekbar(callbacks);
     this.add(bar);
-
-    // let seeker = new Block({
-    //   width: 0.1, 
-    //   height: 0.1, 
-    //   backgroundOpacity: 0.7,
-    //   backgroundColor: new Color('white'),
-    //   borderRadius: 0.05,
-    //   // offset: -1
-    // });
-    // seeker.position.set(0, 0.15, 0.025);
 
     const geometry = new CircleGeometry( 0.05, 32 );
     const material = new MeshPhongMaterial( { color: 0xeeeeee, transparent: true, opacity: 1 } );
