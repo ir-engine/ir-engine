@@ -5,7 +5,7 @@ import { createPortal } from "react-dom";
  * 
  * @author Robert Long
  */
-export default class Portal extends Component<{}, {}> {
+export class Portal extends Component<{}, {}> {
   constructor(props) {
     super(props);
     this.el = document.createElement("div");
@@ -27,3 +27,5 @@ export default class Portal extends Component<{}, {}> {
     return createPortal(this.props.children, this.el);
   }
 }
+
+export default Portal;

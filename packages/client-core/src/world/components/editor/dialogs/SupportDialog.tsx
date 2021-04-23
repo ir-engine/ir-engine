@@ -12,7 +12,7 @@ import { Trans, useTranslation } from "react-i18next";
  * @param       {any} props
  * @constructor
  */
-export default function SupportDialog({ onCancel, ...props }) {
+export function SupportDialog({ onCancel, ...props }) {
   const { t } = useTranslation();
 
   //returning view for SupportDialog
@@ -51,3 +51,4 @@ export default function SupportDialog({ onCancel, ...props }) {
 SupportDialog.propTypes = {
   onCancel: PropTypes.func
 };
+export default SupportDialog;

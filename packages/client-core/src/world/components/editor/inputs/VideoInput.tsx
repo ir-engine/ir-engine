@@ -19,7 +19,7 @@ const uploadOptions = {
  * @param {any} rest 
  * @returns 
  */
-export default function VideoInput({ onChange, ...rest }) {
+export function VideoInput({ onChange, ...rest }) {
   const onUpload = useUpload(uploadOptions);
   const [{ canDrop, isOver }, dropRef] = useDrop({
     accept: [ItemTypes.Video, ItemTypes.File],
@@ -54,3 +54,4 @@ export default function VideoInput({ onChange, ...rest }) {
 VideoInput.propTypes = {
   onChange: PropTypes.func.isRequired
 };
+export default VideoInput;

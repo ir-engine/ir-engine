@@ -36,6 +36,7 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
   fetchAdminVideos: bindActionCreators(fetchAdminVideos, dispatch)
 });
 
+
 const AdminConsole = (props: Props): any => {
   const { fetchAdminVideos, auth, videos } = props;
   const initialState = {

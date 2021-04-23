@@ -8,6 +8,10 @@ const _makeFingers = () => {
   return result;
 };
 
+/**
+ * 
+ * @author Avaer Kazmer
+ */
 class XRTrackingReferences {
   head: any;
   leftHand: any;

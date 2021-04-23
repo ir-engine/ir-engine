@@ -36,6 +36,12 @@ const App = (): any => {
   };
 
   const initApp = useCallback(() => {
+    if(process.env && process.env.NODE_CONFIG){
+      (window as any).env = process.env.NODE_CONFIG;
+    } else {
+      (window as any).env = (window as any).env ?? "";
+    }
+
     dispatch(restoreState());
 
     initGA();

@@ -116,7 +116,7 @@ const Col = styled.div`
  * 
  * @author Robert Long
  */
-export default class ProjectGridItem extends Component<{ contextMenuId: string, project: any }> {
+export class ProjectGridItem extends Component<{ contextMenuId: string, project: any }> {
   static propTypes = {
     contextMenuId: PropTypes.string,
     project: PropTypes.object.isRequired
@@ -171,3 +171,5 @@ export default class ProjectGridItem extends Component<{ contextMenuId: string, 
     }
   }
 }
+
+export default ProjectGridItem;

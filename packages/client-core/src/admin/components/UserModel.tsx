@@ -39,6 +39,13 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
     patchUser: bindActionCreators(patchUser, dispatch),
 });
 
+/**
+ * Function for create user on  admin dashboard 
+ * 
+ * @param param0 children props 
+ * @returns @ReactDomElements
+ * @author Kevin KIMENYI <kimenyikevin@gmail.com>
+ */
 
 const userModel = (props: Props): any => {
     const {

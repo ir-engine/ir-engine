@@ -7,7 +7,7 @@ type BrowserPromptProps = {
  * 
  * @author Robert Long
  */
-export default class BrowserPrompt extends React.Component<
+export class BrowserPrompt extends React.Component<
   BrowserPromptProps,
   {}
 > {
@@ -27,3 +27,5 @@ export default class BrowserPrompt extends React.Component<
     return <Prompt {...this.props} />;
   }
 }
+
+export default BrowserPrompt;

@@ -47,7 +47,7 @@ export class UIGallery extends UIBaseElement {
 
         this.marketPlace.add(panel);
 
-        this.elements.push(panel.container);
+       // this.elements.push(panel.container);
         this.elements.push(panel.button1);
         this.elements.push(panel.button2);
         this.elements.push(panel.button3);
@@ -80,7 +80,7 @@ export class UIGallery extends UIBaseElement {
 
         this.library.add(panel);
 
-        this.elements.push(panel.container);
+      //  this.elements.push(panel.container);
         this.elements.push(panel.button1);
         this.elements.push(panel.button2);
         this.elements.push(panel.button3);

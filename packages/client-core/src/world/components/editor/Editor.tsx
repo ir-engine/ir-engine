@@ -107,7 +107,7 @@ const removeObjectsRoots = [];
  * @author Robert Long
  * @type class
  */
-export default class Editor extends EventEmitter {
+export class Editor extends EventEmitter {
   api: Api;
   settings: any;
   project: any;
@@ -2817,3 +2817,5 @@ export default class Editor extends EventEmitter {
     }
   }
 }
+
+export default Editor;

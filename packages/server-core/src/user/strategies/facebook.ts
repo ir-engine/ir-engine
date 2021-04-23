@@ -2,7 +2,7 @@ import CustomOAuthStrategy from './custom-oauth';
 import { Params } from '@feathersjs/feathers';
 import config from '../../appconfig';
 
-export default class FacebookStrategy extends CustomOAuthStrategy {
+export class FacebookStrategy extends CustomOAuthStrategy {
   app: any
   constructor(app){
     super();
@@ -58,3 +58,4 @@ export default class FacebookStrategy extends CustomOAuthStrategy {
     }
   }
 }
+export default FacebookStrategy;

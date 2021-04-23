@@ -77,7 +77,7 @@ const ColorInputPopover = (styled as any).div`
  * @constructor
  */
 
-export default function ColorInput({ value, onChange, disabled,isValueAsInteger=false, ...rest }) {
+export function ColorInput({ value, onChange, disabled,isValueAsInteger=false, ...rest }) {
 
     const onChangePicker = useCallback(
       ({ hex }) => {
@@ -132,3 +132,4 @@ ColorInput.defaultProps = {
   value: new Color(),
   onChange: () => {}
 };
+export default ColorInput;

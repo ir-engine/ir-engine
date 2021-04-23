@@ -19,7 +19,7 @@ const uploadOptions = {
  * @param {any} rest 
  * @returns 
  */
-export default function VolumetricInput({ onChange, ...rest }) {
+export function VolumetricInput({ onChange, ...rest }) {
   return (
     <ControlledStringInput
       onChange={onChange}
@@ -31,3 +31,4 @@ export default function VolumetricInput({ onChange, ...rest }) {
 VolumetricInput.propTypes = {
   onChange: PropTypes.func.isRequired
 };
+export default VolumetricInput;

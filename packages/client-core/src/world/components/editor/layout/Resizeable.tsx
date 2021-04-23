@@ -86,7 +86,7 @@ const ResizeContainer = (styled as any).div.attrs(props => ({
  * 
  * @author Robert Long
  */
-export default class Resizeable extends Component {
+export class Resizeable extends Component {
   static propTypes = {
     children: PropTypes.node,
     initialSizes: PropTypes.arrayOf(PropTypes.number),
@@ -208,3 +208,5 @@ export default class Resizeable extends Component {
     );
   }
 }
+
+export default Resizeable;
