@@ -32,7 +32,7 @@
     "@xr3ngine/engine": "^0.2.17",
     
    
-    "three": "0.127.0",
+    "three": "0.128.0",
     "xmlhttprequest": "1.8.0"
   },
   "gitHead": "5ff55be1619e188226c4ac91c92a44b7ba18edf4"

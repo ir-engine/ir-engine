@@ -94,7 +94,7 @@
     "sass": "1.32.11",
     "socket.io-client": "2.4.0",
     "styled-components": "5.2.3",
-    "three": "0.127.0",
+    "three": "0.128.0",
     "three-mesh-bvh": "0.3.7",
     "url-toolkit": "2.2.1",
     "use-debounce": "6.0.1",
