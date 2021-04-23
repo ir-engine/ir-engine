@@ -7,11 +7,11 @@ import { NetworkTransport } from '../interfaces/NetworkTransport';
 import { WorldStateInterface } from "../interfaces/WorldState";
 import { Snapshot } from "../types/SnapshotDataTypes";
 import SocketIO from "socket.io";
-import { GameStateActionMessage } from "../../game/types/GameStateActionMessage";
+import { GameStateActionMessage, GameStateUpdateMessage } from '../../game/types/GameMessage';
 import { GameMode } from "../../game/types/GameMode";
 import { DefaultGameMode } from "../../templates/game/DefaultGameMode";
 import { DefaultGameStateAction } from "../../templates/game/DefaultGameStateAction";
-import { GameStateAction } from "../../game/types/GameStateAction";
+
 
 export interface NetworkClientList {
   // Key is socket ID
@@ -64,10 +64,11 @@ export class Network {
   dataConsumers = new Map<string, any>()
 
   /** Current game state */
-  gameState = {}
+  gameState: GameStateUpdateMessage[] = []
 
   /** Game mode mapping schema */
-  gameModeSchema: GameMode = DefaultGameMode
+  loadedGames: Entity[] = []; // its for network
+//  gameModeSchema: GameMode = DefaultGameMode
 
   /** Game actions that happened this frame */
   gameStateActions: GameStateActionMessage[] = []
@@ -120,7 +121,7 @@ export class Network {
     createObjects: [],
     editObjects: [],
     destroyObjects: [],
-    gameState: {},
+    gameState: [],
     gameStateActions: []
   };
 

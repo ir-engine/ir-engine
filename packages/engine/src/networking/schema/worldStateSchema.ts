@@ -7,14 +7,26 @@ const userObjectSchema = new Schema ({
   data: string
 })
 
+const storageSchema = new Schema({
+  component: string,
+  variables: string
+});
+  
+const stateSchema = new Schema({
+  uuid: string,
+  components: [string],
+  storage: [storageSchema]
+});
+
 const gameStateUpdateSchema = new Schema({
-  gameState: string,
-  userStates: [userObjectSchema]
+  game: string,
+  state: [stateSchema]
 });
 
 const gameStateActionSchema = new Schema({
-  type: string,
-  payload: string
+  game: string,
+  component: string,
+  uuid: string
 })
 
 /** Schema for input. */

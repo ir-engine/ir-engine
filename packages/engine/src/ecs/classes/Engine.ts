@@ -3,16 +3,16 @@
  * @packageDocumentation
  */
 
-import { 
+import {
   AudioListener as THREE_AudioListener,
   Clock,
   PerspectiveCamera,
-  Scene, 
-  WebGLRenderer, 
+  Scene,
+  WebGLRenderer,
   AudioLoader as THREE_AudioLoader,
-  VideoTexture as THREE_VideoTexture, 
-  Audio as THREE_Audio, 
-  PositionalAudio as THREE_PositionalAudio, 
+  VideoTexture as THREE_VideoTexture,
+  Audio as THREE_Audio,
+  PositionalAudio as THREE_PositionalAudio,
   XRSession
 } from 'three';
 import { CSM } from '../../assets/csm/CSM';
@@ -239,7 +239,7 @@ export class Engine {
 
   /**
    * Input inherits from BehaviorComponent, which adds .map and .data
-   * 
+   *
    * @property {Boolean} gamepadConnected Connection a new gamepad
    * @property {Number} gamepadThreshold Threshold value from 0 to 1
    * @property {Binary[]} gamepadButtons Map gamepad buttons

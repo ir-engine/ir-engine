@@ -1,10 +1,14 @@
 import { Behavior } from "../../common/interfaces/Behavior";
+import { isServer } from '../../common/functions/isServer';
 import { addComponent, getMutableComponent } from "../../ecs/functions/EntityFunctions";
 import { Game } from "../../game/components/Game";
+import { GameObject } from "../../game/components/GameObject";
 import { TransformComponent } from '../../transform/components/TransformComponent';
 
 export const createGame: Behavior = (entity, args: any) => {
-
+  console.warn(args.objArgs.isGlobal);
+  console.warn(isServer && !args.objArgs.isGlobal);
+//  if (isServer && !args.objArgs.isGlobal) return;
   console.log("************ GAME CREATED!!!!!!!!!!!!!!");
   console.log(args.objArgs);
 
@@ -31,4 +35,21 @@ export const createGame: Behavior = (entity, args: any) => {
   };
 
   addComponent(entity, Game, gameData);
+};
+
+export const createGameObject: Behavior = (entity, args: any) => {
+  console.log("************ Object CREATED!!!!!!!!!!!!!!");
+  if (args.objArgs.uuid === undefined) {
+    console.warn("DONT SAVE COLLIDER FOR GAME OBJECT");
+  }
+//  if (isServer && !args.objArgs.isGlobal) {
+    //removeEntity(entity);
+//    return;
+//  }
+  const data = {
+    game: args.objArgs.game,
+    role: args.objArgs.role,
+    uuid: args.objArgs.uuid
+  };
+  addComponent(entity, GameObject, data);
 };

@@ -1,157 +1,106 @@
 import { GameMode } from "../../game/types/GameMode";
-import { GameStateAction } from "../../game/types/GameStateAction";
-import { DefaultGameStateAction } from "./DefaultGameStateAction";
 
-export const gameStartAction: GameStateAction = (data: any): void => {
-  console.log("Game started!");
-  console.log("data is", data);
-}
-export const gameStartActionServer: GameStateAction = (data: any): void => {
-  console.log("Game started!");
-  console.log("data is", data);
-}
+import { TransformComponent } from '../../transform/components/TransformComponent';
 
-export const roundStartAction: GameStateAction = (data: any): void => {
-  console.log("Game started!");
-  console.log("data is", data);
-}
-export const roundEndAction: GameStateAction = (data: any): void => {
-  console.log("Game started!");
-  console.log("data is", data);
-}
+import { Open } from "./gameDefault/components/OpenTagComponent";
+import { Closed } from "./gameDefault/components/ClosedTagComponent";
+import { ButtonUp } from "./gameDefault/components/ButtonUpTagComponent";
+import { ButtonDown } from "./gameDefault/components/ButtonDownTagComponent";
 
-export const playerTurnStartAction: GameStateAction = (data: any): void => {
-  console.log("Game started!");
-  console.log("data is", data);
-}
-export const playerTurnEndAction: GameStateAction = (data: any): void => {
-  console.log("Game started!");
-  console.log("data is", data);
-}
+import { HaveBeenInteracted } from "../../game/actions/HaveBeenInteracted";
 
-export const roundStartActionServer: GameStateAction = (data: any): void => {
-  console.log("Game started!");
-  console.log("data is", data);
-}
-export const roundEndActionServer: GameStateAction = (data: any): void => {
-  console.log("Game started!");
-  console.log("data is", data);
-}
-
-export const playerTurnStartActionServer: GameStateAction = (data: any): void => {
-  console.log("Game started!");
-  console.log("data is", data);
-}
-export const playerTurnEndActionServer: GameStateAction = (data: any): void => {
-  console.log("Game started!");
-  console.log("data is", data);
-}
-
-export const gameEndAction: GameStateAction = (data: any): void => {
-  console.log("Game over!");
-  console.log("data is", data);
-}
-export const gameEndActionServer: GameStateAction = (data: any): void => {
-  console.log("Game over!");
-  console.log("data is", data);
-}
-
-export const playerAttemptAction: GameStateAction = (data: any): void => {
-  console.log("Player attmpted swing!");
-  console.log("data is", data);
-}
-export const playerAttemptActionServer: GameStateAction = (data: any): void => {
-  console.log("Player attmpted swing!");
-  console.log("data is", data);
-}
-
-export const playerScoreAction: GameStateAction = (data: any): void => {
-  console.log("Player scored!");
-  console.log("data is", data);
-}
-export const playerScoreActionServer: GameStateAction = (data: any): void => {
-  console.log("Player scored!");
-  console.log("data is", data);
-}
+import { ifNamed } from "./gameDefault/checkers/ifNamed";
+import { upDownButton } from "./gameDefault/behaviors/upDownButton";
+import { openOrCloseDoor } from "./gameDefault/behaviors/openOrCloseDoor";
 
 export const GolfGameMode: GameMode = {
   name: "Golf",
-  actions: {
-    [DefaultGameStateAction.onGameStarted]: gameStartAction,
-    [DefaultGameStateAction.onGameEnded]: gameEndAction,
-    [DefaultGameStateAction.onRoundStarted]: roundStartAction,
-    [DefaultGameStateAction.onRoundEnded]: roundEndAction,
-    [DefaultGameStateAction.onPlayerTurnStarted]: playerTurnStartAction,
-    [DefaultGameStateAction.onPlayerTurnEnded]: playerTurnEndAction,
-    [DefaultGameStateAction.onPlayerAttempted]: playerAttemptAction,
-    [DefaultGameStateAction.onPlayerScored]: playerScoreAction
-  },
-  serverActions: {
-    [DefaultGameStateAction.onGameStarted]: gameStartActionServer,
-    [DefaultGameStateAction.onGameEnded]: gameEndActionServer,
-    [DefaultGameStateAction.onRoundStarted]: roundStartActionServer,
-    [DefaultGameStateAction.onRoundEnded]: roundEndActionServer,
-    [DefaultGameStateAction.onPlayerTurnStarted]: playerTurnStartActionServer,
-    [DefaultGameStateAction.onPlayerTurnEnded]: playerTurnEndActionServer,
-    [DefaultGameStateAction.onPlayerAttempted]: playerAttemptAction,
-    [DefaultGameStateAction.onPlayerScored]: playerScoreAction
-  },
-  allowedPlayerActions: [],
-  allowedHostActions: [
-    DefaultGameStateAction.onGameStarted,
-    DefaultGameStateAction.onGameEnded
+  priority: 1,
+  registerActionTagComponents: [
+    HaveBeenInteracted
   ],
+  registerStateTagComponents: [
+    Open,
+    Closed,
+    ButtonUp,
+    ButtonDown
+  ],
+  initGameState: {
+    'Button': {
+      components: [ButtonUp],
+      storage:[
+        { component: TransformComponent, variables: ['position'] }
+       ]
+     },
+    'Door': {
+      components: [Closed],
+      storage:[
+        { component: TransformComponent, variables: ['position'] }
+      ]
+    }
+  },
+  gamePlayerRoles: {
+    'Playing': {
+      'getVictory': []
+    },
+    'itsYourTurn': {
+      'allowHitBall': []
+    }
+  },
   gameObjectRoles: {
-    'joinGame': {
-      behaviors: [
-        /*
+    'Button': {
+      'Action-OpenOrCloseDoor': [
         {
-          behavior: joinGameBehavior,
-          args: { objArgs: 'test' }
+          behavior: openOrCloseDoor,
+          args:{ action: 'open', animationSpeed: 10 },
+          watchers:[ [ HaveBeenInteracted ] ],
+          takeEffectOn: {
+        //    sortMetod: (v) => { return [v[(Math.random() * v.length) | 0]]}, // if undefind will bee effect on all
+            targetsRole: {
+              'Door': {
+                watchers:[ [ Closed ] ],
+                checkers:[{
+                  function: ifNamed,
+                  args: { value: 'wooden door' }
+                }]
+              }
+            }
+          }
         },
-        */
-        { behavior: (entity, args: {}) => { console.log("***** joinGame", entity) } }
+        {
+          behavior: openOrCloseDoor,
+          args:{ action: 'close', animationSpeed: 10 },
+          watchers:[ [ HaveBeenInteracted ] ],
+          takeEffectOn: {
+        //    sortMetod: (v) => { return [v[(Math.random() * v.length) | 0]]}, // if undefind will bee effect on all
+            targetsRole: {
+              'Door': {
+                watchers:[ [ Open ] ],
+                checkers:[{
+                  function: ifNamed,
+                  args: { value: 'wooden door' }
+                }],
+                args: { animationSpeed: 5 }
+              }
+            }
+          }
+        }
+      ],
+      'Action-UpDownButton': [
+        {
+          behavior: upDownButton,
+          args:{ action: 'down', animationSpeed: 3 },
+          watchers:[ [ HaveBeenInteracted, ButtonUp ] ]
+        },
+        {
+          behavior: upDownButton,
+          args:{ action: 'up', animationSpeed: 3 },
+          watchers:[ [ HaveBeenInteracted, ButtonDown ] ]
+        }
       ]
     },
-    'leaveGame': {
-      behaviors: [
-        { behavior: (entity, args: {}) => { console.log("***** leaveGame") } }
-      ]
-    },
-    'gameInfoTablet': {
-      behaviors: [
-        { behavior: (entity, args: {}) => { console.log("***** gameInfoTablet") } }
-      ]
-    },
-    'golfHole': {
-      behaviors: [
-        { behavior: (entity, args: {}) => { console.log("***** golfHole") } }
-      ]
-    },
-    'golfBall_startPosition': {
-      behaviors: [
-        { behavior: (entity, args: {}) => { console.log("***** golfBall_startPosition") } }
-      ]
-    },
-    'golfBall': {
-      behaviors: [
-        { behavior: (entity, args: {}) => { console.log("***** golfBall") } }
-      ]
-    },
-    'golfClub': {
-      behaviors: [
-        { behavior: (entity, args: {}) => { console.log("***** golfClub") } }
-      ]
-    },
-    'golfClub_startPosition': {
-      behaviors: [
-        { behavior: (entity, args: {}) => { console.log("***** golfClub_startPosition") } }
-      ]
-    },
-    'golfLocation': {
-      behaviors: [
-        { behavior: (entity, args: {}) => { console.log("***** golfLocation") } }
-      ]
+    'Door': {
+      'rotateCollider': []
     }
   }
 };

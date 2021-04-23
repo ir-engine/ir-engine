@@ -1,16 +1,26 @@
 import { System } from "../../ecs/classes/System";
-//import { Engine } from '../../ecs/classes/Engine';
 import { Network } from '../../networking/classes/Network';
-import { SystemUpdateType } from "../../ecs/functions/SystemUpdateType";
+import { isServer } from '../../common/functions/isServer';
+
+import { NetworkObject } from '../../networking/components/NetworkObject';
 import { Game } from "../components/Game";
 import { TransformComponent } from '../../transform/components/TransformComponent';
 import { GameObject } from "../components/GameObject";
 import { GamePlayer } from "../components/GamePlayer";
+
 import { addComponent, getComponent, getMutableComponent, hasComponent, removeComponent } from '../../ecs/functions/EntityFunctions';
+import { addActionComponent, sendActionComponent, applyActionComponent } from '../functions/functionsActions';
+import { initState, saveInitStateCopy, reInitState, sendState, applyStateToClient, correctState, addStateComponent, removeStateComponent  } from '../functions/functionsState';
+import { initStorage, getStorage } from '../functions/functionsStorage';
+
+import { GameMode, RoleBehaviorWithTarget, RoleBehaviors, GameRolesInterface } from "../../game/types/GameMode";
 import { DefaultGameMode } from "../../templates/game/DefaultGameMode";
 import { GolfGameMode } from "../../templates/game/GolfGameMode";
 import { GamesSchema } from "../../templates/game/GamesSchema";
 import { PrefabType } from '../../templates/networking/PrefabType';
+import { SystemUpdateType } from "../../ecs/functions/SystemUpdateType";
+
+
 
 function checkWatchers( entity, arr ) {
   return arr === undefined || arr.length === 0 || arr.some( componentArr => componentArr.every( component => hasComponent(entity, component)));
@@ -42,46 +52,57 @@ export class GameManagerSystem extends System {
     this.updateNewPlayersRate = 60;
   }
 
-  execute (delta: number): void {
+  execute (delta: number, time: number): void {
 
     this.queryResults.game.added?.forEach(entity => {
-      const game = getComponent(entity, Game);
+      console.warn('Game Added');
+      const game = getMutableComponent(entity, Game);
       const gameSchema = GamesSchema[game.gameMode];
-      Object.keys(gameSchema.gameObjectRoles).forEach(key => game.gameObjects[key] = []);
-      Object.keys(gameSchema.gamePlayerRoles).forEach(key => game.gamePlayers[key] = []);
+      game.priority = gameSchema.priority;// DOTO: set its from editor
+      initState(game, gameSchema);
+      Network.instance.loadedGames.push(entity);
     });
 
     this.queryResults.game.all?.forEach(entityGame => {
       const game = getComponent(entityGame, Game);
-      const gameName = game.name // lets do this
-      const isGlobal = game.isGlobal // lets do this
-      const gameArea = game.gameArea // lets do this
-      const gameSchema = GamesSchema[game.gameMode]
+      const gameArea = game.gameArea;
+      const gameSchema = GamesSchema[game.gameMode];
       const gameObjects = game.gameObjects;
       const gamePlayers = game.gamePlayers;
       const gameState = game.state;
 
       // its needet for allow dynamicly adding objects and exept errors when enitor gives object without created game
       this.queryResults.gameObject.added?.forEach(entity => {
-        if (getComponent(entity, GameObject).gameName != gameName) return;
-        // add init Tag components for start state of Games
-        gameSchema.gameInitState[getComponent(entity, GameObject).role].forEach(component => addComponent(entity, component));
+        if (getComponent(entity, GameObject).game != game.name) return;
+        getMutableComponent(entity, GameObject).game = game;
         // add to gameObjects list sorted by role
         gameObjects[getComponent(entity, GameObject).role].push(entity);
+        // add init Tag components for start state of Games
+        const schema = gameSchema.initGameState[getComponent(entity, GameObject).role];
+        if (schema != undefined) {
+          schema.components.forEach(component => addStateComponent(entity, component));
+          initStorage(entity, schema.storage);
+        }
       });
 
       this.queryResults.gamePlayers.added?.forEach(entity => {
-        if (getComponent(entity, GamePlayer).gameName != gameName) return;
-        // add init Tag components for start state of Games
-        gameSchema.gameInitState[getComponent(entity, GamePlayer).role].forEach(component => addComponent(entity, component));
+        if (getComponent(entity, GamePlayer).game.name != game.name) return;
+        // befor adding first player
+      //  if (this.queryResults.gamePlayers.all.length == 1) saveInitStateCopy(game);
+        // add to gamePlayers list sorted by role
         gamePlayers[getComponent(entity, GamePlayer).role].push(entity);
+        // add init Tag components for start state of Games
+        const schema = gameSchema.initGameState[getComponent(entity, GamePlayer).role];
+        if (schema != undefined) {
+          schema.components.forEach(component => addStateComponent(entity, component));
+          initStorage(entity, schema.storage);
+        }
       });
 
       const executeComplexResult = [];
       // its case beter then this.queryResults.gameObject.all, becose its sync execute all role groubs entity, and you not think about behavior do work on haotic case
       Object.keys(gamePlayers).concat(Object.keys(gameObjects)).forEach(role => {
         (gameObjects[role] || gamePlayers[role]).forEach(entity => {
-
 
           const gameObject = hasComponent(entity, GameObject) ? getComponent(entity, GameObject): getComponent(entity, GamePlayer);
           const actionSchema = (gameSchema.gameObjectRoles[role] || gameSchema.gamePlayerRoles[role]);
@@ -108,7 +129,7 @@ export class GameManagerSystem extends System {
                 let complexResultObjects = Object.keys(b.takeEffectOn.targetsRole).reduce((acc, searchedRoleName) => {
                   const targetRoleSchema = b.takeEffectOn.targetsRole[searchedRoleName];
                   // search second entity
-                  let resultObjects = (gameObjects[searchedRoleName] || gamePlayers[searchedRoleName]);
+                  let resultObjects = (gameObjects[searchedRoleName] || gamePlayers[searchedRoleName]) as any;
 
                   if (targetRoleSchema.watchers != undefined && targetRoleSchema.watchers.length > 0) {
                     resultObjects = resultObjects.filter(entityOtherObj => checkWatchers(entityOtherObj, targetRoleSchema.watchers));
@@ -130,11 +151,10 @@ export class GameManagerSystem extends System {
 
 
                 if (b.takeEffectOn.sortMetod != undefined && complexResultObjects.length > 1 ) {
-                  complexResultObjects = b.takeEffectOn.sortMetods(complexResultObjects)
+                  complexResultObjects = b.takeEffectOn.sortMetod(complexResultObjects)
                 }
 
                 complexResultObjects.forEach(complexResult => {
-                //  b.behavior(entity, complexResult.entity, { ...args, ...complexResult.args }, { ...checkersResult, ...complexResult.checkersResult });
                   executeComplexResult.push({
                     behavior: b.behavior,
                     entity: entity,
@@ -143,38 +163,49 @@ export class GameManagerSystem extends System {
                     checkersResult: { ...checkersResult, ...complexResult.checkersResult }
                   });
                 })
-
               }
             });
           });
         })
       });
       // execute all behavior after all preparing
-      executeComplexResult.forEach(v => v.behavior(v.entity, v.entityOther, v.args, v.checkersResult));
+      executeComplexResult.forEach(v => v.behavior(v.entity, v.args, delta, v.entityOther, time, v.checkersResult));
       // Clean onetime Tag components for every gameobject
-      Object.keys(gameSchema.gameObjectsCleanState).forEach(role => {
-        gameObjects[role].forEach(entity => {
-          gameSchema.gameObjectsCleanState[role].forEach(component => hasComponent(entity, component) ? removeComponent(entity, component):'');
-        });
+      Object.keys(gamePlayers).concat(Object.keys(gameObjects)).forEach((role: string) => {
+        (gameObjects[role] || gamePlayers[role]).forEach(entity => {
+          gameSchema.registerActionTagComponents.forEach(component => hasComponent(entity, component) ? removeComponent(entity, component):'');
+        })
       });
-      //
+
+      // adding or remove players from this Game, always give the first Role from GameSchema
       if (this.updateLastTime > this.updateNewPlayersRate) {
         Object.keys(Network.instance.networkObjects).map(Number)
           .filter(key => Network.instance.networkObjects[key].prefabType === PrefabType.Player)
           .map(key => Network.instance.networkObjects[key].component.entity)
           .map(entity => isPlayerInGameArea(entity, gameArea))
           .forEach(v => {
+            // is Player in Game Area
             if (v.inGameArea && hasComponent(v.entity, GamePlayer)) {
-              getComponent(v.entity, GamePlayer).gameName != gameName ? removeComponent(v.entity, GamePlayer):'';
+              if (getComponent(v.entity, GamePlayer).game.name != game.name) {
+                getComponent(v.entity, GamePlayer).game.priority < game.priority;
+                removeComponent(v.entity, GamePlayer);
+              };
             } else if (v.inGameArea && !hasComponent(v.entity, GamePlayer)) {
-              addComponent(v.entity, GamePlayer, { gameName: gameName, role: Object.keys(gameSchema.gamePlayerRoles)[0] });
+              addComponent(v.entity, GamePlayer, {
+                game: game,
+                role: Object.keys(gameSchema.gamePlayerRoles)[0],
+                uuid: getComponent(v.entity, NetworkObject).ownerId
+              });
             } else if (!v.inGameArea && hasComponent(v.entity, GamePlayer)) {
-              removeComponent(v.entity, GamePlayer);
+              if (getComponent(v.entity, GamePlayer).game.name === game.name) {
+                removeComponent(v.entity, GamePlayer);
+              }
             }
           })
       } else {
         this.updateLastTime += 1;
       }
+      // end of frame circle one game
     });
   }
 }

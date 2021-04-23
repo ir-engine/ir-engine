@@ -29,7 +29,7 @@ import SpawnPointComponent from "../components/SpawnPointComponent";
 import WalkableTagComponent from '../components/Walkable';
 import { LoadingSchema } from '../interfaces/LoadingSchema';
 import Image from '../classes/Image';
-import { createGame } from "../behaviors/createGame";
+import { createGame, createGameObject } from "../behaviors/createGame";
 import { GameObject } from "../../game/components/GameObject";
 
 
@@ -63,26 +63,24 @@ export function addTagComponentFromBehavior<C>(
 
 export const SceneObjectLoadingSchema: LoadingSchema = {
   'game': {
-    behaviors: [
-      {
-        behavior: createGame,
-        values: [
-          { from: 'name', to: 'name' },
-          { from: 'isGlobal', to: 'isGlobal' },
-          { from: 'minPlayers', to: 'minPlayers' },
-          { from: 'maxPlayers', to: 'maxPlayers' },
-          { from: 'gameMode', to: 'gameMode' }
-        ]
-      }
-    ]
+    behaviors: [{
+      behavior: createGame,
+      values: [
+        { from: 'name', to: 'name' },
+        { from: 'gameMode', to: 'gameMode' },
+        { from: 'isGlobal', to: 'isGlobal' },
+        { from: 'minPlayers', to: 'minPlayers' },
+        { from: 'maxPlayers', to: 'maxPlayers' }
+      ]
+    }]
   },
   'game-object': {
     behaviors: [{
-      behavior: addComponentFromBehavior,
-      args: { component: GameObject },
+      behavior: createGameObject,
       values: [
-        { from: 'gameName', to: 'gameName' },
-        { from: 'role', to: 'role' }
+        { from: 'gameName', to: 'game' },
+        { from: 'role', to: 'role' },
+        { from: 'sceneEntityId', to: 'uuid' }
       ]
     }]
   },

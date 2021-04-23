@@ -21,7 +21,7 @@ import { isServer } from '../../common/functions/isServer';
 import { LocalInputReceiver } from "../../input/components/LocalInputReceiver";
 import { InterpolationComponent } from '../components/InterpolationComponent';
 import TeleportToSpawnPoint from '../../scene/components/TeleportToSpawnPoint';
-import { XRUserSettings } from '../../templates/character/XRUserSettings';
+import { XRUserSettings, XR_FOLLOW_MODE } from '../../xr/types/XRUserSettings';
 /**
  * @author HydraFire <github.com/HydraFire>
  */
@@ -68,7 +68,7 @@ export const physicsMove: Behavior = (entity: Entity, args: any, deltaTime): voi
     const inputs = getComponent(entity, Input);
     let rotationVector = null;
     switch (XRUserSettings.moving) {
-      case 'followController':
+      case XR_FOLLOW_MODE.CONTROLLER:
         rotationVector = XRUserSettings.invertRotationAndMoveSticks ? inputs.data.get(BaseInput.XR_RIGHT_HAND).value : inputs.data.get(BaseInput.XR_LEFT_HAND).value;
         rotationVector = new Quaternion().set(rotationVector.qX,rotationVector.qY,rotationVector.qZ,rotationVector.qW)//.invert();
 
@@ -78,7 +78,7 @@ export const physicsMove: Behavior = (entity: Entity, args: any, deltaTime): voi
         rotationVector.multiply( viewVectorFlatQuaternion );
 
         break;
-      case 'followHead':
+      case XR_FOLLOW_MODE.HEAD:
         rotationVector = inputs.data.get(BaseInput.XR_HEAD).value;
         rotationVector = new Quaternion().set(rotationVector.qX,rotationVector.qY,rotationVector.qZ,rotationVector.qW);
         break;

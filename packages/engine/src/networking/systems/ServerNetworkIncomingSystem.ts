@@ -100,7 +100,7 @@ export class ServerNetworkIncomingSystem extends System {
       createObjects: Network.instance.createObjects,
       editObjects: Network.instance.editObjects,
       destroyObjects: Network.instance.destroyObjects,
-      gameState: Network.instance.gameStateActions.length > 0 ? JSON.stringify(Network.instance.gameState) : [],
+      gameState: Network.instance.gameState,//.length > 0 ? JSON.stringify(Network.instance.gameState) : [],
       gameStateActions: Network.instance.gameStateActions
     };
 
@@ -109,13 +109,14 @@ export class ServerNetworkIncomingSystem extends System {
     Network.instance.createObjects = [];
     Network.instance.editObjects = [];
     Network.instance.destroyObjects = [];
+    Network.instance.gameState = [];
     Network.instance.gameStateActions = [];
 
     // Set input values on server to values sent from clients
     // Parse incoming message queue
     while (Network.instance.incomingMessageQueue.getBufferLength() > 0) {
       const buffer = Network.instance.incomingMessageQueue.pop() as any;
-      
+
       let clientInput: NetworkClientInputInterface;
       try {
         clientInput = ClientInputModel.fromBuffer(buffer);

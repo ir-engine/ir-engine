@@ -207,6 +207,7 @@ export const initializeServer = async (initOptions: any = DefaultInitializationO
   registerSystem(StateSystem);
   registerSystem(CharacterControllerSystem);
   registerSystem(PhysicsSystem);
+  registerSystem(GameManagerSystem);
   registerSystem(ServerSpawnSystem, { priority: 899 });
   registerSystem(TransformSystem, { priority: 900 });
 

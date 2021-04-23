@@ -26,11 +26,10 @@ import { InteractiveFocused } from "../components/InteractiveFocused";
 import { Interactor } from "../components/Interactor";
 import { SubFocused } from "../components/SubFocused";
 import { InteractBehaviorArguments } from "../types/InteractionTypes";
-//import { HaveBeenInteracted } from "../components/HaveBeenInteractedTagComponent";
-import { sendClientObjectUpdate } from '../../networking/functions/sendClientObjectUpdate';
-import { NetworkObjectUpdateType } from '../../templates/networking/NetworkObjectUpdateSchema';
+import { HaveBeenInteracted } from "../../game/actions/HaveBeenInteracted";
+import { addActionComponent } from '../../game/functions/functionsActions';
 
-export const interactOnServer: Behavior = (entity: Entity, args: any, delta): void => {
+export const interactServerStyle: Behavior = (entity: Entity, args: any, delta): void => {
   //console.warn('Behavior: interact , networkId ='+getComponent(entity, NetworkObject).networkId);
     let focusedArrays = [];
     for (let i = 0; i < Engine.entities.length; i++) {
@@ -61,16 +60,7 @@ export const interactOnServer: Behavior = (entity: Entity, args: any, delta): vo
 
     const interactable = getComponent(focusedArrays[0][0], Interactable);
     if (interactable.data.interactionType === "gameobject") {
-      if(hasComponent(focusedArrays[0][0], NetworkObject)) {
-        sendClientObjectUpdate(entity, NetworkObjectUpdateType.InteractWithGameObject, [
-            'test',
-            getComponent(focusedArrays[0][0], NetworkObject).networkId,
-            focusedArrays[0][2]
-          ]
-        );
-      } else {
-        console.warn('DONT HAVE NETWORK COMPONENT');
-      }
+      addActionComponent(focusedArrays[0][0], HaveBeenInteracted);
       return;
     }
   //console.warn('found networkId: '+getComponent(focusedArrays[0][0], NetworkObject).networkId+' seat: '+focusedArrays[0][2]);
@@ -87,7 +77,6 @@ export const subFocused:Behavior = (entity: Entity, args, delta: number): void =
     return;
   }
   hasComponent(entity, SubFocused) ? addComponent(entity, HighlightComponent, { color: 0xff0000, hiddenColor: 0x0000ff }) : removeComponent(entity, HighlightComponent);
-  //hasComponent(entity, SubFocused) && !hasComponent(entity, HaveBeenInteracted) ? addComponent(entity, HaveBeenInteracted) : '';
 };
 
 const interactFocused: Behavior = (entity: Entity, args, delta: number): void => {

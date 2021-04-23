@@ -1,3 +1,4 @@
+import { Entity } from '../../../../ecs/classes/Entity';
 import { Behavior } from '../../../../common/interfaces/Behavior';
 import { Vector3, Quaternion, Matrix4 } from 'three';
 import { TransformComponent } from '../../../../transform/components/TransformComponent';
@@ -10,7 +11,7 @@ import { Open } from "../components/OpenTagComponent";
  */
 let g = 2;
 
-export const openOrCloseDoor: Behavior = (entity, entityOther, args, checks) => {
+export const openOrCloseDoor: Behavior = (entity: Entity, args?: any, delta?: number, entityOther?: Entity, time?: number, checks?: any): void => {
    console.log('****** Door: ', args.action);
 
    let position = getMutableComponent(entityOther, TransformComponent).position;

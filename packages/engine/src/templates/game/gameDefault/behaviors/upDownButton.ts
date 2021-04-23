@@ -1,3 +1,4 @@
+import { Entity } from '../../../../ecs/classes/Entity';
 import { Behavior } from '../../../../common/interfaces/Behavior';
 import { addComponent, getComponent, getMutableComponent, hasComponent, removeComponent } from "../../../../ecs/functions/EntityFunctions";
 import { Vector3, Quaternion, Matrix4 } from 'three';
@@ -10,7 +11,7 @@ import { ButtonDown } from "../components/ButtonDownTagComponent";
 
  let g = 0.1;
 
-export const upDownButton: Behavior = (entity, entityOther, args, checks) => {
+export const upDownButton: Behavior = (entity: Entity, args?: any, delta?: number, entityOther?: Entity, time?: number, checks?: any): void => {
   console.log('****** Button: ', args.action);
 
   let position = getMutableComponent(entity, TransformComponent).position;

@@ -12,7 +12,9 @@ import { addSnapshot, createSnapshot } from '../functions/NetworkInterpolationFu
 import { WorldStateInterface } from "../interfaces/WorldState";
 import { StateEntityIK } from "../types/SnapshotDataTypes";
 import { PrefabType } from '../../templates/networking/PrefabType';
-import { GameStateActionMessage } from '../../game/types/GameStateActionMessage';
+import { GameStateActionMessage, GameStateUpdateMessage } from '../../game/types/GameMessage';
+import { applyActionComponent } from '../../game/functions/functionsActions';
+import { applyStateToClient } from '../../game/functions/functionsState';
 
 /**
  * Apply State received over the network to the client.
@@ -101,19 +103,14 @@ export function applyNetworkStateToClient(worldStateBuffer: WorldStateInterface,
             console.warn("Client disconnected but was not found in our client list");
         }
     }
-
-    if(worldStateBuffer.gameStateActions && worldStateBuffer.gameStateActions.length > 0){
-      // We have a new world state
-      Network.instance.worldState = JSON.parse(worldStateBuffer.gameState);
-      worldStateBuffer.gameStateActions.forEach(({type, payload}: GameStateActionMessage) => {
-        try {
-          Network.instance.gameModeSchema[type](payload);
-        } catch(error) {
-          console.error("Unable to call action on current game mode schema");
-        }
-      })
+    // Game Manager Messages
+    if (worldStateBuffer.gameState && worldStateBuffer.gameState.length > 0) {
+      worldStateBuffer.gameState.forEach((stateMessage: GameStateUpdateMessage) => applyStateToClient(stateMessage));
     }
 
+    if (worldStateBuffer.gameStateActions && worldStateBuffer.gameStateActions.length > 0) {
+      worldStateBuffer.gameStateActions.forEach((actionMessage: GameStateActionMessage) => applyActionComponent(actionMessage));
+    }
 
     // Handle all network objects created this frame
     for (const objectToCreateKey in worldStateBuffer.createObjects) {
