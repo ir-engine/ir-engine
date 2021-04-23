@@ -8,7 +8,7 @@ import { getOrbitControls } from '@xr3ngine/engine/src/input/functions/loadOrbit
 import { Views } from '../util';
 //@ts-ignore
 // @ts-ignore
-import styles from '../style.module.scss';
+import styles from '../UserMenu.module.scss';
 import { AVATAR_FILE_ALLOWED_EXTENSIONS, MAX_AVATAR_FILE_SIZE, MIN_AVATAR_FILE_SIZE, MAX_ALLOWED_TRIANGLES, THUMBNAIL_HEIGHT, THUMBNAIL_WIDTH } from '@xr3ngine/engine/src/common/constants/AvatarConstants';
 
 

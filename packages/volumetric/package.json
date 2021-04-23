@@ -1,6 +1,6 @@
 {
   "name": "@xr3ngine/volumetric",
-  "version": "0.2.17",
+  "version": "0.2.18",
   "repository": {
     "type": "git",
     "url": "git://github.com/xr3ngine/xr3ngine.git"
@@ -11,7 +11,7 @@
   "npmClient": "yarn",
   "jest": "ts-jest",
   "scripts": {
-    "corto": "babel ./src/libs/cortodecoder.js --out-file corto.js --plugins @@babel/plugin-transform-modules-umd"
+    "corto": "babel ./src/libs/cortodecoder.js --out-file corto.js --plugins @babel/plugin-transform-modules-umd"
   },
   "author": "XR3 Group",
   "license": "MIT",

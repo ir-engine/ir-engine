@@ -1,6 +1,6 @@
 {
   "name": "@xr3ngine/client-core",
-  "version": "0.2.17",
+  "version": "0.2.18",
   "repository": {
     "type": "git",
     "url": "git://github.com/xr3ngine/xr3ngine.git"
@@ -40,16 +40,19 @@
     "@styled-icons/material": "10.28.0",
     "@types/react-infinite-scroller": "1.2.1",
     "@types/react-redux": "7.1.16",
-  
     "@types/styled-components": "5.1.9",
     "@typescript-eslint/eslint-plugin": "4.22.0",
     "@typescript-eslint/parser": "4.22.0",
-    "@xr3ngine/common": "^0.2.17",
-    "@xr3ngine/engine": "^0.2.17",
-   
+    "@xr3ngine/common": "^0.2.18",
+    "@xr3ngine/engine": "^0.2.18",
+    "antd": "4.15.2",
+    "app-root-path": "3.0.0",
+    "autobind-decorator": "2.4.0",
+    "autoprefixer": "10.2.5",
     "axios": "0.21.1",
     "classnames": "2.3.1",
     "ctix": "0.3.1",
+    "emailjs-com": "^2.6.4",
     "eventemitter3": "4.0.7",
     "i18next": "20.2.1",
     "immutable": "4.0.0-rc.12",
@@ -79,9 +82,9 @@
     "redux-devtools-extension": "2.13.9",
     "redux-thunk": "2.3.0",
     "reselect": "4.0.0",
+    "semantic-ui-react": "^2.0.3",
     "socket.io-client": "2.4.0",
     "styled-components": "5.2.3",
-    "semantic-ui-react": "^2.0.3",
     "three": "0.127.0",
     "url-toolkit": "2.2.1",
     "use-debounce": "6.0.1",
@@ -91,35 +94,24 @@
   "devDependencies": {
     "@babel/core": "7.13.16",
     "@rollup/plugin-commonjs": "18.0.0",
-
     "@rollup/plugin-json": "4.1.0",
     "@rollup/plugin-node-resolve": "11.2.1",
     "@rollup/plugin-replace": "2.4.2",
     "@types/node": "13.13.50",
-   
     "@types/react": "17.0.3",
     "@types/react-dom": "17.0.3",
     "@types/three": "0.127.1",
-   
-    
-    
-    
     "cross-env": "7.0.3",
-   
-   
     "eslint": "7.24.0",
-   "node-sass": "5.0.0",
+    "node-sass": "5.0.0",
     "rimraf": "3.0.2",
     "rollup": "2.45.2",
     "rollup-plugin-babel": "4.4.0",
-    
     "rollup-plugin-livereload": "2.0.0",
     "rollup-plugin-node-polyfills": "0.2.1",
     "rollup-plugin-scss": "2.6.1",
-    
     "rollup-plugin-terser": "7.0.2",
     "rollup-plugin-typescript2": "0.30.0",
-   
     "typescript": "4.2.4"
   },
   "license": "ISC",

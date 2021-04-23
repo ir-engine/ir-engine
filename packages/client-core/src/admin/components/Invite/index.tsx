@@ -21,6 +21,7 @@ import {
 import { selectAuthState } from '../../../user/reducers/auth/selector';
 import { selectAdminState } from "../../reducers/admin/selector";
 import { ConfirmProvider } from "material-ui-confirm";
+import Grid from "@material-ui/core/Grid";
 
 
 interface TabPanelProps {
@@ -60,6 +61,9 @@ const useStyles = makeStyles((theme: Theme) => ({
         flexGrow: 1,
         backgroundColor: theme.palette.background.paper,
     },
+    marginBottom: {
+        marginBottom: "10px"
+    }
 }));
 
 
@@ -147,11 +151,11 @@ const InvitesConsole = (props: Props) => {
     return (
         <div>
             <ConfirmProvider>
-            <div className="row mb-4">
-                <div className="col-lg-9">
+            <Grid container spacing={3} className={classes.marginBottom}>
+                <Grid item xs={9}>
                     <Search typeName="invites" />
-                </div>
-                <div className="col-lg-3">
+                </Grid>
+                <Grid item xs={3}>
                     <Button
                         className={styles.createLocation}
                         type="submit"
@@ -161,8 +165,8 @@ const InvitesConsole = (props: Props) => {
                     >
                         Sent Invite
                     </Button>
-                </div>
-            </div>
+                </Grid>
+            </Grid>
             <div className={classes.root}>
                 <AppBar position="static" style={{ backgroundColor: "#fff", color: "#000" }}>
                     <Tabs value={value} onChange={handleChange} aria-label="simple tabs example">
