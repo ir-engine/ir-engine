@@ -71,7 +71,7 @@ export default class Player {
     }
     else {
       if (moduloBy(this.lastFrameRequested - this.currentFrame, this.numberOfFrames) <= minimumBufferLength * 2) {
-        const newLastFrame = Math.max(this.lastFrameRequested + minimumBufferLength, this.lastFrameRequested + this.targetFramesToRequest);
+        const newLastFrame = Math.max(this.lastFrameRequested + minimumBufferLength, this.lastFrameRequested + this.targetFramesToRequest) % this.numberOfFrames;
         const payload = {
           frameStart: this.lastFrameRequested,
           frameEnd: newLastFrame
