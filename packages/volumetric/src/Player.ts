@@ -149,7 +149,7 @@ export default class Player {
     this.onMeshBuffering = onMeshBuffering;
     this.onFrameShow = onFrameShow;
     this.rendererCallback = rendererCallback;
-    
+
     this.encoderWindowSize = encoderWindowSize;
     this.encoderByteLength = encoderByteLength;
     this.videoSize = videoSize;
@@ -266,7 +266,7 @@ export default class Player {
   /**
    * emulated video frame callback
    * bridge from video.timeupdate event to videoUpdateHandler
-   * @param {Event} e
+   * @param cb
    */
   handleRender(cb?: onRenderingCallback) {
     if (!this.fileHeader || this._video.currentTime === 0 || this._video.paused)
