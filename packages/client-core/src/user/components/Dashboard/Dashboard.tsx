@@ -106,9 +106,20 @@ const useStyles = makeStyles((theme: Theme) =>
         backdrop: {
             zIndex: theme.zIndex.drawer + 1,
             color: '#fff',
+        },
+        textLink: {
+            textDecoration: "none"
         }
     }),
 );
+
+/**
+ * Function for admin dashboard 
+ * 
+ * @param param0 children props 
+ * @returns @ReactDomElements
+ * @author Kevin KIMENYI <kimenyikevin@gmail.com>
+ */
 
 export default function Dashboard({ children }) {
     const classes = useStyles();
@@ -177,8 +188,8 @@ export default function Dashboard({ children }) {
                     </IconButton>
                 </div>
                 <Divider />
-                <List>
-                    <Link to="/admin">
+                <List >
+                    <Link to="/admin" className={classes.textLink}>
                             <ListItem style={{ color: "white" }} onClick={changeComponent} button>
                                 <ListItemIcon >
                                     <DashboardIcon style={{ color: "white" }} />
@@ -186,7 +197,7 @@ export default function Dashboard({ children }) {
                                 <ListItemText primary="Dashboard" />
                             </ListItem>
                     </Link>
-                    <Link to="/admin/users" >
+                    <Link to="/admin/users" className={classes.textLink}>
                         <ListItem style={{ color: "white" }} onClick={changeComponent} button>
                             <ListItemIcon >
                                 <SupervisorAccount style={{ color: "white" }} />
@@ -194,7 +205,7 @@ export default function Dashboard({ children }) {
                             <ListItemText primary="Users" />
                         </ListItem>
                     </Link>
-                    <Link to="/admin/instance">
+                    <Link to="/admin/instance" className={classes.textLink}>
                         <ListItem style={{ color: "white"}} onClick={changeComponent} button>
                             <ListItemIcon >
                                 <DirectionsRun style={{ color: "white" }} />
@@ -202,7 +213,7 @@ export default function Dashboard({ children }) {
                             <ListItemText primary="Instance" />
                         </ListItem>
                     </Link>
-                    <Link to="/admin/locations">
+                    <Link to="/admin/locations" className={classes.textLink}>
                         <ListItem style={{ color: "white"}} onClick={changeComponent}  button>
                             <ListItemIcon >
                                 <NearMe style={{ color: "white" }} />
@@ -210,7 +221,7 @@ export default function Dashboard({ children }) {
                             <ListItemText primary="Locations" />
                         </ListItem>
                     </Link>
-                    <Link to="/admin/invites">
+                    <Link to="/admin/invites" className={classes.textLink}>
                         <ListItem style={{ color: "white" }} onClick={changeComponent} button>
                             <ListItemIcon >
                                 <PersonAdd style={{ color: "white" }} />
@@ -218,7 +229,7 @@ export default function Dashboard({ children }) {
                             <ListItemText primary="Invites" />
                         </ListItem>
                     </Link>
-                    <Link to="/admin/sessions">
+                    <Link to="/admin/sessions" className={classes.textLink}>
                         <ListItem style={{ color: "white"}} onClick={changeComponent} button>
                             <ListItemIcon >
                                 <DragIndicator style={{ color: "white" }} />
@@ -226,7 +237,7 @@ export default function Dashboard({ children }) {
                             <ListItemText primary="Sessions" />
                         </ListItem>
                     </Link>
-                    <Link to="/admin/groups">
+                    <Link to="/admin/groups" className={classes.textLink}>
                         <ListItem style={{color: "white"}} onClick={changeComponent} button>
                             <ListItemIcon >
                                 <GroupAdd style={{ color: "white" }} />
@@ -234,7 +245,7 @@ export default function Dashboard({ children }) {
                             <ListItemText primary="Groups" />
                         </ListItem>
                     </Link>
-                    <Link to="/admin/parties">
+                    <Link to="/admin/parties" className={classes.textLink}>
                         <ListItem style={{ color: "white"}} onClick={changeComponent} button>
                             <ListItemIcon >
                                 <CalendarViewDay style={{ color: "white" }} />
@@ -242,7 +253,7 @@ export default function Dashboard({ children }) {
                             <ListItemText primary="Parties" />
                         </ListItem>
                     </Link>
-                    <Link to="/admin/chats">
+                    <Link to="/admin/chats" className={classes.textLink}>
                         <ListItem style={{ color: "white" }} onClick={changeComponent} button>
                             <ListItemIcon >
                                 <Forum style={{ color: "white" }} />
@@ -250,7 +261,7 @@ export default function Dashboard({ children }) {
                             <ListItemText primary="Chats" />
                         </ListItem>
                     </Link>
-                    <Link to="/admin/content-packs">
+                    <Link to="/admin/content-packs" className={classes.textLink}>
                         <ListItem style={{ color: "white" }} onClick={changeComponent} button>
                             <ListItemIcon >
                                 <PhotoAlbum style={{ color: "white" }} />
@@ -258,7 +269,7 @@ export default function Dashboard({ children }) {
                             <ListItemText primary="Content Packs" />
                         </ListItem>
                     </Link>
-                    <Link to="/admin/scenes">
+                    <Link to="/admin/scenes" className={classes.textLink}>
                         <ListItem style={{ color: "white" }} onClick={changeComponent} button>
                             <ListItemIcon >
                                 <PhotoLibrary style={{ color: "white" }} />

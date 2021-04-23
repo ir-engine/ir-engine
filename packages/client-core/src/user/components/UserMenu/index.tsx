@@ -20,7 +20,7 @@ import ProfileMenu from './menus/ProfileMenu';
 import SettingMenu from './menus/SettingMenu';
 import ShareMenu from './menus/ShareMenu';
 // @ts-ignore
-import styles from './style.module.scss';
+import styles from './UserMenu.module.scss';
 import { UserMenuProps, Views } from './util';
 
 type StateType = {

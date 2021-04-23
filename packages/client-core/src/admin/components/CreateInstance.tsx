@@ -40,6 +40,13 @@ interface Props {
     patchInstance?: any
 }
 
+/**
+ * Function for create instance on admin dashboard 
+ * 
+ * @param param0 children props 
+ * @returns @ReactDomElements
+ * @author Kevin KIMENYI <kimenyikevin@gmail.com>
+ */
 
 function CreateInstance(props: Props) {
     const {

@@ -1,4 +1,4 @@
-import CanvasPlayer from "@xr3ngine/volumetric/src/CanvasPlayer";
+import Player from "@xr3ngine/volumetric/src/Player";
 
 import React, { useEffect, useRef, useState } from 'react';
 import { PerspectiveCamera, Scene, sRGBEncoding, Vector3, WebGLRenderer } from "three";
@@ -14,7 +14,9 @@ export const VolumetricPlayer = (props: VolumetricPlayerProps) => {
   const [ playPressed, setPlayPressed ] = useState(false);
   const containerRef = useRef<HTMLDivElement>();
   const rendererRef = useRef<WebGLRenderer>(null);
-  const playerRef = useRef<CanvasPlayer>(null);
+  const playerRef = useRef<Player>(null);
+  const [isBuffering, setIsBuffering] = useState(false);
+  const [bufferingProgress, setBufferingProgress] = useState(0);
   let animationFrameId:number;
   const cameraVerticalOffset = props.cameraVerticalOffset || 0;
   // const mesh: any = useRef();
@@ -75,17 +77,27 @@ export const VolumetricPlayer = (props: VolumetricPlayerProps) => {
 
     function render() {
       requestAnimationFrame(render);
-      playerRef.current.handleRender(renderer, scene, camera);
+      playerRef.current?.handleRender(() => {
+        renderer.render(scene, camera);
+      });
       // controls.update();
     }
 
     console.log('create new player');
     if (!playerRef.current) {
-      playerRef.current = new CanvasPlayer({
+      playerRef.current = new Player({
         scene,
         renderer,
         meshFilePath: props.meshFilePath,
         videoFilePath: props.videoFilePath,
+        onMeshBuffering: (progress) => {
+          console.warn('BUFFERING!!', progress);
+          setBufferingProgress(Math.round(progress * 100));
+          setIsBuffering(true);
+        },
+        onFrameShow: () => {
+          setIsBuffering(false);
+        }
         // video: document.getElementById("video")
       });
     }
@@ -99,14 +111,17 @@ export const VolumetricPlayer = (props: VolumetricPlayerProps) => {
       // clear volumetric player
       DracosisSequence.dispose();
       playerRef.current = null;
+      setIsBuffering(false);
     };
   }, []);
 
   // this is play button
   const playButton = playPressed? null : <button type="button" style={{ position: "absolute", zIndex: 100000, left: "50%", top: "50%"}} onClick={(e) => { playerRef.current?.play(); setPlayPressed(true); }}>Play</button>;
+  const bufferingIndication = isBuffering ? <div style={{ position: "absolute", zIndex: 100000, left: "0", bottom: "0"}}>Buffering: {bufferingProgress}%</div> : null;
 
   return <div className="volumetric__player" style={{ zIndex: -1, width: '100%', height: '100%'}} ref={containerRef}>
     { playButton }
+    { bufferingIndication }
     {/* <video src={props.videoFilePath} playsInline id="video" style={{display: "none"}}></video> */}
   </div>;
 };

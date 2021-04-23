@@ -16,7 +16,7 @@ const degToRad = _Math.degToRad;
  * @param {any} rest
  * @returns 
  */
-export default function RadianNumericInputGroup({ convertTo, convertFrom, ...rest }) {
+export function RadianNumericInputGroup({ convertTo, convertFrom, ...rest }) {
   return <NumericInputGroup {...rest} convertFrom={radToDeg} convertTo={degToRad} />;
 }
 
@@ -47,3 +47,4 @@ RadianNumericInputGroup.defaultProps = {
   largeStep: 15,
   unit: "°"
 };
+export default RadianNumericInputGroup;

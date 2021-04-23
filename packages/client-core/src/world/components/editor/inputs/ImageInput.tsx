@@ -25,7 +25,7 @@ const uploadOptions = {
  * @param       {any} rest
  * @constructor
  */
-export default function ImageInput({ onChange, ...rest }) {
+export function ImageInput({ onChange, ...rest }) {
   const onUpload = useUpload(uploadOptions);
   const [{ canDrop, isOver }, dropRef] = useDrop({
     accept: [ItemTypes.Image, ItemTypes.File],
@@ -67,3 +67,4 @@ export default function ImageInput({ onChange, ...rest }) {
 ImageInput.propTypes = {
   onChange: PropTypes.func.isRequired
 };
+export default ImageInput;

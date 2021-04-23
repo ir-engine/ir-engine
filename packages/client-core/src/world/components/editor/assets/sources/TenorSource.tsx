@@ -10,7 +10,7 @@ import i18n from "i18next";
  * @author Robert Long
  * @type {class component}
  */
-export default class TenorSource extends VideoMediaSource {
+export class TenorSource extends VideoMediaSource {
   searchPlaceholder: string;
   searchLegalCopy: string;
   privacyPolicyUrl: string;
@@ -60,3 +60,5 @@ export default class TenorSource extends VideoMediaSource {
     };
   }
 }
+
+export default TenorSource;

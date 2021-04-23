@@ -41,6 +41,7 @@ export interface SystemConstructor<T extends System> {
 /** 
  * Interface for not components.
  * 
+ * @author Fernando Serrano, Robert Long
  * @typeparam C Subclass of {@link ecs/classes/Component.Component | Component}.
  **/
 export interface NotComponent<C extends Component<any>> {
@@ -53,11 +54,15 @@ export interface NotComponent<C extends Component<any>> {
 
 /**
  * Abstract class to define System properties.
+ * 
+ * @author Fernando Serrano, Robert Long
  */
 export abstract class System {
   /**
    * Defines what Components the System will query for.
    * This needs to be user defined.
+   * 
+   * @author Fernando Serrano, Robert Long
    */
   static instance: System;
   static queries: SystemQueries = {};
@@ -76,6 +81,8 @@ export abstract class System {
   /**
    * The results of the queries.
    * Should be used inside of execute.
+   * 
+   * @author Fernando Serrano, Robert Long
    */
   queryResults: {
     [queryName: string]: {
@@ -88,6 +95,8 @@ export abstract class System {
 
   /**
    * Whether the system will execute during the world tick.
+   * 
+   * @author Fernando Serrano, Robert Long
    */
   enabled: boolean
 
@@ -102,6 +111,8 @@ export abstract class System {
 
   /**
    * Initializes system
+   * 
+   * @author Fernando Serrano, Robert Long
    * @param attributes User defined system attributes.
    */
   constructor (attributes?: SystemAttributes) {
@@ -218,6 +229,7 @@ export abstract class System {
   /** 
    * Get query from the component.
    * 
+   * @author Fernando Serrano, Robert Long
    * @param components List of components either component or not component.
    */
   getQuery (components: Array<ComponentConstructor<any> | NotComponent<any>>): Query {

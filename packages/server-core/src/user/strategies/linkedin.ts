@@ -2,7 +2,7 @@ import CustomOAuthStrategy from "./custom-oauth";
 import { Params } from "@feathersjs/feathers";
 import config from '../../appconfig';
 
-export default class LinkedInStrategy extends CustomOAuthStrategy {
+export class LinkedInStrategy extends CustomOAuthStrategy {
   app: any
   constructor(app){
     super();
@@ -62,3 +62,5 @@ export default class LinkedInStrategy extends CustomOAuthStrategy {
       }
 
 }
+
+export default LinkedInStrategy;

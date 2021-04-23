@@ -11,7 +11,7 @@ type DefaultNodeEditorProps = {
  * 
  * @author Robert Long
  */
-export default class DefaultNodeEditor extends Component<
+export class DefaultNodeEditor extends Component<
   DefaultNodeEditorProps,
   {}
 > {
@@ -19,3 +19,6 @@ export default class DefaultNodeEditor extends Component<
     return <NodeEditor {...this.props} />;
   }
 }
+
+
+export default DefaultNodeEditor;

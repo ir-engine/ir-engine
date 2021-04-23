@@ -3,6 +3,8 @@ import { Component } from '../classes/Component';
 
 /**
  * For getting type and default values from a newly added component
+ * 
+ * @author Fernando Serrano, Robert Long
  */
 export interface ComponentSchema {
   /** Property of the Component. */
@@ -16,6 +18,8 @@ export interface ComponentSchema {
 
 /**
  * Interface for defining new component.
+ * 
+ * @author Fernando Serrano, Robert Long
  */
 export interface ComponentConstructor<C extends Component<C>> {
   /** Schema for the Component. */

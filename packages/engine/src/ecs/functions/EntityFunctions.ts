@@ -15,6 +15,7 @@ import { COMPONENT_ADDED, ENTITY_CREATED, ENTITY_REMOVED, COMPONENT_REMOVE } fro
  * Get direct access to component data to modify.\
  * This will add the entity to any querying system's onChanged result.
  * 
+ * @author Fernando Serrano, Robert Long
  * @param entity Entity.
  * @param component Type of component.
  */
@@ -42,6 +43,7 @@ export function getMutableComponent<C extends Component<C>>(
  * Get a component that has been removed from the entity but hasn't been removed this frame.\
  * This will only work if {@link ecs/classes/Engine.Engine.deferredRemovalEnabled | Engine.deferredRemovalEnabled } is true in the engine (it is by default).
  * 
+ * @author Fernando Serrano, Robert Long
  * @param entity Entity.
  * @param component Type of component to be removed.
  * 
@@ -57,6 +59,8 @@ export function getRemovedComponent<C extends Component<C>>(
 }
 
 /**
+ * 
+ * @author Fernando Serrano, Robert Long
  * @param entity Entity to get components.
  * @returns An object with all components on the entity, keyed by component name.
  */
@@ -65,6 +69,8 @@ export function getComponents(entity: Entity): { [componentName: string]: Compon
 }
 
 /**
+ * 
+ * @author Fernando Serrano, Robert Long
  * @param entity Entity to get removed component.
  * @returns All components that are going to be removed from the entity and sent back to the pool at the end of this frame.
  */
@@ -73,6 +79,8 @@ export function getComponentsToRemove(entity: Entity): { [componentName: string]
 }
 
 /**
+ * 
+ * @author Fernando Serrano, Robert Long
  * @param entity Entity to get component types.
  * @returns An array of component types on this entity.
  */
@@ -83,6 +91,7 @@ export function getComponentTypes(entity: Entity): Array<Component<any>> {
 /**
  * Add a component to an entity.
  * 
+ * @author Fernando Serrano, Robert Long
  * @param entity Entity.
  * @param Component Type of component which will be added.
  * @param values values to be passed to the component constructor.
@@ -146,6 +155,7 @@ export function addComponent<C extends Component<C>>(
 /**
  * Remove a component from an entity.
  * 
+ * @author Fernando Serrano, Robert Long
  * @param entity Entity.
  * @param Component Type of component which will be removed.
  * @param forceImmediate Remove immediately or wait for the frame to complete.
@@ -207,6 +217,8 @@ export function removeComponent<C extends Component<C>>(
 
 /**
  * Check if an entity has a component type.
+ * 
+ * @author Fernando Serrano, Robert Long
  * @param entity Entity being checked.
  * @param Components Type of components to check.
  * @param includeRemoved Also check in {@link ecs/classes/Entity.Entity.componentTypesToRemove | Entity.componentTypesToRemove}.
@@ -226,6 +238,8 @@ export function hasComponent<C extends Component<C>>(
 
 /**
  * Check if an entity had a component type removed this frame.
+ * 
+ * @author Fernando Serrano, Robert Long
  * @param entity Entity.
  * @param Components Type of components to check.
  * @returns True if the entity had the component removed this frame.
@@ -239,6 +253,8 @@ export function hasRemovedComponent<C extends Component<any>>(
 
 /**
  * Check if an entity has aall component types in an array.
+ * 
+ * @author Fernando Serrano, Robert Long
  * @param entity Entity
  * @param Components Type of components to check.
  * @returns True if the entity has all components.
@@ -253,6 +269,7 @@ export function hasAllComponents(entity: Entity, Components: Array<ComponentCons
 /**
  * Check if an entity has any of the component types in an array.
  * 
+ * @author Fernando Serrano, Robert Long
  * @param entity Entity.
  * @param Components Type of components to check.
  * @returns True if the entity has any of the components.
@@ -266,6 +283,8 @@ export function hasAnyComponents(entity: Entity, Components: Array<ComponentCons
 
 /**
  * Create a new entity.
+ * 
+ * @author Fernando Serrano, Robert Long
  * @returns Newly created entity.
  */
 export function createEntity(): Entity {
@@ -279,6 +298,7 @@ export function createEntity(): Entity {
 /**
  * Remove the entity from the simulation and return it to the pool.
  * 
+ * @author Fernando Serrano, Robert Long
  * @param entity Entity which will be removed.
  * @param immediately Remove immediately or wait for the frame to complete.
  */
@@ -314,6 +334,7 @@ export function removeEntity(entity: Entity, immediately?: boolean): void {
 /**
  * Remove all components from an entity.
  * 
+ * @author Fernando Serrano, Robert Long
  * @param entity Entity whose components will be removed.
  * @param immediately Remove immediately or wait for the frame to complete.
  */
@@ -326,6 +347,8 @@ export function removeAllComponents(entity: Entity, immediately?: boolean): void
 
 /**
  * Remove all entities from the simulation.
+ * 
+ * @author Fernando Serrano, Robert Long
  */
 export function removeAllEntities(): void {
   for (let i = Engine.entities.length - 1; i >= 0; i--) {
@@ -336,6 +359,7 @@ export function removeAllEntities(): void {
 /**
  * Get a component from the entity
  * 
+ * @author Fernando Serrano, Robert Long
  * @param entity Entity to be searched.
  * @param component Type of the component to be returned.
  * @param includeRemoved Include Components from {@link ecs/classes/Entity.Entity.componentsToRemove | Entity.componentsToRemove}.
@@ -358,6 +382,7 @@ export function getComponent<C extends Component<C>>(
 /**
  * Get an entity by it's locally assigned unique ID
  * 
+ * @author Fernando Serrano, Robert Long
  * @param id
  * @returns Entity.
  */

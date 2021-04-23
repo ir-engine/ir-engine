@@ -16,7 +16,7 @@ type NodeEditorProps = {
  * @author Robert Long
  * @type {class component}
  */
-export default class NodeEditor extends Component<NodeEditorProps, {}> {
+export class NodeEditor extends Component<NodeEditorProps, {}> {
   render() {
     const { node, description, children } = this.props as any;
     return (
@@ -26,3 +26,5 @@ export default class NodeEditor extends Component<NodeEditorProps, {}> {
     );
   }
 }
+
+export default  NodeEditor;

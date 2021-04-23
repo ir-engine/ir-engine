@@ -12,7 +12,7 @@ const AudioPreviewContext = createContext(new Audio());
  * @param       {String} children
  * @constructor
  */
-export default function AudioPreview({ src, children }) {
+export function AudioPreview({ src, children }) {
   const audio = useContext(AudioPreviewContext);
   const [hoverRef, isHovered] = useHover();
 
@@ -38,3 +38,4 @@ AudioPreview.propTypes = {
   src: PropTypes.string,
   children: PropTypes.node
 };
+export default AudioPreview;

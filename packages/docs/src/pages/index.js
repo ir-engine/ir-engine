@@ -40,6 +40,14 @@ const features = [
   },
 ];
 
+/**
+ * 
+ * @author Abhinav Shah
+ * @param {any} imageUrl
+ * @param {any} title
+ * @param {any} description 
+ * @returns 
+ */
 function Feature({imageUrl, title, description}) {
   const imgUrl = useBaseUrl(imageUrl);
   return (
@@ -55,6 +63,12 @@ function Feature({imageUrl, title, description}) {
   );
 }
 
+/**
+ * 
+ * 
+ * @author Abhinav Shah
+ * @returns 
+ */
 export default function Home() {
   const context = useDocusaurusContext();
   const {siteConfig = {}} = context;

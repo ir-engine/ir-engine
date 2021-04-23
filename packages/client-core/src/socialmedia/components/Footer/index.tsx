@@ -45,7 +45,6 @@ interface Props{
 const AppFooter = ({creatorState, getLoggedCreator, authState, updateCreatorPageState, popupsState, onGoHome}: Props) => {
   useEffect(()=>getLoggedCreator(),[]);  
 
-  const [buttonPopup , setButtonPopup] = useState(false);
   const creator = creatorState && creatorState.get('fetching') === false && creatorState.get('currentCreator'); 
   // const checkGuest = authState.get('authUser')?.identityProvider?.type === 'guest' ? true : false;
   const handleOpenCreatorPage = (id) =>{
@@ -57,9 +56,9 @@ const AppFooter = ({creatorState, getLoggedCreator, authState, updateCreatorPage
     <nav className={styles.footerContainer}>
         {/* <HomeIcon onClick={()=> {checkGuest ? setButtonPopup(true) : history.push('/');}} fontSize="large" className={styles.footerItem}/> */}
         <HomeIcon onClick={()=> onGoHome} fontSize="large" className={styles.footerItem}/>
-        <PopupLogin trigger={buttonPopup} setTrigger={setButtonPopup}>
+        {/* <PopupLogin trigger={buttonPopup} setTrigger={setButtonPopup}>
           <IndexPage />
-        </PopupLogin>
+        </PopupLogin> */}
         {/* <AddCircleIcon onClick={()=> {checkGuest ? setButtonPopup(true) : history.push('/newfeed');}} style={{fontSize: '5em'}} className={styles.footerItem}/> */}
         <AddCircleIcon onClick={()=> {}} style={{fontSize: '5em'}} className={styles.footerItem}/>
         {/*hided for now*/}

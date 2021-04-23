@@ -37,11 +37,12 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 const  Home = ({ createCreator,  doLoginAuto, auth, popupsState, updateCreatorPageState }) => {
   useEffect(()=>{
     if(auth){
-      const user = auth.get('authUser')?.identityProvider.type === 'guest' ? auth.get('user') as User : auth.get('authUser')?.identityProvider as User;
-        const userId = user ? user.id : null;
-        if(userId){
+       /* Hided for now */
+      // const user = auth.get('authUser')?.identityProvider.type === 'guest' ? auth.get('user') as User : auth.get('authUser')?.identityProvider as User;
+      // const userId = user ? user.id : null;
+      // if(userId){ }
           createCreator();
-        }      
+             
     }
   },[auth]);
 

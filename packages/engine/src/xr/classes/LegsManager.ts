@@ -43,6 +43,10 @@ const _angleDiff = (targetA, sourceA) => {
   return a;
 };
 
+/**
+ * 
+ * @author Avaer Kazmer
+ */
 class Leg {
   transform: Object3D;
   upperLeg: Object3D;
@@ -184,6 +188,10 @@ class Leg {
 	} */
 }
 
+/**
+ * 
+ * @author Avaer Kazmer
+ */
 class LegsManager {
   hips: any;
   leftLeg: Leg;
