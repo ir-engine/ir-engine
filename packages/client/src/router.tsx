@@ -1,5 +1,6 @@
 import React from 'react';
 import { Route, Switch, Redirect } from 'react-router-dom';
+import { Config } from '@xr3ngine/client-core/src/helper';
 
 export const RouterComp = () => {
     return (
@@ -30,6 +31,7 @@ export const RouterComp = () => {
 
             {/* Location Routes */}
             <Route path="/location/:locationName" component={React.lazy(() => import('./pages/location/[locationName]'))} />
+            <Redirect path="/location" to={"/location/" + Config.publicRuntimeConfig.lobbyLocationName} />
 
             {/* Harmony Routes */}
             <Route path="/harmony" component={React.lazy(() => import('./pages/harmony/index'))} />
