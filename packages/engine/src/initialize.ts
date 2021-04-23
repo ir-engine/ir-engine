@@ -109,10 +109,10 @@ export const initializeEngine = async (options): Promise<void> => {
     registerSystem(ServerSpawnSystem, { priority: 899 });
     registerSystem(HighlightSystem);
     registerSystem(ActionSystem, { useWebXR: Engine.xrSupported });
-    registerSystem(PhysicsSystem);
     
     await PhysXInstance.instance.initPhysX(new PhysXWorker(), { });
-
+    
+    registerSystem(PhysicsSystem);
     registerSystem(TransformSystem, { priority: 900 });
 
     // audio breaks webxr currently
@@ -164,9 +164,9 @@ export const initializeEditor = async (options): Promise<void> => {
   Engine.camera = new PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 10000);
   Engine.scene.add(Engine.camera);
 
-  registerSystem(PhysicsSystem);
-
+  
   await PhysXInstance.instance.initPhysX(new PhysXWorker(), { });
+  registerSystem(PhysicsSystem);
   
   registerSystem(TransformSystem, { priority: 900 });
 

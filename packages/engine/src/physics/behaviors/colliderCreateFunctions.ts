@@ -1,7 +1,7 @@
 // import { Body, Trimesh, Box, Sphere, Cylinder, Plane, Vec3 } from 'cannon-es';
 import { PhysicsSystem } from '../systems/PhysicsSystem';
 import { CollisionGroups } from "../enums/CollisionGroups";
-import { createShapeFromConfig, PhysXBodyType, PhysXModelShapes, PhysXShapeConfig, RigidBodyProxy } from "@xr3ngine/three-physx";
+import { createShapeFromConfig, Shape, SHAPES, Body, BodyType } from "@xr3ngine/three-physx";
 import { Entity } from '../../ecs/classes/Entity';
 import { ColliderComponent } from '../components/ColliderComponent';
 import { getComponent, getMutableComponent, hasComponent } from '../../ecs/functions/EntityFunctions';
@@ -14,7 +14,7 @@ import { TransformComponent } from '../../transform/components/TransformComponen
  * @author Josh Field <github.com/hexafield>
  */
 
-export function doThisActivateCollider(body, userData): PhysXShapeConfig {
+export function doThisActivateCollider(body, userData) {
   body.collisionFilterGroup = CollisionGroups.ActiveCollider;
   body.link = userData.link;
   return body;
@@ -46,51 +46,63 @@ export function addColliderWithEntity(entity: Entity) {
   colliderComponent.body = body;
 }
 
-export function addColliderWithoutEntity(userData, pos = new Vector3(), rot = new Quaternion(), scale = new Vector3(), model = { mesh: null, vertices: null, indices: null }): RigidBodyProxy {
-  console.log(userData, pos, rot, scale, model)
+const quat1 = new Quaternion();
+const quat2 = new Quaternion();
+const xVec = new Vector3(1, 0, 0);
+const halfPI = Math.PI / 2;
+
+export function addColliderWithoutEntity(userData, pos = new Vector3(), rot = new Quaternion(), scale = new Vector3(), model = { mesh: null, vertices: null, indices: null }): Body {
+  // console.log(userData, pos, rot, scale, model)
   const shapeArgs: any = {};
   switch (userData.type) {
     case 'box':
-      shapeArgs.shape = PhysXModelShapes.Box;
+      shapeArgs.shape = SHAPES.Box;
       shapeArgs.options = { boxExtents: { x: Math.abs(scale.x), y: Math.abs(scale.y), z: Math.abs(scale.z) } };
       break;
 
     case 'ground':
-      shapeArgs.shape = PhysXModelShapes.Plane;
+      shapeArgs.shape = SHAPES.Plane;
+      quat1.setFromAxisAngle(xVec, -halfPI);
+      quat2.set(rot.x, rot.y, rot.z, rot.w);
+      quat2.multiply(quat1);
+      rot.x = quat2.x;
+      rot.y = quat2.y;
+      rot.z = quat2.z;
+      rot.w = quat2.w;
       break;
 
     case 'sphere':
-      shapeArgs.shape = PhysXModelShapes.Sphere;
+      shapeArgs.shape = SHAPES.Sphere;
       shapeArgs.options = { radius: Math.abs(scale.x) };
       break;
 
     case 'capsule':
-      shapeArgs.shape = PhysXModelShapes.Capsule;
+      shapeArgs.shape = SHAPES.Capsule;
       shapeArgs.options = { halfHeight: Math.abs(scale.y), radius: Math.abs(scale.x) };
       break;
 
     // physx doesnt have cylinder shapes, default to convex
     case 'cylinder':
     case 'convex':
-      shapeArgs.shape = PhysXModelShapes.ConvexMesh;
+      shapeArgs.shape = SHAPES.ConvexMesh;
       shapeArgs.options = { vertices: model.vertices, indices: model.indices };
       break;
 
     case 'trimesh':
     default:
-      shapeArgs.shape = PhysXModelShapes.TriangleMesh;
+      shapeArgs.shape = SHAPES.TriangleMesh;
       shapeArgs.options = { vertices: model.vertices, indices: model.indices };
       break;
   }
 
-  const shape: PhysXShapeConfig = createShapeFromConfig(shapeArgs);
+  const shape: Shape = createShapeFromConfig(shapeArgs);
 
   shape.config.collisionLayer = userData.action === 'portal' ? CollisionGroups.ActiveCollider : CollisionGroups.Default;
   shape.config.collisionMask = CollisionGroups.All;
 
-  const bodyConfig = {
+  const bodyConfig = new Body({
     shapes: [shape],
-    type: PhysXBodyType.STATIC,
+    type: BodyType.STATIC,
     transform: {
       translation: { x: pos.x, y: pos.y, z: pos.z },
       rotation: { x: rot.x, y: rot.y, z: rot.z, w: rot.w },
@@ -98,8 +110,7 @@ export function addColliderWithoutEntity(userData, pos = new Vector3(), rot = ne
       linearVelocity: { x: 0, y: 0, z: 0 },
       angularVelocity: { x: 0, y: 0, z: 0 },
     }
-  }
-  // console.log(bodyConfig)
+  });
   const body = PhysicsSystem.instance.addBody(bodyConfig);
   return body;
 }

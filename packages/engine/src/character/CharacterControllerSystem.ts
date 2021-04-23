@@ -3,16 +3,18 @@ import { updateVectorAnimation } from "./functions/updateVectorAnimation";
 import { AnimationComponent } from "./components/AnimationComponent";
 import { CharacterComponent } from "../templates/character/components/CharacterComponent";
 import { updateCharacterOrientation } from "./functions/updateCharacterOrientation";
-import { getComponent, getMutableComponent } from "../ecs/functions/EntityFunctions";
+import { getComponent, getMutableComponent, hasComponent } from "../ecs/functions/EntityFunctions";
 import { physicsMove } from "../physics/behaviors/physicsMove";
 import { IKComponent } from "./components/IKComponent";
 import { Input } from "../input/components/Input";
 import { ControllerColliderComponent } from "../physics/components/ControllerColliderComponent";
 import { PhysicsSystem } from "../physics/systems/PhysicsSystem";
 import { CollisionGroups } from "../physics/enums/CollisionGroups";
-import { Vector3 } from "three";
+import { Quaternion, Vector3 } from "three";
 import { TransformComponent } from "../transform/components/TransformComponent";
-import { SceneQueryType } from "@xr3ngine/three-physx";
+import { Controller, SceneQueryType } from "@xr3ngine/three-physx";
+import { LocalInputReceiver } from "../input/components/LocalInputReceiver";
+import { NetworkObject } from "../networking/components/NetworkObject";
 export class CharacterControllerSystem extends System {
 
   constructor(attributes?: SystemAttributes) {
@@ -61,27 +63,46 @@ export class CharacterControllerSystem extends System {
     })
     // Capsule
 
+    this.queryResults.controllerCollider.added?.forEach(entity => {
+      const collider = getMutableComponent<ControllerColliderComponent>(entity, ControllerColliderComponent);
+      const transform = getComponent(entity, TransformComponent);
+      collider.controller = PhysicsSystem.instance.createController(new Controller({
+        isCapsule: true,
+        collisionLayer: CollisionGroups.None,
+        collisionMask: CollisionGroups.None,//CollisionGroups.Default | CollisionGroups.Characters | CollisionGroups.Car | CollisionGroups.TrimeshColliders,
+        position: {
+          x: transform.position.x,
+          y: transform.position.y + 2,
+          z: transform.position.z
+        },
+        material: {
+          dynamicFriction: collider.friction,
+        }
+      }));
+    });
+
     this.queryResults.controllerCollider.all?.forEach(entity => {
-      const capsule = getMutableComponent<ControllerColliderComponent>(entity, ControllerColliderComponent)
+      const collider = getMutableComponent<ControllerColliderComponent>(entity, ControllerColliderComponent)
       const transform = getComponent<TransformComponent>(entity, TransformComponent as any);
       const actor: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
-  
+      
       if (actor == undefined || !actor.initialized) return;
     
-      if(isNaN(capsule.body.transform.translation.x)) {
-        capsule.body.transform.translation.x = 0;
-        capsule.body.transform.translation.y = 0;
-        capsule.body.transform.translation.z = 0;
-        capsule.playerStuck = 1000;
+      // reset if vals are invalid
+      if(isNaN(collider.controller.transform.translation.x)) {
+        collider.controller.transform.translation.x = 0;
+        collider.controller.transform.translation.y = 0.75;
+        collider.controller.transform.translation.z = 0;
+        collider.playerStuck = 1000;
       }
       // onUpdate
       transform.position.set(
-        capsule.body.transform.translation.x,
-        capsule.body.transform.translation.y,
-        capsule.body.transform.translation.z
+        collider.controller.transform.translation.x,
+        collider.controller.transform.translation.y,
+        collider.controller.transform.translation.z
       );
       
-      const actorRaycastStart = new Vector3(capsule.body.transform.translation.x, capsule.body.transform.translation.y, capsule.body.transform.translation.z);
+      const actorRaycastStart = new Vector3(collider.controller.transform.translation.x, collider.controller.transform.translation.y, collider.controller.transform.translation.z);
       actor.raycastQuery.origin = new Vector3(actorRaycastStart.x, actorRaycastStart.y, actorRaycastStart.z);
       actor.raycastQuery.direction = new Vector3(0, -1, 0);
       
@@ -101,16 +122,45 @@ export class CharacterControllerSystem extends System {
     });
 
     this.queryResults.controllerCollider.removed?.forEach(entity => {
-      const removedCapsule = getComponent<ControllerColliderComponent>(entity, ControllerColliderComponent, true);
-      if (removedCapsule) {
-        PhysicsSystem.instance.removeBody(removedCapsule.body);
+      const collider = getComponent<ControllerColliderComponent>(entity, ControllerColliderComponent, true);
+      if(collider) {
+        PhysicsSystem.instance.removeController(collider.controller);
       }
-      return;
     });
+
+    // Update velocity vector for Animations
+    this.queryResults.localCharacter.all?.forEach(entity => {
+      const lastPos = { x:0, y:0, z:0 };
+      if (!hasComponent(entity, ControllerColliderComponent)) return;
+      const controllerCollider = getComponent<ControllerColliderComponent>(entity, ControllerColliderComponent);
+      const transform = getComponent<TransformComponent>(entity, TransformComponent);
+      const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
+      if (!actor.initialized || !controllerCollider.controller) return;
+
+      const x = controllerCollider.controller.transform.translation.x - lastPos.x;
+      const y = controllerCollider.controller.transform.translation.y - lastPos.y;
+      const z = controllerCollider.controller.transform.translation.z - lastPos.z;
+  
+      if(isNaN(x)) {
+        actor.animationVelocity = new Vector3(0,1,0);
+        return;
+      }
+  
+      lastPos.x = controllerCollider.controller.transform.translation.x;
+      lastPos.y = controllerCollider.controller.transform.translation.y;
+      lastPos.z = controllerCollider.controller.transform.translation.z;
+  
+      const q = new Quaternion().copy(transform.rotation).invert();
+      actor.animationVelocity = new Vector3(x,y,z).applyQuaternion(q);
+    });
+
   }
 }
 
 CharacterControllerSystem.queries = {
+  localCharacter: {
+    components: [LocalInputReceiver, ControllerColliderComponent, CharacterComponent, NetworkObject],
+  },
   characterInput: {
     components: [CharacterComponent, Input],
     listen: {

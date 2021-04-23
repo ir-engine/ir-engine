@@ -1,4 +1,4 @@
-import { RigidBodyProxy } from "@xr3ngine/three-physx";
+import { Body } from "@xr3ngine/three-physx";
 import { Component } from '../../ecs/classes/Component';
 import { Types } from '../../ecs/types/Types';
 
@@ -7,7 +7,7 @@ import { Types } from '../../ecs/types/Types';
  */
 
 export class ColliderComponent extends Component<ColliderComponent> {
-  body: RigidBodyProxy
+  body: Body
   type: string
   mass: number
   position: any
@@ -19,7 +19,7 @@ export class ColliderComponent extends Component<ColliderComponent> {
 }
 
 ColliderComponent._schema = {
-  collider: { type: Types.Ref, default: null },
+  body: { type: Types.Ref, default: null },
   type: { type: Types.String, default: 'box' },
   mass: { type: Types.Number, default: 0 },
   position: { type: Types.Ref, default: null },

@@ -14,6 +14,9 @@ import { getInCar } from '../behaviors/getInCarBehavior';
 import { getInCarPossible } from '../behaviors/getInCarPossible';
 import { VehicleComponent } from "../components/VehicleComponent";
 import { PrefabType } from "../../networking/PrefabType";
+import { InterpolationInterface } from "../../../physics/interfaces/InterpolationInterface";
+import { vehicleInterpolationBehavior } from "../behaviors/vehicleInterpolationBehavior";
+import { vehicleCorrectionBehavior } from "../behaviors/vehicleCorrectionBehavior";
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -264,6 +267,11 @@ export function createNetworkVehicle( args:{ parameters?: any, networkId?: strin
   }
 }
 
+export const VehicleInterpolationSchema: InterpolationInterface = {
+  interpolationBehavior: vehicleInterpolationBehavior,
+  serverCorrectionBehavior: vehicleCorrectionBehavior
+}
+
 // Prefab is a pattern for creating an entity and component collection as a prototype
 export const NetworkVehicle: NetworkPrefab = {
   // These will be created for all players on the network
@@ -276,7 +284,7 @@ export const NetworkVehicle: NetworkPrefab = {
   // These are only created for the local player who owns this prefab
   localClientComponents: [],
   clientComponents: [
-    { type: InterpolationComponent }
+    { type: InterpolationComponent, data: { schema: VehicleInterpolationSchema } }
   ],
   serverComponents: [],
   onAfterCreate: [],

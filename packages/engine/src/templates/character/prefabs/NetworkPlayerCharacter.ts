@@ -34,6 +34,9 @@ import { IKComponent } from "../../../character/components/IKComponent";
 import { initiateIK } from "../../../xr/functions/IKFunctions";
 import { AnimationComponent } from "../../../character/components/AnimationComponent";
 import { CollisionGroups } from '../../../physics/enums/CollisionGroups';
+import { InterpolationInterface } from '../../../physics/interfaces/InterpolationInterface';
+import { characterCorrectionBehavior } from '../behaviors/characterCorrectionBehavior';
+import { characterInterpolationBehavior } from '../behaviors/characterInterpolationBehavior';
 
 export class AnimationManager {
 	static _instance: AnimationManager;
@@ -196,7 +199,6 @@ const initializeCharacter: Behavior = (entity): void => {
 	});
 
 	actor.actorCapsule = getMutableComponent<ControllerColliderComponent>(entity, ControllerColliderComponent);
-	PhysicsSystem.instance.addBody(actor.actorCapsule.body);
 
 	// Physics pre/post step callback bindings
 	// States
@@ -246,6 +248,13 @@ export function createNetworkPlayer( args:{ ownerId: string | number, networkId?
   );
 	return networkComponent;
 }
+
+export const characterInterpolationSchema: InterpolationInterface = {
+  interpolationBehavior: characterInterpolationBehavior,
+  serverCorrectionBehavior: characterCorrectionBehavior
+}
+
+
 // Prefab is a pattern for creating an entity and component collection as a prototype
 export const NetworkPlayerCharacter: NetworkPrefab = {
   // These will be created for all players on the network
@@ -267,7 +276,7 @@ export const NetworkPlayerCharacter: NetworkPrefab = {
   ],
 	clientComponents: [
 		// Its component is a pass to Interpolation for Other Players and Serrver Correction for Your Local Player
-		{ type: InterpolationComponent }
+		{ type: InterpolationComponent, data: { schema: characterInterpolationSchema } }
 	],
   serverComponents: [
     { type: TeleportToSpawnPoint },

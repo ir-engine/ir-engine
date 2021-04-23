@@ -42,11 +42,11 @@ export const initializeServer = async (initOptions: any = DefaultInitializationO
   registerSystem(ServerNetworkOutgoingSystem, { ...networkSystemOptions, priority: 10000 });
   registerSystem(MediaStreamSystem);
   registerSystem(StateSystem);
-  registerSystem(CharacterControllerSystem);
-  registerSystem(PhysicsSystem);
 
   // replace this with vite worker once webpack is gone
   await PhysXInstance.instance.initPhysX(new Worker(new URL("./physics/functions/loadPhysX.ts", import.meta.url)), { });
+  registerSystem(PhysicsSystem);
+  registerSystem(CharacterControllerSystem);
 
   registerSystem(ServerSpawnSystem, { priority: 899 });
   registerSystem(TransformSystem, { priority: 900 });

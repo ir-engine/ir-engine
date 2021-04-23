@@ -46,17 +46,6 @@ export class FollowCameraComponent extends Component<FollowCameraComponent> {
   /** Camera physics raycast has hit */
 	rayHasHit = false;
   collisionMask: CollisionGroups = CollisionGroups.All;
-
-  constructor() {
-    super();
-    this.raycastQuery = PhysXInstance.instance.addRaycastQuery({ 
-      type: SceneQueryType.Closest,
-      origin: new Vector3(),
-      direction: new Vector3(0, -1, 0),
-      maxDistance: 1,
-      collisionMask: this.collisionMask,
-    });
-  }
 }
 
 

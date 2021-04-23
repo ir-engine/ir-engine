@@ -22,9 +22,9 @@ export const onUpdatePlayerInCar = (entity: Entity, entityCar: Entity, seat: num
 
 
   // its then connected player seen other player in car
-  if (!hasComponent<PlayerInCar>(entity, PlayerInCar) ) {
+  if (!hasComponent<PlayerInCar>(entity, PlayerInCar)) {
     const actor = getComponent<CharacterComponent>(entity, CharacterComponent);
-    PhysicsSystem.instance.removeBody(actor.actorCapsule.body);
+    PhysicsSystem.instance.removeBody(actor.actorCapsule.controller);
   }
 
   const position = new Vector3(...vehicle.seatsArray[seat])

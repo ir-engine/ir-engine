@@ -264,17 +264,17 @@ export const EnginePage = (props: Props) => {
       useOfflineMode: Config.publicRuntimeConfig.offlineMode
     };
 
-    console.log("Initialization options are: ", InitializationOptions);
+    // console.log("Initialization options are: ", InitializationOptions);
 
     await initializeEngine(InitializationOptions);
 
-    console.log("Engine initialized");
+    // console.log("Engine initialized");
 
     document.dispatchEvent(new CustomEvent('ENGINE_LOADED')); // this is the only time we should use document events. would be good to replace this with react state
 
     addUIEvents();
 
-    console.log("**** OFFLINE MODE? ", Config.publicRuntimeConfig.offlineMode);
+    // console.log("**** OFFLINE MODE? ", Config.publicRuntimeConfig.offlineMode);
 
     if(!Config.publicRuntimeConfig.offlineMode) await connectToInstanceServer('instance');
 

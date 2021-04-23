@@ -62,8 +62,8 @@ const initializeEngineOffscreen = async ({ canvas, userArgs }, proxy: MainProxy)
   // @ts-ignore
   Network.instance.transport = { isServer: false }
 
-  registerSystem(PhysicsSystem);
   await PhysXInstance.instance.initPhysX(new PhysXWorker(), { });
+  registerSystem(PhysicsSystem);
   registerSystem(ActionSystem, { useWebXR: false });
   registerSystem(StateSystem);
   registerSystem(CharacterControllerSystem);

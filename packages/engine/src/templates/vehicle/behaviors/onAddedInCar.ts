@@ -57,7 +57,7 @@ export const onAddedInCar = (entity: Entity, entityCar: Entity, seat: number, de
   vehicle[vehicle.seatPlane[seat]] = networkDriverId;
 
   const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
-  PhysicsSystem.instance.removeBody(actor.actorCapsule.body);
+  PhysicsSystem.instance.removeController(actor.actorCapsule.controller);
 
   const orientation = positionEnter(entity, entityCar, seat);
   getMutableComponent(entity, PlayerInCar).state = VehicleState.onAddEnding;

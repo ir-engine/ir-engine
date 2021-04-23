@@ -48,9 +48,9 @@ function positionExit(entity, entityCar, seat) {
   .add(transformCar.position)
   .setY(transform.position.y)
 
-  actor.actorCapsule.body.transform.translation.x = position.x;
-  actor.actorCapsule.body.transform.translation.y = position.y;
-  actor.actorCapsule.body.transform.translation.z = position.z;
+  actor.actorCapsule.controller.transform.translation.x = position.x;
+  actor.actorCapsule.controller.transform.translation.y = position.y;
+  actor.actorCapsule.controller.transform.translation.z = position.z;
 
   transform.position.set(
     position.x,
@@ -58,7 +58,7 @@ function positionExit(entity, entityCar, seat) {
     position.z
   );
 
-  PhysicsSystem.instance.addBody(actor.actorCapsule.body);
+  PhysicsSystem.instance.createController(actor.actorCapsule.controller);
 }
 
 

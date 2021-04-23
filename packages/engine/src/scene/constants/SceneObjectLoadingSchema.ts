@@ -10,7 +10,7 @@ import { ComponentConstructor } from "../../ecs/interfaces/ComponentInterfaces";
 import { createParticleEmitterObject } from '../../particles/functions/particleHelpers';
 import { addObject3DComponent } from '../behaviors/addObject3DComponent';
 import { createBackground } from '../behaviors/createBackground';
-import { createBoxColliderObject } from '../behaviors/createBoxCollider';
+import { createColliderFromSceneLoading } from '../behaviors/createColliderFromSceneLoading';
 import { createCollidersFromSceneData } from '../behaviors/createCollidersFromSceneData';
 import { createCommonInteractive } from "../behaviors/createCommonInteractive";
 import { createGroup } from '../behaviors/createGroup';
@@ -406,7 +406,7 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
   'box-collider': {
     behaviors: [
       {
-        behavior: createBoxColliderObject,
+        behavior: createColliderFromSceneLoading,
         values: ['type', 'position', 'quaternion', 'scale']
       }
     ]

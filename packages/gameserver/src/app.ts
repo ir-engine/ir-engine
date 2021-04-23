@@ -120,9 +120,6 @@ if (config.gameserver.enabled) {
     app.configure(feathersLogger(winston));
     app.configure(services);
 
-    // Set up event channels (see channels.js)
-    app.configure(channels);
-
     // Host the public folder
     // Configure a middleware for 404s and the error handler
 
@@ -159,7 +156,10 @@ if (config.gameserver.enabled) {
 
       // Create new gameserver instance
       const gameServer = new WebRTCGameServer(app);
-      gameServer.initialize()
+      gameServer.initialize().then(() => {
+        // Set up event channels (see channels.js)
+        app.configure(channels);
+      })
       console.log("Created new gameserver instance");
     } else {
       console.warn('Did not create gameserver');

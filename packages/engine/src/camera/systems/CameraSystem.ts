@@ -5,7 +5,7 @@ import { isMobileOrTablet } from "../../common/functions/isMobile";
 import { NumericalType } from "../../common/types/NumericalTypes";
 import { Engine } from '../../ecs/classes/Engine';
 import { System } from '../../ecs/classes/System';
-import { addComponent, createEntity, getMutableComponent } from '../../ecs/functions/EntityFunctions';
+import { addComponent, createEntity, getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
 import { CharacterComponent } from "../../templates/character/components/CharacterComponent";
 import { DesiredTransformComponent } from '../../transform/components/DesiredTransformComponent';
 import { TransformComponent } from '../../transform/components/TransformComponent';
@@ -15,6 +15,7 @@ import { CameraModes } from "../types/CameraModes";
 import { Entity } from "../../ecs/classes/Entity";
 import { PhysicsSystem } from "../../physics/systems/PhysicsSystem";
 import { CollisionGroups } from "../../physics/enums/CollisionGroups";
+import { SceneQueryType } from "@xr3ngine/three-physx";
 
 let direction = new Vector3();
 const upVector = new Vector3(0, 1, 0);
@@ -49,10 +50,22 @@ export class CameraSystem extends System {
    * @param delta time since last frame.
    */
   execute(delta: number): void {
+
     this.queryResults.followCameraComponent.added?.forEach(entity => {
+      const cameraFollow = getMutableComponent(entity, FollowCameraComponent);
+      cameraFollow.raycastQuery = PhysicsSystem.instance.addRaycastQuery({ 
+        type: SceneQueryType.Closest,
+        origin: new Vector3(),
+        direction: new Vector3(0, -1, 0),
+        maxDistance: 1,
+        collisionMask: cameraFollow.collisionMask,
+      });
       CameraComponent.instance.followTarget = entity;
     });
+
     this.queryResults.followCameraComponent.removed?.forEach(entity => {
+      const cameraFollow = getComponent(entity, FollowCameraComponent, true);
+      PhysicsSystem.instance.removeRaycastQuery(cameraFollow.raycastQuery)
       CameraComponent.instance.followTarget = null;
     });
 
