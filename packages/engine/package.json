@@ -38,11 +38,6 @@
   },
   "dependencies": {
     "@pixiv/three-vrm": "^0.6.0",
-    "@tensorflow/tfjs-core": "^3.3.0",
-    "@tensorflow/tfjs-node": "^3.3.0",
-    "@tweenjs/tween.js": "18.6.4",
-    "@types/jest": "^26.0.22",
-    "@types/node": "^14.14.37",
     "@xr3ngine/three-physx": "^0.0.3",
     "browserfs": "^1.4.3",
     "cannon-es": "^0.17.0",
@@ -57,9 +52,7 @@
     "three-mesh-bvh": "^0.3.7",
    
     "typescript": "^4.0.3",
-    "url": "^0.11.0",
-    "vite": "^2.1.5",
-    "web-worker": "^1.0.0"
+    "vite": "^2.1.5"
   },
   "devDependencies": {
    
