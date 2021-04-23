@@ -25,6 +25,7 @@ import { selectAppState } from "../../common/reducers/app/selector";
 import { selectAuthState } from "../../user/reducers/auth/selector";
 // @ts-ignore
 import styles from './Admin.module.scss';
+import Tooltip from '@material-ui/core/Tooltip';
 
 interface Props {
     open: boolean;
@@ -74,7 +75,7 @@ const LocationModal = (props: Props): any => {
     const locationTypes = adminState.get('locationTypes').get('locationTypes');
     const [state, setState] = React.useState({
         feature: false,
-        lobby: true,
+        lobby: false,
     });
 
     const submitLocation = () => {
@@ -113,6 +114,10 @@ const LocationModal = (props: Props): any => {
             setVideoEnabled(location.location_setting.videoEnabled);
             setInstanceMediaChatEnabled(location.location_setting.instanceMediaChatEnabled);
             setLocationType(location.location_setting.locationType);
+            setState({
+                lobby: location.isLobby,
+                feature: location.isFeature,
+            });
         } else {
             setName('');
             setSceneId('');
@@ -223,7 +228,7 @@ const LocationModal = (props: Props): any => {
                             </FormControl>
                         </FormGroup>
 
-                        <FormControlLabel
+                        {!location.isLobby && <FormControlLabel
                             control={
                                 <Checkbox
                                     checked={state.lobby}
@@ -232,8 +237,8 @@ const LocationModal = (props: Props): any => {
                                     color="primary"
                                 />
                             }
-                            label="Lobby"
-                        />
+                            label="Make Lobby"
+                        />}
                         <FormControlLabel
                             control={
                                 <Checkbox
@@ -269,14 +274,18 @@ const LocationModal = (props: Props): any => {
                             >
                                 Cancel
                             </Button>
-                            {editing === true && <Button
-                                type="submit"
-                                variant="contained"
-                                color="secondary"
-                                onClick={deleteLocation}
-                            >
-                                Delete
-                            </Button>}
+                            {editing === true && <Tooltip title={state.lobby ? "Lobby can't be deleted" : ''} arrow placement="top">
+                                <span><Button
+                                    type="submit"
+                                    variant="contained"
+                                    color="secondary"
+                                    onClick={deleteLocation}
+                                    disabled={location.isLobby}
+                                >
+                                    Delete
+                                </Button>
+                                </span>
+                            </Tooltip>}
                         </FormGroup>
                     </div>
                 </Fade>

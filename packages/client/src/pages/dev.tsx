@@ -1,5 +1,4 @@
 import DebugScene from '../components/Scene/debug';
-import Loading from '../components/Scene/loading';
 import Layout from '../components/Layout/Layout';
 import React from 'react';
 import { useTranslation } from 'react-i18next';

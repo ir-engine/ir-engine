@@ -90,10 +90,10 @@ const Project = (props: Props) => {
      * validating user and rendering EditorContainer component.
      */
     return hasMounted &&
-        <Suspense fallback={React.Fragment}>
-            {authUser?.accessToken != null && authUser.accessToken.length > 0
-                && user?.id != null && engineIsInitialized && <EditorContainer Engine={Engine} {...props} />}
-        </Suspense>;
+    <Suspense fallback={React.Fragment}>
+        { authUser?.accessToken != null && authUser.accessToken.length > 0 
+            && user?.id != null && engineIsInitialized && <EditorContainer Engine={Engine} {...props} /> }
+    </Suspense>;
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(Project);

@@ -54,11 +54,73 @@ interface Props {
     fetchAdminInstances?: any;
 }
 
-interface HeadCell {
-    disablePadding: boolean;
-    id: string;
-    label: string;
-    numeric: boolean;
+type Order = 'asc' | 'desc';
+interface EnhancedTableProps {
+    object: string,
+    numSelected: number;
+    onRequestSort: (event: React.MouseEvent<unknown>, property) => void;
+    onSelectAllClick: (event: React.ChangeEvent<HTMLInputElement>) => void;
+    order: Order;
+    orderBy: string;
+    rowCount: number;
+}
+
+function EnhancedTableHead(props: EnhancedTableProps) {
+    const { object, order, orderBy, onRequestSort } = props;
+    const headCells = {
+        locations: [
+            { id: 'id', numeric: false, disablePadding: true, label: 'ID' },
+            { id: 'name', numeric: false, disablePadding: false, label: 'Name' },
+            { id: 'sceneId', numeric: false, disablePadding: false, label: 'Scene' },
+            { id: 'maxUsersPerInstance', numeric: true, disablePadding: false, label: 'Max Users' },
+            { id: 'type', numeric: false, disablePadding: false, label: 'Type' },
+            { id: 'tags', numeric: false, disablePadding: false, label: 'Tags' },
+            { id: 'instanceMediaChatEnabled', numeric: false, disablePadding: false, label: 'Enable public media chat' },
+            { id: 'videoEnabled', numeric: false, disablePadding: false, label: 'Video Enabled' }
+        ],
+        users: [
+            { id: 'id', numeric: false, disablePadding: true, label: 'ID' },
+            { id: 'name', numeric: false, disablePadding: false, label: 'Name' },
+            { id: 'instanceId', numeric: false, disablePadding: false, label: 'Instance ID' },
+            { id: 'userRole', numeric: false, disablePadding: false, label: 'User Role' },
+            { id: 'partyId', numeric: false, disablePadding: false, label: 'Party ID' }
+        ],
+        instances: [
+            { id: 'id', numeric: false, disablePadding: true, label: 'ID' },
+            { id: 'ipAddress', numeric: false, disablePadding: false, label: 'IP address' },
+            { id: 'gsId', numeric: false, disablePadding: false, label: 'Gameserver ID' },
+            { id: 'serverAddress', numeric: false, disablePadding: false, label: 'Public address' },
+            { id: 'currentUsers', numeric: true, disablePadding: false, label: 'Current # of Users' },
+            { id: 'locationId', numeric: false, disablePadding: false, label: 'Location ID' }
+        ]
+    };
+    const createSortHandler = (property) => (event: React.MouseEvent<unknown>) => {
+        onRequestSort(event, property);
+    };
+
+    return (
+        <TableHead className={styles.thead}>
+            <TableRow className={styles.trow}>
+                {headCells[object].map((headCell) => (
+                    <TableCell
+                        className={styles.tcell}
+                        key={headCell.id}
+                        align='center'
+                        padding={headCell.disablePadding ? 'none' : 'default'}
+                        sortDirection={orderBy === headCell.id ? order : false}
+                    >
+                        <TableSortLabel
+                            active={orderBy === headCell.id}
+                            direction={orderBy === headCell.id ? order : 'asc'}
+                            onClick={createSortHandler(headCell.id)}
+                        >
+                            {headCell.label}
+                        </TableSortLabel>
+                    </TableCell>
+                ))}
+            </TableRow>
+        </TableHead>
+    );
 }
 
 const mapStateToProps = (state: any): any => {
@@ -120,9 +182,6 @@ const AdminConsole = (props: Props) => {
         }
     };
 
-
-
-
     const initialInstance = {
         id: '',
         ipAddress: '',
@@ -138,35 +197,6 @@ const AdminConsole = (props: Props) => {
     const [selectedInstance, setSelectedInstance] = useState(initialInstance);
     const adminScenes = adminState.get('scenes').get('scenes');
 
-
-    const headCells = {
-        locations: [
-            { id: 'id', numeric: false, disablePadding: true, label: 'ID' },
-            { id: 'name', numeric: false, disablePadding: false, label: 'Name' },
-            { id: 'sceneId', numeric: false, disablePadding: false, label: 'Scene' },
-            { id: 'maxUsersPerInstance', numeric: true, disablePadding: false, label: 'Max Users' },
-            { id: 'type', numeric: false, disablePadding: false, label: 'Type' },
-            { id: 'tags', numeric: false, disablePadding: false, label: 'Tags' },
-            { id: 'instanceMediaChatEnabled', numeric: false, disablePadding: false, label: 'Enable public media chat' },
-            { id: 'videoEnabled', numeric: false, disablePadding: false, label: 'Video Enabled' }
-        ],
-        users: [
-            { id: 'id', numeric: false, disablePadding: true, label: 'ID' },
-            { id: 'name', numeric: false, disablePadding: false, label: 'Name' },
-            { id: 'instanceId', numeric: false, disablePadding: false, label: 'Instance ID' },
-            { id: 'userRole', numeric: false, disablePadding: false, label: 'User Role' },
-            { id: 'partyId', numeric: false, disablePadding: false, label: 'Party ID' }
-        ],
-        instances: [
-            { id: 'id', numeric: false, disablePadding: true, label: 'ID' },
-            { id: 'ipAddress', numeric: false, disablePadding: false, label: 'IP address' },
-            { id: 'gsId', numeric: false, disablePadding: false, label: 'Gameserver ID' },
-            { id: 'serverAddress', numeric: false, disablePadding: false, label: 'Public address' },
-            { id: 'currentUsers', numeric: true, disablePadding: false, label: 'Current # of Users' },
-            { id: 'locationId', numeric: false, disablePadding: false, label: 'Location ID' }
-        ]
-    };
-
     function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
         if (b[orderBy] < a[orderBy]) {
             return -1;
@@ -181,8 +211,6 @@ const AdminConsole = (props: Props) => {
         const sceneMatch = adminScenes.find(scene => scene.sid === id);
         return sceneMatch != null ? `${sceneMatch.name} (${sceneMatch.sid})` : '';
     };
-
-    type Order = 'asc' | 'desc';
 
     function getComparator<Key extends keyof any>(
         order: Order,
@@ -203,73 +231,6 @@ const AdminConsole = (props: Props) => {
         return stabilizedThis.map((el) => el[0]);
     }
 
-    interface Data {
-        locations: {
-            id: string,
-            name: string,
-            sceneId: string,
-            maxUsersPerInstance: number,
-            type: string,
-            instanceMediaChatEnabled: boolean,
-            videoEnabled: boolean
-        },
-        users: {
-            id: string,
-            name: string,
-            instanceId: string,
-            userRole: string,
-            partyId: string
-        }
-    }
-
-    interface HeadCell {
-        disablePadding: boolean;
-        id: string;
-        label: string;
-        numeric: boolean;
-    }
-
-    interface EnhancedTableProps {
-        object: string,
-        numSelected: number;
-        onRequestSort: (event: React.MouseEvent<unknown>, property) => void;
-        onSelectAllClick: (event: React.ChangeEvent<HTMLInputElement>) => void;
-        order: Order;
-        orderBy: string;
-        rowCount: number;
-    }
-
-    function EnhancedTableHead(props: EnhancedTableProps) {
-        const { object, order, orderBy, onRequestSort } = props;
-        const createSortHandler = (property) => (event: React.MouseEvent<unknown>) => {
-            onRequestSort(event, property);
-        };
-
-        return (
-            <TableHead className={styles.thead}>
-                <TableRow className={styles.trow}>
-                    {headCells[object].map((headCell) => (
-                        <TableCell
-                            className={styles.tcell}
-                            key={headCell.id}
-                            align='center'
-                            padding={headCell.disablePadding ? 'none' : 'default'}
-                            sortDirection={orderBy === headCell.id ? order : false}
-                        >
-                            <TableSortLabel
-                                active={orderBy === headCell.id}
-                                direction={orderBy === headCell.id ? order : 'asc'}
-                                onClick={createSortHandler(headCell.id)}
-                            >
-                                {headCell.label}
-                            </TableSortLabel>
-                        </TableCell>
-                    ))}
-                </TableRow>
-            </TableHead>
-        );
-    }
-
     const [order, setOrder] = React.useState<Order>('asc');
     const [orderBy, setOrderBy] = React.useState<any>('name');
     const [selected, setSelected] = React.useState<string[]>([]);
@@ -277,7 +238,6 @@ const AdminConsole = (props: Props) => {
     const [dense, setDense] = React.useState(false);
     const [rowsPerPage, setRowsPerPage] = React.useState(PAGE_LIMIT);
     const [selectedTab, setSelectedTab] = React.useState('locations');
-    const [refetch, setRefetch] = React.useState(false);
     const [userRole, setUserRole] = React.useState("");
     const [selectedUser, setSelectedUser] = React.useState({});
 
@@ -287,7 +247,6 @@ const AdminConsole = (props: Props) => {
     const adminUserCount = adminState.get('users').get('total');
     const adminInstances = adminState.get('instances').get('instances');
     const adminInstanceCount = adminState.get('instances').get('total');
-
 
     const selectCount = selectedTab === 'locations' ? adminLocationCount : selectedTab === 'users' ? adminUserCount : selectedTab === 'instances' ? adminInstanceCount : 0;
     const displayLocations = adminLocations.map(location => {
@@ -305,8 +264,6 @@ const AdminConsole = (props: Props) => {
             videoEnabled: location?.location_setting?.videoEnabled?.toString()
         };
     });
-
-
 
     const displayInstances = adminInstances.map(instance => {
         return {
@@ -352,7 +309,6 @@ const AdminConsole = (props: Props) => {
         setSelectedInstance(selected);
         setInstanceModalOpen(true);
     };
-
 
     const handleChangePage = (event: unknown, newPage: number) => {
         const incDec = page < newPage ? 'increment' : 'decrement';
@@ -403,13 +359,6 @@ const AdminConsole = (props: Props) => {
         }
     };
 
-    const fetchTick = () => {
-        setTimeout(() => {
-            setRefetch(true);
-            fetchTick();
-        }, 5000);
-    };
-
     const patchUserRole = async (user: any, role: string) => {
         await client.service('user').patch(user, {
             userRole: role
@@ -437,27 +386,22 @@ const AdminConsole = (props: Props) => {
     }, [adminUsers]);
 
     useEffect(() => {
-        fetchTick();
-    }, []);
-
-    useEffect(() => {
-        if (user?.id != null && (adminState.get('locations').get('updateNeeded') === true || refetch === true)) {
+        if (user?.id != null && adminState.get('locations').get('updateNeeded') === true) {
             fetchAdminLocations();
         }
-        if (user?.id != null && (adminState.get('scenes').get('updateNeeded') === true || refetch === true)) {
+        if (user?.id != null && adminState.get('scenes').get('updateNeeded') === true) {
             fetchAdminScenes();
         }
         if (user?.id != null && adminState.get('locationTypes').get('updateNeeded') === true) {
             fetchLocationTypes();
         }
-        if (user?.id != null && (adminState.get('users').get('updateNeeded') === true || refetch === true)) {
+        if (user?.id != null && adminState.get('users').get('updateNeeded') === true) {
             fetchUsersAsAdmin();
         }
-        if (user?.id != null && (adminState.get('instances').get('updateNeeded') === true || refetch === true)) {
+        if (user?.id != null && adminState.get('instances').get('updateNeeded') === true) {
             fetchAdminInstances();
         }
-        setRefetch(false);
-    }, [authState, adminState, refetch]);
+    }, [authState, adminState]);
 
     const handleClick = () => {
         console.info('You clicked the Chip.');
@@ -601,11 +545,8 @@ const AdminConsole = (props: Props) => {
                                         );
                                     })}
                             </TableBody>
-
-
                         }
                         {selectedTab === 'instances' &&
-
                             <TableBody className={styles.thead}>
                                 {stableSort(displayInstances, getComparator(order, orderBy))
                                     .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)

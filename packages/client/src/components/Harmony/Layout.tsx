@@ -88,14 +88,8 @@ const Layout = (props: Props): any => {
     const user = authState.get('user');
 
     const childrenWithProps = React.Children.map(children, child => {
-        // checking isValidElement is the safe way and avoids a typescript error too
         if (React.isValidElement(child)) {
-            const mapped = React.Children.map((child as any).props.children, child => {
-                if (React.isValidElement(child)) { // @ts-ignore
-                    return React.cloneElement(child, {harmonyOpen: harmonyOpen});
-                }
-            });
-            return mapped;
+            return React.cloneElement((child as any), { harmonyOpen: harmonyOpen });
         }
         return child;
     });

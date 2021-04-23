@@ -27,6 +27,7 @@ export default (app: Application): void => {
           .then(() => {
             // Sync to the database
             for (const model of Object.keys(sequelize.models)) {
+              if (forceRefresh) console.log('creating associations for =>', sequelize.models[model]);
               if (typeof ((sequelize.models[model] as any).associate) === 'function') {
                 (sequelize.models[model] as any).associate(sequelize.models);
               }
