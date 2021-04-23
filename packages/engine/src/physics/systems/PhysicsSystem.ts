@@ -159,12 +159,12 @@ export class PhysicsSystem extends System {
     // todo
   }
 
-  addRaycastQuery(query) { return PhysXInstance.instance.addRaycastQuery(query); };
-  removeRaycastQuery(query) { return PhysXInstance.instance.removeRaycastQuery(query); };
-  addBody(args) { return PhysXInstance.instance.addBody(args); };
-  removeBody(body) { return PhysXInstance.instance.removeBody(body); };
-  createController(options) { return PhysXInstance.instance.createController(options); };
-  removeController(id) { return PhysXInstance.instance.removeController(id); };
+  addRaycastQuery(query) { return PhysXInstance.instance.addRaycastQuery(query); }
+  removeRaycastQuery(query) { return PhysXInstance.instance.removeRaycastQuery(query); }
+  addBody(args) { return PhysXInstance.instance.addBody(args); }
+  removeBody(body) { return PhysXInstance.instance.removeBody(body); }
+  createController(options) { return PhysXInstance.instance.createController(options); }
+  removeController(id) { return PhysXInstance.instance.removeController(id); }
 }
 
 PhysicsSystem.queries = {

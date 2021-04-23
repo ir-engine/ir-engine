@@ -11,7 +11,7 @@ import { ColliderComponent } from "../../../physics/components/ColliderComponent
 import { VehicleComponent } from "../components/VehicleComponent";
 import { vehicleInterpolationBehavior } from "./vehicleInterpolationBehavior";
 
-let correctionSpeed = 180;
+const correctionSpeed = 180;
 export const vehicleCorrectionBehavior: Behavior = (entity: Entity, args): void => {
 
   const vehicleComponent = getComponent(entity, VehicleComponent) as VehicleComponent;

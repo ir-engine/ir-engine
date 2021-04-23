@@ -159,7 +159,7 @@ if (config.gameserver.enabled) {
       gameServer.initialize().then(() => {
         // Set up event channels (see channels.js)
         app.configure(channels);
-      })
+      });
       console.log("Created new gameserver instance");
     } else {
       console.warn('Did not create gameserver');
