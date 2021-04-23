@@ -81,7 +81,7 @@ const FeedCard = (props: Props) : any => {
         }
     };
     
-  const checkGuest = props.authState.get('authUser')?.identityProvider.type === 'guest' ? true : false;
+  const checkGuest = props.authState.get('authUser')?.identityProvider?.type === 'guest' ? true : false;
 
     return  feed ? <><Card className={styles.tipItem} square={false} elevation={0} key={feed.id}>
                 <CreatorAsTitle creator={feed.creator} />                   

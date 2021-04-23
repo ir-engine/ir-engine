@@ -13,8 +13,6 @@ import CardContent from '@material-ui/core/CardContent';
 import Button from '@material-ui/core/Button';
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
 import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
-import Menu from '@material-ui/core/Menu';
-import MenuItem from '@material-ui/core/MenuItem';
 // import TwitterIcon from '@material-ui/icons/Twitter';
 // import InstagramIcon from '@material-ui/icons/Instagram';
 // import TitleIcon from '@material-ui/icons/Title';
@@ -23,18 +21,23 @@ import MenuItem from '@material-ui/core/MenuItem';
 import styles from './CreatorCard.module.scss';
 import { selectCreatorsState } from '../../reducers/creator/selector';
 import { getCreator} from '../../reducers/creator/service';
-import { updateCreatorPageState } from '../../reducers/popupsState/service';
+import { updateCreatorPageState, updateCreatorFormState } from '../../reducers/popupsState/service';
+import CreatorForm from '../CreatorForm';
+import SharedModal from '../SharedModal';
+import AppFooter from '../Footer';
+import { selectPopupsState } from '../../reducers/popupsState/selector';
 
 const mapStateToProps = (state: any): any => {
     return {
       creatorState: selectCreatorsState(state),
+      popupsState: selectPopupsState(state),
     };
   };
   
   const mapDispatchToProps = (dispatch: Dispatch): any => ({
     getCreator: bindActionCreators(getCreator, dispatch),
     updateCreatorPageState: bindActionCreators(updateCreatorPageState, dispatch),
-
+    updateCreatorFormState: bindActionCreators(updateCreatorFormState, dispatch),
     // followCreator: bindActionCreators(followCreator, dispatch),
     // unFollowCreator: bindActionCreators(unFollowCreator, dispatch),
     // getFollowersList: bindActionCreators(getFollowersList, dispatch),
@@ -47,25 +50,21 @@ const mapStateToProps = (state: any): any => {
     popupsState?: any;
     getCreator?: typeof getCreator;
     updateCreatorPageState?: typeof updateCreatorPageState,
+    updateCreatorFormState?: typeof updateCreatorFormState,
     // followCreator?: typeof followCreator;
     // unFollowCreator?: typeof unFollowCreator;
     // getFollowersList?:typeof getFollowersList;
     // getFollowingList?:typeof getFollowingList;
   }
 
-const CreatorCard = ({creator,creatorState, updateCreatorPageState}:Props) => { 
-    // const [isMe, setIsMe] = useState(false);
+const CreatorCard = ({creator,creatorState, updateCreatorPageState, popupsState, updateCreatorFormState}:Props) => { 
+    const [isMe, setIsMe] = useState(creatorState && creatorState?.get('currentCreator') && creator.id === creatorState.get('currentCreator').id ? true : false);
+    useEffect(()=>{
+        setIsMe(creatorState && creatorState?.get('currentCreator') && creator.id === creatorState.get('currentCreator').id ? true : false);
+    },[creator.id])
     // const [openFiredModal, setOpenFiredModal] = useState(false);
     // const [creatorsType, setCreatorsType] = useState('followers');
-    // const history = useHistory();
-//     useEffect(()=>{
-//         if(creatorState && creatorState.get('currentCreator') && creator.id === creatorState.get('currentCreator').id){
-//             setIsMe(true);
-//         }
-//     },[]);
 
-// useEffect(()=>console.log('popupsState', popupsState); )
-   
     // const [anchorEl, setAnchorEl] = useState(null);
     // const handleClick = (event) => {
     //     setAnchorEl(event.currentTarget);
@@ -74,8 +73,8 @@ const CreatorCard = ({creator,creatorState, updateCreatorPageState}:Props) => {
     //     setAnchorEl(null);
     // };
     // const handleEditClick = () =>{
-    //     handleClose();
-    //     history.push('/creatorEdit');
+    //     // handleClose();
+    //     // history.push('/creatorEdit');
     // }; 
 
     // const handleFollowCreator = creatorId => followCreator(creatorId);
@@ -97,33 +96,49 @@ const CreatorCard = ({creator,creatorState, updateCreatorPageState}:Props) => {
     //         {creator.tiktok && <a target="_blank" href={'http://tiktok.com/@'+creator.tiktok}><Typography variant="h4" component="p" align="center"><TitleIcon />{creator.tiktok}</Typography></a>}
     //         {creator.snap && <a target="_blank" href={'http://snap.com/'+creator.snap}><Typography variant="h4" component="p" align="center"><TwitterIcon />{creator.snap}</Typography></a>}
     //     </>;
+
+
+    //common for creator form
+    const handleClose = () => {
+        updateCreatorFormState(false);
+    };
+    const renderModal = () =>
+        (popupsState?.get('creatorForm') === true) ?  
+            (<SharedModal 
+                open={popupsState?.get('creatorForm')}
+                onClose={handleClose} 
+                className={styles.creatorFormPopup}
+            >
+                <CreatorForm />      
+                <AppFooter onGoHome={handleClose}/>
+            </SharedModal>) 
+            : 
+            <></>;
+
+    useEffect(()=>{renderModal()}, [popupsState?.get('creatorForm')]);
+
+
+    const renderEditButton = () =>isMe && 
+        <Button variant="text" className={styles.moreButton} aria-controls="owner-menu" aria-haspopup="true" 
+            onClick={()=>{updateCreatorFormState(true);}}><MoreHorizIcon />
+        </Button>
+
+    useEffect(()=> {renderEditButton();}, [isMe]);
+
     return  creator ?  (
         <>
             <Card className={styles.creatorCard} elevation={0} key={creator.username} square={false} >
                 <CardMedia   
                     className={styles.bgImage}                  
-                    // src={creator.background}
+                    src={creator.background}
                     title={creator.name}
-                />
-               {/* {isMe ?   
-                        // <section className={styles.meControls}>
-                        //     <Button variant="text" className={styles.backButton} onClick={()=>history.push('/')}><ArrowBackIosIcon />Back</Button>
-                        //     <Button variant="text" className={styles.moreButton} aria-controls="owner-menu" aria-haspopup="true" onClick={handleClick}><MoreHorizIcon /></Button>
-                        //     <Menu id="owner-menu" 
-                        //         anchorEl={anchorEl} 
-                        //         getContentAnchorEl={null}
-                        //         anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-                        //         open={Boolean(anchorEl)} 
-                        //         onClose={handleClose}>
-                        //         <MenuItem onClick={handleEditClick}>Edit Profyle</MenuItem>
-                        //     </Menu>
-                        // </section>
-               // :*/} 
-                        <section className={styles.controls}>
-                        <Button variant="text" className={styles.backButton} 
-                        onClick={()=>updateCreatorPageState(false)}><ArrowBackIosIcon />Back</Button>                    
-                    </section>
-                {/* } */}
+                />              
+                
+                <section className={styles.controls}>
+                    <Button variant="text" className={styles.backButton} 
+                    onClick={()=>updateCreatorPageState(false)}><ArrowBackIosIcon />Back</Button>  
+                    {renderEditButton()}                        
+                </section>
                 {/*hided for now*/}
                 {/* <section className={styles.countersButtons}>
                     <section className={styles.countersButtonsSub}>
@@ -137,8 +152,8 @@ const CreatorCard = ({creator,creatorState, updateCreatorPageState}:Props) => {
                     title={creator.username}
                 />                
                 <CardContent className={styles.content}>
-                    <Typography className={styles.titleContainer} gutterBottom variant="h3" component="h2" align="center">{creator.name}</Typography>
-                    <Typography variant="h4" component="p" align="center">{creator.username}</Typography>
+                    <Typography className={styles.titleContainer} gutterBottom variant="h5" component="h5" align="center">{creator.name}</Typography>
+                    <Typography variant="h5" component="p" align="center">{creator.username}</Typography>
                     <Typography variant="h4" component="p" align="center">{creator.tags}</Typography>
                     <Typography variant="h4" component="p" align="center">{creator.bio}</Typography>
 
@@ -150,7 +165,7 @@ const CreatorCard = ({creator,creatorState, updateCreatorPageState}:Props) => {
                     {/* {renderSocials()} */}
                 </CardContent>
             </Card>
-            {/* <SimpleModal type={creatorsType} list={creatorsType === 'followers' ? creatorState.get('followers') : creatorState.get('following')} open={openFiredModal} onClose={()=>setOpenFiredModal(false)} /> */}
+            {renderModal()}
         </>)
     : <></>;
 };

@@ -57,7 +57,7 @@ const CommentCard = ({comment, addFireToFeedComment, removeFireToFeedComment, ge
         setOpenFiredModal(true);
     }; 
     const [buttonPopup , setButtonPopup] = useState(false);
-    const checkGuest = authState.get('authUser')?.identityProvider.type === 'guest' ? true : false;
+    const checkGuest = authState.get('authUser')?.identityProvider?.type === 'guest' ? true : false;
 
     return  <><Card className={styles.commentItem} square={false} elevation={0} key={id}>
                 <Avatar className={styles.authorAvatar} src={creator.avatar} />                                

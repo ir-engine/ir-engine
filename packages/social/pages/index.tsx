@@ -68,8 +68,8 @@ const renderModal = () =>
         <Creator creatorId={popupsState?.get('creatorId')} />
         </SharedModal>) 
         : 
-        <></>
-  useEffect(()=> {renderModal();}, [popupsState.get('creatorPage')]);
+        <></>;
+  useEffect(()=> {renderModal();}, [popupsState.get('creatorPage'), popupsState.get('creatorId')]);
 
   return (<>
     <div className={styles.viewport}>
@@ -77,7 +77,7 @@ const renderModal = () =>
         {/*hided for now*/}
         {/* <Stories stories={stories} /> */}
         <FeedMenu />
-        <AppFooter />
+        <AppFooter onGoHome={handleClose}/>
         {renderModal()}
     </div>
   </>

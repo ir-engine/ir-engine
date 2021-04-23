@@ -50,12 +50,16 @@ const Creator = ({creatorId, creatorState, getCreator, followCreator, unFollowCr
             }
         }
     },[]);
-    if(creatorState && creatorState.get('fetching') === false){
-        creator = isMe === true ? creatorState.get('currentCreator') : creatorData ? creatorData : creatorState.get('creator');
-    }
+    // if(creatorState && creatorState.get('fetching') === false){
+    //     creator = isMe === true ? creatorState.get('currentCreator') : creatorData ? creatorData : creatorState.get('creator');
+    // }
+    // console.log('Creator isMe',isMe, 'currentCreator',creatorState.get('currentCreator'));
+    // console.log('Creator creator',isMe === true ? creatorState?.get('currentCreator') : creatorData ? creatorData : creatorState?.get('creator'));
+    // console.log('Creator creatorState',creatorState);
+    // console.log('Creator creatorData',creatorData);
     const [videoType, setVideoType] = useState('creator');
     return  <><section className={styles.creatorContainer}>
-            <CreatorCard creator={creator} />
+            <CreatorCard creator={isMe === true ? creatorState?.get('currentCreator') : creatorData ? creatorData : creatorState?.get('creator')} />
             {isMe && <section className={styles.videosSwitcher}>
                     {/* <Button variant={videoType === 'myFeatured' ? 'contained' : 'text'} color='secondary' className={styles.switchButton+(videoType === 'myFeatured' ? ' '+styles.active : '')} onClick={()=>setVideoType('myFeatured')}>Featured</Button> */}
                     <Button variant={videoType === 'creator' ? 'contained' : 'text'} color='secondary' className={styles.switchButton+(videoType === 'creator' ? ' '+styles.active : '')} onClick={()=>setVideoType('creator')}>My Videos</Button>

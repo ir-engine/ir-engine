@@ -34,10 +34,16 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
   getLoggedCreator: bindActionCreators(getLoggedCreator, dispatch),
   updateCreatorPageState: bindActionCreators(updateCreatorPageState, dispatch),
 });
-
-const AppFooter = ({creatorState, getLoggedCreator, authState, updateCreatorPageState, popupsState}: any) => {
+interface Props{
+  creatorState?:any;
+  getLoggedCreator?: any;
+  updateCreatorPageState?: typeof updateCreatorPageState;
+  authState?: any;
+  popupsState?: any;
+  onGoHome?: any;
+}
+const AppFooter = ({creatorState, getLoggedCreator, authState, updateCreatorPageState, popupsState, onGoHome}: Props) => {
   useEffect(()=>getLoggedCreator(),[]);  
-  const history = useHistory();
 
   const [buttonPopup , setButtonPopup] = useState(false);
   const creator = creatorState && creatorState.get('fetching') === false && creatorState.get('currentCreator'); 
@@ -46,19 +52,16 @@ const AppFooter = ({creatorState, getLoggedCreator, authState, updateCreatorPage
     updateCreatorPageState(true, id);
   };
 
-  const handleGoHome = () =>{
-    updateCreatorPageState(false);
-  };
   return (
     <>
     <nav className={styles.footerContainer}>
         {/* <HomeIcon onClick={()=> {checkGuest ? setButtonPopup(true) : history.push('/');}} fontSize="large" className={styles.footerItem}/> */}
-        <HomeIcon onClick={()=> handleGoHome()} fontSize="large" className={styles.footerItem}/>
+        <HomeIcon onClick={()=> onGoHome} fontSize="large" className={styles.footerItem}/>
         <PopupLogin trigger={buttonPopup} setTrigger={setButtonPopup}>
           <IndexPage />
         </PopupLogin>
         {/* <AddCircleIcon onClick={()=> {checkGuest ? setButtonPopup(true) : history.push('/newfeed');}} style={{fontSize: '5em'}} className={styles.footerItem}/> */}
-        <AddCircleIcon onClick={()=> history.push('/newfeed')} style={{fontSize: '5em'}} className={styles.footerItem}/>
+        <AddCircleIcon onClick={()=> {}} style={{fontSize: '5em'}} className={styles.footerItem}/>
         {/*hided for now*/}
         {/* {creator && <WhatshotIcon htmlColor="#FF6201" onClick={()=>{checkGuest ? setButtonPopup(true) : history.push('/notifications');}} /> } */}
         {/* {creator && ( 

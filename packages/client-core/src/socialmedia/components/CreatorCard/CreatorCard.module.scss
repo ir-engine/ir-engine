@@ -1,43 +1,55 @@
+// .creatorContainer{
     .bgImage{
-        width: 100%;
-        height: 290px;
-        background-color: #CCCCCC;
-    }
-    .controls{
-        .backButton{
-            width: fit-content;
-            transform: translate(40px);
-        }
-    }
-    .meControls{
-        display: flex;
-        flex-wrap: wrap;
+    width: 100%;
+    height: 290px;
+    background-color: #CCCCCC;
+}
 
-        .moreButton,
-        .backButton{
+.controls{
+    display: flex;
+    justify-content: space-between;
+    .backButton{
+        width: fit-content;
+        transform: translate(40px);
+    }
+    .moreButton{
+        width: fit-content;
+        transform: translate(-40px);
+    }
+}
+
+.avatarImage{
+    height: 110px;
+    width: 110px;
+    border-radius: 50%;
+    margin: 0 auto;
+    transform: translate(0, -115px);
+    background-color: #CA3E7B;
+}
+.content{
+    transform: translate(0, -115px);
+}
+.countersButtons{
+    position: absolute;
+    transform: translate(0, -120px);
+    width: 100%;
+    .countersButtonsSub{
+        display: flex;
+        .followButton{
             width: fit-content;
         }
     }
-    
-    .avatarImage{
-        height: 110px;
-        width: 110px;
-        border-radius: 50%;
-        margin: 0 auto;
-        transform: translate(0, -115px);
-        background-color: #CA3E7B;
-    }
-    .content{
-        transform: translate(0, -115px);
-    }
-    .countersButtons{
-        position: absolute;
-        transform: translate(0, -120px);
+}
+.creatorFormPopup{
+    :global(.MuiDialog-paper){
+        margin: 0px;
+        max-height: 100%;
         width: 100%;
-        .countersButtonsSub{
-            display: flex;
-            .followButton{
-                width: fit-content;
-            }
+
+        :global(.MuiTypography-h2){
+            font-size: 1.25rem;;
+            line-height: 2.25rem;;
         }
     }
+  }
+// }

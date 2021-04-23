@@ -1,7 +1,7 @@
 /**
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
-import { CHANGE_CREATOR_PAGE_STATE } from '../actions';
+import { CHANGE_CREATOR_PAGE_STATE, CHANGE_CREATOR_FORM_STATE } from '../actions';
 import Immutable from 'immutable';
 import { PopupsActions } from './actions';
 
@@ -20,6 +20,7 @@ const immutableState = Immutable.fromJS(initialFeedState);
 const popupsStateReducer = (state = immutableState, action: PopupsActions): any => {
   switch (action.type) {
     case CHANGE_CREATOR_PAGE_STATE : return state.set('creatorPage', (action as PopupsActions).state).set('creatorId', (action as PopupsActions).id);
+    case CHANGE_CREATOR_FORM_STATE : return state.set('creatorForm', (action as PopupsActions).state);
   }
   return state;
 };
