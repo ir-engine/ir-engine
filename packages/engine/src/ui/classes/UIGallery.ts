@@ -1,17 +1,12 @@
-import { Object3D, Color, TextureLoader, VideoTexture, Mesh, SphereGeometry, MeshBasicMaterial, BackSide } from "three";
-import { UIOverview } from "./UIOverview";
-import { UIPanel } from './UIPanel';
-import { UIButton } from "./UIButton";
 import { UIBaseElement, UI_ELEMENT_SELECT_STATE } from "./UIBaseElement";
-import {createItem, createCol, createRow, createButton, makeLeftItem} from '../functions/createItem';
-import { Block, Text } from "../../assets/three-mesh-ui";
+import { createButton } from '../functions/createItem';
+import { Block } from "../../assets/three-mesh-ui";
 import { Engine } from "../../ecs/classes/Engine";
 import {createGallery} from '../components/GalleryPanel';
 import {createBuyPanel} from '../components/BuyPanel';
 import {createPlayPanel} from '../components/PlayPanel';
 import {VideoPlayer} from '../components/VideoPlayer';
-import {totalWidth, totalHeight, itemWidth, itemHeight, gap, url, envUrl, videoUrl} from '../constants/Constant';
-import shaka from 'shaka-player';
+import {totalWidth, totalHeight, itemHeight, url, envUrl, videoUrl} from '../constants/Constant';
 import {Control} from '../components/Control';
 
 export class UIGallery extends UIBaseElement {
@@ -27,7 +22,7 @@ export class UIGallery extends UIBaseElement {
   buyPanel: Block;
   isPurchase: Boolean;
   player: VideoPlayer;
-  control: Object3D;
+  control: Control;
 
   constructor() {
     super();
@@ -42,10 +37,7 @@ export class UIGallery extends UIBaseElement {
     Engine.scene.children[10].visible = false;      //ground
     Engine.scene.children[12].visible = false;      //character
 
-    // const url = "360/ITN_Wrecks_FOR_REVIEW_4kx2k_360_h264_40Mbps.mp4";
-    // const videoElement = new VideoElement(3.2, 0.8, 0.1, 1.35, url);
-    let setPurchase;
-
+    let setPurchase = null;
     const marketPlaceItemClickCB = (panel) => {
       if(this.purchasePanel){
         this.purchasePanel.visible = true;
@@ -144,8 +136,7 @@ export class UIGallery extends UIBaseElement {
         height: totalHeight*0.5,
         thumbnailUrls: [url(0), url(1), url(2), url(3), url(4), url(5)]
     });
-    // this.add(this.buyPanel);
-    // this.buyPanel.position.set(0, 0, 0.1);
+    
     this.buyPanel.visible = false;
     this.preview.add(this.buyPanel);
 

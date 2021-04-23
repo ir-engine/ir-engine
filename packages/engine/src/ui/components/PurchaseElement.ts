@@ -1,8 +1,4 @@
 import { Block, Text } from "../../assets/three-mesh-ui";
-import { Object3D, Color, } from "three";
-import SceneButton from "../components/SceneButton";
-import VideoElement from './VideoElement';
-import ImageElement from './ImageElement';
 import { TextureLoader } from "three";
 
 class PurchaseElement {

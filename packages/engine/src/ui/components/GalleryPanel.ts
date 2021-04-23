@@ -1,5 +1,5 @@
 import { createItem, createCol, createRow, createButton, makeLeftItem } from '../functions/createItem';
-import { Block, Text } from "../../assets/three-mesh-ui";
+import { Block } from "../../assets/three-mesh-ui";
 import { UI_ELEMENT_SELECT_STATE } from '../classes/UIBaseElement'
 import {totalWidth, totalHeight, itemWidth, itemHeight, gap, url} from '../constants/Constant';
 
