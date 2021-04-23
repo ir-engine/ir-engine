@@ -1,4 +1,4 @@
-import { Object3D, Color, TextureLoader, VideoTexture, Mesh, SphereGeometry, MeshBasicMaterial, BackSide } from "three";
+import { Color, TextureLoader } from "three";
 import { Block, Text } from "../../assets/three-mesh-ui";
 
 export const createBuyPanel = (param) => {
