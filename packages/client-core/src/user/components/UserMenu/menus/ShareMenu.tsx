@@ -20,8 +20,8 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 const mapStateToProps = ( state: any): any => {
 	return {
 		inviteState: selectInviteState(state)
-	}
-}
+	};
+};
 
 interface Props {
 	sendInvite?: typeof sendInvite;
@@ -64,14 +64,14 @@ const ShareMenu = (props: Props): any => {
 		   identityProviderType: "email",
 		   targetObjectId: inviteState.get("targetObjectId"),
 		   invitee: null
-	   }
+	   };
 	   sendInvite(sendData);
 	   setEmail("");
-	}
+	};
 
 	const handleChang  = (e) => {
 		setEmail(e.target.value);
-	}
+	};
 
 	return (
 		<div className={styles.menuPanel}>
