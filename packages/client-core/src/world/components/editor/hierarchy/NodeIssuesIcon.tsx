@@ -55,7 +55,7 @@ const IssueIcon = (styled as any)(ExclamationTriangle)`
  * @param       {function component} node
  * @constructor
  */
-export default function NodeIssuesIcon({ node }) {
+export function NodeIssuesIcon({ node }) {
   const theme = useContext(ThemeContext) as any;
   const { t } = useTranslation();
 
@@ -111,3 +111,4 @@ export default function NodeIssuesIcon({ node }) {
 NodeIssuesIcon.propTypes = {
   node: PropTypes.object.isRequired
 };
+export default NodeIssuesIcon;

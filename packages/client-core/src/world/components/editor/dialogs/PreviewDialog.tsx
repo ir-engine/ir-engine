@@ -43,7 +43,7 @@ const RightContent = (styled as any).div`
  * @param       {any} props
  * @constructor
  */
-export default function PreviewDialog({ imageSrc, children, ...props }) {
+export function PreviewDialog({ imageSrc, children, ...props }) {
   return (
     <Dialog {...props}>
       <LeftContent>
@@ -64,3 +64,4 @@ PreviewDialog.propTypes = {
   imageSrc: PropTypes.string,
   children: PropTypes.node
 };
+export default PreviewDialog;

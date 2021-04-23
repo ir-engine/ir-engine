@@ -10,7 +10,7 @@ import Api from "../Api";
  * @author Robert Long
  * @type {class component}
  */
-export default class ImageMediaSource extends BaseSource {
+export  class ImageMediaSource extends BaseSource {
 
   // declairing component as type ImageSourcePanel
   component: typeof ImageSourcePanel;
@@ -61,3 +61,5 @@ export default class ImageMediaSource extends BaseSource {
     };
   }
 }
+
+export default  ImageMediaSource;

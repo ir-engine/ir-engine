@@ -27,7 +27,7 @@ const FormContainer = (styled as any).div`
  * @param       {function} onCancel
  * @constructor
  */
-export default function ExportProjectDialog({ defaultOptions, onConfirm, onCancel }) {
+export function ExportProjectDialog({ defaultOptions, onConfirm, onCancel }) {
   const { t } = useTranslation();
 
   // initializing options using defaultOptions
@@ -109,3 +109,4 @@ ExportProjectDialog.propTypes = {
   onConfirm: PropTypes.func.isRequired,
   onCancel: PropTypes.func.isRequired
 };
+export default ExportProjectDialog;

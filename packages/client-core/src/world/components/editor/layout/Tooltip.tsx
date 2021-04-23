@@ -24,7 +24,7 @@ const StyledTooltip = (styled as any).div`
  * @param {any} rest 
  * @returns 
  */
-export default function Tooltip({ children, padding, position, renderContent, disabled, ...rest }) {
+export function Tooltip({ children, padding, position, renderContent, disabled, ...rest }) {
   const [hoverRef, isHovered] = useHover();
 
   const getTargetRef = useCallback(() => {
@@ -98,3 +98,4 @@ InfoTooltip.propTypes = {
   children: PropTypes.node,
   info: PropTypes.string
 };
+export default Tooltip;

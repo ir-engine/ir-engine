@@ -28,6 +28,13 @@ const useStyles = makeStyles((theme: Theme) =>
     }),
 );
 
+/**
+ * Function for create group on  admin dashboard 
+ * 
+ * @returns @ReactDomElements
+ * @author Kevin KIMENYI <kimenyikevin@gmail.com>
+ */
+
 export default function GroupsConsole() {
     const classes = useStyles();
     const [dense, setDense] = React.useState(false);

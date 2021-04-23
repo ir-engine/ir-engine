@@ -2,7 +2,7 @@ import CustomOAuthStrategy from './custom-oauth';
 import { Params } from '@feathersjs/feathers';
 import config from '../../appconfig';
 
-export default class GithubStrategy extends CustomOAuthStrategy {
+export class GithubStrategy extends CustomOAuthStrategy {
   app: any
   constructor(app){
     super();
@@ -60,3 +60,4 @@ export default class GithubStrategy extends CustomOAuthStrategy {
     }
   }
 }
+export default GithubStrategy;

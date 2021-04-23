@@ -21,7 +21,7 @@ import { useTranslation } from "react-i18next";
  * @constructor
  */
 
-export default function AudioSourceProperties({ node, editor, multiEdit }) {
+export function AudioSourceProperties({ node, editor, multiEdit }) {
   const onChangeControls = useSetPropertySelected(editor, "controls");
   const onChangeAutoPlay = useSetPropertySelected(editor, "autoPlay");
   const onChangeLoop = useSetPropertySelected(editor, "loop");
@@ -203,3 +203,4 @@ AudioSourceProperties.propTypes = {
   editor: PropTypes.object,
   multiEdit: PropTypes.bool
 };
+export default AudioSourceProperties;

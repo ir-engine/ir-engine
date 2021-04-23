@@ -42,7 +42,7 @@ const FogTypeOptions = [
  * @param       props
  * @constructor
  */
-export default function SceneNodeEditor(props) {
+export function SceneNodeEditor(props) {
   const { editor, node } = props;
   const { t } = useTranslation();
 
@@ -354,3 +354,4 @@ SceneNodeEditor.iconComponent = Globe;
 
 // setting description and will appear on editor view
 SceneNodeEditor.description = i18n.t('editor:properties.scene.description');
+export default  SceneNodeEditor;

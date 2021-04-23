@@ -15,7 +15,7 @@ import { useTranslation } from "react-i18next";
  * @param       {any} props
  * @constructor
  */
-export default function PublishedSceneDialog({ onCancel, sceneName, sceneUrl, screenshotUrl, ...props }) {
+export function PublishedSceneDialog({ onCancel, sceneName, sceneUrl, screenshotUrl, ...props }) {
   const { t } = useTranslation();
   return (
     <PreviewDialog imageSrc={screenshotUrl} title={t('editor:dialog.published.title')} {...props}>
@@ -40,3 +40,4 @@ PublishedSceneDialog.propTypes = {
   sceneUrl: PropTypes.string.isRequired,
   screenshotUrl: PropTypes.string.isRequired
 };
+export default PublishedSceneDialog;

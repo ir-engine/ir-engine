@@ -34,7 +34,7 @@ type FileInputState = {
  * @author Robert Long
  * @type {Object}
  */
-export default class FileInput extends Component<
+export class FileInput extends Component<
   FileInputProps,
   FileInputState
 > {
@@ -82,3 +82,5 @@ export default class FileInput extends Component<
     );
   }
 }
+
+export default FileInput;
