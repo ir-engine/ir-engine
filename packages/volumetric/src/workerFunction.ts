@@ -30,7 +30,7 @@ function startHandlerLoop({
       let {
         frameStart,
         frameEnd
-      } = messageQueue.pop();
+      } = messageQueue.shift();
 
       const requestedOverLoop = frameEnd < frameStart;
       if (requestedOverLoop) {
