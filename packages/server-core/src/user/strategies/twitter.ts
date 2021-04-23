@@ -2,7 +2,7 @@ import CustomOAuthStrategy from './custom-oauth';
 import { Params } from '@feathersjs/feathers';
 import config from '../../appconfig';
 
-export default class TwitterStrategy extends CustomOAuthStrategy {
+export class TwitterStrategy extends CustomOAuthStrategy {
   app: any
   constructor(app){
     super();
@@ -59,4 +59,4 @@ export default class TwitterStrategy extends CustomOAuthStrategy {
       }
     }
   }
-  
+  export default TwitterStrategy;

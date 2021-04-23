@@ -1,4 +1,4 @@
-import CanvasPlayer from "@xr3ngine/volumetric/src/CanvasPlayer";
+import Player from "@xr3ngine/volumetric/src/Player";
 
 import React, { useEffect, useRef, useState } from 'react';
 import { PerspectiveCamera, Scene, sRGBEncoding, Vector3, WebGLRenderer } from "three";
@@ -14,7 +14,7 @@ export const VolumetricPlayer = (props: VolumetricPlayerProps) => {
   const [ playPressed, setPlayPressed ] = useState(false);
   const containerRef = useRef<HTMLDivElement>();
   const rendererRef = useRef<WebGLRenderer>(null);
-  const playerRef = useRef<CanvasPlayer>(null);
+  const playerRef = useRef<Player>(null);
   let animationFrameId:number;
   const cameraVerticalOffset = props.cameraVerticalOffset || 0;
   // const mesh: any = useRef();
@@ -75,13 +75,15 @@ export const VolumetricPlayer = (props: VolumetricPlayerProps) => {
 
     function render() {
       requestAnimationFrame(render);
-      playerRef.current.handleRender(renderer, scene, camera);
+      playerRef.current.handleRender(() => {
+        renderer.render(scene, camera);
+      });
       // controls.update();
     }
 
     console.log('create new player');
     if (!playerRef.current) {
-      playerRef.current = new CanvasPlayer({
+      playerRef.current = new Player({
         scene,
         renderer,
         meshFilePath: props.meshFilePath,

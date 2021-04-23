@@ -1,5 +1,7 @@
 /**
  * Name of different events which will occur on the entities.
+ * 
+ * @author Fernando Serrano, Robert Long
  */
 
 /** @category Query Event */

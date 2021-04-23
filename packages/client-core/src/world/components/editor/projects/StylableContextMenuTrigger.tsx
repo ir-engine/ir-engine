@@ -11,7 +11,7 @@ import { ContextMenuTrigger } from "../layout/ContextMenu";
  * @param {any} rest 
  * @returns 
  */
-export default function StylableContextMenuTrigger({ className, attributes, children, ...rest }) {
+export function StylableContextMenuTrigger({ className, attributes, children, ...rest }) {
   return (
     /* @ts-ignore */
     <ContextMenuTrigger {...rest} attributes={{ className, ...attributes }}>
@@ -25,3 +25,4 @@ StylableContextMenuTrigger.propTypes = {
   attributes: PropTypes.object,
   children: PropTypes.node
 };
+export default StylableContextMenuTrigger;

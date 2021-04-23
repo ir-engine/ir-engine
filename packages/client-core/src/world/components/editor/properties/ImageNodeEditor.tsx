@@ -23,7 +23,7 @@ const imageTransparencyOptions = Object.values(ImageAlphaMode).map(mapValue);
  * @param       {any} props
  * @constructor
  */
-export default function ImageNodeEditor(props) {
+export function ImageNodeEditor(props) {
   const { editor, node } = props;
   const { t } = useTranslation();
 
@@ -109,3 +109,4 @@ ImageNodeEditor.iconComponent = Image;
 
 //intailising description and will appears on ImageNodeEditor view.
 ImageNodeEditor.description = i18n.t('editor:properties.image.description');
+export default ImageNodeEditor;

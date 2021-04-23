@@ -1,3 +1,6 @@
+/**
+ * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
+ */
 import Typography from '@material-ui/core/Typography';
 import React from 'react';
 import { useEffect } from 'react';

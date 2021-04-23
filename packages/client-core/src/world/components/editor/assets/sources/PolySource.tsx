@@ -8,7 +8,7 @@ import i18n from "i18next";
  * @author Robert Long
  * @type {class}
  */
-export default class PolySource extends ModelMediaSource {
+export class PolySource extends ModelMediaSource {
   tags: { label: string; value: string }[];
   searchLegalCopy: string;
   privacyPolicyUrl: string;
@@ -38,3 +38,5 @@ export default class PolySource extends ModelMediaSource {
     this.transformPivot = TransformPivot.Bottom;
   }
 }
+
+export default PolySource;

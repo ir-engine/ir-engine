@@ -19,6 +19,9 @@ const useStyles = makeStyles((theme: Theme) =>
             height: "40vh",
             // maxWidth: "1500px"
         },
+        mtopp: {
+          marginTop: "20px"
+        }
     }),
 );
 
@@ -297,6 +300,14 @@ const dataTest = [
     }
   ];
 
+
+/**
+ * Function for analytics on admin dashboard 
+ * 
+ * @returns @ReactDomElements
+ * @author Kevin KIMENYI <kimenyikevin@gmail.com>
+ */
+
 const Analytics = () => {
     const classes = useStyles();
     const data = [
@@ -328,7 +339,7 @@ const Analytics = () => {
     }, []);
 
     return (
-        <div className="w-100">
+        <div>
             <Grid container spacing={3}>
                 {
                     data.map(el => {
@@ -340,12 +351,12 @@ const Analytics = () => {
                     })
                 }
             </Grid>
-            <div className="mt-4">
+            <div className={classes.mtopp}>
                 <Paper className={classes.paper}>
                         <Graph data={dataTest} />       
                 </Paper>
             </div>
-            <div className="mt-4">
+            <div className={classes.mtopp}>
                 <ApiLinks/>
             </div>
         </div>

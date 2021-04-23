@@ -3,6 +3,10 @@ import ArmTransforms from '../classes/ArmTransforms';
 import ShoulderPoser from './ShoulderPoser';
 import XRArmIK from './XRArmIK';
 
+/**
+ * 
+ * @author Avaer Kazmer
+ */
 class ShoulderTransforms {
   transform: Object3D;
   hips: Object3D;

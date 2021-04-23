@@ -10,6 +10,7 @@ import Modal from '@material-ui/core/Modal';
 import Select from '@material-ui/core/Select';
 import Switch from '@material-ui/core/Switch';
 import TextField from '@material-ui/core/TextField';
+import Checkbox from '@material-ui/core/Checkbox';
 import classNames from 'classnames';
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
@@ -71,6 +72,10 @@ const LocationModal = (props: Props): any => {
     const adminLocations = adminState.get('locations').get('locations');
     const adminScenes = adminState.get('scenes').get('scenes');
     const locationTypes = adminState.get('locationTypes').get('locationTypes');
+    const [state, setState] = React.useState({
+        feature: false,
+        lobby: true,
+    });
 
     const submitLocation = () => {
         const submission = {
@@ -81,7 +86,9 @@ const LocationModal = (props: Props): any => {
                 locationType: locationType,
                 instanceMediaChatEnabled: instanceMediaChatEnabled,
                 videoEnabled: videoEnabled
-            }
+            },
+            isLobby: state.lobby,
+            isFeatured: state.feature
         };
 
         if (editing === true) {
@@ -116,6 +123,10 @@ const LocationModal = (props: Props): any => {
         }
     }, [location]);
 
+    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setState({ ...state, [event.target.name]: event.target.checked });
+    };
+
     return (
         <div>
             <Modal
@@ -135,7 +146,7 @@ const LocationModal = (props: Props): any => {
                         [styles.paper]: true,
                         [styles['modal-content']]: true
                     })}>
-                        { editing === true && <TextField
+                        {editing === true && <TextField
                             variant="outlined"
                             margin="normal"
                             fullWidth
@@ -194,7 +205,7 @@ const LocationModal = (props: Props): any => {
                             </Select>
                         </FormControl>
                         <FormGroup>
-                            <FormControl style={{color: 'black'}}>
+                            <FormControl style={{ color: 'black' }}>
                                 <FormControlLabel
                                     color='primary'
                                     control={<Switch checked={videoEnabled} onChange={(e) => setVideoEnabled(e.target.checked)} name="videoEnabled" />}
@@ -203,7 +214,7 @@ const LocationModal = (props: Props): any => {
                             </FormControl>
                         </FormGroup>
                         <FormGroup>
-                            <FormControl style={{color: 'black'}}>
+                            <FormControl style={{ color: 'black' }}>
                                 <FormControlLabel
                                     color='primary'
                                     control={<Switch checked={instanceMediaChatEnabled} onChange={(e) => setInstanceMediaChatEnabled(e.target.checked)} name="instanceMediaChatEnabled" />}
@@ -211,16 +222,39 @@ const LocationModal = (props: Props): any => {
                                 />
                             </FormControl>
                         </FormGroup>
+
+                        <FormControlLabel
+                            control={
+                                <Checkbox
+                                    checked={state.lobby}
+                                    onChange={handleChange}
+                                    name="lobby"
+                                    color="primary"
+                                />
+                            }
+                            label="Lobby"
+                        />
+                        <FormControlLabel
+                            control={
+                                <Checkbox
+                                    checked={state.feature}
+                                    onChange={handleChange}
+                                    name="feature"
+                                    color="primary"
+                                />
+                            }
+                            label="Featured"
+                        />
                         <FormGroup row className={styles.locationModalButtons}>
-                            { editing === true && <Button
+                            {editing === true && <Button
                                 type="submit"
                                 variant="contained"
                                 color="primary"
                                 onClick={submitLocation}
                             >
                                 Update
-                            </Button> }
-                            { editing !== true && <Button
+                            </Button>}
+                            {editing !== true && <Button
                                 type="submit"
                                 variant="contained"
                                 color="primary"
@@ -235,7 +269,7 @@ const LocationModal = (props: Props): any => {
                             >
                                 Cancel
                             </Button>
-                            { editing === true && <Button
+                            {editing === true && <Button
                                 type="submit"
                                 variant="contained"
                                 color="secondary"

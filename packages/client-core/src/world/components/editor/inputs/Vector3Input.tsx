@@ -47,7 +47,7 @@ let uniqueId = 0;
  * 
  * @author Robert Long
  */
-export default class Vector3Input extends Component {
+export class Vector3Input extends Component {
   static propTypes = {
     uniformScaling: PropTypes.bool,
     value: PropTypes.object,
@@ -148,3 +148,4 @@ export default class Vector3Input extends Component {
     );
   }
 }
+export default Vector3Input;

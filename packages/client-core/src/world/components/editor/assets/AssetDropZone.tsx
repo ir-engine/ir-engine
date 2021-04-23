@@ -43,7 +43,7 @@ const DropZoneBackground = (styled as any).div`
  * @param       {any} uploadOptions
  * @constructor
  */
-export default function AssetDropZone({ afterUpload, uploadOptions }) {
+export function AssetDropZone({ afterUpload, uploadOptions }) {
   const editor = useContext(EditorContext);
   const { t } = useTranslation();
 
@@ -83,3 +83,4 @@ AssetDropZone.propTypes = {
   afterUpload: PropTypes.func,
   uploadOptions: PropTypes.object
 };
+export default AssetDropZone;

@@ -1,5 +1,9 @@
 import { Object3D } from "three";
 
+/**
+ * 
+ * @author Avaer Kazmer
+ */
 class ArmTransforms {
 	transform: any;
 	upperArm: any;

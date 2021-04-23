@@ -3,7 +3,7 @@ import LocalStorage from './local.storage';
 import { StorageProviderInterface } from './storageprovider.interface';
 import config from '../../appconfig';
 
-export default class StorageProvider implements StorageProviderInterface {
+export class StorageProvider implements StorageProviderInterface {
   provider: StorageProviderInterface
   docs: any
   constructor () {
@@ -15,3 +15,4 @@ export default class StorageProvider implements StorageProviderInterface {
   getProvider = (): StorageProviderInterface => this.provider
   getStorage = (): any => this.provider.getStorage()
 }
+export default StorageProvider;

@@ -58,7 +58,7 @@ export const PanelContent = (styled as any).div`
  * 
  *  @author Robert Long
  */
-export default class Panel extends Component {
+export class Panel extends Component {
   static propTypes = {
     icon: PropTypes.object,
     title: PropTypes.string,
@@ -81,3 +81,5 @@ export default class Panel extends Component {
     );
   }
 }
+
+export default Panel;

@@ -2,6 +2,11 @@ import { Vector3 } from "three";
 
 const localVector = new Vector3();
 const localVector2 = new Vector3();
+
+/**
+ * 
+ * @author Avaer Kazmer
+ */
 const Helpers = {
   getWorldPosition(o, v) {
     return v.setFromMatrixPosition(o.matrixWorld);
