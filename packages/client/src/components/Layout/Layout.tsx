@@ -1,4 +1,4 @@
-import { ThemeProvider } from "styled-components";
+import { ThemeProvider } from "@material-ui/styles";
 import { Forum, FullscreenExit, People, ZoomOutMap } from '@material-ui/icons';
 import { Alerts } from '@xr3ngine/client-core/src/common/components/Alerts';
 import { UIDialog } from '@xr3ngine/client-core/src/common/components/Dialog/Dialog';
