@@ -16,7 +16,6 @@
     "build": "cross-env NODE_OPTIONS=--max_old_space_size=4096 vite build && cp src/server.js dist/server.js",
     "serve": "serve dist --ssl-cert ../../certs/cert.pem --ssl-key ../../certs/key.pem -s",
     "offline": "cross-env NODE_ENV=offline node --max-old-space-size=4096 ./index.js --port 3000",
-    "export": "next export -o www/ && mv www/404.html www/index.html",
     "start": "cp src/server.js dist/server.js && node dist/server.js",
     "validate": "yarn run lint && yarn run test",
     "test": "echo \"TODO: Add Testing to Client\" && exit 0",

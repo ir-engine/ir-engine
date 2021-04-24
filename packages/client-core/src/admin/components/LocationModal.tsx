@@ -26,6 +26,7 @@ import { selectAuthState } from "../../user/reducers/auth/selector";
 // @ts-ignore
 import styles from './Admin.module.scss';
 import Tooltip from '@material-ui/core/Tooltip';
+import { useTranslation } from 'react-i18next';
 
 interface Props {
     open: boolean;
@@ -77,6 +78,7 @@ const LocationModal = (props: Props): any => {
         feature: false,
         lobby: false,
     });
+    const { t } = useTranslation();
 
     const submitLocation = () => {
         const submission = {
@@ -169,7 +171,7 @@ const LocationModal = (props: Props): any => {
                             margin="normal"
                             fullWidth
                             id="name"
-                            label="Name"
+                            label={t('admin:components.locationModel.lbl-name')}
                             name="name"
                             required
                             value={name}
@@ -181,14 +183,14 @@ const LocationModal = (props: Props): any => {
                             margin="normal"
                             fullWidth
                             id="maxUsers"
-                            label="Max Users"
+                            label={t('admin:components.locationModel.lbl-maxuser')}
                             name="name"
                             required
                             value={maxUsers}
                             onChange={(e) => setMaxUsers(parseInt(e.target.value))}
                         />
                         <FormControl>
-                            <InputLabel id="scene">Scene</InputLabel>
+                            <InputLabel id="scene">{t('admin:components.locationModel.lbl-scene')}</InputLabel>
                             <Select
                                 labelId="scene"
                                 id="scene"
@@ -199,7 +201,7 @@ const LocationModal = (props: Props): any => {
                             </Select>
                         </FormControl>
                         <FormControl>
-                            <InputLabel id="locationType">Type</InputLabel>
+                            <InputLabel id="locationType">{t('admin:components.locationModel.lbl-type')}</InputLabel>
                             <Select
                                 labelId="locationType"
                                 id="locationType"
@@ -214,7 +216,7 @@ const LocationModal = (props: Props): any => {
                                 <FormControlLabel
                                     color='primary'
                                     control={<Switch checked={videoEnabled} onChange={(e) => setVideoEnabled(e.target.checked)} name="videoEnabled" />}
-                                    label="Video Enabled"
+                                    label={t('admin:components.locationModel.lbl-ve')}
                                 />
                             </FormControl>
                         </FormGroup>
@@ -223,7 +225,7 @@ const LocationModal = (props: Props): any => {
                                 <FormControlLabel
                                     color='primary'
                                     control={<Switch checked={instanceMediaChatEnabled} onChange={(e) => setInstanceMediaChatEnabled(e.target.checked)} name="instanceMediaChatEnabled" />}
-                                    label="Global Media Enabled"
+                                    label={t('admin:components.locationModel.lbl-gme')}
                                 />
                             </FormControl>
                         </FormGroup>
@@ -237,7 +239,7 @@ const LocationModal = (props: Props): any => {
                                     color="primary"
                                 />
                             }
-                            label="Make Lobby"
+                            label={t('admin:components.locationModel.lbl-lobby')}
                         />}
                         <FormControlLabel
                             control={
@@ -248,7 +250,7 @@ const LocationModal = (props: Props): any => {
                                     color="primary"
                                 />
                             }
-                            label="Featured"
+                            label={t('admin:components.locationModel.lbl-featured')}
                         />
                         <FormGroup row className={styles.locationModalButtons}>
                             {editing === true && <Button
@@ -257,7 +259,7 @@ const LocationModal = (props: Props): any => {
                                 color="primary"
                                 onClick={submitLocation}
                             >
-                                Update
+                                {t('admin:components.locationModel.lbl-update')}
                             </Button>}
                             {editing !== true && <Button
                                 type="submit"
@@ -265,16 +267,16 @@ const LocationModal = (props: Props): any => {
                                 color="primary"
                                 onClick={submitLocation}
                             >
-                                Create
+                                {t('admin:components.locationModel.lbl-create')}
                             </Button>}
                             <Button
                                 type="submit"
                                 variant="contained"
                                 onClick={handleClose}
                             >
-                                Cancel
+                                {t('admin:components.locationModel.lbl-cancel')}
                             </Button>
-                            {editing === true && <Tooltip title={state.lobby ? "Lobby can't be deleted" : ''} arrow placement="top">
+                            {editing === true && <Tooltip title={state.lobby ? t('admin:components.locationModel.tooltipCanNotBeDeleted') : ''} arrow placement="top">
                                 <span><Button
                                     type="submit"
                                     variant="contained"
@@ -282,7 +284,7 @@ const LocationModal = (props: Props): any => {
                                     onClick={deleteLocation}
                                     disabled={location.isLobby}
                                 >
-                                    Delete
+                                    {t('admin:components.locationModel.lbl-delete')}
                                 </Button>
                                 </span>
                             </Tooltip>}
