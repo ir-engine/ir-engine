@@ -30,7 +30,7 @@ function startHandlerLoop({
       let {
         frameStart,
         frameEnd
-      } = messageQueue.pop();
+      } = messageQueue.shift();
 
       const requestedOverLoop = frameEnd < frameStart;
       if (requestedOverLoop) {
@@ -43,8 +43,7 @@ function startHandlerLoop({
       }
 
       const startFrameData = _fileHeader.frameData[frameStart];
-      const endFrameData = _fileHeader.frameData[requestedOverLoop ? frameEnd : numberOfFrames - 1];
-
+      const endFrameData = _fileHeader.frameData[!requestedOverLoop ? frameEnd : numberOfFrames - 1];
       const requestStartBytePosition = startFrameData.startBytePosition;
       const requestEndBytePosition = endFrameData.startBytePosition + endFrameData.meshLength;
 

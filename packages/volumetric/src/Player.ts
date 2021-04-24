@@ -68,7 +68,7 @@ export default class Player {
     }
     else {
       if (moduloBy(this.lastFrameRequested - this.currentFrame, this.numberOfFrames) <= minimumBufferLength * 2) {
-        const newLastFrame = Math.max(this.lastFrameRequested + minimumBufferLength, this.lastFrameRequested + this.targetFramesToRequest);
+        const newLastFrame = Math.max(this.lastFrameRequested + minimumBufferLength, this.lastFrameRequested + this.targetFramesToRequest) % this.numberOfFrames;
         const payload = {
           frameStart: this.lastFrameRequested,
           frameEnd: newLastFrame
@@ -76,10 +76,11 @@ export default class Player {
         console.log("Posting request", payload);
         this._worker.postMessage({ type: "request", payload }); // Send data to our worker.
         this.lastFrameRequested = newLastFrame;
-      }
 
-      if (typeof this.onMeshBuffering === "function") {
-        this.onMeshBuffering(this.meshBuffer.size / minimumBufferLength);
+        if (!meshBufferHasEnoughToPlay && typeof this.onMeshBuffering === "function") {
+          // console.log('buffering ', this.meshBuffer.size / minimumBufferLength,',  have: ', this.meshBuffer.size, ', need: ', minimumBufferLength )
+          this.onMeshBuffering(this.meshBuffer.size / minimumBufferLength);
+        }
       }
     }
 
@@ -145,7 +146,7 @@ export default class Player {
     this.onMeshBuffering = onMeshBuffering;
     this.onFrameShow = onFrameShow;
     this.rendererCallback = rendererCallback;
-    
+
     this.encoderWindowSize = encoderWindowSize;
     this.encoderByteLength = encoderByteLength;
     this.videoSize = videoSize;
@@ -223,6 +224,12 @@ export default class Player {
 
         this.meshBuffer.set(frameData.keyframeNumber, geometry );
       })
+
+      if (typeof this.onMeshBuffering === "function") {
+        const minimumBufferLength = this.targetFramesToRequest * 2;
+        // console.log('buffering ', this.meshBuffer.size / minimumBufferLength,',  have: ', this.meshBuffer.size, ', need: ', minimumBufferLength )
+        this.onMeshBuffering(this.meshBuffer.size / minimumBufferLength);
+      }
     }
 
     worker.onmessage = (e) => {
@@ -256,7 +263,7 @@ export default class Player {
   /**
    * emulated video frame callback
    * bridge from video.timeupdate event to videoUpdateHandler
-   * @param {Event} e
+   * @param cb
    */
   handleRender(cb?: onRenderingCallback) {
     if (!this.fileHeader || this._video.currentTime === 0 || this._video.paused)
