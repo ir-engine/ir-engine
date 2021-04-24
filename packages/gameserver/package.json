@@ -32,11 +32,10 @@
   },
   "jest": "ts-jest",
   "scripts": {
-    "start": "yarn run build && node dist/server.js",
-    "dev": "GAMESERVER_ENABLED=true && cross-env NODE_ENV=development vite",
-    "build": "cross-env NODE_ENV=production vite --mode=production",
+    "start": "cross-env NODE_ENV=production ts-eager src/index.ts",
+    "dev": "cross-env NODE_ENV=development GAMESERVER_ENABLED=true nodemon --watch src/** -r ts-eager/register src/index.ts",
+    "dev-nossl": "cross-env NOSSL=true ts-eager src/index.ts",
     "test": "echo \"TODO: no test specified\" && exit 0",
-    "localbuild": "yarn build && cross-env LOCAL_BUILD=true yarn start",
     "lint": "eslint --fix --ext \"**/*.js\" \"**/*.ts\"",
     "validate": "yarn run lint && yarn run build && yarn run test",
     "precommit": "no-master-commits -b master,dev"
@@ -81,7 +80,6 @@
     "compression": "1.7.4",
     "cors": "2.8.5",
     "dauria": "2.0.0",
-    "dotenv-flow": "3.2.0",
     "feathers-authentication-management": "3.1.0",
     "feathers-blob": "2.4.0",
     "feathers-hooks-common": "5.0.5",

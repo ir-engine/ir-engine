@@ -13,13 +13,6 @@ import app from './app';
 import logger from '@xr3ngine/server-core/src/logger';
 import config from '@xr3ngine/server-core/src/appconfig';
 import psList from 'ps-list';
-// import { exec } from 'child_process';
-
-/**
- * @param status
- */
-
-console.log("Config is", config);
 
 process.on('unhandledRejection', (error, promise) => {
   console.error('UNHANDLED REJECTION - Promise: ', promise, ', Error: ', error, ').');
@@ -82,7 +75,7 @@ if (useSSL) {
 }
 
 const server = useSSL
-  ? https.createServer(certOptions, app).listen(port)
+  ? https.createServer(certOptions as any, app).listen(port)
   : app.listen(port);
 
 if (useSSL === true) app.setup(server);

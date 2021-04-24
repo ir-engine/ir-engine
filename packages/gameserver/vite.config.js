@@ -1,4 +1,5 @@
 import fs from 'fs';
+import path from 'path';
 import { defineConfig, loadEnv } from 'vite';
 
 export default defineConfig(() => {
@@ -28,13 +29,19 @@ export default defineConfig(() => {
             'process.browser': process.browser,
         },
         build: {
+            lib: {
+                entry: path.resolve(__dirname, 'src/index.ts'),
+                name: 'xr3ngine-gameserver'
+            },
             sourcemap: 'inline',
             rollupOptions: {
                 output: {
                     dir: 'dist',
                     format: 'es',
                 },
-            }
+            },
         }
     }
-})
+});
+
+process.env.VITE_IS_LIB_MODE = true;
