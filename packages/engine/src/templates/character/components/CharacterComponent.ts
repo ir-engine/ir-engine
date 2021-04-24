@@ -12,8 +12,8 @@ import { CollisionGroups } from '../../../physics/enums/CollisionGroups';
 
 // idle|   idle  +  walk     |    walk      |    walk + run     |   run
 // 0   | > WALK_START_SPEED  | > WALK_SPEED | > RUN_START_SPEED | > RUN_SPEED
-export const WALK_SPEED = 1.2;
-export const RUN_SPEED = 2.4;
+export const WALK_SPEED = 0.5;
+export const RUN_SPEED = 1;
 
 export class CharacterComponent extends Component<CharacterComponent> {
 
@@ -57,7 +57,6 @@ export class CharacterComponent extends Component<CharacterComponent> {
 	public velocity: Vector3 = new Vector3();
 	public arcadeVelocityInfluence: Vector3 = new Vector3();
 	public velocityTarget: Vector3 = new Vector3();
-	public arcadeVelocityIsAdditive: boolean;
 
 	public currentInputHash: any = ""
 
@@ -88,22 +87,16 @@ export class CharacterComponent extends Component<CharacterComponent> {
 	public capsulePosition: Transform;
 	// Ray casting
 	public raycastQuery: SceneQuery;
-	// public rayDontStuckX: RaycastResult = new RaycastResult();
-	// public rayDontStuckZ: RaycastResult = new RaycastResult();
-	// public rayDontStuckXm: RaycastResult = new RaycastResult();
-	// public rayDontStuckZm: RaycastResult = new RaycastResult();
-	public rayHasHit = false;
-	public rayGroundHit = false;
-	public rayGroundY = null;
+	public isGrounded = false;
 	public rayCastLength = 0.85; // depends on the height of the actor
 	public raySafeOffset = 0.03;
-	public wantsToJump = false;
 	public initJumpSpeed = -1;
 	public playerInPortal = 0;
 	public animationVelocity: Vector3 = new Vector3();
 	public groundImpactVelocity: Vector3 = new Vector3();
 
 	public controlledObject: any;
+  public gamepadDamping = 0.05;
 
   public vehicleEntryInstance: any;
   public occupyingSeat: any;
@@ -111,7 +104,7 @@ export class CharacterComponent extends Component<CharacterComponent> {
 	canFindVehiclesToEnter: boolean;
 	canEnterVehicles: boolean;
 	canLeaveVehicles: boolean;
-  alreadyJumped: boolean;
+  isJumping: boolean;
 	rotationSpeed: any;
 
   collisionMask: number = CollisionGroups.Default | CollisionGroups.Car | CollisionGroups.ActiveCollider;

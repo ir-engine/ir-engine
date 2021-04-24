@@ -71,14 +71,20 @@ export class PhysicsSystem extends System {
       addColliderWithEntity(entity)
     });
 
+    this.queryResults.collider.all?.forEach(entity => { });
+
     this.queryResults.collider.removed?.forEach(entity => {
       const colliderComponent = getComponent<ColliderComponent>(entity, ColliderComponent, true);
       if (colliderComponent) {
         this.removeBody(colliderComponent.body);
       }
     });
+
     // RigidBody
-    this.queryResults.rigidBody.added?.forEach(entity => { });
+    this.queryResults.rigidBody.added?.forEach(entity => { 
+      const colliderComponent = getComponent<ColliderComponent>(entity, ColliderComponent);
+      console.log(colliderComponent.body)
+    });
 
     this.queryResults.rigidBody.all?.forEach(entity => {
       if (!hasComponent(entity, ColliderComponent)) return;
@@ -148,7 +154,7 @@ export class PhysicsSystem extends System {
         }
       });
     }
-    PhysXInstance.instance.update(delta);
+    PhysXInstance.instance.update();
   }
 
   get gravity() {

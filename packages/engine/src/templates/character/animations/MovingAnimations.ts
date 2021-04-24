@@ -113,9 +113,6 @@ export const initializeMovingState: Behavior = (entity, args: { x?: number, y?: 
 
   actor.canFindVehiclesToEnter = true;
 
-	actor.arcadeVelocityIsAdditive = false;
-	actor.arcadeVelocityInfluence.set(1, 0, 1);
-
 	actor.velocityTarget.z = args?.z ?? 0;
 	actor.velocityTarget.x = args?.x ?? 0;
 	actor.velocityTarget.y = args?.y ?? 0;
@@ -123,17 +120,22 @@ export const initializeMovingState: Behavior = (entity, args: { x?: number, y?: 
   actor.movementEnabled = true;
 };
 
-const customVector = new Vector3(0,0,0);
+const vec3 = new Vector3(0,0,0);
 const getMovementValues: Behavior = (entity, args: {}, deltaTime: number) => {
   const actor = getComponent<CharacterComponent>(entity, CharacterComponent as any);
+
   // simulate rayCastHit as vectorY from 1 to 0, for smooth changes
- //  absSpeed = MathUtils.smoothstep(absSpeed, 0, 1);
+  //  absSpeed = MathUtils.smoothstep(absSpeed, 0, 1);
+
+  if(actor.moveVectorSmooth.position.length() < 0.1) { actor.moveVectorSmooth.velocity.multiplyScalar(0.9) }
+  if(actor.moveVectorSmooth.position.length() < 0.001) { actor.moveVectorSmooth.velocity.set(0,0,0); actor.moveVectorSmooth.position.set(0,0,0); }
+
   actor.moveVectorSmooth.target.copy(actor.animationVelocity);
   actor.moveVectorSmooth.simulate(deltaTime);
   const actorVelocity = actor.moveVectorSmooth.position;
 
-  customVector.setY(actor.rayHasHit ? 0 : 1);
-  actor.animationVectorSimulator.target.copy(customVector);
+  vec3.setY(actor.isGrounded ? 0 : 1);
+  actor.animationVectorSimulator.target.copy(vec3);
   actor.animationVectorSimulator.simulate(deltaTime);
   let dontHasHit = actor.animationVectorSimulator.position.y;
 

@@ -60,6 +60,7 @@ export class ServerSpawnSystem extends System {
         this.lastSpawnIndex = (this.lastSpawnIndex + 1) % this.spawnPoints.length;
         collider.controller.velocity = { x: 0, y: 0, z: 0 };
         transform.position.copy(spawnPosition);
+        console.log('spawn pos', spawnPosition)
         collider.controller.updateTransform({ translation: { x: spawnPosition.x, y: spawnPosition.y, z: spawnPosition.z } });
       } else {
         console.log('removed TeleportToSpawnPoint')

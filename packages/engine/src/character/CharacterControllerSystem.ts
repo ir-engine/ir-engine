@@ -2,7 +2,6 @@ import { System, SystemAttributes } from "../ecs/classes/System";
 import { updateVectorAnimation } from "./functions/updateVectorAnimation";
 import { AnimationComponent } from "./components/AnimationComponent";
 import { CharacterComponent } from "../templates/character/components/CharacterComponent";
-import { updateCharacterOrientation } from "./functions/updateCharacterOrientation";
 import { getComponent, getMutableComponent, hasComponent } from "../ecs/functions/EntityFunctions";
 import { physicsMove } from "../physics/behaviors/physicsMove";
 import { IKComponent } from "./components/IKComponent";
@@ -33,7 +32,7 @@ export class CharacterControllerSystem extends System {
   execute(delta: number): void {
     this.queryResults.character.added.forEach((entity) => {
       const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
-      actor.raycastQuery = PhysicsSystem.instance.addRaycastQuery({ 
+      actor.raycastQuery = PhysicsSystem.instance.addRaycastQuery({
         type: SceneQueryType.Closest,
         origin: new Vector3(),
         direction: new Vector3(0, -1, 0),
@@ -44,11 +43,12 @@ export class CharacterControllerSystem extends System {
 
     this.queryResults.characterInput.all.forEach((entity) => {
       const actor = getComponent(entity, CharacterComponent)
-      
-      updateCharacterOrientation(entity, delta)
-      if(actor.movementEnabled) {
-        physicsMove(entity, {}, delta)
-      }
+
+      // do head rotation for XR from input view vector - TODO: figure out where to put this
+      // if(XRSystem.instance?.cameraDolly) XRSystem.instance.cameraDolly.setRotationFromAxisAngle(downVector, Math.atan2(actor.viewVector.z, actor.viewVector.x))
+
+      if (!actor.movementEnabled || !actor.initialized) return;
+      physicsMove(entity, delta);
     })
 
     this.queryResults.animation.all.forEach((entity) => {
@@ -57,9 +57,7 @@ export class CharacterControllerSystem extends System {
 
     this.queryResults.ikavatar.all.forEach((entity) => {
       const ikComponent = getMutableComponent(entity, IKComponent);
-      if(ikComponent.avatarIKRig) {
-        ikComponent.avatarIKRig.update(delta);
-      }
+      ikComponent.avatarIKRig?.update(delta);
     })
     // Capsule
 
@@ -68,11 +66,11 @@ export class CharacterControllerSystem extends System {
       const transform = getComponent(entity, TransformComponent);
       collider.controller = PhysicsSystem.instance.createController(new Controller({
         isCapsule: true,
-        collisionLayer: CollisionGroups.None,
-        collisionMask: CollisionGroups.None,//CollisionGroups.Default | CollisionGroups.Characters | CollisionGroups.Car | CollisionGroups.TrimeshColliders,
+        collisionLayer: CollisionGroups.Characters,
+        collisionMask: CollisionGroups.All,//CollisionGroups.Default | CollisionGroups.Characters | CollisionGroups.Car | CollisionGroups.TrimeshColliders,
         position: {
           x: transform.position.x,
-          y: transform.position.y + 2,
+          y: transform.position.y + 1,
           z: transform.position.z
         },
         material: {
@@ -85,15 +83,17 @@ export class CharacterControllerSystem extends System {
       const collider = getMutableComponent<ControllerColliderComponent>(entity, ControllerColliderComponent)
       const transform = getComponent<TransformComponent>(entity, TransformComponent as any);
       const actor: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
-      
+
       if (actor == undefined || !actor.initialized) return;
-    
+      // console.log(collider.controller.transform.translation, collider.controller.delta)
       // reset if vals are invalid
-      if(isNaN(collider.controller.transform.translation.x)) {
+      if (isNaN(collider.controller.transform.translation.x)) {
+        console.warn("WARNING: Character physics data reporting NaN")
         collider.controller.transform.translation.x = 0;
-        collider.controller.transform.translation.y = 0.75;
+        collider.controller.transform.translation.y = 1;
         collider.controller.transform.translation.z = 0;
         collider.playerStuck = 1000;
+        return;
       }
       // onUpdate
       transform.position.set(
@@ -101,11 +101,12 @@ export class CharacterControllerSystem extends System {
         collider.controller.transform.translation.y,
         collider.controller.transform.translation.z
       );
-      
+
       const actorRaycastStart = new Vector3(collider.controller.transform.translation.x, collider.controller.transform.translation.y, collider.controller.transform.translation.z);
-      actor.raycastQuery.origin = new Vector3(actorRaycastStart.x, actorRaycastStart.y, actorRaycastStart.z);
+      actor.raycastQuery.origin = new Vector3(actorRaycastStart.x, actorRaycastStart.y - (actor.actorCapsule.height * 0.5) - actor.actorCapsule.radius, actorRaycastStart.z);
       actor.raycastQuery.direction = new Vector3(0, -1, 0);
-      
+      actor.raycastQuery.maxDistance = 0.1;
+
       const closestHit = actor.raycastQuery.hits[0];
 
       // TODO: replace this with ControllerCollider collision event
@@ -123,35 +124,34 @@ export class CharacterControllerSystem extends System {
 
     this.queryResults.controllerCollider.removed?.forEach(entity => {
       const collider = getComponent<ControllerColliderComponent>(entity, ControllerColliderComponent, true);
-      if(collider) {
+      if (collider) {
         PhysicsSystem.instance.removeController(collider.controller);
       }
     });
 
     // Update velocity vector for Animations
     this.queryResults.localCharacter.all?.forEach(entity => {
-      const lastPos = { x:0, y:0, z:0 };
+      const lastPos = { x: 0, y: 0, z: 0 };
       if (!hasComponent(entity, ControllerColliderComponent)) return;
       const controllerCollider = getComponent<ControllerColliderComponent>(entity, ControllerColliderComponent);
       const transform = getComponent<TransformComponent>(entity, TransformComponent);
       const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
       if (!actor.initialized || !controllerCollider.controller) return;
-
       const x = controllerCollider.controller.transform.translation.x - lastPos.x;
       const y = controllerCollider.controller.transform.translation.y - lastPos.y;
       const z = controllerCollider.controller.transform.translation.z - lastPos.z;
-  
-      if(isNaN(x)) {
-        actor.animationVelocity = new Vector3(0,1,0);
+
+      if (isNaN(x)) {
+        actor.animationVelocity = new Vector3(0, 1, 0);
         return;
       }
-  
+
       lastPos.x = controllerCollider.controller.transform.translation.x;
       lastPos.y = controllerCollider.controller.transform.translation.y;
       lastPos.z = controllerCollider.controller.transform.translation.z;
-  
+
       const q = new Quaternion().copy(transform.rotation).invert();
-      actor.animationVelocity = new Vector3(x,y,z).applyQuaternion(q);
+      actor.animationVelocity = new Vector3(x, y, z).applyQuaternion(q);
     });
 
   }

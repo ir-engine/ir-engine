@@ -56,53 +56,6 @@ const emptyVector = new Vector3();
 
 const halfPI = Math.PI / 2;
 */
-const damping = 0.05; // To reduce the change in direction.
-export const updateCharacterStateInVehicle: Behavior = (entity, args: {}, deltaTime: number): void => {
-
-	const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
-  if (!hasComponent(entity, PlayerInCar)) return;
-	const playerInCar = getComponent<PlayerInCar>(entity, PlayerInCar as any);
-  const entityCar = Network.instance.networkObjects[playerInCar.networkCarId].component.entity;
-//	if (!actor.initialized) return console.warn("Actor no initialized");
-  const actorTransform = getMutableComponent(entityCar, TransformComponent);
-
-	const localMovementDirection = actor.localMovementDirection; //getLocalMovementDirection(entity);
-
-  if(actor.moveVectorSmooth.position.length() < 0.1) { actor.moveVectorSmooth.velocity.multiplyScalar(0.9) }
-  if(actor.moveVectorSmooth.position.length() < 0.001) { actor.moveVectorSmooth.velocity.set(0,0,0); actor.moveVectorSmooth.position.set(0,0,0); }
-
-  if(actor.changedViewAngle) {
-    const viewVectorAngle = Math.atan2(actor.viewVector.z, actor.viewVector.x);
-    actor.viewVector.x = Math.cos(viewVectorAngle - (actor.changedViewAngle * damping));
-    actor.viewVector.z = Math.sin(viewVectorAngle - (actor.changedViewAngle * damping));
-  }
-
-  const inputComponent = getComponent(entityCar, Input) as Input;
-  const followCamera = getMutableComponent<FollowCameraComponent>(entity, FollowCameraComponent) as FollowCameraComponent;
-  if(followCamera) {
-
-    const inputAxes = BaseInput.LOOKTURN_PLAYERONE;
-
-    const { inputValue, currentInputValue } = getInputData(inputComponent, inputAxes, prevState);
-    prevState = currentInputValue;
-
-    if(followCamera.locked ) { // this is for cars
-    //  followCamera.theta = Math.atan2(actorTransform.rotation.z, actorTransform.rotation.x) * 180 / Math.PI
-    }
-
-    followCamera.theta -= inputValue[0] * (isMobileOrTablet() ? 60 : 100);
-    followCamera.theta %= 360;
-
-    followCamera.phi -= inputValue[1] * (isMobileOrTablet() ? 60 : 100);
-    followCamera.phi = Math.min(85, Math.max(-70, followCamera.phi));
-
-    if(followCamera.locked || followCamera.mode === CameraModes.FirstPerson) {
-    //  actorTransform.rotation.setFromAxisAngle(upVector, (followCamera.theta - 180) * (Math.PI / 180));
-  //    actor.orientation.copy(forwardVector).applyQuaternion(actorTransform.rotation);
-    //  actorTransform.rotation.setFromUnitVectors(forwardVector, actor.orientation.clone().setY(0));
-    }
-  }
-}
 
 const { DRIVING, ENTERING_VEHICLE, EXITING_VEHICLE } = CharacterAnimations;
 

@@ -16,13 +16,48 @@ import { Entity } from "../../ecs/classes/Entity";
 import { PhysicsSystem } from "../../physics/systems/PhysicsSystem";
 import { CollisionGroups } from "../../physics/enums/CollisionGroups";
 import { SceneQueryType } from "@xr3ngine/three-physx";
+import { Not } from "../../ecs/functions/ComponentFunctions";
+import { Input } from "../../input/components/Input";
+import { LifecycleValue } from "../../common/enums/LifecycleValue";
+import { BaseInput } from "../../input/enums/BaseInput";
 
 let direction = new Vector3();
 const upVector = new Vector3(0, 1, 0);
+const forwardVector = new Vector3(0, 0, 1);
 const empty = new Vector3();
 const PI_2Deg = Math.PI / 180;
 const mx = new Matrix4();
 const vec3 = new Vector3();
+
+let prevState;
+const emptyInputValue = [0, 0] as NumericalType;
+
+/**
+ * Get Input data from the device.
+ *
+ * @param inputComponent Input component which is holding input data.
+ * @param inputAxes Axes of the input.
+ * @param forceRefresh
+ *
+ * @returns Input value from input component.
+ */
+ const getInputData = (inputComponent: Input, inputAxes: number, prevValue: NumericalType ): {
+  currentInputValue: NumericalType;
+  inputValue: NumericalType
+} => {
+  const result = {
+    currentInputValue: emptyInputValue,
+    inputValue: emptyInputValue,
+  }
+  if (!inputComponent?.data.has(inputAxes)) return result;
+
+  const inputData = inputComponent.data.get(inputAxes);
+  result.currentInputValue = inputData.value;
+  result.inputValue = inputData.lifecycleState === LifecycleValue.ENDED ||
+    JSON.stringify(result.currentInputValue) === JSON.stringify(prevValue)
+      ? emptyInputValue : result.currentInputValue;
+  return result;
+}
 
 
 /** System class which provides methods for Camera system. */
@@ -81,21 +116,21 @@ export class CameraSystem extends System {
       const actor: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
       const actorTransform = getMutableComponent(entity, TransformComponent);
 
-      const cameraFollow = getMutableComponent<FollowCameraComponent>(entity, FollowCameraComponent) as FollowCameraComponent;
+      const followCamera = getMutableComponent<FollowCameraComponent>(entity, FollowCameraComponent) as FollowCameraComponent;
 
-      cameraDesiredTransform.rotationRate = isMobileOrTablet() || cameraFollow.mode === CameraModes.FirstPerson ? 5 : 3.5
-      cameraDesiredTransform.positionRate = isMobileOrTablet() || cameraFollow.mode === CameraModes.FirstPerson ? 3.5 : 2
+      cameraDesiredTransform.rotationRate = isMobileOrTablet() || followCamera.mode === CameraModes.FirstPerson ? 5 : 3.5
+      cameraDesiredTransform.positionRate = isMobileOrTablet() || followCamera.mode === CameraModes.FirstPerson ? 3.5 : 2
 
-      let camDist = cameraFollow.distance;
-      if (cameraFollow.mode === CameraModes.FirstPerson) camDist = 0.01;
-      else if (cameraFollow.mode === CameraModes.ShoulderCam) camDist = cameraFollow.minDistance;
-      else if (cameraFollow.mode === CameraModes.TopDown) camDist = cameraFollow.maxDistance;
+      let camDist = followCamera.distance;
+      if (followCamera.mode === CameraModes.FirstPerson) camDist = 0.01;
+      else if (followCamera.mode === CameraModes.ShoulderCam) camDist = followCamera.minDistance;
+      else if (followCamera.mode === CameraModes.TopDown) camDist = followCamera.maxDistance;
 
-      const phi = cameraFollow.mode === CameraModes.TopDown ? 85 : cameraFollow.phi;
+      const phi = followCamera.mode === CameraModes.TopDown ? 85 : followCamera.phi;
 
       let targetPosition;
       if (actor) { // this is for cars
-        const shoulderOffsetWorld = cameraFollow.offset.clone().applyQuaternion(actor.tiltContainer.quaternion);
+        const shoulderOffsetWorld = followCamera.offset.clone().applyQuaternion(actor.tiltContainer.quaternion);
         targetPosition = actor.tiltContainer.getWorldPosition(vec3).add(shoulderOffsetWorld);
       } else {
         cameraDesiredTransform.rotationRate = 7;
@@ -106,19 +141,19 @@ export class CameraSystem extends System {
       // Raycast for camera
       const cameraTransform: TransformComponent = getMutableComponent(CameraSystem.activeCamera, TransformComponent)
       const raycastDirection = new Vector3().subVectors(cameraTransform.position, targetPosition).normalize();
-      cameraFollow.raycastQuery.origin = new Vector3(targetPosition.x, targetPosition.y, targetPosition.z);
-      cameraFollow.raycastQuery.direction = new Vector3(raycastDirection.x, raycastDirection.y, raycastDirection.z);
+      followCamera.raycastQuery.origin = new Vector3(targetPosition.x, targetPosition.y, targetPosition.z);
+      followCamera.raycastQuery.direction = new Vector3(raycastDirection.x, raycastDirection.y, raycastDirection.z);
       
-      const closestHit = cameraFollow.raycastQuery.hits[0];
+      const closestHit = followCamera.raycastQuery.hits[0];
 
-      if(cameraFollow.mode !== CameraModes.FirstPerson && cameraFollow.rayHasHit && closestHit.distance < camDist && closestHit.distance > 0.1) {
+      if(followCamera.mode !== CameraModes.FirstPerson && followCamera.rayHasHit && closestHit.distance < camDist && closestHit.distance > 0.1) {
         camDist = closestHit.distance - 0.5;
       }
 
       cameraDesiredTransform.position.set(
-          targetPosition.x + camDist * Math.sin(cameraFollow.theta * PI_2Deg) * Math.cos(phi * PI_2Deg),
+          targetPosition.x + camDist * Math.sin(followCamera.theta * PI_2Deg) * Math.cos(phi * PI_2Deg),
           targetPosition.y + camDist * Math.sin(phi * PI_2Deg),
-          targetPosition.z + camDist * Math.cos(cameraFollow.theta * PI_2Deg) * Math.cos(phi * PI_2Deg)
+          targetPosition.z + camDist * Math.cos(followCamera.theta * PI_2Deg) * Math.cos(phi * PI_2Deg)
       );
 
       direction.copy(cameraDesiredTransform.position);
@@ -136,8 +171,39 @@ export class CameraSystem extends System {
       // if(cameraFollow.mode === CameraModes.FirstPerson || cameraFollow.mode === CameraModes.ShoulderCam) {
       //     cameraTransform.rotation.copy(cameraDesiredTransform.rotation);
       // }
-      if (cameraFollow.mode === CameraModes.FirstPerson) {
+      if (followCamera.mode === CameraModes.FirstPerson) {
         cameraDesiredTransform.position.copy(targetPosition);
+      }
+
+      // apply user input
+      
+      const inputComponent = getComponent(entity, Input) as Input;
+
+      // this is for future integration of MMO style pointer lock controls
+      // let inputAxes;
+      // if (cameraFollow.mode === CameraModes.FirstPerson || cameraFollow.mode === CameraModes.ShoulderCam) {
+      //   inputAxes = BaseInput.MOUSE_MOVEMENT;
+      // } else {
+        const inputAxes = BaseInput.LOOKTURN_PLAYERONE;
+      // }
+      const { inputValue, currentInputValue } = getInputData(inputComponent, inputAxes, prevState);
+      prevState = currentInputValue;
+
+      if(followCamera.locked && actor) {
+        followCamera.theta = Math.atan2(actor.orientation.x, actor.orientation.z) * 180 / Math.PI + 180
+      }
+
+      followCamera.theta -= inputValue[0] * (isMobileOrTablet() ? 60 : 100);
+      followCamera.theta %= 360;
+
+      followCamera.phi -= inputValue[1] * (isMobileOrTablet() ? 60 : 100);
+      followCamera.phi = Math.min(85, Math.max(-70, followCamera.phi));
+
+      // rotate character
+      if(followCamera.locked || followCamera.mode === CameraModes.FirstPerson || followCamera.mode === CameraModes.XR) {
+        actorTransform.rotation.setFromAxisAngle(upVector, (followCamera.theta - 180) * (Math.PI / 180));
+        actor.orientation.copy(forwardVector).applyQuaternion(actorTransform.rotation);
+        actorTransform.rotation.setFromUnitVectors(forwardVector, actor.orientation.clone().setY(0));
       }
     });
   }
@@ -148,14 +214,14 @@ export class CameraSystem extends System {
  */
 CameraSystem.queries = {
   cameraComponent: {
-    components: [CameraComponent, TransformComponent],
+    components: [Not(FollowCameraComponent), CameraComponent, TransformComponent],
     listen: {
       added: true,
       changed: true
     }
   },
   followCameraComponent: {
-    components: [ FollowCameraComponent, TransformComponent ],
+    components: [FollowCameraComponent, TransformComponent, CharacterComponent],
     listen: {
       added: true,
       changed: true

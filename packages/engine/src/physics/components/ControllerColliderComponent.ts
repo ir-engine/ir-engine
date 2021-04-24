@@ -19,7 +19,6 @@ export class ControllerColliderComponent extends Component<ControllerColliderCom
 	public segments: number;
 	public friction: number;
 	public playerStuck: number;
-	public moreRaysIchTurn = 0;
 }
 
 ControllerColliderComponent._schema = {
@@ -30,5 +29,5 @@ ControllerColliderComponent._schema = {
 	radius: { type: Types.Number, default: 0.3 },
 	segments: { type: Types.Number, default: 8 },
 	friction: { type: Types.Number, default: 0.3 },
-	playerStuck: { type: Types.Number, default: 1000 }
+	playerStuck: { type: Types.Number, default: 0 }
 };

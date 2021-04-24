@@ -22,7 +22,7 @@ export const characterInterpolationBehavior: Behavior = (entity: Entity, args): 
   const transform = getComponent<TransformComponent>(entity, TransformComponent);
   
   const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
-  const capsule = getMutableComponent<ControllerColliderComponent>(entity, ControllerColliderComponent);
+  const collider = getMutableComponent<ControllerColliderComponent>(entity, ControllerColliderComponent);
   /*
   if (actor.actorCapsule.body.mass > 0) {
     actor.actorCapsule.body.mass = 0;
@@ -45,13 +45,13 @@ export const characterInterpolationBehavior: Behavior = (entity: Entity, args): 
   );
 
 
-  const currentPosition = capsule.controller.transform.translation;
+  const currentPosition = collider.controller.transform.translation;
 
-  capsule.controller.delta.x += currentPosition.x - args.snapshot.x;
-  capsule.controller.delta.y += currentPosition.y - args.snapshot.y;
-  capsule.controller.delta.z += currentPosition.z - args.snapshot.z;
+  collider.controller.delta.x += currentPosition.x - args.snapshot.x;
+  collider.controller.delta.y += currentPosition.y - args.snapshot.y;
+  collider.controller.delta.z += currentPosition.z - args.snapshot.z;
 
-  capsule.controller.velocity = { x: 0, y: 0, z: 0 };
+  collider.controller.velocity = { x: 0, y: 0, z: 0 };
 
   // actor.actorCapsule.body.rotation.qX = snapshot.qX;
   // actor.actorCapsule.body.rotation.qY = snapshot.qY;
