@@ -150,7 +150,7 @@
     "eslint": "7.24.0",
     "no-master-commits": "1.1.1",
     "nodemon-webpack-plugin": "4.5.2",
-    "ts-loader": "9.1.0",
+    "ts-loader": "9.1.1",
     "typedoc": "0.20.35",
     "typescript": "4.2.4",
     "webpack": "5.35.0",

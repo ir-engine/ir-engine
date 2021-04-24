@@ -68,7 +68,7 @@
     "eslint": "7.24.0",
     "next-redux-wrapper": "6.0.2",
     "thread-loader": "3.0.3",
-    "ts-loader": "9.1.0",
+    "ts-loader": "9.1.1",
     "ts-shader-loader": "1.0.6",
     "typescript": "4.2.4",
     "webpack": "5.35.0",
