@@ -206,14 +206,14 @@ export class Location extends Service {
       const loggedInUser = extractLoggedInUserFromParams(params);
       locationData.slugifiedName = slugify(locationData.name, { lower: true });
 
-      if (locationData.isLobby) await this.makeLobby(t);
+      if (locationData.isLobby) await this.makeLobby(params, t);
 
       const location = await this.Model.create(locationData, { transaction: t });
 
       await this.app.service('location-settings').Model.create(
         {
-          videoEnabled: location_setting.videoEnabled != null,
-          instanceMediaChatEnabled: location_setting.instanceMediaChatEnabled != null,
+          videoEnabled: !!location_setting.videoEnabled,
+          instanceMediaChatEnabled: !!location_setting.instanceMediaChatEnabled,
           maxUsersPerInstance: location_setting.maxUsersPerInstance || 10,
           locationType: location_setting.locationType || 'private',
           locationId: location.id,
@@ -249,28 +249,28 @@ export class Location extends Service {
    * @returns updated location
    * @author Vyacheslav Solovjov
    */
-  async patch (id: string, data: any): Promise<any> {
+  async patch (id: string, data: any, params: Params): Promise<any> {
     const t = await this.app.get('sequelizeClient').transaction();
 
     try {
       // eslint-disable-next-line prefer-const
       let {location_setting, ...locationData} = data;
 
-      const old = this.Model.findOne({ where: { id }, include: [ this.app.service('location-settings').Model ] });
+      const old = await this.Model.findOne({ where: { id }, include: [ this.app.service('location-settings').Model ] });
 
       if (locationData.name) locationData.slugifiedName = slugify(locationData.name, { lower: true });
-      if (locationData.isLobby) await this.makeLobby(t);
+      if (!old.isLobby && locationData.isLobby) await this.makeLobby(params, t);
 
       await this.Model.update(locationData, { where: { id }, transaction: t }); // super.patch(id, locationData, params);
 
       await this.app.service('location-settings').Model.update(
         {
-          videoEnabled: location_setting.videoEnabled != null,
-          instanceMediaChatEnabled: location_setting.instanceMediaChatEnabled != null,
+          videoEnabled: !!location_setting.videoEnabled,
+          instanceMediaChatEnabled: !!location_setting.instanceMediaChatEnabled,
           maxUsersPerInstance: location_setting.maxUsersPerInstance || 10,
           locationType: location_setting.locationType || 'private',
         },
-        { where: { id: (await old).location_setting.id }, transaction: t },
+        { where: { id: old.location_setting.id }, transaction: t },
       );
 
       await t.commit();
@@ -314,7 +314,12 @@ export class Location extends Service {
     return super.remove(id);
   }
 
-  async makeLobby(t) {
+  async makeLobby(params: Params, t): Promise<void> {
+    const loggedInUser = extractLoggedInUserFromParams(params);
+    const selfUser = await this.app.service('user').get(loggedInUser.userId);
+
+    if (!selfUser || selfUser.userRole !== 'admin') throw new Error('Only Admin can set Lobby');
+
     await this.Model.update(
       { isLobby: false },
       { where: { isLobby: true }, transaction: t },
