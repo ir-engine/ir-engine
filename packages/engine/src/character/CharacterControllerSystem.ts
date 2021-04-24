@@ -14,6 +14,9 @@ import { TransformComponent } from "../transform/components/TransformComponent";
 import { Controller, SceneQueryType } from "@xr3ngine/three-physx";
 import { LocalInputReceiver } from "../input/components/LocalInputReceiver";
 import { NetworkObject } from "../networking/components/NetworkObject";
+
+const lastPos = { x: 0, y: 0, z: 0 };
+
 export class CharacterControllerSystem extends System {
 
   constructor(attributes?: SystemAttributes) {
@@ -108,6 +111,7 @@ export class CharacterControllerSystem extends System {
       actor.raycastQuery.maxDistance = 0.1;
 
       const closestHit = actor.raycastQuery.hits[0];
+      console.log(closestHit)
 
       // TODO: replace this with ControllerCollider collision event
 
@@ -131,12 +135,11 @@ export class CharacterControllerSystem extends System {
 
     // Update velocity vector for Animations
     this.queryResults.localCharacter.all?.forEach(entity => {
-      const lastPos = { x: 0, y: 0, z: 0 };
-      if (!hasComponent(entity, ControllerColliderComponent)) return;
       const controllerCollider = getComponent<ControllerColliderComponent>(entity, ControllerColliderComponent);
       const transform = getComponent<TransformComponent>(entity, TransformComponent);
       const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
       if (!actor.initialized || !controllerCollider.controller) return;
+
       const x = controllerCollider.controller.transform.translation.x - lastPos.x;
       const y = controllerCollider.controller.transform.translation.y - lastPos.y;
       const z = controllerCollider.controller.transform.translation.z - lastPos.z;

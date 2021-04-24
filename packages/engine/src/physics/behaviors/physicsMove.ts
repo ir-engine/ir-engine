@@ -30,11 +30,6 @@ import { CHARACTER_STATES } from '../../templates/character/state/CharacterState
  */
 
 const forwardVector = new Vector3(0, 0, 1);
-const upVector = new Vector3(0, 1, 0);
-
-function haveDifferentSigns(n1: number, n2: number): boolean {
-  return (n1 < 0) !== (n2 < 0);
-}
 
 export const physicsMove = (entity: Entity, deltaTime): void => {
 
