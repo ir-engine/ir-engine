@@ -71,7 +71,6 @@ export class ServerNetworkIncomingSystem extends System {
     const { schema, app } = attributes;
     Network.instance.schema = schema;
     // Instantiate the provided transport (SocketWebRTCClientTransport / SocketWebRTCServerTransport by default)
-    console.log("*********** SERVER NETWORKING TRANSPORT")
     Network.instance.transport = new schema.transport(app);
     // Buffer model for worldState
     //  Network.instance.snapshotModel = new Model(snapshotSchema)

@@ -10,6 +10,7 @@
     "siteDescription": "Connected Worlds for Everyone",
     "feathersStoreKey": "TheOverlay-Auth-Store",
     "localStorageKey": "theoverlay-client-store-key-v1",
+    "lobbyLocationName": "lobby",
     "auth": {
       "enableSmsMagicLink": true,
       "enableEmailMagicLink": true,
