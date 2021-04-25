@@ -21,7 +21,7 @@
   "dependencies": {
     "@google-cloud/agones-sdk": "1.13.0",
     "puppeteer": "9.0.0",
-    "three": "0.127.0"
+    "three": "0.128.0"
   },
   "devDependencies": {
     "@babel/core": "7.13.16",
