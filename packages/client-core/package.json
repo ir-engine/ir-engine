@@ -55,7 +55,7 @@
     "credential-handler-polyfill": "^2.1.0",
     "ctix": "0.3.1",
     "emailjs-com": "2.6.4",
-    "esbuild-plugin-sass": "0.4.1",
+    "esbuild-plugin-sass": "0.5.0",
     "eventemitter3": "4.0.7",
     "i18next": "20.2.1",
     "immutable": "4.0.0-rc.12",
