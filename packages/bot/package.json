@@ -31,7 +31,7 @@
     "@types/three": "0.127.1",
     "config": "3.3.6",
     "cross-env": "7.0.3",
-    "eslint": "7.24.0",
+    "eslint": "7.25.0",
     "eslint-plugin-react": "7.23.2",
     "semantic-release": "17.4.2",
     "semantic-release-monorepo": "7.0.4",
