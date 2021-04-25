@@ -28,6 +28,7 @@ import { createWorker, WorkerProxy } from './worker/MessageQueue';
 import { XRSystem } from './xr/systems/XRSystem';
 import PhysXWorker from './physics/functions/loadPhysX.ts?worker';
 import { PhysXInstance } from "@xr3ngine/three-physx";
+import OffscreenWorker from './worker/initializeOffscreen.ts?worker'
 
 // import { PositionalAudioSystem } from './audio/systems/PositionalAudioSystem';
 
@@ -65,8 +66,7 @@ export const initializeEngine = async (options): Promise<void> => {
 
   if (useOffscreen) {
     const workerProxy: WorkerProxy = await createWorker(
-      // @ts-ignore
-      new Worker(new URL('./worker/initializeOffscreen.ts', import.meta.url)),
+      new OffscreenWorker(),
       (canvas),
       {
         postProcessing,

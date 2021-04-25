@@ -8,6 +8,7 @@ export const setPostProcessing: Behavior = (entity, args: {}) => {
         if(usePostProcessing){
             WebGLRendererSystem.instance.configurePostProcessing(options);
           }
+        }
 
     }
 

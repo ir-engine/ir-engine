@@ -11,9 +11,6 @@ import {
   Uint32BufferAttribute,
   WebGLRenderer
 } from 'three';
-import {
-  KeyframeBuffer
-} from './Interfaces';
 import { moduloBy, createElement } from './utils';
 
 type AdvancedHTMLVideoElement = HTMLVideoElement & { requestVideoFrameCallback: (callback: (number, { }) => void) => void };
@@ -156,7 +153,7 @@ export default class Player {
 
     this.targetFramesToRequest = targetFramesToRequest;
 
-    const worker = new Worker(new URL('./workerFunction.ts', import.meta.url)); // spawn new worker
+    const worker = new Worker('./workerFunction.ts'); // spawn new worker
     this._worker = worker;
 
     this.scene = scene;

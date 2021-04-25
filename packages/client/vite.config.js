@@ -94,6 +94,5 @@ export default defineConfig(() => {
         })
       ],
     }
-
   }
-})
+});

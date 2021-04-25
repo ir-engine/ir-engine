@@ -14,9 +14,7 @@ import { selectAuthState } from '@xr3ngine/client-core/src/user/reducers/auth/se
 import { doLoginAuto } from '@xr3ngine/client-core/src/user/reducers/auth/service';
 import { client } from '@xr3ngine/client-core/src/feathers';
 import { selectLocationState } from '@xr3ngine/client-core/src/social/reducers/location/selector';
-import {
-  getLocationByName
-} from '@xr3ngine/client-core/src/social/reducers/location/service';
+import { getLocationByName, getLobby } from '@xr3ngine/client-core/src/social/reducers/location/service';
 import { setCurrentScene } from '@xr3ngine/client-core/src/world/reducers/scenes/actions';
 import store from '@xr3ngine/client-core/src/store';
 import { selectUserState } from '@xr3ngine/client-core/src/user/reducers/user/selector';
@@ -71,6 +69,7 @@ interface Props {
   authState?: any;
   locationState?: any;
   partyState?: any;
+  history?: any;
   instanceConnectionState?: any;
   doLoginAuto?: typeof doLoginAuto;
   getLocationByName?: typeof getLocationByName;
@@ -115,7 +114,8 @@ export const EnginePage = (props: Props) => {
     setCurrentScene,
     setAppLoaded,
     locationName,
-    harmonyOpen
+    harmonyOpen,
+    history,
   } = props;
 
   const currentUser = authState.get('user');
@@ -156,9 +156,15 @@ export const EnginePage = (props: Props) => {
 
     setUserBannedState(selfUser?.locationBans?.find(ban => ban.locationId === locationId) != null);
     if (authState.get('isLoggedIn') === true && authState.get('user')?.id != null && authState.get('user')?.id.length > 0 && currentLocation.id == null && userBanned === false && locationState.get('fetchingCurrentLocation') !== true) {
-      getLocationByName(locationName);
-      if (sceneId === null) {
-        sceneId = currentLocation.sceneId;
+      if (locationName === Config.publicRuntimeConfig.lobbyLocationName) {
+        getLobby().then(lobby => {
+          history.replace('/location/' + lobby.slugifiedName);
+        });
+      } else {
+        getLocationByName(locationName);
+        if (sceneId === null) {
+          sceneId = currentLocation.sceneId;
+        }
       }
     }
   }, [authState]);

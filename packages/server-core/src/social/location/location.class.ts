@@ -198,38 +198,47 @@ export class Location extends Service {
    * @author Vyacheslav Solovjov
    */
   async create (data: any, params: Params): Promise<any> {
-    let location;
-    // eslint-disable-next-line prefer-const
-    let {location_setting, ...locationData} = data;
-    const loggedInUser = extractLoggedInUserFromParams(params);
-    locationData.slugifiedName = slugify(locationData.name, {
-      lower: true
-    });
+    const t = await this.app.get('sequelizeClient').transaction();
+
     try {
-      location = await super.create(locationData, params);
-    } catch(err) {
+      // eslint-disable-next-line prefer-const
+      let {location_setting, ...locationData} = data;
+      const loggedInUser = extractLoggedInUserFromParams(params);
+      locationData.slugifiedName = slugify(locationData.name, { lower: true });
+
+      if (locationData.isLobby) await this.makeLobby(params, t);
+
+      const location = await this.Model.create(locationData, { transaction: t });
+
+      await this.app.service('location-settings').Model.create(
+        {
+          videoEnabled: !!location_setting.videoEnabled,
+          instanceMediaChatEnabled: !!location_setting.instanceMediaChatEnabled,
+          maxUsersPerInstance: location_setting.maxUsersPerInstance || 10,
+          locationType: location_setting.locationType || 'private',
+          locationId: location.id,
+        },
+        { transaction: t },
+      );
+
+      if(loggedInUser) {
+        await this.app.service('location-admin').Model.create({
+          locationId: location.id,
+          userId: loggedInUser.userId
+        }, { transaction: t });
+      }
+
+      await t.commit();
+
+      return location;
+    } catch (err) {
       console.log(err);
+      await t.rollback();
       if (err.errors[0].message === 'slugifiedName must be unique') {
         throw new Error('That name is already in use');
       }
       throw err;
     }
-
-    if (location_setting == null) location_setting = {};
-    if (location_setting.videoEnabled == null) location_setting.videoEnabled = false;
-    if (location_setting.instanceMediaChatEnabled == null) location_setting.instanceMediaChatEnabled = false;
-    if (location_setting.maxUsersPerInstance == null) location_setting.maxUsersPerInstance = 10;
-    if (location_setting.locationType == null) location_setting.locationType = 'private';
-    location_setting.locationId = location.id;
-    const locationSettings = await this.app.service('location-settings').create(location_setting);
-    if(loggedInUser)
-    await this.app.service('location-admin').create({
-      locationId: location.id,
-      userId: loggedInUser.userId
-    });
-    return super.patch(location.id, {
-      locationSettingsId: locationSettings.id
-    });
   }
 
   /**
@@ -237,36 +246,45 @@ export class Location extends Service {
    * 
    * @param id of location to update 
    * @param data of location going to be updated 
-   * @param params 
    * @returns updated location
    * @author Vyacheslav Solovjov
    */
   async patch (id: string, data: any, params: Params): Promise<any> {
-    let location;
-    // eslint-disable-next-line prefer-const
-    let {location_setting, ...locationData} = data;
-    if (locationData.name) locationData.slugifiedName = slugify(locationData.name, {
-      lower: true
-    });
+    const t = await this.app.get('sequelizeClient').transaction();
 
     try {
-      location = await super.patch(id, locationData, params);
-    } catch(err) {
+      // eslint-disable-next-line prefer-const
+      let {location_setting, ...locationData} = data;
+
+      const old = await this.Model.findOne({ where: { id }, include: [ this.app.service('location-settings').Model ] });
+
+      if (locationData.name) locationData.slugifiedName = slugify(locationData.name, { lower: true });
+      if (!old.isLobby && locationData.isLobby) await this.makeLobby(params, t);
+
+      await this.Model.update(locationData, { where: { id }, transaction: t }); // super.patch(id, locationData, params);
+
+      await this.app.service('location-settings').Model.update(
+        {
+          videoEnabled: !!location_setting.videoEnabled,
+          instanceMediaChatEnabled: !!location_setting.instanceMediaChatEnabled,
+          maxUsersPerInstance: location_setting.maxUsersPerInstance || 10,
+          locationType: location_setting.locationType || 'private',
+        },
+        { where: { id: old.location_setting.id }, transaction: t },
+      );
+
+      await t.commit();
+      const location = await this.Model.findOne({ where: { id }, include: [ this.app.service('location-settings').Model ] });
+
+      return location;
+    } catch (err) {
       console.log(err);
+      await t.rollback();
       if (err.errors[0].message === 'slugifiedName must be unique') {
         throw new Error('That name is already in use');
       }
       throw err;
     }
-
-    if (location_setting == null) location_setting = {};
-    if (location_setting.videoEnabled == null) location_setting.videoEnabled = false;
-    if (location_setting.instanceMediaChatEnabled == null) location_setting.instanceMediaChatEnabled = false;
-    if (location_setting.maxUsersPerInstance == null) location_setting.maxUsersPerInstance = 10;
-    if (location_setting.locationType == null) location_setting.locationType = 'private';
-    location_setting.locationId = location.id;
-    await this.app.service('location-settings').patch(location.locationSettingsId, location_setting);
-    return location;
   }
   /**
    * A function which is used to remove location
@@ -294,5 +312,17 @@ export class Location extends Service {
       }
     }
     return super.remove(id);
+  }
+
+  async makeLobby(params: Params, t): Promise<void> {
+    const loggedInUser = extractLoggedInUserFromParams(params);
+    const selfUser = await this.app.service('user').get(loggedInUser.userId);
+
+    if (!selfUser || selfUser.userRole !== 'admin') throw new Error('Only Admin can set Lobby');
+
+    await this.Model.update(
+      { isLobby: false },
+      { where: { isLobby: true }, transaction: t },
+    );
   }
 }

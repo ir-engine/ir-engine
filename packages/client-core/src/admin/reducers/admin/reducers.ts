@@ -98,16 +98,7 @@ const adminReducer = (state = immutableState, action: any): any => {
     case LOCATIONS_RETRIEVED:
       result = (action as LocationsRetrievedAction).locations;
       updateMap = new Map(state.get('locations'));
-      let combinedLocations = state.get('locations').get('locations');
-      (result as any).data.forEach(item => {
-        const match = combinedLocations.find(location => location.id === item.id);
-        if (match == null) {
-          combinedLocations = combinedLocations.concat(item);
-        } else {
-          combinedLocations = combinedLocations.map((location) => location.id === item.id ? item : location);
-        }
-      });
-      updateMap.set('locations', combinedLocations);
+      updateMap.set('locations', result.data);
       updateMap.set('skip', (result as any).skip);
       updateMap.set('limit', (result as any).limit);
       updateMap.set('total', (result as any).total);
@@ -126,7 +117,18 @@ const adminReducer = (state = immutableState, action: any): any => {
 
     case LOCATION_PATCHED:
       updateMap = new Map(state.get('locations'));
-      updateMap.set('updateNeeded', true);
+      const locations = updateMap.get('locations');
+
+      for (let i = 0; i < locations.length; i++) {
+        if (locations[i].id === (action as any).location.id) {
+          locations[i] = (action as any).location;
+        } else if ((action as any).location.isLobby && locations[i].isLobby ) {
+          // if updated location is lobby then remove old lobby.
+          locations[i].isLobby = false;
+        }
+      }
+
+      updateMap.set('locations', locations);
       return state
           .set('locations', updateMap);
 
