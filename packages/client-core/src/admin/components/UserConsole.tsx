@@ -228,6 +228,9 @@ const UserConsole = (props: Props) => {
         setOrderBy(property);
     };
 
+    console.log('====================================');
+    console.log(adminUsers);
+    console.log('====================================');
     const fetchTick = () => {
         setTimeout(() => {
             setRefetch(true);

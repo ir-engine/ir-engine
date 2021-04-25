@@ -8,8 +8,30 @@ import { isMobileOrTablet } from '@xr3ngine/engine/src/common/functions/isMobile
 //@ts-ignore
 // @ts-ignore
 import styles from '../UserMenu.module.scss';
+import { sendInvite } from '../../../../social/reducers/invite/service';
+import { bindActionCreators, Dispatch } from 'redux';
+import { connect } from 'react-redux';
+import { selectInviteState } from '../../../../social/reducers/invite/selector';
 
-const ShareMenu = (props: any): any => {
+const mapDispatchToProps = (dispatch: Dispatch): any => ({
+	sendInvite: bindActionCreators(sendInvite, dispatch)
+});
+
+const mapStateToProps = ( state: any): any => {
+	return {
+		inviteState: selectInviteState(state)
+	};
+};
+
+interface Props {
+	sendInvite?: typeof sendInvite;
+	alertSuccess?: any;
+	inviteState?: any
+}
+
+const ShareMenu = (props: Props): any => {
+	const { sendInvite, inviteState } = props;
+	const [email, setEmail] = React.useState("");
 	const refLink = useRef(null);
 	const postTitle = 'AR/VR world';
   	const siteTitle = 'XR3ngine';
@@ -33,6 +55,24 @@ const ShareMenu = (props: any): any => {
 	        .catch(error => { console.error('Something went wrong sharing the world', error); });
 	};
 
+
+	const packageInvite = async (): Promise<void> => {
+	   const sendData = {
+		   type: "friend",
+		   token: email,
+		   inviteCode: null,
+		   identityProviderType: "email",
+		   targetObjectId: inviteState.get("targetObjectId"),
+		   invitee: null
+	   };
+	   sendInvite(sendData);
+	   setEmail("");
+	};
+
+	const handleChang  = (e) => {
+		setEmail(e.target.value);
+	};
+
 	return (
 		<div className={styles.menuPanel}>
 			<div className={styles.sharePanel}>
@@ -45,15 +85,17 @@ const ShareMenu = (props: any): any => {
 					</span>
 				</Button>
 
-				<Typography variant="h2">Send to email or phone number</Typography>
+				<Typography variant="h5">Send to email or phone number</Typography>
 				<TextField
 					className={styles.emailField}
 					size="small"
 					placeholder="Phone Number / Email"
 					variant="outlined"
+					value={email}
+					onChange={(e)=> handleChang(e) }
 					InputProps={{
 						endAdornment: (
-							<InputAdornment position="end" onClick={() => {console.log('Sending Message...');}}>
+							<InputAdornment position="end" onClick={() => packageInvite()}>
 								<Send />
 							</InputAdornment>
 						),
@@ -67,4 +109,4 @@ const ShareMenu = (props: any): any => {
 	);
 };
 
-export default ShareMenu;
+export default connect(mapStateToProps, mapDispatchToProps)(ShareMenu);

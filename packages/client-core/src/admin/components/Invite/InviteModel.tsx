@@ -16,6 +16,7 @@ import { selectInviteTypesState } from "../../../social/reducers/inviteType/sele
 import { bindActionCreators, Dispatch } from "redux";
 import { connect } from "react-redux";
 import { Dropdown } from 'semantic-ui-react';
+import 'semantic-ui-css/semantic.min.css';
 import Snackbar from '@material-ui/core/Snackbar';
 import _ from 'lodash';
 import Grid from '@material-ui/core/Grid';
@@ -65,8 +66,8 @@ const InviteModel = (props: Props) => {
         inviteTypeData,
         users
     } = props;
-    const router = useHistory();
 
+    const router = useHistory();
     const [currency, setCurrency] = React.useState('friend');
     const inviteType = inviteTypeData.get("inviteTypeData").get("inviteType");
     const [targetUser, setTargetUser] = React.useState("");
@@ -75,6 +76,7 @@ const InviteModel = (props: Props) => {
     const [warning, setWarning] = React.useState("");
     const [openSnabar, setOpenSnabar] = React.useState(false);
     const [providerType, setProviderType] = React.useState("email");
+    const [personName, setPersonName] = React.useState<string[]>([]);
     const currencies = [];
     const provide = [
         {
@@ -101,7 +103,7 @@ const InviteModel = (props: Props) => {
         ValidatorForm.addValidationRule("isEmail", (value) => {
             switch (providerType) {
                 case "email":
-                    if (emailRegex.test(value) !== true ) {
+                    if (emailRegex.test(value) !== true) {
                         return false;
                     }
                     break;
@@ -116,8 +118,8 @@ const InviteModel = (props: Props) => {
         });
 
         ValidatorForm.addValidationRule("isPasscode", (value) => {
-            if(value){
-                if(inviteCodeRegex.test(value) !== true){
+            if (value) {
+                if (inviteCodeRegex.test(value) !== true) {
                     return false;
                 }
             }
@@ -262,8 +264,8 @@ const InviteModel = (props: Props) => {
                                             </option>
                                         ))}
                                     </TextField>
-                                    </Grid>
-                                    <Grid item xs={3}>
+                                </Grid>
+                                <Grid item xs={3}>
                                     <TextField
                                         id="outlined-select-currency-native"
                                         select
@@ -309,12 +311,12 @@ const InviteModel = (props: Props) => {
                             >
                                 Send Invitation
                             </Button>
-                            <Button
-                                type="submit"
-                                variant="contained"
-                                onClick={handleClose}
-                            >
-                                Cancel
+                                <Button
+                                    type="submit"
+                                    variant="contained"
+                                    onClick={handleClose}
+                                >
+                                    Cancel
                             </Button>
                             </FormGroup>
                         </ValidatorForm>

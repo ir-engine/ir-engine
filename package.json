@@ -64,7 +64,6 @@
     "@typescript-eslint/parser": "4.22.0"
   },
   "peerDependencies": {
-    "terser": "^5.6.1",
     "@feathersjs/authentication": "^4.5.8",
     "@feathersjs/authentication-local": "^4.5.8",
     "@feathersjs/authentication-oauth": "^4.5.8",
@@ -79,13 +78,16 @@
     "@feathersjs/socketio": "4.5.11",
     "@feathersjs/socketio-client": "^4.5.8",
     "@feathersjs/transport-commons": "^4.5.8",
-    "@typescript-eslint/parser": "^4.16.1",
     "@typescript-eslint/eslint-plugin": "^4.6.0",
+    "@typescript-eslint/parser": "^4.16.1",
     "chokidar": "^3.4.2",
     "socket.io": "2.4.1",
+    "terser": "^5.6.1",
     "three": "^0.127.0"
   },
   "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "4.22.0",
+    "@typescript-eslint/parser": "4.22.0",
     "bcrypt": "5.0.1",
     "jest": "26.6.3",
     "lerna": "4.0.0",
@@ -96,5 +98,6 @@
     "pre-commit": "1.2.2"
   },
   "dependencies": {
+    "cli": "^1.0.1"
   }
 }
