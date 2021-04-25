@@ -16,7 +16,6 @@ import { selectInviteTypesState } from "../../../social/reducers/inviteType/sele
 import { bindActionCreators, Dispatch } from "redux";
 import { connect } from "react-redux";
 import { Dropdown } from 'semantic-ui-react';
-import 'semantic-ui-css/semantic.min.css';
 import Snackbar from '@material-ui/core/Snackbar';
 import _ from 'lodash';
 import Grid from '@material-ui/core/Grid';

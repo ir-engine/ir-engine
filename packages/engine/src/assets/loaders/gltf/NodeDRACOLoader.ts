@@ -1,4 +1,3 @@
-// @ts-nocheck
 // Copyright 2016 The Draco Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,6 +14,7 @@
 //
 
 import * as THREE from "three";
+import { Loader } from "three";
 import { isClient } from "../../../common/functions/isClient";
 
 let decoder;
@@ -34,47 +34,42 @@ if(!isClient){
 /**
  * @param {THREE.LoadingManager} manager
  */
-const NodeDRACOLoader = function(manager?) {
-    this.timeLoaded = 0;
-    this.manager = manager || THREE.DefaultLoadingManager;
-    this.materials = null;
-    this.verbosity = 0;
-    this.attributeOptions = {};
-    this.drawMode = THREE.TrianglesDrawMode;
+class NodeDRACOLoader extends Loader{
+    timeLoaded = 0;
+    manager = THREE.DefaultLoadingManager;
+    materials = null;
+    verbosity = 0;
+    path: string
+    attributeOptions = {};
+    drawMode = THREE.TrianglesDrawMode;
     // Native Draco attribute type to Three.JS attribute type.
-    this.nativeAttributeMap = {
+    nativeAttributeMap = {
       'position' : 'POSITION',
       'normal' : 'NORMAL',
       'color' : 'COLOR',
       'uv' : 'TEX_COORD'
     };
-};
 
-NodeDRACOLoader.prototype = {
+    constructor(manager?: any){
+      this.manager = manager;
+    }
 
-    constructor: NodeDRACOLoader,
-
-    load: function(url, onLoad, onProgress, onError) {
-      console.log("******* DECODING. Decoder is")
-      console.log(decoder);
-        const scope = this;
-        const loader = new THREE.FileLoader(scope.manager);
+    load(url, onLoad, onProgress, onError){
+        const loader = new THREE.FileLoader(this.manager);
         loader.setPath(this.path);
         loader.setResponseType('arraybuffer');
-        loader.load(url, (blob) => {
-            scope.decodeDracoFile(blob, onLoad);
-        }, onProgress, onError);
-    },
+        loader.load(url, (blob) => this.decodeDracoFile(blob, onLoad), onProgress, onError);
+    }
 
-    setPath: function(value) {
+    setPath(value){
         this.path = value;
         return this;
-    },
+    }
 
-    setVerbosity: function(level) {
+    setVerbosity(level){
         this.verbosity = level;
         return this;
-    },
+    }
 
     /**
      *  Sets desired mode for generated geometry indices.
@@ -82,10 +77,10 @@ NodeDRACOLoader.prototype = {
      *      THREE.TrianglesDrawMode
      *      THREE.TriangleStripDrawMode
      */
-    setDrawMode: function(drawMode) {
+    setDrawMode(drawMode){
         this.drawMode = drawMode;
         return this;
-    },
+    }
 
     /**
      * Skips dequantization for a specific attribute.
@@ -93,14 +88,14 @@ NodeDRACOLoader.prototype = {
      * The only currently supported |attributeName| is 'position', more may be
      * added in future.
      */
-    setSkipDequantization: function(attributeName, skip) {
+    setSkipDequantization(attributeName, skip){
         let skipDequantization = true;
         if (typeof skip !== 'undefined')
           skipDequantization = skip;
         this.getAttributeOptions(attributeName).skipDequantization =
             skipDequantization;
         return this;
-    },
+    }
 
     /**
      * Decompresses a Draco buffer. Names of attributes (for ID and type maps)
@@ -117,14 +112,13 @@ NodeDRACOLoader.prototype = {
      *     type (as a typed array constructor) for each attribute in the
      *     geometry to be decoded.
      */
-    decodeDracoFile: function(rawBuffer, callback, attributeUniqueIdMap,
-                              attributeTypeMap) {
+    decodeDracoFile(rawBuffer, callback, attributeUniqueIdMap?, attributeTypeMap?){
       this.decodeDracoFileInternal( rawBuffer, decoder, callback,
           attributeUniqueIdMap, attributeTypeMap);
-    },
+    }
 
-    decodeDracoFileInternal: function(rawBuffer, dracoDecoder, callback,
-                                      attributeUniqueIdMap, attributeTypeMap) {
+    decodeDracoFileInternal(rawBuffer, dracoDecoder, callback,
+                                      attributeUniqueIdMap, attributeTypeMap){
       /*
        * Here is how to use Draco Javascript decoder and get the geometry.
        */
@@ -151,9 +145,9 @@ NodeDRACOLoader.prototype = {
       }
       callback(this.convertDracoGeometryTo3JS(dracoDecoder, decoder,
           geometryType, buffer, attributeUniqueIdMap, attributeTypeMap));
-    },
+    }
 
-    addAttributeToGeometry: function(dracoDecoder, decoder, dracoGeometry,
+    addAttributeToGeometry(dracoDecoder, decoder, dracoGeometry,
                                      attributeName, attributeType, attribute,
                                      geometry, geometryBuffer) {
       if (attribute.ptr === 0) {
@@ -242,9 +236,9 @@ NodeDRACOLoader.prototype = {
           new TypedBufferAttribute(geometryBuffer[attributeName],
             numComponents));
             decoderModule.destroy(attributeData);
-    },
+    }
 
-    convertDracoGeometryTo3JS: function(dracoDecoder, decoder, geometryType,
+    convertDracoGeometryTo3JS(dracoDecoder, decoder, geometryType,
                                         buffer, attributeUniqueIdMap,
                                         attributeTypeMap) {
         // TODO: Should not assume native Draco attribute IDs apply.
@@ -308,7 +302,7 @@ NodeDRACOLoader.prototype = {
         const posAttribute = decoder.GetAttribute(dracoGeometry, posAttId);
 
         // Structure for converting to THREEJS geometry later.
-        const geometryBuffer = {};
+        const geometryBuffer: any = {};
         // Import data to Three JS geometry.
         const geometry = new THREE.BufferGeometry();
 
@@ -382,8 +376,8 @@ NodeDRACOLoader.prototype = {
         if (posTransform.InitFromAttribute(posAttribute)) {
           // Quantized attribute. Store the quantization parameters into the
           // THREE.js attribute.
-          geometry.attributes['position'].isQuantized = true;
-          geometry.attributes['position'].maxRange = posTransform.range();
+          geometry.getAttribute('position').isQuantized = true;
+          geometry.getAttribute('position').maxRange = posTransform.range();
           geometry.attributes['position'].numQuantizationBits =
               posTransform.quantization_bits();
           geometry.attributes['position'].minValues = new Float32Array(3);
@@ -404,13 +398,13 @@ NodeDRACOLoader.prototype = {
         //   console.log('Import time: ' + this.import_time);
         // }
         return geometry;
-    },
+    }
 
-    isVersionSupported: function(version, callback) {
+    isVersionSupported(version, callback) {
       callback( decoder.isVersionSupported( version ) );
-    },
+    }
 
-    getAttributeOptions: function(attributeName) {
+    getAttributeOptions(attributeName) {
         if (typeof this.attributeOptions[attributeName] === 'undefined')
           this.attributeOptions[attributeName] = {};
         return this.attributeOptions[attributeName];
@@ -418,3 +412,4 @@ NodeDRACOLoader.prototype = {
 };
 
 export default NodeDRACOLoader;
+
