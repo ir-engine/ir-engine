@@ -3,15 +3,9 @@ import { isBrowser } from '../../common/functions/getEnvironment';
 import { isClient } from "../../common/functions/isClient";
 import { DRACOLoader } from "../loaders/gltf/DRACOLoader";
 import { GLTFLoader } from "../loaders/gltf/GLTFLoader";
+import NodeDRACOLoader from "../loaders/gltf/NodeDRACOLoader";
 
-let NodeDRACOLoader
 const isBuilding = process !== undefined && process.env && process.env.BUILD_MODE;
-
-if (!isBrowser && !isBuilding) {
-    import("../loaders/gltf/NodeDRACOLoader").then(obj => {
-        NodeDRACOLoader = obj;
-    })
-}
 
 /**
  * Interface for result of the GLTF Asset load.
@@ -29,10 +23,11 @@ if (isClient) {
     dracoLoader.setDecoderPath('/loader_decoders/');
 }
 else {
-    dracoLoader = new NodeDRACOLoader();
+    dracoLoader = new NodeDRACOLoader() as any;
     (dracoLoader as any).getDecoderModule = () => { };
     (dracoLoader as any).preload = () => { };
 }
+
 (loader as any).setDRACOLoader(dracoLoader);
 
 export function getLoader(): any {
