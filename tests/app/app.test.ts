@@ -1,11 +1,11 @@
 import { Server } from 'http'
 import axios from 'axios'
 import app from '../../packages/server/src/app'
-import config from '../../packages/server/src/config'
+import appconfig from '../../packages/server-core/src/appconfig'
 import { getUrl } from '../test-utils'
 import https from 'https'
 
-const port = config.server.port
+const port = appconfig.server.port
 const agent = new https.Agent({
   rejectUnauthorized: false
 });

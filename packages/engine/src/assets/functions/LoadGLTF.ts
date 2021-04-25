@@ -1,8 +1,17 @@
 import { AmbientLight, DirectionalLight, PointLight } from 'three';
+import { isBrowser } from '../../common/functions/getEnvironment';
 import { isClient } from "../../common/functions/isClient";
 import { DRACOLoader } from "../loaders/gltf/DRACOLoader";
 import { GLTFLoader } from "../loaders/gltf/GLTFLoader";
-import NodeDRACOLoader from "../loaders/gltf/NodeDRACOLoader";
+
+let NodeDRACOLoader
+const isBuilding = process !== undefined && process.env && process.env.BUILD_MODE;
+
+if (!isBrowser && !isBuilding) {
+    import("../loaders/gltf/NodeDRACOLoader").then(obj => {
+        NodeDRACOLoader = obj;
+    })
+}
 
 /**
  * Interface for result of the GLTF Asset load.
@@ -15,14 +24,14 @@ export interface LoadGLTFResultInterface {
 
 const loader = new GLTFLoader();
 let dracoLoader = null;
-if(isClient) {
+if (isClient) {
     dracoLoader = new DRACOLoader();
     dracoLoader.setDecoderPath('/loader_decoders/');
 }
 else {
     dracoLoader = new NodeDRACOLoader();
-    (dracoLoader as any).getDecoderModule = () => {};
-    (dracoLoader as any).preload = () => {};
+    (dracoLoader as any).getDecoderModule = () => { };
+    (dracoLoader as any).preload = () => { };
 }
 (loader as any).setDRACOLoader(dracoLoader);
 
@@ -40,7 +49,9 @@ export async function LoadGLTF(url: string): Promise<LoadGLTFResultInterface> {
     return await new Promise<LoadGLTFResultInterface>((resolve, reject) => {
         getLoader().load(url, (gltf) => {
             loadExtentions(gltf);
-            resolve({ scene: gltf.scene, json: {}, stats: {} }); }, null, (e) => { reject(e); 
+            resolve({ scene: gltf.scene, json: {}, stats: {} });
+        }, null, (e) => {
+            reject(e);
         });
     });
 }
@@ -76,19 +87,19 @@ const loadLightmaps = parser => {
 // this isn't the best solution. instead we should expose the plugin/extension register in GLTFLoader.js 
 
 const loadLights = gltf => {
-    if(gltf.parser.json?.extensions?.MOZ_hubs_components?.MOZ_hubs_components?.version === 3) {
+    if (gltf.parser.json?.extensions?.MOZ_hubs_components?.MOZ_hubs_components?.version === 3) {
 
         const objsToRemove = [];
         gltf.scene.traverse((obj) => {
             if (obj.userData.gltfExtensions && obj.userData.gltfExtensions.MOZ_hubs_components) {
                 let replacement;
-                switch(Object.keys(obj.userData.gltfExtensions.MOZ_hubs_components)[0]) {
+                switch (Object.keys(obj.userData.gltfExtensions.MOZ_hubs_components)[0]) {
                     // case 'directional-light': replacement = _directional(obj); break; // currently this breaks CSM
                     case 'point-light': replacement = _point(obj); break;
                     case 'ambient-light': replacement = _ambient(obj); break;
-                    default:break;
+                    default: break;
                 }
-                if(replacement) {
+                if (replacement) {
                     replacement.position.copy(obj.position);
                     replacement.quaternion.copy(obj.quaternion);
                     obj.parent.add(replacement);
@@ -97,17 +108,17 @@ const loadLights = gltf => {
                 }
             }
         });
-        for(const obj of objsToRemove) {
+        for (const obj of objsToRemove) {
             obj.parent.remove(obj);
         }
     }
 };
 
 const _shadow = (light, lightData) => {
-    if(typeof lightData.castShadow !== 'undefined') light.castShadow = lightData.castShadow;
-    if(typeof lightData.shadowResolution !== 'undefined') light.shadow.mapSize.set(lightData.shadowResolution[0], lightData.shadowResolution[1]);
-    if(typeof lightData.shadowBias !== 'undefined') light.shadow.bias = lightData.shadowBias;
-    if(typeof lightData.shadowRadius !== 'undefined') light.shadow.radius = lightData.shadowRadius;
+    if (typeof lightData.castShadow !== 'undefined') light.castShadow = lightData.castShadow;
+    if (typeof lightData.shadowResolution !== 'undefined') light.shadow.mapSize.set(lightData.shadowResolution[0], lightData.shadowResolution[1]);
+    if (typeof lightData.shadowBias !== 'undefined') light.shadow.bias = lightData.shadowBias;
+    if (typeof lightData.shadowRadius !== 'undefined') light.shadow.radius = lightData.shadowRadius;
 };
 
 const _directional = (obj) => {

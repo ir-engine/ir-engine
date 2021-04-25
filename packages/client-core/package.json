@@ -14,7 +14,8 @@
   "npmClient": "yarn",
   "jest": "ts-jest",
   "scripts": {
-    "build-publish": "rimraf dist && ctix entrypoint ./src && cross-env NODE_ENV=production rollup -c",
+    "build": "rimraf dist && mkdir dist && ctix entrypoint ./src && node build.js",
+    "buildx": "esbuild",
     "lint": "eslint --fix --quiet \"*.ts\" \"**/*.ts\" \"**/*.tsx\""
   },
   "resolutions": {
@@ -53,6 +54,7 @@
     "classnames": "2.3.1",
     "ctix": "0.3.1",
     "emailjs-com": "^2.6.4",
+    "esbuild-plugin-sass": "^0.4.1",
     "eventemitter3": "4.0.7",
     "i18next": "20.2.1",
     "immutable": "4.0.0-rc.12",
@@ -102,6 +104,7 @@
     "@types/react-dom": "17.0.3",
     "@types/three": "0.127.1",
     "cross-env": "7.0.3",
+    "esbuild": "0.11.13",
     "eslint": "7.24.0",
     "node-sass": "5.0.0",
     "rimraf": "3.0.2",

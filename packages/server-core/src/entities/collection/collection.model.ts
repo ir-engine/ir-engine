@@ -34,7 +34,7 @@ export default (app: Application): any => {
       allowNull: true,
       get (this: any): string | JSON {
         const metaData = this.getDataValue('metadata');
-        if (!metaData || metaData === {}) {
+        if (!metaData) {
           return '';
         } else {
           return metaData;

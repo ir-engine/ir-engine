@@ -25,7 +25,6 @@ if(!isClient){
   .then(obj => {
     decoder = obj.createDecoderModule().then(m => {
       decoderModule = m;
-      console.log('Decoder Module Initialized!');
     })
   })
   .catch(err => console.error("Error loading module"));

@@ -8,8 +8,7 @@
 # testing
 /coverage
 
-# next.js
-/.next/
+# capacitor builds
 /out/
 /www/
 
