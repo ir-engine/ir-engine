@@ -3,7 +3,19 @@ import { ComponentConstructor } from '../../ecs/interfaces/ComponentInterfaces';
 import { Behavior } from "../../common/interfaces/Behavior";
 import { Checker } from "../../game/types/Checker";
 
+export interface StateObject {
+  components: string[]
+  role: string
+  uuid: string
+  storage: StorageInterface[]
+}
+
 export interface StorageInterface {
+  component: string
+  variables: string
+}
+
+export interface InitStorageInterface {
   component: ComponentConstructor<Component<any>>
   variables: string[]
 }
@@ -16,7 +28,7 @@ export interface GameMode {
   initGameState: {
     [key: string]: {
       components: ComponentConstructor<Component<any>>[]
-      storage: StorageInterface[]
+      storage: InitStorageInterface[]
     };
   };
   gamePlayerRoles: GameRolesInterface

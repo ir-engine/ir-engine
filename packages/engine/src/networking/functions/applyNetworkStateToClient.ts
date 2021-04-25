@@ -105,7 +105,11 @@ export function applyNetworkStateToClient(worldStateBuffer: WorldStateInterface,
     }
     // Game Manager Messages
     if (worldStateBuffer.gameState && worldStateBuffer.gameState.length > 0) {
-      worldStateBuffer.gameState.forEach((stateMessage: GameStateUpdateMessage) => applyStateToClient(stateMessage));
+      worldStateBuffer.gameState.forEach((stateMessage: GameStateUpdateMessage) => {
+        if (Network.instance.userId === stateMessage.ownerId) { // DOTO: test, with and without
+          applyStateToClient(stateMessage);
+        }
+      });
     }
 
     if (worldStateBuffer.gameStateActions && worldStateBuffer.gameStateActions.length > 0) {

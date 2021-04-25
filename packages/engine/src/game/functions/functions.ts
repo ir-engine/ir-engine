@@ -1,6 +1,7 @@
 import { Component } from "../../ecs/classes/Component";
 import { Entity } from '../../ecs/classes/Entity';
 import { Network } from '../../networking/classes/Network';
+import { GameManagerSystem } from '../../game/systems/GameManagerSystem';
 import { addComponent, getComponent, getMutableComponent, hasComponent, removeComponent } from '../../ecs/functions/EntityFunctions';
 
 import { Game } from "../components/Game";
@@ -8,8 +9,8 @@ import { GameObject } from "../components/GameObject";
 import { GamePlayer } from "../components/GamePlayer";
 
 export const getHisGameEntity = (name: string): Entity => {
-  console.warn(Network.instance.loadedGames, name);
-  return Network.instance.loadedGames.find(entity => getComponent(entity, Game).name === name);
+  console.warn(GameManagerSystem.createdGames, name);
+  return GameManagerSystem.createdGames.find(entity => getComponent(entity, Game).name === name);
 };
 
 export const getHisEntity = (game: Game, role: string, uuid: string): Entity => {

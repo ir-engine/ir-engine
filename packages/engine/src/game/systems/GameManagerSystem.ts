@@ -1,3 +1,4 @@
+import { Entity } from '../../ecs/classes/Entity';
 import { System } from "../../ecs/classes/System";
 import { Network } from '../../networking/classes/Network';
 import { isServer } from '../../common/functions/isServer';
@@ -14,8 +15,7 @@ import { initState, saveInitStateCopy, reInitState, sendState, applyStateToClien
 import { initStorage, getStorage } from '../functions/functionsStorage';
 
 import { GameMode, RoleBehaviorWithTarget, RoleBehaviors, GameRolesInterface } from "../../game/types/GameMode";
-import { DefaultGameMode } from "../../templates/game/DefaultGameMode";
-import { GolfGameMode } from "../../templates/game/GolfGameMode";
+
 import { GamesSchema } from "../../templates/game/GamesSchema";
 import { PrefabType } from '../../templates/networking/PrefabType';
 import { SystemUpdateType } from "../../ecs/functions/SystemUpdateType";
@@ -46,21 +46,27 @@ export class GameManagerSystem extends System {
   updateType = SystemUpdateType.Fixed;
   updateNewPlayersRate: number;
   updateLastTime: number;
+  static createdGames: Entity[];
 
   constructor() {
     super();
-    this.updateNewPlayersRate = 60;
+    this.updateNewPlayersRate = 360;
+    this.updateLastTime = 0;
+    GameManagerSystem.createdGames = [];
+  }
+
+  dispose(): void {
+    super.dispose();
   }
 
   execute (delta: number, time: number): void {
 
     this.queryResults.game.added?.forEach(entity => {
-      console.warn('Game Added');
       const game = getMutableComponent(entity, Game);
       const gameSchema = GamesSchema[game.gameMode];
       game.priority = gameSchema.priority;// DOTO: set its from editor
       initState(game, gameSchema);
-      Network.instance.loadedGames.push(entity);
+      GameManagerSystem.createdGames.push(entity);
     });
 
     this.queryResults.game.all?.forEach(entityGame => {
@@ -70,6 +76,39 @@ export class GameManagerSystem extends System {
       const gameObjects = game.gameObjects;
       const gamePlayers = game.gamePlayers;
       const gameState = game.state;
+
+      // adding or remove players from this Game, always give the first Role from GameSchema
+      if (this.updateLastTime > this.updateNewPlayersRate) {
+        Object.keys(Network.instance.networkObjects).map(Number)
+          .filter(key => Network.instance.networkObjects[key].prefabType === PrefabType.Player)
+          .map(key => Network.instance.networkObjects[key].component.entity)
+          .map(entity => isPlayerInGameArea(entity, gameArea))
+          .forEach(v => {
+            // is Player in Game Area
+            if (v.inGameArea && hasComponent(v.entity, GamePlayer)) {
+              if (getComponent(v.entity, GamePlayer).game.name != game.name) {
+                getComponent(v.entity, GamePlayer).game.priority < game.priority;
+                removeComponent(v.entity, GamePlayer);
+              };
+            } else if (v.inGameArea && !hasComponent(v.entity, GamePlayer)) {
+
+              addComponent(v.entity, GamePlayer, {
+                game: game,
+                role: Object.keys(gameSchema.gamePlayerRoles)[0],
+                uuid: getComponent(v.entity, NetworkObject).ownerId
+              });
+              console.warn(getComponent(v.entity, GamePlayer));
+            } else if (!v.inGameArea && hasComponent(v.entity, GamePlayer)) {
+              if (getComponent(v.entity, GamePlayer).game.name === game.name) {
+                removeComponent(v.entity, GamePlayer);
+              }
+            }
+          })
+          this.updateLastTime = 0;
+      } else {
+        this.updateLastTime += 1;
+      }
+
 
       // its needet for allow dynamicly adding objects and exept errors when enitor gives object without created game
       this.queryResults.gameObject.added?.forEach(entity => {
@@ -86,17 +125,21 @@ export class GameManagerSystem extends System {
       });
 
       this.queryResults.gamePlayers.added?.forEach(entity => {
+        console.warn('test', getComponent(entity, GamePlayer).game.name, game.name);
         if (getComponent(entity, GamePlayer).game.name != game.name) return;
+        console.warn('gamePlayers.added');
         // befor adding first player
-      //  if (this.queryResults.gamePlayers.all.length == 1) saveInitStateCopy(game);
+        if (this.queryResults.gamePlayers.all.length == 1) saveInitStateCopy(entityGame);
         // add to gamePlayers list sorted by role
-        gamePlayers[getComponent(entity, GamePlayer).role].push(entity);
+        const playerComp = getComponent(entity, GamePlayer);
+        gamePlayers[playerComp.role].push(entity);
         // add init Tag components for start state of Games
-        const schema = gameSchema.initGameState[getComponent(entity, GamePlayer).role];
+        const schema = gameSchema.initGameState[playerComp.role];
         if (schema != undefined) {
           schema.components.forEach(component => addStateComponent(entity, component));
           initStorage(entity, schema.storage);
         }
+        sendState(game, playerComp);
       });
 
       const executeComplexResult = [];
@@ -177,34 +220,6 @@ export class GameManagerSystem extends System {
         })
       });
 
-      // adding or remove players from this Game, always give the first Role from GameSchema
-      if (this.updateLastTime > this.updateNewPlayersRate) {
-        Object.keys(Network.instance.networkObjects).map(Number)
-          .filter(key => Network.instance.networkObjects[key].prefabType === PrefabType.Player)
-          .map(key => Network.instance.networkObjects[key].component.entity)
-          .map(entity => isPlayerInGameArea(entity, gameArea))
-          .forEach(v => {
-            // is Player in Game Area
-            if (v.inGameArea && hasComponent(v.entity, GamePlayer)) {
-              if (getComponent(v.entity, GamePlayer).game.name != game.name) {
-                getComponent(v.entity, GamePlayer).game.priority < game.priority;
-                removeComponent(v.entity, GamePlayer);
-              };
-            } else if (v.inGameArea && !hasComponent(v.entity, GamePlayer)) {
-              addComponent(v.entity, GamePlayer, {
-                game: game,
-                role: Object.keys(gameSchema.gamePlayerRoles)[0],
-                uuid: getComponent(v.entity, NetworkObject).ownerId
-              });
-            } else if (!v.inGameArea && hasComponent(v.entity, GamePlayer)) {
-              if (getComponent(v.entity, GamePlayer).game.name === game.name) {
-                removeComponent(v.entity, GamePlayer);
-              }
-            }
-          })
-      } else {
-        this.updateLastTime += 1;
-      }
       // end of frame circle one game
     });
   }

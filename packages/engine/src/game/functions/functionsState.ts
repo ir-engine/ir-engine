@@ -1,35 +1,84 @@
 import { Entity } from '../../ecs/classes/Entity';
 import { Component } from "../../ecs/classes/Component";
 import { ComponentConstructor } from '../../ecs/interfaces/ComponentInterfaces';
+import { isServer } from '../../common/functions/isServer';
 
+import { GamesSchema } from "../../templates/game/GamesSchema";
 import { Network } from "../../networking/classes/Network";
 import { Game } from "../components/Game";
-import { GameMode } from "../types/GameMode";
+import { GameMode, StateObject } from "../types/GameMode";
+import { GameObject } from "../components/GameObject";
+import { GamePlayer } from "../components/GamePlayer";
 
 import { addComponent, getComponent, getMutableComponent, hasComponent, removeComponent } from '../../ecs/functions/EntityFunctions';
 import { getHisGameEntity, getHisEntity, getRole, getGame, getUuid } from './functions';
-
 import { GameStateUpdateMessage } from "../types/GameMessage";
+
+import { Open } from "../../templates/game/gameDefault/components/OpenTagComponent";
+import { Closed } from "../../templates/game/gameDefault/components/ClosedTagComponent";
+import { ButtonUp } from "../../templates/game/gameDefault/components/ButtonUpTagComponent";
+import { ButtonDown } from "../../templates/game/gameDefault/components/ButtonDownTagComponent";
+
+// TODO: create schema states
+const gameStateComponents = {
+  'Open': Open,
+  'Closed': Closed,
+  'ButtonUp': ButtonUp,
+  'ButtonDown': ButtonDown
+};
 
 export const initState = (game: Game, gameSchema: GameMode): void => {
   Object.keys(gameSchema.gameObjectRoles).forEach(role => game.gameObjects[role] = []);
   Object.keys(gameSchema.gamePlayerRoles).forEach(role => game.gamePlayers[role] = []);
 };
 
-export const saveInitStateCopy = (): void => {
-  //TODO:
+export const saveInitStateCopy = (entity: Entity): void => {
+  const game = getMutableComponent(entity, Game);
+  game.initState = JSON.stringify(game.state);
 };
-export const reInitState = (): void => {
-  //TODO:
+
+export const reInitState = (game: Game): void => {
+  game.state = JSON.parse(game.initState);
+  applyState(game);
+  console.warn('reInitState', applyStateToClient);
 };
-export const sendState = (game: Game): void => {
-  Network.instance.worldState.gameState.push({ game: game.name, state: game.state });
+
+export const sendState = (game: Game, playerComp: GamePlayer): void => {
+  if (isServer && game.isGlobal) {
+    const message: GameStateUpdateMessage = { game: game.name, ownerId: playerComp.uuid, state: game.state };
+    Network.instance.worldState.gameState.push(message);
+  }
 };
 
 export const applyStateToClient = (stateMessage: GameStateUpdateMessage): void => {
   const entity = getHisGameEntity(stateMessage.game);
-  getMutableComponent(entity, Game).state = stateMessage.state;
+  const game = getMutableComponent(entity, Game)
+  game.state = stateMessage.state;
+  applyState(game);
   console.warn('applyStateToClient', applyStateToClient);
+};
+
+export const applyState = (game: Game): void => {
+  const gameSchema = GamesSchema[game.gameMode]
+
+  // clean all states
+  Object.keys(game.gamePlayers).concat(Object.keys(game.gameObjects)).forEach((role: string) => {
+    (game.gameObjects[role] || game.gamePlayers[role]).forEach((entity: Entity) => {
+      const uuid = getUuid(entity);
+/*
+      gameSchema.registerActionTagComponents.forEach(component => {
+        hasComponent(entity, component ) ? removeComponent(entity, component):'';
+      });
+*/
+      gameSchema.registerStateTagComponents.forEach(component => {
+        hasComponent(entity, component ) ? removeComponent(entity, component):'';
+      });
+      // add all states
+      const stateObject = game.state.find((v: StateObject) => v.uuid === uuid);
+      stateObject.components.forEach((componentName: string) => addComponent(entity, gameStateComponents[componentName] ));
+    })
+  })
+  console.warn('applyState', applyStateToClient);
 };
 
 export const correctState = (): void => {
@@ -52,7 +101,7 @@ export const addStateComponent = (entity: Entity, component: ComponentConstructo
   } else {
     console.warn('we have this gameState already, why?', component.name);
   }
-  console.log(game.state);
+  //console.log(game.state);
 };
 
 

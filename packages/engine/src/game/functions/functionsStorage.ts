@@ -3,9 +3,9 @@ import { ComponentConstructor } from '../../ecs/interfaces/ComponentInterfaces';
 import { Entity } from '../../ecs/classes/Entity';
 import { addComponent, getComponent, getMutableComponent, hasComponent, removeComponent } from '../../ecs/functions/EntityFunctions';
 import { getHisGameEntity, getHisEntity, getRole, getGame, getUuid } from './functions';
-import { StorageInterface } from '../types/GameMode';
+import { InitStorageInterface } from '../types/GameMode';
 
-export const initStorage = (entity: Entity, initSchemaStorege: StorageInterface[]): void => {
+export const initStorage = (entity: Entity, initSchemaStorege: InitStorageInterface[]): void => {
   const role = getRole(entity);
   const uuid = getUuid(entity);
   const game = getGame(entity);
@@ -16,7 +16,7 @@ export const initStorage = (entity: Entity, initSchemaStorege: StorageInterface[
       const readyValues = v.variables.reduce((acc, variable) => Object.assign(acc, { [variable]: temp[variable] }),{})
       return { component: v.component.name, variables: JSON.stringify(readyValues)};
     })
-    console.warn('initStorage', objectState.storage);
+    console.warn('initStorage');
   } else {
     console.warn('uuid DONT EXIST IN STATE');
   }

@@ -11,7 +11,7 @@ const storageSchema = new Schema({
   component: string,
   variables: string
 });
-  
+
 const stateSchema = new Schema({
   uuid: string,
   components: [string],
@@ -20,11 +20,13 @@ const stateSchema = new Schema({
 
 const gameStateUpdateSchema = new Schema({
   game: string,
+  ownerId: string,
   state: [stateSchema]
 });
 
 const gameStateActionSchema = new Schema({
   game: string,
+  role: string,
   component: string,
   uuid: string
 })

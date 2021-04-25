@@ -8,6 +8,7 @@ export interface StorageElement {
 
 export interface GameState {
   uuid: string
+  role: string
   components: string[]
   storage: StorageElement[]
 }
@@ -21,5 +22,6 @@ export interface GameStateActionMessage {
 
 export interface GameStateUpdateMessage {
   game: string
+  ownerId: string
   state: GameState[]
 }

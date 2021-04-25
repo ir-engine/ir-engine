@@ -2,11 +2,9 @@ import { Component } from "../../ecs/classes/Component";
 import { Entity } from '../../ecs/classes/Entity';
 import { Types } from "../../ecs/types/Types";
 import { GameObjectPrefab } from "../interfaces/GameObjectPrefab";
-import { GameMode } from "../types/GameMode";
+import { GameMode, StateObject } from "../types/GameMode";
 import { GameObject } from "./GameObject";
 import { GamePlayer } from "./GamePlayer";
-
-export type GameName = string
 
 export class Game extends Component<Game> {
     name: string // Game Node Name from editor, allow create two games with one GameMode|GameType;
@@ -30,8 +28,8 @@ export class Game extends Component<Game> {
         [key: string]: GameObjectPrefab[]
     }
     */
-    initState: any[] // copy from state befor first player added (needs for re initGame if its needed for players too restart game and score);
-    state: any[] // now will be send to player when he adding to game, in future will be correct players latesy bugs
+    initState: string // copy from state befor first player added (needs for re initGame if its needed for players too restart game and score);
+    state: StateObject[] // now will be send to player when he adding to game, in future will be correct players latesy bugs
 }
 
 Game._schema = {
@@ -43,5 +41,6 @@ Game._schema = {
     minPlayers: { type: Types.Number, default: null },
     maxPlayers: { type: Types.Number, default: null },
     gameMode: { type: Types.String, default: null },
+    initState: { type: Types.String, default: null },
     state: { type: Types.Ref, default: [] }
 }
