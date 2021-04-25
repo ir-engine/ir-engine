@@ -16,4 +16,4 @@ hide_title: true
 
 **Returns:** *Element*
 
-Defined in: [packages/client/src/pages/dev.tsx:8](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client/src/pages/dev.tsx#L8)
+Defined in: [packages/client/src/pages/dev.tsx:10](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client/src/pages/dev.tsx#L10)

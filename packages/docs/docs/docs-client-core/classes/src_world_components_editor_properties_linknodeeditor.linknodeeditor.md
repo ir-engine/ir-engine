@@ -151,7 +151,7 @@ ___
 
 ▪ `Static` **description**: *string*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/LinkNodeEditor.tsx:29](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/LinkNodeEditor.tsx#L29)
+Defined in: [packages/client-core/src/world/components/editor/properties/LinkNodeEditor.tsx:29](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/world/components/editor/properties/LinkNodeEditor.tsx#L29)
 
 ___
 
@@ -159,7 +159,7 @@ ___
 
 ▪ `Static` **iconComponent**: StyledIcon
 
-Defined in: [packages/client-core/src/world/components/editor/properties/LinkNodeEditor.tsx:26](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/LinkNodeEditor.tsx#L26)
+Defined in: [packages/client-core/src/world/components/editor/properties/LinkNodeEditor.tsx:26](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/world/components/editor/properties/LinkNodeEditor.tsx#L26)
 
 ## Methods
 
@@ -482,7 +482,7 @@ ___
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/LinkNodeEditor.tsx:32](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/LinkNodeEditor.tsx#L32)
+Defined in: [packages/client-core/src/world/components/editor/properties/LinkNodeEditor.tsx:32](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/world/components/editor/properties/LinkNodeEditor.tsx#L32)
 
 ___
 
@@ -494,7 +494,7 @@ ___
 
 Overrides: Component.render
 
-Defined in: [packages/client-core/src/world/components/editor/properties/LinkNodeEditor.tsx:37](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/LinkNodeEditor.tsx#L37)
+Defined in: [packages/client-core/src/world/components/editor/properties/LinkNodeEditor.tsx:37](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/world/components/editor/properties/LinkNodeEditor.tsx#L37)
 
 ___
 

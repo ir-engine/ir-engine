@@ -36,7 +36,7 @@ NameInputGroup is used to render input group PropertiesPanelContainer.
 
 Overrides: Component&lt;Types&gt;.constructor
 
-Defined in: [packages/client-core/src/world/components/editor/properties/NameInputGroup.tsx:39](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/NameInputGroup.tsx#L39)
+Defined in: [packages/client-core/src/world/components/editor/properties/NameInputGroup.tsx:39](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/world/components/editor/properties/NameInputGroup.tsx#L39)
 
 ## Properties
 
@@ -139,7 +139,7 @@ ___
 | `editor` | *Validator*<object\> |
 | `node` | *Validator*<object\> |
 
-Defined in: [packages/client-core/src/world/components/editor/properties/NameInputGroup.tsx:36](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/NameInputGroup.tsx#L36)
+Defined in: [packages/client-core/src/world/components/editor/properties/NameInputGroup.tsx:36](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/world/components/editor/properties/NameInputGroup.tsx#L36)
 
 ## Methods
 
@@ -456,7 +456,7 @@ ___
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/NameInputGroup.tsx:66](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/NameInputGroup.tsx#L66)
+Defined in: [packages/client-core/src/world/components/editor/properties/NameInputGroup.tsx:66](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/world/components/editor/properties/NameInputGroup.tsx#L66)
 
 ___
 
@@ -466,7 +466,7 @@ ___
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/NameInputGroup.tsx:58](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/NameInputGroup.tsx#L58)
+Defined in: [packages/client-core/src/world/components/editor/properties/NameInputGroup.tsx:58](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/world/components/editor/properties/NameInputGroup.tsx#L58)
 
 ___
 
@@ -482,7 +482,7 @@ ___
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/NameInputGroup.tsx:77](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/NameInputGroup.tsx#L77)
+Defined in: [packages/client-core/src/world/components/editor/properties/NameInputGroup.tsx:77](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/world/components/editor/properties/NameInputGroup.tsx#L77)
 
 ___
 
@@ -498,7 +498,7 @@ ___
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/NameInputGroup.tsx:52](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/NameInputGroup.tsx#L52)
+Defined in: [packages/client-core/src/world/components/editor/properties/NameInputGroup.tsx:52](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/world/components/editor/properties/NameInputGroup.tsx#L52)
 
 ___
 
@@ -510,7 +510,7 @@ ___
 
 Overrides: Component.render
 
-Defined in: [packages/client-core/src/world/components/editor/properties/NameInputGroup.tsx:85](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/NameInputGroup.tsx#L85)
+Defined in: [packages/client-core/src/world/components/editor/properties/NameInputGroup.tsx:85](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/world/components/editor/properties/NameInputGroup.tsx#L85)
 
 ___
 

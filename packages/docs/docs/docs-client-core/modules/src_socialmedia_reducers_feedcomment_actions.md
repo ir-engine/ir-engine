@@ -24,7 +24,7 @@ hide_title: true
 
 Ƭ **FeedCommentsAction**: [*FeedCommentsRetrievedAction*](../interfaces/src_socialmedia_reducers_feedcomment_actions.feedcommentsretrievedaction.md) \| [*FetchingFeedCommentsAction*](../interfaces/src_socialmedia_reducers_feedcomment_actions.fetchingfeedcommentsaction.md) \| [*AddFeedCommentAction*](../interfaces/src_socialmedia_reducers_feedcomment_actions.addfeedcommentaction.md) \| [*CommentFiresRetrievedAction*](../interfaces/src_socialmedia_reducers_feedcomment_actions.commentfiresretrievedaction.md)
 
-Defined in: [packages/client-core/src/socialmedia/reducers/feedComment/actions.ts:40](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/reducers/feedComment/actions.ts#L40)
+Defined in: [packages/client-core/src/socialmedia/reducers/feedComment/actions.ts:43](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/socialmedia/reducers/feedComment/actions.ts#L43)
 
 ## Functions
 
@@ -40,7 +40,7 @@ Defined in: [packages/client-core/src/socialmedia/reducers/feedComment/actions.t
 
 **Returns:** [*AddFeedCommentAction*](../interfaces/src_socialmedia_reducers_feedcomment_actions.addfeedcommentaction.md)
 
-Defined in: [packages/client-core/src/socialmedia/reducers/feedComment/actions.ts:66](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/reducers/feedComment/actions.ts#L66)
+Defined in: [packages/client-core/src/socialmedia/reducers/feedComment/actions.ts:69](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/socialmedia/reducers/feedComment/actions.ts#L69)
 
 ___
 
@@ -56,7 +56,7 @@ ___
 
 **Returns:** [*AddFeedCommentFiresAction*](../interfaces/src_socialmedia_reducers_feedcomment_actions.addfeedcommentfiresaction.md)
 
-Defined in: [packages/client-core/src/socialmedia/reducers/feedComment/actions.ts:52](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/reducers/feedComment/actions.ts#L52)
+Defined in: [packages/client-core/src/socialmedia/reducers/feedComment/actions.ts:55](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/socialmedia/reducers/feedComment/actions.ts#L55)
 
 ___
 
@@ -72,7 +72,7 @@ ___
 
 **Returns:** [*CommentFiresRetrievedAction*](../interfaces/src_socialmedia_reducers_feedcomment_actions.commentfiresretrievedaction.md)
 
-Defined in: [packages/client-core/src/socialmedia/reducers/feedComment/actions.ts:73](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/reducers/feedComment/actions.ts#L73)
+Defined in: [packages/client-core/src/socialmedia/reducers/feedComment/actions.ts:76](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/socialmedia/reducers/feedComment/actions.ts#L76)
 
 ___
 
@@ -82,7 +82,7 @@ ___
 
 **Returns:** [*FetchingFeedCommentsAction*](../interfaces/src_socialmedia_reducers_feedcomment_actions.fetchingfeedcommentsaction.md)
 
-Defined in: [packages/client-core/src/socialmedia/reducers/feedComment/actions.ts:46](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/reducers/feedComment/actions.ts#L46)
+Defined in: [packages/client-core/src/socialmedia/reducers/feedComment/actions.ts:49](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/socialmedia/reducers/feedComment/actions.ts#L49)
 
 ___
 
@@ -98,4 +98,4 @@ ___
 
 **Returns:** [*AddFeedCommentFiresAction*](../interfaces/src_socialmedia_reducers_feedcomment_actions.addfeedcommentfiresaction.md)
 
-Defined in: [packages/client-core/src/socialmedia/reducers/feedComment/actions.ts:59](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/reducers/feedComment/actions.ts#L59)
+Defined in: [packages/client-core/src/socialmedia/reducers/feedComment/actions.ts:62](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/socialmedia/reducers/feedComment/actions.ts#L62)

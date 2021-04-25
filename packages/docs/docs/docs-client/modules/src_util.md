@@ -16,4 +16,4 @@ hide_title: true
 
 **Returns:** *Promise*<void\>
 
-Defined in: [packages/client/src/util.ts:8](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client/src/util.ts#L8)
+Defined in: [packages/client/src/util.ts:8](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client/src/util.ts#L8)

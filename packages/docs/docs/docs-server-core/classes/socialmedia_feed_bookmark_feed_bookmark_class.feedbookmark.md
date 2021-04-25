@@ -35,7 +35,7 @@ A class for ARC Feed-bookmark service
 
 Overrides: Service.constructor
 
-Defined in: [packages/server-core/src/socialmedia/feed-bookmark/feed-bookmark.class.ts:17](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/socialmedia/feed-bookmark/feed-bookmark.class.ts#L17)
+Defined in: [packages/server-core/src/socialmedia/feed-bookmark/feed-bookmark.class.ts:17](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/socialmedia/feed-bookmark/feed-bookmark.class.ts#L17)
 
 ## Properties
 
@@ -53,7 +53,7 @@ ___
 
 • **app**: Application
 
-Defined in: [packages/server-core/src/socialmedia/feed-bookmark/feed-bookmark.class.ts:16](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/socialmedia/feed-bookmark/feed-bookmark.class.ts#L16)
+Defined in: [packages/server-core/src/socialmedia/feed-bookmark/feed-bookmark.class.ts:16](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/socialmedia/feed-bookmark/feed-bookmark.class.ts#L16)
 
 ___
 
@@ -61,7 +61,7 @@ ___
 
 • **docs**: *any*
 
-Defined in: [packages/server-core/src/socialmedia/feed-bookmark/feed-bookmark.class.ts:17](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/socialmedia/feed-bookmark/feed-bookmark.class.ts#L17)
+Defined in: [packages/server-core/src/socialmedia/feed-bookmark/feed-bookmark.class.ts:17](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/socialmedia/feed-bookmark/feed-bookmark.class.ts#L17)
 
 ___
 
@@ -243,7 +243,7 @@ ___
 
 Overrides: Service.create
 
-Defined in: [packages/server-core/src/socialmedia/feed-bookmark/feed-bookmark.class.ts:24](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/socialmedia/feed-bookmark/feed-bookmark.class.ts#L24)
+Defined in: [packages/server-core/src/socialmedia/feed-bookmark/feed-bookmark.class.ts:24](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/socialmedia/feed-bookmark/feed-bookmark.class.ts#L24)
 
 ___
 
@@ -356,7 +356,7 @@ ___
 
 Overrides: Service.remove
 
-Defined in: [packages/server-core/src/socialmedia/feed-bookmark/feed-bookmark.class.ts:32](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/socialmedia/feed-bookmark/feed-bookmark.class.ts#L32)
+Defined in: [packages/server-core/src/socialmedia/feed-bookmark/feed-bookmark.class.ts:32](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/socialmedia/feed-bookmark/feed-bookmark.class.ts#L32)
 
 ___
 

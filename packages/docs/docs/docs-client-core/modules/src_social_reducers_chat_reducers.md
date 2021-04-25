@@ -32,7 +32,7 @@ hide_title: true
 | `targetObjectType` | *string* |
 | `updateMessageScroll` | *boolean* |
 
-Defined in: [packages/client-core/src/social/reducers/chat/reducers.ts:36](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/social/reducers/chat/reducers.ts#L36)
+Defined in: [packages/client-core/src/social/reducers/chat/reducers.ts:36](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/social/reducers/chat/reducers.ts#L36)
 
 ## Functions
 
@@ -49,4 +49,4 @@ Defined in: [packages/client-core/src/social/reducers/chat/reducers.ts:36](https
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/src/social/reducers/chat/reducers.ts:55](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/social/reducers/chat/reducers.ts#L55)
+Defined in: [packages/client-core/src/social/reducers/chat/reducers.ts:55](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/social/reducers/chat/reducers.ts#L55)

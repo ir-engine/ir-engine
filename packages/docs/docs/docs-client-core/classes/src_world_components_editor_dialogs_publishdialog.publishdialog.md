@@ -36,7 +36,7 @@ PublishDialog used to show the dialog when we are going to publish scene.
 
 Overrides: Component&lt;{t: Function}&gt;.constructor
 
-Defined in: [packages/client-core/src/world/components/editor/dialogs/PublishDialog.tsx:32](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/dialogs/PublishDialog.tsx#L32)
+Defined in: [packages/client-core/src/world/components/editor/dialogs/PublishDialog.tsx:32](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/world/components/editor/dialogs/PublishDialog.tsx#L32)
 
 ## Properties
 
@@ -148,7 +148,7 @@ Declairing propTypes for publishDialog component.
 | `screenshotUrl` | *Requireable*<string\> |
 | `t` | *Requireable*<(...`args`: *any*[]) => *any*\> |
 
-Defined in: [packages/client-core/src/world/components/editor/dialogs/PublishDialog.tsx:24](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/dialogs/PublishDialog.tsx#L24)
+Defined in: [packages/client-core/src/world/components/editor/dialogs/PublishDialog.tsx:24](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/world/components/editor/dialogs/PublishDialog.tsx#L24)
 
 ## Methods
 
@@ -471,7 +471,7 @@ ___
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/dialogs/PublishDialog.tsx:44](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/dialogs/PublishDialog.tsx#L44)
+Defined in: [packages/client-core/src/world/components/editor/dialogs/PublishDialog.tsx:44](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/world/components/editor/dialogs/PublishDialog.tsx#L44)
 
 ___
 
@@ -481,7 +481,7 @@ ___
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/dialogs/PublishDialog.tsx:47](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/dialogs/PublishDialog.tsx#L47)
+Defined in: [packages/client-core/src/world/components/editor/dialogs/PublishDialog.tsx:47](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/world/components/editor/dialogs/PublishDialog.tsx#L47)
 
 ___
 
@@ -493,7 +493,7 @@ ___
 
 Overrides: Component.render
 
-Defined in: [packages/client-core/src/world/components/editor/dialogs/PublishDialog.tsx:54](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/dialogs/PublishDialog.tsx#L54)
+Defined in: [packages/client-core/src/world/components/editor/dialogs/PublishDialog.tsx:54](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/world/components/editor/dialogs/PublishDialog.tsx#L54)
 
 ___
 

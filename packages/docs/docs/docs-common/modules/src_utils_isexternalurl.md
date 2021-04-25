@@ -22,4 +22,4 @@ hide_title: true
 
 **Returns:** *boolean*
 
-Defined in: [utils/isExternalUrl.ts:2](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/common/src/utils/isExternalUrl.ts#L2)
+Defined in: [utils/isExternalUrl.ts:2](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/common/src/utils/isExternalUrl.ts#L2)

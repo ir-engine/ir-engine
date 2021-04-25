@@ -20,4 +20,4 @@ hide_title: true
 
 **Returns:** *Hook*<any, Service<any\>\>
 
-Defined in: [packages/server-core/src/hooks/upload-thumbnail-link.ts:6](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/hooks/upload-thumbnail-link.ts#L6)
+Defined in: [packages/server-core/src/hooks/upload-thumbnail-link.ts:6](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/hooks/upload-thumbnail-link.ts#L6)

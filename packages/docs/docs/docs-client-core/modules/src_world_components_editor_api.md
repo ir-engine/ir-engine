@@ -42,4 +42,4 @@ scaledThumbnailUrlFor function component for providing url for scaled thumbnail.
 
 [returns url to get scaled image]
 
-Defined in: [packages/client-core/src/world/components/editor/Api.tsx:58](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/Api.tsx#L58)
+Defined in: [packages/client-core/src/world/components/editor/Api.tsx:58](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/world/components/editor/Api.tsx#L58)

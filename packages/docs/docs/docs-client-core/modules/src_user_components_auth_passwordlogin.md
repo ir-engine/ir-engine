@@ -28,4 +28,4 @@ hide_title: true
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/src/user/components/Auth/PasswordLogin.tsx:50](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/user/components/Auth/PasswordLogin.tsx#L50)
+Defined in: [packages/client-core/src/user/components/Auth/PasswordLogin.tsx:50](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/user/components/Auth/PasswordLogin.tsx#L50)

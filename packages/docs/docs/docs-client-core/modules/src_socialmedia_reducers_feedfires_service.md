@@ -22,7 +22,7 @@ hide_title: true
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/src/socialmedia/reducers/feedFires/service.ts:26](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/reducers/feedFires/service.ts#L26)
+Defined in: [packages/client-core/src/socialmedia/reducers/feedFires/service.ts:29](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/socialmedia/reducers/feedFires/service.ts#L29)
 
 ___
 
@@ -38,7 +38,7 @@ ___
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>, `getState`: *any*) => *Promise*<any\>
 
-Defined in: [packages/client-core/src/socialmedia/reducers/feedFires/service.ts:12](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/reducers/feedFires/service.ts#L12)
+Defined in: [packages/client-core/src/socialmedia/reducers/feedFires/service.ts:15](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/socialmedia/reducers/feedFires/service.ts#L15)
 
 ___
 
@@ -54,4 +54,4 @@ ___
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/src/socialmedia/reducers/feedFires/service.ts:38](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/reducers/feedFires/service.ts#L38)
+Defined in: [packages/client-core/src/socialmedia/reducers/feedFires/service.ts:41](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/socialmedia/reducers/feedFires/service.ts#L41)

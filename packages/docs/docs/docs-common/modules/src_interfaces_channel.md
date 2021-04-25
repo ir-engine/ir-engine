@@ -27,4 +27,4 @@ hide_title: true
 | `userId1` | *string* \| ``null`` |
 | `userId2` | *string* \| ``null`` |
 
-Defined in: [interfaces/Channel.ts:3](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/common/src/interfaces/Channel.ts#L3)
+Defined in: [interfaces/Channel.ts:3](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/common/src/interfaces/Channel.ts#L3)

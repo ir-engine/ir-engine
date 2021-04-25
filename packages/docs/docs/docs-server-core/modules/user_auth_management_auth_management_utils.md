@@ -28,7 +28,7 @@ This method will extract the loggedIn User from params
 
 extracted user
 
-Defined in: [packages/server-core/src/user/auth-management/auth-management.utils.ts:77](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/user/auth-management/auth-management.utils.ts#L77)
+Defined in: [packages/server-core/src/user/auth-management/auth-management.utils.ts:77](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/user/auth-management/auth-management.utils.ts#L77)
 
 ___
 
@@ -52,7 +52,7 @@ A method which get an invite link
 
 invite link
 
-Defined in: [packages/server-core/src/user/auth-management/auth-management.utils.ts:28](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/user/auth-management/auth-management.utils.ts#L28)
+Defined in: [packages/server-core/src/user/auth-management/auth-management.utils.ts:28](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/user/auth-management/auth-management.utils.ts#L28)
 
 ___
 
@@ -76,7 +76,7 @@ A method which get link
 
 login url
 
-Defined in: [packages/server-core/src/user/auth-management/auth-management.utils.ts:13](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/user/auth-management/auth-management.utils.ts#L13)
+Defined in: [packages/server-core/src/user/auth-management/auth-management.utils.ts:13](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/user/auth-management/auth-management.utils.ts#L13)
 
 ___
 
@@ -97,7 +97,7 @@ A method which send an email
 
 **Returns:** *Promise*<void\>
 
-Defined in: [packages/server-core/src/user/auth-management/auth-management.utils.ts:40](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/user/auth-management/auth-management.utils.ts#L40)
+Defined in: [packages/server-core/src/user/auth-management/auth-management.utils.ts:40](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/user/auth-management/auth-management.utils.ts#L40)
 
 ___
 
@@ -118,4 +118,4 @@ A function which send sms
 
 **Returns:** *Promise*<void\>
 
-Defined in: [packages/server-core/src/user/auth-management/auth-management.utils.ts:62](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/user/auth-management/auth-management.utils.ts#L62)
+Defined in: [packages/server-core/src/user/auth-management/auth-management.utils.ts:62](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/user/auth-management/auth-management.utils.ts#L62)

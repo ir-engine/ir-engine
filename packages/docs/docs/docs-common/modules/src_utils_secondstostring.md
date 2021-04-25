@@ -22,4 +22,4 @@ hide_title: true
 
 **Returns:** *string*
 
-Defined in: [utils/secondsToString.ts:3](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/common/src/utils/secondsToString.ts#L3)
+Defined in: [utils/secondsToString.ts:3](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/common/src/utils/secondsToString.ts#L3)

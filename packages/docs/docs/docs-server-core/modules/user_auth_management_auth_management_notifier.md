@@ -32,4 +32,4 @@ A function which sent an email for authentication
 
 {@function} sentEmail with app and email
 
-Defined in: [packages/server-core/src/user/auth-management/auth-management.notifier.ts:6](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/user/auth-management/auth-management.notifier.ts#L6)
+Defined in: [packages/server-core/src/user/auth-management/auth-management.notifier.ts:6](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/user/auth-management/auth-management.notifier.ts#L6)

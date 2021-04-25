@@ -14,7 +14,7 @@ hide_title: true
 
 • `Const` **default**: *Store*<Object, Action<any\>\> & { `dispatch`: *unknown*  }
 
-Defined in: [packages/client-core/src/store.ts:10](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/store.ts#L10)
+Defined in: [packages/client-core/src/store.ts:10](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/store.ts#L10)
 
 ## Functions
 
@@ -24,4 +24,4 @@ Defined in: [packages/client-core/src/store.ts:10](https://github.com/xr3ngine/x
 
 **Returns:** *Store*<Object, Action<any\>\> & { `dispatch`: *unknown*  }
 
-Defined in: [packages/client-core/src/store.ts:17](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/store.ts#L17)
+Defined in: [packages/client-core/src/store.ts:17](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/store.ts#L17)

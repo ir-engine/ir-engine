@@ -36,4 +36,4 @@ Renames and exports: [RedirectRoute](src_world_components_editor_router_redirect
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/router/RedirectRoute.tsx:12](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/router/RedirectRoute.tsx#L12)
+Defined in: [packages/client-core/src/world/components/editor/router/RedirectRoute.tsx:12](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/world/components/editor/router/RedirectRoute.tsx#L12)

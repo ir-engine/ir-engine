@@ -21,7 +21,7 @@ hide_title: true
 
 Ƭ **FeedFiresAction**: [*FeedFiresRetriveAction*](../interfaces/src_socialmedia_reducers_feedfires_actions.feedfiresretriveaction.md) \| [*FetchingFeedFiresAction*](../interfaces/src_socialmedia_reducers_feedfires_actions.fetchingfeedfiresaction.md)
 
-Defined in: [packages/client-core/src/socialmedia/reducers/feedFires/actions.ts:16](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/reducers/feedFires/actions.ts#L16)
+Defined in: [packages/client-core/src/socialmedia/reducers/feedFires/actions.ts:19](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/socialmedia/reducers/feedFires/actions.ts#L19)
 
 ## Functions
 
@@ -37,7 +37,7 @@ Defined in: [packages/client-core/src/socialmedia/reducers/feedFires/actions.ts:
 
 **Returns:** [*FeedFiresRetriveAction*](../interfaces/src_socialmedia_reducers_feedfires_actions.feedfiresretriveaction.md)
 
-Defined in: [packages/client-core/src/socialmedia/reducers/feedFires/actions.ts:20](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/reducers/feedFires/actions.ts#L20)
+Defined in: [packages/client-core/src/socialmedia/reducers/feedFires/actions.ts:23](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/socialmedia/reducers/feedFires/actions.ts#L23)
 
 ___
 
@@ -47,4 +47,4 @@ ___
 
 **Returns:** [*FetchingFeedFiresAction*](../interfaces/src_socialmedia_reducers_feedfires_actions.fetchingfeedfiresaction.md)
 
-Defined in: [packages/client-core/src/socialmedia/reducers/feedFires/actions.ts:28](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/reducers/feedFires/actions.ts#L28)
+Defined in: [packages/client-core/src/socialmedia/reducers/feedFires/actions.ts:31](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/socialmedia/reducers/feedFires/actions.ts#L31)

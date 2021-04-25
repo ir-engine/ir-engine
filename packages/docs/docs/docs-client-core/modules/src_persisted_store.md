@@ -22,7 +22,7 @@ hide_title: true
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/src/persisted.store.ts:11](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/persisted.store.ts#L11)
+Defined in: [packages/client-core/src/persisted.store.ts:11](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/persisted.store.ts#L11)
 
 ___
 
@@ -32,7 +32,7 @@ ___
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/src/persisted.store.ts:5](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/persisted.store.ts#L5)
+Defined in: [packages/client-core/src/persisted.store.ts:5](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/persisted.store.ts#L5)
 
 ___
 
@@ -48,4 +48,4 @@ ___
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/persisted.store.ts:23](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/persisted.store.ts#L23)
+Defined in: [packages/client-core/src/persisted.store.ts:23](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/persisted.store.ts#L23)

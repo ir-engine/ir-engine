@@ -33,7 +33,7 @@ hide_title: true
 
 Overrides: Service.constructor
 
-Defined in: [packages/server-core/src/social/location/location.class.ts:10](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/social/location/location.class.ts#L10)
+Defined in: [packages/server-core/src/social/location/location.class.ts:10](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/social/location/location.class.ts#L10)
 
 ## Properties
 
@@ -51,7 +51,7 @@ ___
 
 • **app**: Application
 
-Defined in: [packages/server-core/src/social/location/location.class.ts:9](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/social/location/location.class.ts#L9)
+Defined in: [packages/server-core/src/social/location/location.class.ts:9](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/social/location/location.class.ts#L9)
 
 ___
 
@@ -59,7 +59,7 @@ ___
 
 • **docs**: *any*
 
-Defined in: [packages/server-core/src/social/location/location.class.ts:10](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/social/location/location.class.ts#L10)
+Defined in: [packages/server-core/src/social/location/location.class.ts:10](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/social/location/location.class.ts#L10)
 
 ___
 
@@ -247,7 +247,7 @@ new location object
 
 Overrides: Service.create
 
-Defined in: [packages/server-core/src/social/location/location.class.ts:200](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/social/location/location.class.ts#L200)
+Defined in: [packages/server-core/src/social/location/location.class.ts:200](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/social/location/location.class.ts#L200)
 
 ___
 
@@ -269,7 +269,7 @@ A function which is used to create new instance
 
 **Returns:** *Promise*<any\>
 
-Defined in: [packages/server-core/src/social/location/location.class.ts:63](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/social/location/location.class.ts#L63)
+Defined in: [packages/server-core/src/social/location/location.class.ts:63](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/social/location/location.class.ts#L63)
 
 ___
 
@@ -291,7 +291,7 @@ A method which is used to create new location
 
 **Returns:** *Promise*<any\>
 
-Defined in: [packages/server-core/src/social/location/location.class.ts:47](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/social/location/location.class.ts#L47)
+Defined in: [packages/server-core/src/social/location/location.class.ts:47](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/social/location/location.class.ts#L47)
 
 ___
 
@@ -334,7 +334,7 @@ A function which help to find and display all locations
 
 Overrides: Service.find
 
-Defined in: [packages/server-core/src/social/location/location.class.ts:107](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/social/location/location.class.ts#L107)
+Defined in: [packages/server-core/src/social/location/location.class.ts:107](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/social/location/location.class.ts#L107)
 
 ___
 
@@ -397,7 +397,7 @@ updated location
 
 Overrides: Service.patch
 
-Defined in: [packages/server-core/src/social/location/location.class.ts:244](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/social/location/location.class.ts#L244)
+Defined in: [packages/server-core/src/social/location/location.class.ts:244](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/social/location/location.class.ts#L244)
 
 ___
 
@@ -422,7 +422,7 @@ A function which is used to remove location
 
 Overrides: Service.remove
 
-Defined in: [packages/server-core/src/social/location/location.class.ts:280](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/social/location/location.class.ts#L280)
+Defined in: [packages/server-core/src/social/location/location.class.ts:280](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/social/location/location.class.ts#L280)
 
 ___
 

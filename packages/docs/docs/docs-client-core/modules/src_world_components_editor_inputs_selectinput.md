@@ -36,4 +36,4 @@ Renames and exports: [SelectInput](src_world_components_editor_inputs_selectinpu
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/inputs/SelectInput.tsx:79](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/inputs/SelectInput.tsx#L79)
+Defined in: [packages/client-core/src/world/components/editor/inputs/SelectInput.tsx:79](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/world/components/editor/inputs/SelectInput.tsx#L79)

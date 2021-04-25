@@ -33,7 +33,7 @@ A class for Resolve Media service
 
 **Returns:** [*ResolveMedia*](world_resolve_media_resolve_media_class.resolvemedia.md)
 
-Defined in: [packages/server-core/src/world/resolve-media/resolve-media.class.ts:22](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/world/resolve-media/resolve-media.class.ts#L22)
+Defined in: [packages/server-core/src/world/resolve-media/resolve-media.class.ts:22](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/world/resolve-media/resolve-media.class.ts#L22)
 
 ## Properties
 
@@ -41,7 +41,7 @@ Defined in: [packages/server-core/src/world/resolve-media/resolve-media.class.ts
 
 • **app**: Application
 
-Defined in: [packages/server-core/src/world/resolve-media/resolve-media.class.ts:18](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/world/resolve-media/resolve-media.class.ts#L18)
+Defined in: [packages/server-core/src/world/resolve-media/resolve-media.class.ts:18](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/world/resolve-media/resolve-media.class.ts#L18)
 
 ___
 
@@ -49,7 +49,7 @@ ___
 
 • **docs**: *any*
 
-Defined in: [packages/server-core/src/world/resolve-media/resolve-media.class.ts:22](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/world/resolve-media/resolve-media.class.ts#L22)
+Defined in: [packages/server-core/src/world/resolve-media/resolve-media.class.ts:22](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/world/resolve-media/resolve-media.class.ts#L22)
 
 ___
 
@@ -57,7 +57,7 @@ ___
 
 • **models**: *any*
 
-Defined in: [packages/server-core/src/world/resolve-media/resolve-media.class.ts:20](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/world/resolve-media/resolve-media.class.ts#L20)
+Defined in: [packages/server-core/src/world/resolve-media/resolve-media.class.ts:20](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/world/resolve-media/resolve-media.class.ts#L20)
 
 ___
 
@@ -65,7 +65,7 @@ ___
 
 • **options**: ServiceOptions
 
-Defined in: [packages/server-core/src/world/resolve-media/resolve-media.class.ts:19](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/world/resolve-media/resolve-media.class.ts#L19)
+Defined in: [packages/server-core/src/world/resolve-media/resolve-media.class.ts:19](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/world/resolve-media/resolve-media.class.ts#L19)
 
 ___
 
@@ -73,7 +73,7 @@ ___
 
 • **storage**: *any*
 
-Defined in: [packages/server-core/src/world/resolve-media/resolve-media.class.ts:21](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/world/resolve-media/resolve-media.class.ts#L21)
+Defined in: [packages/server-core/src/world/resolve-media/resolve-media.class.ts:21](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/world/resolve-media/resolve-media.class.ts#L21)
 
 ## Methods
 
@@ -92,7 +92,7 @@ Defined in: [packages/server-core/src/world/resolve-media/resolve-media.class.ts
 
 Implementation of: ServiceMethods.create
 
-Defined in: [packages/server-core/src/world/resolve-media/resolve-media.class.ts:41](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/world/resolve-media/resolve-media.class.ts#L41)
+Defined in: [packages/server-core/src/world/resolve-media/resolve-media.class.ts:41](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/world/resolve-media/resolve-media.class.ts#L41)
 
 ___
 
@@ -110,7 +110,7 @@ ___
 
 Implementation of: ServiceMethods.find
 
-Defined in: [packages/server-core/src/world/resolve-media/resolve-media.class.ts:31](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/world/resolve-media/resolve-media.class.ts#L31)
+Defined in: [packages/server-core/src/world/resolve-media/resolve-media.class.ts:31](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/world/resolve-media/resolve-media.class.ts#L31)
 
 ___
 
@@ -129,7 +129,7 @@ ___
 
 Implementation of: ServiceMethods.get
 
-Defined in: [packages/server-core/src/world/resolve-media/resolve-media.class.ts:35](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/world/resolve-media/resolve-media.class.ts#L35)
+Defined in: [packages/server-core/src/world/resolve-media/resolve-media.class.ts:35](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/world/resolve-media/resolve-media.class.ts#L35)
 
 ___
 
@@ -149,7 +149,7 @@ ___
 
 Implementation of: ServiceMethods.patch
 
-Defined in: [packages/server-core/src/world/resolve-media/resolve-media.class.ts:73](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/world/resolve-media/resolve-media.class.ts#L73)
+Defined in: [packages/server-core/src/world/resolve-media/resolve-media.class.ts:73](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/world/resolve-media/resolve-media.class.ts#L73)
 
 ___
 
@@ -165,7 +165,7 @@ ___
 
 **Returns:** *any*
 
-Defined in: [packages/server-core/src/world/resolve-media/resolve-media.class.ts:81](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/world/resolve-media/resolve-media.class.ts#L81)
+Defined in: [packages/server-core/src/world/resolve-media/resolve-media.class.ts:81](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/world/resolve-media/resolve-media.class.ts#L81)
 
 ___
 
@@ -184,7 +184,7 @@ ___
 
 Implementation of: ServiceMethods.remove
 
-Defined in: [packages/server-core/src/world/resolve-media/resolve-media.class.ts:77](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/world/resolve-media/resolve-media.class.ts#L77)
+Defined in: [packages/server-core/src/world/resolve-media/resolve-media.class.ts:77](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/world/resolve-media/resolve-media.class.ts#L77)
 
 ___
 
@@ -204,4 +204,4 @@ ___
 
 Implementation of: ServiceMethods.update
 
-Defined in: [packages/server-core/src/world/resolve-media/resolve-media.class.ts:69](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/world/resolve-media/resolve-media.class.ts#L69)
+Defined in: [packages/server-core/src/world/resolve-media/resolve-media.class.ts:69](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/world/resolve-media/resolve-media.class.ts#L69)

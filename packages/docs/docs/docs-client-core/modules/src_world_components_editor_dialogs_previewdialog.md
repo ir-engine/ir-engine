@@ -38,4 +38,4 @@ PreviewDialog provides the dialog containing image on left side and content on r
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/dialogs/PreviewDialog.tsx:46](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/dialogs/PreviewDialog.tsx#L46)
+Defined in: [packages/client-core/src/world/components/editor/dialogs/PreviewDialog.tsx:46](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/world/components/editor/dialogs/PreviewDialog.tsx#L46)

@@ -22,4 +22,4 @@ hide_title: true
 
 **Returns:** *typeof* Model
 
-Defined in: [packages/server-core/src/social/location-admin/location-admin.model.ts:5](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/social/location-admin/location-admin.model.ts#L5)
+Defined in: [packages/server-core/src/social/location-admin/location-admin.model.ts:5](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/social/location-admin/location-admin.model.ts#L5)

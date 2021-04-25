@@ -10,11 +10,19 @@ hide_title: true
 
 ## Variables
 
+### ADD\_ARMEDIA
+
+• `Const` **ADD\_ARMEDIA**: ``"ADD_ARMEDIA"``= 'ADD\_ARMEDIA'
+
+Defined in: [packages/client-core/src/socialmedia/reducers/actions.ts:39](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/socialmedia/reducers/actions.ts#L39)
+
+___
+
 ### ADD\_FEED
 
 • `Const` **ADD\_FEED**: ``"ADD_FEED"``= 'ADD\_FEED'
 
-Defined in: [packages/client-core/src/socialmedia/reducers/actions.ts:17](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/reducers/actions.ts#L17)
+Defined in: [packages/client-core/src/socialmedia/reducers/actions.ts:17](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/socialmedia/reducers/actions.ts#L17)
 
 ___
 
@@ -22,7 +30,7 @@ ___
 
 • `Const` **ADD\_FEED\_BOOKMARK**: ``"ADD_FEED_BOOKMARK"``= 'ADD\_FEED\_BOOKMARK'
 
-Defined in: [packages/client-core/src/socialmedia/reducers/actions.ts:9](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/reducers/actions.ts#L9)
+Defined in: [packages/client-core/src/socialmedia/reducers/actions.ts:9](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/socialmedia/reducers/actions.ts#L9)
 
 ___
 
@@ -30,7 +38,7 @@ ___
 
 • `Const` **ADD\_FEED\_COMMENT**: ``"ADD_FEED_COMMENT"``= 'ADD\_FEED\_COMMENT'
 
-Defined in: [packages/client-core/src/socialmedia/reducers/actions.ts:16](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/reducers/actions.ts#L16)
+Defined in: [packages/client-core/src/socialmedia/reducers/actions.ts:16](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/socialmedia/reducers/actions.ts#L16)
 
 ___
 
@@ -38,7 +46,7 @@ ___
 
 • `Const` **ADD\_FEED\_COMMENT\_FIRES**: ``"ADD_FEED_COMMENT_FIRES"``= 'ADD\_FEED\_COMMENT\_FIRES'
 
-Defined in: [packages/client-core/src/socialmedia/reducers/actions.ts:14](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/reducers/actions.ts#L14)
+Defined in: [packages/client-core/src/socialmedia/reducers/actions.ts:14](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/socialmedia/reducers/actions.ts#L14)
 
 ___
 
@@ -46,7 +54,7 @@ ___
 
 • `Const` **ADD\_FEED\_FEATURED**: ``"ADD_FEED_FEATURED"``= 'ADD\_FEED\_FEATURED'
 
-Defined in: [packages/client-core/src/socialmedia/reducers/actions.ts:28](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/reducers/actions.ts#L28)
+Defined in: [packages/client-core/src/socialmedia/reducers/actions.ts:28](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/socialmedia/reducers/actions.ts#L28)
 
 ___
 
@@ -54,7 +62,7 @@ ___
 
 • `Const` **ADD\_FEED\_FIRES**: ``"ADD_FEED_FIRES"``= 'ADD\_FEED\_FIRES'
 
-Defined in: [packages/client-core/src/socialmedia/reducers/actions.ts:7](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/reducers/actions.ts#L7)
+Defined in: [packages/client-core/src/socialmedia/reducers/actions.ts:7](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/socialmedia/reducers/actions.ts#L7)
 
 ___
 
@@ -62,7 +70,31 @@ ___
 
 • `Const` **ADD\_FEED\_VIEW**: ``"ADD_FEED_VIEW"``= 'ADD\_FEED\_VIEW'
 
-Defined in: [packages/client-core/src/socialmedia/reducers/actions.ts:11](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/reducers/actions.ts#L11)
+Defined in: [packages/client-core/src/socialmedia/reducers/actions.ts:11](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/socialmedia/reducers/actions.ts#L11)
+
+___
+
+### ARMEDIA\_ADMIN\_RETRIEVED
+
+• `Const` **ARMEDIA\_ADMIN\_RETRIEVED**: ``"ARMEDIA_ADMIN_RETRIEVED"``= 'ARMEDIA\_ADMIN\_RETRIEVED'
+
+Defined in: [packages/client-core/src/socialmedia/reducers/actions.ts:36](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/socialmedia/reducers/actions.ts#L36)
+
+___
+
+### ARMEDIA\_FETCHING
+
+• `Const` **ARMEDIA\_FETCHING**: ``"ARMEDIA_FETCHING"``= 'ARMEDIA\_FETCHING'
+
+Defined in: [packages/client-core/src/socialmedia/reducers/actions.ts:37](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/socialmedia/reducers/actions.ts#L37)
+
+___
+
+### ARMEDIA\_RETRIEVED
+
+• `Const` **ARMEDIA\_RETRIEVED**: ``"ARMEDIA_RETRIEVED"``= 'ARMEDIA\_RETRIEVED'
+
+Defined in: [packages/client-core/src/socialmedia/reducers/actions.ts:38](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/socialmedia/reducers/actions.ts#L38)
 
 ___
 
@@ -70,7 +102,7 @@ ___
 
 • `Const` **COMMENT\_FIRES**: ``"COMMENT_FIRES"``= 'COMMENT\_FIRES'
 
-Defined in: [packages/client-core/src/socialmedia/reducers/actions.ts:32](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/reducers/actions.ts#L32)
+Defined in: [packages/client-core/src/socialmedia/reducers/actions.ts:32](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/socialmedia/reducers/actions.ts#L32)
 
 ___
 
@@ -78,7 +110,7 @@ ___
 
 • `Const` **CREATORS\_FETCH**: ``"CREATORS_FETCH"``= 'CREATORS\_FETCH'
 
-Defined in: [packages/client-core/src/socialmedia/reducers/actions.ts:34](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/reducers/actions.ts#L34)
+Defined in: [packages/client-core/src/socialmedia/reducers/actions.ts:34](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/socialmedia/reducers/actions.ts#L34)
 
 ___
 
@@ -86,7 +118,7 @@ ___
 
 • `Const` **CREATORS\_RETRIEVED**: ``"CREATORS_RETRIEVED"``= 'CREATORS\_RETRIEVED'
 
-Defined in: [packages/client-core/src/socialmedia/reducers/actions.ts:23](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/reducers/actions.ts#L23)
+Defined in: [packages/client-core/src/socialmedia/reducers/actions.ts:23](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/socialmedia/reducers/actions.ts#L23)
 
 ___
 
@@ -94,7 +126,7 @@ ___
 
 • `Const` **CREATOR\_FETCH**: ``"CREATOR_FETCH"``= 'CREATOR\_FETCH'
 
-Defined in: [packages/client-core/src/socialmedia/reducers/actions.ts:20](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/reducers/actions.ts#L20)
+Defined in: [packages/client-core/src/socialmedia/reducers/actions.ts:20](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/socialmedia/reducers/actions.ts#L20)
 
 ___
 
@@ -102,7 +134,7 @@ ___
 
 • `Const` **CREATOR\_FOLLOWERS\_RETRIEVED**: ``"CREATOR_FOLLOWERS_RETRIEVED"``= 'CREATOR\_FOLLOWERS\_RETRIEVED'
 
-Defined in: [packages/client-core/src/socialmedia/reducers/actions.ts:30](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/reducers/actions.ts#L30)
+Defined in: [packages/client-core/src/socialmedia/reducers/actions.ts:30](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/socialmedia/reducers/actions.ts#L30)
 
 ___
 
@@ -110,7 +142,7 @@ ___
 
 • `Const` **CREATOR\_FOLLOWING\_RETRIEVED**: ``"CREATOR_FOLLOWING_RETRIEVED"``= 'CREATOR\_FOLLOWING\_RETRIEVED'
 
-Defined in: [packages/client-core/src/socialmedia/reducers/actions.ts:31](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/reducers/actions.ts#L31)
+Defined in: [packages/client-core/src/socialmedia/reducers/actions.ts:31](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/socialmedia/reducers/actions.ts#L31)
 
 ___
 
@@ -118,7 +150,7 @@ ___
 
 • `Const` **CREATOR\_NOTIFICATION\_LIST\_RETRIEVED**: ``"CREATOR_NOTIFICATION_LIST_RETRIEVED"``= 'CREATOR\_NOTIFICATION\_LIST\_RETRIEVED'
 
-Defined in: [packages/client-core/src/socialmedia/reducers/actions.ts:24](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/reducers/actions.ts#L24)
+Defined in: [packages/client-core/src/socialmedia/reducers/actions.ts:24](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/socialmedia/reducers/actions.ts#L24)
 
 ___
 
@@ -126,7 +158,7 @@ ___
 
 • `Const` **CREATOR\_RETRIEVED**: ``"CREATOR_RETRIEVED"``= 'CREATOR\_RETRIEVED'
 
-Defined in: [packages/client-core/src/socialmedia/reducers/actions.ts:19](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/reducers/actions.ts#L19)
+Defined in: [packages/client-core/src/socialmedia/reducers/actions.ts:19](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/socialmedia/reducers/actions.ts#L19)
 
 ___
 
@@ -134,7 +166,7 @@ ___
 
 • `Const` **CURRENT\_CREATOR\_RETRIEVED**: ``"CURRENT_CREATOR_RETRIEVED"``= 'CURRENT\_CREATOR\_RETRIEVED'
 
-Defined in: [packages/client-core/src/socialmedia/reducers/actions.ts:18](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/reducers/actions.ts#L18)
+Defined in: [packages/client-core/src/socialmedia/reducers/actions.ts:18](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/socialmedia/reducers/actions.ts#L18)
 
 ___
 
@@ -142,7 +174,7 @@ ___
 
 • `Const` **FEEDS\_AS\_ADMIN\_RETRIEVED**: ``"FEEDS_AS_ADMIN_RETRIEVED"``= 'FEEDS\_AS\_ADMIN\_RETRIEVED'
 
-Defined in: [packages/client-core/src/socialmedia/reducers/actions.ts:33](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/reducers/actions.ts#L33)
+Defined in: [packages/client-core/src/socialmedia/reducers/actions.ts:33](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/socialmedia/reducers/actions.ts#L33)
 
 ___
 
@@ -150,7 +182,7 @@ ___
 
 • `Const` **FEEDS\_BOOKMARK\_RETRIEVED**: ``"FEEDS_BOOKMARK_RETRIEVED"``= 'FEEDS\_BOOKMARK\_RETRIEVED'
 
-Defined in: [packages/client-core/src/socialmedia/reducers/actions.ts:22](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/reducers/actions.ts#L22)
+Defined in: [packages/client-core/src/socialmedia/reducers/actions.ts:22](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/socialmedia/reducers/actions.ts#L22)
 
 ___
 
@@ -158,7 +190,7 @@ ___
 
 • `Const` **FEEDS\_CREATOR\_RETRIEVED**: ``"FEEDS_CREATOR_RETRIEVED"``= 'FEEDS\_CREATOR\_RETRIEVED'
 
-Defined in: [packages/client-core/src/socialmedia/reducers/actions.ts:21](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/reducers/actions.ts#L21)
+Defined in: [packages/client-core/src/socialmedia/reducers/actions.ts:21](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/socialmedia/reducers/actions.ts#L21)
 
 ___
 
@@ -166,7 +198,7 @@ ___
 
 • `Const` **FEEDS\_FEATURED\_RETRIEVED**: ``"FEEDS_FEATURED_RETRIEVED"``= 'FEEDS\_FEATURED\_RETRIEVED'
 
-Defined in: [packages/client-core/src/socialmedia/reducers/actions.ts:4](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/reducers/actions.ts#L4)
+Defined in: [packages/client-core/src/socialmedia/reducers/actions.ts:4](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/socialmedia/reducers/actions.ts#L4)
 
 ___
 
@@ -174,7 +206,7 @@ ___
 
 • `Const` **FEEDS\_FETCH**: ``"FEEDS_FETCH"``= 'FEEDS\_FETCH'
 
-Defined in: [packages/client-core/src/socialmedia/reducers/actions.ts:3](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/reducers/actions.ts#L3)
+Defined in: [packages/client-core/src/socialmedia/reducers/actions.ts:3](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/socialmedia/reducers/actions.ts#L3)
 
 ___
 
@@ -182,7 +214,7 @@ ___
 
 • `Const` **FEEDS\_MY\_FEATURED\_RETRIEVED**: ``"FEEDS_MY_FEATURED_RETRIEVED"``= 'FEEDS\_MY\_FEATURED\_RETRIEVED'
 
-Defined in: [packages/client-core/src/socialmedia/reducers/actions.ts:27](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/reducers/actions.ts#L27)
+Defined in: [packages/client-core/src/socialmedia/reducers/actions.ts:27](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/socialmedia/reducers/actions.ts#L27)
 
 ___
 
@@ -190,7 +222,7 @@ ___
 
 • `Const` **FEEDS\_RETRIEVED**: ``"FEEDS_RETRIEVED"``= 'FEEDS\_RETRIEVED'
 
-Defined in: [packages/client-core/src/socialmedia/reducers/actions.ts:1](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/reducers/actions.ts#L1)
+Defined in: [packages/client-core/src/socialmedia/reducers/actions.ts:1](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/socialmedia/reducers/actions.ts#L1)
 
 ___
 
@@ -198,7 +230,7 @@ ___
 
 • `Const` **FEED\_COMMENTS\_FETCH**: ``"FEED_COMMENTS_FETCH"``= 'FEED\_COMMENTS\_FETCH'
 
-Defined in: [packages/client-core/src/socialmedia/reducers/actions.ts:13](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/reducers/actions.ts#L13)
+Defined in: [packages/client-core/src/socialmedia/reducers/actions.ts:13](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/socialmedia/reducers/actions.ts#L13)
 
 ___
 
@@ -206,7 +238,7 @@ ___
 
 • `Const` **FEED\_COMMENTS\_RETRIEVED**: ``"FEED_COMMENTS_RETRIEVED"``= 'FEED\_COMMENTS\_RETRIEVED'
 
-Defined in: [packages/client-core/src/socialmedia/reducers/actions.ts:12](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/reducers/actions.ts#L12)
+Defined in: [packages/client-core/src/socialmedia/reducers/actions.ts:12](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/socialmedia/reducers/actions.ts#L12)
 
 ___
 
@@ -214,7 +246,7 @@ ___
 
 • `Const` **FEED\_FIRES\_FETCH**: ``"FEEDFIRES_FETCH"``= 'FEEDFIRES\_FETCH'
 
-Defined in: [packages/client-core/src/socialmedia/reducers/actions.ts:5](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/reducers/actions.ts#L5)
+Defined in: [packages/client-core/src/socialmedia/reducers/actions.ts:5](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/socialmedia/reducers/actions.ts#L5)
 
 ___
 
@@ -222,7 +254,7 @@ ___
 
 • `Const` **FEED\_FIRES\_RETRIEVED**: ``"FEED_FIRES_RETRIEVED"``= 'FEED\_FIRES\_RETRIEVED'
 
-Defined in: [packages/client-core/src/socialmedia/reducers/actions.ts:6](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/reducers/actions.ts#L6)
+Defined in: [packages/client-core/src/socialmedia/reducers/actions.ts:6](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/socialmedia/reducers/actions.ts#L6)
 
 ___
 
@@ -230,7 +262,15 @@ ___
 
 • `Const` **FEED\_RETRIEVED**: ``"FEED_RETRIEVED"``= 'FEED\_RETRIEVED'
 
-Defined in: [packages/client-core/src/socialmedia/reducers/actions.ts:2](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/reducers/actions.ts#L2)
+Defined in: [packages/client-core/src/socialmedia/reducers/actions.ts:2](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/socialmedia/reducers/actions.ts#L2)
+
+___
+
+### REMOVE\_ARMEDIA
+
+• `Const` **REMOVE\_ARMEDIA**: ``"REMOVE_ARMEDIA"``= 'REMOVE\_ARMEDIA'
+
+Defined in: [packages/client-core/src/socialmedia/reducers/actions.ts:40](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/socialmedia/reducers/actions.ts#L40)
 
 ___
 
@@ -238,7 +278,7 @@ ___
 
 • `Const` **REMOVE\_FEED\_BOOKMARK**: ``"REMOVE_FEED_BOOKMARK"``= 'REMOVE\_FEED\_BOOKMARK'
 
-Defined in: [packages/client-core/src/socialmedia/reducers/actions.ts:10](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/reducers/actions.ts#L10)
+Defined in: [packages/client-core/src/socialmedia/reducers/actions.ts:10](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/socialmedia/reducers/actions.ts#L10)
 
 ___
 
@@ -246,7 +286,7 @@ ___
 
 • `Const` **REMOVE\_FEED\_COMMENT\_FIRES**: ``"REMOVE_FEED_COMMENT_FIRES"``= 'REMOVE\_FEED\_COMMENT\_FIRES'
 
-Defined in: [packages/client-core/src/socialmedia/reducers/actions.ts:15](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/reducers/actions.ts#L15)
+Defined in: [packages/client-core/src/socialmedia/reducers/actions.ts:15](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/socialmedia/reducers/actions.ts#L15)
 
 ___
 
@@ -254,7 +294,7 @@ ___
 
 • `Const` **REMOVE\_FEED\_FEATURED**: ``"REMOVE_FEED_FEATURED"``= 'REMOVE\_FEED\_FEATURED'
 
-Defined in: [packages/client-core/src/socialmedia/reducers/actions.ts:29](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/reducers/actions.ts#L29)
+Defined in: [packages/client-core/src/socialmedia/reducers/actions.ts:29](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/socialmedia/reducers/actions.ts#L29)
 
 ___
 
@@ -262,7 +302,7 @@ ___
 
 • `Const` **REMOVE\_FEED\_FIRES**: ``"REMOVE_FEED_FIRES"``= 'REMOVE\_FEED\_FIRES'
 
-Defined in: [packages/client-core/src/socialmedia/reducers/actions.ts:8](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/reducers/actions.ts#L8)
+Defined in: [packages/client-core/src/socialmedia/reducers/actions.ts:8](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/socialmedia/reducers/actions.ts#L8)
 
 ___
 
@@ -270,7 +310,7 @@ ___
 
 • `Const` **SET\_CREATOR\_AS\_FOLLOWED**: ``"SET_CREATOR_AS_FOLLOWED"``= 'SET\_CREATOR\_AS\_FOLLOWED'
 
-Defined in: [packages/client-core/src/socialmedia/reducers/actions.ts:25](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/reducers/actions.ts#L25)
+Defined in: [packages/client-core/src/socialmedia/reducers/actions.ts:25](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/socialmedia/reducers/actions.ts#L25)
 
 ___
 
@@ -278,7 +318,7 @@ ___
 
 • `Const` **SET\_CREATOR\_NOT\_FOLLOWED**: ``"SET_CREATOR_NOT_FOLLOWED"``= 'SET\_CREATOR\_NOT\_FOLLOWED'
 
-Defined in: [packages/client-core/src/socialmedia/reducers/actions.ts:26](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/reducers/actions.ts#L26)
+Defined in: [packages/client-core/src/socialmedia/reducers/actions.ts:26](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/socialmedia/reducers/actions.ts#L26)
 
 ___
 
@@ -286,4 +326,4 @@ ___
 
 • `Const` **UPDATE\_FEED**: ``"UPDATE_FEED"``= 'UPDATE\_FEED'
 
-Defined in: [packages/client-core/src/socialmedia/reducers/actions.ts:35](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/reducers/actions.ts#L35)
+Defined in: [packages/client-core/src/socialmedia/reducers/actions.ts:35](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/socialmedia/reducers/actions.ts#L35)

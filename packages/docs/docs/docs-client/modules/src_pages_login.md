@@ -28,4 +28,4 @@ hide_title: true
 
 **Returns:** *any*
 
-Defined in: [packages/client/src/pages/login.tsx:25](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client/src/pages/login.tsx#L25)
+Defined in: [packages/client/src/pages/login.tsx:25](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client/src/pages/login.tsx#L25)

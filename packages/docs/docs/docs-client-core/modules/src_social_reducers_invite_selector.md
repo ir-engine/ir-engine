@@ -14,4 +14,4 @@ hide_title: true
 
 • `Const` **selectInviteState**: *OutputSelector*<any, any, (`res`: *any*) => *any*\>
 
-Defined in: [packages/client-core/src/social/reducers/invite/selector.ts:6](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/social/reducers/invite/selector.ts#L6)
+Defined in: [packages/client-core/src/social/reducers/invite/selector.ts:6](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/social/reducers/invite/selector.ts#L6)

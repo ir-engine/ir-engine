@@ -38,4 +38,4 @@ CompoundNumericInput used to render the view of component.
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/inputs/CompoundNumericInput.tsx:30](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/inputs/CompoundNumericInput.tsx#L30)
+Defined in: [packages/client-core/src/world/components/editor/inputs/CompoundNumericInput.tsx:30](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/world/components/editor/inputs/CompoundNumericInput.tsx#L30)

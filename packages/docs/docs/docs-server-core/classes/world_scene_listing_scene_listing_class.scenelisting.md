@@ -37,7 +37,7 @@ A class for Scene Listing service
 
 Overrides: Service.constructor
 
-Defined in: [packages/server-core/src/world/scene-listing/scene-listing.class.ts:9](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/world/scene-listing/scene-listing.class.ts#L9)
+Defined in: [packages/server-core/src/world/scene-listing/scene-listing.class.ts:9](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/world/scene-listing/scene-listing.class.ts#L9)
 
 ## Properties
 

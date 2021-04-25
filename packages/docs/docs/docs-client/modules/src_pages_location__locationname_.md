@@ -22,4 +22,4 @@ hide_title: true
 
 **Returns:** *Element*
 
-Defined in: [packages/client/src/pages/location/[locationName].tsx:6](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client/src/pages/location/[locationName].tsx#L6)
+Defined in: [packages/client/src/pages/location/[locationName].tsx:6](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client/src/pages/location/[locationName].tsx#L6)

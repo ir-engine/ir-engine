@@ -27,7 +27,7 @@ hide_title: true
 
 Ƭ **CameraPosition**: ``"rear"`` \| ``"front"``
 
-Defined in: [packages/native-plugin-xr/src/definitions.ts:28](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/native-plugin-xr/src/definitions.ts#L28)
+Defined in: [packages/native-plugin-xr/src/definitions.ts:28](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/native-plugin-xr/src/definitions.ts#L28)
 
 ## Variables
 
@@ -50,4 +50,4 @@ Enumerations for transcoding
 | `OutputFileType.MPEG4` | *number* |
 | `OutputFileType.QUICK_TIME` | *number* |
 
-Defined in: [packages/native-plugin-xr/src/definitions.ts:63](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/native-plugin-xr/src/definitions.ts#L63)
+Defined in: [packages/native-plugin-xr/src/definitions.ts:63](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/native-plugin-xr/src/definitions.ts#L63)

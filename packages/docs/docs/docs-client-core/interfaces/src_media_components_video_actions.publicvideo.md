@@ -16,7 +16,7 @@ hide_title: true
 
 • **description**: *string*
 
-Defined in: [packages/client-core/src/media/components/video/actions.ts:19](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/media/components/video/actions.ts#L19)
+Defined in: [packages/client-core/src/media/components/video/actions.ts:19](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/media/components/video/actions.ts#L19)
 
 ___
 
@@ -24,7 +24,7 @@ ___
 
 • **id**: *number*
 
-Defined in: [packages/client-core/src/media/components/video/actions.ts:17](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/media/components/video/actions.ts#L17)
+Defined in: [packages/client-core/src/media/components/video/actions.ts:17](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/media/components/video/actions.ts#L17)
 
 ___
 
@@ -32,7 +32,7 @@ ___
 
 • **metadata**: *Partial*<[*VideoMetaData*](src_media_components_video_actions.videometadata.md)\>
 
-Defined in: [packages/client-core/src/media/components/video/actions.ts:21](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/media/components/video/actions.ts#L21)
+Defined in: [packages/client-core/src/media/components/video/actions.ts:21](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/media/components/video/actions.ts#L21)
 
 ___
 
@@ -40,7 +40,7 @@ ___
 
 • **name**: *string*
 
-Defined in: [packages/client-core/src/media/components/video/actions.ts:18](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/media/components/video/actions.ts#L18)
+Defined in: [packages/client-core/src/media/components/video/actions.ts:18](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/media/components/video/actions.ts#L18)
 
 ___
 
@@ -48,4 +48,4 @@ ___
 
 • **url**: *string*
 
-Defined in: [packages/client-core/src/media/components/video/actions.ts:20](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/media/components/video/actions.ts#L20)
+Defined in: [packages/client-core/src/media/components/video/actions.ts:20](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/media/components/video/actions.ts#L20)

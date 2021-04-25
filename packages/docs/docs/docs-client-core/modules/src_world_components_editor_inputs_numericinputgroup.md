@@ -36,4 +36,4 @@ Renames and exports: [NumericInputGroup](src_world_components_editor_inputs_nume
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/inputs/NumericInputGroup.tsx:16](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/inputs/NumericInputGroup.tsx#L16)
+Defined in: [packages/client-core/src/world/components/editor/inputs/NumericInputGroup.tsx:16](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/world/components/editor/inputs/NumericInputGroup.tsx#L16)

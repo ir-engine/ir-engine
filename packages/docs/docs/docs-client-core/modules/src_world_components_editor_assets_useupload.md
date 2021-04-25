@@ -28,4 +28,4 @@ useUpload used to upload asset file.
 
 [assets]
 
-Defined in: [packages/client-core/src/world/components/editor/assets/useUpload.tsx:16](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/assets/useUpload.tsx#L16)
+Defined in: [packages/client-core/src/world/components/editor/assets/useUpload.tsx:16](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/world/components/editor/assets/useUpload.tsx#L16)

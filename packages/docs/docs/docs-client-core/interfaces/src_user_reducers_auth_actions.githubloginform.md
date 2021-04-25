@@ -16,4 +16,4 @@ hide_title: true
 
 • **email**: *string*
 
-Defined in: [packages/client-core/src/user/reducers/auth/actions.ts:43](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/user/reducers/auth/actions.ts#L43)
+Defined in: [packages/client-core/src/user/reducers/auth/actions.ts:43](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/user/reducers/auth/actions.ts#L43)

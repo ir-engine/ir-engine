@@ -27,4 +27,4 @@ hide_title: true
 | `text` | *string* |
 | `updatedAt` | *string* |
 
-Defined in: [interfaces/Message.ts:4](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/common/src/interfaces/Message.ts#L4)
+Defined in: [interfaces/Message.ts:4](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/common/src/interfaces/Message.ts#L4)

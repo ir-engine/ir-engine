@@ -22,4 +22,4 @@ hide_title: true
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/socialmedia/components/Splash/index.tsx:15](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/components/Splash/index.tsx#L15)
+Defined in: [packages/client-core/src/socialmedia/components/Splash/index.tsx:18](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/socialmedia/components/Splash/index.tsx#L18)

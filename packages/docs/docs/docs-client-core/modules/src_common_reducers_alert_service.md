@@ -16,7 +16,7 @@ hide_title: true
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *any*
 
-Defined in: [packages/client-core/src/common/reducers/alert/service.ts:23](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/common/reducers/alert/service.ts#L23)
+Defined in: [packages/client-core/src/common/reducers/alert/service.ts:23](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/common/reducers/alert/service.ts#L23)
 
 ___
 
@@ -32,7 +32,7 @@ ___
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *any*
 
-Defined in: [packages/client-core/src/common/reducers/alert/service.ts:18](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/common/reducers/alert/service.ts#L18)
+Defined in: [packages/client-core/src/common/reducers/alert/service.ts:18](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/common/reducers/alert/service.ts#L18)
 
 ___
 
@@ -48,7 +48,7 @@ ___
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *any*
 
-Defined in: [packages/client-core/src/common/reducers/alert/service.ts:8](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/common/reducers/alert/service.ts#L8)
+Defined in: [packages/client-core/src/common/reducers/alert/service.ts:8](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/common/reducers/alert/service.ts#L8)
 
 ___
 
@@ -64,7 +64,7 @@ ___
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *any*
 
-Defined in: [packages/client-core/src/common/reducers/alert/service.ts:13](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/common/reducers/alert/service.ts#L13)
+Defined in: [packages/client-core/src/common/reducers/alert/service.ts:13](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/common/reducers/alert/service.ts#L13)
 
 ___
 
@@ -80,7 +80,7 @@ ___
 
 **Returns:** [*AlertAction*](../interfaces/src_common_reducers_alert_actions.alertaction.md)
 
-Defined in: [packages/client-core/src/common/reducers/alert/service.ts:54](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/common/reducers/alert/service.ts#L54)
+Defined in: [packages/client-core/src/common/reducers/alert/service.ts:54](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/common/reducers/alert/service.ts#L54)
 
 ___
 
@@ -97,7 +97,7 @@ ___
 
 **Returns:** [*AlertAction*](../interfaces/src_common_reducers_alert_actions.alertaction.md)
 
-Defined in: [packages/client-core/src/common/reducers/alert/service.ts:50](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/common/reducers/alert/service.ts#L50)
+Defined in: [packages/client-core/src/common/reducers/alert/service.ts:50](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/common/reducers/alert/service.ts#L50)
 
 ___
 
@@ -114,7 +114,7 @@ ___
 
 **Returns:** [*AlertAction*](../interfaces/src_common_reducers_alert_actions.alertaction.md)
 
-Defined in: [packages/client-core/src/common/reducers/alert/service.ts:42](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/common/reducers/alert/service.ts#L42)
+Defined in: [packages/client-core/src/common/reducers/alert/service.ts:42](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/common/reducers/alert/service.ts#L42)
 
 ___
 
@@ -131,4 +131,4 @@ ___
 
 **Returns:** [*AlertAction*](../interfaces/src_common_reducers_alert_actions.alertaction.md)
 
-Defined in: [packages/client-core/src/common/reducers/alert/service.ts:46](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/common/reducers/alert/service.ts#L46)
+Defined in: [packages/client-core/src/common/reducers/alert/service.ts:46](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/common/reducers/alert/service.ts#L46)

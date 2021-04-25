@@ -16,7 +16,7 @@ hide_title: true
 
 • **id**: *number*
 
-Defined in: [interfaces/LocationAdmin.ts:2](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/common/src/interfaces/LocationAdmin.ts#L2)
+Defined in: [interfaces/LocationAdmin.ts:2](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/common/src/interfaces/LocationAdmin.ts#L2)
 
 ___
 
@@ -24,7 +24,7 @@ ___
 
 • **locationId**: *string*
 
-Defined in: [interfaces/LocationAdmin.ts:3](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/common/src/interfaces/LocationAdmin.ts#L3)
+Defined in: [interfaces/LocationAdmin.ts:3](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/common/src/interfaces/LocationAdmin.ts#L3)
 
 ___
 
@@ -32,4 +32,4 @@ ___
 
 • **userId**: *string*
 
-Defined in: [interfaces/LocationAdmin.ts:4](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/common/src/interfaces/LocationAdmin.ts#L4)
+Defined in: [interfaces/LocationAdmin.ts:4](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/common/src/interfaces/LocationAdmin.ts#L4)

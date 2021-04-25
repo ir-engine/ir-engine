@@ -31,7 +31,7 @@ authManagement class for GET, CREATE, UPDATE AND REMOVE.
 
 **Returns:** [*Authmanagement*](user_auth_management_auth_management_class.authmanagement.md)
 
-Defined in: [packages/server-core/src/user/auth-management/auth-management.class.ts:15](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/user/auth-management/auth-management.class.ts#L15)
+Defined in: [packages/server-core/src/user/auth-management/auth-management.class.ts:15](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/user/auth-management/auth-management.class.ts#L15)
 
 ## Properties
 
@@ -39,7 +39,7 @@ Defined in: [packages/server-core/src/user/auth-management/auth-management.class
 
 • **app**: Application
 
-Defined in: [packages/server-core/src/user/auth-management/auth-management.class.ts:13](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/user/auth-management/auth-management.class.ts#L13)
+Defined in: [packages/server-core/src/user/auth-management/auth-management.class.ts:13](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/user/auth-management/auth-management.class.ts#L13)
 
 ___
 
@@ -47,7 +47,7 @@ ___
 
 • **docs**: *any*
 
-Defined in: [packages/server-core/src/user/auth-management/auth-management.class.ts:15](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/user/auth-management/auth-management.class.ts#L15)
+Defined in: [packages/server-core/src/user/auth-management/auth-management.class.ts:15](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/user/auth-management/auth-management.class.ts#L15)
 
 ___
 
@@ -55,7 +55,7 @@ ___
 
 • **options**: ServiceOptions
 
-Defined in: [packages/server-core/src/user/auth-management/auth-management.class.ts:14](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/user/auth-management/auth-management.class.ts#L14)
+Defined in: [packages/server-core/src/user/auth-management/auth-management.class.ts:14](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/user/auth-management/auth-management.class.ts#L14)
 
 ## Methods
 
@@ -78,7 +78,7 @@ A function whivh create new auth
 
 Implementation of: ServiceMethods.create
 
-Defined in: [packages/server-core/src/user/auth-management/auth-management.class.ts:56](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/user/auth-management/auth-management.class.ts#L56)
+Defined in: [packages/server-core/src/user/auth-management/auth-management.class.ts:56](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/user/auth-management/auth-management.class.ts#L56)
 
 ___
 
@@ -102,7 +102,7 @@ A function which help to find all auth
 
 Implementation of: ServiceMethods.find
 
-Defined in: [packages/server-core/src/user/auth-management/auth-management.class.ts:30](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/user/auth-management/auth-management.class.ts#L30)
+Defined in: [packages/server-core/src/user/auth-management/auth-management.class.ts:30](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/user/auth-management/auth-management.class.ts#L30)
 
 ___
 
@@ -127,7 +127,7 @@ A function which display specific auth
 
 Implementation of: ServiceMethods.get
 
-Defined in: [packages/server-core/src/user/auth-management/auth-management.class.ts:43](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/user/auth-management/auth-management.class.ts#L43)
+Defined in: [packages/server-core/src/user/auth-management/auth-management.class.ts:43](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/user/auth-management/auth-management.class.ts#L43)
 
 ___
 
@@ -151,7 +151,7 @@ A function which update auth
 
 Implementation of: ServiceMethods.patch
 
-Defined in: [packages/server-core/src/user/auth-management/auth-management.class.ts:85](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/user/auth-management/auth-management.class.ts#L85)
+Defined in: [packages/server-core/src/user/auth-management/auth-management.class.ts:85](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/user/auth-management/auth-management.class.ts#L85)
 
 ___
 
@@ -174,7 +174,7 @@ id
 
 Implementation of: ServiceMethods.remove
 
-Defined in: [packages/server-core/src/user/auth-management/auth-management.class.ts:96](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/user/auth-management/auth-management.class.ts#L96)
+Defined in: [packages/server-core/src/user/auth-management/auth-management.class.ts:96](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/user/auth-management/auth-management.class.ts#L96)
 
 ___
 
@@ -198,4 +198,4 @@ A function which update auth
 
 Implementation of: ServiceMethods.update
 
-Defined in: [packages/server-core/src/user/auth-management/auth-management.class.ts:73](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/user/auth-management/auth-management.class.ts#L73)
+Defined in: [packages/server-core/src/user/auth-management/auth-management.class.ts:73](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/user/auth-management/auth-management.class.ts#L73)

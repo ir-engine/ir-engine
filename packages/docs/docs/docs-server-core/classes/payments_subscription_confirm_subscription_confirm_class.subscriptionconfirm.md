@@ -33,7 +33,7 @@ A class for Subcription Confirm  service
 
 **Returns:** [*SubscriptionConfirm*](payments_subscription_confirm_subscription_confirm_class.subscriptionconfirm.md)
 
-Defined in: [packages/server-core/src/payments/subscription-confirm/subscription-confirm.class.ts:19](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/payments/subscription-confirm/subscription-confirm.class.ts#L19)
+Defined in: [packages/server-core/src/payments/subscription-confirm/subscription-confirm.class.ts:19](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/payments/subscription-confirm/subscription-confirm.class.ts#L19)
 
 ## Properties
 
@@ -41,7 +41,7 @@ Defined in: [packages/server-core/src/payments/subscription-confirm/subscription
 
 • **app**: Application
 
-Defined in: [packages/server-core/src/payments/subscription-confirm/subscription-confirm.class.ts:17](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/payments/subscription-confirm/subscription-confirm.class.ts#L17)
+Defined in: [packages/server-core/src/payments/subscription-confirm/subscription-confirm.class.ts:17](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/payments/subscription-confirm/subscription-confirm.class.ts#L17)
 
 ___
 
@@ -49,7 +49,7 @@ ___
 
 • **docs**: *any*
 
-Defined in: [packages/server-core/src/payments/subscription-confirm/subscription-confirm.class.ts:19](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/payments/subscription-confirm/subscription-confirm.class.ts#L19)
+Defined in: [packages/server-core/src/payments/subscription-confirm/subscription-confirm.class.ts:19](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/payments/subscription-confirm/subscription-confirm.class.ts#L19)
 
 ___
 
@@ -57,7 +57,7 @@ ___
 
 • **options**: ServiceOptions
 
-Defined in: [packages/server-core/src/payments/subscription-confirm/subscription-confirm.class.ts:18](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/payments/subscription-confirm/subscription-confirm.class.ts#L18)
+Defined in: [packages/server-core/src/payments/subscription-confirm/subscription-confirm.class.ts:18](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/payments/subscription-confirm/subscription-confirm.class.ts#L18)
 
 ## Methods
 
@@ -76,7 +76,7 @@ Defined in: [packages/server-core/src/payments/subscription-confirm/subscription
 
 Implementation of: ServiceMethods.create
 
-Defined in: [packages/server-core/src/payments/subscription-confirm/subscription-confirm.class.ts:78](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/payments/subscription-confirm/subscription-confirm.class.ts#L78)
+Defined in: [packages/server-core/src/payments/subscription-confirm/subscription-confirm.class.ts:78](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/payments/subscription-confirm/subscription-confirm.class.ts#L78)
 
 ___
 
@@ -94,7 +94,7 @@ ___
 
 Implementation of: ServiceMethods.find
 
-Defined in: [packages/server-core/src/payments/subscription-confirm/subscription-confirm.class.ts:26](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/payments/subscription-confirm/subscription-confirm.class.ts#L26)
+Defined in: [packages/server-core/src/payments/subscription-confirm/subscription-confirm.class.ts:26](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/payments/subscription-confirm/subscription-confirm.class.ts#L26)
 
 ___
 
@@ -113,7 +113,7 @@ ___
 
 Implementation of: ServiceMethods.get
 
-Defined in: [packages/server-core/src/payments/subscription-confirm/subscription-confirm.class.ts:30](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/payments/subscription-confirm/subscription-confirm.class.ts#L30)
+Defined in: [packages/server-core/src/payments/subscription-confirm/subscription-confirm.class.ts:30](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/payments/subscription-confirm/subscription-confirm.class.ts#L30)
 
 ___
 
@@ -133,7 +133,7 @@ ___
 
 Implementation of: ServiceMethods.patch
 
-Defined in: [packages/server-core/src/payments/subscription-confirm/subscription-confirm.class.ts:90](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/payments/subscription-confirm/subscription-confirm.class.ts#L90)
+Defined in: [packages/server-core/src/payments/subscription-confirm/subscription-confirm.class.ts:90](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/payments/subscription-confirm/subscription-confirm.class.ts#L90)
 
 ___
 
@@ -152,7 +152,7 @@ ___
 
 Implementation of: ServiceMethods.remove
 
-Defined in: [packages/server-core/src/payments/subscription-confirm/subscription-confirm.class.ts:94](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/payments/subscription-confirm/subscription-confirm.class.ts#L94)
+Defined in: [packages/server-core/src/payments/subscription-confirm/subscription-confirm.class.ts:94](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/payments/subscription-confirm/subscription-confirm.class.ts#L94)
 
 ___
 
@@ -172,4 +172,4 @@ ___
 
 Implementation of: ServiceMethods.update
 
-Defined in: [packages/server-core/src/payments/subscription-confirm/subscription-confirm.class.ts:86](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/payments/subscription-confirm/subscription-confirm.class.ts#L86)
+Defined in: [packages/server-core/src/payments/subscription-confirm/subscription-confirm.class.ts:86](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/payments/subscription-confirm/subscription-confirm.class.ts#L86)

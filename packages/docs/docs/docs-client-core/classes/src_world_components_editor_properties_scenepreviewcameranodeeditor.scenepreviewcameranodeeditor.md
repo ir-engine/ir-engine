@@ -157,7 +157,7 @@ ___
 
 ▪ `Static` **description**: *string*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/ScenePreviewCameraNodeEditor.tsx:35](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/ScenePreviewCameraNodeEditor.tsx#L35)
+Defined in: [packages/client-core/src/world/components/editor/properties/ScenePreviewCameraNodeEditor.tsx:35](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/world/components/editor/properties/ScenePreviewCameraNodeEditor.tsx#L35)
 
 ___
 
@@ -165,7 +165,7 @@ ___
 
 ▪ `Static` **iconComponent**: StyledIcon
 
-Defined in: [packages/client-core/src/world/components/editor/properties/ScenePreviewCameraNodeEditor.tsx:32](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/ScenePreviewCameraNodeEditor.tsx#L32)
+Defined in: [packages/client-core/src/world/components/editor/properties/ScenePreviewCameraNodeEditor.tsx:32](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/world/components/editor/properties/ScenePreviewCameraNodeEditor.tsx#L32)
 
 ## Methods
 
@@ -482,7 +482,7 @@ ___
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/ScenePreviewCameraNodeEditor.tsx:36](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/ScenePreviewCameraNodeEditor.tsx#L36)
+Defined in: [packages/client-core/src/world/components/editor/properties/ScenePreviewCameraNodeEditor.tsx:36](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/world/components/editor/properties/ScenePreviewCameraNodeEditor.tsx#L36)
 
 ___
 
@@ -494,7 +494,7 @@ ___
 
 Overrides: Component.render
 
-Defined in: [packages/client-core/src/world/components/editor/properties/ScenePreviewCameraNodeEditor.tsx:39](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/ScenePreviewCameraNodeEditor.tsx#L39)
+Defined in: [packages/client-core/src/world/components/editor/properties/ScenePreviewCameraNodeEditor.tsx:39](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/world/components/editor/properties/ScenePreviewCameraNodeEditor.tsx#L39)
 
 ___
 

@@ -32,4 +32,4 @@ ProgressDialog component used to render view.
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/dialogs/ProgressDialog.tsx:46](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/dialogs/ProgressDialog.tsx#L46)
+Defined in: [packages/client-core/src/world/components/editor/dialogs/ProgressDialog.tsx:46](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/world/components/editor/dialogs/ProgressDialog.tsx#L46)

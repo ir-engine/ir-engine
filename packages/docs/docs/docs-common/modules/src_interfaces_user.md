@@ -28,7 +28,7 @@ hide_title: true
 | `identityProviders` | *any*[] |
 | `name` | *string* |
 
-Defined in: [interfaces/User.ts:22](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/common/src/interfaces/User.ts#L22)
+Defined in: [interfaces/User.ts:22](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/common/src/interfaces/User.ts#L22)
 
 ## Functions
 
@@ -44,4 +44,4 @@ Defined in: [interfaces/User.ts:22](https://github.com/xr3ngine/xr3ngine/blob/7e
 
 **Returns:** [*User*](../interfaces/src_interfaces_user.user.md)
 
-Defined in: [interfaces/User.ts:28](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/common/src/interfaces/User.ts#L28)
+Defined in: [interfaces/User.ts:28](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/common/src/interfaces/User.ts#L28)

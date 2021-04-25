@@ -24,7 +24,7 @@ hide_title: true
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>, `getState`: *any*) => *Promise*<any\>
 
-Defined in: [packages/client-core/src/social/reducers/friend/service.ts:36](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/social/reducers/friend/service.ts#L36)
+Defined in: [packages/client-core/src/social/reducers/friend/service.ts:36](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/social/reducers/friend/service.ts#L36)
 
 ___
 
@@ -40,4 +40,4 @@ ___
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/src/social/reducers/friend/service.ts:119](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/social/reducers/friend/service.ts#L119)
+Defined in: [packages/client-core/src/social/reducers/friend/service.ts:119](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/social/reducers/friend/service.ts#L119)

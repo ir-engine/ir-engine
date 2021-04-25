@@ -31,7 +31,7 @@ hide_title: true
 
 Ƭ **GroupAction**: [*LoadedGroupsAction*](../interfaces/src_social_reducers_group_actions.loadedgroupsaction.md) \| [*CreatedGroupAction*](../interfaces/src_social_reducers_group_actions.createdgroupaction.md) \| [*PatchedGroupAction*](../interfaces/src_social_reducers_group_actions.patchedgroupaction.md) \| [*RemovedGroupAction*](../interfaces/src_social_reducers_group_actions.removedgroupaction.md) \| [*LeftGroupAction*](../interfaces/src_social_reducers_group_actions.leftgroupaction.md) \| [*FetchingGroupsAction*](../interfaces/src_social_reducers_group_actions.fetchinggroupsaction.md) \| [*LoadedInvitableGroupsAction*](../interfaces/src_social_reducers_group_actions.loadedinvitablegroupsaction.md) \| [*FetchingInvitableGroupsAction*](../interfaces/src_social_reducers_group_actions.fetchinginvitablegroupsaction.md) \| [*CreatedGroupUserAction*](../interfaces/src_social_reducers_group_actions.createdgroupuseraction.md) \| [*PatchedGroupUserAction*](../interfaces/src_social_reducers_group_actions.patchedgroupuseraction.md) \| [*RemovedGroupUserAction*](../interfaces/src_social_reducers_group_actions.removedgroupuseraction.md)
 
-Defined in: [packages/client-core/src/social/reducers/group/actions.ts:70](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/social/reducers/group/actions.ts#L70)
+Defined in: [packages/client-core/src/social/reducers/group/actions.ts:70](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/social/reducers/group/actions.ts#L70)
 
 ## Functions
 
@@ -47,7 +47,7 @@ Defined in: [packages/client-core/src/social/reducers/group/actions.ts:70](https
 
 **Returns:** [*CreatedGroupAction*](../interfaces/src_social_reducers_group_actions.createdgroupaction.md)
 
-Defined in: [packages/client-core/src/social/reducers/group/actions.ts:93](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/social/reducers/group/actions.ts#L93)
+Defined in: [packages/client-core/src/social/reducers/group/actions.ts:93](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/social/reducers/group/actions.ts#L93)
 
 ___
 
@@ -63,7 +63,7 @@ ___
 
 **Returns:** [*CreatedGroupUserAction*](../interfaces/src_social_reducers_group_actions.createdgroupuseraction.md)
 
-Defined in: [packages/client-core/src/social/reducers/group/actions.ts:114](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/social/reducers/group/actions.ts#L114)
+Defined in: [packages/client-core/src/social/reducers/group/actions.ts:114](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/social/reducers/group/actions.ts#L114)
 
 ___
 
@@ -73,7 +73,7 @@ ___
 
 **Returns:** [*FetchingGroupsAction*](../interfaces/src_social_reducers_group_actions.fetchinggroupsaction.md)
 
-Defined in: [packages/client-core/src/social/reducers/group/actions.ts:148](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/social/reducers/group/actions.ts#L148)
+Defined in: [packages/client-core/src/social/reducers/group/actions.ts:148](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/social/reducers/group/actions.ts#L148)
 
 ___
 
@@ -83,7 +83,7 @@ ___
 
 **Returns:** [*FetchingInvitableGroupsAction*](../interfaces/src_social_reducers_group_actions.fetchinginvitablegroupsaction.md)
 
-Defined in: [packages/client-core/src/social/reducers/group/actions.ts:164](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/social/reducers/group/actions.ts#L164)
+Defined in: [packages/client-core/src/social/reducers/group/actions.ts:164](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/social/reducers/group/actions.ts#L164)
 
 ___
 
@@ -93,7 +93,7 @@ ___
 
 **Returns:** [*InvitedGroupUserAction*](../interfaces/src_social_reducers_group_actions.invitedgroupuseraction.md)
 
-Defined in: [packages/client-core/src/social/reducers/group/actions.ts:136](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/social/reducers/group/actions.ts#L136)
+Defined in: [packages/client-core/src/social/reducers/group/actions.ts:136](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/social/reducers/group/actions.ts#L136)
 
 ___
 
@@ -103,7 +103,7 @@ ___
 
 **Returns:** [*LeftGroupAction*](../interfaces/src_social_reducers_group_actions.leftgroupaction.md)
 
-Defined in: [packages/client-core/src/social/reducers/group/actions.ts:142](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/social/reducers/group/actions.ts#L142)
+Defined in: [packages/client-core/src/social/reducers/group/actions.ts:142](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/social/reducers/group/actions.ts#L142)
 
 ___
 
@@ -119,7 +119,7 @@ ___
 
 **Returns:** [*GroupAction*](src_social_reducers_group_actions.md#groupaction)
 
-Defined in: [packages/client-core/src/social/reducers/group/actions.ts:83](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/social/reducers/group/actions.ts#L83)
+Defined in: [packages/client-core/src/social/reducers/group/actions.ts:83](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/social/reducers/group/actions.ts#L83)
 
 ___
 
@@ -135,7 +135,7 @@ ___
 
 **Returns:** [*GroupAction*](src_social_reducers_group_actions.md#groupaction)
 
-Defined in: [packages/client-core/src/social/reducers/group/actions.ts:154](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/social/reducers/group/actions.ts#L154)
+Defined in: [packages/client-core/src/social/reducers/group/actions.ts:154](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/social/reducers/group/actions.ts#L154)
 
 ___
 
@@ -151,7 +151,7 @@ ___
 
 **Returns:** [*PatchedGroupAction*](../interfaces/src_social_reducers_group_actions.patchedgroupaction.md)
 
-Defined in: [packages/client-core/src/social/reducers/group/actions.ts:100](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/social/reducers/group/actions.ts#L100)
+Defined in: [packages/client-core/src/social/reducers/group/actions.ts:100](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/social/reducers/group/actions.ts#L100)
 
 ___
 
@@ -167,7 +167,7 @@ ___
 
 **Returns:** [*PatchedGroupUserAction*](../interfaces/src_social_reducers_group_actions.patchedgroupuseraction.md)
 
-Defined in: [packages/client-core/src/social/reducers/group/actions.ts:121](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/social/reducers/group/actions.ts#L121)
+Defined in: [packages/client-core/src/social/reducers/group/actions.ts:121](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/social/reducers/group/actions.ts#L121)
 
 ___
 
@@ -183,7 +183,7 @@ ___
 
 **Returns:** [*RemovedGroupAction*](../interfaces/src_social_reducers_group_actions.removedgroupaction.md)
 
-Defined in: [packages/client-core/src/social/reducers/group/actions.ts:107](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/social/reducers/group/actions.ts#L107)
+Defined in: [packages/client-core/src/social/reducers/group/actions.ts:107](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/social/reducers/group/actions.ts#L107)
 
 ___
 
@@ -200,4 +200,4 @@ ___
 
 **Returns:** [*RemovedGroupUserAction*](../interfaces/src_social_reducers_group_actions.removedgroupuseraction.md)
 
-Defined in: [packages/client-core/src/social/reducers/group/actions.ts:128](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/social/reducers/group/actions.ts#L128)
+Defined in: [packages/client-core/src/social/reducers/group/actions.ts:128](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/social/reducers/group/actions.ts#L128)

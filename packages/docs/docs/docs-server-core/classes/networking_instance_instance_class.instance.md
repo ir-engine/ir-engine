@@ -37,7 +37,7 @@ A class for Intance service
 
 Overrides: Service.constructor
 
-Defined in: [packages/server-core/src/networking/instance/instance.class.ts:13](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/networking/instance/instance.class.ts#L13)
+Defined in: [packages/server-core/src/networking/instance/instance.class.ts:13](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/networking/instance/instance.class.ts#L13)
 
 ## Properties
 
@@ -55,7 +55,7 @@ ___
 
 • **docs**: *any*
 
-Defined in: [packages/server-core/src/networking/instance/instance.class.ts:13](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/networking/instance/instance.class.ts#L13)
+Defined in: [packages/server-core/src/networking/instance/instance.class.ts:13](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/networking/instance/instance.class.ts#L13)
 
 ___
 
@@ -278,7 +278,7 @@ user object
 
 Overrides: Service.find
 
-Defined in: [packages/server-core/src/networking/instance/instance.class.ts:23](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/networking/instance/instance.class.ts#L23)
+Defined in: [packages/server-core/src/networking/instance/instance.class.ts:23](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/networking/instance/instance.class.ts#L23)
 
 ___
 

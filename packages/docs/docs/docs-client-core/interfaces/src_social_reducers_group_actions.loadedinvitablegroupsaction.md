@@ -16,7 +16,7 @@ hide_title: true
 
 • **groups**: Group[]
 
-Defined in: [packages/client-core/src/social/reducers/group/actions.ts:60](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/social/reducers/group/actions.ts#L60)
+Defined in: [packages/client-core/src/social/reducers/group/actions.ts:60](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/social/reducers/group/actions.ts#L60)
 
 ___
 
@@ -24,7 +24,7 @@ ___
 
 • **limit**: *number*
 
-Defined in: [packages/client-core/src/social/reducers/group/actions.ts:62](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/social/reducers/group/actions.ts#L62)
+Defined in: [packages/client-core/src/social/reducers/group/actions.ts:62](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/social/reducers/group/actions.ts#L62)
 
 ___
 
@@ -32,7 +32,7 @@ ___
 
 • **skip**: *number*
 
-Defined in: [packages/client-core/src/social/reducers/group/actions.ts:63](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/social/reducers/group/actions.ts#L63)
+Defined in: [packages/client-core/src/social/reducers/group/actions.ts:63](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/social/reducers/group/actions.ts#L63)
 
 ___
 
@@ -40,7 +40,7 @@ ___
 
 • **total**: *number*
 
-Defined in: [packages/client-core/src/social/reducers/group/actions.ts:61](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/social/reducers/group/actions.ts#L61)
+Defined in: [packages/client-core/src/social/reducers/group/actions.ts:61](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/social/reducers/group/actions.ts#L61)
 
 ___
 
@@ -48,4 +48,4 @@ ___
 
 • **type**: *string*
 
-Defined in: [packages/client-core/src/social/reducers/group/actions.ts:59](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/social/reducers/group/actions.ts#L59)
+Defined in: [packages/client-core/src/social/reducers/group/actions.ts:59](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/social/reducers/group/actions.ts#L59)

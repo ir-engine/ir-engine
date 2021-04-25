@@ -487,4 +487,4 @@ hide_title: true
 | `resources.en.editor.viewport.state.triangles` | *string* |
 | `resources.en.editor.viewport.title` | *string* |
 
-Defined in: [packages/client-core/src/i18n.ts:3](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/i18n.ts#L3)
+Defined in: [packages/client-core/src/i18n.ts:3](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/i18n.ts#L3)

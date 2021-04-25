@@ -14,4 +14,4 @@ hide_title: true
 
 Ƭ **PartyResult**: [*Party*](src_interfaces_party.md#party)
 
-Defined in: [interfaces/PartyResult.ts:3](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/common/src/interfaces/PartyResult.ts#L3)
+Defined in: [interfaces/PartyResult.ts:3](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/common/src/interfaces/PartyResult.ts#L3)

@@ -24,4 +24,4 @@ hide_title: true
 | `randomize` | *boolean* |
 | `templates` | { `rank`: *string* = 'owner' }[] |
 
-Defined in: [packages/server-core/src/social/group-user-rank/group-user-rank.seed.ts:3](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/social/group-user-rank/group-user-rank.seed.ts#L3)
+Defined in: [packages/server-core/src/social/group-user-rank/group-user-rank.seed.ts:3](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/social/group-user-rank/group-user-rank.seed.ts#L3)

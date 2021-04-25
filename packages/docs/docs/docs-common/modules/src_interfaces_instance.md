@@ -20,4 +20,4 @@ hide_title: true
 
 • `Const` **InstanceSeed**: [*Instance*](../interfaces/src_interfaces_instance.instance.md)
 
-Defined in: [interfaces/Instance.ts:8](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/common/src/interfaces/Instance.ts#L8)
+Defined in: [interfaces/Instance.ts:8](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/common/src/interfaces/Instance.ts#L8)

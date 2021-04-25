@@ -34,7 +34,7 @@ hide_title: true
 | `invitableUpdateNeeded` | *boolean* |
 | `updateNeeded` | *boolean* |
 
-Defined in: [packages/client-core/src/social/reducers/group/reducers.ts:17](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/social/reducers/group/reducers.ts#L17)
+Defined in: [packages/client-core/src/social/reducers/group/reducers.ts:17](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/social/reducers/group/reducers.ts#L17)
 
 ## Functions
 
@@ -51,4 +51,4 @@ Defined in: [packages/client-core/src/social/reducers/group/reducers.ts:17](http
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/src/social/reducers/group/reducers.ts:39](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/social/reducers/group/reducers.ts#L39)
+Defined in: [packages/client-core/src/social/reducers/group/reducers.ts:39](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/social/reducers/group/reducers.ts#L39)

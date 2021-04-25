@@ -157,7 +157,7 @@ ___
 
 ▪ `Static` **description**: *string*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/BoxColliderNodeEditor.tsx:29](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/BoxColliderNodeEditor.tsx#L29)
+Defined in: [packages/client-core/src/world/components/editor/properties/BoxColliderNodeEditor.tsx:29](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/world/components/editor/properties/BoxColliderNodeEditor.tsx#L29)
 
 ___
 
@@ -165,7 +165,7 @@ ___
 
 ▪ `Static` **iconComponent**: StyledIcon
 
-Defined in: [packages/client-core/src/world/components/editor/properties/BoxColliderNodeEditor.tsx:25](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/BoxColliderNodeEditor.tsx#L25)
+Defined in: [packages/client-core/src/world/components/editor/properties/BoxColliderNodeEditor.tsx:25](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/world/components/editor/properties/BoxColliderNodeEditor.tsx#L25)
 
 ## Methods
 
@@ -488,7 +488,7 @@ ___
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/BoxColliderNodeEditor.tsx:31](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/BoxColliderNodeEditor.tsx#L31)
+Defined in: [packages/client-core/src/world/components/editor/properties/BoxColliderNodeEditor.tsx:31](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/world/components/editor/properties/BoxColliderNodeEditor.tsx#L31)
 
 ___
 
@@ -500,7 +500,7 @@ ___
 
 Overrides: Component.render
 
-Defined in: [packages/client-core/src/world/components/editor/properties/BoxColliderNodeEditor.tsx:35](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/BoxColliderNodeEditor.tsx#L35)
+Defined in: [packages/client-core/src/world/components/editor/properties/BoxColliderNodeEditor.tsx:35](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/world/components/editor/properties/BoxColliderNodeEditor.tsx#L35)
 
 ___
 

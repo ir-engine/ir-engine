@@ -93,4 +93,4 @@ hide_title: true
 | `userId` | *any* |
 | `version` | *number* |
 
-Defined in: [assets/testScenePreset.ts:1](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/common/src/assets/testScenePreset.ts#L1)
+Defined in: [assets/testScenePreset.ts:1](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/common/src/assets/testScenePreset.ts#L1)

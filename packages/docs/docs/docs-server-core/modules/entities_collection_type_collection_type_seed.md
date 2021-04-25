@@ -24,4 +24,4 @@ hide_title: true
 | `randomize` | *boolean* |
 | `templates` | { `type`: *string*  }[] |
 
-Defined in: [packages/server-core/src/entities/collection-type/collection-type.seed.ts:4](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/entities/collection-type/collection-type.seed.ts#L4)
+Defined in: [packages/server-core/src/entities/collection-type/collection-type.seed.ts:4](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/entities/collection-type/collection-type.seed.ts#L4)

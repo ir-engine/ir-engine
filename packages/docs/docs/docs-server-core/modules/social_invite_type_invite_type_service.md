@@ -26,4 +26,4 @@ hide_title: true
 
 **Returns:** *any*
 
-Defined in: [packages/server-core/src/social/invite-type/invite-type.service.ts:14](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/social/invite-type/invite-type.service.ts#L14)
+Defined in: [packages/server-core/src/social/invite-type/invite-type.service.ts:14](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/social/invite-type/invite-type.service.ts#L14)

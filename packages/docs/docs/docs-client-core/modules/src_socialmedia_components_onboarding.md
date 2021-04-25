@@ -22,4 +22,4 @@ hide_title: true
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/socialmedia/components/OnBoarding/index.tsx:17](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/components/OnBoarding/index.tsx#L17)
+Defined in: [packages/client-core/src/socialmedia/components/OnBoarding/index.tsx:20](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/socialmedia/components/OnBoarding/index.tsx#L20)

@@ -16,7 +16,7 @@ hide_title: true
 
 • **limit**: *number*
 
-Defined in: [packages/client-core/src/social/reducers/party/actions.ts:108](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/social/reducers/party/actions.ts#L108)
+Defined in: [packages/client-core/src/social/reducers/party/actions.ts:108](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/social/reducers/party/actions.ts#L108)
 
 ___
 
@@ -24,7 +24,7 @@ ___
 
 • **partyUsers**: PartyUser[]
 
-Defined in: [packages/client-core/src/social/reducers/party/actions.ts:106](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/social/reducers/party/actions.ts#L106)
+Defined in: [packages/client-core/src/social/reducers/party/actions.ts:106](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/social/reducers/party/actions.ts#L106)
 
 ___
 
@@ -32,7 +32,7 @@ ___
 
 • **skip**: *number*
 
-Defined in: [packages/client-core/src/social/reducers/party/actions.ts:109](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/social/reducers/party/actions.ts#L109)
+Defined in: [packages/client-core/src/social/reducers/party/actions.ts:109](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/social/reducers/party/actions.ts#L109)
 
 ___
 
@@ -40,7 +40,7 @@ ___
 
 • **total**: *number*
 
-Defined in: [packages/client-core/src/social/reducers/party/actions.ts:107](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/social/reducers/party/actions.ts#L107)
+Defined in: [packages/client-core/src/social/reducers/party/actions.ts:107](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/social/reducers/party/actions.ts#L107)
 
 ___
 
@@ -48,4 +48,4 @@ ___
 
 • **type**: *string*
 
-Defined in: [packages/client-core/src/social/reducers/party/actions.ts:105](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/social/reducers/party/actions.ts#L105)
+Defined in: [packages/client-core/src/social/reducers/party/actions.ts:105](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/social/reducers/party/actions.ts#L105)

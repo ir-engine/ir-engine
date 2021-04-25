@@ -33,7 +33,7 @@ hide_title: true
 
 Overrides: Service.constructor
 
-Defined in: [packages/server-core/src/social/message/message.class.ts:10](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/social/message/message.class.ts#L10)
+Defined in: [packages/server-core/src/social/message/message.class.ts:10](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/social/message/message.class.ts#L10)
 
 ## Properties
 
@@ -51,7 +51,7 @@ ___
 
 • **app**: Application
 
-Defined in: [packages/server-core/src/social/message/message.class.ts:9](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/social/message/message.class.ts#L9)
+Defined in: [packages/server-core/src/social/message/message.class.ts:9](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/social/message/message.class.ts#L9)
 
 ___
 
@@ -59,7 +59,7 @@ ___
 
 • **docs**: *any*
 
-Defined in: [packages/server-core/src/social/message/message.class.ts:10](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/social/message/message.class.ts#L10)
+Defined in: [packages/server-core/src/social/message/message.class.ts:10](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/social/message/message.class.ts#L10)
 
 ___
 
@@ -245,7 +245,7 @@ A function which is used to create a message
 
 Overrides: Service.create
 
-Defined in: [packages/server-core/src/social/message/message.class.ts:23](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/social/message/message.class.ts#L23)
+Defined in: [packages/server-core/src/social/message/message.class.ts:23](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/social/message/message.class.ts#L23)
 
 ___
 

@@ -33,7 +33,7 @@ hide_title: true
 | `user.identityProviders` | *any*[] |
 | `user.name` | *string* |
 
-Defined in: [packages/client-core/src/user/reducers/auth/reducers.ts:42](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/user/reducers/auth/reducers.ts#L42)
+Defined in: [packages/client-core/src/user/reducers/auth/reducers.ts:42](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/user/reducers/auth/reducers.ts#L42)
 
 ## Functions
 
@@ -50,4 +50,4 @@ Defined in: [packages/client-core/src/user/reducers/auth/reducers.ts:42](https:/
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/src/user/reducers/auth/reducers.ts:54](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/user/reducers/auth/reducers.ts#L54)
+Defined in: [packages/client-core/src/user/reducers/auth/reducers.ts:54](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/user/reducers/auth/reducers.ts#L54)

@@ -30,7 +30,7 @@ TreeListItem used to provide styles for list.
 
 **`author`** Robert Long
 
-Defined in: [packages/client-core/src/world/components/editor/assets/TagList.tsx:102](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/assets/TagList.tsx#L102)
+Defined in: [packages/client-core/src/world/components/editor/assets/TagList.tsx:102](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/world/components/editor/assets/TagList.tsx#L102)
 
 ## Functions
 
@@ -48,4 +48,4 @@ define and export TagList component
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/assets/TagList.tsx:234](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/assets/TagList.tsx#L234)
+Defined in: [packages/client-core/src/world/components/editor/assets/TagList.tsx:234](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/world/components/editor/assets/TagList.tsx#L234)

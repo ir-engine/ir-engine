@@ -29,4 +29,4 @@ it contain role for users
 
 **Returns:** *any*
 
-Defined in: [packages/server-core/src/user/user-role/user-role.model.ts:2](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/user/user-role/user-role.model.ts#L2)
+Defined in: [packages/server-core/src/user/user-role/user-role.model.ts:2](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/user/user-role/user-role.model.ts#L2)

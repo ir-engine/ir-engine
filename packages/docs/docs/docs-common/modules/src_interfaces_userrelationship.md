@@ -14,7 +14,7 @@ hide_title: true
 
 Ƭ **RelationshipType**: ``"friend"`` \| ``"requested"`` \| ``"blocked"`` \| ``"blocking"``
 
-Defined in: [interfaces/UserRelationship.ts:1](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/common/src/interfaces/UserRelationship.ts#L1)
+Defined in: [interfaces/UserRelationship.ts:1](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/common/src/interfaces/UserRelationship.ts#L1)
 
 ___
 
@@ -33,4 +33,4 @@ ___
 | `userId` | *string* |
 | `userRelationshipType` | [*RelationshipType*](src_interfaces_userrelationship.md#relationshiptype) |
 
-Defined in: [interfaces/UserRelationship.ts:2](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/common/src/interfaces/UserRelationship.ts#L2)
+Defined in: [interfaces/UserRelationship.ts:2](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/common/src/interfaces/UserRelationship.ts#L2)

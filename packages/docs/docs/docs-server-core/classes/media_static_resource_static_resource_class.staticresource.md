@@ -37,7 +37,7 @@ A class for Static Resource  service
 
 Overrides: Service.constructor
 
-Defined in: [packages/server-core/src/media/static-resource/static-resource.class.ts:11](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/media/static-resource/static-resource.class.ts#L11)
+Defined in: [packages/server-core/src/media/static-resource/static-resource.class.ts:11](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/media/static-resource/static-resource.class.ts#L11)
 
 ## Properties
 
@@ -55,7 +55,7 @@ ___
 
 • **docs**: *any*
 
-Defined in: [packages/server-core/src/media/static-resource/static-resource.class.ts:11](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/media/static-resource/static-resource.class.ts#L11)
+Defined in: [packages/server-core/src/media/static-resource/static-resource.class.ts:11](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/media/static-resource/static-resource.class.ts#L11)
 
 ___
 
@@ -237,7 +237,7 @@ ___
 
 Overrides: Service.create
 
-Defined in: [packages/server-core/src/media/static-resource/static-resource.class.ts:17](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/media/static-resource/static-resource.class.ts#L17)
+Defined in: [packages/server-core/src/media/static-resource/static-resource.class.ts:17](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/media/static-resource/static-resource.class.ts#L17)
 
 ___
 

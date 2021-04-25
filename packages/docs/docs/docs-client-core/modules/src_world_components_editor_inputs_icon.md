@@ -38,4 +38,4 @@ Icon used to render view for icon component.
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/inputs/Icon.tsx:11](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/inputs/Icon.tsx#L11)
+Defined in: [packages/client-core/src/world/components/editor/inputs/Icon.tsx:11](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/world/components/editor/inputs/Icon.tsx#L11)

@@ -30,7 +30,7 @@ hide_title: true
 
 Overrides: WebPlugin.constructor
 
-Defined in: [packages/native-plugin-xr/src/web.ts:4](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/native-plugin-xr/src/web.ts#L4)
+Defined in: [packages/native-plugin-xr/src/web.ts:4](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/native-plugin-xr/src/web.ts#L4)
 
 ## Properties
 
@@ -111,7 +111,7 @@ ___
 
 Implementation of: [XRPluginPlugin](../interfaces/definitions.xrpluginplugin.md)
 
-Defined in: [packages/native-plugin-xr/src/web.ts:86](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/native-plugin-xr/src/web.ts#L86)
+Defined in: [packages/native-plugin-xr/src/web.ts:86](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/native-plugin-xr/src/web.ts#L86)
 
 ___
 
@@ -129,7 +129,7 @@ ___
 
 Implementation of: [XRPluginPlugin](../interfaces/definitions.xrpluginplugin.md)
 
-Defined in: [packages/native-plugin-xr/src/web.ts:211](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/native-plugin-xr/src/web.ts#L211)
+Defined in: [packages/native-plugin-xr/src/web.ts:211](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/native-plugin-xr/src/web.ts#L211)
 
 ___
 
@@ -145,7 +145,7 @@ ___
 
 **Returns:** *Promise*<{ `status`: *string*  }\>
 
-Defined in: [packages/native-plugin-xr/src/web.ts:104](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/native-plugin-xr/src/web.ts#L104)
+Defined in: [packages/native-plugin-xr/src/web.ts:104](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/native-plugin-xr/src/web.ts#L104)
 
 ___
 
@@ -161,7 +161,7 @@ ___
 
 **Returns:** *Promise*<{ `status`: *string*  }\>
 
-Defined in: [packages/native-plugin-xr/src/web.ts:111](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/native-plugin-xr/src/web.ts#L111)
+Defined in: [packages/native-plugin-xr/src/web.ts:111](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/native-plugin-xr/src/web.ts#L111)
 
 ___
 
@@ -179,7 +179,7 @@ ___
 
 Implementation of: [XRPluginPlugin](../interfaces/definitions.xrpluginplugin.md)
 
-Defined in: [packages/native-plugin-xr/src/web.ts:146](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/native-plugin-xr/src/web.ts#L146)
+Defined in: [packages/native-plugin-xr/src/web.ts:146](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/native-plugin-xr/src/web.ts#L146)
 
 ___
 
@@ -191,7 +191,7 @@ ___
 
 Implementation of: [XRPluginPlugin](../interfaces/definitions.xrpluginplugin.md)
 
-Defined in: [packages/native-plugin-xr/src/web.ts:98](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/native-plugin-xr/src/web.ts#L98)
+Defined in: [packages/native-plugin-xr/src/web.ts:98](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/native-plugin-xr/src/web.ts#L98)
 
 ___
 
@@ -207,7 +207,7 @@ ___
 
 **Returns:** *Promise*<{ `data`: [*XRFrameData*](../interfaces/definitions.xrframedata.md)  }\>
 
-Defined in: [packages/native-plugin-xr/src/web.ts:118](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/native-plugin-xr/src/web.ts#L118)
+Defined in: [packages/native-plugin-xr/src/web.ts:118](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/native-plugin-xr/src/web.ts#L118)
 
 ___
 
@@ -219,7 +219,7 @@ ___
 
 Implementation of: [XRPluginPlugin](../interfaces/definitions.xrpluginplugin.md)
 
-Defined in: [packages/native-plugin-xr/src/web.ts:60](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/native-plugin-xr/src/web.ts#L60)
+Defined in: [packages/native-plugin-xr/src/web.ts:60](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/native-plugin-xr/src/web.ts#L60)
 
 ___
 
@@ -255,7 +255,7 @@ ___
 
 Implementation of: [XRPluginPlugin](../interfaces/definitions.xrpluginplugin.md)
 
-Defined in: [packages/native-plugin-xr/src/web.ts:183](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/native-plugin-xr/src/web.ts#L183)
+Defined in: [packages/native-plugin-xr/src/web.ts:183](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/native-plugin-xr/src/web.ts#L183)
 
 ___
 
@@ -273,7 +273,7 @@ ___
 
 Implementation of: [XRPluginPlugin](../interfaces/definitions.xrpluginplugin.md)
 
-Defined in: [packages/native-plugin-xr/src/web.ts:12](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/native-plugin-xr/src/web.ts#L12)
+Defined in: [packages/native-plugin-xr/src/web.ts:12](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/native-plugin-xr/src/web.ts#L12)
 
 ___
 
@@ -322,7 +322,7 @@ ___
 
 Implementation of: [XRPluginPlugin](../interfaces/definitions.xrpluginplugin.md)
 
-Defined in: [packages/native-plugin-xr/src/web.ts:197](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/native-plugin-xr/src/web.ts#L197)
+Defined in: [packages/native-plugin-xr/src/web.ts:197](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/native-plugin-xr/src/web.ts#L197)
 
 ___
 
@@ -340,7 +340,7 @@ ___
 
 Implementation of: [XRPluginPlugin](../interfaces/definitions.xrpluginplugin.md)
 
-Defined in: [packages/native-plugin-xr/src/web.ts:190](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/native-plugin-xr/src/web.ts#L190)
+Defined in: [packages/native-plugin-xr/src/web.ts:190](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/native-plugin-xr/src/web.ts#L190)
 
 ___
 
@@ -401,7 +401,7 @@ ___
 
 Implementation of: [XRPluginPlugin](../interfaces/definitions.xrpluginplugin.md)
 
-Defined in: [packages/native-plugin-xr/src/web.ts:161](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/native-plugin-xr/src/web.ts#L161)
+Defined in: [packages/native-plugin-xr/src/web.ts:161](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/native-plugin-xr/src/web.ts#L161)
 
 ___
 
@@ -419,7 +419,7 @@ ___
 
 Implementation of: [XRPluginPlugin](../interfaces/definitions.xrpluginplugin.md)
 
-Defined in: [packages/native-plugin-xr/src/web.ts:219](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/native-plugin-xr/src/web.ts#L219)
+Defined in: [packages/native-plugin-xr/src/web.ts:219](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/native-plugin-xr/src/web.ts#L219)
 
 ___
 
@@ -437,7 +437,7 @@ ___
 
 Implementation of: [XRPluginPlugin](../interfaces/definitions.xrpluginplugin.md)
 
-Defined in: [packages/native-plugin-xr/src/web.ts:204](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/native-plugin-xr/src/web.ts#L204)
+Defined in: [packages/native-plugin-xr/src/web.ts:204](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/native-plugin-xr/src/web.ts#L204)
 
 ___
 
@@ -455,7 +455,7 @@ ___
 
 Implementation of: [XRPluginPlugin](../interfaces/definitions.xrpluginplugin.md)
 
-Defined in: [packages/native-plugin-xr/src/web.ts:168](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/native-plugin-xr/src/web.ts#L168)
+Defined in: [packages/native-plugin-xr/src/web.ts:168](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/native-plugin-xr/src/web.ts#L168)
 
 ___
 
@@ -473,7 +473,7 @@ ___
 
 Implementation of: [XRPluginPlugin](../interfaces/definitions.xrpluginplugin.md)
 
-Defined in: [packages/native-plugin-xr/src/web.ts:176](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/native-plugin-xr/src/web.ts#L176)
+Defined in: [packages/native-plugin-xr/src/web.ts:176](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/native-plugin-xr/src/web.ts#L176)
 
 ___
 
@@ -491,7 +491,7 @@ ___
 
 Implementation of: [XRPluginPlugin](../interfaces/definitions.xrpluginplugin.md)
 
-Defined in: [packages/native-plugin-xr/src/web.ts:19](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/native-plugin-xr/src/web.ts#L19)
+Defined in: [packages/native-plugin-xr/src/web.ts:19](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/native-plugin-xr/src/web.ts#L19)
 
 ___
 
@@ -514,7 +514,7 @@ ___
 
 Implementation of: [XRPluginPlugin](../interfaces/definitions.xrpluginplugin.md)
 
-Defined in: [packages/native-plugin-xr/src/web.ts:125](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/native-plugin-xr/src/web.ts#L125)
+Defined in: [packages/native-plugin-xr/src/web.ts:125](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/native-plugin-xr/src/web.ts#L125)
 
 ___
 
@@ -526,7 +526,7 @@ ___
 
 Implementation of: [XRPluginPlugin](../interfaces/definitions.xrpluginplugin.md)
 
-Defined in: [packages/native-plugin-xr/src/web.ts:64](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/native-plugin-xr/src/web.ts#L64)
+Defined in: [packages/native-plugin-xr/src/web.ts:64](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/native-plugin-xr/src/web.ts#L64)
 
 ___
 
@@ -544,7 +544,7 @@ ___
 
 Implementation of: [XRPluginPlugin](../interfaces/definitions.xrpluginplugin.md)
 
-Defined in: [packages/native-plugin-xr/src/web.ts:139](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/native-plugin-xr/src/web.ts#L139)
+Defined in: [packages/native-plugin-xr/src/web.ts:139](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/native-plugin-xr/src/web.ts#L139)
 
 ___
 
@@ -562,7 +562,7 @@ ___
 
 Implementation of: [XRPluginPlugin](../interfaces/definitions.xrpluginplugin.md)
 
-Defined in: [packages/native-plugin-xr/src/web.ts:153](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/native-plugin-xr/src/web.ts#L153)
+Defined in: [packages/native-plugin-xr/src/web.ts:153](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/native-plugin-xr/src/web.ts#L153)
 
 ___
 
@@ -580,7 +580,7 @@ ___
 
 Implementation of: [XRPluginPlugin](../interfaces/definitions.xrpluginplugin.md)
 
-Defined in: [packages/native-plugin-xr/src/web.ts:80](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/native-plugin-xr/src/web.ts#L80)
+Defined in: [packages/native-plugin-xr/src/web.ts:80](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/native-plugin-xr/src/web.ts#L80)
 
 ___
 
@@ -598,4 +598,4 @@ ___
 
 Implementation of: [XRPluginPlugin](../interfaces/definitions.xrpluginplugin.md)
 
-Defined in: [packages/native-plugin-xr/src/web.ts:92](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/native-plugin-xr/src/web.ts#L92)
+Defined in: [packages/native-plugin-xr/src/web.ts:92](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/native-plugin-xr/src/web.ts#L92)

@@ -37,7 +37,7 @@ A class for Component type service
 
 Overrides: Service.constructor
 
-Defined in: [packages/server-core/src/entities/component-type/component-type.class.ts:11](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/entities/component-type/component-type.class.ts#L11)
+Defined in: [packages/server-core/src/entities/component-type/component-type.class.ts:11](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/entities/component-type/component-type.class.ts#L11)
 
 ## Properties
 
@@ -55,7 +55,7 @@ ___
 
 • **docs**: *any*
 
-Defined in: [packages/server-core/src/entities/component-type/component-type.class.ts:11](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/entities/component-type/component-type.class.ts#L11)
+Defined in: [packages/server-core/src/entities/component-type/component-type.class.ts:11](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/entities/component-type/component-type.class.ts#L11)
 
 ___
 

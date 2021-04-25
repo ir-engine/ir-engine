@@ -18,17 +18,17 @@ hide_title: true
 
 ### setRuntime
 
-▸ `Const`**setRuntime**(`runtime`: *string*): *void*
+▸ `Const`**setRuntime**(`runtime`: *any*): *void*
 
 #### Parameters:
 
 | Name | Type |
 | :------ | :------ |
-| `runtime` | *string* |
+| `runtime` | *any* |
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/helper.ts:45](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/helper.ts#L45)
+Defined in: [packages/client-core/src/helper.ts:45](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/helper.ts#L45)
 
 ___
 
@@ -44,7 +44,7 @@ ___
 
 **Returns:** *boolean*
 
-Defined in: [packages/client-core/src/helper.ts:1](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/helper.ts#L1)
+Defined in: [packages/client-core/src/helper.ts:1](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/helper.ts#L1)
 
 ___
 
@@ -60,4 +60,4 @@ ___
 
 **Returns:** *boolean*
 
-Defined in: [packages/client-core/src/helper.ts:3](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/helper.ts#L3)
+Defined in: [packages/client-core/src/helper.ts:3](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/helper.ts#L3)

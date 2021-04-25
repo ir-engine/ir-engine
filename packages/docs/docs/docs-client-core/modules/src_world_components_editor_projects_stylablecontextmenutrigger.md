@@ -36,4 +36,4 @@ Renames and exports: [StylableContextMenuTrigger](src_world_components_editor_pr
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/projects/StylableContextMenuTrigger.tsx:14](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/projects/StylableContextMenuTrigger.tsx#L14)
+Defined in: [packages/client-core/src/world/components/editor/projects/StylableContextMenuTrigger.tsx:14](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/world/components/editor/projects/StylableContextMenuTrigger.tsx#L14)

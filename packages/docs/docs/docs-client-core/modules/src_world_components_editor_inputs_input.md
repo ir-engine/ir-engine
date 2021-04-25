@@ -18,4 +18,4 @@ Used to render component view.
 
 **`author`** Robert Long
 
-Defined in: [packages/client-core/src/world/components/editor/inputs/Input.tsx:26](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/inputs/Input.tsx#L26)
+Defined in: [packages/client-core/src/world/components/editor/inputs/Input.tsx:26](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/world/components/editor/inputs/Input.tsx#L26)

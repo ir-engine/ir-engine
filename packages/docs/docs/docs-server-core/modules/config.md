@@ -32,7 +32,7 @@ hide_title: true
 | `mediasoup.worker.rtcMaxPort` | *number* |
 | `mediasoup.worker.rtcMinPort` | *number* |
 
-Defined in: [packages/server-core/src/config.ts:11](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/config.ts#L11)
+Defined in: [packages/server-core/src/config.ts:11](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/config.ts#L11)
 
 ___
 
@@ -58,7 +58,7 @@ ___
 | `mediasoup.worker.rtcMaxPort` | *number* |
 | `mediasoup.worker.rtcMinPort` | *number* |
 
-Defined in: [packages/server-core/src/config.ts:70](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/config.ts#L70)
+Defined in: [packages/server-core/src/config.ts:70](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/config.ts#L70)
 
 ___
 
@@ -66,4 +66,4 @@ ___
 
 • `Const` **sctpParameters**: [*SctpParameters*](types_sctpparameters.md#sctpparameters)
 
-Defined in: [packages/server-core/src/config.ts:4](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/config.ts#L4)
+Defined in: [packages/server-core/src/config.ts:4](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/config.ts#L4)

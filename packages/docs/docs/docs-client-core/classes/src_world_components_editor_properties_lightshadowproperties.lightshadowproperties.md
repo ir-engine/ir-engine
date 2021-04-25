@@ -473,7 +473,7 @@ ___
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/LightShadowProperties.tsx:66](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/LightShadowProperties.tsx#L66)
+Defined in: [packages/client-core/src/world/components/editor/properties/LightShadowProperties.tsx:66](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/world/components/editor/properties/LightShadowProperties.tsx#L66)
 
 ___
 
@@ -489,7 +489,7 @@ ___
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/LightShadowProperties.tsx:71](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/LightShadowProperties.tsx#L71)
+Defined in: [packages/client-core/src/world/components/editor/properties/LightShadowProperties.tsx:71](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/world/components/editor/properties/LightShadowProperties.tsx#L71)
 
 ___
 
@@ -505,7 +505,7 @@ ___
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/LightShadowProperties.tsx:58](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/LightShadowProperties.tsx#L58)
+Defined in: [packages/client-core/src/world/components/editor/properties/LightShadowProperties.tsx:58](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/world/components/editor/properties/LightShadowProperties.tsx#L58)
 
 ___
 
@@ -521,7 +521,7 @@ ___
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/LightShadowProperties.tsx:76](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/LightShadowProperties.tsx#L76)
+Defined in: [packages/client-core/src/world/components/editor/properties/LightShadowProperties.tsx:76](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/world/components/editor/properties/LightShadowProperties.tsx#L76)
 
 ___
 
@@ -533,7 +533,7 @@ ___
 
 Overrides: Component.render
 
-Defined in: [packages/client-core/src/world/components/editor/properties/LightShadowProperties.tsx:81](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/LightShadowProperties.tsx#L81)
+Defined in: [packages/client-core/src/world/components/editor/properties/LightShadowProperties.tsx:81](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/world/components/editor/properties/LightShadowProperties.tsx#L81)
 
 ___
 

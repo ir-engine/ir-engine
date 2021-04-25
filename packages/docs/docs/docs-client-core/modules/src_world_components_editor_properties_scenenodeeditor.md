@@ -38,4 +38,4 @@ SceneNodeEditor provides the editor view for property customization.
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/SceneNodeEditor.tsx:45](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/SceneNodeEditor.tsx#L45)
+Defined in: [packages/client-core/src/world/components/editor/properties/SceneNodeEditor.tsx:45](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/world/components/editor/properties/SceneNodeEditor.tsx#L45)

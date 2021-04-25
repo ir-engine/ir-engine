@@ -30,4 +30,4 @@ createEditor used to create editor object and register nodes available to create
 
 [editor]
 
-Defined in: [packages/client-core/src/world/components/editor/Nodes.tsx:59](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/Nodes.tsx#L59)
+Defined in: [packages/client-core/src/world/components/editor/Nodes.tsx:59](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/world/components/editor/Nodes.tsx#L59)

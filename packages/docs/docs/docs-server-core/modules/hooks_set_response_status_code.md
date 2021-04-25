@@ -26,4 +26,4 @@ hide_title: true
 
 **Returns:** (`context`: *HookContext*<any, Service<any\>\>) => *HookContext*<any, Service<any\>\>
 
-Defined in: [packages/server-core/src/hooks/set-response-status-code.ts:1](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/hooks/set-response-status-code.ts#L1)
+Defined in: [packages/server-core/src/hooks/set-response-status-code.ts:1](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/hooks/set-response-status-code.ts#L1)

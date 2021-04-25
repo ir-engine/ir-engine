@@ -22,4 +22,4 @@ hide_title: true
 | `isOwner` | *boolean* |
 | `user` | [*User*](../interfaces/src_interfaces_user.user.md) |
 
-Defined in: [interfaces/PartyUser.ts:3](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/common/src/interfaces/PartyUser.ts#L3)
+Defined in: [interfaces/PartyUser.ts:3](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/common/src/interfaces/PartyUser.ts#L3)

@@ -23,7 +23,7 @@ hide_title: true
 
 **Returns:** [*DialogAction*](../interfaces/src_common_reducers_dialog_actions.dialogaction.md)
 
-Defined in: [packages/client-core/src/common/reducers/dialog/actions.ts:20](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/common/reducers/dialog/actions.ts#L20)
+Defined in: [packages/client-core/src/common/reducers/dialog/actions.ts:20](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/common/reducers/dialog/actions.ts#L20)
 
 ___
 
@@ -39,4 +39,4 @@ ___
 
 **Returns:** [*DialogAction*](../interfaces/src_common_reducers_dialog_actions.dialogaction.md)
 
-Defined in: [packages/client-core/src/common/reducers/dialog/actions.ts:14](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/common/reducers/dialog/actions.ts#L14)
+Defined in: [packages/client-core/src/common/reducers/dialog/actions.ts:14](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/common/reducers/dialog/actions.ts#L14)

@@ -26,4 +26,4 @@ hide_title: true
 
 **Returns:** *any*
 
-Defined in: [packages/server-core/src/user/user-settings/user-settings.service.ts:12](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/user/user-settings/user-settings.service.ts#L12)
+Defined in: [packages/server-core/src/user/user-settings/user-settings.service.ts:12](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/user/user-settings/user-settings.service.ts#L12)

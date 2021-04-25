@@ -22,4 +22,4 @@ hide_title: true
 
 **Returns:** *void*
 
-Defined in: [packages/server-core/src/social/location-settings/location-settings.service.ts:14](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/social/location-settings/location-settings.service.ts#L14)
+Defined in: [packages/server-core/src/social/location-settings/location-settings.service.ts:14](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/social/location-settings/location-settings.service.ts#L14)

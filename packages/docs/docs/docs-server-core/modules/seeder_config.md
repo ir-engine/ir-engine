@@ -20,4 +20,4 @@ Renames and exports: [seeds](seeder_config.md#seeds)
 
 • `Const` **seeds**: ServicesSeedConfig[]
 
-Defined in: [packages/server-core/src/seeder-config.ts:12](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/seeder-config.ts#L12)
+Defined in: [packages/server-core/src/seeder-config.ts:12](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/seeder-config.ts#L12)

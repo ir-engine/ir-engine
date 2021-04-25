@@ -38,4 +38,4 @@ NodeIssuesIcon function component used to provide view of issues list.
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/hierarchy/NodeIssuesIcon.tsx:58](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/hierarchy/NodeIssuesIcon.tsx#L58)
+Defined in: [packages/client-core/src/world/components/editor/hierarchy/NodeIssuesIcon.tsx:58](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/world/components/editor/hierarchy/NodeIssuesIcon.tsx#L58)

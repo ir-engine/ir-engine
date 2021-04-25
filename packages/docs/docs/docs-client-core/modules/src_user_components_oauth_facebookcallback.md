@@ -14,4 +14,4 @@ hide_title: true
 
 • `Const` **FacebookCallback**: *ComponentClass*<Pick<RouteComponentProps<any, StaticContext, unknown\>, never\>, any\> & *WithRouterStatics*<ConnectedComponent<(`props`: *any*) => *any*, Omit<any, string \| number \| symbol\>\>\>
 
-Defined in: [packages/client-core/src/user/components/Oauth/FacebookCallback.tsx:59](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/user/components/Oauth/FacebookCallback.tsx#L59)
+Defined in: [packages/client-core/src/user/components/Oauth/FacebookCallback.tsx:59](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/user/components/Oauth/FacebookCallback.tsx#L59)

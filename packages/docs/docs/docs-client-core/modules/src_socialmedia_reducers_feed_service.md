@@ -22,7 +22,7 @@ hide_title: true
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/src/socialmedia/reducers/feed/service.ts:89](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/reducers/feed/service.ts#L89)
+Defined in: [packages/client-core/src/socialmedia/reducers/feed/service.ts:91](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/socialmedia/reducers/feed/service.ts#L91)
 
 ___
 
@@ -38,7 +38,7 @@ ___
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/src/socialmedia/reducers/feed/service.ts:101](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/reducers/feed/service.ts#L101)
+Defined in: [packages/client-core/src/socialmedia/reducers/feed/service.ts:103](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/socialmedia/reducers/feed/service.ts#L103)
 
 ___
 
@@ -54,7 +54,7 @@ ___
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/src/socialmedia/reducers/feed/service.ts:76](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/reducers/feed/service.ts#L76)
+Defined in: [packages/client-core/src/socialmedia/reducers/feed/service.ts:78](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/socialmedia/reducers/feed/service.ts#L78)
 
 ___
 
@@ -72,7 +72,7 @@ ___
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>, `getState`: *any*) => *Promise*<any\>
 
-Defined in: [packages/client-core/src/socialmedia/reducers/feed/service.ts:22](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/reducers/feed/service.ts#L22)
+Defined in: [packages/client-core/src/socialmedia/reducers/feed/service.ts:24](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/socialmedia/reducers/feed/service.ts#L24)
 
 ___
 
@@ -88,7 +88,7 @@ ___
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/src/socialmedia/reducers/feed/service.ts:147](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/reducers/feed/service.ts#L147)
+Defined in: [packages/client-core/src/socialmedia/reducers/feed/service.ts:149](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/socialmedia/reducers/feed/service.ts#L149)
 
 ___
 
@@ -104,7 +104,7 @@ ___
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/src/socialmedia/reducers/feed/service.ts:159](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/reducers/feed/service.ts#L159)
+Defined in: [packages/client-core/src/socialmedia/reducers/feed/service.ts:161](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/socialmedia/reducers/feed/service.ts#L161)
 
 ___
 
@@ -121,4 +121,4 @@ ___
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/src/socialmedia/reducers/feed/service.ts:120](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/reducers/feed/service.ts#L120)
+Defined in: [packages/client-core/src/socialmedia/reducers/feed/service.ts:122](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/socialmedia/reducers/feed/service.ts#L122)

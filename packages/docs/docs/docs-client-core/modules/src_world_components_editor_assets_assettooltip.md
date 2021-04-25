@@ -38,4 +38,4 @@ AssetTooltip used to show tooltip on elements available in asset penal.
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/assets/AssetTooltip.tsx:54](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/assets/AssetTooltip.tsx#L54)
+Defined in: [packages/client-core/src/world/components/editor/assets/AssetTooltip.tsx:54](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/world/components/editor/assets/AssetTooltip.tsx#L54)

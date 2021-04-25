@@ -16,7 +16,7 @@ hide_title: true
 
 • **message**: Message
 
-Defined in: [packages/client-core/src/social/reducers/chat/actions.ts:62](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/social/reducers/chat/actions.ts#L62)
+Defined in: [packages/client-core/src/social/reducers/chat/actions.ts:62](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/social/reducers/chat/actions.ts#L62)
 
 ___
 
@@ -24,7 +24,7 @@ ___
 
 • **selfUser**: User
 
-Defined in: [packages/client-core/src/social/reducers/chat/actions.ts:63](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/social/reducers/chat/actions.ts#L63)
+Defined in: [packages/client-core/src/social/reducers/chat/actions.ts:63](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/social/reducers/chat/actions.ts#L63)
 
 ___
 
@@ -32,4 +32,4 @@ ___
 
 • **type**: *string*
 
-Defined in: [packages/client-core/src/social/reducers/chat/actions.ts:61](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/social/reducers/chat/actions.ts#L61)
+Defined in: [packages/client-core/src/social/reducers/chat/actions.ts:61](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/social/reducers/chat/actions.ts#L61)

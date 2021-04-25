@@ -23,7 +23,7 @@ hide_title: true
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/src/social/reducers/invite/service.ts:153](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/social/reducers/invite/service.ts#L153)
+Defined in: [packages/client-core/src/social/reducers/invite/service.ts:153](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/social/reducers/invite/service.ts#L153)
 
 ___
 
@@ -39,7 +39,7 @@ ___
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/src/social/reducers/invite/service.ts:168](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/social/reducers/invite/service.ts#L168)
+Defined in: [packages/client-core/src/social/reducers/invite/service.ts:168](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/social/reducers/invite/service.ts#L168)
 
 ___
 
@@ -55,7 +55,7 @@ ___
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/src/social/reducers/invite/service.ts:142](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/social/reducers/invite/service.ts#L142)
+Defined in: [packages/client-core/src/social/reducers/invite/service.ts:142](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/social/reducers/invite/service.ts#L142)
 
 ___
 
@@ -72,7 +72,7 @@ ___
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>, `getState`: *any*) => *Promise*<any\>
 
-Defined in: [packages/client-core/src/social/reducers/invite/service.ts:102](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/social/reducers/invite/service.ts#L102)
+Defined in: [packages/client-core/src/social/reducers/invite/service.ts:102](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/social/reducers/invite/service.ts#L102)
 
 ___
 
@@ -89,7 +89,7 @@ ___
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>, `getState`: *any*) => *Promise*<any\>
 
-Defined in: [packages/client-core/src/social/reducers/invite/service.ts:121](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/social/reducers/invite/service.ts#L121)
+Defined in: [packages/client-core/src/social/reducers/invite/service.ts:121](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/social/reducers/invite/service.ts#L121)
 
 ___
 
@@ -105,7 +105,7 @@ ___
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>, `getState`: *any*) => *Promise*<void\>
 
-Defined in: [packages/client-core/src/social/reducers/invite/service.ts:29](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/social/reducers/invite/service.ts#L29)
+Defined in: [packages/client-core/src/social/reducers/invite/service.ts:29](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/social/reducers/invite/service.ts#L29)
 
 ___
 
@@ -122,4 +122,4 @@ ___
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/src/social/reducers/invite/service.ts:178](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/social/reducers/invite/service.ts#L178)
+Defined in: [packages/client-core/src/social/reducers/invite/service.ts:178](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/social/reducers/invite/service.ts#L178)

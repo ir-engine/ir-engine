@@ -38,4 +38,4 @@ ImageNodeEditor used to dynamicaly adding an image to scene.
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/ImageNodeEditor.tsx:26](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/ImageNodeEditor.tsx#L26)
+Defined in: [packages/client-core/src/world/components/editor/properties/ImageNodeEditor.tsx:26](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/world/components/editor/properties/ImageNodeEditor.tsx#L26)

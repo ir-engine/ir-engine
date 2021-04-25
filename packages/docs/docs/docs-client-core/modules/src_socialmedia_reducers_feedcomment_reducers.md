@@ -23,7 +23,7 @@ hide_title: true
 | `feeds.feedComments` | *any*[] |
 | `feeds.fetching` | *boolean* |
 
-Defined in: [packages/client-core/src/socialmedia/reducers/feedComment/reducers.ts:19](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/reducers/feedComment/reducers.ts#L19)
+Defined in: [packages/client-core/src/socialmedia/reducers/feedComment/reducers.ts:22](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/socialmedia/reducers/feedComment/reducers.ts#L22)
 
 ## Functions
 
@@ -40,4 +40,4 @@ Defined in: [packages/client-core/src/socialmedia/reducers/feedComment/reducers.
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/src/socialmedia/reducers/feedComment/reducers.ts:29](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/reducers/feedComment/reducers.ts#L29)
+Defined in: [packages/client-core/src/socialmedia/reducers/feedComment/reducers.ts:32](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/socialmedia/reducers/feedComment/reducers.ts#L32)

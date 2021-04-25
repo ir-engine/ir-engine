@@ -22,7 +22,7 @@ hide_title: true
 
 **Returns:** *any*[]
 
-Defined in: [packages/server-core/src/world/project/project-helper.ts:20](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/world/project/project-helper.ts#L20)
+Defined in: [packages/server-core/src/world/project/project-helper.ts:20](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/world/project/project-helper.ts#L20)
 
 ___
 
@@ -38,7 +38,7 @@ ___
 
 **Returns:** *any*
 
-Defined in: [packages/server-core/src/world/project/project-helper.ts:50](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/world/project/project-helper.ts#L50)
+Defined in: [packages/server-core/src/world/project/project-helper.ts:50](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/world/project/project-helper.ts#L50)
 
 ___
 
@@ -54,7 +54,7 @@ ___
 
 **Returns:** *any*
 
-Defined in: [packages/server-core/src/world/project/project-helper.ts:62](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/world/project/project-helper.ts#L62)
+Defined in: [packages/server-core/src/world/project/project-helper.ts:62](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/world/project/project-helper.ts#L62)
 
 ___
 
@@ -71,7 +71,7 @@ ___
 
 **Returns:** *any*
 
-Defined in: [packages/server-core/src/world/project/project-helper.ts:3](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/world/project/project-helper.ts#L3)
+Defined in: [packages/server-core/src/world/project/project-helper.ts:3](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/world/project/project-helper.ts#L3)
 
 ___
 
@@ -88,4 +88,4 @@ ___
 
 **Returns:** *any*
 
-Defined in: [packages/server-core/src/world/project/project-helper.ts:32](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/world/project/project-helper.ts#L32)
+Defined in: [packages/server-core/src/world/project/project-helper.ts:32](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/world/project/project-helper.ts#L32)

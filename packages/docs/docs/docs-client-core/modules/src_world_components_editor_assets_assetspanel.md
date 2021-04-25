@@ -24,7 +24,7 @@ AssetPanelContentContainer container element for asset panel.
 
 **`author`** Robert Long
 
-Defined in: [packages/client-core/src/world/components/editor/assets/AssetsPanel.tsx:98](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/assets/AssetsPanel.tsx#L98)
+Defined in: [packages/client-core/src/world/components/editor/assets/AssetsPanel.tsx:98](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/world/components/editor/assets/AssetsPanel.tsx#L98)
 
 ___
 
@@ -36,7 +36,7 @@ AssetPanelToolbarContent used to provide styles toolbar content.
 
 **`author`** Robert Long
 
-Defined in: [packages/client-core/src/world/components/editor/assets/AssetsPanel.tsx:43](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/assets/AssetsPanel.tsx#L43)
+Defined in: [packages/client-core/src/world/components/editor/assets/AssetsPanel.tsx:43](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/world/components/editor/assets/AssetsPanel.tsx#L43)
 
 ## Functions
 
@@ -56,7 +56,7 @@ AssetsPanelToolbar used to create view elements for toolbar on asset penal.
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/assets/AssetsPanel.tsx:61](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/assets/AssetsPanel.tsx#L61)
+Defined in: [packages/client-core/src/world/components/editor/assets/AssetsPanel.tsx:61](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/world/components/editor/assets/AssetsPanel.tsx#L61)
 
 ___
 
@@ -70,4 +70,4 @@ AssetsPanel used to render view for AssetsPanel.
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/assets/AssetsPanel.tsx:121](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/assets/AssetsPanel.tsx#L121)
+Defined in: [packages/client-core/src/world/components/editor/assets/AssetsPanel.tsx:121](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/world/components/editor/assets/AssetsPanel.tsx#L121)

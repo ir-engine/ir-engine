@@ -21,4 +21,4 @@ hide_title: true
 | `id` | *string* |
 | `partyUsers` | [*PartyUser*](src_interfaces_partyuser.md#partyuser)[] |
 
-Defined in: [interfaces/Party.ts:3](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/common/src/interfaces/Party.ts#L3)
+Defined in: [interfaces/Party.ts:3](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/common/src/interfaces/Party.ts#L3)

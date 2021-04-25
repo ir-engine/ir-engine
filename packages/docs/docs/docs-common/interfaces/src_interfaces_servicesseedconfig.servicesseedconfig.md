@@ -16,7 +16,7 @@ hide_title: true
 
 • `Optional` **callback**: ServicesSeedCallback
 
-Defined in: [interfaces/ServicesSeedConfig.ts:11](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/common/src/interfaces/ServicesSeedConfig.ts#L11)
+Defined in: [interfaces/ServicesSeedConfig.ts:11](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/common/src/interfaces/ServicesSeedConfig.ts#L11)
 
 ___
 
@@ -24,7 +24,7 @@ ___
 
 • `Optional` **count**: *number*
 
-Defined in: [interfaces/ServicesSeedConfig.ts:5](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/common/src/interfaces/ServicesSeedConfig.ts#L5)
+Defined in: [interfaces/ServicesSeedConfig.ts:5](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/common/src/interfaces/ServicesSeedConfig.ts#L5)
 
 ___
 
@@ -32,7 +32,7 @@ ___
 
 • **delete**: *boolean*
 
-Defined in: [interfaces/ServicesSeedConfig.ts:7](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/common/src/interfaces/ServicesSeedConfig.ts#L7)
+Defined in: [interfaces/ServicesSeedConfig.ts:7](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/common/src/interfaces/ServicesSeedConfig.ts#L7)
 
 ___
 
@@ -40,7 +40,7 @@ ___
 
 • **disabled**: *boolean*
 
-Defined in: [interfaces/ServicesSeedConfig.ts:6](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/common/src/interfaces/ServicesSeedConfig.ts#L6)
+Defined in: [interfaces/ServicesSeedConfig.ts:6](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/common/src/interfaces/ServicesSeedConfig.ts#L6)
 
 ___
 
@@ -48,7 +48,7 @@ ___
 
 • **path**: *string*
 
-Defined in: [interfaces/ServicesSeedConfig.ts:8](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/common/src/interfaces/ServicesSeedConfig.ts#L8)
+Defined in: [interfaces/ServicesSeedConfig.ts:8](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/common/src/interfaces/ServicesSeedConfig.ts#L8)
 
 ___
 
@@ -56,7 +56,7 @@ ___
 
 • `Optional` **randomize**: *boolean*
 
-Defined in: [interfaces/ServicesSeedConfig.ts:9](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/common/src/interfaces/ServicesSeedConfig.ts#L9)
+Defined in: [interfaces/ServicesSeedConfig.ts:9](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/common/src/interfaces/ServicesSeedConfig.ts#L9)
 
 ___
 
@@ -64,4 +64,4 @@ ___
 
 • `Optional` **templates**: *any*[]
 
-Defined in: [interfaces/ServicesSeedConfig.ts:10](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/common/src/interfaces/ServicesSeedConfig.ts#L10)
+Defined in: [interfaces/ServicesSeedConfig.ts:10](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/common/src/interfaces/ServicesSeedConfig.ts#L10)

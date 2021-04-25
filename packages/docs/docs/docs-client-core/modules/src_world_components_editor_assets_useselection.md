@@ -37,7 +37,7 @@ useSelection
 
 [returns object containing selectedItems array, setSelectedItems  onSelect clearSelection  function callbacks]
 
-Defined in: [packages/client-core/src/world/components/editor/assets/useSelection.tsx:64](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/assets/useSelection.tsx#L64)
+Defined in: [packages/client-core/src/world/components/editor/assets/useSelection.tsx:64](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/world/components/editor/assets/useSelection.tsx#L64)
 
 ___
 
@@ -62,4 +62,4 @@ useSelectionHandler function component used to set items selected.
 
 containing callback handlers onSelect and clearSelection.
 
-Defined in: [packages/client-core/src/world/components/editor/assets/useSelection.tsx:13](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/assets/useSelection.tsx#L13)
+Defined in: [packages/client-core/src/world/components/editor/assets/useSelection.tsx:13](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/world/components/editor/assets/useSelection.tsx#L13)

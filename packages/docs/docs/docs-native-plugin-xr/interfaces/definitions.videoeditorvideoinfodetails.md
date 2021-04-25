@@ -18,7 +18,7 @@ hide_title: true
 
 Bitrate of the video in bits per second.
 
-Defined in: [packages/native-plugin-xr/src/definitions.ts:184](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/native-plugin-xr/src/definitions.ts#L184)
+Defined in: [packages/native-plugin-xr/src/definitions.ts:184](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/native-plugin-xr/src/definitions.ts#L184)
 
 ___
 
@@ -28,7 +28,7 @@ ___
 
 Duration of the video in seconds.
 
-Defined in: [packages/native-plugin-xr/src/definitions.ts:180](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/native-plugin-xr/src/definitions.ts#L180)
+Defined in: [packages/native-plugin-xr/src/definitions.ts:180](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/native-plugin-xr/src/definitions.ts#L180)
 
 ___
 
@@ -38,7 +38,7 @@ ___
 
 Height of the video.
 
-Defined in: [packages/native-plugin-xr/src/definitions.ts:176](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/native-plugin-xr/src/definitions.ts#L176)
+Defined in: [packages/native-plugin-xr/src/definitions.ts:176](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/native-plugin-xr/src/definitions.ts#L176)
 
 ___
 
@@ -48,7 +48,7 @@ ___
 
 Orientation of the video. Will be either portrait or landscape.
 
-Defined in: [packages/native-plugin-xr/src/definitions.ts:178](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/native-plugin-xr/src/definitions.ts#L178)
+Defined in: [packages/native-plugin-xr/src/definitions.ts:178](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/native-plugin-xr/src/definitions.ts#L178)
 
 ___
 
@@ -58,7 +58,7 @@ ___
 
 Size of the video in bytes.
 
-Defined in: [packages/native-plugin-xr/src/definitions.ts:182](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/native-plugin-xr/src/definitions.ts#L182)
+Defined in: [packages/native-plugin-xr/src/definitions.ts:182](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/native-plugin-xr/src/definitions.ts#L182)
 
 ___
 
@@ -68,4 +68,4 @@ ___
 
 Width of the video.
 
-Defined in: [packages/native-plugin-xr/src/definitions.ts:174](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/native-plugin-xr/src/definitions.ts#L174)
+Defined in: [packages/native-plugin-xr/src/definitions.ts:174](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/native-plugin-xr/src/definitions.ts#L174)

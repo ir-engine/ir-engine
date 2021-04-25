@@ -20,4 +20,4 @@ hide_title: true
 
 **Returns:** *Hook*<any, Service<any\>\>
 
-Defined in: [packages/server-core/src/hooks/set-resource-id-from-project.ts:1](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/hooks/set-resource-id-from-project.ts#L1)
+Defined in: [packages/server-core/src/hooks/set-resource-id-from-project.ts:1](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/hooks/set-resource-id-from-project.ts#L1)

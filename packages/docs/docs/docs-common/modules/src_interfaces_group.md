@@ -23,4 +23,4 @@ hide_title: true
 | `id` | *string* |
 | `name` | *string* |
 
-Defined in: [interfaces/Group.ts:3](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/common/src/interfaces/Group.ts#L3)
+Defined in: [interfaces/Group.ts:3](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/common/src/interfaces/Group.ts#L3)

@@ -18,6 +18,7 @@ hide_title: true
 
 | Name | Type |
 | :------ | :------ |
+| `arMedia` | (`state`: *any*, `action`: [*ArMediaAction*](src_socialmedia_reducers_armedia_actions.md#armediaaction)) => *any* |
 | `creators` | (`state`: *any*, `action`: [*CreatorsAction*](src_socialmedia_reducers_creator_actions.md#creatorsaction)) => *any* |
 | `feedComments` | (`state`: *any*, `action`: [*FeedCommentsAction*](src_socialmedia_reducers_feedcomment_actions.md#feedcommentsaction)) => *any* |
 | `feedFires` | (`state`: *any*, `action`: [*FeedFiresAction*](src_socialmedia_reducers_feedfires_actions.md#feedfiresaction)) => *any* |

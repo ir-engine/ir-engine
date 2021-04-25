@@ -33,7 +33,7 @@ hide_title: true
 
 Overrides: Service.constructor
 
-Defined in: [packages/server-core/src/social/channel/channel.class.ts:11](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/social/channel/channel.class.ts#L11)
+Defined in: [packages/server-core/src/social/channel/channel.class.ts:11](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/social/channel/channel.class.ts#L11)
 
 ## Properties
 
@@ -51,7 +51,7 @@ ___
 
 • **app**: Application
 
-Defined in: [packages/server-core/src/social/channel/channel.class.ts:10](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/social/channel/channel.class.ts#L10)
+Defined in: [packages/server-core/src/social/channel/channel.class.ts:10](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/social/channel/channel.class.ts#L10)
 
 ___
 
@@ -59,7 +59,7 @@ ___
 
 • **docs**: *any*
 
-Defined in: [packages/server-core/src/social/channel/channel.class.ts:11](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/social/channel/channel.class.ts#L11)
+Defined in: [packages/server-core/src/social/channel/channel.class.ts:11](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/social/channel/channel.class.ts#L11)
 
 ___
 
@@ -284,7 +284,7 @@ A method which find channel and display it
 
 Overrides: Service.find
 
-Defined in: [packages/server-core/src/social/channel/channel.class.ts:25](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/social/channel/channel.class.ts#L25)
+Defined in: [packages/server-core/src/social/channel/channel.class.ts:25](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/social/channel/channel.class.ts#L25)
 
 ___
 

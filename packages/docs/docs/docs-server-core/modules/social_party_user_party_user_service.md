@@ -26,4 +26,4 @@ hide_title: true
 
 **Returns:** *void*
 
-Defined in: [packages/server-core/src/social/party-user/party-user.service.ts:13](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/social/party-user/party-user.service.ts#L13)
+Defined in: [packages/server-core/src/social/party-user/party-user.service.ts:13](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/social/party-user/party-user.service.ts#L13)

@@ -28,4 +28,4 @@ hide_title: true
 
 **Returns:** *Element*
 
-Defined in: [packages/client/src/components/DrawerControls/index.tsx:49](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client/src/components/DrawerControls/index.tsx#L49)
+Defined in: [packages/client/src/components/DrawerControls/index.tsx:49](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client/src/components/DrawerControls/index.tsx#L49)

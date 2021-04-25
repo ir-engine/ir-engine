@@ -38,4 +38,4 @@ AudioInput used to provide view.
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/inputs/AudioInput.tsx:29](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/inputs/AudioInput.tsx#L29)
+Defined in: [packages/client-core/src/world/components/editor/inputs/AudioInput.tsx:29](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/world/components/editor/inputs/AudioInput.tsx#L29)

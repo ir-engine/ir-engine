@@ -28,4 +28,4 @@ This model contain creator information - ARCAPP
 
 **Returns:** *any*
 
-Defined in: [packages/server-core/src/socialmedia/creator/creator.model.ts:5](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/socialmedia/creator/creator.model.ts#L5)
+Defined in: [packages/server-core/src/socialmedia/creator/creator.model.ts:5](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/socialmedia/creator/creator.model.ts#L5)

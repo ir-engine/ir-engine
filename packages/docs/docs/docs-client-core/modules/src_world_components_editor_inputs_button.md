@@ -18,7 +18,7 @@ Button used to provide styles to button input.
 
 **`author`** Robert Long
 
-Defined in: [packages/client-core/src/world/components/editor/inputs/Button.tsx:10](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/inputs/Button.tsx#L10)
+Defined in: [packages/client-core/src/world/components/editor/inputs/Button.tsx:10](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/world/components/editor/inputs/Button.tsx#L10)
 
 ___
 
@@ -30,7 +30,7 @@ LargeButton used to create large size button.
 
 **`author`** Robert Long
 
-Defined in: [packages/client-core/src/world/components/editor/inputs/Button.tsx:67](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/inputs/Button.tsx#L67)
+Defined in: [packages/client-core/src/world/components/editor/inputs/Button.tsx:67](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/world/components/editor/inputs/Button.tsx#L67)
 
 ___
 
@@ -42,7 +42,7 @@ MediumButton used to create medium size button.
 
 **`author`** Robert Long
 
-Defined in: [packages/client-core/src/world/components/editor/inputs/Button.tsx:55](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/inputs/Button.tsx#L55)
+Defined in: [packages/client-core/src/world/components/editor/inputs/Button.tsx:55](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/world/components/editor/inputs/Button.tsx#L55)
 
 ___
 
@@ -54,7 +54,7 @@ MenuButton used to show menus like context menus.
 
 **`author`** Robert Long
 
-Defined in: [packages/client-core/src/world/components/editor/inputs/Button.tsx:107](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/inputs/Button.tsx#L107)
+Defined in: [packages/client-core/src/world/components/editor/inputs/Button.tsx:107](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/world/components/editor/inputs/Button.tsx#L107)
 
 ___
 
@@ -66,7 +66,7 @@ PropertiesPanelButton used in property penal like in ScenePreviewCamera nodes we
 
 **`author`** Robert Long
 
-Defined in: [packages/client-core/src/world/components/editor/inputs/Button.tsx:136](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/inputs/Button.tsx#L136)
+Defined in: [packages/client-core/src/world/components/editor/inputs/Button.tsx:136](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/world/components/editor/inputs/Button.tsx#L136)
 
 ___
 
@@ -78,4 +78,4 @@ SecondaryButton is the button used for performing secondary action like cancel.
 
 **`author`** Robert Long
 
-Defined in: [packages/client-core/src/world/components/editor/inputs/Button.tsx:79](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/inputs/Button.tsx#L79)
+Defined in: [packages/client-core/src/world/components/editor/inputs/Button.tsx:79](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/world/components/editor/inputs/Button.tsx#L79)

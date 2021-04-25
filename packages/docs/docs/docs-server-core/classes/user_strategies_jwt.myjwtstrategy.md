@@ -122,7 +122,7 @@ ___
 
 Overrides: JWTStrategy.getEntity
 
-Defined in: [packages/server-core/src/user/strategies/jwt.ts:6](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/user/strategies/jwt.ts#L6)
+Defined in: [packages/server-core/src/user/strategies/jwt.ts:6](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/user/strategies/jwt.ts#L6)
 
 ___
 

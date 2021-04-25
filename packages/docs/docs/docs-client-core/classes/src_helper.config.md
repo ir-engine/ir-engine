@@ -24,7 +24,7 @@ hide_title: true
 
 ▪ `Static` **apiUrl**: *string*= ''
 
-Defined in: [packages/client-core/src/helper.ts:42](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/helper.ts#L42)
+Defined in: [packages/client-core/src/helper.ts:42](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/helper.ts#L42)
 
 ___
 
@@ -66,4 +66,4 @@ ___
 | `xr.vrRoomGrid` | *object* |
 | `xr.vrRoomGrid.scenes` | *any*[] |
 
-Defined in: [packages/client-core/src/helper.ts:6](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/helper.ts#L6)
+Defined in: [packages/client-core/src/helper.ts:6](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/helper.ts#L6)

@@ -20,4 +20,4 @@ Renames and exports: [socialSeeds](social_seeder_config.md#socialseeds)
 
 • `Const` **socialSeeds**: ServicesSeedConfig[]
 
-Defined in: [packages/server-core/src/social/seeder-config.ts:10](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/social/seeder-config.ts#L10)
+Defined in: [packages/server-core/src/social/seeder-config.ts:10](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/social/seeder-config.ts#L10)

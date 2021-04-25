@@ -38,4 +38,4 @@ ModelSourcePanel used to render view containg AssetPanelToolbarContent and Asset
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/assets/ModelSourcePanel.tsx:13](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/assets/ModelSourcePanel.tsx#L13)
+Defined in: [packages/client-core/src/world/components/editor/assets/ModelSourcePanel.tsx:13](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/world/components/editor/assets/ModelSourcePanel.tsx#L13)

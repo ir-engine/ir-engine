@@ -16,7 +16,7 @@ hide_title: true
 
 • **ALL\_DONE**: = 7
 
-Defined in: [packages/client-core/src/common/reducers/app/actions.ts:11](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/common/reducers/app/actions.ts#L11)
+Defined in: [packages/client-core/src/common/reducers/app/actions.ts:11](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/common/reducers/app/actions.ts#L11)
 
 ___
 
@@ -24,7 +24,7 @@ ___
 
 • **AVATAR\_SELECTED**: = 6
 
-Defined in: [packages/client-core/src/common/reducers/app/actions.ts:11](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/common/reducers/app/actions.ts#L11)
+Defined in: [packages/client-core/src/common/reducers/app/actions.ts:11](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/common/reducers/app/actions.ts#L11)
 
 ___
 
@@ -32,7 +32,7 @@ ___
 
 • **AVATAR\_SELECTION**: = 5
 
-Defined in: [packages/client-core/src/common/reducers/app/actions.ts:11](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/common/reducers/app/actions.ts#L11)
+Defined in: [packages/client-core/src/common/reducers/app/actions.ts:11](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/common/reducers/app/actions.ts#L11)
 
 ___
 
@@ -40,7 +40,7 @@ ___
 
 • **DEVICE\_SETUP**: = 4
 
-Defined in: [packages/client-core/src/common/reducers/app/actions.ts:11](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/common/reducers/app/actions.ts#L11)
+Defined in: [packages/client-core/src/common/reducers/app/actions.ts:11](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/common/reducers/app/actions.ts#L11)
 
 ___
 
@@ -48,7 +48,7 @@ ___
 
 • **FAILED**: = 3
 
-Defined in: [packages/client-core/src/common/reducers/app/actions.ts:11](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/common/reducers/app/actions.ts#L11)
+Defined in: [packages/client-core/src/common/reducers/app/actions.ts:11](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/common/reducers/app/actions.ts#L11)
 
 ___
 
@@ -56,7 +56,7 @@ ___
 
 • **SCENE\_LOADED**: = 2
 
-Defined in: [packages/client-core/src/common/reducers/app/actions.ts:11](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/common/reducers/app/actions.ts#L11)
+Defined in: [packages/client-core/src/common/reducers/app/actions.ts:11](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/common/reducers/app/actions.ts#L11)
 
 ___
 
@@ -64,7 +64,7 @@ ___
 
 • **SCENE\_LOADING**: = 1
 
-Defined in: [packages/client-core/src/common/reducers/app/actions.ts:11](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/common/reducers/app/actions.ts#L11)
+Defined in: [packages/client-core/src/common/reducers/app/actions.ts:11](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/common/reducers/app/actions.ts#L11)
 
 ___
 
@@ -72,4 +72,4 @@ ___
 
 • **START\_STATE**: = 0
 
-Defined in: [packages/client-core/src/common/reducers/app/actions.ts:11](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/common/reducers/app/actions.ts#L11)
+Defined in: [packages/client-core/src/common/reducers/app/actions.ts:11](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/common/reducers/app/actions.ts#L11)

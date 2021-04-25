@@ -16,7 +16,7 @@ hide_title: true
 
 • **party**: Party
 
-Defined in: [packages/client-core/src/social/reducers/party/actions.ts:18](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/social/reducers/party/actions.ts#L18)
+Defined in: [packages/client-core/src/social/reducers/party/actions.ts:18](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/social/reducers/party/actions.ts#L18)
 
 ___
 
@@ -24,4 +24,4 @@ ___
 
 • **type**: *string*
 
-Defined in: [packages/client-core/src/social/reducers/party/actions.ts:17](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/social/reducers/party/actions.ts#L17)
+Defined in: [packages/client-core/src/social/reducers/party/actions.ts:17](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/social/reducers/party/actions.ts#L17)

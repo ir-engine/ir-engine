@@ -23,7 +23,7 @@ hide_title: true
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/src/socialmedia/reducers/feedComment/service.ts:26](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/reducers/feedComment/service.ts#L26)
+Defined in: [packages/client-core/src/socialmedia/reducers/feedComment/service.ts:29](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/socialmedia/reducers/feedComment/service.ts#L29)
 
 ___
 
@@ -39,7 +39,7 @@ ___
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/src/socialmedia/reducers/feedComment/service.ts:39](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/reducers/feedComment/service.ts#L39)
+Defined in: [packages/client-core/src/socialmedia/reducers/feedComment/service.ts:42](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/socialmedia/reducers/feedComment/service.ts#L42)
 
 ___
 
@@ -56,7 +56,7 @@ ___
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>, `getState`: *any*) => *Promise*<any\>
 
-Defined in: [packages/client-core/src/socialmedia/reducers/feedComment/service.ts:64](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/reducers/feedComment/service.ts#L64)
+Defined in: [packages/client-core/src/socialmedia/reducers/feedComment/service.ts:67](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/socialmedia/reducers/feedComment/service.ts#L67)
 
 ___
 
@@ -73,7 +73,7 @@ ___
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>, `getState`: *any*) => *Promise*<any\>
 
-Defined in: [packages/client-core/src/socialmedia/reducers/feedComment/service.ts:13](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/reducers/feedComment/service.ts#L13)
+Defined in: [packages/client-core/src/socialmedia/reducers/feedComment/service.ts:16](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/socialmedia/reducers/feedComment/service.ts#L16)
 
 ___
 
@@ -89,4 +89,4 @@ ___
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *Promise*<any\>
 
-Defined in: [packages/client-core/src/socialmedia/reducers/feedComment/service.ts:51](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/reducers/feedComment/service.ts#L51)
+Defined in: [packages/client-core/src/socialmedia/reducers/feedComment/service.ts:54](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/socialmedia/reducers/feedComment/service.ts#L54)

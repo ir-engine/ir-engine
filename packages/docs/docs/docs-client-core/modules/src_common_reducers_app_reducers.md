@@ -14,7 +14,7 @@ hide_title: true
 
 • `Const` **initialAppState**: AppState
 
-Defined in: [packages/client-core/src/common/reducers/app/reducers.ts:30](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/common/reducers/app/reducers.ts#L30)
+Defined in: [packages/client-core/src/common/reducers/app/reducers.ts:30](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/common/reducers/app/reducers.ts#L30)
 
 ## Functions
 
@@ -31,4 +31,4 @@ Defined in: [packages/client-core/src/common/reducers/app/reducers.ts:30](https:
 
 **Returns:** AppState
 
-Defined in: [packages/client-core/src/common/reducers/app/reducers.ts:44](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/common/reducers/app/reducers.ts#L44)
+Defined in: [packages/client-core/src/common/reducers/app/reducers.ts:44](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/common/reducers/app/reducers.ts#L44)

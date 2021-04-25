@@ -14,6 +14,10 @@ hide_title: true
 
 ▸ **default**(`__namedParameters`: *Object*): *Element*
 
+Function for admin dashboard
+
+**`author`** Kevin KIMENYI <kimenyikevin@gmail.com>
+
 #### Parameters:
 
 | Name | Type |
@@ -22,4 +26,6 @@ hide_title: true
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/user/components/Dashboard/Dashboard.tsx:113](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/user/components/Dashboard/Dashboard.tsx#L113)
+@ReactDomElements
+
+Defined in: [packages/client-core/src/user/components/Dashboard/Dashboard.tsx:124](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/user/components/Dashboard/Dashboard.tsx#L124)

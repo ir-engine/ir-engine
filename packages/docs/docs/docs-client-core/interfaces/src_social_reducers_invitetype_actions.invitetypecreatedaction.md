@@ -16,4 +16,4 @@ hide_title: true
 
 • **type**: *string*
 
-Defined in: [packages/client-core/src/social/reducers/inviteType/actions.ts:10](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/social/reducers/inviteType/actions.ts#L10)
+Defined in: [packages/client-core/src/social/reducers/inviteType/actions.ts:10](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/social/reducers/inviteType/actions.ts#L10)

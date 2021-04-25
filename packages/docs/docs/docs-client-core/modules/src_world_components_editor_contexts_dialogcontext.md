@@ -18,7 +18,7 @@ DialogContext creating context using react.
 
 **`author`** Robert Long
 
-Defined in: [packages/client-core/src/world/components/editor/contexts/DialogContext.tsx:8](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/contexts/DialogContext.tsx#L8)
+Defined in: [packages/client-core/src/world/components/editor/contexts/DialogContext.tsx:8](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/world/components/editor/contexts/DialogContext.tsx#L8)
 
 ___
 
@@ -30,7 +30,7 @@ DialogContextProvider provides component context value.
 
 **`author`** Robert Long
 
-Defined in: [packages/client-core/src/world/components/editor/contexts/DialogContext.tsx:18](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/contexts/DialogContext.tsx#L18)
+Defined in: [packages/client-core/src/world/components/editor/contexts/DialogContext.tsx:18](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/world/components/editor/contexts/DialogContext.tsx#L18)
 
 ## Functions
 
@@ -50,4 +50,4 @@ withDialog used to customize component using context.
 
 **Returns:** (`props`: *any*) => *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/contexts/DialogContext.tsx:25](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/contexts/DialogContext.tsx#L25)
+Defined in: [packages/client-core/src/world/components/editor/contexts/DialogContext.tsx:25](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/world/components/editor/contexts/DialogContext.tsx#L25)

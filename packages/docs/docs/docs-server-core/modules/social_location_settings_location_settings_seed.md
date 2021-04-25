@@ -24,4 +24,4 @@ hide_title: true
 | `randomize` | *boolean* |
 | `templates` | { `id`: *string* = '37ce32f0-208d-11eb-b02f-37cfdadfe58c'; `instanceMediaChatEnabled`: *boolean* = true; `locationId`: *string* = '98cbcc30-fd2d-11ea-bc7c-cd4cac9a8d61'; `locationType`: *string* = 'public'; `videoEnabled`: *boolean* = true }[] |
 
-Defined in: [packages/server-core/src/social/location-settings/location-settings.seed.ts:3](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/social/location-settings/location-settings.seed.ts#L3)
+Defined in: [packages/server-core/src/social/location-settings/location-settings.seed.ts:3](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/social/location-settings/location-settings.seed.ts#L3)

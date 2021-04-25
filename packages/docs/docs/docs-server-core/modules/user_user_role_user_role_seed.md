@@ -24,4 +24,4 @@ hide_title: true
 | `randomize` | *boolean* |
 | `templates` | { `role`: *string* = 'admin' }[] |
 
-Defined in: [packages/server-core/src/user/user-role/user-role.seed.ts:3](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/user/user-role/user-role.seed.ts#L3)
+Defined in: [packages/server-core/src/user/user-role/user-role.seed.ts:3](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/user/user-role/user-role.seed.ts#L3)

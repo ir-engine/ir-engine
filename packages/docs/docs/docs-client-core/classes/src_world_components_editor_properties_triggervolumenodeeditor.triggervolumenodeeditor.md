@@ -39,7 +39,7 @@ Overrides: Component&lt;
   TriggerVolumeNodeEditorState
 &gt;.constructor
 
-Defined in: [packages/client-core/src/world/components/editor/properties/TriggerVolumeNodeEditor.tsx:66](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/TriggerVolumeNodeEditor.tsx#L66)
+Defined in: [packages/client-core/src/world/components/editor/properties/TriggerVolumeNodeEditor.tsx:66](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/world/components/editor/properties/TriggerVolumeNodeEditor.tsx#L66)
 
 ## Properties
 
@@ -135,7 +135,7 @@ ___
 
 ▪ `Static` **description**: *string*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/TriggerVolumeNodeEditor.tsx:92](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/TriggerVolumeNodeEditor.tsx#L92)
+Defined in: [packages/client-core/src/world/components/editor/properties/TriggerVolumeNodeEditor.tsx:92](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/world/components/editor/properties/TriggerVolumeNodeEditor.tsx#L92)
 
 ___
 
@@ -143,7 +143,7 @@ ___
 
 ▪ `Static` **iconComponent**: StyledIcon
 
-Defined in: [packages/client-core/src/world/components/editor/properties/TriggerVolumeNodeEditor.tsx:89](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/TriggerVolumeNodeEditor.tsx#L89)
+Defined in: [packages/client-core/src/world/components/editor/properties/TriggerVolumeNodeEditor.tsx:89](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/world/components/editor/properties/TriggerVolumeNodeEditor.tsx#L89)
 
 ## Methods
 
@@ -274,7 +274,7 @@ ___
 
 Overrides: Component.componentDidMount
 
-Defined in: [packages/client-core/src/world/components/editor/properties/TriggerVolumeNodeEditor.tsx:77](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/TriggerVolumeNodeEditor.tsx#L77)
+Defined in: [packages/client-core/src/world/components/editor/properties/TriggerVolumeNodeEditor.tsx:77](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/world/components/editor/properties/TriggerVolumeNodeEditor.tsx#L77)
 
 ___
 
@@ -464,7 +464,7 @@ ___
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/TriggerVolumeNodeEditor.tsx:108](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/TriggerVolumeNodeEditor.tsx#L108)
+Defined in: [packages/client-core/src/world/components/editor/properties/TriggerVolumeNodeEditor.tsx:108](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/world/components/editor/properties/TriggerVolumeNodeEditor.tsx#L108)
 
 ___
 
@@ -481,7 +481,7 @@ ___
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/TriggerVolumeNodeEditor.tsx:117](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/TriggerVolumeNodeEditor.tsx#L117)
+Defined in: [packages/client-core/src/world/components/editor/properties/TriggerVolumeNodeEditor.tsx:117](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/world/components/editor/properties/TriggerVolumeNodeEditor.tsx#L117)
 
 ___
 
@@ -497,7 +497,7 @@ ___
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/TriggerVolumeNodeEditor.tsx:125](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/TriggerVolumeNodeEditor.tsx#L125)
+Defined in: [packages/client-core/src/world/components/editor/properties/TriggerVolumeNodeEditor.tsx:125](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/world/components/editor/properties/TriggerVolumeNodeEditor.tsx#L125)
 
 ___
 
@@ -513,7 +513,7 @@ ___
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/TriggerVolumeNodeEditor.tsx:130](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/TriggerVolumeNodeEditor.tsx#L130)
+Defined in: [packages/client-core/src/world/components/editor/properties/TriggerVolumeNodeEditor.tsx:130](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/world/components/editor/properties/TriggerVolumeNodeEditor.tsx#L130)
 
 ___
 
@@ -530,7 +530,7 @@ ___
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/TriggerVolumeNodeEditor.tsx:140](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/TriggerVolumeNodeEditor.tsx#L140)
+Defined in: [packages/client-core/src/world/components/editor/properties/TriggerVolumeNodeEditor.tsx:140](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/world/components/editor/properties/TriggerVolumeNodeEditor.tsx#L140)
 
 ___
 
@@ -546,7 +546,7 @@ ___
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/TriggerVolumeNodeEditor.tsx:148](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/TriggerVolumeNodeEditor.tsx#L148)
+Defined in: [packages/client-core/src/world/components/editor/properties/TriggerVolumeNodeEditor.tsx:148](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/world/components/editor/properties/TriggerVolumeNodeEditor.tsx#L148)
 
 ___
 
@@ -562,7 +562,7 @@ ___
 
 **Returns:** *void*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/TriggerVolumeNodeEditor.tsx:95](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/TriggerVolumeNodeEditor.tsx#L95)
+Defined in: [packages/client-core/src/world/components/editor/properties/TriggerVolumeNodeEditor.tsx:95](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/world/components/editor/properties/TriggerVolumeNodeEditor.tsx#L95)
 
 ___
 
@@ -574,7 +574,7 @@ ___
 
 Overrides: Component.render
 
-Defined in: [packages/client-core/src/world/components/editor/properties/TriggerVolumeNodeEditor.tsx:154](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/TriggerVolumeNodeEditor.tsx#L154)
+Defined in: [packages/client-core/src/world/components/editor/properties/TriggerVolumeNodeEditor.tsx:154](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/world/components/editor/properties/TriggerVolumeNodeEditor.tsx#L154)
 
 ___
 

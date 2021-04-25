@@ -16,7 +16,7 @@ hide_title: true
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *any*
 
-Defined in: [packages/client-core/src/common/reducers/dialog/service.ts:12](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/common/reducers/dialog/service.ts#L12)
+Defined in: [packages/client-core/src/common/reducers/dialog/service.ts:12](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/common/reducers/dialog/service.ts#L12)
 
 ___
 
@@ -32,4 +32,4 @@ ___
 
 **Returns:** (`dispatch`: *Dispatch*<AnyAction\>) => *any*
 
-Defined in: [packages/client-core/src/common/reducers/dialog/service.ts:7](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/common/reducers/dialog/service.ts#L7)
+Defined in: [packages/client-core/src/common/reducers/dialog/service.ts:7](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/common/reducers/dialog/service.ts#L7)

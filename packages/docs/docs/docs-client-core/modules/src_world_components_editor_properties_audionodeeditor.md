@@ -38,4 +38,4 @@ AudioNodeEditor used to customize audio element on the scene.
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/properties/AudioNodeEditor.tsx:19](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/properties/AudioNodeEditor.tsx#L19)
+Defined in: [packages/client-core/src/world/components/editor/properties/AudioNodeEditor.tsx:19](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/world/components/editor/properties/AudioNodeEditor.tsx#L19)

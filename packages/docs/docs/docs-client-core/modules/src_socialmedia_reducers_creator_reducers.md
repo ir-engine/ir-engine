@@ -27,7 +27,7 @@ hide_title: true
 | `creators.followers` | *any*[] |
 | `creators.following` | *any*[] |
 
-Defined in: [packages/client-core/src/socialmedia/reducers/creator/reducers.ts:22](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/reducers/creator/reducers.ts#L22)
+Defined in: [packages/client-core/src/socialmedia/reducers/creator/reducers.ts:25](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/socialmedia/reducers/creator/reducers.ts#L25)
 
 ## Functions
 
@@ -44,4 +44,4 @@ Defined in: [packages/client-core/src/socialmedia/reducers/creator/reducers.ts:2
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/src/socialmedia/reducers/creator/reducers.ts:36](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/reducers/creator/reducers.ts#L36)
+Defined in: [packages/client-core/src/socialmedia/reducers/creator/reducers.ts:39](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/socialmedia/reducers/creator/reducers.ts#L39)

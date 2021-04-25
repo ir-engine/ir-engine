@@ -24,7 +24,7 @@ hide_title: true
 | `inviteTypeData.skip` | *number* |
 | `inviteTypeData.total` | *number* |
 
-Defined in: [packages/client-core/src/social/reducers/inviteType/reducers.ts:11](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/social/reducers/inviteType/reducers.ts#L11)
+Defined in: [packages/client-core/src/social/reducers/inviteType/reducers.ts:11](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/social/reducers/inviteType/reducers.ts#L11)
 
 ## Functions
 
@@ -41,4 +41,4 @@ Defined in: [packages/client-core/src/social/reducers/inviteType/reducers.ts:11]
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/src/social/reducers/inviteType/reducers.ts:23](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/social/reducers/inviteType/reducers.ts#L23)
+Defined in: [packages/client-core/src/social/reducers/inviteType/reducers.ts:23](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/social/reducers/inviteType/reducers.ts#L23)

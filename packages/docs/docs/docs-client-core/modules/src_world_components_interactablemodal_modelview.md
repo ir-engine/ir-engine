@@ -24,4 +24,4 @@ Renames and exports: [ModelView](src_world_components_interactablemodal_modelvie
 
 **`param`** The url to a USDZ model which will be used on supported iOS 12+ devices via AR Quick Look on Safari.
 
-Defined in: [packages/client-core/src/world/components/InteractableModal/modelView.tsx:15](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/InteractableModal/modelView.tsx#L15)
+Defined in: [packages/client-core/src/world/components/InteractableModal/modelView.tsx:15](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/world/components/InteractableModal/modelView.tsx#L15)

@@ -22,4 +22,4 @@ hide_title: true
 
 **Returns:** *void*
 
-Defined in: [utils/triggerNavigation.ts:4](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/common/src/utils/triggerNavigation.ts#L4)
+Defined in: [utils/triggerNavigation.ts:4](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/common/src/utils/triggerNavigation.ts#L4)

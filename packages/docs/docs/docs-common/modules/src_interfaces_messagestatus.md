@@ -24,4 +24,4 @@ hide_title: true
 | `updatedAt` | *string* |
 | `userId` | *string* |
 
-Defined in: [interfaces/MessageStatus.ts:1](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/common/src/interfaces/MessageStatus.ts#L1)
+Defined in: [interfaces/MessageStatus.ts:1](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/common/src/interfaces/MessageStatus.ts#L1)

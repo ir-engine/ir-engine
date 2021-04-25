@@ -37,7 +37,7 @@ A class for Project Asset service
 
 Overrides: Service.constructor
 
-Defined in: [packages/server-core/src/world/project-asset/project-asset.class.ts:10](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/world/project-asset/project-asset.class.ts#L10)
+Defined in: [packages/server-core/src/world/project-asset/project-asset.class.ts:10](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/world/project-asset/project-asset.class.ts#L10)
 
 ## Properties
 

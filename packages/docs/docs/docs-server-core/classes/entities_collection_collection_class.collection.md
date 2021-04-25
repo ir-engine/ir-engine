@@ -33,7 +33,7 @@ hide_title: true
 
 Overrides: Service.constructor
 
-Defined in: [packages/server-core/src/entities/collection/collection.class.ts:7](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/entities/collection/collection.class.ts#L7)
+Defined in: [packages/server-core/src/entities/collection/collection.class.ts:7](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/entities/collection/collection.class.ts#L7)
 
 ## Properties
 
@@ -51,7 +51,7 @@ ___
 
 • **app**: Application
 
-Defined in: [packages/server-core/src/entities/collection/collection.class.ts:6](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/entities/collection/collection.class.ts#L6)
+Defined in: [packages/server-core/src/entities/collection/collection.class.ts:6](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/entities/collection/collection.class.ts#L6)
 
 ___
 
@@ -59,7 +59,7 @@ ___
 
 • **docs**: *any*
 
-Defined in: [packages/server-core/src/entities/collection/collection.class.ts:7](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/entities/collection/collection.class.ts#L7)
+Defined in: [packages/server-core/src/entities/collection/collection.class.ts:7](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/entities/collection/collection.class.ts#L7)
 
 ___
 
@@ -284,7 +284,7 @@ A method which find collection
 
 Overrides: Service.find
 
-Defined in: [packages/server-core/src/entities/collection/collection.class.ts:21](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/entities/collection/collection.class.ts#L21)
+Defined in: [packages/server-core/src/entities/collection/collection.class.ts:21](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/entities/collection/collection.class.ts#L21)
 
 ___
 

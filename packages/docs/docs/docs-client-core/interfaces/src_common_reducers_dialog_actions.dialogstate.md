@@ -16,7 +16,7 @@ hide_title: true
 
 • **content**: *any*
 
-Defined in: [packages/client-core/src/common/reducers/dialog/actions.ts:8](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/common/reducers/dialog/actions.ts#L8)
+Defined in: [packages/client-core/src/common/reducers/dialog/actions.ts:8](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/common/reducers/dialog/actions.ts#L8)
 
 ___
 
@@ -24,4 +24,4 @@ ___
 
 • **isOpened**: *boolean*
 
-Defined in: [packages/client-core/src/common/reducers/dialog/actions.ts:7](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/common/reducers/dialog/actions.ts#L7)
+Defined in: [packages/client-core/src/common/reducers/dialog/actions.ts:7](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/common/reducers/dialog/actions.ts#L7)

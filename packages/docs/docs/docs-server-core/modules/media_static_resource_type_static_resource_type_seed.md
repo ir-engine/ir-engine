@@ -24,4 +24,4 @@ hide_title: true
 | `randomize` | *boolean* |
 | `templates` | { `type`: *string* = 'image' }[] |
 
-Defined in: [packages/server-core/src/media/static-resource-type/static-resource-type.seed.ts:3](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/media/static-resource-type/static-resource-type.seed.ts#L3)
+Defined in: [packages/server-core/src/media/static-resource-type/static-resource-type.seed.ts:3](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/media/static-resource-type/static-resource-type.seed.ts#L3)

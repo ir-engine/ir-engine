@@ -16,7 +16,7 @@ hide_title: true
 
 • **comments**: CommentInterface[]
 
-Defined in: [packages/client-core/src/socialmedia/reducers/feedComment/actions.ts:13](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/reducers/feedComment/actions.ts#L13)
+Defined in: [packages/client-core/src/socialmedia/reducers/feedComment/actions.ts:16](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/socialmedia/reducers/feedComment/actions.ts#L16)
 
 ___
 
@@ -24,4 +24,4 @@ ___
 
 • **type**: *string*
 
-Defined in: [packages/client-core/src/socialmedia/reducers/feedComment/actions.ts:12](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/reducers/feedComment/actions.ts#L12)
+Defined in: [packages/client-core/src/socialmedia/reducers/feedComment/actions.ts:15](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/socialmedia/reducers/feedComment/actions.ts#L15)

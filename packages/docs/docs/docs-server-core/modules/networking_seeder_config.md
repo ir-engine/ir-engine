@@ -20,4 +20,4 @@ Renames and exports: [networkingSeeds](networking_seeder_config.md#networkingsee
 
 • `Const` **networkingSeeds**: ServicesSeedConfig[]= []
 
-Defined in: [packages/server-core/src/networking/seeder-config.ts:3](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/networking/seeder-config.ts#L3)
+Defined in: [packages/server-core/src/networking/seeder-config.ts:3](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/networking/seeder-config.ts#L3)

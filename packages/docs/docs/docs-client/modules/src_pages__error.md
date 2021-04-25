@@ -39,10 +39,10 @@ Renames and exports: [Error](src_pages__error.md#error)
 
 **Returns:** *any*
 
-Defined in: [packages/client/src/pages/_error.tsx:4](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client/src/pages/_error.tsx#L4)
+Defined in: [packages/client/src/pages/_error.tsx:4](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client/src/pages/_error.tsx#L4)
 
 | Name | Type |
 | :------ | :------ |
 | `getInitialProps` | (`__namedParameters`: *Object*) => { `statusCode`: *any*  } |
 
-Defined in: [packages/client/src/pages/_error.tsx:4](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client/src/pages/_error.tsx#L4)
+Defined in: [packages/client/src/pages/_error.tsx:4](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client/src/pages/_error.tsx#L4)

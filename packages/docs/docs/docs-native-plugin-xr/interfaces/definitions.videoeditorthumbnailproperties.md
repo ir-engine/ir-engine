@@ -20,7 +20,7 @@ Trim options that are required to locate, reduce start/ end and save the video.
 
 Location in video to create the thumbnail (in seconds).
 
-Defined in: [packages/native-plugin-xr/src/definitions.ts:158](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/native-plugin-xr/src/definitions.ts#L158)
+Defined in: [packages/native-plugin-xr/src/definitions.ts:158](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/native-plugin-xr/src/definitions.ts#L158)
 
 ___
 
@@ -30,7 +30,7 @@ ___
 
 A well-known location where the editable video lives.
 
-Defined in: [packages/native-plugin-xr/src/definitions.ts:154](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/native-plugin-xr/src/definitions.ts#L154)
+Defined in: [packages/native-plugin-xr/src/definitions.ts:154](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/native-plugin-xr/src/definitions.ts#L154)
 
 ___
 
@@ -40,7 +40,7 @@ ___
 
 Height of the thumbnail.
 
-Defined in: [packages/native-plugin-xr/src/definitions.ts:162](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/native-plugin-xr/src/definitions.ts#L162)
+Defined in: [packages/native-plugin-xr/src/definitions.ts:162](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/native-plugin-xr/src/definitions.ts#L162)
 
 ___
 
@@ -50,7 +50,7 @@ ___
 
 A string that indicates what type of field this is, home for example.
 
-Defined in: [packages/native-plugin-xr/src/definitions.ts:156](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/native-plugin-xr/src/definitions.ts#L156)
+Defined in: [packages/native-plugin-xr/src/definitions.ts:156](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/native-plugin-xr/src/definitions.ts#L156)
 
 ___
 
@@ -60,7 +60,7 @@ ___
 
 Quality of the thumbnail (between 1 and 100).
 
-Defined in: [packages/native-plugin-xr/src/definitions.ts:164](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/native-plugin-xr/src/definitions.ts#L164)
+Defined in: [packages/native-plugin-xr/src/definitions.ts:164](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/native-plugin-xr/src/definitions.ts#L164)
 
 ___
 
@@ -70,4 +70,4 @@ ___
 
 Width of the thumbnail.
 
-Defined in: [packages/native-plugin-xr/src/definitions.ts:160](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/native-plugin-xr/src/definitions.ts#L160)
+Defined in: [packages/native-plugin-xr/src/definitions.ts:160](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/native-plugin-xr/src/definitions.ts#L160)

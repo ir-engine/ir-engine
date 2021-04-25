@@ -21,7 +21,7 @@ hide_title: true
 | `party` | *object* |
 | `updateNeeded` | *boolean* |
 
-Defined in: [packages/client-core/src/social/reducers/party/reducers.ts:22](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/social/reducers/party/reducers.ts#L22)
+Defined in: [packages/client-core/src/social/reducers/party/reducers.ts:22](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/social/reducers/party/reducers.ts#L22)
 
 ## Functions
 
@@ -38,4 +38,4 @@ Defined in: [packages/client-core/src/social/reducers/party/reducers.ts:22](http
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/src/social/reducers/party/reducers.ts:29](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/social/reducers/party/reducers.ts#L29)
+Defined in: [packages/client-core/src/social/reducers/party/reducers.ts:29](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/social/reducers/party/reducers.ts#L29)

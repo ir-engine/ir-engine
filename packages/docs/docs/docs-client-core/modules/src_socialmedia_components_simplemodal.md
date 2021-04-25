@@ -26,4 +26,4 @@ hide_title: true
 
 **Returns:** *any*
 
-Defined in: [packages/client-core/src/socialmedia/components/SimpleModal/index.tsx:16](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/components/SimpleModal/index.tsx#L16)
+Defined in: [packages/client-core/src/socialmedia/components/SimpleModal/index.tsx:18](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/socialmedia/components/SimpleModal/index.tsx#L18)

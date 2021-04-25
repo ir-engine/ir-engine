@@ -22,7 +22,7 @@ hide_title: true
 
 Ƭ **InviteTypeAction**: [*InviteTypeCreatedAction*](../interfaces/src_social_reducers_invitetype_actions.invitetypecreatedaction.md) \| [*InviteTypeRemoveAction*](../interfaces/src_social_reducers_invitetype_actions.invitetyperemoveaction.md) \| [*InvitesTypesRetrievedAction*](../interfaces/src_social_reducers_invitetype_actions.invitestypesretrievedaction.md)
 
-Defined in: [packages/client-core/src/social/reducers/inviteType/actions.ts:26](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/social/reducers/inviteType/actions.ts#L26)
+Defined in: [packages/client-core/src/social/reducers/inviteType/actions.ts:26](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/social/reducers/inviteType/actions.ts#L26)
 
 ## Functions
 
@@ -32,7 +32,7 @@ Defined in: [packages/client-core/src/social/reducers/inviteType/actions.ts:26](
 
 **Returns:** [*InviteTypeAction*](src_social_reducers_invitetype_actions.md#invitetypeaction)
 
-Defined in: [packages/client-core/src/social/reducers/inviteType/actions.ts:39](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/social/reducers/inviteType/actions.ts#L39)
+Defined in: [packages/client-core/src/social/reducers/inviteType/actions.ts:39](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/social/reducers/inviteType/actions.ts#L39)
 
 ___
 
@@ -48,4 +48,4 @@ ___
 
 **Returns:** [*InvitesTypesRetrievedAction*](../interfaces/src_social_reducers_invitetype_actions.invitestypesretrievedaction.md)
 
-Defined in: [packages/client-core/src/social/reducers/inviteType/actions.ts:28](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/social/reducers/inviteType/actions.ts#L28)
+Defined in: [packages/client-core/src/social/reducers/inviteType/actions.ts:28](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/social/reducers/inviteType/actions.ts#L28)

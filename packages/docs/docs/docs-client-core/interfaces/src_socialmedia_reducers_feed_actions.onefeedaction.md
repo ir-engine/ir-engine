@@ -16,7 +16,7 @@ hide_title: true
 
 • **feedId**: *string*
 
-Defined in: [packages/client-core/src/socialmedia/reducers/feed/actions.ts:38](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/reducers/feed/actions.ts#L38)
+Defined in: [packages/client-core/src/socialmedia/reducers/feed/actions.ts:41](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/socialmedia/reducers/feed/actions.ts#L41)
 
 ___
 
@@ -24,4 +24,4 @@ ___
 
 • **type**: *string*
 
-Defined in: [packages/client-core/src/socialmedia/reducers/feed/actions.ts:37](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/reducers/feed/actions.ts#L37)
+Defined in: [packages/client-core/src/socialmedia/reducers/feed/actions.ts:40](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/socialmedia/reducers/feed/actions.ts#L40)

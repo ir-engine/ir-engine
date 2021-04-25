@@ -24,7 +24,7 @@ hide_title: true
 
 Inherited from: Action.type
 
-Defined in: [packages/client-core/src/common/reducers/app/actions.ts:14](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/common/reducers/app/actions.ts#L14)
+Defined in: [packages/client-core/src/common/reducers/app/actions.ts:14](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/common/reducers/app/actions.ts#L14)
 
 ___
 
@@ -39,4 +39,4 @@ ___
 | `height` | *number* |
 | `width` | *number* |
 
-Defined in: [packages/client-core/src/common/reducers/app/actions.ts:23](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/common/reducers/app/actions.ts#L23)
+Defined in: [packages/client-core/src/common/reducers/app/actions.ts:23](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/common/reducers/app/actions.ts#L23)

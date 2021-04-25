@@ -36,4 +36,4 @@ Renames and exports: [Positioner](src_world_components_editor_layout_positioner.
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/layout/Positioner.tsx:453](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/layout/Positioner.tsx#L453)
+Defined in: [packages/client-core/src/world/components/editor/layout/Positioner.tsx:453](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/world/components/editor/layout/Positioner.tsx#L453)

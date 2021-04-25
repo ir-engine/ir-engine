@@ -26,6 +26,7 @@ module.exports = [
       "docs-client/modules/src_components_scene_location",
       "docs-client/modules/src_components_scene_offlinelocation",
       "docs-client/modules/src_components_videochat",
+      "docs-client/modules/src_env_config",
       "docs-client/modules/src_main",
       "docs-client/modules/src_pages",
       "docs-client/modules/src_pages_404",

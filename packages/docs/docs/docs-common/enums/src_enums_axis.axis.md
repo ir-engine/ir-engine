@@ -16,7 +16,7 @@ hide_title: true
 
 • **x**: = 0
 
-Defined in: [enums/axis.ts:2](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/common/src/enums/axis.ts#L2)
+Defined in: [enums/axis.ts:2](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/common/src/enums/axis.ts#L2)
 
 ___
 
@@ -24,7 +24,7 @@ ___
 
 • **y**: = 1
 
-Defined in: [enums/axis.ts:3](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/common/src/enums/axis.ts#L3)
+Defined in: [enums/axis.ts:3](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/common/src/enums/axis.ts#L3)
 
 ___
 
@@ -32,4 +32,4 @@ ___
 
 • **z**: = 2
 
-Defined in: [enums/axis.ts:4](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/common/src/enums/axis.ts#L4)
+Defined in: [enums/axis.ts:4](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/common/src/enums/axis.ts#L4)

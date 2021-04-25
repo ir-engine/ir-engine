@@ -22,4 +22,4 @@ hide_title: true
 
 **Returns:** *void*
 
-Defined in: [packages/server-core/src/socialmedia/feed/feed.service.ts:17](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/socialmedia/feed/feed.service.ts#L17)
+Defined in: [packages/server-core/src/socialmedia/feed/feed.service.ts:17](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/socialmedia/feed/feed.service.ts#L17)

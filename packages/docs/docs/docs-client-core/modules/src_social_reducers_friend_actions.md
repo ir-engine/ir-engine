@@ -24,7 +24,7 @@ hide_title: true
 
 Ƭ **FriendAction**: [*LoadedFriendsAction*](../interfaces/src_social_reducers_friend_actions.loadedfriendsaction.md) \| [*CreatedFriendAction*](../interfaces/src_social_reducers_friend_actions.createdfriendaction.md) \| [*PatchedFriendAction*](../interfaces/src_social_reducers_friend_actions.patchedfriendaction.md) \| [*RemovedFriendAction*](../interfaces/src_social_reducers_friend_actions.removedfriendaction.md) \| [*FetchingFriendsAction*](../interfaces/src_social_reducers_friend_actions.fetchingfriendsaction.md)
 
-Defined in: [packages/client-core/src/social/reducers/friend/actions.ts:41](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/social/reducers/friend/actions.ts#L41)
+Defined in: [packages/client-core/src/social/reducers/friend/actions.ts:41](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/social/reducers/friend/actions.ts#L41)
 
 ## Functions
 
@@ -40,7 +40,7 @@ Defined in: [packages/client-core/src/social/reducers/friend/actions.ts:41](http
 
 **Returns:** [*CreatedFriendAction*](../interfaces/src_social_reducers_friend_actions.createdfriendaction.md)
 
-Defined in: [packages/client-core/src/social/reducers/friend/actions.ts:58](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/social/reducers/friend/actions.ts#L58)
+Defined in: [packages/client-core/src/social/reducers/friend/actions.ts:58](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/social/reducers/friend/actions.ts#L58)
 
 ___
 
@@ -50,7 +50,7 @@ ___
 
 **Returns:** [*FriendAction*](src_social_reducers_friend_actions.md#friendaction)
 
-Defined in: [packages/client-core/src/social/reducers/friend/actions.ts:81](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/social/reducers/friend/actions.ts#L81)
+Defined in: [packages/client-core/src/social/reducers/friend/actions.ts:81](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/social/reducers/friend/actions.ts#L81)
 
 ___
 
@@ -66,7 +66,7 @@ ___
 
 **Returns:** [*FriendAction*](src_social_reducers_friend_actions.md#friendaction)
 
-Defined in: [packages/client-core/src/social/reducers/friend/actions.ts:48](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/social/reducers/friend/actions.ts#L48)
+Defined in: [packages/client-core/src/social/reducers/friend/actions.ts:48](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/social/reducers/friend/actions.ts#L48)
 
 ___
 
@@ -83,7 +83,7 @@ ___
 
 **Returns:** [*PatchedFriendAction*](../interfaces/src_social_reducers_friend_actions.patchedfriendaction.md)
 
-Defined in: [packages/client-core/src/social/reducers/friend/actions.ts:65](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/social/reducers/friend/actions.ts#L65)
+Defined in: [packages/client-core/src/social/reducers/friend/actions.ts:65](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/social/reducers/friend/actions.ts#L65)
 
 ___
 
@@ -100,4 +100,4 @@ ___
 
 **Returns:** [*RemovedFriendAction*](../interfaces/src_social_reducers_friend_actions.removedfriendaction.md)
 
-Defined in: [packages/client-core/src/social/reducers/friend/actions.ts:73](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/social/reducers/friend/actions.ts#L73)
+Defined in: [packages/client-core/src/social/reducers/friend/actions.ts:73](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/social/reducers/friend/actions.ts#L73)

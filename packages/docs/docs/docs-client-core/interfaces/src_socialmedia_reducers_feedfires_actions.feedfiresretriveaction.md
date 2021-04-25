@@ -16,7 +16,7 @@ hide_title: true
 
 • **feedFires**: CreatorShort[]
 
-Defined in: [packages/client-core/src/socialmedia/reducers/feedFires/actions.ts:9](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/reducers/feedFires/actions.ts#L9)
+Defined in: [packages/client-core/src/socialmedia/reducers/feedFires/actions.ts:12](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/socialmedia/reducers/feedFires/actions.ts#L12)
 
 ___
 
@@ -24,4 +24,4 @@ ___
 
 • **type**: *string*
 
-Defined in: [packages/client-core/src/socialmedia/reducers/feedFires/actions.ts:8](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/socialmedia/reducers/feedFires/actions.ts#L8)
+Defined in: [packages/client-core/src/socialmedia/reducers/feedFires/actions.ts:11](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/socialmedia/reducers/feedFires/actions.ts#L11)

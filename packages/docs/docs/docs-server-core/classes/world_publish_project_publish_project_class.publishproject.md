@@ -33,7 +33,7 @@ A class for Publish Project  service
 
 **Returns:** [*PublishProject*](world_publish_project_publish_project_class.publishproject.md)
 
-Defined in: [packages/server-core/src/world/publish-project/publish-project.class.ts:22](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/world/publish-project/publish-project.class.ts#L22)
+Defined in: [packages/server-core/src/world/publish-project/publish-project.class.ts:22](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/world/publish-project/publish-project.class.ts#L22)
 
 ## Properties
 
@@ -41,7 +41,7 @@ Defined in: [packages/server-core/src/world/publish-project/publish-project.clas
 
 • **app**: Application
 
-Defined in: [packages/server-core/src/world/publish-project/publish-project.class.ts:20](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/world/publish-project/publish-project.class.ts#L20)
+Defined in: [packages/server-core/src/world/publish-project/publish-project.class.ts:20](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/world/publish-project/publish-project.class.ts#L20)
 
 ___
 
@@ -49,7 +49,7 @@ ___
 
 • **docs**: *any*
 
-Defined in: [packages/server-core/src/world/publish-project/publish-project.class.ts:22](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/world/publish-project/publish-project.class.ts#L22)
+Defined in: [packages/server-core/src/world/publish-project/publish-project.class.ts:22](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/world/publish-project/publish-project.class.ts#L22)
 
 ___
 
@@ -57,7 +57,7 @@ ___
 
 • **options**: ServiceOptions
 
-Defined in: [packages/server-core/src/world/publish-project/publish-project.class.ts:21](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/world/publish-project/publish-project.class.ts#L21)
+Defined in: [packages/server-core/src/world/publish-project/publish-project.class.ts:21](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/world/publish-project/publish-project.class.ts#L21)
 
 ## Methods
 
@@ -82,7 +82,7 @@ created new publish project
 
 Implementation of: ServiceMethods.create
 
-Defined in: [packages/server-core/src/world/publish-project/publish-project.class.ts:60](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/world/publish-project/publish-project.class.ts#L60)
+Defined in: [packages/server-core/src/world/publish-project/publish-project.class.ts:60](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/world/publish-project/publish-project.class.ts#L60)
 
 ___
 
@@ -104,7 +104,7 @@ all published project
 
 Implementation of: ServiceMethods.find
 
-Defined in: [packages/server-core/src/world/publish-project/publish-project.class.ts:34](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/world/publish-project/publish-project.class.ts#L34)
+Defined in: [packages/server-core/src/world/publish-project/publish-project.class.ts:34](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/world/publish-project/publish-project.class.ts#L34)
 
 ___
 
@@ -129,7 +129,7 @@ A function which is used to get specific publish project
 
 Implementation of: ServiceMethods.get
 
-Defined in: [packages/server-core/src/world/publish-project/publish-project.class.ts:46](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/world/publish-project/publish-project.class.ts#L46)
+Defined in: [packages/server-core/src/world/publish-project/publish-project.class.ts:46](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/world/publish-project/publish-project.class.ts#L46)
 
 ___
 
@@ -149,7 +149,7 @@ ___
 
 Implementation of: ServiceMethods.patch
 
-Defined in: [packages/server-core/src/world/publish-project/publish-project.class.ts:121](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/world/publish-project/publish-project.class.ts#L121)
+Defined in: [packages/server-core/src/world/publish-project/publish-project.class.ts:121](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/world/publish-project/publish-project.class.ts#L121)
 
 ___
 
@@ -172,7 +172,7 @@ ___
 
 Implementation of: ServiceMethods.remove
 
-Defined in: [packages/server-core/src/world/publish-project/publish-project.class.ts:132](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/world/publish-project/publish-project.class.ts#L132)
+Defined in: [packages/server-core/src/world/publish-project/publish-project.class.ts:132](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/world/publish-project/publish-project.class.ts#L132)
 
 ___
 
@@ -198,4 +198,4 @@ A function which is used to update publish project
 
 Implementation of: ServiceMethods.update
 
-Defined in: [packages/server-core/src/world/publish-project/publish-project.class.ts:117](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/server-core/src/world/publish-project/publish-project.class.ts#L117)
+Defined in: [packages/server-core/src/world/publish-project/publish-project.class.ts:117](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/server-core/src/world/publish-project/publish-project.class.ts#L117)

@@ -38,4 +38,4 @@ AssetDropZone function used to create view port where we can drag and drop objec
 
 **Returns:** *Element*
 
-Defined in: [packages/client-core/src/world/components/editor/assets/AssetDropZone.tsx:46](https://github.com/xr3ngine/xr3ngine/blob/7e8e151f1/packages/client-core/src/world/components/editor/assets/AssetDropZone.tsx#L46)
+Defined in: [packages/client-core/src/world/components/editor/assets/AssetDropZone.tsx:46](https://github.com/xr3ngine/xr3ngine/blob/2d83606b6/packages/client-core/src/world/components/editor/assets/AssetDropZone.tsx#L46)
