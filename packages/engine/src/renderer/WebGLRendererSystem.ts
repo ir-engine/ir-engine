@@ -123,7 +123,6 @@ export class WebGLRendererSystem extends System {
     this.onResize();
 
     WebGLRendererSystem.needsResize = true;
-    WebGLRendererSystem.usePostProcessing=false;
     loadGraphicsSettingsFromStorage();
 
     // if we turn PostPro off, don't turn it back on, if we turn it on, let engine manage it
@@ -170,7 +169,6 @@ export class WebGLRendererSystem extends System {
     */
   public configurePostProcessing(postProcessingSchema:PostProcessingSchema=PostProcessing.defaultOptions): void {
     this.postProcessingSchema=postProcessingSchema;
-    WebGLRendererSystem.usePostProcessing=true;
     this.renderPass = new RenderPass(Engine.scene, Engine.camera);
     this.renderPass.scene = Engine.scene;
     this.renderPass.camera = Engine.camera;

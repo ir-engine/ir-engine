@@ -1,4 +1,3 @@
-
 /**
  * Multithreaded threejs polyfills, proxies and utilities using offscreen canvas API
  * 
@@ -10,18 +9,16 @@ import {
   AudioListener as THREE_AudioListener,
   AudioLoader as THREE_AudioLoader,
   Event as DispatchEvent,
+  MathUtils,
   Matrix4,
   Object3D,
   PositionalAudio as THREE_PositionalAudio,
   Scene,
-  XRRenderState,
-  MathUtils,
-  WebGLRenderer
+  XRRenderState
 } from 'three';
 import { EventDispatcher } from '../common/classes/EventDispatcher';
 import { isMobileOrTablet } from '../common/functions/isMobile';
-import { 
-  XRHandedness,
+import {
   XRHitResult,
   XRHitTestOptionsInit,
   XRHitTestSource,
@@ -30,8 +27,6 @@ import {
   XRReferenceSpace,
   XRReferenceSpaceType,
   XRSession,
-  XRSpace,
-  XRTargetRayMode,
   XRTransientInputHitTestOptionsInit,
   XRTransientInputHitTestSource
 } from '../input/types/WebXR';

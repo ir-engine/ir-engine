@@ -36,7 +36,7 @@ export default defineConfig(() => {
                     dir: 'dist',
                     format: 'es',
                 },
-            }
+            },
         }
     }
-})
+});

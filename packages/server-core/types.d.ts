@@ -6,8 +6,6 @@ declare module 'bento4-installer'
 
 declare module 'fluent-bento4'
 
-declare module 'dotenv-flow'
-
 declare module '*!frag'
 
 declare module '*!vert'

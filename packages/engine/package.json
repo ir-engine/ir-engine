@@ -24,8 +24,7 @@
   "scripts": {
     "lint": "eslint --fix --quiet --ext .ts src/",
     "dev": "vite",
-    "build": "tsc && vite build",
-    "build-publish": "rimraf dist && ctix entrypoint ./src && cross-env NODE_ENV=production rollup -c",
+    "build": "rimraf dist && ctix entrypoint ./src && tsc && esbuild --bundle index.ts --external:cross-fetch --external:mousetrap --external:draco3dgltf --external:three-mesh-bvh --external:path --external:superbuffer --external:@pixiv/three-vrm --external:comlink --external:browserfs --external:three --external:cannon-es --outfile=dist/engine.js --define:BUILD_MODE=true --define:NODE_ENV=production --platform=neutral",
     "test": "jest",
     "validate": "yarn run lint && yarn run test",
     "generate-doc": "node_modules/.bin/typedoc"
@@ -38,8 +37,6 @@
   },
   "dependencies": {
     "@pixiv/three-vrm": "^0.6.0",
-  
-    "browserfs": "^1.4.3",
     "cannon-es": "^0.17.0",
     "cross-fetch": "^3.0.6",
     "ctix": "^0.3.1",
@@ -48,29 +45,14 @@
     "mousetrap": "^1.6.5",
     "socket.io": "2.4.1",
     "superbuffer": "^1.0.1",
-    "three": "^0.127.0",
+    "three": "^0.128.0",
     "three-mesh-bvh": "^0.3.7",
-   
-    "typescript": "^4.0.3",
-  
-    "vite": "^2.1.5"
+    "typescript": "^4.0.3"
   },
   "devDependencies": {
-   
-    "@rollup/plugin-commonjs": "18.0.0",
-    "@rollup/plugin-json": "4.1.0",
-    "@rollup/plugin-node-resolve": "11.2.1",
-    "@rollup/plugin-replace": "2.4.2",
-    "@rollup/plugin-typescript": "8.2.1",
     "@types/three": "0.127.1",
-    "eslint": "7.24.0",
-    "rollup": "2.45.2",
-    "rollup-plugin-babel": "4.4.0",
-   
-    "rollup-plugin-node-polyfills": "0.2.1",
-    "rollup-plugin-scss": "2.6.1",
-   
-    
+    "esbuild": "0.11.13",
+    "eslint": "7.25.0",
     "typedoc": "0.20.35"
   },
   "gitHead": "5ff55be1619e188226c4ac91c92a44b7ba18edf4"

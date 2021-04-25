@@ -4,18 +4,14 @@
  */
 
 import React, { lazy, Suspense, useEffect, useState } from "react";
-// Hack to get around a bug in Vite/rollup:  https://github.com/vitejs/vite/issues/2139
-import nossr from "react-no-ssr";
-const NoSSR = nossr.default ? nossr.default : nossr;
-
 
 // importing component EditorContainer.
 const EditorContainer = lazy(() => import("@xr3ngine/client-core/src/world/components/editor/EditorContainer"));
 
 import { connect } from 'react-redux';
-import {selectAuthState} from "@xr3ngine/client-core/src/user/reducers/auth/selector";
-import {bindActionCreators, Dispatch} from "redux";
-import {doLoginAuto} from "@xr3ngine/client-core/src/user/reducers/auth/service";
+import { selectAuthState } from "@xr3ngine/client-core/src/user/reducers/auth/selector";
+import { bindActionCreators, Dispatch } from "redux";
+import { doLoginAuto } from "@xr3ngine/client-core/src/user/reducers/auth/service";
 import { initializeEditor } from "@xr3ngine/engine/src/initialize";
 import { DefaultGameMode } from "@xr3ngine/engine/src/templates/game/DefaultGameMode";
 import { Engine } from "@xr3ngine/engine/src/ecs/classes/Engine";
@@ -53,7 +49,7 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
  */
 const Project = (props: Props) => {
 
-	// initialising consts using props interface.
+    // initialising consts using props interface.
     const {
         authState,
         doLoginAuto
@@ -67,14 +63,14 @@ const Project = (props: Props) => {
     const [hasMounted, setHasMounted] = useState(false);
 
     const [engineIsInitialized, setEngineInitialized] = useState(false);
-    
+
     const InitializationOptions = {
         postProcessing: true,
         gameModes: [
             DefaultGameMode
-          ]
-      };
-  
+        ]
+    };
+
     useEffect(() => {
         initializeEditor(InitializationOptions).then(() => {
             console.log("Setting engine inited");
@@ -90,17 +86,13 @@ const Project = (props: Props) => {
         doLoginAuto(true);
     }, []);
 
-/**
- * validating user and rendering EditorContainer component.
- * <NoSSR> enabling the defer rendering.
- *
- */
+    /**
+     * validating user and rendering EditorContainer component.
+     */
     return hasMounted &&
     <Suspense fallback={React.Fragment}>
-        <NoSSR>
-            { authUser?.accessToken != null && authUser.accessToken.length > 0 
-              && user?.id != null && engineIsInitialized && <EditorContainer Engine={Engine} {...props} /> }
-        </NoSSR>
+        { authUser?.accessToken != null && authUser.accessToken.length > 0 
+            && user?.id != null && engineIsInitialized && <EditorContainer Engine={Engine} {...props} /> }
     </Suspense>;
 };
 

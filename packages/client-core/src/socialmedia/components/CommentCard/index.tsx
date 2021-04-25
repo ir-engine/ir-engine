@@ -20,7 +20,7 @@ import SimpleModal from '../SimpleModal';
 import { addFireToFeedComment, getCommentFires, removeFireToFeedComment } from '../../reducers/feedComment/service';
 import { selectFeedCommentsState } from '../../reducers/feedComment/selector';
 import PopupLogin from '../PopupLogin/PopupLogin';
-import { IndexPage } from '@xr3ngine/social/pages/login';
+// import { IndexPage } from '@xr3ngine/social/pages/login';
 import { selectAuthState } from '../../../user/reducers/auth/selector';
 
 const mapStateToProps = (state: any): any => {
@@ -79,7 +79,7 @@ const CommentCard = ({comment, addFireToFeedComment, removeFireToFeedComment, ge
             </Card>
         <SimpleModal type={'comment-fires'} list={feedCommentsState.get('commentFires')} open={openFiredModal} onClose={()=>checkGuest ? setButtonPopup(true) : setOpenFiredModal(false)} />
         <PopupLogin trigger={buttonPopup} setTrigger={setButtonPopup}>
-          <IndexPage />
+          {/* <IndexPage /> */}
         </PopupLogin>
 </>;
 };

@@ -12,6 +12,8 @@ export class Config {
         appServer: "https://127.0.0.1:3000",
         gameserver: "https://127.0.0.1:3030",
         mediatorServer: "https://authn.io",
+        gameserverDomain: '',
+        lobbyLocationName: 'lobby',
         siteTitle: "The Overlay",
         siteDescription: "Connected Worlds for Everyone",
         feathersStoreKey: "TheOverlay-Auth-Store",

@@ -58,6 +58,21 @@ export function getLocationByName(locationName: string) {
   };
 }
 
+export async function getLobby() {
+    const lobbyResult = await client.service('location').find({
+      query: {
+        isLobby: true,
+        $limit: 1,
+      }
+    }).catch(error => {
+      console.log("Couldn't get Lobby", error);
+    });
+
+    if (lobbyResult && lobbyResult.total > 0) {
+      return lobbyResult.data[0];
+    }
+}
+
 export function banUserFromLocation(userId: string, locationId: string) {
   return async (dispatch: Dispatch): Promise<any> => {
     try {
