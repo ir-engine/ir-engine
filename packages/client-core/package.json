@@ -52,6 +52,7 @@
     "autoprefixer": "10.2.5",
     "axios": "0.21.1",
     "classnames": "2.3.1",
+    "credential-handler-polyfill": "^2.1.0",
     "ctix": "0.3.1",
     "emailjs-com": "2.6.4",
     "esbuild-plugin-sass": "0.4.1",
