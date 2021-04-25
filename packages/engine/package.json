@@ -53,7 +53,7 @@
     "@types/three": "0.127.1",
     "esbuild": "0.11.13",
     "eslint": "7.25.0",
-    "typedoc": "0.20.35"
+    "typedoc": "0.20.36"
   },
   "gitHead": "5ff55be1619e188226c4ac91c92a44b7ba18edf4"
 }
