@@ -18,7 +18,7 @@ import { selectCreatorsState } from "../../reducers/creator/selector";
 import { getLoggedCreator } from "../../reducers/creator/service";
 import { selectAuthState } from "../../../user/reducers/auth/selector";
 import { PopupLogin } from "../PopupLogin/PopupLogin";
-import IndexPage from "@xr3ngine/social/pages/login";
+// import IndexPage from "@xr3ngine/social/pages/login";
 
 const mapStateToProps = (state: any): any => {
   return {
