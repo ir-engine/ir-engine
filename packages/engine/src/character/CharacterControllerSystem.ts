@@ -33,7 +33,8 @@ export class CharacterControllerSystem extends System {
    * @param delta Time since last frame.
    */
   execute(delta: number): void {
-    this.queryResults.character.added.forEach((entity) => {
+    
+    this.queryResults.character.added?.forEach((entity) => {
       const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
       actor.raycastQuery = PhysicsSystem.instance.addRaycastQuery({
         type: SceneQueryType.Closest,
@@ -44,48 +45,18 @@ export class CharacterControllerSystem extends System {
       });
     });
 
-    this.queryResults.characterInput.all.forEach((entity) => {
-      const actor = getComponent(entity, CharacterComponent)
+    this.queryResults.character.all?.forEach(entity => {
+
+      const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
+      
+      if (!actor.movementEnabled || !actor.initialized) return;
+      physicsMove(entity, delta);
 
       // do head rotation for XR from input view vector - TODO: figure out where to put this
       // if(XRSystem.instance?.cameraDolly) XRSystem.instance.cameraDolly.setRotationFromAxisAngle(downVector, Math.atan2(actor.viewVector.z, actor.viewVector.x))
 
-      if (!actor.movementEnabled || !actor.initialized) return;
-      physicsMove(entity, delta);
-    })
-
-    this.queryResults.animation.all.forEach((entity) => {
-      updateVectorAnimation(entity, delta)
-    })
-
-    this.queryResults.ikavatar.all.forEach((entity) => {
-      const ikComponent = getMutableComponent(entity, IKComponent);
-      ikComponent.avatarIKRig?.update(delta);
-    })
-    // Capsule
-
-    this.queryResults.controllerCollider.added?.forEach(entity => {
-      const collider = getMutableComponent<ControllerColliderComponent>(entity, ControllerColliderComponent);
-      const transform = getComponent(entity, TransformComponent);
-      collider.controller = PhysicsSystem.instance.createController(new Controller({
-        isCapsule: true,
-        collisionLayer: CollisionGroups.Characters,
-        collisionMask: CollisionGroups.All,//CollisionGroups.Default | CollisionGroups.Characters | CollisionGroups.Car | CollisionGroups.TrimeshColliders,
-        position: {
-          x: transform.position.x,
-          y: transform.position.y + 1,
-          z: transform.position.z
-        },
-        material: {
-          dynamicFriction: collider.friction,
-        }
-      }));
-    });
-
-    this.queryResults.controllerCollider.all?.forEach(entity => {
       const collider = getMutableComponent<ControllerColliderComponent>(entity, ControllerColliderComponent)
       const transform = getComponent<TransformComponent>(entity, TransformComponent as any);
-      const actor: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
 
       if (actor == undefined || !actor.initialized) return;
       // console.log(collider.controller.transform.translation, collider.controller.delta)
@@ -98,6 +69,7 @@ export class CharacterControllerSystem extends System {
         collider.playerStuck = 1000;
         return;
       }
+
       // onUpdate
       transform.position.set(
         collider.controller.transform.translation.x,
@@ -111,7 +83,7 @@ export class CharacterControllerSystem extends System {
       actor.raycastQuery.maxDistance = 0.1;
 
       const closestHit = actor.raycastQuery.hits[0];
-      console.log(closestHit)
+      // console.log(closestHit)
 
       // TODO: replace this with ControllerCollider collision event
 
@@ -126,7 +98,7 @@ export class CharacterControllerSystem extends System {
       // }
     });
 
-    this.queryResults.controllerCollider.removed?.forEach(entity => {
+    this.queryResults.character.removed?.forEach(entity => {
       const collider = getComponent<ControllerColliderComponent>(entity, ControllerColliderComponent, true);
       if (collider) {
         PhysicsSystem.instance.removeController(collider.controller);
@@ -157,26 +129,20 @@ export class CharacterControllerSystem extends System {
       actor.animationVelocity = new Vector3(x, y, z).applyQuaternion(q);
     });
 
+    this.queryResults.animation.all?.forEach((entity) => {
+      updateVectorAnimation(entity, delta)
+    })
+
+    this.queryResults.ikavatar.all?.forEach((entity) => {
+      const ikComponent = getMutableComponent(entity, IKComponent);
+      ikComponent.avatarIKRig?.update(delta);
+    })
   }
 }
 
 CharacterControllerSystem.queries = {
   localCharacter: {
     components: [LocalInputReceiver, ControllerColliderComponent, CharacterComponent, NetworkObject],
-  },
-  characterInput: {
-    components: [CharacterComponent, Input],
-    listen: {
-      added: true,
-      removed: true
-    }
-  },
-  controllerCollider: {
-    components: [ControllerColliderComponent, TransformComponent],
-    listen: {
-      added: true,
-      removed: true
-    }
   },
   character: {
     components: [CharacterComponent],

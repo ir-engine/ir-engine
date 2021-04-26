@@ -143,6 +143,7 @@ export class CameraSystem extends System {
       const raycastDirection = new Vector3().subVectors(cameraTransform.position, targetPosition).normalize();
       followCamera.raycastQuery.origin = new Vector3(targetPosition.x, targetPosition.y, targetPosition.z);
       followCamera.raycastQuery.direction = new Vector3(raycastDirection.x, raycastDirection.y, raycastDirection.z);
+      followCamera.raycastQuery.maxDistance = camDist;
       
       const closestHit = followCamera.raycastQuery.hits[0];
 
@@ -174,7 +175,6 @@ export class CameraSystem extends System {
       if (followCamera.mode === CameraModes.FirstPerson) {
         cameraDesiredTransform.position.copy(targetPosition);
       }
-
       // apply user input
       
       const inputComponent = getComponent(entity, Input) as Input;
