@@ -46,6 +46,9 @@ export const CubemapOption = [
     label: "Black Sun",
     value: "/hdr/cubemap/BlackSun/"
   },
-
+  {
+    label: "Ctrl Arcade",
+    value: "/hdr/cubemap/CtrlArcade/"
+  },
 
 ];

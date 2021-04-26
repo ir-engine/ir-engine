@@ -9,11 +9,20 @@ import { getComponent } from "../../ecs/functions/EntityFunctions";
 import AudioSource from '../classes/AudioSource';
 import { Object3DComponent } from '../components/Object3DComponent';
 import { isWebWorker } from '../../common/functions/getEnvironment';
-import DracosisPlayer from '@xr3ngine/volumetric/src/Player';
 import VolumetricComponent from "../components/VolumetricComponent"
 import { addComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
 import { EngineEvents } from '../../ecs/classes/EngineEvents';
 import { InteractiveSystem } from '../../interaction/systems/InteractiveSystem';
+
+const isBrowser=new Function("try {return this===window;}catch(e){ return false;}");
+
+let DracosisPlayer = null;
+if (isBrowser())
+  import("@xr3ngine/volumetric/src/Player").then(imported => {
+    DracosisPlayer = imported;
+  });
+
+
 
 const elementPlaying = (element: any): boolean => {
   if(isWebWorker) return element?._isPlaying;

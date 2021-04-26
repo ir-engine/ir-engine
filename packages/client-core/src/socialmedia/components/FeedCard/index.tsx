@@ -27,7 +27,7 @@ import { addViewToFeed } from '../../reducers/feed/service';
 import { selectFeedFiresState } from '../../reducers/feedFires/selector';
 import { getFeedFires, addFireToFeed, removeFireToFeed } from '../../reducers/feedFires/service';
 import PopupLogin from '../PopupLogin/PopupLogin';
-import { IndexPage } from '@xr3ngine/social/pages/login';
+// import { IndexPage } from '@xr3ngine/social/pages/login';
 import { selectAuthState } from '../../../user/reducers/auth/selector';
 
 const mapStateToProps = (state: any): any => {
@@ -122,7 +122,7 @@ const FeedCard = (props: Props) : any => {
             </Card>
             <SimpleModal type={'feed-fires'} list={feedFiresState.get('feedFires')} open={openFiredModal} onClose={()=>setOpenFiredModal(false)} />
             <PopupLogin trigger={buttonPopup} setTrigger={setButtonPopup}>
-                <IndexPage />
+                {/* <IndexPage /> */}
             </PopupLogin>
             </>
         :'';

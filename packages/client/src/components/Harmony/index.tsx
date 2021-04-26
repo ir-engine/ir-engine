@@ -56,7 +56,7 @@ import { selectLocationState } from "@xr3ngine/client-core/src/social/reducers/l
 import { banUserFromLocation } from "@xr3ngine/client-core/src/social/reducers/location/service";
 import { selectPartyState } from '@xr3ngine/client-core/src/social/reducers/party/selector';
 import { createParty, getParty, removeParty, removePartyUser, transferPartyOwner } from "@xr3ngine/client-core/src/social/reducers/party/service";
-import ProfileMenu from "@xr3ngine/client-core/src/user/components/UserMenu/menus/AvatarMenu";
+import ProfileMenu from "@xr3ngine/client-core/src/user/components/UserMenu/menus/ProfileMenu";
 import { selectAuthState } from '@xr3ngine/client-core/src/user/reducers/auth/selector';
 import { doLoginAuto } from '@xr3ngine/client-core/src/user/reducers/auth/service';
 import { selectUserState } from '@xr3ngine/client-core/src/user/reducers/user/selector';
@@ -335,7 +335,7 @@ const Harmony = (props: Props): any => {
     }, []);
 
     useEffect(() => {
-        if ((Network.instance.transport as any)?.channelType === 'instance') {
+        if ((Network.instance?.transport as any)?.channelType === 'instance') {
             const channelEntries = [...channels.entries()];
             const instanceChannel = channelEntries.find((entry) => entry[1].instanceId != null);
             if (instanceChannel != null && (MediaStreamSystem.instance.camAudioProducer != null || MediaStreamSystem.instance.camVideoProducer != null)) setActiveAVChannelId(instanceChannel[0]);

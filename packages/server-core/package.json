@@ -33,8 +33,8 @@
   "jest": "ts-jest",
   "scripts": {
     "start": "yarn run build && node dist/server.js",
-    "dev": "cross-env NODE_ENV=development webpack --watch --mode=development",
-    "dev-reinit-db": "cross-env NODE_ENV=development FORCE_DB_REFRESH=true webpack --watch --mode=development",
+    "dev": "cross-env NODE_ENV=development vite",
+    "dev-reinit-db": "cross-env NODE_ENV=development FORCE_DB_REFRESH=true vite",
     "test": "echo \"TODO: no test specified\" && exit 0",
     "build-publish": "rimraf dist && ctix entrypoint ./src && cross-env NODE_ENV=production rollup -c",
     "localbuild": "yarn build && cross-env LOCAL_BUILD=true yarn start",
@@ -56,19 +56,6 @@
     "socket.io": "2.4.1"
   },
   "peerDependencies": {
-    "@feathersjs/authentication": "^4.5.9",
-    "@feathersjs/authentication-local": "^4.5.9",
-    "@feathersjs/authentication-oauth": "^4.5.9",
-    "@feathersjs/cli": "^4.4.0",
-    "@feathersjs/commons": "4.5.11",
-    "@feathersjs/configuration": "^4.5.9",
-    "@feathersjs/errors": "4.5.11",
-    "@feathersjs/express": "^4.5.9",
-    "@feathersjs/feathers": "4.5.11",
-    "@feathersjs/rest-client": "4.5.11",
-    "@feathersjs/socketio": "4.5.11",
-    "@feathersjs/socketio-client": "^4.5.9",
-    "@feathersjs/transport-commons": "^4.5.9",
     "chokidar": "^3.4.2",
     "socket.io": "2.4.1"
   },
@@ -93,7 +80,7 @@
     "bent": "^7.3.0",
     "chargebee": "^2.5.7",
     "dauria": "^2.0.0",
-    "dotenv-flow": "^3.1.0",
+    "dotenv-flow": "^3.2.0",
     "feathers-authentication-hooks": "^1.0.2",
     "feathers-authentication-management": "^3.0.0",
     "feathers-blob": "^2.2.0",
@@ -136,17 +123,13 @@
     "@typescript-eslint/parser": "4.22.0",
     "app-root-path": "3.0.0",
     "cross-env": "7.0.3",
-    "eslint": "7.24.0",
+    "eslint": "7.25.0",
     "no-master-commits": "1.1.1",
-    "rollup-plugin-babel": "4.4.0",
     "rollup-plugin-livereload": "2.0.0",
     "rollup-plugin-terser": "7.0.2",
     "rollup-plugin-typescript2": "0.30.0",
-    "ts-loader": "9.1.0",
-    "typedoc": "0.20.35",
-    "typescript": "4.2.4",
-    "webpack": "5.35.0",
-    "webpack-cli": "^4.6.0"
+    "typedoc": "0.20.36",
+    "typescript": "4.2.4"
   },
   "gitHead": "5ff55be1619e188226c4ac91c92a44b7ba18edf4"
 }

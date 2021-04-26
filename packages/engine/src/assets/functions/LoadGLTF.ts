@@ -2,7 +2,6 @@ import { AmbientLight, DirectionalLight, PointLight } from 'three';
 import { isClient } from "../../common/functions/isClient";
 import { DRACOLoader } from "../loaders/gltf/DRACOLoader";
 import { GLTFLoader } from "../loaders/gltf/GLTFLoader";
-import NodeDRACOLoader from "../loaders/gltf/NodeDRACOLoader";
 
 /**
  * Interface for result of the GLTF Asset load.
@@ -15,12 +14,12 @@ export interface LoadGLTFResultInterface {
 
 const loader = new GLTFLoader();
 let dracoLoader = null;
+dracoLoader = new DRACOLoader();
+
 if(isClient) {
-    dracoLoader = new DRACOLoader();
     dracoLoader.setDecoderPath('/loader_decoders/');
 }
 else {
-    dracoLoader = new NodeDRACOLoader();
     (dracoLoader as any).getDecoderModule = () => {};
     (dracoLoader as any).preload = () => {};
 }

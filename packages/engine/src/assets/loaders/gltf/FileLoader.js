@@ -1,11 +1,6 @@
 import { Cache, Loader } from 'three';
 import fetch from "cross-fetch"
 
-if(process.env.NODE_ENV !== "production") {
-	// Don't know why but below line is causing error during build process
-	// process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
-}
-
 const loading = {};
 
 function FileLoader(manager) {
