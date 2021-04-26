@@ -11,6 +11,9 @@ import { styleCanvas } from '@xrengine/engine/src/renderer/functions/styleCanvas
 import { createPanelComponent } from '@xrengine/engine/src/ui/functions/createPanelComponent';
 import { XRSystem } from '@xrengine/engine/src/xr/systems/XRSystem';
 import React, { useEffect, useState } from 'react';
+import { TransformComponent } from '@xr3ngine/engine/src/transform/components/TransformComponent';
+import { DesiredTransformComponent } from '@xr3ngine/engine/src/transform/components/DesiredTransformComponent';
+import { Vector3, Quaternion, Euler } from 'three';
 
 const MobileGamepad = React.lazy(() => import("@xrengine/client-core/src/common/components/MobileGamepad"));
 const engineRendererCanvasId = 'engine-renderer-canvas';
@@ -67,7 +70,14 @@ export const OfflineEnginePage = (props: Props) => {
 
     EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.JOINED_WORLD, worldState });
 
-    createPanelComponent({ panel: new UIGallery() });
+    const panel = new UIGallery();
+    // const transform = new TransformComponent();
+    const sourcePosition = new Vector3(0, 1, 0);
+    const destinationPosition = new Vector3(0, 0, 0);
+    
+    createPanelComponent({ panel: panel, parent: null, sourcePosition: sourcePosition, destinationPosition: destinationPosition });
+    // createPanelComponent({ panel: new UIGallery() });
+    // createPanelComponent({ panel: new UIGallery() });
   }
 
   const addUIEvents = () => {
