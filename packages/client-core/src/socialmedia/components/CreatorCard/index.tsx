@@ -61,7 +61,7 @@ const CreatorCard = ({creator,creatorState, updateCreatorPageState, popupsState,
     const [isMe, setIsMe] = useState(creatorState && creatorState?.get('currentCreator') && creator.id === creatorState.get('currentCreator').id ? true : false);
     useEffect(()=>{
         setIsMe(creatorState && creatorState?.get('currentCreator') && creator.id === creatorState.get('currentCreator').id ? true : false);
-    },[creator.id])
+    },[creator.id]);
     // const [openFiredModal, setOpenFiredModal] = useState(false);
     // const [creatorsType, setCreatorsType] = useState('followers');
 
@@ -115,13 +115,14 @@ const CreatorCard = ({creator,creatorState, updateCreatorPageState, popupsState,
             : 
             <></>;
 
-    useEffect(()=>{renderModal()}, [popupsState?.get('creatorForm')]);
+    const creatorFormState = popupsState?.get('creatorForm');
+    useEffect(()=>{renderModal();}, [creatorFormState]);
 
 
     const renderEditButton = () =>isMe && 
         <Button variant="text" className={styles.moreButton} aria-controls="owner-menu" aria-haspopup="true" 
             onClick={()=>{updateCreatorFormState(true);}}><MoreHorizIcon />
-        </Button>
+        </Button>;
 
     useEffect(()=> {renderEditButton();}, [isMe]);
 
