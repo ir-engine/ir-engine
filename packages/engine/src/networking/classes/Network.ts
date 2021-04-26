@@ -7,7 +7,7 @@ import { NetworkTransport } from '../interfaces/NetworkTransport';
 import { WorldStateInterface } from "../interfaces/WorldState";
 import { Snapshot } from "../types/SnapshotDataTypes";
 import SocketIO from "socket.io";
-import { GameStateActionMessage, GameStateUpdateMessage } from '../../game/types/GameMessage';
+import { GameStateActionMessage, GameStateUpdateMessage, ClientGameActionMessage } from '../../game/types/GameMessage';
 import { GameMode } from "../../game/types/GameMode";
 import { DefaultGameMode } from "../../templates/game/DefaultGameMode";
 import { DefaultGameStateAction } from "../../templates/game/DefaultGameStateAction";
@@ -65,6 +65,7 @@ export class Network {
 
   /** Current game state */
   gameState: GameStateUpdateMessage[] = []
+  clientGameAction: ClientGameActionMessage[] = []
 
   /** Game mode mapping schema */
   loadedGames: Entity[] = []; // its for network

@@ -1,5 +1,10 @@
 
 
+export interface ClientGameActionMessage {
+  type: string
+  game: string
+  ownerId: string
+}
 
 export interface StorageElement {
   component: string

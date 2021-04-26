@@ -107,6 +107,7 @@ export function applyNetworkStateToClient(worldStateBuffer: WorldStateInterface,
     if (worldStateBuffer.gameState && worldStateBuffer.gameState.length > 0) {
       worldStateBuffer.gameState.forEach((stateMessage: GameStateUpdateMessage) => {
         if (Network.instance.userId === stateMessage.ownerId) { // DOTO: test, with and without
+          console.warn('get message', stateMessage);
           applyStateToClient(stateMessage);
         }
       });

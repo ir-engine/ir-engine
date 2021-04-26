@@ -2,6 +2,7 @@ import { Entity } from '../../ecs/classes/Entity';
 import { Component } from "../../ecs/classes/Component";
 import { ComponentConstructor } from '../../ecs/interfaces/ComponentInterfaces';
 import { isServer } from '../../common/functions/isServer';
+import { isClient } from '../../common/functions/isClient';
 
 import { GamesSchema } from "../../templates/game/GamesSchema";
 import { Network } from "../../networking/classes/Network";
@@ -12,7 +13,7 @@ import { GamePlayer } from "../components/GamePlayer";
 
 import { addComponent, getComponent, getMutableComponent, hasComponent, removeComponent } from '../../ecs/functions/EntityFunctions';
 import { getHisGameEntity, getHisEntity, getRole, getGame, getUuid } from './functions';
-import { GameStateUpdateMessage } from "../types/GameMessage";
+import { GameStateUpdateMessage, ClientGameActionMessage } from "../types/GameMessage";
 
 import { Open } from "../../templates/game/gameDefault/components/OpenTagComponent";
 import { Closed } from "../../templates/game/gameDefault/components/ClosedTagComponent";
@@ -46,7 +47,15 @@ export const reInitState = (game: Game): void => {
 export const sendState = (game: Game, playerComp: GamePlayer): void => {
   if (isServer && game.isGlobal) {
     const message: GameStateUpdateMessage = { game: game.name, ownerId: playerComp.uuid, state: game.state };
+    console.warn('sendState', message);
     Network.instance.worldState.gameState.push(message);
+  }
+};
+
+export const requireState = (game: Game, playerComp: GamePlayer): void => {
+  if (isClient && game.isGlobal && playerComp.uuid === Network.instance.userId) {
+    const message: ClientGameActionMessage = { type: 'require', game: game.name, ownerId: playerComp.uuid };
+    Network.instance.clientGameAction.push(message);
   }
 };
 
@@ -54,8 +63,8 @@ export const applyStateToClient = (stateMessage: GameStateUpdateMessage): void =
   const entity = getHisGameEntity(stateMessage.game);
   const game = getMutableComponent(entity, Game)
   game.state = stateMessage.state;
+  console.warn('applyStateToClient', game.state);
   applyState(game);
-  console.warn('applyStateToClient', applyStateToClient);
 };
 
 export const applyState = (game: Game): void => {
@@ -74,11 +83,21 @@ export const applyState = (game: Game): void => {
         hasComponent(entity, component ) ? removeComponent(entity, component):'';
       });
       // add all states
+    //  console.warn('// add all states');
+    //  console.warn(uuid);
       const stateObject = game.state.find((v: StateObject) => v.uuid === uuid);
-      stateObject.components.forEach((componentName: string) => addComponent(entity, gameStateComponents[componentName] ));
+    //  console.warn(stateObject);
+      if (stateObject != undefined) {
+        stateObject.components.forEach((componentName: string) => {
+          addComponent(entity, gameStateComponents[componentName] );
+        });
+      } else {
+        console.warn('state players dont worl yet');
+      }
     })
   })
-  console.warn('applyState', applyStateToClient);
+
+  console.warn('applyState', game.state);
 };
 
 export const correctState = (): void => {

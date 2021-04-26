@@ -14,6 +14,7 @@ const storageSchema = new Schema({
 
 const stateSchema = new Schema({
   uuid: string,
+  role: string,
   components: [string],
   storage: [storageSchema]
 });

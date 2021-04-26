@@ -6,6 +6,9 @@ import { addComponent, getComponent, getMutableComponent, hasComponent, removeCo
 import { Closed } from "../components/ClosedTagComponent";
 import { Open } from "../components/OpenTagComponent";
 
+import { initState, saveInitStateCopy, reInitState, sendState, requireState, applyStateToClient, correctState, addStateComponent, removeStateComponent  } from '../../../../game/functions/functionsState';
+import { initStorage, getStorage } from '../../../../game/functions/functionsStorage';
+
 /**
  * @author HydraFire <github.com/HydraFire>
  */
@@ -17,16 +20,16 @@ export const openOrCloseDoor: Behavior = (entity: Entity, args?: any, delta?: nu
    let position = getMutableComponent(entityOther, TransformComponent).position;
 
    if(args.action === 'close') {
-     removeComponent(entityOther, Open);
-     addComponent(entityOther, Closed);
+     removeStateComponent(entityOther, Open);
+     addStateComponent(entityOther, Closed);
      position.set(
        position.x,
        position.y,
        position.z - g
      );
    } else if(args.action === 'open') {
-     removeComponent(entityOther, Closed);
-     addComponent(entityOther, Open);
+     removeStateComponent(entityOther, Closed);
+     addStateComponent(entityOther, Open);
      position.set(
        position.x,
        position.y,

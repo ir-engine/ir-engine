@@ -14,7 +14,7 @@ export const initStorage = (entity: Entity, initSchemaStorege: InitStorageInterf
     objectState.storage = initSchemaStorege.map(v => {
       const temp = getComponent(entity, v.component);
       const readyValues = v.variables.reduce((acc, variable) => Object.assign(acc, { [variable]: temp[variable] }),{})
-      return { component: v.component.name, variables: JSON.stringify(readyValues)};
+      return { component: v.component.name, variables: 'position, x:1, y: 0, z: 5'/*JSON.stringify(readyValues)*/};
     })
     console.warn('initStorage');
   } else {

@@ -1,6 +1,6 @@
 import { LifecycleValue } from "../../common/enums/LifecycleValue";
 import { NumericalType } from "../../common/types/NumericalTypes";
-import { GameStateActionMessage, GameStateUpdateMessage } from '../../game/types/GameMessage';
+import { GameStateActionMessage, GameStateUpdateMessage, ClientGameActionMessage } from '../../game/types/GameMessage';
 import { InputAlias } from "../../input/types/InputAlias";
 import { StateEntityGroup, StateEntityIKGroup } from "../types/SnapshotDataTypes";
 
@@ -40,8 +40,8 @@ export interface NetworkInputInterface {
   /** Viewport vector of the client. */
   viewVector: {  x: number, y: number, z: number  },
   snapShotTime: number,
-  characterState: number
-
+  characterState: number,
+  clientGameAction: ClientGameActionMessage[]
 }
 
 /** Interface for handling client network input. */

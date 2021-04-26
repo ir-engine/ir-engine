@@ -5,6 +5,10 @@ import { Vector3, Quaternion, Matrix4 } from 'three';
 import { TransformComponent } from '../../../../transform/components/TransformComponent';
 import { ButtonUp } from "../components/ButtonUpTagComponent";
 import { ButtonDown } from "../components/ButtonDownTagComponent";
+
+
+import { initState, saveInitStateCopy, reInitState, sendState, requireState, applyStateToClient, correctState, addStateComponent, removeStateComponent  } from '../../../../game/functions/functionsState';
+import { initStorage, getStorage } from '../../../../game/functions/functionsStorage';
 /**
  * @author HydraFire <github.com/HydraFire>
  */
@@ -17,16 +21,16 @@ export const upDownButton: Behavior = (entity: Entity, args?: any, delta?: numbe
   let position = getMutableComponent(entity, TransformComponent).position;
 
   if(args.action === 'down') {
-    removeComponent(entity, ButtonUp);
-    addComponent(entity, ButtonDown);
+    removeStateComponent(entity, ButtonUp);
+    addStateComponent(entity, ButtonDown);
     position.set(
       position.x,
       position.y - g,
       position.z
     );
   } else if(args.action === 'up') {
-    removeComponent(entity, ButtonDown);
-    addComponent(entity, ButtonUp);
+    removeStateComponent(entity, ButtonDown);
+    addStateComponent(entity, ButtonUp);
     position.set(
       position.x,
       position.y + g,

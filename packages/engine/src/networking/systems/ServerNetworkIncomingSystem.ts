@@ -23,6 +23,8 @@ import { NetworkSchema } from "../interfaces/NetworkSchema";
 import { NetworkClientInputInterface } from "../interfaces/WorldState";
 import { ClientInputModel } from '../schema/clientInputSchema';
 import { WorldStateModel } from '../schema/worldStateSchema';
+import { GamePlayer } from '../../game/components/GamePlayer';
+import { sendState } from '../../game/functions/functionsState';
 
 // function switchInputs(clientInput) {
 //   if (hasComponent(Network.instance.networkObjects[clientInput.networkId].component.entity, PlayerInCar)) {
@@ -145,6 +147,16 @@ export class ServerNetworkIncomingSystem extends System {
       if (Network.instance.networkObjects[clientInput.networkId] === undefined) {
         console.error('Network object not found for networkId', clientInput.networkId);
         return;
+      }
+
+      if (clientInput.clientGameAction.length > 0) {
+        clientInput.clientGameAction.forEach( action => {
+          if (action.type === 'require') {
+            const entity = Network.instance.networkObjects[clientInput.networkId].component.entity;
+            const playerComp = getComponent<GamePlayer>(entity, GamePlayer);
+            sendState(playerComp.game, playerComp);
+          }
+        })
       }
 
       const actor = getMutableComponent(Network.instance.networkObjects[clientInput.networkId].component.entity, CharacterComponent);

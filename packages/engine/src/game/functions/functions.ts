@@ -9,7 +9,6 @@ import { GameObject } from "../components/GameObject";
 import { GamePlayer } from "../components/GamePlayer";
 
 export const getHisGameEntity = (name: string): Entity => {
-  console.warn(GameManagerSystem.createdGames, name);
   return GameManagerSystem.createdGames.find(entity => getComponent(entity, Game).name === name);
 };
 

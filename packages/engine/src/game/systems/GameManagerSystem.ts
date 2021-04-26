@@ -11,7 +11,7 @@ import { GamePlayer } from "../components/GamePlayer";
 
 import { addComponent, getComponent, getMutableComponent, hasComponent, removeComponent } from '../../ecs/functions/EntityFunctions';
 import { addActionComponent, sendActionComponent, applyActionComponent } from '../functions/functionsActions';
-import { initState, saveInitStateCopy, reInitState, sendState, applyStateToClient, correctState, addStateComponent, removeStateComponent  } from '../functions/functionsState';
+import { initState, saveInitStateCopy, reInitState, sendState, requireState, applyStateToClient, correctState, addStateComponent, removeStateComponent  } from '../functions/functionsState';
 import { initStorage, getStorage } from '../functions/functionsStorage';
 
 import { GameMode, RoleBehaviorWithTarget, RoleBehaviors, GameRolesInterface } from "../../game/types/GameMode";
@@ -97,7 +97,6 @@ export class GameManagerSystem extends System {
                 role: Object.keys(gameSchema.gamePlayerRoles)[0],
                 uuid: getComponent(v.entity, NetworkObject).ownerId
               });
-              console.warn(getComponent(v.entity, GamePlayer));
             } else if (!v.inGameArea && hasComponent(v.entity, GamePlayer)) {
               if (getComponent(v.entity, GamePlayer).game.name === game.name) {
                 removeComponent(v.entity, GamePlayer);
@@ -125,7 +124,6 @@ export class GameManagerSystem extends System {
       });
 
       this.queryResults.gamePlayers.added?.forEach(entity => {
-        console.warn('test', getComponent(entity, GamePlayer).game.name, game.name);
         if (getComponent(entity, GamePlayer).game.name != game.name) return;
         console.warn('gamePlayers.added');
         // befor adding first player
@@ -137,9 +135,10 @@ export class GameManagerSystem extends System {
         const schema = gameSchema.initGameState[playerComp.role];
         if (schema != undefined) {
           schema.components.forEach(component => addStateComponent(entity, component));
-          initStorage(entity, schema.storage);
+          //initStorage(entity, schema.storage);
         }
-        sendState(game, playerComp);
+        console.warn(game.state);
+        requireState(game, playerComp);
       });
 
       const executeComplexResult = [];
