@@ -37,6 +37,7 @@ import { CollisionGroups } from '../../../physics/enums/CollisionGroups';
 import { InterpolationInterface } from '../../../physics/interfaces/InterpolationInterface';
 import { characterCorrectionBehavior } from '../behaviors/characterCorrectionBehavior';
 import { characterInterpolationBehavior } from '../behaviors/characterInterpolationBehavior';
+import { Controller } from '@xr3ngine/three-physx';
 
 export class AnimationManager {
 	static _instance: AnimationManager;
@@ -206,6 +207,21 @@ const initializeCharacter: Behavior = (entity): void => {
 	actor.initialized = true;
 
   addComponent(entity, AnimationComponent);
+
+  const collider = getMutableComponent<ControllerColliderComponent>(entity, ControllerColliderComponent);
+  collider.controller = PhysicsSystem.instance.createController(new Controller({
+    isCapsule: true,
+    collisionLayer: CollisionGroups.Characters,
+    collisionMask: CollisionGroups.All,//CollisionGroups.Default | CollisionGroups.Characters | CollisionGroups.Car | CollisionGroups.TrimeshColliders,
+    position: {
+      x: transform.position.x,
+      y: transform.position.y + 1,
+      z: transform.position.z
+    },
+    material: {
+      dynamicFriction: collider.friction,
+    }
+  }));
 
   initializeMovingState(entity)
 

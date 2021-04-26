@@ -55,7 +55,7 @@ export class CharacterComponent extends Component<CharacterComponent> {
 	 * probably does not represent real physics speed
 	 */
 	public velocity: Vector3 = new Vector3();
-	public arcadeVelocityInfluence: Vector3 = new Vector3();
+	public arcadeVelocityInfluence: Vector3 = new Vector3(1, 0, 1);
 	public velocityTarget: Vector3 = new Vector3();
 
 	public currentInputHash: any = ""

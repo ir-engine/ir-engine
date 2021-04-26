@@ -94,7 +94,7 @@ export const physicsMove = (entity: Entity, deltaTime): void => {
     }
 
     if (actor.localMovementDirection.y > 0 && !actor.isJumping) {
-      collider.controller.velocity.y += 2.5 * deltaTime;
+      collider.controller.velocity.y = 5 * deltaTime;
       actor.isJumping = true;
       actor.isGrounded = false;
     }
