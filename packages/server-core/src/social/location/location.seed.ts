@@ -15,7 +15,7 @@ export const locationSeed = {
           maxUsersPerInstance: 30,
           sceneId: 'j9o2NLiD',
           location_setting: locationSettingsSeed.templates.find(template => template.locationId === '98cbcc30-fd2d-11ea-bc7c-cd4cac9a8d61'),
-          isLobby: true,
+          isLobby: false,
       }
     ]
 };

@@ -1,3 +1,10 @@
+import dotenv from 'dotenv-flow';
+if (process.env.KUBERNETES !== 'true') {
+  dotenv.config({
+    path: appRootPath.path
+  });
+}
+
 /* eslint-disable @typescript-eslint/restrict-template-expressions */
 import appRootPath from 'app-root-path';
 import * as chargebeeInst from 'chargebee';

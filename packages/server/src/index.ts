@@ -1,17 +1,10 @@
-import dotenv from 'dotenv-flow';
-if (process.env.KUBERNETES !== 'true') {
-  dotenv.config({
-    path: appRootPath.path
-  });
-}
-
+import config from '@xr3ngine/server-core/src/appconfig';
 import appRootPath from 'app-root-path';
 import fs from 'fs';
 import https from 'https';
 import path from 'path';
 import app from './app';
 import logger from '@xr3ngine/server-core/src/logger';
-import config from '@xr3ngine/server-core/src/appconfig';
 import psList from 'ps-list';
 
 process.on('unhandledRejection', (error, promise) => {
