@@ -11,6 +11,8 @@ import { UI_ELEMENT_SELECT_STATE } from "../classes/UIBaseElement";
 import { InputValue } from "../../input/interfaces/InputValue";
 import { NumericalType } from "../../common/types/NumericalTypes";
 import { LifecycleValue } from "../../common/enums/LifecycleValue";
+import { DesiredTransformComponent } from '../../transform/components/DesiredTransformComponent';
+import { TransformComponent } from '../../transform/components/TransformComponent';
 
 const getUIPanelFromHit = (hit: any) => {
   if (!( hit instanceof Block )) {
@@ -76,6 +78,27 @@ export class UIPanelSystem extends System {
     this.queryResults.panels?.removed?.forEach((entity: Entity) => {
       const uiPanel = getComponent(entity, UIPanelComponent);
       this.panelContainer.remove(uiPanel.panel);
+    })
+
+    this.queryResults.panels?.all?.forEach((entity: Entity) => {
+      const transform = getComponent(entity, TransformComponent);
+      const desiredTransform = getComponent(entity, DesiredTransformComponent);
+
+      console.log('Transform: ', transform.position);
+      console.log('DesiredTransform: ', desiredTransform.position);
+
+      const component = getComponent(entity, UIPanelComponent);
+      console.log('component: ', component);
+
+      var currentdate = new Date(); 
+      var datetime = "Last Sync: " + currentdate.getDate() + "/"
+                + (currentdate.getMonth()+1)  + "/" 
+                + currentdate.getFullYear() + " @ "  
+                + currentdate.getHours() + ":"  
+                + currentdate.getMinutes() + ":" 
+                + currentdate.getSeconds();
+
+      console.log('current time: ', datetime);
     })
 
     this.doRaycasts() 

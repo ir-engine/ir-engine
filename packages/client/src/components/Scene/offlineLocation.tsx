@@ -13,6 +13,9 @@ import { createPanelComponent } from '@xr3ngine/engine/src/ui/functions/createPa
 import { XRSystem } from '@xr3ngine/engine/src/xr/systems/XRSystem';
 import dynamic from 'next/dynamic';
 import React, { useEffect, useState } from 'react';
+import { TransformComponent } from '@xr3ngine/engine/src/transform/components/TransformComponent';
+import { DesiredTransformComponent } from '@xr3ngine/engine/src/transform/components/DesiredTransformComponent';
+import { Vector3, Quaternion, Euler } from 'three';
 
 const MobileGamepad = dynamic<MobileGamepadProps>(() => import("@xr3ngine/client-core/src/common/components/MobileGamepad").then((mod) => mod.MobileGamepad), { ssr: false });
 const engineRendererCanvasId = 'engine-renderer-canvas';
@@ -69,7 +72,14 @@ export const OfflineEnginePage = (props: Props) => {
 
     EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.JOINED_WORLD, worldState });
 
-    createPanelComponent({ panel: new UIGallery() });
+    const panel = new UIGallery();
+    // const transform = new TransformComponent();
+    const sourcePosition = new Vector3(0, 1, 0);
+    const destinationPosition = new Vector3(0, 0, 0);
+    
+    createPanelComponent({ panel: panel, parent: null, sourcePosition: sourcePosition, destinationPosition: destinationPosition });
+    // createPanelComponent({ panel: new UIGallery() });
+    // createPanelComponent({ panel: new UIGallery() });
   }
 
   const addUIEvents = () => {
