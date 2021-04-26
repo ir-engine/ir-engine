@@ -26,6 +26,7 @@ import TextField from '@material-ui/core/TextField';
 import { bindActionCreators, Dispatch } from 'redux';
 import { selectCreatorsState } from '../../reducers/creator/selector';
 import { updateCreator } from '../../reducers/creator/service';
+import { updateCreatorFormState } from '../../reducers/popupsState/service';
 
 const mapStateToProps = (state: any): any => {
     return {
@@ -34,16 +35,19 @@ const mapStateToProps = (state: any): any => {
   };
 
   const mapDispatchToProps = (dispatch: Dispatch): any => ({
-      updateCreator: bindActionCreators(updateCreator, dispatch)
+      updateCreator: bindActionCreators(updateCreator, dispatch),
+      updateCreatorFormState: bindActionCreators(updateCreatorFormState, dispatch),
 });
   interface Props{
     creatorData?:any;
     creatorsState?: any;
-    updateCreator?: typeof updateCreator;   
+    updateCreator?: typeof updateCreator;  
+    updateCreatorFormState?: typeof updateCreatorFormState; 
   }
   
-const CreatorForm = ({creatorData, creatorsState, updateCreator}:Props) => {
+const CreatorForm = ({creatorData, creatorsState, updateCreator, updateCreatorFormState}:Props) => {
     const history = useHistory();
+    const avatarRef = React.useRef<HTMLInputElement>();
     const [creator, setCreator] = useState(creatorData ? creatorData : creatorsState && creatorsState.get('currentCreator')); 
     const handleUpdateUser = (e:any) =>{
         e.preventDefault();
@@ -58,7 +62,7 @@ const CreatorForm = ({creatorData, creatorsState, updateCreator}:Props) => {
           onSubmit={(e) => handleUpdateUser(e)}
         >
             <nav className={styles.headerContainer}>               
-                {!creatorData && <Button variant="text" className={styles.backButton} onClick={()=>history.push('/')}><ArrowBackIosIcon />Back</Button>}
+                {!creatorData && <Button variant="text" className={styles.backButton} onClick={()=>updateCreatorFormState(false)}><ArrowBackIosIcon />Back</Button>}
                 {!creatorData && <Typography variant="h2" className={styles.pageTitle}>Edit Profile</Typography>}
                 <Button variant="text" type="submit" className={styles.saveButton}>Save</Button>
             </nav>  
@@ -67,8 +71,8 @@ const CreatorForm = ({creatorData, creatorsState, updateCreator}:Props) => {
                 image={creator.avatar}
                 title={creator.username}
             />
-            <Typography variant="h4" align="center" color="secondary" >Change Profile Image</Typography>
-            <input type="file" name="newAvatar" onChange={handlePickAvatar} placeholder={'Select preview'}/>
+            <Typography variant="h6" align="center" onClick={()=>{(avatarRef.current as HTMLInputElement).click();}}>Change avatar image</Typography>
+            <input  className={styles.displayNone} type="file" ref={avatarRef} name="newAvatar" onChange={handlePickAvatar} placeholder={'Select preview'}/>
             <section className={styles.content}>
                 <div className={styles.formLine}>
                     <AccountCircle className={styles.fieldLabelIcon} />
