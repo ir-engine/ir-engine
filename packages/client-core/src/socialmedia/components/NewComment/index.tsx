@@ -40,7 +40,7 @@ const NewComment = ({addCommentToFeed, feedId, authState}:Props) => {
         composingComment.trim().length > 0 && addCommentToFeed(feedId, composingComment);
         setComposingComment('');
     };
-    const checkGuest = authState.get('authUser')?.identityProvider.type === 'guest' ? true : false;
+    const checkGuest = authState.get('authUser')?.identityProvider?.type === 'guest' ? true : false;
 
     return  <section className={styles.messageContainer}>
                 <TextField ref={commentRef} 
