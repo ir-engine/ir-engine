@@ -33,7 +33,7 @@
   "peerDependencies": {
     "@typescript-eslint/eslint-plugin": "^4.6.0",
     "@typescript-eslint/parser": "^4.4.1",
-    "three": "^0.127.0"
+    "three": "^0.128.0"
   },
   "dependencies": {
     "@pixiv/three-vrm": "^0.6.0",

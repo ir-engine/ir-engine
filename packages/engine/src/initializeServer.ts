@@ -20,6 +20,7 @@ import { StateSystem } from './state/systems/StateSystem';
 import { TransformSystem } from './transform/systems/TransformSystem';
 import Worker from 'web-worker'
 // import { PositionalAudioSystem } from './audio/systems/PositionalAudioSystem';
+import path from 'path';
 
 Mesh.prototype.raycast = acceleratedRaycast;
 BufferGeometry.prototype["computeBoundsTree"] = computeBoundsTree;
@@ -43,8 +44,9 @@ export const initializeServer = async (initOptions: any = DefaultInitializationO
   registerSystem(MediaStreamSystem);
   registerSystem(StateSystem);
 
+  const currentPath = path.dirname(__filename);
   // replace this with vite worker once webpack is gone
-  await PhysXInstance.instance.initPhysX(new Worker(new URL("./physics/functions/loadPhysX.ts", import.meta.url)), { });
+  await PhysXInstance.instance.initPhysX(new Worker(currentPath + "/physics/functions/loadPhysX.js"), { });
   registerSystem(PhysicsSystem);
   registerSystem(CharacterControllerSystem);
 
