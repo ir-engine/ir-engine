@@ -56,12 +56,12 @@
   ],
   "resolutions": {
     "regenerator-runtime": "0.13.7",
-    "socket.io": "2.4.1"
+    "socket.io": "4.0.1"
   },
   "peerDependencies": {
     "chokidar": "^3.4.2",
     "regenerator-runtime": "^0.13.7",
-    "socket.io": "2.4.1"
+    "socket.io": "4.0.1"
   },
   "dependencies": {
     "@feathersjs/authentication": "4.5.11",
