@@ -3,10 +3,10 @@ import "@xr3ngine/native-plugin-xr/src/index.ts";
 import React, { useEffect, useState } from 'react';
 import {
     AxesHelper,
-    BoxGeometry, CameraHelper,
-    GridHelper, Group, Matrix4,
+    BoxGeometry, CameraHelper, Color,
+    GridHelper, Group,
     Mesh,
-    MeshBasicMaterial,
+    MeshBasicMaterial, OrthographicCamera,
     PerspectiveCamera,
     Quaternion,
     Scene,
@@ -28,75 +28,137 @@ enum RecordingStates {
 const meshFilePath = typeof location !== 'undefined' ? location.origin + "/volumetric/liam.drcs" : "";
 const videoFilePath = typeof location !== 'undefined' ? location.origin + "/volumetric/liam.mp4" : "";
 const PI2 = Math.PI * 2;
-const testData = {
-    cameraIntrinsics: null,
-    checkpoints: [],
-};
-const cameraLink = {
-    camera: null
-};
+
+const correctionQuaternionZ = new Quaternion().setFromAxisAngle(new Vector3(0,0,1), Math.PI/2);
+
+const _DEBUG = false;
+const DEBUG_MINI_VIEWPORT_SIZE = 100;
 
 export const IndexPage = (): any => {
     const [initializationResponse, setInitializationResponse] = useState("");
     const [cameraStartedState, setCameraStartedState] = useState("");
     const [cameraPoseState, setCameraPoseState] = useState("");
-    const [cameraPoseRState, setCameraPoseRState] = useState("");
     const [anchorPoseState, setAnchorPoseState] = useState("");
     const [intrinsicsState, setCameraIntrinsicsState] = useState("");
     const [savedFilePath, setSavedFilePath] = useState("");
 
     const [recordingState, setRecordingState] = useState(RecordingStates.OFF);
-    let renderer, scene, camera, camera2;
+    let renderer: WebGLRenderer, scene: Scene, camera: PerspectiveCamera;
+    const debugCamera: {
+        userCameraHelper: CameraHelper,
+        overview: PerspectiveCamera,
+        xz: OrthographicCamera
+        xy: OrthographicCamera
+        zy: OrthographicCamera
+    } = {
+        userCameraHelper: null,
+        overview: null,
+        xz: null,
+        xy: null,
+        zy: null
+    }
+
     const raf = () => {
-        renderer.render(scene, camera2);
+
+        renderer.render(scene, camera);
+
+        if (_DEBUG) {
+            const clearColor = new Color();
+            renderer.getClearColor(clearColor);
+            const clearAlpha = renderer.getClearAlpha();
+
+            debugCamera.userCameraHelper.visible = true;
+
+            renderer.setScissorTest(true);
+            renderer.setClearColor(0xa0a0a0, 1);
+
+            renderer.setViewport(10, 10 * 2 + DEBUG_MINI_VIEWPORT_SIZE, DEBUG_MINI_VIEWPORT_SIZE, DEBUG_MINI_VIEWPORT_SIZE);
+            renderer.setScissor(10, 10 * 2 + DEBUG_MINI_VIEWPORT_SIZE, DEBUG_MINI_VIEWPORT_SIZE, DEBUG_MINI_VIEWPORT_SIZE);
+            renderer.render(scene, debugCamera.overview);
+
+            [debugCamera.xz, debugCamera.xy, debugCamera.zy].forEach((cam, index) => {
+                const left = 10 + (DEBUG_MINI_VIEWPORT_SIZE + 10) * index;
+                renderer.setViewport(left, 10, DEBUG_MINI_VIEWPORT_SIZE, DEBUG_MINI_VIEWPORT_SIZE);
+                renderer.setScissor(left, 10, DEBUG_MINI_VIEWPORT_SIZE, DEBUG_MINI_VIEWPORT_SIZE);
+                renderer.render(scene, cam);
+            });
+
+            // reset changes
+            debugCamera.userCameraHelper.visible = false;
+            renderer.setClearColor(clearColor, clearAlpha);
+            renderer.setScissorTest(false);
+            renderer.setViewport(0, 0, window.innerWidth, window.innerHeight);
+        }
+
         requestAnimationFrame(raf);
     };
     useEffect(() => {
         (async function () {
             scene = new Scene();
-            //scene.rotation.z = Math.PI / 2;
+
+            if (_DEBUG) {
+                debugCamera.xz = new OrthographicCamera(2, -2, 2, -2, 0.001, 100);
+                debugCamera.xz.position.y = 10;
+                debugCamera.xz.rotateX(-Math.PI / 2);
+
+                debugCamera.xy = new OrthographicCamera(2, -2, 2, -2, 0.001, 100);
+                debugCamera.xy.position.z = 10;
+
+                debugCamera.zy = new OrthographicCamera(2, -2, 2, -2, 0.001, 100);
+                debugCamera.zy.position.x = 10;
+                debugCamera.zy.rotateY(Math.PI / 2);
+            }
 
             const geometry = new BoxGeometry(.1, .1, .1);
             const materialX = new MeshBasicMaterial({ color: 0xff0000 });
             const materialY = new MeshBasicMaterial({ color: 0x00ff00 });
             const materialZ = new MeshBasicMaterial({ color: 0x0000ff });
+            const materialC = new MeshBasicMaterial({ color: 0xffffff });
             const anchor = new Group();
-            anchor.add(new AxesHelper(0.25));
+            anchor.add(new AxesHelper(0.3));
+            const anchorC = new Mesh(geometry, materialC);
+            anchor.add(anchorC);
             const anchorX = new Mesh(geometry, materialX);
-            anchorX.position.x = 1;
+            anchorX.position.x = 0.3;
             anchor.add(anchorX);
             const anchorY = new Mesh(geometry, materialY);
-            anchorY.position.y = 1;
+            anchorY.position.y = 0.3;
             anchor.add(anchorY);
             const anchorZ = new Mesh(geometry, materialZ);
-            anchorZ.position.z = 1;
+            anchorZ.position.z = 0.3;
             anchor.add(anchorZ);
 
-            camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.001, 1);
-            cameraLink.camera = camera;
+            scene.add(new AxesHelper(0.2));
 
-            camera2 = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.001, 100);
-            camera2.position.set(3,3,3);
-            camera2.lookAt(new Vector3());
-            //scene.background = null;
-            renderer = new WebGLRenderer({ alpha: false });
+            camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.001, 100);
+
+            if (_DEBUG) {
+                debugCamera.overview = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.001, 100);
+                debugCamera.overview.position.set(3, 3, 3);
+                debugCamera.overview.lookAt(new Vector3());
+            }
+            scene.background = null;
+            renderer = new WebGLRenderer({ alpha: true });
             renderer.setSize(window.innerWidth, window.innerHeight);
             document.body.appendChild(renderer.domElement);
-            renderer.domElement.style.position = "absolute";
+            renderer.domElement.style.position = "fixed";
             renderer.domElement.style.width = "100vw";
             renderer.domElement.style.height = "100vh";
             renderer.domElement.style.zIndex = "-1";
 
-            renderer.domElement.style.top = 0;
-            renderer.domElement.style.margin = 0;
-            renderer.domElement.style.padding = 0;
+            renderer.domElement.style.top = "0";
+            renderer.domElement.style.left = "0";
+            renderer.domElement.style.margin = "0";
+            renderer.domElement.style.padding = "0";
             scene.add(camera);
 
-            const ch = new CameraHelper(camera);
-            scene.add(ch);
+            if (_DEBUG) {
+                debugCamera.userCameraHelper = new CameraHelper(camera);
+                scene.add(debugCamera.userCameraHelper);
+            }
 
             scene.add(anchor);
-            anchor.position.set(0, 0, -2);
+            anchor.position.set(0, 0, 0);
 
             scene.add(new AxesHelper(2));
             const gh = new GridHelper(2);
@@ -104,38 +166,13 @@ export const IndexPage = (): any => {
 
             requestAnimationFrame(raf);
 
-
             const { XRPlugin } = Plugins;
 
             await XRPlugin.initialize({}).then(response => {
                 setInitializationResponse(response.status);
             });
 
-            const correctionQuaternion = new Quaternion().setFromAxisAngle(new Vector3(1,0,0), Math.PI/2);
-            const correctionMatrix = new Matrix4().set(
-              1,   0,   0,   0,
-              0,   0,   1,   0,
-              0, - 1,   0,   0,
-              0,   0,   0,   1
-            );
-
-            Plugins.XRPlugin.addListener('poseDataReceived', (_data: any) => {
-                // TODO: this is temporary to be able to modify axes in one place
-                const data = {
-                    ..._data,
-                    // cameraPositionY: _data.cameraPositionZ * 1,
-                    // cameraPositionZ: _data.cameraPositionY,
-
-                    // cameraRotationX: _data.cameraRotationY,
-                    // cameraRotationY: _data.cameraRotationZ * -1,
-                    // cameraRotationZ: _data.cameraRotationX,
-
-                    // anchorPositionY: _data.anchorPositionZ * 1,
-                    // anchorPositionZ: _data.anchorPositionY,
-                    // anchorRotationX: _data.anchorRotationX * -1,
-                    // anchorRotationY: _data.anchorRotationZ * 1,
-                    // anchorRotationZ: _data.anchorRotationY * -1,
-                };
+            Plugins.XRPlugin.addListener('poseDataReceived', (data: any) => {
 
                 const {
                     cameraPositionX,
@@ -160,19 +197,23 @@ export const IndexPage = (): any => {
                     cameraRotationW
                 }));
 
-                camera.quaternion.set(cameraRotationX, cameraRotationY, cameraRotationZ, cameraRotationW);
+                camera.quaternion
+                  .set(cameraRotationX, cameraRotationY, cameraRotationZ, cameraRotationW)
+                  .multiply(correctionQuaternionZ);
                 camera.position.set(cameraPositionX, cameraPositionY, cameraPositionZ);
-                camera.updateMatrix();
-
-                // apply coordinates convertion
-                {
-                    const matrixInverse = correctionMatrix.clone().transpose();
-                    camera.matrix.premultiply(correctionMatrix).multiply(matrixInverse);
-                    camera.matrix.decompose( camera.position, camera.quaternion, camera.scale );
-                    camera.updateMatrixWorld();
-                }
 
                 camera.updateProjectionMatrix();
+
+                if (_DEBUG) {// sync cams
+                    debugCamera.overview.lookAt(camera.position);
+                    debugCamera.xz.position.x = camera.position.x;
+                    debugCamera.xz.position.z = camera.position.z;
+                    debugCamera.xy.position.x = camera.position.x;
+                    debugCamera.xy.position.y = camera.position.y;
+                    debugCamera.zy.position.z = camera.position.z;
+                    debugCamera.zy.position.y = camera.position.y;
+                }// sync cams
+
 
                 if (data.placed) {
                     const {
@@ -195,13 +236,16 @@ export const IndexPage = (): any => {
                         anchorRotationW
                     }));
 
-                    anchor.quaternion.set(anchorRotationX, anchorRotationY, anchorRotationZ, anchorRotationW);
+                    anchor.quaternion
+                      .set(anchorRotationX, anchorRotationY, anchorRotationZ, anchorRotationW)
+                      .multiply(correctionQuaternionZ);
                     anchor.position.set(anchorPositionX, anchorPositionY, anchorPositionZ);
                 }
 
             });
 
             Plugins.XRPlugin.addListener('cameraIntrinsicsReceived', (data: any) => {
+
                 setCameraIntrinsicsState(JSON.stringify({
                     fX: data.fX,
                     fY: data.fY,
@@ -210,9 +254,9 @@ export const IndexPage = (): any => {
                     x: data.x,
                     y: data.y
                 }));
-                testData.cameraIntrinsics = data;
 
-                // camera.setFocalLength(data.fY);
+                // TODO: checkout focal length
+                // camera.setFocalLength(data.fY/10);
                 // camera.setFocalLength(50);
 
                 // TODO:
@@ -270,20 +314,6 @@ export const IndexPage = (): any => {
         Plugins.XRPlugin.clearAnchors();
     };
 
-    const storeCheckpoint = () => {
-      if (!cameraLink.camera) {
-        return;
-      }
-      testData.checkpoints.push({
-        position: camera.position.toArray(),
-        rotation: camera.quaternion.toArray(),
-      })
-    }
-
-    const dumpCheckpoints = () => {
-      console.log('testData', testData);
-    }
-
     // useEffect(() => {
     //     setSecondState("Initialized and effected");
     // }, [initializationResponse]);
@@ -293,13 +323,9 @@ export const IndexPage = (): any => {
             <div className="plugintestReadout">
                 <p>IR:{initializationResponse}</p>
                 <p>CSS:{cameraStartedState}</p>
-                <p>CRS:{cameraPoseRState}</p>
                 <p>IS:{intrinsicsState}</p>
-                {/*
-                    <p>CPS:{cameraPoseState}</p>
-                    <p>APS:{anchorPoseState}</p>
-
-                */}
+                <p>CPS:{cameraPoseState}</p>
+                <p>APS:{anchorPoseState}</p>
             </div>
         </div>
 
@@ -309,8 +335,6 @@ export const IndexPage = (): any => {
               <button type="button" style={{ padding: "1em" }} onClick={() => clearAnchors()}>clearAnchors</button>
               <button type="button" style={{ padding: "1em" }} onClick={() => playVideo()}>playVideo</button>
               <button type="button" style={{ padding: "1em" }} onClick={() => pauseVideo()}>pauseVideo</button>
-              <button type="button" style={{ padding: "1em" }} onClick={() => storeCheckpoint()}>CP</button>
-              <button type="button" style={{ padding: "1em" }} onClick={() => dumpCheckpoints()}>DMP</button>
           </div>
         {/* <VolumetricPlayer
                         meshFilePath={meshFilePath}
