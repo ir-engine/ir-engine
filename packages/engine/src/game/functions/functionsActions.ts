@@ -42,10 +42,10 @@ export const sendActionComponent = (entity: Entity, component: ComponentConstruc
 };
 
 export const applyActionComponent = (actionMessage: GameStateActionMessage): void => {
-  console.warn('applyActionComponent', actionMessage);
+  //console.warn('applyActionComponent', actionMessage);
   const entityGame = getHisGameEntity(actionMessage.game);
   const game = getComponent(entityGame, Game);
-  console.warn(game);
+//  console.warn(game);
   const entity = getHisEntity(game, actionMessage.role, actionMessage.uuid);
   //Component._typeId
   // Engine.componentsMap[(Component as any)._typeId]

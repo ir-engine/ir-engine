@@ -319,7 +319,6 @@ export class ActionSystem extends System {
         }
 
         if (Network.instance.clientGameAction.length) {
-          console.warn(Network.instance.clientGameAction);
           Network.instance.clientGameAction = [];
         }
 

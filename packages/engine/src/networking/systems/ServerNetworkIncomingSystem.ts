@@ -154,6 +154,7 @@ export class ServerNetworkIncomingSystem extends System {
           if (action.type === 'require') {
             const entity = Network.instance.networkObjects[clientInput.networkId].component.entity;
             const playerComp = getComponent<GamePlayer>(entity, GamePlayer);
+            if (playerComp === undefined) return;
             sendState(playerComp.game, playerComp);
           }
         })

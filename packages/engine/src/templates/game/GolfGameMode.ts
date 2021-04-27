@@ -1,17 +1,24 @@
 import { GameMode } from "../../game/types/GameMode";
-
+// others componennt
 import { TransformComponent } from '../../transform/components/TransformComponent';
-
+// game State Tag Component
 import { Open } from "./gameDefault/components/OpenTagComponent";
 import { Closed } from "./gameDefault/components/ClosedTagComponent";
 import { ButtonUp } from "./gameDefault/components/ButtonUpTagComponent";
 import { ButtonDown } from "./gameDefault/components/ButtonDownTagComponent";
-
+import { PanelDown } from "./gameDefault/components/PanelDownTagComponent";
+import { PanelUp } from "./gameDefault/components/PanelUpTagComponent";
+// game Action Tag Component
 import { HaveBeenInteracted } from "../../game/actions/HaveBeenInteracted";
-
-import { ifNamed } from "./gameDefault/checkers/ifNamed";
+// game behavior
 import { upDownButton } from "./gameDefault/behaviors/upDownButton";
-import { openOrCloseDoor } from "./gameDefault/behaviors/openOrCloseDoor";
+import { upDownPanel, giveUpOrDownState } from "./gameDefault/behaviors/upDownPanel";
+import { giveOpenOrCloseState, doorOpeningOrClosing } from "./gameDefault/behaviors/openOrCloseDoor";
+// checkers
+import { isPlayersInGame } from "./gameDefault/checkers/isPlayersInGame";
+import { ifNamed } from "./gameDefault/checkers/ifNamed";
+import { isOpen, isClosed } from "./gameDefault/checkers/isOpenIsClosed";
+import { isUp, isDown } from "./gameDefault/checkers/isUpIsDown";
 
 export const GolfGameMode: GameMode = {
   name: "Golf",
@@ -22,17 +29,23 @@ export const GolfGameMode: GameMode = {
   registerStateTagComponents: [
     Open,
     Closed,
-    ButtonUp,
-    ButtonDown
+    PanelUp,
+    PanelDown
   ],
   initGameState: {
-    'Button': {
-      components: [ButtonUp],
+    'StartGamePanel': {
+      components: [PanelDown],
       storage:[
         { component: TransformComponent, variables: ['position'] }
-       ]
-     },
-    'Door': {
+      ]
+    },
+    'WaitingPanel': {
+      components: [PanelUp],
+      storage:[
+        { component: TransformComponent, variables: ['position'] }
+      ]
+    },
+    'selfOpeningDoor': {
       components: [Closed],
       storage:[
         { component: TransformComponent, variables: ['position'] }
@@ -48,59 +61,112 @@ export const GolfGameMode: GameMode = {
     }
   },
   gameObjectRoles: {
-    'Button': {
-      'Action-OpenOrCloseDoor': [
+    'StartGamePanel': {
+      'actionUp': [
         {
-          behavior: openOrCloseDoor,
-          args:{ action: 'open', animationSpeed: 10 },
-          watchers:[ [ HaveBeenInteracted ] ],
-          takeEffectOn: {
-        //    sortMetod: (v) => { return [v[(Math.random() * v.length) | 0]]}, // if undefind will bee effect on all
-            targetsRole: {
-              'Door': {
-                watchers:[ [ Closed ] ],
-                checkers:[{
-                  function: ifNamed,
-                  args: { value: 'wooden door' }
-                }]
-              }
-            }
-          }
+          behavior: giveUpOrDownState,
+          args: { on: 'me', give: 'up' },
+          checkers:[{
+            function: isPlayersInGame,
+            args: { invert: false }
+          }]
         },
         {
-          behavior: openOrCloseDoor,
-          args:{ action: 'close', animationSpeed: 10 },
-          watchers:[ [ HaveBeenInteracted ] ],
-          takeEffectOn: {
-        //    sortMetod: (v) => { return [v[(Math.random() * v.length) | 0]]}, // if undefind will bee effect on all
-            targetsRole: {
-              'Door': {
-                watchers:[ [ Open ] ],
-                checkers:[{
-                  function: ifNamed,
-                  args: { value: 'wooden door' }
-                }],
-                args: { animationSpeed: 5 }
-              }
-            }
-          }
+          behavior: giveUpOrDownState,
+          args: { on: 'me', give: 'down' },
+          checkers:[{
+            function: isPlayersInGame,
+            args: { invert: true }
+          }]
         }
       ],
-      'Action-UpDownButton': [
+      'movePanel': [
         {
-          behavior: upDownButton,
-          args:{ action: 'down', animationSpeed: 3 },
-          watchers:[ [ HaveBeenInteracted, ButtonUp ] ]
-        },
-        {
-          behavior: upDownButton,
-          args:{ action: 'up', animationSpeed: 3 },
-          watchers:[ [ HaveBeenInteracted, ButtonDown ] ]
+          behavior: upDownPanel,
+          args:{ action: 'down', animationSpeed: 2 },
+          watchers:[ [ PanelDown ] ],
+          checkers:[{
+            function: isUp,
+            args: { diff: 0.2 }
+          }]
+        },{
+          behavior: upDownPanel,
+          args:{ action: 'up', animationSpeed: 2 },
+          watchers:[ [ PanelUp ] ],
+          checkers:[{
+            function: isDown,
+            args: { diff: 5 }
+          }]
         }
       ]
     },
-    'Door': {
-      'rotateCollider': []
+    'WaitingPanel': {
+      'actionUp': [
+        {
+          behavior: giveUpOrDownState,
+          args: { on: 'me', give: 'up' },
+          checkers:[{
+            function: isPlayersInGame,
+            args: { invert: true }
+          }]
+        },
+        {
+          behavior: giveUpOrDownState,
+          args: { on: 'me', give: 'down' },
+          checkers:[{
+            function: isPlayersInGame,
+            args: { invert: false }
+          }]
+        }
+      ],
+      'movePanel': [
+        {
+          behavior: upDownPanel,
+          args:{ action: 'down', animationSpeed: 2 },
+          watchers:[ [ PanelDown ] ],
+          checkers:[{
+            function: isUp,
+            args: { diff: 0.02 }
+          }]
+        },{
+          behavior: upDownPanel,
+          args:{ action: 'up', animationSpeed: 2 },
+          watchers:[ [ PanelUp ] ],
+          checkers:[{
+            function: isDown,
+            args: { diff: 5 }
+          }]
+        }
+      ]
+    },
+    'selfOpeningDoor': {
+      'actionOpen': [
+        {
+          behavior: giveOpenOrCloseState,
+          args: { on: 'me'},
+          watchers:[ [ HaveBeenInteracted ] ]
+        }
+      ],
+      'moveDoor': [
+        {
+          behavior: doorOpeningOrClosing,
+          args:{ action: 'opening', animationSpeed: 2 },
+          watchers:[ [ Closed ] ],
+          checkers:[{
+            function: isOpen,
+            args: { diff: 0.02 }
+          }]
+        },
+        {
+          behavior: doorOpeningOrClosing,
+          args:{ action: 'closing', animationSpeed: 2 },
+          watchers:[ [ Open ] ],
+          checkers:[{
+            function: isClosed,
+            args: { diff: 2 }
+          }]
+        }
+      ]
     }
   }
 };

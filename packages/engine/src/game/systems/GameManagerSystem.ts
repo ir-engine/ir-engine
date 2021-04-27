@@ -9,7 +9,7 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { GameObject } from "../components/GameObject";
 import { GamePlayer } from "../components/GamePlayer";
 
-import { addComponent, getComponent, getMutableComponent, hasComponent, removeComponent } from '../../ecs/functions/EntityFunctions';
+import { addComponent, getComponent, getMutableComponent, hasComponent, removeComponent, getRemovedComponent } from '../../ecs/functions/EntityFunctions';
 import { addActionComponent, sendActionComponent, applyActionComponent } from '../functions/functionsActions';
 import { initState, saveInitStateCopy, reInitState, sendState, requireState, applyStateToClient, correctState, addStateComponent, removeStateComponent  } from '../functions/functionsState';
 import { initStorage, getStorage } from '../functions/functionsStorage';
@@ -27,7 +27,7 @@ function checkWatchers( entity, arr ) {
 }
 
 function checkCheckers( entity, entityOther, arr ) {
-  return arr.map(checker => checker.function(entity, entityOther, checker.args));
+  return arr.map(checker => checker.function(entity, checker.args, entityOther));
 }
 
 function isPlayerInGameArea(entity, gameArea) {
@@ -50,7 +50,7 @@ export class GameManagerSystem extends System {
 
   constructor() {
     super();
-    this.updateNewPlayersRate = 360;
+    this.updateNewPlayersRate = 60;
     this.updateLastTime = 0;
     GameManagerSystem.createdGames = [];
   }
@@ -76,7 +76,7 @@ export class GameManagerSystem extends System {
       const gameObjects = game.gameObjects;
       const gamePlayers = game.gamePlayers;
       const gameState = game.state;
-
+      // GAME AREA ADDIND PLAYERS or REMOVE
       // adding or remove players from this Game, always give the first Role from GameSchema
       if (this.updateLastTime > this.updateNewPlayersRate) {
         Object.keys(Network.instance.networkObjects).map(Number)
@@ -108,7 +108,7 @@ export class GameManagerSystem extends System {
         this.updateLastTime += 1;
       }
 
-
+      // OBJECTS
       // its needet for allow dynamicly adding objects and exept errors when enitor gives object without created game
       this.queryResults.gameObject.added?.forEach(entity => {
         if (getComponent(entity, GameObject).game != game.name) return;
@@ -123,9 +123,9 @@ export class GameManagerSystem extends System {
         }
       });
 
+      // PLAYERS
       this.queryResults.gamePlayers.added?.forEach(entity => {
         if (getComponent(entity, GamePlayer).game.name != game.name) return;
-        console.warn('gamePlayers.added');
         // befor adding first player
         if (this.queryResults.gamePlayers.all.length == 1) saveInitStateCopy(entityGame);
         // add to gamePlayers list sorted by role
@@ -137,10 +137,16 @@ export class GameManagerSystem extends System {
           schema.components.forEach(component => addStateComponent(entity, component));
           //initStorage(entity, schema.storage);
         }
-        console.warn(game.state);
+        //console.warn(game.state);
         requireState(game, playerComp);
       });
-
+      // PLAYERS
+      this.queryResults.gamePlayers.removed?.forEach(entity => {
+        Object.keys(game.gamePlayers).forEach((role: string) => {
+          game.gamePlayers[role] = game.gamePlayers[role].filter((entityFromState: Entity) => hasComponent(entityFromState, GamePlayer));
+        });
+      });
+      // MAIN EXECUTE
       const executeComplexResult = [];
       // its case beter then this.queryResults.gameObject.all, becose its sync execute all role groubs entity, and you not think about behavior do work on haotic case
       Object.keys(gamePlayers).concat(Object.keys(gameObjects)).forEach(role => {

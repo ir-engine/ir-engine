@@ -107,7 +107,7 @@ export function applyNetworkStateToClient(worldStateBuffer: WorldStateInterface,
     if (worldStateBuffer.gameState && worldStateBuffer.gameState.length > 0) {
       worldStateBuffer.gameState.forEach((stateMessage: GameStateUpdateMessage) => {
         if (Network.instance.userId === stateMessage.ownerId) { // DOTO: test, with and without
-          console.warn('get message', stateMessage);
+          console.log('get message', stateMessage);
           applyStateToClient(stateMessage);
         }
       });
@@ -129,13 +129,13 @@ export function applyNetworkStateToClient(worldStateBuffer: WorldStateInterface,
       const isSameUniqueId = isIdFull && Network.instance.networkObjects[objectToCreate.networkId].component.uniqueId === objectToCreate.uniqueId;
 
       if (( isPlayerPref && isSameOwnerId) || ( isOtherPref && isSameUniqueId)){
-        console.warn('*createObjects* same object'+objectToCreate.networkId);
+        console.log('*createObjects* same object'+objectToCreate.networkId);
         continue;
       } else if(searchSameInAnotherId(objectToCreate)) {
-        console.warn('*createObjects* same object but in anotherId '+objectToCreate.networkId);
+        console.log('*createObjects* same object but in anotherId '+objectToCreate.networkId);
         continue;
       } else if (isIdFull) {
-        console.warn('*createObjects* dont have object but Id not empty '+objectToCreate.networkId);
+        console.log('*createObjects* dont have object but Id not empty '+objectToCreate.networkId);
         syncPhysicsObjects(objectToCreate);
       }
 

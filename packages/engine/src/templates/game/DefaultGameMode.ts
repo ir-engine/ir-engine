@@ -1,18 +1,18 @@
 import { GameMode } from "../../game/types/GameMode";
-
 import { TransformComponent } from '../../transform/components/TransformComponent';
-
+// game State Tag Component
 import { Open } from "./gameDefault/components/OpenTagComponent";
 import { Closed } from "./gameDefault/components/ClosedTagComponent";
 import { ButtonUp } from "./gameDefault/components/ButtonUpTagComponent";
 import { ButtonDown } from "./gameDefault/components/ButtonDownTagComponent";
-
+// game Action Tag Component
 import { HaveBeenInteracted } from "../../game/actions/HaveBeenInteracted";
-
-import { ifNamed } from "./gameDefault/checkers/ifNamed";
+// game behavior
 import { upDownButton } from "./gameDefault/behaviors/upDownButton";
-import { openOrCloseDoor } from "./gameDefault/behaviors/openOrCloseDoor";
-
+import { giveOpenOrCloseState, doorOpeningOrClosing } from "./gameDefault/behaviors/openOrCloseDoor";
+// checkers
+import { ifNamed } from "./gameDefault/checkers/ifNamed";
+import { isOpen, isClosed } from "./gameDefault/checkers/isOpenIsClosed";
 
 /**
  * @author HydraFire
@@ -42,6 +42,12 @@ export const DefaultGameMode: GameMode = {
       storage:[
         { component: TransformComponent, variables: ['position'] }
       ]
+    },
+    'selfOpeningDoor': {
+      components: [Closed],
+      storage:[
+        { component: TransformComponent, variables: ['position'] }
+      ]
     }
   },
   gamePlayerRoles: {
@@ -56,36 +62,43 @@ export const DefaultGameMode: GameMode = {
     'Button': {
       'Action-OpenOrCloseDoor': [
         {
-          behavior: openOrCloseDoor,
-          args:{ action: 'open', animationSpeed: 10 },
+          behavior: giveOpenOrCloseState,
+          args: { on: 'target'},
           watchers:[ [ HaveBeenInteracted ] ],
+          checkers:[{
+            function: ifNamed,
+            args: { on: 'me', name: 'button 1' }
+          }],
           takeEffectOn: {
         //    sortMetod: (v) => { return [v[(Math.random() * v.length) | 0]]}, // if undefind will bee effect on all
             targetsRole: {
               'Door': {
-                watchers:[ [ Closed ] ],
+                watchers:[ [ Open ], [ Closed ] ],
                 checkers:[{
                   function: ifNamed,
-                  args: { value: 'wooden door' }
+                  args: { on: 'target', name: 'door 1' }
                 }]
               }
             }
           }
         },
         {
-          behavior: openOrCloseDoor,
-          args:{ action: 'close', animationSpeed: 10 },
+          behavior: giveOpenOrCloseState,
+          args: { on: 'target'},
           watchers:[ [ HaveBeenInteracted ] ],
+          checkers:[{
+            function: ifNamed,
+            args: { on: 'me', name: 'button 2' }
+          }],
           takeEffectOn: {
         //    sortMetod: (v) => { return [v[(Math.random() * v.length) | 0]]}, // if undefind will bee effect on all
             targetsRole: {
               'Door': {
-                watchers:[ [ Open ] ],
+                watchers:[ [ Open ], [ Closed ] ],
                 checkers:[{
                   function: ifNamed,
-                  args: { value: 'wooden door' }
-                }],
-                args: { animationSpeed: 5 }
+                  args: { on: 'target', name: 'door 2' }
+                }]
               }
             }
           }
@@ -95,17 +108,91 @@ export const DefaultGameMode: GameMode = {
         {
           behavior: upDownButton,
           args:{ action: 'down', animationSpeed: 3 },
-          watchers:[ [ HaveBeenInteracted, ButtonUp ] ]
+          watchers:[ [ HaveBeenInteracted, ButtonUp ] ],
+          checkers:[{
+            function: ifNamed,
+            args: { on: 'me', name: 'button 1' }
+          }]
         },
         {
           behavior: upDownButton,
           args:{ action: 'up', animationSpeed: 3 },
-          watchers:[ [ HaveBeenInteracted, ButtonDown ] ]
+          watchers:[ [ HaveBeenInteracted, ButtonDown ] ],
+          checkers:[{
+            function: ifNamed,
+            args: { on: 'me', name: 'button 1' }
+          }]
+        },
+        {
+          behavior: upDownButton,
+          args:{ action: 'down', animationSpeed: 3 },
+          watchers:[ [ HaveBeenInteracted, ButtonUp ] ],
+          checkers:[{
+            function: ifNamed,
+            args: { on: 'me', name: 'button 2' }
+          }]
+        },
+        {
+          behavior: upDownButton,
+          args:{ action: 'up', animationSpeed: 3 },
+          watchers:[ [ HaveBeenInteracted, ButtonDown ] ],
+          checkers:[{
+            function: ifNamed,
+            args: { on: 'me', name: 'button 2' }
+          }]
         }
       ]
     },
     'Door': {
-      'rotateCollider': []
+      'moveDoor': [
+        {
+          behavior: doorOpeningOrClosing,
+          args:{ action: 'opening', animationSpeed: 0.5 },
+          watchers:[ [ Closed ] ],
+          checkers:[{
+            function: isOpen,
+            args: { diff: 0.02 }
+          }]
+        },
+        {
+          behavior: doorOpeningOrClosing,
+          args:{ action: 'closing', animationSpeed: 0.5 },
+          watchers:[ [ Open ] ],
+          checkers:[{
+            function: isClosed,
+            args: { diff: 2 }
+          }]
+        }
+      ]
+    },
+    'selfOpeningDoor': {
+      'actionOpen': [
+        {
+          behavior: giveOpenOrCloseState,
+          args: { on: 'me'},
+          watchers:[ [ HaveBeenInteracted ] ]
+        }
+      ],
+      'moveDoor': [
+        {
+          behavior: doorOpeningOrClosing,
+          args:{ action: 'opening', animationSpeed: 2 },
+          watchers:[ [ Closed ] ],
+          checkers:[{
+            function: isOpen,
+            args: { diff: 0.02 }
+          }]
+        },
+        {
+          behavior: doorOpeningOrClosing,
+          args:{ action: 'closing', animationSpeed: 2 },
+          watchers:[ [ Open ] ],
+          checkers:[{
+            function: isClosed,
+            args: { diff: 2 }
+          }]
+        }
+      ]
     }
   }
 };

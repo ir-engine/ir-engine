@@ -19,13 +19,16 @@ import { Open } from "../../templates/game/gameDefault/components/OpenTagCompone
 import { Closed } from "../../templates/game/gameDefault/components/ClosedTagComponent";
 import { ButtonUp } from "../../templates/game/gameDefault/components/ButtonUpTagComponent";
 import { ButtonDown } from "../../templates/game/gameDefault/components/ButtonDownTagComponent";
-
+import { PanelDown } from "../../templates/game/gameDefault/components/PanelDownTagComponent";
+import { PanelUp } from "../../templates/game/gameDefault/components/PanelUpTagComponent";
 // TODO: create schema states
 const gameStateComponents = {
   'Open': Open,
   'Closed': Closed,
   'ButtonUp': ButtonUp,
-  'ButtonDown': ButtonDown
+  'ButtonDown': ButtonDown,
+  'PanelDown': PanelDown,
+  'PanelUp': PanelUp
 };
 
 export const initState = (game: Game, gameSchema: GameMode): void => {
@@ -41,13 +44,13 @@ export const saveInitStateCopy = (entity: Entity): void => {
 export const reInitState = (game: Game): void => {
   game.state = JSON.parse(game.initState);
   applyState(game);
-  console.warn('reInitState', applyStateToClient);
+  //console.warn('reInitState', applyStateToClient);
 };
 
 export const sendState = (game: Game, playerComp: GamePlayer): void => {
   if (isServer && game.isGlobal) {
     const message: GameStateUpdateMessage = { game: game.name, ownerId: playerComp.uuid, state: game.state };
-    console.warn('sendState', message);
+  //  console.warn('sendState', message);
     Network.instance.worldState.gameState.push(message);
   }
 };
@@ -63,7 +66,7 @@ export const applyStateToClient = (stateMessage: GameStateUpdateMessage): void =
   const entity = getHisGameEntity(stateMessage.game);
   const game = getMutableComponent(entity, Game)
   game.state = stateMessage.state;
-  console.warn('applyStateToClient', game.state);
+  //console.warn('applyStateToClient', game.state);
   applyState(game);
 };
 
@@ -85,8 +88,15 @@ export const applyState = (game: Game): void => {
       // add all states
     //  console.warn('// add all states');
     //  console.warn(uuid);
+
+    })
+  })
+  Object.keys(game.gamePlayers).concat(Object.keys(game.gameObjects)).forEach((role: string) => {
+    (game.gameObjects[role] || game.gamePlayers[role]).forEach((entity: Entity) => {
+      const uuid = getUuid(entity);
+
       const stateObject = game.state.find((v: StateObject) => v.uuid === uuid);
-    //  console.warn(stateObject);
+      //  console.warn(stateObject);
       if (stateObject != undefined) {
         stateObject.components.forEach((componentName: string) => {
           addComponent(entity, gameStateComponents[componentName] );
@@ -95,9 +105,8 @@ export const applyState = (game: Game): void => {
         console.warn('state players dont worl yet');
       }
     })
-  })
-
-  console.warn('applyState', game.state);
+  });
+  //console.warn('applyState', game.state);
 };
 
 export const correctState = (): void => {
@@ -112,11 +121,16 @@ export const addStateComponent = (entity: Entity, component: ComponentConstructo
 
   addComponent(entity, component);
 
-  const objectState = game.state.find(v => v.uuid === uuid) ?? { uuid: uuid, role: role, components: [], storage: [] };
+  let objectState = game.state.find(v => v.uuid === uuid);
+
+  if (objectState === undefined) {
+    objectState = { uuid: uuid, role: role, components: [], storage: [] };
+    game.state.push(objectState);
+  }
+
   const index = objectState.components.findIndex(name => name === component.name);
   if (index === -1) {
     objectState.components.push(component.name);
-    game.state.push(objectState);
   } else {
     console.warn('we have this gameState already, why?', component.name);
   }
@@ -138,5 +152,5 @@ export const removeStateComponent = (entity: Entity, component: ComponentConstru
   } else {
     objectState.components.splice(index, 1);
   }
-  console.warn(game.state);
+  //console.warn(game.state);
 };

@@ -6,8 +6,8 @@ import { GameObject } from "../../game/components/GameObject";
 import { TransformComponent } from '../../transform/components/TransformComponent';
 
 export const createGame: Behavior = (entity, args: any) => {
-  console.warn(args.objArgs.isGlobal);
-  console.warn(isServer && !args.objArgs.isGlobal);
+//  console.warn(args.objArgs.isGlobal);
+  //console.warn(isServer && !args.objArgs.isGlobal);
 //  if (isServer && !args.objArgs.isGlobal) return;
   console.log("************ GAME CREATED!!!!!!!!!!!!!!");
   console.log(args.objArgs);
