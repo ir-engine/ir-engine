@@ -128,7 +128,7 @@
   "devDependencies": {
     "@types/compression": "1.7.0",
     "@types/cors": "2.8.10",
-    "@types/node": "13.13.50",
+    "@types/node": "13.13.51",
     "@types/serve-favicon": "2.5.2",
     "@typescript-eslint/eslint-plugin": "4.22.0",
     "@typescript-eslint/parser": "4.22.0",

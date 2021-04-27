@@ -27,7 +27,7 @@
     "react": "17.0.2"
   },
   "devDependencies": {
-    "@types/node": "13.13.50",
+    "@types/node": "13.13.51",
     "@types/react": "17.0.4",
     "cross-env": "7.0.3",
     "node-sass": "5.0.0",
