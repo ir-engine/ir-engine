@@ -48,7 +48,7 @@
     "three": "0.128.0"
   },
   "devDependencies": {
-    "@types/node": "13.13.50",
+    "@types/node": "13.13.51",
     "@types/react": "17.0.4",
     "config": "3.3.6",
     "cross-env": "7.0.3",
