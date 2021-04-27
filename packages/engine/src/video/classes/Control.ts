@@ -1,7 +1,7 @@
 import { Color, Object3D, CircleGeometry, MeshPhongMaterial, Mesh, Texture, TextureLoader } from "three";
 import { Block } from '../../assets/three-mesh-ui';
-import { createButton, createItem, createRow, createCol } from '../functions/createItem';
-import { UI_ELEMENT_SELECT_STATE } from "../classes/UIBaseElement";
+import { createButton, createItem, createRow, createCol } from '../../ui/functions/createItem'
+import { UI_ELEMENT_SELECT_STATE } from '../../ui/classes/UIBaseElement'
 export class Control extends Object3D{
   seeker: Mesh;
   durationWidth: number;
