@@ -26,7 +26,7 @@ import { CharacterInputSchema } from '../CharacterInputSchema';
 import { CharacterComponent } from '../components/CharacterComponent';
 import { NamePlateComponent } from '../components/NamePlateComponent';
 import { getLoader } from "../../../assets/functions/LoadGLTF";
-import { DEFAULT_AVATAR_ID } from "../../../common/constants/AvatarConstants";
+import { DEFAULT_AVATAR_ID } from "@xr3ngine/common/src/constants/AvatarConstants";
 import { Engine } from "../../../ecs/classes/Engine";
 import { PrefabType } from "../../networking/PrefabType";
 import { initializeMovingState } from "../animations/MovingAnimations";
