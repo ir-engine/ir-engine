@@ -1,4 +1,5 @@
 import { Color, Object3D, CircleGeometry, MeshPhongMaterial, Mesh, Texture, TextureLoader } from "three";
+<<<<<<< HEAD:packages/engine/src/ui/classes/Control.ts
 import { Block } from "../../assets/three-mesh-ui";
 import { createButton, createItem, createRow, createCol } from '../../ui/functions/createItem'
 import { UI_ELEMENT_SELECT_STATE } from '../../ui/classes/UIBaseElement'
@@ -6,6 +7,11 @@ import { UI_ELEMENT_SELECT_STATE } from '../../ui/classes/UIBaseElement'
 const playIconUrl = 'https://raw.githubusercontent.com/Realitian/assets/master/360/playbtn.png';
 const pauseIconUrl = 'https://raw.githubusercontent.com/Realitian/assets/master/360/pausebtn.png';
 
+=======
+import { Block } from '../../assets/three-mesh-ui';
+import { createButton, createItem, createRow, createCol } from '../../ui/functions/createItem'
+import { UI_ELEMENT_SELECT_STATE } from '../../ui/classes/UIBaseElement'
+>>>>>>> make offlineLocation for only video360, move top level code into there:packages/engine/src/video/classes/Control.ts
 export class Control extends Object3D{
   seeker: Mesh;
   durationWidth: number;
