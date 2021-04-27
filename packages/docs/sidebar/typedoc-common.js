@@ -6,6 +6,7 @@ module.exports = [
     "items": [
       "docs-common/modules/src_assets_testscenepreset",
       "docs-common/modules/src_assets_testscenes",
+      "docs-common/modules/src_constants_avatarconstants",
       "docs-common/modules/src_enums_avatar_model",
       "docs-common/modules/src_enums_axis",
       "docs-common/modules/src_interfaces_authuser",

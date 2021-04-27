@@ -26,7 +26,7 @@ export interface ParticleMeshMaterial extends ShaderMaterial {
   map: Texture;
   /** Original material of particle. */
   // TODO: this was a CANNON.material, when it seems like it should be a threejs material...
-  // originalMaterial: Material;
+  originalMaterial: any;
   uniforms: any;
   transparent: boolean;
 }
