@@ -2,8 +2,8 @@ import '@feathersjs/transport-commons';
 import { Engine } from '@xr3ngine/engine/src/ecs/classes/Engine';
 import { Network } from '@xr3ngine/engine/src/networking/classes/Network';
 import { loadScene } from "@xr3ngine/engine/src/scene/functions/SceneLoading";
-import config from './appconfig';
-import { Application } from '../declarations';
+import config from '@xr3ngine/server-core/src/appconfig';
+import { Application } from '@xr3ngine/server-core/declarations';
 import getLocalServerIp from '@xr3ngine/server-core/src/util/get-local-server-ip';
 import logger from '@xr3ngine/server-core/src/logger';
 import { decode } from 'jsonwebtoken';
@@ -13,17 +13,6 @@ export default (app: Application): void => {
         // If no real-time functionality has been configured just return
         return;
     }
-
-    // function pingClients (): any {
-    //   console.log('PingClient')
-    //   app.service('instance-provision').emit('created', {
-    //     type: 'created',
-    //     data: {
-    //       cool: 'pants'
-    //     }
-    //   })
-    //   setTimeout(() => pingClients(), 2000)
-    // }
 
     app.on('connection', async (connection) => {
         if ((process.env.KUBERNETES === 'true' && config.gameserver.mode === 'realtime') || (process.env.NODE_ENV === 'development') || config.gameserver.mode === 'local') {
@@ -267,43 +256,4 @@ export default (app: Application): void => {
             }
         }
     });
-
-    app.on('login', (authResult: any, {connection}: any) => {
-        if (connection) {
-            app.channel(`userIds/${connection['identity-provider'].userId as string}`).join(connection);
-        }
-    });
-
-    app.on('logout', (authResult: any, {connection}: any) => {
-        if (connection) {
-            app.channel(`userIds/${connection['identity-provider'].userId as string}`).leave(connection);
-        }
-    });
-
-    //
-    // app.publish((data: any, hook: HookContext) => {
-    //   // Here you can add event publishers to channels set up in `channels.js`
-    //   // To publish only for a specific event use `app.publish(eventname, () => {})`
-    //
-    //   // console.log(data)
-    //
-    //   // console.log(hook)
-    //
-    //   // console.log('Publishing all events to all authenticated user. See `channels.js` and https://docs.feathersjs.com/api/channels.html for more information.') // eslint-disable-line
-    //
-    //   // e.g. to publish all service events to all authenticated user use
-    //   return app.channel('authenticated')
-    // })
-
-    // Here you can also add service specific event publishers
-    // e.g. the publish the `user` service `created` event to the `admins` channel
-    // app.service('user').publish('created', () => app.channel('admins'))
-
-    // With the userid and email group from above you can easily select involved user
-    // app.service('message').publish(() => {
-    //   return [
-    //     app.channel(`userIds/${data.createdBy}`),
-    //     app.channel(`emails/${data.recipientEmail}`)
-    //   ]
-    // })
 };

@@ -38,7 +38,6 @@ export * from './src/common/classes/BufferGeometryUtils';
 export * from './src/common/classes/EventDispatcher';
 export * from './src/common/classes/RingBuffer';
 export * from './src/common/components/BehaviorComponent';
-export * from './src/common/constants/AvatarConstants';
 export * from './src/common/constants/MathConstants';
 export * from './src/common/functions/applyThreshold';
 export * from './src/common/functions/applyVectorMatrixXZ';

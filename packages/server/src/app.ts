@@ -2,7 +2,7 @@ import express from '@feathersjs/express';
 import feathers from '@feathersjs/feathers';
 import socketio from '@feathersjs/socketio';
 import authentication from '@xr3ngine/server-core/src/user/authentication';
-import channels from '@xr3ngine/server-core/src/channels';
+import channels from './channels';
 import compress from 'compression';
 import cors from 'cors';
 import { EventEmitter } from 'events';

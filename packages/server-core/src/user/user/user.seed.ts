@@ -1,4 +1,4 @@
-import { DEFAULT_AVATAR_ID } from "@xr3ngine/engine/src/common/constants/AvatarConstants";
+import { DEFAULT_AVATAR_ID } from '@xr3ngine/common/src/constants/AvatarConstants';
 import config from '../../appconfig';
 
 export const userSeed = {
