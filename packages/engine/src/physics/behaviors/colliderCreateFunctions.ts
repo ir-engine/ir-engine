@@ -1,12 +1,12 @@
 // import { Body, Trimesh, Box, Sphere, Cylinder, Plane, Vec3 } from 'cannon-es';
 import { PhysicsSystem } from '../systems/PhysicsSystem';
 import { CollisionGroups } from "../enums/CollisionGroups";
-import { createShapeFromConfig, Shape, SHAPES, Body, BodyType } from "@xr3ngine/three-physx";
+import { createShapeFromConfig, Shape, SHAPES, Body, BodyType, getGeometry } from "@xr3ngine/three-physx";
 import { Entity } from '../../ecs/classes/Entity';
 import { ColliderComponent } from '../components/ColliderComponent';
 import { getComponent, getMutableComponent, hasComponent } from '../../ecs/functions/EntityFunctions';
 import { Object3DComponent } from '../../scene/components/Object3DComponent';
-import { Mesh, Vector3, Quaternion } from 'three';
+import { Mesh, Vector3, Quaternion, CylinderBufferGeometry } from 'three';
 import { TransformComponent } from '../../transform/components/TransformComponent';
 
 /**
@@ -25,16 +25,7 @@ export function addColliderWithEntity(entity: Entity) {
   const colliderComponent = getMutableComponent<ColliderComponent>(entity, ColliderComponent);
   const transformComponent = getComponent<TransformComponent>(entity, TransformComponent);
 
-  // if simple mesh do computeBoundingBox()
-  let mesh, vertices, indices;
-  if (hasComponent(entity, Object3DComponent)) {
-    mesh = getComponent(entity, Object3DComponent).value
-    if (mesh instanceof Mesh) {
-      mesh.geometry.computeBoundingBox();
-      vertices = Array.from(mesh.geometry.attributes.position.array);
-      indices = mesh.geometry.index ? Array.from(mesh.geometry.index.array) : Object.keys(vertices).map(Number);
-    }
-  }
+  const { mesh, vertices, indices } = colliderComponent;
 
   const body = addColliderWithoutEntity(
     { type: colliderComponent.type },
@@ -53,6 +44,11 @@ const halfPI = Math.PI / 2;
 
 export function addColliderWithoutEntity(userData, pos = new Vector3(), rot = new Quaternion(), scale = new Vector3(), model = { mesh: null, vertices: null, indices: null }): Body {
   // console.log(userData, pos, rot, scale, model)
+  if(model.mesh && !model.vertices) {
+    const mergedGeom = getGeometry(model.mesh);
+    model.vertices = Array.from(mergedGeom.attributes.position.array);
+    model.indices = mergedGeom.index ? Array.from(mergedGeom.index.array) : Object.keys(model.vertices).map(Number);
+  }
   const shapeArgs: any = {};
   switch (userData.type) {
     case 'box':
@@ -83,6 +79,12 @@ export function addColliderWithoutEntity(userData, pos = new Vector3(), rot = ne
 
     // physx doesnt have cylinder shapes, default to convex
     case 'cylinder':
+      if(!model.mesh && !model.vertices) {
+        const geom = new CylinderBufferGeometry(scale.x, scale.x, scale.y); // width & height
+        model.vertices = Array.from(geom.attributes.position.array);
+        model.indices = geom.index ? Array.from(geom.index.array) : Object.keys(model.vertices).map(Number);
+      }
+    // yes, don't break here
     case 'convex':
       shapeArgs.shape = SHAPES.ConvexMesh;
       shapeArgs.options = { vertices: model.vertices, indices: model.indices };
@@ -96,6 +98,7 @@ export function addColliderWithoutEntity(userData, pos = new Vector3(), rot = ne
   }
 
   const shape: Shape = createShapeFromConfig(shapeArgs);
+  // console.log('shape', shape);
 
   shape.config.collisionLayer = userData.action === 'portal' ? CollisionGroups.ActiveCollider : CollisionGroups.Default;
   shape.config.collisionMask = CollisionGroups.All;
@@ -112,5 +115,6 @@ export function addColliderWithoutEntity(userData, pos = new Vector3(), rot = ne
     }
   });
   const body = PhysicsSystem.instance.addBody(bodyConfig);
+  // console.log(body, bodyConfig)
   return body;
 }

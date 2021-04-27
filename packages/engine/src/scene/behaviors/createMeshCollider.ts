@@ -8,9 +8,8 @@ import { addCollidersToNetworkVehicle } from '../../templates/vehicle/prefabs/Ne
  * @author HydraFire <github.com/HydraFire>
  */
 
-export const createCollidersFromSceneData: Behavior = ( entity: Entity, args: any ) => { //{ data:string, type: string,}
-  // console.log('****** Collider from Scene data: ')
-  // console.log(args);
+export const createMeshCollider: Behavior = ( entity: Entity, args: any ) => { //{ data:string, type: string,}
+  // console.log('****** Collider from Scene data: ', args);
 
   switch (args.objArgs.data) {
 

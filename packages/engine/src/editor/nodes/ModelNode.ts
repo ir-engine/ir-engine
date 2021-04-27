@@ -89,7 +89,7 @@ export default class ModelNode extends EditorNodeMixin(Model) {
     super(editor);
     this._canonicalUrl = "";
     this.collidable = true;
-    this.saveColliders = false;
+    this.saveColliders = true;
     this.target = null;
     this.walkable = true;
     this.initialScale = 1;

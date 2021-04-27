@@ -83,7 +83,7 @@ export class PhysicsSystem extends System {
     // RigidBody
     this.queryResults.rigidBody.added?.forEach(entity => { 
       const colliderComponent = getComponent<ColliderComponent>(entity, ColliderComponent);
-      console.log(colliderComponent.body)
+      // console.log(colliderComponent.body)
     });
 
     this.queryResults.rigidBody.all?.forEach(entity => {

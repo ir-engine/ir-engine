@@ -117,8 +117,7 @@ export function validateNetworkObjects(): void {
             const disconnectedClient = Object.assign({}, Network.instance.clients[userId]);
 
             Network.instance.clientsDisconnected.push({ userId });
-            console.log('Disconnected Client:');
-            console.log(disconnectedClient);
+            console.log('Disconnected Client:', disconnectedClient.userId);
             if (disconnectedClient?.instanceRecvTransport)
                 disconnectedClient.instanceRecvTransport.close();
             if (disconnectedClient?.instanceSendTransport)

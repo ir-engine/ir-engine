@@ -71,23 +71,21 @@ export const physicsMove = (entity: Entity, deltaTime): void => {
         break;
     }
   }
-
   const newVelocity = new Vector3();
-
-  actor.velocityTarget.copy(actor.localMovementDirection).multiplyScalar(0.1);
-  actor.velocitySimulator.target.copy(actor.velocityTarget);
-  actor.velocitySimulator.simulate(deltaTime);
-
-  actor.velocity.copy(actor.velocitySimulator.position);
-  newVelocity.copy(actor.velocity).multiplyScalar(actor.moveSpeed);
-  newVelocity.applyQuaternion(transform.rotation)
-
-  collider.controller.velocity.x = newVelocity.x;
-  collider.controller.velocity.z = newVelocity.z;
-
   actor.isGrounded = collider.controller.collisions.down;
 
   if (actor.isGrounded) {
+
+    actor.velocityTarget.copy(actor.localMovementDirection).multiplyScalar(0.1);
+    actor.velocitySimulator.target.copy(actor.velocityTarget);
+    actor.velocitySimulator.simulate(deltaTime);
+
+    actor.velocity.copy(actor.velocitySimulator.position);
+    newVelocity.copy(actor.velocity).multiplyScalar(actor.moveSpeed);
+    newVelocity.applyQuaternion(transform.rotation)
+
+    collider.controller.velocity.x = newVelocity.x;
+    collider.controller.velocity.z = newVelocity.z;
 
     if (actor.isJumping) {
       actor.isJumping = false;
