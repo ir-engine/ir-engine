@@ -35,15 +35,16 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 });
 
 const  Home = ({ createCreator,  doLoginAuto, auth, popupsState, updateCreatorPageState }) => {
-  useEffect(()=>{
-    if(auth){
-      const user = auth.get('authUser')?.identityProvider.type === 'guest' ? auth.get('user') as User : auth.get('authUser')?.identityProvider as User;
-        const userId = user ? user.id : null;
-        if(userId){
-          createCreator();
-        }      
-    }
-  },[auth]);
+  /*hided for now*/
+  // useEffect(()=>{
+  //   if(auth){
+  //     const user = auth.get('authUser')?.identityProvider.type === 'guest' ? auth.get('user') as User : auth.get('authUser')?.identityProvider as User;
+  //       const userId = user ? user.id : null;
+  //       if(userId){
+  //         createCreator();
+  //       }      
+  //   }
+  // },[auth]);
 
   useEffect(() => doLoginAuto(true), []); 
         
@@ -58,7 +59,7 @@ const  Home = ({ createCreator,  doLoginAuto, auth, popupsState, updateCreatorPa
    const handleClose = () => {
     updateCreatorPageState(false);
   };
-const renderModal = () =>
+const renderModal = () => 
     (popupsState?.get('creatorPage') === true && popupsState?.get('creatorId')) ?  
         (<SharedModal 
             open={popupsState?.get('creatorPage')}

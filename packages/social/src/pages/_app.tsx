@@ -9,7 +9,7 @@ import { initGA, logPageView } from '@xr3ngine/client-core/src/common/components
 import Api from "@xr3ngine/client-core/src/world/components/editor/Api";
 import { ApiContext } from '@xr3ngine/client-core/src/world/components/editor/contexts/ApiContext';
 import GlobalStyle from '@xr3ngine/client-core/src/world/components/editor/GlobalStyle';
-import theme from "@xr3ngine/client-core/src/world/components/editor/theme";
+import theme from "@xr3ngine/social/theme";
 import { Config } from '@xr3ngine/client-core/src/helper';
 import { getDeviceType } from '@xr3ngine/client-core/src/common/reducers/devicedetect/actions';
 import { restoreState } from '@xr3ngine/client-core/src/persisted.store';
