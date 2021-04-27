@@ -31,9 +31,11 @@ export default defineConfig(() => {
         },
         build: {
             sourcemap: 'inline',
+            outDir:'www',
+            assetsDir: 'assets',
             rollupOptions: {
                 output: {
-                    dir: 'dist',
+                    // dir: 'dist',
                     format: 'es',
                 },
             }
