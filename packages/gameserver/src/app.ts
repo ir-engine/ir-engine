@@ -11,7 +11,7 @@ import socketio from '@feathersjs/socketio';
 import AgonesSDK from '@google-cloud/agones-sdk';
 import { Application } from '@xr3ngine/server-core/declarations';
 import logger from '@xr3ngine/server-core/src/logger';
-import channels from '@xr3ngine/server-core/src/channels';
+import channels from './channels';
 import authentication from '@xr3ngine/server-core/src/user/authentication';
 import config from '@xr3ngine/server-core/src/appconfig';
 import sync from 'feathers-sync';

@@ -2,7 +2,7 @@ import { Op } from "sequelize";
 import { Id, NullableId, Paginated, Params, ServiceMethods } from '@feathersjs/feathers';
 import { Application } from '../../../declarations';
 import S3Provider from '../storageprovider/s3.storage';
-import { MAX_AVATAR_FILE_SIZE, MIN_AVATAR_FILE_SIZE, PRESIGNED_URL_EXPIRATION_DURATION } from "@xr3ngine/engine/src/common/constants/AvatarConstants";
+import { MAX_AVATAR_FILE_SIZE, MIN_AVATAR_FILE_SIZE, PRESIGNED_URL_EXPIRATION_DURATION } from '@xr3ngine/common/src/constants/AvatarConstants';
 
 interface Data {}
 

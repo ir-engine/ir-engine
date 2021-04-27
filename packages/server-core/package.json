@@ -75,7 +75,6 @@
     "@feathersjs/transport-commons": "^4.5.9",
     "@google-cloud/agones-sdk": "^1.7.0",
     "@xr3ngine/common": "^0.2.18",
-    "@xr3ngine/engine": "^0.2.18",
     "aws-sdk": "^2.811.0",
     "bent": "^7.3.0",
     "chargebee": "^2.5.7",
