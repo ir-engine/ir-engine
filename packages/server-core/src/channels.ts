@@ -6,6 +6,7 @@ import config from './appconfig';
 import { Application } from '../declarations';
 import getLocalServerIp from '@xr3ngine/server-core/src/util/get-local-server-ip';
 import logger from '@xr3ngine/server-core/src/logger';
+import { decode } from 'jsonwebtoken';
 
 export default (app: Application): void => {
     if (typeof app.channel !== 'function') {
@@ -169,7 +170,6 @@ export default (app: Application): void => {
                 }
             } catch (err) {
                 logger.error(err);
-                throw err;
             }
         }
     });
@@ -179,7 +179,19 @@ export default (app: Application): void => {
             try {
                 const token = (connection as any).socketQuery?.token;
                 if (token != null) {
-                    const authResult = await app.service('authentication').strategies.jwt.authenticate({accessToken: token}, {});
+                    let authResult;
+                    try {
+                        authResult = await app.service('authentication').strategies.jwt.authenticate({accessToken: token}, {});
+                    } catch(err) {
+                        if (err.code === 401 && err.data.name === 'TokenExpiredError') {
+                            const jwtDecoded = decode(token);
+                            const idProvider = await app.service('identityProvider').get(jwtDecoded.sub);
+                            authResult = {
+                                'identity-provider': idProvider
+                            };
+                        }
+                        else throw err;
+                    }
                     const identityProvider = authResult['identity-provider'];
                     if (identityProvider != null && identityProvider.id != null) {
                         const userId = identityProvider.userId;
@@ -253,7 +265,6 @@ export default (app: Application): void => {
                 }
             } catch (err) {
                 logger.info(err);
-                throw err;
             }
         }
     });

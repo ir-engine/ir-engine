@@ -70,7 +70,7 @@ export function doLoginAuto (allowGuest?: boolean, forceClientAuthReset?: boolea
       try {
         res = await (client as any).reAuthenticate();
       } catch(err) {
-        if (err.className === 'not-found') {
+        if (err.className === 'not-found' || (err.className === 'not-authenticated' && err.message === 'jwt expired')) {
           await dispatch(didLogout());
           await (client as any).authentication.reset();
           const newProvider = await client.service('identity-provider').create({
