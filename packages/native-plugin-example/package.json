@@ -12,8 +12,8 @@
   "npmClient": "yarn",
   "jest": "ts-jest",
   "scripts": {
-    "dev": "cross-env NODE_ENV=development ts-eager/register --max-old-space-size=4096 ./index.js --port 3000",
-    "build": "cross-env NODE_OPTIONS=--max_old_space_size=6144 vite build ./ && yarn run export",
+    "dev": "vite",
+    "build": "cross-env NODE_OPTIONS=--max_old_space_size=6144 vite build ./",
     "export": "vite build && npx cap sync",
     "watch": "cross-env NODE_ENV=development vite --port 3001 --hostname 127.0.0.1",
     "validate": "yarn run lint && yarn run test",
@@ -28,7 +28,9 @@
     "react": "^17.0.0"
   },
   "dependencies": {
-    "@capacitor/core": "2.4.7",
+    "@capacitor/android": "^2.4.7",
+    "@capacitor/ios": "^2.4.7",
+    "@capacitor/cli": "2.4.7",
     "@xr3ngine/native-plugin-xr": "^0.2.15",
     "react": "17.0.2"
   },
