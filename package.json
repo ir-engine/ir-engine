@@ -51,9 +51,6 @@
     "diff": "lerna diff"
   },
   "types": "lib/",
-  "pre-push": [
-    "lint"
-  ],
   "pre-commit": [
     "lint"
   ],
