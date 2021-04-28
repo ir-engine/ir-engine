@@ -100,10 +100,4 @@ export class UIButton extends UIBaseElement {
     this.dispatchEvent({ type: state });
     this.textBlock.setState(state);
   }
-<<<<<<< HEAD:packages/engine/src/ui/components/SceneButton.ts
 }
-
-export default SceneButton;
-=======
-}
->>>>>>> dev:packages/engine/src/ui/classes/UIButton.ts

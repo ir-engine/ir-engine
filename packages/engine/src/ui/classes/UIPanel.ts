@@ -128,14 +128,4 @@ export class UIPanel extends UIBaseElement {
     this.button2.visible = false;
     this.button3.visible = false;
   }
-<<<<<<< HEAD:packages/engine/src/ui/components/ScenePanel.ts
-
-  update() {
-    // console.log('engine last time:', Engine.lastTime);
-  }
 }
-
-export default ScenePanel;
-=======
-}
->>>>>>> dev:packages/engine/src/ui/classes/UIPanel.ts
