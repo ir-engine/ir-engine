@@ -20,10 +20,10 @@ export const createGame: Behavior = (entity, args: any) => {
     Math.abs(transform.scale.z) / 2
   );
 
-  let p = transform.position;
-  let s = transform.scale;
-  let min = { x: (-s.x) + p.x, y: (-s.y) + p.y, z: (-s.z) + p.z };
-  let max = { x: s.x + p.x, y: s.y + p.y, z: s.z + p.z };
+  const p = transform.position;
+  const s = transform.scale;
+  const min = { x: (-s.x) + p.x, y: (-s.y) + p.y, z: (-s.z) + p.z };
+  const max = { x: s.x + p.x, y: s.y + p.y, z: s.z + p.z };
 
   const gameData = {
     name: args.objArgs.name,
