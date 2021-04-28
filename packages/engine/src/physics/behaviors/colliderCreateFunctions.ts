@@ -1,12 +1,10 @@
-// import { Body, Trimesh, Box, Sphere, Cylinder, Plane, Vec3 } from 'cannon-es';
 import { PhysicsSystem } from '../systems/PhysicsSystem';
 import { CollisionGroups } from "../enums/CollisionGroups";
 import { createShapeFromConfig, Shape, SHAPES, Body, BodyType, getGeometry } from "@xr3ngine/three-physx";
 import { Entity } from '../../ecs/classes/Entity';
 import { ColliderComponent } from '../components/ColliderComponent';
-import { getComponent, getMutableComponent, hasComponent } from '../../ecs/functions/EntityFunctions';
-import { Object3DComponent } from '../../scene/components/Object3DComponent';
-import { Mesh, Vector3, Quaternion, CylinderBufferGeometry } from 'three';
+import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
+import { Vector3, Quaternion, CylinderBufferGeometry } from 'three';
 import { TransformComponent } from '../../transform/components/TransformComponent';
 
 /**

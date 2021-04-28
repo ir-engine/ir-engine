@@ -24,7 +24,7 @@
   "scripts": {
     "lint": "eslint --fix --quiet --ext .ts src/",
     "dev": "vite",
-    "build": "rimraf dist && ctix entrypoint ./src && tsc && esbuild --bundle index.ts --external:cross-fetch --external:mousetrap --external:draco3dgltf --external:three-mesh-bvh --external:path --external:superbuffer --external:@pixiv/three-vrm --external:comlink --external:browserfs --external:three --external:cannon-es --outfile=dist/engine.js --define:BUILD_MODE=true --define:NODE_ENV=production --platform=neutral",
+    "build": "rimraf dist && ctix entrypoint ./src && tsc && esbuild --bundle index.ts --external:cross-fetch --external:mousetrap --external:draco3dgltf --external:three-mesh-bvh --external:path --external:superbuffer --external:@pixiv/three-vrm --external:comlink --external:browserfs --external:three --external:@xr3ngine/three-physx --outfile=dist/engine.js --define:BUILD_MODE=true --define:NODE_ENV=production --platform=neutral",
     "test": "jest",
     "validate": "yarn run lint && yarn run test",
     "generate-doc": "node_modules/.bin/typedoc"
@@ -40,7 +40,6 @@
     "@xr3ngine/common": "^0.2.18",
     "@xr3ngine/three-physx": "^0.0.6",
     "browserfs": "^1.4.3",
-    "cannon-es": "^0.17.0",
     "cross-fetch": "^3.0.6",
     "ctix": "^0.3.1",
     "draco3dgltf": "^1.4.1",

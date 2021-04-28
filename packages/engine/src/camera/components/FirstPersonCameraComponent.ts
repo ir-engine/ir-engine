@@ -1,9 +1,8 @@
-// import { RaycastResult } from 'cannon-es';
 import { Vector3 } from 'three';
 import { Component } from '../../ecs/classes/Component';
 import { Types } from '../../ecs/types/Types';
 import { CollisionGroups } from '../../physics/enums/CollisionGroups';
-import { PhysXInstance, SceneQuery, SceneQueryType } from "@xr3ngine/three-physx";
+import { SceneQuery } from "@xr3ngine/three-physx";
 import { CameraModes } from '../types/CameraModes';
 
 /** The component is added to any entity and hangs the camera watching it. */

@@ -1,4 +1,3 @@
-// import { Body, Vec3 } from 'cannon-es';
 import { Engine } from "../../../ecs/classes/Engine";
 import { Entity } from "../../../ecs/classes/Entity";
 import { isClient } from "../../../common/functions/isClient";

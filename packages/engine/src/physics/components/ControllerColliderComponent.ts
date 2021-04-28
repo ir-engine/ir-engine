@@ -1,4 +1,3 @@
-// import { Vec3, Material, Body, Sphere, Cylinder } from "cannon-es";
 import { Component } from "../../ecs/classes/Component";
 import { Types } from "../../ecs/types/Types";
 import { Vector3 } from "three";
