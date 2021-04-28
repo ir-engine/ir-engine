@@ -90,8 +90,8 @@ export class UIPanelSystem extends System {
       const component = getComponent(entity, UIPanelComponent);
       console.log('component: ', component);
 
-      var currentdate = new Date(); 
-      var datetime = "Last Sync: " + currentdate.getDate() + "/"
+      const currentdate = new Date(); 
+      const datetime = "Last Sync: " + currentdate.getDate() + "/"
                 + (currentdate.getMonth()+1)  + "/" 
                 + currentdate.getFullYear() + " @ "  
                 + currentdate.getHours() + ":"  
