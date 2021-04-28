@@ -14,19 +14,34 @@ import React, { useEffect, useState } from 'react';
 import { TransformComponent } from '@xr3ngine/engine/src/transform/components/TransformComponent';
 import { DesiredTransformComponent } from '@xr3ngine/engine/src/transform/components/DesiredTransformComponent';
 import { Vector3, Quaternion, Euler, Object3D } from 'three';
+<<<<<<< HEAD
 import { Block } from "@xr3ngine/engine/src/assets/three-mesh-ui";
+=======
+import { Block, Text } from "../../assets/three-mesh-ui";
+>>>>>>> make run with remote assets
 import { Engine } from "@xr3ngine/engine/src/ecs/classes/Engine";
 // import { Block } from "../../assets/three-mesh-ui";
 import { VideoPlayer } from "@xr3ngine/engine/src/video/classes/VideoPlayer";
 import { Control } from "@xr3ngine/engine/src/video/classes/Control";
+<<<<<<< HEAD
 import { UIBaseElement, UI_ELEMENT_SELECT_STATE } from "./UIBaseElement";
 import {totalWidth, totalHeight, itemHeight, url, envUrl, videoUrl} from '../constants/Constant';
+=======
+import { UIBaseElement, UI_ELEMENT_SELECT_STATE } from "@xr3ngine/engine/src/ui/classes/UIBaseElement";
+// import { createGalleryPanel } from "@xr3ngine/engine/src/ui/classes/UIGallery";
+import { UIGallery } from "@xr3ngine/engine/src/ui/classes/UIAll";
+import { createItem, createCol, createRow, createButton, makeLeftItem } from '@xr3ngine/engine/src/ui//functions/createItem';
+import { Color, TextureLoader } from "three";
+>>>>>>> make run with remote assets
 
 const MobileGamepad = React.lazy(() => import("@xrengine/client-core/src/common/components/MobileGamepad"));
 const engineRendererCanvasId = 'engine-renderer-canvas';
 
+<<<<<<< HEAD
 const store = Store.store;
 
+=======
+>>>>>>> make run with remote assets
 interface Props {
   locationName: string;
 }
@@ -77,22 +92,30 @@ export const OfflineEnginePage = (props: Props) => {
 
     EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.JOINED_WORLD, worldState });
 
-    Engine.scene.children[10].visible = false;      //ground
-    Engine.scene.children[12].visible = false;      //character
-
     createUI();
   }
 
   const createUI = () => {
+<<<<<<< HEAD
     const panel = new UIGallery();
+=======
+    // Engine.scene.children[10].visible = false;      //ground
+    // Engine.scene.children[12].visible = false;      //character
 
-    // const transform = new TransformComponent();
+    // const panelObject = createGalleryPanel();
+
+    // const panel = new UIBaseElement();
+    // panel.add(panelObject);
+>>>>>>> make run with remote assets
+
+    // // const transform = new TransformComponent();
     const sourcePosition = new Vector3(0, 1, 0);
-    const destinationPosition = new Vector3(0, 0, 0);
+    const destinationPosition = new Vector3(0, 1, 0);
     
-    createPanelComponent({ panel: panel, parent: null, sourcePosition: sourcePosition, destinationPosition: destinationPosition });
+    createPanelComponent({ panel: new UIGallery(), parent: null, sourcePosition: sourcePosition, destinationPosition: destinationPosition });
     // createPanelComponent({ panel: new UIGallery() });
     // createPanelComponent({ panel: new UIGallery() });
+<<<<<<< HEAD
   }
 
   const createGallery = () => {
@@ -263,6 +286,9 @@ export const OfflineEnginePage = (props: Props) => {
 
     control.visible = false;
   }
+=======
+  }  
+>>>>>>> make run with remote assets
 
   const addUIEvents = () => {
     EngineEvents.instance.addEventListener(XRSystem.EVENTS.XR_START, async (ev: any) => { setIsInXR(true); });
