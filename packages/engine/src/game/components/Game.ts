@@ -5,7 +5,9 @@ import { GameObjectPrefab } from "../interfaces/GameObjectPrefab";
 import { GameMode, StateObject } from "../types/GameMode";
 import { GameObject } from "./GameObject";
 import { GamePlayer } from "./GamePlayer";
-
+/**
+ * @author HydraFire <github.com/HydraFire>
+ */
 export class Game extends Component<Game> {
     name: string // Game Node Name from editor, allow create two games with one GameMode|GameType;
     gameMode: string // GameMode|GameType, its string key to DefaultGamesSchema to get GameSchema of your game

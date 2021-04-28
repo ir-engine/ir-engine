@@ -55,7 +55,7 @@ export function loadComponent(entity: Entity, component: SceneDataComponent): vo
 
   if (SceneObjectLoadingSchema[name] === undefined)
     return console.warn("Couldn't load ", name);
-
+  
   const componentSchema = SceneObjectLoadingSchema[name];
   // console.log(entity, component, componentSchema)
   // for each component in component name, call behavior

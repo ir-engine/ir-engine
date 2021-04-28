@@ -12,7 +12,7 @@ import { bindActionCreators, Dispatch } from 'redux';
 // @ts-ignore
 import styles from './Admin.module.scss';
 import VideoModal from './VideoModal';
-import { useRouter } from 'next/router';
+import { useHistory } from 'react-router-dom';
 import { selectVideoState } from '../../media/components/video/selector';
 import { selectAuthState } from '../../user/reducers/auth/selector';
 import { selectAdminState } from '../reducers/admin/selector';
@@ -36,6 +36,7 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
   fetchAdminVideos: bindActionCreators(fetchAdminVideos, dispatch)
 });
 
+
 const AdminConsole = (props: Props): any => {
   const { fetchAdminVideos, auth, videos } = props;
   const initialState = {
@@ -54,7 +55,7 @@ const AdminConsole = (props: Props): any => {
     video: {}
   };
 
-  const router = useRouter();
+  const router = useHistory();
   const [state, setState] = useState(initialState);
 
   useEffect(() => {
@@ -88,9 +89,7 @@ const AdminConsole = (props: Props): any => {
   };
 
   const goToRoot = (): void => {
-    router.push('/').catch(err => {
-      console.warn("Failed to push to root");
-    });
+    router.push('/');
   };
 
   return (

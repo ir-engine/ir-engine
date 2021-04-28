@@ -1,8 +1,11 @@
+/**
+ * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
+ */
 import React from 'react';
 // @ts-ignore
-// @ts-ignore
 import styles from './SimpleModal.module.scss';
-import { Dialog, DialogTitle } from '@material-ui/core';
+import Dialog from '@material-ui/core/Dialog';
+import DialogTitle from '@material-ui/core/DialogTitle';
 import CreatorAsTitle from '../CreatorAsTitle';
 
 interface Props{

@@ -4,19 +4,20 @@ export function validatePhoneNumber (phone: string): boolean { return (/^(\+\d{1
 
 export class Config {
     static publicRuntimeConfig = {
-        title: '',
+        title: "The Overlay",
         dev: false,
         loginDisabled: false,
-        logo: '',
-        apiServer: '',
-        apiServerBuild: '',
-        appServer: '',
-        gameserver: '',
+        logo: "./logo.svg",
+        apiServer: "https://127.0.0.1:3030",
+        appServer: "https://127.0.0.1:3000",
+        gameserver: "https://127.0.0.1:3030",
+        mediatorServer: "https://authn.io",
         gameserverDomain: '',
-        siteTitle: '',
-        siteDescription: '',
-        feathersStoreKey: '',
-        localStorageKey: '',
+        lobbyLocationName: 'lobby',
+        siteTitle: "The Overlay",
+        siteDescription: "Connected Worlds for Everyone",
+        feathersStoreKey: "TheOverlay-Auth-Store",
+        localStorageKey: "theoverlay-client-store-key-v1",
         auth: {
             enableSmsMagicLink: true,
             enableEmailMagicLink: true,
@@ -43,7 +44,8 @@ export class Config {
     static apiUrl = '';
 }
 
-export const setRuntime = (runtime) => {
-    Config.publicRuntimeConfig = runtime;
+export const setRuntime = (runtime: any): void => {
+    const newConfig = typeof runtime === 'string' ? JSON.parse(runtime) : runtime;
+    Config.publicRuntimeConfig = Object.assign({}, Config.publicRuntimeConfig, newConfig);
     Config.apiUrl = process.env.NODE_ENV === 'production' ? Config.publicRuntimeConfig.apiServer : 'https://127.0.0.1:3030';
 };

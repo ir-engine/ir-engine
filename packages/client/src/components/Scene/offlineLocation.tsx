@@ -5,19 +5,16 @@ import { testScenes, testUserId, testWorldState } from '@xr3ngine/common/src/ass
 import { isMobileOrTablet } from '@xr3ngine/engine/src/common/functions/isMobile';
 import { EngineEvents } from '@xr3ngine/engine/src/ecs/classes/EngineEvents';
 import { resetEngine } from "@xr3ngine/engine/src/ecs/functions/EngineFunctions";
-import { DefaultInitializationOptions, initializeEngine } from '@xr3ngine/engine/src/initialize';
-import { NetworkSchema } from '@xr3ngine/engine/src/networking/interfaces/NetworkSchema';
+import { initializeEngine } from '@xr3ngine/engine/src/initialize';
+import { DefaultInitializationOptions } from '@xr3ngine/engine/src/DefaultInitializationOptions';
 import { ClientNetworkSystem } from '@xr3ngine/engine/src/networking/systems/ClientNetworkSystem';
-import { RaycastComponent } from '@xr3ngine/engine/src/raycast/components/RaycastComponent';
+import { UIGallery } from '@xr3ngine/engine/src/ui/classes/UIGallery';
 import { styleCanvas } from '@xr3ngine/engine/src/renderer/functions/styleCanvas';
-import { DefaultNetworkSchema } from '@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema';
-import { UIPanelComponent } from '@xr3ngine/engine/src/ui/components/UIPanelComponent';
 import { createPanelComponent } from '@xr3ngine/engine/src/ui/functions/createPanelComponent';
 import { XRSystem } from '@xr3ngine/engine/src/xr/systems/XRSystem';
-import dynamic from 'next/dynamic';
 import React, { useEffect, useState } from 'react';
 
-const MobileGamepad = dynamic<MobileGamepadProps>(() => import("@xr3ngine/client-core/src/common/components/MobileGamepad").then((mod) => mod.MobileGamepad), { ssr: false });
+const MobileGamepad = React.lazy(() => import("@xr3ngine/client-core/src/common/components/MobileGamepad"));
 const engineRendererCanvasId = 'engine-renderer-canvas';
 
 interface Props {
@@ -72,7 +69,7 @@ export const OfflineEnginePage = (props: Props) => {
 
     EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.JOINED_WORLD, worldState });
 
-    createPanelComponent({ panel: new UIPanelComponent(), raycast: new RaycastComponent() });
+    createPanelComponent({ panel: new UIGallery() });
   }
 
   const addUIEvents = () => {

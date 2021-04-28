@@ -11,7 +11,7 @@ import socketio from '@feathersjs/socketio';
 import AgonesSDK from '@google-cloud/agones-sdk';
 import { Application } from '@xr3ngine/server-core/declarations';
 import logger from '@xr3ngine/server-core/src/logger';
-import channels from '@xr3ngine/server-core/src/channels';
+import channels from './channels';
 import authentication from '@xr3ngine/server-core/src/user/authentication';
 import config from '@xr3ngine/server-core/src/appconfig';
 import sync from 'feathers-sync';
@@ -120,9 +120,6 @@ if (config.gameserver.enabled) {
     app.configure(feathersLogger(winston));
     app.configure(services);
 
-    // Set up event channels (see channels.js)
-    app.configure(channels);
-
     // Host the public folder
     // Configure a middleware for 404s and the error handler
 
@@ -159,6 +156,10 @@ if (config.gameserver.enabled) {
 
       // Create new gameserver instance
       const gameServer = new WebRTCGameServer(app);
+      gameServer.initialize().then(() => {
+        // Set up event channels (see channels.js)
+        app.configure(channels);
+      });
       console.log("Created new gameserver instance");
     } else {
       console.warn('Did not create gameserver');

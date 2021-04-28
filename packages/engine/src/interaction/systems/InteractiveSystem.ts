@@ -13,7 +13,7 @@ import { addComponent, getComponent, getMutableComponent, hasComponent, removeCo
 import { SystemUpdateType } from "../../ecs/functions/SystemUpdateType";
 import { LocalInputReceiver } from "../../input/components/LocalInputReceiver";
 import { NetworkObject } from "../../networking/components/NetworkObject";
-import { RigidBody } from "../../physics/components/RigidBody";
+import { RigidBodyComponent } from "../../physics/components/RigidBody";
 import { HighlightComponent } from "../../renderer/components/HighlightComponent";
 import { Object3DComponent } from "../../scene/components/Object3DComponent";
 import { CharacterComponent } from "../../templates/character/components/CharacterComponent";
@@ -184,7 +184,7 @@ const interactBoxRaycast: Behavior = (entity: Entity, { raycastList }: InteractB
   const newBoxHit = selectNearest.length ? selectNearest[0] : null;
   let resultIsCloseEnough = false;
   if(newBoxHit) {
-    const interactableTransform = getComponent(newBoxHit[0], TransformComponent);
+    const interactableTransform = getComponent(newBoxHit[0] as Entity, TransformComponent);
     if(interactableTransform.position.distanceTo(transform.position) < 1){
       resultIsCloseEnough = true;
     }
@@ -321,7 +321,7 @@ export class InteractiveSystem extends System {
               hasComponent(entityInter, TransformComponent)
             ) {
               addComponent(entityInter, BoundingBox, {
-                dynamic: (hasComponent(entityInter, RigidBody) || hasComponent(entityInter, VehicleComponent))
+                dynamic: (hasComponent(entityInter, RigidBodyComponent) || hasComponent(entityInter, VehicleComponent))
               });
             }
             if (entityInter !== interacts.focusedInteractive && hasComponent(entityInter, InteractiveFocused)) {

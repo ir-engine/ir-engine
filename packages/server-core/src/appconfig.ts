@@ -1,10 +1,18 @@
+import dotenv from 'dotenv-flow';
+if (process.env.KUBERNETES !== 'true') {
+  dotenv.config({
+    path: appRootPath.path
+  });
+}
+
 /* eslint-disable @typescript-eslint/restrict-template-expressions */
 import appRootPath from 'app-root-path';
 import * as chargebeeInst from 'chargebee';
-// Load all the ENV variables from `.env`, then `.env.local`, into process.env
 import dotenv from 'dotenv-flow';
+// Load all the ENV variables from `.env`, then `.env.local`, into process.env
 import path from 'path';
 import url from 'url';
+
 if (process.env.KUBERNETES !== 'true') {
   dotenv.config({
     path: appRootPath.path

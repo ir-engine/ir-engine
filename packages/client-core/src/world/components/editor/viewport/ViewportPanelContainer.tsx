@@ -239,7 +239,7 @@ ViewportToolbar.propTypes = {
  * @author Robert Long
  * @constructor
  */
-export default function ViewportPanelContainer() {
+export function ViewportPanelContainer() {
   const editor = useContext(EditorContext);
   const canvasRef = React.createRef();
   const [flyModeEnabled, setFlyModeEnabled] = useState(false);
@@ -363,3 +363,4 @@ export default function ViewportPanelContainer() {
     </Panel>
   );
 }
+export default ViewportPanelContainer;

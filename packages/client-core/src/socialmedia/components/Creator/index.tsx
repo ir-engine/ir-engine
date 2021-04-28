@@ -1,3 +1,6 @@
+/**
+ * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
+ */
 import Button from '@material-ui/core/Button';
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
@@ -6,6 +9,7 @@ import { selectCreatorsState } from '../../reducers/creator/selector';
 import { followCreator, getCreator, getFollowersList, getFollowingList, unFollowCreator } from '../../reducers/creator/service';
 import CreatorCard from '../CreatorCard';
 import Featured from '../Featured';
+import AppFooter from '../Footer';
 // @ts-ignore
 import styles from './Creator.module.scss';
 
@@ -46,20 +50,25 @@ const Creator = ({creatorId, creatorState, getCreator, followCreator, unFollowCr
             }
         }
     },[]);
-    if(creatorState && creatorState.get('fetching') === false){
-        creator = isMe === true ? creatorState.get('currentCreator') : creatorData ? creatorData : creatorState.get('creator');
-    }
+    // if(creatorState && creatorState.get('fetching') === false){
+    //     creator = isMe === true ? creatorState.get('currentCreator') : creatorData ? creatorData : creatorState.get('creator');
+    // }
+    // console.log('Creator isMe',isMe, 'currentCreator',creatorState.get('currentCreator'));
+    // console.log('Creator creator',isMe === true ? creatorState?.get('currentCreator') : creatorData ? creatorData : creatorState?.get('creator'));
+    // console.log('Creator creatorState',creatorState);
+    // console.log('Creator creatorData',creatorData);
     const [videoType, setVideoType] = useState('creator');
-    return  creator ?  (<section className={styles.creatorContainer}>
-            <CreatorCard creator={creator} />
+    return  <><section className={styles.creatorContainer}>
+            <CreatorCard creator={isMe === true ? creatorState?.get('currentCreator') : creatorData ? creatorData : creatorState?.get('creator')} />
             {isMe && <section className={styles.videosSwitcher}>
-                    <Button variant={videoType === 'myFeatured' ? 'contained' : 'text'} color='secondary' className={styles.switchButton+(videoType === 'myFeatured' ? ' '+styles.active : '')} onClick={()=>setVideoType('myFeatured')}>Featured</Button>
+                    {/* <Button variant={videoType === 'myFeatured' ? 'contained' : 'text'} color='secondary' className={styles.switchButton+(videoType === 'myFeatured' ? ' '+styles.active : '')} onClick={()=>setVideoType('myFeatured')}>Featured</Button> */}
                     <Button variant={videoType === 'creator' ? 'contained' : 'text'} color='secondary' className={styles.switchButton+(videoType === 'creator' ? ' '+styles.active : '')} onClick={()=>setVideoType('creator')}>My Videos</Button>
                     <Button variant={videoType === 'bookmark' ? 'contained' : 'text'} color='secondary' className={styles.switchButton+(videoType === 'bookmark' ? ' '+styles.active : '')} onClick={()=>setVideoType('bookmark')}>Saved Videos</Button>
             </section>}
             {creator?.id && <section className={styles.feedsWrapper}><Featured creatorId={creator.id} type={videoType}/></section>}
-        </section>) 
-    : <></>;
+        </section>
+        <AppFooter />
+        </>;
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(Creator);

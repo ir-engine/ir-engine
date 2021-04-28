@@ -21,6 +21,11 @@ import { ButtonUp } from "../../templates/game/gameDefault/components/ButtonUpTa
 import { ButtonDown } from "../../templates/game/gameDefault/components/ButtonDownTagComponent";
 import { PanelDown } from "../../templates/game/gameDefault/components/PanelDownTagComponent";
 import { PanelUp } from "../../templates/game/gameDefault/components/PanelUpTagComponent";
+
+/**
+ * @author HydraFire <github.com/HydraFire>
+ */
+
 // TODO: create schema states
 const gameStateComponents = {
   'Open': Open,

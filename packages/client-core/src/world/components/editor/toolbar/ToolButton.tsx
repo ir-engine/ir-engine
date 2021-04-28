@@ -42,7 +42,7 @@ const Icon = (styled as any).div`
  * @param {any} tooltip
  * @returns 
  */
-export default function ToolButton({ id, icon, onClick, isSelected, tooltip }) {
+export function ToolButton({ id, icon, onClick, isSelected, tooltip }) {
   return (
     <InfoTooltip id={id} info={tooltip} position="bottom">
       <StyledToolButton isSelected={isSelected} onClick={onClick}>
@@ -63,3 +63,4 @@ ToolButton.propTypes = {
   isSelected: PropTypes.bool,
   tooltip: PropTypes.string
 };
+export default ToolButton;

@@ -20,6 +20,10 @@ import { ifNamed } from "./gameDefault/checkers/ifNamed";
 import { isOpen, isClosed } from "./gameDefault/checkers/isOpenIsClosed";
 import { isUp, isDown } from "./gameDefault/checkers/isUpIsDown";
 
+/**
+ * @author HydraFire
+ */
+
 export const GolfGameMode: GameMode = {
   name: "Golf",
   priority: 1,

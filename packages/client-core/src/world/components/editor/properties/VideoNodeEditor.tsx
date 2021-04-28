@@ -28,7 +28,7 @@ const videoProjectionOptions = Object.values(VideoProjection).map(v => ({ label:
  * @param       {any} props
  * @constructor
  */
-export default function VideoNodeEditor(props) {
+export function VideoNodeEditor(props) {
   const { editor, node } = props;
   const { t } = useTranslation();
 
@@ -68,3 +68,4 @@ VideoNodeEditor.iconComponent = Video;
 
 // setting description will appears on editor view
 VideoNodeEditor.description = i18n.t('editor:properties.video.description');
+export default VideoNodeEditor;

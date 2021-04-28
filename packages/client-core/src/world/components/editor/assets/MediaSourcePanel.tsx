@@ -14,7 +14,7 @@ import useUpload from "./useUpload";
  * @param       {object} source
  * @constructor
  */
-export default function MediaSourcePanel({
+export function MediaSourcePanel({
   editor,
   source,
 }) {
@@ -85,4 +85,4 @@ MediaSourcePanel.propTypes = {
   source: PropTypes.object,
 
 };
-
+export default MediaSourcePanel;

@@ -3,7 +3,7 @@ import store from "@xr3ngine/client-core/src/store";
 import { EngineEvents } from "@xr3ngine/engine/src/ecs/classes/EngineEvents";
 import { Network } from "@xr3ngine/engine/src/networking/classes/Network";
 import { MediaStreamSystem } from "@xr3ngine/engine/src/networking/systems/MediaStreamSystem";
-import getConfig from 'next/config';
+import { Config } from '@xr3ngine/client-core/src/helper';
 import { Dispatch } from 'redux';
 import { endVideoChat, leave } from "../../transports/SocketWebRTCClientFunctions";
 import { triggerUpdateConsumers } from '../mediastream/service';
@@ -13,8 +13,6 @@ import {
   instanceServerProvisioned,
   instanceServerProvisioning
 } from './actions';
-
-const { publicRuntimeConfig } = getConfig();
 
 export function provisionInstanceServer(locationId?: string, instanceId?: string, sceneId?: string) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
@@ -40,6 +38,10 @@ export function provisionInstanceServer(locationId?: string, instanceId?: string
     });
     if (provisionResult.ipAddress != null && provisionResult.port != null) {
       dispatch(instanceServerProvisioned(provisionResult, locationId, sceneId));
+    } else {
+      EngineEvents.instance.dispatchEvent({
+        type: EngineEvents.EVENTS.PROVISION_INSTANCE_NO_GAMESERVERS_AVAILABLE
+      });
     }
   };
 }
@@ -93,7 +95,7 @@ export function resetInstanceServer() {
   };
 }
 
-if(!publicRuntimeConfig.offlineMode) {
+if(!Config.publicRuntimeConfig.offlineMode) {
   client.service('instance-provision').on('created', (params) => {
     if (params.locationId != null) store.dispatch(instanceServerProvisioned(params, params.locationId, params.sceneId));
   });

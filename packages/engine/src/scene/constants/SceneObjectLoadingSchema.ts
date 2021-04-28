@@ -10,8 +10,8 @@ import { ComponentConstructor } from "../../ecs/interfaces/ComponentInterfaces";
 import { createParticleEmitterObject } from '../../particles/functions/particleHelpers';
 import { addObject3DComponent } from '../behaviors/addObject3DComponent';
 import { createBackground } from '../behaviors/createBackground';
-import { createBoxColliderObject } from '../behaviors/createBoxCollider';
-import { createCollidersFromSceneData } from '../behaviors/createCollidersFromSceneData';
+import { createBoxCollider } from '../behaviors/createBoxCollider';
+import { createMeshCollider } from '../behaviors/createMeshCollider';
 import { createCommonInteractive } from "../behaviors/createCommonInteractive";
 import { createGroup } from '../behaviors/createGroup';
 import { createLink } from '../behaviors/createLink';
@@ -31,8 +31,7 @@ import { LoadingSchema } from '../interfaces/LoadingSchema';
 import Image from '../classes/Image';
 import { createGame, createGameObject } from "../behaviors/createGame";
 import { GameObject } from "../../game/components/GameObject";
-
-
+import { setPostProcessing } from "../behaviors/setPostProcessing";
 /**
  * Add Component into Entity from the Behavior.
  * @param entity Entity in which component will be added.
@@ -119,7 +118,12 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
   //         type: LightTagComponent
   //       }]
   //   },
-  'collidable': {},
+  'collidable': {
+    behaviors: [
+      {
+        behavior: () => { console.warn("SceneObjectLoadingSchema: Using 'collidable' which is not implemented"); },
+      },
+    ]},
   "floor-plan": {}, // Doesn't do anything in client mode
   'gltf-model': {
     behaviors: [
@@ -404,7 +408,7 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
   'box-collider': {
     behaviors: [
       {
-        behavior: createBoxColliderObject,
+        behavior: createBoxCollider,
         values: ['type', 'position', 'quaternion', 'scale']
       }
     ]
@@ -412,7 +416,7 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
   'mesh-collider': {
     behaviors: [
       {
-        behavior: createCollidersFromSceneData,
+        behavior: createMeshCollider,
         values: ['data', 'type', 'position', 'quaternion', 'scale', 'vertices', 'indices', 'sceneEntityId']
       }
     ]
@@ -449,5 +453,15 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
         values: ['ageRandomness', 'angularVelocity', 'colorCurve', 'endColor', 'endOpacity', 'endSize', 'endVelocity', 'lifetime', 'lifetimeRandomness', 'middleColor', 'middleOpacity', 'particleCount', 'sizeCurve', 'sizeRandomness', 'src', 'startColor', 'startOpacity', 'startSize', 'startVelocity', 'velocityCurve']
       }
     ],
+  },
+
+  'postprocessing':
+  {
+    behaviors:[
+      {
+        behavior:setPostProcessing,
+        values:["options"]
+      }
+    ]
   }
 };

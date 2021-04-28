@@ -10,7 +10,7 @@ import Api from "../Api";
  * @author Robert Long
  * @type {class component}
  */
-export default class VideoMediaSource extends BaseSource {
+export class VideoMediaSource extends BaseSource {
   component: typeof VideoSourcePanel;
   api: Api;
   constructor(api) {
@@ -61,3 +61,5 @@ export default class VideoMediaSource extends BaseSource {
     };
   }
 }
+
+export default VideoMediaSource;

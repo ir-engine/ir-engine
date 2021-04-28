@@ -5,6 +5,10 @@ import { addComponent, getComponent, getMutableComponent, hasComponent, removeCo
 import { getHisGameEntity, getHisEntity, getRole, getGame, getUuid } from './functions';
 import { InitStorageInterface } from '../types/GameMode';
 
+/**
+ * @author HydraFire <github.com/HydraFire>
+ */
+
 function customConverter(str) {
   const arr = str.split(',');
   const variable = arr[0];

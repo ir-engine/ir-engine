@@ -8,8 +8,8 @@ import { getOrbitControls } from '@xr3ngine/engine/src/input/functions/loadOrbit
 import { Views } from '../util';
 //@ts-ignore
 // @ts-ignore
-import styles from '../style.module.scss';
-import { AVATAR_FILE_ALLOWED_EXTENSIONS, MAX_AVATAR_FILE_SIZE, MIN_AVATAR_FILE_SIZE, MAX_ALLOWED_TRIANGLES, THUMBNAIL_HEIGHT, THUMBNAIL_WIDTH } from '@xr3ngine/engine/src/common/constants/AvatarConstants';
+import styles from '../UserMenu.module.scss';
+import { AVATAR_FILE_ALLOWED_EXTENSIONS, MAX_AVATAR_FILE_SIZE, MIN_AVATAR_FILE_SIZE, MAX_ALLOWED_TRIANGLES, THUMBNAIL_HEIGHT, THUMBNAIL_WIDTH } from '@xr3ngine/common/src/constants/AvatarConstants';
 
 
 interface Props {
@@ -24,7 +24,7 @@ interface State {
 	obj: any;
 }
 
-export default class AvatarSelectMenu extends React.Component<Props, State> {
+export class AvatarSelectMenu extends React.Component<Props, State> {
 	constructor(props) {
 		super(props);
 
@@ -226,3 +226,5 @@ export default class AvatarSelectMenu extends React.Component<Props, State> {
 		);
 	}
 }
+
+export default AvatarSelectMenu;

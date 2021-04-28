@@ -7,7 +7,9 @@ import { addComponent, getComponent, getMutableComponent, hasComponent, removeCo
 import { Game } from "../components/Game";
 import { GameObject } from "../components/GameObject";
 import { GamePlayer } from "../components/GamePlayer";
-
+/**
+ * @author HydraFire <github.com/HydraFire>
+ */
 export const getHisGameEntity = (name: string): Entity => {
   return GameManagerSystem.createdGames.find(entity => getComponent(entity, Game).name === name);
 };

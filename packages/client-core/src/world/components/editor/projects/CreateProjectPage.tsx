@@ -17,11 +17,9 @@ import PrimaryLink from "../inputs/PrimaryLink";
 import { Button } from "../inputs/Button";
 import { ProjectsSection, ProjectsContainer, ProjectsHeader } from "./ProjectsPage";
 import InfiniteScroll from "react-infinite-scroller";
-import { useRouter } from "next/router";
+import { useHistory, withRouter } from "react-router-dom";
 import { withApi } from "../contexts/ApiContext";
 import usePaginatedSearch from "./usePaginatedSearch";
-import configs from "../configs";
-import Api from "../Api";
 import { useTranslation } from "react-i18next";
 
 /**
@@ -30,11 +28,11 @@ import { useTranslation } from "react-i18next";
  * @param {API} api
  * @returns 
  */
-function CreateProjectPage({ api }: { api: Api }) {
-  const router = useRouter();
+function CreateProjectPage(props) {
+  const router = useHistory();
   const { t } = useTranslation();
 
-  const queryParams = new Map(Object.entries(router.query));
+  const queryParams = new Map(Object.entries(props.match.params));
 
   const [params, setParams] = useState({
     source: "scene_listings",
@@ -93,7 +91,7 @@ function CreateProjectPage({ api }: { api: Api }) {
   );
 
   // MODIFIED FROM ORIGINAL
-  const { loading, error, entries } = usePaginatedSearch(`${api.apiURL}/media-search`, params);
+  const { loading, error, entries } = usePaginatedSearch(`${props.api.apiURL}/media-search`, params);
   // const { loading, error, entries } = { loading: false, error: false, entries: [] };
   const hasMore = false;
   const filteredEntries = Array.isArray(entries) ? entries.map(result => ({
@@ -155,4 +153,4 @@ function CreateProjectPage({ api }: { api: Api }) {
   );
 }
 
-export default withApi(CreateProjectPage);
+export default withRouter(withApi(CreateProjectPage));

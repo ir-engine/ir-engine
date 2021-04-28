@@ -11,7 +11,9 @@ import { GameObject } from "../components/GameObject";
 import { GamePlayer } from "../components/GamePlayer";
 import { HaveBeenInteracted } from "../actions/HaveBeenInteracted";
 import { GameStateActionMessage } from "../types/GameMessage";
-
+/**
+ * @author HydraFire <github.com/HydraFire>
+ */
 // TODO: create schema actions
 const gameActionComponents = {
   'HaveBeenInteracted': HaveBeenInteracted

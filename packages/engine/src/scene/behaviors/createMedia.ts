@@ -9,11 +9,20 @@ import { getComponent } from "../../ecs/functions/EntityFunctions";
 import AudioSource from '../classes/AudioSource';
 import { Object3DComponent } from '../components/Object3DComponent';
 import { isWebWorker } from '../../common/functions/getEnvironment';
-import DracosisPlayer from '@xr3ngine/volumetric/src/Player';
 import VolumetricComponent from "../components/VolumetricComponent"
 import { addComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
 import { EngineEvents } from '../../ecs/classes/EngineEvents';
 import { InteractiveSystem } from '../../interaction/systems/InteractiveSystem';
+
+const isBrowser=new Function("try {return this===window;}catch(e){ return false;}");
+
+let DracosisPlayer = null;
+if (isBrowser())
+  import("@xr3ngine/volumetric/src/Player").then(imported => {
+    DracosisPlayer = imported;
+  });
+
+
 
 const elementPlaying = (element: any): boolean => {
   if(isWebWorker) return element?._isPlaying;
@@ -76,8 +85,7 @@ export const createVolumetric: Behavior = (entity, args: { objArgs }) => {
     loop: args.objArgs.loop,
     autoplay: args.objArgs.autoPlay,
     scale: 1,
-    frameRate: 25,
-    keyframesToBufferBeforeStart: 250
+    frameRate: 25
   });
   volumetricComponent.player = DracosisSequence;
   addObject3DComponent(entity, { obj3d: container });//, objArgs: args.objArgs });

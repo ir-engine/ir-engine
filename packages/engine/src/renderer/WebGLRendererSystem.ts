@@ -12,7 +12,6 @@ import { CSM } from '../assets/csm/CSM';
 import { now } from '../common/functions/now';
 import { Engine } from '../ecs/classes/Engine';
 import { System, SystemAttributes } from '../ecs/classes/System';
-import { DefaultPostProcessingSchema } from './postprocessing/DefaultPostProcessingSchema';
 import { BlendFunction } from './postprocessing/blending/BlendFunction';
 import { EffectComposer } from './postprocessing/core/EffectComposer';
 import { DepthOfFieldEffect } from './postprocessing/DepthOfFieldEffect';
@@ -25,6 +24,7 @@ import { SSAOEffect } from './postprocessing/SSAOEffect';
 import { TextureEffect } from './postprocessing/TextureEffect';
 import { PostProcessingSchema } from './postprocessing/PostProcessingSchema';
 import { EngineEvents } from '../ecs/classes/EngineEvents';
+import PostProcessing, { effectType } from '../scene/classes/PostProcessing';
 
 export class WebGLRendererSystem extends System {
   
@@ -61,7 +61,7 @@ export class WebGLRendererSystem extends System {
 
   static automatic = true;
   static usePBR = true;
-  static usePostProcessing = true;
+  static usePostProcessing = false;
   static shadowQuality = 5; 
   /** Resoulion scale. **Default** value is 1. */
   static scaleFactor = 1;
@@ -79,8 +79,7 @@ export class WebGLRendererSystem extends System {
 
     this.onResize = this.onResize.bind(this);
 
-    this.postProcessingSchema = attributes.postProcessingSchema ?? DefaultPostProcessingSchema;
-
+    
     let context;
     const canvas = attributes.canvas;
 
@@ -124,7 +123,6 @@ export class WebGLRendererSystem extends System {
     this.onResize();
 
     WebGLRendererSystem.needsResize = true;
-    this.configurePostProcessing();
     loadGraphicsSettingsFromStorage();
 
     // if we turn PostPro off, don't turn it back on, if we turn it on, let engine manage it
@@ -133,6 +131,7 @@ export class WebGLRendererSystem extends System {
     this.setShadowQuality(this.qualityLevel);
     this.setResolution(WebGLRendererSystem.scaleFactor);
     this.setUseAutomatic(WebGLRendererSystem.automatic);
+    WebGLRendererSystem.composer = new EffectComposer(Engine.renderer);
 
     EngineEvents.instance.addEventListener(WebGLRendererSystem.EVENTS.SET_POST_PROCESSING, (ev: any) => {
       this.setUsePostProcessing(ev.payload);
@@ -168,8 +167,8 @@ export class WebGLRendererSystem extends System {
     * Note: Post processing effects are set in the PostProcessingSchema provided to the system.
     * @param entity The Entity holding renderer component.
     */
-  private configurePostProcessing(): void {
-    WebGLRendererSystem.composer = new EffectComposer(Engine.renderer);
+  public configurePostProcessing(postProcessingSchema:PostProcessingSchema=PostProcessing.defaultOptions): void {
+    this.postProcessingSchema=postProcessingSchema;
     this.renderPass = new RenderPass(Engine.scene, Engine.camera);
     this.renderPass.scene = Engine.scene;
     this.renderPass.camera = Engine.camera;
@@ -187,20 +186,23 @@ export class WebGLRendererSystem extends System {
       resolutionScale: 0.5
     });
     const normalDepthBuffer =	depthDownsamplingPass.texture;
-
-    this.postProcessingSchema.effects.forEach((pass: any) => {
-      if ( pass.effect === SSAOEffect){
-        passes.push(new pass.effect(Engine.camera, normalPass.texture, {...pass.options, normalDepthBuffer }));
-      }
-      else if ( pass.effect === DepthOfFieldEffect)
-        passes.push(new pass.effect(Engine.camera, pass.options))
-      else if ( pass.effect === OutlineEffect){
-        const effect = new pass.effect(Engine.scene, Engine.camera, pass.options)
-        passes.push(effect)
-        WebGLRendererSystem.composer.outlineEffect = effect
-      }
-      else passes.push(new pass.effect(pass.options))
-    })
+    let pass;
+    Object.keys(this.postProcessingSchema).forEach((key: any) => {
+      pass = this.postProcessingSchema[key];
+      const effect = effectType[key].effect;
+      if (pass.isActive)
+          if (effect === SSAOEffect) {
+              passes.push(new effect(Engine.camera, normalPass.texture, { ...pass, normalDepthBuffer }));
+          }
+          else if (effect === DepthOfFieldEffect)
+              passes.push(new effect(Engine.camera, pass))
+          else if (effect === OutlineEffect) {
+              const eff = new effect(Engine.scene, Engine.camera, pass)
+              passes.push(eff);
+              WebGLRendererSystem.composer.outlineEffect = eff;
+          }
+          else passes.push(new effect(pass))
+      })
     const textureEffect = new TextureEffect({
 			blendFunction: BlendFunction.SKIP,
 			texture: depthDownsamplingPass.texture
@@ -247,7 +249,6 @@ export class WebGLRendererSystem extends System {
       }
 
       Engine.csm.update();
-
       if (WebGLRendererSystem.usePostProcessing) {
         WebGLRendererSystem.composer.render(delta);
       } else {

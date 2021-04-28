@@ -1,7 +1,10 @@
-import { Button, InputAdornment, TextField, Typography } from '@material-ui/core';
+import Button from '@material-ui/core/Button';
+import InputAdornment from '@material-ui/core/InputAdornment';
+import TextField from '@material-ui/core/TextField';
+import Typography from '@material-ui/core/Typography';
 import { Check, Close, Create, GitHub, Send } from '@material-ui/icons';
 import { selectAuthState } from '../../../reducers/auth/selector';
-import { addConnectionByEmail, addConnectionBySms, loginUserByOAuth, logoutUser, removeUser, updateUserAvatarId, updateUsername, updateUserSettings } from '../../../reducers/auth/service';
+import { addConnectionByEmail, addConnectionBySms, loginUserByOAuth, loginUserByXRWallet, logoutUser, removeUser, updateUserAvatarId, updateUsername, updateUserSettings } from '../../../reducers/auth/service';
 import { Network } from '@xr3ngine/engine/src/networking/classes/Network';
 import React, { useEffect, useState } from 'react';
 import { connect } from "react-redux";
@@ -11,11 +14,12 @@ import { GoogleIcon } from '../../../../common/components/Icons/GoogleIcon';
 import { LinkedInIcon } from '../../../../common/components/Icons/LinkedInIcon';
 import { TwitterIcon } from '../../../../common/components/Icons/TwitterIcon';
 import { getAvatarURLFromNetwork, Views } from '../util';
-import { validateEmail, validatePhoneNumber } from '../../../../helper';
+import { Config, validateEmail, validatePhoneNumber } from '../../../../helper';
+import * as polyfill from 'credential-handler-polyfill';
 
 //@ts-ignore
 // @ts-ignore
-import styles from '../style.module.scss';
+import styles from '../UserMenu.module.scss';
 
 interface Props {
 	changeActiveMenu?: any;
@@ -25,6 +29,7 @@ interface Props {
 	updateUserAvatarId?: any;
 	updateUserSettings?: any;
 	loginUserByOAuth?: any;
+	loginUserByXRWallet?: any
 	addConnectionBySms?: any;
 	addConnectionByEmail?: any;
 	logoutUser?: any;
@@ -42,6 +47,7 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 	updateUserAvatarId: bindActionCreators(updateUserAvatarId, dispatch),
 	updateUserSettings: bindActionCreators(updateUserSettings, dispatch),
 	loginUserByOAuth: bindActionCreators(loginUserByOAuth, dispatch),
+	loginUserByXRWallet: bindActionCreators(loginUserByXRWallet, dispatch),
 	addConnectionBySms: bindActionCreators(addConnectionBySms, dispatch),
 	addConnectionByEmail: bindActionCreators(addConnectionByEmail, dispatch),
 	logoutUser: bindActionCreators(logoutUser, dispatch),
@@ -55,6 +61,7 @@ const ProfileMenu = (props: Props): any => {
 		addConnectionByEmail,
 		addConnectionBySms,
 		loginUserByOAuth,
+		loginUserByXRWallet,
 		logoutUser,
 		changeActiveMenu,
 		setProfileMenuOpen
@@ -68,6 +75,22 @@ const ProfileMenu = (props: Props): any => {
 	const [ errorUsername, setErrorUsername] = useState(false);
 
 	let type = '';
+
+	const loadCredentialHandler = async () => {
+		try {
+			let mediator = process.env.NODE_ENV === 'production' ? Config.publicRuntimeConfig.mediatorServer : 'https://authorization.localhost:33443';
+			mediator = `${mediator}/mediator?origin=${encodeURIComponent(window.location.origin)}`;
+
+			await polyfill.loadOnce(mediator);
+			console.log('Ready to work with credentials!');
+		} catch (e) {
+			console.error('Error loading polyfill:', e);
+		}
+	};
+
+	useEffect(() => {
+		loadCredentialHandler();
+	}, []); // Only run once
 
 	useEffect(() => {
 		selfUser && setUsername(selfUser.name);
@@ -123,6 +146,33 @@ const ProfileMenu = (props: Props): any => {
 		else if (setProfileMenuOpen != null) setProfileMenuOpen(false);
 		await logoutUser();
 		window.location.reload();
+	};
+
+	const handleWalletLoginClick = async (e) => {
+		const domain = window.location.origin;
+		const challenge = '99612b24-63d9-11ea-b99f-4f66f3e4f81a'; // TODO: generate
+
+		console.log('Sending DIDAuth query...');
+
+		const didAuthQuery: any = {
+			web: {
+				VerifiablePresentation: {
+					query: [
+						{
+							type: 'DIDAuth'
+						}
+					],
+					challenge,
+					domain // e.g.: requestingparty.example.com
+				}
+			}
+		};
+
+		// Use Credential Handler API to authenticate
+		const result: any = await navigator.credentials.get(didAuthQuery);
+		console.log(result);
+
+		loginUserByXRWallet(result);
 	};
 
 	return (
@@ -188,6 +238,12 @@ const ProfileMenu = (props: Props): any => {
 							}}
 						/>
 					</form>
+				</section>}
+				{ selfUser?.userRole === 'guest' && <section className={styles.walletSection}>
+					<Typography variant="h3" className={styles.textBlock}>Or</Typography>
+					<Button onClick={handleWalletLoginClick} className={styles.walletBtn}>
+						Login with Wallet
+					</Button>
 				</section>}
 				{ selfUser?.userRole === 'guest' && <section className={styles.socialBlock}>
 					<Typography variant="h3" className={styles.textBlock}>Or connect with social accounts</Typography>

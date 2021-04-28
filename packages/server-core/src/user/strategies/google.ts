@@ -2,7 +2,7 @@ import CustomOAuthStrategy from './custom-oauth';
 import { Params } from '@feathersjs/feathers';
 import config from '../../appconfig';
 
-export default class Googlestrategy extends CustomOAuthStrategy {
+export class Googlestrategy extends CustomOAuthStrategy {
   app: any
   constructor(app){
     super();
@@ -57,3 +57,4 @@ export default class Googlestrategy extends CustomOAuthStrategy {
     }
   }
 }
+export default Googlestrategy; 

@@ -1,5 +1,5 @@
 {
     "entryPoints": ["./src"],
     "out": "docs",
-    "tsconfig": "tsconfig.typedoc.json"
+    "tsconfig": "tsconfig.json"
 }

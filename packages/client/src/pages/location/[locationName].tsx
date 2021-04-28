@@ -1,19 +1,13 @@
-import Loading from '../../components/Scene/loading';
+import React from 'react';
 import Scene from '../../components/Scene/location';
 import Layout from '../../components/Layout/Layout';
-import { useRouter } from 'next/router';
-import React from 'react';
-import NoSSR from 'react-no-ssr';
 import { useTranslation } from 'react-i18next';
 
-const LocationPage = () => {
+const LocationPage = (props) => {
   const { t } = useTranslation();
-  const { locationName } = useRouter().query as any;
   return (
     <Layout pageTitle={t('location.locationName.pageTitle')}>
-      <NoSSR onSSR={<Loading />}>
-      <Scene locationName={locationName}/>
-      </NoSSR>
+      <Scene locationName={props.match.params.locationName} history={props.history} />
     </Layout>
   );
 };

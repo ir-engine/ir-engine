@@ -9,6 +9,11 @@ import { CHARACTER_STATES } from "../../templates/character/state/CharacterState
 import { Network } from "../../networking/classes/Network";
 import { FollowCameraComponent } from "../../camera/components/FollowCameraComponent";
 
+/**
+ * 
+ * @author Avaer Kazmer
+ * @param entity 
+ */
 export function initiateIK(entity: Entity) {
 
   const actor = getMutableComponent(entity, CharacterComponent);
@@ -36,12 +41,18 @@ export function initiateIK(entity: Entity) {
 
 }
 
+/**
+ * 
+ * @author Avaer Kazmer
+ * @param entity 
+ */
 export function stopIK(entity) {
   if(!hasComponent(entity, AnimationComponent)) {
     addComponent(entity, AnimationComponent);
   }
   if(!hasComponent(entity, FollowCameraComponent)) {
     addComponent(entity, FollowCameraComponent);
+    // TODO: add params for follow cam
   }
   if(hasComponent(entity, IKComponent)) {
     removeComponent(entity, IKComponent);

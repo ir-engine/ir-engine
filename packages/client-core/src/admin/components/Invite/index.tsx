@@ -3,7 +3,6 @@ import { sendInvite, retrieveSentInvites, retrieveReceivedInvites } from "../../
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import { selectInviteState } from "../../../social/reducers/invite/selector";
 import { bindActionCreators, Dispatch } from "redux";
-import { withRouter, Router } from "next/router";
 import { connect } from "react-redux";
 import AppBar from '@material-ui/core/AppBar';
 import Tabs from '@material-ui/core/Tabs';
@@ -22,6 +21,7 @@ import {
 import { selectAuthState } from '../../../user/reducers/auth/selector';
 import { selectAdminState } from "../../reducers/admin/selector";
 import { ConfirmProvider } from "material-ui-confirm";
+import Grid from "@material-ui/core/Grid";
 
 
 interface TabPanelProps {
@@ -61,13 +61,15 @@ const useStyles = makeStyles((theme: Theme) => ({
         flexGrow: 1,
         backgroundColor: theme.palette.background.paper,
     },
+    marginBottom: {
+        marginBottom: "10px"
+    }
 }));
 
 
 
 
 interface Props {
-    router: Router,
     receivedInvites?: any,
     retrieveReceivedInvites?: any,
     retrieveSentInvites?: any;
@@ -149,11 +151,11 @@ const InvitesConsole = (props: Props) => {
     return (
         <div>
             <ConfirmProvider>
-            <div className="row mb-4">
-                <div className="col-lg-9">
+            <Grid container spacing={3} className={classes.marginBottom}>
+                <Grid item xs={9}>
                     <Search typeName="invites" />
-                </div>
-                <div className="col-lg-3">
+                </Grid>
+                <Grid item xs={3}>
                     <Button
                         className={styles.createLocation}
                         type="submit"
@@ -163,8 +165,8 @@ const InvitesConsole = (props: Props) => {
                     >
                         Sent Invite
                     </Button>
-                </div>
-            </div>
+                </Grid>
+            </Grid>
             <div className={classes.root}>
                 <AppBar position="static" style={{ backgroundColor: "#fff", color: "#000" }}>
                     <Tabs value={value} onChange={handleChange} aria-label="simple tabs example">
@@ -189,4 +191,4 @@ const InvitesConsole = (props: Props) => {
     );
 };
 
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(InvitesConsole));
+export default connect(mapStateToProps, mapDispatchToProps)(InvitesConsole);

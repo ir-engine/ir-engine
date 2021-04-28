@@ -2,7 +2,9 @@ import { Component } from "../../ecs/classes/Component";
 import { GamePlayerRole } from "../types/GamePlayerRole";
 import { Game } from "./Game";
 import { Types } from "../../ecs/types/Types";
-
+/**
+ * @author HydraFire <github.com/HydraFire>
+ */
 export class GamePlayer extends Component<GamePlayer> {
   game: Game
   role: string

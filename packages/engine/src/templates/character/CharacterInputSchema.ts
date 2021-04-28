@@ -376,6 +376,10 @@ const lookFromXRInputs: Behavior = (entity, args): void => {
       actor.changedViewAngle = (values[0] * XRUserSettings.rotationSmoothSpeed) * (XRUserSettings.rotationInvertAxes ? -1 : 1);
       break;
   }
+
+  const viewVectorAngle = Math.atan2(actor.viewVector.z, actor.viewVector.x) - (actor.changedViewAngle * actor.gamepadDamping);
+  actor.viewVector.x = Math.cos(viewVectorAngle);
+  actor.viewVector.z = Math.sin(viewVectorAngle);
 };
 
 

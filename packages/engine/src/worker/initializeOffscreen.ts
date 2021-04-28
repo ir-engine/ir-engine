@@ -30,8 +30,8 @@ import { receiveWorker } from './MessageQueue';
 import { AnimationManager } from '../templates/character/prefabs/NetworkPlayerCharacter';
 import { CharacterControllerSystem } from '../character/CharacterControllerSystem';
 import { UIPanelSystem } from '../ui/systems/UIPanelSystem';
-import { RaycastSystem } from '../raycast/systems/RaycastSystem';
-
+import PhysXWorker from '../physics/functions/loadPhysX.ts?worker';
+import { PhysXInstance } from "@xr3ngine/three-physx";
 
 Mesh.prototype.raycast = acceleratedRaycast;
 BufferGeometry.prototype["computeBoundsTree"] = computeBoundsTree;
@@ -62,7 +62,7 @@ const initializeEngineOffscreen = async ({ canvas, userArgs }, proxy: MainProxy)
   // @ts-ignore
   Network.instance.transport = { isServer: false }
 
-  registerSystem(RaycastSystem)
+  await PhysXInstance.instance.initPhysX(new PhysXWorker(), { });
   registerSystem(PhysicsSystem);
   registerSystem(ActionSystem, { useWebXR: false });
   registerSystem(StateSystem);
@@ -103,6 +103,7 @@ const initializeEngineOffscreen = async ({ canvas, userArgs }, proxy: MainProxy)
     Network.instance.userId = id;
   })
 
+  Engine.isInitialized = true;
 }
 
 receiveWorker(initializeEngineOffscreen)

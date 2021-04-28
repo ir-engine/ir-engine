@@ -15,7 +15,7 @@ import { ifNamed } from "./gameDefault/checkers/ifNamed";
 import { isOpen, isClosed } from "./gameDefault/checkers/isOpenIsClosed";
 
 /**
- * @author HydraFire
+ * @author HydraFire <github.com/HydraFire>
  */
 
 export const DefaultGameMode: GameMode = {

@@ -5,19 +5,22 @@
     "loginDisabled": false,
     "logo": "./logo.svg",
     "apiServer": "https://127.0.0.1:3030",
-    "apiServerBuild": "https://api-dev.theoverlay.io",
     "gameserver": "https://127.0.0.1:3030",
+    "mediatorServer": "https://authn.io",
     "siteTitle": "The Overlay",
     "siteDescription": "Connected Worlds for Everyone",
     "feathersStoreKey": "TheOverlay-Auth-Store",
     "localStorageKey": "theoverlay-client-store-key-v1",
+    "lobbyLocationName": "lobby",
     "auth": {
       "enableSmsMagicLink": true,
       "enableEmailMagicLink": true,
       "enableUserPassword": true,
       "enableGithubSocial": true,
       "enableFacebookSocial": true,
-      "enableGoogleSocial": true
+      "enableGoogleSocial": true,
+      "enableLinkedInSocial": true,
+      "enableTwitterSocial": true
     },
     "alert": {
       "timeout": 10000

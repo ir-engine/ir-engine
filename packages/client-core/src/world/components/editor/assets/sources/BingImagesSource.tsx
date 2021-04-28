@@ -7,7 +7,7 @@ import i18n from "i18next";
  * @author Robert Long
  * @type {class component}
  */
-export default class BingImagesSource extends ImageMediaSource {
+export class BingImagesSource extends ImageMediaSource {
   id: string;
   name: string;
   searchLegalCopy: string;
@@ -23,3 +23,5 @@ export default class BingImagesSource extends ImageMediaSource {
       "https://privacy.microsoft.com/en-us/privacystatement";
   }
 }
+
+export default BingImagesSource;

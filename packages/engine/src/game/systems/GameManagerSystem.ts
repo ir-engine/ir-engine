@@ -20,7 +20,9 @@ import { GamesSchema } from "../../templates/game/GamesSchema";
 import { PrefabType } from '../../templates/networking/PrefabType';
 import { SystemUpdateType } from "../../ecs/functions/SystemUpdateType";
 
-
+/**
+ * @author HydraFire <github.com/HydraFire>
+ */
 
 function checkWatchers( entity, arr ) {
   return arr === undefined || arr.length === 0 || arr.some( componentArr => componentArr.every( component => hasComponent(entity, component)));

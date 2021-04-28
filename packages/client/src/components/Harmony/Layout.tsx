@@ -1,4 +1,4 @@
-import { ThemeProvider } from '@material-ui/core';
+import { ThemeProvider } from "@material-ui/styles";
 import { Alerts } from '@xr3ngine/client-core/src/common/components/Alerts';
 import { UIDialog } from '@xr3ngine/client-core/src/common/components/Dialog/Dialog';
 import { setUserHasInteracted } from '@xr3ngine/client-core/src/common/reducers/app/actions';
@@ -7,9 +7,8 @@ import { selectLocationState } from '@xr3ngine/client-core/src/social/reducers/l
 import { selectAuthState } from '@xr3ngine/client-core/src/user/reducers/auth/selector';
 import { doLoginAuto } from '@xr3ngine/client-core/src/user/reducers/auth/service';
 import theme from '@xr3ngine/client-core/src/theme';
-import getConfig from 'next/config';
-import Head from 'next/head';
-import { useRouter } from 'next/router';
+import { Config } from '@xr3ngine/client-core/src/helper';
+import { Helmet } from 'react-helmet';
 import React, { Fragment, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
@@ -17,8 +16,7 @@ import Harmony from '.';
 import LeftDrawer from '../Drawer/Left';
 import RightDrawer from '../Drawer/Right';
 
-const {publicRuntimeConfig} = getConfig();
-const siteTitle: string = publicRuntimeConfig.siteTitle;
+const siteTitle: string = Config.publicRuntimeConfig.siteTitle;
 
 const initialSelectedUserState = {
     id: '',
@@ -64,7 +62,6 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 });
 
 const Layout = (props: Props): any => {
-    const path = useRouter().pathname;
     const {
         pageTitle,
         children,
@@ -91,14 +88,8 @@ const Layout = (props: Props): any => {
     const user = authState.get('user');
 
     const childrenWithProps = React.Children.map(children, child => {
-        // checking isValidElement is the safe way and avoids a typescript error too
         if (React.isValidElement(child)) {
-            const mapped = React.Children.map((child as any).props.children, child => {
-                if (React.isValidElement(child)) { // @ts-ignore
-                    return React.cloneElement(child, {harmonyOpen: harmonyOpen});
-                }
-            });
-            return mapped;
+            return React.cloneElement((child as any), { harmonyOpen: harmonyOpen });
         }
         return child;
     });
@@ -123,11 +114,11 @@ const Layout = (props: Props): any => {
     return (
         <ThemeProvider theme={theme}>
             <section>
-                <Head>
+                <Helmet>
                     <title>
                         {siteTitle} | {pageTitle}
                     </title>
-                </Head>
+                </Helmet>
                 <Harmony
                     isHarmonyPage={true}
                     setHarmonyOpen={setHarmonyOpen}

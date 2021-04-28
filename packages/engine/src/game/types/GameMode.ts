@@ -2,6 +2,25 @@ import { Component } from "../../ecs/classes/Component";
 import { ComponentConstructor } from '../../ecs/interfaces/ComponentInterfaces';
 import { Behavior } from "../../common/interfaces/Behavior";
 import { Checker } from "../../game/types/Checker";
+/**
+ * @author HydraFire <github.com/HydraFire>
+ */
+enum GameStateActionType {
+  GameStart,
+  PlayerJoin,
+  PlayerLeave,
+  PlayerScore,
+  PlayerAttempt,
+  ObjectOutOfBounds,
+  PlayerRoundStart,
+  PlayerRoundEnd,
+  GameOver
+}
+
+enum PlayerAction {
+  StartGame,
+  EndGame
+}
 
 export interface StateObject {
   components: string[]

@@ -1,7 +1,7 @@
 import config from '../../appconfig';
 
 const getAvatarURL = (avatarName) => {
-  if (process.env.STORAGE_S3_DEV_MODE === 'local') {
+  if (process.env.STORAGE_S3_DEV_MODE === 'local' || !config) {
     if (avatarName.includes('.glb')) return '/models/avatars/' + avatarName;
     else return '/static/' + avatarName;
   } else {
@@ -10,8 +10,8 @@ const getAvatarURL = (avatarName) => {
 };
 
 export const staticResourceSeed = {
-  disabled: !config.db.forceRefresh,
-  delete: config.db.forceRefresh,
+  disabled: !config || !config.db.forceRefresh,
+  delete: config && config.db.forceRefresh,
   randomize: false,
   path: 'static-resource',
   templates:
