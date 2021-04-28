@@ -1,7 +1,11 @@
 import { Color, Object3D, CircleGeometry, MeshPhongMaterial, Mesh, Texture, TextureLoader } from "three";
-import { Block } from '../../assets/three-mesh-ui';
+import { Block } from "../../assets/three-mesh-ui";
 import { createButton, createItem, createRow, createCol } from '../../ui/functions/createItem'
 import { UI_ELEMENT_SELECT_STATE } from '../../ui/classes/UIBaseElement'
+
+const playIconUrl = 'https://raw.githubusercontent.com/Realitian/assets/master/360/playbtn.png';
+const pauseIconUrl = 'https://raw.githubusercontent.com/Realitian/assets/master/360/pausebtn.png';
+
 export class Control extends Object3D{
   seeker: Mesh;
   durationWidth: number;
@@ -19,7 +23,7 @@ export class Control extends Object3D{
     }
 
     const loader = new TextureLoader();
-    loader.load( "360/playbtn.png",
+    loader.load( playIconUrl,
           // onLoad callback
           (texture) => {
             this.playIcon = texture;
@@ -33,7 +37,7 @@ export class Control extends Object3D{
               console.error( 'An error happened.' );
           }
     );
-    loader.load( "360/pausebtn.png",
+    loader.load( pauseIconUrl,
         // onLoad callback
         (texture) => {
           this.pauseIcon = texture;
@@ -81,7 +85,7 @@ export class Control extends Object3D{
     const playButton = createItem({
       title: null,
       description: null,
-      imageUrl: "360/playbtn.png",
+      imageUrl: playIconUrl,
       width: 0.2,
       height: 0.2,
       selectable: true
