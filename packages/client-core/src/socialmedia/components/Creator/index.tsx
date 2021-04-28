@@ -40,7 +40,6 @@ const mapStateToProps = (state: any): any => {
 
 const Creator = ({creatorId, creatorState, getCreator, followCreator, unFollowCreator, getFollowersList, getFollowingList, creatorData}:Props) => { 
     const [isMe, setIsMe] = useState(false);
-    let creator = null;
     useEffect(()=>{
         if(creatorState && creatorState.get('currentCreator') && creatorId === creatorState.get('currentCreator').id){
             setIsMe(true);
@@ -50,20 +49,17 @@ const Creator = ({creatorId, creatorState, getCreator, followCreator, unFollowCr
             }
         }
     },[]);
-    // if(creatorState && creatorState.get('fetching') === false){
-    //     creator = isMe === true ? creatorState.get('currentCreator') : creatorData ? creatorData : creatorState.get('creator');
-    // }
+
     const [videoType, setVideoType] = useState('creator');
     return  <><section className={styles.creatorContainer}>
             <CreatorCard creator={isMe === true ? creatorState?.get('currentCreator') : creatorData ? creatorData : creatorState?.get('creator')} />
             {isMe && <section className={styles.videosSwitcher}>
-                    {/* <Button variant={videoType === 'myFeatured' ? 'contained' : 'text'} color='secondary' className={styles.switchButton+(videoType === 'myFeatured' ? ' '+styles.active : '')} onClick={()=>setVideoType('myFeatured')}>Featured</Button> */}
                     <Button variant={videoType === 'creator' ? 'contained' : 'text'} color='secondary' className={styles.switchButton+(videoType === 'creator' ? ' '+styles.active : '')} onClick={()=>setVideoType('creator')}>My Videos</Button>
                     <Button variant={videoType === 'bookmark' ? 'contained' : 'text'} color='secondary' className={styles.switchButton+(videoType === 'bookmark' ? ' '+styles.active : '')} onClick={()=>setVideoType('bookmark')}>Saved Videos</Button>
             </section>}
-            {isMe === true ? creatorState?.get('currentCreator') : creatorData ? creatorData.id : creatorState?.get('creator')?.id && 
+            {isMe === true && 
               <section className={styles.feedsWrapper}>
-                <Featured creatorId={creatorData ? creatorData.id : creatorState?.get('creator')?.id} type={videoType}/>
+                <Featured creatorId={creatorState?.get('currentCreator').id} type={videoType}/>
               </section>}
         </section>
         <AppFooter />

@@ -12,7 +12,7 @@ import { selectFeedsState } from '../../reducers/feed/selector';
 import { getFeed } from '../../reducers/feed/service';
 import { selectPopupsState } from '../../reducers/popupsState/selector';
 import { updateFeedPageState } from '../../reducers/popupsState/service';
-import { Button } from '@material-ui/core';
+import { Button, Typography } from '@material-ui/core';
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
 
 // @ts-ignore
@@ -48,8 +48,8 @@ const Feed = ({feedsState, getFeed, popupsState, updateFeedPageState} : Props) =
                 <Button variant="text" className={styles.backButton} 
                 onClick={()=>updateFeedPageState(false)}><ArrowBackIosIcon />Back</Button>  
             </section>
-            {feed && <FeedCard feed={feed} />} 
-            {feed && <Featured type='creator' creatorId={feed.creatorId} />}
+            {feed && <FeedCard feed={feed} />}             
+            {feed && <><Typography variant="h5">Related feeds</Typography><Featured type='creator' creatorId={feed.creator.id} /></>}
             {/*hided for now*/}
             {/* {feed && <CommentList feedId={feed.id} />}   */}
             {/* {feed && <NewComment feedId={feed.id} />}   */}
