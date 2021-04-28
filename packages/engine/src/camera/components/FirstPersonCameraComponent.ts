@@ -2,7 +2,7 @@ import { Vector3 } from 'three';
 import { Component } from '../../ecs/classes/Component';
 import { Types } from '../../ecs/types/Types';
 import { CollisionGroups } from '../../physics/enums/CollisionGroups';
-import { SceneQuery } from "@xr3ngine/three-physx";
+import { SceneQuery } from "three-physx";
 import { CameraModes } from '../types/CameraModes';
 
 /** The component is added to any entity and hangs the camera watching it. */

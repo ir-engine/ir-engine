@@ -27,7 +27,7 @@ import { TransformSystem } from './transform/systems/TransformSystem';
 import { createWorker, WorkerProxy } from './worker/MessageQueue';
 import { XRSystem } from './xr/systems/XRSystem';
 import PhysXWorker from './physics/functions/loadPhysX.ts?worker';
-import { PhysXInstance } from "@xr3ngine/three-physx";
+import { PhysXInstance } from "three-physx";
 import OffscreenWorker from './worker/initializeOffscreen.ts?worker'
 import { GameManagerSystem } from './game/systems/GameManagerSystem';
 // import { PositionalAudioSystem } from './audio/systems/PositionalAudioSystem';

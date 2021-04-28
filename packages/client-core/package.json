@@ -86,7 +86,7 @@
     "redux-thunk": "2.3.0",
     "reselect": "4.0.0",
     "semantic-ui-react": "2.0.3",
-    "socket.io-client": "4.0.1",
+    "socket.io-client": "2.4.0",
     "styled-components": "5.2.3",
     "three": "0.128.0",
     "url-toolkit": "2.2.2",

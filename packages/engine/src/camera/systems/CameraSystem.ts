@@ -15,7 +15,7 @@ import { CameraModes } from "../types/CameraModes";
 import { Entity } from "../../ecs/classes/Entity";
 import { PhysicsSystem } from "../../physics/systems/PhysicsSystem";
 import { CollisionGroups } from "../../physics/enums/CollisionGroups";
-import { SceneQueryType } from "@xr3ngine/three-physx";
+import { SceneQueryType } from "three-physx";
 import { Not } from "../../ecs/functions/ComponentFunctions";
 import { Input } from "../../input/components/Input";
 import { LifecycleValue } from "../../common/enums/LifecycleValue";

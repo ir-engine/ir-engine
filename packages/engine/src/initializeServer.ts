@@ -13,7 +13,7 @@ import { Network } from './networking/classes/Network';
 import { MediaStreamSystem } from './networking/systems/MediaStreamSystem';
 import { ServerNetworkIncomingSystem } from './networking/systems/ServerNetworkIncomingSystem';
 import { ServerNetworkOutgoingSystem } from './networking/systems/ServerNetworkOutgoingSystem';
-import { PhysXInstance } from "@xr3ngine/three-physx";
+import { PhysXInstance } from "three-physx";
 import { PhysicsSystem } from './physics/systems/PhysicsSystem';
 import { ServerSpawnSystem } from './scene/systems/SpawnSystem';
 import { StateSystem } from './state/systems/StateSystem';
