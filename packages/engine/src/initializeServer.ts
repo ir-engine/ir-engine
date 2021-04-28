@@ -45,7 +45,8 @@ export const initializeServer = async (initOptions: any = DefaultInitializationO
   registerSystem(StateSystem);
 
   const currentPath = path.dirname(__filename);
-  await PhysXInstance.instance.initPhysX(new Worker(currentPath + "/physics/functions/loadPhysX.js"), { });
+
+  await PhysXInstance.instance.initPhysX(new Worker(currentPath + "/physics/functions/loadPhysXNode.ts"), { });
   registerSystem(PhysicsSystem);
   registerSystem(CharacterControllerSystem);
 

@@ -5,22 +5,6 @@ import { Checker } from "../../game/types/Checker";
 /**
  * @author HydraFire <github.com/HydraFire>
  */
-enum GameStateActionType {
-  GameStart,
-  PlayerJoin,
-  PlayerLeave,
-  PlayerScore,
-  PlayerAttempt,
-  ObjectOutOfBounds,
-  PlayerRoundStart,
-  PlayerRoundEnd,
-  GameOver
-}
-
-enum PlayerAction {
-  StartGame,
-  EndGame
-}
 
 export interface StateObject {
   components: string[]

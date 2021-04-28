@@ -6,14 +6,13 @@
   "homepage": "",
   "main": "dist/index.js",
   "keywords": [
-    "three",
+    "metaverse",
     "three.js",
-    "ecs",
     "webgl",
     "mmo",
     "game engine",
     "webrtc",
-    "productivity",
+    "ar",
     "xr",
     "vr"
   ],
