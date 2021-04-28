@@ -106,15 +106,17 @@ export class Location extends Service {
    */
   async find (params: Params): Promise<any> {
     // eslint-disable-next-line prefer-const
-    let {$skip, $limit, $sort, ...strippedQuery} = params.query;
+    let { $skip, $limit, $sort, joinableLocations, adminnedLocations, search, ...strippedQuery } = params.query;
+
     if ($skip == null) $skip = 0;
     if ($limit == null) $limit = 10;
+
     const order = [];
     if ($sort != null) Object.keys($sort).forEach((name, val) => {
       order.push([name, $sort[name] === -1 ? 'DESC' : 'ASC']);
     });
-    if (strippedQuery.joinableLocations != null) {
-      delete strippedQuery.joinableLocations;
+
+    if (joinableLocations) {
       const locationResult = await this.app.service('location').Model.findAndCountAll({
         offset: $skip,
         limit: $limit,
@@ -146,8 +148,7 @@ export class Location extends Service {
         total: locationResult.count,
         data: locationResult.rows
       };
-    } else if (strippedQuery.adminnedLocations != null) {
-      delete strippedQuery.adminnedLocations;
+    } else if (adminnedLocations) {
       const loggedInUser = extractLoggedInUserFromParams(params);
       const selfUser = await this.app.service('user').get(loggedInUser.userId);
       const include = [
@@ -171,10 +172,27 @@ export class Location extends Service {
             });
       }
 
+      let q = {};
+
+      if (search) {
+        q = {
+          [Op.or]: [
+            Sequelize.where(
+              Sequelize.fn('lower', Sequelize.col('name')),
+              { [Op.like]: '%' + search.toLowerCase() + '%'}
+            ),
+            Sequelize.where(
+              Sequelize.fn('lower', Sequelize.col('sceneId')),
+              { [Op.like]: '%' + search.toLowerCase() + '%'}
+            )
+          ]
+        };
+      }
+
       const locationResult = await this.app.service('location').Model.findAndCountAll({
         offset: $skip,
         limit: $limit,
-        where: strippedQuery,
+        where: { ...strippedQuery, ...q },
         order: order,
         include: include
       });
@@ -235,7 +253,7 @@ export class Location extends Service {
       console.log(err);
       await t.rollback();
       if (err.errors[0].message === 'slugifiedName must be unique') {
-        throw new Error('That name is already in use');
+        throw new Error('Name is in use.');
       }
       throw err;
     }
