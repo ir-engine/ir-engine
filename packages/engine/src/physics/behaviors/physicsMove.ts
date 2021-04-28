@@ -12,7 +12,7 @@ import { ControllerColliderComponent } from '../components/ControllerColliderCom
 import { CharacterComponent } from '../../templates/character/components/CharacterComponent';
 import { TransformComponent } from '../../transform/components/TransformComponent';
 import { isServer } from '../../common/functions/isServer';
-import { XRUserSettings } from '../../templates/character/XRUserSettings';
+import { XRUserSettings, XR_FOLLOW_MODE } from '../../xr/types/XRUserSettings';
 import { getBit } from '../../common/functions/bitFunctions';
 import { CHARACTER_STATES } from '../../templates/character/state/CharacterStates';
 
@@ -46,7 +46,7 @@ export const physicsMove = (entity: Entity, deltaTime): void => {
     const inputs = getComponent(entity, Input);
     let rotationVector = null;
     switch (XRUserSettings.moving) {
-      case 'followController':
+      case XR_FOLLOW_MODE.CONTROLLER:
         rotationVector = XRUserSettings.invertRotationAndMoveSticks ? inputs.data.get(BaseInput.XR_RIGHT_HAND).value : inputs.data.get(BaseInput.XR_LEFT_HAND).value;
         rotationVector = new Quaternion().set(rotationVector.qX, rotationVector.qY, rotationVector.qZ, rotationVector.qW)//.invert();
 
@@ -56,7 +56,7 @@ export const physicsMove = (entity: Entity, deltaTime): void => {
         rotationVector.multiply(viewVectorFlatQuaternion);
 
         break;
-      case 'followHead':
+      case XR_FOLLOW_MODE.HEAD:
         rotationVector = inputs.data.get(BaseInput.XR_HEAD).value;
         rotationVector = new Quaternion().set(rotationVector.qX, rotationVector.qY, rotationVector.qZ, rotationVector.qW);
         break;
@@ -101,7 +101,7 @@ export const physicsMove = (entity: Entity, deltaTime): void => {
     // const m = new Matrix4().makeRotationFromQuaternion(q);
     // newVelocity.applyMatrix4(m);
 
-    // add movement friction if on ground  
+    // add movement friction if on ground
     collider.controller.velocity.x *= 0.8;
     collider.controller.velocity.z *= 0.8;
   }

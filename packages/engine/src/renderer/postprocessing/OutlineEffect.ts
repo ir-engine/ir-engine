@@ -384,6 +384,26 @@ export class OutlineEffect extends Effect {
       : this.renderTargetOutline.texture;
   }
 
+  getEdgeColor () {
+    return this.uniforms.get("visibleEdgeColor").value.value;
+  }
+
+  /**
+	 * @type {Boolean}
+	 */
+
+  setEdgeColor (value) {
+    (this as any).uniforms.get('visibleEdgeColor').value.value = new Color(value);
+    this.setChanged();
+    this.setVertexShader(vertexShader);
+  }
+  setHiddenEdgeColor (value) {
+    (this as any).uniforms.get('hiddenEdgeColor').value.value = new Color(value);
+    this.setChanged();
+    this.setVertexShader(vertexShader);
+  }
+
+
   /**
 	 * Indicates whether X-Ray outlines are enabled.
 	 *

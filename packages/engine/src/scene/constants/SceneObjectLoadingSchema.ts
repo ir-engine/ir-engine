@@ -29,9 +29,9 @@ import SpawnPointComponent from "../components/SpawnPointComponent";
 import WalkableTagComponent from '../components/Walkable';
 import { LoadingSchema } from '../interfaces/LoadingSchema';
 import Image from '../classes/Image';
-import { createGame } from "../behaviors/createGame";
+import { createGame, createGameObject } from "../behaviors/createGame";
+import { GameObject } from "../../game/components/GameObject";
 import { setPostProcessing } from "../behaviors/setPostProcessing";
-
 /**
  * Add Component into Entity from the Behavior.
  * @param entity Entity in which component will be added.
@@ -61,30 +61,27 @@ export function addTagComponentFromBehavior<C>(
 }
 
 export const SceneObjectLoadingSchema: LoadingSchema = {
+  'game': {
+    behaviors: [{
+      behavior: createGame,
+      values: [
+        { from: 'name', to: 'name' },
+        { from: 'gameMode', to: 'gameMode' },
+        { from: 'isGlobal', to: 'isGlobal' },
+        { from: 'minPlayers', to: 'minPlayers' },
+        { from: 'maxPlayers', to: 'maxPlayers' }
+      ]
+    }]
+  },
   'game-object': {
     behaviors: [{
-      behavior: addComponentFromBehavior,
+      behavior: createGameObject,
       values: [
-        { from: 'target', to: 'target' },
-        { from: 'role', to: 'role' }
+        { from: 'gameName', to: 'game' },
+        { from: 'role', to: 'role' },
+        { from: 'sceneEntityId', to: 'uuid' }
       ]
-    },
-    { behavior: (entity, args: {}) => { console.log("***** LOADED GAMEOBJECT ON", entity) } }
-    ]
-  },
-  'game': {
-    behaviors: [
-      {
-        behavior: createGame,
-        values: [
-          { from: 'isGlobal', to: 'isGlobal' },
-          { from: 'minPlayers', to: 'minPlayers' },
-          { from: 'maxPlayers', to: 'maxPlayers' },
-          { from: 'gameMode', to: 'gameMode' }
-        ]
-      },
-      { behavior: (entity, args: {}) => { console.log("***** LOADED GAME ON", entity) } }
-    ]
+    }]
   },
   'ambient-light': {
     behaviors: [
