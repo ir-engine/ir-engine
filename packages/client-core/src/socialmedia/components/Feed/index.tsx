@@ -16,7 +16,7 @@ import { Button } from '@material-ui/core';
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
 
 // @ts-ignore
-import styles from './Feed.module.scss'
+import styles from './Feed.module.scss';
 import Featured from '../Featured';
 
 const mapStateToProps = (state: any): any => {
