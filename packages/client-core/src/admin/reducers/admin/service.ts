@@ -151,8 +151,12 @@ export function createLocation (location: any) {
 export function createUser (user: any) {
   return async (dispatch: Dispatch): Promise<any> => {
     try {
+      console.log(user);
+      
       const result = await client.service('user').create(user);
       dispatch(userCreated(result));
+      console.log(result);
+            
     } catch (error) {
       dispatchAlertError(dispatch, error.message);
     }

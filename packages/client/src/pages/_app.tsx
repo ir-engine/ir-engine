@@ -13,7 +13,7 @@ import theme from "@xr3ngine/client-core/src/world/components/editor/theme";
 import { Config } from '@xr3ngine/client-core/src/helper';
 import { getDeviceType } from '@xr3ngine/client-core/src/common/reducers/devicedetect/actions';
 import { restoreState } from '@xr3ngine/client-core/src/persisted.store';
-import RouterComp from '../router';
+import RouterComp from '../route/public';
 import './styles.scss';
 
 const App = (): any => {

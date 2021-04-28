@@ -1,5 +1,4 @@
 import React, { useEffect } from 'react';
-import Dashboard  from "@xr3ngine/client-core/src/user/components/Dashboard/Dashboard";
 import { bindActionCreators, Dispatch } from "redux";
 import InstanceConsole from "@xr3ngine/client-core/src/admin/components/InstanceConsole";
 import { doLoginAuto } from '@xr3ngine/client-core/src/user/reducers/auth/service';
@@ -18,15 +17,13 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
     doLoginAuto: bindActionCreators(doLoginAuto, dispatch)
 });
 
- function Instance( props: Props) {
-    const { doLoginAuto } = props;     
+function Instance(props: Props) {
+    const { doLoginAuto } = props;
     useEffect(() => {
-       doLoginAuto(true);
-    }, []); 
+        doLoginAuto(true);
+    }, []);
     return (
-        <Dashboard>
-           <InstanceConsole/>
-        </Dashboard>
+        <InstanceConsole />
     );
 }
 

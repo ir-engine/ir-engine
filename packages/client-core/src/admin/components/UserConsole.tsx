@@ -114,7 +114,6 @@ const UserConsole = (props: Props) => {
         fetchUsersAsAdmin,
         removeUser
     } = props;
-
     const user = authState.get('user');
 
 
@@ -228,9 +227,6 @@ const UserConsole = (props: Props) => {
         setOrderBy(property);
     };
 
-    console.log('====================================');
-    console.log(adminUsers);
-    console.log('====================================');
     const fetchTick = () => {
         setTimeout(() => {
             setRefetch(true);
