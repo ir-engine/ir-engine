@@ -1,111 +1,176 @@
 import { GameMode } from "../../game/types/GameMode";
-import { GameStateAction } from "../../game/types/GameStateAction";
-import { DefaultGameStateAction } from "./DefaultGameStateAction";
+// others componennt
+import { TransformComponent } from '../../transform/components/TransformComponent';
+// game State Tag Component
+import { Open } from "./gameDefault/components/OpenTagComponent";
+import { Closed } from "./gameDefault/components/ClosedTagComponent";
+import { ButtonUp } from "./gameDefault/components/ButtonUpTagComponent";
+import { ButtonDown } from "./gameDefault/components/ButtonDownTagComponent";
+import { PanelDown } from "./gameDefault/components/PanelDownTagComponent";
+import { PanelUp } from "./gameDefault/components/PanelUpTagComponent";
+// game Action Tag Component
+import { HaveBeenInteracted } from "../../game/actions/HaveBeenInteracted";
+// game behavior
+import { upDownButton } from "./gameDefault/behaviors/upDownButton";
+import { upDownPanel, giveUpOrDownState } from "./gameDefault/behaviors/upDownPanel";
+import { giveOpenOrCloseState, doorOpeningOrClosing } from "./gameDefault/behaviors/openOrCloseDoor";
+// checkers
+import { isPlayersInGame } from "./gameDefault/checkers/isPlayersInGame";
+import { ifNamed } from "./gameDefault/checkers/ifNamed";
+import { isOpen, isClosed } from "./gameDefault/checkers/isOpenIsClosed";
+import { isUp, isDown } from "./gameDefault/checkers/isUpIsDown";
 
-const gameStartAction: GameStateAction = (data: any): void => {
-  console.log("Game started!");
-  console.log("data is", data);
-}
-const gameStartActionServer: GameStateAction = (data: any): void => {
-  console.log("Game started!");
-  console.log("data is", data);
-}
-
-const roundStartAction: GameStateAction = (data: any): void => {
-  console.log("Game started!");
-  console.log("data is", data);
-}
-const roundEndAction: GameStateAction = (data: any): void => {
-  console.log("Game started!");
-  console.log("data is", data);
-}
-
-const playerTurnStartAction: GameStateAction = (data: any): void => {
-  console.log("Game started!");
-  console.log("data is", data);
-}
-const playerTurnEndAction: GameStateAction = (data: any): void => {
-  console.log("Game started!");
-  console.log("data is", data);
-}
-
-const roundStartActionServer: GameStateAction = (data: any): void => {
-  console.log("Game started!");
-  console.log("data is", data);
-}
-const roundEndActionServer: GameStateAction = (data: any): void => {
-  console.log("Game started!");
-  console.log("data is", data);
-}
-
-const playerTurnStartActionServer: GameStateAction = (data: any): void => {
-  console.log("Game started!");
-  console.log("data is", data);
-}
-const playerTurnEndActionServer: GameStateAction = (data: any): void => {
-  console.log("Game started!");
-  console.log("data is", data);
-}
-
-const gameEndAction: GameStateAction = (data: any): void => {
-  console.log("Game over!");
-  console.log("data is", data);
-}
-const gameEndActionServer: GameStateAction = (data: any): void => {
-  console.log("Game over!");
-  console.log("data is", data);
-}
-
-const playerAttemptAction: GameStateAction = (data: any): void => {
-  console.log("Player attmpted swing!");
-  console.log("data is", data);
-}
-
-const playerAttemptActionServer: GameStateAction = (data: any): void => {
-  console.log("Player attmpted swing!");
-  console.log("data is", data);
-}
-
-const playerScoreAction: GameStateAction = (data: any): void => {
-  console.log("Player scored!");
-  console.log("data is", data);
-}
-
-const playerScoreActionServer: GameStateAction = (data: any): void => {
-  console.log("Player scored!");
-  console.log("data is", data);
-}
+/**
+ * @author HydraFire
+ */
 
 export const GolfGameMode: GameMode = {
-  name: "Default",
-  actions: {
-    [DefaultGameStateAction.onGameStarted]: gameStartAction,
-    [DefaultGameStateAction.onGameEnded]: gameEndAction,
-    [DefaultGameStateAction.onRoundStarted]: roundStartAction,
-    [DefaultGameStateAction.onRoundEnded]: roundEndAction,
-    [DefaultGameStateAction.onPlayerTurnStarted]: playerTurnStartAction,
-    [DefaultGameStateAction.onPlayerTurnEnded]: playerTurnEndAction,
-    [DefaultGameStateAction.onPlayerAttempted]: playerAttemptAction,
-    [DefaultGameStateAction.onPlayerScored]: playerScoreAction
-  },
-  serverActions: {
-    [DefaultGameStateAction.onGameStarted]: gameStartActionServer,
-    [DefaultGameStateAction.onGameEnded]: gameEndActionServer,
-    [DefaultGameStateAction.onRoundStarted]: roundStartActionServer,
-    [DefaultGameStateAction.onRoundEnded]: roundEndActionServer,
-    [DefaultGameStateAction.onPlayerTurnStarted]: playerTurnStartActionServer,
-    [DefaultGameStateAction.onPlayerTurnEnded]: playerTurnEndActionServer,
-    [DefaultGameStateAction.onPlayerAttempted]: playerAttemptAction,
-    [DefaultGameStateAction.onPlayerScored]: playerScoreAction
-  },
-  allowedPlayerActions: [],
-  allowedHostActions: [
-    DefaultGameStateAction.onGameStarted,
-    DefaultGameStateAction.onGameEnded
+  name: "Golf",
+  priority: 1,
+  registerActionTagComponents: [
+    HaveBeenInteracted
   ],
-  gameObjectRoles: [
-    "goal",
-    "ballStart",
-    "ball"
-  ]
+  registerStateTagComponents: [
+    Open,
+    Closed,
+    PanelUp,
+    PanelDown
+  ],
+  initGameState: {
+    'StartGamePanel': {
+      components: [PanelDown],
+      storage:[
+        { component: TransformComponent, variables: ['position'] }
+      ]
+    },
+    'WaitingPanel': {
+      components: [PanelUp],
+      storage:[
+        { component: TransformComponent, variables: ['position'] }
+      ]
+    },
+    'selfOpeningDoor': {
+      components: [Closed],
+      storage:[
+        { component: TransformComponent, variables: ['position'] }
+      ]
+    }
+  },
+  gamePlayerRoles: {
+    'Playing': {
+      'getVictory': []
+    },
+    'itsYourTurn': {
+      'allowHitBall': []
+    }
+  },
+  gameObjectRoles: {
+    'StartGamePanel': {
+      'actionUp': [
+        {
+          behavior: giveUpOrDownState,
+          args: { on: 'me', give: 'up' },
+          checkers:[{
+            function: isPlayersInGame,
+            args: { invert: false }
+          }]
+        },
+        {
+          behavior: giveUpOrDownState,
+          args: { on: 'me', give: 'down' },
+          checkers:[{
+            function: isPlayersInGame,
+            args: { invert: true }
+          }]
+        }
+      ],
+      'movePanel': [
+        {
+          behavior: upDownPanel,
+          args:{ action: 'down', animationSpeed: 2 },
+          watchers:[ [ PanelDown ] ],
+          checkers:[{
+            function: isUp,
+            args: { diff: 0.2 }
+          }]
+        },{
+          behavior: upDownPanel,
+          args:{ action: 'up', animationSpeed: 2 },
+          watchers:[ [ PanelUp ] ],
+          checkers:[{
+            function: isDown,
+            args: { diff: 5 }
+          }]
+        }
+      ]
+    },
+    'WaitingPanel': {
+      'actionUp': [
+        {
+          behavior: giveUpOrDownState,
+          args: { on: 'me', give: 'up' },
+          checkers:[{
+            function: isPlayersInGame,
+            args: { invert: true }
+          }]
+        },
+        {
+          behavior: giveUpOrDownState,
+          args: { on: 'me', give: 'down' },
+          checkers:[{
+            function: isPlayersInGame,
+            args: { invert: false }
+          }]
+        }
+      ],
+      'movePanel': [
+        {
+          behavior: upDownPanel,
+          args:{ action: 'down', animationSpeed: 2 },
+          watchers:[ [ PanelDown ] ],
+          checkers:[{
+            function: isUp,
+            args: { diff: 0.02 }
+          }]
+        },{
+          behavior: upDownPanel,
+          args:{ action: 'up', animationSpeed: 2 },
+          watchers:[ [ PanelUp ] ],
+          checkers:[{
+            function: isDown,
+            args: { diff: 5 }
+          }]
+        }
+      ]
+    },
+    'selfOpeningDoor': {
+      'actionOpen': [
+        {
+          behavior: giveOpenOrCloseState,
+          args: { on: 'me'},
+          watchers:[ [ HaveBeenInteracted ] ]
+        }
+      ],
+      'moveDoor': [
+        {
+          behavior: doorOpeningOrClosing,
+          args:{ action: 'opening', animationSpeed: 2 },
+          watchers:[ [ Closed ] ],
+          checkers:[{
+            function: isOpen,
+            args: { diff: 0.02 }
+          }]
+        },
+        {
+          behavior: doorOpeningOrClosing,
+          args:{ action: 'closing', animationSpeed: 2 },
+          watchers:[ [ Open ] ],
+          checkers:[{
+            function: isClosed,
+            args: { diff: 2 }
+          }]
+        }
+      ]
+    }
+  }
 };

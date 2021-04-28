@@ -289,9 +289,9 @@ export class ActionSystem extends System {
             },
             snapShotTime: inputSnapshot.time - Network.instance.timeSnaphotCorrection ?? 0,
             // switchInputs: sendSwitchInputs ? this.switchId : 0,
-            characterState: hasComponent(entity, CharacterComponent) ? getComponent(entity, CharacterComponent).state : 0
+            characterState: hasComponent(entity, CharacterComponent) ? getComponent(entity, CharacterComponent).state : 0,
+            clientGameAction: Network.instance.clientGameAction
           };
-
           //console.warn(inputs.snapShotTime);
           // Add all values in input component to schema
           input.data.forEach((value: any, key) => {
@@ -327,6 +327,10 @@ export class ActionSystem extends System {
           }
           const buffer = ClientInputModel.toBuffer(inputs);
           EngineEvents.instance.dispatchEvent({ type: ClientNetworkSystem.EVENTS.SEND_DATA, buffer }, false, [buffer]);
+        }
+
+        if (Network.instance.clientGameAction.length) {
+          Network.instance.clientGameAction = [];
         }
 
         input.data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {

@@ -23,6 +23,8 @@ import { NetworkSchema } from "../interfaces/NetworkSchema";
 import { NetworkClientInputInterface } from "../interfaces/WorldState";
 import { ClientInputModel } from '../schema/clientInputSchema';
 import { WorldStateModel } from '../schema/worldStateSchema';
+import { GamePlayer } from '../../game/components/GamePlayer';
+import { sendState } from '../../game/functions/functionsState';
 
 // function switchInputs(clientInput) {
 //   if (hasComponent(Network.instance.networkObjects[clientInput.networkId].component.entity, PlayerInCar)) {
@@ -99,7 +101,7 @@ export class ServerNetworkIncomingSystem extends System {
       createObjects: Network.instance.createObjects,
       editObjects: Network.instance.editObjects,
       destroyObjects: Network.instance.destroyObjects,
-      gameState: Network.instance.gameStateActions.length > 0 ? JSON.stringify(Network.instance.gameState) : [],
+      gameState: Network.instance.gameState,//.length > 0 ? JSON.stringify(Network.instance.gameState) : [],
       gameStateActions: Network.instance.gameStateActions
     };
 
@@ -108,13 +110,14 @@ export class ServerNetworkIncomingSystem extends System {
     Network.instance.createObjects = [];
     Network.instance.editObjects = [];
     Network.instance.destroyObjects = [];
+    Network.instance.gameState = [];
     Network.instance.gameStateActions = [];
 
     // Set input values on server to values sent from clients
     // Parse incoming message queue
     while (Network.instance.incomingMessageQueue.getBufferLength() > 0) {
       const buffer = Network.instance.incomingMessageQueue.pop() as any;
-      
+
       let clientInput: NetworkClientInputInterface;
       try {
         clientInput = ClientInputModel.fromBuffer(buffer);
@@ -143,6 +146,17 @@ export class ServerNetworkIncomingSystem extends System {
       if (Network.instance.networkObjects[clientInput.networkId] === undefined) {
         console.error('Network object not found for networkId', clientInput.networkId);
         return;
+      }
+
+      if (clientInput.clientGameAction.length > 0) {
+        clientInput.clientGameAction.forEach( action => {
+          if (action.type === 'require') {
+            const entity = Network.instance.networkObjects[clientInput.networkId].component.entity;
+            const playerComp = getComponent<GamePlayer>(entity, GamePlayer);
+            if (playerComp === undefined) return;
+            sendState(playerComp.game, playerComp);
+          }
+        })
       }
 
       const actor = getMutableComponent(Network.instance.networkObjects[clientInput.networkId].component.entity, CharacterComponent);

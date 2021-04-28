@@ -22,7 +22,7 @@ export class UIPanel extends UIBaseElement {
 
     this.init(title, description);
   }
-  
+
   setSelectState: (state: UI_ELEMENT_SELECT_STATE) => void;
 
   init(title, description) {

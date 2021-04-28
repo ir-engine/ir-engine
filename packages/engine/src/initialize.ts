@@ -29,7 +29,7 @@ import { XRSystem } from './xr/systems/XRSystem';
 import PhysXWorker from './physics/functions/loadPhysX.ts?worker';
 import { PhysXInstance } from "@xr3ngine/three-physx";
 import OffscreenWorker from './worker/initializeOffscreen.ts?worker'
-
+import { GameManagerSystem } from './game/systems/GameManagerSystem';
 // import { PositionalAudioSystem } from './audio/systems/PositionalAudioSystem';
 
 Mesh.prototype.raycast = acceleratedRaycast;
@@ -42,9 +42,9 @@ if (typeof window !== 'undefined') {
 }
 
 /**
- * 
+ *
  * @author Avaer Kazmer
- * @param initOptions 
+ * @param initOptions
  */
 
 export const initializeEngine = async (options): Promise<void> => {
@@ -115,23 +115,23 @@ export const initializeEngine = async (options): Promise<void> => {
     registerSystem(ServerSpawnSystem, { priority: 899 });
     registerSystem(HighlightSystem);
     registerSystem(ActionSystem, { useWebXR: Engine.xrSupported });
-    
+
     await PhysXInstance.instance.initPhysX(new PhysXWorker(), { });
-    
+
     registerSystem(PhysicsSystem);
     registerSystem(TransformSystem, { priority: 900 });
-
     // audio breaks webxr currently
     // Engine.audioListener = new AudioListener();
     // Engine.camera.add(Engine.audioListener);
     // registerSystem(PositionalAudioSystem);
-
     registerSystem(ParticleSystem);
     registerSystem(DebugHelpersSystem);
     registerSystem(InteractiveSystem);
     registerSystem(CameraSystem);
     registerSystem(WebGLRendererSystem, { priority: 1001, canvas, postProcessing });
     registerSystem(XRSystem);
+    registerSystem(GameManagerSystem);
+
     Engine.viewportElement = Engine.renderer.domElement;
     Engine.renderer.xr.enabled = Engine.xrSupported;
   }
@@ -171,14 +171,13 @@ export const initializeEditor = async (options): Promise<void> => {
   Engine.camera = new PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 10000);
   Engine.scene.add(Engine.camera);
 
-  
+
   await PhysXInstance.instance.initPhysX(new PhysXWorker(), { });
   registerSystem(PhysicsSystem);
-  
   registerSystem(TransformSystem, { priority: 900 });
-
   registerSystem(ParticleSystem);
   registerSystem(DebugHelpersSystem);
+  registerSystem(GameManagerSystem);
 
   Engine.engineTimer = Timer({
     networkUpdate: (delta: number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Network),

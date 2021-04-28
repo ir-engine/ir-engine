@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Block, Text } from "../../assets/three-mesh-ui";
 import { Object3D, Color, VideoTexture } from "three";
 import { UIBaseElement, UI_ELEMENT_SELECT_STATE } from "./UIBaseElement";

@@ -29,7 +29,7 @@ function castShadowOn(group) {
   })
 }
 
-export const parseCarModel = ( groupMeshes: any, notEditor = true) => {
+export const parseCarModel = ( groupMeshes: any, mode = 'location') => {
   if (!groupMeshes) return;
   const deleteArr = [];
   const vehicleCompData = {
@@ -61,18 +61,18 @@ export const parseCarModel = ( groupMeshes: any, notEditor = true) => {
   // Parse Meshes to functionality parts
   groupMeshes.traverse(mesh => {
     // add optimized shadow
-    isClient && notEditor && mesh.userData.data === 'castShadow' ? castShadowOn(mesh) : '';
+    isClient && mode != 'editor' && mesh.userData.data === 'castShadow' ? castShadowOn(mesh) : '';
     // parse meshes to functionality parts of car
     switch (mesh.name) {
       case 'body':
-      //  isClient && notEditor ? vehicleCompData.vehicleMesh = mesh:'';
+      //  isClient && mode != 'editor' ? vehicleCompData.vehicleMesh = mesh:'';
         // @ts-ignore
         mesh.userData.mass != undefined ? vehicleCompData.mass = parseFloat(mesh.userData.mass) : 35;
         break;
 
       case 'door_front_left':
       case 'door_front_right':
-        isClient && notEditor ? vehicleCompData.vehicleDoorsArray.push(mesh):'';
+        isClient && mode != 'editor' ? vehicleCompData.vehicleDoorsArray.push(mesh):'';
         vehicleCompData.interactionPartsPosition.push([mesh.position.x, mesh.position.y, mesh.position.z]);
         break;
 
@@ -91,10 +91,10 @@ export const parseCarModel = ( groupMeshes: any, notEditor = true) => {
       case 'wheel_rear_left':
       case 'wheel_rear_right':
         const clonedMesh = mesh.clone();
-        isClient && notEditor ? deleteArr.push(mesh):'';
+        isClient && mode != 'editor' ? deleteArr.push(mesh):'';
         vehicleCompData.arrayWheelsPosition.push([mesh.position.x, mesh.position.y, mesh.position.z]);
-        isClient && notEditor ? vehicleCompData.arrayWheelsMesh.push(clonedMesh) : '';
-        isClient && notEditor ? Engine.scene.add(clonedMesh) : '';
+        isClient && mode != 'editor' ? vehicleCompData.arrayWheelsMesh.push(clonedMesh) : '';
+        isClient && mode != 'editor' ? Engine.scene.add(clonedMesh) : '';
         // @ts-ignore
         mesh.userData.restLength != undefined ? vehicleCompData.suspensionRestLength = parseFloat(mesh.userData.restLength) : '';
         break;

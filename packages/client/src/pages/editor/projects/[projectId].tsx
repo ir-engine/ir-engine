@@ -13,9 +13,8 @@ import { selectAuthState } from "@xr3ngine/client-core/src/user/reducers/auth/se
 import { bindActionCreators, Dispatch } from "redux";
 import { doLoginAuto } from "@xr3ngine/client-core/src/user/reducers/auth/service";
 import { initializeEditor } from "@xr3ngine/engine/src/initialize";
-import { DefaultGameMode } from "@xr3ngine/engine/src/templates/game/DefaultGameMode";
 import { Engine } from "@xr3ngine/engine/src/ecs/classes/Engine";
-
+import { GamesSchema } from "@xr3ngine/engine/src/templates/game/GamesSchema";
 /**
  * Declairing Props interface having two props.
  *@authState can be of any type.
@@ -38,14 +37,14 @@ const mapStateToProps = (state: any): any => {
 };
 
 /**
- *Function component providing doAutoLogin on the basis of dispatch.  
+ *Function component providing doAutoLogin on the basis of dispatch.
  */
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
     doLoginAuto: bindActionCreators(doLoginAuto, dispatch)
 });
 
 /**
- * Function component providing project editor view. 
+ * Function component providing project editor view.
  */
 const Project = (props: Props) => {
 
@@ -55,20 +54,20 @@ const Project = (props: Props) => {
         doLoginAuto
     } = props;
 
-    // initialising authUser. 
+    // initialising authUser.
     const authUser = authState.get('authUser');
     // initialising authState.
     const user = authState.get('user');
-    // initialising hasMounted to false. 
+    // initialising hasMounted to false.
     const [hasMounted, setHasMounted] = useState(false);
 
     const [engineIsInitialized, setEngineInitialized] = useState(false);
 
     const InitializationOptions = {
         postProcessing: true,
-        gameModes: [
-            DefaultGameMode
-        ]
+        gameModes: {
+          schema: GamesSchema
+        }
     };
 
     useEffect(() => {
@@ -91,7 +90,7 @@ const Project = (props: Props) => {
      */
     return hasMounted &&
     <Suspense fallback={React.Fragment}>
-        { authUser?.accessToken != null && authUser.accessToken.length > 0 
+        { authUser?.accessToken != null && authUser.accessToken.length > 0
             && user?.id != null && engineIsInitialized && <EditorContainer Engine={Engine} {...props} /> }
     </Suspense>;
 };

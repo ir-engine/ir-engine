@@ -52,7 +52,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 import url from 'url';
 import { CharacterInputSchema } from '@xr3ngine/engine/src/templates/character/CharacterInputSchema';
-import { DefaultGameMode } from '@xr3ngine/engine/src/templates/game/DefaultGameMode';
+import { GamesSchema } from "@xr3ngine/engine/src/templates/game/GamesSchema";
 import WarningRefreshModal from "../AlertModals/WarningRetryModal";
 
 const goHome = () => window.location.href = window.location.origin;
@@ -273,14 +273,14 @@ export const EnginePage = (props: Props) => {
 
     const canvas = document.getElementById(engineRendererCanvasId) as HTMLCanvasElement;
     styleCanvas(canvas);
-    
+
     const InitializationOptions = {
       input: {
         schema: CharacterInputSchema,
       },
-      gameModes: [
-        DefaultGameMode
-      ],
+      gameModes: {
+        schema: GamesSchema
+      },
       publicPath: '',
       postProcessing: false,
       editor: false,
