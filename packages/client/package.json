@@ -23,14 +23,14 @@
     "lint": "eslint --fix --quiet \"*.ts\" \"**/*.ts\" \"**/*.tsx\""
   },
   "resolutions": {
-    "socket.io": "2.4.1",
+    "socket.io": "4.0.1",
     "@types/react": "17.0.4",
     "react": "17.0.2"
   },
   "peerDependencies": {
     "@types/react": "^17.0.0",
     "react": "^17.0.0",
-    "socket.io": "2.4.1"
+    "socket.io": "4.0.1"
   },
   "dependencies": {
     "@capacitor/core": "2.4.7",
@@ -88,7 +88,7 @@
     "reselect": "4.0.0",
     "sass": "1.32.11",
     "semantic-ui-react": "2.0.3",
-    "socket.io-client": "2.4.0",
+    "socket.io-client": "4.0.1",
     "styled-components": "5.2.3",
     "three": "0.128.0",
     "three-mesh-bvh": "0.3.7",
