@@ -47,7 +47,7 @@
     "publish": "lerna publish from-package --yes",
     "validate": "lerna run validate",
     "build": "lerna run build --parallel",
-    "build-docker": "lerna run --ignore @xr3ngine/bot --ignore @xr3ngine/client-ml --ignore @xr3ngine/docs --ignore @xr3ngine/native-plugin-example --ignore @xr3ngine/native-plugin-xr build --parallel",
+    "build-docker": "lerna run --ignore @xr3ngine/bot --ignore @xr3ngine/client-ml --ignore @xr3ngine/docs --ignore @xr3ngine/engine --ignore @xr3ngine/native-plugin-example --ignore @xr3ngine/native-plugin-xr build --parallel",
     "diff": "lerna diff"
   },
   "types": "lib/",

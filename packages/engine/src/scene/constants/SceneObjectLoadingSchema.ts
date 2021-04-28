@@ -10,8 +10,8 @@ import { ComponentConstructor } from "../../ecs/interfaces/ComponentInterfaces";
 import { createParticleEmitterObject } from '../../particles/functions/particleHelpers';
 import { addObject3DComponent } from '../behaviors/addObject3DComponent';
 import { createBackground } from '../behaviors/createBackground';
-import { createBoxColliderObject } from '../behaviors/createBoxCollider';
-import { createCollidersFromSceneData } from '../behaviors/createCollidersFromSceneData';
+import { createBoxCollider } from '../behaviors/createBoxCollider';
+import { createMeshCollider } from '../behaviors/createMeshCollider';
 import { createCommonInteractive } from "../behaviors/createCommonInteractive";
 import { createGroup } from '../behaviors/createGroup';
 import { createLink } from '../behaviors/createLink';
@@ -121,7 +121,12 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
   //         type: LightTagComponent
   //       }]
   //   },
-  'collidable': {},
+  'collidable': {
+    behaviors: [
+      {
+        behavior: () => { console.warn("SceneObjectLoadingSchema: Using 'collidable' which is not implemented"); },
+      },
+    ]},
   "floor-plan": {}, // Doesn't do anything in client mode
   'gltf-model': {
     behaviors: [
@@ -406,7 +411,7 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
   'box-collider': {
     behaviors: [
       {
-        behavior: createBoxColliderObject,
+        behavior: createBoxCollider,
         values: ['type', 'position', 'quaternion', 'scale']
       }
     ]
@@ -414,7 +419,7 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
   'mesh-collider': {
     behaviors: [
       {
-        behavior: createCollidersFromSceneData,
+        behavior: createMeshCollider,
         values: ['data', 'type', 'position', 'quaternion', 'scale', 'vertices', 'indices', 'sceneEntityId']
       }
     ]

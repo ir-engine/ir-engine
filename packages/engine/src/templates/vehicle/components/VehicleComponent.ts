@@ -1,5 +1,5 @@
-import { Vector3Type } from '../../../common/types/NumericalTypes';
-import { RaycastVehicle, Vec3 } from 'cannon-es';
+import { Vector3 } from 'three';
+// import { RaycastVehicle, Vec3 } from 'cannon-es';
 import { Component } from '../../../ecs/classes/Component';
 import { Types } from '../../../ecs/types/Types';
 
@@ -17,7 +17,7 @@ export class VehicleComponent extends Component<VehicleComponent> {
   seatPlane: any
 
   vehicleMesh: boolean
-  vehiclePhysics: RaycastVehicle
+  vehiclePhysics: any;//RaycastVehicle
   vehicleCollider: any
   vehicleSphereColliders: any
   addShapeArray: any
@@ -26,8 +26,8 @@ export class VehicleComponent extends Component<VehicleComponent> {
   startPosition: any
   startQuaternion: any
   suspensionRestLength: any
-  colliderTrimOffset: Vec3
-  collidersSphereOffset: Vec3
+  colliderTrimOffset: Vector3
+  collidersSphereOffset: Vector3
 
   arrayWheelsMesh: any
   arrayWheelsPosition: any
@@ -43,7 +43,7 @@ export class VehicleComponent extends Component<VehicleComponent> {
   maxForce = 300
   brakeForce = 1000000
   mass: number
-  vehicle: RaycastVehicle
+  vehicle: any;//RaycastVehicle
 
 }
 

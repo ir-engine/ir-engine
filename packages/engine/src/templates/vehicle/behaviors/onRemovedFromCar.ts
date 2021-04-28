@@ -33,7 +33,6 @@ export const onRemovedFromCar = (entity: Entity, entityCar: Entity, seat: number
 
   if (isServer) return;
   // LocalPlayer and others
-  //removeComponent(entity, EnteringVehicle);
 
   // Player only
   if (Network.instance.localAvatarNetworkId != networkDriverId) return;

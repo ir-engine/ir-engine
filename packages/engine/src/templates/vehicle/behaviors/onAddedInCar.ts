@@ -16,6 +16,7 @@ import { PhysicsSystem } from '../../../physics/systems/PhysicsSystem';
 import { Network } from '../../../networking/classes/Network';
 import { LocalInputReceiver } from '../../../input/components/LocalInputReceiver';
 import { FollowCameraComponent } from '../../../camera/components/FollowCameraComponent';
+import { CollisionGroups } from '../../../physics/enums/CollisionGroups';
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -56,7 +57,7 @@ export const onAddedInCar = (entity: Entity, entityCar: Entity, seat: number, de
   vehicle[vehicle.seatPlane[seat]] = networkDriverId;
 
   const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
-  PhysicsSystem.physicsWorld.removeBody(actor.actorCapsule.body);
+  PhysicsSystem.instance.removeController(actor.actorCapsule.controller);
 
   const orientation = positionEnter(entity, entityCar, seat);
   getMutableComponent(entity, PlayerInCar).state = VehicleState.onAddEnding;
@@ -77,7 +78,8 @@ export const onAddedInCar = (entity: Entity, entityCar: Entity, seat: number, de
     locked: false,
     mode: CameraModes.ThirdPerson,
     theta: Math.round( ( (270/Math.PI) * (orientation/3*2) ) + 180),
-    phi: 20
+    phi: 20,
+    collisionMask: CollisionGroups.Default | CollisionGroups.Car
    });
 
 };
