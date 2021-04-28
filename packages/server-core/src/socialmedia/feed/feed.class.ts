@@ -74,46 +74,16 @@ export class Feed extends Service {
     const creatorId =  params.query?.creatorId ? params.query.creatorId : await getCreatorByUserId(loggedInUser?.userId, this.app.get('sequelizeClient'));
   
 
-    //Featured  menu item for Guest
-    if (action === 'featuredGuest') {
-      const select = `SELECT feed.id, feed.viewsCount, sr.url as previewUrl 
-        FROM \`feed\` as feed
-        LEFT JOIN \`follow_creator\` as fc ON fc.creatorId=feed.creatorId
-        JOIN \`static_resource\` as sr ON sr.id=feed.previewId`;
-       const where=` WHERE (feed.featured=1 OR feed.featuredByAdmin=1) `;
-       const orderBy = ` ORDER BY feed.createdAt DESC    
-        LIMIT :skip, :limit `;
-
-      const feeds = await this.app.get('sequelizeClient').query(select+where+orderBy,
-        {
-          type: QueryTypes.SELECT,
-          raw: true,
-          replacements: queryParamsReplacements
-        });
-
-      return {
-        data: feeds,
-        skip,
-        limit,
-        total: feeds.count,
-      };
-    }
+    //Featured menu item for Guest
     //Featured menu item
-    if (action === 'featured') {
+    if (action === 'featuredGuest' || action === 'featured') {
       const select = `SELECT feed.id, feed.viewsCount, sr.url as previewUrl 
         FROM \`feed\` as feed
         LEFT JOIN \`follow_creator\` as fc ON fc.creatorId=feed.creatorId
         JOIN \`static_resource\` as sr ON sr.id=feed.previewId`;
-       let where=` WHERE (feed.featured=1 OR feed.featuredByAdmin=1) `;
-       const orderBy = ` ORDER BY feed.createdAt DESC    
+       const where=` WHERE 1 `;
+       const orderBy = ` ORDER BY feed.featuredByAdmin DESC, feed.createdAt DESC    
         LIMIT :skip, :limit `;
-      
-      queryParamsReplacements.creatorId = creatorId;
-      if(loggedInUser){
-        where += ` AND (fc.followerId=:creatorId OR feed.creatorId=:creatorId)`;
-      }else{
-        where += ` AND feed.creatorId=:creatorId`;
-      }
 
       const feeds = await this.app.get('sequelizeClient').query(select+where+orderBy,
         {
@@ -121,7 +91,6 @@ export class Feed extends Service {
           raw: true,
           replacements: queryParamsReplacements
         });
-
       return {
         data: feeds,
         skip,
@@ -129,7 +98,7 @@ export class Feed extends Service {
         total: feeds.count,
       };
     }
-
+   
     if (action === 'creator') {
       const dataQuery = `SELECT feed.id, feed.creatorId, feed.featured, feed.viewsCount, sr.url as previewUrl
         FROM \`feed\` as feed
@@ -177,6 +146,7 @@ export class Feed extends Service {
       };
     }
 
+    //
     if (action === 'bookmark') {
       const dataQuery = `SELECT feed.id, feed.viewsCount, sr.url as previewUrl 
         FROM \`feed\` as feed
@@ -202,6 +172,33 @@ export class Feed extends Service {
       };
     }
 
+    //change this to fired!!!!!!
+    if (action === 'fired') {
+      const dataQuery = `SELECT feed.id, feed.viewsCount, sr.url as previewUrl 
+        FROM \`feed\` as feed
+        JOIN \`static_resource\` as sr ON sr.id=feed.previewId
+        JOIN \`feed_fires\` as fb ON fb.feedId=feed.id
+        WHERE fb.creatorId=:creatorId
+        ORDER BY feed.createdAt DESC    
+        LIMIT :skip, :limit `;
+      
+      queryParamsReplacements.creatorId = creatorId;
+      const feeds = await this.app.get('sequelizeClient').query(dataQuery,
+        {
+          type: QueryTypes.SELECT,
+          raw: true,
+          replacements: queryParamsReplacements
+        });
+
+      return {
+        data: feeds,
+        skip,
+        limit,
+        total: feeds.count,
+      };
+    }
+
+    //don't needed anymore, remove this after change TheFeed by filling it on Admin Panel
     if(action === 'theFeedGuest'){
       const select = `SELECT feed.*, creator.id as creatorId, creator.name as creatorName, creator.username as creatorUserName, creator.verified as creatorVerified, 
       sr3.url as avatar, COUNT(ff.id) as fires, sr1.url as videoUrl, sr2.url as previewUrl `;

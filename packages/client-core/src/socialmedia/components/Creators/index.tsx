@@ -40,6 +40,7 @@ const Creators = ({creatorsState, getCreators, popupsState, updateCreatorPageSta
     useEffect(()=> getCreators(), []);
     const creators= creatorsState && creatorsState.get('creators') ? creatorsState.get('creators') : null;
     const handleCreatorView = (id) =>{
+        updateCreatorPageState(false);
         updateCreatorPageState(true, id);
     };   
 
