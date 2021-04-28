@@ -13,12 +13,12 @@ import { initStorage, getStorage } from '../../../../game/functions/functionsSto
  * @author HydraFire <github.com/HydraFire>
  */
 
- let g = 0.1;
+ const g = 0.1;
 
 export const upDownButton: Behavior = (entity: Entity, args?: any, delta?: number, entityOther?: Entity, time?: number, checks?: any): void => {
   console.log('****** Button: ', args.action);
 
-  let position = getMutableComponent(entity, TransformComponent).position;
+  const position = getMutableComponent(entity, TransformComponent).position;
 
   if(args.action === 'down') {
     removeStateComponent(entity, ButtonUp);

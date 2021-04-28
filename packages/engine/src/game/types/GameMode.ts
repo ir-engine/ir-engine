@@ -68,4 +68,4 @@ export interface RoleBehaviors {
 
 export interface GameRolesInterface {
     [key: string]: RoleBehaviors
-};
+}

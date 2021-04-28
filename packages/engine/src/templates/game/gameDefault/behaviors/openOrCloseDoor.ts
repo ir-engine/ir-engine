@@ -33,8 +33,8 @@ export const giveOpenOrCloseState: Behavior = (entity: Entity, args?: any, delta
 };
 
 export const doorOpeningOrClosing: Behavior = (entity: Entity, args?: any, delta?: number, entityTarget?: Entity, time?: number, checks?: any): void => {
-  let position = getMutableComponent(entity, TransformComponent).position;
-  let animSpeed = args.animationSpeed ?? 1;
+  const position = getMutableComponent(entity, TransformComponent).position;
+  const animSpeed = args.animationSpeed ?? 1;
   if(args.action === 'opening') {
     //storage.position =
     position.set(
