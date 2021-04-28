@@ -29,7 +29,7 @@ interface Props {
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
     createUserAction: bindActionCreators(createUserAction, dispatch)
-})
+});
 
 
 
@@ -39,7 +39,7 @@ const useStyles = makeStyles((theme: Theme) =>
             marginBottom: "15px"
         }
     })
-)
+);
 const createUser = (props: Props) => {
     const { open, handleClose, createUserAction, adminLocations } = props;
     const classes = useStyles();
@@ -65,10 +65,10 @@ const createUser = (props: Props) => {
             location,
             game,
             status
-        }
+        };
         await createUserAction(data);
         handleClose();
-    }
+    };
     return (
         <div>
             <Dialog open={open} onClose={handleClose} aria-labelledby="form-dialog-title">
@@ -145,6 +145,6 @@ const createUser = (props: Props) => {
             </Dialog>
         </div>
     );
-}
+};
 
 export default connect(null, mapDispatchToProps)( createUser);

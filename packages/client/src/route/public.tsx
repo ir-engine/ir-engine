@@ -42,7 +42,7 @@ export const RouterComp = () => {
             <Route path="*" component={React.lazy(() => import('../pages/404'))} />
 
         </Switch>
-    )
-}
+    );
+};
 
 export default RouterComp;

@@ -11,9 +11,9 @@ const PrivateRoute = ({ component: Component, ...rest} ) => {
         </Dashboard>
     )}
     />
-   )
-}
+   );
+};
 
-PrivateRoute.prototype = { component: PropTypes.any }
+PrivateRoute.prototype = { component: PropTypes.any };
 
 export default PrivateRoute;

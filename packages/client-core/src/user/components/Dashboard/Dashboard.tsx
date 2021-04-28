@@ -131,8 +131,8 @@ interface Props {
 const mapStateToProps = (state: any): any => {
     return {
         authState: selectAuthState(state)
-    }
-}
+    };
+};
 
 /**
  * Function for admin dashboard 
@@ -311,7 +311,7 @@ const Dashboard = ({ children, authState }) => {
             </main>
         </div>
     );
-}
+};
 
 
 export default connect(mapStateToProps, null)(Dashboard);

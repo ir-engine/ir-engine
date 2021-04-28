@@ -22,8 +22,8 @@ interface Props {
 const mapStateToProps = (state: any): any => {
     return {
         authState: selectAuthState(state)
-    }
-}
+    };
+};
 
 
 const ProtectedRoutes = (props: Props) => {
@@ -31,7 +31,7 @@ const ProtectedRoutes = (props: Props) => {
     const admin = authState.get("user");
     if (admin["userRole"]) {
         if (admin["userRole"]  !== "admin") {
-            return <Redirect to="/login" />
+            return <Redirect to="/login" />;
         }
     }
     
@@ -63,7 +63,7 @@ const ProtectedRoutes = (props: Props) => {
                 </Switch>
             </Suspense>
         </Fragment>
-    )
-}
+    );
+};
 
 export default connect(mapStateToProps, null)(ProtectedRoutes);

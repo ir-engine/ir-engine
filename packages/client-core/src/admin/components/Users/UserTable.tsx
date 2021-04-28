@@ -100,9 +100,9 @@ const UserTable = (props: Props) => {
                 </>
             )
         };
-    }
+    };
 
-    const rows = adminUsers.map(el => createData(el.name, el.location || "test", el.userRole, el.game || "CLUB NIGHT"))
+    const rows = adminUsers.map(el => createData(el.name, el.location || "test", el.userRole, el.game || "CLUB NIGHT"));
 
     return (
         <div className={classes.root}>
@@ -150,7 +150,7 @@ const UserTable = (props: Props) => {
             />
         </div>
     );
-}
+};
 
 
 export default UserTable;

@@ -33,8 +33,8 @@ const mapStateToProps = (state: any): any => {
     return {
         adminState: selectAdminState(state),
         authState: selectAuthState(state),
-    }
-}
+    };
+};
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
     fetchUsersAsAdmin: bindActionCreators(fetchUsersAsAdmin, dispatch),
@@ -59,14 +59,14 @@ const TabPanel = (props: TabPanelProps) => {
             )}
         </div>
     );
-}
+};
 
 const a11yProps = (index: any) => {
     return {
         id: `scrollable-auto-tab-${index}`,
         'aria-controls': `scrollable-auto-tabpanel-${index}`,
     };
-}
+};
 
 const useStyles = makeStyles((theme: Theme) => ({
     root: {
@@ -77,7 +77,7 @@ const useStyles = makeStyles((theme: Theme) => ({
     marginBottom: {
         marginBottom: "10px"
     }
-}))
+}));
 
 const Users = (props: Props) => {
     const { adminState, fetchUsersAsAdmin, authState, fetchAdminLocations } = props;
@@ -99,7 +99,7 @@ const Users = (props: Props) => {
     React.useEffect(()=> {
         const fetchData = async () => {
             await fetchUsersAsAdmin();
-        }
+        };
         if((adminState.get('users').get('updateNeeded') === true) && user.id) fetchData();
 
         if( user?.id && (adminState.get("locations").get("updateNeeded") === true )) fetchAdminLocations();
@@ -192,7 +192,7 @@ const Users = (props: Props) => {
                 adminLocations={adminLocations}
             />
         </div>
-    )
-}
+    );
+};
 
 export default connect(mapStateToProps, mapDispatchToProps)(Users);
