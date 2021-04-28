@@ -12,7 +12,7 @@ import { GameObject } from "../components/GameObject";
 import { GamePlayer } from "../components/GamePlayer";
 
 import { addComponent, getComponent, getMutableComponent, hasComponent, removeComponent } from '../../ecs/functions/EntityFunctions';
-import { getHisGameEntity, getHisEntity, getRole, getGame, getUuid } from './functions';
+import { getGameEntityFromName, getEntityFromRoleUuid, getRole, getGame, getUuid } from './functions';
 import { GameStateUpdateMessage, ClientGameActionMessage } from "../types/GameMessage";
 
 import { Open } from "../../templates/game/gameDefault/components/OpenTagComponent";
@@ -68,7 +68,7 @@ export const requireState = (game: Game, playerComp: GamePlayer): void => {
 };
 
 export const applyStateToClient = (stateMessage: GameStateUpdateMessage): void => {
-  const entity = getHisGameEntity(stateMessage.game);
+  const entity = getGameEntityFromName(stateMessage.game);
   const game = getMutableComponent(entity, Game)
   game.state = stateMessage.state;
   //console.warn('applyStateToClient', game.state);

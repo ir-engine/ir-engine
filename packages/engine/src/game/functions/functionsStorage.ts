@@ -2,7 +2,7 @@ import { Component } from "../../ecs/classes/Component";
 import { ComponentConstructor } from '../../ecs/interfaces/ComponentInterfaces';
 import { Entity } from '../../ecs/classes/Entity';
 import { addComponent, getComponent, getMutableComponent, hasComponent, removeComponent } from '../../ecs/functions/EntityFunctions';
-import { getHisGameEntity, getHisEntity, getRole, getGame, getUuid } from './functions';
+import { getGameEntityFromName, getEntityFromRoleUuid, getRole, getGame, getUuid } from './functions';
 import { InitStorageInterface } from '../types/GameMode';
 
 /**
@@ -22,7 +22,7 @@ function customConverter(str) {
   }
 }
 
-function customArhives(variable: string, objData) {
+function customArchives(variable: string, objData) {
   const data = objData.x+', '+objData.y+', '+objData.z;
   return variable+', '+data;
 }
@@ -35,8 +35,8 @@ export const initStorage = (entity: Entity, initSchemaStorege: InitStorageInterf
   if (objectState != undefined) {
     objectState.storage = initSchemaStorege.map(v => {
       const temp = getComponent(entity, v.component);
-      const readyValues = v.variables.reduce((acc, variable) => acc + customArhives(variable, temp[variable]), '');
-      // Object.assign(acc, { [variable]: customArhives(variable, temp[variable]) }),'')
+      const readyValues = v.variables.reduce((acc, variable) => acc + customArchives(variable, temp[variable]), '');
+      // Object.assign(acc, { [variable]: customArchives(variable, temp[variable]) }),'')
       return { component: v.component.name, variables: readyValues};
     })
   } else {
@@ -72,7 +72,7 @@ export const setStorage = (entity: Entity, component: ComponentConstructor<Compo
 export const cleanStorage = (entity: Entity, component: Component): void => {
   const role = getRole(entity);
   const uuid = getUuid(entity);
-  const game = getComponent( getHisGameEntity( getUuid(entity)), Game);
+  const game = getComponent( getGameEntityFromName( getUuid(entity)), Game);
   const finded = game.State[role].find(schema => schema.uuid === uuid);
   finded.storage = [];
 };

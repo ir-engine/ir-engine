@@ -5,7 +5,7 @@ import { isClient } from '../../common/functions/isClient'
 import { isServer } from '../../common/functions/isServer'
 import { Network } from "../../networking/classes/Network";
 import { addComponent, getComponent, getMutableComponent, hasComponent, removeComponent } from '../../ecs/functions/EntityFunctions';
-import { getHisGameEntity, getHisEntity, getRole, getGame, getUuid } from './functions';
+import { getGameEntityFromName, getEntityFromRoleUuid, getRole, getGame, getUuid } from './functions';
 import { Game } from "../components/Game";
 import { GameObject } from "../components/GameObject";
 import { GamePlayer } from "../components/GamePlayer";
@@ -45,10 +45,10 @@ export const sendActionComponent = (entity: Entity, component: ComponentConstruc
 
 export const applyActionComponent = (actionMessage: GameStateActionMessage): void => {
   //console.warn('applyActionComponent', actionMessage);
-  const entityGame = getHisGameEntity(actionMessage.game);
+  const entityGame = getGameEntityFromName(actionMessage.game);
   const game = getComponent(entityGame, Game);
 //  console.warn(game);
-  const entity = getHisEntity(game, actionMessage.role, actionMessage.uuid);
+  const entity = getEntityFromRoleUuid(game, actionMessage.role, actionMessage.uuid);
   //Component._typeId
   // Engine.componentsMap[(Component as any)._typeId]
   const component = gameActionComponents[actionMessage.component]

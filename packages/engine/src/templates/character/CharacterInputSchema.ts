@@ -18,7 +18,7 @@ import { InputAlias } from "../../input/types/InputAlias";
 import { Interactable } from '../../interaction/components/Interactable';
 import { Interactor } from '../../interaction/components/Interactor';
 import { Object3DComponent } from '../../scene/components/Object3DComponent';
-import { interactServerStyle } from '../../interaction/systems/InteractiveSystem';
+import { interactOnServer } from '../../interaction/systems/InteractiveSystem';
 import { CharacterComponent } from "./components/CharacterComponent";
 import { isServer } from "../../common/functions/isServer";
 import { VehicleComponent } from '../vehicle/components/VehicleComponent';
@@ -46,7 +46,12 @@ const interact: Behavior = (entity: Entity, args: any = { }, delta): void => {
     return;
   }
 
-  interactServerStyle(entity) //TODO: figure out all this cases
+  interactOnServer(entity); //TODO: figure out all this cases
+
+  if (isServer) {
+    //TODO: all this function needs to re-think
+    return;
+  }
 
 
   if (!hasComponent(entity, Interactor)) {
