@@ -53,12 +53,22 @@ import { bindActionCreators, Dispatch } from 'redux';
 import url from 'url';
 import { CharacterInputSchema } from '@xr3ngine/engine/src/templates/character/CharacterInputSchema';
 import { DefaultGameMode } from '@xr3ngine/engine/src/templates/game/DefaultGameMode';
+import WarningRefreshModal from "../AlertModals/WarningRetryModal";
 
 const goHome = () => window.location.href = window.location.origin;
 
 const MobileGamepad = React.lazy(() => import("@xr3ngine/client-core/src/common/components/MobileGamepad"));
 
 const engineRendererCanvasId = 'engine-renderer-canvas';
+const projectRegex = /\/([A-Za-z0-9]+)\/([a-f0-9-]+)$/;
+
+const initialRefreshModalValues = {
+  open: false,
+  title: '',
+  body: '',
+  action: async() => {},
+  parameters: []
+};
 
 interface Props {
   setAppLoaded?: any,
@@ -134,6 +144,8 @@ export const EnginePage = (props: Props) => {
 
   const [isValidLocation, setIsValidLocation] = useState(true);
   const [isInXR, setIsInXR] = useState(false);
+  const [warningRefreshModalValues, setWarningRefreshModalValues] = useState(initialRefreshModalValues);
+  const [noGameserverProvision, setNoGameserverProvision] = useState(false);
 
   const appLoaded = appState.get('loaded');
   const selfUser = authState.get('user');
@@ -147,6 +159,7 @@ export const EnginePage = (props: Props) => {
       init(locationName);
     } else {
       doLoginAuto(true);
+      EngineEvents.instance.addEventListener(EngineEvents.EVENTS.PROVISION_INSTANCE_NO_GAMESERVERS_AVAILABLE, () => setNoGameserverProvision(true));
     }
   }, []);
 
@@ -225,7 +238,21 @@ export const EnginePage = (props: Props) => {
       }
     }
   }, [appState]);
-  const projectRegex = /\/([A-Za-z0-9]+)\/([a-f0-9-]+)$/;
+
+  useEffect(() => {
+    if (noGameserverProvision === true) {
+      const currentLocation = locationState.get('currentLocation').get('location');
+      const newValues = {
+        open: true,
+        title: 'No Available Servers',
+        body: 'There aren\'t any servers available for you to connect to. Attempting to re-connect in',
+        action: provisionInstanceServer,
+        parameters: [currentLocation.id, instanceId, currentLocation.sceneId]
+      };
+      setWarningRefreshModalValues(newValues);
+      setNoGameserverProvision(false);
+    }
+  }, [noGameserverProvision]);
 
   async function init(sceneId: string): Promise<any> { // auth: any,
     let sceneData;
@@ -246,9 +273,6 @@ export const EnginePage = (props: Props) => {
 
     const canvas = document.getElementById(engineRendererCanvasId) as HTMLCanvasElement;
     styleCanvas(canvas);
-
-
-
     
     const InitializationOptions = {
       input: {
@@ -390,6 +414,7 @@ export const EnginePage = (props: Props) => {
   //mobile gamepad
   const mobileGamepadProps = { hovered: objectHovered, layout: 'default' };
   const mobileGamepad = isMobileOrTablet() ? <MobileGamepad {...mobileGamepadProps} /> : null;
+
   return userBanned !== true && !isInXR ? (
     <>
       {isValidLocation && <UserMenu />}
@@ -413,6 +438,15 @@ export const EnginePage = (props: Props) => {
       <OpenLink onClose={() => { setOpenLinkData(null); setObjectActivated(false); }} data={openLinkData} />
       <canvas id={engineRendererCanvasId} width='100%' height='100%' />
       {mobileGamepad}
+      <WarningRefreshModal
+          open={warningRefreshModalValues.open}
+          handleClose={() => { setWarningRefreshModalValues(initialRefreshModalValues); }}
+          title={warningRefreshModalValues.title}
+          body={warningRefreshModalValues.body}
+          action={warningRefreshModalValues.action}
+          parameters={warningRefreshModalValues.parameters}
+          timeout={10000}
+      />
     </>
   ) : (<div className="banned">You have been banned from this location</div>);
 };
