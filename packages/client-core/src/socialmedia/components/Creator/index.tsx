@@ -54,7 +54,7 @@ const Creator = ({creatorId, creatorState, getCreator, followCreator, unFollowCr
             <CreatorCard creator={isMe === true ? creatorState?.get('currentCreator') : creatorData ? creatorData : creatorState?.get('creator')} />
             {isMe && <section className={styles.videosSwitcher}>
                     <Button variant={videoType === 'creator' ? 'contained' : 'text'} color='secondary' className={styles.switchButton+(videoType === 'creator' ? ' '+styles.active : '')} onClick={()=>setVideoType('creator')}>My Videos</Button>
-                    <Button variant={videoType === 'bookmark' ? 'contained' : 'text'} color='secondary' className={styles.switchButton+(videoType === 'bookmark' ? ' '+styles.active : '')} onClick={()=>setVideoType('bookmark')}>Saved Videos</Button>
+                    <Button variant={videoType === 'fired' ? 'contained' : 'text'} color='secondary' className={styles.switchButton+(videoType === 'fired' ? ' '+styles.active : '')} onClick={()=>setVideoType('fired')}>Saved Videos</Button>
             </section>}
             <section className={styles.feedsWrapper}>
               <Featured creatorId={isMe === true ? creatorState?.get('currentCreator').id : creatorData ? creatorData.id : creatorState?.get('creator').id} type={videoType}/>

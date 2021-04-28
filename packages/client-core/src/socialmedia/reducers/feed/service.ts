@@ -23,7 +23,9 @@ import {
   fetchingCreatorFeeds,
   fetchingBookmarkedFeeds,
   fetchingMyFeaturedFeeds,
-  fetchingAdminFeeds
+  fetchingAdminFeeds,
+  fetchingFiredFeeds,
+  feedsFiredRetrieved
 } from './actions';
 
 export function getFeeds(type: string, id?: string, limit?: number) {
@@ -48,7 +50,16 @@ export function getFeeds(type: string, id?: string, limit?: number) {
           }
         });
         dispatch(feedsCreatorRetrieved(feedsResults.data));
-      } else if (type && type === 'bookmark') {
+      } else if (type && type === 'fired') {
+        dispatch(fetchingFiredFeeds());
+        const feedsResults = await client.service('feed').find({
+          query: {
+            action: 'fired',
+            creatorId: id
+          }
+        });
+        dispatch(feedsFiredRetrieved(feedsResults.data));
+      }else if (type && type === 'bookmark') {
         dispatch(fetchingBookmarkedFeeds());
         const feedsResults = await client.service('feed').find({
           query: {

@@ -23,7 +23,9 @@ import {
   CREATOR_FEEDS_FETCH,
   MY_FEATURED_FEEDS_FETCH,
   BOOKMARK_FEEDS_FETCH,
-  ADMIN_FEEDS_FETCH
+  ADMIN_FEEDS_FETCH,
+  FIRED_FEEDS_FETCH,
+  FEEDS_FIRED_RETRIEVED
 } from '../actions';
 import Immutable from 'immutable';
 import {
@@ -43,6 +45,8 @@ export const initialFeedState = {
     feedsCreatorFetching: false,
     feedsBookmark:[],
     feedsBookmarkFetching: false,
+    feedsFired:[],
+    feedsFiredFetching : false,
     myFeatured:[],
     myFeaturedFetching: false,
     feed: {},
@@ -64,6 +68,7 @@ const feedReducer = (state = immutableState, action: FeedsAction): any => {
     case MY_FEATURED_FEEDS_FETCH : return state.set('myFeaturedFetching', true);
     case FEEDS_FETCH : return state.set('fetching', true);
     case ADMIN_FEEDS_FETCH : return state.set('feedsAdminFetching', true);
+    case FIRED_FEEDS_FETCH : return state.set('feedsFiredFetching', true);
     
     case FEEDS_RETRIEVED:     
       return state.set('feeds', (action as FeedsRetrievedAction).feeds).set('feedsFetching', false);
@@ -75,10 +80,13 @@ const feedReducer = (state = immutableState, action: FeedsAction): any => {
       return state.set('feedsCreator', (action as FeedsRetrievedAction).feeds).set('feedsCreatorFetching', false);
 
     case FEEDS_MY_FEATURED_RETRIEVED:     
-      return state.set('myFeatured', (action as FeedsRetrievedAction).feeds).set('fetching', false).set('myFeaturedFetching', false);
+      return state.set('myFeatured', (action as FeedsRetrievedAction).feeds).set('myFeaturedFetching', false);
 
     case FEEDS_BOOKMARK_RETRIEVED:
-      return state.set('feedsBookmark', (action as FeedsRetrievedAction).feeds).set('fetching', false).set('feedsBookmarkFetching', false);
+      return state.set('feedsBookmark', (action as FeedsRetrievedAction).feeds).set('feedsBookmarkFetching', false);
+
+    case FEEDS_FIRED_RETRIEVED:
+      return state.set('feedsFired', (action as FeedsRetrievedAction).feeds).set('feedsFiredFetching', false);
       
     case FEED_RETRIEVED: 
       return state.set('feed', (action as FeedRetrievedAction).feed).set('fetching', false);

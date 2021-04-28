@@ -23,7 +23,9 @@ import {
   CREATOR_FEEDS_FETCH,
   BOOKMARK_FEEDS_FETCH,
   MY_FEATURED_FEEDS_FETCH,
-  ADMIN_FEEDS_FETCH
+  ADMIN_FEEDS_FETCH,
+  FIRED_FEEDS_FETCH,
+  FEEDS_FIRED_RETRIEVED
 } from '../actions';
 import { FeedShort, Feed } from '@xr3ngine/common/src/interfaces/Feed';
 
@@ -80,6 +82,13 @@ export function feedsBookmarkRetrieved(feeds: FeedShort[]): FeedsRetrievedAction
   };
 }
 
+export function feedsFiredRetrieved(feeds: FeedShort[]): FeedsRetrievedAction {
+  return {
+    type: FEEDS_FIRED_RETRIEVED,
+    feeds: feeds
+  };
+}
+
 export function feedsMyFeaturedRetrieved(feeds: FeedShort[]): FeedsRetrievedAction {
   return {
     type: FEEDS_MY_FEATURED_RETRIEVED,
@@ -116,6 +125,12 @@ export function fetchingCreatorFeeds (): FetchingFeedsAction {
 export function fetchingBookmarkedFeeds (): FetchingFeedsAction {
   return {
     type: BOOKMARK_FEEDS_FETCH
+  };
+}
+
+export function fetchingFiredFeeds (): FetchingFeedsAction {
+  return {
+    type: FIRED_FEEDS_FETCH
   };
 }
 
