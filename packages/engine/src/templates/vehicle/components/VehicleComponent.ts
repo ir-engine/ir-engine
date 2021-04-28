@@ -1,5 +1,4 @@
 import { Vector3 } from 'three';
-// import { RaycastVehicle, Vec3 } from 'cannon-es';
 import { Component } from '../../../ecs/classes/Component';
 import { Types } from '../../../ecs/types/Types';
 

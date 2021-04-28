@@ -1,5 +1,3 @@
-import { Quaternion, Vector3 } from 'three';
-import { isServer } from '../../common/functions/isServer';
 import { Not } from '../../ecs/functions/ComponentFunctions';
 import { Engine } from '../../ecs/classes/Engine';
 import { EngineEvents } from '../../ecs/classes/EngineEvents';
@@ -10,10 +8,8 @@ import { LocalInputReceiver } from "../../input/components/LocalInputReceiver";
 import { Network } from '../../networking/classes/Network';
 import { Vault } from '../../networking/classes/Vault';
 import { NetworkObject } from '../../networking/components/NetworkObject';
-import { calculateInterpolation, createSnapshot } from '../../networking/functions/NetworkInterpolationFunctions';
-import { CharacterComponent } from '../../templates/character/components/CharacterComponent';
+import { calculateInterpolation, createSnapshot, snapshot } from '../../networking/functions/NetworkInterpolationFunctions';
 import { TransformComponent } from '../../transform/components/TransformComponent';
-import { ControllerColliderComponent } from "../components/ControllerColliderComponent";
 import { ColliderComponent } from '../components/ColliderComponent';
 import { RigidBodyComponent } from "../components/RigidBody";
 import { InterpolationComponent } from "../components/InterpolationComponent";
@@ -50,8 +46,7 @@ export class PhysicsSystem extends System {
     this.physicsFrameRate = Engine.physicsFrameRate;
     this.physicsFrameTime = 1 / this.physicsFrameRate;
 
-    PhysicsSystem.isSimulating = isServer;
-    PhysXInstance.instance.startPhysX(isServer);
+    PhysicsSystem.isSimulating = false;
     PhysicsSystem.frame = 0;
 
     EngineEvents.instance.addEventListener(EngineEvents.EVENTS.ENABLE_SCENE, (ev: any) => {
@@ -81,7 +76,7 @@ export class PhysicsSystem extends System {
     });
 
     // RigidBody
-    this.queryResults.rigidBody.added?.forEach(entity => { 
+    this.queryResults.rigidBody.added?.forEach(entity => {
       const colliderComponent = getComponent<ColliderComponent>(entity, ColliderComponent);
       // console.log(colliderComponent.body)
     });
@@ -100,39 +95,33 @@ export class PhysicsSystem extends System {
         collider.body.transform.rotation.y,
         collider.body.transform.rotation.z,
         collider.body.transform.rotation.w
-        );
+      );
     });
 
-    // All about interpolation and server correction in one plase
-    if (this.queryResults.serverInterpolatedCorrection.all.length > 0 && Network.instance.snapshot != undefined) {
+    if (isClient && Network.instance.snapshot) {
+      // Interpolate between the current client's data with what the server has sent via snapshots
       const snapshots = {
         interpolation: calculateInterpolation('x y z quat velocity'),
         correction: Vault.instance?.get((Network.instance.snapshot as any).timeCorrection, true),
         new: []
       }
       // console.warn(snapshots.correction);
-      this.queryResults.serverInterpolatedCorrection.all?.forEach(entity => {
+      this.queryResults.localClientInterpolation.all?.forEach(entity => {
         // Creatr new snapshot position for next frame server correction
         const interpolationComponent = getComponent<InterpolationComponent>(entity, InterpolationComponent);
-        interpolationComponent.schema.serverCorrectionBehavior(entity, {
-          state: snapshots.new,
-          networkId: findInterpolationSnapshot(entity, null),
-          correction: findInterpolationSnapshot(entity, snapshots.correction),
-          interpolation: findInterpolationSnapshot(entity, snapshots.interpolation),
-          snapshot: findInterpolationSnapshot(entity, Network.instance.snapshot),
-        })
+        interpolationComponent.schema.serverCorrectionBehavior(entity, snapshots);
       });
-      // Creatr new snapshot position for next frame server correction
+      // Create new snapshot position for next frame server correction
       Vault.instance.add(createSnapshot(snapshots.new));
       // apply networkInterpolation values
       this.queryResults.networkInterpolation.all?.forEach(entity => {
         const interpolation = getComponent(entity, InterpolationComponent);
         interpolation.schema.interpolationBehavior(entity, {
-          snapshot: findInterpolationSnapshot(entity, snapshots.interpolation )
+          snapshot: findInterpolationSnapshot(entity, snapshots.interpolation)
         });
       })
-    }
-    if(isClient && this.queryResults.serverCorrection.all.length > 0 && Network.instance.snapshot != undefined) {
+
+      // If a networked entity does not have an interpolation component, just copy the data
       this.queryResults.serverCorrection.all?.forEach(entity => {
         const snapshot = findInterpolationSnapshot(entity, Network.instance.snapshot);
         if (snapshot == null) return;
@@ -161,7 +150,7 @@ export class PhysicsSystem extends System {
     return { x: 0, y: -9.81, z: 0 };
   }
 
-  set gravity(value: { x: number, y: number, z: number }){
+  set gravity(value: { x: number, y: number, z: number }) {
     // todo
   }
 
@@ -174,14 +163,14 @@ export class PhysicsSystem extends System {
 }
 
 PhysicsSystem.queries = {
-  serverInterpolatedCorrection: {
+  localClientInterpolation: {
     components: [LocalInputReceiver, InterpolationComponent, NetworkObject],
-  },
-  serverCorrection: {
-    components: [Not(InterpolationComponent), NetworkObject],
   },
   networkInterpolation: {
     components: [Not(LocalInputReceiver), InterpolationComponent, NetworkObject],
+  },
+  serverCorrection: {
+    components: [Not(InterpolationComponent), NetworkObject],
   },
   collider: {
     components: [ColliderComponent, TransformComponent],

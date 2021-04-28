@@ -1,13 +1,8 @@
-import { Vector3, Quaternion, Matrix4 } from 'three';
-// import CANNON, { Vec3 } from 'cannon-es';
+import { Vector3, Quaternion } from 'three';
 
 import { applyVectorMatrixXZ } from '../../common/functions/applyVectorMatrixXZ';
-import { getSignedAngleBetweenVectors } from '../../common/functions/getSignedAngleBetweenVectors';
-import { lerp } from '../../common/functions/MathLerpFunctions';
-
-import { Behavior } from '../../common/interfaces/Behavior';
 import { Entity } from '../../ecs/classes/Entity';
-import { hasComponent, getComponent, getMutableComponent, removeComponent } from '../../ecs/functions/EntityFunctions';
+import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
 
 import { Input } from '../../input/components/Input';
 import { BinaryValue } from "../../common/enums/BinaryValue";
@@ -17,11 +12,7 @@ import { ControllerColliderComponent } from '../components/ControllerColliderCom
 import { CharacterComponent } from '../../templates/character/components/CharacterComponent';
 import { TransformComponent } from '../../transform/components/TransformComponent';
 import { isServer } from '../../common/functions/isServer';
-import { LocalInputReceiver } from "../../input/components/LocalInputReceiver";
-import { InterpolationComponent } from '../components/InterpolationComponent';
-import TeleportToSpawnPoint from '../../scene/components/TeleportToSpawnPoint';
 import { XRUserSettings } from '../../templates/character/XRUserSettings';
-import { PhysXInstance } from "@xr3ngine/three-physx";
 import { getBit } from '../../common/functions/bitFunctions';
 import { CHARACTER_STATES } from '../../templates/character/state/CharacterStates';
 
@@ -73,8 +64,8 @@ export const physicsMove = (entity: Entity, deltaTime): void => {
   }
   const newVelocity = new Vector3();
   actor.isGrounded = collider.controller.collisions.down;
-
   if (actor.isGrounded) {
+    collider.controller.velocity.y = 0;
 
     actor.velocityTarget.copy(actor.localMovementDirection).multiplyScalar(0.1);
     actor.velocitySimulator.target.copy(actor.velocityTarget);
@@ -113,9 +104,10 @@ export const physicsMove = (entity: Entity, deltaTime): void => {
     // add movement friction if on ground  
     collider.controller.velocity.x *= 0.8;
     collider.controller.velocity.z *= 0.8;
-  } else {
-    collider.controller.velocity.y -= 0.2 * deltaTime;
   }
+
+  // apply gravity - TODO: improve this
+  collider.controller.velocity.y -= 0.2 * deltaTime;
 
   // move according to controller's velocity
   collider.controller.delta.x += collider.controller.velocity.x;

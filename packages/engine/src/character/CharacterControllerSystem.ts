@@ -36,6 +36,8 @@ export class CharacterControllerSystem extends System {
     
     this.queryResults.character.added?.forEach((entity) => {
       const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
+      const collider = getComponent<ControllerColliderComponent>(entity, ControllerColliderComponent, true);
+      globalThis.characterBody = collider.controller;
       actor.raycastQuery = PhysicsSystem.instance.addRaycastQuery({
         type: SceneQueryType.Closest,
         origin: new Vector3(),
@@ -59,7 +61,7 @@ export class CharacterControllerSystem extends System {
       const transform = getComponent<TransformComponent>(entity, TransformComponent as any);
 
       if (actor == undefined || !actor.initialized) return;
-      // console.log(collider.controller.transform.translation, collider.controller.delta)
+      
       // reset if vals are invalid
       if (isNaN(collider.controller.transform.translation.x)) {
         console.warn("WARNING: Character physics data reporting NaN")
@@ -69,8 +71,7 @@ export class CharacterControllerSystem extends System {
         collider.playerStuck = 1000;
         return;
       }
-
-      // onUpdate
+      
       transform.position.set(
         collider.controller.transform.translation.x,
         collider.controller.transform.translation.y,
