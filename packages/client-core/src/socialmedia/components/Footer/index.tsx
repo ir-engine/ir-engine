@@ -66,7 +66,7 @@ const AppFooter = ({creatorState, getLoggedCreator, authState, updateCreatorPage
           <Avatar onClick={()=> {checkGuest ? setButtonPopup(true) : handleOpenCreatorPage(creator.id);}} 
           alt={creator.username} src={creator.avatar} />
         )} */}        
-        <Avatar onClick={()=> {handleOpenCreatorPage(creator.id);}} alt={creator.username} src={creator.avatar} />        
+        <Avatar onClick={()=> {handleOpenCreatorPage(creator?.id);}} alt={creator?.username} src={creator?.avatar} />
     </nav>   
     </>
   );

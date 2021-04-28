@@ -1,6 +1,6 @@
 .creatorContainer{
     height: 100vh;
-    // overflow: scroll;    
+    overflow-y: scroll;    
 
     .videosSwitcher{
         transform: translate(0, -115px);

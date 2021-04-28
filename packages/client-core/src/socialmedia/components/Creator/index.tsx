@@ -53,10 +53,6 @@ const Creator = ({creatorId, creatorState, getCreator, followCreator, unFollowCr
     // if(creatorState && creatorState.get('fetching') === false){
     //     creator = isMe === true ? creatorState.get('currentCreator') : creatorData ? creatorData : creatorState.get('creator');
     // }
-    // console.log('Creator isMe',isMe, 'currentCreator',creatorState.get('currentCreator'));
-    // console.log('Creator creator',isMe === true ? creatorState?.get('currentCreator') : creatorData ? creatorData : creatorState?.get('creator'));
-    // console.log('Creator creatorState',creatorState);
-    // console.log('Creator creatorData',creatorData);
     const [videoType, setVideoType] = useState('creator');
     return  <><section className={styles.creatorContainer}>
             <CreatorCard creator={isMe === true ? creatorState?.get('currentCreator') : creatorData ? creatorData : creatorState?.get('creator')} />
@@ -65,7 +61,10 @@ const Creator = ({creatorId, creatorState, getCreator, followCreator, unFollowCr
                     <Button variant={videoType === 'creator' ? 'contained' : 'text'} color='secondary' className={styles.switchButton+(videoType === 'creator' ? ' '+styles.active : '')} onClick={()=>setVideoType('creator')}>My Videos</Button>
                     <Button variant={videoType === 'bookmark' ? 'contained' : 'text'} color='secondary' className={styles.switchButton+(videoType === 'bookmark' ? ' '+styles.active : '')} onClick={()=>setVideoType('bookmark')}>Saved Videos</Button>
             </section>}
-            {creator?.id && <section className={styles.feedsWrapper}><Featured creatorId={creator.id} type={videoType}/></section>}
+            {isMe === true ? creatorState?.get('currentCreator') : creatorData ? creatorData.id : creatorState?.get('creator')?.id && 
+              <section className={styles.feedsWrapper}>
+                <Featured creatorId={creatorData ? creatorData.id : creatorState?.get('creator')?.id} type={videoType}/>
+              </section>}
         </section>
         <AppFooter />
         </>;

@@ -18,7 +18,12 @@ import {
   ADD_FEED_FEATURED,
   REMOVE_FEED_FEATURED,
   FEEDS_AS_ADMIN_RETRIEVED,
-  UPDATE_FEED
+  UPDATE_FEED,
+  FEATURED_FEEDS_FETCH,
+  CREATOR_FEEDS_FETCH,
+  BOOKMARK_FEEDS_FETCH,
+  MY_FEATURED_FEEDS_FETCH,
+  ADMIN_FEEDS_FETCH
 } from '../actions';
 import { FeedShort, Feed } from '@xr3ngine/common/src/interfaces/Feed';
 
@@ -93,6 +98,36 @@ export function feedRetrieved (feed: Feed): FeedRetrievedAction {
 export function fetchingFeeds (): FetchingFeedsAction {
   return {
     type: FEEDS_FETCH
+  };
+}
+
+export function fetchingFeaturedFeeds (): FetchingFeedsAction {
+  return {
+    type: FEATURED_FEEDS_FETCH
+  };
+}
+
+export function fetchingCreatorFeeds (): FetchingFeedsAction {
+  return {
+    type: CREATOR_FEEDS_FETCH
+  };
+}
+
+export function fetchingBookmarkedFeeds (): FetchingFeedsAction {
+  return {
+    type: BOOKMARK_FEEDS_FETCH
+  };
+}
+
+export function fetchingMyFeaturedFeeds (): FetchingFeedsAction {
+  return {
+    type: MY_FEATURED_FEEDS_FETCH
+  };
+}
+
+export function fetchingAdminFeeds (): FetchingFeedsAction {
+  return {
+    type: ADMIN_FEEDS_FETCH
   };
 }
 

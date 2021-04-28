@@ -16,14 +16,15 @@ import { createCreator } from "@xr3ngine/client-core/src/socialmedia/reducers/cr
 // @ts-ignore
 import styles from './index.module.scss';
 import { selectPopupsState } from "@xr3ngine/client-core/src/socialmedia/reducers/popupsState/selector";
-import { updateCreatorPageState } from "@xr3ngine/client-core/src/socialmedia/reducers/popupsState/service";
+import { updateCreatorPageState, updateFeedPageState } from "@xr3ngine/client-core/src/socialmedia/reducers/popupsState/service";
 import SharedModal from "@xr3ngine/client-core/src/socialmedia/components/SharedModal";
 import Creator from "@xr3ngine/client-core/src/socialmedia/components/Creator";
+import Feed from "@xr3ngine/client-core/src/socialmedia/components/Feed";
         
 const mapStateToProps = (state: any): any => {
   return {
     auth: selectAuthState(state),
-    creatorsState: selectCreatorsState(state),   
+    // creatorsState: selectCreatorsState(state),   
     popupsState: selectPopupsState(state),
   };
 };
@@ -32,9 +33,10 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
   doLoginAuto: bindActionCreators(doLoginAuto, dispatch),
   createCreator: bindActionCreators(createCreator, dispatch),
   updateCreatorPageState: bindActionCreators(updateCreatorPageState, dispatch),
+  updateFeedPageState: bindActionCreators(updateFeedPageState, dispatch),
 });
 
-const  Home = ({ createCreator,  doLoginAuto, auth, popupsState, updateCreatorPageState }) => {
+const  Home = ({ createCreator,  doLoginAuto, auth, popupsState, updateCreatorPageState, updateFeedPageState }) => {
   /*hided for now*/
   // useEffect(()=>{
   //   if(auth){
@@ -47,38 +49,47 @@ const  Home = ({ createCreator,  doLoginAuto, auth, popupsState, updateCreatorPa
   // },[auth]);
 
   useEffect(() => doLoginAuto(true), []); 
-        
-  const stories = [] as any [];
-      for(let i=0;i<20;i++){
-      stories.push({
-          image:null
-      });
-  }
 
-   //common for creator page
-   const handleClose = () => {
-    updateCreatorPageState(false);
-  };
-const renderModal = () => 
-    (popupsState?.get('creatorPage') === true && popupsState?.get('creatorId')) ?  
+  //common for creator page
+  const creatorPageState = popupsState?.get('creatorPage');
+  const creatorId = popupsState?.get('creatorId');
+  const handleCreatorClose = () => updateCreatorPageState(false);
+  const renderCreatorModal = () => 
+      (popupsState?.get('creatorPage') === true && popupsState?.get('creatorId')) &&  
+          (<SharedModal 
+              open={popupsState?.get('creatorPage')}
+              onClose={handleCreatorClose} 
+              className={styles.creatorPopup}
+          >
+          <Creator creatorId={popupsState?.get('creatorId')} />
+          </SharedModal>);
+  useEffect(()=> {renderCreatorModal();}, [creatorPageState, creatorId]);
+
+
+  //common for feed page
+  const feedPageState = popupsState?.get('feedPage');
+  const feedId = popupsState?.get('feedId');
+  const handleFeedClose = () =>updateFeedPageState(false);
+  const renderFeedModal = () =>
+    (popupsState?.get('feedPage') === true) &&  
         (<SharedModal 
-            open={popupsState?.get('creatorPage')}
-            onClose={handleClose} 
-            className={styles.creatorPopup}
+            open={popupsState?.get('feedPage')}
+            onClose={handleFeedClose} 
+            className={styles.feedPagePopup}
         >
-        <Creator creatorId={popupsState?.get('creatorId')} />
-        </SharedModal>) 
-        : 
-        <></>;
-  useEffect(()=> {renderModal();}, [popupsState.get('creatorPage'), popupsState.get('creatorId')]);
+            <Feed />     
+            <AppFooter /> 
+        </SharedModal>);
+  useEffect(()=>{renderFeedModal();}, [feedPageState,feedId]);
 
   return (<>
     <div className={styles.viewport}>
         <AppHeader logo="/assets/logoBlack.png" />
-        <Stories stories={stories} />
+        {/* <Stories stories={stories} /> */}
         <FeedMenu />
-        <AppFooter onGoHome={handleClose}/>
-        {renderModal()}
+        <AppFooter onGoHome={handleCreatorClose}/>
+        {renderCreatorModal()}
+        {renderFeedModal()}
     </div>
   </>
   );
