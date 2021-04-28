@@ -1,8 +1,8 @@
-import { float32, Model, Schema, uint32, uint8 } from "superbuffer";
+import { string, float32, Model, Schema, uint32, uint8 } from "superbuffer";
 import { Network } from '../classes/Network';
 import { NetworkClientInputInterface } from "../interfaces/WorldState";
 
-/** 
+/**
 * @author HydraFire <github.com/HydraFire>
  */
 
@@ -41,6 +41,12 @@ export const viewVectorSchema = new Schema({
   z: float32
 });
 
+export const clientGameAction = new Schema({
+  type: string,
+  game: string,
+  ownerId: string
+});
+
 /** Schema for input. */
 export const inputKeyArraySchema = new Schema({
   networkId: uint32,
@@ -51,7 +57,8 @@ export const inputKeyArraySchema = new Schema({
   viewVector: viewVectorSchema,
   snapShotTime: uint32,
   // switchInputs: uint32,
-  characterState: uint8
+  characterState: uint8,
+  clientGameAction: [clientGameAction]
 });
 
 /** Class for client input. */

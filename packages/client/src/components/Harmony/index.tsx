@@ -56,7 +56,7 @@ import { selectLocationState } from "@xr3ngine/client-core/src/social/reducers/l
 import { banUserFromLocation } from "@xr3ngine/client-core/src/social/reducers/location/service";
 import { selectPartyState } from '@xr3ngine/client-core/src/social/reducers/party/selector';
 import { createParty, getParty, removeParty, removePartyUser, transferPartyOwner } from "@xr3ngine/client-core/src/social/reducers/party/service";
-import ProfileMenu from "@xr3ngine/client-core/src/user/components/UserMenu/menus/AvatarMenu";
+import ProfileMenu from "@xr3ngine/client-core/src/user/components/UserMenu/menus/ProfileMenu";
 import { selectAuthState } from '@xr3ngine/client-core/src/user/reducers/auth/selector';
 import { doLoginAuto } from '@xr3ngine/client-core/src/user/reducers/auth/service';
 import { selectUserState } from '@xr3ngine/client-core/src/user/reducers/user/selector';
@@ -73,7 +73,8 @@ import { Message } from '@xr3ngine/common/src/interfaces/Message';
 import { User } from '@xr3ngine/common/src/interfaces/User';
 import { isMobileOrTablet } from '@xr3ngine/engine/src/common/functions/isMobile';
 import { EngineEvents } from '@xr3ngine/engine/src/ecs/classes/EngineEvents';
-import { DefaultInitializationOptions, initializeEngine } from '@xr3ngine/engine/src/initialize';
+import { initializeEngine } from '@xr3ngine/engine/src/initialize';
+import { DefaultInitializationOptions } from '@xr3ngine/engine/src/DefaultInitializationOptions';
 import { Network } from '@xr3ngine/engine/src/networking/classes/Network';
 import { NetworkSchema } from '@xr3ngine/engine/src/networking/interfaces/NetworkSchema';
 import { MediaStreamSystem } from '@xr3ngine/engine/src/networking/systems/MediaStreamSystem';
@@ -99,6 +100,7 @@ import {
 import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport';
 // @ts-ignore
 import styles from './style.module.scss';
+import WarningRefreshModal from "../AlertModals/WarningRetryModal";
 const engineRendererCanvasId = 'engine-renderer-canvas';
 
 const mapStateToProps = (state: any): any => {
@@ -186,6 +188,14 @@ interface Props {
     isHarmonyPage?: boolean;
 }
 
+const initialRefreshModalValues = {
+    open: false,
+    title: '',
+    body: '',
+    action: async() => {},
+    parameters: []
+};
+
 const Harmony = (props: Props): any => {
     const {
         authState,
@@ -259,6 +269,8 @@ const Harmony = (props: Props): any => {
     const [engineInitialized, setEngineInitialized] = useState(false);
     const [lastConnectToWorldId, _setLastConnectToWorldId] = useState('');
     const [profileMenuOpen, setProfileMenuOpen] = useState(false);
+    const [warningRefreshModalValues, setWarningRefreshModalValues] = useState(initialRefreshModalValues);
+    const [noGameserverProvision, setNoGameserverProvision] = useState(false);
 
     const instanceLayerUsers = userState.get('layerUsers') ?? [];
     const channelLayerUsers = userState.get('channelLayerUsers') ?? [];
@@ -310,6 +322,8 @@ const Harmony = (props: Props): any => {
             });
         });
 
+        EngineEvents.instance.addEventListener(EngineEvents.EVENTS.PROVISION_CHANNEL_NO_GAMESERVERS_AVAILABLE, () => setNoGameserverProvision(true));
+
         return () => {
             if (EngineEvents.instance != null) {
                 setEngineInitialized(false);
@@ -335,7 +349,7 @@ const Harmony = (props: Props): any => {
     }, []);
 
     useEffect(() => {
-        if ((Network.instance.transport as any)?.channelType === 'instance') {
+        if ((Network.instance?.transport as any)?.channelType === 'instance') {
             const channelEntries = [...channels.entries()];
             const instanceChannel = channelEntries.find((entry) => entry[1].instanceId != null);
             if (instanceChannel != null && (MediaStreamSystem.instance.camAudioProducer != null || MediaStreamSystem.instance.camVideoProducer != null)) setActiveAVChannelId(instanceChannel[0]);
@@ -399,6 +413,20 @@ const Harmony = (props: Props): any => {
     useEffect(() => {
         setAudioPaused(!isCamAudioEnabled);
     }, [isCamAudioEnabled]);
+
+    useEffect(() => {
+        if (noGameserverProvision === true) {
+            const newValues = {
+                open: true,
+                title: 'No Available Servers',
+                body: 'There aren\'t any servers available to handle this request. Attempting to re-connect in',
+                action: provisionChannelServer,
+                parameters: [null, targetChannelId]
+            };
+            setWarningRefreshModalValues(newValues);
+            setNoGameserverProvision(false);
+        }
+    }, [noGameserverProvision]);
 
     const handleComposingMessageChange = (event: any): void => {
         const message = event.target.value;
@@ -604,14 +632,17 @@ const Harmony = (props: Props): any => {
         }
     };
 
-    const handleEndCall = async (e: any) => {
-        e.stopPropagation();
+    const endCall = async () => {
         changeChannelTypeState('', '');
         await endVideoChat({});
         await leave(false);
         setActiveAVChannelId('');
         updateCamVideoState();
         updateCamAudioState();
+    };
+    const handleEndCall = async (e: any) => {
+        e.stopPropagation();
+        await endCall();
     };
 
     const toggleAudio = async (channelId) => {
@@ -684,7 +715,7 @@ const Harmony = (props: Props): any => {
     };
 
     async function init(): Promise<any> {
-        if (Network.instance.isInitialized !== true) {
+        if (Network.instance?.isInitialized !== true) {
             const networkSchema: NetworkSchema = {
                 ...DefaultNetworkSchema,
                 transport: SocketWebRTCClientTransport,
@@ -1276,6 +1307,18 @@ const Harmony = (props: Props): any => {
                     </div>
                 </ClickAwayListener>
             }
+            <WarningRefreshModal
+                open={warningRefreshModalValues.open}
+                handleClose={() => {
+                    setWarningRefreshModalValues(initialRefreshModalValues);
+                }}
+                title={warningRefreshModalValues.title}
+                body={warningRefreshModalValues.body}
+                action={warningRefreshModalValues.action}
+                parameters={warningRefreshModalValues.parameters}
+                timeout={10000}
+                closeEffect={() => endCall()}
+            />
         </div>
     );
 };

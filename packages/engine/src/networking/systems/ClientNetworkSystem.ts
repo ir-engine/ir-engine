@@ -32,9 +32,9 @@ export class ClientNetworkSystem extends System {
     // Instantiate the provided transport (SocketWebRTCClientTransport / SocketWebRTCServerTransport by default)
     Network.instance.transport = new schema.transport();
     
-    console.log("***** CLIENT NETWORK SYSTEM RUNNING");
-    console.log(Network.instance.transport);
-    console.log(schema.transport)
+    // console.log("***** CLIENT NETWORK SYSTEM RUNNING");
+    // console.log(Network.instance.transport);
+    // console.log(schema.transport)
   }
 
   /**

@@ -11,7 +11,7 @@ import styles from './NewComment.module.scss';
 import { addCommentToFeed } from '../../reducers/feedComment/service';
 import { selectAuthState } from '../../../user/reducers/auth/selector';
 import PopupLogin from '../PopupLogin/PopupLogin';
-import { IndexPage } from '@xr3ngine/social/pages/login';
+// import { IndexPage } from '@xr3ngine/social/pages/login';
 
 const mapStateToProps = (state: any): any => {
     return {
@@ -40,7 +40,7 @@ const NewComment = ({addCommentToFeed, feedId, authState}:Props) => {
         composingComment.trim().length > 0 && addCommentToFeed(feedId, composingComment);
         setComposingComment('');
     };
-    const checkGuest = authState.get('authUser')?.identityProvider.type === 'guest' ? true : false;
+    const checkGuest = authState.get('authUser')?.identityProvider?.type === 'guest' ? true : false;
 
     return  <section className={styles.messageContainer}>
                 <TextField ref={commentRef} 
@@ -51,7 +51,7 @@ const NewComment = ({addCommentToFeed, feedId, authState}:Props) => {
                     />     
                 <MessageIcon className={styles.sendButton} onClick={()=>checkGuest ? setButtonPopup(true) : handleAddComment()} />
                 <PopupLogin trigger={buttonPopup} setTrigger={setButtonPopup}>
-                    <IndexPage />
+                    {/* <IndexPage /> */}
                 </PopupLogin>
             </section>;
 };

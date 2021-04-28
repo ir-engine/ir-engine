@@ -24,8 +24,12 @@ function animationMapLinear( absSpeed, axisValue, axisWeight, i ) {
   return MathUtils.mapLinear(absSpeed, axisValue[0+i], axisValue[1+i], axisWeight[0+i], axisWeight[1+i]);
 }
 //
-function mathMixesAnimFromSchemaValues( entity, animationsSchema, objectValues, deltaTime) {
+function mathMixesAnimFromSchemaValues(entity, animationsSchema, objectValues) {
+	// const actor = getMutableComponent(entity, CharacterComponent);
+  // const dontHasHit = actor.isGrounded ? 0 : 1;
+
   const { actorVelocity, dontHasHit } = objectValues;
+  // console.log(actorVelocity, dontHasHit)
   const mathMixesAnimArray = [];
 
   const absSpeed = Math.min(actorVelocity.length() * Engine.physicsFrameRate / RUN_SPEED, 1);
@@ -94,7 +98,7 @@ export const updateVectorAnimation = (entity, delta: number): void => {
   // update values for animations
   const objectValues = animationComponent.updateAnimationsValues(entity, animationComponent.animationsSchema, delta);
   // math to correct all animations
-  const animationsValues = mathMixesAnimFromSchemaValues(entity, animationComponent.animationsSchema, objectValues, delta);
+  const animationsValues = mathMixesAnimFromSchemaValues(entity, animationComponent.animationsSchema, objectValues);
 /*
     console.clear();
     for (let ia = 0; ia < animationsValues.length; ia++) {

@@ -12,7 +12,7 @@ import NodeEditor from "./NodeEditor";
 
 /**
  * Array containing options for InteractableOption.
- * 
+ *
  * @author Robert Long
  * @type {Array}
  */
@@ -37,7 +37,7 @@ const InteractableOption = [
 
 /**
  * Declairing properties for ModalNodeEditor component.
- * 
+ *
  * @author Robert Long
  * @type {Object}
  */
@@ -55,7 +55,7 @@ type ModelNodeEditorState = {
 
 /**
  * ModelNodeEditor used to create editor view for the properties of ModelNode.
- * 
+ *
  * @author Robert Long
  * @type {class component}
  */
@@ -63,7 +63,7 @@ export class ModelNodeEditor extends Component<
   ModelNodeEditorProps,
   ModelNodeEditorState
 > {
-  
+
   //initializing props and state
   constructor(props) {
     super(props);
@@ -147,8 +147,8 @@ export class ModelNodeEditor extends Component<
   };
 
   // function to handle changes in payloadName property
-  onChangeRole = role => {
-    (this.props.editor as any).setPropertySelected("role", role);
+  onChangeRole = (role, selected) => {
+    (this.props.editor as any).setPropertySelected("role", selected.label);
   };
 
   //function to handle the changes in target
@@ -205,20 +205,20 @@ export class ModelNodeEditor extends Component<
     console.log("Editor nodes are", this.props.editor.nodes);
 
     const nodeTarget = this.props.editor.nodes.find(node => node.uuid === target);
-    
+
     if(nodeTarget){
     console.log("nodeTarget", nodeTarget);
 
-    const gameMode = nodeTarget.gameMode;
+    const gameMode = this.props.editor.Engine.gameModes.schema[nodeTarget.gameMode];
 
-    const gameObjectRoles = this.props.editor.Engine.gameModes[gameMode].gameObjectRoles;
-    
+    const gameObjectRoles = Object.keys(gameMode.gameObjectRoles);
+
     console.log("gameObjectRoles are", gameObjectRoles);
 
     selectValues = gameObjectRoles.map((role, index) => { return { label: role, value: index }; });
 
     console.log("SelectValues are", selectValues);
-    }  
+    }
   }
     switch (node.interactionType) {
       case 'gameobject': return <>
@@ -248,7 +248,7 @@ export class ModelNodeEditor extends Component<
             { /* @ts-ignore */}
             <SelectInput
               options={selectValues}
-              value={node.role}
+              value={selectValues.findIndex(v => v.label === node.role)}
               onChange={this.onChangeRole}
             />
           </InputGroup>

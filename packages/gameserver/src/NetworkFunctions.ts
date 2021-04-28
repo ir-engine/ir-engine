@@ -117,8 +117,7 @@ export function validateNetworkObjects(): void {
             const disconnectedClient = Object.assign({}, Network.instance.clients[userId]);
 
             Network.instance.clientsDisconnected.push({ userId });
-            console.log('Disconnected Client:');
-            console.log(disconnectedClient);
+            console.log('Disconnected Client:', disconnectedClient.userId);
             if (disconnectedClient?.instanceRecvTransport)
                 disconnectedClient.instanceRecvTransport.close();
             if (disconnectedClient?.instanceSendTransport)
@@ -274,10 +273,8 @@ export async function handleJoinWorld(socket, data, callback, userId, user): Pro
     logger.info("JoinWorld received");
     const transport = Network.instance.transport as any;
 
-  //  const spawnPoint = Engine.spawnSystem.getRandomSpawnPoint();
-
     // Create a new default prefab for client
-    const networkObject = createNetworkPlayer({ ownerId: userId });// , spawnPoint.position, spawnPoint.rotation
+    const networkObject = createNetworkPlayer({ ownerId: userId });
     const transform = getComponent(networkObject.entity, TransformComponent);
 /*
     // Add the network object to our list of network objects
@@ -315,6 +312,8 @@ export async function handleJoinWorld(socket, data, callback, userId, user): Pro
         createObjects: [],
         destroyObjects: []
     };
+
+     //TODO spawn point transforms aren't applied to newly connected players as it is given in the execute loop
 
     // Get all network objects and add to createObjects
     Object.keys(Network.instance.networkObjects).forEach(networkId => {

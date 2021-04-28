@@ -1065,19 +1065,19 @@ public class XRPlugin extends Plugin {
         ret.put("cameraPositionX", cameraPose[0]);
         ret.put("cameraPositionY", cameraPose[1]);
         ret.put("cameraPositionZ", cameraPose[2]);
-        ret.put("cameraRotationX", cameraPose[3]);
-        ret.put("cameraRotationY", cameraPose[4]);
-        ret.put("cameraRotationZ", cameraPose[5]);
-        ret.put("cameraRotationW", cameraPose[6]);
+        ret.put("cameraRotationW", cameraPose[3]);
+        ret.put("cameraRotationX", cameraPose[4]);
+        ret.put("cameraRotationY", cameraPose[5]);
+        ret.put("cameraRotationZ", cameraPose[6]);
 
         if(anchorPose != null) {
             ret.put("anchorPositionX", anchorPose[0]);
             ret.put("anchorPositionY", anchorPose[1]);
             ret.put("anchorPositionZ", anchorPose[2]);
-            ret.put("anchorRotationX", anchorPose[3]);
-            ret.put("anchorRotationY", anchorPose[4]);
-            ret.put("anchorRotationZ", anchorPose[5]);
-            ret.put("anchorRotationW", anchorPose[6]);
+            ret.put("anchorRotationW", anchorPose[3]);
+            ret.put("anchorRotationX", anchorPose[4]);
+            ret.put("anchorRotationY", anchorPose[5]);
+            ret.put("anchorRotationZ", anchorPose[6]);
         }
         notifyListeners("poseDataReceived", ret);
     }

@@ -5,7 +5,7 @@ import { getComponent } from '../../ecs/functions/EntityFunctions';
 import { createNetworkRigidBody } from '../../interaction/prefabs/NetworkRigidBody';
 import { createVehicleFromModel } from '../../templates/vehicle/prefabs/NetworkVehicle';
 import { TransformComponent } from "../../transform/components/TransformComponent";
-import { addColliderWithoutEntity } from './addColliderWithoutEntity';
+import { addColliderWithoutEntity } from './colliderCreateFunctions';
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -68,7 +68,11 @@ export const clearFromColliders: Behavior = (entity: Entity, args: any) => {
   // its for diferent files with models
   args.asset.scene ? args.asset.scene.traverse(parseColliders) : args.asset.traverse(parseColliders);
   // its for delete mesh from view scene
-  arr.forEach(v => v.parent.remove(v));
+//
+  if (args.onlyHide)
+    arr.forEach(v => v.visible = false);
+  else
+    arr.forEach(v => v.parent.remove(v));
 }
 
 // parse Function

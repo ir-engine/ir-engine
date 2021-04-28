@@ -1,11 +1,17 @@
 import { Component } from "../../ecs/classes/Component";
-import { GameObjectRole } from "../types/GameObjectRole";
 import { Game } from "./Game";
-import { Player } from "../types/Player";
-
+import { Types } from "../../ecs/types/Types";
+/**
+ * @author HydraFire <github.com/HydraFire>
+ */
 export class GameObject extends Component<GameObject> {
-    // game: Game
-    game: Game
-    player: Player
-    role: GameObjectRole
+  game: Game | string
+  role: string
+  uuid: string
 }
+
+GameObject._schema = {
+  game: { type: Types.Ref, default: null },
+  role: { type: Types.String, default: null },
+  uuid: { type: Types.String, default: null }
+};

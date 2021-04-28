@@ -26,7 +26,7 @@ import { NumericalType } from "../../src/common/types/NumericalTypes";
 
 const initializeNetworkObject = jest.spyOn(initializeNetworkObjectModule, 'initializeNetworkObject');
 
-PhysicsSystem.physicsWorld.gravity.set(0, 0, 0);
+PhysicsSystem.instance.gravity.set(0, 0, 0);
 
 class TestTransport implements NetworkTransport {
   isServer = false;

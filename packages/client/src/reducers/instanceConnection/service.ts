@@ -38,6 +38,10 @@ export function provisionInstanceServer(locationId?: string, instanceId?: string
     });
     if (provisionResult.ipAddress != null && provisionResult.port != null) {
       dispatch(instanceServerProvisioned(provisionResult, locationId, sceneId));
+    } else {
+      EngineEvents.instance.dispatchEvent({
+        type: EngineEvents.EVENTS.PROVISION_INSTANCE_NO_GAMESERVERS_AVAILABLE
+      });
     }
   };
 }
