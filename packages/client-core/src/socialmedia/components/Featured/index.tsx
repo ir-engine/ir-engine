@@ -69,7 +69,7 @@ const Featured = ({feedsState, getFeeds, type, creatorId, creatorState, setFeedA
     useEffect(()=> feedsState.get('myFeaturedFetching') === false &&setFeedList(feedsState.get('myFeatured'))
     ,[feedsState.get('myFeaturedFetching'), feedsState.get('myFeatured')]);
 
-    useEffect(()=> {console.log('changed'); feedsState.get('feedsFiredFetching') === false && setFeedList(feedsState.get('feedsFired')); console.log('feedsState',feedsState);}
+    useEffect(()=> feedsState.get('feedsFiredFetching') === false && setFeedList(feedsState.get('feedsFired'))
     ,[feedsState.get('feedsFiredFetching'), feedsState.get('feedsFired')]);
 
     // if(type === 'creator'){

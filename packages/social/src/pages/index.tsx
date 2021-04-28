@@ -65,7 +65,7 @@ const  Home = ({ createCreator,  doLoginAuto, auth, popupsState, updateCreatorPa
           >
           <Creator creatorId={popupsState?.get('creatorId')} />
           </SharedModal>;
-  useEffect(()=> {console.log('popupsState',popupsState);renderCreatorModal();}, [creatorPageState, creatorId]);
+  useEffect(()=> {renderCreatorModal();}, [creatorPageState, creatorId]);
 
 
   //common for feed page

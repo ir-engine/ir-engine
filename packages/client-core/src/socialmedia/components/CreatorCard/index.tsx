@@ -1,10 +1,9 @@
 /**
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
-import React, { useState } from 'react';
+import React from 'react';
 import { bindActionCreators, Dispatch } from 'redux';
 import { connect } from 'react-redux';
-import { useEffect } from 'react';
 
 import Card from '@material-ui/core/Card';
 import CardMedia from '@material-ui/core/CardMedia';
@@ -22,9 +21,6 @@ import styles from './CreatorCard.module.scss';
 import { selectCreatorsState } from '../../reducers/creator/selector';
 import { getCreator} from '../../reducers/creator/service';
 import { updateCreatorPageState, updateCreatorFormState } from '../../reducers/popupsState/service';
-import CreatorForm from '../CreatorForm';
-import SharedModal from '../SharedModal';
-import AppFooter from '../Footer';
 import { selectPopupsState } from '../../reducers/popupsState/selector';
 
 const mapStateToProps = (state: any): any => {
@@ -58,11 +54,8 @@ const mapStateToProps = (state: any): any => {
   }
 
 const CreatorCard = ({creator,creatorState, updateCreatorPageState, popupsState, updateCreatorFormState}:Props) => { 
-    const [isMe, setIsMe] = useState(creator?.id === creatorState?.get('currentCreator').id ? true : false);
-    const currentCreator = creatorState?.get('currentCreator');
-    useEffect(()=>{
-        setIsMe(creator?.id === creatorState?.get('currentCreator').id && true);
-    },[creator, currentCreator]);
+    const isMe = creator?.id === creatorState?.get('currentCreator').id;
+
     // const [openFiredModal, setOpenFiredModal] = useState(false);
     // const [creatorsType, setCreatorsType] = useState('followers');
 
@@ -97,9 +90,6 @@ const CreatorCard = ({creator,creatorState, updateCreatorPageState, popupsState,
     //         {creator.tiktok && <a target="_blank" href={'http://tiktok.com/@'+creator.tiktok}><Typography variant="h4" component="p" align="center"><TitleIcon />{creator.tiktok}</Typography></a>}
     //         {creator.snap && <a target="_blank" href={'http://snap.com/'+creator.snap}><Typography variant="h4" component="p" align="center"><TwitterIcon />{creator.snap}</Typography></a>}
     //     </>;
-
-
-    
 
     const renderEditButton = () => 
         <Button variant="text" className={styles.moreButton} aria-controls="owner-menu" aria-haspopup="true" 
