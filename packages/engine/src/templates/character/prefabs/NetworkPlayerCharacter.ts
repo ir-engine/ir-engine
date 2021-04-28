@@ -222,6 +222,7 @@ const initializeCharacter: Behavior = (entity): void => {
       dynamicFriction: collider.friction,
     }
   }));
+  // collider.controller.updateTransform({ translation: { x: transform.position.x, y: transform.position.y, z: transform.position.z }})
 
   initializeMovingState(entity)
 

@@ -16,6 +16,7 @@ import { LocalInputReceiver } from "../input/components/LocalInputReceiver";
 import { NetworkObject } from "../networking/components/NetworkObject";
 
 const lastPos = { x: 0, y: 0, z: 0 };
+const lastPos2 = { x: 0, y: 0, z: 0 };
 
 export class CharacterControllerSystem extends System {
 
@@ -36,6 +37,8 @@ export class CharacterControllerSystem extends System {
     
     this.queryResults.character.added?.forEach((entity) => {
       const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
+      const collider = getComponent<ControllerColliderComponent>(entity, ControllerColliderComponent, true);
+      globalThis.characterBody = collider.controller;
       actor.raycastQuery = PhysicsSystem.instance.addRaycastQuery({
         type: SceneQueryType.Closest,
         origin: new Vector3(),
@@ -69,6 +72,10 @@ export class CharacterControllerSystem extends System {
         collider.playerStuck = 1000;
         return;
       }
+      const x = collider.controller.transform.translation.x - lastPos2.x;
+      const y = collider.controller.transform.translation.y - lastPos2.y;
+      const z = collider.controller.transform.translation.z - lastPos2.z;
+      // console.log(Math.round(x * 100)/100, Math.round(y * 100)/100, Math.round(z * 100)/100)
 
       // onUpdate
       transform.position.set(
@@ -76,6 +83,11 @@ export class CharacterControllerSystem extends System {
         collider.controller.transform.translation.y,
         collider.controller.transform.translation.z
       );
+
+
+      lastPos2.x = collider.controller.transform.translation.x;
+      lastPos2.y = collider.controller.transform.translation.y;
+      lastPos2.z = collider.controller.transform.translation.z;
 
       const actorRaycastStart = new Vector3(collider.controller.transform.translation.x, collider.controller.transform.translation.y, collider.controller.transform.translation.z);
       actor.raycastQuery.origin = new Vector3(actorRaycastStart.x, actorRaycastStart.y - (actor.actorCapsule.height * 0.5) - actor.actorCapsule.radius, actorRaycastStart.z);

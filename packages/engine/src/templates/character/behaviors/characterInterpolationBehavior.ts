@@ -9,6 +9,7 @@ import { TransformComponent } from '../../../transform/components/TransformCompo
  */
 
 export const characterInterpolationBehavior: Behavior = (entity: Entity, args): void => {
+
   if (args.snapshot == null) return;
   const transform = getComponent<TransformComponent>(entity, TransformComponent);
   

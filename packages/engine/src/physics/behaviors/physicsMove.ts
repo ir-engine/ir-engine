@@ -73,8 +73,8 @@ export const physicsMove = (entity: Entity, deltaTime): void => {
   }
   const newVelocity = new Vector3();
   actor.isGrounded = collider.controller.collisions.down;
-
   if (actor.isGrounded) {
+    collider.controller.velocity.y = 0;
 
     actor.velocityTarget.copy(actor.localMovementDirection).multiplyScalar(0.1);
     actor.velocitySimulator.target.copy(actor.velocityTarget);
@@ -113,12 +113,13 @@ export const physicsMove = (entity: Entity, deltaTime): void => {
     // add movement friction if on ground  
     collider.controller.velocity.x *= 0.8;
     collider.controller.velocity.z *= 0.8;
-  } else {
-    collider.controller.velocity.y -= 0.2 * deltaTime;
   }
+  collider.controller.velocity.y -= 0.2 * deltaTime;
+  // console.log(collider.controller.velocity.y)
 
   // move according to controller's velocity
   collider.controller.delta.x += collider.controller.velocity.x;
   collider.controller.delta.y += collider.controller.velocity.y;
   collider.controller.delta.z += collider.controller.velocity.z;
+  // console.log(actor.isGrounded, collider.controller.delta)
 };

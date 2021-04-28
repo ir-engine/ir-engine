@@ -7,6 +7,7 @@ import { Application } from '@xr3ngine/server-core/declarations';
 import getLocalServerIp from '@xr3ngine/server-core/src/util/get-local-server-ip';
 import logger from '@xr3ngine/server-core/src/logger';
 import { decode } from 'jsonwebtoken';
+import { EngineEvents } from '@xr3ngine/engine/src/ecs/classes/EngineEvents';
 
 export default (app: Application): void => {
     if (typeof app.channel !== 'function') {
@@ -94,6 +95,9 @@ export default (app: Application): void => {
                               const result = await app.service(service).get(serviceId);
 
                               if (!Engine.sceneLoaded) {
+                                EngineEvents.instance.addEventListener(EngineEvents.EVENTS.SCENE_LOADED, () => {
+                                  EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENABLE_SCENE, enable: true });
+                                });
                                 loadScene(result);
                               }
                             }
