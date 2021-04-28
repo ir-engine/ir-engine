@@ -715,7 +715,7 @@ const loadAvatarForUpdatedUser = async (user) => {
   if (!user || !user.instanceId) Promise.resolve(true);
 
   return new Promise(async resolve => {
-    const networkUser = Network.instance.clients[user.id];
+    const networkUser = Network.instance?.clients[user.id];
 
     // If network is not initialized then wait to be initialized.
     if (!networkUser) {
@@ -761,7 +761,7 @@ const loadXRAvatarForUpdatedUser = async (user) => {
   if (!user || !user.id) Promise.resolve(true);
 
   return new Promise(async resolve => {
-    const networkUser = Network.instance.clients[user.id];
+    const networkUser = Network.instance?.clients[user.id];
 
     // If network is not initialized then wait to be initialized.
     if (!networkUser) {
