@@ -105,9 +105,9 @@ const FeedCard = (props: Props) : any => {
                         <CreatorAsTitle creator={feed.creator} />
                         <section className={styles.iconSubContainer}>
                             {feed.isFired ? 
-                                <WhatshotIcon htmlColor="#FF6201" onClick={()=>checkGuest ? setButtonPopup(true) : handleRemoveFireClick(feed.id)} /> 
+                                <WhatshotIcon htmlColor="#FF6201" onClick={()=>handleRemoveFireClick(feed.id)} /> 
                                 :
-                                <WhatshotIcon htmlColor="#DDDDDD" onClick={()=>checkGuest ? setButtonPopup(true) : handleAddFireClick(feed.id)} />}
+                                <WhatshotIcon htmlColor="#DDDDDD" onClick={()=>handleAddFireClick(feed.id)} />}
                         <TelegramIcon />
                         </section>
                         {/*hided for now*/}
