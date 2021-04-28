@@ -5,7 +5,7 @@ import { getComponent } from '../../ecs/functions/EntityFunctions';
 import { createNetworkRigidBody } from '../../interaction/prefabs/NetworkRigidBody';
 import { createVehicleFromModel } from '../../templates/vehicle/prefabs/NetworkVehicle';
 import { TransformComponent } from "../../transform/components/TransformComponent";
-import { addColliderWithoutEntity } from './addColliderWithoutEntity';
+import { addColliderWithoutEntity } from './colliderCreateFunctions';
 
 /**
  * @author HydraFire <github.com/HydraFire>

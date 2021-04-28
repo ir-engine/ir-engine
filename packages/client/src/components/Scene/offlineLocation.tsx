@@ -5,7 +5,8 @@ import { testScenes, testUserId, testWorldState } from '@xr3ngine/common/src/ass
 import { isMobileOrTablet } from '@xr3ngine/engine/src/common/functions/isMobile';
 import { EngineEvents } from '@xr3ngine/engine/src/ecs/classes/EngineEvents';
 import { resetEngine } from "@xr3ngine/engine/src/ecs/functions/EngineFunctions";
-import { DefaultInitializationOptions, initializeEngine } from '@xr3ngine/engine/src/initialize';
+import { initializeEngine } from '@xr3ngine/engine/src/initialize';
+import { DefaultInitializationOptions } from '@xr3ngine/engine/src/DefaultInitializationOptions';
 import { ClientNetworkSystem } from '@xr3ngine/engine/src/networking/systems/ClientNetworkSystem';
 import { UIGallery } from '@xr3ngine/engine/src/ui/classes/UIGallery';
 import { styleCanvas } from '@xr3ngine/engine/src/renderer/functions/styleCanvas';

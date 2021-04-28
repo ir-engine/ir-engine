@@ -4,7 +4,6 @@ import { Behavior } from "../../../common/interfaces/Behavior";
 import { addObject3DComponent } from "../../../scene/behaviors/addObject3DComponent";
 import { initializeNetworkObject } from '../../../networking/functions/initializeNetworkObject'
 import { Network } from '../../../networking/classes/Network';
-import { Vec3 } from "cannon-es";
 import { AnimationClip, AnimationMixer, BoxGeometry, Group, Material, Mesh, MeshLambertMaterial, Quaternion, Vector3 } from "three";
 import { AssetLoader } from "../../../assets/classes/AssetLoader";
 import { PositionalAudioComponent } from '../../../audio/components/PositionalAudioComponent';
@@ -17,9 +16,8 @@ import { Interactor } from '../../../interaction/components/Interactor';
 import { NetworkPrefab } from '../../../networking/interfaces/NetworkPrefab';
 import { RelativeSpringSimulator } from "../../../physics/classes/SpringSimulator";
 import { VectorSpringSimulator } from "../../../physics/classes/VectorSpringSimulator";
-import { CapsuleCollider } from "../../../physics/components/CapsuleCollider";
+import { ControllerColliderComponent } from "../../../physics/components/ControllerColliderComponent";
 import { InterpolationComponent } from "../../../physics/components/InterpolationComponent";
-import { CollisionGroups } from "../../../physics/enums/CollisionGroups";
 import { PhysicsSystem } from "../../../physics/systems/PhysicsSystem";
 import { createShadow } from "../../../scene/behaviors/createShadow";
 import TeleportToSpawnPoint from '../../../scene/components/TeleportToSpawnPoint';
@@ -35,6 +33,11 @@ import { initializeMovingState } from "../animations/MovingAnimations";
 import { IKComponent } from "../../../character/components/IKComponent";
 import { initiateIK } from "../../../xr/functions/IKFunctions";
 import { AnimationComponent } from "../../../character/components/AnimationComponent";
+import { CollisionGroups } from '../../../physics/enums/CollisionGroups';
+import { InterpolationInterface } from '../../../physics/interfaces/InterpolationInterface';
+import { characterCorrectionBehavior } from '../behaviors/characterCorrectionBehavior';
+import { characterInterpolationBehavior } from '../behaviors/characterInterpolationBehavior';
+import { Controller } from '@xr3ngine/three-physx';
 
 export class AnimationManager {
 	static _instance: AnimationManager;
@@ -187,36 +190,16 @@ const initializeCharacter: Behavior = (entity): void => {
 
 	// Physics
 	// Player Capsule
-	addComponent(entity, CapsuleCollider, {
+	addComponent(entity, ControllerColliderComponent, {
 		mass: actor.actorMass,
-		position: new Vec3( ...transform.position.toArray() ), // actor.capsulePosition ?
+		position: transform.position,
 		height: actor.actorHeight,
 		radius: actor.capsuleRadius,
 		segments: actor.capsuleSegments,
 		friction: actor.capsuleFriction
 	});
 
-	actor.actorCapsule = getMutableComponent<CapsuleCollider>(entity, CapsuleCollider);
-	actor.actorCapsule.body.shapes.forEach((shape) => {
-		shape.collisionFilterMask = ~CollisionGroups.TrimeshColliders;
-	});
-	actor.actorCapsule.body.allowSleep = false;
-	// Move actor to different collision group for raycasting
-	actor.actorCapsule.body.collisionFilterGroup = 2;
-
-	// Disable actor rotation
-	actor.actorCapsule.body.fixedRotation = true;
-	actor.actorCapsule.body.updateMassProperties();
-
-	// Ray cast debug
-	const boxGeo = new BoxGeometry(0.1, 0.1, 0.1);
-	const boxMat = new MeshLambertMaterial({
-		color: 0xff0000
-	});
-	actor.raycastBox = new Mesh(boxGeo, boxMat);
-	//actor.raycastBox.visible = true;
-	//Engine.scene.add(actor.raycastBox);
-	PhysicsSystem.physicsWorld.addBody(actor.actorCapsule.body);
+	actor.actorCapsule = getMutableComponent<ControllerColliderComponent>(entity, ControllerColliderComponent);
 
 	// Physics pre/post step callback bindings
 	// States
@@ -224,6 +207,22 @@ const initializeCharacter: Behavior = (entity): void => {
 	actor.initialized = true;
 
   addComponent(entity, AnimationComponent);
+
+  const collider = getMutableComponent<ControllerColliderComponent>(entity, ControllerColliderComponent);
+  collider.controller = PhysicsSystem.instance.createController(new Controller({
+    isCapsule: true,
+    collisionLayer: CollisionGroups.Characters,
+    collisionMask: CollisionGroups.All,//CollisionGroups.Default | CollisionGroups.Characters | CollisionGroups.Car | CollisionGroups.TrimeshColliders,
+    position: {
+      x: transform.position.x,
+      y: transform.position.y + 1,
+      z: transform.position.z
+    },
+    material: {
+      dynamicFriction: collider.friction,
+    }
+  }));
+  // collider.controller.updateTransform({ translation: { x: transform.position.x, y: transform.position.y, z: transform.position.z }})
 
   initializeMovingState(entity)
 
@@ -266,6 +265,13 @@ export function createNetworkPlayer( args:{ ownerId: string | number, networkId?
   );
 	return networkComponent;
 }
+
+export const characterInterpolationSchema: InterpolationInterface = {
+  interpolationBehavior: characterInterpolationBehavior,
+  serverCorrectionBehavior: characterCorrectionBehavior
+}
+
+
 // Prefab is a pattern for creating an entity and component collection as a prototype
 export const NetworkPlayerCharacter: NetworkPrefab = {
   // These will be created for all players on the network
@@ -287,7 +293,7 @@ export const NetworkPlayerCharacter: NetworkPrefab = {
   ],
 	clientComponents: [
 		// Its component is a pass to Interpolation for Other Players and Serrver Correction for Your Local Player
-		{ type: InterpolationComponent }
+		{ type: InterpolationComponent, data: { schema: characterInterpolationSchema } }
 	],
   serverComponents: [
     { type: TeleportToSpawnPoint },

@@ -37,8 +37,10 @@ export function readJSONFromBlobStore(storage, key): any {
         key
       })
       .on('data', (data: any) => {
-        const parsedData = JSON.parse(data.toString());
-        chunks = Object.assign(chunks, parsedData);
+        try {
+          const parsedData = JSON.parse(data.toString());
+          chunks = Object.assign(chunks, parsedData);
+        } catch (error) { console.log('Failed to parse JSON', error); }
       })
       .on('end', () => {
         resolve(chunks);

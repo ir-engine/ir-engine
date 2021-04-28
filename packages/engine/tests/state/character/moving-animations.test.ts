@@ -78,7 +78,7 @@ beforeAll(() => {
     registerSystem(PhysicsSystem); // 2 - handle hit
     registerSystem(StateSystem); // 3 - process floor hit
 
-    PhysicsSystem.physicsWorld.raycastClosest = jest.fn((start, end, rayCastOptions, rayResult: RaycastResult) => {
+    PhysicsSystem.instance.raycastClosest = jest.fn((start, end, rayCastOptions, rayResult: RaycastResult) => {
         if (!actorHasFloor) {
             return false;
         }
@@ -91,7 +91,7 @@ beforeAll(() => {
     });
 
 //PhysicsSystem.simulate = false;
-//PhysicsSystem.physicsWorld.gravity.set(0,0,0);
+//PhysicsSystem.instance.gravity.set(0,0,0);
 });
 
 let player: Entity, actor: CharacterComponent, state: State;

@@ -1,5 +1,4 @@
-import { InstancedBufferGeometry, BufferGeometry, ShaderMaterial, Texture, Blending } from "three";
-import { Material } from "cannon-es";
+import { InstancedBufferGeometry, BufferGeometry, ShaderMaterial, Texture, Blending, Material } from "three";
 
 /** Particle geometry type. */
 export type ParticleGeometry = InstancedBufferGeometry | BufferGeometry

@@ -141,6 +141,10 @@ export * from './src/socialmedia/reducers/feedFires/actions';
 export * from './src/socialmedia/reducers/feedFires/reducers';
 export * from './src/socialmedia/reducers/feedFires/selector';
 export * from './src/socialmedia/reducers/feedFires/service';
+export * from './src/socialmedia/reducers/popupsState/actions';
+export * from './src/socialmedia/reducers/popupsState/reducers';
+export * from './src/socialmedia/reducers/popupsState/selector';
+export * from './src/socialmedia/reducers/popupsState/service';
 export * from './src/store';
 export * from './src/user/components/Auth/ForgotPasswordApp';
 export * from './src/user/components/Auth/PasswordLogin';
@@ -381,6 +385,7 @@ export { default as srcSocialmediaComponentsNotificationCardIndex } from './src/
 export { default as srcSocialmediaComponentsNotificationListIndex } from './src/socialmedia/components/NotificationList/index';
 export { default as srcSocialmediaComponentsOnBoardingIndex } from './src/socialmedia/components/OnBoarding/index';
 export { default as srcSocialmediaComponentsPopupLoginPopupLogin } from './src/socialmedia/components/PopupLogin/PopupLogin';
+export { default as srcSocialmediaComponentsSharedModalIndex } from './src/socialmedia/components/SharedModal/index';
 export { default as srcSocialmediaComponentsSimpleModalIndex } from './src/socialmedia/components/SimpleModal/index';
 export { default as srcSocialmediaComponentsSplashIndex } from './src/socialmedia/components/Splash/index';
 export { default as srcSocialmediaComponentsTheFeedIndex } from './src/socialmedia/components/TheFeed/index';
@@ -392,6 +397,7 @@ export { default as srcSocialmediaReducersFeedBookmarkReducers } from './src/soc
 export { default as srcSocialmediaReducersFeedCommentReducers } from './src/socialmedia/reducers/feedComment/reducers';
 export { default as srcSocialmediaReducersFeedFiresReducers } from './src/socialmedia/reducers/feedFires/reducers';
 export { default as srcSocialmediaReducersIndex } from './src/socialmedia/reducers/index';
+export { default as srcSocialmediaReducersPopupsStateReducers } from './src/socialmedia/reducers/popupsState/reducers';
 export { default as srcStore } from './src/store';
 export { default as srcTheme } from './src/theme';
 export { default as srcUserComponentsAuthConfirmEmail } from './src/user/components/Auth/ConfirmEmail';

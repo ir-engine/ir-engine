@@ -19,13 +19,13 @@
     "lint": "eslint --fix --quiet \"*.ts\" \"**/*.ts\" \"**/*.tsx\""
   },
   "dependencies": {
-    "@google-cloud/agones-sdk": "1.13.0",
+    "@google-cloud/agones-sdk": "1.14.0",
     "puppeteer": "9.0.0",
     "three": "0.128.0"
   },
   "devDependencies": {
     "@babel/core": "7.13.16",
-    "@types/node": "13.13.50",
+    "@types/node": "13.13.51",
     "@types/react": "17.0.4",
     "@types/react-dom": "17.0.3",
     "@types/three": "0.127.1",

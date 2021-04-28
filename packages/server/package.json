@@ -78,7 +78,7 @@
     "@feathersjs/socketio-client": "4.5.11",
     "@feathersjs/transport-commons": "4.5.11",
     "@xr3ngine/server-core": "^0.2.17",
-    "aws-sdk": "2.893.0",
+    "aws-sdk": "2.894.0",
     "bent": "7.3.12",
     "chargebee": "2.6.5",
     "comlink": "4.3.0",
@@ -128,7 +128,7 @@
   "devDependencies": {
     "@types/compression": "1.7.0",
     "@types/cors": "2.8.10",
-    "@types/node": "13.13.50",
+    "@types/node": "13.13.51",
     "@types/serve-favicon": "2.5.2",
     "@typescript-eslint/eslint-plugin": "4.22.0",
     "@typescript-eslint/parser": "4.22.0",

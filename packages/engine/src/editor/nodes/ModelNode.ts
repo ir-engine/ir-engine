@@ -4,9 +4,9 @@ import EditorNodeMixin from "./EditorNodeMixin";
 import { setStaticMode, StaticModes } from "../functions/StaticMode";
 import cloneObject3D from "../functions/cloneObject3D";
 import { RethrownError } from "../functions/errors";
-import { getGeometry } from '../../physics/classes/three-to-cannon';
 import { plusParameter } from "../../physics/behaviors/parseModelColliders";
 import { parseCarModel } from "../../templates/vehicle/prefabs/NetworkVehicle";
+import { getGeometry } from "@xr3ngine/three-physx";
 
 export default class ModelNode extends EditorNodeMixin(Model) {
   static nodeName = "Model";
@@ -89,7 +89,7 @@ export default class ModelNode extends EditorNodeMixin(Model) {
     super(editor);
     this._canonicalUrl = "";
     this.collidable = true;
-    this.saveColliders = false;
+    this.saveColliders = true;
     this.target = null;
     this.walkable = true;
     this.initialScale = 1;

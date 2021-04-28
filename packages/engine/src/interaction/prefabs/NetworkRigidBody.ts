@@ -3,7 +3,7 @@ import { Network } from '../../networking/classes/Network';
 import { NetworkPrefab } from '../../networking/interfaces/NetworkPrefab';
 import { TransformComponent } from '../../transform/components/TransformComponent';
 import { ColliderComponent } from '../../physics/components/ColliderComponent';
-import { RigidBody } from '../../physics/components/RigidBody';
+import { RigidBodyComponent } from '../../physics/components/RigidBody';
 import { initializeNetworkObject } from '../../networking/functions/initializeNetworkObject';
 import { PrefabType } from '../../templates/networking/PrefabType';
 
@@ -55,7 +55,7 @@ export const NetworkRigidBody: NetworkPrefab = {
     // Transform system applies values from transform component to three.js object (position, rotation, etc)
     { type: TransformComponent },
     { type: ColliderComponent },
-    { type: RigidBody }
+    { type: RigidBodyComponent }
     // Local player input mapped to behaviors in the input map
   ],
   // These are only created for the local player who owns this prefab
