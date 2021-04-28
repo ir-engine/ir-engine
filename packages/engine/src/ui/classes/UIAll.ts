@@ -31,8 +31,9 @@ const url = (index) => {
 
 const envUrl = 'https://raw.githubusercontent.com/Realitian/assets/master/360/env/Shot_03.jpg';
 
-const videoUrl = "360/ITN_Wrecks_FOR_REVIEW_4kx2k_360_h264_40Mbps.mp4";
-
+// const videoUrl = "360/ITN_Wrecks_FOR_REVIEW_4kx2k_360_h264_40Mbps.mp4";
+// const videoUrl = 'https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/MaryOculus.mp4';
+const videoUrl = 'https://storage.googleapis.com/shaka-demo-assets/angel-one/dash.mpd';
 
 export class UIGallery extends UIBaseElement {
   marketPlace: Block;
