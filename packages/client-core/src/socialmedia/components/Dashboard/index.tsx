@@ -14,6 +14,7 @@ import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ViewModuleIcon from '@material-ui/icons/ViewModule';
 import EmojiPeopleIcon from '@material-ui/icons/EmojiPeople';
+import SettingsSystemDaydreamIcon from '@material-ui/icons/SettingsSystemDaydream';
 import GradientIcon from '@material-ui/icons/Gradient';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
@@ -23,6 +24,8 @@ import DashboardIcon from "@material-ui/icons/Dashboard";
 import { Link } from "react-router-dom";
 import Backdrop from '@material-ui/core/Backdrop';
 import CircularProgress from '@material-ui/core/CircularProgress';
+
+
 
 const drawerWidth = 200;
 
@@ -191,7 +194,8 @@ export default function Dashboard({ children }) {
                             </ListItemIcon>
                             <ListItemText primary="Feeds" />
                         </ListItem>
-                    </Link>       
+                    </Link>
+
                     <Link to="/admin/ar-media">
                         <ListItem style={{ color: "white"}} onClick={changeComponent} button>
                             <ListItemIcon >
@@ -199,8 +203,18 @@ export default function Dashboard({ children }) {
                             </ListItemIcon>
                             <ListItemText primary="Ar Media" />
                         </ListItem>
-                    </Link> 
-                    <Link to="/editor/projects/create">
+                    </Link>
+
+                    <Link to="/admin/tips-and-tricks">
+                      <ListItem style={{ color: "white"}} onClick={changeComponent} button>
+                        <ListItemIcon >
+                          <SettingsSystemDaydreamIcon style={{ color: "white" }} />
+                        </ListItemIcon>
+                        <ListItemText primary="Tips&Tricks" />
+                      </ListItem>
+                    </Link>
+
+                  <Link to="/editor/projects/create">
                         <ListItem style={{ color: "white"}} onClick={changeComponent} button>
                             <ListItemIcon >
                                 <GradientIcon style={{ color: "white" }} />

@@ -6,6 +6,7 @@ import Comments from './comments/comments.service';
 import CommentsFires from './comments-fires/comments-fires.service';
 import FollowCreator from './follow-creator/follow-creator.service';
 import ArMedia from './ar-media/ar-media.service';
+import TipsAndTricks from './tips-and-tricks/tips-and-tricks.service'
 
 export default [
   Creator,
@@ -15,5 +16,6 @@ export default [
   Comments,
   CommentsFires,
   FollowCreator,
-  ArMedia
+  ArMedia,
+  TipsAndTricks
 ];

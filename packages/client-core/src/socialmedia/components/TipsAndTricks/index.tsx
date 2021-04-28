@@ -1,5 +1,5 @@
 /**
- * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
+ * @author Gleb Ordinsky <glebordinskijj@gmail.com>
  */
 import React from 'react';
 import { random } from 'lodash';
@@ -12,7 +12,7 @@ import CardContent from '@material-ui/core/CardContent';
 // @ts-ignore
 import styles from './TipsAndTricks.module.scss';
 
-export const TipsAndTricks = () => { 
+export const TipsAndTricks = () => {
     const data=[];
     for(let i=0; i<random(10); i++){
         data.push({ 
