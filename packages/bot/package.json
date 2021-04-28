@@ -19,7 +19,7 @@
     "lint": "eslint --fix --quiet \"*.ts\" \"**/*.ts\" \"**/*.tsx\""
   },
   "dependencies": {
-    "@google-cloud/agones-sdk": "1.13.0",
+    "@google-cloud/agones-sdk": "1.14.0",
     "puppeteer": "9.0.0",
     "three": "0.128.0"
   },
