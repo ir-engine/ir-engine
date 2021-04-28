@@ -27,3 +27,15 @@
       height: 100vh;
   }
 }
+.creatorFormPopup{
+  :global(.MuiDialog-paper){
+      margin: 0px;
+      max-height: 100%;
+      width: 100%;
+
+      :global(.MuiTypography-h2){
+          font-size: 1.25rem;;
+          line-height: 2.25rem;;
+      }
+  }
+}

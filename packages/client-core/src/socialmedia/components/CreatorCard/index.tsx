@@ -58,10 +58,11 @@ const mapStateToProps = (state: any): any => {
   }
 
 const CreatorCard = ({creator,creatorState, updateCreatorPageState, popupsState, updateCreatorFormState}:Props) => { 
-    const [isMe, setIsMe] = useState(creatorState && creatorState?.get('currentCreator') && creator.id === creatorState.get('currentCreator').id ? true : false);
+    const [isMe, setIsMe] = useState(creator?.id === creatorState?.get('currentCreator').id ? true : false);
+    const currentCreator = creatorState?.get('currentCreator');
     useEffect(()=>{
-        setIsMe(creatorState && creatorState?.get('currentCreator') && creator.id === creatorState.get('currentCreator').id ? true : false);
-    },[creator.id]);
+        setIsMe(creator?.id === creatorState?.get('currentCreator').id && true);
+    },[creator, currentCreator]);
     // const [openFiredModal, setOpenFiredModal] = useState(false);
     // const [creatorsType, setCreatorsType] = useState('followers');
 
@@ -98,33 +99,12 @@ const CreatorCard = ({creator,creatorState, updateCreatorPageState, popupsState,
     //     </>;
 
 
-    //common for creator form
-    const handleClose = () => {
-        updateCreatorFormState(false);
-    };
-    const renderModal = () =>
-        (popupsState?.get('creatorForm') === true) ?  
-            (<SharedModal 
-                open={popupsState?.get('creatorForm')}
-                onClose={handleClose} 
-                className={styles.creatorFormPopup}
-            >
-                <CreatorForm />      
-                <AppFooter onGoHome={handleClose}/>
-            </SharedModal>) 
-            : 
-            <></>;
+    
 
-    const creatorFormState = popupsState?.get('creatorForm');
-    useEffect(()=>{renderModal();}, [creatorFormState]);
-
-
-    const renderEditButton = () =>isMe && 
+    const renderEditButton = () => 
         <Button variant="text" className={styles.moreButton} aria-controls="owner-menu" aria-haspopup="true" 
             onClick={()=>{updateCreatorFormState(true);}}><MoreHorizIcon />
         </Button>;
-
-    useEffect(()=> {renderEditButton();}, [isMe]);
 
     return  creator ?  (
         <>
@@ -138,7 +118,7 @@ const CreatorCard = ({creator,creatorState, updateCreatorPageState, popupsState,
                 <section className={styles.controls}>
                     <Button variant="text" className={styles.backButton} 
                     onClick={()=>updateCreatorPageState(false)}><ArrowBackIosIcon />Back</Button>  
-                    {renderEditButton()}                        
+                    {isMe && renderEditButton()}                        
                 </section>
                 {/*hided for now*/}
                 {/* <section className={styles.countersButtons}>
@@ -166,7 +146,6 @@ const CreatorCard = ({creator,creatorState, updateCreatorPageState, popupsState,
                     {/* {renderSocials()} */}
                 </CardContent>
             </Card>
-            {renderModal()}
         </>)
     : <></>;
 };

@@ -16,10 +16,11 @@ import { createCreator } from "@xr3ngine/client-core/src/socialmedia/reducers/cr
 // @ts-ignore
 import styles from './index.module.scss';
 import { selectPopupsState } from "@xr3ngine/client-core/src/socialmedia/reducers/popupsState/selector";
-import { updateCreatorPageState, updateFeedPageState } from "@xr3ngine/client-core/src/socialmedia/reducers/popupsState/service";
+import { updateCreatorFormState, updateCreatorPageState, updateFeedPageState } from "@xr3ngine/client-core/src/socialmedia/reducers/popupsState/service";
 import SharedModal from "@xr3ngine/client-core/src/socialmedia/components/SharedModal";
 import Creator from "@xr3ngine/client-core/src/socialmedia/components/Creator";
 import Feed from "@xr3ngine/client-core/src/socialmedia/components/Feed";
+import CreatorForm from "@xr3ngine/client-core/src/socialmedia/components/CreatorForm";
         
 const mapStateToProps = (state: any): any => {
   return {
@@ -34,9 +35,10 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
   createCreator: bindActionCreators(createCreator, dispatch),
   updateCreatorPageState: bindActionCreators(updateCreatorPageState, dispatch),
   updateFeedPageState: bindActionCreators(updateFeedPageState, dispatch),
+  updateCreatorFormState:bindActionCreators(updateCreatorFormState, dispatch),
 });
 
-const  Home = ({ createCreator,  doLoginAuto, auth, popupsState, updateCreatorPageState, updateFeedPageState }) => {
+const  Home = ({ createCreator,  doLoginAuto, auth, popupsState, updateCreatorPageState, updateFeedPageState, updateCreatorFormState }) => {
   /*hided for now*/
   useEffect(()=>{
     if(auth){
@@ -55,15 +57,15 @@ const  Home = ({ createCreator,  doLoginAuto, auth, popupsState, updateCreatorPa
   const creatorId = popupsState?.get('creatorId');
   const handleCreatorClose = () => updateCreatorPageState(false);
   const renderCreatorModal = () => 
-      (popupsState?.get('creatorPage') === true && popupsState?.get('creatorId')) &&  
-          (<SharedModal 
+      popupsState?.get('creatorPage') === true && popupsState?.get('creatorId') &&  
+          <SharedModal 
               open={popupsState?.get('creatorPage')}
               onClose={handleCreatorClose} 
               className={styles.creatorPopup}
           >
           <Creator creatorId={popupsState?.get('creatorId')} />
-          </SharedModal>);
-  useEffect(()=> {renderCreatorModal();}, [creatorPageState, creatorId]);
+          </SharedModal>;
+  useEffect(()=> {console.log('popupsState',popupsState);renderCreatorModal();}, [creatorPageState, creatorId]);
 
 
   //common for feed page
@@ -71,16 +73,34 @@ const  Home = ({ createCreator,  doLoginAuto, auth, popupsState, updateCreatorPa
   const feedId = popupsState?.get('feedId');
   const handleFeedClose = () =>updateFeedPageState(false);
   const renderFeedModal = () =>
-    (popupsState?.get('feedPage') === true) &&  
-        (<SharedModal 
+    popupsState?.get('feedPage') === true &&  
+        <SharedModal 
             open={popupsState?.get('feedPage')}
             onClose={handleFeedClose} 
             className={styles.feedPagePopup}
         >
             <Feed />     
             <AppFooter /> 
-        </SharedModal>);
+        </SharedModal>;
   useEffect(()=>{renderFeedModal();}, [feedPageState,feedId]);
+
+  //common for creator form
+  const handleCreatorFormClose = () => {
+    updateCreatorFormState(false);
+};
+const renderCreatoFormModal = () =>
+    popupsState?.get('creatorForm') === true &&  
+        <SharedModal 
+            open={popupsState?.get('creatorForm')}
+            onClose={handleCreatorFormClose} 
+            className={styles.creatorFormPopup}
+        >
+            <CreatorForm />      
+            <AppFooter onGoHome={handleCreatorFormClose}/>
+        </SharedModal>;
+
+const creatorFormState = popupsState?.get('creatorForm');
+useEffect(()=>{renderCreatoFormModal();}, [creatorFormState]);
 
   return (<>
     <div className={styles.viewport}>
@@ -89,6 +109,7 @@ const  Home = ({ createCreator,  doLoginAuto, auth, popupsState, updateCreatorPa
         <FeedMenu />
         <AppFooter onGoHome={handleCreatorClose}/>
         {renderCreatorModal()}
+        {renderCreatoFormModal()}
         {renderFeedModal()}
     </div>
   </>

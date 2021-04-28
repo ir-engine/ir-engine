@@ -5,7 +5,7 @@ import Button from '@material-ui/core/Button';
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
-import { selectCreatorsState } from '../../reducers/creator/selector';
+import { selectCreatorsState } from  '../../reducers/creator/selector';
 import { followCreator, getCreator, getFollowersList, getFollowingList, unFollowCreator } from '../../reducers/creator/service';
 import CreatorCard from '../CreatorCard';
 import Featured from '../Featured';
@@ -49,7 +49,6 @@ const Creator = ({creatorId, creatorState, getCreator, followCreator, unFollowCr
             }
         }
     },[]);
-
     const [videoType, setVideoType] = useState('creator');
     return  <><section className={styles.creatorContainer}>
             <CreatorCard creator={isMe === true ? creatorState?.get('currentCreator') : creatorData ? creatorData : creatorState?.get('creator')} />
@@ -57,13 +56,12 @@ const Creator = ({creatorId, creatorState, getCreator, followCreator, unFollowCr
                     <Button variant={videoType === 'creator' ? 'contained' : 'text'} color='secondary' className={styles.switchButton+(videoType === 'creator' ? ' '+styles.active : '')} onClick={()=>setVideoType('creator')}>My Videos</Button>
                     <Button variant={videoType === 'bookmark' ? 'contained' : 'text'} color='secondary' className={styles.switchButton+(videoType === 'bookmark' ? ' '+styles.active : '')} onClick={()=>setVideoType('bookmark')}>Saved Videos</Button>
             </section>}
-            {isMe === true && 
-              <section className={styles.feedsWrapper}>
-                <Featured creatorId={creatorState?.get('currentCreator').id} type={videoType}/>
-              </section>}
+            <section className={styles.feedsWrapper}>
+              <Featured creatorId={isMe === true ? creatorState?.get('currentCreator').id : creatorData ? creatorData.id : creatorState?.get('creator').id} type={videoType}/>
+            </section>
         </section>
-        <AppFooter />
-        </>;
+      <AppFooter />
+    </>;
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(Creator);
