@@ -16,7 +16,7 @@ import { client } from '../../../../feathers';
 // @ts-ignore
 import styles from '../UserMenu.module.scss';
 
-const LocationMenu = ({ changeActiveLocaion }) => {
+const LocationMenu = ({ changeActiveLocation }) => {
     const [page, setPage] = useState(0);
     const [locationDetails, setLocationsDetails] = useState(null);
     const ROWS_PER_PAGE = 10;
@@ -57,7 +57,7 @@ const LocationMenu = ({ changeActiveLocaion }) => {
 
         setTimeout(() => {
             isTimerStarted = false;
-            const value = (document.getElementById('serachbox') as any).value;
+            const value = (document.getElementById('searchbox') as any).value;
             fetchLocations(page, ROWS_PER_PAGE, value);
         }, 500);
     };
@@ -77,7 +77,7 @@ const LocationMenu = ({ changeActiveLocaion }) => {
                                 size="small"
                                 placeholder={t('user:usermenu.locationTable.lbl-search')}
                                 variant="outlined"
-                                id="serachbox"
+                                id="searchbox"
                                 onChange={handleSearch}
                                 className={styles.searchbox}
                                 InputProps={{
@@ -88,7 +88,7 @@ const LocationMenu = ({ changeActiveLocaion }) => {
                                     ),
                                 }}
                             />
-                            <Button className={styles.newLocation} onClick={() => changeActiveLocaion({ location_setting: {} })}><AddIcon />{t('user:usermenu.locationTable.lbl-new')}</Button>
+                            <Button className={styles.newLocation} onClick={() => changeActiveLocation({ location_setting: {} })}><AddIcon />{t('user:usermenu.locationTable.lbl-new')}</Button>
                         </section>
                         <section className={styles.tableContainer}>
                             <Table
@@ -114,8 +114,8 @@ const LocationMenu = ({ changeActiveLocaion }) => {
                                                 className={styles.tableRow}
                                                 key={i}
                                                 tabIndex={0}
-                                                onKeyDown={(e) => { if (e.key === 'Enter') changeActiveLocaion(row); }}
-                                                onClick={() => changeActiveLocaion(row)}
+                                                onKeyDown={(e) => { if (e.key === 'Enter') changeActiveLocation(row); }}
+                                                onClick={() => changeActiveLocation(row)}
                                             >
                                                 {tableHeaders.map((headCell) => (
                                                     <TableCell className={styles.tableCell} key={headCell.id}>{row[headCell.id]}</TableCell>

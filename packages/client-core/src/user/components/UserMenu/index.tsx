@@ -140,7 +140,7 @@ const UserMenu = (props: UserMenuProps): any => {
     if(EngineEvents.instance) EngineEvents.instance.dispatchEvent({ type: ClientInputSystem.EVENTS.ENABLE_INPUT, mouse: !enabled, keyboard: !enabled });
   };
 
-  const changeActiveLocaion = (location) => {
+  const changeActiveLocation = (location) => {
     setActiveLocation(location);
     setCurrentActiveMenu({ id: Views.NewLocation });
   };
@@ -189,7 +189,7 @@ const UserMenu = (props: UserMenuProps): any => {
         break;
       case Views.Location:
         args = {
-          changeActiveLocaion,
+          changeActiveLocation,
         };
         break;
       case Views.NewLocation:
