@@ -62,7 +62,6 @@ export function getCreator(creatorId) {
     try {
       dispatch(fetchingCreator());
       const creator = await client.service('creator').get(creatorId);  
-      console.log('getCreator service creator', creatorId, creator);
       dispatch(creatorRetrieved(creator));
     } catch(err) {
       console.log(err);

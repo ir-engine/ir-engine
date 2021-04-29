@@ -37,7 +37,7 @@ import { CollisionGroups } from '../../../physics/enums/CollisionGroups';
 import { InterpolationInterface } from '../../../physics/interfaces/InterpolationInterface';
 import { characterCorrectionBehavior } from '../behaviors/characterCorrectionBehavior';
 import { characterInterpolationBehavior } from '../behaviors/characterInterpolationBehavior';
-import { Controller } from '@xr3ngine/three-physx';
+import { Controller } from 'three-physx';
 
 export class AnimationManager {
 	static _instance: AnimationManager;

@@ -14,7 +14,7 @@ import { ColliderComponent } from '../components/ColliderComponent';
 import { RigidBodyComponent } from "../components/RigidBody";
 import { InterpolationComponent } from "../components/InterpolationComponent";
 import { isClient } from '../../common/functions/isClient';
-import { PhysXInstance } from "@xr3ngine/three-physx";
+import { PhysXInstance } from "three-physx";
 import { addColliderWithEntity } from '../behaviors/colliderCreateFunctions';
 import { findInterpolationSnapshot } from '../behaviors/findInterpolationSnapshot';
 
@@ -98,7 +98,7 @@ export class PhysicsSystem extends System {
       );
     });
 
-    if (isClient && Network.instance.snapshot) {
+    if (isClient && Network.instance?.snapshot) {
       // Interpolate between the current client's data with what the server has sent via snapshots
       const snapshots = {
         interpolation: calculateInterpolation('x y z quat velocity'),

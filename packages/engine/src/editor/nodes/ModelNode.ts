@@ -4,9 +4,9 @@ import EditorNodeMixin from "./EditorNodeMixin";
 import { setStaticMode, StaticModes } from "../functions/StaticMode";
 import cloneObject3D from "../functions/cloneObject3D";
 import { RethrownError } from "../functions/errors";
-import { plusParameter } from "../../physics/behaviors/parseModelColliders";
+import { clearFromColliders, plusParameter } from "../../physics/behaviors/parseModelColliders";
 import { parseCarModel } from "../../templates/vehicle/prefabs/NetworkVehicle";
-import { getGeometry } from "@xr3ngine/three-physx";
+import { getGeometry } from "three-physx";
 
 export default class ModelNode extends EditorNodeMixin(Model) {
   static nodeName = "Model";

@@ -17,7 +17,7 @@ import PrimaryLink from "../inputs/PrimaryLink";
 import { Button } from "../inputs/Button";
 import { ProjectsSection, ProjectsContainer, ProjectsHeader } from "./ProjectsPage";
 import InfiniteScroll from "react-infinite-scroller";
-import { useHistory, withRouter } from "react-router-dom";
+import { useHistory, useLocation, withRouter } from "react-router-dom";
 import { withApi } from "../contexts/ApiContext";
 import usePaginatedSearch from "./usePaginatedSearch";
 import { useTranslation } from "react-i18next";
@@ -32,7 +32,7 @@ function CreateProjectPage(props) {
   const router = useHistory();
   const { t } = useTranslation();
 
-  const queryParams = new Map(Object.entries(props.match.params));
+  const queryParams = new Map(new URLSearchParams(useLocation().search).entries());
 
   const [params, setParams] = useState({
     source: "scene_listings",

@@ -28,3 +28,4 @@ docs-client-engine/
 docs-client-gameserver/
 docs-client-native-plugin-xr/
 docs-client-server-core/
+sidebar/typedoc-*

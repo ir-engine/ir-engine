@@ -22,9 +22,10 @@
     "url": "git+https://github.com/xr3ngine/xr3ngine.git"
   },
   "scripts": {
+    "check-errors": "tsc --noemit",
     "lint": "eslint --fix --quiet --ext .ts src/",
     "dev": "vite",
-    "build": "rimraf dist && ctix entrypoint ./src && tsc && esbuild --bundle index.ts --external:cross-fetch --external:mousetrap --external:draco3dgltf --external:three-mesh-bvh --external:path --external:superbuffer --external:@pixiv/three-vrm --external:comlink --external:browserfs --external:three --external:@xr3ngine/three-physx --outfile=dist/engine.js --define:BUILD_MODE=true --define:NODE_ENV=production --platform=neutral",
+    "build": "rimraf dist && ctix entrypoint ./src && tsc && esbuild --bundle index.ts --external:cross-fetch --external:mousetrap --external:draco3dgltf --external:three-mesh-bvh --external:path --external:superbuffer --external:@pixiv/three-vrm --external:comlink --external:browserfs --external:three --external:three-physx --outfile=dist/engine.js --define:BUILD_MODE=true --define:NODE_ENV=production --platform=neutral",
     "test": "jest",
     "validate": "yarn run lint && yarn run test",
     "generate-doc": "node_modules/.bin/typedoc"
@@ -38,7 +39,7 @@
   "dependencies": {
     "@pixiv/three-vrm": "^0.6.0",
     "@xr3ngine/common": "^0.2.18",
-    "@xr3ngine/three-physx": "^0.0.6",
+    "three-physx": "^0.0.1",
     "browserfs": "^1.4.3",
     "cross-fetch": "^3.0.6",
     "ctix": "^0.3.1",
@@ -46,10 +47,8 @@
     "hls.js": "^1.0.0",
     "mousetrap": "^1.6.5",
     "socket.io": "2.4.1",
-    "superbuffer": "^1.0.1",
     "three": "^0.128.0",
     "three-mesh-bvh": "^0.3.7",
-    "typescript": "^4.0.3",
     "vite": "^2.1.5",
     "web-worker": "^1.0.0"
   },

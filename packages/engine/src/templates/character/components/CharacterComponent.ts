@@ -5,7 +5,7 @@ import { Vector3, Group, Material, AnimationMixer, Mesh, BoxBufferGeometry, Anim
 import { ControllerColliderComponent } from '../../../physics/components/ControllerColliderComponent';
 import { VectorSpringSimulator } from '../../../physics/classes/VectorSpringSimulator';
 import { RelativeSpringSimulator } from '../../../physics/classes/SpringSimulator';
-import { SceneQuery, Transform } from "@xr3ngine/three-physx";
+import { SceneQuery, Transform } from "three-physx";
 import { CollisionGroups } from '../../../physics/enums/CollisionGroups';
 
 // idle|   idle  +  walk     |    walk      |    walk + run     |   run

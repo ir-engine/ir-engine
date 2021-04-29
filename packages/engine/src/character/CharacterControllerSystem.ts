@@ -11,7 +11,7 @@ import { PhysicsSystem } from "../physics/systems/PhysicsSystem";
 import { CollisionGroups } from "../physics/enums/CollisionGroups";
 import { Quaternion, Vector3 } from "three";
 import { TransformComponent } from "../transform/components/TransformComponent";
-import { Controller, SceneQueryType } from "@xr3ngine/three-physx";
+import { Controller, SceneQueryType } from "three-physx";
 import { LocalInputReceiver } from "../input/components/LocalInputReceiver";
 import { NetworkObject } from "../networking/components/NetworkObject";
 

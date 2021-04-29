@@ -6,7 +6,7 @@ import { addComponent, getComponent, hasComponent, removeComponent } from "../..
 import { NetworkObject } from "../../networking/components/NetworkObject"
 import { sendClientObjectUpdate } from "../../networking/functions/sendClientObjectUpdate"
 import { ColliderComponent } from "../../physics/components/ColliderComponent"
-import { BodyType } from "@xr3ngine/three-physx"
+import { BodyType } from "three-physx"
 import { PhysicsSystem } from "../../physics/systems/PhysicsSystem"
 import { NetworkObjectUpdateType } from "../../templates/networking/NetworkObjectUpdateSchema"
 import { TransformChildComponent } from "../../transform/components/TransformChildComponent"

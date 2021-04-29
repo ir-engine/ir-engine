@@ -31,7 +31,7 @@ import { AnimationManager } from '../templates/character/prefabs/NetworkPlayerCh
 import { CharacterControllerSystem } from '../character/CharacterControllerSystem';
 import { UIPanelSystem } from '../ui/systems/UIPanelSystem';
 import PhysXWorker from '../physics/functions/loadPhysX.ts?worker';
-import { PhysXInstance } from "@xr3ngine/three-physx";
+import { PhysXInstance } from "three-physx";
 
 Mesh.prototype.raycast = acceleratedRaycast;
 BufferGeometry.prototype["computeBoundsTree"] = computeBoundsTree;

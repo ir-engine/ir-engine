@@ -8,7 +8,7 @@ import { TransformComponent } from "../../transform/components/TransformComponen
 import { BoundingBox } from "../../interaction/components/BoundingBox";
 import { Object3DComponent } from "../../scene/components/Object3DComponent";
 import { EngineEvents } from "../../ecs/classes/EngineEvents";
-import { DebugRenderer } from "@xr3ngine/three-physx";
+import { DebugRenderer } from "three-physx";
 
 type ComponentHelpers = 'viewVector' | 'velocityArrow';
 

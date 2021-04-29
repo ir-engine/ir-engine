@@ -91,7 +91,7 @@ export class GameManagerSystem extends System {
               if (getComponent(v.entity, GamePlayer).game.name != game.name) {
                 getComponent(v.entity, GamePlayer).game.priority < game.priority;
                 removeComponent(v.entity, GamePlayer);
-              };
+              }
             } else if (v.inGameArea && !hasComponent(v.entity, GamePlayer)) {
 
               addComponent(v.entity, GamePlayer, {

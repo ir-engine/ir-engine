@@ -6,14 +6,13 @@
   "homepage": "",
   "main": "dist/index.js",
   "keywords": [
-    "three",
+    "metaverse",
     "three.js",
-    "ecs",
     "webgl",
     "mmo",
     "game engine",
     "webrtc",
-    "productivity",
+    "ar",
     "xr",
     "vr"
   ],
@@ -32,6 +31,7 @@
   },
   "jest": "ts-jest",
   "scripts": {
+    "check-errors": "tsc --noemit",
     "dev": "concurrently \"cross-env NODE_ENV=development ts-eager src/index.ts\" \"cd ../gameserver && cross-env NODE_ENV=development ts-eager src/index.ts\"",
     "start": "cross-env NODE_ENV=production ts-eager src/index.ts",
     "dev-api-server": "ts-eager src/index.ts",
@@ -46,14 +46,6 @@
     "serve-local-files": "http-server ./upload --ssl --cert ../../certs/cert.pem --key ../../certs/key.pem --port 8642 --cors=*"
   },
   "types": "lib/",
-  "pre-push": [
-    "lint",
-    "precommit"
-  ],
-  "pre-commit": [
-    "lint",
-    "precommit"
-  ],
   "resolutions": {
     "regenerator-runtime": "0.13.7",
     "socket.io": "2.4.1"
@@ -78,7 +70,7 @@
     "@feathersjs/socketio-client": "4.5.11",
     "@feathersjs/transport-commons": "4.5.11",
     "@xr3ngine/server-core": "^0.2.17",
-    "aws-sdk": "2.894.0",
+    "aws-sdk": "2.895.0",
     "bent": "7.3.12",
     "chargebee": "2.6.5",
     "comlink": "4.3.0",

@@ -4,6 +4,7 @@
 import {
   CHANGE_CREATOR_PAGE_STATE,
   CHANGE_CREATOR_FORM_STATE,
+  CHANGE_FEED_PAGE_STATE,
 } from '../actions';
 
 export interface PopupsActions {
@@ -11,9 +12,6 @@ export interface PopupsActions {
   state: boolean;
   id?: string;
 }
-
-export type FeedsAction =
-PopupsActions
 
 export function changeCreatorPage (state, id): PopupsActions {
   return {
@@ -29,3 +27,12 @@ export function changeCreatorForm (state): PopupsActions {
     state
   };
 }
+
+export function changeFeedPage (state, id): PopupsActions {
+  return {
+    type: CHANGE_FEED_PAGE_STATE,
+    state,
+    id
+  };
+}
+

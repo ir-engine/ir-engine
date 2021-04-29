@@ -26,9 +26,11 @@ import { AnimationManager } from './templates/character/prefabs/NetworkPlayerCha
 import { TransformSystem } from './transform/systems/TransformSystem';
 import { createWorker, WorkerProxy } from './worker/MessageQueue';
 import { XRSystem } from './xr/systems/XRSystem';
+//@ts-ignore
 import PhysXWorker from './physics/functions/loadPhysX.ts?worker';
-import { PhysXInstance } from "@xr3ngine/three-physx";
-import OffscreenWorker from './worker/initializeOffscreen.ts?worker'
+import { PhysXInstance } from "three-physx";
+//@ts-ignore
+import OffscreenWorker from './worker/initializeOffscreen.ts?worker';
 import { GameManagerSystem } from './game/systems/GameManagerSystem';
 // import { PositionalAudioSystem } from './audio/systems/PositionalAudioSystem';
 

@@ -1,4 +1,4 @@
-import { Body } from "@xr3ngine/three-physx";
+import { Body } from "three-physx";
 import { Component } from '../../ecs/classes/Component';
 import { Types } from '../../ecs/types/Types';
 

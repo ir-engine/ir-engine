@@ -1,4 +1,4 @@
-import { Schema } from "superbuffer";
+import { Schema } from "../../assets/superbuffer";
 import { RingBuffer } from '../../common/classes/RingBuffer';
 import { Entity } from '../../ecs/classes/Entity';
 import { NetworkObjectList } from '../interfaces/NetworkObjectList';
