@@ -204,6 +204,7 @@ const UserMenu = (props: UserMenuProps): any => {
 
     const Panel = menuPanel[currentActiveMenu.id];
 
+    // @ts-ignore
     return <Panel {...args} />;
   };
 

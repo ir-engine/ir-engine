@@ -294,6 +294,7 @@
             svg {
                 position: relative;
                 z-index: 1;
+                vertical-align: middle;
             }
 
             &::before {
@@ -1125,6 +1126,9 @@
             flex-grow: 1;
             border-radius: 3px;
             font-size: 14px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             &>svg { font-size: 18px; margin-left: 5px; }
         }
 
@@ -1163,7 +1167,7 @@
 
                 span { margin-left: 5px; }
                 .shiftKey { background: #c8c8c8; color: rgb(0, 0, 0, 0.75); padding: 2px 4px; border-radius: 4px; font-weight: bold; margin: 0 5px 0 0; }
-                svg { font-size: 18px; margin-right: 5px; }
+                svg { font-size: 18px; margin-right: 5px; vertical-align: middle; }
                 &>div + div { margin-top: 10px; }
             }
 

@@ -3,8 +3,8 @@ import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import { NavigateNext, NavigateBefore, Check, ArrowBack, PersonAdd, Delete, Close } from '@material-ui/icons';
 // @ts-ignore
-// @ts-ignore
 import styles from '../UserMenu.module.scss';
+import { useTranslation } from 'react-i18next';
 import { LazyImage } from '../../../../common/components/LazyImage';
 import { Views } from '../util';
 
@@ -13,6 +13,7 @@ const AvatarMenu = (props: any): any => {
 	const MIN_AVATARS_PER_PAGE = 4;
 
 	const getAvatarPerPage = () => window.innerWidth > 768 ? MAX_AVATARS_PER_PAGE : MIN_AVATARS_PER_PAGE;
+	const { t } = useTranslation();
 
 	const [ page, setPage ] = useState(0);
 	const [ imgPerPage, setImgPerPage ] = useState(getAvatarPerPage());
@@ -114,7 +115,7 @@ const AvatarMenu = (props: any): any => {
 						{characterAvatar.avatar.userId ?
 							avatarTobeDeleted && avatarTobeDeleted.avatar.url === characterAvatar.avatar.url
 								? <div className={styles.confirmationBlock}>
-									<p>Are you sure?</p>
+									<p>{t('user:usermenu.avatar.confirmation')}</p>
 									<button type="button" onClick={(e) => {removeAvatar(e, true);}} className={styles.yesBtn} ><Check /></button>
 									<button type="button" onClick={(e) => {removeAvatar(e, false);}} className={styles.noBtn} ><Close /></button>
 								</div>
@@ -123,7 +124,7 @@ const AvatarMenu = (props: any): any => {
 									className={styles.deleteBlock}
 									onClick={(e) => setRemovingAvatar(e, characterAvatar)}
 									disabled={characterAvatar.avatar.name === props.avatarId}
-									title={characterAvatar.avatar.name === props.avatarId ? 'Active Avatar can not be removed' : 'Remove avatar'}
+									title={characterAvatar.avatar.name === props.avatarId ? t('user:usermenu.avatar.canNotBeRemoved') : t('user:usermenu.avatar.remove')}
 								>
 									<Delete />
 								</button>
