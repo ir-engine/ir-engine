@@ -1,4 +1,4 @@
-import { float32, int32, Model, Schema, string, uint32, uint8 } from "superbuffer";
+import { float32, int32, Model, Schema, string, uint32, uint8 } from "../../assets/superbuffer";
 import { Network } from '../classes/Network';
 import { WorldStateInterface } from "../interfaces/WorldState";
 
