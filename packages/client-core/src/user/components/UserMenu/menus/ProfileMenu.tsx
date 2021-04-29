@@ -16,10 +16,10 @@ import { TwitterIcon } from '../../../../common/components/Icons/TwitterIcon';
 import { getAvatarURLFromNetwork, Views } from '../util';
 import { Config, validateEmail, validatePhoneNumber } from '../../../../helper';
 import * as polyfill from 'credential-handler-polyfill';
-
-//@ts-ignore
 // @ts-ignore
 import styles from '../UserMenu.module.scss';
+import { useTranslation } from 'react-i18next';
+
 
 interface Props {
 	changeActiveMenu?: any;
@@ -66,6 +66,7 @@ const ProfileMenu = (props: Props): any => {
 		changeActiveMenu,
 		setProfileMenuOpen
 	} = props;
+	const { t } = useTranslation();
 
 	const selfUser = authState.get('user') || {};
 
@@ -188,7 +189,7 @@ const ProfileMenu = (props: Props): any => {
 							<TextField
 								margin="none"
 								size="small"
-								label="Username"
+								label={t('user:usermenu.profile.lbl-username')}
 								name="username"
 								variant="outlined"
 								value={username || ''}
@@ -207,26 +208,26 @@ const ProfileMenu = (props: Props): any => {
 								}}
 							/>
 						</span>
-						<h2>You are {selfUser?.userRole === 'admin' ? 'an' : 'a'} <span>{selfUser?.userRole}</span>.</h2>
-						<h4>{(selfUser.userRole === 'user' || selfUser.userRole === 'admin') && <div onClick={handleLogout}>Log out</div>}</h4>
-						{ selfUser?.inviteCode != null && <h2>Invite Code: {selfUser.inviteCode}</h2> }
+						<h2>{selfUser?.userRole === 'admin' ? t('user:usermenu.profile.youAreA') : t('user:usermenu.profile.youAreAn')} <span>{selfUser?.userRole}</span>.</h2>
+						<h4>{(selfUser.userRole === 'user' || selfUser.userRole === 'admin') && <div onClick={handleLogout}>{t('user:usermenu.profile.logout')}</div>}</h4>
+						{ selfUser?.inviteCode != null && <h2>{t('user:usermenu.profile.inviteCode')}: {selfUser.inviteCode}</h2> }
 					</div>
 				</section>
 				{ selfUser?.userRole === 'guest' && <section className={styles.emailPhoneSection}>
 					<Typography variant="h1" className={styles.panelHeader}>
-						Connect your email or phone number
+						{t('user:usermenu.profile.connectPhone')}
 					</Typography>
 
 					<form onSubmit={handleSubmit}>
 						<TextField
 							className={styles.emailField}
 							size="small"
-							placeholder="Phone Number / Email"
+							placeholder={t('user:usermenu.profile.ph-phoneEmail')}
 							variant="outlined"
 							onChange={handleInputChange}
 							onBlur={validate}
 							error={error}
-							helperText={error ? "Valid Email or Phone number is required" : null}
+							helperText={error ? t('user:usermenu.profile.phoneEmailError') : null}
 							InputProps={{
 								endAdornment: (
 									<InputAdornment position="end" onClick={handleSubmit}>
@@ -240,13 +241,13 @@ const ProfileMenu = (props: Props): any => {
 					</form>
 				</section>}
 				{ selfUser?.userRole === 'guest' && <section className={styles.walletSection}>
-					<Typography variant="h3" className={styles.textBlock}>Or</Typography>
+					<Typography variant="h3" className={styles.textBlock}>{t('user:usermenu.profile.or')}</Typography>
 					<Button onClick={handleWalletLoginClick} className={styles.walletBtn}>
-						Login with Wallet
+					{t('user:usermenu.profile.lbl-wallet')}
 					</Button>
 				</section>}
 				{ selfUser?.userRole === 'guest' && <section className={styles.socialBlock}>
-					<Typography variant="h3" className={styles.textBlock}>Or connect with social accounts</Typography>
+					<Typography variant="h3" className={styles.textBlock}>{t('user:usermenu.profile.connectSocial')}</Typography>
 					<div className={styles.socialContainer}>
 						<a href="#" id="facebook" onClick={handleOAuthServiceClick}><FacebookIcon width="40" height="40" viewBox="0 0 40 40" /></a>
 						<a href="#" id="google" onClick={handleOAuthServiceClick}><GoogleIcon width="40" height="40" viewBox="0 0 40 40" /></a>
@@ -254,7 +255,7 @@ const ProfileMenu = (props: Props): any => {
 						<a href="#" id="twitter" onClick={handleOAuthServiceClick}><TwitterIcon width="40" height="40" viewBox="0 0 40 40" /></a>
 						<a href="#" id="github" onClick={handleOAuthServiceClick}><GitHub /></a>
 					</div>
-					<Typography variant="h4" className={styles.smallTextBlock}>If you don’t have an account, a new one will be created for you.</Typography>
+					<Typography variant="h4" className={styles.smallTextBlock}>{t('user:usermenu.profile.createOne')}</Typography>
 				</section>}
 				{ setProfileMenuOpen != null && <div className={styles.closeButton} onClick={() => setProfileMenuOpen(false)}><Close /></div>}
 			</section>

@@ -27,7 +27,7 @@ export default (app: Application): any => {
     isLobby: {
       type: DataTypes.BOOLEAN,
       allowNull: true,
-      defaultValue: true
+      defaultValue: false
     },
     isFeatured: {
         type: DataTypes.BOOLEAN,
