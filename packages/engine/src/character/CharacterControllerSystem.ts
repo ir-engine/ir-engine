@@ -36,13 +36,11 @@ export class CharacterControllerSystem extends System {
     
     this.queryResults.character.added?.forEach((entity) => {
       const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
-      const collider = getComponent<ControllerColliderComponent>(entity, ControllerColliderComponent, true);
-      globalThis.characterBody = collider.controller;
       actor.raycastQuery = PhysicsSystem.instance.addRaycastQuery({
         type: SceneQueryType.Closest,
         origin: new Vector3(),
         direction: new Vector3(0, -1, 0),
-        maxDistance: 1,
+        maxDistance: 0.1,
         collisionMask: actor.collisionMask,
       });
     });
@@ -81,10 +79,8 @@ export class CharacterControllerSystem extends System {
       const actorRaycastStart = new Vector3(collider.controller.transform.translation.x, collider.controller.transform.translation.y, collider.controller.transform.translation.z);
       actor.raycastQuery.origin = new Vector3(actorRaycastStart.x, actorRaycastStart.y - (actor.actorCapsule.height * 0.5) - actor.actorCapsule.radius, actorRaycastStart.z);
       actor.raycastQuery.direction = new Vector3(0, -1, 0);
-      actor.raycastQuery.maxDistance = 0.1;
 
       const closestHit = actor.raycastQuery.hits[0];
-      // console.log(closestHit)
 
       // TODO: replace this with ControllerCollider collision event
 
