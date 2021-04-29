@@ -12,8 +12,10 @@ export default class GameNode extends EditorNodeMixin(Object3D) {
       minPlayers,
       maxPlayers,
       gameObjects,
-      gameMode
+      gameMode,
+      name
     } = json.components.find(c => c.name === "game").props;
+    node.name = name;
     node.isGlobal = isGlobal;
     node.minPlayers = minPlayers;
     node.maxPlayers = maxPlayers;
@@ -27,7 +29,7 @@ export default class GameNode extends EditorNodeMixin(Object3D) {
       GameNode._geometry,
       GameNode._material
     );
-    const box = new BoxHelper(boxMesh, 0x00ff00);
+    const box = new BoxHelper(boxMesh, 0xff0000);
     box.layers.set(1);
     this.helper = box;
     this.add(box);
@@ -44,7 +46,7 @@ export default class GameNode extends EditorNodeMixin(Object3D) {
           GameNode._geometry,
           GameNode._material
         );
-        const box = new BoxHelper(boxMesh, 0x00ff00) as any;
+        const box = new BoxHelper(boxMesh, 0xff0000) as any;
         box.layers.set(1);
         this.helper = box;
         box.parent = this;
@@ -57,7 +59,11 @@ export default class GameNode extends EditorNodeMixin(Object3D) {
     const components = {
       "game": {
         id: this.id,
-        position: this.position,
+        position: {
+          x: this.position.x,
+          y: this.position.y,
+          z: this.position.z
+        },
         quaternion: {
           x: this.quaternion.x,
           y: this.quaternion.y,
@@ -65,14 +71,15 @@ export default class GameNode extends EditorNodeMixin(Object3D) {
           w: this.quaternion.w
         },
         scale: {
-          x: this.scale.x / 2,
-          y: this.scale.y / 2,
-          z: this.scale.z / 2
+          x: this.scale.x,
+          y: this.scale.y,
+          z: this.scale.z
         },
+        name: this.name,
         isGlobal: this.isGlobal,
         minPlayers: this.minPlayers,
         maxPlayers: this.maxPlayers,
-        gameObjects: this.gameObject,
+        gameObjects: this.gameObjects,
         gameMode: this.gameMode
       }
     } as any;

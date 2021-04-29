@@ -141,6 +141,10 @@ export * from './src/socialmedia/reducers/feedFires/actions';
 export * from './src/socialmedia/reducers/feedFires/reducers';
 export * from './src/socialmedia/reducers/feedFires/selector';
 export * from './src/socialmedia/reducers/feedFires/service';
+export * from './src/socialmedia/reducers/popupsState/actions';
+export * from './src/socialmedia/reducers/popupsState/reducers';
+export * from './src/socialmedia/reducers/popupsState/selector';
+export * from './src/socialmedia/reducers/popupsState/service';
 export * from './src/socialmedia/reducers/tips_and_tricks/actions';
 export * from './src/socialmedia/reducers/tips_and_tricks/reducers';
 export * from './src/socialmedia/reducers/tips_and_tricks/selector';
@@ -395,7 +399,6 @@ export { default as srcSocialmediaReducersFeedReducers } from './src/socialmedia
 export { default as srcSocialmediaReducersFeedBookmarkReducers } from './src/socialmedia/reducers/feedBookmark/reducers';
 export { default as srcSocialmediaReducersFeedCommentReducers } from './src/socialmedia/reducers/feedComment/reducers';
 export { default as srcSocialmediaReducersFeedFiresReducers } from './src/socialmedia/reducers/feedFires/reducers';
-export { default as srcSocialmediaReducersTipsAndTricksReducers } from './src/socialmedia/reducers/tips_and_tricks/reducers';
 export { default as srcSocialmediaReducersIndex } from './src/socialmedia/reducers/index';
 export { default as srcStore } from './src/store';
 export { default as srcTheme } from './src/theme';

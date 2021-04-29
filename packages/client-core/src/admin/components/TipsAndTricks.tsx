@@ -76,10 +76,10 @@ const ArMediaConsoleTipsAndTricks = ({ create, list, deleteTipsAndTricks, update
         e.preventDefault();
         // console.log('actionId',actionId)
         if(actionId !== '' && actionId !== null){
-            update({ id: actionId, title: actiontitle, videoUrl: actionVideo, description: actionDescription })
+            update({ id: actionId, title: actiontitle, videoUrl: actionVideo, description: actionDescription });
             // console.log('update')
         }else{
-            create({ title: actiontitle, description: actionDescription, videoUrl: actionVideo })
+            create({ title: actiontitle, description: actionDescription, videoUrl: actionVideo });
         }
         // console.log({ title: actiontitle, description: actionDescription, videoUrl: actionVideo })
         setOpen(false);
@@ -92,7 +92,7 @@ const ArMediaConsoleTipsAndTricks = ({ create, list, deleteTipsAndTricks, update
     return (
         <div>
             <Typography variant="h2" color="primary">ARC Tips & Tricks List </Typography>
-            <Button onClick={()=>{handleOpen('', '', '', '')}}  variant="outlined" color="secondary" >
+            <Button onClick={()=>{handleOpen('', '', '', '');}}  variant="outlined" color="secondary" >
                 Create
             </Button>
 

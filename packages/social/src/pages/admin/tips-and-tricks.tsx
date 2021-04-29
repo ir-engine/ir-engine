@@ -12,7 +12,7 @@ import {
     createTipsAndTricksNew,
     removeTipsAndTricks,
     updateTipsAndTricksAsAdmin
-} from '@xr3ngine/client-core/src/socialmedia/reducers/tips_and_tricks/service'
+} from '@xr3ngine/client-core/src/socialmedia/reducers/tips_and_tricks/service';
 import { selectTipsAndTricksState } from "@xr3ngine/client-core/src/socialmedia/reducers/tips_and_tricks/selector";
 import { doLoginAuto } from "@xr3ngine/client-core/src/user/reducers/auth/service";
 
@@ -50,18 +50,18 @@ const TipsAndTricks = ({ tipsAndTricksState,
                          doLoginAuto}:Props) => {
 
     const create = (data) => {
-        createTipsAndTricksNew(data)
-    }
+        createTipsAndTricksNew(data);
+    };
     const deleteTipsAndTricks = (id) => {
-        removeTipsAndTricks(id)
-    }
+        removeTipsAndTricks(id);
+    };
     const update = (obj) => {
-        updateTipsAndTricksAsAdmin(obj)
-    }
+        updateTipsAndTricksAsAdmin(obj);
+    };
 
     useEffect(()=> {
-        doLoginAuto(true, true)
-        getTipsAndTricks()
+        doLoginAuto(true, true);
+        getTipsAndTricks();
     }, []);
     const tipsAndTricksList = tipsAndTricksState?.get('tips_and_tricks') && tipsAndTricksState?.get('tips_and_tricks');
     return (<>

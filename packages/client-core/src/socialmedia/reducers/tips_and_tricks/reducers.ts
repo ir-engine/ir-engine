@@ -6,13 +6,12 @@ import {
   ADD_TIPSANDTRICKS, REMOVE_TIPSANDTRICKS,
   TIPSANDTRICKS_FETCH, TIPSANDTRICKS_RETRIEVED,
   UPDATE_TIPSANDTRICKS
-} from './actions'
+} from './actions';
 import Immutable from 'immutable';
 import {
   TipsAndTricksRetrievedAction,
   TipsAndTricksAction
 } from './actions';
-import { FeedRetrievedAction } from '../../../..'
 
 const tipsList = [
   {
@@ -56,13 +55,13 @@ const tipsAndTricksReducer = (state = immutableState, action: TipsAndTricksActio
     case TIPSANDTRICKS_FETCH : return state.set('fetching', true);
     case TIPSANDTRICKS_RETRIEVED:
       return state.set('tips_and_tricks', (action as TipsAndTricksRetrievedAction).tips_and_tricks)
-        .set('fetching', false)
+        .set('fetching', false);
     case ADD_TIPSANDTRICKS:
       return state.set('tips_and_tricks', [...state.get('tips_and_tricks'), (action as TipsAndTricksRetrievedAction).tips_and_tricks]);
     case UPDATE_TIPSANDTRICKS:
       return state.set('tips_and_tricks', state.get('tips_and_tricks').map(tips_and_tricks => {
-        if(tips_and_tricks.id === (action as FeedRetrievedAction).tips_and_tricks.id) {
-          return {...tips_and_tricks, ...(action as FeedRetrievedAction).tips_and_tricks};
+        if(tips_and_tricks.id === (action as TipsAndTricksRetrievedAction).tips_and_tricks.id) {
+          return {...tips_and_tricks, ...(action as TipsAndTricksRetrievedAction).tips_and_tricks};
         }
         return {...tips_and_tricks};
       }));

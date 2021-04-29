@@ -1,11 +1,13 @@
-import HeightfieldWorker from "./heightfield.worker?worker";
+//@ts-ignore
+import { createInlineWorkerFromString } from "../../common/functions/createInlineWorkerFromString";
+import HeightfieldWorker from "./heightfield.worker.js";
 export default class HeightfieldClient {
   worker: any;
   working: boolean;
   workerUrl: string;
   constructor() {
     this.working = false;
-    this.worker = new HeightfieldWorker();
+    this.worker = createInlineWorkerFromString(HeightfieldWorker);
   }
   initWorker() {
     

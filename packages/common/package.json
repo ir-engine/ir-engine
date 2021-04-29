@@ -8,6 +8,7 @@
   },
   "description": "Shared types for other XR3ngine packages",
   "scripts": {
+    "check-errors": "tsc --noemit",
     "build-publish": "rimraf dist && ctix entrypoint ./src && cross-env NODE_ENV=production rollup -c"
   },
   "repository": "http://github.com/xr3ngine/xr3ngine",

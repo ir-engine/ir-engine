@@ -11,7 +11,7 @@ import {
   tips_and_tricksRetrieved,
   deleteTipsAndTricks,
   updateTipsAndTricksInList
-} from './actions'
+} from './actions';
 
 
 
@@ -35,7 +35,7 @@ export function createTipsAndTricksNew(data) {
     try {
       const api = new Api();
       const storedVideo = await api.upload(data.videoUrl, null);
-      console.log(storedVideo)
+      console.log(storedVideo);
       const tips_and_tricks = await client.service('tips-and-tricks').create(data);
       dispatch(addTipsAndTricks(tips_and_tricks));
     } catch (err) {

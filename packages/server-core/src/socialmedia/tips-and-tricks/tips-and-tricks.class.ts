@@ -62,7 +62,7 @@ export class TipsAndTricks extends Service {
           raw: true,
           replacements: {...queryParamsReplacements}
         });
-      console.log(tips_and_tricks)
+      console.log(tips_and_tricks);
       return {
         data: tips_and_tricks,
         skip,
@@ -166,8 +166,8 @@ export class TipsAndTricks extends Service {
    * @author 
    */
   async patch (id: string, data?: any, params?: Params): Promise<any> {
-        console.log('server', id)
-        console.log('server', data)
+        console.log('server', id);
+        console.log('server', data);
     const {tips_and_tricks:tips_and_tricksModel } = this.app.get('sequelizeClient').models;
     let result = null;
     if(data.viewsCount){

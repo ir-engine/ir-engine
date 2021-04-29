@@ -32,6 +32,7 @@
   },
   "jest": "ts-jest",
   "scripts": {
+    "check-errors": "tsc --noemit",
     "start": "yarn run build && node dist/server.js",
     "dev": "cross-env NODE_ENV=development vite",
     "dev-reinit-db": "cross-env NODE_ENV=development FORCE_DB_REFRESH=true vite",
@@ -44,14 +45,6 @@
     "upload-avatar": "node ./scripts/upload-avatar.js",
     "serve-local-files": "http-server ./upload --ssl --cert ../../certs/cert.pem --key ../../certs/key.pem --port 8642 --cors=*"
   },
-  "pre-push": [
-    "lint",
-    "precommit"
-  ],
-  "pre-commit": [
-    "lint",
-    "precommit"
-  ],
   "resolutions": {
     "socket.io": "2.4.1"
   },
@@ -114,7 +107,7 @@
     "@types/lodash": "4.14.168",
     "@types/mime-types": "2.1.0",
     "@types/multer": "1.4.5",
-    "@types/node": "13.13.50",
+    "@types/node": "13.13.51",
     "@types/node-fetch": "2.5.10",
     "@types/nodemailer-smtp-transport": "2.7.4",
     "@types/pug": "2.0.4",

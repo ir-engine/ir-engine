@@ -21,8 +21,8 @@ export const addPhysics: Behavior = (entity: Entity) => {
 
 export const removeWebXRPhysics: Behavior = (entity: Entity, args: any) => {
 // if (args.leftControllerPhysicsBody) {
-// 	PhysicsSystem.physicsWorld.removeBody(args.leftControllerPhysicsBody)
-// 	PhysicsSystem.physicsWorld.removeBody(args.rightControllerPhysicsBody)
+// 	PhysicsSystem.instance.removeBody(args.leftControllerPhysicsBody)
+// 	PhysicsSystem.instance.removeBody(args.rightControllerPhysicsBody)
 // }
 // 	console.warn(args);
 };

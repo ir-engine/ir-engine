@@ -16,10 +16,6 @@ export default function createSkybox(entity, args: {
     return;
   }
   
-  console.log(args);
-  console.log(entity);
-  
-  
   const renderer = Engine.renderer
 
   const pmremGenerator = new PMREMGenerator(renderer);
@@ -40,12 +36,7 @@ export default function createSkybox(entity, args: {
       // .setPath(args.objArgs.texture)
       .load([posx, negx, posy, negy, posz, negz],
       (texture) => {
-
-        console.log(texture);
-        
        const EnvMap = pmremGenerator.fromCubemap(texture).texture;
-
-       console.log(EnvMap);
         
        Engine.scene.background = EnvMap;
        Engine.scene.environment = EnvMap;

@@ -1,4 +1,4 @@
-import { withRouter } from "react-router-dom";
+import { useLocation, withRouter } from "react-router-dom";
 import React, { useEffect, useState } from "react";
 import { loginUserByJwt, refreshConnections } from '../../reducers/auth/service';
 import { selectAuthState } from '../../reducers/auth/selector';
@@ -18,17 +18,18 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 });
 
 const LinkedinCallbackComponent = (props): any => {
-  const { auth, loginUserByJwt, refreshConnections, match } = props;
+  const { auth, loginUserByJwt, refreshConnections } = props;
 
   const initialState = { error: '', token: '' };
   const [state, setState] = useState(initialState);
+  const search = new URLSearchParams(useLocation().search);
 
   useEffect(() => {
-    const error = match.params.error as string;
-    const token = match.params.token as string;
-    const type = match.params.type as string;
-    const path = match.params.path as string;
-    const instanceId = match.params.instanceId as string;
+    const error = search.get('error') as string;
+    const token = search.get('token') as string;
+    const type = search.get('type') as string;
+    const path = search.get('path') as string;
+    const instanceId = search.get('instanceId') as string;
 
     if (!error) {
       if (type === 'connection') {

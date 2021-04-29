@@ -1,7 +1,7 @@
 /**
  * @author Gleb Ordinsky <glebordinskijj@gmail.com>
  */
-import React, { useEffect } from 'react'
+import React, { useEffect } from 'react';
 import { random } from 'lodash';
 
 import CardMedia from '@material-ui/core/CardMedia';
@@ -11,10 +11,10 @@ import CardContent from '@material-ui/core/CardContent';
 
 // @ts-ignore
 import styles from './TipsAndTricks.module.scss';
-import { connect } from 'react-redux'
-import { getTipsAndTricks } from '@xr3ngine/client-core/src/socialmedia/reducers/tips_and_tricks/service'
+import { connect } from 'react-redux';
+import { getTipsAndTricks } from '@xr3ngine/client-core/src/socialmedia/reducers/tips_and_tricks/service';
 import { selectTipsAndTricksState } from "@xr3ngine/client-core/src/socialmedia/reducers/tips_and_tricks/selector";
-import { bindActionCreators, Dispatch } from 'redux'
+import { bindActionCreators, Dispatch } from 'redux';
 import { doLoginAuto } from "@xr3ngine/client-core/src/user/reducers/auth/service";
 
 const mapStateToProps = (state: any): any => {
@@ -43,8 +43,8 @@ export const TipsAndTricks = ({tipsAndTricksState, getTipsAndTricks, doLoginAuto
         });
     }
     useEffect(()=> {
-        doLoginAuto(true)
-        getTipsAndTricks()
+        doLoginAuto(true);
+        getTipsAndTricks();
     }, []);
     const tipsAndTricksList = tipsAndTricksState?.get('tips_and_tricks') && tipsAndTricksState?.get('tips_and_tricks');
     useEffect(()=>  console.log(tipsAndTricksList), [tipsAndTricksList]);
@@ -70,4 +70,4 @@ export const TipsAndTricks = ({tipsAndTricksState, getTipsAndTricks, doLoginAuto
 };
 
 
-export default connect(mapStateToProps, mapDispatchToProps)(TipsAndTricks)
+export default connect(mapStateToProps, mapDispatchToProps)(TipsAndTricks);

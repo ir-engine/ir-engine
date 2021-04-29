@@ -1,10 +1,9 @@
 /**
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
-import React, { useState } from 'react';
+import React from 'react';
 import { bindActionCreators, Dispatch } from 'redux';
 import { connect } from 'react-redux';
-import { useEffect } from 'react';
 
 import Card from '@material-ui/core/Card';
 import CardMedia from '@material-ui/core/CardMedia';
@@ -22,9 +21,6 @@ import styles from './CreatorCard.module.scss';
 import { selectCreatorsState } from '../../reducers/creator/selector';
 import { getCreator} from '../../reducers/creator/service';
 import { updateCreatorPageState, updateCreatorFormState } from '../../reducers/popupsState/service';
-import CreatorForm from '../CreatorForm';
-import SharedModal from '../SharedModal';
-import AppFooter from '../Footer';
 import { selectPopupsState } from '../../reducers/popupsState/selector';
 
 const mapStateToProps = (state: any): any => {
@@ -58,10 +54,8 @@ const mapStateToProps = (state: any): any => {
   }
 
 const CreatorCard = ({creator,creatorState, updateCreatorPageState, popupsState, updateCreatorFormState}:Props) => { 
-    const [isMe, setIsMe] = useState(creatorState && creatorState?.get('currentCreator') && creator.id === creatorState.get('currentCreator').id ? true : false);
-    useEffect(()=>{
-        setIsMe(creatorState && creatorState?.get('currentCreator') && creator.id === creatorState.get('currentCreator').id ? true : false);
-    },[creator.id]);
+    const isMe = creator?.id === creatorState?.get('currentCreator').id;
+
     // const [openFiredModal, setOpenFiredModal] = useState(false);
     // const [creatorsType, setCreatorsType] = useState('followers');
 
@@ -97,34 +91,10 @@ const CreatorCard = ({creator,creatorState, updateCreatorPageState, popupsState,
     //         {creator.snap && <a target="_blank" href={'http://snap.com/'+creator.snap}><Typography variant="h4" component="p" align="center"><TwitterIcon />{creator.snap}</Typography></a>}
     //     </>;
 
-
-    //common for creator form
-    const handleClose = () => {
-        updateCreatorFormState(false);
-    };
-    const renderModal = () =>
-        (popupsState?.get('creatorForm') === true) ?  
-            (<SharedModal 
-                open={popupsState?.get('creatorForm')}
-                onClose={handleClose} 
-                className={styles.creatorFormPopup}
-            >
-                <CreatorForm />      
-                <AppFooter onGoHome={handleClose}/>
-            </SharedModal>) 
-            : 
-            <></>;
-
-    const creatorFormState = popupsState?.get('creatorForm');
-    useEffect(()=>{renderModal();}, [creatorFormState]);
-
-
-    const renderEditButton = () =>isMe && 
+    const renderEditButton = () => 
         <Button variant="text" className={styles.moreButton} aria-controls="owner-menu" aria-haspopup="true" 
             onClick={()=>{updateCreatorFormState(true);}}><MoreHorizIcon />
         </Button>;
-
-    useEffect(()=> {renderEditButton();}, [isMe]);
 
     return  creator ?  (
         <>
@@ -138,7 +108,7 @@ const CreatorCard = ({creator,creatorState, updateCreatorPageState, popupsState,
                 <section className={styles.controls}>
                     <Button variant="text" className={styles.backButton} 
                     onClick={()=>updateCreatorPageState(false)}><ArrowBackIosIcon />Back</Button>  
-                    {renderEditButton()}                        
+                    {isMe && renderEditButton()}                        
                 </section>
                 {/*hided for now*/}
                 {/* <section className={styles.countersButtons}>
@@ -166,7 +136,6 @@ const CreatorCard = ({creator,creatorState, updateCreatorPageState, popupsState,
                     {/* {renderSocials()} */}
                 </CardContent>
             </Card>
-            {renderModal()}
         </>)
     : <></>;
 };

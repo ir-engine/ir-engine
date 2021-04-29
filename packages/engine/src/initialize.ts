@@ -17,30 +17,22 @@ import { InteractiveSystem } from "./interaction/systems/InteractiveSystem";
 import { Network } from './networking/classes/Network';
 import { ClientNetworkSystem } from './networking/systems/ClientNetworkSystem';
 import { MediaStreamSystem } from './networking/systems/MediaStreamSystem';
-import { ServerNetworkIncomingSystem } from './networking/systems/ServerNetworkIncomingSystem';
-import { ServerNetworkOutgoingSystem } from './networking/systems/ServerNetworkOutgoingSystem';
 import { ParticleSystem } from './particles/systems/ParticleSystem';
 import { PhysicsSystem } from './physics/systems/PhysicsSystem';
 import { HighlightSystem } from './renderer/HighlightSystem';
 import { WebGLRendererSystem } from './renderer/WebGLRendererSystem';
 import { ServerSpawnSystem } from './scene/systems/SpawnSystem';
-import { StateSystem } from './state/systems/StateSystem';
-import { CharacterInputSchema } from './templates/character/CharacterInputSchema';
 import { AnimationManager } from './templates/character/prefabs/NetworkPlayerCharacter';
-import { DefaultGameMode } from './templates/game/DefaultGameMode';
-import { DefaultNetworkSchema } from './templates/networking/DefaultNetworkSchema';
 import { TransformSystem } from './transform/systems/TransformSystem';
 import { createWorker, WorkerProxy } from './worker/MessageQueue';
 import { XRSystem } from './xr/systems/XRSystem';
-import { isNode } from './common/functions/getEnvironment';
+//@ts-ignore
+import PhysXWorker from './physics/functions/loadPhysX.ts?worker';
+import { PhysXInstance } from "three-physx";
+//@ts-ignore
+import OffscreenWorker from './worker/initializeOffscreen.ts?worker';
+import { GameManagerSystem } from './game/systems/GameManagerSystem';
 // import { PositionalAudioSystem } from './audio/systems/PositionalAudioSystem';
-
-let OffscreenWorker;
-if(!isNode)
-  import('./worker/initializeOffscreen.ts?worker')
-  .then((module) => {
-    OffscreenWorker = module;
-  })
 
 Mesh.prototype.raycast = acceleratedRaycast;
 BufferGeometry.prototype["computeBoundsTree"] = computeBoundsTree;
@@ -52,29 +44,11 @@ if (typeof window !== 'undefined') {
 }
 
 /**
- * 
+ *
  * @author Avaer Kazmer
+ * @param initOptions
  */
-export const DefaultInitializationOptions = {
-  input: {
-    schema: CharacterInputSchema,
-  },
-  networking: {
-    schema: DefaultNetworkSchema
-  },
-  gameModes: [
-    DefaultGameMode
-  ],
-  publicPath: '',
-  useOfflineMode: false,
-  postProcessing: true
-};
 
-/**
- * 
- * @author Avaer Kazmer
- * @param initOptions 
- */
 export const initializeEngine = async (options): Promise<void> => {
   // const options = _.defaultsDeep({}, initOptions, DefaultInitializationOptions);
   const canvas = options.renderer && options.renderer.canvas ? options.renderer.canvas : null;
@@ -115,8 +89,8 @@ export const initializeEngine = async (options): Promise<void> => {
 
   if (options.networking) {
     const networkSystemOptions = { schema: options.networking.schema, app: options.networking.app };
-    console.log("Network system options are", networkSystemOptions);
-    console.log("Network system schema is", networkSystemOptions.schema);
+    // console.log("Network system options are", networkSystemOptions);
+    // console.log("Network system schema is", networkSystemOptions.schema);
     Network.instance = new Network();
 
     Network.instance.schema = networkSystemOptions.schema;
@@ -143,33 +117,32 @@ export const initializeEngine = async (options): Promise<void> => {
     registerSystem(ServerSpawnSystem, { priority: 899 });
     registerSystem(HighlightSystem);
     registerSystem(ActionSystem, { useWebXR: Engine.xrSupported });
+
+    await PhysXInstance.instance.initPhysX(new PhysXWorker(), { });
+
     registerSystem(PhysicsSystem);
     registerSystem(TransformSystem, { priority: 900 });
-
     // audio breaks webxr currently
     // Engine.audioListener = new AudioListener();
     // Engine.camera.add(Engine.audioListener);
     // registerSystem(PositionalAudioSystem);
-
     registerSystem(ParticleSystem);
     registerSystem(DebugHelpersSystem);
     registerSystem(InteractiveSystem);
     registerSystem(CameraSystem);
     registerSystem(WebGLRendererSystem, { priority: 1001, canvas, postProcessing });
     registerSystem(XRSystem);
+    registerSystem(GameManagerSystem);
+
     Engine.viewportElement = Engine.renderer.domElement;
     Engine.renderer.xr.enabled = Engine.xrSupported;
-
   }
 
-  Engine.engineTimerTimeout = setTimeout(() => {
-    Engine.engineTimer = Timer(
-      {
-        networkUpdate: (delta: number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Network),
-        fixedUpdate: (delta: number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Fixed),
-        update: (delta, elapsedTime) => execute(delta, elapsedTime, SystemUpdateType.Free)
-      }, Engine.physicsFrameRate, Engine.networkFramerate).start();
-  }, 1000);
+  Engine.engineTimer = Timer({
+    networkUpdate: (delta: number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Network),
+    fixedUpdate: (delta: number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Fixed),
+    update: (delta, elapsedTime) => execute(delta, elapsedTime, SystemUpdateType.Free)
+  }, Engine.physicsFrameRate, Engine.networkFramerate).start();
 
   const engageType = isMobileOrTablet() ? 'touchstart' : 'click'
   const onUserEngage = () => {
@@ -182,8 +155,9 @@ export const initializeEngine = async (options): Promise<void> => {
     Network.instance.isInitialized = true;
     Network.instance.userId = id;
   })
-}
 
+  Engine.isInitialized = true;
+}
 
 
 export const initializeEditor = async (options): Promise<void> => {
@@ -199,51 +173,19 @@ export const initializeEditor = async (options): Promise<void> => {
   Engine.camera = new PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 10000);
   Engine.scene.add(Engine.camera);
 
+
+  await PhysXInstance.instance.initPhysX(new PhysXWorker(), { });
   registerSystem(PhysicsSystem);
   registerSystem(TransformSystem, { priority: 900 });
-
   registerSystem(ParticleSystem);
   registerSystem(DebugHelpersSystem);
+  registerSystem(GameManagerSystem);
 
-  Engine.engineTimerTimeout = setTimeout(() => {
-    Engine.engineTimer = Timer(
-      {
-        networkUpdate: (delta: number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Network),
-        fixedUpdate: (delta: number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Fixed),
-        update: (delta, elapsedTime) => execute(delta, elapsedTime, SystemUpdateType.Free)
-      }, Engine.physicsFrameRate, Engine.networkFramerate).start();
-  }, 1000);
-}
+  Engine.engineTimer = Timer({
+    networkUpdate: (delta: number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Network),
+    fixedUpdate: (delta: number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Fixed),
+    update: (delta, elapsedTime) => execute(delta, elapsedTime, SystemUpdateType.Free)
+  }, Engine.physicsFrameRate, Engine.networkFramerate).start();
 
-export const initializeServer = async (initOptions: any = DefaultInitializationOptions): Promise<void> => {
-  const options = _.defaultsDeep({}, initOptions, DefaultInitializationOptions);
-
-  EngineEvents.instance = new EngineEvents();
-  Engine.scene = new Scene();
-  Engine.publicPath = options.publicPath;
-  Network.instance = new Network();
-
-  addIncomingEvents()
-  addOutgoingEvents()
-
-  initialize();
-
-  const networkSystemOptions = { schema: options.networking.schema, app: options.networking.app };
-  registerSystem(ServerNetworkIncomingSystem, { ...networkSystemOptions, priority: -1 });
-  registerSystem(ServerNetworkOutgoingSystem, { ...networkSystemOptions, priority: 10000 });
-  registerSystem(MediaStreamSystem);
-  registerSystem(StateSystem);
-  registerSystem(CharacterControllerSystem);
-  registerSystem(PhysicsSystem);
-  registerSystem(ServerSpawnSystem, { priority: 899 });
-  registerSystem(TransformSystem, { priority: 900 });
-
-  Engine.engineTimerTimeout = setTimeout(() => {
-    Engine.engineTimer = Timer(
-      {
-        networkUpdate: (delta: number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Network),
-        fixedUpdate: (delta: number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Fixed),
-        update: (delta, elapsedTime) => execute(delta, elapsedTime, SystemUpdateType.Free)
-      }, Engine.physicsFrameRate, Engine.networkFramerate).start();
-  }, 1000);
+  Engine.isInitialized = true;
 }

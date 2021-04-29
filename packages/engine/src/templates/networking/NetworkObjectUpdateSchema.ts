@@ -3,7 +3,7 @@ import { handleObjectEquipped } from "../../interaction/functions/handleObjectEq
 
 export enum NetworkObjectUpdateType {
   VehicleStateChange,
-  ObjectEquipped,
+  ObjectEquipped
 }
 
 export const NetworkObjectUpdateSchema = {
