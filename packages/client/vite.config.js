@@ -35,6 +35,10 @@ export default defineConfig(() => {
         output: {
           dir: 'dist',
           format: 'es',
+          // we may need this at some point for dynamically loading static asset files from src, keep it here
+          // entryFileNames: `assets/[name].js`,
+          // chunkFileNames: `assets/[name].js`,
+          // assetFileNames: `assets/[name].[ext]`
         },
       },
     },

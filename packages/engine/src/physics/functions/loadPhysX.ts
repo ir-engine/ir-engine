@@ -5,8 +5,8 @@ import PHYSX from './physx.release.js';
 PHYSX({
   locateFile(path) {
     if(globalThis.process?.env?.NODE_ENV !== 'development' && path.endsWith('.wasm')) {
-      return 'https://unpkg.com/three-physx@0.0.1/lib/physx.release.wasm'
+      return 'https://unpkg.com/three-physx/lib/physx.release.wasm';
     }
-    return path
+    return path;
   }
 }).then(receiveWorker);
