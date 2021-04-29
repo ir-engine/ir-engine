@@ -18,7 +18,7 @@ import { getLoggedCreator } from "../../reducers/creator/service";
 import { selectAuthState } from "../../../user/reducers/auth/selector";
 // import { PopupLogin } from "../PopupLogin/PopupLogin";
 // import IndexPage from "@xr3ngine/social/pages/login";
-import { updateCreatorPageState } from "../../reducers/popupsState/service";
+import { updateCreatorFormState, updateCreatorPageState, updateFeedPageState } from "../../reducers/popupsState/service";
 import { selectPopupsState } from "../../reducers/popupsState/selector";
 
 const mapStateToProps = (state: any): any => {
@@ -32,6 +32,8 @@ const mapStateToProps = (state: any): any => {
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
   getLoggedCreator: bindActionCreators(getLoggedCreator, dispatch),
   updateCreatorPageState: bindActionCreators(updateCreatorPageState, dispatch),
+  updateCreatorFormState: bindActionCreators(updateCreatorFormState, dispatch),
+  updateFeedPageState: bindActionCreators(updateFeedPageState, dispatch),
 });
 interface Props{
   creatorState?:any;
@@ -39,9 +41,10 @@ interface Props{
   updateCreatorPageState?: typeof updateCreatorPageState;
   authState?: any;
   popupsState?: any;
-  onGoHome?: any;
+  updateCreatorFormState?:typeof updateCreatorFormState;
+  updateFeedPageState?:typeof updateFeedPageState;
 }
-const AppFooter = ({creatorState, getLoggedCreator, authState, updateCreatorPageState, popupsState, onGoHome}: Props) => {
+const AppFooter = ({creatorState, getLoggedCreator, authState, updateCreatorPageState, popupsState, updateCreatorFormState, updateFeedPageState}: Props) => {
   useEffect(()=>getLoggedCreator(),[]);  
 
   const creator = creatorState && creatorState.get('fetching') === false && creatorState.get('currentCreator'); 
@@ -50,11 +53,16 @@ const AppFooter = ({creatorState, getLoggedCreator, authState, updateCreatorPage
     updateCreatorPageState(true, id);
   };
 
+  const onGoHome = () =>{
+    updateCreatorPageState(false);
+    updateCreatorFormState(false);
+    updateFeedPageState(false);
+  }
   return (
     <>
     <nav className={styles.footerContainer}>
         {/* <HomeIcon onClick={()=> {checkGuest ? setButtonPopup(true) : history.push('/');}} fontSize="large" className={styles.footerItem}/> */}
-        <HomeIcon onClick={()=> onGoHome} fontSize="large" className={styles.footerItem}/>
+        <HomeIcon onClick={()=> onGoHome()} fontSize="large" className={styles.footerItem}/>
         {/* <PopupLogin trigger={buttonPopup} setTrigger={setButtonPopup}>
           <IndexPage />
         </PopupLogin> */}
@@ -66,7 +74,7 @@ const AppFooter = ({creatorState, getLoggedCreator, authState, updateCreatorPage
           <Avatar onClick={()=> {checkGuest ? setButtonPopup(true) : handleOpenCreatorPage(creator.id);}} 
           alt={creator.username} src={creator.avatar} />
         )} */}        
-        <Avatar onClick={()=> {handleOpenCreatorPage(creator?.id);}} alt={creator?.username} src={creator?.avatar} />
+        <Avatar onClick={()=> {handleOpenCreatorPage(creatorState?.get('currentCreator')?.id);}} alt={creator?.username} src={creator?.avatar} />
     </nav>   
     </>
   );

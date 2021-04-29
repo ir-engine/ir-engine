@@ -64,6 +64,7 @@ const  Home = ({ createCreator,  doLoginAuto, auth, popupsState, updateCreatorPa
               className={styles.creatorPopup}
           >
           <Creator creatorId={popupsState?.get('creatorId')} />
+          <AppFooter /> 
           </SharedModal>;
   useEffect(()=> {renderCreatorModal();}, [creatorPageState, creatorId]);
 
@@ -85,10 +86,8 @@ const  Home = ({ createCreator,  doLoginAuto, auth, popupsState, updateCreatorPa
   useEffect(()=>{renderFeedModal();}, [feedPageState,feedId]);
 
   //common for creator form
-  const handleCreatorFormClose = () => {
-    updateCreatorFormState(false);
-};
-const renderCreatoFormModal = () =>
+  const handleCreatorFormClose = () =>updateCreatorFormState(false);
+  const renderCreatoFormModal = () =>
     popupsState?.get('creatorForm') === true &&  
         <SharedModal 
             open={popupsState?.get('creatorForm')}
@@ -96,7 +95,7 @@ const renderCreatoFormModal = () =>
             className={styles.creatorFormPopup}
         >
             <CreatorForm />      
-            <AppFooter onGoHome={handleCreatorFormClose}/>
+            <AppFooter />
         </SharedModal>;
 
 const creatorFormState = popupsState?.get('creatorForm');
@@ -107,7 +106,7 @@ useEffect(()=>{renderCreatoFormModal();}, [creatorFormState]);
         <AppHeader logo="/assets/logoBlack.png" />
         {/* <Stories stories={stories} /> */}
         <FeedMenu />
-        <AppFooter onGoHome={handleCreatorClose}/>
+        <AppFooter />
         {renderCreatorModal()}
         {renderCreatoFormModal()}
         {renderFeedModal()}
