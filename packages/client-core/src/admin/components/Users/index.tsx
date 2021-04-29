@@ -14,7 +14,9 @@ import { connect } from "react-redux";
 import { selectAdminState } from "../../reducers/admin/selector";
 import { selectAuthState } from "../../../user/reducers/auth/selector";
 import { bindActionCreators, Dispatch } from "redux";
-import { fetchUsersAsAdmin, fetchAdminLocations } from "../../reducers/admin/service";
+import { fetchUsersAsAdmin, fetchAdminLocations, fetchUserRole  } from "../../reducers/admin/service";
+import { withApi } from "../../../world/components/editor/contexts/ApiContext";
+import Api from "../../../world/components/editor/Api";
 
 interface TabPanelProps {
     children?: React.ReactNode;
@@ -26,7 +28,8 @@ interface Props {
     adminState?: any;
     fetchUsersAsAdmin?: any;
     authState?: any;
-    fetchAdminLocations?: any
+    fetchAdminLocations?: any;
+    api?: Api;
 }
 
 const mapStateToProps = (state: any): any => {
@@ -38,7 +41,7 @@ const mapStateToProps = (state: any): any => {
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
     fetchUsersAsAdmin: bindActionCreators(fetchUsersAsAdmin, dispatch),
-    fetchAdminLocations: bindActionCreators(fetchAdminLocations, dispatch)
+    fetchAdminLocations: bindActionCreators(fetchAdminLocations, dispatch),
 });
 
 const TabPanel = (props: TabPanelProps) => {
@@ -80,7 +83,7 @@ const useStyles = makeStyles((theme: Theme) => ({
 }));
 
 const Users = (props: Props) => {
-    const { adminState, fetchUsersAsAdmin, authState, fetchAdminLocations } = props;
+    const { api, adminState, fetchUsersAsAdmin, authState, fetchAdminLocations } = props;
     const classes = useStyles();
     const initialUser = {
         id: null,
@@ -91,10 +94,13 @@ const Users = (props: Props) => {
     const [userEditing, setUserEditing] = React.useState(false);
     const [userModalOpen, setUserModalOpen] = React.useState(false);
     const [userEdit, setUserEdit] = React.useState(initialUser);
+    const [projects, setProjects] = React.useState([{ name: "All Users", project_id: "001"}]);
 
     const user = authState.get("user");
     const adminUsers = adminState.get("users").get("users");
     const adminLocations = adminState.get('locations').get('locations');
+    const authUser = authState.get("authUser");
+
 
     React.useEffect(()=> {
         const fetchData = async () => {
@@ -105,26 +111,44 @@ const Users = (props: Props) => {
         if( user?.id && (adminState.get("locations").get("updateNeeded") === true )) fetchAdminLocations();
     }, [adminState, user, fetchUsersAsAdmin]);
 
+    React.useEffect(()=> {
+        if(authUser?.accessToken != null && authUser.accessToken.length > 0 && user?.id != null) {
+           api.getProjects()
+              .then(project => {
+                 setProjects([...projects ,...project]);
+              })
+              .catch(error => {
+                  console.error(error);                 
+              });
+        }
+    }, [authUser, user]);
+
     const handleChange = (event: React.ChangeEvent<{}>, newValue: number) => {
         setValue(newValue);
     };
 
-    const openModalCreate = () => {
-        setUserModalOpen(true);
+    const openModalCreate = ( open: boolean) =>
+    (
+        event: React.KeyboardEvent | React.MouseEvent,
+      ) => {
+        if (
+          event.type === 'keydown' &&
+          ((event as React.KeyboardEvent).key === 'Tab' ||
+            (event as React.KeyboardEvent).key === 'Shift')
+        ) {
+          return;
+        }
+    
+        setUserModalOpen(open);
         setUserEditing(false);
-    };
+      };
 
     const handleUserClose = () => {
         setUserModalOpen(false);
         setUserEditing(false);
     };
 
-    console.log('====================================');
-    console.log(adminLocations);
-    console.log('====================================');
-    console.log('====================================');
-    console.log(adminUsers);
-    console.log('====================================');
+
     return (
         <div>
             <Grid container spacing={3} className={classes.marginBottom}>
@@ -137,7 +161,7 @@ const Users = (props: Props) => {
                         type="submit"
                         variant="contained"
                         color="primary"
-                        onClick={openModalCreate}
+                        onClick={openModalCreate(true)}
                     >
                         Create New User
                     </Button>
@@ -154,20 +178,7 @@ const Users = (props: Props) => {
                     aria-label="scrollable auto tabs example"
                 >
                     {
-                        [
-                            {
-                                label: "All users"
-                            },
-                            {
-                                label: "Golf Game",
-                            },
-                            {
-                                label: "Football"
-                            },
-                            {
-                                label: "Club Night"
-                            }
-                        ].map((el, index) => <Tab label={el.label} {...a11yProps(index)} />)
+                       projects.map(el => <Tab label={el.name} {...a11yProps(el.project_id)} />)
                     }
                 </Tabs>
                 <TabPanel value={value} index={0}>
@@ -186,13 +197,14 @@ const Users = (props: Props) => {
 
             <UserModel
                 open={userModalOpen}
-                handleClose={handleUserClose}
+                handleClose={openModalCreate}
                 editing={userEditing}
                 userEdit={userEdit}
                 adminLocations={adminLocations}
+                projects={projects}
             />
         </div>
     );
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(Users);
+export default withApi(connect(mapStateToProps, mapDispatchToProps)(Users));

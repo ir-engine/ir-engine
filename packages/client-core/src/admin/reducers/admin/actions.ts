@@ -5,7 +5,8 @@ import {
   INSTANCE_CREATE,
   INSTANCE_PATCHED,
   INSTANCE_REMOVED_ROW,
-  LOCATION_TYPES_RETRIEVED
+  LOCATION_TYPES_RETRIEVED,
+  USER_ROLE_RETRIEVED
 } from '../../../world/reducers/actions';
 import {
   VIDEO_CREATED,
@@ -90,6 +91,11 @@ export interface VideoUpdatedAction {
   data: StaticResource;
 }
 
+export interface userRoleRetrievedResponse {
+  type: string;
+  types: any[];
+}
+
 export function videoCreated (data: VideoCreatedResponse): VideoCreatedAction {
   return {
     type: VIDEO_CREATED,
@@ -152,3 +158,11 @@ export function instancePatched(instance: any): InstanceRemovedResponse {
     instance: instance
   };
 }
+
+
+export const userRoleRetrieved = (data: any): userRoleRetrievedResponse  => {
+  return {
+    type: USER_ROLE_RETRIEVED,
+    types: data
+  };
+};
