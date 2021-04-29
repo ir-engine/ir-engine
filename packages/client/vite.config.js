@@ -1,18 +1,6 @@
 import fs from 'fs';
 import { defineConfig, loadEnv } from 'vite';
 import config from "config";
-import commonjs from '@rollup/plugin-commonjs';
-import json from '@rollup/plugin-json';
-import resolve from '@rollup/plugin-node-resolve';
-import replace from '@rollup/plugin-replace';
-import babel from 'rollup-plugin-babel';
-import nodePolyfills from 'rollup-plugin-node-polyfills';
-import scss from 'rollup-plugin-scss';
-import typescript from '@rollup/plugin-typescript';
-
-const isProd = process.env.NODE_ENV === 'production';
-const extensions = ['.js', '.ts', '.tsx'];
-const pkg = require('./package.json')
 
 export default defineConfig(() => {
   const env = loadEnv('', process.cwd() + '../../');
@@ -49,50 +37,6 @@ export default defineConfig(() => {
           format: 'es',
         },
       },
-      plugins: [
-        nodePolyfills(),
-        scss({
-          exclude: /node_modules/,
-          output: 'dist/index.css',
-        }),
-        json(),
-        typescript({
-          tsconfig: 'tsconfig.json',
-        }),
-        replace({
-          'process.env.NODE_ENV': JSON.stringify(isProd ? 'production' : 'development'),
-          preventAssignment: false
-        }),
-        resolve({
-          extensions,
-        }),
-        commonjs({
-          include: /node_modules/,
-        }),
-        babel({
-          extensions,
-          exclude: /node_modules/,
-          babelrc: false,
-          runtimeHelpers: true,
-          presets: [
-            '@babel/preset-env',
-            '@babel/preset-react',
-            '@babel/preset-typescript',
-          ],
-          plugins: [
-            '@babel/plugin-syntax-dynamic-import',
-            ['@babel/plugin-proposal-object-rest-spread', {
-              useBuiltIns: true,
-            }],
-            ['@babel/plugin-transform-runtime', {
-              corejs: 3,
-              helpers: true,
-              regenerator: true,
-              useESModules: false,
-            }],
-          ],
-        })
-      ],
-    }
-  }
+    },
+  };
 });
