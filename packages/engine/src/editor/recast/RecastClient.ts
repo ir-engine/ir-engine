@@ -3,8 +3,9 @@ import {
   Float32BufferAttribute,
   Uint16BufferAttribute
 } from "three";
+import { createInlineWorkerFromString } from "../../common/functions/createInlineWorkerFromString";
 //@ts-ignore
-import RecastWorker from "./recast.worker?worker";
+import RecastWorker from "./recast.worker.js";
 
 const statuses = [
   "success",
@@ -30,7 +31,7 @@ export default class RecastClient {
   workerUrl: string;
   constructor() {
     this.working = false;
-    this.worker = new RecastWorker()
+    this.worker = createInlineWorkerFromString(RecastWorker);
   }
   async buildNavMesh(geometry, params, signal) {
     if (this.working) {
