@@ -29,7 +29,7 @@ export default function (app: Application): void {
   app.use('/tips-and-tricks', tips_and_tricks);
 
   // Get our initialized service so that we can register hooks
-  const service = app.service('tips_and_tricks');
+  const service = app.service('tips-and-tricks');
 
   service.hooks(hooks);
 }

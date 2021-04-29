@@ -40,9 +40,9 @@ export default function (app: Application): typeof Model {
   (TipsAndTricks as any).associate = (models: any): void => {
     // Define associations here
     // See http://docs.sequelizejs.com/en/latest/docs/associations/
-    (TipsAndTricks as any).belongsTo(models.creator, { foreignKey: 'creatorId', allowNull: false });
+    // (TipsAndTricks as any).belongsTo(models.creator, { foreignKey: 'creatorId', allowNull: false });
     //TODO look up constraints - make this fields as keys
-    (TipsAndTricks as any).belongsTo(models.static_resource, { as: 'video',  required: true, constraints: false });
+    // (TipsAndTricks as any).belongsTo(models.static_resource, { as: 'video',  required: true, constraints: false });
     // (TipsAndTricks as any).hasMany(models.tips_and_tricks_fires);
   };
 

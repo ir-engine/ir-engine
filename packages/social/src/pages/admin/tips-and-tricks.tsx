@@ -7,58 +7,72 @@ import Dashboard  from "@xr3ngine/client-core/src/socialmedia/components/Dashboa
 import ArMediaConsoleTipsAndTricks  from "@xr3ngine/client-core/src/admin/components/TipsAndTricks";
 import { bindActionCreators, Dispatch } from "redux";
 import { connect } from "react-redux";
-import { selectFeedsState } from "@xr3ngine/client-core/src/socialmedia/reducers/feed/selector";
-import { getFeeds } from "@xr3ngine/client-core/src/socialmedia/reducers/feed/service";
-import { getTipsAndTricks } from "@xr3ngine/client-core/src/socialmedia/reducers/tips_and_tricks/service";
+import {
+    getTipsAndTricks,
+    createTipsAndTricksNew,
+    removeTipsAndTricks,
+    updateTipsAndTricksAsAdmin
+} from '@xr3ngine/client-core/src/socialmedia/reducers/tips_and_tricks/service'
+import { selectTipsAndTricksState } from "@xr3ngine/client-core/src/socialmedia/reducers/tips_and_tricks/selector";
+import { doLoginAuto } from "@xr3ngine/client-core/src/user/reducers/auth/service";
 
-import { selectTipsAndTricksState } from '@xr3ngine/client-core/src/socialmedia/reducers/tips_and_tricks/selector'
-import { client } from '@xr3ngine/client-core'
 
 
 
 const mapStateToProps = (state: any): any => {
     return {
-        feedsState: selectFeedsState(state),
         tipsAndTricksState: selectTipsAndTricksState(state),
-        state: state
     };
 };
-
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
-    getFeeds: bindActionCreators(getFeeds, dispatch),
+    // getFeeds: bindActionCreators(getFeeds, dispatch),
     getTipsAndTricks: bindActionCreators(getTipsAndTricks, dispatch),
+    createTipsAndTricksNew: bindActionCreators(createTipsAndTricksNew, dispatch),
+    removeTipsAndTricks: bindActionCreators(removeTipsAndTricks, dispatch),
+    updateTipsAndTricksAsAdmin: bindActionCreators(updateTipsAndTricksAsAdmin, dispatch),
+    doLoginAuto: bindActionCreators(doLoginAuto, dispatch),
 });
 interface Props{
-    feedsState?: any,
     tipsAndTricksState?: any,
-    getFeeds?: any,
     getTipsAndTricks?: any,
-    state?: any
+    createTipsAndTricksNew?: any,
+    removeTipsAndTricks: any,
+    updateTipsAndTricksAsAdmin: any,
+    doLoginAuto: any
 }
 
 
-const TipsAndTricks = ({state, feedsState, tipsAndTricksState, getFeeds, getTipsAndTricks}:Props) => {
-    useEffect(async ()=> {
-        // getTipsAndTricks(1)
-        // const data = async () => {
-        //     await client.service('tips_and_tricks').create({
-        //         title: 'Item 1',
-        //         id: '1',
-        //         video: 'video1.mp4',
-        //         description: 'Tip number 1',
-        //     })
-        // }
-        // data()
-        // const feedsList = feedsState.get('fetching') === false && feedsState?.get('feedsAdmin') ? feedsState.get('feedsAdmin') : null;
-        console.log('State: ', state);
-        console.log('Feed State: ', feedsState);
-        console.log('TipsAndTricks State: ', tipsAndTricksState);
+const TipsAndTricks = ({ tipsAndTricksState,
+                         getTipsAndTricks,
+                         createTipsAndTricksNew,
+                         removeTipsAndTricks,
+                         updateTipsAndTricksAsAdmin,
+                         doLoginAuto}:Props) => {
+
+    const create = (data) => {
+        createTipsAndTricksNew(data)
+    }
+    const deleteTipsAndTricks = (id) => {
+        removeTipsAndTricks(id)
+    }
+    const update = (obj) => {
+        updateTipsAndTricksAsAdmin(obj)
+    }
+
+    useEffect(()=> {
+        doLoginAuto(true, true)
+        getTipsAndTricks()
     }, []);
-    // const feedsList = feedsState.get('fetching') === false && feedsState?.get('feedsAdmin') ? feedsState.get('feedsAdmin') : null;
+    const tipsAndTricksList = tipsAndTricksState?.get('tips_and_tricks') && tipsAndTricksState?.get('tips_and_tricks');
     return (<>
             <div>
                 <Dashboard>
-                    <ArMediaConsoleTipsAndTricks />
+                    {tipsAndTricksList && <ArMediaConsoleTipsAndTricks
+                      create={create}
+                      list={tipsAndTricksList}
+                      deleteTipsAndTricks={deleteTipsAndTricks}
+                      update={update}
+                    />}
                 </Dashboard>
             </div>
         </>

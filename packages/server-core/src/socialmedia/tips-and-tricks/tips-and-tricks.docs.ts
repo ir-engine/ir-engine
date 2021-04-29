@@ -14,7 +14,7 @@ export default {
                 description: {
                     type: 'string'
                 },
-                video: {
+                videoUrl: {
                     type: 'string'
                 }
             }
