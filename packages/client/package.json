@@ -12,6 +12,7 @@
   "npmClient": "yarn",
   "jest": "ts-jest",
   "scripts": {
+    "check-errors": "tsc --noemit",
     "dev": "vite",
     "build": "cross-env NODE_OPTIONS=--max_old_space_size=4096 vite build && cp src/server.js dist/server.js",
     "serve": "serve dist --ssl-cert ../../certs/cert.pem --ssl-key ../../certs/key.pem -s",

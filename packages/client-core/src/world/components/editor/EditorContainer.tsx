@@ -87,6 +87,7 @@ type EditorContainerState = {
   editor: Editor;
   creatingProject: any;
   DialogComponent: null;
+  pathParams: Map<string, unknown>;
   queryParams: Map<string, string>;
   dialogProps: {};
   modified: boolean;

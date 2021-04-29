@@ -13,9 +13,6 @@ export interface PopupsActions {
   id?: string;
 }
 
-export type FeedsAction =
-PopupsActions
-
 export function changeCreatorPage (state, id): PopupsActions {
   return {
     type: CHANGE_CREATOR_PAGE_STATE,

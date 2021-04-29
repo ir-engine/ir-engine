@@ -3,7 +3,8 @@ import {
   Float32BufferAttribute,
   Uint16BufferAttribute
 } from "three";
-import RecastWorker from "./recast.worker";
+//@ts-ignore
+import RecastWorker from "./recast.worker?worker";
 
 const statuses = [
   "success",

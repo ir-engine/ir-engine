@@ -249,6 +249,7 @@ export const EnginePage = (props: Props) => {
         action: provisionInstanceServer,
         parameters: [currentLocation.id, instanceId, currentLocation.sceneId]
       };
+      //@ts-ignore
       setWarningRefreshModalValues(newValues);
       setNoGameserverProvision(false);
     }

@@ -1,4 +1,3 @@
-import { Transform } from "math/Transform";
 import { Box3, Frustum, Matrix4, Mesh, Object3D, Scene, Vector3 } from "three";
 import { FollowCameraComponent } from "../../camera/components/FollowCameraComponent";
 import { isClient } from "../../common/functions/isClient";

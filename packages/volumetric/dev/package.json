@@ -4,6 +4,7 @@
   "description": "<p><img width=\"128\" src=\"http://pc-ponchio.isti.cnr.it/corto/img/logo1.svg\"></p>",
   "main": "index.js",
   "scripts": {
+    "check-errors": "tsc --noemit",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

@@ -11,6 +11,7 @@ const isBrowser = new Function("try {return this===window;}catch(e){ return fals
 let Worker;
 
 if (isBrowser())
+  //@ts-ignore
   import("./WebcamInputWorker?worker").then(worker => {
     Worker = worker.default
   });

@@ -14,6 +14,7 @@
   "npmClient": "yarn",
   "jest": "ts-jest",
   "scripts": {
+    "check-errors": "tsc --noemit",
     "build": "rimraf dist && mkdir dist && ctix entrypoint ./src && node build.js",
     "buildx": "esbuild",
     "lint": "eslint --fix --quiet \"*.ts\" \"**/*.ts\" \"**/*.tsx\""
