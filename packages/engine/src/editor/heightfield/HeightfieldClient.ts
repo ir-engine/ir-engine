@@ -1,4 +1,5 @@
-import HeightfieldWorker from "./heightfield.worker?worker";
+//@ts-ignore
+import HeightfieldWorker from "./heightfield.worker.js?worker";
 export default class HeightfieldClient {
   worker: any;
   working: boolean;

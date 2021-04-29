@@ -5,7 +5,7 @@ import { CHANGE_CREATOR_PAGE_STATE, CHANGE_CREATOR_FORM_STATE, CHANGE_FEED_PAGE_
 import Immutable from 'immutable';
 import { PopupsActions } from './actions';
 
-export const initialFeedState = {
+export const initialPopupState = {
   popups: {
     creatorPage: false,
     creatorForm: false,
@@ -16,7 +16,7 @@ export const initialFeedState = {
   },
 };
 
-const immutableState = Immutable.fromJS(initialFeedState);
+const immutableState = Immutable.fromJS(initialPopupState);
 
 const popupsStateReducer = (state = immutableState, action: PopupsActions): any => {
   switch (action.type) {

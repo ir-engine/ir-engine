@@ -16,7 +16,7 @@ interface Props {
     handleClose: any;
     action: any;
     parameters: any[];
-    timeout: integer;
+    timeout: number;
     closeEffect?: any;
 }
 

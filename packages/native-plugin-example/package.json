@@ -12,6 +12,7 @@
   "npmClient": "yarn",
   "jest": "ts-jest",
   "scripts": {
+    "check-errors": "tsc --noemit",
     "dev": "vite",
     "build": "cross-env NODE_OPTIONS=--max_old_space_size=6144 vite build ./",
     "export": "vite build && npx cap sync",

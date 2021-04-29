@@ -423,6 +423,7 @@ const Harmony = (props: Props): any => {
                 action: provisionChannelServer,
                 parameters: [null, targetChannelId]
             };
+            //@ts-ignore
             setWarningRefreshModalValues(newValues);
             setNoGameserverProvision(false);
         }

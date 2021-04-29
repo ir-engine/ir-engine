@@ -39,6 +39,7 @@
   "npmClient": "yarn",
   "jest": "ts-jest",
   "scripts": {
+    "check-errors": "lerna run check-errors --ignore @xr3ngine/server --ignore @xr3ngine/server-core --parallel",
     "start": "yarn run dev",
     "dev": "lerna run dev --parallel",
     "test": "jest",
@@ -51,9 +52,11 @@
     "diff": "lerna diff"
   },
   "types": "lib/",
-  "pre-commit": [
+  "pre-push": [
+    "check-errors",
     "lint"
   ],
+  "pre-commit": [],
   "resolutions": {
     "socket.io": "2.4.1",
     "terser": "^5.6.1",
@@ -79,17 +82,18 @@
     "@typescript-eslint/parser": "^4.16.1",
     "chokidar": "^3.4.2",
     "socket.io": "2.4.1",
-    "three": "^0.128.0",
-    "terser": "^5.6.1"
+    "terser": "^5.6.1",
+    "three": "^0.128.0"
   },
   "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "4.22.0",
+    "@typescript-eslint/parser": "4.22.0",
     "bcrypt": "5.0.1",
     "jest": "26.6.3",
     "lerna": "4.0.0",
-    "supertest": "6.1.3",
-    "@typescript-eslint/eslint-plugin": "4.22.0",
-    "@typescript-eslint/parser": "4.22.0",
-    "pre-commit": "1.2.2"
+    "pre-push": "0.1.1",
+    "pre-commit": "1.2.2",
+    "supertest": "6.1.3"
   },
   "dependencies": {
     "cli": "1.0.1"

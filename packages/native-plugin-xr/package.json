@@ -13,6 +13,7 @@
   },
   "npmClient": "yarn",
   "scripts": {
+    "check-errors": "tsc --noemit",
     "xlint": "yarn run prettier -- --check && yarn run swiftlint -- lint",
     "prettier": "prettier \"**/*.{css,html,ts,js,java}\"",
     "swiftlint": "node-swiftlint",
