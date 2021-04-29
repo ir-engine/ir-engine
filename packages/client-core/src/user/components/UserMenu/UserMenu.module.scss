@@ -760,7 +760,7 @@
             .checkbox {
                 padding: 0 9px;
                 svg { color: #666; }
-                input[checked] + svg { color: #5f5ff1; }
+                &:global(.Mui-checked) svg { color: #5f5ff1; }
                 &:hover { background: transparent; }
                 input:focus + svg { opacity: 0.7; }
             }
