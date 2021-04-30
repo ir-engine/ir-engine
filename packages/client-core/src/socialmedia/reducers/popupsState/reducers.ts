@@ -1,7 +1,7 @@
 /**
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
-import { CHANGE_CREATOR_PAGE_STATE, CHANGE_CREATOR_FORM_STATE, CHANGE_FEED_PAGE_STATE } from '../actions';
+import { CHANGE_CREATOR_PAGE_STATE, CHANGE_CREATOR_FORM_STATE, CHANGE_FEED_PAGE_STATE, CHANGE_NEW_FEED_PAGE_STATE, CHANGE_SHARE_FORM_STATE } from '../actions';
 import Immutable from 'immutable';
 import { PopupsActions } from './actions';
 
@@ -13,6 +13,7 @@ export const initialPopupState = {
     feedPage: false,
     feedId: null,
     shareFeedPage: false,
+    shareForm: false,
   },
 };
 
@@ -23,6 +24,8 @@ const popupsStateReducer = (state = immutableState, action: PopupsActions): any 
     case CHANGE_CREATOR_PAGE_STATE : return state.set('creatorPage', (action as PopupsActions).state).set('creatorId', (action as PopupsActions).id);
     case CHANGE_CREATOR_FORM_STATE : return state.set('creatorForm', (action as PopupsActions).state);
     case CHANGE_FEED_PAGE_STATE : return state.set('feedPage', (action as PopupsActions).state).set('feedId', (action as PopupsActions).id);
+    case CHANGE_NEW_FEED_PAGE_STATE : return state.set('shareFeedPage', (action as PopupsActions).state);
+    case CHANGE_SHARE_FORM_STATE : return state.set('shareForm', (action as PopupsActions).state);
   }
   return state;
 };
