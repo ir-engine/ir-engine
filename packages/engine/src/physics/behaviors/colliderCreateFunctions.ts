@@ -1,10 +1,11 @@
 import { PhysicsSystem } from '../systems/PhysicsSystem';
 import { CollisionGroups } from "../enums/CollisionGroups";
-import { createShapeFromConfig, Shape, SHAPES, Body, BodyType, getGeometry } from "three-physx";
+import { createShapeFromConfig, Shape, SHAPES, Body, BodyType, getGeometry, arrayOfPointsToArrayOfVector3 } from "three-physx";
 import { Entity } from '../../ecs/classes/Entity';
 import { ColliderComponent } from '../components/ColliderComponent';
 import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
 import { Vector3, Quaternion, CylinderBufferGeometry } from 'three';
+import { ConvexGeometry } from '../../assets/threejs-various/ConvexGeometry';
 import { TransformComponent } from '../../transform/components/TransformComponent';
 
 /**
@@ -78,11 +79,12 @@ export function addColliderWithoutEntity(userData, pos = new Vector3(), rot = ne
     // physx doesnt have cylinder shapes, default to convex
     case 'cylinder':
       if(!model.mesh && !model.vertices) {
-        const geom = new CylinderBufferGeometry(scale.x, scale.x, scale.y); // width & height
-        model.vertices = Array.from(geom.attributes.position.array);
+        const geom = new CylinderBufferGeometry(scale.x, scale.x, scale.y); // width & height\
+        const convexGeom = new ConvexGeometry(arrayOfPointsToArrayOfVector3(geom.attributes.position.array))
+        model.vertices = Array.from(convexGeom.attributes.position.array);
         model.indices = geom.index ? Array.from(geom.index.array) : Object.keys(model.vertices).map(Number);
       }
-    // yes, don't break here
+    // yes, don't break here - use convex for cylinder
     case 'convex':
       shapeArgs.shape = SHAPES.ConvexMesh;
       shapeArgs.options = { vertices: model.vertices, indices: model.indices };

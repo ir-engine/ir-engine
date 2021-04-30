@@ -423,6 +423,8 @@ export { default as srcUserComponentsProfileConnectionsSingleConnection } from '
 export { default as srcUserComponentsUserMenuIndex } from './src/user/components/UserMenu/index';
 export { default as srcUserComponentsUserMenuMenusAvatarMenu } from './src/user/components/UserMenu/menus/AvatarMenu';
 export { default as srcUserComponentsUserMenuMenusAvatarSelectMenu } from './src/user/components/UserMenu/menus/AvatarSelectMenu';
+export { default as srcUserComponentsUserMenuMenusCreateLocationMenu } from './src/user/components/UserMenu/menus/CreateLocationMenu';
+export { default as srcUserComponentsUserMenuMenusLocationMenu } from './src/user/components/UserMenu/menus/LocationMenu';
 export { default as srcUserComponentsUserMenuMenusProfileMenu } from './src/user/components/UserMenu/menus/ProfileMenu';
 export { default as srcUserComponentsUserMenuMenusSettingMenu } from './src/user/components/UserMenu/menus/SettingMenu';
 export { default as srcUserComponentsUserMenuMenusShareMenu } from './src/user/components/UserMenu/menus/ShareMenu';
