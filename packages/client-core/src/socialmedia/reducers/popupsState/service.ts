@@ -7,7 +7,9 @@ import {
   changeCreatorPage,
   changeCreatorForm,
   changeFeedPage,
-  changeArMedia
+  changeArMedia,
+  changeNewFeedPage,
+  changeShareForm
 } from './actions';
 
 export function updateCreatorPageState(state: boolean, id?:string) {
@@ -40,7 +42,29 @@ export function updateFeedPageState(state: boolean, id?:string) {
       console.log(err);
       dispatchAlertError(dispatch, err.message);
     }
-  };
+  };  
+}
+
+export function updateNewFeedPageState(state: boolean) {
+  return async (dispatch: Dispatch, getState: any): Promise<any> => {
+    try {
+      dispatch(changeNewFeedPage(state));      
+    } catch (err) {
+      console.log(err);
+      dispatchAlertError(dispatch, err.message);
+    }
+  };  
+}
+
+export function updateShareFormState(state: boolean) {
+  return async (dispatch: Dispatch, getState: any): Promise<any> => {
+    try {
+      dispatch(changeShareForm(state));      
+    } catch (err) {
+      console.log(err);
+      dispatchAlertError(dispatch, err.message);
+    }
+  };  
 }
 
 

@@ -23,7 +23,7 @@
   "homepage": "https://github.com/xr3ngine/xr3ngine/packages/volumetric#readme",
   "devDependencies": {
     "@babel/cli": "7.13.16",
-    "@babel/core": "7.13.16",
+    "@babel/core": "7.14.0",
     "@types/three": "0.127.1"
   },
   "dependencies": {

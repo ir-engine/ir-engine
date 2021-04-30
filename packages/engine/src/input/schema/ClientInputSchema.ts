@@ -32,6 +32,10 @@ const usingThumbstick = () => {
 
 const handleTouchMove = (args: { event: TouchEvent }): void => {
   
+  if(!ClientInputSystem.mouseInputEnabled) {
+    return;
+  }
+  
   const normalizedPosition = normalizeMouseCoordinates(args.event.touches[0].clientX, args.event.touches[0].clientY, window.innerWidth, window.innerHeight);
   const touchPosition: [number, number] = [normalizedPosition.x, normalizedPosition.y];
 
@@ -141,6 +145,9 @@ const handleTouchMove = (args: { event: TouchEvent }): void => {
  * @param args is argument object
  */
 const handleTouch = ({ event, value }: { event: TouchEvent; value: BinaryType }): void => {
+    if(!ClientInputSystem.mouseInputEnabled) {
+      return;
+    }
     if (event.targetTouches.length) {
     const mappedInputKey = TouchInputs.Touch;
     if (!mappedInputKey) {
@@ -311,7 +318,10 @@ function handleOnScreenGamepadButton(args: { event: CustomEvent; value: BinaryTy
  */
 
 const handleMouseWheel = (args: { event: WheelEvent }): void => {
-    const value = args.event?.deltaY;
+  if(!ClientInputSystem.mouseInputEnabled) {
+    return;
+  }
+  const value = args.event?.deltaY;
 
   if (!Engine.inputState.has(MouseInput.MouseScroll)) {
     Engine.inputState.set(MouseInput.MouseScroll, {
@@ -359,6 +369,10 @@ function normalizeMouseMovement(x: number, y: number, elementWidth: number, elem
  */
 
 const handleMouseMovement = (args: { event: MouseEvent }): void => {
+  if(!ClientInputSystem.mouseInputEnabled) {
+    return;
+  }
+
   const normalizedPosition = normalizeMouseCoordinates(args.event.clientX, args.event.clientY, window.innerWidth, window.innerHeight);
   const mousePosition: [number, number] = [ normalizedPosition.x, normalizedPosition.y ];
  

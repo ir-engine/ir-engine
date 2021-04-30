@@ -3,7 +3,6 @@
  */
 import React from "react";
 
-import AddCircleIcon from '@material-ui/icons/AddCircle';
 import HomeIcon from '@material-ui/icons/Home';
 // import WhatshotIcon from '@material-ui/icons/Whatshot';
 
@@ -18,8 +17,10 @@ import { getLoggedCreator } from "../../reducers/creator/service";
 import { selectAuthState } from "../../../user/reducers/auth/selector";
 // import { PopupLogin } from "../PopupLogin/PopupLogin";
 // import IndexPage from "@xr3ngine/social/pages/login";
-import { updateArMediaState, updateCreatorFormState, updateCreatorPageState, updateFeedPageState } from "../../reducers/popupsState/service";
+import { updateArMediaState, updateCreatorFormState, updateCreatorPageState, updateFeedPageState, updateNewFeedPageState } from "../../reducers/popupsState/service";
 import { selectPopupsState } from "../../reducers/popupsState/selector";
+import ViewMode from "../ViewMode/ViewMode";
+
 
 const mapStateToProps = (state: any): any => {
   return {
@@ -40,6 +41,7 @@ interface Props{
   creatorState?:any;
   getLoggedCreator?: any;
   updateCreatorPageState?: typeof updateCreatorPageState;
+  updateNewFeedPageState?: typeof updateNewFeedPageState;
   authState?: any;
   popupsState?: any;
   updateCreatorFormState?:typeof updateCreatorFormState;
@@ -48,6 +50,7 @@ interface Props{
 }
 const AppFooter = ({creatorState, getLoggedCreator, authState, updateCreatorPageState, popupsState, updateCreatorFormState, updateFeedPageState, updateArMediaState}: Props) => {
   useEffect(()=>getLoggedCreator(),[]);  
+
 
   const creator = creatorState && creatorState.get('fetching') === false && creatorState.get('currentCreator'); 
   // const checkGuest = authState.get('authUser')?.identityProvider?.type === 'guest' ? true : false;
@@ -70,7 +73,8 @@ const AppFooter = ({creatorState, getLoggedCreator, authState, updateCreatorPage
           <IndexPage />
         </PopupLogin> */}
         {/* <AddCircleIcon onClick={()=> {checkGuest ? setButtonPopup(true) : history.push('/newfeed');}} style={{fontSize: '5em'}} className={styles.footerItem}/> */}
-        <AddCircleIcon onClick={()=> updateArMediaState(true)} style={{fontSize: '5em'}} className={styles.footerItem}/>
+        {/* <AddCircleIcon onClick={()=> {handleOpenNewFeedPage()}} style={{fontSize: '5em'}} className={styles.footerItem}/> */}
+        <ViewMode/>
         {/*hided for now*/}
         {/* {creator && <WhatshotIcon htmlColor="#FF6201" onClick={()=>{checkGuest ? setButtonPopup(true) : history.push('/notifications');}} /> } */}
         {/* {creator && ( 

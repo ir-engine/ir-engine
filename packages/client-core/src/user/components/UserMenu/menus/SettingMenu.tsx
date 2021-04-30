@@ -13,16 +13,18 @@ import Typography from '@material-ui/core/Typography';
 import styles from '../UserMenu.module.scss';
 import { WebGLRendererSystem } from '@xr3ngine/engine/src/renderer/WebGLRendererSystem';
 import { EngineEvents } from '@xr3ngine/engine/src/ecs/classes/EngineEvents';
+import { useTranslation } from 'react-i18next';
 
 const SettingMenu = (props: any): JSX.Element => {
+	const { t } = useTranslation();
   return (
     <div className={styles.menuPanel}>
       <div className={styles.settingPanel}>
         <section className={styles.settingSection}>
-          <Typography variant="h2" className={styles.settingHeader}>Audio</Typography>
+          <Typography variant="h2" className={styles.settingHeader}>{t('user:usermenu.setting.audio')}</Typography>
           <div className={styles.row}>
             <span className={styles.materialIconBlock}><VolumeUp color="primary"/></span>
-            <span className={styles.settingLabel}>Volume</span>
+            <span className={styles.settingLabel}>{t('user:usermenu.setting.lbl-volume')}</span>
             <Slider
               value={props.setting?.audio || 100}
               onChange={(_, value) => { props.setUserSettings({ audio: value }); }}
@@ -31,7 +33,7 @@ const SettingMenu = (props: any): JSX.Element => {
           </div>
           <div className={styles.row}>
             <span className={styles.materialIconBlock}><Mic color="primary"/></span>
-            <span className={styles.settingLabel}>Microphone</span>
+            <span className={styles.settingLabel}>{t('user:usermenu.setting.lbl-microphone')}</span>
             <Slider
               value={props.setting?.microphone || 100}
               onChange={(_, value) => { props.setUserSettings({ microphone: value }); }}
@@ -40,10 +42,10 @@ const SettingMenu = (props: any): JSX.Element => {
           </div>
         </section>
         <section className={styles.settingSection}>
-          <Typography variant="h2" className={styles.settingHeader}>Graphics</Typography>
+          <Typography variant="h2" className={styles.settingHeader}>{t('user:usermenu.setting.graphics')}</Typography>
           <div className={styles.row}>
             <span className={styles.materialIconBlock}><BlurLinear color="primary"/></span>
-            <span className={styles.settingLabel}>Resolution</span>
+            <span className={styles.settingLabel}>{t('user:usermenu.setting.lbl-resolution')}</span>
             <Slider
               value={props.graphics.resolution}
               onChange={(_, value) => { 
@@ -62,7 +64,7 @@ const SettingMenu = (props: any): JSX.Element => {
           </div>
           <div className={styles.row}>
             <span className={styles.materialIconBlock}><CropOriginal color="primary"/></span>
-            <span className={styles.settingLabel}>Shadows</span>
+            <span className={styles.settingLabel}>{t('user:usermenu.setting.lbl-shadow')}</span>
             <Slider
               value={props.graphics.shadows}
               onChange={(_, value) => { 
@@ -83,7 +85,7 @@ const SettingMenu = (props: any): JSX.Element => {
             <FormControlLabel
               className={styles.checkboxBlock}
               control={<Checkbox checked={props.graphics.postProcessing} size="small" />}
-              label="Post Processing"
+              label={t('user:usermenu.setting.lbl-pp')}
               onChange={(_, value) => { 
                 props.setGraphicsSettings({
                   postProcessing: value,
@@ -96,7 +98,7 @@ const SettingMenu = (props: any): JSX.Element => {
             <FormControlLabel
               className={styles.checkboxBlock}
               control={<Checkbox checked={props.graphics.pbr} size="small" />}
-              label="Full PBR"
+              label={t('user:usermenu.setting.lbl-pbr')}
               onChange={(_, value) => { 
                 props.setGraphicsSettings({
                   pbr: value
@@ -108,7 +110,7 @@ const SettingMenu = (props: any): JSX.Element => {
             <FormControlLabel
               className={styles.checkboxBlock}
               control={<Checkbox checked={props.graphics.automatic} size="small" />}
-              label="Automatic"
+              label={t('user:usermenu.setting.lbl-automatic')}
               labelPlacement="start"
               onChange={(_, value) => { 
                 props.setGraphicsSettings({

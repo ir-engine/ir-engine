@@ -50,9 +50,14 @@ export class ClientNetworkSystem extends System {
     while (queue.getBufferLength() > 0) {
       const buffer = queue.pop();
       // debugger;
-      const unbufferedState = WorldStateModel.fromBuffer(buffer);
-      if(!unbufferedState) console.warn("Couldn't deserialize buffer, probably still reading the wrong one")
-      EngineEvents.instance.dispatchEvent({ type: ClientNetworkSystem.EVENTS.RECEIVE_DATA, unbufferedState, delta });
+      let unbufferedState;
+      try {
+        unbufferedState = WorldStateModel.fromBuffer(buffer);
+        if(!unbufferedState) throw new Error("Couldn't deserialize buffer, probably still reading the wrong one");
+        EngineEvents.instance.dispatchEvent({ type: ClientNetworkSystem.EVENTS.RECEIVE_DATA, unbufferedState, delta });
+      } catch (e) {
+        console.log(e);
+      }
     }
   }
 
