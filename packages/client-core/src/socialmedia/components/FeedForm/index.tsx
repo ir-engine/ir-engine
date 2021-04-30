@@ -10,20 +10,20 @@ import Card from '@material-ui/core/Card';
 import CardMedia from '@material-ui/core/CardMedia';
 import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
-import CameraIcon from '@material-ui/icons/Camera';
 import BackupIcon from '@material-ui/icons/Backup';
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
 
 // @ts-ignore
 import styles from './FeedForm.module.scss';
 import { createFeed, updateFeedAsAdmin } from '../../reducers/feed/service';
-import { updateNewFeedPageState, updateShareFormState } from '../../reducers/popupsState/service';
+import { updateNewFeedPageState, updateShareFormState, updateArMediaState } from '../../reducers/popupsState/service';
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
     createFeed: bindActionCreators(createFeed, dispatch),
     updateFeedAsAdmin: bindActionCreators(updateFeedAsAdmin, dispatch),
     updateNewFeedPageState: bindActionCreators(updateNewFeedPageState, dispatch),
-    updateShareFormState: bindActionCreators(updateShareFormState, dispatch)
+    updateShareFormState: bindActionCreators(updateShareFormState, dispatch),
+    updateArMediaState: bindActionCreators(updateArMediaState, dispatch),
 });
 
 interface Props{
@@ -32,8 +32,9 @@ interface Props{
     updateFeedAsAdmin?: typeof updateFeedAsAdmin;
     updateNewFeedPageState?: typeof updateNewFeedPageState; 
     updateShareFormState?: typeof updateShareFormState;
+    updateArMediaState?: typeof updateArMediaState;
 }
-const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, updateShareFormState} : Props) => { 
+const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, updateShareFormState, updateArMediaState} : Props) => { 
     const [isSended, setIsSended] = useState(false);
     const [isRecordVideo, setRecordVideo] = useState(false);
     const [isVideo, setIsVideo] = useState(false);
@@ -75,7 +76,7 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
     
 return <section className={styles.feedFormContainer}>
     <nav>               
-        <Button variant="text" onClick={()=>updateNewFeedPageState(false)}><ArrowBackIosIcon />Back</Button> 
+        <Button variant="text" onClick={()=>{updateArMediaState(true); updateNewFeedPageState(false);}}><ArrowBackIosIcon />Back</Button> 
     </nav>  
     {isSended ? 
         <Typography variant="h1" align="center">Thanks for sharing and improving our community</Typography>

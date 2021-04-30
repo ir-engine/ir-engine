@@ -4,17 +4,16 @@
 import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
-import { AppBar, Box,  Button,  Card,  CardMedia,  Tab, Tabs, Typography } from '@material-ui/core';
+import { Button, CardMedia} from '@material-ui/core';
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
-
-
-// @ts-ignore
-import styles from './ArMedia.module.scss';
 
 import { selectCreatorsState } from '../../reducers/creator/selector';
 import { createArMedia, getArMedia } from '../../reducers/arMedia/service';
 import { selectAdMediaState } from '../../reducers/arMedia/selector';
-import { updateArMediaState } from '../../reducers/popupsState/service';
+import { updateArMediaState, updateNewFeedPageState } from '../../reducers/popupsState/service';
+
+// @ts-ignore
+import styles from './ArMedia.module.scss';
 
 const mapStateToProps = (state: any): any => {
     return {
@@ -27,6 +26,7 @@ const mapStateToProps = (state: any): any => {
     createArMedia: bindActionCreators(createArMedia, dispatch),
     getArMedia: bindActionCreators(getArMedia, dispatch),
     updateArMediaState: bindActionCreators(updateArMediaState, dispatch),
+    updateNewFeedPageState: bindActionCreators(updateNewFeedPageState, dispatch),
 });
   interface Props{
     projects?:any[];
@@ -36,9 +36,10 @@ const mapStateToProps = (state: any): any => {
     createArMedia?: typeof createArMedia; 
     getArMedia?:typeof getArMedia; 
     updateArMediaState?:typeof updateArMediaState; 
+    updateNewFeedPageState?: typeof updateNewFeedPageState;
   }
 
-const ArMedia = ({getArMedia, arMediaState, updateArMediaState}:Props) => {
+const ArMedia = ({getArMedia, arMediaState, updateArMediaState, updateNewFeedPageState}:Props) => {
   const [type, setType] = React.useState('clip');
   useEffect(()=> {getArMedia()}, []);
   const arMediaList = arMediaState.get('fetching') === false && arMediaState?.get('list') ? arMediaState.get('list') : null;
@@ -61,6 +62,9 @@ const ArMedia = ({getArMedia, arMediaState, updateArMediaState}:Props) => {
             />          
         })}
       </section>
+      <Button onClick={()=> {updateArMediaState(false); updateNewFeedPageState(true);}} variant="contained" color="primary" >
+          Start
+      </Button>
     </section>;
 };
 
