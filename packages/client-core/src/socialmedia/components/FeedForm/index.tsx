@@ -12,22 +12,28 @@ import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
 import CameraIcon from '@material-ui/icons/Camera';
 import BackupIcon from '@material-ui/icons/Backup';
+import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
 
 // @ts-ignore
 import styles from './FeedForm.module.scss';
 import { createFeed, updateFeedAsAdmin } from '../../reducers/feed/service';
+import { updateNewFeedPageState, updateShareFormState } from '../../reducers/popupsState/service';
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
     createFeed: bindActionCreators(createFeed, dispatch),
     updateFeedAsAdmin: bindActionCreators(updateFeedAsAdmin, dispatch),
+    updateNewFeedPageState: bindActionCreators(updateNewFeedPageState, dispatch),
+    updateShareFormState: bindActionCreators(updateShareFormState, dispatch)
 });
 
 interface Props{
     feed?:any;
     createFeed?: typeof createFeed;
     updateFeedAsAdmin?: typeof updateFeedAsAdmin;
+    updateNewFeedPageState?: typeof updateNewFeedPageState; 
+    updateShareFormState?: typeof updateShareFormState;
 }
-const FeedForm = ({feed, createFeed, updateFeedAsAdmin} : Props) => { 
+const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, updateShareFormState} : Props) => { 
     const [isSended, setIsSended] = useState(false);
     const [isRecordVideo, setRecordVideo] = useState(false);
     const [isVideo, setIsVideo] = useState(false);
@@ -62,11 +68,15 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin} : Props) => {
             setIsSended(false); 
             clearTimeout(thanksTimeOut);
         }, 2000);
+        updateShareFormState(true)
     };
     const handlePickVideo = async (file) => setVideo(file.target.files[0]);
     const handlePickPreview = async (file) => setPreview(file.target.files[0]);
     
 return <section className={styles.feedFormContainer}>
+    <nav>               
+        <Button variant="text" onClick={()=>updateNewFeedPageState(false)}><ArrowBackIosIcon />Back</Button> 
+    </nav>  
     {isSended ? 
         <Typography variant="h1" align="center">Thanks for sharing and improving our community</Typography>
         :
@@ -88,12 +98,12 @@ return <section className={styles.feedFormContainer}>
                         <input required ref={videoRef} type="file" className={styles.displayNone} name="video" onChange={handlePickVideo} placeholder={'Select video'}/>
                     </Typography> 
                 </Card>
-                <Card className={styles.preCard}>
+                {/* <Card className={styles.preCard}>
                    <Typography variant="h2" align="center">
                         <p>Record from camera</p>
                         <p><CameraIcon  onClick={()=>setRecordVideo(true)} /></p>
                     </Typography> 
-                </Card>
+                </Card> */}
             </section>
             {feed && <CardMedia   
                     className={styles.previewImage}                  
@@ -107,7 +117,7 @@ return <section className={styles.feedFormContainer}>
                 value={composingTitle}
                 onChange={handleComposingTitleChange}
                 fullWidth 
-                placeholder="Title"                     
+                placeholder="The name of your video"                     
                 />    
             <TextField className={styles.textArea} ref={textRef} 
                 value={composingText}

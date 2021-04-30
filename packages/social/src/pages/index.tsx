@@ -16,11 +16,13 @@ import { createCreator } from "@xr3ngine/client-core/src/socialmedia/reducers/cr
 // @ts-ignore
 import styles from './index.module.scss';
 import { selectPopupsState } from "@xr3ngine/client-core/src/socialmedia/reducers/popupsState/selector";
-import { updateCreatorFormState, updateCreatorPageState, updateFeedPageState } from "@xr3ngine/client-core/src/socialmedia/reducers/popupsState/service";
+import { updateCreatorFormState, updateCreatorPageState, updateFeedPageState,  updateNewFeedPageState, updateShareFormState} from "@xr3ngine/client-core/src/socialmedia/reducers/popupsState/service";
 import SharedModal from "@xr3ngine/client-core/src/socialmedia/components/SharedModal";
 import Creator from "@xr3ngine/client-core/src/socialmedia/components/Creator";
 import Feed from "@xr3ngine/client-core/src/socialmedia/components/Feed";
 import CreatorForm from "@xr3ngine/client-core/src/socialmedia/components/CreatorForm";
+import FeedForm from "@xr3ngine/client-core/src/socialmedia/components/FeedForm";
+import ShareForm from "@xr3ngine/client-core/src/socialmedia/components/ShareForm/ShareForm"
         
 const mapStateToProps = (state: any): any => {
   return {
@@ -36,9 +38,11 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
   updateCreatorPageState: bindActionCreators(updateCreatorPageState, dispatch),
   updateFeedPageState: bindActionCreators(updateFeedPageState, dispatch),
   updateCreatorFormState:bindActionCreators(updateCreatorFormState, dispatch),
+  updateNewFeedPageState: bindActionCreators(updateNewFeedPageState, dispatch),
+  updateShareFormState: bindActionCreators(updateShareFormState,dispatch)
 });
 
-const  Home = ({ createCreator,  doLoginAuto, auth, popupsState, updateCreatorPageState, updateFeedPageState, updateCreatorFormState }) => {
+const  Home = ({ createCreator,  doLoginAuto, auth, popupsState, updateCreatorPageState, updateFeedPageState, updateCreatorFormState, updateNewFeedPageState, updateShareFormState }) => {
   /*hided for now*/
   useEffect(()=>{
     if(auth){
@@ -102,6 +106,40 @@ const renderCreatoFormModal = () =>
 const creatorFormState = popupsState?.get('creatorForm');
 useEffect(()=>{renderCreatoFormModal();}, [creatorFormState]);
 
+//common for new feed page
+const handleNewFeedClose = () => {
+  updateNewFeedPageState(false);
+};
+const renderNewFeedModal = () =>
+  popupsState?.get('shareFeedPage') === true &&  
+      <SharedModal 
+          open={popupsState?.get('shareFeedPage')}
+          onClose={handleNewFeedClose} 
+          className={styles.creatorFormPopup}
+      >
+          <FeedForm />      
+          <AppFooter onGoHome={handleNewFeedClose}/>
+      </SharedModal>;
+const newFeedPageState = popupsState?.get('shareFeedPage')
+useEffect(()=>{renderNewFeedModal();}, [newFeedPageState]);
+
+//common for share form page
+const handleShareFormClose = () => {
+  updateShareFormState(false);
+};
+const renderShareFormModal = () =>
+  popupsState?.get('shareForm') === true &&  
+      <SharedModal 
+          open={popupsState?.get('shareForm')}
+          onClose={handleShareFormClose} 
+          className={styles.creatorFormPopup}
+      >
+          <ShareForm />      
+          <AppFooter onGoHome={handleShareFormClose}/>
+      </SharedModal>;
+const shareFormState = popupsState?.get('shareForm')
+useEffect(()=>{renderShareFormModal();}, [shareFormState]);
+
   return (<>
     <div className={styles.viewport}>
         <AppHeader logo="/assets/logoBlack.png" />
@@ -111,6 +149,8 @@ useEffect(()=>{renderCreatoFormModal();}, [creatorFormState]);
         {renderCreatorModal()}
         {renderCreatoFormModal()}
         {renderFeedModal()}
+        {renderNewFeedModal()}
+        {renderShareFormModal()}
     </div>
   </>
   );
