@@ -40,7 +40,4 @@ jobs:
           git config --global user.name "gh-actions"
           yarn install --frozen-lockfile
           cd packages/docs
-          GIT_USER=chengtie \
-          CURRENT_BRANCH=dev \
-          USE_SSH=true \
-          yarn run deploy
+          npm run deploy
