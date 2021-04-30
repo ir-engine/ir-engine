@@ -79,10 +79,10 @@ return <section className={styles.feedFormContainer}>
         <Button variant="text" onClick={()=>{updateArMediaState(true); updateNewFeedPageState(false);}}><ArrowBackIosIcon />Back</Button> 
     </nav>  
     {isSended ? 
-        <Typography variant="h1" align="center">Thanks for sharing and improving our community</Typography>
+        <Typography variant="h3" align="center">Thanks for sharing and improving our community</Typography>
         :
         <section>
-            <Typography variant="h1" align="center">Share something with the community</Typography>
+            <Typography variant="h4" align="center">Share something with the community</Typography>
             {feed && <CardMedia   
                     className={styles.previewImage}                  
                     src={feed.videoUrl}
@@ -91,7 +91,7 @@ return <section className={styles.feedFormContainer}>
                     controls  
                     autoPlay={true} 
                 />}
-            <section className={styles.flexContainer}>
+            
                 <Card className={styles.preCard}>
                     <Typography variant="h2" align="center">
                         <p>Upload Video</p>
@@ -105,7 +105,7 @@ return <section className={styles.feedFormContainer}>
                         <p><CameraIcon  onClick={()=>setRecordVideo(true)} /></p>
                     </Typography> 
                 </Card> */}
-            </section>
+        
             {feed && <CardMedia   
                     className={styles.previewImage}                  
                     image={feed.previewUrl}
@@ -113,20 +113,21 @@ return <section className={styles.feedFormContainer}>
                 />}  
             <Card className={styles.preCard}>
                 <Typography variant="h2" align="center">Preview image<input required type="file" name="preview" onChange={handlePickPreview} placeholder={'Select preview'}/></Typography>  
-            </Card>                   
+            </Card>  
+            <Typography align="center">In order to create a feed you must have a video and a preview image!!! </Typography>              
             <TextField ref={titleRef} 
                 value={composingTitle}
                 onChange={handleComposingTitleChange}
                 fullWidth 
                 placeholder="The name of your video"                     
                 />    
-            <TextField className={styles.textArea} ref={textRef} 
+            {/* <TextField className={styles.textArea} ref={textRef} 
                 value={composingText}
                 onChange={handleComposingTextChange}
                 fullWidth 
                 multiline
                 placeholder="Type what you want to share with the community ... "                     
-                />    
+                />     */}
             <Button
                 variant="contained"
                 color="primary"
