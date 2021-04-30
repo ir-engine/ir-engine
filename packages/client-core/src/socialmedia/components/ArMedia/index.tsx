@@ -4,7 +4,8 @@
 import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
-import { AppBar, Box,  Tab, Tabs, Typography } from '@material-ui/core';
+import { AppBar, Box,  Button,  Card,  CardMedia,  Tab, Tabs, Typography } from '@material-ui/core';
+import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
 
 
 // @ts-ignore
@@ -12,80 +13,54 @@ import styles from './ArMedia.module.scss';
 
 import { selectCreatorsState } from '../../reducers/creator/selector';
 import { createArMedia, getArMedia } from '../../reducers/arMedia/service';
+import { selectAdMediaState } from '../../reducers/arMedia/selector';
+import { updateArMediaState } from '../../reducers/popupsState/service';
 
 const mapStateToProps = (state: any): any => {
     return {
       creatorsState: selectCreatorsState(state),
+      arMediaState: selectAdMediaState(state),
     };
   };
 
   const mapDispatchToProps = (dispatch: Dispatch): any => ({
     createArMedia: bindActionCreators(createArMedia, dispatch),
     getArMedia: bindActionCreators(getArMedia, dispatch),
+    updateArMediaState: bindActionCreators(updateArMediaState, dispatch),
 });
   interface Props{
     projects?:any[];
     view?:any;
     creatorsState?: any;
+    arMediaState?: any;
     createArMedia?: typeof createArMedia; 
-    getArMedia?:typeof getArMedia;  
+    getArMedia?:typeof getArMedia; 
+    updateArMediaState?:typeof updateArMediaState; 
   }
 
-  function a11yProps(index: any) {
-    return {
-      id: `simple-tab-${index}`,
-      'aria-controls': `simple-tabpanel-${index}`,
-    };
-  }
+const ArMedia = ({getArMedia, arMediaState, updateArMediaState}:Props) => {
+  const [type, setType] = React.useState('clip');
+  useEffect(()=> {getArMedia()}, []);
+  const arMediaList = arMediaState.get('fetching') === false && arMediaState?.get('list') ? arMediaState.get('list') : null;
 
-
-  interface TabPanelProps {
-    children?: React.ReactNode;
-    index: any;
-    value: any;
-  }
-  
-  function TabPanel(props: TabPanelProps) {
-    const { children, value, index, ...other } = props;
-  
-    return (
-      <div
-        role="tabpanel"
-        hidden={value !== index}
-        id={`simple-tabpanel-${index}`}
-        aria-labelledby={`simple-tab-${index}`}
-        {...other}
-      >
-        {value === index && (
-          <Box p={3}>
-            <Typography>{children}</Typography>
-          </Box>
-        )}
-      </div>
-    );
-  }
-  
-const ArMedia = ({projects, view, getArMedia}:Props) => {
-  const [value, setValue] = React.useState(0);
-  useEffect(()=>{getArMedia()},[]);
-
-  const handleChange = (event: React.ChangeEvent<{}>, newValue: number) => {
-    setValue(newValue);
-  };
-
-    return <section className={styles.creatorContainer}>
-      <AppBar position="static">
-        <Tabs value={value} onChange={handleChange} aria-label="simple tabs example">
-          <Tab label="Clip" {...a11yProps(0)} />
-          <Tab label="Background" {...a11yProps(1)} />
-        </Tabs>
-      </AppBar>
-      <TabPanel value={value} index={0}>
-        Item One
-      </TabPanel>
-      <TabPanel value={value} index={1}>
-        Item Two
-      </TabPanel>       
+    return <section className={styles.arMediaContainer}>
+      <Button variant="text" className={styles.backButton} onClick={()=>updateArMediaState(false)}><ArrowBackIosIcon />Back</Button>
+      <section className={styles.switcher}>
+        <Button variant={type === 'clip' ? 'contained' : 'text'} color='secondary' className={styles.switchButton+(type === 'clip' ? ' '+styles.active : '')} 
+            onClick={()=>setType('clip')}>Clips</Button>
+        <Button variant={type === 'background' ? 'contained' : 'text'} color='secondary' className={styles.switchButton+(type === 'background' ? ' '+styles.active : '')} 
+            onClick={()=>setType('background')}>Backgrounds</Button>
+      </section>
+      <section className={styles.flexContainer}>
+        {arMediaList?.map((item, itemIndex)=>{
+          return item.ar_type === type && 
+            <CardMedia 
+             key={itemIndex}
+            className={styles.previewImage}
+            image={item.previewUrl}
+            />          
+        })}
+      </section>
     </section>;
 };
 
