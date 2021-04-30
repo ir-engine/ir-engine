@@ -67,7 +67,7 @@
     "@xr3ngine/engine": "^0.2.17",
     "@xr3ngine/server-core": "^0.2.17",
     "three-physx": "0.0.4",
-    "aws-sdk": "2.896.0",
+    "aws-sdk": "2.897.0",
     "bent": "7.3.12",
     "chargebee": "2.6.5",
     "comlink": "4.3.0",
