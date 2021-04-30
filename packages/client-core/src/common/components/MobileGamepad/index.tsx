@@ -47,13 +47,12 @@ export const MobileGamepad: FunctionComponent<MobileGamepadProps> = ({ hovered }
       dynamicPage: true
     });
     const targetElement = stickLeft[0].ui.el;
-    console.log(targetElement)
     targetElement.addEventListener('touchstart', (ev) => {
       EngineEvents.instance.dispatchEvent({ type: ClientInputSystem.EVENTS.ENABLE_INPUT,  mouse: false });
-    })
+    });
     targetElement.addEventListener('touchend', (ev) => {
       EngineEvents.instance.dispatchEvent({ type: ClientInputSystem.EVENTS.ENABLE_INPUT,  mouse: true });
-    })
+    });
 
     stickLeft.on("move", ( e, data) => {
       const event = new CustomEvent(
