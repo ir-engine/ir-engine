@@ -1,5 +1,7 @@
 import { TouchApp } from '@styled-icons/material/TouchApp';
+import { EngineEvents } from '@xr3ngine/engine/src/ecs/classes/EngineEvents';
 import { GamepadAxis, GamepadButtons } from "@xr3ngine/engine/src/input/enums/InputEnums";
+import { ClientInputSystem } from '@xr3ngine/engine/src/input/systems/ClientInputSystem';
 import nipplejs from 'nipplejs';
 import React, { FunctionComponent, useEffect, useRef } from 'react';
 // @ts-ignore
@@ -44,6 +46,14 @@ export const MobileGamepad: FunctionComponent<MobileGamepadProps> = ({ hovered }
       size: size,
       dynamicPage: true
     });
+    const targetElement = stickLeft[0].ui.el;
+    console.log(targetElement)
+    targetElement.addEventListener('touchstart', (ev) => {
+      EngineEvents.instance.dispatchEvent({ type: ClientInputSystem.EVENTS.ENABLE_INPUT,  mouse: false });
+    })
+    targetElement.addEventListener('touchend', (ev) => {
+      EngineEvents.instance.dispatchEvent({ type: ClientInputSystem.EVENTS.ENABLE_INPUT,  mouse: true });
+    })
 
     stickLeft.on("move", ( e, data) => {
       const event = new CustomEvent(
