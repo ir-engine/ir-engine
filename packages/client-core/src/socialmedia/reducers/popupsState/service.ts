@@ -6,7 +6,8 @@ import { dispatchAlertError } from '../../../common/reducers/alert/service';
 import {
   changeCreatorPage,
   changeCreatorForm,
-  changeFeedPage
+  changeFeedPage,
+  changeArMedia
 } from './actions';
 
 export function updateCreatorPageState(state: boolean, id?:string) {
@@ -42,3 +43,14 @@ export function updateFeedPageState(state: boolean, id?:string) {
   };
 }
 
+
+export function updateArMediaState(state: boolean) {
+  return async (dispatch: Dispatch, getState: any): Promise<any> => {
+    try {
+      dispatch(changeArMedia(state));      
+    } catch (err) {
+      console.log(err);
+      dispatchAlertError(dispatch, err.message);
+    }
+  };
+}

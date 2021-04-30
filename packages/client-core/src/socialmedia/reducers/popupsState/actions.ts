@@ -5,6 +5,7 @@ import {
   CHANGE_CREATOR_PAGE_STATE,
   CHANGE_CREATOR_FORM_STATE,
   CHANGE_FEED_PAGE_STATE,
+  CHANGE_ARMEDIA_CHOOSE_STATE,
 } from '../actions';
 
 export interface PopupsActions {
@@ -35,4 +36,12 @@ export function changeFeedPage (state, id): PopupsActions {
     id
   };
 }
+
+export function changeArMedia (state): PopupsActions {
+  return {
+    type: CHANGE_ARMEDIA_CHOOSE_STATE,
+    state
+  };
+}
+
 

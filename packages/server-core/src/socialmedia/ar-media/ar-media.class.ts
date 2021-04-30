@@ -63,6 +63,28 @@ export class ArMedia extends Service {
         total: list.count,
       };
     }
+
+    //All ArMedia as Admin
+      const dataQuery = `SELECT ar.id as ar_id, ar.title as ar_title, ar.type as ar_type, ar.createdAt as ar_createdAt, col.*
+        FROM \`ar_media\` as ar
+        JOIN \`collection\` as col ON col.id=ar.collectionId        
+        WHERE 1
+        ORDER BY ar.createdAt DESC    
+        LIMIT :skip, :limit `;
+
+      const list = await this.app.get('sequelizeClient').query(dataQuery,
+        {
+          type: QueryTypes.SELECT,
+          raw: true,
+          replacements: {...queryParamsReplacements}
+        });
+
+      return {
+        data: list,
+        skip,
+        limit,
+        total: list.count,
+      };
    }
 
     /**

@@ -16,11 +16,12 @@ import { createCreator } from "@xr3ngine/client-core/src/socialmedia/reducers/cr
 // @ts-ignore
 import styles from './index.module.scss';
 import { selectPopupsState } from "@xr3ngine/client-core/src/socialmedia/reducers/popupsState/selector";
-import { updateCreatorFormState, updateCreatorPageState, updateFeedPageState } from "@xr3ngine/client-core/src/socialmedia/reducers/popupsState/service";
+import { updateArMediaState, updateCreatorFormState, updateCreatorPageState, updateFeedPageState } from "@xr3ngine/client-core/src/socialmedia/reducers/popupsState/service";
 import SharedModal from "@xr3ngine/client-core/src/socialmedia/components/SharedModal";
 import Creator from "@xr3ngine/client-core/src/socialmedia/components/Creator";
 import Feed from "@xr3ngine/client-core/src/socialmedia/components/Feed";
 import CreatorForm from "@xr3ngine/client-core/src/socialmedia/components/CreatorForm";
+import ArMedia from "@xr3ngine/client-core/src/socialmedia/components/ArMedia";
         
 const mapStateToProps = (state: any): any => {
   return {
@@ -101,6 +102,21 @@ const  Home = ({ createCreator,  doLoginAuto, auth, popupsState, updateCreatorPa
 const creatorFormState = popupsState?.get('creatorForm');
 useEffect(()=>{renderCreatoFormModal();}, [creatorFormState]);
 
+//common for ArMedia choose
+const handleArMediamClose = () =>updateArMediaState(false);
+const renderArMediaModal = () =>
+  popupsState?.get('arMedia') === true &&  
+      <SharedModal 
+          open={popupsState?.get('arMedia')}
+          onClose={handleArMediamClose} 
+          className={styles.arMediaPopup}
+      >
+        <ArMedia />
+      </SharedModal>;
+
+const arMediaState = popupsState?.get('arMedia');
+useEffect(()=>{renderArMediaModal();}, [arMediaState]);
+
   return (<>
     <div className={styles.viewport}>
         <AppHeader logo="/assets/logoBlack.png" />
@@ -110,6 +126,7 @@ useEffect(()=>{renderCreatoFormModal();}, [creatorFormState]);
         {renderCreatorModal()}
         {renderCreatoFormModal()}
         {renderFeedModal()}
+        {renderArMediaModal()}
     </div>
   </>
   );
