@@ -1,5 +1,5 @@
-//@ts-ignore
 import { createInlineWorkerFromString } from "../../common/functions/createInlineWorkerFromString";
+//@ts-ignore
 import HeightfieldWorker from "./heightfield.worker.js";
 export default class HeightfieldClient {
   worker: any;
@@ -39,7 +39,7 @@ export default class HeightfieldClient {
         this.worker.terminate();
         // @ts-ignore
         if (process.browser) {
-          this.worker = new HeightfieldWorker();
+          this.worker = createInlineWorkerFromString(HeightfieldWorker);
         }
         const error = new Error("Canceled heightfield generation.");
         error["aborted"] = true;
