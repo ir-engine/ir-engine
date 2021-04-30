@@ -9,7 +9,7 @@ import Slide from '@material-ui/core/Slide';
 import { TransitionProps } from '@material-ui/core/transitions';
 import AddCircleIcon from '@material-ui/icons/AddCircle';
 import { bindActionCreators, Dispatch } from 'redux';
-import { updateNewFeedPageState } from '../../reducers/popupsState/service';
+import { updateArMediaState } from '../../reducers/popupsState/service';
 import { connect } from 'react-redux';
 import { selectCreatorsState } from '../../reducers/creator/selector';
 import { selectAuthState } from '../../../user/reducers/auth/selector';
@@ -22,7 +22,7 @@ const mapStateToProps = (state: any): any => {
 };
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  updateNewFeedPageState: bindActionCreators(updateNewFeedPageState, dispatch)
+  updateArMediaState: bindActionCreators(updateArMediaState, dispatch)
 });
 
 const Transition = React.forwardRef(function Transition(
@@ -33,10 +33,10 @@ const Transition = React.forwardRef(function Transition(
 });
 
 interface Props{
-  updateNewFeedPageState?: typeof updateNewFeedPageState;
+  updateArMediaState?: typeof updateArMediaState;
 }
 
-export const ViewMode = ({updateNewFeedPageState}:Props) => {
+export const ViewMode = ({updateArMediaState}:Props) => {
   const [open, setOpen] = useState(false);
  
   const handleClickOpen = () => {
@@ -47,11 +47,7 @@ export const ViewMode = ({updateNewFeedPageState}:Props) => {
     setOpen(false);
   };
 
-  const handleOpenNewFeedPage = () => {
-    updateNewFeedPageState(true)
-  };
-
-
+  const handleOpenNewFeedPage = () => updateArMediaState(true);
   return (
     <div>
        <AddCircleIcon onClick={handleClickOpen} style={{fontSize: '5em'}} />
@@ -83,7 +79,7 @@ export const ViewMode = ({updateNewFeedPageState}:Props) => {
            Horizontal mode has an unlimited record time
           </DialogContentText>
         </DialogContent>
-        <Button onClick={()=> {handleOpenNewFeedPage()}} color="primary">
+        <Button onClick={()=> {handleOpenNewFeedPage()}} variant="contained" color="primary">
             Start
         </Button>
       </Dialog>

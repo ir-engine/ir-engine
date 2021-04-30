@@ -7,6 +7,7 @@ import {
   changeCreatorPage,
   changeCreatorForm,
   changeFeedPage,
+  changeArMedia,
   changeNewFeedPage,
   changeShareForm
 } from './actions';
@@ -66,3 +67,14 @@ export function updateShareFormState(state: boolean) {
   };  
 }
 
+
+export function updateArMediaState(state: boolean) {
+  return async (dispatch: Dispatch, getState: any): Promise<any> => {
+    try {
+      dispatch(changeArMedia(state));      
+    } catch (err) {
+      console.log(err);
+      dispatchAlertError(dispatch, err.message);
+    }
+  };
+}

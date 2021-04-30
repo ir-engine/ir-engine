@@ -38,7 +38,7 @@ if (!global.setImmediate) {
 
 
 interface Props {
-    router: any;
+    // router: any;
     adminState?: any;
     authState?: any;
     locationState?: any;
