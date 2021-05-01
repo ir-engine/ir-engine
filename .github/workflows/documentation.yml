@@ -17,7 +17,7 @@ jobs:
           node-version: '12.x'
       - name: Test Build
         env:
-          NODE_OPTIONS: --max_old_space_size=4096
+          NODE_OPTIONS: --max_old_space_size=8192
         run: |
           yarn install --frozen-lockfile
           cd packages/docs
@@ -35,7 +35,7 @@ jobs:
           ssh-private-key: ${{ secrets.GH_PAGES_DEPLOY }}
       - name: Release to GitHub Pages
         env:
-          NODE_OPTIONS: --max_old_space_size=4096
+          NODE_OPTIONS: --max_old_space_size=8192
           USE_SSH: true
           GIT_USER: git
         run: |
