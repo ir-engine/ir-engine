@@ -59,7 +59,7 @@ First, make sure you have [NodeJS](https://nodejs.org/) and [npm](https://www.np
     ```
     cd scripts && sudo bash start-db.sh
     ```
-    This creates a Docker container of mariadb named xr3ngine_db. You must have docker installed on your machine for this script to work.
+    This creates a Docker container of mariadb named xrengine_db. You must have docker installed on your machine for this script to work.
     If you do not have Docker installed and do not wish to install it, you'll have to manually create a MariaDB server.
    
    The default username is 'server', the default password is 'password', the default database name is 'xrengine', the default hostname is '127.0.0.1', and the default port is '3306'.
@@ -70,7 +70,7 @@ First, make sure you have [NodeJS](https://nodejs.org/) and [npm](https://www.np
    across servers, e.g. the API server can be notified that the gameserver patched a user.
    ```scrips/docker-compose``` is configured to start a redis container using Docker.
    Run ```docker-compose up``` from the /scripts directory to build + start it, and after that
-   you can run ```docker start xr3ngine_redis``` to restart the redis container.
+   you can run ```docker start xrengine_redis``` to restart the redis container.
 
 #### 4. Open a new tab and start the Agones sidecar in local mode
 
@@ -170,7 +170,7 @@ for example:``` C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MS
 ./start-db.sh only needs to be run once. If the docker image has stopped, start it again with:
 
 ```
-    docker container start xr3ngine_db
+    docker container start xrengine_db
 ```
 
 ### OSX DB Native Initialization Commands
@@ -307,7 +307,7 @@ Test user Admin privliges by going to `/admin`
 
 [Managing Helm Charts](https://github.com/XRFoundation/XREngine/blob/dev/packages/ops/docs/release-helm-chart.md)
 
-[Cloudformation Scripts](https://github.com/XRFoundation/XREngine/blob/dev/packages/ops/xr3-cloudformation)
+[Cloudformation Scripts](https://github.com/XRFoundation/XREngine/blob/dev/packages/ops/xrengine-cloudformation)
 
 ## Testing
 

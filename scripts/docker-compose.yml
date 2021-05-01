@@ -3,7 +3,7 @@ version: '2.3'
 services:
   db:
     image: mariadb:10.6
-    container_name: xr3ngine_db
+    container_name: xrengine_db
     environment:
       MYSQL_ROOT_PASSWORD: xrengine-root-pa$$w0rd
       MYSQL_DATABASE: xrengine
@@ -13,6 +13,6 @@ services:
       - '3306:3306'
   redis:
     image: redis
-    container_name: xr3ngine_redis
+    container_name: xrengine_redis
     ports:
       - '6379:6379'

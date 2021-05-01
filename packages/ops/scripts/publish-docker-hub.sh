@@ -20,16 +20,3 @@ for repo in {client,server,realtime-server}; do
         docker push xrengine/${repo}:${tag}
     done
 done 
-
-
-# docker tag xrengine/xrsocial xrengine/xrsocial:latest
-# docker push xrengine/xrsocial:latest 
-
-# docker tag xrengine/xrsocial-realtime-server xrengine/xrsocial-realtime-server:latest
-# docker push xr3ngin/xrsocial-realtime-server:latest
-
-# docker tag xrengine/xrsocial-client xrengine/xrsocial-client:latest
-# docker push xrengine/xrsocial-client:latest
-
-# docker tag xrengine/xrsocial-client xrengine/xrsocial-client:${NEW_TAG}
-# docker push xrengine/xrsocial-client:${NEW_TAG}
