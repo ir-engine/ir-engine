@@ -1,7 +1,7 @@
 import { Matrix4, Vector3 } from 'three';
 import { isServer } from "../../../common/functions/isServer";
-import { changeAnimation } from '../../../character/functions/updateVectorAnimation';
-import { AnimationComponent } from '../../../character/components/AnimationComponent';
+import { changeAnimation } from '../../character/functions/updateVectorAnimation';
+import { AnimationComponent } from '../../character/components/AnimationComponent';
 import { initializeMovingState } from '../../character/animations/MovingAnimations';
 import { VehicleComponent } from '../components/VehicleComponent';
 import { getComponent, getMutableComponent, removeComponent } from '../../../ecs/functions/EntityFunctions';

@@ -1,11 +1,11 @@
 import { AnimationClip, MathUtils } from "three";
-import { Engine } from '../../ecs/classes/Engine';
-import { Entity } from "../../ecs/classes/Entity";
-import { Behavior } from '../../common/interfaces/Behavior';
-import {  getMutableComponent } from '../../ecs/functions/EntityFunctions';
-import { AnimationConfigInterface, defaultAvatarAnimations } from "../../templates/character/CharacterAvatars";
-import { CharacterComponent, RUN_SPEED, WALK_SPEED } from '../../templates/character/components/CharacterComponent';
-import { isServer } from '../../common/functions/isServer';
+import { Engine } from '../../../ecs/classes/Engine';
+import { Entity } from "../../../ecs/classes/Entity";
+import { Behavior } from '../../../common/interfaces/Behavior';
+import {  getMutableComponent } from '../../../ecs/functions/EntityFunctions';
+import { AnimationConfigInterface, defaultAvatarAnimations } from "../CharacterAvatars";
+import { CharacterComponent, RUN_SPEED, WALK_SPEED } from '../components/CharacterComponent';
+import { isServer } from '../../../common/functions/isServer';
 import { AnimationComponent } from "../components/AnimationComponent";
 
 interface AnimationWeightScaleInterface {

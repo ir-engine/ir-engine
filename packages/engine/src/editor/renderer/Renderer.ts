@@ -3,7 +3,6 @@ import {
   Layers,
   MeshBasicMaterial,
   MeshNormalMaterial,
-  sRGBEncoding,
   Vector2
 } from "three";
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer";
@@ -180,7 +179,6 @@ export default class Renderer {
         canvas
       }
     );
-    renderer.physicallyCorrectLights = true;
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.info.autoReset = false;
     this.renderer = renderer;
@@ -219,7 +217,7 @@ export default class Renderer {
   }
   update(dt, _time) {
     this.renderer.info.reset();
-    Engine.csm.update();
+    // Engine.csm.update();
     if(this.willusePostProcessing)
       this.composer.render(dt);
     else
@@ -255,7 +253,7 @@ export default class Renderer {
       containerEl.offsetHeight,
       false
     );
-    Engine.csm.updateFrustums();
+    // Engine.csm.updateFrustums();
     this.renderMode.onResize();
 
     if(this.willusePostProcessing){

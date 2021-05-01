@@ -24,7 +24,7 @@ export default function makeRenderer(width, height, props = {}) {
   renderer.shadowMap.type = PCFSoftShadowMap;
   renderer.outputEncoding = sRGBEncoding;
   renderer.toneMapping = LinearToneMapping;
-  renderer.toneMappingExposure = 1;
+  renderer.toneMappingExposure = 2;
   renderer.setSize(width, height, false);
 
   return renderer;

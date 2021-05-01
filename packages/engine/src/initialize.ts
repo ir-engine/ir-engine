@@ -2,7 +2,7 @@ import _ from 'lodash';
 import { BufferGeometry, Mesh, PerspectiveCamera, Scene } from 'three';
 import { acceleratedRaycast, computeBoundsTree } from "three-mesh-bvh";
 import { CameraSystem } from './camera/systems/CameraSystem';
-import { CharacterControllerSystem } from './character/CharacterControllerSystem';
+import { CharacterControllerSystem } from './templates/character/CharacterControllerSystem';
 import { isMobileOrTablet } from './common/functions/isMobile';
 import { Timer } from './common/functions/Timer';
 import { DebugHelpersSystem } from './debug/systems/DebugHelpersSystem';
@@ -112,6 +112,7 @@ export const initializeEngine = async (options): Promise<void> => {
     Engine.scene.add(Engine.camera);
 
     await AnimationManager.instance.getDefaultModel()
+    await AnimationManager.instance.getAnimations()
 
     registerSystem(CharacterControllerSystem);
     registerSystem(ServerSpawnSystem, { priority: 899 });

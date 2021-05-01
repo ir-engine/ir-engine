@@ -1,19 +1,19 @@
-import { System, SystemAttributes } from "../ecs/classes/System";
+import { System, SystemAttributes } from "../../ecs/classes/System";
 import { updateVectorAnimation } from "./functions/updateVectorAnimation";
 import { AnimationComponent } from "./components/AnimationComponent";
-import { CharacterComponent } from "../templates/character/components/CharacterComponent";
-import { getComponent, getMutableComponent, hasComponent } from "../ecs/functions/EntityFunctions";
-import { physicsMove } from "../physics/behaviors/physicsMove";
-import { IKComponent } from "./components/IKComponent";
-import { Input } from "../input/components/Input";
-import { ControllerColliderComponent } from "../physics/components/ControllerColliderComponent";
-import { PhysicsSystem } from "../physics/systems/PhysicsSystem";
-import { CollisionGroups } from "../physics/enums/CollisionGroups";
+import { CharacterComponent } from "./components/CharacterComponent";
+import { getComponent, getMutableComponent, hasComponent } from "../../ecs/functions/EntityFunctions";
+import { physicsMove } from "../../physics/behaviors/physicsMove";
+import { Input } from "../../input/components/Input";
+import { ControllerColliderComponent } from "../../physics/components/ControllerColliderComponent";
+import { PhysicsSystem } from "../../physics/systems/PhysicsSystem";
+import { CollisionGroups } from "../../physics/enums/CollisionGroups";
 import { Quaternion, Vector3 } from "three";
-import { TransformComponent } from "../transform/components/TransformComponent";
+import { TransformComponent } from "../../transform/components/TransformComponent";
 import { Controller, SceneQueryType } from "three-physx";
-import { LocalInputReceiver } from "../input/components/LocalInputReceiver";
-import { NetworkObject } from "../networking/components/NetworkObject";
+import { LocalInputReceiver } from "../../input/components/LocalInputReceiver";
+import { NetworkObject } from "../../networking/components/NetworkObject";
+import { IKComponent } from "./components/IKComponent";
 
 const lastPos = { x: 0, y: 0, z: 0 };
 
