@@ -1,4 +1,4 @@
-import { IKComponent } from '../../character/components/IKComponent';
+import { IKComponent } from '../../templates/character/components/IKComponent';
 import { Entity } from '../../ecs/classes/Entity';
 import { System } from '../../ecs/classes/System';
 import { getComponent } from '../../ecs/functions/EntityFunctions';

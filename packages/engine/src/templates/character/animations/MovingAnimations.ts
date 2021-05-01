@@ -3,7 +3,7 @@ import { CharacterAnimations } from '../CharacterAnimations';
 import { CharacterComponent } from '../components/CharacterComponent';
 import { getComponent, getMutableComponent, hasComponent } from '../../../ecs/functions/EntityFunctions';
 import { Vector3 } from "three";
-import { AnimationComponent } from '../../../character/components/AnimationComponent';
+import { AnimationComponent } from '../components/AnimationComponent';
 import { defaultAvatarAnimations } from '../CharacterAvatars';
 
 /**

@@ -30,9 +30,9 @@ import { DEFAULT_AVATAR_ID } from "@xr3ngine/common/src/constants/AvatarConstant
 import { Engine } from "../../../ecs/classes/Engine";
 import { PrefabType } from "../../networking/PrefabType";
 import { initializeMovingState } from "../animations/MovingAnimations";
-import { IKComponent } from "../../../character/components/IKComponent";
+import { IKComponent } from '../components/IKComponent';
 import { initiateIK } from "../../../xr/functions/IKFunctions";
-import { AnimationComponent } from "../../../character/components/AnimationComponent";
+import { AnimationComponent } from "../components/AnimationComponent";
 import { CollisionGroups } from '../../../physics/enums/CollisionGroups';
 import { InterpolationInterface } from '../../../physics/interfaces/InterpolationInterface';
 import { characterCorrectionBehavior } from '../behaviors/characterCorrectionBehavior';

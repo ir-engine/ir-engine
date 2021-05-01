@@ -13,7 +13,7 @@ import { FollowCameraComponent } from '../../../camera/components/FollowCameraCo
 import { PlayerInCar } from '../../../physics/components/PlayerInCar';
 import { BaseInput } from '../../../input/enums/BaseInput';
 import { CameraModes } from '../../../camera/types/CameraModes';
-import { AnimationComponent } from '../../../character/components/AnimationComponent';
+import { AnimationComponent } from '../components/AnimationComponent';
 import { defaultAvatarAnimations } from '../CharacterAvatars';
 
 /**

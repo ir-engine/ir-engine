@@ -24,7 +24,7 @@ import { isServer } from "../../common/functions/isServer";
 import { VehicleComponent } from '../vehicle/components/VehicleComponent';
 import { isMobileOrTablet } from '../../common/functions/isMobile';
 import { SIXDOFType } from '../../common/types/NumericalTypes';
-import { IKComponent } from '../../character/components/IKComponent';
+import { IKComponent } from './components/IKComponent';
 import { EquippedComponent } from '../../interaction/components/EquippedComponent';
 import { unequipEntity } from '../../interaction/functions/equippableFunctions';
 import { TransformComponent } from '../../transform/components/TransformComponent';
