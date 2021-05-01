@@ -11,7 +11,8 @@ import {
   instanceCreated,
   instanceRemoved,
   instancePatched,
-  userRoleRetrieved
+  userRoleRetrieved,
+  userRoleCreated
 } from './actions';
 
 import axios from 'axios';
@@ -270,8 +271,16 @@ export const fetchUserRole = (data) => {
           }
         }
       });
-     console.log(userRole);
      
     dispatch(userRoleRetrieved(userRole));
+  };
+};
+
+export const createUserRoleAction = (data) => {
+  return async(dispatch: Dispatch ): Promise<any> => {
+    const result = await client.service("user-role").create(data);
+    console.log(result);
+    
+    dispatch(userRoleCreated(result));
   };
 };

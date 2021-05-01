@@ -11,13 +11,14 @@ import { selectAdminState } from "../../reducers/admin/selector";
 import DialogContentText from '@material-ui/core/DialogContentText';
 import CreateUserRole from "./CreateUserRole";
 import DialogActions from '@material-ui/core/DialogActions';
-import Dialog from '@material-ui/core/Dialog';
 import TextField from '@material-ui/core/TextField';
 import FormControl from '@material-ui/core/FormControl';
 import InputLabel from '@material-ui/core/InputLabel';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
-import clsx from 'clsx';
+import Container from '@material-ui/core/Container';
+import DialogTitle from '@material-ui/core/DialogTitle';
+
 
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -29,6 +30,12 @@ const useStyles = makeStyles((theme: Theme) =>
             marginLeft: "5px",
             textDecoration: "none",
             color: "#ff9966"
+        },
+        marginTp: {
+            marginTop: "20%"
+        },
+        texAlign: {
+            textAlign: "center"
         }
     })
 );
@@ -40,9 +47,9 @@ const useStyle = makeStyles({
     fullList: {
         width: 'auto',
     },
-    paperAnchorRight: {
-        width: "60%"
-    },
+    paper: {
+        width: "40%"
+    }
 });
 
 interface Props {
@@ -80,18 +87,22 @@ const CreateUser = (props: Props) => {
     const [email, setEmail] = React.useState('');
     const [status, setStatus] = React.useState('');
     const [location, setLocation] = React.useState('');
+    const [openCreateaUserRole, setOpenCreateUserRole] = React.useState(false);
 
     const userRole = adminState.get("userRole");
     const userRoleData = userRole ? userRole.get("userRole") : [];
-    console.log('====================================');
-    console.log(userRoleData);
-    console.log('====================================');
 
     const handleChange = async (event: React.ChangeEvent<{ value: unknown }>) => {
         const selectedProject = event.target.value;
         setGame(selectedProject as string);
         await fetchUserRole(selectedProject);
     };
+
+    React.useEffect(() => {
+        if (userRoleData.length > 0) {
+            if (userRole.get("updateNeeded")) fetchUserRole(game);
+        }
+    }, [adminState]);
 
     const defaultProps = {
         options: adminLocations,
@@ -108,93 +119,105 @@ const CreateUser = (props: Props) => {
             status
         };
         await createUserAction(data);
-        handleClose();
+        handleClose(false);
     };
 
     const createUserRole = () => {
+        setOpenCreateUserRole(true);
+    };
 
+    const handleUserRoleClose = () => {
+        setOpenCreateUserRole(false);
     };
 
     return (
         <React.Fragment >
             <Drawer
-                className={clsx(classesx.paperAnchorRight)}
+                classes={{ paper: classesx.paper }}
                 anchor="right"
                 open={open}
                 onClose={handleClose(false)}
             >
-                <TextField
-                    autoFocus
-                    margin="dense"
-                    id="email"
-                    label="E-mail"
-                    type="email"
-                    fullWidth
-                    value={email}
-                    className={classes.marginBottm}
-                    onChange={(e) => setEmail(e.target.value)}
-                />
-                <TextField
-                    autoFocus
-                    margin="dense"
-                    id="name"
-                    label="Name"
-                    type="text"
-                    fullWidth
-                    value={name}
-                    className={classes.marginBottm}
-                    onChange={(e) => setName(e.target.value)}
-                />
+                <Container maxWidth="sm" className={classes.marginTp}>
+                    <DialogTitle id="form-dialog-title" className={classes.texAlign} >Create New User</DialogTitle>
+                    <TextField
+                        autoFocus
+                        margin="dense"
+                        id="email"
+                        label="E-mail"
+                        type="email"
+                        fullWidth
+                        value={email}
+                        className={classes.marginBottm}
+                        onChange={(e) => setEmail(e.target.value)}
+                    />
+                    <TextField
+                        autoFocus
+                        margin="dense"
+                        id="name"
+                        label="Name"
+                        type="text"
+                        fullWidth
+                        value={name}
+                        className={classes.marginBottm}
+                        onChange={(e) => setName(e.target.value)}
+                    />
 
-                <Autocomplete
-                    onChange={(e, newValue) => setLocation(newValue.name as string)}
-                    {...defaultProps}
-                    id="debug"
-                    debug
-                    renderInput={(params) => <TextField {...params} label="Location" className={classes.marginBottm} />}
-                />
+                    <Autocomplete
+                        onChange={(e, newValue) => setLocation(newValue.name as string)}
+                        {...defaultProps}
+                        id="debug"
+                        debug
+                        renderInput={(params) => <TextField {...params} label="Location" className={classes.marginBottm} />}
+                    />
 
 
-                <FormControl fullWidth className={classes.marginBottm}>
-                    <InputLabel id="demo-simple-select-label">Projects</InputLabel>
-                    <Select
-                        labelId="demo-simple-select-label"
-                        id="demo-simple-select"
-                        value={game}
-                        onChange={handleChange}
-                    >
-                        {
-                            projects.slice(1).map(el => <MenuItem value={el.project_id} key={el.project_id}>{el.name}</MenuItem>)
-                        }
-                    </Select>
-                </FormControl>
-                {
-                    (game && userRoleData.length === 0) && <DialogContentText className={classes.marginBottm}>  Don't have User Role for this Project? <a href="#h" className={classes.textLink} onClick={createUserRole}>Create One</a> <CreateUserRole />  </DialogContentText>
-                }
-                <FormControl fullWidth className={classes.marginBottm}>
-                    <InputLabel id="demo-simple-select-label">User Role</InputLabel>
-                    <Select
-                        labelId="demo-simple-select-label"
-                        id="demo-simple-select"
-                        value={status}
-                        disabled={userRoleData.length > 0 ? false : true}
-                        onChange={(e) => setStatus(e.target.value as string)}
-                    >
-                        {
-                            userRoleData.map((el, index) => <MenuItem value={el.role} key={`${el.role}_${index}`}>{el.role}</MenuItem>)
-                        }
-                    </Select>
-                </FormControl>
+                    <FormControl fullWidth className={classes.marginBottm}>
+                        <InputLabel id="demo-simple-select-label">Projects</InputLabel>
+                        <Select
+                            labelId="demo-simple-select-label"
+                            id="demo-simple-select"
+                            value={game}
+                            onChange={handleChange}
+                        >
+                            {
+                                projects.slice(1).map(el => <MenuItem value={el.project_id} key={el.project_id}>{el.name}</MenuItem>)
+                            }
+                        </Select>
+                    </FormControl>
+                    {
+                        game && <DialogContentText className={classes.marginBottm}>  Don't have User Role for this Project? <a href="#h" className={classes.textLink} onClick={createUserRole}>Create One</a>  </DialogContentText>
+                    }
+                    <FormControl fullWidth className={classes.marginBottm}>
+                        <InputLabel id="demo-simple-select-label">User Role</InputLabel>
+                        <Select
+                            labelId="demo-simple-select-label"
+                            id="demo-simple-select"
+                            value={status}
+                            disabled={userRoleData.length > 0 ? false : true}
+                            onChange={(e) => setStatus(e.target.value as string)}
+                        >
+                            {
+                                userRoleData.map((el, index) => <MenuItem value={el.role} key={`${el.role}_${index}`}>{el.role}</MenuItem>)
+                            }
+                        </Select>
+                    </FormControl>
 
-                <DialogActions>
-                    <Button onClick={handleClose} color="primary">
-                        Cancel
+                    <DialogActions>
+                        <Button onClick={handleClose(false)} color="primary">
+                            Cancel
                     </Button>
-                    <Button onClick={submitData} color="primary">
-                        Submit
+                        <Button onClick={submitData} color="primary">
+                            Submit
                     </Button>
-                </DialogActions>
+                    </DialogActions>
+                </Container>
             </Drawer>
+            <CreateUserRole
+                open={openCreateaUserRole}
+                handleClose={handleUserRoleClose}
+                projectName={game}
+            />
         </React.Fragment>
     );
 };

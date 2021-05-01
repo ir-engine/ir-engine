@@ -10,6 +10,9 @@ export default {
             properties: {
                 role: {
                     type: 'string'
+                },
+                project_id: {
+                    type: 'string'
                 }
             }
         },

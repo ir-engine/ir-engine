@@ -138,15 +138,13 @@ const Users = (props: Props) => {
         ) {
           return;
         }
+        console.log('====================================');
+        console.log(open);
+        console.log('====================================');
     
         setUserModalOpen(open);
         setUserEditing(false);
       };
-
-    const handleUserClose = () => {
-        setUserModalOpen(false);
-        setUserEditing(false);
-    };
 
 
     return (
