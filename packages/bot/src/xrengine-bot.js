@@ -64,9 +64,9 @@ class PageUtils {
  * @param {string} opt.name Name for the bot to appear as ({@link setName})
  * @see InBrowserBot
  */
-class XR3ngineBot {
+class XREngineBot {
     constructor({
-        name = "XR3ngineBot",
+        name = "XREngineBot",
         fakeMediaPath,
         headless = true,
         autoLog = true} = {}
@@ -311,4 +311,4 @@ class XR3ngineBot {
     }
 }
 
-module.exports = XR3ngineBot
+module.exports = XREngineBot

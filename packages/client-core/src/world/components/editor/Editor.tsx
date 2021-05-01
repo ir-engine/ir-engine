@@ -572,9 +572,9 @@ export class Editor extends EventEmitter {
       for (let i = 0; i < nodeDefs.length; i++) {
         const nodeDef = nodeDefs[i];
 
-        if (nodeDef.extras && nodeDef.extras.XR3_editor_uuid) {
-          uuidToIndexMap[nodeDef.extras.XR3_editor_uuid] = i;
-          delete nodeDef.extras.XR3_editor_uuid;
+        if (nodeDef.extras && nodeDef.extras.editor_uuid) {
+          uuidToIndexMap[nodeDef.extras.editor_uuid] = i;
+          delete nodeDef.extras.editor_uuid;
 
           if (isEmptyObject(nodeDef.extras)) {
             delete nodeDef.extras;

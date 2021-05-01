@@ -153,7 +153,7 @@ export default function EditorNodeMixin(Object3DClass) {
       return entityJson;
     }
     prepareForExport() {
-      this.userData.XR3_editor_uuid = this.uuid;
+      this.userData.editor_uuid = this.uuid;
       if (!this.visible) {
         this.addGLTFComponent("visible", {
           visible: this.visible

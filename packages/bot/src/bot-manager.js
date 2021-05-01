@@ -1,4 +1,4 @@
-const XR3ngineBot = require('./xrengine-bot');
+const XREngineBot = require('./xrengine-bot');
 const { BotActionType } = require('./bot-action');
 class BotManager {
     /**
@@ -24,7 +24,7 @@ class BotManager {
             return foundBot;
         }
 
-        const bot = new XR3ngineBot({
+        const bot = new XREngineBot({
             name, 
             ...this.options
         });
