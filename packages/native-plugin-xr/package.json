@@ -1,5 +1,5 @@
 {
-  "name": "@xr3ngine/native-plugin-xr",
+  "name": "@xrengine/native-plugin-xr",
   "version": "0.2.21",
   "description": "Native XR and camera services inside any capacitor app",
   "main": "dist/plugin.js",
@@ -59,11 +59,11 @@
   "swiftlint": "@ionic/swiftlint-config",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/xr3ngine/xr3ngine.git"
+    "url": "git+https://github.com/XRFoundation/XREngine.git"
   },
   "bugs": {
-    "url": "https://github.com/xr3ngine/xr3ngine/issues"
+    "url": "https://github.com/XRFoundation/XREngine/issues"
   },
-  "homepage": "https://github.com/xr3ngine/xr3ngine#readme",
+  "homepage": "https://github.com/XRFoundation/XREngine#readme",
   "gitHead": "5ff55be1619e188226c4ac91c92a44b7ba18edf4"
 }

@@ -1,6 +1,6 @@
 import config from '../../appconfig';
 import { entitySeed } from "../entity/entity.seed";
-import { defaultPostProcessingSchema } from "@xr3ngine/engine/src/scene/classes/PostProcessing";
+import { defaultPostProcessingSchema } from "@xrengine/engine/src/scene/classes/PostProcessing";
 
 export const componentSeed = {
   disabled: !config.db.forceRefresh,

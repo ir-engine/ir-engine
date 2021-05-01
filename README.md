@@ -1,10 +1,10 @@
 
-![xr3ngine](https://github.com/xr3ngine/xr3ngine/raw/dev/xrengine%20black.png)
+![xrengine](https://github.com/XRFoundation/XREngine/raw/dev/xrengine%20black.png)
 
 #### [Join our Discord](https://discord.gg/Tb4MT4TTjH)  
 [![Discord Chat](https://img.shields.io/discord/692672143053422678.svg)](https://discord.gg/Tb4MT4TTjH)  
 
-[![Build Status](https://travis-ci.org/xr3ngine/xr3ngine.svg?branch=dev)](https://travis-ci.org/xr3ngine/xr3ngine)  
+[![Build Status](https://travis-ci.org/xrengine/xrengine.svg?branch=dev)](https://travis-ci.org/xrengine/xrengine)  
 
 ## [Link to Full Documentation](https://xrfoundation.github.io/xrengine-docs/docs/)
 
@@ -41,7 +41,7 @@ First, make sure you have [NodeJS](https://nodejs.org/) and [npm](https://www.np
 
 #### 1.  Install your dependencies 
     ```
-    cd path/to/xr3ngine
+    cd path/to/xrengine
     yarn install
     ```
     Error with mediasoup? Optional: https://mediasoup.org/documentation/v3/mediasoup/installation/
@@ -62,7 +62,7 @@ First, make sure you have [NodeJS](https://nodejs.org/) and [npm](https://www.np
     This creates a Docker container of mariadb named xr3ngine_db. You must have docker installed on your machine for this script to work.
     If you do not have Docker installed and do not wish to install it, you'll have to manually create a MariaDB server.
    
-   The default username is 'server', the default password is 'password', the default database name is 'xr3ngine', the default hostname is '127.0.0.1', and the default port is '3306'.
+   The default username is 'server', the default password is 'password', the default database name is 'xrengine', the default hostname is '127.0.0.1', and the default port is '3306'.
    
    Seeing errors connecting to the local DB? Shut off your local firewall.
 #### 3. Have redis installed and running
@@ -92,8 +92,8 @@ First, make sure you have [NodeJS](https://nodejs.org/) and [npm](https://www.np
    ```./sdk-server.darwin.amd64 --local```
 
 #### 5. Obtain .env.local file with configuration variable.
-   Many parts of XR3ngine are configured using environment variables.
-   For simplicity, it's recommended that you create a file called ```.env.local``` in the top level of xr3ngine,
+   Many parts of XREngine are configured using environment variables.
+   For simplicity, it's recommended that you create a file called ```.env.local``` in the top level of xrengine,
    and have all of your ENV_VAR definitions here in the form ```<VAR_NAME>=<VALUE>```.
    If you are actively working on this project, contact one of the developers for a copy of the file
    that has all of the development settings and keys in it.
@@ -184,9 +184,9 @@ password
 mysql -uroot -ppassword
 mysql -userver -ppassword
 
-create database xr3ngine;
+create database xrengine;
 create user 'server'@'127.0.0.1' identified by 'password';
-grant all on xr3ngine.* to 'server'@'127.0.0.1';
+grant all on xrengine.* to 'server'@'127.0.0.1';
 
 show databases;
 
@@ -197,7 +197,7 @@ mysql.server stop
 
 #### Invalid Certificate errors in local environment
 
-As of this writing, the cert provided in the xr3ngine package for local use
+As of this writing, the cert provided in the xrengine package for local use
 is not adequately signed. Browsers will throw up warnings about going to insecure pages.
 You should be able to tell the browser to ignore it, usually by clicking on some sort
 of 'advanced options' button or link and then something along the lines of 'go there anyway'.
@@ -301,13 +301,13 @@ Test user Admin privliges by going to `/admin`
 
 # Deployment
 
-[AWS EKS Deployment](https://github.com/xr3ngine/xr3ngine/blob/dev/packages/ops/docs/EKS-setup.md)
+[AWS EKS Deployment](https://github.com/XRFoundation/XREngine/blob/dev/packages/ops/docs/EKS-setup.md)
 
-[Managing Kubernets](https://github.com/xr3ngine/xr3ngine/blob/dev/packages/ops/docs/managing_remote_kubernets.md)
+[Managing Kubernets](https://github.com/XRFoundation/XREngine/blob/dev/packages/ops/docs/managing_remote_kubernets.md)
 
-[Managing Helm Charts](https://github.com/xr3ngine/xr3ngine/blob/dev/packages/ops/docs/release-helm-chart.md)
+[Managing Helm Charts](https://github.com/XRFoundation/XREngine/blob/dev/packages/ops/docs/release-helm-chart.md)
 
-[Cloudformation Scripts](https://github.com/xr3ngine/xr3ngine/blob/dev/packages/ops/xr3-cloudformation)
+[Cloudformation Scripts](https://github.com/XRFoundation/XREngine/blob/dev/packages/ops/xr3-cloudformation)
 
 ## Testing
 
@@ -322,10 +322,10 @@ Simply run `yarn test` and all your tests in the `test/` directory will be run.
 You can run it using docker, if you don't have node installed or need to test.
 ``` bash
 # Build the image
-docker build --tag xr3ngine .
+docker build --tag xrengine .
 
 # Run the image (deletes itself when you close it)
-docker run -d --rm --name server -e "MYSQL_URL=mysql://server:password@db:3306/xr3ngine" -p "3030:3030"  xr3ngine
+docker run -d --rm --name server -e "MYSQL_URL=mysql://server:password@db:3306/xrengine" -p "3030:3030"  xrengine
 
 # Stop the server
 docker stop server
@@ -348,7 +348,7 @@ so that you don't need to push the Docker image to an external repository. Run t
 For now, this process will use a separate Dockerfile called 'Dockerfile-dev'. You'll have to build the image using
 it by running the following command:
 
-```docker build -t xr3ngine/xr3ngine:v0.0.0 -f Dockerfile-dev .```
+```docker build -t xrengine/xrengine:v0.0.0 -f Dockerfile-dev .```
 
 Once that image is built, make sure that kubectl is pointed to minikube.
 Run ```kubectl config get-contexts``` and there should be a '*' next to minikube; alternatively, run 
@@ -359,20 +359,20 @@ You'll need to deploy two Kustomize scripts to Minikube.
 The first one is the nginx-ingress setup.
 Run ```kubectl apply -k kubernetes/nginx/base```.
 
-You'll need to have a file called 'xr3ngine-dev-secrets.env' in kubernetes/xr3ngine/base.
+You'll need to have a file called 'xrengine-dev-secrets.env' in kubernetes/xrengine/base.
 This is in the gitignore to demonstrate that these sorts of files should never be committed.
-The production one is expected to be called 'xr3ngine-secrets.env' and is also in the gitignore.
+The production one is expected to be called 'xrengine-secrets.env' and is also in the gitignore.
 As these are very sensitive files, they should be transmitted to you securely.
 
-Finally run ```kubectl apply -k kubernetes/xr3ngine/base``` to deploy the MariaDB server and xr3ngine.
-The server is set up in dev mode to be behind the domain 'api.dev.xr3ngine.dev' and is secured by a self-signed certificate.
+Finally run ```kubectl apply -k kubernetes/xrengine/base``` to deploy the MariaDB server and xrengine.
+The server is set up in dev mode to be behind the domain 'api.dev.xrengine.dev' and is secured by a self-signed certificate.
 If you wanted to call one of the endpoints with curl, you could run the following and get a 401 error: 
-```curl https://192.168.99.109/user -H HOST:api.dev.xr3ngine.dev --insecure```
+```curl https://192.168.99.109/user -H HOST:api.dev.xrengine.dev --insecure```
 
-NOTE: As of this writing, the MariaDB server sometimes finishes initializing after xr3ngine has already tried to
-connect to it. To reboot xr3ngine, run the following:
+NOTE: As of this writing, the MariaDB server sometimes finishes initializing after xrengine has already tried to
+connect to it. To reboot xrengine, run the following:
 
-```kubectl rollout restart -n xr3ngine deployments/xr3ngine```
+```kubectl rollout restart -n xrengine deployments/xrengine```
 
 
 ### SMTP Testing

@@ -25,9 +25,9 @@ import {
   USER_UPDATED,
   AVATAR_FETCHED,
 } from '../actions';
-import { AuthUser } from '@xr3ngine/common/src/interfaces/AuthUser';
-import { User } from '@xr3ngine/common/src/interfaces/User';
-import { IdentityProvider } from '@xr3ngine/common/src/interfaces/IdentityProvider';
+import { AuthUser } from '@xrengine/common/src/interfaces/AuthUser';
+import { User } from '@xrengine/common/src/interfaces/User';
+import { IdentityProvider } from '@xrengine/common/src/interfaces/IdentityProvider';
 
 export interface EmailLoginForm {
   email: string;

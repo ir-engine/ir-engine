@@ -6,16 +6,16 @@ import {
   People,
   PersonAdd
 } from '@material-ui/icons';
-import { Network } from "@xr3ngine/engine/src/networking/classes/Network";
+import { Network } from "@xrengine/engine/src/networking/classes/Network";
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
-import { selectAuthState } from '@xr3ngine/client-core/src/user/reducers/auth/selector';
-import { selectChatState } from '@xr3ngine/client-core/src/social/reducers/chat/selector';
+import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector';
+import { selectChatState } from '@xrengine/client-core/src/social/reducers/chat/selector';
 import {
   updateMessageScrollInit
-} from '@xr3ngine/client-core/src/social/reducers/chat/service';
-import { selectLocationState } from '@xr3ngine/client-core/src/social/reducers/location/selector';
-import { selectPartyState } from '@xr3ngine/client-core/src/social/reducers/party/selector';
+} from '@xrengine/client-core/src/social/reducers/chat/service';
+import { selectLocationState } from '@xrengine/client-core/src/social/reducers/location/selector';
+import { selectPartyState } from '@xrengine/client-core/src/social/reducers/party/selector';
 // @ts-ignore
 // @ts-ignore
 import styles from './DrawerControls.module.scss';

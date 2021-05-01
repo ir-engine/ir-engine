@@ -16,7 +16,7 @@ import { TransformComponent } from "../../src/transform/components/TransformComp
 import { getComponent, hasComponent } from "../../src/ecs/functions/EntityFunctions";
 import { CharacterComponent } from "../../src/templates/character/components/CharacterComponent";
 import { WorldStateModel } from "../../src/networking/schema/worldStateSchema";
-import { BaseInput } from '@xr3ngine/engine/src/input/enums/BaseInput';
+import { BaseInput } from '@xrengine/engine/src/input/enums/BaseInput';
 import { LifecycleValue } from "../../src/common/enums/LifecycleValue";
 import { BinaryValue } from "../../src/common/enums/BinaryValue";
 import { createRemoteUserOnClient } from "../_helpers/createRemoteUserOnClient";

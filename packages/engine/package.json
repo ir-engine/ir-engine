@@ -1,25 +1,25 @@
 {
   "author": {
-    "name": "XR3ngine",
+    "name": "XREngine",
     "email": "shawmakesmagic@gmail.com",
-    "url": "http://github.com/xr3ngine"
+    "url": "http://github.com/XRFoundation"
   },
   "bugs": {
-    "url": "https://github.com/xr3ngine/xr3ngine/issues"
+    "url": "https://github.com/XRFoundation/XREngine/issues"
   },
-  "name": "@xr3ngine/engine",
+  "name": "@xrengine/engine",
   "publishConfig": {
     "access": "public"
   },
   "description": "A declarative way to build 3D/VR/AR/XR apps that scale. Built with tooling web developers will love, using conventions that game developers and creative coders will find straightforward familiar.",
-  "homepage": "https://github.com/xr3ngine/xr3ngine#readme",
+  "homepage": "https://github.com/XRFoundation/XREngine#readme",
   "license": "MIT",
   "main": "index.ts",
   "module": "dist/engine.js",
   "types": "dist/engine/index.d.ts",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/xr3ngine/xr3ngine.git"
+    "url": "git+https://github.com/XRFoundation/XREngine.git"
   },
   "scripts": {
     "check-errors": "tsc --noemit",
@@ -38,8 +38,8 @@
   },
   "dependencies": {
     "@pixiv/three-vrm": "^0.6.0",
-    "@xr3ngine/common": "^0.2.21",
-    "@xr3ngine/volumetric": "^0.2.21",
+    "@xrengine/common": "^0.2.21",
+    "@xrengine/volumetric": "^0.2.21",
     "browserfs": "^1.4.3",
     "cross-fetch": "^3.0.6",
     "ctix": "^0.3.1",

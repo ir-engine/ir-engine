@@ -1,5 +1,5 @@
 charts:
-  - name: xr3ngine
+  - name: xrengine
     repo:
-      git: xr3ngine/xrsocial-ops
+      git: xrengine/xrsocial-ops
       published: https://helm.xrengine.io

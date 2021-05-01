@@ -1,6 +1,6 @@
 import React from 'react';
 import { Route, Switch, Redirect } from 'react-router-dom';
-import { Config } from '@xr3ngine/client-core/src/helper';
+import { Config } from '@xrengine/client-core/src/helper';
 
 export const RouterComp = () => {
     return (

@@ -2,10 +2,10 @@
 import Fuse from "fuse.js";
 import { BaseSource } from "./sources";
 import { ItemTypes } from "../dnd";
-import ImageNode from "@xr3ngine/engine/src/editor/nodes/ImageNode";
-import VideoNode from "@xr3ngine/engine/src/editor/nodes/VideoNode";
-import ModelNode from "@xr3ngine/engine/src/editor/nodes/ModelNode";
-import VolumetricNode from "@xr3ngine/engine/src/editor/nodes/VolumetricNode";
+import ImageNode from "@xrengine/engine/src/editor/nodes/ImageNode";
+import VideoNode from "@xrengine/engine/src/editor/nodes/VideoNode";
+import ModelNode from "@xrengine/engine/src/editor/nodes/ModelNode";
+import VolumetricNode from "@xrengine/engine/src/editor/nodes/VolumetricNode";
 function hasTags(result, tags) {
   for (const { value } of tags) {
     if (result.tags.indexOf(value) === -1) {

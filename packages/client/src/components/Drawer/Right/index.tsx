@@ -25,14 +25,14 @@ import {
     PhoneIphone,
     SupervisedUserCircle
 } from '@material-ui/icons';
-import { selectAuthState } from '@xr3ngine/client-core/src/user/reducers/auth/selector';
-import { selectFriendState } from '@xr3ngine/client-core/src/social/reducers/friend/selector';
-import { getFriends } from '@xr3ngine/client-core/src/social/reducers/friend/service';
-import { selectGroupState } from '@xr3ngine/client-core/src/social/reducers/group/selector';
+import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector';
+import { selectFriendState } from '@xrengine/client-core/src/social/reducers/friend/selector';
+import { getFriends } from '@xrengine/client-core/src/social/reducers/friend/service';
+import { selectGroupState } from '@xrengine/client-core/src/social/reducers/group/selector';
 import {
     getInvitableGroups
-} from '@xr3ngine/client-core/src/social/reducers/group/service';
-import { selectInviteState } from '@xr3ngine/client-core/src/social/reducers/invite/selector';
+} from '@xrengine/client-core/src/social/reducers/group/service';
+import { selectInviteState } from '@xrengine/client-core/src/social/reducers/invite/selector';
 import {
     acceptInvite,
     declineInvite,
@@ -41,17 +41,17 @@ import {
     retrieveSentInvites,
     sendInvite,
     updateInviteTarget
-} from '@xr3ngine/client-core/src/social/reducers/invite/service';
-import { selectLocationState } from '@xr3ngine/client-core/src/social/reducers/location/selector';
-import { getLocations } from '@xr3ngine/client-core/src/social/reducers/location/service';
-import { User } from '@xr3ngine/common/src/interfaces/User';
+} from '@xrengine/client-core/src/social/reducers/invite/service';
+import { selectLocationState } from '@xrengine/client-core/src/social/reducers/location/selector';
+import { getLocations } from '@xrengine/client-core/src/social/reducers/location/service';
+import { User } from '@xrengine/common/src/interfaces/User';
 import classNames from 'classnames';
 import _ from 'lodash';
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 import { provisionInstanceServer } from '../../../reducers/instanceConnection/service';
-import { selectPartyState } from '@xr3ngine/client-core/src/social/reducers/party/selector';
+import { selectPartyState } from '@xrengine/client-core/src/social/reducers/party/selector';
 //@ts-ignore
 // @ts-ignore
 import styles from './Right.module.scss';

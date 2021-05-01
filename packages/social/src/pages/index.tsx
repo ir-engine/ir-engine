@@ -3,22 +3,22 @@ import React, { useEffect, useState } from "react";
 import { connect } from "react-redux";
 import { bindActionCreators, Dispatch } from "redux";
 
-import AppHeader from "@xr3ngine/client-core/src/socialmedia/components/Header";
-import FeedMenu from "@xr3ngine/client-core/src/socialmedia/components/FeedMenu";
-import AppFooter from "@xr3ngine/client-core/src/socialmedia/components/Footer";
-import { selectCreatorsState } from "@xr3ngine/client-core/src/socialmedia/reducers/creator/selector";
-// import {Stories} from '@xr3ngine/client-core/src/socialmedia/components/Stories';
-import { selectAuthState } from "@xr3ngine/client-core/src/user/reducers/auth/selector";
-import { User } from "@xr3ngine/common/src/interfaces/User";
-import { doLoginAuto } from "@xr3ngine/client-core/src/user/reducers/auth/service";
-import { createCreator } from "@xr3ngine/client-core/src/socialmedia/reducers/creator/service";
+import AppHeader from "@xrengine/client-core/src/socialmedia/components/Header";
+import FeedMenu from "@xrengine/client-core/src/socialmedia/components/FeedMenu";
+import AppFooter from "@xrengine/client-core/src/socialmedia/components/Footer";
+import { selectCreatorsState } from "@xrengine/client-core/src/socialmedia/reducers/creator/selector";
+// import {Stories} from '@xrengine/client-core/src/socialmedia/components/Stories';
+import { selectAuthState } from "@xrengine/client-core/src/user/reducers/auth/selector";
+import { User } from "@xrengine/common/src/interfaces/User";
+import { doLoginAuto } from "@xrengine/client-core/src/user/reducers/auth/service";
+import { createCreator } from "@xrengine/client-core/src/socialmedia/reducers/creator/service";
 
-import CreatorPopup from "@xr3ngine/client-core/src/socialmedia/components/popups/CreatorPopup";
-import FeedPopup from "@xr3ngine/client-core/src/socialmedia/components/popups/FeedPopup";
-import CreatorFormPopup from "@xr3ngine/client-core/src/socialmedia/components/popups/CreatorFormPopup";
-import ArMediaPopup from "@xr3ngine/client-core/src/socialmedia/components/popups/ArMediaPopup";
-import FeedFormPopup from "@xr3ngine/client-core/src/socialmedia/components/popups/FeedFormPopup";
-import SharedFormPopup from "@xr3ngine/client-core/src/socialmedia/components/popups/SharedFormPopup";
+import CreatorPopup from "@xrengine/client-core/src/socialmedia/components/popups/CreatorPopup";
+import FeedPopup from "@xrengine/client-core/src/socialmedia/components/popups/FeedPopup";
+import CreatorFormPopup from "@xrengine/client-core/src/socialmedia/components/popups/CreatorFormPopup";
+import ArMediaPopup from "@xrengine/client-core/src/socialmedia/components/popups/ArMediaPopup";
+import FeedFormPopup from "@xrengine/client-core/src/socialmedia/components/popups/FeedFormPopup";
+import SharedFormPopup from "@xrengine/client-core/src/socialmedia/components/popups/SharedFormPopup";
 
 // @ts-ignore
 import styles from './index.module.scss';

@@ -2,7 +2,7 @@
 <FrameLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.xr3ngine.xr.CameraActivity"
+    tools:context="com.xrengine.xr.CameraActivity"
     android:id="@+id/frame_container"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"

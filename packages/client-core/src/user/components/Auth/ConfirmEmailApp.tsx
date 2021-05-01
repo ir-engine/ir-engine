@@ -7,7 +7,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 import { resendVerificationEmail } from '../../reducers/auth/service';
 import { selectAuthState } from '../../reducers/auth/selector';
-import { IdentityProvider } from '@xr3ngine/common/src/interfaces/IdentityProvider';
+import { IdentityProvider } from '@xrengine/common/src/interfaces/IdentityProvider';
 import CardMedia from '@material-ui/core/CardMedia';
 import { Trans, useTranslation } from "react-i18next";
 

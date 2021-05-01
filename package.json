@@ -1,6 +1,6 @@
 {
-  "name": "xr3ngine",
-  "description": "Game Engine, Server & Devops powering The XR3ngine",
+  "name": "xrengine",
+  "description": "Game Engine, Server & Devops powering The XREngine",
   "version": "0.2.5",
   "homepage": "lagunalabs.io",
   "private": true,
@@ -40,16 +40,16 @@
   "npmClient": "yarn",
   "jest": "ts-jest",
   "scripts": {
-    "check-errors": "lerna run check-errors --ignore @xr3ngine/server --ignore @xr3ngine/server-core --parallel",
+    "check-errors": "lerna run check-errors --ignore @xrengine/server --ignore @xrengine/server-core --parallel",
     "start": "yarn run dev",
     "dev": "lerna run dev --parallel",
     "test": "jest",
-    "lint": "lerna run --ignore @xr3ngine/bot lint",
+    "lint": "lerna run --ignore @xrengine/bot lint",
     "version-increment": "lerna version --conventional-commits --yes",
     "publish": "lerna publish from-package --yes",
     "validate": "lerna run validate",
     "build": "lerna run build --parallel",
-    "build-docker": "lerna run --ignore @xr3ngine/bot --ignore @xr3ngine/client-ml --ignore @xr3ngine/docs --ignore @xr3ngine/engine --ignore @xr3ngine/native-plugin-example --ignore @xr3ngine/native-plugin-xr build --parallel",
+    "build-docker": "lerna run --ignore @xrengine/bot --ignore @xrengine/client-ml --ignore @xrengine/docs --ignore @xrengine/engine --ignore @xrengine/native-plugin-example --ignore @xrengine/native-plugin-xr build --parallel",
     "diff": "lerna diff"
   },
   "types": "lib/",

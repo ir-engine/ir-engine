@@ -9,7 +9,7 @@ import ErrorDialog from "../dialogs/ErrorDialog";
 import { withDialog } from "../contexts/DialogContext";
 import { withSettings } from "../contexts/SettingsContext";
 import { ShoePrints } from "@styled-icons/fa-solid/ShoePrints";
-import FloorPlanNode from "@xr3ngine/engine/src/editor/nodes/FloorPlanNode";
+import FloorPlanNode from "@xrengine/engine/src/editor/nodes/FloorPlanNode";
 import i18n from "i18next";
 import { withTranslation } from "react-i18next";
 

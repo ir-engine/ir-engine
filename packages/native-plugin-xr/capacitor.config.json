@@ -1,6 +1,6 @@
 {
-  "appId": "com.xr3ngine.xr",
-  "appName": "@xr3ngine/native-plugin-xr",
+  "appId": "com.xrengine.xr",
+  "appName": "@xrengine/native-plugin-xr",
   "bundledWebRuntime": false,
   "npmClient": "yarn",
   "webDir": "www",

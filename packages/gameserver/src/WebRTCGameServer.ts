@@ -1,7 +1,7 @@
-import { initializeServer } from "@xr3ngine/engine/src/initializeServer";
-import { DefaultNetworkSchema } from "@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema";
+import { initializeServer } from "@xrengine/engine/src/initializeServer";
+import { DefaultNetworkSchema } from "@xrengine/engine/src/templates/networking/DefaultNetworkSchema";
 import { SocketWebRTCServerTransport } from "./SocketWebRTCServerTransport";
-import config from '@xr3ngine/server-core/src/appconfig';
+import config from '@xrengine/server-core/src/appconfig';
 
 const networkSchema = {
   ...DefaultNetworkSchema,

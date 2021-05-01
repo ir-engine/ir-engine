@@ -1,7 +1,7 @@
 import express from '@feathersjs/express';
 import feathers from '@feathersjs/feathers';
 import socketio from '@feathersjs/socketio';
-import authentication from '@xr3ngine/server-core/src/user/authentication';
+import authentication from '@xrengine/server-core/src/user/authentication';
 import channels from './channels';
 import compress from 'compression';
 import cors from 'cors';
@@ -11,15 +11,15 @@ import swagger from 'feathers-swagger';
 import sync from 'feathers-sync';
 import fs from 'fs';
 import helmet from 'helmet';
-import { api } from '@xr3ngine/server-core/src/k8s';
+import { api } from '@xrengine/server-core/src/k8s';
 import path from 'path';
 import favicon from 'serve-favicon';
 import winston from 'winston';
-import config from '@xr3ngine/server-core/src/appconfig';
-import { Application } from '@xr3ngine/server-core/declarations';
-import logger from '@xr3ngine/server-core/src/logger';
-import sequelize from '@xr3ngine/server-core/src/sequelize';
-import services from '@xr3ngine/server-core/src/services';
+import config from '@xrengine/server-core/src/appconfig';
+import { Application } from '@xrengine/server-core/declarations';
+import logger from '@xrengine/server-core/src/logger';
+import sequelize from '@xrengine/server-core/src/sequelize';
+import services from '@xrengine/server-core/src/services';
 
 const emitter = new EventEmitter();
 
@@ -37,8 +37,8 @@ if (config.server.enabled) {
           // TODO: Relate to server config, don't hardcode this here
           specs: {
             info: {
-              title: 'XR3ngine API Surface',
-              description: 'APIs for the XR3ngine application',
+              title: 'XREngine API Surface',
+              description: 'APIs for the XREngine application',
               version: '1.0.0'
             },
             schemes:['https'],

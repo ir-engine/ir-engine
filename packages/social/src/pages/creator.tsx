@@ -1,7 +1,7 @@
 
 import React from "react";
-import AppFooter from "@xr3ngine/client-core/src/socialmedia/components/Footer";
-import Creator from "@xr3ngine/client-core/src/socialmedia/components/Creator";
+import AppFooter from "@xrengine/client-core/src/socialmedia/components/Footer";
+import Creator from "@xrengine/client-core/src/socialmedia/components/Creator";
 
 import { useLocation } from "react-router-dom";
 

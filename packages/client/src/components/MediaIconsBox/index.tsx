@@ -8,10 +8,10 @@ import {
 import FaceIcon from '@material-ui/icons/Face';
 import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
-import { selectAppOnBoardingStep } from "@xr3ngine/client-core/src/common/reducers/app/selector";
+import { selectAppOnBoardingStep } from "@xrengine/client-core/src/common/reducers/app/selector";
 // @ts-ignore
 import styles from './MediaIconsBox.module.scss';
-import { MediaStreamSystem } from "@xr3ngine/engine/src/networking/systems/MediaStreamSystem";
+import { MediaStreamSystem } from "@xrengine/engine/src/networking/systems/MediaStreamSystem";
 import {
     configureMediaTransports,
     createCamAudioProducer,
@@ -20,20 +20,20 @@ import {
     pauseProducer,
     resumeProducer
 } from "../../transports/SocketWebRTCClientFunctions";
-import { selectAuthState } from "@xr3ngine/client-core/src/user/reducers/auth/selector";
-import { selectLocationState } from "@xr3ngine/client-core/src/social/reducers/location/selector";
+import { selectAuthState } from "@xrengine/client-core/src/user/reducers/auth/selector";
+import { selectLocationState } from "@xrengine/client-core/src/social/reducers/location/selector";
 import { updateCamAudioState, updateCamVideoState, changeFaceTrackingState } from "../../reducers/mediastream/service";
 import {
     startFaceTracking,
     startLipsyncTracking,
     stopFaceTracking,
     stopLipsyncTracking
-} from "@xr3ngine/engine/src/input/behaviors/WebcamInputBehaviors";
-import { Network } from "@xr3ngine/engine/src/networking/classes/Network";
-import { VrIcon } from "@xr3ngine/client-core/src/common/components/Icons/Vricon";
-import { Engine } from "@xr3ngine/engine/src/ecs/classes/Engine";
-import { EngineEvents } from "@xr3ngine/engine/src/ecs/classes/EngineEvents";
-import { XRSystem } from "@xr3ngine/engine/src/xr/systems/XRSystem";
+} from "@xrengine/engine/src/input/behaviors/WebcamInputBehaviors";
+import { Network } from "@xrengine/engine/src/networking/classes/Network";
+import { VrIcon } from "@xrengine/client-core/src/common/components/Icons/Vricon";
+import { Engine } from "@xrengine/engine/src/ecs/classes/Engine";
+import { EngineEvents } from "@xrengine/engine/src/ecs/classes/EngineEvents";
+import { XRSystem } from "@xrengine/engine/src/xr/systems/XRSystem";
 
 const mapStateToProps = (state: any): any => {
     return {

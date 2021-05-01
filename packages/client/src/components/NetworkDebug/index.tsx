@@ -1,9 +1,9 @@
-import { Engine } from "@xr3ngine/engine/src/ecs/classes/Engine";
-import { DebugHelpersSystem } from "@xr3ngine/engine/src/debug/systems/DebugHelpersSystem";
-import { Network } from "@xr3ngine/engine/src/networking/classes/Network";
+import { Engine } from "@xrengine/engine/src/ecs/classes/Engine";
+import { DebugHelpersSystem } from "@xrengine/engine/src/debug/systems/DebugHelpersSystem";
+import { Network } from "@xrengine/engine/src/networking/classes/Network";
 import React, { useEffect, useRef, useState } from "react";
 import JSONTree from 'react-json-tree';
-import { EngineEvents } from "@xr3ngine/engine/src/ecs/classes/EngineEvents";
+import { EngineEvents } from "@xrengine/engine/src/ecs/classes/EngineEvents";
 
 export const NetworkDebug = () => {
   const [isShowing, setShowing] = useState(false);

@@ -1,9 +1,9 @@
 {
-  "name": "@xr3ngine/volumetric",
+  "name": "@xrengine/volumetric",
   "version": "0.2.21",
   "repository": {
     "type": "git",
-    "url": "git://github.com/xr3ngine/xr3ngine.git"
+    "url": "git://github.com/XRFoundation/XREngine.git"
   },
   "engines": {
     "yarn": ">= 0.18.0"
@@ -18,16 +18,16 @@
   "license": "MIT",
   "type": "module",
   "bugs": {
-    "url": "https://github.com/xr3ngine/three-volumetric/issues"
+    "url": "https://github.com/XRFoundation/three-volumetric/issues"
   },
-  "homepage": "https://github.com/xr3ngine/xr3ngine/packages/volumetric#readme",
+  "homepage": "https://github.com/XRFoundation/XREngine/packages/volumetric#readme",
   "devDependencies": {
     "@babel/cli": "7.13.16",
     "@babel/core": "7.14.0",
     "@types/three": "0.127.1"
   },
   "dependencies": {
-    "@xr3ngine/engine": "^0.2.21",
+    "@xrengine/engine": "^0.2.21",
     "three": "0.128.0",
     "xmlhttprequest": "1.8.0"
   },

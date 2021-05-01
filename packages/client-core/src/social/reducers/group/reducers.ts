@@ -11,7 +11,7 @@ import {
 } from './actions';
 
 import _ from 'lodash';
-import {GroupUser} from "@xr3ngine/common/src/interfaces/GroupUser";
+import {GroupUser} from "@xrengine/common/src/interfaces/GroupUser";
 import { LOADED_GROUPS, LOADED_INVITABLE_GROUPS, CREATED_GROUP, PATCHED_GROUP, REMOVED_GROUP, INVITED_GROUP_USER, LEFT_GROUP, FETCHING_GROUPS, FETCHING_INVITABLE_GROUPS, CREATED_GROUP_USER, PATCHED_GROUP_USER, REMOVED_GROUP_USER } from '../actions';
 
 export const initialGroupState = {

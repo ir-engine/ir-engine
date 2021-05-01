@@ -1,10 +1,10 @@
 {
-  "name": "@xr3ngine/native-plugin-example",
+  "name": "@xrengine/native-plugin-example",
   "version": "0.2.21",
   "private": true,
   "repository": {
     "type": "git",
-    "url": "git://github.com/xr3ngine/xr3ngine.git"
+    "url": "git://github.com/XRFoundation/XREngine.git"
   },
   "engines": {
     "yarn": ">= 0.18.0"
@@ -32,7 +32,7 @@
     "@capacitor/android": "2.4.7",
     "@capacitor/cli": "2.4.7",
     "@capacitor/ios": "2.4.7",
-    "@xr3ngine/native-plugin-xr": "^0.2.21",
+    "@xrengine/native-plugin-xr": "^0.2.21",
     "react": "17.0.2"
   },
   "devDependencies": {

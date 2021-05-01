@@ -1,9 +1,9 @@
-import { CAM_VIDEO_SIMULCAST_ENCODINGS } from "@xr3ngine/engine/src/networking/constants/VideoConstants";
-import { MessageTypes } from "@xr3ngine/engine/src/networking/enums/MessageTypes";
-import { MediaStreamSystem } from "@xr3ngine/engine/src/networking/systems/MediaStreamSystem";
+import { CAM_VIDEO_SIMULCAST_ENCODINGS } from "@xrengine/engine/src/networking/constants/VideoConstants";
+import { MessageTypes } from "@xrengine/engine/src/networking/enums/MessageTypes";
+import { MediaStreamSystem } from "@xrengine/engine/src/networking/systems/MediaStreamSystem";
 import { DataProducer, Transport as MediaSoupTransport } from "mediasoup-client/lib/types";
-import { EngineEvents } from "@xr3ngine/engine/src/ecs/classes/EngineEvents";
-import { Network } from "@xr3ngine/engine/src/networking/classes/Network";
+import { EngineEvents } from "@xrengine/engine/src/ecs/classes/EngineEvents";
+import { Network } from "@xrengine/engine/src/networking/classes/Network";
 
 let networkTransport: any;
 

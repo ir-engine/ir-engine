@@ -1,5 +1,5 @@
 import { Capacitor, Plugins } from '@capacitor/core';
-import "@xr3ngine/native-plugin-xr/src/index.ts";
+import "@xrengine/native-plugin-xr/src/index.ts";
 import React, { useEffect, useState } from 'react';
 import {
     AxesHelper,
