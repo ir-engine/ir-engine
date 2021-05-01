@@ -7,7 +7,7 @@ import ArMedia from "../../ArMedia";
 import SharedModal from "../../SharedModal";
 
 //@ts-ignore
-import styles from './ArMediaPopup.module.scss'
+import styles from './ArMediaPopup.module.scss';
 
 const mapStateToProps = (state: any): any => {
     return {
@@ -39,6 +39,6 @@ const renderArMediaModal = () =>
 const arMediaState = popupsState?.get('arMedia');
 useEffect(()=>{renderArMediaModal();}, [arMediaState]);
     return  renderArMediaModal();         
-}
+};
 
 export default connect(mapStateToProps, mapDispatchToProps)(ArMediaPopup);

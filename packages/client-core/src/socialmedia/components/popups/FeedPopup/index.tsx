@@ -8,7 +8,7 @@ import AppFooter from "../../Footer";
 import Feed from "../../Feed";
 
 //@ts-ignore
-import styles from './FeedPopup.module.scss'
+import styles from './FeedPopup.module.scss';
 
 const mapStateToProps = (state: any): any => {
     return {
@@ -41,6 +41,6 @@ export const FeedPopup = ({popupsState, updateFeedPageState}: Props) =>{
         </SharedModal>;
   useEffect(()=>{renderFeedModal();}, [feedPageState,feedId]);
     return  renderFeedModal();         
-}
+};
 
 export default connect(mapStateToProps, mapDispatchToProps)(FeedPopup);

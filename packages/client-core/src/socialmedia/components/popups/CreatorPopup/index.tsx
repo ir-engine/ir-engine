@@ -8,7 +8,7 @@ import SharedModal from "../../SharedModal";
 import AppFooter from "../../Footer";
 
 //@ts-ignore
-import styles from './CreatorPopup.module.scss'
+import styles from './CreatorPopup.module.scss';
 
 const mapStateToProps = (state: any): any => {
     return {
@@ -40,6 +40,6 @@ export const CreatorPopup = ({popupsState, updateCreatorPageState}: Props) =>{
             </SharedModal>;
     useEffect(()=> {renderCreatorModal();}, [creatorPageState, creatorId]);
     return  renderCreatorModal();         
-}
+};
 
 export default connect(mapStateToProps, mapDispatchToProps)(CreatorPopup);

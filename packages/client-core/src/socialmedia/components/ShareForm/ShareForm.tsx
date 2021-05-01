@@ -51,7 +51,7 @@ const ShareForm = ({updateShareFormState}:Props) => {
         url: 'http://arcmedia.us/',
         dialogTitle: 'Share with buddies'
       });
-   }
+   };
 
    return  (
     <div>
@@ -70,10 +70,10 @@ const ShareForm = ({updateShareFormState}:Props) => {
  <Button size="large" color="primary" onClick={shareVia} className={classes.btn_share}>
    Share Video
  </Button>
- <Button size="large" color="primary" style={{width: '100%'}} onClick={() => {updateShareFormState(false)}} >
+ <Button size="large" color="primary" style={{width: '100%'}} onClick={() => {updateShareFormState(false);}} >
    Save To Camera Roll
  </Button>
- <Button size="large" color="primary" style={{width: '100%'}} onClick={() => {updateShareFormState(false)}} >
+ <Button size="large" color="primary" style={{width: '100%'}} onClick={() => {updateShareFormState(false);}} >
    Cancel
  </Button>
  </div>
@@ -82,4 +82,4 @@ const ShareForm = ({updateShareFormState}:Props) => {
    );
 };
 
-export default connect(null, mapDispatchToProps) (ShareForm)
+export default connect(null, mapDispatchToProps) (ShareForm);

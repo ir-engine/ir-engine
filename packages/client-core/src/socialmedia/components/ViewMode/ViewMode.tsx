@@ -63,10 +63,10 @@ const useStyles = makeStyles({
   },
 });
 
-const Transition = React.forwardRef(function Transition(
+const Transition = React.forwardRef((
   props: TransitionProps & { children?: React.ReactElement<any, any> },
   ref: React.Ref<unknown>,
-) {
+) => {
   return <Slide direction="up" ref={ref} {...props} />;
 });
 
@@ -108,7 +108,7 @@ export const ViewMode = ({updateArMediaState}:Props) => {
      <Button onClick={handleClose} color="primary" className={classes.btn_cancel}>
          Cancel
      </Button>
-     <Box borderTop={1}></Box>
+     <Box borderTop={1} />
      <DialogTitle className={classes.title}>{"Remember!"} </DialogTitle>
     <Typography style={{textAlign: 'center',padding: '16pt'}}>
         You have two different recording 
@@ -124,7 +124,7 @@ export const ViewMode = ({updateArMediaState}:Props) => {
                          }}>
       Vertical mode has a 30 sec record time
       </Typography>
-     <Box borderTop={1}></Box>
+     <Box borderTop={1} />
      <CardMedia
        className={classes.media2}
        image='https://cdn.zeplin.io/601d63dc422d9dad3473e3ab/assets/802EB928-4227-4940-BA8E-0A8119FE4CDF.svg'
@@ -133,12 +133,12 @@ export const ViewMode = ({updateArMediaState}:Props) => {
        <Typography style={{textAlign: 'center',padding: '16pt',marginTop: '30pt'}}>
         Horizontal mode has an unlimited record time
        </Typography>
-     <Button onClick={()=> {handleOpenNewFeedPage()}} color="primary" className={classes.btn_start}>
+     <Button onClick={()=> {handleOpenNewFeedPage();}} color="primary" className={classes.btn_start}>
          Start
      </Button>
    </Dialog>
  </div>
   );
-}
+};
 
-export default connect (mapStateToProps, mapDispatchToProps)(ViewMode)
+export default connect (mapStateToProps, mapDispatchToProps)(ViewMode);

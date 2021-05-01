@@ -63,7 +63,7 @@ const AppFooter = ({creatorState, getLoggedCreator, authState, updateCreatorPage
     updateCreatorFormState(false);
     updateFeedPageState(false);
     updateArMediaState(false);
-  }
+  };
   return (
     <>
     <nav className={styles.footerContainer}>

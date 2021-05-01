@@ -7,7 +7,7 @@ import SharedModal from "../../SharedModal";
 import AppFooter from "../../Footer";
 
 //@ts-ignore
-import styles from './CreatorFormPopup.module.scss'
+import styles from './CreatorFormPopup.module.scss';
 import CreatorForm from "../../CreatorForm";
 
 const mapStateToProps = (state: any): any => {
@@ -41,6 +41,6 @@ export const CreatorFormPopup = ({popupsState, updateCreatorFormState}: Props) =
 const creatorFormState = popupsState?.get('creatorForm');
 useEffect(()=>{renderCreatoFormModal();}, [creatorFormState]);
 return  renderCreatoFormModal();         
-}
+};
 
 export default connect(mapStateToProps, mapDispatchToProps)(CreatorFormPopup);

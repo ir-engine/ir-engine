@@ -41,7 +41,7 @@ const mapStateToProps = (state: any): any => {
 
 const ArMedia = ({getArMedia, arMediaState, updateArMediaState, updateNewFeedPageState}:Props) => {
   const [type, setType] = React.useState('clip');
-  useEffect(()=> {getArMedia()}, []);
+  useEffect(()=> {getArMedia();}, []);
   const arMediaList = arMediaState.get('fetching') === false && arMediaState?.get('list') ? arMediaState.get('list') : null;
 
     return <section className={styles.arMediaContainer}>
@@ -59,7 +59,7 @@ const ArMedia = ({getArMedia, arMediaState, updateArMediaState, updateNewFeedPag
              key={itemIndex}
             className={styles.previewImage}
             image={item.previewUrl}
-            />          
+            />;          
         })}
       </section>
       <Button onClick={()=> {updateArMediaState(false); updateNewFeedPageState(true);}} variant="contained" color="primary" >

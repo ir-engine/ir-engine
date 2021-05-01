@@ -8,7 +8,7 @@ import AppFooter from "../../Footer";
 import ShareForm from "../../ShareForm/ShareForm";
 
 //@ts-ignore
-import styles from './SharedFormPopup.module.scss'
+import styles from './SharedFormPopup.module.scss';
 
 const mapStateToProps = (state: any): any => {
     return {
@@ -39,9 +39,9 @@ const renderShareFormModal = () =>
           <ShareForm />      
           <AppFooter />
       </SharedModal>;
-const shareFormState = popupsState?.get('shareForm')
+const shareFormState = popupsState?.get('shareForm');
 useEffect(()=>{renderShareFormModal();}, [shareFormState]);
     return  renderShareFormModal();         
-}
+};
 
 export default connect(mapStateToProps, mapDispatchToProps)(SharedFormPopup);

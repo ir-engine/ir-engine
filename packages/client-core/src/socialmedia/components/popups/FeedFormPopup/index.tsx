@@ -7,7 +7,7 @@ import SharedModal from "../../SharedModal";
 import AppFooter from "../../Footer";
 
 //@ts-ignore
-import styles from './FeedFormPopup.module.scss'
+import styles from './FeedFormPopup.module.scss';
 import FeedForm from "../../FeedForm";
 
 const mapStateToProps = (state: any): any => {
@@ -39,9 +39,9 @@ const renderNewFeedModal = () =>
           <FeedForm />      
           <AppFooter />
       </SharedModal>;
-const newFeedPageState = popupsState?.get('shareFeedPage')
+const newFeedPageState = popupsState?.get('shareFeedPage');
 useEffect(()=>{renderNewFeedModal();}, [newFeedPageState]);
     return  renderNewFeedModal();         
-}
+};
 
 export default connect(mapStateToProps, mapDispatchToProps)(FeedFormPopup);
