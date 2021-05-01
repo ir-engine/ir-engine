@@ -1,7 +1,12 @@
 import {
-  LinearEncoding, NearestFilter,
+  ACESFilmicToneMapping,
+  GammaEncoding,
+  LinearEncoding, LinearToneMapping, NearestFilter,
+  NoToneMapping,
   PCFSoftShadowMap,
   PerspectiveCamera,
+  ReinhardToneMapping,
+  RGBEEncoding,
   RGBFormat,
   sRGBEncoding,
   WebGL1Renderer,
@@ -24,7 +29,7 @@ import { SSAOEffect } from './postprocessing/SSAOEffect';
 import { TextureEffect } from './postprocessing/TextureEffect';
 import { PostProcessingSchema } from './postprocessing/PostProcessingSchema';
 import { EngineEvents } from '../ecs/classes/EngineEvents';
-import PostProcessing, { effectType } from '../scene/classes/PostProcessing';
+import PostProcessing, { defaultPostProcessingSchema, effectType } from '../scene/classes/PostProcessing';
 
 export class WebGLRendererSystem extends System {
   
@@ -61,7 +66,7 @@ export class WebGLRendererSystem extends System {
 
   static automatic = true;
   static usePBR = true;
-  static usePostProcessing = false;
+  static usePostProcessing = true;
   static shadowQuality = 5; 
   /** Resoulion scale. **Default** value is 1. */
   static scaleFactor = 1;
@@ -102,8 +107,9 @@ export class WebGLRendererSystem extends System {
     renderer.physicallyCorrectLights = true;
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = PCFSoftShadowMap;
-    renderer.outputEncoding = sRGBEncoding; // need this if postprocessing is not used
-
+    renderer.outputEncoding = sRGBEncoding;
+    renderer.toneMapping = LinearToneMapping;
+    renderer.toneMappingExposure = 1;
     Engine.renderer = renderer;
 
     // Cascaded shadow maps
@@ -167,8 +173,8 @@ export class WebGLRendererSystem extends System {
     * Note: Post processing effects are set in the PostProcessingSchema provided to the system.
     * @param entity The Entity holding renderer component.
     */
-  public configurePostProcessing(postProcessingSchema:PostProcessingSchema=PostProcessing.defaultOptions): void {
-    this.postProcessingSchema=postProcessingSchema;
+  public configurePostProcessing(postProcessingSchema:PostProcessingSchema = defaultPostProcessingSchema): void {
+    this.postProcessingSchema = postProcessingSchema;
     this.renderPass = new RenderPass(Engine.scene, Engine.camera);
     this.renderPass.scene = Engine.scene;
     this.renderPass.camera = Engine.camera;
@@ -350,7 +356,9 @@ export class WebGLRendererSystem extends System {
   setUsePostProcessing(usePostProcessing) {
     if(Engine.renderer?.xr?.isPresenting) return;
     WebGLRendererSystem.usePostProcessing = usePostProcessing;
-    Engine.renderer.outputEncoding = WebGLRendererSystem.usePostProcessing ? LinearEncoding : sRGBEncoding;
+    // Engine.renderer.outputEncoding = WebGLRendererSystem.usePostProcessing ? sRGBEncoding : sRGBEncoding;
+    // Engine.renderer.toneMapping = WebGLRendererSystem.usePostProcessing ? LinearToneMapping : LinearToneMapping;
+    // Engine.renderer.toneMappingExposure = WebGLRendererSystem.usePostProcessing ? 1 : 1;
     saveGraphicsSettingsToStorage();
   }
 }
