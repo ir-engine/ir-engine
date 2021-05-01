@@ -254,7 +254,7 @@ export class WebGLRendererSystem extends System {
       }
 
       Engine.csm.update();
-      if (WebGLRendererSystem.usePostProcessing) {
+      if (WebGLRendererSystem.usePostProcessing && this.postProcessingSchema) {
         WebGLRendererSystem.composer.render(delta);
       } else {
         Engine.renderer.render(Engine.scene, Engine.camera);
