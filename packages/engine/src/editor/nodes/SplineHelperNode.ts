@@ -1,10 +1,13 @@
 // @ts-nocheck
 
 import EditorNodeMixin from "./EditorNodeMixin";
-import Spline from "../../scene/classes/Spline";
+import SplineHelper from "../../scene/classes/SplineHelper";
 
-export default class SplineNode extends EditorNodeMixin(Spline) {
-  static nodeName = "Spline";
+export default class SplineHelperNode extends EditorNodeMixin(SplineHelper) {
+  static nodeName = "SplineHelperNode";
+
+  _splineObj = null;
+
   // static async deserialize(editor, json) {
   //   const node = await super.deserialize(editor, json);
   //   const {
@@ -27,19 +30,15 @@ export default class SplineNode extends EditorNodeMixin(Spline) {
   //   }
   //   return node;
   // }
-  constructor(editor) {
+  constructor(editor, spline) {
     super(editor);
-    // this.helper = new Spline(this);
-    // this.add(this.helper);
+    this._splineObj = spline;
   }
   onAdd() {
-    // debugger
-    this.init();
-    // new splinehelpernodes from here
-    // pass this.editor
     // this.helper.init(); 
   }
   onChange() {
+    this._splineObj.updateSplineOutline();
     // this.helper.update();
   }
   onSelect() {

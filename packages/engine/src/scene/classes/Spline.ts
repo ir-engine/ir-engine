@@ -1,8 +1,5 @@
-import {
-	Vector2, Vector3,
-	Raycaster,
-	BoxGeometry,
-	SphereBufferGeometry,
+import { 
+	Vector3,
 	BufferGeometry,
 	Mesh,
 	BufferAttribute,
@@ -10,6 +7,7 @@ import {
 	MeshLambertMaterial,
 	Object3D
   } from "three";
+import SplineHelperNode from "../../editor/nodes/SplineHelperNode";
 
 
 export default class Spline extends Object3D {
@@ -19,14 +17,6 @@ export default class Spline extends Object3D {
 	_point = new Vector3();
 
 	_splines = {} as any;
-
-	// const raycaster = new Raycaster();
-	// const pointer = new Vector2();
-	// const onUpPosition = new Vector2();
-	// const onDownPosition = new Vector2();
-
-	_geometry = new BoxGeometry( 0.1, 0.1, 0.1 );
-	// let transformControl;
 
 	ARC_SEGMENTS = 200;
 
@@ -42,16 +32,6 @@ export default class Spline extends Object3D {
 
 	constructor() {
 		super();
-		this.init();
-		// transformControl.addEventListener( 'objectChange', function () {
-
-		// 	updateSplineOutline();
-
-		// } );
-
-		// document.addEventListener( 'pointerdown', onPointerDown );
-		// document.addEventListener( 'pointerup', onPointerUp );
-		// document.addEventListener( 'pointermove', onPointerMove );
 	}
 
 	init() {
@@ -79,7 +59,6 @@ export default class Spline extends Object3D {
 		const geometry = new BufferGeometry();
 		geometry.setAttribute( 'position', new BufferAttribute( new Float32Array( this.ARC_SEGMENTS * 3 ), 3 ) );
 
-		debugger
 		let curve = new CatmullRomCurve3( this._positions );
 		curve.curveType = 'catmullrom';
 		curve.mesh = new Line( geometry.clone(), new LineBasicMaterial( {
@@ -122,8 +101,9 @@ export default class Spline extends Object3D {
 
 	addSplineObject( position = null ) {
 
-		const material = new MeshLambertMaterial( { color: Math.random() * 0xffffff } );
-		const object = new Mesh( this._geometry, material );
+		// this.editor is added when object is instantiated.
+		const splineHelperNode = new SplineHelperNode(this.editor, this);
+		const object = splineHelperNode; //.children[0];
 
 		if ( position ) {
 
