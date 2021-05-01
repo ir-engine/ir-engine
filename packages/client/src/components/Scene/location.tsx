@@ -283,7 +283,7 @@ export const EnginePage = (props: Props) => {
         schema: GamesSchema
       },
       publicPath: '',
-      postProcessing: false,
+      postProcessing: true,
       editor: false,
       networking: {
         schema: {

@@ -28,7 +28,7 @@
         display: flex;
         border-radius: 5px;
         background: #00000050;
-        width: 150px;
+        width: 200px;
         margin: auto;
 
         .materialIconBlock {
@@ -294,6 +294,7 @@
             svg {
                 position: relative;
                 z-index: 1;
+                vertical-align: middle;
             }
 
             &::before {
@@ -348,7 +349,7 @@
     max-height: calc(100vh - 175px);
     overflow: auto;
 
-    &>.profilePanel, &>.accountPanel, &>.settingPanel, &>.sharePanel { margin: 30px 0; }
+    &>.profilePanel, &>.accountPanel, &>.settingPanel, &>.sharePanel, &>.locationPanel { margin: 30px 0; }
 
     .profilePanel {
         display: flex;
@@ -705,6 +706,184 @@
         }
     }
 
+    .locationPanel {
+        .control { margin-top: 10px; display: flex; }
+        .newLocation { width: 90px; background: #5f5ff1; margin: 0; height: 40px; flex-shrink: 0; }
+        .searchbox {
+            margin: 0;
+            margin-right: 10px;
+            width: 100%;
+            flex-shrink: 1;
+            background: white;
+            border-radius: 4px;
+            input, svg { color: #444; }
+            border-color: #444;
+            &:focus-within {
+                svg { color: #5F5FF1; }
+            }
+        }
+        .tableContainer {
+            width: 100%;
+            overflow: auto;
+        }
+        .locationTable {
+            margin-top: 10px;
+            .tableHead {
+                background: #5F5FF1;
+                color: white;
+            }
+            .tablebody {
+                .tableRow:hover { background: #d5d5f2; cursor: pointer; }
+                .tableRow:focus { background: #9696fa; }
+                .tableCell {
+                    color: #444;
+                    border: none;
+                    box-sizing: border-box;
+                }
+            }
+        }
+        .tablePagination {
+            color: #444;
+            button { background: transparent; }
+            button:hover { background: #5f5ff1; color: white; }
+        }
+        .formControl {
+            width: 100%;
+            margin-top: 15px;
+            label {
+                position: initial;
+                display: block;
+                transform: none;
+                margin-bottom: 5px;
+                color: #666;
+                font-size: 0.8rem;
+            }
+            .checkbox {
+                padding: 0 9px;
+                svg { color: #666; }
+                &:global(.Mui-checked) svg { color: #5f5ff1; }
+                &:hover { background: transparent; }
+                input:focus + svg { opacity: 0.7; }
+            }
+            &:hover {
+                :global(.MuiOutlinedInput-notchedOutline) {
+                    border: solid 1px #444;
+                }
+            }
+            &:hover {
+                .checkbox { opacity: 0.7; }
+            }
+        }
+        .textbox input, .selectbox :global(.MuiSelect-selectMenu){
+            color: #444;
+            background: #f4f4f4;
+        }
+        .deleteBtnContainer {
+            position: absolute;
+            top: 20px;
+            right: 22px;
+            .deletebtn {
+                width: 50px;
+                height: 20px;
+                color: rgb(241, 57, 57);
+                background: transparent;
+                &:disabled { color: grey; }
+                &::before {
+                    content: '';
+                    position: absolute;;
+                    width: 0px;
+                    height: 0px;
+                    border-radius: 25px;
+                    background: rgb(241, 57, 57);
+                    left: 50%;
+                    top: 50%;
+                    transform: translate(-50%, -50%);
+                    transition: all 0.15s cubic-bezier(.18,.89,.32,1.28);
+                    z-index: -1;
+                }
+                &:hover, &:focus {
+                    color: #fff;
+                    &::before {
+                        width: 50px;
+                        height: 50px;
+                    }
+                }
+            }
+        }
+        .backbtn {
+            width: 25px;
+            height: 25px;
+            border-radius: 20px;
+            background: transparent;
+            color: #5f5ff1;
+            margin: 0;
+            min-width: 0;
+            margin-right: 10px;
+            &::before {
+                content: '';
+                position: absolute;;
+                width: 0px;
+                height: 0px;
+                border-radius: 25px;
+                background: #5f5ff1;
+                left: 50%;
+                top: 50%;
+                transform: translate(-50%, -50%);
+                transition: all 0.15s cubic-bezier(.18,.89,.32,1.28);
+                z-index: -1;
+            }
+            &:hover, &:focus {
+                color: #fff;
+                &::before {
+                    width: 35px;
+                    height: 35px;
+                }
+            }
+        }
+        .savebtn {
+            color: white;
+            background: #5f5ff1;
+            height: 35px;
+            width: 150px;
+            margin-top: 25px;
+            &:hover { opacity: 0.8; }
+        }
+        .deleteDialogContainer {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            .dialog {
+                background: white;
+                width: 300px;
+                border-radius: 4px;
+                padding: 25px;
+                box-shadow: 2px 2px 10px 2px #80808082;
+
+                h2 { margin-top: 0; justify-content: center; color: #444; }
+
+                .btnContainer{
+                    display: flex;
+                    flex-direction: row;
+                    button {
+                        padding: 0;
+                        width: 100px;
+                        height: 35px;
+                        margin: 20px 10px;
+                        background: #5f5ff1;
+                        font-size: 0.8rem;
+                        &.yesbtn { background: rgb(241, 57, 57); }
+                    }
+                    button:hover, button:focus { opacity: 0.8; }
+                }
+            }
+        }
+    }
+
     @media screen and (max-width: 500px) {
         .profileBlock { justify-content: center !important; }
         .headerBlock { width: 100% !important; margin-top: 30px; }
@@ -947,6 +1126,9 @@
             flex-grow: 1;
             border-radius: 3px;
             font-size: 14px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             &>svg { font-size: 18px; margin-left: 5px; }
         }
 
@@ -985,7 +1167,7 @@
 
                 span { margin-left: 5px; }
                 .shiftKey { background: #c8c8c8; color: rgb(0, 0, 0, 0.75); padding: 2px 4px; border-radius: 4px; font-weight: bold; margin: 0 5px 0 0; }
-                svg { font-size: 18px; margin-right: 5px; }
+                svg { font-size: 18px; margin-right: 5px; vertical-align: middle; }
                 &>div + div { margin-top: 10px; }
             }
 
@@ -1049,4 +1231,9 @@
         .avatarHeaderBlock { margin-top: 15px; }
         .controlContainer { margin-bottom: 15px; }
     }
+}
+
+.selectOptionContainer ul {
+    background: white;
+    li { color: #444; }
 }

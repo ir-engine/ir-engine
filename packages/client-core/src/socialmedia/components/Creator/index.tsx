@@ -60,7 +60,6 @@ const Creator = ({creatorId, creatorState, getCreator, followCreator, unFollowCr
               <Featured creatorId={isMe === true ? creatorState?.get('currentCreator').id : creatorData ? creatorData.id : creatorState?.get('creator').id} type={videoType}/>
             </section>
         </section>
-      <AppFooter />
     </>;
 };
 

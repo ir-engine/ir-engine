@@ -6,7 +6,7 @@ import { getLoader, loadExtentions } from '@xr3ngine/engine/src/assets/functions
 import { FBXLoader } from '@xr3ngine/engine/src/assets/loaders/fbx/FBXLoader';
 import { getOrbitControls } from '@xr3ngine/engine/src/input/functions/loadOrbitControl';
 import { Views } from '../util';
-//@ts-ignore
+import { withTranslation } from 'react-i18next';
 // @ts-ignore
 import styles from '../UserMenu.module.scss';
 import { AVATAR_FILE_ALLOWED_EXTENSIONS, MAX_AVATAR_FILE_SIZE, MIN_AVATAR_FILE_SIZE, MAX_ALLOWED_TRIANGLES, THUMBNAIL_HEIGHT, THUMBNAIL_WIDTH } from '@xr3ngine/common/src/constants/AvatarConstants';
@@ -15,6 +15,7 @@ import { AVATAR_FILE_ALLOWED_EXTENSIONS, MAX_AVATAR_FILE_SIZE, MIN_AVATAR_FILE_S
 interface Props {
     changeActiveMenu: Function;
 	uploadAvatarModel: Function;
+	t: any;
 }
 
 interface State {
@@ -34,6 +35,8 @@ export class AvatarSelectMenu extends React.Component<Props, State> {
 			error: '',
 			obj: null,
 		};
+
+		this.t = this.props.t;
 	}
 
 	componentDidMount() {
@@ -85,6 +88,7 @@ export class AvatarSelectMenu extends React.Component<Props, State> {
 	fileSelected = false;
 	maxBB = new THREE.Vector3(2,2,2);
 
+	t: any;
 	onWindowResize = () => {
 	    const container = document.getElementById('stage');
 	    const bounds = container.getBoundingClientRect();
@@ -106,7 +110,7 @@ export class AvatarSelectMenu extends React.Component<Props, State> {
 
 	handleAvatarChange = (e) => {
 		if (e.target.files[0].size < MIN_AVATAR_FILE_SIZE || e.target.files[0].size > MAX_AVATAR_FILE_SIZE) {
-			this.setState({ error: 'Avatar file size must be between ' + (MIN_AVATAR_FILE_SIZE / 1048576) + ' MB and ' + (MAX_AVATAR_FILE_SIZE / 1048576) + ' MB'});
+			this.setState({ error: this.t('user:usermenu.avatar.fileOversized', {minSize: MIN_AVATAR_FILE_SIZE / 1048576, maxSize: MAX_AVATAR_FILE_SIZE / 1048576}) });
 			return;
 		}
 
@@ -136,7 +140,7 @@ export class AvatarSelectMenu extends React.Component<Props, State> {
 				}
 			} catch (error) {
 				console.error(error);
-				this.setState({ error: 'Select valid 3d avatar file.'});
+				this.setState({ error: this.t('user:usermenu.avatar.selectValidFile')});
 			}
 		};
 
@@ -146,18 +150,18 @@ export class AvatarSelectMenu extends React.Component<Props, State> {
 			this.setState({ selectedFile: e.target.files[0] });
 		} catch (error) {
 			console.error(e);
-			this.setState({ error: 'Select valid 3d avatar file.'});
+			this.setState({ error: this.t('user:usermenu.avatar.selectValidFile')});
 		}
 	}
 
 	validate = (scene) => {
 		const objBoundingBox = new THREE.Box3().setFromObject(scene);
-		if (this.renderer.info.render.triangles > MAX_ALLOWED_TRIANGLES) return 'Object contains greater than ' + MAX_ALLOWED_TRIANGLES + ' faces.';
+		if (this.renderer.info.render.triangles > MAX_ALLOWED_TRIANGLES) return this.t('user:usermenu.avatar.selectValidFile', { allowedTriangles: MAX_ALLOWED_TRIANGLES });
 
-		if (this.renderer.info.render.triangles <= 0) return 'Object is empty.';
+		if (this.renderer.info.render.triangles <= 0) return this.t('user:usermenu.avatar.emptyObj');
 
 		const size = new THREE.Vector3().subVectors(this.maxBB, objBoundingBox.getSize(new THREE.Vector3()));
-		if (size.x <= 0 || size.y <= 0 || size.z <= 0) return 'Object is out of bound.';
+		if (size.x <= 0 || size.y <= 0 || size.z <= 0) return this.t('user:usermenu.avatar.outOfBOund');
 
 		let bone = false;
 		let skinnedMesh = false;
@@ -166,7 +170,7 @@ export class AvatarSelectMenu extends React.Component<Props, State> {
 			if (o.type.toLowerCase() === 'skinnedmesh') skinnedMesh = true;
 		});
 
-		if (!bone || !skinnedMesh) return 'Obejct does not contain any bones or skin';
+		if (!bone || !skinnedMesh) return this.t('user:usermenu.avatar.noBone');
 
 		return '';
 	}
@@ -201,30 +205,30 @@ export class AvatarSelectMenu extends React.Component<Props, State> {
             		<button type="button" className={styles.iconBlock} onClick={this.openAvatarMenu}>
 						<ArrowBack />
 					</button>
-	                <h2>Upload Avatar</h2>
+	                <h2>{this.t('user:usermenu.avatar.title')}</h2>
 	            </div>
                 <div id="stage" className={styles.stage} style={{width: THUMBNAIL_WIDTH + 'px', height: THUMBNAIL_HEIGHT + 'px'}}>
                 	<div className={styles.legendContainer}>
                 		<Help />
                 		<div className={styles.legend}>
-                			<div><IconLeftClick /> - <span>Rotate</span></div>
-                			<div><span className={styles.shiftKey}>Shift</span> + <IconLeftClick /> - <span>Pan</span></div>
+                			<div><IconLeftClick /> - <span>{this.t('user:usermenu.avatar.rotate')}</span></div>
+                			<div><span className={styles.shiftKey}>Shift</span> + <IconLeftClick /> - <span>{this.t('user:usermenu.avatar.pan')}</span></div>
                 		</div>
                 	</div>
                 </div>
                 <div className={styles.avatarSelectLabel + ' ' + (this.state.error ? styles.avatarSelectError : '')}>
 					{this.state.error
 						? this.state.error
-						: this.fileSelected ? this.state.selectedFile.name : 'Select Avatar...'}
+						: this.fileSelected ? this.state.selectedFile.name : this.t('user:usermenu.avatar.selectAvatar')}
 				</div>
             	<input type="file" id="avatarSelect" accept={AVATAR_FILE_ALLOWED_EXTENSIONS} hidden onChange={this.handleAvatarChange} />
             	<div className={styles.controlContainer}>
-	                <button type="button" className={styles.browseBtn} onClick={this.handleBrowse}>Browse <SystemUpdateAlt /></button>
-	                <button type="button" className={styles.uploadBtn} onClick={this.uploadAvatar} disabled={!this.fileSelected || !!this.state.error}>Upload <CloudUpload /></button>
+	                <button type="button" className={styles.browseBtn} onClick={this.handleBrowse}>{this.t('user:usermenu.avatar.lbl-browse')}<SystemUpdateAlt /></button>
+	                <button type="button" className={styles.uploadBtn} onClick={this.uploadAvatar} disabled={!this.fileSelected || !!this.state.error}>{this.t('user:usermenu.avatar.lbl-upload')}<CloudUpload /></button>
 	            </div>
 		    </div>
 		);
 	}
 }
 
-export default AvatarSelectMenu;
+export default withTranslation()(AvatarSelectMenu);

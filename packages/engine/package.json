@@ -39,7 +39,7 @@
   "dependencies": {
     "@pixiv/three-vrm": "^0.6.0",
     "@xr3ngine/common": "^0.2.18",
-    "three-physx": "^0.0.1",
+    "three-physx": "^0.0.4",
     "browserfs": "^1.4.3",
     "cross-fetch": "^3.0.6",
     "ctix": "^0.3.1",
@@ -61,7 +61,7 @@
     "@types/three": "0.127.1",
     "esbuild": "0.11.16",
     "eslint": "7.25.0",
-    "rollup": "2.45.2",
+    "rollup": "2.46.0",
     "rollup-plugin-babel": "4.4.0",
     "rollup-plugin-node-polyfills": "0.2.1",
     "rollup-plugin-scss": "2.6.1",

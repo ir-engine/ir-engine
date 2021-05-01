@@ -37,7 +37,7 @@ const emptyInputValue = [0, 0] as NumericalType;
  *
  * @param inputComponent Input component which is holding input data.
  * @param inputAxes Axes of the input.
- * @param forceRefresh
+ * @param prevValue
  *
  * @returns Input value from input component.
  */
