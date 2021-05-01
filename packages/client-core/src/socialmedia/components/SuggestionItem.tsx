@@ -1,10 +1,12 @@
 import React from "react";
 import { ProfilePic } from "./ProfilePic";
 import { UsernameText } from "./UsernameText";
+import { useTranslation } from 'react-i18next';
 
 export function SuggestionItem({
   data
 }: any) {
+	const { t } = useTranslation();
   return (
     <div className="suggestion-item py-2 h-auto flex items-center">
       <ProfilePic size={32} src={data.image} username={data.username} />
@@ -16,7 +18,7 @@ export function SuggestionItem({
         <span className="text-12-light">{data?.text}</span>
       </div>
       <div className="follow-button text-12-bold flex items-center ml-auto text-blue cursor-pointer">
-        Follow
+        {t('social:follow')}
       </div>
     </div>
   );

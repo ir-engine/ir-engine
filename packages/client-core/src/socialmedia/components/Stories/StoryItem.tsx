@@ -1,18 +1,20 @@
 import React from "react";
 import Avatar from "@material-ui/core/Avatar";
+import { useTranslation } from 'react-i18next';
 
 // @ts-ignore
 import styles from './Stories.module.scss';
 
 export const StoryItem =({data}: any) => {
   const size = 56;
+	const { t } = useTranslation();
   return (
     <div
       className={styles.storyItem}
     >
       <div className="story-photo-container">
         <Avatar
-          alt={`${data?.username}'s profile pic`}
+          alt={t('social:story.profilePic', { user: data?.username })}
           data-testid="user-avatar"
           draggable="false"
           src={data?.image}

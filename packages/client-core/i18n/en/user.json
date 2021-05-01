@@ -154,5 +154,60 @@
             "canNotBeRemoved": "Active Avatar can not be removed",
             "remove": "Remove avatar"
         }
+    },
+    "profile": {
+        "lbl-profile": "Profile",
+        "lbl-settings": "Settings",
+        "connections": {
+            "title": "Connections",
+            "ipError": "Can not remove active Identity Provider",
+            "disconnect": "disconnect",
+            "connect": "Connect"
+        },
+        "profileDropdown": {
+            "avatar": "User Avatar Icon",
+            "profile": "Profile",
+            "adminConsole": "Admin Console",
+            "logout": "Logout"
+        },
+        "userIcon": {
+            "lbl-name": "Your name",
+            "lbl-update": "Update",
+            "userId": "User ID",
+            "ph-uploadImg": "Upload Product Image",
+            "lbl-selectAcvatar": "Select Avatar",
+            "lbl-submit": "Submit"
+        },
+        "userSettings": {
+            "volume": "Volume",
+            "microphone": "Microphone",
+            "resolution": "Resolution",
+            "high": "High",
+            "low": "Low",
+            "spatialAudio": "Use Spatial Audio",
+            "enterMuted": "Enter Room Muted"
+        }
+    },
+    "oauth": {
+        "authenticating": "Authenticating...",
+        "authFailed": "{{service}} authentication failed."
+    },
+    "magikLink": {
+        "wait": "Please wait a moment while processing..."
+    },
+    "dashboard": {
+        "header": "Dashboard",
+        "dashboard": "Dashboard",
+        "users": "Users",
+        "feeds": "Feeds",
+        "instance": "Instance",
+        "locations": "Locations",
+        "invites": "Invites",
+        "sessions": "Sessions",
+        "groups": "Groups",
+        "parties": "Parties",
+        "chats": "Chats",
+        "content": "Content Packs",
+        "scenes": "Scenes"
     }
 }

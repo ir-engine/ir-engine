@@ -83,7 +83,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
 
   public async initialize(address = "https://127.0.0.1", port = 3031, instance: boolean, opts?: any): Promise<void> {
     const self = this;
-    let socket = instance === true ? this.instanceSocket : this.channelSocket;
+    let socket = instance ? this.instanceSocket : this.channelSocket;
     const { token, user, startVideo, videoEnabled, channelType, isHarmonyPage, ...query } = opts;
 
     Network.instance.accessToken = query.token = token;
@@ -115,16 +115,18 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       });
     }
 
-    (socket as any).instance = instance === true;
+    if (instance === true) {
+      (socket as any).instance = true;
+      this.instanceSocket = socket;
+      Network.instance.instanceSocketId = socket.id;
+      this.instanceRequest = this.promisedRequest(socket);
+    }
+    else {
+      this.channelSocket = socket;
+      Network.instance.channelSocketId = socket.id;
+      this.channelRequest = this.promisedRequest(socket);
+    }
 
-    if (instance === true) this.instanceSocket = socket;
-    else this.channelSocket = socket;
-
-    if (instance === true) Network.instance.instanceSocketId = socket.id;
-    else Network.instance.channelSocketId = socket.id;
-
-    if (instance === true) this.instanceRequest = this.promisedRequest(socket);
-    else this.channelRequest = this.promisedRequest(socket);
 
     socket.on("connect", async () => {
       const request = (socket as any).instance === true ? this.instanceRequest : this.channelRequest;

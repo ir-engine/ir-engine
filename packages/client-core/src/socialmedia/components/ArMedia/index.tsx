@@ -6,7 +6,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 import { Button, CardMedia} from '@material-ui/core';
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
-
+import { useTranslation } from 'react-i18next';
 import { selectCreatorsState } from '../../reducers/creator/selector';
 import { createArMedia, getArMedia } from '../../reducers/arMedia/service';
 import { selectAdMediaState } from '../../reducers/arMedia/selector';
@@ -42,15 +42,16 @@ const mapStateToProps = (state: any): any => {
 const ArMedia = ({getArMedia, arMediaState, updateArMediaState, updateNewFeedPageState}:Props) => {
   const [type, setType] = React.useState('clip');
   useEffect(()=> {getArMedia();}, []);
+	const { t } = useTranslation();
   const arMediaList = arMediaState.get('fetching') === false && arMediaState?.get('list') ? arMediaState.get('list') : null;
 
     return <section className={styles.arMediaContainer}>
-      <Button variant="text" className={styles.backButton} onClick={()=>updateArMediaState(false)}><ArrowBackIosIcon />Back</Button>
+      <Button variant="text" className={styles.backButton} onClick={()=>updateArMediaState(false)}><ArrowBackIosIcon />{t('social:arMedia.back')}</Button>
       <section className={styles.switcher}>
         <Button variant={type === 'clip' ? 'contained' : 'text'} color='secondary' className={styles.switchButton+(type === 'clip' ? ' '+styles.active : '')} 
-            onClick={()=>setType('clip')}>Clips</Button>
+            onClick={()=>setType('clip')}>{t('social:arMedia.clip')}</Button>
         <Button variant={type === 'background' ? 'contained' : 'text'} color='secondary' className={styles.switchButton+(type === 'background' ? ' '+styles.active : '')} 
-            onClick={()=>setType('background')}>Backgrounds</Button>
+            onClick={()=>setType('background')}>{t('social:arMedia.backgrounds')}</Button>
       </section>
       <section className={styles.flexContainer}>
         {arMediaList?.map((item, itemIndex)=>{
@@ -63,7 +64,7 @@ const ArMedia = ({getArMedia, arMediaState, updateArMediaState, updateNewFeedPag
         })}
       </section>
       <Button onClick={()=> {updateArMediaState(false); updateNewFeedPageState(true);}} variant="contained" color="primary" >
-          Start
+          {t('social:arMedia.start')}
       </Button>
     </section>;
 };

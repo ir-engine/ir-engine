@@ -22,6 +22,7 @@ import { selectFeedCommentsState } from '../../reducers/feedComment/selector';
 import PopupLogin from '../PopupLogin/PopupLogin';
 // import { IndexPage } from '@xr3ngine/social/pages/login';
 import { selectAuthState } from '../../../user/reducers/auth/selector';
+import { useTranslation } from 'react-i18next';
 
 const mapStateToProps = (state: any): any => {
     return {
@@ -58,6 +59,7 @@ const CommentCard = ({comment, addFireToFeedComment, removeFireToFeedComment, ge
     }; 
     const [buttonPopup , setButtonPopup] = useState(false);
     const checkGuest = authState.get('authUser')?.identityProvider?.type === 'guest' ? true : false;
+	const { t } = useTranslation();
 
     return  <><Card className={styles.commentItem} square={false} elevation={0} key={id}>
                 <Avatar className={styles.authorAvatar} src={creator.avatar} />                                
@@ -67,7 +69,7 @@ const CommentCard = ({comment, addFireToFeedComment, removeFireToFeedComment, ge
                         {creator.verified && <VerifiedUserIcon htmlColor="#007AFF" style={{fontSize:'13px', margin: '0 0 0 5px'}}/>}
                     </Typography> 
                     <Typography variant="h2">{text}</Typography>                    
-                    {(fires && fires > 0 ) ? <Typography variant="h2" onClick={()=>checkGuest ? setButtonPopup(true) : handleGetCommentFiredUsers(id)}><span className={styles.flamesCount}>{fires}</span>Flames</Typography> : null}
+                    {(fires && fires > 0 ) ? <Typography variant="h2" onClick={()=>checkGuest ? setButtonPopup(true) : handleGetCommentFiredUsers(id)}><span className={styles.flamesCount}>{fires}</span>{t('social:flames')}</Typography> : null}
                 </CardContent>
                 <section className={styles.fire}>
                     {isFired ? 

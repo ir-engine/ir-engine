@@ -8,7 +8,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import MenuList from '@material-ui/core/MenuList';
 import ProfileModal from './index';
 import { useHistory } from 'react-router-dom';
-
+import { useTranslation } from 'react-i18next';
 import Avatar from '@material-ui/core/Avatar';
 import SupervisedUserCircleIcon from '@material-ui/icons/SupervisedUserCircle';
 
@@ -24,6 +24,7 @@ const MenuListComposition = (props: Props): any => {
   const [open, setOpen] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const anchorRef = useRef<HTMLButtonElement>(null);
+	const { t } = useTranslation();
 
   const handleToggle = (): any => {
     setOpen((prevOpen) => !prevOpen);
@@ -83,7 +84,7 @@ const MenuListComposition = (props: Props): any => {
           onClick={handleToggle}
         >
           {avatarUrl ? (
-            <Avatar alt="User Avatar Icon" src={avatarUrl} />
+            <Avatar alt={t('user:profile.profileDropdown.avatar')} src={avatarUrl} />
           ) : (
             <SupervisedUserCircleIcon style={{ fontSize: 45, color: 'white' }} />
           )}
@@ -110,10 +111,10 @@ const MenuListComposition = (props: Props): any => {
                     id="menu-list-grow"
                     onKeyDown={handleListKeyDown}
                   >
-                    <MenuItem onClick={handleModal}>Profile</MenuItem>
+                    <MenuItem onClick={handleModal}>{t('user:profile.profileDropdown.profile')}</MenuItem>
                     {/* <MenuItem onClick={handleContacts}>Contacts</MenuItem> */}
-                    {auth.get('user').userRole === 'admin' && <MenuItem onClick={handleAdminConsole}>Admin Console</MenuItem> }
-                    <MenuItem onClick={handleLogout}>Logout</MenuItem>
+                    {auth.get('user').userRole === 'admin' && <MenuItem onClick={handleAdminConsole}>{t('user:profile.profileDropdown.adminConsole')}</MenuItem> }
+                    <MenuItem onClick={handleLogout}>{t('user:profile.profileDropdown.logout')}</MenuItem>
                   </MenuList>
                 </ClickAwayListener>
               </Paper>
