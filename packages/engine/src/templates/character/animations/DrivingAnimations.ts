@@ -14,6 +14,7 @@ import { PlayerInCar } from '../../../physics/components/PlayerInCar';
 import { BaseInput } from '../../../input/enums/BaseInput';
 import { CameraModes } from '../../../camera/types/CameraModes';
 import { AnimationComponent } from '../../../character/components/AnimationComponent';
+import { defaultAvatarAnimations } from '../CharacterAvatars';
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -61,18 +62,18 @@ const { DRIVING, ENTERING_VEHICLE, EXITING_VEHICLE } = CharacterAnimations;
 
 const drivingAnimationSchema = [
   {
-    type: [DRIVING], name: 'driving', axis: 'xyz', speed: 1, customProperties: ['weight', 'test'],
+    type: [DRIVING], name: defaultAvatarAnimations[DRIVING].name, axis: 'xyz', speed: 1, customProperties: ['weight', 'test'],
     value:      [ -0.5, 0, 0.5 ],
     weight:     [  0 ,  0,   0 ],
     test:       [  0 ,  1,   0 ]
   },{
-    type: [ENTERING_VEHICLE], name: 'entering_car', axis:'z', speed: 0.5, customProperties: ['weight', 'test'],
+    type: [ENTERING_VEHICLE], name: defaultAvatarAnimations[ENTERING_VEHICLE].name, axis:'z', speed: 0.5, customProperties: ['weight', 'test'],
     value:      [  0,   1 ],
     weight:     [  1,   0 ],
     test:       [  0,   1 ]
   },
   {
-    type: [EXITING_VEHICLE], name: 'exiting_car', axis:'z', speed: 0.5, customProperties: ['weight', 'test'],
+    type: [EXITING_VEHICLE], name: defaultAvatarAnimations[EXITING_VEHICLE].name, axis:'z', speed: 0.5, customProperties: ['weight', 'test'],
     value:      [  -1  ,   0  ],
     weight:     [   1  ,   1  ],
     test:       [   0  ,   0  ]

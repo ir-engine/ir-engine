@@ -4,7 +4,7 @@ import { Behavior } from "../../../common/interfaces/Behavior";
 import { addObject3DComponent } from "../../../scene/behaviors/addObject3DComponent";
 import { initializeNetworkObject } from '../../../networking/functions/initializeNetworkObject'
 import { Network } from '../../../networking/classes/Network';
-import { AnimationClip, AnimationMixer, BoxGeometry, Group, Material, Mesh, MeshLambertMaterial, Quaternion, Vector3 } from "three";
+import { AnimationClip, AnimationMixer, BoxGeometry, Group, Material, Mesh, MeshLambertMaterial, Object3D, Quaternion, Skeleton, SkeletonHelper, Vector3 } from "three";
 import { AssetLoader } from "../../../assets/classes/AssetLoader";
 import { PositionalAudioComponent } from '../../../audio/components/PositionalAudioComponent';
 import { FollowCameraComponent } from '../../../camera/components/FollowCameraComponent';
@@ -38,19 +38,15 @@ import { InterpolationInterface } from '../../../physics/interfaces/Interpolatio
 import { characterCorrectionBehavior } from '../behaviors/characterCorrectionBehavior';
 import { characterInterpolationBehavior } from '../behaviors/characterInterpolationBehavior';
 import { Controller } from 'three-physx';
+import { SkeletonUtils } from '../../../assets/threejs-various/SkeletonUtils.js';
+import { standardizeSkeletion } from '../functions/standardizeSkeleton';
 
 export class AnimationManager {
-	static _instance: AnimationManager;
-	static get instance() {
-		if (!this._instance) {
-			this._instance = new AnimationManager();
-		}
-		return this._instance;
-	}
-	public initialized = false
+	static instance: AnimationManager = new AnimationManager();
 
-	_animations: AnimationClip[] = []
+	_animations: AnimationClip[];
   _defaultModel: Group;
+  _defaultSkeleton: Object3D;
 
 	getAnimations(): Promise<AnimationClip[]> {
 		return new Promise(resolve => {
@@ -58,11 +54,22 @@ export class AnimationManager {
 				resolve([]);
 				return;
 			}
+      if(this._animations) {
+        resolve(this._animations);
+        return;
+      }
 			getLoader().load(Engine.publicPath + '/models/avatars/Animations.glb', gltf => {
+        gltf.scene.traverse((child) => {
+          if(child.type === "SkinnedMesh" && !this._defaultSkeleton) {
+            this._defaultSkeleton = child;
+          }
+        })
+
 				this._animations = gltf.animations;
 				this._animations?.forEach(clip => {
 					// TODO: make list of morph targets names
 					clip.tracks = clip.tracks.filter(track => !track.name.match(/^CC_Base_/));
+          // console.log(clip)
 				});
 				resolve(this._animations);
 			});
@@ -70,6 +77,10 @@ export class AnimationManager {
 	}
 	getDefaultModel(): Promise<Group> {
 		return new Promise(resolve => {
+      if(this._defaultModel) {
+        resolve(this._defaultModel);
+        return;
+      }
 			getLoader().load(Engine.publicPath + '/models/avatars/Default.glb', gltf => {
         console.log('default model loaded')
         this._defaultModel = gltf.scene;
@@ -82,10 +93,6 @@ export class AnimationManager {
         resolve(this._defaultModel);
       });
 		});
-	}
-
-	constructor () {
-		this.getAnimations();
 	}
 }
 
@@ -127,8 +134,25 @@ export const loadActorAvatarFromURL: Behavior = (entity, avatarURL) => {
     ([...actor.modelContainer.children])
       .forEach(child => actor.modelContainer.remove(child));
 
-		tmpGroup.children.forEach(child => actor.modelContainer.add(child));
+    // This is for snimation retargetting
 
+    // let targetSkeleton;
+    // tmpGroup.traverse((child) => {
+    //   if(child.type === "SkinnedMesh") {
+    //     if(!targetSkeleton)
+    //     targetSkeleton = child;
+    //   }
+    // })
+
+    // standardizeSkeletion(targetSkeleton);
+    // const sourceSkeleton = AnimationManager.instance._defaultSkeleton;
+    // console.log('targetSkeleton', targetSkeleton)
+    // console.log('sourceSkeleton', sourceSkeleton)
+    // SkeletonUtils.retarget(targetSkeleton, sourceSkeleton);
+    
+		tmpGroup.children.forEach(child => actor.modelContainer.add(child));
+    
+    console.log(actor.modelContainer)
 		actor.mixer = new AnimationMixer(actor.modelContainer.children[0]);
 		if (hasComponent(entity, IKComponent)) {
 			initiateIK(entity)

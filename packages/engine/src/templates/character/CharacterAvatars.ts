@@ -36,6 +36,6 @@ export const defaultAvatarAnimations: {[key:number]: AnimationConfigInterface} =
   [CharacterAnimations.RUN_STRAFE_RIGHT]: { name: 'run_right' },
   [CharacterAnimations.RUN_STRAFE_LEFT]: { name: 'run_left' },
   [CharacterAnimations.DRIVING]: { name: 'driving' },
-  [CharacterAnimations.ENTERING_VEHICLE]: { name: 'entering_car', loop: LoopOnce },
-  [CharacterAnimations.EXITING_VEHICLE]: { name: 'exiting_car', loop: LoopOnce },
+  [CharacterAnimations.ENTERING_VEHICLE]: { name: 'car_enter_left', loop: LoopOnce },
+  [CharacterAnimations.EXITING_VEHICLE]: { name: 'car_enter_right', loop: LoopOnce },
 };

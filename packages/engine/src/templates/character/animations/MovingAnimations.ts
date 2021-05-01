@@ -4,6 +4,7 @@ import { CharacterComponent } from '../components/CharacterComponent';
 import { getComponent, getMutableComponent, hasComponent } from '../../../ecs/functions/EntityFunctions';
 import { Vector3 } from "three";
 import { AnimationComponent } from '../../../character/components/AnimationComponent';
+import { defaultAvatarAnimations } from '../CharacterAvatars';
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -15,71 +16,74 @@ const {
   RUN_FORWARD, RUN_BACKWARD, RUN_STRAFE_LEFT, RUN_STRAFE_RIGHT, JUMP, FALLING, DROP, DROP_ROLLING
 } = CharacterAnimations;
 
+
+
 const movingAnimationSchema = [
   {
-    type: [IDLE], name: 'idle', axis: 'xyz', speed: 0.5, customProperties: ['weight', 'dontHasHit'],
+    type: [IDLE], name: defaultAvatarAnimations[IDLE].name, axis: 'xyz', speed: 0.5, customProperties: ['weight', 'dontHasHit'],
     value:      [ -0.5, 0, 0.5 ],
     weight:     [  0 , 1.4, 0  ],
     dontHasHit: [  0 ,  0,  0  ]
-  },{
-    type: [FALLING], name: 'falling', axis:'xyz', speed: 0.5, customProperties: ['weight', 'dontHasHit'],
+  },/*
+  {
+    type: [FALLING], name: defaultAvatarAnimations[FALLING].name, axis:'xyz', speed: 0.5, customProperties: ['weight', 'dontHasHit'],
     value:      [ -1,   0,   1 ],
     weight:     [  0 ,  0,   0 ],
     dontHasHit: [  1 ,  1,   1 ]
   },
   {
-    type: [DROP], name: 'falling_to_land', axis:'y', speed: 0.5, customProperties: ['weight', 'dontHasHit'],
+    type: [DROP], name: defaultAvatarAnimations[DROP].name, axis:'y', speed: 0.5, customProperties: ['weight', 'dontHasHit'],
     value:      [  -1,   0  ],
     weight:     [   1,   0  ],
     dontHasHit: [   1,   0  ]
-  },
+  }, */
   /*
   {
-    type: [DROP_ROLLING], name: 'falling_to_roll', axis:'z', speed: 1, customProperties: ['weight', 'dontHasHit'],
+    type: [DROP_ROLLING], name: defaultAvatarAnimations[DROP_ROLLING].name, axis:'z', speed: 1, customProperties: ['weight', 'dontHasHit'],
     value:      [  0,   1 ],
     weight:     [  0,   0 ],
     dontHasHit: [  0,   1 ]
   },
   */
   {
-    type: [WALK_FORWARD], name: 'walking', axis:'z', speed: 1, customProperties: ['weight', 'dontHasHit'],
+    type: [WALK_FORWARD], name: defaultAvatarAnimations[WALK_FORWARD].name, axis:'z', speed: 1, customProperties: ['weight', 'dontHasHit'],
     value:      [ 0.1, 0.5, 1 ],
     weight:     [  0,   1,  0 ],
     dontHasHit: [  0,   0,  0 ]
   },{
-    type: [WALK_STRAFE_RIGHT], name: 'walk_right', axis:'x', speed: 1, customProperties: ['weight', 'dontHasHit'],
+    type: [WALK_STRAFE_RIGHT], name: defaultAvatarAnimations[WALK_STRAFE_RIGHT].name, axis:'x', speed: 1, customProperties: ['weight', 'dontHasHit'],
     value:      [ -1, -0.5, -0.1 ],
     weight:     [  0,   1 ,   0  ],
     dontHasHit: [  0 ,  0,    0  ]
   },{
-    type: [WALK_STRAFE_LEFT], name: 'walk_left', axis:'x', speed: 1, customProperties: ['weight', 'dontHasHit'],
+    type: [WALK_STRAFE_LEFT], name: defaultAvatarAnimations[WALK_STRAFE_LEFT].name, axis:'x', speed: 1, customProperties: ['weight', 'dontHasHit'],
     value:      [ 0.1, 0.5, 1 ],
     weight:     [  0,   1,  0 ],
     dontHasHit: [  0 ,  0,  0 ]
   },{
-    type: [WALK_BACKWARD], name: 'walking_backward', axis:'z', speed: 1, customProperties: ['weight', 'dontHasHit'],
+    type: [WALK_BACKWARD], name: defaultAvatarAnimations[WALK_BACKWARD].name, axis:'z', speed: 1, customProperties: ['weight', 'dontHasHit'],
     value:      [ -1, -0.5, -0.1],
     weight:     [  0,   1,    0 ],
     dontHasHit: [  0 ,  0,    0 ]
   },
 
   {
-    type: [RUN_FORWARD], name: 'run_forward', axis:'z', speed: 0.9, customProperties: ['weight', 'dontHasHit'],
+    type: [RUN_FORWARD], name: defaultAvatarAnimations[RUN_FORWARD].name, axis:'z', speed: 0.9, customProperties: ['weight', 'dontHasHit'],
     value:      [  0.5,  1  ],
     weight:     [   0,   1  ],
     dontHasHit: [   0 , 0.5 ]
   },{
-    type: [RUN_STRAFE_RIGHT], name: 'run_right', axis: 'x', speed: 0.9, customProperties: ['weight', 'dontHasHit'],
+    type: [RUN_STRAFE_RIGHT], name: defaultAvatarAnimations[RUN_STRAFE_RIGHT].name, axis: 'x', speed: 0.9, customProperties: ['weight', 'dontHasHit'],
     value:      [ -1, -0.5 ],
     weight:     [  1 ,  0  ],
     dontHasHit: [  0.5, 0  ]
   },{
-    type: [RUN_STRAFE_LEFT], name: 'run_left', axis:'x', speed: 0.9, customProperties: ['weight', 'dontHasHit'],
+    type: [RUN_STRAFE_LEFT], name: defaultAvatarAnimations[RUN_STRAFE_LEFT].name, axis:'x', speed: 0.9, customProperties: ['weight', 'dontHasHit'],
     value:      [ 0.5,  1  ],
     weight:     [  0 ,  1  ],
     dontHasHit: [  0 , 0.5 ]
   },{
-    type: [RUN_BACKWARD], name: 'run_backward', axis: 'z', speed: 0.9, customProperties: ['weight', 'dontHasHit'],
+    type: [RUN_BACKWARD], name: defaultAvatarAnimations[RUN_BACKWARD].name, axis: 'z', speed: 0.9, customProperties: ['weight', 'dontHasHit'],
     value:      [ -1 ,-0.5 ],
     weight:     [  1 ,  0  ],
     dontHasHit: [ 0.5,  0  ]

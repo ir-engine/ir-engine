@@ -112,6 +112,7 @@ export const initializeEngine = async (options): Promise<void> => {
     Engine.scene.add(Engine.camera);
 
     await AnimationManager.instance.getDefaultModel()
+    await AnimationManager.instance.getAnimations()
 
     registerSystem(CharacterControllerSystem);
     registerSystem(ServerSpawnSystem, { priority: 899 });
