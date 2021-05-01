@@ -98,10 +98,10 @@ export const defaultPostProcessingSchema = {
   BloomEffect: {
     isActive: true,
     blendFunction: BlendFunction.SCREEN,
-    kernelSize: 0,
-    luminanceThreshold: 1.05,
+    kernelSize: KernelSize.MEDIUM,
+    luminanceThreshold: 1.0,
     luminanceSmoothing: 0.1,
-    intensity: 1
+    intensity: 0.2
   },
   ToneMappingEffect: {
     isActive: false,

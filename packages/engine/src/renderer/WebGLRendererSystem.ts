@@ -1,12 +1,8 @@
 import {
-  ACESFilmicToneMapping,
-  GammaEncoding,
-  LinearEncoding, LinearToneMapping, NearestFilter,
-  NoToneMapping,
+  LinearToneMapping,
+  NearestFilter,
   PCFSoftShadowMap,
   PerspectiveCamera,
-  ReinhardToneMapping,
-  RGBEEncoding,
   RGBFormat,
   sRGBEncoding,
   WebGL1Renderer,
@@ -30,6 +26,7 @@ import { TextureEffect } from './postprocessing/TextureEffect';
 import { PostProcessingSchema } from './postprocessing/PostProcessingSchema';
 import { EngineEvents } from '../ecs/classes/EngineEvents';
 import PostProcessing, { defaultPostProcessingSchema, effectType } from '../scene/classes/PostProcessing';
+import { ShaderPass } from './postprocessing/passes/ShaderPass';
 
 export class WebGLRendererSystem extends System {
   
@@ -109,7 +106,7 @@ export class WebGLRendererSystem extends System {
     renderer.shadowMap.type = PCFSoftShadowMap;
     renderer.outputEncoding = sRGBEncoding;
     renderer.toneMapping = LinearToneMapping;
-    renderer.toneMappingExposure = 1;
+    renderer.toneMappingExposure = 0.8;
     Engine.renderer = renderer;
 
     // Cascaded shadow maps
@@ -217,6 +214,8 @@ export class WebGLRendererSystem extends System {
       WebGLRendererSystem.composer.addPass(depthDownsamplingPass);
       WebGLRendererSystem.composer.addPass(new EffectPass(Engine.camera, ...passes, textureEffect));
     }
+    // const gammaCorrectionPass = new ShaderPass(GammaCorrectionShader);
+    // WebGLRendererSystem.composer.addPass(gammaCorrectionPass);
   }
 
   /**
