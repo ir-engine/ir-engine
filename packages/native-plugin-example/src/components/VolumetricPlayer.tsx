@@ -1,8 +1,8 @@
-import DracosisPlayer from "@xr3ngine/volumetric/src/Player";
+import DracosisPlayer from "@xrengine/volumetric/src/Player";
 
 import React, { useEffect, useRef, useState } from 'react';
 import { BoxGeometry, Mesh, MeshBasicMaterial, PerspectiveCamera, Scene, sRGBEncoding, Vector3, WebGLRenderer } from "three";
-import { THREETrackballControls } from "@xr3ngine/engine/src/input/classes/THREETrackballControls";
+import { THREETrackballControls } from "@xrengine/engine/src/input/classes/THREETrackballControls";
 
 interface VolumetricPlayerProps extends React.HTMLAttributes<any> {
   meshFilePath: string,

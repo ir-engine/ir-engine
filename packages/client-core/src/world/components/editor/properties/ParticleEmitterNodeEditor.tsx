@@ -8,9 +8,9 @@ import CompoundNumericInput from "../inputs/CompoundNumericInput";
 import NumericInputGroup from "../inputs/NumericInputGroup";
 import Vector3Input from "../inputs/Vector3Input";
 import SelectInput from "../inputs/SelectInput";
-import * as EasingFunctions from "@xr3ngine/engine/src/common/functions/EasingFunctions";
+import * as EasingFunctions from "@xrengine/engine/src/common/functions/EasingFunctions";
 import { SprayCan } from "@styled-icons/fa-solid/SprayCan";
-import { camelPad } from "@xr3ngine/engine/src/editor/functions/utils";
+import { camelPad } from "@xrengine/engine/src/editor/functions/utils";
 import i18n from "i18next";
 import { withTranslation } from "react-i18next";
 

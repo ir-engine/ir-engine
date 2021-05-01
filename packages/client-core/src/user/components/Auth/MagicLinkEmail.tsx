@@ -12,7 +12,7 @@ import { Link } from 'react-router-dom';
 import { Config } from '../../../helper';
 // @ts-ignore
 import styles from './Auth.module.scss';
-import { User } from '@xr3ngine/common/src/interfaces/User';
+import { User } from '@xrengine/common/src/interfaces/User';
 import { createMagicLink, addConnectionBySms, addConnectionByEmail } from '../../reducers/auth/service';
 import { selectAuthState } from '../../reducers/auth/selector';
 import { useTranslation } from "react-i18next";

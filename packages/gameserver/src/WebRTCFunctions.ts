@@ -1,13 +1,13 @@
-import { MediaStreamSystem } from "@xr3ngine/engine/src/networking/systems/MediaStreamSystem";
-import { Network } from "@xr3ngine/engine/src/networking//classes/Network";
-import { MessageTypes } from "@xr3ngine/engine/src/networking/enums/MessageTypes";
-import { WebRtcTransportParams } from "@xr3ngine/server-core/src/types/WebRtcTransportParams";
+import { MediaStreamSystem } from "@xrengine/engine/src/networking/systems/MediaStreamSystem";
+import { Network } from "@xrengine/engine/src/networking//classes/Network";
+import { MessageTypes } from "@xrengine/engine/src/networking/enums/MessageTypes";
+import { WebRtcTransportParams } from "@xrengine/server-core/src/types/WebRtcTransportParams";
 import { createWorker } from 'mediasoup';
 import { DataConsumerOptions } from "mediasoup/lib/types";
 import { DataProducer, DataConsumer, DataProducerOptions, Producer, RtpCodecCapability, Transport, WebRtcTransport } from "mediasoup/lib/types";
 import SocketIO from "socket.io";
-import logger from "@xr3ngine/server-core/src/logger";
-import { localConfig, sctpParameters } from '@xr3ngine/server-core/src/config';
+import logger from "@xrengine/server-core/src/logger";
+import { localConfig, sctpParameters } from '@xrengine/server-core/src/config';
 import { getUserIdFromSocketId } from "./NetworkFunctions";
 
 const toArrayBuffer = (buf): any => {

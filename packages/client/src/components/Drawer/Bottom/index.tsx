@@ -13,7 +13,7 @@ import {
     Save,
     Send
 } from '@material-ui/icons';
-import { selectChatState } from '@xr3ngine/client-core/src/social/reducers/chat/selector';
+import { selectChatState } from '@xrengine/client-core/src/social/reducers/chat/selector';
 import {
     createMessage,
     getChannelMessages,
@@ -22,10 +22,10 @@ import {
     removeMessage,
     updateChatTarget,
     updateMessageScrollInit
-} from '@xr3ngine/client-core/src/social/reducers/chat/service';
-import { selectAuthState } from '@xr3ngine/client-core/src/user/reducers/auth/selector';
-import { Message } from '@xr3ngine/common/src/interfaces/Message';
-import { User } from "@xr3ngine/common/src/interfaces/User";
+} from '@xrengine/client-core/src/social/reducers/chat/service';
+import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector';
+import { Message } from '@xrengine/common/src/interfaces/Message';
+import { User } from "@xrengine/common/src/interfaces/User";
 import classNames from 'classnames';
 import moment from 'moment';
 import React, { useEffect, useState } from 'react';

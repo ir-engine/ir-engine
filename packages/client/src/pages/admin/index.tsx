@@ -1,6 +1,6 @@
-import Analytics from "@xr3ngine/client-core/src/admin/components/Analytics/index";
-import Dashboard from "@xr3ngine/client-core/src/user/components/Dashboard/Dashboard";
-import { doLoginAuto } from "@xr3ngine/client-core/src/user/reducers/auth/service";
+import Analytics from "@xrengine/client-core/src/admin/components/Analytics/index";
+import Dashboard from "@xrengine/client-core/src/user/components/Dashboard/Dashboard";
+import { doLoginAuto } from "@xrengine/client-core/src/user/reducers/auth/service";
 import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';

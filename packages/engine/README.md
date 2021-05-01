@@ -3,7 +3,7 @@ A data driven game engine, built on three.js
 
 ## Quickstart
 ```
-git clone https://github.com/xr3ngine/xr3ngine
+git clone https://github.com/XRFoundation/XREngine
 cd armada
 yarn install
 cp .env.https .env
@@ -280,7 +280,7 @@ Switching from player to car
 # How to use
 ```javascript
 import { World } from '../ecs/classes/World'
-import { initializeInput } from '@xr3ngine/engine'
+import { initializeInput } from '@xrengine/engine'
 
 const world = new World()
 

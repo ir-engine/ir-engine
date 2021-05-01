@@ -1,4 +1,4 @@
-import Player from "@xr3ngine/volumetric/src/Player";
+import Player from "@xrengine/volumetric/src/Player";
 
 import React, { useEffect, useRef, useState } from 'react';
 import { PerspectiveCamera, Scene, sRGBEncoding, Vector3, WebGLRenderer } from "three";

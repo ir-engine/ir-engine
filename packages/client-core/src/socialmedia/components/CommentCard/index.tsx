@@ -13,14 +13,14 @@ import VerifiedUserIcon from '@material-ui/icons/VerifiedUser';
 
 // @ts-ignore
 import styles from './CommentCard.module.scss';
-import { CommentInterface } from '@xr3ngine/common/src/interfaces/Comment';
+import { CommentInterface } from '@xrengine/common/src/interfaces/Comment';
 import { bindActionCreators, Dispatch } from 'redux';
 import { connect } from 'react-redux';
 import SimpleModal from '../SimpleModal';
 import { addFireToFeedComment, getCommentFires, removeFireToFeedComment } from '../../reducers/feedComment/service';
 import { selectFeedCommentsState } from '../../reducers/feedComment/selector';
 import PopupLogin from '../PopupLogin/PopupLogin';
-// import { IndexPage } from '@xr3ngine/social/pages/login';
+// import { IndexPage } from '@xrengine/social/pages/login';
 import { selectAuthState } from '../../../user/reducers/auth/selector';
 
 const mapStateToProps = (state: any): any => {

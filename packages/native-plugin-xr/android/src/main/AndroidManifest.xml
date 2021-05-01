@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.xr3ngine.xr">
+    package="com.xrengine.xr">
 
     <uses-permission android:name="android.permission.CAMERA" />
 
@@ -13,7 +13,7 @@
 
     <application
         android:requestLegacyExternalStorage="true">
-        <activity android:name="com.xr3ngine.xr.XRActivity"></activity>
+        <activity android:name="com.xrengine.xr.XRActivity"></activity>
 
         <meta-data
             android:name="com.google.ar.core"

@@ -27,7 +27,7 @@ import {
   FIRED_FEEDS_FETCH,
   FEEDS_FIRED_RETRIEVED
 } from '../actions';
-import { FeedShort, Feed } from '@xr3ngine/common/src/interfaces/Feed';
+import { FeedShort, Feed } from '@xrengine/common/src/interfaces/Feed';
 
 export interface FeedsRetrievedAction {
   type: string;

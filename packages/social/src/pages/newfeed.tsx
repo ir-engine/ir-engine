@@ -1,9 +1,9 @@
 
 import React from "react";
 
-import AppFooter from "@xr3ngine/client-core/src/socialmedia/components/Footer";
-import FeedForm from "@xr3ngine/client-core/src/socialmedia/components/FeedForm";
-import AppHeader from "@xr3ngine/client-core/src/socialmedia/components/Header";
+import AppFooter from "@xrengine/client-core/src/socialmedia/components/Footer";
+import FeedForm from "@xrengine/client-core/src/socialmedia/components/FeedForm";
+import AppHeader from "@xrengine/client-core/src/socialmedia/components/Header";
 
 // @ts-ignore
 import styles from './index.module.scss';

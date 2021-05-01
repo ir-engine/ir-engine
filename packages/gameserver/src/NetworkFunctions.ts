@@ -1,15 +1,15 @@
-import { Engine } from '@xr3ngine/engine/src/ecs/classes/Engine';
-import { EngineEvents } from '@xr3ngine/engine/src/ecs/classes/EngineEvents';
-import { Entity } from '@xr3ngine/engine/src/ecs/classes/Entity';
-import { getComponent, removeEntity } from "@xr3ngine/engine/src/ecs/functions/EntityFunctions";
-import { Network } from "@xr3ngine/engine/src/networking//classes/Network";
-import { MessageTypes } from '@xr3ngine/engine/src/networking/enums/MessageTypes';
-import { WorldStateInterface } from '@xr3ngine/engine/src/networking/interfaces/WorldState';
-import { createNetworkPlayer } from '@xr3ngine/engine/src/templates/character/prefabs/NetworkPlayerCharacter';
-import { TransformComponent } from '@xr3ngine/engine/src/transform/components/TransformComponent';
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine';
+import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents';
+import { Entity } from '@xrengine/engine/src/ecs/classes/Entity';
+import { getComponent, removeEntity } from "@xrengine/engine/src/ecs/functions/EntityFunctions";
+import { Network } from "@xrengine/engine/src/networking//classes/Network";
+import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes';
+import { WorldStateInterface } from '@xrengine/engine/src/networking/interfaces/WorldState';
+import { createNetworkPlayer } from '@xrengine/engine/src/templates/character/prefabs/NetworkPlayerCharacter';
+import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent';
 import { DataConsumer, DataProducer } from 'mediasoup/lib/types';
-import logger from "@xr3ngine/server-core/src/logger";
-import config from '@xr3ngine/server-core/src/appconfig';
+import logger from "@xrengine/server-core/src/logger";
+import config from '@xrengine/server-core/src/appconfig';
 import { closeTransport } from './WebRTCFunctions';
 
 const gsNameRegex = /gameserver-([a-zA-Z0-9]{5}-[a-zA-Z0-9]{5})/;

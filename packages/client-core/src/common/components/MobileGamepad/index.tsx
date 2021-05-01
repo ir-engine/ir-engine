@@ -1,7 +1,7 @@
 import { TouchApp } from '@styled-icons/material/TouchApp';
-import { EngineEvents } from '@xr3ngine/engine/src/ecs/classes/EngineEvents';
-import { GamepadAxis, GamepadButtons } from "@xr3ngine/engine/src/input/enums/InputEnums";
-import { ClientInputSystem } from '@xr3ngine/engine/src/input/systems/ClientInputSystem';
+import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents';
+import { GamepadAxis, GamepadButtons } from "@xrengine/engine/src/input/enums/InputEnums";
+import { ClientInputSystem } from '@xrengine/engine/src/input/systems/ClientInputSystem';
 import nipplejs from 'nipplejs';
 import React, { FunctionComponent, useEffect, useRef } from 'react';
 // @ts-ignore

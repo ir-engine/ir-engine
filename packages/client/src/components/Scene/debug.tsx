@@ -1,29 +1,29 @@
-import { setAppLoaded } from '@xr3ngine/client-core/src/common/reducers/app/actions';
-import { selectAppState } from '@xr3ngine/client-core/src/common/reducers/app/selector';
-import { selectAuthState } from '@xr3ngine/client-core/src/user/reducers/auth/selector';
-import { doLoginAuto } from '@xr3ngine/client-core/src/user/reducers/auth/service';
-import { client } from '@xr3ngine/client-core/src/feathers';
-import { selectLocationState } from '@xr3ngine/client-core/src/social/reducers/location/selector';
+import { setAppLoaded } from '@xrengine/client-core/src/common/reducers/app/actions';
+import { selectAppState } from '@xrengine/client-core/src/common/reducers/app/selector';
+import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector';
+import { doLoginAuto } from '@xrengine/client-core/src/user/reducers/auth/service';
+import { client } from '@xrengine/client-core/src/feathers';
+import { selectLocationState } from '@xrengine/client-core/src/social/reducers/location/selector';
 import {
   getLocationByName
-} from '@xr3ngine/client-core/src/social/reducers/location/service';
-import { setCurrentScene } from '@xr3ngine/client-core/src/world/reducers/scenes/actions';
-import { selectUserState } from '@xr3ngine/client-core/src/user/reducers/user/selector';
+} from '@xrengine/client-core/src/social/reducers/location/service';
+import { setCurrentScene } from '@xrengine/client-core/src/world/reducers/scenes/actions';
+import { selectUserState } from '@xrengine/client-core/src/user/reducers/user/selector';
 import { selectInstanceConnectionState } from '../../reducers/instanceConnection/selector';
 import {
   connectToInstanceServer,
   provisionInstanceServer
 } from '../../reducers/instanceConnection/service';
-import { selectPartyState } from '@xr3ngine/client-core/src/social/reducers/party/selector';
+import { selectPartyState } from '@xrengine/client-core/src/social/reducers/party/selector';
 import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport';
-import { EngineEvents } from '@xr3ngine/engine/src/ecs/classes/EngineEvents';
-import { initializeEngine } from '@xr3ngine/engine/src/initialize';
-import { DefaultInitializationOptions } from '@xr3ngine/engine/src/DefaultInitializationOptions';
-import { Network } from '@xr3ngine/engine/src/networking/classes/Network';
-import { MessageTypes } from '@xr3ngine/engine/src/networking/enums/MessageTypes';
-import { NetworkSchema } from '@xr3ngine/engine/src/networking/interfaces/NetworkSchema';
-import { loadScene } from '@xr3ngine/engine/src/scene/functions/SceneLoading';
-import { DefaultNetworkSchema } from '@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema';
+import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents';
+import { initializeEngine } from '@xrengine/engine/src/initialize';
+import { DefaultInitializationOptions } from '@xrengine/engine/src/DefaultInitializationOptions';
+import { Network } from '@xrengine/engine/src/networking/classes/Network';
+import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes';
+import { NetworkSchema } from '@xrengine/engine/src/networking/interfaces/NetworkSchema';
+import { loadScene } from '@xrengine/engine/src/scene/functions/SceneLoading';
+import { DefaultNetworkSchema } from '@xrengine/engine/src/templates/networking/DefaultNetworkSchema';
 import querystring from 'querystring';
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';

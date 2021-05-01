@@ -10,7 +10,7 @@ import { TouchInputs } from "../../src/input/enums/InputEnums";
 import { handleTouch } from "../../src/input/behaviors/handleTouch";
 import { handleTouchMove } from "../../src/input/behaviors/handleTouchMove";
 import { BinaryValue } from "../../src/common/enums/BinaryValue";
-import { BaseInput } from '@xr3ngine/engine/src/input/enums/BaseInput';
+import { BaseInput } from '@xrengine/engine/src/input/enums/BaseInput';
 import { LifecycleValue } from "../../src/common/enums/LifecycleValue";
 import { normalizeMouseCoordinates } from "../../src/common/functions/normalizeMouseCoordinates";
 import { Vector2 } from "three";

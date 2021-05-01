@@ -31,7 +31,7 @@ export default defineConfig(() => {
         build: {
             lib: {
                 entry: path.resolve(__dirname, 'src/index.ts'),
-                name: 'xr3ngine-gameserver'
+                name: 'xrengine-gameserver'
             },
             sourcemap: 'inline',
             rollupOptions: {

@@ -1,7 +1,7 @@
 import EventEmitter from "eventemitter3";
 import jwtDecode from "jwt-decode";
 import { buildAbsoluteURL } from "url-toolkit";
-import { RethrownError } from "@xr3ngine/engine/src/editor/functions/errors";
+import { RethrownError } from "@xrengine/engine/src/editor/functions/errors";
 import { AudioFileTypes, matchesFileTypes } from "./assets/fileTypes";
 import configs from "./configs";
 import PerformanceCheckDialog from "./dialogs/PerformanceCheckDialog";

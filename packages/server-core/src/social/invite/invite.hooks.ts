@@ -1,12 +1,12 @@
-import collectAnalytics from '@xr3ngine/server-core/src/hooks/collect-analytics';
+import collectAnalytics from '@xrengine/server-core/src/hooks/collect-analytics';
 import * as authentication from '@feathersjs/authentication';
 import { disallow } from 'feathers-hooks-common';
-import generateInvitePasscode from '@xr3ngine/server-core/src/hooks/generate-invite-passcode';
-import sendInvite from '@xr3ngine/server-core/src/hooks/send-invite';
-import attachOwnerIdInBody from '@xr3ngine/server-core/src/hooks/set-loggedin-user-in-body';
-import attachOwnerIdInQuery from '@xr3ngine/server-core/src/hooks/set-loggedin-user-in-query';
+import generateInvitePasscode from '@xrengine/server-core/src/hooks/generate-invite-passcode';
+import sendInvite from '@xrengine/server-core/src/hooks/send-invite';
+import attachOwnerIdInBody from '@xrengine/server-core/src/hooks/set-loggedin-user-in-body';
+import attachOwnerIdInQuery from '@xrengine/server-core/src/hooks/set-loggedin-user-in-query';
 import { HookContext } from '@feathersjs/feathers';
-import inviteRemoveAuthenticate from '@xr3ngine/server-core/src/hooks/invite-remove-authenticate';
+import inviteRemoveAuthenticate from '@xrengine/server-core/src/hooks/invite-remove-authenticate';
 import * as commonHooks from 'feathers-hooks-common';
 import logger from '../../logger';
 

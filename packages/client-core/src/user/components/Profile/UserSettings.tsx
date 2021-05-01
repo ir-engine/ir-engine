@@ -7,7 +7,7 @@ import Typography from '@material-ui/core/Typography';
 import { Image, Mic, VolumeUp } from '@material-ui/icons';
 import { selectAuthState } from '../../reducers/auth/selector';
 import { updateUserSettings } from '../../reducers/auth/service';
-import { PositionalAudioSystem } from '@xr3ngine/engine/src/audio/systems/PositionalAudioSystem';
+import { PositionalAudioSystem } from '@xrengine/engine/src/audio/systems/PositionalAudioSystem';
 import React, { ChangeEvent, useState } from 'react';
 import { connect } from "react-redux";
 import { bindActionCreators, Dispatch } from "redux";

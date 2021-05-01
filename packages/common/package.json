@@ -1,18 +1,18 @@
 {
-  "name": "@xr3ngine/common",
+  "name": "@xrengine/common",
   "version": "0.2.18",
   "main": "index.ts",
   "module": "dist/common.es.js",
   "publishConfig": {
     "access": "public"
   },
-  "description": "Shared types for other XR3ngine packages",
+  "description": "Shared types for other XREngine packages",
   "scripts": {
     "check-errors": "tsc --noemit",
     "build-publish": "rimraf dist && ctix entrypoint ./src && cross-env NODE_ENV=production rollup -c"
   },
-  "repository": "http://github.com/xr3ngine/xr3ngine",
-  "author": "XR3ngine",
+  "repository": "http://github.com/XRFoundation/XREngine",
+  "author": "XREngine",
   "license": "MIT",
   "devDependencies": {
     "@rollup/plugin-commonjs": "18.0.0",
