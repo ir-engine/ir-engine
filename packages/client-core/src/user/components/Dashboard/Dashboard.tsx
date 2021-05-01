@@ -12,6 +12,7 @@ import IconButton from '@material-ui/core/IconButton';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
+import { useTranslation } from 'react-i18next';
 import {
 } from '@material-ui/icons';
 import {
@@ -126,6 +127,7 @@ export default function Dashboard({ children }) {
     const theme = useTheme();
     const [open, setOpen] = React.useState(false);
     const [loading, setLoading] = React.useState(false);
+	const { t } = useTranslation();
 
     const handleDrawerOpen = () => {
         setOpen(true);
@@ -165,7 +167,7 @@ export default function Dashboard({ children }) {
                         <Menu />
                     </IconButton>
                     <Typography variant="h6">
-                        Dashboard
+                        {t('user:dashboard.header')}
                     </Typography>
                 </Toolbar>
             </AppBar>
@@ -194,7 +196,7 @@ export default function Dashboard({ children }) {
                                 <ListItemIcon >
                                     <DashboardIcon style={{ color: "white" }} />
                                 </ListItemIcon>
-                                <ListItemText primary="Dashboard" />
+                                <ListItemText primary={t('user:dashboard.dashboard')} />
                             </ListItem>
                     </Link>
                     <Link to="/admin/users" className={classes.textLink}>
@@ -202,7 +204,7 @@ export default function Dashboard({ children }) {
                             <ListItemIcon >
                                 <SupervisorAccount style={{ color: "white" }} />
                             </ListItemIcon>
-                            <ListItemText primary="Users" />
+                            <ListItemText primary={t('user:dashboard.users')} />
                         </ListItem>
                     </Link>
                     <Link to="/admin/instance" className={classes.textLink}>
@@ -210,7 +212,7 @@ export default function Dashboard({ children }) {
                             <ListItemIcon >
                                 <DirectionsRun style={{ color: "white" }} />
                             </ListItemIcon>
-                            <ListItemText primary="Instance" />
+                            <ListItemText primary={t('user:dashboard.instance')} />
                         </ListItem>
                     </Link>
                     <Link to="/admin/locations" className={classes.textLink}>
@@ -218,7 +220,7 @@ export default function Dashboard({ children }) {
                             <ListItemIcon >
                                 <NearMe style={{ color: "white" }} />
                             </ListItemIcon>
-                            <ListItemText primary="Locations" />
+                            <ListItemText primary={t('user:dashboard.locations')} />
                         </ListItem>
                     </Link>
                     <Link to="/admin/invites" className={classes.textLink}>
@@ -226,7 +228,7 @@ export default function Dashboard({ children }) {
                             <ListItemIcon >
                                 <PersonAdd style={{ color: "white" }} />
                             </ListItemIcon>
-                            <ListItemText primary="Invites" />
+                            <ListItemText primary={t('user:dashboard.invites')} />
                         </ListItem>
                     </Link>
                     <Link to="/admin/sessions" className={classes.textLink}>
@@ -234,7 +236,7 @@ export default function Dashboard({ children }) {
                             <ListItemIcon >
                                 <DragIndicator style={{ color: "white" }} />
                             </ListItemIcon>
-                            <ListItemText primary="Sessions" />
+                            <ListItemText primary={t('user:dashboard.sessions')} />
                         </ListItem>
                     </Link>
                     <Link to="/admin/groups" className={classes.textLink}>
@@ -242,7 +244,7 @@ export default function Dashboard({ children }) {
                             <ListItemIcon >
                                 <GroupAdd style={{ color: "white" }} />
                             </ListItemIcon>
-                            <ListItemText primary="Groups" />
+                            <ListItemText primary={t('user:dashboard.groups')} />
                         </ListItem>
                     </Link>
                     <Link to="/admin/parties" className={classes.textLink}>
@@ -250,7 +252,7 @@ export default function Dashboard({ children }) {
                             <ListItemIcon >
                                 <CalendarViewDay style={{ color: "white" }} />
                             </ListItemIcon>
-                            <ListItemText primary="Parties" />
+                            <ListItemText primary={t('user:dashboard.parties')} />
                         </ListItem>
                     </Link>
                     <Link to="/admin/chats" className={classes.textLink}>
@@ -258,7 +260,7 @@ export default function Dashboard({ children }) {
                             <ListItemIcon >
                                 <Forum style={{ color: "white" }} />
                             </ListItemIcon>
-                            <ListItemText primary="Chats" />
+                            <ListItemText primary={t('user:dashboard.chats')} />
                         </ListItem>
                     </Link>
                     <Link to="/admin/content-packs" className={classes.textLink}>
@@ -266,7 +268,7 @@ export default function Dashboard({ children }) {
                             <ListItemIcon >
                                 <PhotoAlbum style={{ color: "white" }} />
                             </ListItemIcon>
-                            <ListItemText primary="Content Packs" />
+                            <ListItemText primary={t('user:dashboard.content')} />
                         </ListItem>
                     </Link>
                     <Link to="/admin/scenes" className={classes.textLink}>
@@ -274,7 +276,7 @@ export default function Dashboard({ children }) {
                             <ListItemIcon >
                                 <PhotoLibrary style={{ color: "white" }} />
                             </ListItemIcon>
-                            <ListItemText primary="Scenes" />
+                            <ListItemText primary={t('user:dashboard.scenes')} />
                         </ListItem>
                     </Link>
                 </List>

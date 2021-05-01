@@ -7,10 +7,12 @@ import { AddComment} from "./AddComment";
 import { FeedItemPhotos} from "./FeedItemPhotos";
 import { useHistory } from "react-router-dom";
 import { ModalStateHook } from "./ModalHook";
+import { useTranslation } from 'react-i18next';
 
 export function FeedItem({ data }) {
   const {hideModal, setModal } = ModalStateHook();
   const history = useHistory();
+	const { t } = useTranslation();
 
   const moreClickEvent = () => {
     setModal(true, data);
@@ -26,7 +28,7 @@ export function FeedItem({ data }) {
       <FeedItemPhotos photos={data.photos} />
       <FeedItemButtons className="FeedItemButtons-container w-full h-10 pl-2 pr-2 mt-2 flex items-center" />
       <a href="#" className="feed-item-text text-14-bold mr-1 ml-4">
-        {data?.likeCount || "0"} likes
+        {data?.likeCount || "0"} {t('social:likes')}
       </a>
       <FeedItemComment
         data={{ username: data.user.username, description: data.description }}
@@ -38,7 +40,7 @@ export function FeedItem({ data }) {
           history.push(`/post/${data?.pid || "post-test"}`)
         }
       >
-        View all {data?.commentCount || "0"} comment
+        {t('social:viewComments', { count:  data?.commentCount || 0 })}
       </a>
       {data.popularComments.map((item: any) => {
         return (

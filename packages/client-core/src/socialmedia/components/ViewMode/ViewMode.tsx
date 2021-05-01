@@ -15,6 +15,7 @@ import { selectCreatorsState } from '../../reducers/creator/selector';
 import { selectAuthState } from '../../../user/reducers/auth/selector';
 import { selectPopupsState } from '../../reducers/popupsState/selector';
 import { Box, CardMedia, makeStyles, Typography } from '@material-ui/core';
+import { useTranslation } from 'react-i18next';
 
 const mapStateToProps = (state: any): any => {
   return {
@@ -77,6 +78,7 @@ interface Props{
 export const ViewMode = ({updateArMediaState}:Props) => {
   const [open, setOpen] = useState(false);
   const classes = useStyles();
+	const { t } = useTranslation();
  
   const handleClickOpen = () => {
     setOpen(true);
@@ -106,13 +108,12 @@ export const ViewMode = ({updateArMediaState}:Props) => {
       }}
    >
      <Button onClick={handleClose} color="primary" className={classes.btn_cancel}>
-         Cancel
+         {t('social:view.cancel')}
      </Button>
      <Box borderTop={1} />
      <DialogTitle className={classes.title}>{"Remember!"} </DialogTitle>
     <Typography style={{textAlign: 'center',padding: '16pt'}}>
-        You have two different recording 
-        modes to choose from
+        {t('social:view.choice')}
      </Typography>
      <CardMedia  
        className={classes.media}
@@ -122,7 +123,7 @@ export const ViewMode = ({updateArMediaState}:Props) => {
       <Typography style={{textAlign: 'center',
                           padding: '16pt'
                          }}>
-      Vertical mode has a 30 sec record time
+        {t('social:view.verticalMode')}
       </Typography>
      <Box borderTop={1} />
      <CardMedia
@@ -131,10 +132,10 @@ export const ViewMode = ({updateArMediaState}:Props) => {
        title="Arc"
      />
        <Typography style={{textAlign: 'center',padding: '16pt',marginTop: '30pt'}}>
-        Horizontal mode has an unlimited record time
+          {t('social:view.horizontalMode')}
        </Typography>
      <Button onClick={()=> {handleOpenNewFeedPage();}} color="primary" className={classes.btn_start}>
-         Start
+         {t('social:view.start')}
      </Button>
    </Dialog>
  </div>

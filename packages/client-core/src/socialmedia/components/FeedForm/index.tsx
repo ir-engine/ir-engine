@@ -12,6 +12,7 @@ import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
 import BackupIcon from '@material-ui/icons/Backup';
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
+import { useTranslation } from 'react-i18next';
 
 // @ts-ignore
 import styles from './FeedForm.module.scss';
@@ -45,6 +46,7 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
     const titleRef = React.useRef<HTMLInputElement>();
     const textRef = React.useRef<HTMLInputElement>();
     const videoRef = React.useRef<HTMLInputElement>();
+	const { t } = useTranslation();
 
     const handleComposingTitleChange = (event: any): void => setComposingTitle(event.target.value);
     const handleComposingTextChange = (event: any): void => setComposingText(event.target.value);
@@ -76,13 +78,13 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
     
 return <section className={styles.feedFormContainer}>
     <nav>               
-        <Button variant="text" onClick={()=>{updateArMediaState(true); updateNewFeedPageState(false);}}><ArrowBackIosIcon />Back</Button> 
+        <Button variant="text" onClick={()=>{updateArMediaState(true); updateNewFeedPageState(false);}}><ArrowBackIosIcon />{t('social:feedForm.back')}</Button> 
     </nav>  
     {isSended ? 
-        <Typography variant="h3" align="center">Thanks for sharing and improving our community</Typography>
+        <Typography variant="h3" align="center">{t('social:feedForm.thanks')}</Typography>
         :
         <section>
-            <Typography variant="h4" align="center">Share something with the community</Typography>
+            <Typography variant="h4" align="center">{t('social:feedForm.share')}</Typography>
             {feed && <CardMedia   
                     className={styles.previewImage}                  
                     src={feed.videoUrl}
@@ -94,9 +96,9 @@ return <section className={styles.feedFormContainer}>
             
                 <Card className={styles.preCard}>
                     <Typography variant="h2" align="center">
-                        <p>Upload Video</p>
+                        <p>{t('social:feedForm.upload')}</p>
                         <p><BackupIcon onClick={()=>{(videoRef.current as HTMLInputElement).click();}} /></p>
-                        <input required ref={videoRef} type="file" className={styles.displayNone} name="video" onChange={handlePickVideo} placeholder={'Select video'}/>
+                        <input required ref={videoRef} type="file" className={styles.displayNone} name="video" onChange={handlePickVideo} placeholder={t('social:feedForm.ph-selectVideo')}/>
                     </Typography> 
                 </Card>
                 {/* <Card className={styles.preCard}>
@@ -112,21 +114,21 @@ return <section className={styles.feedFormContainer}>
                     title={feed.title}                      
                 />}  
             <Card className={styles.preCard}>
-                <Typography variant="h2" align="center">Preview image<input required type="file" name="preview" onChange={handlePickPreview} placeholder={'Select preview'}/></Typography>  
+                <Typography variant="h2" align="center">{t('social:feedForm.preview')}<input required type="file" name="preview" onChange={handlePickPreview} placeholder={t('social:feedForm.ph-selectPreview')}/></Typography>  
             </Card>  
-            <Typography align="center">In order to create a feed you must have a video and a preview image!!! </Typography>              
+            <Typography align="center">{t('social:feedForm.createFeed')}</Typography>              
             <TextField ref={titleRef} 
                 value={composingTitle}
                 onChange={handleComposingTitleChange}
                 fullWidth 
-                placeholder="The name of your video"                     
+                placeholder={t('social:feedForm.ph-videoName')}
                 />    
             {/* <TextField className={styles.textArea} ref={textRef} 
                 value={composingText}
                 onChange={handleComposingTextChange}
                 fullWidth 
                 multiline
-                placeholder="Type what you want to share with the community ... "                     
+                placeholder={t('social:feedForm.ph-type')}
                 />     */}
             <Button
                 variant="contained"
@@ -134,7 +136,7 @@ return <section className={styles.feedFormContainer}>
                 className={styles.submit}
                 onClick={()=>handleCreateFeed()}
                 >
-                Share
+                {t('social:feedForm.lbl-share')}
                 </Button>   
 
             {isRecordVideo === true && 
@@ -154,7 +156,7 @@ return <section className={styles.feedFormContainer}>
                             setIsVideo(false);
                         }}
                         >
-                        Save and go Next
+                        {t('social:feedForm.save')}
                         </Button>  }
                 </section>}
         </section>

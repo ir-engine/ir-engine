@@ -8,6 +8,7 @@ import { updateShareFormState } from '../../reducers/popupsState/service';
 // @ts-ignore
 import styles from './ShareForm.module.scss';
 import { Plugins } from '@capacitor/core';
+import { useTranslation } from 'react-i18next';
 const { Share } = Plugins;
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
@@ -42,14 +43,15 @@ const useStyles = makeStyles({
 const ShareForm = ({updateShareFormState}:Props) => {
 
    const classes = useStyles();
+   const { t } = useTranslation();
 
 
    const shareVia = () => {
     Share.share({
-        title: 'See cool stuff',
-        text: 'I Created This Video',
+        title: t('social:shareForm.seeCoolStuff'),
+        text: t('social:shareForm.videoCreated'),
         url: 'http://arcmedia.us/',
-        dialogTitle: 'Share with buddies'
+        dialogTitle: t('social:shareForm.shareWithBuddies')
       });
    };
 
@@ -68,13 +70,13 @@ const ShareForm = ({updateShareFormState}:Props) => {
  />
  </Box>
  <Button size="large" color="primary" onClick={shareVia} className={classes.btn_share}>
-   Share Video
+   {t('social:shareForm.shareVideo')}
  </Button>
  <Button size="large" color="primary" style={{width: '100%'}} onClick={() => {updateShareFormState(false);}} >
-   Save To Camera Roll
+   {t('social:shareForm.save')}
  </Button>
  <Button size="large" color="primary" style={{width: '100%'}} onClick={() => {updateShareFormState(false);}} >
-   Cancel
+   {t('social:shareForm.cancel')}
  </Button>
  </div>
 

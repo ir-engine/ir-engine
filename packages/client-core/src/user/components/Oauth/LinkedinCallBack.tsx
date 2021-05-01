@@ -5,6 +5,7 @@ import { selectAuthState } from '../../reducers/auth/selector';
 import { bindActionCreators, Dispatch } from 'redux';
 import { connect } from 'react-redux';
 import Container from '@material-ui/core/Container';
+import { useTranslation } from 'react-i18next';
 
 const mapStateToProps = (state: any): any => {
   return {
@@ -19,6 +20,7 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 
 const LinkedinCallbackComponent = (props): any => {
   const { auth, loginUserByJwt, refreshConnections } = props;
+	const { t } = useTranslation();
 
   const initialState = { error: '', token: '' };
   const [state, setState] = useState(initialState);
@@ -47,13 +49,13 @@ const LinkedinCallbackComponent = (props): any => {
 
   return state.error && state.error !== '' ? (
     <Container>
-      Linkedin authentication failed.
+      {t('user:oauth.authFailed', { service: "Linkedin" })}
       <br />
       {state.error}
     </Container>
   ) : (
-    <Container>Authenticating...</Container>
+    <Container>{t('user:oauth.authenticating')}</Container>
   );
 };
 
-export const LinkedinCallback = withRouter(connect(mapStateToProps, mapDispatchToProps)(LinkedinCallbackComponent));
+export const LinkedinCallback = withRouter(connect(mapStateToProps, mapDispatchToProps)(LinkedinCallbackComponent)) as any;
