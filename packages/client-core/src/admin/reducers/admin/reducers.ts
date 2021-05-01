@@ -19,7 +19,8 @@ import {
   SCENES_RETRIEVED,
   LOCATION_TYPES_RETRIEVED,
   USER_ROLE_RETRIEVED,
-  INSTANCES_RETRIEVED
+  INSTANCES_RETRIEVED,
+  USER_ROLE_CREATED
 } from "../../../world/reducers/actions";
 import {
   LOADED_USERS,
@@ -222,6 +223,12 @@ const adminReducer = (state = immutableState, action: any): any => {
       updateMap = new Map(state.get('userRole'));
       updateMap.set('userRole', result.data);
       updateMap.set('updateNeeded', false);
+      return state
+        .set('userRole', updateMap);
+
+    case USER_ROLE_CREATED:
+      updateMap = new Map(state.get('userRole'));
+      updateMap.set('updateNeeded', true);
       return state
         .set('userRole', updateMap);
   }

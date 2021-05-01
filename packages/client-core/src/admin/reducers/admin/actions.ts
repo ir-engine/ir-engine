@@ -6,7 +6,8 @@ import {
   INSTANCE_PATCHED,
   INSTANCE_REMOVED_ROW,
   LOCATION_TYPES_RETRIEVED,
-  USER_ROLE_RETRIEVED
+  USER_ROLE_RETRIEVED,
+  USER_ROLE_CREATED
 } from '../../../world/reducers/actions';
 import {
   VIDEO_CREATED,
@@ -165,4 +166,11 @@ export const userRoleRetrieved = (data: any): userRoleRetrievedResponse  => {
     type: USER_ROLE_RETRIEVED,
     types: data
   };
+};
+
+export const userRoleCreated = (data: any): userRoleRetrievedResponse => {
+  return {
+    type: USER_ROLE_CREATED,
+    types: data
+  }; 
 };
