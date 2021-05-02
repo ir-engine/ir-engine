@@ -1,4 +1,3 @@
-import commonjs from 'rollup-plugin-cjs';
 import json from '@rollup/plugin-json';
 import resolve from '@rollup/plugin-node-resolve';
 import replace from '@rollup/plugin-replace';
@@ -42,9 +41,9 @@ export default defineConfig(() => {
           resolve({
             extensions,
           }),
-          commonjs({
-            include: /node_modules/,
-          }),
+          // commonjs({
+          //   include: /node_modules/,
+          // }),
           babel({
             extensions,
             exclude: /node_modules/,
