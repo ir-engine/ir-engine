@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const { receiveWorker } = require("three-physx");
-const PHYSX = require('./physx.umd.js');
-
+const PHYSX = require('three-physx/lib/physx.release.cjs.js');
 PHYSX().then(receiveWorker);
