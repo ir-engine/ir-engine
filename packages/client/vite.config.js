@@ -1,7 +1,7 @@
 import fs from 'fs';
-import { defineConfig, loadEnv } from 'vite';
+import { defineConfig, loadEnv } from 'vite-xrengine';
 import config from "config";
-import commonjs from '@rollup/plugin-commonjs';
+import commonjs from 'rollup-plugin-cjs';
 
 export default defineConfig(() => {
   const env = loadEnv('', process.cwd() + '../../');

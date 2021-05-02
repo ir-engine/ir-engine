@@ -1,4 +1,4 @@
-import commonjs from '@rollup/plugin-commonjs';
+import commonjs from 'rollup-plugin-cjs';
 import json from '@rollup/plugin-json';
 import resolve from '@rollup/plugin-node-resolve';
 import replace from '@rollup/plugin-replace';
@@ -7,7 +7,7 @@ import babel from 'rollup-plugin-babel';
 import nodePolyfills from 'rollup-plugin-node-polyfills';
 import scss from 'rollup-plugin-scss';
 import typescript from '@rollup/plugin-typescript';
-import { defineConfig } from 'vite';
+import { defineConfig } from 'vite-xrengine';
 
 const isProd = process.env.NODE_ENV === 'production';
 const extensions = ['.js', '.ts', '.tsx'];

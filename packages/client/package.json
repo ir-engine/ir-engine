@@ -39,7 +39,7 @@
     "@material-ui/core": "4.11.4",
     "@material-ui/icons": "4.11.2",
     "@material-ui/styles": "4.11.4",
-    "@rollup/plugin-commonjs": "^18.0.0",
+    "rollup-plugin-cjs": "^1.0.0",
     "@styled-icons/boxicons-regular": "10.23.0",
     "@styled-icons/fa-regular": "10.26.0",
     "@styled-icons/fa-solid": "10.32.0",
@@ -97,7 +97,7 @@
     "url-toolkit": "2.2.2",
     "use-debounce": "6.0.1",
     "uuid": "8.3.2",
-    "vite-xrengine": "2.2.3"
+    "vite-xrengine": "2.2.4"
   },
   "devDependencies": {
     "@rollup/plugin-typescript": "8.2.1",
