@@ -40,6 +40,11 @@ export default defineConfig(() => {
           // chunkFileNames: `assets/[name].js`,
           // assetFileNames: `assets/[name].[ext]`
         },
+        external: [
+          'three-physx/lib/physx.release.esm.js',
+          'three-physx/lib/physx.release.wasm',
+          'three-physx/dist/three-physx.es.js',
+        ]
       },
     },
   };

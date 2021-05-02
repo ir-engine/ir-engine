@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import { detect } from 'detect-browser';
 import { BufferGeometry, Mesh, PerspectiveCamera, Scene } from 'three';
 import { acceleratedRaycast, computeBoundsTree } from "three-mesh-bvh";
 import { CameraSystem } from './camera/systems/CameraSystem';
@@ -26,8 +26,6 @@ import { AnimationManager } from './templates/character/prefabs/NetworkPlayerCha
 import { TransformSystem } from './transform/systems/TransformSystem';
 import { createWorker, WorkerProxy } from './worker/MessageQueue';
 import { XRSystem } from './xr/systems/XRSystem';
-//@ts-ignore
-import PhysXWorker from './physics/functions/loadPhysX.ts?worker';
 import { PhysXInstance } from "three-physx";
 //@ts-ignore
 import OffscreenWorker from './worker/initializeOffscreen.ts?worker';
@@ -37,10 +35,11 @@ import { GameManagerSystem } from './game/systems/GameManagerSystem';
 Mesh.prototype.raycast = acceleratedRaycast;
 BufferGeometry.prototype["computeBoundsTree"] = computeBoundsTree;
 
+const browser = detect();
 if (typeof window !== 'undefined') {
   // Add iOS and safari flag to window object -- To use it for creating an iOS compatible WebGLRenderer for example
-  (window as any).iOS = !window.MSStream && /iPad|iPhone|iPod/.test(navigator.userAgent);
-  (window as any).safariWebBrowser = !window.MSStream && /Safari/.test(navigator.userAgent);
+  (window as any).iOS = /iPad|iPhone|iPod/.test(navigator.platform) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  (window as any).safariWebBrowser = browser?.name === 'safari';
 }
 
 /**
@@ -50,7 +49,6 @@ if (typeof window !== 'undefined') {
  */
 
 export const initializeEngine = async (options): Promise<void> => {
-  // const options = _.defaultsDeep({}, initOptions, DefaultInitializationOptions);
   const canvas = options.renderer && options.renderer.canvas ? options.renderer.canvas : null;
 
   Engine.gameModes = options.gameModes;
@@ -119,7 +117,13 @@ export const initializeEngine = async (options): Promise<void> => {
     registerSystem(HighlightSystem);
     registerSystem(ActionSystem, { useWebXR: Engine.xrSupported });
 
-    await PhysXInstance.instance.initPhysX(new PhysXWorker(), { });
+    if((window as any).safariWebBrowser) {
+      await PhysXInstance.instance.initPhysX(new Worker('/scripts/loadPhysXClassic.js'));
+    } else {
+      //@ts-ignore
+      const { default: PhysXWorker } = await import('./physics/functions/loadPhysX.ts?worker');
+      await PhysXInstance.instance.initPhysX(new PhysXWorker(), { });
+    }
 
     registerSystem(PhysicsSystem);
     registerSystem(TransformSystem, { priority: 900 });
@@ -174,8 +178,14 @@ export const initializeEditor = async (options): Promise<void> => {
   Engine.camera = new PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 10000);
   Engine.scene.add(Engine.camera);
 
+  if((window as any).safariWebBrowser) {
+    await PhysXInstance.instance.initPhysX(new Worker('/scripts/loadPhysXClassic.js'));
+  } else {
+    //@ts-ignore
+    const { default: PhysXWorker } = await import('./physics/functions/loadPhysX.ts?worker');
+    await PhysXInstance.instance.initPhysX(new PhysXWorker(), { });
+  }
 
-  await PhysXInstance.instance.initPhysX(new PhysXWorker(), { });
   registerSystem(PhysicsSystem);
   registerSystem(TransformSystem, { priority: 900 });
   registerSystem(ParticleSystem);
