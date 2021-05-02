@@ -36,6 +36,7 @@
     "react": "17.0.2"
   },
   "devDependencies": {
+    "vite-patched": "2.2.3",
     "@babel/core": "7.14.0",
     "@types/react": "17.0.4",
     "cross-env": "7.0.3",

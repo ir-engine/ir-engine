@@ -50,6 +50,7 @@
     "three": "0.128.0"
   },
   "devDependencies": {
+    "vite-patched": "2.2.3",
     "@types/node": "13.13.51",
     "@types/react": "17.0.4",
     "config": "3.3.6",
