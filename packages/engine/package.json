@@ -50,7 +50,7 @@
     "three": "^0.128.0",
     "three-mesh-bvh": "^0.3.7",
     "three-physx": "^0.0.5",
-    "vite": "^2.1.5",
+    "vite-patched": "2.2.3",
     "web-worker": "^1.0.0"
   },
   "devDependencies": {
