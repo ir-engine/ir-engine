@@ -45,6 +45,10 @@ export const DefaultOffscreenInitializationOptions = {
   },
 };
 
+/**
+ * 
+ * @author Josh Field <github.com/HexaField>
+ */
 const initializeEngineOffscreen = async ({ canvas, userArgs }, proxy: MainProxy) => {
   const { initOptions, useOfflineMode, postProcessing } = userArgs;
   const options = _.defaultsDeep({}, initOptions, DefaultOffscreenInitializationOptions);
