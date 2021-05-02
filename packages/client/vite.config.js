@@ -20,6 +20,7 @@ export default defineConfig(() => {
     },
     resolve: {
       alias: {
+        'three-physx/lib/physx.release.esm.js': 'three-physx/lib/physx.release.esm.js',
         '@material-ui/icons': '@material-ui/icons/esm',
         "socket.io-client": "socket.io-client/dist/socket.io.js",
         "react-infinite-scroller": "react-infinite-scroller/dist/InfiniteScroll",
@@ -40,11 +41,6 @@ export default defineConfig(() => {
           // chunkFileNames: `assets/[name].js`,
           // assetFileNames: `assets/[name].[ext]`
         },
-        external: [
-          'three-physx/lib/physx.release.esm.js',
-          'three-physx/lib/physx.release.wasm',
-          'three-physx/dist/three-physx.es.js',
-        ]
       },
     },
   };
