@@ -1,6 +1,7 @@
 import fs from 'fs';
 import { defineConfig, loadEnv } from 'vite';
 import config from "config";
+import commonjs from '@rollup/plugin-commonjs';
 
 export default defineConfig(() => {
   const env = loadEnv('', process.cwd() + '../../');
@@ -11,7 +12,11 @@ export default defineConfig(() => {
   };
 
   return {
-    plugins: [],
+    plugins: [
+      commonjs({
+        include: /node_modules/
+      })
+    ],
     server: {
       https: {
         key: fs.readFileSync('../../certs/key.pem'),
