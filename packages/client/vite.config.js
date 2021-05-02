@@ -14,7 +14,7 @@ export default defineConfig(() => {
   return {
     plugins: [
       commonjs({
-        include: /node_modules/
+        include: /react-json-tree/
       })
     ],
     server: {
