@@ -29,24 +29,21 @@ export default class SplineNode extends EditorNodeMixin(Spline) {
   // }
   constructor(editor) {
     super(editor);
-    // this.helper = new Spline(this);
-    // this.add(this.helper);
   }
   onAdd() {
     // debugger
     this.init();
     // new splinehelpernodes from here
     // pass this.editor
-    // this.helper.init(); 
   }
   onChange() {
-    // this.helper.update();
   }
   onSelect() {
-    // this.helper.visible = true;
   }
   onDeselect() {
-    // this.helper.visible = false;
+  }
+  onAddNodeToSpline() {
+    console.log("Add spline to node");
   }
   // copy(source, recursive = true) {
   //   super.copy(source, false);
