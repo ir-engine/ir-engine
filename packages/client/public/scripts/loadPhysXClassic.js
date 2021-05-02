@@ -8,4 +8,4 @@ PHYSX({
     }
     return path;
   }
-}).then(THREE_PHYSX.receiveWorker);
+}).then(THREE_PHYSX.receiveWorker).catch(console.log);
