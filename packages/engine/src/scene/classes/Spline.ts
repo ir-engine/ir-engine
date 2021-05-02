@@ -11,24 +11,14 @@ import SplineHelperNode from "../../editor/nodes/SplineHelperNode";
 
 
 export default class Spline extends Object3D {
-	_splineHelperObjects = []; // Convert these to node objects
-	_splinePointsLength = 3; // Set dynamically?
+	_splineHelperObjects = [];
+	_splinePointsLength = 2;
 	_positions = [];
 	_point = new Vector3();
 
 	_splines = {} as any;
 
 	ARC_SEGMENTS = 200;
-
-	// const params = {
-	// 	uniform: true,
-	// 	tension: 0.5,
-	// 	centripetal: true,
-	// 	chordal: true,
-	// 	addPoint: addPoint,
-	// 	removePoint: removePoint,
-	// 	exportSpline: exportSpline
-	// };
 
 	constructor() {
 		super();
@@ -95,8 +85,7 @@ export default class Spline extends Object3D {
 		}
 
 		this.load( [ new Vector3( 0, 0.514, 0.10018915737797 ),
-			new Vector3( 1.56300074753207, 1.49711742836848, 1.495472686253045 ),
-			new Vector3( 2.40118730204415, 2.4306956436485, 2.958271935582161 )] );
+			new Vector3( 1.56300074753207, 1.49711742836848, 1.495472686253045 )] );
 	}
 
 	addSplineObject( position = null ) {
@@ -111,9 +100,9 @@ export default class Spline extends Object3D {
 
 		} else {
 
-			object.position.x = Math.random() * 1000 - 500;
-			object.position.y = Math.random() * 600;
-			object.position.z = Math.random() * 800 - 400;
+			object.position.x = Math.random() * 10 - 5;
+			object.position.y = Math.random() * 6;
+			object.position.z = Math.random() * 8 - 4;
 
 		}
 
@@ -137,7 +126,7 @@ export default class Spline extends Object3D {
 
 	removePoint() {
 
-		if ( this._splinePointsLength <= 4 ) {
+		if ( this._splinePointsLength <= this._splinePointsLength ) {
 
 			return;
 
@@ -218,51 +207,3 @@ export default class Spline extends Object3D {
 
 	}
 }
-
-// render() {
-
-// 	this._splines.uniform.mesh.visible = params.uniform;
-// 	this._splines.centripetal.mesh.visible = params.centripetal;
-// 	this._splines.chordal.mesh.visible = params.chordal;
-// 	renderer.render( this, camera );
-
-// }
-
-// onPointerDown( event ) {
-
-// 	onDownPosition.x = event.clientX;
-// 	onDownPosition.y = event.clientY;
-
-// }
-
-// onPointerUp() {
-
-// 	onUpPosition.x = event.clientX;
-// 	onUpPosition.y = event.clientY;
-
-// 	if ( onDownPosition.distanceTo( onUpPosition ) === 0 ) transformControl.detach();
-
-// }
-
-// onPointerMove( event ) {
-
-// 	pointer.x = ( event.clientX / window.innerWidth ) * 2 - 1;
-// 	pointer.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
-
-// 	raycaster.setFromCamera( pointer, camera );
-
-// 	const intersects = raycaster.intersectObjects( this._splineHelperObjects );
-
-// 	if ( intersects.length > 0 ) {
-
-// 		const object = intersects[ 0 ].object;
-
-// 		if ( object !== transformControl.object ) {
-
-// 			transformControl.attach( object );
-
-// 		}
-
-// 	}
-
-// }

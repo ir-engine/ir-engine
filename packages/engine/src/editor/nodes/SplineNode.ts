@@ -31,10 +31,7 @@ export default class SplineNode extends EditorNodeMixin(Spline) {
     super(editor);
   }
   onAdd() {
-    // debugger
     this.init();
-    // new splinehelpernodes from here
-    // pass this.editor
   }
   onChange() {
   }
@@ -43,7 +40,7 @@ export default class SplineNode extends EditorNodeMixin(Spline) {
   onDeselect() {
   }
   onAddNodeToSpline() {
-    console.log("Add spline to node");
+    this.addPoint();
   }
   // copy(source, recursive = true) {
   //   super.copy(source, false);
