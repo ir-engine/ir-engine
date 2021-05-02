@@ -109,21 +109,26 @@ export const initializeEngine = async (options): Promise<void> => {
     Engine.camera = new PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 10000);
     Engine.scene.add(Engine.camera);
 
-    await AnimationManager.instance.getDefaultModel()
-    await AnimationManager.instance.getAnimations()
+    // promise in parallel to speed things up
+    await Promise.all([
+      AnimationManager.instance.getDefaultModel(),
+      AnimationManager.instance.getAnimations(),
+      new Promise<void>(async (resolve) => {
+        if((window as any).safariWebBrowser) {
+          await PhysXInstance.instance.initPhysX(new Worker('/scripts/loadPhysXClassic.js'));
+        } else {
+          //@ts-ignore
+          const { default: PhysXWorker } = await import('./physics/functions/loadPhysX.ts?worker');
+          await PhysXInstance.instance.initPhysX(new PhysXWorker(), { });
+        }
+        resolve()
+      })
+    ]);
 
     registerSystem(CharacterControllerSystem);
     registerSystem(ServerSpawnSystem, { priority: 899 });
     registerSystem(HighlightSystem);
     registerSystem(ActionSystem, { useWebXR: Engine.xrSupported });
-
-    if((window as any).safariWebBrowser) {
-      await PhysXInstance.instance.initPhysX(new Worker('/scripts/loadPhysXClassic.js'));
-    } else {
-      //@ts-ignore
-      const { default: PhysXWorker } = await import('./physics/functions/loadPhysX.ts?worker');
-      await PhysXInstance.instance.initPhysX(new PhysXWorker(), { });
-    }
 
     registerSystem(PhysicsSystem);
     registerSystem(TransformSystem, { priority: 900 });
