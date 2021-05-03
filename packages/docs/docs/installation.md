@@ -1,5 +1,5 @@
 ---
-id: doc2
+id: installation
 title: Installation
 ---
 

@@ -1,5 +1,5 @@
 ---
-id: doc4
+id: configurations
 title: Configurations
 ---
 

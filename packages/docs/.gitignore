@@ -19,8 +19,7 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-docs/**/*
-docs/**
+docs/docs-client/**
 docs-client/
 docs-client-core/
 docs-client-common/

@@ -5,10 +5,10 @@
 module.exports = {
   sidebar: {
     'Getting Started': [
-        'doc1',
-        'doc2', 
-        'doc3',
-        'doc4',
+        'introduction',
+        'installation', 
+        'deployment',
+        'configurations',
         {
           type: 'category',
           label: 'Packages',
