@@ -8,14 +8,14 @@ module.exports = {
   title: 'xr3ngine',
   tagline:
     'An end-to-end solution for hosting humans and AI in a virtual space, built on top of react, three.js and express/feathers.',
-  url: 'https://xr3ngine.github.io',
-  baseUrl: '/docs/',
+  url: 'https://xrfoundation.github.io',
+  baseUrl: '/xrengine-docs/',
   onBrokenLinks: 'warn',
   onBrokenMarkdownLinks: 'warn',
   favicon:
     'https://github.com/xrfoundation/xr3ngine/raw/dev/xrengine%20black.png',
   organizationName: 'XRFoundation', // Usually your GitHub org/user name.
-  projectName: 'xr3ngine', // Usually your repo name.
+  projectName: 'xrengine-docs', // Usually your repo name.
   plugins: [
     [
       'docusaurus-plugin-typedoc',
