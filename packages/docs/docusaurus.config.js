@@ -162,19 +162,19 @@ module.exports = {
           items: [
             {
               label: 'Introduction',
-              to: 'docs/doc1/',
+              to: 'docs/introduction/',
             },
             {
               label: 'Installation',
-              to: 'docs/doc2/',
+              to: 'docs/installation/',
             },
             {
               label: 'Deployment',
-              to: 'docs/doc3/',
+              to: 'docs/deployment/',
             },
             {
               label: 'Configurations',
-              to: 'docs/doc4/',
+              to: 'docs/configurations/',
             },
           ],
         },
