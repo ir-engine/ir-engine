@@ -51,7 +51,7 @@ export function plusParameter(posM, queM, scaM, posE, queE, scaE): [Vector3, Qua
 
 // createStaticColliders
 export function createStaticCollider(mesh) {
-  // console.log('****** Collider from Model, type: '+mesh.userData.type);
+  // console.log('****** createStaticCollider: '+mesh.userData.type);
 
   if (mesh.type == 'Group') {
     for (let i = 0; i < mesh.children.length; i++) {
@@ -79,6 +79,7 @@ export const clearFromColliders: Behavior = (entity: Entity, args: any) => {
 export const parseModelColliders: Behavior = (entity: Entity, args: any) => {
   const arr = [];
   const parseColliders = (mesh) => {
+    // console.log('****** parseModelColliders: ', mesh);
     // have user data physics its our case
     if (mesh.userData.data === 'physics' || mesh.userData.data === 'dynamic' || mesh.userData.data === 'vehicle') {
       // add position from editor to mesh

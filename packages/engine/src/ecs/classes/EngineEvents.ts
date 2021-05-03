@@ -14,7 +14,7 @@ import { Engine } from "./Engine";
 
 /**
  * 
- * @author Fernando Serrano, Robert Long
+ * @author Josh Field <github.com/HexaField>
  */
 const EVENTS = {
 
@@ -38,13 +38,14 @@ const EVENTS = {
   // MISC
   USER_ENGAGE: 'CORE_USER_ENGAGE',
   ENTITY_DEBUG_DATA: 'CORE_ENTITY_DEBUG_DATA', // to pipe offscreen entity data to UI
-  PROVISION_INSTANCE_NO_GAMESERVERS_AVAILABLE: 'PROVISION_INSTANCE_NO_GAMESERVERS_AVAILABLE',
-  PROVISION_CHANNEL_NO_GAMESERVERS_AVAILABLE: 'PROVISION_CHANNEL_NO_GAMESERVERS_AVAILABLE'
+  PROVISION_INSTANCE_NO_GAMESERVERS_AVAILABLE: 'CORE_PROVISION_INSTANCE_NO_GAMESERVERS_AVAILABLE',
+  PROVISION_CHANNEL_NO_GAMESERVERS_AVAILABLE: 'CORE_PROVISION_CHANNEL_NO_GAMESERVERS_AVAILABLE',
+  CONNECTION_LOST: 'CORE_CONNECTION_LOST',
 };
 
 /**
  * 
- * @author Fernando Serrano, Robert Long
+ * @author Josh Field <github.com/HexaField>
  */
 export class EngineEvents extends EventDispatcher {
   static instance: EngineEvents = new EngineEvents();
@@ -56,7 +57,7 @@ export class EngineEvents extends EventDispatcher {
 
 /**
  * 
- * @author Fernando Serrano, Robert Long
+ * @author Josh Field <github.com/HexaField>
  */
 export const addIncomingEvents = () => {
 
@@ -86,7 +87,7 @@ export const addIncomingEvents = () => {
 
 /**
  * 
- * @author Fernando Serrano, Robert Long
+ * @author Josh Field <github.com/HexaField>
  */
 export const addOutgoingEvents = () => {
 
@@ -98,7 +99,7 @@ export const addOutgoingEvents = () => {
 }
 /**
  * 
- * @author Fernando Serrano, Robert Long
+ * @author Josh Field <github.com/HexaField>
  */
 const ENGINE_EVENTS_PROXY = {
   EVENT: 'ENGINE_EVENTS_PROXY_EVENT',
@@ -110,7 +111,7 @@ const ENGINE_EVENTS_PROXY = {
 
 /**
  * 
- * @author Fernando Serrano, Robert Long
+ * @author Josh Field <github.com/HexaField>
  */
 export class EngineEventsProxy extends EngineEvents {
   messageQueue: MessageQueue;

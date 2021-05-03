@@ -11,6 +11,7 @@ import Typography from '@material-ui/core/Typography';
 import CardContent from '@material-ui/core/CardContent';
 import Button from '@material-ui/core/Button';
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
+import { useTranslation } from 'react-i18next';
 import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
 // import TwitterIcon from '@material-ui/icons/Twitter';
 // import InstagramIcon from '@material-ui/icons/Instagram';
@@ -55,6 +56,7 @@ const mapStateToProps = (state: any): any => {
 
 const CreatorCard = ({creator,creatorState, updateCreatorPageState, popupsState, updateCreatorFormState}:Props) => { 
     const isMe = creator?.id === creatorState?.get('currentCreator').id;
+	const { t } = useTranslation();
 
     // const [openFiredModal, setOpenFiredModal] = useState(false);
     // const [creatorsType, setCreatorsType] = useState('followers');
@@ -107,7 +109,7 @@ const CreatorCard = ({creator,creatorState, updateCreatorPageState, popupsState,
                 
                 <section className={styles.controls}>
                     <Button variant="text" className={styles.backButton} 
-                    onClick={()=>updateCreatorPageState(false)}><ArrowBackIosIcon />Back</Button>  
+                    onClick={()=>updateCreatorPageState(false)}><ArrowBackIosIcon />{t('social:creator.back')}</Button>  
                     {isMe && renderEditButton()}                        
                 </section>
                 {/*hided for now*/}

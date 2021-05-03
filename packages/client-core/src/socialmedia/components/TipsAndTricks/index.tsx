@@ -8,16 +8,18 @@ import CardMedia from '@material-ui/core/CardMedia';
 import Typography from '@material-ui/core/Typography';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
+import { useTranslation } from 'react-i18next';
 
 // @ts-ignore
 import styles from './TipsAndTricks.module.scss';
 
 export const TipsAndTricks = () => { 
     const data=[];
+	const { t } = useTranslation();
     for(let i=0; i<random(10); i++){
         data.push({ 
-            title: 'Created Tips & Tricks',
-            description: 'I recently understood the words of my friend Jacob West about music.'
+            title: t('social:tips.title'),
+            description: t('social:tips.description')
         });
     }
     return <section className={styles.tipsandtricksContainer}>

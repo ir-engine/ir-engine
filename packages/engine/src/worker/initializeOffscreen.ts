@@ -28,8 +28,9 @@ import { XRSystem } from '../xr/systems/XRSystem';
 // import { PositionalAudioSystem } from './audio/systems/PositionalAudioSystem';
 import { receiveWorker } from './MessageQueue';
 import { AnimationManager } from '../templates/character/prefabs/NetworkPlayerCharacter';
-import { CharacterControllerSystem } from '../character/CharacterControllerSystem';
+import { CharacterControllerSystem } from '../templates/character/CharacterControllerSystem';
 import { UIPanelSystem } from '../ui/systems/UIPanelSystem';
+//@ts-ignore
 import PhysXWorker from '../physics/functions/loadPhysX.ts?worker';
 import { PhysXInstance } from "three-physx";
 
@@ -45,6 +46,10 @@ export const DefaultOffscreenInitializationOptions = {
   },
 };
 
+/**
+ * 
+ * @author Josh Field <github.com/HexaField>
+ */
 const initializeEngineOffscreen = async ({ canvas, userArgs }, proxy: MainProxy) => {
   const { initOptions, useOfflineMode, postProcessing } = userArgs;
   const options = _.defaultsDeep({}, initOptions, DefaultOffscreenInitializationOptions);
