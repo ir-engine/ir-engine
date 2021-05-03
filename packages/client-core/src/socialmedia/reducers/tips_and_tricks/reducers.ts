@@ -41,10 +41,7 @@ const tipsList = [
 ];
 
 export const initialTipsAndTricksState = {
-  tips_and_tricks: {
-    // tips_and_tricks: null,
-    // fetching: false,
-  },
+  tips_and_tricks: {},
 };
 
 const immutableState = Immutable.fromJS(initialTipsAndTricksState);
@@ -68,7 +65,7 @@ const tipsAndTricksReducer = (state = immutableState, action: TipsAndTricksActio
     case REMOVE_TIPSANDTRICKS:
         return state.set('tips_and_tricks', [...state.get('tips_and_tricks').filter(tips_and_tricks =>
           tips_and_tricks.id !== (action as TipsAndTricksRetrievedAction).tips_and_tricks)]);
-}
+  }
 
   return state;
 };

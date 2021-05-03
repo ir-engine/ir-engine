@@ -25,7 +25,6 @@ const mapStateToProps = (state: any): any => {
     };
 };
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
-    // getFeeds: bindActionCreators(getFeeds, dispatch),
     getTipsAndTricks: bindActionCreators(getTipsAndTricks, dispatch),
     createTipsAndTricksNew: bindActionCreators(createTipsAndTricksNew, dispatch),
     removeTipsAndTricks: bindActionCreators(removeTipsAndTricks, dispatch),

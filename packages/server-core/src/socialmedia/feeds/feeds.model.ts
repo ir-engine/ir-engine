@@ -7,9 +7,13 @@ import { Sequelize, DataTypes, Model } from 'sequelize';
 import { Application } from '../../../declarations';
 import { HookReturn } from 'sequelize/types/lib/hooks';
 
+
+// const thefeeds = '';
+// // conts Feeds = '';
+
 export default function (app: Application): typeof Model {
   const sequelizeClient: Sequelize = app.get('sequelizeClient');
-  const TipsAndTricks = sequelizeClient.define('tips_and_tricks', {
+  const TheFeeds = sequelizeClient.define('thefeeds', {
     id: {
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV1,
@@ -37,15 +41,15 @@ export default function (app: Application): typeof Model {
   });
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  (TipsAndTricks as any).associate = (models: any): void => {
+  (TheFeeds as any).associate = (models: any): void => {
     // Define associations here
     // See http://docs.sequelizejs.com/en/latest/docs/associations/
-    // (TipsAndTricks as any).belongsTo(models.creator, { foreignKey: 'creatorId', allowNull: false });
-    (TipsAndTricks as any).belongsTo(models.static_resource, { as: 'video',  required: true, constraints: false });
+    // (Feeds as any).belongsTo(models.creator, { foreignKey: 'creatorId', allowNull: false });
+    (TheFeeds as any).belongsTo(models.static_resource, { as: 'video',  required: true, constraints: false });
     //TODO look up constraints - make this fields as keys
-    // (TipsAndTricks as any).belongsTo(models.static_resource, { as: 'video',  required: true, constraints: false });
-    // (TipsAndTricks as any).hasMany(models.tips_and_tricks_fires);
+    // (TheFeeds as any).belongsTo(models.static_resource, { as: 'video',  required: true, constraints: false });
+    // (TheFeeds as any).hasMany(models.thefeeds);
   };
 
-  return TipsAndTricks;
+  return TheFeeds;
 }

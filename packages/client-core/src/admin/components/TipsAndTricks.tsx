@@ -50,11 +50,11 @@ const ArMediaConsoleTipsAndTricks = ({ create, list, deleteTipsAndTricks, update
         return { title, id, videoUrl, description };
     }
 
-
-
     const classes = useStyles();
 
+
     const [open, setOpen] = React.useState(false);
+
 
     const [actiontitle, setTitle] = useState(null);
     const [actionId, setId] = useState(null);
@@ -74,19 +74,17 @@ const ArMediaConsoleTipsAndTricks = ({ create, list, deleteTipsAndTricks, update
     };
     const handleSubmit = (e:any) =>{
         e.preventDefault();
-        // console.log('actionId',actionId)
         if(actionId !== '' && actionId !== null){
-            update({ id: actionId, title: actiontitle, videoUrl: actionVideo, description: actionDescription });
-            // console.log('update')
+            update({ id: actionId, title: actiontitle, video: actionVideo, description: actionDescription });
         }else{
-            create({ title: actiontitle, description: actionDescription, videoUrl: actionVideo });
+            create({ title: actiontitle, description: actionDescription, video: actionVideo });
         }
-        // console.log({ title: actiontitle, description: actionDescription, videoUrl: actionVideo })
         setOpen(false);
         setTitle('');
         setId('');
         setVideo('');
         setDescription('');
+        console.log(typeof actionVideo)
     };
 
     return (
@@ -107,7 +105,7 @@ const ArMediaConsoleTipsAndTricks = ({ create, list, deleteTipsAndTricks, update
                         </TableRow>
                     </TableHead>
                     {rows && rows.length > 0 && <TableBody>
-                        {rows.map((row) => (
+                        {rows.reverse().map((row) => (
                           <TableRow key={row.title}>
                               <TableCell component="th" scope="row">{row.title}</TableCell>
                               <TableCell align="right">{row.id}</TableCell>
@@ -161,22 +159,12 @@ const ArMediaConsoleTipsAndTricks = ({ create, list, deleteTipsAndTricks, update
                         >
                             Upload File
                             <input
-
-                                onChange={(e)=>setVideo(e.target.files[0])}
+                                onChange={(e)=>{setVideo(e.target.files[0])}}
                                 id="tips-and-tricks-video"
                                 type="file"
                                 hidden
                             />
                         </Button>
-                        {/*<FormControl>*/}
-                        {/*    <InputLabel htmlFor="tips-and-tricks-video">Title</InputLabel>*/}
-                        {/*    <Input onChange={(e)=>setVideo(e.target.value)}*/}
-                        {/*           id="tips-and-tricks-video"*/}
-                        {/*           type="text"*/}
-                        {/*           value={actionVideo ? actionVideo : ''}*/}
-                        {/*           aria-describedby="my-helper-text" />*/}
-                        {/*    <FormHelperText id="my-helper-text">Tip&Trick Title.</FormHelperText>*/}
-                        {/*</FormControl>*/}
 
                         <FormControl>
                             <InputLabel htmlFor="tips-and-tricks-description">Description</InputLabel>

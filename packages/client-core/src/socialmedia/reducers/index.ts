@@ -5,6 +5,7 @@ import feedCommentsReducer from './feedComment/reducers';
 import feedFiresReducer from './feedFires/reducers';
 import popupsStateReducer from './popupsState/reducers';
 import tipsAndTricksReducer from './tips_and_tricks/reducers';
+import thefeedsReducer from './thefeeds/reducers'
 
 export default {
   creators: creatorReducer,
@@ -13,5 +14,6 @@ export default {
   feedComments: feedCommentsReducer,
   arMedia: arMediaReducer,
   popups: popupsStateReducer,
-  tips_and_tricks: tipsAndTricksReducer
+  tips_and_tricks: tipsAndTricksReducer,
+  thefeeds: thefeedsReducer
 };

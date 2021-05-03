@@ -1,27 +1,28 @@
 /**
  * @author Gleb Ordinsky <glebordinskijj@gmail.com>
  */
+
 import { Dispatch } from 'redux';
 import { dispatchAlertError } from '../../../common/reducers/alert/service';
 import { client } from '../../../feathers';
 import Api from '../../../world/components/editor/Api';
 import {
-  addTipsAndTricks,
-  fetchingTipsAndTricks,
-  tips_and_tricksRetrieved,
-  deleteTipsAndTricks,
-  updateTipsAndTricksInList
+  addTheFeeds,
+  fetchingTheFeeds,
+  thefeedsRetrieved,
+  deleteTheFeeds,
+  updateTheFeedsInList
 } from './actions';
 
 
 
 
-export function getTipsAndTricks() {
+export function getTheFeedsNew() {
   return async (dispatch: Dispatch): Promise<any> => {
     try {
-      dispatch(fetchingTipsAndTricks());
-      const tips_and_tricks = await client.service('tips-and-tricks').find();
-      dispatch(tips_and_tricksRetrieved(tips_and_tricks.data));
+      dispatch(fetchingTheFeeds());
+      const thefeeds = await client.service('thefeeds').find();
+      dispatch(thefeedsRetrieved(thefeeds.data));
     } catch (err) {
       console.log(err);
       dispatchAlertError(dispatch, err.message);
@@ -30,19 +31,19 @@ export function getTipsAndTricks() {
 }
 
 
-export function createTipsAndTricksNew(data) {
+export function createTheFeedsNew(data) {
   return async (dispatch: Dispatch): Promise<any> => {
     try {
       const api = new Api();
       const storedVideo = await api.upload(data.video, null);
-      const tips_and_tricks = await client.service('tips-and-tricks').create({
+      console.log('storedVideo', storedVideo)
+      const thefeeds = await client.service('thefeeds').create({
         title: data.title,
         // @ts-ignore
         videoId: storedVideo.file_id,
         description: data.description,
       });
-      // console.log('tips_and_tricks REDUX API CHECK', tips_and_tricks)
-      dispatch(addTipsAndTricks(tips_and_tricks));
+      dispatch(addTheFeeds(thefeeds));
     } catch (err) {
       console.log(err);
       dispatchAlertError(dispatch, err.message);
@@ -51,19 +52,18 @@ export function createTipsAndTricksNew(data) {
 }
 
 
-export function updateTipsAndTricksAsAdmin(data: any) {
+export function updateTheFeedsAsAdmin(data: any) {
   return async (dispatch: Dispatch): Promise<any> => {
     try {
-      let tips_and_tricks = { id: data.id, title: data.title, videoId: data.video, description: data.description }
+      let thefeeds = { id: data.id, title: data.title, videoId: data.video, description: data.description }
       if (typeof data.video === 'object') {
         const api = new Api();
-        const storedVideo = await api.upload(data.video, null);
+        const storedVideo = await api.upload(data.video, null)
         // @ts-ignore
-        tips_and_tricks['videoId'] = storedVideo.file_id
+        thefeeds['videoId'] = storedVideo.file_id
       }
-      const updatedItem = await client.service('tips-and-tricks').patch(tips_and_tricks.id, tips_and_tricks);
-      // console.log(updatedItem)
-      dispatch(updateTipsAndTricksInList(updatedItem));
+      const updatedItem = await client.service('thefeeds').patch(thefeeds.id, thefeeds);
+      dispatch(updateTheFeedsInList(updatedItem));
     } catch (err) {
       console.log(err);
       dispatchAlertError(dispatch, err.message);
@@ -72,11 +72,11 @@ export function updateTipsAndTricksAsAdmin(data: any) {
 }
 
 
-export function removeTipsAndTricks(tips_and_tricksId: string) {
+export function removeTheFeeds(thefeedsId: string) {
   return async (dispatch: Dispatch): Promise<any> => {
     try {
-      await client.service('tips-and-tricks').remove(tips_and_tricksId);
-      dispatch(deleteTipsAndTricks(tips_and_tricksId));
+      await client.service('thefeeds').remove(thefeedsId);
+      dispatch(deleteTheFeeds(thefeedsId));
     } catch (err) {
       console.log(err);
       dispatchAlertError(dispatch, err.message);

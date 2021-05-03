@@ -42,12 +42,20 @@ export class TipsAndTricks extends Service {
 
     //All TipsAndTricks as Admin
     // if (action === 'admin') {
-      const dataQuery = `SELECT tips_and_tricks.*, creator.id as creatorId, creator.name as creatorName, creator.username as creatorUserName,
-      sr1.url as videoUrl, sr3.url as avatar
+    //   const dataQuery = `SELECT tips_and_tricks.*, creator.id as creatorId, creator.name as creatorName, creator.username as creatorUserName,
+    //   sr1.url as videoUrl, sr3.url as avatar
+    //     FROM \`tips_and_tricks\` as tips_and_tricks
+    //     JOIN \`creator\` as creator ON creator.id=tips_and_tricks.creatorIds
+    //     JOIN \`static_resource\` as sr1 ON sr1.id=tips_and_tricks.videoId
+    //     LEFT JOIN \`static_resource\` as sr3 ON sr3.id=creator.avatarId
+    //     WHERE 1
+    //     GROUP BY tips_and_tricks.id
+    //     ORDER BY tips_and_tricks.createdAt DESC
+    //     LIMIT :skip, :limit `;
+
+    const dataQuery = `SELECT tips_and_tricks.*, sr1.url as videoUrl   
         FROM \`tips_and_tricks\` as tips_and_tricks
-        JOIN \`creator\` as creator ON creator.id=tips_and_tricks.creatorId
         JOIN \`static_resource\` as sr1 ON sr1.id=tips_and_tricks.videoId
-        LEFT JOIN \`static_resource\` as sr3 ON sr3.id=creator.avatarId
         WHERE 1
         GROUP BY tips_and_tricks.id
         ORDER BY tips_and_tricks.createdAt DESC
@@ -62,7 +70,6 @@ export class TipsAndTricks extends Service {
           raw: true,
           replacements: {...queryParamsReplacements}
         });
-      console.log(tips_and_tricks);
       return {
         data: tips_and_tricks,
         skip,
@@ -101,14 +108,14 @@ export class TipsAndTricks extends Service {
         id,
       } as any;
 
-      const creatorId = await getCreatorByUserId(extractLoggedInUserFromParams(params)?.userId, this.app.get('sequelizeClient'));
-
-      if(creatorId){
-        select += ` , isf.id as fired, isb.id as bookmarked `;
-        join += ` LEFT JOIN \`tips_and_tricks_fires\` as isf ON isf.tips_and_tricksId=tips_and_tricks.id  AND isf.creatorId=:creatorId
-                  LEFT JOIN \`tips_and_tricks_bookmark\` as isb ON isb.tips_and_tricksId=tips_and_tricks.id  AND isb.creatorId=:creatorId`;
-        queryParamsReplacements.creatorId = creatorId; 
-      }
+      // const creatorId = await getCreatorByUserId(extractLoggedInUserFromParams(params)?.userId, this.app.get('sequelizeClient'));
+      //
+      // if(creatorId){
+      //   select += ` , isf.id as fired, isb.id as bookmarked `;
+      //   join += ` LEFT JOIN \`tips_and_tricks_fires\` as isf ON isf.tips_and_tricksId=tips_and_tricks.id  AND isf.creatorId=:creatorId
+      //             LEFT JOIN \`tips_and_tricks_bookmark\` as isb ON isb.tips_and_tricksId=tips_and_tricks.id  AND isb.creatorId=:creatorId`;
+      //   queryParamsReplacements.creatorId = creatorId;
+      // }
   
       const dataQuery = select + from + join + where;
       const [tips_and_tricks] = await this.app.get('sequelizeClient').query(dataQuery,
@@ -146,7 +153,28 @@ export class TipsAndTricks extends Service {
       const {tips_and_tricks:tips_and_tricksModel} = this.app.get('sequelizeClient').models;
       // data.creatorId = await getCreatorByUserId(extractLoggedInUserFromParams(params)?.userId, this.app.get('sequelizeClient'));
       const newTipsAndTricks =  await tips_and_tricksModel.create(data);
-      return  newTipsAndTricks;
+
+
+      const skip = params.query?.$skip ? params.query.$skip : 0;
+      const limit = params.query?.$limit ? params.query.$limit : 100;
+
+      const queryParamsReplacements = {
+        skip,
+        limit,
+      } as any;
+
+      const videoId = newTipsAndTricks.dataValues.videoId
+
+      const thetipsandtricksWithVideo = await this.app.get('sequelizeClient').query('select url from static_resource where id = "'+ videoId + '"',
+        {
+          type: QueryTypes.SELECT,
+          raw: true,
+          replacements: {...queryParamsReplacements}
+        });
+
+      const url: any = thetipsandtricksWithVideo[0].url
+
+      return {...newTipsAndTricks.dataValues, videoUrl: url}
     }
 
 
@@ -181,10 +209,29 @@ export class TipsAndTricks extends Service {
     }else{
       result = await super.patch(id, data);
     }
-    return result;
-    
-  }
 
+
+
+
+    const skip = params.query?.$skip ? params.query.$skip : 0;
+    const limit = params.query?.$limit ? params.query.$limit : 100;
+
+    const queryParamsReplacements = {
+      skip,
+      limit,
+    } as any;
+
+    const videoId = result.videoId
+    const thetipsandtricksWithVideo = await this.app.get('sequelizeClient').query('select url from static_resource where id = "'+ videoId + '"',
+      {
+        type: QueryTypes.SELECT,
+        raw: true,
+        replacements: {...queryParamsReplacements}
+      });
+
+    const url: any = thetipsandtricksWithVideo[0].url
+    return { ...result, videoUrl: url };
+  }
 
 
 

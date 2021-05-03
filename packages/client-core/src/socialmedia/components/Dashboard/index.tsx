@@ -12,6 +12,7 @@ import IconButton from '@material-ui/core/IconButton';
 import MenuIcon from '@material-ui/icons/Menu';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
+import RemoveFromQueueIcon from '@material-ui/icons/RemoveFromQueue';
 import ViewModuleIcon from '@material-ui/icons/ViewModule';
 import EmojiPeopleIcon from '@material-ui/icons/EmojiPeople';
 import SettingsSystemDaydreamIcon from '@material-ui/icons/SettingsSystemDaydream';
@@ -213,6 +214,15 @@ export default function Dashboard({ children }) {
                         <ListItemText primary="Tips&Tricks" />
                       </ListItem>
                     </Link>
+
+                  <Link to="/admin/thefeeds">
+                    <ListItem style={{ color: "white"}} onClick={changeComponent} button>
+                      <ListItemIcon >
+                        <RemoveFromQueueIcon style={{ color: "white" }} />
+                      </ListItemIcon>
+                      <ListItemText primary="TheFeeds" />
+                    </ListItem>
+                  </Link>
 
                   <Link to="/editor/projects/create">
                         <ListItem style={{ color: "white"}} onClick={changeComponent} button>

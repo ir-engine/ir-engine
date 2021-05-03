@@ -3,9 +3,12 @@
  *
  * @author Gleb Ordinsky
  */
+
+// const thefeeds = '';
+// conts Feeds = '';
 export default {
     definitions: {
-        'tips_and_tricks': {
+        'thefeeds': {
             type: 'object',
             properties: {
                 title: {
@@ -19,9 +22,9 @@ export default {
                 // }
             }
         },
-        'tips_and_tricks_list': {
+        'thefeeds_list': {
             type: 'array',
-            items: { $ref: '#/definitions/tips-and-tricks' }
+            items: { $ref: '#/definitions/thefeeds' }
         }
     }
 };
