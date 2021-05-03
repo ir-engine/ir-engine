@@ -1,8 +1,10 @@
 import React, { useRef, useState } from "react";
+import { useTranslation } from 'react-i18next';
 
 export function AddComment() {
   const changeRef = useRef(null);
   const [textAreaSize, setAreaSize] = useState(18);
+	const { t } = useTranslation();
   const [isTyped, setTyped] = useState(false);
 
   return (
@@ -10,7 +12,7 @@ export function AddComment() {
       <textarea
         className="add-comment-input"
         style={{ height: textAreaSize }}
-        placeholder="Add Comment..."
+        placeholder={t('social:addComment')}
         aria-label="Add Comment..."
         ref={changeRef}
         onChange={(e: any) => {
@@ -23,7 +25,7 @@ export function AddComment() {
         className="add-comment-button text-14-light text-blue"
         style={{ opacity: isTyped ? 1 : 0.3 }}
       >
-        Share
+        {t('social:share')}
       </button>
     </form>
   );

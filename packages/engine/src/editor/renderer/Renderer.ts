@@ -3,7 +3,6 @@ import {
   Layers,
   MeshBasicMaterial,
   MeshNormalMaterial,
-  sRGBEncoding,
   Vector2
 } from "three";
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer";
@@ -16,6 +15,8 @@ import makeRenderer from "./makeRenderer";
 import OutlinePass from "./OutlinePass";
 import configurePostProcessing from "./RendererPostProcessing";
 import PostProcessingNode from "../nodes/PostProcessingNode";
+import { CSM } from '../../assets/csm/CSM'
+import { Engine } from "../../ecs/classes/Engine";
 /**
  * @author mrdoob / http://mrdoob.com/
  */
@@ -178,8 +179,6 @@ export default class Renderer {
         canvas
       }
     );
-    renderer.physicallyCorrectLights = true;
-    renderer.outputEncoding = sRGBEncoding; // need this if postprocessing is not used
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.info.autoReset = false;
     this.renderer = renderer;
@@ -198,6 +197,17 @@ export default class Renderer {
     this.screenshotRenderer = makeRenderer(1920, 1080);
     const camera = editor.camera;
     this.camera = camera;
+    // Cascaded shadow maps
+    const csm = new CSM({
+      cascades: 4,
+      lightIntensity: 1,
+      shadowMapSize: 2048,
+      maxFar: 100,
+      camera: camera,
+      parent: editor.scene
+    });
+    csm.fade = true;
+    Engine.csm = csm;
     this.willusePostProcessing=false;
     PostProcessingNode.postProcessingCallback=(node,isRemoved=false)=>{
       this.node=node;
@@ -207,6 +217,7 @@ export default class Renderer {
   }
   update(dt, _time) {
     this.renderer.info.reset();
+    // Engine.csm.update();
     if(this.willusePostProcessing)
       this.composer.render(dt);
     else
@@ -242,6 +253,7 @@ export default class Renderer {
       containerEl.offsetHeight,
       false
     );
+    // Engine.csm.updateFrustums();
     this.renderMode.onResize();
 
     if(this.willusePostProcessing){

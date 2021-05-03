@@ -425,6 +425,7 @@ export class Editor extends EventEmitter {
 
     // getting scene data
     const [scene, errors] = await SceneNode.loadProject(this, projectFile);
+    console.log(scene, errors);
 
     // removing loading
     this.sceneLoading = false;

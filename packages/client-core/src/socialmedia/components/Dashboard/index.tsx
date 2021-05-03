@@ -25,6 +25,7 @@ import DashboardIcon from "@material-ui/icons/Dashboard";
 import { Link } from "react-router-dom";
 import Backdrop from '@material-ui/core/Backdrop';
 import CircularProgress from '@material-ui/core/CircularProgress';
+import { useTranslation } from 'react-i18next';
 
 
 
@@ -109,6 +110,7 @@ export default function Dashboard({ children }) {
     const theme = useTheme();
     const [open, setOpen] = React.useState(false);
     const [loading, setLoading] = React.useState(false);
+	const { t } = useTranslation();
 
     const handleDrawerOpen = () => {
         setOpen(true);
@@ -148,7 +150,7 @@ export default function Dashboard({ children }) {
                         <MenuIcon />
                     </IconButton>
                     <Typography variant="h6">
-                        Dashboard
+                        {t('social:dashboard.title')}
                     </Typography>
                 </Toolbar>
             </AppBar>
@@ -177,7 +179,7 @@ export default function Dashboard({ children }) {
                                 <ListItemIcon >
                                     <DashboardIcon style={{ color: "white" }} />
                                 </ListItemIcon>
-                                <ListItemText primary="Dashboard" />
+                                <ListItemText primary={t('social:dashboard.dashboard')} />
                             </ListItem>
                     </Link>
                     <Link to="/admin/users" >
@@ -185,7 +187,7 @@ export default function Dashboard({ children }) {
                             <ListItemIcon >
                                 <SuperviosorAccount style={{ color: "white" }} />
                             </ListItemIcon>
-                            <ListItemText primary="Users" />
+                            <ListItemText primary={t('social:dashboard.users')} />
                         </ListItem>
                     </Link>
                     <Link to="/admin/feeds">
@@ -193,7 +195,7 @@ export default function Dashboard({ children }) {
                             <ListItemIcon >
                                 <ViewModuleIcon style={{ color: "white" }} />
                             </ListItemIcon>
-                            <ListItemText primary="Feeds" />
+                            <ListItemText primary={t('social:dashboard.feeds')} />
                         </ListItem>
                     </Link>
 
@@ -202,7 +204,7 @@ export default function Dashboard({ children }) {
                             <ListItemIcon >
                                 <EmojiPeopleIcon style={{ color: "white" }} />
                             </ListItemIcon>
-                            <ListItemText primary="Ar Media" />
+                            <ListItemText primary={t('social:dashboard.arMedia')} />
                         </ListItem>
                     </Link>
 
@@ -229,7 +231,7 @@ export default function Dashboard({ children }) {
                             <ListItemIcon >
                                 <GradientIcon style={{ color: "white" }} />
                             </ListItemIcon>
-                            <ListItemText primary="Editor" />
+                            <ListItemText primary={t('social:dashboard.editor')} />
                         </ListItem>
                     </Link> 
                 </List>

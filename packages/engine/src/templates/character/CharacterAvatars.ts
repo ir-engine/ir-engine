@@ -36,47 +36,6 @@ export const defaultAvatarAnimations: {[key:number]: AnimationConfigInterface} =
   [CharacterAnimations.RUN_STRAFE_RIGHT]: { name: 'run_right' },
   [CharacterAnimations.RUN_STRAFE_LEFT]: { name: 'run_left' },
   [CharacterAnimations.DRIVING]: { name: 'driving' },
-  [CharacterAnimations.ENTERING_VEHICLE]: { name: 'entering_car', loop: LoopOnce },
-  [CharacterAnimations.EXITING_VEHICLE]: { name: 'exiting_car', loop: LoopOnce },
+  [CharacterAnimations.ENTERING_VEHICLE]: { name: 'car_enter_left', loop: LoopOnce },
+  [CharacterAnimations.EXITING_VEHICLE]: { name: 'car_enter_right', loop: LoopOnce },
 };
-
-// TODO: remove
-export const CharacterAvatars: CharacterAvatarData[] = [
-  {
-    id: "allison",
-    title: "Allison",
-    src: "/models/avatars/Allison.glb",
-    animations: defaultAvatarAnimations
-  },
-  {
-    id: "Andy",
-    title: "Andy",
-    src: "/models/avatars/Andy.glb"
-  },
-  {
-    id: "Erik",
-    title: "Erik",
-    src: "/models/avatars/Erik.glb"
-  },
-  {
-    id: "Geoff",
-    title: "Geoff",
-    src: "/models/avatars/Geoff.glb"
-  },
-  {
-    id: "Jace",
-    title: "Jace",
-    src: "/models/avatars/Jace.glb"
-  },
-  {
-    id: "Rose",
-    title: "Rose",
-    src: "/models/avatars/Rose.glb"
-  },
-  {
-    id: "VRMAvatar",
-    title: "VRMAvatar",
-    src: "/models/vrm/three-vrm-girl.vrm",
-    animationsSource: "vrm"
-  }
-];

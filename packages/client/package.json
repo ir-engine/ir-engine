@@ -15,6 +15,7 @@
     "check-errors": "tsc --noemit",
     "dev": "vite",
     "build": "cross-env NODE_OPTIONS=--max_old_space_size=4096 vite build && cp src/server.js dist/server.js",
+    "preview": "cross-env NODE_OPTIONS=--max_old_space_size=4096 vite preview && cp src/server.js dist/server.js",
     "serve": "serve dist --ssl-cert ../../certs/cert.pem --ssl-key ../../certs/key.pem -s",
     "offline": "cross-env NODE_ENV=offline node --max-old-space-size=4096 ./index.js --port 3000",
     "start": "cp src/server.js dist/server.js && node dist/server.js",
@@ -96,9 +97,10 @@
     "url-toolkit": "2.2.2",
     "use-debounce": "6.0.1",
     "uuid": "8.3.2",
-    "vite": "2.2.3"
+    "vite-xrengine": "2.2.4"
   },
   "devDependencies": {
+    "@rollup/plugin-typescript": "8.2.1",
     "@types/node": "13.13.51",
     "@types/react": "17.0.4",
     "@types/react-dom": "17.0.3",

@@ -7,7 +7,7 @@ import { CharacterAnimations } from '../../character/CharacterAnimations';
 import { VehicleComponent } from '../components/VehicleComponent';
 import { VehicleState } from '../enums/VehicleStateEnum';
 import { CameraModes } from '../../../camera/types/CameraModes';
-import { changeAnimation } from '../../../character/functions/updateVectorAnimation';
+import { changeAnimation } from '../../character/functions/updateVectorAnimation';
 import { initializeDriverState } from '../../character/animations/DrivingAnimations'
 import { isServer } from '../../../common/functions/isServer';
 import { NetworkObject } from '../../../networking/components/NetworkObject';

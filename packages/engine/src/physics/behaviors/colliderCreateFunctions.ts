@@ -1,22 +1,17 @@
 import { PhysicsSystem } from '../systems/PhysicsSystem';
 import { CollisionGroups } from "../enums/CollisionGroups";
-import { createShapeFromConfig, Shape, SHAPES, Body, BodyType, getGeometry } from "three-physx";
+import { createShapeFromConfig, Shape, SHAPES, Body, BodyType, getGeometry, arrayOfPointsToArrayOfVector3, CollisionEvents } from "three-physx";
 import { Entity } from '../../ecs/classes/Entity';
 import { ColliderComponent } from '../components/ColliderComponent';
 import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
 import { Vector3, Quaternion, CylinderBufferGeometry } from 'three';
+import { ConvexGeometry } from '../../assets/threejs-various/ConvexGeometry';
 import { TransformComponent } from '../../transform/components/TransformComponent';
 
 /**
  * @author HydraFire <github.com/HydraFire>
  * @author Josh Field <github.com/hexafield>
  */
-
-export function doThisActivateCollider(body, userData) {
-  body.collisionFilterGroup = CollisionGroups.ActiveCollider;
-  body.link = userData.link;
-  return body;
-}
 
 export function addColliderWithEntity(entity: Entity) {
 
@@ -78,11 +73,12 @@ export function addColliderWithoutEntity(userData, pos = new Vector3(), rot = ne
     // physx doesnt have cylinder shapes, default to convex
     case 'cylinder':
       if(!model.mesh && !model.vertices) {
-        const geom = new CylinderBufferGeometry(scale.x, scale.x, scale.y); // width & height
-        model.vertices = Array.from(geom.attributes.position.array);
+        const geom = new CylinderBufferGeometry(scale.x, scale.x, scale.y); // width & height\
+        const convexGeom = new ConvexGeometry(arrayOfPointsToArrayOfVector3(geom.attributes.position.array))
+        model.vertices = Array.from(convexGeom.attributes.position.array);
         model.indices = geom.index ? Array.from(geom.index.array) : Object.keys(model.vertices).map(Number);
       }
-    // yes, don't break here
+    // yes, don't break here - use convex for cylinder
     case 'convex':
       shapeArgs.shape = SHAPES.ConvexMesh;
       shapeArgs.options = { vertices: model.vertices, indices: model.indices };
@@ -98,8 +94,13 @@ export function addColliderWithoutEntity(userData, pos = new Vector3(), rot = ne
   const shape: Shape = createShapeFromConfig(shapeArgs);
   // console.log('shape', shape);
 
-  shape.config.collisionLayer = userData.action === 'portal' ? CollisionGroups.ActiveCollider : CollisionGroups.Default;
-  shape.config.collisionMask = CollisionGroups.All;
+  shape.config.collisionLayer = userData.collisionLayer ?? CollisionGroups.Default;
+  shape.config.collisionMask = userData.collisionMask ?? CollisionGroups.All;
+
+  if(userData.action === 'portal') {
+    shape.config.collisionLayer |= CollisionGroups.TriggerCollider;
+    shape.userData = { action: 'portal', link: userData.link };
+  }
 
   const bodyConfig = new Body({
     shapes: [shape],
@@ -112,7 +113,7 @@ export function addColliderWithoutEntity(userData, pos = new Vector3(), rot = ne
       angularVelocity: { x: 0, y: 0, z: 0 },
     }
   });
-  const body = PhysicsSystem.instance.addBody(bodyConfig);
-  // console.log(body, bodyConfig)
+  const body: Body = PhysicsSystem.instance.addBody(bodyConfig);
+
   return body;
 }

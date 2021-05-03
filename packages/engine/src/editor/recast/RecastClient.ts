@@ -60,7 +60,7 @@ export default class RecastClient {
       };
       const onAbort = () => {
         this.worker.terminate();
-        this.worker = new RecastWorker();
+        this.worker = createInlineWorkerFromString(RecastWorker);
         const error = new Error("Canceled navmesh generation.");
         error["aborted"] = true;
         reject(error);

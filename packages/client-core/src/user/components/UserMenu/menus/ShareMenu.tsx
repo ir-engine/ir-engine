@@ -11,6 +11,7 @@ import styles from '../UserMenu.module.scss';
 import { sendInvite } from '../../../../social/reducers/invite/service';
 import { bindActionCreators, Dispatch } from 'redux';
 import { connect } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 import { selectInviteState } from '../../../../social/reducers/invite/selector';
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
@@ -31,6 +32,7 @@ interface Props {
 
 const ShareMenu = (props: Props): any => {
 	const { sendInvite, inviteState } = props;
+	const { t } = useTranslation();
 	const [email, setEmail] = React.useState("");
 	const refLink = useRef(null);
 	const postTitle = 'AR/VR world';
@@ -40,7 +42,7 @@ const ShareMenu = (props: Props): any => {
 		refLink.current.select();
 		document.execCommand("copy");
 		refLink.current.setSelectionRange(0, 0); // deselect
-		props.alertSuccess('Link copied to clipboard.');
+		props.alertSuccess(t('user:usermenu.share.linkCopied'));
 	};
 
 	const shareOnApps = () => {
@@ -76,20 +78,20 @@ const ShareMenu = (props: Props): any => {
 	return (
 		<div className={styles.menuPanel}>
 			<div className={styles.sharePanel}>
-				<Typography variant="h1" className={styles.panelHeader}>Location URL</Typography>
+				<Typography variant="h1" className={styles.panelHeader}>{t('user:usermenu.share.title')}</Typography>
 				<textarea readOnly className={styles.shareLink} ref={refLink} value={window.location.href} />
 				<Button onClick={copyLinkToClipboard} className={styles.copyBtn}>
-					Copy
-					<span className={styles.materialIconBlock}>					
+					{t('user:usermenu.share.lbl-copy')}
+					<span className={styles.materialIconBlock}>
 						<FileCopy />
 					</span>
 				</Button>
 
-				<Typography variant="h5">Send to email or phone number</Typography>
+				<Typography variant="h5">{t('user:usermenu.share.lbl-phoneEmail')}</Typography>
 				<TextField
 					className={styles.emailField}
 					size="small"
-					placeholder="Phone Number / Email"
+					placeholder={t('user:usermenu.share.ph-phoneEmail')}
 					variant="outlined"
 					value={email}
 					onChange={(e)=> handleChang(e) }
@@ -102,7 +104,7 @@ const ShareMenu = (props: Props): any => {
 					}}
 				/>
 				{(isMobileOrTablet() && navigator.share)
-					? <div className={styles.shareBtnContainer}><Button className={styles.shareBtn} onClick={shareOnApps}>Share</Button></div>
+					? <div className={styles.shareBtnContainer}><Button className={styles.shareBtn} onClick={shareOnApps}>{t('user:usermenu.share.lbl-share')}</Button></div>
 					: null}
 			</div>
 		</div>

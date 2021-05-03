@@ -8,6 +8,7 @@ import { bindActionCreators, Dispatch } from 'redux';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import { FormControl, InputLabel, MenuItem, Select } from '@material-ui/core';
+import { useTranslation } from 'react-i18next';
 
 
 // @ts-ignore
@@ -36,7 +37,8 @@ const ArMediaForm = ({projects, createArMedia, view}:Props) => {
   const [type, setType] = useState(null);
   const [title, setTitle] = useState('');
   const [collectionId, setCollectionId] = useState(null);
- 
+	const { t } = useTranslation();
+
      
     const handleSubmit = (e:any) =>{
         e.preventDefault();
@@ -51,25 +53,25 @@ const ArMediaForm = ({projects, createArMedia, view}:Props) => {
         >                     
             <section className={styles.content}>
                 <div className={styles.formLine}>                   
-                    <TextField className={styles.textFieldContainer} value={title} onChange={(e)=>setTitle(e.target.value)} fullWidth id="title" placeholder="Title"  />
+                    <TextField className={styles.textFieldContainer} value={title} onChange={(e)=>setTitle(e.target.value)} fullWidth id="title" placeholder={t('social:arMediaform.title')}  />
                 </div>
                 <div className={styles.formLine}>                   
                   <FormControl className={styles.formLine}>
-                    <InputLabel id="demo-simple-select-label">Type</InputLabel>
+                    <InputLabel id="demo-simple-select-label">{t('social:arMediaform.type')}</InputLabel>
                     <Select
                       labelId="demo-simple-select-label"
                       id="demo-simple-select"
                       value={type}
                       onChange={(e)=>setType(e.target.value)}
                     >
-                      <MenuItem value='clip'>Clip</MenuItem>
-                      <MenuItem value='background'>Background</MenuItem>
+                      <MenuItem value='clip'>{t('social:arMediaform.clip')}</MenuItem>
+                      <MenuItem value='background'>{t('social:arMediaform.background')}</MenuItem>
                     </Select>
                   </FormControl>
                 </div>
                 <div className={styles.formLine}>
                   <FormControl className={styles.formLine}>
-                    <InputLabel id="demo-simple-select-label">Scene</InputLabel>
+                    <InputLabel id="demo-simple-select-label">{t('social:arMediaform.scene')}</InputLabel>
                     <Select
                       labelId="demo-simple-select-label"
                       id="demo-simple-select"
@@ -86,7 +88,7 @@ const ArMediaForm = ({projects, createArMedia, view}:Props) => {
                 type="submit"
                 className={styles.submit}
                 >
-                Save
+                {t('social:arMediaform.save')}
                 </Button>   
             </section>    
         </form>        

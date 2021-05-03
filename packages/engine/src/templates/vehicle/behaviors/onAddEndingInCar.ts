@@ -1,5 +1,5 @@
 import { Matrix4, Vector3 } from 'three';
-import { changeAnimation } from '../../../character/functions/updateVectorAnimation';
+import { changeAnimation } from '../../character/functions/updateVectorAnimation';
 import { isServer } from "../../../common/functions/isServer";
 import { Entity } from '../../../ecs/classes/Entity';
 import { getComponent, getMutableComponent } from '../../../ecs/functions/EntityFunctions';

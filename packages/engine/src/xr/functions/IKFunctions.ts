@@ -1,9 +1,9 @@
 import { Entity } from "../../ecs/classes/Entity";
 import { addComponent, getMutableComponent, hasComponent, removeComponent, } from "../../ecs/functions/EntityFunctions";
 import { CharacterComponent } from "../../templates/character/components/CharacterComponent";
-import { IKComponent } from "../../character/components/IKComponent";
+import { IKComponent } from "../../templates/character/components/IKComponent";
 import { Avatar } from "../classes/IKAvatar";
-import { AnimationComponent } from "../../character/components/AnimationComponent";
+import { AnimationComponent } from "../../templates/character/components/AnimationComponent";
 import { clearBit, setBit } from "../../common/functions/bitFunctions";
 import { CHARACTER_STATES } from "../../templates/character/state/CharacterStates";
 import { Network } from "../../networking/classes/Network";

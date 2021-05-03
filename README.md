@@ -1,10 +1,6 @@
 
 ![xr3ngine](https://github.com/xr3ngine/xr3ngine/raw/dev/xrengine%20black.png)
 
-An end-to-end solution for hosting humans and AI in a virtual space, built on top of react, three.js and express/feathers.
-
-This repo includes a fully-feature client, API server, realtime gamerserver, game engine and devops for scalable deployment. Pick and choose what you need or deploy the whole stack and start building your application on top.
-
 #### Join our Discord
 [![Discord Chat](https://img.shields.io/discord/692672143053422678.svg)](https://discord.gg/Tb4MT4TTjH)  
 
@@ -29,7 +25,7 @@ This repo includes a fully-feature client, API server, realtime gamerserver, gam
 
 ## Demos:
 
-https://theoverlay.io
+https://xrengine.io
 
 # Getting Started
 
