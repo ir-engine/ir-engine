@@ -1,4 +1,4 @@
-importScripts('/scripts/three-physx.umd.js');
+importScripts('/scripts/three-physx.cjs.js');
 importScripts('/scripts/physx.release.cjs.js');
 const THREE_PHYSX = globalThis["three-physx"];
 PHYSX({
