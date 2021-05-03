@@ -46,7 +46,7 @@
     "draco3dgltf": "^1.4.1",
     "hls.js": "^1.0.0",
     "mousetrap": "^1.6.5",
-    "socket.io": "2.4.1",
+    "socket.io": "4.0.1",
     "three": "^0.128.0",
     "three-mesh-bvh": "^0.3.7",
     "three-physx": "^0.0.5",

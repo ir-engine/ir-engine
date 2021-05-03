@@ -67,15 +67,21 @@ if (useSSL) {
   });
 }
 
-const server = useSSL
-  ? https.createServer(certOptions as any, app).listen(port)
-  : app.listen(port);
+// const server = useSSL
+//   ? https.createServer(certOptions as any, app).listen(port)
+  // : app.listen(port);
+app.listen(port).then(server => {
+    server.on('listening', () =>
+    logger.info('Feathers application started on %s://%s:%d', useSSL ? 'https' : 'http', config.server.hostname, port)
+    );
+});
 
-if (useSSL === true) app.setup(server);
+
+// if (useSSL === true) app.setup(server);
 
 process.on('unhandledRejection', (reason, p) =>
   logger.error('Unhandled Rejection at: Promise ', p, reason)
 );
-server.on('listening', () =>
-logger.info('Feathers application started on %s://%s:%d', useSSL ? 'https' : 'http', config.server.hostname, port)
-);
+// server.on('listening', () =>
+// logger.info('Feathers application started on %s://%s:%d', useSSL ? 'https' : 'http', config.server.hostname, port)
+// );
