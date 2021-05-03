@@ -1,7 +1,7 @@
 
 var PHYSX = (function() {
-  var _scriptDir = import.meta.url;
-  
+  var _scriptDir = typeof document !== 'undefined' && document.currentScript ? document.currentScript.src : undefined;
+  if (typeof __filename !== 'undefined') _scriptDir = _scriptDir || __filename;
   return (
 function(PHYSX) {
   PHYSX = PHYSX || {};
@@ -13,4 +13,10 @@ var Module=typeof PHYSX!=="undefined"?PHYSX:{};var readyPromiseResolve,readyProm
 }
 );
 })();
-export default PHYSX;
+if (typeof exports === 'object' && typeof module === 'object')
+      module.exports = PHYSX;
+    else if (typeof define === 'function' && define['amd'])
+      define([], function() { return PHYSX; });
+    else if (typeof exports === 'object')
+      exports["PHYSX"] = PHYSX;
+    
