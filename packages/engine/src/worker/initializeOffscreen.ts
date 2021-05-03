@@ -30,6 +30,7 @@ import { receiveWorker } from './MessageQueue';
 import { AnimationManager } from '../templates/character/prefabs/NetworkPlayerCharacter';
 import { CharacterControllerSystem } from '../templates/character/CharacterControllerSystem';
 import { UIPanelSystem } from '../ui/systems/UIPanelSystem';
+//@ts-ignore
 import PhysXWorker from '../physics/functions/loadPhysX.ts?worker';
 import { PhysXInstance } from "three-physx";
 

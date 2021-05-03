@@ -1,6 +1,6 @@
 import { PhysicsSystem } from '../systems/PhysicsSystem';
 import { CollisionGroups } from "../enums/CollisionGroups";
-import { createShapeFromConfig, Shape, SHAPES, Body, BodyType, getGeometry, arrayOfPointsToArrayOfVector3 } from "three-physx";
+import { createShapeFromConfig, Shape, SHAPES, Body, BodyType, getGeometry, arrayOfPointsToArrayOfVector3, CollisionEvents } from "three-physx";
 import { Entity } from '../../ecs/classes/Entity';
 import { ColliderComponent } from '../components/ColliderComponent';
 import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
@@ -12,12 +12,6 @@ import { TransformComponent } from '../../transform/components/TransformComponen
  * @author HydraFire <github.com/HydraFire>
  * @author Josh Field <github.com/hexafield>
  */
-
-export function doThisActivateCollider(body, userData) {
-  body.collisionFilterGroup = CollisionGroups.ActiveCollider;
-  body.link = userData.link;
-  return body;
-}
 
 export function addColliderWithEntity(entity: Entity) {
 
@@ -100,8 +94,13 @@ export function addColliderWithoutEntity(userData, pos = new Vector3(), rot = ne
   const shape: Shape = createShapeFromConfig(shapeArgs);
   // console.log('shape', shape);
 
-  shape.config.collisionLayer = userData.action === 'portal' ? CollisionGroups.ActiveCollider : CollisionGroups.Default;
-  shape.config.collisionMask = CollisionGroups.All;
+  shape.config.collisionLayer = userData.collisionLayer ?? CollisionGroups.Default;
+  shape.config.collisionMask = userData.collisionMask ?? CollisionGroups.All;
+
+  if(userData.action === 'portal') {
+    shape.config.collisionLayer |= CollisionGroups.TriggerCollider;
+    shape.userData = { action: 'portal', link: userData.link };
+  }
 
   const bodyConfig = new Body({
     shapes: [shape],
@@ -114,7 +113,7 @@ export function addColliderWithoutEntity(userData, pos = new Vector3(), rot = ne
       angularVelocity: { x: 0, y: 0, z: 0 },
     }
   });
-  const body = PhysicsSystem.instance.addBody(bodyConfig);
-  // console.log(body, bodyConfig)
+  const body: Body = PhysicsSystem.instance.addBody(bodyConfig);
+
   return body;
 }
