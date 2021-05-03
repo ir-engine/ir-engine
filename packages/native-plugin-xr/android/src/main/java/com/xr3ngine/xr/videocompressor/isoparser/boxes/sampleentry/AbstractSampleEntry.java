@@ -14,10 +14,10 @@
  * limitations under the License. 
  */
 
-package com.xr3ngine.xr.videocompressor.isoparser.boxes.sampleentry;
+package com.xrengine.xr.videocompressor.isoparser.boxes.sampleentry;
 
-import com.xr3ngine.xr.videocompressor.isoparser.BoxParser;
-import com.xr3ngine.xr.videocompressor.isoparser.support.AbstractContainerBox;
+import com.xrengine.xr.videocompressor.isoparser.BoxParser;
+import com.xrengine.xr.videocompressor.isoparser.support.AbstractContainerBox;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;

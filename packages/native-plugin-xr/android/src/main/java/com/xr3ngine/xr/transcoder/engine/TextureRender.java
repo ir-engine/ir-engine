@@ -17,7 +17,7 @@
 // blob: 4125dcfcfed6ed7fddba5b71d657dec0d433da6a
 // modified: removed unused method bodies
 // modified: use GL_LINEAR for GL_TEXTURE_MIN_FILTER to improve quality.
-package com.xr3ngine.xr.transcoder.engine;
+package com.xrengine.xr.transcoder.engine;
 import android.graphics.SurfaceTexture;
 import android.opengl.GLES11Ext;
 import android.opengl.GLES20;

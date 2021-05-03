@@ -35,7 +35,7 @@ class InBrowserBotBuilder {
 
         let botClass = this.baseBot.constructor
 
-        while (botClass.name !== 'InBrowserBot' && botClass.name !== 'XR3ngineBot')
+        while (botClass.name !== 'InBrowserBot' && botClass.name !== 'XREngineBot')
         {
             lines.push(botClass.toString())
             botClass = Object.getPrototypeOf(botClass)

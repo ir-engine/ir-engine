@@ -1,12 +1,12 @@
-# Default values for xr3ngine.
+# Default values for xrengine.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-domain: xr3ngine.dev
+domain: xrengine.dev
 
 client:
   enabled: true
-  name: xr3ngine-client
+  name: xrengine-client
 
   replicaCount: 1
   image:
@@ -58,7 +58,7 @@ client:
 
 api:
   enabled: true
-  name: xr3ngine-api
+  name: xrengine-api
 
   replicaCount: 1
   image:
@@ -112,7 +112,7 @@ api:
 
     # automatically filled by chart.. ignore
     # MYSQL_PORT: 3306
-    # MYSQL_DATABASE: xr3ngine
+    # MYSQL_DATABASE: xrengine
     # MYSQL_USER: server
     # MYSQL_PASSWORD: password
 
@@ -153,7 +153,7 @@ api:
 
 media:
   enabled: true
-  name: xr3ngine-media
+  name: xrengine-media
 
   replicaCount: 1
   image:
@@ -207,7 +207,7 @@ media:
 
     # automatically filled by chart.. ignore
     # MYSQL_PORT: 3306
-    # MYSQL_DATABASE: xr3ngine
+    # MYSQL_DATABASE: xrengine
     # MYSQL_USER: server
     # MYSQL_PASSWORD: password
 
@@ -248,12 +248,12 @@ media:
 
 editor:
   enabled: true
-  name: xr3ngine-editor
+  name: xrengine-editor
 
   replicaCount: 1
   image:
-    # Reminder: Editor image still on xr3ngine we didn't create image for xr3ngine
-    repository: xr3ngine/editor
+    # Reminder: Editor image still on xrengine we didn't create image for xrengine
+    repository: xrengine/editor
     tag: latest
     pullPolicy: IfNotPresent
 
@@ -327,9 +327,9 @@ gameserver:
 
 mariadb:
   enabled: false
-  nameOverride: xr3ngine-mariadb
+  nameOverride: xrengine-mariadb
   db:
-    name: xr3ngine
+    name: xrengine
     user: server
     password: password
     existingSecret:

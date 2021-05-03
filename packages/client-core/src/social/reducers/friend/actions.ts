@@ -5,9 +5,9 @@ import {
   REMOVED_FRIEND,
   FETCHING_FRIENDS
 } from '../actions';
-import { User } from '@xr3ngine/common/src/interfaces/User';
-import { UserRelationship } from '@xr3ngine/common/src/interfaces/UserRelationship';
-import { FriendResult } from '@xr3ngine/common/src/interfaces/FriendResult';
+import { User } from '@xrengine/common/src/interfaces/User';
+import { UserRelationship } from '@xrengine/common/src/interfaces/UserRelationship';
+import { FriendResult } from '@xrengine/common/src/interfaces/FriendResult';
 
 export interface LoadedFriendsAction {
   type: string;

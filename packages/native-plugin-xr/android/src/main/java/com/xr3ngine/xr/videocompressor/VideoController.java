@@ -1,4 +1,4 @@
-package com.xr3ngine.xr.videocompressor;
+package com.xrengine.xr.videocompressor;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;

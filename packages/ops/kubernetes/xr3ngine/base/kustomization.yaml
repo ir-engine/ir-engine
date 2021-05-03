@@ -1,10 +1,10 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-namespace: xr3ngine
+namespace: xrengine
 resources:
-  - xr3ngine.yaml
+  - xrengine.yaml
 secretGenerator:
-  - name: xr3ngine-dev-secrets
-    env: xr3ngine-dev-secrets.env
+  - name: xrengine-dev-secrets
+    env: xrengine-dev-secrets.env
 generatorOptions:
   disableNameSuffixHash: true

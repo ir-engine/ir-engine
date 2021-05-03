@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.xr3ngine.xr.transcoder.engine;
+package com.xrengine.xr.transcoder.engine;
 
 import android.media.MediaExtractor;
 import android.media.MediaFormat;
@@ -22,9 +22,9 @@ import android.media.MediaMuxer;
 import android.os.Build;
 import android.util.Log;
 
-import com.xr3ngine.xr.transcoder.format.MediaFormatStrategy;
-import com.xr3ngine.xr.transcoder.utils.ISO6709LocationParser;
-import com.xr3ngine.xr.transcoder.utils.MediaExtractorUtils;
+import com.xrengine.xr.transcoder.format.MediaFormatStrategy;
+import com.xrengine.xr.transcoder.utils.ISO6709LocationParser;
+import com.xrengine.xr.transcoder.utils.MediaExtractorUtils;
 
 import java.io.FileDescriptor;
 import java.io.IOException;

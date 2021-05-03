@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 
-import Splash from '@xr3ngine/client-core/src/socialmedia/components/Splash';
-import OnBoardingComponent from '@xr3ngine/client-core/src/socialmedia/components/OnBoarding';
-import { selectAppOnBoardingStep } from '@xr3ngine/client-core/src/common/reducers/app/selector';
+import Splash from '@xrengine/client-core/src/socialmedia/components/Splash';
+import OnBoardingComponent from '@xrengine/client-core/src/socialmedia/components/OnBoarding';
+import { selectAppOnBoardingStep } from '@xrengine/client-core/src/common/reducers/app/selector';
 import { connect } from 'react-redux';
 
 const mapStateToProps = (state: any): any => {

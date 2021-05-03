@@ -1,9 +1,9 @@
-package com.xr3ngine.xr.transcoder.engine;
+package com.xrengine.xr.transcoder.engine;
 
 import android.media.MediaCodec;
 import android.media.MediaFormat;
 
-import com.xr3ngine.xr.transcoder.compat.MediaCodecBufferCompatWrapper;
+import com.xrengine.xr.transcoder.compat.MediaCodecBufferCompatWrapper;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;

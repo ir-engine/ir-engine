@@ -11,10 +11,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.xr3ngine.xr.videocompressor.isoparser.tools;
+package com.xrengine.xr.videocompressor.isoparser.tools;
 
-import com.xr3ngine.xr.videocompressor.isoparser.IsoFile;
-import com.xr3ngine.xr.videocompressor.isoparser.MemoryAllocationException;
+import com.xrengine.xr.videocompressor.isoparser.IsoFile;
+import com.xrengine.xr.videocompressor.isoparser.MemoryAllocationException;
 
 
 import java.nio.ByteBuffer;

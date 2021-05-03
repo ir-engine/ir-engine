@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.xr3ngine.xr;
+package com.xrengine.xr;
 
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
@@ -37,11 +37,11 @@ import com.google.ar.core.PointCloud;
 import com.google.ar.core.Session;
 //import com.google.ar.core.Trackable.TrackingState;
 import com.google.android.material.snackbar.Snackbar;
-import com.xr3ngine.xr.rendering.BackgroundRenderer;
-import com.xr3ngine.xr.rendering.ObjectRenderer;
-import com.xr3ngine.xr.rendering.ObjectRenderer.BlendMode;
-import com.xr3ngine.xr.rendering.PlaneRenderer;
-import com.xr3ngine.xr.rendering.PointCloudRenderer;
+import com.xrengine.xr.rendering.BackgroundRenderer;
+import com.xrengine.xr.rendering.ObjectRenderer;
+import com.xrengine.xr.rendering.ObjectRenderer.BlendMode;
+import com.xrengine.xr.rendering.PlaneRenderer;
+import com.xrengine.xr.rendering.PointCloudRenderer;
 import com.google.ar.core.exceptions.UnavailableApkTooOldException;
 import com.google.ar.core.exceptions.UnavailableArcoreNotInstalledException;
 import com.google.ar.core.exceptions.UnavailableSdkTooOldException;

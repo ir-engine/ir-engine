@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.xr3ngine.xr.arcore.helpers;
+package com.xrengine.xr.arcore.helpers;
 
 import android.app.Activity;
 import android.view.WindowManager;

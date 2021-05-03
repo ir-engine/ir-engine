@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.xr3ngine.xr;
+package com.xrengine.xr;
 
 import android.app.Fragment;
 import android.content.Intent;
@@ -63,19 +63,19 @@ import com.google.ar.core.exceptions.UnavailableArcoreNotInstalledException;
 import com.google.ar.core.exceptions.UnavailableDeviceNotCompatibleException;
 import com.google.ar.core.exceptions.UnavailableSdkTooOldException;
 import com.google.ar.core.exceptions.UnavailableUserDeclinedInstallationException;
-import com.xr3ngine.xr.arcore.helpers.CameraPermissionHelper;
-import com.xr3ngine.xr.arcore.helpers.DepthSettings;
-import com.xr3ngine.xr.arcore.helpers.DisplayRotationHelper;
-import com.xr3ngine.xr.arcore.helpers.InstantPlacementSettings;
-import com.xr3ngine.xr.arcore.samplerender.Framebuffer;
-import com.xr3ngine.xr.arcore.samplerender.Mesh;
-import com.xr3ngine.xr.arcore.samplerender.SampleRender;
-import com.xr3ngine.xr.arcore.samplerender.Shader;
-import com.xr3ngine.xr.arcore.samplerender.Texture;
-import com.xr3ngine.xr.arcore.samplerender.VertexBuffer;
-import com.xr3ngine.xr.arcore.samplerender.arcore.BackgroundRenderer;
-import com.xr3ngine.xr.arcore.samplerender.arcore.PlaneRenderer;
-import com.xr3ngine.xr.watermark.WatermarkManager;
+import com.xrengine.xr.arcore.helpers.CameraPermissionHelper;
+import com.xrengine.xr.arcore.helpers.DepthSettings;
+import com.xrengine.xr.arcore.helpers.DisplayRotationHelper;
+import com.xrengine.xr.arcore.helpers.InstantPlacementSettings;
+import com.xrengine.xr.arcore.samplerender.Framebuffer;
+import com.xrengine.xr.arcore.samplerender.Mesh;
+import com.xrengine.xr.arcore.samplerender.SampleRender;
+import com.xrengine.xr.arcore.samplerender.Shader;
+import com.xrengine.xr.arcore.samplerender.Texture;
+import com.xrengine.xr.arcore.samplerender.VertexBuffer;
+import com.xrengine.xr.arcore.samplerender.arcore.BackgroundRenderer;
+import com.xrengine.xr.arcore.samplerender.arcore.PlaneRenderer;
+import com.xrengine.xr.watermark.WatermarkManager;
 
 import java.io.File;
 import java.io.IOException;

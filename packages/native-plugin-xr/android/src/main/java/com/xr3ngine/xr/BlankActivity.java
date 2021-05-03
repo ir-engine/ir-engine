@@ -1,4 +1,4 @@
-package com.xr3ngine.xr;
+package com.xrengine.xr;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -6,10 +6,10 @@ import android.media.projection.MediaProjectionManager;
 import android.os.Bundle;
 import android.util.Log;
 
-import static com.xr3ngine.xr.MediaProjectionHelper.mediaProjectionManager;
-import static com.xr3ngine.xr.MediaProjectionHelper.mediaProjection;
-import static com.xr3ngine.xr.MediaProjectionHelper.resultCode;
-import static com.xr3ngine.xr.MediaProjectionHelper.data;
+import static com.xrengine.xr.MediaProjectionHelper.mediaProjectionManager;
+import static com.xrengine.xr.MediaProjectionHelper.mediaProjection;
+import static com.xrengine.xr.MediaProjectionHelper.resultCode;
+import static com.xrengine.xr.MediaProjectionHelper.data;
 
 /*
 Solely created to get screen recording permissions from service

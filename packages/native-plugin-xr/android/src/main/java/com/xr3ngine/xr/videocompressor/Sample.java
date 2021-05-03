@@ -1,4 +1,4 @@
-package com.xr3ngine.xr.videocompressor;
+package com.xrengine.xr.videocompressor;
 
 public class Sample {
     private long offset = 0;

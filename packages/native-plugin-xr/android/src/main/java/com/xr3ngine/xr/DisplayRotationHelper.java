@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.xr3ngine.xr;
+package com.xrengine.xr;
 
 import android.app.Activity;
 import android.content.Context;

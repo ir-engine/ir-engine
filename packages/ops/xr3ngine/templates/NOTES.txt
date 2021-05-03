@@ -1,4 +1,4 @@
-Thank you for installing XR3ngine
+Thank you for installing XREngine
 
 1. Dashboard frontend is running on:
 {{- if .Values.client.ingress.enabled }}

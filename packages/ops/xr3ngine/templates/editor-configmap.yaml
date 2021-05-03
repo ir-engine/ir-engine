@@ -2,9 +2,9 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ template "xr3ngine.editor.fullname" . }}
+  name: {{ template "xrengine.editor.fullname" . }}
   labels:
-    {{- include "xr3ngine.editor.labels" . | nindent 4 }}
+    {{- include "xrengine.editor.labels" . | nindent 4 }}
 data:
 {{- if .Values.editor.extraEnv }}
 {{ toYaml .Values.editor.extraEnv | indent 2 }}

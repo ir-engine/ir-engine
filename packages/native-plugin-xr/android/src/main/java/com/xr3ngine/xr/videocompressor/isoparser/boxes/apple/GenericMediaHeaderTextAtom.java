@@ -1,6 +1,6 @@
-package com.xr3ngine.xr.videocompressor.isoparser.boxes.apple;
+package com.xrengine.xr.videocompressor.isoparser.boxes.apple;
 
-import com.xr3ngine.xr.videocompressor.isoparser.support.AbstractBox;
+import com.xrengine.xr.videocompressor.isoparser.support.AbstractBox;
 
 import java.nio.ByteBuffer;
 

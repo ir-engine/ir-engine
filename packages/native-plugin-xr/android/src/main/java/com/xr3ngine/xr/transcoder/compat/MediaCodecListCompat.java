@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.xr3ngine.xr.transcoder.compat;
+package com.xrengine.xr.transcoder.compat;
 
 import android.media.MediaCodecInfo;
 import android.media.MediaCodecList;

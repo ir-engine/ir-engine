@@ -1,8 +1,8 @@
-package com.xr3ngine.xr.videocompressor.isoparser.boxes.sampleentry;
+package com.xrengine.xr.videocompressor.isoparser.boxes.sampleentry;
 
-import com.xr3ngine.xr.videocompressor.isoparser.BoxParser;
-import com.xr3ngine.xr.videocompressor.isoparser.tools.IsoTypeReader;
-import com.xr3ngine.xr.videocompressor.isoparser.tools.IsoTypeWriter;
+import com.xrengine.xr.videocompressor.isoparser.BoxParser;
+import com.xrengine.xr.videocompressor.isoparser.tools.IsoTypeReader;
+import com.xrengine.xr.videocompressor.isoparser.tools.IsoTypeWriter;
 
 import java.io.IOException;
 import java.nio.Buffer;

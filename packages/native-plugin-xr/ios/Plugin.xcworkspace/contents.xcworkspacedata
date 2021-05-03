@@ -5,6 +5,6 @@
       location = "group:Plugin.xcodeproj">
    </FileRef>
    <FileRef
-      location = "group:/Users/shawwalters/Documents/xr3ngine/packages/native-plugin-xr/ios/Pods/Pods.xcodeproj">
+      location = "group:/Users/shawwalters/Documents/xrengine/packages/native-plugin-xr/ios/Pods/Pods.xcodeproj">
    </FileRef>
 </Workspace>

@@ -2,27 +2,27 @@
 {{/*
 Expand the name of the chart.
 */}}
-# {{- define "xr3ngine.name" -}}
+# {{- define "xrengine.name" -}}
 # {{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" -}}
 # {{- end -}}
 
-{{- define "xr3ngine.client.name" -}}
+{{- define "xrengine.client.name" -}}
 {{- default .Chart.Name .Values.client.nameOverride | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
-{{- define "xr3ngine.api.name" -}}
+{{- define "xrengine.api.name" -}}
 {{- default .Chart.Name .Values.api.nameOverride | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
-{{- define "xr3ngine.media.name" -}}
+{{- define "xrengine.media.name" -}}
 {{- default .Chart.Name .Values.media.nameOverride | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
-{{- define "xr3ngine.gameserver.name" -}}
+{{- define "xrengine.gameserver.name" -}}
 {{- default .Chart.Name .Values.gameserver.nameOverride | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
-{{- define "xr3ngine.editor.name" -}}
+{{- define "xrengine.editor.name" -}}
 {{- default .Chart.Name .Values.editor.nameOverride | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
@@ -32,7 +32,7 @@ Create a default fully qualified app name.
 We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
 If release name contains chart name it will be used as a full name.
 */}}
-{{- define "xr3ngine.fullname" -}}
+{{- define "xrengine.fullname" -}}
 {{- if .Values.fullnameOverride -}}
 {{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" -}}
 {{- else -}}
@@ -46,7 +46,7 @@ If release name contains chart name it will be used as a full name.
 {{- end -}}
 
 
-{{- define "xr3ngine.client.fullname" -}}
+{{- define "xrengine.client.fullname" -}}
 {{- if .Values.client.fullnameOverride -}}
 {{- .Values.client.fullnameOverride | trunc 63 | trimSuffix "-" -}}
 {{- else -}}
@@ -55,7 +55,7 @@ If release name contains chart name it will be used as a full name.
 {{- end -}}
 
 
-{{- define "xr3ngine.api.fullname" -}}
+{{- define "xrengine.api.fullname" -}}
 {{- if .Values.api.fullnameOverride -}}
 {{- .Values.api.fullnameOverride | trunc 63 | trimSuffix "-" -}}
 {{- else -}}
@@ -64,7 +64,7 @@ If release name contains chart name it will be used as a full name.
 {{- end -}}
 
 
-{{- define "xr3ngine.media.fullname" -}}
+{{- define "xrengine.media.fullname" -}}
 {{- if .Values.media.fullnameOverride -}}
 {{- .Values.media.fullnameOverride | trunc 63 | trimSuffix "-" -}}
 {{- else -}}
@@ -72,7 +72,7 @@ If release name contains chart name it will be used as a full name.
 {{- end -}}
 {{- end -}}
 
-{{- define "xr3ngine.gameserver.fullname" -}}
+{{- define "xrengine.gameserver.fullname" -}}
 {{- if .Values.gameserver.fullnameOverride -}}
 {{- .Values.gameserver.fullnameOverride | trunc 63 | trimSuffix "-" -}}
 {{- else -}}
@@ -80,7 +80,7 @@ If release name contains chart name it will be used as a full name.
 {{- end -}}
 {{- end -}}
 
-{{- define "xr3ngine.editor.fullname" -}}
+{{- define "xrengine.editor.fullname" -}}
 {{- if .Values.editor.fullnameOverride -}}
 {{- .Values.editor.fullnameOverride | trunc 63 | trimSuffix "-" -}}
 {{- else -}}
@@ -88,12 +88,12 @@ If release name contains chart name it will be used as a full name.
 {{- end -}}
 {{- end -}}
 
-{{- define "xr3ngine.client.host" -}}
+{{- define "xrengine.client.host" -}}
 {{- printf "%s.%s.%s" "dashboard" .Release.Name .Values.domain -}}
 {{- end -}}
 
 
-{{- define "xr3ngine.media.host" -}}
+{{- define "xrengine.media.host" -}}
 {{- printf "%s.%s.%s" "media" .Release.Name .Values.domain -}}
 {{- end -}}
 
@@ -102,16 +102,16 @@ If release name contains chart name it will be used as a full name.
 {{/*
 Create chart name and version as used by the chart label.
 */}}
-{{- define "xr3ngine.chart" -}}
+{{- define "xrengine.chart" -}}
 {{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{/*
 Common labels
 */}}
-{{- define "xr3ngine.client.labels" -}}
-helm.sh/chart: {{ include "xr3ngine.chart" . }}
-{{ include "xr3ngine.client.selectorLabels" . }}
+{{- define "xrengine.client.labels" -}}
+helm.sh/chart: {{ include "xrengine.chart" . }}
+{{ include "xrengine.client.selectorLabels" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
@@ -121,8 +121,8 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{/*
 Selector labels
 */}}
-{{- define "xr3ngine.client.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "xr3ngine.client.name" . }}
+{{- define "xrengine.client.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "xrengine.client.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 app.kubernetes.io/component: client
 {{- end -}}
@@ -131,9 +131,9 @@ app.kubernetes.io/component: client
 {{/*
 Common labels
 */}}
-{{- define "xr3ngine.api.labels" -}}
-helm.sh/chart: {{ include "xr3ngine.chart" . }}
-{{ include "xr3ngine.api.selectorLabels" . }}
+{{- define "xrengine.api.labels" -}}
+helm.sh/chart: {{ include "xrengine.chart" . }}
+{{ include "xrengine.api.selectorLabels" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
@@ -143,8 +143,8 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{/*
 Selector labels
 */}}
-{{- define "xr3ngine.api.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "xr3ngine.api.name" . }}
+{{- define "xrengine.api.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "xrengine.api.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 app.kubernetes.io/component: api
 {{- end -}}
@@ -153,9 +153,9 @@ app.kubernetes.io/component: api
 {{/*
 Common labels
 */}}
-{{- define "xr3ngine.media.labels" -}}
-helm.sh/chart: {{ include "xr3ngine.chart" . }}
-{{ include "xr3ngine.media.selectorLabels" . }}
+{{- define "xrengine.media.labels" -}}
+helm.sh/chart: {{ include "xrengine.chart" . }}
+{{ include "xrengine.media.selectorLabels" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
@@ -165,8 +165,8 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{/*
 Selector labels
 */}}
-{{- define "xr3ngine.media.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "xr3ngine.media.name" . }}
+{{- define "xrengine.media.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "xrengine.media.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 app.kubernetes.io/component: media
 {{- end -}}
@@ -174,9 +174,9 @@ app.kubernetes.io/component: media
 {{/*
 Common labels
 */}}
-{{- define "xr3ngine.gameserver.labels" -}}
-helm.sh/chart: {{ include "xr3ngine.chart" . }}
-{{ include "xr3ngine.gameserver.selectorLabels" . }}
+{{- define "xrengine.gameserver.labels" -}}
+helm.sh/chart: {{ include "xrengine.chart" . }}
+{{ include "xrengine.gameserver.selectorLabels" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
@@ -186,8 +186,8 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{/*
 Selector labels
 */}}
-{{- define "xr3ngine.gameserver.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "xr3ngine.gameserver.name" . }}
+{{- define "xrengine.gameserver.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "xrengine.gameserver.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 app.kubernetes.io/component: gameserver
 {{- end -}}
@@ -195,9 +195,9 @@ app.kubernetes.io/component: gameserver
 {{/*
 Common labels
 */}}
-{{- define "xr3ngine.editor.labels" -}}
-helm.sh/chart: {{ include "xr3ngine.chart" . }}
-{{ include "xr3ngine.editor.selectorLabels" . }}
+{{- define "xrengine.editor.labels" -}}
+helm.sh/chart: {{ include "xrengine.chart" . }}
+{{ include "xrengine.editor.selectorLabels" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
@@ -207,8 +207,8 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{/*
 Selector labels
 */}}
-{{- define "xr3ngine.editor.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "xr3ngine.editor.name" . }}
+{{- define "xrengine.editor.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "xrengine.editor.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 app.kubernetes.io/component: editor
 {{- end -}}
@@ -217,9 +217,9 @@ app.kubernetes.io/component: editor
 {{/*
 Create the name of the service account to use
 */}}
-{{- define "xr3ngine.client.serviceAccountName" -}}
+{{- define "xrengine.client.serviceAccountName" -}}
 {{- if .Values.client.serviceAccount.create -}}
-    {{ default (include "xr3ngine.client.fullname" .) .Values.client.serviceAccount.name }}
+    {{ default (include "xrengine.client.fullname" .) .Values.client.serviceAccount.name }}
 {{- else -}}
     {{ default "default" .Values.client.serviceAccount.name }}
 {{- end -}}
@@ -229,9 +229,9 @@ Create the name of the service account to use
 {{/*
 Create the name of the service account to use
 */}}
-{{- define "xr3ngine.api.serviceAccountName" -}}
+{{- define "xrengine.api.serviceAccountName" -}}
 {{- if .Values.api.serviceAccount.create -}}
-    {{ default (include "xr3ngine.api.fullname" .) .Values.api.serviceAccount.name }}
+    {{ default (include "xrengine.api.fullname" .) .Values.api.serviceAccount.name }}
 {{- else -}}
     {{ default "default" .Values.api.serviceAccount.name }}
 {{- end -}}
@@ -240,9 +240,9 @@ Create the name of the service account to use
 {{/*
 Create the name of the service account to use
 */}}
-{{- define "xr3ngine.media.serviceAccountName" -}}
+{{- define "xrengine.media.serviceAccountName" -}}
 {{- if .Values.media.serviceAccount.create -}}
-    {{ default (include "xr3ngine.media.fullname" .) .Values.media.serviceAccount.name }}
+    {{ default (include "xrengine.media.fullname" .) .Values.media.serviceAccount.name }}
 {{- else -}}
     {{ default "default" .Values.media.serviceAccount.name }}
 {{- end -}}
@@ -251,9 +251,9 @@ Create the name of the service account to use
 {{/*
 Create the name of the service account to use
 */}}
-{{- define "xr3ngine.gameserver.serviceAccountName" -}}
+{{- define "xrengine.gameserver.serviceAccountName" -}}
 {{- if .Values.gameserver.serviceAccount.create -}}
-    {{ default (include "xr3ngine.gameserver.fullname" .) .Values.gameserver.serviceAccount.name }}
+    {{ default (include "xrengine.gameserver.fullname" .) .Values.gameserver.serviceAccount.name }}
 {{- else -}}
     {{ default "default" .Values.gameserver.serviceAccount.name }}
 {{- end -}}
@@ -263,9 +263,9 @@ Create the name of the service account to use
 {{/*
 Create the name of the service account to use
 */}}
-{{- define "xr3ngine.editor.serviceAccountName" -}}
+{{- define "xrengine.editor.serviceAccountName" -}}
 {{- if .Values.editor.serviceAccount.create -}}
-    {{ default (include "xr3ngine.editor.fullname" .) .Values.editor.serviceAccount.name }}
+    {{ default (include "xrengine.editor.fullname" .) .Values.editor.serviceAccount.name }}
 {{- else -}}
     {{ default "default" .Values.editor.serviceAccount.name }}
 {{- end -}}
@@ -276,7 +276,7 @@ Create the name of the service account to use
 Create a default fully qualified app name.
 We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
 */}}
-{{- define "xr3ngine.mariadb.fullname" -}}
+{{- define "xrengine.mariadb.fullname" -}}
 {{- if .Values.mariadb.fullnameOverride -}}
 {{- .Values.mariadb.fullnameOverride | trunc 63 | trimSuffix "-" -}}
 {{- else -}}
@@ -289,9 +289,9 @@ We truncate at 63 chars because some Kubernetes name fields are limited to this 
 {{/*
 Set maria host
 */}}
-{{- define "xr3ngine.mariadb.host" -}}
+{{- define "xrengine.mariadb.host" -}}
 {{- if .Values.mariadb.enabled -}}
-{{- template "xr3ngine.mariadb.fullname" . -}}
+{{- template "xrengine.mariadb.fullname" . -}}
 {{- else -}}
 {{- .Values.mariadb.externalHost | quote -}}
 {{- end -}}

@@ -2,9 +2,9 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ template "xr3ngine.gameserver.fullname" . }}
+  name: {{ template "xrengine.gameserver.fullname" . }}
   labels:
-    {{- include "xr3ngine.gameserver.labels" . | nindent 4 }}
+    {{- include "xrengine.gameserver.labels" . | nindent 4 }}
 data:
 {{- if .Values.gameserver.extraEnv }}
 {{ toYaml .Values.gameserver.extraEnv | indent 2 }}

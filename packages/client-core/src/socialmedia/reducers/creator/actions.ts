@@ -12,7 +12,7 @@ import {
   CREATOR_FOLLOWERS_RETRIEVED,
   CREATORS_FETCH
 } from '../actions';
-import { Creator, CreatorShort } from '@xr3ngine/common/src/interfaces/Creator';
+import { Creator, CreatorShort } from '@xrengine/common/src/interfaces/Creator';
 
 export interface CreatorRetrievedAction {
   type: string;

@@ -2,8 +2,8 @@
 import React, { Component, createRef } from "react";
 import PropTypes from "prop-types";
 import styled from "styled-components";
-import { getStepSize, toPrecision } from "@xr3ngine/engine/src/editor/functions/utils";
-import { clamp } from "@xr3ngine/engine/src/common/functions/MathLerpFunctions";
+import { getStepSize, toPrecision } from "@xrengine/engine/src/editor/functions/utils";
+import { clamp } from "@xrengine/engine/src/common/functions/MathLerpFunctions";
 
 /**
  * 

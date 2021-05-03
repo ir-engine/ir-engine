@@ -1,4 +1,4 @@
-package com.xr3ngine.xr.videocompressor;
+package com.xrengine.xr.videocompressor;
 
 import android.os.AsyncTask;
 

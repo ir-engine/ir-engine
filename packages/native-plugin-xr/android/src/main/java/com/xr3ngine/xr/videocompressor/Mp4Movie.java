@@ -1,9 +1,9 @@
-package com.xr3ngine.xr.videocompressor;
+package com.xrengine.xr.videocompressor;
 
 import android.annotation.TargetApi;
 import android.media.MediaCodec;
 import android.media.MediaFormat;
-import com.xr3ngine.xr.videocompressor.isoparser.support.Matrix;
+import com.xrengine.xr.videocompressor.isoparser.support.Matrix;
 
 import java.io.File;
 import java.util.ArrayList;

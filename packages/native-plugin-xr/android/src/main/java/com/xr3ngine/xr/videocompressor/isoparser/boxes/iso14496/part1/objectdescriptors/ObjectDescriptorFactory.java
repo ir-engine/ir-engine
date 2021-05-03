@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.xr3ngine.xr.videocompressor.isoparser.boxes.iso14496.part1.objectdescriptors;
+package com.xrengine.xr.videocompressor.isoparser.boxes.iso14496.part1.objectdescriptors;
 
-import com.xr3ngine.xr.videocompressor.isoparser.tools.IsoTypeReader;
+import com.xrengine.xr.videocompressor.isoparser.tools.IsoTypeReader;
 
 import java.io.IOException;
 import java.lang.reflect.Modifier;

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.xr3ngine.xr.transcoder.format;
+package com.xrengine.xr.transcoder.format;
 
 public class MediaFormatStrategyPresets {
     public static final int AUDIO_BITRATE_AS_IS = -1;

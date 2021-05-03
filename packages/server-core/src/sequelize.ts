@@ -1,4 +1,4 @@
-import config from '@xr3ngine/server-core/src/appconfig';
+import config from '@xrengine/server-core/src/appconfig';
 import seeder from 'feathers-seeder';
 import { Sequelize } from 'sequelize';
 import { setTimeout } from 'timers';

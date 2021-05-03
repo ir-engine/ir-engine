@@ -1,4 +1,4 @@
-package com.xr3ngine.xr;
+package com.xrengine.xr;
 
 import androidx.appcompat.app.AppCompatActivity;
 

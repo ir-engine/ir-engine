@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.xr3ngine.xr.arcore.samplerender.arcore;
+package com.xrengine.xr.arcore.samplerender.arcore;
 
 import android.opengl.Matrix;
 
@@ -21,13 +21,13 @@ import com.google.ar.core.Camera;
 import com.google.ar.core.Plane;
 import com.google.ar.core.Pose;
 import com.google.ar.core.TrackingState;
-import com.xr3ngine.xr.arcore.samplerender.IndexBuffer;
-import com.xr3ngine.xr.arcore.samplerender.Mesh;
-import com.xr3ngine.xr.arcore.samplerender.SampleRender;
-import com.xr3ngine.xr.arcore.samplerender.Shader;
-import com.xr3ngine.xr.arcore.samplerender.Shader.BlendFactor;
-import com.xr3ngine.xr.arcore.samplerender.Texture;
-import com.xr3ngine.xr.arcore.samplerender.VertexBuffer;
+import com.xrengine.xr.arcore.samplerender.IndexBuffer;
+import com.xrengine.xr.arcore.samplerender.Mesh;
+import com.xrengine.xr.arcore.samplerender.SampleRender;
+import com.xrengine.xr.arcore.samplerender.Shader;
+import com.xrengine.xr.arcore.samplerender.Shader.BlendFactor;
+import com.xrengine.xr.arcore.samplerender.Texture;
+import com.xrengine.xr.arcore.samplerender.VertexBuffer;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;

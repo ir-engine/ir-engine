@@ -1,9 +1,9 @@
-package com.xr3ngine.xr.videocompressor.isoparser.tools;
+package com.xrengine.xr.videocompressor.isoparser.tools;
 
 
-import com.xr3ngine.xr.videocompressor.isoparser.Box;
-import com.xr3ngine.xr.videocompressor.isoparser.Container;
-import com.xr3ngine.xr.videocompressor.isoparser.ParsableBox;
+import com.xrengine.xr.videocompressor.isoparser.Box;
+import com.xrengine.xr.videocompressor.isoparser.Container;
+import com.xrengine.xr.videocompressor.isoparser.ParsableBox;
 
 public class Offsets {
     public static long find(Container container, ParsableBox target, long offset) {

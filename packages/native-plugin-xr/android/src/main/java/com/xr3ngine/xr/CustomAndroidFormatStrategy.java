@@ -3,8 +3,8 @@ package org.apache.cordova.videoeditor;
 import android.media.MediaCodecInfo;
 import android.media.MediaFormat;
 import android.util.Log;
-import com.xr3ngine.xr.transcoder.format.MediaFormatStrategy;
-import com.xr3ngine.xr.transcoder.format.OutputFormatUnavailableException;
+import com.xrengine.xr.transcoder.format.MediaFormatStrategy;
+import com.xrengine.xr.transcoder.format.OutputFormatUnavailableException;
 
 /**
  * Created by ehmm on 02.05.2016.

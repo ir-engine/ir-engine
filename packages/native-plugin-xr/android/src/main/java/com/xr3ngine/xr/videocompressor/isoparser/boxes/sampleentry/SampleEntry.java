@@ -1,7 +1,7 @@
-package com.xr3ngine.xr.videocompressor.isoparser.boxes.sampleentry;
+package com.xrengine.xr.videocompressor.isoparser.boxes.sampleentry;
 
-import com.xr3ngine.xr.videocompressor.isoparser.Container;
-import com.xr3ngine.xr.videocompressor.isoparser.ParsableBox;
+import com.xrengine.xr.videocompressor.isoparser.Container;
+import com.xrengine.xr.videocompressor.isoparser.ParsableBox;
 
 /**
  * Created by sannies on 30.05.13.

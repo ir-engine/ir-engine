@@ -20,9 +20,9 @@
 apiVersion: "autoscaling.agones.dev/v1"
 kind: FleetAutoscaler
 metadata:
-  name: {{ include "xr3ngine.gameserver.fullname" . }}
+  name: {{ include "xrengine.gameserver.fullname" . }}
 spec:
-  fleetName: {{ include "xr3ngine.gameserver.fullname" . }}
+  fleetName: {{ include "xrengine.gameserver.fullname" . }}
   policy:
     type: Buffer
     buffer:

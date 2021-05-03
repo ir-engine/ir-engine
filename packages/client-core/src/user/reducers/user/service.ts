@@ -1,5 +1,5 @@
-import { Relationship } from '@xr3ngine/common/src/interfaces/Relationship';
-import { User } from '@xr3ngine/common/src/interfaces/User';
+import { Relationship } from '@xrengine/common/src/interfaces/Relationship';
+import { User } from '@xrengine/common/src/interfaces/User';
 import { Dispatch } from 'redux';
 import { client } from '../../../feathers';
 import {

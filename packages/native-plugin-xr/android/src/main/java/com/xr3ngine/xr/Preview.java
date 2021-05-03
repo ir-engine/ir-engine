@@ -1,5 +1,5 @@
 // Adapted from the camera preview plugin
-package com.xr3ngine.xr;
+package com.xrengine.xr;
 
 import android.app.Activity;
 import android.content.Context;

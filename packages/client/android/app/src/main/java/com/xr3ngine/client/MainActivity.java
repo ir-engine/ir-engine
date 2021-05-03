@@ -1,7 +1,7 @@
-package com.xr3ngine.client;
+package com.xrengine.client;
 
 import android.os.Bundle;
-import com.xr3ngine.xr.XRPlugin;
+import com.xrengine.xr.XRPlugin;
 
 import com.getcapacitor.BridgeActivity;
 import com.getcapacitor.Plugin;

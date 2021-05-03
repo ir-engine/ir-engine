@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.xr3ngine.xr.videocompressor.isoparser.support;
+package com.xrengine.xr.videocompressor.isoparser.support;
 
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
@@ -28,7 +28,7 @@ import org.aspectj.lang.annotation.Before;
 public class RequiresParseDetailAspect {
 
 
-    @Before("this(com.xr3ngine.xr.videocompressor.isoparser.support.AbstractBox) && ((execution(public * * (..)) && !( " +
+    @Before("this(com.xrengine.xr.videocompressor.isoparser.support.AbstractBox) && ((execution(public * * (..)) && !( " +
             "execution(* parseDetails()) || " +
             "execution(* getNumOfBytesToFirstChild()) || " +
             "execution(* getType()) || " +
@@ -47,7 +47,7 @@ public class RequiresParseDetailAspect {
             "execution(* setParent(*)) || " +
             "execution(* getUserType()) || " +
             "execution(* setUserType(*))) && " +
-            "!@annotation(com.xr3ngine.xr.videocompressor.isoparser.support.DoNotParseDetail)) || @annotation(com.xr3ngine.xr.videocompressor.isoparser.support.ParseDetail))")
+            "!@annotation(com.xrengine.xr.videocompressor.isoparser.support.DoNotParseDetail)) || @annotation(com.xrengine.xr.videocompressor.isoparser.support.ParseDetail))")
     public void before(JoinPoint joinPoint) {
         if (joinPoint.getTarget() instanceof AbstractBox) {
             if (!((AbstractBox) joinPoint.getTarget()).isParsed()) {

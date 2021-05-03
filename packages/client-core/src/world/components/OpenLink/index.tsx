@@ -1,5 +1,5 @@
 import React, { FunctionComponent } from "react";
-import { CommonInteractiveData } from "@xr3ngine/engine/src/interaction/interfaces/CommonInteractiveData";
+import { CommonInteractiveData } from "@xrengine/engine/src/interaction/interfaces/CommonInteractiveData";
 // @ts-ignore
 import styles from './OpenLink.module.scss';
 import Dialog from "@material-ui/core/Dialog";

@@ -2,9 +2,9 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "xr3ngine.editor.fullname" . }}
+  name: {{ include "xrengine.editor.fullname" . }}
   labels:
-    {{- include "xr3ngine.editor.labels" . | nindent 4 }}
+    {{- include "xrengine.editor.labels" . | nindent 4 }}
 spec:
   type: {{ .Values.editor.service.type }}
   ports:
@@ -13,5 +13,5 @@ spec:
       protocol: TCP
       name: http
   selector:
-    {{- include "xr3ngine.editor.selectorLabels" . | nindent 4 }}
+    {{- include "xrengine.editor.selectorLabels" . | nindent 4 }}
 {{- end }}

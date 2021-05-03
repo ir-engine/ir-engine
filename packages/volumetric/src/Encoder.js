@@ -1,5 +1,5 @@
 // DRACOSIS ENCODER
-// Written by Shaw for XR3ngine
+// Written by Shaw for XREngine
 // MIT licensed
 
 // This encoder uses Corto for quantized mesh compression

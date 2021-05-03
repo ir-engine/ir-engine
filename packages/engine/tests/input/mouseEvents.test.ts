@@ -6,7 +6,7 @@ import { Input } from "../../src/input/components/Input";
 import { LocalInputReceiver } from "../../src/input/components/LocalInputReceiver";
 import { InputSchema } from "../../src/input/interfaces/InputSchema";
 import { BinaryValue } from "../../src/common/enums/BinaryValue";
-import { BaseInput } from '@xr3ngine/engine/src/input/enums/BaseInput';
+import { BaseInput } from '@xrengine/engine/src/input/enums/BaseInput';
 import { LifecycleValue } from "../../src/common/enums/LifecycleValue";
 import { MouseInput } from "../../src/input/enums/InputEnums";
 import { handleMouseMovement } from "../../src/input/behaviors/handleMouseMovement";

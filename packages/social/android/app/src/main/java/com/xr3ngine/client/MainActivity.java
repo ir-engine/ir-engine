@@ -1,4 +1,4 @@
-package com.xr3ngine.client;
+package com.xrengine.client;
 
 import android.os.Bundle;
 

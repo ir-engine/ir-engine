@@ -1,4 +1,4 @@
-package com.xr3ngine.xr;
+package com.xrengine.xr;
 
 import android.hardware.display.DisplayManager;
 import android.hardware.display.VirtualDisplay;

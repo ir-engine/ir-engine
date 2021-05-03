@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.xr3ngine.xr.arcore.samplerender;
+package com.xrengine.xr.arcore.samplerender;
 
 import android.opengl.GLES30;
 

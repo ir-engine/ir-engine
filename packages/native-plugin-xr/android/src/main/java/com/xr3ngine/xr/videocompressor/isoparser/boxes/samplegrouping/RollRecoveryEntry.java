@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.xr3ngine.xr.videocompressor.isoparser.boxes.samplegrouping;
+package com.xrengine.xr.videocompressor.isoparser.boxes.samplegrouping;
 
 import java.nio.Buffer;
 import java.nio.ByteBuffer;

@@ -13,16 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.xr3ngine.xr.transcoder;
+package com.xrengine.xr.transcoder;
 
 import android.media.MediaFormat;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 
-import com.xr3ngine.xr.transcoder.engine.MediaTranscoderEngine;
-import com.xr3ngine.xr.transcoder.format.MediaFormatPresets;
-import com.xr3ngine.xr.transcoder.format.MediaFormatStrategy;
+import com.xrengine.xr.transcoder.engine.MediaTranscoderEngine;
+import com.xrengine.xr.transcoder.format.MediaFormatPresets;
+import com.xrengine.xr.transcoder.format.MediaFormatStrategy;
 
 import java.io.FileDescriptor;
 import java.io.FileInputStream;

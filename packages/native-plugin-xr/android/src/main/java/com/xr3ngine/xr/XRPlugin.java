@@ -1,4 +1,4 @@
-package com.xr3ngine.xr;
+package com.xrengine.xr;
 
 import android.Manifest;
 import android.app.FragmentManager;
@@ -39,8 +39,8 @@ import com.getcapacitor.NativePlugin;
 import com.getcapacitor.PluginResult;
 import com.google.ar.core.Pose;
 import com.google.ar.core.RecordingConfig;
-import com.xr3ngine.xr.videocompressor.VideoCompress;
-import com.xr3ngine.xr.watermark.WatermarkManager;
+import com.xrengine.xr.videocompressor.VideoCompress;
+import com.xrengine.xr.watermark.WatermarkManager;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -60,10 +60,10 @@ import androidx.core.content.ContextCompat;
 
 import static android.app.Activity.RESULT_OK;
 import static android.content.Context.MEDIA_PROJECTION_SERVICE;
-import static com.xr3ngine.xr.XRPlugin.SCREEN_RECORD_CODE;
+import static com.xrengine.xr.XRPlugin.SCREEN_RECORD_CODE;
 
-import static com.xr3ngine.xr.MediaProjectionHelper.mediaProjection;
-import static com.xr3ngine.xr.MediaProjectionHelper.data;
+import static com.xrengine.xr.MediaProjectionHelper.mediaProjection;
+import static com.xrengine.xr.MediaProjectionHelper.data;
 
 @NativePlugin(
         permissions = {

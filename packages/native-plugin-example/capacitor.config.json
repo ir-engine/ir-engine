@@ -1,5 +1,5 @@
 {
-  "appId": "com.xr3ngine.example",
+  "appId": "com.xrengine.example",
   "appName": "Example",
   "bundledWebRuntime": false,
   "npmClient": "yarn",

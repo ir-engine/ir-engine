@@ -1,7 +1,7 @@
-package com.xr3ngine.xr.videocompressor.isoparser.boxes.microsoft;
+package com.xrengine.xr.videocompressor.isoparser.boxes.microsoft;
 
-import com.xr3ngine.xr.videocompressor.isoparser.boxes.iso23001.part7.AbstractSampleEncryptionBox;
-import com.xr3ngine.xr.videocompressor.isoparser.support.DoNotParseDetail;
+import com.xrengine.xr.videocompressor.isoparser.boxes.iso23001.part7.AbstractSampleEncryptionBox;
+import com.xrengine.xr.videocompressor.isoparser.support.DoNotParseDetail;
 
 /**
  * <pre>

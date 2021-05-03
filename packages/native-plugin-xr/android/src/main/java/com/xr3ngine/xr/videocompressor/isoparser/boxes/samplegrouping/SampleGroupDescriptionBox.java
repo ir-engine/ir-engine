@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-package com.xr3ngine.xr.videocompressor.isoparser.boxes.samplegrouping;
+package com.xrengine.xr.videocompressor.isoparser.boxes.samplegrouping;
 
-import com.xr3ngine.xr.videocompressor.isoparser.IsoFile;
-import com.xr3ngine.xr.videocompressor.isoparser.boxes.iso14496.part15.StepwiseTemporalLayerEntry;
-import com.xr3ngine.xr.videocompressor.isoparser.boxes.iso14496.part15.SyncSampleEntry;
-import com.xr3ngine.xr.videocompressor.isoparser.boxes.iso14496.part15.TemporalLayerSampleGroup;
-import com.xr3ngine.xr.videocompressor.isoparser.boxes.iso14496.part15.TemporalSubLayerSampleGroup;
-import com.xr3ngine.xr.videocompressor.isoparser.support.AbstractFullBox;
-import com.xr3ngine.xr.videocompressor.isoparser.tools.CastUtils;
-import com.xr3ngine.xr.videocompressor.isoparser.tools.IsoTypeReader;
-import com.xr3ngine.xr.videocompressor.isoparser.tools.IsoTypeWriter;
+import com.xrengine.xr.videocompressor.isoparser.IsoFile;
+import com.xrengine.xr.videocompressor.isoparser.boxes.iso14496.part15.StepwiseTemporalLayerEntry;
+import com.xrengine.xr.videocompressor.isoparser.boxes.iso14496.part15.SyncSampleEntry;
+import com.xrengine.xr.videocompressor.isoparser.boxes.iso14496.part15.TemporalLayerSampleGroup;
+import com.xrengine.xr.videocompressor.isoparser.boxes.iso14496.part15.TemporalSubLayerSampleGroup;
+import com.xrengine.xr.videocompressor.isoparser.support.AbstractFullBox;
+import com.xrengine.xr.videocompressor.isoparser.tools.CastUtils;
+import com.xrengine.xr.videocompressor.isoparser.tools.IsoTypeReader;
+import com.xrengine.xr.videocompressor.isoparser.tools.IsoTypeWriter;
 
 import java.nio.Buffer;
 import java.nio.ByteBuffer;

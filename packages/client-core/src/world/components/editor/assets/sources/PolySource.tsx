@@ -1,5 +1,5 @@
 import ModelMediaSource from "../ModelMediaSource";
-import { TransformPivot } from "@xr3ngine/engine/src/editor/controls/EditorControls";
+import { TransformPivot } from "@xrengine/engine/src/editor/controls/EditorControls";
 import i18n from "i18next";
 
 /**

@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.xr3ngine.xr.transcoder.engine;
+package com.xrengine.xr.transcoder.engine;
 
 import android.media.MediaCodec;
 import android.media.MediaExtractor;
 import android.media.MediaFormat;
 
-import com.xr3ngine.xr.transcoder.format.MediaFormatExtraConstants;
+import com.xrengine.xr.transcoder.format.MediaFormatExtraConstants;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;

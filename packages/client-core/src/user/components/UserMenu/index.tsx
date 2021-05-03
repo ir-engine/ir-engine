@@ -4,10 +4,10 @@ import PersonIcon from '@material-ui/icons/Person';
 import FilterHdrIcon from '@material-ui/icons/FilterHdr';
 import SettingsIcon from '@material-ui/icons/Settings';
 // TODO: Reenable me! Disabled because we don't want the client-networking dep in client-core, need to fix this
-// import { provisionInstanceServer } from "@xr3ngine/client-networking/src/reducers/instanceConnection/service";
-import { EngineEvents } from '@xr3ngine/engine/src/ecs/classes/EngineEvents';
-import { ClientInputSystem } from '@xr3ngine/engine/src/input/systems/ClientInputSystem';
-import { WebGLRendererSystem } from '@xr3ngine/engine/src/renderer/WebGLRendererSystem';
+// import { provisionInstanceServer } from "@xrengine/client-networking/src/reducers/instanceConnection/service";
+import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents';
+import { ClientInputSystem } from '@xrengine/engine/src/input/systems/ClientInputSystem';
+import { WebGLRendererSystem } from '@xrengine/engine/src/renderer/WebGLRendererSystem';
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';

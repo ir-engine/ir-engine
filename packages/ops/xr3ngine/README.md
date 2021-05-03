@@ -1,12 +1,12 @@
-# XR3ngine
+# XREngine
 
-[XR3ngine](https://myxr.social/) Social Gatherings on the Web.
+[XREngine](https://myxr.social/) Social Gatherings on the Web.
 
 ## TL;DR
 
 ```console
-helm repo add xr3ngine https://helm.xrengine.io
-helm install my-release xr3ngine/xr3ngine
+helm repo add xrengine https://helm.xrengine.io
+helm install my-release xrengine/xrengine
 ```
 
 ## Introduction
@@ -15,7 +15,7 @@ This chart bootstraps a [XRCyat](https://myxr.social/) deployment on a [Kubernet
 
 [***In Progress***] This chart has been tested to work with NGINX Ingress, cert-manager, fluentd and Prometheus on top of the AWS EKS.
 
-It also optionally packages following which are required for xr3ngine platform:
+It also optionally packages following which are required for xrengine platform:
 
 | Repository | Name | Version |
 |------------|------|---------|
@@ -33,14 +33,14 @@ It also optionally packages following which are required for xr3ngine platform:
 To install the chart with the release name `my-release`:
 
 ``` bash
-helm repo add xr3ngine https://helm.xrengine.io
+helm repo add xrengine https://helm.xrengine.io
 helm repo update
-helm install my-release xr3ngine/xr3ngine            # Helm 3
-helm install --name my-release xr3ngine/xr3ngine     # Helm 2
+helm install my-release xrengine/xrengine            # Helm 3
+helm install --name my-release xrengine/xrengine     # Helm 2
 ```
 
-XR3ngine
-The command deploys XR3ngine on the Kubernetes cluster in the default configuration. The [configuration](#configuration) section lists the parameters that can be configured during installation.
+XREngine
+The command deploys XREngine on the Kubernetes cluster in the default configuration. The [configuration](#configuration) section lists the parameters that can be configured during installation.
 
 > **Tip**: List all releases using `helm list`
 
@@ -56,7 +56,7 @@ The command removes all the Kubernetes components associated with the chart and 
 
 ## Configuration
 
-The following table lists the configurable parameters of the XR3ngine chart and their default values.
+The following table lists the configurable parameters of the XREngine chart and their default values.
 
 Dependent charts can also have values overwritten. Preface values with mariadb.*or agones.*
 
@@ -65,14 +65,14 @@ Dependent charts can also have values overwritten. Preface values with mariadb.*
 | agones.enabled | bool | `false` | Install Agones included with chart, set `false` if you have it installed already on your cluster |
 | client.affinity | object | `{}` | Node affinity for the client service |
 | client.enabled | bool | `true` | Install xrsocial-client service |
-| **client.extraEnv** | object | `{}` | [Additional Configuration](#xr3ngine-additional-configurations) for the client service |
+| **client.extraEnv** | object | `{}` | [Additional Configuration](#xrengine-additional-configurations) for the client service |
 | client.image.pullPolicy | string | `"Always"` | Image pull policy |
 | client.image.repository | string | `"xrsocial/client"` | repo to pull client image from |
 | client.image.tag | string | `"latest"` | client version to pull |
 | client.imagePullSecrets | list | `[]` | if using a private repo, specify a pull secret |
 | client.ingress.annotations | object | `{"kubernetes.io/ingress.class": "nginx"}` | if using a different ingress controller, specify it |
 | client.ingress.enabled | bool | `true` | disable ingress definitions |
-| **client.ingress.hosts[0].host** | string | `"my.xr3ngine.com"` | hostname for the client |
+| **client.ingress.hosts[0].host** | string | `"my.xrengine.com"` | hostname for the client |
 | client.ingress.hosts[0].paths[0] | string | `"/"` | default path for client |
 | client.name | string | `"xrsocial-client"` | client service name |
 | client.nameOverride | string | `""` | changes the client service name |
@@ -82,20 +82,20 @@ Dependent charts can also have values overwritten. Preface values with mariadb.*
 | client.service.type | string | `"ClusterIP"` | override client service type |
 | client.serviceAccount | object | `{}` | override client service account |
 | client.tolerations | list | `[]` |  |
-| domain | string | `"xr3ngine.dev"` | domain root for all services, services will be subdomain from it |
+| domain | string | `"xrengine.dev"` | domain root for all services, services will be subdomain from it |
 | mariadb.db.existingSecret | string | `nil` | Use existing secret for password details (rootUser.password, db.password, replication.password will be ignored and picked up from this secret). The secret has to contain the keys mariadb-root-password, mariadb-replication-password and mariadb-password. |
-| mariadb.db.name | string | `"xr3ngine"` | Database name to connect to |
+| mariadb.db.name | string | `"xrengine"` | Database name to connect to |
 | mariadb.db.password | string | Password for the new user. Ignored if existing secret is provided. | random 10 character alphanumeric string if mariadb.db.user is defined |
-| mariadb.db.user | string | `"xr3ngine"` | Username created/used to connect to database |
+| mariadb.db.user | string | `"xrengine"` | Username created/used to connect to database |
 | mariadb.enabled | bool | `true` | Install internal mariadb, 'false' to use external db |
 | mariadb.externalHost | string | `nil` | hostname of external MariaDB instance, ignored if `mariadb.enabled` is `true` |
 | mariadb.replication.enabled | bool | `false` | Enable MariaDB slave replication |
 | server.affinity | object | `{}` |  |
 | server.enabled | bool | `true` | Install the xrsocial service |
-| **server.extraEnv** | object | `{}` | [Additional Configuration](#xr3ngine-additional-configurations) for xrsocial service |
+| **server.extraEnv** | object | `{}` | [Additional Configuration](#xrengine-additional-configurations) for xrsocial service |
 | server.fullnameOverride | string | `""` | override server fullname template |
 | server.image.pullPolicy | string | `"Always"` | Server pull policy |
-| server.image.repository | string | `"xr3ngine/xrsocial"` | server image repo |
+| server.image.repository | string | `"xrengine/xrsocial"` | server image repo |
 | server.image.tag | string | `"latest"` | server image version |
 | server.imagePullSecrets | list | `[]` | server image pull secret |
 | server.ingress.annotations | object | `{"kubernetes.io/ingress.class": "nginx"}` | server ingress class |
@@ -117,29 +117,29 @@ Specify each parameter using the `--set key=value[,key=value]` argument to `helm
 ```console
 $ helm install --name my-release \
   --set persistence.enabled=false,email.host=email \
-    xr3ngine/xr3ngine
+    xrengine/xrengine
 ```
 
 Alternatively, a YAML file that specifies the values for the above parameters can be provided while installing the chart. For example,
 
 ```console
-helm install --name my-release -f values.yaml xr3ngine/xr3ngine
+helm install --name my-release -f values.yaml xrengine/xrengine
 ```
 
 > **Tip**: You can use the default <values.yaml>
 
-## XR3ngine Additional Configurations
+## XREngine Additional Configurations
 
 This section lists configuration specific for server, client components.
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| client.extraEnv.API_SERVER | string | `"http://xr3ngine.local"` |  |
+| client.extraEnv.API_SERVER | string | `"http://xrengine.local"` |  |
 | client.extraEnv.NODE_ENV | string | `"development"` |  |
 | client.extraEnv.SITE_DESC | string | `"Connected Worlds for Everyone"` |  |
 | client.extraEnv.SITE_TITLE | string | `"MyXR"` |  |
 | rts.extraEnv.NAF_LISTEN_PORT | string | `"8081"` |  |
-| server.extraEnv.APP_HOST | string | `"http://api.xr3ngine.local/"` |  |
+| server.extraEnv.APP_HOST | string | `"http://api.xrengine.local/"` |  |
 | server.extraEnv.FACEBOOK_CALLBACK_URL | string | `"http://127.0.0.1:3000/oauth/facebook"` |  |
 | server.extraEnv.FACEBOOK_CLIENT_ID | string | `nil` |  |
 | server.extraEnv.FACEBOOK_CLIENT_SECRET | string | `nil` |  |
@@ -149,8 +149,8 @@ This section lists configuration specific for server, client components.
 | server.extraEnv.GOOGLE_CALLBACK_URL | string | `"http://127.0.0.1:3000/oauth/google"` |  |
 | server.extraEnv.GOOGLE_CLIENT_ID | string | `nil` |  |
 | server.extraEnv.GOOGLE_CLIENT_SECRET | string | `nil` |  |
-| server.extraEnv.MAIL_FROM | string | `"noreply@xr3ngine.local"` |  |
-| server.extraEnv.MYSQL_DATABASE | string | `"xr3ngine"` |  |
+| server.extraEnv.MAIL_FROM | string | `"noreply@xrengine.local"` |  |
+| server.extraEnv.MYSQL_DATABASE | string | `"xrengine"` |  |
 | server.extraEnv.MYSQL_PASSWORD | string | `"password"` |  |
 | server.extraEnv.MYSQL_PORT | int | `3306` |  |
 | server.extraEnv.MYSQL_USER | string | `"server"` |  |
@@ -162,9 +162,9 @@ This section lists configuration specific for server, client components.
 | server.extraEnv.STORAGE_AWS_ACCESS_KEY_ID | string | `"<AWS ACCESS KEYS>"` |  |
 | server.extraEnv.STORAGE_AWS_ACCESS_KEY_SECRET | string | `"<AWS SECRET>"` |  |
 | server.extraEnv.STORAGE_PROVIDER | string | `"local"` |  |
-| server.extraEnv.STORAGE_S3_BUCKET_NAME | string | `"xr3ngine-storage"` |  |
+| server.extraEnv.STORAGE_S3_BUCKET_NAME | string | `"xrengine-storage"` |  |
 | server.extraEnv.STORAGE_S3_CLOUDFRONT_DOMAIN | string | `"https://<MyCdnDistribution>.s3.amazonaws.com"` |  |
-| server.extraEnv.STORAGE_S3_PUBLIC_VIDEO_BUCKET | string | `"xr3ngine-video"` |  |
+| server.extraEnv.STORAGE_S3_PUBLIC_VIDEO_BUCKET | string | `"xrengine-video"` |  |
 | server.extraEnv.STORAGE_S3_PUBLIC_VIDEO_PATH | string | `"/"` |  |
 | server.extraEnv.STORAGE_S3_REGION | string | `"<S3 Region>"` |  |
 

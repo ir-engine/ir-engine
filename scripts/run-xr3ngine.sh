@@ -19,7 +19,7 @@ if ! [ -e /usr/bin/docker ] && [ -e /usr/bin/docker-compose ]; then
 fi
 
 # stop docker container if it's running
-db_docker_image_id=`sudo docker ps -q -f name=xr3ngine`
+db_docker_image_id=`sudo docker ps -q -f name=xrengine`
 if [ "$db_docker_image_id" ]; then
 	echo -e "${FYEL}Database is running"
 	echo -e "${RS}Stopping another database..."
@@ -62,7 +62,7 @@ do
 	;;
 	"KDE")
 		konsole --tabs-from-file konsole_tabs.desktop &
-		echo -e "${FGRN}xr3ngine is running${RS}"
+		echo -e "${FGRN}xrengine is running${RS}"
 		exit 0
 	;;
 	"Exit")
@@ -76,9 +76,9 @@ do
 	esac
 done
 
-# run xr3ngine in terminal with tabs
+# run xrengine in terminal with tabs
 ${terminal_command} \
-	--title 'xr3ngine servers' \
+	--title 'xrengine servers' \
 	--tab \
 	--title db --working-directory=$PWD -e 'sudo ./start-db.sh' \
 	--tab \
@@ -88,5 +88,5 @@ ${terminal_command} \
 	--tab \
 	--title client --working-directory=$PWD/../packages/client -e 'yarn dev' &
 
-echo -e "${FGRN}xr3ngine is running${RS}"
+echo -e "${FGRN}xrengine is running${RS}"
 exit 0

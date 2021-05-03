@@ -16,7 +16,7 @@ import {
   CREATED_PARTY_USER,
   PATCHED_PARTY_USER
 } from '../actions';
-import { PartyUser } from '@xr3ngine/common/src/interfaces/PartyUser';
+import { PartyUser } from '@xrengine/common/src/interfaces/PartyUser';
 import _ from 'lodash';
 
 export const initialPartyState = {

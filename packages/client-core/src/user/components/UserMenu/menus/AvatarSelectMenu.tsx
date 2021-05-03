@@ -2,14 +2,14 @@ import React from 'react';
 import * as THREE from 'three';
 import { ArrowBack, CloudUpload, SystemUpdateAlt, Help } from '@material-ui/icons';
 import IconLeftClick from '../../../../common/components/Icons/IconLeftClick';
-import { getLoader, loadExtentions } from '@xr3ngine/engine/src/assets/functions/LoadGLTF';
-import { FBXLoader } from '@xr3ngine/engine/src/assets/loaders/fbx/FBXLoader';
-import { getOrbitControls } from '@xr3ngine/engine/src/input/functions/loadOrbitControl';
+import { getLoader, loadExtentions } from '@xrengine/engine/src/assets/functions/LoadGLTF';
+import { FBXLoader } from '@xrengine/engine/src/assets/loaders/fbx/FBXLoader';
+import { getOrbitControls } from '@xrengine/engine/src/input/functions/loadOrbitControl';
 import { Views } from '../util';
 import { withTranslation } from 'react-i18next';
 // @ts-ignore
 import styles from '../UserMenu.module.scss';
-import { AVATAR_FILE_ALLOWED_EXTENSIONS, MAX_AVATAR_FILE_SIZE, MIN_AVATAR_FILE_SIZE, MAX_ALLOWED_TRIANGLES, THUMBNAIL_HEIGHT, THUMBNAIL_WIDTH } from '@xr3ngine/common/src/constants/AvatarConstants';
+import { AVATAR_FILE_ALLOWED_EXTENSIONS, MAX_AVATAR_FILE_SIZE, MIN_AVATAR_FILE_SIZE, MAX_ALLOWED_TRIANGLES, THUMBNAIL_HEIGHT, THUMBNAIL_WIDTH } from '@xrengine/common/src/constants/AvatarConstants';
 
 
 interface Props {

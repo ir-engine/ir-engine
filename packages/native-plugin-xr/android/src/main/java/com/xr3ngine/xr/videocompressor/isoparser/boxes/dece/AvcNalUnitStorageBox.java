@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package com.xr3ngine.xr.videocompressor.isoparser.boxes.dece;
+package com.xrengine.xr.videocompressor.isoparser.boxes.dece;
 
-import com.xr3ngine.xr.videocompressor.isoparser.boxes.iso14496.part15.AvcConfigurationBox;
-import com.xr3ngine.xr.videocompressor.isoparser.boxes.iso14496.part15.AvcDecoderConfigurationRecord;
-import com.xr3ngine.xr.videocompressor.isoparser.support.AbstractBox;
+import com.xrengine.xr.videocompressor.isoparser.boxes.iso14496.part15.AvcConfigurationBox;
+import com.xrengine.xr.videocompressor.isoparser.boxes.iso14496.part15.AvcDecoderConfigurationRecord;
+import com.xrengine.xr.videocompressor.isoparser.support.AbstractBox;
 
 import java.nio.ByteBuffer;
 import java.util.List;

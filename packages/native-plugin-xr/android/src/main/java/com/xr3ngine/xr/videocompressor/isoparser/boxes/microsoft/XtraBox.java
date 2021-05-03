@@ -14,12 +14,12 @@
  * limitations under the License. 
  */
 
-package com.xr3ngine.xr.videocompressor.isoparser.boxes.microsoft;
+package com.xrengine.xr.videocompressor.isoparser.boxes.microsoft;
 
 
-import com.xr3ngine.xr.videocompressor.isoparser.support.AbstractBox;
+import com.xrengine.xr.videocompressor.isoparser.support.AbstractBox;
 
-import com.xr3ngine.xr.videocompressor.isoparser.tools.MemoryUtils;
+import com.xrengine.xr.videocompressor.isoparser.tools.MemoryUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

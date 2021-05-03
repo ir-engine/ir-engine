@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.xr3ngine.xr.videocompressor.isoparser.boxes.iso14496.part12;
+package com.xrengine.xr.videocompressor.isoparser.boxes.iso14496.part12;
 
 import java.nio.ByteBuffer;
 

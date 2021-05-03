@@ -1,8 +1,8 @@
-# Default values for xr3ngine.
+# Default values for xrengine.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-domain: xr3ngine.dev
+domain: xrengine.dev
 
 bot:
   enabled: true

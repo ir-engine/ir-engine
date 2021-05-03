@@ -14,11 +14,11 @@
  * limitations under the License. 
  */
 
-package com.xr3ngine.xr.videocompressor.isoparser.boxes.oma;
+package com.xrengine.xr.videocompressor.isoparser.boxes.oma;
 
-import com.xr3ngine.xr.videocompressor.isoparser.support.AbstractFullBox;
-import com.xr3ngine.xr.videocompressor.isoparser.tools.IsoTypeReader;
-import com.xr3ngine.xr.videocompressor.isoparser.tools.IsoTypeWriter;
+import com.xrengine.xr.videocompressor.isoparser.support.AbstractFullBox;
+import com.xrengine.xr.videocompressor.isoparser.tools.IsoTypeReader;
+import com.xrengine.xr.videocompressor.isoparser.tools.IsoTypeWriter;
 
 import java.nio.ByteBuffer;
 

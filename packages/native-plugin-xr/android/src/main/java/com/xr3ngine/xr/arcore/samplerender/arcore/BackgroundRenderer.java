@@ -13,19 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.xr3ngine.xr.arcore.samplerender.arcore;
+package com.xrengine.xr.arcore.samplerender.arcore;
 
 import android.media.Image;
 import android.opengl.GLES30;
 
 import com.google.ar.core.Coordinates2d;
 import com.google.ar.core.Frame;
-import com.xr3ngine.xr.arcore.samplerender.Framebuffer;
-import com.xr3ngine.xr.arcore.samplerender.Mesh;
-import com.xr3ngine.xr.arcore.samplerender.SampleRender;
-import com.xr3ngine.xr.arcore.samplerender.Shader;
-import com.xr3ngine.xr.arcore.samplerender.Texture;
-import com.xr3ngine.xr.arcore.samplerender.VertexBuffer;
+import com.xrengine.xr.arcore.samplerender.Framebuffer;
+import com.xrengine.xr.arcore.samplerender.Mesh;
+import com.xrengine.xr.arcore.samplerender.SampleRender;
+import com.xrengine.xr.arcore.samplerender.Shader;
+import com.xrengine.xr.arcore.samplerender.Texture;
+import com.xrengine.xr.arcore.samplerender.VertexBuffer;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;

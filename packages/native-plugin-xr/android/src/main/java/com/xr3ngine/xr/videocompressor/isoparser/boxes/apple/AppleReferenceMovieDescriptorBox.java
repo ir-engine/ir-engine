@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.xr3ngine.xr.videocompressor.isoparser.boxes.apple;
+package com.xrengine.xr.videocompressor.isoparser.boxes.apple;
 
-import com.xr3ngine.xr.videocompressor.isoparser.support.AbstractContainerBox;
+import com.xrengine.xr.videocompressor.isoparser.support.AbstractContainerBox;
 
 public class AppleReferenceMovieDescriptorBox extends AbstractContainerBox {
     public static final String TYPE = "rmda";

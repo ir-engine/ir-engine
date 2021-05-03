@@ -23,7 +23,7 @@ kind: Fleet
 # Fleet Metadata
 # https://v1-14.docs.kubernetes.io/docs/reference/generated/kubernetes-api/v1.14/#objectmeta-v1-meta
 metadata:
-  name: {{ include "xr3ngine-bot.bot.fullname" . }}
+  name: {{ include "xrengine-bot.bot.fullname" . }}
 spec:
   # the number of GameServers to keep Ready or Allocated in this Fleet. Defaults to 0
   replicas: {{ .Values.bot.replicaCount }}
@@ -52,7 +52,7 @@ spec:
     # GameServer metadata
     metadata:
       labels:
-        {{- include "xr3ngine-bot.bot.labels" . | nindent 4 }}
+        {{- include "xrengine-bot.bot.labels" . | nindent 4 }}
     # GameServer specification
     spec:
       ports:
@@ -74,14 +74,14 @@ spec:
       # The GameServer's Pod template
       template:
         spec:
-          serviceAccountName: {{ include "xr3ngine-bot.bot.serviceAccountName" . }}
+          serviceAccountName: {{ include "xrengine-bot.bot.serviceAccountName" . }}
           containers:
-            - name: {{ include "xr3ngine-bot.bot.fullname" . }}
+            - name: {{ include "xrengine-bot.bot.fullname" . }}
               image: "{{ .Values.bot.image.repository }}:{{ .Values.bot.image.tag }}"
               imagePullPolicy: {{ .Values.bot.image.pullPolicy }}
               envFrom:
                 - configMapRef:
-                    name: {{ include "xr3ngine-bot.bot.fullname" . }}
+                    name: {{ include "xrengine-bot.bot.fullname" . }}
                     optional: true
 
               env:

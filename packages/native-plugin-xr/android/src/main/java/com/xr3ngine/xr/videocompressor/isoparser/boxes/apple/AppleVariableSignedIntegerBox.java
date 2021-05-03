@@ -1,7 +1,7 @@
-package com.xr3ngine.xr.videocompressor.isoparser.boxes.apple;
+package com.xrengine.xr.videocompressor.isoparser.boxes.apple;
 
-import com.xr3ngine.xr.videocompressor.isoparser.tools.IsoTypeReaderVariable;
-import com.xr3ngine.xr.videocompressor.isoparser.tools.IsoTypeWriterVariable;
+import com.xrengine.xr.videocompressor.isoparser.tools.IsoTypeReaderVariable;
+import com.xrengine.xr.videocompressor.isoparser.tools.IsoTypeWriterVariable;
 
 import java.nio.ByteBuffer;
 

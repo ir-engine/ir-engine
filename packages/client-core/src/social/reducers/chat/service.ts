@@ -14,7 +14,7 @@ import {
   removedChannel
 } from './actions';
 
-import { User } from '@xr3ngine/common/src/interfaces/User';
+import { User } from '@xrengine/common/src/interfaces/User';
 import store from '../../../store';
 import { dispatchAlertError } from '../../../common/reducers/alert/service';
 
