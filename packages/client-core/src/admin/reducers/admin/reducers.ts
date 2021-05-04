@@ -3,6 +3,7 @@ import {
   InstanceRemovedResponse,
   InstancesRetrievedResponse,
   LocationTypesRetrievedResponse,
+  userRoleRetrievedResponse,
   VideoCreatedAction
 } from './actions';
 
@@ -17,6 +18,7 @@ import {
 import {
   SCENES_RETRIEVED,
   LOCATION_TYPES_RETRIEVED,
+  USER_ROLE_RETRIEVED,
   INSTANCES_RETRIEVED
 } from "../../../world/reducers/actions";
 import {
@@ -28,7 +30,7 @@ import { AuthUserSeed } from '@xr3ngine/common/src/interfaces/AuthUser';
 import {
   LoadedUsersAction
 } from "../../../user/reducers/user/actions";
-import {CollectionsFetchedAction} from "../../../world/reducers/scenes/actions";
+import { CollectionsFetchedAction } from "../../../world/reducers/scenes/actions";
 import { LocationsRetrievedAction } from '../../../social/reducers/location/actions';
 
 export const PAGE_LIMIT = 100;
@@ -107,13 +109,13 @@ const adminReducer = (state = immutableState, action: any): any => {
       updateMap.set('updateNeeded', false);
       updateMap.set('lastFetched', new Date());
       return state
-          .set('locations', updateMap);
+        .set('locations', updateMap);
 
     case LOCATION_CREATED:
       updateMap = new Map(state.get('locations'));
       updateMap.set('updateNeeded', true);
       return state
-          .set('locations', updateMap);
+        .set('locations', updateMap);
 
     case LOCATION_PATCHED:
       updateMap = new Map(state.get('locations'));
@@ -122,7 +124,7 @@ const adminReducer = (state = immutableState, action: any): any => {
       for (let i = 0; i < locations.length; i++) {
         if (locations[i].id === (action as any).location.id) {
           locations[i] = (action as any).location;
-        } else if ((action as any).location.isLobby && locations[i].isLobby ) {
+        } else if ((action as any).location.isLobby && locations[i].isLobby) {
           // if updated location is lobby then remove old lobby.
           locations[i].isLobby = false;
         }
@@ -130,13 +132,13 @@ const adminReducer = (state = immutableState, action: any): any => {
 
       updateMap.set('locations', locations);
       return state
-          .set('locations', updateMap);
+        .set('locations', updateMap);
 
     case LOCATION_REMOVED:
       updateMap = new Map(state.get('locations'));
       updateMap.set('updateNeeded', true);
       return state
-          .set('locations', updateMap);
+        .set('locations', updateMap);
 
     case LOADED_USERS:
       result = (action as LoadedUsersAction).users;
@@ -159,7 +161,7 @@ const adminReducer = (state = immutableState, action: any): any => {
       updateMap.set('updateNeeded', false);
       updateMap.set('lastFetched', new Date());
       return state
-          .set('users', updateMap);
+        .set('users', updateMap);
 
     case INSTANCES_RETRIEVED:
       result = (action as InstancesRetrievedResponse).instances;
@@ -182,7 +184,7 @@ const adminReducer = (state = immutableState, action: any): any => {
       updateMap.set('updateNeeded', false);
       updateMap.set('lastFetched', new Date());
       return state
-          .set('instances', updateMap);
+        .set('instances', updateMap);
 
     case SCENES_RETRIEVED:
       result = (action as CollectionsFetchedAction).collections;
@@ -196,7 +198,7 @@ const adminReducer = (state = immutableState, action: any): any => {
       updateMap.set('updateNeeded', false);
       updateMap.set('lastFetched', new Date());
       return state
-          .set('scenes', updateMap);
+        .set('scenes', updateMap);
 
     case LOCATION_TYPES_RETRIEVED:
       result = (action as LocationTypesRetrievedResponse).types;
@@ -204,7 +206,7 @@ const adminReducer = (state = immutableState, action: any): any => {
       updateMap.set('locationTypes', result.data);
       updateMap.set('updateNeeded', false);
       return state
-          .set('locationTypes', updateMap);
+        .set('locationTypes', updateMap);
 
     case INSTANCE_REMOVED:
       result = (action as InstanceRemovedResponse).instance;
@@ -213,7 +215,15 @@ const adminReducer = (state = immutableState, action: any): any => {
       instances = instances.filter(instance => instance.id !== result.id);
       updateMap.set('instances', instances);
       return state
-          .set('instances', updateMap);
+        .set('instances', updateMap);
+
+    case USER_ROLE_RETRIEVED:
+      result = (action as userRoleRetrievedResponse).types;
+      updateMap = new Map(state.get('userRole'));
+      updateMap.set('userRole', result.data);
+      updateMap.set('updateNeeded', false);
+      return state
+        .set('userRole', updateMap);
   }
 
   return state;

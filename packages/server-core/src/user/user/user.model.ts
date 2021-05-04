@@ -29,10 +29,10 @@ export default (app: Application): any => {
         type: DataTypes.STRING,
         unique: true
       },
-      gameName: {
-        type: DataTypes.STRING,
-        allowNull: false
-      }
+      // gameName: {
+      //   type: DataTypes.STRING,
+      //   allowNull: false
+      // }
     },
     {
       hooks: {
