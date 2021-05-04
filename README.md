@@ -6,6 +6,8 @@
 
 [![Build Status](https://travis-ci.org/xr3ngine/xr3ngine.svg?branch=dev)](https://travis-ci.org/xr3ngine/xr3ngine)  
 
+## [Link to Full Documentation](https://xrfoundation.github.io/xrengine-docs/docs/)
+
 ## Popular features
 - Player rigs to support 2D, 3D and XR interaction
 - High-performance ECS engine
