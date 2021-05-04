@@ -19,7 +19,7 @@ function safeFloat(float) {
 }
 */
 const EPSILON = 0.001;
-const animationSpeedMultiplier = 0.5;
+const animationSpeedMultiplier = 0.8;
 //
 function animationMapLinear( absSpeed, axisValue, axisWeight, i ) {
   return MathUtils.mapLinear(absSpeed, axisValue[0+i], axisValue[1+i], axisWeight[0+i], axisWeight[1+i]);

@@ -22,7 +22,7 @@ const lastPos = { x: 0, y: 0, z: 0 };
 
 export class CharacterControllerSystem extends System {
 
-  updateType = SystemUpdateType.Fixed;
+  updateType = SystemUpdateType.Free;
   constructor(attributes?: SystemAttributes) {
     super(attributes);
   }

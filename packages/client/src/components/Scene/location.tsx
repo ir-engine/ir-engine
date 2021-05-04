@@ -54,6 +54,7 @@ import url from 'url';
 import { CharacterInputSchema } from '@xr3ngine/engine/src/templates/character/CharacterInputSchema';
 import { GamesSchema } from "@xr3ngine/engine/src/templates/game/GamesSchema";
 import WarningRefreshModal from "../AlertModals/WarningRetryModal";
+import { ClientInputSystem } from '@xr3ngine/engine/src/input/systems/ClientInputSystem';
 
 const goHome = () => window.location.href = window.location.origin;
 
@@ -146,6 +147,7 @@ export const EnginePage = (props: Props) => {
   const [isInXR, setIsInXR] = useState(false);
   const [warningRefreshModalValues, setWarningRefreshModalValues] = useState(initialRefreshModalValues);
   const [noGameserverProvision, setNoGameserverProvision] = useState(false);
+  const [isInputEnabled, setInputEnabled] = useState(true);
 
   const appLoaded = appState.get('loaded');
   const selfUser = authState.get('user');
@@ -340,6 +342,10 @@ export const EnginePage = (props: Props) => {
     EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.JOINED_WORLD, worldState });
   }
 
+  useEffect(() => {
+    EngineEvents.instance.dispatchEvent({ type: ClientInputSystem.EVENTS.ENABLE_INPUT, keyboard: isInputEnabled, mouse: isInputEnabled });
+  }, [isInputEnabled]);
+
   const onSceneLoadedEntity = (event: any): void => {
     setProgressEntity(event.left || 0);
   };
@@ -374,11 +380,13 @@ export const EnginePage = (props: Props) => {
     switch (interactionData.interactionType) {
       case 'link':
         setOpenLinkData(interactionData);
+        setInputEnabled(false);
         setObjectActivated(true);
         break;
       case 'infoBox':
       case 'mediaSource':
         setModalData(interactionData);
+        setInputEnabled(false);
         setObjectActivated(true);
         break;
       default:
@@ -435,8 +443,8 @@ export const EnginePage = (props: Props) => {
       { harmonyOpen !== true && <MediaIconsBox />}
       { userHovered && <NamePlate userId={userId} position={{ x: position?.x, y: position?.y }} focused={userHovered} />}
       {objectHovered && !objectActivated && <TooltipContainer message={hoveredLabel} />}
-      <InteractableModal onClose={() => { setModalData(null); setObjectActivated(false); }} data={infoBoxData} />
-      <OpenLink onClose={() => { setOpenLinkData(null); setObjectActivated(false); }} data={openLinkData} />
+      <InteractableModal onClose={() => { setModalData(null); setObjectActivated(false); setInputEnabled(true); }} data={infoBoxData} />
+      <OpenLink onClose={() => { setOpenLinkData(null); setObjectActivated(false); setInputEnabled(true); }} data={openLinkData} />
       <canvas id={engineRendererCanvasId} width='100%' height='100%' />
       {mobileGamepad}
       <WarningRefreshModal

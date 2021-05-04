@@ -82,7 +82,7 @@ const UserMenu = (props: UserMenuProps): any => {
   const selfUser = authState.get('user') || {};
   const avatarList = authState.get('avatarList') || [];
 
-  const [currentActiveMenu, setCurrentActiveMenu] = useState({} as any);
+  const [currentActiveMenu, setCurrentActiveMenu] = useState(null);
   const [activeLocation, setActiveLocation] = useState(null);
 
   const [username, setUsername] = useState(selfUser?.name);
@@ -135,9 +135,11 @@ const UserMenu = (props: UserMenuProps): any => {
   };
 
   const changeActiveMenu = (menu) => {
+    if(currentActiveMenu !== null) {
+      const enabled = Boolean(menu);
+      if(EngineEvents.instance) EngineEvents.instance.dispatchEvent({ type: ClientInputSystem.EVENTS.ENABLE_INPUT, mouse: !enabled, keyboard: !enabled });
+    }
     setCurrentActiveMenu(menu ? { id: menu } : null);
-    const enabled = Boolean(menu);
-    if(EngineEvents.instance) EngineEvents.instance.dispatchEvent({ type: ClientInputSystem.EVENTS.ENABLE_INPUT, mouse: !enabled, keyboard: !enabled });
   };
 
   const changeActiveLocation = (location) => {
