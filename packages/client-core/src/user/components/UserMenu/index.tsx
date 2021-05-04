@@ -92,7 +92,7 @@ const UserMenu = (props: UserMenuProps): any => {
     shadows: WebGLRendererSystem.shadowQuality,
     automatic: WebGLRendererSystem.automatic,
     pbr: WebGLRendererSystem.usePBR,
-    postProcessing: WebGLRendererSystem.usePostProcessing,
+    postProcessing: WebGLRendererSystem.usePostProcessing
   });
   
   const onEngineLoaded = () => {
@@ -123,7 +123,6 @@ const UserMenu = (props: UserMenuProps): any => {
 
   const updateGraphicsSettings = (newSetting: any): void => {
     const setting = { ...graphics, ...newSetting };
-
     setGraphicsSetting(setting);
   };
 

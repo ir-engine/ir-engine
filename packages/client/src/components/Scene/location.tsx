@@ -71,6 +71,34 @@ const initialRefreshModalValues = {
   parameters: []
 };
 
+const consoleLog = [];
+
+globalThis.consolelog = console.log;
+console.log = (...args) => {
+  globalThis.consolelog(...args);
+  consoleLog.push("Log: " + args.join(' '));
+};
+
+globalThis.consolewarn = console.warn;
+console.warn = (...args) => {
+  globalThis.consolewarn(...args);
+  consoleLog.push("Warn: " + args.join(' '));
+};
+
+globalThis.consoleerror = console.error;
+console.error = (...args) => {
+  globalThis.consoleerror(...args);
+  consoleLog.push("Error: " + args.join(' '));
+};
+
+globalThis.dump = () => {
+  document.body.innerHTML = consoleLog.map((log) => {
+    return `<p>${log}</p>`;
+  }).join('');
+  globalThis.consolelog(consoleLog);
+  resetEngine();
+};
+
 interface Props {
   setAppLoaded?: any,
   sceneId?: string,
@@ -396,6 +424,9 @@ export const EnginePage = (props: Props) => {
 
   useEffect(() => {
     return (): void => {
+      document.body.innerHTML = consoleLog.map((log) => {
+        `<p>${log}</p>`;
+      }).join();
       resetEngine();
     };
   }, []);
