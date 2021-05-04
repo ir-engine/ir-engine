@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react';
 import { bindActionCreators, Dispatch } from "redux";
-import Dashboard  from "@xr3ngine/client-core/src/user/components/Dashboard/Dashboard";
-import UserConsole from "@xr3ngine/client-core/src/admin/components/UserConsole";
+import UserConsole from "@xr3ngine/client-core/src/admin/components/Users";
 import { doLoginAuto } from '@xr3ngine/client-core/src/user/reducers/auth/service';
 import { connect } from 'react-redux';
 
@@ -18,15 +17,13 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
     doLoginAuto: bindActionCreators(doLoginAuto, dispatch)
 });
 
- function users( props: Props) {
-   const { doLoginAuto } = props;     
-   useEffect(() => {
-      doLoginAuto(true);
-   }, []); 
+function users(props: Props) {
+    const { doLoginAuto } = props;
+    useEffect(() => {
+        doLoginAuto(true);
+    }, []);
     return (
-        <Dashboard>
-             <UserConsole/>
-        </Dashboard>
+        <UserConsole />
     );
 }
 
