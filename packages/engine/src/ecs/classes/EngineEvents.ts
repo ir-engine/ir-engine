@@ -52,6 +52,7 @@ export class EngineEvents extends EventDispatcher {
   static EVENTS = EVENTS;
   constructor() {
     super();
+    globalThis.EngineEvents = this;
   }
 }
 

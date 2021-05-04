@@ -71,33 +71,35 @@ const initialRefreshModalValues = {
   parameters: []
 };
 
+// debug for contexts where devtools may be unavailable
 const consoleLog = [];
+if(globalThis.process?.env.NODE_ENV === 'development') {
+  const consolelog = console.log;
+  console.log = (...args) => {
+    consolelog(...args);
+    consoleLog.push("Log: " + args.join(' '));
+  };
 
-globalThis.consolelog = console.log;
-console.log = (...args) => {
-  globalThis.consolelog(...args);
-  consoleLog.push("Log: " + args.join(' '));
-};
+  const consolewarn = console.warn;
+  console.warn = (...args) => {
+    consolewarn(...args);
+    consoleLog.push("Warn: " + args.join(' '));
+  };
 
-globalThis.consolewarn = console.warn;
-console.warn = (...args) => {
-  globalThis.consolewarn(...args);
-  consoleLog.push("Warn: " + args.join(' '));
-};
+  const consoleerror = console.error;
+  console.error = (...args) => {
+    consoleerror(...args);
+    consoleLog.push("Error: " + args.join(' '));
+  };
 
-globalThis.consoleerror = console.error;
-console.error = (...args) => {
-  globalThis.consoleerror(...args);
-  consoleLog.push("Error: " + args.join(' '));
-};
-
-globalThis.dump = () => {
-  document.body.innerHTML = consoleLog.map((log) => {
-    return `<p>${log}</p>`;
-  }).join('');
-  globalThis.consolelog(consoleLog);
-  resetEngine();
-};
+  globalThis.dump = () => {
+    document.body.innerHTML = consoleLog.map((log) => {
+      return `<p>${log}</p>`;
+    }).join('');
+    consolelog(consoleLog);
+    resetEngine();
+  };
+}
 
 interface Props {
   setAppLoaded?: any,

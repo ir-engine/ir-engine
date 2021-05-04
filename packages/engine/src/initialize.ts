@@ -42,7 +42,7 @@ if (typeof window !== 'undefined') {
   (window as any).iOS = os === 'iOS' || /iPad|iPhone|iPod/.test(navigator.platform) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   (window as any).safariWebBrowser = browser?.name === 'safari';
 }
-console.log(navigator)
+
 /**
  *
  * @author Avaer Kazmer

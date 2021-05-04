@@ -1,3 +1,4 @@
+import { Euler, Quaternion } from 'three';
 import { System } from '../../ecs/classes/System';
 import { getComponent, getMutableComponent, hasComponent, removeComponent } from "../../ecs/functions/EntityFunctions";
 import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType';
@@ -10,6 +11,11 @@ import { TransformParentComponent } from '../components/TransformParentComponent
 
 const MAX_IGNORED_DISTANCE = 0.001;
 const MAX_IGNORED_ANGLE = 0.001;
+const euler1YXZ = new Euler();
+euler1YXZ.order = 'YXZ';
+const euler2YXZ = new Euler();
+euler2YXZ.order = 'YXZ';
+const quat = new Quaternion();
 
 export class TransformSystem extends System {
   updateType = SystemUpdateType.Free;
@@ -75,7 +81,6 @@ export class TransformSystem extends System {
       const rotationIsSame = desiredTransform.rotation === null || transform.rotation.equals(desiredTransform.rotation);
     
       if (positionIsSame && rotationIsSame) {
-        // TODO: remove desiredTransform component?
         return;
       }
     
@@ -99,10 +104,24 @@ export class TransformSystem extends System {
           // value is close enough, just copy it
           mutableTransform.rotation.copy(desiredTransform.rotation);
         } else {
+          // store rotation before interpolation
+          euler1YXZ.setFromQuaternion(mutableTransform.rotation);
           // lerp to desired rotation
           // TODO: lerp to desired rotation
           // TODO: store alpha in DesiredTransformComponent ?
           mutableTransform.rotation.slerp(desiredTransform.rotation, desiredTransform.rotationRate * delta);
+          euler2YXZ.setFromQuaternion(mutableTransform.rotation);
+          // use axis locks - yes this is correct, the axis order is weird because quaternions
+          if(desiredTransform.lockRotationAxis[0]) {
+            euler2YXZ.x = euler1YXZ.x;
+          }
+          if(desiredTransform.lockRotationAxis[2]) {
+            euler2YXZ.y = euler1YXZ.y;
+          }
+          if(desiredTransform.lockRotationAxis[1]) {
+            euler2YXZ.z = euler1YXZ.z;
+          }
+          mutableTransform.rotation.setFromEuler(euler2YXZ);
         }
       }
     });

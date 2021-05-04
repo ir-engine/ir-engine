@@ -1,4 +1,4 @@
-import { Matrix4, Quaternion, Vector3 } from "three";
+import { Euler, Matrix4, Quaternion, Vector3 } from "three";
 import { addObject3DComponent } from '../../scene/behaviors/addObject3DComponent';
 import { CameraTagComponent } from '../../scene/components/Object3DTagComponents';
 import { isMobileOrTablet } from "../../common/functions/isMobile";
@@ -75,7 +75,8 @@ export class CameraSystem extends System {
     addComponent(cameraEntity, CameraTagComponent );
     addObject3DComponent(cameraEntity, { obj3d: Engine.camera });
     addComponent(cameraEntity, TransformComponent);
-    addComponent(cameraEntity, DesiredTransformComponent);
+    const desiredTransform = addComponent(cameraEntity, DesiredTransformComponent) as DesiredTransformComponent;
+    desiredTransform.lockRotationAxis = [false, true, false];
     CameraSystem.activeCamera = cameraEntity;
   }
 
@@ -164,7 +165,7 @@ export class CameraSystem extends System {
       mx.lookAt(direction, empty, upVector);
       cameraDesiredTransform.rotation.setFromRotationMatrix(mx);
       if (actor) {
-        actor.viewVector = new Vector3(0, 0, -1).applyQuaternion(cameraDesiredTransform.rotation)
+        actor.viewVector = vec3.set(0, 0, -1).applyQuaternion(cameraDesiredTransform.rotation)
       } else {
         cameraTransform.rotation.copy(cameraDesiredTransform.rotation);
       }
