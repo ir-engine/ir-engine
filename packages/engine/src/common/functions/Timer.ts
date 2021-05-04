@@ -89,7 +89,6 @@ export function Timer (
     frameId = updateFunction(onFrame);
 
     if (last !== null) {
-      console.log((time - last) / 1000, 10 / fixedRate)
       delta = Math.min((time - last) / 1000, 10 / fixedRate); // limit to between 1 update in 10 frames, to not have wildly high delta
       accumulated = accumulated + delta;
 
