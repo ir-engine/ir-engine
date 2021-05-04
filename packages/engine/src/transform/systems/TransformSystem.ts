@@ -12,7 +12,7 @@ const MAX_IGNORED_DISTANCE = 0.001;
 const MAX_IGNORED_ANGLE = 0.001;
 
 export class TransformSystem extends System {
-  updateType = SystemUpdateType.Fixed;
+  updateType = SystemUpdateType.Free;
 
   execute (delta) {
 

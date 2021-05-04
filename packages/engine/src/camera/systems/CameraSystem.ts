@@ -20,6 +20,7 @@ import { Not } from "../../ecs/functions/ComponentFunctions";
 import { Input } from "../../input/components/Input";
 import { LifecycleValue } from "../../common/enums/LifecycleValue";
 import { BaseInput } from "../../input/enums/BaseInput";
+import { SystemUpdateType } from "../../ecs/functions/SystemUpdateType";
 
 let direction = new Vector3();
 const upVector = new Vector3(0, 1, 0);

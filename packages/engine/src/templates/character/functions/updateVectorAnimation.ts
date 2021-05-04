@@ -19,6 +19,7 @@ function safeFloat(float) {
 }
 */
 const EPSILON = 0.001;
+const animationSpeedMultiplier = 0.5;
 //
 function animationMapLinear( absSpeed, axisValue, axisWeight, i ) {
   return MathUtils.mapLinear(absSpeed, axisValue[0+i], axisValue[1+i], axisWeight[0+i], axisWeight[1+i]);
@@ -89,14 +90,14 @@ export const updateVectorAnimation = (entity, delta: number): void => {
 	const animationComponent = getMutableComponent(entity, AnimationComponent);
 	if (!actor || !actor.initialized || !actor.mixer || !animationComponent || !actor.modelContainer.children.length) return;
 
-  if (actor.mixer) actor.mixer.update(delta);
+  if (actor.mixer) actor.mixer.update(delta * animationSpeedMultiplier);
 
   if(animationComponent.animationsSchema.length == 3) return;
 	// Get the magnitude of current velocity
 	const avatarAnimations = defaultAvatarAnimations;
 	const animationRoot = actor.modelContainer.children[0];
   // update values for animations
-  const objectValues = animationComponent.updateAnimationsValues(entity, animationComponent.animationsSchema, delta);
+  const objectValues = animationComponent.updateAnimationsValues(entity, animationComponent.animationsSchema, delta * animationSpeedMultiplier);
   // math to correct all animations
   const animationsValues = mathMixesAnimFromSchemaValues(entity, animationComponent.animationsSchema, objectValues);
 /*
