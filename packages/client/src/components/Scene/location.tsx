@@ -16,7 +16,7 @@ import { client } from '@xr3ngine/client-core/src/feathers';
 import { selectLocationState } from '@xr3ngine/client-core/src/social/reducers/location/selector';
 import { getLocationByName, getLobby } from '@xr3ngine/client-core/src/social/reducers/location/service';
 import { setCurrentScene } from '@xr3ngine/client-core/src/world/reducers/scenes/actions';
-import store from '@xr3ngine/client-core/src/store';
+import Store from '@xr3ngine/client-core/src/store';
 import { selectUserState } from '@xr3ngine/client-core/src/user/reducers/user/selector';
 import { selectInstanceConnectionState } from '../../reducers/instanceConnection/selector';
 import {
@@ -55,6 +55,8 @@ import { CharacterInputSchema } from '@xr3ngine/engine/src/templates/character/C
 import { GamesSchema } from "@xr3ngine/engine/src/templates/game/GamesSchema";
 import WarningRefreshModal from "../AlertModals/WarningRetryModal";
 import { ClientInputSystem } from '@xr3ngine/engine/src/input/systems/ClientInputSystem';
+
+const store = Store.store;
 
 const goHome = () => window.location.href = window.location.origin;
 

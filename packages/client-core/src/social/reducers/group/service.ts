@@ -2,7 +2,7 @@ import { Config } from '../../../helper';
 import { Dispatch } from 'redux';
 import { dispatchAlertError } from '../../../common/reducers/alert/service';
 import { client } from '../../../feathers';
-import store from '../../../store';
+import Store from '../../../store';
 import {
   createdGroup,
   createdGroupUser,
@@ -15,6 +15,8 @@ import {
   removedGroup,
   removedGroupUser
 } from './actions';
+
+const store = Store.store;
 
 export function getGroups(skip?: number, limit?: number) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
