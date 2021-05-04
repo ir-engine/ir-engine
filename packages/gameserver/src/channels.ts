@@ -16,7 +16,7 @@ export default (app: Application): void => {
     }
 
     app.on('connection', async (connection) => {
-      if ((process.env.KUBERNETES === 'true' && config.gameserver.mode === 'realtime') || (process.env.NODE_ENV === 'development') || config.gameserver.mode === 'local') {
+      if ((config.kubernetes.enabled && config.gameserver.mode === 'realtime') || (process.env.NODE_ENV === 'development') || config.gameserver.mode === 'local') {
           if(!Engine.isInitialized) return;
             try {
                 const token = (connection as any).socketQuery?.token;
@@ -143,7 +143,7 @@ export default (app: Application): void => {
                                     instanceId: (app as any).instance.id
                                 });
                                 const nonOwners = partyUsers.filter((partyUser) => partyUser.isOwner !== 1 && partyUser.isOwner !== true);
-                                const emittedIp = (process.env.KUBERNETES !== 'true') ? await getLocalServerIp() : {
+                                const emittedIp = (!config.kubernetes.enabled) ? await getLocalServerIp() : {
                                     ipAddress: status.address,
                                     port: status.portsList[0].port
                                 };
@@ -168,7 +168,7 @@ export default (app: Application): void => {
     });
 
     app.on('disconnect', async (connection) => {
-        if ((process.env.KUBERNETES === 'true' && config.gameserver.mode === 'realtime') || process.env.NODE_ENV === 'development' || config.gameserver.mode === 'local') {
+        if ((config.kubernetes.enabled && config.gameserver.mode === 'realtime') || process.env.NODE_ENV === 'development' || config.gameserver.mode === 'local') {
             try {
                 const token = (connection as any).socketQuery?.token;
                 if (token != null) {
@@ -190,7 +190,7 @@ export default (app: Application): void => {
                         const userId = identityProvider.userId;
                         const user = await app.service('user').get(userId);
                         logger.info('Socket disconnect from ' + userId);
-                        const instanceId = process.env.KUBERNETES !== 'true' ? (connection as any).instanceId : (app as any).instance?.id;
+                        const instanceId = !config.kubernetes.enabled ? (connection as any).instanceId : (app as any).instance?.id;
                         let instance;
                         try {
                             instance = ((app as any).instance && instanceId != null) ? await app.service('instance').get(instanceId) : {};
@@ -211,7 +211,7 @@ export default (app: Application): void => {
 
                             const user = await app.service('user').get(userId);
                             const instanceIdKey = (app as any).isChannelInstance === true ? 'channelInstanceId' : 'instanceId';
-                            if ((Network.instance.clients[userId] == null && process.env.KUBERNETES === 'true') || (process.env.NODE_ENV === 'development')) await app.service('user').patch(null, {
+                            if ((Network.instance.clients[userId] == null && config.kubernetes.enabled) || (process.env.NODE_ENV === 'development')) await app.service('user').patch(null, {
                                 [instanceIdKey]: null
                             }, {
                                 query: {
@@ -243,7 +243,7 @@ export default (app: Application): void => {
                                         allocated: false
                                     });
                                 }
-                                if (process.env.KUBERNETES === 'true') {
+                                if (config.kubernetes.enabled) {
                                     delete (app as any).instance;
                                 }
                                 const gsName = (app as any).gsName;

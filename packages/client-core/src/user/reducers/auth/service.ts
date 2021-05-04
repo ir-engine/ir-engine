@@ -540,7 +540,7 @@ export function uploadAvatar (data: any) {
   return async (dispatch: Dispatch, getState: any) => {
     const token = getState().get('auth').get('authUser').accessToken;
     const selfUser = getState().get('auth').get('user');
-    const res = await axios.post(`${Config.apiUrl}/upload`, data, {
+    const res = await axios.post(`${Config.publicRuntimeConfig.apiServer}/upload`, data, {
       headers: {
         'Content-Type': 'multipart/form-data',
         Authorization: 'Bearer ' + token

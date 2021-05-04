@@ -128,7 +128,7 @@ if (config.gameserver.enabled) {
 
     if (config.gameserver.mode === 'realtime') {
       (app as any).k8AgonesClient = api({
-        endpoint: `https://${process.env.KUBERNETES_SERVICE_HOST}:${process.env.KUBERNETES_PORT_443_TCP_PORT}`,
+        endpoint: `https://${config.kubernetes.serviceHost}:${config.kubernetes.tcpPort}`,
         version: '/apis/agones.dev/v1',
         auth: {
           caCert: fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/ca.crt'),
@@ -136,7 +136,7 @@ if (config.gameserver.enabled) {
         }
       });
       (app as any).k8DefaultClient = api({
-        endpoint: `https://${process.env.KUBERNETES_SERVICE_HOST}:${process.env.KUBERNETES_PORT_443_TCP_PORT}`,
+        endpoint: `https://${config.kubernetes.serviceHost}:${config.kubernetes.tcpPort}`,
         version: '/api/v1',
         auth: {
           caCert: fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/ca.crt'),
@@ -145,7 +145,7 @@ if (config.gameserver.enabled) {
       });
     }
 
-    if ((process.env.KUBERNETES === 'true') || process.env.NODE_ENV === 'development' || config.gameserver.mode === 'local') {
+    if ((config.kubernetes.enabled) || process.env.NODE_ENV === 'development' || config.gameserver.mode === 'local') {
       agonesSDK.connect();
       agonesSDK.ready().catch((err) => {
         throw new Error('\x1b[33mError: Agones is not running!. If you are in local development, please run xr3ngine/scripts/sh start-agones.sh and restart server\x1b[0m');

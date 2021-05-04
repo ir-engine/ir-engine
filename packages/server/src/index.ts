@@ -1,8 +1,6 @@
 import config from '@xr3ngine/server-core/src/appconfig';
-import appRootPath from 'app-root-path';
 import fs from 'fs';
 import https from 'https';
-import path from 'path';
 import app from './app';
 import logger from '@xr3ngine/server-core/src/logger';
 import psList from 'ps-list';
@@ -13,7 +11,7 @@ process.on('unhandledRejection', (error, promise) => {
 
 (async (): Promise<void> => {
   const key = process.platform === 'win32' ? 'name' : 'cmd';
-  if (process.env.KUBERNETES !== 'true') {
+  if (!config.kubernetes.enabled) {
     const processList = await (await psList()).filter(e => {
       const regexp = /docker-compose up|docker-proxy|mysql/gi;
       return e[key]?.match(regexp);
@@ -42,14 +40,15 @@ process.on('unhandledRejection', (error, promise) => {
 })();
 
 // SSL setup
-const certPath = path.join(appRootPath.path, process.env.CERT ?? 'certs/cert.pem');
-const certKeyPath = path.join(appRootPath.path, process.env.KEY ?? 'certs/key.pem');
-const useSSL = process.env.NOSSL !== 'true' && (process.env.LOCAL_BUILD === 'true' || process.env.NODE_ENV !== 'production') && fs.existsSync(certKeyPath);
+const certPath = config.server.certPath;
+const certKeyPath = config.server.keyPath;
+const useSSL = !config.noSSL && (config.localBuild || process.env.NODE_ENV !== 'production') && fs.existsSync(certKeyPath);
 
 const certOptions = {
-  key: useSSL && (process.env.LOCAL_BUILD === 'true' || process.env.NODE_ENV !== 'production') ? fs.readFileSync(certKeyPath) : null,
-  cert: useSSL && (process.env.LOCAL_BUILD === 'true' || process.env.NODE_ENV !== 'production') ? fs.readFileSync(certPath) : null
+  key: useSSL ? fs.readFileSync(certKeyPath) : null,
+  cert: useSSL ? fs.readFileSync(certPath) : null
 };
+
 if (useSSL) logger.info('Starting server with HTTPS');
 else logger.warn('Starting server with NO HTTPS, if you meant to use HTTPS try \'sudo bash generate-certs\'');
 const port = config.server.port;

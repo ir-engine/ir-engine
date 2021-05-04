@@ -95,12 +95,12 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
         // Set up our gameserver according to our current environment
         const localIp = await getLocalServerIp();
         let stringSubdomainNumber, gsResult;
-        if (process.env.KUBERNETES !== 'true') try {
+        if (!config.kubernetes.enabled) try {
             await this.app.service('instance').Model.destroy({where: {}});
         } catch (error) {
             logger.warn(error);
         }
-        else if (process.env.KUBERNETES === 'true') {
+        else if (config.kubernetes.enabled) {
             await cleanupOldGameservers();
             this.gameServer = await (this.app as any).agonesSDK.getGameServer();
             const name = this.gameServer.objectMeta.name;
@@ -132,7 +132,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
 
         localConfig.mediasoup.webRtcTransport.listenIps = [{
             ip: '0.0.0.0',
-            announcedIp: process.env.KUBERNETES === 'true' ?
+            announcedIp: config.kubernetes.enabled ?
                 (config.gameserver.local === true ? gsResult.status.address :
                     `${stringSubdomainNumber}.${config.gameserver.domain}`) : localIp.ipAddress
         }];

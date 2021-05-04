@@ -36,7 +36,7 @@ export class InstanceProvision implements ServiceMethods<Data> {
    * @author Vyacheslav Solovjov
    */
   async getFreeGameserver(): Promise<any> {
-    if (process.env.KUBERNETES !== 'true') {
+    if (!config.kubernetes.enabled) {
       console.log('Local server spinning up new instance');
       return getLocalServerIp();
     }
@@ -69,7 +69,7 @@ export class InstanceProvision implements ServiceMethods<Data> {
   async getGSInService(availableLocationInstances): Promise<any> {
     const instanceModel = this.app.service('instance').Model;
     const instanceUserSort = _.sortBy(availableLocationInstances, (instance: typeof instanceModel) => instance.currentUsers);
-    if (process.env.KUBERNETES !== 'true') {
+    if (!config.kubernetes.enabled) {
       logger.info('Resetting local instance to ' + instanceUserSort[0].id);
       return getLocalServerIp();
     }
@@ -208,7 +208,7 @@ export class InstanceProvision implements ServiceMethods<Data> {
         //     // Only provision the party's instance if the non-owner is trying to go to the party's scene.
         //     // If they're not, they'll be removed from the party
         //     if (partyInstance.locationId === locationId) {
-        //       if (process.env.KUBERNETES !== 'true') {
+        //       if (!config.kubernetes.enabled) {
         //         return getLocalServerIp();
         //       }
         //       const addressSplit = partyInstance.ipAddress.split(':');
@@ -231,7 +231,7 @@ export class InstanceProvision implements ServiceMethods<Data> {
         //   } else if (partyOwner?.userId === userId && partyOwner?.user.instanceId) {
         //     const partyInstance = await this.app.service('instance').get(partyOwner.user.instanceId);
         //     if (partyInstance.locationId === locationId) {
-        //       if (process.env.KUBERNETES !== 'true') {
+        //       if (!config.kubernetes.enabled) {
         //         return getLocalServerIp();
         //       }
         //       const addressSplit = partyInstance.ipAddress.split(':');
@@ -281,7 +281,7 @@ export class InstanceProvision implements ServiceMethods<Data> {
             }
           });
           const maxInstance = await this.app.service('instance').get(maxInstanceId);
-          if (process.env.KUBERNETES !== 'true') {
+          if (!config.kubernetes.enabled) {
             logger.info('Resetting local instance to ' + maxInstanceId);
             return getLocalServerIp();
           }

@@ -79,6 +79,7 @@ import {
   Scene, Vector2,
   Vector3
 } from "three";
+import { Config } from "../../../helper";
 import Api from "./Api";
 import AssetManifestSource from "./assets/AssetManifestSource";
 import { loadEnvironmentMap } from "./EnvironmentMap";
@@ -509,7 +510,7 @@ export class Editor extends EventEmitter {
 
     if (floorPlanNode) {
       try {
-        await floorPlanNode.generate(signal);
+        await floorPlanNode.generate(signal, Config.publicRuntimeConfig.wasmUrl);
       } catch (error){
         console.warn("Failed to generate floorplan", error);
       }

@@ -105,8 +105,6 @@ api:
     # ENV_VAR1: val1
     # ENV_VAR2: val2
 
-    APP_HOST: http://api.xrsocial.local/
-
     CLIENT_ENABLED: "false"
     SERVER_ENABLED: "true"
 
@@ -120,7 +118,6 @@ api:
     SMTP_PORT: ""
     SMTP_USER: ""
     SMTP_PASS: ""
-    MAIL_FROM: ""
 
     GITHUB_CLIENT_ID: ""
     GITHUB_CLIENT_SECRET: ""
@@ -200,8 +197,6 @@ media:
     # ENV_VAR1: val1
     # ENV_VAR2: val2
 
-    APP_HOST: http://api.xrsocial.local/
-
     CLIENT_ENABLED: "false"
     SERVER_ENABLED: "true"
 
@@ -215,7 +210,6 @@ media:
     SMTP_PORT: ""
     SMTP_USER: ""
     SMTP_PASS: ""
-    MAIL_FROM: ""
 
     GITHUB_CLIENT_ID: ""
     GITHUB_CLIENT_SECRET: ""

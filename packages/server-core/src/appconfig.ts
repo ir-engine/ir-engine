@@ -1,5 +1,8 @@
 import dotenv from 'dotenv-flow';
-if (process.env.KUBERNETES !== 'true') {
+
+const kubernetesEnabled = process.env.KUBERNETES === 'true';
+
+if (!kubernetesEnabled) {
   dotenv.config({
     path: appRootPath.path
   });
@@ -36,7 +39,7 @@ db.url = process.env.MYSQL_URL ??
 const server = {
   enabled: process.env.SERVER_ENABLED !== 'false' ?? false,
   mode: process.env.SERVER_MODE ?? 'local',
-  hostname: process.env.SERVER_HOSTNAME ?? '127.0.0.1',
+  hostname: process.env.SERVER_HOST ?? '127.0.0.1',
   port: process.env.SERVER_PORT ?? 3030,
   // Public directory (used for favicon.ico, logo, etc)
   rootDir: path.resolve(appRootPath.path, 'packages', 'server'),
@@ -55,13 +58,12 @@ const server = {
     max: 100
   },
   url: '',
-  certPath: path.resolve(path.dirname("./"), process.env.CERT ?? 'certs/cert.pem'),
-  keyPath: path.resolve(path.dirname("./"), process.env.KEY ?? 'certs/key.pem'),
+  certPath: path.join(appRootPath.path, process.env.CERT ?? 'certs/cert.pem'),
+  keyPath: path.join(appRootPath.path, process.env.KEY ?? 'certs/key.pem'),
   local: process.env.LOCAL === 'true',
-  gameserverContainerPort: process.env.GAMESERVER_CONTAINER_PORT ?? 3031,
   releaseName: process.env.RELEASE_NAME ?? ''
 };
-const obj = process.env.KUBERNETES === 'true' ? { protocol: 'https', hostname: server.hostname }: { protocol: 'https', ...server };
+const obj = kubernetesEnabled ? { protocol: 'https', hostname: server.hostname }: { protocol: 'https', ...server };
 server.url = process.env.SERVER_URL ?? url.format(obj);
 
 /**
@@ -76,8 +78,10 @@ const client = {
   // FIXME - change to XR3ngine
   title: process.env.APP_LOGO ?? 'XR3ngine',
   url: process.env.APP_URL ??
-    process.env.APP_HOST ?? // Legacy env var, to deprecate
-    (process.env.LOCAL_BUILD ? 'http://localhost:3000' : 'https://localhost:3000'),
+    (process.env.LOCAL_BUILD
+      ? 'http://' + process.env.APP_HOST + ':' + process.env.APP_PORT
+      : 'https://' + process.env.APP_HOST + ':' + process.env.APP_PORT
+    ),
   releaseName: process.env.RELEASE_NAME ?? ''
 };
 
@@ -201,7 +205,11 @@ const aws = {
   s3: {
     baseUrl: 'https://s3.amazonaws.com',
     staticResourceBucket: process.env.STORAGE_S3_STATIC_RESOURCE_BUCKET ?? 'default',
-    region: process.env.STORAGE_S3_REGION ?? 'us-east-1'
+    region: process.env.STORAGE_S3_REGION ?? 'us-east-1',
+    avatarDir: process.env.STORAGE_S3_AVATAR_DIRECTORY,
+    s3DevMode: process.env.STORAGE_S3_DEV_MODE,
+
+
   },
   cloudfront: {
     domain: process.env.STORAGE_CLOUDFRONT_DOMAIN ?? ''
@@ -240,7 +248,14 @@ const config = {
   email,
   gameserver,
   server,
-  redis
+  redis,
+  kubernetes: {
+    enabled: kubernetesEnabled,
+    serviceHost: process.env.KUBERNETES_SERVICE_HOST,
+    tcpPort: process.env.KUBERNETES_PORT_443_TCP_PORT,
+  },
+  noSSL: process.env.NOSSL,
+  localBuild: process.env.LOCAL_BUILD === 'true',
 };
 
 chargebeeInst.configure({
