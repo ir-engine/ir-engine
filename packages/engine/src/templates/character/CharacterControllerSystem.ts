@@ -16,11 +16,13 @@ import { NetworkObject } from "../../networking/components/NetworkObject";
 import { IKComponent } from "./components/IKComponent";
 import { isClient } from "../../common/functions/isClient";
 import { EngineEvents } from "../../ecs/classes/EngineEvents";
+import { SystemUpdateType } from "../../ecs/functions/SystemUpdateType";
 
 const lastPos = { x: 0, y: 0, z: 0 };
 
 export class CharacterControllerSystem extends System {
 
+  updateType = SystemUpdateType.Free;
   constructor(attributes?: SystemAttributes) {
     super(attributes);
   }

@@ -1,4 +1,4 @@
-import { detect } from 'detect-browser';
+import { detect, detectOS } from 'detect-browser';
 import { BufferGeometry, Mesh, PerspectiveCamera, Scene } from 'three';
 import { acceleratedRaycast, computeBoundsTree } from "three-mesh-bvh";
 import { CameraSystem } from './camera/systems/CameraSystem';
@@ -36,12 +36,13 @@ Mesh.prototype.raycast = acceleratedRaycast;
 BufferGeometry.prototype["computeBoundsTree"] = computeBoundsTree;
 
 const browser = detect();
+const os = detectOS(navigator.userAgent);
 if (typeof window !== 'undefined') {
   // Add iOS and safari flag to window object -- To use it for creating an iOS compatible WebGLRenderer for example
-  (window as any).iOS = /iPad|iPhone|iPod/.test(navigator.platform) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  (window as any).iOS = os === 'iOS' || /iPad|iPhone|iPod/.test(navigator.platform) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   (window as any).safariWebBrowser = browser?.name === 'safari';
 }
-
+console.log(navigator)
 /**
  *
  * @author Avaer Kazmer

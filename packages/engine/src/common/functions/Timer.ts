@@ -1,10 +1,7 @@
 import { isClient } from './isClient';
 import { now } from "./now";
-import { WebGLRendererSystem } from '../../renderer/WebGLRendererSystem';
 import { EngineEvents } from '../../ecs/classes/EngineEvents';
-import { isWebWorker } from './getEnvironment';
 import { XRSystem } from '../../xr/systems/XRSystem';
-import { XRFrame } from '../../input/types/WebXR';
 import { Engine } from '../../ecs/classes/Engine';
 
 type TimerUpdateCallback = (delta: number, elapsedTime?: number) => any;
@@ -92,7 +89,7 @@ export function Timer (
     frameId = updateFunction(onFrame);
 
     if (last !== null) {
-      delta = (time - last) / 1000;
+      delta = Math.min((time - last) / 1000, 10 / fixedRate); // limit to between 1 update in 10 frames, to not have wildly high delta
       accumulated = accumulated + delta;
 
       if (fixedRunner) {
