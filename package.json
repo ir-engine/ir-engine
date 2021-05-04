@@ -8,6 +8,7 @@
     "packages/*"
   ],
   "nohoist": [
+    "**/html-minifier-terser",
     "*/@docusaurus/*"
   ],
   "keywords": [
