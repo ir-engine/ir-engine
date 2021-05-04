@@ -114,13 +114,13 @@ export const initializeEngine = async (options): Promise<void> => {
       AnimationManager.instance.getDefaultModel(),
       AnimationManager.instance.getAnimations(),
       new Promise<void>(async (resolve) => {
-        if((window as any).safariWebBrowser) {
+        // if((window as any).safariWebBrowser) {
           await PhysXInstance.instance.initPhysX(new Worker('/scripts/loadPhysXClassic.js'));
-        } else {
-          //@ts-ignore
-          const { default: PhysXWorker } = await import('./physics/functions/loadPhysX.ts?worker');
-          await PhysXInstance.instance.initPhysX(new PhysXWorker(), { });
-        }
+        // } else {
+        //   //@ts-ignore
+        //   const { default: PhysXWorker } = await import('./physics/functions/loadPhysX.ts?worker&inline');
+        //   await PhysXInstance.instance.initPhysX(new PhysXWorker(), { });
+        // }
         resolve()
       })
     ]);
@@ -183,13 +183,13 @@ export const initializeEditor = async (options): Promise<void> => {
   Engine.camera = new PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 10000);
   Engine.scene.add(Engine.camera);
 
-  if((window as any).safariWebBrowser) {
+  // if((window as any).safariWebBrowser) {
     await PhysXInstance.instance.initPhysX(new Worker('/scripts/loadPhysXClassic.js'));
-  } else {
-    //@ts-ignore
-    const { default: PhysXWorker } = await import('./physics/functions/loadPhysX.ts?worker');
-    await PhysXInstance.instance.initPhysX(new PhysXWorker(), { });
-  }
+  // } else {
+  //   //@ts-ignore
+  //   const { default: PhysXWorker } = await import('./physics/functions/loadPhysX.ts?worker');
+  //   await PhysXInstance.instance.initPhysX(new PhysXWorker(), { });
+  // }
 
   registerSystem(PhysicsSystem);
   registerSystem(TransformSystem, { priority: 900 });
