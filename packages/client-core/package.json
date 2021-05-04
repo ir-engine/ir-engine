@@ -1,6 +1,6 @@
 {
   "name": "@xr3ngine/client-core",
-  "version": "0.2.19",
+  "version": "0.2.20",
   "repository": {
     "type": "git",
     "url": "git://github.com/xr3ngine/xr3ngine.git"
@@ -45,8 +45,8 @@
     "@types/styled-components": "5.1.9",
     "@typescript-eslint/eslint-plugin": "4.22.0",
     "@typescript-eslint/parser": "4.22.0",
-    "@xr3ngine/common": "^0.2.18",
-    "@xr3ngine/engine": "^0.2.18",
+    "@xr3ngine/common": "^0.2.20",
+    "@xr3ngine/engine": "^0.2.20",
     "antd": "4.15.4",
     "app-root-path": "3.0.0",
     "autobind-decorator": "2.4.0",

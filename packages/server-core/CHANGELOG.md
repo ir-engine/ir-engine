@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.2.20](https://github.com/barankyle/xr3ngine/compare/v0.2.18...v0.2.20) (2021-05-04)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @feathersjs/hooks to v0.6.4 ([df63c37](https://github.com/barankyle/xr3ngine/commit/df63c37dcf4eb61a8e9ed4bdcfa2053d60164d8b))
+
+
+
+
+
 ## 0.2.18 (2021-04-22)
 
 

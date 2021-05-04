@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.2.20](https://github.com/xr3ngine/xr3ngine/compare/v0.2.18...v0.2.20) (2021-05-04)
+
+
+### Bug Fixes
+
+* **deps:** pin dependencies ([ac0be70](https://github.com/xr3ngine/xr3ngine/commit/ac0be70b9194c3809e74ba8875529c091d084014))
+* **deps:** update dependency react-i18next to v11.8.13 ([8fd41b7](https://github.com/xr3ngine/xr3ngine/commit/8fd41b7bb47a07fadc9558cab7dea60d1d2031f9))
+* **deps:** update dependency react-modal to v3.13.1 ([293901c](https://github.com/xr3ngine/xr3ngine/commit/293901c94afa9dc883d17ffd22e9b3577dab88d6))
+* **deps:** update dependency react-redux to v7.2.4 ([8bc2601](https://github.com/xr3ngine/xr3ngine/commit/8bc26013abb25ce0c07a96006d7d03d9e4d84665))
+* **deps:** update dependency redux to v4.1.0 ([fa7ccd9](https://github.com/xr3ngine/xr3ngine/commit/fa7ccd9e2fce1df39a8537c2ba93f5e0d77834b1))
+* **deps:** update dependency url-toolkit to v2.2.2 ([9d5aa72](https://github.com/xr3ngine/xr3ngine/commit/9d5aa72ab4ad254eb60d08822a90c7dd22a9a5fd))
+* **deps:** update nivo monorepo to v0.68.0 ([e4e44b8](https://github.com/xr3ngine/xr3ngine/commit/e4e44b860e2c34e368f47c071f72c3f140abfb7b))
+
+
+
+
+
 ## 0.2.18 (2021-04-22)
 
 

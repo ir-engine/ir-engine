@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.2.20](https://github.com/xr3ngine/xr3ngine/compare/v0.2.18...v0.2.20) (2021-05-04)
+
+
+### Bug Fixes
+
+* clearEventQueues assignes new array ref, and breaks some event listeners that are using that references ([6195fa3](https://github.com/xr3ngine/xr3ngine/commit/6195fa3b9d3e8d93db362730f3dcaf7703f9c09b))
+* removed "input/touchEvents" in "test" call ([cb2a2f2](https://github.com/xr3ngine/xr3ngine/commit/cb2a2f28f67b12ab0dca701a78351c832ee7fcbf))
+
+
+
+
+
 ## 0.2.18 (2021-04-22)
 
 
