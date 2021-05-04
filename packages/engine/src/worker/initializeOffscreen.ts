@@ -23,7 +23,7 @@ import { TransformSystem } from '../transform/systems/TransformSystem';
 import { MainProxy } from './MessageQueue';
 import { ActionSystem } from '../input/systems/ActionSystem';
 import { EngineEvents } from '../ecs/classes/EngineEvents';
-import { EngineEventsProxy, addIncomingEvents } from '../ecs/classes/EngineEvents';
+import { proxyEngineEvents, addIncomingEvents } from '../ecs/classes/EngineEvents';
 import { XRSystem } from '../xr/systems/XRSystem';
 // import { PositionalAudioSystem } from './audio/systems/PositionalAudioSystem';
 import { receiveWorker } from './MessageQueue';
@@ -54,7 +54,7 @@ const initializeEngineOffscreen = async ({ canvas, userArgs }, proxy: MainProxy)
   const { initOptions, useOfflineMode, postProcessing } = userArgs;
   const options = _.defaultsDeep({}, initOptions, DefaultOffscreenInitializationOptions);
 
-  EngineEvents.instance = new EngineEventsProxy(proxy);
+  proxyEngineEvents(proxy);
   addIncomingEvents();
 
   initialize();

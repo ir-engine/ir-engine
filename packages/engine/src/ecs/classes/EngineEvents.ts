@@ -114,63 +114,64 @@ const ENGINE_EVENTS_PROXY = {
  * 
  * @author Josh Field <github.com/HexaField>
  */
-export class EngineEventsProxy extends EngineEvents {
-  messageQueue: MessageQueue;
-  constructor(messageQueue: MessageQueue) {
-    super();
-    this.messageQueue = messageQueue;
-    const listener = (event: any) => {
-      this.messageQueue.sendEvent(ENGINE_EVENTS_PROXY.EVENT, { event })
-    };
-    this.messageQueue.addEventListener(ENGINE_EVENTS_PROXY.EVENT_ADD, (ev: any) => {
-      const { type } = ev.detail;
-      this.addEventListener(type, listener, true)
-    });
-    this.messageQueue.addEventListener(ENGINE_EVENTS_PROXY.EVENT_ONCE, (ev: any) => {
-      const { type } = ev.detail;
-      this.once(type, listener, true)
-    });
-    this.messageQueue.addEventListener(ENGINE_EVENTS_PROXY.EVENT_REMOVE, (ev: any) => {
-      const { type } = ev.detail;
-      this.removeEventListener(type, listener, true)
-    });
-    this.messageQueue.addEventListener(ENGINE_EVENTS_PROXY.EVENT_REMOVE_ALL, (ev: any) => {
-      const { type, deleteEvent } = ev.detail;
-      this.removeAllListenersForEvent(type, deleteEvent, true)
-    });
-    this.messageQueue.addEventListener(ENGINE_EVENTS_PROXY.EVENT, (ev: any) => {
-      const { event } = ev.detail;
-      (this as any).dispatchEvent(event, true);
-    });
-  }
-  addEventListener(type: string, listener: any, fromSelf?: boolean) {
-    if(!fromSelf) {
-      this.messageQueue.sendEvent(ENGINE_EVENTS_PROXY.EVENT_ADD, { type });
+export const proxyEngineEvents = (messageQueue: MessageQueue) => {
+  const listener = (event: any) => {
+    messageQueue.sendEvent(ENGINE_EVENTS_PROXY.EVENT, { event })
+  };
+  messageQueue.addEventListener(ENGINE_EVENTS_PROXY.EVENT_ADD, (ev: any) => {
+    const { type } = ev.detail;
+    EngineEvents.instance.addEventListener(type, listener, true);
+  });
+  messageQueue.addEventListener(ENGINE_EVENTS_PROXY.EVENT_ONCE, (ev: any) => {
+    const { type } = ev.detail;
+    EngineEvents.instance.once(type, listener, true);
+  });
+  messageQueue.addEventListener(ENGINE_EVENTS_PROXY.EVENT_REMOVE, (ev: any) => {
+    const { type } = ev.detail;
+    EngineEvents.instance.removeEventListener(type, listener, true);
+  });
+  messageQueue.addEventListener(ENGINE_EVENTS_PROXY.EVENT_REMOVE_ALL, (ev: any) => {
+    const { type, deleteEvent } = ev.detail;
+    EngineEvents.instance.removeAllListenersForEvent(type, deleteEvent, true);
+  });
+  messageQueue.addEventListener(ENGINE_EVENTS_PROXY.EVENT, (ev: any) => {
+    const { event } = ev.detail;
+    EngineEvents.instance.dispatchEvent(event, true);
+  });
+
+  const _addEventListener = EngineEvents.instance.addEventListener;
+  EngineEvents.instance.addEventListener = (type: string, listener: any, fromSelf?: boolean) => {
+    if (!fromSelf) {
+      messageQueue.sendEvent(ENGINE_EVENTS_PROXY.EVENT_ADD, { type });
     }
-    super.addEventListener(type, listener)
+    _addEventListener(type, listener);
   }
-  once(type: string, listener: any, fromSelf?: boolean) {
-    if(!fromSelf) {
-      this.messageQueue.sendEvent(ENGINE_EVENTS_PROXY.EVENT_ONCE, { type });
+  const _once = EngineEvents.instance.once;
+  EngineEvents.instance.once = (type: string, listener: any, fromSelf ?: boolean) => {
+    if (!fromSelf) {
+      messageQueue.sendEvent(ENGINE_EVENTS_PROXY.EVENT_ONCE, { type });
     }
-    super.once(type, listener)
+    _once(type, listener);
   }
-  removeEventListener(type: string, listener: any, fromSelf?: boolean) {
-    if(!fromSelf) {
-      this.messageQueue.sendEvent(ENGINE_EVENTS_PROXY.EVENT_REMOVE, { type });
+  const _removeEventListener = EngineEvents.instance.removeEventListener;
+  EngineEvents.instance.removeEventListener = (type: string, listener: any, fromSelf ?: boolean) => {
+    if (!fromSelf) {
+      messageQueue.sendEvent(ENGINE_EVENTS_PROXY.EVENT_REMOVE, { type });
     }
-    super.removeEventListener(type, listener)
+    _removeEventListener(type, listener);
   }
-  removeAllListenersForEvent(type: string, deleteEvent: boolean, fromSelf?: boolean) {
-    if(!fromSelf) {
-      this.messageQueue.sendEvent(ENGINE_EVENTS_PROXY.EVENT_REMOVE_ALL, { type, deleteEvent });
+  const _removeAllListenersForEvent = EngineEvents.instance.removeAllListenersForEvent;
+  EngineEvents.instance.removeAllListenersForEvent = (type: string, deleteEvent: boolean, fromSelf ?: boolean) => {
+    if (!fromSelf) {
+      messageQueue.sendEvent(ENGINE_EVENTS_PROXY.EVENT_REMOVE_ALL, { type, deleteEvent });
     }
-    super.removeAllListenersForEvent(type, deleteEvent)
+    _removeAllListenersForEvent(type, deleteEvent);
   }
-  dispatchEvent (event: any, fromSelf?: boolean, transferable?: Transferable[]) {
-    if(!fromSelf) {
-      this.messageQueue.sendEvent(ENGINE_EVENTS_PROXY.EVENT, { event }, transferable);
+  const _dispatchEvent = EngineEvents.instance.dispatchEvent;
+  EngineEvents.instance.dispatchEvent = (event: any, fromSelf?: boolean, transferable?: Transferable[]) => {
+    if (!fromSelf) {
+      messageQueue.sendEvent(ENGINE_EVENTS_PROXY.EVENT, { event }, transferable);
     }
-    super.dispatchEvent(event);
+    _dispatchEvent(event);
   }
 }

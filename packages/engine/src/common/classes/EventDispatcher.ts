@@ -71,8 +71,9 @@ export class EventDispatcher {
   removeAllListenersForEvent(eventName: string, deleteEvent?: boolean) {
     if(deleteEvent) {
       delete this._listeners[eventName];
+    } else {
+      this._listeners[eventName] = [];
     }
-    this._listeners[eventName] = [];
   }
 
 

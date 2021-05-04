@@ -5,7 +5,7 @@ import { isMobileOrTablet } from "../../common/functions/isMobile";
 import { NumericalType } from "../../common/types/NumericalTypes";
 import { Engine } from '../../ecs/classes/Engine';
 import { System } from '../../ecs/classes/System';
-import { addComponent, createEntity, getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
+import { addComponent, createEntity, getComponent, getMutableComponent, removeComponent } from '../../ecs/functions/EntityFunctions';
 import { CharacterComponent } from "../../templates/character/components/CharacterComponent";
 import { DesiredTransformComponent } from '../../transform/components/DesiredTransformComponent';
 import { TransformComponent } from '../../transform/components/TransformComponent';
@@ -21,6 +21,8 @@ import { Input } from "../../input/components/Input";
 import { LifecycleValue } from "../../common/enums/LifecycleValue";
 import { BaseInput } from "../../input/enums/BaseInput";
 import { SystemUpdateType } from "../../ecs/functions/SystemUpdateType";
+import { FirstPersonCameraComponent } from "../components/FirstPersonCameraComponent";
+import { CopyTransformComponent } from "../../transform/components/CopyTransformComponent";
 
 let direction = new Vector3();
 const upVector = new Vector3(0, 1, 0);
@@ -75,8 +77,6 @@ export class CameraSystem extends System {
     addComponent(cameraEntity, CameraTagComponent );
     addObject3DComponent(cameraEntity, { obj3d: Engine.camera });
     addComponent(cameraEntity, TransformComponent);
-    const desiredTransform = addComponent(cameraEntity, DesiredTransformComponent) as DesiredTransformComponent;
-    desiredTransform.lockRotationAxis = [false, true, false];
     CameraSystem.activeCamera = cameraEntity;
   }
 
@@ -98,12 +98,24 @@ export class CameraSystem extends System {
         collisionMask: cameraFollow.collisionMask,
       });
       CameraComponent.instance.followTarget = entity;
+
+      const desiredTransform = addComponent(CameraSystem.activeCamera, DesiredTransformComponent) as DesiredTransformComponent;
+      desiredTransform.lockRotationAxis = [false, true, false];
     });
 
     this.queryResults.followCameraComponent.removed?.forEach(entity => {
       const cameraFollow = getComponent(entity, FollowCameraComponent, true);
       PhysicsSystem.instance.removeRaycastQuery(cameraFollow.raycastQuery)
       CameraComponent.instance.followTarget = null;
+      removeComponent(CameraSystem.activeCamera, DesiredTransformComponent) as DesiredTransformComponent;
+    });
+
+    this.queryResults.firstPersonCameraComponent.added?.forEach(entity => {
+      addComponent(CameraSystem.activeCamera, CopyTransformComponent, { input: entity });
+    });
+
+    this.queryResults.firstPersonCameraComponent.removed?.forEach(entity => {
+      removeComponent(CameraSystem.activeCamera, CopyTransformComponent);
     });
 
     // follow camera component should only ever be on the character
@@ -122,6 +134,28 @@ export class CameraSystem extends System {
 
       cameraDesiredTransform.rotationRate = isMobileOrTablet() || followCamera.mode === CameraModes.FirstPerson ? 5 : 3.5
       cameraDesiredTransform.positionRate = isMobileOrTablet() || followCamera.mode === CameraModes.FirstPerson ? 3.5 : 2
+
+      const inputComponent = getComponent(entity, Input) as Input;
+
+      // this is for future integration of MMO style pointer lock controls
+      // let inputAxes;
+      // if (cameraFollow.mode === CameraModes.FirstPerson || cameraFollow.mode === CameraModes.ShoulderCam) {
+      //   inputAxes = BaseInput.MOUSE_MOVEMENT;
+      // } else {
+        const inputAxes = BaseInput.LOOKTURN_PLAYERONE;
+      // }
+      const { inputValue, currentInputValue } = getInputData(inputComponent, inputAxes, prevState);
+      prevState = currentInputValue;
+
+      if(followCamera.locked && actor) {
+        followCamera.theta = Math.atan2(actor.orientation.x, actor.orientation.z) * 180 / Math.PI + 180
+      }
+
+      followCamera.theta -= inputValue[0] * (isMobileOrTablet() ? 60 : 100);
+      followCamera.theta %= 360;
+
+      followCamera.phi -= inputValue[1] * (isMobileOrTablet() ? 60 : 100);
+      followCamera.phi = Math.min(85, Math.max(-70, followCamera.phi));
 
       let camDist = followCamera.distance;
       if (followCamera.mode === CameraModes.FirstPerson) camDist = 0.01;
@@ -174,33 +208,11 @@ export class CameraSystem extends System {
       // if(cameraFollow.mode === CameraModes.FirstPerson || cameraFollow.mode === CameraModes.ShoulderCam) {
       //     cameraTransform.rotation.copy(cameraDesiredTransform.rotation);
       // }
-      if (followCamera.mode === CameraModes.FirstPerson) {
-        cameraDesiredTransform.position.copy(targetPosition);
-      }
+      // if (followCamera.mode === CameraModes.FirstPerson) {
+      //   cameraDesiredTransform.position.copy(targetPosition);
+      // }
       // apply user input
       
-      const inputComponent = getComponent(entity, Input) as Input;
-
-      // this is for future integration of MMO style pointer lock controls
-      // let inputAxes;
-      // if (cameraFollow.mode === CameraModes.FirstPerson || cameraFollow.mode === CameraModes.ShoulderCam) {
-      //   inputAxes = BaseInput.MOUSE_MOVEMENT;
-      // } else {
-        const inputAxes = BaseInput.LOOKTURN_PLAYERONE;
-      // }
-      const { inputValue, currentInputValue } = getInputData(inputComponent, inputAxes, prevState);
-      prevState = currentInputValue;
-
-      if(followCamera.locked && actor) {
-        followCamera.theta = Math.atan2(actor.orientation.x, actor.orientation.z) * 180 / Math.PI + 180
-      }
-
-      followCamera.theta -= inputValue[0] * (isMobileOrTablet() ? 60 : 100);
-      followCamera.theta %= 360;
-
-      followCamera.phi -= inputValue[1] * (isMobileOrTablet() ? 60 : 100);
-      followCamera.phi = Math.min(85, Math.max(-70, followCamera.phi));
-
       // rotate character
       if(followCamera.locked || followCamera.mode === CameraModes.FirstPerson || followCamera.mode === CameraModes.XR) {
         actorTransform.rotation.setFromAxisAngle(upVector, (followCamera.theta - 180) * (Math.PI / 180));
@@ -228,7 +240,12 @@ CameraSystem.queries = {
       added: true,
       changed: true
     }
+  },
+  firstPersonCameraComponent: {
+    components: [FirstPersonCameraComponent, TransformComponent, CharacterComponent],
+    listen: {
+      added: true,
+      changed: true
+    }
   }
-
-
 };
