@@ -40,8 +40,8 @@ export default defineConfig(() => {
         plugins: [],
         server: {
             https: {
-                key: fs.readFileSync('../../certs/key.pem'),
-                cert: fs.readFileSync('../../certs/cert.pem')
+                key: fs.readFileSync('./certs/key.pem'),
+                cert: fs.readFileSync('./certs/cert.pem')
             }
         },
         resolve: {
