@@ -14,7 +14,6 @@ import { findInterpolationSnapshot } from "../../../physics/behaviors/findInterp
 import { ControllerColliderComponent } from "../../../physics/components/ControllerColliderComponent";
 import { CharacterComponent } from "../components/CharacterComponent";
 
-let correctionSpeed = 180;
 export const characterCorrectionBehavior: Behavior = (entity: Entity, snapshots): void => {
 
   const networkId = getComponent(entity, NetworkObject).networkId;
@@ -38,7 +37,7 @@ export const characterCorrectionBehavior: Behavior = (entity: Entity, snapshots)
   const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
   if (!actor.initialized || !collider.controller) return;
 
-  correctionSpeed = 180 / (actor.animationVelocity.length() + 1);
+  const correctionSpeed = 180 / (actor.animationVelocity.length() + 1);
 
   const offsetX = correction.x - currentSnapshot.x;
   const offsetY = correction.y - currentSnapshot.y;
