@@ -1,6 +1,6 @@
 {
   "name": "@xrengine/common",
-  "version": "0.2.21",
+  "version": "0.2.22",
   "main": "index.ts",
   "module": "dist/common.es.js",
   "publishConfig": {
@@ -29,5 +29,5 @@
     "rollup-plugin-terser": "7.0.2",
     "rollup-plugin-typescript2": "0.30.0"
   },
-  "gitHead": "5ff55be1619e188226c4ac91c92a44b7ba18edf4"
+  "gitHead": "2313453697ca7c6b8d36b3b166b5a6445fe1c851"
 }

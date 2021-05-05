@@ -1,6 +1,6 @@
 {
   "name": "@xrengine/docs",
-  "version": "0.2.21",
+  "version": "0.2.22",
   "private": true,
   "nohoist": [
     "**/html-minifier-terser",
