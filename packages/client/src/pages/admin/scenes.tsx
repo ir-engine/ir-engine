@@ -1,12 +1,11 @@
-import React, { useEffect }  from 'react';
-import { connect } from 'react-redux';
-import Dashboard from "@xrengine/client-core/src/user/components/Dashboard/Dashboard";
-import { bindActionCreators, Dispatch } from 'redux';
-import { doLoginAuto } from "@xrengine/client-core/src/user/reducers/auth/service";
 import ScenesConsole from '@xrengine/client-core/src/admin/components/Scenes/Scenes';
+import { doLoginAuto } from "@xrengine/client-core/src/user/reducers/auth/service";
+import React, { useEffect } from 'react';
+import { connect } from 'react-redux';
+import { bindActionCreators, Dispatch } from 'redux';
 
 interface Props {
-    doLoginAuto?: any;
+  doLoginAuto?: any;
 }
 
 const mapStateToProps = (state: any): any => {
@@ -15,21 +14,19 @@ const mapStateToProps = (state: any): any => {
 };
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
-    doLoginAuto: bindActionCreators(doLoginAuto, dispatch)
+  doLoginAuto: bindActionCreators(doLoginAuto, dispatch)
 });
 
 function scenes(props: Props) {
-    const { doLoginAuto} = props;
-  
-    useEffect(() => {
-      doLoginAuto(true);
-    }, []);
+  const { doLoginAuto } = props;
 
-    return (
-        <Dashboard>
-           <ScenesConsole />
-        </Dashboard>
-    );
+  useEffect(() => {
+    doLoginAuto(true);
+  }, []);
+
+  return (
+    <ScenesConsole />
+  );
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(scenes);
