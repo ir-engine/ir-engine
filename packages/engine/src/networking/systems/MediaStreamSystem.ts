@@ -1,4 +1,5 @@
 import { System } from '../../ecs/classes/System';
+import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType';
 import { localMediaConstraints } from '../constants/VideoConstants';
 
 /** System class for media streaming. */
@@ -41,6 +42,8 @@ export class MediaStreamSystem extends System {
 
   /** Whether the component is initialized or not. */
   public initialized = false
+
+  updateType = SystemUpdateType.Fixed;
 
   constructor() {
     super()

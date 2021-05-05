@@ -308,3 +308,4 @@ export class Engine {
 
   static publicPath: string;
 }
+globalThis.Engine = Engine;

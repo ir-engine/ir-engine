@@ -21,6 +21,7 @@ export default defineConfig(() => {
     },
     resolve: {
       alias: {
+        'react-json-tree': 'react-json-tree/umd/react-json-tree',
         'three-physx/lib/physx.release.esm.js': 'three-physx/lib/physx.release.esm.js',
         '@material-ui/icons': '@material-ui/icons/esm',
         "socket.io-client": "socket.io-client/dist/socket.io.js",

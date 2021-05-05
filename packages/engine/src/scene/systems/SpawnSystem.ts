@@ -7,6 +7,7 @@ import TeleportToSpawnPoint from "../components/TeleportToSpawnPoint";
 import { Engine } from "../../ecs/classes/Engine";
 import { ControllerColliderComponent } from "../../physics/components/ControllerColliderComponent";
 import { Vector3 } from "three";
+import { SystemUpdateType } from "../../ecs/functions/SystemUpdateType";
 
 //import { CharacterComponent } from '../../templates/character/components/CharacterComponent';
 
@@ -15,6 +16,8 @@ export class ServerSpawnSystem extends System {
   spawnPoints: Entity[] = []
   lastSpawnIndex = 0;
 
+  updateType = SystemUpdateType.Fixed;
+  
   constructor(attributes?: SystemAttributes) {
     super(attributes);
   }

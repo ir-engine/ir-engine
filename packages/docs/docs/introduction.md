@@ -5,28 +5,27 @@ sidebar_label: Introduction
 slug: /
 ---
 
+## A Message From The Architect
 
-![xr3ngine](https://github.com/xr3ngine/xr3ngine/raw/dev/xrengine%20black.png)
+I'm so glad you're here.
 
-An end-to-end solution for hosting humans and AI in a virtual space, built on top of react, three.js and express/feathers.
+We set out to build something that we could use to be closer to each other. At first, the vision was vague-- a feeling that something emergent was forming, something we could see off in the distance as a blur but couldn't articulate clearly. There were just a few of us at first, and we were quickly caught up in the mess of wires, trying to build something, anything, and show it to people and convince them that it was worth building and they should build it, too.
 
-This repo includes a fully-feature client, API server, realtime gamerserver, game engine and devops for scalable deployment. Pick and choose what you need or deploy the whole stack and start building your application on top.
+It wasn't easy, especially at first. But we found a few others who were willing to endure along with us, and then a few more, and pretty soon we were numerous, each putting care into what we felt needed care and taking ownership over what we thought was important. Some core values emerged that I hope I can impart onto you as you begin your journey:
 
-[![Build Status](https://travis-ci.org/xr3ngine/xr3ngine.svg?branch=dev)](https://travis-ci.org/xr3ngine/xr3ngine)
+*This project is for everyone*
+If you get value out of any part of it you are free to use it for absolutely any reason-- but we really, really, really hope you use this project for good.
 
-## Popular features
-- Player rigs to support 2D, 3D and XR interaction
-- High-performance ECS engine
-- Full-featured world editor
-- Fully networked player controller, physics, vehicles and particles
-- Fully data-oriented design
-- Chat, groups, parties and friends
-- Voice and video over WebRTC
-- Instant login with phone number or email
-- OAuth login with Facebook, Google, Steam and Github
-- User management, avatars and inventory
-- Authorative realtime gameserver
-- Reliable messaging and signaling with socket.io
-- Fast, unreliable messaging with SCTP data channels
-- Built end-to-end in Typescript
-- Free, open source, MIT-licensed
+*This is your project, too*
+The dream of a superconnected world is not something we invented. This is just an implementation, made by people who had to learn as they went. The project will ultimately be successful because you, and people like you. We want you to know that you are part of this, and you can join our Discord and push code to Github and make it exactly what you've been dreaming of, too.
+
+*We stand on the shoulders of giants*
+May people put many thankless hours into building the technology we ourselves have built on. Please credit the authors of any code that you use and include any licenses from any code that we have brought in from elsewhere. A special thank you to Robert Long, James Baicoianu, Adrian Biedrzycki, Fernando Serrano, Don McCurdy and Ricardo Cabello-- all of whom built important parts of the open source WebXR/WebGL ecosystem that this project relies on. 
+
+*We must do the hard work for those who will come after us*
+We hope that if you get value out of this project that you will help us with our mission of making this technology easier and more accessible to everyone. What that looks like is entirely up to you, but if you get something out of it then we hope you take some time to give back to others, especially those who need help getting to where you are in their understanding. 
+
+
+As I write this the whole XREngine team is dilligently pouring over every line and squashing every bug in preparation for our first official public release. I feel so lucky to be here now, building this with an incredible team. Thank you to everyone who has contributed so many hours to get us here. And thank *you* for taking this journey with us. I really hope that you can use XREngine to build your business or pursue your passion with.
+
+- The Architect
