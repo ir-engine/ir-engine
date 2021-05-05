@@ -19,9 +19,11 @@ import { client } from '../../../feathers';
 import { dispatchAlertSuccess, dispatchAlertError } from '../../../common/reducers/alert/service';
 import { PublicVideo, videosFetchedSuccess, videosFetchedError } from '../../../media/components/video/actions';
 import { locationsRetrieved, locationCreated, locationPatched, locationRemoved } from '../../../social/reducers/location/actions';
-import store from '../../../store';
+import Store from '../../../store';
 import { loadedUsers, userCreated, userPatched, userRemoved } from '../../../user/reducers/user/actions';
 import { collectionsFetched } from '../../../world/reducers/scenes/actions';
+
+const store = Store.store;
 
 export function createVideo (data: VideoCreationForm) {
   return async (dispatch: Dispatch, getState: any) => {
