@@ -95,12 +95,6 @@ export class AnimationManager {
       });
 		});
 	}
-
-
-  retargetBones():Promise<any>{
-    console.log("Retargeting Stuff");
-    return;
-  }
 }
 
 export const loadDefaultActorAvatar: Behavior = (entity) => {
@@ -146,7 +140,7 @@ export const loadActorAvatarFromURL: Behavior = (entity, avatarURL) => {
     ([...actor.modelContainer.children])
       .forEach(child => actor.modelContainer.remove(child));
 
-    //This is for animation retargetting
+    // //This is for animation retargetting
     let targetSkeleton;
     tmpGroup.traverse((child) => {
       if(child.type === "SkinnedMesh") {
@@ -154,15 +148,14 @@ export const loadActorAvatarFromURL: Behavior = (entity, avatarURL) => {
         targetSkeleton = child;
       }
     })
-
-    standardizeSkeletion(targetSkeleton);
+    standardizeSkeletion(targetSkeleton,AnimationManager.instance._defaultSkeleton);
 
 
 		tmpGroup.children.forEach(child => actor.modelContainer.add(child));
-    const geom = getGeometry(actor.modelContainer);
-    geom.computeBoundingBox()
-    const modelHeight = geom.boundingBox.max.y - geom.boundingBox.min.y;
-    controller.controller.resize(modelHeight - (controller.radius * 2));
+    //const geom = getGeometry(actor.modelContainer);
+    //geom.computeBoundingBox()
+    //const modelHeight = geom.boundingBox.max.y - geom.boundingBox.min.y;
+    //controller.controller.resize(modelHeight - (controller.radius * 2));
 		actor.mixer = new AnimationMixer(actor.modelContainer.children[0]);
 		if (hasComponent(entity, IKComponent)) {
 			initiateIK(entity)

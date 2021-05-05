@@ -1,20 +1,27 @@
 //@ts-ignore
-import  { Object3D, SkinnedMesh } from "three";
-import * as THREE from 'three';
-import { countCharacters, findArmature, findClosestParentBone, findEye, findFoot, findFurthestParentBone, findHand, findHead, findHips, findShoulder, findSpine, getTailBones } from "../../../xr/functions/AvatarFunctions";
-import { DefaultCharacterBones } from "../constants/DefaultCharacterBones";
+import  { AnimationClip, Object3D, SkinnedMesh } from "three";
+import { countCharacters, findClosestParentBone, findEye, findFoot, findFurthestParentBone, findHand, findHead, findHips, findShoulder, findSpine, getTailBones } from "../../../xr/functions/AvatarFunctions";
+import { SkeletonUtils } from '../../../assets/threejs-various/SkeletonUtils.js';
+import { AnimationManager } from "../prefabs/NetworkPlayerCharacter";
 
 
-export const standardizeSkeletion = (target: SkinnedMesh) => {
+export const standardizeSkeletion = (target: SkinnedMesh,source:SkinnedMesh) => {
 
   const targetBones=GetBones(target.skeleton);
+  const sourceBones=GetBones(source.skeleton);
 
   Object.values(targetBones).forEach((element,id)=>{
     const boneType=Object.keys(targetBones)[id];
-    element.name=DefaultCharacterBones[boneType];
-    console.log(boneType+"  "+element.name);
+    element.name=sourceBones[boneType].name;
   })
-  console.log(target.skeleton);
+
+  const newClips: AnimationClip[]=[];
+  AnimationManager.instance._animations.forEach((clip)=>{
+    const newClip=SkeletonUtils.retargetClip(target,source,clip,{hip:sourceBones.Hips.name});
+    newClips.push(newClip);
+  })
+
+  AnimationManager.instance._animations= newClips;
 }
 
 
@@ -123,7 +130,7 @@ export const GetBoneMapping=(skeleton)=>{
   const boneMapping={}
   Object.values(targetBones).forEach((element,id)=>{
       const boneType=Object.keys(targetBones)[id];
-      boneMapping[element.name]=DefaultCharacterBones[boneType];
+      //boneMapping[element.name]=DefaultCharacterBones[boneType];
   })
   return boneMapping;
 }
