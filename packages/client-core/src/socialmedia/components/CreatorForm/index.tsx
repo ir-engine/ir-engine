@@ -1,7 +1,7 @@
 /**
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { useHistory } from "react-router-dom";
 
@@ -56,6 +56,8 @@ const CreatorForm = ({creatorData, creatorsState, updateCreator, updateCreatorFo
     };
     const handlePickAvatar = async (file) => setCreator({...creator, newAvatar: file.target.files[0]});
 	const { t } = useTranslation();
+
+    useEffect(()=>setCreator(creatorsState.get('currentCreator')), [creatorsState.get('currentCreator')])
 
     return <section className={styles.creatorContainer}>
          <form

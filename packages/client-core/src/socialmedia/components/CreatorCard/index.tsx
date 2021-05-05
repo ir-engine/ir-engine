@@ -126,7 +126,7 @@ const CreatorCard = ({creator,creatorState, updateCreatorPageState, popupsState,
                 />                
                 <CardContent className={styles.content}>
                     <Typography className={styles.titleContainer} gutterBottom variant="h5" component="h5" align="center">{creator.name}</Typography>
-                    <Typography variant="h5" component="p" align="center">{creator.username}</Typography>
+                    <Typography variant="h5" component="p" align="center">@{creator.username}</Typography>
                     <Typography variant="h4" component="p" align="center">{creator.tags}</Typography>
                     <Typography variant="h4" component="p" align="center">{creator.bio}</Typography>
 

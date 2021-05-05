@@ -38,7 +38,7 @@ const AppHeader = ({creatorState, getLoggedCreator, logo, authState, updateCreat
 	const { t } = useTranslation();
   const history = useHistory();
   useEffect(()=>getLoggedCreator(),[]);  
-  const creator = creatorState && creatorState.get('fetching') === false && creatorState.get('currentCreator');
+  const creator = creatorState && creatorState.get('fetchingCurrentCreator') === false && creatorState.get('currentCreator');
  /* Hided for now */
   // const checkGuest = authState.get('authUser')?.identityProvider?.type === 'guest' ? true : false;
 
