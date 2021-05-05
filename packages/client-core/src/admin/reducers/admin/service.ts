@@ -29,7 +29,7 @@ export function createVideo (data: VideoCreationForm) {
   return async (dispatch: Dispatch, getState: any) => {
     const token = getState().get('auth').get('authUser').accessToken;
     try {
-      const res = await axios.post(`${Config.apiUrl}/video`, data, {
+      const res = await axios.post(`${Config.publicRuntimeConfig.apiServer}/video`, data, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: 'Bearer ' + token

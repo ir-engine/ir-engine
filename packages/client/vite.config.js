@@ -2,12 +2,39 @@ import fs from 'fs';
 import { defineConfig, loadEnv } from 'vite-xrengine';
 import config from "config";
 
+const replaceEnvs = (obj, env) => {
+  let result = {};
+
+  for (let key of Object.keys(obj)) {
+    if (typeof obj[key] === 'object') {
+      result[key] = replaceEnvs(obj[key], env);
+      continue;
+    }
+
+    result[key] = obj[key];
+
+    if (typeof obj[key] !== 'string') {
+      continue;
+    }
+
+    const matches = Array.from(obj[key].matchAll(/\$\{[^}]*\}+/g), m => m[0]);
+
+    for (let match of matches) {
+      result[key] = result[key].replace(match, env[match.substring(2, match.length-1)])
+    }
+  }
+
+  return result;
+}
+
 export default defineConfig(() => {
   const env = loadEnv('', process.cwd() + '../../');
+  const runtime = replaceEnvs(config.get('publicRuntimeConfig'), env);
+
   process.env = {
     ...process.env,
     ...env,
-    publicRuntimeConfig: JSON.stringify(config.get('publicRuntimeConfig'))
+    publicRuntimeConfig: JSON.stringify(runtime)
   };
 
   return {

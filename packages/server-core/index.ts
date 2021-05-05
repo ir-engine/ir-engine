@@ -118,7 +118,6 @@ export * from './src/world/scene-listing/scene-listing.class';
 export * from './src/world/scene/scene.class';
 export * from './src/world/seeder-config';
 export { default as srcAppconfig } from './src/appconfig';
-export { default as srcChannels } from './src/channels';
 export { default as srcEntitiesCollectionTypeCollectionTypeDocs } from './src/entities/collection-type/collection-type.docs';
 export { default as srcEntitiesCollectionTypeCollectionTypeHooks } from './src/entities/collection-type/collection-type.hooks';
 export { default as srcEntitiesCollectionTypeCollectionTypeModel } from './src/entities/collection-type/collection-type.model';
