@@ -5,7 +5,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ## [0.2.21](https://github.com/xr3ngine/xr3ngine/compare/v0.2.20...v0.2.21) (2021-05-05)
 
-**Note:** Version bump only for package @xr3ngine/native-plugin-xr
+**Note:** Version bump only for package @xrengine/native-plugin-xr
 
 
 
@@ -13,7 +13,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ## [0.2.20](https://github.com/xr3ngine/xr3ngine/compare/v0.2.18...v0.2.20) (2021-05-04)
 
-**Note:** Version bump only for package @xr3ngine/native-plugin-xr
+**Note:** Version bump only for package @xrengine/native-plugin-xr
 
 
 
