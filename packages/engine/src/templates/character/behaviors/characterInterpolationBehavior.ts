@@ -17,7 +17,7 @@ export const characterInterpolationBehavior: Behavior = (entity: Entity, snapsho
   
   const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
   const collider = getMutableComponent<ControllerColliderComponent>(entity, ControllerColliderComponent);
-  if (!actor.initialized || !collider.controller) return;
+  if (!actor.initialized || !collider.controller || !interpolation) return;
   
   if (isNaN(interpolation.vX)) return;
   actor.animationVelocity.set(
