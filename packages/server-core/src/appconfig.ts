@@ -1,4 +1,8 @@
 import dotenv from 'dotenv-flow';
+import appRootPath from 'app-root-path';
+import * as chargebeeInst from 'chargebee';
+import path from 'path';
+import url from 'url';
 
 const kubernetesEnabled = process.env.KUBERNETES === 'true';
 
@@ -8,94 +12,83 @@ if (!kubernetesEnabled) {
   });
 }
 
-/* eslint-disable @typescript-eslint/restrict-template-expressions */
-import appRootPath from 'app-root-path';
-import * as chargebeeInst from 'chargebee';
-// Load all the ENV variables from `.env`, then `.env.local`, into process.env
-import path from 'path';
-import url from 'url';
-
 /**
  * Database
  */
 export const db: any = {
-  username: process.env.MYSQL_USER ?? 'server',
-  password: process.env.MYSQL_PASSWORD ?? 'password',
-  database: process.env.MYSQL_DATABASE ?? 'xrengine',
-  host: process.env.MYSQL_HOST ?? '127.0.0.1',
-  port: process.env.MYSQL_PORT ?? 3306,
+  username: process.env.MYSQL_USER,
+  password: process.env.MYSQL_PASSWORD,
+  database: process.env.MYSQL_DATABASE,
+  host: process.env.MYSQL_HOST,
+  port: process.env.MYSQL_PORT,
   dialect: 'mysql',
   forceRefresh: process.env.FORCE_DB_REFRESH === 'true',
   url: '',
   charset: 'utf8mb4',
   collate: 'utf8mb4_general_ci'
 };
-db.url = process.env.MYSQL_URL ??
+db.url = process.env.MYSQL_URL ||
   `mysql://${db.username}:${db.password}@${db.host}:${db.port}/${db.database}`;
 
 /**
  * Server / backend
  */
 const server = {
-  enabled: process.env.SERVER_ENABLED !== 'false' ?? false,
-  mode: process.env.SERVER_MODE ?? 'local',
-  hostname: process.env.SERVER_HOST ?? '127.0.0.1',
-  port: process.env.SERVER_PORT ?? 3030,
+  enabled: process.env.SERVER_ENABLED === 'true',
+  mode: process.env.SERVER_MODE,
+  hostname: process.env.SERVER_HOST,
+  port: process.env.SERVER_PORT,
   // Public directory (used for favicon.ico, logo, etc)
   rootDir: path.resolve(appRootPath.path, 'packages', 'server'),
-  publicDir: process.env.SERVER_PUBLIC_DIR ?? path.resolve(appRootPath.path, 'packages', 'server', 'public'),
+  publicDir: process.env.SERVER_PUBLIC_DIR || path.resolve(appRootPath.path, 'packages', 'server', 'public'),
   nodeModulesDir: path.resolve(__dirname, '../..', 'node_modules'),
-  localStorageProvider: process.env.LOCAL_STORAGE_PROVIDER ?? '',
+  localStorageProvider: process.env.LOCAL_STORAGE_PROVIDER,
   // Used for CI/tests to force Sequelize init an empty database
   performDryRun: process.env.PERFORM_DRY_RUN === 'true',
-  storageProvider: process.env.STORAGE_PROVIDER ?? 'local',
-  gaTrackingId: process.env.GOOGLE_ANALYTICS_TRACKING_ID ?? '',
+  storageProvider: process.env.STORAGE_PROVIDER,
+  gaTrackingId: process.env.GOOGLE_ANALYTICS_TRACKING_ID,
   hub: {
-    endpoint: process.env.HUB_ENDPOINT ?? 'https://xrengine.io'
+    endpoint: process.env.HUB_ENDPOINT
   },
   paginate: {
     default: 10,
     max: 100
   },
   url: '',
-  certPath: path.join(appRootPath.path, process.env.CERT ?? 'certs/cert.pem'),
-  keyPath: path.join(appRootPath.path, process.env.KEY ?? 'certs/key.pem'),
+  certPath: path.join(appRootPath.path, process.env.CERT),
+  keyPath: path.join(appRootPath.path, process.env.KEY),
   local: process.env.LOCAL === 'true',
-  releaseName: process.env.RELEASE_NAME ?? ''
+  releaseName: process.env.RELEASE_NAME
 };
 const obj = kubernetesEnabled ? { protocol: 'https', hostname: server.hostname }: { protocol: 'https', ...server };
-server.url = process.env.SERVER_URL ?? url.format(obj);
+server.url = process.env.SERVER_URL || url.format(obj);
 
 /**
  * Client / frontend
  */
 const client = {
-  enabled: process.env.CLIENT_ENABLED === 'true' ?? true,
-  // Client app logo
-  // FIXME - change to XREngine logo
-  logo: process.env.APP_LOGO ?? 'https://xrengine-static.s3-us-east-1.amazonaws.com/logo.png',
-  // Client app name
-  // FIXME - change to XREngine
-  title: process.env.APP_LOGO ?? 'XREngine',
-  url: process.env.APP_URL ??
+  enabled: process.env.CLIENT_ENABLED === 'true',
+  logo: process.env.APP_LOGO,
+  title: process.env.APP_TITLE,
+  url: process.env.APP_URL ||
     (process.env.LOCAL_BUILD
       ? 'http://' + process.env.APP_HOST + ':' + process.env.APP_PORT
       : 'https://' + process.env.APP_HOST + ':' + process.env.APP_PORT
     ),
-  releaseName: process.env.RELEASE_NAME ?? ''
+  releaseName: process.env.RELEASE_NAME
 };
 
 const gameserver = {
-  enabled: process.env.GAMESERVER_ENABLED !== 'false' ?? false,
-  rtc_start_port: process.env.RTC_START_PORT ? parseInt(process.env.RTC_START_PORT) : 40000,
-  rtc_end_port: process.env.RTC_END_PORT ? parseInt(process.env.RTC_END_PORT) : 40099,
-  rtc_port_block_size: process.env.RTC_PORT_BLOCK_SIZE ? parseInt(process.env.RTC_PORT_BLOCK_SIZE) : 100,
+  enabled: process.env.GAMESERVER_ENABLED === 'true',
+  rtc_start_port: parseInt(process.env.RTC_START_PORT),
+  rtc_end_port: parseInt(process.env.RTC_END_PORT),
+  rtc_port_block_size: parseInt(process.env.RTC_PORT_BLOCK_SIZE),
   identifierDigits: 5,
   local: process.env.LOCAL === 'true',
-  domain: process.env.GAMESERVER_DOMAIN ?? 'gameserver.theoverlay.io',
-  releaseName: process.env.RELEASE_NAME ?? '',
-  port: process.env.GAMESERVER_PORT ?? 3031,
-  mode: process.env.SERVER_MODE ?? 'local'
+  domain: process.env.GAMESERVER_DOMAIN || 'gameserver.theoverlay.io',
+  releaseName: process.env.RELEASE_NAME,
+  port: process.env.GAMESERVER_PORT,
+  mode: process.env.SERVER_MODE
 };
 
 /**
@@ -104,7 +97,7 @@ const gameserver = {
 const email = {
   smtp: {
     host: process.env.SMTP_HOST,
-    port: (process.env.SMTP_PORT) ? +process.env.SMTP_PORT : 2525,
+    port: parseInt(process.env.SMTP_PORT),
     secure: process.env.SMTP_SECURE === 'true',
     auth: {
       user: process.env.SMTP_USER,
@@ -112,8 +105,8 @@ const email = {
     }
   },
   // Name and email of default sender (for login emails, etc)
-  from: `${process.env.SMTP_FROM_NAME ?? 'XREngine'}` +
-    ` <${process.env.SMTP_FROM_EMAIL ?? 'noreply@myxr.email'}>`,
+  from: `${process.env.SMTP_FROM_NAME}` +
+    ` <${process.env.SMTP_FROM_EMAIL}>`,
   subject: {
     // Subject of the Login Link email
     login: 'XREngine login link',
@@ -130,7 +123,7 @@ const email = {
 const authentication = {
   service: 'identity-provider',
   entity: 'identity-provider',
-  secret: process.env.AUTH_SECRET ?? '',
+  secret: process.env.AUTH_SECRET,
   authStrategies: [
     'jwt',
     'local',
@@ -151,38 +144,40 @@ const authentication = {
     numBytes: 16
   },
   callback: {
-    facebook: process.env.FACEBOOK_CALLBACK_URL ?? `${client.url}/auth/oauth/facebook`,
-    github: process.env.GITHUB_CALLBACK_URL ?? `${client.url}/auth/oauth/github`,
-    google: process.env.GOOGLE_CALLBACK_URL ?? `${client.url}/auth/oauth/google`,
-    linkedin2: process.env.LINKEDIN_CALLBACK_URL ?? `${client.url}/auth/oauth/linkedin2`,
-    twitter: process.env.TWITTER_CALLBACK_URL?? `${client.url}/auth/oauth/twitter`,
+    facebook: process.env.FACEBOOK_CALLBACK_URL || `${client.url}/auth/oauth/facebook`,
+    github: process.env.GITHUB_CALLBACK_URL || `${client.url}/auth/oauth/github`,
+    google: process.env.GOOGLE_CALLBACK_URL || `${client.url}/auth/oauth/google`,
+    linkedin2: process.env.LINKEDIN_CALLBACK_URL || `${client.url}/auth/oauth/linkedin2`,
+    twitter: process.env.TWITTER_CALLBACK_URL|| `${client.url}/auth/oauth/twitter`,
   },
   oauth: {
     defaults: {
-      host: server.hostname && server.hostname !== '127.0.0.1' ? (server.hostname) : '127.0.0.1:3030',
-      protocol: 'https'
+      host: server.hostname !== '127.0.0.1' && server.hostname !== 'localhost'
+        ? server.hostname
+        : server.hostname + ':' + server.port,
+      protocol: 'https',
     },
     facebook: {
-      key: process.env.FACEBOOK_CLIENT_ID ?? '',
-      secret: process.env.FACEBOOK_CLIENT_SECRET ?? ''
+      key: process.env.FACEBOOK_CLIENT_ID,
+      secret: process.env.FACEBOOK_CLIENT_SECRET,
     },
     github: {
-      key: process.env.GITHUB_CLIENT_ID ?? '',
-      secret: process.env.GITHUB_CLIENT_SECRET ?? ''
+      key: process.env.GITHUB_CLIENT_ID,
+      secret: process.env.GITHUB_CLIENT_SECRET,
     },
     google: {
-      key: process.env.GOOGLE_CLIENT_ID ?? '',
-      secret: process.env.GOOGLE_CLIENT_SECRET ?? '',
+      key: process.env.GOOGLE_CLIENT_ID,
+      secret: process.env.GOOGLE_CLIENT_SECRET,
       scope: ['profile', 'email']
     },
     linkedin2: {
-      key: process.env.LINKEDIN_CLIENT_ID ?? '',
-      secret: process.env.LINKEDIN_CLIENT_SECRET ?? '',
+      key: process.env.LINKEDIN_CLIENT_ID,
+      secret: process.env.LINKEDIN_CLIENT_SECRET,
       scope: ['r_liteprofile', 'r_emailaddress']
     },
     twitter: {
-      key: process.env.TWITTER_CLIENT_ID ?? '',
-      secret: process.env.TWITTER_CLIENT_SECRET ?? '',
+      key: process.env.TWITTER_CLIENT_ID,
+      secret: process.env.TWITTER_CLIENT_SECRET,
     }
   }
 };
@@ -192,54 +187,54 @@ const authentication = {
  */
 const aws = {
   keys: {
-    accessKeyId: process.env.STORAGE_AWS_ACCESS_KEY_ID ?? '',
-    secretAccessKey: process.env.STORAGE_AWS_ACCESS_KEY_SECRET ?? ''
+    accessKeyId: process.env.STORAGE_AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.STORAGE_AWS_ACCESS_KEY_SECRET,
   },
   route53: {
-    hostedZoneId: process.env.ROUTE53_HOSTED_ZONE_ID ?? '',
+    hostedZoneId: process.env.ROUTE53_HOSTED_ZONE_ID,
     keys: {
-      accessKeyId: process.env.ROUTE53_ACCESS_KEY_ID ?? '',
-      secretAccessKey: process.env.ROUTE53_ACCESS_KEY_SECRET ?? ''
+      accessKeyId: process.env.ROUTE53_ACCESS_KEY_ID,
+      secretAccessKey: process.env.ROUTE53_ACCESS_KEY_SECRET,
     }
   },
   s3: {
     baseUrl: 'https://s3.amazonaws.com',
-    staticResourceBucket: process.env.STORAGE_S3_STATIC_RESOURCE_BUCKET ?? 'default',
-    region: process.env.STORAGE_S3_REGION ?? 'us-east-1',
+    staticResourceBucket: process.env.STORAGE_S3_STATIC_RESOURCE_BUCKET,
+    region: process.env.STORAGE_S3_REGION,
     avatarDir: process.env.STORAGE_S3_AVATAR_DIRECTORY,
     s3DevMode: process.env.STORAGE_S3_DEV_MODE,
 
 
   },
   cloudfront: {
-    domain: process.env.STORAGE_CLOUDFRONT_DOMAIN ?? ''
+    domain: process.env.STORAGE_CLOUDFRONT_DOMAIN,
   },
   sms: {
-    accessKeyId: process.env.AWS_SMS_ACCESS_KEY_ID ?? '',
-    applicationId: process.env.AWS_SMS_APPLICATION_ID ?? '',
-    region: process.env.AWS_SMS_REGION ?? '',
-    senderId: process.env.AWS_SMS_SENDER_ID ?? '',
-    secretAccessKey: process.env.AWS_SMS_SECRET_ACCESS_KEY ?? ''
+    accessKeyId: process.env.AWS_SMS_ACCESS_KEY_ID,
+    applicationId: process.env.AWS_SMS_APPLICATION_ID,
+    region: process.env.AWS_SMS_REGION,
+    senderId: process.env.AWS_SMS_SENDER_ID,
+    secretAccessKey: process.env.AWS_SMS_SECRET_ACCESS_KEY,
   }
 };
 
 const chargebee = {
-  url: process.env.CHARGEBEE_SITE + '.chargebee.com' ?? 'dummy.not-chargebee.com',
-  apiKey: process.env.CHARGEBEE_API_KEY ?? ''
+  url: process.env.CHARGEBEE_SITE + '.chargebee.com' || 'dummy.not-chargebee.com',
+  apiKey: process.env.CHARGEBEE_API_KEY,
 };
 
 const redis = {
-  enabled: process.env.REDIS_ENABLED === 'true' ?? false,
-  address: process.env.REDIS_ADDRESS ?? '127.0.0.1',
-  port: process.env.REDIS_PORT ?? '6379',
-  password: process.env.REDIS_PASSWORD ?? null
+  enabled: process.env.REDIS_ENABLED === 'true',
+  address: process.env.REDIS_ADDRESS,
+  port: process.env.REDIS_PORT,
+  password: process.env.REDIS_PASSWORD,
 };
 
 /**
  * Full config
  */
 const config = {
-  deployStage: process.env.DEPLOY_STAGE ?? 'local',
+  deployStage: process.env.DEPLOY_STAGE,
   authentication,
   aws,
   chargebee,
@@ -259,7 +254,7 @@ const config = {
 };
 
 chargebeeInst.configure({
-  site: process.env.CHARGEBEE_SITE ?? '',
+  site: process.env.CHARGEBEE_SITE,
   api_key: config.chargebee.apiKey
 });
 
