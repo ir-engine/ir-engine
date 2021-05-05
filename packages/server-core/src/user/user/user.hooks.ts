@@ -88,6 +88,8 @@ export default {
       async (context: HookContext): Promise<HookContext> => {
         try {
           const { app, result } = context;
+          console.log(result);
+          
           result.data.forEach(async (item) => {
             if (item.subscriptions && item.subscriptions.length > 0) {
               await Promise.all(item.subscriptions.map(async (subscription: any) => {

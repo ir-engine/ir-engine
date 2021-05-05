@@ -10,7 +10,9 @@ import {
   instanceRemovedAction,
   instanceCreated,
   instanceRemoved,
-  instancePatched
+  instancePatched,
+  userRoleRetrieved,
+  userRoleCreated
 } from './actions';
 
 import axios from 'axios';
@@ -153,8 +155,12 @@ export function createLocation (location: any) {
 export function createUser (user: any) {
   return async (dispatch: Dispatch): Promise<any> => {
     try {
+      console.log(user);
+      
       const result = await client.service('user').create(user);
       dispatch(userCreated(result));
+      console.log(result);
+            
     } catch (error) {
       dispatchAlertError(dispatch, error.message);
     }
@@ -255,3 +261,28 @@ if(!Config.publicRuntimeConfig.offlineMode) {
     store.dispatch(instanceRemovedAction(params.instance));
   });
 }
+
+
+export const fetchUserRole = (data) => {
+  return async(dispatch: Dispatch ): Promise<any> => {
+    const userRole = await client.service("user-role").find(
+      {
+        query: {
+          project_id: {
+            $in: [data]
+          }
+        }
+      });
+     
+    dispatch(userRoleRetrieved(userRole));
+  };
+};
+
+export const createUserRoleAction = (data) => {
+  return async(dispatch: Dispatch ): Promise<any> => {
+    const result = await client.service("user-role").create(data);
+    console.log(result);
+    
+    dispatch(userRoleCreated(result));
+  };
+};

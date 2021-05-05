@@ -7,10 +7,10 @@ export const userRoleSeed = {
   path: 'user-role',
   templates:
     [
-      { role: 'admin' },
-      { role: 'moderator' },
-      { role: 'user' },
-      { role: 'guest' },
-      { role: 'location-admin' }
+      { role: 'admin', project_id: 'fW7968K1' },
+      { role: 'moderator', project_id: 'fW7968K1' },
+      { role: 'user', project_id: 'fW7968K1' },
+      { role: 'guest', project_id: 'fW7968K1' },
+      { role: 'location-admin', project_id: 'fW7968K1' },
     ]
 };
