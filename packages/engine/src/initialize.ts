@@ -129,6 +129,10 @@ export const initializeEngine = async (initOptions): Promise<void> => {
         })
       ]);
 
+      await Promise.all([
+        AnimationManager.instance.retargetBones()
+      ]);
+
       registerSystem(CharacterControllerSystem);
       registerSystem(ServerSpawnSystem, { priority: 899 });
       registerSystem(HighlightSystem);
