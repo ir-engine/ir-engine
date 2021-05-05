@@ -249,7 +249,7 @@ const config = {
     serviceHost: process.env.KUBERNETES_SERVICE_HOST,
     tcpPort: process.env.KUBERNETES_PORT_443_TCP_PORT,
   },
-  noSSL: process.env.NOSSL,
+  noSSL: process.env.NOSSL === 'true',
   localBuild: process.env.LOCAL_BUILD === 'true',
 };
 
