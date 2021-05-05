@@ -45,22 +45,22 @@ const Creators = ({creatorsState, getCreators, popupsState, updateCreatorPageSta
     };   
 
     return <section className={styles.creatorContainer}>
-        {creators?.map((item, itemIndex)=>
-            <Card className={styles.creatorItem} elevation={0} key={itemIndex} onClick={()=>handleCreatorView(item.id)}>                 
-                <CardMedia   
-                    className={styles.previewImage}                  
-                    image={item.avatar || <PersonPinIcon />}
-                    title={item.name}
-                />
-                <CardContent>
-                    <Typography className={styles.titleContainer} gutterBottom variant="h6" component="h2" align="center">{item.name} 
-                        {item.verified === 1 && <VerifiedUserIcon htmlColor="#007AFF" style={{fontSize:'13px', margin: '0 0 0 5px'}}/>}
-                    </Typography>
-                    <p style={{textAlign: "center"}}>@{item.username}</p>
-                </CardContent>
-            </Card>
-        )}
-        </section>;
+    {creators && creators.length > 0 && creators?.map((item, itemIndex)=>
+        <Card className={styles.creatorItem} elevation={0} key={itemIndex} onClick={()=>handleCreatorView(item.id)}>                 
+            {item.avatar ? <CardMedia   
+                className={styles.previewImage}                  
+                image={item.avatar || <PersonPinIcon />}
+                title={item.name}
+            /> : <section className={styles.previewImage} />}
+            <CardContent>
+                <Typography className={styles.titleContainer} gutterBottom variant="h6" component="h2" align="center">{item.name} 
+                    {item.verified === 1 && <VerifiedUserIcon htmlColor="#007AFF" style={{fontSize:'13px', margin: '0 0 0 5px'}}/>}
+                </Typography>
+                <p style={{textAlign: "center"}}>{item.username}</p>
+            </CardContent>
+        </Card>
+    )}
+    </section>;
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(Creators);
