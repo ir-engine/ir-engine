@@ -1,5 +1,5 @@
 import { client } from '@xr3ngine/client-core/src/feathers';
-import store from "@xr3ngine/client-core/src/store";
+import Store from "@xr3ngine/client-core/src/store";
 import { EngineEvents } from "@xr3ngine/engine/src/ecs/classes/EngineEvents";
 import { Network } from "@xr3ngine/engine/src/networking/classes/Network";
 import { MediaStreamSystem } from "@xr3ngine/engine/src/networking/systems/MediaStreamSystem";
@@ -13,6 +13,8 @@ import {
   instanceServerProvisioned,
   instanceServerProvisioning
 } from './actions';
+
+const store = Store.store;
 
 export function provisionInstanceServer(locationId?: string, instanceId?: string, sceneId?: string) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
