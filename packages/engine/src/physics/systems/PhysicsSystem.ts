@@ -116,9 +116,7 @@ export class PhysicsSystem extends System {
       // apply networkInterpolation values
       this.queryResults.networkInterpolation.all?.forEach(entity => {
         const interpolation = getComponent(entity, InterpolationComponent);
-        interpolation.schema.interpolationBehavior(entity, {
-          snapshot: findInterpolationSnapshot(entity, snapshots.interpolation)
-        });
+        interpolation.schema.interpolationBehavior(entity, snapshots);
       })
 
       // If a networked entity does not have an interpolation component, just copy the data

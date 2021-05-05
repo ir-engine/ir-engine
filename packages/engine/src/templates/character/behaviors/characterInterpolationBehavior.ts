@@ -4,37 +4,38 @@ import { getComponent, getMutableComponent } from '../../../ecs/functions/Entity
 import { CharacterComponent } from '../components/CharacterComponent';
 import { ControllerColliderComponent } from '../../../physics/components/ControllerColliderComponent';
 import { TransformComponent } from '../../../transform/components/TransformComponent';
+import { findInterpolationSnapshot } from '../../../physics/behaviors/findInterpolationSnapshot';
 /**
  * @author HydraFire <github.com/HydraFire>
  */
 
-export const characterInterpolationBehavior: Behavior = (entity: Entity, args): void => {
+export const characterInterpolationBehavior: Behavior = (entity: Entity, snapshots): void => {
 
-  if (args.snapshot == null) return;
+  const interpolation = findInterpolationSnapshot(entity, snapshots.interpolation);
+  
   const transform = getComponent<TransformComponent>(entity, TransformComponent);
   
   const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
   const collider = getMutableComponent<ControllerColliderComponent>(entity, ControllerColliderComponent);
+  if (!actor.initialized || !collider.controller) return;
   
-  if (isNaN(args.snapshot.vX)) return;
+  if (isNaN(interpolation.vX)) return;
   actor.animationVelocity.set(
-    args.snapshot.vX,
-    args.snapshot.vY,
-    args.snapshot.vZ
+    interpolation.vX,
+    interpolation.vY,
+    interpolation.vZ
   );
 
-  const currentPosition = collider.controller.transform.translation;
-
-  collider.controller.delta.x += currentPosition.x - args.snapshot.x;
-  collider.controller.delta.y += currentPosition.y - args.snapshot.y;
-  collider.controller.delta.z += currentPosition.z - args.snapshot.z;
+  collider.controller.updateTransform({ 
+    translation: interpolation
+  })
 
   collider.controller.velocity = { x: 0, y: 0, z: 0 };
 
   transform.rotation.set(
-    args.snapshot.qX,
-    args.snapshot.qY,
-    args.snapshot.qZ,
-    args.snapshot.qW
-  )
+    interpolation.qX,
+    interpolation.qY,
+    interpolation.qZ,
+    interpolation.qW
+  );
 };
