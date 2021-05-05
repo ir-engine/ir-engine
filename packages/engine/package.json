@@ -30,7 +30,7 @@
     "validate": "yarn run lint && yarn run test",
     "generate-doc": "node_modules/.bin/typedoc"
   },
-  "version": "0.2.20",
+  "version": "0.2.21",
   "peerDependencies": {
     "@typescript-eslint/eslint-plugin": "^4.6.0",
     "@typescript-eslint/parser": "^4.4.1",
@@ -38,8 +38,8 @@
   },
   "dependencies": {
     "@pixiv/three-vrm": "^0.6.0",
-    "@xr3ngine/common": "^0.2.20",
-    "@xr3ngine/volumetric": "^0.2.20",
+    "@xr3ngine/common": "^0.2.21",
+    "@xr3ngine/volumetric": "^0.2.21",
     "browserfs": "^1.4.3",
     "cross-fetch": "^3.0.6",
     "ctix": "^0.3.1",
