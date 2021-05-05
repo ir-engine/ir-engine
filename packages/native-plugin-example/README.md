@@ -1,5 +1,5 @@
 [![Build Status](https://travis-ci.org/xrengine/xrengine.svg?branch=master)](https://travis-ci.org/xrengine/xrengine)
-# XR3 Client
+# XREngine Client
 ## About
 
 XREngine is an end-to-end solution for hosting humans and non-humans in a virtual space. This project would literally not be possible without the community contributions of Mozilla Hubs, Janus VR, Avaer + Exokit, Mr Doob, Hayden James Lee and many others.

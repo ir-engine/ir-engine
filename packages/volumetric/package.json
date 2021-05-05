@@ -14,7 +14,7 @@
     "check-errors": "tsc --noemit",
     "corto": "babel ./src/libs/cortodecoder.js --out-file corto.js --plugins @babel/plugin-transform-modules-umd"
   },
-  "author": "XR3 Group",
+  "author": "XREngine Group",
   "license": "MIT",
   "type": "module",
   "bugs": {

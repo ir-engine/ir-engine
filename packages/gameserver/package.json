@@ -1,6 +1,6 @@
 {
   "name": "@xrengine/gameserver",
-  "description": "Multiplayer Gameserver for XR3ngine",
+  "description": "Multiplayer Gameserver for XREngine",
   "version": "0.2.21",
   "private": true,
   "homepage": "",
@@ -18,7 +18,7 @@
     "vr"
   ],
   "author": {
-    "name": "XR3 Collective",
+    "name": "XREngine Collective",
     "email": "shawmakesmagic@gmail.com"
   },
   "contributors": [],

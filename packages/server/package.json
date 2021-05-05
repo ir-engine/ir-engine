@@ -1,6 +1,6 @@
 {
   "name": "@xrengine/server",
-  "description": "API Server for XR3ngine",
+  "description": "API Server for XREngine",
   "version": "0.2.21",
   "private": true,
   "homepage": "",
@@ -17,7 +17,7 @@
     "vr"
   ],
   "author": {
-    "name": "XR3 Collective",
+    "name": "XREngine Collective",
     "email": "shawmakesmagic@gmail.com"
   },
   "contributors": [],

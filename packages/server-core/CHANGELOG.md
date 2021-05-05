@@ -3,20 +3,20 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
-## [0.2.21](https://github.com/barankyle/xr3ngine/compare/v0.2.20...v0.2.21) (2021-05-05)
+## [0.2.21](https://github.com/barankyle/xrengine/compare/v0.2.20...v0.2.21) (2021-05-05)
 
-**Note:** Version bump only for package @xr3ngine/server-core
-
-
+**Note:** Version bump only for package @xrengine/server-core
 
 
 
-## [0.2.20](https://github.com/barankyle/xr3ngine/compare/v0.2.18...v0.2.20) (2021-05-04)
+
+
+## [0.2.20](https://github.com/barankyle/xrengine/compare/v0.2.18...v0.2.20) (2021-05-04)
 
 
 ### Bug Fixes
 
-* **deps:** update dependency @feathersjs/hooks to v0.6.4 ([df63c37](https://github.com/barankyle/xr3ngine/commit/df63c37dcf4eb61a8e9ed4bdcfa2053d60164d8b))
+* **deps:** update dependency @feathersjs/hooks to v0.6.4 ([df63c37](https://github.com/barankyle/xrengine/commit/df63c37dcf4eb61a8e9ed4bdcfa2053d60164d8b))
 
 
 

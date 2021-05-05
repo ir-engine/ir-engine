@@ -22,7 +22,7 @@
     "watch": "tsc --watch",
     "prepublishOnly": "yarn run build"
   },
-  "author": "XR3 Group",
+  "author": "XREngine Group",
   "license": "MIT",
   "devDependencies": {
     "@capacitor/core": "2.4.7",
