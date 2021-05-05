@@ -16,13 +16,14 @@ import {
   updateCreatorNotFollowed,
   creatorFollowers,
   creatorFollowing,
-  fetchingCreators
+  fetchingCreators,
+  fetchingCurrentCreator
 } from './actions';
 
 export function createCreator(){
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
     try {
-      dispatch(fetchingCreator());
+      dispatch(fetchingCurrentCreator());
       const creator = await client.service('creator').create({});   
       dispatch(creatorLoggedRetrieved(creator));     
     } catch(err) {
@@ -31,6 +32,20 @@ export function createCreator(){
     }
   };
 }
+
+export function getLoggedCreator() {
+  return async (dispatch: Dispatch): Promise<any> => {
+    try {
+      dispatch(fetchingCurrentCreator());
+      const creator = await client.service('creator').find({query:{action: 'current'}});      
+      dispatch(creatorLoggedRetrieved(creator));
+    } catch(err) {
+      console.log(err);
+      dispatchAlertError(dispatch, err.message);
+    }
+  };
+}
+
 export function getCreators(limit?: number) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
     try {
@@ -44,18 +59,6 @@ export function getCreators(limit?: number) {
   };
 }
 
-export function getLoggedCreator() {
-  return async (dispatch: Dispatch): Promise<any> => {
-    try {
-      dispatch(fetchingCreator());
-      const creator = await client.service('creator').find({query:{action: 'current'}});      
-      dispatch(creatorLoggedRetrieved(creator));
-    } catch(err) {
-      console.log(err);
-      dispatchAlertError(dispatch, err.message);
-    }
-  };
-}
 
 export function getCreator(creatorId) {
   return async (dispatch: Dispatch): Promise<any> => {
@@ -73,15 +76,18 @@ export function getCreator(creatorId) {
 export function updateCreator(creator: Creator){
   return async (dispatch: Dispatch): Promise<any> => {
     try {
-      dispatch(fetchingCreator());
+      console.log('fetchingCurrentCreator');
+      dispatch(fetchingCurrentCreator());
       if(creator.newAvatar){
         const api = new  Api();
-        const storedAvatar = await api.upload(creator.avatar, null);
-        //@ts-ignore error that this vars are void bacause upload is defines as voin funtion
+        const storedAvatar = await api.upload(creator.newAvatar, null);
+        //@ts-ignore error that this vars are void because upload is defines as void funtion
         creator.avatarId = storedAvatar.file_id;
         delete creator.newAvatar;
       }      
       const updatedCreator = await client.service('creator').patch(creator.id, creator);   
+      console.log('fetchingCurrentCreator', updatedCreator);
+
       dispatch(creatorLoggedRetrieved(updatedCreator));
     } catch(err) {
       console.log(err);
@@ -90,6 +96,8 @@ export function updateCreator(creator: Creator){
   };
 }
 
+
+//---------------------------NOT used for now
 export function getCreatorNotificationList() {
   return async (dispatch: Dispatch): Promise<any> => {
     try {
