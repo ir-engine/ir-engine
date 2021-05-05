@@ -1,9 +1,9 @@
-import { MessageTypes } from "@xr3ngine/engine/src/networking/enums/MessageTypes";
-import { handleNetworkStateUpdate } from "@xr3ngine/engine/src/networking/functions/updateNetworkState";
-import { NetworkTransport } from "@xr3ngine/engine/src/networking/interfaces/NetworkTransport";
-import config from '@xr3ngine/server-core/src/appconfig';
-import { localConfig } from '@xr3ngine/server-core/src/config';
-import logger from '@xr3ngine/server-core/src/logger';
+import { MessageTypes } from "@xrengine/engine/src/networking/enums/MessageTypes";
+import { handleNetworkStateUpdate } from "@xrengine/engine/src/networking/functions/updateNetworkState";
+import { NetworkTransport } from "@xrengine/engine/src/networking/interfaces/NetworkTransport";
+import config from '@xrengine/server-core/src/appconfig';
+import { localConfig } from '@xrengine/server-core/src/config';
+import logger from '@xrengine/server-core/src/logger';
 import {
     cleanupOldGameservers,
     getFreeSubdomain,
@@ -14,9 +14,9 @@ import {
     handleJoinWorld,
     handleLeaveWorld,
     validateNetworkObjects
-} from "@xr3ngine/gameserver/src/NetworkFunctions";
-import { WebRtcTransportParams } from "@xr3ngine/server-core/src/types/WebRtcTransportParams";
-import getLocalServerIp from '@xr3ngine/server-core/src/util/get-local-server-ip';
+} from "@xrengine/gameserver/src/NetworkFunctions";
+import { WebRtcTransportParams } from "@xrengine/server-core/src/types/WebRtcTransportParams";
+import getLocalServerIp from '@xrengine/server-core/src/util/get-local-server-ip';
 import AWS from 'aws-sdk';
 import * as https from "https";
 import { DataProducer, Router, Transport, Worker } from "mediasoup/lib/types";
@@ -95,12 +95,12 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
         // Set up our gameserver according to our current environment
         const localIp = await getLocalServerIp();
         let stringSubdomainNumber, gsResult;
-        if (process.env.KUBERNETES !== 'true') try {
+        if (!config.kubernetes.enabled) try {
             await this.app.service('instance').Model.destroy({where: {}});
         } catch (error) {
             logger.warn(error);
         }
-        else if (process.env.KUBERNETES === 'true') {
+        else if (config.kubernetes.enabled) {
             await cleanupOldGameservers();
             this.gameServer = await (this.app as any).agonesSDK.getGameServer();
             const name = this.gameServer.objectMeta.name;
@@ -132,7 +132,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
 
         localConfig.mediasoup.webRtcTransport.listenIps = [{
             ip: '0.0.0.0',
-            announcedIp: process.env.KUBERNETES === 'true' ?
+            announcedIp: config.kubernetes.enabled ?
                 (config.gameserver.local === true ? gsResult.status.address :
                     `${stringSubdomainNumber}.${config.gameserver.domain}`) : localIp.ipAddress
         }];

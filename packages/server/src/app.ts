@@ -1,7 +1,7 @@
 import express from '@feathersjs/express';
 import feathers from '@feathersjs/feathers';
 import socketio from '@feathersjs/socketio';
-import authentication from '@xr3ngine/server-core/src/user/authentication';
+import authentication from '@xrengine/server-core/src/user/authentication';
 import channels from './channels';
 import compress from 'compression';
 import cors from 'cors';
@@ -11,15 +11,15 @@ import swagger from 'feathers-swagger';
 import sync from 'feathers-sync';
 import fs from 'fs';
 import helmet from 'helmet';
-import { api } from '@xr3ngine/server-core/src/k8s';
+import { api } from '@xrengine/server-core/src/k8s';
 import path from 'path';
 import favicon from 'serve-favicon';
 import winston from 'winston';
-import config from '@xr3ngine/server-core/src/appconfig';
-import { Application } from '@xr3ngine/server-core/declarations';
-import logger from '@xr3ngine/server-core/src/logger';
-import sequelize from '@xr3ngine/server-core/src/sequelize';
-import services from '@xr3ngine/server-core/src/services';
+import config from '@xrengine/server-core/src/appconfig';
+import { Application } from '@xrengine/server-core/declarations';
+import logger from '@xrengine/server-core/src/logger';
+import sequelize from '@xrengine/server-core/src/sequelize';
+import services from '@xrengine/server-core/src/services';
 
 const emitter = new EventEmitter();
 
@@ -37,8 +37,8 @@ if (config.server.enabled) {
           // TODO: Relate to server config, don't hardcode this here
           specs: {
             info: {
-              title: 'XR3ngine API Surface',
-              description: 'APIs for the XR3ngine application',
+              title: 'XREngine API Surface',
+              description: 'APIs for the XREngine application',
               version: '1.0.0'
             },
             schemes:['https'],
@@ -119,7 +119,7 @@ if (config.server.enabled) {
 
     if (config.server.mode === 'api' || config.server.mode === 'realtime') {
       (app as any).k8AgonesClient = api({
-        endpoint: `https://${process.env.KUBERNETES_SERVICE_HOST}:${process.env.KUBERNETES_PORT_443_TCP_PORT}`,
+        endpoint: `https://${config.kubernetes.serviceHost}:${config.kubernetes.tcpPort}`,
         version: '/apis/agones.dev/v1',
         auth: {
           caCert: fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/ca.crt'),
@@ -127,7 +127,7 @@ if (config.server.enabled) {
         }
       });
       (app as any).k8DefaultClient = api({
-        endpoint: `https://${process.env.KUBERNETES_SERVICE_HOST}:${process.env.KUBERNETES_PORT_443_TCP_PORT}`,
+        endpoint: `https://${config.kubernetes.serviceHost}:${config.kubernetes.tcpPort}`,
         version: '/api/v1',
         auth: {
           caCert: fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/ca.crt'),

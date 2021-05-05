@@ -14,16 +14,16 @@ import {
     VolumeOff,
     VolumeUp
 } from '@material-ui/icons';
-import { selectAppState } from '@xr3ngine/client-core/src/common/reducers/app/selector';
-import { selectLocationState } from '@xr3ngine/client-core/src/social/reducers/location/selector';
-import { getAvatarURLFromNetwork } from '@xr3ngine/client-core/src/user/components/UserMenu/util';
-import { selectAuthState } from '@xr3ngine/client-core/src/user/reducers/auth/selector';
-import { selectUserState } from '@xr3ngine/client-core/src/user/reducers/user/selector';
+import { selectAppState } from '@xrengine/client-core/src/common/reducers/app/selector';
+import { selectLocationState } from '@xrengine/client-core/src/social/reducers/location/selector';
+import { getAvatarURLFromNetwork } from '@xrengine/client-core/src/user/components/UserMenu/util';
+import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector';
+import { selectUserState } from '@xrengine/client-core/src/user/reducers/user/selector';
 import { updateCamAudioState, updateCamVideoState } from '../../reducers/mediastream/service';
-import { PositionalAudioSystem } from "@xr3ngine/engine/src/audio/systems/PositionalAudioSystem";
-import { Network } from "@xr3ngine/engine/src/networking/classes/Network";
-import { MessageTypes } from "@xr3ngine/engine/src/networking/enums/MessageTypes";
-import { MediaStreamSystem } from '@xr3ngine/engine/src/networking/systems/MediaStreamSystem';
+import { PositionalAudioSystem } from "@xrengine/engine/src/audio/systems/PositionalAudioSystem";
+import { Network } from "@xrengine/engine/src/networking/classes/Network";
+import { MessageTypes } from "@xrengine/engine/src/networking/enums/MessageTypes";
+import { MediaStreamSystem } from '@xrengine/engine/src/networking/systems/MediaStreamSystem';
 import classNames from 'classnames';
 import React, { useEffect, useRef, useState } from 'react';
 import { connect } from "react-redux";

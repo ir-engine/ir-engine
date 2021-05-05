@@ -17,7 +17,7 @@ import TelegramIcon from '@material-ui/icons/Telegram';
 // import BookmarkIcon from '@material-ui/icons/Bookmark';
 import VisibilityIcon from '@material-ui/icons/Visibility';
 
-import { Feed } from '@xr3ngine/common/src/interfaces/Feed';
+import { Feed } from '@xrengine/common/src/interfaces/Feed';
 import CreatorAsTitle from '../CreatorAsTitle';
 // @ts-ignore
 import styles from './FeedCard.module.scss';
@@ -27,7 +27,7 @@ import { addViewToFeed } from '../../reducers/feed/service';
 import { selectFeedFiresState } from '../../reducers/feedFires/selector';
 import { getFeedFires, addFireToFeed, removeFireToFeed } from '../../reducers/feedFires/service';
 import PopupLogin from '../PopupLogin/PopupLogin';
-// import { IndexPage } from '@xr3ngine/social/pages/login';
+// import { IndexPage } from '@xrengine/social/pages/login';
 import { selectAuthState } from '../../../user/reducers/auth/selector';
 import Featured from '../Featured';
 

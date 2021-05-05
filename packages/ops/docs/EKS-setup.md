@@ -1,7 +1,7 @@
-# Setting up XR3ngine on AWS
+# Setting up XREngine on AWS
 
 ## Create EKS cluster
-You first need to set up an EKS cluster for XR3ngine to run on.
+You first need to set up an EKS cluster for XREngine to run on.
 While this can be done via AWS' web interface, the ```eksctl``` CLI 
 will automatically provision more of the services you need automatically,
 and is thus recommended.
@@ -25,7 +25,7 @@ As of this writing, the API and client are configured to run on a nodegroup name
 If you name it something else, be sure to change the NodeAffinity in the configuration file.
 
 Make sure to increase the maximum node limit, as by default target, minimum, and maximum are
-set to 2, and XR3ngine's setup will definitely need more than two nodes if you've configured
+set to 2, and XREngine's setup will definitely need more than two nodes if you've configured
 them to use relatively small instance types such as t3a.medium.
 
 ### Create nodegroup for gameservers
@@ -37,7 +37,7 @@ resources with the other server types, and you can specify more powerful instanc
 if needed.
 
 #### Create launch template
-Go EC2 -> Launch Templates and make a new one. Name it something like 'xr3ngine-production-gameserver'.
+Go EC2 -> Launch Templates and make a new one. Name it something like 'xrengine-production-gameserver'.
 Most settings can be left as-is, except for the following:
 * Storage -> Add a volume, set the size to ~80GB, and for Device name select '/dev/xvda'.
 * Network Interfaces -> Add one, and under 'Auto-assing public IP' select 'Enable'
@@ -89,7 +89,7 @@ various subdomains to the right place.
 
 ### Create Route 53 Hosted Zone
 In the AWS web client, go to Route 53. Make a hosted zone for the domain you plan to use for
-your setup of XR3ngine. You'll be coming back here later to create DNS records.
+your setup of XREngine. You'll be coming back here later to create DNS records.
 
 ### Create certificates with ACM
 
@@ -97,8 +97,8 @@ Go to Amazon Certificate Manager. If there are no certs in that region, click on
 otherwise click on Request a Certificate.
 
 You should select Request a Public Certificate, then select Request a Certificate. The next page
-should be headed Add Domain Names. You should add both the top-level domain, such as ```xr3ngine.io```, 
-as well as a wildcard for all subdomains e.g. ```*.xr3ngine.io```, then click Next.
+should be headed Add Domain Names. You should add both the top-level domain, such as ```xrengine.io```, 
+as well as a wildcard for all subdomains e.g. ```*.xrengine.io```, then click Next.
 
 Choose DNS Validation on the next page and click Next. You can skip adding tags and just click Review,
 then Confirm on the final page.
@@ -129,7 +129,7 @@ If that isn't present, you'll have to edit the configuration to make the appropr
 
 You next need to add the Agones, ingress-nginx, and redis Helm charts to helm by running 
 ```helm repo add agones https://agones.dev/chart/stable```, ```helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx```, and ```helm repo add redis https://charts.bitnami.com/bitnami```.
-You should also at this time add XR3ngine's repo via ```helm repo add xr3ngine https://helm.xrengine.io```.
+You should also at this time add XREngine's repo via ```helm repo add xrengine https://helm.xrengine.io```.
 
 If you ever suspect that a chart is out-of-date, run ```helm repo update``` to update all of them to the latest.
 
@@ -154,9 +154,9 @@ a file found at /packages/ops/configs/nginx-ingress-aws-values.yml.
 
 ### Install redis for each deployment
 
-Each deployment of XR3ngine uses a redis cluster for coordinating the 'feathers-sync' library.
+Each deployment of XREngine uses a redis cluster for coordinating the 'feathers-sync' library.
 Each redis deployment needs to be named the same as the deployment that will use it; for an
-XR3ngine deployment named 'dev', the corresponding redis deployment would need to be named
+XREngine deployment named 'dev', the corresponding redis deployment would need to be named
 'dev-redis'.
 
 Run ```helm install  -f packages/ops/configs/redix-values.yaml <deployment_name>-redis redis/redis``` to install, e.g. 
@@ -166,10 +166,10 @@ packages/ops/configs/redis-values.yaml in two places to your redis nodegroup nam
 If you didn't create a nodegroup just for redis, you musut omit the ` -f packages/ops/configs/redix-values.yaml `,
 as that config makes redis pods run on a specific nodegroup. 
 
-#### Installing redis as part of XR3ngine chart (not recommended for production) 
-redis can be installed as part of the XR3ngine chart so long as the config file for the XR3ngine installation has 'redis.enabled' set to true.
+#### Installing redis as part of XREngine chart (not recommended for production) 
+redis can be installed as part of the XREngine chart so long as the config file for the XREngine installation has 'redis.enabled' set to true.
 In that case, you should skip the above step of installing redis separately. This is not recommended for production
-environments, though, since upgrades to an XR3ngine installation will usually reboot the redis servers,
+environments, though, since upgrades to an XREngine installation will usually reboot the redis servers,
 leading all of the gameservers to crash due to their redis connections being severed. 
 
 This breaks Agones' normal behavior of keeping Allocated gameservers running until every user has left and slowly replacing
@@ -210,7 +210,7 @@ On the modal that pops up, there should be a button to create all the records in
 click it. Then click Close.
 
 ## Set up Simple Notification service
-SNS is used to send text messages from the XR3ngine platform.
+SNS is used to send text messages from the XREngine platform.
 
 In the AWS web client, go to SNS -> Topics and Create a new topic.
 Give it a name, and selected 'Standard' as the type, then click Create Topic.
@@ -221,7 +221,7 @@ Various static files are stored in S3 behind a Cloudfront distribution.
 
 ### Create S3 bucket
 In the AWS web client, go to S3 -> Buckets and click Create Bucket.
-Name the bucket <name>-static-resources, e.g. ```xr3ngine-static-resources```.
+Name the bucket <name>-static-resources, e.g. ```xrengine-static-resources```.
 You don't need it to be in the same region as your cluster, but it helps.
 Uncheck the checkbox Block *all* Public Access; you need the bucket to be publicly accessible.
 Check the box that pops up confirming that you know the contents are public.
@@ -257,7 +257,7 @@ Cache and origin request settings should be left on 'Use a cache policy and orig
 For Origin Request Policy, select 'Managed-CORS-S3Origin'
 
 Under Distribution Settings, you can change Price Class to 'Use Only U.S. Canada and Europe' to save some money.
-For Alternate Domain Names, enter 'resources.<domain>', e.g. ```resources.xr3ngine.io```.
+For Alternate Domain Names, enter 'resources.<domain>', e.g. ```resources.xrengine.io```.
 For SSL Certificate, select Custom SSL Certificate, then when you click on the box, choose
 the 'resources.<domain>' certificate you made earlier.
 
@@ -271,7 +271,7 @@ Click on Create Record. If it starts you under Quick Create Record, click the li
 
 Under Routing Policy, leave it on Simple Routing and click Next. Then click Define Simple Record.
 
-The first record should be for the top-level domain, e.g. ```xr3ngine.io```, so leave the Record Name
+The first record should be for the top-level domain, e.g. ```xrengine.io```, so leave the Record Name
 text field blank. Under Value/Route Traffic To, click on the dropdown and select
 Alias to Application and Classic Load Balancer. Select the region that your cluster is in.
 Where it says Choose Load Balancer, click the dropdown, and select the Application loadbalancer.
@@ -281,28 +281,28 @@ Define Simple Record.
 You can keep clicking Define Simple Record to make more records in one batch. When you're
 done, click Create Records.
 
-You should make the following 'A' records to the loadbalancer, substituting your domain for 'xr3ngine.io':
+You should make the following 'A' records to the loadbalancer, substituting your domain for 'xrengine.io':
 
-* xr3ngine.io
-* *.xr3ngine.io
-* @.xr3ngine.io
-* api-dev.xr3ngine.io
-* api.xr3ngine.io
-* dev.xr3ngine.io
+* xrengine.io
+* *.xrengine.io
+* @.xrengine.io
+* api-dev.xrengine.io
+* api.xrengine.io
+* dev.xrengine.io
 
-You also need to make an 'A' record pointing 'resources.xr3ngine.io' to the CloudFront distribution you made earlier.
+You also need to make an 'A' record pointing 'resources.xrengine.io' to the CloudFront distribution you made earlier.
 
 ## Deploy to EKS using Helm
 
 With all of the networking set up, you can finally deploy the codebase to EKS.
 You should have a .yaml file with various configuration variables specified for your deployment.
 The Helm chart will pull a Docker image from the lagunalabs/xrengine Docker Hub account.
-There's a CI/CD pipeline attached to the XR3ngine GitHub account that builds every
+There's a CI/CD pipeline attached to the XREngine GitHub account that builds every
 time the dev and master branches are updated, and tags each build with the GitHub SHA
 of the latest commit. You'll have to provide this SHA as part of the configuration, most
 easily as one-off settings as demonstrated below.
 
-Run ```helm install -f </path/to/config.yaml> --set api.image.tag=<latest_github_commit_SHA>,client.image.tag=<latest_github_commit_SHA>,gameserver.image.tag=<latest_github_commit_SHA> <stage_name> xr3ngine/xr3ngine```
+Run ```helm install -f </path/to/config.yaml> --set api.image.tag=<latest_github_commit_SHA>,client.image.tag=<latest_github_commit_SHA>,gameserver.image.tag=<latest_github_commit_SHA> <stage_name> xrengine/xrengine```
 
 After a minute or so, all of the pods should be up and running, and you should be able to
 go to the root domain you have this deployment running on and see something.

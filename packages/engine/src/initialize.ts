@@ -63,7 +63,7 @@ export const initializeEngine = async (initOptions): Promise<void> => {
   Engine.offlineMode = useOfflineMode;
 
   Engine.xrSupported = await (navigator as any).xr?.isSessionSupported('immersive-vr')
-  
+
   // TODO: pipe network & entity data to main thread
   // const useOffscreen = useCanvas && !Engine.xrSupported && 'transferControlToOffscreen' in canvas;
   const useOffscreen = false;

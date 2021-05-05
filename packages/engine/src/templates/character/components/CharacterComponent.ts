@@ -12,7 +12,7 @@ import { CollisionGroups } from '../../../physics/enums/CollisionGroups';
 // 0   | > WALK_START_SPEED  | > WALK_SPEED | > RUN_START_SPEED | > RUN_SPEED
 export const WALK_SPEED = 0.5;
 export const RUN_SPEED = 1;
-
+export const MULT_SPEED = 3; // its value multiplier character speed 
 export class CharacterComponent extends Component<CharacterComponent> {
 
 	dispose(): void {
@@ -30,7 +30,7 @@ export class CharacterComponent extends Component<CharacterComponent> {
 	public currentAnimationLength = 0;
 	public timer = 0;
 	public animationsTimeScale = .5;
-  public avatarId:string;
+  public avatarId: string;
   public avatarURL: string;
 	public height = 0;
 	public tiltContainer: Group;
@@ -38,7 +38,7 @@ export class CharacterComponent extends Component<CharacterComponent> {
 	public materials: Material[] = [];
   public visible = true;
 	public mixer: AnimationMixer;
-	public animations: any[]  = [];
+	public animations: any[] = [];
 
   // TODO: Remove integrate this
   public physicsEnabled = true
@@ -78,17 +78,19 @@ export class CharacterComponent extends Component<CharacterComponent> {
 
 	// Actor collision Capsule
 	public actorMass = 1;
-	public actorHeight = 1;
+	public actorHeight = 1.2;
 	public capsuleRadius = 0.25;
-	public capsuleSegments = 8;
+	public contactOffset = 0.01;
+	public capsuleSegments = 16;
 	public capsuleFriction = 0.1;
-	public capsulePosition: Transform;
+	public capsulePosition: Vector3 = new Vector3(0, 0, 0);
 	// Ray casting
 	public raycastQuery: SceneQuery;
 	public isGrounded = false;
-	public rayCastLength = 0.85; // depends on the height of the actor
-	public raySafeOffset = 0.03;
-	public initJumpSpeed = -1;
+	public closestHit = null;
+	public rayCastLength = 0.85;
+	//public raySafeOffset = 0.03;
+	//public initJumpSpeed = -1;
 	public playerInPortal = 0;
 	public animationVelocity: Vector3 = new Vector3();
 	public groundImpactVelocity: Vector3 = new Vector3();

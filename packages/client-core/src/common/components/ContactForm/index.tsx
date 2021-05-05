@@ -37,10 +37,10 @@ export class ContactForm extends Component {
             process.env.EMAILJS_USER_ID
         ).then(
             result => {
-                alert((this.props as any).t('xr3engineContact.lbl-success') + result.text);
+                alert((this.props as any).t('xrengineContact.lbl-success') + result.text);
             },
             error => {
-                alert((this.props as any).t('xr3engineContact.lbl-failure') + error.text);
+                alert((this.props as any).t('xrengineContact.lbl-failure') + error.text);
             }
         );
 
@@ -64,25 +64,25 @@ export class ContactForm extends Component {
         const t = (this.props as any).t;
         return (
             <div className={styles.emailDiv}>
-                <p className={styles.emailTitle}>{t('xr3engineContact.header')}</p>
+                <p className={styles.emailTitle}>{t('xrengineContact.header')}</p>
                 <p className={styles.emailDetail}>
-                    {t('xr3engineContact.description')}
+                    {t('xrengineContact.description')}
                 </p>
                 <div className="row">
-                    <input type="text" className={styles.emailInput} value={this.state.userName} name="userName" onChange={this.handleChange} placeholder={t('xr3engineContact.lbl-name')} />
+                    <input type="text" className={styles.emailInput} value={this.state.userName} name="userName" onChange={this.handleChange} placeholder={t('xrengineContact.lbl-name')} />
                 </div>
                 <div className="row mt-4">
-                    <input type="text" className={styles.emailInput} value={this.state.emailAddress} name="emailAddress" onChange={this.handleChange} placeholder={t('xr3engineContact.lbl-email')} />
+                    <input type="text" className={styles.emailInput} value={this.state.emailAddress} name="emailAddress" onChange={this.handleChange} placeholder={t('xrengineContact.lbl-email')} />
                 </div>
                 <div className="row mt-4">
-                    <input type="text" className={styles.emailInput} value={this.state.companyName} name="companyName" onChange={this.handleChange} placeholder={t('xr3engineContact.lbl-company')} />
+                    <input type="text" className={styles.emailInput} value={this.state.companyName} name="companyName" onChange={this.handleChange} placeholder={t('xrengineContact.lbl-company')} />
                 </div>
                 <div className="row mt-4">
-                    <textarea className={styles.emailInput} placeholder={t('xr3engineContact.lbl-project')}
+                    <textarea className={styles.emailInput} placeholder={t('xrengineContact.lbl-project')}
                         value={this.state.message} name="message" onChange={this.handleChange} />
                 </div>
                 <div className="row mt-3">
-                    <button className="button email-button" type="button" onClick={this.handleSubmit}>{t('xr3engineContact.lbl-send')}</button>
+                    <button className="button email-button" type="button" onClick={this.handleSubmit}>{t('xrengineContact.lbl-send')}</button>
                 </div>
             </div>
         );

@@ -1,11 +1,11 @@
 import config from '../../appconfig';
 
 const getAvatarURL = (avatarName) => {
-  if (process.env.STORAGE_S3_DEV_MODE === 'local' || !config) {
+  if (config.aws.s3.s3DevMode === 'local' || !config) {
     if (avatarName.includes('.glb')) return '/models/avatars/' + avatarName;
     else return '/static/' + avatarName;
   } else {
-    return 'https://s3.amazonaws.com/' + config.aws.s3.staticResourceBucket + '/' + process.env.STORAGE_S3_AVATAR_DIRECTORY + '/' + avatarName;
+    return 'https://s3.amazonaws.com/' + config.aws.s3.staticResourceBucket + '/' + config.aws.s3.avatarDir + '/' + avatarName;
   }
 };
 

@@ -1,5 +1,5 @@
 //import * as initializeNetworkObjectModule from "../../src/networking/functions/initializeNetworkObject";
-import { initializeNetworkObject } from '@xr3ngine/engine/src/networking/functions/initializeNetworkObject';
+import { initializeNetworkObject } from '@xrengine/engine/src/networking/functions/initializeNetworkObject';
 import { NetworkTransport } from "../../src/networking/interfaces/NetworkTransport";
 import { NetworkSchema } from "../../src/networking/interfaces/NetworkSchema";
 import { DefaultNetworkSchema } from "../../src/templates/networking/DefaultNetworkSchema";
@@ -18,7 +18,7 @@ import { SystemUpdateType } from "../../src/ecs/functions/SystemUpdateType";
 import { getMutableComponent, hasComponent, removeEntity } from "../../src/ecs/functions/EntityFunctions";
 import { CharacterComponent } from "../../src/templates/character/components/CharacterComponent";
 import { ServerNetworkIncomingSystem } from "../../src/networking/systems/ServerNetworkIncomingSystem";
-import { BaseInput } from '@xr3ngine/engine/src/input/enums/BaseInput';
+import { BaseInput } from '@xrengine/engine/src/input/enums/BaseInput';
 import { LifecycleValue } from "../../src/common/enums/LifecycleValue";
 import { BinaryValue } from "../../src/common/enums/BinaryValue";
 import { Entity } from "../../src/ecs/classes/Entity";

@@ -8,6 +8,8 @@ import { Network } from '../classes/Network';
 import { NetworkObject } from '../components/NetworkObject';
 import { NetworkSchema } from "../interfaces/NetworkSchema";
 import { WorldStateModel } from '../schema/worldStateSchema';
+import { ControllerColliderComponent } from '../../physics/components/ControllerColliderComponent';
+import { CharacterComponent } from '../../templates/character/components/CharacterComponent';
 
 /** System class to handle outgoing messages. */
 export class ServerNetworkOutgoingSystem extends System {
@@ -28,20 +30,19 @@ export class ServerNetworkOutgoingSystem extends System {
     // Transforms that are updated are automatically collected
     // note: onChanged needs to currently be handled outside of fixedExecute
     this.queryResults.networkTransforms.all?.forEach((entity: Entity) => {
+
       const transformComponent = getComponent(entity, TransformComponent);
       const networkObject = getComponent(entity, NetworkObject);
+      const currentPosition = getComponent(entity, CharacterComponent)?.actorCapsule.controller.transform.translation ?? transformComponent.position;
+      const snapShotTime = networkObject.snapShotTime ?? 0;
 
-      let snapShotTime = 0
-      if (networkObject.snapShotTime != undefined) {
-        snapShotTime = networkObject.snapShotTime;
-      }
 
       Network.instance.worldState.transforms.push({
         networkId: networkObject.networkId,
         snapShotTime: snapShotTime,
-        x: transformComponent.position.x,
-        y: transformComponent.position.y,
-        z: transformComponent.position.z,
+        x: currentPosition.x,
+        y: currentPosition.y,
+        z: currentPosition.z,
         qX: transformComponent.rotation.x,
         qY: transformComponent.rotation.y,
         qZ: transformComponent.rotation.z,

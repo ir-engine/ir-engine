@@ -1,11 +1,11 @@
 import React, { Component, createRef } from "react";
 import PropTypes from "prop-types";
 import Portal from "../layout/Portal";
-import { getStepSize, toPrecision } from "@xr3ngine/engine/src/editor/functions/utils";
+import { getStepSize, toPrecision } from "@xrengine/engine/src/editor/functions/utils";
 import styled from "styled-components";
 import { ArrowsAltH } from "@styled-icons/fa-solid/ArrowsAltH";
 import Overlay from "../layout/Overlay";
-import { clamp } from "@xr3ngine/engine/src/common/functions/MathLerpFunctions";
+import { clamp } from "@xrengine/engine/src/common/functions/MathLerpFunctions";
 
 /**
  * 

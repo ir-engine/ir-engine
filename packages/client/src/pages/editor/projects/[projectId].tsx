@@ -6,15 +6,15 @@
 import React, { lazy, Suspense, useEffect, useState } from "react";
 
 // importing component EditorContainer.
-const EditorContainer = lazy(() => import("@xr3ngine/client-core/src/world/components/editor/EditorContainer"));
+const EditorContainer = lazy(() => import("@xrengine/client-core/src/world/components/editor/EditorContainer"));
 
 import { connect } from 'react-redux';
-import { selectAuthState } from "@xr3ngine/client-core/src/user/reducers/auth/selector";
+import { selectAuthState } from "@xrengine/client-core/src/user/reducers/auth/selector";
 import { bindActionCreators, Dispatch } from "redux";
-import { doLoginAuto } from "@xr3ngine/client-core/src/user/reducers/auth/service";
-import { initializeEditor } from "@xr3ngine/engine/src/initialize";
-import { Engine } from "@xr3ngine/engine/src/ecs/classes/Engine";
-import { GamesSchema } from "@xr3ngine/engine/src/templates/game/GamesSchema";
+import { doLoginAuto } from "@xrengine/client-core/src/user/reducers/auth/service";
+import { initializeEditor } from "@xrengine/engine/src/initialize";
+import { Engine } from "@xrengine/engine/src/ecs/classes/Engine";
+import { GamesSchema } from "@xrengine/engine/src/templates/game/GamesSchema";
 /**
  * Declairing Props interface having two props.
  *@authState can be of any type.

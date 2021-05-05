@@ -1,7 +1,7 @@
 ============================================================================
 ============================================================================
 
-The XR3ngine ECS engine is derived from ECSY
+The XREngine ECS engine is derived from ECSY
 https://github.com/ecsyjs/ecsy
 
 The original license is provided here as is.

@@ -22,8 +22,6 @@ COPY packages/gameserver/package.json ./packages/gameserver/
 COPY packages/server/package.json ./packages/server/
 COPY packages/server-core/package.json ./packages/server-core/
 COPY packages/social/package.json ./packages/social/
-COPY packages/native-plugin-xr/package.json ./packages/native-plugin-xr/
-COPY packages/volumetric/package.json ./packages/volumetric/
 COPY packages/bot/package.json ./packages/bot/
 
 #RUN  npm ci --verbose  # we should make lockfile or shrinkwrap then use npm ci for predicatble builds
@@ -32,9 +30,6 @@ RUN yarn install --production=false
 COPY . .
 
 # copy then compile the code
-
-#RUN /bin/bash -c 'source ./scripts/write_env_stub.sh'
-#ENV NEXT_PUBLIC_API_SERVER=http://127.0.0.1:3333
 
 RUN yarn run build-docker
 

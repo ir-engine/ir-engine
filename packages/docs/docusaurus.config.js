@@ -5,7 +5,7 @@
  * @author Abhinav Shah
  */
 module.exports = {
-  title: 'xr3ngine',
+  title: 'xrengine',
   tagline:
     'An end-to-end solution for hosting humans and AI in a virtual space, built on top of react, three.js and express/feathers.',
   url: 'https://xrfoundation.github.io',
@@ -13,7 +13,7 @@ module.exports = {
   onBrokenLinks: 'warn',
   onBrokenMarkdownLinks: 'warn',
   favicon:
-    'https://github.com/xrfoundation/xr3ngine/raw/dev/xrengine%20black.png',
+    'https://github.com/xrfoundation/xrengine/raw/dev/xrengine%20black.png',
   organizationName: 'XRFoundation', // Usually your GitHub org/user name.
   projectName: 'xrengine-docs', // Usually your repo name.
   plugins: [
@@ -133,11 +133,10 @@ module.exports = {
   ],
   themeConfig: {
     navbar: {
-      // title: 'xr3ngine',
+      // title: 'xrengine',
       logo: {
         alt: 'Logo',
-        src:
-          'https://github.com/xrfoundation/xr3ngine/raw/dev/xrengine%20black.png',
+        src: 'https://github.com/XRFoundation/XREngine/raw/dev/xrengine%20black.png',
       },
       items: [
         {
@@ -148,7 +147,7 @@ module.exports = {
         },
         // {to: 'blog', label: 'Blog', position: 'left'},
         {
-          href: 'https://github.com/xrfoundation/xr3ngine',
+          href: 'https://github.com/XRFoundation/XREngine',
           label: 'GitHub',
           position: 'right',
         },
@@ -187,8 +186,8 @@ module.exports = {
             },
             {
               label: 'Github',
-              href: 'https://github.com/xrfoundation/xr3ngine',
-            },
+              href: 'https://github.com/XRFoundation/XREngine',
+            }
           ],
         },
       ],
@@ -203,7 +202,7 @@ module.exports = {
           sidebarPath: require.resolve('./sidebars.js'),
           // Please change this to your repo.
           editUrl:
-            'https://github.com/xrfoundation/xr3ngine/edit/jsdoc/packages/docs/',
+            'https://github.com/XRFoundation/XREngine/edit/jsdoc/packages/docs/',
         },
         // blog: {
         //   showReadingTime: true,

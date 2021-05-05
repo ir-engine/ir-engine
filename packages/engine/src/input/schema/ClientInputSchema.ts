@@ -18,11 +18,11 @@ const tapLength = 200; // 100ms between doubletaps
 
 /**
  * Touch move
- * 
+ *
  * @param args is argument object
  */
 
-const usingThumbstick = () => { 
+const usingThumbstick = () => {
   return Boolean(
     Engine.inputState.get(GamepadAxis.Left)?.value[0] || Engine.inputState.get(GamepadAxis.Left)?.value[1]
     || Engine.inputState.get(GamepadAxis.Right)?.value[0] || Engine.inputState.get(GamepadAxis.Right)?.value[1]
@@ -31,11 +31,11 @@ const usingThumbstick = () => {
 
 
 const handleTouchMove = (args: { event: TouchEvent }): void => {
-  
+
   if(!ClientInputSystem.mouseInputEnabled) {
     return;
   }
-  
+
   const normalizedPosition = normalizeMouseCoordinates(args.event.touches[0].clientX, args.event.touches[0].clientY, window.innerWidth, window.innerHeight);
   const touchPosition: [number, number] = [normalizedPosition.x, normalizedPosition.y];
 
@@ -77,7 +77,7 @@ const handleTouchMove = (args: { event: TouchEvent }): void => {
       value: touchPosition,
       lifecycleState: LifecycleValue.CHANGED
     });
-    
+
     Engine.inputState.set(TouchInputs.Touch2Position, {
       type: InputType.TWODIM,
       value: touchPosition2,
@@ -141,7 +141,7 @@ const handleTouchMove = (args: { event: TouchEvent }): void => {
 
 /**
  * Handle Touch
- * 
+ *
  * @param args is argument object
  */
 const handleTouch = ({ event, value }: { event: TouchEvent; value: BinaryType }): void => {
@@ -159,7 +159,7 @@ const handleTouch = ({ event, value }: { event: TouchEvent; value: BinaryType })
 
         const timeNow = Date.now();
         const doubleTapInput = TouchInputs.DoubleTouch;
-        
+
         if(timeNow - lastTap < tapLength) {
           if(Engine.inputState.has(doubleTapInput)) {
             Engine.inputState.set(doubleTapInput, {
@@ -185,7 +185,7 @@ const handleTouch = ({ event, value }: { event: TouchEvent; value: BinaryType })
         }
         lastTap = timeNow;
       }
-        
+
       // If the key is in the map but it's in the same state as now, let's skip it (debounce)
       if (Engine.inputState.has(mappedInputKey) &&
         Engine.inputState.get(mappedInputKey).value === value) {
@@ -198,7 +198,7 @@ const handleTouch = ({ event, value }: { event: TouchEvent; value: BinaryType })
         }
         return;
       }
-  
+
       // Set type to BUTTON (up/down discrete state) and value to up or down, depending on what the value is set to
       Engine.inputState.set(mappedInputKey, {
         type: InputType.BUTTON,
@@ -375,7 +375,7 @@ const handleMouseMovement = (args: { event: MouseEvent }): void => {
 
   const normalizedPosition = normalizeMouseCoordinates(args.event.clientX, args.event.clientY, window.innerWidth, window.innerHeight);
   const mousePosition: [number, number] = [ normalizedPosition.x, normalizedPosition.y ];
- 
+
   const mappedPositionInput = MouseInput.MousePosition;
   const mappedMovementInput = MouseInput.MouseMovement;
   const mappedDragMovementInput = MouseInput.MouseClickDownMovement;
@@ -470,7 +470,6 @@ const handleMouseButton = (args: { event: MouseEvent; value: BinaryType }): void
  */
 
 const handleKey = (args: { event: KeyboardEvent; value: BinaryType }): any => {
-  
   // For if mouse is over UI, disable button clicks for engine
   if(args.value === BinaryValue.ON && !ClientInputSystem.keyboardInputEnabled) {
     return;
@@ -481,11 +480,11 @@ const handleKey = (args: { event: KeyboardEvent; value: BinaryType }): any => {
   if (element?.tagName === 'INPUT' || element?.tagName === 'SELECT' || element?.tagName === 'TEXTAREA') {
     return;
   }
-
   // const mappedKey = Engine.inputState.schema.keyboardInputMap[];
   const key = args.event.key.toLowerCase();
 
   if (args.value === BinaryValue.ON) {
+    ClientInputSystem.timeOutToClearPressedKeys = 1;
     // If the key is in the map but it's in the same state as now, let's skip it (debounce)
     if (Engine.inputState.has(key) &&
       Engine.inputState.get(key).value === args.value) {
@@ -532,7 +531,7 @@ const handleContextMenu = (args: { event: MouseEvent }): void => {
  */
 
 const handleMouseLeave = (args: { event: MouseEvent }): void => {
-  
+
   [MouseInput.LeftButton, MouseInput.MiddleButton, MouseInput.RightButton].forEach(button => {
     if (!Engine.inputState.has(button)) {
       return;

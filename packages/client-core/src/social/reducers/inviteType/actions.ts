@@ -4,7 +4,7 @@ import {
     LOAD_INVITE_TYPE,
     REMOVED_INVITE_TYPE
 } from "../actions";
-import { InviteResult } from '@xr3ngine/common/src/interfaces/InviteResult';
+import { InviteResult } from '@xrengine/common/src/interfaces/InviteResult';
 
 export interface InviteTypeCreatedAction {
     type: string;

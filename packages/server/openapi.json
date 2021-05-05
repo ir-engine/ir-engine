@@ -1,7 +1,7 @@
 {
     "info": {
-      "title": "XR3ngine API Surface",
-      "description": "APIs for the XR3ngine application",
+      "title": "XREngine API Surface",
+      "description": "APIs for the XREngine application",
       "version": "1.0.0"
     },
     "paths": {

@@ -1,20 +1,20 @@
-import { MobileGamepadProps } from '@xr3ngine/client-core/src/common/components/MobileGamepad/MobileGamepadProps';
-import { generalStateList, setAppLoaded, setAppOnBoardingStep } from '@xr3ngine/client-core/src/common/reducers/app/actions';
-import Store from '@xr3ngine/client-core/src/store';
-import { testScenes, testUserId, testWorldState } from '@xr3ngine/common/src/assets/testScenes';
-import { isMobileOrTablet } from '@xr3ngine/engine/src/common/functions/isMobile';
-import { EngineEvents } from '@xr3ngine/engine/src/ecs/classes/EngineEvents';
-import { resetEngine } from "@xr3ngine/engine/src/ecs/functions/EngineFunctions";
-import { initializeEngine } from '@xr3ngine/engine/src/initialize';
-import { DefaultInitializationOptions } from '@xr3ngine/engine/src/DefaultInitializationOptions';
-import { ClientNetworkSystem } from '@xr3ngine/engine/src/networking/systems/ClientNetworkSystem';
-import { UIGallery } from '@xr3ngine/engine/src/ui/classes/UIGallery';
-import { styleCanvas } from '@xr3ngine/engine/src/renderer/functions/styleCanvas';
-import { createPanelComponent } from '@xr3ngine/engine/src/ui/functions/createPanelComponent';
-import { XRSystem } from '@xr3ngine/engine/src/xr/systems/XRSystem';
+import { MobileGamepadProps } from '@xrengine/client-core/src/common/components/MobileGamepad/MobileGamepadProps';
+import { generalStateList, setAppLoaded, setAppOnBoardingStep } from '@xrengine/client-core/src/common/reducers/app/actions';
+import Store from '@xrengine/client-core/src/store';
+import { testScenes, testUserId, testWorldState } from '@xrengine/common/src/assets/testScenes';
+import { isMobileOrTablet } from '@xrengine/engine/src/common/functions/isMobile';
+import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents';
+import { resetEngine } from "@xrengine/engine/src/ecs/functions/EngineFunctions";
+import { initializeEngine } from '@xrengine/engine/src/initialize';
+import { DefaultInitializationOptions } from '@xrengine/engine/src/DefaultInitializationOptions';
+import { ClientNetworkSystem } from '@xrengine/engine/src/networking/systems/ClientNetworkSystem';
+import { UIGallery } from '@xrengine/engine/src/ui/classes/UIGallery';
+import { styleCanvas } from '@xrengine/engine/src/renderer/functions/styleCanvas';
+import { createPanelComponent } from '@xrengine/engine/src/ui/functions/createPanelComponent';
+import { XRSystem } from '@xrengine/engine/src/xr/systems/XRSystem';
 import React, { useEffect, useState } from 'react';
 
-const MobileGamepad = React.lazy(() => import("@xr3ngine/client-core/src/common/components/MobileGamepad"));
+const MobileGamepad = React.lazy(() => import("@xrengine/client-core/src/common/components/MobileGamepad"));
 const engineRendererCanvasId = 'engine-renderer-canvas';
 
 const store = Store.store;

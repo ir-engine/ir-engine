@@ -47,7 +47,8 @@ export class ClientInputSystem extends System {
     ENABLE_INPUT: 'CLIENT_INPUT_SYSTEM_ENABLE_INPUT',
     PROCESS_INPUT: 'CLIENT_INPUT_SYSTEM_PROCESS_EVENT',
   }
-
+  public static timeOutToClearPressedKeys = 1.2;
+  //updateType = SystemUpdateType.Fixed;
   updateType = SystemUpdateType.Free;
   needSend = false;
   switchId = 1;
@@ -124,7 +125,7 @@ export class ClientInputSystem extends System {
   public execute(delta: number): void {
     handleGamepads();
     const newState = new Map();
-
+    ClientInputSystem.timeOutToClearPressedKeys -= delta;
     Engine.inputState.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
       if (!Engine.prevInputState.has(key)) {
         return;
@@ -132,6 +133,7 @@ export class ClientInputSystem extends System {
 
       if (value.type === InputType.BUTTON) {
         const prevValue = Engine.prevInputState.get(key);
+        // auto ENDED when event not continue
         if (
           prevValue.lifecycleState === LifecycleValue.STARTED &&
           value.lifecycleState === LifecycleValue.STARTED
@@ -139,8 +141,14 @@ export class ClientInputSystem extends System {
           // auto-switch to CONTINUED
           value.lifecycleState = LifecycleValue.CONTINUED;
           Engine.inputState.set(key, value);
+          return;
         }
-        return;
+
+        if ((value.lifecycleState === LifecycleValue.UNCHANGED || value.lifecycleState === LifecycleValue.CHANGED) && ClientInputSystem.timeOutToClearPressedKeys < 0) {
+          value.lifecycleState = LifecycleValue.ENDED;
+          value.value = 0;
+          Engine.inputState.set(key, value);
+        }
       }
 
       if (value.lifecycleState === LifecycleValue.ENDED) {

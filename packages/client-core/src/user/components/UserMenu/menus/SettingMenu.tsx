@@ -11,8 +11,8 @@ import Slider from '@material-ui/core/Slider';
 import Typography from '@material-ui/core/Typography';
 // @ts-ignore
 import styles from '../UserMenu.module.scss';
-import { WebGLRendererSystem } from '@xr3ngine/engine/src/renderer/WebGLRendererSystem';
-import { EngineEvents } from '@xr3ngine/engine/src/ecs/classes/EngineEvents';
+import { WebGLRendererSystem } from '@xrengine/engine/src/renderer/WebGLRendererSystem';
+import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents';
 import { useTranslation } from 'react-i18next';
 
 const SettingMenu = (props: any): JSX.Element => {

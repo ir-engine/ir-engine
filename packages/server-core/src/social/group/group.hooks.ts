@@ -1,7 +1,7 @@
-import collectAnalytics from '@xr3ngine/server-core/src/hooks/collect-analytics';
-import groupPermissionAuthenticate from '@xr3ngine/server-core/src/hooks/group-permission-authenticate';
-import createGroupOwner from '@xr3ngine/server-core/src/hooks/create-group-owner';
-import removeGroupUsers from '@xr3ngine/server-core/src/hooks/remove-group-users';
+import collectAnalytics from '@xrengine/server-core/src/hooks/collect-analytics';
+import groupPermissionAuthenticate from '@xrengine/server-core/src/hooks/group-permission-authenticate';
+import createGroupOwner from '@xrengine/server-core/src/hooks/create-group-owner';
+import removeGroupUsers from '@xrengine/server-core/src/hooks/remove-group-users';
 import * as authentication from '@feathersjs/authentication';
 
 const { authenticate } = authentication.hooks;
