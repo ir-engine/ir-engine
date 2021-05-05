@@ -171,6 +171,16 @@ export class ActionSystem extends System {
               input.data.set(key, value);
             }
             return;
+
+            if (
+              prevValue.lifecycleState === LifecycleValue.ENDED &&
+              value.lifecycleState === LifecycleValue.STARTED
+            ) {
+              // auto-switch to CONTINUED
+              value.lifecycleState = LifecycleValue.CONTINUED;
+              input.data.set(key, value);
+            }
+            return
           }
 
           if (value.lifecycleState === LifecycleValue.ENDED) {
@@ -193,6 +203,7 @@ export class ActionSystem extends System {
           // If the input exists on the input map (otherwise ignore it)
           if (input.schema.inputButtonBehaviors[key]) {
             // If the button is pressed
+          //  console.warn(key,['start','continue','end'][value.lifecycleState]);
             if (value.value === BinaryValue.ON) {
               // If the lifecycle hasn't been set or just started (so we don't keep spamming repeatedly)
               if (value.lifecycleState === undefined) value.lifecycleState = LifecycleValue.STARTED;
@@ -204,9 +215,11 @@ export class ActionSystem extends System {
                 });
               } else if (value.lifecycleState === LifecycleValue.CONTINUED) {
                 // If the lifecycle equal continued
+
                 input.schema.inputButtonBehaviors[key].continued?.forEach(element =>
                   element.behavior(entity, element.args, delta)
                 );
+              
               } else {
                 console.error('Unexpected lifecycleState', key, value.lifecycleState, LifecycleValue[value.lifecycleState], 'prev', LifecycleValue[input.prevData.get(key)?.lifecycleState]);
               }
@@ -270,10 +283,10 @@ export class ActionSystem extends System {
         // If input is the same as last frame, return
         // if (_.isEqual(input.data, input.lastData))
         //   return;
-
         // Repopulate lastData
-        input.lastData.clear();
-        input.data.forEach((value, key) => input.lastData.set(key, value));
+      //  input.lastData.clear();
+    //    input.data.forEach((value, key) => input.lastData.set(key, value));
+
 
         const inputSnapshot = Vault.instance?.get()
         if (inputSnapshot !== undefined) {
@@ -292,15 +305,23 @@ export class ActionSystem extends System {
             characterState: hasComponent(entity, CharacterComponent) ? getComponent(entity, CharacterComponent).state : 0,
             clientGameAction: Network.instance.clientGameAction
           };
+
+          if (Network.instance.clientGameAction.length) {
+            Network.instance.clientGameAction = [];
+          }
           //console.warn(inputs.snapShotTime);
           // Add all values in input component to schema
           input.data.forEach((value: any, key) => {
-            if (value.type === InputType.BUTTON)
+            if (value.type === InputType.BUTTON &&
+              value.lifecycleState != LifecycleValue.CONTINUED &&
+              value.lifecycleState != LifecycleValue.UNCHANGED &&
+              value.lifecycleState != LifecycleValue.CHANGED
+            )
               inputs.buttons.push({ input: key, value: value.value, lifecycleState: value.lifecycleState });
             else if (value.type === InputType.ONEDIM) // && value.lifecycleState !== LifecycleValue.UNCHANGED
               inputs.axes1d.push({ input: key, value: value.value, lifecycleState: value.lifecycleState });
             else if (value.type === InputType.TWODIM) //  && value.lifecycleState !== LifecycleValue.UNCHANGED
-              inputs.axes2d.push({ input: key, value: value.value, lifecycleState: value.lifecycleState }); // : LifecycleValue.ENDED
+              inputs.axes2d.push({ input: key, value: value.value, lifecycleState: value.lifecycleState });
             else if (value.type === InputType.SIXDOF) { //  && value.lifecycleState !== LifecycleValue.UNCHANGED
               inputs.axes6DOF.push({
                 input: key,
@@ -316,30 +337,25 @@ export class ActionSystem extends System {
             }
           });
 
-          const actor = getMutableComponent(entity, CharacterComponent);
+          const actor = getComponent(entity, CharacterComponent);
           if (actor) {
-            const isWalking = (input.data.get(BaseInput.WALK)?.value) === BinaryValue.ON;
-            actor.moveSpeed = isWalking ? WALK_SPEED : RUN_SPEED;
-
             inputs.viewVector.x = actor.viewVector.x;
             inputs.viewVector.y = actor.viewVector.y;
             inputs.viewVector.z = actor.viewVector.z;
           }
           const buffer = ClientInputModel.toBuffer(inputs);
           EngineEvents.instance.dispatchEvent({ type: ClientNetworkSystem.EVENTS.SEND_DATA, buffer }, false, [buffer]);
-        }
 
-        if (Network.instance.clientGameAction.length) {
-          Network.instance.clientGameAction = [];
-        }
-
-        input.data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
-          if (value.type === InputType.BUTTON) {
-            if (value.lifecycleState === LifecycleValue.ENDED) {
-              input.data.delete(key);
+          input.data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
+            if (value.type === InputType.BUTTON) {
+              if (value.lifecycleState === LifecycleValue.ENDED || value.value === BinaryValue.OFF) {
+                input.data.delete(key);
+              }
             }
-          }
-        });
+          });
+
+        }
+
       });
     });
 
