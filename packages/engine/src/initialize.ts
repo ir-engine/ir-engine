@@ -64,8 +64,9 @@ export const initializeEngine = async (initOptions): Promise<void> => {
 
   Engine.xrSupported = await (navigator as any).xr?.isSessionSupported('immersive-vr')
   
-  const useOffscreen = useCanvas && !Engine.xrSupported && 'transferControlToOffscreen' in canvas;
-  // const useOffscreen = false;
+  // TODO: pipe network & entity data to main thread
+  // const useOffscreen = useCanvas && !Engine.xrSupported && 'transferControlToOffscreen' in canvas;
+  const useOffscreen = false;
   if (!options.renderer) options.renderer = {};
 
   if (useOffscreen) {
@@ -171,6 +172,7 @@ export const initializeEngine = async (initOptions): Promise<void> => {
   document.addEventListener(engageType, onUserEngage);
 
   EngineEvents.instance.once(ClientNetworkSystem.EVENTS.CONNECT, ({ id }) => {
+    console.log('userId', id)
     Network.instance.isInitialized = true;
     Network.instance.userId = id;
   })

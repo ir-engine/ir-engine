@@ -4,7 +4,7 @@ import { Behavior } from "../../../common/interfaces/Behavior";
 import { addObject3DComponent } from "../../../scene/behaviors/addObject3DComponent";
 import { initializeNetworkObject } from '../../../networking/functions/initializeNetworkObject'
 import { Network } from '../../../networking/classes/Network';
-import { AnimationClip, AnimationMixer, BoxGeometry, Group, Material, Mesh, MeshLambertMaterial, Object3D, Quaternion, Skeleton, SkeletonHelper, SkinnedMesh, Vector3 } from "three";
+import { AnimationClip, AnimationMixer, BoxGeometry, Group, Material, Mesh, MeshLambertMaterial, Object3D, Quaternion, Skeleton, SkeletonHelper, Vector3 } from "three";
 import { AssetLoader } from "../../../assets/classes/AssetLoader";
 import { PositionalAudioComponent } from '../../../audio/components/PositionalAudioComponent';
 import { FollowCameraComponent } from '../../../camera/components/FollowCameraComponent';
@@ -37,7 +37,7 @@ import { CollisionGroups } from '../../../physics/enums/CollisionGroups';
 import { InterpolationInterface } from '../../../physics/interfaces/InterpolationInterface';
 import { characterCorrectionBehavior } from '../behaviors/characterCorrectionBehavior';
 import { characterInterpolationBehavior } from '../behaviors/characterInterpolationBehavior';
-import { Controller } from 'three-physx';
+import { Controller, getGeometry } from 'three-physx';
 import { SkeletonUtils } from '../../../assets/threejs-various/SkeletonUtils.js';
 import { standardizeSkeletion } from '../functions/standardizeSkeleton';
 
@@ -46,7 +46,7 @@ export class AnimationManager {
 
 	_animations: AnimationClip[];
   _defaultModel: Group;
-  _defaultSkeleton: SkinnedMesh;
+  _defaultSkeleton: Object3D;
 
 	getAnimations(): Promise<AnimationClip[]> {
 		return new Promise(resolve => {
@@ -58,19 +58,18 @@ export class AnimationManager {
         resolve(this._animations);
         return;
       }
-			getLoader().load(Engine.publicPath + '/models/avatars/AvatarAnimations.glb', gltf => {
+			getLoader().load(Engine.publicPath + '/models/avatars/Animations.glb', gltf => {
         gltf.scene.traverse((child) => {
           if(child.type === "SkinnedMesh" && !this._defaultSkeleton) {
             this._defaultSkeleton = child;
           }
         })
 
-        //standardizeSkeletion(this._defaultSkeleton);
-        this._animations = gltf.animations;
+				this._animations = gltf.animations;
 				this._animations?.forEach(clip => {
 					// TODO: make list of morph targets names
 					clip.tracks = clip.tracks.filter(track => !track.name.match(/^CC_Base_/));
-           //console.log(clip)
+          // console.log(clip)
 				});
 				resolve(this._animations);
 			});
@@ -95,12 +94,6 @@ export class AnimationManager {
       });
 		});
 	}
-
-
-  retargetBones():Promise<any>{
-    console.log("Retargeting Stuff");
-    return;
-  }
 }
 
 export const loadDefaultActorAvatar: Behavior = (entity) => {
@@ -113,8 +106,6 @@ export const loadDefaultActorAvatar: Behavior = (entity) => {
 }
 
 export const loadActorAvatar: Behavior = (entity) => {
-  console.log("Loading Actor Avatar")
-
 	const avatarURL = getComponent(entity, CharacterComponent)?.avatarURL;
 	if (avatarURL) {
 		loadActorAvatarFromURL(entity, avatarURL);
@@ -123,8 +114,6 @@ export const loadActorAvatar: Behavior = (entity) => {
 
 export const loadActorAvatarFromURL: Behavior = (entity, avatarURL) => {
 	const tmpGroup = new Group();
-  console.log("Loading Actor Avatar")
-
 	createShadow(entity, { objArgs: { castShadow: true, receiveShadow: true } })
 
 	AssetLoader.load({
@@ -135,6 +124,7 @@ export const loadActorAvatarFromURL: Behavior = (entity, avatarURL) => {
 		parent: tmpGroup,
 	}, () => {
 		const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
+		const controller = getMutableComponent<ControllerColliderComponent>(entity, ControllerColliderComponent);
     if(!actor) return
 
     actor.mixer && actor.mixer.stopAllAction();
@@ -145,21 +135,27 @@ export const loadActorAvatarFromURL: Behavior = (entity, avatarURL) => {
     ([...actor.modelContainer.children])
       .forEach(child => actor.modelContainer.remove(child));
 
-    //This is for animation retargetting
-    let targetSkeleton;
-    tmpGroup.traverse((child) => {
-      if(child.type === "SkinnedMesh") {
-        if(!targetSkeleton)
-        targetSkeleton = child;
-      }
-    })
+    // This is for snimation retargetting
+
+    // let targetSkeleton;
+    // tmpGroup.traverse((child) => {
+    //   if(child.type === "SkinnedMesh") {
+    //     if(!targetSkeleton)
+    //     targetSkeleton = child;
+    //   }
+    // })
 
     // standardizeSkeletion(targetSkeleton);
-
-
+    // const sourceSkeleton = AnimationManager.instance._defaultSkeleton;
+    // console.log('targetSkeleton', targetSkeleton)
+    // console.log('sourceSkeleton', sourceSkeleton)
+    // SkeletonUtils.retarget(targetSkeleton, sourceSkeleton);
+    
 		tmpGroup.children.forEach(child => actor.modelContainer.add(child));
-    console.log("Loading Actor from the Url")
-    console.log(actor.modelContainer)
+    const geom = getGeometry(actor.modelContainer);
+    geom.computeBoundingBox()
+    const modelHeight = geom.boundingBox.max.y - geom.boundingBox.min.y;
+    controller.controller.resize(modelHeight - (controller.radius * 2));
 		actor.mixer = new AnimationMixer(actor.modelContainer.children[0]);
 		if (hasComponent(entity, IKComponent)) {
 			initiateIK(entity)
@@ -168,10 +164,7 @@ export const loadActorAvatarFromURL: Behavior = (entity, avatarURL) => {
 };
 
 const initializeCharacter: Behavior = (entity): void => {
-	console.warn("Initializing character");
-
-
-
+	// console.warn("Initializing character for ", entity);
 	if (!hasComponent(entity, CharacterComponent as any)){
 		console.warn("Character does not have a character component, adding");
 		addComponent(entity, CharacterComponent as any);
