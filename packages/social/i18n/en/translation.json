@@ -49,5 +49,20 @@
         "lbl-send": "Send",
         "lbl-success": "Message Sent, I'll get back to you shortly",
         "lbl-failure": "An error occured, Plese try again"
+    },
+    "Volumetric": {
+        "header": "Arc volumetric test"
+    },
+    "activity": {
+        "title": "Activity"
+    },
+    "explore": {
+        "title": "Explore"
+    },
+    "messages": {
+        "title": "Messages"
+    },
+    "volumetricPlayer": {
+        "lbl-play": "Play"
     }
 }

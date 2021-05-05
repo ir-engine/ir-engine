@@ -16,7 +16,7 @@
     "skipLibCheck": true,
     "outDir": "dist",
     "rootDir": "src",
-    "types": ["node", "jest", "vite/client"],
+    "types": ["node", "jest"],
     "typeRoots": [
       "node_modules/@types",
     ],

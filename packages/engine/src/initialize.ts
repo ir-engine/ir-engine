@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import { detect, detectOS } from 'detect-browser';
 import { BufferGeometry, Mesh, PerspectiveCamera, Scene } from 'three';
 import { acceleratedRaycast, computeBoundsTree } from "three-mesh-bvh";
 import { CameraSystem } from './camera/systems/CameraSystem';
@@ -7,7 +7,7 @@ import { isMobileOrTablet } from './common/functions/isMobile';
 import { Timer } from './common/functions/Timer';
 import { DebugHelpersSystem } from './debug/systems/DebugHelpersSystem';
 import { Engine } from './ecs/classes/Engine';
-import { addIncomingEvents, addOutgoingEvents, EngineEvents, EngineEventsProxy } from './ecs/classes/EngineEvents';
+import { addIncomingEvents, addOutgoingEvents, EngineEvents, proxyEngineEvents as proxyEngineEvents } from './ecs/classes/EngineEvents';
 import { execute, initialize } from "./ecs/functions/EngineFunctions";
 import { registerSystem } from './ecs/functions/SystemFunctions';
 import { SystemUpdateType } from "./ecs/functions/SystemUpdateType";
@@ -26,21 +26,23 @@ import { AnimationManager } from './templates/character/prefabs/NetworkPlayerCha
 import { TransformSystem } from './transform/systems/TransformSystem';
 import { createWorker, WorkerProxy } from './worker/MessageQueue';
 import { XRSystem } from './xr/systems/XRSystem';
-//@ts-ignore
-import PhysXWorker from './physics/functions/loadPhysX.ts?worker';
 import { PhysXInstance } from "three-physx";
 //@ts-ignore
 import OffscreenWorker from './worker/initializeOffscreen.ts?worker';
 import { GameManagerSystem } from './game/systems/GameManagerSystem';
+import { DefaultInitializationOptions } from './DefaultInitializationOptions';
+import _ from 'lodash';
 // import { PositionalAudioSystem } from './audio/systems/PositionalAudioSystem';
 
 Mesh.prototype.raycast = acceleratedRaycast;
 BufferGeometry.prototype["computeBoundsTree"] = computeBoundsTree;
 
+const browser = detect();
+const os = detectOS(navigator.userAgent);
 if (typeof window !== 'undefined') {
   // Add iOS and safari flag to window object -- To use it for creating an iOS compatible WebGLRenderer for example
-  (window as any).iOS = !window.MSStream && /iPad|iPhone|iPod/.test(navigator.userAgent);
-  (window as any).safariWebBrowser = !window.MSStream && /Safari/.test(navigator.userAgent);
+  (window as any).iOS = os === 'iOS' || /iPad|iPhone|iPod/.test(navigator.platform) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  (window as any).safariWebBrowser = browser?.name === 'safari';
 }
 
 /**
@@ -49,20 +51,21 @@ if (typeof window !== 'undefined') {
  * @param initOptions
  */
 
-export const initializeEngine = async (options): Promise<void> => {
-  // const options = _.defaultsDeep({}, initOptions, DefaultInitializationOptions);
+export const initializeEngine = async (initOptions): Promise<void> => {
+  const options = _.defaultsDeep({}, initOptions, DefaultInitializationOptions);
+
   const canvas = options.renderer && options.renderer.canvas ? options.renderer.canvas : null;
 
   Engine.gameModes = options.gameModes;
 
-  const { postProcessing } = options;
-  const { useOfflineMode } = options;
+  const { useCanvas, postProcessing, useOfflineMode } = options;
 
   Engine.offlineMode = useOfflineMode;
 
   Engine.xrSupported = await (navigator as any).xr?.isSessionSupported('immersive-vr')
-  // offscreen is buggy still, disable it for now and opt in with url query
-  // const useOffscreen = !Engine.xrSupported && 'transferControlToOffscreen' in canvas;
+  
+  // TODO: pipe network & entity data to main thread
+  // const useOffscreen = useCanvas && !Engine.xrSupported && 'transferControlToOffscreen' in canvas;
   const useOffscreen = false;
   if (!options.renderer) options.renderer = {};
 
@@ -75,11 +78,10 @@ export const initializeEngine = async (options): Promise<void> => {
         useOfflineMode
       }
     );
-    EngineEvents.instance = new EngineEventsProxy(workerProxy);
+    proxyEngineEvents(workerProxy);
     Engine.viewportElement = options.renderer.canvas;
 
   } else {
-    EngineEvents.instance = new EngineEvents();
     Engine.scene = new Scene();
     addIncomingEvents()
   }
@@ -102,41 +104,54 @@ export const initializeEngine = async (options): Promise<void> => {
 
   initialize();
 
-  if (options.input) {
-    registerSystem(ClientInputSystem, { useWebXR: Engine.xrSupported });
-  }
+  if(useCanvas) {
+    if (options.input) {
+      registerSystem(ClientInputSystem, { useWebXR: Engine.xrSupported });
+    }
 
-  if (!useOffscreen) {
+    if (!useOffscreen) {
 
-    Engine.camera = new PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 10000);
-    Engine.scene.add(Engine.camera);
+      Engine.camera = new PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 10000);
+      Engine.scene.add(Engine.camera);
 
-    await AnimationManager.instance.getDefaultModel()
-    await AnimationManager.instance.getAnimations()
+      // promise in parallel to speed things up
+      await Promise.all([
+        AnimationManager.instance.getDefaultModel(),
+        AnimationManager.instance.getAnimations(),
+        new Promise<void>(async (resolve) => {
+          // if((window as any).safariWebBrowser) {
+            await PhysXInstance.instance.initPhysX(new Worker('/scripts/loadPhysXClassic.js'));
+          // } else {
+          //   //@ts-ignore
+          //   const { default: PhysXWorker } = await import('./physics/functions/loadPhysX.ts?worker&inline');
+          //   await PhysXInstance.instance.initPhysX(new PhysXWorker(), { });
+          // }
+          resolve()
+        })
+      ]);
 
-    registerSystem(CharacterControllerSystem);
-    registerSystem(ServerSpawnSystem, { priority: 899 });
-    registerSystem(HighlightSystem);
-    registerSystem(ActionSystem, { useWebXR: Engine.xrSupported });
+      registerSystem(CharacterControllerSystem);
+      registerSystem(ServerSpawnSystem, { priority: 899 });
+      registerSystem(HighlightSystem);
+      registerSystem(ActionSystem, { useWebXR: Engine.xrSupported });
 
-    await PhysXInstance.instance.initPhysX(new PhysXWorker(), { });
+      registerSystem(PhysicsSystem);
+      registerSystem(TransformSystem, { priority: 900 });
+      // audio breaks webxr currently
+      // Engine.audioListener = new AudioListener();
+      // Engine.camera.add(Engine.audioListener);
+      // registerSystem(PositionalAudioSystem);
+      registerSystem(ParticleSystem);
+      registerSystem(DebugHelpersSystem);
+      registerSystem(InteractiveSystem);
+      registerSystem(CameraSystem);
+      registerSystem(WebGLRendererSystem, { priority: 1001, canvas, postProcessing });
+      registerSystem(XRSystem);
+      registerSystem(GameManagerSystem);
 
-    registerSystem(PhysicsSystem);
-    registerSystem(TransformSystem, { priority: 900 });
-    // audio breaks webxr currently
-    // Engine.audioListener = new AudioListener();
-    // Engine.camera.add(Engine.audioListener);
-    // registerSystem(PositionalAudioSystem);
-    registerSystem(ParticleSystem);
-    registerSystem(DebugHelpersSystem);
-    registerSystem(InteractiveSystem);
-    registerSystem(CameraSystem);
-    registerSystem(WebGLRendererSystem, { priority: 1001, canvas, postProcessing });
-    registerSystem(XRSystem);
-    registerSystem(GameManagerSystem);
-
-    Engine.viewportElement = Engine.renderer.domElement;
-    Engine.renderer.xr.enabled = Engine.xrSupported;
+      Engine.viewportElement = Engine.renderer.domElement;
+      Engine.renderer.xr.enabled = Engine.xrSupported;
+    }
   }
 
   Engine.engineTimer = Timer({
@@ -153,6 +168,7 @@ export const initializeEngine = async (options): Promise<void> => {
   document.addEventListener(engageType, onUserEngage);
 
   EngineEvents.instance.once(ClientNetworkSystem.EVENTS.CONNECT, ({ id }) => {
+    console.log('userId', id)
     Network.instance.isInitialized = true;
     Network.instance.userId = id;
   })
@@ -161,12 +177,13 @@ export const initializeEngine = async (options): Promise<void> => {
 }
 
 
-export const initializeEditor = async (options): Promise<void> => {
+export const initializeEditor = async (initOptions): Promise<void> => {
 
-  EngineEvents.instance = new EngineEvents();
+  const options = _.defaultsDeep({}, initOptions, DefaultInitializationOptions);
+
   Engine.scene = new Scene();
 
-  Engine.gameModes = options.gameModes;
+  Engine.gameModes = initOptions.gameModes;
   Engine.publicPath = location.origin;
 
   initialize();
@@ -174,8 +191,14 @@ export const initializeEditor = async (options): Promise<void> => {
   Engine.camera = new PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 10000);
   Engine.scene.add(Engine.camera);
 
+  // if((window as any).safariWebBrowser) {
+    await PhysXInstance.instance.initPhysX(new Worker('/scripts/loadPhysXClassic.js'));
+  // } else {
+  //   //@ts-ignore
+  //   const { default: PhysXWorker } = await import('./physics/functions/loadPhysX.ts?worker');
+  //   await PhysXInstance.instance.initPhysX(new PhysXWorker(), { });
+  // }
 
-  await PhysXInstance.instance.initPhysX(new PhysXWorker(), { });
   registerSystem(PhysicsSystem);
   registerSystem(TransformSystem, { priority: 900 });
   registerSystem(ParticleSystem);

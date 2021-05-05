@@ -1,17 +1,19 @@
 import React from "react";
 import { SuggestionItem } from "./SuggestionItem";
+import { useTranslation } from 'react-i18next';
 
 export function RightBarSuggestions({
   data
 }: any) {
+	const { t } = useTranslation();
   return (
     <div className="flex flex-col">
       <div className="suggestions-header flex" style={{ marginTop: 12 }}>
         <span className="text-14-bold mr-auto" style={{ color: "#8e8e8e" }}>
-          Suggestions For You
+          {t('social:suggestions')}
         </span>
         <a href="#" className="text-12-bold">
-          See All
+          {t('social:seeAll')}
         </a>
       </div>
       <div

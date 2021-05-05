@@ -3,6 +3,32 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.2.21](https://github.com/barankyle/xrengine/compare/v0.2.20...v0.2.21) (2021-05-05)
+
+**Note:** Version bump only for package @xrengine/gameserver
+
+
+
+
+
+## [0.2.20](https://github.com/barankyle/xrengine/compare/v0.2.18...v0.2.20) (2021-05-04)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @feathersjs/hooks to v0.6.4 ([df63c37](https://github.com/barankyle/xrengine/commit/df63c37dcf4eb61a8e9ed4bdcfa2053d60164d8b))
+* **deps:** update dependency aws-sdk to v2.885.0 ([b99dbc0](https://github.com/barankyle/xrengine/commit/b99dbc0a7ba9aa44ae49c88bd89dc1161a25a7e1))
+* **deps:** update dependency aws-sdk to v2.886.0 ([b37bc42](https://github.com/barankyle/xrengine/commit/b37bc42fd77d765bc1a947ff097cef2360e3bbac))
+* **deps:** update dependency aws-sdk to v2.887.0 ([1fc3094](https://github.com/barankyle/xrengine/commit/1fc3094cd008466281f8410ebf0b69e3c23ba4c9))
+* **deps:** update dependency aws-sdk to v2.888.0 ([7e040cb](https://github.com/barankyle/xrengine/commit/7e040cbe484c74602def81e26f28cb55264ed177))
+* **deps:** update dependency aws-sdk to v2.892.0 ([06db15c](https://github.com/barankyle/xrengine/commit/06db15cc17ade5417feafeda07fc3ee77fbe3d3f))
+* **deps:** update dependency feathers-blob to v2.4.0 ([40afa5e](https://github.com/barankyle/xrengine/commit/40afa5e33767fc9d1c1d8baad7820028478a71cc))
+* **deps:** update dependency js-yaml to v4.1.0 ([cf84acd](https://github.com/barankyle/xrengine/commit/cf84acd3dbfc606c5be67d26abbb445270eb8536))
+
+
+
+
+
 ## 0.2.18 (2021-04-22)
 
 

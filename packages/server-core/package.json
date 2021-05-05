@@ -1,7 +1,7 @@
 {
   "name": "@xrengine/server-core",
   "description": "Shared components for XREngine server",
-  "version": "0.2.18",
+  "version": "0.2.21",
   "homepage": "",
   "publishConfig": {
     "access": "public"
@@ -22,7 +22,7 @@
     "vr"
   ],
   "author": {
-    "name": "XR3 Collective",
+    "name": "XREngine Collective",
     "email": "shawmakesmagic@gmail.com"
   },
   "contributors": [],
@@ -67,8 +67,8 @@
     "@feathersjs/socketio-client": "^4.5.9",
     "@feathersjs/transport-commons": "^4.5.9",
     "@google-cloud/agones-sdk": "^1.7.0",
-    "@xrengine/common": "^0.2.18",
-    "@xrengine/engine": "^0.2.18",
+    "@xrengine/common": "^0.2.21",
+    "@xrengine/engine": "^0.2.21",
     "aws-sdk": "^2.811.0",
     "bent": "^7.3.0",
     "chargebee": "^2.5.7",

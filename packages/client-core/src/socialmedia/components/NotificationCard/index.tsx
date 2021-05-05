@@ -9,18 +9,20 @@ import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 // @ts-ignore
 import styles from './NotificationCard.module.scss';
+import { useTranslation } from 'react-i18next';
 
 const NotificationCard = ({notification} : any) => { 
     const history = useHistory();
+	const { t } = useTranslation();
     const checkNotificationAction = (type) =>{
         switch (type) {
-            case 'feed-fire': return ' fired your feed';
-            case 'feed-bookmark': return ' bookmarked your feed';
-            case 'comment': return ' commented your feed:';
-            case 'comment-fire': return ' fired your comment to feed';
-            case 'follow': return ' started following you';
-            case 'unfollow': return ' stopped following you';
-            default: return ' followed you';
+            case 'feed-fire': return t('social:notification.feedFire');
+            case 'feed-bookmark': return t('social:notification.feedBookmarked');
+            case 'comment': return t('social:notification.comment');
+            case 'comment-fire': return t('social:notification.commentFire');
+            case 'follow': return t('social:notification.follow');
+            case 'unfollow': return t('social:notification.unfollow');
+            default: return t('social:notification.followed');
         }
     };
     return  <Card className={styles.commentItem} square={false} elevation={0} key={notification.id}>

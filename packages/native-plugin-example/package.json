@@ -1,6 +1,6 @@
 {
   "name": "@xrengine/native-plugin-example",
-  "version": "0.2.18",
+  "version": "0.2.21",
   "private": true,
   "repository": {
     "type": "git",
@@ -30,9 +30,9 @@
   },
   "dependencies": {
     "@capacitor/android": "2.4.7",
-    "@capacitor/ios": "2.4.7",
     "@capacitor/cli": "2.4.7",
-    "@xrengine/native-plugin-xr": "^0.2.15",
+    "@capacitor/ios": "2.4.7",
+    "@xrengine/native-plugin-xr": "^0.2.21",
     "react": "17.0.2"
   },
   "devDependencies": {
@@ -40,7 +40,8 @@
     "@types/react": "17.0.4",
     "cross-env": "7.0.3",
     "eslint": "7.25.0",
-    "typescript": "4.2.4"
+    "typescript": "4.2.4",
+    "vite-xrengine": "2.2.4"
   },
   "license": "ISC"
 }

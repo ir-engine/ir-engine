@@ -14,6 +14,7 @@ import Container from '@material-ui/core/Container';
 import ResetPassword from '../Auth/ResetPassword';
 import { VerifyEmail } from '../Auth/VerifyEmail';
 import { User } from '@xrengine/common/src/interfaces/User';
+import { useTranslation } from 'react-i18next';
 
 interface Props {
   auth: any;
@@ -34,6 +35,7 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 
 const AuthMagicLink = (props: Props): any => {
   const { auth, loginUserByJwt, refreshConnections, token, type } = props;
+	const { t } = useTranslation();
 
   useEffect(() => {
     if (type === 'login') {
@@ -51,7 +53,7 @@ const AuthMagicLink = (props: Props): any => {
     <Container component="main" maxWidth="md">
       <Box mt={3}>
         <Typography variant="body2" color="textSecondary" align="center">
-          Please wait a moment while processing...
+          {t('user:magikLink.wait')}
         </Typography>
       </Box>
     </Container>

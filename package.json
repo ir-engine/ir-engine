@@ -8,6 +8,7 @@
     "packages/*"
   ],
   "nohoist": [
+    "**/html-minifier-terser",
     "*/@docusaurus/*"
   ],
   "keywords": [
@@ -59,7 +60,7 @@
   "pre-commit": [],
   "resolutions": {
     "socket.io": "2.4.1",
-    "terser": "^5.6.1",
+    "terser": "4.8.0",
     "@typescript-eslint/eslint-plugin": "4.22.0",
     "@typescript-eslint/parser": "4.22.0"
   },

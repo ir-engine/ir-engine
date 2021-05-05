@@ -15,8 +15,10 @@ import {
   fetchingSentInvites,
 } from './actions';
 import { Invite } from '@xrengine/common/src/interfaces/Invite';
-import store from "../../../store";
+import Store from "../../../store";
 import {User} from "@xrengine/common/src/interfaces/User";
+
+const store = Store.store;
 
 const emailRegex = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/;
 const phoneRegex = /^[0-9]{10}$/;

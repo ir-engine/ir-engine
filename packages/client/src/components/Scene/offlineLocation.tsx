@@ -1,6 +1,6 @@
 import { MobileGamepadProps } from '@xrengine/client-core/src/common/components/MobileGamepad/MobileGamepadProps';
 import { generalStateList, setAppLoaded, setAppOnBoardingStep } from '@xrengine/client-core/src/common/reducers/app/actions';
-import store from '@xrengine/client-core/src/store';
+import Store from '@xrengine/client-core/src/store';
 import { testScenes, testUserId, testWorldState } from '@xrengine/common/src/assets/testScenes';
 import { isMobileOrTablet } from '@xrengine/engine/src/common/functions/isMobile';
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents';
@@ -16,6 +16,8 @@ import React, { useEffect, useState } from 'react';
 
 const MobileGamepad = React.lazy(() => import("@xrengine/client-core/src/common/components/MobileGamepad"));
 const engineRendererCanvasId = 'engine-renderer-canvas';
+
+const store = Store.store;
 
 interface Props {
   locationName: string;

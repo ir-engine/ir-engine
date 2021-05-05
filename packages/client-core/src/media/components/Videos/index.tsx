@@ -7,6 +7,7 @@ import { bindActionCreators, Dispatch } from 'redux';
 import { PublicVideo } from '../video/actions';
 import { selectVideoState } from '../video/selector';
 import { fetchPublicVideos } from '../video/service';
+import { useTranslation } from 'react-i18next';
 
 const mapStateToProps = (state: any): any => {
   return {
@@ -25,13 +26,14 @@ interface Props {
 
 export const VideoList = (props: Props): any => {
   const { videos, fetchPublicVideos } = props;
+	const { t } = useTranslation();
   useEffect(() => {
     fetchPublicVideos();
   }, []);
   return (
     <div>
       <Button variant="contained" color="primary" className={styles.back} href="/">
-        Back
+        {t('social:video.back')}
       </Button>
       <div className={styles['video-container']}>
         {videos.get('videos').map((video: PublicVideo, i: number) => {

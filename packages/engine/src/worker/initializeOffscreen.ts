@@ -23,13 +23,14 @@ import { TransformSystem } from '../transform/systems/TransformSystem';
 import { MainProxy } from './MessageQueue';
 import { ActionSystem } from '../input/systems/ActionSystem';
 import { EngineEvents } from '../ecs/classes/EngineEvents';
-import { EngineEventsProxy, addIncomingEvents } from '../ecs/classes/EngineEvents';
+import { proxyEngineEvents, addIncomingEvents } from '../ecs/classes/EngineEvents';
 import { XRSystem } from '../xr/systems/XRSystem';
 // import { PositionalAudioSystem } from './audio/systems/PositionalAudioSystem';
 import { receiveWorker } from './MessageQueue';
 import { AnimationManager } from '../templates/character/prefabs/NetworkPlayerCharacter';
 import { CharacterControllerSystem } from '../templates/character/CharacterControllerSystem';
 import { UIPanelSystem } from '../ui/systems/UIPanelSystem';
+//@ts-ignore
 import PhysXWorker from '../physics/functions/loadPhysX.ts?worker';
 import { PhysXInstance } from "three-physx";
 
@@ -45,11 +46,16 @@ export const DefaultOffscreenInitializationOptions = {
   },
 };
 
+/**
+ * 
+ * @author Josh Field <github.com/HexaField>
+ */
 const initializeEngineOffscreen = async ({ canvas, userArgs }, proxy: MainProxy) => {
   const { initOptions, useOfflineMode, postProcessing } = userArgs;
   const options = _.defaultsDeep({}, initOptions, DefaultOffscreenInitializationOptions);
+  console.log(options)
 
-  EngineEvents.instance = new EngineEventsProxy(proxy);
+  proxyEngineEvents(proxy);
   addIncomingEvents();
 
   initialize();
@@ -58,6 +64,7 @@ const initializeEngineOffscreen = async ({ canvas, userArgs }, proxy: MainProxy)
 
   await AnimationManager.instance.getDefaultModel()
 
+  Network.instance = new Network();
   Network.instance.schema = options.networking.schema;
   // @ts-ignore
   Network.instance.transport = { isServer: false }

@@ -16,7 +16,7 @@ import { client } from '@xrengine/client-core/src/feathers';
 import { selectLocationState } from '@xrengine/client-core/src/social/reducers/location/selector';
 import { getLocationByName, getLobby } from '@xrengine/client-core/src/social/reducers/location/service';
 import { setCurrentScene } from '@xrengine/client-core/src/world/reducers/scenes/actions';
-import store from '@xrengine/client-core/src/store';
+import Store from '@xrengine/client-core/src/store';
 import { selectUserState } from '@xrengine/client-core/src/user/reducers/user/selector';
 import { selectInstanceConnectionState } from '../../reducers/instanceConnection/selector';
 import {
@@ -54,6 +54,9 @@ import url from 'url';
 import { CharacterInputSchema } from '@xrengine/engine/src/templates/character/CharacterInputSchema';
 import { GamesSchema } from "@xrengine/engine/src/templates/game/GamesSchema";
 import WarningRefreshModal from "../AlertModals/WarningRetryModal";
+import { ClientInputSystem } from '@xrengine/engine/src/input/systems/ClientInputSystem';
+
+const store = Store.store;
 
 const goHome = () => window.location.href = window.location.origin;
 
@@ -69,6 +72,36 @@ const initialRefreshModalValues = {
   action: async() => {},
   parameters: []
 };
+
+// debug for contexts where devtools may be unavailable
+const consoleLog = [];
+if(globalThis.process?.env.NODE_ENV === 'development') {
+  const consolelog = console.log;
+  console.log = (...args) => {
+    consolelog(...args);
+    consoleLog.push("Log: " + args.join(' '));
+  };
+
+  const consolewarn = console.warn;
+  console.warn = (...args) => {
+    consolewarn(...args);
+    consoleLog.push("Warn: " + args.join(' '));
+  };
+
+  const consoleerror = console.error;
+  console.error = (...args) => {
+    consoleerror(...args);
+    consoleLog.push("Error: " + args.join(' '));
+  };
+
+  globalThis.dump = () => {
+    document.body.innerHTML = consoleLog.map((log) => {
+      return `<p>${log}</p>`;
+    }).join('');
+    consolelog(consoleLog);
+    resetEngine();
+  };
+}
 
 interface Props {
   setAppLoaded?: any,
@@ -146,6 +179,7 @@ export const EnginePage = (props: Props) => {
   const [isInXR, setIsInXR] = useState(false);
   const [warningRefreshModalValues, setWarningRefreshModalValues] = useState(initialRefreshModalValues);
   const [noGameserverProvision, setNoGameserverProvision] = useState(false);
+  const [isInputEnabled, setInputEnabled] = useState(true);
 
   const appLoaded = appState.get('loaded');
   const selfUser = authState.get('user');
@@ -340,6 +374,10 @@ export const EnginePage = (props: Props) => {
     EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.JOINED_WORLD, worldState });
   }
 
+  useEffect(() => {
+    EngineEvents.instance.dispatchEvent({ type: ClientInputSystem.EVENTS.ENABLE_INPUT, keyboard: isInputEnabled, mouse: isInputEnabled });
+  }, [isInputEnabled]);
+
   const onSceneLoadedEntity = (event: any): void => {
     setProgressEntity(event.left || 0);
   };
@@ -365,7 +403,7 @@ export const EnginePage = (props: Props) => {
     EngineEvents.instance.addEventListener(InteractiveSystem.EVENTS.USER_HOVER, onUserHover);
     EngineEvents.instance.addEventListener(InteractiveSystem.EVENTS.OBJECT_ACTIVATION, onObjectActivation);
     EngineEvents.instance.addEventListener(InteractiveSystem.EVENTS.OBJECT_HOVER, onObjectHover);
-    EngineEvents.instance.addEventListener(PhysicsSystem.EVENTS.PORTAL_REDIRECT_EVENT, ({ location }) => router.push(location));
+    EngineEvents.instance.addEventListener(PhysicsSystem.EVENTS.PORTAL_REDIRECT_EVENT, ({ location }) => { window.location.replace(location); });
     EngineEvents.instance.addEventListener(XRSystem.EVENTS.XR_START, async (ev: any) => { setIsInXR(true); });
     EngineEvents.instance.addEventListener(XRSystem.EVENTS.XR_END, async (ev: any) => { setIsInXR(false); });
   };
@@ -374,11 +412,13 @@ export const EnginePage = (props: Props) => {
     switch (interactionData.interactionType) {
       case 'link':
         setOpenLinkData(interactionData);
+        setInputEnabled(false);
         setObjectActivated(true);
         break;
       case 'infoBox':
       case 'mediaSource':
         setModalData(interactionData);
+        setInputEnabled(false);
         setObjectActivated(true);
         break;
       default:
@@ -388,6 +428,9 @@ export const EnginePage = (props: Props) => {
 
   useEffect(() => {
     return (): void => {
+      document.body.innerHTML = consoleLog.map((log) => {
+        `<p>${log}</p>`;
+      }).join();
       resetEngine();
     };
   }, []);
@@ -435,8 +478,8 @@ export const EnginePage = (props: Props) => {
       { harmonyOpen !== true && <MediaIconsBox />}
       { userHovered && <NamePlate userId={userId} position={{ x: position?.x, y: position?.y }} focused={userHovered} />}
       {objectHovered && !objectActivated && <TooltipContainer message={hoveredLabel} />}
-      <InteractableModal onClose={() => { setModalData(null); setObjectActivated(false); }} data={infoBoxData} />
-      <OpenLink onClose={() => { setOpenLinkData(null); setObjectActivated(false); }} data={openLinkData} />
+      <InteractableModal onClose={() => { setModalData(null); setObjectActivated(false); setInputEnabled(true); }} data={infoBoxData} />
+      <OpenLink onClose={() => { setOpenLinkData(null); setObjectActivated(false); setInputEnabled(true); }} data={openLinkData} />
       <canvas id={engineRendererCanvasId} width='100%' height='100%' />
       {mobileGamepad}
       <WarningRefreshModal

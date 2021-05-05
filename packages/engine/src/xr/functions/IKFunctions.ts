@@ -11,7 +11,7 @@ import { FollowCameraComponent } from "../../camera/components/FollowCameraCompo
 
 /**
  * 
- * @author Avaer Kazmer
+ * @author Josh Field <https://github.com/HexaField>
  * @param entity 
  */
 export function initiateIK(entity: Entity) {
@@ -43,7 +43,7 @@ export function initiateIK(entity: Entity) {
 
 /**
  * 
- * @author Avaer Kazmer
+ * @author Josh Field <https://github.com/HexaField>
  * @param entity 
  */
 export function stopIK(entity) {

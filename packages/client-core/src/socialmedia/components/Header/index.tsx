@@ -2,7 +2,6 @@
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
 import React, { useEffect } from "react";
-import { useHistory } from "react-router-dom";
 // @ts-ignore
 import styles from './Header.module.scss';
 import Avatar from "@material-ui/core/Avatar";
@@ -13,6 +12,7 @@ import { selectCreatorsState } from "../../reducers/creator/selector";
 import { getLoggedCreator } from "../../reducers/creator/service";
 import { selectAuthState } from "../../../user/reducers/auth/selector";
 import { updateCreatorFormState } from "../../reducers/popupsState/service";
+import { useTranslation } from 'react-i18next';
 
 const mapStateToProps = (state: any): any => {
   return {
@@ -34,16 +34,15 @@ interface Props{
   updateCreatorFormState?:typeof updateCreatorFormState;
 }
 const AppHeader = ({creatorState, getLoggedCreator, logo, authState, updateCreatorFormState}: Props) => {
-  const history = useHistory();
+	const { t } = useTranslation();
   useEffect(()=>getLoggedCreator(),[]);  
-  const creator = creatorState && creatorState.get('fetching') === false && creatorState.get('currentCreator');
+  const creator = creatorState && creatorState.get('fetchingCurrentCreator') === false && creatorState.get('currentCreator');
  /* Hided for now */
   // const checkGuest = authState.get('authUser')?.identityProvider?.type === 'guest' ? true : false;
 
   return (
     <nav className={styles.headerContainer}>
         {logo && <img src={logo} className="header-logo" alt="ARC" />}
-        <button type={"button"} onClick={()=>history.push('/volumetric')} title={"volumetric"} className="header-logo">VolumetricDemo</button>
         {creator && {/*!checkGuest*/} &&
           <Avatar onClick={()=> updateCreatorFormState(true)} 
           alt={creator.username} src={creator.avatar} />

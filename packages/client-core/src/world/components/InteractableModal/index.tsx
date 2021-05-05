@@ -42,12 +42,11 @@ export const InteractableModal: FunctionComponent<InteractableModalProps> = ({ o
         paper: styles.customDialogInner,
       }}
       BackdropProps={{ style: { backgroundColor: "transparent" } }} >
-      { data.payloadUrl && 
         <DialogTitle disableTypography className={styles.dialogTitle}>
           <IconButton aria-label="close" className={styles.dialogCloseButton} color="primary"
               onClick={(): void => { if (typeof onClose === 'function') { onClose(); } }}><CloseIcon /></IconButton>
           <Typography variant="h2"align="left" >{data.interactionText}</Typography>          
-        </DialogTitle>}
+        </DialogTitle>
         <DialogContent className={styles.dialogContent}>
           {modelView}
           {/* eslint-disable-next-line react/no-danger */}

@@ -1,6 +1,6 @@
 {
   "name": "@xrengine/client-core",
-  "version": "0.2.18",
+  "version": "0.2.21",
   "repository": {
     "type": "git",
     "url": "git://github.com/XRFoundation/XREngine.git"
@@ -45,8 +45,8 @@
     "@types/styled-components": "5.1.9",
     "@typescript-eslint/eslint-plugin": "4.22.0",
     "@typescript-eslint/parser": "4.22.0",
-    "@xrengine/common": "^0.2.18",
-    "@xrengine/engine": "^0.2.18",
+    "@xrengine/common": "^0.2.21",
+    "@xrengine/engine": "^0.2.21",
     "antd": "4.15.4",
     "app-root-path": "3.0.0",
     "autobind-decorator": "2.4.0",
@@ -97,7 +97,6 @@
   },
   "devDependencies": {
     "@babel/core": "7.14.0",
-    "@rollup/plugin-commonjs": "18.0.0",
     "@rollup/plugin-json": "4.1.0",
     "@rollup/plugin-node-resolve": "11.2.1",
     "@rollup/plugin-replace": "2.4.2",

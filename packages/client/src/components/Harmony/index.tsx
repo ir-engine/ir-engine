@@ -193,7 +193,8 @@ const initialRefreshModalValues = {
     title: '',
     body: '',
     action: async() => {},
-    parameters: []
+    parameters: [],
+    timeout: 10000
 };
 
 const Harmony = (props: Props): any => {
@@ -271,6 +272,7 @@ const Harmony = (props: Props): any => {
     const [profileMenuOpen, setProfileMenuOpen] = useState(false);
     const [warningRefreshModalValues, setWarningRefreshModalValues] = useState(initialRefreshModalValues);
     const [noGameserverProvision, setNoGameserverProvision] = useState(false);
+    const [hasLostConnection, setLostConnection] = useState(false);
 
     const instanceLayerUsers = userState.get('layerUsers') ?? [];
     const channelLayerUsers = userState.get('channelLayerUsers') ?? [];
@@ -323,6 +325,8 @@ const Harmony = (props: Props): any => {
         });
 
         EngineEvents.instance.addEventListener(EngineEvents.EVENTS.PROVISION_CHANNEL_NO_GAMESERVERS_AVAILABLE, () => setNoGameserverProvision(true));
+
+        EngineEvents.instance.addEventListener(EngineEvents.EVENTS.CONNECTION_LOST, ({ hasLostConnection }) => setLostConnection(hasLostConnection));
 
         return () => {
             if (EngineEvents.instance != null) {
@@ -414,20 +418,37 @@ const Harmony = (props: Props): any => {
         setAudioPaused(!isCamAudioEnabled);
     }, [isCamAudioEnabled]);
 
-    useEffect(() => {
+      useEffect(() => {
         if (noGameserverProvision === true) {
             const newValues = {
                 open: true,
                 title: 'No Available Servers',
                 body: 'There aren\'t any servers available to handle this request. Attempting to re-connect in',
                 action: provisionChannelServer,
-                parameters: [null, targetChannelId]
+                parameters: [null, targetChannelId],
+                timeout: 10000
             };
             //@ts-ignore
             setWarningRefreshModalValues(newValues);
             setNoGameserverProvision(false);
         }
     }, [noGameserverProvision]);
+
+    useEffect(() => {
+      if (hasLostConnection === true) {
+          const newValues = {
+              open: true,
+              title: 'Lost Connection To Server',
+              body: 'Currently experiencing a loss of connection to the server, this may be temporary.',
+              action: () => {},
+              parameters: [null, null],
+              timeout: 1000
+          };
+          //@ts-ignore
+          setWarningRefreshModalValues(newValues);
+          setLostConnection(false);
+      }
+    }, [hasLostConnection]);
 
     const handleComposingMessageChange = (event: any): void => {
         const message = event.target.value;
@@ -727,7 +748,8 @@ const Harmony = (props: Props): any => {
                 networking: {
                     schema: networkSchema,
                 },
-                renderer: {}
+                renderer: {},
+                useCanvas: false,
             };
 
             await initializeEngine(InitializationOptions);
@@ -1317,7 +1339,7 @@ const Harmony = (props: Props): any => {
                 body={warningRefreshModalValues.body}
                 action={warningRefreshModalValues.action}
                 parameters={warningRefreshModalValues.parameters}
-                timeout={10000}
+                timeout={warningRefreshModalValues.timeout}
                 closeEffect={() => endCall()}
             />
         </div>

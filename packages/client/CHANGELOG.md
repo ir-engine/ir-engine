@@ -3,6 +3,34 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.2.21](https://github.com/xrengine/xrengine/compare/v0.2.20...v0.2.21) (2021-05-05)
+
+**Note:** Version bump only for package @xrengine/client
+
+
+
+
+
+## [0.2.20](https://github.com/xrengine/xrengine/compare/v0.2.18...v0.2.20) (2021-05-04)
+
+
+### Bug Fixes
+
+* **deps:** pin dependencies ([ac0be70](https://github.com/xrengine/xrengine/commit/ac0be70b9194c3809e74ba8875529c091d084014))
+* **deps:** update dependency @material-ui/data-grid to v4.0.0-alpha.25 ([0b31f6f](https://github.com/xrengine/xrengine/commit/0b31f6f31de9dfe90c9b384e5aad1126bd483b40))
+* **deps:** update dependency react-apexcharts to v1.3.9 ([a5461a6](https://github.com/xrengine/xrengine/commit/a5461a66b727f8d5cbf9480ad1142dd56642433e))
+* **deps:** update dependency react-i18next to v11.8.13 ([8fd41b7](https://github.com/xrengine/xrengine/commit/8fd41b7bb47a07fadc9558cab7dea60d1d2031f9))
+* **deps:** update dependency react-modal to v3.13.1 ([293901c](https://github.com/xrengine/xrengine/commit/293901c94afa9dc883d17ffd22e9b3577dab88d6))
+* **deps:** update dependency react-redux to v7.2.4 ([8bc2601](https://github.com/xrengine/xrengine/commit/8bc26013abb25ce0c07a96006d7d03d9e4d84665))
+* **deps:** update dependency redux to v4.1.0 ([fa7ccd9](https://github.com/xrengine/xrengine/commit/fa7ccd9e2fce1df39a8537c2ba93f5e0d77834b1))
+* **deps:** update dependency url-toolkit to v2.2.2 ([9d5aa72](https://github.com/xrengine/xrengine/commit/9d5aa72ab4ad254eb60d08822a90c7dd22a9a5fd))
+* **deps:** update dependency vite to v2.2.2 ([9141bf3](https://github.com/xrengine/xrengine/commit/9141bf38bfc5ae48ae5489916a6485baeb6194cb))
+* missing style.scss ([8f94a8d](https://github.com/xrengine/xrengine/commit/8f94a8d1c55f619ab9c339aa25205b719598ef0f))
+
+
+
+
+
 ## 0.2.18 (2021-04-22)
 
 

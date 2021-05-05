@@ -18,7 +18,7 @@ import {
   getLocationByName
 } from '@xrengine/client-core/src/social/reducers/location/service';
 import { setCurrentScene } from '@xrengine/client-core/src/world/reducers/scenes/actions';
-import store from '@xrengine/client-core/src/store';
+import Store from '@xrengine/client-core/src/store';
 import { selectUserState } from '@xrengine/client-core/src/user/reducers/user/selector';
 import { selectInstanceConnectionState } from '../../reducers/instanceConnection/selector';
 import {
@@ -55,6 +55,8 @@ import { bindActionCreators, Dispatch } from 'redux';
 import url from 'url';
 import { CharacterInputSchema } from '@xrengine/engine/src/templates/character/CharacterInputSchema';
 import { GolfGameMode } from '@xrengine/engine/src/templates/game/GolfGameMode';
+
+const store = Store.store;
 
 const goHome = () => window.location.href = window.location.origin;
 

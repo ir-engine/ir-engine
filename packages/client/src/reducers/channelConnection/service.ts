@@ -5,7 +5,7 @@ import { MediaStreamSystem } from "@xrengine/engine/src/networking/systems/Media
 import { Config } from '@xrengine/client-core/src/helper';
 import { Dispatch } from 'redux';
 import { client } from '@xrengine/client-core/src/feathers';
-import store from "@xrengine/client-core/src/store";
+import Store from "@xrengine/client-core/src/store";
 
 import {
   channelServerConnected,
@@ -14,6 +14,8 @@ import {
   channelServerProvisioned,
   channelServerProvisioning
 } from './actions';
+
+const store = Store.store;
 
 export function provisionChannelServer(instanceId?: string, channelId?: string) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {

@@ -16,6 +16,7 @@ import PasswordLoginApp from '../../../user/components/Auth/PasswordLoginApp';
 import RegisterApp from '../../../user/components/Auth/RegisterApp';
 import ResetPassword from '../../../user/components/Auth/ResetPassword';
 import { loginUserByOAuth, resetPassword, registerUserByEmail } from '../../../user/reducers/auth/service';
+import { useTranslation } from 'react-i18next';
 
 const mapStateToProps = (state: any): any => {
   return {};
@@ -43,6 +44,7 @@ const FlatSignIn = (props: Props) => {
   const enableUserPassword = Config.publicRuntimeConfig?.auth ? Config.publicRuntimeConfig.auth.enableUserPassword : false;
   const enableGoogleSocial = Config.publicRuntimeConfig?.auth ? Config.publicRuntimeConfig.auth.enableGoogleSocial : false;
   const enableFacebookSocial = Config.publicRuntimeConfig?.auth ? Config.publicRuntimeConfig.auth.enableFacebookSocial : false;
+	const { t } = useTranslation();
 
   const socials = [
     enableGoogleSocial,
@@ -69,15 +71,15 @@ switch (view) {
     case 'sign-up': component = <RegisterApp />;                      
                     footer = <>{!props.isAddConnection &&  (
                       <p>
-                        Have an account? 
-                        <span onClick={()=>setView('login')}> Log in</span>
+                        {t('social:login.account')}
+                        <span onClick={()=>setView('login')}>{t('social:login.login')}</span>
                       </p>
                     )} </>; break;
-    case 'forget-password': component = <><ForgotPassword /><span onClick={()=>setView('reset-password')}> Reset Password Fake button (here would be a link from email)</span></>;
+    case 'forget-password': component = <><ForgotPassword /><span onClick={()=>setView('reset-password')}>{t('social:login.resetPassword')}</span></>;
                   footer = <>{!props.isAddConnection &&  (
                     <p>
-                      Don&apos;t have an account? 
-                      <span onClick={()=>setView('sign-up')}> Sign Up</span>
+                      {t('social:login.notHavingAccount')} 
+                      <span onClick={()=>setView('sign-up')}>{t('social:login.signUp')}</span>
                     </p>
                   )}</>;
                   break;          
@@ -89,19 +91,19 @@ switch (view) {
 
     //login by default
     default: component = <>{userTabPanel}
-      <Typography variant="h3" align="right" onClick={()=>setView('forget-password')}>Forgot password?</Typography>  
+      <Typography variant="h3" align="right" onClick={()=>setView('forget-password')}>{t('social:login.forgotPassword')}</Typography>  
       </>; 
       footer = <>{!props.isAddConnection &&  (
         <p>
-          Don&apos;t have an account? 
-          <span onClick={()=>setView('sign-up')}> Sign Up</span>
+          {t('social:login.notHavingAccount')}
+          <span onClick={()=>setView('sign-up')}>{t('social:login.signUp')}</span>
         </p>
       )}</>;
       break;
   }
 
   return <section className={styles.loginPage}>
-        {view !== 'login' && <Button variant="text" className={styles.backButton}  onClick={()=>setView('login')}><ArrowBackIosIcon />Back</Button>}
+        {view !== 'login' && <Button variant="text" className={styles.backButton}  onClick={()=>setView('login')}><ArrowBackIosIcon />{t('social:login.back')}</Button>}
         <span className={styles.placeholder} />
         <CardMedia   
           className={styles.logo}                  
@@ -110,7 +112,7 @@ switch (view) {
           />
           <span className={styles.placeholder} />
           {component}        
-          {enableUserPassword && socialCount > 0 && <section className={styles.hr}><span>OR</span></section>}
+          {enableUserPassword && socialCount > 0 && <section className={styles.hr}><span>{t('social:login.or')}</span></section>}
           {socialCount > 0 && 
               <section className={styles.socialIcons}>
                 {enableGoogleSocial && <Fab><Google size="24" onClick={(e) => handleGoogleLogin(e)}/></Fab>}          

@@ -30,7 +30,7 @@
     "validate": "yarn run lint && yarn run test",
     "generate-doc": "node_modules/.bin/typedoc"
   },
-  "version": "0.2.18",
+  "version": "0.2.21",
   "peerDependencies": {
     "@typescript-eslint/eslint-plugin": "^4.6.0",
     "@typescript-eslint/parser": "^4.4.1",
@@ -38,22 +38,23 @@
   },
   "dependencies": {
     "@pixiv/three-vrm": "^0.6.0",
-    "@xrengine/common": "^0.2.18",
-    "three-physx": "^0.0.4",
+    "@xrengine/common": "^0.2.21",
+    "@xrengine/volumetric": "^0.2.21",
     "browserfs": "^1.4.3",
     "cross-fetch": "^3.0.6",
     "ctix": "^0.3.1",
+    "detect-browser": "^5.2.0",
     "draco3dgltf": "^1.4.1",
     "hls.js": "^1.0.0",
     "mousetrap": "^1.6.5",
     "socket.io": "2.4.1",
     "three": "^0.128.0",
     "three-mesh-bvh": "^0.3.7",
-    "vite": "^2.1.5",
+    "three-physx": "^0.0.8",
+    "vite-xrengine": "2.2.4",
     "web-worker": "^1.0.0"
   },
   "devDependencies": {
-    "@rollup/plugin-commonjs": "18.0.0",
     "@rollup/plugin-json": "4.1.0",
     "@rollup/plugin-node-resolve": "11.2.1",
     "@rollup/plugin-replace": "2.4.2",

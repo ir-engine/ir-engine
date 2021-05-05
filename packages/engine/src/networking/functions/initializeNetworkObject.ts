@@ -168,16 +168,14 @@ export function initializeNetworkObject( args: { entity?: Entity, prefabType?: s
         networkId: networkId,
         ownerId: ownerId,
         prefabType: prefabType,
-        uniqueId: uniqueId
-        /*
-        x: transform.position.x,
-        y: transform.position.y,
-        z: transform.position.z,
-        qX: transform.rotation.x,
-        qY: transform.rotation.y,
-        qZ: transform.rotation.z,
-        qW: transform.rotation.w
-        */
+        uniqueId: uniqueId,
+        x: 0,
+        y: 0,
+        z: 0,
+        qX: 0,
+        qY: 0,
+        qZ: 0,
+        qW: 1
     });
   }
 

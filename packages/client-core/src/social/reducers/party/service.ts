@@ -16,7 +16,9 @@ import {
 
 import { Config } from '../../../helper';
 import { dispatchAlertError } from '../../../common/reducers/alert/service';
-import store from '../../../store';
+import Store from '../../../store';
+
+const store = Store.store;
 
 export function getParty () {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {

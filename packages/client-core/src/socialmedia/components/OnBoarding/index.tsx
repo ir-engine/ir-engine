@@ -8,6 +8,7 @@ import { useHistory } from "react-router-dom";
 import React, { useState } from 'react';
 // @ts-ignore
 import styles from './OnBoarding.module.scss';
+import { useTranslation } from 'react-i18next';
 
 interface MediaRecord{
     screenBg: string;
@@ -20,13 +21,14 @@ interface Props {
 const OnBoardingComponent = ({media}: Props) => { 
     const [step, setStep] = useState(0);
     const history = useHistory();
+	const { t } = useTranslation();
     let content = null;
     switch (step) {
         case 0:
             content = <section className={styles.step_0}>
-                        <Typography color="secondary" variant="h1" align="center">Welcome to ARC!</Typography>
-                        <Typography color="secondary" variant="h2">Biggest collection of 370+ layouts for iOS prototyping.</Typography>
-                        <Button variant="contained" color="primary" fullWidth onClick={()=>setStep(step+1)}>Next</Button>
+                        <Typography color="secondary" variant="h1" align="center">{t('social:onBoarding.welcome')}</Typography>
+                        <Typography color="secondary" variant="h2">{t('social:onBoarding.description')}</Typography>
+                        <Button variant="contained" color="primary" fullWidth onClick={()=>setStep(step+1)}>{t('social:onBoarding.next')}</Button>
                     </section>; 
                     break;   
         case 1:
@@ -35,25 +37,25 @@ const OnBoardingComponent = ({media}: Props) => {
                         <CardMedia   
                             className={styles.image}                  
                                 image={media[step].images[0]}
-                                title="Discover articles, news & posts"
+                                title={t('social:onBoarding.discover') + ' ' + t('social:onBoarding.news')}
                             />
-                        <Typography variant="h1" align="center">Discover articles,<br /> news & posts</Typography>
-                        <Typography variant="h2" align="center">It is those feelings that drive our love of astronomy and our desire.</Typography>
+                        <Typography variant="h1" align="center">{t('social:onBoarding.discover')}<br />{t('social:onBoarding.news')}</Typography>
+                        <Typography variant="h2" align="center">{t('social:onBoarding.lines')}</Typography>
                         <span className={styles.placeholder} />
-                        <Button variant="contained" color="primary" onClick={()=>setStep(step+1)}>Get Started</Button>
+                        <Button variant="contained" color="primary" onClick={()=>setStep(step+1)}>{t('social:onBoarding.getStarted')}</Button>
                     </section>; 
                     break;    
         default:
             content = <section className={styles.step_2}>   
-                        <Button variant="contained" color="primary" onClick={()=>history.push("/login")}>Next</Button>
+                        <Button variant="contained" color="primary" onClick={()=>history.push("/login")}>{t('social:onBoarding.next')}</Button>
                         <span className={styles.placeholder} />
-                        <Typography variant="h1" align="center">Meet up with <br /> friends.</Typography>
-                        <Typography variant="h2" align="center">It is those feelings that drive our love of astronomy and our desire.</Typography>
+                        <Typography variant="h1" align="center">{t('social:onBoarding.meetUp')}<br />{t('social:onBoarding.friends')}</Typography>
+                        <Typography variant="h2" align="center">{t('social:onBoarding.lines')}</Typography>
                         <span className={styles.placeholder} />
                         <CardMedia   
                             className={styles.image}                  
                                 image={media[step].images[0]}
-                                title="Meet up with friends"
+                                title={t('social:onBoarding.meet')}
                             />
                     </section>; 
     }

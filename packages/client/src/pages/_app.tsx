@@ -14,6 +14,7 @@ import { Config } from '@xrengine/client-core/src/helper';
 import { getDeviceType } from '@xrengine/client-core/src/common/reducers/devicedetect/actions';
 import { restoreState } from '@xrengine/client-core/src/persisted.store';
 import RouterComp from '../router';
+import reducers from '../reducers';
 import './styles.scss';
 
 const App = (): any => {
@@ -75,9 +76,9 @@ const App = (): any => {
   );
 };
 
-const StroreProvider = () => {
+const StoreProvider = () => {
   return (
-    <Provider store={configureStore()}>
+    <Provider store={configureStore(reducers)}>
       <BrowserRouter>
         <App />
       </BrowserRouter>
@@ -85,4 +86,4 @@ const StroreProvider = () => {
   );
 };
 
-export default StroreProvider;
+export default StoreProvider;

@@ -48,17 +48,15 @@ export class ClientInputSystem extends System {
     PROCESS_INPUT: 'CLIENT_INPUT_SYSTEM_PROCESS_EVENT',
   }
 
-  updateType = SystemUpdateType.Fixed;
+  updateType = SystemUpdateType.Free;
   needSend = false;
   switchId = 1;
   boundListeners: ListenerBindingData[] = [];
-  onProcessInput: any;
   static mouseInputEnabled = true;
   static keyboardInputEnabled = true;
 
   constructor(attributes?: SystemAttributes) {
     super(attributes);
-    this.onProcessInput = attributes.onProcessInput;
     ClientInputSchema.onAdded.forEach(behavior => {
       behavior.behavior();
     });
