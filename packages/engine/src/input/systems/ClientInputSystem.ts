@@ -47,11 +47,9 @@ export class ClientInputSystem extends System {
     ENABLE_INPUT: 'CLIENT_INPUT_SYSTEM_ENABLE_INPUT',
     PROCESS_INPUT: 'CLIENT_INPUT_SYSTEM_PROCESS_EVENT',
   }
-  // TODO: Do we want this to be a free system? I don't think so.
-  // Choosing to merge the Fixed option for now since HydraFire solved input bugs with it.
-  // updateType = SystemUpdateType.Free;
   public static timeOutToClearPressedKeys = 1.2;
-  updateType = SystemUpdateType.Fixed;
+  //updateType = SystemUpdateType.Fixed;
+  updateType = SystemUpdateType.Free;
   needSend = false;
   switchId = 1;
   boundListeners: ListenerBindingData[] = [];
