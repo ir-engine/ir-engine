@@ -52,13 +52,11 @@ export class ClientInputSystem extends System {
   needSend = false;
   switchId = 1;
   boundListeners: ListenerBindingData[] = [];
-  onProcessInput: any;
   static mouseInputEnabled = true;
   static keyboardInputEnabled = true;
 
   constructor(attributes?: SystemAttributes) {
     super(attributes);
-    this.onProcessInput = attributes.onProcessInput;
     ClientInputSchema.onAdded.forEach(behavior => {
       behavior.behavior();
     });

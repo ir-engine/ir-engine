@@ -53,6 +53,7 @@ export const DefaultOffscreenInitializationOptions = {
 const initializeEngineOffscreen = async ({ canvas, userArgs }, proxy: MainProxy) => {
   const { initOptions, useOfflineMode, postProcessing } = userArgs;
   const options = _.defaultsDeep({}, initOptions, DefaultOffscreenInitializationOptions);
+  console.log(options)
 
   proxyEngineEvents(proxy);
   addIncomingEvents();
@@ -63,6 +64,7 @@ const initializeEngineOffscreen = async ({ canvas, userArgs }, proxy: MainProxy)
 
   await AnimationManager.instance.getDefaultModel()
 
+  Network.instance = new Network();
   Network.instance.schema = options.networking.schema;
   // @ts-ignore
   Network.instance.transport = { isServer: false }

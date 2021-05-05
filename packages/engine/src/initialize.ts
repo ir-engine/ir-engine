@@ -63,9 +63,9 @@ export const initializeEngine = async (initOptions): Promise<void> => {
   Engine.offlineMode = useOfflineMode;
 
   Engine.xrSupported = await (navigator as any).xr?.isSessionSupported('immersive-vr')
-  // offscreen is buggy still, disable it for now and opt in with url query
-  // const useOffscreen = useCanvas && !Engine.xrSupported && 'transferControlToOffscreen' in canvas;
-  const useOffscreen = false;
+  
+  const useOffscreen = useCanvas && !Engine.xrSupported && 'transferControlToOffscreen' in canvas;
+  // const useOffscreen = false;
   if (!options.renderer) options.renderer = {};
 
   if (useOffscreen) {
