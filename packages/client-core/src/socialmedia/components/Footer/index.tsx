@@ -63,16 +63,6 @@ const AppFooter = ({creatorState, getLoggedCreator, authState, updateCreatorPage
     updateArMediaState(false);
   };
 
-  const renderCurrentCreator = () => <Avatar onClick={()=> {handleOpenCreatorPage(creatorState?.get('currentCreator')?.id);}}
-         alt={creatorState.get('currentCreator')?.username} src={creatorState.get('currentCreator')?.avatar} />;
-
-  useEffect(()=>{
-      if(creatorState.get('fetchingCurrentCreator') === false){
-        renderCurrentCreator();
-      }
-    },
-    [creatorState.get('currentCreator'), 
-    creatorState.get('fetchingCurrentCreator')]);
   return (
     <>
     <nav className={styles.footerContainer}>
@@ -89,8 +79,8 @@ const AppFooter = ({creatorState, getLoggedCreator, authState, updateCreatorPage
         {/* {creator && ( 
           <Avatar onClick={()=> {checkGuest ? setButtonPopup(true) : handleOpenCreatorPage(creator.id);}} 
           alt={creator.username} src={creator.avatar} />
-        )} */}        
-        {renderCurrentCreator()}
+        )} */}      
+        <Avatar onClick={()=> {handleOpenCreatorPage(creatorState?.get('currentCreator')?.id);}} alt={creatorState.get('currentCreator')?.username} src={creatorState.get('currentCreator')?.avatar} />  
     </nav>   
     </>
   );

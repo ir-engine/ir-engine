@@ -76,7 +76,6 @@ export function getCreator(creatorId) {
 export function updateCreator(creator: Creator){
   return async (dispatch: Dispatch): Promise<any> => {
     try {
-      console.log('fetchingCurrentCreator');
       dispatch(fetchingCurrentCreator());
       if(creator.newAvatar){
         const api = new  Api();
@@ -86,8 +85,6 @@ export function updateCreator(creator: Creator){
         delete creator.newAvatar;
       }      
       const updatedCreator = await client.service('creator').patch(creator.id, creator);   
-      console.log('fetchingCurrentCreator', updatedCreator);
-
       dispatch(creatorLoggedRetrieved(updatedCreator));
     } catch(err) {
       console.log(err);
