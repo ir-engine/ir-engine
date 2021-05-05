@@ -126,6 +126,7 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 interface Props {
+    children?: any,
     authState?: any
 }
 
@@ -143,7 +144,7 @@ const mapStateToProps = (state: any): any => {
  * @author Kevin KIMENYI <kimenyikevin@gmail.com>
  */
 
-const Dashboard = ({ children, authState }) => {
+const Dashboard = ({ children, authState }: Props) => {
     const classes = useStyles();
     const theme = useTheme();
     const [open, setOpen] = React.useState(false);
