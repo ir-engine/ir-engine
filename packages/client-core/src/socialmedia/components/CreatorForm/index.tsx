@@ -57,7 +57,7 @@ const CreatorForm = ({creatorData, creatorsState, updateCreator, updateCreatorFo
     const handlePickAvatar = async (file) => setCreator({...creator, newAvatar: file.target.files[0]});
 	const { t } = useTranslation();
 
-    useEffect(()=>setCreator(creatorsState.get('currentCreator')), [creatorsState.get('currentCreator')])
+    useEffect(()=>setCreator(creatorsState.get('currentCreator')), [creatorsState.get('currentCreator')]);
 
     return <section className={styles.creatorContainer}>
          <form

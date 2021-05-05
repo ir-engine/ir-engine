@@ -64,7 +64,7 @@ const AppFooter = ({creatorState, getLoggedCreator, authState, updateCreatorPage
   };
 
   const renderCurrentCreator = () => <Avatar onClick={()=> {handleOpenCreatorPage(creatorState?.get('currentCreator')?.id);}}
-         alt={creatorState.get('currentCreator')?.username} src={creatorState.get('currentCreator')?.avatar} />
+         alt={creatorState.get('currentCreator')?.username} src={creatorState.get('currentCreator')?.avatar} />;
 
   useEffect(()=>{
       if(creatorState.get('fetchingCurrentCreator') === false){
