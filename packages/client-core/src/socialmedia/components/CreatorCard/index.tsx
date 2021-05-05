@@ -101,12 +101,15 @@ const CreatorCard = ({creator,creatorState, updateCreatorPageState, popupsState,
     return  creator ?  (
         <>
             <Card className={styles.creatorCard} elevation={0} key={creator.username} square={false} >
+            { creator.background ? (
                 <CardMedia   
                     className={styles.bgImage}                  
                     src={creator.background}
                     title={creator.name}
                 />              
-                
+                ) : (
+                    <section className={styles.bgImage}/>
+                  )}
                 <section className={styles.controls}>
                     <Button variant="text" className={styles.backButton} 
                     onClick={()=>updateCreatorPageState(false)}><ArrowBackIosIcon />{t('social:creator.back')}</Button>  
@@ -119,14 +122,18 @@ const CreatorCard = ({creator,creatorState, updateCreatorPageState, popupsState,
                         <Button variant={'outlined'} color='primary' className={styles.followButton} onClick={()=>handleFollowingByCreator(creator.id)}>Following</Button>
                     </section>
                 </section> */}
+                { creator.avatar ? (
                 <CardMedia   
                     className={styles.avatarImage}                  
                     image={creator.avatar}
                     title={creator.username}
                 />                
+                ) : (
+                    <section className={styles.avatarImage}/>
+                  )}
                 <CardContent className={styles.content}>
                     <Typography className={styles.titleContainer} gutterBottom variant="h5" component="h5" align="center">{creator.name}</Typography>
-                    <Typography variant="h5" component="p" align="center">{creator.username}</Typography>
+                    <Typography variant="h5" component="p" align="center">@{creator.username}</Typography>
                     <Typography variant="h4" component="p" align="center">{creator.tags}</Typography>
                     <Typography variant="h4" component="p" align="center">{creator.bio}</Typography>
 

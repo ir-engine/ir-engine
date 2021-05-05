@@ -47,19 +47,17 @@ export class ClientInputSystem extends System {
     ENABLE_INPUT: 'CLIENT_INPUT_SYSTEM_ENABLE_INPUT',
     PROCESS_INPUT: 'CLIENT_INPUT_SYSTEM_PROCESS_EVENT',
   }
-
   public timeOutToClearPressedKeys = 1.2;
-  updateType = SystemUpdateType.Fixed;
+  //updateType = SystemUpdateType.Fixed;
+  updateType = SystemUpdateType.Free;
   needSend = false;
   switchId = 1;
   boundListeners: ListenerBindingData[] = [];
-  onProcessInput: any;
   static mouseInputEnabled = true;
   static keyboardInputEnabled = true;
 
   constructor(attributes?: SystemAttributes) {
     super(attributes);
-    this.onProcessInput = attributes.onProcessInput;
     ClientInputSchema.onAdded.forEach(behavior => {
       behavior.behavior();
     });

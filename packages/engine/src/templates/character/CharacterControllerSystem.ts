@@ -18,6 +18,7 @@ import { NetworkObject } from "../../networking/components/NetworkObject";
 import { IKComponent } from "./components/IKComponent";
 import { isClient } from "../../common/functions/isClient";
 import { EngineEvents } from "../../ecs/classes/EngineEvents";
+import { SystemUpdateType } from "../../ecs/functions/SystemUpdateType";
 import { applyVectorMatrixXZ } from '../../common/functions/applyVectorMatrixXZ';
 
 const forwardVector = new Vector3(0, 0, 1);
@@ -26,6 +27,7 @@ const prevControllerColliderPosition = new Vector3();
 
 export class CharacterControllerSystem extends System {
 
+  updateType = SystemUpdateType.Free;
   constructor(attributes?: SystemAttributes) {
     super(attributes);
   }

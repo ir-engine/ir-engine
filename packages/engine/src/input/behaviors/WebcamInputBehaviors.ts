@@ -3,6 +3,7 @@ import { EngineEvents } from "../../ecs/classes/EngineEvents";
 import { getMutableComponent } from "../../ecs/functions/EntityFunctions";
 import { MediaStreamSystem } from "../../networking/systems/MediaStreamSystem";
 import { Input } from "../components/Input";
+import { WEBCAM_INPUT_EVENTS } from '../constants/InputConstants';
 import { CameraInput } from "../enums/InputEnums";
 import { InputType } from "../enums/InputType";
 
@@ -15,11 +16,6 @@ if (isBrowser())
   import("./WebcamInputWorker?worker").then(worker => {
     Worker = worker.default
   });
-
-export const WEBCAM_INPUT_EVENTS = {
-  FACE_INPUT: 'WEBCAM_INPUT_EVENTS_FACE_INPUT',
-  LIP_INPUT: 'WEBCAM_INPUT_EVENTS_LIP_INPUT',
-}
 
 const EXPRESSION_THRESHOLD = 0.1;
 

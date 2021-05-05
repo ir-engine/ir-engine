@@ -2,7 +2,6 @@
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
 import React, { useEffect } from "react";
-import { useHistory } from "react-router-dom";
 // @ts-ignore
 import styles from './Header.module.scss';
 import Avatar from "@material-ui/core/Avatar";
@@ -36,16 +35,14 @@ interface Props{
 }
 const AppHeader = ({creatorState, getLoggedCreator, logo, authState, updateCreatorFormState}: Props) => {
 	const { t } = useTranslation();
-  const history = useHistory();
   useEffect(()=>getLoggedCreator(),[]);  
-  const creator = creatorState && creatorState.get('fetching') === false && creatorState.get('currentCreator');
+  const creator = creatorState && creatorState.get('fetchingCurrentCreator') === false && creatorState.get('currentCreator');
  /* Hided for now */
   // const checkGuest = authState.get('authUser')?.identityProvider?.type === 'guest' ? true : false;
 
   return (
     <nav className={styles.headerContainer}>
         {logo && <img src={logo} className="header-logo" alt="ARC" />}
-        <button type={"button"} onClick={()=>history.push('/volumetric')} title={t('social:header.lbl-volumetric')} className="header-logo">{t('social:header.lbl-volumetric')}</button>
         {creator && {/*!checkGuest*/} &&
           <Avatar onClick={()=> updateCreatorFormState(true)} 
           alt={creator.username} src={creator.avatar} />

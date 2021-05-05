@@ -72,6 +72,7 @@ export class WebGLRendererSystem extends System {
   renderContext: WebGLRenderingContext;
 
   forcePostProcessing = false;
+  static supportWebGL2 = true;
   
   /** Constructs WebGL Renderer System. */
   constructor(attributes?: SystemAttributes) {
@@ -81,6 +82,7 @@ export class WebGLRendererSystem extends System {
 
     this.onResize = this.onResize.bind(this);
 
+    let supportWebGL2 = !((window as any).iOS || (window as any).safariWebBrowser);
     
     let context;
     const canvas = attributes.canvas;
@@ -89,7 +91,10 @@ export class WebGLRendererSystem extends System {
       context = canvas.getContext("webgl2", { antialias: true });
     } catch (error) {
       context = canvas.getContext("webgl", { antialias: true });
+      supportWebGL2 = false;
     }
+
+
     this.renderContext = context;
     const options = {
       canvas,
@@ -129,8 +134,15 @@ export class WebGLRendererSystem extends System {
     loadGraphicsSettingsFromStorage();
 
     // if we turn PostPro off, don't turn it back on, if we turn it on, let engine manage it
-    this.forcePostProcessing = attributes.postProcessing 
-    this.setUsePostProcessing(attributes.postProcessing);
+    if(supportWebGL2) {
+      this.forcePostProcessing = attributes.postProcessing 
+      this.setUsePostProcessing(attributes.postProcessing);
+    } else {
+      this.setUsePostProcessing(false);
+    }
+    
+    WebGLRendererSystem.supportWebGL2 = supportWebGL2;
+    
     this.setShadowQuality(this.qualityLevel);
     this.setResolution(WebGLRendererSystem.scaleFactor);
     this.setUseAutomatic(WebGLRendererSystem.automatic);
@@ -353,6 +365,7 @@ export class WebGLRendererSystem extends System {
   }
 
   setUsePostProcessing(usePostProcessing) {
+    if(!WebGLRendererSystem.supportWebGL2) return;
     if(Engine.renderer?.xr?.isPresenting) return;
     WebGLRendererSystem.usePostProcessing = usePostProcessing;
     // Engine.renderer.outputEncoding = WebGLRendererSystem.usePostProcessing ? sRGBEncoding : sRGBEncoding;

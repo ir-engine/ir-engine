@@ -5,7 +5,6 @@ import {
     fetchingInvitesTypes,
    retrievedInvitesTypes
 } from "./actions";
-import store from "../../../store";
 
 export function retrieveInvites () {
     return async (dispatch: Dispatch, getState: any): Promise<any> => {

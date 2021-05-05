@@ -37,7 +37,7 @@ import { CollisionGroups } from '../../../physics/enums/CollisionGroups';
 import { InterpolationInterface } from '../../../physics/interfaces/InterpolationInterface';
 import { characterCorrectionBehavior } from '../behaviors/characterCorrectionBehavior';
 import { characterInterpolationBehavior } from '../behaviors/characterInterpolationBehavior';
-import { Controller } from 'three-physx'; // , CapsuleController
+import { Controller, getGeometry } from 'three-physx';
 import { SkeletonUtils } from '../../../assets/threejs-various/SkeletonUtils.js';
 import { standardizeSkeletion } from '../functions/standardizeSkeleton';
 
@@ -124,6 +124,7 @@ export const loadActorAvatarFromURL: Behavior = (entity, avatarURL) => {
 		parent: tmpGroup,
 	}, () => {
 		const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
+		const controller = getMutableComponent<ControllerColliderComponent>(entity, ControllerColliderComponent);
     if(!actor) return
 
     actor.mixer && actor.mixer.stopAllAction();
@@ -151,8 +152,10 @@ export const loadActorAvatarFromURL: Behavior = (entity, avatarURL) => {
     // SkeletonUtils.retarget(targetSkeleton, sourceSkeleton);
 
 		tmpGroup.children.forEach(child => actor.modelContainer.add(child));
-
-    console.log(actor.modelContainer)
+    const geom = getGeometry(actor.modelContainer);
+    geom.computeBoundingBox()
+    const modelHeight = geom.boundingBox.max.y - geom.boundingBox.min.y;
+    controller.controller.resize(modelHeight - (controller.radius * 2));
 		actor.mixer = new AnimationMixer(actor.modelContainer.children[0]);
 		if (hasComponent(entity, IKComponent)) {
 			initiateIK(entity)

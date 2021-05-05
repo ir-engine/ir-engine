@@ -22,16 +22,16 @@ import { BaseInput } from "../enums/BaseInput";
 import { ClientNetworkSystem } from "../../networking/systems/ClientNetworkSystem";
 import { EngineEvents } from "../../ecs/classes/EngineEvents";
 import { ClientInputSystem } from "./ClientInputSystem";
+import { WEBCAM_INPUT_EVENTS } from "../constants/InputConstants";
 
 const isBrowser = new Function("try {return this===window;}catch(e){ return false;}");
 
-let faceToInput, lipToInput, WEBCAM_INPUT_EVENTS;
+let faceToInput, lipToInput;
 
 if (isBrowser())
   import("../behaviors/WebcamInputBehaviors").then(imported => {
     faceToInput = imported.faceToInput;
     lipToInput = imported.lipToInput;
-    WEBCAM_INPUT_EVENTS = imported.WEBCAM_INPUT_EVENTS;
   });
 
 /**

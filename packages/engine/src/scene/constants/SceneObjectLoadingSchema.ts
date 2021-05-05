@@ -121,7 +121,9 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
   'collidable': {
     behaviors: [
       {
-        behavior: () => { console.warn("SceneObjectLoadingSchema: Using 'collidable' which is not implemented"); },
+        behavior: () => { 
+          // console.warn("SceneObjectLoadingSchema: Using 'collidable' which is not implemented");
+        },
       },
     ]},
   "floor-plan": {}, // Doesn't do anything in client mode

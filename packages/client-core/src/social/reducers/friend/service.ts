@@ -8,10 +8,12 @@ import {
   fetchingFriends
 } from './actions';
 import {dispatchAlertError} from "../../../common/reducers/alert/service";
-import store from '../../../store';
+import Store from '../../../store';
 import { User } from '@xr3ngine/common/src/interfaces/User';
 
 import { Config } from '../../../helper';
+
+const store = Store.store;
 
 // export function getUserRelationship(userId: string) {
 //   return (dispatch: Dispatch): any => {

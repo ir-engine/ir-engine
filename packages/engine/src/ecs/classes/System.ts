@@ -116,6 +116,11 @@ export abstract class System {
    * @param attributes User defined system attributes.
    */
   constructor (attributes?: SystemAttributes) {
+
+    const _name = (this.constructor as any).getName();
+    const name = _name.substr(0, 1) === '_' ? _name.slice(1) : _name;
+    globalThis[name] = this;
+
     this.enabled = true;
 
     // @todo Better naming :)
@@ -223,7 +228,8 @@ export abstract class System {
 
   /** Get name of the System */
   static getName (): string {
-    return (this.constructor as any).getName();
+    const name: string = (this.constructor as any).getName();
+    return name.substr(0, 1) === '_' ? name.slice(1) : name;
   }
 
   /** 

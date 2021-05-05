@@ -19,5 +19,6 @@ export const DefaultInitializationOptions = {
   ],
   publicPath: '',
   useOfflineMode: false,
+  useCanvas: true,
   postProcessing: true
 };
