@@ -28,7 +28,6 @@ BufferGeometry.prototype["computeBoundsTree"] = computeBoundsTree;
 export const initializeServer = async (initOptions: any = DefaultInitializationOptions): Promise<void> => {
   const options = _.defaultsDeep({}, initOptions, DefaultInitializationOptions);
 
-  EngineEvents.instance = new EngineEvents();
   Engine.scene = new Scene();
   Engine.publicPath = options.publicPath;
   Network.instance = new Network();

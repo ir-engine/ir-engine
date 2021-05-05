@@ -42,7 +42,7 @@ const mapStateToProps = (state: any): any => {
 const Creator = ({creatorId, creatorState, getCreator, followCreator, unFollowCreator, getFollowersList, getFollowingList, creatorData}:Props) => { 
     const [isMe, setIsMe] = useState(false);
     useEffect(()=>{
-        if(creatorState && creatorState.get('currentCreator') && creatorId === creatorState.get('currentCreator').id){
+        if(creatorState && creatorState.get('fetchingCurrentCreator') === false && creatorState.get('currentCreator') && creatorId === creatorState.get('currentCreator').id){
             setIsMe(true);
         }else{
             if(!creatorData){
@@ -59,7 +59,7 @@ const Creator = ({creatorId, creatorState, getCreator, followCreator, unFollowCr
                   <Button variant={videoType === 'fired' ? 'contained' : 'text'} color='secondary' className={styles.switchButton+(videoType === 'fired' ? ' '+styles.active : '')} onClick={()=>setVideoType('fired')}>{t('social:creator.savedVideos')}</Button>
             </section>}
             <section className={styles.feedsWrapper}>
-              <Featured creatorId={isMe === true ? creatorState?.get('currentCreator').id : creatorData ? creatorData.id : creatorState?.get('creator').id} type={videoType}/>
+              <Featured creatorId={isMe === true ? creatorState?.get('currentCreator').id : creatorData ? creatorData.id : creatorState?.get('creator')?.id} type={videoType}/>
             </section>
         </section>
     </>;

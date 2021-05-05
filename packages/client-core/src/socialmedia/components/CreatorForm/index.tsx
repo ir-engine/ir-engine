@@ -1,7 +1,7 @@
 /**
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { useHistory } from "react-router-dom";
 
@@ -56,6 +56,9 @@ const CreatorForm = ({creatorData, creatorsState, updateCreator, updateCreatorFo
     };
     const handlePickAvatar = async (file) => setCreator({...creator, newAvatar: file.target.files[0]});
 	const { t } = useTranslation();
+   
+    useEffect(()=>setCreator(creatorsState.get('currentCreator')), [creatorsState.get('currentCreator')]);
+    
 
     return <section className={styles.creatorContainer}>
          <form
@@ -68,11 +71,15 @@ const CreatorForm = ({creatorData, creatorsState, updateCreator, updateCreatorFo
                 {!creatorData && <Typography variant="h2" className={styles.pageTitle}>{t('social:creatorForm.edit')}</Typography>}
                 <Button variant="text" type="submit" className={styles.saveButton}>{t('social:creatorForm.save')}</Button>
             </nav>  
+            { creator.avatar ? (
             <CardMedia   
                 className={styles.avatarImage}                  
                 image={creator.avatar}
                 title={creator.username}
             />
+            ) : (
+                <section className={styles.avatarImage}/>
+              )}
             <Typography variant="h6" align="center" onClick={()=>{(avatarRef.current as HTMLInputElement).click();}}>{t('social:creatorForm.changeAvatar')}</Typography>
             <input  className={styles.displayNone} type="file" ref={avatarRef} name="newAvatar" onChange={handlePickAvatar} placeholder={t('social:creatorForm.ph-selectPreview')}/>
             <section className={styles.content}>

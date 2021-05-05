@@ -30,7 +30,7 @@
     "validate": "yarn run lint && yarn run test",
     "generate-doc": "node_modules/.bin/typedoc"
   },
-  "version": "0.2.18",
+  "version": "0.2.21",
   "peerDependencies": {
     "@typescript-eslint/eslint-plugin": "^4.6.0",
     "@typescript-eslint/parser": "^4.4.1",
@@ -38,7 +38,8 @@
   },
   "dependencies": {
     "@pixiv/three-vrm": "^0.6.0",
-    "@xr3ngine/common": "^0.2.18",
+    "@xr3ngine/common": "^0.2.21",
+    "@xr3ngine/volumetric": "^0.2.21",
     "browserfs": "^1.4.3",
     "cross-fetch": "^3.0.6",
     "ctix": "^0.3.1",
@@ -49,7 +50,7 @@
     "socket.io": "2.4.1",
     "three": "^0.128.0",
     "three-mesh-bvh": "^0.3.7",
-    "three-physx": "^0.0.7",
+    "three-physx": "^0.0.8",
     "vite-xrengine": "2.2.4",
     "web-worker": "^1.0.0"
   },

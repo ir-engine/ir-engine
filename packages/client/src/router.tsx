@@ -31,6 +31,7 @@ export const RouterComp = () => {
 
             {/* Location Routes */}
             <Route path="/location/:locationName" component={React.lazy(() => import('./pages/location/[locationName]'))} />
+            <Route path="/video360" component={React.lazy(() => import('./pages/video360'))} />
             <Redirect path="/location" to={"/location/" + Config.publicRuntimeConfig.lobbyLocationName} />
 
             {/* Harmony Routes */}

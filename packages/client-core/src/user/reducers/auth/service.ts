@@ -15,7 +15,7 @@ import { v1 } from 'uuid';
 import { client } from '../../../feathers';
 import { validateEmail, validatePhoneNumber } from '../../../helper';
 import { getStoredState } from '../../../persisted.store';
-import store from "../../../store";
+import Store from "../../../store";
 import {
   addedChannelLayerUser,
   addedLayerUser, clearChannelLayerUsers,
@@ -45,6 +45,8 @@ import {
   usernameUpdated,
   userUpdated
 } from './actions';
+
+const store = Store.store;
 
 export function doLoginAuto (allowGuest?: boolean, forceClientAuthReset?: boolean) {
   return async (dispatch: Dispatch): Promise<any> => {

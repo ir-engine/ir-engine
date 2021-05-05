@@ -748,7 +748,8 @@ const Harmony = (props: Props): any => {
                 networking: {
                     schema: networkSchema,
                 },
-                renderer: {}
+                renderer: {},
+                useCanvas: false,
             };
 
             await initializeEngine(InitializationOptions);

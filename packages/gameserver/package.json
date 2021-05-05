@@ -1,7 +1,7 @@
 {
   "name": "@xr3ngine/gameserver",
   "description": "Multiplayer Gameserver for XR3ngine",
-  "version": "0.2.18",
+  "version": "0.2.21",
   "private": true,
   "homepage": "",
   "main": "./src",
@@ -64,9 +64,8 @@
     "@feathersjs/socketio-client": "4.5.11",
     "@feathersjs/transport-commons": "4.5.11",
     "@google-cloud/agones-sdk": "1.14.0",
-    "@xr3ngine/engine": "^0.2.17",
-    "@xr3ngine/server-core": "^0.2.17",
-    "three-physx": "0.0.7",
+    "@xr3ngine/engine": "^0.2.21",
+    "@xr3ngine/server-core": "^0.2.21",
     "aws-sdk": "2.897.0",
     "bent": "7.3.12",
     "chargebee": "2.6.5",
@@ -105,6 +104,7 @@
     "sequelize": " 6.6.2",
     "serve-favicon": "2.5.0",
     "slugify": "1.5.0",
+    "three-physx": "0.0.8",
     "universal-analytics": "0.4.23",
     "uuid": "8.3.2",
     "winston": "3.3.3"

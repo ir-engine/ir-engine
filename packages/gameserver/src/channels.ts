@@ -190,6 +190,7 @@ export default (app: Application): void => {
                         const userId = identityProvider.userId;
                         const user = await app.service('user').get(userId);
                         logger.info('Socket disconnect from ' + userId);
+                        console.log('Socket disconnect from ' + userId);
                         const instanceId = process.env.KUBERNETES !== 'true' ? (connection as any).instanceId : (app as any).instance?.id;
                         let instance;
                         try {
