@@ -210,7 +210,7 @@ export function applyNetworkStateToClient(worldStateBuffer: WorldStateInterface,
       // Remove network object from list
       delete Network.instance.networkObjects[networkId];
     })
-
+/*
     worldStateBuffer.inputs?.forEach(inputData => {
       // Ignore input applied to local user input object that the client is currently controlling
       if (
@@ -232,11 +232,9 @@ export function applyNetworkStateToClient(worldStateBuffer: WorldStateInterface,
           inputData.viewVector.y,
           inputData.viewVector.z,
       );
-      /*
+
       // Get input object attached
       const input = getComponent(networkComponent.entity, Input);
-      const isWalking = (input.data.get(BaseInput.WALK)?.value) === BinaryValue.ON;
-      actor.moveSpeed = isWalking ? WALK_SPEED : RUN_SPEED;
 
       // Clear current data
       input.data.clear();
@@ -271,6 +269,7 @@ export function applyNetworkStateToClient(worldStateBuffer: WorldStateInterface,
 
       // handle inputs
       handleInputFromNonLocalClients(networkComponent.entity, {isLocal:false, isServer: false}, delta);
-      */
+
     });
+    */
 }

@@ -39,7 +39,7 @@
   "dependencies": {
     "@pixiv/three-vrm": "^0.6.0",
     "@xrengine/common": "^0.2.22",
-    "@xrengine/volumetric": "^0.2.21",
+    "volumetric": "^0.2.19",
     "browserfs": "^1.4.3",
     "cross-fetch": "^3.0.6",
     "ctix": "^0.3.1",

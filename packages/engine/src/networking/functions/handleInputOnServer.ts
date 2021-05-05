@@ -3,7 +3,7 @@ import { LifecycleValue } from '../../common/enums/LifecycleValue';
 import { Behavior } from '../../common/interfaces/Behavior';
 import { NumericalType } from '../../common/types/NumericalTypes';
 import { Entity } from '../../ecs/classes/Entity';
-import { getMutableComponent } from '../../ecs/functions/EntityFunctions';
+import { getComponent } from '../../ecs/functions/EntityFunctions';
 import { Input } from '../../input/components/Input';
 import { InputType } from '../../input/enums/InputType';
 import { InputValue } from '../../input/interfaces/InputValue';
@@ -24,37 +24,36 @@ import { InputAlias } from '../../input/types/InputAlias';
 export const handleInputFromNonLocalClients: Behavior = (entity: Entity, args: { isLocal: boolean, isServer: boolean }, delta: number): void => {
 
   // Get immutable reference to Input and check if the button is defined -- ignore undefined buttons
-  const input = getMutableComponent(entity, Input);
+  const input = getComponent(entity, Input);
 
   // For each input currently on the input object:
   input.data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
 
     // If the input is a button
     if (value.type === InputType.BUTTON) {
-
       // If the input exists on the input map (otherwise ignore it)
       if (input.schema.inputButtonBehaviors[key]) {
-
         // If the button is pressed
         if (value.value === BinaryValue.ON) {
           // ... and the button was just started
           if (value.lifecycleState === LifecycleValue.STARTED) {
             // Set the value of the input to continued to debounce
-            input.schema.inputButtonBehaviors[key].started?.forEach(element => {
+            input.schema.inputButtonBehaviors[key].started?.forEach(element =>
               element.behavior(entity, element.args, delta)
-            }
             );
           } else if (value.lifecycleState === LifecycleValue.CONTINUED) {
             // ... otherwise, if the button was continued from last frame
+            /*
             input.schema.inputButtonBehaviors[key].continued?.forEach(element =>
               element.behavior(entity, element.args, delta)
             );
+            */
           }
-          // Otherwise the button was probably ende
         } else {
-          input.schema.inputButtonBehaviors[key].ended?.forEach(element =>
+          input.schema.inputButtonBehaviors[key].ended?.forEach(element => {
             element.behavior(entity, element.args, delta)
-          );
+          });
+          // clean processed LifecycleValue.ENDED inputs
         }
       }
     }
@@ -81,5 +80,6 @@ export const handleInputFromNonLocalClients: Behavior = (entity: Entity, args: {
         console.error('Unexpected lifecycleState', value.lifecycleState, LifecycleValue[value.lifecycleState], value);
       }
     }
+
   });
 };
