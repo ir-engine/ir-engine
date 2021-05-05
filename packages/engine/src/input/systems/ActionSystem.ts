@@ -172,8 +172,7 @@ export class ActionSystem extends System {
             }
             return;
 
-            if (
-              prevValue.lifecycleState === LifecycleValue.ENDED &&
+            if (prevValue.lifecycleState === LifecycleValue.ENDED &&
               value.lifecycleState === LifecycleValue.STARTED
             ) {
               // auto-switch to CONTINUED
