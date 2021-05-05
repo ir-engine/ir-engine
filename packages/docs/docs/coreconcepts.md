@@ -11,6 +11,10 @@ It can be very daunting for developers new to our ecosystem to know where to sta
 
 Our decision for one design concept or framework over another was largely driven by a desire to reach as many people as possible while staying current to emerging ecosystem trends. We want developers to see our engine as an opportunity to build highly relevant skills, and we have tried to incorporate popular solutions wherever writing our own wasn't necessary. You may not agree with some of our framework decisions. Just know that we are driven not by a love for one framework or another, but a desire to minimize the learning curve for the most people coming to this engine for the first time. The engine is designed in a modular way, however, so you are free to pick and choose the parts the work for you and modify what doesn't.
 
+# Monorepo and Packages
+
+## Yarn, Lerna and the NPM Ecosystem
+
 ## Modularity
 
 TODO
