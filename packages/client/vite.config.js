@@ -53,7 +53,6 @@ export default defineConfig(() => {
         '@material-ui/icons': '@material-ui/icons/esm',
         "socket.io-client": "socket.io-client/dist/socket.io.js",
         "react-infinite-scroller": "react-infinite-scroller/dist/InfiniteScroll",
-        'react-json-tree': 'react-json-tree/umd/react-json-tree',
       }
     },
     define: {
