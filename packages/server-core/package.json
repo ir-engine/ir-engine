@@ -30,6 +30,7 @@
   "engines": {
     "yarn": ">= 0.18.0"
   },
+  "type": "module",
   "jest": "ts-jest",
   "scripts": {
     "check-errors": "tsc --noemit",

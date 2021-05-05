@@ -26,4 +26,4 @@ ENV NODE_ENV=production
 ENV PORT=3030
 
 EXPOSE 3030
-CMD ["yarn start"]
+CMD yarn start
