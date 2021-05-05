@@ -1,23 +1,21 @@
 /**
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
+import Card from '@material-ui/core/Card';
+import CardMedia from '@material-ui/core/CardMedia';
+import VisibilityIcon from '@material-ui/icons/Visibility';
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
-
-import CardMedia from '@material-ui/core/CardMedia';
-import Card from '@material-ui/core/Card';
-import VisibilityIcon from '@material-ui/icons/Visibility';
-import StarIcon from '@material-ui/icons/Star';
-import StarOutlineIcon from '@material-ui/icons/StarOutline';
-
-// @ts-ignore
-import styles from './Featured.module.scss';
 import { bindActionCreators, Dispatch } from 'redux';
+import { selectAuthState } from '../../../user/reducers/auth/selector';
 import { selectCreatorsState } from '../../reducers/creator/selector';
 import { selectFeedsState } from '../../reducers/feed/selector';
 import { getFeeds, setFeedAsFeatured, setFeedNotFeatured } from '../../reducers/feed/service';
-import { selectAuthState } from '../../../user/reducers/auth/selector';
 import { updateFeedPageState } from '../../reducers/popupsState/service';
+// @ts-ignore
+import styles from './Featured.module.scss';
+
+
 
 const mapStateToProps = (state: any): any => {
     return {
@@ -118,7 +116,7 @@ const Featured = ({feedsState, getFeeds, type, creatorId, creatorState, setFeedA
                     onClick={()=>updateFeedPageState(true, item.id)}
                 />
                 <span className={styles.eyeLine}>{item.viewsCount}<VisibilityIcon style={{fontSize: '16px'}}/></span>
-            </Card>}
+            </Card>;}
         )}
         </section>;
 };
