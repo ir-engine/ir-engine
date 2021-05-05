@@ -1,6 +1,6 @@
 {
   "name": "@xr3ngine/volumetric",
-  "version": "0.2.20",
+  "version": "0.2.21",
   "repository": {
     "type": "git",
     "url": "git://github.com/xr3ngine/xr3ngine.git"
@@ -27,7 +27,7 @@
     "@types/three": "0.127.1"
   },
   "dependencies": {
-    "@xr3ngine/engine": "^0.2.20",
+    "@xr3ngine/engine": "^0.2.21",
     "three": "0.128.0",
     "xmlhttprequest": "1.8.0"
   },
