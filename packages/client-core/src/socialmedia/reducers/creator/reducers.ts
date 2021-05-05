@@ -19,14 +19,18 @@ import {
   SET_CREATOR_AS_FOLLOWED,
   SET_CREATOR_NOT_FOLLOWED,
   CREATOR_FOLLOWING_RETRIEVED,
-  CREATORS_FETCH
+  CREATORS_FETCH,
+  CURRENT_CREATOR_FETCH
 } from '../actions';
 
 export const initialCreatorState = {
   creators: {
     creators: [],
+    fetchingCreators:false,
     creator: {},
+    fetchingCreator: false,
     currentCreator: {},
+    fetchingCurrentCreator:false,
     currentCreatorNotifications: {},
     followers:[],
     following: [],
@@ -37,19 +41,26 @@ export const initialCreatorState = {
 const immutableState = Immutable.fromJS(initialCreatorState);
 
 const creatorReducer = (state = immutableState, action: CreatorsAction): any => {
-  switch (action.type) {
-    case CREATORS_FETCH : return state.set('fetching', true).set('creators',[]);
-    
-    case CREATOR_FETCH : return state.set('fetching', true).set('creator',{});
-
-    case CREATORS_RETRIEVED:
-      return state.set('creators', (action as CreatorsRetrievedAction).creators).set('fetching', false);
-
+  switch (action.type) {    
+    case CURRENT_CREATOR_FETCH : return state.set('fetchingCurrentCreator', true);
     case CURRENT_CREATOR_RETRIEVED:
-      return state.set('currentCreator', (action as CreatorRetrievedAction).creator).set('fetching', false);
+      return state.set('currentCreator', (action as CreatorRetrievedAction).creator).
+      set('creators', state.get('creators')?.map(creator => {
+        if(creator.id === (action as CreatorRetrievedAction).creator.id) {
+          return {...(action as CreatorRetrievedAction).creator};
+        }
+        return {...creator};
+      })).
+      set('fetchingCurrentCreator', false);
 
+    case CREATOR_FETCH : return state.set('fetchingCreator', true).set('creator',{});
     case CREATOR_RETRIEVED: 
-      return state.set('creator', (action as CreatorRetrievedAction).creator).set('fetching', false);
+      return state.set('creator', (action as CreatorRetrievedAction).creator).set('fetchingCreator', false);
+
+    case CREATORS_FETCH : return state.set('fetchingCreators', true).set('creators',[]);
+    case CREATORS_RETRIEVED:
+      return state.set('creators', (action as CreatorsRetrievedAction).creators).set('fetchingCreators', false); 
+    
 
     case CREATOR_NOTIFICATION_LIST_RETRIEVED:
       return state.set('currentCreatorNotifications', (action as CreatorsNotificationsRetrievedAction).notifications).set('fetching', false);

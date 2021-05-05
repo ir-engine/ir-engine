@@ -16,7 +16,7 @@ import { client } from '@xr3ngine/client-core/src/feathers';
 import { selectLocationState } from '@xr3ngine/client-core/src/social/reducers/location/selector';
 import { getLocationByName, getLobby } from '@xr3ngine/client-core/src/social/reducers/location/service';
 import { setCurrentScene } from '@xr3ngine/client-core/src/world/reducers/scenes/actions';
-import store from '@xr3ngine/client-core/src/store';
+import Store from '@xr3ngine/client-core/src/store';
 import { selectUserState } from '@xr3ngine/client-core/src/user/reducers/user/selector';
 import { selectInstanceConnectionState } from '../../reducers/instanceConnection/selector';
 import {
@@ -56,6 +56,8 @@ import { GamesSchema } from "@xr3ngine/engine/src/templates/game/GamesSchema";
 import WarningRefreshModal from "../AlertModals/WarningRetryModal";
 import { ClientInputSystem } from '@xr3ngine/engine/src/input/systems/ClientInputSystem';
 
+const store = Store.store;
+
 const goHome = () => window.location.href = window.location.origin;
 
 const MobileGamepad = React.lazy(() => import("@xr3ngine/client-core/src/common/components/MobileGamepad"));
@@ -71,33 +73,35 @@ const initialRefreshModalValues = {
   parameters: []
 };
 
+// debug for contexts where devtools may be unavailable
 const consoleLog = [];
+if(globalThis.process?.env.NODE_ENV === 'development') {
+  const consolelog = console.log;
+  console.log = (...args) => {
+    consolelog(...args);
+    consoleLog.push("Log: " + args.join(' '));
+  };
 
-globalThis.consolelog = console.log;
-console.log = (...args) => {
-  globalThis.consolelog(...args);
-  consoleLog.push("Log: " + args.join(' '));
-};
+  const consolewarn = console.warn;
+  console.warn = (...args) => {
+    consolewarn(...args);
+    consoleLog.push("Warn: " + args.join(' '));
+  };
 
-globalThis.consolewarn = console.warn;
-console.warn = (...args) => {
-  globalThis.consolewarn(...args);
-  consoleLog.push("Warn: " + args.join(' '));
-};
+  const consoleerror = console.error;
+  console.error = (...args) => {
+    consoleerror(...args);
+    consoleLog.push("Error: " + args.join(' '));
+  };
 
-globalThis.consoleerror = console.error;
-console.error = (...args) => {
-  globalThis.consoleerror(...args);
-  consoleLog.push("Error: " + args.join(' '));
-};
-
-globalThis.dump = () => {
-  document.body.innerHTML = consoleLog.map((log) => {
-    return `<p>${log}</p>`;
-  }).join('');
-  globalThis.consolelog(consoleLog);
-  resetEngine();
-};
+  globalThis.dump = () => {
+    document.body.innerHTML = consoleLog.map((log) => {
+      return `<p>${log}</p>`;
+    }).join('');
+    consolelog(consoleLog);
+    resetEngine();
+  };
+}
 
 interface Props {
   setAppLoaded?: any,
