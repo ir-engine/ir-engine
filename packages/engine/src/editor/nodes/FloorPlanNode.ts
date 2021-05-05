@@ -89,7 +89,7 @@ export default class FloorPlanNode extends EditorNodeMixin(FloorPlan) {
       this.heightfieldMesh.visible = false;
     }
   }
-  async generate(signal) {
+  async generate(signal, wasmUrl) {
     (window as any).scene = this;
     const collidableMeshes = [];
     const walkableMeshes = [];
@@ -158,7 +158,7 @@ export default class FloorPlanNode extends EditorNodeMixin(FloorPlan) {
         agentMaxClimb: this.agentMaxClimb,
         agentMaxSlope: this.agentMaxSlope,
         regionMinSize: this.regionMinSize,
-        wasmUrl: 'https://127.0.0.1:3000/recast/recast.wasm', // TODO: Use env var
+        wasmUrl,
       },
       signal
     );

@@ -29,7 +29,6 @@ services:
       context: ../xrsocial-client
     image: xrengine/client
     environment:
-        NEXT_PUBLIC_API_SERVER: https://127.0.0.1:3030
         API_SERVER: https://127.0.0.1:3030
         SITE_TITLE: XREngine
         SITE_DESC: Connected Worlds for Everyone

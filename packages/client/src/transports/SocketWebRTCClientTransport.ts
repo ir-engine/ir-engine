@@ -10,9 +10,6 @@ import { createDataProducer, endVideoChat, initReceiveTransport, initSendTranspo
 import { EngineEvents } from "@xrengine/engine/src/ecs/classes/EngineEvents";
 import { ClientNetworkSystem } from "@xrengine/engine/src/networking/systems/ClientNetworkSystem";
 
-const gameserver = process.env.NODE_ENV === 'production' ? Config.publicRuntimeConfig.gameserver : 'https://127.0.0.1:3031';
-const Device = mediasoupClient.Device;
-
 export class SocketWebRTCClientTransport implements NetworkTransport {
   mediasoupDevice: mediasoupClient.Device
   leaving = false
@@ -81,7 +78,12 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     };
   }
 
-  public async initialize(address = "https://127.0.0.1", port = 3031, instance: boolean, opts?: any): Promise<void> {
+  public async initialize(
+    address = Config.publicRuntimeConfig.gameserverHost,
+    port = parseInt(Config.publicRuntimeConfig.gameserverPort),
+    instance: boolean,
+    opts?: any
+  ): Promise<void> {
     const self = this;
     let socket = instance ? this.instanceSocket : this.channelSocket;
     const { token, user, startVideo, videoEnabled, channelType, isHarmonyPage, ...query } = opts;
@@ -89,7 +91,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     Network.instance.accessToken = query.token = token;
     EngineEvents.instance.dispatchEvent({ type: ClientNetworkSystem.EVENTS.CONNECT, id: user.id });
 
-    this.mediasoupDevice = new Device();
+    this.mediasoupDevice = new mediasoupClient.Device();
     if (socket && socket.close) socket.close();
 
     this.channelType = channelType;
@@ -109,7 +111,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
         query: query
       });
     } else {
-      socket = ioclient(`${gameserver}/realtime`, {
+      socket = ioclient(`${Config.publicRuntimeConfig.gameserver}/realtime`, {
         path: `/socket.io/${address as string}/${port.toString()}`,
         query: query
       });

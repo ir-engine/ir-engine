@@ -9,6 +9,7 @@ import SocketIO from "socket.io";
 import logger from "@xrengine/server-core/src/logger";
 import { localConfig, sctpParameters } from '@xrengine/server-core/src/config';
 import { getUserIdFromSocketId } from "./NetworkFunctions";
+import config from "@xrengine/server-core/src/appconfig";
 
 const toArrayBuffer = (buf): any => {
     var ab = new ArrayBuffer(buf.length);
@@ -240,7 +241,7 @@ export async function handleWebRtcTransportCreate(socket, data: WebRtcTransportP
 
     const { id, iceParameters, iceCandidates, dtlsParameters } = newTransport;
 
-    if (process.env.KUBERNETES === 'true') {
+    if (config.kubernetes.enabled) {
         const serverResult = await (networkTransport.app as any).k8AgonesClient.get('gameservers');
         const thisGs = serverResult.items.find(server => server.metadata.name === networkTransport.gameServer.objectMeta.name);
         iceCandidates.forEach((candidate) => {

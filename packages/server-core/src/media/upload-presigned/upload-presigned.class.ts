@@ -3,6 +3,7 @@ import { Id, NullableId, Paginated, Params, ServiceMethods } from '@feathersjs/f
 import { Application } from '../../../declarations';
 import S3Provider from '../storageprovider/s3.storage';
 import { MAX_AVATAR_FILE_SIZE, MIN_AVATAR_FILE_SIZE, PRESIGNED_URL_EXPIRATION_DURATION } from '@xrengine/common/src/constants/AvatarConstants';
+import config from "../../appconfig";
 
 interface Data {}
 
@@ -65,6 +66,6 @@ export class UploadPresigned implements ServiceMethods<Data> {
   }
 
   getKeyForFilename = (key: string): string => {
-    return `${process.env.STORAGE_S3_AVATAR_DIRECTORY}${process.env.STORAGE_S3_DEV_MODE ? '/' + process.env.STORAGE_S3_DEV_MODE : ''}/${key}`;
+    return  `${config.aws.s3.avatarDir}${config.aws.s3.s3DevMode ? '/' + config.aws.s3.s3DevMode : ''}/${key}`;
   }
 }
