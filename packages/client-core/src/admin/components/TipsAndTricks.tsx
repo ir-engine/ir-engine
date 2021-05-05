@@ -84,7 +84,7 @@ const ArMediaConsoleTipsAndTricks = ({ create, list, deleteTipsAndTricks, update
         setId('');
         setVideo('');
         setDescription('');
-        console.log(typeof actionVideo)
+        console.log(typeof actionVideo);
     };
 
     return (
@@ -159,7 +159,7 @@ const ArMediaConsoleTipsAndTricks = ({ create, list, deleteTipsAndTricks, update
                         >
                             Upload File
                             <input
-                                onChange={(e)=>{setVideo(e.target.files[0])}}
+                                onChange={(e)=>{setVideo(e.target.files[0]);}}
                                 id="tips-and-tricks-video"
                                 type="file"
                                 hidden

@@ -5,7 +5,7 @@ import feedCommentsReducer from './feedComment/reducers';
 import feedFiresReducer from './feedFires/reducers';
 import popupsStateReducer from './popupsState/reducers';
 import tipsAndTricksReducer from './tips_and_tricks/reducers';
-import thefeedsReducer from './thefeeds/reducers'
+import thefeedsReducer from './thefeeds/reducers';
 
 export default {
   creators: creatorReducer,

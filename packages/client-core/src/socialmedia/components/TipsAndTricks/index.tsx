@@ -53,12 +53,12 @@ export const TipsAndTricks = ({tipsAndTricksState, getTipsAndTricks, doLoginAuto
 
 
     return <section className={styles.tipsandtricksContainer}>
-        {data.map((item, itemindex)=>
+        {tipsAndTricksList && tipsAndTricksList.map((item, itemindex)=>
             <Card className={styles.tipItem} square={false} elevation={0} key={itemindex}>
-                <CardMedia   
-                    className={styles.previewImage}      
-                    component='video'            
-                    src={'https://www.learningcontainer.com/wp-content/uploads/2020/05/sample-mp4-file.mp4'}
+                <CardMedia
+                    className={styles.previewImage}
+                    component='video'
+                    src={item.videoUrl}
                     title={item.title}
                     controls
                 />

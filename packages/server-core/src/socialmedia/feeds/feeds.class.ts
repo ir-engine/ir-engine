@@ -55,9 +55,11 @@ export class TheFeeds extends Service {
     //     GROUP BY thefeeds.id
     //     ORDER BY thefeeds.createdAt DESC
     //     LIMIT :skip, :limit `;
-    const dataQuery = `SELECT thefeeds.*, sr1.url as videoUrl
+    const dataQuery = `SELECT thefeeds.*, sr1.url as videoUrl, COUNT(ff.id) as fires, COUNT(fb.id) as bookmarks
         FROM \`thefeeds\` as thefeeds
         JOIN \`static_resource\` as sr1 ON sr1.id=thefeeds.videoId
+        LEFT JOIN \`thefeeds_fires\` as ff ON ff.thefeedsId=thefeeds.id
+        LEFT JOIN \`thefeeds_bookmark\` as fb ON fb.thefeedsId=thefeeds.id
         WHERE 1
         GROUP BY thefeeds.id
         ORDER BY thefeeds.createdAt DESC
@@ -165,7 +167,7 @@ export class TheFeeds extends Service {
         limit,
       } as any;
 
-      const videoId = newTheFeeds.dataValues.videoId
+      const videoId = newTheFeeds.dataValues.videoId;
 
       const TheFeedsWithVideo = await this.app.get('sequelizeClient').query('select url from static_resource where id = "'+ videoId + '"',
         {
@@ -174,10 +176,10 @@ export class TheFeeds extends Service {
           replacements: {...queryParamsReplacements}
         });
 
-      const url: any = TheFeedsWithVideo[0].url
+      const url: any = TheFeedsWithVideo[0].url;
 
 
-      return {...newTheFeeds.dataValues, videoUrl: url}
+      return {...newTheFeeds.dataValues, videoUrl: url};
     }
 
 
@@ -221,14 +223,14 @@ export class TheFeeds extends Service {
       limit,
     } as any;
 
-    const videoId = result.videoId
+    const videoId = result.videoId;
     const theFeedsWithVideo = await this.app.get('sequelizeClient').query('select url from static_resource where id = "'+ videoId + '"',
       {
         type: QueryTypes.SELECT,
         raw: true,
         replacements: {...queryParamsReplacements}
       });
-    const url: any = theFeedsWithVideo[0].url
+    const url: any = theFeedsWithVideo[0].url;
     return { ...result, videoUrl: url };
   }
 

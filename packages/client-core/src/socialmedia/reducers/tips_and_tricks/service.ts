@@ -54,12 +54,12 @@ export function createTipsAndTricksNew(data) {
 export function updateTipsAndTricksAsAdmin(data: any) {
   return async (dispatch: Dispatch): Promise<any> => {
     try {
-      let tips_and_tricks = { id: data.id, title: data.title, videoId: data.video, description: data.description }
+      let tips_and_tricks = { id: data.id, title: data.title, videoId: data.video, description: data.description };
       if (typeof data.video === 'object') {
         const api = new Api();
         const storedVideo = await api.upload(data.video, null);
         // @ts-ignore
-        tips_and_tricks['videoId'] = storedVideo.file_id
+        tips_and_tricks['videoId'] = storedVideo.file_id;
       }
       const updatedItem = await client.service('tips-and-tricks').patch(tips_and_tricks.id, tips_and_tricks);
       // console.log(updatedItem)

@@ -161,7 +161,7 @@ const TheFeedsConsole = ({ create, list, deleteTheFeed, update }:Props) => {
             >
               Upload File
               <input
-                onChange={(e)=>{setVideo(e.target.files[0])}}
+                onChange={(e)=>{setVideo(e.target.files[0]);}}
                 id="thefeeds-video"
                 type="file"
                 hidden

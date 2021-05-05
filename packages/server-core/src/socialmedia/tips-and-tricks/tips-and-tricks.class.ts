@@ -95,10 +95,10 @@ export class TipsAndTricks extends Service {
     // async get (params?: Params): Promise<any> {
     //   let select = `SELECT tips_and_tricks.*, creator.id as creatorId, creator.name as creatorName, creator.username as creatorUserName, sr3.url as avatar,
     //   sr1.url as videoUrl `;
-      let select = `SELECT tips_and_tricks.*, creator.id as creatorId, creator.name as creatorName, creator.username as creatorUserName, 
+      const select = `SELECT tips_and_tricks.*, creator.id as creatorId, creator.name as creatorName, creator.username as creatorUserName, 
       sr1.url as videoUrl `;
       const from = ` FROM \`tips_and_tricks\` as tips_and_tricks`;
-      let join = ` JOIN \`creator\` as creator  
+      const join = ` JOIN \`creator\` as creator  
                     JOIN \`static_resource\` as sr1 ON sr1.id=tips_and_tricks.videoId
                     JOIN \`static_resource\` as sr2 ON sr2.id=tips_and_tricks.previewId
                     `;
@@ -163,7 +163,7 @@ export class TipsAndTricks extends Service {
         limit,
       } as any;
 
-      const videoId = newTipsAndTricks.dataValues.videoId
+      const videoId = newTipsAndTricks.dataValues.videoId;
 
       const thetipsandtricksWithVideo = await this.app.get('sequelizeClient').query('select url from static_resource where id = "'+ videoId + '"',
         {
@@ -172,9 +172,9 @@ export class TipsAndTricks extends Service {
           replacements: {...queryParamsReplacements}
         });
 
-      const url: any = thetipsandtricksWithVideo[0].url
+      const url: any = thetipsandtricksWithVideo[0].url;
 
-      return {...newTipsAndTricks.dataValues, videoUrl: url}
+      return {...newTipsAndTricks.dataValues, videoUrl: url};
     }
 
 
@@ -221,7 +221,7 @@ export class TipsAndTricks extends Service {
       limit,
     } as any;
 
-    const videoId = result.videoId
+    const videoId = result.videoId;
     const thetipsandtricksWithVideo = await this.app.get('sequelizeClient').query('select url from static_resource where id = "'+ videoId + '"',
       {
         type: QueryTypes.SELECT,
@@ -229,7 +229,7 @@ export class TipsAndTricks extends Service {
         replacements: {...queryParamsReplacements}
       });
 
-    const url: any = thetipsandtricksWithVideo[0].url
+    const url: any = thetipsandtricksWithVideo[0].url;
     return { ...result, videoUrl: url };
   }
 

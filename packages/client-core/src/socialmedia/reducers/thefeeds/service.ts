@@ -36,7 +36,7 @@ export function createTheFeedsNew(data) {
     try {
       const api = new Api();
       const storedVideo = await api.upload(data.video, null);
-      console.log('storedVideo', storedVideo)
+      console.log('storedVideo', storedVideo);
       const thefeeds = await client.service('thefeeds').create({
         title: data.title,
         // @ts-ignore
@@ -55,12 +55,12 @@ export function createTheFeedsNew(data) {
 export function updateTheFeedsAsAdmin(data: any) {
   return async (dispatch: Dispatch): Promise<any> => {
     try {
-      let thefeeds = { id: data.id, title: data.title, videoId: data.video, description: data.description }
+      let thefeeds = { id: data.id, title: data.title, videoId: data.video, description: data.description };
       if (typeof data.video === 'object') {
         const api = new Api();
-        const storedVideo = await api.upload(data.video, null)
+        const storedVideo = await api.upload(data.video, null);
         // @ts-ignore
-        thefeeds['videoId'] = storedVideo.file_id
+        thefeeds['videoId'] = storedVideo.file_id;
       }
       const updatedItem = await client.service('thefeeds').patch(thefeeds.id, thefeeds);
       dispatch(updateTheFeedsInList(updatedItem));

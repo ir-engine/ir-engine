@@ -78,3 +78,32 @@ export function updateTheFeedsInList(thefeeds: TheFeeds): TheFeedsRetrievedActio
     thefeeds: thefeeds,
   };
 }
+
+
+export function addTheFeedsFire (thefeedsId:string) : oneTheFeedsAction{
+  return {
+    type: ADD_THEFEEDS_FIRES,
+    thefeedsId: thefeedsId
+  };
+}
+
+export function removeTheFeedsFire (thefeedsId:string) : oneTheFeedsAction{
+  return {
+    type: REMOVE_THEFEEDS_FIRES,
+    thefeedsId
+  };
+}
+
+export function addTheFeedsBookmark (thefeedsId:string) : oneTheFeedsAction{
+  return {
+    type: ADD_THEFEEDS_BOOKMARK,
+    thefeedsId: thefeedsId
+  };
+}
+
+export function removeTheFeedsBookmark (thefeedsId:string) : oneTheFeedsAction{
+  return {
+    type: REMOVE_THEFEEDS_BOOKMARK,
+    thefeedsId
+  };
+}

@@ -11,10 +11,10 @@ import {
   getTheFeedsNew,
   removeTheFeeds,
   updateTheFeedsAsAdmin
-} from '@xr3ngine/client-core/src/socialmedia/reducers/thefeeds/service'
+} from '@xr3ngine/client-core/src/socialmedia/reducers/thefeeds/service';
 import { doLoginAuto } from "@xr3ngine/client-core/src/user/reducers/auth/service";
-import TheFeedsConsole from '@xr3ngine/client-core/src/admin/components/Feeds'
-import { selectTheFeedsState } from '@xr3ngine/client-core/src/socialmedia/reducers/thefeeds/selector'
+import TheFeedsConsole from '@xr3ngine/client-core/src/admin/components/Feeds';
+import { selectTheFeedsState } from '@xr3ngine/client-core/src/socialmedia/reducers/thefeeds/selector';
 
 
 // const thefeeds = '';
@@ -66,7 +66,7 @@ const TheFeeds = ({ theFeedsState,
   }, []);
   const TheFeedsList = theFeedsState?.get('thefeeds') ? theFeedsState?.get('thefeeds') : [];
   useEffect(()=> {
-    console.log(TheFeedsList)
+    console.log(TheFeedsList);
   });
   return (<>
       <div>
