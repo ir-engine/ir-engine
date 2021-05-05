@@ -32,7 +32,7 @@ function mathMixesAnimFromSchemaValues(entity, animationsSchema, objectValues, d
   const { actorVelocity, dontHasHit } = objectValues;
   // console.log(actorVelocity, dontHasHit)
   const mathMixesAnimArray = [];
-  let absSpeed = Math.min( actorVelocity.length() / delta / MULT_SPEED, 1);
+  const absSpeed = Math.min( actorVelocity.length() / delta / MULT_SPEED, 1);
   //absSpeed < EPSILON ? absSpeed = 0:'';
 
 //  const absSpeed = Math.min(actorVelocity.length(), 1);

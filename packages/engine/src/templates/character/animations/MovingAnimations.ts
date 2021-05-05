@@ -1,10 +1,9 @@
 import { Behavior } from '../../../common/interfaces/Behavior';
-import { CharacterAnimations } from '../CharacterAnimations';
-import { CharacterComponent, SPEED_MULT } from '../components/CharacterComponent';
 import { getComponent, getMutableComponent, hasComponent } from '../../../ecs/functions/EntityFunctions';
-import { Vector3 } from "three";
-import { AnimationComponent } from '../components/AnimationComponent';
+import { CharacterAnimations } from '../CharacterAnimations';
 import { defaultAvatarAnimations } from '../CharacterAvatars';
+import { AnimationComponent } from '../components/AnimationComponent';
+import { CharacterComponent } from '../components/CharacterComponent';
 
 /**
  * @author HydraFire <github.com/HydraFire>

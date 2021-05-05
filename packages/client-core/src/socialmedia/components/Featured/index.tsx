@@ -118,7 +118,7 @@ const Featured = ({feedsState, getFeeds, type, creatorId, creatorState, setFeedA
                     onClick={()=>updateFeedPageState(true, item.id)}
                 />
                 <span className={styles.eyeLine}>{item.viewsCount}<VisibilityIcon style={{fontSize: '16px'}}/></span>
-            </Card>}
+            </Card>;}
         )}
         </section>;
 };
