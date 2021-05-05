@@ -1,8 +1,10 @@
 import { System, SystemAttributes } from "../../ecs/classes/System";
+import { Not } from '../../ecs/functions/ComponentFunctions';
+import { InterpolationComponent } from "../../physics/components/InterpolationComponent";
 import { updateVectorAnimation } from "./functions/updateVectorAnimation";
 import { AnimationComponent } from "./components/AnimationComponent";
 import { CharacterComponent } from "./components/CharacterComponent";
-import { getComponent, getMutableComponent, hasComponent } from "../../ecs/functions/EntityFunctions";
+import { getComponent, getMutableComponent, hasComponent, getRemovedComponent } from "../../ecs/functions/EntityFunctions";
 import { physicsMove } from "../../physics/behaviors/physicsMove";
 import { Input } from "../../input/components/Input";
 import { ControllerColliderComponent } from "../../physics/components/ControllerColliderComponent";
@@ -16,8 +18,11 @@ import { NetworkObject } from "../../networking/components/NetworkObject";
 import { IKComponent } from "./components/IKComponent";
 import { isClient } from "../../common/functions/isClient";
 import { EngineEvents } from "../../ecs/classes/EngineEvents";
+import { applyVectorMatrixXZ } from '../../common/functions/applyVectorMatrixXZ';
 
-const lastPos = { x: 0, y: 0, z: 0 };
+const forwardVector = new Vector3(0, 0, 1);
+const upVector = new Vector3(0, 1, 0);
+const prevControllerColliderPosition = new Vector3();
 
 export class CharacterControllerSystem extends System {
 
@@ -43,7 +48,7 @@ export class CharacterControllerSystem extends System {
         origin: new Vector3(),
         direction: new Vector3(0, -1, 0),
         maxDistance: 0.1,
-        collisionMask: actor.collisionMask,
+        collisionMask: CollisionGroups.All,
       });
     });
 
@@ -71,15 +76,11 @@ export class CharacterControllerSystem extends System {
       const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
 
       if (!actor.movementEnabled || !actor.initialized) return;
-      physicsMove(entity, delta);
-
       // do head rotation for XR from input view vector - TODO: figure out where to put this
       // if(XRSystem.instance?.cameraDolly) XRSystem.instance.cameraDolly.setRotationFromAxisAngle(downVector, Math.atan2(actor.viewVector.z, actor.viewVector.x))
 
       const collider = getMutableComponent<ControllerColliderComponent>(entity, ControllerColliderComponent)
       const transform = getComponent<TransformComponent>(entity, TransformComponent as any);
-
-      if (actor == undefined || !actor.initialized) return;
 
       // reset if vals are invalid
       if (isNaN(collider.controller.transform.translation.x)) {
@@ -100,40 +101,55 @@ export class CharacterControllerSystem extends System {
       const actorRaycastStart = new Vector3(collider.controller.transform.translation.x, collider.controller.transform.translation.y, collider.controller.transform.translation.z);
       actor.raycastQuery.origin = new Vector3(actorRaycastStart.x, actorRaycastStart.y - (actor.actorCapsule.height * 0.5) - actor.actorCapsule.radius, actorRaycastStart.z);
       actor.raycastQuery.direction = new Vector3(0, -1, 0);
-
-      // const closestHit = actor.raycastQuery.hits[0];
+      actor.closestHit = actor.raycastQuery.hits[0];
+      actor.isGrounded = actor.closestHit ? true : collider.controller.collisions.down;
     });
 
     this.queryResults.character.removed?.forEach(entity => {
-      const collider = getComponent<ControllerColliderComponent>(entity, ControllerColliderComponent, true);
+      console.warn(prevControllerColliderPosition, getRemovedComponent<ControllerColliderComponent>(entity, ControllerColliderComponent, true));
+      const collider = getRemovedComponent<ControllerColliderComponent>(entity, ControllerColliderComponent, true);
       if (collider) {
         PhysicsSystem.instance.removeController(collider.controller);
       }
     });
 
-    // Update velocity vector for Animations
+    // PhysicsMove LocalCharacter and Update velocity vector for Animations
     this.queryResults.localCharacter.all?.forEach(entity => {
       const controllerCollider = getComponent<ControllerColliderComponent>(entity, ControllerColliderComponent);
       const transform = getComponent<TransformComponent>(entity, TransformComponent);
       const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
-      if (!actor.initialized || !controllerCollider.controller) return;
+      if (!actor.initialized || !controllerCollider.controller || !actor.movementEnabled) return;
 
-      const x = controllerCollider.controller.transform.translation.x - lastPos.x;
-      const y = controllerCollider.controller.transform.translation.y - lastPos.y;
-      const z = controllerCollider.controller.transform.translation.z - lastPos.z;
+      const x = controllerCollider.controller.transform.translation.x - prevControllerColliderPosition.x;
+      const y = controllerCollider.controller.transform.translation.y - prevControllerColliderPosition.y;
+      const z = controllerCollider.controller.transform.translation.z - prevControllerColliderPosition.z;
 
+      prevControllerColliderPosition.set(
+        controllerCollider.controller.transform.translation.x,
+        controllerCollider.controller.transform.translation.y,
+        controllerCollider.controller.transform.translation.z
+      )
       if (isNaN(x)) {
-        actor.animationVelocity = new Vector3(0, 1, 0);
-        return;
+        actor.animationVelocity = new Vector3().set(0,0,0);
       }
-
-      lastPos.x = controllerCollider.controller.transform.translation.x;
-      lastPos.y = controllerCollider.controller.transform.translation.y;
-      lastPos.z = controllerCollider.controller.transform.translation.z;
-
       const q = new Quaternion().copy(transform.rotation).invert();
       actor.animationVelocity = new Vector3(x, y, z).applyQuaternion(q);
+      // its beacose we need physicsMove on server and for localCharacter, not for all character
+      physicsMove(entity, delta);
     });
+
+
+    // PhysicsMove Characters On Server
+    // its beacose we need physicsMove on server and for localCharacter, not for all character
+    this.queryResults.characterOnServer.all?.forEach((entity) => {
+      const actor = getComponent<CharacterComponent>(entity, CharacterComponent);
+      const transform = getMutableComponent(entity, TransformComponent);
+      // update rotationg for physics moving
+      const flatViewVector = new Vector3(actor.viewVector.x, 0, actor.viewVector.z).normalize();
+      actor.orientation.copy(applyVectorMatrixXZ(flatViewVector, forwardVector))
+      transform.rotation.setFromUnitVectors(forwardVector, actor.orientation.clone().setY(0));
+      physicsMove(entity, delta);
+    })
 
     this.queryResults.animation.all?.forEach((entity) => {
       updateVectorAnimation(entity, delta)
@@ -156,6 +172,13 @@ CharacterControllerSystem.queries = {
   },
   character: {
     components: [CharacterComponent],
+    listen: {
+      added: true,
+      removed: true
+    }
+  },
+  characterOnServer: {
+    components: [Not(LocalInputReceiver), Not(InterpolationComponent), CharacterComponent],
     listen: {
       added: true,
       removed: true

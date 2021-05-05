@@ -125,7 +125,6 @@ export const initializeEngine = async (options): Promise<void> => {
       })
     ]);
 
-    registerSystem(CharacterControllerSystem);
     registerSystem(ServerSpawnSystem, { priority: 899 });
     registerSystem(HighlightSystem);
     registerSystem(ActionSystem, { useWebXR: Engine.xrSupported });
@@ -136,6 +135,7 @@ export const initializeEngine = async (options): Promise<void> => {
     // Engine.audioListener = new AudioListener();
     // Engine.camera.add(Engine.audioListener);
     // registerSystem(PositionalAudioSystem);
+    registerSystem(CharacterControllerSystem);
     registerSystem(ParticleSystem);
     registerSystem(DebugHelpersSystem);
     registerSystem(InteractiveSystem);

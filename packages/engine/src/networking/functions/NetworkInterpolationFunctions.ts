@@ -201,12 +201,13 @@ export function interpolate (
 
       //  let speed = (Math.sqrt(x*x + y*y + z*z)*60) / (t0 - tn);
 
-        x = x * 16.666666666666668 / (t0 - tn);
-        y = y * 16.666666666666668 / (t0 - tn);
-        z = z * 16.666666666666668 / (t0 - tn);
+        x = x * 16.7 / (t0 - tn);
+        y = y * 16.7 / (t0 - tn);
+        z = z * 16.7 / (t0 - tn);
 
 
-      //  let speed = Math.sqrt(x*x + y*y + z*z)*Engine.physicsFrameRate;
+
+        //console.warn(speed);
 /*
         if (speed < 0.001) {
           x = 0;

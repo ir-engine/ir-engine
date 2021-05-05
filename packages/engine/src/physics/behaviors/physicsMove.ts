@@ -1,4 +1,4 @@
-import { Vector3, Quaternion } from 'three';
+import { Vector3, Matrix4, Quaternion } from 'three';
 
 import { applyVectorMatrixXZ } from '../../common/functions/applyVectorMatrixXZ';
 import { Entity } from '../../ecs/classes/Entity';
@@ -9,7 +9,7 @@ import { BinaryValue } from "../../common/enums/BinaryValue";
 import { BaseInput } from '../../input/enums/BaseInput';
 
 import { ControllerColliderComponent } from '../components/ControllerColliderComponent';
-import { CharacterComponent } from '../../templates/character/components/CharacterComponent';
+import { CharacterComponent, MULT_SPEED } from '../../templates/character/components/CharacterComponent';
 import { TransformComponent } from '../../transform/components/TransformComponent';
 import { isServer } from '../../common/functions/isServer';
 import { XRUserSettings, XR_FOLLOW_MODE } from '../../xr/types/XRUserSettings';
@@ -21,28 +21,15 @@ import { CHARACTER_STATES } from '../../templates/character/state/CharacterState
  */
 
 const forwardVector = new Vector3(0, 0, 1);
+const upVector = new Vector3(0, 1, 0);
 
 export const physicsMove = (entity: Entity, deltaTime): void => {
-
   const actor: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
-  if (!actor.initialized) return;
   const transform: TransformComponent = getMutableComponent<TransformComponent>(entity, TransformComponent as any);
   const collider = getMutableComponent<ControllerColliderComponent>(entity, ControllerColliderComponent);
-  if (!collider.controller) return;
+  if (!actor.initialized || !collider.controller || !actor.movementEnabled) return;
 
-  // update view vector on server - TODO: put this somewhere better
-  if (isServer) {
-    const flatViewVector = new Vector3(actor.viewVector.x, 0, actor.viewVector.z).normalize();
-    actor.orientation.copy(applyVectorMatrixXZ(flatViewVector, forwardVector))
-    transform.rotation.setFromUnitVectors(forwardVector, actor.orientation.clone().setY(0));
-  }
-
-  // slow movement when walking
-  if (getComponent(entity, Input).data.get(BaseInput.WALK)?.value === BinaryValue.ON) {
-    actor.localMovementDirection.multiplyScalar(0.8);
-  }
-
-  if (getBit(actor.state, CHARACTER_STATES.VR)) { // Engine.xrSession != null
+  if (getBit(actor.state, CHARACTER_STATES.VR)) {
     const inputs = getComponent(entity, Input);
     let rotationVector = null;
     switch (XRUserSettings.moving) {
@@ -63,27 +50,37 @@ export const physicsMove = (entity: Entity, deltaTime): void => {
     }
   }
   const newVelocity = new Vector3();
-  actor.isGrounded = collider.controller.collisions.down;
+
   if (actor.isGrounded) {
     collider.controller.velocity.y = 0;
 
-    actor.velocityTarget.copy(actor.localMovementDirection).multiplyScalar(0.1);
+    actor.velocityTarget.copy(actor.localMovementDirection).multiplyScalar(deltaTime);
     actor.velocitySimulator.target.copy(actor.velocityTarget);
     actor.velocitySimulator.simulate(deltaTime);
 
     actor.velocity.copy(actor.velocitySimulator.position);
-    newVelocity.copy(actor.velocity).multiplyScalar(actor.moveSpeed);
+    newVelocity.copy(actor.velocity).multiplyScalar(actor.moveSpeed * MULT_SPEED);
     newVelocity.applyQuaternion(transform.rotation)
 
-    collider.controller.velocity.x = newVelocity.x;
-    collider.controller.velocity.z = newVelocity.z;
+    if (actor.closestHit) {
+      const normal = new Vector3(actor.closestHit.normal.x, actor.closestHit.normal.y, actor.closestHit.normal.z);
+      const q = new Quaternion().setFromUnitVectors(upVector, normal);
+      const m = new Matrix4().makeRotationFromQuaternion(q);
+      newVelocity.applyMatrix4(m);
+    }
+    collider.controller.velocity.x = newVelocity.x// * 0.8;
+    collider.controller.velocity.y = newVelocity.y / MULT_SPEED;
+    collider.controller.velocity.z = newVelocity.z// * 0.8;
+
 
     if (actor.isJumping) {
       actor.isJumping = false;
     }
 
-    if (actor.localMovementDirection.y > 0 && !actor.isJumping) {
-      collider.controller.velocity.y = 5 * deltaTime;
+    if (actor.localMovementDirection.y > 0.3 && !actor.isJumping) {
+
+      collider.controller.velocity.y += 4 * deltaTime;
+
       actor.isJumping = true;
       actor.isGrounded = false;
     }
@@ -93,17 +90,6 @@ export const physicsMove = (entity: Entity, deltaTime): void => {
     // 	actor.rayResult.body.getVelocityAtWorldPoint(actor.rayResult.hitPointWorld, pointVelocity);
     // 	newVelocity.add(threeFromCannonVector(pointVelocity));
     // }
-
-    // TODO - uneven ground
-    // Measure the normal vector offset from direct "up" vector and transform it into a matrix
-    // const normal = new Vector3(actor.raycastQuery.hits[0].normal.x, actor.raycastQuery.hits[0].normal.y, actor.raycastQuery.hits[0].normal.z);
-    // const q = new Quaternion().setFromUnitVectors(upVector, normal);
-    // const m = new Matrix4().makeRotationFromQuaternion(q);
-    // newVelocity.applyMatrix4(m);
-
-    // add movement friction if on ground
-    collider.controller.velocity.x *= 0.8;
-    collider.controller.velocity.z *= 0.8;
   }
 
   // apply gravity - TODO: improve this

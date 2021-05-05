@@ -12,11 +12,10 @@ import { NetworkObject } from "../../../networking/components/NetworkObject";
 import { Snapshot, StateEntityGroup } from "../../../networking/types/SnapshotDataTypes";
 import { findInterpolationSnapshot } from "../../../physics/behaviors/findInterpolationSnapshot";
 import { ControllerColliderComponent } from "../../../physics/components/ControllerColliderComponent";
-import { CharacterComponent } from "../components/CharacterComponent";
+import { CharacterComponent, MULT_SPEED } from "../components/CharacterComponent";
 
-let correctionSpeed = 180;
-export const characterCorrectionBehavior: Behavior = (entity: Entity, snapshots): void => {
 
+export const characterCorrectionBehavior: Behavior = (entity: Entity, snapshots, delta): void => {
   const networkId = getComponent(entity, NetworkObject).networkId;
 
   const correction = findInterpolationSnapshot(entity, snapshots.correction);
@@ -33,18 +32,17 @@ export const characterCorrectionBehavior: Behavior = (entity: Entity, snapshots)
     qZ: 0,
     qW: 1
   })
-  if (correction == null || currentSnapshot == null) return;
+  if (correction == null || currentSnapshot == null || Network.instance.snapshot.timeCorrection === 0) return;
 
   const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
   if (!actor.initialized || !collider.controller) return;
-
-  correctionSpeed = 180 / (actor.animationVelocity.length() + 1);
 
   const offsetX = correction.x - currentSnapshot.x;
   const offsetY = correction.y - currentSnapshot.y;
   const offsetZ = correction.z - currentSnapshot.z;
 
-  collider.controller.delta.x -= offsetX / correctionSpeed;
-  collider.controller.delta.y -= offsetY / correctionSpeed;
-  collider.controller.delta.z -= offsetZ / correctionSpeed;
+  collider.controller.delta.x -= offsetX * delta;
+  collider.controller.delta.y -= offsetY * delta;
+  collider.controller.delta.z -= offsetZ * delta;
+
 };

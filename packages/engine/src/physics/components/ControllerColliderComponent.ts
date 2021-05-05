@@ -4,7 +4,7 @@ import { Vector3 } from "three";
 import type { Controller } from "three-physx";
 
 /**
- * @author Shaw 
+ * @author Shaw
  */
 
 export class ControllerColliderComponent extends Component<ControllerColliderComponent>
@@ -14,6 +14,7 @@ export class ControllerColliderComponent extends Component<ControllerColliderCom
 	public mass: number;
 	public position: Vector3;
 	public height: number;
+	public contactOffset: number;
 	public radius: number;
 	public segments: number;
 	public friction: number;
@@ -25,6 +26,7 @@ ControllerColliderComponent._schema = {
   controller: { type: Types.Ref, default: null },
 	position: { type: Types.Ref, default: new Vector3() },
 	height: { type: Types.Number, default: 0.5 },
+	contactOffset: { type: Types.Number, default: 0.01 },
 	radius: { type: Types.Number, default: 0.3 },
 	segments: { type: Types.Number, default: 8 },
 	friction: { type: Types.Number, default: 0.3 },

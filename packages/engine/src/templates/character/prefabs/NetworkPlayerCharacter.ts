@@ -29,7 +29,7 @@ import { getLoader } from "../../../assets/functions/LoadGLTF";
 import { DEFAULT_AVATAR_ID } from "@xr3ngine/common/src/constants/AvatarConstants";
 import { Engine } from "../../../ecs/classes/Engine";
 import { PrefabType } from "../../networking/PrefabType";
-import { initializeMovingState } from "../animations/MovingAnimations";
+import { movingAnimationSchema, getMovementValues, initializeMovingState } from "../animations/MovingAnimations";
 import { IKComponent } from '../components/IKComponent';
 import { initiateIK } from "../../../xr/functions/IKFunctions";
 import { AnimationComponent } from "../components/AnimationComponent";
@@ -37,7 +37,7 @@ import { CollisionGroups } from '../../../physics/enums/CollisionGroups';
 import { InterpolationInterface } from '../../../physics/interfaces/InterpolationInterface';
 import { characterCorrectionBehavior } from '../behaviors/characterCorrectionBehavior';
 import { characterInterpolationBehavior } from '../behaviors/characterInterpolationBehavior';
-import { Controller } from 'three-physx';
+import { Controller } from 'three-physx'; // , CapsuleController
 import { SkeletonUtils } from '../../../assets/threejs-various/SkeletonUtils.js';
 import { standardizeSkeletion } from '../functions/standardizeSkeleton';
 
@@ -129,7 +129,7 @@ export const loadActorAvatarFromURL: Behavior = (entity, avatarURL) => {
     actor.mixer && actor.mixer.stopAllAction();
     // forget that we have any animation playing
     actor.currentAnimationAction = [];
-    
+
     // clear current avatar mesh
     ([...actor.modelContainer.children])
       .forEach(child => actor.modelContainer.remove(child));
@@ -149,9 +149,9 @@ export const loadActorAvatarFromURL: Behavior = (entity, avatarURL) => {
     // console.log('targetSkeleton', targetSkeleton)
     // console.log('sourceSkeleton', sourceSkeleton)
     // SkeletonUtils.retarget(targetSkeleton, sourceSkeleton);
-    
+
 		tmpGroup.children.forEach(child => actor.modelContainer.add(child));
-    
+
     console.log(actor.modelContainer)
 		actor.mixer = new AnimationMixer(actor.modelContainer.children[0]);
 		if (hasComponent(entity, IKComponent)) {
@@ -203,53 +203,47 @@ const initializeCharacter: Behavior = (entity): void => {
     })
 	}
 
-	actor.velocitySimulator = new VectorSpringSimulator(60, actor.defaultVelocitySimulatorMass, actor.defaultVelocitySimulatorDamping);
-	actor.moveVectorSmooth = new VectorSpringSimulator(60, actor.defaultVelocitySimulatorMass, actor.defaultVelocitySimulatorDamping);
+	actor.velocitySimulator = new VectorSpringSimulator(120, actor.defaultVelocitySimulatorMass, actor.defaultVelocitySimulatorDamping);
+	actor.moveVectorSmooth = new VectorSpringSimulator(120, actor.defaultVelocitySimulatorMass, actor.defaultVelocitySimulatorDamping);
 	actor.animationVectorSimulator = new VectorSpringSimulator(60, actor.defaultVelocitySimulatorMass, actor.defaultVelocitySimulatorDamping);
 	actor.rotationSimulator = new RelativeSpringSimulator(60, actor.defaultRotationSimulatorMass, actor.defaultRotationSimulatorDamping);
 
 	if(actor.viewVector == null) actor.viewVector = new Vector3();
 
 	const transform = getComponent(entity, TransformComponent);
-
 	// Physics
-	// Player Capsule
-	addComponent(entity, ControllerColliderComponent, {
+	// Player Capsule	const transform = getComponent(entity, TransformComponent);
+		// Physics
+		// Player Capsule
+	actor.actorCapsule = addComponent(entity, ControllerColliderComponent, {
 		mass: actor.actorMass,
 		position: transform.position,
 		height: actor.actorHeight,
 		radius: actor.capsuleRadius,
+		contactOffset: actor.contactOffset,
 		segments: actor.capsuleSegments,
-		friction: actor.capsuleFriction
+		friction: actor.capsuleFriction,
+		controller: PhysicsSystem.instance.createController(new Controller({
+	    isCapsule: true,
+	    collisionLayer: CollisionGroups.Characters,
+	    collisionMask: CollisionGroups.All,
+			height: actor.actorHeight,
+			contactOffset: actor.contactOffset,
+			radius: actor.capsuleRadius,
+	    position: {
+	      x: actor.capsulePosition.x,
+	      y: actor.capsulePosition.y + actor.actorHeight,
+	      z: actor.capsulePosition.z
+	    },
+	    material: {
+	      dynamicFriction: actor.capsuleFriction,
+	    }
+	  }))
 	});
 
-	actor.actorCapsule = getMutableComponent<ControllerColliderComponent>(entity, ControllerColliderComponent);
-
-	// Physics pre/post step callback bindings
-	// States
-	// setState(entity, { state: CharacterAnimations.DEFAULT });
-	actor.initialized = true;
-
-  addComponent(entity, AnimationComponent);
-
-  const collider = getMutableComponent<ControllerColliderComponent>(entity, ControllerColliderComponent);
-  collider.controller = PhysicsSystem.instance.createController(new Controller({
-    isCapsule: true,
-    collisionLayer: CollisionGroups.Characters,
-    collisionMask: CollisionGroups.All,//CollisionGroups.Default | CollisionGroups.Characters | CollisionGroups.Car | CollisionGroups.TrimeshColliders,
-    position: {
-      x: transform.position.x,
-      y: transform.position.y + 1,
-      z: transform.position.z
-    },
-    material: {
-      dynamicFriction: collider.friction,
-    }
-  }));
   // collider.controller.updateTransform({ translation: { x: transform.position.x, y: transform.position.y, z: transform.position.z }})
-
-  initializeMovingState(entity)
-
+	actor.initialized = true;
+	initializeMovingState(entity);
 	// };
 };
 
@@ -301,7 +295,7 @@ export const NetworkPlayerCharacter: NetworkPrefab = {
   // These will be created for all players on the network
   networkComponents: [
     // ActorComponent has values like movement speed, deceleration, jump height, etc
-    { type: CharacterComponent, data: { avatarId: DEFAULT_AVATAR_ID || 'Allison' }}, // TODO: add to environment
+    { type: CharacterComponent, data: { avatarId: DEFAULT_AVATAR_ID || 'default' }}, // TODO: add to environment
     // Transform system applies values from transform component to three.js object (position, rotation, etc)
     { type: TransformComponent },
     // Local player input mapped to behaviors in the input map
@@ -317,7 +311,8 @@ export const NetworkPlayerCharacter: NetworkPrefab = {
   ],
 	clientComponents: [
 		// Its component is a pass to Interpolation for Other Players and Serrver Correction for Your Local Player
-		{ type: InterpolationComponent, data: { schema: characterInterpolationSchema } }
+		{ type: InterpolationComponent, data: { schema: characterInterpolationSchema } },
+		{ type: AnimationComponent, data: { animationsSchema: movingAnimationSchema, updateAnimationsValues: getMovementValues } }
 	],
   serverComponents: [
     { type: TeleportToSpawnPoint },
