@@ -13,7 +13,7 @@ import i18n from "i18next";
  * @author Robert Long
  * @type {class component}
  */
-export default class ElementsSource extends BaseSource {
+export class ElementsSource extends BaseSource {
   component: typeof MediaSourcePanel;
   editor: Editor;
   id: string;
@@ -86,3 +86,5 @@ export default class ElementsSource extends BaseSource {
     };
   }
 }
+
+export default ElementsSource;

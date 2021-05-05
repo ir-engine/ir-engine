@@ -1,17 +1,16 @@
-import {
-    Backdrop,
-    Button,
-    Fade,
-    FormControl,
-    FormControlLabel,
-    FormGroup,
-    InputLabel,
-    MenuItem,
-    Modal,
-    Select,
-    Switch,
-    TextField
-} from '@material-ui/core';
+import Backdrop from '@material-ui/core/Backdrop';
+import Button from '@material-ui/core/Button';
+import Fade from '@material-ui/core/Fade';
+import FormControl from '@material-ui/core/FormControl';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import FormGroup from '@material-ui/core/FormGroup';
+import InputLabel from '@material-ui/core/InputLabel';
+import MenuItem from '@material-ui/core/MenuItem';
+import Modal from '@material-ui/core/Modal';
+import Select from '@material-ui/core/Select';
+import Switch from '@material-ui/core/Switch';
+import TextField from '@material-ui/core/TextField';
+import Checkbox from '@material-ui/core/Checkbox';
 import classNames from 'classnames';
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
@@ -26,6 +25,8 @@ import { selectAppState } from "../../common/reducers/app/selector";
 import { selectAuthState } from "../../user/reducers/auth/selector";
 // @ts-ignore
 import styles from './Admin.module.scss';
+import Tooltip from '@material-ui/core/Tooltip';
+import { useTranslation } from 'react-i18next';
 
 interface Props {
     open: boolean;
@@ -73,6 +74,11 @@ const LocationModal = (props: Props): any => {
     const adminLocations = adminState.get('locations').get('locations');
     const adminScenes = adminState.get('scenes').get('scenes');
     const locationTypes = adminState.get('locationTypes').get('locationTypes');
+    const [state, setState] = React.useState({
+        feature: false,
+        lobby: false,
+    });
+    const { t } = useTranslation();
 
     const submitLocation = () => {
         const submission = {
@@ -83,7 +89,9 @@ const LocationModal = (props: Props): any => {
                 locationType: locationType,
                 instanceMediaChatEnabled: instanceMediaChatEnabled,
                 videoEnabled: videoEnabled
-            }
+            },
+            isLobby: state.lobby,
+            isFeatured: state.feature
         };
 
         if (editing === true) {
@@ -108,6 +116,10 @@ const LocationModal = (props: Props): any => {
             setVideoEnabled(location.location_setting.videoEnabled);
             setInstanceMediaChatEnabled(location.location_setting.instanceMediaChatEnabled);
             setLocationType(location.location_setting.locationType);
+            setState({
+                lobby: location.isLobby,
+                feature: location.isFeature,
+            });
         } else {
             setName('');
             setSceneId('');
@@ -117,6 +129,10 @@ const LocationModal = (props: Props): any => {
             setLocationType('private');
         }
     }, [location]);
+
+    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setState({ ...state, [event.target.name]: event.target.checked });
+    };
 
     return (
         <div>
@@ -137,7 +153,7 @@ const LocationModal = (props: Props): any => {
                         [styles.paper]: true,
                         [styles['modal-content']]: true
                     })}>
-                        { editing === true && <TextField
+                        {editing === true && <TextField
                             variant="outlined"
                             margin="normal"
                             fullWidth
@@ -155,7 +171,7 @@ const LocationModal = (props: Props): any => {
                             margin="normal"
                             fullWidth
                             id="name"
-                            label="Name"
+                            label={t('admin:components.locationModel.lbl-name')}
                             name="name"
                             required
                             value={name}
@@ -167,14 +183,14 @@ const LocationModal = (props: Props): any => {
                             margin="normal"
                             fullWidth
                             id="maxUsers"
-                            label="Max Users"
+                            label={t('admin:components.locationModel.lbl-maxuser')}
                             name="name"
                             required
                             value={maxUsers}
                             onChange={(e) => setMaxUsers(parseInt(e.target.value))}
                         />
                         <FormControl>
-                            <InputLabel id="scene">Scene</InputLabel>
+                            <InputLabel id="scene">{t('admin:components.locationModel.lbl-scene')}</InputLabel>
                             <Select
                                 labelId="scene"
                                 id="scene"
@@ -185,7 +201,7 @@ const LocationModal = (props: Props): any => {
                             </Select>
                         </FormControl>
                         <FormControl>
-                            <InputLabel id="locationType">Type</InputLabel>
+                            <InputLabel id="locationType">{t('admin:components.locationModel.lbl-type')}</InputLabel>
                             <Select
                                 labelId="locationType"
                                 id="locationType"
@@ -196,55 +212,82 @@ const LocationModal = (props: Props): any => {
                             </Select>
                         </FormControl>
                         <FormGroup>
-                            <FormControl style={{color: 'black'}}>
+                            <FormControl style={{ color: 'black' }}>
                                 <FormControlLabel
                                     color='primary'
                                     control={<Switch checked={videoEnabled} onChange={(e) => setVideoEnabled(e.target.checked)} name="videoEnabled" />}
-                                    label="Video Enabled"
+                                    label={t('admin:components.locationModel.lbl-ve')}
                                 />
                             </FormControl>
                         </FormGroup>
                         <FormGroup>
-                            <FormControl style={{color: 'black'}}>
+                            <FormControl style={{ color: 'black' }}>
                                 <FormControlLabel
                                     color='primary'
                                     control={<Switch checked={instanceMediaChatEnabled} onChange={(e) => setInstanceMediaChatEnabled(e.target.checked)} name="instanceMediaChatEnabled" />}
-                                    label="Global Media Enabled"
+                                    label={t('admin:components.locationModel.lbl-gme')}
                                 />
                             </FormControl>
                         </FormGroup>
+
+                        {!location.isLobby && <FormControlLabel
+                            control={
+                                <Checkbox
+                                    checked={state.lobby}
+                                    onChange={handleChange}
+                                    name="lobby"
+                                    color="primary"
+                                />
+                            }
+                            label={t('admin:components.locationModel.lbl-lobby')}
+                        />}
+                        <FormControlLabel
+                            control={
+                                <Checkbox
+                                    checked={state.feature}
+                                    onChange={handleChange}
+                                    name="feature"
+                                    color="primary"
+                                />
+                            }
+                            label={t('admin:components.locationModel.lbl-featured')}
+                        />
                         <FormGroup row className={styles.locationModalButtons}>
-                            { editing === true && <Button
+                            {editing === true && <Button
                                 type="submit"
                                 variant="contained"
                                 color="primary"
                                 onClick={submitLocation}
                             >
-                                Update
-                            </Button> }
-                            { editing !== true && <Button
+                                {t('admin:components.locationModel.lbl-update')}
+                            </Button>}
+                            {editing !== true && <Button
                                 type="submit"
                                 variant="contained"
                                 color="primary"
                                 onClick={submitLocation}
                             >
-                                Create
+                                {t('admin:components.locationModel.lbl-create')}
                             </Button>}
                             <Button
                                 type="submit"
                                 variant="contained"
                                 onClick={handleClose}
                             >
-                                Cancel
+                                {t('admin:components.locationModel.lbl-cancel')}
                             </Button>
-                            { editing === true && <Button
-                                type="submit"
-                                variant="contained"
-                                color="secondary"
-                                onClick={deleteLocation}
-                            >
-                                Delete
-                            </Button>}
+                            {editing === true && <Tooltip title={state.lobby ? t('admin:components.locationModel.tooltipCanNotBeDeleted') : ''} arrow placement="top">
+                                <span><Button
+                                    type="submit"
+                                    variant="contained"
+                                    color="secondary"
+                                    onClick={deleteLocation}
+                                    disabled={location.isLobby}
+                                >
+                                    {t('admin:components.locationModel.lbl-delete')}
+                                </Button>
+                                </span>
+                            </Tooltip>}
                         </FormGroup>
                     </div>
                 </Fade>

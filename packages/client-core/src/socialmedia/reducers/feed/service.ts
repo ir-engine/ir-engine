@@ -1,4 +1,6 @@
-import { random } from 'lodash';
+/**
+ * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
+ */
 import { Dispatch } from 'redux';
 import { dispatchAlertError } from '../../../common/reducers/alert/service';
 import { client } from '../../../feathers';
@@ -16,15 +18,23 @@ import {
   feedAsFeatured,
   feedNotFeatured,
   feedsAdminRetrieved,
-  updateFeedInList
+  updateFeedInList,
+  fetchingFeaturedFeeds,
+  fetchingCreatorFeeds,
+  fetchingBookmarkedFeeds,
+  fetchingMyFeaturedFeeds,
+  fetchingAdminFeeds,
+  fetchingFiredFeeds,
+  feedsFiredRetrieved
 } from './actions';
 
 export function getFeeds(type: string, id?: string, limit?: number) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
     try {
-      dispatch(fetchingFeeds());
+      
       const feedsResults = [];
-      if (type && (type === 'featured' || type === 'featuredGuest')) {
+      if (type && (type === 'featured' || type === 'featuredGuest')) {        
+        dispatch(fetchingFeaturedFeeds());
         const feedsResults = await client.service('feed').find({
           query: {
             action: type
@@ -32,6 +42,7 @@ export function getFeeds(type: string, id?: string, limit?: number) {
         });
         dispatch(feedsFeaturedRetrieved(feedsResults.data));
       } else if (type && type === 'creator') {
+        dispatch(fetchingCreatorFeeds());
         const feedsResults = await client.service('feed').find({
           query: {
             action: 'creator',
@@ -39,7 +50,17 @@ export function getFeeds(type: string, id?: string, limit?: number) {
           }
         });
         dispatch(feedsCreatorRetrieved(feedsResults.data));
-      } else if (type && type === 'bookmark') {
+      } else if (type && type === 'fired') {
+        dispatch(fetchingFiredFeeds());
+        const feedsResults = await client.service('feed').find({
+          query: {
+            action: 'fired',
+            creatorId: id
+          }
+        });
+        dispatch(feedsFiredRetrieved(feedsResults.data));
+      }else if (type && type === 'bookmark') {
+        dispatch(fetchingBookmarkedFeeds());
         const feedsResults = await client.service('feed').find({
           query: {
             action: 'bookmark',
@@ -48,6 +69,7 @@ export function getFeeds(type: string, id?: string, limit?: number) {
         });
         dispatch(feedsBookmarkRetrieved(feedsResults.data));
       } else if (type && type === 'myFeatured') {
+        dispatch(fetchingMyFeaturedFeeds());
         const feedsResults = await client.service('feed').find({
           query: {
             action: 'myFeatured',
@@ -56,6 +78,7 @@ export function getFeeds(type: string, id?: string, limit?: number) {
         });
         dispatch(feedsMyFeaturedRetrieved(feedsResults.data));
       } else if (type && type === 'admin') {
+        dispatch(fetchingAdminFeeds());
         const feedsResults = await client.service('feed').find({
           query: {
             action: 'admin'

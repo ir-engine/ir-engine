@@ -2,15 +2,16 @@
 import { Types } from '../../../ecs/types/Types';
 import { Component } from '../../../ecs/classes/Component';
 import { Vector3, Group, Material, AnimationMixer, Mesh, BoxBufferGeometry, AnimationAction } from 'three';
-import { CapsuleCollider } from '../../../physics/components/CapsuleCollider';
+import { ControllerColliderComponent } from '../../../physics/components/ControllerColliderComponent';
 import { VectorSpringSimulator } from '../../../physics/classes/VectorSpringSimulator';
 import { RelativeSpringSimulator } from '../../../physics/classes/SpringSimulator';
-import { RaycastResult, Vec3 } from 'cannon-es';
+import { SceneQuery, Transform } from "three-physx";
+import { CollisionGroups } from '../../../physics/enums/CollisionGroups';
 
 // idle|   idle  +  walk     |    walk      |    walk + run     |   run
 // 0   | > WALK_START_SPEED  | > WALK_SPEED | > RUN_START_SPEED | > RUN_SPEED
-export const WALK_SPEED = 1.2;
-export const RUN_SPEED = 2.4;
+export const WALK_SPEED = 0.5;
+export const RUN_SPEED = 1;
 
 export class CharacterComponent extends Component<CharacterComponent> {
 
@@ -52,9 +53,8 @@ export class CharacterComponent extends Component<CharacterComponent> {
 	 * probably does not represent real physics speed
 	 */
 	public velocity: Vector3 = new Vector3();
-	public arcadeVelocityInfluence: Vector3 = new Vector3();
+	public arcadeVelocityInfluence: Vector3 = new Vector3(1, 0, 1);
 	public velocityTarget: Vector3 = new Vector3();
-	public arcadeVelocityIsAdditive: boolean;
 
 	public currentInputHash: any = ""
 
@@ -74,7 +74,7 @@ export class CharacterComponent extends Component<CharacterComponent> {
 	public viewVector: Vector3;
 	public changedViewAngle = 0;
 	public actions: any;
-	public actorCapsule: CapsuleCollider;
+	public actorCapsule: ControllerColliderComponent;
 
 	// Actor collision Capsule
 	public actorMass = 1;
@@ -82,37 +82,33 @@ export class CharacterComponent extends Component<CharacterComponent> {
 	public capsuleRadius = 0.25;
 	public capsuleSegments = 8;
 	public capsuleFriction = 0.1;
-	public capsulePosition: Vec3 = new Vec3();
+	public capsulePosition: Transform;
 	// Ray casting
-	public rayResult: RaycastResult = new RaycastResult();
-	public rayDontStuckX: RaycastResult = new RaycastResult();
-	public rayDontStuckZ: RaycastResult = new RaycastResult();
-	public rayDontStuckXm: RaycastResult = new RaycastResult();
-	public rayDontStuckZm: RaycastResult = new RaycastResult();
-	public rayHasHit = false;
-	public rayGroundHit = false;
-	public rayGroundY = null;
+	public raycastQuery: SceneQuery;
+	public isGrounded = false;
 	public rayCastLength = 0.85; // depends on the height of the actor
 	public raySafeOffset = 0.03;
-	public wantsToJump = false;
 	public initJumpSpeed = -1;
 	public playerInPortal = 0;
 	public animationVelocity: Vector3 = new Vector3();
 	public groundImpactVelocity: Vector3 = new Vector3();
 
 	public controlledObject: any;
+  public gamepadDamping = 0.05;
 
-	public raycastBox: Mesh;
   public vehicleEntryInstance: any;
   public occupyingSeat: any;
   quaternion: any;
 	canFindVehiclesToEnter: boolean;
 	canEnterVehicles: boolean;
 	canLeaveVehicles: boolean;
-  alreadyJumped: boolean;
+  isJumping: boolean;
 	rotationSpeed: any;
-}
 
-CharacterComponent._schema = {
-	tiltContainer: { type: Types.Ref, default: null },
-};
+  collisionMask: number = CollisionGroups.Default | CollisionGroups.Car | CollisionGroups.TriggerCollider;
+
+  static _schema = {
+    tiltContainer: { type: Types.Ref, default: null },
+    collisionMask: { type: Types.Number, default: CollisionGroups.Default | CollisionGroups.Car | CollisionGroups.TriggerCollider },
+  };
+}

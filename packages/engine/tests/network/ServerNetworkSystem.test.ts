@@ -93,14 +93,14 @@ beforeAll(() => {
 
   registerSystem(PhysicsSystem);
   // pretend player has floor
-  PhysicsSystem.physicsWorld.raycastClosest = jest.fn((start, end, rayCastOptions, rayResult:RaycastResult) => {
+  PhysicsSystem.instance.raycastClosest = jest.fn((start, end, rayCastOptions, rayResult:RaycastResult) => {
     rayResult.body = new Body({mass:0});
     rayResult.hasHit = true;
     rayResult.hitPointWorld.set(0,0,0);
     rayResult.hitNormalWorld.set(0,1,0);
     return true;
   });
-  // physicsWorldRaycastClosest = jest.spyOn(PhysicsSystem.physicsWorld, 'raycastClosest');
+  // physicsWorldRaycastClosest = jest.spyOn(PhysicsSystem.instance, 'raycastClosest');
 
   registerSystem(StateSystem);
 });

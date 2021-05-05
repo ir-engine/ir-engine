@@ -1,10 +1,8 @@
-import {
-  Backdrop,
-  Fade,
-  Modal,
-  Tab,
-  Tabs
-} from '@material-ui/core';
+import Backdrop from '@material-ui/core/Backdrop';
+import Fade from '@material-ui/core/Fade';
+import Modal from '@material-ui/core/Modal';
+import Tab from '@material-ui/core/Tab';
+import Tabs from '@material-ui/core/Tabs';
 import {
   AccountCircle, Settings
 } from '@material-ui/icons';
@@ -14,6 +12,7 @@ import React, { Fragment, useState } from 'react';
 import styles from './Profile.module.scss';
 import UserProfile from './UserIcon';
 import UserSettings from './UserSettings';
+import { useTranslation } from 'react-i18next';
 
 interface Props {
   open: boolean;
@@ -26,6 +25,7 @@ const TabPanel = (props: any): any => <Fragment>{props.value === props.index && 
 
 const ProfileModal = (props: Props): any => {
   const [tabIndex, setTabIndex] = useState(0);
+	const { t } = useTranslation();
 
   const handleChange = (event: any, newValue: number): void => {
     event.preventDefault();
@@ -70,11 +70,11 @@ const ProfileModal = (props: Props): any => {
             >
               <Tab
                 icon={<AccountCircle style={{ fontSize: 30 }} />}
-                label="Profile"
+                label={t('user:profile.lbl-profile')}
               />
               <Tab
                 icon={<Settings style={{ fontSize: 30 }} />}
-                label="Settings"
+                label={t('user:profile.lbl-settings')}
               />
             </Tabs>
             {avatar}

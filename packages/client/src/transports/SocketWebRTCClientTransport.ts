@@ -4,11 +4,11 @@ import { MessageTypes } from "@xr3ngine/engine/src/networking/enums/MessageTypes
 import { NetworkTransport } from "@xr3ngine/engine/src/networking/interfaces/NetworkTransport";
 import * as mediasoupClient from "mediasoup-client";
 import { Transport as MediaSoupTransport } from "mediasoup-client/lib/types";
+import { Config } from '@xr3ngine/client-core/src/helper';
 import ioclient from "socket.io-client";
 import { createDataProducer, endVideoChat, initReceiveTransport, initSendTransport, leave, subscribeToTrack } from "./SocketWebRTCClientFunctions";
 import { EngineEvents } from "@xr3ngine/engine/src/ecs/classes/EngineEvents";
 import { ClientNetworkSystem } from "@xr3ngine/engine/src/networking/systems/ClientNetworkSystem";
-import { Config } from '@xr3ngine/client-core/src/helper';
 
 const gameserver = process.env.NODE_ENV === 'production' ? Config.publicRuntimeConfig.gameserver : 'https://127.0.0.1:3031';
 const Device = mediasoupClient.Device;
@@ -83,7 +83,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
 
   public async initialize(address = "https://127.0.0.1", port = 3031, instance: boolean, opts?: any): Promise<void> {
     const self = this;
-    let socket = instance === true ? this.instanceSocket : this.channelSocket;
+    let socket = instance ? this.instanceSocket : this.channelSocket;
     const { token, user, startVideo, videoEnabled, channelType, isHarmonyPage, ...query } = opts;
 
     Network.instance.accessToken = query.token = token;
@@ -100,7 +100,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     if (query.locationId == null) delete query.locationId;
     if (query.sceneId == null) delete query.sceneId;
     if (query.channelId == null) delete query.channelId;
-    if (process.env.NEXT_PUBLIC_LOCAL_BUILD === 'true') {
+    if (process.env.LOCAL_BUILD === 'true') {
       socket = ioclient(`https://${address as string}:${port.toString()}/realtime`, {
         query: query
       });
@@ -115,16 +115,18 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       });
     }
 
-    (socket as any).instance = instance === true;
+    if (instance === true) {
+      (socket as any).instance = true;
+      this.instanceSocket = socket;
+      Network.instance.instanceSocketId = socket.id;
+      this.instanceRequest = this.promisedRequest(socket);
+    }
+    else {
+      this.channelSocket = socket;
+      Network.instance.channelSocketId = socket.id;
+      this.channelRequest = this.promisedRequest(socket);
+    }
 
-    if (instance === true) this.instanceSocket = socket;
-    else this.channelSocket = socket;
-
-    if (instance === true) Network.instance.instanceSocketId = socket.id;
-    else Network.instance.channelSocketId = socket.id;
-
-    if (instance === true) this.instanceRequest = this.promisedRequest(socket);
-    else this.channelRequest = this.promisedRequest(socket);
 
     socket.on("connect", async () => {
       const request = (socket as any).instance === true ? this.instanceRequest : this.channelRequest;
@@ -147,8 +149,8 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
         EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.CONNECT_TO_WORLD_TIMEOUT, instance: instance === true });
         return;
       }
-      console.log('ConnectToWorldResponse:');
-      console.log(ConnectToWorldResponse);
+      // console.log('ConnectToWorldResponse:');
+      // console.log(ConnectToWorldResponse);
       const { worldState, routerRtpCapabilities } = ConnectToWorldResponse as any;
 
       EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.CONNECT_TO_WORLD, worldState });
@@ -244,8 +246,8 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
 
       // Init Receive and Send Transports initially since we need them for unreliable message consumption and production
       if ((socket as any).instance === true) {
-        console.log('Initializing instance transports');
-        console.log(socket);
+        // console.log('Initializing instance transports');
+        // console.log(socket);
         await Promise.all([initSendTransport('instance'), initReceiveTransport('instance')]);
         await createDataProducer((socket as any).instance === true ? 'instance' : this.channelId );
       }

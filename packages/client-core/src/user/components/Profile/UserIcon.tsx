@@ -8,6 +8,7 @@ import styles from './Profile.module.scss';
 import TextField from '@material-ui/core/TextField';
 import classNames from 'classnames';
 import { uploadAvatar, updateUsername } from '../../reducers/auth/service';
+import { useTranslation } from 'react-i18next';
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
   uploadAvatar: bindActionCreators(uploadAvatar, dispatch),
@@ -24,6 +25,7 @@ interface Props {
 const UserProfile = (props: Props): any => {
   const { auth } = props;
   const user = auth.get('user');
+	const { t } = useTranslation();
 
   const [file, setFile] = useState({});
   const [fileUrl, setFileUrl] = useState('');
@@ -65,18 +67,18 @@ const UserProfile = (props: Props): any => {
               margin="normal"
               fullWidth
               id="username"
-              label="Your Name"
+              label={t('user:profile.userIcon.lbl-name')}
               name="name"
               autoFocus
               defaultValue={user.name}
               onChange={(e) => handleUsernameChange(e)}
           />
           <Button variant="contained" color="primary" onClick={updateUsername}>
-            Update
+            {t('user:profile.userIcon.lbl-update')}
           </Button>
         </div>
         <div className={styles['user-id']}>
-          <div>User ID: {user.id}</div>
+          <div>{t('user:profile.userIcon.userId')}: {user.id}</div>
         </div>
         <div className={styles.uploadform}>
           {fileUrl ? (
@@ -103,7 +105,7 @@ const UserProfile = (props: Props): any => {
               id="fileInput"
               accept="image/*"
               name="file"
-              placeholder="Upload Product Image"
+              placeholder={t('user:profile.userIcon.ph-uploadImg')}
               type="file"
               className={styles['signup__fileField']}
               onChange={handleChange}
@@ -111,11 +113,11 @@ const UserProfile = (props: Props): any => {
 
           <label htmlFor="fileInput">
             <Button variant="contained" component="span" color="secondary">
-              Select Avatar
+              {t('user:profile.userIcon.lbl-selectAcvatar')}
             </Button>
           </label>
           <Button disabled={fileUrl.length === 0} variant="contained" color="primary" onClick={handleSubmit}>
-            Submit
+            {t('user:profile.userIcon.lbl-submit')}
           </Button>
         </div>
       </div>

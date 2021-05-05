@@ -309,7 +309,7 @@ type ToolBarState = {
  * 
  * @author Robert Long
  */
-export default class ToolBar extends Component<ToolBarProps, ToolBarState> {
+export class ToolBar extends Component<ToolBarProps, ToolBarState> {
   static propTypes = {
     menu: PropTypes.array,
     editor: PropTypes.object,
@@ -639,3 +639,5 @@ export default class ToolBar extends Component<ToolBarProps, ToolBarState> {
     );
   }
 }
+
+export default ToolBar;

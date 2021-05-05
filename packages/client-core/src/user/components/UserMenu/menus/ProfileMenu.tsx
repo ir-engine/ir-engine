@@ -1,7 +1,10 @@
-import { Button, InputAdornment, TextField, Typography } from '@material-ui/core';
+import Button from '@material-ui/core/Button';
+import InputAdornment from '@material-ui/core/InputAdornment';
+import TextField from '@material-ui/core/TextField';
+import Typography from '@material-ui/core/Typography';
 import { Check, Close, Create, GitHub, Send } from '@material-ui/icons';
 import { selectAuthState } from '../../../reducers/auth/selector';
-import { addConnectionByEmail, addConnectionBySms, loginUserByOAuth, logoutUser, removeUser, updateUserAvatarId, updateUsername, updateUserSettings } from '../../../reducers/auth/service';
+import { addConnectionByEmail, addConnectionBySms, loginUserByOAuth, loginUserByXRWallet, logoutUser, removeUser, updateUserAvatarId, updateUsername, updateUserSettings } from '../../../reducers/auth/service';
 import { Network } from '@xr3ngine/engine/src/networking/classes/Network';
 import React, { useEffect, useState } from 'react';
 import { connect } from "react-redux";
@@ -11,11 +14,12 @@ import { GoogleIcon } from '../../../../common/components/Icons/GoogleIcon';
 import { LinkedInIcon } from '../../../../common/components/Icons/LinkedInIcon';
 import { TwitterIcon } from '../../../../common/components/Icons/TwitterIcon';
 import { getAvatarURLFromNetwork, Views } from '../util';
-import { validateEmail, validatePhoneNumber } from '../../../../helper';
-
-//@ts-ignore
+import { Config, validateEmail, validatePhoneNumber } from '../../../../helper';
+import * as polyfill from 'credential-handler-polyfill';
 // @ts-ignore
-import styles from '../style.module.scss';
+import styles from '../UserMenu.module.scss';
+import { useTranslation } from 'react-i18next';
+
 
 interface Props {
 	changeActiveMenu?: any;
@@ -25,6 +29,7 @@ interface Props {
 	updateUserAvatarId?: any;
 	updateUserSettings?: any;
 	loginUserByOAuth?: any;
+	loginUserByXRWallet?: any
 	addConnectionBySms?: any;
 	addConnectionByEmail?: any;
 	logoutUser?: any;
@@ -42,6 +47,7 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 	updateUserAvatarId: bindActionCreators(updateUserAvatarId, dispatch),
 	updateUserSettings: bindActionCreators(updateUserSettings, dispatch),
 	loginUserByOAuth: bindActionCreators(loginUserByOAuth, dispatch),
+	loginUserByXRWallet: bindActionCreators(loginUserByXRWallet, dispatch),
 	addConnectionBySms: bindActionCreators(addConnectionBySms, dispatch),
 	addConnectionByEmail: bindActionCreators(addConnectionByEmail, dispatch),
 	logoutUser: bindActionCreators(logoutUser, dispatch),
@@ -55,10 +61,12 @@ const ProfileMenu = (props: Props): any => {
 		addConnectionByEmail,
 		addConnectionBySms,
 		loginUserByOAuth,
+		loginUserByXRWallet,
 		logoutUser,
 		changeActiveMenu,
 		setProfileMenuOpen
 	} = props;
+	const { t } = useTranslation();
 
 	const selfUser = authState.get('user') || {};
 
@@ -68,6 +76,22 @@ const ProfileMenu = (props: Props): any => {
 	const [ errorUsername, setErrorUsername] = useState(false);
 
 	let type = '';
+
+	const loadCredentialHandler = async () => {
+		try {
+			let mediator = process.env.NODE_ENV === 'production' ? Config.publicRuntimeConfig.mediatorServer : 'https://authorization.localhost:33443';
+			mediator = `${mediator}/mediator?origin=${encodeURIComponent(window.location.origin)}`;
+
+			await polyfill.loadOnce(mediator);
+			console.log('Ready to work with credentials!');
+		} catch (e) {
+			console.error('Error loading polyfill:', e);
+		}
+	};
+
+	useEffect(() => {
+		loadCredentialHandler();
+	}, []); // Only run once
 
 	useEffect(() => {
 		selfUser && setUsername(selfUser.name);
@@ -125,6 +149,33 @@ const ProfileMenu = (props: Props): any => {
 		window.location.reload();
 	};
 
+	const handleWalletLoginClick = async (e) => {
+		const domain = window.location.origin;
+		const challenge = '99612b24-63d9-11ea-b99f-4f66f3e4f81a'; // TODO: generate
+
+		console.log('Sending DIDAuth query...');
+
+		const didAuthQuery: any = {
+			web: {
+				VerifiablePresentation: {
+					query: [
+						{
+							type: 'DIDAuth'
+						}
+					],
+					challenge,
+					domain // e.g.: requestingparty.example.com
+				}
+			}
+		};
+
+		// Use Credential Handler API to authenticate
+		const result: any = await navigator.credentials.get(didAuthQuery);
+		console.log(result);
+
+		loginUserByXRWallet(result);
+	};
+
 	return (
 		<div className={styles.menuPanel}>
 			<section className={styles.profilePanel}>
@@ -138,7 +189,7 @@ const ProfileMenu = (props: Props): any => {
 							<TextField
 								margin="none"
 								size="small"
-								label="Username"
+								label={t('user:usermenu.profile.lbl-username')}
 								name="username"
 								variant="outlined"
 								value={username || ''}
@@ -157,26 +208,26 @@ const ProfileMenu = (props: Props): any => {
 								}}
 							/>
 						</span>
-						<h2>You are {selfUser?.userRole === 'admin' ? 'an' : 'a'} <span>{selfUser?.userRole}</span>.</h2>
-						<h4>{(selfUser.userRole === 'user' || selfUser.userRole === 'admin') && <div onClick={handleLogout}>Log out</div>}</h4>
-						{ selfUser?.inviteCode != null && <h2>Invite Code: {selfUser.inviteCode}</h2> }
+						<h2>{selfUser?.userRole === 'admin' ? t('user:usermenu.profile.youAreA') : t('user:usermenu.profile.youAreAn')} <span>{selfUser?.userRole}</span>.</h2>
+						<h4>{(selfUser.userRole === 'user' || selfUser.userRole === 'admin') && <div onClick={handleLogout}>{t('user:usermenu.profile.logout')}</div>}</h4>
+						{ selfUser?.inviteCode != null && <h2>{t('user:usermenu.profile.inviteCode')}: {selfUser.inviteCode}</h2> }
 					</div>
 				</section>
 				{ selfUser?.userRole === 'guest' && <section className={styles.emailPhoneSection}>
 					<Typography variant="h1" className={styles.panelHeader}>
-						Connect your email or phone number
+						{t('user:usermenu.profile.connectPhone')}
 					</Typography>
 
 					<form onSubmit={handleSubmit}>
 						<TextField
 							className={styles.emailField}
 							size="small"
-							placeholder="Phone Number / Email"
+							placeholder={t('user:usermenu.profile.ph-phoneEmail')}
 							variant="outlined"
 							onChange={handleInputChange}
 							onBlur={validate}
 							error={error}
-							helperText={error ? "Valid Email or Phone number is required" : null}
+							helperText={error ? t('user:usermenu.profile.phoneEmailError') : null}
 							InputProps={{
 								endAdornment: (
 									<InputAdornment position="end" onClick={handleSubmit}>
@@ -189,8 +240,14 @@ const ProfileMenu = (props: Props): any => {
 						/>
 					</form>
 				</section>}
+				{ selfUser?.userRole === 'guest' && <section className={styles.walletSection}>
+					<Typography variant="h3" className={styles.textBlock}>{t('user:usermenu.profile.or')}</Typography>
+					<Button onClick={handleWalletLoginClick} className={styles.walletBtn}>
+					{t('user:usermenu.profile.lbl-wallet')}
+					</Button>
+				</section>}
 				{ selfUser?.userRole === 'guest' && <section className={styles.socialBlock}>
-					<Typography variant="h3" className={styles.textBlock}>Or connect with social accounts</Typography>
+					<Typography variant="h3" className={styles.textBlock}>{t('user:usermenu.profile.connectSocial')}</Typography>
 					<div className={styles.socialContainer}>
 						<a href="#" id="facebook" onClick={handleOAuthServiceClick}><FacebookIcon width="40" height="40" viewBox="0 0 40 40" /></a>
 						<a href="#" id="google" onClick={handleOAuthServiceClick}><GoogleIcon width="40" height="40" viewBox="0 0 40 40" /></a>
@@ -198,7 +255,7 @@ const ProfileMenu = (props: Props): any => {
 						<a href="#" id="twitter" onClick={handleOAuthServiceClick}><TwitterIcon width="40" height="40" viewBox="0 0 40 40" /></a>
 						<a href="#" id="github" onClick={handleOAuthServiceClick}><GitHub /></a>
 					</div>
-					<Typography variant="h4" className={styles.smallTextBlock}>If you don’t have an account, a new one will be created for you.</Typography>
+					<Typography variant="h4" className={styles.smallTextBlock}>{t('user:usermenu.profile.createOne')}</Typography>
 				</section>}
 				{ setProfileMenuOpen != null && <div className={styles.closeButton} onClick={() => setProfileMenuOpen(false)}><Close /></div>}
 			</section>

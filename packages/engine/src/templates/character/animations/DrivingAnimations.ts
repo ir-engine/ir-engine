@@ -13,7 +13,8 @@ import { FollowCameraComponent } from '../../../camera/components/FollowCameraCo
 import { PlayerInCar } from '../../../physics/components/PlayerInCar';
 import { BaseInput } from '../../../input/enums/BaseInput';
 import { CameraModes } from '../../../camera/types/CameraModes';
-import { AnimationComponent } from '../../../character/components/AnimationComponent';
+import { AnimationComponent } from '../components/AnimationComponent';
+import { defaultAvatarAnimations } from '../CharacterAvatars';
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -26,7 +27,7 @@ const emptyInputValue = [0, 0] as NumericalType;
  *
  * @param inputComponent Input component which is holding input data.
  * @param inputAxes Axes of the input.
- * @param forceRefresh
+ * @param prevValue
  *
  * @returns Input value from input component.
  */
@@ -56,70 +57,23 @@ const emptyVector = new Vector3();
 
 const halfPI = Math.PI / 2;
 */
-const damping = 0.05; // To reduce the change in direction.
-export const updateCharacterStateInVehicle: Behavior = (entity, args: {}, deltaTime: number): void => {
-
-	const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
-  if (!hasComponent(entity, PlayerInCar)) return;
-	const playerInCar = getComponent<PlayerInCar>(entity, PlayerInCar as any);
-  const entityCar = Network.instance.networkObjects[playerInCar.networkCarId].component.entity;
-//	if (!actor.initialized) return console.warn("Actor no initialized");
-  const actorTransform = getMutableComponent(entityCar, TransformComponent);
-
-	const localMovementDirection = actor.localMovementDirection; //getLocalMovementDirection(entity);
-
-  if(actor.moveVectorSmooth.position.length() < 0.1) { actor.moveVectorSmooth.velocity.multiplyScalar(0.9) }
-  if(actor.moveVectorSmooth.position.length() < 0.001) { actor.moveVectorSmooth.velocity.set(0,0,0); actor.moveVectorSmooth.position.set(0,0,0); }
-
-  if(actor.changedViewAngle) {
-    const viewVectorAngle = Math.atan2(actor.viewVector.z, actor.viewVector.x);
-    actor.viewVector.x = Math.cos(viewVectorAngle - (actor.changedViewAngle * damping));
-    actor.viewVector.z = Math.sin(viewVectorAngle - (actor.changedViewAngle * damping));
-  }
-
-  const inputComponent = getComponent(entityCar, Input) as Input;
-  const followCamera = getMutableComponent<FollowCameraComponent>(entity, FollowCameraComponent) as FollowCameraComponent;
-  if(followCamera) {
-
-    const inputAxes = BaseInput.LOOKTURN_PLAYERONE;
-
-    const { inputValue, currentInputValue } = getInputData(inputComponent, inputAxes, prevState);
-    prevState = currentInputValue;
-
-    if(followCamera.locked ) { // this is for cars
-    //  followCamera.theta = Math.atan2(actorTransform.rotation.z, actorTransform.rotation.x) * 180 / Math.PI
-    }
-
-    followCamera.theta -= inputValue[0] * (isMobileOrTablet() ? 60 : 100);
-    followCamera.theta %= 360;
-
-    followCamera.phi -= inputValue[1] * (isMobileOrTablet() ? 60 : 100);
-    followCamera.phi = Math.min(85, Math.max(-70, followCamera.phi));
-
-    if(followCamera.locked || followCamera.mode === CameraModes.FirstPerson) {
-    //  actorTransform.rotation.setFromAxisAngle(upVector, (followCamera.theta - 180) * (Math.PI / 180));
-  //    actor.orientation.copy(forwardVector).applyQuaternion(actorTransform.rotation);
-    //  actorTransform.rotation.setFromUnitVectors(forwardVector, actor.orientation.clone().setY(0));
-    }
-  }
-}
 
 const { DRIVING, ENTERING_VEHICLE, EXITING_VEHICLE } = CharacterAnimations;
 
 const drivingAnimationSchema = [
   {
-    type: [DRIVING], name: 'driving', axis: 'xyz', speed: 1, customProperties: ['weight', 'test'],
+    type: [DRIVING], name: defaultAvatarAnimations[DRIVING].name, axis: 'xyz', speed: 1, customProperties: ['weight', 'test'],
     value:      [ -0.5, 0, 0.5 ],
     weight:     [  0 ,  0,   0 ],
     test:       [  0 ,  1,   0 ]
   },{
-    type: [ENTERING_VEHICLE], name: 'entering_car', axis:'z', speed: 0.5, customProperties: ['weight', 'test'],
+    type: [ENTERING_VEHICLE], name: defaultAvatarAnimations[ENTERING_VEHICLE].name, axis:'z', speed: 0.5, customProperties: ['weight', 'test'],
     value:      [  0,   1 ],
     weight:     [  1,   0 ],
     test:       [  0,   1 ]
   },
   {
-    type: [EXITING_VEHICLE], name: 'exiting_car', axis:'z', speed: 0.5, customProperties: ['weight', 'test'],
+    type: [EXITING_VEHICLE], name: defaultAvatarAnimations[EXITING_VEHICLE].name, axis:'z', speed: 0.5, customProperties: ['weight', 'test'],
     value:      [  -1  ,   0  ],
     weight:     [   1  ,   1  ],
     test:       [   0  ,   0  ]
@@ -140,7 +94,7 @@ const getDrivingValues: Behavior = (entity, args: {}, deltaTime: number): any =>
   const testDrive = playerInCar.networkCarId != undefined;
   const entityCar = Network.instance.networkObjects[playerInCar.networkCarId].component.entity;
 //  const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
-//  PhysicsSystem.physicsWorld.removeBody(actor.actorCapsule.body);
+//  PhysicsSystem.instance.removeBody(actor.actorCapsule.body);
 
   //const orientation = positionEnter(entity, entityCar, seat);
   //getMutableComponent(entity, PlayerInCar).state = 'onAddInCar';

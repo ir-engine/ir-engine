@@ -1,7 +1,7 @@
 import { Matrix4, Vector3 } from 'three';
 import { isServer } from "../../../common/functions/isServer";
-import { changeAnimation } from '../../../character/functions/updateVectorAnimation';
-import { AnimationComponent } from '../../../character/components/AnimationComponent';
+import { changeAnimation } from '../../character/functions/updateVectorAnimation';
+import { AnimationComponent } from '../../character/components/AnimationComponent';
 import { initializeMovingState } from '../../character/animations/MovingAnimations';
 import { VehicleComponent } from '../components/VehicleComponent';
 import { getComponent, getMutableComponent, removeComponent } from '../../../ecs/functions/EntityFunctions';
@@ -48,7 +48,9 @@ function positionExit(entity, entityCar, seat) {
   .add(transformCar.position)
   .setY(transform.position.y)
 
-  actor.actorCapsule.body.position.set(position.x , position.y, position.z);
+  actor.actorCapsule.controller.transform.translation.x = position.x;
+  actor.actorCapsule.controller.transform.translation.y = position.y;
+  actor.actorCapsule.controller.transform.translation.z = position.z;
 
   transform.position.set(
     position.x,
@@ -56,7 +58,7 @@ function positionExit(entity, entityCar, seat) {
     position.z
   );
 
-  PhysicsSystem.physicsWorld.addBody(actor.actorCapsule.body);
+  PhysicsSystem.instance.createController(actor.actorCapsule.controller);
 }
 
 

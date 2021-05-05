@@ -1,6 +1,7 @@
 import collectAnalytics from '@xr3ngine/server-core/src/hooks/collect-analytics';
 import * as authentication from '@feathersjs/authentication';
 import addAssociations from "@xr3ngine/server-core/src/hooks/add-associations";
+import { HookContext } from '@feathersjs/feathers';
 
 const { authenticate } = authentication.hooks;
 
@@ -34,7 +35,21 @@ export default {
     create: [],
     update: [],
     patch: [],
-    remove: []
+    remove: [async (context: HookContext): Promise<HookContext> => {
+      const location = await context.app.service('location').Model.findOne({
+        where: {
+          isLobby: true,
+          id: context.id,
+        },
+        attributes: ['id', 'isLobby']
+      });
+
+      if (location) {
+        throw new Error("Lobby can't be deleted");
+      }
+
+      return context;
+    }]
   },
 
   after: {

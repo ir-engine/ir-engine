@@ -7,9 +7,10 @@ import { logoutUser } from '../../../user/reducers/auth/service';
 import { showDialog } from '../../reducers/dialog/service';
 import SignIn from '../../../user/components/Auth/Login';
 import Dropdown from '../../../user/components/Profile/ProfileDropdown';
+import { useTranslation } from 'react-i18next';
 // @ts-ignore
 import styles from './NavUserWidget.module.scss';
-import {Button} from '@material-ui/core';
+import Button from '@material-ui/core/Button';
 
 const mapStateToProps = (state: any): any => {
   return { auth: selectAuthState(state) };
@@ -30,6 +31,7 @@ interface Props {
 
 const NavUserBadge = (props: Props): any => {
   const { login, auth, logoutUser, showDialog } = props;
+	const { t } = useTranslation();
   useEffect(() => {
     handleLogin();
   }, []);
@@ -70,7 +72,7 @@ const NavUserBadge = (props: Props): any => {
             })
           }
         >
-          Log In
+          {t('common:navUserWidget.login')}
         </Button>
       )}
     </div>

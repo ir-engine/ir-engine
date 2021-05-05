@@ -41,6 +41,7 @@ export interface SystemConstructor<T extends System> {
 /** 
  * Interface for not components.
  * 
+ * @author Fernando Serrano, Robert Long
  * @typeparam C Subclass of {@link ecs/classes/Component.Component | Component}.
  **/
 export interface NotComponent<C extends Component<any>> {
@@ -53,11 +54,15 @@ export interface NotComponent<C extends Component<any>> {
 
 /**
  * Abstract class to define System properties.
+ * 
+ * @author Fernando Serrano, Robert Long
  */
 export abstract class System {
   /**
    * Defines what Components the System will query for.
    * This needs to be user defined.
+   * 
+   * @author Fernando Serrano, Robert Long
    */
   static instance: System;
   static queries: SystemQueries = {};
@@ -76,6 +81,8 @@ export abstract class System {
   /**
    * The results of the queries.
    * Should be used inside of execute.
+   * 
+   * @author Fernando Serrano, Robert Long
    */
   queryResults: {
     [queryName: string]: {
@@ -88,6 +95,8 @@ export abstract class System {
 
   /**
    * Whether the system will execute during the world tick.
+   * 
+   * @author Fernando Serrano, Robert Long
    */
   enabled: boolean
 
@@ -102,9 +111,16 @@ export abstract class System {
 
   /**
    * Initializes system
+   * 
+   * @author Fernando Serrano, Robert Long
    * @param attributes User defined system attributes.
    */
   constructor (attributes?: SystemAttributes) {
+
+    const _name = (this.constructor as any).getName();
+    const name = _name.substr(0, 1) === '_' ? _name.slice(1) : _name;
+    globalThis[name] = this;
+
     this.enabled = true;
 
     // @todo Better naming :)
@@ -212,12 +228,14 @@ export abstract class System {
 
   /** Get name of the System */
   static getName (): string {
-    return (this.constructor as any).getName();
+    const name: string = (this.constructor as any).getName();
+    return name.substr(0, 1) === '_' ? name.slice(1) : name;
   }
 
   /** 
    * Get query from the component.
    * 
+   * @author Fernando Serrano, Robert Long
    * @param components List of components either component or not component.
    */
   getQuery (components: Array<ComponentConstructor<any> | NotComponent<any>>): Query {

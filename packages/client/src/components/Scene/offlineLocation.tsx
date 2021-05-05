@@ -1,16 +1,16 @@
 import { MobileGamepadProps } from '@xr3ngine/client-core/src/common/components/MobileGamepad/MobileGamepadProps';
 import { generalStateList, setAppLoaded, setAppOnBoardingStep } from '@xr3ngine/client-core/src/common/reducers/app/actions';
-import store from '@xr3ngine/client-core/src/store';
+import Store from '@xr3ngine/client-core/src/store';
 import { testScenes, testUserId, testWorldState } from '@xr3ngine/common/src/assets/testScenes';
 import { isMobileOrTablet } from '@xr3ngine/engine/src/common/functions/isMobile';
 import { EngineEvents } from '@xr3ngine/engine/src/ecs/classes/EngineEvents';
 import { resetEngine } from "@xr3ngine/engine/src/ecs/functions/EngineFunctions";
-import { DefaultInitializationOptions, initializeEngine } from '@xr3ngine/engine/src/initialize';
+import { initializeEngine } from '@xr3ngine/engine/src/initialize';
+import { DefaultInitializationOptions } from '@xr3ngine/engine/src/DefaultInitializationOptions';
 import { ClientNetworkSystem } from '@xr3ngine/engine/src/networking/systems/ClientNetworkSystem';
 import { styleCanvas } from '@xr3ngine/engine/src/renderer/functions/styleCanvas';
 import { createPanelComponent } from '@xr3ngine/engine/src/ui/functions/createPanelComponent';
 import { XRSystem } from '@xr3ngine/engine/src/xr/systems/XRSystem';
-import dynamic from 'next/dynamic';
 import React, { useEffect, useState } from 'react';
 import { TransformComponent } from '@xr3ngine/engine/src/transform/components/TransformComponent';
 import { DesiredTransformComponent } from '@xr3ngine/engine/src/transform/components/DesiredTransformComponent';
@@ -25,8 +25,10 @@ import { UIGallery } from "@xr3ngine/engine/src/ui/classes/UIAll";
 import { createItem, createCol, createRow, createButton, makeLeftItem } from '@xr3ngine/engine/src/ui//functions/createItem';
 import { Color, TextureLoader } from "three";
 
-const MobileGamepad = dynamic<MobileGamepadProps>(() => import("@xr3ngine/client-core/src/common/components/MobileGamepad").then((mod) => mod.MobileGamepad), { ssr: false });
+const MobileGamepad = React.lazy(() => import("@xr3ngine/client-core/src/common/components/MobileGamepad"));
 const engineRendererCanvasId = 'engine-renderer-canvas';
+
+const store = Store.store;
 
 interface Props {
   locationName: string;

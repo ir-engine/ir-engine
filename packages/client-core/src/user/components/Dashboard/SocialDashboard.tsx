@@ -20,11 +20,11 @@ import SuperviosorAccount from "@material-ui/icons/SupervisorAccount";
 // import DirectionRun from "@material-ui/icons/DirectionsRun";
 import DashboardIcon from "@material-ui/icons/Dashboard";
 // import NearMe from "@material-ui/icons/NearMe";
-import { useRouter } from "next/router";
 // import { Forum, GroupAdd, DragIndicator, PersonAdd, CalendarViewDay } from '@material-ui/icons';
-import Link from "next/link";
+import { Link } from "react-router-dom";
 import Backdrop from '@material-ui/core/Backdrop';
 import CircularProgress from '@material-ui/core/CircularProgress';
+import { useTranslation } from 'react-i18next';
 
 const drawerWidth = 200;
 
@@ -103,11 +103,11 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 export default function Dashboard({ children }) {
-    const router = useRouter();
     const classes = useStyles();
     const theme = useTheme();
     const [open, setOpen] = React.useState(false);
     const [loading, setLoading] = React.useState(false);
+	const { t } = useTranslation();
 
     const handleDrawerOpen = () => {
         setOpen(true);
@@ -147,7 +147,7 @@ export default function Dashboard({ children }) {
                         <MenuIcon />
                     </IconButton>
                     <Typography variant="h6">
-                        Dashboard
+                        {t('user:dashboard.header')}
                     </Typography>
                 </Toolbar>
             </AppBar>
@@ -171,28 +171,28 @@ export default function Dashboard({ children }) {
                 </div>
                 <Divider />
                 <List>
-                    <Link href="/admin">
+                    <Link to="/admin">
                             <ListItem style={{ color: "white" }} onClick={changeComponent} button>
                                 <ListItemIcon >
                                     <DashboardIcon style={{ color: "white" }} />
                                 </ListItemIcon>
-                                <ListItemText primary="Dashboard" />
+                                <ListItemText primary={t('user:dashboard.dashboard')} />
                             </ListItem>
                     </Link>
-                    <Link href="/admin/users" >
+                    <Link to="/admin/users" >
                         <ListItem style={{ color: "white" }} onClick={changeComponent} button>
                             <ListItemIcon >
                                 <SuperviosorAccount style={{ color: "white" }} />
                             </ListItemIcon>
-                            <ListItemText primary="Users" />
+                            <ListItemText primary={t('user:dashboard.users')} />
                         </ListItem>
                     </Link>
-                    <Link href="/admin/feeds">
+                    <Link to="/admin/feeds">
                         <ListItem style={{ color: "white"}} onClick={changeComponent} button>
                             <ListItemIcon >
                                 <ViewModuleIcon style={{ color: "white" }} />
                             </ListItemIcon>
-                            <ListItemText primary="Feeds" />
+                            <ListItemText primary={t('user:dashboard.feeds')} />
                         </ListItem>
                     </Link>                    
                 </List>

@@ -1,11 +1,12 @@
 import { Sky } from '../../scene/classes/Sky';
-import { CubeTextureLoader, EquirectangularReflectionMapping, PMREMGenerator, sRGBEncoding, TextureLoader, Vector3 } from 'three';
+import { PMREMGenerator, sRGBEncoding, TextureLoader, Vector3 } from 'three';
 import { isClient } from '../../common/functions/isClient';
 import { Engine } from '../../ecs/classes/Engine';
 import { addComponent, getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
 import { ScaleComponent } from '../../transform/components/ScaleComponent';
 import { Object3DComponent } from '../components/Object3DComponent';
 import { addObject3DComponent } from './addObject3DComponent';
+import { CubeTextureLoader } from '../../assets/loaders/tex/CubeTextureLoader';
 
 export default function createSkybox(entity, args: {
   obj3d;
@@ -15,10 +16,6 @@ export default function createSkybox(entity, args: {
   if (!isClient) {
     return;
   }
-  
-  console.log(args);
-  console.log(entity);
-  
   
   const renderer = Engine.renderer
 
@@ -40,12 +37,7 @@ export default function createSkybox(entity, args: {
       // .setPath(args.objArgs.texture)
       .load([posx, negx, posy, negy, posz, negz],
       (texture) => {
-
-        console.log(texture);
-        
        const EnvMap = pmremGenerator.fromCubemap(texture).texture;
-
-       console.log(EnvMap);
         
        Engine.scene.background = EnvMap;
        Engine.scene.environment = EnvMap;

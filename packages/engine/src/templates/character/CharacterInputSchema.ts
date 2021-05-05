@@ -24,11 +24,11 @@ import { isServer } from "../../common/functions/isServer";
 import { VehicleComponent } from '../vehicle/components/VehicleComponent';
 import { isMobileOrTablet } from '../../common/functions/isMobile';
 import { SIXDOFType } from '../../common/types/NumericalTypes';
-import { IKComponent } from '../../character/components/IKComponent';
+import { IKComponent } from './components/IKComponent';
 import { EquippedComponent } from '../../interaction/components/EquippedComponent';
 import { unequipEntity } from '../../interaction/functions/equippableFunctions';
 import { TransformComponent } from '../../transform/components/TransformComponent';
-import { XRUserSettings } from './XRUserSettings';
+import { XRUserSettings, XR_ROTATION_MODE } from '../../xr/types/XRUserSettings';
 
 /**
  *
@@ -45,10 +45,14 @@ const interact: Behavior = (entity: Entity, args: any = { }, delta): void => {
     unequipEntity(entity)
     return;
   }
+
+  interactOnServer(entity); //TODO: figure out all this cases
+
   if (isServer) {
-    interactOnServer(entity);
+    //TODO: all this function needs to re-think
     return;
   }
+
 
   if (!hasComponent(entity, Interactor)) {
     console.error(
@@ -67,6 +71,7 @@ const interact: Behavior = (entity: Entity, args: any = { }, delta): void => {
   //   startedPosition.set(entity,mouseScreenPosition.value);
   //   return;
   // }
+
 
   if (!focusedEntity) {
     // no available interactive object is focused right now
@@ -356,7 +361,7 @@ const lookFromXRInputs: Behavior = (entity, args): void => {
   //console.warn(values[0]);
   switch (XRUserSettings.rotation) {
 
-    case 'angler':
+    case XR_ROTATION_MODE.ANGLED:
       if(switchChangedToZero && values[0] != 0) {
         const plus = XRUserSettings.rotationInvertAxes ? -1 : 1;
         const minus = XRUserSettings.rotationInvertAxes ? 1 : -1;
@@ -372,10 +377,14 @@ const lookFromXRInputs: Behavior = (entity, args): void => {
       }
       break;
 
-    case 'smooth':
+    case XR_ROTATION_MODE.SMOOTH:
       actor.changedViewAngle = (values[0] * XRUserSettings.rotationSmoothSpeed) * (XRUserSettings.rotationInvertAxes ? -1 : 1);
       break;
   }
+
+  const viewVectorAngle = Math.atan2(actor.viewVector.z, actor.viewVector.x) - (actor.changedViewAngle * actor.gamepadDamping);
+  actor.viewVector.x = Math.cos(viewVectorAngle);
+  actor.viewVector.z = Math.sin(viewVectorAngle);
 };
 
 

@@ -23,11 +23,32 @@ export const CubemapOption = [
     value: "/hdr/cubemap/skyboxsun25deg/"
   },
   {
-    label: "textureAxes",
-    value: "/hdr/cubemap/axes/"
+    label: "Globe Theatre",
+    value: "/hdr/cubemap/GlobeTheatre/"
   },
   {
-    label: "City",
-    value: "/hdr/cubemap/city/"
-  }
+    label: "Greek Forum",
+    value: "/hdr/cubemap/GreekForum/"
+  },  
+  {
+    label: "Roof Top",
+    value: "/hdr/cubemap/RoofTop/"
+  },  
+  {
+    label: "Shopping District",
+    value: "/hdr/cubemap/ShoppingDistrict/"
+  },  
+  {
+    label: "SkyStation",
+    value: "/hdr/cubemap/SkyStation/"
+  },
+  {
+    label: "Black Sun",
+    value: "/hdr/cubemap/BlackSun/"
+  },
+  {
+    label: "Ctrl Arcade",
+    value: "/hdr/cubemap/CtrlArcade/"
+  },
+
 ];

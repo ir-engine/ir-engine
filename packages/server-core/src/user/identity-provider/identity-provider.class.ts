@@ -1,8 +1,9 @@
 import { Service, SequelizeServiceOptions } from 'feathers-sequelize';
-import { DEFAULT_AVATAR_ID } from "@xr3ngine/engine/src/common/constants/AvatarConstants";
+import { DEFAULT_AVATARS } from '@xr3ngine/common/src/constants/AvatarConstants';
 import { Application } from '../../../declarations';
 import { Sequelize } from 'sequelize';
 import { v1 as uuidv1 } from 'uuid';
+import { random } from 'lodash';
 import getFreeInviteCode from "../../util/get-free-invite-code";
 
 interface Data {
@@ -143,7 +144,7 @@ export class IdentityProvider extends Service {
         id: userId,
         userRole: type === 'guest' ? 'guest' : type === 'admin' ? 'admin' : 'user',
         inviteCode: type === 'guest' ? null : code,
-        avatarId: DEFAULT_AVATAR_ID,
+        avatarId: DEFAULT_AVATARS[random(DEFAULT_AVATARS.length - 1)],
       }
     }, params);
 

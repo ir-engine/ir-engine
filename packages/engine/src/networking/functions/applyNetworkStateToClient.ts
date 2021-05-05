@@ -2,7 +2,7 @@ import { createNetworkRigidBody } from '../../interaction/prefabs/NetworkRigidBo
 import { NetworkObject } from '../../networking/components/NetworkObject';
 import { createNetworkPlayer } from '../../templates/character/prefabs/NetworkPlayerCharacter';
 import { createNetworkVehicle } from '../../templates/vehicle/prefabs/NetworkVehicle';
-import { IKComponent } from "../../character/components/IKComponent";
+import { IKComponent } from '../../templates/character/components/IKComponent';
 import { addComponent, getComponent, getMutableComponent, hasComponent, removeEntity } from '../../ecs/functions/EntityFunctions';
 import { CharacterComponent } from "../../templates/character/components/CharacterComponent";
 import { NetworkObjectUpdateSchema } from '../../templates/networking/NetworkObjectUpdateSchema';
@@ -12,7 +12,9 @@ import { addSnapshot, createSnapshot } from '../functions/NetworkInterpolationFu
 import { WorldStateInterface } from "../interfaces/WorldState";
 import { StateEntityIK } from "../types/SnapshotDataTypes";
 import { PrefabType } from '../../templates/networking/PrefabType';
-import { GameStateActionMessage } from '../../game/types/GameStateActionMessage';
+import { GameStateActionMessage, GameStateUpdateMessage } from '../../game/types/GameMessage';
+import { applyActionComponent } from '../../game/functions/functionsActions';
+import { applyStateToClient } from '../../game/functions/functionsState';
 
 /**
  * Apply State received over the network to the client.
@@ -35,6 +37,9 @@ function syncNetworkObjectsTest( createObjects ) {
         objectToCreate.ownerId === Network.instance.networkObjects[objectToCreate.networkId]?.ownerId ) return;
 
     Object.keys(Network.instance.networkObjects).map(Number).forEach( key => {
+      if (Network.instance.networkObjects[key].component == null) {
+        console.warn('TRY RESTART SERVER, MAYBE ON SERVER DONT CREATE THIS LOCATION');
+      }
       if(Network.instance.networkObjects[key].component.uniqueId === objectToCreate.uniqueId && Network.instance.networkObjects[key].component.ownerId === objectToCreate.ownerId) {
         console.warn('*createObjects* Correctiong networkObjects as a server id: '+objectToCreate.networkId+' and we now have id: '+key);
         const tempCorrect = Network.instance.networkObjects[key];
@@ -98,19 +103,19 @@ export function applyNetworkStateToClient(worldStateBuffer: WorldStateInterface,
             console.warn("Client disconnected but was not found in our client list");
         }
     }
-
-    if(worldStateBuffer.gameStateActions && worldStateBuffer.gameStateActions.length > 0){
-      // We have a new world state
-      Network.instance.worldState = JSON.parse(worldStateBuffer.gameState);
-      worldStateBuffer.gameStateActions.forEach(({type, payload}: GameStateActionMessage) => {
-        try {
-          Network.instance.gameModeSchema[type](payload);
-        } catch(error) {
-          console.error("Unable to call action on current game mode schema");
+    // Game Manager Messages
+    if (worldStateBuffer.gameState && worldStateBuffer.gameState.length > 0) {
+      worldStateBuffer.gameState.forEach((stateMessage: GameStateUpdateMessage) => {
+        if (Network.instance.userId === stateMessage.ownerId) { // DOTO: test, with and without
+          console.log('get message', stateMessage);
+          applyStateToClient(stateMessage);
         }
-      })
+      });
     }
 
+    if (worldStateBuffer.gameStateActions && worldStateBuffer.gameStateActions.length > 0) {
+      worldStateBuffer.gameStateActions.forEach((actionMessage: GameStateActionMessage) => applyActionComponent(actionMessage));
+    }
 
     // Handle all network objects created this frame
     for (const objectToCreateKey in worldStateBuffer.createObjects) {
@@ -124,13 +129,13 @@ export function applyNetworkStateToClient(worldStateBuffer: WorldStateInterface,
       const isSameUniqueId = isIdFull && Network.instance.networkObjects[objectToCreate.networkId].component.uniqueId === objectToCreate.uniqueId;
 
       if (( isPlayerPref && isSameOwnerId) || ( isOtherPref && isSameUniqueId)){
-        console.warn('*createObjects* same object'+objectToCreate.networkId);
+        console.log('*createObjects* same object'+objectToCreate.networkId);
         continue;
       } else if(searchSameInAnotherId(objectToCreate)) {
-        console.warn('*createObjects* same object but in anotherId '+objectToCreate.networkId);
+        console.log('*createObjects* same object but in anotherId '+objectToCreate.networkId);
         continue;
       } else if (isIdFull) {
-        console.warn('*createObjects* dont have object but Id not empty '+objectToCreate.networkId);
+        console.log('*createObjects* dont have object but Id not empty '+objectToCreate.networkId);
         syncPhysicsObjects(objectToCreate);
       }
 
@@ -162,7 +167,7 @@ export function applyNetworkStateToClient(worldStateBuffer: WorldStateInterface,
       Network.instance.snapshot = newServerSnapshot;
       addSnapshot(newServerSnapshot);
     }
-    
+
     worldStateBuffer.ikTransforms?.forEach((ikTransform: StateEntityIK) => {
       if(!Network.instance.networkObjects[ikTransform.networkId]) return;
       const entity = Network.instance.networkObjects[ikTransform.networkId].component.entity;
@@ -186,11 +191,11 @@ export function applyNetworkStateToClient(worldStateBuffer: WorldStateInterface,
     })
 
     worldStateBuffer.editObjects?.forEach((editObject) => {
-      NetworkObjectUpdateSchema[editObject.type]?.forEach((element) => { 
+      NetworkObjectUpdateSchema[editObject.type]?.forEach((element) => {
         element.behavior(editObject);
       })
     });
-    
+
     // Handle all network objects destroyed this frame
     worldStateBuffer.destroyObjects?.forEach(({ networkId }) => {
       console.log("Destroying ", networkId);

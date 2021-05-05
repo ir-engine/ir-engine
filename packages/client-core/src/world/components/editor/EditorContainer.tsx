@@ -1,5 +1,5 @@
 import { cmdOrCtrlString, objectToMap } from "@xr3ngine/engine/src/editor/functions/utils";
-import { Router, withRouter } from "next/router";
+import {useLocation, withRouter} from "react-router-dom";
 import PropTypes from "prop-types";
 import React, { Component } from "react";
 import { DndProvider } from "react-dnd";
@@ -68,13 +68,15 @@ const WorkspaceContainer = (styled as any).div`
 
 type EditorContainerProps = {
   api: Api;
-  router: Router;
   adminState: any;
   fetchAdminLocations?: any;
   fetchAdminScenes?: any;
   fetchLocationTypes?: any;
   t: any;
-  Engine: any
+  Engine: any;
+  match: any;
+  location: any;
+  history: any;
 };
 type EditorContainerState = {
   project: any;
@@ -85,6 +87,7 @@ type EditorContainerState = {
   editor: Editor;
   creatingProject: any;
   DialogComponent: null;
+  pathParams: Map<string, unknown>;
   queryParams: Map<string, string>;
   dialogProps: {};
   modified: boolean;
@@ -120,7 +123,8 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
       project: null,
       parentSceneId: null,
       editor,
-      queryParams: new Map(Object.entries(props.router.query)),
+      pathParams: new Map(Object.entries(props.match.params)),
+      queryParams: new Map(new URLSearchParams(window.location.search).entries()),
       settingsContext: {
         settings,
         updateSetting: this.updateSetting
@@ -144,9 +148,10 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     }
     if (this.props.adminState.get('locationTypes').get('updateNeeded') === true) {
       this.props.fetchLocationTypes();
-     }
+    }
+    const pathParams = this.state.pathParams;
     const queryParams = this.state.queryParams;
-    const projectId = queryParams.get("projectId");
+    const projectId = pathParams.get("projectId");
     
     if (projectId === "new") {
       if (queryParams.has("template")) {
@@ -164,10 +169,10 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
   }
 
   componentDidUpdate(prevProps: EditorContainerProps) {
-    if (this.props.router.route !== prevProps.router.route && !this.state.creatingProject) {
+    if (this.props.location.pathname !== prevProps.location.pathname && !this.state.creatingProject) {
       // const { projectId } = this.props.match.params;
-      const prevProjectId = prevProps.router.query.projectId;
-      const queryParams = objectToMap(this.props.router.query);
+      const prevProjectId = prevProps.match.params.projectId;
+      const queryParams = new Map(new URLSearchParams(window.location.search).entries());
       this.setState({
         queryParams
       });
@@ -552,7 +557,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
 
     this.updateModifiedState(() => {
       this.setState({ creatingProject: true, project }, () => {
-        this.props.router.replace(`/editor/projects/${project.project_id}`);
+        this.props.history.replace(`/editor/projects/${project.project_id}`);
         this.setState({ creatingProject: false });
       });
     });
@@ -561,11 +566,11 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
   }
 
   onNewProject = async () => {
-    this.props.router.push("/editor/projects/new");
+    this.props.history.push("/editor/projects/new");
   };
 
   onOpenProject = () => {
-    this.props.router.push("/editor/projects");
+    this.props.history.push("/editor/projects");
   };
 
 

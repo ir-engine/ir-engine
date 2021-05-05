@@ -2,20 +2,20 @@ import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 import { client } from "../../feathers";
-import { Router, withRouter } from "next/router";
 import FormControl from '@material-ui/core/FormControl';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
-import {
-    Table,
-    TableBody,
-    TableContainer,
-    TableHead,
-    TableRow,
-    TableCell,
-    TableSortLabel,
-    Paper,
-    Button, MenuItem, Select,
-} from '@material-ui/core';
+import Table from '@material-ui/core/Table';
+import TableBody from '@material-ui/core/TableBody';
+import TableContainer from '@material-ui/core/TableContainer';
+import TableHead from '@material-ui/core/TableHead';
+import TableRow from '@material-ui/core/TableRow';
+import TableCell from '@material-ui/core/TableCell';
+import TableSortLabel from '@material-ui/core/TableSortLabel';
+import Paper from '@material-ui/core/Paper';
+import Button from '@material-ui/core/Button';
+import MenuItem from '@material-ui/core/MenuItem';
+import Select from '@material-ui/core/Select';
+import Grid from "@material-ui/core/Grid";
 // @ts-ignore
 import styles from './Admin.module.scss';
 import UserModel from "./UserModel";
@@ -41,7 +41,6 @@ if (!global.setImmediate) {
 
 
 interface Props {
-    router: Router;
     adminState?: any;
     authState?: any;
     locationState?: any;
@@ -86,6 +85,9 @@ const useStyles = makeStyles((theme: Theme) =>
         backdrop: {
             zIndex: theme.zIndex.drawer + 1,
             color: '#fff',
+        },
+        marginBottom: {
+            marginBottom: "10px"
         }
     }),
 );
@@ -97,10 +99,16 @@ const Transition = React.forwardRef((
     return <Slide direction="up" ref={ref} {...props} />;
   });
 
+/**
+ * Function for user management on  admin dashboard 
+ * 
+ * @param param0 children props 
+ * @returns @ReactDomElements
+ * @author Kevin KIMENYI <kimenyikevin@gmail.com>
+ */
 const UserConsole = (props: Props) => {
     const classes = useStyles();
     const {
-        router,
         adminState,
         authState,
         fetchUsersAsAdmin,
@@ -220,6 +228,9 @@ const UserConsole = (props: Props) => {
         setOrderBy(property);
     };
 
+    console.log('====================================');
+    console.log(adminUsers);
+    console.log('====================================');
     const fetchTick = () => {
         setTimeout(() => {
             setRefetch(true);
@@ -302,11 +313,11 @@ const UserConsole = (props: Props) => {
 
     return (
         <div>
-            <div className="row mb-5">
-                <div className="col-lg-9">
+            <Grid container spacing={3} className={classes.marginBottom}>
+                <Grid item xs={9}>
                     <Search typeName="users" />
-                </div>
-                <div className="col-lg-3">
+                </Grid>
+                <Grid item xs={3}>
                     <Button
                         className={styles.createLocation}
                         type="submit"
@@ -316,8 +327,8 @@ const UserConsole = (props: Props) => {
                     >
                         Create New User
                     </Button>
-                </div>
-            </div>
+                </Grid>
+            </Grid>
             <Paper className={styles.adminRoot}>
                 <TableContainer className={styles.tableContainer}>
                     <Table
@@ -421,4 +432,4 @@ const UserConsole = (props: Props) => {
 };
 
 
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(UserConsole));
+export default connect(mapStateToProps, mapDispatchToProps)(UserConsole);

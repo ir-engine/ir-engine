@@ -8,6 +8,7 @@ import { User } from '@xr3ngine/common/src/interfaces/User';
 // @ts-ignore
 import styles from './ProfileConnections.module.scss';
 import { selectAuthState } from '../../reducers/auth/selector';
+import { useTranslation } from 'react-i18next';
 
 interface Props {
   auth: any;
@@ -24,6 +25,7 @@ const mapDispatchToProps = (): any => ({});
 
 const ProfileConnections = (props: Props): any => {
   const { classes } = props;
+  const { t } = useTranslation();
   const user = props.auth.get('user') as User;
 
   if (!user) {
@@ -36,7 +38,7 @@ const ProfileConnections = (props: Props): any => {
       <div className={styles.section1}>
         <Grid container alignItems="center">
           <Grid item xs>
-            <Typography variant="h4">Connections</Typography>
+            <Typography variant="h4">{t('user:profile.connections.title')}</Typography>
           </Grid>
         </Grid>
       </div>

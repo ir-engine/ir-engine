@@ -7,20 +7,28 @@ export class ObjectPool<T> {
   /**
    * Objects in pool that are available for allocation.
    * @todo: make this a sparse array or ring buffer
+   * 
+   * @author Fernando Serrano, Robert Long
    */
   freeList: any[] = []
 
   /**
-   * Current size of the pool.
+   * Current size of the pool.''
+   * 
+   * @author Fernando Serrano, Robert Long
    */
   poolSize = 0
 
   /**
    * Type is set on construction.
+   * 
+   * @author Fernando Serrano, Robert Long
    */
   type: new(...args: any[]) => T
 
   /**
+   * 
+   * @author Fernando Serrano, Robert Long
    * @param baseObject Type of the pool will be the type of this object.
    * @param initialSize Initial size of the pool when created.
    * 
@@ -39,6 +47,7 @@ export class ObjectPool<T> {
    * Get an object from {@link freeList} of the pool.\
    * If {@link freeList} is empty then expands the pool first and them retrieves the object.
    * 
+   * @author Fernando Serrano, Robert Long
    * @typeparam T {@link ecs/classes/Entity.Entity | Entity},
    *     {@link ecs/classes/Component.Component | Component} or Subclass of any of these.
    *
@@ -58,6 +67,7 @@ export class ObjectPool<T> {
   /**
    * Put on object back in the pool.
    * 
+   * @author Fernando Serrano, Robert Long
    * @param item Object to be released.
    * @typeparam T {@link ecs/classes/Entity.Entity | Entity},
    *     {@link ecs/classes/Component.Component | Component} or Subclass of any of these.
@@ -70,6 +80,7 @@ export class ObjectPool<T> {
   /**
   * Make the pool bigger.
   *
+  * @author Fernando Serrano, Robert Long
   * @param count Number of entities to increase.
   */
   expand (count: number): void {

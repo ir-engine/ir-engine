@@ -60,7 +60,7 @@ export class VideoTextureProxy extends CanvasTexture {
       videoProxy._requestVideoFrameCallback(updateVideo);
     }
   }
-  clone(): this {
+  clone() {
     return (new VideoTextureProxy(this.videoProxy) as any).copy(this);
   }
 

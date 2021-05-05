@@ -7,6 +7,7 @@ export class DesiredTransformComponent extends Component<DesiredTransformCompone
   rotation: Quaternion|null
   positionRate: number
   rotationRate: number
+  lockRotationAxis: [boolean, boolean, boolean];
 
   constructor () {
     super();
@@ -42,5 +43,6 @@ DesiredTransformComponent._schema = {
   position: { default: null, type: Types.Ref },
   rotation: { default: null, type: Types.Ref },
   positionRate: { default: 1.5, type: Types.Number },
-  rotationRate: { default: 3.5, type: Types.Number }
+  rotationRate: { default: 3.5, type: Types.Number },
+  lockRotationAxis: { default: [false, false, false], type: Types.Array }
 };

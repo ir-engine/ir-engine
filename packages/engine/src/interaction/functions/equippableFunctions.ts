@@ -6,6 +6,8 @@ import { addComponent, getComponent, hasComponent, removeComponent } from "../..
 import { NetworkObject } from "../../networking/components/NetworkObject"
 import { sendClientObjectUpdate } from "../../networking/functions/sendClientObjectUpdate"
 import { ColliderComponent } from "../../physics/components/ColliderComponent"
+import { BodyType } from "three-physx"
+import { PhysicsSystem } from "../../physics/systems/PhysicsSystem"
 import { NetworkObjectUpdateType } from "../../templates/networking/NetworkObjectUpdateSchema"
 import { TransformChildComponent } from "../../transform/components/TransformChildComponent"
 import { TransformComponent } from "../../transform/components/TransformComponent"
@@ -17,7 +19,7 @@ export const equipEntity = (equipperEntity: Entity, equippedEntity: Entity): voi
   addComponent(equipperEntity, EquippedComponent, { equippedEntity: equippedEntity })
   addComponent(equippedEntity, TransformChildComponent, { parent: equipperEntity, offsetPosition: new Vector3(0, 1, 0) })
   const collider = getComponent(equippedEntity, ColliderComponent)
-  collider.collider.type = 2; //BODY_TYPES.KINEMATIC
+  collider.body.type = BodyType.KINEMATIC;
   if(isServer) {
     sendClientObjectUpdate(equipperEntity, NetworkObjectUpdateType.ObjectEquipped, [BinaryValue.TRUE, getComponent(equippedEntity, NetworkObject).networkId] as EquippedStateUpdateSchema)
   }
@@ -29,11 +31,13 @@ export const unequipEntity = (equipperEntity: Entity): void => {
   const equippedEntity = equippedComponent.equippedEntity;
   const equippedTransform = getComponent(equippedEntity, TransformComponent)
   const collider = getComponent(equippedEntity, ColliderComponent)
-  collider.collider.position.set(equippedTransform.position.x, equippedTransform.position.y, equippedTransform.position.z);
-  collider.collider.quaternion.set(equippedTransform.rotation.x, equippedTransform.rotation.y, equippedTransform.rotation.z, equippedTransform.rotation.w);
+  collider.body.type = BodyType.DYNAMIC;
+  collider.body.updateTransform({
+    translation: { x: equippedTransform.position.x, y: equippedTransform.position.y, z: equippedTransform.position.z },
+    rotation: { x: equippedTransform.rotation.x, y: equippedTransform.rotation.y, z: equippedTransform.rotation.z, w: equippedTransform.rotation.w }
+  })
   removeComponent(equippedEntity, TransformChildComponent)
   removeComponent(equipperEntity, EquippedComponent)
-  collider.collider.type = 1; //BODY_TYPES.DYNAMIC
   if(isServer) {
     sendClientObjectUpdate(equipperEntity, NetworkObjectUpdateType.ObjectEquipped, [BinaryValue.FALSE] as EquippedStateUpdateSchema)
   }

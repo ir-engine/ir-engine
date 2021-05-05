@@ -1,3 +1,6 @@
+/**
+ * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
+ */
 import { Creator } from '@xr3ngine/common/src/interfaces/Creator';
 import { Dispatch } from 'redux';
 import Api from '../../../world/components/editor/Api';
@@ -59,7 +62,6 @@ export function getCreator(creatorId) {
     try {
       dispatch(fetchingCreator());
       const creator = await client.service('creator').get(creatorId);  
-      console.log('getCreator service creator', creatorId, creator);
       dispatch(creatorRetrieved(creator));
     } catch(err) {
       console.log(err);

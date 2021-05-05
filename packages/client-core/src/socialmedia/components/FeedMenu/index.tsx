@@ -1,3 +1,6 @@
+/**
+ * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
+ */
 import Button from "@material-ui/core/Button";
 import React, { useRef, useState } from "react";
 
@@ -5,6 +8,7 @@ import Creators from "../Creators";
 import Featured from "../Featured";
 import TheFeed from "../TheFeed";
 import TipsAndTricks from "../TipsAndTricks";
+import { useTranslation } from 'react-i18next';
 
 // @ts-ignore
 import styles from './FeedMenu.module.scss';
@@ -16,6 +20,7 @@ const FeedMenu = () => {
   const thefeedRef = useRef<HTMLInputElement>();
   const tipsandtricksRef = useRef<HTMLInputElement>();
   const [view, setView] = useState('featured');
+	const { t } = useTranslation();
 
   const padding = 40;
   const handleMenuClick = (view) =>{
@@ -48,10 +53,10 @@ const FeedMenu = () => {
       <nav className={styles.feedMenuContainer}>  
         <section className={styles.subWrapper} ref={containerRef}>
           <section className={styles.feedMenu}>
-            <Button ref={featuredRef} variant="contained" className={classes['featured'].join(' ')} onClick={()=>handleMenuClick('featured')}>Featured</Button>        
-            <Button ref={creatorsRef} variant="contained" className={classes['creators'].join(' ')} onClick={()=>handleMenuClick('creators')}>Creators</Button>
-            <Button ref={thefeedRef} variant="contained" className={classes['thefeed'].join(' ')} onClick={()=>handleMenuClick('thefeed')}>The Feed</Button>
-            <Button ref={tipsandtricksRef} variant="contained" className={classes['tipsandtricks'].join(' ')} onClick={()=>handleMenuClick('tipsandtricks')}>Tips & Tricks</Button>
+            <Button ref={featuredRef} variant="contained" className={classes['featured'].join(' ')} onClick={()=>handleMenuClick('featured')}>{t('social:feedMenu.featured')}</Button>        
+            <Button ref={creatorsRef} variant="contained" className={classes['creators'].join(' ')} onClick={()=>handleMenuClick('creators')}>{t('social:feedMenu.creators')}</Button>
+            <Button ref={thefeedRef} variant="contained" className={classes['thefeed'].join(' ')} onClick={()=>handleMenuClick('thefeed')}>{t('social:feedMenu.feed')}</Button>
+            <Button ref={tipsandtricksRef} variant="contained" className={classes['tipsandtricks'].join(' ')} onClick={()=>handleMenuClick('tipsandtricks')}>{t('social:feedMenu.tips')}</Button>
           </section>
         </section>   
       </nav>

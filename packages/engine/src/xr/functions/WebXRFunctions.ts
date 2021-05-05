@@ -14,6 +14,11 @@ import { initializeMovingState } from "../../templates/character/animations/Movi
 
 let head, controllerGripLeft, controllerLeft, controllerRight, controllerGripRight;
 
+/**
+ * 
+ * @author Avaer Kazmer
+ * @returns 
+ */
 export const startXR = async () => {
 
   try{
@@ -105,6 +110,10 @@ export const startXR = async () => {
   }
 }
 
+/**
+ * 
+ * @author Avaer Kazmer
+ */
 export const endXR = () => {
   removeComponent(Network.instance.localClientEntity, XRInputReceiver);
   const cameraFollow = getMutableComponent<FollowCameraComponent>(Network.instance.localClientEntity, FollowCameraComponent) as FollowCameraComponent;

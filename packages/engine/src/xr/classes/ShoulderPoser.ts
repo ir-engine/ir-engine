@@ -13,6 +13,10 @@ const localQuaternion2 = new Quaternion();
 const localQuaternion3 = new Quaternion();
 const localEuler = new Euler();
 
+/**
+ * 
+ * @author Avaer Kazmer
+ */
 class ShoulderPoser {
   rig: any;
   shoulder: any;

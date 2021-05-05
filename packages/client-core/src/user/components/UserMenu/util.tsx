@@ -7,6 +7,8 @@ export const Views = {
   Login: 'login',
   AvatarUpload: 'AvatarUpload',
   Avatar: 'Avatar',
+  Location: 'Location',
+  NewLocation: 'NewLocation'
 };
 
 export interface UserMenuProps {
@@ -23,6 +25,7 @@ export interface UserMenuProps {
   fetchAvatarList?: Function;
   updateUserSettings?: Function;
   removeAvatar?: Function;
+  getLocations?: Function;
 }
 
 export interface SettingMenuProps {

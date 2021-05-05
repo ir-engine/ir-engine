@@ -1,21 +1,19 @@
-import {
-    Backdrop,
-    Button,
-    Fade,
-    Modal,
-    Table,
-    TableBody,
-    TableCell,
-    TableContainer,
-    TableHead,
-    TableRow,
-    TableSortLabel
-} from '@material-ui/core';
+import Backdrop from '@material-ui/core/Backdrop';
+import Button from '@material-ui/core/Button';
+import Fade from '@material-ui/core/Fade';
+import Modal from '@material-ui/core/Modal';
+import Table from '@material-ui/core/Table';
+import TableBody from '@material-ui/core/TableBody';
+import TableCell from '@material-ui/core/TableCell';
+import TableContainer from '@material-ui/core/TableContainer';
+import TableHead from '@material-ui/core/TableHead';
+import TableRow from '@material-ui/core/TableRow';
+import TableSortLabel from '@material-ui/core/TableSortLabel';
 import Snackbar from '@material-ui/core/Snackbar';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import MuiAlert, { AlertProps } from '@material-ui/lab/Alert';
 import classNames from 'classnames';
-import { Router, withRouter } from "next/router";
+import { useHistory } from "react-router-dom";
 import React, { useEffect, useRef, useState } from 'react';
 import { connect } from 'react-redux';
 import { Dispatch } from "redux";
@@ -26,7 +24,6 @@ import { selectAdminState } from '../reducers/admin/selector';
 // @ts-ignore
 import styles from './Admin.module.scss';
 interface Props {
-    router: Router,
     open: boolean;
     handleClose: any;
     instance: any;
@@ -58,12 +55,12 @@ const useStyles = makeStyles((theme: Theme) => ({
 
 const InstanceModal = (props: Props): any => {
     const {
-        router,
         open,
         handleClose,
         instance
     } = props;
 
+    const router = useHistory();
     const classes = useStyles();
     const [openToast, setOpenToast] = React.useState(false);
     const [message, setMessage] = React.useState('');
@@ -236,4 +233,4 @@ const InstanceModal = (props: Props): any => {
     );
 };
 
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(InstanceModal));
+export default connect(mapStateToProps, mapDispatchToProps)(InstanceModal);

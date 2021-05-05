@@ -1,0 +1,26 @@
+.arMediaContainer{
+    .switcher{
+        background-color: #EEEEEF;
+        padding: 3px;
+        border-radius: 10px;
+        display: flex;
+        margin: 10px 20px;
+
+        .switchButton{
+            margin: 0;
+            color: #000000;
+            padding: 0;
+            width: 50%;
+        }
+    }
+    .flexContainer{
+        display: flex;
+        .previewImage{
+            height: 80px;
+            width: 80px;
+            margin: 10px;
+            border-radius: 10px;
+            background-color: #DDDDDD;
+        }
+    }    
+}

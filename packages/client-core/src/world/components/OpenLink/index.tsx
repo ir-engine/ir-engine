@@ -2,7 +2,12 @@ import React, { FunctionComponent } from "react";
 import { CommonInteractiveData } from "@xr3ngine/engine/src/interaction/interfaces/CommonInteractiveData";
 // @ts-ignore
 import styles from './OpenLink.module.scss';
-import { Button, Dialog, DialogContent, DialogTitle, IconButton, Typography } from "@material-ui/core";
+import Dialog from "@material-ui/core/Dialog";
+import DialogContent from "@material-ui/core/DialogContent";
+import DialogTitle from "@material-ui/core/DialogTitle";
+import Button from "@material-ui/core/Button";
+import IconButton from "@material-ui/core/IconButton";
+import Typography from "@material-ui/core/Typography";
 import CloseIcon from '@material-ui/icons/Close';
 import { useTranslation } from "react-i18next";
 

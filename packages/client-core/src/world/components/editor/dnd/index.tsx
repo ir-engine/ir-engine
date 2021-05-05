@@ -53,7 +53,7 @@ export function isAsset(item) {
  */
 export function addAssetOnDrop(editor, item, parent?, before?) {
   if (isAsset(item)) {
-    const { nodeClass, initialProps } = item.value;
+    const { nodeClass, initialProps } = item;
     const node = new nodeClass(editor);
     if (initialProps) {
       Object.assign(node, initialProps);
@@ -74,7 +74,7 @@ export function addAssetOnDrop(editor, item, parent?, before?) {
  */
 export function addAssetAtCursorPositionOnDrop(editor, item, mousePos) {
   if (isAsset(item)) {
-    const { nodeClass, initialProps } = item.value;
+    const { nodeClass, initialProps } = item;
     const node = new nodeClass(editor);
     if (initialProps) {
       Object.assign(node, initialProps);

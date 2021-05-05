@@ -26,9 +26,5 @@
     "node_modules",
     "tests/**"
   ],
-  "include": [
-    "next-env.d.ts",
-    "./**/*.ts",
-    "./**/*.tsx"
-  ]
+  "include": [ "./**/*.ts", "./**/*.tsx" ]
 }

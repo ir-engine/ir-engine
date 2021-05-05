@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import clsx from 'clsx';
 import { createStyles, makeStyles, useTheme, Theme } from '@material-ui/core/styles';
 import Drawer from '@material-ui/core/Drawer';
@@ -13,15 +13,17 @@ import MenuIcon from '@material-ui/icons/Menu';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ViewModuleIcon from '@material-ui/icons/ViewModule';
+import EmojiPeopleIcon from '@material-ui/icons/EmojiPeople';
+import GradientIcon from '@material-ui/icons/Gradient';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import SuperviosorAccount from "@material-ui/icons/SupervisorAccount";
 import DashboardIcon from "@material-ui/icons/Dashboard";
-import { useRouter } from "next/router";
-import Link from "next/link";
+import { Link } from "react-router-dom";
 import Backdrop from '@material-ui/core/Backdrop';
 import CircularProgress from '@material-ui/core/CircularProgress';
+import { useTranslation } from 'react-i18next';
 
 const drawerWidth = 200;
 
@@ -100,11 +102,11 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 export default function Dashboard({ children }) {
-    const router = useRouter();
     const classes = useStyles();
     const theme = useTheme();
     const [open, setOpen] = React.useState(false);
     const [loading, setLoading] = React.useState(false);
+	const { t } = useTranslation();
 
     const handleDrawerOpen = () => {
         setOpen(true);
@@ -144,7 +146,7 @@ export default function Dashboard({ children }) {
                         <MenuIcon />
                     </IconButton>
                     <Typography variant="h6">
-                        Dashboard
+                        {t('social:dashboard.title')}
                     </Typography>
                 </Toolbar>
             </AppBar>
@@ -168,30 +170,46 @@ export default function Dashboard({ children }) {
                 </div>
                 <Divider />
                 <List>
-                    <Link href="/admin">
+                    <Link to="/admin">
                             <ListItem style={{ color: "white" }} onClick={changeComponent} button>
                                 <ListItemIcon >
                                     <DashboardIcon style={{ color: "white" }} />
                                 </ListItemIcon>
-                                <ListItemText primary="Dashboard" />
+                                <ListItemText primary={t('social:dashboard.dashboard')} />
                             </ListItem>
                     </Link>
-                    <Link href="/admin/users" >
+                    <Link to="/admin/users" >
                         <ListItem style={{ color: "white" }} onClick={changeComponent} button>
                             <ListItemIcon >
                                 <SuperviosorAccount style={{ color: "white" }} />
                             </ListItemIcon>
-                            <ListItemText primary="Users" />
+                            <ListItemText primary={t('social:dashboard.users')} />
                         </ListItem>
                     </Link>
-                    <Link href="/admin/feeds">
+                    <Link to="/admin/feeds">
                         <ListItem style={{ color: "white"}} onClick={changeComponent} button>
                             <ListItemIcon >
                                 <ViewModuleIcon style={{ color: "white" }} />
                             </ListItemIcon>
-                            <ListItemText primary="Feeds" />
+                            <ListItemText primary={t('social:dashboard.feeds')} />
                         </ListItem>
-                    </Link>                    
+                    </Link>       
+                    <Link to="/admin/ar-media">
+                        <ListItem style={{ color: "white"}} onClick={changeComponent} button>
+                            <ListItemIcon >
+                                <EmojiPeopleIcon style={{ color: "white" }} />
+                            </ListItemIcon>
+                            <ListItemText primary={t('social:dashboard.arMedia')} />
+                        </ListItem>
+                    </Link> 
+                    <Link to="/editor/projects/create">
+                        <ListItem style={{ color: "white"}} onClick={changeComponent} button>
+                            <ListItemIcon >
+                                <GradientIcon style={{ color: "white" }} />
+                            </ListItemIcon>
+                            <ListItemText primary={t('social:dashboard.editor')} />
+                        </ListItem>
+                    </Link> 
                 </List>
             </Drawer>
             <main className={classes.content}>

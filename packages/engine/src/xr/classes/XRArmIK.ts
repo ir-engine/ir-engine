@@ -47,6 +47,10 @@ const FINGER_SPECS = [
   [24, 'littleFinger3'],
 ];
 
+/**
+ * 
+ * @author Avaer Kazmer
+ */
 	class XRArmIK
 	{
     arm: any;

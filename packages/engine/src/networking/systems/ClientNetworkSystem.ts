@@ -32,9 +32,9 @@ export class ClientNetworkSystem extends System {
     // Instantiate the provided transport (SocketWebRTCClientTransport / SocketWebRTCServerTransport by default)
     Network.instance.transport = new schema.transport();
     
-    console.log("***** CLIENT NETWORK SYSTEM RUNNING");
-    console.log(Network.instance.transport);
-    console.log(schema.transport)
+    // console.log("***** CLIENT NETWORK SYSTEM RUNNING");
+    // console.log(Network.instance.transport);
+    // console.log(schema.transport)
   }
 
   /**
@@ -50,9 +50,14 @@ export class ClientNetworkSystem extends System {
     while (queue.getBufferLength() > 0) {
       const buffer = queue.pop();
       // debugger;
-      const unbufferedState = WorldStateModel.fromBuffer(buffer);
-      if(!unbufferedState) console.warn("Couldn't deserialize buffer, probably still reading the wrong one")
-      EngineEvents.instance.dispatchEvent({ type: ClientNetworkSystem.EVENTS.RECEIVE_DATA, unbufferedState, delta });
+      let unbufferedState;
+      try {
+        unbufferedState = WorldStateModel.fromBuffer(buffer);
+        if(!unbufferedState) throw new Error("Couldn't deserialize buffer, probably still reading the wrong one");
+        EngineEvents.instance.dispatchEvent({ type: ClientNetworkSystem.EVENTS.RECEIVE_DATA, unbufferedState, delta });
+      } catch (e) {
+        console.log(e);
+      }
     }
   }
 

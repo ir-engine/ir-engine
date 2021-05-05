@@ -1,6 +1,7 @@
 import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 import LinkIcon from '@material-ui/icons/Link';
 import PersonIcon from '@material-ui/icons/Person';
+import FilterHdrIcon from '@material-ui/icons/FilterHdr';
 import SettingsIcon from '@material-ui/icons/Settings';
 // TODO: Reenable me! Disabled because we don't want the client-networking dep in client-core, need to fix this
 // import { provisionInstanceServer } from "@xr3ngine/client-networking/src/reducers/instanceConnection/service";
@@ -19,8 +20,10 @@ import AvatarSelectMenu from './menus/AvatarSelectMenu';
 import ProfileMenu from './menus/ProfileMenu';
 import SettingMenu from './menus/SettingMenu';
 import ShareMenu from './menus/ShareMenu';
+import LocationMenu from './menus/LocationMenu';
+import CreateLocationMenu from './menus/CreateLocationMenu';
 // @ts-ignore
-import styles from './style.module.scss';
+import styles from './UserMenu.module.scss';
 import { UserMenuProps, Views } from './util';
 
 type StateType = {
@@ -61,6 +64,7 @@ const UserMenu = (props: UserMenuProps): any => {
     { id: Views.Profile, iconNode: PersonIcon },
     { id: Views.Settings, iconNode: SettingsIcon },
     { id: Views.Share, iconNode: LinkIcon },
+    { id: Views.Location, iconNode: FilterHdrIcon },
   ];
 
   const menuPanel = {
@@ -69,16 +73,17 @@ const UserMenu = (props: UserMenuProps): any => {
     [Views.Share]: ShareMenu,
     [Views.Avatar]: AvatarMenu,
     [Views.AvatarUpload]: AvatarSelectMenu,
+    [Views.Location]: LocationMenu,
+    [Views.NewLocation]: CreateLocationMenu,
   };
 
   const [engineLoaded, setEngineLoaded] = useState(false);
 
   const selfUser = authState.get('user') || {};
   const avatarList = authState.get('avatarList') || [];
-  const prevPropUsername = '';
 
-  const [currentActiveMenu, setCurrentActiveMenu] = useState({} as any);
-  const [actorEntityID, setActorEntityID] = useState(null);
+  const [currentActiveMenu, setCurrentActiveMenu] = useState(null);
+  const [activeLocation, setActiveLocation] = useState(null);
 
   const [username, setUsername] = useState(selfUser?.name);
   const [userSetting, setUserSetting] = useState(selfUser?.user_setting);
@@ -87,7 +92,7 @@ const UserMenu = (props: UserMenuProps): any => {
     shadows: WebGLRendererSystem.shadowQuality,
     automatic: WebGLRendererSystem.automatic,
     pbr: WebGLRendererSystem.usePBR,
-    postProcessing: WebGLRendererSystem.usePostProcessing,
+    postProcessing: WebGLRendererSystem.usePostProcessing
   });
   
   const onEngineLoaded = () => {
@@ -118,7 +123,6 @@ const UserMenu = (props: UserMenuProps): any => {
 
   const updateGraphicsSettings = (newSetting: any): void => {
     const setting = { ...graphics, ...newSetting };
-
     setGraphicsSetting(setting);
   };
 
@@ -130,9 +134,20 @@ const UserMenu = (props: UserMenuProps): any => {
   };
 
   const changeActiveMenu = (menu) => {
+    if(currentActiveMenu !== null) {
+      const enabled = Boolean(menu);
+      if(EngineEvents.instance) EngineEvents.instance.dispatchEvent({ type: ClientInputSystem.EVENTS.ENABLE_INPUT, mouse: !enabled, keyboard: !enabled });
+    }
     setCurrentActiveMenu(menu ? { id: menu } : null);
-    const enabled = Boolean(menu);
-    if(EngineEvents.instance) EngineEvents.instance.dispatchEvent({ type: ClientInputSystem.EVENTS.ENABLE_INPUT, mouse: !enabled, keyboard: !enabled });
+  };
+
+  const changeActiveLocation = (location) => {
+    setActiveLocation(location);
+    setCurrentActiveMenu({ id: Views.NewLocation });
+  };
+
+  const updateLocationDetail = (location) => {
+    setActiveLocation({ ...location });
   };
 
   const renderMenuPanel = () => {
@@ -173,18 +188,31 @@ const UserMenu = (props: UserMenuProps): any => {
           uploadAvatarModel: uploadAvatarModel,
         };
         break;
+      case Views.Location:
+        args = {
+          changeActiveLocation,
+        };
+        break;
+      case Views.NewLocation:
+        args = {
+          location: activeLocation,
+          changeActiveMenu,
+          updateLocationDetail,
+        };
+        break;
       default: return null;
     }
 
     const Panel = menuPanel[currentActiveMenu.id];
 
+    // @ts-ignore
     return <Panel {...args} />;
   };
 
   return (
     <>
       {engineLoaded && 
-        <ClickAwayListener onClickAway={() => changeActiveMenu(null)}>
+        <ClickAwayListener onClickAway={() => changeActiveMenu(null)} mouseEvent="onMouseUp">
           <section className={styles.settingContainer}>
             <div className={styles.iconContainer}>
               {menus.map((menu, index) => {

@@ -1,17 +1,12 @@
-import { useRouter, NextRouter } from 'next/router';
+import { useLocation, withRouter } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
 import { loginUserByJwt, refreshConnections } from '../../reducers/auth/service';
-import { Container } from '@material-ui/core';
+import Container from '@material-ui/core/Container';
 import { selectAuthState } from '../../reducers/auth/selector';
 import { bindActionCreators, Dispatch } from 'redux';
 import { connect } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 
-interface Props {
-  auth: any;
-  router: NextRouter;
-  loginUserByJwt: typeof loginUserByJwt;
-  refreshConnections: typeof refreshConnections;
-}
 
 const mapStateToProps = (state: any): any => {
   return {
@@ -24,20 +19,22 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
   refreshConnections: bindActionCreators(refreshConnections, dispatch)
 });
 
-const GithubCallbackComponent = (props: Props): any => {
-  const { auth, loginUserByJwt, refreshConnections, router } = props;
+const GithubCallbackComponent = (props): any => {
+  const { auth, loginUserByJwt, refreshConnections } = props;
+	const { t } = useTranslation();
 
   const initialState = { error: '', token: '' };
   const [state, setState] = useState(initialState);
+  const search = new URLSearchParams(useLocation().search);
 
   useEffect(() => {
-    const error = router.query.error as string;
-    const token = router.query.token as string;
-    const type = router.query.type as string;
-    const path = router.query.path as string;
-    const instanceId = router.query.instanceId as string;
+    const error = search.get('error') as string;
+    const token = search.get('token') as string;
+    const type = search.get('type') as string;
+    const path = search.get('path') as string;
+    const instanceId = search.get('instanceId') as string;
 
-    if (router.isReady === true && !error) {
+    if (!error) {
       if (type === 'connection') {
         const user = auth.get('user');
         refreshConnections(user.id);
@@ -49,19 +46,17 @@ const GithubCallbackComponent = (props: Props): any => {
     }
 
     setState({ ...state, error, token });
-  }, [router.isReady]);
+  }, []);
 
   return state.error && state.error !== '' ? (
     <Container>
-      Github authentication failed.
+      {t('user:oauth.authFailed', { service: "Github" })}
       <br />
       {state.error}
     </Container>
   ) : (
-    <Container>Authenticating...</Container>
+    <Container>{t('user:oauth.authenticating')}</Container>
   );
 };
 
-const GithubHomeWrapper = (props: any): any => <GithubCallbackComponent {...props} router={ useRouter() } />;
-
-export const GithubCallback = connect(mapStateToProps, mapDispatchToProps)(GithubHomeWrapper);
+export const GithubCallback = withRouter(connect(mapStateToProps, mapDispatchToProps)(GithubCallbackComponent)) as any;

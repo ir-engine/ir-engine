@@ -1,4 +1,4 @@
-import { ThemeProvider } from '@material-ui/core';
+import { ThemeProvider } from "@material-ui/styles";
 import { Forum, FullscreenExit, People, ZoomOutMap } from '@material-ui/icons';
 import { Alerts } from '@xr3ngine/client-core/src/common/components/Alerts';
 import { UIDialog } from '@xr3ngine/client-core/src/common/components/Dialog/Dialog';
@@ -13,8 +13,7 @@ import theme from '@xr3ngine/client-core/src/theme';
 import Harmony from "../Harmony";
 import InstanceChat from '../InstanceChat';
 import PartyVideoWindows from '../PartyVideoWindows';
-import Head from 'next/head';
-import { useRouter } from 'next/router';
+import { Helmet } from 'react-helmet';
 import React, { Fragment, useCallback, useEffect, useState } from 'react';
 import { FullScreen, useFullScreenHandle } from "react-full-screen";
 import { connect } from 'react-redux';
@@ -23,8 +22,9 @@ import LeftDrawer from '../Drawer/Left';
 import RightDrawer from '../Drawer/Right';
 // @ts-ignore
 import styles from './Layout.module.scss';
-
 import { Config } from '@xr3ngine/client-core/src/helper';
+import { useLocation } from 'react-router-dom';
+
 const siteTitle: string = Config.publicRuntimeConfig.siteTitle;
 
 const engineRendererCanvasId = 'engine-renderer-canvas';
@@ -70,7 +70,7 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 });
 
 const Layout = (props: Props): any => {
-  const path = useRouter().pathname;
+  const path = useLocation().pathname;
   const {
     pageTitle,
     children,
@@ -119,14 +119,8 @@ const Layout = (props: Props): any => {
   };
 
   const childrenWithProps = React.Children.map(children, child => {
-    // checking isValidElement is the safe way and avoids a typescript error too
     if (React.isValidElement(child)) {
-      const mapped = React.Children.map((child as any).props.children, child => {
-        if (React.isValidElement(child)) { // @ts-ignore
-          return React.cloneElement(child, { harmonyOpen: harmonyOpen });
-        }
-      });
-      return mapped;
+      return React.cloneElement((child as any), { harmonyOpen: harmonyOpen });
     }
     return child;
   });
@@ -165,11 +159,11 @@ const Layout = (props: Props): any => {
       <FullScreen handle={handle} onChange={reportChange}>
         <ThemeProvider theme={theme}>
           <section>
-            <Head>
+            <Helmet>
               <title>
                 {siteTitle} | {pageTitle}
               </title>
-            </Head>
+            </Helmet>
             <header>
               {path === '/login' && <NavMenu login={login} />}
               { harmonyOpen !== true

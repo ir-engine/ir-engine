@@ -8,7 +8,7 @@ import PropTypes from "prop-types";
  * @param {object} props
  * @constructor
  */
-export default function Icon(props) {
+export function Icon(props) {
   return <img src={props.src} style={{ color: props.color, width: props.size, height: props.size }} />;
 }
 
@@ -34,3 +34,4 @@ Icon.defaultProps = {
   color: "white",
   size: 32
 };
+export default Icon;

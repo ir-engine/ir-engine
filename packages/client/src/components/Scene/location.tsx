@@ -1,4 +1,5 @@
-import { Button, Snackbar } from '@material-ui/core';
+import Button from '@material-ui/core/Button';
+import Snackbar from '@material-ui/core/Snackbar';
 import { InteractableModal } from '@xr3ngine/client-core/src/world/components/InteractableModal';
 import LoadingScreen from '@xr3ngine/client-core/src/common/components/Loader';
 import { MobileGamepadProps } from "@xr3ngine/client-core/src/common/components/MobileGamepad/MobileGamepadProps";
@@ -13,11 +14,9 @@ import { selectAuthState } from '@xr3ngine/client-core/src/user/reducers/auth/se
 import { doLoginAuto } from '@xr3ngine/client-core/src/user/reducers/auth/service';
 import { client } from '@xr3ngine/client-core/src/feathers';
 import { selectLocationState } from '@xr3ngine/client-core/src/social/reducers/location/selector';
-import {
-  getLocationByName
-} from '@xr3ngine/client-core/src/social/reducers/location/service';
+import { getLocationByName, getLobby } from '@xr3ngine/client-core/src/social/reducers/location/service';
 import { setCurrentScene } from '@xr3ngine/client-core/src/world/reducers/scenes/actions';
-import store from '@xr3ngine/client-core/src/store';
+import Store from '@xr3ngine/client-core/src/store';
 import { selectUserState } from '@xr3ngine/client-core/src/user/reducers/user/selector';
 import { selectInstanceConnectionState } from '../../reducers/instanceConnection/selector';
 import {
@@ -32,7 +31,8 @@ import { isMobileOrTablet } from '@xr3ngine/engine/src/common/functions/isMobile
 import { EngineEvents } from '@xr3ngine/engine/src/ecs/classes/EngineEvents';
 import { resetEngine } from "@xr3ngine/engine/src/ecs/functions/EngineFunctions";
 import { getComponent, getMutableComponent } from '@xr3ngine/engine/src/ecs/functions/EntityFunctions';
-import { DefaultInitializationOptions, initializeEngine } from '@xr3ngine/engine/src/initialize';
+import { initializeEngine } from '@xr3ngine/engine/src/initialize';
+import { DefaultInitializationOptions } from '@xr3ngine/engine/src/DefaultInitializationOptions';
 import { InteractiveSystem } from '@xr3ngine/engine/src/interaction/systems/InteractiveSystem';
 import { Network } from '@xr3ngine/engine/src/networking/classes/Network';
 import { MessageTypes } from '@xr3ngine/engine/src/networking/enums/MessageTypes';
@@ -44,22 +44,64 @@ import { CharacterComponent } from '@xr3ngine/engine/src/templates/character/com
 import { DefaultNetworkSchema } from '@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema';
 import { PrefabType } from '@xr3ngine/engine/src/templates/networking/PrefabType';
 import { XRSystem } from '@xr3ngine/engine/src/xr/systems/XRSystem';
-import dynamic from 'next/dynamic';
-import { useRouter } from 'next/router';
+import { Config } from '@xr3ngine/client-core/src/helper';
+import { useHistory } from 'react-router-dom';
 import querystring from 'querystring';
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 import url from 'url';
 import { CharacterInputSchema } from '@xr3ngine/engine/src/templates/character/CharacterInputSchema';
-import { DefaultGameMode } from '@xr3ngine/engine/src/templates/game/DefaultGameMode';
-import { Config } from '@xr3ngine/client-core/src/helper';
+import { GamesSchema } from "@xr3ngine/engine/src/templates/game/GamesSchema";
+import WarningRefreshModal from "../AlertModals/WarningRetryModal";
+import { ClientInputSystem } from '@xr3ngine/engine/src/input/systems/ClientInputSystem';
+
+const store = Store.store;
 
 const goHome = () => window.location.href = window.location.origin;
 
-const MobileGamepad = dynamic<MobileGamepadProps>(() => import("@xr3ngine/client-core/src/common/components/MobileGamepad").then((mod) => mod.MobileGamepad), { ssr: false });
+const MobileGamepad = React.lazy(() => import("@xr3ngine/client-core/src/common/components/MobileGamepad"));
 
 const engineRendererCanvasId = 'engine-renderer-canvas';
+const projectRegex = /\/([A-Za-z0-9]+)\/([a-f0-9-]+)$/;
+
+const initialRefreshModalValues = {
+  open: false,
+  title: '',
+  body: '',
+  action: async() => {},
+  parameters: []
+};
+
+// debug for contexts where devtools may be unavailable
+const consoleLog = [];
+if(globalThis.process?.env.NODE_ENV === 'development') {
+  const consolelog = console.log;
+  console.log = (...args) => {
+    consolelog(...args);
+    consoleLog.push("Log: " + args.join(' '));
+  };
+
+  const consolewarn = console.warn;
+  console.warn = (...args) => {
+    consolewarn(...args);
+    consoleLog.push("Warn: " + args.join(' '));
+  };
+
+  const consoleerror = console.error;
+  console.error = (...args) => {
+    consoleerror(...args);
+    consoleLog.push("Error: " + args.join(' '));
+  };
+
+  globalThis.dump = () => {
+    document.body.innerHTML = consoleLog.map((log) => {
+      return `<p>${log}</p>`;
+    }).join('');
+    consolelog(consoleLog);
+    resetEngine();
+  };
+}
 
 interface Props {
   setAppLoaded?: any,
@@ -70,6 +112,7 @@ interface Props {
   authState?: any;
   locationState?: any;
   partyState?: any;
+  history?: any;
   instanceConnectionState?: any;
   doLoginAuto?: typeof doLoginAuto;
   getLocationByName?: typeof getLocationByName;
@@ -114,7 +157,8 @@ export const EnginePage = (props: Props) => {
     setCurrentScene,
     setAppLoaded,
     locationName,
-    harmonyOpen
+    harmonyOpen,
+    history,
   } = props;
 
   const currentUser = authState.get('user');
@@ -122,7 +166,7 @@ export const EnginePage = (props: Props) => {
   const [infoBoxData, setModalData] = useState(null);
   const [userBanned, setUserBannedState] = useState(false);
   const [openLinkData, setOpenLinkData] = useState(null);
-  const router = useRouter();
+  const router = useHistory();
 
   const [progressEntity, setProgressEntity] = useState(99);
   const [userHovered, setonUserHover] = useState(false);
@@ -133,6 +177,9 @@ export const EnginePage = (props: Props) => {
 
   const [isValidLocation, setIsValidLocation] = useState(true);
   const [isInXR, setIsInXR] = useState(false);
+  const [warningRefreshModalValues, setWarningRefreshModalValues] = useState(initialRefreshModalValues);
+  const [noGameserverProvision, setNoGameserverProvision] = useState(false);
+  const [isInputEnabled, setInputEnabled] = useState(true);
 
   const appLoaded = appState.get('loaded');
   const selfUser = authState.get('user');
@@ -146,6 +193,7 @@ export const EnginePage = (props: Props) => {
       init(locationName);
     } else {
       doLoginAuto(true);
+      EngineEvents.instance.addEventListener(EngineEvents.EVENTS.PROVISION_INSTANCE_NO_GAMESERVERS_AVAILABLE, () => setNoGameserverProvision(true));
     }
   }, []);
 
@@ -155,9 +203,15 @@ export const EnginePage = (props: Props) => {
 
     setUserBannedState(selfUser?.locationBans?.find(ban => ban.locationId === locationId) != null);
     if (authState.get('isLoggedIn') === true && authState.get('user')?.id != null && authState.get('user')?.id.length > 0 && currentLocation.id == null && userBanned === false && locationState.get('fetchingCurrentLocation') !== true) {
-      getLocationByName(locationName);
-      if (sceneId === null) {
-        sceneId = currentLocation.sceneId;
+      if (locationName === Config.publicRuntimeConfig.lobbyLocationName) {
+        getLobby().then(lobby => {
+          history.replace('/location/' + lobby.slugifiedName);
+        });
+      } else {
+        getLocationByName(locationName);
+        if (sceneId === null) {
+          sceneId = currentLocation.sceneId;
+        }
       }
     }
   }, [authState]);
@@ -218,7 +272,22 @@ export const EnginePage = (props: Props) => {
       }
     }
   }, [appState]);
-  const projectRegex = /\/([A-Za-z0-9]+)\/([a-f0-9-]+)$/;
+
+  useEffect(() => {
+    if (noGameserverProvision === true) {
+      const currentLocation = locationState.get('currentLocation').get('location');
+      const newValues = {
+        open: true,
+        title: 'No Available Servers',
+        body: 'There aren\'t any servers available for you to connect to. Attempting to re-connect in',
+        action: provisionInstanceServer,
+        parameters: [currentLocation.id, instanceId, currentLocation.sceneId]
+      };
+      //@ts-ignore
+      setWarningRefreshModalValues(newValues);
+      setNoGameserverProvision(false);
+    }
+  }, [noGameserverProvision]);
 
   async function init(sceneId: string): Promise<any> { // auth: any,
     let sceneData;
@@ -240,16 +309,13 @@ export const EnginePage = (props: Props) => {
     const canvas = document.getElementById(engineRendererCanvasId) as HTMLCanvasElement;
     styleCanvas(canvas);
 
-
-
-    
     const InitializationOptions = {
       input: {
         schema: CharacterInputSchema,
       },
-      gameModes: [
-        DefaultGameMode
-      ],
+      gameModes: {
+        schema: GamesSchema
+      },
       publicPath: '',
       postProcessing: true,
       editor: false,
@@ -266,17 +332,17 @@ export const EnginePage = (props: Props) => {
       useOfflineMode: Config.publicRuntimeConfig.offlineMode
     };
 
-    console.log("Initialization options are: ", InitializationOptions);
+    // console.log("Initialization options are: ", InitializationOptions);
 
     await initializeEngine(InitializationOptions);
 
-    console.log("Engine initialized");
+    // console.log("Engine initialized");
 
     document.dispatchEvent(new CustomEvent('ENGINE_LOADED')); // this is the only time we should use document events. would be good to replace this with react state
 
     addUIEvents();
 
-    console.log("**** OFFLINE MODE? ", Config.publicRuntimeConfig.offlineMode);
+    // console.log("**** OFFLINE MODE? ", Config.publicRuntimeConfig.offlineMode);
 
     if(!Config.publicRuntimeConfig.offlineMode) await connectToInstanceServer('instance');
 
@@ -308,6 +374,10 @@ export const EnginePage = (props: Props) => {
     EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.JOINED_WORLD, worldState });
   }
 
+  useEffect(() => {
+    EngineEvents.instance.dispatchEvent({ type: ClientInputSystem.EVENTS.ENABLE_INPUT, keyboard: isInputEnabled, mouse: isInputEnabled });
+  }, [isInputEnabled]);
+
   const onSceneLoadedEntity = (event: any): void => {
     setProgressEntity(event.left || 0);
   };
@@ -333,7 +403,7 @@ export const EnginePage = (props: Props) => {
     EngineEvents.instance.addEventListener(InteractiveSystem.EVENTS.USER_HOVER, onUserHover);
     EngineEvents.instance.addEventListener(InteractiveSystem.EVENTS.OBJECT_ACTIVATION, onObjectActivation);
     EngineEvents.instance.addEventListener(InteractiveSystem.EVENTS.OBJECT_HOVER, onObjectHover);
-    EngineEvents.instance.addEventListener(PhysicsSystem.EVENTS.PORTAL_REDIRECT_EVENT, ({ location }) => router.push(location));
+    EngineEvents.instance.addEventListener(PhysicsSystem.EVENTS.PORTAL_REDIRECT_EVENT, ({ location }) => { window.location.replace(location); });
     EngineEvents.instance.addEventListener(XRSystem.EVENTS.XR_START, async (ev: any) => { setIsInXR(true); });
     EngineEvents.instance.addEventListener(XRSystem.EVENTS.XR_END, async (ev: any) => { setIsInXR(false); });
   };
@@ -342,11 +412,13 @@ export const EnginePage = (props: Props) => {
     switch (interactionData.interactionType) {
       case 'link':
         setOpenLinkData(interactionData);
+        setInputEnabled(false);
         setObjectActivated(true);
         break;
       case 'infoBox':
       case 'mediaSource':
         setModalData(interactionData);
+        setInputEnabled(false);
         setObjectActivated(true);
         break;
       default:
@@ -356,6 +428,9 @@ export const EnginePage = (props: Props) => {
 
   useEffect(() => {
     return (): void => {
+      document.body.innerHTML = consoleLog.map((log) => {
+        `<p>${log}</p>`;
+      }).join();
       resetEngine();
     };
   }, []);
@@ -383,6 +458,7 @@ export const EnginePage = (props: Props) => {
   //mobile gamepad
   const mobileGamepadProps = { hovered: objectHovered, layout: 'default' };
   const mobileGamepad = isMobileOrTablet() ? <MobileGamepad {...mobileGamepadProps} /> : null;
+
   return userBanned !== true && !isInXR ? (
     <>
       {isValidLocation && <UserMenu />}
@@ -402,10 +478,19 @@ export const EnginePage = (props: Props) => {
       { harmonyOpen !== true && <MediaIconsBox />}
       { userHovered && <NamePlate userId={userId} position={{ x: position?.x, y: position?.y }} focused={userHovered} />}
       {objectHovered && !objectActivated && <TooltipContainer message={hoveredLabel} />}
-      <InteractableModal onClose={() => { setModalData(null); setObjectActivated(false); }} data={infoBoxData} />
-      <OpenLink onClose={() => { setOpenLinkData(null); setObjectActivated(false); }} data={openLinkData} />
+      <InteractableModal onClose={() => { setModalData(null); setObjectActivated(false); setInputEnabled(true); }} data={infoBoxData} />
+      <OpenLink onClose={() => { setOpenLinkData(null); setObjectActivated(false); setInputEnabled(true); }} data={openLinkData} />
       <canvas id={engineRendererCanvasId} width='100%' height='100%' />
       {mobileGamepad}
+      <WarningRefreshModal
+          open={warningRefreshModalValues.open}
+          handleClose={() => { setWarningRefreshModalValues(initialRefreshModalValues); }}
+          title={warningRefreshModalValues.title}
+          body={warningRefreshModalValues.body}
+          action={warningRefreshModalValues.action}
+          parameters={warningRefreshModalValues.parameters}
+          timeout={10000}
+      />
     </>
   ) : (<div className="banned">You have been banned from this location</div>);
 };

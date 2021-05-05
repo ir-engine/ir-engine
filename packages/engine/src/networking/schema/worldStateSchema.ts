@@ -1,4 +1,4 @@
-import { float32, int32, Model, Schema, string, uint32, uint8 } from "superbuffer";
+import { float32, int32, Model, Schema, string, uint32, uint8 } from "../../assets/superbuffer";
 import { Network } from '../classes/Network';
 import { WorldStateInterface } from "../interfaces/WorldState";
 
@@ -7,14 +7,29 @@ const userObjectSchema = new Schema ({
   data: string
 })
 
+const storageSchema = new Schema({
+  component: string,
+  variables: string
+});
+
+const stateSchema = new Schema({
+  uuid: string,
+  role: string,
+  components: [string],
+  storage: [storageSchema]
+});
+
 const gameStateUpdateSchema = new Schema({
-  gameState: string,
-  userStates: [userObjectSchema]
+  game: string,
+  ownerId: string,
+  state: [stateSchema]
 });
 
 const gameStateActionSchema = new Schema({
-  type: string,
-  payload: string
+  game: string,
+  role: string,
+  component: string,
+  uuid: string
 })
 
 /** Schema for input. */

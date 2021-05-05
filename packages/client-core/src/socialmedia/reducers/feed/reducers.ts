@@ -1,3 +1,6 @@
+/**
+ * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
+ */
 import {
   ADD_FEED,
   ADD_FEED_BOOKMARK,
@@ -7,6 +10,7 @@ import {
   FEEDS_AS_ADMIN_RETRIEVED,
   FEEDS_BOOKMARK_RETRIEVED,
   FEEDS_CREATOR_RETRIEVED,
+  FEATURED_FEEDS_FETCH,
   FEEDS_FEATURED_RETRIEVED,
   FEEDS_FETCH,
   FEEDS_MY_FEATURED_RETRIEVED,
@@ -15,7 +19,13 @@ import {
   REMOVE_FEED_BOOKMARK,
   REMOVE_FEED_FEATURED,
   REMOVE_FEED_FIRES,
-  UPDATE_FEED
+  UPDATE_FEED,
+  CREATOR_FEEDS_FETCH,
+  MY_FEATURED_FEEDS_FETCH,
+  BOOKMARK_FEEDS_FETCH,
+  ADMIN_FEEDS_FETCH,
+  FIRED_FEEDS_FETCH,
+  FEEDS_FIRED_RETRIEVED
 } from '../actions';
 import Immutable from 'immutable';
 import {
@@ -28,13 +38,21 @@ import {
 export const initialFeedState = {
   feeds: {
     feeds: [],
+    feedsFetching: false,
     feedsFeatured: [],
+    feedsFeaturedFetching: false,
     feedsCreator:[],
+    feedsCreatorFetching: false,
     feedsBookmark:[],
+    feedsBookmarkFetching: false,
+    feedsFired:[],
+    feedsFiredFetching : false,
     myFeatured:[],
+    myFeaturedFetching: false,
     feed: {},
     fetching: false,
-    feedsAdmin:[]
+    feedsAdmin:[],
+    feedsAdminFetching: false,
   },
 };
 
@@ -43,21 +61,32 @@ const immutableState = Immutable.fromJS(initialFeedState);
 const feedReducer = (state = immutableState, action: FeedsAction): any => {
   const currentFeed = state.get('feed');
   switch (action.type) {
+    case FEEDS_FETCH : return state.set('feedsFetching', true);
+    case FEATURED_FEEDS_FETCH : return state.set('feedsFeaturedFetching', true);
+    case CREATOR_FEEDS_FETCH : return state.set('feedsCreatorFetching', true);
+    case BOOKMARK_FEEDS_FETCH : return state.set('feedsBookmarkFetching', true);
+    case MY_FEATURED_FEEDS_FETCH : return state.set('myFeaturedFetching', true);
     case FEEDS_FETCH : return state.set('fetching', true);
+    case ADMIN_FEEDS_FETCH : return state.set('feedsAdminFetching', true);
+    case FIRED_FEEDS_FETCH : return state.set('feedsFiredFetching', true);
+    
     case FEEDS_RETRIEVED:     
-      return state.set('feeds', (action as FeedsRetrievedAction).feeds).set('fetching', false);
+      return state.set('feeds', (action as FeedsRetrievedAction).feeds).set('feedsFetching', false);
 
     case FEEDS_FEATURED_RETRIEVED:     
-      return state.set('feedsFeatured', (action as FeedsRetrievedAction).feeds).set('fetching', false);
+      return state.set('feedsFeatured', (action as FeedsRetrievedAction).feeds).set('feedsFeaturedFetching', false);
 
     case FEEDS_CREATOR_RETRIEVED:     
-      return state.set('feedsCreator', (action as FeedsRetrievedAction).feeds).set('fetching', false);
+      return state.set('feedsCreator', (action as FeedsRetrievedAction).feeds).set('feedsCreatorFetching', false);
 
     case FEEDS_MY_FEATURED_RETRIEVED:     
-      return state.set('myFeatured', (action as FeedsRetrievedAction).feeds).set('fetching', false);
+      return state.set('myFeatured', (action as FeedsRetrievedAction).feeds).set('myFeaturedFetching', false);
 
     case FEEDS_BOOKMARK_RETRIEVED:
-      return state.set('feedsBookmark', (action as FeedsRetrievedAction).feeds).set('fetching', false);
+      return state.set('feedsBookmark', (action as FeedsRetrievedAction).feeds).set('feedsBookmarkFetching', false);
+
+    case FEEDS_FIRED_RETRIEVED:
+      return state.set('feedsFired', (action as FeedsRetrievedAction).feeds).set('feedsFiredFetching', false);
       
     case FEED_RETRIEVED: 
       return state.set('feed', (action as FeedRetrievedAction).feed).set('fetching', false);
@@ -104,7 +133,6 @@ const feedReducer = (state = immutableState, action: FeedsAction): any => {
     case ADD_FEED:
       return state.set('feeds', [...state.get('feeds'), (action as FeedRetrievedAction).feed]);
 
-
     case ADD_FEED_FEATURED:
       return state.set('feedsCreator', state.get('feedsCreator').map(feed => {
         if(feed.id === (action as oneFeedAction).feedId) {
@@ -131,7 +159,7 @@ const feedReducer = (state = immutableState, action: FeedsAction): any => {
           return {...feed, ...(action as FeedRetrievedAction).feed};
         }
         return {...feed};
-      }));
+      })).set('feedsAdminFetching', false);
 
 }
 

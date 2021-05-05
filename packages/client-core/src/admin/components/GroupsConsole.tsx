@@ -1,13 +1,11 @@
-import {
-    Paper,
-    Table,
-    TableBody,
-    TableCell,
-    TableContainer,
-    TableHead,
-    TableRow,
-    TableSortLabel
-} from '@material-ui/core';
+import Paper from '@material-ui/core/Paper';
+import Table from '@material-ui/core/Table';
+import TableBody from '@material-ui/core/TableBody';
+import TableCell from '@material-ui/core/TableCell';
+import TableContainer from '@material-ui/core/TableContainer';
+import TableHead from '@material-ui/core/TableHead';
+import TableRow from '@material-ui/core/TableRow';
+import TableSortLabel from '@material-ui/core/TableSortLabel';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import React from 'react';
 // @ts-ignore
@@ -29,6 +27,13 @@ const useStyles = makeStyles((theme: Theme) =>
         }
     }),
 );
+
+/**
+ * Function for create group on  admin dashboard 
+ * 
+ * @returns @ReactDomElements
+ * @author Kevin KIMENYI <kimenyikevin@gmail.com>
+ */
 
 export default function GroupsConsole() {
     const classes = useStyles();

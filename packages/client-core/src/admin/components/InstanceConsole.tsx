@@ -1,22 +1,20 @@
 import { Config } from '../../helper';
 import React, { useEffect, useState } from 'react';
 import Search from "./Search";
-import {
-    Table,
-    TableBody,
-    TableContainer,
-    TableHead,
-    TableRow,
-    TableCell,
-    TableSortLabel,
-    Paper,
-    Button,
-} from '@material-ui/core';
+import Table from '@material-ui/core/Table';
+import TableBody from '@material-ui/core/TableBody';
+import TableContainer from '@material-ui/core/TableContainer';
+import TableHead from '@material-ui/core/TableHead';
+import TableRow from '@material-ui/core/TableRow';
+import TableCell from '@material-ui/core/TableCell';
+import TableSortLabel from '@material-ui/core/TableSortLabel';
+import Paper from '@material-ui/core/Paper';
+import Button from '@material-ui/core/Button';
+import Grid from "@material-ui/core/Grid";
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 // @ts-ignore
 import styles from './Admin.module.scss';
-import { Router, withRouter } from "next/router";
 import InstanceModal from './InstanceModal';
 import CreateInstance from "./CreateInstance";
 import { Delete, Edit } from '@material-ui/icons';
@@ -30,13 +28,13 @@ import { selectAuthState } from '../../user/reducers/auth/selector';
 import { PAGE_LIMIT } from '../reducers/admin/reducers';
 import { selectAdminState } from '../reducers/admin/selector';
 import { fetchAdminInstances, removeInstance } from '../reducers/admin/service';
+import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 
 if (!global.setImmediate) {
     global.setImmediate = setTimeout as any;
 }
 
 interface Props {
-    router: Router;
     adminState?: any;
     authState?: any;
     locationState?: any;
@@ -60,14 +58,30 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 const Transition = React.forwardRef((
     props: TransitionProps & { children?: React.ReactElement<any, any> },
     ref: React.Ref<unknown>,
-  ) => {
+) => {
     return <Slide direction="up" ref={ref} {...props} />;
-  });
+});
 
-  
+
+const useStyles = makeStyles((theme: Theme) =>
+    createStyles({
+        marginBottom: {
+            marginBottom: "10px"
+        }
+    }),
+);
+
+/**
+ * Function for instance index admin dashboard 
+ * 
+ * @param param0 children props 
+ * @returns @ReactDomElements
+ * @author Kevin KIMENYI <kimenyikevin@gmail.com>
+ */
+
 function InstanceConsole(props: Props) {
+    const classes = useStyles();
     const {
-        router,
         adminState,
         authState,
         fetchAdminInstances,
@@ -79,6 +93,7 @@ function InstanceConsole(props: Props) {
         currentUsers: 0,
         locationId: ''
     };
+ 
     const user = authState.get('user');
     const [selectedInstance, setSelectedInstance] = useState(initialInstance);
     const [instanceCreateOpen, setInstanceCreateOpen] = useState(false);
@@ -236,26 +251,26 @@ function InstanceConsole(props: Props) {
     const handleClickOpen = (instance: any) => {
         setInstanceId(instance);
         setOpen(true);
-      };
-    
-      const handleClose = () => {
+    };
+
+    const handleClose = () => {
         setOpen(false);
         setInstanceId("");
-      };
+    };
 
-      const deleteInstance = () =>{
+    const deleteInstance = () => {
         removeInstance((instanceId as any).id);
         setOpen(false);
         setInstanceId("");
-      };
+    };
 
     return (
         <div>
-            <div className="row mb-5">
-                <div className="col-lg-9">
+            <Grid container spacing={3} className={classes.marginBottom}>
+                <Grid item xs={9}>
                     <Search typeName="users" />
-                </div>
-                <div className="col-lg-3">
+                </Grid>
+                <Grid item xs={3} >
                     <Button
                         className={styles.createLocation}
                         type="submit"
@@ -265,8 +280,8 @@ function InstanceConsole(props: Props) {
                     >
                         Create New Instance
                     </Button>
-                </div>
-            </div>
+                </Grid>
+            </Grid>
 
             <Paper className={styles.adminRoot}>
                 <TableContainer className={styles.tableContainer}>
@@ -320,7 +335,7 @@ function InstanceConsole(props: Props) {
                                                     onClick={(event) => handleInstanceUpdateClick(row.id.toString())}
                                                 > <Edit className="text-success" /> </a>
                                                 <a href="#h"
-                                                 onClick={() => handleClickOpen(row)}
+                                                    onClick={() => handleClickOpen(row)}
                                                 > <Delete className="text-danger" /> </a>
                                             </TableCell>
                                         </TableRow>
@@ -368,4 +383,4 @@ function InstanceConsole(props: Props) {
 }
 
 
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(InstanceConsole));
+export default connect(mapStateToProps, mapDispatchToProps)(InstanceConsole);

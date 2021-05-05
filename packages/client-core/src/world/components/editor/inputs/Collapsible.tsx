@@ -62,7 +62,7 @@ const CollapseIcon = (styled as any).div``;
  * @param       {node} children
  * @constructor
  */
-export default function Collapsible({ label, open, children }) {
+export function Collapsible({ label, open, children }) {
   const [collapsed, setCollapsed] = useState(!open);
 
    /**
@@ -107,3 +107,4 @@ Collapsible.propTypes = {
   label: PropTypes.string.isRequired,
   children: PropTypes.node
 };
+export default Collapsible;

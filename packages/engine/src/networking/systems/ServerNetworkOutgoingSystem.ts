@@ -1,4 +1,4 @@
-import { IKComponent } from '../../character/components/IKComponent';
+import { IKComponent } from '../../templates/character/components/IKComponent';
 import { Entity } from '../../ecs/classes/Entity';
 import { System } from '../../ecs/classes/System';
 import { getComponent } from '../../ecs/functions/EntityFunctions';
@@ -91,13 +91,14 @@ export class ServerNetworkOutgoingSystem extends System {
       Network.instance.worldState.createObjects.length ||
       Network.instance.worldState.editObjects.length ||
       Network.instance.worldState.destroyObjects.length ||
+      Network.instance.worldState.gameState.length ||
       Network.instance.worldState.gameStateActions.length
     ) {
       const bufferReliable = WorldStateModel.toBuffer(Network.instance.worldState, 'Reliable');
       if(!bufferReliable){
         console.warn("Reliable buffer is null");
         console.warn(Network.instance.worldState);
-      } 
+      }
             else
       Network.instance.transport.sendReliableData(bufferReliable);
     }
@@ -113,7 +114,7 @@ export class ServerNetworkOutgoingSystem extends System {
   /** System queries. */
   static queries: any = {
     networkTransforms: {
-      components: [NetworkObject, TransformComponent]
+      components: [ NetworkObject, TransformComponent ] // CharacterComponent ? we sent double to network objects to ?
     },
   }
 }

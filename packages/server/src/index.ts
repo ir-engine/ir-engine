@@ -1,16 +1,11 @@
+import config from '@xr3ngine/server-core/src/appconfig';
 import appRootPath from 'app-root-path';
 import fs from 'fs';
 import https from 'https';
 import path from 'path';
 import app from './app';
 import logger from '@xr3ngine/server-core/src/logger';
-import config from '@xr3ngine/server-core/src/appconfig';
 import psList from 'ps-list';
-import { exec } from 'child_process';
-
-/**
- * @param status
- */
 
 process.on('unhandledRejection', (error, promise) => {
   console.error('UNHANDLED REJECTION - Promise: ', promise, ', Error: ', error, ').');
@@ -21,27 +16,27 @@ process.on('unhandledRejection', (error, promise) => {
   if (process.env.KUBERNETES !== 'true') {
     const processList = await (await psList()).filter(e => {
       const regexp = /docker-compose up|docker-proxy|mysql/gi;
-      return e[key].match(regexp);
+      return e[key]?.match(regexp);
     });
     const dockerProcess = processList.find(
-        c => c[key].match(/docker-compose/)
+        c => c[key]?.match(/docker-compose/)
     );
     const dockerProxy = processList.find(
-        c => c[key].match(/docker-proxy/)
+        c => c[key]?.match(/docker-proxy/)
     );
     const processMysql = processList.find(
-        c => c[key].match(/mysql/)
+        c => c[key]?.match(/mysql/)
     );
     const databaseService = (dockerProcess && dockerProxy) || processMysql;
 
     if (!databaseService) {
 
       // Check for child process with mac OSX
-        exec("docker ps | grep mariadb", (err, stdout, stderr) => {
-          if(!stdout.includes("mariadb")){
-            throw new Error('\x1b[33mError: DB proccess is not running or Docker is not running!. If you are in local development, please run xr3ngine/scripts/start-db.sh and restart server\x1b[0m');
-          }
-        });
+        // exec("docker ps | grep mariadb", (err, stdout, stderr) => {
+        //   if(!stdout.includes("mariadb")){
+        //     throw new Error('\x1b[33mError: DB proccess is not running or Docker is not running!. If you are in local development, please run xr3ngine/scripts/start-db.sh and restart server\x1b[0m');
+        //   }
+        // });
       }
   }
 })();
@@ -49,7 +44,7 @@ process.on('unhandledRejection', (error, promise) => {
 // SSL setup
 const certPath = path.join(appRootPath.path, process.env.CERT ?? 'certs/cert.pem');
 const certKeyPath = path.join(appRootPath.path, process.env.KEY ?? 'certs/key.pem');
-const useSSL = process.env.LOCAL_BUILD === 'true' || process.env.NODE_ENV !== 'production' && fs.existsSync(certKeyPath);
+const useSSL = process.env.NOSSL !== 'true' && (process.env.LOCAL_BUILD === 'true' || process.env.NODE_ENV !== 'production') && fs.existsSync(certKeyPath);
 
 const certOptions = {
   key: useSSL && (process.env.LOCAL_BUILD === 'true' || process.env.NODE_ENV !== 'production') ? fs.readFileSync(certKeyPath) : null,
@@ -73,7 +68,7 @@ if (useSSL) {
 }
 
 const server = useSSL
-  ? https.createServer(certOptions, app).listen(port)
+  ? https.createServer(certOptions as any, app).listen(port)
   : app.listen(port);
 
 if (useSSL === true) app.setup(server);

@@ -12,9 +12,9 @@ import IconButton from '@material-ui/core/IconButton';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
+import { useTranslation } from 'react-i18next';
 import {
 } from '@material-ui/icons';
-import { useRouter } from "next/router";
 import {
     CalendarViewDay,
     ChevronLeft,
@@ -31,7 +31,7 @@ import {
     PhotoLibrary,
     SupervisorAccount,
 } from '@material-ui/icons';
-import Link from "next/link";
+import { Link } from "react-router-dom";
 import Backdrop from '@material-ui/core/Backdrop';
 import CircularProgress from '@material-ui/core/CircularProgress';
 
@@ -107,16 +107,27 @@ const useStyles = makeStyles((theme: Theme) =>
         backdrop: {
             zIndex: theme.zIndex.drawer + 1,
             color: '#fff',
+        },
+        textLink: {
+            textDecoration: "none"
         }
     }),
 );
 
+/**
+ * Function for admin dashboard 
+ * 
+ * @param param0 children props 
+ * @returns @ReactDomElements
+ * @author Kevin KIMENYI <kimenyikevin@gmail.com>
+ */
+
 export default function Dashboard({ children }) {
-    const router = useRouter();
     const classes = useStyles();
     const theme = useTheme();
     const [open, setOpen] = React.useState(false);
     const [loading, setLoading] = React.useState(false);
+	const { t } = useTranslation();
 
     const handleDrawerOpen = () => {
         setOpen(true);
@@ -156,7 +167,7 @@ export default function Dashboard({ children }) {
                         <Menu />
                     </IconButton>
                     <Typography variant="h6">
-                        Dashboard
+                        {t('user:dashboard.header')}
                     </Typography>
                 </Toolbar>
             </AppBar>
@@ -179,93 +190,93 @@ export default function Dashboard({ children }) {
                     </IconButton>
                 </div>
                 <Divider />
-                <List>
-                    <Link href="/admin">
+                <List >
+                    <Link to="/admin" className={classes.textLink}>
                             <ListItem style={{ color: "white" }} onClick={changeComponent} button>
                                 <ListItemIcon >
                                     <DashboardIcon style={{ color: "white" }} />
                                 </ListItemIcon>
-                                <ListItemText primary="Dashboard" />
+                                <ListItemText primary={t('user:dashboard.dashboard')} />
                             </ListItem>
                     </Link>
-                    <Link href="/admin/users" >
+                    <Link to="/admin/users" className={classes.textLink}>
                         <ListItem style={{ color: "white" }} onClick={changeComponent} button>
                             <ListItemIcon >
                                 <SupervisorAccount style={{ color: "white" }} />
                             </ListItemIcon>
-                            <ListItemText primary="Users" />
+                            <ListItemText primary={t('user:dashboard.users')} />
                         </ListItem>
                     </Link>
-                    <Link href="/admin/instance">
+                    <Link to="/admin/instance" className={classes.textLink}>
                         <ListItem style={{ color: "white"}} onClick={changeComponent} button>
                             <ListItemIcon >
                                 <DirectionsRun style={{ color: "white" }} />
                             </ListItemIcon>
-                            <ListItemText primary="Instance" />
+                            <ListItemText primary={t('user:dashboard.instance')} />
                         </ListItem>
                     </Link>
-                    <Link href="/admin/locations">
+                    <Link to="/admin/locations" className={classes.textLink}>
                         <ListItem style={{ color: "white"}} onClick={changeComponent}  button>
                             <ListItemIcon >
                                 <NearMe style={{ color: "white" }} />
                             </ListItemIcon>
-                            <ListItemText primary="Locations" />
+                            <ListItemText primary={t('user:dashboard.locations')} />
                         </ListItem>
                     </Link>
-                    <Link href="/admin/invites">
+                    <Link to="/admin/invites" className={classes.textLink}>
                         <ListItem style={{ color: "white" }} onClick={changeComponent} button>
                             <ListItemIcon >
                                 <PersonAdd style={{ color: "white" }} />
                             </ListItemIcon>
-                            <ListItemText primary="Invites" />
+                            <ListItemText primary={t('user:dashboard.invites')} />
                         </ListItem>
                     </Link>
-                    <Link href="/admin/sessions">
+                    <Link to="/admin/sessions" className={classes.textLink}>
                         <ListItem style={{ color: "white"}} onClick={changeComponent} button>
                             <ListItemIcon >
                                 <DragIndicator style={{ color: "white" }} />
                             </ListItemIcon>
-                            <ListItemText primary="Sessions" />
+                            <ListItemText primary={t('user:dashboard.sessions')} />
                         </ListItem>
                     </Link>
-                    <Link href="/admin/groups">
+                    <Link to="/admin/groups" className={classes.textLink}>
                         <ListItem style={{color: "white"}} onClick={changeComponent} button>
                             <ListItemIcon >
                                 <GroupAdd style={{ color: "white" }} />
                             </ListItemIcon>
-                            <ListItemText primary="Groups" />
+                            <ListItemText primary={t('user:dashboard.groups')} />
                         </ListItem>
                     </Link>
-                    <Link href="/admin/parties">
+                    <Link to="/admin/parties" className={classes.textLink}>
                         <ListItem style={{ color: "white"}} onClick={changeComponent} button>
                             <ListItemIcon >
                                 <CalendarViewDay style={{ color: "white" }} />
                             </ListItemIcon>
-                            <ListItemText primary="Parties" />
+                            <ListItemText primary={t('user:dashboard.parties')} />
                         </ListItem>
                     </Link>
-                    <Link href="/admin/chats">
+                    <Link to="/admin/chats" className={classes.textLink}>
                         <ListItem style={{ color: "white" }} onClick={changeComponent} button>
                             <ListItemIcon >
                                 <Forum style={{ color: "white" }} />
                             </ListItemIcon>
-                            <ListItemText primary="Chats" />
+                            <ListItemText primary={t('user:dashboard.chats')} />
                         </ListItem>
                     </Link>
-                    <Link href="/admin/content-packs">
+                    <Link to="/admin/content-packs" className={classes.textLink}>
                         <ListItem style={{ color: "white" }} onClick={changeComponent} button>
                             <ListItemIcon >
                                 <PhotoAlbum style={{ color: "white" }} />
                             </ListItemIcon>
-                            <ListItemText primary="Content Packs" />
+                            <ListItemText primary={t('user:dashboard.content')} />
                         </ListItem>
                     </Link>
-                    <Link href="/admin/scenes">
+                    <Link to="/admin/scenes" className={classes.textLink}>
                         <ListItem style={{ color: "white" }} onClick={changeComponent} button>
                             <ListItemIcon >
                                 <PhotoLibrary style={{ color: "white" }} />
                             </ListItemIcon>
-                            <ListItemText primary="Scenes" />
+                            <ListItemText primary={t('user:dashboard.scenes')} />
                         </ListItem>
                     </Link>
                 </List>

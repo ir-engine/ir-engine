@@ -1,5 +1,9 @@
+/**
+ * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
+ */
 import CardMedia from '@material-ui/core/CardMedia';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 // @ts-ignore
 import styles from './Splash.module.scss';
 
@@ -13,17 +17,18 @@ interface Props {
 }
 
 const Splash = ({media}: Props) => { 
+	const { t } = useTranslation();
 
 return  <>
         <CardMedia   
             className={styles.fullPage}                  
                 image={media.screen}
-                title="ARC Splash Screen"
+                title={t('social:splash.screen')}
             />
         <CardMedia   
             className={styles.logo}                  
                 image={media.logo}
-                title="ARC Logo"
+                title={t('social:splash.logo')}
             />
         </>;
 };

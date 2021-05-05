@@ -1,9 +1,14 @@
 import React, { FunctionComponent } from "react";
 import { CommonInteractiveData } from "@xr3ngine/engine/src/interaction/interfaces/CommonInteractiveData";
-import dynamic from "next/dynamic";
 // @ts-ignore
 import styles from './style.module.scss';
-import { Button, Dialog, DialogContent, DialogTitle, IconButton, Typography } from "@material-ui/core";
+import Dialog from "@material-ui/core/Dialog";
+import DialogContent from "@material-ui/core/DialogContent";
+import DialogTitle from "@material-ui/core/DialogTitle";
+import Button from "@material-ui/core/Button";
+import IconButton from "@material-ui/core/IconButton";
+import Typography from "@material-ui/core/Typography";
+
 import CloseIcon from '@material-ui/icons/Close';
 import { useTranslation } from "react-i18next";
 
@@ -11,7 +16,7 @@ type ModelViewProps = {
   modelUrl: string
 }
 
-const ModelView = dynamic<ModelViewProps>(() => import("./modelView").then((mod) => mod.ModelView),  { ssr: false });
+const ModelView = React.lazy(() => import("./modelView"));
 
 export type InteractableModalProps = {
   onClose: unknown;
@@ -37,12 +42,11 @@ export const InteractableModal: FunctionComponent<InteractableModalProps> = ({ o
         paper: styles.customDialogInner,
       }}
       BackdropProps={{ style: { backgroundColor: "transparent" } }} >
-      { data.payloadUrl && 
         <DialogTitle disableTypography className={styles.dialogTitle}>
           <IconButton aria-label="close" className={styles.dialogCloseButton} color="primary"
               onClick={(): void => { if (typeof onClose === 'function') { onClose(); } }}><CloseIcon /></IconButton>
           <Typography variant="h2"align="left" >{data.interactionText}</Typography>          
-        </DialogTitle>}
+        </DialogTitle>
         <DialogContent className={styles.dialogContent}>
           {modelView}
           {/* eslint-disable-next-line react/no-danger */}

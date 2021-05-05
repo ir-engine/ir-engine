@@ -3,6 +3,38 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.2.21](https://github.com/barankyle/xr3ngine/compare/v0.2.20...v0.2.21) (2021-05-05)
+
+**Note:** Version bump only for package @xr3ngine/docs
+
+
+
+
+
+## [0.2.20](https://github.com/barankyle/xr3ngine/compare/v0.2.18...v0.2.20) (2021-05-04)
+
+
+### Bug Fixes
+
+* **deps:** pin dependency terser-webpack-plugin to 5.1.1 ([0b8aa13](https://github.com/barankyle/xr3ngine/commit/0b8aa13533bd9e0515af589b5fce1203939f16f2))
+* **deps:** update docusaurus monorepo to v2.0.0-alpha.ffe8b6106 ([62cf058](https://github.com/barankyle/xr3ngine/commit/62cf0584d6a0d4ea7339b50380e2425b38d1c38c))
+
+
+
+
+
+## 0.2.18 (2021-04-22)
+
+
+### Bug Fixes
+
+* **deps:** pin dependency terser-webpack-plugin to 5.1.1 ([c8264fd](https://github.com/xr3ngine/xr3ngine/commit/c8264fd16ff4779b456f8f16bffbae6cc5396ccf))
+* **deps:** update docusaurus monorepo to v2.0.0-alpha.ffe8b6106 ([fdda629](https://github.com/xr3ngine/xr3ngine/commit/fdda629c5b7b2a04ad80fc46a90054f769e73f27))
+
+
+
+
+
 ## [0.2.11](https://github.com/xr3ngine/xr3ngine/compare/v0.2.10...v0.2.11) (2021-04-08)
 
 **Note:** Version bump only for package @xr3ngine/docs

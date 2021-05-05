@@ -1,5 +1,6 @@
 import {
-  LinearEncoding, NearestFilter,
+  LinearToneMapping,
+  NearestFilter,
   PCFSoftShadowMap,
   PerspectiveCamera,
   RGBFormat,
@@ -24,7 +25,8 @@ import { SSAOEffect } from './postprocessing/SSAOEffect';
 import { TextureEffect } from './postprocessing/TextureEffect';
 import { PostProcessingSchema } from './postprocessing/PostProcessingSchema';
 import { EngineEvents } from '../ecs/classes/EngineEvents';
-import PostProcessing, { effectType } from '../scene/classes/PostProcessing';
+import PostProcessing, { defaultPostProcessingSchema, effectType } from '../scene/classes/PostProcessing';
+import { ShaderPass } from './postprocessing/passes/ShaderPass';
 
 export class WebGLRendererSystem extends System {
   
@@ -70,6 +72,7 @@ export class WebGLRendererSystem extends System {
   renderContext: WebGLRenderingContext;
 
   forcePostProcessing = false;
+  static supportWebGL2 = true;
   
   /** Constructs WebGL Renderer System. */
   constructor(attributes?: SystemAttributes) {
@@ -79,6 +82,7 @@ export class WebGLRendererSystem extends System {
 
     this.onResize = this.onResize.bind(this);
 
+    let supportWebGL2 = !((window as any).iOS || (window as any).safariWebBrowser);
     
     let context;
     const canvas = attributes.canvas;
@@ -87,7 +91,10 @@ export class WebGLRendererSystem extends System {
       context = canvas.getContext("webgl2", { antialias: true });
     } catch (error) {
       context = canvas.getContext("webgl", { antialias: true });
+      supportWebGL2 = false;
     }
+
+
     this.renderContext = context;
     const options = {
       canvas,
@@ -102,8 +109,9 @@ export class WebGLRendererSystem extends System {
     renderer.physicallyCorrectLights = true;
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = PCFSoftShadowMap;
-    renderer.outputEncoding = sRGBEncoding; // need this if postprocessing is not used
-
+    renderer.outputEncoding = sRGBEncoding;
+    renderer.toneMapping = LinearToneMapping;
+    renderer.toneMappingExposure = 0.8;
     Engine.renderer = renderer;
 
     // Cascaded shadow maps
@@ -123,12 +131,18 @@ export class WebGLRendererSystem extends System {
     this.onResize();
 
     WebGLRendererSystem.needsResize = true;
-    WebGLRendererSystem.usePostProcessing=false;
     loadGraphicsSettingsFromStorage();
 
     // if we turn PostPro off, don't turn it back on, if we turn it on, let engine manage it
-    this.forcePostProcessing = attributes.postProcessing 
-    this.setUsePostProcessing(attributes.postProcessing);
+    if(supportWebGL2) {
+      this.forcePostProcessing = attributes.postProcessing 
+      this.setUsePostProcessing(attributes.postProcessing);
+    } else {
+      this.setUsePostProcessing(false);
+    }
+    
+    WebGLRendererSystem.supportWebGL2 = supportWebGL2;
+    
     this.setShadowQuality(this.qualityLevel);
     this.setResolution(WebGLRendererSystem.scaleFactor);
     this.setUseAutomatic(WebGLRendererSystem.automatic);
@@ -168,9 +182,8 @@ export class WebGLRendererSystem extends System {
     * Note: Post processing effects are set in the PostProcessingSchema provided to the system.
     * @param entity The Entity holding renderer component.
     */
-  public configurePostProcessing(postProcessingSchema:PostProcessingSchema=PostProcessing.defaultOptions): void {
-    this.postProcessingSchema=postProcessingSchema;
-    WebGLRendererSystem.usePostProcessing=true;
+  public configurePostProcessing(postProcessingSchema:PostProcessingSchema = defaultPostProcessingSchema): void {
+    this.postProcessingSchema = postProcessingSchema;
     this.renderPass = new RenderPass(Engine.scene, Engine.camera);
     this.renderPass.scene = Engine.scene;
     this.renderPass.camera = Engine.camera;
@@ -213,6 +226,8 @@ export class WebGLRendererSystem extends System {
       WebGLRendererSystem.composer.addPass(depthDownsamplingPass);
       WebGLRendererSystem.composer.addPass(new EffectPass(Engine.camera, ...passes, textureEffect));
     }
+    // const gammaCorrectionPass = new ShaderPass(GammaCorrectionShader);
+    // WebGLRendererSystem.composer.addPass(gammaCorrectionPass);
   }
 
   /**
@@ -251,8 +266,7 @@ export class WebGLRendererSystem extends System {
       }
 
       Engine.csm.update();
-
-      if (WebGLRendererSystem.usePostProcessing) {
+      if (WebGLRendererSystem.usePostProcessing && this.postProcessingSchema) {
         WebGLRendererSystem.composer.render(delta);
       } else {
         Engine.renderer.render(Engine.scene, Engine.camera);
@@ -351,9 +365,12 @@ export class WebGLRendererSystem extends System {
   }
 
   setUsePostProcessing(usePostProcessing) {
+    if(!WebGLRendererSystem.supportWebGL2) return;
     if(Engine.renderer?.xr?.isPresenting) return;
     WebGLRendererSystem.usePostProcessing = usePostProcessing;
-    Engine.renderer.outputEncoding = WebGLRendererSystem.usePostProcessing ? LinearEncoding : sRGBEncoding;
+    // Engine.renderer.outputEncoding = WebGLRendererSystem.usePostProcessing ? sRGBEncoding : sRGBEncoding;
+    // Engine.renderer.toneMapping = WebGLRendererSystem.usePostProcessing ? LinearToneMapping : LinearToneMapping;
+    // Engine.renderer.toneMappingExposure = WebGLRendererSystem.usePostProcessing ? 1 : 1;
     saveGraphicsSettingsToStorage();
   }
 }

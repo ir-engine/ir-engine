@@ -6,14 +6,15 @@ import {
   setFaceTrackingState,
   setConsumers
 } from './actions';
-import store from '@xr3ngine/client-core/src/store';
+import Store from '@xr3ngine/client-core/src/store';
+
+const store = Store.store;
 
 export const updateCamVideoState = () => {
   const ms = MediaStreamSystem.instance;
   if (!ms) changeCamVideoState(false);
 
-  console.log('Dispatch new camVideoState:', ms.camVideoProducer != null, !ms.videoPaused);
-  store.dispatch(setCamVideoState(ms.camVideoProducer != null && !ms.videoPaused));
+  store.dispatch(setCamVideoState(ms != null && ms.camVideoProducer != null && !ms.videoPaused));
 };
 
 export const changeCamVideoState = (isEnable: boolean) => {
@@ -24,7 +25,7 @@ export const triggerUpdateConsumers = () => {
   const ms = MediaStreamSystem.instance;
   if (!ms) updateConsumers([]);
 
-  store.dispatch(setConsumers(ms.consumers));
+  store.dispatch(setConsumers(ms != null ? ms.consumers : []));
 };
 
 export const updateConsumers = (consumers: any[]) => {
@@ -35,7 +36,7 @@ export const updateCamAudioState = () => {
   const ms = MediaStreamSystem.instance;
   if (!ms) changeCamAudioState(false);
 
-  store.dispatch(setCamAudioState(ms.camAudioProducer != null && !ms.audioPaused));
+  store.dispatch(setCamAudioState(ms != null && ms.camAudioProducer != null && !ms.audioPaused));
 };
 
 export const changeCamAudioState = (isEnable: boolean) => {

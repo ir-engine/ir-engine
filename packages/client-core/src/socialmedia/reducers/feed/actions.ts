@@ -1,3 +1,6 @@
+/**
+ * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
+ */
 import {
   FEEDS_RETRIEVED,
   FEED_RETRIEVED,
@@ -15,7 +18,14 @@ import {
   ADD_FEED_FEATURED,
   REMOVE_FEED_FEATURED,
   FEEDS_AS_ADMIN_RETRIEVED,
-  UPDATE_FEED
+  UPDATE_FEED,
+  FEATURED_FEEDS_FETCH,
+  CREATOR_FEEDS_FETCH,
+  BOOKMARK_FEEDS_FETCH,
+  MY_FEATURED_FEEDS_FETCH,
+  ADMIN_FEEDS_FETCH,
+  FIRED_FEEDS_FETCH,
+  FEEDS_FIRED_RETRIEVED
 } from '../actions';
 import { FeedShort, Feed } from '@xr3ngine/common/src/interfaces/Feed';
 
@@ -72,6 +82,13 @@ export function feedsBookmarkRetrieved(feeds: FeedShort[]): FeedsRetrievedAction
   };
 }
 
+export function feedsFiredRetrieved(feeds: FeedShort[]): FeedsRetrievedAction {
+  return {
+    type: FEEDS_FIRED_RETRIEVED,
+    feeds: feeds
+  };
+}
+
 export function feedsMyFeaturedRetrieved(feeds: FeedShort[]): FeedsRetrievedAction {
   return {
     type: FEEDS_MY_FEATURED_RETRIEVED,
@@ -90,6 +107,42 @@ export function feedRetrieved (feed: Feed): FeedRetrievedAction {
 export function fetchingFeeds (): FetchingFeedsAction {
   return {
     type: FEEDS_FETCH
+  };
+}
+
+export function fetchingFeaturedFeeds (): FetchingFeedsAction {
+  return {
+    type: FEATURED_FEEDS_FETCH
+  };
+}
+
+export function fetchingCreatorFeeds (): FetchingFeedsAction {
+  return {
+    type: CREATOR_FEEDS_FETCH
+  };
+}
+
+export function fetchingBookmarkedFeeds (): FetchingFeedsAction {
+  return {
+    type: BOOKMARK_FEEDS_FETCH
+  };
+}
+
+export function fetchingFiredFeeds (): FetchingFeedsAction {
+  return {
+    type: FIRED_FEEDS_FETCH
+  };
+}
+
+export function fetchingMyFeaturedFeeds (): FetchingFeedsAction {
+  return {
+    type: MY_FEATURED_FEEDS_FETCH
+  };
+}
+
+export function fetchingAdminFeeds (): FetchingFeedsAction {
+  return {
+    type: ADMIN_FEEDS_FETCH
   };
 }
 

@@ -1,9 +1,11 @@
 import { endVideoChat, leave } from "../../transports/SocketWebRTCClientFunctions";
+import { EngineEvents } from "@xr3ngine/engine/src/ecs/classes/EngineEvents";
 import { Network } from "@xr3ngine/engine/src/networking/classes/Network";
 import { MediaStreamSystem } from "@xr3ngine/engine/src/networking/systems/MediaStreamSystem";
+import { Config } from '@xr3ngine/client-core/src/helper';
 import { Dispatch } from 'redux';
 import { client } from '@xr3ngine/client-core/src/feathers';
-import store from "@xr3ngine/client-core/src/store";
+import Store from "@xr3ngine/client-core/src/store";
 
 import {
   channelServerConnected,
@@ -12,7 +14,8 @@ import {
   channelServerProvisioned,
   channelServerProvisioning
 } from './actions';
-import { Config } from '@xr3ngine/client-core/src/helper';
+
+const store = Store.store;
 
 export function provisionChannelServer(instanceId?: string, channelId?: string) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
@@ -36,6 +39,10 @@ export function provisionChannelServer(instanceId?: string, channelId?: string) 
     });
     if (provisionResult.ipAddress != null && provisionResult.port != null) {
       dispatch(channelServerProvisioned(provisionResult, channelId));
+    } else {
+      EngineEvents.instance.dispatchEvent({
+        type: EngineEvents.EVENTS.PROVISION_CHANNEL_NO_GAMESERVERS_AVAILABLE
+      });
     }
   };
 }

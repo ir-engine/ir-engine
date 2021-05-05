@@ -1,4 +1,4 @@
-import { Checkbox } from "@material-ui/core";
+import Checkbox from "@material-ui/core/Checkbox";
 import { Rainbow } from "@styled-icons/fa-solid/Rainbow";
 import React, { Component } from "react";
 import NodeEditor from "./NodeEditor";

@@ -107,7 +107,7 @@ const removeObjectsRoots = [];
  * @author Robert Long
  * @type class
  */
-export default class Editor extends EventEmitter {
+export class Editor extends EventEmitter {
   api: Api;
   settings: any;
   project: any;
@@ -425,6 +425,7 @@ export default class Editor extends EventEmitter {
 
     // getting scene data
     const [scene, errors] = await SceneNode.loadProject(this, projectFile);
+    console.log(scene, errors);
 
     // removing loading
     this.sceneLoading = false;
@@ -2817,3 +2818,5 @@ export default class Editor extends EventEmitter {
     }
   }
 }
+
+export default Editor;

@@ -1,6 +1,6 @@
 {
   "name": "@xr3ngine/volumetric",
-  "version": "0.2.17",
+  "version": "0.2.21",
   "repository": {
     "type": "git",
     "url": "git://github.com/xr3ngine/xr3ngine.git"
@@ -11,7 +11,8 @@
   "npmClient": "yarn",
   "jest": "ts-jest",
   "scripts": {
-    "corto": "babel ./src/libs/cortodecoder.js --out-file corto.js --plugins @@babel/plugin-transform-modules-umd"
+    "check-errors": "tsc --noemit",
+    "corto": "babel ./src/libs/cortodecoder.js --out-file corto.js --plugins @babel/plugin-transform-modules-umd"
   },
   "author": "XR3 Group",
   "license": "MIT",
@@ -21,34 +22,14 @@
   },
   "homepage": "https://github.com/xr3ngine/xr3ngine/packages/volumetric#readme",
   "devDependencies": {
-    "@babel/cli": "7.13.14",
-    "@babel/core": "7.13.15",
-    "@babel/plugin-transform-modules-commonjs": "7.13.8",
-    "@types/glob": "7.1.3",
-    "@types/three": "0.127.1",
-    "ts-loader": "8.1.0",
-    "ts-node": "9.1.1",
-    "typescript": "4.2.4"
+    "@babel/cli": "7.13.16",
+    "@babel/core": "7.14.0",
+    "@types/three": "0.127.1"
   },
   "dependencies": {
-    "@easydarwin/easywasmplayer": "4.0.12",
-    "@xr3ngine/engine": "^0.2.17",
-    "@xr3ngine/volumetric": "0.2.1",
-    "babel-runtime": "6.26.0",
-    "broadway-player": "0.1.1",
-    "demuxer": "2.1.3",
-    "esm": "3.2.25",
-    "h265-wasm-player": "0.1.1",
-    "h265web.js": "2.2.2",
-    "http-range-fetcher": "1.2.4",
-    "loadjs": "4.2.0",
-    "semantic-release": "17.4.2",
-    "semantic-release-monorepo": "7.0.4",
-    "three": "0.127.0",
-    "three-obj-loader-cjs-module": "1.0.0",
-    "xmlhttprequest": "1.8.0",
-    "yuv-buffer": "1.0.0",
-    "yuv-canvas": "1.2.6"
+    "@xr3ngine/engine": "^0.2.21",
+    "three": "0.128.0",
+    "xmlhttprequest": "1.8.0"
   },
   "gitHead": "5ff55be1619e188226c4ac91c92a44b7ba18edf4"
 }

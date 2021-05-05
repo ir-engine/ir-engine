@@ -1,4 +1,5 @@
-import { Button, Snackbar } from '@material-ui/core';
+import Button from '@material-ui/core/Button';
+import Snackbar from '@material-ui/core/Snackbar';
 import { InteractableModal } from '@xr3ngine/client-core/src/world/components/InteractableModal';
 import LoadingScreen from '@xr3ngine/client-core/src/common/components/Loader';
 import { MobileGamepadProps } from "@xr3ngine/client-core/src/common/components/MobileGamepad/MobileGamepadProps";
@@ -17,7 +18,7 @@ import {
   getLocationByName
 } from '@xr3ngine/client-core/src/social/reducers/location/service';
 import { setCurrentScene } from '@xr3ngine/client-core/src/world/reducers/scenes/actions';
-import store from '@xr3ngine/client-core/src/store';
+import Store from '@xr3ngine/client-core/src/store';
 import { selectUserState } from '@xr3ngine/client-core/src/user/reducers/user/selector';
 import { selectInstanceConnectionState } from '../../reducers/instanceConnection/selector';
 import {
@@ -32,7 +33,8 @@ import { isMobileOrTablet } from '@xr3ngine/engine/src/common/functions/isMobile
 import { EngineEvents } from '@xr3ngine/engine/src/ecs/classes/EngineEvents';
 import { resetEngine } from "@xr3ngine/engine/src/ecs/functions/EngineFunctions";
 import { getComponent, getMutableComponent } from '@xr3ngine/engine/src/ecs/functions/EntityFunctions';
-import { DefaultInitializationOptions, initializeEngine } from '@xr3ngine/engine/src/initialize';
+import { initializeEngine } from '@xr3ngine/engine/src/initialize';
+import { DefaultInitializationOptions } from '@xr3ngine/engine/src/DefaultInitializationOptions';
 import { InteractiveSystem } from '@xr3ngine/engine/src/interaction/systems/InteractiveSystem';
 import { Network } from '@xr3ngine/engine/src/networking/classes/Network';
 import { MessageTypes } from '@xr3ngine/engine/src/networking/enums/MessageTypes';
@@ -44,8 +46,8 @@ import { CharacterComponent } from '@xr3ngine/engine/src/templates/character/com
 import { DefaultNetworkSchema } from '@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema';
 import { PrefabType } from '@xr3ngine/engine/src/templates/networking/PrefabType';
 import { XRSystem } from '@xr3ngine/engine/src/xr/systems/XRSystem';
-import dynamic from 'next/dynamic';
-import { useRouter } from 'next/router';
+import { Config } from '@xr3ngine/client-core/src/helper';
+import { useHistory } from 'react-router-dom';
 import querystring from 'querystring';
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
@@ -53,11 +55,12 @@ import { bindActionCreators, Dispatch } from 'redux';
 import url from 'url';
 import { CharacterInputSchema } from '@xr3ngine/engine/src/templates/character/CharacterInputSchema';
 import { GolfGameMode } from '@xr3ngine/engine/src/templates/game/GolfGameMode';
-import { Config } from '@xr3ngine/client-core/src/helper';
+
+const store = Store.store;
 
 const goHome = () => window.location.href = window.location.origin;
 
-const MobileGamepad = dynamic<MobileGamepadProps>(() => import("@xr3ngine/client-core/src/common/components/MobileGamepad").then((mod) => mod.MobileGamepad), { ssr: false });
+const MobileGamepad = React.lazy(() => import("@xr3ngine/client-core/src/common/components/MobileGamepad"));
 
 const engineRendererCanvasId = 'engine-renderer-canvas';
 
@@ -122,7 +125,7 @@ export const EnginePage = (props: Props) => {
   const [infoBoxData, setModalData] = useState(null);
   const [userBanned, setUserBannedState] = useState(false);
   const [openLinkData, setOpenLinkData] = useState(null);
-  const router = useRouter();
+  const router = useHistory();
 
   const [progressEntity, setProgressEntity] = useState(99);
   const [userHovered, setonUserHover] = useState(false);
@@ -263,17 +266,17 @@ export const EnginePage = (props: Props) => {
       useOfflineMode: Config.publicRuntimeConfig.offlineMode
     };
 
-    console.log("Initialization options are: ", InitializationOptions);
+    // console.log("Initialization options are: ", InitializationOptions);
 
     await initializeEngine(InitializationOptions);
 
-    console.log("Engine initialized");
+    // console.log("Engine initialized");
 
     document.dispatchEvent(new CustomEvent('ENGINE_LOADED')); // this is the only time we should use document events. would be good to replace this with react state
 
     addUIEvents();
 
-    console.log("**** OFFLINE MODE? ", Config.publicRuntimeConfig.offlineMode);
+    // console.log("**** OFFLINE MODE? ", Config.publicRuntimeConfig.offlineMode);
 
     if(!Config.publicRuntimeConfig.offlineMode) await connectToInstanceServer('instance');
 

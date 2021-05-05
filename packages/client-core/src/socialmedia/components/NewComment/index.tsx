@@ -1,14 +1,18 @@
+/**
+ * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
+ */
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
-import { TextField } from '@material-ui/core';
+import TextField from '@material-ui/core/TextField';
 import MessageIcon from '@material-ui/icons/Message';
 // @ts-ignore
 import styles from './NewComment.module.scss';
 import { addCommentToFeed } from '../../reducers/feedComment/service';
 import { selectAuthState } from '../../../user/reducers/auth/selector';
 import PopupLogin from '../PopupLogin/PopupLogin';
-import { IndexPage } from '@xr3ngine/social/pages/login';
+// import { IndexPage } from '@xr3ngine/social/pages/login';
+import { useTranslation } from 'react-i18next';
 
 const mapStateToProps = (state: any): any => {
     return {
@@ -28,6 +32,7 @@ interface Props{
 const NewComment = ({addCommentToFeed, feedId, authState}:Props) => { 
     const [composingComment, setComposingComment] = useState('');
     const [buttonPopup , setButtonPopup] = useState(false);
+	const { t } = useTranslation();
     const commentRef = React.useRef<HTMLInputElement>();
 
     const handleComposingCommentChange = (event: any): void => {
@@ -37,18 +42,18 @@ const NewComment = ({addCommentToFeed, feedId, authState}:Props) => {
         composingComment.trim().length > 0 && addCommentToFeed(feedId, composingComment);
         setComposingComment('');
     };
-    const checkGuest = authState.get('authUser')?.identityProvider.type === 'guest' ? true : false;
+    const checkGuest = authState.get('authUser')?.identityProvider?.type === 'guest' ? true : false;
 
     return  <section className={styles.messageContainer}>
                 <TextField ref={commentRef} 
                     value={composingComment}
                     onChange={handleComposingCommentChange}
                     fullWidth 
-                    placeholder="Add your comment..."                     
+                    placeholder={t('social:comment.add')}
                     />     
                 <MessageIcon className={styles.sendButton} onClick={()=>checkGuest ? setButtonPopup(true) : handleAddComment()} />
                 <PopupLogin trigger={buttonPopup} setTrigger={setButtonPopup}>
-                    <IndexPage />
+                    {/* <IndexPage /> */}
                 </PopupLogin>
             </section>;
 };

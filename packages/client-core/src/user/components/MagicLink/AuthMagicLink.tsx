@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { useRouter, NextRouter } from 'next/router';
+import { useLocation, withRouter } from 'react-router-dom';
 import {
   loginUserByJwt,
   refreshConnections,
@@ -14,14 +14,16 @@ import Container from '@material-ui/core/Container';
 import ResetPassword from '../Auth/ResetPassword';
 import { VerifyEmail } from '../Auth/VerifyEmail';
 import { User } from '@xr3ngine/common/src/interfaces/User';
+import { useTranslation } from 'react-i18next';
 
 interface Props {
-  router: NextRouter;
   auth: any;
   verifyEmail: typeof verifyEmail;
   resetPassword: typeof resetPassword;
   loginUserByJwt: typeof loginUserByJwt;
   refreshConnections: typeof refreshConnections;
+  type: string;
+  token: string;
 }
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
@@ -32,30 +34,26 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 });
 
 const AuthMagicLink = (props: Props): any => {
-  const { auth, loginUserByJwt, refreshConnections, router } = props;
+  const { auth, loginUserByJwt, refreshConnections, token, type } = props;
+	const { t } = useTranslation();
 
   useEffect(() => {
-    const type = router.query.type as string;
-    const token = router.query.token as string;
-
-    if (router.isReady === true) {
-      if (type === 'login') {
-        loginUserByJwt(token, '/', '/');
-      } else if (type === 'connection') {
-        const user = auth.get('user') as User;
-        if (user) {
-          refreshConnections(user.id);
-        }
-        window.location.href = '/profile-connections';
+    if (type === 'login') {
+      loginUserByJwt(token, '/', '/');
+    } else if (type === 'connection') {
+      const user = auth.get('user') as User;
+      if (user) {
+        refreshConnections(user.id);
       }
+      window.location.href = '/profile-connections';
     }
-  }, [router.isReady]);
+  }, []);
 
   return (
     <Container component="main" maxWidth="md">
       <Box mt={3}>
         <Typography variant="body2" color="textSecondary" align="center">
-          Please wait a moment while processing...
+          {t('user:magikLink.wait')}
         </Typography>
       </Box>
     </Container>
@@ -63,16 +61,16 @@ const AuthMagicLink = (props: Props): any => {
 };
 
 const AuthMagicLinkWrapper = (props: any): any => {
-  const router = useRouter();
-  const type = router.query.type as string;
-  const token = router.query.token as string;
+  const search = new URLSearchParams(useLocation().search);
+  const token = search.get('token') as string;
+  const type = search.get('type') as string;
 
   if (type === 'verify') {
     return <VerifyEmail {...props} type={type} token={token} />;
   } else if (type === 'reset') {
     return <ResetPassword {...props} type={type} token={token} />;
   }
-  return <AuthMagicLink {...props} router={router} />;
+  return <AuthMagicLink {...props} token={token} type={type} />;
 };
 
-export default connect(null, mapDispatchToProps)(AuthMagicLinkWrapper);
+export default withRouter(connect(null, mapDispatchToProps)(AuthMagicLinkWrapper));
