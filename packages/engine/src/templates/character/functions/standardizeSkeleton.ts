@@ -7,7 +7,6 @@ import { DefaultCharacterBones } from "../constants/DefaultCharacterBones";
 
 export const standardizeSkeletion = (target: SkinnedMesh) => {
 
-  console.clear();
   const targetBones=GetBones(target.skeleton);
 
   Object.values(targetBones).forEach((element,id)=>{
@@ -15,7 +14,7 @@ export const standardizeSkeletion = (target: SkinnedMesh) => {
     element.name=DefaultCharacterBones[boneType];
     console.log(boneType+"  "+element.name);
   })
-
+  console.log(target.skeleton);
 }
 
 
