@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.2.22](https://github.com/XRFoundation/XREngine/compare/v0.2.21...v0.2.22) (2021-05-05)
+
+**Note:** Version bump only for package @xrengine/client-core
+
+
+
+
+
 ## [0.2.21](https://github.com/xrengine/xrengine/compare/v0.2.20...v0.2.21) (2021-05-05)
 
 **Note:** Version bump only for package @xrengine/client-core
