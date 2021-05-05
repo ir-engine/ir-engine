@@ -1,23 +1,23 @@
 import ClickAwayListener from "@material-ui/core/ClickAwayListener";
 import { Person } from "@material-ui/icons";
-import SignIn from "@xr3ngine/client-core/src/user/components/Auth/Login";
-import ProfileMenu from "@xr3ngine/client-core/src/user/components/UserMenu/menus/ProfileMenu";
-import { selectAuthState } from "@xr3ngine/client-core/src/user/reducers/auth/selector";
-import { doLoginAuto, logoutUser } from "@xr3ngine/client-core/src/user/reducers/auth/service";
-import Api from "@xr3ngine/client-core/src/world/components/editor/Api";
-import { withApi } from "@xr3ngine/client-core/src/world/components/editor/contexts/ApiContext";
-import { Button, MediumButton } from "@xr3ngine/client-core/src/world/components/editor/inputs/Button";
-import { connectMenu, ContextMenu, MenuItem } from "@xr3ngine/client-core/src/world/components/editor/layout/ContextMenu";
-import { ErrorMessage, ProjectGrid, ProjectGridContainer, ProjectGridContent, ProjectGridHeader, ProjectGridHeaderRow } from "@xr3ngine/client-core/src/world/components/editor/projects/ProjectGrid";
-import templates from "@xr3ngine/client-core/src/world/components/editor/projects/templates";
-import { ThemeContext } from "@xr3ngine/client-core/src/world/components/editor/theme";
+import SignIn from "@xrengine/client-core/src/user/components/Auth/Login";
+import ProfileMenu from "@xrengine/client-core/src/user/components/UserMenu/menus/ProfileMenu";
+import { selectAuthState } from "@xrengine/client-core/src/user/reducers/auth/selector";
+import { doLoginAuto, logoutUser } from "@xrengine/client-core/src/user/reducers/auth/service";
+import Api from "@xrengine/client-core/src/world/components/editor/Api";
+import { withApi } from "@xrengine/client-core/src/world/components/editor/contexts/ApiContext";
+import { Button, MediumButton } from "@xrengine/client-core/src/world/components/editor/inputs/Button";
+import { connectMenu, ContextMenu, MenuItem } from "@xrengine/client-core/src/world/components/editor/layout/ContextMenu";
+import { ErrorMessage, ProjectGrid, ProjectGridContainer, ProjectGridContent, ProjectGridHeader, ProjectGridHeaderRow } from "@xrengine/client-core/src/world/components/editor/projects/ProjectGrid";
+import templates from "@xrengine/client-core/src/world/components/editor/projects/templates";
+import { ThemeContext } from "@xrengine/client-core/src/world/components/editor/theme";
 import { useHistory } from "react-router-dom";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from 'react-i18next';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from "redux";
 import styled from "styled-components";
-import AdminConsole from '@xr3ngine/client-core/src/admin/components';
+import AdminConsole from '@xrengine/client-core/src/admin/components';
 
 
 /**

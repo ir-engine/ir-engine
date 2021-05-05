@@ -5,7 +5,7 @@ import {connect} from "react-redux";
 /**
  * Exporting component by dynamicaly loaded component.
  */
-const CreateProjectPage = React.lazy(() => import("@xr3ngine/client-core/src/world/components/editor/projects/CreateProjectPage"));
+const CreateProjectPage = React.lazy(() => import("@xrengine/client-core/src/world/components/editor/projects/CreateProjectPage"));
 
 
 /**

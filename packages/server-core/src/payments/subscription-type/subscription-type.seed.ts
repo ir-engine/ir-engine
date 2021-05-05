@@ -2,22 +2,22 @@ import config from '../../appconfig';
 
 const localTemplates = [
   {
-    plan: 'xr3ngine-basic-local',
-    name: 'XR3ngine Basic Local',
+    plan: 'xrengine-basic-local',
+    name: 'XREngine Basic Local',
     type: 'monthly',
     amount: 5,
     seats: 1
   },
   {
-    plan: 'xr3ngine-premium-local',
-    name: 'XR3ngine Premium Local',
+    plan: 'xrengine-premium-local',
+    name: 'XREngine Premium Local',
     type: 'monthly',
     amount: 20,
     seats: 1
   },
   {
-    plan: 'xr3ngine-deluxe-local',
-    name: 'XR3ngine Deluxe Local',
+    plan: 'xrengine-deluxe-local',
+    name: 'XREngine Deluxe Local',
     type: 'monthly',
     amount: 100,
     seats: 1
@@ -26,22 +26,22 @@ const localTemplates = [
 
 const devTemplates = [
   {
-    plan: 'xr3ngine-basic-dev',
-    name: 'XR3ngine Basic Dev',
+    plan: 'xrengine-basic-dev',
+    name: 'XREngine Basic Dev',
     type: 'monthly',
     amount: 5,
     seats: 1
   },
   {
-    plan: 'xr3ngine-premium-dev',
-    name: 'XR3ngine Premium Dev',
+    plan: 'xrengine-premium-dev',
+    name: 'XREngine Premium Dev',
     type: 'monthly',
     amount: 20,
     seats: 1
   },
   {
-    plan: 'xr3ngine-deluxe-dev',
-    name: 'XR3ngine Deluxe Dev',
+    plan: 'xrengine-deluxe-dev',
+    name: 'XREngine Deluxe Dev',
     type: 'monthly',
     amount: 100,
     seats: 1
@@ -50,22 +50,22 @@ const devTemplates = [
 
 const stagingTemplates = [
   {
-    plan: 'xr3ngine-basic-staging',
-    name: 'XR3ngine Basic Staging',
+    plan: 'xrengine-basic-staging',
+    name: 'XREngine Basic Staging',
     type: 'monthly',
     amount: 5,
     seats: 1
   },
   {
-    plan: 'xr3ngine-premium-staging',
-    name: 'XR3ngine Premium Staging',
+    plan: 'xrengine-premium-staging',
+    name: 'XREngine Premium Staging',
     type: 'monthly',
     amount: 20,
     seats: 1
   },
   {
-    plan: 'xr3ngine-deluxe-staging',
-    name: 'XR3ngine Deluxe Staging',
+    plan: 'xrengine-deluxe-staging',
+    name: 'XREngine Deluxe Staging',
     type: 'monthly',
     amount: 100,
     seats: 1
@@ -74,22 +74,22 @@ const stagingTemplates = [
 
 const prodTemplates = [
   {
-    plan: 'xr3ngine-basic-prod',
-    name: 'XR3ngine Basic',
+    plan: 'xrengine-basic-prod',
+    name: 'XREngine Basic',
     type: 'monthly',
     amount: 5,
     seats: 1
   },
   {
-    plan: 'xr3ngine-premium-prod',
-    name: 'XR3ngine Premium',
+    plan: 'xrengine-premium-prod',
+    name: 'XREngine Premium',
     type: 'monthly',
     amount: 20,
     seats: 1
   },
   {
-    plan: 'xr3ngine-deluxe-prod',
-    name: 'XR3ngine Deluxe',
+    plan: 'xrengine-deluxe-prod',
+    name: 'XREngine Deluxe',
     type: 'monthly',
     amount: 100,
     seats: 1

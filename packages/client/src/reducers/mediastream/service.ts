@@ -1,12 +1,12 @@
 import { Dispatch } from 'redux';
-import { MediaStreamSystem } from "@xr3ngine/engine/src/networking/systems/MediaStreamSystem";
+import { MediaStreamSystem } from "@xrengine/engine/src/networking/systems/MediaStreamSystem";
 import {
   setCamAudioState,
   setCamVideoState,
   setFaceTrackingState,
   setConsumers
 } from './actions';
-import Store from '@xr3ngine/client-core/src/store';
+import Store from '@xrengine/client-core/src/store';
 
 const store = Store.store;
 

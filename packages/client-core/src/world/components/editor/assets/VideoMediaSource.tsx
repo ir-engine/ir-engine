@@ -1,7 +1,7 @@
 import { BaseSource } from "./sources";
 import { ItemTypes } from "../dnd";
 import VideoSourcePanel from "./VideoSourcePanel";
-import VideoNode from "@xr3ngine/engine/src/editor/nodes/VideoNode";
+import VideoNode from "@xrengine/engine/src/editor/nodes/VideoNode";
 import Api from "../Api";
 
 /**

@@ -18,7 +18,7 @@ import url from 'url';
 export const db: any = {
   username: process.env.MYSQL_USER ?? 'server',
   password: process.env.MYSQL_PASSWORD ?? 'password',
-  database: process.env.MYSQL_DATABASE ?? 'xr3ngine',
+  database: process.env.MYSQL_DATABASE ?? 'xrengine',
   host: process.env.MYSQL_HOST ?? '127.0.0.1',
   port: process.env.MYSQL_PORT ?? 3306,
   dialect: 'mysql',
@@ -48,7 +48,7 @@ const server = {
   storageProvider: process.env.STORAGE_PROVIDER ?? 'local',
   gaTrackingId: process.env.GOOGLE_ANALYTICS_TRACKING_ID ?? '',
   hub: {
-    endpoint: process.env.HUB_ENDPOINT ?? 'https://xr3ngine.io'
+    endpoint: process.env.HUB_ENDPOINT ?? 'https://xrengine.io'
   },
   paginate: {
     default: 10,
@@ -70,11 +70,11 @@ server.url = process.env.SERVER_URL ?? url.format(obj);
 const client = {
   enabled: process.env.CLIENT_ENABLED === 'true' ?? true,
   // Client app logo
-  // FIXME - change to XR3ngine logo
-  logo: process.env.APP_LOGO ?? 'https://xr3ngine-static.s3-us-east-1.amazonaws.com/logo.png',
+  // FIXME - change to XREngine logo
+  logo: process.env.APP_LOGO ?? 'https://xrengine-static.s3-us-east-1.amazonaws.com/logo.png',
   // Client app name
-  // FIXME - change to XR3ngine
-  title: process.env.APP_LOGO ?? 'XR3ngine',
+  // FIXME - change to XREngine
+  title: process.env.APP_LOGO ?? 'XREngine',
   url: process.env.APP_URL ??
     process.env.APP_HOST ?? // Legacy env var, to deprecate
     (process.env.LOCAL_BUILD ? 'http://localhost:3000' : 'https://localhost:3000'),
@@ -108,14 +108,14 @@ const email = {
     }
   },
   // Name and email of default sender (for login emails, etc)
-  from: `${process.env.SMTP_FROM_NAME ?? 'XR3ngine'}` +
+  from: `${process.env.SMTP_FROM_NAME ?? 'XREngine'}` +
     ` <${process.env.SMTP_FROM_EMAIL ?? 'noreply@myxr.email'}>`,
   subject: {
     // Subject of the Login Link email
-    login: 'XR3ngine login link',
-    friend: 'XR3ngine friend request',
-    group: 'XR3ngine group invitation',
-    party: 'XR3ngine party invitation'
+    login: 'XREngine login link',
+    friend: 'XREngine friend request',
+    group: 'XREngine group invitation',
+    party: 'XREngine party invitation'
   },
   smsNameCharacterLimit: 20
 };

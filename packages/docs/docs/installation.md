@@ -4,7 +4,7 @@ title: Installation
 ---
 
 
-![xr3ngine](https://github.com/xr3ngine/xr3ngine/raw/dev/xrengine%20black.png)
+![xrengine](https://github.com/xrengine/xrengine/raw/dev/xrengine%20black.png)
 
 ## Getting Started
 
@@ -18,7 +18,7 @@ First, make sure you have [NodeJS](https://nodejs.org/) and [npm](https://www.np
 
 1. Install your dependencies
     ```
-    cd path/to/xr3ngine
+    cd path/to/xrengine
     yarn install
     ```
     Error with mediasoup? Optional: https://mediasoup.org/documentation/v3/mediasoup/installation/
@@ -35,10 +35,10 @@ First, make sure you have [NodeJS](https://nodejs.org/) and [npm](https://www.np
     ```
     cd scripts && sudo bash start-db.sh
     ```
-    This creates a Docker container of mariadb named xr3ngine_db. You must have docker installed on your machine for this script to work.
+    This creates a Docker container of mariadb named xrengine_db. You must have docker installed on your machine for this script to work.
     If you do not have Docker installed and do not wish to install it, you'll have to manually create a MariaDB server.
 
-   The default username is 'server', the default password is 'password', the default database name is 'xr3ngine', the default hostname is '127.0.0.1', and the default port is '3306'.
+   The default username is 'server', the default password is 'password', the default database name is 'xrengine', the default hostname is '127.0.0.1', and the default port is '3306'.
 
    Seeing errors connecting to the local DB? Shut off your local firewall.
 
@@ -62,8 +62,8 @@ First, make sure you have [NodeJS](https://nodejs.org/) and [npm](https://www.np
    ```./sdk-server.darwin.amd64 --local```
 
 4. Obtain .env.local file with configuration variable.
-   Many parts of XR3ngine are configured using environment variables.
-   For simplicity, it's recommended that you create a file called ```.env.local``` in the top level of xr3ngine,
+   Many parts of XREngine are configured using environment variables.
+   For simplicity, it's recommended that you create a file called ```.env.local``` in the top level of xrengine,
    and have all of your ENV_VAR definitions here in the form ```<VAR_NAME>=<VALUE>```.
    If you are actively working on this project, contact one of the developers for a copy of the file
    that has all of the development settings and keys in it.
@@ -126,7 +126,7 @@ First, make sure you have [NodeJS](https://nodejs.org/) and [npm](https://www.np
    ./start-db.sh only needs to be run once. If the docker image has stopped, start it again with:
 
    ```
-       docker container start xr3ngine_db
+       docker container start xrengine_db
    ```
 
    ### OSX DB Native Initialization Commands
@@ -140,9 +140,9 @@ First, make sure you have [NodeJS](https://nodejs.org/) and [npm](https://www.np
    mysql -uroot -ppassword
    mysql -userver -ppassword
 
-   create database xr3ngine;
+   create database xrengine;
    create user 'server'@'127.0.0.1' identified by 'password';
-   grant all on xr3ngine.* to 'server'@'127.0.0.1';
+   grant all on xrengine.* to 'server'@'127.0.0.1';
 
    show databases;
 
@@ -153,7 +153,7 @@ First, make sure you have [NodeJS](https://nodejs.org/) and [npm](https://www.np
 
    #### Invalid Certificate errors in local environment
 
-   As of this writing, the cert provided in the xr3ngine package for local use
+   As of this writing, the cert provided in the xrengine package for local use
    is not adequately signed. Browsers will throw up warnings about going to insecure pages.
    You should be able to tell the browser to ignore it, usually by clicking on some sort
    of 'advanced options' button or link and then something along the lines of 'go there anyway'.

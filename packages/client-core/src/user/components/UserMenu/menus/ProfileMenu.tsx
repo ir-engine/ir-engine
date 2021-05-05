@@ -5,7 +5,7 @@ import Typography from '@material-ui/core/Typography';
 import { Check, Close, Create, GitHub, Send } from '@material-ui/icons';
 import { selectAuthState } from '../../../reducers/auth/selector';
 import { addConnectionByEmail, addConnectionBySms, loginUserByOAuth, loginUserByXRWallet, logoutUser, removeUser, updateUserAvatarId, updateUsername, updateUserSettings } from '../../../reducers/auth/service';
-import { Network } from '@xr3ngine/engine/src/networking/classes/Network';
+import { Network } from '@xrengine/engine/src/networking/classes/Network';
 import React, { useEffect, useState } from 'react';
 import { connect } from "react-redux";
 import { bindActionCreators, Dispatch } from 'redux';

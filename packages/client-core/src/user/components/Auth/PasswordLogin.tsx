@@ -16,7 +16,7 @@ import SignUp from './Register';
 import ForgotPassword from './ForgotPassword';
 // @ts-ignore
 import styles from './Auth.module.scss';
-import { User } from '@xr3ngine/common/src/interfaces/User';
+import { User } from '@xrengine/common/src/interfaces/User';
 import { loginUserByPassword, addConnectionByPassword } from '../../reducers/auth/service';
 import { useTranslation } from "react-i18next";
 

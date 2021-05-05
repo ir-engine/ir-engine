@@ -2,7 +2,7 @@ import React, { useContext } from "react";
 import PropTypes from "prop-types";
 import styled, { ThemeContext } from "styled-components";
 import Dialog from "./Dialog";
-import { bytesToSize } from "@xr3ngine/engine/src/editor/functions/utils";
+import { bytesToSize } from "@xrengine/engine/src/editor/functions/utils";
 import i18n from "i18next";
 import { useTranslation } from "react-i18next";
 
@@ -161,7 +161,7 @@ export function PerformanceCheckDialog({ scores, ...rest }) {
         <PerformanceCheckItem
           title={t('editor:dialog.performance.lbl-polycount')}
           description={t('editor:dialog.performance.info-polycount')}
-          learnMoreUrl="htts://xr3ngine.dev/docs/editor-optimization.html"
+          learnMoreUrl="htts://xrengine.dev/docs/editor-optimization.html"
           score={scores.polygons.score}
           scoreColor={scoreToColor[scores.polygons.score]}
         >
@@ -172,7 +172,7 @@ export function PerformanceCheckDialog({ scores, ...rest }) {
         <PerformanceCheckItem
           title={t('editor:dialog.performance.lbl-material')}
           description={t('editor:dialog.performance.info-material')}
-          learnMoreUrl="htts://xr3ngine.dev/docs/editor-optimization.html"
+          learnMoreUrl="htts://xrengine.dev/docs/editor-optimization.html"
           score={scores.materials.score}
           scoreColor={scoreToColor[scores.materials.score]}
         >
@@ -183,7 +183,7 @@ export function PerformanceCheckDialog({ scores, ...rest }) {
         <PerformanceCheckItem
           title={t('editor:dialog.performance.lbl-texture')}
           description={t('editor:dialog.performance.info-texture')}
-          learnMoreUrl="htts://xr3ngine.dev/docs/editor-optimization.html"
+          learnMoreUrl="htts://xrengine.dev/docs/editor-optimization.html"
           score={texturesScore}
           scoreColor={scoreToColor[texturesScore]}
         >
@@ -198,7 +198,7 @@ export function PerformanceCheckDialog({ scores, ...rest }) {
         <PerformanceCheckItem
           title={t('editor:dialog.performance.lbl-lights')}
           description={t('editor:dialog.performance.info-lights')}
-          learnMoreUrl="htts://xr3ngine.dev/docs/editor-optimization.html"
+          learnMoreUrl="htts://xrengine.dev/docs/editor-optimization.html"
           score={scores.lights.score}
           scoreColor={scoreToColor[scores.lights.score]}
         >
@@ -209,7 +209,7 @@ export function PerformanceCheckDialog({ scores, ...rest }) {
         <PerformanceCheckItem
           title={t('editor:dialog.performance.lbl-fileSize')}
           description={t('editor:dialog.performance.info-fileSize')}
-          learnMoreUrl="htts://xr3ngine.dev/docs/editor-optimization.html"
+          learnMoreUrl="htts://xrengine.dev/docs/editor-optimization.html"
           score={scores.fileSize.score}
           scoreColor={scoreToColor[scores.fileSize.score]}
         >

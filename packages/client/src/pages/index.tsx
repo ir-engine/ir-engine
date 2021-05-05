@@ -1,6 +1,6 @@
 import { Helmet } from 'react-helmet';
 import React, { useEffect } from 'react';
-import ContactForm from '@xr3ngine/client-core/src/common/components/ContactForm';
+import ContactForm from '@xrengine/client-core/src/common/components/ContactForm';
 import { useHistory } from 'react-router-dom';
 import { Capacitor } from '@capacitor/core';
 import { useTranslation } from 'react-i18next';
@@ -44,7 +44,7 @@ export const HomePage = (): any => {
                         <a target="_blank" href="https://discord.gg/mQ3D4FE">
                             <img className="discord-icon" src="static/discord.svg" />
                         </a>
-                        <a target="_blank" href="https://github.com/xr3ngine/xr3ngine">
+                        <a target="_blank" href="https://github.com/XRFoundation/XREngine">
                             <img className="github-icon" src="static/github.svg" />
                         </a>
                     </div>

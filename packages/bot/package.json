@@ -1,17 +1,17 @@
 {
-  "name": "@xr3ngine/bot",
-  "version": "0.2.21",
+  "name": "@xrengine/bot",
+  "version": "0.2.22",
   "private": true,
   "repository": {
     "type": "git",
-    "url": "git://github.com/xr3ngine/xr3ngine.git"
+    "url": "git://github.com/XRFoundation/XREngine.git"
   },
   "engines": {
     "yarn": ">= 0.18.0"
   },
   "npmClient": "yarn",
   "jest": "ts-jest",
-  "main": "src/xr3ngine-bot.js",
+  "main": "src/xrengine-bot.js",
   "scripts": {
     "start": "node run-bot.js",
     "validate": "yarn run lint && yarn run test",

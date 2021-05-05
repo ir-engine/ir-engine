@@ -1,7 +1,7 @@
 import { BaseSource } from "./sources";
 import { ItemTypes } from "../dnd";
 import ImageSourcePanel from "./ImageSourcePanel";
-import ImageNode from "@xr3ngine/engine/src/editor/nodes/ImageNode";
+import ImageNode from "@xrengine/engine/src/editor/nodes/ImageNode";
 import Api from "../Api";
 
 /**

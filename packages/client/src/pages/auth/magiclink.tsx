@@ -1,5 +1,5 @@
 import React from 'react';
-import AuthMagicLink from '@xr3ngine/client-core/src/user/components/MagicLink/AuthMagicLink';
+import AuthMagicLink from '@xrengine/client-core/src/user/components/MagicLink/AuthMagicLink';
 
 export const AuthMagicLinkPage = () => <AuthMagicLink />;
 

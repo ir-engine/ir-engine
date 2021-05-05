@@ -1,7 +1,7 @@
 ====================================================================
 ====================================================================
 
-The XR3ngine editor is a direct Typescript conversion of Spoke,
+The XREngine editor is a direct Typescript conversion of Spoke,
 created and maintained by Robert Long at Mozilla.
 https://github.com/mozilla/Spoke
 

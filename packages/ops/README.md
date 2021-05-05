@@ -1,25 +1,25 @@
-# xr3ngine-ops
+# xrengine-ops
 
-Deployment and Operations for xr3ngine services
+Deployment and Operations for xrengine services
 
 ## One-Click Deployment on Kubernetes using Helm
 
 You can run the whole platfrom with the following commands:
 
 ``` bash
-helm repo add xr3ngine https://helm.xrengine.io
+helm repo add xrengine https://helm.xrengine.io
 helm repo update
-helm install my-release xr3ngine/xr3ngine
+helm install my-release xrengine/xrengine
 ```
 
-For more details about the XR3ngine chart
+For more details about the XREngine chart
 
-- [XR3ngine helm chart](xr3ngine/)
-- [Building the xr3ngine helm chart](docs/release-helm-chart.md)
+- [XREngine helm chart](xrengine/)
+- [Building the xrengine helm chart](docs/release-helm-chart.md)
 
 For deployment on different cloud providers:
 
-- [Deploying XR3ngine on AWS EKS](docs/deploy_on_eks.md)
+- [Deploying XREngine on AWS EKS](docs/deploy_on_eks.md)
 - [Managing Remote Kubernets Clusters - TBD](docs/managing_remote_kubernets.md)
 
 Requires Helm and access to a Kubernetes cluster, if you are new to those, check the following instructions:
@@ -34,7 +34,7 @@ Requires Helm and access to a Kubernetes cluster, if you are new to those, check
 You can run the whole platfrom with the following commands:
 
 ``` bash
-git clone git@github.com:xr3ngine/xrsocial-ops.git
+git clone git@github.com:xrengine/xrsocial-ops.git
 cd xrsocial-ops
 docker-compose up
 ```
@@ -45,13 +45,13 @@ To run specific services
 docker-compose up <service-name>
 ```
 
-This will pull images from [xr3ngine's docker hub repo](https://hub.docker.com/u/xr3ngine)
+This will pull images from [xrengine's docker hub repo](https://hub.docker.com/u/xrengine)
 
-## XR3ngine services
+## XREngine services
 
-- [server](https://github.com/xr3ngine/xrsocial): backend server on <http://127.0.0.1:3030/docs>
-- [client](https://github.com/xr3ngine/xrsocial-client): frontend Next.js+react on <http://127.0.0.1:3000>
-- adminer: a lightweight web app to manage database, <http://127.0.0.1:8080/?server=db&username=server&db=xr3ngine>  (Note: password is "password")
+- [server](https://github.com/XRFoundation/xrsocial): backend server on <http://127.0.0.1:3030/docs>
+- [client](https://github.com/XRFoundation/xrsocial-client): frontend Next.js+react on <http://127.0.0.1:3000>
+- adminer: a lightweight web app to manage database, <http://127.0.0.1:8080/?server=db&username=server&db=xrengine>  (Note: password is "password")
 - db: MariaDB on default port [mysql://127.0.0.1:3306]()
 
 ## Build docker/compose stack yourself

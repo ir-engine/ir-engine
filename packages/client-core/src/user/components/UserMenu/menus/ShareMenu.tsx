@@ -4,7 +4,7 @@ import InputAdornment from '@material-ui/core/InputAdornment';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import { Send, FileCopy } from '@material-ui/icons';
-import { isMobileOrTablet } from '@xr3ngine/engine/src/common/functions/isMobile';
+import { isMobileOrTablet } from '@xrengine/engine/src/common/functions/isMobile';
 //@ts-ignore
 // @ts-ignore
 import styles from '../UserMenu.module.scss';
@@ -36,7 +36,7 @@ const ShareMenu = (props: Props): any => {
 	const [email, setEmail] = React.useState("");
 	const refLink = useRef(null);
 	const postTitle = 'AR/VR world';
-  	const siteTitle = 'XR3ngine';
+  	const siteTitle = 'XREngine';
 
 	const copyLinkToClipboard = () => {
 		refLink.current.select();
