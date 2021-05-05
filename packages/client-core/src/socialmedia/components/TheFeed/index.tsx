@@ -6,7 +6,8 @@ import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 import { selectAuthState } from '../../../user/reducers/auth/selector';
 import { selectFeedsState } from '../../reducers/feed/selector';
-import { getFeeds } from '../../reducers/feed/service';
+import { getTheFeedsNew } from '../../reducers/thefeeds/service';
+import { selectTheFeedsState } from '../../reducers/thefeeds/selector';
 
 import FeedCard from '../FeedCard';
 
@@ -15,24 +16,26 @@ import styles from './TheFeed.module.scss';
 
 const mapStateToProps = (state: any): any => {
     return {
-        feedsState: selectFeedsState(state),
-        authState: selectAuthState(state),
+        theFeedsState: selectTheFeedsState(state),
+//         authState: selectAuthState(state),
     };
   };
 
   const mapDispatchToProps = (dispatch: Dispatch): any => ({
-    getFeeds: bindActionCreators(getFeeds, dispatch),
+//     getFeeds: bindActionCreators(getFeeds, dispatch),
+    getTheFeedsNew: bindActionCreators(getTheFeedsNew, dispatch),
 });
 interface Props{
-    feedsState?: any,
-    getFeeds?: any
+    theFeedsState?: any,
+    getTheFeedsNew?: any
     authState?:any;
 }
 
-const TheFeed = ({authState, feedsState, getFeeds}: Props) => { 
+const TheFeed = ({authState, theFeedsState, getTheFeedsNew}: Props) => {
     let feedsList = null;
-    useEffect(()=> authState.get('authUser')?.identityProvider.type === 'guest' ? getFeeds('theFeedGuest') : getFeeds(), []);
-    feedsList = feedsState.get('fetching') === false && feedsState?.get('feeds');
+//     useEffect(()=> authState.get('authUser')?.identityProvider.type === 'guest' ? getFeeds('theFeedGuest') : getFeeds(), []);
+    useEffect(()=> getTheFeedsNew(), []);
+    feedsList = theFeedsState?.get('thefeeds');
     return <section className={styles.thefeedContainer}>
             {feedsList && feedsList.length > 0 && feedsList.map((item, key)=> <FeedCard key={key} feed = {item} />)}
         </section>;

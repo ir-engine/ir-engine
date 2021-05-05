@@ -32,7 +32,7 @@ interface Props{
 
 
 const TheFeedsConsole = ({ create, list, deleteTheFeed, update }:Props) => {
-  var rows = list.map( i => createData(i.title, i.id, i.videoUrl, i.description));
+  var rows = list.map( i => createData(i.title, i.id, i.videoUrl, i.description, i.videoId));
 
   const useStyles = makeStyles({
     table: {
@@ -49,8 +49,8 @@ const TheFeedsConsole = ({ create, list, deleteTheFeed, update }:Props) => {
       background: '#fff'
     }
   });
-  function createData(title: string, id: string, videoUrl: string, description: string) {
-    return { title, id, videoUrl, description };
+  function createData(title: string, id: string, videoUrl: string, description: string, videoId: any) {
+    return { title, id, videoUrl, description, videoId };
   }
 
   const classes = useStyles();
@@ -114,7 +114,7 @@ const TheFeedsConsole = ({ create, list, deleteTheFeed, update }:Props) => {
                 <TableCell align="right">{row.videoUrl}</TableCell>
                 <TableCell align="right">{row.description}</TableCell>
                 <TableCell align="right">
-                  <Button onClick={() => handleOpen(row.title, row.id, row.videoUrl, row.description)}>
+                  <Button onClick={() => handleOpen(row.title, row.id, row.videoId, row.description)}>
                     Edit
                   </Button>
                 </TableCell>

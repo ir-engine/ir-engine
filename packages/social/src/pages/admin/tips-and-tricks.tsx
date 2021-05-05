@@ -59,10 +59,13 @@ const TipsAndTricks = ({ tipsAndTricksState,
     };
 
     useEffect(()=> {
-        doLoginAuto(true, true);
+        doLoginAuto(true);
         getTipsAndTricks();
     }, []);
     const tipsAndTricksList = tipsAndTricksState?.get('tips_and_tricks') && tipsAndTricksState?.get('tips_and_tricks');
+    useEffect(()=> {
+        console.log(tipsAndTricksList)
+    });
     return (<>
             <div>
                 <Dashboard>

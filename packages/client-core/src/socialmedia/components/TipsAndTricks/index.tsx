@@ -48,7 +48,7 @@ export const TipsAndTricks = ({tipsAndTricksState, getTipsAndTricks, doLoginAuto
         doLoginAuto(true);
         getTipsAndTricks();
     }, []);
-    const tipsAndTricksList = tipsAndTricksState?.get('tips_and_tricks') && tipsAndTricksState?.get('tips_and_tricks');
+    const tipsAndTricksList = tipsAndTricksState?.get('tips_and_tricks');
     useEffect(()=>  console.log(tipsAndTricksList), [tipsAndTricksList]);
 
 
@@ -63,8 +63,8 @@ export const TipsAndTricks = ({tipsAndTricksState, getTipsAndTricks, doLoginAuto
                     controls
                 />
                 <CardContent>
-                    <Typography className={styles.tipsTitle} variant="h2">{item.title}</Typography>
-                    <Typography variant="h2">{item.description}</Typography>
+                    <Typography className={styles.tipsTitle} variant="h3">{item.title}</Typography>
+                    <Typography variant="h6">{item.description}</Typography>
                 </CardContent>
             </Card>
         )}

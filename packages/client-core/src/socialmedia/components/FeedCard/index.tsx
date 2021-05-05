@@ -84,25 +84,35 @@ const FeedCard = (props: Props) : any => {
   const checkGuest = props.authState.get('authUser')?.identityProvider?.type === 'guest' ? true : false;
 
     return  feed ? <><Card className={styles.tipItem} square={false} elevation={0} key={feed.id}>
-                {isVideo ? <CardMedia   
-                    className={styles.previewImage}                  
+{/*                 {isVideo ? <CardMedia    */}
+{/*                     className={styles.previewImage}                   */}
+{/*                     src={feed.videoUrl} */}
+{/*                     title={feed.title}   */}
+{/*                     component='video'       */}
+{/*                     controls   */}
+{/*                     autoPlay={true}  */}
+{/*                     onClick={()=>handlePlayVideo(feed.id)}                */}
+{/*                 /> : */}
+{/*                 <CardMedia    */}
+{/*                     className={styles.previewImage}                   */}
+{/*                     image={feed.previewUrl} */}
+{/*                     title={feed.title}                       */}
+{/*                     onClick={()=>setIsVideo(true)}                */}
+{/*                 />} */}
+                <CardMedia
+                    className={styles.previewImage}
+                    component='video'
                     src={feed.videoUrl}
-                    title={feed.title}  
-                    component='video'      
-                    controls  
-                    autoPlay={true} 
-                    onClick={()=>handlePlayVideo(feed.id)}               
-                /> :
-                <CardMedia   
-                    className={styles.previewImage}                  
-                    image={feed.previewUrl}
-                    title={feed.title}                      
-                    onClick={()=>setIsVideo(true)}               
-                />}
+                    title={feed.title}
+                    controls
+                />
                 <span className={styles.eyeLine}>{feed.viewsCount}<VisibilityIcon style={{fontSize: '16px'}}/></span>
                 <CardContent className={styles.cardContent}>                     
                     <section className={styles.iconsContainer}>
                         <CreatorAsTitle creator={feed.creator} />
+                        <Typography className={styles.titleContainer} gutterBottom variant="h3" onClick={()=>history.push('/feed?feedId=' + feed.id)}>
+                            {feed.title}
+                        </Typography>
                         <section className={styles.iconSubContainer}>
                             {feed.isFired ? 
                                 <WhatshotIcon htmlColor="#FF6201" onClick={()=>handleRemoveFireClick(feed.id)} /> 
@@ -115,10 +125,8 @@ const FeedCard = (props: Props) : any => {
                          : 
                          <BookmarkBorderIcon onClick={()=>checkGuest ? setButtonPopup(true) : handleAddBookmarkClick(feed.id)} />} */}
                     </section>
-                    {/* <Typography className={styles.titleContainer} gutterBottom variant="h2" onClick={()=>history.push('/feed?feedId=' + feed.id)}>
-                        {feed.title}                      
-                    </Typography>
-                    <Typography variant="h2" onClick={()=>checkGuest ? setButtonPopup(true) : handleGetFeedFiredUsers(feed.id)}><span className={styles.flamesCount}>{feed.fires}</span>Flames</Typography>
+                    {feed.description && <Typography variant="h6">{feed.description}</Typography>}
+                    {/* <Typography variant="h2" onClick={()=>checkGuest ? setButtonPopup(true) : handleGetFeedFiredUsers(feed.id)}><span className={styles.flamesCount}>{feed.fires}</span>Flames</Typography>
                     <Typography variant="h2">{feed.description}</Typography> */}
                 </CardContent>
             </Card>

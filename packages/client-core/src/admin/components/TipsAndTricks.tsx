@@ -29,7 +29,7 @@ interface Props{
 
 
 const ArMediaConsoleTipsAndTricks = ({ create, list, deleteTipsAndTricks, update }:Props) => {
-    var rows = list.map( i => createData(i.title, i.id, i.videoUrl, i.description));
+    var rows = list.map( i => createData(i.title, i.id, i.videoUrl, i.description, i.videoId));
 
     const useStyles = makeStyles({
         table: {
@@ -46,8 +46,8 @@ const ArMediaConsoleTipsAndTricks = ({ create, list, deleteTipsAndTricks, update
             background: '#fff'
         }
     });
-    function createData(title: string, id: string, videoUrl: string, description: string) {
-        return { title, id, videoUrl, description };
+    function createData(title: string, id: string, videoUrl: any, description: string, videoId: any) {
+        return { title, id, videoUrl, description, videoId };
     }
 
     const classes = useStyles();
@@ -63,6 +63,7 @@ const ArMediaConsoleTipsAndTricks = ({ create, list, deleteTipsAndTricks, update
 
 
     const handleOpen = (title, id, videoUrl, description) => {
+        console.log(title, id, videoUrl, description)
         setOpen(true);
         if(title) setTitle(title);
         if(id) setId(id);
@@ -112,7 +113,7 @@ const ArMediaConsoleTipsAndTricks = ({ create, list, deleteTipsAndTricks, update
                               <TableCell align="right">{row.videoUrl}</TableCell>
                               <TableCell align="right">{row.description}</TableCell>
                               <TableCell align="right">
-                                  <Button onClick={() => handleOpen(row.title, row.id, row.videoUrl, row.description)}>
+                                  <Button onClick={() => handleOpen(row.title, row.id, row.videoId, row.description)}>
                                       Edit
                                   </Button>
                               </TableCell>
