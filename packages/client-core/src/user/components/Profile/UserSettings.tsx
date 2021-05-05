@@ -7,10 +7,11 @@ import Typography from '@material-ui/core/Typography';
 import { Image, Mic, VolumeUp } from '@material-ui/icons';
 import { selectAuthState } from '../../reducers/auth/selector';
 import { updateUserSettings } from '../../reducers/auth/service';
-import { PositionalAudioSystem } from '@xr3ngine/engine/src/audio/systems/PositionalAudioSystem';
+import { PositionalAudioSystem } from '@xrengine/engine/src/audio/systems/PositionalAudioSystem';
 import React, { ChangeEvent, useState } from 'react';
 import { connect } from "react-redux";
 import { bindActionCreators, Dispatch } from "redux";
+import { useTranslation } from 'react-i18next';
 // @ts-ignore
 import styles from './Profile.module.scss';
 
@@ -35,6 +36,7 @@ const UserSettings = (props: Props): JSX.Element => {
       authState,
       updateUserSettings
   } = props;
+	const { t } = useTranslation();
   const selfUser = authState.get('user');
   const [volume, setvolume] = useState<number>(selfUser?.user_setting?.volume != null ? selfUser.user_setting.volume : 30);
   const [audio, setAudio] = useState<number>(selfUser?.user_setting?.microphone != null ? selfUser.user_setting.microphone : 30);
@@ -71,7 +73,7 @@ const UserSettings = (props: Props): JSX.Element => {
   return (
     <div className={styles.root}>
       <section className={styles.settingRow}>
-        <Typography variant="h2" className={styles.settingLabel}><VolumeUp color="primary" /> Volume</Typography>
+        <Typography variant="h2" className={styles.settingLabel}><VolumeUp color="primary" /> {t('user:profile.userSettings.volume')}</Typography>
         <span className={styles.settingValue}><Slider
             value={volume}
             onChange={handleVolume}
@@ -79,7 +81,7 @@ const UserSettings = (props: Props): JSX.Element => {
           /></span>
       </section>
       <section className={styles.settingRow}>
-      <Typography variant="h2" className={styles.settingLabel}><Mic color="primary" /> Microphone</Typography>
+      <Typography variant="h2" className={styles.settingLabel}><Mic color="primary" /> {t('user:profile.userSettings.microphone')}</Typography>
         <span className={styles.settingValue}><Slider
               value={audio}
               onChange={handleAudio}
@@ -87,7 +89,7 @@ const UserSettings = (props: Props): JSX.Element => {
             /></span>
       </section>
       <section className={styles.settingRow}>
-      <Typography variant="h2" className={styles.settingLabel}><Image color="primary" /> Resolution</Typography>
+      <Typography variant="h2" className={styles.settingLabel}><Image color="primary" /> {t('user:profile.userSettings.resolution')}</Typography>
         <span className={styles.settingValue}>
           <RadioGroup
               aria-label="videoQuality"
@@ -95,17 +97,17 @@ const UserSettings = (props: Props): JSX.Element => {
               value={radiovalue}
               onChange={handleRadioValue}
             >
-              <FormControlLabel className={styles.controlsSvg} value="high" control={<Radio color="primary" />} label="High" />
-              <FormControlLabel className={styles.controlsSvg} value="low" control={<Radio color="primary" />} label="Low" />
+              <FormControlLabel className={styles.controlsSvg} value="high" control={<Radio color="primary" />} label={t('user:profile.userSettings.high')} />
+              <FormControlLabel className={styles.controlsSvg} value="low" control={<Radio color="primary" />} label={t('user:profile.userSettings.low')} />
             </RadioGroup>
         </span>
       </section>
       <section className={styles.settingRow}>
           {/*<SurroundSound color="primary" />*/}
-          <FormControlLabel control={<Checkbox checked={useSpatialAudio} onChange={handleSpatialAudioChange}/>} label="Use Spatial Audio" />
+          <FormControlLabel control={<Checkbox checked={useSpatialAudio} onChange={handleSpatialAudioChange}/>} label={t('user:profile.userSettings.spatialAudio')} />
       </section>
       {/* <section className={styles.settingRow}>
-      <Typography variant="h2" color="primary" className={styles.settingLabel}>Enter room muted</Typography>
+      <Typography variant="h2" color="primary" className={styles.settingLabel}>{t('user:profile.userSettings.enterMuted')}</Typography>
       <span className={styles.settingValue}>
         <Switch
               checked={state.checkedB}

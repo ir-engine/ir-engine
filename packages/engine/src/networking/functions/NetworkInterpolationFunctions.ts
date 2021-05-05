@@ -3,6 +3,7 @@ import { Quat } from '../../networking/types/SnapshotDataTypes';
 import { InterpolatedSnapshot, Snapshot, StateEntityGroup, StateInterEntity, StateEntityInterGroup, StateEntity, Time, Value } from '../types/SnapshotDataTypes';
 import { NetworkInterpolation } from '../classes/NetworkInterpolation';
 import { Network } from '../classes/Network';
+import { EngineEvents } from '../../ecs/classes/EngineEvents';
 
 /** Get snapshot factory.
 * @author HydraFire <github.com/HydraFire>
@@ -267,6 +268,7 @@ export function interpolate (
  *
  * @returns Interpolated snapshot.
  */
+let hasLostConnection = true;
 export function calculateInterpolation (parameters: string, arrayName = ''): InterpolatedSnapshot | undefined {
   // get the snapshots [_interpolationBuffer] ago
   const serverTime = (Date.now() - NetworkInterpolation.instance.timeOffset) - NetworkInterpolation.instance._interpolationBuffer;
@@ -277,7 +279,13 @@ export function calculateInterpolation (parameters: string, arrayName = ''): Int
   const shots = NetworkInterpolation.instance.get(serverTime);
   if (!shots) {
     console.warn('Skipping network interpolation, are you lagging or disconnected?');
+    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.CONNECTION_LOST, hasLostConnection: true });
+    hasLostConnection = true;
     return;
+  }
+  if(hasLostConnection) {
+    hasLostConnection = false;
+    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.CONNECTION_LOST, hasLostConnection: false });
   }
   const { older, newer } = shots;
   if (!older || !newer) return;

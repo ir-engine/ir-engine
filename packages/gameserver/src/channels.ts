@@ -1,13 +1,13 @@
 import '@feathersjs/transport-commons';
-import { Engine } from '@xr3ngine/engine/src/ecs/classes/Engine';
-import { Network } from '@xr3ngine/engine/src/networking/classes/Network';
-import { loadScene } from "@xr3ngine/engine/src/scene/functions/SceneLoading";
-import config from '@xr3ngine/server-core/src/appconfig';
-import { Application } from '@xr3ngine/server-core/declarations';
-import getLocalServerIp from '@xr3ngine/server-core/src/util/get-local-server-ip';
-import logger from '@xr3ngine/server-core/src/logger';
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine';
+import { Network } from '@xrengine/engine/src/networking/classes/Network';
+import { loadScene } from "@xrengine/engine/src/scene/functions/SceneLoading";
+import config from '@xrengine/server-core/src/appconfig';
+import { Application } from '@xrengine/server-core/declarations';
+import getLocalServerIp from '@xrengine/server-core/src/util/get-local-server-ip';
+import logger from '@xrengine/server-core/src/logger';
 import { decode } from 'jsonwebtoken';
-import { EngineEvents } from '@xr3ngine/engine/src/ecs/classes/EngineEvents';
+import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents';
 
 export default (app: Application): void => {
     if (typeof app.channel !== 'function') {
@@ -190,6 +190,7 @@ export default (app: Application): void => {
                         const userId = identityProvider.userId;
                         const user = await app.service('user').get(userId);
                         logger.info('Socket disconnect from ' + userId);
+                        console.log('Socket disconnect from ' + userId);
                         const instanceId = process.env.KUBERNETES !== 'true' ? (connection as any).instanceId : (app as any).instance?.id;
                         let instance;
                         try {

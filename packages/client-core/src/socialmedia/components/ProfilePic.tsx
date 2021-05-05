@@ -1,6 +1,7 @@
 import React from "react";
 import { useHistory } from "react-router-dom";
 import AccountCircleIcon from '@material-ui/icons/AccountCircle';
+import { useTranslation } from 'react-i18next';
 
 export function ProfilePic({
   src,
@@ -11,10 +12,11 @@ export function ProfilePic({
   ...props
 }: any) {
   const history = useHistory();
+	const { t } = useTranslation();
   return (
     <span {...props} onClick={() => history.push(`/${username}`)}>
       {src ? <img
-        alt={`${username}'s profile pic`}
+        alt={t('social:profilePic', { user: username })}
         data-testid="user-avatar"
         draggable="false"
         src={src}

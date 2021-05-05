@@ -1,8 +1,8 @@
 /**
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
-import { CommentInterface } from '@xr3ngine/common/src/interfaces/Comment';
-import { CreatorShort } from '@xr3ngine/common/src/interfaces/Creator';
+import { CommentInterface } from '@xrengine/common/src/interfaces/Comment';
+import { CreatorShort } from '@xrengine/common/src/interfaces/Creator';
 import {
   ADD_FEED_COMMENT,
   ADD_FEED_COMMENT_FIRES,

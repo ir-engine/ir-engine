@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { defineConfig, loadEnv } from 'vite';
+import { defineConfig, loadEnv } from 'vite-xrengine';
 import builtins from 'rollup-plugin-node-builtins';
 const builtinsPlugin = builtins({child_process: true});
 builtinsPlugin.name = 'builtins';
@@ -33,7 +33,7 @@ export default defineConfig(() => {
         build: {
             lib: {
                 entry: path.resolve(__dirname, 'src/index.ts'),
-                name: 'xr3ngine-server'
+                name: 'xrengine-server'
             },
             sourcemap: 'inline',
             rollupOptions: {

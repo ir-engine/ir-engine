@@ -1,8 +1,8 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
-import { getI18nConfigs as getClientCoreI18nConfigs } from '@xr3ngine/client-core/src/i18n';
-import { setRuntime } from '@xr3ngine/client-core/src/helper';
+import { getI18nConfigs as getClientCoreI18nConfigs } from '@xrengine/client-core/src/i18n';
+import { setRuntime } from '@xrengine/client-core/src/helper';
 import translation from '../i18n/en/translation.json';
 
 export const initialize = (): Promise<void> => {

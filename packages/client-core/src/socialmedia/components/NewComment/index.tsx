@@ -11,7 +11,8 @@ import styles from './NewComment.module.scss';
 import { addCommentToFeed } from '../../reducers/feedComment/service';
 import { selectAuthState } from '../../../user/reducers/auth/selector';
 import PopupLogin from '../PopupLogin/PopupLogin';
-// import { IndexPage } from '@xr3ngine/social/pages/login';
+// import { IndexPage } from '@xrengine/social/pages/login';
+import { useTranslation } from 'react-i18next';
 
 const mapStateToProps = (state: any): any => {
     return {
@@ -31,6 +32,7 @@ interface Props{
 const NewComment = ({addCommentToFeed, feedId, authState}:Props) => { 
     const [composingComment, setComposingComment] = useState('');
     const [buttonPopup , setButtonPopup] = useState(false);
+	const { t } = useTranslation();
     const commentRef = React.useRef<HTMLInputElement>();
 
     const handleComposingCommentChange = (event: any): void => {
@@ -47,7 +49,7 @@ const NewComment = ({addCommentToFeed, feedId, authState}:Props) => {
                     value={composingComment}
                     onChange={handleComposingCommentChange}
                     fullWidth 
-                    placeholder="Add your comment..."                     
+                    placeholder={t('social:comment.add')}
                     />     
                 <MessageIcon className={styles.sendButton} onClick={()=>checkGuest ? setButtonPopup(true) : handleAddComment()} />
                 <PopupLogin trigger={buttonPopup} setTrigger={setButtonPopup}>

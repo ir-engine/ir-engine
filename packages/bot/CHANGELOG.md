@@ -3,33 +3,57 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.2.22](https://github.com/XRFoundation/XREngine/compare/v0.2.21...v0.2.22) (2021-05-05)
+
+**Note:** Version bump only for package @xrengine/bot
+
+
+
+
+
+## [0.2.21](https://github.com/xrengine/xrengine/compare/v0.2.20...v0.2.21) (2021-05-05)
+
+**Note:** Version bump only for package @xrengine/bot
+
+
+
+
+
+## [0.2.20](https://github.com/xrengine/xrengine/compare/v0.2.18...v0.2.20) (2021-05-04)
+
+**Note:** Version bump only for package @xrengine/bot
+
+
+
+
+
 ## 0.2.18 (2021-04-22)
 
-**Note:** Version bump only for package @xr3ngine/bot
+**Note:** Version bump only for package @xrengine/bot
 
 
 
 
 
-## [0.2.11](https://github.com/xr3ngine/xr3ngine/compare/v0.2.10...v0.2.11) (2021-04-08)
+## [0.2.11](https://github.com/XRFoundation/XREngine/compare/v0.2.10...v0.2.11) (2021-04-08)
 
-**Note:** Version bump only for package @xr3ngine/bot
-
-
-
-
-
-## [0.2.10](https://github.com/xr3ngine/xr3ngine/compare/v0.2.9...v0.2.10) (2021-03-31)
-
-**Note:** Version bump only for package @xr3ngine/bot
+**Note:** Version bump only for package @xrengine/bot
 
 
 
 
 
-## [0.2.9](https://github.com/xr3ngine/xr3ngine/compare/v0.2.8...v0.2.9) (2021-03-31)
+## [0.2.10](https://github.com/XRFoundation/XREngine/compare/v0.2.9...v0.2.10) (2021-03-31)
 
-**Note:** Version bump only for package @xr3ngine/bot
+**Note:** Version bump only for package @xrengine/bot
+
+
+
+
+
+## [0.2.9](https://github.com/XRFoundation/XREngine/compare/v0.2.8...v0.2.9) (2021-03-31)
+
+**Note:** Version bump only for package @xrengine/bot
 
 
 
@@ -37,7 +61,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ## 0.2.4 (2021-03-31)
 
-**Note:** Version bump only for package @xr3ngine/bot
+**Note:** Version bump only for package @xrengine/bot
 
 
 
@@ -45,4 +69,4 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ## 0.2.3 (2021-03-31)
 
-**Note:** Version bump only for package @xr3ngine/bot
+**Note:** Version bump only for package @xrengine/bot

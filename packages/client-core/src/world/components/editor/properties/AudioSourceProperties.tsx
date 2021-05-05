@@ -5,7 +5,7 @@ import BooleanInput from "../inputs/BooleanInput";
 import SelectInput from "../inputs/SelectInput";
 import NumericInputGroup from "../inputs/NumericInputGroup";
 import CompoundNumericInput from "../inputs/CompoundNumericInput";
-import { AudioType, AudioTypeOptions, DistanceModelOptions, DistanceModelType } from "@xr3ngine/engine/src/scene/classes/AudioSource";
+import { AudioType, AudioTypeOptions, DistanceModelOptions, DistanceModelType } from "@xrengine/engine/src/scene/classes/AudioSource";
 import useSetPropertySelected from "./useSetPropertySelected";
 import { useTranslation } from "react-i18next";
 

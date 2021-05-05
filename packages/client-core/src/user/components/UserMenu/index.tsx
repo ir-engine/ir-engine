@@ -4,10 +4,10 @@ import PersonIcon from '@material-ui/icons/Person';
 import FilterHdrIcon from '@material-ui/icons/FilterHdr';
 import SettingsIcon from '@material-ui/icons/Settings';
 // TODO: Reenable me! Disabled because we don't want the client-networking dep in client-core, need to fix this
-// import { provisionInstanceServer } from "@xr3ngine/client-networking/src/reducers/instanceConnection/service";
-import { EngineEvents } from '@xr3ngine/engine/src/ecs/classes/EngineEvents';
-import { ClientInputSystem } from '@xr3ngine/engine/src/input/systems/ClientInputSystem';
-import { WebGLRendererSystem } from '@xr3ngine/engine/src/renderer/WebGLRendererSystem';
+// import { provisionInstanceServer } from "@xrengine/client-networking/src/reducers/instanceConnection/service";
+import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents';
+import { ClientInputSystem } from '@xrengine/engine/src/input/systems/ClientInputSystem';
+import { WebGLRendererSystem } from '@xrengine/engine/src/renderer/WebGLRendererSystem';
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
@@ -82,7 +82,7 @@ const UserMenu = (props: UserMenuProps): any => {
   const selfUser = authState.get('user') || {};
   const avatarList = authState.get('avatarList') || [];
 
-  const [currentActiveMenu, setCurrentActiveMenu] = useState({} as any);
+  const [currentActiveMenu, setCurrentActiveMenu] = useState(null);
   const [activeLocation, setActiveLocation] = useState(null);
 
   const [username, setUsername] = useState(selfUser?.name);
@@ -92,7 +92,7 @@ const UserMenu = (props: UserMenuProps): any => {
     shadows: WebGLRendererSystem.shadowQuality,
     automatic: WebGLRendererSystem.automatic,
     pbr: WebGLRendererSystem.usePBR,
-    postProcessing: WebGLRendererSystem.usePostProcessing,
+    postProcessing: WebGLRendererSystem.usePostProcessing
   });
   
   const onEngineLoaded = () => {
@@ -123,7 +123,6 @@ const UserMenu = (props: UserMenuProps): any => {
 
   const updateGraphicsSettings = (newSetting: any): void => {
     const setting = { ...graphics, ...newSetting };
-
     setGraphicsSetting(setting);
   };
 
@@ -135,9 +134,11 @@ const UserMenu = (props: UserMenuProps): any => {
   };
 
   const changeActiveMenu = (menu) => {
+    if(currentActiveMenu !== null) {
+      const enabled = Boolean(menu);
+      if(EngineEvents.instance) EngineEvents.instance.dispatchEvent({ type: ClientInputSystem.EVENTS.ENABLE_INPUT, mouse: !enabled, keyboard: !enabled });
+    }
     setCurrentActiveMenu(menu ? { id: menu } : null);
-    const enabled = Boolean(menu);
-    if(EngineEvents.instance) EngineEvents.instance.dispatchEvent({ type: ClientInputSystem.EVENTS.ENABLE_INPUT, mouse: !enabled, keyboard: !enabled });
   };
 
   const changeActiveLocation = (location) => {

@@ -105,10 +105,10 @@ export class CharacterComponent extends Component<CharacterComponent> {
   isJumping: boolean;
 	rotationSpeed: any;
 
-  collisionMask: number = CollisionGroups.Default | CollisionGroups.Car | CollisionGroups.ActiveCollider;
+  collisionMask: number = CollisionGroups.Default | CollisionGroups.Car | CollisionGroups.TriggerCollider;
 
   static _schema = {
     tiltContainer: { type: Types.Ref, default: null },
-    collisionMask: { type: Types.Number, default: CollisionGroups.Default | CollisionGroups.Car | CollisionGroups.ActiveCollider },
+    collisionMask: { type: Types.Number, default: CollisionGroups.Default | CollisionGroups.Car | CollisionGroups.TriggerCollider },
   };
 }

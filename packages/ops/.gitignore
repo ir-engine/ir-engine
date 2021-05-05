@@ -1,5 +1,5 @@
 
-.xr3ngine-secrets
+.xrengine-secrets
 
 helm_values.yaml
 
@@ -13,7 +13,7 @@ configs/*splunk*
 values/*.yaml
 
 
-xr3ngine/Chart\.lock
+xrengine/Chart\.lock
 
 _site
 .sass-cache

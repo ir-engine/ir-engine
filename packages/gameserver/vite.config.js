@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { defineConfig, loadEnv } from 'vite';
+import { defineConfig, loadEnv } from 'vite-xrengine';
 
 export default defineConfig(() => {
     const env = loadEnv('', process.cwd() + '../../');
@@ -31,7 +31,7 @@ export default defineConfig(() => {
         build: {
             lib: {
                 entry: path.resolve(__dirname, 'src/index.ts'),
-                name: 'xr3ngine-gameserver'
+                name: 'xrengine-gameserver'
             },
             sourcemap: 'inline',
             rollupOptions: {

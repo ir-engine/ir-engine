@@ -1,9 +1,9 @@
 {
-  "name": "@xr3ngine/client-ml",
-  "version": "0.2.18",
+  "name": "@xrengine/client-ml",
+  "version": "0.2.22",
   "repository": {
     "type": "git",
-    "url": "git://github.com/xr3ngine/xr3ngine.git"
+    "url": "git://github.com/XRFoundation/XREngine.git"
   },
   "engines": {
     "yarn": ">= 0.18.0"
@@ -13,8 +13,7 @@
   },
   "npmClient": "yarn",
   "jest": "ts-jest",
-  "scripts": {
-  },
+  "scripts": {},
   "resolutions": {
     "@types/react": "17.0.4",
     "react": "17.0.2"
@@ -36,5 +35,5 @@
     "typescript": "4.2.4"
   },
   "license": "ISC",
-  "gitHead": "5ff55be1619e188226c4ac91c92a44b7ba18edf4"
+  "gitHead": "2313453697ca7c6b8d36b3b166b5a6445fe1c851"
 }

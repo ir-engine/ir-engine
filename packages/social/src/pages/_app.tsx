@@ -4,16 +4,17 @@ import { BrowserRouter } from 'react-router-dom';
 import { Helmet } from "react-helmet";
 import DeviceDetector from 'device-detector-js';
 import { ThemeProvider } from "styled-components";
-import { configureStore } from '@xr3ngine/client-core/src/store';
-import { initGA, logPageView } from '@xr3ngine/client-core/src/common/components/analytics';
-import Api from "@xr3ngine/client-core/src/world/components/editor/Api";
-import { ApiContext } from '@xr3ngine/client-core/src/world/components/editor/contexts/ApiContext';
-import GlobalStyle from '@xr3ngine/client-core/src/world/components/editor/GlobalStyle';
-import theme from "@xr3ngine/social/theme";
-import { Config } from '@xr3ngine/client-core/src/helper';
-import { getDeviceType } from '@xr3ngine/client-core/src/common/reducers/devicedetect/actions';
-import { restoreState } from '@xr3ngine/client-core/src/persisted.store';
+import { configureStore } from '@xrengine/client-core/src/store';
+import { initGA, logPageView } from '@xrengine/client-core/src/common/components/analytics';
+import Api from "@xrengine/client-core/src/world/components/editor/Api";
+import { ApiContext } from '@xrengine/client-core/src/world/components/editor/contexts/ApiContext';
+import GlobalStyle from '@xrengine/client-core/src/world/components/editor/GlobalStyle';
+import theme from "@xrengine/social/theme";
+import { Config } from '@xrengine/client-core/src/helper';
+import { getDeviceType } from '@xrengine/client-core/src/common/reducers/devicedetect/actions';
+import { restoreState } from '@xrengine/client-core/src/persisted.store';
 import RouterComp from '../router';
+import reducers from '../reducers';
 import './styles.scss';
 
 const App = (): any => {
@@ -75,9 +76,9 @@ const App = (): any => {
   );
 };
 
-const StroreProvider = () => {
+const StoreProvider = () => {
   return (
-    <Provider store={configureStore()}>
+    <Provider store={configureStore(reducers)}>
       <BrowserRouter>
         <App />
       </BrowserRouter>
@@ -85,4 +86,4 @@ const StroreProvider = () => {
   );
 };
 
-export default StroreProvider;
+export default StoreProvider;

@@ -1,5 +1,5 @@
 import fs from 'fs';
-import { defineConfig, loadEnv } from 'vite';
+import { defineConfig, loadEnv } from 'vite-xrengine';
 import config from "config";
 
 export default defineConfig(() => {
@@ -11,7 +11,8 @@ export default defineConfig(() => {
   };
 
   return {
-    plugins: [],
+    plugins: [
+    ],
     server: {
       https: {
         key: fs.readFileSync('../../certs/key.pem'),
@@ -20,6 +21,8 @@ export default defineConfig(() => {
     },
     resolve: {
       alias: {
+        'react-json-tree': 'react-json-tree/umd/react-json-tree',
+        'three-physx/lib/physx.release.esm.js': 'three-physx/lib/physx.release.esm.js',
         '@material-ui/icons': '@material-ui/icons/esm',
         "socket.io-client": "socket.io-client/dist/socket.io.js",
         "react-infinite-scroller": "react-infinite-scroller/dist/InfiniteScroll",

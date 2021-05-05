@@ -1,9 +1,9 @@
-import { client } from '@xr3ngine/client-core/src/feathers';
-import store from "@xr3ngine/client-core/src/store";
-import { EngineEvents } from "@xr3ngine/engine/src/ecs/classes/EngineEvents";
-import { Network } from "@xr3ngine/engine/src/networking/classes/Network";
-import { MediaStreamSystem } from "@xr3ngine/engine/src/networking/systems/MediaStreamSystem";
-import { Config } from '@xr3ngine/client-core/src/helper';
+import { client } from '@xrengine/client-core/src/feathers';
+import Store from "@xrengine/client-core/src/store";
+import { EngineEvents } from "@xrengine/engine/src/ecs/classes/EngineEvents";
+import { Network } from "@xrengine/engine/src/networking/classes/Network";
+import { MediaStreamSystem } from "@xrengine/engine/src/networking/systems/MediaStreamSystem";
+import { Config } from '@xrengine/client-core/src/helper';
 import { Dispatch } from 'redux';
 import { endVideoChat, leave } from "../../transports/SocketWebRTCClientFunctions";
 import { triggerUpdateConsumers } from '../mediastream/service';
@@ -13,6 +13,8 @@ import {
   instanceServerProvisioned,
   instanceServerProvisioning
 } from './actions';
+
+const store = Store.store;
 
 export function provisionInstanceServer(locationId?: string, instanceId?: string, sceneId?: string) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {

@@ -37,7 +37,7 @@ import {
     ThreeDRotation,
     Videocam
 } from '@material-ui/icons';
-import { selectChatState } from '@xr3ngine/client-core/src/social/reducers/chat/selector';
+import { selectChatState } from '@xrengine/client-core/src/social/reducers/chat/selector';
 import {
     createMessage,
     getChannelMessages,
@@ -46,21 +46,21 @@ import {
     removeMessage,
     updateChatTarget,
     updateMessageScrollInit
-} from '@xr3ngine/client-core/src/social/reducers/chat/service';
-import { selectFriendState } from "@xr3ngine/client-core/src/social/reducers/friend/selector";
-import { getFriends, unfriend } from "@xr3ngine/client-core/src/social/reducers/friend/service";
-import { selectGroupState } from "@xr3ngine/client-core/src/social/reducers/group/selector";
-import { createGroup, getGroups, patchGroup, removeGroup, removeGroupUser } from "@xr3ngine/client-core/src/social/reducers/group/service";
-import { updateInviteTarget } from "@xr3ngine/client-core/src/social/reducers/invite/service";
-import { selectLocationState } from "@xr3ngine/client-core/src/social/reducers/location/selector";
-import { banUserFromLocation } from "@xr3ngine/client-core/src/social/reducers/location/service";
-import { selectPartyState } from '@xr3ngine/client-core/src/social/reducers/party/selector';
-import { createParty, getParty, removeParty, removePartyUser, transferPartyOwner } from "@xr3ngine/client-core/src/social/reducers/party/service";
-import ProfileMenu from "@xr3ngine/client-core/src/user/components/UserMenu/menus/ProfileMenu";
-import { selectAuthState } from '@xr3ngine/client-core/src/user/reducers/auth/selector';
-import { doLoginAuto } from '@xr3ngine/client-core/src/user/reducers/auth/service';
-import { selectUserState } from '@xr3ngine/client-core/src/user/reducers/user/selector';
-import { getLayerUsers } from "@xr3ngine/client-core/src/user/reducers/user/service";
+} from '@xrengine/client-core/src/social/reducers/chat/service';
+import { selectFriendState } from "@xrengine/client-core/src/social/reducers/friend/selector";
+import { getFriends, unfriend } from "@xrengine/client-core/src/social/reducers/friend/service";
+import { selectGroupState } from "@xrengine/client-core/src/social/reducers/group/selector";
+import { createGroup, getGroups, patchGroup, removeGroup, removeGroupUser } from "@xrengine/client-core/src/social/reducers/group/service";
+import { updateInviteTarget } from "@xrengine/client-core/src/social/reducers/invite/service";
+import { selectLocationState } from "@xrengine/client-core/src/social/reducers/location/selector";
+import { banUserFromLocation } from "@xrengine/client-core/src/social/reducers/location/service";
+import { selectPartyState } from '@xrengine/client-core/src/social/reducers/party/selector';
+import { createParty, getParty, removeParty, removePartyUser, transferPartyOwner } from "@xrengine/client-core/src/social/reducers/party/service";
+import ProfileMenu from "@xrengine/client-core/src/user/components/UserMenu/menus/ProfileMenu";
+import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector';
+import { doLoginAuto } from '@xrengine/client-core/src/user/reducers/auth/service';
+import { selectUserState } from '@xrengine/client-core/src/user/reducers/user/selector';
+import { getLayerUsers } from "@xrengine/client-core/src/user/reducers/user/service";
 import PartyParticipantWindow from '../../components/PartyParticipantWindow';
 import { selectChannelConnectionState } from '../../reducers/channelConnection/selector';
 import {
@@ -68,17 +68,17 @@ import {
     provisionChannelServer,
     resetChannelServer
 } from '../../reducers/channelConnection/service';
-import { Group as GroupType } from "@xr3ngine/common/src/interfaces/Group";
-import { Message } from '@xr3ngine/common/src/interfaces/Message';
-import { User } from '@xr3ngine/common/src/interfaces/User';
-import { isMobileOrTablet } from '@xr3ngine/engine/src/common/functions/isMobile';
-import { EngineEvents } from '@xr3ngine/engine/src/ecs/classes/EngineEvents';
-import { initializeEngine } from '@xr3ngine/engine/src/initialize';
-import { DefaultInitializationOptions } from '@xr3ngine/engine/src/DefaultInitializationOptions';
-import { Network } from '@xr3ngine/engine/src/networking/classes/Network';
-import { NetworkSchema } from '@xr3ngine/engine/src/networking/interfaces/NetworkSchema';
-import { MediaStreamSystem } from '@xr3ngine/engine/src/networking/systems/MediaStreamSystem';
-import { DefaultNetworkSchema } from '@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema';
+import { Group as GroupType } from "@xrengine/common/src/interfaces/Group";
+import { Message } from '@xrengine/common/src/interfaces/Message';
+import { User } from '@xrengine/common/src/interfaces/User';
+import { isMobileOrTablet } from '@xrengine/engine/src/common/functions/isMobile';
+import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents';
+import { initializeEngine } from '@xrengine/engine/src/initialize';
+import { DefaultInitializationOptions } from '@xrengine/engine/src/DefaultInitializationOptions';
+import { Network } from '@xrengine/engine/src/networking/classes/Network';
+import { NetworkSchema } from '@xrengine/engine/src/networking/interfaces/NetworkSchema';
+import { MediaStreamSystem } from '@xrengine/engine/src/networking/systems/MediaStreamSystem';
+import { DefaultNetworkSchema } from '@xrengine/engine/src/templates/networking/DefaultNetworkSchema';
 import classNames from 'classnames';
 import moment from 'moment';
 import React, { useEffect, useRef, useState } from 'react';
@@ -193,7 +193,8 @@ const initialRefreshModalValues = {
     title: '',
     body: '',
     action: async() => {},
-    parameters: []
+    parameters: [],
+    timeout: 10000
 };
 
 const Harmony = (props: Props): any => {
@@ -271,6 +272,7 @@ const Harmony = (props: Props): any => {
     const [profileMenuOpen, setProfileMenuOpen] = useState(false);
     const [warningRefreshModalValues, setWarningRefreshModalValues] = useState(initialRefreshModalValues);
     const [noGameserverProvision, setNoGameserverProvision] = useState(false);
+    const [hasLostConnection, setLostConnection] = useState(false);
 
     const instanceLayerUsers = userState.get('layerUsers') ?? [];
     const channelLayerUsers = userState.get('channelLayerUsers') ?? [];
@@ -323,6 +325,8 @@ const Harmony = (props: Props): any => {
         });
 
         EngineEvents.instance.addEventListener(EngineEvents.EVENTS.PROVISION_CHANNEL_NO_GAMESERVERS_AVAILABLE, () => setNoGameserverProvision(true));
+
+        EngineEvents.instance.addEventListener(EngineEvents.EVENTS.CONNECTION_LOST, ({ hasLostConnection }) => setLostConnection(hasLostConnection));
 
         return () => {
             if (EngineEvents.instance != null) {
@@ -414,20 +418,37 @@ const Harmony = (props: Props): any => {
         setAudioPaused(!isCamAudioEnabled);
     }, [isCamAudioEnabled]);
 
-    useEffect(() => {
+      useEffect(() => {
         if (noGameserverProvision === true) {
             const newValues = {
                 open: true,
                 title: 'No Available Servers',
                 body: 'There aren\'t any servers available to handle this request. Attempting to re-connect in',
                 action: provisionChannelServer,
-                parameters: [null, targetChannelId]
+                parameters: [null, targetChannelId],
+                timeout: 10000
             };
             //@ts-ignore
             setWarningRefreshModalValues(newValues);
             setNoGameserverProvision(false);
         }
     }, [noGameserverProvision]);
+
+    useEffect(() => {
+      if (hasLostConnection === true) {
+          const newValues = {
+              open: true,
+              title: 'Lost Connection To Server',
+              body: 'Currently experiencing a loss of connection to the server, this may be temporary.',
+              action: () => {},
+              parameters: [null, null],
+              timeout: 1000
+          };
+          //@ts-ignore
+          setWarningRefreshModalValues(newValues);
+          setLostConnection(false);
+      }
+    }, [hasLostConnection]);
 
     const handleComposingMessageChange = (event: any): void => {
         const message = event.target.value;
@@ -727,7 +748,8 @@ const Harmony = (props: Props): any => {
                 networking: {
                     schema: networkSchema,
                 },
-                renderer: {}
+                renderer: {},
+                useCanvas: false,
             };
 
             await initializeEngine(InitializationOptions);
@@ -1317,7 +1339,7 @@ const Harmony = (props: Props): any => {
                 body={warningRefreshModalValues.body}
                 action={warningRefreshModalValues.action}
                 parameters={warningRefreshModalValues.parameters}
-                timeout={10000}
+                timeout={warningRefreshModalValues.timeout}
                 closeEffect={() => endCall()}
             />
         </div>

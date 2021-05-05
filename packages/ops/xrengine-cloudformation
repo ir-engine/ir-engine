@@ -1,0 +1,388 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "Create XREngine Engine Architecture S3 bucket and Cloudfront"
+
+Parameters:
+  VPCBlock:
+    Type: String
+    Description: The CIDR Block for the VPC
+    Default: 192.168.0.0/16
+
+  PrivateSubnet01Block:
+    Type: String
+    Description: The CIDR Block for the private subnet 01
+    Default: 192.168.1.0/26
+
+  PrivateSubnet02Block:
+    Type: String
+    Description: The CIDR Block for the private subnet 02
+    Default: 192.168.1.64/26
+
+  PrivateSubnet03Block:
+    Type: String
+    Description: The CIDR Block for the private subnet 03
+    Default: 192.168.1.128/26
+
+  PrivateSubnet04Block:
+    Type: String
+    Description: The CIDR Block for the private subnet 04
+    Default: 192.168.1.192/26
+
+  PublicSubnet01Block:
+    Type: String
+    Description: The CIDR Block for the public subnet 01
+    Default: 192.168.0.0/28
+
+  PublicSubnet02Block:
+    Type: String
+    Description: The CIDR Block for the public subnet 02
+    Default: 192.168.0.16/28
+
+  EnvironmentName:
+    Type: String
+    Description: The Environment you are launching services in (Prod/UAT)
+    Default: UAT
+
+  CreatedBy:
+    Type: String
+    Description: The Identity of the Person Creating the Environment
+    Default: Maureen Barasa
+
+  ProjectName:
+    Type: String
+    Description: The Company Project Name
+    Default: XREngine
+  
+  VPCName:
+    Type: String
+    Description: The name of the VPC
+    Default: XREngine-VPC
+
+  IGWName:
+    Type: String
+    Description: The name of the Internet Gateway
+    Default: XREngine-IGW
+
+  NGW01Name:
+    Type: String
+    Description: The name of the 1st NatGateway
+    Default: XREngine-NGW01
+
+  NGW02Name:
+    Type: String
+    Description: The name of the 2nd Natgateway
+    Default: XREngine-NGW02
+
+  PublicRTBName:
+    Type: String
+    Description: The name of the public route table
+    Default: XREngine-PublicRTB
+
+  PrivateRTB01Name:
+    Type: String
+    Description: The name of the private route table 01
+    Default: XREngine-PrivateRTB01
+
+  PrivateRTB02Name:
+    Type: String
+    Description: The name of the private route table 02
+    Default: XREngine-PrivateRTB02
+
+  PrivateSub01Name:
+    Type: String
+    Description: The name of private subnet 01
+    Default: XREngine-PrivateSub01
+
+  PrivateSub02Name:
+    Type: String
+    Description: The name of private subnet 02
+    Default: XREngine-PrivateSub02
+
+  PrivateSub03Name:
+    Type: String
+    Description: The name of private subnet 03
+    Default: XREngine-PrivateSub03
+
+  PrivateSub04Name:
+    Type: String
+    Description: The name of private subnet 04
+    Default: XREngine-PrivateSub04
+
+  PublicSub01Name:
+    Type: String
+    Description: The name of public subnet 01
+    Default: XREngine-PublicSub01
+
+  PublicSub02Name:
+    Type: String
+    Description: The name of public subnet 02
+    Default: XREngine-PublicSub02
+
+  AZ1Name:
+    Type: String
+    Description: The name of Availability Zone 1 e.g (us-west-1a)
+    Default: us-west-1a
+
+  AZ2Name:
+    Type: String
+    Description: The name of Availability Zone 2 e.g (us-west-1b)
+    Default: us-west-1b
+
+  HostedZoneName:
+    Type: String
+    Description: The name of the HostedZone (e.g. example.com)
+
+  SNSTopicName:
+    Type: String
+    Description: The Topic Name
+    Default: xrengine 
+
+  DBMasterUsername:
+    Type: 'AWS::SSM::Parameter::Value<String>'
+    Description: The username for our database
+    Default: rds-database-username
+
+  DBClusterName:
+    Type: String
+    Description: The DB Instance Name (e.g. us-west-1-XREngine-Aurora-RDS-Instance)
+    Default: XREngine-Aurora-RDS-Instance
+
+  DBInstanceSGName:
+    Type: String
+    Description: The DB Instance Security Group Name
+    Default: XREngine-RDS-Aurora-SecurityGroup
+
+  DBInstanceSubnetGroupName:
+    Type: String
+    Description: The DB Instance Subnet Group Name (must be lower case letters not more than 255 characters)
+    Default: xrengine-rds-aurora-subnetgroup
+
+  DBInstanceParameterGroupName:
+    Type: String
+    Description: The DB Instance Parameter Group Name
+    Default: XREngine-RDS-Aurora-ParameterGroup
+    
+  DBClusterParameterGroupName:
+    Type: String
+    Description: The DB Cluster Parameter Group Name
+    Default: XREngine-RDS-Aurora-Cluster-ParameterGroup
+
+  DBInstanceType:
+    Type: String
+    Description: The DB EC2 Instance Type (e.g. db.t3.medium, db.r5.large)
+    Default: db.t3.medium
+
+  DBTimeZone:
+    Type: String
+    Description: The DB TimeZone Parameter (e.g US/Eastern)
+    Default: US/Pacific
+
+  KeyName:
+    Description: The EC2 Key Pair to allow SSH access to the instances
+    Type: AWS::EC2::KeyPair::KeyName
+    Default: "Gaming"
+
+  NodeImageId:
+    Type: AWS::EC2::Image::Id
+    Description: AMI id for the node instances.
+    Default: "ami-03130878b60947df3"
+
+  NodeInstanceType:
+    Description: EC2 instance type for the node instances
+    Type: String
+    Default: t2.medium
+
+  Node1AutoScalingGroupMinSize:
+    Type: Number
+    Description: Minimum size of Node Group ASG.
+    Default: 4
+
+  Node1AutoScalingGroupMaxSize:
+    Type: Number
+    Description: Maximum size of Node Group ASG.
+    Default: 4
+
+  Node1AutoScalingGroupDesiredSize:
+    Type: Number
+    Description: Desired size of Node Group ASG
+    Default: 4
+
+  GameServersAutoScalingGroupMinSize:
+    Type: Number
+    Description: Minimum size of Node Group ASG.
+    Default: 2
+
+  GameServersAutoScalingGroupMaxSize:
+    Type: Number
+    Description: Maximum size of Node Group ASG.
+    Default: 2
+
+  GameServersAutoScalingGroupDesiredSize:
+    Type: Number
+    Description: Desired size of Node Group ASG
+    Default: 2
+  
+  EKSClusterName:
+    Description: The name of your EKS Cluster 
+    Type: String
+    Default: XREngine-EKS-Cluster
+
+  EKSPublicAccessEndpoint:
+    Type: String
+    Default: disable
+    Description: Configure access to the Kubernetes API server endpoint from outside of your VPC.
+    
+  EKSPrivateAccessEndpoint:
+    Type: String
+    Default: enabled
+
+  EBSVolumeSize:
+    Type: Number
+    Description: The EBS Volume Size for your cluster worker nodes (in GB)
+    Default: 20
+
+  EBSVolumeType:
+    Type: String
+    Description: The EBS Volume Type for your cluster worker nodes (e.g. gp2)
+    Default: gp2
+
+  EKSWorkerNodesLaunchTemplate:
+    Type: String
+    Description: The name of the EKS autoscaling worker nodes group launched template
+    Default: XREngine-EKS-Worker-Nodes-Template
+
+  BucketName:
+    Type: String
+    Description: The s3 bucket name (must be a global unique name and only have lowercase letters numbers hyphen and underscores)
+    Default: xrengine-engine-test
+
+  RegionName:
+    Type: String
+    Description: The region to launch your s3 bucket (e.g. us-west-1)
+    Default: us-west-1 
+
+Resources: 
+  NetworkStack: 
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      Parameters:
+        VPCBlock: !Ref VPCBlock
+        PrivateSubnet01Block: !Ref PrivateSubnet01Block
+        PrivateSubnet02Block: !Ref PrivateSubnet02Block
+        PrivateSubnet03Block: !Ref PrivateSubnet03Block
+        PrivateSubnet04Block: !Ref PrivateSubnet04Block
+        PublicSubnet01Block: !Ref PublicSubnet01Block
+        PublicSubnet02Block: !Ref PublicSubnet02Block
+        EnvironmentName: !Ref EnvironmentName
+        CreatedBy: !Ref CreatedBy
+        ProjectName: !Ref ProjectName
+        VPCName: !Ref VPCName
+        IGWName: !Ref IGWName
+        NGW01Name: !Ref NGW01Name
+        NGW02Name: !Ref NGW02Name
+        PublicRTBName: !Ref PublicRTBName
+        PrivateRTB01Name: !Ref PrivateRTB01Name
+        PrivateRTB02Name: !Ref PrivateRTB02Name
+        PrivateSub01Name: !Ref PrivateSub01Name
+        PrivateSub02Name: !Ref PrivateSub02Name
+        PrivateSub03Name: !Ref PrivateSub03Name
+        PrivateSub04Name: !Ref PrivateSub04Name
+        PublicSub01Name: !Ref PublicSub01Name
+        PublicSub02Name: !Ref PublicSub02Name
+        AZ1Name: !Ref AZ1Name
+        AZ2Name: !Ref AZ2Name   
+      TemplateURL: "https://xrengine-engine-cloudformation-templates.s3-us-west-1.amazonaws.com/Create-XREngine-Network-Architecture.yaml"
+      TimeoutInMinutes: 30
+
+  HostedZoneStack: 
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      Parameters:
+        EnvironmentName: !Ref EnvironmentName
+        CreatedBy: !Ref CreatedBy
+        ProjectName: !Ref ProjectName
+        HostedZoneName: !Ref HostedZoneName
+      TemplateURL: "https://xrengine-engine-cloudformation-templates.s3-us-west-1.amazonaws.com/Create+XREngine-Route-53-Public-HostedZone.yaml"
+      TimeoutInMinutes: 30
+
+  SNSStack: 
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      Parameters: 
+        SNSTopicName: !Ref SNSTopicName
+        EnvironmentName: !Ref EnvironmentName
+        CreatedBy: !Ref CreatedBy
+        ProjectName: !Ref ProjectName
+      TemplateURL: "https://xrengine-engine-cloudformation-templates.s3-us-west-1.amazonaws.com/Create-XREngine-SNS-Topic+and+Subscription.yaml"
+      TimeoutInMinutes: 30
+
+  EKSClusterStack: 
+    Type: AWS::CloudFormation::Stack
+    DependsOn: NetworkStack
+    Properties:
+      Parameters:  
+        EKSClusterName: !Ref EKSClusterName
+        EnvironmentName: !Ref EnvironmentName
+        CreatedBy: !Ref CreatedBy
+        ProjectName: !Ref ProjectName
+        EKSPublicAccessEndpoint: !Ref EKSPublicAccessEndpoint
+        EKSPrivateAccessEndpoint: !Ref EKSPrivateAccessEndpoint
+      TemplateURL: "https://xrengine-engine-cloudformation-templates.s3-us-west-1.amazonaws.com/Create-XREngine-EKS-Cluster.yaml"
+      TimeoutInMinutes: 30      
+
+  EKSNodeGroupStack: 
+    Type: AWS::CloudFormation::Stack
+    DependsOn: NetworkStack
+    DependsOn: EKSClusterStack
+    Properties:
+      Parameters: 
+        KeyName: !Ref KeyName
+        NodeImageId: !Ref NodeImageId
+        EKSClusterName: !Ref EKSClusterName
+        NodeInstanceType: !Ref NodeInstanceType
+        Node1AutoScalingGroupMinSize: !Ref Node1AutoScalingGroupMinSize
+        Node1AutoScalingGroupMaxSize: !Ref Node1AutoScalingGroupMaxSize
+        Node1AutoScalingGroupDesiredSize: !Ref Node1AutoScalingGroupDesiredSize
+        GameServersAutoScalingGroupMinSize: !Ref GameServersAutoScalingGroupMinSize
+        GameServersAutoScalingGroupMaxSize: !Ref GameServersAutoScalingGroupMaxSize
+        GameServersAutoScalingGroupDesiredSize: !Ref GameServersAutoScalingGroupDesiredSize
+        EBSVolumeSize: !Ref EBSVolumeSize
+        EBSVolumeType: !Ref EBSVolumeType
+        EKSWorkerNodesLaunchTemplate: !Ref EKSWorkerNodesLaunchTemplate
+        EnvironmentName: !Ref EnvironmentName
+        CreatedBy: !Ref CreatedBy
+        ProjectName: !Ref ProjectName
+      TemplateURL: "https://xrengine-engine-cloudformation-templates.s3-us-west-1.amazonaws.com/Create-XREngine-EKS-Managed-NodeGroup.yaml"
+      TimeoutInMinutes: 30
+
+  RDSStack: 
+    Type: AWS::CloudFormation::Stack
+    DependsOn: NetworkStack
+    Properties:
+      Parameters: 
+        DBMasterUsername: !Ref DBMasterUsername
+        DBClusterName: !Ref DBClusterName
+        DBInstanceSGName: !Ref DBInstanceSGName
+        DBInstanceSubnetGroupName: !Ref DBInstanceSubnetGroupName
+        DBInstanceParameterGroupName: !Ref DBInstanceParameterGroupName
+        DBClusterParameterGroupName: !Ref DBClusterParameterGroupName
+        DBInstanceType: !Ref DBInstanceType
+        EnvironmentName: !Ref EnvironmentName
+        CreatedBy: !Ref CreatedBy
+        ProjectName: !Ref ProjectName
+        DBTimeZone: !Ref DBTimeZone
+        AZ1Name: !Ref AZ1Name
+        AZ2Name: !Ref AZ2Name
+      TemplateURL: "https://xrengine-engine-cloudformation-templates.s3-us-west-1.amazonaws.com/Create+XREngine-Aurora-DB-Cluster.yaml"
+      TimeoutInMinutes: 30
+
+  S3andCloudFrontStack: 
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      Parameters: 
+        BucketName: !Ref BucketName
+        RegionName: !Ref RegionName
+        EnvironmentName: !Ref EnvironmentName
+        CreatedBy: !Ref CreatedBy
+        ProjectName: !Ref ProjectName
+      TemplateURL: "https://xrengine-engine-cloudformation-templates.s3-us-west-1.amazonaws.com/Create+XREngine-Cloudfront+and+S3+bucket+Origin.yaml"
+      TimeoutInMinutes: 30

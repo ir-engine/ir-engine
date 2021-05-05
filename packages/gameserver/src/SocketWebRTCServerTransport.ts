@@ -1,9 +1,9 @@
-import { MessageTypes } from "@xr3ngine/engine/src/networking/enums/MessageTypes";
-import { handleNetworkStateUpdate } from "@xr3ngine/engine/src/networking/functions/updateNetworkState";
-import { NetworkTransport } from "@xr3ngine/engine/src/networking/interfaces/NetworkTransport";
-import config from '@xr3ngine/server-core/src/appconfig';
-import { localConfig } from '@xr3ngine/server-core/src/config';
-import logger from '@xr3ngine/server-core/src/logger';
+import { MessageTypes } from "@xrengine/engine/src/networking/enums/MessageTypes";
+import { handleNetworkStateUpdate } from "@xrengine/engine/src/networking/functions/updateNetworkState";
+import { NetworkTransport } from "@xrengine/engine/src/networking/interfaces/NetworkTransport";
+import config from '@xrengine/server-core/src/appconfig';
+import { localConfig } from '@xrengine/server-core/src/config';
+import logger from '@xrengine/server-core/src/logger';
 import {
     cleanupOldGameservers,
     getFreeSubdomain,
@@ -14,9 +14,9 @@ import {
     handleJoinWorld,
     handleLeaveWorld,
     validateNetworkObjects
-} from "@xr3ngine/gameserver/src/NetworkFunctions";
-import { WebRtcTransportParams } from "@xr3ngine/server-core/src/types/WebRtcTransportParams";
-import getLocalServerIp from '@xr3ngine/server-core/src/util/get-local-server-ip';
+} from "@xrengine/gameserver/src/NetworkFunctions";
+import { WebRtcTransportParams } from "@xrengine/server-core/src/types/WebRtcTransportParams";
+import getLocalServerIp from '@xrengine/server-core/src/util/get-local-server-ip';
 import AWS from 'aws-sdk';
 import * as https from "https";
 import { DataProducer, Router, Transport, Worker } from "mediasoup/lib/types";
@@ -157,7 +157,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
         if (this.socketIO != null) this.socketIO.of('/realtime').on("connect", (socket: Socket) => {
             // Authorize user and make sure everything is valid before allowing them to join the world
             socket.on(MessageTypes.Authorization.toString(), async (data, callback) => {
-                console.log('AUTHORIZATION CALL HANDLER');
+                // console.log('AUTHORIZATION CALL HANDLER', data.userId);
                 const userId = data.userId;
                 const accessToken = data.accessToken;
 

@@ -1,5 +1,5 @@
-import Player from "@xr3ngine/volumetric/src/Player";
-
+import Player from "@xrengine/volumetric/src/Player";
+import { useTranslation } from 'react-i18next';
 import React, { useEffect, useRef, useState } from 'react';
 import { PerspectiveCamera, Scene, sRGBEncoding, Vector3, WebGLRenderer } from "three";
 
@@ -16,6 +16,7 @@ export const VolumetricPlayer = (props: VolumetricPlayerProps) => {
   const playerRef = useRef<Player>(null);
   let animationFrameId:number;
   const cameraVerticalOffset = props.cameraVerticalOffset || 0;
+	const { t } = useTranslation();
   // const mesh: any = useRef();
 
   useEffect(() => {
@@ -102,7 +103,7 @@ export const VolumetricPlayer = (props: VolumetricPlayerProps) => {
   }, []);
 
   // this is play button
-  const playButton = playPressed? null : <button type="button" style={{ position: "absolute", zIndex: 100000, left: "50%", top: "50%"}} onClick={(e) => { playerRef.current?.play(); setPlayPressed(true); }}>Play</button>;
+  const playButton = playPressed? null : <button type="button" style={{ position: "absolute", zIndex: 100000, left: "50%", top: "50%"}} onClick={(e) => { playerRef.current?.play(); setPlayPressed(true); }}>{t('volumetricPlayer.lbl-play')}</button>;
 
   return <div className="volumetric__player" style={{ zIndex: -1, width: '100%', height: '100%'}} ref={containerRef}>
     { playButton }

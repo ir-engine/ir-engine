@@ -2,8 +2,8 @@ import Avatar from '@material-ui/core/Avatar';
 import Box from '@material-ui/core/Box';
 import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
-import { IdentityProviderSeed } from '@xr3ngine/common/src/interfaces/IdentityProvider';
-import { User } from '@xr3ngine/common/src/interfaces/User';
+import { IdentityProviderSeed } from '@xrengine/common/src/interfaces/IdentityProvider';
+import { User } from '@xrengine/common/src/interfaces/User';
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
@@ -14,6 +14,7 @@ import PasswordLogin from '../../../user/components/Auth/PasswordLogin';
 import { selectAuthState } from '../../reducers/auth/selector';
 import { addConnectionByOauth, addConnectionByPassword, createMagicLink, loginUserByPassword, removeConnection } from '../../reducers/auth/service';
 import { ConnectionTexts } from './ConnectionTexts';
+import { useTranslation } from 'react-i18next';
 // @ts-ignore
 import styles from './ProfileConnections.module.scss';
 
@@ -67,6 +68,7 @@ const SingleConnection = (props: Props): any => {
     showAlert,
     showDialog
   } = props;
+  const { t } = useTranslation();
 
   const initialState = {
     identityProvider: IdentityProviderSeed,
@@ -92,7 +94,7 @@ const SingleConnection = (props: Props): any => {
     const identityProvider = state.identityProvider;
     const authIdentityProvider = props.auth.get('authUser').identityProvider;
     if (authIdentityProvider.id === identityProvider.id) {
-      showAlert('error', 'Can not remove active Identity Provider');
+      showAlert('error', t('user:profile.connections.ipError'));
       return;
     }
 
@@ -141,7 +143,7 @@ const SingleConnection = (props: Props): any => {
           <a href="#" onClick={disconnect} className={styles.button}>
             <Typography variant="h6">{identityProvider.token}</Typography>
             <Typography color="textSecondary" variant="body2">
-              (disconnect)
+              ({t('user:profile.connections.disconnect')})
             </Typography>
           </a>
         </Box>
@@ -157,7 +159,7 @@ const SingleConnection = (props: Props): any => {
       <Box display="flex">
         <Box p={1}>
           <a href="#" onClick={connect} className={styles.button}>
-            Connect
+            {t('user:profile.connections.connect')}
           </a>
         </Box>
       </Box>

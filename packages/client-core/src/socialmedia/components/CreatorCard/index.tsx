@@ -11,6 +11,7 @@ import Typography from '@material-ui/core/Typography';
 import CardContent from '@material-ui/core/CardContent';
 import Button from '@material-ui/core/Button';
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
+import { useTranslation } from 'react-i18next';
 import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
 // import TwitterIcon from '@material-ui/icons/Twitter';
 // import InstagramIcon from '@material-ui/icons/Instagram';
@@ -55,6 +56,7 @@ const mapStateToProps = (state: any): any => {
 
 const CreatorCard = ({creator,creatorState, updateCreatorPageState, popupsState, updateCreatorFormState}:Props) => { 
     const isMe = creator?.id === creatorState?.get('currentCreator').id;
+	const { t } = useTranslation();
 
     // const [openFiredModal, setOpenFiredModal] = useState(false);
     // const [creatorsType, setCreatorsType] = useState('followers');
@@ -99,15 +101,18 @@ const CreatorCard = ({creator,creatorState, updateCreatorPageState, popupsState,
     return  creator ?  (
         <>
             <Card className={styles.creatorCard} elevation={0} key={creator.username} square={false} >
+            { creator.background ? (
                 <CardMedia   
                     className={styles.bgImage}                  
                     src={creator.background}
                     title={creator.name}
                 />              
-                
+                ) : (
+                    <section className={styles.bgImage}/>
+                  )}
                 <section className={styles.controls}>
                     <Button variant="text" className={styles.backButton} 
-                    onClick={()=>updateCreatorPageState(false)}><ArrowBackIosIcon />Back</Button>  
+                    onClick={()=>updateCreatorPageState(false)}><ArrowBackIosIcon />{t('social:creator.back')}</Button>  
                     {isMe && renderEditButton()}                        
                 </section>
                 {/*hided for now*/}
@@ -117,14 +122,18 @@ const CreatorCard = ({creator,creatorState, updateCreatorPageState, popupsState,
                         <Button variant={'outlined'} color='primary' className={styles.followButton} onClick={()=>handleFollowingByCreator(creator.id)}>Following</Button>
                     </section>
                 </section> */}
+                { creator.avatar ? (
                 <CardMedia   
                     className={styles.avatarImage}                  
                     image={creator.avatar}
                     title={creator.username}
                 />                
+                ) : (
+                    <section className={styles.avatarImage}/>
+                  )}
                 <CardContent className={styles.content}>
                     <Typography className={styles.titleContainer} gutterBottom variant="h5" component="h5" align="center">{creator.name}</Typography>
-                    <Typography variant="h5" component="p" align="center">{creator.username}</Typography>
+                    <Typography variant="h5" component="p" align="center">@{creator.username}</Typography>
                     <Typography variant="h4" component="p" align="center">{creator.tags}</Typography>
                     <Typography variant="h4" component="p" align="center">{creator.bio}</Typography>
 

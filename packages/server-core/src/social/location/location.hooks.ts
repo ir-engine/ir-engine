@@ -1,6 +1,6 @@
-import collectAnalytics from '@xr3ngine/server-core/src/hooks/collect-analytics';
+import collectAnalytics from '@xrengine/server-core/src/hooks/collect-analytics';
 import * as authentication from '@feathersjs/authentication';
-import addAssociations from "@xr3ngine/server-core/src/hooks/add-associations";
+import addAssociations from "@xrengine/server-core/src/hooks/add-associations";
 import { HookContext } from '@feathersjs/feathers';
 
 const { authenticate } = authentication.hooks;

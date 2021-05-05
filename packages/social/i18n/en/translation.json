@@ -39,7 +39,7 @@
         "labs": "LABS",
         "description": "Realtime social apps for everyone, at metaverse scale."
     },
-    "xr3engineContact": {
+    "xrengineContact": {
         "header": "Get In Touch!",
         "description": "We’d love to help you with your virtual events, digital retail, entertainment and other needs.",
         "lbl-name": "Name",
@@ -49,5 +49,20 @@
         "lbl-send": "Send",
         "lbl-success": "Message Sent, I'll get back to you shortly",
         "lbl-failure": "An error occured, Plese try again"
+    },
+    "Volumetric": {
+        "header": "Arc volumetric test"
+    },
+    "activity": {
+        "title": "Activity"
+    },
+    "explore": {
+        "title": "Explore"
+    },
+    "messages": {
+        "title": "Messages"
+    },
+    "volumetricPlayer": {
+        "lbl-play": "Play"
     }
 }

@@ -1,12 +1,12 @@
 import { dispatchAlertError, dispatchAlertSuccess } from '../../../common/reducers/alert/service';
-import { resolveAuthUser } from '@xr3ngine/common/src/interfaces/AuthUser';
-import { IdentityProvider } from '@xr3ngine/common/src/interfaces/IdentityProvider';
-import { resolveUser, resolveWalletUser } from '@xr3ngine/common/src/interfaces/User';
-import { EngineEvents } from '@xr3ngine/engine/src/ecs/classes/EngineEvents';
-import { Network } from '@xr3ngine/engine/src/networking/classes/Network';
-import { MessageTypes } from '@xr3ngine/engine/src/networking/enums/MessageTypes';
+import { resolveAuthUser } from '@xrengine/common/src/interfaces/AuthUser';
+import { IdentityProvider } from '@xrengine/common/src/interfaces/IdentityProvider';
+import { resolveUser, resolveWalletUser } from '@xrengine/common/src/interfaces/User';
+import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents';
+import { Network } from '@xrengine/engine/src/networking/classes/Network';
+import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes';
 // TODO: Decouple this
-// import { endVideoChat, leave } from '@xr3ngine/engine/src/networking/functions/SocketWebRTCClientFunctions';
+// import { endVideoChat, leave } from '@xrengine/engine/src/networking/functions/SocketWebRTCClientFunctions';
 import axios from 'axios';
 import { Config } from '../../../helper';
 import querystring from 'querystring';
@@ -15,7 +15,7 @@ import { v1 } from 'uuid';
 import { client } from '../../../feathers';
 import { validateEmail, validatePhoneNumber } from '../../../helper';
 import { getStoredState } from '../../../persisted.store';
-import store from "../../../store";
+import Store from "../../../store";
 import {
   addedChannelLayerUser,
   addedLayerUser, clearChannelLayerUsers,
@@ -45,6 +45,8 @@ import {
   usernameUpdated,
   userUpdated
 } from './actions';
+
+const store = Store.store;
 
 export function doLoginAuto (allowGuest?: boolean, forceClientAuthReset?: boolean) {
   return async (dispatch: Dispatch): Promise<any> => {

@@ -1,9 +1,9 @@
 {
-  "name": "@xr3ngine/client-core",
-  "version": "0.2.18",
+  "name": "@xrengine/client-core",
+  "version": "0.2.22",
   "repository": {
     "type": "git",
-    "url": "git://github.com/xr3ngine/xr3ngine.git"
+    "url": "git://github.com/XRFoundation/XREngine.git"
   },
   "engines": {
     "yarn": ">= 0.18.0"
@@ -45,8 +45,8 @@
     "@types/styled-components": "5.1.9",
     "@typescript-eslint/eslint-plugin": "4.22.0",
     "@typescript-eslint/parser": "4.22.0",
-    "@xr3ngine/common": "^0.2.18",
-    "@xr3ngine/engine": "^0.2.18",
+    "@xrengine/common": "^0.2.22",
+    "@xrengine/engine": "^0.2.22",
     "antd": "4.15.4",
     "app-root-path": "3.0.0",
     "autobind-decorator": "2.4.0",
@@ -97,7 +97,6 @@
   },
   "devDependencies": {
     "@babel/core": "7.14.0",
-    "@rollup/plugin-commonjs": "18.0.0",
     "@rollup/plugin-json": "4.1.0",
     "@rollup/plugin-node-resolve": "11.2.1",
     "@rollup/plugin-replace": "2.4.2",
@@ -120,5 +119,5 @@
     "typescript": "4.2.4"
   },
   "license": "ISC",
-  "gitHead": "5ff55be1619e188226c4ac91c92a44b7ba18edf4"
+  "gitHead": "2313453697ca7c6b8d36b3b166b5a6445fe1c851"
 }
