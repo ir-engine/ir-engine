@@ -59,7 +59,7 @@ export const physicsMove = (entity: Entity, deltaTime): void => {
     actor.velocitySimulator.simulate(deltaTime);
 
     actor.velocity.copy(actor.velocitySimulator.position);
-    newVelocity.copy(actor.velocity).multiplyScalar(actor.moveSpeed * actor.MULTIPLY_SPEED);
+    newVelocity.copy(actor.velocity).multiplyScalar(actor.moveSpeed * actor.speedMultiplier);
     newVelocity.applyQuaternion(transform.rotation)
 
     if (actor.closestHit) {
@@ -81,7 +81,7 @@ export const physicsMove = (entity: Entity, deltaTime): void => {
     }
 
     if (actor.localMovementDirection.y > 0 && !actor.isJumping) {
-      collider.controller.velocity.y = actor.HEIGHT_JUMP * deltaTime;
+      collider.controller.velocity.y = actor.jumpHeight * deltaTime;
     //  collider.controller.resize(actor.BODY_SIZE);
       actor.isJumping = true;
       actor.isGrounded = false;

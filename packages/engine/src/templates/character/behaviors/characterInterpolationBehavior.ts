@@ -16,10 +16,8 @@ export const characterInterpolationBehavior: Behavior = (entity: Entity, snapsho
 
   const interpolation = findInterpolationSnapshot(entity, snapshots.interpolation);
 
-  if (!actor.initialized || !collider.controller || !interpolation) return;
+  if (!actor.initialized || !collider.controller || !interpolation || isNaN(interpolation.vX)) return;
 
-  if (isNaN(interpolation.vX)) return;
-  !window.t?window.t=1:window.t==50?console.warn(window.t = 0,"| ",actor.animationVelocity.length()):window.t+=1;
   actor.animationVelocity.set(
     interpolation.vX,
     interpolation.vY,
