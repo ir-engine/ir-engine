@@ -13,7 +13,7 @@ import theme from "@xrengine/client-core/src/world/components/editor/theme";
 import { Config } from '@xrengine/client-core/src/helper';
 import { getDeviceType } from '@xrengine/client-core/src/common/reducers/devicedetect/actions';
 import { restoreState } from '@xrengine/client-core/src/persisted.store';
-import RouterComp from '../router';
+import RouterComp from '../route/public';
 import reducers from '../reducers';
 import './styles.scss';
 
