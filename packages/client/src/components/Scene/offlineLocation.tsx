@@ -84,6 +84,11 @@ export const OfflineEnginePage = (props: Props) => {
   }
 
   const createUI = () => {
+    console.log('Engine.scene', Engine.scene);
+        // Engine.scene.children[10].visible = false;      //ground
+    // Engine.scene.children[12].visible = false;      //character
+
+
     // Engine.scene.children[10].visible = false;      //ground
     // Engine.scene.children[12].visible = false;      //character
 
@@ -95,6 +100,7 @@ export const OfflineEnginePage = (props: Props) => {
     // // const transform = new TransformComponent();
     const sourcePosition = new Vector3(0, 1, 0);
     const destinationPosition = new Vector3(0, 1, 0);
+    
     
     createPanelComponent({ panel: new UIGallery(), parent: null, sourcePosition: sourcePosition, destinationPosition: destinationPosition });
     // createPanelComponent({ panel: new UIGallery() });

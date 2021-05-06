@@ -50,7 +50,7 @@ export const createItem = (param) =>{
 
           // onError callback
           ( err ) => {
-              console.error( 'An error happened.' );
+              // console.error( 'An error happened.' );
           }
     );
 
