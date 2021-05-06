@@ -409,6 +409,11 @@ export { default as srcUserUserSettingsUserSettingsDocs } from './src/user/user-
 export { default as srcUserUserSettingsUserSettingsHooks } from './src/user/user-settings/user-settings.hooks';
 export { default as srcUserUserSettingsUserSettingsModel } from './src/user/user-settings/user-settings.model';
 export { default as srcUserUserSettingsUserSettingsService } from './src/user/user-settings/user-settings.service';
+
+export { default as srcUserUserProjectUserProjectHooks } from './src/user/user-project/user-project.hooks';
+export { default as srcUserUserProjectUserProjectModel } from './src/user/user-project/user-project.model';
+export { default as srcUserUserProjectUserProjectService } from './src/user/user-project/user-project.service';
+
 export { default as srcUserUserUserAccessControl } from './src/user/user/user.access-control';
 export { default as srcUserUserUserDocs } from './src/user/user/user.docs';
 export { default as srcUserUserUserHooks } from './src/user/user/user.hooks';

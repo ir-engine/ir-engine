@@ -202,6 +202,8 @@ export class User extends Service {
           $limit: params.query.$limit || 10
         }
       });
+      console.log(loggedInUser);
+      
       console.log(users);
       
       return users;
