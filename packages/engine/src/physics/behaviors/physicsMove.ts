@@ -50,7 +50,6 @@ export const physicsMove = (entity: Entity, deltaTime): void => {
     }
   }
   const newVelocity = new Vector3();
-
   if (actor.isGrounded) {
     collider.controller.velocity.y = 0;
 
@@ -68,18 +67,18 @@ export const physicsMove = (entity: Entity, deltaTime): void => {
       const m = new Matrix4().makeRotationFromQuaternion(q);
       newVelocity.applyMatrix4(m);
     }
-    collider.controller.velocity.x = newVelocity.x// * 0.8;
-    collider.controller.velocity.y = newVelocity.y / MULT_SPEED;
-    collider.controller.velocity.z = newVelocity.z// * 0.8;
+    collider.controller.velocity.x = newVelocity.x;
+    // collider.controller.velocity.y = newVelocity.y / MULT_SPEED;
+    collider.controller.velocity.z = newVelocity.z;
 
 
     if (actor.isJumping) {
       actor.isJumping = false;
     }
 
-    if (actor.localMovementDirection.y > 0.3 && !actor.isJumping) {
+    if (actor.localMovementDirection.y > 0 && !actor.isJumping) {
 
-      collider.controller.velocity.y += 4 * deltaTime;
+      collider.controller.velocity.y = 3 * deltaTime;
 
       actor.isJumping = true;
       actor.isGrounded = false;

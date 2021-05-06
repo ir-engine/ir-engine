@@ -25,7 +25,7 @@ const prevControllerColliderPosition = new Vector3();
 
 export class CharacterControllerSystem extends System {
 
-  updateType = SystemUpdateType.Free;
+  updateType = SystemUpdateType.Fixed;
   constructor(attributes?: SystemAttributes) {
     super(attributes);
   }
@@ -102,11 +102,10 @@ export class CharacterControllerSystem extends System {
       actor.raycastQuery.origin = new Vector3(actorRaycastStart.x, actorRaycastStart.y - (actor.actorCapsule.height * 0.5) - actor.actorCapsule.radius, actorRaycastStart.z);
       actor.raycastQuery.direction = new Vector3(0, -1, 0);
       actor.closestHit = actor.raycastQuery.hits[0];
-      actor.isGrounded = actor.closestHit ? true : collider.controller.collisions.down;
+      actor.isGrounded = collider.controller.collisions.down;
     });
 
-    this.queryResults.character.removed?.forEach(entity => {
-      console.warn(prevControllerColliderPosition, getRemovedComponent<ControllerColliderComponent>(entity, ControllerColliderComponent));
+    this.queryResults.controller.removed?.forEach(entity => {
       const collider = getRemovedComponent<ControllerColliderComponent>(entity, ControllerColliderComponent);
       if (collider) {
         PhysicsSystem.instance.removeController(collider.controller);
@@ -172,6 +171,13 @@ CharacterControllerSystem.queries = {
   },
   character: {
     components: [CharacterComponent],
+    listen: {
+      added: true,
+      removed: true
+    }
+  },
+  controller: {
+    components: [ControllerColliderComponent],
     listen: {
       added: true,
       removed: true
