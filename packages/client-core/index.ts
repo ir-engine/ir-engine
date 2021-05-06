@@ -340,6 +340,10 @@ export { default as srcAdminComponentsSearch } from './src/admin/components/Sear
 export { default as srcAdminComponentsSharedModal } from './src/admin/components/SharedModal';
 export { default as srcAdminComponentsUserConsole } from './src/admin/components/UserConsole';
 export { default as srcAdminComponentsUserModel } from './src/admin/components/UserModel';
+export { default as srcAdminComponentsUsersCreateUser } from './src/admin/components/Users/CreateUser';
+export { default as srcAdminComponentsUsersCreateUserRole } from './src/admin/components/Users/CreateUserRole';
+export { default as srcAdminComponentsUsersIndex } from './src/admin/components/Users/index';
+export { default as srcAdminComponentsUsersUserTable } from './src/admin/components/Users/UserTable';
 export { default as srcAdminComponentsVideoModal } from './src/admin/components/VideoModal';
 export { default as srcAdminReducersAdminReducers } from './src/admin/reducers/admin/reducers';
 export { default as srcAdminReducersContentPackReducers } from './src/admin/reducers/contentPack/reducers';

@@ -151,9 +151,11 @@ export const loadActorAvatarFromURL: Behavior = (entity, avatarURL) => {
 
 		tmpGroup.children.forEach(child => actor.modelContainer.add(child));
     const geom = getGeometry(actor.modelContainer);
-    geom.computeBoundingBox()
-    const modelHeight = geom.boundingBox.max.y - geom.boundingBox.min.y;
-    controller.controller.resize(modelHeight - (controller.radius * 2));
+    if(geom) {
+      geom.computeBoundingBox()
+      const modelHeight = geom.boundingBox.max.y - geom.boundingBox.min.y;
+      controller.controller.resize(modelHeight - (controller.radius * 2));
+    }
 		actor.mixer = new AnimationMixer(actor.modelContainer.children[0]);
 		if (hasComponent(entity, IKComponent)) {
 			initiateIK(entity)
@@ -204,8 +206,8 @@ const initializeCharacter: Behavior = (entity): void => {
     })
 	}
 
-	actor.velocitySimulator = new VectorSpringSimulator(120, actor.defaultVelocitySimulatorMass, actor.defaultVelocitySimulatorDamping);
-	actor.moveVectorSmooth = new VectorSpringSimulator(120, actor.defaultVelocitySimulatorMass, actor.defaultVelocitySimulatorDamping);
+	actor.velocitySimulator = new VectorSpringSimulator(60, actor.defaultVelocitySimulatorMass, actor.defaultVelocitySimulatorDamping);
+	actor.moveVectorSmooth = new VectorSpringSimulator(60, actor.defaultVelocitySimulatorMass, actor.defaultVelocitySimulatorDamping);
 	actor.animationVectorSimulator = new VectorSpringSimulator(60, actor.defaultVelocitySimulatorMass, actor.defaultVelocitySimulatorDamping);
 	actor.rotationSimulator = new RelativeSpringSimulator(60, actor.defaultRotationSimulatorMass, actor.defaultRotationSimulatorDamping);
 

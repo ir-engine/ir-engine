@@ -33,6 +33,7 @@ import { UIPanelSystem } from '../ui/systems/UIPanelSystem';
 //@ts-ignore
 import PhysXWorker from '../physics/functions/loadPhysX.ts?worker';
 import { PhysXInstance } from "three-physx";
+import { ClientNetworkStateSystem } from '../networking/systems/ClientNetworkStateSystem';
 
 Mesh.prototype.raycast = acceleratedRaycast;
 BufferGeometry.prototype["computeBoundsTree"] = computeBoundsTree;
@@ -73,6 +74,7 @@ const initializeEngineOffscreen = async ({ canvas, userArgs }, proxy: MainProxy)
   registerSystem(PhysicsSystem);
   registerSystem(ActionSystem, { useWebXR: false });
   registerSystem(StateSystem);
+  registerSystem(ClientNetworkStateSystem);
   registerSystem(CharacterControllerSystem);
   registerSystem(ServerSpawnSystem, { priority: 899 });
   registerSystem(TransformSystem, { priority: 900 });

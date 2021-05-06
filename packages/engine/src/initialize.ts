@@ -32,6 +32,7 @@ import OffscreenWorker from './worker/initializeOffscreen.ts?worker';
 import { GameManagerSystem } from './game/systems/GameManagerSystem';
 import { DefaultInitializationOptions } from './DefaultInitializationOptions';
 import _ from 'lodash';
+import { ClientNetworkStateSystem } from './networking/systems/ClientNetworkStateSystem';
 // import { PositionalAudioSystem } from './audio/systems/PositionalAudioSystem';
 
 Mesh.prototype.raycast = acceleratedRaycast;
@@ -130,6 +131,7 @@ export const initializeEngine = async (initOptions): Promise<void> => {
         })
       ]);
 
+      registerSystem(ClientNetworkStateSystem);
       registerSystem(CharacterControllerSystem);
       registerSystem(ServerSpawnSystem, { priority: 899 });
       registerSystem(HighlightSystem);

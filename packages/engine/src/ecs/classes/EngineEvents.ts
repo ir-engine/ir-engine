@@ -1,10 +1,6 @@
-import { EventDispatcher } from "../../common/classes/EventDispatcher";
-import { isClient } from "../../common/functions/isClient";
-import { isMobileOrTablet } from "../../common/functions/isMobile";
 import { Network } from "../../networking/classes/Network";
-import { applyNetworkStateToClient } from "../../networking/functions/applyNetworkStateToClient";
+import { ClientNetworkStateSystem } from "../../networking/systems/ClientNetworkStateSystem";
 import { ClientNetworkSystem } from "../../networking/systems/ClientNetworkSystem";
-import { XRSystem } from "../../xr/systems/XRSystem";
 import { loadScene } from "../../scene/functions/SceneLoading";
 import { CharacterComponent } from "../../templates/character/components/CharacterComponent";
 import { loadActorAvatar } from "../../templates/character/prefabs/NetworkPlayerCharacter";
@@ -115,15 +111,17 @@ export const addIncomingEvents = () => {
   // INITIALIZATION
   EngineEvents.instance.once(EngineEvents.EVENTS.LOAD_SCENE, ({ sceneData }) => { loadScene(sceneData); })
   EngineEvents.instance.once(EngineEvents.EVENTS.USER_ENGAGE, () => { Engine.hasUserEngaged = true; });
-  EngineEvents.instance.once(EngineEvents.EVENTS.CONNECT_TO_WORLD, ({ worldState }) => { applyNetworkStateToClient(worldState) });
+  EngineEvents.instance.once(EngineEvents.EVENTS.CONNECT_TO_WORLD, ({ worldState }) => { 
+    ClientNetworkStateSystem.receivedServerState.push(worldState);
+  });
   EngineEvents.instance.once(EngineEvents.EVENTS.JOINED_WORLD, ({ worldState }) => {
-    applyNetworkStateToClient(worldState);
+    ClientNetworkStateSystem.receivedServerState.push(worldState);
     EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENABLE_SCENE, enable: true });
   })
 
   // RUNTIME
   EngineEvents.instance.addEventListener(ClientNetworkSystem.EVENTS.RECEIVE_DATA, ({ unbufferedState, delta }) => {
-    applyNetworkStateToClient(unbufferedState, delta);
+    ClientNetworkStateSystem.receivedServerState.push(unbufferedState);
   })
   EngineEvents.instance.addEventListener(EngineEvents.EVENTS.LOAD_AVATAR, ({ entityID, avatarId, avatarURL }) => {
     const entity = getEntityByID(entityID)
