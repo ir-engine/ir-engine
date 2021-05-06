@@ -185,7 +185,11 @@ export async function handleConnectToWorld(socket, data, callback, userId, user,
     if(!Engine.sceneLoaded && (transport.app as any).isChannelInstance !== true) {
         console.log('Location instance server, waiting for scene to be loaded');
         await new Promise<void>((resolve) => {
-            EngineEvents.instance.once(EngineEvents.EVENTS.SCENE_LOADED, resolve);
+            console.log('handleConnectToWorld creating listener for SCENE_LOADED');
+            EngineEvents.instance.once(EngineEvents.EVENTS.SCENE_LOADED, () => {
+                console.log('handleConnectToWorld SCENE_LOADED listener');
+                resolve();
+            });
         });
     }
 
