@@ -286,3 +286,29 @@ export const createUserRoleAction = (data) => {
     dispatch(userRoleCreated(result));
   };
 };
+
+export function fetchUsersForProject (offset: string, projectId) {
+  return async (dispatch: Dispatch, getState: any): Promise<any> => {
+    console.log(projectId);
+    
+    const user = getState().get('auth').get('user');
+    const skip = getState().get('admin').get('users').get('skip');
+    const limit = getState().get('admin').get('users').get('limit');
+    
+    if (user.userRole === 'admin') {
+      const users = await client.service('user').find({
+        query: {
+          $sort: {
+            name: 1
+          },
+          $skip: offset === 'decrement' ? skip - limit : offset === 'increment' ? skip + limit : skip,
+          $limit: limit,
+          action: 'admin'
+        }
+      });
+
+      console.log(users);
+    
+    }
+  };
+}

@@ -18,6 +18,9 @@ import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import Container from '@material-ui/core/Container';
 import DialogTitle from '@material-ui/core/DialogTitle';
+import { validationSchema } from "./validation";
+import { useFormik } from "formik";
+
 
 
 
@@ -83,8 +86,6 @@ const CreateUser = (props: Props) => {
     const classesx = useStyle();
 
     const [game, setGame] = React.useState('');
-    const [name, setName] = React.useState('');
-    const [email, setEmail] = React.useState('');
     const [status, setStatus] = React.useState('');
     const [location, setLocation] = React.useState('');
     const [openCreateaUserRole, setOpenCreateUserRole] = React.useState(false);
@@ -109,19 +110,6 @@ const CreateUser = (props: Props) => {
         getOptionLabel: (option: any) => option.name,
     };
 
-
-    const submitData = async () => {
-        const data = {
-            email,
-            name,
-            location,
-            game,
-            status
-        };
-        await createUserAction(data);
-        handleClose(false);
-    };
-
     const createUserRole = () => {
         setOpenCreateUserRole(true);
     };
@@ -129,6 +117,26 @@ const CreateUser = (props: Props) => {
     const handleUserRoleClose = () => {
         setOpenCreateUserRole(false);
     };
+
+    const formik = useFormik({
+        initialValues: {
+            email: "",
+            name: ""
+        },
+        validationSchema: validationSchema,
+        onSubmit: async (values, { resetForm }) => {
+            const data = {
+                email: values.email,
+                name: values.name,
+                location,
+                project_id: game,
+                userRole: status,
+            };
+            await createUserAction(data);
+            handleClose(false);
+            resetForm();
+        }
+    });
 
     return (
         <React.Fragment >
@@ -140,16 +148,18 @@ const CreateUser = (props: Props) => {
             >
                 <Container maxWidth="sm" className={classes.marginTp}>
                     <DialogTitle id="form-dialog-title" className={classes.texAlign} >Create New User</DialogTitle>
+                    <form onSubmit={formik.handleSubmit}>
                     <TextField
                         autoFocus
                         margin="dense"
                         id="email"
                         label="E-mail"
-                        type="email"
                         fullWidth
-                        value={email}
+                        value={formik.values.email}                
                         className={classes.marginBottm}
-                        onChange={(e) => setEmail(e.target.value)}
+                        onChange={formik.handleChange}
+                        error={formik.touched.email && Boolean(formik.errors.email)}
+                        helperText={formik.touched.email && formik.errors.email}
                     />
                     <TextField
                         autoFocus
@@ -158,9 +168,11 @@ const CreateUser = (props: Props) => {
                         label="Name"
                         type="text"
                         fullWidth
-                        value={name}
+                        value={formik.values.name}
                         className={classes.marginBottm}
-                        onChange={(e) => setName(e.target.value)}
+                        onChange={formik.handleChange}
+                        error={formik.touched.name && Boolean(formik.errors.name)}
+                        helperText={formik.touched.name && formik.errors.name}
                     />
 
                     <Autocomplete
@@ -181,7 +193,7 @@ const CreateUser = (props: Props) => {
                             onChange={handleChange}
                         >
                             {
-                                projects.slice(1).map(el => <MenuItem value={el.project_id} key={el.project_id}>{el.name}</MenuItem>)
+                                projects.slice(1).map(el => <MenuItem value={el.name} key={el.project_id}>{el.name}</MenuItem>)
                             }
                         </Select>
                     </FormControl>
@@ -207,10 +219,11 @@ const CreateUser = (props: Props) => {
                         <Button onClick={handleClose(false)} color="primary">
                             Cancel
                     </Button>
-                        <Button onClick={submitData} color="primary">
+                        <Button type="submit" color="primary">
                             Submit
                     </Button>
                     </DialogActions>
+                    </form>
                 </Container>
             </Drawer>
             <CreateUserRole

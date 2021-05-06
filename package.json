@@ -31,7 +31,7 @@
   "contributors": [],
   "bugs": {},
   "directories": {
-    "lib": "packages/server/src",
+    "lib": "packages/server-core/src/user",
     "config": "config/"
   },
   "engines": {
