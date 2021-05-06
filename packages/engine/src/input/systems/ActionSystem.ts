@@ -11,7 +11,7 @@ import { Vault } from '../../networking/classes/Vault';
 import { NetworkObject } from "../../networking/components/NetworkObject";
 import { NetworkClientInputInterface } from "../../networking/interfaces/WorldState";
 import { ClientInputModel } from '../../networking/schema/clientInputSchema';
-import { CharacterComponent, RUN_SPEED, WALK_SPEED } from "../../templates/character/components/CharacterComponent";
+import { CharacterComponent } from "../../templates/character/components/CharacterComponent";
 import { Input } from '../components/Input';
 import { LocalInputReceiver } from "../components/LocalInputReceiver";
 import { XRInputReceiver } from '../components/XRInputReceiver';
@@ -171,15 +171,6 @@ export class ActionSystem extends System {
               input.data.set(key, value);
             }
             return;
-
-            if (prevValue.lifecycleState === LifecycleValue.ENDED &&
-              value.lifecycleState === LifecycleValue.STARTED
-            ) {
-              // auto-switch to CONTINUED
-              value.lifecycleState = LifecycleValue.CONTINUED;
-              input.data.set(key, value);
-            }
-            return
           }
 
           if (value.lifecycleState === LifecycleValue.ENDED) {
@@ -218,7 +209,7 @@ export class ActionSystem extends System {
                 input.schema.inputButtonBehaviors[key].continued?.forEach(element =>
                   element.behavior(entity, element.args, delta)
                 );
-              
+
               } else {
                 console.error('Unexpected lifecycleState', key, value.lifecycleState, LifecycleValue[value.lifecycleState], 'prev', LifecycleValue[input.prevData.get(key)?.lifecycleState]);
               }
@@ -283,8 +274,8 @@ export class ActionSystem extends System {
         // if (_.isEqual(input.data, input.lastData))
         //   return;
         // Repopulate lastData
-      //  input.lastData.clear();
-    //    input.data.forEach((value, key) => input.lastData.set(key, value));
+       input.lastData.clear();
+       input.data.forEach((value, key) => input.lastData.set(key, value));
 
 
         const inputSnapshot = Vault.instance?.get()
@@ -311,11 +302,7 @@ export class ActionSystem extends System {
           //console.warn(inputs.snapShotTime);
           // Add all values in input component to schema
           input.data.forEach((value: any, key) => {
-            if (value.type === InputType.BUTTON &&
-              value.lifecycleState != LifecycleValue.CONTINUED &&
-              value.lifecycleState != LifecycleValue.UNCHANGED &&
-              value.lifecycleState != LifecycleValue.CHANGED
-            )
+            if (value.type === InputType.BUTTON)
               inputs.buttons.push({ input: key, value: value.value, lifecycleState: value.lifecycleState });
             else if (value.type === InputType.ONEDIM) // && value.lifecycleState !== LifecycleValue.UNCHANGED
               inputs.axes1d.push({ input: key, value: value.value, lifecycleState: value.lifecycleState });
@@ -347,7 +334,7 @@ export class ActionSystem extends System {
 
           input.data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
             if (value.type === InputType.BUTTON) {
-              if (value.lifecycleState === LifecycleValue.ENDED || value.value === BinaryValue.OFF) {
+              if (value.lifecycleState === LifecycleValue.ENDED) {
                 input.data.delete(key);
               }
             }

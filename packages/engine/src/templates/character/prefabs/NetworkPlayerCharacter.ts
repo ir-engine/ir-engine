@@ -153,8 +153,23 @@ export const loadActorAvatarFromURL: Behavior = (entity, avatarURL) => {
     const geom = getGeometry(actor.modelContainer);
     if(geom) {
       geom.computeBoundingBox()
-      const modelHeight = geom.boundingBox.max.y - geom.boundingBox.min.y;
-      controller.controller.resize(modelHeight - (controller.radius * 2));
+      const modelX = (geom.boundingBox.max.x - geom.boundingBox.min.x) / 2;
+      const modelY = (geom.boundingBox.max.y - geom.boundingBox.min.y) / 2;
+      const modelZ = (geom.boundingBox.max.z - geom.boundingBox.min.z) / 2;
+			//controller.controller.resize(modelHeight - (modelWidth*2));
+			const modelSize = modelX + modelY + modelZ;
+			if (!modelSize) return;
+
+      // TODO: controller size should be calculated entirely from the model bounds, not relying to constants & tweaking
+
+      // instead, set model to IDLE state, then calculate total bounds and resize
+
+      const modelWidth = ((modelX * actor.modelScaleWidth.x) + (modelY * actor.modelScaleWidth.y) + (modelZ * actor.modelScaleWidth.z));
+			const modelHeight = ((modelX * actor.modelScaleHeight.x) + (modelY * actor.modelScaleHeight.y) + (modelZ * actor.modelScaleHeight.z)) / (modelSize * actor.modelScaleFactor.size);
+			const height = modelHeight * actor.modelScaleFactor.height;
+			const width = modelWidth * actor.modelScaleFactor.radius;
+			controller.controller.radius = width;
+			controller.controller.height = height;
     }
 		actor.mixer = new AnimationMixer(actor.modelContainer.children[0]);
 		if (hasComponent(entity, IKComponent)) {
@@ -232,9 +247,9 @@ const initializeCharacter: Behavior = (entity): void => {
 			contactOffset: actor.contactOffset,
 			radius: actor.capsuleRadius,
 	    position: {
-	      x: actor.capsulePosition.x,
-	      y: actor.capsulePosition.y + actor.actorHeight,
-	      z: actor.capsulePosition.z
+	      x: transform.position.x,
+	      y: transform.position.y + 2,
+	      z: transform.position.z
 	    },
 	    material: {
 	      dynamicFriction: actor.capsuleFriction,

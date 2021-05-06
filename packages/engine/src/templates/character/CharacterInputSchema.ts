@@ -19,7 +19,7 @@ import { Interactable } from '../../interaction/components/Interactable';
 import { Interactor } from '../../interaction/components/Interactor';
 import { Object3DComponent } from '../../scene/components/Object3DComponent';
 import { interactOnServer } from '../../interaction/systems/InteractiveSystem';
-import { CharacterComponent, WALK_SPEED, RUN_SPEED} from "./components/CharacterComponent";
+import { CharacterComponent } from "./components/CharacterComponent";
 import { isServer } from "../../common/functions/isServer";
 import { VehicleComponent } from '../vehicle/components/VehicleComponent';
 import { isMobileOrTablet } from '../../common/functions/isMobile';
@@ -29,6 +29,7 @@ import { EquippedComponent } from '../../interaction/components/EquippedComponen
 import { unequipEntity } from '../../interaction/functions/equippableFunctions';
 import { TransformComponent } from '../../transform/components/TransformComponent';
 import { XRUserSettings, XR_ROTATION_MODE } from '../../xr/types/XRUserSettings';
+import { BinaryValue } from '../../common/enums/BinaryValue';
 
 /**
  *
@@ -317,16 +318,16 @@ const moveByInputAxis: Behavior = (
   if (data.type === InputType.TWODIM) {
     actor.localMovementDirection.z = data.value[0];
     actor.localMovementDirection.x = data.value[1];
-    actor.changedViewAngle = changedDirection(data.value[2]);  // Calculate the changed direction.=
+    actor.changedViewAngle = changedDirection(data.value[2]);
   } else if (data.type === InputType.THREEDIM) {
     // TODO: check if this mapping correct
     actor.localMovementDirection.z = data.value[2];
     actor.localMovementDirection.x = data.value[0];
   }
 };
-const setMoveSpeed: Behavior = (entity, args): void => {
+const setWalking: Behavior = (entity, args: { value: number }): void => {
   const actor: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
-  actor.moveSpeed = args.speed; // its just now in one plase
+  actor.moveSpeed = args.value === BinaryValue.ON ? actor.walkSpeed : actor.runSpeed;
 };
 
 const setLocalMovementDirection: Behavior = (entity, args: { z?: number; x?: number; y?: number }): void => {
@@ -607,25 +608,25 @@ export const CharacterInputSchema: InputSchema = {
     [BaseInput.WALK]: {
       started: [
         {
-          behavior: setMoveSpeed,
+          behavior: setWalking,
           args: {
-            speed: WALK_SPEED
+            value: BinaryValue.ON
           }
         }
       ],
       continued: [
         {
-          behavior: setMoveSpeed,
+          behavior: setWalking,
           args: {
-            speed: WALK_SPEED
+            value: BinaryValue.ON
           }
         }
       ],
       ended: [
         {
-          behavior: setMoveSpeed,
+          behavior: setWalking,
           args: {
-            speed: RUN_SPEED
+            value: BinaryValue.OFF
           }
         }
       ]

@@ -8,11 +8,6 @@ import { RelativeSpringSimulator } from '../../../physics/classes/SpringSimulato
 import { SceneQuery, Transform } from "three-physx";
 import { CollisionGroups } from '../../../physics/enums/CollisionGroups';
 
-// idle|   idle  +  walk     |    walk      |    walk + run     |   run
-// 0   | > WALK_START_SPEED  | > WALK_SPEED | > RUN_START_SPEED | > RUN_SPEED
-export const WALK_SPEED = 0.5;
-export const RUN_SPEED = 1;
-export const MULT_SPEED = 2; // its value multiplier character speed 
 export class CharacterComponent extends Component<CharacterComponent> {
 
 	dispose(): void {
@@ -20,6 +15,12 @@ export class CharacterComponent extends Component<CharacterComponent> {
 		this.modelContainer.parent.remove(this.modelContainer);
     this.tiltContainer = null;
   }
+
+	// TODO: remove this, model bounds should be calculated entirely from model bounds, not parameters
+	public modelScaleHeight = { x: 0.4, y: 0,  z: 4  };     // its x - hands, y- height, z - body
+	public modelScaleWidth = { x: 0, y: 0,  z: 1.2  };     // its x - hands, y- height, z - body
+	public modelScaleFactor = { size: 0.3, height: 0.66, radius: 1 };    // calulated then loaded model avatar
+	public modelScale = 1; // its for resize
 
   public movementEnabled = false;
 	public initialized = false;
@@ -40,9 +41,13 @@ export class CharacterComponent extends Component<CharacterComponent> {
 	public mixer: AnimationMixer;
 	public animations: any[] = [];
 
-  // TODO: Remove integrate this
-  public physicsEnabled = true
-	// Movement
+	// === Movement === //
+
+	public walkSpeed = 0.5;
+	public runSpeed = 1;
+	public jumpHeight = 4;
+	public speedMultiplier = 2;
+
 	/**
 	 * desired moving direction from user inputs
 	 */
@@ -63,7 +68,7 @@ export class CharacterComponent extends Component<CharacterComponent> {
 	public velocitySimulator: VectorSpringSimulator
 	public animationVectorSimulator: VectorSpringSimulator
 	public moveVectorSmooth: VectorSpringSimulator
-	public moveSpeed = RUN_SPEED;
+	public moveSpeed = 1;
 	public otherPlayerMaxSpeedCount = 0;
 	public angularVelocity = 0;
 	public orientation: Vector3 = new Vector3(0, 0, 1);

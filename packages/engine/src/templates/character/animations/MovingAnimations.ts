@@ -68,22 +68,22 @@ export const movingAnimationSchema = [
   },
 
   {
-    type: [RUN_FORWARD], name: defaultAvatarAnimations[RUN_FORWARD].name, axis:'z', speed: 0.4, customProperties: ['weight', 'dontHasHit'],
+    type: [RUN_FORWARD], name: defaultAvatarAnimations[RUN_FORWARD].name, axis:'z', speed: 0.5, customProperties: ['weight', 'dontHasHit'],
     value:      [  0.5,  1  ],
     weight:     [   0,   1  ],
     dontHasHit: [   0 , 0.5 ]
   },{
-    type: [RUN_STRAFE_RIGHT], name: defaultAvatarAnimations[RUN_STRAFE_RIGHT].name, axis: 'x', speed: 0.4, customProperties: ['weight', 'dontHasHit'],
+    type: [RUN_STRAFE_RIGHT], name: defaultAvatarAnimations[RUN_STRAFE_RIGHT].name, axis: 'x', speed: 0.5, customProperties: ['weight', 'dontHasHit'],
     value:      [ -1, -0.5 ],
     weight:     [  1 ,  0  ],
     dontHasHit: [  0.5, 0  ]
   },{
-    type: [RUN_STRAFE_LEFT], name: defaultAvatarAnimations[RUN_STRAFE_LEFT].name, axis:'x', speed: 0.4, customProperties: ['weight', 'dontHasHit'],
+    type: [RUN_STRAFE_LEFT], name: defaultAvatarAnimations[RUN_STRAFE_LEFT].name, axis:'x', speed: 0.5, customProperties: ['weight', 'dontHasHit'],
     value:      [ 0.5,  1  ],
     weight:     [  0 ,  1  ],
     dontHasHit: [  0 , 0.5 ]
   },{
-    type: [RUN_BACKWARD], name: defaultAvatarAnimations[RUN_BACKWARD].name, axis: 'z', speed: 0.4, customProperties: ['weight', 'dontHasHit'],
+    type: [RUN_BACKWARD], name: defaultAvatarAnimations[RUN_BACKWARD].name, axis: 'z', speed: 0.5, customProperties: ['weight', 'dontHasHit'],
     value:      [ -1 ,-0.5 ],
     weight:     [  1 ,  0  ],
     dontHasHit: [ 0.5,  0  ]
@@ -104,11 +104,11 @@ export const initializeMovingState: Behavior = (entity, args: { x?: number, y?: 
 	actor.velocitySimulator.damping = actor.defaultVelocitySimulatorDamping;
 	actor.velocitySimulator.mass = actor.defaultVelocitySimulatorMass;
 
-  actor.animationVectorSimulator.damping = actor.defaultVelocitySimulatorDamping;
-	actor.animationVectorSimulator.mass = actor.defaultVelocitySimulatorMass;
+  actor.animationVectorSimulator.damping = actor.defaultRotationSimulatorDamping;
+	actor.animationVectorSimulator.mass = actor.defaultRotationSimulatorMass;
 
-  actor.moveVectorSmooth.damping = actor.defaultVelocitySimulatorDamping;
-	actor.moveVectorSmooth.mass = actor.defaultVelocitySimulatorMass;
+  actor.moveVectorSmooth.damping = actor.defaultRotationSimulatorDamping;
+	actor.moveVectorSmooth.mass = actor.defaultRotationSimulatorMass;
 
 	actor.rotationSimulator.damping = actor.defaultRotationSimulatorDamping;
 	actor.rotationSimulator.mass = actor.defaultRotationSimulatorMass;
@@ -131,11 +131,14 @@ export const getMovementValues: Behavior = (entity, args: {}, deltaTime: number)
   //  absSpeed = MathUtils.smoothstep(absSpeed, 0, 1);
 
 //  if(actor.moveVectorSmooth.position.length() < 0.01) { actor.moveVectorSmooth.velocity.multiplyScalar(0.9) }
+
   if(actor.moveVectorSmooth.position.length() < 0.001) { actor.moveVectorSmooth.velocity.set(0,0,0); actor.moveVectorSmooth.position.set(0,0,0); }
 
   actor.moveVectorSmooth.target.copy(actor.animationVelocity)
   actor.moveVectorSmooth.simulate(deltaTime);
   const actorVelocity = actor.moveVectorSmooth.position;
+
+//  const actorVelocity = actor.animationVelocity.clone();
 
   actor.animationVectorSimulator.target.setY(actor.isGrounded ? 0 : 1);
   actor.animationVectorSimulator.simulate(deltaTime);

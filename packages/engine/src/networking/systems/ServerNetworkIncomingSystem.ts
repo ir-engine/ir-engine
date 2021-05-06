@@ -14,7 +14,7 @@ import { BaseInput } from '../../input/enums/BaseInput';
 import { InputType } from '../../input/enums/InputType';
 import { InputValue } from '../../input/interfaces/InputValue';
 import { InputAlias } from '../../input/types/InputAlias';
-import { CharacterComponent, RUN_SPEED, WALK_SPEED } from "../../templates/character/components/CharacterComponent";
+import { CharacterComponent } from "../../templates/character/components/CharacterComponent";
 import { CHARACTER_STATES } from '../../templates/character/state/CharacterStates';
 import { initiateIK, stopIK } from '../../xr/functions/IKFunctions';
 import { Network } from '../classes/Network';
