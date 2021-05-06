@@ -153,8 +153,19 @@ export const loadActorAvatarFromURL: Behavior = (entity, avatarURL) => {
     const geom = getGeometry(actor.modelContainer);
     if(geom) {
       geom.computeBoundingBox()
-      const modelHeight = geom.boundingBox.max.y - geom.boundingBox.min.y;
-      controller.controller.resize(modelHeight - (controller.radius * 2));
+      const modelX = (geom.boundingBox.max.x - geom.boundingBox.min.x) / 2;
+      const modelY = (geom.boundingBox.max.y - geom.boundingBox.min.y) / 2;
+      const modelZ = (geom.boundingBox.max.z - geom.boundingBox.min.z) / 2;
+			//controller.controller.resize(modelHeight - (modelWidth*2));
+			const modelSize = modelX + modelY + modelZ;
+			if (!modelSize) return;
+      const modelWidth =  ((modelX * actor.MODEL_FACTOR_W.x) + (modelY * actor.MODEL_FACTOR_W.y) + (modelZ * actor.MODEL_FACTOR_W.z)) ;
+			const modelHeight = ((modelX * actor.MODEL_FACTOR_H.x) + (modelY * actor.MODEL_FACTOR_H.y) + (modelZ * actor.MODEL_FACTOR_H.z)) / (modelSize * actor.SIZE_FACTOR.size);
+			const height = modelHeight * actor.SIZE_FACTOR.height;
+			const width = modelWidth * actor.SIZE_FACTOR.radius;
+			controller.controller.radius = width
+			controller.controller.height = height
+			actor.BODY_SIZE = height - (width*2);
     }
 		actor.mixer = new AnimationMixer(actor.modelContainer.children[0]);
 		if (hasComponent(entity, IKComponent)) {
@@ -232,9 +243,9 @@ const initializeCharacter: Behavior = (entity): void => {
 			contactOffset: actor.contactOffset,
 			radius: actor.capsuleRadius,
 	    position: {
-	      x: actor.capsulePosition.x,
-	      y: actor.capsulePosition.y + actor.actorHeight,
-	      z: actor.capsulePosition.z
+	      x: transform.position.x,
+	      y: transform.position.y + 2,
+	      z: transform.position.z
 	    },
 	    material: {
 	      dynamicFriction: actor.capsuleFriction,

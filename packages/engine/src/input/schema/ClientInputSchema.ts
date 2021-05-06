@@ -484,7 +484,7 @@ const handleKey = (args: { event: KeyboardEvent; value: BinaryType }): any => {
   const key = args.event.key.toLowerCase();
 
   if (args.value === BinaryValue.ON) {
-    ClientInputSystem.timeOutToClearPressedKeys = 1;
+    ClientInputSystem.timeOutToClearPressedKeys = 1.3;
     // If the key is in the map but it's in the same state as now, let's skip it (debounce)
     if (Engine.inputState.has(key) &&
       Engine.inputState.get(key).value === args.value) {

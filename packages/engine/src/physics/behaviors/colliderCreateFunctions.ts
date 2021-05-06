@@ -12,7 +12,7 @@ import { TransformComponent } from '../../transform/components/TransformComponen
  * @author HydraFire <github.com/HydraFire>
  * @author Josh Field <github.com/hexafield>
  */
-
+ // it's for static (or dynamic with second component 'RigidBody') but changeable objects like (doors, flying up down planform);
 export function addColliderWithEntity(entity: Entity) {
 
   const colliderComponent = getMutableComponent<ColliderComponent>(entity, ColliderComponent);
@@ -29,7 +29,7 @@ export function addColliderWithEntity(entity: Entity) {
   );
   colliderComponent.body = body;
 }
-
+// its for static world colliders (wall, floar)
 const quat1 = new Quaternion();
 const quat2 = new Quaternion();
 const xVec = new Vector3(1, 0, 0);
@@ -115,7 +115,7 @@ export function addColliderWithoutEntity(userData, pos = new Vector3(), rot = ne
   });
 
 
-  
+
   const body: Body = PhysicsSystem.instance.addBody(bodyConfig);
 
   return body;

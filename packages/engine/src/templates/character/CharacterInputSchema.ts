@@ -19,7 +19,7 @@ import { Interactable } from '../../interaction/components/Interactable';
 import { Interactor } from '../../interaction/components/Interactor';
 import { Object3DComponent } from '../../scene/components/Object3DComponent';
 import { interactOnServer } from '../../interaction/systems/InteractiveSystem';
-import { CharacterComponent, WALK_SPEED, RUN_SPEED} from "./components/CharacterComponent";
+import { CharacterComponent } from "./components/CharacterComponent";
 import { isServer } from "../../common/functions/isServer";
 import { VehicleComponent } from '../vehicle/components/VehicleComponent';
 import { isMobileOrTablet } from '../../common/functions/isMobile';
@@ -324,9 +324,9 @@ const moveByInputAxis: Behavior = (
     actor.localMovementDirection.x = data.value[0];
   }
 };
-const setMoveSpeed: Behavior = (entity, args): void => {
+const setMoveSpeed: Behavior = (entity, args: { v: number }): void => {
   const actor: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
-  actor.moveSpeed = args.speed; // its just now in one plase
+  actor.moveSpeed = args.v ? actor.WALK_SPEED : actor.RUN_SPEED; // its just now in one plase
 };
 
 const setLocalMovementDirection: Behavior = (entity, args: { z?: number; x?: number; y?: number }): void => {
@@ -609,7 +609,7 @@ export const CharacterInputSchema: InputSchema = {
         {
           behavior: setMoveSpeed,
           args: {
-            speed: WALK_SPEED
+            v: 1
           }
         }
       ],
@@ -617,7 +617,7 @@ export const CharacterInputSchema: InputSchema = {
         {
           behavior: setMoveSpeed,
           args: {
-            speed: WALK_SPEED
+            v: 1
           }
         }
       ],
@@ -625,7 +625,7 @@ export const CharacterInputSchema: InputSchema = {
         {
           behavior: setMoveSpeed,
           args: {
-            speed: RUN_SPEED
+            v: 0
           }
         }
       ]

@@ -10,9 +10,7 @@ import { CollisionGroups } from '../../../physics/enums/CollisionGroups';
 
 // idle|   idle  +  walk     |    walk      |    walk + run     |   run
 // 0   | > WALK_START_SPEED  | > WALK_SPEED | > RUN_START_SPEED | > RUN_SPEED
-export const WALK_SPEED = 0.5;
-export const RUN_SPEED = 1;
-export const MULT_SPEED = 2; // its value multiplier character speed 
+
 export class CharacterComponent extends Component<CharacterComponent> {
 
 	dispose(): void {
@@ -20,6 +18,18 @@ export class CharacterComponent extends Component<CharacterComponent> {
 		this.modelContainer.parent.remove(this.modelContainer);
     this.tiltContainer = null;
   }
+
+	public WALK_SPEED = 0.5; //use MULTIPLY_SPEED for change paler speed
+	public RUN_SPEED = 1; //use MULTIPLY_SPEED for change paler speed
+	public HEIGHT_JUMP = 4;
+
+	public MULTIPLY_SPEED = 2;
+	public FACTOR_BODY_SIZE = 1;
+	// calulated then loaded model avatar
+	public MODEL_FACTOR_H = { x: 0.4, y: 0,  z: 4  };     // its x - hands, y- height, z - body
+	public MODEL_FACTOR_W = { x: 0, y: 0,  z: 1.2  };     // its x - hands, y- height, z - body
+	public SIZE_FACTOR = { size: 0.3, height: 0.66, radius: 1 };    // calulated then loaded model avatar
+	public BODY_SIZE = 1;// its for resize
 
   public movementEnabled = false;
 	public initialized = false;
@@ -63,7 +73,7 @@ export class CharacterComponent extends Component<CharacterComponent> {
 	public velocitySimulator: VectorSpringSimulator
 	public animationVectorSimulator: VectorSpringSimulator
 	public moveVectorSmooth: VectorSpringSimulator
-	public moveSpeed = RUN_SPEED;
+	public moveSpeed = this.RUN_SPEED;
 	public otherPlayerMaxSpeedCount = 0;
 	public angularVelocity = 0;
 	public orientation: Vector3 = new Vector3(0, 0, 1);

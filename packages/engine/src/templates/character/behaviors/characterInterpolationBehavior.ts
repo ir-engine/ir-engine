@@ -4,7 +4,7 @@ import { getComponent, getMutableComponent } from '../../../ecs/functions/Entity
 import { findInterpolationSnapshot } from '../../../physics/behaviors/findInterpolationSnapshot';
 import { ControllerColliderComponent } from '../../../physics/components/ControllerColliderComponent';
 import { TransformComponent } from '../../../transform/components/TransformComponent';
-import { CharacterComponent, MULT_SPEED } from '../components/CharacterComponent';
+import { CharacterComponent } from '../components/CharacterComponent';
 /**
  * @author HydraFire <github.com/HydraFire>
  */
@@ -13,20 +13,20 @@ export const characterInterpolationBehavior: Behavior = (entity: Entity, snapsho
   const transform = getComponent<TransformComponent>(entity, TransformComponent);
   const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
   const collider = getMutableComponent<ControllerColliderComponent>(entity, ControllerColliderComponent);
-  
+
   const interpolation = findInterpolationSnapshot(entity, snapshots.interpolation);
 
   if (!actor.initialized || !collider.controller || !interpolation) return;
 
   if (isNaN(interpolation.vX)) return;
-    
+  !window.t?window.t=1:window.t==50?console.warn(window.t = 0,"| ",actor.animationVelocity.length()):window.t+=1;
   actor.animationVelocity.set(
     interpolation.vX,
     interpolation.vY,
     interpolation.vZ
   );
 
-  collider.controller.updateTransform({ 
+  collider.controller.updateTransform({
     translation: {
       x: interpolation.x,
       y: interpolation.y,
@@ -36,7 +36,7 @@ export const characterInterpolationBehavior: Behavior = (entity: Entity, snapsho
 
   collider.controller.velocity = { x: 0, y: 0, z: 0 };
 
-  transform.rotation.set(    
+  transform.rotation.set(
     interpolation.qX,
     interpolation.qY,
     interpolation.qZ,
