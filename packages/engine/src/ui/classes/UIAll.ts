@@ -2,8 +2,8 @@ import { UIBaseElement, UI_ELEMENT_SELECT_STATE } from "./UIBaseElement";
 import { Color, Vector3, Quaternion, Euler, Object3D, TextureLoader } from 'three';
 import { Block, Text } from "../../assets/three-mesh-ui";
 import { Engine } from "../../ecs/classes/Engine";
-import { VideoPlayer } from "@xr3ngine/engine/src/video/classes/VideoPlayer";
-import { Control } from "@xr3ngine/engine/src/video/classes/Control";
+import { VideoPlayer } from "./VideoPlayer";
+import { Control } from "./Control";
 import { createItem, createCol, createRow, createButton, makeLeftItem } from '../functions/createItem';
 
 const gap = 0.02;
@@ -59,9 +59,6 @@ export class UIGallery extends UIBaseElement {
   init() {
     // console.log(Engine.scene, Engine.entityMap, Engine.componentsMap);
     // Engine.scene.add;
-    
-    Engine.scene.children[10].visible = false;      //ground
-    Engine.scene.children[12].visible = false;      //character
 
     let setPurchase = null;
     const marketPlaceItemClickCB = (panel) => {

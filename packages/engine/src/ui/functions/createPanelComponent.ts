@@ -10,6 +10,6 @@ export const createPanelComponent = (args: { panel: UIBaseElement, parent: null,
   const entity = createEntity();
   addComponent(entity, UIPanelComponent, { panel: args.panel });
   addComponent(entity, Object3DComponent, { value: args.panel });
-  addComponent(entity, TransformComponent, { position: args.sourcePosition });
-  addComponent(entity, DesiredTransformComponent, { position: args.destinationPosition, positionRate: 10 });
+  // addComponent(entity, TransformComponent, { position: args.sourcePosition });
+  // addComponent(entity, DesiredTransformComponent, { position: args.destinationPosition, positionRate: 10 });
 }
