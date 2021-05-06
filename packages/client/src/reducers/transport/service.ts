@@ -1,5 +1,5 @@
 import { Dispatch } from 'redux';
-import { MediaStreamSystem } from "@xr3ngine/engine/src/networking/systems/MediaStreamSystem";
+import { MediaStreamSystem } from "@xrengine/engine/src/networking/systems/MediaStreamSystem";
 import {
   setChannelTypeState
 } from './actions';

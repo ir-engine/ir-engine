@@ -1,7 +1,7 @@
 {
-  "name": "@xr3ngine/server-core",
-  "description": "Shared components for XR3ngine server",
-  "version": "0.2.21",
+  "name": "@xrengine/server-core",
+  "description": "Shared components for XREngine server",
+  "version": "0.2.22",
   "homepage": "",
   "publishConfig": {
     "access": "public"
@@ -22,7 +22,7 @@
     "vr"
   ],
   "author": {
-    "name": "XR3 Collective",
+    "name": "XREngine Collective",
     "email": "shawmakesmagic@gmail.com"
   },
   "contributors": [],
@@ -33,12 +33,12 @@
   "jest": "ts-jest",
   "scripts": {
     "check-errors": "tsc --noemit",
-    "start": "yarn run build && node dist/server.js",
+    "start": "yarn run build-publish && node dist/server.js",
     "dev": "cross-env NODE_ENV=development vite",
     "dev-reinit-db": "cross-env NODE_ENV=development FORCE_DB_REFRESH=true vite",
     "test": "echo \"TODO: no test specified\" && exit 0",
     "build-publish": "rimraf dist && ctix entrypoint ./src && cross-env NODE_ENV=production rollup -c",
-    "localbuild": "yarn build && cross-env LOCAL_BUILD=true yarn start",
+    "localbuild": "cross-env LOCAL_BUILD=true yarn start",
     "lint": "eslint --fix --ext \"**/*.js\" \"**/*.ts\"",
     "validate": "yarn run lint && yarn run build && yarn run test",
     "precommit": "no-master-commits -b master,dev",
@@ -67,8 +67,8 @@
     "@feathersjs/socketio-client": "^4.5.9",
     "@feathersjs/transport-commons": "^4.5.9",
     "@google-cloud/agones-sdk": "^1.7.0",
-    "@xr3ngine/common": "^0.2.21",
-    "@xr3ngine/engine": "^0.2.21",
+    "@xrengine/common": "^0.2.22",
+    "@xrengine/engine": "^0.2.22",
     "aws-sdk": "^2.811.0",
     "bent": "^7.3.0",
     "chargebee": "^2.5.7",
@@ -124,5 +124,5 @@
     "typedoc": "0.20.36",
     "typescript": "4.2.4"
   },
-  "gitHead": "5ff55be1619e188226c4ac91c92a44b7ba18edf4"
+  "gitHead": "2313453697ca7c6b8d36b3b166b5a6445fe1c851"
 }

@@ -14,8 +14,6 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import { useTranslation } from 'react-i18next';
 import {
-} from '@material-ui/icons';
-import {
     CalendarViewDay,
     ChevronLeft,
     ChevronRight,
@@ -32,8 +30,10 @@ import {
     SupervisorAccount,
 } from '@material-ui/icons';
 import { Link } from "react-router-dom";
-import Backdrop from '@material-ui/core/Backdrop';
-import CircularProgress from '@material-ui/core/CircularProgress';
+import { deepOrange } from "@material-ui/core/colors";
+import Avatar from "@material-ui/core/Avatar";
+import { selectAuthState } from "../../reducers/auth/selector";
+import { connect } from 'react-redux';
 
 const drawerWidth = 200;
 
@@ -110,9 +110,31 @@ const useStyles = makeStyles((theme: Theme) =>
         },
         textLink: {
             textDecoration: "none"
+        },
+        orange: {
+            color: theme.palette.getContrastText(deepOrange[500]),
+            backgroundColor: deepOrange[500]
+        },
+        marginLft: {
+            marginLeft: "10px"
+        },
+        avatarPosition: {
+           display: "flex",
+           marginLeft: "80%"
         }
     }),
 );
+
+interface Props {
+    children?: any,
+    authState?: any
+}
+
+const mapStateToProps = (state: any): any => {
+    return {
+        authState: selectAuthState(state)
+    };
+};
 
 /**
  * Function for admin dashboard 
@@ -122,12 +144,15 @@ const useStyles = makeStyles((theme: Theme) =>
  * @author Kevin KIMENYI <kimenyikevin@gmail.com>
  */
 
-export default function Dashboard({ children }) {
+const Dashboard = ({ children, authState }: Props) => {
     const classes = useStyles();
     const theme = useTheme();
     const [open, setOpen] = React.useState(false);
     const [loading, setLoading] = React.useState(false);
 	const { t } = useTranslation();
+    const admin = authState.get("user");
+    const isLoggedIn = authState.get("isLoggedIn");
+
 
     const handleDrawerOpen = () => {
         setOpen(true);
@@ -137,12 +162,6 @@ export default function Dashboard({ children }) {
         setOpen(false);
     };
 
-    const changeComponent = () => {
-        setLoading(true);
-        setTimeout(()=>{
-            setLoading(false);
-        }, 2000);
-    };
 
     return (
         <div className={classes.root}>
@@ -167,8 +186,15 @@ export default function Dashboard({ children }) {
                         <Menu />
                     </IconButton>
                     <Typography variant="h6">
-                        {t('user:dashboard.header')}
-                    </Typography>
+                        Dashboard
+                    </Typography>               
+                    {
+                        admin["name"] &&
+                        <div className={classes.avatarPosition}>
+                        <Avatar className={classes.orange}>{admin["name"].charAt(0).toUpperCase()}</Avatar>
+                            <Typography variant="h6" className={classes.marginLft} >{admin["name"]}</Typography>
+                        </div>
+                    }
                 </Toolbar>
             </AppBar>
             <Drawer
@@ -192,15 +218,15 @@ export default function Dashboard({ children }) {
                 <Divider />
                 <List >
                     <Link to="/admin" className={classes.textLink}>
-                            <ListItem style={{ color: "white" }} onClick={changeComponent} button>
-                                <ListItemIcon >
-                                    <DashboardIcon style={{ color: "white" }} />
-                                </ListItemIcon>
-                                <ListItemText primary={t('user:dashboard.dashboard')} />
-                            </ListItem>
+                        <ListItem style={{ color: "white" }} button>
+                            <ListItemIcon >
+                                <DashboardIcon style={{ color: "white" }} />
+                            </ListItemIcon>
+                            <ListItemText primary="Dashboard" />
+                        </ListItem>
                     </Link>
                     <Link to="/admin/users" className={classes.textLink}>
-                        <ListItem style={{ color: "white" }} onClick={changeComponent} button>
+                        <ListItem style={{ color: "white" }} button>
                             <ListItemIcon >
                                 <SupervisorAccount style={{ color: "white" }} />
                             </ListItemIcon>
@@ -208,7 +234,7 @@ export default function Dashboard({ children }) {
                         </ListItem>
                     </Link>
                     <Link to="/admin/instance" className={classes.textLink}>
-                        <ListItem style={{ color: "white"}} onClick={changeComponent} button>
+                        <ListItem style={{ color: "white" }} button>
                             <ListItemIcon >
                                 <DirectionsRun style={{ color: "white" }} />
                             </ListItemIcon>
@@ -216,7 +242,7 @@ export default function Dashboard({ children }) {
                         </ListItem>
                     </Link>
                     <Link to="/admin/locations" className={classes.textLink}>
-                        <ListItem style={{ color: "white"}} onClick={changeComponent}  button>
+                        <ListItem style={{ color: "white" }} button>
                             <ListItemIcon >
                                 <NearMe style={{ color: "white" }} />
                             </ListItemIcon>
@@ -224,7 +250,7 @@ export default function Dashboard({ children }) {
                         </ListItem>
                     </Link>
                     <Link to="/admin/invites" className={classes.textLink}>
-                        <ListItem style={{ color: "white" }} onClick={changeComponent} button>
+                        <ListItem style={{ color: "white" }} button>
                             <ListItemIcon >
                                 <PersonAdd style={{ color: "white" }} />
                             </ListItemIcon>
@@ -232,7 +258,7 @@ export default function Dashboard({ children }) {
                         </ListItem>
                     </Link>
                     <Link to="/admin/sessions" className={classes.textLink}>
-                        <ListItem style={{ color: "white"}} onClick={changeComponent} button>
+                        <ListItem style={{ color: "white" }} button>
                             <ListItemIcon >
                                 <DragIndicator style={{ color: "white" }} />
                             </ListItemIcon>
@@ -240,7 +266,7 @@ export default function Dashboard({ children }) {
                         </ListItem>
                     </Link>
                     <Link to="/admin/groups" className={classes.textLink}>
-                        <ListItem style={{color: "white"}} onClick={changeComponent} button>
+                        <ListItem style={{ color: "white" }} button>
                             <ListItemIcon >
                                 <GroupAdd style={{ color: "white" }} />
                             </ListItemIcon>
@@ -248,7 +274,7 @@ export default function Dashboard({ children }) {
                         </ListItem>
                     </Link>
                     <Link to="/admin/parties" className={classes.textLink}>
-                        <ListItem style={{ color: "white"}} onClick={changeComponent} button>
+                        <ListItem style={{ color: "white" }} button>
                             <ListItemIcon >
                                 <CalendarViewDay style={{ color: "white" }} />
                             </ListItemIcon>
@@ -256,7 +282,7 @@ export default function Dashboard({ children }) {
                         </ListItem>
                     </Link>
                     <Link to="/admin/chats" className={classes.textLink}>
-                        <ListItem style={{ color: "white" }} onClick={changeComponent} button>
+                        <ListItem style={{ color: "white" }} button>
                             <ListItemIcon >
                                 <Forum style={{ color: "white" }} />
                             </ListItemIcon>
@@ -264,7 +290,7 @@ export default function Dashboard({ children }) {
                         </ListItem>
                     </Link>
                     <Link to="/admin/content-packs" className={classes.textLink}>
-                        <ListItem style={{ color: "white" }} onClick={changeComponent} button>
+                        <ListItem style={{ color: "white" }} button>
                             <ListItemIcon >
                                 <PhotoAlbum style={{ color: "white" }} />
                             </ListItemIcon>
@@ -272,7 +298,7 @@ export default function Dashboard({ children }) {
                         </ListItem>
                     </Link>
                     <Link to="/admin/scenes" className={classes.textLink}>
-                        <ListItem style={{ color: "white" }} onClick={changeComponent} button>
+                        <ListItem style={{ color: "white" }} button>
                             <ListItemIcon >
                                 <PhotoLibrary style={{ color: "white" }} />
                             </ListItemIcon>
@@ -286,10 +312,10 @@ export default function Dashboard({ children }) {
                 <div>
                     {children}
                 </div>
-            <Backdrop className={classes.backdrop} open={loading}>
-                <CircularProgress color="inherit" />
-            </Backdrop>
             </main>
         </div>
     );
-}
+};
+
+
+export default connect(mapStateToProps, null)(Dashboard);

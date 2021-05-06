@@ -1,7 +1,7 @@
 import * as authentication from '@feathersjs/authentication';
 import { disallow } from 'feathers-hooks-common';
 import logRequest from '../../hooks/log-request';
-import restrictUserRole from '@xr3ngine/server-core/src/hooks/restrict-user-role';
+import restrictUserRole from '@xrengine/server-core/src/hooks/restrict-user-role';
 
 // Don't remove this comment. It's needed to format import lines nicely.
 

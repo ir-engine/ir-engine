@@ -21,12 +21,12 @@ export function SupportDialog({ onCancel, ...props }) {
       <div>
         <p>{t('editor:dialog.support.header')}</p>
         <p>
-          <Trans t={t} values={{ mail: "support@xr3ngine.dev" }} i18nKey="editor:dialog.support.msg">
+          <Trans t={t} values={{ mail: "support@xrengine.dev" }} i18nKey="editor:dialog.support.msg">
             You can file a&nbsp;
-            <a href="https://github.com/xr3ngine/xr3ngine/issues/new" target="_blank" rel="noopener noreferrer">
+            <a href="https://github.com/XRFoundation/XREngine/issues/new" target="_blank" rel="noopener noreferrer">
               GitHub Issue
             </a>&nbsp;
-            or e-mail us for support at <a href="mailto:support@xr3ngine.dev">support@xr3ngine.dev</a>
+            or e-mail us for support at <a href="mailto:support@xrengine.dev">support@xrengine.dev</a>
           </Trans>
         </p>
         <p>

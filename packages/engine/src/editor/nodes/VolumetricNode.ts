@@ -1,8 +1,5 @@
 import EditorNodeMixin from "./EditorNodeMixin";
 import Volumetric from "../../scene/classes/Volumetric";
-import Hls from "hls.js/dist/hls.light";
-import isHLS from "../functions/isHLS";
-// import editorLandingVolumetric from "../../assets/volumetric/EditorPromo.mp4";
 import { RethrownError } from "../functions/errors";
 
 // @ts-ignore

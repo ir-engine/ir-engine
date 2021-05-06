@@ -14,9 +14,9 @@ import {
   fetchingReceivedInvites,
   fetchingSentInvites,
 } from './actions';
-import { Invite } from '@xr3ngine/common/src/interfaces/Invite';
+import { Invite } from '@xrengine/common/src/interfaces/Invite';
 import Store from "../../../store";
-import {User} from "@xr3ngine/common/src/interfaces/User";
+import {User} from "@xrengine/common/src/interfaces/User";
 
 const store = Store.store;
 

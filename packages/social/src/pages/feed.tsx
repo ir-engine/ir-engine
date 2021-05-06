@@ -1,11 +1,11 @@
 
 import React from "react";
 
-import AppFooter from "@xr3ngine/client-core/src/socialmedia/components/Footer";
-import Feed from "@xr3ngine/client-core/src/socialmedia/components/Feed";
+import AppFooter from "@xrengine/client-core/src/socialmedia/components/Footer";
+import Feed from "@xrengine/client-core/src/socialmedia/components/Feed";
 
 import { useLocation } from "react-router-dom";
-import AppHeader from "@xr3ngine/client-core/src/socialmedia/components/Header";
+import AppHeader from "@xrengine/client-core/src/socialmedia/components/Header";
 
 // @ts-ignore
 import styles from './index.module.scss';

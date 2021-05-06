@@ -4,7 +4,7 @@ import InfiniteScroll from "react-infinite-scroller";
 import styled from "styled-components";
 import { VerticalScrollContainer } from "../layout/Flex";
 import { MediaGrid, ImageMediaGridItem, VideoMediaGridItem, IconMediaGridItem } from "../layout/MediaGrid";
-import { unique } from "@xr3ngine/engine/src/editor/functions/utils";
+import { unique } from "@xrengine/engine/src/editor/functions/utils";
 import { ContextMenuTrigger, ContextMenu, MenuItem } from "../layout/ContextMenu";
 import { useDrag } from "react-dnd";
 import { getEmptyImage } from "react-dnd-html5-backend";

@@ -1,4 +1,4 @@
-import collectAnalytics from '@xr3ngine/server-core/src/hooks/collect-analytics';
+import collectAnalytics from '@xrengine/server-core/src/hooks/collect-analytics';
 import * as authentication from '@feathersjs/authentication';
 import { disallow } from 'feathers-hooks-common';
 import { BadRequest } from '@feathersjs/errors';
@@ -6,13 +6,13 @@ import { BadRequest } from '@feathersjs/errors';
 import { collectionType } from '../../entities/collection-type/collectionType';
 import { HookContext } from '@feathersjs/feathers';
 
-import attachOwnerIdInBody from '@xr3ngine/server-core/src/hooks/set-loggedin-user-in-body';
-import attachOwnerIdInQuery from '@xr3ngine/server-core/src/hooks/set-loggedin-user-in-query';
+import attachOwnerIdInBody from '@xrengine/server-core/src/hooks/set-loggedin-user-in-body';
+import attachOwnerIdInQuery from '@xrengine/server-core/src/hooks/set-loggedin-user-in-query';
 import generateSceneCollection from './generate-collection.hook';
-import mapProjectIdToQuery from '@xr3ngine/server-core/src/hooks/set-project-id-in-query';
-import removeRelatedResources from '@xr3ngine/server-core/src/hooks/remove-related-resources';
-import setResourceIdFromProject from '@xr3ngine/server-core/src/hooks/set-resource-id-from-project';
-import setResponseStatusCode from '@xr3ngine/server-core/src/hooks/set-response-status-code';
+import mapProjectIdToQuery from '@xrengine/server-core/src/hooks/set-project-id-in-query';
+import removeRelatedResources from '@xrengine/server-core/src/hooks/remove-related-resources';
+import setResourceIdFromProject from '@xrengine/server-core/src/hooks/set-resource-id-from-project';
+import setResponseStatusCode from '@xrengine/server-core/src/hooks/set-response-status-code';
 
 const { authenticate } = authentication.hooks;
 

@@ -1,6 +1,6 @@
 import VideoMediaSource from "../VideoMediaSource";
 import { ItemTypes } from "../../dnd";
-import VideoNode from "@xr3ngine/engine/src/editor/nodes/VideoNode";
+import VideoNode from "@xrengine/engine/src/editor/nodes/VideoNode";
 import Api from "../../Api";
 import i18n from "i18next";
 

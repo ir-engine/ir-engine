@@ -4,8 +4,8 @@ import React, { useState, useEffect } from 'react';
 // import PlayArrowIcon from '@material-ui/icons/PlayArrow'
 // import PauseIcon from '@material-ui/icons/Pause'
 // import ArrowBackIcon from '@material-ui/icons/ArrowBack'
-import triggerNavigation from '@xr3ngine/common/src/utils/triggerNavigation';
-import secondsToString from '@xr3ngine/common/src/utils/secondsToString';
+import triggerNavigation from '@xrengine/common/src/utils/triggerNavigation';
+import secondsToString from '@xrengine/common/src/utils/secondsToString';
 import classNames from 'classnames';
 const playBtnImageSrc = '/icons/play-shadow.png';
 const pauseBtnImageSrc = '/icons/pause-shadow.png';

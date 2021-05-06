@@ -9,19 +9,19 @@ import feathers from '@feathersjs/feathers';
 import express from '@feathersjs/express';
 import socketio from '@feathersjs/socketio';
 import AgonesSDK from '@google-cloud/agones-sdk';
-import { Application } from '@xr3ngine/server-core/declarations';
-import logger from '@xr3ngine/server-core/src/logger';
+import { Application } from '@xrengine/server-core/declarations';
+import logger from '@xrengine/server-core/src/logger';
 import channels from './channels';
-import authentication from '@xr3ngine/server-core/src/user/authentication';
-import config from '@xr3ngine/server-core/src/appconfig';
+import authentication from '@xrengine/server-core/src/user/authentication';
+import config from '@xrengine/server-core/src/appconfig';
 import sync from 'feathers-sync';
-import { api } from '@xr3ngine/server-core/src/k8s';
+import { api } from '@xrengine/server-core/src/k8s';
 import { WebRTCGameServer } from "./WebRTCGameServer";
 import winston from 'winston';
 import feathersLogger from 'feathers-logger';
 import { EventEmitter } from 'events';
-import services from '@xr3ngine/server-core/src/services';
-import sequelize from '@xr3ngine/server-core/src/sequelize';
+import services from '@xrengine/server-core/src/services';
+import sequelize from '@xrengine/server-core/src/sequelize';
 
 const emitter = new EventEmitter();
 
@@ -42,8 +42,8 @@ if (config.gameserver.enabled) {
           // TODO: Relate to server config, don't hardcode this here
           specs: {
             info: {
-              title: 'XR3ngine API Surface',
-              description: 'APIs for the XR3ngine application',
+              title: 'XREngine API Surface',
+              description: 'APIs for the XREngine application',
               version: '1.0.0'
             },
             schemes:['https'],
@@ -128,7 +128,7 @@ if (config.gameserver.enabled) {
 
     if (config.gameserver.mode === 'realtime') {
       (app as any).k8AgonesClient = api({
-        endpoint: `https://${process.env.KUBERNETES_SERVICE_HOST}:${process.env.KUBERNETES_PORT_443_TCP_PORT}`,
+        endpoint: `https://${config.kubernetes.serviceHost}:${config.kubernetes.tcpPort}`,
         version: '/apis/agones.dev/v1',
         auth: {
           caCert: fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/ca.crt'),
@@ -136,7 +136,7 @@ if (config.gameserver.enabled) {
         }
       });
       (app as any).k8DefaultClient = api({
-        endpoint: `https://${process.env.KUBERNETES_SERVICE_HOST}:${process.env.KUBERNETES_PORT_443_TCP_PORT}`,
+        endpoint: `https://${config.kubernetes.serviceHost}:${config.kubernetes.tcpPort}`,
         version: '/api/v1',
         auth: {
           caCert: fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/ca.crt'),
@@ -145,10 +145,10 @@ if (config.gameserver.enabled) {
       });
     }
 
-    if ((process.env.KUBERNETES === 'true') || process.env.NODE_ENV === 'development' || config.gameserver.mode === 'local') {
+    if ((config.kubernetes.enabled) || process.env.NODE_ENV === 'development' || config.gameserver.mode === 'local') {
       agonesSDK.connect();
       agonesSDK.ready().catch((err) => {
-        throw new Error('\x1b[33mError: Agones is not running!. If you are in local development, please run xr3ngine/scripts/sh start-agones.sh and restart server\x1b[0m');
+        throw new Error('\x1b[33mError: Agones is not running!. If you are in local development, please run xrengine/scripts/sh start-agones.sh and restart server\x1b[0m');
       });    
 
       (app as any).agonesSDK = agonesSDK;

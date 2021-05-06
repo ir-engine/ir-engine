@@ -1,4 +1,4 @@
-import collectAnalytics from '@xr3ngine/server-core/src/hooks/collect-analytics';
+import collectAnalytics from '@xrengine/server-core/src/hooks/collect-analytics';
 
 import { disallow } from 'feathers-hooks-common';
 

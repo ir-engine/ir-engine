@@ -19,7 +19,7 @@ import { Interactable } from '../../interaction/components/Interactable';
 import { Interactor } from '../../interaction/components/Interactor';
 import { Object3DComponent } from '../../scene/components/Object3DComponent';
 import { interactOnServer } from '../../interaction/systems/InteractiveSystem';
-import { CharacterComponent } from "./components/CharacterComponent";
+import { CharacterComponent, WALK_SPEED, RUN_SPEED} from "./components/CharacterComponent";
 import { isServer } from "../../common/functions/isServer";
 import { VehicleComponent } from '../vehicle/components/VehicleComponent';
 import { isMobileOrTablet } from '../../common/functions/isMobile';
@@ -324,6 +324,10 @@ const moveByInputAxis: Behavior = (
     actor.localMovementDirection.x = data.value[0];
   }
 };
+const setMoveSpeed: Behavior = (entity, args): void => {
+  const actor: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
+  actor.moveSpeed = args.speed; // its just now in one plase
+};
 
 const setLocalMovementDirection: Behavior = (entity, args: { z?: number; x?: number; y?: number }): void => {
   const actor: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
@@ -583,11 +587,45 @@ export const CharacterInputSchema: InputSchema = {
           }
         }
       ],
+      continued: [
+        {
+          behavior: setLocalMovementDirection,
+          args: {
+            y: 1
+          }
+        }
+      ],
       ended: [
         {
           behavior: setLocalMovementDirection,
           args: {
             y: 0
+          }
+        }
+      ]
+    },
+    [BaseInput.WALK]: {
+      started: [
+        {
+          behavior: setMoveSpeed,
+          args: {
+            speed: WALK_SPEED
+          }
+        }
+      ],
+      continued: [
+        {
+          behavior: setMoveSpeed,
+          args: {
+            speed: WALK_SPEED
+          }
+        }
+      ],
+      ended: [
+        {
+          behavior: setMoveSpeed,
+          args: {
+            speed: RUN_SPEED
           }
         }
       ]

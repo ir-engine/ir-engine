@@ -4,13 +4,13 @@
  */
  import React, { useEffect } from "react";
 
- import Dashboard  from "@xr3ngine/client-core/src/socialmedia/components/Dashboard";
- import ArMediaConsole  from "@xr3ngine/client-core/src/admin/components/ArMediaConsole";
+ import Dashboard  from "@xrengine/client-core/src/socialmedia/components/Dashboard";
+ import ArMediaConsole  from "@xrengine/client-core/src/admin/components/ArMediaConsole";
  import { bindActionCreators, Dispatch } from "redux";
  import { connect } from "react-redux";
  
- import { selectAdMediaState } from "@xr3ngine/client-core/src/socialmedia/reducers/arMedia/selector";
- import { getArMediaService } from "@xr3ngine/client-core/src/socialmedia/reducers/arMedia/service";
+ import { selectAdMediaState } from "@xrengine/client-core/src/socialmedia/reducers/arMedia/selector";
+ import { getArMediaService } from "@xrengine/client-core/src/socialmedia/reducers/arMedia/service";
  
  const mapStateToProps = (state: any): any => {
    return {

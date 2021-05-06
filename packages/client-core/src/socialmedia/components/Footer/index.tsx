@@ -16,7 +16,7 @@ import { selectCreatorsState } from "../../reducers/creator/selector";
 import { getLoggedCreator } from "../../reducers/creator/service";
 import { selectAuthState } from "../../../user/reducers/auth/selector";
 // import { PopupLogin } from "../PopupLogin/PopupLogin";
-// import IndexPage from "@xr3ngine/social/pages/login";
+// import IndexPage from "@xrengine/social/pages/login";
 import { updateArMediaState, updateCreatorFormState, updateCreatorPageState, updateFeedPageState, updateNewFeedPageState } from "../../reducers/popupsState/service";
 import { selectPopupsState } from "../../reducers/popupsState/selector";
 import ViewMode from "../ViewMode/ViewMode";
@@ -49,10 +49,8 @@ interface Props{
   updateArMediaState?:typeof updateArMediaState;
 }
 const AppFooter = ({creatorState, getLoggedCreator, authState, updateCreatorPageState, popupsState, updateCreatorFormState, updateFeedPageState, updateArMediaState}: Props) => {
-  useEffect(()=>getLoggedCreator(),[]);  
+  useEffect(()=>getLoggedCreator(),[]);
 
-
-  const creator = creatorState && creatorState.get('fetching') === false && creatorState.get('currentCreator'); 
   // const checkGuest = authState.get('authUser')?.identityProvider?.type === 'guest' ? true : false;
   const handleOpenCreatorPage = (id) =>{
     updateCreatorPageState(true, id);
@@ -64,6 +62,7 @@ const AppFooter = ({creatorState, getLoggedCreator, authState, updateCreatorPage
     updateFeedPageState(false);
     updateArMediaState(false);
   };
+
   return (
     <>
     <nav className={styles.footerContainer}>
@@ -80,8 +79,8 @@ const AppFooter = ({creatorState, getLoggedCreator, authState, updateCreatorPage
         {/* {creator && ( 
           <Avatar onClick={()=> {checkGuest ? setButtonPopup(true) : handleOpenCreatorPage(creator.id);}} 
           alt={creator.username} src={creator.avatar} />
-        )} */}        
-        <Avatar onClick={()=> {handleOpenCreatorPage(creatorState?.get('currentCreator')?.id);}} alt={creator?.username} src={creator?.avatar} />
+        )} */}      
+        <Avatar onClick={()=> {handleOpenCreatorPage(creatorState?.get('currentCreator')?.id);}} alt={creatorState.get('currentCreator')?.username} src={creatorState.get('currentCreator')?.avatar} />  
     </nav>   
     </>
   );

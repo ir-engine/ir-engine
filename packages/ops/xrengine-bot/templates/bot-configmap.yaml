@@ -1,0 +1,15 @@
+{{- if .Values.bot.enabled -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "xrengine-bot.bot.fullname" . }}
+  labels:
+    {{- include "xrengine-bot.bot.labels" . | nindent 4 }}
+data:
+{{- if .Values.bot.extraEnv }}
+{{ toYaml .Values.bot.extraEnv | indent 2 }}
+{{- end }}
+{{- if .Values.bot.config }}
+  NODE_CONFIG: '{{ mustToJson .Values.bot.config }}'
+{{- end }}
+{{- end -}}

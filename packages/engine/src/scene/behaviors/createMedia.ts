@@ -18,7 +18,7 @@ const isBrowser=new Function("try {return this===window;}catch(e){ return false;
 
 let DracosisPlayer = null;
 if (isBrowser())
-  import("@xr3ngine/volumetric/src/Player").then(imported => {
+  import("volumetric/src/Player").then(imported => {
     DracosisPlayer = imported;
   });
 

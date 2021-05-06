@@ -66,7 +66,7 @@ export function loadComponent(entity: Entity, component: SceneDataComponent): vo
     b.values?.forEach(val => {
       // dont load glb model if dont need to parse colliders
       if (isServer && component.name === 'gltf-model' && component.data.dontParseModel) {
-        console.log('Stop download glb if dontParseModel');
+        // console.log('Stop download glb if dontParseModel');
         return;
       }
 

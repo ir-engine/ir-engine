@@ -1,4 +1,4 @@
-import  AppHeader  from "@xr3ngine/client-core/src/socialmedia/components/Header";
+import  AppHeader  from "@xrengine/client-core/src/socialmedia/components/Header";
 import { useLocation } from "react-router-dom";
 import React from "react";
 

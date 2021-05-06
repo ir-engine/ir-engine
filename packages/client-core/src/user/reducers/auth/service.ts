@@ -1,12 +1,12 @@
 import { dispatchAlertError, dispatchAlertSuccess } from '../../../common/reducers/alert/service';
-import { resolveAuthUser } from '@xr3ngine/common/src/interfaces/AuthUser';
-import { IdentityProvider } from '@xr3ngine/common/src/interfaces/IdentityProvider';
-import { resolveUser, resolveWalletUser } from '@xr3ngine/common/src/interfaces/User';
-import { EngineEvents } from '@xr3ngine/engine/src/ecs/classes/EngineEvents';
-import { Network } from '@xr3ngine/engine/src/networking/classes/Network';
-import { MessageTypes } from '@xr3ngine/engine/src/networking/enums/MessageTypes';
+import { resolveAuthUser } from '@xrengine/common/src/interfaces/AuthUser';
+import { IdentityProvider } from '@xrengine/common/src/interfaces/IdentityProvider';
+import { resolveUser, resolveWalletUser } from '@xrengine/common/src/interfaces/User';
+import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents';
+import { Network } from '@xrengine/engine/src/networking/classes/Network';
+import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes';
 // TODO: Decouple this
-// import { endVideoChat, leave } from '@xr3ngine/engine/src/networking/functions/SocketWebRTCClientFunctions';
+// import { endVideoChat, leave } from '@xrengine/engine/src/networking/functions/SocketWebRTCClientFunctions';
 import axios from 'axios';
 import { Config } from '../../../helper';
 import querystring from 'querystring';
@@ -542,7 +542,7 @@ export function uploadAvatar (data: any) {
   return async (dispatch: Dispatch, getState: any) => {
     const token = getState().get('auth').get('authUser').accessToken;
     const selfUser = getState().get('auth').get('user');
-    const res = await axios.post(`${Config.apiUrl}/upload`, data, {
+    const res = await axios.post(`${Config.publicRuntimeConfig.apiServer}/upload`, data, {
       headers: {
         'Content-Type': 'multipart/form-data',
         Authorization: 'Bearer ' + token

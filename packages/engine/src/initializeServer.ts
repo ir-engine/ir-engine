@@ -17,6 +17,7 @@ import { PhysXInstance } from "three-physx";
 import { PhysicsSystem } from './physics/systems/PhysicsSystem';
 import { ServerSpawnSystem } from './scene/systems/SpawnSystem';
 import { StateSystem } from './state/systems/StateSystem';
+import { GameManagerSystem } from './game/systems/GameManagerSystem';
 import { TransformSystem } from './transform/systems/TransformSystem';
 import Worker from 'web-worker'
 import path from 'path';
@@ -46,11 +47,14 @@ export const initializeServer = async (initOptions: any = DefaultInitializationO
   const currentPath = path.dirname(__filename);
 
   await PhysXInstance.instance.initPhysX(new Worker(currentPath + "/physics/functions/loadPhysXNode.ts"), { });
+  //for windows
+  //await PhysXInstance.instance.initPhysX(new Worker("file:///" + currentPath + "/physics/functions/loadPhysXNode.ts"), {});
   registerSystem(PhysicsSystem);
   registerSystem(CharacterControllerSystem);
 
   registerSystem(ServerSpawnSystem, { priority: 899 });
   registerSystem(TransformSystem, { priority: 900 });
+  registerSystem(GameManagerSystem);// { priority: 901 });
 
   Engine.engineTimer = Timer({
     networkUpdate: (delta: number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Network),

@@ -1,4 +1,4 @@
-import { cmdOrCtrlString, objectToMap } from "@xr3ngine/engine/src/editor/functions/utils";
+import { cmdOrCtrlString, objectToMap } from "@xrengine/engine/src/editor/functions/utils";
 import {useLocation, withRouter} from "react-router-dom";
 import PropTypes from "prop-types";
 import React, { Component } from "react";

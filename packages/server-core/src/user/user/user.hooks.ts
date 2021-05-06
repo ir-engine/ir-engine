@@ -1,5 +1,5 @@
 import * as authentication from '@feathersjs/authentication';
-import addAssociations from '@xr3ngine/server-core/src/hooks/add-associations';
+import addAssociations from '@xrengine/server-core/src/hooks/add-associations';
 import { HookContext } from '@feathersjs/feathers';
 import logger from '../../logger';
 import getFreeInviteCode from "../../util/get-free-invite-code";
@@ -88,6 +88,8 @@ export default {
       async (context: HookContext): Promise<HookContext> => {
         try {
           const { app, result } = context;
+          console.log(result);
+          
           result.data.forEach(async (item) => {
             if (item.subscriptions && item.subscriptions.length > 0) {
               await Promise.all(item.subscriptions.map(async (subscription: any) => {

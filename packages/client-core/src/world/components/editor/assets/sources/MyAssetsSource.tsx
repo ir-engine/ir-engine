@@ -1,10 +1,10 @@
 import { BaseSource } from "./index";
 import { ItemTypes } from "../../dnd";
 import UploadSourcePanel from "../UploadSourcePanel";
-import ModelNode from "@xr3ngine/engine/src/editor/nodes/ModelNode";
-import VideoNode from "@xr3ngine/engine/src/editor/nodes/VideoNode";
-import ImageNode from "@xr3ngine/engine/src/editor/nodes/ImageNode";
-import AudioNode from "@xr3ngine/engine/src/editor/nodes/AudioNode";
+import ModelNode from "@xrengine/engine/src/editor/nodes/ModelNode";
+import VideoNode from "@xrengine/engine/src/editor/nodes/VideoNode";
+import ImageNode from "@xrengine/engine/src/editor/nodes/ImageNode";
+import AudioNode from "@xrengine/engine/src/editor/nodes/AudioNode";
 import { AcceptsAllFileTypes } from "../fileTypes";
 import i18n from "i18next";
 import Editor from "../../Editor";
@@ -42,7 +42,7 @@ export class MyAssetsSource extends BaseSource {
     ];
     this.searchLegalCopy = "Search by Mozilla Hubs";
     this.privacyPolicyUrl =
-      "https://github.com/xr3ngine/xr3ngine/blob/master/PRIVACY.md";
+      "https://github.com/XRFoundation/XREngine/blob/master/PRIVACY.md";
     this.uploadSource = true;
     this.uploadMultiple = true;
     this.acceptFileTypes = AcceptsAllFileTypes;

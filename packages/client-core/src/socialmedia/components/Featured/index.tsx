@@ -1,23 +1,21 @@
 /**
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
+import Card from '@material-ui/core/Card';
+import CardMedia from '@material-ui/core/CardMedia';
+import VisibilityIcon from '@material-ui/icons/Visibility';
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
-
-import CardMedia from '@material-ui/core/CardMedia';
-import Card from '@material-ui/core/Card';
-import VisibilityIcon from '@material-ui/icons/Visibility';
-import StarIcon from '@material-ui/icons/Star';
-import StarOutlineIcon from '@material-ui/icons/StarOutline';
-
-// @ts-ignore
-import styles from './Featured.module.scss';
 import { bindActionCreators, Dispatch } from 'redux';
+import { selectAuthState } from '../../../user/reducers/auth/selector';
 import { selectCreatorsState } from '../../reducers/creator/selector';
 import { selectFeedsState } from '../../reducers/feed/selector';
 import { getFeeds, setFeedAsFeatured, setFeedNotFeatured } from '../../reducers/feed/service';
-import { selectAuthState } from '../../../user/reducers/auth/selector';
 import { updateFeedPageState } from '../../reducers/popupsState/service';
+// @ts-ignore
+import styles from './Featured.module.scss';
+
+
 
 const mapStateToProps = (state: any): any => {
     return {
@@ -57,19 +55,19 @@ const Featured = ({feedsState, getFeeds, type, creatorId, creatorState, setFeedA
         }
     }, [type, creatorId]);
 
-    useEffect(()=> feedsState.get('feedsFeaturedFetching') === false &&setFeedList(feedsState.get('feedsFeatured'))
+    useEffect(()=> (type === 'featured' || !type) && feedsState.get('feedsFeaturedFetching') === false && setFeedList(feedsState.get('feedsFeatured'))
     ,[feedsState.get('feedsFeaturedFetching'), feedsState.get('feedsFeatured')]);
     
-    useEffect(()=> feedsState.get('feedsCreatorFetching') === false &&setFeedList(feedsState.get('feedsCreator'))
+    useEffect(()=> type === 'creator' && feedsState.get('feedsCreatorFetching') === false &&setFeedList(feedsState.get('feedsCreator'))
     ,[feedsState.get('feedsCreatorFetching'), feedsState.get('feedsCreator')]);
 
-    useEffect(()=> feedsState.get('feedsBookmarkFetching') === false &&setFeedList(feedsState.get('feedsBookmark'))
+    useEffect(()=> type === 'bookmark' && feedsState.get('feedsBookmarkFetching') === false &&setFeedList(feedsState.get('feedsBookmark'))
     ,[feedsState.get('feedsBookmarkFetching'), feedsState.get('feedsBookmark')]);
 
-    useEffect(()=> feedsState.get('myFeaturedFetching') === false &&setFeedList(feedsState.get('myFeatured'))
+    useEffect(()=> type === 'myFeatured' && feedsState.get('myFeaturedFetching') === false &&setFeedList(feedsState.get('myFeatured'))
     ,[feedsState.get('myFeaturedFetching'), feedsState.get('myFeatured')]);
 
-    useEffect(()=> feedsState.get('feedsFiredFetching') === false && setFeedList(feedsState.get('feedsFired'))
+    useEffect(()=> type === 'fired' && feedsState.get('feedsFiredFetching') === false && setFeedList(feedsState.get('feedsFired'))
     ,[feedsState.get('feedsFiredFetching'), feedsState.get('feedsFired')]);
 
     // if(type === 'creator'){
@@ -102,8 +100,15 @@ const Featured = ({feedsState, getFeeds, type, creatorId, creatorState, setFeedA
     // };
 
     return <section className={styles.feedContainer}>
-        {feedsList && feedsList.length > 0  && feedsList.map((item, itemIndex)=>
-            <Card className={styles.creatorItem} elevation={0} key={itemIndex}>
+        {feedsList && feedsList.length > 0  && feedsList.map((item, itemIndex)=>{
+            const sizeIndex = (itemIndex === 0 || itemIndex%8 === 0 || itemIndex%8 === 2 || itemIndex%8 === 5) ? 'listItem_width2' 
+            : itemIndex%8 === 1 ? 'listItem_width3' : 'listItem_width1';
+            const topIndex =  itemIndex%8 === 2  ? 'listItem_top1' :  itemIndex%8 === 5 ? 'listItem_top2' : '';
+            const width1_no_right_padding =  itemIndex%8 === 4 || itemIndex%8 === 7 ? 'width1_no_right_padding' : '';
+            return <Card className={styles.creatorItem
+            +' ' + styles[sizeIndex]
+            +' ' + styles[topIndex] 
+            + ' ' + styles[width1_no_right_padding]} elevation={0} key={itemIndex}>
                     {/* {renderFeaturedStar( item.id, item.creatorId, !!+item.featured)} */}
                 <CardMedia
                     className={styles.previewImage}
@@ -111,7 +116,7 @@ const Featured = ({feedsState, getFeeds, type, creatorId, creatorState, setFeedA
                     onClick={()=>updateFeedPageState(true, item.id)}
                 />
                 <span className={styles.eyeLine}>{item.viewsCount}<VisibilityIcon style={{fontSize: '16px'}}/></span>
-            </Card>
+            </Card>;}
         )}
         </section>;
 };

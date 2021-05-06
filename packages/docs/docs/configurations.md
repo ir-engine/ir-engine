@@ -20,7 +20,7 @@ so that you don't need to push the Docker image to an external repository. Run t
 For now, this process will use a separate Dockerfile called 'Dockerfile-dev'. You'll have to build the image using
 it by running the following command:
 
-```docker build -t xr3ngine/xr3ngine:v0.0.0 -f Dockerfile-dev .```
+```docker build -t xrengine/xrengine:v0.0.0 -f Dockerfile-dev .```
 
 Once that image is built, make sure that kubectl is pointed to minikube.
 Run ```kubectl config get-contexts``` and there should be a '*' next to minikube; alternatively, run
@@ -31,20 +31,20 @@ You'll need to deploy two Kustomize scripts to Minikube.
 The first one is the nginx-ingress setup.
 Run ```kubectl apply -k kubernetes/nginx/base```.
 
-You'll need to have a file called 'xr3ngine-dev-secrets.env' in kubernetes/xr3ngine/base.
+You'll need to have a file called 'xrengine-dev-secrets.env' in kubernetes/xrengine/base.
 This is in the gitignore to demonstrate that these sorts of files should never be committed.
-The production one is expected to be called 'xr3ngine-secrets.env' and is also in the gitignore.
+The production one is expected to be called 'xrengine-secrets.env' and is also in the gitignore.
 As these are very sensitive files, they should be transmitted to you securely.
 
-Finally run ```kubectl apply -k kubernetes/xr3ngine/base``` to deploy the MariaDB server and xr3ngine.
-The server is set up in dev mode to be behind the domain 'api.dev.xr3ngine.dev' and is secured by a self-signed certificate.
+Finally run ```kubectl apply -k kubernetes/xrengine/base``` to deploy the MariaDB server and xrengine.
+The server is set up in dev mode to be behind the domain 'api.dev.xrengine.dev' and is secured by a self-signed certificate.
 If you wanted to call one of the endpoints with curl, you could run the following and get a 401 error:
-```curl https://192.168.99.109/user -H HOST:api.dev.xr3ngine.dev --insecure```
+```curl https://192.168.99.109/user -H HOST:api.dev.xrengine.dev --insecure```
 
-NOTE: As of this writing, the MariaDB server sometimes finishes initializing after xr3ngine has already tried to
-connect to it. To reboot xr3ngine, run the following:
+NOTE: As of this writing, the MariaDB server sometimes finishes initializing after xrengine has already tried to
+connect to it. To reboot xrengine, run the following:
 
-```kubectl rollout restart -n xr3ngine deployments/xr3ngine```
+```kubectl rollout restart -n xrengine deployments/xrengine```
 
 
 ### SMTP Testing

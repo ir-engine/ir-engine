@@ -5,7 +5,7 @@ import InputGroup from "../inputs/InputGroup";
 import SelectInput from "../inputs/SelectInput";
 import BooleanInput from "../inputs/BooleanInput";
 import NumericInputGroup from "../inputs/NumericInputGroup";
-import { ImageProjection, ImageAlphaMode } from "@xr3ngine/engine/src/scene/classes/Image";
+import { ImageProjection, ImageAlphaMode } from "@xrengine/engine/src/scene/classes/Image";
 import ImageInput from "../inputs/ImageInput";
 import { Image } from "@styled-icons/fa-solid/Image";
 import useSetPropertySelected from "./useSetPropertySelected";

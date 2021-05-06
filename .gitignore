@@ -133,8 +133,8 @@ dist
 # TernJS port file
 .tern-port
 
-**/xr3ngine-secrets.env
-**/xr3ngine-dev-secrets.env
+**/xrengine-secrets.env
+**/xrengine-dev-secrets.env
 lib/
 bin/
 
