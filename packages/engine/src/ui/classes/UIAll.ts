@@ -57,8 +57,16 @@ export class UIGallery extends UIBaseElement {
   }
 
   init() {
-    Engine.scene.children[9].visible = false;      //ground
-    Engine.scene.children[11].visible = false;      //character
+    console.log(Engine.scene.children);
+    // Engine.scene.children[2].visible = false;      //ground
+    // Engine.scene.children[4].visible = false;      //ground
+    // Engine.scene.children[6].visible = false;      //ground
+    // Engine.scene.children[8].visible = false;      //ground
+    // Engine.scene.children[9].visible = false;      //ground
+    // Engine.scene.children[10].visible = false;      //ground
+    Engine.scene.children[12].visible = false;      //ground
+    Engine.scene.children[10].visible = false;      //character
+    // Engine.scene.children[11].visible = false;      //character
 
     let setPurchase = null;
     const marketPlaceItemClickCB = (panel) => {
