@@ -32,6 +32,7 @@ import OffscreenWorker from './worker/initializeOffscreen.ts?worker';
 import { GameManagerSystem } from './game/systems/GameManagerSystem';
 import { DefaultInitializationOptions } from './DefaultInitializationOptions';
 import _ from 'lodash';
+import { UIPanelSystem } from './ui/systems/UIPanelSystem';
 // import { PositionalAudioSystem } from './audio/systems/PositionalAudioSystem';
 
 Mesh.prototype.raycast = acceleratedRaycast;
@@ -148,6 +149,7 @@ export const initializeEngine = async (initOptions): Promise<void> => {
       registerSystem(WebGLRendererSystem, { priority: 1001, canvas, postProcessing });
       registerSystem(XRSystem);
       registerSystem(GameManagerSystem);
+      registerSystem(UIPanelSystem);
 
       Engine.viewportElement = Engine.renderer.domElement;
       Engine.renderer.xr.enabled = Engine.xrSupported;

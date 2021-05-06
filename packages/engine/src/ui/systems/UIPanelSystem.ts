@@ -81,14 +81,14 @@ export class UIPanelSystem extends System {
     })
 
     this.queryResults.panels?.all?.forEach((entity: Entity) => {
-      const transform = getComponent(entity, TransformComponent);
-      const desiredTransform = getComponent(entity, DesiredTransformComponent);
+      // const transform = getComponent(entity, TransformComponent);
+      // const desiredTransform = getComponent(entity, DesiredTransformComponent);
 
-      console.log('Transform: ', transform.position);
-      console.log('DesiredTransform: ', desiredTransform.position);
+      // console.log('Transform: ', transform.position);
+      // console.log('DesiredTransform: ', desiredTransform.position);
 
       const component = getComponent(entity, UIPanelComponent);
-      console.log('component: ', component);
+      // console.log('component: ', component);
 
       const currentdate = new Date(); 
       const datetime = "Last Sync: " + currentdate.getDate() + "/"
@@ -98,7 +98,7 @@ export class UIPanelSystem extends System {
                 + currentdate.getMinutes() + ":" 
                 + currentdate.getSeconds();
 
-      console.log('current time: ', datetime);
+      // console.log('current time: ', datetime);
     })
 
     this.doRaycasts() 
