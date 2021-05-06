@@ -145,7 +145,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
           new Promise((resolve, reject) => {
             setTimeout(() => reject(new Error('Connect timed out')), 10000);
           })
-      ]);
+        ]);
       } catch(err) {
         console.log(err);
         EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.CONNECT_TO_WORLD_TIMEOUT, instance: instance === true });
