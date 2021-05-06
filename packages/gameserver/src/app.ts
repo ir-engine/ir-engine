@@ -156,8 +156,10 @@ if (config.gameserver.enabled) {
 
       // Create new gameserver instance
       const gameServer = new WebRTCGameServer(app);
+      console.log('Gameserver created');
       gameServer.initialize().then(() => {
         // Set up event channels (see channels.js)
+        console.log('Gameserver initialized');
         app.configure(channels);
       });
       console.log("Created new gameserver instance");

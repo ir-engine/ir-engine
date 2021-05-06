@@ -63,4 +63,6 @@ export const initializeServer = async (initOptions: any = DefaultInitializationO
   }, Engine.physicsFrameRate, Engine.networkFramerate).start();
 
   Engine.isInitialized = true;
+  console.log('initializeServer finished');
+  console.log('Engine.isInitialized:', Engine.isInitialized);
 }
