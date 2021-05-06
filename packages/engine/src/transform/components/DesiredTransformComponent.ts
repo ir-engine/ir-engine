@@ -42,7 +42,7 @@ export class DesiredTransformComponent extends Component<DesiredTransformCompone
 DesiredTransformComponent._schema = {
   position: { default: null, type: Types.Ref },
   rotation: { default: null, type: Types.Ref },
-  positionRate: { default: 1.5, type: Types.Number },
-  rotationRate: { default: 3.5, type: Types.Number },
+  positionRate: { default: 2, type: Types.Number },
+  rotationRate: { default: 4, type: Types.Number },
   lockRotationAxis: { default: [false, false, false], type: Types.Array }
 };

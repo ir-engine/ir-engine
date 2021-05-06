@@ -12,7 +12,7 @@ import { CollisionGroups } from '../../../physics/enums/CollisionGroups';
 // 0   | > WALK_START_SPEED  | > WALK_SPEED | > RUN_START_SPEED | > RUN_SPEED
 export const WALK_SPEED = 0.5;
 export const RUN_SPEED = 1;
-export const MULT_SPEED = 3; // its value multiplier character speed 
+export const MULT_SPEED = 2; // its value multiplier character speed 
 export class CharacterComponent extends Component<CharacterComponent> {
 
 	dispose(): void {
