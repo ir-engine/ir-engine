@@ -1,13 +1,13 @@
 import '@feathersjs/transport-commons';
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine';
-import { Network } from '@xrengine/engine/src/networking/classes/Network';
-import { loadScene } from "@xrengine/engine/src/scene/functions/SceneLoading";
+import {Engine} from '@xrengine/engine/src/ecs/classes/Engine';
+import {Network} from '@xrengine/engine/src/networking/classes/Network';
+import {loadScene} from "@xrengine/engine/src/scene/functions/SceneLoading";
 import config from '@xrengine/server-core/src/appconfig';
-import { Application } from '@xrengine/server-core/declarations';
+import {Application} from '@xrengine/server-core/declarations';
 import getLocalServerIp from '@xrengine/server-core/src/util/get-local-server-ip';
 import logger from '@xrengine/server-core/src/logger';
-import { decode } from 'jsonwebtoken';
-import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents';
+import {decode} from 'jsonwebtoken';
+import {EngineEvents} from '@xrengine/engine/src/ecs/classes/EngineEvents';
 
 export default (app: Application): void => {
     if (typeof app.channel !== 'function') {
@@ -16,15 +16,22 @@ export default (app: Application): void => {
     }
 
     app.on('connection', async (connection) => {
-      if ((config.kubernetes.enabled && config.gameserver.mode === 'realtime') || (process.env.NODE_ENV === 'development') || config.gameserver.mode === 'local') {
-          if(!Engine.isInitialized) return;
+        console.log('Connection to gameserver');
+        console.log('Kubernetes enabled:', config.kubernetes.enabled);
+        console.log('gameserver mode:', config.gameserver.mode);
+        if ((config.kubernetes.enabled && config.gameserver.mode === 'realtime') || (process.env.NODE_ENV === 'development') || config.gameserver.mode === 'local') {
+            console.log('Ready to boot gameserver up:');
+            console.log('Engine.isInitialized:', Engine.isInitialized);
+            if (!Engine.isInitialized) return;
             try {
                 const token = (connection as any).socketQuery?.token;
+                console.log('token:', token);
                 if (token != null) {
+                    console.log('Authorizing');
                     const authResult = await app.service('authentication').strategies.jwt.authenticate({accessToken: token}, {});
                     const identityProvider = authResult['identity-provider'];
                     if (identityProvider != null && identityProvider.id != null) {
-                        logger.info(`user ${identityProvider.userId} joining ${(connection as any).socketQuery.locationId} with sceneId ${(connection as any).socketQuery.sceneId}`);
+                        console.log(`user ${identityProvider.userId} joining ${(connection as any).socketQuery.locationId} with sceneId ${(connection as any).socketQuery.sceneId}`);
                         const userId = identityProvider.userId;
                         const user = await app.service('user').get(userId);
                         let locationId = (connection as any).socketQuery.locationId;
@@ -55,8 +62,7 @@ export default (app: Application): void => {
                             if (channelId != null) {
                                 newInstance.channelId = channelId;
                                 (app as any).isChannelInstance = true;
-                            }
-                            else if (locationId != null) {
+                            } else if (locationId != null) {
                                 newInstance.locationId = locationId;
                                 (app as any).isChannelInstance = false;
                             }
@@ -82,24 +88,27 @@ export default (app: Application): void => {
                             }
 
                             if (sceneId != null) {
-                              let service, serviceId;
-                              const projectRegex = /\/([A-Za-z0-9]+)\/([a-f0-9-]+)$/;
-                              const projectResult = await app.service('project').get(sceneId);
-                              // console.log("Project result is: ", projectResult);
-                              const projectUrl = projectResult.project_url;
-                              const regexResult = projectUrl.match(projectRegex);
-                              if (regexResult) {
-                                service = regexResult[1];
-                                serviceId = regexResult[2];
-                              }
-                              const result = await app.service(service).get(serviceId);
+                                let service, serviceId;
+                                const projectRegex = /\/([A-Za-z0-9]+)\/([a-f0-9-]+)$/;
+                                const projectResult = await app.service('project').get(sceneId);
+                                // console.log("Project result is: ", projectResult);
+                                const projectUrl = projectResult.project_url;
+                                const regexResult = projectUrl.match(projectRegex);
+                                if (regexResult) {
+                                    service = regexResult[1];
+                                    serviceId = regexResult[2];
+                                }
+                                const result = await app.service(service).get(serviceId);
 
-                              if (!Engine.sceneLoaded) {
-                                EngineEvents.instance.addEventListener(EngineEvents.EVENTS.SCENE_LOADED, () => {
-                                  EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENABLE_SCENE, enable: true });
-                                });
-                                loadScene(result);
-                              }
+                                if (!Engine.sceneLoaded) {
+                                    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.SCENE_LOADED, () => {
+                                        EngineEvents.instance.dispatchEvent({
+                                            type: EngineEvents.EVENTS.ENABLE_SCENE,
+                                            enable: true
+                                        });
+                                    });
+                                    loadScene(result);
+                                }
                             }
                         } else {
                             try {
@@ -107,7 +116,7 @@ export default (app: Application): void => {
                                 await app.service('instance').patch((app as any).instance.id, {
                                     currentUsers: (instance.currentUsers as number) + 1
                                 });
-                            } catch(err) {
+                            } catch (err) {
                                 console.log('Could not update instance, likely because it is a local one that does not exist');
                             }
                         }
@@ -175,15 +184,14 @@ export default (app: Application): void => {
                     let authResult;
                     try {
                         authResult = await app.service('authentication').strategies.jwt.authenticate({accessToken: token}, {});
-                    } catch(err) {
+                    } catch (err) {
                         if (err.code === 401 && err.data.name === 'TokenExpiredError') {
                             const jwtDecoded = decode(token);
                             const idProvider = await app.service('identityProvider').get(jwtDecoded.sub);
                             authResult = {
                                 'identity-provider': idProvider
                             };
-                        }
-                        else throw err;
+                        } else throw err;
                     }
                     const identityProvider = authResult['identity-provider'];
                     if (identityProvider != null && identityProvider.id != null) {
@@ -194,7 +202,7 @@ export default (app: Application): void => {
                         let instance;
                         try {
                             instance = ((app as any).instance && instanceId != null) ? await app.service('instance').get(instanceId) : {};
-                        } catch(err) {
+                        } catch (err) {
                             console.log('Could not get instance, likely because it is a local one that no longer exists');
                         }
                         console.log('instanceId: ' + instanceId);
@@ -205,7 +213,7 @@ export default (app: Application): void => {
                                 await app.service('instance').patch(instanceId, {
                                     currentUsers: --instance.currentUsers
                                 });
-                            } catch(err) {
+                            } catch (err) {
                                 console.log('Failed to patch instance user count, likely because it was destroyed');
                             }
 
@@ -230,7 +238,7 @@ export default (app: Application): void => {
                                 console.log('Deleting instance ' + instanceId);
                                 try {
                                     await app.service('instance').remove(instanceId);
-                                } catch(err) {
+                                } catch (err) {
                                     console.log(err);
                                 }
                                 if ((app as any).gsSubdomainNumber != null) {
