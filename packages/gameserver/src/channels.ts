@@ -62,6 +62,14 @@ export default (app: Application): void => {
                             if (channelId != null) {
                                 newInstance.channelId = channelId;
                                 (app as any).isChannelInstance = true;
+                                //While there's no scene, this will still signal that the engine is ready
+                                //to handle events, particularly for NetworkFunctions:handleConnectToWorld
+                                console.log('Dispatching SCENE_LOADED');
+                                EngineEvents.instance.dispatchEvent({type: EngineEvents.EVENTS.SCENE_LOADED});
+                                EngineEvents.instance.addEventListener(EngineEvents.EVENTS.SCENE_LOADED, () => {
+                                    console.log('SCENE_LOADED received');
+                                    console.log(Engine.sceneLoaded);
+                                });
                             } else if (locationId != null) {
                                 newInstance.locationId = locationId;
                                 (app as any).isChannelInstance = false;
