@@ -102,7 +102,7 @@ export class CharacterControllerSystem extends System {
       actor.raycastQuery.origin = new Vector3(actorRaycastStart.x, actorRaycastStart.y - (actor.actorCapsule.height * 0.5) - actor.actorCapsule.radius, actorRaycastStart.z);
       actor.raycastQuery.direction = new Vector3(0, -1, 0);
       actor.closestHit = actor.raycastQuery.hits[0];
-      actor.isGrounded = collider.controller.collisions.down;
+      actor.isGrounded = actor.closestHit ? true : collider.controller.collisions.down;
     });
 
     this.queryResults.controller.removed?.forEach(entity => {
