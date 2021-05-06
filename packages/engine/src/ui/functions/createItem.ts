@@ -36,23 +36,25 @@ export const createItem = (param) =>{
       }));
     }
 
-    const loader = new TextureLoader();
-    loader.load(
-          imageUrl,
-          
-          // onLoad callback
-          (texture) => {
-            container.set({backgroundTexture: texture});
-          },
-
-          // onProgress callback currently not supported
-          undefined,
-
-          // onError callback
-          ( err ) => {
-              // console.error( 'An error happened.' );
-          }
-    );
+    if (imageUrl){
+      const loader = new TextureLoader();
+      loader.load(
+            imageUrl,
+            
+            // onLoad callback
+            (texture) => {
+              container.set({backgroundTexture: texture});
+            },
+  
+            // onProgress callback currently not supported
+            undefined,
+  
+            // onError callback
+            ( err ) => {
+                console.error( 'An error happened.', imageUrl);
+            }
+      );
+    }
 
     if ( param.selectable ){
       makeSelectable(container, [
