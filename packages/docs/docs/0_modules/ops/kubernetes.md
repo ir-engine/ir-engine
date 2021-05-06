@@ -1,14 +1,7 @@
 ---
-id: configurations
-title: Configurations
+id: kubernetes
+title: Kubernetes
 ---
-
-### Docker image configurations
-
-Enviroment variables:
-- `NODE_ENV` controls the config/*.js file for feathers.js to load [default: production]
-- `PORT` controls the listening port [default: 3030]
-- `MYSQL_URL` e.g. `mysql://<user>:<pass>@<host>:<port>/<db>` points to MariaDB server with a username and password
 
 ### Run in Kubernetes locally
 
@@ -45,53 +38,3 @@ NOTE: As of this writing, the MariaDB server sometimes finishes initializing aft
 connect to it. To reboot xrengine, run the following:
 
 ```kubectl rollout restart -n xrengine deployments/xrengine```
-
-
-### SMTP Testing
-
-https://mailtrap.io/inboxes
-
-add credentials in ```packages/server/.env```
-```dotenv
-SMTP_HOST=smtp.mailtrap.io
-SMTP_PORT=2525
-SMTP_USER=<mailtrap-user>
-SMTP_PASS=<mailtrap-password>
-```
-
-
-## Scaffolding (Server Only)
-
-Feathers.js has a powerful command line interface. Here are a few things it can do:
-
-```
-$ yarn install -g @feathersjs/cli          # Install Feathers CLI
-
-$ feathers generate service               # Generate a new Service
-$ feathers generate hook                  # Generate a new Hook
-$ feathers help                           # Show all commands
-```
-
-
-## Help
-
-For more information on all the things you can do with Feathers visit [docs.feathersjs.com](http://docs.feathersjs.com).
-
-
-## Migrations
-
-### Generate Migration file
-
-```node_modules/.bin/sequelize migration:generate --name "migration_name"```
-
-### Migrate the database
-
-Before run the server, you should migrate the db.
-To do this, please run as following.
-```yarn run compile```
-```node_modules/.bin/sequelize db:migrate```
-
-### For more information
-
-For more information, please visit here
-https://github.com/douglas-treadwell/sequelize-cli-typescript
