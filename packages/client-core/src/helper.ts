@@ -8,10 +8,13 @@ export class Config {
         dev: false,
         loginDisabled: false,
         logo: "./logo.svg",
-        apiServer: "https://127.0.0.1:3030",
-        appServer: "https://127.0.0.1:3000",
-        gameserver: "https://127.0.0.1:3030",
+        gameserverHost: "localhost",
+        gameserverPort: "3031",
+        apiServer: "https://localhost:3030",
+        appServer: "https://localhost:3000",
+        gameserver: "https://localhost:3030",
         mediatorServer: "https://authn.io",
+        wasmUrl: "https://localhost:3000/recast/recast.wasm",
         gameserverDomain: '',
         lobbyLocationName: 'lobby',
         siteTitle: "The Overlay",
@@ -41,11 +44,9 @@ export class Config {
             }
         }
     };
-    static apiUrl = '';
 }
 
 export const setRuntime = (runtime: any): void => {
     const newConfig = typeof runtime === 'string' ? JSON.parse(runtime) : runtime;
     Config.publicRuntimeConfig = Object.assign({}, Config.publicRuntimeConfig, newConfig);
-    Config.apiUrl = process.env.NODE_ENV === 'production' ? Config.publicRuntimeConfig.apiServer : 'https://127.0.0.1:3030';
 };

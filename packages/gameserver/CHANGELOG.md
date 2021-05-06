@@ -3,7 +3,7 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
-## [0.2.22](https://github.com/xr3ngine/xr3ngine/compare/v0.2.21...v0.2.22) (2021-05-05)
+## [0.2.22](https://github.com/xrengine/xrengine/compare/v0.2.21...v0.2.22) (2021-05-05)
 
 **Note:** Version bump only for package @xrengine/gameserver
 

@@ -119,7 +119,7 @@ if (config.server.enabled) {
 
     if (config.server.mode === 'api' || config.server.mode === 'realtime') {
       (app as any).k8AgonesClient = api({
-        endpoint: `https://${process.env.KUBERNETES_SERVICE_HOST}:${process.env.KUBERNETES_PORT_443_TCP_PORT}`,
+        endpoint: `https://${config.kubernetes.serviceHost}:${config.kubernetes.tcpPort}`,
         version: '/apis/agones.dev/v1',
         auth: {
           caCert: fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/ca.crt'),
@@ -127,7 +127,7 @@ if (config.server.enabled) {
         }
       });
       (app as any).k8DefaultClient = api({
-        endpoint: `https://${process.env.KUBERNETES_SERVICE_HOST}:${process.env.KUBERNETES_PORT_443_TCP_PORT}`,
+        endpoint: `https://${config.kubernetes.serviceHost}:${config.kubernetes.tcpPort}`,
         version: '/api/v1',
         auth: {
           caCert: fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/ca.crt'),

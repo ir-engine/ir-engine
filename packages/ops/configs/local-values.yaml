@@ -32,7 +32,6 @@ server:
     SMTP_PORT: "<SMTP Port>"
     SMTP_USER: "<SMTP USER>"
     SMTP_PASS: "<SMTP Password>"
-    MAIL_FROM: "noreply@myxr.email"
 
     GITHUB_CLIENT_ID: 
     GITHUB_CLIENT_SECRET: 
@@ -45,8 +44,6 @@ server:
     GOOGLE_CLIENT_ID: 
     GOOGLE_CLIENT_SECRET: 
     GOOGLE_CALLBACK_URL: http://127.0.0.1:3000/oauth/google
-
-    APP_HOST: http://api.xrengine.local/
 
     STORAGE_PROVIDER: "local" or aws
     STORAGE_S3_BUCKET_NAME: "xrengine-storage"

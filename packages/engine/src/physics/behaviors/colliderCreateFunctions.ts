@@ -113,6 +113,9 @@ export function addColliderWithoutEntity(userData, pos = new Vector3(), rot = ne
       angularVelocity: { x: 0, y: 0, z: 0 },
     }
   });
+
+
+  
   const body: Body = PhysicsSystem.instance.addBody(bodyConfig);
 
   return body;

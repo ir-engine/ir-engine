@@ -20,13 +20,13 @@ const get = (configs, key, defaultValue) => {
   }
 };
 
-get(configs, "GA_TRACKING_ID", process.env.GA_TRACKING_ID);
-get(configs, "SENTRY_DSN", process.env.SENTRY_DSN);
+get(configs, "GA_TRACKING_ID", process.env.VITE_GA_TRACKING_ID);
+get(configs, "SENTRY_DSN", process.env.VITE_SENTRY_DSN);
 
 (configs as any).name = (): string => "Scene Editor";
 (configs as any).longName = (): string => "Scene Editor";
-(configs as any).SERVER_URL = process.env.NODE_ENV === 'production' ? Config.publicRuntimeConfig.apiServer : 'https://127.0.0.1:3030';
-(configs as any).APP_URL = process.env.NODE_ENV === 'production' ? Config.publicRuntimeConfig.appServer : 'https://127.0.0.1:3000';
-(configs as any).FEATHERS_STORE_KEY = process.env.NODE_ENV === 'production' ? Config.publicRuntimeConfig.feathersStoreKey : 'TheOverlay-Auth-Store';
+(configs as any).SERVER_URL = Config.publicRuntimeConfig.apiServer;
+(configs as any).APP_URL = Config.publicRuntimeConfig.appServer;
+(configs as any).FEATHERS_STORE_KEY = Config.publicRuntimeConfig.feathersStoreKey;
 
 export default configs;

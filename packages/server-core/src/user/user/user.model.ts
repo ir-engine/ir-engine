@@ -28,7 +28,11 @@ export default (app: Application): any => {
       inviteCode: {
         type: DataTypes.STRING,
         unique: true
-      }
+      },
+      // gameName: {
+      //   type: DataTypes.STRING,
+      //   allowNull: false
+      // }
     },
     {
       hooks: {

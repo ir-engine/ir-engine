@@ -10,6 +10,9 @@ interface Props {
 }
 
 const mapStateToProps = (state: any): any => {
+  console.log('====================================');
+  console.log(state);
+  console.log('====================================');
   return {
   };
 };
@@ -26,18 +29,7 @@ const AdminConsolePage = (props: Props) => {
     doLoginAuto(true);
   }, []);
 
-  return (
-      // <ThemeProvider theme={theme}>
-        <Dashboard>
-            <style> {`
-                .adminPage {
-                    height: 100%;
-                }
-            `}</style>
-               <Analytics />
-        </Dashboard>
-      // </ThemeProvider>
-  );
+  return ( <Analytics />);
 };
 
 

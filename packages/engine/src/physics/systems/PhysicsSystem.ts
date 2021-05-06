@@ -109,14 +109,16 @@ export class PhysicsSystem extends System {
       this.queryResults.localClientInterpolation.all?.forEach(entity => {
         // Creatr new snapshot position for next frame server correction
         const interpolationComponent = getComponent<InterpolationComponent>(entity, InterpolationComponent);
-        interpolationComponent.schema.serverCorrectionBehavior(entity, snapshots);
+        interpolationComponent.schema.serverCorrectionBehavior(entity, snapshots, delta);
       });
       // Create new snapshot position for next frame server correction
       Vault.instance.add(createSnapshot(snapshots.new));
       // apply networkInterpolation values
       this.queryResults.networkInterpolation.all?.forEach(entity => {
         const interpolation = getComponent(entity, InterpolationComponent);
-        interpolation.schema.interpolationBehavior(entity, snapshots);
+        interpolation.schema.interpolationBehavior(entity, {
+          snapshot: findInterpolationSnapshot(entity, snapshots.interpolation)
+        }, delta);
       })
 
       // If a networked entity does not have an interpolation component, just copy the data
