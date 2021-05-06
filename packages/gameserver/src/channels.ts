@@ -68,6 +68,7 @@ export default (app: Application): void => {
                             }
                             console.log('Creating new instance:');
                             console.log(newInstance);
+                            console.log('isChannelInstance:', (app as any).isChannelInstance);
                             const instanceResult = await app.service('instance').create(newInstance);
                             await agonesSDK.allocate();
                             (app as any).instance = instanceResult;
