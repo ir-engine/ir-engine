@@ -72,9 +72,12 @@ if (useSSL) {
   });
 }
 
-const server = useSSL
-  ? https.createServer(certOptions, app).listen(port)
-  : app.listen(port);
+// const server = useSSL
+//   ? https.createServer(certOptions, app as any).listen(port)
+//   : app.listen(port);
+
+console.log(port);
+const server = https.createServer(certOptions, app as any).listen(port);
 
 if (useSSL === true) app.setup(server);
 

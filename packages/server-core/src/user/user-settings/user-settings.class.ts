@@ -10,6 +10,7 @@ export class UserSettings extends Service {
   public docs: any
   
   constructor (options: Partial<SequelizeServiceOptions>, app: Application) {
+    console.log("inside user-service");
     super(options);
   }
 }

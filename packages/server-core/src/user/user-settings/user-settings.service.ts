@@ -12,6 +12,7 @@ declare module '../../../declarations' {
 }
 
 export default (app: Application): any => {
+  console.log("user-settings");
   const options = {
     Model: createModel(app),
     paginate: app.get('paginate')

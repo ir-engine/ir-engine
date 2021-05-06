@@ -8,6 +8,7 @@ import getLocalServerIp from '@xr3ngine/server-core/src/util/get-local-server-ip
 import logger from '@xr3ngine/server-core/src/logger';
 import { decode } from 'jsonwebtoken';
 import { EngineEvents } from '@xr3ngine/engine/src/ecs/classes/EngineEvents';
+import { AuthenticationService } from '@feathersjs/authentication';
 
 export default (app: Application): void => {
     if (typeof app.channel !== 'function') {
@@ -21,7 +22,9 @@ export default (app: Application): void => {
             try {
                 const token = (connection as any).socketQuery?.token;
                 if (token != null) {
-                    const authResult = await app.service('authentication').strategies.jwt.authenticate({accessToken: token}, {});
+                    const authService = new AuthenticationService(app, 'authentication');
+                    // const authResult = await app.service('authentication').getStrategies('jwt').authenticate({accessToken: token}, {});
+                    const authResult = authService.getStrategies('jwt');
                     const identityProvider = authResult['identity-provider'];
                     if (identityProvider != null && identityProvider.id != null) {
                         logger.info(`user ${identityProvider.userId} joining ${(connection as any).socketQuery.locationId} with sceneId ${(connection as any).socketQuery.sceneId}`);
@@ -174,7 +177,9 @@ export default (app: Application): void => {
                 if (token != null) {
                     let authResult;
                     try {
-                        authResult = await app.service('authentication').strategies.jwt.authenticate({accessToken: token}, {});
+                        const authService = new AuthenticationService(app, 'authentication');
+                        authResult = await authService.strategies.jwt.authenticate({accessToken: token}, {});
+                       // authResult = await app.service('authentication').dispatch.jwt.authenticate({accessToken: token}, {});
                     } catch(err) {
                         if (err.code === 401 && err.data.name === 'TokenExpiredError') {
                             const jwtDecoded = decode(token);
