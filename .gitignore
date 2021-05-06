@@ -12,13 +12,14 @@ node_modules/
 package-lock.json
 yarn.lock
 yarn-error.log
+.yarn/
+
+#IDEA project
+*.yml
 
 #local files
 .env*
 !.env.local.default
-
-#macos
-.DS_Store
 
 #config
 config/*
@@ -35,10 +36,6 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
-
-# Yarn and package lock
-yarn.lock
-package-lock.json
 
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
@@ -72,7 +69,6 @@ bower_components
 build/Release
 
 # Dependency directories
-node_modules/
 jspm_packages/
 
 # TypeScript v1 declaration files
@@ -137,8 +133,6 @@ dist
 **/xrengine-dev-secrets.env
 lib/
 bin/
-
-.vscode/
 
 # JetBrains WebStorm/PhpStorm
 .idea
