@@ -9,7 +9,7 @@ android {
 
 apply from: "../capacitor-cordova-android-plugins/cordova.variables.gradle"
 dependencies {
-    implementation project(':xrengine-native-plugin-xr')
+    implementation project(':webxr-native')
 
 }
 

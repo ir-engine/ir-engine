@@ -1,6 +1,6 @@
 import { Plugins, registerWebPlugin } from '@capacitor/core';
-import { XRPluginPlugin } from "../../../native-plugin-xr/src/definitions";
-import '../../../native-plugin-xr/src/index';
+import { XRPluginPlugin } from "webxr-native/src/definitions";
+import 'webxr-native/src/index';
 import React, { useEffect, useState } from 'react';
 
 export const IndexPage = (): any => {

@@ -36,7 +36,7 @@
     "@xrengine/client-core": "^0.2.22",
     "@xrengine/common": "^0.2.22",
     "@xrengine/engine": "^0.2.22",
-    "@xrengine/native-plugin-xr": "^0.2.21",
+    "webxr-native": "^0.2.19",
     "app-root-path": "3.0.0",
     "device-detector-js": "2.2.9",
     "prop-types": "15.7.2",

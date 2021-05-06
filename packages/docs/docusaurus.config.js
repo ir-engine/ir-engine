@@ -105,20 +105,6 @@ module.exports = {
     [
       'docusaurus-plugin-typedoc',
       {
-        id: 'api-7',
-        entryPoints: ['../native-plugin-xr/src/'],
-        tsconfig: '../native-plugin-xr/tsconfig.json',
-        exclude: ['**/node_modules/**'],
-        out: 'docs-native-plugin-xr',
-        readme: 'none',
-        sidebar: {
-          sidebarFile: 'sidebar/typedoc-native-plugin-xr.js',
-        },
-      },
-    ],
-    [
-      'docusaurus-plugin-typedoc',
-      {
         id: 'api-8',
         entryPoints: ['../server-core/src/'],
         tsconfig: '../server-core/tsconfig.json',
