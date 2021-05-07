@@ -11,6 +11,7 @@ export const RouterComp = () => {
         <Switch>
             <Route path="/" component={React.lazy(() => import('./pages/index'))} exact />
             <Route path="/login" component={React.lazy(() => import('./pages/login'))} />
+            <Route path="/dev" component={React.lazy(() => import('./pages/dev'))} />
 
             {/* Admin Routes */}
             <Route path="/admin/content-packs" component={React.lazy(() => import('./pages/admin/content-packs'))} />

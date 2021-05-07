@@ -1,31 +1,33 @@
-//@ts-ignore
-import  { AnimationClip, Object3D, SkinnedMesh } from "three";
+import { AnimationClip, Object3D, SkinnedMesh, Vector3 } from "three";
 import { countCharacters, findClosestParentBone, findEye, findFoot, findFurthestParentBone, findHand, findHead, findHips, findShoulder, findSpine, getTailBones } from "../../../xr/functions/AvatarFunctions";
 import { SkeletonUtils } from '../../../assets/threejs-various/SkeletonUtils.js';
 import { AnimationManager } from "../prefabs/NetworkPlayerCharacter";
 
 
-export const standardizeSkeletion = (target: SkinnedMesh,source:SkinnedMesh) => {
+export const standardizeSkeletion = (target: SkinnedMesh, source: SkinnedMesh) => {
 
-  const targetBones=GetBones(target.skeleton);
-  const sourceBones=GetBones(source.skeleton);
-
-  Object.values(targetBones).forEach((element,id)=>{
-    const boneType=Object.keys(targetBones)[id];
-    element.name=sourceBones[boneType].name;
+  const targetBones = GetBones(target.skeleton);
+  const sourceBones = GetBones(source.skeleton);
+  Object.values(targetBones).forEach((element, id) => {
+    const boneType = Object.keys(targetBones)[id];
+    console.log("Target bone is", element.name);
+    console.log("Source bone is", sourceBones[boneType].name);
+    element.name = sourceBones[boneType].name;
   })
 
-  const newClips: AnimationClip[]=[];
-  AnimationManager.instance._animations.forEach((clip)=>{
-    const newClip=SkeletonUtils.retargetClip(target,source,clip,{hip:sourceBones.Hips.name});
+  const newClips: AnimationClip[] = [];
+  AnimationManager.instance._animations.forEach((clip) => {
+    const newClip = SkeletonUtils.retargetClip(target, source, clip, { hip: sourceBones.Hips.name });
     newClips.push(newClip);
   })
 
-  AnimationManager.instance._animations= newClips;
+  AnimationManager.instance._animations = newClips;
 }
 
 
-const GetBones=(skeleton)=>{
+const GetBones = (skeleton) => {
+  console.log("Getting bones!");
+  console.log(skeleton);
 
   const findFinger = (r, left) => {
     const fingerTipBone = tailBones
@@ -47,7 +49,7 @@ const GetBones=(skeleton)=>{
 
 
 
-  const tailBones=getTailBones(skeleton);
+  const tailBones = getTailBones(skeleton);
   const Eye_L = findEye(tailBones, true);
   const Eye_R = findEye(tailBones, false);
   const Head = findHead(tailBones);
@@ -70,17 +72,17 @@ const GetBones=(skeleton)=>{
   const Right_knee = Right_ankle.parent;
   const Right_leg = Right_knee.parent;
 
-  const Leftthumb= findFinger(/thumb/gi, true);
-  const Leftindex= findFinger(/index/gi, true);
-  const Leftmiddle= findFinger(/middle/gi, true);
-  const Leftring= findFinger(/ring/gi, true);
-  const Leftlittle= findFinger(/little/gi, true) || findFinger(/pinky/gi, true);
+  const Leftthumb = findFinger(/thumb/gi, true);
+  const Leftindex = findFinger(/index/gi, true);
+  const Leftmiddle = findFinger(/middle/gi, true);
+  const Leftring = findFinger(/ring/gi, true);
+  const Leftlittle = findFinger(/little/gi, true) || findFinger(/pinky/gi, true);
 
-  const Rightthumb= findFinger(/thumb/gi, false);
-  const Rightindex= findFinger(/index/gi, false);
-  const Rightmiddle= findFinger(/middle/gi, false);
-  const Rightring= findFinger(/ring/gi, false);
-  const Rightlittle= findFinger(/little/gi, false) || findFinger(/pinky/gi, false);
+  const Rightthumb = findFinger(/thumb/gi, false);
+  const Rightindex = findFinger(/index/gi, false);
+  const Rightmiddle = findFinger(/middle/gi, false);
+  const Rightring = findFinger(/ring/gi, false);
+  const Rightlittle = findFinger(/little/gi, false) || findFinger(/pinky/gi, false);
 
   const modelBones = {
     Hips,
@@ -108,7 +110,7 @@ const GetBones=(skeleton)=>{
     Right_ankle,
 
     Leftthumb,
-    Leftindex, 
+    Leftindex,
     Leftmiddle,
     Leftring,
     Leftlittle,
@@ -125,12 +127,12 @@ const GetBones=(skeleton)=>{
 }
 
 
-export const GetBoneMapping=(skeleton)=>{
-  const targetBones=GetBones(skeleton);
-  const boneMapping={}
-  Object.values(targetBones).forEach((element,id)=>{
-      const boneType=Object.keys(targetBones)[id];
-      //boneMapping[element.name]=DefaultCharacterBones[boneType];
+export const GetBoneMapping = (skeleton) => {
+  const targetBones = GetBones(skeleton);
+  const boneMapping = {}
+  Object.values(targetBones).forEach((element, id) => {
+    const boneType = Object.keys(targetBones)[id];
+    //boneMapping[element.name]=DefaultCharacterBones[boneType];
   })
   return boneMapping;
 }

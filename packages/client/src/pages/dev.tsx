@@ -1,13 +1,21 @@
-import DebugScene from '../components/Scene/debug';
-import Layout from '../components/Layout/Layout';
-import React from 'react';
-import { useTranslation } from 'react-i18next';
+import { DefaultInitializationOptions } from '@xrengine/engine/src/DefaultInitializationOptions';
+import { initializeEngine } from '@xrengine/engine/src/initialize';
+import React, { useEffect } from 'react';
+
 const LocationPage = () => {
-  const { t } = useTranslation();
+  useEffect(() => {
+
+    const InitializationOptions = {
+      ...DefaultInitializationOptions,
+      offline: true
+    };
+
+    initializeEngine(InitializationOptions);
+  }, []);
+
   return (
-    <Layout pageTitle={t('dev.pageTitle')}>
-      <DebugScene locationName="test"/>
-    </Layout>
+    <>
+    </>
   );
 };
 
