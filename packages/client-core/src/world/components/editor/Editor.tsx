@@ -427,6 +427,7 @@ export class Editor extends EventEmitter {
     // getting scene data
     const [scene, errors] = await SceneNode.loadProject(this, projectFile);
     console.log(scene, errors);
+    if(scene === null) throw new Error('Scene data is null, please create a new scene.');
 
     // removing loading
     this.sceneLoading = false;
