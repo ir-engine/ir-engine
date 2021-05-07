@@ -5,7 +5,7 @@ import { Service, SequelizeServiceOptions } from 'feathers-sequelize';
 import { Application } from '../../../declarations';
 import { Id, Params } from "@feathersjs/feathers";
 import { QueryTypes } from "sequelize";
-import { TheFeeds as FeedsInterface } from '@xr3ngine/common/src/interfaces/Feeds';
+import { TheFeeds as FeedsInterface } from '@xrengine/common/src/interfaces/Feeds';
 import { extractLoggedInUserFromParams } from "../../user/auth-management/auth-management.utils";
 import { BadRequest } from '@feathersjs/errors';
 import { getCreatorByUserId } from '../util/getCreator';
