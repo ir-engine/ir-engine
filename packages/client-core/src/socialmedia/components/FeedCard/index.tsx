@@ -106,7 +106,7 @@ const FeedCard = (props: Props) : any => {
 //         }
 //     };
     useEffect(()=> {
-         getTheFeedsFires(feed.id, setThefeedsFires)
+         getTheFeedsFires(feed.id, setThefeedsFiresCreators)
     }, []);
 
     const theFeedsFiresList = thefeedsFiresState?.get('thefeedsFires');
