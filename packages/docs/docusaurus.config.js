@@ -20,7 +20,7 @@ module.exports = {
     [
       'docusaurus-plugin-typedoc',
       {
-        id: 'api-1',
+        id: 'client-core',
         entryPoints: ['../client-core'],
         exclude: '../client-core/components/ui/InteractableModal',
         tsconfig: '../client-core/tsconfig.json',
@@ -35,7 +35,7 @@ module.exports = {
     [
       'docusaurus-plugin-typedoc',
       {
-        id: 'api-2',
+        id: 'client',
         entryPoints: ['../client'],
         tsconfig: '../client/tsconfig.json',
         exclude: ['**/node_modules/**'],
@@ -49,7 +49,7 @@ module.exports = {
     [
       'docusaurus-plugin-typedoc',
       {
-        id: 'api-3',
+        id: 'server',
         entryPoints: ['../server'],
         tsconfig: '../server/tsconfig.json',
         exclude: ['**/node_modules/**'],
@@ -63,7 +63,7 @@ module.exports = {
     [
       'docusaurus-plugin-typedoc',
       {
-        id: 'api-4',
+        id: 'common',
         entryPoints: ['../common'],
         tsconfig: '../common/tsconfig.json',
         exclude: ['**/node_modules/**'],
@@ -74,24 +74,24 @@ module.exports = {
         },
       },
     ],
-    // [
-    //   'docusaurus-plugin-typedoc',
-    //   {
-    //     id: 'api-9',
-    //     entryPoints: ['../engine/src/'],
-    //     tsconfig: '../engine/tsconfig.typedoc.json',
-    //     exclude: ['**/node_modules/**', '**/csm/**'],
-    //     out: 'docs-engine',
-    //     readme: 'none',
-    //     sidebar: {
-    //       sidebarFile: 'sidebar/typedoc-engine.js',
-    //     },
-    //   },
-    // ],
     [
       'docusaurus-plugin-typedoc',
       {
-        id: 'api-5',
+        id: 'engine',
+        entryPoints: ['../engine/src/'],
+        tsconfig: '../engine/tsconfig.typedoc.json',
+        exclude: ['**/node_modules/**'],
+        out: 'docs-engine',
+        readme: 'none',
+        sidebar: {
+          sidebarFile: 'sidebar/typedoc-engine.js',
+        },
+      },
+    ],
+    [
+      'docusaurus-plugin-typedoc',
+      {
+        id: 'gameserver',
         entryPoints: ['../gameserver/src/'],
         tsconfig: '../gameserver/tsconfig.json',
         exclude: ['**/node_modules/**'],
@@ -105,7 +105,7 @@ module.exports = {
     [
       'docusaurus-plugin-typedoc',
       {
-        id: 'api-8',
+        id: 'server-core',
         entryPoints: ['../server-core/src/'],
         tsconfig: '../server-core/tsconfig.json',
         exclude: ['**/node_modules/**'],
@@ -119,7 +119,7 @@ module.exports = {
   ],
   themeConfig: {
     navbar: {
-      // title: 'xrengine',
+      title: 'XREngine',
       logo: {
         alt: 'Logo',
         src: 'https://github.com/XRFoundation/XREngine/raw/dev/xrengine%20black.png',
@@ -131,7 +131,7 @@ module.exports = {
           label: 'Docs',
           position: 'left',
         },
-        // {to: 'blog', label: 'Blog', position: 'left'},
+        {to: 'blog', label: 'Blog', position: 'left'},
         {
           href: 'https://github.com/XRFoundation/XREngine',
           label: 'GitHub',
@@ -142,27 +142,6 @@ module.exports = {
     footer: {
       style: 'dark',
       links: [
-        {
-          title: 'Docs',
-          items: [
-            {
-              label: 'Introduction',
-              to: 'docs/introduction/',
-            },
-            {
-              label: 'Installation',
-              to: 'docs/installation/',
-            },
-            {
-              label: 'Deployment',
-              to: 'docs/deployment/',
-            },
-            {
-              label: 'Configurations',
-              to: 'docs/configurations/',
-            },
-          ],
-        },
         {
           title: 'Community',
           items: [
@@ -177,7 +156,7 @@ module.exports = {
           ],
         },
       ],
-      copyright: `Copyright © ${new Date().getFullYear()} THEOVERLAY, Inc. Built with LAGUNA LABS.`,
+      copyright: `Copyright © ${new Date().getFullYear()} XRFoundation.`,
     },
   },
   presets: [
@@ -188,14 +167,14 @@ module.exports = {
           sidebarPath: require.resolve('./sidebars.js'),
           // Please change this to your repo.
           editUrl:
-            'https://github.com/XRFoundation/XREngine/edit/jsdoc/packages/docs/',
+            'https://github.com/XRFoundation/XREngine/packages/docs/',
         },
-        // blog: {
-        //   showReadingTime: true,
-        //   // Please change this to your repo.
-        //   editUrl:
-        //     'https://github.com/facebook/docusaurus/edit/master/website/blog/',
-        // },
+        blog: {
+          showReadingTime: true,
+          // Please change this to your repo.
+          editUrl:
+            'https://github.com/XRFoundation/XREngine/packages/docs/',
+        },
         theme: {
           customCss: require.resolve('./src/css/custom.css'),
         },

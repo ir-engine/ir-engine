@@ -48,7 +48,7 @@ if (typeof window !== 'undefined') {
 
 /**
  *
- * @author Avaer Kazmer
+ * @author Shaw Walters and Josh Field
  * @param initOptions
  */
 

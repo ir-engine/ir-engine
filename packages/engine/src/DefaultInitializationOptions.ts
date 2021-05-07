@@ -4,7 +4,7 @@ import { DefaultNetworkSchema } from './templates/networking/DefaultNetworkSchem
 
 /**
  * 
- * @author Avaer Kazmer
+ * @author Shaw Walters
  */
 
 export const DefaultInitializationOptions = {
