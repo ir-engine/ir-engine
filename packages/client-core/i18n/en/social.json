@@ -62,6 +62,9 @@
         "arMedia": "Ar Media",
         "editor": "Editor"
     },
+    "featured":{
+        "empty-list": "No feeds for now ..."
+    },
     "feed": {
         "back": "Back",
         "related": "Related feeds"

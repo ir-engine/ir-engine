@@ -1,14 +1,23 @@
 .tipsandtricksContainer{
     display: flex;
     flex-direction: column;
+    font-size: 17pt;
     
     .tipItem{
         width: 100%;
         .previewImage{
             height: 250px;
+            background-color: rgba(116, 116, 128, 0.08);
         }
         .tipsTitle{
-            font-weight: bold;
+            font-family: "SFProText-Heavy";
+            font-size: 18pt;
+        }
+        .tipsDescription{
+            font-family: "SFProText-Regular";
+            font-size: 17pt;
+            line-height: 22pt;
+            letter-spacing: -0.41pt;
         }
     }
 }

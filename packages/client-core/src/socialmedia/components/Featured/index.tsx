@@ -1,10 +1,12 @@
 /**
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
+import { Typography } from '@material-ui/core';
 import Card from '@material-ui/core/Card';
 import CardMedia from '@material-ui/core/CardMedia';
 import VisibilityIcon from '@material-ui/icons/Visibility';
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 import { selectAuthState } from '../../../user/reducers/auth/selector';
@@ -45,6 +47,7 @@ interface Props{
 
 const Featured = ({feedsState, getFeeds, type, creatorId, creatorState, setFeedAsFeatured, setFeedNotFeatured, authState, updateFeedPageState} : Props) => { 
     const [feedsList, setFeedList] = useState([]);
+    const { t } = useTranslation();
 
     useEffect(()=> {
         if(type === 'creator' || type === 'bookmark' || type === 'myFeatured' || type === 'fired'){
@@ -100,7 +103,7 @@ const Featured = ({feedsState, getFeeds, type, creatorId, creatorState, setFeedA
     // };
 
     return <section className={styles.feedContainer}>
-        {feedsList && feedsList.length > 0  && feedsList.map((item, itemIndex)=>{
+        {feedsList && feedsList.length > 0  ? feedsList.map((item, itemIndex)=>{
             const sizeIndex = (itemIndex === 0 || itemIndex%8 === 0 || itemIndex%8 === 2 || itemIndex%8 === 5) ? 'listItem_width2' 
             : itemIndex%8 === 1 ? 'listItem_width3' : 'listItem_width1';
             const topIndex =  itemIndex%8 === 2  ? 'listItem_top1' :  itemIndex%8 === 5 ? 'listItem_top2' : '';
@@ -117,7 +120,7 @@ const Featured = ({feedsState, getFeeds, type, creatorId, creatorState, setFeedA
                 />
                 <span className={styles.eyeLine}>{item.viewsCount}<VisibilityIcon style={{fontSize: '16px'}}/></span>
             </Card>;}
-        )}
+        ) : <Typography className={styles.emptyList}>{t('social:featured.empty-list')}</Typography>}
         </section>;
 };
 
