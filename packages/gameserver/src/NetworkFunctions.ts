@@ -179,17 +179,9 @@ export function validateNetworkObjects(): void {
 
 export async function handleConnectToWorld(socket, data, callback, userId, user, avatarDetail): Promise<any> {
     const transport = Network.instance.transport as any;
-    console.log('handleConnectToWorld');
-    console.log('Engine.sceneLoaded:', Engine.sceneLoaded);
-    console.log('isChannelInstance:', (transport.app as any).isChannelInstance);
     if(!Engine.sceneLoaded && (transport.app as any).isChannelInstance !== true) {
-        console.log('Location instance server, waiting for scene to be loaded');
         await new Promise<void>((resolve) => {
-            console.log('handleConnectToWorld creating listener for SCENE_LOADED');
-            EngineEvents.instance.once(EngineEvents.EVENTS.SCENE_LOADED, () => {
-                console.log('handleConnectToWorld SCENE_LOADED listener');
-                resolve();
-            });
+            EngineEvents.instance.once(EngineEvents.EVENTS.SCENE_LOADED, resolve);
         });
     }
 
