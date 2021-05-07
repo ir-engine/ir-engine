@@ -170,6 +170,7 @@ export class Project implements ServiceMethods<Data> {
     } else {
       sceneData = await readJSONFromBlobStore(storage, ownedFile.key);
     }
+    if(!sceneData) return;
     await seqeulizeClient.transaction(async (transaction: Transaction) => {
       project.update({
         name: data.name,
