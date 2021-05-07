@@ -44,13 +44,13 @@ const ShareForm = ({updateShareFormState}:Props) => {
 
    const classes = useStyles();
    const { t } = useTranslation();
-
+   const videoUrl =  localStorage.getItem('videoUrl')
 
    const shareVia = () => {
     Share.share({
         title: t('social:shareForm.seeCoolStuff'),
         text: t('social:shareForm.videoCreated'),
-        url: 'http://arcmedia.us/',
+        url: videoUrl,
         dialogTitle: t('social:shareForm.shareWithBuddies')
       });
    };

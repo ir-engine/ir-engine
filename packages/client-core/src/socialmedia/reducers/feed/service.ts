@@ -127,6 +127,9 @@ export function createFeed({ title, description, video, preview }: any) {
       const api = new Api();
       const storedVideo = await api.upload(video, null);
       const storedPreview = await api.upload(preview, null);
+       //@ts-ignore
+       const videoUrl = storedVideo.origin
+       localStorage.setItem('videoUrl', videoUrl);
       //@ts-ignore error that this vars are void bacause upload is defines as voin funtion
       if (storedVideo && storedPreview) {
         //@ts-ignore error that this vars are void bacause upload is defines as voin funtion

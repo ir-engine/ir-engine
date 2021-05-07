@@ -71,7 +71,10 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
             setIsSended(false); 
             clearTimeout(thanksTimeOut);
         }, 2000);
-        updateShareFormState(true);
+        const ShareTimeOut = setTimeout(()=>{
+            updateShareFormState(true); 
+            clearTimeout(ShareTimeOut);
+        }, 2000);
     };
     const handlePickVideo = async (file) => setVideo(file.target.files[0]);
     const handlePickPreview = async (file) => setPreview(file.target.files[0]);
