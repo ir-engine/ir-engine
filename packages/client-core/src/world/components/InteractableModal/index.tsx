@@ -44,9 +44,9 @@ export const InteractableModal: FunctionComponent<InteractableModalProps> = ({ o
     </DialogTitle>
     <DialogContent className={styles.dialogContent}>
       {modelView}
-      {/* eslint-disable-next-line react/no-danger */}
       {data.payloadHtmlContent && (
         <div className={styles.dialogContentContainer}>
+          {/* eslint-disable-next-line react/no-danger */}
           <div dangerouslySetInnerHTML={{ __html: data.payloadHtmlContent }} /> 
         </div>
         )}

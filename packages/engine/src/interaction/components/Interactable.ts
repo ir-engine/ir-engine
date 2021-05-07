@@ -2,7 +2,6 @@ import { Component } from "../../ecs/classes/Component";
 import { Types } from "../../ecs/types/Types";
 import { Behavior } from "../../common/interfaces/Behavior";
 import { InteractionCheckHandler } from "../types/InteractionTypes";
-import { CommonInteractiveData } from "../interfaces/CommonInteractiveData";
 
 export class Interactable extends Component<Interactable> {
   static _schema = {
@@ -21,5 +20,5 @@ export class Interactable extends Component<Interactable> {
   public interactiveDistance: number
   public interactionParts: Array<any> = []
   public interactionPartsPosition: Array<any> = []
-  public data: CommonInteractiveData;
+  public data: any;
 }
