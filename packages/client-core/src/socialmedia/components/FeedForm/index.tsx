@@ -106,8 +106,8 @@ return <section className={styles.feedFormContainer}>
                 <section className={styles.flexContainer}>
                     <Card className={styles.preCard}>
                         <Typography>
-                            <p>{t('social:feedForm.upload')}</p>
-                            <p><BackupIcon onClick={()=>{(videoRef.current as HTMLInputElement).click();}} /></p>
+                            {t('social:feedForm.upload')}
+                            <br/><BackupIcon onClick={()=>{(videoRef.current as HTMLInputElement).click();}} />
                             <input required ref={videoRef} type="file" className={styles.displayNone} name="video" onChange={handlePickVideo} placeholder={t('social:feedForm.ph-selectVideo')}/>
                         </Typography> 
                     </Card>
