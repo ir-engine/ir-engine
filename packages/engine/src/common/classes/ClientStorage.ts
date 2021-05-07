@@ -13,7 +13,6 @@ let store: any = {
 if(isBrowser && !isJsDom() && !isNode) {
   store = idbstorage;
 }
-console.log(store)
 
 type StorageDatatypes = string | object | boolean | number;
 
