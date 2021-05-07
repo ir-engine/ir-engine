@@ -65,7 +65,7 @@ const TheFeedsConsole = ({ create, list, deleteTheFeed, update }:Props) => {
   const [actionDescription, setDescription] = useState(null);
 
 
-  const handleOpen = (title, id, videoUrl, description, videoId) => {
+  const handleOpen = (title, id, videoUrl, description) => {
     setOpen(true);
     if(title) setTitle(title);
     if(id) setId(id);

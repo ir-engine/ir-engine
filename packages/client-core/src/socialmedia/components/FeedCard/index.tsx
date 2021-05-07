@@ -34,7 +34,7 @@ import PopupLogin from '../PopupLogin/PopupLogin';
 import { selectAuthState } from '../../../user/reducers/auth/selector';
 import { selectCreatorsState } from '../../reducers/creator/selector';
 import { getLoggedCreator } from '../../reducers/creator/service';
-import { client } from '../../feathers';
+
 
 import Featured from '../Featured';
 
@@ -149,7 +149,9 @@ const FeedCard = (props: Props) : any => {
                 <span className={styles.eyeLine}>{feed.viewsCount}<VisibilityIcon style={{fontSize: '16px'}}/></span>
                 <CardContent className={styles.cardContent}>                     
                     <section className={styles.iconsContainer}>
-                        <Typography className={styles.titleContainer} gutterBottom variant="h4" onClick={()=>history.push('/feed?feedId=' + feed.id)}>
+                        <Typography className={styles.titleContainer} gutterBottom variant="h4"
+//                         onClick={()=>history.push('/feed?feedId=' + feed.id)}
+                        >
                             {feed.title}
                         </Typography>
                         <CreatorAsTitle creator={feed.creator} />

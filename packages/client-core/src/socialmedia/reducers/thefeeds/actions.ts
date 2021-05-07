@@ -2,7 +2,7 @@
  * @author Gleb Ordinsky <glebordinskijj@gmail.com>
  */
 
-import { TheFeedsShort, TheFeeds } from '@xr3ngine/common/src/interfaces/Feeds';
+import { TheFeedsShort, TheFeeds } from '@xrengine/common/src/interfaces/Feeds';
 
 
 // const thefeeds = '';

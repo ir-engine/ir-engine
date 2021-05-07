@@ -28,7 +28,6 @@ export function thefeedsFiresRetrieved (thefeedsFires: CreatorShort[], thefeedsI
   return {
     type: THEFEEDS_FIRES_RETRIEVED,
     thefeedsFires: thefeedsFires,
-    thefeedsId: thefeedsId
   };
 }
 
