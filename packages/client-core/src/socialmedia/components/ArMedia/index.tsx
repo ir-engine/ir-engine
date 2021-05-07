@@ -48,9 +48,9 @@ const ArMedia = ({getArMedia, arMediaState, updateArMediaState, updateNewFeedPag
     return <section className={styles.arMediaContainer}>
       <Button variant="text" className={styles.backButton} onClick={()=>updateArMediaState(false)}><ArrowBackIosIcon />{t('social:arMedia.back')}</Button>
       <section className={styles.switcher}>
-        <Button variant={type === 'clip' ? 'contained' : 'text'} color='secondary' className={styles.switchButton+(type === 'clip' ? ' '+styles.active : '')} 
+        <Button variant={type === 'clip' ? 'contained' : 'text'} className={styles.switchButton+(type === 'clip' ? ' '+styles.active : '')} 
             onClick={()=>setType('clip')}>{t('social:arMedia.clip')}</Button>
-        <Button variant={type === 'background' ? 'contained' : 'text'} color='secondary' className={styles.switchButton+(type === 'background' ? ' '+styles.active : '')} 
+        <Button variant={type === 'background' ? 'contained' : 'text'} className={styles.switchButton+(type === 'background' ? ' '+styles.active : '')} 
             onClick={()=>setType('background')}>{t('social:arMedia.backgrounds')}</Button>
       </section>
       <section className={styles.flexContainer}>
@@ -63,7 +63,7 @@ const ArMedia = ({getArMedia, arMediaState, updateArMediaState, updateNewFeedPag
             />;          
         })}
       </section>
-      <Button onClick={()=> {updateArMediaState(false); updateNewFeedPageState(true);}} variant="contained" color="primary" >
+      <Button className={styles.startRecirding} onClick={()=> {updateArMediaState(false); updateNewFeedPageState(true);}} variant="contained" >
           {t('social:arMedia.start')}
       </Button>
     </section>;

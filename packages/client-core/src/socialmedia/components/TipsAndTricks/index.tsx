@@ -24,7 +24,7 @@ export const TipsAndTricks = () => {
     }
     return <section className={styles.tipsandtricksContainer}>
         {data.map((item, itemindex)=>
-            <Card className={styles.tipItem} square={false} elevation={0} key={itemindex}>
+            <Card className={styles.tipItem} square={true} elevation={0} key={itemindex}>
                 <CardMedia   
                     className={styles.previewImage}      
                     component='video'            
@@ -33,8 +33,8 @@ export const TipsAndTricks = () => {
                     controls
                 />
                 <CardContent>
-                    <Typography className={styles.tipsTitle} variant="h2">{item.title}</Typography>
-                    <Typography variant="h2">{item.description}</Typography>
+                    <Typography className={styles.tipsTitle}>{item.title}</Typography>
+                    <Typography className={styles.tipsDescription}>{item.description}</Typography>
                 </CardContent>
             </Card>
         )}

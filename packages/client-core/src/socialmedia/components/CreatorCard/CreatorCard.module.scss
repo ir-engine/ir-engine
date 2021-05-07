@@ -28,6 +28,20 @@
 }
 .content{
     transform: translate(0, -115px);
+    text-align: center;
+
+    .username{
+        font-size: 18pt;
+        color: rgba(60, 60, 67, 0.6);
+    }
+    .titleContainer{
+        font-family: 'SFProText-Semibold';
+        font-size: 20pt;
+    }
+    .tags{
+        font-size: 15pt;
+        color: rgba(60, 60, 67, 0.6);
+    }
 }
 .countersButtons{
     position: absolute;
