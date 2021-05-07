@@ -79,7 +79,7 @@ const FeedCard = (props: Props) : any => {
     const {feed, authState, getTheFeedsFires, thefeedsFiresState, addFireToTheFeeds, removeFireToTheFeeds} = props;
     const [firedCount, setFiredCount] = useState(feed.fires);
 
-    const [thefeedsFires, setThefeedsFires] = useState(null);
+    const [thefeedsFiresCreators, setThefeedsFiresCreators] = useState(null);
 
     const handleAddFireClick = (feedId) =>{
         addFireToTheFeeds(feedId)
@@ -112,15 +112,9 @@ const FeedCard = (props: Props) : any => {
     const theFeedsFiresList = thefeedsFiresState?.get('thefeedsFires');
     const creatorId = authState.get('currentCreator').id
 
-    const checkFired = () => {
-        if(thefeedsFires !== null && thefeedsFires !== undefined){
-            const FiredUser = thefeedsFires.data.filter(i=>i.id === creatorId)[0]
-            if(FiredUser !== undefined && FiredUser.id === creatorId) setFired(true)
-        }
-    }
     useEffect(()=> {
-    thefeedsFires && checkFired()
-    },[thefeedsFires]);
+            setFired(!!thefeedsFiresCreators?.data.find(i=>i.id === creatorId))
+    },[thefeedsFiresCreators]);
     return  feed ? <><Card className={styles.tipItem} square={false} elevation={0} key={feed.id}>
 {/*                 {isVideo ? <CardMedia    */}
 {/*                     className={styles.previewImage}                   */}
