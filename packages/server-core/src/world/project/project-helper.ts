@@ -31,19 +31,22 @@ export function defaultProjectImport (models: any): any[] {
 
 export function readJSONFromBlobStore(storage, key): any {
   return new Promise((resolve, reject) => {
-    let chunks = {};
+    const chunks = [];
     storage
       .createReadStream({
         key
       })
       .on('data', (data: any) => {
-        try {
-          const parsedData = JSON.parse(data.toString());
-          chunks = Object.assign(chunks, parsedData);
-        } catch (error) { console.log('Failed to parse JSON', error); }
+          chunks.push(data.toString());
       })
       .on('end', () => {
-        resolve(chunks);
+        try {
+          const json = JSON.parse(chunks.join(''));
+          resolve(json);
+        } catch (error) {
+          console.log('Failed to parse JSON', error, chunks);
+          reject();
+        }
       })
       .on('error', reject);
   });
