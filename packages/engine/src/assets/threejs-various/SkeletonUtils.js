@@ -305,7 +305,7 @@ class SkeletonUtils {
 				if ( boneData.pos ) {
 
 					convertedTracks.push( new VectorKeyframeTrack(
-						'.bones[' + boneData.bone.name + '].position',
+						boneData.bone.name +'.position',
 						boneData.pos.times,
 						boneData.pos.values
 					) );
@@ -313,7 +313,7 @@ class SkeletonUtils {
 				}
 
 				convertedTracks.push( new QuaternionKeyframeTrack(
-					'.bones[' + boneData.bone.name + '].quaternion',
+				 	boneData.bone.name + '.quaternion',
 					boneData.quat.times,
 					boneData.quat.values
 				) );
