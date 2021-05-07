@@ -62,7 +62,7 @@ const TipsAndTricks = ({ tipsAndTricksState,
         doLoginAuto(true, true);
         getTipsAndTricks();
     }, []);
-    const tipsAndTricksList = tipsAndTricksState?.get('tips_and_tricks') && tipsAndTricksState?.get('tips_and_tricks');
+    const tipsAndTricksList = tipsAndTricksState?.get('tips_and_tricks');
     return (<>
             <div>
                 <Dashboard>

@@ -48,7 +48,7 @@ export const TipsAndTricks = ({tipsAndTricksState, getTipsAndTricks, doLoginAuto
         doLoginAuto(true);
         getTipsAndTricks();
     }, []);
-    const tipsAndTricksList = tipsAndTricksState?.get('tips_and_tricks') && tipsAndTricksState?.get('tips_and_tricks');
+    const tipsAndTricksList = tipsAndTricksState?.get('tips_and_tricks');
     useEffect(()=>  console.log(tipsAndTricksList), [tipsAndTricksList]);
 
 

@@ -109,16 +109,14 @@ const FeedCard = (props: Props) : any => {
          getTheFeedsFires(feed.id, setThefeedsFires)
     }, []);
 
-    const theFeedsFiresList = thefeedsFiresState?.get('thefeedsFires') && thefeedsFiresState?.get('thefeedsFires');
+    const theFeedsFiresList = thefeedsFiresState?.get('thefeedsFires');
     const creatorId = authState.get('currentCreator').id
 
     const checkFired = () => {
         if(thefeedsFires !== null && thefeedsFires !== undefined){
             const FiredUser = thefeedsFires.data.filter(i=>i.id === creatorId)[0]
             if(FiredUser !== undefined && FiredUser.id === creatorId) setFired(true)
-
         }
-
     }
     useEffect(()=> {
     thefeedsFires && checkFired()
