@@ -10,9 +10,10 @@ let store: any = {
   del: key => { delete memory[key]; },
 };
 
-if(isBrowser && !isJsDom && !isNode) {
+if(isBrowser && !isJsDom() && !isNode) {
   store = idbstorage;
 }
+console.log(store)
 
 type StorageDatatypes = string | object | boolean | number;
 
