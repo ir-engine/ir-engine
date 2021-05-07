@@ -1,8 +1,8 @@
 import { Entity } from '../../../../ecs/classes/Entity';
-import { Checker } from '../../../../game/types/Checker';
 import { getComponent } from '../../../../ecs/functions/EntityFunctions';
-import { TransformComponent } from '../../../../transform/components/TransformComponent';
 import { getStorage } from '../../../../game/functions/functionsStorage';
+import { Checker } from '../../../../game/types/Checker';
+import { TransformComponent } from '../../../../transform/components/TransformComponent';
 /**
  * @author HydraFire <github.com/HydraFire>
  */

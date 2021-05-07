@@ -1,22 +1,22 @@
 import { Euler, Matrix4, Vector3 } from 'three';
-import { Entity } from '../../../ecs/classes/Entity';
-import { addComponent, getComponent, getMutableComponent, removeComponent } from '../../../ecs/functions/EntityFunctions';
-import { PlayerInCar } from '../../../physics/components/PlayerInCar';
-import { TransformComponent } from '../../../transform/components/TransformComponent';
-import { CharacterAnimations } from '../../../character/CharacterAnimations';
+import { FollowCameraComponent } from '../../camera/components/FollowCameraComponent';
+import { CameraModes } from '../../camera/types/CameraModes';
+import { initializeDriverState } from '../../character/animations/DrivingAnimations';
+import { CharacterAnimations } from '../../character/CharacterAnimations';
+import { CharacterComponent } from '../../character/components/CharacterComponent';
+import { changeAnimation } from '../../character/functions/updateVectorAnimation';
+import { isServer } from '../../common/functions/isServer';
+import { Entity } from '../../ecs/classes/Entity';
+import { getMutableComponent, getComponent, addComponent, removeComponent } from '../../ecs/functions/EntityFunctions';
+import { LocalInputReceiver } from '../../input/components/LocalInputReceiver';
+import { Network } from '../../networking/classes/Network';
+import { NetworkObject } from '../../networking/components/NetworkObject';
+import { PlayerInCar } from '../../physics/components/PlayerInCar';
+import { CollisionGroups } from '../../physics/enums/CollisionGroups';
+import { PhysicsSystem } from '../../physics/systems/PhysicsSystem';
+import { TransformComponent } from '../../transform/components/TransformComponent';
 import { VehicleComponent } from '../components/VehicleComponent';
 import { VehicleState } from '../enums/VehicleStateEnum';
-import { CameraModes } from '../../../camera/types/CameraModes';
-import { changeAnimation } from '../../../character/functions/updateVectorAnimation';
-import { initializeDriverState } from '../../../character/animations/DrivingAnimations'
-import { isServer } from '../../../common/functions/isServer';
-import { NetworkObject } from '../../../networking/components/NetworkObject';
-import { CharacterComponent } from '../../../character/components/CharacterComponent';
-import { PhysicsSystem } from '../../../physics/systems/PhysicsSystem';
-import { Network } from '../../../networking/classes/Network';
-import { LocalInputReceiver } from '../../../input/components/LocalInputReceiver';
-import { FollowCameraComponent } from '../../../camera/components/FollowCameraComponent';
-import { CollisionGroups } from '../../../physics/enums/CollisionGroups';
 
 /**
  * @author HydraFire <github.com/HydraFire>

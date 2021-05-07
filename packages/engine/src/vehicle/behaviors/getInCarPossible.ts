@@ -1,7 +1,6 @@
-import { getComponent } from "../../../ecs/functions/EntityFunctions";
-import { InteractionCheckHandler } from "../../../interaction/types/InteractionTypes";
+import { getComponent } from "../../ecs/functions/EntityFunctions";
+import { InteractionCheckHandler } from "../../interaction/types/InteractionTypes";
 import { VehicleComponent } from "../components/VehicleComponent";
-import { isClient } from "../../../common/functions/isClient";
 
 
 /**

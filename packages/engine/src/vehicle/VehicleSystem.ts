@@ -3,23 +3,21 @@
  * @author HydraFire <github.com/HydraFire>
  */
 
-import { Engine } from "../../ecs/classes/Engine";
-import { System } from "../../ecs/classes/System";
-import { getComponent, hasComponent } from "../../ecs/functions/EntityFunctions";
-import { SystemUpdateType } from "../../ecs/functions/SystemUpdateType";
-import { Network } from "../../networking/classes/Network";
-import { NetworkObject } from "../../networking/components/NetworkObject";
-import { VehicleBehavior } from "../../physics/behaviors/VehicleBehavior";
-import { PlayerInCar } from "../../physics/components/PlayerInCar";
-import { PhysicsLifecycleState } from "../../physics/enums/PhysicsStates";
-import { TransformComponent } from "../../transform/components/TransformComponent";
+import { Engine } from "../ecs/classes/Engine";
+import { System } from "../ecs/classes/System";
+import { getComponent, hasComponent } from "../ecs/functions/EntityFunctions";
+import { Network } from "../networking/classes/Network";
+import { NetworkObject } from "../networking/components/NetworkObject";
+import { VehicleBehavior } from "../physics/behaviors/VehicleBehavior";
+import { PlayerInCar } from "../physics/components/PlayerInCar";
+import { PhysicsLifecycleState } from "../physics/enums/PhysicsStates";
+import { TransformComponent } from "../transform/components/TransformComponent";
 import { onAddedInCar } from "./behaviors/onAddedInCar";
 import { onAddEndingInCar } from "./behaviors/onAddEndingInCar";
 import { onRemovedFromCar } from "./behaviors/onRemovedFromCar";
 import { onStartRemoveFromCar } from "./behaviors/onStartRemoveFromCar";
 import { onUpdatePlayerInCar } from "./behaviors/onUpdatePlayerInCar";
 import { VehicleComponent } from "./components/VehicleComponent";
-
 
 export class VehicleSystem extends System {
   diffSpeed: number = Engine.physicsFrameRate / Engine.networkFramerate;

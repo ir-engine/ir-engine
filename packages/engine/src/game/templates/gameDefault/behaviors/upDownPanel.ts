@@ -1,13 +1,11 @@
-import { Entity } from '../../../../ecs/classes/Entity';
 import { Behavior } from '../../../../common/interfaces/Behavior';
-import { Vector3, Quaternion, Matrix4 } from 'three';
+import { Entity } from '../../../../ecs/classes/Entity';
+import { getMutableComponent, hasComponent } from "../../../../ecs/functions/EntityFunctions";
+import { addStateComponent, removeStateComponent } from '../../../../game/functions/functionsState';
 import { TransformComponent } from '../../../../transform/components/TransformComponent';
-import { addComponent, getComponent, getMutableComponent, hasComponent, removeComponent } from "../../../../ecs/functions/EntityFunctions";
 import { PanelDown } from "../components/PanelDownTagComponent";
 import { PanelUp } from "../components/PanelUpTagComponent";
 
-import { addStateComponent, removeStateComponent  } from '../../../../game/functions/functionsState';
-import { getStorage } from '../../../../game/functions/functionsStorage';
 
 /**
  * @author HydraFire <github.com/HydraFire>

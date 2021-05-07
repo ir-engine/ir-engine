@@ -1,8 +1,8 @@
 import { Entity } from '../../../../ecs/classes/Entity';
-import { Checker } from '../../../../game/types/Checker';
 import { getComponent } from '../../../../ecs/functions/EntityFunctions';
 import { Game } from "../../../../game/components/Game";
 import { GameObject } from "../../../../game/components/GameObject";
+import { Checker } from '../../../../game/types/Checker';
 /**
  * @author HydraFire <github.com/HydraFire>
  */

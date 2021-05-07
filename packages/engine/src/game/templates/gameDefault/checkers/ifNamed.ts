@@ -1,6 +1,6 @@
 import { Entity } from '../../../../ecs/classes/Entity';
-import { Checker } from '../../../../game/types/Checker';
 import { getComponent } from '../../../../ecs/functions/EntityFunctions';
+import { Checker } from '../../../../game/types/Checker';
 import { Interactable } from "../../../../interaction/components/Interactable";
 /**
  * @author HydraFire <github.com/HydraFire>

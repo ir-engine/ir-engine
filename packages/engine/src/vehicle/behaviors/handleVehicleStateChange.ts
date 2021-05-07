@@ -1,9 +1,9 @@
-import { Entity } from "../../../ecs/classes/Entity";
-import { addComponent, getComponent, getMutableComponent, hasComponent, removeComponent } from "../../../ecs/functions/EntityFunctions";
-import { LocalInputReceiver } from "../../../input/components/LocalInputReceiver";
-import { Network } from "../../../networking/classes/Network";
-import { NetworkObjectEditInterface } from "../../../networking/interfaces/WorldState";
-import { PlayerInCar } from "../../../physics/components/PlayerInCar";
+import { Entity } from "../../ecs/classes/Entity";
+import { removeComponent, hasComponent, addComponent, getMutableComponent } from "../../ecs/functions/EntityFunctions";
+import { LocalInputReceiver } from "../../input/components/LocalInputReceiver";
+import { Network } from "../../networking/classes/Network";
+import { NetworkObjectEditInterface } from "../../networking/interfaces/WorldState";
+import { PlayerInCar } from "../../physics/components/PlayerInCar";
 import { VehicleState, VehicleStateUpdateSchema } from "../enums/VehicleStateEnum";
 
 /**

@@ -1,17 +1,12 @@
-import { isClient } from '../../../common/functions/isClient';
-import { Behavior } from '../../../common/interfaces/Behavior';
-import { Entity } from '../../../ecs/classes/Entity';
-import {
-  addComponent,
-  getComponent,
-  getMutableComponent
-} from '../../../ecs/functions/EntityFunctions';
-import { DelegatedInputReceiver } from '../../../input/components/DelegatedInputReceiver';
-import { Network } from '../../../networking/classes/Network';
-import { NetworkObject } from '../../../networking/components/NetworkObject';
-import { sendClientObjectUpdate } from '../../../networking/functions/sendClientObjectUpdate';
-import { PlayerInCar } from '../../../physics/components/PlayerInCar';
-import { NetworkObjectUpdateType } from '../../networking/NetworkObjectUpdateSchema';
+import { isClient } from '../../common/functions/isClient';
+import { Behavior } from '../../common/interfaces/Behavior';
+import { Entity } from '../../ecs/classes/Entity';
+import { getComponent, getMutableComponent, addComponent } from '../../ecs/functions/EntityFunctions';
+import { DelegatedInputReceiver } from '../../input/components/DelegatedInputReceiver';
+import { NetworkObject } from '../../networking/components/NetworkObject';
+import { sendClientObjectUpdate } from '../../networking/functions/sendClientObjectUpdate';
+import { NetworkObjectUpdateType } from '../../networking/templates/NetworkObjectUpdateSchema';
+import { PlayerInCar } from '../../physics/components/PlayerInCar';
 import { VehicleComponent } from '../components/VehicleComponent';
 import { VehicleState, VehicleStateUpdateSchema } from '../enums/VehicleStateEnum';
 

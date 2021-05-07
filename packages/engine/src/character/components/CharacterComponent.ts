@@ -1,13 +1,12 @@
 // Default component, holds data about what behaviors our actor has.
-import { Types } from '../../../ecs/types/Types';
-import { Component } from '../../../ecs/classes/Component';
-import { Vector3, Group, Material, AnimationMixer, Mesh, BoxBufferGeometry, AnimationAction } from 'three';
-import { ControllerColliderComponent } from '../../../physics/components/ControllerColliderComponent';
-import { VectorSpringSimulator } from '../../../physics/classes/VectorSpringSimulator';
-import { RelativeSpringSimulator } from '../../../physics/classes/SpringSimulator';
-import { SceneQuery, Transform } from "three-physx";
-import { CollisionGroups } from '../../../physics/enums/CollisionGroups';
-
+import { AnimationAction, AnimationMixer, Group, Material, Vector3 } from 'three';
+import { SceneQuery } from "three-physx";
+import { Component } from '../../ecs/classes/Component';
+import { Types } from '../../ecs/types/Types';
+import { RelativeSpringSimulator } from '../../physics/classes/SpringSimulator';
+import { VectorSpringSimulator } from '../../physics/classes/VectorSpringSimulator';
+import { ControllerColliderComponent } from '../../physics/components/ControllerColliderComponent';
+import { CollisionGroups } from '../../physics/enums/CollisionGroups';
 export class CharacterComponent extends Component<CharacterComponent> {
 
 	dispose(): void {

@@ -1,21 +1,21 @@
-import { Engine } from "../../../ecs/classes/Engine";
-import { Entity } from "../../../ecs/classes/Entity";
-import { isClient } from "../../../common/functions/isClient";
-import { initializeNetworkObject } from '../../../networking/functions/initializeNetworkObject';
-import { Network } from '../../../networking/classes/Network';
-import { NetworkPrefab } from '../../../networking/interfaces/NetworkPrefab';
 import { VehicleInputSchema } from '../VehicleInputSchema';
-import { Input } from '../../../input/components/Input';
-import { Interactable } from '../../../interaction/components/Interactable';
-import { TransformComponent } from '../../../transform/components/TransformComponent';
-import { InterpolationComponent } from "../../../physics/components/InterpolationComponent";
 import { getInCar } from '../behaviors/getInCarBehavior';
 import { getInCarPossible } from '../behaviors/getInCarPossible';
 import { VehicleComponent } from "../components/VehicleComponent";
-import { PrefabType } from "../../networking/PrefabType";
-import { InterpolationInterface } from "../../../physics/interfaces/InterpolationInterface";
 import { vehicleInterpolationBehavior } from "../behaviors/vehicleInterpolationBehavior";
 import { vehicleCorrectionBehavior } from "../behaviors/vehicleCorrectionBehavior";
+import { isClient } from '../../common/functions/isClient';
+import { Engine } from '../../ecs/classes/Engine';
+import { Entity } from '../../ecs/classes/Entity';
+import { Input } from '../../input/components/Input';
+import { Interactable } from '../../interaction/components/Interactable';
+import { Network } from '../../networking/classes/Network';
+import { initializeNetworkObject } from '../../networking/functions/initializeNetworkObject';
+import { NetworkPrefab } from '../../networking/interfaces/NetworkPrefab';
+import { PrefabType } from '../../networking/templates/PrefabType';
+import { InterpolationComponent } from '../../physics/components/InterpolationComponent';
+import { InterpolationInterface } from '../../physics/interfaces/InterpolationInterface';
+import { TransformComponent } from '../../transform/components/TransformComponent';
 
 /**
  * @author HydraFire <github.com/HydraFire>

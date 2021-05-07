@@ -3,15 +3,13 @@
  */
 
 import { Euler, Quaternion } from "three";
-import { Behavior } from "../../../common/interfaces/Behavior";
-import { Entity } from "../../../ecs/classes/Entity";
-import { getComponent, getMutableComponent, hasComponent } from "../../../ecs/functions/EntityFunctions";
-import { Network } from "../../../networking/classes/Network";
-import { ColliderComponent } from "../../../physics/components/ColliderComponent";
+import { Behavior } from "../../common/interfaces/Behavior";
+import { Entity } from "../../ecs/classes/Entity";
+import { getComponent } from "../../ecs/functions/EntityFunctions";
+import { Network } from "../../networking/classes/Network";
 import { VehicleComponent } from "../components/VehicleComponent";
 import { vehicleInterpolationBehavior } from "./vehicleInterpolationBehavior";
 
-const correctionSpeed = 180;
 export const vehicleCorrectionBehavior: Behavior = (entity: Entity, args): void => {
 
   const vehicleComponent = getComponent(entity, VehicleComponent) as VehicleComponent;

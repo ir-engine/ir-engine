@@ -1,5 +1,5 @@
-import { handleVehicleStateChange } from "../vehicle/behaviors/handleVehicleStateChange";
 import { handleObjectEquipped } from "../../interaction/functions/handleObjectEquipped";
+import { handleVehicleStateChange } from "../../vehicle/behaviors/handleVehicleStateChange";
 
 export enum NetworkObjectUpdateType {
   VehicleStateChange,

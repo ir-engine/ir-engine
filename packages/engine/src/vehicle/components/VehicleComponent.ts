@@ -1,6 +1,6 @@
 import { Vector3 } from 'three';
-import { Component } from '../../../ecs/classes/Component';
-import { Types } from '../../../ecs/types/Types';
+import { Component } from '../../ecs/classes/Component';
+import { Types } from '../../ecs/types/Types';
 
 /**
  * @author HydraFire <github.com/HydraFire>

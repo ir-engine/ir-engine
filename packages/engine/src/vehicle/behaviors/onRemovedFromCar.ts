@@ -1,9 +1,9 @@
-import { isServer } from "../../../common/functions/isServer";
-import { Entity } from "../../../ecs/classes/Entity";
-import { addComponent, getComponent, getMutableComponent, hasComponent, removeComponent } from "../../../ecs/functions/EntityFunctions";
-import { LocalInputReceiver } from "../../../input/components/LocalInputReceiver";
-import { Network } from "../../../networking/classes/Network";
-import { NetworkObject } from "../../../networking/components/NetworkObject";
+import { isServer } from "../../common/functions/isServer";
+import { Entity } from "../../ecs/classes/Entity";
+import { getMutableComponent, hasComponent, getComponent, removeComponent, addComponent } from "../../ecs/functions/EntityFunctions";
+import { LocalInputReceiver } from "../../input/components/LocalInputReceiver";
+import { Network } from "../../networking/classes/Network";
+import { NetworkObject } from "../../networking/components/NetworkObject";
 import { VehicleComponent } from "../components/VehicleComponent";
 
 /**

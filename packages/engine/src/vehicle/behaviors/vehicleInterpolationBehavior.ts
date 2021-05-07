@@ -3,13 +3,13 @@
  * @author HydraFire <github.com/HydraFire>
  */
 
-import { Behavior } from "../../../common/interfaces/Behavior";
-import { Engine } from "../../../ecs/classes/Engine";
-import { Entity } from "../../../ecs/classes/Entity";
-import { getComponent, getMutableComponent, hasComponent } from "../../../ecs/functions/EntityFunctions";
-import { Network } from "../../../networking/classes/Network";
-import { Object3DComponent } from "../../../scene/components/Object3DComponent";
-import { TransformComponent } from "../../../transform/components/TransformComponent";
+import { Behavior } from "../../common/interfaces/Behavior";
+import { Engine } from "../../ecs/classes/Engine";
+import { Entity } from "../../ecs/classes/Entity";
+import { getComponent, getMutableComponent } from "../../ecs/functions/EntityFunctions";
+import { Network } from "../../networking/classes/Network";
+import { Object3DComponent } from "../../scene/components/Object3DComponent";
+import { TransformComponent } from "../../transform/components/TransformComponent";
 import { VehicleComponent } from "../components/VehicleComponent";
 
 export const vehicleInterpolationBehavior: Behavior = (entity: Entity, args): void => {

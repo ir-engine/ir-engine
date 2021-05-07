@@ -1,31 +1,31 @@
-import { BaseInput } from '../../input/enums/BaseInput';
-import { LifecycleValue } from '../../common/enums/LifecycleValue';
-import { isServer } from '../../common/functions/isServer';
-import { isClient } from '../../common/functions/isClient';
-import { Behavior } from '../../common/interfaces/Behavior';
-import { Entity } from '../../ecs/classes/Entity';
-import { getComponent, getMutableComponent, removeComponent } from '../../ecs/functions/EntityFunctions';
-import { Input } from "../../input/components/Input";
-import { GamepadButtons, MouseInput, GamepadAxis } from '../../input/enums/InputEnums';
-import { InputType } from '../../input/enums/InputType';
-import { InputSchema } from '../../input/interfaces/InputSchema';
-import { InputAlias } from "../../input/types/InputAlias";
-import { Network } from '../../networking/classes/Network';
-import { sendClientObjectUpdate } from '../../networking/functions/sendClientObjectUpdate';
-import { PlayerInCar } from '../../physics/components/PlayerInCar';
-import { VehicleComponent } from './components/VehicleComponent';
-import { CameraModes } from "../../camera/types/CameraModes";
-import { isMobileOrTablet } from '../../common/functions/isMobile';
-import { VehicleState, VehicleStateUpdateSchema } from './enums/VehicleStateEnum';
-import { NetworkObjectUpdateType } from '../networking/NetworkObjectUpdateSchema';
-import { DelegatedInputReceiver } from '../../input/components/DelegatedInputReceiver';
-import { FollowCameraComponent } from '../../camera/components/FollowCameraComponent';
-
 /**
  * @author HydraFire <github.com/HydraFire>
  * @param entity is the entity to handle state changes to
  * @param seat idex array of seats
  */
+
+import { FollowCameraComponent } from "../camera/components/FollowCameraComponent";
+import { CameraModes } from "../camera/types/CameraModes";
+import { LifecycleValue } from "../common/enums/LifecycleValue";
+import { isClient } from "../common/functions/isClient";
+import { isMobileOrTablet } from "../common/functions/isMobile";
+import { isServer } from "../common/functions/isServer";
+import { Behavior } from "../common/interfaces/Behavior";
+import { Entity } from "../ecs/classes/Entity";
+import { getComponent, getMutableComponent, removeComponent } from "../ecs/functions/EntityFunctions";
+import { DelegatedInputReceiver } from "../input/components/DelegatedInputReceiver";
+import { Input } from "../input/components/Input";
+import { BaseInput } from "../input/enums/BaseInput";
+import { MouseInput, GamepadButtons, GamepadAxis } from "../input/enums/InputEnums";
+import { InputType } from "../input/enums/InputType";
+import { InputSchema } from "../input/interfaces/InputSchema";
+import { InputAlias } from "../input/types/InputAlias";
+import { Network } from "../networking/classes/Network";
+import { sendClientObjectUpdate } from "../networking/functions/sendClientObjectUpdate";
+import { NetworkObjectUpdateType } from "../networking/templates/NetworkObjectUpdateSchema";
+import { PlayerInCar } from "../physics/components/PlayerInCar";
+import { VehicleComponent } from "./components/VehicleComponent";
+import { VehicleState, VehicleStateUpdateSchema } from "./enums/VehicleStateEnum";
 
 const getOutCar: Behavior = (entityCar: Entity): void => {
   if(isClient) return;

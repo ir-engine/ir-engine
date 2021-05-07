@@ -1,11 +1,11 @@
 import { Matrix4, Vector3 } from 'three';
-import { changeAnimation } from '../../../character/functions/updateVectorAnimation';
-import { isServer } from "../../../common/functions/isServer";
-import { Entity } from '../../../ecs/classes/Entity';
-import { getComponent, getMutableComponent } from '../../../ecs/functions/EntityFunctions';
-import { PlayerInCar } from '../../../physics/components/PlayerInCar';
-import { TransformComponent } from '../../../transform/components/TransformComponent';
-import { CharacterAnimations } from '../../../character/CharacterAnimations';
+import { CharacterAnimations } from '../../character/CharacterAnimations';
+import { changeAnimation } from '../../character/functions/updateVectorAnimation';
+import { isServer } from '../../common/functions/isServer';
+import { Entity } from '../../ecs/classes/Entity';
+import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
+import { PlayerInCar } from '../../physics/components/PlayerInCar';
+import { TransformComponent } from '../../transform/components/TransformComponent';
 import { VehicleComponent } from '../components/VehicleComponent';
 import { VehicleState } from '../enums/VehicleStateEnum';
 

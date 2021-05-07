@@ -1,14 +1,12 @@
-import { Entity } from '../../../../ecs/classes/Entity';
 import { Behavior } from '../../../../common/interfaces/Behavior';
-import { addComponent, getComponent, getMutableComponent, hasComponent, removeComponent } from "../../../../ecs/functions/EntityFunctions";
-import { Vector3, Quaternion, Matrix4 } from 'three';
+import { Entity } from '../../../../ecs/classes/Entity';
+import { getMutableComponent } from "../../../../ecs/functions/EntityFunctions";
+import { addStateComponent, removeStateComponent } from '../../../../game/functions/functionsState';
 import { TransformComponent } from '../../../../transform/components/TransformComponent';
-import { ButtonUp } from "../components/ButtonUpTagComponent";
 import { ButtonDown } from "../components/ButtonDownTagComponent";
+import { ButtonUp } from "../components/ButtonUpTagComponent";
 
 
-import { initState, saveInitStateCopy, reInitState, sendState, requireState, applyStateToClient, correctState, addStateComponent, removeStateComponent  } from '../../../../game/functions/functionsState';
-import { initStorage, getStorage } from '../../../../game/functions/functionsStorage';
 /**
  * @author HydraFire <github.com/HydraFire>
  */
