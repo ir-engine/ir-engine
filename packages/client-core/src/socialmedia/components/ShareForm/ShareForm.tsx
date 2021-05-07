@@ -50,7 +50,7 @@ const useStyles = makeStyles({
 
 const ShareForm = ({updateShareFormState, popupsState}:Props) => {
    
-   const videoUrl = popupsState?.get('videoUrl')
+   const videoUrl = popupsState?.get('videoUrl');
    const classes = useStyles();
    const { t } = useTranslation();
 

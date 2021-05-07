@@ -12,7 +12,7 @@ import Typography from '@material-ui/core/Typography';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import WhatshotIcon from '@material-ui/icons/Whatshot';
-import TelegramIcon from '@material-ui/icons/Telegram'
+import TelegramIcon from '@material-ui/icons/Telegram';
 // import BookmarkBorderIcon from '@material-ui/icons/BookmarkBorder';
 // import BookmarkIcon from '@material-ui/icons/Bookmark';
 import VisibilityIcon from '@material-ui/icons/Visibility';
@@ -86,15 +86,15 @@ const FeedCard = (props: Props) : any => {
     const [thefeedsFiresCreators, setThefeedsFiresCreators] = useState(null);
 
     const handleAddFireClick = (feedId) =>{
-        addFireToTheFeeds(feedId)
-        setFiredCount(firedCount+1)
-        setFired(true)
+        addFireToTheFeeds(feedId);
+        setFiredCount(firedCount+1);
+        setFired(true);
     };
     const handleRemoveFireClick = (feedId) =>{
         removeFireToTheFeeds(feedId);
-        setFiredCount(firedCount-1)
-        setFired(false)
-    }
+        setFiredCount(firedCount-1);
+        setFired(false);
+    };
 
     //hided for now
     // const handleAddBookmarkClick = (feedId) =>addBookmarkToFeed(feedId);
@@ -111,7 +111,7 @@ const FeedCard = (props: Props) : any => {
 //         }
 //     };
     useEffect(()=> {
-         getTheFeedsFires(feed.id, setThefeedsFiresCreators)
+         getTheFeedsFires(feed.id, setThefeedsFiresCreators);
     }, []);
 
     const { t } = useTranslation();
@@ -134,10 +134,10 @@ const FeedCard = (props: Props) : any => {
     const checkGuest = props.authState.get('authUser')?.identityProvider?.type === 'guest' ? true : false;
 
     const theFeedsFiresList = thefeedsFiresState?.get('thefeedsFires');
-    const creatorId = authState.get('currentCreator').id
+    const creatorId = authState.get('currentCreator').id;
 
     useEffect(()=> {
-            setFired(!!thefeedsFiresCreators?.data.find(i=>i.id === creatorId))
+            setFired(!!thefeedsFiresCreators?.data.find(i=>i.id === creatorId));
     },[thefeedsFiresCreators]);
     return  feed ? <><Card className={styles.tipItem} square={false} elevation={0} key={feed.id}>
 {/*                 {isVideo ? <CardMedia    */}

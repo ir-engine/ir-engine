@@ -15,7 +15,7 @@ class NameComponent extends Component<NameComponent> {
 // Components need to have a schema so that they can construct efficiently
 NameComponent._schema = {
     name: { type: Types.String, default: "HelloWorld" },
-}
+};
 
 // This is a system. Systems are usually stateless and logical, and perform operations on components.
 // Systems can also have non-simulation side effects (input/output).
@@ -29,16 +29,16 @@ class NameSystem extends System {
      */
     execute(delta: number): void {
         this.queryResults.names?.added.forEach(entity => {
-            console.log("Added component to entity", entity.id)
+            console.log("Added component to entity", entity.id);
             removeComponent(entity, NameComponent);
-        })
+        });
 
         this.queryResults.names?.removed.forEach(entity => {
             console.log("Removed component on entity", entity.id);
             setTimeout(() => {
                 addComponent(entity, NameComponent);
-            }, 100)
-        })
+            }, 100);
+        });
     }
 }
 
@@ -69,7 +69,7 @@ const HelloWorld = () => {
         execute(.1, 0, SystemUpdateType.Fixed);
     }, 100);
     // Some JSX to keep the compiler from complaining
-    return (<div>Hello World!!!</div>)
-}
+    return (<div>Hello World!!!</div>);
+};
 
 export default HelloWorld;
