@@ -1,4 +1,4 @@
-// import { ImmortalDB } from 'immortal-db'
+import { ImmortalDB } from 'immortal-db'
 
 type StorageDatatypes = string | object | boolean | number;
 
