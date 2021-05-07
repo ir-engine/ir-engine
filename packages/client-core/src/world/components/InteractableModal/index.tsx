@@ -52,7 +52,7 @@ export const InteractableModal: FunctionComponent<InteractableModalProps> = ({ o
         )}
       {data.payloadUrl && (<p >{data.payloadUrl}</p>)}
       {data.interactionText && (
-        <p className={styles.dialogContentContainer}>
+        <p className={styles.dialogContentText}>
           {data.interactionText}
         </p>
       )}

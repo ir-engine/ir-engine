@@ -12,6 +12,11 @@
   max-height: 240px;
   overflow-y: hidden;
 }
+.dialogContentText {
+  padding: 5px 5px 5px 5px;
+  max-height: 240px;
+  overflow-y: scroll;
+}
 // }
 //     position: fixed;
 //     top: 50%;

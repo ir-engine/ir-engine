@@ -109,6 +109,8 @@ export abstract class System {
   /** Execute Method definition. */
   execute? (delta: number, time: number): void
 
+  async initialize(): Promise<any> { return; }
+
   /**
    * Initializes system
    * 
@@ -137,8 +139,6 @@ export abstract class System {
     }
 
     this._mandatoryQueries = [];
-
-    this.initialized = true;
 
     if ((this.constructor as any).queries) {
       for (const queryName in (this.constructor as any).queries) {
