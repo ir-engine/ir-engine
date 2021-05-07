@@ -228,16 +228,6 @@ const initializeCharacter: Behavior = (entity): void => {
 };
 
 export function createNetworkPlayer(args: { ownerId: string | number, networkId?: number, entity?: Entity }) {
-	/*
-  let position = null;
-  let rotation = null;
-  if (typeof obj.x === 'number' || typeof obj.y === 'number' || typeof obj.z === 'number' ) {
-	  position = new Vector3(obj.x, obj.y, obj.z);
-  }
-  if (typeof obj.qX === 'number' || typeof obj.qY === 'number' || typeof obj.qZ === 'number' || typeof obj.qW === 'number') {
-	  rotation = new Quaternion(obj.qX, obj.qY, obj.qZ, obj.qW);
-  }
-	*/
 	const networkComponent = initializeNetworkObject({
 		ownerId: String(args.ownerId),
 		networkId: args.networkId,

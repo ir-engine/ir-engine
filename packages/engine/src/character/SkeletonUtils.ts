@@ -13,7 +13,7 @@ import {
 
 class SkeletonUtils {
 
-	static retarget( target, source, options = {} ) {
+	static retarget( target, source, options: any = {} ) {
 
 		const pos = new Vector3(),
 			quat = new Quaternion(),
@@ -200,19 +200,19 @@ class SkeletonUtils {
 
 	}
 
-	static retargetClip( target, source, clip, options = {} ) {
-
+	static retargetClip( target, source, clip, options: any = {} ) {
+		console.log("Retargeting clip: ", clip);
 		options.useFirstFramePosition = options.useFirstFramePosition !== undefined ? options.useFirstFramePosition : false;
 		options.fps = options.fps !== undefined ? options.fps : 30;
 		options.names = options.names || [];
 
 		if ( ! source.isObject3D ) {
-
+			console.error("source.isObject3D", source.isObject3D)
 			source = this.getHelperFromSkeleton( source );
 
 		}
 
-		const numFrames = Math.round( clip.duration * ( options.fps / 1000 ) * 1000 ),
+		const numFrames = Math.round( clip.duration * options.fps ),
 			delta = 1 / options.fps,
 			convertedTracks = [],
 			mixer = new AnimationMixer( source ),

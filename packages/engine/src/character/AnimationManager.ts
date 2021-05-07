@@ -19,7 +19,7 @@ export class AnimationManager {
 				resolve(this._animations);
 				return;
 			}
-			getLoader().load(Engine.publicPath + '/models/avatars/AvatarAnimations.glb', gltf => {
+			getLoader().load(Engine.publicPath + '/models/avatars/Animations.glb', gltf => {
 				gltf.scene.traverse((child) => {
 					if (child.type === "SkinnedMesh" && !this._defaultSkeleton) {
 						this._defaultSkeleton = child;
