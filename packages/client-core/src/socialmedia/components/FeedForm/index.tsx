@@ -1,7 +1,7 @@
 /**
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { bindActionCreators, Dispatch } from 'redux';
 import { connect } from 'react-redux';
 import VideoRecorder from 'react-video-recorder';
@@ -42,6 +42,7 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
     const [composingTitle, setComposingTitle] = useState(feed ? feed.title : '');
     const [composingText, setComposingText] = useState(feed ? feed.description : '');
     const [video, setVideo] = useState(null);
+    const [videoUrl, setVideoUrl] = useState(null);
     const [preview, setPreview] = useState(null);
     const titleRef = React.useRef<HTMLInputElement>();
     const textRef = React.useRef<HTMLInputElement>();
@@ -50,7 +51,7 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
 
     const handleComposingTitleChange = (event: any): void => setComposingTitle(event.target.value);
     const handleComposingTextChange = (event: any): void => setComposingText(event.target.value);
-    const handleCreateFeed = () => {
+    const handleCreateFeed = async () => {
         const newFeed = {
             title: composingTitle.trim(),
             description: composingText.trim(),
@@ -59,7 +60,7 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
         if(feed){                    
             updateFeedAsAdmin(feed.id, newFeed);
         }else{
-            createFeed(newFeed);
+           setVideoUrl(await createFeed(newFeed)) 
         }
 
         setComposingTitle('');
@@ -71,8 +72,12 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
             setIsSended(false); 
             clearTimeout(thanksTimeOut);
         }, 2000);
-        updateShareFormState(true);
+        
+           
+
     };
+
+    useEffect(()=> {videoUrl && updateShareFormState(true, videoUrl)}, [videoUrl] ) 
     const handlePickVideo = async (file) => setVideo(file.target.files[0]);
     const handlePickPreview = async (file) => setPreview(file.target.files[0]);
     

@@ -24,7 +24,8 @@ export function createCreator(){
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
     try {
       dispatch(fetchingCurrentCreator());
-      const creator = await client.service('creator').create({});   
+      let userNumber = (Math.floor(Math.random() * 1000) + 1)
+      const creator = await client.service('creator').create({name: 'User' + userNumber, username: 'user_' + userNumber});  
       dispatch(creatorLoggedRetrieved(creator));     
     } catch(err) {
       console.log(err);

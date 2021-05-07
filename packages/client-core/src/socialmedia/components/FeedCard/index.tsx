@@ -1,5 +1,5 @@
 /**
- * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
+ * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>, Gleb Ordinsky
  */
 import React, { useState, useEffect } from 'react';
 import { bindActionCreators, Dispatch } from 'redux';
@@ -37,6 +37,10 @@ import { getLoggedCreator } from '../../reducers/creator/service';
 
 
 import Featured from '../Featured';
+import { Plugins } from '@capacitor/core';
+import { useTranslation } from 'react-i18next';
+
+const { Share } = Plugins;
 
 const mapStateToProps = (state: any): any => {
     return {
@@ -100,6 +104,7 @@ const FeedCard = (props: Props) : any => {
 //         !checkGuest && addViewToFeed(feedId);
 //     };
 
+
 //     const handleGetFeedFiredUsers = (feedId) => {
 //         if(feedId){
 //             setOpenFiredModal(true);
@@ -108,6 +113,25 @@ const FeedCard = (props: Props) : any => {
     useEffect(()=> {
          getTheFeedsFires(feed.id, setThefeedsFiresCreators)
     }, []);
+
+    const { t } = useTranslation();
+    const shareVia = () => {
+        Share.share({
+            title: t('social:shareForm.seeCoolStuff'),
+            text: t('social:shareForm.videoCreated'),
+            url: feed.videoUrl,
+            dialogTitle: t('social:shareForm.shareWithBuddies')
+          });
+       };
+
+    // const handleGetFeedFiredUsers = (feedId) => {
+    //     if(feedId){
+    //         getFeedFires(feedId);
+    //         setOpenFiredModal(true);
+    //     }
+    // };
+    
+    const checkGuest = props.authState.get('authUser')?.identityProvider?.type === 'guest' ? true : false;
 
     const theFeedsFiresList = thefeedsFiresState?.get('thefeedsFires');
     const creatorId = authState.get('currentCreator').id
@@ -154,7 +178,7 @@ const FeedCard = (props: Props) : any => {
                                 :
                                 <WhatshotIcon className={styles.fireIcon} htmlColor="#DDDDDD"
                                     onClick={()=>handleAddFireClick(feed.id)} />}
-{/*                         <TelegramIcon /> */}
+                            <TelegramIcon onClick={shareVia}/>
                         </section>
                         {/*hided for now*/}
                         {/* {feed.isBookmarked ? <BookmarkIcon onClick={()=>checkGuest ? setButtonPopup(true) : handleRemoveBookmarkClick(feed.id)} />
