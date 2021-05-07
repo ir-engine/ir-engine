@@ -4,7 +4,9 @@ import { DefaultNetworkSchema } from './templates/networking/DefaultNetworkSchem
 
 /**
  * 
- * @author Avaer Kazmer
+ * @author Shaw Walters
+ * If you just want to start up multiplayer worlds, use this.
+ * Otherwise you should copy this into your own into your initializeEngine call.
  */
 
 export const DefaultInitializationOptions = {
