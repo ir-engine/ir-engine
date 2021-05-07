@@ -27,7 +27,12 @@ import { PostProcessingSchema } from './postprocessing/PostProcessingSchema';
 import { EngineEvents } from '../ecs/classes/EngineEvents';
 import PostProcessing, { defaultPostProcessingSchema, effectType } from '../scene/classes/PostProcessing';
 import { ShaderPass } from './postprocessing/passes/ShaderPass';
-import { ClientStorage } from '../common/classes/ClientStorage';
+import { isBrowser } from '../common/functions/getEnvironment';
+var ClientStorage;
+if(isBrowser)
+  import ('../common/classes/ClientStorage').then((module) => {
+    ClientStorage = module.ClientStorage;
+  })
 
 export enum RENDERER_SETTINGS {
   AUTOMATIC = 'automatic',
