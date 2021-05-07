@@ -13,32 +13,6 @@ import {
   TipsAndTricksAction
 } from './actions';
 
-const tipsList = [
-  {
-    title: 'Item 1',
-    id: '1',
-    video: 'video1.mp4',
-    description: 'Tip number 1',
-  },
-  {
-    title: 'Item 2',
-    id: '2',
-    video: 'video2.mp4',
-    description: 'Tip number 2',
-  },
-  {
-    title: 'Item 3',
-    id: '3',
-    video: 'video3.mp4',
-    description: 'Tip number 3',
-  },
-  {
-    title: 'Item 4',
-    id: '4',
-    video: 'video4.mp4',
-    description: 'Tip number 4',
-  },
-];
 
 export const initialTipsAndTricksState = {
   tips_and_tricks: {},
