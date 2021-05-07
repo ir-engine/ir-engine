@@ -28,11 +28,7 @@ import { EngineEvents } from '../ecs/classes/EngineEvents';
 import PostProcessing, { defaultPostProcessingSchema, effectType } from '../scene/classes/PostProcessing';
 import { ShaderPass } from './postprocessing/passes/ShaderPass';
 import { isBrowser } from '../common/functions/getEnvironment';
-var ClientStorage;
-if(isBrowser)
-  import ('../common/classes/ClientStorage').then((module) => {
-    ClientStorage = module.ClientStorage;
-  })
+import { ClientStorage } from '../common/classes/ClientStorage';
 
 export enum RENDERER_SETTINGS {
   AUTOMATIC = 'automatic',
@@ -79,7 +75,7 @@ export class WebGLRendererSystem extends System {
 
   static automatic = true;
   static usePBR = true;
-  static usePostProcessing = false;
+  static usePostProcessing = true;
   static shadowQuality = 5; 
   /** Resoulion scale. **Default** value is 1. */
   static scaleFactor = 1;
@@ -147,10 +143,7 @@ export class WebGLRendererSystem extends System {
     WebGLRendererSystem.needsResize = true;
 
     // if we turn PostPro off, don't turn it back on, if we turn it on, let engine manage it
-    if(this._supportWebGL2) {
-      this.forcePostProcessing = attributes.postProcessing 
-      this.setUsePostProcessing(attributes.postProcessing);
-    } else {
+    if(!this._supportWebGL2) {
       this.setUsePostProcessing(false);
     }
     
@@ -384,7 +377,6 @@ export class WebGLRendererSystem extends System {
     ClientStorage.set(databasePrefix + RENDERER_SETTINGS.POST_PROCESSING, WebGLRendererSystem.usePostProcessing);
   }
   static async loadGraphicsSettingsFromStorage() {
-    console.log('loadGraphicsSettingsFromStorage', await ClientStorage.get(databasePrefix + RENDERER_SETTINGS.SHADOW_QUALITY))
     WebGLRendererSystem.automatic = await ClientStorage.get(databasePrefix + RENDERER_SETTINGS.AUTOMATIC) as boolean ?? true;
     WebGLRendererSystem.scaleFactor = await ClientStorage.get(databasePrefix + RENDERER_SETTINGS.SCALE_FACTOR) as number ?? 1;
     WebGLRendererSystem.shadowQuality = await ClientStorage.get(databasePrefix + RENDERER_SETTINGS.SHADOW_QUALITY) as number ?? 5;
@@ -394,6 +386,4 @@ export class WebGLRendererSystem extends System {
   }
 }
 
-
-WebGLRendererSystem.queries = {
-};
+WebGLRendererSystem.queries = {};
