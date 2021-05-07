@@ -1,9 +1,17 @@
 // .infoBoxContainer{
-    .dialogTitle{
-        h2{
-            flex-grow: 1;
-        }
+.dialogTitle{
+    h2{
+        flex-grow: 1;
     }
+}
+.dialogContent {
+  
+}
+.dialogContentContainer {
+  padding: 5px 5px 5px 5px;
+  max-height: 240px;
+  overflow-y: hidden;
+}
 // }
 //     position: fixed;
 //     top: 50%;
