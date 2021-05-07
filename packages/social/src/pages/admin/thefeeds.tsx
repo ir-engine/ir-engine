@@ -3,7 +3,7 @@
  * @author Gleb Ordinsky <glebordinskijj@gmail.com>
  */
 import React, { useEffect } from "react";
-import Dashboard  from "@xr3ngine/client-core/src/socialmedia/components/Dashboard";
+import Dashboard  from "@xrengine/client-core/src/socialmedia/components/Dashboard";
 import { bindActionCreators, Dispatch } from "redux";
 import { connect } from "react-redux";
 import {
@@ -11,10 +11,10 @@ import {
   getTheFeedsNew,
   removeTheFeeds,
   updateTheFeedsAsAdmin
-} from '@xr3ngine/client-core/src/socialmedia/reducers/thefeeds/service';
-import { doLoginAuto } from "@xr3ngine/client-core/src/user/reducers/auth/service";
-import TheFeedsConsole from '@xr3ngine/client-core/src/admin/components/Feeds';
-import { selectTheFeedsState } from '@xr3ngine/client-core/src/socialmedia/reducers/thefeeds/selector';
+} from '@xrengine/client-core/src/socialmedia/reducers/thefeeds/service';
+import { doLoginAuto } from "@xrengine/client-core/src/user/reducers/auth/service";
+import TheFeedsConsole from '@xrengine/client-core/src/admin/components/Feeds';
+import { selectTheFeedsState } from '@xrengine/client-core/src/socialmedia/reducers/thefeeds/selector';
 
 
 // const thefeeds = '';
@@ -65,13 +65,9 @@ const TheFeeds = ({ theFeedsState,
     getTheFeedsNew();
   }, []);
   const TheFeedsList = theFeedsState?.get('thefeeds') ? theFeedsState?.get('thefeeds') : [];
-  useEffect(()=> {
-    console.log(TheFeedsList);
-  });
   return (<>
       <div>
         <Dashboard>
-
           <TheFeedsConsole
             create={create}
             list={TheFeedsList}

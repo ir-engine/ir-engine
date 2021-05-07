@@ -9,7 +9,7 @@ import { BinaryValue } from "../../common/enums/BinaryValue";
 import { BaseInput } from '../../input/enums/BaseInput';
 
 import { ControllerColliderComponent } from '../components/ControllerColliderComponent';
-import { CharacterComponent, MULT_SPEED } from '../../templates/character/components/CharacterComponent';
+import { CharacterComponent } from '../../templates/character/components/CharacterComponent';
 import { TransformComponent } from '../../transform/components/TransformComponent';
 import { isServer } from '../../common/functions/isServer';
 import { XRUserSettings, XR_FOLLOW_MODE } from '../../xr/types/XRUserSettings';
@@ -50,6 +50,7 @@ export const physicsMove = (entity: Entity, deltaTime): void => {
     }
   }
   const newVelocity = new Vector3();
+  const onGroundVelocity = new Vector3();
   if (actor.isGrounded) {
     collider.controller.velocity.y = 0;
 
@@ -58,28 +59,30 @@ export const physicsMove = (entity: Entity, deltaTime): void => {
     actor.velocitySimulator.simulate(deltaTime);
 
     actor.velocity.copy(actor.velocitySimulator.position);
-    newVelocity.copy(actor.velocity).multiplyScalar(actor.moveSpeed * MULT_SPEED);
+    newVelocity.copy(actor.velocity).multiplyScalar(actor.moveSpeed * actor.speedMultiplier);
     newVelocity.applyQuaternion(transform.rotation)
 
     if (actor.closestHit) {
+      onGroundVelocity.copy(newVelocity).setY(0);
       const normal = new Vector3(actor.closestHit.normal.x, actor.closestHit.normal.y, actor.closestHit.normal.z);
       const q = new Quaternion().setFromUnitVectors(upVector, normal);
       const m = new Matrix4().makeRotationFromQuaternion(q);
-      newVelocity.applyMatrix4(m);
+      onGroundVelocity.applyMatrix4(m);
     }
     collider.controller.velocity.x = newVelocity.x;
-    // collider.controller.velocity.y = newVelocity.y / MULT_SPEED;
+    collider.controller.velocity.y = onGroundVelocity.y;
     collider.controller.velocity.z = newVelocity.z;
 
 
     if (actor.isJumping) {
+      collider.controller.velocity.y -= 0.2;
+    //  collider.controller.resize(actor.BODY_SIZE);
       actor.isJumping = false;
     }
 
     if (actor.localMovementDirection.y > 0 && !actor.isJumping) {
-
-      collider.controller.velocity.y = 3 * deltaTime;
-
+      collider.controller.velocity.y = actor.jumpHeight * deltaTime;
+    //  collider.controller.resize(actor.BODY_SIZE);
       actor.isJumping = true;
       actor.isGrounded = false;
     }

@@ -6,6 +6,7 @@ import feedFiresReducer from './feedFires/reducers';
 import popupsStateReducer from './popupsState/reducers';
 import tipsAndTricksReducer from './tips_and_tricks/reducers';
 import thefeedsReducer from './thefeeds/reducers';
+import thefeedsFiresReducer from './thefeedsFires/reducers';
 
 export default {
   creators: creatorReducer,
@@ -15,5 +16,6 @@ export default {
   arMedia: arMediaReducer,
   popups: popupsStateReducer,
   tips_and_tricks: tipsAndTricksReducer,
-  thefeeds: thefeedsReducer
+  thefeeds: thefeedsReducer,
+  thefeedsFires: thefeedsFiresReducer
 };

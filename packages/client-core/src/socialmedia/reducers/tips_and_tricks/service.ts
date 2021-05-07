@@ -55,8 +55,6 @@ export function updateTipsAndTricksAsAdmin(data: any) {
   return async (dispatch: Dispatch): Promise<any> => {
     try {
       let tips_and_tricks = { id: data.id, title: data.title, videoId: data.video, description: data.description };
-      console.log(typeof data.video)
-      console.log('data', data)
       if (typeof data.video === 'object') {
         const api = new Api();
         const storedVideo = await api.upload(data.video, null);

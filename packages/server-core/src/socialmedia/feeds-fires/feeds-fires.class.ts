@@ -66,7 +66,8 @@ export class TheFeedsFires extends Service {
             name: creator.name,
             username: creator.username,
             verified : !!+creator.verified,
-        };  
+            thefeedsId: fire.thefeedsId
+        };
       });
       const thefeedsResult = {
         data,

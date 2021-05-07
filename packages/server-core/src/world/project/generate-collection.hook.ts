@@ -42,6 +42,7 @@ export default (options: any) => {
     } else {
       sceneData = await readJSONFromBlobStore(storage, ownedFile.key);
     }
+    if(!sceneData) return;
     const savedCollection = await CollectionModel.create({
       thumbnailOwnedFileId: context.data.thumbnailOwnedFileId,
       type: options.type ?? collectionType.scene,

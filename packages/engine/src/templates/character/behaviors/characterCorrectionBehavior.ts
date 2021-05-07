@@ -40,4 +40,5 @@ export const characterCorrectionBehavior: Behavior = (entity: Entity, snapshots,
   collider.controller.delta.x -= offsetX * delta;
   collider.controller.delta.y -= offsetY * delta;
   collider.controller.delta.z -= offsetZ * delta;
+
 };

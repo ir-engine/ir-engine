@@ -13,10 +13,10 @@ import { useTranslation } from 'react-i18next';
 // @ts-ignore
 import styles from './TipsAndTricks.module.scss';
 import { connect } from 'react-redux';
-import { getTipsAndTricks } from '@xr3ngine/client-core/src/socialmedia/reducers/tips_and_tricks/service';
-import { selectTipsAndTricksState } from "@xr3ngine/client-core/src/socialmedia/reducers/tips_and_tricks/selector";
+import { getTipsAndTricks } from '@xrengine/client-core/src/socialmedia/reducers/tips_and_tricks/service';
+import { selectTipsAndTricksState } from "@xrengine/client-core/src/socialmedia/reducers/tips_and_tricks/selector";
 import { bindActionCreators, Dispatch } from 'redux';
-import { doLoginAuto } from "@xr3ngine/client-core/src/user/reducers/auth/service";
+import { doLoginAuto } from "@xrengine/client-core/src/user/reducers/auth/service";
 
 const mapStateToProps = (state: any): any => {
     return {
@@ -48,12 +48,12 @@ export const TipsAndTricks = ({tipsAndTricksState, getTipsAndTricks, doLoginAuto
         doLoginAuto(true);
         getTipsAndTricks();
     }, []);
-    const tipsAndTricksList = tipsAndTricksState?.get('tips_and_tricks');
+    const tipsAndTricksList = tipsAndTricksState?.get('tips_and_tricks') && tipsAndTricksState?.get('tips_and_tricks');
     useEffect(()=>  console.log(tipsAndTricksList), [tipsAndTricksList]);
 
 
     return <section className={styles.tipsandtricksContainer}>
-        {tipsAndTricksList && tipsAndTricksList.map((item, itemindex)=>
+        {tipsAndTricksList && tipsAndTricksList.length > 0 && tipsAndTricksList.map((item, itemindex)=>
             <Card className={styles.tipItem} square={false} elevation={0} key={itemindex}>
                 <CardMedia
                     className={styles.previewImage}
@@ -63,7 +63,7 @@ export const TipsAndTricks = ({tipsAndTricksState, getTipsAndTricks, doLoginAuto
                     controls
                 />
                 <CardContent>
-                    <Typography className={styles.tipsTitle} variant="h3">{item.title}</Typography>
+                    <Typography className={styles.tipsTitle} variant="h4">{item.title}</Typography>
                     <Typography variant="h6">{item.description}</Typography>
                 </CardContent>
             </Card>

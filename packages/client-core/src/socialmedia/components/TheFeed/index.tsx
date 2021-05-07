@@ -4,10 +4,12 @@
 import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
-import { selectAuthState } from '../../../user/reducers/auth/selector';
-import { selectFeedsState } from '../../reducers/feed/selector';
-import { getTheFeedsNew } from '../../reducers/thefeeds/service';
-import { selectTheFeedsState } from '../../reducers/thefeeds/selector';
+// import { selectAuthState } from '../../../user/reducers/auth/selector';
+// import { selectFeedsState } from '../../reducers/feed/selector';
+// import { getFeeds } from '../../reducers/feed/service';
+import {getTheFeedsNew} from '@xrengine/client-core/src/socialmedia/reducers/thefeeds/service';
+import { selectTheFeedsState } from '@xrengine/client-core/src/socialmedia/reducers/thefeeds/selector';
+
 
 import FeedCard from '../FeedCard';
 
@@ -17,27 +19,24 @@ import styles from './TheFeed.module.scss';
 const mapStateToProps = (state: any): any => {
     return {
         theFeedsState: selectTheFeedsState(state),
-//         authState: selectAuthState(state),
     };
   };
 
   const mapDispatchToProps = (dispatch: Dispatch): any => ({
-//     getFeeds: bindActionCreators(getFeeds, dispatch),
     getTheFeedsNew: bindActionCreators(getTheFeedsNew, dispatch),
 });
 interface Props{
     theFeedsState?: any,
     getTheFeedsNew?: any
-    authState?:any;
 }
 
-const TheFeed = ({authState, theFeedsState, getTheFeedsNew}: Props) => {
+const TheFeed = ({theFeedsState, getTheFeedsNew}: Props) => {
     let feedsList = null;
-//     useEffect(()=> authState.get('authUser')?.identityProvider.type === 'guest' ? getFeeds('theFeedGuest') : getFeeds(), []);
     useEffect(()=> getTheFeedsNew(), []);
-    feedsList = theFeedsState?.get('thefeeds');
+    const TheFeedsList = theFeedsState?.get('thefeeds') ? theFeedsState?.get('thefeeds') : [];
+//     useEffect(()=> console.log(TheFeedsList), [TheFeedsList]);
     return <section className={styles.thefeedContainer}>
-            {feedsList && feedsList.length > 0 && feedsList.map((item, key)=> <FeedCard key={key} feed = {item} />)}
+            {TheFeedsList && TheFeedsList.length > 0 && TheFeedsList.map((item, key)=> <FeedCard key={key} feed = {item} />)}
         </section>;
 };
 

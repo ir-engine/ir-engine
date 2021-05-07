@@ -4,7 +4,7 @@ import { Entity } from "../../../ecs/classes/Entity";
 import { Behavior } from '../../../common/interfaces/Behavior';
 import {  getMutableComponent } from '../../../ecs/functions/EntityFunctions';
 import { AnimationConfigInterface, defaultAvatarAnimations } from "../CharacterAvatars";
-import { CharacterComponent, MULT_SPEED } from '../components/CharacterComponent';
+import { CharacterComponent } from '../components/CharacterComponent';
 import { isServer } from '../../../common/functions/isServer';
 import { AnimationComponent } from "../components/AnimationComponent";
 
@@ -25,20 +25,16 @@ function animationMapLinear( absSpeed, axisValue, axisWeight, i ) {
   return MathUtils.mapLinear(absSpeed, axisValue[0+i], axisValue[1+i], axisWeight[0+i], axisWeight[1+i]);
 }
 //
-function mathMixesAnimFromSchemaValues(entity, animationsSchema, objectValues, delta: number) {
+function mathMixesAnimFromSchemaValues(entity, animationsSchema, objectValues, delta: number, acceleration: number) {
 	// const actor = getMutableComponent(entity, CharacterComponent);
   // const dontHasHit = actor.isGrounded ? 0 : 1;
 
   const { actorVelocity, dontHasHit } = objectValues;
   // console.log(actorVelocity, dontHasHit)
   const mathMixesAnimArray = [];
-  const absSpeed = Math.min( actorVelocity.length() / delta / MULT_SPEED, 1);
-  //absSpeed < EPSILON ? absSpeed = 0:'';
+  let absSpeed = Math.min( actorVelocity.length() / delta / acceleration, 1);
+  absSpeed < EPSILON ? absSpeed = 0:'';
 
-//  const absSpeed = Math.min(actorVelocity.length(), 1);
-  //safeFloat(actorVelocity.x);
-//  safeFloat(actorVelocity.y);
-//  safeFloat(actorVelocity.z);
   const axisScalar = Math.abs(actorVelocity.x) + Math.abs(actorVelocity.y) + Math.abs(actorVelocity.z);
   for (let i = 0; i < animationsSchema.length; i++) {
     const animation = animationsSchema[i];
@@ -91,9 +87,8 @@ export const updateVectorAnimation = (entity, delta: number): void => {
 	const actor = getMutableComponent(entity, CharacterComponent);
 	const animationComponent = getMutableComponent(entity, AnimationComponent);
 	if (!actor || !actor.initialized || !actor.mixer || !animationComponent || !actor.modelContainer.children.length) return;
-
+  const acceleration = actor.speedMultiplier;
   if (actor.mixer) actor.mixer.update(delta * animationSpeedMultiplier);
-
 //  if(animationComponent.animationsSchema.length == 3) return;
 	// Get the magnitude of current velocity
 	const avatarAnimations = defaultAvatarAnimations;
@@ -101,7 +96,7 @@ export const updateVectorAnimation = (entity, delta: number): void => {
   // update values for animations
   const objectValues = animationComponent.updateAnimationsValues(entity, animationComponent.animationsSchema, delta * animationSpeedMultiplier);
   // math to correct all animations
-  const animationsValues = mathMixesAnimFromSchemaValues(entity, animationComponent.animationsSchema, objectValues, delta);
+  const animationsValues = mathMixesAnimFromSchemaValues(entity, animationComponent.animationsSchema, objectValues, delta, acceleration);
 /*
     console.clear();
     for (let ia = 0; ia < animationsValues.length; ia++) {

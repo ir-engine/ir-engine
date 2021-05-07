@@ -46,7 +46,7 @@ const ArMediaConsoleTipsAndTricks = ({ create, list, deleteTipsAndTricks, update
             background: '#fff'
         }
     });
-    function createData(title: string, id: string, videoUrl: any, description: string, videoId: any) {
+    function createData(title: string, id: string, videoUrl: string, description: string, videoId: string) {
         return { title, id, videoUrl, description, videoId };
     }
 
@@ -63,7 +63,6 @@ const ArMediaConsoleTipsAndTricks = ({ create, list, deleteTipsAndTricks, update
 
 
     const handleOpen = (title, id, videoUrl, description) => {
-        console.log(title, id, videoUrl, description)
         setOpen(true);
         if(title) setTitle(title);
         if(id) setId(id);

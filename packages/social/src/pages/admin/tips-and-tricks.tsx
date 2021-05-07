@@ -3,8 +3,8 @@
  * @author Gleb Ordinsky <glebordinskijj@gmail.com>
  */
 import React, { useEffect } from "react";
-import Dashboard  from "@xr3ngine/client-core/src/socialmedia/components/Dashboard";
-import ArMediaConsoleTipsAndTricks  from "@xr3ngine/client-core/src/admin/components/TipsAndTricks";
+import Dashboard  from "@xrengine/client-core/src/socialmedia/components/Dashboard";
+import ArMediaConsoleTipsAndTricks  from "@xrengine/client-core/src/admin/components/TipsAndTricks";
 import { bindActionCreators, Dispatch } from "redux";
 import { connect } from "react-redux";
 import {
@@ -12,9 +12,9 @@ import {
     createTipsAndTricksNew,
     removeTipsAndTricks,
     updateTipsAndTricksAsAdmin
-} from '@xr3ngine/client-core/src/socialmedia/reducers/tips_and_tricks/service';
-import { selectTipsAndTricksState } from "@xr3ngine/client-core/src/socialmedia/reducers/tips_and_tricks/selector";
-import { doLoginAuto } from "@xr3ngine/client-core/src/user/reducers/auth/service";
+} from '@xrengine/client-core/src/socialmedia/reducers/tips_and_tricks/service';
+import { selectTipsAndTricksState } from "@xrengine/client-core/src/socialmedia/reducers/tips_and_tricks/selector";
+import { doLoginAuto } from "@xrengine/client-core/src/user/reducers/auth/service";
 
 
 
@@ -59,13 +59,10 @@ const TipsAndTricks = ({ tipsAndTricksState,
     };
 
     useEffect(()=> {
-        doLoginAuto(true);
+        doLoginAuto(true, true);
         getTipsAndTricks();
     }, []);
     const tipsAndTricksList = tipsAndTricksState?.get('tips_and_tricks') && tipsAndTricksState?.get('tips_and_tricks');
-    useEffect(()=> {
-        console.log(tipsAndTricksList)
-    });
     return (<>
             <div>
                 <Dashboard>

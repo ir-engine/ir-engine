@@ -9,7 +9,7 @@ import ArMedia from './ar-media/ar-media.service';
 import TipsAndTricks from './tips-and-tricks/tips-and-tricks.service';
 import TheFeeds  from './feeds/feeds.service';
 import TheFeedsFires from './feeds-fires/feeds-fires.service';
-import TheFeedsBookmark from './feeds-bookmark/feeds-bookmark.service';
+// import TheFeedsBookmark from './feeds-bookmark/feeds-bookmark.service';
 
 export default [
   Creator,
@@ -23,5 +23,5 @@ export default [
   TipsAndTricks,
   TheFeeds,
   TheFeedsFires,
-  TheFeedsBookmark
+//   TheFeedsBookmark
 ];

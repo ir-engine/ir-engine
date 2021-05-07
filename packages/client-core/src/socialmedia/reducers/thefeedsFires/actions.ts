@@ -24,10 +24,11 @@ export type TheFeedsFiresAction =
 TheFeedsFiresRetriveAction
 | FetchingTheFeedsFiresAction
 
-export function thefeedsFiresRetrieved (thefeedsFires: CreatorShort[]): TheFeedsFiresRetriveAction {
+export function thefeedsFiresRetrieved (thefeedsFires: CreatorShort[], thefeedsId): TheFeedsFiresRetriveAction {
   return {
     type: THEFEEDS_FIRES_RETRIEVED,
-    thefeedsFires: thefeedsFires
+    thefeedsFires: thefeedsFires,
+    thefeedsId: thefeedsId
   };
 }
 

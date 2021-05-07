@@ -484,7 +484,6 @@ const handleKey = (args: { event: KeyboardEvent; value: BinaryType }): any => {
   const key = args.event.key.toLowerCase();
 
   if (args.value === BinaryValue.ON) {
-    ClientInputSystem.timeOutToClearPressedKeys = 1;
     // If the key is in the map but it's in the same state as now, let's skip it (debounce)
     if (Engine.inputState.has(key) &&
       Engine.inputState.get(key).value === args.value) {
@@ -510,6 +509,20 @@ const handleKey = (args: { event: KeyboardEvent; value: BinaryType }): any => {
       value: args.value,
       lifecycleState: LifecycleValue.ENDED
     });
+  }
+}
+
+const handleVisibilityChange = (args: any) => {
+  if(document.visibilityState === 'hidden') {
+    Engine.inputState.forEach((value, key) => {
+      if(value.type === InputType.BUTTON && value.value === BinaryValue.ON) {
+        Engine.inputState.set(key, {
+          type: InputType.BUTTON,
+          value: BinaryValue.OFF,
+          lifecycleState: LifecycleValue.ENDED
+        });
+      }
+    })
   }
 }
 
@@ -722,6 +735,12 @@ export const ClientInputSchema = {
         args: {
           value: BinaryValue.ON
         }
+      }
+    ],
+    visibilitychange: [
+      {
+        behavior: handleVisibilityChange,
+        element: 'document'
       }
     ],
     // Gamepad

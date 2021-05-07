@@ -20,5 +20,5 @@ export class Interactable extends Component<Interactable> {
   public interactiveDistance: number
   public interactionParts: Array<any> = []
   public interactionPartsPosition: Array<any> = []
-  public data: any
+  public data: any;
 }

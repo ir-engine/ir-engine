@@ -55,11 +55,10 @@ export class TheFeeds extends Service {
     //     GROUP BY thefeeds.id
     //     ORDER BY thefeeds.createdAt DESC
     //     LIMIT :skip, :limit `;
-    const dataQuery = `SELECT thefeeds.*, sr1.url as videoUrl, COUNT(ff.id) as fires, COUNT(fb.id) as bookmarks
+    const dataQuery = `SELECT thefeeds.*, sr1.url as videoUrl, COUNT(ff.id) as fires
         FROM \`thefeeds\` as thefeeds
         JOIN \`static_resource\` as sr1 ON sr1.id=thefeeds.videoId
         LEFT JOIN \`thefeeds_fires\` as ff ON ff.thefeedsId=thefeeds.id
-        LEFT JOIN \`thefeeds_bookmark\` as fb ON fb.thefeedsId=thefeeds.id
         WHERE 1
         GROUP BY thefeeds.id
         ORDER BY thefeeds.createdAt DESC

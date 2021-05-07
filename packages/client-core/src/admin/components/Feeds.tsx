@@ -49,7 +49,7 @@ const TheFeedsConsole = ({ create, list, deleteTheFeed, update }:Props) => {
       background: '#fff'
     }
   });
-  function createData(title: string, id: string, videoUrl: string, description: string, videoId: any) {
+  function createData(title: string, id: string, videoUrl: string, description: string, videoId: string) {
     return { title, id, videoUrl, description, videoId };
   }
 
@@ -65,7 +65,7 @@ const TheFeedsConsole = ({ create, list, deleteTheFeed, update }:Props) => {
   const [actionDescription, setDescription] = useState(null);
 
 
-  const handleOpen = (title, id, videoUrl, description) => {
+  const handleOpen = (title, id, videoUrl, description, videoId) => {
     setOpen(true);
     if(title) setTitle(title);
     if(id) setId(id);

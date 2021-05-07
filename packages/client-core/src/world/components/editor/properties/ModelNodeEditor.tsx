@@ -9,6 +9,7 @@ import ModelInput from "../inputs/ModelInput";
 import SelectInput from "../inputs/SelectInput";
 import StringInput from "../inputs/StringInput";
 import NodeEditor from "./NodeEditor";
+import dompurify from 'dompurify';
 
 /**
  * Array containing options for InteractableOption.
@@ -175,7 +176,9 @@ export class ModelNodeEditor extends Component<
 
   // function to handle changes in payloadHtmlContent
   onChangePayloadHtmlContent = payloadHtmlContent => {
-    (this.props.editor as any).setPropertySelected("payloadHtmlContent", payloadHtmlContent);
+    const sanitizedHTML = dompurify.sanitize(payloadHtmlContent);
+    if(sanitizedHTML !== payloadHtmlContent) console.warn("Code has been sanitized, don't try anything sneaky please...");
+    (this.props.editor as any).setPropertySelected("payloadHtmlContent", sanitizedHTML);
   };
 
   // function to handle changes in isAnimationPropertyDisabled

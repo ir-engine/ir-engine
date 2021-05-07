@@ -14,8 +14,8 @@ export const THEFEEDS_FETCH = 'THEFEEDS_FETCH';
 export const ADD_THEFEEDS = 'ADD_THEFEEDS';
 export const REMOVE_THEFEEDS = 'REMOVE_THEFEEDS';
 export const UPDATE_THEFEEDS = 'UPDATE_THEFEEDS';
-
-
+export const ADD_THEFEEDS_FIRES = 'ADD_THEFEEDS_FIRES'
+export const REMOVE_THEFEEDS_FIRES = 'REMOVE_THEFEEDS_FIRES'
 export interface AllTheFeedsRetrievedAction {
   type: string;
   thefeeds: TheFeedsShort[];
@@ -94,16 +94,16 @@ export function removeTheFeedsFire (thefeedsId:string) : oneTheFeedsAction{
   };
 }
 
-export function addTheFeedsBookmark (thefeedsId:string) : oneTheFeedsAction{
-  return {
-    type: ADD_THEFEEDS_BOOKMARK,
-    thefeedsId: thefeedsId
-  };
-}
-
-export function removeTheFeedsBookmark (thefeedsId:string) : oneTheFeedsAction{
-  return {
-    type: REMOVE_THEFEEDS_BOOKMARK,
-    thefeedsId
-  };
-}
+// export function addTheFeedsBookmark (thefeedsId:string) : oneTheFeedsAction{
+//   return {
+//     type: ADD_THEFEEDS_BOOKMARK,
+//     thefeedsId: thefeedsId
+//   };
+// }
+//
+// export function removeTheFeedsBookmark (thefeedsId:string) : oneTheFeedsAction{
+//   return {
+//     type: REMOVE_THEFEEDS_BOOKMARK,
+//     thefeedsId
+//   };
+// }
