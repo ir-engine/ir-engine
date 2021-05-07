@@ -30,6 +30,10 @@ import PopupLogin from '../PopupLogin/PopupLogin';
 // import { IndexPage } from '@xrengine/social/pages/login';
 import { selectAuthState } from '../../../user/reducers/auth/selector';
 import Featured from '../Featured';
+import { Plugins } from '@capacitor/core';
+import { useTranslation } from 'react-i18next';
+
+const { Share } = Plugins;
 
 const mapStateToProps = (state: any): any => {
     return {
@@ -74,6 +78,16 @@ const FeedCard = (props: Props) : any => {
         !checkGuest && addViewToFeed(feedId);
     };
 
+    const { t } = useTranslation();
+    const shareVia = () => {
+        Share.share({
+            title: t('social:shareForm.seeCoolStuff'),
+            text: t('social:shareForm.videoCreated'),
+            url: feed.videoUrl,
+            dialogTitle: t('social:shareForm.shareWithBuddies')
+          });
+       };
+
     // const handleGetFeedFiredUsers = (feedId) => {
     //     if(feedId){
     //         getFeedFires(feedId);
@@ -108,7 +122,7 @@ const FeedCard = (props: Props) : any => {
                                 <WhatshotIcon htmlColor="#FF6201" onClick={()=>handleRemoveFireClick(feed.id)} /> 
                                 :
                                 <WhatshotIcon htmlColor="#DDDDDD" onClick={()=>handleAddFireClick(feed.id)} />}
-                        <TelegramIcon />
+                        <TelegramIcon onClick={shareVia}/>
                         </section>
                         {/*hided for now*/}
                         {/* {feed.isBookmarked ? <BookmarkIcon onClick={()=>checkGuest ? setButtonPopup(true) : handleRemoveBookmarkClick(feed.id)} />

@@ -9,7 +9,14 @@ import { updateShareFormState } from '../../reducers/popupsState/service';
 import styles from './ShareForm.module.scss';
 import { Plugins } from '@capacitor/core';
 import { useTranslation } from 'react-i18next';
+import { selectPopupsState } from '../../reducers/popupsState/selector';
 const { Share } = Plugins;
+
+const mapStateToProps = (state: any): any => {
+  return {
+    popupsState: selectPopupsState(state),
+  };
+};
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
    updateShareFormState: bindActionCreators(updateShareFormState, dispatch)
@@ -17,6 +24,7 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 
 interface Props{
    updateShareFormState?: typeof updateShareFormState;
+   popupsState?: any; 
 }
 
 const useStyles = makeStyles({
@@ -40,17 +48,17 @@ const useStyles = makeStyles({
   },
 });
 
-const ShareForm = ({updateShareFormState}:Props) => {
-
+const ShareForm = ({updateShareFormState, popupsState}:Props) => {
+   
+   const videoUrl = popupsState?.get('videoUrl')
    const classes = useStyles();
    const { t } = useTranslation();
-
 
    const shareVia = () => {
     Share.share({
         title: t('social:shareForm.seeCoolStuff'),
         text: t('social:shareForm.videoCreated'),
-        url: 'http://arcmedia.us/',
+        url: videoUrl,
         dialogTitle: t('social:shareForm.shareWithBuddies')
       });
    };
@@ -84,4 +92,4 @@ const ShareForm = ({updateShareFormState}:Props) => {
    );
 };
 
-export default connect(null, mapDispatchToProps) (ShareForm);
+export default connect(mapStateToProps, mapDispatchToProps) (ShareForm);
