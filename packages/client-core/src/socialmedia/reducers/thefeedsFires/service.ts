@@ -41,6 +41,7 @@ export function addFireToTheFeeds(thefeedsId: string) {
       const feedsFireStore = {
       id: feedsFire.creatorId,
       };
+      //@ts-ignore
       dispatch(addTheFeedsFire(feedsFireStore));
     } catch(err) {
       console.log(err);

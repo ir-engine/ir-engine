@@ -16,8 +16,7 @@ import {
   THEFEEDS_FIRES_FETCH,
   THEFEEDS_FIRES_RETRIEVED
 } from '../actions';
-export const ADD_THEFEEDS_FIRES = 'ADD_THEFEEDS_FIRES';
-export const REMOVE_THEFEEDS_FIRES = 'REMOVE_THEFEEDS_FIRES';
+import { ADD_THEFEEDS_FIRES, REMOVE_THEFEEDS_FIRES } from '../thefeeds/actions';
 
 export const initialTheFeedsFireState = {
   thefeedsFires: {
