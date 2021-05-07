@@ -2,7 +2,7 @@
  * @author Gleb Ordinsky <glebordinskijj@gmail.com>
  */
 
-import { TipsAndTricksShort, TipsAndTricks } from '@xr3ngine/common/src/interfaces/TipsAndTricks';
+import { TipsAndTricksShort, TipsAndTricks } from '@xrengine/common/src/interfaces/TipsAndTricks';
 
 
 export const TIPSANDTRICKS_RETRIEVED = 'TIPSANDTRICKS_RETRIEVED';

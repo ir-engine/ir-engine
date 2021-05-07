@@ -80,30 +80,30 @@ export function updateTheFeedsInList(thefeeds: TheFeeds): TheFeedsRetrievedActio
 }
 
 
-export function addTheFeedsFire (thefeedsId:string) : oneTheFeedsAction{
+export function addTheFeedsFire (thefeeds:string) : oneTheFeedsAction{
   return {
     type: ADD_THEFEEDS_FIRES,
+    thefeeds: thefeeds
+  };
+}
+
+export function removeTheFeedsFire (thefeeds:string) : oneTheFeedsAction{
+  return {
+    type: REMOVE_THEFEEDS_FIRES,
+    thefeeds: thefeeds
+  };
+}
+
+export function addTheFeedsBookmark (thefeedsId:string) : oneTheFeedsAction{
+  return {
+    type: ADD_THEFEEDS_BOOKMARK,
     thefeedsId: thefeedsId
   };
 }
 
-export function removeTheFeedsFire (thefeedsId:string) : oneTheFeedsAction{
+export function removeTheFeedsBookmark (thefeedsId:string) : oneTheFeedsAction{
   return {
-    type: REMOVE_THEFEEDS_FIRES,
+    type: REMOVE_THEFEEDS_BOOKMARK,
     thefeedsId
   };
 }
-
-// export function addTheFeedsBookmark (thefeedsId:string) : oneTheFeedsAction{
-//   return {
-//     type: ADD_THEFEEDS_BOOKMARK,
-//     thefeedsId: thefeedsId
-//   };
-// }
-//
-// export function removeTheFeedsBookmark (thefeedsId:string) : oneTheFeedsAction{
-//   return {
-//     type: REMOVE_THEFEEDS_BOOKMARK,
-//     thefeedsId
-//   };
-// }

@@ -5,7 +5,7 @@ import {
   THEFEEDS_FIRES_RETRIEVED,
   THEFEEDS_FIRES_FETCH,
 } from '../actions';
-import { CreatorShort } from '@xr3ngine/common/src/interfaces/Creator';
+import { CreatorShort } from '@xrengine/common/src/interfaces/Creator';
 
 // thefeeds
 // TheFeeds

@@ -35,10 +35,10 @@ const thefeedsFiresReducer = (state = immutableState, action: TheFeedsFiresActio
       return state.set('thefeedsFires', (action as TheFeedsFiresRetriveAction).thefeedsFires)
 //       .set('fetching', false);
     case ADD_THEFEEDS_FIRES:
-      return state.set('thefeedsFires', [...state.get('thefeedsFires'), (action as TheFeedsFiresRetriveAction).thefeedsFires])
+      return state.set('thefeedsFires', [...state.get('thefeedsFires'), (action as TheFeedsFiresRetriveAction).thefeeds])
 //       .set('fetching', false);
     case REMOVE_THEFEEDS_FIRES:
-      return state.set('thefeedsFires', state.get('thefeedsFires').filter(i=>i.id !== (action as TheFeedsFiresRetriveAction).thefeedsId))
+      return state.set('thefeedsFires', state.get('thefeedsFires').filter(i=>i.id !== (action as TheFeedsFiresRetriveAction).thefeeds))
 //       .set('fetching', false);
   }
 
