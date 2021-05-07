@@ -22,7 +22,7 @@ import { PhysicsSystem } from './physics/systems/PhysicsSystem';
 import { HighlightSystem } from './renderer/HighlightSystem';
 import { WebGLRendererSystem } from './renderer/WebGLRendererSystem';
 import { ServerSpawnSystem } from './scene/systems/SpawnSystem';
-import { AnimationManager } from './templates/character/prefabs/NetworkPlayerCharacter';
+import { AnimationManager } from "./templates/character/AnimationManager";
 import { TransformSystem } from './transform/systems/TransformSystem';
 import { createWorker, WorkerProxy } from './worker/MessageQueue';
 import { XRSystem } from './xr/systems/XRSystem';

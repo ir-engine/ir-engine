@@ -1,13 +1,27 @@
-import DebugScene from '../components/Scene/debug';
-import Layout from '../components/Layout/Layout';
-import React from 'react';
-import { useTranslation } from 'react-i18next';
+import { initializeEngine } from '@xrengine/engine/src/initialize';
+import { CharacterInputSchema } from '@xrengine/engine/src/templates/character/CharacterInputSchema';
+import React, { useEffect } from 'react';
+
 const LocationPage = () => {
-  const { t } = useTranslation();
+  useEffect(() => {
+
+
+    const InitializationOptions = {
+      input: {
+        schema: CharacterInputSchema,
+      },
+      publicPath: '',
+      useOfflineMode: true,
+      useCanvas: false,
+      postProcessing: false
+    };
+
+    initializeEngine(InitializationOptions);
+  }, []);
+
   return (
-    <Layout pageTitle={t('dev.pageTitle')}>
-      <DebugScene locationName="test"/>
-    </Layout>
+    <>
+    </>
   );
 };
 
