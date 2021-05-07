@@ -16,6 +16,7 @@ export const REMOVE_THEFEEDS = 'REMOVE_THEFEEDS';
 export const UPDATE_THEFEEDS = 'UPDATE_THEFEEDS';
 export const ADD_THEFEEDS_FIRES = 'ADD_THEFEEDS_FIRES'
 export const REMOVE_THEFEEDS_FIRES = 'REMOVE_THEFEEDS_FIRES'
+export const ADD_THEFEEDS_BOOKMARK = 'ADD_THEFEEDS_BOOKMARK'
 export interface AllTheFeedsRetrievedAction {
   type: string;
   thefeeds: TheFeedsShort[];
