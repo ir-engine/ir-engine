@@ -80,7 +80,7 @@ const CreatorForm = ({creatorData, creatorsState, updateCreator, updateCreatorFo
             ) : (
                 <section className={styles.avatarImage}/>
               )}
-            <Typography variant="h6" align="center" onClick={()=>{(avatarRef.current as HTMLInputElement).click();}}>{t('social:creatorForm.changeAvatar')}</Typography>
+            <Typography className={styles.uploadAvatar} onClick={()=>{(avatarRef.current as HTMLInputElement).click();}}>{t('social:creatorForm.changeAvatar')}</Typography>
             <input  className={styles.displayNone} type="file" ref={avatarRef} name="newAvatar" onChange={handlePickAvatar} placeholder={t('social:creatorForm.ph-selectPreview')}/>
             <section className={styles.content}>
                 <div className={styles.formLine}>
@@ -125,7 +125,7 @@ const CreatorForm = ({creatorData, creatorsState, updateCreator, updateCreatorFo
                     <TextField className={styles.textFieldContainer} onChange={(e)=>setCreator({...creator, instagram: e.target.value})} fullWidth id="instagram" placeholder={t('social:creatorForm.ph-instagram')} value={creator.instagram} />
                 </div>    */}
                 <br />
-                {!creatorData && <Button className={styles.logOutButton} variant="contained" color="primary">Sign-out</Button>}
+                {!creatorData && <Button className={styles.logOutButton} variant="contained">Sign-out</Button>}
             </section>    
         </form>        
     </section>;

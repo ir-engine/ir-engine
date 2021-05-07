@@ -97,17 +97,9 @@ const UserMenu = (props: UserMenuProps): any => {
   
   const onEngineLoaded = () => {
     setEngineLoaded(true);
-    EngineEvents.instance?.addEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD, graphicsSettingsLoaded);
     document.removeEventListener('ENGINE_LOADED', onEngineLoaded);
   };
   document.addEventListener('ENGINE_LOADED', onEngineLoaded);
-
-  // EngineEvents.instance?.removeEventListener(WebGLRendererSystem.EVENTS.QUALITY_CHANGED, this.setGraphicsSettings);
-
-  const graphicsSettingsLoaded = () => {
-    EngineEvents.instance?.addEventListener(WebGLRendererSystem.EVENTS.QUALITY_CHANGED, updateGraphicsSettings);
-    EngineEvents.instance?.removeEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD, graphicsSettingsLoaded);
-  };
 
   const setAvatar = (avatarId: string, avatarURL: string, thumbnailURL: string) => {
     if (selfUser) {
@@ -125,6 +117,7 @@ const UserMenu = (props: UserMenuProps): any => {
     const setting = { ...graphics, ...newSetting };
     setGraphicsSetting(setting);
   };
+  EngineEvents.instance?.addEventListener(WebGLRendererSystem.EVENTS.QUALITY_CHANGED, updateGraphicsSettings);
 
   const setActiveMenu = (e): void => {
     const identity = e.currentTarget.id.split('_');

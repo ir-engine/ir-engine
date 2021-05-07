@@ -1,7 +1,7 @@
 /**
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { bindActionCreators, Dispatch } from 'redux';
 import { connect } from 'react-redux';
 import VideoRecorder from 'react-video-recorder';
@@ -42,6 +42,7 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
     const [composingTitle, setComposingTitle] = useState(feed ? feed.title : '');
     const [composingText, setComposingText] = useState(feed ? feed.description : '');
     const [video, setVideo] = useState(null);
+    const [videoUrl, setVideoUrl] = useState(null);
     const [preview, setPreview] = useState(null);
     const titleRef = React.useRef<HTMLInputElement>();
     const textRef = React.useRef<HTMLInputElement>();
@@ -50,7 +51,7 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
 
     const handleComposingTitleChange = (event: any): void => setComposingTitle(event.target.value);
     const handleComposingTextChange = (event: any): void => setComposingText(event.target.value);
-    const handleCreateFeed = () => {
+    const handleCreateFeed = async () => {
         const newFeed = {
             title: composingTitle.trim(),
             description: composingText.trim(),
@@ -59,7 +60,7 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
         if(feed){                    
             updateFeedAsAdmin(feed.id, newFeed);
         }else{
-            createFeed(newFeed);
+           setVideoUrl(await createFeed(newFeed)) 
         }
 
         setComposingTitle('');
@@ -71,8 +72,12 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
             setIsSended(false); 
             clearTimeout(thanksTimeOut);
         }, 2000);
-        updateShareFormState(true);
+        
+           
+
     };
+
+    useEffect(()=> {videoUrl && updateShareFormState(true, videoUrl)}, [videoUrl] ) 
     const handlePickVideo = async (file) => setVideo(file.target.files[0]);
     const handlePickPreview = async (file) => setPreview(file.target.files[0]);
     
@@ -81,42 +86,42 @@ return <section className={styles.feedFormContainer}>
         <Button variant="text" onClick={()=>{updateArMediaState(true); updateNewFeedPageState(false);}}><ArrowBackIosIcon />{t('social:feedForm.back')}</Button> 
     </nav>  
     {isSended ? 
-        <Typography variant="h3" align="center">{t('social:feedForm.thanks')}</Typography>
+        <Typography>{t('social:feedForm.thanks')}</Typography>
         :
         <section>
-            <Typography variant="h4" align="center">{t('social:feedForm.share')}</Typography>
-            {feed && <CardMedia   
+            <Typography>{t('social:feedForm.share')}</Typography>            
+                {feed && <CardMedia   
                     className={styles.previewImage}                  
                     src={feed.videoUrl}
                     title={feed.title}  
                     component='video'      
                     controls  
                     autoPlay={true} 
-                />}
-            
-                <Card className={styles.preCard}>
-                    <Typography variant="h2" align="center">
-                        <p>{t('social:feedForm.upload')}</p>
-                        <p><BackupIcon onClick={()=>{(videoRef.current as HTMLInputElement).click();}} /></p>
-                        <input required ref={videoRef} type="file" className={styles.displayNone} name="video" onChange={handlePickVideo} placeholder={t('social:feedForm.ph-selectVideo')}/>
-                    </Typography> 
-                </Card>
+                />}  
+                {feed && <CardMedia   
+                    className={styles.previewImage}                  
+                    image={feed.previewUrl}
+                    title={feed.title}                      
+                />}  
+                <section className={styles.flexContainer}>
+                    <Card className={styles.preCard}>
+                        <Typography>
+                            {t('social:feedForm.upload')}
+                            <br/><BackupIcon onClick={()=>{(videoRef.current as HTMLInputElement).click();}} />
+                            <input required ref={videoRef} type="file" className={styles.displayNone} name="video" onChange={handlePickVideo} placeholder={t('social:feedForm.ph-selectVideo')}/>
+                        </Typography> 
+                    </Card>
                 {/* <Card className={styles.preCard}>
                    <Typography variant="h2" align="center">
                         <p>Record from camera</p>
                         <p><CameraIcon  onClick={()=>setRecordVideo(true)} /></p>
                     </Typography> 
                 </Card> */}
-        
-            {feed && <CardMedia   
-                    className={styles.previewImage}                  
-                    image={feed.previewUrl}
-                    title={feed.title}                      
-                />}  
-            <Card className={styles.preCard}>
-                <Typography variant="h2" align="center">{t('social:feedForm.preview')}<input required type="file" name="preview" onChange={handlePickPreview} placeholder={t('social:feedForm.ph-selectPreview')}/></Typography>  
-            </Card>  
-            <Typography align="center">{t('social:feedForm.createFeed')}</Typography>              
+                <Card className={styles.preCard}>
+                    <Typography>{t('social:feedForm.preview')}<input required type="file" name="preview" onChange={handlePickPreview} placeholder={t('social:feedForm.ph-selectPreview')}/></Typography>  
+                </Card>  
+            </section>            
+            <Typography>{t('social:feedForm.createFeed')}</Typography>              
             <TextField ref={titleRef} 
                 value={composingTitle}
                 onChange={handleComposingTitleChange}
@@ -131,8 +136,7 @@ return <section className={styles.feedFormContainer}>
                 placeholder={t('social:feedForm.ph-type')}
                 />     */}
             <Button
-                variant="contained"
-                color="primary"
+                variant="contained"                
                 className={styles.submit}
                 onClick={()=>handleCreateFeed()}
                 >

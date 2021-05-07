@@ -132,10 +132,10 @@ const CreatorCard = ({creator,creatorState, updateCreatorPageState, popupsState,
                     <section className={styles.avatarImage}/>
                   )}
                 <CardContent className={styles.content}>
-                    <Typography className={styles.titleContainer} gutterBottom variant="h5" component="h5" align="center">{creator.name}</Typography>
-                    <Typography variant="h5" component="p" align="center">@{creator.username}</Typography>
-                    <Typography variant="h4" component="p" align="center">{creator.tags}</Typography>
-                    <Typography variant="h4" component="p" align="center">{creator.bio}</Typography>
+                    <Typography className={styles.username}>@{creator.username}</Typography>
+                    <Typography className={styles.titleContainer}>{creator.name}</Typography>
+                    <Typography className={styles.tags}>{creator.tags}</Typography>
+                    <Typography>{creator.bio}</Typography>
 
                     {/* {!isMe && creator.followed === false && <Button variant={'contained'} color='primary' className={styles.followButton} 
                             onClick={()=>handleFollowCreator(creator.id)}>Follow</Button>}

@@ -39,19 +39,20 @@
   "dependencies": {
     "@pixiv/three-vrm": "^0.6.0",
     "@xrengine/common": "^0.2.22",
-    "volumetric": "^0.2.19",
     "browserfs": "^1.4.3",
     "cross-fetch": "^3.0.6",
     "ctix": "^0.3.1",
     "detect-browser": "^5.2.0",
     "draco3dgltf": "^1.4.1",
     "hls.js": "^1.0.0",
+    "immortal-db": "^1.1.0",
     "mousetrap": "^1.6.5",
     "socket.io": "2.4.1",
     "three": "^0.128.0",
     "three-mesh-bvh": "^0.3.7",
     "three-physx": "^0.0.9",
     "vite-xrengine": "2.2.4",
+    "volumetric": "^0.2.19",
     "web-worker": "^1.0.0"
   },
   "devDependencies": {

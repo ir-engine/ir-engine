@@ -1,5 +1,6 @@
 import { createMuiTheme } from '@material-ui/core/styles';
 import { red } from '@material-ui/core/colors';
+import { NONAME } from 'dns';
 
 const lightTheme = createMuiTheme({
   palette: {
@@ -21,15 +22,17 @@ const lightTheme = createMuiTheme({
     },
   },
   typography: {
-    fontFamily: ["Roboto", "Helvetica", "Arial", "sans-serif"].join(','),    
+    fontFamily: ["SFProText-Regular","Roboto", "Helvetica", "Arial", "sans-serif"].join(','),    
     fontSize: 14,
     button: {
       color: '#FFFFFF'        
     },
   },
   overrides: { 
-    MuiTypography:{
-      
+    MuiTypography:{    
+      body1:{
+        fontFamily: ["SFProText-Regular","Roboto", "Helvetica", "Arial", "sans-serif"].join(','),  
+      } , 
       h1:{
         fontSize: 28,
         fontWeight: 'bold',
@@ -85,6 +88,10 @@ const lightTheme = createMuiTheme({
         '&.MuiTypography-colorSecondary':{
           color: '#FFFFFF',
         }
+      },
+      h6:{
+        fontSize: 14,
+        fontFamily:'SFProText-Regular',
       },
       alignRight : {
         textAlign: 'right',
@@ -353,10 +360,11 @@ const lightTheme = createMuiTheme({
         cursor: 'pointer',    
         fontSize: 16,    
         borderRadius: '10px',   
+        textTransform: 'none',
       },
-      label: {
-        textTransform: 'capitalize',
-      },
+      // label: {
+      //   textTransform: 'capitalize',
+      // },
       outlined:{
         background: 'transparent',
       },

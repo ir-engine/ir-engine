@@ -47,6 +47,13 @@ export const DefaultOffscreenInitializationOptions = {
   },
 };
 
+
+/**
+ * @todo
+ * add proxies for all singletons (engine, systems etc) in the same way engine events has
+ */
+
+
 /**
  * 
  * @author Josh Field <github.com/HexaField>
@@ -101,6 +108,10 @@ const initializeEngineOffscreen = async ({ canvas, userArgs }, proxy: MainProxy)
     EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENTITY_DEBUG_DATA, })
   }, 1000)
 
+  await Promise.all(Engine.systems.map((system) => { 
+    return new Promise<void>(async (resolve) => { await system.initialize(); system.initialized = true; resolve(); }) 
+  }));
+  
   Engine.engineTimer = Timer({
     networkUpdate: (delta:number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Network),
     fixedUpdate: (delta:number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Fixed),

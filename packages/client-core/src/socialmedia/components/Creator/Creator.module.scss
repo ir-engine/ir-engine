@@ -6,7 +6,7 @@
         transform: translate(0, -115px);
         background-color: #EEEEEF;
         padding: 3px;
-        border-radius: 10px;
+        border-radius: 5px;
         display: flex;
         margin: 10px 20px;
 
@@ -15,6 +15,9 @@
             color: #000000;
             padding: 0;
             width: 50%;
+            &.active{
+                background-color: #FFF;
+            }
         }
     }
     .feedsWrapper{

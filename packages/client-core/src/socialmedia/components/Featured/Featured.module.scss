@@ -5,6 +5,12 @@
     box-sizing: border-box;
     padding: 0 20px;
 
+    .emptyList{
+        text-align: center;
+        color: #8a8a8e;
+        width: inherit;
+    }
+
     >div {
         box-sizing: border-box;
       }
@@ -15,11 +21,11 @@
 
         &.listItem_width2{        
             flex: 0 40%;            
-            padding: 5px 5px 0 0;
-            height: 184pt;
+            padding: 7pt 7pt 0 0;
+            height: 187pt;
         }
         &.listItem_top1{
-            margin-top: -140px;
+            margin-top: -142px;
         }
         &.listItem_top2{
             margin-top: -80px;
@@ -27,12 +33,12 @@
         &.listItem_width3{
             flex: 0 60%;
             height: 290pt;
-            padding: 0 0 5px 0;
+            padding: 7pt 0 7pt 0;
         }
         &.listItem_width1{
             flex: 1 20%;
-            height: 125pt;
-            padding: 0 5px 5px 0;
+            height: 133pt;
+            padding: 0 7pt 8pt 0;
             &.width1_no_right_padding{
                 padding-right: 0;
             }
@@ -50,18 +56,17 @@
             border-radius: 10px;
             background-color: #DDDDDD;
         }
-        .eyeLine{
-            position: absolute;
-            bottom: 5px;
+        .eyeLine{            
             width: 100%;
             text-align: right;
             box-sizing: border-box;
-            padding: 0 15px;
+            padding: 0 6pt;
             display: flex;
             flex-direction: row;
             align-items: center;
             justify-content: flex-end;
             color: #FFF;
+            margin-top: -25px;
             svg{
                 margin: 0 0 0 5px;
             }

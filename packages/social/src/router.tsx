@@ -8,6 +8,8 @@ export const RouterComp = () => {
             <Route path="/login" component={React.lazy(() => import('./pages/login'))} />
 
             {/* Admin Routes */}
+            <Route path="/admin/tips-and-tricks" component={React.lazy(() => import('./pages/admin/tips-and-tricks'))} />
+            <Route path="/admin/thefeeds" component={React.lazy(() => import('./pages/admin/thefeeds'))} />
             <Route path="/admin/feeds" component={React.lazy(() => import('./pages/admin/feeds'))} />
             <Route path="/admin/users" component={React.lazy(() => import('./pages/admin/users'))} />
             <Route path="/admin" component={React.lazy(() => import('./pages/admin/index'))} />
