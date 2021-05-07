@@ -39,7 +39,6 @@ export function createTheFeedsNew(data) {
       console.log('storedVideo', storedVideo);
       const thefeeds = await client.service('thefeeds').create({
         title: data.title,
-        // @ts-ignore
         videoId: storedVideo.file_id,
         description: data.description,
       });
