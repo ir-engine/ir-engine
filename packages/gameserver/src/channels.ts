@@ -16,22 +16,15 @@ export default (app: Application): void => {
     }
 
     app.on('connection', async (connection) => {
-        console.log('Connection to gameserver');
-        console.log('Kubernetes enabled:', config.kubernetes.enabled);
-        console.log('gameserver mode:', config.gameserver.mode);
         if ((config.kubernetes.enabled && config.gameserver.mode === 'realtime') || (process.env.NODE_ENV === 'development') || config.gameserver.mode === 'local') {
-            console.log('Ready to boot gameserver up:');
-            console.log('Engine.isInitialized:', Engine.isInitialized);
             if (!Engine.isInitialized) return;
             try {
                 const token = (connection as any).socketQuery?.token;
-                console.log('token:', token);
                 if (token != null) {
-                    console.log('Authorizing');
                     const authResult = await app.service('authentication').strategies.jwt.authenticate({accessToken: token}, {});
                     const identityProvider = authResult['identity-provider'];
                     if (identityProvider != null && identityProvider.id != null) {
-                        console.log(`user ${identityProvider.userId} joining ${(connection as any).socketQuery.locationId} with sceneId ${(connection as any).socketQuery.sceneId}`);
+                        logger.info(`user ${identityProvider.userId} joining ${(connection as any).socketQuery.locationId} with sceneId ${(connection as any).socketQuery.sceneId}`);
                         const userId = identityProvider.userId;
                         const user = await app.service('user').get(userId);
                         let locationId = (connection as any).socketQuery.locationId;
@@ -64,19 +57,13 @@ export default (app: Application): void => {
                                 (app as any).isChannelInstance = true;
                                 //While there's no scene, this will still signal that the engine is ready
                                 //to handle events, particularly for NetworkFunctions:handleConnectToWorld
-                                console.log('Dispatching SCENE_LOADED');
                                 EngineEvents.instance.dispatchEvent({type: EngineEvents.EVENTS.SCENE_LOADED});
-                                EngineEvents.instance.addEventListener(EngineEvents.EVENTS.SCENE_LOADED, () => {
-                                    console.log('SCENE_LOADED received');
-                                    console.log(Engine.sceneLoaded);
-                                });
                             } else if (locationId != null) {
                                 newInstance.locationId = locationId;
                                 (app as any).isChannelInstance = false;
                             }
                             console.log('Creating new instance:');
                             console.log(newInstance);
-                            console.log('isChannelInstance:', (app as any).isChannelInstance);
                             const instanceResult = await app.service('instance').create(newInstance);
                             await agonesSDK.allocate();
                             (app as any).instance = instanceResult;
