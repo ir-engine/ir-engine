@@ -11,33 +11,33 @@ import { CollisionGroups } from '../../../physics/enums/CollisionGroups';
 export class CharacterComponent extends Component<CharacterComponent> {
 
 	dispose(): void {
-    super.dispose();
+		super.dispose();
 		this.modelContainer.parent.remove(this.modelContainer);
-    this.tiltContainer = null;
-  }
+		this.tiltContainer = null;
+	}
 
 	// TODO: remove this, model bounds should be calculated entirely from model bounds, not parameters
-	public modelScaleHeight = { x: 0.4, y: 0,  z: 4  };     // its x - hands, y- height, z - body
-	public modelScaleWidth = { x: 0, y: 0,  z: 1.2  };     // its x - hands, y- height, z - body
+	public modelScaleHeight = { x: 0.4, y: 0, z: 4 };     // its x - hands, y- height, z - body
+	public modelScaleWidth = { x: 0, y: 0, z: 1.2 };     // its x - hands, y- height, z - body
 	public modelScaleFactor = { size: 0.3, height: 0.66, radius: 1 };    // calulated then loaded model avatar
 	public modelScale = 1; // its for resize
 
-  public movementEnabled = false;
+	public movementEnabled = false;
 	public initialized = false;
-  public state = 0;
+	public state = 0;
 
-// TODO: Move these... but for now...
+	// TODO: Move these... but for now...
 	public currentAnimationAction: AnimationAction[] = [];
 	public currentAnimationLength = 0;
 	public timer = 0;
 	public animationsTimeScale = .5;
-  public avatarId: string;
-  public avatarURL: string;
+	public avatarId: string;
+	public avatarURL: string;
 	public height = 0;
 	public tiltContainer: Group;
 	public modelContainer: Group;
 	public materials: Material[] = [];
-  public visible = true;
+	public visible = true;
 	public mixer: AnimationMixer;
 	public animations: any[] = [];
 
@@ -101,21 +101,21 @@ export class CharacterComponent extends Component<CharacterComponent> {
 	public groundImpactVelocity: Vector3 = new Vector3();
 
 	public controlledObject: any;
-  public gamepadDamping = 0.05;
+	public gamepadDamping = 0.05;
 
-  public vehicleEntryInstance: any;
-  public occupyingSeat: any;
-  quaternion: any;
+	public vehicleEntryInstance: any;
+	public occupyingSeat: any;
+	quaternion: any;
 	canFindVehiclesToEnter: boolean;
 	canEnterVehicles: boolean;
 	canLeaveVehicles: boolean;
-  isJumping: boolean;
+	isJumping: boolean;
 	rotationSpeed: any;
 
-  collisionMask: number = CollisionGroups.Default | CollisionGroups.Car | CollisionGroups.TriggerCollider;
+	collisionMask: number = CollisionGroups.Default | CollisionGroups.Car | CollisionGroups.TriggerCollider;
 
-  static _schema = {
-    tiltContainer: { type: Types.Ref, default: null },
-    collisionMask: { type: Types.Number, default: CollisionGroups.Default | CollisionGroups.Car | CollisionGroups.TriggerCollider },
-  };
+	static _schema = {
+		tiltContainer: { type: Types.Ref, default: null },
+		collisionMask: { type: Types.Number, default: CollisionGroups.Default | CollisionGroups.Car | CollisionGroups.TriggerCollider },
+	};
 }
