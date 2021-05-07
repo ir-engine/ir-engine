@@ -1,5 +1,5 @@
 import { Matrix4, Vector3 } from 'three';
-import { CharacterComponent } from "../../character/components/CharacterComponent";
+import { CharacterComponent } from "../../../character/components/CharacterComponent";
 import { VehicleComponent } from '../components/VehicleComponent';
 import { Entity } from '../../../ecs/classes/Entity';
 import { TransformComponent } from '../../../transform/components/TransformComponent';

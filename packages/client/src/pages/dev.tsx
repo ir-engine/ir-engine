@@ -12,8 +12,8 @@ const LocationPage = () => {
       },
       publicPath: '',
       useOfflineMode: true,
-      useCanvas: true,
-      postProcessing: true
+      useCanvas: false,
+      postProcessing: false
     };
 
     initializeEngine(InitializationOptions);

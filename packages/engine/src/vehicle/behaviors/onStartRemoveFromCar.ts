@@ -1,16 +1,16 @@
 import { Matrix4, Vector3 } from 'three';
 import { isServer } from "../../../common/functions/isServer";
-import { changeAnimation } from '../../character/functions/updateVectorAnimation';
-import { AnimationComponent } from '../../character/components/AnimationComponent';
-import { initializeMovingState } from '../../character/animations/MovingAnimations';
+import { changeAnimation } from '../../../character/functions/updateVectorAnimation';
+import { AnimationComponent } from '../../../character/components/AnimationComponent';
+import { initializeMovingState } from '../../../character/animations/MovingAnimations';
 import { VehicleComponent } from '../components/VehicleComponent';
 import { getComponent, getMutableComponent, removeComponent } from '../../../ecs/functions/EntityFunctions';
 import { TransformComponent } from '../../../transform/components/TransformComponent';
-import { CharacterComponent } from '../../character/components/CharacterComponent';
+import { CharacterComponent } from '../../../character/components/CharacterComponent';
 import { Entity } from '../../../ecs/classes/Entity';
 import { PhysicsSystem } from '../../../physics/systems/PhysicsSystem';
 import { PlayerInCar } from '../../../physics/components/PlayerInCar';
-import { CharacterAnimations } from '../../character/CharacterAnimations';
+import { CharacterAnimations } from '../../../character/CharacterAnimations';
 
 /**
  * @author HydraFire <github.com/HydraFire>

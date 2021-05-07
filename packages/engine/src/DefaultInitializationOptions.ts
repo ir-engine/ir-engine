@@ -1,6 +1,6 @@
 import { CharacterInputSchema } from './templates/character/CharacterInputSchema';
 import { DefaultGameMode } from './templates/game/DefaultGameMode';
-import { DefaultNetworkSchema } from './templates/networking/DefaultNetworkSchema';
+import { DefaultNetworkSchema } from './networking/templates/DefaultNetworkSchema';
 
 /**
  * 

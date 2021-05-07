@@ -3,15 +3,15 @@ import { Entity } from '../../../ecs/classes/Entity';
 import { addComponent, getComponent, getMutableComponent, removeComponent } from '../../../ecs/functions/EntityFunctions';
 import { PlayerInCar } from '../../../physics/components/PlayerInCar';
 import { TransformComponent } from '../../../transform/components/TransformComponent';
-import { CharacterAnimations } from '../../character/CharacterAnimations';
+import { CharacterAnimations } from '../../../character/CharacterAnimations';
 import { VehicleComponent } from '../components/VehicleComponent';
 import { VehicleState } from '../enums/VehicleStateEnum';
 import { CameraModes } from '../../../camera/types/CameraModes';
-import { changeAnimation } from '../../character/functions/updateVectorAnimation';
-import { initializeDriverState } from '../../character/animations/DrivingAnimations'
+import { changeAnimation } from '../../../character/functions/updateVectorAnimation';
+import { initializeDriverState } from '../../../character/animations/DrivingAnimations'
 import { isServer } from '../../../common/functions/isServer';
 import { NetworkObject } from '../../../networking/components/NetworkObject';
-import { CharacterComponent } from '../../character/components/CharacterComponent';
+import { CharacterComponent } from '../../../character/components/CharacterComponent';
 import { PhysicsSystem } from '../../../physics/systems/PhysicsSystem';
 import { Network } from '../../../networking/classes/Network';
 import { LocalInputReceiver } from '../../../input/components/LocalInputReceiver';

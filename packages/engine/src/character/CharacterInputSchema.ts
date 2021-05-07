@@ -21,7 +21,7 @@ import { Object3DComponent } from '../../scene/components/Object3DComponent';
 import { interactOnServer } from '../../interaction/systems/InteractiveSystem';
 import { CharacterComponent } from "./components/CharacterComponent";
 import { isServer } from "../../common/functions/isServer";
-import { VehicleComponent } from '../vehicle/components/VehicleComponent';
+import { VehicleComponent } from '../templates/vehicle/components/VehicleComponent';
 import { isMobileOrTablet } from '../../common/functions/isMobile';
 import { SIXDOFType } from '../../common/types/NumericalTypes';
 import { IKComponent } from './components/IKComponent';

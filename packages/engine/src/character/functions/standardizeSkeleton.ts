@@ -1,7 +1,7 @@
 import { AnimationClip, Object3D, SkinnedMesh, Vector3 } from "three";
 import { countCharacters, findClosestParentBone, findEye, findFoot, findFurthestParentBone, findHand, findHead, findHips, findShoulder, findSpine, getTailBones } from "../../../xr/functions/AvatarFunctions";
 import { SkeletonUtils } from '../../../assets/threejs-various/SkeletonUtils.js';
-import { AnimationManager } from "../prefabs/NetworkPlayerCharacter";
+import { AnimationManager } from "../AnimationManager";
 
 
 export const standardizeSkeletion = (target: SkinnedMesh, source: SkinnedMesh) => {

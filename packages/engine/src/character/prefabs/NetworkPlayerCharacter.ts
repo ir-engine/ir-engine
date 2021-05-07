@@ -1,14 +1,12 @@
 import { DEFAULT_AVATAR_ID } from "@xrengine/common/src/constants/AvatarConstants";
-import { AnimationClip, AnimationMixer, Group, Material, Mesh, Quaternion, SkinnedMesh, Vector3 } from "three";
+import { AnimationMixer, Group, Quaternion, Vector3 } from "three";
 import { Controller, getGeometry } from 'three-physx';
 import { AssetLoader } from "../../../assets/classes/AssetLoader";
-import { getLoader } from "../../../assets/functions/LoadGLTF";
 import { PositionalAudioComponent } from '../../../audio/components/PositionalAudioComponent';
 import { FollowCameraComponent } from '../../../camera/components/FollowCameraComponent';
 import { CameraModes } from '../../../camera/types/CameraModes';
 import { isClient } from '../../../common/functions/isClient';
 import { Behavior } from "../../../common/interfaces/Behavior";
-import { Engine } from "../../../ecs/classes/Engine";
 import { Entity } from '../../../ecs/classes/Entity';
 import { addComponent, getComponent, getMutableComponent, hasComponent } from "../../../ecs/functions/EntityFunctions";
 import { Input } from '../../../input/components/Input';
@@ -39,62 +37,7 @@ import { CharacterComponent } from '../components/CharacterComponent';
 import { IKComponent } from '../components/IKComponent';
 import { NamePlateComponent } from '../components/NamePlateComponent';
 import { standardizeSkeletion } from "../functions/standardizeSkeleton";
-
-export class AnimationManager {
-	static instance: AnimationManager = new AnimationManager();
-
-	_animations: AnimationClip[];
-	_defaultModel: Group;
-	_defaultSkeleton: SkinnedMesh;
-
-	getAnimations(): Promise<AnimationClip[]> {
-		return new Promise(resolve => {
-			if (!isClient) {
-				resolve([]);
-				return;
-			}
-			if (this._animations) {
-				resolve(this._animations);
-				return;
-			}
-			getLoader().load(Engine.publicPath + '/models/avatars/AvatarAnimations.glb', gltf => {
-				gltf.scene.traverse((child) => {
-					if (child.type === "SkinnedMesh" && !this._defaultSkeleton) {
-						this._defaultSkeleton = child;
-					}
-				})
-
-				//standardizeSkeletion(this._defaultSkeleton);
-				this._animations = gltf.animations;
-				this._animations?.forEach(clip => {
-					// TODO: make list of morph targets names
-					clip.tracks = clip.tracks.filter(track => !track.name.match(/^CC_Base_/));
-					//console.log(clip)
-				});
-				resolve(this._animations);
-			});
-		});
-	}
-	getDefaultModel(): Promise<Group> {
-		return new Promise(resolve => {
-			if (this._defaultModel) {
-				resolve(this._defaultModel);
-				return;
-			}
-			getLoader().load(Engine.publicPath + '/models/avatars/Default.glb', gltf => {
-				console.log('default model loaded')
-				this._defaultModel = gltf.scene;
-				this._defaultModel.traverse((obj: Mesh) => {
-					if (obj.material) {
-						(obj.material as Material).transparent = true;
-						(obj.material as Material).opacity = 0.5;
-					}
-				})
-				resolve(this._defaultModel);
-			});
-		});
-	}
-}
+import { AnimationManager } from "../AnimationManager";
 
 export const loadDefaultActorAvatar: Behavior = (entity) => {
 	const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
