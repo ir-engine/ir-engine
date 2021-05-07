@@ -2,13 +2,13 @@
  * @author HydraFire <github.com/HydraFire>
  */
 
-import { Behavior } from "../../../common/interfaces/Behavior";
-import { Entity } from "../../../ecs/classes/Entity";
-import { getComponent, getMutableComponent } from "../../../ecs/functions/EntityFunctions";
-import { Network } from "../../../networking/classes/Network";
-import { NetworkObject } from "../../../networking/components/NetworkObject";
-import { findInterpolationSnapshot } from "../../../physics/behaviors/findInterpolationSnapshot";
-import { ControllerColliderComponent } from "../../../physics/components/ControllerColliderComponent";
+import { Behavior } from "../../common/interfaces/Behavior";
+import { Entity } from "../../ecs/classes/Entity";
+import { getComponent, getMutableComponent } from "../../ecs/functions/EntityFunctions";
+import { Network } from "../../networking/classes/Network";
+import { NetworkObject } from "../../networking/components/NetworkObject";
+import { findInterpolationSnapshot } from "../../physics/behaviors/findInterpolationSnapshot";
+import { ControllerColliderComponent } from "../../physics/components/ControllerColliderComponent";
 import { CharacterComponent } from "../components/CharacterComponent";
 
 export const characterCorrectionBehavior: Behavior = (entity: Entity, snapshots, delta): void => {

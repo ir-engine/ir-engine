@@ -1,5 +1,5 @@
-import { Behavior } from '../../../common/interfaces/Behavior';
-import { getComponent, getMutableComponent, hasComponent } from '../../../ecs/functions/EntityFunctions';
+import { Behavior } from '../../common/interfaces/Behavior';
+import { hasComponent, getMutableComponent, getComponent } from '../../ecs/functions/EntityFunctions';
 import { CharacterAnimations } from '../CharacterAnimations';
 import { defaultAvatarAnimations } from '../CharacterAvatars';
 import { AnimationComponent } from '../components/AnimationComponent';

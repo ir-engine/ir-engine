@@ -1,8 +1,7 @@
 import { AnimationClip, Object3D, SkinnedMesh, Vector3 } from "three";
-import { countCharacters, findClosestParentBone, findEye, findFoot, findFurthestParentBone, findHand, findHead, findHips, findShoulder, findSpine, getTailBones } from "../../../xr/functions/AvatarFunctions";
-import { SkeletonUtils } from '../../../assets/threejs-various/SkeletonUtils.js';
+import { countCharacters, findClosestParentBone, findEye, findFoot, findFurthestParentBone, findHand, findHead, findHips, findShoulder, findSpine, getTailBones } from "../../xr/functions/AvatarFunctions";
 import { AnimationManager } from "../AnimationManager";
-
+import { SkeletonUtils } from "../SkeletonUtils";
 
 export const standardizeSkeletion = (target: SkinnedMesh, source: SkinnedMesh) => {
 

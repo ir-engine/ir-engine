@@ -1,9 +1,7 @@
 import { AnimationClip, Group, Material, Mesh, SkinnedMesh } from "three";
-import { getLoader } from "../../assets/functions/LoadGLTF";
-import { isClient } from '../../common/functions/isClient';
-import { Engine } from "../../ecs/classes/Engine";
-
-
+import { getLoader } from "../assets/functions/LoadGLTF";
+import { isClient } from "../common/functions/isClient";
+import { Engine } from "../ecs/classes/Engine";
 export class AnimationManager {
 	static instance: AnimationManager = new AnimationManager();
 

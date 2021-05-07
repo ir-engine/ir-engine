@@ -17,7 +17,7 @@ import { HighlightSystem } from '../renderer/HighlightSystem';
 import { WebGLRendererSystem } from '../renderer/WebGLRendererSystem';
 import { ServerSpawnSystem } from '../scene/systems/SpawnSystem';
 import { StateSystem } from '../state/systems/StateSystem';
-import { CharacterInputSchema } from '../templates/character/CharacterInputSchema';
+import { CharacterInputSchema } from '../character/CharacterInputSchema';
 import { DefaultNetworkSchema } from '../networking/templates/DefaultNetworkSchema';
 import { TransformSystem } from '../transform/systems/TransformSystem';
 import { MainProxy } from './MessageQueue';
@@ -27,8 +27,8 @@ import { proxyEngineEvents, addIncomingEvents } from '../ecs/classes/EngineEvent
 import { XRSystem } from '../xr/systems/XRSystem';
 // import { PositionalAudioSystem } from './audio/systems/PositionalAudioSystem';
 import { receiveWorker } from './MessageQueue';
-import { AnimationManager } from "../templates/character/AnimationManager";
-import { CharacterControllerSystem } from '../templates/character/CharacterControllerSystem';
+import { AnimationManager } from "../character/AnimationManager";
+import { CharacterControllerSystem } from '../character/CharacterControllerSystem';
 import { UIPanelSystem } from '../ui/systems/UIPanelSystem';
 //@ts-ignore
 import PhysXWorker from '../physics/functions/loadPhysX.ts?worker';

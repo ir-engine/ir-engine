@@ -1,5 +1,5 @@
 import { initializeServer } from "@xrengine/engine/src/initializeServer";
-import { DefaultNetworkSchema } from "@xrengine/engine/src/templates/networking/DefaultNetworkSchema";
+import { DefaultNetworkSchema } from "@xrengine/engine/src/networking/templates/DefaultNetworkSchema";
 import { SocketWebRTCServerTransport } from "./SocketWebRTCServerTransport";
 import config from '@xrengine/server-core/src/appconfig';
 

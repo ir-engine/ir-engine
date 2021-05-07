@@ -1,20 +1,15 @@
-import { Behavior } from '../../../common/interfaces/Behavior';
 import { Vector3 } from "three";
-import { Network } from '../../../networking/classes/Network';
-import { getComponent, hasComponent, getMutableComponent } from '../../../ecs/functions/EntityFunctions';
-import { TransformComponent } from '../../../transform/components/TransformComponent';
+import { LifecycleValue } from "../../common/enums/LifecycleValue";
+import { Behavior } from "../../common/interfaces/Behavior";
+import { NumericalType } from "../../common/types/NumericalTypes";
+import { getMutableComponent, getComponent, hasComponent } from "../../ecs/functions/EntityFunctions";
+import { Input } from "../../input/components/Input";
+import { Network } from "../../networking/classes/Network";
+import { PlayerInCar } from "../../physics/components/PlayerInCar";
 import { CharacterAnimations } from "../CharacterAnimations";
-import { CharacterComponent } from '../components/CharacterComponent';
-import { isMobileOrTablet } from '../../../common/functions/isMobile';
-import { NumericalType } from '../../../common/types/NumericalTypes';
-import { Input } from '../../../input/components/Input';
-import { LifecycleValue } from '../../../common/enums/LifecycleValue';
-import { FollowCameraComponent } from '../../../camera/components/FollowCameraComponent';
-import { PlayerInCar } from '../../../physics/components/PlayerInCar';
-import { BaseInput } from '../../../input/enums/BaseInput';
-import { CameraModes } from '../../../camera/types/CameraModes';
-import { AnimationComponent } from '../components/AnimationComponent';
 import { defaultAvatarAnimations } from '../CharacterAvatars';
+import { AnimationComponent } from '../components/AnimationComponent';
+import { CharacterComponent } from '../components/CharacterComponent';
 
 /**
  * @author HydraFire <github.com/HydraFire>

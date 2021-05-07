@@ -78,7 +78,7 @@ import { DefaultInitializationOptions } from '@xrengine/engine/src/DefaultInitia
 import { Network } from '@xrengine/engine/src/networking/classes/Network';
 import { NetworkSchema } from '@xrengine/engine/src/networking/interfaces/NetworkSchema';
 import { MediaStreamSystem } from '@xrengine/engine/src/networking/systems/MediaStreamSystem';
-import { DefaultNetworkSchema } from '@xrengine/engine/src/templates/networking/DefaultNetworkSchema';
+import { DefaultNetworkSchema } from '@xrengine/engine/src/networking/templates/DefaultNetworkSchema';
 import classNames from 'classnames';
 import moment from 'moment';
 import React, { useEffect, useRef, useState } from 'react';

@@ -1,5 +1,5 @@
 import { System } from "../../ecs/classes/System";
-import { CharacterComponent } from "../../templates/character/components/CharacterComponent";
+import { CharacterComponent } from "../../character/components/CharacterComponent";
 import { ArrowHelper, Box3, Box3Helper, BoxHelper, Object3D, Vector3 } from "three";
 import { getComponent } from "../../ecs/functions/EntityFunctions";
 import { Engine } from "../../ecs/classes/Engine";
