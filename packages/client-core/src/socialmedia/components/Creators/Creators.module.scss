@@ -17,6 +17,23 @@
             height: 210px;
             border-radius: 10px;
             background-color: #CA3E7B;
+            display: flex;
+            align-items: center;
+            .avatarPlaceholder{
+                margin: 0 auto;
+            }            
+        }
+        .titleContainer{
+            font-size: 14pt;
+            font-family:'SFProText-Regular';
+            text-align: center;
+        }
+
+        .usernameContainer{
+            font-size: 13pt;
+            font-family:'SFProText-Regular';
+            color: rgba(60, 60, 67, 0.6);
+            text-align: center;
         }
         :global(.MuiCardContent-root){
             padding: 5px;

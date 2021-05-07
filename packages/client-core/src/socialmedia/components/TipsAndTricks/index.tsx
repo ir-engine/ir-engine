@@ -36,25 +36,16 @@ interface Props{
 
 
 export const TipsAndTricks = ({tipsAndTricksState, getTipsAndTricks, doLoginAuto}:Props) => {
-    const data=[];
-	const { t } = useTranslation();
-    for(let i=0; i<random(10); i++){
-        data.push({ 
-            title: t('social:tips.title'),
-            description: t('social:tips.description')
-        });
-    }
+    const { t } = useTranslation();
     useEffect(()=> {
         doLoginAuto(true);
         getTipsAndTricks();
     }, []);
     const tipsAndTricksList = tipsAndTricksState?.get('tips_and_tricks');
-    useEffect(()=>  console.log(tipsAndTricksList), [tipsAndTricksList]);
-
 
     return <section className={styles.tipsandtricksContainer}>
         {tipsAndTricksList && tipsAndTricksList.length > 0 && tipsAndTricksList.map((item, itemindex)=>
-            <Card className={styles.tipItem} square={false} elevation={0} key={itemindex}>
+            <Card className={styles.tipItem} square={true} elevation={0} key={itemindex}>
                 <CardMedia
                     className={styles.previewImage}
                     component='video'
@@ -63,8 +54,8 @@ export const TipsAndTricks = ({tipsAndTricksState, getTipsAndTricks, doLoginAuto
                     controls
                 />
                 <CardContent>
-                    <Typography className={styles.tipsTitle} variant="h4">{item.title}</Typography>
-                    <Typography variant="h6">{item.description}</Typography>
+                    <Typography className={styles.tipsTitle}>{item.title}</Typography>
+                    <Typography className={styles.tipsDescription}>{item.description}</Typography>
                 </CardContent>
             </Card>
         )}

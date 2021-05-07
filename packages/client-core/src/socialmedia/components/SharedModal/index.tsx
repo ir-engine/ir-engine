@@ -29,7 +29,7 @@ const SharedModal = (props: Props) => {
               TransitionComponent={Transition}
               keepMounted
               onClose={onClose}
-              className={className}
+              className={className}              
               aria-labelledby="alert-dialog-slide-title"
               aria-describedby="alert-dialog-slide-description"
           >

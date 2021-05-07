@@ -2,7 +2,7 @@
     .switcher{
         background-color: #EEEEEF;
         padding: 3px;
-        border-radius: 10px;
+        border-radius: 5px;
         display: flex;
         margin: 10px 20px;
 
@@ -11,6 +11,10 @@
             color: #000000;
             padding: 0;
             width: 50%;
+
+            &.active{
+                background-color: #FFF;
+            }
         }
     }
     .flexContainer{
@@ -22,5 +26,15 @@
             border-radius: 10px;
             background-color: #DDDDDD;
         }
-    }    
+    } 
+    
+    .startRecirding{
+        background-color: #000;
+        position: fixed;
+        bottom: 20px;
+        color: #FFF;
+        width: 80%;
+        left: 50%;        
+        transform: translate(-50%,0);
+    }
 }

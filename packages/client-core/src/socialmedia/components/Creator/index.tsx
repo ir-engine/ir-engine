@@ -55,8 +55,8 @@ const Creator = ({creatorId, creatorState, getCreator, followCreator, unFollowCr
     return  <><section className={styles.creatorContainer}>
             <CreatorCard creator={isMe === true ? creatorState?.get('currentCreator') : creatorData ? creatorData : creatorState?.get('creator')} />
             {isMe && <section className={styles.videosSwitcher}>
-                    <Button variant={videoType === 'creator' ? 'contained' : 'text'} color='secondary' className={styles.switchButton+(videoType === 'creator' ? ' '+styles.active : '')} onClick={()=>setVideoType('creator')}>{t('social:creator.myVideos')}</Button>
-                  <Button variant={videoType === 'fired' ? 'contained' : 'text'} color='secondary' className={styles.switchButton+(videoType === 'fired' ? ' '+styles.active : '')} onClick={()=>setVideoType('fired')}>{t('social:creator.savedVideos')}</Button>
+                    <Button variant={videoType === 'creator' ? 'contained' : 'text'} className={styles.switchButton+(videoType === 'creator' ? ' '+styles.active : '')} onClick={()=>setVideoType('creator')}>{t('social:creator.myVideos')}</Button>
+                  <Button variant={videoType === 'fired' ? 'contained' : 'text'} className={styles.switchButton+(videoType === 'fired' ? ' '+styles.active : '')} onClick={()=>setVideoType('fired')}>{t('social:creator.savedVideos')}</Button>
             </section>}
             <section className={styles.feedsWrapper}>
               <Featured creatorId={isMe === true ? creatorState?.get('currentCreator').id : creatorData ? creatorData.id : creatorState?.get('creator')?.id} type={videoType}/>

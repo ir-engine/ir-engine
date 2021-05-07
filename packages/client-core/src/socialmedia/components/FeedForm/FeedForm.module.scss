@@ -11,6 +11,9 @@
         
         .preCard{
             width: 50%;
+            box-sizing: border-box;
+            padding: 20px;
+            text-align: center;
             h2{
                 display: flex;
                 flex-direction: column;
@@ -31,6 +34,9 @@
     .submit{
         display: block;
         margin: 0 auto;
+        color: #FFF;
+        background-color: #000;
+        margin-top: 50px;
     }
 
     .videoWrapper{

@@ -16,6 +16,7 @@ import { getCreators } from '../../reducers/creator/service';
 import styles from './Creators.module.scss';
 import { selectPopupsState } from '../../reducers/popupsState/selector';
 import { updateCreatorPageState } from '../../reducers/popupsState/service';
+import Avatar from '@material-ui/core/Avatar';
 
 const mapStateToProps = (state: any): any => {
     return {
@@ -51,12 +52,15 @@ const Creators = ({creatorsState, getCreators, popupsState, updateCreatorPageSta
                 className={styles.previewImage}                  
                 image={item.avatar || <PersonPinIcon />}
                 title={item.name}
-            /> : <section className={styles.previewImage} />}
+            /> : 
+            <section className={styles.previewImage}>
+                <Avatar className={styles.avatarPlaceholder} />
+            </section>}
             <CardContent>
-                <Typography className={styles.titleContainer} gutterBottom variant="h6" component="h2" align="center">{item.name} 
+                <Typography className={styles.titleContainer}>{item.name} 
                     {item.verified === 1 && <VerifiedUserIcon htmlColor="#007AFF" style={{fontSize:'13px', margin: '0 0 0 5px'}}/>}
                 </Typography>
-                <p style={{textAlign: "center"}}>{item.username}</p>
+                <Typography className={styles.usernameContainer}>{item.username}</Typography>
             </CardContent>
         </Card>
     )}
