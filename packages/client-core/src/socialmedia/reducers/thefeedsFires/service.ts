@@ -25,7 +25,7 @@ export function getTheFeedsFires(thefeedsId : string, setThefeedsFires : any) {
 //       console.log(thefeedsResults)
 
 //       dispatch(thefeedsFiresRetrieved(thefeedsResults.data, thefeedsId));
-      setThefeedsFires(thefeedsResults)
+      setThefeedsFires(thefeedsResults);
     } catch(err) {
       console.log(err);
       dispatchAlertError(dispatch, err.message);
@@ -40,7 +40,8 @@ export function addFireToTheFeeds(thefeedsId: string) {
       const feedsFire = await client.service('thefeeds-fires').create({thefeedsId});
       const feedsFireStore = {
       id: feedsFire.creatorId,
-      }
+      };
+      //@ts-ignore
       dispatch(addTheFeedsFire(feedsFireStore));
     } catch(err) {
       console.log(err);

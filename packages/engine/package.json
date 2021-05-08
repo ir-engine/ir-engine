@@ -45,7 +45,7 @@
     "detect-browser": "^5.2.0",
     "draco3dgltf": "^1.4.1",
     "hls.js": "^1.0.0",
-    "immortal-db": "^1.1.0",
+    "idb-keyval": "^5.0.5",
     "mousetrap": "^1.6.5",
     "socket.io": "2.4.1",
     "three": "^0.128.0",
