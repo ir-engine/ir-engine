@@ -9,12 +9,12 @@ import { BinaryValue } from "../../common/enums/BinaryValue";
 import { BaseInput } from '../../input/enums/BaseInput';
 
 import { ControllerColliderComponent } from '../components/ControllerColliderComponent';
-import { CharacterComponent } from '../../character/components/CharacterComponent';
+import { CharacterComponent } from '../components/CharacterComponent';
 import { TransformComponent } from '../../transform/components/TransformComponent';
 import { isServer } from '../../common/functions/isServer';
 import { XRUserSettings, XR_FOLLOW_MODE } from '../../xr/types/XRUserSettings';
 import { getBit } from '../../common/functions/bitFunctions';
-import { CHARACTER_STATES } from '../../character/state/CharacterStates';
+import { CHARACTER_STATES } from '../state/CharacterStates';
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -23,7 +23,7 @@ import { CHARACTER_STATES } from '../../character/state/CharacterStates';
 const forwardVector = new Vector3(0, 0, 1);
 const upVector = new Vector3(0, 1, 0);
 
-export const physicsMove = (entity: Entity, deltaTime): void => {
+export const characterMoveBehavior = (entity: Entity, deltaTime): void => {
   const actor: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
   const transform: TransformComponent = getMutableComponent<TransformComponent>(entity, TransformComponent as any);
   const collider = getMutableComponent<ControllerColliderComponent>(entity, ControllerColliderComponent);

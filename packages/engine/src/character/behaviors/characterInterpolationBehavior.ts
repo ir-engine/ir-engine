@@ -2,7 +2,7 @@ import { Behavior } from '../../common/interfaces/Behavior';
 import { Entity } from '../../ecs/classes/Entity';
 import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
 import { findInterpolationSnapshot } from '../../physics/behaviors/findInterpolationSnapshot';
-import { ControllerColliderComponent } from '../../physics/components/ControllerColliderComponent';
+import { ControllerColliderComponent } from '../components/ControllerColliderComponent';
 import { TransformComponent } from '../../transform/components/TransformComponent';
 import { CharacterComponent } from '../components/CharacterComponent';
 /**

@@ -5,7 +5,7 @@ import { CharacterComponent } from '../../character/components/CharacterComponen
 import { changeAnimation } from '../../character/functions/updateVectorAnimation';
 import { Entity } from '../../ecs/classes/Entity';
 import { getComponent, getMutableComponent, removeComponent } from '../../ecs/functions/EntityFunctions';
-import { PlayerInCar } from '../../physics/components/PlayerInCar';
+import { PlayerInCar } from '../components/PlayerInCar';
 import { PhysicsSystem } from '../../physics/systems/PhysicsSystem';
 import { TransformComponent } from '../../transform/components/TransformComponent';
 import { VehicleComponent } from '../components/VehicleComponent';

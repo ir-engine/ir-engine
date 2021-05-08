@@ -1,8 +1,7 @@
 
 /**
- * @author Josh 🇦🇺 ?
+ * @deprecated
  */
-
 export enum PhysicsLifecycleState {
   onAdded,
   onRemoved,

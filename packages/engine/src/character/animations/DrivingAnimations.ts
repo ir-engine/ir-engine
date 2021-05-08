@@ -5,7 +5,7 @@ import { NumericalType } from "../../common/types/NumericalTypes";
 import { getMutableComponent, getComponent, hasComponent } from "../../ecs/functions/EntityFunctions";
 import { Input } from "../../input/components/Input";
 import { Network } from "../../networking/classes/Network";
-import { PlayerInCar } from "../../physics/components/PlayerInCar";
+import { PlayerInCar } from "../../vehicle/components/PlayerInCar";
 import { CharacterAnimations } from "../CharacterAnimations";
 import { defaultAvatarAnimations } from '../CharacterAvatars';
 import { AnimationComponent } from '../components/AnimationComponent';

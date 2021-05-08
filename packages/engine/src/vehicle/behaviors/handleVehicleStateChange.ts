@@ -3,7 +3,7 @@ import { removeComponent, hasComponent, addComponent, getMutableComponent } from
 import { LocalInputReceiver } from "../../input/components/LocalInputReceiver";
 import { Network } from "../../networking/classes/Network";
 import { NetworkObjectEditInterface } from "../../networking/interfaces/WorldState";
-import { PlayerInCar } from "../../physics/components/PlayerInCar";
+import { PlayerInCar } from "../components/PlayerInCar";
 import { VehicleState, VehicleStateUpdateSchema } from "../enums/VehicleStateEnum";
 
 /**

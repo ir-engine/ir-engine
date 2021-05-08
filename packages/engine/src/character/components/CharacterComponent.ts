@@ -5,7 +5,7 @@ import { Component } from '../../ecs/classes/Component';
 import { Types } from '../../ecs/types/Types';
 import { RelativeSpringSimulator } from '../../physics/classes/SpringSimulator';
 import { VectorSpringSimulator } from '../../physics/classes/VectorSpringSimulator';
-import { ControllerColliderComponent } from '../../physics/components/ControllerColliderComponent';
+import { ControllerColliderComponent } from './ControllerColliderComponent';
 import { CollisionGroups } from '../../physics/enums/CollisionGroups';
 export class CharacterComponent extends Component<CharacterComponent> {
 

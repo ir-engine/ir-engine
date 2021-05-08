@@ -11,7 +11,7 @@ import { getMutableComponent, getComponent, addComponent, removeComponent } from
 import { LocalInputReceiver } from '../../input/components/LocalInputReceiver';
 import { Network } from '../../networking/classes/Network';
 import { NetworkObject } from '../../networking/components/NetworkObject';
-import { PlayerInCar } from '../../physics/components/PlayerInCar';
+import { PlayerInCar } from '../components/PlayerInCar';
 import { CollisionGroups } from '../../physics/enums/CollisionGroups';
 import { PhysicsSystem } from '../../physics/systems/PhysicsSystem';
 import { TransformComponent } from '../../transform/components/TransformComponent';

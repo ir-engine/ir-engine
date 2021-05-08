@@ -1,12 +1,11 @@
 import { Component } from "../../ecs/classes/Component";
 import { Types } from "../../ecs/types/Types";
 import { Vector3 } from "three";
-import type { Controller } from "three-physx";
+import type { Controller, ControllerHitEvent } from "three-physx";
 
 /**
  * @author Shaw
  */
-
 export class ControllerColliderComponent extends Component<ControllerColliderComponent>
 {
 	public options: any;
@@ -19,6 +18,7 @@ export class ControllerColliderComponent extends Component<ControllerColliderCom
 	public segments: number;
 	public friction: number;
 	public playerStuck: number;
+  public collisions: ControllerHitEvent[] = [];
 }
 
 ControllerColliderComponent._schema = {
