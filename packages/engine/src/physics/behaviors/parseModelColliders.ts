@@ -3,7 +3,7 @@ import { Behavior } from '../../common/interfaces/Behavior';
 import { Entity } from '../../ecs/classes/Entity';
 import { getComponent } from '../../ecs/functions/EntityFunctions';
 import { createNetworkRigidBody } from '../../interaction/prefabs/NetworkRigidBody';
-import { createVehicleFromModel } from '../../templates/vehicle/prefabs/NetworkVehicle';
+import { createVehicleFromModel } from '../../vehicle/prefabs/NetworkVehicle';
 import { TransformComponent } from "../../transform/components/TransformComponent";
 import { addColliderWithoutEntity } from './colliderCreateFunctions';
 

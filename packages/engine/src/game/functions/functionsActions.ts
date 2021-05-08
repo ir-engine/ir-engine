@@ -1,16 +1,15 @@
+import { isClient } from '../../common/functions/isClient';
+import { isServer } from '../../common/functions/isServer';
 import { Component } from "../../ecs/classes/Component";
-import { ComponentConstructor } from '../../ecs/interfaces/ComponentInterfaces';
 import { Entity } from '../../ecs/classes/Entity';
-import { isClient } from '../../common/functions/isClient'
-import { isServer } from '../../common/functions/isServer'
+import { addComponent, getComponent, hasComponent } from '../../ecs/functions/EntityFunctions';
+import { ComponentConstructor } from '../../ecs/interfaces/ComponentInterfaces';
 import { Network } from "../../networking/classes/Network";
-import { addComponent, getComponent, getMutableComponent, hasComponent, removeComponent } from '../../ecs/functions/EntityFunctions';
-import { getGameEntityFromName, getEntityFromRoleUuid, getRole, getGame, getUuid } from './functions';
+import { HaveBeenInteracted } from "../actions/HaveBeenInteracted";
 import { Game } from "../components/Game";
 import { GameObject } from "../components/GameObject";
-import { GamePlayer } from "../components/GamePlayer";
-import { HaveBeenInteracted } from "../actions/HaveBeenInteracted";
 import { GameStateActionMessage } from "../types/GameMessage";
+import { getEntityFromRoleUuid, getGame, getGameEntityFromName, getRole, getUuid } from './functions';
 /**
  * @author HydraFire <github.com/HydraFire>
  */

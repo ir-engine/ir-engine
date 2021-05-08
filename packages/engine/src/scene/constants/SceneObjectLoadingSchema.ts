@@ -4,7 +4,7 @@ import { isClient } from "../../common/functions/isClient";
 import { AssetLoader } from '../../assets/classes/AssetLoader';
 import { addComponent } from "../../ecs/functions/EntityFunctions";
 import { parseModelColliders, clearFromColliders } from '../../physics/behaviors/parseModelColliders';
-import { createVehicleFromSceneData } from '../../templates/vehicle/prefabs/NetworkVehicle';
+import { createVehicleFromSceneData } from '../../vehicle/prefabs/NetworkVehicle';
 import { AmbientLight, CircleBufferGeometry, Color, HemisphereLight, Mesh, MeshPhongMaterial, PointLight, SpotLight } from 'three';
 import { ComponentConstructor } from "../../ecs/interfaces/ComponentInterfaces";
 import { createParticleEmitterObject } from '../../particles/functions/particleHelpers';

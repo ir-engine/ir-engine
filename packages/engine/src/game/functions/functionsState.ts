@@ -1,26 +1,24 @@
-import { Entity } from '../../ecs/classes/Entity';
-import { Component } from "../../ecs/classes/Component";
-import { ComponentConstructor } from '../../ecs/interfaces/ComponentInterfaces';
-import { isServer } from '../../common/functions/isServer';
 import { isClient } from '../../common/functions/isClient';
-
-import { GamesSchema } from "../../templates/game/GamesSchema";
+import { isServer } from '../../common/functions/isServer';
+import { Component } from "../../ecs/classes/Component";
+import { Entity } from '../../ecs/classes/Entity';
+import { addComponent, getMutableComponent, hasComponent, removeComponent } from '../../ecs/functions/EntityFunctions';
+import { ComponentConstructor } from '../../ecs/interfaces/ComponentInterfaces';
 import { Network } from "../../networking/classes/Network";
 import { Game } from "../components/Game";
-import { GameMode, StateObject } from "../types/GameMode";
-import { GameObject } from "../components/GameObject";
 import { GamePlayer } from "../components/GamePlayer";
+import { ButtonDown } from '../templates/gameDefault/components/ButtonDownTagComponent';
+import { ButtonUp } from '../templates/gameDefault/components/ButtonUpTagComponent';
+import { Closed } from '../templates/gameDefault/components/ClosedTagComponent';
+import { Open } from '../templates/gameDefault/components/OpenTagComponent';
+import { PanelDown } from '../templates/gameDefault/components/PanelDownTagComponent';
+import { PanelUp } from '../templates/gameDefault/components/PanelUpTagComponent';
+import { GamesSchema } from '../templates/GamesSchema';
+import { ClientGameActionMessage, GameStateUpdateMessage } from "../types/GameMessage";
+import { GameMode, StateObject } from "../types/GameMode";
+import { getGame, getGameEntityFromName, getRole, getUuid } from './functions';
 
-import { addComponent, getComponent, getMutableComponent, hasComponent, removeComponent } from '../../ecs/functions/EntityFunctions';
-import { getGameEntityFromName, getEntityFromRoleUuid, getRole, getGame, getUuid } from './functions';
-import { GameStateUpdateMessage, ClientGameActionMessage } from "../types/GameMessage";
 
-import { Open } from "../../templates/game/gameDefault/components/OpenTagComponent";
-import { Closed } from "../../templates/game/gameDefault/components/ClosedTagComponent";
-import { ButtonUp } from "../../templates/game/gameDefault/components/ButtonUpTagComponent";
-import { ButtonDown } from "../../templates/game/gameDefault/components/ButtonDownTagComponent";
-import { PanelDown } from "../../templates/game/gameDefault/components/PanelDownTagComponent";
-import { PanelUp } from "../../templates/game/gameDefault/components/PanelUpTagComponent";
 
 /**
  * @author HydraFire <github.com/HydraFire>

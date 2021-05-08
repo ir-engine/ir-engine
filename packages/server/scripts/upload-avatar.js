@@ -72,7 +72,7 @@ const AVATAR_LIST = [
     'Geoff',
     'Jace',
 ];
-const MODEL_PATH = process.cwd() + '/../client/public/models/characters/';
+const MODEL_PATH = process.cwd() + '/../client/public/models/avatars/';
 const THUMBNAIL_PATH = process.cwd() + '/../client/public/static/';
 const MODEL_EXTENSION = '.glb';
 const THUMBNAIL_EXTENSION = '.png';

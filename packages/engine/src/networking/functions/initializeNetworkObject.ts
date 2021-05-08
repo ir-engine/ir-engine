@@ -2,7 +2,7 @@ import { isServer } from '../../common/functions/isServer';
 import { Component } from '../../ecs/classes/Component';
 import { Entity } from '../../ecs/classes/Entity';
 import { addComponent, createEntity, getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
-import { PrefabType } from "../../templates/networking/PrefabType";
+import { PrefabType } from "../../networking/templates/PrefabType";
 import { Network } from '../classes/Network';
 import { NetworkObject } from '../components/NetworkObject';
 import { NetworkPrefab } from '../interfaces/NetworkPrefab';

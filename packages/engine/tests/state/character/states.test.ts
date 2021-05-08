@@ -21,11 +21,11 @@ import { ClientNetworkSystem } from "../../../src/networking/systems/ClientNetwo
 import { PhysicsSystem } from "../../../src/physics/systems/PhysicsSystem";
 import { State } from "../../../src/state/components/State";
 import { StateSystem } from "../../../src/state/systems/StateSystem";
-import { CharacterAnimations } from "../../../src/templates/character/CharacterAnimations";
-import { CharacterComponent } from "../../../src/templates/character/components/CharacterComponent";
-import { DefaultNetworkSchema } from "../../../src/templates/networking/DefaultNetworkSchema";
+import { CharacterAnimations } from "../../../src/character/CharacterAnimations";
+import { CharacterComponent } from "../../../src/character/components/CharacterComponent";
+import { DefaultNetworkSchema } from "../../../src/networking/templates/DefaultNetworkSchema";
 import { createRemoteUserOnClient } from "../../_helpers/createRemoteUserOnClient";
-// import * as setActorAnimationModule from "../../../src/templates/character/behaviors/setActorAnimation";
+// import * as setActorAnimationModule from "../../../src/character/behaviors/setActorAnimation";
 
 const initializeNetworkObject = jest.spyOn(initializeNetworkObjectModule, 'initializeNetworkObject');
 // setActorAnimationModule.setActorAnimation = jest.fn((entity, args: { name: string; transitionDuration: number }) => {
@@ -34,7 +34,7 @@ const initializeNetworkObject = jest.spyOn(initializeNetworkObjectModule, 'initi
 const dummyObject = new Object3D();
 const dummyMixer = new AnimationMixer(dummyObject);
 const mockedAnimActions = new Map<string, AnimationAction>();
-jest.mock("../../../src/templates/character/behaviors/setActorAnimation", () => {
+jest.mock("../../../src/character/behaviors/setActorAnimation", () => {
   return {
     __esModule: true,
     // default: jest.fn(() => 42),

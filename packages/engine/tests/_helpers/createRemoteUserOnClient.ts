@@ -8,7 +8,7 @@ import { WorldStateModel } from "../../src/networking/schema/worldStateSchema";
 import { execute } from "../../src/ecs/functions/EngineFunctions";
 import { SystemUpdateType } from "../../src/ecs/functions/SystemUpdateType";
 import { NetworkObject } from "../../src/networking/components/NetworkObject";
-import { PrefabType } from "../../src/templates/networking/PrefabType";
+import { PrefabType } from "../../src/networking/templates/PrefabType";
 
 export function createRemoteUserOnClient(options:{
   initializeNetworkObjectMocked:  any,

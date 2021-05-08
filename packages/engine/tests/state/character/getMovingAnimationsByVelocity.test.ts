@@ -1,8 +1,8 @@
-import { getMovingAnimationsByVelocity } from "../../../src/templates/character/functions/getMovingAnimationsByVelocity";
+import { getMovingAnimationsByVelocity } from "../../../src/character/functions/getMovingAnimationsByVelocity";
 import { MathUtils, Vector3 } from "three";
-import { WALK_SPEED, RUN_SPEED } from "../../../src/templates/character/components/CharacterComponent";
+import { WALK_SPEED, RUN_SPEED } from "../../../src/character/components/CharacterComponent";
 import { expect } from "@jest/globals";
-import { CharacterAnimations } from "../../../src/templates/character/CharacterAnimations";
+import { CharacterAnimations } from "../../../src/character/CharacterAnimations";
 
 describe('getMovingAnimationsByVelocity', () => {
     test("no move", () => {

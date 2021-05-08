@@ -14,7 +14,7 @@ import { bindActionCreators, Dispatch } from "redux";
 import { doLoginAuto } from "@xrengine/client-core/src/user/reducers/auth/service";
 import { initializeEditor } from "@xrengine/engine/src/initialize";
 import { Engine } from "@xrengine/engine/src/ecs/classes/Engine";
-import { GamesSchema } from "@xrengine/engine/src/templates/game/GamesSchema";
+import { GamesSchema } from "@xrengine/engine/src/game/templates/GamesSchema";
 /**
  * Declairing Props interface having two props.
  *@authState can be of any type.

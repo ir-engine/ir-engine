@@ -16,8 +16,8 @@ import { initStorage, getStorage } from '../functions/functionsStorage';
 
 import { GameMode, RoleBehaviorWithTarget, RoleBehaviors, GameRolesInterface } from "../../game/types/GameMode";
 
-import { GamesSchema } from "../../templates/game/GamesSchema";
-import { PrefabType } from '../../templates/networking/PrefabType';
+import { GamesSchema } from "../../game/templates/GamesSchema";
+import { PrefabType } from '../../networking/templates/PrefabType';
 import { SystemUpdateType } from "../../ecs/functions/SystemUpdateType";
 
 /**

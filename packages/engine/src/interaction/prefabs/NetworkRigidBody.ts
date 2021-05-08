@@ -5,7 +5,7 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { ColliderComponent } from '../../physics/components/ColliderComponent';
 import { RigidBodyComponent } from '../../physics/components/RigidBody';
 import { initializeNetworkObject } from '../../networking/functions/initializeNetworkObject';
-import { PrefabType } from '../../templates/networking/PrefabType';
+import { PrefabType } from '../../networking/templates/PrefabType';
 
 /**
 * @author HydraFire <github.com/HydraFire>
