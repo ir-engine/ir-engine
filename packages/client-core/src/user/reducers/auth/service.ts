@@ -45,7 +45,7 @@ import {
   usernameUpdated,
   userUpdated
 } from './actions';
-import { CharacterControllerSystem } from '@xrengine/engine/src/templates/character/CharacterControllerSystem';
+import { CharacterControllerSystem } from '@xrengine/engine/src/character/CharacterControllerSystem';
 
 const store = Store.store;
 
