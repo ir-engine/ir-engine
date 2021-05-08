@@ -83,10 +83,10 @@ export class CharacterControllerSystem extends System {
       const transform = getComponent<TransformComponent>(entity, TransformComponent as any);
 
       // reset if vals are invalid
-      if (isNaN(collider.controller.transform.translation.x)) {
+      if (isNaN(collider.controller.transform.translation.x) || collider.controller.transform.translation.y < -10) {
         console.warn("WARNING: Character physics data reporting NaN")
         collider.controller.transform.translation.x = 0;
-        collider.controller.transform.translation.y = 1;
+        collider.controller.transform.translation.y = 10;
         collider.controller.transform.translation.z = 0;
         collider.playerStuck = 1000;
         return;

@@ -108,8 +108,6 @@ export const loadActorAvatarFromURL: Behavior = (entity, avatarURL) => {
 		// TODO: Standardize!!!
 		standardizeSkeletion(targetSkeleton, AnimationManager.instance._defaultSkeleton);
 
-
-		tmpGroup.children.forEach(child => actor.modelContainer.add(child));
 		tmpGroup.children.forEach(child => actor.modelContainer.add(child));
 		const geom = getGeometry(actor.modelContainer);
 		if (geom) {
@@ -133,9 +131,9 @@ export const loadActorAvatarFromURL: Behavior = (entity, avatarURL) => {
 			controller.controller.height = height;
 		}
 		actor.mixer = new AnimationMixer(actor.modelContainer.children[0]);
-		if (hasComponent(entity, IKComponent)) {
-			initiateIK(entity)
-		}
+		// if (hasComponent(entity, IKComponent)) {
+		// 	initiateIK(entity)
+		// }
 	});
 };
 
