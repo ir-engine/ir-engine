@@ -8,7 +8,7 @@ import { getComponent, getMutableComponent } from "../../ecs/functions/EntityFun
 import { Network } from "../../networking/classes/Network";
 import { NetworkObject } from "../../networking/components/NetworkObject";
 import { findInterpolationSnapshot } from "../../physics/behaviors/findInterpolationSnapshot";
-import { ControllerColliderComponent } from "../../physics/components/ControllerColliderComponent";
+import { ControllerColliderComponent } from "../components/ControllerColliderComponent";
 import { CharacterComponent } from "../components/CharacterComponent";
 
 export const characterCorrectionBehavior: Behavior = (entity: Entity, snapshots, delta): void => {

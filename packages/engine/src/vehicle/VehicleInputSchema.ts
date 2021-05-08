@@ -23,7 +23,7 @@ import { InputAlias } from "../input/types/InputAlias";
 import { Network } from "../networking/classes/Network";
 import { sendClientObjectUpdate } from "../networking/functions/sendClientObjectUpdate";
 import { NetworkObjectUpdateType } from "../networking/templates/NetworkObjectUpdateSchema";
-import { PlayerInCar } from "../physics/components/PlayerInCar";
+import { PlayerInCar } from "./components/PlayerInCar";
 import { VehicleComponent } from "./components/VehicleComponent";
 import { VehicleState, VehicleStateUpdateSchema } from "./enums/VehicleStateEnum";
 

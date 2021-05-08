@@ -8,7 +8,7 @@ import { Network } from '../classes/Network';
 import { NetworkObject } from '../components/NetworkObject';
 import { NetworkSchema } from "../interfaces/NetworkSchema";
 import { WorldStateModel } from '../schema/worldStateSchema';
-import { ControllerColliderComponent } from '../../physics/components/ControllerColliderComponent';
+import { ControllerColliderComponent } from '../../character/components/ControllerColliderComponent';
 import { CharacterComponent } from '../../character/components/CharacterComponent';
 
 /** System class to handle outgoing messages. */

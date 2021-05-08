@@ -28,7 +28,7 @@ import { NetworkPrefab } from "../../networking/interfaces/NetworkPrefab";
 import { PrefabType } from "../../networking/templates/PrefabType";
 import { RelativeSpringSimulator } from "../../physics/classes/SpringSimulator";
 import { VectorSpringSimulator } from "../../physics/classes/VectorSpringSimulator";
-import { ControllerColliderComponent } from "../../physics/components/ControllerColliderComponent";
+import { ControllerColliderComponent } from "../components/ControllerColliderComponent";
 import { InterpolationComponent } from "../../physics/components/InterpolationComponent";
 import { CollisionGroups } from "../../physics/enums/CollisionGroups";
 import { InterpolationInterface } from "../../physics/interfaces/InterpolationInterface";

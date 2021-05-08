@@ -50,7 +50,7 @@
     "socket.io": "2.4.1",
     "three": "^0.128.0",
     "three-mesh-bvh": "^0.3.7",
-    "three-physx": "^0.0.9",
+    "three-physx": "^0.0.10",
     "vite-xrengine": "2.2.4",
     "volumetric": "^0.2.19",
     "web-worker": "^1.0.0"
