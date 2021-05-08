@@ -38,9 +38,9 @@ export const defaultAvatarAnimations: {[key:number]: AnimationConfigInterface} =
   [CharacterAnimations.FALLING_LONG]: { name: 'falling' },
   [CharacterAnimations.DROP]: { name: 'falling_to_land' },
   [CharacterAnimations.DROP_ROLLING]: { name: 'falling_to_roll' },
-  [CharacterAnimations.WALK_FORWARD]: { name: 'run_forward' },
-  [CharacterAnimations.WALK_BACKWARD]: { name: 'run_backward' },
-  [CharacterAnimations.WALK_STRAFE_RIGHT]: { name: 'run_right' },
-  [CharacterAnimations.WALK_STRAFE_LEFT]: { name: 'run_left' },
+  [CharacterAnimations.WALK_FORWARD]: { name: 'wall_forward' },
+  [CharacterAnimations.WALK_BACKWARD]: { name: 'walk_backward' },
+  [CharacterAnimations.WALK_STRAFE_RIGHT]: { name: 'walk_right' },
+  [CharacterAnimations.WALK_STRAFE_LEFT]: { name: 'walk_left' },
 
 };

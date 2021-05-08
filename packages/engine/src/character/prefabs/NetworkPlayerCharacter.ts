@@ -90,8 +90,8 @@ export const loadActorAvatarFromURL: Behavior = (entity, avatarURL) => {
 					targetSkeleton = child;
 			}
 		})
-
-		standardizeSkeletion(targetSkeleton, AnimationManager.instance._defaultSkeleton);
+		console.log("*** Standardizing skeleton")
+		// standardizeSkeletion(targetSkeleton, AnimationManager.instance._defaultSkeleton);
 
 		tmpGroup.children.forEach(child => actor.modelContainer.add(child));
 		const geom = getGeometry(actor.modelContainer);
