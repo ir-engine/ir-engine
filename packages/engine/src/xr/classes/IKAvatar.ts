@@ -60,6 +60,7 @@ export class Avatar {
   skeleton: any;
   constructor(object, options: AvatarOptions = { debug: true, top: true, bottom: true, visemes: true, hair: true } )
   {
+    console.log("CONSTRUCTING AVATAR!")
     this.object = object;
     const model = (() => {
       let o = object;

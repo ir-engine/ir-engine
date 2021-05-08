@@ -7,10 +7,17 @@ export const standardizeSkeletion = (target: SkinnedMesh, source: SkinnedMesh) =
 
   const targetBones = GetBones(target.skeleton);
   const sourceBones = GetBones(source.skeleton);
+
+  console.log("Targetbones are ", targetBones)
   Object.values(targetBones).forEach((element, id) => {
     const boneType = Object.keys(targetBones)[id];
-    // console.log("Target bone is", element.name);
-    // console.log("Source bone is", sourceBones[boneType].name);
+    console.log("Target bone is", element.name);
+    console.log("Source bone is", sourceBones[boneType].name);
+
+    if(sourceBones[boneType] === undefined || sourceBones[boneType] === ""){
+      console.warn("Can't rename boneType", boneType, "to", element.name)
+    }
+
     element.name = sourceBones[boneType].name;
   })
 
