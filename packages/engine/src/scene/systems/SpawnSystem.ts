@@ -5,11 +5,11 @@ import { TransformComponent } from "../../transform/components/TransformComponen
 import SpawnPointComponent from "../components/SpawnPointComponent";
 import TeleportToSpawnPoint from "../components/TeleportToSpawnPoint";
 import { Engine } from "../../ecs/classes/Engine";
-import { ControllerColliderComponent } from "../../physics/components/ControllerColliderComponent";
+import { ControllerColliderComponent } from "../../character/components/ControllerColliderComponent";
 import { Vector3 } from "three";
 import { SystemUpdateType } from "../../ecs/functions/SystemUpdateType";
 
-//import { CharacterComponent } from '../../templates/character/components/CharacterComponent';
+//import { CharacterComponent } from '../../character/components/CharacterComponent';
 
 
 export class ServerSpawnSystem extends System {

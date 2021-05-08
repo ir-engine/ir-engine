@@ -5,7 +5,7 @@ import { setStaticMode, StaticModes } from "../functions/StaticMode";
 import cloneObject3D from "../functions/cloneObject3D";
 import { RethrownError } from "../functions/errors";
 import { clearFromColliders, plusParameter } from "../../physics/behaviors/parseModelColliders";
-import { parseCarModel } from "../../templates/vehicle/prefabs/NetworkVehicle";
+import { parseCarModel } from "../../vehicle/prefabs/NetworkVehicle";
 import { getGeometry } from "three-physx";
 
 export default class ModelNode extends EditorNodeMixin(Model) {

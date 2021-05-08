@@ -2,12 +2,12 @@ import { detect, detectOS } from 'detect-browser';
 import { BufferGeometry, Mesh, PerspectiveCamera, Scene } from 'three';
 import { acceleratedRaycast, computeBoundsTree } from "three-mesh-bvh";
 import { CameraSystem } from './camera/systems/CameraSystem';
-import { CharacterControllerSystem } from './templates/character/CharacterControllerSystem';
+import { CharacterControllerSystem } from './character/CharacterControllerSystem';
 import { isMobileOrTablet } from './common/functions/isMobile';
 import { Timer } from './common/functions/Timer';
 import { DebugHelpersSystem } from './debug/systems/DebugHelpersSystem';
 import { Engine } from './ecs/classes/Engine';
-import { addIncomingEvents, addOutgoingEvents, EngineEvents, proxyEngineEvents as proxyEngineEvents } from './ecs/classes/EngineEvents';
+import { EngineEvents, proxyEngineEvents } from './ecs/classes/EngineEvents';
 import { execute, initialize } from "./ecs/functions/EngineFunctions";
 import { registerSystem } from './ecs/functions/SystemFunctions';
 import { SystemUpdateType } from "./ecs/functions/SystemUpdateType";
@@ -22,7 +22,7 @@ import { PhysicsSystem } from './physics/systems/PhysicsSystem';
 import { HighlightSystem } from './renderer/HighlightSystem';
 import { WebGLRendererSystem } from './renderer/WebGLRendererSystem';
 import { ServerSpawnSystem } from './scene/systems/SpawnSystem';
-import { AnimationManager } from './templates/character/prefabs/NetworkPlayerCharacter';
+import { AnimationManager } from "./character/AnimationManager";
 import { TransformSystem } from './transform/systems/TransformSystem';
 import { createWorker, WorkerProxy } from './worker/MessageQueue';
 import { XRSystem } from './xr/systems/XRSystem';
@@ -33,6 +33,7 @@ import { GameManagerSystem } from './game/systems/GameManagerSystem';
 import { DefaultInitializationOptions } from './DefaultInitializationOptions';
 import _ from 'lodash';
 import { ClientNetworkStateSystem } from './networking/systems/ClientNetworkStateSystem';
+import { loadScene } from './scene/functions/SceneLoading';
 // import { PositionalAudioSystem } from './audio/systems/PositionalAudioSystem';
 
 Mesh.prototype.raycast = acceleratedRaycast;
@@ -84,9 +85,11 @@ export const initializeEngine = async (initOptions): Promise<void> => {
 
   } else {
     Engine.scene = new Scene();
-    addIncomingEvents()
+    EngineEvents.instance.once(EngineEvents.EVENTS.LOAD_SCENE, ({ sceneData }) => { loadScene(sceneData); })
+    EngineEvents.instance.once(EngineEvents.EVENTS.JOINED_WORLD, () => {
+      EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENABLE_SCENE, enable: true });
+    })
   }
-  addOutgoingEvents()
 
   Engine.publicPath = location.origin;
 

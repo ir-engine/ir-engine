@@ -13,6 +13,7 @@ import {
   instanceServerProvisioned,
   instanceServerProvisioning
 } from './actions';
+import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport';
 
 const store = Store.store;
 
@@ -42,7 +43,7 @@ export function provisionInstanceServer(locationId?: string, instanceId?: string
       dispatch(instanceServerProvisioned(provisionResult, locationId, sceneId));
     } else {
       EngineEvents.instance.dispatchEvent({
-        type: EngineEvents.EVENTS.PROVISION_INSTANCE_NO_GAMESERVERS_AVAILABLE
+        type: SocketWebRTCClientTransport.EVENTS.PROVISION_INSTANCE_NO_GAMESERVERS_AVAILABLE
       });
     }
   };

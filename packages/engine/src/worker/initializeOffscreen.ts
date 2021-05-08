@@ -17,23 +17,24 @@ import { HighlightSystem } from '../renderer/HighlightSystem';
 import { WebGLRendererSystem } from '../renderer/WebGLRendererSystem';
 import { ServerSpawnSystem } from '../scene/systems/SpawnSystem';
 import { StateSystem } from '../state/systems/StateSystem';
-import { CharacterInputSchema } from '../templates/character/CharacterInputSchema';
-import { DefaultNetworkSchema } from '../templates/networking/DefaultNetworkSchema';
+import { CharacterInputSchema } from '../character/CharacterInputSchema';
+import { DefaultNetworkSchema } from '../networking/templates/DefaultNetworkSchema';
 import { TransformSystem } from '../transform/systems/TransformSystem';
 import { MainProxy } from './MessageQueue';
 import { ActionSystem } from '../input/systems/ActionSystem';
 import { EngineEvents } from '../ecs/classes/EngineEvents';
-import { proxyEngineEvents, addIncomingEvents } from '../ecs/classes/EngineEvents';
+import { proxyEngineEvents } from '../ecs/classes/EngineEvents';
 import { XRSystem } from '../xr/systems/XRSystem';
 // import { PositionalAudioSystem } from './audio/systems/PositionalAudioSystem';
 import { receiveWorker } from './MessageQueue';
-import { AnimationManager } from '../templates/character/prefabs/NetworkPlayerCharacter';
-import { CharacterControllerSystem } from '../templates/character/CharacterControllerSystem';
+import { AnimationManager } from "../character/AnimationManager";
+import { CharacterControllerSystem } from '../character/CharacterControllerSystem';
 import { UIPanelSystem } from '../ui/systems/UIPanelSystem';
 //@ts-ignore
 import PhysXWorker from '../physics/functions/loadPhysX.ts?worker';
 import { PhysXInstance } from "three-physx";
 import { ClientNetworkStateSystem } from '../networking/systems/ClientNetworkStateSystem';
+import { loadScene } from '../scene/functions/SceneLoading';
 
 Mesh.prototype.raycast = acceleratedRaycast;
 BufferGeometry.prototype["computeBoundsTree"] = computeBoundsTree;
@@ -61,10 +62,12 @@ export const DefaultOffscreenInitializationOptions = {
 const initializeEngineOffscreen = async ({ canvas, userArgs }, proxy: MainProxy) => {
   const { initOptions, useOfflineMode, postProcessing } = userArgs;
   const options = _.defaultsDeep({}, initOptions, DefaultOffscreenInitializationOptions);
-  console.log(options)
 
   proxyEngineEvents(proxy);
-  addIncomingEvents();
+  EngineEvents.instance.once(EngineEvents.EVENTS.LOAD_SCENE, ({ sceneData }) => { loadScene(sceneData); })
+  EngineEvents.instance.once(EngineEvents.EVENTS.JOINED_WORLD, () => {
+    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENABLE_SCENE, enable: true });
+  })
 
   initialize();
   Engine.scene = new Scene();

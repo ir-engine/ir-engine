@@ -1,4 +1,4 @@
-import { Body } from "three-physx";
+import type { Body, ColliderHitEvent } from "three-physx";
 import { Component } from '../../ecs/classes/Component';
 import { Types } from '../../ecs/types/Types';
 
@@ -17,6 +17,7 @@ export class ColliderComponent extends Component<ColliderComponent> {
   mesh: any
   vertices: any
   indices: any
+  collisions: ColliderHitEvent[] = [];
 }
 
 ColliderComponent._schema = {

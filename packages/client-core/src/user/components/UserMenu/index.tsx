@@ -87,13 +87,7 @@ const UserMenu = (props: UserMenuProps): any => {
 
   const [username, setUsername] = useState(selfUser?.name);
   const [userSetting, setUserSetting] = useState(selfUser?.user_setting);
-  const [graphics, setGraphicsSetting] = useState({
-    resolution: WebGLRendererSystem.scaleFactor,
-    shadows: WebGLRendererSystem.shadowQuality,
-    automatic: WebGLRendererSystem.automatic,
-    pbr: WebGLRendererSystem.usePBR,
-    postProcessing: WebGLRendererSystem.usePostProcessing
-  });
+  const [graphics, setGraphicsSetting] = useState({});
   
   const onEngineLoaded = () => {
     setEngineLoaded(true);

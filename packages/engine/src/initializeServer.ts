@@ -1,11 +1,10 @@
 import _ from 'lodash';
 import { BufferGeometry, Mesh, Scene } from 'three';
 import { acceleratedRaycast, computeBoundsTree } from "three-mesh-bvh";
-import { CharacterControllerSystem } from './templates/character/CharacterControllerSystem';
+import { CharacterControllerSystem } from './character/CharacterControllerSystem';
 import { Timer } from './common/functions/Timer';
 import { DefaultInitializationOptions } from './DefaultInitializationOptions';
 import { Engine } from './ecs/classes/Engine';
-import { addIncomingEvents, addOutgoingEvents, EngineEvents } from './ecs/classes/EngineEvents';
 import { execute, initialize } from "./ecs/functions/EngineFunctions";
 import { registerSystem } from './ecs/functions/SystemFunctions';
 import { SystemUpdateType } from "./ecs/functions/SystemUpdateType";
@@ -21,6 +20,8 @@ import { GameManagerSystem } from './game/systems/GameManagerSystem';
 import { TransformSystem } from './transform/systems/TransformSystem';
 import Worker from 'web-worker'
 import path from 'path';
+import { EngineEvents } from './ecs/classes/EngineEvents';
+import { loadScene } from './scene/functions/SceneLoading';
 // import { PositionalAudioSystem } from './audio/systems/PositionalAudioSystem';
 
 Mesh.prototype.raycast = acceleratedRaycast;
@@ -33,9 +34,11 @@ export const initializeServer = async (initOptions: any = DefaultInitializationO
   Engine.publicPath = options.publicPath;
   Network.instance = new Network();
 
-  addIncomingEvents()
-  addOutgoingEvents()
-
+  EngineEvents.instance.once(EngineEvents.EVENTS.LOAD_SCENE, ({ sceneData }) => { loadScene(sceneData); })
+  EngineEvents.instance.once(EngineEvents.EVENTS.JOINED_WORLD, () => {
+    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENABLE_SCENE, enable: true });
+  })
+  
   initialize();
 
   const networkSystemOptions = { schema: options.networking.schema, app: options.networking.app };

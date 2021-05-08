@@ -1,22 +1,24 @@
 import { createNetworkRigidBody } from '../../interaction/prefabs/NetworkRigidBody';
 import { NetworkObject } from '../components/NetworkObject';
-import { createNetworkPlayer } from '../../templates/character/prefabs/NetworkPlayerCharacter';
-import { createNetworkVehicle } from '../../templates/vehicle/prefabs/NetworkVehicle';
-import { IKComponent } from '../../templates/character/components/IKComponent';
+import { createNetworkPlayer } from '../../character/prefabs/NetworkPlayerCharacter';
+import { createNetworkVehicle } from '../../vehicle/prefabs/NetworkVehicle';
+import { IKComponent } from '../../character/components/IKComponent';
 import { addComponent, getComponent, getMutableComponent, hasComponent, removeEntity } from '../../ecs/functions/EntityFunctions';
-import { CharacterComponent } from "../../templates/character/components/CharacterComponent";
-import { NetworkObjectUpdateSchema } from '../../templates/networking/NetworkObjectUpdateSchema';
+import { CharacterComponent } from "../../character/components/CharacterComponent";
+import { NetworkObjectUpdateSchema } from '../../networking/templates/NetworkObjectUpdateSchema';
 import { initiateIK } from "../../xr/functions/IKFunctions";
 import { Network } from '../classes/Network';
 import { addSnapshot, createSnapshot } from '../functions/NetworkInterpolationFunctions';
 import { WorldStateInterface } from "../interfaces/WorldState";
 import { StateEntityIK } from "../types/SnapshotDataTypes";
-import { PrefabType } from '../../templates/networking/PrefabType';
+import { PrefabType } from '../../networking/templates/PrefabType';
 import { GameStateActionMessage, GameStateUpdateMessage } from '../../game/types/GameMessage';
 import { applyActionComponent } from '../../game/functions/functionsActions';
 import { applyStateToClient } from '../../game/functions/functionsState';
 import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType';
 import { System } from '../../ecs/classes/System';
+import { EngineEvents } from '../../ecs/classes/EngineEvents';
+import { ClientNetworkSystem } from './ClientNetworkSystem';
 
 /**
  * Apply State received over the network to the client.
@@ -73,15 +75,11 @@ function syncPhysicsObjects(objectToCreate) {
 /** System class for network system of client. */
 export class ClientNetworkStateSystem extends System {
 
-  static EVENTS = {
-    CONNECT: 'CLIENT_NETWORK_SYSTEM_CONNECT',
-    SEND_DATA: 'CLIENT_NETWORK_SYSTEM_SEND_DATA',
-    RECEIVE_DATA: 'CLIENT_NETWORK_SYSTEM_RECEIVE_DATA',
-  }
   /** Update type of this system. **Default** to
      * {@link ecs/functions/SystemUpdateType.SystemUpdateType.Fixed | Fixed} type. */
   updateType = SystemUpdateType.Fixed;
-  static receivedServerState = [];
+  receivedServerState = [];
+  instance: ClientNetworkStateSystem;
 
   /**
    * Constructs the system. Adds Network Components, initializes transport and initializes server.
@@ -89,6 +87,18 @@ export class ClientNetworkStateSystem extends System {
    */
   constructor(attributes: any) {
     super(attributes);
+    ClientNetworkStateSystem.instance = this;
+    
+    EngineEvents.instance.once(EngineEvents.EVENTS.CONNECT_TO_WORLD, ({ worldState }) => { 
+      ClientNetworkStateSystem.instance.receivedServerState.push(worldState);
+    });
+    EngineEvents.instance.once(EngineEvents.EVENTS.JOINED_WORLD, ({ worldState }) => {
+      ClientNetworkStateSystem.instance.receivedServerState.push(worldState);
+      EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENABLE_SCENE, enable: true });
+    })
+    EngineEvents.instance.addEventListener(ClientNetworkSystem.EVENTS.RECEIVE_DATA, ({ unbufferedState, delta }) => {
+      ClientNetworkStateSystem.instance.receivedServerState.push(unbufferedState);
+    })
   }
 
   /**
@@ -99,8 +109,8 @@ export class ClientNetworkStateSystem extends System {
    */
   execute = (delta: number): void => {
 
-    const receivedClientInput = [...ClientNetworkStateSystem.receivedServerState];
-    ClientNetworkStateSystem.receivedServerState = [];
+    const receivedClientInput = [...this.receivedServerState];
+    this.receivedServerState = [];
     receivedClientInput?.forEach((worldStateBuffer: WorldStateInterface) => {
       if (Network.tick < worldStateBuffer.tick - 1) {
         // we dropped packets

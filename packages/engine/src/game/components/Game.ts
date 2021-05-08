@@ -1,10 +1,7 @@
 import { Component } from "../../ecs/classes/Component";
 import { Entity } from '../../ecs/classes/Entity';
 import { Types } from "../../ecs/types/Types";
-import { GameObjectPrefab } from "../interfaces/GameObjectPrefab";
-import { GameMode, StateObject } from "../types/GameMode";
-import { GameObject } from "./GameObject";
-import { GamePlayer } from "./GamePlayer";
+import { StateObject } from "../types/GameMode";
 /**
  * @author HydraFire <github.com/HydraFire>
  */

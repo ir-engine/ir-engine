@@ -3,8 +3,7 @@ module.exports = {
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'mjs', 'json'],
   testEnvironment: 'jsdom',
   transform: {
-    '^.+\\.(ts|tsx)?$': 'ts-jest',
-    "^.+\\.(js|jsx)?$": "babel-jest",
+    '^.+\\.(ts|tsx)?$': 'ts-jest'
   },
   setupFilesAfterEnv: [
       './tests/setup.js'
