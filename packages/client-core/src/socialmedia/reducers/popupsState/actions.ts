@@ -53,10 +53,11 @@ export function changeNewFeedPage (state): PopupsActions {
   };
 }
 
-export function changeShareForm (state): PopupsActions {
+export function changeShareForm (state, id): PopupsActions {
   return {
     type: CHANGE_SHARE_FORM_STATE,
     state,
+    id
   };
 }
 

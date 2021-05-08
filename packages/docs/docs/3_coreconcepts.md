@@ -7,7 +7,7 @@ title: Core Concepts
 
 XREngine is, at it's core, a set of interoperable packages, which are in turn built on popular web frameworks and the Node.js ecosystem.
 
-It can be very daunting for developers new to our ecosystem to know where to start, or what they even need to know to get started. We recommend you start by reading a bit about the underlying dependencies first, so that when you dive into the code you aren't overwhelmed with trying to understand and map so many foreign concepts at the same time. You can read about dependencies in the DEPENDENCIES section.
+It can be very daunting for developers new to our ecosystem to know where to start, or what they even need to know to get started. We recommend you start by reading a bit about the underlying dependencies first, so that when you dive into the code you aren't overwhelmed with trying to understand and map so many foreign concepts at the same time. You can read about dependencies in the ARCHITECTURE section.
 
 Our decision for one design concept or framework over another was largely driven by a desire to reach as many people as possible while staying current to emerging ecosystem trends. We want developers to see our engine as an opportunity to build highly relevant skills, and we have tried to incorporate popular solutions wherever writing our own wasn't necessary. You may not agree with some of our framework decisions. Just know that we are driven not by a love for one framework or another, but a desire to minimize the learning curve for the most people coming to this engine for the first time. The engine is designed in a modular way, however, so you are free to pick and choose the parts the work for you and modify what doesn't.
 
@@ -72,10 +72,10 @@ To accomodate large scale MMO worlds we need to either build a network of portal
 
 Under the hood, we are using a game server fleet management tool called Agones, which leverages the power of Kubernetes to spin up new pods running game server instances. One benefit of this architecture is that the game server can be built in anything -- Unity, Unreal, golang, etc. We provide a ready-made game server in Node.js already integrated for virtual worlds, but you're free to modify this however you want.
 
-Pods? Game servers? Kubernetes? Yes, there's a lot there. If you're interested in the scalable deployment and infrastructure, this is covered in more detail in the DEPENDENCIES section.
+Pods? Game servers? Kubernetes? Yes, there's a lot there. If you're interested in the scalable deployment and infrastructure, this is covered in more detail in the ARCHITECTURE section.
 
 For everyone else, well, we've spent a lot of effort building the core stack to include a "just works" architecture. If you are just starting out and using our whole multiplayer stack then we recommend leaving the scalability to us until you feel comfortable with the rest of the architecture.
 
 ## Cross-Platform
 
-While XREngine is built using popular web technologies and should work in all popular browsers, we've added some examples for building to iOS, Android and Electron without having to change a single line of code in your application. For more information on how this works, please consult the DEPENDENCIES section. For build instructions, consult the DEPLOYMENT section.
+While XREngine is built using popular web technologies and should work in all popular browsers, we've added some examples for building to iOS, Android and Electron without having to change a single line of code in your application. For more information on how this works, please consult the ARCHITECTURE section. For build instructions, consult the DEPLOYMENT section.

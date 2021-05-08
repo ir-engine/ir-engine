@@ -21,6 +21,7 @@ export const initialPopupState = {
     shareFeedPage: false,
     arMedia: false,
     shareForm: false,
+    videoUrl: null,
   },
 };
 
@@ -33,7 +34,7 @@ const popupsStateReducer = (state = immutableState, action: PopupsActions): any 
     case CHANGE_FEED_PAGE_STATE : return state.set('feedPage', (action as PopupsActions).state).set('feedId', (action as PopupsActions).id);
     case CHANGE_ARMEDIA_CHOOSE_STATE : return state.set('arMedia', (action as PopupsActions).state);
     case CHANGE_NEW_FEED_PAGE_STATE : return state.set('shareFeedPage', (action as PopupsActions).state);
-    case CHANGE_SHARE_FORM_STATE : return state.set('shareForm', (action as PopupsActions).state);
+    case CHANGE_SHARE_FORM_STATE : return state.set('shareForm', (action as PopupsActions).state).set('videoUrl', (action as PopupsActions).id);
   }
   return state;
 };

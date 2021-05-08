@@ -17,7 +17,7 @@ import { getLoggedCreator } from "../../reducers/creator/service";
 import { selectAuthState } from "../../../user/reducers/auth/selector";
 // import { PopupLogin } from "../PopupLogin/PopupLogin";
 // import IndexPage from "@xrengine/social/pages/login";
-import { updateArMediaState, updateCreatorFormState, updateCreatorPageState, updateFeedPageState, updateNewFeedPageState } from "../../reducers/popupsState/service";
+import { updateArMediaState, updateCreatorFormState, updateCreatorPageState, updateFeedPageState, updateNewFeedPageState, updateShareFormState } from "../../reducers/popupsState/service";
 import { selectPopupsState } from "../../reducers/popupsState/selector";
 import ViewMode from "../ViewMode/ViewMode";
 
@@ -36,6 +36,7 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
   updateCreatorFormState: bindActionCreators(updateCreatorFormState, dispatch),
   updateFeedPageState: bindActionCreators(updateFeedPageState, dispatch),
   updateArMediaState: bindActionCreators(updateArMediaState, dispatch),
+  updateShareFormState: bindActionCreators(updateShareFormState, dispatch),
 });
 interface Props{
   creatorState?:any;
@@ -47,8 +48,10 @@ interface Props{
   updateCreatorFormState?:typeof updateCreatorFormState;
   updateFeedPageState?:typeof updateFeedPageState;
   updateArMediaState?:typeof updateArMediaState;
+  updateShareFormState?: typeof updateShareFormState;
 }
-const AppFooter = ({creatorState, getLoggedCreator, authState, updateCreatorPageState, popupsState, updateCreatorFormState, updateFeedPageState, updateArMediaState}: Props) => {
+const AppFooter = ({creatorState, getLoggedCreator, authState, updateCreatorPageState, popupsState, 
+  updateCreatorFormState, updateFeedPageState, updateArMediaState, updateShareFormState}: Props) => {
   useEffect(()=>getLoggedCreator(),[]);
 
   // const checkGuest = authState.get('authUser')?.identityProvider?.type === 'guest' ? true : false;
@@ -60,7 +63,9 @@ const AppFooter = ({creatorState, getLoggedCreator, authState, updateCreatorPage
     updateCreatorPageState(false);
     updateCreatorFormState(false);
     updateFeedPageState(false);
+    updateNewFeedPageState(false);
     updateArMediaState(false);
+    updateShareFormState(false);
   };
 
   return (

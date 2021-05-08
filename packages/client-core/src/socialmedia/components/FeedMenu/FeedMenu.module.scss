@@ -24,23 +24,27 @@
             width: max-content;
             margin: 0px 5px;
             color: #8a8a8e;
-            font-size: 13px;
-            font-weight: bold;
+            font-size: 13pt;
+            font-family: "SFProText-Regular";
+
+            &:global(.MuiButton-root){
+                text-transform: none;
+            }
         }
         .active{
             color: #FFFFFF;
             
             &.featuredButton{
-                background-color: #CB3332;
+                background-color: rgb(203, 51, 50);
             }
             &.creatorsButton{
-                background-color: #CA3E7B;
+                background-color: rgb(202, 62, 123);
             }
             &.thefeedButton{
                 background-color: #F2AD31;
             }
             &.tipsandtricksButton{
-                background-color: #007AFF;
+                background-color: rgb(0, 122, 255);
             }
         }
     }

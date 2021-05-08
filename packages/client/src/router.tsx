@@ -12,6 +12,9 @@ export const RouterComp = () => {
             <Route path="/" component={React.lazy(() => import('./pages/index'))} exact />
             <Route path="/login" component={React.lazy(() => import('./pages/login'))} />
 
+            {/* Example Routes */}
+            <Route path="/examples/helloworld" component={React.lazy(() => import('./pages/examples/ecs_helloworld'))} />
+
             {/* Admin Routes */}
             <Route path="/admin/content-packs" component={React.lazy(() => import('./pages/admin/content-packs'))} />
             <Route path="/admin/groups" component={React.lazy(() => import('./pages/admin/groups'))} />

@@ -56,6 +56,10 @@ export const initializeServer = async (initOptions: any = DefaultInitializationO
   registerSystem(TransformSystem, { priority: 900 });
   registerSystem(GameManagerSystem);// { priority: 901 });
 
+  await Promise.all(Engine.systems.map((system) => { 
+    return new Promise<void>(async (resolve) => { await system.initialize(); system.initialized = true; resolve(); }) 
+  }));
+
   Engine.engineTimer = Timer({
     networkUpdate: (delta: number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Network),
     fixedUpdate: (delta: number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Fixed),
