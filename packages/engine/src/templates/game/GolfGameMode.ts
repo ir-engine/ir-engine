@@ -65,6 +65,18 @@ export const GolfGameMode: GameMode = {
     }
   },
   gameObjectRoles: {
+    'GolfBall': {
+      'hit':[
+        {
+          behavior: giveUpOrDownState,
+          args: { on: 'me', give: 'up' },
+          checkers:[{
+            function: isPlayersInGame,
+            args: { invert: false }
+          }]
+        },
+      ]
+    },
     'StartGamePanel': {
       'actionUp': [
         {

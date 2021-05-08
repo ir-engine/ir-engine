@@ -1,6 +1,6 @@
 import { PhysicsSystem } from '../systems/PhysicsSystem';
 import { CollisionGroups } from "../enums/CollisionGroups";
-import { createShapeFromConfig, Shape, SHAPES, Body, BodyType, getGeometry, arrayOfPointsToArrayOfVector3, CollisionEvents } from "three-physx";
+import { createShapeFromConfig, Shape, SHAPES, Body, BodyType, getGeometry, arrayOfPointsToArrayOfVector3, CollisionEvents, ControllerEvents } from "three-physx";
 import { Entity } from '../../ecs/classes/Entity';
 import { ColliderComponent } from '../components/ColliderComponent';
 import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
@@ -21,7 +21,7 @@ export function addColliderWithEntity(entity: Entity) {
   const { mesh, vertices, indices } = colliderComponent;
 
   const body = addColliderWithoutEntity(
-    { type: colliderComponent.type },
+    { bodytype: colliderComponent.bodytype, type: colliderComponent.type },
     transformComponent.position,
     transformComponent.rotation,
     transformComponent.scale,
@@ -62,7 +62,7 @@ export function addColliderWithoutEntity(userData, pos = new Vector3(), rot = ne
 
     case 'sphere':
       shapeArgs.shape = SHAPES.Sphere;
-      shapeArgs.options = { radius: Math.abs(scale.x) };
+      shapeArgs.options = { radius: Math.abs(scale.x/10) };
       break;
 
     case 'capsule':
@@ -104,7 +104,7 @@ export function addColliderWithoutEntity(userData, pos = new Vector3(), rot = ne
 
   const bodyConfig = new Body({
     shapes: [shape],
-    type: BodyType.STATIC,
+    type: userData.bodytype === 'dynamic' ? BodyType.DYNAMIC : BodyType.STATIC,
     transform: {
       translation: { x: pos.x, y: pos.y, z: pos.z },
       rotation: { x: rot.x, y: rot.y, z: rot.z, w: rot.w },
@@ -113,7 +113,14 @@ export function addColliderWithoutEntity(userData, pos = new Vector3(), rot = ne
       angularVelocity: { x: 0, y: 0, z: 0 },
     }
   });
+  if (userData.bodytype === 'dynamic') {
+    setInterval(()=>{
+      console.warn('test');
 
+      bodyConfig.applyForce(new Vector3((Math.random()*30|0) - 15,1000,(Math.random()*30|0) - 15),new Vector3(0,0,1));
+    },5000)
+  };
+  //bodyConfig.addEventListener(CollisionEvents.COLLISION_START, (e) => { console.log(e)});
 
 
   const body: Body = PhysicsSystem.instance.addBody(bodyConfig);

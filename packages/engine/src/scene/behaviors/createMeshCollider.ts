@@ -9,7 +9,7 @@ import { addCollidersToNetworkVehicle } from '../../templates/vehicle/prefabs/Ne
  */
 
 export const createMeshCollider: Behavior = ( entity: Entity, args: any ) => { //{ data:string, type: string,}
-  // console.log('****** Collider from Scene data: ', args);
+   //console.log('****** Collider from Scene data: ', args);
 
   switch (args.objArgs.data) {
 
@@ -30,6 +30,7 @@ export const createMeshCollider: Behavior = ( entity: Entity, args: any ) => { /
     case 'dynamic':
       createNetworkRigidBody({
         parameters: {
+          bodytype: args.objArgs.data,
           type: args.objArgs.type,
           scale: args.objArgs.scale,
           position: args.objArgs.position,

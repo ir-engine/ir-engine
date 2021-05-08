@@ -7,6 +7,7 @@ import { Types } from '../../ecs/types/Types';
  */
 
 export class ColliderComponent extends Component<ColliderComponent> {
+  bodytype: any
   body: Body
   type: string
   mass: number
@@ -19,6 +20,7 @@ export class ColliderComponent extends Component<ColliderComponent> {
 }
 
 ColliderComponent._schema = {
+  bodytype: { type: Types.Ref, default: null },
   body: { type: Types.Ref, default: null },
   type: { type: Types.String, default: 'box' },
   mass: { type: Types.Number, default: 0 },

@@ -1,6 +1,6 @@
 import { DEFAULT_AVATAR_ID } from "@xrengine/common/src/constants/AvatarConstants";
 import { AnimationClip, AnimationMixer, Group, Material, Mesh, Object3D, Quaternion, Vector3 } from "three";
-import { Controller, getGeometry } from 'three-physx';
+import { Controller, ControllerEvents, getGeometry } from 'three-physx';
 import { AssetLoader } from "../../../assets/classes/AssetLoader";
 import { getLoader } from "../../../assets/functions/LoadGLTF";
 import { PositionalAudioComponent } from '../../../audio/components/PositionalAudioComponent';
@@ -256,7 +256,14 @@ const initializeCharacter: Behavior = (entity): void => {
 	    }
 	  }))
 	});
+	actor.actorCapsule.controller.addEventListener(ControllerEvents.CONTROLLER_SHAPE_HIT, (e) => {
 
+		 if(e.shape.id === 69) {
+			 console.log(e)
+		//	 e.applyForce(1000)
+		 }
+
+	 });
   // collider.controller.updateTransform({ translation: { x: transform.position.x, y: transform.position.y, z: transform.position.z }})
 	actor.initialized = true;
 	initializeMovingState(entity);
