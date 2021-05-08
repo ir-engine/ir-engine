@@ -5,7 +5,7 @@ import { isClient } from "../common/functions/isClient";
 import { EngineEvents } from "../ecs/classes/EngineEvents";
 import { System, SystemAttributes } from "../ecs/classes/System";
 import { Not } from "../ecs/functions/ComponentFunctions";
-import { getMutableComponent, getComponent, getRemovedComponent } from "../ecs/functions/EntityFunctions";
+import { getMutableComponent, getComponent, getRemovedComponent, getEntityByID } from "../ecs/functions/EntityFunctions";
 import { SystemUpdateType } from "../ecs/functions/SystemUpdateType";
 import { LocalInputReceiver } from "../input/components/LocalInputReceiver";
 import { physicsMove } from "../physics/behaviors/physicsMove";
@@ -18,16 +18,31 @@ import { AnimationComponent } from "./components/AnimationComponent";
 import { CharacterComponent } from "./components/CharacterComponent";
 import { IKComponent } from "./components/IKComponent";
 import { updateVectorAnimation } from "./functions/updateVectorAnimation";
+import { loadActorAvatar } from "./prefabs/NetworkPlayerCharacter";
 
 const forwardVector = new Vector3(0, 0, 1);
-const upVector = new Vector3(0, 1, 0);
 const prevControllerColliderPosition = new Vector3();
 
 export class CharacterControllerSystem extends System {
 
+  // Entity
+  static EVENTS = {
+    LOAD_AVATAR: "CHARCACTER_SYSTEM_LOAD_AVATAR",
+  }
+
   updateType = SystemUpdateType.Fixed;
   constructor(attributes?: SystemAttributes) {
     super(attributes);
+
+    EngineEvents.instance.addEventListener(CharacterControllerSystem.EVENTS.LOAD_AVATAR, ({ entityID, avatarId, avatarURL }) => {
+      const entity = getEntityByID(entityID)
+      const characterAvatar = getMutableComponent(entity, CharacterComponent);
+      if (characterAvatar != null) {
+        characterAvatar.avatarId = avatarId;
+        characterAvatar.avatarURL = avatarURL;
+      }
+      loadActorAvatar(entity)
+    })
   }
 
   /** Removes resize listener. */

@@ -1,12 +1,4 @@
-import { Network } from "../../networking/classes/Network";
-import { ClientNetworkStateSystem } from "../../networking/systems/ClientNetworkStateSystem";
-import { ClientNetworkSystem } from "../../networking/systems/ClientNetworkSystem";
-import { loadScene } from "../../scene/functions/SceneLoading";
-import { CharacterComponent } from "../../character/components/CharacterComponent";
-import { loadActorAvatar } from "../../character/prefabs/NetworkPlayerCharacter";
-import { MessageQueue } from "../../worker/MessageQueue";
-import { getEntityByID, getMutableComponent } from "../functions/EntityFunctions";
-import { Engine } from "./Engine";
+import type { MessageQueue } from "../../worker/MessageQueue";
 
 /**
  * 
@@ -28,15 +20,9 @@ const EVENTS = {
   // Start or stop client side physics & rendering
   ENABLE_SCENE: 'CORE_ENABLE_SCENE',
 
-  // Entity
-  LOAD_AVATAR: "CORE_LOAD_AVATAR",
-
   // MISC
   USER_ENGAGE: 'CORE_USER_ENGAGE',
   ENTITY_DEBUG_DATA: 'CORE_ENTITY_DEBUG_DATA', // to pipe offscreen entity data to UI
-  PROVISION_INSTANCE_NO_GAMESERVERS_AVAILABLE: 'CORE_PROVISION_INSTANCE_NO_GAMESERVERS_AVAILABLE',
-  PROVISION_CHANNEL_NO_GAMESERVERS_AVAILABLE: 'CORE_PROVISION_CHANNEL_NO_GAMESERVERS_AVAILABLE',
-  CONNECTION_LOST: 'CORE_CONNECTION_LOST',
 };
 
 /**
@@ -102,50 +88,6 @@ export class EngineEvents {
   }
 }
 
-/**
- * 
- * @author Josh Field <github.com/HexaField>
- */
-export const addIncomingEvents = () => {
-
-  // INITIALIZATION
-  EngineEvents.instance.once(EngineEvents.EVENTS.LOAD_SCENE, ({ sceneData }) => { loadScene(sceneData); })
-  EngineEvents.instance.once(EngineEvents.EVENTS.USER_ENGAGE, () => { Engine.hasUserEngaged = true; });
-  EngineEvents.instance.once(EngineEvents.EVENTS.CONNECT_TO_WORLD, ({ worldState }) => { 
-    ClientNetworkStateSystem.receivedServerState.push(worldState);
-  });
-  EngineEvents.instance.once(EngineEvents.EVENTS.JOINED_WORLD, ({ worldState }) => {
-    ClientNetworkStateSystem.receivedServerState.push(worldState);
-    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENABLE_SCENE, enable: true });
-  })
-
-  // RUNTIME
-  EngineEvents.instance.addEventListener(ClientNetworkSystem.EVENTS.RECEIVE_DATA, ({ unbufferedState, delta }) => {
-    ClientNetworkStateSystem.receivedServerState.push(unbufferedState);
-  })
-  EngineEvents.instance.addEventListener(EngineEvents.EVENTS.LOAD_AVATAR, ({ entityID, avatarId, avatarURL }) => {
-    const entity = getEntityByID(entityID)
-    const characterAvatar = getMutableComponent(entity, CharacterComponent);
-    if (characterAvatar != null) {
-      characterAvatar.avatarId = avatarId;
-      characterAvatar.avatarURL = avatarURL;
-    }
-    loadActorAvatar(entity)
-  })
-}
-
-/**
- * 
- * @author Josh Field <github.com/HexaField>
- */
-export const addOutgoingEvents = () => {
-
-  // RUNTIME
-  EngineEvents.instance.addEventListener(ClientNetworkSystem.EVENTS.SEND_DATA, ({ buffer }) => {
-    Network.instance.transport.sendReliableData(buffer);
-    // Network.instance.transport.sendData(buffer);
-  });
-}
 /**
  * 
  * @author Josh Field <github.com/HexaField>

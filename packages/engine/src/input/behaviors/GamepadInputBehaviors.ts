@@ -7,6 +7,16 @@ import { Input } from "../components/Input";
 import { BaseInput } from "../enums/BaseInput";
 import { LifecycleValue } from "../../common/enums/LifecycleValue";
 import { Engine } from "../../ecs/classes/Engine";
+/**
+* @property {Boolean} gamepadConnected Connection a new gamepad
+* @property {Number} gamepadThreshold Threshold value from 0 to 1
+* @property {Binary[]} gamepadButtons Map gamepad buttons
+* @property {Number[]} gamepadInput Map gamepad buttons to abstract input
+*/
+let gamepadConnected = false;
+const gamepadThreshold = 0.1;
+const gamepadButtons: BinaryValue[] = [];
+const gamepadInput: number[] = [];
 
 const inputPerGamepad = 2;
 let input: Input;
@@ -26,7 +36,7 @@ let _index: number; // temp var for iterator loops
  */
 export const handleGamepads = () => {
   // Get an immutable reference to input
-  if (!Engine.gamepadConnected) return;
+  if (!gamepadConnected) return;
   // Get gamepads from the DOM
   gamepads = navigator.getGamepads();
 
@@ -81,14 +91,14 @@ export const handleGamepads = () => {
 const handleGamepadButton = (
   args: { gamepad: Gamepad; index: number; mappedInputValue: InputAlias }
 ) => {
-  if (gamepad.buttons[args.index].touched === (Engine.gamepadButtons[args.index] === BinaryValue.ON)) return;
+  if (gamepad.buttons[args.index].touched === (gamepadButtons[args.index] === BinaryValue.ON)) return;
   // Set input data
   input.data.set(gamepadMapping[args.gamepad.mapping || 'standard'][args.index], {
     type: InputType.BUTTON,
     value: gamepad.buttons[args.index].touched ? BinaryValue.ON : BinaryValue.OFF,
     lifecycleState: gamepad.buttons[args.index].touched? LifecycleValue.STARTED : LifecycleValue.ENDED
   });
-  Engine.gamepadButtons[args.index] = gamepad.buttons[args.index].touched ? 1 : 0;
+  gamepadButtons[args.index] = gamepad.buttons[args.index].touched ? 1 : 0;
 };
 
 /**
@@ -105,16 +115,16 @@ export const handleGamepadAxis = (
   const xIndex = inputBase;
   const yIndex = inputBase + 1;
 
-  x = applyThreshold(gamepad.axes[xIndex], Engine.gamepadThreshold);
-  y = applyThreshold(gamepad.axes[yIndex], Engine.gamepadThreshold);
+  x = applyThreshold(gamepad.axes[xIndex], gamepadThreshold);
+  y = applyThreshold(gamepad.axes[yIndex], gamepadThreshold);
   if (args.mappedInputValue === BaseInput.MOVEMENT_PLAYERONE) {
     const tmpX = x;
     x = -y;
     y = -tmpX;
   }
 
-  prevLeftX = Engine.gamepadInput[xIndex];
-  prevLeftY = Engine.gamepadInput[yIndex];
+  prevLeftX = gamepadInput[xIndex];
+  prevLeftY = gamepadInput[yIndex];
 
   // Axis has changed, so get mutable reference to Input and set data
   if (x !== prevLeftX || y !== prevLeftY) {
@@ -123,8 +133,8 @@ export const handleGamepadAxis = (
       value: [x, y]
     });
 
-    Engine.gamepadInput[xIndex] = x;
-    Engine.gamepadInput[yIndex] = y;
+    gamepadInput[xIndex] = x;
+    gamepadInput[yIndex] = y;
   }
 };
 
@@ -141,11 +151,11 @@ export const handleGamepadConnected = (args: { event: any }): void => {
     console.error('Non-standard gamepad mapping detected, it could be handled not properly.');
   }
 
-  Engine.gamepadConnected = true;
+  gamepadConnected = true;
   gamepad = args.event.gamepad;
 
   for (let index = 0; index < gamepad.buttons.length; index++) {
-    if (typeof Engine.gamepadButtons[index] === 'undefined') Engine.gamepadButtons[index] = 0;
+    if (typeof gamepadButtons[index] === 'undefined') gamepadButtons[index] = 0;
   }
 };
 
@@ -159,20 +169,20 @@ export const handleGamepadDisconnected = (args: { event: any }): void => {
   // Get immutable reference to Input and check if the button is defined -- ignore undefined buttons
   console.log('A gamepad disconnected:', args.event.gamepad);
 
-  Engine.gamepadConnected = false;
+  gamepadConnected = false;
 
-  if (!input.schema || !Engine.gamepadButtons) return; // Already disconnected?
+  if (!input.schema || !gamepadButtons) return; // Already disconnected?
 
-  for (let index = 0; index < Engine.gamepadButtons.length; index++) {
+  for (let index = 0; index < gamepadButtons.length; index++) {
     if (
-      Engine.gamepadButtons[index] === BinaryValue.ON
+      gamepadButtons[index] === BinaryValue.ON
     ) {
       input.data.set(gamepadMapping[args.event.gamepad.mapping || 'standard'][index], {
         type: InputType.BUTTON,
         value: BinaryValue.OFF
       });
     }
-    Engine.gamepadButtons[index] = 0;
+    gamepadButtons[index] = 0;
   }
 };
 

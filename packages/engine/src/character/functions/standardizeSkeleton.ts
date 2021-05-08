@@ -9,8 +9,8 @@ export const standardizeSkeletion = (target: SkinnedMesh, source: SkinnedMesh) =
   const sourceBones = GetBones(source.skeleton);
   Object.values(targetBones).forEach((element, id) => {
     const boneType = Object.keys(targetBones)[id];
-    console.log("Target bone is", element.name);
-    console.log("Source bone is", sourceBones[boneType].name);
+    // console.log("Target bone is", element.name);
+    // console.log("Source bone is", sourceBones[boneType].name);
     element.name = sourceBones[boneType].name;
   })
 
@@ -25,8 +25,8 @@ export const standardizeSkeletion = (target: SkinnedMesh, source: SkinnedMesh) =
 
 
 const GetBones = (skeleton) => {
-  console.log("Getting bones!");
-  console.log(skeleton);
+  // console.log("Getting bones!");
+  // console.log(skeleton);
   const findClosestChildBone = (bone, pred) => {
     const _recurse = bone => {
       if (pred(bone)) {

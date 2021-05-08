@@ -193,7 +193,7 @@ export const EnginePage = (props: Props) => {
       init(locationName);
     } else {
       doLoginAuto(true);
-      EngineEvents.instance.addEventListener(EngineEvents.EVENTS.PROVISION_INSTANCE_NO_GAMESERVERS_AVAILABLE, () => setNoGameserverProvision(true));
+      EngineEvents.instance.addEventListener(SocketWebRTCClientTransport.EVENTS.PROVISION_INSTANCE_NO_GAMESERVERS_AVAILABLE, () => setNoGameserverProvision(true));
     }
   }, []);
 

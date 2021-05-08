@@ -16,7 +16,7 @@ import OutlinePass from "./OutlinePass";
 import configurePostProcessing from "./RendererPostProcessing";
 import PostProcessingNode from "../nodes/PostProcessingNode";
 import { CSM } from '../../assets/csm/CSM'
-import { Engine } from "../../ecs/classes/Engine";
+import { WebGLRendererSystem } from "../../renderer/WebGLRendererSystem";
 /**
  * @author mrdoob / http://mrdoob.com/
  */
@@ -197,17 +197,18 @@ export default class Renderer {
     this.screenshotRenderer = makeRenderer(1920, 1080);
     const camera = editor.camera;
     this.camera = camera;
+    /** @todo */
     // Cascaded shadow maps
-    const csm = new CSM({
-      cascades: 4,
-      lightIntensity: 1,
-      shadowMapSize: 2048,
-      maxFar: 100,
-      camera: camera,
-      parent: editor.scene
-    });
-    csm.fade = true;
-    Engine.csm = csm;
+    // const csm = new CSM({
+    //   cascades: 4,
+    //   lightIntensity: 1,
+    //   shadowMapSize: 2048,
+    //   maxFar: 100,
+    //   camera: camera,
+    //   parent: editor.scene
+    // });
+    // csm.fade = true;
+    // WebGLRendererSystem.instance.csm = csm;
     this.willusePostProcessing=false;
     PostProcessingNode.postProcessingCallback=(node,isRemoved=false)=>{
       this.node=node;
@@ -217,7 +218,7 @@ export default class Renderer {
   }
   update(dt, _time) {
     this.renderer.info.reset();
-    // Engine.csm.update();
+    // WebGLRendererSystem.instance.csm.update();
     if(this.willusePostProcessing)
       this.composer.render(dt);
     else
@@ -253,7 +254,7 @@ export default class Renderer {
       containerEl.offsetHeight,
       false
     );
-    // Engine.csm.updateFrustums();
+    // WebGLRendererSystem.instance.csm.updateFrustums();
     this.renderMode.onResize();
 
     if(this.willusePostProcessing){
