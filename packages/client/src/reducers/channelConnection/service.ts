@@ -14,6 +14,7 @@ import {
   channelServerProvisioned,
   channelServerProvisioning
 } from './actions';
+import { SocketWebRTCClientTransport } from "../../transports/SocketWebRTCClientTransport";
 
 const store = Store.store;
 

@@ -13,6 +13,7 @@ import {
   instanceServerProvisioned,
   instanceServerProvisioning
 } from './actions';
+import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport';
 
 const store = Store.store;
 

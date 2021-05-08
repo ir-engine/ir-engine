@@ -14,7 +14,7 @@ import { Engine } from "../../ecs/classes/Engine";
 * @property {Number[]} gamepadInput Map gamepad buttons to abstract input
 */
 let gamepadConnected = false;
-let gamepadThreshold = 0.1;
+const gamepadThreshold = 0.1;
 const gamepadButtons: BinaryValue[] = [];
 const gamepadInput: number[] = [];
 
