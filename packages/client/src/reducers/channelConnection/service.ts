@@ -41,7 +41,7 @@ export function provisionChannelServer(instanceId?: string, channelId?: string) 
       dispatch(channelServerProvisioned(provisionResult, channelId));
     } else {
       EngineEvents.instance.dispatchEvent({
-        type: EngineEvents.EVENTS.PROVISION_CHANNEL_NO_GAMESERVERS_AVAILABLE
+        type: SocketWebRTCClientTransport.EVENTS.PROVISION_CHANNEL_NO_GAMESERVERS_AVAILABLE
       });
     }
   };

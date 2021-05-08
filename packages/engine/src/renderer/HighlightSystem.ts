@@ -26,9 +26,9 @@ export class HighlightSystem extends System {
       const compHL = getComponent(entity, HighlightComponent);
       highlightedObject.traverse(obj => {
         if (obj !== undefined) {
-          WebGLRendererSystem.composer?.outlineEffect?.selection.add(obj);
-          WebGLRendererSystem.composer?.outlineEffect?.setEdgeColor(compHL.color);
-          WebGLRendererSystem.composer?.outlineEffect?.setHiddenEdgeColor(compHL.hiddenColor);
+          WebGLRendererSystem.instance.composer?.outlineEffect?.selection.add(obj);
+          WebGLRendererSystem.instance.composer?.outlineEffect?.setEdgeColor(compHL.color);
+          WebGLRendererSystem.instance.composer?.outlineEffect?.setHiddenEdgeColor(compHL.hiddenColor);
         }
       });
     }
@@ -36,7 +36,7 @@ export class HighlightSystem extends System {
       const highlightedObject = getComponent(entity, Object3DComponent).value;
       highlightedObject.traverse(obj => {
         if (obj !== undefined) {
-          WebGLRendererSystem.composer?.outlineEffect?.selection.delete(obj);
+          WebGLRendererSystem.instance.composer?.outlineEffect?.selection.delete(obj);
         }
       });
     }

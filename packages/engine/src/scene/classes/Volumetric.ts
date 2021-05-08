@@ -13,8 +13,8 @@ import { RethrownError } from "../../editor/functions/errors";
 import Hls from "hls.js/dist/hls.light";
 import isHLS from "../../editor/functions/isHLS";
 import AudioSource from "./AudioSource";
-import { Engine, VideoTexture } from "../../ecs/classes/Engine";
-import { EngineEvents } from "../../ecs/classes/EngineEvents";
+import { VideoTexture } from "../../ecs/classes/Engine";
+
 export default class Volumetric extends AudioSource {
   _videoTexture: any;
   el: HTMLVideoElement;
@@ -61,13 +61,13 @@ export default class Volumetric extends AudioSource {
       }
       let cleanup = null;
       const onLoadedMetadata = () => {
-        if (this.el.autoplay) {
-          if(Engine.hasUserEngaged) {
-            this.el.play();
-          } else {
-            EngineEvents.instance.once(EngineEvents.EVENTS.USER_ENGAGE, () => this.el.play());
-          }
-        }
+        // if (this.el.autoplay) {
+          // if(Engine.hasUserEngaged) {
+            // this.el.play();
+          // } else {
+          //   EngineEvents.instance.once(EngineEvents.EVENTS.USER_ENGAGE, () => this.el.play());
+          // }
+        // }
         cleanup();
         cleanup();
         resolve(this._videoTexture);

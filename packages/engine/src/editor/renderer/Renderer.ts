@@ -207,7 +207,7 @@ export default class Renderer {
       parent: editor.scene
     });
     csm.fade = true;
-    Engine.csm = csm;
+    WebGLRendererSystem.instance.csm = csm;
     this.willusePostProcessing=false;
     PostProcessingNode.postProcessingCallback=(node,isRemoved=false)=>{
       this.node=node;
@@ -217,7 +217,7 @@ export default class Renderer {
   }
   update(dt, _time) {
     this.renderer.info.reset();
-    // Engine.csm.update();
+    // WebGLRendererSystem.instance.csm.update();
     if(this.willusePostProcessing)
       this.composer.render(dt);
     else
@@ -253,7 +253,7 @@ export default class Renderer {
       containerEl.offsetHeight,
       false
     );
-    // Engine.csm.updateFrustums();
+    // WebGLRendererSystem.instance.csm.updateFrustums();
     this.renderMode.onResize();
 
     if(this.willusePostProcessing){

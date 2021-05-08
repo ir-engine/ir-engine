@@ -102,7 +102,6 @@ export class Engine {
    * @author Fernando Serrano, Robert Long
    */
   static renderer: WebGLRenderer = null
-  static csm: CSM = null
   static xrSession: XRSession = null
   static context = null
 
@@ -283,28 +282,12 @@ export class Engine {
 
   static createElement: any = createElement;
 
-  static hasUserEngaged = false;
-
   static useAudioSystem = false;
 
   static inputState = new Map<any, InputValue<NumericalType>>();
   static prevInputState = new Map<any, InputValue<NumericalType>>();
 
   static isInitialized = false;
-
-  /**
-   * Input inherits from BehaviorComponent, which adds .map and .data
-   *
-   * @author Fernando Serrano, Robert Long
-   * @property {Boolean} gamepadConnected Connection a new gamepad
-   * @property {Number} gamepadThreshold Threshold value from 0 to 1
-   * @property {Binary[]} gamepadButtons Map gamepad buttons
-   * @property {Number[]} gamepadInput Map gamepad buttons to abstract input
-   */
-  static gamepadConnected = false;
-  static gamepadThreshold = 0.1;
-  static gamepadButtons: BinaryType[] = [];
-  static gamepadInput: number[] = [];
 
   static publicPath: string;
 }

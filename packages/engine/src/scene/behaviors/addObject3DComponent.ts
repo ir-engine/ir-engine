@@ -53,6 +53,8 @@ import { SkyboxComponent } from '../components/SkyboxComponent';
 import { Engine } from '../../ecs/classes/Engine';
 import ShadowComponent from "../components/ShadowComponent";
 import { createShadow } from "./createShadow";
+import { WebGLRendererSystem } from "../../renderer/WebGLRendererSystem";
+import { isClient } from "../../common/functions/isClient";
 
 /**
  * Add Object3D Component with args into Entity from the Behavior.
@@ -113,7 +115,9 @@ export const addObject3DComponent: Behavior = (
   object3d.traverse((obj) => {
     obj.castShadow = Boolean(hasShadow?.castShadow || args.objArgs?.castShadow);
     obj.receiveShadow = Boolean(hasShadow?.receiveShadow || args.objArgs?.receiveShadow);
-    obj.material && Engine.csm?.setupMaterial(obj.material);
+    if(isClient) {
+      obj.material && WebGLRendererSystem.instance?.csm?.setupMaterial(obj.material);
+    }
   });
 
   addComponent(entity, Object3DComponent, { value: object3d });

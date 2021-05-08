@@ -45,6 +45,7 @@ import {
   usernameUpdated,
   userUpdated
 } from './actions';
+import { CharacterControllerSystem } from '@xrengine/engine/src/templates/character/CharacterControllerSystem';
 
 const store = Store.store;
 
@@ -746,7 +747,7 @@ const loadAvatarForUpdatedUser = async (user) => {
         const obj = Network.instance.networkObjects[key];
         if (obj?.ownerId === user.id) {
           EngineEvents.instance.dispatchEvent({
-            type: EngineEvents.EVENTS.LOAD_AVATAR,
+            type: CharacterControllerSystem.EVENTS.LOAD_AVATAR,
             entityID: obj.component.entity.id,
             avatarId: user.avatarId,
             avatarURL
@@ -784,7 +785,7 @@ const loadXRAvatarForUpdatedUser = async (user) => {
       const obj = Network.instance.networkObjects[key];
       if (obj?.ownerId === user.id) {
         EngineEvents.instance.dispatchEvent({
-          type: EngineEvents.EVENTS.LOAD_AVATAR,
+          type: CharacterControllerSystem.EVENTS.LOAD_AVATAR,
           entityID: obj.component.entity.id,
           avatarId: user.avatarId,
           avatarURL
