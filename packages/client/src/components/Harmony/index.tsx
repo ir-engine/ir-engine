@@ -101,6 +101,7 @@ import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClient
 // @ts-ignore
 import styles from './style.module.scss';
 import WarningRefreshModal from "../AlertModals/WarningRetryModal";
+import { ClientNetworkSystem } from '@xrengine/engine/src/networking/systems/ClientNetworkSystem';
 const engineRendererCanvasId = 'engine-renderer-canvas';
 
 const mapStateToProps = (state: any): any => {
@@ -324,9 +325,9 @@ const Harmony = (props: Props): any => {
             });
         });
 
-        EngineEvents.instance.addEventListener(EngineEvents.EVENTS.PROVISION_CHANNEL_NO_GAMESERVERS_AVAILABLE, () => setNoGameserverProvision(true));
+        EngineEvents.instance.addEventListener(SocketWebRTCClientTransport.EVENTS.PROVISION_CHANNEL_NO_GAMESERVERS_AVAILABLE, () => setNoGameserverProvision(true));
 
-        EngineEvents.instance.addEventListener(EngineEvents.EVENTS.CONNECTION_LOST, ({ hasLostConnection }) => setLostConnection(hasLostConnection));
+        EngineEvents.instance.addEventListener(ClientNetworkSystem.EVENTS.CONNECTION_LOST, ({ hasLostConnection }) => setLostConnection(hasLostConnection));
 
         return () => {
             if (EngineEvents.instance != null) {

@@ -26,7 +26,6 @@ export class AnimationManager {
 					}
 				});
 
-				//standardizeSkeletion(this._defaultSkeleton);
 				this._animations = gltf.animations;
 				this._animations?.forEach(clip => {
 					// TODO: make list of morph targets names

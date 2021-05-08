@@ -82,21 +82,6 @@ export const loadActorAvatarFromURL: Behavior = (entity, avatarURL) => {
 		([...actor.modelContainer.children])
 			.forEach(child => actor.modelContainer.remove(child));
 
-		// This is for snimation retargetting
-
-		// let targetSkeleton;
-		// tmpGroup.traverse((child) => {
-		//   if(child.type === "SkinnedMesh") {
-		//     if(!targetSkeleton)
-		//     targetSkeleton = child;
-		//   }
-		// })
-
-		// standardizeSkeletion(targetSkeleton);
-		// const sourceSkeleton = AnimationManager.instance._defaultSkeleton;
-		// console.log('targetSkeleton', targetSkeleton)
-		// console.log('sourceSkeleton', sourceSkeleton)
-		// SkeletonUtils.retarget(targetSkeleton, sourceSkeleton);
 		let targetSkeleton;
 		tmpGroup.traverse((child) => {
 			if (child.type === "SkinnedMesh") {
@@ -105,7 +90,6 @@ export const loadActorAvatarFromURL: Behavior = (entity, avatarURL) => {
 			}
 		})
 
-		// TODO: Standardize!!!
 		standardizeSkeletion(targetSkeleton, AnimationManager.instance._defaultSkeleton);
 
 		tmpGroup.children.forEach(child => actor.modelContainer.add(child));

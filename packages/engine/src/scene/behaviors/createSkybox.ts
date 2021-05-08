@@ -7,6 +7,7 @@ import { ScaleComponent } from '../../transform/components/ScaleComponent';
 import { Object3DComponent } from '../components/Object3DComponent';
 import { addObject3DComponent } from './addObject3DComponent';
 import { CubeTextureLoader } from '../../assets/loaders/tex/CubeTextureLoader';
+import { WebGLRendererSystem } from '../../renderer/WebGLRendererSystem';
 
 export default function createSkybox(entity, args: {
   obj3d;
@@ -88,7 +89,7 @@ export default function createSkybox(entity, args: {
     uniforms.rayleigh.value = args.objArgs.rayleigh;
     uniforms.turbidity.value = args.objArgs.turbidity;
     uniforms.sunPosition.value = sun;
-    Engine.csm && Engine.csm.lightDirection.set(-sun.x, -sun.y, -sun.z);
+    WebGLRendererSystem.instance.csm && WebGLRendererSystem.instance.csm.lightDirection.set(-sun.x, -sun.y, -sun.z);
 
     const skyboxTexture = (skyboxObject3D as any).generateEnvironmentMap(renderer);
 

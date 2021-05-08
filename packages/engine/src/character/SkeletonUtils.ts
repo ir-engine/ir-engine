@@ -201,13 +201,13 @@ class SkeletonUtils {
 	}
 
 	static retargetClip( target, source, clip, options: any = {} ) {
-		console.log("Retargeting clip: ", clip);
+		// console.log("Retargeting clip: ", clip);
 		options.useFirstFramePosition = options.useFirstFramePosition !== undefined ? options.useFirstFramePosition : false;
 		options.fps = options.fps !== undefined ? options.fps : 30;
 		options.names = options.names || [];
 
 		if ( ! source.isObject3D ) {
-			console.error("source.isObject3D", source.isObject3D)
+			// console.error("source.isObject3D", source.isObject3D)
 			source = this.getHelperFromSkeleton( source );
 
 		}
@@ -331,13 +331,13 @@ class SkeletonUtils {
 	static getHelperFromSkeleton( skeleton ) {
 
 		const source = new SkeletonHelper( skeleton.bones[ 0 ] );
-		source.skeleton = skeleton;
+		(source as any).skeleton = skeleton;
 
 		return source;
 
 	}
 
-	static getSkeletonOffsets( target, source, options = {} ) {
+	static getSkeletonOffsets( target, source, options: any = {} ) {
 
 		const targetParentPos = new Vector3(),
 			targetPos = new Vector3(),
@@ -535,14 +535,14 @@ class SkeletonUtils {
 
 		const clone = source.clone();
 
-		parallelTraverse( source, clone, function ( sourceNode, clonedNode ) {
+		parallelTraverse( source, clone, ( sourceNode, clonedNode ) => {
 
 			sourceLookup.set( clonedNode, sourceNode );
 			cloneLookup.set( sourceNode, clonedNode );
 
 		} );
 
-		clone.traverse( function ( node ) {
+		clone.traverse( ( node ) => {
 
 			if ( ! node.isSkinnedMesh ) return;
 
@@ -553,7 +553,7 @@ class SkeletonUtils {
 			clonedMesh.skeleton = sourceMesh.skeleton.clone();
 			clonedMesh.bindMatrix.copy( sourceMesh.bindMatrix );
 
-			clonedMesh.skeleton.bones = sourceBones.map( function ( bone ) {
+			clonedMesh.skeleton.bones = sourceBones.map( ( bone ) => {
 
 				return cloneLookup.get( bone );
 
