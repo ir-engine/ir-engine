@@ -40,9 +40,9 @@ import { NetworkSchema } from '@xrengine/engine/src/networking/interfaces/Networ
 import { ClientNetworkSystem } from '@xrengine/engine/src/networking/systems/ClientNetworkSystem';
 import { PhysicsSystem } from '@xrengine/engine/src/physics/systems/PhysicsSystem';
 import { styleCanvas } from '@xrengine/engine/src/renderer/functions/styleCanvas';
-import { CharacterComponent } from '@xrengine/engine/src/templates/character/components/CharacterComponent';
-import { DefaultNetworkSchema } from '@xrengine/engine/src/templates/networking/DefaultNetworkSchema';
-import { PrefabType } from '@xrengine/engine/src/templates/networking/PrefabType';
+import { CharacterComponent } from '@xrengine/engine/src/character/components/CharacterComponent';
+import { DefaultNetworkSchema } from '@xrengine/engine/src/networking/templates/DefaultNetworkSchema';
+import { PrefabType } from '@xrengine/engine/src/networking/templates/PrefabType';
 import { XRSystem } from '@xrengine/engine/src/xr/systems/XRSystem';
 import { Config } from '@xrengine/client-core/src/helper';
 import { useHistory } from 'react-router-dom';
@@ -51,8 +51,8 @@ import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 import url from 'url';
-import { CharacterInputSchema } from '@xrengine/engine/src/templates/character/CharacterInputSchema';
-import { GamesSchema } from "@xrengine/engine/src/templates/game/GamesSchema";
+import { CharacterInputSchema } from '@xrengine/engine/src/character/CharacterInputSchema';
+import { GamesSchema } from "@xrengine/engine/src/game/templates/GamesSchema";
 import WarningRefreshModal from "../AlertModals/WarningRetryModal";
 import { ClientInputSystem } from '@xrengine/engine/src/input/systems/ClientInputSystem';
 

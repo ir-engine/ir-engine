@@ -9,7 +9,7 @@ import { ControllerColliderComponent } from "../../physics/components/Controller
 import { Vector3 } from "three";
 import { SystemUpdateType } from "../../ecs/functions/SystemUpdateType";
 
-//import { CharacterComponent } from '../../templates/character/components/CharacterComponent';
+//import { CharacterComponent } from '../../character/components/CharacterComponent';
 
 
 export class ServerSpawnSystem extends System {

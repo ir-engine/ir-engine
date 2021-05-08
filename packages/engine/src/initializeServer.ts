@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import { BufferGeometry, Mesh, Scene } from 'three';
 import { acceleratedRaycast, computeBoundsTree } from "three-mesh-bvh";
-import { CharacterControllerSystem } from './templates/character/CharacterControllerSystem';
+import { CharacterControllerSystem } from './character/CharacterControllerSystem';
 import { Timer } from './common/functions/Timer';
 import { DefaultInitializationOptions } from './DefaultInitializationOptions';
 import { Engine } from './ecs/classes/Engine';

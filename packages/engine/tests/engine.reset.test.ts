@@ -8,9 +8,9 @@ import { addComponent, createEntity } from "../src/ecs/functions/EntityFunctions
 import { initializeEngine } from "../src/initialize";
 import { Input } from "../src/input/components/Input";
 import { addObject3DComponent } from "../src/scene/behaviors/addObject3DComponent";
-import { CharacterInputSchema } from "../src/templates/character/CharacterInputSchema";
-import { CharacterComponent } from "../src/templates/character/components/CharacterComponent";
-import { DefaultNetworkSchema } from "../src/templates/networking/DefaultNetworkSchema";
+import { CharacterInputSchema } from "../src/character/CharacterInputSchema";
+import { CharacterComponent } from "../src/character/components/CharacterComponent";
+import { DefaultNetworkSchema } from "../src/networking/templates/DefaultNetworkSchema";
 import { TransformComponent } from "../src/transform/components/TransformComponent";
 
 const options = {

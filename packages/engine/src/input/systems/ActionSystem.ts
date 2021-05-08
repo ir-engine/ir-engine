@@ -11,7 +11,7 @@ import { Vault } from '../../networking/classes/Vault';
 import { NetworkObject } from "../../networking/components/NetworkObject";
 import { NetworkClientInputInterface } from "../../networking/interfaces/WorldState";
 import { ClientInputModel } from '../../networking/schema/clientInputSchema';
-import { CharacterComponent } from "../../templates/character/components/CharacterComponent";
+import { CharacterComponent } from "../../character/components/CharacterComponent";
 import { Input } from '../components/Input';
 import { LocalInputReceiver } from "../components/LocalInputReceiver";
 import { XRInputReceiver } from '../components/XRInputReceiver';

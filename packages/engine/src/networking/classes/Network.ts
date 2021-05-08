@@ -9,8 +9,8 @@ import { Snapshot } from "../types/SnapshotDataTypes";
 import SocketIO from "socket.io";
 import { GameStateActionMessage, GameStateUpdateMessage, ClientGameActionMessage } from '../../game/types/GameMessage';
 import { GameMode } from "../../game/types/GameMode";
-import { DefaultGameMode } from "../../templates/game/DefaultGameMode";
-import { DefaultGameStateAction } from "../../templates/game/DefaultGameStateAction";
+import { DefaultGameMode } from "../../game/templates/DefaultGameMode";
+import { DefaultGameStateAction } from "../../game/templates/DefaultGameStateAction";
 
 
 export interface NetworkClientList {

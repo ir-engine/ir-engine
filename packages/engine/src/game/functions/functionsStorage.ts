@@ -1,9 +1,9 @@
 import { Component } from "../../ecs/classes/Component";
-import { ComponentConstructor } from '../../ecs/interfaces/ComponentInterfaces';
 import { Entity } from '../../ecs/classes/Entity';
-import { addComponent, getComponent, getMutableComponent, hasComponent, removeComponent } from '../../ecs/functions/EntityFunctions';
-import { getGameEntityFromName, getEntityFromRoleUuid, getRole, getGame, getUuid } from './functions';
+import { getComponent } from '../../ecs/functions/EntityFunctions';
+import { ComponentConstructor } from '../../ecs/interfaces/ComponentInterfaces';
 import { InitStorageInterface } from '../types/GameMode';
+import { getGame, getRole, getUuid } from './functions';
 
 /**
  * @author HydraFire <github.com/HydraFire>

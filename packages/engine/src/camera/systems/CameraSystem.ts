@@ -6,7 +6,7 @@ import { NumericalType } from "../../common/types/NumericalTypes";
 import { Engine } from '../../ecs/classes/Engine';
 import { System } from '../../ecs/classes/System';
 import { addComponent, createEntity, getComponent, getMutableComponent, removeComponent } from '../../ecs/functions/EntityFunctions';
-import { CharacterComponent } from "../../templates/character/components/CharacterComponent";
+import { CharacterComponent } from "../../character/components/CharacterComponent";
 import { DesiredTransformComponent } from '../../transform/components/DesiredTransformComponent';
 import { TransformComponent } from '../../transform/components/TransformComponent';
 import { CameraComponent } from '../components/CameraComponent';

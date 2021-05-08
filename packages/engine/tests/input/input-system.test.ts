@@ -3,7 +3,7 @@ import { InputSystem } from "../../src/input/systems/ClientInputSystem";
 import { execute } from "../../src/ecs/functions/EngineFunctions";
 import { addComponent, createEntity, removeComponent } from "../../src/ecs/functions/EntityFunctions";
 import { Input } from "../../src/input/components/Input";
-import { CharacterInputSchema } from "../../src/templates/character/CharacterInputSchema";
+import { CharacterInputSchema } from "../../src/character/CharacterInputSchema";
 import { LocalInputReceiver } from "../../src/input/components/LocalInputReceiver";
 import { normalizeMouseCoordinates } from "../../src/common/functions/normalizeMouseCoordinates";
 import { normalizeMouseMovement } from "../../src/common/functions/normalizeMouseMovement";

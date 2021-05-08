@@ -5,7 +5,7 @@ import { getComponent, removeEntity } from "@xrengine/engine/src/ecs/functions/E
 import { Network } from "@xrengine/engine/src/networking//classes/Network";
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes';
 import { WorldStateInterface } from '@xrengine/engine/src/networking/interfaces/WorldState';
-import { createNetworkPlayer } from '@xrengine/engine/src/templates/character/prefabs/NetworkPlayerCharacter';
+import { createNetworkPlayer } from '@xrengine/engine/src/character/prefabs/NetworkPlayerCharacter';
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent';
 import { DataConsumer, DataProducer } from 'mediasoup/lib/types';
 import logger from "@xrengine/server-core/src/logger";

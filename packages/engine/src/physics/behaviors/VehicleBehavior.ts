@@ -2,7 +2,7 @@ import { isServer } from "../../common/functions/isServer";
 import { Behavior } from '../../common/interfaces/Behavior';
 import { Entity } from '../../ecs/classes/Entity';
 import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
-import { VehicleComponent } from '../../templates/vehicle/components/VehicleComponent';
+import { VehicleComponent } from '../../vehicle/components/VehicleComponent';
 import { TransformComponent } from '../../transform/components/TransformComponent';
 import { CollisionGroups } from "../enums/CollisionGroups";
 import { PhysicsSystem } from '../systems/PhysicsSystem';

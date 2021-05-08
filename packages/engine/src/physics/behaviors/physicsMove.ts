@@ -9,12 +9,12 @@ import { BinaryValue } from "../../common/enums/BinaryValue";
 import { BaseInput } from '../../input/enums/BaseInput';
 
 import { ControllerColliderComponent } from '../components/ControllerColliderComponent';
-import { CharacterComponent } from '../../templates/character/components/CharacterComponent';
+import { CharacterComponent } from '../../character/components/CharacterComponent';
 import { TransformComponent } from '../../transform/components/TransformComponent';
 import { isServer } from '../../common/functions/isServer';
 import { XRUserSettings, XR_FOLLOW_MODE } from '../../xr/types/XRUserSettings';
 import { getBit } from '../../common/functions/bitFunctions';
-import { CHARACTER_STATES } from '../../templates/character/state/CharacterStates';
+import { CHARACTER_STATES } from '../../character/state/CharacterStates';
 
 /**
  * @author HydraFire <github.com/HydraFire>
