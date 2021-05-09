@@ -15,7 +15,7 @@ import { ParticleSystem } from '../particles/systems/ParticleSystem';
 import { PhysicsSystem } from '../physics/systems/PhysicsSystem';
 import { HighlightSystem } from '../renderer/HighlightSystem';
 import { WebGLRendererSystem } from '../renderer/WebGLRendererSystem';
-import { ServerSpawnSystem } from '../scene/systems/SpawnSystem';
+import { ServerSpawnSystem } from '../scene/systems/ServerSpawnSystem';
 import { StateSystem } from '../state/systems/StateSystem';
 import { CharacterInputSchema } from '../character/CharacterInputSchema';
 import { DefaultNetworkSchema } from '../networking/templates/DefaultNetworkSchema';
@@ -73,16 +73,20 @@ const initializeEngineOffscreen = async ({ canvas, userArgs }, proxy: MainProxy)
   Engine.scene = new Scene();
   Engine.publicPath = location.origin;
 
-  await AnimationManager.instance.getDefaultModel()
 
   Network.instance = new Network();
   Network.instance.schema = options.networking.schema;
   // @ts-ignore
   Network.instance.transport = { isServer: false }
 
-  await PhysXInstance.instance.initPhysX(new PhysXWorker(), { });
+  new AnimationManager();
+  await Promise.all([
+    PhysXInstance.instance.initPhysX(new PhysXWorker(), { }),
+    AnimationManager.instance.getDefaultModel(),
+  ]);
+
   registerSystem(PhysicsSystem);
-  registerSystem(ActionSystem, { useWebXR: false });
+  registerSystem(ActionSystem);
   registerSystem(StateSystem);
   registerSystem(ClientNetworkStateSystem);
   registerSystem(CharacterControllerSystem);

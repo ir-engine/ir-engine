@@ -3,7 +3,11 @@ import { getLoader } from "../assets/functions/LoadGLTF";
 import { isClient } from "../common/functions/isClient";
 import { Engine } from "../ecs/classes/Engine";
 export class AnimationManager {
-	static instance: AnimationManager = new AnimationManager();
+	static instance: AnimationManager;
+
+  constructor() {
+    AnimationManager.instance = this;
+  }
 
 	_animations: AnimationClip[];
 	_defaultModel: Group;

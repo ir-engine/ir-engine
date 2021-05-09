@@ -583,7 +583,6 @@ export { default as srcSceneComponentsLightComponent } from './src/scene/compone
 export { default as srcSceneComponentsScenePreviewCamera } from './src/scene/components/ScenePreviewCamera';
 export { default as srcSceneComponentsShadowComponent } from './src/scene/components/ShadowComponent';
 export { default as srcSceneComponentsSpawnPointComponent } from './src/scene/components/SpawnPointComponent';
-export { default as srcSceneComponentsTeleportToSpawnPoint } from './src/scene/components/TeleportToSpawnPoint';
 export { default as srcSceneComponentsTransformGizmo } from './src/scene/components/TransformGizmo';
 export { default as srcSceneComponentsVideo } from './src/scene/components/Video';
 export { default as srcSceneComponentsVolumetricComponent } from './src/scene/components/VolumetricComponent';

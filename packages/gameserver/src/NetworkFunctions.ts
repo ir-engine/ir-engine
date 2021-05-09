@@ -1,7 +1,7 @@
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine';
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents';
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity';
-import { getComponent, removeEntity } from "@xrengine/engine/src/ecs/functions/EntityFunctions";
+import { getComponent, getMutableComponent, removeEntity } from "@xrengine/engine/src/ecs/functions/EntityFunctions";
 import { Network } from "@xrengine/engine/src/networking//classes/Network";
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes';
 import { WorldStateInterface } from '@xrengine/engine/src/networking/interfaces/WorldState';
@@ -11,6 +11,7 @@ import { DataConsumer, DataProducer } from 'mediasoup/lib/types';
 import logger from "@xrengine/server-core/src/logger";
 import config from '@xrengine/server-core/src/appconfig';
 import { closeTransport } from './WebRTCFunctions';
+import { ServerSpawnSystem } from '@xrengine/engine/src/scene/systems/ServerSpawnSystem';
 
 const gsNameRegex = /gameserver-([a-zA-Z0-9]{5}-[a-zA-Z0-9]{5})/;
 
@@ -210,7 +211,7 @@ export async function handleConnectToWorld(socket, data, callback, userId, user,
     Network.instance.clientsConnected.push({ userId, name: userId, avatarDetail });
     // Create a new worldtate object that we can fill
     const worldState = {
-        tick: Network.tick,
+        tick: Network.instance.tick,
         transforms: [],
         ikTransforms: [],
         inputs: [],
@@ -275,7 +276,10 @@ export async function handleJoinWorld(socket, data, callback, userId, user): Pro
 
     // Create a new default prefab for client
     const networkObject = createNetworkPlayer({ ownerId: userId });
-    const transform = getComponent(networkObject.entity, TransformComponent);
+    const spawnPos = ServerSpawnSystem.instance.getRandomSpawnPoint();
+    const transform = getMutableComponent(networkObject.entity, TransformComponent);
+    transform.position = spawnPos.position;
+    transform.rotation = spawnPos.rotation;
 /*
     // Add the network object to our list of network objects
     Network.instance.networkObjects[networkObject.networkId] = {
@@ -303,7 +307,7 @@ export async function handleJoinWorld(socket, data, callback, userId, user): Pro
 */
     // Create a new worldtate object that we can fill
     const worldState = {
-        tick: Network.tick,
+        tick: Network.instance.tick,
         transforms: [],
         ikTransforms: [],
         inputs: [],

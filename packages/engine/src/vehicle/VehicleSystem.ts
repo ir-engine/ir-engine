@@ -4,7 +4,7 @@
  */
 
 import { Engine } from "../ecs/classes/Engine";
-import { System } from "../ecs/classes/System";
+import { System, SystemAttributes } from "../ecs/classes/System";
 import { getComponent, hasComponent } from "../ecs/functions/EntityFunctions";
 import { Network } from "../networking/classes/Network";
 import { NetworkObject } from "../networking/components/NetworkObject";
@@ -26,8 +26,8 @@ export class VehicleSystem extends System {
   clientSnapshotFreezeTime = 0
   serverSnapshotFreezeTime = 0
 
-  constructor() {
-    super();
+  constructor(attributes?: SystemAttributes) {
+    super(attributes);
     VehicleSystem.instance = this;
   }
 

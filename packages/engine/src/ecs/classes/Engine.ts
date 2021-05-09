@@ -17,8 +17,6 @@ import {
   PositionalAudio as THREE_PositionalAudio,
   XRSession
 } from 'three';
-import { CSM } from '../../assets/csm/CSM';
-import { ServerSpawnSystem } from "../../scene/systems/SpawnSystem";
 import { TransformComponent } from '../../transform/components/TransformComponent';
 import { EngineOptions } from '../interfaces/EngineOptions';
 import { Entity } from './Entity';
@@ -29,7 +27,7 @@ import { createElement } from '../functions/createElement';
 import { isWebWorker } from '../../common/functions/getEnvironment';
 import { VideoTextureProxy } from '../../worker/VideoTexture';
 import { PositionalAudioObjectProxy, AudioObjectProxy, AudioListenerProxy, AudioLoaderProxy } from '../../worker/Audio';
-import { BinaryType, NumericalType } from '../../common/types/NumericalTypes';
+import { NumericalType } from '../../common/types/NumericalTypes';
 import { InputValue } from '../../input/interfaces/InputValue';
 
 
@@ -277,8 +275,6 @@ export class Engine {
   static tick = 0;
   /** HTML Element in which Engine renders. */
   static viewportElement: HTMLElement;
-
-  static spawnSystem: ServerSpawnSystem;
 
   static createElement: any = createElement;
 

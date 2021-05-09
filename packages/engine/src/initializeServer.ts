@@ -14,7 +14,7 @@ import { ServerNetworkIncomingSystem } from './networking/systems/ServerNetworkI
 import { ServerNetworkOutgoingSystem } from './networking/systems/ServerNetworkOutgoingSystem';
 import { PhysXInstance } from "three-physx";
 import { PhysicsSystem } from './physics/systems/PhysicsSystem';
-import { ServerSpawnSystem } from './scene/systems/SpawnSystem';
+import { ServerSpawnSystem } from './scene/systems/ServerSpawnSystem';
 import { StateSystem } from './state/systems/StateSystem';
 import { GameManagerSystem } from './game/systems/GameManagerSystem';
 import { TransformSystem } from './transform/systems/TransformSystem';
@@ -22,7 +22,10 @@ import Worker from 'web-worker'
 import path from 'path';
 import { EngineEvents } from './ecs/classes/EngineEvents';
 import { loadScene } from './scene/functions/SceneLoading';
+import { AnimationManager } from './character/AnimationManager';
 // import { PositionalAudioSystem } from './audio/systems/PositionalAudioSystem';
+
+const isWindows = process.platform === "win32";
 
 Mesh.prototype.raycast = acceleratedRaycast;
 BufferGeometry.prototype["computeBoundsTree"] = computeBoundsTree;
@@ -47,11 +50,16 @@ export const initializeServer = async (initOptions: any = DefaultInitializationO
   registerSystem(MediaStreamSystem);
   registerSystem(StateSystem);
 
-  const currentPath = path.dirname(__filename);
+  new AnimationManager();
 
-  await PhysXInstance.instance.initPhysX(new Worker(currentPath + "/physics/functions/loadPhysXNode.ts"), { });
-  //for windows
-  //await PhysXInstance.instance.initPhysX(new Worker("file:///" + currentPath + "/physics/functions/loadPhysXNode.ts"), {});
+  const currentPath = (isWindows ? 'file:///' : '') + path.dirname(__filename);
+  
+  await Promise.all([
+    AnimationManager.instance.getDefaultModel(),
+    AnimationManager.instance.getAnimations(),
+    PhysXInstance.instance.initPhysX(new Worker(currentPath + "/physics/functions/loadPhysXNode.ts"), { })
+  ]);
+
   registerSystem(PhysicsSystem);
   registerSystem(CharacterControllerSystem);
 

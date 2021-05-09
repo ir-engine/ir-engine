@@ -24,7 +24,7 @@ export class XRSystem extends System {
   }
 
   offscreen: boolean;
-  static xrFrame: XRFrame;
+  xrFrame: XRFrame;
 
   isRenderering = false;
   baseLayer: XRWebGLLayer;
@@ -80,7 +80,7 @@ export class XRSystem extends System {
    */
   execute(delta: number): void {
     if(Engine.renderer?.xr?.isPresenting) {
-      const session = XRSystem.xrFrame.session;
+      const session = this.xrFrame.session;
       session.inputSources.forEach((source) => {
         if(source.gamepad) {
           const mapping = gamepadMapping[source.gamepad.mapping || 'xr-standard'][source.handedness];
