@@ -571,7 +571,7 @@ const createBuyPanel = (param) => {
   return container;
 }
 
-export const OfflineEnginePage = (props: Props) => {
+export const VUSR360PlayerPage = (props: Props) => {
   const {
     locationName,
   } = props;

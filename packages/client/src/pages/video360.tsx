@@ -1,10 +1,10 @@
-import { OfflineEnginePage } from '../components/Scene/offlineLocation';
+import { VUSR360PlayerPage } from '../components/Scene/vusr';
 import React from 'react';
 
 const LocationPage = (props) => {
   return (
     <>
-      <OfflineEnginePage locationName={props.match.params.locationName}/>
+      <VUSR360PlayerPage locationName={props.match.params.locationName}/>
     </>
   );
 };
