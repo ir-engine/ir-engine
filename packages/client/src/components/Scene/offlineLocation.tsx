@@ -67,7 +67,25 @@ export const OfflineEnginePage = (props: Props) => {
 
     EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.JOINED_WORLD, worldState });
 
-    createPanelComponent({ panel: new UIGallery() });
+    Engine.scene.children[10].visible = false;      //hide ground
+    
+    const galleryParam = {
+      urls: [
+        "https://raw.githubusercontent.com/Realitian/assets/master/360/VR THUMBNAIL/ARCTIC/_DSC5882x 2.JPG",
+        "https://raw.githubusercontent.com/Realitian/assets/master/360/VR THUMBNAIL/CUBA/DSC_9484.jpg",
+        "https://raw.githubusercontent.com/Realitian/assets/master/360/VR THUMBNAIL/GALAPAGOS/20171020_GALAPAGOS_5281.jpg",
+        "https://raw.githubusercontent.com/Realitian/assets/master/360/VR THUMBNAIL/GREAT WHITES/_K4O2342PIX2.jpg",
+        "https://raw.githubusercontent.com/Realitian/assets/master/360/VR THUMBNAIL/HAWAII/20171020_GALAPAGOS_4273.jpg",
+        "https://raw.githubusercontent.com/Realitian/assets/master/360/VR THUMBNAIL/INTO THE NOW/20171020_GALAPAGOS_0782.jpg",
+        "https://raw.githubusercontent.com/Realitian/assets/master/360/VR THUMBNAIL/SHARKS OF THE WORLD/_DSC3143.jpg",
+        "https://raw.githubusercontent.com/Realitian/assets/master/360/VR THUMBNAIL/WILD COAST AFRICA/_MG_8949.jpg",
+        "https://raw.githubusercontent.com/Realitian/assets/master/360/VR THUMBNAIL/WRECKS AND CAVES/_DSC2512.JPG",
+      ],
+      envUrl: 'https://raw.githubusercontent.com/Realitian/assets/master/360/env/Shot_03.jpg',
+      videoUrl: 'https://storage.googleapis.com/shaka-demo-assets/angel-one/dash.mpd'
+    }
+
+    createPanelComponent({ panel: new UIGallery(galleryParam) });
   }
 
   const addUIEvents = () => {
