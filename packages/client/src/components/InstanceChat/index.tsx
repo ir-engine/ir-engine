@@ -216,7 +216,7 @@ const InstanceChat = (props: Props): any => {
                 <Badge color="primary" variant="dot" invisible={!unreadMessages} anchorOrigin={{ vertical: 'top', horizontal: 'left', }}>
                     <Fab className="openChat" color="primary" onClick={() => hideShowMessagesContainer()}>
                         <MessageIcon />Chat
-            </Fab>
+                    </Fab>
                 </Badge>
             </div>)}
         </>);
