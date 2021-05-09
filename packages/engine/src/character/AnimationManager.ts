@@ -42,7 +42,7 @@ export class AnimationManager {
 				resolve(this._defaultModel);
 				return;
 			}
-			getLoader().load(Engine.publicPath + '/models/avatars/Default.glb', gltf => {
+			getLoader().load(Engine.publicPath + '/models/avatars/Andy.glb', gltf => {
 				console.log('default model loaded');
 				this._defaultModel = gltf.scene;
 				this._defaultModel.traverse((obj: Mesh) => {
