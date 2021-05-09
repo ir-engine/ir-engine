@@ -66,7 +66,7 @@ export const onAddedInCar = (entity: Entity, entityCar: Entity, seat: number, de
   initializeDriverState(entity)
 
   changeAnimation(entity, {
-    animationId: CharacterAnimations.ENTERING_VEHICLE,
+    animationId: CharacterAnimations.ENTERING_VEHICLE_DRIVER,
 	  transitionDuration: 0.3
    })
 

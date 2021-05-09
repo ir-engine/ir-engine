@@ -53,7 +53,7 @@ const emptyVector = new Vector3();
 const halfPI = Math.PI / 2;
 */
 
-const { DRIVING, ENTERING_VEHICLE, EXITING_VEHICLE } = CharacterAnimations;
+const { DRIVING, ENTERING_VEHICLE_DRIVER, EXITING_VEHICLE_DRIVER } = CharacterAnimations;
 
 const drivingAnimationSchema = [
   {
@@ -62,13 +62,13 @@ const drivingAnimationSchema = [
     weight:     [  0 ,  0,   0 ],
     test:       [  0 ,  1,   0 ]
   },{
-    type: [ENTERING_VEHICLE], name: defaultAvatarAnimations[ENTERING_VEHICLE].name, axis:'z', speed: 0.5, customProperties: ['weight', 'test'],
+    type: [ENTERING_VEHICLE_DRIVER], name: defaultAvatarAnimations[ENTERING_VEHICLE_DRIVER].name, axis:'z', speed: 0.5, customProperties: ['weight', 'test'],
     value:      [  0,   1 ],
     weight:     [  1,   0 ],
     test:       [  0,   1 ]
   },
   {
-    type: [EXITING_VEHICLE], name: defaultAvatarAnimations[EXITING_VEHICLE].name, axis:'z', speed: 0.5, customProperties: ['weight', 'test'],
+    type: [EXITING_VEHICLE_DRIVER], name: defaultAvatarAnimations[EXITING_VEHICLE_DRIVER].name, axis:'z', speed: 0.5, customProperties: ['weight', 'test'],
     value:      [  -1  ,   0  ],
     weight:     [   1  ,   1  ],
     test:       [   0  ,   0  ]
