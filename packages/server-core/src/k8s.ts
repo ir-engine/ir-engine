@@ -23,12 +23,14 @@
 // TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import { spawn } from 'child_process';
+import childProcess from 'child_process';
 import _ from 'lodash';
 import request from 'request';
 import Rx from 'rx';
 import fs from 'fs';
 import jsyaml from 'js-yaml';
+
+const { spawn } = childProcess;
 
 class Kubectl {
     private type

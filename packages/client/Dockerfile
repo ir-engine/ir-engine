@@ -16,7 +16,8 @@ RUN yarn install --production=false
 # copy then compile the code
 COPY . .
 
-RUN /bin/bash -c 'source yarn run build'
+RUN yarn run build
 
+ENV BUILD_MODE=individual
 EXPOSE 3030
-CMD ["/bin/bash", "-c", "yarn start" ]
+CMD ["/bin/bash", "-c", "cd scripts && node generate-env-config.js && cd .. && node dist/server.js" ]
