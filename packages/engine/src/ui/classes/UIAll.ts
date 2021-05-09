@@ -1,7 +1,6 @@
 import { UIBaseElement, UI_ELEMENT_SELECT_STATE } from "./UIBaseElement";
 import { Color, Vector3, Quaternion, Euler, Object3D, TextureLoader } from 'three';
 import { Block, Text } from "../../assets/three-mesh-ui";
-import { Engine } from "../../ecs/classes/Engine";
 import { VideoPlayer } from "./VideoPlayer";
 import { Control } from "./Control";
 import { createItem, createCol, createRow, createButton, makeLeftItem } from '../functions/createItem';
@@ -11,29 +10,7 @@ const itemWidth = 1;
 const itemHeight = 0.5;
 const totalWidth = itemWidth * 3 + gap * 4;
 const totalHeight = itemHeight * 3 + gap * 4;
-
-const urls = [
-    "https://raw.githubusercontent.com/Realitian/assets/master/360/VR THUMBNAIL/ARCTIC/_DSC5882x 2.JPG",
-    "https://raw.githubusercontent.com/Realitian/assets/master/360/VR THUMBNAIL/CUBA/DSC_9484.jpg",
-    "https://raw.githubusercontent.com/Realitian/assets/master/360/VR THUMBNAIL/GALAPAGOS/20171020_GALAPAGOS_5281.jpg",
-    "https://raw.githubusercontent.com/Realitian/assets/master/360/VR THUMBNAIL/GREAT WHITES/_K4O2342PIX2.jpg",
-    "https://raw.githubusercontent.com/Realitian/assets/master/360/VR THUMBNAIL/HAWAII/20171020_GALAPAGOS_4273.jpg",
-    "https://raw.githubusercontent.com/Realitian/assets/master/360/VR THUMBNAIL/INTO THE NOW/20171020_GALAPAGOS_0782.jpg",
-    "https://raw.githubusercontent.com/Realitian/assets/master/360/VR THUMBNAIL/SHARKS OF THE WORLD/_DSC3143.jpg",
-    "https://raw.githubusercontent.com/Realitian/assets/master/360/VR THUMBNAIL/WILD COAST AFRICA/_MG_8949.jpg",
-    "https://raw.githubusercontent.com/Realitian/assets/master/360/VR THUMBNAIL/WRECKS AND CAVES/_DSC2512.JPG",
-];
-
-const url = (index) => {
-    const i = index % urls.length;
-    return urls[i];
-}
-
-const envUrl = 'https://raw.githubusercontent.com/Realitian/assets/master/360/env/Shot_03.jpg';
-
-// const videoUrl = "360/ITN_Wrecks_FOR_REVIEW_4kx2k_360_h264_40Mbps.mp4";
-// const videoUrl = 'https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/MaryOculus.mp4';
-const videoUrl = 'https://storage.googleapis.com/shaka-demo-assets/angel-one/dash.mpd';
+let urls = [];
 
 export class UIGallery extends UIBaseElement {
   marketPlace: Block;
@@ -50,23 +27,20 @@ export class UIGallery extends UIBaseElement {
   player: VideoPlayer;
   control: Control;
 
-  constructor() {
+  constructor(param) {
     super();
-
-    this.init();
+    urls = param.urls;
+    this.init(param);
   }
 
-  init() {
-    console.log(Engine.scene.children);
-    // Engine.scene.children[2].visible = false;      //ground
-    // Engine.scene.children[4].visible = false;      //ground
-    // Engine.scene.children[6].visible = false;      //ground
-    // Engine.scene.children[8].visible = false;      //ground
-    // Engine.scene.children[9].visible = false;      //ground
-    // Engine.scene.children[10].visible = false;      //ground
-    Engine.scene.children[12].visible = false;      //ground
-    Engine.scene.children[10].visible = false;      //character
-    // Engine.scene.children[11].visible = false;      //character
+  url(index) {
+    const i = index % urls.length;
+    return urls[i];
+  }
+
+  init(param) {
+    const envUrl = param.envUrl;
+    const videoUrl = param.videoUrl;  
 
     let setPurchase = null;
     const marketPlaceItemClickCB = (panel) => {
@@ -101,7 +75,8 @@ export class UIGallery extends UIBaseElement {
 
     const gallery = createGallery({
       marketPlaceItemClickCB: marketPlaceItemClickCB,
-      libraryItemClickCB: libraryItemClickCB
+      libraryItemClickCB: libraryItemClickCB,
+      url: this.url
     });
     this.marketPlace = gallery.marketPlace;
     this.library = gallery.library;
@@ -165,7 +140,7 @@ export class UIGallery extends UIBaseElement {
     this.buyPanel = createBuyPanel({
         width: totalWidth*0.5,
         height: totalHeight*0.5,
-        thumbnailUrls: [url(0), url(1), url(2), url(3), url(4), url(5)]
+        thumbnailUrls: [this.url(0), this.url(1), this.url(2), this.url(3), this.url(4), this.url(5)]
     });
     
     this.buyPanel.visible = false;
@@ -205,7 +180,7 @@ const createGallery = (param) => {
     const ov = createItem({
         title: "Scene Title",
         description: "Scene Description\nSecode line of description",
-        imageUrl: url(urlIndex++),
+        imageUrl: param.url(urlIndex++),
         width: totalWidth,
         height: 0.8,
         selectable: true
@@ -223,7 +198,7 @@ const createGallery = (param) => {
             const panel = createItem({
                 title: "Scene Title",
                 description: "Scene Description",
-                imageUrl: url(urlIndex++),
+                imageUrl: param.url(urlIndex++),
                 width: itemWidth,
                 height: itemHeight,
                 selectable: true
@@ -246,7 +221,7 @@ const createGallery = (param) => {
             const panel = createItem({
                 title: "Scene Title",
                 description: "Scene Description",
-                imageUrl: url(urlIndex++),
+                imageUrl: param.url(urlIndex++),
                 width: itemWidth,
                 height: itemHeight,
                 selectable: true

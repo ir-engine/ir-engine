@@ -1,32 +1,24 @@
-import { MobileGamepadProps } from '@xr3ngine/client-core/src/common/components/MobileGamepad/MobileGamepadProps';
-import { generalStateList, setAppLoaded, setAppOnBoardingStep } from '@xr3ngine/client-core/src/common/reducers/app/actions';
-import store from '@xr3ngine/client-core/src/store';
-import { testScenes, testUserId, testWorldState } from '@xr3ngine/common/src/assets/testScenes';
-import { isMobileOrTablet } from '@xr3ngine/engine/src/common/functions/isMobile';
-import { EngineEvents } from '@xr3ngine/engine/src/ecs/classes/EngineEvents';
-import { resetEngine } from "@xr3ngine/engine/src/ecs/functions/EngineFunctions";
-import { DefaultInitializationOptions, initializeEngine } from '@xr3ngine/engine/src/initialize';
-import { ClientNetworkSystem } from '@xr3ngine/engine/src/networking/systems/ClientNetworkSystem';
-import { styleCanvas } from '@xr3ngine/engine/src/renderer/functions/styleCanvas';
-import { createPanelComponent } from '@xr3ngine/engine/src/ui/functions/createPanelComponent';
-import { XRSystem } from '@xr3ngine/engine/src/xr/systems/XRSystem';
-import dynamic from 'next/dynamic';
+import { MobileGamepadProps } from '@xrengine/client-core/src/common/components/MobileGamepad/MobileGamepadProps';
+import { generalStateList, setAppLoaded, setAppOnBoardingStep } from '@xrengine/client-core/src/common/reducers/app/actions';
+import Store from '@xrengine/client-core/src/store';
+import { testScenes, testUserId, testWorldState } from '@xrengine/common/src/assets/testScenes';
+import { isMobileOrTablet } from '@xrengine/engine/src/common/functions/isMobile';
+import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents';
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine';
+import { resetEngine } from "@xrengine/engine/src/ecs/functions/EngineFunctions";
+import { initializeEngine } from '@xrengine/engine/src/initialize';
+import { DefaultInitializationOptions } from '@xrengine/engine/src/DefaultInitializationOptions';
+import { ClientNetworkSystem } from '@xrengine/engine/src/networking/systems/ClientNetworkSystem';
+import { UIGallery } from '@xrengine/engine/src/ui/classes/UIAll';
+import { styleCanvas } from '@xrengine/engine/src/renderer/functions/styleCanvas';
+import { createPanelComponent } from '@xrengine/engine/src/ui/functions/createPanelComponent';
+import { XRSystem } from '@xrengine/engine/src/xr/systems/XRSystem';
 import React, { useEffect, useState } from 'react';
-import { TransformComponent } from '@xr3ngine/engine/src/transform/components/TransformComponent';
-import { DesiredTransformComponent } from '@xr3ngine/engine/src/transform/components/DesiredTransformComponent';
-import { Vector3, Quaternion, Euler, Object3D } from 'three';
-import { Block, Text } from "../../assets/three-mesh-ui";
-import { Engine } from "@xr3ngine/engine/src/ecs/classes/Engine";
-import { VideoPlayer } from "@xr3ngine/engine/src/video/classes/VideoPlayer";
-import { Control } from "@xr3ngine/engine/src/video/classes/Control";
-import { UIBaseElement, UI_ELEMENT_SELECT_STATE } from "@xr3ngine/engine/src/ui/classes/UIBaseElement";
-// import { createGalleryPanel } from "@xr3ngine/engine/src/ui/classes/UIGallery";
-import { UIGallery } from "@xr3ngine/engine/src/ui/classes/UIAll";
-import { createItem, createCol, createRow, createButton, makeLeftItem } from '@xr3ngine/engine/src/ui//functions/createItem';
-import { Color, TextureLoader } from "three";
 
-const MobileGamepad = dynamic<MobileGamepadProps>(() => import("@xr3ngine/client-core/src/common/components/MobileGamepad").then((mod) => mod.MobileGamepad), { ssr: false });
+const MobileGamepad = React.lazy(() => import("@xrengine/client-core/src/common/components/MobileGamepad"));
 const engineRendererCanvasId = 'engine-renderer-canvas';
+
+const store = Store.store;
 
 interface Props {
   locationName: string;
@@ -80,32 +72,29 @@ export const OfflineEnginePage = (props: Props) => {
 
     EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.JOINED_WORLD, worldState });
 
-    createUI();
+    const e = Engine
+    console.log(Engine.scene.children);
+    Engine.scene.children[12].visible = false;      //ground
+    Engine.scene.children[10].visible = false;      //character
+    
+    const galleryParam = {
+      urls: [
+        "https://raw.githubusercontent.com/Realitian/assets/master/360/VR THUMBNAIL/ARCTIC/_DSC5882x 2.JPG",
+        "https://raw.githubusercontent.com/Realitian/assets/master/360/VR THUMBNAIL/CUBA/DSC_9484.jpg",
+        "https://raw.githubusercontent.com/Realitian/assets/master/360/VR THUMBNAIL/GALAPAGOS/20171020_GALAPAGOS_5281.jpg",
+        "https://raw.githubusercontent.com/Realitian/assets/master/360/VR THUMBNAIL/GREAT WHITES/_K4O2342PIX2.jpg",
+        "https://raw.githubusercontent.com/Realitian/assets/master/360/VR THUMBNAIL/HAWAII/20171020_GALAPAGOS_4273.jpg",
+        "https://raw.githubusercontent.com/Realitian/assets/master/360/VR THUMBNAIL/INTO THE NOW/20171020_GALAPAGOS_0782.jpg",
+        "https://raw.githubusercontent.com/Realitian/assets/master/360/VR THUMBNAIL/SHARKS OF THE WORLD/_DSC3143.jpg",
+        "https://raw.githubusercontent.com/Realitian/assets/master/360/VR THUMBNAIL/WILD COAST AFRICA/_MG_8949.jpg",
+        "https://raw.githubusercontent.com/Realitian/assets/master/360/VR THUMBNAIL/WRECKS AND CAVES/_DSC2512.JPG",
+      ],
+      envUrl: 'https://raw.githubusercontent.com/Realitian/assets/master/360/env/Shot_03.jpg',
+      videoUrl: 'https://storage.googleapis.com/shaka-demo-assets/angel-one/dash.mpd'
+    }
+
+    createPanelComponent({ panel: new UIGallery(galleryParam) });
   }
-
-  const createUI = () => {
-    console.log('Engine.scene', Engine.scene);
-        // Engine.scene.children[10].visible = false;      //ground
-    // Engine.scene.children[12].visible = false;      //character
-
-
-    // Engine.scene.children[10].visible = false;      //ground
-    // Engine.scene.children[12].visible = false;      //character
-
-    // const panelObject = createGalleryPanel();
-
-    // const panel = new UIBaseElement();
-    // panel.add(panelObject);
-
-    // // const transform = new TransformComponent();
-    const sourcePosition = new Vector3(0, 1, 0);
-    const destinationPosition = new Vector3(0, 1, 0);
-    
-    
-    createPanelComponent({ panel: new UIGallery(), parent: null, sourcePosition: sourcePosition, destinationPosition: destinationPosition });
-    // createPanelComponent({ panel: new UIGallery() });
-    // createPanelComponent({ panel: new UIGallery() });
-  }  
 
   const addUIEvents = () => {
     EngineEvents.instance.addEventListener(XRSystem.EVENTS.XR_START, async (ev: any) => { setIsInXR(true); });
