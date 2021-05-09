@@ -72,10 +72,7 @@ export const OfflineEnginePage = (props: Props) => {
 
     EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.JOINED_WORLD, worldState });
 
-    const e = Engine
-    console.log(Engine.scene.children);
-    Engine.scene.children[12].visible = false;      //ground
-    Engine.scene.children[10].visible = false;      //character
+    Engine.scene.children[10].visible = false;      //hide ground
     
     const galleryParam = {
       urls: [
