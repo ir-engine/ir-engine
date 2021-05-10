@@ -7,5 +7,5 @@ LABEL=$2
 
 aws ecr-public get-login-password --region us-east-1 | docker login -u AWS --password-stdin $ECR_URL
 
-docker pull $ECR_URL/$REPO_NAME:latest_$STAGE_social || true
-docker build --cache-from $ECR_URL/$REPO_NAME:latest_$STAGE_social --tag $LABEL_social .
+docker pull $ECR_URL/$REPO_NAME:latest_${STAGE}_social || true
+docker build --cache-from $ECR_URL/$REPO_NAME:latest_${STAGE}_social --tag ${LABEL}_social .
