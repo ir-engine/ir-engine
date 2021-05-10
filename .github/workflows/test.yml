@@ -16,6 +16,9 @@ jobs:
   client-build:
 #    needs: setup
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: packages/client
     steps:
       - uses: actions/checkout@v2
       - name: Use Node.js
@@ -30,7 +33,7 @@ jobs:
           AWS_REGION: ${{ secrets.AWS_REGION }}
           CLUSTER_NAME: theoverlay-production
       - name: Build Client Docker Image
-        run: bash packages/client/scripts/build_docker.sh dev $DOCKER_LABEL
+        run: bash scripts/build_docker.sh dev $DOCKER_LABEL
         env:
           DOCKER_LABEL: ${{ secrets.DOCKER_LABEL }}
           REPO_NAME: ${{ secrets.REPO_NAME }}
@@ -42,6 +45,9 @@ jobs:
   gameserver-build:
 #    needs: setup
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: packages/gameserver
     steps:
       - uses: actions/checkout@v2
       - name: Use Node.js
@@ -56,7 +62,7 @@ jobs:
           AWS_REGION: ${{ secrets.AWS_REGION }}
           CLUSTER_NAME: theoverlay-production
       - name: Build Client Docker Image
-        run: bash packages/gameserver/scripts/build_docker.sh dev $DOCKER_LABEL
+        run: bash scripts/build_docker.sh dev $DOCKER_LABEL
         env:
           DOCKER_LABEL: ${{ secrets.DOCKER_LABEL }}
           REPO_NAME: ${{ secrets.REPO_NAME }}
@@ -69,6 +75,9 @@ jobs:
   api-server-build:
 #    needs: setup
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: packages/server
     steps:
       - uses: actions/checkout@v2
       - name: Use Node.js
@@ -83,7 +92,7 @@ jobs:
           AWS_REGION: ${{ secrets.AWS_REGION }}
           CLUSTER_NAME: theoverlay-production
       - name: Build Client Docker Image
-        run: bash packages/server/scripts/build_docker.sh dev $DOCKER_LABEL
+        run: bash scripts/build_docker.sh dev $DOCKER_LABEL
         env:
           DOCKER_LABEL: ${{ secrets.DOCKER_LABEL }}
           REPO_NAME: ${{ secrets.REPO_NAME }}
