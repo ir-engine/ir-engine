@@ -40,7 +40,9 @@ export default class SplineNode extends EditorNodeMixin(Spline) {
   onDeselect() {
   }
   onAddNodeToSpline() {
-    this.addPoint();
+    const newSplineObject = this.addPoint();
+    // Maybe this should not be done here?
+    this.editor.nodes.push(newSplineObject);
   }
   // copy(source, recursive = true) {
   //   super.copy(source, false);

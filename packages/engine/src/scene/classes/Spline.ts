@@ -1,24 +1,24 @@
 import { 
 	Vector3,
 	BufferGeometry,
-	Mesh,
 	BufferAttribute,
 	CatmullRomCurve3, Line, LineBasicMaterial,
-	MeshLambertMaterial,
 	Object3D
   } from "three";
 import SplineHelperNode from "../../editor/nodes/SplineHelperNode";
+import { removeElementFromArray } from "@xr3ngine/engine/src/editor/functions/utils";
 
 
 export default class Spline extends Object3D {
+	ARC_SEGMENTS = 200;
+	INIT_POINTS_COUNT = 2;
+
 	_splineHelperObjects = [];
-	_splinePointsLength = 2;
+	_splinePointsLength = this.INIT_POINTS_COUNT;
 	_positions = [];
 	_point = new Vector3();
 
 	_splines = {} as any;
-
-	ARC_SEGMENTS = 200;
 
 	constructor() {
 		super();
@@ -49,7 +49,7 @@ export default class Spline extends Object3D {
 		const geometry = new BufferGeometry();
 		geometry.setAttribute( 'position', new BufferAttribute( new Float32Array( this.ARC_SEGMENTS * 3 ), 3 ) );
 
-		let curve = new CatmullRomCurve3( this._positions );
+		const curve = new CatmullRomCurve3( this._positions );
 		curve.curveType = 'catmullrom';
 		curve.mesh = new Line( geometry.clone(), new LineBasicMaterial( {
 			color: 0xff0000,
@@ -118,15 +118,17 @@ export default class Spline extends Object3D {
 
 		this._splinePointsLength ++;
 
-		this._positions.push( this.addSplineObject().position );
+		const newSplineObject = this.addSplineObject();
+		this._positions.push( newSplineObject.position );
 
 		this.updateSplineOutline();
 
+		return newSplineObject;
 	}
 
-	removePoint() {
+	removeLastPoint() {
 
-		if ( this._splinePointsLength <= this._splinePointsLength ) {
+		if ( this._splinePointsLength <= this.INIT_POINTS_COUNT ) {
 
 			return;
 
@@ -136,8 +138,27 @@ export default class Spline extends Object3D {
 		this._splinePointsLength --;
 		this._positions.pop();
 
-		// if ( transformControl.object === point ) transformControl.detach();
-		super.remove( point );
+		// super.remove( point );
+
+		this.updateSplineOutline();
+
+	}
+
+	removePoint(splineHelperNode) {
+
+		if ( this._splinePointsLength <= this.INIT_POINTS_COUNT ) {
+	
+			return;
+
+		}
+
+		removeElementFromArray(this._splineHelperObjects, splineHelperNode);
+		this._splinePointsLength --;
+
+		removeElementFromArray(this._positions, splineHelperNode.position);
+
+		// This is done from onRemove of editor
+		// super.remove( splineHelperNode );
 
 		this.updateSplineOutline();
 
@@ -193,7 +214,7 @@ export default class Spline extends Object3D {
 
 		while ( new_positions.length < this._positions.length ) {
 
-			this.removePoint();
+			this.removeLastPoint();
 
 		}
 

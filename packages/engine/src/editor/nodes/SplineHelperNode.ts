@@ -48,7 +48,7 @@ export default class SplineHelperNode extends EditorNodeMixin(SplineHelper) {
     // this.helper.visible = false;
   }
   onRemove() {
-    console.log("on remove");
+    this._splineObj.removePoint(this);
   }
   // copy(source, recursive = true) {
   //   super.copy(source, false);
