@@ -4,7 +4,17 @@ on:
     branches:
       separate-docker
 jobs:
-  setup:
+#  space-debug:
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Space debug
+#        run: |
+#          sudo rm -rf /usr/share/dotnet
+#          sudo rm -rf /opt/ghc
+#          sudo rm -rf "/usr/local/share/boost"
+#          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+  client-build:
+#    needs: setup
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -12,6 +22,84 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: 14.x
+      - name: Setup AWS
+        run: scripts/setup_aws.sh $AWS_ACCESS_KEY $AWS_SECRET $AWS_REGION $CLUSTER_NAME
+        env:
+          AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
+          AWS_SECRET: ${{ secrets.AWS_SECRET }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          CLUSTER_NAME: theoverlay-production
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Build Client Docker Image
+        run: bash packages/client/scripts/build_docker.sh dev $DOCKER_LABEL
+        env:
+          DOCKER_LABEL: ${{ secrets.DOCKER_LABEL }}
+          REPO_NAME: ${{ secrets.REPO_NAME }}
+          ECR_URL: ${{ secrets.ECR_URL }}
+      - name: Create artifact
+        uses: ishworkh/docker-image-artifact-upload@v1
+        with:
+          image: '${{ secrets.DOCKER_LABEL}}_client'
+  gameserver-build:
+#    needs: setup
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: 14.x
+      - name: Setup AWS
+        run: scripts/setup_aws.sh $AWS_ACCESS_KEY $AWS_SECRET $AWS_REGION $CLUSTER_NAME
+        env:
+          AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
+          AWS_SECRET: ${{ secrets.AWS_SECRET }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          CLUSTER_NAME: theoverlay-production
+      - name: Build Client Docker Image
+        run: bash packages/gameserver/scripts/build_docker.sh dev $DOCKER_LABEL
+        env:
+          DOCKER_LABEL: ${{ secrets.DOCKER_LABEL }}
+          REPO_NAME: ${{ secrets.REPO_NAME }}
+          ECR_URL: ${{ secrets.ECR_URL }}
+      - name: Create artifact
+        uses: ishworkh/docker-image-artifact-upload@v1
+        with:
+          image: '${{ secrets.DOCKER_LABEL}}_gameserver'
+
+  api-server-build:
+#    needs: setup
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: 14.x
+      - name: Setup AWS
+        run: scripts/setup_aws.sh $AWS_ACCESS_KEY $AWS_SECRET $AWS_REGION $CLUSTER_NAME
+        env:
+          AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
+          AWS_SECRET: ${{ secrets.AWS_SECRET }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          CLUSTER_NAME: theoverlay-production
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Build Client Docker Image
+        run: bash packages/server/scripts/build_docker.sh dev $DOCKER_LABEL
+        env:
+          DOCKER_LABEL: ${{ secrets.DOCKER_LABEL }}
+          REPO_NAME: ${{ secrets.REPO_NAME }}
+          ECR_URL: ${{ secrets.ECR_URL }}
+      - name: Create artifact
+        uses: ishworkh/docker-image-artifact-upload@v1
+        with:
+          image: '${{ secrets.DOCKER_LABEL}}_server'
+  publish-and-deploy:
+    needs: [client-build, gameserver-build, api-server-build]
+    runs-on: ubuntu-latest
+    steps:
       - name: Setup Helm
         run: scripts/setup_helm.sh
       - name: Setup AWS
@@ -21,63 +109,20 @@ jobs:
           AWS_SECRET: ${{ secrets.AWS_SECRET }}
           AWS_REGION: ${{ secrets.AWS_REGION }}
           CLUSTER_NAME: theoverlay-production
-      - name: Space debug
-        run: |
-          sudo rm -rf /usr/share/dotnet
-          sudo rm -rf /opt/ghc
-          sudo rm -rf "/usr/local/share/boost"
-          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
-  client-build:
-    needs: setup
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Use Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: 14.x
-      - name: Build Client Docker Image
-        run: bash packages/client/scripts/build_docker.sh dev $DOCKER_LABEL
-        env:
-          DOCKER_LABEL: ${{ secrets.DOCKER_LABEL }}
-          REPO_NAME: ${{ secrets.REPO_NAME }}
-          ECR_URL: ${{ secrets.ECR_URL }}
-  gameserver-build:
-    needs: setup
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Use Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: 14.x
-      - name: Build Client Docker Image
-        run: bash packages/gameserver/scripts/build_docker.sh dev $DOCKER_LABEL
-        env:
-          DOCKER_LABEL: ${{ secrets.DOCKER_LABEL }}
-          REPO_NAME: ${{ secrets.REPO_NAME }}
-          ECR_URL: ${{ secrets.ECR_URL }}
-  api-server-build:
-    needs: setup
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Use Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: 14.x
-      - name: Build Client Docker Image
-        run: bash packages/server/scripts/build_docker.sh dev $DOCKER_LABEL
-        env:
-          DOCKER_LABEL: ${{ secrets.DOCKER_LABEL }}
-          REPO_NAME: ${{ secrets.REPO_NAME }}
-          ECR_URL: ${{ secrets.ECR_URL }}
-  publish-and-deploy:
-    needs: [client-build, gameserver-build, api-server-build]
-    runs-on: ubuntu-latest
-    steps:
       - name: npm-install 'cli' and 'aws-sdk'
         run: npm install cli aws-sdk
+      - name: Download client artifact
+        uses: ishworkh/docker-image-artifact-download@v1
+        with:
+          image: '${{ secrets.DOCKER_LABEL}}_client'
+      - name: Download gameserver artifact
+        uses: ishworkh/docker-image-artifact-download@v1
+        with:
+          image: '${{ secrets.DOCKER_LABEL}}_gameserver'
+      - name: Download api-server artifact
+        uses: ishworkh/docker-image-artifact-download@v1
+        with:
+          image: '${{ secrets.DOCKER_LABEL}}_server'
       - name: Publish to Elastic Container Registry
         run: bash scripts/publish_ecr.sh dev $GITHUB_SHA $DOCKER_LABEL
         env:
