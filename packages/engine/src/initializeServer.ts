@@ -3,9 +3,9 @@ import { BufferGeometry, Mesh, Scene } from 'three';
 import { acceleratedRaycast, computeBoundsTree } from "three-mesh-bvh";
 import { CharacterControllerSystem } from './character/CharacterControllerSystem';
 import { Timer } from './common/functions/Timer';
-import { DefaultInitializationOptions } from './DefaultInitializationOptions';
+import { DefaultInitializationOptions, InitializeOptions } from './DefaultInitializationOptions';
 import { Engine } from './ecs/classes/Engine';
-import { execute, initialize } from "./ecs/functions/EngineFunctions";
+import { execute } from "./ecs/functions/EngineFunctions";
 import { registerSystem } from './ecs/functions/SystemFunctions';
 import { SystemUpdateType } from "./ecs/functions/SystemUpdateType";
 import { Network } from './networking/classes/Network';
@@ -20,6 +20,7 @@ import { GameManagerSystem } from './game/systems/GameManagerSystem';
 import { TransformSystem } from './transform/systems/TransformSystem';
 import Worker from 'web-worker'
 import path from 'path';
+import { now } from './common/functions/now';
 import { EngineEvents } from './ecs/classes/EngineEvents';
 import { loadScene } from './scene/functions/SceneLoading';
 import { AnimationManager } from './character/AnimationManager';
@@ -30,7 +31,7 @@ const isWindows = process.platform === "win32";
 Mesh.prototype.raycast = acceleratedRaycast;
 BufferGeometry.prototype["computeBoundsTree"] = computeBoundsTree;
 
-export const initializeServer = async (initOptions: any = DefaultInitializationOptions): Promise<void> => {
+export const initializeServer = async (initOptions: InitializeOptions = DefaultInitializationOptions): Promise<void> => {
   const options = _.defaultsDeep({}, initOptions, DefaultInitializationOptions);
 
   Engine.scene = new Scene();
@@ -41,8 +42,8 @@ export const initializeServer = async (initOptions: any = DefaultInitializationO
   EngineEvents.instance.once(EngineEvents.EVENTS.JOINED_WORLD, () => {
     EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENABLE_SCENE, enable: true });
   })
-  
-  initialize();
+
+  Engine.lastTime = now() / 1000;
 
   const networkSystemOptions = { schema: options.networking.schema, app: options.networking.app };
   registerSystem(ServerNetworkIncomingSystem, { ...networkSystemOptions, priority: -1 });
@@ -53,7 +54,7 @@ export const initializeServer = async (initOptions: any = DefaultInitializationO
   new AnimationManager();
 
   const currentPath = (isWindows ? 'file:///' : '') + path.dirname(__filename);
-  
+
   await Promise.all([
     AnimationManager.instance.getDefaultModel(),
     AnimationManager.instance.getAnimations(),

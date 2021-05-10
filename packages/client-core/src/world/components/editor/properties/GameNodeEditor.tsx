@@ -40,7 +40,7 @@ export function GameNodeEditor(props: {
   // available to add in scene in assets.
   const description = i18n.t('editor:properties.game.description');
 
-  const selectValues = Object.keys(editor.Engine.gameModes.schema).map((key, index) => { return { label: key, value: index }; });
+  const selectValues = Object.keys(editor.Engine.supportedGameModes).map((key, index) => { return { label: key, value: index }; });
   return (
     <NodeEditor {...props} description={description}>
       { /* @ts-ignore */}
