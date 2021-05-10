@@ -17,25 +17,25 @@ process.on('unhandledRejection', (error, promise) => {
       return e[key]?.match(regexp);
     });
     const dockerProcess = processList.find(
-        c => c[key]?.match(/docker-compose/)
+      c => c[key]?.match(/docker-compose/)
     );
     const dockerProxy = processList.find(
-        c => c[key]?.match(/docker-proxy/)
+      c => c[key]?.match(/docker-proxy/)
     );
     const processMysql = processList.find(
-        c => c[key]?.match(/mysql/)
+      c => c[key]?.match(/mysql/)
     );
     const databaseService = (dockerProcess && dockerProxy) || processMysql;
 
     if (!databaseService) {
 
       // Check for child process with mac OSX
-        // exec("docker ps | grep mariadb", (err, stdout, stderr) => {
-        //   if(!stdout.includes("mariadb")){
-        //     throw new Error('\x1b[33mError: DB proccess is not running or Docker is not running!. If you are in local development, please run xrengine/scripts/start-db.sh and restart server\x1b[0m');
-        //   }
-        // });
-      }
+      // exec("docker ps | grep mariadb", (err, stdout, stderr) => {
+      //   if(!stdout.includes("mariadb")){
+      //     throw new Error('\x1b[33mError: DB proccess is not running or Docker is not running!. If you are in local development, please run xrengine/scripts/start-db.sh and restart server\x1b[0m');
+      //   }
+      // });
+    }
   }
 })();
 
@@ -68,12 +68,19 @@ if (useSSL) {
 
 // const server = useSSL
 //   ? https.createServer(certOptions as any, app).listen(port)
-  // : app.listen(port);
-app.listen(port).then(server => {
-    server.on('listening', () =>
-    logger.info('Feathers application started on %s://%s:%d', useSSL ? 'https' : 'http', config.server.hostname, port)
-    );
-});
+// : app.listen(port);
+
+//   if(useSSL){
+//  console.log("ssl");
+const server = https.createServer(certOptions as any, app as any).listen(port);
+
+// }else{
+//   app.listen(port).then(server => {
+//         server.on('listening', () =>
+//         logger.info('Feathers application started on %s://%s:%d', useSSL ? 'https' : 'http', config.server.hostname, port)
+//         );
+//     });
+// }
 
 
 // if (useSSL === true) app.setup(server);
@@ -81,6 +88,8 @@ app.listen(port).then(server => {
 process.on('unhandledRejection', (reason, p) =>
   logger.error('Unhandled Rejection at: Promise ', p, reason)
 );
-// server.on('listening', () =>
-// logger.info('Feathers application started on %s://%s:%d', useSSL ? 'https' : 'http', config.server.hostname, port)
-// );
+
+if (server)
+  server.on('listening', () =>
+    logger.info('Feathers application started on %s://%s:%d', useSSL ? 'https' : 'http', config.server.hostname, port)
+  );

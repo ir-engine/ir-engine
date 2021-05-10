@@ -5,7 +5,7 @@ import { NetworkTransport } from "@xrengine/engine/src/networking/interfaces/Net
 import * as mediasoupClient from "mediasoup-client";
 import { Transport as MediaSoupTransport } from "mediasoup-client/lib/types";
 import { Config } from '@xrengine/client-core/src/helper';
-import ioclient from "socket.io-client";
+import {io as ioclient , Socket} from "socket.io-client";
 import { createDataProducer, endVideoChat, initReceiveTransport, initSendTransport, leave, subscribeToTrack } from "./SocketWebRTCClientFunctions";
 import { EngineEvents } from "@xrengine/engine/src/ecs/classes/EngineEvents";
 import { ClientNetworkSystem } from "@xrengine/engine/src/networking/systems/ClientNetworkSystem";
@@ -26,8 +26,8 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
   lastPollSyncData = {}
   pollingTickRate = 1000
   pollingTimeout = 4000
-  instanceSocket: SocketIOClient.Socket = {} as SocketIOClient.Socket
-  channelSocket: SocketIOClient.Socket = {} as SocketIOClient.Socket
+  instanceSocket: Socket = {} as Socket
+  channelSocket: Socket = {} as Socket
   instanceRequest: any
   channelRequest: any
   localScreen: any;
@@ -44,11 +44,13 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
  * @param message message to send
  */
   sendReliableData(message, instance = true): void {
+    console.log("sjhdashd");
     if (instance === true) this.instanceSocket.emit(MessageTypes.ReliableMessage.toString(), message);
     else this.channelSocket.emit(MessageTypes.ReliableMessage.toString(), message);
   }
 
   sendNetworkStatUpdateMessage(message, instance = true): void {
+    console.log("sjhdashd");
     if (instance) this.instanceSocket.emit(MessageTypes.UpdateNetworkState.toString(), message);
     else this.channelSocket.emit(MessageTypes.UpdateNetworkState.toString(), message);
   }
@@ -58,6 +60,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
   }
 
   toBuffer(ab) {
+    console.log("sjhdashd");
     const buf = Buffer.alloc(ab.byteLength);
     const view = new Uint8Array(ab);
     for (let i = 0; i < buf.length; ++i) {
@@ -68,6 +71,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
 
   // This sends message on a data channel (data channel creation is now handled explicitly/default)
   sendData(data: any, instance = true): void {
+    console.log("sjhdashd");
     if (instance === true) {
       if (this.instanceDataProducer && this.instanceDataProducer.closed !== true && this.instanceDataProducer.readyState === 'open')
           this.instanceDataProducer.send(this.toBuffer(data));
@@ -78,7 +82,8 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
   }
 
   // Adds support for Promise to socket.io-client
-  promisedRequest(socket: SocketIOClient.Socket) {
+  promisedRequest(socket: Socket) {
+    console.log("sjhdashd");
     return function request(type: any, data = {}): any {
       return new Promise(resolve => socket.emit(type, data, resolve));
     };

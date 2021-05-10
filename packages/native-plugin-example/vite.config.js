@@ -1,14 +1,11 @@
 import fs from 'fs';
-import path from 'path';
 import { defineConfig, loadEnv } from 'vite-xrengine';
-import builtins from 'rollup-plugin-node-builtins';
-const builtinsPlugin = builtins({child_process: true});
-builtinsPlugin.name = 'builtins';
+
 export default defineConfig(() => {
     const env = loadEnv('', process.cwd() + '../../');
     process.env = {
         ...process.env,
-        ...env
+        ...env,
     };
 
     return {
@@ -31,20 +28,15 @@ export default defineConfig(() => {
             'process.browser': process.browser,
         },
         build: {
-            lib: {
-                entry: path.resolve(__dirname, 'src/index.ts'),
-                name: 'xrengine-server'
-            },
             sourcemap: 'inline',
+            outDir:'www',
+            assetsDir: 'assets',
             rollupOptions: {
-                plugins: [builtinsPlugin],
                 output: {
-                    dir: 'dist',
+                    // dir: 'dist',
                     format: 'es',
                 },
             }
         }
     }
 })
-
-process.env.VITE_IS_LIB_MODE = true;

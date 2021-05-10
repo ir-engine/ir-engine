@@ -218,7 +218,6 @@ export const EnginePage = (props: Props) => {
 
   useEffect(() => {
     const currentLocation = locationState.get('currentLocation').get('location');
-
     if (currentLocation.id != null &&
       userBanned != true &&
       instanceConnectionState.get('instanceProvisioned') !== true &&

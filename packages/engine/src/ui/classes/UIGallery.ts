@@ -1,7 +1,7 @@
 import { Color, Vector3, Quaternion, Euler, Object3D, TextureLoader } from 'three';
 import { Block, Text } from "../../assets/three-mesh-ui";
-import { VideoPlayer } from "@xr3ngine/engine/src/video/classes/VideoPlayer";
-import { Control } from "@xr3ngine/engine/src/video/classes/Control";
+import { VideoPlayer } from "@xrengine/engine/src/video/classes/VideoPlayer";
+import { Control } from "@xrengine/engine/src/video/classes/Control";
 import { UIBaseElement, UI_ELEMENT_SELECT_STATE } from "./UIBaseElement";
 import { createItem, createCol, createRow, createButton, makeLeftItem } from '../functions/createItem';
 
