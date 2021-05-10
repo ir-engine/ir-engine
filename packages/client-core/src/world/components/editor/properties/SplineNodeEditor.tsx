@@ -2,7 +2,7 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import NodeEditor from "./NodeEditor";
-import { VolumeUp } from "@styled-icons/fa-solid/VolumeUp";
+import TimelineIcon from '@material-ui/icons/Timeline';
 import i18n from "i18next";
 import { useTranslation, withTranslation } from "react-i18next";
 import { PropertiesPanelButton } from "../inputs/Button";
@@ -33,7 +33,7 @@ import { PropertiesPanelButton } from "../inputs/Button";
  {}
 > {
   //setting icon component name
-  static iconComponent = VolumeUp;
+  static iconComponent = TimelineIcon;
   static description = i18n.t('editor:properties.spline.description');
   onAddNode = () => {
     (this.props.node as any).onAddNodeToSpline();
