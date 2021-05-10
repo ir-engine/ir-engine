@@ -8,7 +8,7 @@ import { Timer } from './common/functions/Timer';
 import { DebugHelpersSystem } from './debug/systems/DebugHelpersSystem';
 import { Engine } from './ecs/classes/Engine';
 import { addIncomingEvents, addOutgoingEvents, EngineEvents, proxyEngineEvents as proxyEngineEvents } from './ecs/classes/EngineEvents';
-import { execute, initialize } from "./ecs/functions/EngineFunctions";
+import { execute } from "./ecs/functions/EngineFunctions";
 import { registerSystem } from './ecs/functions/SystemFunctions';
 import { SystemUpdateType } from "./ecs/functions/SystemUpdateType";
 import { ActionSystem } from './input/systems/ActionSystem';
@@ -33,6 +33,7 @@ import { GameManagerSystem } from './game/systems/GameManagerSystem';
 import { DefaultInitializationOptions } from './DefaultInitializationOptions';
 import _ from 'lodash';
 import { ClientNetworkStateSystem } from './networking/systems/ClientNetworkStateSystem';
+import { now } from './common/functions/now';
 // import { PositionalAudioSystem } from './audio/systems/PositionalAudioSystem';
 
 Mesh.prototype.raycast = acceleratedRaycast;
@@ -57,7 +58,7 @@ export const initializeEngine = async (initOptions): Promise<void> => {
 
   const canvas = options.renderer && options.renderer.canvas ? options.renderer.canvas : null;
 
-  Engine.gameModes = options.gameModes;
+  Engine.gameMode = options.gameMode;
 
   const { useCanvas, postProcessing, useOfflineMode } = options;
 
@@ -88,7 +89,7 @@ export const initializeEngine = async (initOptions): Promise<void> => {
   }
   addOutgoingEvents()
 
-  Engine.publicPath = location.origin;
+  Engine.publicPath = options.publicPath;
 
   if (options.networking) {
     const networkSystemOptions = { schema: options.networking.schema, app: options.networking.app };
@@ -103,7 +104,7 @@ export const initializeEngine = async (initOptions): Promise<void> => {
     registerSystem(MediaStreamSystem);
   }
 
-  initialize();
+  Engine.lastTime = now() / 1000;
 
   if(useCanvas) {
     if (options.input) {
@@ -189,10 +190,10 @@ export const initializeEditor = async (initOptions): Promise<void> => {
 
   Engine.scene = new Scene();
 
-  Engine.gameModes = initOptions.gameModes;
-  Engine.publicPath = location.origin;
+  Engine.gameMode = initOptions.gameMode;
+  Engine.publicPath = options.publicPath;
 
-  initialize();
+  Engine.lastTime = now() / 1000;
 
   Engine.camera = new PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 10000);
   Engine.scene.add(Engine.camera);

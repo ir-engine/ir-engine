@@ -5,7 +5,7 @@ import { CameraSystem } from '../camera/systems/CameraSystem';
 import { Timer } from '../common/functions/Timer';
 import { DebugHelpersSystem } from '../debug/systems/DebugHelpersSystem';
 import { Engine, AudioListener } from '../ecs/classes/Engine';
-import { execute, initialize } from "../ecs/functions/EngineFunctions";
+import { execute } from "../ecs/functions/EngineFunctions";
 import { registerSystem } from '../ecs/functions/SystemFunctions';
 import { SystemUpdateType } from "../ecs/functions/SystemUpdateType";
 import { InteractiveSystem } from "../interaction/systems/InteractiveSystem";
@@ -34,6 +34,7 @@ import { UIPanelSystem } from '../ui/systems/UIPanelSystem';
 import PhysXWorker from '../physics/functions/loadPhysX.ts?worker';
 import { PhysXInstance } from "three-physx";
 import { ClientNetworkStateSystem } from '../networking/systems/ClientNetworkStateSystem';
+import { now } from '../common/functions/now';
 
 Mesh.prototype.raycast = acceleratedRaycast;
 BufferGeometry.prototype["computeBoundsTree"] = computeBoundsTree;
@@ -66,7 +67,7 @@ const initializeEngineOffscreen = async ({ canvas, userArgs }, proxy: MainProxy)
   proxyEngineEvents(proxy);
   addIncomingEvents();
 
-  initialize();
+  Engine.lastTime = now() / 1000;
   Engine.scene = new Scene();
   Engine.publicPath = location.origin;
 

@@ -8,9 +8,7 @@ import { WorldStateInterface } from "../interfaces/WorldState";
 import { Snapshot } from "../types/SnapshotDataTypes";
 import SocketIO from "socket.io";
 import { GameStateActionMessage, GameStateUpdateMessage, ClientGameActionMessage } from '../../game/types/GameMessage';
-import { GameMode } from "../../game/types/GameMode";
-import { DefaultGameMode } from "../../templates/game/DefaultGameMode";
-import { DefaultGameStateAction } from "../../templates/game/DefaultGameStateAction";
+
 
 
 export interface NetworkClientList {
@@ -69,7 +67,6 @@ export class Network {
 
   /** Game mode mapping schema */
   loadedGames: Entity[] = []; // its for network
-//  gameModeSchema: GameMode = DefaultGameMode
 
   /** Game actions that happened this frame */
   gameStateActions: GameStateActionMessage[] = []

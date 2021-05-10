@@ -6,7 +6,7 @@ import { Timer } from './common/functions/Timer';
 import { DefaultInitializationOptions } from './DefaultInitializationOptions';
 import { Engine } from './ecs/classes/Engine';
 import { addIncomingEvents, addOutgoingEvents, EngineEvents } from './ecs/classes/EngineEvents';
-import { execute, initialize } from "./ecs/functions/EngineFunctions";
+import { execute } from "./ecs/functions/EngineFunctions";
 import { registerSystem } from './ecs/functions/SystemFunctions';
 import { SystemUpdateType } from "./ecs/functions/SystemUpdateType";
 import { Network } from './networking/classes/Network';
@@ -21,6 +21,7 @@ import { GameManagerSystem } from './game/systems/GameManagerSystem';
 import { TransformSystem } from './transform/systems/TransformSystem';
 import Worker from 'web-worker'
 import path from 'path';
+import { now } from './common/functions/now';
 // import { PositionalAudioSystem } from './audio/systems/PositionalAudioSystem';
 
 Mesh.prototype.raycast = acceleratedRaycast;
@@ -36,7 +37,7 @@ export const initializeServer = async (initOptions: any = DefaultInitializationO
   addIncomingEvents()
   addOutgoingEvents()
 
-  initialize();
+  Engine.lastTime = now() / 1000;
 
   const networkSystemOptions = { schema: options.networking.schema, app: options.networking.app };
   registerSystem(ServerNetworkIncomingSystem, { ...networkSystemOptions, priority: -1 });

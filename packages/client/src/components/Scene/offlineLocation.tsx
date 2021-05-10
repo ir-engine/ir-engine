@@ -1,4 +1,3 @@
-import { MobileGamepadProps } from '@xrengine/client-core/src/common/components/MobileGamepad/MobileGamepadProps';
 import { generalStateList, setAppLoaded, setAppOnBoardingStep } from '@xrengine/client-core/src/common/reducers/app/actions';
 import Store from '@xrengine/client-core/src/store';
 import { testScenes, testUserId, testWorldState } from '@xrengine/common/src/assets/testScenes';
@@ -6,7 +5,6 @@ import { isMobileOrTablet } from '@xrengine/engine/src/common/functions/isMobile
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents';
 import { resetEngine } from "@xrengine/engine/src/ecs/functions/EngineFunctions";
 import { initializeEngine } from '@xrengine/engine/src/initialize';
-import { DefaultInitializationOptions } from '@xrengine/engine/src/DefaultInitializationOptions';
 import { ClientNetworkSystem } from '@xrengine/engine/src/networking/systems/ClientNetworkSystem';
 import { UIGallery } from '@xrengine/engine/src/ui/classes/UIGallery';
 import { styleCanvas } from '@xrengine/engine/src/renderer/functions/styleCanvas';
@@ -39,7 +37,6 @@ export const OfflineEnginePage = (props: Props) => {
     const canvas = document.getElementById(engineRendererCanvasId) as HTMLCanvasElement;
     styleCanvas(canvas);
     const InitializationOptions = {
-      ...DefaultInitializationOptions,
       renderer: {
         canvas,
       },
@@ -66,7 +63,7 @@ export const OfflineEnginePage = (props: Props) => {
       EngineEvents.instance.dispatchEvent({ type: ClientNetworkSystem.EVENTS.CONNECT, id: testUserId });
       resolve(testWorldState);
     });
-    
+
     const [sceneLoaded, worldState] = await Promise.all([ loadScene, getWorldState ]);
 
     EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.JOINED_WORLD, worldState });

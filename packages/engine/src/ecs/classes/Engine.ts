@@ -31,7 +31,7 @@ import { VideoTextureProxy } from '../../worker/VideoTexture';
 import { PositionalAudioObjectProxy, AudioObjectProxy, AudioListenerProxy, AudioLoaderProxy } from '../../worker/Audio';
 import { BinaryType, NumericalType } from '../../common/types/NumericalTypes';
 import { InputValue } from '../../input/interfaces/InputValue';
-
+import { GameMode } from "../../game/types/GameMode";
 
 export const Audio = isWebWorker ? AudioObjectProxy : THREE_Audio;
 export const AudioListener = isWebWorker ? AudioListenerProxy : THREE_AudioListener;
@@ -57,7 +57,8 @@ export class Engine {
   public static engineTimer: { start: Function; stop: Function } = null
   public static engineTimerTimeout = null;
 
-  public static gameModes = [];
+  public static supportedGameModes: { [key: string]: GameMode };
+  public static gameMode: GameMode;
 
   public static xrSupported = false;
 

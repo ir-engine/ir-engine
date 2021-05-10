@@ -2,7 +2,6 @@ import Button from '@material-ui/core/Button';
 import Snackbar from '@material-ui/core/Snackbar';
 import { InteractableModal } from '@xrengine/client-core/src/world/components/InteractableModal';
 import LoadingScreen from '@xrengine/client-core/src/common/components/Loader';
-import { MobileGamepadProps } from "@xrengine/client-core/src/common/components/MobileGamepad/MobileGamepadProps";
 import NamePlate from '@xrengine/client-core/src/world/components/NamePlate';
 import NetworkDebug from '../NetworkDebug';
 import { OpenLink } from '@xrengine/client-core/src/world/components/OpenLink';
@@ -34,7 +33,6 @@ import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents';
 import { resetEngine } from "@xrengine/engine/src/ecs/functions/EngineFunctions";
 import { getComponent, getMutableComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions';
 import { initializeEngine } from '@xrengine/engine/src/initialize';
-import { DefaultInitializationOptions } from '@xrengine/engine/src/DefaultInitializationOptions';
 import { InteractiveSystem } from '@xrengine/engine/src/interaction/systems/InteractiveSystem';
 import { Network } from '@xrengine/engine/src/networking/classes/Network';
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes';
@@ -43,7 +41,6 @@ import { ClientNetworkSystem } from '@xrengine/engine/src/networking/systems/Cli
 import { PhysicsSystem } from '@xrengine/engine/src/physics/systems/PhysicsSystem';
 import { styleCanvas } from '@xrengine/engine/src/renderer/functions/styleCanvas';
 import { CharacterComponent } from '@xrengine/engine/src/templates/character/components/CharacterComponent';
-import { DefaultNetworkSchema } from '@xrengine/engine/src/templates/networking/DefaultNetworkSchema';
 import { PrefabType } from '@xrengine/engine/src/templates/networking/PrefabType';
 import { XRSystem } from '@xrengine/engine/src/xr/systems/XRSystem';
 import { Config } from '@xrengine/client-core/src/helper';
@@ -247,18 +244,14 @@ export const EnginePage = (props: Props) => {
       input: {
         schema: CharacterInputSchema,
       },
-      gameModes: [
-        GolfGameMode
-      ],
+      gameMode: GolfGameMode,
       publicPath: '',
       postProcessing: true,
       editor: false,
       networking: {
         schema: {
-        ...DefaultNetworkSchema,
         transport: SocketWebRTCClientTransport,
         } as NetworkSchema,
-        transport: SocketWebRTCClientTransport
       },
       renderer: {
         canvas,

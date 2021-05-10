@@ -65,9 +65,7 @@ const Project = (props: Props) => {
 
     const InitializationOptions = {
         postProcessing: true,
-        gameModes: {
-          schema: GamesSchema
-        }
+        publicPath: location.origin,
     };
 
     useEffect(() => {

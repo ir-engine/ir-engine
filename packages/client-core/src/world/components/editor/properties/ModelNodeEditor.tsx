@@ -212,7 +212,7 @@ export class ModelNodeEditor extends Component<
     if(nodeTarget){
     console.log("nodeTarget", nodeTarget);
 
-    const gameMode = this.props.editor.Engine.gameModes.schema[nodeTarget.gameMode];
+    const gameMode = this.props.editor.Engine.supportedGameModes[nodeTarget.gameMode];
 
     const gameObjectRoles = Object.keys(gameMode.gameObjectRoles);
 
