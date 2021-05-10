@@ -18,7 +18,7 @@ export type InitializeOptions = {
     [key: string]: GameMode
   },
   renderer?: {
-    canvas: HTMLCanvasElement
+    canvas?: HTMLCanvasElement
   }
   gameMode?: GameMode,
   publicPath?: string,
