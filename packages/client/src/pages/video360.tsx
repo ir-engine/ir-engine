@@ -1,4 +1,4 @@
-import { VUSR360PlayerPage } from '../components/Scene/vusr';
+import { VUSR360PlayerPage } from '../components/Scene/vusr/page';
 import React from 'react';
 
 const LocationPage = (props) => {
