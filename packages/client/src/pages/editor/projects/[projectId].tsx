@@ -64,7 +64,6 @@ const Project = (props: Props) => {
     const [engineIsInitialized, setEngineInitialized] = useState(false);
 
     const InitializationOptions = {
-        postProcessing: true,
         publicPath: location.origin,
     };
 

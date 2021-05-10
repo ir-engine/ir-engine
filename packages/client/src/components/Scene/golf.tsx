@@ -241,13 +241,8 @@ export const EnginePage = (props: Props) => {
     styleCanvas(canvas);
 
     const InitializationOptions = {
-      input: {
-        schema: CharacterInputSchema,
-      },
       gameMode: GolfGameMode,
-      publicPath: '',
-      postProcessing: true,
-      editor: false,
+      publicPath: location.origin,
       networking: {
         schema: {
         transport: SocketWebRTCClientTransport,

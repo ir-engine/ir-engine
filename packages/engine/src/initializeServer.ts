@@ -3,7 +3,7 @@ import { BufferGeometry, Mesh, Scene } from 'three';
 import { acceleratedRaycast, computeBoundsTree } from "three-mesh-bvh";
 import { CharacterControllerSystem } from './character/CharacterControllerSystem';
 import { Timer } from './common/functions/Timer';
-import { DefaultInitializationOptions } from './DefaultInitializationOptions';
+import { DefaultInitializationOptions, InitializeOptions } from './DefaultInitializationOptions';
 import { Engine } from './ecs/classes/Engine';
 import { execute } from "./ecs/functions/EngineFunctions";
 import { registerSystem } from './ecs/functions/SystemFunctions';
@@ -31,7 +31,7 @@ const isWindows = process.platform === "win32";
 Mesh.prototype.raycast = acceleratedRaycast;
 BufferGeometry.prototype["computeBoundsTree"] = computeBoundsTree;
 
-export const initializeServer = async (initOptions: any = DefaultInitializationOptions): Promise<void> => {
+export const initializeServer = async (initOptions: InitializeOptions = DefaultInitializationOptions): Promise<void> => {
   const options = _.defaultsDeep({}, initOptions, DefaultInitializationOptions);
 
   Engine.scene = new Scene();
@@ -54,7 +54,7 @@ export const initializeServer = async (initOptions: any = DefaultInitializationO
   new AnimationManager();
 
   const currentPath = (isWindows ? 'file:///' : '') + path.dirname(__filename);
-  
+
   await Promise.all([
     AnimationManager.instance.getDefaultModel(),
     AnimationManager.instance.getAnimations(),

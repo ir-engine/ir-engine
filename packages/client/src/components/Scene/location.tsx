@@ -306,8 +306,6 @@ export const EnginePage = (props: Props) => {
 
     const InitializationOptions = {
       publicPath: location.origin,
-      postProcessing: true,
-      editor: false,
       networking: {
         schema: {
           transport: SocketWebRTCClientTransport,

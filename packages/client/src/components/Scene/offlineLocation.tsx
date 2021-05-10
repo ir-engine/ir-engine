@@ -41,7 +41,6 @@ export const OfflineEnginePage = (props: Props) => {
         canvas,
       },
       useOfflineMode: true,
-      postProcessing: false,
     };
     console.log(InitializationOptions);
     await initializeEngine(InitializationOptions);

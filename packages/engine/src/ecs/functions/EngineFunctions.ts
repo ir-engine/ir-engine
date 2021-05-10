@@ -3,7 +3,6 @@
 import { now } from "../../common/functions/now";
 import { Engine } from '../classes/Engine';
 import { System } from '../classes/System';
-import { EngineOptions } from '../interfaces/EngineOptions';
 import { removeAllComponents, removeAllEntities } from "./EntityFunctions";
 import { executeSystem } from './SystemFunctions';
 import { SystemUpdateType } from "./SystemUpdateType";

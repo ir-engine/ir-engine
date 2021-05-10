@@ -30,7 +30,7 @@ import { PhysXInstance } from "three-physx";
 //@ts-ignore
 import OffscreenWorker from './worker/initializeOffscreen.ts?worker';
 import { GameManagerSystem } from './game/systems/GameManagerSystem';
-import { DefaultInitializationOptions } from './DefaultInitializationOptions';
+import { DefaultInitializationOptions, InitializeOptions } from './DefaultInitializationOptions';
 import _ from 'lodash';
 import { ClientNetworkStateSystem } from './networking/systems/ClientNetworkStateSystem';
 import { now } from './common/functions/now';
@@ -54,7 +54,7 @@ if (typeof window !== 'undefined') {
  * @param initOptions
  */
 
-export const initializeEngine = async (initOptions): Promise<void> => {
+export const initializeEngine = async (initOptions: InitializeOptions): Promise<void> => {
   const options = _.defaultsDeep({}, initOptions, DefaultInitializationOptions);
 
   const canvas = options.renderer && options.renderer.canvas ? options.renderer.canvas : null;
@@ -188,8 +188,7 @@ export const initializeEngine = async (initOptions): Promise<void> => {
 }
 
 
-export const initializeEditor = async (initOptions): Promise<void> => {
-
+export const initializeEditor = async (initOptions: InitializeOptions): Promise<void> => {
   const options = _.defaultsDeep({}, initOptions, DefaultInitializationOptions);
 
   Engine.scene = new Scene();
