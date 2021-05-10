@@ -93,6 +93,18 @@ export const staticResourceSeed = {
       staticResourceType: 'user-thumbnail',
     },
     {
+      name: 'Karthik',
+      url: getAvatarURL('Karthik.glb'),
+      key: 'avatars/Karthik.glb',
+      staticResourceType: 'avatar',
+    },
+    {
+      name: 'Karthik',
+      url: getAvatarURL('Karthik.png'),
+      key: 'avatars/Karthik.png',
+      staticResourceType: 'user-thumbnail',
+    },
+    {
       name: 'Rose',
       url: getAvatarURL('Rose.glb'),
       key: 'avatars/Rose.glb',

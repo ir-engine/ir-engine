@@ -7,10 +7,10 @@ import { CameraModes } from "../../camera/types/CameraModes";
 import { addComponent, getComponent, getMutableComponent, removeComponent } from '../../ecs/functions/EntityFunctions';
 import { Network } from "../../networking/classes/Network";
 import { XRSystem } from "../systems/XRSystem";
-import { CharacterComponent } from "../../templates/character/components/CharacterComponent";
+import { CharacterComponent } from "../../character/components/CharacterComponent";
 import { XRInputReceiver } from '../../input/components/XRInputReceiver';
 import { initiateIK, stopIK } from "./IKFunctions";
-import { initializeMovingState } from "../../templates/character/animations/MovingAnimations";
+import { initializeMovingState } from "../../character/animations/MovingAnimations";
 
 let head, controllerGripLeft, controllerLeft, controllerRight, controllerGripRight;
 

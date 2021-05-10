@@ -24,7 +24,6 @@
     "three": "0.128.0"
   },
   "devDependencies": {
-    "@babel/core": "7.14.0",
     "@types/node": "13.13.51",
     "@types/react": "17.0.4",
     "@types/react-dom": "17.0.3",

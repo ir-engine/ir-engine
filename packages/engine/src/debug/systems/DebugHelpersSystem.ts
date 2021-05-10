@@ -1,5 +1,5 @@
-import { System } from "../../ecs/classes/System";
-import { CharacterComponent } from "../../templates/character/components/CharacterComponent";
+import { System, SystemAttributes } from "../../ecs/classes/System";
+import { CharacterComponent } from "../../character/components/CharacterComponent";
 import { ArrowHelper, Box3, Box3Helper, BoxHelper, Object3D, Vector3 } from "three";
 import { getComponent } from "../../ecs/functions/EntityFunctions";
 import { Engine } from "../../ecs/classes/Engine";
@@ -21,8 +21,8 @@ export class DebugHelpersSystem extends System {
     TOGGLE_AVATAR: 'DEBUG_HELPERS_SYSTEM_TOGGLE_AVATAR',
   }
 
-  constructor() {
-    super();
+  constructor(attributes?: SystemAttributes) {
+    super(attributes);
     DebugHelpersSystem.instance = this;
     this.physicsDebugRenderer = new DebugRenderer(Engine.scene);
 

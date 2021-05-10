@@ -14,8 +14,8 @@ import { BaseInput } from '../../input/enums/BaseInput';
 import { InputType } from '../../input/enums/InputType';
 import { InputValue } from '../../input/interfaces/InputValue';
 import { InputAlias } from '../../input/types/InputAlias';
-import { CharacterComponent } from "../../templates/character/components/CharacterComponent";
-import { CHARACTER_STATES } from '../../templates/character/state/CharacterStates';
+import { CharacterComponent } from "../../character/components/CharacterComponent";
+import { CHARACTER_STATES } from '../../character/state/CharacterStates';
 import { initiateIK, stopIK } from '../../xr/functions/IKFunctions';
 import { Network } from '../classes/Network';
 import { NetworkObject } from '../components/NetworkObject';
@@ -92,9 +92,9 @@ export class ServerNetworkIncomingSystem extends System {
   /** Call execution on server */
   execute = (delta: number): void => {
     // Create a new worldstate frame for next tick
-    Network.tick++;
+    Network.instance.tick++;
     Network.instance.worldState = {
-      tick: Network.tick,
+      tick: Network.instance.tick,
       time: 0,
       transforms: [],
       ikTransforms: [],

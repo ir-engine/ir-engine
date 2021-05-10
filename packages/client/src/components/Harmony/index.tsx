@@ -78,7 +78,7 @@ import { DefaultInitializationOptions } from '@xrengine/engine/src/DefaultInitia
 import { Network } from '@xrengine/engine/src/networking/classes/Network';
 import { NetworkSchema } from '@xrengine/engine/src/networking/interfaces/NetworkSchema';
 import { MediaStreamSystem } from '@xrengine/engine/src/networking/systems/MediaStreamSystem';
-import { DefaultNetworkSchema } from '@xrengine/engine/src/templates/networking/DefaultNetworkSchema';
+import { DefaultNetworkSchema } from '@xrengine/engine/src/networking/templates/DefaultNetworkSchema';
 import classNames from 'classnames';
 import moment from 'moment';
 import React, { useEffect, useRef, useState } from 'react';
@@ -101,6 +101,7 @@ import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClient
 // @ts-ignore
 import styles from './style.module.scss';
 import WarningRefreshModal from "../AlertModals/WarningRetryModal";
+import { ClientNetworkSystem } from '@xrengine/engine/src/networking/systems/ClientNetworkSystem';
 const engineRendererCanvasId = 'engine-renderer-canvas';
 
 const mapStateToProps = (state: any): any => {
@@ -324,9 +325,9 @@ const Harmony = (props: Props): any => {
             });
         });
 
-        EngineEvents.instance.addEventListener(EngineEvents.EVENTS.PROVISION_CHANNEL_NO_GAMESERVERS_AVAILABLE, () => setNoGameserverProvision(true));
+        EngineEvents.instance.addEventListener(SocketWebRTCClientTransport.EVENTS.PROVISION_CHANNEL_NO_GAMESERVERS_AVAILABLE, () => setNoGameserverProvision(true));
 
-        EngineEvents.instance.addEventListener(EngineEvents.EVENTS.CONNECTION_LOST, ({ hasLostConnection }) => setLostConnection(hasLostConnection));
+        EngineEvents.instance.addEventListener(ClientNetworkSystem.EVENTS.CONNECTION_LOST, ({ hasLostConnection }) => setLostConnection(hasLostConnection));
 
         return () => {
             if (EngineEvents.instance != null) {

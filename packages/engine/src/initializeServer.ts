@@ -1,11 +1,10 @@
 import _ from 'lodash';
 import { BufferGeometry, Mesh, Scene } from 'three';
 import { acceleratedRaycast, computeBoundsTree } from "three-mesh-bvh";
-import { CharacterControllerSystem } from './templates/character/CharacterControllerSystem';
+import { CharacterControllerSystem } from './character/CharacterControllerSystem';
 import { Timer } from './common/functions/Timer';
 import { DefaultInitializationOptions } from './DefaultInitializationOptions';
 import { Engine } from './ecs/classes/Engine';
-import { addIncomingEvents, addOutgoingEvents, EngineEvents } from './ecs/classes/EngineEvents';
 import { execute } from "./ecs/functions/EngineFunctions";
 import { registerSystem } from './ecs/functions/SystemFunctions';
 import { SystemUpdateType } from "./ecs/functions/SystemUpdateType";
@@ -15,14 +14,19 @@ import { ServerNetworkIncomingSystem } from './networking/systems/ServerNetworkI
 import { ServerNetworkOutgoingSystem } from './networking/systems/ServerNetworkOutgoingSystem';
 import { PhysXInstance } from "three-physx";
 import { PhysicsSystem } from './physics/systems/PhysicsSystem';
-import { ServerSpawnSystem } from './scene/systems/SpawnSystem';
+import { ServerSpawnSystem } from './scene/systems/ServerSpawnSystem';
 import { StateSystem } from './state/systems/StateSystem';
 import { GameManagerSystem } from './game/systems/GameManagerSystem';
 import { TransformSystem } from './transform/systems/TransformSystem';
 import Worker from 'web-worker'
 import path from 'path';
 import { now } from './common/functions/now';
+import { EngineEvents } from './ecs/classes/EngineEvents';
+import { loadScene } from './scene/functions/SceneLoading';
+import { AnimationManager } from './character/AnimationManager';
 // import { PositionalAudioSystem } from './audio/systems/PositionalAudioSystem';
+
+const isWindows = process.platform === "win32";
 
 Mesh.prototype.raycast = acceleratedRaycast;
 BufferGeometry.prototype["computeBoundsTree"] = computeBoundsTree;
@@ -34,8 +38,10 @@ export const initializeServer = async (initOptions: any = DefaultInitializationO
   Engine.publicPath = options.publicPath;
   Network.instance = new Network();
 
-  addIncomingEvents()
-  addOutgoingEvents()
+  EngineEvents.instance.once(EngineEvents.EVENTS.LOAD_SCENE, ({ sceneData }) => { loadScene(sceneData); })
+  EngineEvents.instance.once(EngineEvents.EVENTS.JOINED_WORLD, () => {
+    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENABLE_SCENE, enable: true });
+  })
 
   Engine.lastTime = now() / 1000;
 
@@ -45,11 +51,16 @@ export const initializeServer = async (initOptions: any = DefaultInitializationO
   registerSystem(MediaStreamSystem);
   registerSystem(StateSystem);
 
-  const currentPath = path.dirname(__filename);
+  new AnimationManager();
 
-  await PhysXInstance.instance.initPhysX(new Worker(currentPath + "/physics/functions/loadPhysXNode.ts"), { });
-  //for windows
-  //await PhysXInstance.instance.initPhysX(new Worker("file:///" + currentPath + "/physics/functions/loadPhysXNode.ts"), {});
+  const currentPath = (isWindows ? 'file:///' : '') + path.dirname(__filename);
+  
+  await Promise.all([
+    AnimationManager.instance.getDefaultModel(),
+    AnimationManager.instance.getAnimations(),
+    PhysXInstance.instance.initPhysX(new Worker(currentPath + "/physics/functions/loadPhysXNode.ts"), { })
+  ]);
+
   registerSystem(PhysicsSystem);
   registerSystem(CharacterControllerSystem);
 

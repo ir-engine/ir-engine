@@ -11,6 +11,12 @@ import { EngineEvents } from "@xrengine/engine/src/ecs/classes/EngineEvents";
 import { ClientNetworkSystem } from "@xrengine/engine/src/networking/systems/ClientNetworkSystem";
 
 export class SocketWebRTCClientTransport implements NetworkTransport {
+
+  static EVENTS = {
+    PROVISION_INSTANCE_NO_GAMESERVERS_AVAILABLE: 'CORE_PROVISION_INSTANCE_NO_GAMESERVERS_AVAILABLE',
+    PROVISION_CHANNEL_NO_GAMESERVERS_AVAILABLE: 'CORE_PROVISION_CHANNEL_NO_GAMESERVERS_AVAILABLE',
+  }
+
   mediasoupDevice: mediasoupClient.Device
   leaving = false
   instanceRecvTransport: MediaSoupTransport

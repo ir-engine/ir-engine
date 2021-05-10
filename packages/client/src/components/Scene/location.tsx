@@ -38,8 +38,8 @@ import { NetworkSchema } from '@xrengine/engine/src/networking/interfaces/Networ
 import { ClientNetworkSystem } from '@xrengine/engine/src/networking/systems/ClientNetworkSystem';
 import { PhysicsSystem } from '@xrengine/engine/src/physics/systems/PhysicsSystem';
 import { styleCanvas } from '@xrengine/engine/src/renderer/functions/styleCanvas';
-import { CharacterComponent } from '@xrengine/engine/src/templates/character/components/CharacterComponent';
-import { PrefabType } from '@xrengine/engine/src/templates/networking/PrefabType';
+import { CharacterComponent } from '@xrengine/engine/src/character/components/CharacterComponent';
+import { PrefabType } from '@xrengine/engine/src/networking/templates/PrefabType';
 import { XRSystem } from '@xrengine/engine/src/xr/systems/XRSystem';
 import { Config } from '@xrengine/client-core/src/helper';
 import { useHistory } from 'react-router-dom';
@@ -188,7 +188,7 @@ export const EnginePage = (props: Props) => {
       init(locationName);
     } else {
       doLoginAuto(true);
-      EngineEvents.instance.addEventListener(EngineEvents.EVENTS.PROVISION_INSTANCE_NO_GAMESERVERS_AVAILABLE, () => setNoGameserverProvision(true));
+      EngineEvents.instance.addEventListener(SocketWebRTCClientTransport.EVENTS.PROVISION_INSTANCE_NO_GAMESERVERS_AVAILABLE, () => setNoGameserverProvision(true));
     }
   }, []);
 

@@ -1,4 +1,4 @@
-import { IKComponent } from '../../templates/character/components/IKComponent';
+import { IKComponent } from '../../character/components/IKComponent';
 import { Entity } from '../../ecs/classes/Entity';
 import { System } from '../../ecs/classes/System';
 import { getComponent } from '../../ecs/functions/EntityFunctions';
@@ -8,8 +8,8 @@ import { Network } from '../classes/Network';
 import { NetworkObject } from '../components/NetworkObject';
 import { NetworkSchema } from "../interfaces/NetworkSchema";
 import { WorldStateModel } from '../schema/worldStateSchema';
-import { ControllerColliderComponent } from '../../physics/components/ControllerColliderComponent';
-import { CharacterComponent } from '../../templates/character/components/CharacterComponent';
+import { ControllerColliderComponent } from '../../character/components/ControllerColliderComponent';
+import { CharacterComponent } from '../../character/components/CharacterComponent';
 
 /** System class to handle outgoing messages. */
 export class ServerNetworkOutgoingSystem extends System {

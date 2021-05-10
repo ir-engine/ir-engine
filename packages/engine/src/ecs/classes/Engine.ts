@@ -17,8 +17,6 @@ import {
   PositionalAudio as THREE_PositionalAudio,
   XRSession
 } from 'three';
-import { CSM } from '../../assets/csm/CSM';
-import { ServerSpawnSystem } from "../../scene/systems/SpawnSystem";
 import { TransformComponent } from '../../transform/components/TransformComponent';
 import { EngineOptions } from '../interfaces/EngineOptions';
 import { Entity } from './Entity';
@@ -29,7 +27,7 @@ import { createElement } from '../functions/createElement';
 import { isWebWorker } from '../../common/functions/getEnvironment';
 import { VideoTextureProxy } from '../../worker/VideoTexture';
 import { PositionalAudioObjectProxy, AudioObjectProxy, AudioListenerProxy, AudioLoaderProxy } from '../../worker/Audio';
-import { BinaryType, NumericalType } from '../../common/types/NumericalTypes';
+import { NumericalType } from '../../common/types/NumericalTypes';
 import { InputValue } from '../../input/interfaces/InputValue';
 import { GameMode } from "../../game/types/GameMode";
 
@@ -103,7 +101,6 @@ export class Engine {
    * @author Fernando Serrano, Robert Long
    */
   static renderer: WebGLRenderer = null
-  static csm: CSM = null
   static xrSession: XRSession = null
   static context = null
 
@@ -280,11 +277,7 @@ export class Engine {
   /** HTML Element in which Engine renders. */
   static viewportElement: HTMLElement;
 
-  static spawnSystem: ServerSpawnSystem;
-
   static createElement: any = createElement;
-
-  static hasUserEngaged = false;
 
   static useAudioSystem = false;
 
@@ -292,20 +285,6 @@ export class Engine {
   static prevInputState = new Map<any, InputValue<NumericalType>>();
 
   static isInitialized = false;
-
-  /**
-   * Input inherits from BehaviorComponent, which adds .map and .data
-   *
-   * @author Fernando Serrano, Robert Long
-   * @property {Boolean} gamepadConnected Connection a new gamepad
-   * @property {Number} gamepadThreshold Threshold value from 0 to 1
-   * @property {Binary[]} gamepadButtons Map gamepad buttons
-   * @property {Number[]} gamepadInput Map gamepad buttons to abstract input
-   */
-  static gamepadConnected = false;
-  static gamepadThreshold = 0.1;
-  static gamepadButtons: BinaryType[] = [];
-  static gamepadInput: number[] = [];
 
   static publicPath: string;
 }
