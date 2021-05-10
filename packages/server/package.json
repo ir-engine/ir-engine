@@ -39,6 +39,7 @@
     "dev-api-server-nossl": "cross-env NOSSL=true ts-eager src/index.ts",
     "dev-nossl": "concurrently \"cross-env NOSSL=true ts-eager src/index.ts\" \"cd ../gameserver && cross-env NOSSL=true ts-eager src/index.ts\"",
     "dev-reinit-db": "concurrently \"cross-env FORCE_DB_REFRESH=true NOSSL=true ts-eager src/index.ts\" \"cd ../gameserver && cross-env NOSSL=true ts-eager src/index.ts\"",
+    "dev-reinit-db-windows": "concurrently -i \"cross-env NODE_ENV=development FORCE_DB_REFRESH=true nodemon --watch src/** -r ts-eager/register src/index.ts\" \"cd ../gameserver && cross-env NODE_ENV=development nodemon --watch src/** -r ts-eager/register src/index.ts\"",
     "test": "echo \"TODO: no test specified\" && exit 0",
     "lint": "eslint --fix --ext \"**/*.js\" \"**/*.ts\"",
     "validate": "yarn run lint && yarn run build && yarn run test",

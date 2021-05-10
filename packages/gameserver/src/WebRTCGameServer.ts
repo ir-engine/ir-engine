@@ -9,11 +9,8 @@ const networkSchema = {
 };
 
 const options = {
-  input: {
-    useWebXR: false
-  },
   networking: {
-    schema: networkSchema
+    schema: networkSchema,
   },
   publicPath: config.client.url
 };

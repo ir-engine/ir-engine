@@ -244,11 +244,7 @@ export const EnginePage = (props: Props) => {
       instanceConnectionState.get('instanceServerConnecting') === false &&
       instanceConnectionState.get('connected') === false
     ) {
-      const currentLocation = locationState.get('currentLocation').get('location');
-      if (sceneId === null && currentLocation.sceneId !== null) {
-        sceneId = currentLocation.sceneId;
-      }
-      init(sceneId);
+      reinit();
     }
   }, [instanceConnectionState]);
 
@@ -283,6 +279,14 @@ export const EnginePage = (props: Props) => {
       setNoGameserverProvision(false);
     }
   }, [noGameserverProvision]);
+
+  const reinit = () => {
+    const currentLocation = locationState.get('currentLocation').get('location');
+    if (sceneId === null && currentLocation.sceneId !== null) {
+      sceneId = currentLocation.sceneId;
+    }
+    init(sceneId);
+  };
 
   async function init(sceneId: string): Promise<any> { // auth: any,
     let sceneData;
@@ -452,7 +456,7 @@ export const EnginePage = (props: Props) => {
         </>
       </Snackbar>
 
-      <NetworkDebug />
+      <NetworkDebug reinit={reinit} />
       <LoadingScreen objectsToLoad={progressEntity} />
       { harmonyOpen !== true && <MediaIconsBox />}
       { userHovered && <NamePlate userId={userId} position={{ x: position?.x, y: position?.y }} focused={userHovered} />}

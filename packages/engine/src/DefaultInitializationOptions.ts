@@ -12,6 +12,7 @@ export type InitializeOptions = {
   },
   networking?: {
     schema: NetworkSchema,
+    app?: any;
   },
   supportedGameModes?: {
     [key: string]: GameMode
