@@ -1,41 +1,16 @@
-import { MobileGamepadProps } from '@xrengine/client-core/src/common/components/MobileGamepad/MobileGamepadProps';
-import { generalStateList, setAppLoaded, setAppOnBoardingStep } from '@xrengine/client-core/src/common/reducers/app/actions';
-import Store from '@xrengine/client-core/src/store';
-import { testScenes, testUserId, testWorldState } from '@xrengine/common/src/assets/testScenes';
-import { isMobileOrTablet } from '@xrengine/engine/src/common/functions/isMobile';
-import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents';
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine';
-import { resetEngine } from "@xrengine/engine/src/ecs/functions/EngineFunctions";
-import { initializeEngine } from '@xrengine/engine/src/initialize';
-import { DefaultInitializationOptions } from '@xrengine/engine/src/DefaultInitializationOptions';
-import { ClientNetworkSystem } from '@xrengine/engine/src/networking/systems/ClientNetworkSystem';
 import { UIBlock, UIText, UIBaseElement, UI_ELEMENT_SELECT_STATE } from '@xrengine/engine/src/ui/classes/UIBaseElement';
 import { VideoPlayer } from '@xrengine/engine/src/ui/classes/VideoPlayer';
 import { Control } from '@xrengine/engine/src/ui/classes/Control';
 import { Color, Vector3, Quaternion, Euler, Object3D, TextureLoader } from 'three';
 import { createItem, createCol, createRow, createButton, makeLeftItem } from '@xrengine/engine/src/ui/functions/createItem';
-import { styleCanvas } from '@xrengine/engine/src/renderer/functions/styleCanvas';
-import { createPanelComponent } from '@xrengine/engine/src/ui/functions/createPanelComponent';
-import { XRSystem } from '@xrengine/engine/src/xr/systems/XRSystem';
-import React, { useEffect, useState } from 'react';
 
-const MobileGamepad = React.lazy(() => import("@xrengine/client-core/src/common/components/MobileGamepad"));
-const engineRendererCanvasId = 'engine-renderer-canvas';
+let gap = 0.02;
+let itemWidth = 1;
+let itemHeight = 0.5;
+let totalWidth = itemWidth * 3 + gap * 4;
+let totalHeight = itemHeight * 3 + gap * 4;
 
-const store = Store.store;
-
-interface Props {
-  locationName: string;
-}
-
-const gap = 0.02;
-const itemWidth = 1;
-const itemHeight = 0.5;
-const totalWidth = itemWidth * 3 + gap * 4;
-const totalHeight = itemHeight * 3 + gap * 4;
-let urls = [];
-
-class UIGallery extends UIBaseElement {
+export class VUSR360Player extends UIBaseElement {
   marketPlace: UIBlock;
   library: UIBlock;
   purchasePanel: UIBlock;
@@ -45,25 +20,23 @@ class UIGallery extends UIBaseElement {
   buttonMarket: UIBlock;
   buttonLibrary: UIBlock;
   preview: UIBlock;
-  buyPanel: UIBlock;
+//   buyPanel: UIBlock;
   isPurchase: Boolean;
   player: VideoPlayer;
   control: Control;
 
   constructor(param) {
     super();
-    urls = param.urls;
     this.init(param);
-  }
-
-  url(index) {
-    const i = index % urls.length;
-    return urls[i];
   }
 
   init(param) {
     const envUrl = param.envUrl;
-    const videoUrl = param.videoUrl;
+    gap = param.uiConfig.gap;
+    itemWidth = param.uiConfig.panelWidth;
+    itemHeight = param.uiConfig.panelHeight;
+    totalWidth = itemWidth * 3 + gap * 4;
+    totalHeight = itemHeight * 3 + gap * 4;
 
     let setPurchase = null;
     const marketPlaceItemClickCB = (panel) => {
@@ -99,7 +72,7 @@ class UIGallery extends UIBaseElement {
     const gallery = createGallery({
       marketPlaceItemClickCB: marketPlaceItemClickCB,
       libraryItemClickCB: libraryItemClickCB,
-      url: this.url
+      data: param
     });
     this.marketPlace = gallery.marketPlace;
     this.library = gallery.library;
@@ -118,12 +91,12 @@ class UIGallery extends UIBaseElement {
     this.buttonMarket.addEventListener(UI_ELEMENT_SELECT_STATE.SELECTED, () => {
       this.library.visible = false;
       this.marketPlace.visible = true;
-    })
+    });
 
     this.buttonLibrary.addEventListener(UI_ELEMENT_SELECT_STATE.SELECTED, () => {
       this.library.visible = true;
       this.marketPlace.visible = false;
-    })
+    });
 
     this.library.visible = false;
     this.position.set(0, 1, 0);
@@ -137,7 +110,7 @@ class UIGallery extends UIBaseElement {
         this.oldPanel.visible = true;
         this.buttonMarket.visible = true;
         this.buttonLibrary.visible = true;
-        this.buyPanel.visible = false;
+        // this.buyPanel.visible = false;
       },
       playCB: () => {
         this.purchasePanel.visible = false;
@@ -145,7 +118,7 @@ class UIGallery extends UIBaseElement {
       },
       purchaseCB: () => {
         if (this.isPurchase) {
-          this.buyPanel.visible = true;
+        //   this.buyPanel.visible = true;
         }
         else {
 
@@ -160,20 +133,20 @@ class UIGallery extends UIBaseElement {
 
     this.add(this.purchasePanel);
 
-    this.buyPanel = createBuyPanel({
-      width: totalWidth * 0.5,
-      height: totalHeight * 0.5,
-      thumbnailUrls: [this.url(0), this.url(1), this.url(2), this.url(3), this.url(4), this.url(5)]
-    });
+    // this.buyPanel = createBuyPanel({
+    //   width: totalWidth * 0.5,
+    //   height: totalHeight * 0.5,
+    //   thumbnailUrls: [this.url(0), this.url(1), this.url(2), this.url(3), this.url(4), this.url(5)]
+    // });
 
-    this.buyPanel.visible = false;
-    this.preview.add(this.buyPanel);
+    // this.buyPanel.visible = false;
+    // this.preview.add(this.buyPanel);
 
     this.player = new VideoPlayer(this, envUrl);
 
     this.control = new Control({
       play: (played, paused) => {
-        this.player.playVideo(videoUrl, played, paused);
+        this.player.playVideo(param.galleryItems[0].streamUrl, played, paused);
       },
       back: () => {
         this.player.stopVideo();
@@ -201,13 +174,14 @@ const createGallery = (param) => {
   let urlIndex = 0;
 
   const ov = createItem({
-    title: "Scene Title",
-    description: "Scene Description\nSecode line of description",
-    imageUrl: param.url(urlIndex++),
+    title: param.data.galleryItems[urlIndex].title,
+    description: param.data.galleryItems[urlIndex].description,
+    imageUrl: param.data.galleryItems[urlIndex].thumbUrl,
     width: totalWidth,
     height: 0.8,
     selectable: true
   });
+  urlIndex++
   ov.addEventListener(UI_ELEMENT_SELECT_STATE.SELECTED, () => {
     marketPlaceItemClickCB(ov);
   });
@@ -219,13 +193,14 @@ const createGallery = (param) => {
     const rows = [];
     for (let i = 0; i < 3; i++) {
       const panel = createItem({
-        title: "Scene Title",
-        description: "Scene Description",
-        imageUrl: param.url(urlIndex++),
+        title: param.data.galleryItems[urlIndex].title,
+        description: param.data.galleryItems[urlIndex].description,
+        imageUrl: param.data.galleryItems[urlIndex].thumbUrl,
         width: itemWidth,
         height: itemHeight,
         selectable: true
       });
+      urlIndex++
       rows.push(panel);
 
       panel.addEventListener(UI_ELEMENT_SELECT_STATE.SELECTED, () => {
@@ -237,18 +212,20 @@ const createGallery = (param) => {
 
   const marketPlace = createCol(totalWidth, totalHeight, cols, gap);
 
+  urlIndex = 0
   cols = [];
   for (let j = 0; j < 3; j++) {
     const rows = [];
     for (let i = 0; i < 3; i++) {
       const panel = createItem({
-        title: "Scene Title",
-        description: "Scene Description",
-        imageUrl: param.url(urlIndex++),
+        title: param.data.libraryItems[urlIndex].title,
+        description: param.data.libraryItems[urlIndex].description,
+        imageUrl: param.data.libraryItems[urlIndex].thumbUrl,
         width: itemWidth,
         height: itemHeight,
         selectable: true
       });
+      urlIndex++
       rows.push(panel);
 
       panel.addEventListener(UI_ELEMENT_SELECT_STATE.SELECTED, () => {
@@ -282,8 +259,8 @@ const createGallery = (param) => {
   return {
     marketPlace: marketPlace,
     library: library,
-  }
-}
+  };
+};
 
 
 const createPlayPanel = (param) => {
@@ -312,7 +289,7 @@ const createPlayPanel = (param) => {
   });
   text.set({
     backgroundOpacity: 0.0,
-  })
+  });
 
   const purchaseButton = createButton({
     title: "Purchase"
@@ -364,7 +341,7 @@ const createPlayPanel = (param) => {
       }
     }
   };
-}
+};
 
 
 const createBuyPanel = (param) => {
@@ -569,96 +546,4 @@ const createBuyPanel = (param) => {
   );
 
   return container;
-}
-
-export const VUSR360PlayerPage = (props: Props) => {
-  const {
-    locationName,
-  } = props;
-
-  const [isInXR, setIsInXR] = useState(false);
-  useEffect(() => {
-    init(locationName);
-  }, []);
-
-  async function init(sceneId: string): Promise<any> {
-    const sceneData = testScenes[sceneId] || testScenes.test;
-
-    const canvas = document.getElementById(engineRendererCanvasId) as HTMLCanvasElement;
-    styleCanvas(canvas);
-    const InitializationOptions = {
-      ...DefaultInitializationOptions,
-      renderer: {
-        canvas,
-      },
-      useOfflineMode: true,
-      postProcessing: false,
-    };
-    console.log(InitializationOptions);
-    await initializeEngine(InitializationOptions);
-
-    document.dispatchEvent(new CustomEvent('ENGINE_LOADED')); // this is the only time we should use document events. would be good to replace this with react state
-
-    addUIEvents();
-
-    const loadScene = new Promise<void>((resolve) => {
-      EngineEvents.instance.once(EngineEvents.EVENTS.SCENE_LOADED, () => {
-        store.dispatch(setAppOnBoardingStep(generalStateList.SCENE_LOADED));
-        setAppLoaded(true);
-        resolve();
-      });
-      EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.LOAD_SCENE, sceneData });
-    });
-
-    const getWorldState = new Promise<any>((resolve) => {
-      EngineEvents.instance.dispatchEvent({ type: ClientNetworkSystem.EVENTS.CONNECT, id: testUserId });
-      resolve(testWorldState);
-    });
-
-    const [sceneLoaded, worldState] = await Promise.all([loadScene, getWorldState]);
-
-    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.JOINED_WORLD, worldState });
-
-    Engine.scene.children[10].visible = false;      //hide ground
-
-    const galleryParam = {
-      urls: [
-        "https://raw.githubusercontent.com/Realitian/assets/master/360/VR THUMBNAIL/ARCTIC/_DSC5882x 2.JPG",
-        "https://raw.githubusercontent.com/Realitian/assets/master/360/VR THUMBNAIL/CUBA/DSC_9484.jpg",
-        "https://raw.githubusercontent.com/Realitian/assets/master/360/VR THUMBNAIL/GALAPAGOS/20171020_GALAPAGOS_5281.jpg",
-        "https://raw.githubusercontent.com/Realitian/assets/master/360/VR THUMBNAIL/GREAT WHITES/_K4O2342PIX2.jpg",
-        "https://raw.githubusercontent.com/Realitian/assets/master/360/VR THUMBNAIL/HAWAII/20171020_GALAPAGOS_4273.jpg",
-        "https://raw.githubusercontent.com/Realitian/assets/master/360/VR THUMBNAIL/INTO THE NOW/20171020_GALAPAGOS_0782.jpg",
-        "https://raw.githubusercontent.com/Realitian/assets/master/360/VR THUMBNAIL/SHARKS OF THE WORLD/_DSC3143.jpg",
-        "https://raw.githubusercontent.com/Realitian/assets/master/360/VR THUMBNAIL/WILD COAST AFRICA/_MG_8949.jpg",
-        "https://raw.githubusercontent.com/Realitian/assets/master/360/VR THUMBNAIL/WRECKS AND CAVES/_DSC2512.JPG",
-      ],
-      envUrl: 'https://raw.githubusercontent.com/Realitian/assets/master/360/env/Shot_03.jpg',
-      videoUrl: 'https://storage.googleapis.com/shaka-demo-assets/angel-one/dash.mpd'
-    }
-
-    createPanelComponent({ panel: new UIGallery(galleryParam) });
-  }
-
-  const addUIEvents = () => {
-    EngineEvents.instance.addEventListener(XRSystem.EVENTS.XR_START, async (ev: any) => { setIsInXR(true); });
-    EngineEvents.instance.addEventListener(XRSystem.EVENTS.XR_END, async (ev: any) => { setIsInXR(false); });
-  };
-
-  useEffect(() => {
-    return (): void => {
-      resetEngine();
-    };
-  }, []);
-
-  //mobile gamepad
-  const mobileGamepadProps = { layout: 'default' };
-  const mobileGamepad = isMobileOrTablet() ? <MobileGamepad {...mobileGamepadProps} /> : null;
-  return (
-    <>
-      {!isInXR && <div>
-        <canvas id={engineRendererCanvasId} width='100%' height='100%' />
-        {mobileGamepad}
-      </div>}
-    </>);
 };
