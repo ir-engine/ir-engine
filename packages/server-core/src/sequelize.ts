@@ -10,6 +10,9 @@ export default (app: Application): void => {
     const {forceRefresh} = config.db;
     const {performDryRun} = config.server;
 
+    console.log("Starting app");
+    console.log("forceRefresh: ", forceRefresh);
+
     const sequelize = new Sequelize({
       ...config.db,
       logging: forceRefresh ? console.log : false,
