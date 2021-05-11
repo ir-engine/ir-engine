@@ -182,15 +182,10 @@ export default (app: Application): void => {
                 if (token != null) {
                     let authResult;
                     try {
-<<<<<<< HEAD
-                        authResult = await app.service('authentication').strategies.jwt.authenticate({accessToken: token}, {});
-                    } catch (err) {
-=======
                         const authService = new AuthenticationService(app, 'authentication');
                         authResult = await authService.strategies.jwt.authenticate({accessToken: token}, {});
                        // authResult = await app.service('authentication').dispatch.jwt.authenticate({accessToken: token}, {});
                     } catch(err) {
->>>>>>> 475b3c9196b860cb80f15e6c411b6b7386b7c59c
                         if (err.code === 401 && err.data.name === 'TokenExpiredError') {
                             const jwtDecoded = decode(token);
                             const idProvider = await app.service('identityProvider').get(jwtDecoded.sub);
