@@ -5,6 +5,7 @@ import {
   Mesh,
   Scene
 } from 'three';
+import disposeScene from '../../functions/disposeScene';
 
 /**
  * A dummy camera
@@ -319,24 +320,30 @@ export class Pass {
 	 * that you don't need this pass anymore.
 	 */
 
-  dispose () {
-    const material = this.getFullscreenMaterial();
+	dispose() {
+		const material = this.getFullscreenMaterial();
 
-    if (material !== null) {
-      material.dispose();
-    }
+		if (material !== null) {
+			material.dispose();
+		}
 
 		this.screen?.geometry?.dispose();
 
-    for (const key of Object.keys(this)) {
-      if (this[key] !== null && typeof this[key].dispose === 'function') {
-        /** @ignore */
-        this[key].dispose();
-      }
-    }
+		for (const key of Object.keys(this)) {
+			if (this[key] !== null && typeof this[key].dispose === 'function') {
+				if (key === 'scene') {
+					disposeScene(this[key]);
+					this[key] = null;
+					continue;
+				}
+
+				/** @ignore */
+				this[key].dispose();
+			}
+		}
 
 		this.scene = null;
 		this.camera = null;
 		this.screen = null;
-  }
+	}
 }

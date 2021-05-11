@@ -1,4 +1,5 @@
 import { EventDispatcher, WebGLRenderer, WebGLRenderTarget } from 'three';
+import disposeScene from '../functions/disposeScene';
 import { BlendFunction } from './blending/BlendFunction';
 import { BlendMode } from './blending/BlendMode';
 
@@ -285,6 +286,12 @@ export class Effect extends EventDispatcher {
   dispose () {
     for (const key of Object.keys(this)) {
       if (this[key] !== null && typeof this[key].dispose === 'function') {
+		if (key === 'scene') {
+			disposeScene(this[key]);
+			this[key] = null;
+			continue;
+		}
+
         /** @ignore */
         this[key].dispose();
       }

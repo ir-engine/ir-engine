@@ -130,7 +130,9 @@ export const initializeEngine = async (initOptions: InitializeOptions): Promise<
         new Promise<void>(async (resolve) => {
           /** @todo fix bundling */
           // if((window as any).safariWebBrowser) {
-            await PhysXInstance.instance.initPhysX(new Worker('/scripts/loadPhysXClassic.js'));
+            const worker = new Worker('/scripts/loadPhysXClassic.js');
+            Engine.workers.push(worker);
+            await PhysXInstance.instance.initPhysX(worker);
           // } else {
           //   //@ts-ignore
           //   const { default: PhysXWorker } = await import('./physics/functions/loadPhysX.ts?worker&inline');
@@ -205,7 +207,9 @@ export const initializeEditor = async (initOptions: InitializeOptions): Promise<
   Engine.scene.add(Engine.camera);
 
   // if((window as any).safariWebBrowser) {
-    await PhysXInstance.instance.initPhysX(new Worker('/scripts/loadPhysXClassic.js'));
+    const worker = new Worker('/scripts/loadPhysXClassic.js');
+    Engine.workers.push(worker);
+    await PhysXInstance.instance.initPhysX(worker);
   // } else {
   //   //@ts-ignore
   //   const { default: PhysXWorker } = await import('./physics/functions/loadPhysX.ts?worker');

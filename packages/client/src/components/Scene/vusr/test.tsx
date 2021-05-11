@@ -177,4 +177,4 @@ export const testScene = {
         panelWidth: 1,
         panelHeight: 0.5
     }
-}
+};

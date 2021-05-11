@@ -118,7 +118,8 @@ export class ClientInputSystem extends System {
     });
     this.boundListeners.forEach(({ domElement, eventName, listener }) => {
       domElement.removeEventListener(eventName, listener);
-    })
+    });
+    EngineEvents.instance.removeAllListenersForEvent(ClientInputSystem.EVENTS.ENABLE_INPUT);
   }
 
   /**

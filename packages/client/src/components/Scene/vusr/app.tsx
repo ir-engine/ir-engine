@@ -174,7 +174,7 @@ const createGallery = (param) => {
     height: 0.8,
     selectable: true
   });
-  urlIndex++
+  urlIndex++;
   ov.addEventListener(UI_ELEMENT_SELECT_STATE.SELECTED, () => {
     marketPlaceItemClickCB(ov);
   });
@@ -193,7 +193,7 @@ const createGallery = (param) => {
         height: param.itemHeight,
         selectable: true
       });
-      urlIndex++
+      urlIndex++;
       rows.push(panel);
 
       panel.addEventListener(UI_ELEMENT_SELECT_STATE.SELECTED, () => {
@@ -205,7 +205,7 @@ const createGallery = (param) => {
 
   const marketPlace = createCol(param.totalWidth, param.totalHeight, cols, param.gap);
 
-  urlIndex = 0
+  urlIndex = 0;
   cols = [];
   for (let j = 0; j < 3; j++) {
     const rows = [];
@@ -218,7 +218,7 @@ const createGallery = (param) => {
         height: param.itemHeight,
         selectable: true
       });
-      urlIndex++
+      urlIndex++;
       rows.push(panel);
 
       panel.addEventListener(UI_ELEMENT_SELECT_STATE.SELECTED, () => {

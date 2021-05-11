@@ -287,5 +287,7 @@ export class Engine {
   static isInitialized = false;
 
   static publicPath: string;
+
+  static workers = [];
 }
 globalThis.Engine = Engine;

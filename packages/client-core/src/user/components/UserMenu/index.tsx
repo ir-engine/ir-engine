@@ -8,7 +8,7 @@ import SettingsIcon from '@material-ui/icons/Settings';
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents';
 import { ClientInputSystem } from '@xrengine/engine/src/input/systems/ClientInputSystem';
 import { WebGLRendererSystem } from '@xrengine/engine/src/renderer/WebGLRendererSystem';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 import { alertSuccess } from '../../../common/reducers/alert/service';
@@ -85,10 +85,17 @@ const UserMenu = (props: UserMenuProps): any => {
   const [currentActiveMenu, setCurrentActiveMenu] = useState(null);
   const [activeLocation, setActiveLocation] = useState(null);
 
-  const [username, setUsername] = useState(selfUser?.name);
   const [userSetting, setUserSetting] = useState(selfUser?.user_setting);
   const [graphics, setGraphicsSetting] = useState({});
-  
+
+  useEffect(() => {
+    EngineEvents.instance?.addEventListener(WebGLRendererSystem.EVENTS.QUALITY_CHANGED, updateGraphicsSettings);
+
+    return () => {
+      EngineEvents.instance?.removeEventListener(WebGLRendererSystem.EVENTS.QUALITY_CHANGED, updateGraphicsSettings);
+    };
+  }, []);
+
   const onEngineLoaded = () => {
     setEngineLoaded(true);
     document.removeEventListener('ENGINE_LOADED', onEngineLoaded);
@@ -111,7 +118,6 @@ const UserMenu = (props: UserMenuProps): any => {
     const setting = { ...graphics, ...newSetting };
     setGraphicsSetting(setting);
   };
-  EngineEvents.instance?.addEventListener(WebGLRendererSystem.EVENTS.QUALITY_CHANGED, updateGraphicsSettings);
 
   const setActiveMenu = (e): void => {
     const identity = e.currentTarget.id.split('_');

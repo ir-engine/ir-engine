@@ -21,7 +21,7 @@ class VideoElement extends Object3D {
       this.container.position.set(x, y, 0);
       this.add(this.container);
   
-      let video = document.createElement( 'video' );
+      const video = document.createElement( 'video' );
       document.documentElement.append( video );
       // video.setAttribute('crossorigin', 'anonymous');
       video.style.display = 'none';
@@ -44,8 +44,8 @@ class VideoElement extends Object3D {
       //   }
       // } );
           
-      document.addEventListener("click", function(){
-        var promise = video.play();
+      document.addEventListener("click", ()=> {
+        const promise = video.play();
         console.log('playing');
         if (promise !== undefined) {
           promise.then(_ => {
@@ -69,7 +69,7 @@ class VideoElement extends Object3D {
       shaka.polyfill.installAll();
       const player = new shaka.Player(video);
       window.player = player;      
-      var promise = player.load(url);
+      const promise = player.load(url);
       if (promise !== undefined) {
         promise.then(_ => {
           }).catch(error => {
