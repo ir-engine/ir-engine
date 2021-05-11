@@ -49,9 +49,9 @@ export const initializeServer = async (initOptions: any = DefaultInitializationO
 
   const currentPath = path.dirname(__filename);
 
-  await PhysXInstance.instance.initPhysX(new Worker(currentPath + "/physics/functions/loadPhysXNode.ts"), { });
+  //await PhysXInstance.instance.initPhysX(new Worker(currentPath + "/physics/functions/loadPhysXNode.ts"), { });
   //for windows
-  //await PhysXInstance.instance.initPhysX(new Worker("file:///" + currentPath + "/physics/functions/loadPhysXNode.ts"), {});
+  await PhysXInstance.instance.initPhysX(new Worker("file:///" + currentPath + "/physics/functions/loadPhysXNode.ts"), {});
   registerSystem(PhysicsSystem);
   registerSystem(CharacterControllerSystem);
 

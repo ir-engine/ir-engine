@@ -1,3 +1,4 @@
+import { Vector3, Quaternion } from 'three';
 import { Behavior } from '../../../../common/interfaces/Behavior';
 import { Entity } from '../../../../ecs/classes/Entity';
 import { getComponent } from "../../../../ecs/functions/EntityFunctions";
@@ -12,5 +13,13 @@ import { ColliderComponent } from '../../../../physics/components/ColliderCompon
 
 export const addForce: Behavior = (entity: Entity, args?: any, delta?: number, entityTarget?: Entity, time?: number, checks?: any): void => {
   const collider = getComponent(entity, ColliderComponent);
-  collider.applyForce(new Vector3(0,0,1), new Vector3(0,0,args.force));
+  console.warn(collider);
+  const transform = getComponent(entityTarget, TransformComponent);
+  const q = new Quaternion().copy(transform.rotation);
+  const force = new Vector3(0, 0, args.force).applyQuaternion(q);
+  collider.body.addForce({
+    x: force.x,
+    y: force.y,
+    z: force.z
+   });
 };

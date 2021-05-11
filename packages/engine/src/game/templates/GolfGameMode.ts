@@ -8,6 +8,7 @@ import { ButtonUp } from "./gameDefault/components/ButtonUpTagComponent";
 import { ButtonDown } from "./gameDefault/components/ButtonDownTagComponent";
 import { PanelDown } from "./gameDefault/components/PanelDownTagComponent";
 import { PanelUp } from "./gameDefault/components/PanelUpTagComponent";
+import { YourTurn } from "./gameDefault/components/YourTurnTagComponent";
 // game Action Tag Component
 import { HaveBeenInteracted } from "../../game/actions/HaveBeenInteracted";
 // game behavior
@@ -38,6 +39,9 @@ export const GolfGameMode: GameMode = {
     PanelDown
   ],
   initGameState: {
+    'Playing': {
+      components: [YourTurn]
+    },
     'StartGamePanel': {
       components: [PanelDown],
       storage:[
@@ -60,9 +64,6 @@ export const GolfGameMode: GameMode = {
   gamePlayerRoles: {
     'Playing': {
       'getVictory': []
-    },
-    'itsYourTurn': {
-      'allowHitBall': []
     }
   },
   gameObjectRoles: {
@@ -70,8 +71,15 @@ export const GolfGameMode: GameMode = {
       'hit':[
         {
           behavior: addForce,
-          args: { on: 'me', force: 1000 },
-          watchers:[ [ HaveBeenInteracted ] ]
+          args: { on: 'me', force: 300 },
+          watchers:[ [ HaveBeenInteracted ] ],
+          takeEffectOn: {
+            targetsRole: {
+              'Playing': {
+                watchers:[ [ YourTurn ] ]
+              }
+            }
+          }
         },
       ]
     },
