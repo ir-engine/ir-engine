@@ -86,7 +86,6 @@
     "feathers-hooks-common": "5.0.5",
     "feathers-logger": "0.3.2",
     "feathers-mailer": "3.0.1",
-    "feathers-seeder": "2.0.0",
     "feathers-sequelize": "https://github.com/feathersjs-ecosystem/feathers-sequelize.git",
     "feathers-swagger": "1.2.1",
     "feathers-sync": "2.3.0",
