@@ -35,10 +35,12 @@ jobs:
           DOCKER_LABEL: ${{ secrets.DOCKER_LABEL }}
           REPO_NAME: ${{ secrets.REPO_NAME }}
           ECR_URL: ${{ secrets.ECR_URL }}
+      - name: Print docker images
+        run: docker image ls
       - name: Create artifact
         uses: ishworkh/docker-image-artifact-upload@v1
         with:
-          image: '${{ secrets.DOCKER_LABEL}}_client'
+          image: '${{ secrets.DOCKER_LABEL}}_client:latest'
   gameserver-build:
 #    needs: setup
     runs-on: ubuntu-latest
