@@ -47,11 +47,15 @@ export const initializeServer = async (initOptions: any = DefaultInitializationO
   registerSystem(MediaStreamSystem);
   registerSystem(StateSystem);
 
-  const currentPath = path.dirname(__filename);
+  const isWindows = process.platform === "win32";
+  const currentPath = (isWindows ? 'file:///' : '') + path.dirname(__filename);
 
-  //await PhysXInstance.instance.initPhysX(new Worker(currentPath + "/physics/functions/loadPhysXNode.ts"), { });
-  //for windows
-  await PhysXInstance.instance.initPhysX(new Worker("file:///" + currentPath + "/physics/functions/loadPhysXNode.ts"), {});
+  await Promise.all([
+    // AnimationManager.instance.getDefaultModel(),
+    // AnimationManager.instance.getAnimations(),
+    PhysXInstance.instance.initPhysX(new Worker(currentPath + "/physics/functions/loadPhysXNode.ts"), {})
+  ]);
+
   registerSystem(PhysicsSystem);
   registerSystem(CharacterControllerSystem);
 
