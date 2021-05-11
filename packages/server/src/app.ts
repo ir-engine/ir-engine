@@ -1,4 +1,4 @@
-import express from '@feathersjs/express';
+import express, {json, urlencoded, static as _static, rest, notFound, errorHandler} from '@feathersjs/express';
 import feathers from '@feathersjs/feathers';
 import socketio from '@feathersjs/socketio';
 import authentication from '@xrengine/server-core/src/user/authentication';
@@ -16,14 +16,13 @@ import path from 'path';
 import favicon from 'serve-favicon';
 import winston from 'winston';
 import config from '@xrengine/server-core/src/appconfig';
-import { Application } from '@xrengine/server-core/declarations';
 import logger from '@xrengine/server-core/src/logger';
 import sequelize from '@xrengine/server-core/src/sequelize';
 import services from '@xrengine/server-core/src/services';
 
 const emitter = new EventEmitter();
 
-const app = express(feathers()) as Application;
+const app = express(feathers());
 
 app.set('nextReadyEmitter', emitter);
 
@@ -71,25 +70,27 @@ if (config.server.enabled) {
         }
     ));
     app.use(compress());
-    app.use(express.json());
-    app.use(express.urlencoded({extended: true}));
+    app.use(json());
+    app.use(urlencoded({extended: true}));
     app.use(favicon(path.join(config.server.publicDir, 'favicon.ico')));
 
     // Set up Plugins and providers
-    app.configure(express.rest());
+    app.configure(rest());
+  
+  
     app.configure(socketio({
       serveClient: false,
-      handlePreflightRequest: (req: any, res: any) => {
-        // Set CORS headers
-        if (res != null) {
-          res.setHeader('Access-Control-Allow-Origin', req.headers.origin);
-          res.setHeader('Access-Control-Request-Method', '*');
-          res.setHeader('Access-Control-Allow-Methods', 'OPTIONS, GET`');
-          res.setHeader('Access-Control-Allow-Headers', '*');
-          res.writeHead(200);
-          res.end();
-        }
-      }
+      // handlePreflightRequest: (req: any, res: any) => {
+      //   // Set CORS headers
+      //   if (res != null) {
+      //     res.setHeader('Access-Control-Allow-Origin', req.headers.origin);
+      //     res.setHeader('Access-Control-Request-Method', '*');
+      //     res.setHeader('Access-Control-Allow-Methods', 'OPTIONS, GET`');
+      //     res.setHeader('Access-Control-Allow-Headers', '*');
+      //     res.writeHead(200);
+      //     res.end();
+      //   }
+      // }
     }, (io) => {
       io.use((socket, next) => {
         (socket as any).feathers.socketQuery = socket.handshake.query;
@@ -145,7 +146,7 @@ if (config.server.enabled) {
   }
 }
 
-app.use(express.errorHandler({ logger } as any));
+app.use(errorHandler({ logger } as any));
 
 process.on('exit', async () => {
   console.log('Server EXIT');

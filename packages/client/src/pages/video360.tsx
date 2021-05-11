@@ -1,10 +1,10 @@
-import { VUSR360PlayerPage } from '../components/Scene/vusr/page';
+import { XR360PlayerPage } from '../components/Scene/360/page';
 import React from 'react';
 
 const LocationPage = (props) => {
   return (
     <>
-      <VUSR360PlayerPage locationName={props.match.params.locationName}/>
+      <XR360PlayerPage locationName={props.match.params.locationName}/>
     </>
   );
 };

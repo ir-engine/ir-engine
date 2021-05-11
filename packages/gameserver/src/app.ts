@@ -5,8 +5,8 @@ import compress from 'compression';
 import helmet from 'helmet';
 import cors from 'cors';
 import swagger from 'feathers-swagger';
-import feathers from '@feathersjs/feathers';
-import express from '@feathersjs/express';
+import {feathers} from '@feathersjs/feathers';
+import express, {json, urlencoded, static as _static, rest, notFound, errorHandler} from '@feathersjs/express';
 import socketio from '@feathersjs/socketio';
 import AgonesSDK from '@google-cloud/agones-sdk';
 import { Application } from '@xrengine/server-core/declarations';
@@ -76,29 +76,36 @@ if (config.gameserver.enabled) {
         }
     ));
     app.use(compress());
-    app.use(express.json());
-    app.use(express.urlencoded({extended: true}));
+    app.use(json());
+    app.use(urlencoded({extended: true}));
     app.use(favicon(path.join(config.server.publicDir, 'favicon.ico')));
 
     // Set up Plugins and providers
-    app.configure(express.rest());
+    app.configure(rest());
     app.configure(socketio({
       serveClient: false,
-      handlePreflightRequest: (req: any, res: any) => {
-        // Set CORS headers
-        if (res != null) {
-          res.setHeader('Access-Control-Allow-Origin', req.headers.origin);
-          res.setHeader('Access-Control-Request-Method', '*');
-          res.setHeader('Access-Control-Allow-Methods', 'OPTIONS, GET`');
-          res.setHeader('Access-Control-Allow-Headers', '*');
-          res.writeHead(200);
-          res.end();
-        }
+      cors:{
+        // TODO: Fix CORS
+        origin: "*",
+        allowedHeaders: ["*"],
+        methods:['OPTIONS', 'GET'],
+        preflightContinue: true,
+        optionsSuccessStatus:200   
       }
     }, (io) => {
+
+      console.log("hello");
+      io.on('connection', (socket) => {
+        console.log("A client connected!");
+        // socket.emit('news', { text: 'A client connected!' });
+        // socket.on('my other event', function (data) {
+        //   console.log(data);
+        // });
+      });
       io.use((socket, next) => {
+        console.log(socket.handshake.query);
         (socket as any).feathers.socketQuery = socket.handshake.query;
-        (socket as any).socketQuery = socket.handshake.query;
+         (socket as any).socketQuery = socket.handshake.query;
         next();
       });
     }));
@@ -174,7 +181,7 @@ if (config.gameserver.enabled) {
   }
 }
 
-app.use(express.errorHandler({ logger } as any));
+app.use(errorHandler({ logger } as any));
 
 process.on('exit', async () => {
   console.log('Server EXIT');
