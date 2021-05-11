@@ -1,5 +1,7 @@
 #!/bin/bash
+echo PWD
 cd "$(dirname "$0")/.."
+echo PWD
 set -e
 set -x
 
