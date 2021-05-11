@@ -1,5 +1,5 @@
 import { Block, Text } from "../../assets/three-mesh-ui";
-import { TextureLoader } from "three";
+import { TextureLoader, Color } from "three";
 
 class PurchaseElement {
     constructor(param){

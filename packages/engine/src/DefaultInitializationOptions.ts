@@ -19,7 +19,7 @@ export type InitializeOptions = {
   },
   renderer?: {
     canvas?: HTMLCanvasElement
-  }
+  },
   gameMode?: GameMode,
   publicPath?: string,
   useOfflineMode?: boolean,

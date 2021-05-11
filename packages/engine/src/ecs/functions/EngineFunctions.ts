@@ -1,6 +1,8 @@
 /** Functions to provide engine level functionalities. */
 
+import { disposeDracoLoaderWorkers } from "../../assets/functions/LoadGLTF";
 import { now } from "../../common/functions/now";
+import disposeScene from "../../renderer/functions/disposeScene";
 import { Engine } from '../classes/Engine';
 import { System } from '../classes/System';
 import { removeAllComponents, removeAllEntities } from "./EntityFunctions";
@@ -10,6 +12,12 @@ import { SystemUpdateType } from "./SystemUpdateType";
 /** Reset the engine and remove everything from memory. */
 export function reset(): void {
   console.log("RESETTING ENGINE");
+  // Stop all running workers
+  Engine.workers.forEach(w => w.terminate());
+  Engine.workers.length = 0;
+
+  disposeDracoLoaderWorkers();
+
   // clear all entities components
   Engine.entities.forEach(entity => {
     removeAllComponents(entity, false);
@@ -56,7 +64,7 @@ export function reset(): void {
 
   // delete all what is left on scene
   if (Engine.scene) {
-    // TODO: check if we need to add materials, textures, geometries detections and dispose() call?
+    disposeScene(Engine.scene);
     Engine.scene = null;
   }
 
