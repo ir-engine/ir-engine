@@ -3,6 +3,10 @@ import { DefaultNetworkSchema } from "@xrengine/engine/src/networking/templates/
 import { SocketWebRTCServerTransport } from "./SocketWebRTCServerTransport";
 import config from '@xrengine/server-core/src/appconfig';
 
+// Patch XHR for FileLoader in threejs
+import { XMLHttpRequest } from 'xmlhttprequest';
+(globalThis as any).XMLHttpRequest = XMLHttpRequest;
+
 const networkSchema = {
   ...DefaultNetworkSchema,
   transport: SocketWebRTCServerTransport
