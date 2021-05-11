@@ -35,6 +35,8 @@ import _ from 'lodash';
 import { ClientNetworkStateSystem } from './networking/systems/ClientNetworkStateSystem';
 import { now } from './common/functions/now';
 import { loadScene } from './scene/functions/SceneLoading';
+import { UIPanelSystem } from './ui/systems/UIPanelSystem';
+
 // import { PositionalAudioSystem } from './audio/systems/PositionalAudioSystem';
 
 Mesh.prototype.raycast = acceleratedRaycast;
@@ -156,6 +158,7 @@ export const initializeEngine = async (initOptions: InitializeOptions): Promise<
       registerSystem(WebGLRendererSystem, { priority: 1001, canvas, postProcessing });
       registerSystem(XRSystem);
       registerSystem(GameManagerSystem);
+      registerSystem(UIPanelSystem);
 
       Engine.viewportElement = Engine.renderer.domElement;
       Engine.renderer.xr.enabled = Engine.xrSupported;
