@@ -16,9 +16,6 @@ jobs:
   client-build:
 #    needs: setup
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: packages/client
     steps:
       - uses: actions/checkout@v2
       - name: Use Node.js
@@ -45,9 +42,6 @@ jobs:
   gameserver-build:
 #    needs: setup
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: packages/gameserver
     steps:
       - uses: actions/checkout@v2
       - name: Use Node.js
@@ -75,9 +69,6 @@ jobs:
   api-server-build:
 #    needs: setup
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: packages/server
     steps:
       - uses: actions/checkout@v2
       - name: Use Node.js
