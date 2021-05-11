@@ -85,7 +85,8 @@ if (config.gameserver.enabled) {
     app.configure(socketio({
       serveClient: false,
       cors:{
-        origin: ["https://127.0.0.1:3000"],
+        // TODO: Fix CORS
+        origin: "*",
         allowedHeaders: ["*"],
         methods:['OPTIONS', 'GET'],
         preflightContinue: true,
@@ -94,7 +95,7 @@ if (config.gameserver.enabled) {
     }, (io) => {
 
       console.log("hello");
-      io.on('connection', function(socket) {
+      io.on('connection', (socket) => {
         console.log("A client connected!");
         // socket.emit('news', { text: 'A client connected!' });
         // socket.on('my other event', function (data) {

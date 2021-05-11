@@ -1,13 +1,13 @@
 import '@feathersjs/transport-commons';
-import {Engine} from '@xrengine/engine/src/ecs/classes/Engine';
-import {Network} from '@xrengine/engine/src/networking/classes/Network';
-import {loadScene} from "@xrengine/engine/src/scene/functions/SceneLoading";
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine';
+import { Network } from '@xrengine/engine/src/networking/classes/Network';
+import { loadScene } from "@xrengine/engine/src/scene/functions/SceneLoading";
 import config from '@xrengine/server-core/src/appconfig';
-import {Application} from '@xrengine/server-core/declarations';
+import { Application } from '@xrengine/server-core/declarations';
 import getLocalServerIp from '@xrengine/server-core/src/util/get-local-server-ip';
 import logger from '@xrengine/server-core/src/logger';
-import {decode} from 'jsonwebtoken';
-import {EngineEvents} from '@xrengine/engine/src/ecs/classes/EngineEvents';
+import { decode } from 'jsonwebtoken';
+import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents';
 import { AuthenticationService } from '@feathersjs/authentication';
 
 export default (app: Application): void => {
@@ -182,10 +182,15 @@ export default (app: Application): void => {
                 if (token != null) {
                     let authResult;
                     try {
+<<<<<<< HEAD
+                        authResult = await app.service('authentication').strategies.jwt.authenticate({accessToken: token}, {});
+                    } catch (err) {
+=======
                         const authService = new AuthenticationService(app, 'authentication');
                         authResult = await authService.strategies.jwt.authenticate({accessToken: token}, {});
                        // authResult = await app.service('authentication').dispatch.jwt.authenticate({accessToken: token}, {});
                     } catch(err) {
+>>>>>>> 475b3c9196b860cb80f15e6c411b6b7386b7c59c
                         if (err.code === 401 && err.data.name === 'TokenExpiredError') {
                             const jwtDecoded = decode(token);
                             const idProvider = await app.service('identityProvider').get(jwtDecoded.sub);

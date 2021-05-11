@@ -61,13 +61,10 @@ export function doLoginAuto (allowGuest?: boolean, forceClientAuthReset?: boolea
 
       if (forceClientAuthReset === true) await (client as any).authentication.reset();
       if (allowGuest === true && (accessToken == null || accessToken.length === 0)) {
-        console.log("hhhhhhhhhhhhhhhhhhh");
-        console.log(client.service('identity-provider'));
         const newProvider = await client.service('identity-provider').create({
           type: 'guest',
           token: v1()
         });
-        console.log("mmmmmmmmmmmmmmmmm");
         accessToken = newProvider.accessToken;
       }
 

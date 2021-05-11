@@ -61,13 +61,13 @@ class CompositeElement extends UIBaseElement {
 }
 
 export const createGalleryPanel = () => {    
-    let container: Object3D = new Object3D;
+    const container: Object3D = new Object3D;
     let marketPlace: Block = null;
     let library: Block = null;
     let purchasePanel: Block = null;
     let oldPanel: Block = null;
-    let playButton: Block = null;
-    let purchaseButton: Block = null;
+    const playButton: Block = null;
+    const purchaseButton: Block = null;
     let buttonMarket: Block = null;
     let buttonLibrary: Block = null;
     let preview: Block = null;

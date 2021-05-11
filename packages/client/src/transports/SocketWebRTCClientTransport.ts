@@ -98,7 +98,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     const self = this;
     let socket = instance ? this.instanceSocket : this.channelSocket;
     const { token, user, startVideo, videoEnabled, channelType, isHarmonyPage, ...query } = opts;
-
+    console.log("******* GAMESERVER PORT IS", gameserverPort);
     Network.instance.accessToken = query.token = token;
     EngineEvents.instance.dispatchEvent({ type: ClientNetworkSystem.EVENTS.CONNECT, id: user.id });
 

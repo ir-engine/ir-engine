@@ -6,7 +6,7 @@ const feathersStoreKey: string = Config.publicRuntimeConfig.feathersStoreKey;
 const feathersClient: any = !Config.publicRuntimeConfig.offlineMode ? feathers() : undefined;
 
 if(!Config.publicRuntimeConfig.offlineMode) {
-  const socket = io(Config.publicRuntimeConfig.apiServer);
+  const socket = io(Config.publicRuntimeConfig.gameserver);
   feathersClient.configure(feathers.socketio(socket, { timeout: 10000 }));
   feathersClient.configure(feathers.authentication({
     storageKey: feathersStoreKey
