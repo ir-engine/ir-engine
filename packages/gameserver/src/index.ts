@@ -42,46 +42,44 @@ process.on('unhandledRejection', (error, promise) => {
         });
       }
   }
-})();
 
 // SSL setup
-const certPath = config.server.certPath;
-const certKeyPath = config.server.keyPath;
-const useSSL = !config.noSSL && (config.localBuild || process.env.NODE_ENV !== 'production') && fs.existsSync(certKeyPath);
+  const certPath = config.server.certPath;
+  const certKeyPath = config.server.keyPath;
+  const useSSL = !config.noSSL && (config.localBuild || process.env.NODE_ENV !== 'production') && fs.existsSync(certKeyPath);
 
-const certOptions = {
-  key: useSSL ? fs.readFileSync(certKeyPath) : null,
-  cert: useSSL ? fs.readFileSync(certPath) : null
-};
-if (useSSL) logger.info('Starting server with HTTPS');
-else logger.warn('Starting server with NO HTTPS, if you meant to use HTTPS try \'sudo bash generate-certs\'');
-const port = config.gameserver.port;
+  const certOptions = {
+    key: useSSL ? fs.readFileSync(certKeyPath) : null,
+    cert: useSSL ? fs.readFileSync(certPath) : null
+  };
+  if (useSSL) logger.info('Starting server with HTTPS');
+  else logger.warn('Starting server with NO HTTPS, if you meant to use HTTPS try \'sudo bash generate-certs\'');
+  const port = config.gameserver.port;
 
 // http redirects for development
-if (useSSL) {
-  app.use((req, res, next) => {
-    if (req.secure) {
-      // request was via https, so do no special handling
-      next();
-    } else {
-      // request was via http, so redirect to https
-      res.redirect('https://' + req.headers.host + req.url);
-    }
-  });
-}
+  if (useSSL) {
+    app.use((req, res, next) => {
+      if (req.secure) {
+        // request was via https, so do no special handling
+        next();
+      } else {
+        // request was via http, so redirect to https
+        res.redirect('https://' + req.headers.host + req.url);
+      }
+    });
+  }
 
 // const server = useSSL
 //   ? https.createServer(certOptions, app as any).listen(port)
 //   : app.listen(port);
 
-console.log(port);
-const server = https.createServer(certOptions, app as any).listen(port);
+  const server = useSSL ? https.createServer(certOptions, app as any).listen(port) : await app.listen(port);
 
-if (useSSL === true) app.setup(server);
+  if (useSSL === true) app.setup(server);
 
-process.on('unhandledRejection', (reason, p) =>
-  logger.error('Unhandled Rejection at: Promise ', p, reason)
-);
+  process.on('unhandledRejection', (reason, p) =>
+      logger.error('Unhandled Rejection at: Promise ', p, reason)
+  );
 // if (process.env.NODE_ENV === 'production' && fs.existsSync('/var/log')) {
 //   try {
 //     console.log("Writing access log to ", '/var/log/api.access.log');
@@ -95,6 +93,7 @@ process.on('unhandledRejection', (reason, p) =>
 // } else {
 //   console.warn("Directory /var/log not found, not writing access log");
 // }
-server.on('listening', () =>
-logger.info('Feathers application started on %s://%s:%d', useSSL ? 'https' : 'http', config.server.hostname, port)
-);
+  server.on('listening', () =>
+      logger.info('Feathers application started on %s://%s:%d', useSSL ? 'https' : 'http', config.server.hostname, port)
+  );
+})();

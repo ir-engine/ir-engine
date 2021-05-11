@@ -20,7 +20,6 @@ export default function (app: Application): typeof Model {
     });
 
     (userRoleProject as any).associate = function (models: any): void {
-        (userRoleProject as any).hasMany(models.user_role, { foreignKey: "userRoleProject" });
     };
 
     return userRoleProject;

@@ -28,16 +28,9 @@ const sendVerifyEmail = () => {
 
 export default {
   before: {
-    all: [
-      // Use normal functions
-      function(context) { console.log('before all hook ran'); }
-    ],
-    find: [
-      // Use ES6 arrow functions
-      context => console.log('before find hook 1 ran'),
-      context => console.log('before find hook 2 ran')
-    ],
-    get: [ /* other hook functions here */ ],
+    all: [],
+    find: [],
+    get: [],
     create: [],
     update: [],
     patch: [],

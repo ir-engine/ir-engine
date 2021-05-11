@@ -5,15 +5,12 @@ import { setTimeout } from 'timers';
 import { Application } from '../declarations';
 import seederConfig from './seeder-config';
 
-console.log(seederConfig);
-
 export default (app: Application): void => {
   try {
     const {forceRefresh} = config.db;
     const {performDryRun} = config.server;
 
     console.log("Starting app");
-    console.log("forceRefresh: ", forceRefresh);
 
     const sequelize = new Sequelize({
       ...config.db,

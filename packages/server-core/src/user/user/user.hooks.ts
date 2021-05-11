@@ -56,22 +56,7 @@ export default {
         ]
       })
     ],
-    create: [
-      async (context: HookContext): Promise<HookContext> => {
-        try {
-          await context.app.service('user-project').create({
-            project_id: context.data.project_id,
-            email: context.data.email
-          });
-
-          return context;
-        } catch (err) {
-          logger.error('USER AFTER CREATE ERROR');
-          logger.error(err);
-        }
-        return context;
-      }
-    ],
+    create: [],
     update: [],
     patch: [
       addAssociations({
