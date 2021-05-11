@@ -35,12 +35,18 @@ jobs:
           DOCKER_LABEL: ${{ secrets.DOCKER_LABEL }}
           REPO_NAME: ${{ secrets.REPO_NAME }}
           ECR_URL: ${{ secrets.ECR_URL }}
-      - name: Print docker images
-        run: docker image ls
-      - name: Create artifact
-        uses: ishworkh/docker-image-artifact-upload@v1
-        with:
-          image: '${{ secrets.DOCKER_LABEL}}_client:latest'
+      - name: Publish to Elastic Container Registry
+        run: bash packages/client/scripts/publish_ecr.sh dev $GITHUB_SHA $DOCKER_LABEL
+        env:
+          DOCKER_LABEL: ${{ secrets.DOCKER_LABEL }}
+          REPO_NAME: ${{ secrets.REPO_NAME }}
+          ECR_URL: ${{ secrets.ECR_URL }}
+#      - name: Publish to DockerHub
+#        run: bash packages/client/scripts/publish_dockerhub.sh $GITHUB_SHA $DOCKER_LABEL
+#        env:
+#          DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
+#          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+#          DOCKER_LABEL: ${{ secrets.DOCKER_LABEL }}
   gameserver-build:
 #    needs: setup
     runs-on: ubuntu-latest
@@ -63,11 +69,18 @@ jobs:
           DOCKER_LABEL: ${{ secrets.DOCKER_LABEL }}
           REPO_NAME: ${{ secrets.REPO_NAME }}
           ECR_URL: ${{ secrets.ECR_URL }}
-      - name: Create artifact
-        uses: ishworkh/docker-image-artifact-upload@v1
-        with:
-          image: '${{ secrets.DOCKER_LABEL}}_gameserver'
-
+      - name: Publish to Elastic Container Registry
+        run: bash packages/gameserver/scripts/publish_ecr.sh dev $GITHUB_SHA $DOCKER_LABEL
+        env:
+          DOCKER_LABEL: ${{ secrets.DOCKER_LABEL }}
+          REPO_NAME: ${{ secrets.REPO_NAME }}
+          ECR_URL: ${{ secrets.ECR_URL }}
+#      - name: Publish to DockerHub
+#        run: bash packages/gameserver/scripts/publish_dockerhub.sh $GITHUB_SHA $DOCKER_LABEL
+#        env:
+#          DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
+#          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+#          DOCKER_LABEL: ${{ secrets.DOCKER_LABEL }}
   api-server-build:
 #    needs: setup
     runs-on: ubuntu-latest
@@ -90,14 +103,27 @@ jobs:
           DOCKER_LABEL: ${{ secrets.DOCKER_LABEL }}
           REPO_NAME: ${{ secrets.REPO_NAME }}
           ECR_URL: ${{ secrets.ECR_URL }}
-      - name: Create artifact
-        uses: ishworkh/docker-image-artifact-upload@v1
-        with:
-          image: '${{ secrets.DOCKER_LABEL}}_server'
+      - name: Publish to Elastic Container Registry
+        run: bash packages/server/scripts/publish_ecr.sh dev $GITHUB_SHA $DOCKER_LABEL
+        env:
+          DOCKER_LABEL: ${{ secrets.DOCKER_LABEL }}
+          REPO_NAME: ${{ secrets.REPO_NAME }}
+          ECR_URL: ${{ secrets.ECR_URL }}
+#      - name: Publish to DockerHub
+#        run: bash packages/server/scripts/publish_dockerhub.sh $GITHUB_SHA $DOCKER_LABEL
+#        env:
+#          DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
+#          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+#          DOCKER_LABEL: ${{ secrets.DOCKER_LABEL }}
   publish-and-deploy:
     needs: [client-build, gameserver-build, api-server-build]
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: 14.x
       - name: Setup Helm
         run: scripts/setup_helm.sh
       - name: Setup AWS
@@ -109,32 +135,10 @@ jobs:
           CLUSTER_NAME: theoverlay-production
       - name: npm-install 'cli' and 'aws-sdk'
         run: npm install cli aws-sdk
-      - name: Download client artifact
-        uses: ishworkh/docker-image-artifact-download@v1
-        with:
-          image: '${{ secrets.DOCKER_LABEL}}_client'
-      - name: Download gameserver artifact
-        uses: ishworkh/docker-image-artifact-download@v1
-        with:
-          image: '${{ secrets.DOCKER_LABEL}}_gameserver'
-      - name: Download api-server artifact
-        uses: ishworkh/docker-image-artifact-download@v1
-        with:
-          image: '${{ secrets.DOCKER_LABEL}}_server'
-      - name: Publish to Elastic Container Registry
-        run: bash scripts/publish_ecr.sh dev $GITHUB_SHA $DOCKER_LABEL
-        env:
-          DOCKER_LABEL: ${{ secrets.DOCKER_LABEL }}
-          REPO_NAME: ${{ secrets.REPO_NAME }}
-          ECR_URL: ${{ secrets.ECR_URL }}
+      - name: Prune ECR images
+        run: node scripts/prune-images.js --repo-name $REPO_NAME
 #      - name: Deploy to EKS
 #        run: bash scripts/deploy.sh dev $GITHUB_SHA
-#      - name: Publish to DockerHub
-#        run: bash scripts/publish_dockerhub.sh $GITHUB_SHA $DOCKER_LABEL
-#        env:
-#          DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
-#          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-#          DOCKER_LABEL: ${{ secrets.DOCKER_LABEL }}
       - name: Job succeeded
         if: always()
         uses: ruby/setup-ruby@v1

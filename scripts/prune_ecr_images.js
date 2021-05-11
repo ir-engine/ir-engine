@@ -15,7 +15,7 @@ cli.main(async () => {
         const images = result.imageDetails;
         const withoutLatest = images.filter(image => image.imageTags.indexOf('latest_dev') < 0 && image.imageTags.indexOf('latest_prod') < 0);
         const sorted = withoutLatest.sort((a, b) => b.imagePushedAt - a.imagePushedAt);
-        const toBeDeleted = sorted.slice(10,);
+        const toBeDeleted = sorted.slice(30,);
         if (toBeDeleted.length > 0) {
             const deleteParams = {
                 imageIds: toBeDeleted.map(image => { return { imageDigest: image.imageDigest } }),
