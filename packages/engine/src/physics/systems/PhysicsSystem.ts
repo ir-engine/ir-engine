@@ -64,7 +64,7 @@ export class PhysicsSystem extends System {
   execute(delta: number): void {
     this.queryResults.collider.added?.forEach(entity => {
       addColliderWithEntity(entity)
-
+      /*
       const collider = getComponent<ColliderComponent>(entity, ColliderComponent);
       collider.body.addEventListener(CollisionEvents.COLLISION_START, (ev: ColliderHitEvent) => {
         collider.collisions.push(ev);
@@ -75,9 +75,11 @@ export class PhysicsSystem extends System {
       collider.body.addEventListener(CollisionEvents.COLLISION_END, (ev: ColliderHitEvent) => {
         collider.collisions.push(ev);
       })
+      */
     });
 
     this.queryResults.collider.all?.forEach(entity => {
+      /*
       const collider = getMutableComponent<ColliderComponent>(entity, ColliderComponent);
       // iterate on all collisions since the last update
       collider.collisions.forEach((event) => {
@@ -85,6 +87,7 @@ export class PhysicsSystem extends System {
         // TODO: figure out how we expose specific behaviors like this
       })
       collider.collisions = []; // clear for next loop
+      */
     });
 
     this.queryResults.collider.removed?.forEach(entity => {

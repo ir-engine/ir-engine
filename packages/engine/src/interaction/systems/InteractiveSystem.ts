@@ -29,7 +29,7 @@ import { HaveBeenInteracted } from "../../game/actions/HaveBeenInteracted";
 import { addActionComponent } from '../../game/functions/functionsActions';
 
 // but is works on client too, i will config out this
-export const interactOnServer: Behavior = (entity: Entity, args: any, delta): void => { 
+export const interactOnServer: Behavior = (entity: Entity, args: any, delta): void => {
   //console.warn('Behavior: interact , networkId ='+getComponent(entity, NetworkObject).networkId);
     let focusedArrays = [];
     for (let i = 0; i < Engine.entities.length; i++) {

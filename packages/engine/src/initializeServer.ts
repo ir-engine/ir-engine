@@ -38,7 +38,7 @@ export const initializeServer = async (initOptions: any = DefaultInitializationO
   EngineEvents.instance.once(EngineEvents.EVENTS.JOINED_WORLD, () => {
     EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENABLE_SCENE, enable: true });
   })
-  
+
   initialize();
 
   const networkSystemOptions = { schema: options.networking.schema, app: options.networking.app };

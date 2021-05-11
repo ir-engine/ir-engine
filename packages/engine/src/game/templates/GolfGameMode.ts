@@ -14,6 +14,7 @@ import { HaveBeenInteracted } from "../../game/actions/HaveBeenInteracted";
 import { upDownButton } from "./gameDefault/behaviors/upDownButton";
 import { upDownPanel, giveUpOrDownState } from "./gameDefault/behaviors/upDownPanel";
 import { giveOpenOrCloseState, doorOpeningOrClosing } from "./gameDefault/behaviors/openOrCloseDoor";
+import { addForce } from "./gameDefault/behaviors/addForce";
 // checkers
 import { isPlayersInGame } from "./gameDefault/checkers/isPlayersInGame";
 import { ifNamed } from "./gameDefault/checkers/ifNamed";
@@ -68,12 +69,9 @@ export const GolfGameMode: GameMode = {
     'GolfBall': {
       'hit':[
         {
-          behavior: giveUpOrDownState,
-          args: { on: 'me', give: 'up' },
-          checkers:[{
-            function: isPlayersInGame,
-            args: { invert: false }
-          }]
+          behavior: addForce,
+          args: { on: 'me', force: 1000 },
+          watchers:[ [ HaveBeenInteracted ] ]
         },
       ]
     },

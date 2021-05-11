@@ -32,7 +32,7 @@ export const movingAnimationSchema = [
   },
 
   {
-    type: [DROP], name: defaultAvatarAnimations[DROP].name, axis:'y', speed: 0.5, customProperties: ['weight', 'dontHasHit'],
+    type: [DROP], name: defaultAvatarAnimations[DROP].name, axis:'y', speed: 0.1, customProperties: ['weight', 'dontHasHit'],
     value:      [  -1, -0.1  ],
     weight:     [   1,   0  ],
     dontHasHit: [   1,   0  ]
@@ -68,22 +68,22 @@ export const movingAnimationSchema = [
   },
 
   {
-    type: [RUN_FORWARD], name: defaultAvatarAnimations[RUN_FORWARD].name, axis:'z', speed: 0.5, customProperties: ['weight', 'dontHasHit'],
+    type: [RUN_FORWARD], name: defaultAvatarAnimations[RUN_FORWARD].name, axis:'z', speed: 0.7, customProperties: ['weight', 'dontHasHit'],
     value:      [  0.5,  1  ],
     weight:     [   0,   1  ],
     dontHasHit: [   0 , 0.5 ]
   },{
-    type: [RUN_STRAFE_RIGHT], name: defaultAvatarAnimations[RUN_STRAFE_RIGHT].name, axis: 'x', speed: 0.5, customProperties: ['weight', 'dontHasHit'],
+    type: [RUN_STRAFE_RIGHT], name: defaultAvatarAnimations[RUN_STRAFE_RIGHT].name, axis: 'x', speed: 0.7, customProperties: ['weight', 'dontHasHit'],
     value:      [ -1, -0.5 ],
     weight:     [  1 ,  0  ],
     dontHasHit: [  0.5, 0  ]
   },{
-    type: [RUN_STRAFE_LEFT], name: defaultAvatarAnimations[RUN_STRAFE_LEFT].name, axis:'x', speed: 0.5, customProperties: ['weight', 'dontHasHit'],
+    type: [RUN_STRAFE_LEFT], name: defaultAvatarAnimations[RUN_STRAFE_LEFT].name, axis:'x', speed: 0.7, customProperties: ['weight', 'dontHasHit'],
     value:      [ 0.5,  1  ],
     weight:     [  0 ,  1  ],
     dontHasHit: [  0 , 0.5 ]
   },{
-    type: [RUN_BACKWARD], name: defaultAvatarAnimations[RUN_BACKWARD].name, axis: 'z', speed: 0.5, customProperties: ['weight', 'dontHasHit'],
+    type: [RUN_BACKWARD], name: defaultAvatarAnimations[RUN_BACKWARD].name, axis: 'z', speed: 0.7, customProperties: ['weight', 'dontHasHit'],
     value:      [ -1 ,-0.5 ],
     weight:     [  1 ,  0  ],
     dontHasHit: [ 0.5,  0  ]

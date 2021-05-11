@@ -22,7 +22,7 @@ export function createNetworkRigidBody( args:{ parameters?: any, networkId?: str
     };
 
   } else {
-
+    console.warn(args.parameters);
     initializeNetworkObject({
       entity: args.entity,
       prefabType: PrefabType.RigidBody,
