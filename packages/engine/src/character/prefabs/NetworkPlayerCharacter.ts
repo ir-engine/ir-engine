@@ -35,7 +35,6 @@ import { InterpolationInterface } from "../../physics/interfaces/InterpolationIn
 import { PhysicsSystem } from "../../physics/systems/PhysicsSystem";
 import { addObject3DComponent } from "../../scene/behaviors/addObject3DComponent";
 import { createShadow } from "../../scene/behaviors/createShadow";
-import TeleportToSpawnPoint from "../../scene/components/TeleportToSpawnPoint";
 import { TransformComponent } from "../../transform/components/TransformComponent";
 import { initiateIK } from "../../xr/functions/IKFunctions";
 
@@ -267,9 +266,7 @@ export const NetworkPlayerCharacter: NetworkPrefab = {
 		{ type: InterpolationComponent, data: { schema: characterInterpolationSchema } },
 		{ type: AnimationComponent, data: { animationsSchema: movingAnimationSchema, updateAnimationsValues: getMovementValues } }
 	],
-	serverComponents: [
-		{ type: TeleportToSpawnPoint },
-	],
+	serverComponents: [],
 	onAfterCreate: [
 		{
 			behavior: initializeCharacter,

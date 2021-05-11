@@ -92,9 +92,9 @@ export class ServerNetworkIncomingSystem extends System {
   /** Call execution on server */
   execute = (delta: number): void => {
     // Create a new worldstate frame for next tick
-    Network.tick++;
+    Network.instance.tick++;
     Network.instance.worldState = {
-      tick: Network.tick,
+      tick: Network.instance.tick,
       time: 0,
       transforms: [],
       ikTransforms: [],

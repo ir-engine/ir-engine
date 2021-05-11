@@ -1,4 +1,4 @@
-import { System } from '../../ecs/classes/System';
+import { System, SystemAttributes } from '../../ecs/classes/System';
 import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType';
 import { localMediaConstraints } from '../constants/VideoConstants';
 
@@ -45,8 +45,8 @@ export class MediaStreamSystem extends System {
 
   updateType = SystemUpdateType.Fixed;
 
-  constructor() {
-    super()
+  constructor(attributes?: SystemAttributes) {
+    super(attributes);
     MediaStreamSystem.instance = this;
   }
 

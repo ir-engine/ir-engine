@@ -1,8 +1,7 @@
 import { EngineEvents } from '../../ecs/classes/EngineEvents';
-import { System } from '../../ecs/classes/System';
+import { System, SystemAttributes } from '../../ecs/classes/System';
 import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType';
 import { Network } from '../classes/Network';
-import { NetworkSchema } from "../interfaces/NetworkSchema";
 import { WorldStateModel } from '../schema/worldStateSchema';
 
 /** System class for network system of client. */
@@ -22,7 +21,7 @@ export class ClientNetworkSystem extends System {
    * Constructs the system. Adds Network Components, initializes transport and initializes server.
    * @param attributes Attributes to be passed to super class constructor.
    */
-  constructor(attributes:{ schema: NetworkSchema }) {
+  constructor(attributes?: SystemAttributes) {
     super(attributes);
     
     const { schema } = attributes;

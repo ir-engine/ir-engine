@@ -5,7 +5,7 @@ import { CameraSystem } from '../camera/systems/CameraSystem';
 import { Timer } from '../common/functions/Timer';
 import { DebugHelpersSystem } from '../debug/systems/DebugHelpersSystem';
 import { Engine, AudioListener } from '../ecs/classes/Engine';
-import { execute, initialize } from "../ecs/functions/EngineFunctions";
+import { execute } from "../ecs/functions/EngineFunctions";
 import { registerSystem } from '../ecs/functions/SystemFunctions';
 import { SystemUpdateType } from "../ecs/functions/SystemUpdateType";
 import { InteractiveSystem } from "../interaction/systems/InteractiveSystem";
@@ -15,7 +15,7 @@ import { ParticleSystem } from '../particles/systems/ParticleSystem';
 import { PhysicsSystem } from '../physics/systems/PhysicsSystem';
 import { HighlightSystem } from '../renderer/HighlightSystem';
 import { WebGLRendererSystem } from '../renderer/WebGLRendererSystem';
-import { ServerSpawnSystem } from '../scene/systems/SpawnSystem';
+import { ServerSpawnSystem } from '../scene/systems/ServerSpawnSystem';
 import { StateSystem } from '../state/systems/StateSystem';
 import { CharacterInputSchema } from '../character/CharacterInputSchema';
 import { DefaultNetworkSchema } from '../networking/templates/DefaultNetworkSchema';
@@ -34,6 +34,7 @@ import { UIPanelSystem } from '../ui/systems/UIPanelSystem';
 import PhysXWorker from '../physics/functions/loadPhysX.ts?worker';
 import { PhysXInstance } from "three-physx";
 import { ClientNetworkStateSystem } from '../networking/systems/ClientNetworkStateSystem';
+import { now } from '../common/functions/now';
 import { loadScene } from '../scene/functions/SceneLoading';
 
 Mesh.prototype.raycast = acceleratedRaycast;
@@ -69,20 +70,24 @@ const initializeEngineOffscreen = async ({ canvas, userArgs }, proxy: MainProxy)
     EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENABLE_SCENE, enable: true });
   })
 
-  initialize();
+  Engine.lastTime = now() / 1000;
   Engine.scene = new Scene();
   Engine.publicPath = location.origin;
 
-  await AnimationManager.instance.getDefaultModel()
 
   Network.instance = new Network();
   Network.instance.schema = options.networking.schema;
   // @ts-ignore
   Network.instance.transport = { isServer: false }
 
-  await PhysXInstance.instance.initPhysX(new PhysXWorker(), { });
+  new AnimationManager();
+  await Promise.all([
+    PhysXInstance.instance.initPhysX(new PhysXWorker(), { }),
+    AnimationManager.instance.getDefaultModel(),
+  ]);
+
   registerSystem(PhysicsSystem);
-  registerSystem(ActionSystem, { useWebXR: false });
+  registerSystem(ActionSystem);
   registerSystem(StateSystem);
   registerSystem(ClientNetworkStateSystem);
   registerSystem(CharacterControllerSystem);

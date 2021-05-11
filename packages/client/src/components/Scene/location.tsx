@@ -2,7 +2,6 @@ import Button from '@material-ui/core/Button';
 import Snackbar from '@material-ui/core/Snackbar';
 import { InteractableModal } from '@xrengine/client-core/src/world/components/InteractableModal';
 import LoadingScreen from '@xrengine/client-core/src/common/components/Loader';
-import { MobileGamepadProps } from "@xrengine/client-core/src/common/components/MobileGamepad/MobileGamepadProps";
 import NamePlate from '@xrengine/client-core/src/world/components/NamePlate';
 import NetworkDebug from '../../components/NetworkDebug';
 import { OpenLink } from '@xrengine/client-core/src/world/components/OpenLink';
@@ -32,7 +31,6 @@ import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents';
 import { resetEngine } from "@xrengine/engine/src/ecs/functions/EngineFunctions";
 import { getComponent, getMutableComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions';
 import { initializeEngine } from '@xrengine/engine/src/initialize';
-import { DefaultInitializationOptions } from '@xrengine/engine/src/DefaultInitializationOptions';
 import { InteractiveSystem } from '@xrengine/engine/src/interaction/systems/InteractiveSystem';
 import { Network } from '@xrengine/engine/src/networking/classes/Network';
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes';
@@ -41,7 +39,6 @@ import { ClientNetworkSystem } from '@xrengine/engine/src/networking/systems/Cli
 import { PhysicsSystem } from '@xrengine/engine/src/physics/systems/PhysicsSystem';
 import { styleCanvas } from '@xrengine/engine/src/renderer/functions/styleCanvas';
 import { CharacterComponent } from '@xrengine/engine/src/character/components/CharacterComponent';
-import { DefaultNetworkSchema } from '@xrengine/engine/src/networking/templates/DefaultNetworkSchema';
 import { PrefabType } from '@xrengine/engine/src/networking/templates/PrefabType';
 import { XRSystem } from '@xrengine/engine/src/xr/systems/XRSystem';
 import { Config } from '@xrengine/client-core/src/helper';
@@ -51,8 +48,6 @@ import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 import url from 'url';
-import { CharacterInputSchema } from '@xrengine/engine/src/character/CharacterInputSchema';
-import { GamesSchema } from "@xrengine/engine/src/game/templates/GamesSchema";
 import WarningRefreshModal from "../AlertModals/WarningRetryModal";
 import { ClientInputSystem } from '@xrengine/engine/src/input/systems/ClientInputSystem';
 
@@ -248,11 +243,7 @@ export const EnginePage = (props: Props) => {
       instanceConnectionState.get('instanceServerConnecting') === false &&
       instanceConnectionState.get('connected') === false
     ) {
-      const currentLocation = locationState.get('currentLocation').get('location');
-      if (sceneId === null && currentLocation.sceneId !== null) {
-        sceneId = currentLocation.sceneId;
-      }
-      init(sceneId);
+      reinit();
     }
   }, [instanceConnectionState]);
 
@@ -288,6 +279,14 @@ export const EnginePage = (props: Props) => {
     }
   }, [noGameserverProvision]);
 
+  const reinit = () => {
+    const currentLocation = locationState.get('currentLocation').get('location');
+    if (sceneId === null && currentLocation.sceneId !== null) {
+      sceneId = currentLocation.sceneId;
+    }
+    init(sceneId);
+  };
+
   async function init(sceneId: string): Promise<any> { // auth: any,
     let sceneData;
     if(Config.publicRuntimeConfig.offlineMode) {
@@ -309,21 +308,11 @@ export const EnginePage = (props: Props) => {
     styleCanvas(canvas);
 
     const InitializationOptions = {
-      input: {
-        schema: CharacterInputSchema,
-      },
-      gameModes: {
-        schema: GamesSchema
-      },
-      publicPath: '',
-      postProcessing: true,
-      editor: false,
+      publicPath: location.origin,
       networking: {
         schema: {
-        ...DefaultNetworkSchema,
-        transport: SocketWebRTCClientTransport,
+          transport: SocketWebRTCClientTransport,
         } as NetworkSchema,
-        transport: SocketWebRTCClientTransport
       },
       renderer: {
         canvas,
@@ -331,17 +320,11 @@ export const EnginePage = (props: Props) => {
       useOfflineMode: Config.publicRuntimeConfig.offlineMode
     };
 
-    // console.log("Initialization options are: ", InitializationOptions);
-
     await initializeEngine(InitializationOptions);
-
-    // console.log("Engine initialized");
 
     document.dispatchEvent(new CustomEvent('ENGINE_LOADED')); // this is the only time we should use document events. would be good to replace this with react state
 
     addUIEvents();
-
-    // console.log("**** OFFLINE MODE? ", Config.publicRuntimeConfig.offlineMode);
 
     if(!Config.publicRuntimeConfig.offlineMode) await connectToInstanceServer('instance');
 
@@ -472,7 +455,7 @@ export const EnginePage = (props: Props) => {
         </>
       </Snackbar>
 
-      <NetworkDebug />
+      <NetworkDebug reinit={reinit} />
       <LoadingScreen objectsToLoad={progressEntity} />
       { harmonyOpen !== true && <MediaIconsBox />}
       { userHovered && <NamePlate userId={userId} position={{ x: position?.x, y: position?.y }} focused={userHovered} />}
