@@ -30,7 +30,7 @@ jobs:
           AWS_REGION: ${{ secrets.AWS_REGION }}
           CLUSTER_NAME: theoverlay-production
       - name: Build Client Docker Image
-        run: bash pacakges/client/scripts/build_docker.sh dev $DOCKER_LABEL
+        run: bash packages/client/scripts/build_docker.sh dev $DOCKER_LABEL
         env:
           DOCKER_LABEL: ${{ secrets.DOCKER_LABEL }}
           REPO_NAME: ${{ secrets.REPO_NAME }}
