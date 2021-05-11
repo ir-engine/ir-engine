@@ -13,7 +13,7 @@ import { styleCanvas } from '@xrengine/engine/src/renderer/functions/styleCanvas
 import { createPanelComponent } from '@xrengine/engine/src/ui/functions/createPanelComponent';
 import { XRSystem } from '@xrengine/engine/src/xr/systems/XRSystem';
 import React, { useEffect, useState } from 'react';
-import {VUSR360Player} from './app';
+import {XR360Player} from './app';
 import {testScene} from './test';
 
 const MobileGamepad = React.lazy(() => import("@xrengine/client-core/src/common/components/MobileGamepad"));
@@ -26,7 +26,7 @@ interface Props {
 }
 
 
-export const VUSR360PlayerPage = (props: Props) => {
+export const XR360PlayerPage = (props: Props) => {
   const {
     locationName,
   } = props;
@@ -76,7 +76,7 @@ export const VUSR360PlayerPage = (props: Props) => {
 
     Engine.scene.children[10].visible = false;      //hide ground
 
-    createPanelComponent({ panel: new VUSR360Player(testScene) });
+    createPanelComponent({ panel: new XR360Player(testScene) });
   }
 
   const addUIEvents = () => {

@@ -4,7 +4,7 @@ import { Control } from '@xrengine/engine/src/ui/classes/Control';
 import { Color, Vector3, Quaternion, Euler, Object3D, TextureLoader } from 'three';
 import { createItem, createCol, createRow, createButton, makeLeftItem } from '@xrengine/engine/src/ui/functions/createItem';
 
-export class VUSR360Player extends UIBaseElement {
+export class XR360Player extends UIBaseElement {
   marketPlace: UIBlock;
   library: UIBlock;
   purchasePanel: UIBlock;
