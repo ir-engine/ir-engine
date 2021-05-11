@@ -64,11 +64,11 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
     }
 
     public sendReliableData = (message: any): any => {
-        if (this.socketIO != null) this.socketIO.of('/realtime').emit(MessageTypes.ReliableMessage.toString(), message);
+        if (this.socketIO != null) this.socketIO.of('/').emit(MessageTypes.ReliableMessage.toString(), message);
     }
 
     public sendNetworkStatUpdateMessage = (message: any): any => {
-        if (this.socketIO != null) this.socketIO.of('/realtime').emit(MessageTypes.UpdateNetworkState.toString(), message);
+        if (this.socketIO != null) this.socketIO.of('/').emit(MessageTypes.UpdateNetworkState.toString(), message);
     }
 
     toBuffer(ab): any {
@@ -88,7 +88,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
         logger.info("Kicking ", socket.id);
         // TODO: Make sure this is right
         // logger.info(this.socketIO.allSockets()[socket.id]);
-        if (this.socketIO != null) this.socketIO.of('/realtime').emit(MessageTypes.Kick.toString(), socket.id);
+        if (this.socketIO != null) this.socketIO.of('/').emit(MessageTypes.Kick.toString(), socket.id);
     }
 
     public async initialize(): Promise<void> {
@@ -154,7 +154,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
         // Set up realtime channel on socket.io
         this.socketIO = (this.app as any)?.io;
 
-        if (this.socketIO != null) this.socketIO.of('/realtime').on("connect", (socket: Socket) => {
+        if (this.socketIO != null) this.socketIO.of('/').on("connect", (socket: Socket) => {
             // Authorize user and make sure everything is valid before allowing them to join the world
             socket.on(MessageTypes.Authorization.toString(), async (data, callback) => {
                 // console.log('AUTHORIZATION CALL HANDLER', data.userId);

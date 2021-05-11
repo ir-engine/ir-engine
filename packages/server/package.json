@@ -88,7 +88,7 @@
     "feathers-mailer": "3.0.1",
     "feathers-sequelize": "https://github.com/feathersjs-ecosystem/feathers-sequelize.git",
     "feathers-swagger": "1.2.1",
-    "feathers-sync": "2.3.0",
+    "feathers-sync": "https://github.com/xrfoundation/feathers-sync.git",
     "fs-blob-store": "6.0.0",
     "helmet": "4.5.0",
     "http-server": "0.12.3",

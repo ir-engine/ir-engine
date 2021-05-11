@@ -85,27 +85,17 @@ if (config.gameserver.enabled) {
     app.configure(socketio({
       serveClient: false,
       cors:{
-        // TODO: Fix CORS
-        origin: "*",
-        allowedHeaders: ["*"],
-        methods:['OPTIONS', 'GET'],
+        origin: config.gameserver.clientHost,
+        methods: ['OPTIONS', 'GET'],
+        allowedHeaders: '*',
         preflightContinue: true,
-        optionsSuccessStatus:200   
+        credentials: true
       }
     }, (io) => {
-
-      console.log("hello");
-      io.on('connection', (socket) => {
-        console.log("A client connected!");
-        // socket.emit('news', { text: 'A client connected!' });
-        // socket.on('my other event', function (data) {
-        //   console.log(data);
-        // });
-      });
       io.use((socket, next) => {
         console.log(socket.handshake.query);
         (socket as any).feathers.socketQuery = socket.handshake.query;
-         (socket as any).socketQuery = socket.handshake.query;
+        (socket as any).socketQuery = socket.handshake.query;
         next();
       });
     }));
@@ -126,12 +116,6 @@ if (config.gameserver.enabled) {
 
     app.configure(feathersLogger(winston));
     app.configure(services);
-
-    // Host the public folder
-    // Configure a middleware for 404s and the error handler
-
-    // Host the public folder
-    // Configure a middleware for 404s and the error handler
 
     if (config.gameserver.mode === 'realtime') {
       (app as any).k8AgonesClient = api({
@@ -185,7 +169,6 @@ app.use(errorHandler({ logger } as any));
 
 process.on('exit', async () => {
   console.log('Server EXIT');
-
 });
 
 process.on('SIGTERM', async (err) => {

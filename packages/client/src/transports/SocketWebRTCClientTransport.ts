@@ -44,13 +44,11 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
  * @param message message to send
  */
   sendReliableData(message, instance = true): void {
-    console.log("sjhdashd");
     if (instance === true) this.instanceSocket.emit(MessageTypes.ReliableMessage.toString(), message);
     else this.channelSocket.emit(MessageTypes.ReliableMessage.toString(), message);
   }
 
   sendNetworkStatUpdateMessage(message, instance = true): void {
-    console.log("sjhdashd");
     if (instance) this.instanceSocket.emit(MessageTypes.UpdateNetworkState.toString(), message);
     else this.channelSocket.emit(MessageTypes.UpdateNetworkState.toString(), message);
   }
@@ -60,7 +58,6 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
   }
 
   toBuffer(ab) {
-    console.log("sjhdashd");
     const buf = Buffer.alloc(ab.byteLength);
     const view = new Uint8Array(ab);
     for (let i = 0; i < buf.length; ++i) {
@@ -71,7 +68,6 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
 
   // This sends message on a data channel (data channel creation is now handled explicitly/default)
   sendData(data: any, instance = true): void {
-    console.log("sjhdashd");
     if (instance === true) {
       if (this.instanceDataProducer && this.instanceDataProducer.closed !== true && this.instanceDataProducer.readyState === 'open')
           this.instanceDataProducer.send(this.toBuffer(data));
@@ -83,7 +79,6 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
 
   // Adds support for Promise to socket.io-client
   promisedRequest(socket: Socket) {
-    console.log("sjhdashd");
     return function request(type: any, data = {}): any {
       return new Promise(resolve => socket.emit(type, data, resolve));
     };
@@ -114,15 +109,15 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     if (query.sceneId == null) delete query.sceneId;
     if (query.channelId == null) delete query.channelId;
     if (process.env.LOCAL_BUILD === 'true') {
-      socket = ioclient(`https://${address as string}:${port.toString()}/realtime`, {
+      socket = ioclient(`https://${address as string}:${port.toString()}`, {
         query: query
       });
     } else if (process.env.NODE_ENV === 'development') {
-      socket = ioclient(`${address as string}:${port.toString()}/realtime`, {
+      socket = ioclient(`${address as string}:${port.toString()}`, {
         query: query
       });
     } else {
-      socket = ioclient(`${Config.publicRuntimeConfig.gameserver}/realtime`, {
+      socket = ioclient(`${Config.publicRuntimeConfig.gameserver}`, {
         path: `/socket.io/${address as string}/${port.toString()}`,
         query: query
       });

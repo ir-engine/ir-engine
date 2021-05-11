@@ -1,24 +1,24 @@
-import express, {json, urlencoded, static as _static, rest, notFound, errorHandler} from '@feathersjs/express';
-import feathers from '@feathersjs/feathers';
-import socketio from '@feathersjs/socketio';
-import authentication from '@xrengine/server-core/src/user/authentication';
-import channels from './channels';
-import compress from 'compression';
-import cors from 'cors';
-import { EventEmitter } from 'events';
-import feathersLogger from 'feathers-logger';
-import swagger from 'feathers-swagger';
-import sync from 'feathers-sync';
 import fs from 'fs';
-import helmet from 'helmet';
-import { api } from '@xrengine/server-core/src/k8s';
 import path from 'path';
 import favicon from 'serve-favicon';
-import winston from 'winston';
-import config from '@xrengine/server-core/src/appconfig';
+import compress from 'compression';
+import helmet from 'helmet';
+import cors from 'cors';
+import swagger from 'feathers-swagger';
+import {feathers} from '@feathersjs/feathers';
+import express, {json, urlencoded, static as _static, rest, notFound, errorHandler} from '@feathersjs/express';
+import socketio from '@feathersjs/socketio';
 import logger from '@xrengine/server-core/src/logger';
-import sequelize from '@xrengine/server-core/src/sequelize';
+import channels from './channels';
+import authentication from '@xrengine/server-core/src/user/authentication';
+import config from '@xrengine/server-core/src/appconfig';
+import sync from 'feathers-sync';
+import { api } from '@xrengine/server-core/src/k8s';
+import winston from 'winston';
+import feathersLogger from 'feathers-logger';
+import { EventEmitter } from 'events';
 import services from '@xrengine/server-core/src/services';
+import sequelize from '@xrengine/server-core/src/sequelize';
 
 const emitter = new EventEmitter();
 
@@ -76,21 +76,14 @@ if (config.server.enabled) {
 
     // Set up Plugins and providers
     app.configure(rest());
-  
-  
     app.configure(socketio({
       serveClient: false,
-      // handlePreflightRequest: (req: any, res: any) => {
-      //   // Set CORS headers
-      //   if (res != null) {
-      //     res.setHeader('Access-Control-Allow-Origin', req.headers.origin);
-      //     res.setHeader('Access-Control-Request-Method', '*');
-      //     res.setHeader('Access-Control-Allow-Methods', 'OPTIONS, GET`');
-      //     res.setHeader('Access-Control-Allow-Headers', '*');
-      //     res.writeHead(200);
-      //     res.end();
-      //   }
-      // }
+      cors: {
+        origin: config.server.clientHost,
+        methods: ['OPTIONS', 'GET'],
+        allowedHeaders: '*',
+        credentials: true
+      }
     }, (io) => {
       io.use((socket, next) => {
         (socket as any).feathers.socketQuery = socket.handshake.query;
@@ -109,11 +102,11 @@ if (config.server.enabled) {
       });
     }
 
+    // Configure other middleware (see `middleware/index.js`)
     app.configure(authentication);
     // Set up our services (see `services/index.js`)
 
     app.configure(feathersLogger(winston));
-
     app.configure(services);
     // Set up event channels (see channels.js)
     app.configure(channels);
