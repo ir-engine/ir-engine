@@ -6,7 +6,7 @@ import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents';
 import { resetEngine } from "@xrengine/engine/src/ecs/functions/EngineFunctions";
 import { initializeEngine } from '@xrengine/engine/src/initialize';
 import { ClientNetworkSystem } from '@xrengine/engine/src/networking/systems/ClientNetworkSystem';
-import { UIGallery } from '@xrengine/engine/src/ui/classes/UIGallery';
+import { UIGallery } from '@xrengine/engine/src/ui/classes/UIAll';
 import { styleCanvas } from '@xrengine/engine/src/renderer/functions/styleCanvas';
 import { createPanelComponent } from '@xrengine/engine/src/ui/functions/createPanelComponent';
 import { XRSystem } from '@xrengine/engine/src/xr/systems/XRSystem';

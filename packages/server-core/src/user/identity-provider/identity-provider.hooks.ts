@@ -28,55 +28,30 @@ const sendVerifyEmail = () => {
 
 export default {
   before: {
+    all: [
+      // Use normal functions
+      function(context) { console.log('before all hook ran'); }
+    ],
+    find: [
+      // Use ES6 arrow functions
+      context => console.log('before find hook 1 ran'),
+      context => console.log('before find hook 2 ran')
+    ],
+    get: [ /* other hook functions here */ ],
+    create: [],
+    update: [],
+    patch: [],
+    remove: []
+  },
+  after: {
     all: [],
     find: [],
     get: [],
-    create: [
-      iff(
-        isPasswordAccountType(),
-        hashPassword('password'),
-        verifyHooks.addVerification()
-      )
-    ],
-    update: [
-      iff(
-        isPasswordAccountType(),
-        hashPassword('password')
-      ),
-      authenticate('jwt')
-    ],
-    patch: [], // hashPassword('password'), authenticate('jwt')
-    remove: [] // authenticate('jwt')
-  },
-
-  after: {
-    all: [
-      protect('password')
-    ],
-    find: [],
-    get: [],
-    create: [
-      sendVerifyEmail()
-    ],
+    create: [],
     update: [],
-    patch: [
-      iff(
-        isProvider('external'),
-        preventChanges(
-          true,
-          'isVerified',
-          'verifyToken',
-          'verifyShortToken',
-          'verifyExpires',
-          'verifyChanges',
-          'resetToken',
-          'resetShortToken',
-          'resetExpires'
-        ))
-    ],
+    patch: [],
     remove: []
   },
-
   error: {
     all: [],
     find: [],
