@@ -4,17 +4,20 @@ import { Application } from '../../../declarations';
 /**
  * 
  * this model is associate with users 
- * it contain role for users
+ * it contain project for user
  */
 export default (app: Application): any => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient');
-  const userRole = sequelizeClient.define('user_role', {
-    role: {
+  const userProject = sequelizeClient.define('user_project', {
+    project_id: {
       type: DataTypes.STRING,
       allowNull: false,
       primaryKey: true,
-      unique: true
-    }
+    },
+    email: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
   }, {
     hooks: {
       beforeCount (options: any): void {
@@ -24,9 +27,9 @@ export default (app: Application): any => {
     timestamps: false
   });
 
-  (userRole as any).associate = (models: any): void => {
-    (userRole as any).hasMany(models.user, { foreignKey: 'userRole' });
+  (userProject as any).associate = (models: any): void => {
+    (userProject as any).hasMany(models.user, { foreignKey: 'project_id' });
   };
 
-  return userRole;
+  return userProject;
 };

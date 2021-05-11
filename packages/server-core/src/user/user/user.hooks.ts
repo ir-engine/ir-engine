@@ -56,7 +56,22 @@ export default {
         ]
       })
     ],
-    create: [],
+    create: [
+      async (context: HookContext): Promise<HookContext> => {
+        try {
+          await context.app.service('user-project').create({
+            project_id: context.data.project_id,
+            email: context.data.email
+          });
+
+          return context;
+        } catch (err) {
+          logger.error('USER AFTER CREATE ERROR');
+          logger.error(err);
+        }
+        return context;
+      }
+    ],
     update: [],
     patch: [
       addAssociations({
@@ -88,8 +103,7 @@ export default {
       async (context: HookContext): Promise<HookContext> => {
         try {
           const { app, result } = context;
-          console.log(result);
-          
+
           result.data.forEach(async (item) => {
             if (item.subscriptions && item.subscriptions.length > 0) {
               await Promise.all(item.subscriptions.map(async (subscription: any) => {
@@ -144,18 +158,19 @@ export default {
       }
     ],
     create: [
-        async (context: HookContext): Promise<HookContext> => {
-          try {
-            await context.app.service('user-settings').create({
-              userId: context.result.id
-            });
+      async (context: HookContext): Promise<HookContext> => {
 
-            return context;
-          } catch(err) {
-            logger.error('USER AFTER CREATE ERROR');
-            logger.error(err);
-          }
+        try {
+          await context.app.service('user-settings').create({
+            userId: context.result.id
+          });
+
+          return context;
+        } catch (err) {
+          logger.error('USER AFTER CREATE ERROR');
+          logger.error(err);
         }
+      }
     ],
     update: [],
     patch: [async (context: HookContext): Promise<HookContext> => {
@@ -169,7 +184,7 @@ export default {
             inviteCode: code
           });
         }
-      } catch(err) {
+      } catch (err) {
         logger.error('USER AFTER PATCH ERROR');
         logger.error(err);
       }

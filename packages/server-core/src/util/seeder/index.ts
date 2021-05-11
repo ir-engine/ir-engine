@@ -1,4 +1,4 @@
-import errors from '@feathersjs/errors';
+import { GeneralError } from '@feathersjs/errors';
 
 import Seeder from './seeder';
 
@@ -25,7 +25,7 @@ export default function seeder(opts = {}) {
       return seeder.seedApp().then().catch(err => {
         console.log(`Seeding error: ${err}`);
 
-        throw new errors.GeneralError(err);
+        throw new GeneralError(new Error(err));
       });
     };
   };

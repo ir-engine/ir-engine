@@ -38,8 +38,8 @@ class SceneGallery extends Object3D {
       "360/VR THUMBNAIL/WRECKS AND CAVES/_DSC2512.JPG",
     ];
     
-    let url = (index)=>{
-      let i = index % urls.length;
+    const url = (index)=>{
+      const i = index % urls.length;
       return urls[i];
     }
 
@@ -153,7 +153,7 @@ class SceneGallery extends Object3D {
       button2.picked(state);
     };
 
-    let purchaseElement = new PurchaseElement({
+    const purchaseElement = new PurchaseElement({
         width: 2,
         height: 1,
         root: this, 
