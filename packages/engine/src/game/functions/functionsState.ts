@@ -16,10 +16,8 @@ import { PanelUp } from '../templates/gameDefault/components/PanelUpTagComponent
 import { GamesSchema } from '../templates/GamesSchema';
 import { ClientGameActionMessage, GameStateUpdateMessage } from "../types/GameMessage";
 import { GameMode, StateObject } from "../types/GameMode";
-import { getGame, getGameEntityFromName, getRole, getUuid } from './functions';
-
-
-
+import { getGame, getGameEntityFromName, getRole, setRole, getUuid } from './functions';
+import { GamesSchema } from "../../game/templates/GamesSchema";
 /**
  * @author HydraFire <github.com/HydraFire>
  */
@@ -156,4 +154,41 @@ export const removeStateComponent = (entity: Entity, component: ComponentConstru
     objectState.components.splice(index, 1);
   }
   //console.warn(game.state);
+};
+
+export const changeRole = (entity: Entity, newGameRole: string): void => {
+
+  const uuid = getUuid(entity);
+  const game = getGame(entity);
+  console.warn(game.state);
+  let objectState = game.state.find(v => v.uuid === uuid);
+
+  if (objectState === undefined) {
+    objectState = { uuid: uuid, role: '', components: [], storage: [] };
+    game.state.push(objectState);
+    console.error('dont have this entity in State');
+  }
+
+  objectState.role = newGameRole;
+  objectState.components = [];
+  objectState.storage = [];
+
+  setRole(entity, newGameRole);
+
+  Object.keys(game.gamePlayers).forEach(role => {
+    const index = game.gamePlayers[role].findIndex(entityF => uuid === getUuid(entityF));
+    if (index != -1) {
+      game.gamePlayers[role].splice(index, 1);
+    }
+  })
+
+  game.gamePlayers[newGameRole].push(entity);
+
+  const gameSchema = GamesSchema[game.gameMode];
+  const schema = gameSchema.initGameState[newGameRole];
+  if (schema != undefined) {
+    schema.components?.forEach(component => addStateComponent(entity, component));
+    //initStorage(entity, schema.storage);
+    schema.behaviors?.forEach(behavior => behavior(entity));
+  }
 };

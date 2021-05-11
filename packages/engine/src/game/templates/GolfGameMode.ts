@@ -8,14 +8,19 @@ import { ButtonUp } from "./gameDefault/components/ButtonUpTagComponent";
 import { ButtonDown } from "./gameDefault/components/ButtonDownTagComponent";
 import { PanelDown } from "./gameDefault/components/PanelDownTagComponent";
 import { PanelUp } from "./gameDefault/components/PanelUpTagComponent";
-import { YourTurn } from "./gameDefault/components/YourTurnTagComponent";
+import { YourTurn } from "./Golf/components/YourTurnTagComponent";
 // game Action Tag Component
 import { HaveBeenInteracted } from "../../game/actions/HaveBeenInteracted";
 // game behavior
 import { upDownButton } from "./gameDefault/behaviors/upDownButton";
 import { upDownPanel, giveUpOrDownState } from "./gameDefault/behaviors/upDownPanel";
 import { giveOpenOrCloseState, doorOpeningOrClosing } from "./gameDefault/behaviors/openOrCloseDoor";
-import { addForce } from "./gameDefault/behaviors/addForce";
+
+import { addForce } from "./Golf/behaviors/addForce";
+import { addRole } from "./Golf/behaviors/addRole";
+import { addTurn } from "./Golf/behaviors/addTurn";
+import { nextTurn } from "./Golf/behaviors/nextTurn";
+import { addRestitution } from "./Golf/behaviors/addRestitution";
 // checkers
 import { isPlayersInGame } from "./gameDefault/checkers/isPlayersInGame";
 import { ifNamed } from "./gameDefault/checkers/ifNamed";
@@ -39,8 +44,14 @@ export const GolfGameMode: GameMode = {
     PanelDown
   ],
   initGameState: {
-    'Playing': {
-      components: [YourTurn]
+    'newPlayer': {
+      behaviors: [addRole]
+    },
+    '1-Player': {
+      behaviors: [addTurn]
+    },
+    'GolfBall': {
+      behaviors: [addRestitution]
     },
     'StartGamePanel': {
       components: [PanelDown],
@@ -62,25 +73,72 @@ export const GolfGameMode: GameMode = {
     }
   },
   gamePlayerRoles: {
-    'Playing': {
-      'getVictory': []
+    'newPlayer': {},
+    '1-Player': {
+      'hitBall': [
+        {
+          behavior: addForce,
+          args: { on: 'target', upForce: 250, forwardForce: 100 },
+          watchers:[ [ YourTurn ] ],
+          takeEffectOn: {
+            targetsRole: {
+              'GolfBall': {
+                watchers:[ [ HaveBeenInteracted ] ],
+                checkers:[{
+                  function: ifNamed,
+                  args: { on: 'target', name: '1' }
+                }]
+              }
+            }
+          }
+        }
+      ]
+    },
+    '2-Player': {
+      'hitBall': [
+        {
+          behavior: addForce,
+          args: { on: 'target', upForce: 250, forwardForce: 100 },
+          watchers:[ [ YourTurn ] ],
+          takeEffectOn: {
+            targetsRole: {
+              'GolfBall': {
+                watchers:[ [ HaveBeenInteracted ] ],
+                checkers:[{
+                  function: ifNamed,
+                  args: { on: 'target', name: '2' }
+                }]
+              }
+            }
+          }
+        }
+      ]
     }
   },
   gameObjectRoles: {
     'GolfBall': {
-      'hit':[
+      'nextTurn':[
         {
-          behavior: addForce,
-          args: { on: 'me', force: 300 },
+          behavior: nextTurn,
           watchers:[ [ HaveBeenInteracted ] ],
           takeEffectOn: {
             targetsRole: {
-              'Playing': {
+              '1-Player': {
                 watchers:[ [ YourTurn ] ]
               }
             }
           }
-        },
+        },{
+          behavior: nextTurn,
+          watchers:[ [ HaveBeenInteracted ] ],
+          takeEffectOn: {
+            targetsRole: {
+              '2-Player': {
+                watchers:[ [ YourTurn ] ]
+              }
+            }
+          }
+        }
       ]
     },
     'StartGamePanel': {
