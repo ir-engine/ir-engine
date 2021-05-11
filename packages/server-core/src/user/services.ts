@@ -12,6 +12,7 @@ import UserRelationshipType from './user-relationship-type/user-relationship-typ
 import UserRole from './user-role/user-role.service';
 import UserSettings from './user-settings/user-settings.service';
 import UserProject from './user-project/user-project.service';
+import UserRoleProject from "./user-role-project/user-role-project.service";
 export default [
   UserRole,
   User,
@@ -26,5 +27,6 @@ export default [
   MagicLink,
   Email,
   SMS,
-  UserProject
+  UserProject,
+  UserRoleProject
 ];

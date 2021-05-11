@@ -33,7 +33,6 @@ export default (app: Application): any => {
         type: DataTypes.STRING,
         defaultValue: (): string => "",
         allowNull: false,
-        unique: true
       },
     },
     {

@@ -102,6 +102,7 @@ export * from './src/user/user-relationship-type/user-relationship-type.seed';
 export * from './src/user/user-relationship/user-relationship.class';
 export * from './src/user/user-role/user-role.class';
 export * from './src/user/user-role/user-role.seed';
+export * from './src/user/user-role-project/user-role-project.class';
 export * from './src/user/user-settings/user-settings.class';
 export * from './src/user/user/user.class';
 export * from './src/user/user/user.seed';
@@ -413,6 +414,11 @@ export { default as srcUserUserSettingsUserSettingsService } from './src/user/us
 export { default as srcUserUserProjectUserProjectHooks } from './src/user/user-project/user-project.hooks';
 export { default as srcUserUserProjectUserProjectModel } from './src/user/user-project/user-project.model';
 export { default as srcUserUserProjectUserProjectService } from './src/user/user-project/user-project.service';
+
+export { default as srcUserUserRoleProjectUserRoleProjectHooks } from './src/user/user-role-project/user-role-project.hook';
+export { default as srcUserUserRoleProjectUserRoleProjectModel } from './src/user/user-role-project/user-role-project.model';
+export { default as srcUserUserRoleProjectUserRoleProjectService } from './src/user/user-role-project/user-role-project.service';
+
 
 export { default as srcUserUserUserAccessControl } from './src/user/user/user.access-control';
 export { default as srcUserUserUserDocs } from './src/user/user/user.docs';
