@@ -30,7 +30,7 @@ import { isMobileOrTablet } from '@xrengine/engine/src/common/functions/isMobile
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents';
 import { resetEngine } from "@xrengine/engine/src/ecs/functions/EngineFunctions";
 import { getComponent, getMutableComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions';
-import { initializeEngine } from '@xrengine/engine/src/initialize';
+import { initializeEngine } from '@xrengine/client-core/src/initialize';
 import { InteractiveSystem } from '@xrengine/engine/src/interaction/systems/InteractiveSystem';
 import { Network } from '@xrengine/engine/src/networking/classes/Network';
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes';
