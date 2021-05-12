@@ -1,5 +1,5 @@
 /**
- * @author Gleb Ordinsky <glebordinskijj@gmail.com>, Gleb Ordinsky
+ * @author Gleb Ordinsky <glebordinskijj@gmail.com>
  */
 
 import React, { useState, useEffect } from 'react';
