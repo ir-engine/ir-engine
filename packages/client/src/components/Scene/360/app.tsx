@@ -1,7 +1,6 @@
 import { UIBlock, UIText, UIBaseElement, UI_ELEMENT_SELECT_STATE } from '@xrengine/engine/src/ui/classes/UIBaseElement';
-import { VideoPlayer } from '@xrengine/engine/src/ui/classes/VideoPlayer';
+import { VideoPlayer } from './VideoPlayer';
 import { Control } from '@xrengine/engine/src/ui/classes/Control';
-import { Color, Vector3, Quaternion, Euler, Object3D, TextureLoader } from 'three';
 import { createItem, createCol, createRow, createButton, makeLeftItem } from '@xrengine/engine/src/ui/functions/createItem';
 
 export class XR360Player extends UIBaseElement {
