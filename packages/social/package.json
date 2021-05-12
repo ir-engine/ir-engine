@@ -1,6 +1,6 @@
 {
   "name": "@xrengine/social",
-  "version": "0.2.24",
+  "version": "0.2.26",
   "private": true,
   "repository": {
     "type": "git",
@@ -33,9 +33,9 @@
     "@capacitor/cli": "2.4.7",
     "@material-ui/core": "4.11.4",
     "@types/react-redux": "7.1.16",
-    "@xrengine/client-core": "^0.2.24",
-    "@xrengine/common": "^0.2.24",
-    "@xrengine/engine": "^0.2.24",
+    "@xrengine/client-core": "^0.2.26",
+    "@xrengine/common": "^0.2.26",
+    "@xrengine/engine": "^0.2.26",
     "app-root-path": "3.0.0",
     "device-detector-js": "2.2.9",
     "prop-types": "15.7.2",
