@@ -128,6 +128,9 @@ export const initializeEngine = async (initOptions: InitializeOptions): Promise<
         const { default: PhysXWorker } = await import('./physics/functions/loadPhysX.ts?worker');
         physicsWorker = new PhysXWorker();
       }
+
+      new AnimationManager();
+      
       // promise in parallel to speed things up
       await Promise.all([
         AnimationManager.instance.getDefaultModel(),
@@ -187,11 +190,12 @@ export const initializeEngine = async (initOptions: InitializeOptions): Promise<
 
 
 export const initializeEditor = async (initOptions: InitializeOptions): Promise<void> => {
-  const options = _.defaultsDeep({}, initOptions, DefaultInitializationOptions);
+  const options = _.defaultsDeep({}, initOptions, DefaultInitializationOptions) as InitializeOptions;
   const { physicsWorldConfig } = options;
 
   Engine.scene = new Scene();
 
+  Engine.supportedGameModes = options.supportedGameModes;
   Engine.gameMode = initOptions.gameMode;
   Engine.publicPath = options.publicPath;
 

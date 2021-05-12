@@ -17,7 +17,6 @@ import { GamesSchema } from '../templates/GamesSchema';
 import { ClientGameActionMessage, GameStateUpdateMessage } from "../types/GameMessage";
 import { GameMode, StateObject } from "../types/GameMode";
 import { getGame, getGameEntityFromName, getRole, setRole, getUuid } from './functions';
-import { GamesSchema } from "../../game/templates/GamesSchema";
 /**
  * @author HydraFire <github.com/HydraFire>
  */

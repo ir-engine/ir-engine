@@ -26,7 +26,7 @@ export type InitializeOptions = {
   useOfflineMode?: boolean,
   useCanvas?: boolean,
   postProcessing?: boolean,
-  physicsWorldConfig: PhysXConfig
+  physicsWorldConfig?: PhysXConfig
 };
 
 /**

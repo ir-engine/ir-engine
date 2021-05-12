@@ -15,6 +15,7 @@ import { doLoginAuto } from "@xrengine/client-core/src/user/reducers/auth/servic
 import { initializeEditor } from "@xrengine/engine/src/initialize";
 import { Engine } from "@xrengine/engine/src/ecs/classes/Engine";
 import { GamesSchema } from "@xrengine/engine/src/game/templates/GamesSchema";
+import { InitializeOptions } from "@xrengine/engine/src/DefaultInitializationOptions";
 /**
  * Declairing Props interface having two props.
  *@authState can be of any type.
@@ -63,8 +64,9 @@ const Project = (props: Props) => {
 
     const [engineIsInitialized, setEngineInitialized] = useState(false);
 
-    const InitializationOptions = {
+    const InitializationOptions: InitializeOptions = {
         publicPath: location.origin,
+        
     };
 
     useEffect(() => {

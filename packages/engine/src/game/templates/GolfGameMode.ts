@@ -118,13 +118,13 @@ export const GolfGameMode: GameMode = {
   },
   gameObjectRoles: {
     'GolfTee': {
-      'spawn':[
-        {
-          behavior: spawnEntity,
-          args: { },
-          watchers:[ [ HaveBeenInteracted ] ],
-        },
-      ]
+      // 'spawn':[
+      //   {
+      //     behavior: spawnEntity,
+      //     args: { },
+      //     watchers:[ [ HaveBeenInteracted ] ],
+      //   },
+      // ]
     },
     'GolfBall': {
       'nextTurn':[

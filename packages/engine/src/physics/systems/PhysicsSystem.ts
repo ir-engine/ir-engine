@@ -26,6 +26,7 @@ export class PhysicsSystem extends System {
   static EVENTS = {
     PORTAL_REDIRECT_EVENT: 'PHYSICS_SYSTEM_PORTAL_REDIRECT',
   };
+  instance: PhysicsSystem;
   updateType = SystemUpdateType.Fixed;
   frame: number
   diffSpeed: number = Engine.physicsFrameRate / Engine.networkFramerate;

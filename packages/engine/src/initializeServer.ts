@@ -56,9 +56,10 @@ export const initializeServer = async (initOptions: InitializeOptions = DefaultI
   const currentPath = (isWindows ? 'file:///' : '') + path.dirname(__filename);
   const physicsWorker = new Worker(currentPath + "/physics/functions/loadPhysXNode.ts");
 
+  new AnimationManager();
   await Promise.all([
-    // AnimationManager.instance.getDefaultModel(),
-    // AnimationManager.instance.getAnimations(),
+    AnimationManager.instance.getDefaultModel(),
+    AnimationManager.instance.getAnimations(),
   ]);
 
   registerSystem(PhysicsSystem, { worker: physicsWorker, physicsWorldConfig });

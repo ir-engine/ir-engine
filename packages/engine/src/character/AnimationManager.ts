@@ -42,6 +42,10 @@ export class AnimationManager {
 	}
 	getDefaultModel(): Promise<Group> {
 		return new Promise(resolve => {
+			if (!isClient) {
+				resolve(new Group());
+				return;
+			}
 			if (this._defaultModel) {
 				resolve(this._defaultModel);
 				return;
