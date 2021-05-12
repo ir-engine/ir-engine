@@ -48,22 +48,27 @@ export class ClientInputSystem extends System {
     PROCESS_INPUT: 'CLIENT_INPUT_SYSTEM_PROCESS_EVENT',
   }
 
+  static instance: ClientInputSystem;
+
   updateType = SystemUpdateType.Free;
   needSend = false;
   switchId = 1;
   boundListeners: ListenerBindingData[] = [];
-  static mouseInputEnabled = true;
-  static keyboardInputEnabled = true;
+  mouseInputEnabled = true;
+  keyboardInputEnabled = true;
 
   constructor(attributes?: SystemAttributes) {
     super(attributes);
+
+    ClientInputSystem.instance = this;
+
     ClientInputSchema.onAdded.forEach(behavior => {
       behavior.behavior();
     });
 
     EngineEvents.instance.addEventListener(ClientInputSystem.EVENTS.ENABLE_INPUT, ({ keyboard, mouse }) => {
-      if(typeof keyboard !== 'undefined') ClientInputSystem.keyboardInputEnabled = keyboard;
-      if(typeof mouse !== 'undefined') ClientInputSystem.mouseInputEnabled = mouse;
+      if(typeof keyboard !== 'undefined') ClientInputSystem.instance.keyboardInputEnabled = keyboard;
+      if(typeof mouse !== 'undefined') ClientInputSystem.instance.mouseInputEnabled = mouse;
     })
 
 
@@ -113,7 +118,8 @@ export class ClientInputSystem extends System {
     });
     this.boundListeners.forEach(({ domElement, eventName, listener }) => {
       domElement.removeEventListener(eventName, listener);
-    })
+    });
+    EngineEvents.instance.removeAllListenersForEvent(ClientInputSystem.EVENTS.ENABLE_INPUT);
   }
 
   /**

@@ -35,7 +35,6 @@ import { InterpolationInterface } from "../../physics/interfaces/InterpolationIn
 import { PhysicsSystem } from "../../physics/systems/PhysicsSystem";
 import { addObject3DComponent } from "../../scene/behaviors/addObject3DComponent";
 import { createShadow } from "../../scene/behaviors/createShadow";
-import TeleportToSpawnPoint from "../../scene/components/TeleportToSpawnPoint";
 import { TransformComponent } from "../../transform/components/TransformComponent";
 import { initiateIK } from "../../xr/functions/IKFunctions";
 
@@ -70,6 +69,7 @@ export const loadActorAvatarFromURL: Behavior = (entity, avatarURL) => {
 		receiveShadow: true,
 		parent: tmpGroup,
 	}, () => {
+		console.log("Loaded")
 		const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
 		const controller = getMutableComponent<ControllerColliderComponent>(entity, ControllerColliderComponent);
 		if (!actor) return
@@ -89,7 +89,7 @@ export const loadActorAvatarFromURL: Behavior = (entity, avatarURL) => {
 					targetSkeleton = child;
 			}
 		})
-
+		console.log("*** Standardizing skeleton")
 		standardizeSkeletion(targetSkeleton, AnimationManager.instance._defaultSkeleton);
 
 		tmpGroup.children.forEach(child => actor.modelContainer.add(child));
@@ -226,7 +226,7 @@ export function createNetworkPlayer(args: { ownerId: string | number, networkId?
 				},
 				{
 					type: CharacterComponent,
-					data: Network.instance.clients[args.ownerId].avatarDetail ?? {},
+					data: Network.instance.clients[args.ownerId]?.avatarDetail ?? {},
 				}
 			],
 			serverComponents: []
@@ -266,9 +266,7 @@ export const NetworkPlayerCharacter: NetworkPrefab = {
 		{ type: InterpolationComponent, data: { schema: characterInterpolationSchema } },
 		{ type: AnimationComponent, data: { animationsSchema: movingAnimationSchema, updateAnimationsValues: getMovementValues } }
 	],
-	serverComponents: [
-		{ type: TeleportToSpawnPoint },
-	],
+	serverComponents: [],
 	onAfterCreate: [
 		{
 			behavior: initializeCharacter,

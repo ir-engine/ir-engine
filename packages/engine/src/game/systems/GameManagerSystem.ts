@@ -1,7 +1,6 @@
 import { Entity } from '../../ecs/classes/Entity';
-import { System } from "../../ecs/classes/System";
+import { System, SystemAttributes } from "../../ecs/classes/System";
 import { Network } from '../../networking/classes/Network';
-import { isServer } from '../../common/functions/isServer';
 
 import { NetworkObject } from '../../networking/components/NetworkObject';
 import { Game } from "../components/Game";
@@ -9,12 +8,9 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { GameObject } from "../components/GameObject";
 import { GamePlayer } from "../components/GamePlayer";
 
-import { addComponent, getComponent, getMutableComponent, hasComponent, removeComponent, getRemovedComponent } from '../../ecs/functions/EntityFunctions';
-import { addActionComponent, sendActionComponent, applyActionComponent } from '../functions/functionsActions';
-import { initState, saveInitStateCopy, reInitState, sendState, requireState, applyStateToClient, correctState, addStateComponent, removeStateComponent  } from '../functions/functionsState';
-import { initStorage, getStorage } from '../functions/functionsStorage';
-
-import { GameMode, RoleBehaviorWithTarget, RoleBehaviors, GameRolesInterface } from "../../game/types/GameMode";
+import { addComponent, getComponent, getMutableComponent, hasComponent, removeComponent } from '../../ecs/functions/EntityFunctions';
+import { initState, saveInitStateCopy, requireState, addStateComponent  } from '../functions/functionsState';
+import { initStorage } from '../functions/functionsStorage';
 
 import { GamesSchema } from "../../game/templates/GamesSchema";
 import { PrefabType } from '../../networking/templates/PrefabType';
@@ -45,16 +41,18 @@ function isPlayerInGameArea(entity, gameArea) {
  */
 
 export class GameManagerSystem extends System {
+  static instance: GameManagerSystem;
   updateType = SystemUpdateType.Fixed;
   updateNewPlayersRate: number;
   updateLastTime: number;
-  static createdGames: Entity[];
+  createdGames: Entity[];
 
-  constructor() {
-    super();
+  constructor(attributes?: SystemAttributes) {
+    super(attributes);
+    GameManagerSystem.instance = this;
     this.updateNewPlayersRate = 60;
     this.updateLastTime = 0;
-    GameManagerSystem.createdGames = [];
+    this.createdGames = [];
   }
 
   dispose(): void {
@@ -68,7 +66,7 @@ export class GameManagerSystem extends System {
       const gameSchema = GamesSchema[game.gameMode];
       game.priority = gameSchema.priority;// DOTO: set its from editor
       initState(game, gameSchema);
-      GameManagerSystem.createdGames.push(entity);
+      this.createdGames.push(entity);
     });
 
     this.queryResults.game.all?.forEach(entityGame => {

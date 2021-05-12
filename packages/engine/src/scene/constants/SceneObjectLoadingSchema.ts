@@ -16,7 +16,6 @@ import { createCommonInteractive } from "../behaviors/createCommonInteractive";
 import { createGroup } from '../behaviors/createGroup';
 import { createLink } from '../behaviors/createLink';
 import { createAudio, createMediaServer, createVideo, createVolumetric } from "../behaviors/createMedia";
-import { createScenePreviewCamera } from "../behaviors/createScenePreviewCamera";
 import { createShadow } from '../behaviors/createShadow';
 import createSkybox from '../behaviors/createSkybox';
 import { createTransformComponent } from "../behaviors/createTransformComponent";
@@ -30,8 +29,10 @@ import WalkableTagComponent from '../components/Walkable';
 import { LoadingSchema } from '../interfaces/LoadingSchema';
 import Image from '../classes/Image';
 import { createGame, createGameObject } from "../behaviors/createGame";
-import { GameObject } from "../../game/components/GameObject";
 import { setPostProcessing } from "../behaviors/setPostProcessing";
+import { CameraSystem } from "../../camera/systems/CameraSystem";
+import { CopyTransformComponent } from "../../transform/components/CopyTransformComponent";
+import { isServer } from "../../common/functions/isServer";
 /**
  * Add Component into Entity from the Behavior.
  * @param entity Entity in which component will be added.
@@ -385,7 +386,11 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
         args: { component: ScenePreviewCameraTagComponent }
       },
       {
-        behavior: createScenePreviewCamera
+        behavior: (previewPointEntity: Entity) => {
+          if (!isServer && CameraSystem.instance.activeCamera) {
+            addComponent(CameraSystem.instance.activeCamera, CopyTransformComponent, { input: previewPointEntity });
+          }
+        }
       }
     ]
   },

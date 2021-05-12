@@ -5,7 +5,7 @@ import { NetworkTransport } from "@xrengine/engine/src/networking/interfaces/Net
 import * as mediasoupClient from "mediasoup-client";
 import { Transport as MediaSoupTransport } from "mediasoup-client/lib/types";
 import { Config } from '@xrengine/client-core/src/helper';
-import ioclient from "socket.io-client";
+import {io as ioclient , Socket} from "socket.io-client";
 import { createDataProducer, endVideoChat, initReceiveTransport, initSendTransport, leave, subscribeToTrack } from "./SocketWebRTCClientFunctions";
 import { EngineEvents } from "@xrengine/engine/src/ecs/classes/EngineEvents";
 import { ClientNetworkSystem } from "@xrengine/engine/src/networking/systems/ClientNetworkSystem";
@@ -26,8 +26,8 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
   lastPollSyncData = {}
   pollingTickRate = 1000
   pollingTimeout = 4000
-  instanceSocket: SocketIOClient.Socket = {} as SocketIOClient.Socket
-  channelSocket: SocketIOClient.Socket = {} as SocketIOClient.Socket
+  instanceSocket: Socket = {} as Socket
+  channelSocket: Socket = {} as Socket
   instanceRequest: any
   channelRequest: any
   localScreen: any;
@@ -78,7 +78,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
   }
 
   // Adds support for Promise to socket.io-client
-  promisedRequest(socket: SocketIOClient.Socket) {
+  promisedRequest(socket: Socket) {
     return function request(type: any, data = {}): any {
       return new Promise(resolve => socket.emit(type, data, resolve));
     };
@@ -93,7 +93,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     const self = this;
     let socket = instance ? this.instanceSocket : this.channelSocket;
     const { token, user, startVideo, videoEnabled, channelType, isHarmonyPage, ...query } = opts;
-
+    console.log("******* GAMESERVER PORT IS", port);
     Network.instance.accessToken = query.token = token;
     EngineEvents.instance.dispatchEvent({ type: ClientNetworkSystem.EVENTS.CONNECT, id: user.id });
 
@@ -109,15 +109,15 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     if (query.sceneId == null) delete query.sceneId;
     if (query.channelId == null) delete query.channelId;
     if (process.env.LOCAL_BUILD === 'true') {
-      socket = ioclient(`https://${address as string}:${port.toString()}/realtime`, {
+      socket = ioclient(`https://${address as string}:${port.toString()}`, {
         query: query
       });
     } else if (process.env.NODE_ENV === 'development') {
-      socket = ioclient(`${address as string}:${port.toString()}/realtime`, {
+      socket = ioclient(`${address as string}:${port.toString()}`, {
         query: query
       });
     } else {
-      socket = ioclient(`${Config.publicRuntimeConfig.gameserver}/realtime`, {
+      socket = ioclient(`${Config.publicRuntimeConfig.gameserver}`, {
         path: `/socket.io/${address as string}/${port.toString()}`,
         query: query
       });

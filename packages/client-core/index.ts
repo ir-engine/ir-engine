@@ -1,6 +1,7 @@
 // created from ctix
 
 export * from './src/admin/components/AdminHelpers';
+export * from './src/admin/components/Users/validation';
 export * from './src/admin/reducers/actions';
 export * from './src/admin/reducers/admin/actions';
 export * from './src/admin/reducers/admin/reducers';

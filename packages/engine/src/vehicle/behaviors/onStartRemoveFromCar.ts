@@ -107,7 +107,7 @@ export const onStartRemoveFromCar = (entity: Entity, entityCar: Entity, seat: nu
     initializeMovingState(entity)
 
     changeAnimation(entity, {
-      animationId: CharacterAnimations.EXITING_VEHICLE,
+      animationId: CharacterAnimations.EXITING_VEHICLE_DRIVER,
       transitionDuration: 0.3
      })
   }

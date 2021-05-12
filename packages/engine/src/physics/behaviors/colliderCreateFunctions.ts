@@ -104,7 +104,9 @@ export function addColliderWithoutEntity(userData, pos = new Vector3(), rot = ne
 
   if(userData.action === 'portal') {
     shape.config.collisionLayer |= CollisionGroups.TriggerCollider;
+    // TODO: This was commented out in dev, do we want this?
     shape.userData = { action: 'portal', link: userData.link };
+
   }
 
   const bodyConfig = new Body({

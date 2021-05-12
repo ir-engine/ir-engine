@@ -14,5 +14,6 @@ services:
   redis:
     image: redis
     container_name: xrengine_redis
+    command: redis-server --requirepass password
     ports:
       - '6379:6379'

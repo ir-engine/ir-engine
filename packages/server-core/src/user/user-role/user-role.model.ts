@@ -14,11 +14,7 @@ export default (app: Application): any => {
       allowNull: false,
       primaryKey: true,
       unique: true
-    },
-    project_id: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
+    }
   }, {
     hooks: {
       beforeCount (options: any): void {

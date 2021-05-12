@@ -64,10 +64,7 @@ const Project = (props: Props) => {
     const [engineIsInitialized, setEngineInitialized] = useState(false);
 
     const InitializationOptions = {
-        postProcessing: true,
-        gameModes: {
-          schema: GamesSchema
-        }
+        publicPath: location.origin,
     };
 
     useEffect(() => {

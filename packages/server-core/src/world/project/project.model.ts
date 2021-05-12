@@ -12,6 +12,10 @@ export default (app: Application): any => {
       primaryKey: true,
       allowNull: false
     },
+    user_id: {
+      type: DataTypes.UUID,
+      allowNull: false,
+    },
     isPublic: {
         type: DataTypes.BOOLEAN,
         defaultValue: true,
@@ -55,8 +59,8 @@ export default (app: Application): any => {
 
   (project as any).associate = (models: any): void => {
     (project as any).belongsTo(models.location, { foreignKey: 'locationId' });
-    (project as any).belongsTo(models.user, { foreignKey: 'userId' });
-    (project as any).belongsToMany(models.asset, { through: models.project_asset, foreignKey: 'projectId' });
+//    (project as any).belongsTo(models.user, { foreignKey: 'user_id' });
+    (project as any).belongsToMany(models.asset, { through: models.project_asset, foreignKey: 'user_id'});
     (project as any).belongsTo(models.owned_file, { foreignKey: 'thumbnailOwnedFileId' });
   };
 

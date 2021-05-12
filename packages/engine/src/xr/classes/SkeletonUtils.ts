@@ -20,7 +20,17 @@ import { Quaternion, Vector3, Matrix4 } from "three";
  * @param rootBone 
  * @param context 
  * @returns 
- */
+  * Takes in a rootBone and recursively traverses the bone heirarchy,
+  * setting each bone's +Z axis to face it's child bones. The IK system follows this
+  * convention, so this step is necessary to update the bindings of a skinned mesh.
+  *
+  * Must rebind the model to it's skeleton after this function.
+  *
+  * @param {THREE.Bone} rootBone
+  * @param {Object} context - options and buffer for stateful bone calculations
+  *                 context.exclude: [ boneNames to exclude ]
+  *                 context.preRotations: { boneName: THREE.Quaternion, ... }
+  */
 function fixSkeletonZForward(rootBone, context) {
   context = context || {};
   precalculateZForwards(rootBone, context);
@@ -37,7 +47,6 @@ function fixSkeletonZForward(rootBone, context) {
 }
 
 const RESETQUAT = new Quaternion();
-const Y_AXIS = new Vector3(0,1,0);
 
 /**
 * Takes in a rootBone and recursively traverses the bone heirarchy,

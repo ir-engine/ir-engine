@@ -44,8 +44,11 @@ export const characterMoveBehavior = (entity: Entity, deltaTime): void => {
 
         break;
       case XR_FOLLOW_MODE.HEAD:
-        rotationVector = inputs.data.get(BaseInput.XR_HEAD).value;
-        rotationVector = new Quaternion().set(rotationVector.qX, rotationVector.qY, rotationVector.qZ, rotationVector.qW);
+        const headTransform = inputs.data.get(BaseInput.XR_HEAD);
+        if(headTransform) {
+          rotationVector = headTransform.value;
+          rotationVector = new Quaternion().set(rotationVector.qX, rotationVector.qY, rotationVector.qZ, rotationVector.qW);
+        }
         break;
     }
   }

@@ -5,8 +5,8 @@ import compress from 'compression';
 import helmet from 'helmet';
 import cors from 'cors';
 import swagger from 'feathers-swagger';
-import feathers from '@feathersjs/feathers';
-import express from '@feathersjs/express';
+import {feathers} from '@feathersjs/feathers';
+import express, {json, urlencoded, static as _static, rest, notFound, errorHandler} from '@feathersjs/express';
 import socketio from '@feathersjs/socketio';
 import AgonesSDK from '@google-cloud/agones-sdk';
 import { Application } from '@xrengine/server-core/declarations';
@@ -76,27 +76,24 @@ if (config.gameserver.enabled) {
         }
     ));
     app.use(compress());
-    app.use(express.json());
-    app.use(express.urlencoded({extended: true}));
+    app.use(json());
+    app.use(urlencoded({extended: true}));
     app.use(favicon(path.join(config.server.publicDir, 'favicon.ico')));
 
     // Set up Plugins and providers
-    app.configure(express.rest());
+    app.configure(rest());
     app.configure(socketio({
       serveClient: false,
-      handlePreflightRequest: (req: any, res: any) => {
-        // Set CORS headers
-        if (res != null) {
-          res.setHeader('Access-Control-Allow-Origin', req.headers.origin);
-          res.setHeader('Access-Control-Request-Method', '*');
-          res.setHeader('Access-Control-Allow-Methods', 'OPTIONS, GET`');
-          res.setHeader('Access-Control-Allow-Headers', '*');
-          res.writeHead(200);
-          res.end();
-        }
+      cors:{
+        origin: config.gameserver.clientHost,
+        methods: ['OPTIONS', 'GET', 'POST'],
+        allowedHeaders: '*',
+        preflightContinue: true,
+        credentials: true
       }
     }, (io) => {
       io.use((socket, next) => {
+        console.log(socket.handshake.query);
         (socket as any).feathers.socketQuery = socket.handshake.query;
         (socket as any).socketQuery = socket.handshake.query;
         next();
@@ -119,12 +116,6 @@ if (config.gameserver.enabled) {
 
     app.configure(feathersLogger(winston));
     app.configure(services);
-
-    // Host the public folder
-    // Configure a middleware for 404s and the error handler
-
-    // Host the public folder
-    // Configure a middleware for 404s and the error handler
 
     if (config.gameserver.mode === 'realtime') {
       (app as any).k8AgonesClient = api({
@@ -174,11 +165,10 @@ if (config.gameserver.enabled) {
   }
 }
 
-app.use(express.errorHandler({ logger } as any));
+app.use(errorHandler({ logger } as any));
 
 process.on('exit', async () => {
   console.log('Server EXIT');
-
 });
 
 process.on('SIGTERM', async (err) => {
