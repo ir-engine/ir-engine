@@ -25,7 +25,7 @@ const Onboard = (props: Props) => {
               <h3>Welcome to ARC!</h3>
               <p>Biggest collection of 370+ layouts
                  for iOS prototyping.</p>
-              <button onClick={()=>{setScreen(2)}}> Next </button>
+              <button type="button" onClick={()=>{setScreen(2)}}> Next </button>
               </div>
             </div>
 
@@ -41,12 +41,12 @@ const Onboard = (props: Props) => {
                       of astronomy and our desire.
                   </p>
               </div>
-              <button onClick={()=>{setScreen(3)}}> Get Started </button>
+              <button type="button" onClick={()=>{setScreen(3)}}> Get Started </button>
             </div>
 
         case(3):
             return <div className={styles.thirdScreen+" "+styles.onboarding}>
-                      <button onClick={()=>{setOnborded(true)}}> Next </button>
+                      <button type="button" onClick={()=>{setOnborded(true)}}> Next </button>
                       <div>
                           <h3>
                               Meet up with friends.
