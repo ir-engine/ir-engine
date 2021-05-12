@@ -114,7 +114,7 @@ export function addColliderWithoutEntity(userData, pos = new Vector3(), rot = ne
     },
     material: userData.bodytype === BodyType.DYNAMIC ? { dynamicFriction: 0.3 } : undefined
   });
-  console.warn(userData.bodytype);
+//  console.warn(userData.bodytype);
   //bodyConfig.addEventListener(CollisionEvents.COLLISION_START, (e) => { console.log(e)});
 
 

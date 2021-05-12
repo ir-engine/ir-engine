@@ -13,6 +13,7 @@ import { Closed } from '../templates/gameDefault/components/ClosedTagComponent';
 import { Open } from '../templates/gameDefault/components/OpenTagComponent';
 import { PanelDown } from '../templates/gameDefault/components/PanelDownTagComponent';
 import { PanelUp } from '../templates/gameDefault/components/PanelUpTagComponent';
+import { YourTurn } from '../templates/Golf/components/YourTurnTagComponent';
 import { GamesSchema } from '../templates/GamesSchema';
 import { ClientGameActionMessage, GameStateUpdateMessage } from "../types/GameMessage";
 import { GameMode, StateObject } from "../types/GameMode";
@@ -29,7 +30,8 @@ const gameStateComponents = {
   'ButtonUp': ButtonUp,
   'ButtonDown': ButtonDown,
   'PanelDown': PanelDown,
-  'PanelUp': PanelUp
+  'PanelUp': PanelUp,
+  'YourTurn': YourTurn
 };
 
 export const initState = (game: Game, gameSchema: GameMode): void => {
@@ -67,7 +69,7 @@ export const applyStateToClient = (stateMessage: GameStateUpdateMessage): void =
   const entity = getGameEntityFromName(stateMessage.game);
   const game = getMutableComponent(entity, Game)
   game.state = stateMessage.state;
-  //console.warn('applyStateToClient', game.state);
+  console.warn('applyStateToClient', game.state);
   applyState(game);
 };
 
@@ -160,13 +162,13 @@ export const changeRole = (entity: Entity, newGameRole: string): void => {
 
   const uuid = getUuid(entity);
   const game = getGame(entity);
-  console.warn(game.state);
+
   let objectState = game.state.find(v => v.uuid === uuid);
 
   if (objectState === undefined) {
     objectState = { uuid: uuid, role: '', components: [], storage: [] };
     game.state.push(objectState);
-    console.error('dont have this entity in State');
+    console.log('dont have this entity in State');
   }
 
   objectState.role = newGameRole;

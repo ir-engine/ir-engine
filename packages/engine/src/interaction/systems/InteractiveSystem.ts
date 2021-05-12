@@ -59,13 +59,21 @@ export const interactOnServer: Behavior = (entity: Entity, args: any, delta): vo
     if (focusedArrays.length < 1) return;
 
     const interactable = getComponent(focusedArrays[0][0], Interactable);
+    const interactionFunction = typeof interactable.onInteractionCheck === 'function';
+    const interactionCheck = interactable.onInteractionCheck(entity, focusedArrays[0][0], focusedArrays[0][2]);
+
     if (interactable.data.interactionType === "gameobject") {
-      addActionComponent(focusedArrays[0][0], HaveBeenInteracted);
+      if (interactionFunction) {
+        if (interactionCheck) {
+          addActionComponent(focusedArrays[0][0], HaveBeenInteracted);
+        }
+      } else {
+        addActionComponent(focusedArrays[0][0], HaveBeenInteracted);
+      }
       return;
     }
-  //console.warn('found networkId: '+getComponent(focusedArrays[0][0], NetworkObject).networkId+' seat: '+focusedArrays[0][2]);
-
-    if (typeof interactable.onInteractionCheck === 'function' && interactable.onInteractionCheck(entity, focusedArrays[0][0], focusedArrays[0][2])) {
+    // Not Game Object
+    if (interactionFunction && interactionCheck) {
     //  console.warn('start with networkId: '+getComponent(focusedArrays[0][0], NetworkObject).networkId+' seat: '+focusedArrays[0][2]);
       interactable.onInteraction(entity, { currentFocusedPart: focusedArrays[0][2] }, delta, focusedArrays[0][0]);
     }

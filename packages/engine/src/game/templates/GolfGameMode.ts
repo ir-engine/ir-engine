@@ -11,6 +11,7 @@ import { PanelUp } from "./gameDefault/components/PanelUpTagComponent";
 import { YourTurn } from "./Golf/components/YourTurnTagComponent";
 // game Action Tag Component
 import { HaveBeenInteracted } from "../../game/actions/HaveBeenInteracted";
+import { NextTurn } from "../../game/actions/NextTurn";
 // game behavior
 import { upDownButton } from "./gameDefault/behaviors/upDownButton";
 import { upDownPanel, giveUpOrDownState } from "./gameDefault/behaviors/upDownPanel";
@@ -19,8 +20,10 @@ import { giveOpenOrCloseState, doorOpeningOrClosing } from "./gameDefault/behavi
 import { addForce } from "./Golf/behaviors/addForce";
 import { addRole } from "./Golf/behaviors/addRole";
 import { addTurn } from "./Golf/behaviors/addTurn";
+import { applyTurn } from "./Golf/behaviors/applyTurn";
 import { nextTurn } from "./Golf/behaviors/nextTurn";
 import { addRestitution } from "./Golf/behaviors/addRestitution";
+import { unInteractiveToOthers } from "./Golf/behaviors/unInteractiveToOthers";
 // checkers
 import { isPlayersInGame } from "./gameDefault/checkers/isPlayersInGame";
 import { ifNamed } from "./gameDefault/checkers/ifNamed";
@@ -35,13 +38,15 @@ export const GolfGameMode: GameMode = {
   name: "Golf",
   priority: 1,
   registerActionTagComponents: [
-    HaveBeenInteracted
+    HaveBeenInteracted,
+    NextTurn
   ],
   registerStateTagComponents: [
     Open,
     Closed,
     PanelUp,
-    PanelDown
+    PanelDown,
+    YourTurn
   ],
   initGameState: {
     'newPlayer': {
@@ -51,7 +56,7 @@ export const GolfGameMode: GameMode = {
       behaviors: [addTurn]
     },
     'GolfBall': {
-      behaviors: [addRestitution]
+      behaviors: [addRestitution, unInteractiveToOthers]
     },
     'StartGamePanel': {
       components: [PanelDown],
@@ -75,6 +80,9 @@ export const GolfGameMode: GameMode = {
   gamePlayerRoles: {
     'newPlayer': {},
     '1-Player': {
+      'MyTurn': [
+        { behavior: applyTurn, watchers:[ [ NextTurn ] ] }
+      ],
       'hitBall': [
         {
           behavior: addForce,
@@ -91,14 +99,47 @@ export const GolfGameMode: GameMode = {
               }
             }
           }
+        },
+        {
+          behavior: nextTurn,
+          watchers:[ [ YourTurn ] ],
+          takeEffectOn: {
+            targetsRole: {
+              'GolfBall': {
+                watchers:[ [ HaveBeenInteracted ] ],
+                checkers:[{
+                  function: ifNamed,
+                  args: { on: 'target', name: '1' }
+                }]
+              }
+            }
+          }
         }
       ]
     },
     '2-Player': {
+      'MyTurn': [
+        { behavior: applyTurn, watchers:[ [ NextTurn ] ] }
+      ],
       'hitBall': [
         {
           behavior: addForce,
           args: { on: 'target', upForce: 250, forwardForce: 100 },
+          watchers:[ [ YourTurn ] ],
+          takeEffectOn: {
+            targetsRole: {
+              'GolfBall': {
+                watchers:[ [ HaveBeenInteracted ] ],
+                checkers:[{
+                  function: ifNamed,
+                  args: { on: 'target', name: '2' }
+                }]
+              }
+            }
+          }
+        },
+        {
+          behavior: nextTurn,
           watchers:[ [ YourTurn ] ],
           takeEffectOn: {
             targetsRole: {
@@ -116,31 +157,7 @@ export const GolfGameMode: GameMode = {
     }
   },
   gameObjectRoles: {
-    'GolfBall': {
-      'nextTurn':[
-        {
-          behavior: nextTurn,
-          watchers:[ [ HaveBeenInteracted ] ],
-          takeEffectOn: {
-            targetsRole: {
-              '1-Player': {
-                watchers:[ [ YourTurn ] ]
-              }
-            }
-          }
-        },{
-          behavior: nextTurn,
-          watchers:[ [ HaveBeenInteracted ] ],
-          takeEffectOn: {
-            targetsRole: {
-              '2-Player': {
-                watchers:[ [ YourTurn ] ]
-              }
-            }
-          }
-        }
-      ]
-    },
+    'GolfBall': {},
     'StartGamePanel': {
       'actionUp': [
         {

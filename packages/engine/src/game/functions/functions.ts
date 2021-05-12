@@ -14,12 +14,7 @@ export const getGameEntityFromName = (name: string): Entity => {
   return GameManagerSystem.createdGames.find(entity => getComponent(entity, Game).name === name);
 };
 
-export const getEntityFromRoleUuid = (game: Game, role: string, uuid: string): Entity => {
-  return (game.gameObjects[role] || game.gamePlayers[role]).find(entity => {
-    const gameObject = hasComponent(entity, GameObject) ? getComponent(entity, GameObject): getComponent(entity, GamePlayer);
-    return gameObject.uuid === uuid;
-  })
-};
+export const getEntityFromRoleUuid = (game: Game, role: string, uuid: string): Entity => (game.gameObjects[role] || game.gamePlayers[role]).find(entity => getUuid(entity) === uuid);
 
 export const getRole = (entity: Entity) => {
   return hasComponent(entity, GameObject) ? getComponent(entity, GameObject).role : getComponent(entity, GamePlayer).role;
