@@ -60,7 +60,7 @@ const  Home = ({ createCreator,  doLoginAuto, auth, creatorsState }) => {
 
   useEffect(() => {
     if( !!currentCreator && !!currentCreator.createdAt ) {
-       currentTime.slice(0, -6) === currentCreator.createdAt.slice(0, -6) && setOnborded(false)
+       currentTime.slice(0, -5) === currentCreator.createdAt.slice(0, -5) && setOnborded(false)
     }
   }, [currentCreator]);
 
