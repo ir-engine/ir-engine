@@ -21,10 +21,10 @@ export class ArMedia extends Service {
   }
 
   /**
-   * @function find it is used to find specific users
+   * @function
    *
    * @param params 
-   * @returns {@Array} of found users
+   * @returns {@Array} 
    * @author Vykliuk Tetiana <tanya.vykliuk@gmail.com>
    */
 
@@ -32,8 +32,6 @@ export class ArMedia extends Service {
     const action = params.query?.action;
     const skip = params.query?.$skip ? params.query.$skip : 0;
     const limit = params.query?.$limit ? params.query.$limit : 100;
-
-    console.log('action', action);
 
     const queryParamsReplacements = {
       skip,

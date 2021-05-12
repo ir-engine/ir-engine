@@ -194,7 +194,7 @@ export default function Dashboard({ children }) {
                             <ListItemText primary={t('social:dashboard.feeds')} />
                         </ListItem>
                     </Link>       
-                    <Link to="/admin/ar-media">
+                    <Link to="/admin/armedia">
                         <ListItem style={{ color: "white"}} onClick={changeComponent} button>
                             <ListItemIcon >
                                 <EmojiPeopleIcon style={{ color: "white" }} />
@@ -202,7 +202,7 @@ export default function Dashboard({ children }) {
                             <ListItemText primary={t('social:dashboard.arMedia')} />
                         </ListItem>
                     </Link> 
-                    <Link to="/editor/projects/create">
+                    <Link to="/editor/create">
                         <ListItem style={{ color: "white"}} onClick={changeComponent} button>
                             <ListItemIcon >
                                 <GradientIcon style={{ color: "white" }} />

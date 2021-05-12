@@ -29,7 +29,6 @@
   const ArMediaPage = ({arMediaState, getArMedia}:Props) => {
      useEffect(()=> getArMedia('admin'), []);
      const arMediaList = arMediaState.get('fetching') === false && arMediaState?.get('adminList') ? arMediaState.get('adminList') : null;
-     console.log('ArMediaPage');
     return (<>
      <div>
        <Dashboard>
