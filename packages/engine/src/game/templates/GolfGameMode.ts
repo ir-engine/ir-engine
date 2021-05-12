@@ -29,6 +29,7 @@ import { isPlayersInGame } from "./gameDefault/checkers/isPlayersInGame";
 import { ifNamed } from "./gameDefault/checkers/ifNamed";
 import { isOpen, isClosed } from "./gameDefault/checkers/isOpenIsClosed";
 import { isUp, isDown } from "./gameDefault/checkers/isUpIsDown";
+import { spawnEntity } from "./gameDefault/behaviors/spawnEntity";
 
 /**
  * @author HydraFire

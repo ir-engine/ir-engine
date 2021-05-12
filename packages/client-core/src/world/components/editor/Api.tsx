@@ -196,7 +196,6 @@ export class Api extends EventEmitter {
  */
   async getProject(projectId): Promise<JSON> {
     const token = this.getToken();
-
     const headers = {
       "content-type": "application/json",
       authorization: `Bearer ${token}`
@@ -205,7 +204,6 @@ export class Api extends EventEmitter {
     const response = await this.fetchUrl(`${SERVER_URL}/project/${projectId}`, {
       headers
     });
-
     const json = await response.json();
     console.log("Response: " + Object.values(response));
 

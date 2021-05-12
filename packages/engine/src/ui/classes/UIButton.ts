@@ -1,6 +1,6 @@
-import { Color } from "three";
 import { Block, Text } from "../../assets/three-mesh-ui";
-import { UIBaseElement, UI_ELEMENT_SELECT_STATE } from "./UIBaseElement";
+import { Color } from "three";
+import { UI_ELEMENT_SELECT_STATE, UIBaseElement } from "./UIBaseElement";
 
 export class UIButton extends UIBaseElement {
 

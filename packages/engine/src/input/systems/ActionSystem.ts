@@ -2,7 +2,7 @@ import { BinaryValue } from "../../common/enums/BinaryValue";
 import { LifecycleValue } from "../../common/enums/LifecycleValue";
 import { isClient } from "../../common/functions/isClient";
 import { NumericalType, SIXDOFType } from "../../common/types/NumericalTypes";
-import { System } from '../../ecs/classes/System';
+import { System, SystemAttributes } from '../../ecs/classes/System';
 import { Not } from "../../ecs/functions/ComponentFunctions";
 import { getComponent, hasComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
 import { SystemUpdateType } from "../../ecs/functions/SystemUpdateType";
@@ -48,15 +48,13 @@ export class ActionSystem extends System {
   switchId = 1;
   // Temp/ref variables
   private _inputComponent: Input;
-  private useWebXR = false;
   // Client only variables
   public leftControllerId; //= 0
   public rightControllerId; //= 1
   receivedClientInputs = [];
 
-  constructor({ useWebXR }) {
-    super();
-    this.useWebXR = useWebXR;
+  constructor(attributes?: SystemAttributes) {
+    super(attributes);
     // Client only
     if (isClient) {
       this.leftControllerId = 0;
@@ -78,6 +76,9 @@ export class ActionSystem extends System {
 
   dispose(): void {
     // disposeVR();
+    EngineEvents.instance.removeAllListenersForEvent(WEBCAM_INPUT_EVENTS.FACE_INPUT);
+    EngineEvents.instance.removeAllListenersForEvent(WEBCAM_INPUT_EVENTS.LIP_INPUT);
+    EngineEvents.instance.removeAllListenersForEvent(ClientInputSystem.EVENTS.PROCESS_INPUT);
   }
 
   /**

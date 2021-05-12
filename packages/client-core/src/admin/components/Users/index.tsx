@@ -14,7 +14,7 @@ import { connect } from "react-redux";
 import { selectAdminState } from "../../reducers/admin/selector";
 import { selectAuthState } from "../../../user/reducers/auth/selector";
 import { bindActionCreators, Dispatch } from "redux";
-import { fetchUsersAsAdmin, fetchAdminLocations, fetchUserRole  } from "../../reducers/admin/service";
+import { fetchUsersAsAdmin, fetchUsersForProject, fetchAdminLocations, fetchUserRole  } from "../../reducers/admin/service";
 import { withApi } from "../../../world/components/editor/contexts/ApiContext";
 import Api from "../../../world/components/editor/Api";
 
@@ -30,6 +30,7 @@ interface Props {
     authState?: any;
     fetchAdminLocations?: any;
     api?: Api;
+    fetchUsersForProject?: any
 }
 
 const mapStateToProps = (state: any): any => {
@@ -42,6 +43,7 @@ const mapStateToProps = (state: any): any => {
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
     fetchUsersAsAdmin: bindActionCreators(fetchUsersAsAdmin, dispatch),
     fetchAdminLocations: bindActionCreators(fetchAdminLocations, dispatch),
+    fetchUsersForProject: bindActionCreators(fetchUsersForProject, dispatch)
 });
 
 const TabPanel = (props: TabPanelProps) => {
@@ -83,7 +85,7 @@ const useStyles = makeStyles((theme: Theme) => ({
 }));
 
 const Users = (props: Props) => {
-    const { api, adminState, fetchUsersAsAdmin, authState, fetchAdminLocations } = props;
+    const { api, adminState, fetchUsersAsAdmin, authState, fetchAdminLocations, fetchUsersForProject } = props;
     const classes = useStyles();
     const initialUser = {
         id: null,
@@ -138,14 +140,37 @@ const Users = (props: Props) => {
         ) {
           return;
         }
-        console.log('====================================');
-        console.log(open);
-        console.log('====================================');
-    
+
         setUserModalOpen(open);
         setUserEditing(false);
       };
 
+      console.log('====================================');
+      console.log(adminUsers);
+      console.log('====================================');
+      
+      const handelChangeTab = async ( id: any) => {
+            if(id !== "001") {
+                if(authUser?.accessToken != null && authUser.accessToken.length > 0 && user?.id != null) {
+                    api.getProject(id)
+                       .then(project => {
+                          console.log('====================================');
+                          console.log(project);
+                          console.log('====================================');
+                       })
+                       .catch(error => {
+                           console.error(error);                 
+                       });
+                 }
+
+                 if(user.id){
+                     console.log('====================================');
+                     console.log(id);
+                     console.log('====================================');
+                   await fetchUsersForProject("increment", id );
+                 }
+            }
+      };
 
     return (
         <div>
@@ -176,7 +201,7 @@ const Users = (props: Props) => {
                     aria-label="scrollable auto tabs example"
                 >
                     {
-                       projects.map(el => <Tab label={el.name} {...a11yProps(el.project_id)} />)
+                       projects.map(el => <Tab onClick={() => handelChangeTab(el.project_id)} label={el.name} {...a11yProps(el.project_id)} />)
                     }
                 </Tabs>
                 <TabPanel value={value} index={0}>

@@ -18,7 +18,6 @@ import { GamesSchema } from '../templates/GamesSchema';
 import { ClientGameActionMessage, GameStateUpdateMessage } from "../types/GameMessage";
 import { GameMode, StateObject } from "../types/GameMode";
 import { getGame, getGameEntityFromName, getRole, setRole, getUuid } from './functions';
-import { GamesSchema } from "../../game/templates/GamesSchema";
 /**
  * @author HydraFire <github.com/HydraFire>
  */
@@ -102,7 +101,10 @@ export const applyState = (game: Game): void => {
       //  console.warn(stateObject);
       if (stateObject != undefined) {
         stateObject.components.forEach((componentName: string) => {
-          addComponent(entity, gameStateComponents[componentName] );
+          if(gameStateComponents[componentName]) 
+            addComponent(entity, gameStateComponents[componentName] );
+          else
+            console.warn("Couldn't find component", componentName);
         });
       } else {
         console.warn('state players dont worl yet');

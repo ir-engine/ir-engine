@@ -37,6 +37,13 @@ export const movingAnimationSchema = [
     weight:     [   1,   0  ],
     dontHasHit: [   1,   0  ]
   },
+  
+  // {
+  //   type: [JUMP], name: defaultAvatarAnimations[JUMP].name, axis:'y', speed: 0.5, customProperties: ['weight', 'dontHasHit'],
+  //   value:      [  1, 0.1  ],
+  //   weight:     [   1,   0  ],
+  //   dontHasHit: [   1,   0  ]
+  // },
 /*
   {
     type: [DROP_ROLLING], name: defaultAvatarAnimations[DROP_ROLLING].name, axis:'z', speed: 1, customProperties: ['weight', 'dontHasHit'],

@@ -4,7 +4,7 @@ import { CameraTagComponent } from '../../scene/components/Object3DTagComponents
 import { isMobileOrTablet } from "../../common/functions/isMobile";
 import { NumericalType } from "../../common/types/NumericalTypes";
 import { Engine } from '../../ecs/classes/Engine';
-import { System } from '../../ecs/classes/System';
+import { System, SystemAttributes } from '../../ecs/classes/System';
 import { addComponent, createEntity, getComponent, getMutableComponent, removeComponent } from '../../ecs/functions/EntityFunctions';
 import { CharacterComponent } from "../../character/components/CharacterComponent";
 import { DesiredTransformComponent } from '../../transform/components/DesiredTransformComponent';
@@ -65,19 +65,22 @@ const emptyInputValue = [0, 0] as NumericalType;
 
 /** System class which provides methods for Camera system. */
 export class CameraSystem extends System {
-  static activeCamera: Entity
-
+  static instance: CameraSystem;
+  
+  activeCamera: Entity
   prevState = [0, 0] as NumericalType;
 
   /** Constructs camera system. */
-  constructor() {
-    super();
+  constructor(attributes?: SystemAttributes) {
+    super(attributes);
+    CameraSystem.instance = this;
+    
     const cameraEntity = createEntity();
     addComponent(cameraEntity, CameraComponent );
     addComponent(cameraEntity, CameraTagComponent );
     addObject3DComponent(cameraEntity, { obj3d: Engine.camera });
     addComponent(cameraEntity, TransformComponent);
-    CameraSystem.activeCamera = cameraEntity;
+    CameraSystem.instance.activeCamera = cameraEntity;
   }
 
   /**
@@ -97,30 +100,32 @@ export class CameraSystem extends System {
         maxDistance: 10,
         collisionMask: cameraFollow.collisionMask,
       });
-      CameraComponent.instance.followTarget = entity;
+      const activeCameraComponent = getMutableComponent(CameraSystem.instance.activeCamera, CameraComponent);
+      activeCameraComponent.followTarget = entity;
 
-      const desiredTransform = addComponent(CameraSystem.activeCamera, DesiredTransformComponent) as DesiredTransformComponent;
+      const desiredTransform = addComponent(CameraSystem.instance.activeCamera, DesiredTransformComponent) as DesiredTransformComponent;
       desiredTransform.lockRotationAxis = [false, true, false];
     });
 
     this.queryResults.followCameraComponent.removed?.forEach(entity => {
       const cameraFollow = getComponent(entity, FollowCameraComponent, true);
       PhysicsSystem.instance.removeRaycastQuery(cameraFollow.raycastQuery)
-      CameraComponent.instance.followTarget = null;
-      removeComponent(CameraSystem.activeCamera, DesiredTransformComponent) as DesiredTransformComponent;
+      const activeCameraComponent = getMutableComponent(CameraSystem.instance.activeCamera, CameraComponent);
+      activeCameraComponent.followTarget = null;
+      removeComponent(CameraSystem.instance.activeCamera, DesiredTransformComponent) as DesiredTransformComponent;
     });
 
     this.queryResults.firstPersonCameraComponent.added?.forEach(entity => {
-      addComponent(CameraSystem.activeCamera, CopyTransformComponent, { input: entity });
+      addComponent(CameraSystem.instance.activeCamera, CopyTransformComponent, { input: entity });
     });
 
     this.queryResults.firstPersonCameraComponent.removed?.forEach(entity => {
-      removeComponent(CameraSystem.activeCamera, CopyTransformComponent);
+      removeComponent(CameraSystem.instance.activeCamera, CopyTransformComponent);
     });
 
     // follow camera component should only ever be on the character
     this.queryResults.followCameraComponent.all?.forEach(entity => {
-      const cameraDesiredTransform: DesiredTransformComponent = getMutableComponent(CameraSystem.activeCamera, DesiredTransformComponent) as DesiredTransformComponent; // Camera
+      const cameraDesiredTransform: DesiredTransformComponent = getMutableComponent(CameraSystem.instance.activeCamera, DesiredTransformComponent) as DesiredTransformComponent; // Camera
       if (!cameraDesiredTransform.position) {
         cameraDesiredTransform.position = new Vector3();
       }
@@ -175,7 +180,7 @@ export class CameraSystem extends System {
       }
 
       // Raycast for camera
-      const cameraTransform: TransformComponent = getMutableComponent(CameraSystem.activeCamera, TransformComponent)
+      const cameraTransform: TransformComponent = getMutableComponent(CameraSystem.instance.activeCamera, TransformComponent)
       const raycastDirection = new Vector3().subVectors(cameraTransform.position, targetPosition).normalize();
       followCamera.raycastQuery.origin = new Vector3(targetPosition.x, targetPosition.y, targetPosition.z);
       followCamera.raycastQuery.direction = new Vector3(raycastDirection.x, raycastDirection.y, raycastDirection.z);

@@ -1,7 +1,7 @@
 import { Not } from '../../ecs/functions/ComponentFunctions';
 import { Engine } from '../../ecs/classes/Engine';
 import { EngineEvents } from '../../ecs/classes/EngineEvents';
-import { System } from '../../ecs/classes/System';
+import { System, SystemAttributes } from '../../ecs/classes/System';
 import { getComponent, getMutableComponent, hasComponent } from '../../ecs/functions/EntityFunctions';
 import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType';
 import { LocalInputReceiver } from "../../input/components/LocalInputReceiver";
@@ -14,7 +14,7 @@ import { ColliderComponent } from '../components/ColliderComponent';
 import { RigidBodyComponent } from "../components/RigidBody";
 import { InterpolationComponent } from "../components/InterpolationComponent";
 import { isClient } from '../../common/functions/isClient';
-import { ColliderHitEvent, CollisionEvents, PhysXInstance } from "three-physx";
+import { ColliderHitEvent, CollisionEvents, PhysXConfig, PhysXInstance } from "three-physx";
 import { addColliderWithEntity } from '../behaviors/colliderCreateFunctions';
 import { findInterpolationSnapshot } from '../behaviors/findInterpolationSnapshot';
 
@@ -26,12 +26,13 @@ export class PhysicsSystem extends System {
   static EVENTS = {
     PORTAL_REDIRECT_EVENT: 'PHYSICS_SYSTEM_PORTAL_REDIRECT',
   };
+  instance: PhysicsSystem;
   updateType = SystemUpdateType.Fixed;
-  static frame: number
+  frame: number
   diffSpeed: number = Engine.physicsFrameRate / Engine.networkFramerate;
 
-  static isSimulating: boolean
-  static serverCorrectionForRigidBodyTick = 1000
+  isSimulating: boolean
+  serverCorrectionForRigidBodyTick = 1000
 
   freezeTimes = 0
   clientSnapshotFreezeTime = 0
@@ -39,26 +40,38 @@ export class PhysicsSystem extends System {
 
   physicsFrameRate: number;
   physicsFrameTime: number;
+  physicsWorldConfig: PhysXConfig;
+  worker: Worker;
 
-  constructor() {
-    super();
+  constructor(attributes?: SystemAttributes) {
+    super(attributes);
     PhysicsSystem.instance = this;
     this.physicsFrameRate = Engine.physicsFrameRate;
     this.physicsFrameTime = 1 / this.physicsFrameRate;
+    this.physicsWorldConfig = attributes.physicsWorldConfig ?? {
+      tps: 120,
+      lengthScale: 1000,
+      start: false
+    }
+    this.worker = attributes.worker;
 
-    PhysicsSystem.isSimulating = false;
-    PhysicsSystem.frame = 0;
+    this.isSimulating = false;
+    this.frame = 0;
 
     EngineEvents.instance.addEventListener(EngineEvents.EVENTS.ENABLE_SCENE, (ev: any) => {
-      PhysicsSystem.isSimulating = ev.enable;
+      this.isSimulating = ev.enable;
       PhysXInstance.instance.startPhysX(ev.enable);
     });
   }
 
+  async initialize() {
+    await PhysXInstance.instance.initPhysX(this.worker, this.physicsWorldConfig);
+  }
+
   dispose(): void {
     super.dispose();
-    PhysicsSystem.frame = 0;
-    PhysicsSystem.instance.broadphase = null;
+    this.frame = 0;
+    this.broadphase = null;
   }
 
   execute(delta: number): void {
@@ -98,10 +111,10 @@ export class PhysicsSystem extends System {
     });
 
     // RigidBody
-    this.queryResults.rigidBody.added?.forEach(entity => {
-      const colliderComponent = getComponent<ColliderComponent>(entity, ColliderComponent);
+    // this.queryResults.rigidBody.added?.forEach(entity => {
+    //   const colliderComponent = getComponent<ColliderComponent>(entity, ColliderComponent);
       // console.log(colliderComponent.body)
-    });
+    // });
 
     this.queryResults.rigidBody.all?.forEach(entity => {
       if (!hasComponent(entity, ColliderComponent)) return;

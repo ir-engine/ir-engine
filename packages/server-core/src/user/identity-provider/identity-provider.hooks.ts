@@ -31,52 +31,20 @@ export default {
     all: [],
     find: [],
     get: [],
-    create: [
-      iff(
-        isPasswordAccountType(),
-        hashPassword('password'),
-        verifyHooks.addVerification()
-      )
-    ],
-    update: [
-      iff(
-        isPasswordAccountType(),
-        hashPassword('password')
-      ),
-      authenticate('jwt')
-    ],
-    patch: [], // hashPassword('password'), authenticate('jwt')
-    remove: [] // authenticate('jwt')
-  },
-
-  after: {
-    all: [
-      protect('password')
-    ],
-    find: [],
-    get: [],
-    create: [
-      sendVerifyEmail()
-    ],
+    create: [],
     update: [],
-    patch: [
-      iff(
-        isProvider('external'),
-        preventChanges(
-          true,
-          'isVerified',
-          'verifyToken',
-          'verifyShortToken',
-          'verifyExpires',
-          'verifyChanges',
-          'resetToken',
-          'resetShortToken',
-          'resetExpires'
-        ))
-    ],
+    patch: [],
     remove: []
   },
-
+  after: {
+    all: [],
+    find: [],
+    get: [],
+    create: [],
+    update: [],
+    patch: [],
+    remove: []
+  },
   error: {
     all: [],
     find: [],

@@ -37,7 +37,7 @@
         "by": "BY",
         "laguna": "LAGUNA",
         "labs": "LABS",
-        "description": "Realtime social apps for everyone, at metaverse scale."
+        "description": "<0>Realtime social apps for everyone,</0><1/><2>at <1>metaverse</1> scale.</2>"
     },
     "xrengineContact": {
         "header": "Get In Touch!",
@@ -47,7 +47,11 @@
         "lbl-company": "Company",
         "lbl-project": "Describe your Project",
         "lbl-send": "Send",
-        "lbl-success": "Message Sent, I'll get back to you shortly",
-        "lbl-failure": "An error occured, Plese try again"
+        "lbl-ok": "Ok",
+        "lbl-success": "Message Sent, We'll get back to you shortly.",
+        "lbl-failure": "An error occured, Plese try again",
+        "err-username": "Please enter you name.",
+        "err-email": "Email is require.",
+        "err-msg": "Provide some brief description of your project."
     }
 }

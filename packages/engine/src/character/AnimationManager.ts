@@ -3,7 +3,11 @@ import { getLoader } from "../assets/functions/LoadGLTF";
 import { isClient } from "../common/functions/isClient";
 import { Engine } from "../ecs/classes/Engine";
 export class AnimationManager {
-	static instance: AnimationManager = new AnimationManager();
+	static instance: AnimationManager;
+
+  constructor() {
+    AnimationManager.instance = this;
+  }
 
 	_animations: AnimationClip[];
 	_defaultModel: Group;
@@ -38,11 +42,15 @@ export class AnimationManager {
 	}
 	getDefaultModel(): Promise<Group> {
 		return new Promise(resolve => {
+			if (!isClient) {
+				resolve(new Group());
+				return;
+			}
 			if (this._defaultModel) {
 				resolve(this._defaultModel);
 				return;
 			}
-			getLoader().load(Engine.publicPath + '/models/avatars/Default.glb', gltf => {
+			getLoader().load(Engine.publicPath + '/models/avatars/Andy.glb', gltf => {
 				console.log('default model loaded');
 				this._defaultModel = gltf.scene;
 				this._defaultModel.traverse((obj: Mesh) => {

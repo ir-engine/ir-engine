@@ -126,10 +126,9 @@ const cycleCameraMode: Behavior = (entity: Entity, args: any): void => {
  */
 const fixedCameraBehindCharacter: Behavior = (entity: Entity, args: any, delta: number): void => {
   const follower = getMutableComponent<FollowCameraComponent>(entity, FollowCameraComponent);
-  if (CameraComponent.instance && follower && follower.mode !== CameraModes.FirstPerson) {
+  if (follower && follower.mode !== CameraModes.FirstPerson) {
     follower.locked = !follower.locked
   }
-
 };
 
 const switchShoulderSide: Behavior = (entity: Entity, args: any, detla: number ): void => {

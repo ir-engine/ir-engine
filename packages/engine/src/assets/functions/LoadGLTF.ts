@@ -29,6 +29,10 @@ export function getLoader(): any {
     return loader;
 }
 
+export function disposeDracoLoaderWorkers(): void {
+    loader.dracoLoader.dispose();
+}
+
 /**
  * Loads an Asset which is in GLTF format.
  * 

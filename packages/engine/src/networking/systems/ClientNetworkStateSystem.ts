@@ -16,7 +16,7 @@ import { GameStateActionMessage, GameStateUpdateMessage } from '../../game/types
 import { applyActionComponent } from '../../game/functions/functionsActions';
 import { applyStateToClient } from '../../game/functions/functionsState';
 import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType';
-import { System } from '../../ecs/classes/System';
+import { System, SystemAttributes } from '../../ecs/classes/System';
 import { EngineEvents } from '../../ecs/classes/EngineEvents';
 import { ClientNetworkSystem } from './ClientNetworkSystem';
 
@@ -83,22 +83,28 @@ export class ClientNetworkStateSystem extends System {
 
   /**
    * Constructs the system. Adds Network Components, initializes transport and initializes server.
-   * @param attributes Attributes to be passed to super class constructor.
+   * @param attributes SystemAttributes to be passed to super class constructor.
    */
-  constructor(attributes: any) {
+  constructor(attributes?: SystemAttributes) {
     super(attributes);
     ClientNetworkStateSystem.instance = this;
     
     EngineEvents.instance.once(EngineEvents.EVENTS.CONNECT_TO_WORLD, ({ worldState }) => { 
-      ClientNetworkStateSystem.instance.receivedServerState.push(worldState);
+      this.receivedServerState.push(worldState);
     });
     EngineEvents.instance.once(EngineEvents.EVENTS.JOINED_WORLD, ({ worldState }) => {
-      ClientNetworkStateSystem.instance.receivedServerState.push(worldState);
+      this.receivedServerState.push(worldState);
       EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENABLE_SCENE, enable: true });
     })
     EngineEvents.instance.addEventListener(ClientNetworkSystem.EVENTS.RECEIVE_DATA, ({ unbufferedState, delta }) => {
-      ClientNetworkStateSystem.instance.receivedServerState.push(unbufferedState);
+      this.receivedServerState.push(unbufferedState);
     })
+  }
+
+  dispose() {
+    EngineEvents.instance.removeAllListenersForEvent(ClientNetworkSystem.EVENTS.RECEIVE_DATA);
+    EngineEvents.instance.removeAllListenersForEvent(EngineEvents.EVENTS.CONNECT_TO_WORLD);
+    EngineEvents.instance.removeAllListenersForEvent(EngineEvents.EVENTS.JOINED_WORLD);
   }
 
   /**
@@ -112,7 +118,7 @@ export class ClientNetworkStateSystem extends System {
     const receivedClientInput = [...this.receivedServerState];
     this.receivedServerState = [];
     receivedClientInput?.forEach((worldStateBuffer: WorldStateInterface) => {
-      if (Network.tick < worldStateBuffer.tick - 1) {
+      if (Network.instance.tick < worldStateBuffer.tick - 1) {
         // we dropped packets
         // Check how many
         // If our queue empty? Request immediately
@@ -122,7 +128,7 @@ export class ClientNetworkStateSystem extends System {
       }
 
       if (worldStateBuffer.transforms.length) {
-        Network.tick = worldStateBuffer.tick
+        Network.instance.tick = worldStateBuffer.tick
         Network.instance.worldState = worldStateBuffer
       }
 
