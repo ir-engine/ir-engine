@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.2.24](https://github.com/XRFoundation/XREngine/compare/v0.2.23...v0.2.24) (2021-05-12)
+
+**Note:** Version bump only for package @xrengine/ops
+
+
+
+
+
 ## [0.2.23](https://github.com/XRFoundation/XREngine/compare/v0.2.22...v0.2.23) (2021-05-12)
 
 **Note:** Version bump only for package @xrengine/ops
