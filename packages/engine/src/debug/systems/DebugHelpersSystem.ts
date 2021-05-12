@@ -45,6 +45,11 @@ export class DebugHelpersSystem extends System {
     })
   }
 
+  dispose() {
+    EngineEvents.instance.removeAllListenersForEvent(DebugHelpersSystem.EVENTS.TOGGLE_AVATAR);
+    EngineEvents.instance.removeAllListenersForEvent(DebugHelpersSystem.EVENTS.TOGGLE_PHYSICS);
+  }
+
   execute(delta: number, time: number): void {
 
     this.queryResults.characterDebug?.added?.forEach(entity => {

@@ -226,7 +226,7 @@ export function createNetworkPlayer(args: { ownerId: string | number, networkId?
 				},
 				{
 					type: CharacterComponent,
-					data: Network.instance.clients[args.ownerId].avatarDetail ?? {},
+					data: Network.instance.clients[args.ownerId]?.avatarDetail ?? {},
 				}
 			],
 			serverComponents: []

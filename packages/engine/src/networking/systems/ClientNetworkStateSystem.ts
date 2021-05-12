@@ -101,6 +101,12 @@ export class ClientNetworkStateSystem extends System {
     })
   }
 
+  dispose() {
+    EngineEvents.instance.removeAllListenersForEvent(ClientNetworkSystem.EVENTS.RECEIVE_DATA);
+    EngineEvents.instance.removeAllListenersForEvent(EngineEvents.EVENTS.CONNECT_TO_WORLD);
+    EngineEvents.instance.removeAllListenersForEvent(EngineEvents.EVENTS.JOINED_WORLD);
+  }
+
   /**
    * Executes the system.
    * Call logic based on whether system is on the server or on the client.

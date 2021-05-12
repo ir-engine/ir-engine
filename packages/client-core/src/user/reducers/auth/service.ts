@@ -106,7 +106,7 @@ export function doLoginAuto (allowGuest?: boolean, forceClientAuthReset?: boolea
         console.log('****************');
       }
     } catch (err) {
-      console.error(err);
+     console.error(err);
       dispatch(didLogout());
 
       // if (window.location.pathname !== '/') {

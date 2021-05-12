@@ -4,8 +4,9 @@ import { Network } from "@xrengine/engine/src/networking/classes/Network";
 import React, { useEffect, useRef, useState } from "react";
 import JSONTree from 'react-json-tree';
 import { EngineEvents } from "@xrengine/engine/src/ecs/classes/EngineEvents";
+import { resetEngine } from "@xrengine/engine/src/ecs/functions/EngineFunctions";
 
-export const NetworkDebug = () => {
+export const NetworkDebug = ({ reinit  }) => {
   const [isShowing, setShowing] = useState(false);
   const [physicsDebug, setPhysicsDebug] = useState(false);
   const [avatarDebug, setAvatarDebug] = useState(false);
@@ -28,7 +29,10 @@ export const NetworkDebug = () => {
   // Add event listeners
   useEffect(() => {
     setupListener();
-  }, []); // Empty array ensures that effect is only run on mount and unmount
+    setInterval(() => {
+      setRemountCount(Math.random());
+    }, 1000);
+  }, []);
 
   const [remountCount, setRemountCount] = useState(0);
   const refresh = () => setRemountCount(remountCount + 1);
@@ -47,6 +51,8 @@ export const NetworkDebug = () => {
       <button type="submit" value="Refresh" onClick={refresh}>Refresh</button>
       <button type="button" value="Physics Debug" onClick={togglePhysicsDebug}>Physics Debug</button>
       <button type="button" value="Avatar Debug" onClick={toggleAvatarDebug}>Avatar Debug</button>
+      <button type="button" onClick={reinit}>Reinit</button>
+      <button type="button" onClick={resetEngine}>Reset</button>
       <div>
         <div>
           <h1>Network Object</h1>

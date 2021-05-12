@@ -14,11 +14,6 @@ export function loadScene(scene: SceneData): void {
   const loadPromises = [];
   let loaded = 0;
 
-  if (isClient) {
-    console.warn(scene);
-    console.warn(Engine.scene);
-  }
-
   Object.keys(scene.entities).forEach(key => {
     const sceneEntity = scene.entities[key];
     const entity = createEntity();

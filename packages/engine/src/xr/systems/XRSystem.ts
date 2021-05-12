@@ -72,6 +72,8 @@ export class XRSystem extends System {
   /** Removes resize listener. */
   dispose(): void {
     super.dispose();
+    EngineEvents.instance.removeAllListenersForEvent(XRSystem.EVENTS.XR_START);
+    EngineEvents.instance.removeAllListenersForEvent(XRSystem.EVENTS.XR_END);
   }
 
   /**

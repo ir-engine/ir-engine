@@ -27,7 +27,7 @@ const columns: Column[] = [
     },
     {
         id: 'game',
-        label: 'Game',
+        label: 'Project',
         minWidth: 170,
         align: 'right',
     },
@@ -102,7 +102,7 @@ const UserTable = (props: Props) => {
         };
     };
 
-    const rows = adminUsers.map(el => createData(el.name, el.location || "test", el.userRole, el.game || "CLUB NIGHT"));
+    const rows = adminUsers.map(el => createData(el.name, el.location || "coming soon", el.userRole, el.game || el.project_id || ""));
 
     return (
         <div className={classes.root}>

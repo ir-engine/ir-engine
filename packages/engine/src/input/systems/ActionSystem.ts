@@ -76,6 +76,9 @@ export class ActionSystem extends System {
 
   dispose(): void {
     // disposeVR();
+    EngineEvents.instance.removeAllListenersForEvent(WEBCAM_INPUT_EVENTS.FACE_INPUT);
+    EngineEvents.instance.removeAllListenersForEvent(WEBCAM_INPUT_EVENTS.LIP_INPUT);
+    EngineEvents.instance.removeAllListenersForEvent(ClientInputSystem.EVENTS.PROCESS_INPUT);
   }
 
   /**
