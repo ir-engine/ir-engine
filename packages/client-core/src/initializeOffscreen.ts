@@ -1,41 +1,41 @@
 import _ from 'lodash';
 import { BufferGeometry, Mesh, PerspectiveCamera, Scene } from 'three';
 import { acceleratedRaycast, computeBoundsTree } from "three-mesh-bvh";
-import { CameraSystem } from '../camera/systems/CameraSystem';
-import { Timer } from '../common/functions/Timer';
-import { DebugHelpersSystem } from '../debug/systems/DebugHelpersSystem';
-import { Engine, AudioListener } from '../ecs/classes/Engine';
-import { execute } from "../ecs/functions/EngineFunctions";
-import { registerSystem } from '../ecs/functions/SystemFunctions';
-import { SystemUpdateType } from "../ecs/functions/SystemUpdateType";
-import { InteractiveSystem } from "../interaction/systems/InteractiveSystem";
-import { Network } from '../networking/classes/Network';
-import { ClientNetworkSystem } from '../networking/systems/ClientNetworkSystem';
-import { ParticleSystem } from '../particles/systems/ParticleSystem';
-import { PhysicsSystem } from '../physics/systems/PhysicsSystem';
-import { HighlightSystem } from '../renderer/HighlightSystem';
-import { WebGLRendererSystem } from '../renderer/WebGLRendererSystem';
-import { ServerSpawnSystem } from '../scene/systems/ServerSpawnSystem';
-import { StateSystem } from '../state/systems/StateSystem';
-import { CharacterInputSchema } from '../character/CharacterInputSchema';
-import { DefaultNetworkSchema } from '../networking/templates/DefaultNetworkSchema';
-import { TransformSystem } from '../transform/systems/TransformSystem';
-import { MainProxy } from './MessageQueue';
-import { ActionSystem } from '../input/systems/ActionSystem';
-import { EngineEvents } from '../ecs/classes/EngineEvents';
-import { proxyEngineEvents } from '../ecs/classes/EngineEvents';
-import { XRSystem } from '../xr/systems/XRSystem';
+import { CameraSystem } from '@xrengine/engine/src/camera/systems/CameraSystem';
+import { Timer } from '@xrengine/engine/src/common/functions/Timer';
+import { DebugHelpersSystem } from '@xrengine/engine/src/debug/systems/DebugHelpersSystem';
+import { Engine, AudioListener } from '@xrengine/engine/src/ecs/classes/Engine';
+import { execute } from "@xrengine/engine/src/ecs/functions/EngineFunctions";
+import { registerSystem } from '@xrengine/engine/src/ecs/functions/SystemFunctions';
+import { SystemUpdateType } from "@xrengine/engine/src/ecs/functions/SystemUpdateType";
+import { InteractiveSystem } from "@xrengine/engine/src/interaction/systems/InteractiveSystem";
+import { Network } from '@xrengine/engine/src/networking/classes/Network';
+import { ClientNetworkSystem } from '@xrengine/engine/src/networking/systems/ClientNetworkSystem';
+import { ParticleSystem } from '@xrengine/engine/src/particles/systems/ParticleSystem';
+import { PhysicsSystem } from '@xrengine/engine/src/physics/systems/PhysicsSystem';
+import { HighlightSystem } from '@xrengine/engine/src/renderer/HighlightSystem';
+import { WebGLRendererSystem } from '@xrengine/engine/src/renderer/WebGLRendererSystem';
+import { ServerSpawnSystem } from '@xrengine/engine/src/scene/systems/ServerSpawnSystem';
+import { StateSystem } from '@xrengine/engine/src/state/systems/StateSystem';
+import { CharacterInputSchema } from '@xrengine/engine/src/character/CharacterInputSchema';
+import { DefaultNetworkSchema } from '@xrengine/engine/src/networking/templates/DefaultNetworkSchema';
+import { TransformSystem } from '@xrengine/engine/src/transform/systems/TransformSystem';
+import { MainProxy } from '@xrengine/engine/src/worker/MessageQueue';
+import { ActionSystem } from '@xrengine/engine/src/input/systems/ActionSystem';
+import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents';
+import { proxyEngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents';
+import { XRSystem } from '@xrengine/engine/src/xr/systems/XRSystem';
 // import { PositionalAudioSystem } from './audio/systems/PositionalAudioSystem';
-import { receiveWorker } from './MessageQueue';
-import { AnimationManager } from "../character/AnimationManager";
-import { CharacterControllerSystem } from '../character/CharacterControllerSystem';
-import { UIPanelSystem } from '../ui/systems/UIPanelSystem';
+import { receiveWorker } from '@xrengine/engine/src/worker/MessageQueue';
+import { AnimationManager } from "@xrengine/engine/src/character/AnimationManager";
+import { CharacterControllerSystem } from '@xrengine/engine/src/character/CharacterControllerSystem';
+import { UIPanelSystem } from '@xrengine/engine/src/ui/systems/UIPanelSystem';
 //@ts-ignore
-import PhysXWorker from '../physics/functions/loadPhysX.ts?worker';
+import PhysXWorker from '@xrengine/engine/src/physics/functions/loadPhysX.ts?worker';
 import { PhysXInstance } from "three-physx";
-import { ClientNetworkStateSystem } from '../networking/systems/ClientNetworkStateSystem';
-import { now } from '../common/functions/now';
-import { loadScene } from '../scene/functions/SceneLoading';
+import { ClientNetworkStateSystem } from '@xrengine/engine/src/networking/systems/ClientNetworkStateSystem';
+import { now } from '@xrengine/engine/src/common/functions/now';
+import { loadScene } from '@xrengine/engine/src/scene/functions/SceneLoading';
 
 Mesh.prototype.raycast = acceleratedRaycast;
 BufferGeometry.prototype["computeBoundsTree"] = computeBoundsTree;
@@ -65,10 +65,10 @@ const initializeEngineOffscreen = async ({ canvas, userArgs }, proxy: MainProxy)
   const options = _.defaultsDeep({}, initOptions, DefaultOffscreenInitializationOptions);
 
   proxyEngineEvents(proxy);
-  EngineEvents.instance.once(EngineEvents.EVENTS.LOAD_SCENE, ({ sceneData }) => { loadScene(sceneData); })
+  EngineEvents.instance.once(EngineEvents.EVENTS.LOAD_SCENE, ({ sceneData }) => { loadScene(sceneData); });
   EngineEvents.instance.once(EngineEvents.EVENTS.JOINED_WORLD, () => {
     EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENABLE_SCENE, enable: true });
-  })
+  });
 
   Engine.lastTime = now() / 1000;
   Engine.scene = new Scene();
@@ -78,7 +78,7 @@ const initializeEngineOffscreen = async ({ canvas, userArgs }, proxy: MainProxy)
   Network.instance = new Network();
   Network.instance.schema = options.networking.schema;
   // @ts-ignore
-  Network.instance.transport = { isServer: false }
+  Network.instance.transport = { isServer: false };
 
   new AnimationManager();
   await Promise.all([
@@ -113,11 +113,11 @@ const initializeEngineOffscreen = async ({ canvas, userArgs }, proxy: MainProxy)
   Engine.viewportElement = Engine.renderer.domElement;
 
   setInterval(() => {
-    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENTITY_DEBUG_DATA, })
-  }, 1000)
+    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENTITY_DEBUG_DATA, });
+  }, 1000);
 
   await Promise.all(Engine.systems.map((system) => { 
-    return new Promise<void>(async (resolve) => { await system.initialize(); system.initialized = true; resolve(); }) 
+    return new Promise<void>(async (resolve) => { await system.initialize(); system.initialized = true; resolve(); }); 
   }));
   
   Engine.engineTimer = Timer({
@@ -129,9 +129,9 @@ const initializeEngineOffscreen = async ({ canvas, userArgs }, proxy: MainProxy)
   EngineEvents.instance.once(ClientNetworkSystem.EVENTS.CONNECT, ({ id }) => {
     Network.instance.isInitialized = true;
     Network.instance.userId = id;
-  })
+  });
 
   Engine.isInitialized = true;
-}
+};
 
-receiveWorker(initializeEngineOffscreen)
+receiveWorker(initializeEngineOffscreen);

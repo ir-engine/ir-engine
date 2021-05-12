@@ -1,4 +1,4 @@
-import { initializeServer } from "@xrengine/engine/src/initializeServer";
+import { initializeEngineServer } from "./initializeEngineServer";
 import { DefaultNetworkSchema } from "@xrengine/engine/src/networking/templates/DefaultNetworkSchema";
 import { SocketWebRTCServerTransport } from "./SocketWebRTCServerTransport";
 import config from '@xrengine/server-core/src/appconfig';
@@ -26,6 +26,6 @@ export class WebRTCGameServer {
     WebRTCGameServer.instance = this;
   }
   initialize() {
-    return initializeServer(options);
+    return initializeEngineServer(options);
   }
 }

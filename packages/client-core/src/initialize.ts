@@ -1,41 +1,41 @@
 import { detect, detectOS } from 'detect-browser';
 import { BufferGeometry, Mesh, PerspectiveCamera, Scene } from 'three';
 import { acceleratedRaycast, computeBoundsTree } from "three-mesh-bvh";
-import { CameraSystem } from './camera/systems/CameraSystem';
-import { CharacterControllerSystem } from './character/CharacterControllerSystem';
-import { isMobileOrTablet } from './common/functions/isMobile';
-import { Timer } from './common/functions/Timer';
-import { DebugHelpersSystem } from './debug/systems/DebugHelpersSystem';
-import { Engine } from './ecs/classes/Engine';
-import { EngineEvents, proxyEngineEvents } from './ecs/classes/EngineEvents';
-import { execute } from "./ecs/functions/EngineFunctions";
-import { registerSystem } from './ecs/functions/SystemFunctions';
-import { SystemUpdateType } from "./ecs/functions/SystemUpdateType";
-import { ActionSystem } from './input/systems/ActionSystem';
-import { ClientInputSystem } from './input/systems/ClientInputSystem';
-import { InteractiveSystem } from "./interaction/systems/InteractiveSystem";
-import { Network } from './networking/classes/Network';
-import { ClientNetworkSystem } from './networking/systems/ClientNetworkSystem';
-import { MediaStreamSystem } from './networking/systems/MediaStreamSystem';
-import { ParticleSystem } from './particles/systems/ParticleSystem';
-import { PhysicsSystem } from './physics/systems/PhysicsSystem';
-import { HighlightSystem } from './renderer/HighlightSystem';
-import { WebGLRendererSystem } from './renderer/WebGLRendererSystem';
-import { ServerSpawnSystem } from './scene/systems/ServerSpawnSystem';
-import { AnimationManager } from "./character/AnimationManager";
-import { TransformSystem } from './transform/systems/TransformSystem';
-import { createWorker, WorkerProxy } from './worker/MessageQueue';
-import { XRSystem } from './xr/systems/XRSystem';
+import { CameraSystem } from '@xrengine/engine/src/camera/systems/CameraSystem';
+import { CharacterControllerSystem } from '@xrengine/engine/src/character/CharacterControllerSystem';
+import { isMobileOrTablet } from '@xrengine/engine/src/common/functions/isMobile';
+import { Timer } from '@xrengine/engine/src/common/functions/Timer';
+import { DebugHelpersSystem } from '@xrengine/engine/src/debug/systems/DebugHelpersSystem';
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine';
+import { EngineEvents, proxyEngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents';
+import { execute } from "@xrengine/engine/src/ecs/functions/EngineFunctions";
+import { registerSystem } from '@xrengine/engine/src/ecs/functions/SystemFunctions';
+import { SystemUpdateType } from "@xrengine/engine/src/ecs/functions/SystemUpdateType";
+import { ActionSystem } from '@xrengine/engine/src/input/systems/ActionSystem';
+import { ClientInputSystem } from '@xrengine/engine/src/input/systems/ClientInputSystem';
+import { InteractiveSystem } from "@xrengine/engine/src/interaction/systems/InteractiveSystem";
+import { Network } from '@xrengine/engine/src/networking/classes/Network';
+import { ClientNetworkSystem } from '@xrengine/engine/src/networking/systems/ClientNetworkSystem';
+import { MediaStreamSystem } from '@xrengine/engine/src/networking/systems/MediaStreamSystem';
+import { ParticleSystem } from '@xrengine/engine/src/particles/systems/ParticleSystem';
+import { PhysicsSystem } from '@xrengine/engine/src/physics/systems/PhysicsSystem';
+import { HighlightSystem } from '@xrengine/engine/src/renderer/HighlightSystem';
+import { WebGLRendererSystem } from '@xrengine/engine/src/renderer/WebGLRendererSystem';
+import { ServerSpawnSystem } from '@xrengine/engine/src/scene/systems/ServerSpawnSystem';
+import { AnimationManager } from "@xrengine/engine/src/character/AnimationManager";
+import { TransformSystem } from '@xrengine/engine/src/transform/systems/TransformSystem';
+import { createWorker, WorkerProxy } from '@xrengine/engine/src/worker/MessageQueue';
+import { XRSystem } from '@xrengine/engine/src/xr/systems/XRSystem';
 import { PhysXInstance } from "three-physx";
 //@ts-ignore
-import OffscreenWorker from './worker/initializeOffscreen.ts?worker';
-import { GameManagerSystem } from './game/systems/GameManagerSystem';
-import { DefaultInitializationOptions, InitializeOptions } from './DefaultInitializationOptions';
+import OffscreenWorker from './initializeOffscreen.ts?worker';
+import { GameManagerSystem } from '@xrengine/engine/src/game/systems/GameManagerSystem';
+import { DefaultInitializationOptions, InitializeOptions } from '@xrengine/engine/src/DefaultInitializationOptions';
 import _ from 'lodash';
-import { ClientNetworkStateSystem } from './networking/systems/ClientNetworkStateSystem';
-import { now } from './common/functions/now';
-import { loadScene } from './scene/functions/SceneLoading';
-import { UIPanelSystem } from './ui/systems/UIPanelSystem';
+import { ClientNetworkStateSystem } from '@xrengine/engine/src/networking/systems/ClientNetworkStateSystem';
+import { now } from '@xrengine/engine/src/common/functions/now';
+import { loadScene } from '@xrengine/engine/src/scene/functions/SceneLoading';
+import { UIPanelSystem } from '@xrengine/engine/src/ui/systems/UIPanelSystem';
 
 // import { PositionalAudioSystem } from './audio/systems/PositionalAudioSystem';
 
@@ -67,7 +67,7 @@ export const initializeEngine = async (initOptions: InitializeOptions): Promise<
 
   Engine.offlineMode = useOfflineMode;
 
-  Engine.xrSupported = await (navigator as any).xr?.isSessionSupported('immersive-vr')
+  Engine.xrSupported = await (navigator as any).xr?.isSessionSupported('immersive-vr');
 
   // TODO: pipe network & entity data to main thread
   // const useOffscreen = useCanvas && !Engine.xrSupported && 'transferControlToOffscreen' in canvas;
@@ -88,10 +88,10 @@ export const initializeEngine = async (initOptions: InitializeOptions): Promise<
 
   } else {
     Engine.scene = new Scene();
-    EngineEvents.instance.once(EngineEvents.EVENTS.LOAD_SCENE, ({ sceneData }) => { loadScene(sceneData); })
+    EngineEvents.instance.once(EngineEvents.EVENTS.LOAD_SCENE, ({ sceneData }) => { loadScene(sceneData); });
     EngineEvents.instance.once(EngineEvents.EVENTS.JOINED_WORLD, () => {
       EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENABLE_SCENE, enable: true });
-    })
+    });
   }
 
   Engine.publicPath = options.publicPath;
@@ -138,7 +138,7 @@ export const initializeEngine = async (initOptions: InitializeOptions): Promise<
           //   const { default: PhysXWorker } = await import('./physics/functions/loadPhysX.ts?worker&inline');
           //   await PhysXInstance.instance.initPhysX(new PhysXWorker(), { });
           // }
-          resolve()
+          resolve();
         })
       ]);
 
@@ -168,7 +168,7 @@ export const initializeEngine = async (initOptions: InitializeOptions): Promise<
   }
 
   await Promise.all(Engine.systems.map((system) => { 
-    return new Promise<void>(async (resolve) => { await system.initialize(); system.initialized = true; resolve(); }) 
+    return new Promise<void>(async (resolve) => { await system.initialize(); system.initialized = true; resolve(); }); 
   }));
 
   Engine.engineTimer = Timer({
@@ -177,20 +177,20 @@ export const initializeEngine = async (initOptions: InitializeOptions): Promise<
     update: (delta, elapsedTime) => execute(delta, elapsedTime, SystemUpdateType.Free)
   }, Engine.physicsFrameRate, Engine.networkFramerate).start();
 
-  const engageType = isMobileOrTablet() ? 'touchstart' : 'click'
+  const engageType = isMobileOrTablet() ? 'touchstart' : 'click';
   const onUserEngage = () => {
     EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.USER_ENGAGE });
     document.removeEventListener(engageType, onUserEngage);
-  }
+  };
   document.addEventListener(engageType, onUserEngage);
 
   EngineEvents.instance.once(ClientNetworkSystem.EVENTS.CONNECT, ({ id }) => {
     Network.instance.isInitialized = true;
     Network.instance.userId = id;
-  })
+  });
 
   Engine.isInitialized = true;
-}
+};
 
 
 export const initializeEditor = async (initOptions: InitializeOptions): Promise<void> => {
@@ -223,7 +223,7 @@ export const initializeEditor = async (initOptions: InitializeOptions): Promise<
   registerSystem(GameManagerSystem);
 
   await Promise.all(Engine.systems.map((system) => { 
-    return new Promise<void>(async (resolve) => { await system.initialize(); system.initialized = true; resolve(); }) 
+    return new Promise<void>(async (resolve) => { await system.initialize(); system.initialized = true; resolve(); }); 
   }));
 
   Engine.engineTimer = Timer({
@@ -233,4 +233,4 @@ export const initializeEditor = async (initOptions: InitializeOptions): Promise<
   }, Engine.physicsFrameRate, Engine.networkFramerate).start();
 
   Engine.isInitialized = true;
-}
+};
