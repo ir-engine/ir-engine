@@ -1,5 +1,5 @@
 # not slim because we need github depedencies
-FROM node:lts-buster
+FROM node:lts-buster as builder
 
 RUN echo "deb [arch=amd64] http://nginx.org/packages/mainline/ubuntu/ eoan nginx\ndeb-src http://nginx.org/packages/mainline/ubuntu/ eoan nginx" >> /etc/apt/sources.list.d/nginx.list
 RUN wget http://nginx.org/keys/nginx_signing.key
@@ -17,6 +17,13 @@ RUN yarn install --production=false
 COPY . .
 
 RUN yarn run build
+
+FROM node:lts-buster as dist-only
+WORKDIR /app
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/scripts ./scripts
+COPY --from=builder /app/src/server.js ./src/server.js
 
 ENV BUILD_MODE=individual
 EXPOSE 3030

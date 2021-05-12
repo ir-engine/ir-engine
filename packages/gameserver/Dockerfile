@@ -24,6 +24,7 @@ COPY . .
 
 ENV NODE_ENV=production
 ENV PORT=3030
+ENV BUILD_MODE=individual
 
 EXPOSE 3030
 CMD yarn start
