@@ -31,7 +31,6 @@ import { AnimationManager } from "@xrengine/engine/src/character/AnimationManage
 import { CharacterControllerSystem } from '@xrengine/engine/src/character/CharacterControllerSystem';
 import { UIPanelSystem } from '@xrengine/engine/src/ui/systems/UIPanelSystem';
 //@ts-ignore
-import PhysXWorker from '@xrengine/engine/src/physics/functions/loadPhysX.ts?worker';
 import { PhysXInstance } from "three-physx";
 import { ClientNetworkStateSystem } from '@xrengine/engine/src/networking/systems/ClientNetworkStateSystem';
 import { now } from '@xrengine/engine/src/common/functions/now';
@@ -81,9 +80,24 @@ const initializeEngineOffscreen = async ({ canvas, userArgs }, proxy: MainProxy)
   Network.instance.transport = { isServer: false };
 
   new AnimationManager();
+
+  // promise in parallel to speed things up
   await Promise.all([
-    PhysXInstance.instance.initPhysX(new PhysXWorker(), { }),
     AnimationManager.instance.getDefaultModel(),
+    AnimationManager.instance.getAnimations(),
+    new Promise<void>(async (resolve) => {
+      /** @todo fix bundling */
+      // if((window as any).safariWebBrowser) {
+        const worker = new Worker('/scripts/loadPhysXClassic.js');
+        Engine.workers.push(worker);
+        await PhysXInstance.instance.initPhysX(worker);
+      // } else {
+      //   //@ts-ignore
+      //   const { default: PhysXWorker } = await import('./physics/functions/loadPhysX.ts?worker&inline');
+      //   await PhysXInstance.instance.initPhysX(new PhysXWorker(), { });
+      // }
+      resolve();
+    })
   ]);
 
   registerSystem(PhysicsSystem);
