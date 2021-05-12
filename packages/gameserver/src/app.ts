@@ -86,7 +86,7 @@ if (config.gameserver.enabled) {
       serveClient: false,
       cors:{
         origin: config.gameserver.clientHost,
-        methods: ['OPTIONS', 'GET'],
+        methods: ['OPTIONS', 'GET', 'POST'],
         allowedHeaders: '*',
         preflightContinue: true,
         credentials: true

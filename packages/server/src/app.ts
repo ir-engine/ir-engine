@@ -80,7 +80,7 @@ if (config.server.enabled) {
       serveClient: false,
       cors: {
         origin: config.server.clientHost,
-        methods: ['OPTIONS', 'GET'],
+        methods: ['OPTIONS', 'GET', 'POST'],
         allowedHeaders: '*',
         credentials: true
       }
