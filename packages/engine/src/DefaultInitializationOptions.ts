@@ -22,5 +22,6 @@ export const DefaultInitializationOptions = {
   publicPath: '',
   useOfflineMode: false,
   useCanvas: true,
-  postProcessing: true
+  postProcessing: true,
+  physicsWorldConfig: undefined
 };

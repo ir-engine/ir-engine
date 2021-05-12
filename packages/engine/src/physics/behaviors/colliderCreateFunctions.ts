@@ -36,7 +36,7 @@ const xVec = new Vector3(1, 0, 0);
 const halfPI = Math.PI / 2;
 
 export function addColliderWithoutEntity(userData, pos = new Vector3(), rot = new Quaternion(), scale = new Vector3(), model = { mesh: null, vertices: null, indices: null }): Body {
-  // console.log(userData, pos, rot, scale, model)
+  console.log(userData, pos, rot, scale, model)
   if(model.mesh && !model.vertices) {
     const mergedGeom = getGeometry(model.mesh);
     model.vertices = Array.from(mergedGeom.attributes.position.array);
@@ -92,6 +92,11 @@ export function addColliderWithoutEntity(userData, pos = new Vector3(), rot = ne
   }
 
   const shape: Shape = createShapeFromConfig(shapeArgs);
+  shape.config.material = { restitution: userData.restitution ?? 0 };
+  // TEMP
+  if(userData.type === 'sphere') {
+    shape.config.material = { restitution: 0.9, dynamicFriction: 0, staticFriction: 0 };
+  }
   // console.log('shape', shape);
 
   shape.config.collisionLayer = userData.collisionLayer ?? CollisionGroups.Default;

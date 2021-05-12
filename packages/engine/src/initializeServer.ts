@@ -29,6 +29,7 @@ BufferGeometry.prototype["computeBoundsTree"] = computeBoundsTree;
 
 export const initializeServer = async (initOptions: any = DefaultInitializationOptions): Promise<void> => {
   const options = _.defaultsDeep({}, initOptions, DefaultInitializationOptions);
+  const { physicsWorldConfig } = options;
 
   Engine.scene = new Scene();
   Engine.publicPath = options.publicPath;
@@ -49,14 +50,14 @@ export const initializeServer = async (initOptions: any = DefaultInitializationO
 
   const isWindows = process.platform === "win32";
   const currentPath = (isWindows ? 'file:///' : '') + path.dirname(__filename);
+  const physicsWorker = new Worker(currentPath + "/physics/functions/loadPhysXNode.ts");
 
   await Promise.all([
     // AnimationManager.instance.getDefaultModel(),
     // AnimationManager.instance.getAnimations(),
-    PhysXInstance.instance.initPhysX(new Worker(currentPath + "/physics/functions/loadPhysXNode.ts"), {})
   ]);
 
-  registerSystem(PhysicsSystem);
+  registerSystem(PhysicsSystem, { worker: physicsWorker, physicsWorldConfig });
   registerSystem(CharacterControllerSystem);
 
   registerSystem(ServerSpawnSystem, { priority: 899 });
