@@ -200,14 +200,14 @@ export const initializeEditor = async (initOptions): Promise<void> => {
   Engine.camera = new PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 10000);
   Engine.scene.add(Engine.camera);
 
-  
-  // if((window as any).safariWebBrowser) {
-    const physicsWorker = new Worker('/scripts/loadPhysXClassic.js');
-  // } else {
-  //   //@ts-ignore
-  //   const { default: PhysXWorker } = await import('./physics/functions/loadPhysX.ts?worker');
-  //   physicsWorker = new PhysXWorker();
-  // }
+  let physicsWorker;
+  if((window as any).safariWebBrowser) {
+    physicsWorker = new Worker('/scripts/loadPhysXClassic.js');
+  } else {
+    //@ts-ignore
+    const { default: PhysXWorker } = await import('./physics/functions/loadPhysX.ts?worker');
+    physicsWorker = new PhysXWorker();
+  }
 
   registerSystem(PhysicsSystem, { worker: physicsWorker, physicsWorldConfig });
   registerSystem(TransformSystem, { priority: 900 });
