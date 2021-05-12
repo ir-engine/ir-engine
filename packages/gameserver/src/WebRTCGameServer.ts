@@ -1,7 +1,11 @@
 import { initializeServer } from "@xrengine/engine/src/initializeServer";
-import { DefaultNetworkSchema } from "@xrengine/engine/src/templates/networking/DefaultNetworkSchema";
+import { DefaultNetworkSchema } from "@xrengine/engine/src/networking/templates/DefaultNetworkSchema";
 import { SocketWebRTCServerTransport } from "./SocketWebRTCServerTransport";
 import config from '@xrengine/server-core/src/appconfig';
+
+// Patch XHR for FileLoader in threejs
+import { XMLHttpRequest } from 'xmlhttprequest';
+(globalThis as any).XMLHttpRequest = XMLHttpRequest;
 
 const networkSchema = {
   ...DefaultNetworkSchema,
@@ -9,11 +13,8 @@ const networkSchema = {
 };
 
 const options = {
-  input: {
-    useWebXR: false
-  },
   networking: {
-    schema: networkSchema
+    schema: networkSchema,
   },
   publicPath: config.client.url
 };

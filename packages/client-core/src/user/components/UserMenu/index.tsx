@@ -8,7 +8,7 @@ import SettingsIcon from '@material-ui/icons/Settings';
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents';
 import { ClientInputSystem } from '@xrengine/engine/src/input/systems/ClientInputSystem';
 import { WebGLRendererSystem } from '@xrengine/engine/src/renderer/WebGLRendererSystem';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 import { alertSuccess } from '../../../common/reducers/alert/service';
@@ -85,29 +85,22 @@ const UserMenu = (props: UserMenuProps): any => {
   const [currentActiveMenu, setCurrentActiveMenu] = useState(null);
   const [activeLocation, setActiveLocation] = useState(null);
 
-  const [username, setUsername] = useState(selfUser?.name);
   const [userSetting, setUserSetting] = useState(selfUser?.user_setting);
-  const [graphics, setGraphicsSetting] = useState({
-    resolution: WebGLRendererSystem.scaleFactor,
-    shadows: WebGLRendererSystem.shadowQuality,
-    automatic: WebGLRendererSystem.automatic,
-    pbr: WebGLRendererSystem.usePBR,
-    postProcessing: WebGLRendererSystem.usePostProcessing
-  });
-  
+  const [graphics, setGraphicsSetting] = useState({});
+
+  useEffect(() => {
+    EngineEvents.instance?.addEventListener(WebGLRendererSystem.EVENTS.QUALITY_CHANGED, updateGraphicsSettings);
+
+    return () => {
+      EngineEvents.instance?.removeEventListener(WebGLRendererSystem.EVENTS.QUALITY_CHANGED, updateGraphicsSettings);
+    };
+  }, []);
+
   const onEngineLoaded = () => {
     setEngineLoaded(true);
-    EngineEvents.instance?.addEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD, graphicsSettingsLoaded);
     document.removeEventListener('ENGINE_LOADED', onEngineLoaded);
   };
   document.addEventListener('ENGINE_LOADED', onEngineLoaded);
-
-  // EngineEvents.instance?.removeEventListener(WebGLRendererSystem.EVENTS.QUALITY_CHANGED, this.setGraphicsSettings);
-
-  const graphicsSettingsLoaded = () => {
-    EngineEvents.instance?.addEventListener(WebGLRendererSystem.EVENTS.QUALITY_CHANGED, updateGraphicsSettings);
-    EngineEvents.instance?.removeEventListener(EngineEvents.EVENTS.CONNECT_TO_WORLD, graphicsSettingsLoaded);
-  };
 
   const setAvatar = (avatarId: string, avatarURL: string, thumbnailURL: string) => {
     if (selfUser) {

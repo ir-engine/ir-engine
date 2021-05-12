@@ -19,9 +19,9 @@ export const testWorldState = {
       "userId": testUserId,
       "name": testUserId,
       "avatarDetail": {
-        "thumbnailURL": "https://s3.amazonaws.com/xrengine-static-resources/avatars/Allison.png",
-        "avatarURL": "https://s3.amazonaws.com/xrengine-static-resources/avatars/Allison.glb",
-        "avatarId": "Allison"
+        "thumbnailURL": "https://s3.amazonaws.com/xrengine-static-resources/avatars/Andy.png",
+        "avatarURL": "https://s3.amazonaws.com/xrengine-static-resources/avatars/Andy.glb",
+        "avatarId": "Andy"
       }
     }
   ],

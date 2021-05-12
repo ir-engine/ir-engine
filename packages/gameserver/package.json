@@ -34,7 +34,7 @@
   "scripts": {
     "check-errors": "tsc --noemit",
     "start": "cross-env NODE_ENV=production ts-eager src/index.ts",
-    "dev": "nodemon -r ts-eager/register src/index.ts --watch src/**",
+    "dev": "NODE_ENV=development nodemon -r ts-eager/register src/index.ts --watch src/**",
     "dev-nossl": "cross-env NOSSL=true ts-eager src/index.ts",
     "test": "echo \"TODO: no test specified\" && exit 0",
     "lint": "eslint --fix --ext \"**/*.js\" \"**/*.ts\"",
@@ -43,26 +43,26 @@
   },
   "types": "lib/",
   "resolutions": {
-    "socket.io": "2.4.1"
+    "socket.io": "4.0.1"
   },
   "peerDependencies": {
     "chokidar": "^3.4.2",
-    "socket.io": "2.4.1"
+    "socket.io": "4.0.1"
   },
   "dependencies": {
-    "@feathersjs/authentication": "4.5.11",
-    "@feathersjs/authentication-local": "4.5.11",
-    "@feathersjs/authentication-oauth": "4.5.11",
+    "@feathersjs/authentication": "5.0.0-pre.3",
+    "@feathersjs/authentication-local": "5.0.0-pre.3",
+    "@feathersjs/authentication-oauth": "5.0.0-pre.3",
     "@feathersjs/cli": "4.5.0",
-    "@feathersjs/commons": "4.5.11",
-    "@feathersjs/configuration": "4.5.11",
-    "@feathersjs/errors": "4.5.11",
-    "@feathersjs/express": "4.5.11",
-    "@feathersjs/feathers": "4.5.11",
-    "@feathersjs/rest-client": "4.5.11",
-    "@feathersjs/socketio": "4.5.11",
-    "@feathersjs/socketio-client": "4.5.11",
-    "@feathersjs/transport-commons": "4.5.11",
+    "@feathersjs/commons": "5.0.0-pre.3",
+    "@feathersjs/configuration": "5.0.0-pre.3",
+    "@feathersjs/errors": "5.0.0-pre.3",
+    "@feathersjs/express": "5.0.0-pre.3",
+    "@feathersjs/feathers": "5.0.0-pre.3",
+    "@feathersjs/rest-client": "5.0.0-pre.3",
+    "@feathersjs/socketio": "5.0.0-pre.3",
+    "@feathersjs/socketio-client": "5.0.0-pre.3",
+    "@feathersjs/transport-commons": "5.0.0-pre.3",
     "@google-cloud/agones-sdk": "1.14.0",
     "@xrengine/engine": "^0.2.22",
     "@xrengine/server-core": "^0.2.22",
@@ -81,7 +81,7 @@
     "feathers-seeder": "2.0.0",
     "feathers-sequelize": "https://github.com/feathersjs-ecosystem/feathers-sequelize.git",
     "feathers-swagger": "1.2.1",
-    "feathers-sync": "2.3.0",
+    "feathers-sync": "https://github.com/xrfoundation/feathers-sync.git",
     "fs-blob-store": "6.0.0",
     "helmet": "4.5.0",
     "internal-ip": "6.2.0",
@@ -104,7 +104,7 @@
     "sequelize": " 6.6.2",
     "serve-favicon": "2.5.0",
     "slugify": "1.5.0",
-    "three-physx": "0.0.9",
+    "three-physx": "0.0.12",
     "universal-analytics": "0.4.23",
     "uuid": "8.3.2",
     "winston": "3.3.3"

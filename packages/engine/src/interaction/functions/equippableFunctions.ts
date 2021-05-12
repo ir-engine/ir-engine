@@ -8,7 +8,7 @@ import { sendClientObjectUpdate } from "../../networking/functions/sendClientObj
 import { ColliderComponent } from "../../physics/components/ColliderComponent"
 import { BodyType } from "three-physx"
 import { PhysicsSystem } from "../../physics/systems/PhysicsSystem"
-import { NetworkObjectUpdateType } from "../../templates/networking/NetworkObjectUpdateSchema"
+import { NetworkObjectUpdateType } from "../../networking/templates/NetworkObjectUpdateSchema"
 import { TransformChildComponent } from "../../transform/components/TransformChildComponent"
 import { TransformComponent } from "../../transform/components/TransformComponent"
 import { EquippedComponent } from "../components/EquippedComponent"

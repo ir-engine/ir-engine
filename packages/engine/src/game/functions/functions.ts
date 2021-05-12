@@ -11,7 +11,7 @@ import { GamePlayer } from "../components/GamePlayer";
  * @author HydraFire <github.com/HydraFire>
  */
 export const getGameEntityFromName = (name: string): Entity => {
-  return GameManagerSystem.createdGames.find(entity => getComponent(entity, Game).name === name);
+  return GameManagerSystem.instance.createdGames.find(entity => getComponent(entity, Game).name === name);
 };
 
 export const getEntityFromRoleUuid = (game: Game, role: string, uuid: string): Entity => {

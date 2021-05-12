@@ -2,13 +2,13 @@ import { detect, detectOS } from 'detect-browser';
 import { BufferGeometry, Mesh, PerspectiveCamera, Scene } from 'three';
 import { acceleratedRaycast, computeBoundsTree } from "three-mesh-bvh";
 import { CameraSystem } from './camera/systems/CameraSystem';
-import { CharacterControllerSystem } from './templates/character/CharacterControllerSystem';
+import { CharacterControllerSystem } from './character/CharacterControllerSystem';
 import { isMobileOrTablet } from './common/functions/isMobile';
 import { Timer } from './common/functions/Timer';
 import { DebugHelpersSystem } from './debug/systems/DebugHelpersSystem';
 import { Engine } from './ecs/classes/Engine';
-import { addIncomingEvents, addOutgoingEvents, EngineEvents, proxyEngineEvents as proxyEngineEvents } from './ecs/classes/EngineEvents';
-import { execute, initialize } from "./ecs/functions/EngineFunctions";
+import { EngineEvents, proxyEngineEvents } from './ecs/classes/EngineEvents';
+import { execute } from "./ecs/functions/EngineFunctions";
 import { registerSystem } from './ecs/functions/SystemFunctions';
 import { SystemUpdateType } from "./ecs/functions/SystemUpdateType";
 import { ActionSystem } from './input/systems/ActionSystem';
@@ -21,8 +21,8 @@ import { ParticleSystem } from './particles/systems/ParticleSystem';
 import { PhysicsSystem } from './physics/systems/PhysicsSystem';
 import { HighlightSystem } from './renderer/HighlightSystem';
 import { WebGLRendererSystem } from './renderer/WebGLRendererSystem';
-import { ServerSpawnSystem } from './scene/systems/SpawnSystem';
-import { AnimationManager } from './templates/character/prefabs/NetworkPlayerCharacter';
+import { ServerSpawnSystem } from './scene/systems/ServerSpawnSystem';
+import { AnimationManager } from "./character/AnimationManager";
 import { TransformSystem } from './transform/systems/TransformSystem';
 import { createWorker, WorkerProxy } from './worker/MessageQueue';
 import { XRSystem } from './xr/systems/XRSystem';
@@ -30,9 +30,13 @@ import { PhysXInstance } from "three-physx";
 //@ts-ignore
 import OffscreenWorker from './worker/initializeOffscreen.ts?worker';
 import { GameManagerSystem } from './game/systems/GameManagerSystem';
-import { DefaultInitializationOptions } from './DefaultInitializationOptions';
+import { DefaultInitializationOptions, InitializeOptions } from './DefaultInitializationOptions';
 import _ from 'lodash';
 import { ClientNetworkStateSystem } from './networking/systems/ClientNetworkStateSystem';
+import { now } from './common/functions/now';
+import { loadScene } from './scene/functions/SceneLoading';
+import { UIPanelSystem } from './ui/systems/UIPanelSystem';
+
 // import { PositionalAudioSystem } from './audio/systems/PositionalAudioSystem';
 
 Mesh.prototype.raycast = acceleratedRaycast;
@@ -48,16 +52,16 @@ if (typeof window !== 'undefined') {
 
 /**
  *
- * @author Avaer Kazmer
+ * @author Shaw Walters and Josh Field
  * @param initOptions
  */
 
-export const initializeEngine = async (initOptions): Promise<void> => {
+export const initializeEngine = async (initOptions: InitializeOptions): Promise<void> => {
   const options = _.defaultsDeep({}, initOptions, DefaultInitializationOptions);
 
   const canvas = options.renderer && options.renderer.canvas ? options.renderer.canvas : null;
 
-  Engine.gameModes = options.gameModes;
+  Engine.gameMode = options.gameMode;
 
   const { useCanvas, postProcessing, useOfflineMode } = options;
 
@@ -84,11 +88,13 @@ export const initializeEngine = async (initOptions): Promise<void> => {
 
   } else {
     Engine.scene = new Scene();
-    addIncomingEvents()
+    EngineEvents.instance.once(EngineEvents.EVENTS.LOAD_SCENE, ({ sceneData }) => { loadScene(sceneData); })
+    EngineEvents.instance.once(EngineEvents.EVENTS.JOINED_WORLD, () => {
+      EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENABLE_SCENE, enable: true });
+    })
   }
-  addOutgoingEvents()
 
-  Engine.publicPath = location.origin;
+  Engine.publicPath = options.publicPath;
 
   if (options.networking) {
     const networkSystemOptions = { schema: options.networking.schema, app: options.networking.app };
@@ -103,7 +109,7 @@ export const initializeEngine = async (initOptions): Promise<void> => {
     registerSystem(MediaStreamSystem);
   }
 
-  initialize();
+  Engine.lastTime = now() / 1000;
 
   if(useCanvas) {
     if (options.input) {
@@ -115,13 +121,18 @@ export const initializeEngine = async (initOptions): Promise<void> => {
       Engine.camera = new PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 10000);
       Engine.scene.add(Engine.camera);
 
+      new AnimationManager();
+
       // promise in parallel to speed things up
       await Promise.all([
         AnimationManager.instance.getDefaultModel(),
         AnimationManager.instance.getAnimations(),
         new Promise<void>(async (resolve) => {
+          /** @todo fix bundling */
           // if((window as any).safariWebBrowser) {
-            await PhysXInstance.instance.initPhysX(new Worker('/scripts/loadPhysXClassic.js'));
+            const worker = new Worker('/scripts/loadPhysXClassic.js');
+            Engine.workers.push(worker);
+            await PhysXInstance.instance.initPhysX(worker);
           // } else {
           //   //@ts-ignore
           //   const { default: PhysXWorker } = await import('./physics/functions/loadPhysX.ts?worker&inline');
@@ -133,9 +144,8 @@ export const initializeEngine = async (initOptions): Promise<void> => {
 
       registerSystem(ClientNetworkStateSystem);
       registerSystem(CharacterControllerSystem);
-      registerSystem(ServerSpawnSystem, { priority: 899 });
       registerSystem(HighlightSystem);
-      registerSystem(ActionSystem, { useWebXR: Engine.xrSupported });
+      registerSystem(ActionSystem);
 
       registerSystem(PhysicsSystem);
       registerSystem(TransformSystem, { priority: 900 });
@@ -150,11 +160,16 @@ export const initializeEngine = async (initOptions): Promise<void> => {
       registerSystem(WebGLRendererSystem, { priority: 1001, canvas, postProcessing });
       registerSystem(XRSystem);
       registerSystem(GameManagerSystem);
+      registerSystem(UIPanelSystem);
 
       Engine.viewportElement = Engine.renderer.domElement;
       Engine.renderer.xr.enabled = Engine.xrSupported;
     }
   }
+
+  await Promise.all(Engine.systems.map((system) => { 
+    return new Promise<void>(async (resolve) => { await system.initialize(); system.initialized = true; resolve(); }) 
+  }));
 
   Engine.engineTimer = Timer({
     networkUpdate: (delta: number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Network),
@@ -170,7 +185,6 @@ export const initializeEngine = async (initOptions): Promise<void> => {
   document.addEventListener(engageType, onUserEngage);
 
   EngineEvents.instance.once(ClientNetworkSystem.EVENTS.CONNECT, ({ id }) => {
-    console.log('userId', id)
     Network.instance.isInitialized = true;
     Network.instance.userId = id;
   })
@@ -179,22 +193,23 @@ export const initializeEngine = async (initOptions): Promise<void> => {
 }
 
 
-export const initializeEditor = async (initOptions): Promise<void> => {
-
+export const initializeEditor = async (initOptions: InitializeOptions): Promise<void> => {
   const options = _.defaultsDeep({}, initOptions, DefaultInitializationOptions);
 
   Engine.scene = new Scene();
 
-  Engine.gameModes = initOptions.gameModes;
-  Engine.publicPath = location.origin;
+  Engine.gameMode = initOptions.gameMode;
+  Engine.publicPath = options.publicPath;
 
-  initialize();
+  Engine.lastTime = now() / 1000;
 
   Engine.camera = new PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 10000);
   Engine.scene.add(Engine.camera);
 
   // if((window as any).safariWebBrowser) {
-    await PhysXInstance.instance.initPhysX(new Worker('/scripts/loadPhysXClassic.js'));
+    const worker = new Worker('/scripts/loadPhysXClassic.js');
+    Engine.workers.push(worker);
+    await PhysXInstance.instance.initPhysX(worker);
   // } else {
   //   //@ts-ignore
   //   const { default: PhysXWorker } = await import('./physics/functions/loadPhysX.ts?worker');
@@ -206,6 +221,10 @@ export const initializeEditor = async (initOptions): Promise<void> => {
   registerSystem(ParticleSystem);
   registerSystem(DebugHelpersSystem);
   registerSystem(GameManagerSystem);
+
+  await Promise.all(Engine.systems.map((system) => { 
+    return new Promise<void>(async (resolve) => { await system.initialize(); system.initialized = true; resolve(); }) 
+  }));
 
   Engine.engineTimer = Timer({
     networkUpdate: (delta: number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Network),

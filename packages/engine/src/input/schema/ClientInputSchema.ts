@@ -32,7 +32,7 @@ const usingThumbstick = () => {
 
 const handleTouchMove = (args: { event: TouchEvent }): void => {
 
-  if(!ClientInputSystem.mouseInputEnabled) {
+  if(!ClientInputSystem.instance.mouseInputEnabled) {
     return;
   }
 
@@ -145,7 +145,7 @@ const handleTouchMove = (args: { event: TouchEvent }): void => {
  * @param args is argument object
  */
 const handleTouch = ({ event, value }: { event: TouchEvent; value: BinaryType }): void => {
-    if(!ClientInputSystem.mouseInputEnabled) {
+    if(!ClientInputSystem.instance.mouseInputEnabled) {
       return;
     }
     if (event.targetTouches.length) {
@@ -318,7 +318,7 @@ function handleOnScreenGamepadButton(args: { event: CustomEvent; value: BinaryTy
  */
 
 const handleMouseWheel = (args: { event: WheelEvent }): void => {
-  if(!ClientInputSystem.mouseInputEnabled) {
+  if(!ClientInputSystem.instance.mouseInputEnabled) {
     return;
   }
   const value = args.event?.deltaY;
@@ -369,7 +369,7 @@ function normalizeMouseMovement(x: number, y: number, elementWidth: number, elem
  */
 
 const handleMouseMovement = (args: { event: MouseEvent }): void => {
-  if(!ClientInputSystem.mouseInputEnabled) {
+  if(!ClientInputSystem.instance.mouseInputEnabled) {
     return;
   }
 
@@ -415,7 +415,7 @@ const handleMouseMovement = (args: { event: MouseEvent }): void => {
 const handleMouseButton = (args: { event: MouseEvent; value: BinaryType }): void => {
 
   // For if mouse is over UI, disable button clicks for engine
-  if(args.value === BinaryValue.ON && !ClientInputSystem.mouseInputEnabled) {
+  if(args.value === BinaryValue.ON && !ClientInputSystem.instance.mouseInputEnabled) {
     return;
   }
 
@@ -471,7 +471,7 @@ const handleMouseButton = (args: { event: MouseEvent; value: BinaryType }): void
 
 const handleKey = (args: { event: KeyboardEvent; value: BinaryType }): any => {
   // For if mouse is over UI, disable button clicks for engine
-  if(args.value === BinaryValue.ON && !ClientInputSystem.keyboardInputEnabled) {
+  if(args.value === BinaryValue.ON && !ClientInputSystem.instance.keyboardInputEnabled) {
     return;
   }
 

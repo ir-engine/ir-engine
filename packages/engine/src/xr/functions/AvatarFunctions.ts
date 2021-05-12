@@ -402,6 +402,7 @@ export const findSpine = (chest, hips) => {
  * @returns 
  */
 export const findShoulder = (tailBones, left) => {
+  // console.log("Finding shoulder")
   const regexp = left ? /l/i : /r/i;
   const shoulderBones = tailBones.map(tailBone => {
     const shoulderBone = findClosestParentBone(tailBone, bone => /shoulder|clavicle/i.test(bone.name) && regexp.test(bone.name.replace(/shoulder|clavicle/gi, '')));

@@ -4,8 +4,11 @@ import { Config } from './helper';
 
 const feathersStoreKey: string = Config.publicRuntimeConfig.feathersStoreKey;
 const feathersClient: any = !Config.publicRuntimeConfig.offlineMode ? feathers() : undefined;
+
 if(!Config.publicRuntimeConfig.offlineMode) {
-  const socket = io(Config.publicRuntimeConfig.apiServer);
+  const socket = io(Config.publicRuntimeConfig.apiServer, {
+    withCredentials: true
+  });
   feathersClient.configure(feathers.socketio(socket, { timeout: 10000 }));
   feathersClient.configure(feathers.authentication({
     storageKey: feathersStoreKey

@@ -8,9 +8,6 @@ import { WorldStateInterface } from "../interfaces/WorldState";
 import { Snapshot } from "../types/SnapshotDataTypes";
 import SocketIO from "socket.io";
 import { GameStateActionMessage, GameStateUpdateMessage, ClientGameActionMessage } from '../../game/types/GameMessage';
-import { GameMode } from "../../game/types/GameMode";
-import { DefaultGameMode } from "../../templates/game/DefaultGameMode";
-import { DefaultGameStateAction } from "../../templates/game/DefaultGameStateAction";
 
 
 export interface NetworkClientList {
@@ -69,7 +66,6 @@ export class Network {
 
   /** Game mode mapping schema */
   loadedGames: Entity[] = []; // its for network
-//  gameModeSchema: GameMode = DefaultGameMode
 
   /** Game actions that happened this frame */
   gameStateActions: GameStateActionMessage[] = []
@@ -112,7 +108,7 @@ export class Network {
 
   /** State of the world. */
   worldState: WorldStateInterface = {
-    tick: Network.tick,
+    tick: 0,
     transforms: [],
     ikTransforms: [],
     time: 0,
@@ -125,16 +121,9 @@ export class Network {
     gameState: [],
     gameStateActions: []
   };
-
-  /**
-   * Attached ID of scene attached with this network.
-   * @default 547Y45f7
-   */
-  static sceneId = '547Y45f7'
-  /** Network. */
-  static Network: any
+  
   /** Tick of the network. */
-  static tick: any = 0
+  tick: any = 0
 
   /** Disposes the network. */
   dispose(): void {
@@ -143,7 +132,6 @@ export class Network {
     this.transport = null;
     Network.availableNetworkId = 0;
     Network.instance = null;
-    Network.tick = 0;
-    Network.sceneId = "default"; // TODO: Clear scene ID, no need for default
+    Network.instance.tick = 0;
   }
 }

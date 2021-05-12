@@ -55,7 +55,7 @@ export function Timer (
       if (networkRunner) {
         networkRunner.run(delta);
       }
-      XRSystem.xrFrame = xrFrame;
+      XRSystem.instance.xrFrame = xrFrame;
       if (callbacks.update) {
         callbacks.update(delta, accumulated);
       }

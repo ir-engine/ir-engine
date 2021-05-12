@@ -6,8 +6,6 @@ import { Types } from '../../ecs/types/Types';
 
 /** Component class for Camera. */
 export class CameraComponent extends Component<any> {
-  /** Static instance of the camera. */
-  static instance: CameraComponent = null
 
   /** Reference to the object that should be followed. */
   followTarget: any = null
@@ -29,13 +27,11 @@ export class CameraComponent extends Component<any> {
   /** Constructs Camera Component. */
   constructor () {
     super();
-    CameraComponent.instance = this;
   }
 
   /** Dispose the component. */
   dispose(): void {
     super.dispose();
-    CameraComponent.instance = null;
   }
 }
 

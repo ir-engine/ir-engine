@@ -202,7 +202,7 @@ export class User extends Service {
           $limit: params.query.$limit || 10
         }
       });
-      console.log(users);
+
       
       return users;
     } else if (action === 'invite-code-lookup') {
