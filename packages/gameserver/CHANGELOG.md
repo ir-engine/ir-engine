@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.2.24](https://github.com/barankyle/xr3ngine/compare/v0.2.23...v0.2.24) (2021-05-12)
+
+**Note:** Version bump only for package @xrengine/gameserver
+
+
+
+
+
 ## [0.2.23](https://github.com/barankyle/xr3ngine/compare/v0.2.22...v0.2.23) (2021-05-12)
 
 **Note:** Version bump only for package @xrengine/gameserver
