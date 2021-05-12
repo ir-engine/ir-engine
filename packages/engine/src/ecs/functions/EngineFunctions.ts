@@ -2,6 +2,7 @@
 
 import { disposeDracoLoaderWorkers } from "../../assets/functions/LoadGLTF";
 import { now } from "../../common/functions/now";
+import { Vault } from "../../networking/classes/Vault";
 import disposeScene from "../../renderer/functions/disposeScene";
 import { Engine } from '../classes/Engine';
 import { System } from '../classes/System';
@@ -71,9 +72,12 @@ export function reset(): void {
   Engine.camera = null;
 
   if (Engine.renderer) {
+    Engine.renderer.clear(true, true, true);
     Engine.renderer.dispose();
     Engine.renderer = null;
   }
+
+  Vault.instance.clear();
 }
 
 /**
@@ -197,10 +201,8 @@ export function stats (): { entities: any; system: any } {
 
 /** Reset the engine and clear all the timers. */
 export function resetEngine():void {
-  if (Engine.engineTimerTimeout) {
-    clearTimeout(Engine.engineTimerTimeout);
-  }
-  Engine.engineTimer?.stop();
+  Engine.engineTimer?.clear();
+  Engine.engineTimer = null;
 
   reset();
 }

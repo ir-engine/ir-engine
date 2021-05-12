@@ -59,6 +59,7 @@ export class PhysicsSystem extends System {
     super.dispose();
     this.frame = 0;
     this.broadphase = null;
+    EngineEvents.instance.removeAllListenersForEvent(PhysicsSystem.EVENTS.PORTAL_REDIRECT_EVENT);
   }
 
   execute(delta: number): void {

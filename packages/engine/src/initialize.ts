@@ -175,7 +175,9 @@ export const initializeEngine = async (initOptions: InitializeOptions): Promise<
     networkUpdate: (delta: number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Network),
     fixedUpdate: (delta: number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Fixed),
     update: (delta, elapsedTime) => execute(delta, elapsedTime, SystemUpdateType.Free)
-  }, Engine.physicsFrameRate, Engine.networkFramerate).start();
+  }, Engine.physicsFrameRate, Engine.networkFramerate);
+
+  Engine.engineTimer.start();
 
   const engageType = isMobileOrTablet() ? 'touchstart' : 'click'
   const onUserEngage = () => {
@@ -230,7 +232,9 @@ export const initializeEditor = async (initOptions: InitializeOptions): Promise<
     networkUpdate: (delta: number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Network),
     fixedUpdate: (delta: number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Fixed),
     update: (delta, elapsedTime) => execute(delta, elapsedTime, SystemUpdateType.Free)
-  }, Engine.physicsFrameRate, Engine.networkFramerate).start();
+  }, Engine.physicsFrameRate, Engine.networkFramerate);
+
+  Engine.engineTimer.start();
 
   Engine.isInitialized = true;
 }

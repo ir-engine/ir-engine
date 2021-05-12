@@ -230,6 +230,10 @@ export class InteractiveSystem extends System {
     this.previousEntity2DPosition = null;
     this.focused?.clear();
     this.newFocused?.clear();
+
+    EngineEvents.instance.removeAllListenersForEvent(InteractiveSystem.EVENTS.USER_HOVER);
+    EngineEvents.instance.removeAllListenersForEvent(InteractiveSystem.EVENTS.OBJECT_ACTIVATION);
+    EngineEvents.instance.removeAllListenersForEvent(InteractiveSystem.EVENTS.OBJECT_HOVER);
   }
 
   execute(delta: number, time: number): void {

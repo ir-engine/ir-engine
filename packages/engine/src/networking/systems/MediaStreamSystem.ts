@@ -1,3 +1,4 @@
+import { EngineEvents } from '../../ecs/classes/EngineEvents';
 import { System, SystemAttributes } from '../../ecs/classes/System';
 import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType';
 import { localMediaConstraints } from '../constants/VideoConstants';
@@ -323,5 +324,9 @@ export class MediaStreamSystem extends System {
       console.log('failed to get media stream');
       console.log(err);
     }
+  }
+
+  dispose() {
+    EngineEvents.instance.removeAllListenersForEvent(MediaStreamSystem.EVENTS.TRIGGER_UPDATE_CONSUMERS);
   }
 }
