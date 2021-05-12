@@ -1,6 +1,6 @@
 import shaka from 'shaka-player';
 import { Object3D, Color, TextureLoader, VideoTexture, Mesh, SphereGeometry, MeshBasicMaterial, BackSide, Texture } from "three";
-import { Control } from './Control';
+import { Control } from '@xrengine/engine/src/ui/classes/Control';
 
 enum PLAYER_STATE {
   INIT,
