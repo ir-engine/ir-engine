@@ -100,7 +100,10 @@ export const applyState = (game: Game): void => {
       //  console.warn(stateObject);
       if (stateObject != undefined) {
         stateObject.components.forEach((componentName: string) => {
-          addComponent(entity, gameStateComponents[componentName] );
+          if(gameStateComponents[componentName]) 
+            addComponent(entity, gameStateComponents[componentName] );
+          else
+            console.warn("Couldn't find component", componentName);
         });
       } else {
         console.warn('state players dont worl yet');

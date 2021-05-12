@@ -60,7 +60,7 @@ export const initializeEngine = async (initOptions): Promise<void> => {
 
   Engine.gameModes = options.gameModes;
 
-  const { useCanvas, postProcessing, useOfflineMode } = options;
+  const { useCanvas, postProcessing, useOfflineMode, physicsWorldConfig } = options;
 
   Engine.offlineMode = useOfflineMode;
 
@@ -118,20 +118,19 @@ export const initializeEngine = async (initOptions): Promise<void> => {
       Engine.camera = new PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 10000);
       Engine.scene.add(Engine.camera);
 
+      let physicsWorker;
+      if((window as any).safariWebBrowser) {
+        physicsWorker = new Worker('/scripts/loadPhysXClassic.js');
+      } else {
+        //@ts-ignore
+        const { default: PhysXWorker } = await import('./physics/functions/loadPhysX.ts?worker');
+        physicsWorker = new PhysXWorker();
+      }
+
       // promise in parallel to speed things up
       await Promise.all([
         AnimationManager.instance.getDefaultModel(),
         AnimationManager.instance.getAnimations(),
-        new Promise<void>(async (resolve) => {
-          // if((window as any).safariWebBrowser) {
-            await PhysXInstance.instance.initPhysX(new Worker('/scripts/loadPhysXClassic.js'));
-          // } else {
-          //   //@ts-ignore
-          //   const { default: PhysXWorker } = await import('./physics/functions/loadPhysX.ts?worker&inline');
-          //   await PhysXInstance.instance.initPhysX(new PhysXWorker(), { });
-          // }
-          resolve()
-        })
       ]);
 
       registerSystem(ClientNetworkStateSystem);
@@ -140,7 +139,7 @@ export const initializeEngine = async (initOptions): Promise<void> => {
       registerSystem(HighlightSystem);
       registerSystem(ActionSystem, { useWebXR: Engine.xrSupported });
 
-      registerSystem(PhysicsSystem);
+      registerSystem(PhysicsSystem, { worker: physicsWorker, physicsWorldConfig });
       registerSystem(TransformSystem, { priority: 900 });
       // audio breaks webxr currently
       // Engine.audioListener = new AudioListener();
@@ -189,6 +188,7 @@ export const initializeEngine = async (initOptions): Promise<void> => {
 export const initializeEditor = async (initOptions): Promise<void> => {
 
   const options = _.defaultsDeep({}, initOptions, DefaultInitializationOptions);
+  const { physicsWorldConfig } = options;
 
   Engine.scene = new Scene();
 
@@ -200,15 +200,16 @@ export const initializeEditor = async (initOptions): Promise<void> => {
   Engine.camera = new PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 10000);
   Engine.scene.add(Engine.camera);
 
-  // if((window as any).safariWebBrowser) {
-    await PhysXInstance.instance.initPhysX(new Worker('/scripts/loadPhysXClassic.js'));
-  // } else {
-  //   //@ts-ignore
-  //   const { default: PhysXWorker } = await import('./physics/functions/loadPhysX.ts?worker');
-  //   await PhysXInstance.instance.initPhysX(new PhysXWorker(), { });
-  // }
+  let physicsWorker;
+  if((window as any).safariWebBrowser) {
+    physicsWorker = new Worker('/scripts/loadPhysXClassic.js');
+  } else {
+    //@ts-ignore
+    const { default: PhysXWorker } = await import('./physics/functions/loadPhysX.ts?worker');
+    physicsWorker = new PhysXWorker();
+  }
 
-  registerSystem(PhysicsSystem);
+  registerSystem(PhysicsSystem, { worker: physicsWorker, physicsWorldConfig });
   registerSystem(TransformSystem, { priority: 900 });
   registerSystem(ParticleSystem);
   registerSystem(DebugHelpersSystem);

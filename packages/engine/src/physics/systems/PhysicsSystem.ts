@@ -1,7 +1,7 @@
 import { Not } from '../../ecs/functions/ComponentFunctions';
 import { Engine } from '../../ecs/classes/Engine';
 import { EngineEvents } from '../../ecs/classes/EngineEvents';
-import { System } from '../../ecs/classes/System';
+import { System, SystemAttributes } from '../../ecs/classes/System';
 import { getComponent, getMutableComponent, hasComponent } from '../../ecs/functions/EntityFunctions';
 import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType';
 import { LocalInputReceiver } from "../../input/components/LocalInputReceiver";
@@ -14,7 +14,7 @@ import { ColliderComponent } from '../components/ColliderComponent';
 import { RigidBodyComponent } from "../components/RigidBody";
 import { InterpolationComponent } from "../components/InterpolationComponent";
 import { isClient } from '../../common/functions/isClient';
-import { ColliderHitEvent, CollisionEvents, PhysXInstance } from "three-physx";
+import { ColliderHitEvent, CollisionEvents, PhysXConfig, PhysXInstance } from "three-physx";
 import { addColliderWithEntity } from '../behaviors/colliderCreateFunctions';
 import { findInterpolationSnapshot } from '../behaviors/findInterpolationSnapshot';
 
@@ -39,12 +39,20 @@ export class PhysicsSystem extends System {
 
   physicsFrameRate: number;
   physicsFrameTime: number;
+  physicsWorldConfig: PhysXConfig;
+  worker: Worker;
 
-  constructor() {
-    super();
+  constructor(attributes?: SystemAttributes) {
+    super(attributes);
     PhysicsSystem.instance = this;
     this.physicsFrameRate = Engine.physicsFrameRate;
     this.physicsFrameTime = 1 / this.physicsFrameRate;
+    this.physicsWorldConfig = attributes.physicsWorldConfig ?? {
+      tps: 120,
+      lengthScale: 1000,
+      start: false
+    }
+    this.worker = attributes.worker;
 
     PhysicsSystem.isSimulating = false;
     PhysicsSystem.frame = 0;
@@ -53,6 +61,10 @@ export class PhysicsSystem extends System {
       PhysicsSystem.isSimulating = ev.enable;
       PhysXInstance.instance.startPhysX(ev.enable);
     });
+  }
+
+  async initialize() {
+    await PhysXInstance.instance.initPhysX(this.worker, this.physicsWorldConfig);
   }
 
   dispose(): void {
