@@ -104,7 +104,6 @@
     "sequelize": " 6.6.2",
     "serve-favicon": "2.5.0",
     "slugify": "1.5.0",
-    "three-physx": "0.0.12",
     "universal-analytics": "0.4.23",
     "uuid": "8.3.2",
     "winston": "3.3.3"

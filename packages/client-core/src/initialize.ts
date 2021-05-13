@@ -120,13 +120,15 @@ export const initializeEngine = async (initOptions: InitializeOptions): Promise<
       Engine.camera = new PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 10000);
       Engine.scene.add(Engine.camera);
 
+      let physicsWorker;
       /** @todo fix bundling */
       // if((window as any).safariWebBrowser) {
-        const physicsWorker = new Worker('/scripts/loadPhysXClassic.js');
+        physicsWorker = new Worker('/scripts/loadPhysXClassic.js');
       // } else {
-      //   //@ts-ignore
-      //   const { default: PhysXWorker } = await import('./physics/functions/loadPhysX.ts?worker&inline');
-      //   await PhysXInstance.instance.initPhysX(new PhysXWorker(), { });
+        //@ts-ignore
+        // const { default: PhysXWorker } = await import('@xrengine/engine/src/physics/functions/loadPhysX.ts?worker&inline');
+        // physicsWorker = new PhysXWorker();
+        // await PhysXInstance.instance.initPhysX(new PhysXWorker(), { });
       // }
       Engine.workers.push(physicsWorker);
       
@@ -167,13 +169,15 @@ export const initializeEngine = async (initOptions: InitializeOptions): Promise<
     return new Promise<void>(async (resolve) => { await system.initialize(); system.initialized = true; resolve(); }); 
   }));
 
-  Engine.engineTimer = Timer({
-    networkUpdate: (delta: number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Network),
-    fixedUpdate: (delta: number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Fixed),
-    update: (delta, elapsedTime) => execute(delta, elapsedTime, SystemUpdateType.Free)
-  }, Engine.physicsFrameRate, Engine.networkFramerate);
+  EngineEvents.instance.once(EngineEvents.EVENTS.SCENE_LOADED, () => { 
+    Engine.engineTimer = Timer({
+      networkUpdate: (delta: number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Network),
+      fixedUpdate: (delta: number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Fixed),
+      update: (delta, elapsedTime) => execute(delta, elapsedTime, SystemUpdateType.Free)
+    }, Engine.physicsFrameRate, Engine.networkFramerate);
 
-  Engine.engineTimer.start();
+    Engine.engineTimer.start();
+  });
 
   const engageType = isMobileOrTablet() ? 'touchstart' : 'click';
   const onUserEngage = () => {
@@ -187,7 +191,6 @@ export const initializeEngine = async (initOptions: InitializeOptions): Promise<
     Network.instance.userId = id;
   });
 
-  Engine.isInitialized = true;
 };
 
 
@@ -205,13 +208,15 @@ export const initializeEditor = async (initOptions: InitializeOptions): Promise<
   Engine.camera = new PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 10000);
   Engine.scene.add(Engine.camera);
 
+  let physicsWorker;
   /** @todo fix bundling */
   // if((window as any).safariWebBrowser) {
-    const physicsWorker = new Worker('/scripts/loadPhysXClassic.js');
+    physicsWorker = new Worker('/scripts/loadPhysXClassic.js');
   // } else {
-  //   //@ts-ignore
-  //   const { default: PhysXWorker } = await import('./physics/functions/loadPhysX.ts?worker&inline');
-  //   await PhysXInstance.instance.initPhysX(new PhysXWorker(), { });
+    //@ts-ignore
+    // const { default: PhysXWorker } = await import('@xrengine/engine/src/physics/functions/loadPhysX.ts?worker&inline');
+    // physicsWorker = new PhysXWorker();
+    // await PhysXInstance.instance.initPhysX(new PhysXWorker(), { });
   // }
   Engine.workers.push(physicsWorker);
 

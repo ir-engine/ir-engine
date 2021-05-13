@@ -54,8 +54,14 @@ if (config.server.enabled) {
           }
         })
     );
-    
 
+    //Feathers authentication-oauth will use http for its redirect_uri if this is 'dev'.
+    //Doesn't appear anything else uses it.
+    app.set('env', 'production');
+    //Feathers authentication-oauth will only append the port in production, but then it will also
+    //hard-code http as the protocol, so manually mashing host + port together if in local.
+    app.set('host', config.server.local ? (config.server.hostname + ':' + config.server.port) : config.server.hostname);
+    app.set('port', config.server.port);
     app.set('paginate', config.server.paginate);
     app.set('authentication', config.authentication);
 
@@ -94,7 +100,7 @@ if (config.server.enabled) {
 
     if (config.redis.enabled) {
       app.configure(sync({
-        uri: config.redis.password != null ? `redis://${config.redis.address}:${config.redis.port}?password=${config.redis.password}` : `redis://${config.redis.address}:${config.redis.port}`
+        uri: config.redis.password != null && config.redis.password !== '' ? `redis://${config.redis.address}:${config.redis.port}?password=${config.redis.password}` : `redis://${config.redis.address}:${config.redis.port}`
       }));
 
       (app as any).sync.ready.then(() => {
