@@ -2,12 +2,14 @@
 
 export * from './src/assets/testScenePreset';
 export * from './src/assets/testScenes';
+export * from './src/constants/AvatarConstants';
 export * from './src/interfaces/AuthUser';
 export * from './src/interfaces/Channel';
 export * from './src/interfaces/ChannelResult';
 export * from './src/interfaces/Comment';
 export * from './src/interfaces/Creator';
 export * from './src/interfaces/Feed';
+export * from './src/interfaces/Feeds';
 export * from './src/interfaces/FriendResult';
 export * from './src/interfaces/Group';
 export * from './src/interfaces/GroupResult';
@@ -32,6 +34,7 @@ export * from './src/interfaces/PartyUserResult';
 export * from './src/interfaces/Relationship';
 export * from './src/interfaces/ServicesSeedConfig';
 export * from './src/interfaces/StaticResource';
+export * from './src/interfaces/TipsAndTricks';
 export * from './src/interfaces/User';
 export * from './src/interfaces/UserRelationship';
 export * from './src/scenes-templates/index';

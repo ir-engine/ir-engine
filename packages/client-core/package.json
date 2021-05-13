@@ -1,6 +1,7 @@
 {
   "name": "@xrengine/client-core",
   "version": "0.2.26",
+  "module": "dist/client-core.es.js",
   "repository": {
     "type": "git",
     "url": "git://github.com/XRFoundation/XREngine.git"
@@ -16,6 +17,7 @@
   "scripts": {
     "check-errors": "tsc --noemit",
     "build": "rimraf dist && mkdir dist && ctix entrypoint ./src && node build.js",
+    "build-publish": "rimraf dist && ctix entrypoint ./src && cross-env NODE_ENV=production rollup -c",
     "buildx": "esbuild",
     "lint": "eslint --fix --quiet \"*.ts\" \"**/*.ts\" \"**/*.tsx\""
   },

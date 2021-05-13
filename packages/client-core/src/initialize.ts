@@ -28,7 +28,6 @@ import { createWorker, WorkerProxy } from '@xrengine/engine/src/worker/MessageQu
 import { XRSystem } from '@xrengine/engine/src/xr/systems/XRSystem';
 import { PhysXInstance } from "three-physx";
 //@ts-ignore
-import OffscreenWorker from './initializeOffscreen.ts?worker';
 import { GameManagerSystem } from '@xrengine/engine/src/game/systems/GameManagerSystem';
 import { DefaultInitializationOptions, InitializeOptions } from '@xrengine/engine/src/DefaultInitializationOptions';
 import _ from 'lodash';
@@ -75,17 +74,17 @@ export const initializeEngine = async (initOptions: InitializeOptions): Promise<
   if (!options.renderer) options.renderer = {};
 
   if (useOffscreen) {
-    const workerProxy: WorkerProxy = await createWorker(
-      new OffscreenWorker(),
-      (canvas),
-      {
-        postProcessing,
-        useOfflineMode
-      }
-    );
-    proxyEngineEvents(workerProxy);
-    Engine.viewportElement = options.renderer.canvas;
-
+    // const { default: OffscreenWorker } = await import('./initializeOffscreen.ts?worker&inline');
+    // const workerProxy: WorkerProxy = await createWorker(
+    //   new OffscreenWorker(),
+    //   (canvas),
+    //   {
+    //     postProcessing,
+    //     useOfflineMode
+    //   }
+    // );
+    // proxyEngineEvents(workerProxy);
+    // Engine.viewportElement = options.renderer.canvas;
   } else {
     Engine.scene = new Scene();
     EngineEvents.instance.once(EngineEvents.EVENTS.LOAD_SCENE, ({ sceneData }) => { loadScene(sceneData); });

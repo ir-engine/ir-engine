@@ -25,7 +25,8 @@
     "check-errors": "tsc --noemit",
     "lint": "eslint --fix --quiet --ext .ts src/",
     "dev": "vite",
-    "build": "rimraf dist && ctix entrypoint ./src && tsc && esbuild --bundle index.ts --external:cross-fetch --external:mousetrap --external:draco3dgltf --external:three-mesh-bvh --external:path --external:superbuffer --external:@pixiv/three-vrm --external:comlink --external:browserfs --external:three --external:three-physx --outfile=dist/engine.js --define:BUILD_MODE=true --define:NODE_ENV=production --platform=neutral",
+    "build": "rimraf dist && mkdir dist && ctix entrypoint ./src && node build.js",
+    "build-publish": "rimraf dist && ctix entrypoint ./src && cross-env NODE_ENV=production rollup -c",
     "test": "jest",
     "validate": "yarn run lint && yarn run test",
     "generate-doc": "node_modules/.bin/typedoc"
