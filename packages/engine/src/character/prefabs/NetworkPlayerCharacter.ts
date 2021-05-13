@@ -69,7 +69,7 @@ export const loadActorAvatarFromURL: Behavior = (entity, avatarURL) => {
 		receiveShadow: true,
 		parent: tmpGroup,
 	}, () => {
-		console.log("Loaded")
+
 		const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
 		const controller = getMutableComponent<ControllerColliderComponent>(entity, ControllerColliderComponent);
 		if (!actor) return
@@ -89,7 +89,6 @@ export const loadActorAvatarFromURL: Behavior = (entity, avatarURL) => {
 					targetSkeleton = child;
 			}
 		})
-		console.log("*** Standardizing skeleton")
 		standardizeSkeletion(targetSkeleton, AnimationManager.instance._defaultSkeleton);
 
 		tmpGroup.children.forEach(child => actor.modelContainer.add(child));
