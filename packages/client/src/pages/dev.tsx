@@ -1,4 +1,4 @@
-import { initializeEngine } from '@xrengine/engine/src/initialize';
+import { initializeEngine } from '@xrengine/client-core/src/initialize';
 import { CharacterInputSchema } from '@xrengine/engine/src/character/CharacterInputSchema';
 import React, { useEffect } from 'react';
 

@@ -7,7 +7,7 @@ import { SystemUpdateType } from "../../ecs/functions/SystemUpdateType";
 /** System class for particle system. */
 export class ParticleSystem extends System {
   /** Constructs the system. */
-  constructor(attributes?: SystemAttributes) {
+  constructor(attributes: SystemAttributes = {}) {
     super(attributes);
   }
   updateType = SystemUpdateType.Fixed;

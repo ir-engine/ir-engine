@@ -47,7 +47,7 @@ export class GameManagerSystem extends System {
   updateLastTime: number;
   createdGames: Entity[];
 
-  constructor(attributes?: SystemAttributes) {
+  constructor(attributes: SystemAttributes = {}) {
     super(attributes);
     GameManagerSystem.instance = this;
     this.updateNewPlayersRate = 60;

@@ -87,7 +87,7 @@ export class WebGLRendererSystem extends System {
   forcePostProcessing = false;
   
   /** Constructs WebGL Renderer System. */
-  constructor(attributes?: SystemAttributes) {
+  constructor(attributes: SystemAttributes = {}) {
     super(attributes);
 
     WebGLRendererSystem.instance = this;

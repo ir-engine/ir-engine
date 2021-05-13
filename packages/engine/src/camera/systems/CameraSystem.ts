@@ -71,7 +71,7 @@ export class CameraSystem extends System {
   prevState = [0, 0] as NumericalType;
 
   /** Constructs camera system. */
-  constructor(attributes?: SystemAttributes) {
+  constructor(attributes: SystemAttributes = {}) {
     super(attributes);
     CameraSystem.instance = this;
     

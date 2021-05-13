@@ -69,7 +69,7 @@ export const loadActorAvatarFromURL: Behavior = (entity, avatarURL) => {
 		receiveShadow: true,
 		parent: tmpGroup,
 	}, () => {
-		console.log("Loaded")
+
 		const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
 		const controller = getMutableComponent<ControllerColliderComponent>(entity, ControllerColliderComponent);
 		if (!actor) return
@@ -89,16 +89,15 @@ export const loadActorAvatarFromURL: Behavior = (entity, avatarURL) => {
 					targetSkeleton = child;
 			}
 		})
-		console.log("*** Standardizing skeleton")
 		standardizeSkeletion(targetSkeleton, AnimationManager.instance._defaultSkeleton);
 
 		tmpGroup.children.forEach(child => actor.modelContainer.add(child));
 		// const geom = getGeometry(actor.modelContainer);
 		// if (geom) {
-			// geom.computeBoundingBox()
-			// const modelX = (geom.boundingBox.max.x - geom.boundingBox.min.x) / 2;
-			// const modelY = (geom.boundingBox.max.y - geom.boundingBox.min.y) / 2;
-			// const modelZ = (geom.boundingBox.max.z - geom.boundingBox.min.z) / 2;
+		// 	geom.computeBoundingBox()
+		// 	const modelX = (geom.boundingBox.max.x - geom.boundingBox.min.x) / 2;
+		// 	const modelY = (geom.boundingBox.max.y - geom.boundingBox.min.y) / 2;
+		// 	const modelZ = (geom.boundingBox.max.z - geom.boundingBox.min.z) / 2;
 			//controller.controller.resize(modelHeight - (modelWidth*2));
 			// const modelSize = modelX + modelY + modelZ;
 			// if (!modelSize) return;

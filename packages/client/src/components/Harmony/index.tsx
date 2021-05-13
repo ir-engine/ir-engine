@@ -73,7 +73,7 @@ import { Message } from '@xrengine/common/src/interfaces/Message';
 import { User } from '@xrengine/common/src/interfaces/User';
 import { isMobileOrTablet } from '@xrengine/engine/src/common/functions/isMobile';
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents';
-import { initializeEngine } from '@xrengine/engine/src/initialize';
+import { initializeEngine } from '@xrengine/client-core/src/initialize';
 import { DefaultInitializationOptions } from '@xrengine/engine/src/DefaultInitializationOptions';
 import { Network } from '@xrengine/engine/src/networking/classes/Network';
 import { NetworkSchema } from '@xrengine/engine/src/networking/interfaces/NetworkSchema';
