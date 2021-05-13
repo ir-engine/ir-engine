@@ -1,7 +1,7 @@
 {
   "name": "@xrengine/gameserver",
   "description": "Multiplayer Gameserver for XREngine",
-  "version": "0.2.22",
+  "version": "0.2.26",
   "private": true,
   "homepage": "",
   "main": "./src",
@@ -64,8 +64,8 @@
     "@feathersjs/socketio-client": "5.0.0-pre.3",
     "@feathersjs/transport-commons": "5.0.0-pre.3",
     "@google-cloud/agones-sdk": "1.14.0",
-    "@xrengine/engine": "^0.2.22",
-    "@xrengine/server-core": "^0.2.22",
+    "@xrengine/engine": "^0.2.26",
+    "@xrengine/server-core": "^0.2.26",
     "aws-sdk": "2.897.0",
     "bent": "7.3.12",
     "chargebee": "2.6.5",
@@ -104,7 +104,6 @@
     "sequelize": " 6.6.2",
     "serve-favicon": "2.5.0",
     "slugify": "1.5.0",
-    "three-physx": "0.0.12",
     "universal-analytics": "0.4.23",
     "uuid": "8.3.2",
     "winston": "3.3.3"

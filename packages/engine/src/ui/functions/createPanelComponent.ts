@@ -6,7 +6,7 @@ import { TransformComponent } from "../../transform/components/TransformComponen
 import { DesiredTransformComponent } from "../../transform/components/DesiredTransformComponent";
 import { Vector3 } from "three";
 
-export const createPanelComponent = (args: { panel: UIBaseElement, parent: null, sourcePosition: Vector3, destinationPosition: Vector3 }) => {
+export const createPanelComponent = (args: { panel: UIBaseElement, parent?: null, sourcePosition?: Vector3, destinationPosition?: Vector3 }) => {
   const entity = createEntity();
   addComponent(entity, UIPanelComponent, { panel: args.panel });
   addComponent(entity, Object3DComponent, { value: args.panel });

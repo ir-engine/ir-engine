@@ -53,7 +53,7 @@ export class ActionSystem extends System {
   public rightControllerId; //= 1
   receivedClientInputs = [];
 
-  constructor(attributes?: SystemAttributes) {
+  constructor(attributes: SystemAttributes = {}) {
     super(attributes);
     // Client only
     if (isClient) {

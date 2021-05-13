@@ -40,7 +40,7 @@ export class PhysicsSystem extends System {
   physicsFrameRate: number;
   physicsFrameTime: number;
 
-  constructor(attributes?: SystemAttributes) {
+  constructor(attributes: SystemAttributes = {}) {
     super(attributes);
     PhysicsSystem.instance = this;
     this.physicsFrameRate = Engine.physicsFrameRate;
@@ -49,10 +49,21 @@ export class PhysicsSystem extends System {
     this.isSimulating = false;
     this.frame = 0;
 
+    this.physicsWorldConfig = attributes.physicsWorldConfig ?? {
+      tps: 120,
+      lengthScale: 1000,
+      start: false
+    }
+    this.worker = attributes.worker;
+
     EngineEvents.instance.addEventListener(EngineEvents.EVENTS.ENABLE_SCENE, (ev: any) => {
       this.isSimulating = ev.enable;
       PhysXInstance.instance.startPhysX(ev.enable);
     });
+  }  
+  
+  async initialize() {
+    await PhysXInstance.instance.initPhysX(this.worker, this.physicsWorldConfig);
   }
 
   dispose(): void {

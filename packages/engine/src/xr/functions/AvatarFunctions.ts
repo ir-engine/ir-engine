@@ -325,7 +325,7 @@ export const countCharacters = (name, regex) => {
  * @param skeleton 
  * @returns 
  */
-export const findHips = skeleton => skeleton.bones.find(bone => /hip|rootx|pelvis/i.test(bone.name));
+export const findHips = skeleton => skeleton.bones.find(bone => /hip|root|rootx|pelvis/i.test(bone.name));
 export const findHead = tailBones => {
   const headBones = tailBones.map(tailBone => {
     const headBone = findFurthestParentBone(tailBone, bone => /head/i.test(bone.name));
@@ -456,7 +456,7 @@ export const findFoot = (tailBones, left) => {
   const legBones = tailBones.map(tailBone => {
     const footBone = findFurthestParentBone(tailBone, bone => /foot|ankle/i.test(bone.name) && regexp.test(bone.name.replace(/foot|ankle/gi, '')));
     if (footBone) {
-      const legBone = findFurthestParentBone(footBone, bone => /leg|thigh/i.test(bone.name) && regexp.test(bone.name.replace(/leg|thigh/gi, '')));
+      const legBone = findFurthestParentBone(footBone, bone => /(thigh|leg)(?!.*twist)/i.test(bone.name) && regexp.test(bone.name.replace(/(thigh|leg)(?!.*twist)/gi, '')));
       if (legBone) {
         const distance = distanceToParentBone(footBone, legBone);
         if (distance >= 2) {
