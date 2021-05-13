@@ -265,14 +265,8 @@ if(!Config.publicRuntimeConfig.offlineMode) {
 
 export const fetchUserRole = (data) => {
   return async(dispatch: Dispatch ): Promise<any> => {
-    const userRole = await client.service("user-role").find(
-      {
-        query: {
-          project_id: {
-            $in: [data]
-          }
-        }
-      });
+    const userRole = await client.service("user-role").find();
+     console.log(userRole);
      
     dispatch(userRoleRetrieved(userRole));
   };

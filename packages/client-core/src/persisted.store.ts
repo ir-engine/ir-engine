@@ -16,10 +16,10 @@ export function getStoredState (key: string) {
   if (!rawState) {
     return undefined;
   }
-  const state = JSON.parse(rawState);  
+  const state = JSON.parse(rawState); 
   return state[key];
 }
 
 export function saveState (state: any) {
-  localStorage.setItem(Config.publicRuntimeConfig.localStorageKey, JSON.stringify(state));
+  if(JSON.parse(JSON.stringify(state))["auth"]["isLoggedIn"])  localStorage.setItem(Config.publicRuntimeConfig.localStorageKey, JSON.stringify(state));
 }

@@ -71,8 +71,9 @@ export function doLoginAuto (allowGuest?: boolean, forceClientAuthReset?: boolea
       await (client as any).authentication.setAccessToken(accessToken as string);
       let res;
       try {
-        res = await (client as any).reAuthenticate();
-      } catch(err) {      
+        res = await (client as any).reAuthenticate(); 
+      } catch(err) {    
+
         if (err.className === 'not-found' || (err.className === 'not-authenticated' && err.message === 'jwt expired')) {
           await dispatch(didLogout());
           await (client as any).authentication.reset();

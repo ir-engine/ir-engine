@@ -20,6 +20,8 @@ import Container from '@material-ui/core/Container';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import { validationSchema } from "./validation";
 import { useFormik } from "formik";
+import { selectAuthState } from "../../../user/reducers/auth/selector";
+
 
 
 
@@ -60,7 +62,7 @@ interface Props {
     handleClose: any;
     adminState?: any;
     createUserAction?: any;
-    adminLocations: Array<any>;
+    authState: any;
     editing: boolean;
     userEdit: any;
     patchUser?: any;
@@ -77,37 +79,32 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 const mapStateToProps = (state: any): any => {
     return {
         adminState: selectAdminState(state),
+        authState: selectAuthState(state),
     };
 };
 
 const CreateUser = (props: Props) => {
-    const { open, handleClose, createUserAction, adminLocations, projects, fetchUserRole, adminState } = props;
+    const { open, handleClose, createUserAction, authState, projects, fetchUserRole, adminState } = props;
     const classes = useStyles();
     const classesx = useStyle();
-
-    const [game, setGame] = React.useState('');
     const [status, setStatus] = React.useState('');
     const [location, setLocation] = React.useState('');
     const [openCreateaUserRole, setOpenCreateUserRole] = React.useState(false);
 
+    const user = authState.get("user");
     const userRole = adminState.get("userRole");
     const userRoleData = userRole ? userRole.get("userRole") : [];
 
-    const handleChange = async (event: React.ChangeEvent<{ value: unknown }>) => {
-        const selectedProject = event.target.value;
-        setGame(selectedProject as string);
-        await fetchUserRole(selectedProject);
-    };
-
     React.useEffect(() => {
-        if (userRoleData.length > 0) {
-            if (userRole.get("updateNeeded")) fetchUserRole(game);
-        }
-    }, [adminState]);
+        const fetchData = async () => {
+                await fetchUserRole();
+        } 
+        if((adminState.get('users').get('updateNeeded') === true) && user.id) fetchData();
+    }, [adminState, user]);
 
     const defaultProps = {
-        options: adminLocations,
-        getOptionLabel: (option: any) => option.name,
+        options: userRoleData,
+        getOptionLabel: (option: any) => option.role,
     };
 
     const createUserRole = () => {
@@ -120,16 +117,13 @@ const CreateUser = (props: Props) => {
 
     const formik = useFormik({
         initialValues: {
-            email: "",
             name: ""
         },
         validationSchema: validationSchema,
         onSubmit: async (values, { resetForm }) => {
             const data = {
-                email: values.email,
                 name: values.name,
                 location,
-                project_id: game,
                 userRole: status,
             };
             await createUserAction(data);
@@ -152,18 +146,6 @@ const CreateUser = (props: Props) => {
                     <TextField
                         autoFocus
                         margin="dense"
-                        id="email"
-                        label="E-mail"
-                        fullWidth
-                        value={formik.values.email}                
-                        className={classes.marginBottm}
-                        onChange={formik.handleChange}
-                        error={formik.touched.email && Boolean(formik.errors.email)}
-                        helperText={formik.touched.email && formik.errors.email}
-                    />
-                    <TextField
-                        autoFocus
-                        margin="dense"
                         id="name"
                         label="Name"
                         type="text"
@@ -176,44 +158,14 @@ const CreateUser = (props: Props) => {
                     />
 
                     <Autocomplete
-                        onChange={(e, newValue) => setLocation(newValue.name as string)}
+                        onChange={(e, newValue) => setStatus(newValue.name as string)}
                         {...defaultProps}
                         id="debug"
                         debug
-                        renderInput={(params) => <TextField {...params} label="Location" className={classes.marginBottm} />}
+                        renderInput={(params) => <TextField {...params} label="User Role" className={classes.marginBottm} />}
                     />
 
-
-                    <FormControl fullWidth className={classes.marginBottm}>
-                        <InputLabel id="demo-simple-select-label">Projects</InputLabel>
-                        <Select
-                            labelId="demo-simple-select-label"
-                            id="demo-simple-select"
-                            value={game}
-                            onChange={handleChange}
-                        >
-                            {
-                                projects.slice(1).map(el => <MenuItem value={el.name} key={el.project_id}>{el.name}</MenuItem>)
-                            }
-                        </Select>
-                    </FormControl>
-                    {
-                        game && <DialogContentText className={classes.marginBottm}>  Don't have User Role for this Project? <a href="#h" className={classes.textLink} onClick={createUserRole}>Create One</a>  </DialogContentText>
-                    }
-                    <FormControl fullWidth className={classes.marginBottm}>
-                        <InputLabel id="demo-simple-select-label">User Role</InputLabel>
-                        <Select
-                            labelId="demo-simple-select-label"
-                            id="demo-simple-select"
-                            value={status}
-                            disabled={userRoleData.length > 0 ? false : true}
-                            onChange={(e) => setStatus(e.target.value as string)}
-                        >
-                            {
-                                userRoleData.map((el, index) => <MenuItem value={el.role} key={`${el.role}_${index}`}>{el.role}</MenuItem>)
-                            }
-                        </Select>
-                    </FormControl>
+                    <DialogContentText className={classes.marginBottm}>  Don't see user role? <a href="#h" className={classes.textLink} onClick={createUserRole}>Create One</a>  </DialogContentText>
 
                     <DialogActions>
                         <Button onClick={handleClose(false)} color="primary">
@@ -229,7 +181,6 @@ const CreateUser = (props: Props) => {
             <CreateUserRole
                 open={openCreateaUserRole}
                 handleClose={handleUserRoleClose}
-                projectName={game}
             />
         </React.Fragment>
     );
