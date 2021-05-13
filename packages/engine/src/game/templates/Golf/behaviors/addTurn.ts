@@ -14,5 +14,5 @@ export const addTurn: Behavior = (entity: Entity, args?: any, delta?: number, en
   const noOneTurn = Object.keys(game.gamePlayers).every(role => game.gamePlayers[role].every(entity => !hasComponent(entity, YourTurn)));
   if (noOneTurn) {
     addActionComponent(entity, NextTurn);
-  };
+  }
 };

@@ -16,7 +16,7 @@ export const applyTurn: Behavior = (entity: Entity, args?: any, delta?: number, 
     if (otherPlayerEntity) {
       console.warn('removeStateComponent');
       removeStateComponent(otherPlayerEntity, YourTurn);
-    };
+    }
   });
 
   console.warn(entity, YourTurn);
