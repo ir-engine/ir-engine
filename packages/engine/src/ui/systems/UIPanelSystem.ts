@@ -63,7 +63,7 @@ export class UIPanelSystem extends System {
   panelContainer: Group = new Group();
   lastRaycastTargets: Block[] = [];
 
-  constructor(attributes?: SystemAttributes) {
+  constructor(attributes: SystemAttributes = {}) {
     super(attributes);
     this.panelContainer;
     Engine.scene.add(this.panelContainer);
