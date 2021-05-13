@@ -9,6 +9,9 @@ export const entitySeeds: Array<ServicesSeedConfig> = [
     collectionTypeSeed,
     collectionSeed,
     entitySeed,
+];
+
+export const componentSeeds: Array<ServicesSeedConfig> = [
     componentTypeSeed,
-    componentSeed,
-  ];
+    componentSeed
+];
