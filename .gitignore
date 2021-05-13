@@ -19,7 +19,7 @@ yarn-error.log
 
 #local files
 .env*
-!.env.local
+!.env.local.default
 
 #config
 config/*
