@@ -57,7 +57,7 @@ export class ClientInputSystem extends System {
   mouseInputEnabled = true;
   keyboardInputEnabled = true;
 
-  constructor(attributes?: SystemAttributes) {
+  constructor(attributes: SystemAttributes = {}) {
     super(attributes);
 
     ClientInputSystem.instance = this;

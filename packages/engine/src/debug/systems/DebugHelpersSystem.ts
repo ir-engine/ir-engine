@@ -21,7 +21,7 @@ export class DebugHelpersSystem extends System {
     TOGGLE_AVATAR: 'DEBUG_HELPERS_SYSTEM_TOGGLE_AVATAR',
   }
 
-  constructor(attributes?: SystemAttributes) {
+  constructor(attributes: SystemAttributes = {}) {
     super(attributes);
     DebugHelpersSystem.instance = this;
     this.physicsDebugRenderer = new DebugRenderer(Engine.scene);

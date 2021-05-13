@@ -39,7 +39,7 @@ export class XRSystem extends System {
   cameraDolly: Group;
   static instance: XRSystem;
 
-  constructor(attributes?: SystemAttributes) {
+  constructor(attributes: SystemAttributes = {}) {
     super(attributes);
 
     XRSystem.instance = this;

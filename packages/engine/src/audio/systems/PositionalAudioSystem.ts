@@ -30,7 +30,7 @@ export class PositionalAudioSystem extends System {
   characterAudioStream = new Map();
 
   /** Constructs Positional Audio System. */
-  constructor(attributes?: SystemAttributes) {
+  constructor(attributes: SystemAttributes = {}) {
     super(attributes);
     PositionalAudioSystem.instance = this;
     Engine.useAudioSystem = true;

@@ -215,7 +215,7 @@ export class InteractiveSystem extends System {
   previousEntity: Entity;
   previousEntity2DPosition: Vector3;
 
-  constructor(attributes?: SystemAttributes) {
+  constructor(attributes: SystemAttributes = {}) {
     super(attributes);
 
     this.previousEntity = null;

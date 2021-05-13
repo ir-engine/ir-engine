@@ -191,6 +191,7 @@ export const initializeEngine = async (initOptions: InitializeOptions): Promise<
 
 export const initializeEditor = async (initOptions: InitializeOptions): Promise<void> => {
   const options = _.defaultsDeep({}, initOptions, DefaultInitializationOptions);
+  const { physicsWorldConfig } = options;
 
   Engine.scene = new Scene();
 
@@ -202,17 +203,17 @@ export const initializeEditor = async (initOptions: InitializeOptions): Promise<
   Engine.camera = new PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 10000);
   Engine.scene.add(Engine.camera);
 
+  /** @todo fix bundling */
   // if((window as any).safariWebBrowser) {
-    const worker = new Worker('/scripts/loadPhysXClassic.js');
-    Engine.workers.push(worker);
-    await PhysXInstance.instance.initPhysX(worker);
+    const physicsWorker = new Worker('/scripts/loadPhysXClassic.js');
   // } else {
   //   //@ts-ignore
-  //   const { default: PhysXWorker } = await import('./physics/functions/loadPhysX.ts?worker');
+  //   const { default: PhysXWorker } = await import('./physics/functions/loadPhysX.ts?worker&inline');
   //   await PhysXInstance.instance.initPhysX(new PhysXWorker(), { });
   // }
+  Engine.workers.push(physicsWorker);
 
-  registerSystem(PhysicsSystem);
+  registerSystem(PhysicsSystem, { worker: physicsWorker, physicsWorldConfig });
   registerSystem(TransformSystem, { priority: 900 });
   registerSystem(ParticleSystem);
   registerSystem(DebugHelpersSystem);

@@ -31,7 +31,7 @@ export class CharacterControllerSystem extends System {
   }
 
   updateType = SystemUpdateType.Fixed;
-  constructor(attributes?: SystemAttributes) {
+  constructor(attributes: SystemAttributes = {}) {
     super(attributes);
 
     EngineEvents.instance.addEventListener(CharacterControllerSystem.EVENTS.LOAD_AVATAR, ({ entityID, avatarId, avatarURL }) => {
