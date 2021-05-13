@@ -136,6 +136,9 @@ export function fetchAdminInstances () {
         $limit: getState().get('admin').get('users').get('limit'),
         action: 'admin'
       });
+
+      console.log(instances);
+      
       dispatch(instancesRetrievedAction(instances));
     }
   };
