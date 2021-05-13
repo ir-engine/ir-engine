@@ -19,10 +19,20 @@
     }
     .flexContainer{
         display: flex;
-        .previewImage{
-            height: 80px;
-            width: 80px;
+        .previewImageContainer{
             margin: 10px;
+            text-align: center;
+            color: rgba(60, 60, 67, 0.6);
+            &:hover{
+                .previewImage{
+                    border: 1px solid blue;
+                }
+            }
+        }
+        .previewImage{
+            height: 141px;
+            width: 141px;
+            box-sizing: border-box;
             border-radius: 10px;
             background-color: #DDDDDD;
         }

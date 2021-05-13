@@ -37,7 +37,11 @@ export default function (app: Application): typeof Model {
   (ArMedia as any).associate = (models: any): void => {
     // Define associations here
     // See http://docs.sequelizejs.com/en/latest/docs/associations/
-    (ArMedia as any).belongsTo(models.collection, { foreignKey: 'collectionId' });    
+    // (ArMedia as any).belongsTo(models.collection, { foreignKey: 'collectionId' });    
+    (ArMedia as any).belongsTo(models.static_resource, { as: 'manifest',  required: false, constraints: false });
+    (ArMedia as any).belongsTo(models.static_resource, { as: 'audio',  required: true, constraints: false });
+    (ArMedia as any).belongsTo(models.static_resource, { as: 'dracosis',  required: true, constraints: false });
+    (ArMedia as any).belongsTo(models.static_resource, { as: 'preview',  required: true, constraints: false });
   };
 
   return ArMedia;
