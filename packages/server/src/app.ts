@@ -100,7 +100,7 @@ if (config.server.enabled) {
 
     if (config.redis.enabled) {
       app.configure(sync({
-        uri: config.redis.password != null ? `redis://${config.redis.address}:${config.redis.port}?password=${config.redis.password}` : `redis://${config.redis.address}:${config.redis.port}`
+        uri: config.redis.password != null && config.redis.password !== '' ? `redis://${config.redis.address}:${config.redis.port}?password=${config.redis.password}` : `redis://${config.redis.address}:${config.redis.port}`
       }));
 
       (app as any).sync.ready.then(() => {
