@@ -14,7 +14,7 @@ import { ColliderComponent } from '../components/ColliderComponent';
 import { RigidBodyComponent } from "../components/RigidBody";
 import { InterpolationComponent } from "../components/InterpolationComponent";
 import { isClient } from '../../common/functions/isClient';
-import { ColliderHitEvent, CollisionEvents, PhysXInstance } from "three-physx";
+import { ColliderHitEvent, CollisionEvents, PhysXConfig, PhysXInstance } from "three-physx";
 import { addColliderWithEntity } from '../behaviors/colliderCreateFunctions';
 import { findInterpolationSnapshot } from '../behaviors/findInterpolationSnapshot';
 
@@ -26,6 +26,7 @@ export class PhysicsSystem extends System {
   static EVENTS = {
     PORTAL_REDIRECT_EVENT: 'PHYSICS_SYSTEM_PORTAL_REDIRECT',
   };
+  instance: PhysicsSystem;
   updateType = SystemUpdateType.Fixed;
   frame: number
   diffSpeed: number = Engine.physicsFrameRate / Engine.networkFramerate;
@@ -39,12 +40,20 @@ export class PhysicsSystem extends System {
 
   physicsFrameRate: number;
   physicsFrameTime: number;
+  physicsWorldConfig: PhysXConfig;
+  worker: Worker;
 
   constructor(attributes: SystemAttributes = {}) {
     super(attributes);
     PhysicsSystem.instance = this;
     this.physicsFrameRate = Engine.physicsFrameRate;
     this.physicsFrameTime = 1 / this.physicsFrameRate;
+    this.physicsWorldConfig = attributes.physicsWorldConfig ?? {
+      tps: 120,
+      lengthScale: 1000,
+      start: false
+    }
+    this.worker = attributes.worker;
 
     this.isSimulating = false;
     this.frame = 0;
@@ -66,6 +75,10 @@ export class PhysicsSystem extends System {
     await PhysXInstance.instance.initPhysX(this.worker, this.physicsWorldConfig);
   }
 
+  async initialize() {
+    await PhysXInstance.instance.initPhysX(this.worker, this.physicsWorldConfig);
+  }
+
   dispose(): void {
     super.dispose();
     this.frame = 0;
@@ -75,7 +88,7 @@ export class PhysicsSystem extends System {
   execute(delta: number): void {
     this.queryResults.collider.added?.forEach(entity => {
       addColliderWithEntity(entity)
-
+      /*
       const collider = getComponent<ColliderComponent>(entity, ColliderComponent);
       collider.body.addEventListener(CollisionEvents.COLLISION_START, (ev: ColliderHitEvent) => {
         collider.collisions.push(ev);
@@ -86,9 +99,11 @@ export class PhysicsSystem extends System {
       collider.body.addEventListener(CollisionEvents.COLLISION_END, (ev: ColliderHitEvent) => {
         collider.collisions.push(ev);
       })
+      */
     });
 
     this.queryResults.collider.all?.forEach(entity => {
+      /*
       const collider = getMutableComponent<ColliderComponent>(entity, ColliderComponent);
       // iterate on all collisions since the last update
       collider.collisions.forEach((event) => {
@@ -96,6 +111,7 @@ export class PhysicsSystem extends System {
         // TODO: figure out how we expose specific behaviors like this
       })
       collider.collisions = []; // clear for next loop
+      */
     });
 
     this.queryResults.collider.removed?.forEach(entity => {

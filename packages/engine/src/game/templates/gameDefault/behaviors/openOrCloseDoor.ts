@@ -1,8 +1,9 @@
 import { Behavior } from '../../../../common/interfaces/Behavior';
 import { Entity } from '../../../../ecs/classes/Entity';
-import { getMutableComponent, hasComponent } from "../../../../ecs/functions/EntityFunctions";
+import { getComponent, getMutableComponent, hasComponent } from "../../../../ecs/functions/EntityFunctions";
 import { addStateComponent, removeStateComponent } from '../../../../game/functions/functionsState';
 import { TransformComponent } from '../../../../transform/components/TransformComponent';
+import { ColliderComponent } from '../../../../physics/components/ColliderComponent';
 import { Closed } from "../components/ClosedTagComponent";
 import { Open } from "../components/OpenTagComponent";
 
@@ -21,6 +22,7 @@ export const giveOpenOrCloseState: Behavior = (entity: Entity, args?: any, delta
     console.warn('giveOpenOrCloseState, you must give argument on: me, or on: target');
     return;
   }
+
   if(hasComponent(target, Open)) {
    removeStateComponent(target, Open);
    addStateComponent(target, Closed);
@@ -32,13 +34,15 @@ export const giveOpenOrCloseState: Behavior = (entity: Entity, args?: any, delta
 
 export const doorOpeningOrClosing: Behavior = (entity: Entity, args?: any, delta?: number, entityTarget?: Entity, time?: number, checks?: any): void => {
   const position = getMutableComponent(entity, TransformComponent).position;
+  const collider = getComponent(entity, ColliderComponent);
+
   const animSpeed = args.animationSpeed ?? 1;
   if(args.action === 'opening') {
-    //storage.position =
+    console.warn('opening');
     position.set(
      position.x,
      position.y,
-     position.z - (delta * animSpeed) // delta = 0.024
+     position.z - (delta * animSpeed)
     );
   } else if(args.action === 'closing') {
     position.set(
@@ -47,4 +51,11 @@ export const doorOpeningOrClosing: Behavior = (entity: Entity, args?: any, delta
      position.z + (delta * animSpeed)
     );
   }
+  collider.body.updateTransform({
+    translation: {
+      x: position.x,
+      y: position.y,
+      z: position.z,
+    }
+  })
 };

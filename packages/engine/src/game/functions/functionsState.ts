@@ -13,13 +13,11 @@ import { Closed } from '../templates/gameDefault/components/ClosedTagComponent';
 import { Open } from '../templates/gameDefault/components/OpenTagComponent';
 import { PanelDown } from '../templates/gameDefault/components/PanelDownTagComponent';
 import { PanelUp } from '../templates/gameDefault/components/PanelUpTagComponent';
+import { YourTurn } from '../templates/Golf/components/YourTurnTagComponent';
 import { GamesSchema } from '../templates/GamesSchema';
 import { ClientGameActionMessage, GameStateUpdateMessage } from "../types/GameMessage";
 import { GameMode, StateObject } from "../types/GameMode";
-import { getGame, getGameEntityFromName, getRole, getUuid } from './functions';
-
-
-
+import { getGame, getGameEntityFromName, getRole, setRole, getUuid } from './functions';
 /**
  * @author HydraFire <github.com/HydraFire>
  */
@@ -31,7 +29,8 @@ const gameStateComponents = {
   'ButtonUp': ButtonUp,
   'ButtonDown': ButtonDown,
   'PanelDown': PanelDown,
-  'PanelUp': PanelUp
+  'PanelUp': PanelUp,
+  'YourTurn': YourTurn
 };
 
 export const initState = (game: Game, gameSchema: GameMode): void => {
@@ -69,7 +68,7 @@ export const applyStateToClient = (stateMessage: GameStateUpdateMessage): void =
   const entity = getGameEntityFromName(stateMessage.game);
   const game = getMutableComponent(entity, Game)
   game.state = stateMessage.state;
-  //console.warn('applyStateToClient', game.state);
+  console.warn('applyStateToClient', game.state);
   applyState(game);
 };
 
@@ -102,7 +101,10 @@ export const applyState = (game: Game): void => {
       //  console.warn(stateObject);
       if (stateObject != undefined) {
         stateObject.components.forEach((componentName: string) => {
-          addComponent(entity, gameStateComponents[componentName] );
+          if(gameStateComponents[componentName]) 
+            addComponent(entity, gameStateComponents[componentName] );
+          else
+            console.warn("Couldn't find component", componentName);
         });
       } else {
         console.warn('state players dont worl yet');
@@ -156,4 +158,41 @@ export const removeStateComponent = (entity: Entity, component: ComponentConstru
     objectState.components.splice(index, 1);
   }
   //console.warn(game.state);
+};
+
+export const changeRole = (entity: Entity, newGameRole: string): void => {
+
+  const uuid = getUuid(entity);
+  const game = getGame(entity);
+
+  let objectState = game.state.find(v => v.uuid === uuid);
+
+  if (objectState === undefined) {
+    objectState = { uuid: uuid, role: '', components: [], storage: [] };
+    game.state.push(objectState);
+    console.log('dont have this entity in State');
+  }
+
+  objectState.role = newGameRole;
+  objectState.components = [];
+  objectState.storage = [];
+
+  setRole(entity, newGameRole);
+
+  Object.keys(game.gamePlayers).forEach(role => {
+    const index = game.gamePlayers[role].findIndex(entityF => uuid === getUuid(entityF));
+    if (index != -1) {
+      game.gamePlayers[role].splice(index, 1);
+    }
+  })
+
+  game.gamePlayers[newGameRole].push(entity);
+
+  const gameSchema = GamesSchema[game.gameMode];
+  const schema = gameSchema.initGameState[newGameRole];
+  if (schema != undefined) {
+    schema.components?.forEach(component => addStateComponent(entity, component));
+    //initStorage(entity, schema.storage);
+    schema.behaviors?.forEach(behavior => behavior(entity));
+  }
 };

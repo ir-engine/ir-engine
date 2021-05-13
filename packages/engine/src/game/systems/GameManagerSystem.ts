@@ -114,12 +114,14 @@ export class GameManagerSystem extends System {
         if (getComponent(entity, GameObject).game != game.name) return;
         getMutableComponent(entity, GameObject).game = game;
         // add to gameObjects list sorted by role
+        console.log(getComponent(entity, GameObject))
         gameObjects[getComponent(entity, GameObject).role].push(entity);
         // add init Tag components for start state of Games
         const schema = gameSchema.initGameState[getComponent(entity, GameObject).role];
         if (schema != undefined) {
-          schema.components.forEach(component => addStateComponent(entity, component));
+          schema.components?.forEach(component => addStateComponent(entity, component));
           initStorage(entity, schema.storage);
+          schema.behaviors?.forEach(behavior => behavior(entity));
         }
       });
 
@@ -134,8 +136,9 @@ export class GameManagerSystem extends System {
         // add init Tag components for start state of Games
         const schema = gameSchema.initGameState[playerComp.role];
         if (schema != undefined) {
-          schema.components.forEach(component => addStateComponent(entity, component));
+          schema.components?.forEach(component => addStateComponent(entity, component));
           //initStorage(entity, schema.storage);
+          schema.behaviors?.forEach(behavior => behavior(entity));
         }
         //console.warn(game.state);
         requireState(game, playerComp);

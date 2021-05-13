@@ -10,7 +10,7 @@ import { PrefabType } from '../../networking/templates/PrefabType';
 /**
 * @author HydraFire <github.com/HydraFire>
  */
- 
+
 export function createNetworkRigidBody( args:{ parameters?: any, networkId?: string | number, uniqueId: string, entity?: Entity }) {
   if (args.parameters === undefined) {
 
@@ -22,7 +22,7 @@ export function createNetworkRigidBody( args:{ parameters?: any, networkId?: str
     };
 
   } else {
-
+  //  console.warn(args.parameters);
     initializeNetworkObject({
       entity: args.entity,
       prefabType: PrefabType.RigidBody,
@@ -32,6 +32,7 @@ export function createNetworkRigidBody( args:{ parameters?: any, networkId?: str
           {
             type: ColliderComponent,
             data: {
+              bodytype:  args.parameters.bodytype,
               type: args.parameters.type,
               position: args.parameters.position,
               quaternion: args.parameters.quaternion,

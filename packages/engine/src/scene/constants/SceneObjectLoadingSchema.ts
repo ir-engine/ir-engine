@@ -122,7 +122,7 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
   'collidable': {
     behaviors: [
       {
-        behavior: () => { 
+        behavior: () => {
           // console.warn("SceneObjectLoadingSchema: Using 'collidable' which is not implemented");
         },
       },

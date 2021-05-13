@@ -244,7 +244,7 @@ parseColliders( data, type, mass, position, quaternion, scale, mesh ) {
   if(type == "trimesh") {
    geometry = getGeometry(mesh);
   }
-
+  
   const meshCollider = {
     data: data,
     type: type,
@@ -260,7 +260,6 @@ parseColliders( data, type, mass, position, quaternion, scale, mesh ) {
       z: quaternion.z,
       w: quaternion.w
     },
-
     scale: {
       x: scale.x,
       y: scale.y,
@@ -281,7 +280,7 @@ parseColliders( data, type, mass, position, quaternion, scale, mesh ) {
       const vehicleMain = [];
 
         const parseGroupColliders = ( group ) => {
-          if (group.userData.data === 'physics' || group.userData.data === 'dynamic' ) {
+          if (group.userData.data === 'physics' || group.userData.data === 'kinematic' || group.userData.data === 'dynamic' ) {
             if (group.type == 'Group') {
               for (let i = 0; i < group.children.length; i++) {
                 colliders.push(this.parseColliders(group.userData.data, group.userData.type, group.userData.mass, group.position, group.quaternion, group.scale, group.children[i] ));
