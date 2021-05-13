@@ -48,8 +48,6 @@ export const loadDefaultActorAvatar: Behavior = (entity) => {
 }
 
 export const loadActorAvatar: Behavior = (entity) => {
-	console.log("Loading Actor Avatar")
-
 	const avatarURL = getComponent(entity, CharacterComponent)?.avatarURL;
 	if (avatarURL) {
 		loadActorAvatarFromURL(entity, avatarURL);
@@ -58,7 +56,7 @@ export const loadActorAvatar: Behavior = (entity) => {
 
 export const loadActorAvatarFromURL: Behavior = (entity, avatarURL) => {
 	const tmpGroup = new Group();
-	console.log("Loading Actor Avatar")
+	console.log("Loading Actor Avatar =>", avatarURL)
 
 	createShadow(entity, { objArgs: { castShadow: true, receiveShadow: true } })
 
@@ -69,7 +67,6 @@ export const loadActorAvatarFromURL: Behavior = (entity, avatarURL) => {
 		receiveShadow: true,
 		parent: tmpGroup,
 	}, () => {
-		console.log("Loaded")
 		const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
 		const controller = getMutableComponent<ControllerColliderComponent>(entity, ControllerColliderComponent);
 		if (!actor) return

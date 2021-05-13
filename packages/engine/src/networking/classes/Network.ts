@@ -132,6 +132,5 @@ export class Network {
     this.transport = null;
     Network.availableNetworkId = 0;
     Network.instance = null;
-    Network.instance.tick = 0;
   }
 }

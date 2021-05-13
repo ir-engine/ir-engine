@@ -2,6 +2,7 @@
 
 import { disposeDracoLoaderWorkers } from "../../assets/functions/LoadGLTF";
 import { now } from "../../common/functions/now";
+import { Network } from "../../networking/classes/Network";
 import { Vault } from "../../networking/classes/Vault";
 import disposeScene from "../../renderer/functions/disposeScene";
 import { Engine } from '../classes/Engine';
@@ -77,7 +78,15 @@ export function reset(): void {
     Engine.renderer = null;
   }
 
+  Network.instance.dispose();
+
   Vault.instance.clear();
+
+  // Engine.enabled = false;
+  Engine.gameMode = null;
+  Engine.inputState.clear();
+  Engine.prevInputState.clear();
+  Engine.viewportElement = null;
 }
 
 /**

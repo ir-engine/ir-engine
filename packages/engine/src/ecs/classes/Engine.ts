@@ -7,7 +7,6 @@
 
 import {
   AudioListener as THREE_AudioListener,
-  Clock,
   PerspectiveCamera,
   Scene,
   WebGLRenderer,
@@ -91,7 +90,6 @@ export class Engine {
    * @default 1
    */
   public static timeScaleTarget = 1;
-  public static clock = new Clock;
 
   /**
    * Reference to the three.js renderer object.
