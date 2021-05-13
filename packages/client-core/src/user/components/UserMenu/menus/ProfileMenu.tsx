@@ -207,7 +207,7 @@ const ProfileMenu = (props: Props): any => {
 								}}
 							/>
 						</span>
-						<h2>{selfUser?.userRole === 'admin' ? t('user:usermenu.profile.youAreA') : t('user:usermenu.profile.youAreAn')} <span>{selfUser?.userRole}</span>.</h2>
+						<h2>{selfUser?.userRole === 'admin' ? t('user:usermenu.profile.youAreAn') : t('user:usermenu.profile.youAreA')} <span>{selfUser?.userRole}</span>.</h2>
 						<h4>{(selfUser.userRole === 'user' || selfUser.userRole === 'admin') && <div onClick={handleLogout}>{t('user:usermenu.profile.logout')}</div>}</h4>
 						{ selfUser?.inviteCode != null && <h2>{t('user:usermenu.profile.inviteCode')}: {selfUser.inviteCode}</h2> }
 					</div>
