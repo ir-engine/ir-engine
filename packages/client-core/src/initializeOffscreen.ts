@@ -60,7 +60,7 @@ export const DefaultOffscreenInitializationOptions = {
  * @author Josh Field <github.com/HexaField>
  */
 const initializeEngineOffscreen = async ({ canvas, userArgs }, proxy: MainProxy) => {
-  const { initOptions, useOfflineMode, postProcessing } = userArgs;
+  const { initOptions, useOfflineMode, postProcessing, physicsWorldConfig } = userArgs;
   const options = _.defaultsDeep({}, initOptions, DefaultOffscreenInitializationOptions);
 
   proxyEngineEvents(proxy);
@@ -79,28 +79,25 @@ const initializeEngineOffscreen = async ({ canvas, userArgs }, proxy: MainProxy)
   // @ts-ignore
   Network.instance.transport = { isServer: false };
 
+  /** @todo fix bundling */
+  // if((window as any).safariWebBrowser) {
+    const physicsWorker = new Worker('/scripts/loadPhysXClassic.js');
+  // } else {
+  //   //@ts-ignore
+  //   const { default: PhysXWorker } = await import('./physics/functions/loadPhysX.ts?worker&inline');
+  //   await PhysXInstance.instance.initPhysX(new PhysXWorker(), { });
+  // }
+  Engine.workers.push(physicsWorker);
+
   new AnimationManager();
 
   // promise in parallel to speed things up
   await Promise.all([
     AnimationManager.instance.getDefaultModel(),
     AnimationManager.instance.getAnimations(),
-    new Promise<void>(async (resolve) => {
-      /** @todo fix bundling */
-      // if((window as any).safariWebBrowser) {
-        const worker = new Worker('/scripts/loadPhysXClassic.js');
-        Engine.workers.push(worker);
-        await PhysXInstance.instance.initPhysX(worker);
-      // } else {
-      //   //@ts-ignore
-      //   const { default: PhysXWorker } = await import('./physics/functions/loadPhysX.ts?worker&inline');
-      //   await PhysXInstance.instance.initPhysX(new PhysXWorker(), { });
-      // }
-      resolve();
-    })
   ]);
 
-  registerSystem(PhysicsSystem);
+  registerSystem(PhysicsSystem, { worker: physicsWorker, physicsWorldConfig });
   registerSystem(ActionSystem);
   registerSystem(StateSystem);
   registerSystem(ClientNetworkStateSystem);

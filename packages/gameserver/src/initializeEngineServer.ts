@@ -34,8 +34,10 @@ BufferGeometry.prototype["computeBoundsTree"] = computeBoundsTree;
 export const initializeEngineServer = async (initOptions: InitializeOptions = DefaultInitializationOptions): Promise<void> => {
   const options = _.defaultsDeep({}, initOptions, DefaultInitializationOptions);
 
+  const { networking, publicPath, physicsWorldConfig } = options;
+
   Engine.scene = new Scene();
-  Engine.publicPath = options.publicPath;
+  Engine.publicPath = publicPath;
   Network.instance = new Network();
 
   EngineEvents.instance.once(EngineEvents.EVENTS.LOAD_SCENE, ({ sceneData }) => { loadScene(sceneData); });
@@ -45,7 +47,7 @@ export const initializeEngineServer = async (initOptions: InitializeOptions = De
 
   Engine.lastTime = now() / 1000;
 
-  const networkSystemOptions = { schema: options.networking.schema, app: options.networking.app };
+  const networkSystemOptions = { schema: networking.schema, app: networking.app };
   registerSystem(ServerNetworkIncomingSystem, { ...networkSystemOptions, priority: -1 });
   registerSystem(ServerNetworkOutgoingSystem, { ...networkSystemOptions, priority: 10000 });
   registerSystem(MediaStreamSystem);
@@ -54,16 +56,14 @@ export const initializeEngineServer = async (initOptions: InitializeOptions = De
   new AnimationManager();
 
   const currentPath = (isWindows ? 'file:///' : '') + path.dirname(__filename);
-
-  const worker = new Worker(currentPath + "/physics/functions/loadPhysXNode.ts");
+  const worker = new Worker(currentPath + "/physx/loadPhysXNode.ts");
   Engine.workers.push(worker);
   await Promise.all([
-    // AnimationManager.instance.getDefaultModel(),
-    // AnimationManager.instance.getAnimations(),
-    PhysXInstance.instance.initPhysX(worker, { })
+    AnimationManager.instance.getDefaultModel(),
+    AnimationManager.instance.getAnimations(),
   ]);
 
-  registerSystem(PhysicsSystem);
+  registerSystem(PhysicsSystem, { worker, physicsWorldConfig });
   registerSystem(CharacterControllerSystem);
 
   registerSystem(ServerSpawnSystem, { priority: 899 });

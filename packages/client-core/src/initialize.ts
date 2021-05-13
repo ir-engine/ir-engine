@@ -62,7 +62,7 @@ export const initializeEngine = async (initOptions: InitializeOptions): Promise<
 
   Engine.gameMode = options.gameMode;
 
-  const { useCanvas, postProcessing, useOfflineMode } = options;
+  const { useCanvas, postProcessing, useOfflineMode, physicsWorldConfig } = options;
 
   Engine.offlineMode = useOfflineMode;
 
@@ -120,25 +120,22 @@ export const initializeEngine = async (initOptions: InitializeOptions): Promise<
       Engine.camera = new PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 10000);
       Engine.scene.add(Engine.camera);
 
+      /** @todo fix bundling */
+      // if((window as any).safariWebBrowser) {
+        const physicsWorker = new Worker('/scripts/loadPhysXClassic.js');
+      // } else {
+      //   //@ts-ignore
+      //   const { default: PhysXWorker } = await import('./physics/functions/loadPhysX.ts?worker&inline');
+      //   await PhysXInstance.instance.initPhysX(new PhysXWorker(), { });
+      // }
+      Engine.workers.push(physicsWorker);
+      
       new AnimationManager();
 
       // promise in parallel to speed things up
       await Promise.all([
         AnimationManager.instance.getDefaultModel(),
         AnimationManager.instance.getAnimations(),
-        new Promise<void>(async (resolve) => {
-          /** @todo fix bundling */
-          // if((window as any).safariWebBrowser) {
-            const worker = new Worker('/scripts/loadPhysXClassic.js');
-            Engine.workers.push(worker);
-            await PhysXInstance.instance.initPhysX(worker);
-          // } else {
-          //   //@ts-ignore
-          //   const { default: PhysXWorker } = await import('./physics/functions/loadPhysX.ts?worker&inline');
-          //   await PhysXInstance.instance.initPhysX(new PhysXWorker(), { });
-          // }
-          resolve();
-        })
       ]);
 
       registerSystem(ClientNetworkStateSystem);
@@ -146,7 +143,7 @@ export const initializeEngine = async (initOptions: InitializeOptions): Promise<
       registerSystem(HighlightSystem);
       registerSystem(ActionSystem);
 
-      registerSystem(PhysicsSystem);
+      registerSystem(PhysicsSystem, { worker: physicsWorker, physicsWorldConfig });
       registerSystem(TransformSystem, { priority: 900 });
       // audio breaks webxr currently
       // Engine.audioListener = new AudioListener();
