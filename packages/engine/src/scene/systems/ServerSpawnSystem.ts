@@ -15,7 +15,7 @@ export class ServerSpawnSystem extends System {
 
   static instance: ServerSpawnSystem;
   
-  constructor(attributes?: SystemAttributes) {
+  constructor(attributes: SystemAttributes = {}) {
     super(attributes);
     ServerSpawnSystem.instance = this;
   }

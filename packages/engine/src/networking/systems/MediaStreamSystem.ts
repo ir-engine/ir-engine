@@ -46,7 +46,7 @@ export class MediaStreamSystem extends System {
 
   updateType = SystemUpdateType.Fixed;
 
-  constructor(attributes?: SystemAttributes) {
+  constructor(attributes: SystemAttributes = {}) {
     super(attributes);
     MediaStreamSystem.instance = this;
   }

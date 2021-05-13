@@ -25,7 +25,7 @@ export class AudioSystem extends System {
     world: any
 
     /** Constructs Audio System. */
-    constructor(attributes?: SystemAttributes) {
+    constructor(attributes: SystemAttributes = {}) {
       super(attributes);
         this.startAudio = this.startAudio.bind(this);
         this.audioReady = false;

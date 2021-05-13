@@ -15,7 +15,7 @@ export class HighlightSystem extends System {
   updateType = SystemUpdateType.Fixed;
 
   /** Constructs Highlight system. */
-  constructor(attributes?: SystemAttributes) {
+  constructor(attributes: SystemAttributes = {}) {
     super(attributes);
   }
 

@@ -40,7 +40,7 @@ export class PhysicsSystem extends System {
   physicsFrameRate: number;
   physicsFrameTime: number;
 
-  constructor(attributes?: SystemAttributes) {
+  constructor(attributes: SystemAttributes = {}) {
     super(attributes);
     PhysicsSystem.instance = this;
     this.physicsFrameRate = Engine.physicsFrameRate;
