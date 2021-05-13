@@ -40,8 +40,8 @@ const server = {
   port: process.env.SERVER_PORT,
   clientHost: process.env.APP_URL,
   // Public directory (used for favicon.ico, logo, etc)
-  rootDir: path.resolve(appRootPath.path, 'packages', 'server'),
-  publicDir: process.env.SERVER_PUBLIC_DIR || path.resolve(appRootPath.path, 'packages', 'server', 'public'),
+  rootDir: process.env.BUILD_MODE === 'individual' ? path.resolve(appRootPath.path) : path.resolve(appRootPath.path, 'packages', 'server'),
+  publicDir: process.env.SERVER_PUBLIC_DIR || (process.env.BUILD_MODE === 'individual' ? path.resolve(appRootPath.path, 'public') : path.resolve(appRootPath.path, 'packages', 'server', 'public')),
   nodeModulesDir: path.resolve(__dirname, '../..', 'node_modules'),
   localStorageProvider: process.env.LOCAL_STORAGE_PROVIDER,
   // Used for CI/tests to force Sequelize init an empty database

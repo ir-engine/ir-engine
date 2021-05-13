@@ -5,6 +5,7 @@ import { GamesSchema, GameType } from  './game/templates/GamesSchema';
 import { InputSchema } from './input/interfaces/InputSchema';
 import { NetworkSchema } from './networking/interfaces/NetworkSchema';
 import { GameMode } from './game/types/GameMode';
+import { PhysXConfig } from 'three-physx';
 
 export type InitializeOptions = {
   input?: {
@@ -25,6 +26,7 @@ export type InitializeOptions = {
   useOfflineMode?: boolean,
   useCanvas?: boolean,
   postProcessing?: boolean,
+  physicsWorldConfig?: PhysXConfig
 };
 
 /**
@@ -47,4 +49,5 @@ export const DefaultInitializationOptions: InitializeOptions = {
   useOfflineMode: false,
   useCanvas: true,
   postProcessing: true,
+  physicsWorldConfig: undefined
 };

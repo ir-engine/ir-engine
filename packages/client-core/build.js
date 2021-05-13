@@ -4,7 +4,7 @@ const sassPlugin = require('esbuild-plugin-sass')
 esbuild.build({
     entryPoints: ['index.ts'],
     bundle: true,
-    outfile: 'dist/client-core.js',
+    outfile: 'dist/client-core.es.js',
     plugins: [sassPlugin()],
     platform: "browser",
     define: {

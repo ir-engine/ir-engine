@@ -1,6 +1,6 @@
 {
   "name": "@xrengine/common",
-  "version": "0.2.22",
+  "version": "0.2.26",
   "main": "index.ts",
   "module": "dist/common.es.js",
   "publishConfig": {
@@ -19,6 +19,7 @@
     "@rollup/plugin-node-resolve": "11.2.1",
     "@rollup/plugin-replace": "2.4.2",
     "ctix": "0.3.1",
+    "lodash.camelcase": "^4.3.0",
     "rimraf": "3.0.2",
     "rollup": "2.46.0",
     "rollup-plugin-livereload": "2.0.0",

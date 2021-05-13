@@ -6,7 +6,7 @@ import { isMobileOrTablet } from '@xrengine/engine/src/common/functions/isMobile
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents';
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine';
 import { resetEngine } from "@xrengine/engine/src/ecs/functions/EngineFunctions";
-import { initializeEngine } from '@xrengine/engine/src/initialize';
+import { initializeEngine } from '@xrengine/client-core/src/initialize';
 import { DefaultInitializationOptions } from '@xrengine/engine/src/DefaultInitializationOptions';
 import { ClientNetworkSystem } from '@xrengine/engine/src/networking/systems/ClientNetworkSystem';
 import { styleCanvas } from '@xrengine/engine/src/renderer/functions/styleCanvas';

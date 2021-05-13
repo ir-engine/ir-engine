@@ -26,7 +26,7 @@ export class VehicleSystem extends System {
   clientSnapshotFreezeTime = 0
   serverSnapshotFreezeTime = 0
 
-  constructor(attributes?: SystemAttributes) {
+  constructor(attributes: SystemAttributes = {}) {
     super(attributes);
     VehicleSystem.instance = this;
   }

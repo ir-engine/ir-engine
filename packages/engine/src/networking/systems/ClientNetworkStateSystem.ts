@@ -85,7 +85,7 @@ export class ClientNetworkStateSystem extends System {
    * Constructs the system. Adds Network Components, initializes transport and initializes server.
    * @param attributes SystemAttributes to be passed to super class constructor.
    */
-  constructor(attributes?: SystemAttributes) {
+  constructor(attributes: SystemAttributes = {}) {
     super(attributes);
     ClientNetworkStateSystem.instance = this;
     

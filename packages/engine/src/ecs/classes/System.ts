@@ -117,7 +117,7 @@ export abstract class System {
    * @author Fernando Serrano, Robert Long
    * @param attributes User defined system attributes.
    */
-  constructor (attributes?: SystemAttributes) {
+  constructor (attributes: SystemAttributes = {}) {
 
     const _name = (this.constructor as any).getName();
     const name = _name.substr(0, 1) === '_' ? _name.slice(1) : _name;

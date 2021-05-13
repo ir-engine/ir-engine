@@ -31,7 +31,7 @@ export class CharacterControllerSystem extends System {
   }
 
   updateType = SystemUpdateType.Fixed;
-  constructor(attributes?: SystemAttributes) {
+  constructor(attributes: SystemAttributes = {}) {
     super(attributes);
 
     EngineEvents.instance.addEventListener(CharacterControllerSystem.EVENTS.LOAD_AVATAR, ({ entityID, avatarId, avatarURL }) => {
@@ -127,6 +127,8 @@ export class CharacterControllerSystem extends System {
         collider.controller.transform.translation.z
       );
 
+      // console.log(collider.controller.transform.translation)
+
       const actorRaycastStart = new Vector3(collider.controller.transform.translation.x, collider.controller.transform.translation.y, collider.controller.transform.translation.z);
       actor.raycastQuery.origin = new Vector3(actorRaycastStart.x, actorRaycastStart.y - (actor.actorCapsule.height * 0.5) - actor.actorCapsule.radius, actorRaycastStart.z);
       actor.raycastQuery.direction = new Vector3(0, -1, 0);
@@ -165,7 +167,6 @@ export class CharacterControllerSystem extends System {
       // its beacose we need physicsMove on server and for localCharacter, not for all character
       characterMoveBehavior(entity, delta);
     });
-
 
     // PhysicsMove Characters On Server
     // its beacose we need physicsMove on server and for localCharacter, not for all character
