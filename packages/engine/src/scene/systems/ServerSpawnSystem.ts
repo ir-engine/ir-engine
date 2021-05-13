@@ -24,7 +24,7 @@ export class ServerSpawnSystem extends System {
       if (this.spawnPoints.length < 1) {
           console.warn("Couldn't spawn entity at spawn point, no spawn points available");
           return {
-              position: new Vector3(),
+              position: new Vector3(Math.random() * 10 - 5, 0, Math.random() * 10 - 5),
               rotation: new Quaternion()
           };
       }

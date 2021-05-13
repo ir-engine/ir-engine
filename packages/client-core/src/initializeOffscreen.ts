@@ -131,18 +131,21 @@ const initializeEngineOffscreen = async ({ canvas, userArgs }, proxy: MainProxy)
     return new Promise<void>(async (resolve) => { await system.initialize(); system.initialized = true; resolve(); }); 
   }));
   
-  Engine.engineTimer = Timer({
-    networkUpdate: (delta:number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Network),
-    fixedUpdate: (delta:number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Fixed),
-    update: (delta, elapsedTime) => execute(delta, elapsedTime, SystemUpdateType.Free)
-  }, Engine.physicsFrameRate, Engine.networkFramerate).start();
+  // only start the engine once we have all our entities loaded
+  EngineEvents.instance.once(EngineEvents.EVENTS.SCENE_LOADED, () => { 
+    Engine.engineTimer = Timer({
+      networkUpdate: (delta:number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Network),
+      fixedUpdate: (delta:number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Fixed),
+      update: (delta, elapsedTime) => execute(delta, elapsedTime, SystemUpdateType.Free)
+    }, Engine.physicsFrameRate, Engine.networkFramerate).start();
+    Engine.isInitialized = true;
+  });
 
   EngineEvents.instance.once(ClientNetworkSystem.EVENTS.CONNECT, ({ id }) => {
     Network.instance.isInitialized = true;
     Network.instance.userId = id;
   });
 
-  Engine.isInitialized = true;
 };
 
 receiveWorker(initializeEngineOffscreen);

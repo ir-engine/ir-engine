@@ -58,6 +58,7 @@ export const initializeEngineServer = async (initOptions: InitializeOptions = De
   const currentPath = (isWindows ? 'file:///' : '') + path.dirname(__filename);
   const worker = new Worker(currentPath + "/physx/loadPhysXNode.ts");
   Engine.workers.push(worker);
+  
   await Promise.all([
     AnimationManager.instance.getDefaultModel(),
     AnimationManager.instance.getAnimations(),

@@ -5,6 +5,8 @@ import { SkeletonUtils } from "../SkeletonUtils";
 
 export const standardizeSkeletion = (target: SkinnedMesh, source: SkinnedMesh) => {
 
+  // console.log('target', target)
+  // console.log('source', source)
   const targetBones = GetBones(target.skeleton);
   const sourceBones = GetBones(source.skeleton);
 
@@ -25,9 +27,10 @@ export const standardizeSkeletion = (target: SkinnedMesh, source: SkinnedMesh) =
   AnimationManager.instance._animations.forEach((clip) => {
     const newClip = SkeletonUtils.retargetClip(target, source, clip, { hip: sourceBones.Hips.name });
     newClips.push(newClip);
+    // console.log(newClip)
   })
 
-  AnimationManager.instance._animations = newClips;
+  target.animations = newClips;
 }
 
 
