@@ -17,6 +17,7 @@ import { bindActionCreators, Dispatch } from "redux";
 import { fetchUsersAsAdmin, fetchUsersForProject, fetchAdminLocations, fetchUserRole  } from "../../reducers/admin/service";
 import { withApi } from "../../../world/components/editor/contexts/ApiContext";
 import Api from "../../../world/components/editor/Api";
+import { selectAppState } from '../../../common/reducers/app/selector';
 
 interface TabPanelProps {
     children?: React.ReactNode;
@@ -35,6 +36,7 @@ interface Props {
 
 const mapStateToProps = (state: any): any => {
     return {
+        appState: selectAppState(state),
         adminState: selectAdminState(state),
         authState: selectAuthState(state),
     };
@@ -145,33 +147,6 @@ const Users = (props: Props) => {
         setUserEditing(false);
       };
 
-      console.log('====================================');
-      console.log(adminUsers);
-      console.log('====================================');
-      
-      const handelChangeTab = async ( id: any) => {
-            if(id !== "001") {
-                if(authUser?.accessToken != null && authUser.accessToken.length > 0 && user?.id != null) {
-                    api.getProject(id)
-                       .then(project => {
-                          console.log('====================================');
-                          console.log(project);
-                          console.log('====================================');
-                       })
-                       .catch(error => {
-                           console.error(error);                 
-                       });
-                 }
-
-                 if(user.id){
-                     console.log('====================================');
-                     console.log(id);
-                     console.log('====================================');
-                   await fetchUsersForProject("increment", id );
-                 }
-            }
-      };
-
     return (
         <div>
             <Grid container spacing={3} className={classes.marginBottom}>
@@ -201,7 +176,7 @@ const Users = (props: Props) => {
                     aria-label="scrollable auto tabs example"
                 >
                     {
-                       projects.map(el => <Tab onClick={() => handelChangeTab(el.project_id)} label={el.name} {...a11yProps(el.project_id)} />)
+                       projects.map(el => <Tab  label={el.name} {...a11yProps(el.project_id)} />)
                     }
                 </Tabs>
                 <TabPanel value={value} index={0}>

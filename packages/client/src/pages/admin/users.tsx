@@ -1,4 +1,4 @@
-import UserConsole from "@xrengine/client-core/src/admin/components/Users";
+import UserConsole from "@xrengine/client-core/src/admin/components/UserConsole";
 import { doLoginAuto } from '@xrengine/client-core/src/user/reducers/auth/service';
 import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
@@ -20,7 +20,7 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 function users(props: Props) {
     const { doLoginAuto } = props;
     useEffect(() => {
-        doLoginAuto(false);
+        doLoginAuto(true);
     }, []);
 
     return (

@@ -53,7 +53,7 @@ export function doLoginAuto (allowGuest?: boolean, forceClientAuthReset?: boolea
   return async (dispatch: Dispatch): Promise<any> => {
     try {
       const authData = getStoredState('auth');
-      let accessToken = authData && authData.authUser ? authData.authUser.accessToken : undefined;
+      let accessToken = authData && authData.authUser ? authData.authUser.accessToken : undefined; 
 
       if (allowGuest !== true && accessToken == null) {
         return;
@@ -72,7 +72,7 @@ export function doLoginAuto (allowGuest?: boolean, forceClientAuthReset?: boolea
       let res;
       try {
         res = await (client as any).reAuthenticate();
-      } catch(err) {
+      } catch(err) {      
         if (err.className === 'not-found' || (err.className === 'not-authenticated' && err.message === 'jwt expired')) {
           await dispatch(didLogout());
           await (client as any).authentication.reset();
