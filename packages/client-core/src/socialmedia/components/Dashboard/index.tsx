@@ -197,17 +197,15 @@ export default function Dashboard({ children }) {
                             </ListItemIcon>
                             <ListItemText primary={t('social:dashboard.feeds')} />
                         </ListItem>
-                    </Link>
-
-                    <Link to="/admin/ar-media">
+                    </Link>       
+                    <Link to="/admin/armedia">
                         <ListItem style={{ color: "white"}} onClick={changeComponent} button>
                             <ListItemIcon >
                                 <EmojiPeopleIcon style={{ color: "white" }} />
                             </ListItemIcon>
                             <ListItemText primary={t('social:dashboard.arMedia')} />
                         </ListItem>
-                    </Link>
-
+                    </Link> 
                     <Link to="/admin/tips-and-tricks">
                       <ListItem style={{ color: "white"}} onClick={changeComponent} button>
                         <ListItemIcon >

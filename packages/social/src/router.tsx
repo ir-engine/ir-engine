@@ -8,11 +8,20 @@ export const RouterComp = () => {
             <Route path="/login" component={React.lazy(() => import('./pages/login'))} />
 
             {/* Admin Routes */}
+            <Route path="/admin/armedia" component={React.lazy(() => import('./pages/admin/armedia'))} />
             <Route path="/admin/tips-and-tricks" component={React.lazy(() => import('./pages/admin/tips-and-tricks'))} />
             <Route path="/admin/thefeeds" component={React.lazy(() => import('./pages/admin/thefeeds'))} />
             <Route path="/admin/feeds" component={React.lazy(() => import('./pages/admin/feeds'))} />
             <Route path="/admin/users" component={React.lazy(() => import('./pages/admin/users'))} />
             <Route path="/admin" component={React.lazy(() => import('./pages/admin/index'))} />
+
+            {/* Editor Routes */}
+            <Route path="/editor/projects/:projectId" component={React.lazy(() => import('@xrengine/client/src/pages/editor/projects/[projectId]'))} />
+            <Route path="/editor/projects" component={React.lazy(() => import('@xrengine/client/src/pages/editor/projects'))} />
+            <Route path="/editor/create" component={React.lazy(() => import('@xrengine/client/src/pages/editor/create'))} />
+            {/* <Redirect path="/editor" to="/editor/projects" /> */}
+
+            {/* <Route path="/editor/projects/create" component={React.lazy(() => import('./pages/admin/editor'))} /> */}
 
             {/* Auth Routes */}
             <Route path="/auth/oauth/facebook" component={React.lazy(() => import('./pages/auth/oauth/facebook'))} />

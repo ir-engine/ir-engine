@@ -131,14 +131,18 @@ const FeedCard = (props: Props) : any => {
     //     }
     // };
     
-    const checkGuest = props.authState.get('authUser')?.identityProvider?.type === 'guest' ? true : false;
+//     const checkGuest = props.authState.get('authUser')?.identityProvider?.type === 'guest' ? true : false;
 
     const theFeedsFiresList = thefeedsFiresState?.get('thefeedsFires');
     const creatorId = authState.get('currentCreator').id;
 
     useEffect(()=> {
+
             setFired(!!thefeedsFiresCreators?.data.find(i=>i.id === creatorId));
     },[thefeedsFiresCreators]);
+    useEffect(()=> {
+            console.log('authUser',authState.get('currentCreator'))
+        },[props.authState.get('authUser')]);
     return  feed ? <><Card className={styles.tipItem} square={false} elevation={0} key={feed.id}>
 {/*                 {isVideo ? <CardMedia    */}
 {/*                     className={styles.previewImage}                   */}
