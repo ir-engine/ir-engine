@@ -25,12 +25,13 @@
     "check-errors": "tsc --noemit",
     "lint": "eslint --fix --quiet --ext .ts src/",
     "dev": "vite",
-    "build": "rimraf dist && ctix entrypoint ./src && tsc && esbuild --bundle index.ts --external:cross-fetch --external:mousetrap --external:draco3dgltf --external:three-mesh-bvh --external:path --external:superbuffer --external:@pixiv/three-vrm --external:comlink --external:browserfs --external:three --external:three-physx --outfile=dist/engine.js --define:BUILD_MODE=true --define:NODE_ENV=production --platform=neutral",
+    "build": "rimraf dist && mkdir dist && ctix entrypoint ./src && node build.js",
+    "build-publish": "rimraf dist && ctix entrypoint ./src && cross-env NODE_ENV=production rollup -c",
     "test": "jest",
     "validate": "yarn run lint && yarn run test",
     "generate-doc": "node_modules/.bin/typedoc"
   },
-  "version": "0.2.22",
+  "version": "0.2.26",
   "peerDependencies": {
     "@typescript-eslint/eslint-plugin": "^4.6.0",
     "@typescript-eslint/parser": "^4.4.1",
@@ -38,7 +39,7 @@
   },
   "dependencies": {
     "@pixiv/three-vrm": "^0.6.0",
-    "@xrengine/common": "^0.2.22",
+    "@xrengine/common": "^0.2.26",
     "browserfs": "^1.4.3",
     "cross-fetch": "^3.0.6",
     "ctix": "^0.3.1",

@@ -12,7 +12,7 @@ import { connect } from 'react-redux';
 import { selectAuthState } from "@xrengine/client-core/src/user/reducers/auth/selector";
 import { bindActionCreators, Dispatch } from "redux";
 import { doLoginAuto } from "@xrengine/client-core/src/user/reducers/auth/service";
-import { initializeEditor } from "@xrengine/engine/src/initialize";
+import { initializeEditor } from "@xrengine/client-core/src/initialize";
 import { Engine } from "@xrengine/engine/src/ecs/classes/Engine";
 import { GamesSchema } from "@xrengine/engine/src/game/templates/GamesSchema";
 /**

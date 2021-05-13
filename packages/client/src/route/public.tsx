@@ -28,6 +28,7 @@ export const RouterComp = () => {
             {/* Location Routes */}
             <Route path="/location/:locationName" component={React.lazy(() => import('../pages/location/[locationName]'))} />
             <Redirect path="/location" to={"/location/" + Config.publicRuntimeConfig.lobbyLocationName} />
+            <Route path="/video360" component={React.lazy(() => import('../pages/video360'))} />
 
             {/* Harmony Routes */}
             <Route path="/harmony" component={React.lazy(() => import('../pages/harmony/index'))} />
