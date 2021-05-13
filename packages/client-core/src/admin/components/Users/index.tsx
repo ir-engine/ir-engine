@@ -142,7 +142,6 @@ const Users = (props: Props) => {
         ) {
           return;
         }
-
         setUserModalOpen(open);
         setUserEditing(false);
       };

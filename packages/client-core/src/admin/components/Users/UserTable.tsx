@@ -1,6 +1,5 @@
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import Paper from '@material-ui/core/Paper';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -10,7 +9,7 @@ import TablePagination from '@material-ui/core/TablePagination';
 import TableRow from '@material-ui/core/TableRow';
 
 interface Column {
-    id: 'name' | 'location' | 'status' | 'game' | 'action';
+    id: 'name' | 'avatar' | 'status' | 'party' | 'channelInstanceId' | 'instanceId' | 'action';
     label: string;
     minWidth?: number;
     align?: 'right';
@@ -18,7 +17,7 @@ interface Column {
 
 const columns: Column[] = [
     { id: 'name', label: 'Name', minWidth: 170 },
-    { id: 'location', label: 'Location', minWidth: 100 },
+    { id: 'avatar', label: 'Avatar', minWidth: 100 },
     {
         id: 'status',
         label: 'Status',
@@ -26,10 +25,22 @@ const columns: Column[] = [
         align: 'right',
     },
     {
-        id: 'game',
-        label: 'Project',
+        id: 'party',
+        label: 'Party',
         minWidth: 170,
         align: 'right',
+    },
+    {
+        id: 'channelInstanceId',
+        label: "Channel Instance",
+        minWidth: 170,
+        align: 'right'
+    },
+    {
+        id: 'instanceId',
+        label: 'Instance',
+        minWidth: 170,
+        align: 'right'
     },
     {
         id: 'action',
@@ -41,9 +52,11 @@ const columns: Column[] = [
 
 interface Data {
     name: string;
-    location: string;
+    avatar: string;
     status: string;
-    game: string;
+    party: string;
+    channelInstanceId: string,
+    instanceId: string,
     action: any
 }
 
@@ -85,13 +98,15 @@ const UserTable = (props: Props) => {
     };
 
 
-    const createData = (name: string, location: string, status: string, game: string): Data => {
+    const createData = (name: string, avatar: string, status: string, party: string, channelInstanceId: string, instanceId: string): Data => {
 
         return {
             name,
-            location,
+            avatar,
             status,
-            game,
+            party,
+            channelInstanceId,
+            instanceId,
             action: (
                 <>
                     <a href="#h" className={classes.actionStyle}> View </a>
@@ -102,7 +117,7 @@ const UserTable = (props: Props) => {
         };
     };
 
-    const rows = adminUsers.map(el => createData(el.name, el.location || "coming soon", el.userRole, el.game || el.project_id || ""));
+    const rows = adminUsers.map(el => createData(el.name, el.avatarId || "coming soon", el.userRole, el.partyId || "", el.channelInstanceId || "", el.instanceId || "" ));
 
     return (
         <div className={classes.root}>
