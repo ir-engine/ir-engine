@@ -4,9 +4,11 @@
     position: relative;
 
     .previewImage{
-        height: 210px;
+        height: 210pt;
+        object-fit: cover;
         background-color: #DDDDDD;
-        padding: 0px 10px;
+        padding: 0px;
+
     }
     .eyeLine{
         width: 100%;
@@ -24,7 +26,7 @@
         }
     }
     .cardContent{
-        padding: 0px 10px;
+        padding: 0px 16pt;
         :global(.MuiCardHeader-root){
             padding: 0;
         }
@@ -35,10 +37,28 @@
         justify-content: space-between;
     }
     .titleContainer{
-        font-weight: bold;                
+        font-weight: bold;
+        font-size: 21pt;
     }
     .flamesCount{
         font-weight: bold;
         margin: 0 5px 0 0;
+    }
+    .cartText{
+        font-size: 17pt;
+    }
+    @media screen and (max-width: 499px){
+        .previewImage{
+            height: 167pt;
+        }
+        .titleContainer{
+            font-size: 16pt;
+        }
+        .cartText{
+            font-size: 14pt;
+        }
+        .cardContent{
+            padding: 0px 13pt;
+        }
     }
 }

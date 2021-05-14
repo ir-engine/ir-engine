@@ -46,6 +46,7 @@ const Creators = ({creatorsState, getCreators, popupsState, updateCreatorPageSta
     };   
 
     return <section className={styles.creatorContainer}>
+{/*     <h3>Featured Creators</h3> */}
     {creators && creators.length > 0 && creators?.map((item, itemIndex)=>
         <Card className={styles.creatorItem} elevation={0} key={itemIndex} onClick={()=>handleCreatorView(item.id)}>                 
             {item.avatar ? <CardMedia   

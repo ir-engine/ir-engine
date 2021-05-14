@@ -17,6 +17,9 @@ import { selectPopupsState } from '../../reducers/popupsState/selector';
 import { Box, CardMedia, makeStyles, Typography } from '@material-ui/core';
 import { useTranslation } from 'react-i18next';
 
+// @ts-ignore
+import classes from './ViewMode.module.scss'
+
 const mapStateToProps = (state: any): any => {
   return {
     popupsState: selectPopupsState(state),
@@ -28,40 +31,7 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 });
 
 const useStyles = makeStyles({
-  media: {
-    height: '55pt',
-    width: '30pt',
-    alignSelf: 'center',
-    
-  
-  },
-  media2: {
-    height: '29pt',
-    width: '54pt',
-    alignSelf: 'center',
-    marginTop: '40pt'
-  },
-  title: {
-    alignSelf: 'center',
-    letterSpacing: '0.36pt',
-    marginTop: '7%',
-    fontSize: '20px'
-  },
-  btn_start: {
-    backgroundColor: 'black',
-    color: 'white',
-    position: 'absolute',
-    bottom: '0',
-    width: '100%',
-    '&:hover': {
-      backgroundColor: 'black',
-      color: 'white',
-  },
-  },
-  btn_cancel: {
-    color: 'grey',
-    
-  },
+
 });
 
 const Transition = React.forwardRef((
@@ -77,8 +47,7 @@ interface Props{
 
 export const ViewMode = ({updateArMediaState}:Props) => {
   const [open, setOpen] = useState(false);
-  const classes = useStyles();
-	const { t } = useTranslation();
+  const { t } = useTranslation();
  
   const handleClickOpen = () => {
     setOpen(true);
@@ -90,8 +59,9 @@ export const ViewMode = ({updateArMediaState}:Props) => {
 
   const handleOpenNewFeedPage = () => updateArMediaState(true);
   return (
-    <div>
-    <AddCircleIcon onClick={handleClickOpen} style={{fontSize: '5em'}} />
+    <div className={classes.mainBlock}>
+{/*     <AddCircleIcon onClick={handleClickOpen} style={{fontSize: '5em'}} /> */}
+   <img src='/assets/tabBar(1).svg' onClick={handleClickOpen} />
    <Dialog
      open={open}
      TransitionComponent={Transition}
@@ -101,42 +71,43 @@ export const ViewMode = ({updateArMediaState}:Props) => {
      aria-describedby="alert-dialog-slide-description"
      PaperProps={{
        style: {
-         width: '311pt',
-         height: '486pt',
-         borderRadius: '12px'
+         width: '100%',
+         maxWidth: '311pt',
+         height: 'max-content',
+         borderRadius: '12px',
        }
       }}
    >
-     <Button onClick={handleClose} color="primary" className={classes.btn_cancel}>
-         {t('social:view.cancel')}
-     </Button>
-     <Box borderTop={1} />
-     <DialogTitle className={classes.title}>{"Remember!"} </DialogTitle>
-    <Typography style={{textAlign: 'center',padding: '16pt'}}>
-        {t('social:view.choice')}
-     </Typography>
-     <CardMedia  
-       className={classes.media}
-       image='https://cdn.zeplin.io/601d63dc422d9dad3473e3ab/assets/C9623B05-AC7F-4D88-B8EC-2D1951CE2767.svg'
-       title="Arc"
-     />
-      <Typography style={{textAlign: 'center',
-                          padding: '16pt'
-                         }}>
-        {t('social:view.verticalMode')}
-      </Typography>
-     <Box borderTop={1} />
-     <CardMedia
-       className={classes.media2}
-       image='https://cdn.zeplin.io/601d63dc422d9dad3473e3ab/assets/802EB928-4227-4940-BA8E-0A8119FE4CDF.svg'
-       title="Arc"
-     />
-       <Typography style={{textAlign: 'center',padding: '16pt',marginTop: '30pt'}}>
-          {t('social:view.horizontalMode')}
-       </Typography>
-     <Button onClick={()=> {handleOpenNewFeedPage();}} color="primary" className={classes.btn_start}>
-         {t('social:view.start')}
-     </Button>
+     <div className={classes.popup}>
+         <Button onClick={handleClose} color="primary" className={classes.btn_cancel}>
+             {t('social:view.cancel')}
+         </Button>
+         <Box className={classes.box} borderTop={1} style={{color: '#e6e5eb', height: '2px'}} />
+         <h3 className={classes.title}>{"Remember!"} </h3>
+         <Typography style={{textAlign: 'center', paddingTop: '8pt', color: 'rgba(60 60 67, 0.6)'}}>
+            {t('social:view.choice')}
+         </Typography>
+         <CardMedia
+           className={classes.media}
+           image='https://cdn.zeplin.io/601d63dc422d9dad3473e3ab/assets/C9623B05-AC7F-4D88-B8EC-2D1951CE2767.svg'
+           title="Arc"
+         />
+         <Typography style={{textAlign: 'center', color: 'rgba(60 60 67, 0.6)'}}>
+            {t('social:view.verticalMode')}
+         </Typography>
+         <Box className={classes.box} borderTop={1} style={{color: '#e6e5eb', height: '2px'}} />
+         <CardMedia
+           className={classes.media2}
+           image='https://cdn.zeplin.io/601d63dc422d9dad3473e3ab/assets/802EB928-4227-4940-BA8E-0A8119FE4CDF.svg'
+           title="Arc"
+         />
+         <Typography style={{textAlign: 'center', color: 'rgba(60 60 67, 0.6)'}}>
+              {t('social:view.horizontalMode')}
+         </Typography>
+         <Button onClick={()=> {handleOpenNewFeedPage();}} color="primary" className={classes.btn_start}>
+             {t('social:view.start')}
+         </Button>
+     </div>
    </Dialog>
  </div>
   );

@@ -45,7 +45,7 @@ const AppHeader = ({creatorState, getLoggedCreator, logo, authState, updateCreat
         {logo && <img src={logo} className="header-logo" alt="ARC" />}
         {creator && {/*!checkGuest*/} &&
           <Avatar onClick={()=> updateCreatorFormState(true)} 
-          alt={creator.username} src={creator.avatar} />
+          alt={creator.username} src={creator.avatar ? creator.avatar : '/assets/userpic.png'} />
         }         
     </nav>
   );
