@@ -1,6 +1,6 @@
 import { PhysicsSystem } from '../systems/PhysicsSystem';
 import { CollisionGroups } from "../enums/CollisionGroups";
-import { createShapeFromConfig, Shape, SHAPES, Body, BodyType, getGeometry, arrayOfPointsToArrayOfVector3 } from "three-physx";
+import { createShapeFromConfig, Shape, SHAPES, Body, BodyType, getGeometry, arrayOfPointsToArrayOfVector3, CollisionEvents } from "three-physx";
 import { Entity } from '../../ecs/classes/Entity';
 import { ColliderComponent } from '../components/ColliderComponent';
 import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
@@ -98,9 +98,7 @@ export function addColliderWithoutEntity(userData, pos = new Vector3(), rot = ne
     shape.config.material = { restitution: 0.9, dynamicFriction: 0, staticFriction: 0 };
   }
   // console.log('shape', shape);
-  shape.config.collisionMask = CollisionGroups.All;
-  shape.config.collisionLayer =  CollisionGroups.Default;
-  /*
+  shape.config.collisionLayer = userData.collisionLayer ?? CollisionGroups.All;
   switch(userData.collisionMask) {
     case undefined: case -1: case '-1': case '': shape.config.collisionMask = CollisionGroups.All; break;
     default: if(/all/i.test(userData.collisionMask))
@@ -109,7 +107,7 @@ export function addColliderWithoutEntity(userData, pos = new Vector3(), rot = ne
         shape.config.collisionMask = Number(userData.collisionMask);
       break;
   }
-*/
+  
   if(userData.action === 'portal') {
     shape.config.collisionLayer |= CollisionGroups.TriggerCollider;
     // TODO: This was commented out in dev, do we want this?
@@ -128,11 +126,6 @@ export function addColliderWithoutEntity(userData, pos = new Vector3(), rot = ne
       angularVelocity: { x: 0, y: 0, z: 0 },
     },
   });
-//  console.warn(userData.bodytype);
-//if (userData.bodytype === BodyType.DYNAMIC) {
-  bodyConfig.addEventListener(CollisionEvents.COLLISION_START, (e) => { console.log(e)});
-//}
-
 
   PhysicsSystem.instance.addBody(body);
 
