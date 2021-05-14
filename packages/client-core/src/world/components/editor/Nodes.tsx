@@ -22,7 +22,7 @@ import SpotLightNode from "@xrengine/engine/src/editor/nodes/SpotLightNode";
 import TriggerVolumeNode from "@xrengine/engine/src/editor/nodes/TriggerVolumeNode";
 import VideoNode from "@xrengine/engine/src/editor/nodes/VideoNode";
 import VolumetricNode from "@xrengine/engine/src/editor/nodes/VolumetricNode";
-import SplineNode from "@xr3ngine/engine/src/editor/nodes/SplineNode";
+import SplineNode from "@xrengine/engine/src/editor/nodes/SplineNode";
 import ElementsSource from "./assets/sources/ElementsSource";
 import MyAssetsSource from "./assets/sources/MyAssetsSource";
 import Editor from "./Editor";
