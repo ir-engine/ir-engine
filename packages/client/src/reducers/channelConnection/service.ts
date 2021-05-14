@@ -15,6 +15,7 @@ import {
   channelServerProvisioning
 } from './actions';
 import { SocketWebRTCClientTransport } from "../../transports/SocketWebRTCClientTransport";
+import {triggerUpdateConsumers} from "../mediastream/service";
 
 const store = Store.store;
 
@@ -79,6 +80,8 @@ export function connectToChannelServer(channelId: string, isHarmonyPage?: boolea
         videoEnabled: currentLocation?.locationSettings?.videoEnabled === true || !(currentLocation?.locationSettings?.locationType === 'showroom' && user.locationAdmins?.find(locationAdmin => locationAdmin.locationId === currentLocation.id) == null),
         isHarmonyPage: isHarmonyPage
       });
+
+      EngineEvents.instance.addEventListener(MediaStreamSystem.EVENTS.TRIGGER_UPDATE_CONSUMERS, triggerUpdateConsumers);
 
       dispatch(channelServerConnected());
     } catch (err) {

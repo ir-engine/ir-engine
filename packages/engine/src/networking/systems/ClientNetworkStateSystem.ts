@@ -89,7 +89,7 @@ export class ClientNetworkStateSystem extends System {
     super(attributes);
     ClientNetworkStateSystem.instance = this;
     
-    EngineEvents.instance.once(EngineEvents.EVENTS.CONNECT_TO_WORLD, ({ worldState }) => { 
+    EngineEvents.instance.once(EngineEvents.EVENTS.CONNECT_TO_WORLD, ({ worldState }) => {
       this.receivedServerState.push(worldState);
     });
     EngineEvents.instance.once(EngineEvents.EVENTS.JOINED_WORLD, ({ worldState }) => {
@@ -114,7 +114,6 @@ export class ClientNetworkStateSystem extends System {
    * @param delta Time since last frame.
    */
   execute = (delta: number): void => {
-
     const receivedClientInput = [...this.receivedServerState];
     this.receivedServerState = [];
     receivedClientInput?.forEach((worldStateBuffer: WorldStateInterface) => {
