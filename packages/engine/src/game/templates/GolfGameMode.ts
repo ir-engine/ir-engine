@@ -29,7 +29,8 @@ import { isPlayersInGame } from "./gameDefault/checkers/isPlayersInGame";
 import { ifNamed } from "./gameDefault/checkers/ifNamed";
 import { isOpen, isClosed } from "./gameDefault/checkers/isOpenIsClosed";
 import { isUp, isDown } from "./gameDefault/checkers/isUpIsDown";
-import { spawnEntity } from "./gameDefault/behaviors/spawnEntity";
+import { addClub } from "./Golf/behaviors/addClub";
+import { grabGolfClub } from "./Golf/behaviors/grabGolfClub";
 
 /**
  * @author HydraFire
@@ -58,6 +59,9 @@ export const GolfGameMode: GameMode = {
     },
     'GolfBall': {
       behaviors: [addRestitution, unInteractiveToOthers]
+    },
+    'GolfClub': {
+      behaviors: [addClub]
     },
     'StartGamePanel': {
       components: [PanelDown],
@@ -159,6 +163,25 @@ export const GolfGameMode: GameMode = {
   },
   gameObjectRoles: {
     'GolfBall': {},
+    'GolfClub': {
+      'grab': [
+        {
+          behavior: grabGolfClub,
+          args: {  },
+          watchers:[ [ HaveBeenInteracted ] ],
+          takeEffectOn: {
+            targetsRole: {
+              '1-Player': {
+                checkers:[{
+                  function: isPlayersInGame,
+                  args: { invert: false }
+                }]
+              }
+            }
+          }
+        },
+      ]
+    },
     'StartGamePanel': {
       'actionUp': [
         {

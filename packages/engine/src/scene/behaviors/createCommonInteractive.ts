@@ -6,8 +6,9 @@ import { InteractiveSystem } from "../../interaction/systems/InteractiveSystem";
 import { Object3DComponent } from "../components/Object3DComponent";
 import { EquippedComponent } from "../../interaction/components/EquippedComponent";
 import { equipEntity } from "../../interaction/functions/equippableFunctions";
+import { initializeNetworkObject } from "../../networking/functions/initializeNetworkObject";
 
-const onInteraction: Behavior = (entityInitiator, args, delta, entityInteractive, time) => {
+export const onInteraction: Behavior = (entityInitiator, args, delta, entityInteractive, time) => {
   const interactiveComponent = getComponent(entityInteractive, Interactable);
 
   if(interactiveComponent.data.interactionType === 'equippable') {
@@ -19,7 +20,7 @@ const onInteraction: Behavior = (entityInitiator, args, delta, entityInteractive
   }
 };
 
-const onInteractionHover: Behavior = (entityInitiator, { focused }: { focused: boolean }, delta, entityInteractive, time) => {
+export const onInteractionHover: Behavior = (entityInitiator, { focused }: { focused: boolean }, delta, entityInteractive, time) => {
   const interactiveComponent = getComponent(entityInteractive, Interactable);
 
   const engineEvent: any = { type: InteractiveSystem.EVENTS.OBJECT_HOVER, focused, ...interactiveComponent.data };

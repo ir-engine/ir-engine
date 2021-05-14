@@ -12,7 +12,7 @@ export default {
     find: [
       commonHooks.iff(
         commonHooks.isProvider('external'),
-        async (context: HookContext): Promise<any> => {
+        (async (context: HookContext): Promise<any> => {
           const { app, params } = context;
 
           const ownedSubscription = await app.service('subscription').find({
@@ -25,7 +25,7 @@ export default {
           }
           (params as any).query.subscriptionId = ownedSubscription.data[0].id;
           return context;
-        }
+        }) as any,
       )
     ],
     get: [],

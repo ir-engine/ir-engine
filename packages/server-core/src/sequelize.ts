@@ -23,6 +23,8 @@ export default (app: Application): void => {
 
     app.set('sequelizeClient', sequelize);
 
+    // eslint-disable-next-line  @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     app.setup = function (...args: any): Application {
       sequelize
           .query('SET FOREIGN_KEY_CHECKS = 0')

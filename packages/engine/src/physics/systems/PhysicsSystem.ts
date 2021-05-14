@@ -75,19 +75,19 @@ export class PhysicsSystem extends System {
     await PhysXInstance.instance.initPhysX(this.worker, this.physicsWorldConfig);
   }
 
-  async initialize() {
-    await PhysXInstance.instance.initPhysX(this.worker, this.physicsWorldConfig);
-  }
-
   dispose(): void {
     super.dispose();
     this.frame = 0;
     this.broadphase = null;
+    EngineEvents.instance.removeAllListenersForEvent(PhysicsSystem.EVENTS.PORTAL_REDIRECT_EVENT);
   }
 
   execute(delta: number): void {
     this.queryResults.collider.added?.forEach(entity => {
-      addColliderWithEntity(entity)
+      const collider = getComponent(entity, ColliderComponent);
+      if(!collider.body) {
+        addColliderWithEntity(entity)
+      }
       /*
       const collider = getComponent<ColliderComponent>(entity, ColliderComponent);
       collider.body.addEventListener(CollisionEvents.COLLISION_START, (ev: ColliderHitEvent) => {

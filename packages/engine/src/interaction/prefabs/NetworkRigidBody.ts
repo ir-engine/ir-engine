@@ -32,6 +32,7 @@ export function createNetworkRigidBody( args:{ parameters?: any, networkId?: str
           {
             type: ColliderComponent,
             data: {
+              body: args.parameters.body,
               bodytype:  args.parameters.bodytype,
               type: args.parameters.type,
               position: args.parameters.position,

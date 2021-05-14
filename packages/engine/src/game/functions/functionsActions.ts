@@ -21,25 +21,26 @@ const gameActionComponents = {
   'NextTurn': NextTurn
 };
 
-export const addActionComponent = (entity: Entity, component: ComponentConstructor<Component<any>>): void => {
+export const addActionComponent = (entity: Entity, component: ComponentConstructor<Component<any>>, componentArgs: any = { }): void => {
   if (!(hasComponent(entity, GameObject) || hasComponent(entity, GamePlayer))) return;
   const game = getGame(entity);
   //// Clients dont apply self actions, only in not Global mode
   if (isClient && !game.isGlobal) {
-    addComponent(entity, component);
+    addComponent(entity, component, componentArgs);
   //// Server apply actions to himself send Actions and clients apply its
   } else if (isServer && game.isGlobal) {
-    addComponent(entity, component);
-    sendActionComponent(entity, component);
+    addComponent(entity, component, componentArgs);
+    sendActionComponent(entity, component, componentArgs);
   }
 };
 
-export const sendActionComponent = (entity: Entity, component: ComponentConstructor<Component<any>>): void => {
+export const sendActionComponent = (entity: Entity, component: ComponentConstructor<Component<any>>, componentArgs: any = { }): void => {
   const actionMessage: GameStateActionMessage = {
     game: getGame(entity).name,
     role: getRole(entity),
     component: component.name,
-    uuid: getUuid(entity)
+    uuid: getUuid(entity),
+    componentArgs: JSON.stringify(componentArgs)
   }
   console.log('sendActionComponent', actionMessage);
   Network.instance.worldState.gameStateActions.push(actionMessage);
@@ -48,11 +49,17 @@ export const sendActionComponent = (entity: Entity, component: ComponentConstruc
 export const applyActionComponent = (actionMessage: GameStateActionMessage): void => {
   console.warn('applyActionComponent', actionMessage);
   const entityGame = getGameEntityFromName(actionMessage.game);
+  if(!entityGame) return;
   const game = getComponent(entityGame, Game);
 //  console.warn(game);
   const entity = getEntityFromRoleUuid(game, actionMessage.role, actionMessage.uuid);
+  if(!entity) return;
   //Component._typeId
   // Engine.componentsMap[(Component as any)._typeId]
   const component = gameActionComponents[actionMessage.component]
-  addComponent( entity, component);
+  let componentArgs = {};
+  try {
+    componentArgs = JSON.parse(actionMessage.componentArgs);
+  } catch (e) {}
+  addComponent( entity, component, componentArgs);
 };

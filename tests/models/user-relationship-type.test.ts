@@ -1,7 +1,7 @@
 import app from '../../packages/server/src/app'
 
 describe('CRUD operation on \'User Relationship Type\' model', () => {
-  const model = app.service('user-relationship-type').Model
+  const model = (app.service('user-relationship-type') as any).Model
 
   const type = 'testType'
 

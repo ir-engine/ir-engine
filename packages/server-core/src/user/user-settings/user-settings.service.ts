@@ -27,5 +27,5 @@ export default (app: Application): any => {
 
   const service = app.service('user-settings');
 
-  service.hooks(hooks);
+  service.hooks(hooks as any);
 };

@@ -30,7 +30,7 @@ export default (): Hook => {
         params.uploadPath = params.uploadPath.replace('/manifest.mpd', '');
         params.storageProvider = new StorageProvider();
         const contextClone = _.cloneDeep(context);
-        const result = await uploadThumbnailLinkHook()(contextClone);
+        const result = await (uploadThumbnailLinkHook() as any)(contextClone);
         data.metadata.thumbnailUrl = (result as any).params.thumbnailUrl
           .replace('s3.amazonaws.com/' + bucketName, config.aws.cloudfront.domain);
       }

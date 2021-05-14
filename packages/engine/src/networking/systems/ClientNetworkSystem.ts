@@ -35,6 +35,10 @@ export class ClientNetworkSystem extends System {
     });
   }
 
+  dispose() {
+    EngineEvents.instance.removeAllListenersForEvent(ClientNetworkSystem.EVENTS.SEND_DATA);
+  }
+
   /**
    * Executes the system.
    * Call logic based on whether system is on the server or on the client.

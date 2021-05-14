@@ -33,7 +33,7 @@ export class ServerNetworkOutgoingSystem extends System {
 
       const transformComponent = getComponent(entity, TransformComponent);
       const networkObject = getComponent(entity, NetworkObject);
-      const currentPosition = getComponent(entity, CharacterComponent)?.actorCapsule.controller.transform.translation ?? transformComponent.position;
+      const currentPosition = transformComponent.position;
       const snapShotTime = networkObject.snapShotTime ?? 0;
 
 

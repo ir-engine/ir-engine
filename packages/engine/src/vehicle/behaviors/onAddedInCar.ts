@@ -17,6 +17,7 @@ import { PhysicsSystem } from '../../physics/systems/PhysicsSystem';
 import { TransformComponent } from '../../transform/components/TransformComponent';
 import { VehicleComponent } from '../components/VehicleComponent';
 import { VehicleState } from '../enums/VehicleStateEnum';
+import { ControllerColliderComponent } from '../../character/components/ControllerColliderComponent';
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -57,7 +58,8 @@ export const onAddedInCar = (entity: Entity, entityCar: Entity, seat: number, de
   vehicle[vehicle.seatPlane[seat]] = networkDriverId;
 
   const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
-  PhysicsSystem.instance.removeController(actor.actorCapsule.controller);
+  const collider = getMutableComponent<ControllerColliderComponent>(entity, ControllerColliderComponent)
+  PhysicsSystem.instance.removeController(collider.controller);
 
   const orientation = positionEnter(entity, entityCar, seat);
   getMutableComponent(entity, PlayerInCar).state = VehicleState.onAddEnding;

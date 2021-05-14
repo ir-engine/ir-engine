@@ -36,7 +36,7 @@ export default {
     update: [],
     patch: [],
     remove: [async (context: HookContext): Promise<HookContext> => {
-      const location = await context.app.service('location').Model.findOne({
+      const location = await (context.app.service('location') as any).Model.findOne({
         where: {
           isLobby: true,
           id: context.id,

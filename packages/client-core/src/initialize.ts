@@ -21,12 +21,9 @@ import { ParticleSystem } from '@xrengine/engine/src/particles/systems/ParticleS
 import { PhysicsSystem } from '@xrengine/engine/src/physics/systems/PhysicsSystem';
 import { HighlightSystem } from '@xrengine/engine/src/renderer/HighlightSystem';
 import { WebGLRendererSystem } from '@xrengine/engine/src/renderer/WebGLRendererSystem';
-import { ServerSpawnSystem } from '@xrengine/engine/src/scene/systems/ServerSpawnSystem';
 import { AnimationManager } from "@xrengine/engine/src/character/AnimationManager";
 import { TransformSystem } from '@xrengine/engine/src/transform/systems/TransformSystem';
-import { createWorker, WorkerProxy } from '@xrengine/engine/src/worker/MessageQueue';
 import { XRSystem } from '@xrengine/engine/src/xr/systems/XRSystem';
-import { PhysXInstance } from "three-physx";
 //@ts-ignore
 import { GameManagerSystem } from '@xrengine/engine/src/game/systems/GameManagerSystem';
 import { DefaultInitializationOptions, InitializeOptions } from '@xrengine/engine/src/DefaultInitializationOptions';
@@ -124,9 +121,9 @@ export const initializeEngine = async (initOptions: InitializeOptions): Promise<
       // if((window as any).safariWebBrowser) {
         physicsWorker = new Worker('/scripts/loadPhysXClassic.js');
       // } else {
-        //@ts-ignore
-        // const { default: PhysXWorker } = await import('./physics/functions/loadPhysX.ts?worker');
-      //   physicsWorker = new PhysXWorker();
+        // //@ts-ignore
+        // const { default: PhysXWorker } = await import('@xrengine/engine/src/physics/functions/loadPhysX.ts?worker&inline');
+        // physicsWorker = new PhysXWorker();)
       // }
       new AnimationManager();
       
@@ -166,16 +163,16 @@ export const initializeEngine = async (initOptions: InitializeOptions): Promise<
     return new Promise<void>(async (resolve) => { await system.initialize(); system.initialized = true; resolve(); }); 
   }));
 
-  // only start the engine once we have all our entities loaded
   EngineEvents.instance.once(EngineEvents.EVENTS.SCENE_LOADED, () => { 
     Engine.engineTimer = Timer({
       networkUpdate: (delta: number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Network),
       fixedUpdate: (delta: number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Fixed),
       update: (delta, elapsedTime) => execute(delta, elapsedTime, SystemUpdateType.Free)
-    }, Engine.physicsFrameRate, Engine.networkFramerate).start();
-    Engine.isInitialized = true;
+    }, Engine.physicsFrameRate, Engine.networkFramerate);
+
+    Engine.engineTimer.start();
   });
-    
+
   const engageType = isMobileOrTablet() ? 'touchstart' : 'click';
   const onUserEngage = () => {
     EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.USER_ENGAGE });
@@ -231,7 +228,9 @@ export const initializeEditor = async (initOptions: InitializeOptions): Promise<
     networkUpdate: (delta: number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Network),
     fixedUpdate: (delta: number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Fixed),
     update: (delta, elapsedTime) => execute(delta, elapsedTime, SystemUpdateType.Free)
-  }, Engine.physicsFrameRate, Engine.networkFramerate).start();
+  }, Engine.physicsFrameRate, Engine.networkFramerate);
+
+  Engine.engineTimer.start();
 
   Engine.isInitialized = true;
 };

@@ -106,7 +106,7 @@ export function assembleScene (scene: any, contentPack: string): any {
 
 export async function populateScene (sceneId: string, scene: any, app: Application, thumbnailUrl?: string): Promise<any> {
     const promises = [];
-    const existingSceneResult = await app.service('collection').Model.findOne({
+    const existingSceneResult = await (app.service('collection') as any).Model.findOne({
         where: {
             sid: sceneId
         }

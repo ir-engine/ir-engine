@@ -29,5 +29,5 @@ export default (app: Application): void => {
 
   const service = app.service('identity-provider');
 
-  service.hooks(hooks);
+  service.hooks(hooks as any);
 };

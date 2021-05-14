@@ -1,4 +1,5 @@
-import { Id, NullableId, Paginated, Params, ServiceMethods } from '@feathersjs/feathers';
+import { Id, NullableId, Params, ServiceMethods } from '@feathersjs/feathers';
+import Paginated from '../../types/PageObject';
 import { Application } from '../../../declarations';
 import { BadRequest } from '@feathersjs/errors';
 import logger from '../../logger';
@@ -20,6 +21,8 @@ export class AcceptInvite implements ServiceMethods<Data> {
     this.options = options;
     this.app = app;
   }
+
+  async setup() {}
 
   /**
    * A function which help to find all accept invite and display it
@@ -262,7 +265,7 @@ export class AcceptInvite implements ServiceMethods<Data> {
       }
 
       await this.app.service('invite').remove(invite.id, params);
-      const token = await this.app.service('authentication').createAccessToken(
+      const token = await (this.app.service('authentication') as any).createAccessToken(
           {},
           {subject: params['identity-provider'].id.toString()}
       );

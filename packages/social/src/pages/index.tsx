@@ -23,8 +23,8 @@ import Onboard from "@xrengine/client-core/src/socialmedia/components/OnBoard";
 // @ts-ignore
 import styles from './index.module.scss';
 
-import image from '/static/images/image.jpg'
-import mockupIPhone from '/static/images/mockupIPhone.jpg'
+import image from '/static/images/image.jpg';
+import mockupIPhone from '/static/images/mockupIPhone.jpg';
 
 
 const mapStateToProps = (state: any): any => {
@@ -54,18 +54,18 @@ const  Home = ({ createCreator,  doLoginAuto, auth, creatorsState }) => {
   useEffect(() => doLoginAuto(true), []);
 
 
-  const [onborded, setOnborded] = useState(true)
-  const currentCreator = creatorsState.get('currentCreator')
+  const [onborded, setOnborded] = useState(true);
+  const currentCreator = creatorsState.get('currentCreator');
   const currentTime = new Date(Date.now()).toISOString();
 
   useEffect(() => {
     if( !!currentCreator && !!currentCreator.createdAt ) {
-       currentTime.slice(0, -5) === currentCreator.createdAt.slice(0, -5) && setOnborded(false)
+       currentTime.slice(0, -5) === currentCreator.createdAt.slice(0, -5) && setOnborded(false);
     }
   }, [currentCreator]);
 
 
-  if(!onborded) return <Onboard setOnborded={setOnborded} image={image} mockupIPhone={mockupIPhone} />
+  if(!onborded) return <Onboard setOnborded={setOnborded} image={image} mockupIPhone={mockupIPhone} />;
 
 
 

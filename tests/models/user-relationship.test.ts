@@ -2,9 +2,9 @@ import app from '../../packages/server/src/app'
 import { Op } from 'sequelize'
 
 describe('CRUD operation on \'UserRelationship\' model', () => {
-  const model = app.service('user-relationship').Model
-  const userModel = app.service('user').Model
-  const userRelationshipTypeModel = app.service('user-relationship-type').Model
+  const model = (app.service('user-relationship') as any).Model
+  const userModel = (app.service('user') as any).Model
+  const userRelationshipTypeModel = (app.service('user-relationship-type') as any).Model
   let userId: any, relatedUserId: any, userRelationshipType: any
 
   beforeAll(async () => {

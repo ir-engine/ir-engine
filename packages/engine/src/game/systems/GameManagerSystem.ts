@@ -201,8 +201,8 @@ export class GameManagerSystem extends System {
                 },[]);
 
 
-                if (b.takeEffectOn.sortMetod != undefined && complexResultObjects.length > 1 ) {
-                  complexResultObjects = b.takeEffectOn.sortMetod(complexResultObjects)
+                if (b.takeEffectOn.sortMethod != undefined && complexResultObjects.length > 1 ) {
+                  complexResultObjects = b.takeEffectOn.sortMethod(complexResultObjects)
                 }
 
                 complexResultObjects.forEach(complexResult => {

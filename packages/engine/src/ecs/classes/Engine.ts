@@ -7,7 +7,6 @@
 
 import {
   AudioListener as THREE_AudioListener,
-  Clock,
   PerspectiveCamera,
   Scene,
   WebGLRenderer,
@@ -52,8 +51,7 @@ export type VideoTexture = VideoTextureProxy | THREE_VideoTexture;
  */
 export class Engine {
 
-  public static engineTimer: { start: Function; stop: Function } = null
-  public static engineTimerTimeout = null;
+  public static engineTimer: { start: Function; stop: Function, clear: Function } = null
 
   public static supportedGameModes: { [key: string]: GameMode };
   public static gameMode: GameMode;
@@ -92,7 +90,6 @@ export class Engine {
    * @default 1
    */
   public static timeScaleTarget = 1;
-  public static clock = new Clock;
 
   /**
    * Reference to the three.js renderer object.

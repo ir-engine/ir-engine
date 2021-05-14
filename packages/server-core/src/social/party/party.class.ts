@@ -45,13 +45,13 @@ export class Party extends Service {
 
       const party = await super.get(partyId);
 
-      const partyUsers = await this.app.service('party-user').Model.findAll({
+      const partyUsers = await (this.app.service('party-user') as any).Model.findAll({
         where: {
           partyId: party.id
         },
         include: [
           {
-            model: this.app.service('user').Model
+            model: (this.app.service('user') as any).Model
           }
         ]
       });

@@ -37,5 +37,5 @@ export default (app: Application): any => {
    */
   const service = app.service('invite-type');
 
-  service.hooks(hooks);
+  service.hooks(hooks as any);
 };

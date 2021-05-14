@@ -53,7 +53,7 @@ export class Control extends Object3D{
     );
 
     const bar = this.createSeekbar(callbacks);
-    this.add(bar);
+    this.add(bar as any);
 
     const geometry = new CircleGeometry( 0.05, 32 );
     const material = new MeshPhongMaterial( { color: 0xeeeeee, transparent: true, opacity: 1 } );

@@ -42,14 +42,12 @@ export const loadDefaultActorAvatar: Behavior = (entity) => {
 	const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
 	AnimationManager.instance._defaultModel?.children?.forEach(child => actor.modelContainer.add(child));
 	actor.mixer = new AnimationMixer(actor.modelContainer.children[0]);
-	if (hasComponent(entity, IKComponent)) {
-		initiateIK(entity)
-	}
+	// if (hasComponent(entity, IKComponent)) {
+	// 	initiateIK(entity)
+	// }
 }
 
 export const loadActorAvatar: Behavior = (entity) => {
-	console.log("Loading Actor Avatar")
-
 	const avatarURL = getComponent(entity, CharacterComponent)?.avatarURL;
 	if (avatarURL) {
 		loadActorAvatarFromURL(entity, avatarURL);
@@ -58,7 +56,7 @@ export const loadActorAvatar: Behavior = (entity) => {
 
 export const loadActorAvatarFromURL: Behavior = (entity, avatarURL) => {
 	const tmpGroup = new Group();
-	console.log("Loading Actor Avatar")
+	console.log("Loading Actor Avatar =>", avatarURL)
 
 	createShadow(entity, { objArgs: { castShadow: true, receiveShadow: true } })
 
@@ -69,7 +67,6 @@ export const loadActorAvatarFromURL: Behavior = (entity, avatarURL) => {
 		receiveShadow: true,
 		parent: tmpGroup,
 	}, () => {
-
 		const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
 		const controller = getMutableComponent<ControllerColliderComponent>(entity, ControllerColliderComponent);
 		if (!actor) return
@@ -176,7 +173,7 @@ const initializeCharacter: Behavior = (entity): void => {
 	const transform = getComponent(entity, TransformComponent);
 	// Physics
 	// TODO: This "any" is unnecessary and the type error should be fixed
-	(actor.actorCapsule as any) = addComponent(entity, ControllerColliderComponent, {
+	addComponent(entity, ControllerColliderComponent, {
 		mass: actor.actorMass,
 		position: transform.position,
 		height: actor.actorHeight,
