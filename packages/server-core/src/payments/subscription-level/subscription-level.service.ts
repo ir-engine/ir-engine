@@ -34,5 +34,5 @@ export default (app: Application): any => {
    */
   const service = app.service('subscription-level');
 
-  service.hooks(hooks);
+  service.hooks(hooks as any);
 };

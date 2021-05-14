@@ -136,7 +136,7 @@ export class User extends Service {
         ],
         include: [
           {
-            model: this.app.service('user-relationship').Model,
+            model: (this.app.service('user-relationship') as any).Model,
             where: {
               relatedUserId: loggedInUser.userId,
               userRelationshipType: 'friend'

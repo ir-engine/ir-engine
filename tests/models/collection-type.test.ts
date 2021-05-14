@@ -1,7 +1,7 @@
 import app from '../../packages/server/src/app'
 
 describe('CRUD operation on \'CollectionType\' model', () => {
-  const model = app.service('collection-type').Model
+  const model = (app.service('collection-type') as any).Model
 
   beforeAll(async () => {
     await model.destroy({

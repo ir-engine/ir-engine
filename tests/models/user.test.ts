@@ -2,7 +2,7 @@ import app from '../../packages/server/src/app'
 
 describe('CRUD operation on \'User\' model', () => {
   const model = (app.service('user') as any).Model
-  const userRoleModel = app.service('user-role').Model
+  const userRoleModel = (app.service('user-role') as any).Model
 
   beforeAll(async (done) => {
     await userRoleModel.destroy({

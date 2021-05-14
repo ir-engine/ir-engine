@@ -29,5 +29,5 @@ export default (app: Application): any => {
 
   const service = app.service('entity');
 
-  service.hooks(hooks);
+  service.hooks(hooks as any);
 };

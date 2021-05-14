@@ -245,7 +245,7 @@ export class InstanceProvision implements ServiceMethods<Data> {
         const friendsAtLocationResult = await (this.app.service('user') as any).Model.findAndCountAll({
           include: [
             {
-              model: this.app.service('user-relationship').Model,
+              model: (this.app.service('user-relationship') as any).Model,
               where: {
                 relatedUserId: userId,
                 userRelationshipType: 'friend'
@@ -297,7 +297,7 @@ export class InstanceProvision implements ServiceMethods<Data> {
           },
           include: [
             {
-              model: this.app.service('location').Model,
+              model: (this.app.service('location') as any).Model,
               where: {
                 maxUsersPerInstance: {
                   [Op.gt]: Sequelize.col('instance.currentUsers')

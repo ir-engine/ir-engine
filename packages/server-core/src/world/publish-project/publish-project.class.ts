@@ -58,7 +58,7 @@ export class PublishProject implements ServiceMethods<Data> {
    * @author Vyacheslav Solovjov
    */
   async create (data: any, params: Params): Promise<Data> {
-    const CollectionModel = this.app.service('collection').Model;
+    const CollectionModel = (this.app.service('collection') as any).Model;
     const projectId = params?.query?.projectId;
     // const loggedInUser = extractLoggedInUserFromParams(params)
     const provider = new StorageProvider();

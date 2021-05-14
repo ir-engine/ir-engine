@@ -30,7 +30,7 @@ export default (app: Application): any => {
 
   const service = app.service('group-user');
 
-  service.hooks(hooks);
+  service.hooks(hooks as any);
 
   /**
    * A method which is used to create group user

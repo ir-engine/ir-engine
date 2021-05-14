@@ -18,5 +18,5 @@ export default (app: Application): void => {
   app.use('/publish-project', event);
 
   const service = app.service('publish-project');
-  service.hooks(hooks);
+  service.hooks(hooks as any);
 };

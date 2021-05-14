@@ -3,7 +3,7 @@ import bcrypt from 'bcrypt'
 import request from 'supertest'
 
 describe('CRUD operation on \'IdentityProvider\' model', () => {
-  const model = app.service('identity-provider').Model
+  const model = (app.service('identity-provider') as any).Model
   const userModel = (app.service('user') as any).Model
   let userId: any
   const password = 'password'

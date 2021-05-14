@@ -55,7 +55,7 @@ export class UploadPresigned implements ServiceMethods<Data> {
 
   async remove (id: NullableId, params?: Params): Promise<Data> {
     const data = await this.s3.deleteResources(params.query.keys);
-    await this.app.service('static-resource').Model.destroy({
+    await (this.app.service('static-resource') as any).Model.destroy({
       where: {
         key: {
           [Op.in]: [params.query.keys],

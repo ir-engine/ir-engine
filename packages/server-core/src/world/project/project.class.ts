@@ -294,7 +294,7 @@ export class Project implements ServiceMethods<Data> {
     const seqeulizeClient = this.app.get('sequelizeClient');
     const models = seqeulizeClient.models;
     const StaticResourceModel = models.static_resource;
-    const CollectionModel = this.app.service('collection').Model;
+    const CollectionModel = (this.app.service('collection') as any).Model;
     const projectIncludes: any = [
       {
         model: StaticResourceModel,

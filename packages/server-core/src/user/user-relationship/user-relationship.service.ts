@@ -31,7 +31,7 @@ export default (app: Application): any => {
 
   const service = app.service('user-relationship');
 
-  service.hooks(hooks);
+  service.hooks(hooks as any);
 
   // service.publish('created', async (data): Promise<any> => {
   //   data.user1 = await app.service('user').get(data.userId1)
@@ -69,7 +69,7 @@ export default (app: Application): any => {
 
   service.publish('patched', async (data): Promise<any> => {
     try {
-      const inverseRelationship = await app.service('user-relationship').Model.findOne({
+      const inverseRelationship = await (app.service('user-relationship') as any).Model.findOne({
         where: {
           relatedUserId: data.userId,
           userId: data.relatedUserId

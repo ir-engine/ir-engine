@@ -42,7 +42,7 @@ export class Login implements ServiceMethods<Data> {
    */
   async get (id: Id, params?: Params): Promise<any> {
     try {
-      const result = await this.app.service('login-token').Model.findOne({
+      const result = await (this.app.service('login-token') as any).Model.findOne({
         where: {
           token: id
         }

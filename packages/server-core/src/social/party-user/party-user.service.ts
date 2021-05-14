@@ -31,7 +31,7 @@ export default (app: Application): void => {
 
   const service = app.service('party-user');
 
-  service.hooks(hooks);
+  service.hooks(hooks as any);
 
   /**
    * A function which is used to create new party user 

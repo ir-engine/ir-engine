@@ -1,7 +1,7 @@
 import app from '../../packages/server/src/app'
 
 describe('CRUD operation on \'Static Resource\' model', () => {
-  const model = app.service('static-resource').Model
+  const model = (app.service('static-resource') as any).Model
 
   it('Create', () => {
     model.create({

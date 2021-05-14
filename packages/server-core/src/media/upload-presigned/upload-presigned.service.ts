@@ -18,5 +18,5 @@ export default (app: Application): void => {
 
   const service = app.service('upload-presigned');
 
-  service.hooks(hooks);
+  service.hooks(hooks as any);
 };

@@ -32,7 +32,7 @@ export default (app: Application): void => {
 
   const service = app.service('user');
 
-  service.hooks(hooks);
+  service.hooks(hooks as any);
   
   /**
    * This method find all users
