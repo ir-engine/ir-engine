@@ -42,9 +42,9 @@ export const loadDefaultActorAvatar: Behavior = (entity) => {
 	const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
 	AnimationManager.instance._defaultModel?.children?.forEach(child => actor.modelContainer.add(child));
 	actor.mixer = new AnimationMixer(actor.modelContainer.children[0]);
-	if (hasComponent(entity, IKComponent)) {
-		initiateIK(entity)
-	}
+	// if (hasComponent(entity, IKComponent)) {
+	// 	initiateIK(entity)
+	// }
 }
 
 export const loadActorAvatar: Behavior = (entity) => {
@@ -176,7 +176,7 @@ const initializeCharacter: Behavior = (entity): void => {
 	const transform = getComponent(entity, TransformComponent);
 	// Physics
 	// TODO: This "any" is unnecessary and the type error should be fixed
-	(actor.actorCapsule as any) = addComponent(entity, ControllerColliderComponent, {
+	addComponent(entity, ControllerColliderComponent, {
 		mass: actor.actorMass,
 		position: transform.position,
 		height: actor.actorHeight,

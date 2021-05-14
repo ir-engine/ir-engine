@@ -1,4 +1,4 @@
-import { Vector3 } from "three"
+import { Object3D, Quaternion, Vector3 } from "three"
 import { BinaryValue } from "../../common/enums/BinaryValue"
 import { isServer } from "../../common/functions/isServer"
 import { Entity } from "../../ecs/classes/Entity"
@@ -13,15 +13,22 @@ import { TransformChildComponent } from "../../transform/components/TransformChi
 import { TransformComponent } from "../../transform/components/TransformComponent"
 import { EquippedComponent } from "../components/EquippedComponent"
 import { EquippedStateUpdateSchema } from "../enums/EquippedEnums"
+import { Object3DComponent } from "../../scene/components/Object3DComponent"
 
-export const equipEntity = (equipperEntity: Entity, equippedEntity: Entity): void => {
-  if(hasComponent(equippedEntity, TransformChildComponent) || hasComponent(equipperEntity, EquippedComponent)) return; // already equipped
-  addComponent(equipperEntity, EquippedComponent, { equippedEntity: equippedEntity })
-  addComponent(equippedEntity, TransformChildComponent, { parent: equipperEntity, offsetPosition: new Vector3(0, 1, 0) })
+export const equipEntity = (equipperEntity: Entity, equippedEntity: Entity, attachmentObject?: Object3D, attachmentTransform?: { position: Vector3, rotation: Quaternion }): void => {
+console.log(equipperEntity, equippedEntity, attachmentObject, attachmentTransform);
+  if(hasComponent(equipperEntity, EquippedComponent) || !hasComponent(equippedEntity, NetworkObject)) return; // already equipped or has no collider
+
+  const attachementPoint = attachmentObject ?? getComponent(equipperEntity, Object3DComponent).value;
+  addComponent(equipperEntity, EquippedComponent, { equippedEntity: equippedEntity, attachmentObject: attachementPoint, attachmentTransform });
+  
+  // all equippables must have a collider to grab by in VR
   const collider = getComponent(equippedEntity, ColliderComponent)
   collider.body.type = BodyType.KINEMATIC;
+  // send equip to clients
   if(isServer) {
-    sendClientObjectUpdate(equipperEntity, NetworkObjectUpdateType.ObjectEquipped, [BinaryValue.TRUE, getComponent(equippedEntity, NetworkObject).networkId] as EquippedStateUpdateSchema)
+    const networkObject = getComponent(equippedEntity, NetworkObject)
+    sendClientObjectUpdate(equipperEntity, NetworkObjectUpdateType.ObjectEquipped, [BinaryValue.TRUE, networkObject.networkId] as EquippedStateUpdateSchema)
   }
 }
 
@@ -36,8 +43,8 @@ export const unequipEntity = (equipperEntity: Entity): void => {
     translation: { x: equippedTransform.position.x, y: equippedTransform.position.y, z: equippedTransform.position.z },
     rotation: { x: equippedTransform.rotation.x, y: equippedTransform.rotation.y, z: equippedTransform.rotation.z, w: equippedTransform.rotation.w }
   })
-  removeComponent(equippedEntity, TransformChildComponent)
   removeComponent(equipperEntity, EquippedComponent)
+  // send unequip to clients
   if(isServer) {
     sendClientObjectUpdate(equipperEntity, NetworkObjectUpdateType.ObjectEquipped, [BinaryValue.FALSE] as EquippedStateUpdateSchema)
   }

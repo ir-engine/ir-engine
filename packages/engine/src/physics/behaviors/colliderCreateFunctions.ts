@@ -23,7 +23,7 @@ export function addColliderWithEntity(entity: Entity) {
   const body = addColliderWithoutEntity(
     { bodytype: colliderComponent.bodytype, type: colliderComponent.type },
     colliderComponent.position,
-    colliderComponent.rotation,
+    colliderComponent.quaternion,
     colliderComponent.scale,
     { mesh, vertices, indices }
   );
@@ -119,11 +119,9 @@ export function addColliderWithoutEntity(userData, pos = new Vector3(), rot = ne
       linearVelocity: { x: 0, y: 0, z: 0 },
       angularVelocity: { x: 0, y: 0, z: 0 },
     },
-    material: userData.bodytype === BodyType.DYNAMIC ? { dynamicFriction: 0.3 } : undefined
   });
 //  console.warn(userData.bodytype);
   //bodyConfig.addEventListener(CollisionEvents.COLLISION_START, (e) => { console.log(e)});
-
 
   const body: Body = PhysicsSystem.instance.addBody(bodyConfig);
 

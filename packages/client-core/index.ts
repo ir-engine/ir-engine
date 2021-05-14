@@ -414,6 +414,7 @@ export { default as srcSocialmediaComponentsLoginIndex } from './src/socialmedia
 export { default as srcSocialmediaComponentsNewCommentIndex } from './src/socialmedia/components/NewComment/index';
 export { default as srcSocialmediaComponentsNotificationCardIndex } from './src/socialmedia/components/NotificationCard/index';
 export { default as srcSocialmediaComponentsNotificationListIndex } from './src/socialmedia/components/NotificationList/index';
+export { default as srcSocialmediaComponentsOnBoardIndex } from './src/socialmedia/components/OnBoard/index';
 export { default as srcSocialmediaComponentsOnBoardingIndex } from './src/socialmedia/components/OnBoarding/index';
 export { default as srcSocialmediaComponentsPopupLoginPopupLogin } from './src/socialmedia/components/PopupLogin/PopupLogin';
 export { default as srcSocialmediaComponentsPopupsArMediaPopupIndex } from './src/socialmedia/components/popups/ArMediaPopup/index';

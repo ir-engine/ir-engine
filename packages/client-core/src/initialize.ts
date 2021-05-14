@@ -21,12 +21,9 @@ import { ParticleSystem } from '@xrengine/engine/src/particles/systems/ParticleS
 import { PhysicsSystem } from '@xrengine/engine/src/physics/systems/PhysicsSystem';
 import { HighlightSystem } from '@xrengine/engine/src/renderer/HighlightSystem';
 import { WebGLRendererSystem } from '@xrengine/engine/src/renderer/WebGLRendererSystem';
-import { ServerSpawnSystem } from '@xrengine/engine/src/scene/systems/ServerSpawnSystem';
 import { AnimationManager } from "@xrengine/engine/src/character/AnimationManager";
 import { TransformSystem } from '@xrengine/engine/src/transform/systems/TransformSystem';
-import { createWorker, WorkerProxy } from '@xrengine/engine/src/worker/MessageQueue';
 import { XRSystem } from '@xrengine/engine/src/xr/systems/XRSystem';
-import { PhysXInstance } from "three-physx";
 //@ts-ignore
 import { GameManagerSystem } from '@xrengine/engine/src/game/systems/GameManagerSystem';
 import { DefaultInitializationOptions, InitializeOptions } from '@xrengine/engine/src/DefaultInitializationOptions';
@@ -124,9 +121,9 @@ export const initializeEngine = async (initOptions: InitializeOptions): Promise<
       // if((window as any).safariWebBrowser) {
         physicsWorker = new Worker('/scripts/loadPhysXClassic.js');
       // } else {
-        //@ts-ignore
-        // const { default: PhysXWorker } = await import('./physics/functions/loadPhysX.ts?worker');
-      //   physicsWorker = new PhysXWorker();
+        // //@ts-ignore
+        // const { default: PhysXWorker } = await import('@xrengine/engine/src/physics/functions/loadPhysX.ts?worker&inline');
+        // physicsWorker = new PhysXWorker();)
       // }
       new AnimationManager();
       

@@ -1,0 +1,10 @@
+{
+  "verbose": true,
+  "watch": [
+    "../engine/src/**",
+    "src/**"
+  ],
+  "env": {
+    "NODE_ENV": "development" 
+  }
+}
