@@ -443,7 +443,7 @@ const updateIKRig: Behavior = (entity, args): void => {
 
   const avatarIK = getMutableComponent(entity, IKComponent);
   const inputs = getMutableComponent(entity, Input);
-  if(!avatarIK?.avatarIKRig) return console.warn('no ik rig attached');
+  if(!avatarIK?.avatarIKRig) return;
   const obj3d = getComponent(entity, Object3DComponent).value as Object3D;
 
   if(args.type === BaseInput.XR_HEAD) {

@@ -51,6 +51,7 @@ export const applyActionComponent = (actionMessage: GameStateActionMessage): voi
   const game = getComponent(entityGame, Game);
 //  console.warn(game);
   const entity = getEntityFromRoleUuid(game, actionMessage.role, actionMessage.uuid);
+  if(!entity) return;
   //Component._typeId
   // Engine.componentsMap[(Component as any)._typeId]
   const component = gameActionComponents[actionMessage.component]

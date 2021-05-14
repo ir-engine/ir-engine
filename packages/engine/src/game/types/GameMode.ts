@@ -30,8 +30,9 @@ export interface GameMode {
   registerStateTagComponents: ComponentConstructor<Component<any>>[]
   initGameState: {
     [key: string]: {
-      components: ComponentConstructor<Component<any>>[]
-      storage: InitStorageInterface[]
+      components?: ComponentConstructor<Component<any>>[]
+      storage?: InitStorageInterface[]
+      behaviors?: any
     };
   };
   gamePlayerRoles: GameRolesInterface

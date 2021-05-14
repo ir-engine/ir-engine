@@ -15,13 +15,17 @@ import { EquippedComponent } from "../components/EquippedComponent"
 import { EquippedStateUpdateSchema } from "../enums/EquippedEnums"
 
 export const equipEntity = (equipperEntity: Entity, equippedEntity: Entity): void => {
-  if(hasComponent(equippedEntity, TransformChildComponent) || hasComponent(equipperEntity, EquippedComponent)) return; // already equipped
+
+  if(hasComponent(equippedEntity, TransformChildComponent) || hasComponent(equipperEntity, EquippedComponent) || !hasComponent(equippedEntity, NetworkObject)) return; // already equipped or has no collider
   addComponent(equipperEntity, EquippedComponent, { equippedEntity: equippedEntity })
   addComponent(equippedEntity, TransformChildComponent, { parent: equipperEntity, offsetPosition: new Vector3(0, 1, 0) })
+  // all equippables must have a collider to grab by in VR
   const collider = getComponent(equippedEntity, ColliderComponent)
   collider.body.type = BodyType.KINEMATIC;
+  // send equip to clients
   if(isServer) {
-    sendClientObjectUpdate(equipperEntity, NetworkObjectUpdateType.ObjectEquipped, [BinaryValue.TRUE, getComponent(equippedEntity, NetworkObject).networkId] as EquippedStateUpdateSchema)
+    const networkObject = getComponent(equippedEntity, NetworkObject)
+    sendClientObjectUpdate(equipperEntity, NetworkObjectUpdateType.ObjectEquipped, [BinaryValue.TRUE, networkObject.networkId] as EquippedStateUpdateSchema)
   }
 }
 
@@ -38,6 +42,7 @@ export const unequipEntity = (equipperEntity: Entity): void => {
   })
   removeComponent(equippedEntity, TransformChildComponent)
   removeComponent(equipperEntity, EquippedComponent)
+  // send unequip to clients
   if(isServer) {
     sendClientObjectUpdate(equipperEntity, NetworkObjectUpdateType.ObjectEquipped, [BinaryValue.FALSE] as EquippedStateUpdateSchema)
   }
