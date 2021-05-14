@@ -4,7 +4,7 @@ import React from "react";
 
 export default function ProfilePage() {
 
-  const pid = new URLSearchParams(useLocation().search).get('pid').toString();
+  const pid = new URLSearchParams(useLocation().search).get('pid')?.toString();
 
   return (
     <div className="container">

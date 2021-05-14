@@ -16,7 +16,7 @@ export function getStoredState (key: string) {
   if (!rawState) {
     return undefined;
   }
-  const state = JSON.parse(rawState);
+  const state = JSON.parse(rawState);  
   return state[key];
 }
 

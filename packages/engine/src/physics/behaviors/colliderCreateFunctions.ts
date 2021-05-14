@@ -1,6 +1,6 @@
 import { PhysicsSystem } from '../systems/PhysicsSystem';
 import { CollisionGroups } from "../enums/CollisionGroups";
-import { createShapeFromConfig, Shape, SHAPES, Body, BodyType, getGeometry, arrayOfPointsToArrayOfVector3, CollisionEvents } from "three-physx";
+import { createShapeFromConfig, Shape, SHAPES, Body, BodyType, getGeometry, arrayOfPointsToArrayOfVector3, CollisionEvents, ControllerEvents } from "three-physx";
 import { Entity } from '../../ecs/classes/Entity';
 import { ColliderComponent } from '../components/ColliderComponent';
 import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
@@ -21,10 +21,10 @@ export function addColliderWithEntity(entity: Entity) {
   const { mesh, vertices, indices } = colliderComponent;
 
   const body = addColliderWithoutEntity(
-    { type: colliderComponent.type },
-    transformComponent.position,
-    transformComponent.rotation,
-    transformComponent.scale,
+    { bodytype: colliderComponent.bodytype, type: colliderComponent.type },
+    colliderComponent.position,
+    colliderComponent.rotation,
+    colliderComponent.scale,
     { mesh, vertices, indices }
   );
   colliderComponent.body = body;
@@ -36,7 +36,7 @@ const xVec = new Vector3(1, 0, 0);
 const halfPI = Math.PI / 2;
 
 export function addColliderWithoutEntity(userData, pos = new Vector3(), rot = new Quaternion(), scale = new Vector3(), model = { mesh: null, vertices: null, indices: null }): Body {
-  // console.log(userData, pos, rot, scale, model)
+  console.log(userData, pos, rot, scale, model)
   if(model.mesh && !model.vertices) {
     const mergedGeom = getGeometry(model.mesh);
     model.vertices = Array.from(mergedGeom.attributes.position.array);
@@ -92,6 +92,11 @@ export function addColliderWithoutEntity(userData, pos = new Vector3(), rot = ne
   }
 
   const shape: Shape = createShapeFromConfig(shapeArgs);
+  shape.config.material = { restitution: userData.restitution ?? 0 };
+  // TEMP
+  if(userData.type === 'sphere') {
+    shape.config.material = { restitution: 0.9, dynamicFriction: 0, staticFriction: 0 };
+  }
   // console.log('shape', shape);
 
   shape.config.collisionLayer = userData.collisionLayer ?? CollisionGroups.Default;
@@ -106,16 +111,18 @@ export function addColliderWithoutEntity(userData, pos = new Vector3(), rot = ne
 
   const bodyConfig = new Body({
     shapes: [shape],
-    type: BodyType.STATIC,
+    type: userData.bodytype ?? BodyType.STATIC,
     transform: {
       translation: { x: pos.x, y: pos.y, z: pos.z },
       rotation: { x: rot.x, y: rot.y, z: rot.z, w: rot.w },
       scale: { x: scale.x, y: scale.y, z: scale.z },
       linearVelocity: { x: 0, y: 0, z: 0 },
       angularVelocity: { x: 0, y: 0, z: 0 },
-    }
+    },
+    material: userData.bodytype === BodyType.DYNAMIC ? { dynamicFriction: 0.3 } : undefined
   });
-
+//  console.warn(userData.bodytype);
+  //bodyConfig.addEventListener(CollisionEvents.COLLISION_START, (e) => { console.log(e)});
 
 
   const body: Body = PhysicsSystem.instance.addBody(bodyConfig);

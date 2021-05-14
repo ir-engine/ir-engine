@@ -6,7 +6,7 @@ import { createNetworkRigidBody } from '../../interaction/prefabs/NetworkRigidBo
 import { createVehicleFromModel } from '../../vehicle/prefabs/NetworkVehicle';
 import { TransformComponent } from "../../transform/components/TransformComponent";
 import { addColliderWithoutEntity } from './colliderCreateFunctions';
-
+import { BodyType } from "three-physx";
 /**
  * @author HydraFire <github.com/HydraFire>
  */
@@ -64,7 +64,7 @@ export function createStaticCollider(mesh) {
 // only clean colliders from model Function
 export const clearFromColliders: Behavior = (entity: Entity, args: any) => {
   const arr = [];
-  const parseColliders = (mesh) => mesh.userData.data === 'physics' || mesh.userData.data === 'dynamic' || mesh.userData.type === 'trimesh' || mesh.userData.type === 'sphere' ? arr.push(mesh): '';
+  const parseColliders = (mesh) => mesh.userData.data === 'physics' || mesh.userData.data === 'kinematic' || mesh.userData.data === 'dynamic' || mesh.userData.type === 'trimesh' || mesh.userData.type === 'sphere' ? arr.push(mesh): '';
   // its for diferent files with models
   args.asset.scene ? args.asset.scene.traverse(parseColliders) : args.asset.traverse(parseColliders);
   // its for delete mesh from view scene
@@ -79,23 +79,34 @@ export const clearFromColliders: Behavior = (entity: Entity, args: any) => {
 export const parseModelColliders: Behavior = (entity: Entity, args: any) => {
   const arr = [];
   const parseColliders = (mesh) => {
-    // console.log('****** parseModelColliders: ', mesh);
     // have user data physics its our case
-    if (mesh.userData.data === 'physics' || mesh.userData.data === 'dynamic' || mesh.userData.data === 'vehicle') {
+    if (mesh.userData.data === 'physics' || mesh.userData.data === 'kinematic' || mesh.userData.data === 'dynamic' || mesh.userData.data === 'vehicle') {
       // add position from editor to mesh
       plusParametersFromEditorToMesh(entity, mesh);
       // its for delete mesh from view scene
       mesh.userData.data === 'vehicle' ? '' : arr.push(mesh);
       // parse types of colliders
       switch (mesh.userData.data) {
-
         case 'physics':
           createStaticCollider( mesh );
+          break;
+
+        case 'kinematic':
+          addComponent(entity, ColliderComponent, {
+            bodytype:  BodyType.KINEMATIC,
+            type: mesh.userData.type,
+            position: mesh.position,
+            quaternion: mesh.quaternion,
+            scale: mesh.scale,
+            mesh: mesh.userData.type === 'trimesh' ? mesh : null,
+            mass: mesh.userData.mass ?? 1
+          })
           break;
 
         case 'dynamic':
           createNetworkRigidBody({
             parameters: {
+              bodytype: BodyType.DYNAMIC,
               type: mesh.userData.type,
               scale: mesh.scale,
               position: mesh.position,

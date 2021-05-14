@@ -21,10 +21,10 @@ export class ArMedia extends Service {
   }
 
   /**
-   * @function find it is used to find specific users
+   * @function
    *
    * @param params 
-   * @returns {@Array} of found users
+   * @returns {@Array} 
    * @author Vykliuk Tetiana <tanya.vykliuk@gmail.com>
    */
 
@@ -33,8 +33,6 @@ export class ArMedia extends Service {
     const skip = params.query?.$skip ? params.query.$skip : 0;
     const limit = params.query?.$limit ? params.query.$limit : 100;
 
-    console.log('action', action);
-
     const queryParamsReplacements = {
       skip,
       limit,
@@ -42,9 +40,12 @@ export class ArMedia extends Service {
 
     //All ArMedia as Admin
     if (action === 'admin') {
-      const dataQuery = `SELECT ar.id as ar_id, ar.title as ar_title, ar.type as ar_type, ar.createdAt as ar_createdAt, col.*
+      const dataQuery = `SELECT ar.*, sr1.url as manifestUrl, sr2.url as previewUrl, sr3.url as dracosisUrl, sr4.url as audioUrl
         FROM \`ar_media\` as ar
-        JOIN \`collection\` as col ON col.id=ar.collectionId        
+        JOIN \`static_resource\` as sr1 ON sr1.id=ar.manifestId
+        JOIN \`static_resource\` as sr2 ON sr2.id=ar.previewId   
+        JOIN \`static_resource\` as sr3 ON sr3.id=ar.dracosisId   
+        JOIN \`static_resource\` as sr4 ON sr4.id=ar.audioId 
         WHERE 1
         ORDER BY ar.createdAt DESC    
         LIMIT :skip, :limit `;
@@ -65,9 +66,13 @@ export class ArMedia extends Service {
     }
 
     //All ArMedia
-      const dataQuery = `SELECT ar.id as ar_id, ar.title as ar_title, ar.type as ar_type, ar.createdAt as ar_createdAt, col.*
+      const dataQuery = `SELECT ar.*, 
+      sr1.url as manifestUrl, sr2.url as previewUrl, sr3.url as dracosisUrl, sr4.url as audioUrl
         FROM \`ar_media\` as ar
-        JOIN \`collection\` as col ON col.id=ar.collectionId        
+        JOIN \`static_resource\` as sr1 ON sr1.id=ar.manifestId
+        JOIN \`static_resource\` as sr2 ON sr2.id=ar.previewId   
+        JOIN \`static_resource\` as sr3 ON sr3.id=ar.dracosisId   
+        JOIN \`static_resource\` as sr4 ON sr4.id=ar.audioId   
         WHERE 1
         ORDER BY ar.createdAt DESC    
         LIMIT :skip, :limit `;
@@ -155,6 +160,7 @@ export class ArMedia extends Service {
 
     async create (data: any,  params?: Params): Promise<any> {
       const {ar_media:ArMediaModel} = this.app.get('sequelizeClient').models;
+      console.log('create aredia data', data);
       return await ArMediaModel.create(data);
     }
 

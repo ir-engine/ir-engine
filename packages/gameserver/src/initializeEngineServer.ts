@@ -60,8 +60,8 @@ export const initializeEngineServer = async (initOptions: InitializeOptions = De
   Engine.workers.push(worker);
   
   await Promise.all([
-    AnimationManager.instance.getDefaultModel(),
-    AnimationManager.instance.getAnimations(),
+    // AnimationManager.instance.getDefaultModel(),
+    // AnimationManager.instance.getAnimations(),
   ]);
 
   registerSystem(PhysicsSystem, { worker, physicsWorldConfig });

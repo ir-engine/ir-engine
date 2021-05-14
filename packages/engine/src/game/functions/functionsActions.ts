@@ -6,8 +6,10 @@ import { addComponent, getComponent, hasComponent } from '../../ecs/functions/En
 import { ComponentConstructor } from '../../ecs/interfaces/ComponentInterfaces';
 import { Network } from "../../networking/classes/Network";
 import { HaveBeenInteracted } from "../actions/HaveBeenInteracted";
+import { NextTurn } from "../actions/NextTurn";
 import { Game } from "../components/Game";
 import { GameObject } from "../components/GameObject";
+import { GamePlayer } from "../components/GamePlayer";
 import { GameStateActionMessage } from "../types/GameMessage";
 import { getEntityFromRoleUuid, getGame, getGameEntityFromName, getRole, getUuid } from './functions';
 /**
@@ -15,12 +17,13 @@ import { getEntityFromRoleUuid, getGame, getGameEntityFromName, getRole, getUuid
  */
 // TODO: create schema actions
 const gameActionComponents = {
-  'HaveBeenInteracted': HaveBeenInteracted
+  'HaveBeenInteracted': HaveBeenInteracted,
+  'NextTurn': NextTurn
 };
 
 export const addActionComponent = (entity: Entity, component: ComponentConstructor<Component<any>>): void => {
-  if (!hasComponent(entity, GameObject)) return; // its when game local
-  const game = getComponent(entity, GameObject).game as Game
+  if (!(hasComponent(entity, GameObject) || hasComponent(entity, GamePlayer))) return;
+  const game = getGame(entity);
   //// Clients dont apply self actions, only in not Global mode
   if (isClient && !game.isGlobal) {
     addComponent(entity, component);
@@ -38,12 +41,12 @@ export const sendActionComponent = (entity: Entity, component: ComponentConstruc
     component: component.name,
     uuid: getUuid(entity)
   }
-  console.warn('sendActionComponent', actionMessage);
+  console.log('sendActionComponent', actionMessage);
   Network.instance.worldState.gameStateActions.push(actionMessage);
 };
 
 export const applyActionComponent = (actionMessage: GameStateActionMessage): void => {
-  //console.warn('applyActionComponent', actionMessage);
+  console.warn('applyActionComponent', actionMessage);
   const entityGame = getGameEntityFromName(actionMessage.game);
   const game = getComponent(entityGame, Game);
 //  console.warn(game);

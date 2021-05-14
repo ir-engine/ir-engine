@@ -28,12 +28,7 @@ export default (app: Application): any => {
       inviteCode: {
         type: DataTypes.STRING,
         unique: true
-      },
-      email: {
-        type: DataTypes.STRING,
-        defaultValue: (): string => "",
-        allowNull: false,
-      },
+      }
     },
     {
       hooks: {

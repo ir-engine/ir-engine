@@ -1,10 +1,10 @@
 /**
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
-import { Button, CardMedia} from '@material-ui/core';
+import { Button, CardMedia, Typography} from '@material-ui/core';
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
 import { useTranslation } from 'react-i18next';
 import { selectCreatorsState } from '../../reducers/creator/selector';
@@ -40,10 +40,16 @@ const mapStateToProps = (state: any): any => {
   }
 
 const ArMedia = ({getArMedia, arMediaState, updateArMediaState, updateNewFeedPageState}:Props) => {
-  const [type, setType] = React.useState('clip');
+  const [type, setType] = useState('clip');
+  const [list, setList] = useState(null);
   useEffect(()=> {getArMedia();}, []);
 	const { t } = useTranslation();
-  const arMediaList = arMediaState.get('fetching') === false && arMediaState?.get('list') ? arMediaState.get('list') : null;
+
+  useEffect(()=> {
+      if(arMediaState.get('fetching') === false){
+      setList(arMediaState?.get('list').filter(item=>item.type === type));
+    }
+  }, [arMediaState.get('fetching'), type]);
 
     return <section className={styles.arMediaContainer}>
       <Button variant="text" className={styles.backButton} onClick={()=>updateArMediaState(false)}><ArrowBackIosIcon />{t('social:arMedia.back')}</Button>
@@ -54,14 +60,16 @@ const ArMedia = ({getArMedia, arMediaState, updateArMediaState, updateNewFeedPag
             onClick={()=>setType('background')}>{t('social:arMedia.backgrounds')}</Button>
       </section>
       <section className={styles.flexContainer}>
-        {arMediaList?.map((item, itemIndex)=>{
-          return item.ar_type === type && 
-            <CardMedia 
-             key={itemIndex}
-            className={styles.previewImage}
-            image={item.previewUrl}
-            />;          
-        })}
+        {list?.map((item, itemIndex)=>
+            <section className={styles.previewImageContainer}>
+              <CardMedia 
+              key={itemIndex}
+                className={styles.previewImage}
+                image={item.previewUrl}
+              />
+              <Typography>{item.title}</Typography>
+            </section>
+        )}
       </section>
       <Button className={styles.startRecirding} onClick={()=> {updateArMediaState(false); updateNewFeedPageState(true);}} variant="contained" >
           {t('social:arMedia.start')}

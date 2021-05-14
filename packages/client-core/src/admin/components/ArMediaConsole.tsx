@@ -14,7 +14,7 @@ import {
     TableRow,
     TableCell,
     Paper,
-    Button, Typography
+    Button, Typography, CardMedia
 } from '@material-ui/core';
 // @ts-ignore
 import styles from './Admin.module.scss';
@@ -95,10 +95,9 @@ const ArMediaConsole = (props: Props) => {
     const { list, updateFeedAsAdmin, fetchAdminScenes, adminState, doLoginAuto, removeArMedia } = props;
     const adminScenes = adminState.get('scenes').get('scenes');
 
-    console.log('list', list);
-
     const headCells = [
         { id: 'type', numeric: false, disablePadding: false, label: 'Type' },
+        { id: 'preview', numeric: false, disablePadding: false, label: 'Preview' },
         { id: 'title', numeric: false, disablePadding: false, label: 'Title' },        
         { id: 'createdAt', numeric: false, disablePadding: false, label: 'Created' },
         { id: 'action', numeric: false, disablePadding: false, label: '' }
@@ -213,12 +212,19 @@ const ArMediaConsole = (props: Props) => {
                                             tabIndex={-1}
                                             key={row.id}
                                         >
-                                            <TableCell className={styles.tcell} align="center">{row.ar_type}</TableCell>
-                                            <TableCell className={styles.tcell} align="center">{row.ar_title}</TableCell>                                              
-                                            <TableCell className={styles.tcell} align="right">{row.ar_createdAt}</TableCell>
+                                            <TableCell className={styles.tcell} align="center">{row.type}</TableCell>
+                                            <TableCell className={styles.tcell} align="center">
+                                                <CardMedia   
+                                                    className={styles.previewImage}                  
+                                                    image={row.previewUrl.toString()}
+                                                    title={row.title.toString()}                      
+                                                />
+                                            </TableCell> 
+                                            <TableCell className={styles.tcell} align="center">{row.title}</TableCell>                                              
+                                            <TableCell className={styles.tcell} align="right">{row.createdAt}</TableCell>
                                             <TableCell className={styles.tcell} >
                                                 {/* <Button variant="outlined" color="secondary" style={{width:'fit-content'}} onClick={() => handleView(row.id.toString())}><Edit className="text-success"/>Edit</Button> */}
-                                                <Button variant="outlined" color="secondary" style={{width:'fit-content'}} onClick={() => handleDelete(row.ar_id.toString())}>Delete</Button>
+                                                <Button variant="outlined" color="secondary" style={{width:'fit-content'}} onClick={() => handleDelete(row.id.toString())}>Delete</Button>
                                             </TableCell>
                                         </TableRow>
                                     );

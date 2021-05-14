@@ -45,7 +45,7 @@ export class CharacterComponent extends Component<CharacterComponent> {
 	public walkSpeed = 0.5;
 	public runSpeed = 1;
 	public jumpHeight = 4;
-	public speedMultiplier = 2;
+	public speedMultiplier = 3;
 
 	/**
 	 * desired moving direction from user inputs

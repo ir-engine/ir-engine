@@ -116,29 +116,26 @@ export const initializeEngine = async (initOptions: InitializeOptions): Promise<
     }
 
     if (!useOffscreen) {
-
       Engine.camera = new PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 10000);
       Engine.scene.add(Engine.camera);
 
       let physicsWorker;
-      /** @todo fix bundling */
+      /**@todo for when we fix bundling */
       // if((window as any).safariWebBrowser) {
         physicsWorker = new Worker('/scripts/loadPhysXClassic.js');
       // } else {
         //@ts-ignore
-        // const { default: PhysXWorker } = await import('@xrengine/engine/src/physics/functions/loadPhysX.ts?worker&inline');
-        // physicsWorker = new PhysXWorker();
-        // await PhysXInstance.instance.initPhysX(new PhysXWorker(), { });
+        // const { default: PhysXWorker } = await import('./physics/functions/loadPhysX.ts?worker');
+      //   physicsWorker = new PhysXWorker();
       // }
-      Engine.workers.push(physicsWorker);
-      
       new AnimationManager();
-
+      
       // promise in parallel to speed things up
       await Promise.all([
         AnimationManager.instance.getDefaultModel(),
         AnimationManager.instance.getAnimations(),
       ]);
+      Engine.workers.push(physicsWorker);
 
       registerSystem(ClientNetworkStateSystem);
       registerSystem(CharacterControllerSystem);
@@ -195,11 +192,12 @@ export const initializeEngine = async (initOptions: InitializeOptions): Promise<
 
 
 export const initializeEditor = async (initOptions: InitializeOptions): Promise<void> => {
-  const options = _.defaultsDeep({}, initOptions, DefaultInitializationOptions);
+  const options = _.defaultsDeep({}, initOptions, DefaultInitializationOptions) as InitializeOptions;
   const { physicsWorldConfig } = options;
 
   Engine.scene = new Scene();
 
+  Engine.supportedGameModes = options.supportedGameModes;
   Engine.gameMode = initOptions.gameMode;
   Engine.publicPath = options.publicPath;
 
@@ -213,10 +211,9 @@ export const initializeEditor = async (initOptions: InitializeOptions): Promise<
   // if((window as any).safariWebBrowser) {
     physicsWorker = new Worker('/scripts/loadPhysXClassic.js');
   // } else {
-    //@ts-ignore
-    // const { default: PhysXWorker } = await import('@xrengine/engine/src/physics/functions/loadPhysX.ts?worker&inline');
+    // @ts-ignore
+    // const { default: PhysXWorker } = await import('./physics/functions/loadPhysX.ts?worker');
     // physicsWorker = new PhysXWorker();
-    // await PhysXInstance.instance.initPhysX(new PhysXWorker(), { });
   // }
   Engine.workers.push(physicsWorker);
 
