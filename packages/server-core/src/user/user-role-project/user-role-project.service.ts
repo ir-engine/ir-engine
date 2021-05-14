@@ -21,5 +21,5 @@ export default function (app: Application): void {
 
     const service = app.service('user-role-project');
 
-    service.hooks(hooks);
+    service.hooks(hooks as any);
 }

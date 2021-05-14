@@ -79,7 +79,9 @@ export const initializeEngineServer = async (initOptions: InitializeOptions = De
     networkUpdate: (delta: number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Network),
     fixedUpdate: (delta: number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Fixed),
     update: (delta, elapsedTime) => execute(delta, elapsedTime, SystemUpdateType.Free)
-  }, Engine.physicsFrameRate, Engine.networkFramerate).start();
+  }, Engine.physicsFrameRate, Engine.networkFramerate);
+
+  Engine.engineTimer.start();
 
   Engine.isInitialized = true;
 };

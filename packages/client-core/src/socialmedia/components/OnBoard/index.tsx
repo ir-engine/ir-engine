@@ -3,6 +3,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+// @ts-ignore
 import styles from './index.module.scss';
 
 
@@ -15,7 +16,7 @@ interface Props{
 
 const Onboard = (props: Props) => {
 
-    const [screen, setScreen] = useState(1)
+    const [screen, setScreen] = useState(1);
     const { setOnborded, image, mockupIPhone } = props;
     switch(screen){
 
@@ -25,9 +26,9 @@ const Onboard = (props: Props) => {
               <h3>Welcome to ARC!</h3>
               <p>Biggest collection of 370+ layouts
                  for iOS prototyping.</p>
-              <button type="button" onClick={()=>{setScreen(2)}}> Next </button>
+              <button type="button" onClick={()=>{setScreen(2);}}> Next </button>
               </div>
-            </div>
+            </div>;
 
         case(2):
             return <div className={styles.secondScreen+" "+styles.onboarding}>
@@ -41,12 +42,12 @@ const Onboard = (props: Props) => {
                       of astronomy and our desire.
                   </p>
               </div>
-              <button type="button" onClick={()=>{setScreen(3)}}> Get Started </button>
-            </div>
+              <button type="button" onClick={()=>{setScreen(3);}}> Get Started </button>
+            </div>;
 
         case(3):
             return <div className={styles.thirdScreen+" "+styles.onboarding}>
-                      <button type="button" onClick={()=>{setOnborded(true)}}> Next </button>
+                      <button type="button" onClick={()=>{setOnborded(true);}}> Next </button>
                       <div>
                           <h3>
                               Meet up with friends.
@@ -57,8 +58,8 @@ const Onboard = (props: Props) => {
                           </p>
                       </div>
                       <img src={mockupIPhone} />
-                    </div>
+                    </div>;
         }
-}
+};
 
-export default Onboard
+export default Onboard;

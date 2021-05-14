@@ -2,7 +2,7 @@ import app from '../../packages/server/src/app'
 import { v1 } from 'uuid'
 
 describe('CRUD operation on \'Entity\' model', () => {
-  const model = app.service('entity').Model
+  const model = (app.service('entity') as any).Model
   const entityId = v1();
   it('Create', async () => {
     await model.create({

@@ -30,7 +30,7 @@ export default (app: Application): any => {
 
   const service = app.service('channel');
 
-  service.hooks(hooks);
+  service.hooks(hooks as any);
 
   /**
    * A method which is used to create channel 
@@ -69,19 +69,19 @@ export default (app: Application): any => {
         targetIds = [data.userId1, data.userId2];
       } else if (data.channelType === 'group') {
         if (data.group == null) {
-          data.group = await app.service('group').Model.findOne({
+          data.group = await (app.service('group') as any).Model.findOne({
             where: {
               id: data.groupId
             }
           });
         }
-        const groupUsers = await app.service('group-user').Model.findAll({
+        const groupUsers = await (app.service('group-user') as any).Model.findAll({
           where: {
             groupId: data.groupId
           },
           include: [
             {
-              model: app.service('user').Model
+              model: (app.service('user') as any).Model
             }
           ]
         });
@@ -108,19 +108,19 @@ export default (app: Application): any => {
         targetIds = groupUsers.map((groupUser) => groupUser.userId);
       } else if (data.channelType === 'party') {
         if (data.party == null) {
-          data.party = await app.service('party').Model.findOne({
+          data.party = await (app.service('party') as any).Model.findOne({
             where: {
               id: data.partyId
             }
           });
         }
-        const partyUsers = await app.service('party-user').Model.findAll({
+        const partyUsers = await (app.service('party-user') as any).Model.findAll({
           where: {
             partyId: data.partyId
           },
           include: [
             {
-              model: app.service('user').Model
+              model: (app.service('user') as any).Model
             }
           ]
         });
@@ -146,13 +146,13 @@ export default (app: Application): any => {
         targetIds = partyUsers.map((partyUser) => partyUser.userId);
       } else if (data.channelType === 'instance') {
         if (data.instance == null) {
-          data.instance = await app.service('instance').Model.findOne({
+          data.instance = await (app.service('instance') as any).Model.findOne({
             where: {
               id: data.instanceId
             }
           });
         }
-        const instanceUsers = await app.service('user').Model.findAll({
+        const instanceUsers = await (app.service('user') as any).Model.findAll({
           where: {
             instanceId: data.instanceId
           }
@@ -227,19 +227,19 @@ export default (app: Application): any => {
         targetIds = [data.userId1, data.userId2];
       } else if (data.channelType === 'group') {
         if (data.group == null) {
-          data.group = await app.service('group').Model.findOne({
+          data.group = await (app.service('group') as any).Model.findOne({
             where: {
               id: data.groupId
             }
           });
         }
-        const groupUsers = await app.service('group-user').Model.findAll({
+        const groupUsers = await (app.service('group-user') as any).Model.findAll({
           where: {
             groupId: data.groupId
           },
           include: [
             {
-              model: app.service('user').Model
+              model: (app.service('user') as any).Model
             }
           ]
         });
@@ -266,19 +266,19 @@ export default (app: Application): any => {
         targetIds = groupUsers.map((groupUser) => groupUser.userId);
       } else if (data.channelType === 'party') {
         if (data.party == null) {
-          data.party = await app.service('party').Model.findOne({
+          data.party = await (app.service('party') as any).Model.findOne({
             where: {
               id: data.partyId
             }
           });
         }
-        const partyUsers = await app.service('party-user').Model.findAll({
+        const partyUsers = await (app.service('party-user') as any).Model.findAll({
           where: {
             partyId: data.partyId
           },
           include: [
             {
-              model: app.service('user').Model
+              model: (app.service('user') as any).Model
             }
           ]
         });
@@ -304,13 +304,13 @@ export default (app: Application): any => {
         targetIds = partyUsers.map((partyUser) => partyUser.userId);
       } else if (data.channelType === 'instance') {
         if (data.instance == null) {
-          data.instance = await app.service('instance').Model.findOne({
+          data.instance = await (app.service('instance') as any).Model.findOne({
             where: {
               id: data.instanceId
             }
           });
         }
-        const instanceUsers = await app.service('user').Model.findAll({
+        const instanceUsers = await (app.service('user') as any).Model.findAll({
           where: {
             instanceId: data.instanceId
           }
@@ -360,21 +360,21 @@ export default (app: Application): any => {
     if (data.channelType === 'user') {
       targetIds = [data.userId1, data.userId2];
     } else if (data.channelType === 'group') {
-      const groupUsers = await app.service('group-user').Model.findAll({
+      const groupUsers = await (app.service('group-user') as any).Model.findAll({
         where: {
           groupId: data.groupId
         }
       });
       targetIds = groupUsers.map((groupUser) => groupUser.userId);
     } else if (data.channelType === 'party') {
-      const partyUsers = await app.service('party-user').Model.findAll({
+      const partyUsers = await (app.service('party-user') as any).Model.findAll({
         where: {
           partyId: data.partyId
         }
       });
       targetIds = partyUsers.map((partyUser) => partyUser.userId);
     } else if (data.channelType === 'instance') {
-      const instanceUsers = await app.service('user').Model.findAll({
+      const instanceUsers = await (app.service('user') as any).Model.findAll({
         where: {
           instanceId: data.instanceId
         }

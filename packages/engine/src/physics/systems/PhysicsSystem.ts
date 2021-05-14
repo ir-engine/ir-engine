@@ -19,6 +19,7 @@ import { addColliderWithEntity } from '../behaviors/colliderCreateFunctions';
 import { findInterpolationSnapshot } from '../behaviors/findInterpolationSnapshot';
 import { HaveBeenCollision } from "../../game/actions/HaveBeenCollision";
 import { GameObject } from "../../game/components/GameObject";
+import { addActionComponent } from '../../game/functions/functionsActions';
 /**
  * @author HydraFire <github.com/HydraFire>
  * @author Josh Field <github.com/HexaField>
@@ -76,32 +77,29 @@ export class PhysicsSystem extends System {
     await PhysXInstance.instance.initPhysX(this.worker, this.physicsWorldConfig);
   }
 
-  async initialize() {
-    await PhysXInstance.instance.initPhysX(this.worker, this.physicsWorldConfig);
-  }
-
   dispose(): void {
     super.dispose();
     this.frame = 0;
     this.broadphase = null;
+    EngineEvents.instance.removeAllListenersForEvent(PhysicsSystem.EVENTS.PORTAL_REDIRECT_EVENT);
   }
 
   execute(delta: number): void {
     this.queryResults.collider.added?.forEach(entity => {
-      addColliderWithEntity(entity)
-/*
-      const collider = getComponent<ColliderComponent>(entity, ColliderComponent);
+      const collider = getComponent(entity, ColliderComponent);
+      if(!collider.body) {
+        addColliderWithEntity(entity)
+      }
       collider.body.addEventListener(CollisionEvents.COLLISION_START, (ev: ColliderHitEvent) => {
         collider.collisions.push(ev);
       })
-
       collider.body.addEventListener(CollisionEvents.COLLISION_PERSIST, (ev: ColliderHitEvent) => {
         collider.collisions.push(ev);
       })
       collider.body.addEventListener(CollisionEvents.COLLISION_END, (ev: ColliderHitEvent) => {
         collider.collisions.push(ev);
       })
-*/
+
     });
 
     this.queryResults.collider.all?.forEach(entity => {
@@ -109,8 +107,8 @@ export class PhysicsSystem extends System {
       const collider = getMutableComponent<ColliderComponent>(entity, ColliderComponent);
       // iterate on all collisions since the last update
       collider.collisions.forEach((event) => {
-        console.warn(type, bodySelf, bodyOther, shapeSelf, shapeOther);
         const { type, bodySelf, bodyOther, shapeSelf, shapeOther } = event;
+        console.warn(type, bodySelf, bodyOther, shapeSelf, shapeOther);
         if (hasComponent(entity, GameObject)) {
           addActionComponent(entity, HaveBeenCollision);
           console.warn(event, entity);

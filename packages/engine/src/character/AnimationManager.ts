@@ -15,11 +15,11 @@ export class AnimationManager {
 
 	getAnimations(): Promise<AnimationClip[]> {
 		return new Promise(resolve => {
-			if (!isClient) {
-				resolve([]);
-			}
 			if (this._animations) {
 				resolve(this._animations);
+			}
+			if (!isClient) {
+				resolve([]);
 			}
 			getLoader().load(Engine.publicPath + '/models/avatars/Animations.glb', gltf => {
 				gltf.scene.traverse((child) => {
@@ -40,12 +40,12 @@ export class AnimationManager {
 	}
 	getDefaultModel(): Promise<Group> {
 		return new Promise(resolve => {
-      if (!isClient) {
-        resolve(new Group());
-      }
       if (this._defaultModel) {
         resolve(this._defaultModel);
 			}
+      if (!isClient) {
+        resolve(new Group());
+      }
 			getLoader().load(Engine.publicPath + '/models/avatars/Andy.glb', gltf => {
 				console.log('default model loaded');
 				this._defaultModel = gltf.scene;

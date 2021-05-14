@@ -12,7 +12,7 @@ const TPS_REPORT_INTERVAL_MS = 10000;
 export function Timer (
   callbacks: { update?: TimerUpdateCallback; fixedUpdate?: TimerUpdateCallback; networkUpdate?: TimerUpdateCallback; render?: Function },
   fixedFrameRate?: number, networkTickRate?: number
-): { start: Function; stop: Function } {
+): { start: Function; stop: Function, clear: Function } {
   const fixedRate = fixedFrameRate || 60;
   const networkRate = networkTickRate || 20;
 
@@ -193,9 +193,19 @@ export function Timer (
     cancelAnimationFrame(frameId);
   }
 
+  function clear () {
+    cancelAnimationFrame(frameId);
+    EngineEvents.instance.removeAllListenersForEvent(XRSystem.EVENTS.XR_START);
+    EngineEvents.instance.removeAllListenersForEvent(XRSystem.EVENTS.XR_SESSION);
+    EngineEvents.instance.removeAllListenersForEvent(XRSystem.EVENTS.XR_END);
+    delete this.fixedRunner;
+    delete this.networkRunner;
+  }
+
   return {
     start: start,
-    stop: stop
+    stop: stop,
+    clear: clear,
   };
 }
 

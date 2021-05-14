@@ -32,7 +32,7 @@ export default (app: Application): void => {
 
   const service = app.service('user');
 
-  service.hooks(hooks);
+  service.hooks(hooks as any);
   
   /**
    * This method find all users
@@ -42,17 +42,17 @@ export default (app: Application): void => {
   
   service.publish('patched', async (data, params): Promise<any> => {
     try {
-      const groupUsers = await app.service('group-user').Model.findAll({
+      const groupUsers = await (app.service('group-user') as any).Model.findAll({
         where: {
           userId: data.id
         }
       });
-      const partyUsers = await app.service('party-user').Model.findAll({
+      const partyUsers = await (app.service('party-user') as any).Model.findAll({
         where: {
           userId: data.id
         }
       });
-      const userRelationships = await app.service('user-relationship').Model.findAll({
+      const userRelationships = await (app.service('user-relationship') as any).Model.findAll({
         where: {
           userRelationshipType: 'friend',
           relatedUserId: data.id
@@ -64,7 +64,7 @@ export default (app: Application): void => {
 
       let layerUsers = [];
       if (data.instanceId != null || params.params?.instanceId != null) {
-        layerUsers = await app.service('user').Model.findAll({
+        layerUsers = await (app.service('user') as any).Model.findAll({
           where: {
             instanceId: data.instanceId || params.params?.instanceId
           }

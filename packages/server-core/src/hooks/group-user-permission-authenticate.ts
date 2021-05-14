@@ -18,7 +18,7 @@ export default () => {
           groupId: groupId,
           userId: userId
         }
-      }, paramsClone);
+      }, paramsClone as any);
       if (groupUserResult.total === 0) {
         throw new BadRequest('Invalid group ID in group-user-permission');
       }

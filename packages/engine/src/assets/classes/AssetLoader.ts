@@ -13,7 +13,8 @@ import { Engine } from '../../ecs/classes/Engine';
 import { LOADER_STATUS, LODS_REGEXP, LOD_DISTANCES } from '../constants/LoaderConstants';
 
 type AssetLoaderParamType = {
-    entity: Entity;
+    entity?: Entity;
+    parent?: Object3D;
     url: string;
     [key: string]: any;
 }
@@ -68,7 +69,9 @@ export class AssetLoader {
         this.fileLoader.load(url, this._onLoad, this._onProgress, this._onError);
 
         // Add or overwrites the loader for an entity.
-        AssetLoader.loaders.set(this.params.entity.id, this);
+        if(this.params.entity){
+          AssetLoader.loaders.set(this.params.entity.id, this);
+        }
     }
 
     /**
@@ -150,7 +153,7 @@ export class AssetLoader {
 
         if (this.params.parent) {
             this.params.parent.add(asset);
-        } else {
+        } else if(this.params.entity) {
             if (hasComponent(this.params.entity, Object3DComponent)) {
                 if (getComponent<Object3DComponent>(this.params.entity, Object3DComponent).value !== undefined)
                     getMutableComponent<Object3DComponent>(this.params.entity, Object3DComponent).value.add(asset);
@@ -202,6 +205,7 @@ export class AssetLoader {
     }
 
     dispatchEvent = () => {
+      if(this.params.entity) {
         EngineEvents.instance.dispatchEvent({
             type: EngineEvents.EVENTS.ASSET_LOADER,
             data: {
@@ -209,6 +213,7 @@ export class AssetLoader {
                 entityId: this.params.entity.id,
             }
         });
+      }
     }
 
     _onLoad = (response: any): void => {

@@ -1,4 +1,4 @@
-import { ServiceAddons } from '@feathersjs/feathers';
+import { ServiceAddons, HookOptions } from '@feathersjs/feathers';
 import { Application } from '../../../declarations';
 import { CollectionType } from './collection-type.class';
 import createModel from './collection-type.model';
@@ -29,5 +29,5 @@ export default (app: Application): any => {
 
   const service = app.service('collection-type');
 
-  service.hooks(hooks);
+  service.hooks(hooks as any);
 };

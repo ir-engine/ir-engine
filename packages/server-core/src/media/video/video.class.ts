@@ -1,4 +1,5 @@
-import { Id, NullableId, Paginated, Params, ServiceMethods } from '@feathersjs/feathers';
+import { Id, NullableId, Params, ServiceMethods } from '@feathersjs/feathers';
+import Paginated from '../../types/PageObject';
 import { Application } from '../../../declarations';
 import getBasicMimetype from '../../util/get-basic-mimetype';
 
@@ -19,6 +20,8 @@ export class Video implements ServiceMethods<Data> {
     this.options = options;
     this.app = app;
   }
+
+  async setup() {}
 
   async find (params?: Params): Promise<Data[] | Paginated<Data>> {
     return [];

@@ -96,7 +96,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
         const localIp = await getLocalServerIp();
         let stringSubdomainNumber, gsResult;
         if (!config.kubernetes.enabled) try {
-            await this.app.service('instance').Model.destroy({where: {}});
+            await (this.app.service('instance') as any).Model.destroy({where: {}});
         } catch (error) {
             logger.warn(error);
         }
@@ -170,7 +170,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                 }
 
                 // Check database to verify that user ID is valid
-                const user = await this.app.service('user').Model.findOne({
+                const user = await (this.app.service('user') as any).Model.findOne({
                     attributes: ['id', 'name', 'instanceId', 'avatarId'],
                     where: {
                         id: userId

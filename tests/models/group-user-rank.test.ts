@@ -1,7 +1,7 @@
 import app from '../../packages/server/src/app'
 
 describe('CRUD operation on \'GroupUserRank\' model', () => {
-  const model = app.service('group-user-rank').Model
+  const model = (app.service('group-user-rank') as any).Model
 
   beforeAll(async (done) => {
     await model.destroy({

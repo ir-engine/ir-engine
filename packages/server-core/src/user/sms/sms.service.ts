@@ -33,5 +33,5 @@ export default (app: Application): void => {
    */
   const service = app.service('sms');
 
-  service.hooks(hooks);
+  service.hooks(hooks as any);
 };
