@@ -44,7 +44,7 @@ export const TipsAndTricks = ({tipsAndTricksState, getTipsAndTricks, doLoginAuto
     const tipsAndTricksList = tipsAndTricksState?.get('tips_and_tricks');
 
     return <section className={styles.tipsandtricksContainer}>
-        {tipsAndTricksList && tipsAndTricksList.length > 0 && tipsAndTricksList.map((item, itemindex)=>
+        {tipsAndTricksList && tipsAndTricksList.length > 0 ? tipsAndTricksList.map((item, itemindex)=>
             <Card className={styles.tipItem} square={true} elevation={0} key={itemindex}>
                 <CardMedia
                     className={styles.previewImage}
@@ -58,7 +58,7 @@ export const TipsAndTricks = ({tipsAndTricksState, getTipsAndTricks, doLoginAuto
                     <Typography className={styles.tipsDescription}>{item.description}</Typography>
                 </CardContent>
             </Card>
-        )}
+        ) : <p className={styles.noContent}>More Tips&Tricks will be available soon.</p>}
         </section>;
 };
 

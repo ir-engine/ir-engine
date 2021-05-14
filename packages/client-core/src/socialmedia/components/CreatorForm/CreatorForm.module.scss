@@ -16,11 +16,19 @@
         .backButton,
         .saveButton{
             width: fit-content;
-            margin: 0;
+            margin: 0 7pt;
+            font-size: 19pt;
+            text-transform: capitalize;
+            font-weight: 400;
+        }
+        .backButton{
+            font-weight: 300;
         }
         .pageTitle{
             font-family: 'SFProText-Semibold';
-            font-size: 17pt;
+            font-size: 19pt;
+            display: flex;
+            align-items: center;
         }
     }
    
@@ -47,6 +55,9 @@
         box-sizing: border-box;
         display: flex;
         flex-direction: row;
+        input{
+            font-size: 17pt;
+        }
 
         .fieldLabelIcon{
             flex-grow: 0;
@@ -58,15 +69,49 @@
         padding: 5px 20px;
 
         .logOutButton{
-            position: related;
-            left: 50%;
+            //position: related;
+            margin-left: 50%;
+            width: max-content;
             transform: translate(-50%);
             background-color: #000;
             color: #FFF;
-            position: fixed;
-            bottom: 125pt;
-            @media screen and (max-width: 499px){
-                bottom: 110pt;
+            position: static;
+            padding: 8pt 40pt;
+            border-radius: 13px;
+            font-size: 17pt;
+            text-transform: none;
+        }
+    }
+    @media screen and (max-width: 499px){
+        .content{
+            .logOutButton{
+                padding: 6pt 23pt;
+                border-radius: 13px;
+                font-size: 14pt;
+            }
+        }
+        .formLine{
+            input{
+                font-size: 14pt;
+            }
+        }
+        .headerContainer{
+            .backButton, .saveButton, .pageTitle{
+                margin: 0 6pt;
+                font-size: 15pt;
+            }
+        }
+    }
+    @media screen and (max-height: 699px){
+        .avatarImage{
+            margin: 10px auto;
+        }
+        .content{
+            padding-bottom: 150pt;
+            .logOutButton{
+                padding: 6pt 23pt;
+                border-radius: 13px;
+                font-size: 14pt;
             }
         }
     }

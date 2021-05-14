@@ -83,7 +83,7 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
     
 return <section className={styles.feedFormContainer}>
     <nav>               
-        <Button variant="text" onClick={()=>{updateArMediaState(true); updateNewFeedPageState(false);}}><ArrowBackIosIcon />{t('social:feedForm.back')}</Button> 
+        <Button variant="text" className={styles.backButton} onClick={()=>{updateArMediaState(true); updateNewFeedPageState(false);}}><ArrowBackIosIcon />{t('social:feedForm.back')}</Button>
     </nav>  
     {isSended ? 
         <Typography>{t('social:feedForm.thanks')}</Typography>
