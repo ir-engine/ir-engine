@@ -10,7 +10,7 @@ export default {
     find: [
       commonHooks.iff(
           commonHooks.isProvider('external'),
-          attachOwnerIdInQuery('userId')
+          attachOwnerIdInQuery('userId') as any,
       ),
     ],
     get: [],

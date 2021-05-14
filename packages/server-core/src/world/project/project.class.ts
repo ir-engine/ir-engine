@@ -31,6 +31,8 @@ export class Project implements ServiceMethods<Data> {
     this.models = this.app.get('sequelizeClient').models;
   }
 
+  async setup() {}
+
   /**
    * A function which is used to display all projects 
    * 

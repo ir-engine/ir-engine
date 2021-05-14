@@ -13,7 +13,7 @@ export default {
     find: [
       iff(
         isProvider('external'),
-        groupUserPermissionAuthenticate()
+        groupUserPermissionAuthenticate() as any,
       )
     ],
     get: [],

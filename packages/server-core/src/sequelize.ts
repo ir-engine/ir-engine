@@ -23,6 +23,7 @@ export default (app: Application): void => {
 
     app.set('sequelizeClient', sequelize);
 
+    // @ts-ignore
     app.setup = function (...args: any): Application {
       sequelize
           .query('SET FOREIGN_KEY_CHECKS = 0')

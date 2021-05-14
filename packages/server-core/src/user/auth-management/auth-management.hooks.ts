@@ -11,7 +11,7 @@ export default {
     create: [
       iff(
         isAction('passwordChange', 'identityChange'),
-        authenticate('jwt')
+        authenticate('jwt') as any,
       )
     ],
     update: [],

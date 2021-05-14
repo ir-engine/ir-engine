@@ -1,10 +1,10 @@
 import {
   Id,
   NullableId,
-  Paginated,
   Params,
   ServiceMethods
 } from '@feathersjs/feathers';
+import Paginated from '../../types/PageObject';
 import { Application } from '../../../declarations';
 import {
   getLink,
@@ -32,6 +32,8 @@ export class Magiclink implements ServiceMethods<Data> {
     this.options = options;
     this.app = app;
   }
+
+  async setup() {}
 
   /**
    * A function which find magic link  and display it 
@@ -211,7 +213,7 @@ export class Magiclink implements ServiceMethods<Data> {
    */
 
   async create (data: any, params?: Params): Promise<Data> {
-    const identityProviderService: Service = this.app.service('identity-provider');
+    const identityProviderService = this.app.service('identity-provider');
 
     // check magiclink type
     let token = '';

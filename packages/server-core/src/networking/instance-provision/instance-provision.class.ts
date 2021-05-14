@@ -1,4 +1,4 @@
-import { Id, NullableId, Paginated, Params, ServiceMethods } from '@feathersjs/feathers';
+import { Id, NullableId, Params, ServiceMethods } from '@feathersjs/feathers';
 import { Application } from '../../../declarations';
 import {BadRequest} from '@feathersjs/errors';
 import _ from 'lodash';
@@ -30,6 +30,8 @@ export class InstanceProvision implements ServiceMethods<Data> {
     this.options = options;
     this.app = app;
   }
+
+  async setup() {}
 
   /**
    * An method which start server for instance 
@@ -139,7 +141,7 @@ export class InstanceProvision implements ServiceMethods<Data> {
       if (channelId != null) {
         // Check if JWT resolves to a user
         if (token != null) {
-          const authResult = await this.app.service('authentication').strategies.jwt.authenticate({accessToken: token}, {});
+          const authResult = await (this.app.service('authentication') as any).strategies.jwt.authenticate({accessToken: token}, {});
           const identityProvider = authResult['identity-provider'];
           if (identityProvider != null) {
             userId = identityProvider.userId;
@@ -181,7 +183,7 @@ export class InstanceProvision implements ServiceMethods<Data> {
         }
         // Check if JWT resolves to a user
         if (token != null) {
-          const authResult = await this.app.service('authentication').strategies.jwt.authenticate({accessToken: token}, {});
+          const authResult = await (this.app.service('authentication') as any).strategies.jwt.authenticate({accessToken: token}, {});
           const identityProvider = authResult['identity-provider'];
           if (identityProvider != null) {
             userId = identityProvider.userId;

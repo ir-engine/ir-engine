@@ -19,7 +19,7 @@ export default {
     find: [
       iff(
         isProvider('external'),
-        partyUserPermissionAuthenticate()
+        partyUserPermissionAuthenticate() as any,
       )
     ],
     get: [],
