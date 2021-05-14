@@ -6,6 +6,7 @@ import { addComponent, getComponent, hasComponent } from '../../ecs/functions/En
 import { ComponentConstructor } from '../../ecs/interfaces/ComponentInterfaces';
 import { Network } from "../../networking/classes/Network";
 import { HaveBeenInteracted } from "../actions/HaveBeenInteracted";
+import { HaveBeenCollision } from "../actions/HaveBeenCollision";
 import { NextTurn } from "../actions/NextTurn";
 import { Game } from "../components/Game";
 import { GameObject } from "../components/GameObject";
@@ -15,9 +16,10 @@ import { getEntityFromRoleUuid, getGame, getGameEntityFromName, getRole, getUuid
 /**
  * @author HydraFire <github.com/HydraFire>
  */
-// TODO: create schema actions
+// TODO: create enum actions
 const gameActionComponents = {
   'HaveBeenInteracted': HaveBeenInteracted,
+  'HaveBeenCollision': HaveBeenCollision,
   'NextTurn': NextTurn
 };
 

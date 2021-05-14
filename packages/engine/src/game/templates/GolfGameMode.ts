@@ -11,6 +11,7 @@ import { PanelUp } from "./gameDefault/components/PanelUpTagComponent";
 import { YourTurn } from "./Golf/components/YourTurnTagComponent";
 // game Action Tag Component
 import { HaveBeenInteracted } from "../../game/actions/HaveBeenInteracted";
+import { HaveBeenCollision } from "../../game/actions/HaveBeenCollision";
 import { NextTurn } from "../../game/actions/NextTurn";
 // game behavior
 import { upDownButton } from "./gameDefault/behaviors/upDownButton";
@@ -24,6 +25,9 @@ import { applyTurn } from "./Golf/behaviors/applyTurn";
 import { nextTurn } from "./Golf/behaviors/nextTurn";
 import { addRestitution } from "./Golf/behaviors/addRestitution";
 import { unInteractiveToOthers } from "./Golf/behaviors/unInteractiveToOthers";
+import { saveScore } from "./Golf/behaviors/saveScore";
+import { displayScore } from "./Golf/behaviors/displayScore";
+import { giveGoalState } from "./Golf/behaviors/giveGoalState";
 // checkers
 import { isPlayersInGame } from "./gameDefault/checkers/isPlayersInGame";
 import { ifNamed } from "./gameDefault/checkers/ifNamed";
@@ -115,6 +119,21 @@ export const GolfGameMode: GameMode = {
               }
             }
           }
+        },
+        {
+          behavior: saveScore,
+          watchers:[ [ YourTurn ] ],
+          takeEffectOn: {
+            targetsRole: {
+              'GolfBall': {
+                watchers:[ [ HaveBeenInteracted ] ],
+                checkers:[{
+                  function: ifNamed,
+                  args: { on: 'target', name: '1' }
+                }]
+              }
+            }
+          }
         }
       ]
     },
@@ -153,12 +172,41 @@ export const GolfGameMode: GameMode = {
               }
             }
           }
+        },
+        {
+          behavior: saveScore,
+          watchers:[ [ YourTurn ] ],
+          takeEffectOn: {
+            targetsRole: {
+              'GolfBall': {
+                watchers:[ [ HaveBeenInteracted ] ],
+                checkers:[{
+                  function: ifNamed,
+                  args: { on: 'target', name: '1' }
+                }]
+              }
+            }
+          }
         }
       ]
     }
   },
   gameObjectRoles: {
     'GolfBall': {},
+    'GolfHole': {
+      'goal': [
+        {
+          behavior: giveGoalState,
+          watchers:[ [ HaveBeenCollision ] ],
+          args: {},
+        },
+        {
+          behavior: displayScore,
+          watchers:[ [ HaveBeenCollision ] ],
+          args: {},
+        }
+      ]
+    },
     'StartGamePanel': {
       'actionUp': [
         {

@@ -17,7 +17,8 @@ import { isClient } from '../../common/functions/isClient';
 import { ColliderHitEvent, CollisionEvents, PhysXConfig, PhysXInstance } from "three-physx";
 import { addColliderWithEntity } from '../behaviors/colliderCreateFunctions';
 import { findInterpolationSnapshot } from '../behaviors/findInterpolationSnapshot';
-
+import { HaveBeenCollision } from "../../game/actions/HaveBeenCollision";
+import { GameObject } from "../../game/components/GameObject";
 /**
  * @author HydraFire <github.com/HydraFire>
  * @author Josh Field <github.com/HexaField>
@@ -69,8 +70,8 @@ export class PhysicsSystem extends System {
       this.isSimulating = ev.enable;
       PhysXInstance.instance.startPhysX(ev.enable);
     });
-  }  
-  
+  }
+
   async initialize() {
     await PhysXInstance.instance.initPhysX(this.worker, this.physicsWorldConfig);
   }
@@ -88,30 +89,36 @@ export class PhysicsSystem extends System {
   execute(delta: number): void {
     this.queryResults.collider.added?.forEach(entity => {
       addColliderWithEntity(entity)
-      /*
+/*
       const collider = getComponent<ColliderComponent>(entity, ColliderComponent);
       collider.body.addEventListener(CollisionEvents.COLLISION_START, (ev: ColliderHitEvent) => {
         collider.collisions.push(ev);
       })
+
       collider.body.addEventListener(CollisionEvents.COLLISION_PERSIST, (ev: ColliderHitEvent) => {
         collider.collisions.push(ev);
       })
       collider.body.addEventListener(CollisionEvents.COLLISION_END, (ev: ColliderHitEvent) => {
         collider.collisions.push(ev);
       })
-      */
+*/
     });
 
     this.queryResults.collider.all?.forEach(entity => {
-      /*
+
       const collider = getMutableComponent<ColliderComponent>(entity, ColliderComponent);
       // iterate on all collisions since the last update
       collider.collisions.forEach((event) => {
+        console.warn(type, bodySelf, bodyOther, shapeSelf, shapeOther);
         const { type, bodySelf, bodyOther, shapeSelf, shapeOther } = event;
+        if (hasComponent(entity, GameObject)) {
+          addActionComponent(entity, HaveBeenCollision);
+          console.warn(event, entity);
+        }
         // TODO: figure out how we expose specific behaviors like this
       })
       collider.collisions = []; // clear for next loop
-      */
+
     });
 
     this.queryResults.collider.removed?.forEach(entity => {

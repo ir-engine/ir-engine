@@ -98,10 +98,18 @@ export function addColliderWithoutEntity(userData, pos = new Vector3(), rot = ne
     shape.config.material = { restitution: 0.9, dynamicFriction: 0, staticFriction: 0 };
   }
   // console.log('shape', shape);
-
-  shape.config.collisionLayer = userData.collisionLayer ?? CollisionGroups.Default;
-  shape.config.collisionMask = userData.collisionMask ?? CollisionGroups.All;
-
+  shape.config.collisionMask = CollisionGroups.All;
+  shape.config.collisionLayer =  CollisionGroups.Default;
+  /*
+  switch(userData.collisionMask) {
+    case undefined: case -1: case '-1': case '': shape.config.collisionMask = CollisionGroups.All; break;
+    default: if(/all/i.test(userData.collisionMask))
+        shape.config.collisionMask = CollisionGroups.All;
+      else
+        shape.config.collisionMask = Number(userData.collisionMask);
+      break;
+  }
+*/
   if(userData.action === 'portal') {
     shape.config.collisionLayer |= CollisionGroups.TriggerCollider;
     // TODO: This was commented out in dev, do we want this?
@@ -122,7 +130,10 @@ export function addColliderWithoutEntity(userData, pos = new Vector3(), rot = ne
     material: userData.bodytype === BodyType.DYNAMIC ? { dynamicFriction: 0.3 } : undefined
   });
 //  console.warn(userData.bodytype);
-  //bodyConfig.addEventListener(CollisionEvents.COLLISION_START, (e) => { console.log(e)});
+//if (userData.bodytype === BodyType.DYNAMIC) {
+  bodyConfig.addEventListener(CollisionEvents.COLLISION_START, (e) => { console.log(e)});
+//}
+
 
 
   const body: Body = PhysicsSystem.instance.addBody(bodyConfig);
