@@ -55,7 +55,7 @@
         box-sizing: border-box;
         display: flex;
         flex-direction: row;
-        input{
+        input, textarea{
             font-size: 17pt;
         }
 
@@ -69,7 +69,6 @@
         padding: 5px 20px;
 
         .logOutButton{
-            //position: related;
             margin-left: 50%;
             width: max-content;
             transform: translate(-50%);
@@ -80,6 +79,7 @@
             border-radius: 13px;
             font-size: 17pt;
             text-transform: none;
+            margin-top: 18pt;
         }
     }
     @media screen and (max-width: 499px){
@@ -88,6 +88,7 @@
                 padding: 6pt 23pt;
                 border-radius: 13px;
                 font-size: 14pt;
+                margin-top: 12pt;
             }
         }
         .formLine{
