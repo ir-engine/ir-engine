@@ -354,6 +354,11 @@ const Harmony = (props: Props): any => {
     }, []);
 
     useEffect(() => {
+        if (selfUser.instanceId != null && userState.get('layerUsersUpdateNeeded') === true) getLayerUsers(true);
+        if (selfUser.channelInstanceId != null && userState.get('channelLayerUsersUpdateNeeded') === true) getLayerUsers(false);
+    }, [ userState ]);
+
+    useEffect(() => {
         if ((Network.instance?.transport as any)?.channelType === 'instance') {
             const channelEntries = [...channels.entries()];
             const instanceChannel = channelEntries.find((entry) => entry[1].instanceId != null);
@@ -489,6 +494,7 @@ const Harmony = (props: Props): any => {
             updateChannelTypeState();
             updateCamVideoState();
             updateCamAudioState();
+            EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.SCENE_LOADED });
         }
     };
 
