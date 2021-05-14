@@ -71,10 +71,6 @@ export class PhysicsSystem extends System {
     });
   }
 
-  async initialize() {
-    await PhysXInstance.instance.initPhysX(this.worker, this.physicsWorldConfig);
-  }
-
   dispose(): void {
     super.dispose();
     this.frame = 0;
@@ -84,7 +80,10 @@ export class PhysicsSystem extends System {
 
   execute(delta: number): void {
     this.queryResults.collider.added?.forEach(entity => {
-      addColliderWithEntity(entity)
+      const collider = getComponent(entity, ColliderComponent);
+      if(!collider.body) {
+        addColliderWithEntity(entity)
+      }
       /*
       const collider = getComponent<ColliderComponent>(entity, ColliderComponent);
       collider.body.addEventListener(CollisionEvents.COLLISION_START, (ev: ColliderHitEvent) => {

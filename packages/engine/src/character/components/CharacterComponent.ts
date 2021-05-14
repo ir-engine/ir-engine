@@ -78,7 +78,6 @@ export class CharacterComponent extends Component<CharacterComponent> {
 	public viewVector: Vector3;
 	public changedViewAngle = 0;
 	public actions: any;
-	public actorCapsule: ControllerColliderComponent;
 
 	// Actor collision Capsule
 	public actorMass = 1;

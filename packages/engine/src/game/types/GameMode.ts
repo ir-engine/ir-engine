@@ -30,10 +30,9 @@ export interface GameMode {
   registerStateTagComponents: ComponentConstructor<Component<any>>[]
   initGameState: {
     [key: string]: {
-      components: ComponentConstructor<Component<any>>[]
-      storage: InitStorageInterface[]
-    } | {
-      behaviors: Behavior[]
+      components?: ComponentConstructor<Component<any>>[]
+      storage?: InitStorageInterface[]
+      behaviors?: any
     };
   };
   gamePlayerRoles: GameRolesInterface
@@ -41,7 +40,7 @@ export interface GameMode {
 }
 
 export interface RoleBehaviorWithTarget {
-  sortMetod?: any,
+  sortMethod?: any,
   targetsRole: {
     [key: string]: {
       watchers?: ComponentConstructor<Component<any>>[][],

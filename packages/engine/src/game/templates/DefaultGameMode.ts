@@ -70,7 +70,7 @@ export const DefaultGameMode: GameMode = {
             args: { on: 'me', name: 'button 1' }
           }],
           takeEffectOn: {
-        //    sortMetod: (v) => { return [v[(Math.random() * v.length) | 0]]}, // if undefind will bee effect on all
+        //    sortMethod: (v) => { return [v[(Math.random() * v.length) | 0]]}, // if undefind will bee effect on all
             targetsRole: {
               'Door': {
                 watchers:[ [ Open ], [ Closed ] ],
@@ -91,7 +91,7 @@ export const DefaultGameMode: GameMode = {
             args: { on: 'me', name: 'button 2' }
           }],
           takeEffectOn: {
-        //    sortMetod: (v) => { return [v[(Math.random() * v.length) | 0]]}, // if undefind will bee effect on all
+        //    sortMethod: (v) => { return [v[(Math.random() * v.length) | 0]]}, // if undefind will bee effect on all
             targetsRole: {
               'Door': {
                 watchers:[ [ Open ], [ Closed ] ],

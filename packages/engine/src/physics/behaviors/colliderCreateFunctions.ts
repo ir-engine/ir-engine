@@ -109,7 +109,7 @@ export function addColliderWithoutEntity(userData, pos = new Vector3(), rot = ne
 
   }
 
-  const bodyConfig = new Body({
+  const body = new Body({
     shapes: [shape],
     type: userData.bodytype ?? BodyType.STATIC,
     transform: {
@@ -119,13 +119,11 @@ export function addColliderWithoutEntity(userData, pos = new Vector3(), rot = ne
       linearVelocity: { x: 0, y: 0, z: 0 },
       angularVelocity: { x: 0, y: 0, z: 0 },
     },
-    material: userData.bodytype === BodyType.DYNAMIC ? { dynamicFriction: 0.3 } : undefined
-  } as any);
+  });
 //  console.warn(userData.bodytype);
   //bodyConfig.addEventListener(CollisionEvents.COLLISION_START, (e) => { console.log(e)});
 
-
-  const body: Body = PhysicsSystem.instance.addBody(bodyConfig);
+  PhysicsSystem.instance.addBody(body);
 
   return body;
 }

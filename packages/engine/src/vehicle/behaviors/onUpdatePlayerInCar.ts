@@ -6,6 +6,7 @@ import { PlayerInCar } from '../components/PlayerInCar';
 import { PhysicsSystem } from '../../physics/systems/PhysicsSystem';
 import { TransformComponent } from '../../transform/components/TransformComponent';
 import { VehicleComponent } from '../components/VehicleComponent';
+import { ControllerColliderComponent } from '../../character/components/ControllerColliderComponent';
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -22,8 +23,9 @@ export const onUpdatePlayerInCar = (entity: Entity, entityCar: Entity, seat: num
 
   // its then connected player seen other player in car
   if (!hasComponent<PlayerInCar>(entity, PlayerInCar)) {
-    const actor = getComponent<CharacterComponent>(entity, CharacterComponent);
-    PhysicsSystem.instance.removeBody(actor.actorCapsule.controller);
+    const actor = getComponent<CharacterComponent>(entity, CharacterComponent);      
+    const collider = getMutableComponent<ControllerColliderComponent>(entity, ControllerColliderComponent)
+    PhysicsSystem.instance.removeBody(collider.controller);
   }
 
   const position = new Vector3(...vehicle.seatsArray[seat])

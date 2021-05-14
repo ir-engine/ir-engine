@@ -27,6 +27,7 @@ import { SubFocused } from "../components/SubFocused";
 import { InteractBehaviorArguments } from "../types/InteractionTypes";
 import { HaveBeenInteracted } from "../../game/actions/HaveBeenInteracted";
 import { addActionComponent } from '../../game/functions/functionsActions';
+import { EquippedComponent } from "../components/EquippedComponent";
 
 // but is works on client too, i will config out this
 export const interactOnServer: Behavior = (entity: Entity, args: any, delta): void => {
@@ -399,6 +400,13 @@ export class InteractiveSystem extends System {
       this.focused.clear();
       this.newFocused.forEach(e => this.focused.add(e));
     }
+
+    this.queryResults.equippable.all?.forEach(entity => {
+      const equippedComponent = getComponent(entity, EquippedComponent);
+      const equippableTransform = getComponent(equippedComponent.equippedEntity, TransformComponent);
+      equippableTransform.position.copy(equippedComponent.attachmentObject.position).add(equippedComponent.attachmentTransform.position);
+      equippableTransform.rotation.copy(equippedComponent.attachmentObject.quaternion).multiply(equippedComponent.attachmentTransform.rotation);
+    });
   }
 
   static queries: any = {
@@ -434,6 +442,13 @@ export class InteractiveSystem extends System {
     },
     network_user: {
       components: [Not(LocalInputReceiver), NamePlateComponent, CharacterComponent, TransformComponent],
+      listen: {
+        added: true,
+        removed: true
+      }
+    },
+    equippable: {
+      components: [EquippedComponent],
       listen: {
         added: true,
         removed: true

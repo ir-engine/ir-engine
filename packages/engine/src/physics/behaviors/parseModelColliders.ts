@@ -1,7 +1,7 @@
 import { Vector3, Quaternion, Matrix4 } from 'three';
 import { Behavior } from '../../common/interfaces/Behavior';
 import { Entity } from '../../ecs/classes/Entity';
-import { getComponent, addComponent } from '../../ecs/functions/EntityFunctions';
+import { addComponent, getComponent } from '../../ecs/functions/EntityFunctions';
 import { createNetworkRigidBody } from '../../interaction/prefabs/NetworkRigidBody';
 import { createVehicleFromModel } from '../../vehicle/prefabs/NetworkVehicle';
 import { TransformComponent } from "../../transform/components/TransformComponent";

@@ -13,6 +13,5 @@ import { ColliderComponent } from '../../../../physics/components/ColliderCompon
 
 export const addRestitution: Behavior = (entity: Entity, args?: any, delta?: number, entityTarget?: Entity, time?: number, checks?: any): void => {
   const collider = getMutableComponent(entity, ColliderComponent);
-  //console.warn(collider);
   collider.body.shapes[0].config.material = { staticFriction: 0.3, dynamicFriction: 0.3, restitution: 0.9 };
 };
