@@ -1,6 +1,6 @@
 import { Globe } from "@styled-icons/fa-solid/Globe";
-import { DistanceModelOptions, DistanceModelType } from "@xr3ngine/engine/src/scene/classes/AudioSource";
-import { FogType } from "@xr3ngine/engine/src/scene/constants/FogType";
+import { DistanceModelOptions, DistanceModelType } from "@xrengine/engine/src/scene/classes/AudioSource";
+import { FogType } from "@xrengine/engine/src/scene/constants/FogType";
 import i18n from "i18next";
 import PropTypes from "prop-types";
 import React from "react";

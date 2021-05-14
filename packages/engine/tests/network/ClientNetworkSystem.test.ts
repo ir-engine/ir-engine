@@ -1,7 +1,7 @@
 import { registerSystem } from "../../src/ecs/functions/SystemFunctions";
 import { ClientNetworkSystem } from "../../src/networking/systems/ClientNetworkSystem";
 import { NetworkSchema } from "../../src/networking/interfaces/NetworkSchema";
-import { DefaultNetworkSchema, PrefabType } from "../../src/templates/networking/DefaultNetworkSchema";
+import { DefaultNetworkSchema, PrefabType } from "../../src/networking/templates/DefaultNetworkSchema";
 import { NetworkTransport } from "../../src/networking/interfaces/NetworkTransport";
 import { Network } from "../../src/networking//classes/Network";
 import { WorldStateInterface } from "../../src/networking/interfaces/WorldState";
@@ -14,9 +14,9 @@ import * as initializeNetworkObjectModule from "../../src/networking/functions/i
 import { NetworkObject } from "../../src/networking/components/NetworkObject";
 import { TransformComponent } from "../../src/transform/components/TransformComponent";
 import { getComponent, hasComponent } from "../../src/ecs/functions/EntityFunctions";
-import { CharacterComponent } from "../../src/templates/character/components/CharacterComponent";
+import { CharacterComponent } from "../../src/character/components/CharacterComponent";
 import { WorldStateModel } from "../../src/networking/schema/worldStateSchema";
-import { BaseInput } from '@xr3ngine/engine/src/input/enums/BaseInput';
+import { BaseInput } from '@xrengine/engine/src/input/enums/BaseInput';
 import { LifecycleValue } from "../../src/common/enums/LifecycleValue";
 import { BinaryValue } from "../../src/common/enums/BinaryValue";
 import { createRemoteUserOnClient } from "../_helpers/createRemoteUserOnClient";
@@ -26,7 +26,7 @@ import { NumericalType } from "../../src/common/types/NumericalTypes";
 
 const initializeNetworkObject = jest.spyOn(initializeNetworkObjectModule, 'initializeNetworkObject');
 
-PhysicsSystem.physicsWorld.gravity.set(0, 0, 0);
+PhysicsSystem.instance.gravity.set(0, 0, 0);
 
 class TestTransport implements NetworkTransport {
   isServer = false;

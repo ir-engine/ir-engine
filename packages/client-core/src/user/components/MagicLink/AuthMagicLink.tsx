@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { withRouter } from 'react-router-dom';
+import { useLocation, withRouter } from 'react-router-dom';
 import {
   loginUserByJwt,
   refreshConnections,
@@ -13,15 +13,17 @@ import Typography from '@material-ui/core/Typography';
 import Container from '@material-ui/core/Container';
 import ResetPassword from '../Auth/ResetPassword';
 import { VerifyEmail } from '../Auth/VerifyEmail';
-import { User } from '@xr3ngine/common/src/interfaces/User';
+import { User } from '@xrengine/common/src/interfaces/User';
+import { useTranslation } from 'react-i18next';
 
 interface Props {
-  match: any;
   auth: any;
   verifyEmail: typeof verifyEmail;
   resetPassword: typeof resetPassword;
   loginUserByJwt: typeof loginUserByJwt;
   refreshConnections: typeof refreshConnections;
+  type: string;
+  token: string;
 }
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
@@ -32,12 +34,10 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 });
 
 const AuthMagicLink = (props: Props): any => {
-  const { auth, loginUserByJwt, refreshConnections, match } = props;
+  const { auth, loginUserByJwt, refreshConnections, token, type } = props;
+	const { t } = useTranslation();
 
   useEffect(() => {
-    const type = match.params.type as string;
-    const token = match.params.token as string;
-
     if (type === 'login') {
       loginUserByJwt(token, '/', '/');
     } else if (type === 'connection') {
@@ -53,7 +53,7 @@ const AuthMagicLink = (props: Props): any => {
     <Container component="main" maxWidth="md">
       <Box mt={3}>
         <Typography variant="body2" color="textSecondary" align="center">
-          Please wait a moment while processing...
+          {t('user:magikLink.wait')}
         </Typography>
       </Box>
     </Container>
@@ -61,15 +61,16 @@ const AuthMagicLink = (props: Props): any => {
 };
 
 const AuthMagicLinkWrapper = (props: any): any => {
-  const type = props.match.params.type as string;
-  const token = props.match.params.token as string;
+  const search = new URLSearchParams(useLocation().search);
+  const token = search.get('token') as string;
+  const type = search.get('type') as string;
 
   if (type === 'verify') {
     return <VerifyEmail {...props} type={type} token={token} />;
   } else if (type === 'reset') {
     return <ResetPassword {...props} type={type} token={token} />;
   }
-  return <AuthMagicLink {...props} match={props.match} />;
+  return <AuthMagicLink {...props} token={token} type={type} />;
 };
 
 export default withRouter(connect(null, mapDispatchToProps)(AuthMagicLinkWrapper));

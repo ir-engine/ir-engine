@@ -1,10 +1,10 @@
 {
-  "name": "@xr3ngine/social",
-  "version": "0.2.18",
+  "name": "@xrengine/social",
+  "version": "0.2.27",
   "private": true,
   "repository": {
     "type": "git",
-    "url": "git://github.com/xr3ngine/xr3ngine.git"
+    "url": "git://github.com/XRFoundation/XREngine.git"
   },
   "engines": {
     "yarn": ">= 0.18.0"
@@ -12,83 +12,51 @@
   "npmClient": "yarn",
   "jest": "ts-jest",
   "scripts": {
-    "find:unused": "next-unused",
-    "copyfiles-client": "copyfiles design/** design/**/* public/** public/**/* **/*.scss lib/client",
-    "dev": "cross-env NODE_ENV=development node --max-old-space-size=3184 ./index.js --port 3000",
-    "build": "cross-env NODE_OPTIONS=--max_old_space_size=6144 next build ./ && yarn run export",
-    "export": "next export -o www/ && mv www/404.html www/index.html && npx cap sync",
-    "start": "next start",
-    "watch": "cross-env NODE_ENV=development next --port 3001 --hostname 127.0.0.1",
+    "dev": "vite",
+    "build": "cross-env NODE_OPTIONS=--max_old_space_size=4096 vite build && cp src/server.js www/server.js",
     "validate": "yarn run lint && yarn run test",
-    "test": "echo \"TODO: Add Testing to Client\" && exit 0",
+    "start": "cp src/server.js www/server.js && node www/server.js",
     "lint": "eslint --fix --quiet \"*.ts\" \"**/*.ts\" \"**/*.tsx\""
   },
   "resolutions": {
-    "socket.io": "2.4.1",
-    "@types/react": "17.0.3",
+    "socket.io": "4.0.1",
+    "@types/react": "17.0.4",
     "react": "17.0.2"
   },
   "peerDependencies": {
     "@types/react": "^17.0.0",
     "react": "^17.0.0",
-    "socket.io": "2.4.1"
+    "socket.io": "4.0.1"
   },
   "dependencies": {
-   
+    "@capacitor/android": "2.4.7",
     "@capacitor/cli": "2.4.7",
-   
-    "@material-ui/core": "4.11.3",
-    
+    "@material-ui/core": "4.11.4",
     "@types/react-redux": "7.1.16",
-   
-    "@types/styled-components": "5.1.9",
-    "@xr3ngine/client-core": "^0.2.18",
-    "@xr3ngine/common": "^0.2.18",
-    "@xr3ngine/engine": "^0.2.18",
-    "@xr3ngine/native-plugin-xr": "^0.2.18",
+    "@xrengine/client-core": "^0.2.27",
+    "@xrengine/common": "^0.2.27",
+    "@xrengine/engine": "^0.2.27",
     "app-root-path": "3.0.0",
-    
     "device-detector-js": "2.2.9",
-   
-    "next": "10.1.3",
-    "next-transpile-modules": "6.4.0",
     "prop-types": "15.7.2",
-  
     "react": "17.0.2",
-  
     "react-dom": "17.0.2",
-    
-   
-    "react-no-ssr": "1.1.0",
-  
-    "react-redux": "7.2.3",
-    
-   
+    "react-redux": "7.2.4",
     "react-video-recorder": "3.17.2",
-   
-    "redux": "4.0.5",
-    
-   
-    "sass": "1.32.11",
-   
+    "redux": "4.1.0",
+    "sass": "1.32.12",
     "styled-components": "5.2.3",
-    "three": "0.127.0"
+    "three": "0.128.0",
+    "webxr-native": "^0.2.19"
   },
   "devDependencies": {
-    "@types/node": "13.13.50",
-    "@types/react": "17.0.3",
-    "babel-loader": "8.2.2",
-    "cache-loader": "4.1.0",
+    "@types/node": "13.13.51",
+    "@types/react": "17.0.4",
     "config": "3.3.6",
     "cross-env": "7.0.3",
-    "eslint": "7.24.0",
-    "next-redux-wrapper": "6.0.2",
-    "thread-loader": "3.0.3",
-    "ts-loader": "9.1.0",
-    "ts-shader-loader": "1.0.6",
+    "eslint": "7.25.0",
     "typescript": "4.2.4",
-    "webpack": "5.35.0",
-    "webpack-cli": "4.6.0"
+    "vite-xrengine": "2.2.4"
   },
   "browser": {
     "fs": false

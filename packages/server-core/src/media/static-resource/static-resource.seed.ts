@@ -1,17 +1,17 @@
 import config from '../../appconfig';
 
 const getAvatarURL = (avatarName) => {
-  if (process.env.STORAGE_S3_DEV_MODE === 'local') {
+  if (config.aws.s3.s3DevMode === 'local' || !config) {
     if (avatarName.includes('.glb')) return '/models/avatars/' + avatarName;
     else return '/static/' + avatarName;
   } else {
-    return 'https://s3.amazonaws.com/' + config.aws.s3.staticResourceBucket + '/' + process.env.STORAGE_S3_AVATAR_DIRECTORY + '/' + avatarName;
+    return 'https://s3.amazonaws.com/' + config.aws.s3.staticResourceBucket + '/' + config.aws.s3.avatarDir + '/' + avatarName;
   }
 };
 
 export const staticResourceSeed = {
-  disabled: !config.db.forceRefresh,
-  delete: config.db.forceRefresh,
+  disabled: !config || !config.db.forceRefresh,
+  delete: config && config.db.forceRefresh,
   randomize: false,
   path: 'static-resource',
   templates:
@@ -90,6 +90,18 @@ export const staticResourceSeed = {
       name: 'Jace',
       url: getAvatarURL('Jace.png'),
       key: 'avatars/Jace.png',
+      staticResourceType: 'user-thumbnail',
+    },
+    {
+      name: 'Karthik',
+      url: getAvatarURL('Karthik.glb'),
+      key: 'avatars/Karthik.glb',
+      staticResourceType: 'avatar',
+    },
+    {
+      name: 'Karthik',
+      url: getAvatarURL('Karthik.png'),
+      key: 'avatars/Karthik.png',
       staticResourceType: 'user-thumbnail',
     },
     {

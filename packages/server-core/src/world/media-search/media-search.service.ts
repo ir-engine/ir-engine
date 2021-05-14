@@ -27,5 +27,5 @@ export default (app: Application): void => {
 
   const service = app.service('media-search');
 
-  service.hooks(hooks);
+  service.hooks(hooks as any);
 };

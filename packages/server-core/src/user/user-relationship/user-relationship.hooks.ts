@@ -8,7 +8,7 @@ export default {
   before: {
     all: [commonHooks.iff(
       commonHooks.isProvider('external'),
-      authenticate('jwt')
+      authenticate('jwt') as any
     )],
     find: [],
     get: [],

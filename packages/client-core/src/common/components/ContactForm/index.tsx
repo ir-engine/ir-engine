@@ -3,18 +3,23 @@ import emailjs from 'emailjs-com';
 // @ts-ignore
 import styles from './ContactForm.module.scss';
 import { withTranslation } from 'react-i18next';
+import Dialog from '@material-ui/core/Dialog';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
 
 export class ContactForm extends Component {
-
     state = {
         userName: "",
         emailAddress: "",
         companyName: "",
-        message: ""
+        message: "",
+        error: {} as any,
+        dialogMsg: '',
     }
 
     handleSubmit = (e) => {
         e.preventDefault();
+        if (!this.validate()) return;
 
         var templateParams = {
             from_name: this.state.userName,
@@ -24,23 +29,17 @@ export class ContactForm extends Component {
             message: this.state.message
         };
 
-        console.log(process.env.EMAILJS_SERVICE_ID,
-            process.env.EMAILJS_TEMPLATE_ID,
-            templateParams,
-            process.env.EMAILJS_USER_ID);
-
-
         emailjs.send(
-            process.env.EMAILJS_SERVICE_ID,
-            process.env.EMAILJS_TEMPLATE_ID,
+            process.env.VITE_EMAILJS_SERVICE_ID,
+            process.env.VITE_EMAILJS_TEMPLATE_ID,
             templateParams,
-            process.env.EMAILJS_USER_ID
+            process.env.VITE_EMAILJS_USER_ID
         ).then(
-            result => {
-                alert((this.props as any).t('xr3engineContact.lbl-success') + result.text);
+            _ => {
+                this.displayDialog((this.props as any).t('xrengineContact.lbl-success'));
             },
-            error => {
-                alert((this.props as any).t('xr3engineContact.lbl-failure') + error.text);
+            _ => {
+                this.displayDialog((this.props as any).t('xrengineContact.lbl-failure'));
             }
         );
 
@@ -52,38 +51,77 @@ export class ContactForm extends Component {
         });
     }
 
+    validate = (): boolean => {
+        const error: {
+            userName: string;
+            emailAddress: string;
+            message: string;
+        } = {} as any;
+
+        if (!this.state.userName) error.userName = (this.props as any).t('xrengineContact.err-username');
+        if (!this.state.emailAddress) error.emailAddress = (this.props as any).t('xrengineContact.err-email');
+        if (!this.state.message) error.message = (this.props as any).t('xrengineContact.err-msg');
+
+        this.setState({ error });
+
+        return JSON.stringify(error) === '{}';
+    }
+
     handleChange = (e) => {
-        var name = e.target.name;
-        var value = e.target.value;
+        const error = this.state.error;
+        error[e.target.name] = '';
         this.setState({
-            [name]: value
+            [e.target.name]: e.target.value,
+            error,
         });
+    }
+
+    displayDialog = (msg) => {
+        this.setState({ dialogMsg: msg});
     }
 
     render() {
         const t = (this.props as any).t;
         return (
             <div className={styles.emailDiv}>
-                <p className={styles.emailTitle}>{t('xr3engineContact.header')}</p>
+                <p className={styles.emailTitle}>{t('xrengineContact.header')}</p>
                 <p className={styles.emailDetail}>
-                    {t('xr3engineContact.description')}
+                    {t('xrengineContact.description')}
                 </p>
-                <div className="row">
-                    <input type="text" className={styles.emailInput} value={this.state.userName} name="userName" onChange={this.handleChange} placeholder={t('xr3engineContact.lbl-name')} />
+                <div className={styles.formControl}>
+                    <label className={styles.inputLabel}>{t('xrengineContact.lbl-name')}</label>
+                    <input type="text" className={styles.emailInput} value={this.state.userName} name="userName" onChange={this.handleChange} />
+                    {this.state.error.userName && <p className={styles.error}>{this.state.error.userName}</p>}
                 </div>
-                <div className="row mt-4">
-                    <input type="text" className={styles.emailInput} value={this.state.emailAddress} name="emailAddress" onChange={this.handleChange} placeholder={t('xr3engineContact.lbl-email')} />
+                <div className={styles.formControl}>
+                    <label className={styles.inputLabel}>{t('xrengineContact.lbl-email')}</label>
+                    <input type="text" className={styles.emailInput} value={this.state.emailAddress} name="emailAddress" onChange={this.handleChange} />
+                    {this.state.error.emailAddress && <p className={styles.error}>{this.state.error.emailAddress}</p>}
                 </div>
-                <div className="row mt-4">
-                    <input type="text" className={styles.emailInput} value={this.state.companyName} name="companyName" onChange={this.handleChange} placeholder={t('xr3engineContact.lbl-company')} />
+                <div className={styles.formControl}>
+                    <label className={styles.inputLabel}>{t('xrengineContact.lbl-company')}</label>
+                    <input type="text" className={styles.emailInput} value={this.state.companyName} name="companyName" onChange={this.handleChange} />
                 </div>
-                <div className="row mt-4">
-                    <textarea className={styles.emailInput} placeholder={t('xr3engineContact.lbl-project')}
+                <div className={styles.formControl}>
+                    <label className={styles.inputLabel}>{t('xrengineContact.lbl-project')}</label>
+                    <textarea className={styles.emailInput}
                         value={this.state.message} name="message" onChange={this.handleChange} />
+                        {this.state.error.message && <p className={styles.error}>{this.state.error.message}</p>}
                 </div>
-                <div className="row mt-3">
-                    <button className="button email-button" type="button" onClick={this.handleSubmit}>{t('xr3engineContact.lbl-send')}</button>
+                <div className={styles.btnContainer}>
+                    <button type="button" onClick={this.handleSubmit} >{t('xrengineContact.lbl-send')}</button>
                 </div>
+                <Dialog
+                    open={!!this.state.dialogMsg}
+                    onClose={() => this.displayDialog('')}
+                >
+                    <DialogContent className={styles.dialog}>
+                        <DialogContentText id="alert-dialog-description" className={styles.dialogText}>
+                            {this.state.dialogMsg}
+                        </DialogContentText>
+                        <button type="button" onClick={() => this.displayDialog('')}>{t('xrengineContact.lbl-ok')}</button>
+                    </DialogContent>
+                </Dialog>
             </div>
         );
     }

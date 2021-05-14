@@ -1,7 +1,7 @@
 /**
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
-import { Creator } from '@xr3ngine/common/src/interfaces/Creator';
+import { Creator } from '@xrengine/common/src/interfaces/Creator';
 import { Dispatch } from 'redux';
 import Api from '../../../world/components/editor/Api';
 import { dispatchAlertError } from '../../../common/reducers/alert/service';
@@ -16,14 +16,16 @@ import {
   updateCreatorNotFollowed,
   creatorFollowers,
   creatorFollowing,
-  fetchingCreators
+  fetchingCreators,
+  fetchingCurrentCreator
 } from './actions';
 
 export function createCreator(){
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
     try {
-      dispatch(fetchingCreator());
-      const creator = await client.service('creator').create({});   
+      dispatch(fetchingCurrentCreator());
+      let userNumber = (Math.floor(Math.random() * 1000) + 1);
+      const creator = await client.service('creator').create({name: 'User' + userNumber, username: 'user_' + userNumber});  
       dispatch(creatorLoggedRetrieved(creator));     
     } catch(err) {
       console.log(err);
@@ -31,6 +33,20 @@ export function createCreator(){
     }
   };
 }
+
+export function getLoggedCreator() {
+  return async (dispatch: Dispatch): Promise<any> => {
+    try {
+      dispatch(fetchingCurrentCreator());
+      const creator = await client.service('creator').find({query:{action: 'current'}});      
+      dispatch(creatorLoggedRetrieved(creator));
+    } catch(err) {
+      console.log(err);
+      dispatchAlertError(dispatch, err.message);
+    }
+  };
+}
+
 export function getCreators(limit?: number) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
     try {
@@ -44,25 +60,12 @@ export function getCreators(limit?: number) {
   };
 }
 
-export function getLoggedCreator() {
-  return async (dispatch: Dispatch): Promise<any> => {
-    try {
-      dispatch(fetchingCreator());
-      const creator = await client.service('creator').find({query:{action: 'current'}});      
-      dispatch(creatorLoggedRetrieved(creator));
-    } catch(err) {
-      console.log(err);
-      dispatchAlertError(dispatch, err.message);
-    }
-  };
-}
 
 export function getCreator(creatorId) {
   return async (dispatch: Dispatch): Promise<any> => {
     try {
       dispatch(fetchingCreator());
       const creator = await client.service('creator').get(creatorId);  
-      console.log('getCreator service creator', creatorId, creator);
       dispatch(creatorRetrieved(creator));
     } catch(err) {
       console.log(err);
@@ -74,11 +77,11 @@ export function getCreator(creatorId) {
 export function updateCreator(creator: Creator){
   return async (dispatch: Dispatch): Promise<any> => {
     try {
-      dispatch(fetchingCreator());
+      dispatch(fetchingCurrentCreator());
       if(creator.newAvatar){
         const api = new  Api();
-        const storedAvatar = await api.upload(creator.avatar, null);
-        //@ts-ignore error that this vars are void bacause upload is defines as voin funtion
+        const storedAvatar = await api.upload(creator.newAvatar, null);
+        //@ts-ignore error that this vars are void because upload is defines as void funtion
         creator.avatarId = storedAvatar.file_id;
         delete creator.newAvatar;
       }      
@@ -91,6 +94,8 @@ export function updateCreator(creator: Creator){
   };
 }
 
+
+//---------------------------NOT used for now
 export function getCreatorNotificationList() {
   return async (dispatch: Dispatch): Promise<any> => {
     try {

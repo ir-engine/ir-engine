@@ -1,16 +1,16 @@
 import { ParticleEmitterComponent } from "../components/ParticleEmitter";
-import { registerComponent } from "../../ecs/functions/ComponentFunctions";
 import { getMutableComponent } from "../../ecs/functions/EntityFunctions";
 import { applyTransform } from "../functions/particleHelpers";
 import { System, SystemAttributes } from "../../ecs/classes/System";
+import { SystemUpdateType } from "../../ecs/functions/SystemUpdateType";
 
 /** System class for particle system. */
 export class ParticleSystem extends System {
   /** Constructs the system. */
-  constructor(attributes?: SystemAttributes) {
-    super();
-    registerComponent(ParticleEmitterComponent);
+  constructor(attributes: SystemAttributes = {}) {
+    super(attributes);
   }
+  updateType = SystemUpdateType.Fixed;
 
   /** Executes the system. */
   execute(deltaTime, time): void {

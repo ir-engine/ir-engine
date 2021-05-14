@@ -1,4 +1,4 @@
-import { DEFAULT_AVATAR_ID } from "@xr3ngine/engine/src/common/constants/AvatarConstants";
+import { DEFAULT_AVATAR_ID } from '@xrengine/common/src/constants/AvatarConstants';
 import config from '../../appconfig';
 
 export const userSeed = {
@@ -15,6 +15,7 @@ export const userSeed = {
                 // instanceId: '67890uihi0u98yuijo',
                 // userRole: type === 'guest' ? 'guest' : type === 'admin' ? 'admin' : 'user',
                 // partyId: '5678uhy789uijk',
+                email: `kimenyikevin@gmail.com`,
                 createdAt: "2021-02-26 12:00:00",
                 updatedAt: "2021-02-26 12:00:00",
             }

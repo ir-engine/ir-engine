@@ -1,9 +1,9 @@
 // TODO: Reenable me! But decoupled so we don't need to import this lib
-// import { endVideoChat } from '@xr3ngine/client-networking/src/transports/SocketWebRTCClientFunctions';
+// import { endVideoChat } from '@xrengine/client-networking/src/transports/SocketWebRTCClientFunctions';
 import { Dispatch } from 'redux';
 import { client } from '../../../feathers';
 // TODO: Reenable me! But decoupled, maybe parties need to be in the client-networking lib
-// import { provisionInstanceServer } from '@xr3ngine/client-networking/src/reducers/instanceConnection/service';
+// import { provisionInstanceServer } from '@xrengine/client-networking/src/reducers/instanceConnection/service';
 import {
   createdParty,
   createdPartyUser,
@@ -16,7 +16,9 @@ import {
 
 import { Config } from '../../../helper';
 import { dispatchAlertError } from '../../../common/reducers/alert/service';
-import store from '../../../store';
+import Store from '../../../store';
+
+const store = Store.store;
 
 export function getParty () {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {

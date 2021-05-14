@@ -4,16 +4,17 @@ import { BrowserRouter } from 'react-router-dom';
 import { Helmet } from "react-helmet";
 import DeviceDetector from 'device-detector-js';
 import { ThemeProvider } from "styled-components";
-import { configureStore } from '@xr3ngine/client-core/src/store';
-import { initGA, logPageView } from '@xr3ngine/client-core/src/common/components/analytics';
-import Api from "@xr3ngine/client-core/src/world/components/editor/Api";
-import { ApiContext } from '@xr3ngine/client-core/src/world/components/editor/contexts/ApiContext';
-import GlobalStyle from '@xr3ngine/client-core/src/world/components/editor/GlobalStyle';
-import theme from "@xr3ngine/client-core/src/world/components/editor/theme";
-import { Config } from '@xr3ngine/client-core/src/helper';
-import { getDeviceType } from '@xr3ngine/client-core/src/common/reducers/devicedetect/actions';
-import { restoreState } from '@xr3ngine/client-core/src/persisted.store';
-import RouterComp from '../router';
+import { configureStore } from '@xrengine/client-core/src/store';
+import { initGA, logPageView } from '@xrengine/client-core/src/common/components/analytics';
+import Api from "@xrengine/client-core/src/world/components/editor/Api";
+import { ApiContext } from '@xrengine/client-core/src/world/components/editor/contexts/ApiContext';
+import GlobalStyle from '@xrengine/client-core/src/world/components/editor/GlobalStyle';
+import theme from "@xrengine/client-core/src/world/components/editor/theme";
+import { Config } from '@xrengine/client-core/src/helper';
+import { getDeviceType } from '@xrengine/client-core/src/common/reducers/devicedetect/actions';
+import { restoreState } from '@xrengine/client-core/src/persisted.store';
+import RouterComp from '../route/public';
+import reducers from '../reducers';
 import './styles.scss';
 
 const App = (): any => {
@@ -63,8 +64,6 @@ const App = (): any => {
           name="viewport"
           content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=0', shrink-to-fit=no"
         />
-        <script src="https://unpkg.com/credential-handler-polyfill@2.1.1/dist/credential-handler-polyfill.min.js" />
-        <script src="https://unpkg.com/web-credential-handler@1.0.1/dist/web-credential-handler.min.js" />
       </Helmet>
       <ThemeProvider theme={theme}>
         <ApiContext.Provider value={api}>
@@ -77,9 +76,9 @@ const App = (): any => {
   );
 };
 
-const StroreProvider = () => {
+const StoreProvider = () => {
   return (
-    <Provider store={configureStore()}>
+    <Provider store={configureStore(reducers)}>
       <BrowserRouter>
         <App />
       </BrowserRouter>
@@ -87,4 +86,4 @@ const StroreProvider = () => {
   );
 };
 
-export default StroreProvider;
+export default StoreProvider;

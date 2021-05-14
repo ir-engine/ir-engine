@@ -1,19 +1,22 @@
-import { MediaStreamSystem } from "@xr3ngine/engine/src/networking/systems/MediaStreamSystem";
-import { Network } from "@xr3ngine/engine/src/networking/classes/Network";
-import { MessageTypes } from "@xr3ngine/engine/src/networking/enums/MessageTypes";
-import { NetworkTransport } from "@xr3ngine/engine/src/networking/interfaces/NetworkTransport";
+import { MediaStreamSystem } from "@xrengine/engine/src/networking/systems/MediaStreamSystem";
+import { Network } from "@xrengine/engine/src/networking/classes/Network";
+import { MessageTypes } from "@xrengine/engine/src/networking/enums/MessageTypes";
+import { NetworkTransport } from "@xrengine/engine/src/networking/interfaces/NetworkTransport";
 import * as mediasoupClient from "mediasoup-client";
 import { Transport as MediaSoupTransport } from "mediasoup-client/lib/types";
-import { Config } from '@xr3ngine/client-core/src/helper';
-import ioclient from "socket.io-client";
+import { Config } from '@xrengine/client-core/src/helper';
+import {io as ioclient , Socket} from "socket.io-client";
 import { createDataProducer, endVideoChat, initReceiveTransport, initSendTransport, leave, subscribeToTrack } from "./SocketWebRTCClientFunctions";
-import { EngineEvents } from "@xr3ngine/engine/src/ecs/classes/EngineEvents";
-import { ClientNetworkSystem } from "@xr3ngine/engine/src/networking/systems/ClientNetworkSystem";
-
-const gameserver = process.env.NODE_ENV === 'production' ? Config.publicRuntimeConfig.gameserver : 'https://127.0.0.1:3031';
-const Device = mediasoupClient.Device;
+import { EngineEvents } from "@xrengine/engine/src/ecs/classes/EngineEvents";
+import { ClientNetworkSystem } from "@xrengine/engine/src/networking/systems/ClientNetworkSystem";
 
 export class SocketWebRTCClientTransport implements NetworkTransport {
+
+  static EVENTS = {
+    PROVISION_INSTANCE_NO_GAMESERVERS_AVAILABLE: 'CORE_PROVISION_INSTANCE_NO_GAMESERVERS_AVAILABLE',
+    PROVISION_CHANNEL_NO_GAMESERVERS_AVAILABLE: 'CORE_PROVISION_CHANNEL_NO_GAMESERVERS_AVAILABLE',
+  }
+
   mediasoupDevice: mediasoupClient.Device
   leaving = false
   instanceRecvTransport: MediaSoupTransport
@@ -23,8 +26,8 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
   lastPollSyncData = {}
   pollingTickRate = 1000
   pollingTimeout = 4000
-  instanceSocket: SocketIOClient.Socket = {} as SocketIOClient.Socket
-  channelSocket: SocketIOClient.Socket = {} as SocketIOClient.Socket
+  instanceSocket: Socket = {} as Socket
+  channelSocket: Socket = {} as Socket
   instanceRequest: any
   channelRequest: any
   localScreen: any;
@@ -75,21 +78,26 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
   }
 
   // Adds support for Promise to socket.io-client
-  promisedRequest(socket: SocketIOClient.Socket) {
+  promisedRequest(socket: Socket) {
     return function request(type: any, data = {}): any {
       return new Promise(resolve => socket.emit(type, data, resolve));
     };
   }
 
-  public async initialize(address = "https://127.0.0.1", port = 3031, instance: boolean, opts?: any): Promise<void> {
+  public async initialize(
+    address = Config.publicRuntimeConfig.gameserverHost,
+    port = parseInt(Config.publicRuntimeConfig.gameserverPort),
+    instance: boolean,
+    opts?: any
+  ): Promise<void> {
     const self = this;
-    let socket = instance === true ? this.instanceSocket : this.channelSocket;
+    let socket = instance ? this.instanceSocket : this.channelSocket;
     const { token, user, startVideo, videoEnabled, channelType, isHarmonyPage, ...query } = opts;
-
+    console.log("******* GAMESERVER PORT IS", port);
     Network.instance.accessToken = query.token = token;
     EngineEvents.instance.dispatchEvent({ type: ClientNetworkSystem.EVENTS.CONNECT, id: user.id });
 
-    this.mediasoupDevice = new Device();
+    this.mediasoupDevice = new mediasoupClient.Device();
     if (socket && socket.close) socket.close();
 
     this.channelType = channelType;
@@ -100,31 +108,33 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     if (query.locationId == null) delete query.locationId;
     if (query.sceneId == null) delete query.sceneId;
     if (query.channelId == null) delete query.channelId;
-    if (process.env.NEXT_PUBLIC_LOCAL_BUILD === 'true') {
-      socket = ioclient(`https://${address as string}:${port.toString()}/realtime`, {
+    if (process.env.LOCAL_BUILD === 'true') {
+      socket = ioclient(`https://${address as string}:${port.toString()}`, {
         query: query
       });
     } else if (process.env.NODE_ENV === 'development') {
-      socket = ioclient(`${address as string}:${port.toString()}/realtime`, {
+      socket = ioclient(`${address as string}:${port.toString()}`, {
         query: query
       });
     } else {
-      socket = ioclient(`${gameserver}/realtime`, {
+      socket = ioclient(`${Config.publicRuntimeConfig.gameserver}`, {
         path: `/socket.io/${address as string}/${port.toString()}`,
         query: query
       });
     }
 
-    (socket as any).instance = instance === true;
+    if (instance === true) {
+      (socket as any).instance = true;
+      this.instanceSocket = socket;
+      Network.instance.instanceSocketId = socket.id;
+      this.instanceRequest = this.promisedRequest(socket);
+    }
+    else {
+      this.channelSocket = socket;
+      Network.instance.channelSocketId = socket.id;
+      this.channelRequest = this.promisedRequest(socket);
+    }
 
-    if (instance === true) this.instanceSocket = socket;
-    else this.channelSocket = socket;
-
-    if (instance === true) Network.instance.instanceSocketId = socket.id;
-    else Network.instance.channelSocketId = socket.id;
-
-    if (instance === true) this.instanceRequest = this.promisedRequest(socket);
-    else this.channelRequest = this.promisedRequest(socket);
 
     socket.on("connect", async () => {
       const request = (socket as any).instance === true ? this.instanceRequest : this.channelRequest;
@@ -141,14 +151,14 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
           new Promise((resolve, reject) => {
             setTimeout(() => reject(new Error('Connect timed out')), 10000);
           })
-      ]);
+        ]);
       } catch(err) {
         console.log(err);
         EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.CONNECT_TO_WORLD_TIMEOUT, instance: instance === true });
         return;
       }
-      console.log('ConnectToWorldResponse:');
-      console.log(ConnectToWorldResponse);
+      // console.log('ConnectToWorldResponse:');
+      // console.log(ConnectToWorldResponse);
       const { worldState, routerRtpCapabilities } = ConnectToWorldResponse as any;
 
       EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.CONNECT_TO_WORLD, worldState });
@@ -244,8 +254,8 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
 
       // Init Receive and Send Transports initially since we need them for unreliable message consumption and production
       if ((socket as any).instance === true) {
-        console.log('Initializing instance transports');
-        console.log(socket);
+        // console.log('Initializing instance transports');
+        // console.log(socket);
         await Promise.all([initSendTransport('instance'), initReceiveTransport('instance')]);
         await createDataProducer((socket as any).instance === true ? 'instance' : this.channelId );
       }

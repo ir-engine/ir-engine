@@ -15,7 +15,7 @@ import { BadRequest } from '@feathersjs/errors';
 import logger from '../../logger';
 import { Op } from "sequelize";
 import config from '../../appconfig';
-import { contents } from "@xr3ngine/common/src/scenes-templates";
+import { contents } from "@xrengine/common/src/scenes-templates";
 interface Data { }
 interface ServiceOptions {}
 
@@ -30,6 +30,8 @@ export class Project implements ServiceMethods<Data> {
     this.app = app;
     this.models = this.app.get('sequelizeClient').models;
   }
+
+  async setup() {}
 
   /**
    * A function which is used to display all projects 
@@ -170,6 +172,7 @@ export class Project implements ServiceMethods<Data> {
     } else {
       sceneData = await readJSONFromBlobStore(storage, ownedFile.key);
     }
+    if(!sceneData) return;
     await seqeulizeClient.transaction(async (transaction: Transaction) => {
       project.update({
         name: data.name,
@@ -293,7 +296,7 @@ export class Project implements ServiceMethods<Data> {
     const seqeulizeClient = this.app.get('sequelizeClient');
     const models = seqeulizeClient.models;
     const StaticResourceModel = models.static_resource;
-    const CollectionModel = this.app.service('collection').Model;
+    const CollectionModel = (this.app.service('collection') as any).Model;
     const projectIncludes: any = [
       {
         model: StaticResourceModel,

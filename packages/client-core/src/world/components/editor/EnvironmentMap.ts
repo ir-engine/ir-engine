@@ -1,5 +1,5 @@
 import { CubeTextureLoader, RGBFormat } from "three";
-import { RethrownError } from "@xr3ngine/engine/src/editor/functions/errors";
+import { RethrownError } from "@xrengine/engine/src/editor/functions/errors";
 import i18n from "i18next";
 
 const negx = "/cubemap/negx.jpg";

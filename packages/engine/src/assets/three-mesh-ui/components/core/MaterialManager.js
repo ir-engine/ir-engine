@@ -160,7 +160,7 @@ export default function MaterialManager( Base = class {} ) {
             }, 100 )
             */
 
-            return new ShaderMaterial({
+            let material = new ShaderMaterial({
                 uniforms: this.textUniforms,
                 transparent: true,
                 clipping: true,
@@ -169,8 +169,12 @@ export default function MaterialManager( Base = class {} ) {
                 extensions: {
                     derivatives: true
                 }
-            })
+            });
 
+            // material.depthTest = false;
+            // material.depthWrite = false;
+
+            return material;
         }
 
         /** @private */
@@ -188,7 +192,7 @@ export default function MaterialManager( Base = class {} ) {
             }, 100 )
             */
 
-            return new ShaderMaterial({
+            let material = new ShaderMaterial({
                 uniforms: this.backgroundUniforms,
                 transparent: true,
                 clipping: true,
@@ -197,8 +201,12 @@ export default function MaterialManager( Base = class {} ) {
                 extensions: {
                     derivatives: true
                 }
-            })
+            });
 
+            // material.depthTest = false;
+            // material.depthWrite = false;
+
+            return material;
         }
 
 	}

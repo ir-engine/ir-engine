@@ -1,11 +1,20 @@
 import React from 'react';
 import { Route, Switch, Redirect } from 'react-router-dom';
+import { Config } from '@xrengine/client-core/src/helper';
 
+/**
+ * @NB we are not using this routes at the moment Please refer to route/ folder 
+ * @returns 
+ */
 export const RouterComp = () => {
     return (
         <Switch>
             <Route path="/" component={React.lazy(() => import('./pages/index'))} exact />
             <Route path="/login" component={React.lazy(() => import('./pages/login'))} />
+            <Route path="/dev" component={React.lazy(() => import('./pages/dev'))} />
+
+            {/* Example Routes */}
+            <Route path="/examples/helloworld" component={React.lazy(() => import('./pages/examples/ecs_helloworld'))} />
 
             {/* Admin Routes */}
             <Route path="/admin/content-packs" component={React.lazy(() => import('./pages/admin/content-packs'))} />
@@ -30,6 +39,8 @@ export const RouterComp = () => {
 
             {/* Location Routes */}
             <Route path="/location/:locationName" component={React.lazy(() => import('./pages/location/[locationName]'))} />
+            <Route path="/video360" component={React.lazy(() => import('./pages/video360'))} />
+            <Redirect path="/location" to={"/location/" + Config.publicRuntimeConfig.lobbyLocationName} />
 
             {/* Harmony Routes */}
             <Route path="/harmony" component={React.lazy(() => import('./pages/harmony/index'))} />
@@ -40,6 +51,7 @@ export const RouterComp = () => {
             <Route path="/editor/create" component={React.lazy(() => import('./pages/editor/create'))} />
             <Redirect path="/editor" to="/editor/projects" />
 
+            <Route path="/workerTest" component={React.lazy(() => import('./pages/WorkerTest'))} />
             <Route path="*" component={React.lazy(() => import('./pages/404'))} />
         </Switch>
     );

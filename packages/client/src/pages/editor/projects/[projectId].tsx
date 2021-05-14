@@ -4,22 +4,18 @@
  */
 
 import React, { lazy, Suspense, useEffect, useState } from "react";
-// Hack to get around a bug in Vite/rollup:  https://github.com/vitejs/vite/issues/2139
-import nossr from "react-no-ssr";
-const NoSSR = nossr.default ? nossr.default : nossr;
-
 
 // importing component EditorContainer.
-const EditorContainer = lazy(() => import("@xr3ngine/client-core/src/world/components/editor/EditorContainer"));
+const EditorContainer = lazy(() => import("@xrengine/client-core/src/world/components/editor/EditorContainer"));
 
 import { connect } from 'react-redux';
-import {selectAuthState} from "@xr3ngine/client-core/src/user/reducers/auth/selector";
-import {bindActionCreators, Dispatch} from "redux";
-import {doLoginAuto} from "@xr3ngine/client-core/src/user/reducers/auth/service";
-import { initializeEditor } from "@xr3ngine/engine/src/initialize";
-import { DefaultGameMode } from "@xr3ngine/engine/src/templates/game/DefaultGameMode";
-import { Engine } from "@xr3ngine/engine/src/ecs/classes/Engine";
-
+import { selectAuthState } from "@xrengine/client-core/src/user/reducers/auth/selector";
+import { bindActionCreators, Dispatch } from "redux";
+import { doLoginAuto } from "@xrengine/client-core/src/user/reducers/auth/service";
+import { initializeEditor } from "@xrengine/client-core/src/initialize";
+import { Engine } from "@xrengine/engine/src/ecs/classes/Engine";
+import { GamesSchema } from "@xrengine/engine/src/game/templates/GamesSchema";
+import { InitializeOptions } from "@xrengine/engine/src/DefaultInitializationOptions";
 /**
  * Declairing Props interface having two props.
  *@authState can be of any type.
@@ -42,39 +38,37 @@ const mapStateToProps = (state: any): any => {
 };
 
 /**
- *Function component providing doAutoLogin on the basis of dispatch.  
+ *Function component providing doAutoLogin on the basis of dispatch.
  */
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
     doLoginAuto: bindActionCreators(doLoginAuto, dispatch)
 });
 
 /**
- * Function component providing project editor view. 
+ * Function component providing project editor view.
  */
 const Project = (props: Props) => {
 
-	// initialising consts using props interface.
+    // initialising consts using props interface.
     const {
         authState,
         doLoginAuto
     } = props;
 
-    // initialising authUser. 
+    // initialising authUser.
     const authUser = authState.get('authUser');
     // initialising authState.
     const user = authState.get('user');
-    // initialising hasMounted to false. 
+    // initialising hasMounted to false.
     const [hasMounted, setHasMounted] = useState(false);
 
     const [engineIsInitialized, setEngineInitialized] = useState(false);
-    
-    const InitializationOptions = {
-        postProcessing: true,
-        gameModes: [
-            DefaultGameMode
-          ]
-      };
-  
+
+    const InitializationOptions: InitializeOptions = {
+        publicPath: location.origin,
+        
+    };
+
     useEffect(() => {
         initializeEditor(InitializationOptions).then(() => {
             console.log("Setting engine inited");
@@ -90,17 +84,13 @@ const Project = (props: Props) => {
         doLoginAuto(true);
     }, []);
 
-/**
- * validating user and rendering EditorContainer component.
- * <NoSSR> enabling the defer rendering.
- *
- */
+    /**
+     * validating user and rendering EditorContainer component.
+     */
     return hasMounted &&
     <Suspense fallback={React.Fragment}>
-        <NoSSR>
-            { authUser?.accessToken != null && authUser.accessToken.length > 0 
-              && user?.id != null && engineIsInitialized && <EditorContainer Engine={Engine} {...props} /> }
-        </NoSSR>
+        { authUser?.accessToken != null && authUser.accessToken.length > 0
+            && user?.id != null && engineIsInitialized && <EditorContainer Engine={Engine} {...props} /> }
     </Suspense>;
 };
 

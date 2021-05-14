@@ -10,9 +10,10 @@ import {
   SET_CREATOR_AS_FOLLOWED,
   SET_CREATOR_NOT_FOLLOWED,
   CREATOR_FOLLOWERS_RETRIEVED,
-  CREATORS_FETCH
+  CREATORS_FETCH,
+  CURRENT_CREATOR_FETCH
 } from '../actions';
-import { Creator, CreatorShort } from '@xr3ngine/common/src/interfaces/Creator';
+import { Creator, CreatorShort } from '@xrengine/common/src/interfaces/Creator';
 
 export interface CreatorRetrievedAction {
   type: string;
@@ -53,6 +54,11 @@ export function creatorRetrieved (creator: Creator): CreatorRetrievedAction {
 export function fetchingCreators (): FetchingCreatorAction {
   return {
     type: CREATORS_FETCH
+  };
+}
+export function fetchingCurrentCreator(): FetchingCreatorAction {
+  return {
+    type: CURRENT_CREATOR_FETCH
   };
 }
 

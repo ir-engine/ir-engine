@@ -1,14 +1,15 @@
 import { degreeLerp, lerp, quatSlerp, radianLerp } from '../../common/functions/MathLerpFunctions';
-import { randomId } from '../../common/functions/MathRandomFunctions';
 import { Quat } from '../../networking/types/SnapshotDataTypes';
 import { InterpolatedSnapshot, Snapshot, StateEntityGroup, StateInterEntity, StateEntityInterGroup, StateEntity, Time, Value } from '../types/SnapshotDataTypes';
 import { NetworkInterpolation } from '../classes/NetworkInterpolation';
 import { Network } from '../classes/Network';
-import { Engine } from '../../ecs/classes/Engine';
+import { EngineEvents } from '../../ecs/classes/EngineEvents';
+import { ClientNetworkSystem } from '../systems/ClientNetworkSystem';
+
 /** Get snapshot factory.
 * @author HydraFire <github.com/HydraFire>
  */
-
+let _id = 0;
 export function snapshot(): any {
   return {
     /** Create the snapshot on the server. */
@@ -37,7 +38,7 @@ export function createSnapshot (state: StateEntityGroup): Snapshot {
   check(state);
 
   return {
-    id: randomId(),
+    id: '' + _id++,
     time: Date.now(),
     //@ts-ignore
     state: state,
@@ -201,12 +202,13 @@ export function interpolate (
 
       //  let speed = (Math.sqrt(x*x + y*y + z*z)*60) / (t0 - tn);
 
-        x = x * 16.666666666666668 / (t0 - tn);
-        y = y * 16.666666666666668 / (t0 - tn);
-        z = z * 16.666666666666668 / (t0 - tn);
+        x = x * 16.7 / (t0 - tn);
+        y = y * 16.7 / (t0 - tn);
+        z = z * 16.7 / (t0 - tn);
 
 
-      //  let speed = Math.sqrt(x*x + y*y + z*z)*Engine.physicsFrameRate;
+
+        //console.warn(speed);
 /*
         if (speed < 0.001) {
           x = 0;
@@ -268,6 +270,7 @@ export function interpolate (
  *
  * @returns Interpolated snapshot.
  */
+let hasLostConnection = true;
 export function calculateInterpolation (parameters: string, arrayName = ''): InterpolatedSnapshot | undefined {
   // get the snapshots [_interpolationBuffer] ago
   const serverTime = (Date.now() - NetworkInterpolation.instance.timeOffset) - NetworkInterpolation.instance._interpolationBuffer;
@@ -278,7 +281,13 @@ export function calculateInterpolation (parameters: string, arrayName = ''): Int
   const shots = NetworkInterpolation.instance.get(serverTime);
   if (!shots) {
     console.warn('Skipping network interpolation, are you lagging or disconnected?');
+    EngineEvents.instance.dispatchEvent({ type: ClientNetworkSystem.EVENTS.CONNECTION_LOST, hasLostConnection: true });
+    hasLostConnection = true;
     return;
+  }
+  if(hasLostConnection) {
+    hasLostConnection = false;
+    EngineEvents.instance.dispatchEvent({ type: ClientNetworkSystem.EVENTS.CONNECTION_LOST, hasLostConnection: false });
   }
   const { older, newer } = shots;
   if (!older || !newer) return;

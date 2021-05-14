@@ -1,5 +1,5 @@
 import { Engine } from "../../ecs/classes/Engine";
-import { AdditiveBlending, BufferGeometry, Float32BufferAttribute, Group, Line, LineBasicMaterial, Mesh, MeshBasicMaterial, MeshPhongMaterial, RingGeometry, Vector3 } from 'three';
+import { AdditiveBlending, BufferGeometry, Float32BufferAttribute, Group, Line, LineBasicMaterial, Material, Mesh, MeshBasicMaterial, MeshPhongMaterial, RingGeometry, Vector3 } from 'three';
 import { getLoader } from "../../assets/functions/LoadGLTF";
 // import { GLTF } from "../../assets/loaders/gltf/GLTFLoader";
 import { FollowCameraComponent } from "../../camera/components/FollowCameraComponent";
@@ -7,10 +7,10 @@ import { CameraModes } from "../../camera/types/CameraModes";
 import { addComponent, getComponent, getMutableComponent, removeComponent } from '../../ecs/functions/EntityFunctions';
 import { Network } from "../../networking/classes/Network";
 import { XRSystem } from "../systems/XRSystem";
-import { CharacterComponent } from "../../templates/character/components/CharacterComponent";
+import { CharacterComponent } from "../../character/components/CharacterComponent";
 import { XRInputReceiver } from '../../input/components/XRInputReceiver';
 import { initiateIK, stopIK } from "./IKFunctions";
-import { initializeMovingState } from "../../templates/character/animations/MovingAnimations";
+import { initializeMovingState } from "../../character/animations/MovingAnimations";
 
 let head, controllerGripLeft, controllerLeft, controllerRight, controllerGripRight;
 
@@ -33,7 +33,15 @@ export const startXR = async () => {
     Engine.scene.remove(Engine.camera);
     dolly.add(Engine.camera);
 
-    initiateIK(Network.instance.localClientEntity)
+    // until retargeting is fixed, we can simply just not init IK
+    // initiateIK(Network.instance.localClientEntity)
+
+    actor.modelContainer.children[0].traverse((child: Mesh) => {
+      if(child.isMesh) {
+        child.visible = false;
+      }
+    })
+
 
     head = Engine.renderer.xr.getCamera(Engine.camera);
     controllerLeft = Engine.renderer.xr.getController(0);
@@ -126,6 +134,13 @@ export const endXR = () => {
   Engine.scene.add(Engine.camera);
   stopIK(Network.instance.localClientEntity)
   initializeMovingState(Network.instance.localClientEntity)
+
+  actor.modelContainer.children[0].traverse((child: Mesh) => {
+    if(child.isMesh) {
+      child.visible = true;
+    }
+  })
+
 }
 
 // pointer taken from https://github.com/mrdoob/three.js/blob/master/examples/webxr_vr_ballshooter.html

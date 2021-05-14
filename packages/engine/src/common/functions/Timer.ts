@@ -1,10 +1,7 @@
 import { isClient } from './isClient';
 import { now } from "./now";
-import { WebGLRendererSystem } from '../../renderer/WebGLRendererSystem';
 import { EngineEvents } from '../../ecs/classes/EngineEvents';
-import { isWebWorker } from './getEnvironment';
 import { XRSystem } from '../../xr/systems/XRSystem';
-import { XRFrame } from '../../input/types/WebXR';
 import { Engine } from '../../ecs/classes/Engine';
 
 type TimerUpdateCallback = (delta: number, elapsedTime?: number) => any;
@@ -15,7 +12,7 @@ const TPS_REPORT_INTERVAL_MS = 10000;
 export function Timer (
   callbacks: { update?: TimerUpdateCallback; fixedUpdate?: TimerUpdateCallback; networkUpdate?: TimerUpdateCallback; render?: Function },
   fixedFrameRate?: number, networkTickRate?: number
-): { start: Function; stop: Function } {
+): { start: Function; stop: Function, clear: Function } {
   const fixedRate = fixedFrameRate || 60;
   const networkRate = networkTickRate || 20;
 
@@ -58,7 +55,7 @@ export function Timer (
       if (networkRunner) {
         networkRunner.run(delta);
       }
-      XRSystem.xrFrame = xrFrame;
+      XRSystem.instance.xrFrame = xrFrame;
       if (callbacks.update) {
         callbacks.update(delta, accumulated);
       }
@@ -92,7 +89,7 @@ export function Timer (
     frameId = updateFunction(onFrame);
 
     if (last !== null) {
-      delta = (time - last) / 1000;
+      delta = Math.min((time - last) / 1000, 10 / fixedRate); // limit to between 1 update in 10 frames, to not have wildly high delta
       accumulated = accumulated + delta;
 
       if (fixedRunner) {
@@ -196,9 +193,19 @@ export function Timer (
     cancelAnimationFrame(frameId);
   }
 
+  function clear () {
+    cancelAnimationFrame(frameId);
+    EngineEvents.instance.removeAllListenersForEvent(XRSystem.EVENTS.XR_START);
+    EngineEvents.instance.removeAllListenersForEvent(XRSystem.EVENTS.XR_SESSION);
+    EngineEvents.instance.removeAllListenersForEvent(XRSystem.EVENTS.XR_END);
+    delete this.fixedRunner;
+    delete this.networkRunner;
+  }
+
   return {
     start: start,
-    stop: stop
+    stop: stop,
+    clear: clear,
   };
 }
 

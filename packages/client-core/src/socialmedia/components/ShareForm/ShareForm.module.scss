@@ -1,0 +1,51 @@
+.shareFormContainer{
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    margin: auto 0;
+    overflow: scroll;
+
+    .flexContainer{
+        display: flex;
+        flex-direction: row;
+        
+        .preCard{
+            width: 50%;
+            h2{
+                display: flex;
+                flex-direction: column;
+            }
+        }
+    }
+    .displayNone{
+        display: none;
+    }
+
+    .previewImage{
+        height: 210px;
+    }
+
+    .textArea{
+        min-height: 100px;
+    }
+    .submit{
+        display: block;
+        margin: 0 auto;
+    }
+
+    .videoWrapper{
+        position: absolute;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        width: 100vw;
+
+        .submit{
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translate(-50%, 0);
+        }
+    }
+}

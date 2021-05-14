@@ -8,6 +8,8 @@ import { Network } from '../classes/Network';
 import { NetworkObject } from '../components/NetworkObject';
 import { NetworkSchema } from "../interfaces/NetworkSchema";
 import { WorldStateModel } from '../schema/worldStateSchema';
+import { ControllerColliderComponent } from '../../character/components/ControllerColliderComponent';
+import { CharacterComponent } from '../../character/components/CharacterComponent';
 
 /** System class to handle outgoing messages. */
 export class ServerNetworkOutgoingSystem extends System {
@@ -28,20 +30,19 @@ export class ServerNetworkOutgoingSystem extends System {
     // Transforms that are updated are automatically collected
     // note: onChanged needs to currently be handled outside of fixedExecute
     this.queryResults.networkTransforms.all?.forEach((entity: Entity) => {
+
       const transformComponent = getComponent(entity, TransformComponent);
       const networkObject = getComponent(entity, NetworkObject);
+      const currentPosition = transformComponent.position;
+      const snapShotTime = networkObject.snapShotTime ?? 0;
 
-      let snapShotTime = 0
-      if (networkObject.snapShotTime != undefined) {
-        snapShotTime = networkObject.snapShotTime;
-      }
 
       Network.instance.worldState.transforms.push({
         networkId: networkObject.networkId,
         snapShotTime: snapShotTime,
-        x: transformComponent.position.x,
-        y: transformComponent.position.y,
-        z: transformComponent.position.z,
+        x: currentPosition.x,
+        y: currentPosition.y,
+        z: currentPosition.z,
         qX: transformComponent.rotation.x,
         qY: transformComponent.rotation.y,
         qZ: transformComponent.rotation.z,
@@ -91,13 +92,14 @@ export class ServerNetworkOutgoingSystem extends System {
       Network.instance.worldState.createObjects.length ||
       Network.instance.worldState.editObjects.length ||
       Network.instance.worldState.destroyObjects.length ||
+      Network.instance.worldState.gameState.length ||
       Network.instance.worldState.gameStateActions.length
     ) {
       const bufferReliable = WorldStateModel.toBuffer(Network.instance.worldState, 'Reliable');
       if(!bufferReliable){
         console.warn("Reliable buffer is null");
         console.warn(Network.instance.worldState);
-      } 
+      }
             else
       Network.instance.transport.sendReliableData(bufferReliable);
     }
@@ -113,7 +115,7 @@ export class ServerNetworkOutgoingSystem extends System {
   /** System queries. */
   static queries: any = {
     networkTransforms: {
-      components: [NetworkObject, TransformComponent]
+      components: [ NetworkObject, TransformComponent ] // CharacterComponent ? we sent double to network objects to ?
     },
   }
 }

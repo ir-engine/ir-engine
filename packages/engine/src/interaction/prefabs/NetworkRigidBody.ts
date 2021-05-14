@@ -3,14 +3,14 @@ import { Network } from '../../networking/classes/Network';
 import { NetworkPrefab } from '../../networking/interfaces/NetworkPrefab';
 import { TransformComponent } from '../../transform/components/TransformComponent';
 import { ColliderComponent } from '../../physics/components/ColliderComponent';
-import { RigidBody } from '../../physics/components/RigidBody';
+import { RigidBodyComponent } from '../../physics/components/RigidBody';
 import { initializeNetworkObject } from '../../networking/functions/initializeNetworkObject';
-import { PrefabType } from '../../templates/networking/PrefabType';
+import { PrefabType } from '../../networking/templates/PrefabType';
 
 /**
 * @author HydraFire <github.com/HydraFire>
  */
- 
+
 export function createNetworkRigidBody( args:{ parameters?: any, networkId?: string | number, uniqueId: string, entity?: Entity }) {
   if (args.parameters === undefined) {
 
@@ -22,7 +22,7 @@ export function createNetworkRigidBody( args:{ parameters?: any, networkId?: str
     };
 
   } else {
-
+  //  console.warn(args.parameters);
     initializeNetworkObject({
       entity: args.entity,
       prefabType: PrefabType.RigidBody,
@@ -32,6 +32,8 @@ export function createNetworkRigidBody( args:{ parameters?: any, networkId?: str
           {
             type: ColliderComponent,
             data: {
+              body: args.parameters.body,
+              bodytype:  args.parameters.bodytype,
               type: args.parameters.type,
               position: args.parameters.position,
               quaternion: args.parameters.quaternion,
@@ -55,7 +57,7 @@ export const NetworkRigidBody: NetworkPrefab = {
     // Transform system applies values from transform component to three.js object (position, rotation, etc)
     { type: TransformComponent },
     { type: ColliderComponent },
-    { type: RigidBody }
+    { type: RigidBodyComponent }
     // Local player input mapped to behaviors in the input map
   ],
   // These are only created for the local player who owns this prefab

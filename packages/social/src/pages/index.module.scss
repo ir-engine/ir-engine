@@ -1,0 +1,23 @@
+@font-face{
+    font-family: "SFProText-Semibold";
+    src : url("assets/fonts/FontsFree-Net-SFProText-Semibold-1.ttf");
+  }
+  @font-face{
+    font-family: "SFProText-Regular";
+    src : url("assets/fonts/FontsFree-Net-SFProText-Regular-1.ttf");
+  }
+  @font-face{
+    font-family: "SFProText-Heavy";
+    src : url("assets/fonts/FontsFree-Net-SFProText-Heavy.ttf");
+  }
+body{
+  font-size: 13px;
+  font-family: "SFProText-Regular";
+}
+.viewport {
+  position: fixed;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}

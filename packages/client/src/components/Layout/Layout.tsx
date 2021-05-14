@@ -1,15 +1,15 @@
-import { ThemeProvider } from "styled-components";
+import { ThemeProvider } from "@material-ui/styles";
 import { Forum, FullscreenExit, People, ZoomOutMap } from '@material-ui/icons';
-import { Alerts } from '@xr3ngine/client-core/src/common/components/Alerts';
-import { UIDialog } from '@xr3ngine/client-core/src/common/components/Dialog/Dialog';
+import { Alerts } from '@xrengine/client-core/src/common/components/Alerts';
+import { UIDialog } from '@xrengine/client-core/src/common/components/Dialog/Dialog';
 import Me from '../Me';
-import NavMenu from '@xr3ngine/client-core/src/common/components/NavMenu';
-import UserToast from "@xr3ngine/client-core/src/common/components/Toast/UserToast";
-import { setUserHasInteracted } from '@xr3ngine/client-core/src/common/reducers/app/actions';
-import { selectAppOnBoardingStep, selectAppState } from '@xr3ngine/client-core/src/common/reducers/app/selector';
-import { selectAuthState } from '@xr3ngine/client-core/src/user/reducers/auth/selector';
-import { selectLocationState } from '@xr3ngine/client-core/src/social/reducers/location/selector';
-import theme from '@xr3ngine/client-core/src/theme';
+import NavMenu from '@xrengine/client-core/src/common/components/NavMenu';
+import UserToast from "@xrengine/client-core/src/common/components/Toast/UserToast";
+import { setUserHasInteracted } from '@xrengine/client-core/src/common/reducers/app/actions';
+import { selectAppOnBoardingStep, selectAppState } from '@xrengine/client-core/src/common/reducers/app/selector';
+import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector';
+import { selectLocationState } from '@xrengine/client-core/src/social/reducers/location/selector';
+import theme from '@xrengine/client-core/src/theme';
 import Harmony from "../Harmony";
 import InstanceChat from '../InstanceChat';
 import PartyVideoWindows from '../PartyVideoWindows';
@@ -22,7 +22,7 @@ import LeftDrawer from '../Drawer/Left';
 import RightDrawer from '../Drawer/Right';
 // @ts-ignore
 import styles from './Layout.module.scss';
-import { Config } from '@xr3ngine/client-core/src/helper';
+import { Config } from '@xrengine/client-core/src/helper';
 import { useLocation } from 'react-router-dom';
 
 const siteTitle: string = Config.publicRuntimeConfig.siteTitle;

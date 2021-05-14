@@ -3,6 +3,9 @@
     background: rgba(0, 0, 0, 0.2);
     text-align: right;
     margin: 10px 0 10px -20px;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
 
     button {
         background: transparent;

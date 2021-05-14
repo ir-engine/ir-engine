@@ -114,7 +114,6 @@ const UserConsole = (props: Props) => {
         fetchUsersAsAdmin,
         removeUser
     } = props;
-
     const user = authState.get('user');
 
 

@@ -7,7 +7,6 @@ import InputGroup from "../inputs/InputGroup";
 import SelectInput from "../inputs/SelectInput";
 import StringInput from "../inputs/StringInput";
 import NodeEditor from "./NodeEditor";
-
 /**
  * [BoxColliderNodeEditor is used to provide properties to customize box collider element]
  * @type {[component class]}
@@ -22,8 +21,8 @@ export function GameNodeEditor(props: {
   const { node, editor, t } = props;
 
   // function to handle changes in payloadName property
-  const onChangePayloadGameMode = payloadGame => {
-    editor.setPropertySelected("gameMode", payloadGame);
+  const onChangePayloadGameMode = (payloadGame, selected) => {
+    editor.setPropertySelected("gameMode", selected.label);
   };
 
   const onChangeMinPlayers = payloadMinPlayers => {
@@ -41,7 +40,7 @@ export function GameNodeEditor(props: {
   // available to add in scene in assets.
   const description = i18n.t('editor:properties.game.description');
 
-  const selectValues = editor.Engine.gameModes.map((mode, index) => { return { label: mode.name, value: index }; });  
+  const selectValues = Object.keys(editor.Engine.supportedGameModes).map((key, index) => { return { label: key, value: index }; });
   return (
     <NodeEditor {...props} description={description}>
       { /* @ts-ignore */}
@@ -52,7 +51,7 @@ export function GameNodeEditor(props: {
         { /* @ts-ignore */}
         <SelectInput
           options={selectValues}
-          value={node.gameMode}
+          value={selectValues.findIndex(v => v.label === node.gameMode)}
           onChange={onChangePayloadGameMode}
         />
       </InputGroup>

@@ -72,5 +72,142 @@
             "header": "Verify Email",
             "processing": "Please wait a moment while processing..."
         }
+    },
+    "usermenu": {
+        "locationTable": {
+            "title": "Locations",
+            "loading": "Loading",
+            "col-name": "Name",
+            "col-scene": "Scene",
+            "col-maxuser": "Max Users",
+            "lbl-search": "Search for locations",
+            "lbl-new": "New"
+        },
+        "newLocation": {
+            "title": "Location",
+            "success": "Saved Successfully.",
+            "failure": "Something went wrong.",
+            "removeSuccess": "Location removed Successfully.",
+            "nameInUse": "Name is in use.",
+            "nameRequire": "Name is required.",
+            "validNumber": "Only numbers(0-9) are allowed.",
+            "lbl-name": "Name",
+            "lbl-maxuser": "Max Users",
+            "lbl-scene": "Scene",
+            "lbl-type": "Type",
+            "lbl-ve": "Video Enabled",
+            "lbl-gme": "Global Media Enabled",
+            "lbl-update": "Update",
+            "lbl-create": "Create",
+            "tooltipCanNotBeDeleted": "Lobby can't be deleted",
+            "confirmation": "Are you sure?",
+            "lbl-yes": "Yes",
+            "lbl-no": "No"
+        },
+        "share": {
+            "lbl-share": "Share",
+            "ph-phoneEmail": "Phone Number / Email",
+            "lbl-phoneEmail": "Send to email or phone number",
+            "lbl-copy": "Copy",
+            "title": "Location URL",
+            "linkCopied": "Link copied to clipboard."
+        },
+        "setting": {
+            "audio": "Audio",
+            "lbl-volume": "Volume",
+            "lbl-microphone": "Microphone",
+            "graphics": "Graphics",
+            "lbl-resolution": "Resolution",
+            "lbl-shadow": "Shadows",
+            "lbl-pp": "Post Processing",
+            "lbl-pbr": "Full PBR",
+            "lbl-automatic": "Automatic"
+        },
+        "profile": {
+            "lbl-username": "Username",
+            "youAreA": "You are a",
+            "youAreAn": "You are an",
+            "logout": "Log out",
+            "inviteCode": "Invite Code",
+            "connectPhone": "Connect your email or phone number",
+            "ph-phoneEmail": "Phone Number / Email",
+            "phoneEmailError": "Valid Email or Phone number is required",
+            "or": "Or",
+            "lbl-wallet": "Login with Wallet",
+            "connectSocial": "Or connect with social accounts",
+            "createOne": "If you don’t have an account, a new one will be created for you."
+        },
+        "avatar": {
+            "title": "Upload Avatar",
+            "lbl-browse": "Browse",
+            "lbl-upload": "Upload",
+            "selectAvatar": "Select Avatar...",
+            "rotate": "Rotate",
+            "pan": "Pan",
+            "noBone": "Obejct does not contain any bones or skin",
+            "outOfBOund": "Object is out of bound.",
+            "emptyObj": "Object is empty.",
+            "maxTriangleError": "Object contains greater than {{allowedTriangles}} faces.",
+            "selectValidFile": "Select valid 3d avatar file.",
+            "fileOversized": "Avatar file size must be between {{minSize}} MB and {{maxSize}} MB",
+            "confirmation": "Are you sure?",
+            "canNotBeRemoved": "Active Avatar can not be removed",
+            "remove": "Remove avatar"
+        }
+    },
+    "profile": {
+        "lbl-profile": "Profile",
+        "lbl-settings": "Settings",
+        "connections": {
+            "title": "Connections",
+            "ipError": "Can not remove active Identity Provider",
+            "disconnect": "disconnect",
+            "connect": "Connect"
+        },
+        "profileDropdown": {
+            "avatar": "User Avatar Icon",
+            "profile": "Profile",
+            "adminConsole": "Admin Console",
+            "logout": "Logout"
+        },
+        "userIcon": {
+            "lbl-name": "Your name",
+            "lbl-update": "Update",
+            "userId": "User ID",
+            "ph-uploadImg": "Upload Product Image",
+            "lbl-selectAcvatar": "Select Avatar",
+            "lbl-submit": "Submit"
+        },
+        "userSettings": {
+            "volume": "Volume",
+            "microphone": "Microphone",
+            "resolution": "Resolution",
+            "high": "High",
+            "low": "Low",
+            "spatialAudio": "Use Spatial Audio",
+            "enterMuted": "Enter Room Muted"
+        }
+    },
+    "oauth": {
+        "authenticating": "Authenticating...",
+        "authFailed": "{{service}} authentication failed."
+    },
+    "magikLink": {
+        "wait": "Please wait a moment while processing..."
+    },
+    "dashboard": {
+        "header": "Dashboard",
+        "dashboard": "Dashboard",
+        "users": "Users",
+        "feeds": "Feeds",
+        "instance": "Instance",
+        "locations": "Locations",
+        "invites": "Invites",
+        "sessions": "Sessions",
+        "groups": "Groups",
+        "parties": "Parties",
+        "chats": "Chats",
+        "content": "Content Packs",
+        "scenes": "Scenes"
     }
 }

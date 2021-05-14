@@ -1,5 +1,5 @@
-import config from '@xr3ngine/server-core/src/appconfig';
-import seeder from 'feathers-seeder';
+import config from '@xrengine/server-core/src/appconfig';
+import seeder from '@xrengine/server-core/src/util/seeder';
 import { Sequelize } from 'sequelize';
 import { setTimeout } from 'timers';
 import { Application } from '../declarations';
@@ -9,6 +9,8 @@ export default (app: Application): void => {
   try {
     const {forceRefresh} = config.db;
     const {performDryRun} = config.server;
+
+    console.log("Starting app");
 
     const sequelize = new Sequelize({
       ...config.db,
@@ -21,13 +23,15 @@ export default (app: Application): void => {
 
     app.set('sequelizeClient', sequelize);
 
+    // eslint-disable-next-line  @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     app.setup = function (...args: any): Application {
       sequelize
           .query('SET FOREIGN_KEY_CHECKS = 0')
           .then(() => {
             // Sync to the database
             for (const model of Object.keys(sequelize.models)) {
-              console.log('creating associations for =>', sequelize.models[model]);
+              if (forceRefresh) console.log('creating associations for =>', sequelize.models[model]);
               if (typeof ((sequelize.models[model] as any).associate) === 'function') {
                 (sequelize.models[model] as any).associate(sequelize.models);
               }
@@ -39,7 +43,7 @@ export default (app: Application): void => {
                           .configure(seeder({services: seederConfig}))
                           .seed()
                           .then(() => {
-                              console.log('Seeded');
+                              console.log('Server Ready');
                               return Promise.resolve();
                           })
                           .catch((err) => {

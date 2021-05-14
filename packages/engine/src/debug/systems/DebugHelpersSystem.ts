@@ -1,5 +1,5 @@
-import { System } from "../../ecs/classes/System";
-import { CharacterComponent } from "../../templates/character/components/CharacterComponent";
+import { System, SystemAttributes } from "../../ecs/classes/System";
+import { CharacterComponent } from "../../character/components/CharacterComponent";
 import { ArrowHelper, Box3, Box3Helper, BoxHelper, Object3D, Vector3 } from "three";
 import { getComponent } from "../../ecs/functions/EntityFunctions";
 import { Engine } from "../../ecs/classes/Engine";
@@ -7,25 +7,24 @@ import { Entity } from "../../ecs/classes/Entity";
 import { TransformComponent } from "../../transform/components/TransformComponent";
 import { BoundingBox } from "../../interaction/components/BoundingBox";
 import { Object3DComponent } from "../../scene/components/Object3DComponent";
-import { CannonDebugRenderer} from './CannonDebugRenderer';
-import { PhysicsSystem } from "../../physics/systems/PhysicsSystem";
 import { EngineEvents } from "../../ecs/classes/EngineEvents";
+import { DebugRenderer } from "three-physx";
 
 type ComponentHelpers = 'viewVector' | 'velocityArrow';
 
 export class DebugHelpersSystem extends System {
   private helpersByEntity: Record<ComponentHelpers, Map<Entity,Object3D>>;
-  physicsDebugRenderer: CannonDebugRenderer;
+  physicsDebugRenderer: DebugRenderer;
   static instance: DebugHelpersSystem;
   static EVENTS = {
     TOGGLE_PHYSICS: 'DEBUG_HELPERS_SYSTEM_TOGGLE_PHYSICS',
     TOGGLE_AVATAR: 'DEBUG_HELPERS_SYSTEM_TOGGLE_AVATAR',
   }
 
-  constructor() {
-    super();
+  constructor(attributes: SystemAttributes = {}) {
+    super(attributes);
     DebugHelpersSystem.instance = this;
-    this.physicsDebugRenderer = new CannonDebugRenderer(Engine.scene, PhysicsSystem.physicsWorld)
+    this.physicsDebugRenderer = new DebugRenderer(Engine.scene);
 
     this.helpersByEntity = {
       viewVector: new Map(),
@@ -44,6 +43,11 @@ export class DebugHelpersSystem extends System {
     EngineEvents.instance.addEventListener(DebugHelpersSystem.EVENTS.TOGGLE_PHYSICS, ({ enabled }) => {
       this.physicsDebugRenderer.setEnabled(enabled);
     })
+  }
+
+  dispose() {
+    EngineEvents.instance.removeAllListenersForEvent(DebugHelpersSystem.EVENTS.TOGGLE_AVATAR);
+    EngineEvents.instance.removeAllListenersForEvent(DebugHelpersSystem.EVENTS.TOGGLE_PHYSICS);
   }
 
   execute(delta: number, time: number): void {

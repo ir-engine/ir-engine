@@ -1,6 +1,6 @@
 import { hooks } from '@feathersjs/authentication';
 import { iff } from 'feathers-hooks-common';
-import isAction from '@xr3ngine/server-core/src/hooks/is-action';
+import isAction from '@xrengine/server-core/src/hooks/is-action';
 const { authenticate } = hooks;
 
 export default {
@@ -11,7 +11,7 @@ export default {
     create: [
       iff(
         isAction('passwordChange', 'identityChange'),
-        authenticate('jwt')
+        authenticate('jwt') as any,
       )
     ],
     update: [],

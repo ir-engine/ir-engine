@@ -1,28 +1,28 @@
 import ClickAwayListener from "@material-ui/core/ClickAwayListener";
 import { Person } from "@material-ui/icons";
-import SignIn from "@xr3ngine/client-core/src/user/components/Auth/Login";
-import ProfileMenu from "@xr3ngine/client-core/src/user/components/UserMenu/menus/ProfileMenu";
-import { selectAuthState } from "@xr3ngine/client-core/src/user/reducers/auth/selector";
-import { doLoginAuto, logoutUser } from "@xr3ngine/client-core/src/user/reducers/auth/service";
-import Api from "@xr3ngine/client-core/src/world/components/editor/Api";
-import { withApi } from "@xr3ngine/client-core/src/world/components/editor/contexts/ApiContext";
-import { Button, MediumButton } from "@xr3ngine/client-core/src/world/components/editor/inputs/Button";
-import { connectMenu, ContextMenu, MenuItem } from "@xr3ngine/client-core/src/world/components/editor/layout/ContextMenu";
-import { ErrorMessage, ProjectGrid, ProjectGridContainer, ProjectGridContent, ProjectGridHeader, ProjectGridHeaderRow } from "@xr3ngine/client-core/src/world/components/editor/projects/ProjectGrid";
-import templates from "@xr3ngine/client-core/src/world/components/editor/projects/templates";
-import { ThemeContext } from "@xr3ngine/client-core/src/world/components/editor/theme";
+import SignIn from "@xrengine/client-core/src/user/components/Auth/Login";
+import ProfileMenu from "@xrengine/client-core/src/user/components/UserMenu/menus/ProfileMenu";
+import { selectAuthState } from "@xrengine/client-core/src/user/reducers/auth/selector";
+import { doLoginAuto, logoutUser } from "@xrengine/client-core/src/user/reducers/auth/service";
+import Api from "@xrengine/client-core/src/world/components/editor/Api";
+import { withApi } from "@xrengine/client-core/src/world/components/editor/contexts/ApiContext";
+import { Button, MediumButton } from "@xrengine/client-core/src/world/components/editor/inputs/Button";
+import { connectMenu, ContextMenu, MenuItem } from "@xrengine/client-core/src/world/components/editor/layout/ContextMenu";
+import { ErrorMessage, ProjectGrid, ProjectGridContainer, ProjectGridContent, ProjectGridHeader, ProjectGridHeaderRow } from "@xrengine/client-core/src/world/components/editor/projects/ProjectGrid";
+import templates from "@xrengine/client-core/src/world/components/editor/projects/templates";
+import { ThemeContext } from "@xrengine/client-core/src/world/components/editor/theme";
 import { useHistory } from "react-router-dom";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from 'react-i18next';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from "redux";
 import styled from "styled-components";
-import AdminConsole from '@xr3ngine/client-core/src/admin/components';
+import AdminConsole from '@xrengine/client-core/src/admin/components';
 
 
 /**
  * Creating styled component using section.
- * Used as a parent container in view. 
+ * Used as a parent container in view.
  * @ProjectsSection
  *
  */
@@ -31,15 +31,15 @@ export const ProjectsSection = (styled as any).section<{ flex?: number }>`
 	  padding-bottom: 100px;
 	  display: flex;
 	  flex: ${props => (props.flex === undefined ? 1 : props.flex)};
-	
+
 	  &:first-child {
 	    padding-top: 100px;
 	  }
-	
+
 	  h1 {
 	    font-size: 36px;
 	  }
-	
+
 	  h2 {
 	    font-size: 16px;
 	  }
@@ -47,7 +47,7 @@ export const ProjectsSection = (styled as any).section<{ flex?: number }>`
 
 /**
  * Creating styled component using div.
- * Used to contain ProjectsHeader and ProjectGridContainer. 
+ * Used to contain ProjectsHeader and ProjectGridContainer.
  * @ProjectsContainer
  *
  */
@@ -62,7 +62,7 @@ export const ProjectsContainer = (styled as any).div`
 `;
 
 /**
- * Creating styled component using section inheriting {ProjectsContainer}. 
+ * Creating styled component using section inheriting {ProjectsContainer}.
  * Used when user is newly onboard and has no existing projects.
  * @ProjectsContainer
  * @WelcomeContainer
@@ -81,7 +81,7 @@ const WelcomeContainer = styled(ProjectsContainer)`
 `;
 
 /**
- * Creating styled component using div. 
+ * Creating styled component using div.
  * Used to show the projects page header content.
  * @ProjectsHeader
  *
@@ -142,11 +142,11 @@ export const ProfileButton = (styled as any).div`
 /**
  *Defining contextMenuId for rendering menus.
  *@contextMenuId
- * 
+ *
  */
 const contextMenuId = "project-menu";
 
-/** 
+/**
  *Declairing Props component.
  * @api is of type {Api} EventEmitter.
  * @history is of type object.
@@ -160,7 +160,7 @@ type Props = {
 	  logoutUser?: typeof logoutUser;
 };
 /**
- *Creating type ProjectsPageState. 
+ *Creating type ProjectsPageState.
  */
 type ProjectsPageState = { projects: any } & {
   error: any;
@@ -197,11 +197,11 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 });
 
 /**
- *Component to render the existing projects in grids with a grid to add new project. 
+ *Component to render the existing projects in grids with a grid to add new project.
  *@ProjectsPage
  */
 const ProjectsPage = (props: Props) => {
-	
+
  // creating types using props.
   const {
     api,
@@ -214,7 +214,7 @@ const ProjectsPage = (props: Props) => {
 
   const [projects, setProjects] = useState([]); // constant projects initialized with an empty array.
   const [loading, setLoading] = useState(false);// constant loading initialized with false.
-  const isAuthenticated = api.isAuthenticated();// intialized with value returning from api.isAuthenticated()  
+  const isAuthenticated = api.isAuthenticated();// intialized with value returning from api.isAuthenticated()
   const [error, setError] = useState(null);// constant error initialized with null.
   const [profileMenuOpen, setProfileMenuOpen] = useState(false); // constant profileMenuOpen initialized as false
   const authUser = authState.get('authUser');// authUser initialized by getting property from authState object.
@@ -258,7 +258,7 @@ const ProjectsPage = (props: Props) => {
  */
   const onDeleteProject = async (project) => {
     try {
-	
+
 	  // calling api to delete project on the basis of project_id.
       await api.deleteProject(project.project_id);
 
@@ -279,7 +279,7 @@ const ProjectsPage = (props: Props) => {
   };
 
 /**
- *function to render the ContextMenu component with MenuItem component delete. 
+ *function to render the ContextMenu component with MenuItem component delete.
  */
   const renderContextMenu = props => {
     return (
@@ -299,7 +299,7 @@ const ProjectsPage = (props: Props) => {
  */
   const ProjectContextMenu = connectMenu(contextMenuId)(renderContextMenu);
 
- // Declairing an array 
+ // Declairing an array
   const topTemplates = [];
 
  // Adding first four templates of tamplates array to topTemplate array.
@@ -310,23 +310,23 @@ const ProjectsPage = (props: Props) => {
   const openProfileMenu = (): void => setProfileMenuOpen(true);
 
   /**
-   * Rendering view for projects page, if user is not login yet then showing login view.  
+   * Rendering view for projects page, if user is not login yet then showing login view.
    * if user is loged in and has no existing projects then we showing welcome view, providing link for the tutorials.
    * if user has existing projects then we show the existing projects in grids and a grid to add new project.
    *
    */
   return (
       <>
-      { !isAuthenticated || !authUser ?   
+      { !isAuthenticated || !authUser ?
         <ProjectsSection>
           <ProjectsContainer>
             <ProjectsHeader>
                 <h1>{t('editor.projects.header')}</h1>
               </ProjectsHeader>
             <ProjectGridContainer>
-              <ProjectGridContent>  
+              <ProjectGridContent>
                 <SignIn />
-              </ProjectGridContent>  
+              </ProjectGridContent>
             </ProjectGridContainer>
           </ProjectsContainer>
         </ProjectsSection>
@@ -336,7 +336,7 @@ const ProjectsPage = (props: Props) => {
           <ProjectGridHeaderRow>
             <ProfileButton onClick={() => openProfileMenu()}><Person /></ProfileButton>
           </ProjectGridHeaderRow>
-        </ProjectGridHeader>        
+        </ProjectGridHeader>
       }
         { authUser?.accessToken != null && authUser.accessToken.length > 0 && user?.id != null && <main>
           {(projects.length === 0 && !loading) ? (
@@ -351,7 +351,7 @@ const ProjectsPage = (props: Props) => {
                   </MediumButton>
                 </WelcomeContainer>
               </ProjectsSection>
-          ) : null}          
+          ) : null}
           <ProjectsSection>
             <ProjectsContainer>
             <ProjectsHeader>
@@ -372,7 +372,7 @@ const ProjectsPage = (props: Props) => {
                     </Button>
                   </ProjectGridHeaderRow>
                 </ProjectGridHeader>
-                <ProjectGridContent>                  
+                <ProjectGridContent>
                   {error && <ErrorMessage>{(error as any).message}</ErrorMessage>}
                   {!error && (
                       <ProjectGrid

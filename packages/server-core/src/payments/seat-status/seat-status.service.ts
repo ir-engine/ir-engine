@@ -33,5 +33,5 @@ export default (app: Application): any => {
    */
   const service = app.service('seat-status');
 
-  service.hooks(hooks);
+  service.hooks(hooks as any);
 };

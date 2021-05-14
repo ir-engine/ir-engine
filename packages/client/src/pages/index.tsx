@@ -1,9 +1,9 @@
 import { Helmet } from 'react-helmet';
 import React, { useEffect } from 'react';
-import ContactForm from '@xr3ngine/client-core/src/common/components/ContactForm';
+import ContactForm from '@xrengine/client-core/src/common/components/ContactForm';
 import { useHistory } from 'react-router-dom';
 import { Capacitor } from '@capacitor/core';
-import { useTranslation } from 'react-i18next';
+import { useTranslation, Trans } from 'react-i18next';
 
 export const HomePage = (): any => {
     const router = useHistory();
@@ -19,40 +19,48 @@ export const HomePage = (): any => {
             <Helmet>
                 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;400;600;800&display=swap" rel="stylesheet"/>
             </Helmet>
-            <div className="lander-container">
-                <div className="row mb-padding">
+            <div className="main-background">
+                <div className="img-container">
+                    <img src="static/main-background.png" alt="" />
+                </div>
+            </div>
+            <nav className="navbar">
+                <div className="logo-section">
                     <object className="lander-logo" data="static/overlay_mark.svg" />
-                </div>
-                <div className="logo-bottom mb-padding">
-                    <span className="main-txt gray-txt mr-2">{t('index.by')}</span>
-                    <span className="main-txt gradiant-txt mr-2">{t('index.laguna')}</span>
-                    <span className="main-txt white-txt">{t('index.labs')}</span>
-                </div>
-                <div className="row mt-5">
-                    <div className="bottom-left mb-padding">
-                        <div className="main-txt width-400">
-                            {t('index.description')}
-                        </div>
-                    </div>
-                    <object className="main-background" data="static/main-background.png" />
-                    <div className="contact-right-div">
-                        <ContactForm />
+                    <div className="logo-bottom">
+                        <span className="gray-txt">{t('index.by')}</span>
+                        <span className="gradiant-txt">{t('index.laguna')}</span>
+                        <span className="white-txt">{t('index.labs')}</span>
                     </div>
                 </div>
-                <div className="right-top-menu-row row">
-                    <div className="right-top-menu">
-                        <a target="_blank" href="https://discord.gg/mQ3D4FE">
-                            <img className="discord-icon" src="static/discord.svg" />
-                        </a>
-                        <a target="_blank" href="https://github.com/xr3ngine/xr3ngine">
-                            <img className="github-icon" src="static/github.svg" />
-                        </a>
-                    </div>
-                    <div className="mobile-only">
-                        <span className="main-txt gray-txt mr-2">{t('index.by')}</span>
-                        <span className="main-txt gradiant-txt mr-2">{t('index.laguna')}</span>
-                        <span className="main-txt white-txt">{t('index.labs')}</span>
-                    </div>
+            </nav>
+
+            <div className="main-section">
+                <div className="desc">
+                    <Trans t={t} i18nKey="index.description">
+                        <span>Realtime social apps for everyone,</span>
+                        <br />
+                        <span className="second-line">at <span className="metaverse">Metaverse</span> scale.</span>
+                    </Trans>
+                </div>
+                <div className="form-container">
+                    <ContactForm />
+                </div>
+            </div>
+
+            <div className="link-container">
+                <div className="link-block">
+                    <a target="_blank" className="icon" href="https://discord.gg/mQ3D4FE">
+                        <img src="static/discord.svg" />
+                    </a>
+                    <a target="_blank" className="icon" href="https://github.com/XRFoundation/XREngine">
+                        <img src="static/github.svg" />
+                    </a>
+                </div>
+                <div className="logo-bottom">
+                    <span className="gray-txt">{t('index.by')}</span>
+                    <span className="gradiant-txt">{t('index.laguna')}</span>
+                    <span className="white-txt">{t('index.labs')}</span>
                 </div>
             </div>
         </div>

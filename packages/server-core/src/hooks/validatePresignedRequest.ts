@@ -1,4 +1,4 @@
-import { AVATAR_FILE_ALLOWED_EXTENSIONS, MIN_AVATAR_FILE_SIZE, MAX_AVATAR_FILE_SIZE, MIN_THUMBNAIL_FILE_SIZE, MAX_THUMBNAIL_FILE_SIZE } from '@xr3ngine/engine/src/common/constants/AvatarConstants';
+import { AVATAR_FILE_ALLOWED_EXTENSIONS, MIN_AVATAR_FILE_SIZE, MAX_AVATAR_FILE_SIZE, MIN_THUMBNAIL_FILE_SIZE, MAX_THUMBNAIL_FILE_SIZE } from '@xrengine/common/src/constants/AvatarConstants';
 import { Hook, HookContext } from '@feathersjs/feathers';
 
 export const validateGet = async (context: HookContext): Promise<HookContext> => {

@@ -1,4 +1,3 @@
-import { Transform } from "math/Transform";
 import { Box3, Frustum, Matrix4, Mesh, Object3D, Scene, Vector3 } from "three";
 import { FollowCameraComponent } from "../../camera/components/FollowCameraComponent";
 import { isClient } from "../../common/functions/isClient";
@@ -13,12 +12,12 @@ import { addComponent, getComponent, getMutableComponent, hasComponent, removeCo
 import { SystemUpdateType } from "../../ecs/functions/SystemUpdateType";
 import { LocalInputReceiver } from "../../input/components/LocalInputReceiver";
 import { NetworkObject } from "../../networking/components/NetworkObject";
-import { RigidBody } from "../../physics/components/RigidBody";
+import { RigidBodyComponent } from "../../physics/components/RigidBody";
 import { HighlightComponent } from "../../renderer/components/HighlightComponent";
 import { Object3DComponent } from "../../scene/components/Object3DComponent";
-import { CharacterComponent } from "../../templates/character/components/CharacterComponent";
-import { NamePlateComponent } from "../../templates/character/components/NamePlateComponent";
-import { VehicleComponent } from "../../templates/vehicle/components/VehicleComponent";
+import { CharacterComponent } from "../../character/components/CharacterComponent";
+import { NamePlateComponent } from "../../character/components/NamePlateComponent";
+import { VehicleComponent } from "../../vehicle/components/VehicleComponent";
 import { TransformComponent } from "../../transform/components/TransformComponent";
 import { BoundingBox } from "../components/BoundingBox";
 import { Interactable } from "../components/Interactable";
@@ -26,7 +25,11 @@ import { InteractiveFocused } from "../components/InteractiveFocused";
 import { Interactor } from "../components/Interactor";
 import { SubFocused } from "../components/SubFocused";
 import { InteractBehaviorArguments } from "../types/InteractionTypes";
+import { HaveBeenInteracted } from "../../game/actions/HaveBeenInteracted";
+import { addActionComponent } from '../../game/functions/functionsActions';
+import { EquippedComponent } from "../components/EquippedComponent";
 
+// but is works on client too, i will config out this
 export const interactOnServer: Behavior = (entity: Entity, args: any, delta): void => {
   //console.warn('Behavior: interact , networkId ='+getComponent(entity, NetworkObject).networkId);
     let focusedArrays = [];
@@ -57,10 +60,21 @@ export const interactOnServer: Behavior = (entity: Entity, args: any, delta): vo
     if (focusedArrays.length < 1) return;
 
     const interactable = getComponent(focusedArrays[0][0], Interactable);
+    const interactionFunction = typeof interactable.onInteractionCheck === 'function';
+    const interactionCheck = interactable.onInteractionCheck(entity, focusedArrays[0][0], focusedArrays[0][2]);
 
-  //console.warn('found networkId: '+getComponent(focusedArrays[0][0], NetworkObject).networkId+' seat: '+focusedArrays[0][2]);
-
-    if (typeof interactable.onInteractionCheck === 'function' && interactable.onInteractionCheck(entity, focusedArrays[0][0], focusedArrays[0][2])) {
+    if (interactable.data.interactionType === "gameobject") {
+      if (interactionFunction) {
+        if (interactionCheck) {
+          addActionComponent(focusedArrays[0][0], HaveBeenInteracted);
+        }
+      } else {
+        addActionComponent(focusedArrays[0][0], HaveBeenInteracted);
+      }
+      return;
+    }
+    // Not Game Object
+    if (interactionFunction && interactionCheck) {
     //  console.warn('start with networkId: '+getComponent(focusedArrays[0][0], NetworkObject).networkId+' seat: '+focusedArrays[0][2]);
       interactable.onInteraction(entity, { currentFocusedPart: focusedArrays[0][2] }, delta, focusedArrays[0][0]);
     }
@@ -71,15 +85,7 @@ export const subFocused:Behavior = (entity: Entity, args, delta: number): void =
     console.error('Attempted to call interact behavior, but target does not have Interactive component');
     return;
   }
-  const subFocused = hasComponent(entity, SubFocused);
-
-    if (subFocused){
-      addComponent(entity, HighlightComponent);
-    }
-    else {
-      removeComponent(entity, HighlightComponent);
-    }
-
+  hasComponent(entity, SubFocused) ? addComponent(entity, HighlightComponent, { color: 0xff0000, hiddenColor: 0x0000ff }) : removeComponent(entity, HighlightComponent);
 };
 
 const interactFocused: Behavior = (entity: Entity, args, delta: number): void => {
@@ -90,9 +96,10 @@ const interactFocused: Behavior = (entity: Entity, args, delta: number): void =>
   }
 
   const focused = hasComponent(entity, InteractiveFocused);
-  //const subFocused = hasComponent(entity, SubFocused);
+  const subFocused = hasComponent(entity, SubFocused);
 
   const interactive = getComponent(entity, Interactable);
+
   if (interactive && typeof interactive.onInteractionFocused === 'function') {
     const entityFocuser = focused? getComponent(entity, InteractiveFocused).interacts : null;
     interactive.onInteractionFocused(entityFocuser, { focused }, delta, entity);
@@ -171,7 +178,6 @@ const interactBoxRaycast: Behavior = (entity: Entity, { raycastList }: InteractB
         const aabb = new Box3();
         aabb.copy(boundingBox.box);
         aabb.applyMatrix4(object3D.value.matrixWorld);
-        console.log("aabb.distanceToPoint(transform.position) is " + aabb.distanceToPoint(transform.position));
         return [entityIn, frustum.intersectsBox(aabb), aabb.distanceToPoint(transform.position)];
       } else {
         return [entityIn, frustum.intersectsBox(boundingBox.box), boundingBox.box.distanceToPoint(transform.position)];
@@ -218,7 +224,7 @@ export class InteractiveSystem extends System {
   previousEntity: Entity;
   previousEntity2DPosition: Vector3;
 
-  constructor(attributes?: SystemAttributes) {
+  constructor(attributes: SystemAttributes = {}) {
     super(attributes);
 
     this.previousEntity = null;
@@ -233,6 +239,10 @@ export class InteractiveSystem extends System {
     this.previousEntity2DPosition = null;
     this.focused?.clear();
     this.newFocused?.clear();
+
+    EngineEvents.instance.removeAllListenersForEvent(InteractiveSystem.EVENTS.USER_HOVER);
+    EngineEvents.instance.removeAllListenersForEvent(InteractiveSystem.EVENTS.OBJECT_ACTIVATION);
+    EngineEvents.instance.removeAllListenersForEvent(InteractiveSystem.EVENTS.OBJECT_HOVER);
   }
 
   execute(delta: number, time: number): void {
@@ -304,105 +314,99 @@ export class InteractiveSystem extends System {
       });
 
 
-    this.queryResults.interactors?.all.forEach(entity => {
-      if (this.queryResults.interactive?.all.length) {
-        //interactRaycast(entity, { interactive: this.queryResults.interactive.all });
-        interactBoxRaycast(entity, { raycastList: this.queryResults.boundingBox.all });
-        const interacts = getComponent(entity, Interactor);
-        if (interacts.focusedInteractive) {
-          this.newFocused.add(interacts.focusedInteractive);
-          // TODO: can someone else focus object? should we update 'interacts' entity
-          if (!hasComponent(interacts.focusedInteractive, InteractiveFocused)) {
-            addComponent(interacts.focusedInteractive, InteractiveFocused, { interacts: entity });
-          }
-        }
-
-        // unmark all unfocused
-        this.queryResults.interactive?.all.forEach(entityInter => {
-          if (!hasComponent(entityInter, BoundingBox) &&
-            hasComponent(entityInter, Object3DComponent) &&
-            hasComponent(entityInter, TransformComponent)
-          ) {
-            addComponent(entityInter, BoundingBox, {
-              dynamic: (hasComponent(entityInter, RigidBody) || hasComponent(entityInter, VehicleComponent))
-            });
-          }
-          if (entityInter !== interacts.focusedInteractive && hasComponent(entityInter, InteractiveFocused)) {
-            removeComponent(entityInter, InteractiveFocused);
-          }
-          if (interacts.subFocusedArray.some(v => v[0].entity === entityInter)) {
-            if (!hasComponent(entityInter, SubFocused)) {
-              addComponent(entityInter, SubFocused);
+      this.queryResults.interactors?.all.forEach(entity => {
+        if (this.queryResults.interactive?.all.length) {
+          //interactRaycast(entity, { interactive: this.queryResults.interactive.all });
+          interactBoxRaycast(entity, { raycastList: this.queryResults.boundingBox.all });
+          const interacts = getComponent(entity, Interactor);
+          if (interacts.focusedInteractive) {
+            this.newFocused.add(interacts.focusedInteractive);
+            // TODO: can someone else focus object? should we update 'interacts' entity
+            if (!hasComponent(interacts.focusedInteractive, InteractiveFocused)) {
+              addComponent(interacts.focusedInteractive, InteractiveFocused, { interacts: entity });
             }
-          } else {
-            removeComponent(entityInter, SubFocused);
           }
-        });
-      }
-    });
 
-    this.queryResults.boundingBox.added?.forEach(entity => {
-   const interactive = getMutableComponent(entity, Interactable);
-   const calcBoundingBox = getMutableComponent(entity, BoundingBox);
-
-   const object3D = getMutableComponent(entity, Object3DComponent);
-   const transform = getComponent(entity, TransformComponent);
-
-   object3D.value.position.copy(transform.position);
-   object3D.value.rotation.setFromQuaternion(transform.rotation);
-
-   if (!calcBoundingBox.dynamic) {
-     object3D.value.updateMatrixWorld();
-   }
-
-     if (interactive.interactionParts.length) {
-
-       const arr = interactive.interactionParts.map(name => getComponent(entity, Object3DComponent).value.children[0].getObjectByName(name));
-       getMutableComponent(entity, BoundingBox).boxArray = arr;
-
-     } else {
-
-       const aabb = new Box3();
-       let object3D = getComponent(entity, Object3DComponent).value;
-
-       if (object3D instanceof Scene) object3D = object3D.children[0];
-       if (object3D instanceof Mesh) {
-
-         if( object3D.geometry.boundingBox == null) object3D.geometry.computeBoundingBox();
-           aabb.copy(object3D.geometry.boundingBox);
-
-           if(!calcBoundingBox.dynamic) {
-             aabb.applyMatrix4( object3D.matrixWorld );
-           }
-
-        } else
-        if (object3D instanceof Object3D) {
-          aabb.setFromCenterAndSize(getComponent(entity, TransformComponent).position, new Vector3(0.5, 0.5, 0.5))
+          // unmark all unfocused
+          this.queryResults.interactive?.all.forEach(entityInter => {
+            if (!hasComponent(entityInter, BoundingBox) &&
+              hasComponent(entityInter, Object3DComponent) &&
+              hasComponent(entityInter, TransformComponent)
+            ) {
+              addComponent(entityInter, BoundingBox, {
+                dynamic: (hasComponent(entityInter, RigidBodyComponent) || hasComponent(entityInter, VehicleComponent))
+              });
+            }
+            if (entityInter !== interacts.focusedInteractive && hasComponent(entityInter, InteractiveFocused)) {
+              removeComponent(entityInter, InteractiveFocused);
+            }
+            if (interacts.subFocusedArray.some(v => v[0].entity === entityInter)) {
+              if (!hasComponent(entityInter, SubFocused)) {
+                addComponent(entityInter, SubFocused);
+              }
+            } else {
+              removeComponent(entityInter, SubFocused);
+            }
+          });
         }
+      });
 
-       calcBoundingBox.box = aabb;
-     }
-    });
+      this.queryResults.boundingBox.added?.forEach(entity => {
+        const interactive = getMutableComponent(entity, Interactable);
+        const calcBoundingBox = getMutableComponent(entity, BoundingBox);
 
-    // removal is the first because the hint must first be deleted, and then a new one appears
-    this.queryResults.focus.removed?.forEach(entity => {
-      interactFocused(entity, null, delta);
-    });
+        const object3D = getMutableComponent(entity, Object3DComponent).value;
+        const transform = getComponent(entity, TransformComponent);
 
-    this.queryResults.focus.added?.forEach(entity => {
-      interactFocused(entity, null, delta);
-    });
+        object3D.position.copy(transform.position);
+        object3D.rotation.setFromQuaternion(transform.rotation);
+        calcBoundingBox.dynamic ? '' : object3D.updateMatrixWorld();
 
-    this.queryResults.subfocus.added?.forEach(entity => {
-      subFocused(entity, null, delta);
-    });
-    this.queryResults.subfocus.removed?.forEach(entity => {
-      subFocused(entity, null, delta);
-    });
+        if (interactive.interactionParts.length) {
+          const arr = interactive.interactionParts.map(name => object3D.children[0].getObjectByName(name));
+          calcBoundingBox.boxArray = arr;
 
-    this.focused.clear();
-    this.newFocused.forEach(e => this.focused.add(e));
+        } else {
+          const aabb = new Box3();
+          object3D.traverse(v => {
+            //object3D instanceof Object3D aabb.setFromCenterAndSize(new Vector3(0, 0, 0), new Vector3(0.5, 0.5, 0.5))
+            if (v instanceof Mesh) {
+              v.geometry.boundingBox == null ? v.geometry.computeBoundingBox():'';
+              aabb.copy(v.geometry.boundingBox);
+              calcBoundingBox.dynamic ? '' : aabb.applyMatrix4( v.matrixWorld );
+              calcBoundingBox.box = aabb;
+              return;
+            }
+          });
+        }
+      });
+
+      // removal is the first because the hint must first be deleted, and then a new one appears
+      this.queryResults.focus.removed?.forEach(entity => {
+        interactFocused(entity, null, delta);
+      });
+
+      this.queryResults.focus.added?.forEach(entity => {
+        interactFocused(entity, null, delta);
+      });
+
+      this.queryResults.subfocus.added?.forEach(entity => {
+        subFocused(entity, null, delta);
+      });
+      this.queryResults.subfocus.removed?.forEach(entity => {
+        subFocused(entity, null, delta);
+      });
+
+      this.focused.clear();
+      this.newFocused.forEach(e => this.focused.add(e));
     }
+
+    this.queryResults.equippable.all?.forEach(entity => {
+      const equippedComponent = getComponent(entity, EquippedComponent);
+      const equippableTransform = getComponent(equippedComponent.equippedEntity, TransformComponent);
+      equippableTransform.position.copy(equippedComponent.attachmentObject.position).add(equippedComponent.attachmentTransform.position);
+      equippableTransform.rotation.copy(equippedComponent.attachmentObject.quaternion).multiply(equippedComponent.attachmentTransform.rotation);
+    });
   }
 
   static queries: any = {
@@ -438,6 +442,13 @@ export class InteractiveSystem extends System {
     },
     network_user: {
       components: [Not(LocalInputReceiver), NamePlateComponent, CharacterComponent, TransformComponent],
+      listen: {
+        added: true,
+        removed: true
+      }
+    },
+    equippable: {
+      components: [EquippedComponent],
       listen: {
         added: true,
         removed: true

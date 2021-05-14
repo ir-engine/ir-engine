@@ -19,7 +19,7 @@ export function loadScene(scene: SceneData): void {
     const entity = createEntity();
     addComponent(entity, SceneTagComponent);
     sceneEntity.components.forEach(component => {
-      if(['gltf-model', 'mesh-collider', 'vehicle-saved-in-scene'].includes(component.name)) {
+      if (['game-object', 'gltf-model', 'mesh-collider', 'vehicle-saved-in-scene'].includes(component.name)) {
         component.data.sceneEntityId = sceneEntity.entityId;
       }
 
@@ -34,7 +34,6 @@ export function loadScene(scene: SceneData): void {
           });
         }));
       }
-
       loadComponent(entity, component);
     });
   });
@@ -62,7 +61,7 @@ export function loadComponent(entity: Entity, component: SceneDataComponent): vo
     b.values?.forEach(val => {
       // dont load glb model if dont need to parse colliders
       if (isServer && component.name === 'gltf-model' && component.data.dontParseModel) {
-        console.warn('Stop download glb if dontParseModel');
+        // console.log('Stop download glb if dontParseModel');
         return;
       }
 
@@ -76,7 +75,7 @@ export function loadComponent(entity: Entity, component: SceneDataComponent): vo
     });
 
     // run behavior after load model
-    if ((b as any).onLoaded) values['onLoaded'] = (b as any).onLoaded;
+  //  if ((b as any).onLoaded) values['onLoaded'] = (b as any).onLoaded;
 
     // Invoke behavior with args and spread args
     b.behavior(entity, { ...b.args, objArgs: { ...b.args?.objArgs, ...values } });

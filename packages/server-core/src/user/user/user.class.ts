@@ -19,6 +19,7 @@ export class User extends Service {
     super(options);
     this.app = app;
   }
+  
 
   /**
    * @function find it is used to find specific users
@@ -31,6 +32,7 @@ export class User extends Service {
     const action = params.query?.action;
     const skip = params.query?.$skip ? params.query.$skip : 0;
     const limit = params.query?.$limit ? params.query.$limit : 10;
+    
     if (action === 'withRelation') {
       const userId = params.query?.userId;
       const search = params.query?.search as string;
@@ -106,6 +108,7 @@ export class User extends Service {
           },
           attributes: ['userRelationshipType']
         });
+        
         const userInverseRelation = await UserRelationshipModel.findOne({
           where: {
             userId: user.id,
@@ -125,7 +128,7 @@ export class User extends Service {
       return foundUsers;
     } else if (action === 'friends') {
       const loggedInUser = extractLoggedInUserFromParams(params);
-      const userResult = await this.app.service('user').Model.findAndCountAll({
+      const userResult = await (this.app.service('user') as any).Model.findAndCountAll({
         offset: skip,
         limit: limit,
         order: [
@@ -133,7 +136,7 @@ export class User extends Service {
         ],
         include: [
           {
-            model: this.app.service('user-relationship').Model,
+            model: (this.app.service('user-relationship') as any).Model,
             where: {
               relatedUserId: loggedInUser.userId,
               userRelationshipType: 'friend'
@@ -192,13 +195,16 @@ export class User extends Service {
       const loggedInUser = extractLoggedInUserFromParams(params);
       const user = await super.get(loggedInUser.userId);
       if (user.userRole !== 'admin') throw new Forbidden ('Must be system admin to execute this action');
-      return super.find({
+      const users = await super.find({
         query: {
           $sort: params.query.$sort,
           $skip: params.query.$skip || 0,
           $limit: params.query.$limit || 10
         }
       });
+
+      
+      return users;
     } else if (action === 'invite-code-lookup') {
       return super.find({
         query: {

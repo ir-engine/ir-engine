@@ -1,4 +1,4 @@
-import { System } from "../../ecs/classes/System";
+import { System, SystemAttributes } from "../../ecs/classes/System";
 import { SoundEffect } from "../components/SoundEffect";
 import { BackgroundMusic } from "../components/BackgroundMusic";
 import { PlaySoundEffect } from "../components/PlaySoundEffect";
@@ -25,8 +25,8 @@ export class AudioSystem extends System {
     world: any
 
     /** Constructs Audio System. */
-    constructor() {
-        super();
+    constructor(attributes: SystemAttributes = {}) {
+      super(attributes);
         this.startAudio = this.startAudio.bind(this);
         this.audioReady = false;
         this.callbacks = [];

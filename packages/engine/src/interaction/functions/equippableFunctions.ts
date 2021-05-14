@@ -1,4 +1,4 @@
-import { Vector3 } from "three"
+import { Object3D, Quaternion, Vector3 } from "three"
 import { BinaryValue } from "../../common/enums/BinaryValue"
 import { isServer } from "../../common/functions/isServer"
 import { Entity } from "../../ecs/classes/Entity"
@@ -6,20 +6,29 @@ import { addComponent, getComponent, hasComponent, removeComponent } from "../..
 import { NetworkObject } from "../../networking/components/NetworkObject"
 import { sendClientObjectUpdate } from "../../networking/functions/sendClientObjectUpdate"
 import { ColliderComponent } from "../../physics/components/ColliderComponent"
-import { NetworkObjectUpdateType } from "../../templates/networking/NetworkObjectUpdateSchema"
+import { BodyType } from "three-physx"
+import { PhysicsSystem } from "../../physics/systems/PhysicsSystem"
+import { NetworkObjectUpdateType } from "../../networking/templates/NetworkObjectUpdateSchema"
 import { TransformChildComponent } from "../../transform/components/TransformChildComponent"
 import { TransformComponent } from "../../transform/components/TransformComponent"
 import { EquippedComponent } from "../components/EquippedComponent"
 import { EquippedStateUpdateSchema } from "../enums/EquippedEnums"
+import { Object3DComponent } from "../../scene/components/Object3DComponent"
 
-export const equipEntity = (equipperEntity: Entity, equippedEntity: Entity): void => {
-  if(hasComponent(equippedEntity, TransformChildComponent) || hasComponent(equipperEntity, EquippedComponent)) return; // already equipped
-  addComponent(equipperEntity, EquippedComponent, { equippedEntity: equippedEntity })
-  addComponent(equippedEntity, TransformChildComponent, { parent: equipperEntity, offsetPosition: new Vector3(0, 1, 0) })
+export const equipEntity = (equipperEntity: Entity, equippedEntity: Entity, attachmentObject?: Object3D, attachmentTransform?: { position: Vector3, rotation: Quaternion }): void => {
+console.log(equipperEntity, equippedEntity, attachmentObject, attachmentTransform);
+  if(hasComponent(equipperEntity, EquippedComponent) || !hasComponent(equippedEntity, NetworkObject)) return; // already equipped or has no collider
+
+  const attachementPoint = attachmentObject ?? getComponent(equipperEntity, Object3DComponent).value;
+  addComponent(equipperEntity, EquippedComponent, { equippedEntity: equippedEntity, attachmentObject: attachementPoint, attachmentTransform });
+  
+  // all equippables must have a collider to grab by in VR
   const collider = getComponent(equippedEntity, ColliderComponent)
-  collider.collider.type = 2; //BODY_TYPES.KINEMATIC
+  collider.body.type = BodyType.KINEMATIC;
+  // send equip to clients
   if(isServer) {
-    sendClientObjectUpdate(equipperEntity, NetworkObjectUpdateType.ObjectEquipped, [BinaryValue.TRUE, getComponent(equippedEntity, NetworkObject).networkId] as EquippedStateUpdateSchema)
+    const networkObject = getComponent(equippedEntity, NetworkObject)
+    sendClientObjectUpdate(equipperEntity, NetworkObjectUpdateType.ObjectEquipped, [BinaryValue.TRUE, networkObject.networkId] as EquippedStateUpdateSchema)
   }
 }
 
@@ -29,11 +38,13 @@ export const unequipEntity = (equipperEntity: Entity): void => {
   const equippedEntity = equippedComponent.equippedEntity;
   const equippedTransform = getComponent(equippedEntity, TransformComponent)
   const collider = getComponent(equippedEntity, ColliderComponent)
-  collider.collider.position.set(equippedTransform.position.x, equippedTransform.position.y, equippedTransform.position.z);
-  collider.collider.quaternion.set(equippedTransform.rotation.x, equippedTransform.rotation.y, equippedTransform.rotation.z, equippedTransform.rotation.w);
-  removeComponent(equippedEntity, TransformChildComponent)
+  collider.body.type = BodyType.DYNAMIC;
+  collider.body.updateTransform({
+    translation: { x: equippedTransform.position.x, y: equippedTransform.position.y, z: equippedTransform.position.z },
+    rotation: { x: equippedTransform.rotation.x, y: equippedTransform.rotation.y, z: equippedTransform.rotation.z, w: equippedTransform.rotation.w }
+  })
   removeComponent(equipperEntity, EquippedComponent)
-  collider.collider.type = 1; //BODY_TYPES.DYNAMIC
+  // send unequip to clients
   if(isServer) {
     sendClientObjectUpdate(equipperEntity, NetworkObjectUpdateType.ObjectEquipped, [BinaryValue.FALSE] as EquippedStateUpdateSchema)
   }

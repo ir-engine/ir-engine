@@ -5,23 +5,23 @@ import compress from 'compression';
 import helmet from 'helmet';
 import cors from 'cors';
 import swagger from 'feathers-swagger';
-import feathers from '@feathersjs/feathers';
-import express from '@feathersjs/express';
+import {feathers} from '@feathersjs/feathers';
+import express, {json, urlencoded, static as _static, rest, notFound, errorHandler} from '@feathersjs/express';
 import socketio from '@feathersjs/socketio';
 import AgonesSDK from '@google-cloud/agones-sdk';
-import { Application } from '@xr3ngine/server-core/declarations';
-import logger from '@xr3ngine/server-core/src/logger';
-import channels from '@xr3ngine/server-core/src/channels';
-import authentication from '@xr3ngine/server-core/src/user/authentication';
-import config from '@xr3ngine/server-core/src/appconfig';
+import { Application } from '@xrengine/server-core/declarations';
+import logger from '@xrengine/server-core/src/logger';
+import channels from './channels';
+import authentication from '@xrengine/server-core/src/user/authentication';
+import config from '@xrengine/server-core/src/appconfig';
 import sync from 'feathers-sync';
-import { api } from '@xr3ngine/server-core/src/k8s';
+import { api } from '@xrengine/server-core/src/k8s';
 import { WebRTCGameServer } from "./WebRTCGameServer";
 import winston from 'winston';
 import feathersLogger from 'feathers-logger';
 import { EventEmitter } from 'events';
-import services from '@xr3ngine/server-core/src/services';
-import sequelize from '@xr3ngine/server-core/src/sequelize';
+import services from '@xrengine/server-core/src/services';
+import sequelize from '@xrengine/server-core/src/sequelize';
 
 const emitter = new EventEmitter();
 
@@ -42,8 +42,8 @@ if (config.gameserver.enabled) {
           // TODO: Relate to server config, don't hardcode this here
           specs: {
             info: {
-              title: 'XR3ngine API Surface',
-              description: 'APIs for the XR3ngine application',
+              title: 'XREngine API Surface',
+              description: 'APIs for the XREngine application',
               version: '1.0.0'
             },
             schemes:['https'],
@@ -76,27 +76,24 @@ if (config.gameserver.enabled) {
         }
     ));
     app.use(compress());
-    app.use(express.json());
-    app.use(express.urlencoded({extended: true}));
+    app.use(json());
+    app.use(urlencoded({extended: true}));
     app.use(favicon(path.join(config.server.publicDir, 'favicon.ico')));
 
     // Set up Plugins and providers
-    app.configure(express.rest());
+    app.configure(rest());
     app.configure(socketio({
       serveClient: false,
-      handlePreflightRequest: (req: any, res: any) => {
-        // Set CORS headers
-        if (res != null) {
-          res.setHeader('Access-Control-Allow-Origin', req.headers.origin);
-          res.setHeader('Access-Control-Request-Method', '*');
-          res.setHeader('Access-Control-Allow-Methods', 'OPTIONS, GET`');
-          res.setHeader('Access-Control-Allow-Headers', '*');
-          res.writeHead(200);
-          res.end();
-        }
+      cors:{
+        origin: config.gameserver.clientHost,
+        methods: ['OPTIONS', 'GET', 'POST'],
+        allowedHeaders: '*',
+        preflightContinue: true,
+        credentials: true
       }
     }, (io) => {
       io.use((socket, next) => {
+        console.log(socket.handshake.query);
         (socket as any).feathers.socketQuery = socket.handshake.query;
         (socket as any).socketQuery = socket.handshake.query;
         next();
@@ -105,7 +102,7 @@ if (config.gameserver.enabled) {
 
     if (config.redis.enabled) {
       app.configure(sync({
-        uri: config.redis.password != null ? `redis://${config.redis.address}:${config.redis.port}?password=${config.redis.password}` : `redis://${config.redis.address}:${config.redis.port}`
+        uri: config.redis.password != null && config.redis.password !== '' ? `redis://${config.redis.address}:${config.redis.port}?password=${config.redis.password}` : `redis://${config.redis.address}:${config.redis.port}`
       }));
 
       (app as any).sync.ready.then(() => {
@@ -120,18 +117,9 @@ if (config.gameserver.enabled) {
     app.configure(feathersLogger(winston));
     app.configure(services);
 
-    // Set up event channels (see channels.js)
-    app.configure(channels);
-
-    // Host the public folder
-    // Configure a middleware for 404s and the error handler
-
-    // Host the public folder
-    // Configure a middleware for 404s and the error handler
-
     if (config.gameserver.mode === 'realtime') {
       (app as any).k8AgonesClient = api({
-        endpoint: `https://${process.env.KUBERNETES_SERVICE_HOST}:${process.env.KUBERNETES_PORT_443_TCP_PORT}`,
+        endpoint: `https://${config.kubernetes.serviceHost}:${config.kubernetes.tcpPort}`,
         version: '/apis/agones.dev/v1',
         auth: {
           caCert: fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/ca.crt'),
@@ -139,7 +127,7 @@ if (config.gameserver.enabled) {
         }
       });
       (app as any).k8DefaultClient = api({
-        endpoint: `https://${process.env.KUBERNETES_SERVICE_HOST}:${process.env.KUBERNETES_PORT_443_TCP_PORT}`,
+        endpoint: `https://${config.kubernetes.serviceHost}:${config.kubernetes.tcpPort}`,
         version: '/api/v1',
         auth: {
           caCert: fs.readFileSync('/var/run/secrets/kubernetes.io/serviceaccount/ca.crt'),
@@ -148,10 +136,10 @@ if (config.gameserver.enabled) {
       });
     }
 
-    if ((process.env.KUBERNETES === 'true') || process.env.NODE_ENV === 'development' || config.gameserver.mode === 'local') {
+    if ((config.kubernetes.enabled) || process.env.NODE_ENV === 'development' || config.gameserver.mode === 'local') {
       agonesSDK.connect();
       agonesSDK.ready().catch((err) => {
-        throw new Error('\x1b[33mError: Agones is not running!. If you are in local development, please run xr3ngine/scripts/sh start-agones.sh and restart server\x1b[0m');
+        throw new Error('\x1b[33mError: Agones is not running!. If you are in local development, please run xrengine/scripts/sh start-agones.sh and restart server\x1b[0m');
       });    
 
       (app as any).agonesSDK = agonesSDK;
@@ -159,7 +147,11 @@ if (config.gameserver.enabled) {
 
       // Create new gameserver instance
       const gameServer = new WebRTCGameServer(app);
-      console.log("Created new gameserver instance");
+      gameServer.initialize().then(() => {
+        // Set up event channels (see channels.js)
+        console.log("Initialized new gameserver instance");
+        app.configure(channels);
+      });
     } else {
       console.warn('Did not create gameserver');
     }
@@ -173,11 +165,10 @@ if (config.gameserver.enabled) {
   }
 }
 
-app.use(express.errorHandler({ logger } as any));
+app.use(errorHandler({ logger } as any));
 
 process.on('exit', async () => {
   console.log('Server EXIT');
-
 });
 
 process.on('SIGTERM', async (err) => {

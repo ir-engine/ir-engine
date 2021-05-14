@@ -1,13 +1,13 @@
-import { ThemeProvider } from "styled-components";
-import { Alerts } from '@xr3ngine/client-core/src/common/components/Alerts';
-import { UIDialog } from '@xr3ngine/client-core/src/common/components/Dialog/Dialog';
-import { setUserHasInteracted } from '@xr3ngine/client-core/src/common/reducers/app/actions';
-import { selectAppOnBoardingStep, selectAppState } from '@xr3ngine/client-core/src/common/reducers/app/selector';
-import { selectLocationState } from '@xr3ngine/client-core/src/social/reducers/location/selector';
-import { selectAuthState } from '@xr3ngine/client-core/src/user/reducers/auth/selector';
-import { doLoginAuto } from '@xr3ngine/client-core/src/user/reducers/auth/service';
-import theme from '@xr3ngine/client-core/src/theme';
-import { Config } from '@xr3ngine/client-core/src/helper';
+import { ThemeProvider } from "@material-ui/styles";
+import { Alerts } from '@xrengine/client-core/src/common/components/Alerts';
+import { UIDialog } from '@xrengine/client-core/src/common/components/Dialog/Dialog';
+import { setUserHasInteracted } from '@xrengine/client-core/src/common/reducers/app/actions';
+import { selectAppOnBoardingStep, selectAppState } from '@xrengine/client-core/src/common/reducers/app/selector';
+import { selectLocationState } from '@xrengine/client-core/src/social/reducers/location/selector';
+import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector';
+import { doLoginAuto } from '@xrengine/client-core/src/user/reducers/auth/service';
+import theme from '@xrengine/client-core/src/theme';
+import { Config } from '@xrengine/client-core/src/helper';
 import { Helmet } from 'react-helmet';
 import React, { Fragment, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
@@ -88,14 +88,8 @@ const Layout = (props: Props): any => {
     const user = authState.get('user');
 
     const childrenWithProps = React.Children.map(children, child => {
-        // checking isValidElement is the safe way and avoids a typescript error too
         if (React.isValidElement(child)) {
-            const mapped = React.Children.map((child as any).props.children, child => {
-                if (React.isValidElement(child)) { // @ts-ignore
-                    return React.cloneElement(child, {harmonyOpen: harmonyOpen});
-                }
-            });
-            return mapped;
+            return React.cloneElement((child as any), { harmonyOpen: harmonyOpen });
         }
         return child;
     });

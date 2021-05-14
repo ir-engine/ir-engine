@@ -548,5 +548,6 @@ export class EffectComposer {
     }
 
     this.copyPass.dispose();
+    this.renderer = null;
   }
 }

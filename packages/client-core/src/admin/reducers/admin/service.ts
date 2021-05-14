@@ -10,7 +10,9 @@ import {
   instanceRemovedAction,
   instanceCreated,
   instanceRemoved,
-  instancePatched
+  instancePatched,
+  userRoleRetrieved,
+  userRoleCreated
 } from './actions';
 
 import axios from 'axios';
@@ -19,15 +21,17 @@ import { client } from '../../../feathers';
 import { dispatchAlertSuccess, dispatchAlertError } from '../../../common/reducers/alert/service';
 import { PublicVideo, videosFetchedSuccess, videosFetchedError } from '../../../media/components/video/actions';
 import { locationsRetrieved, locationCreated, locationPatched, locationRemoved } from '../../../social/reducers/location/actions';
-import store from '../../../store';
+import Store from '../../../store';
 import { loadedUsers, userCreated, userPatched, userRemoved } from '../../../user/reducers/user/actions';
 import { collectionsFetched } from '../../../world/reducers/scenes/actions';
+
+const store = Store.store;
 
 export function createVideo (data: VideoCreationForm) {
   return async (dispatch: Dispatch, getState: any) => {
     const token = getState().get('auth').get('authUser').accessToken;
     try {
-      const res = await axios.post(`${Config.apiUrl}/video`, data, {
+      const res = await axios.post(`${Config.publicRuntimeConfig.apiServer}/video`, data, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: 'Bearer ' + token
@@ -151,8 +155,12 @@ export function createLocation (location: any) {
 export function createUser (user: any) {
   return async (dispatch: Dispatch): Promise<any> => {
     try {
+      console.log(user);
+      
       const result = await client.service('user').create(user);
       dispatch(userCreated(result));
+      console.log(result);
+            
     } catch (error) {
       dispatchAlertError(dispatch, error.message);
     }
@@ -252,4 +260,55 @@ if(!Config.publicRuntimeConfig.offlineMode) {
   client.service('instance').on('removed', (params) => {
     store.dispatch(instanceRemovedAction(params.instance));
   });
+}
+
+
+export const fetchUserRole = (data) => {
+  return async(dispatch: Dispatch ): Promise<any> => {
+    const userRole = await client.service("user-role").find(
+      {
+        query: {
+          project_id: {
+            $in: [data]
+          }
+        }
+      });
+     
+    dispatch(userRoleRetrieved(userRole));
+  };
+};
+
+export const createUserRoleAction = (data) => {
+  return async(dispatch: Dispatch ): Promise<any> => {
+    const result = await client.service("user-role").create(data);
+    console.log(result);
+    
+    dispatch(userRoleCreated(result));
+  };
+};
+
+export function fetchUsersForProject (offset: string, projectId) {
+  return async (dispatch: Dispatch, getState: any): Promise<any> => {
+    console.log(projectId);
+    
+    const user = getState().get('auth').get('user');
+    const skip = getState().get('admin').get('users').get('skip');
+    const limit = getState().get('admin').get('users').get('limit');
+    
+    if (user.userRole === 'admin') {
+      const users = await client.service('user').find({
+        query: {
+          $sort: {
+            name: 1
+          },
+          $skip: offset === 'decrement' ? skip - limit : offset === 'increment' ? skip + limit : skip,
+          $limit: limit,
+          action: 'admin'
+        }
+      });
+
+      console.log(users);
+    
+    }
+  };
 }

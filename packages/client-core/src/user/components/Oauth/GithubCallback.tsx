@@ -1,10 +1,11 @@
-import { withRouter } from 'react-router-dom';
+import { useLocation, withRouter } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
 import { loginUserByJwt, refreshConnections } from '../../reducers/auth/service';
 import Container from '@material-ui/core/Container';
 import { selectAuthState } from '../../reducers/auth/selector';
 import { bindActionCreators, Dispatch } from 'redux';
 import { connect } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 
 
 const mapStateToProps = (state: any): any => {
@@ -19,17 +20,19 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 });
 
 const GithubCallbackComponent = (props): any => {
-  const { auth, loginUserByJwt, refreshConnections, match } = props;
+  const { auth, loginUserByJwt, refreshConnections } = props;
+	const { t } = useTranslation();
 
   const initialState = { error: '', token: '' };
   const [state, setState] = useState(initialState);
+  const search = new URLSearchParams(useLocation().search);
 
   useEffect(() => {
-    const error = match.params.error as string;
-    const token = match.params.token as string;
-    const type = match.params.type as string;
-    const path = match.params.path as string;
-    const instanceId = match.params.instanceId as string;
+    const error = search.get('error') as string;
+    const token = search.get('token') as string;
+    const type = search.get('type') as string;
+    const path = search.get('path') as string;
+    const instanceId = search.get('instanceId') as string;
 
     if (!error) {
       if (type === 'connection') {
@@ -47,13 +50,13 @@ const GithubCallbackComponent = (props): any => {
 
   return state.error && state.error !== '' ? (
     <Container>
-      Github authentication failed.
+      {t('user:oauth.authFailed', { service: "Github" })}
       <br />
       {state.error}
     </Container>
   ) : (
-    <Container>Authenticating...</Container>
+    <Container>{t('user:oauth.authenticating')}</Container>
   );
 };
 
-export const GithubCallback = withRouter(connect(mapStateToProps, mapDispatchToProps)(GithubCallbackComponent));
+export const GithubCallback = withRouter(connect(mapStateToProps, mapDispatchToProps)(GithubCallbackComponent)) as any;

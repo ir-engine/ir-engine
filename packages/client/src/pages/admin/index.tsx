@@ -1,6 +1,6 @@
-import Analytics from "@xr3ngine/client-core/src/admin/components/Analytics/index";
-import Dashboard from "@xr3ngine/client-core/src/user/components/Dashboard/Dashboard";
-import { doLoginAuto } from "@xr3ngine/client-core/src/user/reducers/auth/service";
+import Analytics from "@xrengine/client-core/src/admin/components/Analytics/index";
+import Dashboard from "@xrengine/client-core/src/user/components/Dashboard/Dashboard";
+import { doLoginAuto } from "@xrengine/client-core/src/user/reducers/auth/service";
 import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
@@ -10,6 +10,9 @@ interface Props {
 }
 
 const mapStateToProps = (state: any): any => {
+  console.log('====================================');
+  console.log(state);
+  console.log('====================================');
   return {
   };
 };
@@ -26,18 +29,7 @@ const AdminConsolePage = (props: Props) => {
     doLoginAuto(true);
   }, []);
 
-  return (
-      // <ThemeProvider theme={theme}>
-        <Dashboard>
-            <style> {`
-                .adminPage {
-                    height: 100%;
-                }
-            `}</style>
-               <Analytics />
-        </Dashboard>
-      // </ThemeProvider>
-  );
+  return ( <Analytics />);
 };
 
 

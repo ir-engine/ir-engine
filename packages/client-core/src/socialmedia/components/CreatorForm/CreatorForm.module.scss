@@ -19,16 +19,26 @@
             margin: 0;
         }
         .pageTitle{
-            font-weight: bold;
+            font-family: 'SFProText-Semibold';
+            font-size: 17pt;
         }
     }
    
+    .displayNone{
+        display: none;
+    }
     .avatarImage{
         height: 110px;
         width: 110px;
         border-radius: 50%;
         margin: 20px auto;
         background-color: #CA3E7B;
+    }
+    .uploadAvatar{
+        font-family: 'SFProText-Regular';
+        font-size: 16pt;
+        color:rgba(60, 60, 67, 0.6);
+        text-align: center;
     }
 
     .formLine{
@@ -51,6 +61,10 @@
             position: related;
             left: 50%;
             transform: translate(-50%);
+            background-color: #000;
+            color: #FFF;
+            position: fixed;
+            bottom: 110px;
         }
     }
 }

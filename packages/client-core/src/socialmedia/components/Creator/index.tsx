@@ -5,10 +5,12 @@ import Button from '@material-ui/core/Button';
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
-import { selectCreatorsState } from '../../reducers/creator/selector';
+import { selectCreatorsState } from  '../../reducers/creator/selector';
 import { followCreator, getCreator, getFollowersList, getFollowingList, unFollowCreator } from '../../reducers/creator/service';
 import CreatorCard from '../CreatorCard';
 import Featured from '../Featured';
+import { useTranslation } from 'react-i18next';
+import AppFooter from '../Footer';
 // @ts-ignore
 import styles from './Creator.module.scss';
 
@@ -39,9 +41,8 @@ const mapStateToProps = (state: any): any => {
 
 const Creator = ({creatorId, creatorState, getCreator, followCreator, unFollowCreator, getFollowersList, getFollowingList, creatorData}:Props) => { 
     const [isMe, setIsMe] = useState(false);
-    let creator = null;
     useEffect(()=>{
-        if(creatorState && creatorState.get('currentCreator') && creatorId === creatorState.get('currentCreator').id){
+        if(creatorState && creatorState.get('fetchingCurrentCreator') === false && creatorState.get('currentCreator') && creatorId === creatorState.get('currentCreator').id){
             setIsMe(true);
         }else{
             if(!creatorData){
@@ -49,20 +50,19 @@ const Creator = ({creatorId, creatorState, getCreator, followCreator, unFollowCr
             }
         }
     },[]);
-    if(creatorState && creatorState.get('fetching') === false){
-        creator = isMe === true ? creatorState.get('currentCreator') : creatorData ? creatorData : creatorState.get('creator');
-    }
+    const { t } = useTranslation();
     const [videoType, setVideoType] = useState('creator');
-    return  creator ?  (<section className={styles.creatorContainer}>
-            <CreatorCard creator={creator} />
+    return  <><section className={styles.creatorContainer}>
+            <CreatorCard creator={isMe === true ? creatorState?.get('currentCreator') : creatorData ? creatorData : creatorState?.get('creator')} />
             {isMe && <section className={styles.videosSwitcher}>
-                    <Button variant={videoType === 'myFeatured' ? 'contained' : 'text'} color='secondary' className={styles.switchButton+(videoType === 'myFeatured' ? ' '+styles.active : '')} onClick={()=>setVideoType('myFeatured')}>Featured</Button>
-                    <Button variant={videoType === 'creator' ? 'contained' : 'text'} color='secondary' className={styles.switchButton+(videoType === 'creator' ? ' '+styles.active : '')} onClick={()=>setVideoType('creator')}>My Videos</Button>
-                    <Button variant={videoType === 'bookmark' ? 'contained' : 'text'} color='secondary' className={styles.switchButton+(videoType === 'bookmark' ? ' '+styles.active : '')} onClick={()=>setVideoType('bookmark')}>Saved Videos</Button>
+                    <Button variant={videoType === 'creator' ? 'contained' : 'text'} className={styles.switchButton+(videoType === 'creator' ? ' '+styles.active : '')} onClick={()=>setVideoType('creator')}>{t('social:creator.myVideos')}</Button>
+                  <Button variant={videoType === 'fired' ? 'contained' : 'text'} className={styles.switchButton+(videoType === 'fired' ? ' '+styles.active : '')} onClick={()=>setVideoType('fired')}>{t('social:creator.savedVideos')}</Button>
             </section>}
-            {creator?.id && <section className={styles.feedsWrapper}><Featured creatorId={creator.id} type={videoType}/></section>}
-        </section>) 
-    : <></>;
+            <section className={styles.feedsWrapper}>
+              <Featured creatorId={isMe === true ? creatorState?.get('currentCreator').id : creatorData ? creatorData.id : creatorState?.get('creator')?.id} type={videoType}/>
+            </section>
+        </section>
+    </>;
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(Creator);

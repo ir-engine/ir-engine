@@ -4,19 +4,18 @@ import { isClient } from "../../common/functions/isClient";
 import { AssetLoader } from '../../assets/classes/AssetLoader';
 import { addComponent } from "../../ecs/functions/EntityFunctions";
 import { parseModelColliders, clearFromColliders } from '../../physics/behaviors/parseModelColliders';
-import { createVehicleFromSceneData } from '../../templates/vehicle/prefabs/NetworkVehicle';
+import { createVehicleFromSceneData } from '../../vehicle/prefabs/NetworkVehicle';
 import { AmbientLight, CircleBufferGeometry, Color, HemisphereLight, Mesh, MeshPhongMaterial, PointLight, SpotLight } from 'three';
 import { ComponentConstructor } from "../../ecs/interfaces/ComponentInterfaces";
 import { createParticleEmitterObject } from '../../particles/functions/particleHelpers';
 import { addObject3DComponent } from '../behaviors/addObject3DComponent';
 import { createBackground } from '../behaviors/createBackground';
-import { createBoxColliderObject } from '../behaviors/createBoxCollider';
-import { createCollidersFromSceneData } from '../behaviors/createCollidersFromSceneData';
+import { createBoxCollider } from '../behaviors/createBoxCollider';
+import { createMeshCollider } from '../behaviors/createMeshCollider';
 import { createCommonInteractive } from "../behaviors/createCommonInteractive";
 import { createGroup } from '../behaviors/createGroup';
 import { createLink } from '../behaviors/createLink';
 import { createAudio, createMediaServer, createVideo, createVolumetric } from "../behaviors/createMedia";
-import { createScenePreviewCamera } from "../behaviors/createScenePreviewCamera";
 import { createShadow } from '../behaviors/createShadow';
 import createSkybox from '../behaviors/createSkybox';
 import { createTransformComponent } from "../behaviors/createTransformComponent";
@@ -29,9 +28,11 @@ import SpawnPointComponent from "../components/SpawnPointComponent";
 import WalkableTagComponent from '../components/Walkable';
 import { LoadingSchema } from '../interfaces/LoadingSchema';
 import Image from '../classes/Image';
-import { createGame } from "../behaviors/createGame";
+import { createGame, createGameObject } from "../behaviors/createGame";
 import { setPostProcessing } from "../behaviors/setPostProcessing";
-
+import { CameraSystem } from "../../camera/systems/CameraSystem";
+import { CopyTransformComponent } from "../../transform/components/CopyTransformComponent";
+import { isServer } from "../../common/functions/isServer";
 /**
  * Add Component into Entity from the Behavior.
  * @param entity Entity in which component will be added.
@@ -61,30 +62,27 @@ export function addTagComponentFromBehavior<C>(
 }
 
 export const SceneObjectLoadingSchema: LoadingSchema = {
+  'game': {
+    behaviors: [{
+      behavior: createGame,
+      values: [
+        { from: 'name', to: 'name' },
+        { from: 'gameMode', to: 'gameMode' },
+        { from: 'isGlobal', to: 'isGlobal' },
+        { from: 'minPlayers', to: 'minPlayers' },
+        { from: 'maxPlayers', to: 'maxPlayers' }
+      ]
+    }]
+  },
   'game-object': {
     behaviors: [{
-      behavior: addComponentFromBehavior,
+      behavior: createGameObject,
       values: [
-        { from: 'target', to: 'target' },
-        { from: 'role', to: 'role' }
+        { from: 'gameName', to: 'game' },
+        { from: 'role', to: 'role' },
+        { from: 'sceneEntityId', to: 'uuid' }
       ]
-    },
-    { behavior: (entity, args: {}) => { console.log("***** LOADED GAMEOBJECT ON", entity) } }
-    ]
-  },
-  'game': {
-    behaviors: [
-      {
-        behavior: createGame,
-        values: [
-          { from: 'isGlobal', to: 'isGlobal' },
-          { from: 'minPlayers', to: 'minPlayers' },
-          { from: 'maxPlayers', to: 'maxPlayers' },
-          { from: 'gameMode', to: 'gameMode' }
-        ]
-      },
-      { behavior: (entity, args: {}) => { console.log("***** LOADED GAME ON", entity) } }
-    ]
+    }]
   },
   'ambient-light': {
     behaviors: [
@@ -121,7 +119,14 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
   //         type: LightTagComponent
   //       }]
   //   },
-  'collidable': {},
+  'collidable': {
+    behaviors: [
+      {
+        behavior: () => {
+          // console.warn("SceneObjectLoadingSchema: Using 'collidable' which is not implemented");
+        },
+      },
+    ]},
   "floor-plan": {}, // Doesn't do anything in client mode
   'gltf-model': {
     behaviors: [
@@ -381,7 +386,11 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
         args: { component: ScenePreviewCameraTagComponent }
       },
       {
-        behavior: createScenePreviewCamera
+        behavior: (previewPointEntity: Entity) => {
+          if (!isServer && CameraSystem.instance.activeCamera) {
+            addComponent(CameraSystem.instance.activeCamera, CopyTransformComponent, { input: previewPointEntity });
+          }
+        }
       }
     ]
   },
@@ -406,7 +415,7 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
   'box-collider': {
     behaviors: [
       {
-        behavior: createBoxColliderObject,
+        behavior: createBoxCollider,
         values: ['type', 'position', 'quaternion', 'scale']
       }
     ]
@@ -414,7 +423,7 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
   'mesh-collider': {
     behaviors: [
       {
-        behavior: createCollidersFromSceneData,
+        behavior: createMeshCollider,
         values: ['data', 'type', 'position', 'quaternion', 'scale', 'vertices', 'indices', 'sceneEntityId']
       }
     ]

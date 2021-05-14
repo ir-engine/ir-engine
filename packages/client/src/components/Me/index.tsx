@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import styles from './Me.module.scss';
 import PartyParticipantWindow from '../PartyParticipantWindow';
 import { ChevronRight } from '@material-ui/icons';
-import { MediaStreamSystem } from '@xr3ngine/engine/src/networking/systems/MediaStreamSystem';
+import { MediaStreamSystem } from '@xrengine/engine/src/networking/systems/MediaStreamSystem';
 
 const Me = () => {
   const [ expanded, setExpanded ] = useState(true);

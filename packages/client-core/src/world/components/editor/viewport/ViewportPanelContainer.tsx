@@ -9,7 +9,7 @@ import AssetsPanel from "../assets/AssetsPanel";
 import { useDrop } from "react-dnd";
 import { ItemTypes, AssetTypes, addAssetAtCursorPositionOnDrop } from "../dnd";
 import SelectInput from "../inputs/SelectInput";
-import { TransformMode } from "@xr3ngine/engine/src/editor/controls/EditorControls";
+import { TransformMode } from "@xrengine/engine/src/editor/controls/EditorControls";
 import AssetDropZone from "../assets/AssetDropZone";
 import { ChartArea } from "@styled-icons/fa-solid/ChartArea";
 import { InfoTooltip } from "../layout/Tooltip";

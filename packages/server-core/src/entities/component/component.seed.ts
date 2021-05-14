@@ -1,5 +1,6 @@
 import config from '../../appconfig';
 import { entitySeed } from "../entity/entity.seed";
+import { defaultPostProcessingSchema } from "@xrengine/engine/src/scene/classes/PostProcessing";
 
 export const componentSeed = {
   disabled: !config.db.forceRefresh,
@@ -33,7 +34,7 @@ export const componentSeed = {
     },
     {
       id: "08cc03ab-24e9-11eb-bc2e-e7e742fb069f",
-      data: {"position":{"x":0,"y":5,"z":10},"rotation":{"x":-0.4636,"y":0,"z":0},"scale":{"x":1,"y":1,"z":1}},
+      data: { "position": { "x": 0, "y": 5, "z": 10 }, "rotation": { "x": -0.4636, "y": 0, "z": 0 }, "scale": { "x": 1, "y": 1, "z": 1 } },
       createdAt: "2020-11-12 13:14:45",
       updatedAt: "2020-11-12 13:14:45",
       type: "transform",
@@ -57,7 +58,7 @@ export const componentSeed = {
     },
     {
       id: "08cc03b4-24e9-11eb-bc2e-e7e742fb069f",
-      data: { "position": {"x":0,"y":0,"z":0}, "rotation": {"x":0,"y":0,"z":0}, "scale": {"x":1,"y":1,"z":1} },
+      data: { "position": { "x": 0, "y": 0, "z": 0 }, "rotation": { "x": 0, "y": 0, "z": 0 }, "scale": { "x": 1, "y": 1, "z": 1 } },
       createdAt: "2020-11-12 13:14:45",
       updatedAt: "2020-11-12 13:14:45",
       type: "transform",
@@ -73,7 +74,7 @@ export const componentSeed = {
     },
     {
       id: "08cc03b6-24e9-11eb-bc2e-e7e742fb069f",
-      data: {"turbidity":6.09,"rayleigh":0.82,"luminance":1.055,"mieCoefficient":0.043,"mieDirectionalG":0.8,"inclination":0.10471975511965978,"azimuth":0.2333333333333333,"distance":8000},
+      data: { "turbidity": 6.09, "rayleigh": 0.82, "luminance": 1.055, "mieCoefficient": 0.043, "mieDirectionalG": 0.8, "inclination": 0.10471975511965978, "azimuth": 0.2333333333333333, "distance": 8000 },
       createdAt: "2020-11-12 13:14:45",
       updatedAt: "2020-11-12 13:14:45",
       type: "skybox",
@@ -81,7 +82,7 @@ export const componentSeed = {
     },
     {
       id: "08cc03b7-24e9-11eb-bc2e-e7e742fb069f",
-      data: { "position": {"x":0,"y":0,"z":0}, "rotation": {"x":0,"y":0,"z":0}, "scale": {"x":1,"y":1,"z":1} },
+      data: { "position": { "x": 0, "y": 0, "z": 0 }, "rotation": { "x": 0, "y": 0, "z": 0 }, "scale": { "x": 1, "y": 1, "z": 1 } },
       createdAt: "2020-11-12 13:14:45",
       updatedAt: "2020-11-12 13:14:45",
       type: "transform",
@@ -97,7 +98,7 @@ export const componentSeed = {
     },
     {
       id: "08cc03b9-24e9-11eb-bc2e-e7e742fb069f",
-      data: { "color": "#C4B5F0" },
+      data: { "color": "#7ed321" },
       createdAt: "2020-11-12 13:14:45",
       updatedAt: "2020-11-12 13:14:45",
       type: "ground-plane",
@@ -105,7 +106,7 @@ export const componentSeed = {
     },
     {
       id: "08cc03b0-24e9-11eb-bc2e-e7e742fb069f",
-      data: { "type":"ground","position":{"x":0,"y":0,"z":0}},
+      data: { "type": "ground", "position": { "x": 0, "y": 0, "z": 0 } },
       createdAt: "2020-11-12 13:14:45",
       updatedAt: "2020-11-12 13:14:45",
       type: "box-collider",
@@ -113,7 +114,7 @@ export const componentSeed = {
     },
     {
       id: "08cc03c1-24e9-11eb-bc2e-e7e742fb069f",
-      data: { "receive":true },
+      data: { "receive": true },
       createdAt: "2020-11-12 13:14:45",
       updatedAt: "2020-11-12 13:14:45",
       type: "shadow",
@@ -128,123 +129,46 @@ export const componentSeed = {
       entityId: entitySeed.templates.find(template => template.id === '1B698482-C15A-4CEC-9247-03873520DF70').id
     },
     {
-      id:"08cc03c3-24e9-11eb-bc2e-e7e742fb069f",
-      data:{"position":{"x":0,"y":10.0,"z":0},"rotation":{"x":0,"y":0,"z":0},"scale":{"x":1,"y":1,"z":1}},
-      createdAt:"2020-11-12 13:14:45",
-      updatedAt:"2020-11-12 13:14:45",
-      type:"transform",
-      entityId:entitySeed.templates.find(template => template.id === '1B698483-C15A-4CEC-9247-03873520DF70').id
-   },
+      id: "08cc03c3-24e9-11eb-bc2e-e7e742fb069f",
+      data: { "position": { "x": 0, "y": 10.0, "z": 0 }, "rotation": { "x": 0, "y": 0, "z": 0 }, "scale": { "x": 1, "y": 1, "z": 1 } },
+      createdAt: "2020-11-12 13:14:45",
+      updatedAt: "2020-11-12 13:14:45",
+      type: "transform",
+      entityId: entitySeed.templates.find(template => template.id === '1B698483-C15A-4CEC-9247-03873520DF70').id
+    },
     {
-      id:"08cc03c4-24e9-11eb-bc2e-e7e742fb069f",
-      data:{},
-      createdAt:"2020-11-12 13:14:45",
-      updatedAt:"2020-11-12 13:14:45",
-      type:"spawn-point",
-      entityId:entitySeed.templates.find(template => template.id === '1B698483-C15A-4CEC-9247-03873520DF70').id
-   },
-   {
-    id:"09cc03c3-24e9-11eb-bc2e-e7e742fb069f",
-    data:{"position":{"x":0,"y":10.0,"z":0},"rotation":{"x":0,"y":0,"z":0},"scale":{"x":1,"y":1,"z":1}},
-    createdAt:"2020-11-12 13:14:45",
-    updatedAt:"2020-11-12 13:14:45",
-    type:"transform",
-    entityId:entitySeed.templates.find(template => template.id === '1B698484-C15A-4CEC-9247-03873520DF70').id
- },
-//   {
-//     id:"09cc03c4-24e9-11eb-bc2e-e7e742fb069f",
-//     data:{"skyColor":"#ffffff","groundColor":"#ffffff","intensity":1},
-//     createdAt:"2020-11-12 13:14:45",
-//     updatedAt:"2020-11-12 13:14:45",
-//     type:"hemisphere-light",
-//     entityId:entitySeed.templates.find(template => template.id === '1B698484-C15A-4CEC-9247-03873520DF70').id
-//  },
- {
-  id:"09cc03c4-24e9-11eb-bc2e-e7e742fb069f",
-  data:{
-    options:{
-      FXAAEffect: {
-          isActive: false,
-          blendFunction: 13,
+      id: "08cc03c4-24e9-11eb-bc2e-e7e742fb069f",
+      data: {},
+      createdAt: "2020-11-12 13:14:45",
+      updatedAt: "2020-11-12 13:14:45",
+      type: "spawn-point",
+      entityId: entitySeed.templates.find(template => template.id === '1B698483-C15A-4CEC-9247-03873520DF70').id
+    },
+    {
+      id: "09cc03c3-24e9-11eb-bc2e-e7e742fb069f",
+      data: { "position": { "x": 0, "y": 10.0, "z": 0 }, "rotation": { "x": 0, "y": 0, "z": 0 }, "scale": { "x": 1, "y": 1, "z": 1 } },
+      createdAt: "2020-11-12 13:14:45",
+      updatedAt: "2020-11-12 13:14:45",
+      type: "transform",
+      entityId: entitySeed.templates.find(template => template.id === '1B698484-C15A-4CEC-9247-03873520DF71').id
+    },
+    {
+      id: "9cc03c3-24e9-11eb-bc2e-e7e742fb069f",
+      data: { "skyColor": "#ffffff", "groundColor": "#ffffff", "intensity": 1 },
+      createdAt: "2020-11-12 13:14:45",
+      updatedAt: "2020-11-12 13:14:45",
+      type: "hemisphere-light",
+      entityId: entitySeed.templates.find(template => template.id === '1B698484-C15A-4CEC-9247-03873520DF71').id
+    },
+    {
+      id: "09cc03c4-24e9-11eb-bc2e-e7e742fb069f",
+      data: {
+        options: defaultPostProcessingSchema,
       },
-      OutlineEffect: {
-          isActive: true,
-          blendFunction: 8,
-          patternTexture: null,
-          edgeStrength: 1.0,
-          pulseSpeed: 0.0,
-          visibleEdgeColor: 0xffffff,
-          hiddenEdgeColor: 0x22090a,
-          resolutionScale: 0.5,
-          width: 0,
-          height: 0,
-          kernelSize: 0,
-          blur: false,
-          xRay: true
-      },
-      SSAOEffect: {
-          isActive: false,
-          blendFunction: 13,
-          distanceScaling: false,
-          depthAwareUpsampling: false,
-          samples: 16,
-          rings: 7,
-          distanceThreshold: .125,	// Render up to a distance of ~20 world units
-          distanceFalloff: 0.02,	// with an additional ~2.5 units of falloff.
-          minRadiusScale: 1,
-          bias: .25,
-          radius: .01,
-          intensity: 2,
-          fade: 0.05
-      },
-      DepthOfFieldEffect: {
-          isActive: true,
-          blendFunction: 13,
-          focusDistance: 0.1,
-          focalLength: 0.5,
-          bokehScale: 10
-      },
-      BloomEffect: {
-          isActive: false,
-          blendFunction: 13,
-          kernelSize: 0,
-          luminanceThreshold: 1.05,
-          luminanceSmoothing: 0.1,
-          intensity: 1
-      },
-      ToneMappingEffect: {
-          isActive: false,
-          blendFunction: 13,
-          adaptive: false,
-          resolution: 512,
-          middleGrey: 0.6,
-          maxLuminance: 32.0,
-          averageLuminance: 1.0,
-          adaptationRate: 2.0
-      },
-      BrightnessContrastEffect: {
-          isActive: false,
-          brightness: 0.05,
-          contrast: 0.1
-      },
-      HueSaturationEffect: {
-          isActive: false,
-          hue: 0,
-          saturation: -.15
-      },
-      ColorDepthEffect: {
-          isActive: false,
-          bits: 16
-      },
-      LinearTosRGBEffect: {
-          isActive: false,
-      }
+      createdAt: "2020-11-12 13:14:45",
+      updatedAt: "2020-11-12 13:14:45",
+      type: "postprocessing",
+      entityId: entitySeed.templates.find(template => template.id === '1B698484-C15A-4CEC-9247-03873520DF70').id
     }
-  },
-  createdAt:"2020-11-12 13:14:45",
-  updatedAt:"2020-11-12 13:14:45",
-  type:"postprocessing",
-  entityId:entitySeed.templates.find(template => template.id === '1B698484-C15A-4CEC-9247-03873520DF70').id
-}
   ]
 };

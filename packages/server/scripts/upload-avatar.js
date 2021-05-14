@@ -19,7 +19,7 @@ const s3 = new aws.S3({
 const db = {
     username: process.env.MYSQL_USER || 'server',
     password: process.env.MYSQL_PASSWORD || 'password',
-    database: process.env.MYSQL_DATABASE || 'xr3ngine',
+    database: process.env.MYSQL_DATABASE || 'xrengine',
     host: process.env.MYSQL_HOST || '127.0.0.1',
     port: process.env.MYSQL_PORT || 3306,
     dialect: 'mysql',
@@ -71,8 +71,9 @@ const AVATAR_LIST = [
     'Erik',
     'Geoff',
     'Jace',
+    'Karthik'
 ];
-const MODEL_PATH = process.cwd() + '/../client/public/models/characters/';
+const MODEL_PATH = process.cwd() + '/../client/public/models/avatars/';
 const THUMBNAIL_PATH = process.cwd() + '/../client/public/static/';
 const MODEL_EXTENSION = '.glb';
 const THUMBNAIL_EXTENSION = '.png';

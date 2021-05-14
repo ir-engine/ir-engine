@@ -1,16 +1,17 @@
-import { Engine } from '@xr3ngine/engine/src/ecs/classes/Engine';
-import { EngineEvents } from '@xr3ngine/engine/src/ecs/classes/EngineEvents';
-import { Entity } from '@xr3ngine/engine/src/ecs/classes/Entity';
-import { getComponent, removeEntity } from "@xr3ngine/engine/src/ecs/functions/EntityFunctions";
-import { Network } from "@xr3ngine/engine/src/networking//classes/Network";
-import { MessageTypes } from '@xr3ngine/engine/src/networking/enums/MessageTypes';
-import { WorldStateInterface } from '@xr3ngine/engine/src/networking/interfaces/WorldState';
-import { createNetworkPlayer } from '@xr3ngine/engine/src/templates/character/prefabs/NetworkPlayerCharacter';
-import { TransformComponent } from '@xr3ngine/engine/src/transform/components/TransformComponent';
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine';
+import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents';
+import { Entity } from '@xrengine/engine/src/ecs/classes/Entity';
+import { getComponent, getMutableComponent, removeEntity } from "@xrengine/engine/src/ecs/functions/EntityFunctions";
+import { Network } from "@xrengine/engine/src/networking//classes/Network";
+import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes';
+import { WorldStateInterface } from '@xrengine/engine/src/networking/interfaces/WorldState';
+import { createNetworkPlayer } from '@xrengine/engine/src/character/prefabs/NetworkPlayerCharacter';
+import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent';
 import { DataConsumer, DataProducer } from 'mediasoup/lib/types';
-import logger from "@xr3ngine/server-core/src/logger";
-import config from '@xr3ngine/server-core/src/appconfig';
+import logger from "@xrengine/server-core/src/logger";
+import config from '@xrengine/server-core/src/appconfig';
 import { closeTransport } from './WebRTCFunctions';
+import { ServerSpawnSystem } from '@xrengine/engine/src/scene/systems/ServerSpawnSystem';
 
 const gsNameRegex = /gameserver-([a-zA-Z0-9]{5}-[a-zA-Z0-9]{5})/;
 
@@ -62,7 +63,7 @@ export async function getFreeSubdomain(gsIdentifier: string, subdomainNumber: nu
 
 export async function cleanupOldGameservers(): Promise<void> {
     const transport = Network.instance.transport as any;
-    const instances = await transport.app.service('instance').Model.findAndCountAll({
+    const instances = await (transport.app.service('instance') as any).Model.findAndCountAll({
         offset: 0,
         limit: 1000
     });
@@ -117,8 +118,7 @@ export function validateNetworkObjects(): void {
             const disconnectedClient = Object.assign({}, Network.instance.clients[userId]);
 
             Network.instance.clientsDisconnected.push({ userId });
-            console.log('Disconnected Client:');
-            console.log(disconnectedClient);
+            console.log('Disconnected Client:', disconnectedClient.userId);
             if (disconnectedClient?.instanceRecvTransport)
                 disconnectedClient.instanceRecvTransport.close();
             if (disconnectedClient?.instanceSendTransport)
@@ -179,12 +179,12 @@ export function validateNetworkObjects(): void {
 
 
 export async function handleConnectToWorld(socket, data, callback, userId, user, avatarDetail): Promise<any> {
-  if(!Engine.sceneLoaded) {
-    await new Promise<void>((resolve) => {
-      EngineEvents.instance.once(EngineEvents.EVENTS.SCENE_LOADED, resolve);
-    });
-  }
     const transport = Network.instance.transport as any;
+    if(!Engine.sceneLoaded && (transport.app as any).isChannelInstance !== true) {
+        await new Promise<void>((resolve) => {
+            EngineEvents.instance.once(EngineEvents.EVENTS.SCENE_LOADED, resolve);
+        });
+    }
 
     console.log('Connect to world from ' + userId);
     // console.log("Avatar detail is", avatarDetail);
@@ -211,7 +211,7 @@ export async function handleConnectToWorld(socket, data, callback, userId, user,
     Network.instance.clientsConnected.push({ userId, name: userId, avatarDetail });
     // Create a new worldtate object that we can fill
     const worldState = {
-        tick: Network.tick,
+        tick: Network.instance.tick,
         transforms: [],
         ikTransforms: [],
         inputs: [],
@@ -274,11 +274,12 @@ export async function handleJoinWorld(socket, data, callback, userId, user): Pro
     logger.info("JoinWorld received");
     const transport = Network.instance.transport as any;
 
-  //  const spawnPoint = Engine.spawnSystem.getRandomSpawnPoint();
-
     // Create a new default prefab for client
-    const networkObject = createNetworkPlayer({ ownerId: userId });// , spawnPoint.position, spawnPoint.rotation
-    const transform = getComponent(networkObject.entity, TransformComponent);
+    const networkObject = createNetworkPlayer({ ownerId: userId });
+    const spawnPos = ServerSpawnSystem.instance.getRandomSpawnPoint();
+    const transform = getMutableComponent(networkObject.entity, TransformComponent);
+    transform.position = spawnPos.position;
+    transform.rotation = spawnPos.rotation;
 /*
     // Add the network object to our list of network objects
     Network.instance.networkObjects[networkObject.networkId] = {
@@ -306,7 +307,7 @@ export async function handleJoinWorld(socket, data, callback, userId, user): Pro
 */
     // Create a new worldtate object that we can fill
     const worldState = {
-        tick: Network.tick,
+        tick: Network.instance.tick,
         transforms: [],
         ikTransforms: [],
         inputs: [],
@@ -315,6 +316,8 @@ export async function handleJoinWorld(socket, data, callback, userId, user): Pro
         createObjects: [],
         destroyObjects: []
     };
+
+     //TODO spawn point transforms aren't applied to newly connected players as it is given in the execute loop
 
     // Get all network objects and add to createObjects
     Object.keys(Network.instance.networkObjects).forEach(networkId => {

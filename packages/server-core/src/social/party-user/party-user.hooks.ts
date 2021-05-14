@@ -1,11 +1,11 @@
 import * as authentication from '@feathersjs/authentication';
-import partyPermissionAuthenticate from '@xr3ngine/server-core/src/hooks/party-permission-authenticate';
-import partyUserPermissionAuthenticate from '@xr3ngine/server-core/src/hooks/party-user-permission-authenticate';
+import partyPermissionAuthenticate from '@xrengine/server-core/src/hooks/party-permission-authenticate';
+import partyUserPermissionAuthenticate from '@xrengine/server-core/src/hooks/party-user-permission-authenticate';
 import { HookContext } from '@feathersjs/feathers';
 import { disallow, iff, isProvider } from 'feathers-hooks-common';
-import collectAnalytics from '@xr3ngine/server-core/src/hooks/collect-analytics';
-import unsetSelfPartyOwner from '@xr3ngine/server-core/src/hooks/unset-self-party-owner';
-import checkPartyInstanceSize from '@xr3ngine/server-core/src/hooks/check-party-instance-size';
+import collectAnalytics from '@xrengine/server-core/src/hooks/collect-analytics';
+import unsetSelfPartyOwner from '@xrengine/server-core/src/hooks/unset-self-party-owner';
+import checkPartyInstanceSize from '@xrengine/server-core/src/hooks/check-party-instance-size';
 import {extractLoggedInUserFromParams} from "../../user/auth-management/auth-management.utils";
 import logger from '../../logger';
 
@@ -19,7 +19,7 @@ export default {
     find: [
       iff(
         isProvider('external'),
-        partyUserPermissionAuthenticate()
+        partyUserPermissionAuthenticate() as any,
       )
     ],
     get: [],

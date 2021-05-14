@@ -1,12 +1,7 @@
 import { EngineEvents } from '../../ecs/classes/EngineEvents';
-import { System } from '../../ecs/classes/System';
-import { Not } from '../../ecs/functions/ComponentFunctions';
+import { System, SystemAttributes } from '../../ecs/classes/System';
 import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType';
-import { Input } from '../../input/components/Input';
-import { LocalInputReceiver } from '../../input/components/LocalInputReceiver';
 import { Network } from '../classes/Network';
-import { NetworkObject } from '../components/NetworkObject';
-import { NetworkSchema } from "../interfaces/NetworkSchema";
 import { WorldStateModel } from '../schema/worldStateSchema';
 
 /** System class for network system of client. */
@@ -16,6 +11,7 @@ export class ClientNetworkSystem extends System {
     CONNECT: 'CLIENT_NETWORK_SYSTEM_CONNECT',
     SEND_DATA: 'CLIENT_NETWORK_SYSTEM_SEND_DATA',
     RECEIVE_DATA: 'CLIENT_NETWORK_SYSTEM_RECEIVE_DATA',
+    CONNECTION_LOST: 'CORE_CONNECTION_LOST',
   }
   /** Update type of this system. **Default** to
      * {@link ecs/functions/SystemUpdateType.SystemUpdateType.Fixed | Fixed} type. */
@@ -25,16 +21,22 @@ export class ClientNetworkSystem extends System {
    * Constructs the system. Adds Network Components, initializes transport and initializes server.
    * @param attributes Attributes to be passed to super class constructor.
    */
-  constructor(attributes:{ schema: NetworkSchema, app:any }) {
+  constructor(attributes: SystemAttributes = {}) {
     super(attributes);
     
-    const { schema, app } = attributes;
+    const { schema } = attributes;
+
     // Instantiate the provided transport (SocketWebRTCClientTransport / SocketWebRTCServerTransport by default)
     Network.instance.transport = new schema.transport();
-    
-    console.log("***** CLIENT NETWORK SYSTEM RUNNING");
-    console.log(Network.instance.transport);
-    console.log(schema.transport)
+
+    EngineEvents.instance.addEventListener(ClientNetworkSystem.EVENTS.SEND_DATA, ({ buffer }) => {
+      Network.instance.transport.sendReliableData(buffer);
+      // Network.instance.transport.sendData(buffer);
+    });
+  }
+
+  dispose() {
+    EngineEvents.instance.removeAllListenersForEvent(ClientNetworkSystem.EVENTS.SEND_DATA);
   }
 
   /**
@@ -50,16 +52,17 @@ export class ClientNetworkSystem extends System {
     while (queue.getBufferLength() > 0) {
       const buffer = queue.pop();
       // debugger;
-      const unbufferedState = WorldStateModel.fromBuffer(buffer);
-      if(!unbufferedState) console.warn("Couldn't deserialize buffer, probably still reading the wrong one")
-      EngineEvents.instance.dispatchEvent({ type: ClientNetworkSystem.EVENTS.RECEIVE_DATA, unbufferedState, delta });
+      let unbufferedState;
+      try {
+        unbufferedState = WorldStateModel.fromBuffer(buffer);
+        if(!unbufferedState) throw new Error("Couldn't deserialize buffer, probably still reading the wrong one");
+        EngineEvents.instance.dispatchEvent({ type: ClientNetworkSystem.EVENTS.RECEIVE_DATA, unbufferedState, delta });
+      } catch (e) {
+        console.log(e);
+      }
     }
   }
 
   /** Queries for the system. */
-  static queries: any = {
-    clientNetworkInputReceivers: {
-      components: [NetworkObject, Input, Not(LocalInputReceiver)]
-    }
-  }
+  static queries: any = {}
 }

@@ -12,16 +12,16 @@ import {
     Message as MessageIcon,
     Send
 } from '@material-ui/icons';
-import { selectChatState } from '@xr3ngine/client-core/src/social/reducers/chat/selector';
+import { selectChatState } from '@xrengine/client-core/src/social/reducers/chat/selector';
 import {
     createMessage,
     getInstanceChannel,
     updateChatTarget,
     updateMessageScrollInit
-} from '@xr3ngine/client-core/src/social/reducers/chat/service';
-import { selectAuthState } from '@xr3ngine/client-core/src/user/reducers/auth/selector';
-import { User } from "@xr3ngine/common/src/interfaces/User";
-import { isMobileOrTablet } from '@xr3ngine/engine/src/common/functions/isMobile';
+} from '@xrengine/client-core/src/social/reducers/chat/service';
+import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector';
+import { User } from "@xrengine/common/src/interfaces/User";
+import { isMobileOrTablet } from '@xrengine/engine/src/common/functions/isMobile';
 import classNames from 'classnames';
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
@@ -216,7 +216,7 @@ const InstanceChat = (props: Props): any => {
                 <Badge color="primary" variant="dot" invisible={!unreadMessages} anchorOrigin={{ vertical: 'top', horizontal: 'left', }}>
                     <Fab className="openChat" color="primary" onClick={() => hideShowMessagesContainer()}>
                         <MessageIcon />Chat
-            </Fab>
+                    </Fab>
                 </Badge>
             </div>)}
         </>);

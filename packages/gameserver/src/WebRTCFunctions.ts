@@ -1,14 +1,15 @@
-import { MediaStreamSystem } from "@xr3ngine/engine/src/networking/systems/MediaStreamSystem";
-import { Network } from "@xr3ngine/engine/src/networking//classes/Network";
-import { MessageTypes } from "@xr3ngine/engine/src/networking/enums/MessageTypes";
-import { WebRtcTransportParams } from "@xr3ngine/server-core/src/types/WebRtcTransportParams";
+import { MediaStreamSystem } from "@xrengine/engine/src/networking/systems/MediaStreamSystem";
+import { Network } from "@xrengine/engine/src/networking//classes/Network";
+import { MessageTypes } from "@xrengine/engine/src/networking/enums/MessageTypes";
+import { WebRtcTransportParams } from "@xrengine/server-core/src/types/WebRtcTransportParams";
 import { createWorker } from 'mediasoup';
 import { DataConsumerOptions } from "mediasoup/lib/types";
 import { DataProducer, DataConsumer, DataProducerOptions, Producer, RtpCodecCapability, Transport, WebRtcTransport } from "mediasoup/lib/types";
 import SocketIO from "socket.io";
-import logger from "@xr3ngine/server-core/src/logger";
-import { localConfig, sctpParameters } from '@xr3ngine/server-core/src/config';
+import logger from "@xrengine/server-core/src/logger";
+import { localConfig, sctpParameters } from '@xrengine/server-core/src/config';
 import { getUserIdFromSocketId } from "./NetworkFunctions";
+import config from "@xrengine/server-core/src/appconfig";
 
 const toArrayBuffer = (buf): any => {
     var ab = new ArrayBuffer(buf.length);
@@ -240,7 +241,7 @@ export async function handleWebRtcTransportCreate(socket, data: WebRtcTransportP
 
     const { id, iceParameters, iceCandidates, dtlsParameters } = newTransport;
 
-    if (process.env.KUBERNETES === 'true') {
+    if (config.kubernetes.enabled) {
         const serverResult = await (networkTransport.app as any).k8AgonesClient.get('gameservers');
         const thisGs = serverResult.items.find(server => server.metadata.name === networkTransport.gameServer.objectMeta.name);
         iceCandidates.forEach((candidate) => {
@@ -273,7 +274,12 @@ export async function handleWebRtcTransportCreate(socket, data: WebRtcTransportP
 export async function handleWebRtcProduceData(socket, data, callback): Promise<any> {
     networkTransport = Network.instance.transport as any;    
     const userId = getUserIdFromSocketId(socket.id);
+    if(!userId) {
+      console.log('userId could not be found for socketId' + socket.id);
+      return;
+    }
     if (!data.label) throw ({ error: 'data producer label i.e. channel name is not provided!' });
+    if(!Network.instance.clients[userId]) throw('client not found for userId' + userId);
     const { transportId, sctpStreamParameters, label, protocol, appData } = data;
     logger.info(`Data channel label: ${label} -- user id: ` + userId);
     logger.info("Data producer params", data);

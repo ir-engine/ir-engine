@@ -14,11 +14,13 @@ import {
   removedChannel
 } from './actions';
 
-import { User } from '@xr3ngine/common/src/interfaces/User';
-import store from '../../../store';
+import { User } from '@xrengine/common/src/interfaces/User';
+import Store from '../../../store';
 import { dispatchAlertError } from '../../../common/reducers/alert/service';
 
 import { Config } from '../../../helper';
+
+const store = Store.store;
 
 export function getChannels(skip?: number, limit?: number) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {

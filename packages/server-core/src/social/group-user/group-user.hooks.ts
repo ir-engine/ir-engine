@@ -1,6 +1,6 @@
-import collectAnalytics from '@xr3ngine/server-core/src/hooks/collect-analytics';
-import groupPermissionAuthenticate from '@xr3ngine/server-core/src/hooks/group-permission-authenticate';
-import groupUserPermissionAuthenticate from '@xr3ngine/server-core/src/hooks/group-user-permission-authenticate';
+import collectAnalytics from '@xrengine/server-core/src/hooks/collect-analytics';
+import groupPermissionAuthenticate from '@xrengine/server-core/src/hooks/group-permission-authenticate';
+import groupUserPermissionAuthenticate from '@xrengine/server-core/src/hooks/group-user-permission-authenticate';
 import * as authentication from '@feathersjs/authentication';
 import { disallow, isProvider, iff } from 'feathers-hooks-common';
 import { HookContext } from '@feathersjs/feathers';
@@ -13,7 +13,7 @@ export default {
     find: [
       iff(
         isProvider('external'),
-        groupUserPermissionAuthenticate()
+        groupUserPermissionAuthenticate() as any,
       )
     ],
     get: [],

@@ -10,6 +10,7 @@ declare const store: import("redux").Store<{
     invite: any;
     locations: any;
     creators: any;
+    popups: any;
     feeds: any;
     feedFires: any;
     feedComments: any;
@@ -20,6 +21,7 @@ declare const store: import("redux").Store<{
     devicedetect: unknown;
     user: any;
     inviteTypeData: any;
+    tips_and_tricks: any;
 }, import("redux").Action<any>> & {
     dispatch: unknown;
 };
@@ -35,6 +37,7 @@ export declare function configureStore(): import("redux").Store<{
     invite: any;
     locations: any;
     creators: any;
+    popups: any;
     feeds: any;
     feedFires: any;
     feedComments: any;
@@ -45,6 +48,7 @@ export declare function configureStore(): import("redux").Store<{
     devicedetect: unknown;
     user: any;
     inviteTypeData: any;
+    tips_and_tricks: any;
 }, import("redux").Action<any>> & {
     dispatch: unknown;
 };

@@ -114,14 +114,17 @@ export class Creator extends Service {
 
     async create (data: any,  params?: Params): Promise<any> {
       const loggedInUser = extractLoggedInUserFromParams(params);
-      const creatorQuery = `SELECT id  FROM \`creator\` WHERE userId=:userId`;
+      const creatorQuery = `SELECT creator.*, sr.url as avatar 
+          FROM \`creator\` as creator
+          LEFT JOIN \`static_resource\` as sr ON sr.id=creator.avatarId
+          WHERE creator.userId=:userId`;
       let [creator] = await this.app.get('sequelizeClient').query(creatorQuery,
         {
           type: QueryTypes.SELECT,
           raw: true,
           replacements: {userId:loggedInUser.userId}
         });   
-      const creatorId = creator?.id;
+      const creatorId = creator ? creator.id : null;
 
       if(!creatorId){
         const {creator:creatorModel} = this.app.get('sequelizeClient').models;
@@ -140,6 +143,7 @@ export class Creator extends Service {
    * @author Vykliuk Tetiana
    */
   async patch (id: string, data?: any, params?: Params): Promise<any> {  
-    return await super.patch(id, data);
+    await super.patch(id, data);
+    return await this.get(id);
   }
 }

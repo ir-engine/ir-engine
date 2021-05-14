@@ -4,10 +4,12 @@
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
+import { useTranslation } from 'react-i18next';
 
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
-import { FormControl, InputLabel, MenuItem, Select } from '@material-ui/core';
+import { FormControl, InputLabel, MenuItem, Select, Typography, Card } from '@material-ui/core';
+import BackupIcon from '@material-ui/icons/Backup';
 
 
 // @ts-ignore
@@ -35,13 +37,28 @@ const mapStateToProps = (state: any): any => {
 const ArMediaForm = ({projects, createArMedia, view}:Props) => {
   const [type, setType] = useState(null);
   const [title, setTitle] = useState('');
-  const [collectionId, setCollectionId] = useState(null);
- 
+  const volumetricManifest = React.useRef<HTMLInputElement>();
+  const volumetricAudios = React.useRef<HTMLInputElement>();
+  const volumetricDracosis = React.useRef<HTMLInputElement>();
+  const volumetricPreview = React.useRef<HTMLInputElement>();
+  const [manifest, setManifest] = useState(null);
+  const [audio, setAudio] = useState(null);
+  const [dracosis, setDracosis] = useState(null);
+  const [preview, setPreview] = useState(null);
+
+  // const [collectionId, setCollectionId] = useState(null);
+	const { t } = useTranslation();
+
      
     const handleSubmit = (e:any) =>{
         e.preventDefault();
-        createArMedia({type, title, collectionId});
+        createArMedia({type, title}, {manifest, audio, dracosis, preview});
     };
+
+    const handlePickManifest = async (file) => setManifest(file.target.files[0]);
+    const handlePickAudio = async (file) => setAudio(file.target.files[0]);
+    const handlePickDracosis = async (file) => setDracosis(file.target.files[0]);
+    const handlePickPreview = async (file) => setPreview(file.target.files[0]);
 
     return <section className={styles.creatorContainer}>
          <form
@@ -51,25 +68,53 @@ const ArMediaForm = ({projects, createArMedia, view}:Props) => {
         >                     
             <section className={styles.content}>
                 <div className={styles.formLine}>                   
-                    <TextField className={styles.textFieldContainer} value={title} onChange={(e)=>setTitle(e.target.value)} fullWidth id="title" placeholder="Title"  />
+                    <TextField className={styles.textFieldContainer} value={title} onChange={(e)=>setTitle(e.target.value)} fullWidth id="title" placeholder={t('social:arMediaform.title')}  />
                 </div>
                 <div className={styles.formLine}>                   
                   <FormControl className={styles.formLine}>
-                    <InputLabel id="demo-simple-select-label">Type</InputLabel>
+                    <InputLabel id="demo-simple-select-label">{t('social:arMediaform.type')}</InputLabel>
                     <Select
                       labelId="demo-simple-select-label"
                       id="demo-simple-select"
                       value={type}
                       onChange={(e)=>setType(e.target.value)}
                     >
-                      <MenuItem value='clip'>Clip</MenuItem>
-                      <MenuItem value='background'>Background</MenuItem>
+                      <MenuItem value='clip'>{t('social:arMediaform.clip')}</MenuItem>
+                      {/* <MenuItem value='background'>{t('social:arMediaform.background')}</MenuItem> */}
                     </Select>
                   </FormControl>
                 </div>
                 <div className={styles.formLine}>
-                  <FormControl className={styles.formLine}>
-                    <InputLabel id="demo-simple-select-label">Scene</InputLabel>
+                    <Card className={styles.preCard}>
+                        <Typography>
+                            {t('social:arMediaform.audio-file')}
+                            <br/><BackupIcon onClick={()=>{(volumetricAudios.current as HTMLInputElement).click();}} />
+                            <input required ref={volumetricAudios} type="file" className={styles.displayNone} name="audio" 
+                                onChange={handlePickAudio} placeholder={t('social:arMediaform.audio-file')}/>
+                        </Typography> 
+                    </Card>
+                </div>
+                <div className={styles.formLine}>
+                    <Card className={styles.preCard}>
+                        <Typography>
+                            {t('social:arMediaform.dracosis-file')}
+                            <br/><BackupIcon onClick={()=>{(volumetricDracosis.current as HTMLInputElement).click();}} />
+                            <input required ref={volumetricDracosis} type="file" className={styles.displayNone} name="dracosis" 
+                                onChange={handlePickDracosis} placeholder={t('social:arMediaform.dracosis-file')}/>
+                        </Typography> 
+                    </Card>
+                    </div>
+                <div className={styles.formLine}>
+                    <Card className={styles.preCard}>
+                        <Typography>
+                        {t('social:arMediaform.manifest-file')}
+                            <br/><BackupIcon onClick={()=>{(volumetricManifest.current as HTMLInputElement).click();}} />
+                            <input required ref={volumetricManifest} type="file" className={styles.displayNone} name="manifest" 
+                                onChange={handlePickManifest} placeholder={t('social:arMediaform.manifest-file')}/>
+                        </Typography> 
+                    </Card>
+                  {/* <FormControl className={styles.formLine}>
+                    <InputLabel id="demo-simple-select-label">{t('social:arMediaform.scene')}</InputLabel>
                     <Select
                       labelId="demo-simple-select-label"
                       id="demo-simple-select"
@@ -78,15 +123,25 @@ const ArMediaForm = ({projects, createArMedia, view}:Props) => {
                     >
                       {projects.map(project=><MenuItem value={project.id}>{project.name}</MenuItem>)}
                     </Select>
-                  </FormControl>
+                  </FormControl> */}
                 </div>
+                <div className={styles.formLine}>
+                    <Card className={styles.preCard}>
+                        <Typography>
+                            {t('social:arMediaform.preview-file')}
+                            <br/><BackupIcon onClick={()=>{(volumetricPreview.current as HTMLInputElement).click();}} />
+                            <input required ref={volumetricPreview} type="file" className={styles.displayNone} name="preview" 
+                                onChange={handlePickPreview} placeholder={t('social:arMediaform.preview-file')}/>
+                        </Typography> 
+                    </Card>
+                    </div>
                 <Button
                 variant="contained"
                 color="primary"
                 type="submit"
                 className={styles.submit}
                 >
-                Save
+                {t('social:arMediaform.save')}
                 </Button>   
             </section>    
         </form>        

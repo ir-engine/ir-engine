@@ -109,13 +109,20 @@ export abstract class System {
   /** Execute Method definition. */
   execute? (delta: number, time: number): void
 
+  async initialize(): Promise<any> { return; }
+
   /**
    * Initializes system
    * 
    * @author Fernando Serrano, Robert Long
    * @param attributes User defined system attributes.
    */
-  constructor (attributes?: SystemAttributes) {
+  constructor (attributes: SystemAttributes = {}) {
+
+    const _name = (this.constructor as any).getName();
+    const name = _name.substr(0, 1) === '_' ? _name.slice(1) : _name;
+    globalThis[name] = this;
+
     this.enabled = true;
 
     // @todo Better naming :)
@@ -132,8 +139,6 @@ export abstract class System {
     }
 
     this._mandatoryQueries = [];
-
-    this.initialized = true;
 
     if ((this.constructor as any).queries) {
       for (const queryName in (this.constructor as any).queries) {
@@ -223,7 +228,8 @@ export abstract class System {
 
   /** Get name of the System */
   static getName (): string {
-    return (this.constructor as any).getName();
+    const name: string = (this.constructor as any).getName();
+    return name.substr(0, 1) === '_' ? name.slice(1) : name;
   }
 
   /** 

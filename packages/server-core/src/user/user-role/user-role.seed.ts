@@ -11,6 +11,6 @@ export const userRoleSeed = {
       { role: 'moderator' },
       { role: 'user' },
       { role: 'guest' },
-      { role: 'location-admin' }
+      { role: 'location-admin' },
     ]
 };

@@ -1,0 +1,50 @@
+.arMediaContainer{
+    .switcher{
+        background-color: #EEEEEF;
+        padding: 3px;
+        border-radius: 5px;
+        display: flex;
+        margin: 10px 20px;
+
+        .switchButton{
+            margin: 0;
+            color: #000000;
+            padding: 0;
+            width: 50%;
+
+            &.active{
+                background-color: #FFF;
+            }
+        }
+    }
+    .flexContainer{
+        display: flex;
+        .previewImageContainer{
+            margin: 10px;
+            text-align: center;
+            color: rgba(60, 60, 67, 0.6);
+            &:hover{
+                .previewImage{
+                    border: 1px solid blue;
+                }
+            }
+        }
+        .previewImage{
+            height: 141px;
+            width: 141px;
+            box-sizing: border-box;
+            border-radius: 10px;
+            background-color: #DDDDDD;
+        }
+    } 
+    
+    .startRecirding{
+        background-color: #000;
+        position: fixed;
+        bottom: 20px;
+        color: #FFF;
+        width: 80%;
+        left: 50%;        
+        transform: translate(-50%,0);
+    }
+}

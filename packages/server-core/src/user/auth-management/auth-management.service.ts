@@ -19,5 +19,5 @@ declare module '../../../declarations' {
 export default (app: Application): void => {
   app.configure(authManagement(notifier(app)));
   const service = app.service('authManagement');
-  service.hooks(hooks);
+  service.hooks(hooks as any);
 };

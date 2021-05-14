@@ -1,11 +1,11 @@
 import app from '../../packages/server/src/app'
 
 describe('CRUD operation on \'GroupUser\' model', () => {
-  const model = app.service('group-user').Model
-  const userModel = app.service('user').Model
-  const userRoleModel = app.service('user-role').Model
-  const groupModel = app.service('group').Model
-  const groupUserRankModel = app.service('group-user-rank').Model
+  const model = (app.service('group-user') as any).Model
+  const userModel = (app.service('user') as any).Model
+  const userRoleModel = (app.service('user-role') as any).Model
+  const groupModel = (app.service('group') as any).Model
+  const groupUserRankModel = (app.service('group-user-rank') as any).Model
   const userName = 'testname'
   const groupUserRank = 'uberleader'
   const groupUserRankUpdated = 'updated-uberleader'

@@ -35,5 +35,5 @@ export default function (app: Application): void {
    */
   const service = app.service('location-admin');
 
-  service.hooks(hooks);
+  service.hooks(hooks as any);
 }

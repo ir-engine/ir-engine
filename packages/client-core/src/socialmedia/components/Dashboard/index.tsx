@@ -12,8 +12,10 @@ import IconButton from '@material-ui/core/IconButton';
 import MenuIcon from '@material-ui/icons/Menu';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
+import RemoveFromQueueIcon from '@material-ui/icons/RemoveFromQueue';
 import ViewModuleIcon from '@material-ui/icons/ViewModule';
 import EmojiPeopleIcon from '@material-ui/icons/EmojiPeople';
+import SettingsSystemDaydreamIcon from '@material-ui/icons/SettingsSystemDaydream';
 import GradientIcon from '@material-ui/icons/Gradient';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
@@ -23,6 +25,9 @@ import DashboardIcon from "@material-ui/icons/Dashboard";
 import { Link } from "react-router-dom";
 import Backdrop from '@material-ui/core/Backdrop';
 import CircularProgress from '@material-ui/core/CircularProgress';
+import { useTranslation } from 'react-i18next';
+
+
 
 const drawerWidth = 200;
 
@@ -105,6 +110,7 @@ export default function Dashboard({ children }) {
     const theme = useTheme();
     const [open, setOpen] = React.useState(false);
     const [loading, setLoading] = React.useState(false);
+	const { t } = useTranslation();
 
     const handleDrawerOpen = () => {
         setOpen(true);
@@ -144,7 +150,7 @@ export default function Dashboard({ children }) {
                         <MenuIcon />
                     </IconButton>
                     <Typography variant="h6">
-                        Dashboard
+                        {t('social:dashboard.title')}
                     </Typography>
                 </Toolbar>
             </AppBar>
@@ -173,7 +179,7 @@ export default function Dashboard({ children }) {
                                 <ListItemIcon >
                                     <DashboardIcon style={{ color: "white" }} />
                                 </ListItemIcon>
-                                <ListItemText primary="Dashboard" />
+                                <ListItemText primary={t('social:dashboard.dashboard')} />
                             </ListItem>
                     </Link>
                     <Link to="/admin/users" >
@@ -181,7 +187,7 @@ export default function Dashboard({ children }) {
                             <ListItemIcon >
                                 <SuperviosorAccount style={{ color: "white" }} />
                             </ListItemIcon>
-                            <ListItemText primary="Users" />
+                            <ListItemText primary={t('social:dashboard.users')} />
                         </ListItem>
                     </Link>
                     <Link to="/admin/feeds">
@@ -189,23 +195,41 @@ export default function Dashboard({ children }) {
                             <ListItemIcon >
                                 <ViewModuleIcon style={{ color: "white" }} />
                             </ListItemIcon>
-                            <ListItemText primary="Feeds" />
+                            <ListItemText primary={t('social:dashboard.feeds')} />
                         </ListItem>
                     </Link>       
-                    <Link to="/admin/ar-media">
+                    <Link to="/admin/armedia">
                         <ListItem style={{ color: "white"}} onClick={changeComponent} button>
                             <ListItemIcon >
                                 <EmojiPeopleIcon style={{ color: "white" }} />
                             </ListItemIcon>
-                            <ListItemText primary="Ar Media" />
+                            <ListItemText primary={t('social:dashboard.arMedia')} />
                         </ListItem>
                     </Link> 
-                    <Link to="/editor/projects/create">
+                    <Link to="/admin/tips-and-tricks">
+                      <ListItem style={{ color: "white"}} onClick={changeComponent} button>
+                        <ListItemIcon >
+                          <SettingsSystemDaydreamIcon style={{ color: "white" }} />
+                        </ListItemIcon>
+                        <ListItemText primary="Tips&Tricks" />
+                      </ListItem>
+                    </Link>
+
+                  <Link to="/admin/thefeeds">
+                    <ListItem style={{ color: "white"}} onClick={changeComponent} button>
+                      <ListItemIcon >
+                        <RemoveFromQueueIcon style={{ color: "white" }} />
+                      </ListItemIcon>
+                      <ListItemText primary="TheFeeds" />
+                    </ListItem>
+                  </Link>
+
+                  <Link to="/editor/projects/create">
                         <ListItem style={{ color: "white"}} onClick={changeComponent} button>
                             <ListItemIcon >
                                 <GradientIcon style={{ color: "white" }} />
                             </ListItemIcon>
-                            <ListItemText primary="Editor" />
+                            <ListItemText primary={t('social:dashboard.editor')} />
                         </ListItem>
                     </Link> 
                 </List>

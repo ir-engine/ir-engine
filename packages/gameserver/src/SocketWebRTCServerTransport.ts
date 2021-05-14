@@ -1,9 +1,9 @@
-import { MessageTypes } from "@xr3ngine/engine/src/networking/enums/MessageTypes";
-import { handleNetworkStateUpdate } from "@xr3ngine/engine/src/networking/functions/updateNetworkState";
-import { NetworkTransport } from "@xr3ngine/engine/src/networking/interfaces/NetworkTransport";
-import config from '@xr3ngine/server-core/src/appconfig';
-import { localConfig } from '@xr3ngine/server-core/src/config';
-import logger from '@xr3ngine/server-core/src/logger';
+import { MessageTypes } from "@xrengine/engine/src/networking/enums/MessageTypes";
+import { handleNetworkStateUpdate } from "@xrengine/engine/src/networking/functions/updateNetworkState";
+import { NetworkTransport } from "@xrengine/engine/src/networking/interfaces/NetworkTransport";
+import config from '@xrengine/server-core/src/appconfig';
+import { localConfig } from '@xrengine/server-core/src/config';
+import logger from '@xrengine/server-core/src/logger';
 import {
     cleanupOldGameservers,
     getFreeSubdomain,
@@ -14,9 +14,9 @@ import {
     handleJoinWorld,
     handleLeaveWorld,
     validateNetworkObjects
-} from "@xr3ngine/gameserver/src/NetworkFunctions";
-import { WebRtcTransportParams } from "@xr3ngine/server-core/src/types/WebRtcTransportParams";
-import getLocalServerIp from '@xr3ngine/server-core/src/util/get-local-server-ip';
+} from "@xrengine/gameserver/src/NetworkFunctions";
+import { WebRtcTransportParams } from "@xrengine/server-core/src/types/WebRtcTransportParams";
+import getLocalServerIp from '@xrengine/server-core/src/util/get-local-server-ip';
 import AWS from 'aws-sdk';
 import * as https from "https";
 import { DataProducer, Router, Transport, Worker } from "mediasoup/lib/types";
@@ -64,11 +64,11 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
     }
 
     public sendReliableData = (message: any): any => {
-        if (this.socketIO != null) this.socketIO.of('/realtime').emit(MessageTypes.ReliableMessage.toString(), message);
+        if (this.socketIO != null) this.socketIO.of('/').emit(MessageTypes.ReliableMessage.toString(), message);
     }
 
     public sendNetworkStatUpdateMessage = (message: any): any => {
-        if (this.socketIO != null) this.socketIO.of('/realtime').emit(MessageTypes.UpdateNetworkState.toString(), message);
+        if (this.socketIO != null) this.socketIO.of('/').emit(MessageTypes.UpdateNetworkState.toString(), message);
     }
 
     toBuffer(ab): any {
@@ -88,19 +88,19 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
         logger.info("Kicking ", socket.id);
         // TODO: Make sure this is right
         // logger.info(this.socketIO.allSockets()[socket.id]);
-        if (this.socketIO != null) this.socketIO.of('/realtime').emit(MessageTypes.Kick.toString(), socket.id);
+        if (this.socketIO != null) this.socketIO.of('/').emit(MessageTypes.Kick.toString(), socket.id);
     }
 
     public async initialize(): Promise<void> {
         // Set up our gameserver according to our current environment
         const localIp = await getLocalServerIp();
         let stringSubdomainNumber, gsResult;
-        if (process.env.KUBERNETES !== 'true') try {
-            await this.app.service('instance').Model.destroy({where: {}});
+        if (!config.kubernetes.enabled) try {
+            await (this.app.service('instance') as any).Model.destroy({where: {}});
         } catch (error) {
             logger.warn(error);
         }
-        else if (process.env.KUBERNETES === 'true') {
+        else if (config.kubernetes.enabled) {
             await cleanupOldGameservers();
             this.gameServer = await (this.app as any).agonesSDK.getGameServer();
             const name = this.gameServer.objectMeta.name;
@@ -132,7 +132,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
 
         localConfig.mediasoup.webRtcTransport.listenIps = [{
             ip: '0.0.0.0',
-            announcedIp: process.env.KUBERNETES === 'true' ?
+            announcedIp: config.kubernetes.enabled ?
                 (config.gameserver.local === true ? gsResult.status.address :
                     `${stringSubdomainNumber}.${config.gameserver.domain}`) : localIp.ipAddress
         }];
@@ -154,10 +154,10 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
         // Set up realtime channel on socket.io
         this.socketIO = (this.app as any)?.io;
 
-        if (this.socketIO != null) this.socketIO.of('/realtime').on("connect", (socket: Socket) => {
+        if (this.socketIO != null) this.socketIO.of('/').on("connect", (socket: Socket) => {
             // Authorize user and make sure everything is valid before allowing them to join the world
             socket.on(MessageTypes.Authorization.toString(), async (data, callback) => {
-                console.log('AUTHORIZATION CALL HANDLER');
+                // console.log('AUTHORIZATION CALL HANDLER', data.userId);
                 const userId = data.userId;
                 const accessToken = data.accessToken;
 
@@ -170,7 +170,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                 }
 
                 // Check database to verify that user ID is valid
-                const user = await this.app.service('user').Model.findOne({
+                const user = await (this.app.service('user') as any).Model.findOne({
                     attributes: ['id', 'name', 'instanceId', 'avatarId'],
                     where: {
                         id: userId

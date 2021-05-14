@@ -43,5 +43,5 @@ export default (app: Application): void => {
 
   const service = app.service('upload');
 
-  service.hooks(hooks);
+  service.hooks(hooks as any);
 };

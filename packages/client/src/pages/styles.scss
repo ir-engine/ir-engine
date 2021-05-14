@@ -94,7 +94,7 @@ body{
   overscroll-behavior-y: contain;
 }
 
-.menuDrawerOpened{  
+.menuDrawerOpened{
   [class*=InstanceChat_instance-chat-container]{
     right: 25vw;
     left: auto;
@@ -103,8 +103,8 @@ body{
       height: 0;
     }
     // @media (max-width: 768px){
-    //   right: 50%;      
-    // } 
+    //   right: 50%;
+    // }
     @media (max-width: 1280px){
       right: 33%;
     }
@@ -144,10 +144,10 @@ body{
 }
 
 .plugintestReadout{
-  background:rgba(1,1,1,1);
-  width:100%;
-  height:50;
-  display:fixed;
+  background:rgba(255,255,255,128);
+  width:100vw;
+  height:50vh;
+  position:fixed;
   bottom:0;
   left:auto;
   right:auto;
@@ -155,203 +155,161 @@ body{
   padding:1em;
 }
 
-.lander{
-  background: #00022E;
+.plugintestControls {
+  width:100vw;
+  height:50vh;
+  position:fixed;
+  bottom:0;
+}
 
-  .mobile-only{
-    display: none;
-    width: 100%;
-    margin: 0 auto 50px;
-    text-align: center;
-  }
+.lander {
+  min-height: 100vh;
+  background-image: -moz-linear-gradient(150deg,#00022E,#dbdbdb 100%);
+  background-image: linear-gradient(150deg, #00022E, #ff007d4a);
+  position: relative;
+  overflow: hidden;
 
   *{
     font-family: Inter;
     font-style: normal;
     font-weight: 400;
-    color: white;
-  }
-
-  .row{
-    margin: 0;
-  }
-
-  .discord-icon,
-  .github-icon{
-    width: 60px;
-    margin-left: 1.5rem;
-    margin-right: 1.5rem;
-    @media(max-width: 560px){
-      width: 45px;
-      margin-left: 0.5rem;
-      margin-right: 0.5rem;
-    }
-  }
-
-  .button{
-    background: #5F5FF1;
-    border-radius: 5px;
-    border: none;
-    font-size: 1.6rem;
-    line-height: 1.9rem;
-    font-family: Inter;
-  }
-
-  .main-button{
-    font-size: 1.8rem;
-    line-height: 2.2rem;
-    font-weight: 600;
-    margin-top: 4rem;
-    width: 370px;
-    height: 80px;
-    @media(max-width: 560px) {
-      font-size: 1.2rem!important;
-    }
-  }
-
-  .email-button{
-    width: 60%;
-    height: 50px;
-    margin-left: 40%;
+    z-index: 1;
   }
 
   .main-background {
-    display: block;
-    width: 100%;
     position: absolute;
-    top: 300px;
-    left: 0;
+    bottom: 0;
+    z-index: 0;
+    img { display: block; }
+
+    @media (max-width: 550px) {
+      .img-container {
+        position: absolute;
+        width: 700px;
+        bottom: 0;
+        left: -100px;
+      }
+    }
+
+    @media (min-width: 769px) { bottom: -75px; }
+    @media (min-width: 950px) { bottom: -175px; }
+    @media (min-width: 1250px) {
+      top: 150px;
+      bottom: 0;
+      width: 100%;
+      .img-container, img { width: 100%; }
+    }
   }
 
-  .lander-container{
-    max-width: 2200px;
-    width: 95%;
-    height: 100%;
-    margin: 0 auto;
-    min-height:1000px;
-    padding-left: 5%;
+  .logo-bottom {
+    text-align: right;
+    margin-top: 15px;
+    font-size: 14px;
+    span { margin-right: 5px; }
+    .gray-txt { color: grey; }
+    .gradiant-txt {
+      color: transparent;
+      background-image: -moz-linear-gradient(357.78deg,#5236ff 0,#c20560 100%);
+      background-image: linear-gradient(92.22deg,#5236ff,#c20560);
+      -webkit-background-clip: text;
+      background-clip: text;
+    }
+    .white-txt { color: white; margin-right: 0; }
+  }
 
-    .right-top-menu-row{
-      position: absolute;
+  .link-container {
+    position: absolute;
+    right: 30px;
+    top: 35px;
+    .link-block {
+      display: flex;
+      .icon { width: 30px; }
+      .icon + .icon { margin-left: 20px; }
+      .icon:hover, .icon:focus { opacity: 0.8; }
+    }
+    .logo-bottom { display: none; }
+
+    @media (max-width: 550px) {
+      width: 100%;
+      display: flex;
+      position: relative;
+      justify-content: center;
+      flex-direction: column;
+      align-items: center;
+      right: 0;
       top: 0;
-      right: 5%;
-    }
-    .right-top-menu{
-      margin: 60px 0 0 auto;
-    }
-    .bottom-left, 
-    .contact-right-div{
-      width: 50%;
-      z-index: 2;
+      padding: 20px;
+      background: #000c;
 
-    }
-    .lander-logo{
-      width: 800px;
-      height: 100px;
-      margin-top: 140px;
-      @media (max-width: 560px){
-        height: auto!important;
-      }
-    }
-
-    .logo-bottom{
-      width: 800px;
-      text-align: right;
-      margin-top: 10px;
+      .logo-bottom { display: block; }
     }
   }
 
-  .main-txt{
-    font-size: 1.8rem;
-    @media (max-width: 560px){
-      font-size: 1rem!important;
+  .navbar {
+    padding: 30px 30px 15px 30px;
+    background: #0002;
+    .logo-section {
+      display: inline-block;
+      .lander-logo { width: 250px; }
+    }
+
+    @media (max-width: 550px) {
+      text-align: center;
     }
   }
 
-  .width-400{
-    width: 420px!important;
-  }
+  .main-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    max-width: 1024px;
+    margin: auto;
+    .desc {
+      font-size: 20px;
+      margin: 10px 0 60px;
+      color: #dbdbdb;
 
-  .gradiant-txt{
-    color: transparent;
-    background-image: -moz-linear-gradient(357.78deg,#5236ff 0,#c20560 100%);
-    background-image: linear-gradient(92.22deg,#5236ff,#c20560);
-    -webkit-background-clip: text;
-    background-clip: text;
-  }
+      .second-line {
+        font-size: 35px;
+        color: white;
+        .metaverse {
+          position: relative;
+          display: inline-block;
+          &::after {
+            width: 175px;
+            background: -moz-linear-gradient(357.78deg,#5236ff 0,#c20560 100%);
+            background: linear-gradient(92.22deg,#5236ff,#c20560);
+            border-radius: 1px;
+            height: 4px;
+            content: '';
+            display: block;
+            position: absolute;
+            left: 0;
+            bottom: 2;
+          }
+        }
+      }
 
-  .gray-txt{
-    color: gray;
-  }
-  
-}
-@media (max-width: 1480px){
-  .main-background{
-    top: 450px!important;
-  }
-}
-@media (max-width: 1024px) {
-  .lander{
-    .mb-padding{
-      padding: 0 5%!important;
-    }
-    .main-txt{
-      font-size: 1.6rem;
-    }
-    .width-400{
-      width: 70%!important;
-    }
-    .main-button{
-      width: 50%;
-      font-size: 1.7rem;
-      height: 2.8rem;
-      margin-top: 2rem;
-    }
-    .email-button{
-      margin: 0 auto;
-    }
-    .mobile-only{
-      display: block;
-    }
-    .main-background{
-      position: initial;
-      height: 60vw !important;
-      width: 100%;
-    }
-    .lander-container{
-      width: 100%;
-      padding: 0;
+      @media (max-width: 550px) {
+        font-size: 15px;
+        .second-line {
+          font-size: 27px;
+          .metaverse::after { width: 135px; }
+        }
+      }
 
-      .lander-logo{
-        width: 90%;
-        height: 80px;
-        margin-top: 80px;
-      }
-      .logo-bottom{
-        width: 90%;
-        text-align: right;
-        margin-top: 0;
-        padding-right: 20px;
-      }
-      .bottom-left, 
-      .contact-right-div{
-        width: 100%;
-      }
-      .right-top-menu-row{
-        position: unset;
-      }
-      .right-top-menu{
-        margin: 20px auto 20px;
-      }
-      .contact-right-div{
-        padding: 0;
+    }
+    @media (min-width: 769px) {
+      flex-direction: row;
+      align-items: flex-start;
+      .desc {
+        width: 400px;
+        flex-shrink: 0;
+        margin-top: 100px;
       }
     }
-  }
-}
-@media (min-width: 2000px){
-  .right-top-menu-row{
-    right: calc((100% - 2000px)/2 + 20px);
   }
 }
 
@@ -367,8 +325,4 @@ body{
       }
     }
   }
-}
-
-#__next {
-  height: 0;
 }

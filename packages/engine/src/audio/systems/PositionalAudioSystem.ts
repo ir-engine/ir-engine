@@ -8,7 +8,7 @@ import {
 import { LocalInputReceiver } from '../../input/components/LocalInputReceiver';
 import { NetworkObject } from '../../networking/components/NetworkObject';
 import { MediaStreamSystem } from '../../networking/systems/MediaStreamSystem';
-import { CharacterComponent } from '../../templates/character/components/CharacterComponent';
+import { CharacterComponent } from '../../character/components/CharacterComponent';
 import { TransformComponent } from '../../transform/components/TransformComponent';
 import { PositionalAudioComponent } from '../components/PositionalAudioComponent';
 
@@ -30,7 +30,7 @@ export class PositionalAudioSystem extends System {
   characterAudioStream = new Map();
 
   /** Constructs Positional Audio System. */
-  constructor(attributes?: SystemAttributes) {
+  constructor(attributes: SystemAttributes = {}) {
     super(attributes);
     PositionalAudioSystem.instance = this;
     Engine.useAudioSystem = true;

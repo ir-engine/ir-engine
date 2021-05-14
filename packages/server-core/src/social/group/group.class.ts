@@ -31,7 +31,7 @@ export class Group extends Service {
     const limit = params.query?.$limit ? params.query.$limit : 10;
     const include: any = [
       {
-        model: this.app.service('user').Model,
+        model: (this.app.service('user') as any).Model,
         where: {
           id: loggedInUser.userId
         }
@@ -39,7 +39,7 @@ export class Group extends Service {
     ];
     if (params.query?.invitable === true) {
       include.push({
-        model: this.app.service('group-user').Model,
+        model: (this.app.service('group-user') as any).Model,
         where: {
           userId: loggedInUser.userId,
           [Op.or]: [
@@ -53,7 +53,7 @@ export class Group extends Service {
         }
       });
     }
-    const groupResult = await this.app.service('group').Model.findAndCountAll({
+    const groupResult = await (this.app.service('group') as any).Model.findAndCountAll({
       offset: skip,
       limit: limit,
       order: [
@@ -64,13 +64,13 @@ export class Group extends Service {
     await Promise.all(groupResult.rows.map((group) => {
       // eslint-disable-next-line @typescript-eslint/no-misused-promises, no-async-promise-executor
       return new Promise(async (resolve) => {
-        const groupUsers = await this.app.service('group-user').Model.findAll({
+        const groupUsers = await (this.app.service('group-user') as any).Model.findAll({
           where: {
             groupId: group.id
           },
           include: [
             {
-              model: this.app.service('user').Model
+              model: (this.app.service('user') as any).Model
             }
           ]
         });

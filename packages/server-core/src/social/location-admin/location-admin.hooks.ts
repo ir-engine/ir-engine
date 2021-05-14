@@ -1,5 +1,5 @@
 import * as authentication from '@feathersjs/authentication';
-import attachOwnerIdInQuery from '@xr3ngine/server-core/src/hooks/set-loggedin-user-in-query';
+import attachOwnerIdInQuery from '@xrengine/server-core/src/hooks/set-loggedin-user-in-query';
 import * as commonHooks from 'feathers-hooks-common';
 
 const { authenticate } = authentication.hooks;
@@ -10,7 +10,7 @@ export default {
     find: [
       commonHooks.iff(
           commonHooks.isProvider('external'),
-          attachOwnerIdInQuery('userId')
+          attachOwnerIdInQuery('userId') as any,
       ),
     ],
     get: [],

@@ -1,4 +1,6 @@
-import { System } from '../../ecs/classes/System';
+import { EngineEvents } from '../../ecs/classes/EngineEvents';
+import { System, SystemAttributes } from '../../ecs/classes/System';
+import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType';
 import { localMediaConstraints } from '../constants/VideoConstants';
 
 /** System class for media streaming. */
@@ -42,8 +44,10 @@ export class MediaStreamSystem extends System {
   /** Whether the component is initialized or not. */
   public initialized = false
 
-  constructor() {
-    super()
+  updateType = SystemUpdateType.Fixed;
+
+  constructor(attributes: SystemAttributes = {}) {
+    super(attributes);
     MediaStreamSystem.instance = this;
   }
 
@@ -320,5 +324,9 @@ export class MediaStreamSystem extends System {
       console.log('failed to get media stream');
       console.log(err);
     }
+  }
+
+  dispose() {
+    EngineEvents.instance.removeAllListenersForEvent(MediaStreamSystem.EVENTS.TRIGGER_UPDATE_CONSUMERS);
   }
 }

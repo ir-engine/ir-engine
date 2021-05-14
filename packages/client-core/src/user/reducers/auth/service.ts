@@ -1,12 +1,12 @@
 import { dispatchAlertError, dispatchAlertSuccess } from '../../../common/reducers/alert/service';
-import { resolveAuthUser } from '@xr3ngine/common/src/interfaces/AuthUser';
-import { IdentityProvider } from '@xr3ngine/common/src/interfaces/IdentityProvider';
-import { resolveUser } from '@xr3ngine/common/src/interfaces/User';
-import { EngineEvents } from '@xr3ngine/engine/src/ecs/classes/EngineEvents';
-import { Network } from '@xr3ngine/engine/src/networking/classes/Network';
-import { MessageTypes } from '@xr3ngine/engine/src/networking/enums/MessageTypes';
+import { resolveAuthUser } from '@xrengine/common/src/interfaces/AuthUser';
+import { IdentityProvider } from '@xrengine/common/src/interfaces/IdentityProvider';
+import { resolveUser, resolveWalletUser } from '@xrengine/common/src/interfaces/User';
+import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents';
+import { Network } from '@xrengine/engine/src/networking/classes/Network';
+import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes';
 // TODO: Decouple this
-// import { endVideoChat, leave } from '@xr3ngine/engine/src/networking/functions/SocketWebRTCClientFunctions';
+// import { endVideoChat, leave } from '@xrengine/engine/src/networking/functions/SocketWebRTCClientFunctions';
 import axios from 'axios';
 import { Config } from '../../../helper';
 import querystring from 'querystring';
@@ -15,7 +15,7 @@ import { v1 } from 'uuid';
 import { client } from '../../../feathers';
 import { validateEmail, validatePhoneNumber } from '../../../helper';
 import { getStoredState } from '../../../persisted.store';
-import store from "../../../store";
+import Store from "../../../store";
 import {
   addedChannelLayerUser,
   addedLayerUser, clearChannelLayerUsers,
@@ -45,12 +45,15 @@ import {
   usernameUpdated,
   userUpdated
 } from './actions';
+import { CharacterControllerSystem } from '@xrengine/engine/src/character/CharacterControllerSystem';
+
+const store = Store.store;
 
 export function doLoginAuto (allowGuest?: boolean, forceClientAuthReset?: boolean) {
   return async (dispatch: Dispatch): Promise<any> => {
     try {
       const authData = getStoredState('auth');
-      let accessToken = authData && authData.authUser ? authData.authUser.accessToken : undefined;
+      let accessToken = authData && authData.authUser ? authData.authUser.accessToken : undefined; 
 
       if (allowGuest !== true && accessToken == null) {
         return;
@@ -69,8 +72,8 @@ export function doLoginAuto (allowGuest?: boolean, forceClientAuthReset?: boolea
       let res;
       try {
         res = await (client as any).reAuthenticate();
-      } catch(err) {
-        if (err.className === 'not-found') {
+      } catch(err) {      
+        if (err.className === 'not-found' || (err.className === 'not-authenticated' && err.message === 'jwt expired')) {
           await dispatch(didLogout());
           await (client as any).authentication.reset();
           const newProvider = await client.service('identity-provider').create({
@@ -103,7 +106,7 @@ export function doLoginAuto (allowGuest?: boolean, forceClientAuthReset?: boolea
         console.log('****************');
       }
     } catch (err) {
-      console.error(err);
+     console.error(err);
       dispatch(didLogout());
 
       // if (window.location.pathname !== '/') {
@@ -183,6 +186,43 @@ export function loginUserByPassword (form: EmailLoginForm) {
         dispatchAlertError(dispatch, err.message);
       })
       .finally(() => dispatch(actionProcessing(false)));
+  };
+}
+
+const parseUserWalletCredentials = (wallet) => {
+  return {
+    user: {
+      id: 'did:web:example.com',
+      displayName: 'alice',
+      icon: 'https://material-ui.com/static/images/avatar/1.jpg',
+      // session // this will contain the access token and helper methods
+    }
+  };
+};
+
+export function loginUserByXRWallet(wallet: any) {
+  return (dispatch: Dispatch, getState: any): any => {
+    try {
+      dispatch(actionProcessing(true));
+
+      const credentials: any = parseUserWalletCredentials(wallet);
+      console.log(credentials);
+
+      const walletUser = resolveWalletUser(credentials);
+
+      //TODO: This is temp until we move completely to XR wallet
+      const oldId = getState().get('auth').get('user').id;
+      walletUser.id = oldId;
+
+      loadXRAvatarForUpdatedUser(walletUser);
+      dispatch(loadedUserData(walletUser));
+    } catch(err) {
+      console.log(err);
+      dispatch(loginUserError('Failed to login'));
+      dispatchAlertError(dispatch, err.message);
+    } finally {
+      dispatch(actionProcessing(false));
+    }
   };
 }
 
@@ -503,7 +543,7 @@ export function uploadAvatar (data: any) {
   return async (dispatch: Dispatch, getState: any) => {
     const token = getState().get('auth').get('authUser').accessToken;
     const selfUser = getState().get('auth').get('user');
-    const res = await axios.post(`${Config.apiUrl}/upload`, data, {
+    const res = await axios.post(`${Config.publicRuntimeConfig.apiServer}/upload`, data, {
       headers: {
         'Content-Type': 'multipart/form-data',
         Authorization: 'Bearer ' + token
@@ -678,7 +718,7 @@ const loadAvatarForUpdatedUser = async (user) => {
   if (!user || !user.instanceId) Promise.resolve(true);
 
   return new Promise(async resolve => {
-    const networkUser = Network.instance.clients[user.id];
+    const networkUser = Network.instance?.clients[user.id];
 
     // If network is not initialized then wait to be initialized.
     if (!networkUser) {
@@ -707,13 +747,50 @@ const loadAvatarForUpdatedUser = async (user) => {
         const obj = Network.instance.networkObjects[key];
         if (obj?.ownerId === user.id) {
           EngineEvents.instance.dispatchEvent({
-            type: EngineEvents.EVENTS.LOAD_AVATAR,
+            type: CharacterControllerSystem.EVENTS.LOAD_AVATAR,
             entityID: obj.component.entity.id,
             avatarId: user.avatarId,
             avatarURL
           });
           break;
         }
+      }
+    }
+    resolve(true);
+  });
+};
+
+const loadXRAvatarForUpdatedUser = async (user) => {
+  if (!user || !user.id) Promise.resolve(true);
+
+  return new Promise(async resolve => {
+    const networkUser = Network.instance?.clients[user.id];
+
+    // If network is not initialized then wait to be initialized.
+    if (!networkUser) {
+      setTimeout(async () => {
+        await loadAvatarForUpdatedUser(user);
+        resolve(true);
+      }, 200);
+      return;
+    }
+
+    const avatarURL = user.avatarUrl;
+    const thumbnailURL = user.avatarUrl;
+
+    networkUser.avatarDetail = { avatarURL, thumbnailURL, avatarId: user.avatarId };
+
+    //Find entityId from network objects of updated user and dispatch avatar load event.
+    for (let key of Object.keys(Network.instance.networkObjects)) {
+      const obj = Network.instance.networkObjects[key];
+      if (obj?.ownerId === user.id) {
+        EngineEvents.instance.dispatchEvent({
+          type: CharacterControllerSystem.EVENTS.LOAD_AVATAR,
+          entityID: obj.component.entity.id,
+          avatarId: user.avatarId,
+          avatarURL
+        });
+        break;
       }
     }
     resolve(true);

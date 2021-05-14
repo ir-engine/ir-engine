@@ -17,40 +17,40 @@ import {
   GroupAdd,
   SupervisorAccount,
 } from '@material-ui/icons';
-import { selectChatState } from '@xr3ngine/client-core/src/social/reducers/chat/selector';
+import { selectChatState } from '@xrengine/client-core/src/social/reducers/chat/selector';
 import {
   updateChatTarget,
   updateMessageScrollInit,
-} from '@xr3ngine/client-core/src/social/reducers/chat/service';
-import { selectFriendState } from '@xr3ngine/client-core/src/social/reducers/friend/selector';
+} from '@xrengine/client-core/src/social/reducers/chat/service';
+import { selectFriendState } from '@xrengine/client-core/src/social/reducers/friend/selector';
 import {
   getFriends,
   unfriend,
-} from '@xr3ngine/client-core/src/social/reducers/friend/service';
-import { selectGroupState } from '@xr3ngine/client-core/src/social/reducers/group/selector';
+} from '@xrengine/client-core/src/social/reducers/friend/service';
+import { selectGroupState } from '@xrengine/client-core/src/social/reducers/group/selector';
 import {
   createGroup,
   getGroups,
   patchGroup,
   removeGroup,
   removeGroupUser,
-} from '@xr3ngine/client-core/src/social/reducers/group/service';
-import { updateInviteTarget } from '@xr3ngine/client-core/src/social/reducers/invite/service';
-import { selectLocationState } from '@xr3ngine/client-core/src/social/reducers/location/selector';
-import { banUserFromLocation } from '@xr3ngine/client-core/src/social/reducers/location/service';
-import { selectPartyState } from '@xr3ngine/client-core/src/social/reducers/party/selector';
+} from '@xrengine/client-core/src/social/reducers/group/service';
+import { updateInviteTarget } from '@xrengine/client-core/src/social/reducers/invite/service';
+import { selectLocationState } from '@xrengine/client-core/src/social/reducers/location/selector';
+import { banUserFromLocation } from '@xrengine/client-core/src/social/reducers/location/service';
+import { selectPartyState } from '@xrengine/client-core/src/social/reducers/party/selector';
 import {
   createParty,
   getParty,
   removeParty,
   removePartyUser,
   transferPartyOwner,
-} from '@xr3ngine/client-core/src/social/reducers/party/service';
-import { selectAuthState } from '@xr3ngine/client-core/src/user/reducers/auth/selector';
-import { selectUserState } from '@xr3ngine/client-core/src/user/reducers/user/selector';
-import { getLayerUsers } from '@xr3ngine/client-core/src/user/reducers/user/service';
-import { Group as GroupType } from '@xr3ngine/common/src/interfaces/Group';
-import { User } from '@xr3ngine/common/src/interfaces/User';
+} from '@xrengine/client-core/src/social/reducers/party/service';
+import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector';
+import { selectUserState } from '@xrengine/client-core/src/user/reducers/user/selector';
+import { getLayerUsers } from '@xrengine/client-core/src/user/reducers/user/service';
+import { Group as GroupType } from '@xrengine/common/src/interfaces/Group';
+import { User } from '@xrengine/common/src/interfaces/User';
 import classNames from 'classnames';
 import _ from 'lodash';
 import React, { useEffect, useState } from 'react';

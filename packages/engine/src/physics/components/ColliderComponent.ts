@@ -1,4 +1,4 @@
-import { Body } from 'cannon-es'
+import type { Body, ColliderHitEvent } from "three-physx";
 import { Component } from '../../ecs/classes/Component';
 import { Types } from '../../ecs/types/Types';
 
@@ -7,7 +7,8 @@ import { Types } from '../../ecs/types/Types';
  */
 
 export class ColliderComponent extends Component<ColliderComponent> {
-  collider: Body
+  bodytype: any
+  body: Body
   type: string
   mass: number
   position: any
@@ -16,10 +17,12 @@ export class ColliderComponent extends Component<ColliderComponent> {
   mesh: any
   vertices: any
   indices: any
+  collisions: ColliderHitEvent[] = [];
 }
 
 ColliderComponent._schema = {
-  collider: { type: Types.Ref, default: null },
+  bodytype: { type: Types.Ref, default: null },
+  body: { type: Types.Ref, default: null },
   type: { type: Types.String, default: 'box' },
   mass: { type: Types.Number, default: 0 },
   position: { type: Types.Ref, default: null },

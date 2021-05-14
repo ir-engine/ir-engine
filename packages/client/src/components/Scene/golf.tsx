@@ -1,63 +1,63 @@
 import Button from '@material-ui/core/Button';
 import Snackbar from '@material-ui/core/Snackbar';
-import { InteractableModal } from '@xr3ngine/client-core/src/world/components/InteractableModal';
-import LoadingScreen from '@xr3ngine/client-core/src/common/components/Loader';
-import { MobileGamepadProps } from "@xr3ngine/client-core/src/common/components/MobileGamepad/MobileGamepadProps";
-import NamePlate from '@xr3ngine/client-core/src/world/components/NamePlate';
+import { InteractableModal } from '@xrengine/client-core/src/world/components/InteractableModal';
+import LoadingScreen from '@xrengine/client-core/src/common/components/Loader';
+import NamePlate from '@xrengine/client-core/src/world/components/NamePlate';
 import NetworkDebug from '../NetworkDebug';
-import { OpenLink } from '@xr3ngine/client-core/src/world/components/OpenLink';
-import TooltipContainer from '@xr3ngine/client-core/src/common/components/TooltipContainer';
-import UserMenu from '@xr3ngine/client-core/src/user/components/UserMenu';
-import { generalStateList, setAppLoaded, setAppOnBoardingStep, setAppSpecificOnBoardingStep } from '@xr3ngine/client-core/src/common/reducers/app/actions';
-import { selectAppState } from '@xr3ngine/client-core/src/common/reducers/app/selector';
-import { selectAuthState } from '@xr3ngine/client-core/src/user/reducers/auth/selector';
-import { doLoginAuto } from '@xr3ngine/client-core/src/user/reducers/auth/service';
-import { client } from '@xr3ngine/client-core/src/feathers';
-import { selectLocationState } from '@xr3ngine/client-core/src/social/reducers/location/selector';
+import { OpenLink } from '@xrengine/client-core/src/world/components/OpenLink';
+import TooltipContainer from '@xrengine/client-core/src/common/components/TooltipContainer';
+import UserMenu from '@xrengine/client-core/src/user/components/UserMenu';
+import { generalStateList, setAppLoaded, setAppOnBoardingStep, setAppSpecificOnBoardingStep } from '@xrengine/client-core/src/common/reducers/app/actions';
+import { selectAppState } from '@xrengine/client-core/src/common/reducers/app/selector';
+import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector';
+import { doLoginAuto } from '@xrengine/client-core/src/user/reducers/auth/service';
+import { client } from '@xrengine/client-core/src/feathers';
+import { selectLocationState } from '@xrengine/client-core/src/social/reducers/location/selector';
 import {
   getLocationByName
-} from '@xr3ngine/client-core/src/social/reducers/location/service';
-import { setCurrentScene } from '@xr3ngine/client-core/src/world/reducers/scenes/actions';
-import store from '@xr3ngine/client-core/src/store';
-import { selectUserState } from '@xr3ngine/client-core/src/user/reducers/user/selector';
+} from '@xrengine/client-core/src/social/reducers/location/service';
+import { setCurrentScene } from '@xrengine/client-core/src/world/reducers/scenes/actions';
+import Store from '@xrengine/client-core/src/store';
+import { selectUserState } from '@xrengine/client-core/src/user/reducers/user/selector';
 import { selectInstanceConnectionState } from '../../reducers/instanceConnection/selector';
 import {
   connectToInstanceServer,
   provisionInstanceServer
 } from '../../reducers/instanceConnection/service';
-import { selectPartyState } from '@xr3ngine/client-core/src/social/reducers/party/selector';
+import { selectPartyState } from '@xrengine/client-core/src/social/reducers/party/selector';
 import MediaIconsBox from "../MediaIconsBox";
 import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport';
-import { testScenes, testUserId, testWorldState } from '@xr3ngine/common/src/assets/testScenes';
-import { isMobileOrTablet } from '@xr3ngine/engine/src/common/functions/isMobile';
-import { EngineEvents } from '@xr3ngine/engine/src/ecs/classes/EngineEvents';
-import { resetEngine } from "@xr3ngine/engine/src/ecs/functions/EngineFunctions";
-import { getComponent, getMutableComponent } from '@xr3ngine/engine/src/ecs/functions/EntityFunctions';
-import { DefaultInitializationOptions, initializeEngine } from '@xr3ngine/engine/src/initialize';
-import { InteractiveSystem } from '@xr3ngine/engine/src/interaction/systems/InteractiveSystem';
-import { Network } from '@xr3ngine/engine/src/networking/classes/Network';
-import { MessageTypes } from '@xr3ngine/engine/src/networking/enums/MessageTypes';
-import { NetworkSchema } from '@xr3ngine/engine/src/networking/interfaces/NetworkSchema';
-import { ClientNetworkSystem } from '@xr3ngine/engine/src/networking/systems/ClientNetworkSystem';
-import { PhysicsSystem } from '@xr3ngine/engine/src/physics/systems/PhysicsSystem';
-import { styleCanvas } from '@xr3ngine/engine/src/renderer/functions/styleCanvas';
-import { CharacterComponent } from '@xr3ngine/engine/src/templates/character/components/CharacterComponent';
-import { DefaultNetworkSchema } from '@xr3ngine/engine/src/templates/networking/DefaultNetworkSchema';
-import { PrefabType } from '@xr3ngine/engine/src/templates/networking/PrefabType';
-import { XRSystem } from '@xr3ngine/engine/src/xr/systems/XRSystem';
-import { Config } from '@xr3ngine/client-core/src/helper';
+import { testScenes, testUserId, testWorldState } from '@xrengine/common/src/assets/testScenes';
+import { isMobileOrTablet } from '@xrengine/engine/src/common/functions/isMobile';
+import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents';
+import { resetEngine } from "@xrengine/engine/src/ecs/functions/EngineFunctions";
+import { getComponent, getMutableComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions';
+import { initializeEngine } from '@xrengine/client-core/src/initialize';
+import { InteractiveSystem } from '@xrengine/engine/src/interaction/systems/InteractiveSystem';
+import { Network } from '@xrengine/engine/src/networking/classes/Network';
+import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes';
+import { NetworkSchema } from '@xrengine/engine/src/networking/interfaces/NetworkSchema';
+import { ClientNetworkSystem } from '@xrengine/engine/src/networking/systems/ClientNetworkSystem';
+import { PhysicsSystem } from '@xrengine/engine/src/physics/systems/PhysicsSystem';
+import { styleCanvas } from '@xrengine/engine/src/renderer/functions/styleCanvas';
+import { CharacterComponent } from '@xrengine/engine/src/character/components/CharacterComponent';
+import { PrefabType } from '@xrengine/engine/src/networking/templates/PrefabType';
+import { XRSystem } from '@xrengine/engine/src/xr/systems/XRSystem';
+import { Config } from '@xrengine/client-core/src/helper';
 import { useHistory } from 'react-router-dom';
 import querystring from 'querystring';
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 import url from 'url';
-import { CharacterInputSchema } from '@xr3ngine/engine/src/templates/character/CharacterInputSchema';
-import { GolfGameMode } from '@xr3ngine/engine/src/templates/game/GolfGameMode';
+import { CharacterInputSchema } from '@xrengine/engine/src/character/CharacterInputSchema';
+import { GolfGameMode } from '@xrengine/engine/src/game/templates/GolfGameMode';
+
+const store = Store.store;
 
 const goHome = () => window.location.href = window.location.origin;
 
-const MobileGamepad = React.lazy(() => import("@xr3ngine/client-core/src/common/components/MobileGamepad"));
+const MobileGamepad = React.lazy(() => import("@xrengine/client-core/src/common/components/MobileGamepad"));
 
 const engineRendererCanvasId = 'engine-renderer-canvas';
 
@@ -195,11 +195,7 @@ export const EnginePage = (props: Props) => {
       instanceConnectionState.get('instanceServerConnecting') === false &&
       instanceConnectionState.get('connected') === false
     ) {
-      const currentLocation = locationState.get('currentLocation').get('location');
-      if (sceneId === null && currentLocation.sceneId !== null) {
-        sceneId = currentLocation.sceneId;
-      }
-      init(sceneId);
+      reinit();
     }
   }, [instanceConnectionState]);
 
@@ -219,6 +215,14 @@ export const EnginePage = (props: Props) => {
     }
   }, [appState]);
   const projectRegex = /\/([A-Za-z0-9]+)\/([a-f0-9-]+)$/;
+
+  const reinit = () => {
+    const currentLocation = locationState.get('currentLocation').get('location');
+    if (sceneId === null && currentLocation.sceneId !== null) {
+      sceneId = currentLocation.sceneId;
+    }
+    init(sceneId);
+  };
 
   async function init(sceneId: string): Promise<any> { // auth: any,
     let sceneData;
@@ -241,21 +245,12 @@ export const EnginePage = (props: Props) => {
     styleCanvas(canvas);
 
     const InitializationOptions = {
-      input: {
-        schema: CharacterInputSchema,
-      },
-      gameModes: [
-        GolfGameMode
-      ],
-      publicPath: '',
-      postProcessing: true,
-      editor: false,
+      gameMode: GolfGameMode,
+      publicPath: location.origin,
       networking: {
         schema: {
-        ...DefaultNetworkSchema,
         transport: SocketWebRTCClientTransport,
         } as NetworkSchema,
-        transport: SocketWebRTCClientTransport
       },
       renderer: {
         canvas,
@@ -263,17 +258,17 @@ export const EnginePage = (props: Props) => {
       useOfflineMode: Config.publicRuntimeConfig.offlineMode
     };
 
-    console.log("Initialization options are: ", InitializationOptions);
+    // console.log("Initialization options are: ", InitializationOptions);
 
     await initializeEngine(InitializationOptions);
 
-    console.log("Engine initialized");
+    // console.log("Engine initialized");
 
     document.dispatchEvent(new CustomEvent('ENGINE_LOADED')); // this is the only time we should use document events. would be good to replace this with react state
 
     addUIEvents();
 
-    console.log("**** OFFLINE MODE? ", Config.publicRuntimeConfig.offlineMode);
+    // console.log("**** OFFLINE MODE? ", Config.publicRuntimeConfig.offlineMode);
 
     if(!Config.publicRuntimeConfig.offlineMode) await connectToInstanceServer('instance');
 
@@ -394,7 +389,7 @@ export const EnginePage = (props: Props) => {
         </>
       </Snackbar>
 
-      <NetworkDebug />
+      <NetworkDebug reinit={reinit}/>
       <LoadingScreen objectsToLoad={progressEntity} />
       { harmonyOpen !== true && <MediaIconsBox />}
       { userHovered && <NamePlate userId={userId} position={{ x: position?.x, y: position?.y }} focused={userHovered} />}

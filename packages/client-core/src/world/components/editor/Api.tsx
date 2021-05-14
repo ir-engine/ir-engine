@@ -1,7 +1,7 @@
 import EventEmitter from "eventemitter3";
 import jwtDecode from "jwt-decode";
 import { buildAbsoluteURL } from "url-toolkit";
-import { RethrownError } from "@xr3ngine/engine/src/editor/functions/errors";
+import { RethrownError } from "@xrengine/engine/src/editor/functions/errors";
 import { AudioFileTypes, matchesFileTypes } from "./assets/fileTypes";
 import configs from "./configs";
 import PerformanceCheckDialog from "./dialogs/PerformanceCheckDialog";
@@ -196,7 +196,6 @@ export class Api extends EventEmitter {
  */
   async getProject(projectId): Promise<JSON> {
     const token = this.getToken();
-
     const headers = {
       "content-type": "application/json",
       authorization: `Bearer ${token}`
@@ -205,7 +204,6 @@ export class Api extends EventEmitter {
     const response = await this.fetchUrl(`${SERVER_URL}/project/${projectId}`, {
       headers
     });
-
     const json = await response.json();
     console.log("Response: " + Object.values(response));
 

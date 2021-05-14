@@ -1,15 +1,13 @@
-// @ts-ignore
-import HeightfieldWorker from "./heightfield.worker";
+import { createInlineWorkerFromString } from "../../common/functions/createInlineWorkerFromString";
+//@ts-ignore
+import HeightfieldWorker from "./heightfield.worker.js";
 export default class HeightfieldClient {
   worker: any;
   working: boolean;
   workerUrl: string;
   constructor() {
     this.working = false;
-    // Creating blob out of worker script as a workaround.
-    const blob = new Blob([HeightfieldWorker])
-    this.workerUrl = URL.createObjectURL(blob)
-    this.worker = new Worker(this.workerUrl);
+    this.worker = createInlineWorkerFromString(HeightfieldWorker);
   }
   initWorker() {
     
@@ -41,7 +39,7 @@ export default class HeightfieldClient {
         this.worker.terminate();
         // @ts-ignore
         if (process.browser) {
-          this.worker = new Worker(this.workerUrl);
+          this.worker = createInlineWorkerFromString(HeightfieldWorker);
         }
         const error = new Error("Canceled heightfield generation.");
         error["aborted"] = true;

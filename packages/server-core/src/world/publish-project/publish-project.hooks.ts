@@ -1,9 +1,9 @@
 import * as authentication from '@feathersjs/authentication';
 import { disallow } from 'feathers-hooks-common';
 import { HookContext } from '@feathersjs/feathers';
-import attachOwnerIdInSavingContact from '@xr3ngine/server-core/src/hooks/set-loggedin-user-in-body';
-import setResponseStatusCode from '@xr3ngine/server-core/src/hooks/set-response-status-code';
-import mapProjectIdToQuery from '@xr3ngine/server-core/src/hooks/set-project-id-in-query';
+import attachOwnerIdInSavingContact from '@xrengine/server-core/src/hooks/set-loggedin-user-in-body';
+import setResponseStatusCode from '@xrengine/server-core/src/hooks/set-response-status-code';
+import mapProjectIdToQuery from '@xrengine/server-core/src/hooks/set-project-id-in-query';
 import generateSceneCollection from '../project/generate-collection.hook';
 
 const { authenticate } = authentication.hooks;

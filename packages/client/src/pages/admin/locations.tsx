@@ -1,12 +1,11 @@
-import React, { useEffect }  from 'react';
+import AdminConsole from '@xrengine/client-core/src/admin/components';
+import { doLoginAuto } from "@xrengine/client-core/src/user/reducers/auth/service";
+import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
-import Dashboard  from "@xr3ngine/client-core/src/user/components/Dashboard/Dashboard";
 import { bindActionCreators, Dispatch } from 'redux';
-import {doLoginAuto} from "@xr3ngine/client-core/src/user/reducers/auth/service";
-import AdminConsole from '@xr3ngine/client-core/src/admin/components';
 
 interface Props {
-    doLoginAuto?: any;
+  doLoginAuto?: any;
 }
 
 const mapStateToProps = (state: any): any => {
@@ -15,21 +14,19 @@ const mapStateToProps = (state: any): any => {
 };
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
-    doLoginAuto: bindActionCreators(doLoginAuto, dispatch)
+  doLoginAuto: bindActionCreators(doLoginAuto, dispatch)
 });
 
 function locations(props: Props) {
-    const { doLoginAuto} = props;
-  
-    useEffect(() => {
-      doLoginAuto(true);
-    }, []);
+  const { doLoginAuto } = props;
 
-    return (
-        <Dashboard>
-           <AdminConsole />
-        </Dashboard>
-    );
+  useEffect(() => {
+    doLoginAuto(true);
+  }, []);
+
+  return (
+    <AdminConsole />
+  );
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(locations);

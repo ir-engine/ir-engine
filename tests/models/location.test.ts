@@ -1,7 +1,7 @@
 import app from '../../packages/server/src/app'
 
 describe('CRUD operation on \'Location\' model', () => {
-  const model = app.service('location').Model
+  const model = (app.service('location') as any).Model
 
   beforeAll(async () => {
     await model.destroy({

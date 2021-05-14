@@ -48,24 +48,27 @@ export class ClientInputSystem extends System {
     PROCESS_INPUT: 'CLIENT_INPUT_SYSTEM_PROCESS_EVENT',
   }
 
-  updateType = SystemUpdateType.Fixed;
+  static instance: ClientInputSystem;
+
+  updateType = SystemUpdateType.Free;
   needSend = false;
   switchId = 1;
   boundListeners: ListenerBindingData[] = [];
-  onProcessInput: any;
-  static mouseInputEnabled = true;
-  static keyboardInputEnabled = true;
+  mouseInputEnabled = true;
+  keyboardInputEnabled = true;
 
-  constructor(attributes?: SystemAttributes) {
+  constructor(attributes: SystemAttributes = {}) {
     super(attributes);
-    this.onProcessInput = attributes.onProcessInput;
+
+    ClientInputSystem.instance = this;
+
     ClientInputSchema.onAdded.forEach(behavior => {
       behavior.behavior();
     });
 
     EngineEvents.instance.addEventListener(ClientInputSystem.EVENTS.ENABLE_INPUT, ({ keyboard, mouse }) => {
-      if(typeof keyboard !== 'undefined') ClientInputSystem.keyboardInputEnabled = keyboard;
-      if(typeof mouse !== 'undefined') ClientInputSystem.mouseInputEnabled = mouse;
+      if(typeof keyboard !== 'undefined') ClientInputSystem.instance.keyboardInputEnabled = keyboard;
+      if(typeof mouse !== 'undefined') ClientInputSystem.instance.mouseInputEnabled = mouse;
     })
 
 
@@ -115,7 +118,8 @@ export class ClientInputSystem extends System {
     });
     this.boundListeners.forEach(({ domElement, eventName, listener }) => {
       domElement.removeEventListener(eventName, listener);
-    })
+    });
+    EngineEvents.instance.removeAllListenersForEvent(ClientInputSystem.EVENTS.ENABLE_INPUT);
   }
 
   /**
@@ -126,7 +130,6 @@ export class ClientInputSystem extends System {
   public execute(delta: number): void {
     handleGamepads();
     const newState = new Map();
-
     Engine.inputState.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
       if (!Engine.prevInputState.has(key)) {
         return;
@@ -134,6 +137,7 @@ export class ClientInputSystem extends System {
 
       if (value.type === InputType.BUTTON) {
         const prevValue = Engine.prevInputState.get(key);
+        // auto ENDED when event not continue
         if (
           prevValue.lifecycleState === LifecycleValue.STARTED &&
           value.lifecycleState === LifecycleValue.STARTED
@@ -142,7 +146,6 @@ export class ClientInputSystem extends System {
           value.lifecycleState = LifecycleValue.CONTINUED;
           Engine.inputState.set(key, value);
         }
-        return;
       }
 
       if (value.lifecycleState === LifecycleValue.ENDED) {

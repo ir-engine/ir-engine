@@ -1,3 +1,4 @@
+import { Vector3 } from 'three';
 import { BinaryValue } from '../../common/enums/BinaryValue';
 import { LifecycleValue } from '../../common/enums/LifecycleValue';
 import { getBit } from '../../common/functions/bitFunctions';
@@ -13,8 +14,8 @@ import { BaseInput } from '../../input/enums/BaseInput';
 import { InputType } from '../../input/enums/InputType';
 import { InputValue } from '../../input/interfaces/InputValue';
 import { InputAlias } from '../../input/types/InputAlias';
-import { CharacterComponent, RUN_SPEED, WALK_SPEED } from "../../templates/character/components/CharacterComponent";
-import { CHARACTER_STATES } from '../../templates/character/state/CharacterStates';
+import { CharacterComponent } from "../../character/components/CharacterComponent";
+import { CHARACTER_STATES } from '../../character/state/CharacterStates';
 import { initiateIK, stopIK } from '../../xr/functions/IKFunctions';
 import { Network } from '../classes/Network';
 import { NetworkObject } from '../components/NetworkObject';
@@ -23,6 +24,9 @@ import { NetworkSchema } from "../interfaces/NetworkSchema";
 import { NetworkClientInputInterface } from "../interfaces/WorldState";
 import { ClientInputModel } from '../schema/clientInputSchema';
 import { WorldStateModel } from '../schema/worldStateSchema';
+import { GamePlayer } from '../../game/components/GamePlayer';
+import { sendState } from '../../game/functions/functionsState';
+
 
 // function switchInputs(clientInput) {
 //   if (hasComponent(Network.instance.networkObjects[clientInput.networkId].component.entity, PlayerInCar)) {
@@ -31,6 +35,7 @@ import { WorldStateModel } from '../schema/worldStateSchema';
 //     return clientInput.networkId;
 //   }
 // }
+
 
 export function cancelAllInputs(entity) {
   getMutableComponent(entity, Input)?.data.forEach((value) => {
@@ -71,7 +76,6 @@ export class ServerNetworkIncomingSystem extends System {
     const { schema, app } = attributes;
     Network.instance.schema = schema;
     // Instantiate the provided transport (SocketWebRTCClientTransport / SocketWebRTCServerTransport by default)
-    console.log("*********** SERVER NETWORKING TRANSPORT")
     Network.instance.transport = new schema.transport(app);
     // Buffer model for worldState
     //  Network.instance.snapshotModel = new Model(snapshotSchema)
@@ -88,9 +92,9 @@ export class ServerNetworkIncomingSystem extends System {
   /** Call execution on server */
   execute = (delta: number): void => {
     // Create a new worldstate frame for next tick
-    Network.tick++;
+    Network.instance.tick++;
     Network.instance.worldState = {
-      tick: Network.tick,
+      tick: Network.instance.tick,
       time: 0,
       transforms: [],
       ikTransforms: [],
@@ -100,7 +104,7 @@ export class ServerNetworkIncomingSystem extends System {
       createObjects: Network.instance.createObjects,
       editObjects: Network.instance.editObjects,
       destroyObjects: Network.instance.destroyObjects,
-      gameState: Network.instance.gameStateActions.length > 0 ? JSON.stringify(Network.instance.gameState) : [],
+      gameState: Network.instance.gameState,//.length > 0 ? JSON.stringify(Network.instance.gameState) : [],
       gameStateActions: Network.instance.gameStateActions
     };
 
@@ -109,13 +113,14 @@ export class ServerNetworkIncomingSystem extends System {
     Network.instance.createObjects = [];
     Network.instance.editObjects = [];
     Network.instance.destroyObjects = [];
+    Network.instance.gameState = [];
     Network.instance.gameStateActions = [];
 
     // Set input values on server to values sent from clients
     // Parse incoming message queue
     while (Network.instance.incomingMessageQueue.getBufferLength() > 0) {
       const buffer = Network.instance.incomingMessageQueue.pop() as any;
-      
+
       let clientInput: NetworkClientInputInterface;
       try {
         clientInput = ClientInputModel.fromBuffer(buffer);
@@ -146,7 +151,19 @@ export class ServerNetworkIncomingSystem extends System {
         return;
       }
 
+      if (clientInput.clientGameAction.length > 0) {
+        clientInput.clientGameAction.forEach( action => {
+          if (action.type === 'require') {
+            const entity = Network.instance.networkObjects[clientInput.networkId].component.entity;
+            const playerComp = getComponent<GamePlayer>(entity, GamePlayer);
+            if (playerComp === undefined) return;
+            sendState(playerComp.game, playerComp);
+          }
+        })
+      }
+
       const actor = getMutableComponent(Network.instance.networkObjects[clientInput.networkId].component.entity, CharacterComponent);
+
       if (actor) {
         actor.viewVector.set(
           clientInput.viewVector.x,
@@ -154,6 +171,7 @@ export class ServerNetworkIncomingSystem extends System {
           clientInput.viewVector.z
         );
         updateCharacterState(Network.instance.networkObjects[clientInput.networkId].component.entity, clientInput.characterState);
+
       } else {
         console.log('input but no actor...', clientInput.networkId)
       }
@@ -166,7 +184,7 @@ export class ServerNetworkIncomingSystem extends System {
 
       const networkObject = getMutableComponent(Network.instance.networkObjects[clientInput.networkId].component.entity, NetworkObject);
       networkObject.snapShotTime = clientInput.snapShotTime;
-
+      if (networkObject.snapShotTime > clientInput.snapShotTime) return;
       // clientInput.networkId = switchInputs(clientInput);
       const delegatedInputReceiver = getComponent(Network.instance.networkObjects[clientInput.networkId].component.entity, DelegatedInputReceiver);
 
@@ -182,14 +200,18 @@ export class ServerNetworkIncomingSystem extends System {
       input.data.clear();
 
       // Apply button input
-      for (let i = 0; i < clientInput.buttons.length; i++)
+      for (let i = 0; i < clientInput.buttons.length; i++) {
+
+      //  console.warn(clientInput.buttons[i].input, ['start','continue','end'][clientInput.buttons[i].lifecycleState], 'value: '+clientInput.buttons[i].value);
+
+
         input.data.set(clientInput.buttons[i].input,
           {
             type: InputType.BUTTON,
             value: clientInput.buttons[i].value,
             lifecycleState: clientInput.buttons[i].lifecycleState
           });
-
+        }
       // Axis 1D input
       for (let i = 0; i < clientInput.axes1d.length; i++)
         input.data.set(clientInput.axes1d[i].input,
@@ -225,27 +247,30 @@ export class ServerNetworkIncomingSystem extends System {
             lifecycleState: LifecycleValue.CONTINUED
           });
         }
+
+        handleInputFromNonLocalClients(Network.instance.networkObjects[clientInput.networkId].component.entity, { isLocal: false, isServer: true }, delta);
       }
 
     // Apply input for local user input onto client
     this.queryResults.networkObjectsWithInput.all?.forEach(entity => {
-      const actor = getMutableComponent(entity, CharacterComponent);
-      // Call behaviors associated with input
-      handleInputFromNonLocalClients(entity, { isLocal: false, isServer: true }, delta);
-      // addInputToWorldStateOnServer(entity);
-      const input = getMutableComponent(entity, Input);
-      // Get input object attached
-      const isWalking = (input.data.get(BaseInput.WALK)?.value) === BinaryValue.ON;
-      if(actor) actor.moveSpeed = isWalking ? WALK_SPEED : RUN_SPEED;
+    //  const actor = getMutableComponent(entity, CharacterComponent);
+    const input = getMutableComponent(entity, Input);
 
-      // clean processed LifecycleValue.ENDED inputs
-      input.data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
-        if (value.type === InputType.BUTTON) {
-          if (value.lifecycleState === LifecycleValue.ENDED) {
-            input.data.delete(key);
-          }
+    input.data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
+      // If the input is a button
+      if (value.type === InputType.BUTTON) {
+        // If the input exists on the input map (otherwise ignore it)
+        if (value.lifecycleState === LifecycleValue.ENDED) {
+          input.data.delete(key);
         }
-      });
+      }
+    });
+
+      // Call behaviors associated with input
+      //handleInputFromNonLocalClients(entity, { isLocal: false, isServer: true }, delta);
+      // addInputToWorldStateOnServer(entity);
+      //const input = getMutableComponent(entity, Input);
+      // Get input object attached
     });
 
     // Called when input component is added to entity

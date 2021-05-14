@@ -1,12 +1,13 @@
 import { Vector3, Quaternion, Matrix4 } from 'three';
 import { Behavior } from '../../common/interfaces/Behavior';
 import { Entity } from '../../ecs/classes/Entity';
-import { getComponent } from '../../ecs/functions/EntityFunctions';
+import { addComponent, getComponent } from '../../ecs/functions/EntityFunctions';
 import { createNetworkRigidBody } from '../../interaction/prefabs/NetworkRigidBody';
-import { createVehicleFromModel } from '../../templates/vehicle/prefabs/NetworkVehicle';
+import { createVehicleFromModel } from '../../vehicle/prefabs/NetworkVehicle';
 import { TransformComponent } from "../../transform/components/TransformComponent";
-import { addColliderWithoutEntity } from './addColliderWithoutEntity';
-
+import { addColliderWithoutEntity } from './colliderCreateFunctions';
+import { BodyType } from "three-physx";
+import { ColliderComponent } from '../components/ColliderComponent';
 /**
  * @author HydraFire <github.com/HydraFire>
  */
@@ -51,7 +52,7 @@ export function plusParameter(posM, queM, scaM, posE, queE, scaE): [Vector3, Qua
 
 // createStaticColliders
 export function createStaticCollider(mesh) {
-  // console.log('****** Collider from Model, type: '+mesh.userData.type);
+  // console.log('****** createStaticCollider: '+mesh.userData.type);
 
   if (mesh.type == 'Group') {
     for (let i = 0; i < mesh.children.length; i++) {
@@ -64,11 +65,15 @@ export function createStaticCollider(mesh) {
 // only clean colliders from model Function
 export const clearFromColliders: Behavior = (entity: Entity, args: any) => {
   const arr = [];
-  const parseColliders = (mesh) => mesh.userData.data === 'physics' || mesh.userData.data === 'dynamic' || mesh.userData.type === 'trimesh' || mesh.userData.type === 'sphere' ? arr.push(mesh): '';
+  const parseColliders = (mesh) => mesh.userData.data === 'physics' || mesh.userData.data === 'kinematic' || mesh.userData.data === 'dynamic' || mesh.userData.type === 'trimesh' || mesh.userData.type === 'sphere' ? arr.push(mesh): '';
   // its for diferent files with models
   args.asset.scene ? args.asset.scene.traverse(parseColliders) : args.asset.traverse(parseColliders);
   // its for delete mesh from view scene
-  arr.forEach(v => v.parent.remove(v));
+//
+  if (args.onlyHide)
+    arr.forEach(v => v.visible = false);
+  else
+    arr.forEach(v => v.parent.remove(v));
 }
 
 // parse Function
@@ -76,21 +81,33 @@ export const parseModelColliders: Behavior = (entity: Entity, args: any) => {
   const arr = [];
   const parseColliders = (mesh) => {
     // have user data physics its our case
-    if (mesh.userData.data === 'physics' || mesh.userData.data === 'dynamic' || mesh.userData.data === 'vehicle') {
+    if (mesh.userData.data === 'physics' || mesh.userData.data === 'kinematic' || mesh.userData.data === 'dynamic' || mesh.userData.data === 'vehicle') {
       // add position from editor to mesh
       plusParametersFromEditorToMesh(entity, mesh);
       // its for delete mesh from view scene
       mesh.userData.data === 'vehicle' ? '' : arr.push(mesh);
       // parse types of colliders
       switch (mesh.userData.data) {
-
         case 'physics':
           createStaticCollider( mesh );
+          break;
+
+        case 'kinematic':
+          addComponent(entity, ColliderComponent, {
+            bodytype:  BodyType.KINEMATIC,
+            type: mesh.userData.type,
+            position: mesh.position,
+            quaternion: mesh.quaternion,
+            scale: mesh.scale,
+            mesh: mesh.userData.type === 'trimesh' ? mesh : null,
+            mass: mesh.userData.mass ?? 1
+          })
           break;
 
         case 'dynamic':
           createNetworkRigidBody({
             parameters: {
+              bodytype: BodyType.DYNAMIC,
               type: mesh.userData.type,
               scale: mesh.scale,
               position: mesh.position,

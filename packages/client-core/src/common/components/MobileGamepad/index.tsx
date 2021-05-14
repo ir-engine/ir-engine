@@ -1,5 +1,7 @@
 import { TouchApp } from '@styled-icons/material/TouchApp';
-import { GamepadAxis, GamepadButtons } from "@xr3ngine/engine/src/input/enums/InputEnums";
+import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents';
+import { GamepadAxis, GamepadButtons } from "@xrengine/engine/src/input/enums/InputEnums";
+import { ClientInputSystem } from '@xrengine/engine/src/input/systems/ClientInputSystem';
 import nipplejs from 'nipplejs';
 import React, { FunctionComponent, useEffect, useRef } from 'react';
 // @ts-ignore
@@ -43,6 +45,13 @@ export const MobileGamepad: FunctionComponent<MobileGamepadProps> = ({ hovered }
       color: 'white',      
       size: size,
       dynamicPage: true
+    });
+    const targetElement = stickLeft[0].ui.el;
+    targetElement.addEventListener('touchstart', (ev) => {
+      EngineEvents.instance.dispatchEvent({ type: ClientInputSystem.EVENTS.ENABLE_INPUT,  mouse: false });
+    });
+    targetElement.addEventListener('touchend', (ev) => {
+      EngineEvents.instance.dispatchEvent({ type: ClientInputSystem.EVENTS.ENABLE_INPUT,  mouse: true });
     });
 
     stickLeft.on("move", ( e, data) => {

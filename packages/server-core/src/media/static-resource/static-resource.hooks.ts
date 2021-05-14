@@ -1,10 +1,10 @@
 import { HookContext } from '@feathersjs/feathers';
 import { hooks } from '@feathersjs/authentication';
 import dauria from 'dauria';
-import removeRelatedResources from '@xr3ngine/server-core/src/hooks/remove-related-resources';
-import collectAnalytics from '@xr3ngine/server-core/src/hooks/collect-analytics';
-import addAssociations from '@xr3ngine/server-core/src/hooks/add-associations';
-import replaceThumbnailLink from '@xr3ngine/server-core/src/hooks/replace-thumbnail-link';
+import removeRelatedResources from '@xrengine/server-core/src/hooks/remove-related-resources';
+import collectAnalytics from '@xrengine/server-core/src/hooks/collect-analytics';
+import addAssociations from '@xrengine/server-core/src/hooks/add-associations';
+import replaceThumbnailLink from '@xrengine/server-core/src/hooks/replace-thumbnail-link';
 
 const { authenticate } = hooks;
 

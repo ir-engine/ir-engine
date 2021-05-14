@@ -1,5 +1,6 @@
 import {
-  LinearEncoding, NearestFilter,
+  LinearToneMapping,
+  NearestFilter,
   PCFSoftShadowMap,
   PerspectiveCamera,
   RGBFormat,
@@ -24,7 +25,20 @@ import { SSAOEffect } from './postprocessing/SSAOEffect';
 import { TextureEffect } from './postprocessing/TextureEffect';
 import { PostProcessingSchema } from './postprocessing/PostProcessingSchema';
 import { EngineEvents } from '../ecs/classes/EngineEvents';
-import PostProcessing, { effectType } from '../scene/classes/PostProcessing';
+import PostProcessing, { defaultPostProcessingSchema, effectType } from '../scene/classes/PostProcessing';
+import { ShaderPass } from './postprocessing/passes/ShaderPass';
+import { isBrowser } from '../common/functions/getEnvironment';
+import { ClientStorage } from '../common/classes/ClientStorage';
+
+export enum RENDERER_SETTINGS {
+  AUTOMATIC = 'automatic',
+  PBR = 'usePBR',
+  POST_PROCESSING = 'usePostProcessing',
+  SHADOW_QUALITY = 'shadowQuality',
+  SCALE_FACTOR = 'scaleFactor',
+}
+
+const databasePrefix = 'graphics-settings-';
 
 export class WebGLRendererSystem extends System {
   
@@ -38,10 +52,11 @@ export class WebGLRendererSystem extends System {
 
   /** Is system Initialized. */
   static instance: WebGLRendererSystem;
+  csm: CSM;
 
-  static composer: EffectComposer
+  composer: EffectComposer
   /** Is resize needed? */
-  static needsResize: boolean
+  needsResize: boolean
 
   /** Postprocessing schema. */
   postProcessingSchema: PostProcessingSchema
@@ -59,12 +74,12 @@ export class WebGLRendererSystem extends System {
   /** point at which we downgrade quality level (large delta) */
   minRenderDelta = 1000 / 50 // 50 fps
 
-  static automatic = true;
-  static usePBR = true;
-  static usePostProcessing = true;
-  static shadowQuality = 5; 
+  automatic = true;
+  usePBR = true;
+  usePostProcessing = true;
+  shadowQuality = 5; 
   /** Resoulion scale. **Default** value is 1. */
-  static scaleFactor = 1;
+  scaleFactor = 1;
 
   renderPass: RenderPass;
   renderContext: WebGLRenderingContext;
@@ -72,13 +87,14 @@ export class WebGLRendererSystem extends System {
   forcePostProcessing = false;
   
   /** Constructs WebGL Renderer System. */
-  constructor(attributes?: SystemAttributes) {
+  constructor(attributes: SystemAttributes = {}) {
     super(attributes);
 
     WebGLRendererSystem.instance = this;
 
     this.onResize = this.onResize.bind(this);
 
+    this._supportWebGL2 = !((window as any).iOS || (window as any).safariWebBrowser);
     
     let context;
     const canvas = attributes.canvas;
@@ -87,7 +103,9 @@ export class WebGLRendererSystem extends System {
       context = canvas.getContext("webgl2", { antialias: true });
     } catch (error) {
       context = canvas.getContext("webgl", { antialias: true });
+      this._supportWebGL2 = false;
     }
+
     this.renderContext = context;
     const options = {
       canvas,
@@ -102,8 +120,9 @@ export class WebGLRendererSystem extends System {
     renderer.physicallyCorrectLights = true;
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = PCFSoftShadowMap;
-    renderer.outputEncoding = sRGBEncoding; // need this if postprocessing is not used
-
+    renderer.outputEncoding = sRGBEncoding;
+    renderer.toneMapping = LinearToneMapping;
+    renderer.toneMappingExposure = 0.8;
     Engine.renderer = renderer;
 
     // Cascaded shadow maps
@@ -117,22 +136,19 @@ export class WebGLRendererSystem extends System {
     });
     csm.fade = true;
 
-    Engine.csm = csm;
+    this.csm = csm;
 
     window.addEventListener('resize', this.onResize, false);
     this.onResize();
 
-    WebGLRendererSystem.needsResize = true;
-    WebGLRendererSystem.usePostProcessing=false;
-    loadGraphicsSettingsFromStorage();
+    this.needsResize = true;
 
     // if we turn PostPro off, don't turn it back on, if we turn it on, let engine manage it
-    this.forcePostProcessing = attributes.postProcessing 
-    this.setUsePostProcessing(attributes.postProcessing);
-    this.setShadowQuality(this.qualityLevel);
-    this.setResolution(WebGLRendererSystem.scaleFactor);
-    this.setUseAutomatic(WebGLRendererSystem.automatic);
-    WebGLRendererSystem.composer = new EffectComposer(Engine.renderer);
+    if(!this._supportWebGL2) {
+      this.setUsePostProcessing(false);
+    }
+    
+    this.composer = new EffectComposer(Engine.renderer);
 
     EngineEvents.instance.addEventListener(WebGLRendererSystem.EVENTS.SET_POST_PROCESSING, (ev: any) => {
       this.setUsePostProcessing(ev.payload);
@@ -151,16 +167,26 @@ export class WebGLRendererSystem extends System {
     });
   }
 
+  async initialize() {
+    await this.loadGraphicsSettingsFromStorage();
+    this.dispatchSettingsChangeEvent();
+  }
+
   /** Called on resize, sets resize flag. */
   onResize(): void {
-    WebGLRendererSystem.needsResize = true;
+    this.needsResize = true;
   }
 
   /** Removes resize listener. */
   dispose(): void {
     super.dispose();
-    WebGLRendererSystem.composer?.dispose();
+    this.composer?.dispose();
     window.removeEventListener('resize', this.onResize);
+    EngineEvents.instance.removeAllListenersForEvent(WebGLRendererSystem.EVENTS.SET_POST_PROCESSING);
+    EngineEvents.instance.removeAllListenersForEvent(WebGLRendererSystem.EVENTS.SET_RESOLUTION);
+    EngineEvents.instance.removeAllListenersForEvent(WebGLRendererSystem.EVENTS.SET_SHADOW_QUALITY);
+    EngineEvents.instance.removeAllListenersForEvent(WebGLRendererSystem.EVENTS.SET_USE_AUTOMATIC);
+    EngineEvents.instance.removeAllListenersForEvent(EngineEvents.EVENTS.ENABLE_SCENE);
   }
 
   /**
@@ -168,13 +194,12 @@ export class WebGLRendererSystem extends System {
     * Note: Post processing effects are set in the PostProcessingSchema provided to the system.
     * @param entity The Entity holding renderer component.
     */
-  public configurePostProcessing(postProcessingSchema:PostProcessingSchema=PostProcessing.defaultOptions): void {
-    this.postProcessingSchema=postProcessingSchema;
-    WebGLRendererSystem.usePostProcessing=true;
+  public configurePostProcessing(postProcessingSchema:PostProcessingSchema = defaultPostProcessingSchema): void {
+    this.postProcessingSchema = postProcessingSchema;
     this.renderPass = new RenderPass(Engine.scene, Engine.camera);
     this.renderPass.scene = Engine.scene;
     this.renderPass.camera = Engine.camera;
-    WebGLRendererSystem.composer.addPass(this.renderPass);
+    this.composer.addPass(this.renderPass);
     // This sets up the render
     const passes: any[] = [];
     const normalPass = new NormalPass(this.renderPass.scene, this.renderPass.camera, { renderTarget: new WebGLRenderTarget(1, 1, {
@@ -201,7 +226,7 @@ export class WebGLRendererSystem extends System {
           else if (effect === OutlineEffect) {
               const eff = new effect(Engine.scene, Engine.camera, pass)
               passes.push(eff);
-              WebGLRendererSystem.composer.outlineEffect = eff;
+              this.composer.outlineEffect = eff;
           }
           else passes.push(new effect(pass))
       })
@@ -210,9 +235,11 @@ export class WebGLRendererSystem extends System {
 			texture: depthDownsamplingPass.texture
 		});
     if (passes.length) {
-      WebGLRendererSystem.composer.addPass(depthDownsamplingPass);
-      WebGLRendererSystem.composer.addPass(new EffectPass(Engine.camera, ...passes, textureEffect));
+      this.composer.addPass(depthDownsamplingPass);
+      this.composer.addPass(new EffectPass(Engine.camera, ...passes, textureEffect));
     }
+    // const gammaCorrectionPass = new ShaderPass(GammaCorrectionShader);
+    // this.composer.addPass(gammaCorrectionPass);
   }
 
   /**
@@ -224,14 +251,14 @@ export class WebGLRendererSystem extends System {
 
     if(Engine.renderer.xr.isPresenting) {
 
-      Engine.csm.update();
+      this.csm.update();
       Engine.renderer.render(Engine.scene, Engine.camera);
 
     } else {
       
-      if (WebGLRendererSystem.needsResize) {
+      if (this.needsResize) {
         const curPixelRatio = Engine.renderer.getPixelRatio();
-        const scaledPixelRatio = window.devicePixelRatio * WebGLRendererSystem.scaleFactor;
+        const scaledPixelRatio = window.devicePixelRatio * this.scaleFactor;
     
         if (curPixelRatio !== scaledPixelRatio) Engine.renderer.setPixelRatio(scaledPixelRatio);
     
@@ -244,16 +271,15 @@ export class WebGLRendererSystem extends System {
           cam.updateProjectionMatrix();
         }
     
-        Engine.csm.updateFrustums();
+        this.csm.updateFrustums();
         Engine.renderer.setSize(width, height, false);
-        WebGLRendererSystem.composer.setSize(width, height, false);
-        WebGLRendererSystem.needsResize = false;
+        this.composer.setSize(width, height, false);
+        this.needsResize = false;
       }
 
-      Engine.csm.update();
-
-      if (WebGLRendererSystem.usePostProcessing) {
-        WebGLRendererSystem.composer.render(delta);
+      this.csm.update();
+      if (this.usePostProcessing && this.postProcessingSchema) {
+        this.composer.render(delta);
       } else {
         Engine.renderer.render(Engine.scene, Engine.camera);
       }
@@ -262,7 +288,7 @@ export class WebGLRendererSystem extends System {
     const lastTime = now();
     const deltaRender = (lastTime - startTime);
 
-    if(WebGLRendererSystem.automatic) {
+    if(this.automatic) {
       this.changeQualityLevel(deltaRender);
     }
   }
@@ -300,8 +326,6 @@ export class WebGLRendererSystem extends System {
       this.setResolution((this.qualityLevel) / 5);
       if(this.forcePostProcessing)
         this.setUsePostProcessing(this.qualityLevel > 1);
-      this.dispatchSettingsChangeEvent();
-      saveGraphicsSettingsToStorage();
       this.prevQualityLevel = this.qualityLevel;
     }
   }
@@ -309,91 +333,62 @@ export class WebGLRendererSystem extends System {
   dispatchSettingsChangeEvent() {
     EngineEvents.instance.dispatchEvent({ 
       type: WebGLRendererSystem.EVENTS.QUALITY_CHANGED,
-      shadows: WebGLRendererSystem.shadowQuality,
-      resolution: WebGLRendererSystem.scaleFactor,
-      postProcessing: WebGLRendererSystem.usePostProcessing,
-      pbr: WebGLRendererSystem.usePBR,
-      automatic: true
+      shadows: this.shadowQuality,
+      resolution: this.scaleFactor,
+      postProcessing: this.usePostProcessing,
+      pbr: this.usePBR,
+      automatic: this.automatic
     });
   }
 
   setUseAutomatic(automatic) {
-    WebGLRendererSystem.automatic = automatic;
-    if(WebGLRendererSystem.automatic) {
+    this.automatic = automatic;
+    if(this.automatic) {
       this.prevQualityLevel = -1;
       this.setShadowQuality(this.qualityLevel);
       this.setResolution((this.qualityLevel) / 5);
       if(this.forcePostProcessing)
         this.setUsePostProcessing(this.qualityLevel > 1);
-      this.dispatchSettingsChangeEvent();
     }
-    saveGraphicsSettingsToStorage();
+    ClientStorage.set(databasePrefix + RENDERER_SETTINGS.AUTOMATIC, this.automatic);
   }
 
   setResolution(resolution) {
-    WebGLRendererSystem.scaleFactor = resolution;
-    Engine.renderer.setPixelRatio(window.devicePixelRatio * WebGLRendererSystem.scaleFactor);
-    WebGLRendererSystem.needsResize = true;
-    saveGraphicsSettingsToStorage();
+    this.scaleFactor = resolution;
+    Engine.renderer.setPixelRatio(window.devicePixelRatio * this.scaleFactor);
+    this.needsResize = true;
+    ClientStorage.set(databasePrefix + RENDERER_SETTINGS.SCALE_FACTOR, this.scaleFactor);
   }
 
   setShadowQuality(shadowSize) {
-    WebGLRendererSystem.shadowQuality = shadowSize;
+    this.shadowQuality = shadowSize;
     let mapSize = 512;
-    switch(WebGLRendererSystem.shadowQuality) {
+    switch(this.shadowQuality) {
       default: break;
       case this.maxQualityLevel - 2: mapSize = 1024; break;
       case this.maxQualityLevel - 1: mapSize = 2048; break;
       case this.maxQualityLevel: mapSize = Engine.renderer.xr.isPresenting ? 2048 : 4096; break;
     }
-    Engine.csm.setShadowMapSize(mapSize);
-    saveGraphicsSettingsToStorage();
+    this.csm.setShadowMapSize(mapSize);
+    ClientStorage.set(databasePrefix + RENDERER_SETTINGS.SHADOW_QUALITY, this.shadowQuality);
   }
 
   setUsePostProcessing(usePostProcessing) {
+    if(!this._supportWebGL2) return;
     if(Engine.renderer?.xr?.isPresenting) return;
-    WebGLRendererSystem.usePostProcessing = usePostProcessing;
-    Engine.renderer.outputEncoding = WebGLRendererSystem.usePostProcessing ? LinearEncoding : sRGBEncoding;
-    saveGraphicsSettingsToStorage();
+    this.usePostProcessing = usePostProcessing;
+    Engine.renderer.outputEncoding = this.usePostProcessing ? sRGBEncoding : sRGBEncoding;
+    Engine.renderer.toneMapping = this.usePostProcessing ? LinearToneMapping : LinearToneMapping;
+    Engine.renderer.toneMappingExposure = this.usePostProcessing ? 1 : 1;
+    ClientStorage.set(databasePrefix + RENDERER_SETTINGS.POST_PROCESSING, this.usePostProcessing);
+  }
+  async loadGraphicsSettingsFromStorage() {
+    this.automatic = await ClientStorage.get(databasePrefix + RENDERER_SETTINGS.AUTOMATIC) as boolean ?? true;
+    this.scaleFactor = await ClientStorage.get(databasePrefix + RENDERER_SETTINGS.SCALE_FACTOR) as number ?? 1;
+    this.shadowQuality = await ClientStorage.get(databasePrefix + RENDERER_SETTINGS.SHADOW_QUALITY) as number ?? 5;
+    // this.usePBR = await ClientStorage.get(databasePrefix + RENDERER_SETTINGS.PBR) as boolean ?? true; // TODO: implement PBR setting
+    this.usePostProcessing = await ClientStorage.get(databasePrefix + RENDERER_SETTINGS.POST_PROCESSING) as boolean ?? false;
   }
 }
 
-export const saveGraphicsSettingsToStorage = () =>{
-  // localStorage.setItem('graphics-settings', JSON.stringify({
-  //   resolution: WebGLRendererSystem.scaleFactor,
-  //   shadows: WebGLRendererSystem.shadowQuality,
-  //   automatic: WebGLRendererSystem.automatic,
-  //   pbr: WebGLRendererSystem.usePBR,
-  //   postProcessing: WebGLRendererSystem.usePostProcessing,
-  // }))
-}
-
-export const getGraphicsSettingsFromStorage = () => {
-  // const loadedGraphicsSettings = JSON.parse(localStorage.getItem('graphics-settings') || '{}');
-  // const verifiedGraphicsSettings = {
-  //   resolution: WebGLRendererSystem.scaleFactor,
-  //   shadows: WebGLRendererSystem.shadowQuality,
-  //   automatic: WebGLRendererSystem.automatic,
-  //   pbr: WebGLRendererSystem.usePBR,
-  //   postProcessing: WebGLRendererSystem.usePostProcessing,
-  // };
-  // Object.keys(verifiedGraphicsSettings).forEach((key) => {
-  //   if(typeof loadedGraphicsSettings[key] === typeof verifiedGraphicsSettings[key]) {
-  //     verifiedGraphicsSettings[key] = loadedGraphicsSettings[key];
-  //   }
-  // })
-  // return verifiedGraphicsSettings;
-}
-
-export const loadGraphicsSettingsFromStorage = () => {
-  // const verifiedGraphicsSettings = getGraphicsSettingsFromStorage();
-  // WebGLRendererSystem.scaleFactor = verifiedGraphicsSettings.resolution;
-  // WebGLRendererSystem.shadowQuality = verifiedGraphicsSettings.shadows;
-  // WebGLRendererSystem.automatic = verifiedGraphicsSettings.automatic;
-  // WebGLRendererSystem.usePBR = verifiedGraphicsSettings.pbr;
-  // WebGLRendererSystem.usePostProcessing = verifiedGraphicsSettings.postProcessing;
-  WebGLRendererSystem.instance.dispatchSettingsChangeEvent();
-}
-
-WebGLRendererSystem.queries = {
-};
+WebGLRendererSystem.queries = {};

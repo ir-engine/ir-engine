@@ -8,7 +8,7 @@ export default () => {
     const { id, method, data, params, app } = context;
     const loggedInUser = extractLoggedInUserFromParams(params);
     if (method === 'remove' || method === 'patch') {
-      const match = await app.service('message').Model.findOne({
+      const match = await (app.service('message') as any).Model.findOne({
         where: {
           id: id,
           senderId: loggedInUser.userId

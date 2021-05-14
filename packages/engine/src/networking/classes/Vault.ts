@@ -78,6 +78,10 @@ export class Vault {
     this.vault.push(snapshot);
   }
 
+  clear() {
+    this.vault = [];
+  }
+
   /**
    * Get the current capacity (size) of the vault.
    * @returns Current capacity (size) of the vault.
