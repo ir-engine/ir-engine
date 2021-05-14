@@ -10,7 +10,11 @@ import styles from './ShareForm.module.scss';
 import { Plugins } from '@capacitor/core';
 import { useTranslation } from 'react-i18next';
 import { selectPopupsState } from '../../reducers/popupsState/selector';
+
+import styles from './ShareForm.module.scss'
+
 const { Share } = Plugins;
+
 
 const mapStateToProps = (state: any): any => {
   return {
@@ -64,26 +68,29 @@ const ShareForm = ({updateShareFormState, popupsState}:Props) => {
    };
 
    return  (
-    <div>
+    <div className={styles.shareFormContainer}>
     <Box
     display="flex"
     justifyContent="center"
     alignItems="center"
-   minHeight="50vh"
+   minHeight="45vh"
    >
  <CardMedia
-   className={classes.media}
+   className={classes.media+' '+styles.media}
    image='https://cdn.zeplin.io/601d63dc422d9dad3473e3ab/assets/14A023CD-2A56-4EDF-9D40-7B86746BF447.png'
    title="Arc"
+   style={{maxWidth: 'calc(100% - 36pt)'}}
  />
  </Box>
  <Button size="large" color="primary" onClick={shareVia} className={classes.btn_share}>
    {t('social:shareForm.shareVideo')}
  </Button>
- <Button size="large" color="primary" style={{width: '100%'}} onClick={() => {updateShareFormState(false);}} >
+ <Button size="large" color="primary" onClick={() => {updateShareFormState(false);}}
+   className={styles.btnAction}>
    {t('social:shareForm.save')}
  </Button>
- <Button size="large" color="primary" style={{width: '100%'}} onClick={() => {updateShareFormState(false);}} >
+ <Button size="large" color="primary" onClick={() => {updateShareFormState(false);}}
+  className={styles.btnDisableAction} >
    {t('social:shareForm.cancel')}
  </Button>
  </div>

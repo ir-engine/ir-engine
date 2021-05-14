@@ -72,7 +72,7 @@ const AppFooter = ({creatorState, getLoggedCreator, authState, updateCreatorPage
     <>
     <nav className={styles.footerContainer}>
         {/* <HomeIcon onClick={()=> {checkGuest ? setButtonPopup(true) : history.push('/');}} fontSize="large" className={styles.footerItem}/> */}
-        <HomeIcon onClick={()=> onGoHome()} fontSize="large" className={styles.footerItem}/>
+        <img src='/assets/tabBar.png' onClick={()=> onGoHome()} fontSize="large" className={styles.footerItem}/>
         {/* <PopupLogin trigger={buttonPopup} setTrigger={setButtonPopup}>
           <IndexPage />
         </PopupLogin> */}
@@ -84,8 +84,12 @@ const AppFooter = ({creatorState, getLoggedCreator, authState, updateCreatorPage
         {/* {creator && ( 
           <Avatar onClick={()=> {checkGuest ? setButtonPopup(true) : handleOpenCreatorPage(creator.id);}} 
           alt={creator.username} src={creator.avatar} />
-        )} */}      
-        <Avatar onClick={()=> {handleOpenCreatorPage(creatorState?.get('currentCreator')?.id);}} alt={creatorState.get('currentCreator')?.username} src={creatorState.get('currentCreator')?.avatar} />  
+        )} */}
+        <Avatar onClick={()=> {handleOpenCreatorPage(creatorState?.get('currentCreator')?.id);}}
+            alt={creatorState.get('currentCreator')?.username}
+            className={styles.footerAvatar}
+            src={creatorState.get('currentCreator')?.avatar ?
+            creatorState.get('currentCreator')?.avatar : '/assets/userpic.png'} />
     </nav>   
     </>
   );
