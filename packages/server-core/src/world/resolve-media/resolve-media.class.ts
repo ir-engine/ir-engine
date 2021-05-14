@@ -1,4 +1,5 @@
-import { Id, NullableId, Paginated, Params, ServiceMethods } from '@feathersjs/feathers';
+import { Id, NullableId, Params, ServiceMethods } from '@feathersjs/feathers';
+import Paginated from '../../types/PageObject';
 import { Application } from '../../../declarations';
 import { BadRequest } from '@feathersjs/errors';
 import StorageProvider from '../../media/storageprovider/storageprovider';
@@ -27,6 +28,8 @@ export class ResolveMedia implements ServiceMethods<Data> {
     this.models = this.app.get('sequelizeClient').models;
     this.storage = new StorageProvider().getStorage();
   }
+
+  async setup() {}
 
   async find (params?: Params): Promise<Data[] | Paginated<Data>> {
     return [];

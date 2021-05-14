@@ -1,4 +1,5 @@
-import { Id, NullableId, Paginated, Params, ServiceMethods } from '@feathersjs/feathers';
+import { Id, NullableId, Params, ServiceMethods } from '@feathersjs/feathers';
+import Paginated from '../../types/PageObject';
 import { Application } from '../../../declarations';
 import S3Provider from '../../media/storageprovider/s3.storage';
 import { assembleScene, populateScene } from './content-pack-helper';
@@ -37,6 +38,8 @@ export class ContentPack implements ServiceMethods<Data> {
     this.options = options;
     this.app = app;
   }
+
+  async setup() {}
 
   async find (params?: Params): Promise<any[] | Paginated<any>> {
     const result = await new Promise((resolve, reject) => {

@@ -18,7 +18,7 @@ export default () => {
           partyId: partyId,
           userId: userId
         }
-      }, paramsClone);
+      }, paramsClone as any);
       if (partyUserResult.total === 0) {
         console.log('INVALID PARTY ID');
         console.log(params);

@@ -163,16 +163,16 @@ export const initializeEngine = async (initOptions: InitializeOptions): Promise<
     return new Promise<void>(async (resolve) => { await system.initialize(); system.initialized = true; resolve(); }); 
   }));
 
-  // only start the engine once we have all our entities loaded
   EngineEvents.instance.once(EngineEvents.EVENTS.SCENE_LOADED, () => { 
     Engine.engineTimer = Timer({
       networkUpdate: (delta: number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Network),
       fixedUpdate: (delta: number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Fixed),
       update: (delta, elapsedTime) => execute(delta, elapsedTime, SystemUpdateType.Free)
-    }, Engine.physicsFrameRate, Engine.networkFramerate).start();
-    Engine.isInitialized = true;
+    }, Engine.physicsFrameRate, Engine.networkFramerate);
+
+    Engine.engineTimer.start();
   });
-    
+
   const engageType = isMobileOrTablet() ? 'touchstart' : 'click';
   const onUserEngage = () => {
     EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.USER_ENGAGE });
@@ -228,7 +228,9 @@ export const initializeEditor = async (initOptions: InitializeOptions): Promise<
     networkUpdate: (delta: number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Network),
     fixedUpdate: (delta: number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Fixed),
     update: (delta, elapsedTime) => execute(delta, elapsedTime, SystemUpdateType.Free)
-  }, Engine.physicsFrameRate, Engine.networkFramerate).start();
+  }, Engine.physicsFrameRate, Engine.networkFramerate);
+
+  Engine.engineTimer.start();
 
   Engine.isInitialized = true;
 };

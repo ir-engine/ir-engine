@@ -48,6 +48,7 @@ export class CharacterControllerSystem extends System {
   /** Removes resize listener. */
   dispose(): void {
     super.dispose();
+    EngineEvents.instance.removeAllListenersForEvent(CharacterControllerSystem.EVENTS.LOAD_AVATAR)
   }
 
   /**

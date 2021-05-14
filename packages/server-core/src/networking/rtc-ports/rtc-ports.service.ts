@@ -36,5 +36,5 @@ export default (app: Application): any => {
    */
   const service = app.service('rtc-ports');
 
-  service.hooks(hooks);
+  service.hooks(hooks as any);
 };

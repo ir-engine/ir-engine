@@ -68,7 +68,7 @@ export default (): Hook => {
         // }
       });
 
-      const children = await getAllChildren(staticResourceService, resourceId, 0);
+      const children = await getAllChildren(staticResourceService as any, resourceId, 0);
 
       const childRemovalPromises = children.map(async (child: any) => {
         // eslint-disable-next-line @typescript-eslint/no-misused-promises, no-async-promise-executor
@@ -92,7 +92,7 @@ export default (): Hook => {
         staticResourceChildrenRemovePromise
       ]);
 
-      await staticResourceService.Model.destroy({ // Remove static resource itself
+      await (staticResourceService as any).Model.destroy({ // Remove static resource itself
         where: {
           id: resourceId
         }

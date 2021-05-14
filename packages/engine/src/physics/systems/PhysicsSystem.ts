@@ -69,16 +69,13 @@ export class PhysicsSystem extends System {
       this.isSimulating = ev.enable;
       PhysXInstance.instance.startPhysX(ev.enable);
     });
-  }  
-  
-  async initialize() {
-    await PhysXInstance.instance.initPhysX(this.worker, this.physicsWorldConfig);
   }
 
   dispose(): void {
     super.dispose();
     this.frame = 0;
     this.broadphase = null;
+    EngineEvents.instance.removeAllListenersForEvent(PhysicsSystem.EVENTS.PORTAL_REDIRECT_EVENT);
   }
 
   execute(delta: number): void {

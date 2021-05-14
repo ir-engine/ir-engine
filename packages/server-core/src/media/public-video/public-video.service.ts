@@ -27,5 +27,5 @@ export default (app: Application): void => {
 
   const service = app.service('public-video');
 
-  service.hooks(hooks);
+  service.hooks(hooks as any);
 };

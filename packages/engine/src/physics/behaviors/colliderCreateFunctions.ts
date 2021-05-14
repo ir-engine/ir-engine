@@ -1,6 +1,6 @@
 import { PhysicsSystem } from '../systems/PhysicsSystem';
 import { CollisionGroups } from "../enums/CollisionGroups";
-import { createShapeFromConfig, Shape, SHAPES, Body, BodyType, getGeometry, arrayOfPointsToArrayOfVector3, CollisionEvents, ControllerEvents } from "three-physx";
+import { createShapeFromConfig, Shape, SHAPES, Body, BodyType, getGeometry, arrayOfPointsToArrayOfVector3 } from "three-physx";
 import { Entity } from '../../ecs/classes/Entity';
 import { ColliderComponent } from '../components/ColliderComponent';
 import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
@@ -109,7 +109,7 @@ export function addColliderWithoutEntity(userData, pos = new Vector3(), rot = ne
 
   }
 
-  const bodyConfig = new Body({
+  const body = new Body({
     shapes: [shape],
     type: userData.bodytype ?? BodyType.STATIC,
     transform: {
@@ -123,7 +123,7 @@ export function addColliderWithoutEntity(userData, pos = new Vector3(), rot = ne
 //  console.warn(userData.bodytype);
   //bodyConfig.addEventListener(CollisionEvents.COLLISION_START, (e) => { console.log(e)});
 
-  const body: Body = PhysicsSystem.instance.addBody(bodyConfig);
+  PhysicsSystem.instance.addBody(body);
 
   return body;
 }

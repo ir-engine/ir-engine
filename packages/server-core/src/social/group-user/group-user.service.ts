@@ -30,7 +30,7 @@ export default (app: Application): any => {
 
   const service = app.service('group-user');
 
-  service.hooks(hooks);
+  service.hooks(hooks as any);
 
   /**
    * A method which is used to create group user
@@ -44,7 +44,7 @@ export default (app: Application): any => {
       await app.service('group').emit('refresh', {
         userId: data.userId
       });
-      const channel = await app.service('channel').Model.findOne({
+      const channel = await (app.service('channel') as any).Model.findOne({
         where: {
           groupId: data.groupId
         }
@@ -98,7 +98,7 @@ export default (app: Application): any => {
    */
   service.publish('patched', async (data): Promise<any> => {
     try {
-      const channel = await app.service('channel').Model.findOne({
+      const channel = await (app.service('channel') as any).Model.findOne({
         where: {
           groupId: data.groupId
         }
@@ -154,7 +154,7 @@ export default (app: Application): any => {
    */
   service.publish('removed', async (data): Promise<any> => {
     try {
-      const channel = await app.service('channel').Model.findOne({
+      const channel = await (app.service('channel') as any).Model.findOne({
         where: {
           groupId: data.groupId
         }
