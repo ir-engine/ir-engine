@@ -124,7 +124,7 @@ export class Location extends Service {
         order: order,
         include: [
           {
-            model: this.app.service('instance').Model,
+            model: (this.app.service('instance') as any).Model,
             required: false,
             where: {
               currentUsers: {

@@ -32,6 +32,8 @@ export interface GameMode {
     [key: string]: {
       components: ComponentConstructor<Component<any>>[]
       storage: InitStorageInterface[]
+    } | {
+      behaviors: Behavior[]
     };
   };
   gamePlayerRoles: GameRolesInterface

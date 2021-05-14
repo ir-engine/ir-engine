@@ -1,12 +1,13 @@
 import { Vector3, Quaternion, Matrix4 } from 'three';
 import { Behavior } from '../../common/interfaces/Behavior';
 import { Entity } from '../../ecs/classes/Entity';
-import { getComponent } from '../../ecs/functions/EntityFunctions';
+import { getComponent, addComponent } from '../../ecs/functions/EntityFunctions';
 import { createNetworkRigidBody } from '../../interaction/prefabs/NetworkRigidBody';
 import { createVehicleFromModel } from '../../vehicle/prefabs/NetworkVehicle';
 import { TransformComponent } from "../../transform/components/TransformComponent";
 import { addColliderWithoutEntity } from './colliderCreateFunctions';
 import { BodyType } from "three-physx";
+import { ColliderComponent } from '../components/ColliderComponent';
 /**
  * @author HydraFire <github.com/HydraFire>
  */

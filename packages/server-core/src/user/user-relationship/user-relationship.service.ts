@@ -76,7 +76,7 @@ export default (app: Application): any => {
         }
       });
       if (data.userRelationshipType === 'friend' && inverseRelationship != null) {
-        const channel = await app.service('channel').Model.findOne({
+        const channel = await (app.service('channel') as any).Model.findOne({
           where: {
             [Op.or]: [
               {
@@ -152,7 +152,7 @@ export default (app: Application): any => {
 
   service.publish('removed', async (data): Promise<any> => {
     try {
-      const channel = await app.service('channel').Model.findOne({
+      const channel = await (app.service('channel') as any).Model.findOne({
         where: {
           [Op.or]: [
             {

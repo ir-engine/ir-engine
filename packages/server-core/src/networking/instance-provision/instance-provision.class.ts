@@ -67,7 +67,7 @@ export class InstanceProvision implements ServiceMethods<Data> {
    */
 
   async getGSInService(availableLocationInstances): Promise<any> {
-    const instanceModel = this.app.service('instance').Model;
+    const instanceModel = (this.app.service('instance') as any).Model;
     const instanceUserSort = _.sortBy(availableLocationInstances, (instance: typeof instanceModel) => instance.currentUsers);
     if (!config.kubernetes.enabled) {
       logger.info('Resetting local instance to ' + instanceUserSort[0].id);
@@ -147,7 +147,7 @@ export class InstanceProvision implements ServiceMethods<Data> {
             throw new BadRequest('Invalid user credentials');
           }
         }
-        const channelInstance = await this.app.service('instance').Model.findOne({
+        const channelInstance = await (this.app.service('instance') as any).Model.findOne({
           where: {
             channelId: channelId
           }
@@ -242,7 +242,7 @@ export class InstanceProvision implements ServiceMethods<Data> {
         //     }
         //   }
         // }
-        const friendsAtLocationResult = await this.app.service('user').Model.findAndCountAll({
+        const friendsAtLocationResult = await (this.app.service('user') as any).Model.findAndCountAll({
           include: [
             {
               model: this.app.service('user-relationship').Model,
@@ -252,7 +252,7 @@ export class InstanceProvision implements ServiceMethods<Data> {
               }
             },
             {
-              model: this.app.service('instance').Model,
+              model: (this.app.service('instance') as any).Model,
               where: {
                 locationId: locationId
               }
@@ -291,7 +291,7 @@ export class InstanceProvision implements ServiceMethods<Data> {
             port: ipAddressSplit[1]
           };
         }
-        const availableLocationInstances = await this.app.service('instance').Model.findAll({
+        const availableLocationInstances = await (this.app.service('instance') as any).Model.findAll({
           where: {
             locationId: location.id
           },

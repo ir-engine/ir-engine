@@ -53,7 +53,7 @@ export const NetworkDebug = ({ reinit  }) => {
     if (transport.channelSocket && typeof transport.channelSocket.disconnect === 'function') await transport.channelSocket.disconnect();
 
     resetEngine();
-  }
+  };
 
   if (isShowing) return (
     <div style={{ position: "absolute", overflowY: "auto", top: 0, zIndex: 100000, height: "auto", maxHeight: "95%", width: "auto", maxWidth: "50%" }}>

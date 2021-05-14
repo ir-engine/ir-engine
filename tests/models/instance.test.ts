@@ -1,7 +1,7 @@
 import app from '../../packages/server/src/app'
 
 describe('CRUD operation on \'Instance\' model', () => {
-  const model = app.service('instance').Model
+  const model = (app.service('instance') as any).Model
   const locationModel = app.service('location').Model
   let locationId: any
 

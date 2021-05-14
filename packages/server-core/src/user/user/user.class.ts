@@ -128,7 +128,7 @@ export class User extends Service {
       return foundUsers;
     } else if (action === 'friends') {
       const loggedInUser = extractLoggedInUserFromParams(params);
-      const userResult = await this.app.service('user').Model.findAndCountAll({
+      const userResult = await (this.app.service('user') as any).Model.findAndCountAll({
         offset: skip,
         limit: limit,
         order: [

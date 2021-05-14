@@ -3,7 +3,7 @@ import { Op } from 'sequelize'
 
 describe('CRUD operation on \'UserRelationship\' model', () => {
   const model = app.service('user-relationship').Model
-  const userModel = app.service('user').Model
+  const userModel = (app.service('user') as any).Model
   const userRelationshipTypeModel = app.service('user-relationship-type').Model
   let userId: any, relatedUserId: any, userRelationshipType: any
 

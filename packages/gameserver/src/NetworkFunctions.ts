@@ -63,7 +63,7 @@ export async function getFreeSubdomain(gsIdentifier: string, subdomainNumber: nu
 
 export async function cleanupOldGameservers(): Promise<void> {
     const transport = Network.instance.transport as any;
-    const instances = await transport.app.service('instance').Model.findAndCountAll({
+    const instances = await (transport.app.service('instance') as any).Model.findAndCountAll({
         offset: 0,
         limit: 1000
     });

@@ -41,7 +41,7 @@ export default (app: Application): any => {
    */
   service.publish('removed', async (data): Promise<any> => {
     try {
-      const admins = await app.service('user').Model.findAll({
+      const admins = await (app.service('user') as any).Model.findAll({
         where: {
           userRole: 'admin'
         }

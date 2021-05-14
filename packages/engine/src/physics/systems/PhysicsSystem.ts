@@ -69,10 +69,6 @@ export class PhysicsSystem extends System {
       this.isSimulating = ev.enable;
       PhysXInstance.instance.startPhysX(ev.enable);
     });
-  }  
-  
-  async initialize() {
-    await PhysXInstance.instance.initPhysX(this.worker, this.physicsWorldConfig);
   }
 
   async initialize() {
