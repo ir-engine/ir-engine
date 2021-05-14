@@ -176,7 +176,7 @@ const initializeCharacter: Behavior = (entity): void => {
 	const transform = getComponent(entity, TransformComponent);
 	// Physics
 	// TODO: This "any" is unnecessary and the type error should be fixed
-	(actor.actorCapsule as any) = addComponent(entity, ControllerColliderComponent, {
+	addComponent(entity, ControllerColliderComponent, {
 		mass: actor.actorMass,
 		position: transform.position,
 		height: actor.actorHeight,

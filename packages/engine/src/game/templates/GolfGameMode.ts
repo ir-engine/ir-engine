@@ -169,6 +169,16 @@ export const GolfGameMode: GameMode = {
           behavior: grabGolfClub,
           args: {  },
           watchers:[ [ HaveBeenInteracted ] ],
+          takeEffectOn: {
+            targetsRole: {
+              '1-Player': {
+                checkers:[{
+                  function: isPlayersInGame,
+                  args: { invert: false }
+                }]
+              }
+            }
+          }
         },
       ]
     },

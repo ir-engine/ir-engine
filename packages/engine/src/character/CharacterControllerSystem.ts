@@ -130,7 +130,7 @@ export class CharacterControllerSystem extends System {
       // console.log(collider.controller.transform.translation)
 
       const actorRaycastStart = new Vector3(collider.controller.transform.translation.x, collider.controller.transform.translation.y, collider.controller.transform.translation.z);
-      actor.raycastQuery.origin = new Vector3(actorRaycastStart.x, actorRaycastStart.y - (actor.actorCapsule.height * 0.5) - actor.actorCapsule.radius, actorRaycastStart.z);
+      actor.raycastQuery.origin = new Vector3(actorRaycastStart.x, actorRaycastStart.y - (collider.height * 0.5) - collider.radius, actorRaycastStart.z);
       actor.raycastQuery.direction = new Vector3(0, -1, 0);
       actor.closestHit = actor.raycastQuery.hits[0];
       actor.isGrounded = actor.closestHit ? true : collider.controller.collisions.down;

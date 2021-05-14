@@ -40,7 +40,7 @@ export interface GameMode {
 }
 
 export interface RoleBehaviorWithTarget {
-  sortMetod?: any,
+  sortMethod?: any,
   targetsRole: {
     [key: string]: {
       watchers?: ComponentConstructor<Component<any>>[][],

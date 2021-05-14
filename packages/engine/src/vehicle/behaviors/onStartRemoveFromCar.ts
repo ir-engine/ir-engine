@@ -9,6 +9,7 @@ import { PlayerInCar } from '../components/PlayerInCar';
 import { PhysicsSystem } from '../../physics/systems/PhysicsSystem';
 import { TransformComponent } from '../../transform/components/TransformComponent';
 import { VehicleComponent } from '../components/VehicleComponent';
+import { ControllerColliderComponent } from '../../character/components/ControllerColliderComponent';
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -40,15 +41,16 @@ function positionExit(entity, entityCar, seat) {
   const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
   const vehicle = getComponent<VehicleComponent>(entityCar, VehicleComponent);
   const transformCar = getComponent<TransformComponent>(entityCar, TransformComponent);
+  const collider = getMutableComponent<ControllerColliderComponent>(entity, ControllerColliderComponent)
 
   const position = new Vector3( ...vehicle.entrancesArray[seat] )
   .applyQuaternion(transformCar.rotation)
   .add(transformCar.position)
   .setY(transform.position.y)
 
-  actor.actorCapsule.controller.transform.translation.x = position.x;
-  actor.actorCapsule.controller.transform.translation.y = position.y;
-  actor.actorCapsule.controller.transform.translation.z = position.z;
+  collider.controller.transform.translation.x = position.x;
+  collider.controller.transform.translation.y = position.y;
+  collider.controller.transform.translation.z = position.z;
 
   transform.position.set(
     position.x,
@@ -56,7 +58,7 @@ function positionExit(entity, entityCar, seat) {
     position.z
   );
 
-  PhysicsSystem.instance.createController(actor.actorCapsule.controller);
+  PhysicsSystem.instance.createController(collider.controller);
 }
 
 

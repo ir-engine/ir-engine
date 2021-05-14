@@ -6,6 +6,7 @@ import { createNetworkRigidBody } from '../../../../interaction/prefabs/NetworkR
 import { addComponent } from '../../../../ecs/functions/EntityFunctions';
 import { onInteraction, onInteractionHover } from '../../../../scene/behaviors/createCommonInteractive';
 import { Interactable } from '../../../../interaction/components/Interactable';
+import { CollisionGroups } from '../../../../physics/enums/CollisionGroups';
 /**
  * @author HydraFire <github.com/HydraFire>
  */
@@ -14,6 +15,10 @@ export const addClub: Behavior = (entity: Entity, args?: any, delta?: number, en
   const shapeHandle: Shape = createShapeFromConfig({
     shape: SHAPES.Box,
     options: { boxExtents: { x: 0.05, y: 0.05, z: 0.25 } },
+    config: {
+      collisionLayer: CollisionGroups.Default,
+      collisionMask: CollisionGroups.All
+    }
   });
   const shapeHead: Shape = createShapeFromConfig({
     shape: SHAPES.Box,
@@ -21,11 +26,15 @@ export const addClub: Behavior = (entity: Entity, args?: any, delta?: number, en
     transform: new Transform({
       translation: { x: 0, y: 0.1, z: -1.7 }
     }),
+    config: {
+      collisionLayer: CollisionGroups.Default,
+      collisionMask: CollisionGroups.All
+    }
   });
   
   const body = new Body({
     shapes: [shapeHandle, shapeHead],
-    type: BodyType.KINEMATIC,
+    type: BodyType.DYNAMIC,
     transform: new Transform(),
   });
 
@@ -36,15 +45,4 @@ export const addClub: Behavior = (entity: Entity, args?: any, delta?: number, en
     parameters: { body, bodytype: BodyType.KINEMATIC },
     uniqueId:'golf-club' + entity.id
   })
-
-  const interactiveData = {
-    onInteraction: onInteraction,
-    onInteractionFocused: onInteractionHover,
-    onInteractionCheck: () => { return true },
-    data: {
-      interactionType: 'equippable'
-    }
-  };
-
-  addComponent(entity, Interactable, interactiveData);
 };
