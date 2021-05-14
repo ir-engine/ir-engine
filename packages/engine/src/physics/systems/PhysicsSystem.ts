@@ -17,7 +17,7 @@ import { isClient } from '../../common/functions/isClient';
 import { ColliderHitEvent, CollisionEvents, PhysXConfig, PhysXInstance } from "three-physx";
 import { addColliderWithEntity } from '../behaviors/colliderCreateFunctions';
 import { findInterpolationSnapshot } from '../behaviors/findInterpolationSnapshot';
-import { HaveBeenCollision } from "../../game/actions/HaveBeenCollision";
+import { HasHadCollision } from "../../game/actions/HasHadCollision";
 import { GameObject } from "../../game/components/GameObject";
 import { addActionComponent } from '../../game/functions/functionsActions';
 /**
@@ -110,7 +110,7 @@ export class PhysicsSystem extends System {
         const { type, bodySelf, bodyOther, shapeSelf, shapeOther } = event;
         console.warn(type, bodySelf, bodyOther, shapeSelf, shapeOther);
         if (hasComponent(entity, GameObject)) {
-          addActionComponent(entity, HaveBeenCollision);
+          addActionComponent(entity, HasHadCollision);
           console.warn(event, entity);
         }
         // TODO: figure out how we expose specific behaviors like this

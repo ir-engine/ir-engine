@@ -11,7 +11,7 @@ import { PanelUp } from "./gameDefault/components/PanelUpTagComponent";
 import { YourTurn } from "./Golf/components/YourTurnTagComponent";
 // game Action Tag Component
 import { HaveBeenInteracted } from "../../game/actions/HaveBeenInteracted";
-import { HaveBeenCollision } from "../../game/actions/HaveBeenCollision";
+import { HasHadCollision } from "../../game/actions/HasHadCollision";
 import { NextTurn } from "../../game/actions/NextTurn";
 // game behavior
 import { upDownButton } from "./gameDefault/behaviors/upDownButton";
@@ -201,12 +201,12 @@ export const GolfGameMode: GameMode = {
       'goal': [
         {
           behavior: giveGoalState,
-          watchers:[ [ HaveBeenCollision ] ],
+          watchers:[ [ HasHadCollision ] ],
           args: {},
         },
         {
           behavior: displayScore,
-          watchers:[ [ HaveBeenCollision ] ],
+          watchers:[ [ HasHadCollision ] ],
           args: {},
         },
       ]
