@@ -26,4 +26,9 @@ export interface NetworkTransport {
    * @param data Data to be sent.
    */
   sendReliableData(data: any): void;
+
+  /**
+   * Closes all the media soup transports
+   */
+  close(): void;
 }

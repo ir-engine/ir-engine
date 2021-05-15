@@ -129,6 +129,7 @@ export class Network {
   dispose(): void {
     // TODO: needs tests
     this.clients = {};
+    this.transport.close();
     this.transport = null;
     Network.availableNetworkId = 0;
     Network.instance = null;

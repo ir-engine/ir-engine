@@ -66,6 +66,13 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     return buf;
 }
 
+  close() {
+    this.instanceRecvTransport?.close();
+    this.instanceSendTransport?.close();
+    this.channelRecvTransport?.close();
+    this.channelSendTransport?.close();
+  }
+
   // This sends message on a data channel (data channel creation is now handled explicitly/default)
   sendData(data: any, instance = true): void {
     if (instance === true) {
