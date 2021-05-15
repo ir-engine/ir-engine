@@ -12,15 +12,14 @@ import { NetworkObjectUpdateType } from "../../networking/templates/NetworkObjec
 import { TransformChildComponent } from "../../transform/components/TransformChildComponent"
 import { TransformComponent } from "../../transform/components/TransformComponent"
 import { EquippedComponent } from "../components/EquippedComponent"
-import { EquippedStateUpdateSchema } from "../enums/EquippedEnums"
+import { EquippableAttachmentPoint, EquippedStateUpdateSchema } from "../enums/EquippedEnums"
 import { Object3DComponent } from "../../scene/components/Object3DComponent"
 
 export const equipEntity = (equipperEntity: Entity, equippedEntity: Entity, attachmentObject?: Object3D, attachmentTransform?: { position: Vector3, rotation: Quaternion }): void => {
-console.log(equipperEntity, equippedEntity, attachmentObject, attachmentTransform);
+
   if(hasComponent(equipperEntity, EquippedComponent) || !hasComponent(equippedEntity, NetworkObject)) return; // already equipped or has no collider
 
-  const attachementPoint = attachmentObject ?? getComponent(equipperEntity, Object3DComponent).value;
-  addComponent(equipperEntity, EquippedComponent, { equippedEntity: equippedEntity, attachmentObject: attachementPoint, attachmentTransform });
+  addComponent(equipperEntity, EquippedComponent, { equippedEntity: equippedEntity, attachmentPoint: EquippableAttachmentPoint.RIGHT_HAND });
   
   // all equippables must have a collider to grab by in VR
   const collider = getComponent(equippedEntity, ColliderComponent)

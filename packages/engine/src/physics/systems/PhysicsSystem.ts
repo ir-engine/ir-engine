@@ -14,7 +14,7 @@ import { ColliderComponent } from '../components/ColliderComponent';
 import { RigidBodyComponent } from "../components/RigidBody";
 import { InterpolationComponent } from "../components/InterpolationComponent";
 import { isClient } from '../../common/functions/isClient';
-import { ColliderHitEvent, CollisionEvents, PhysXConfig, PhysXInstance } from "three-physx";
+import { BodyType, ColliderHitEvent, CollisionEvents, PhysXConfig, PhysXInstance } from "three-physx";
 import { addColliderWithEntity } from '../behaviors/colliderCreateFunctions';
 import { findInterpolationSnapshot } from '../behaviors/findInterpolationSnapshot';
 
@@ -69,8 +69,8 @@ export class PhysicsSystem extends System {
       this.isSimulating = ev.enable;
       PhysXInstance.instance.startPhysX(ev.enable);
     });
-  }  
-  
+  }
+
   async initialize() {
     await PhysXInstance.instance.initPhysX(this.worker, this.physicsWorldConfig);
   }
@@ -85,11 +85,9 @@ export class PhysicsSystem extends System {
   execute(delta: number): void {
     this.queryResults.collider.added?.forEach(entity => {
       const collider = getComponent(entity, ColliderComponent);
-      if(!collider.body) {
+      if (!collider.body) {
         addColliderWithEntity(entity)
       }
-      /*
-      const collider = getComponent<ColliderComponent>(entity, ColliderComponent);
       collider.body.addEventListener(CollisionEvents.COLLISION_START, (ev: ColliderHitEvent) => {
         collider.collisions.push(ev);
       })
@@ -99,11 +97,9 @@ export class PhysicsSystem extends System {
       collider.body.addEventListener(CollisionEvents.COLLISION_END, (ev: ColliderHitEvent) => {
         collider.collisions.push(ev);
       })
-      */
     });
 
     this.queryResults.collider.all?.forEach(entity => {
-      /*
       const collider = getMutableComponent<ColliderComponent>(entity, ColliderComponent);
       // iterate on all collisions since the last update
       collider.collisions.forEach((event) => {
@@ -111,7 +107,11 @@ export class PhysicsSystem extends System {
         // TODO: figure out how we expose specific behaviors like this
       })
       collider.collisions = []; // clear for next loop
-      */
+
+      if (collider.body.type === BodyType.KINEMATIC) {
+        const transform = getComponent(entity, TransformComponent);
+        collider.body.updateTransform({ translation: transform.position, rotation: transform.rotation });
+      }
     });
 
     this.queryResults.collider.removed?.forEach(entity => {
@@ -124,24 +124,27 @@ export class PhysicsSystem extends System {
     // RigidBody
     // this.queryResults.rigidBody.added?.forEach(entity => {
     //   const colliderComponent = getComponent<ColliderComponent>(entity, ColliderComponent);
-      // console.log(colliderComponent.body)
+    // console.log(colliderComponent.body)
     // });
 
     this.queryResults.rigidBody.all?.forEach(entity => {
       if (!hasComponent(entity, ColliderComponent)) return;
       const collider = getComponent<ColliderComponent>(entity, ColliderComponent);
-      const transform = getComponent<TransformComponent>(entity, TransformComponent);
-      transform.position.set(
-        collider.body.transform.translation.x,
-        collider.body.transform.translation.y,
-        collider.body.transform.translation.z
-      );
-      transform.rotation.set(
-        collider.body.transform.rotation.x,
-        collider.body.transform.rotation.y,
-        collider.body.transform.rotation.z,
-        collider.body.transform.rotation.w
-      );
+      if (collider.body.type !== BodyType.KINEMATIC) {
+
+        const transform = getComponent<TransformComponent>(entity, TransformComponent);
+        transform.position.set(
+          collider.body.transform.translation.x,
+          collider.body.transform.translation.y,
+          collider.body.transform.translation.z
+        );
+        transform.rotation.set(
+          collider.body.transform.rotation.x,
+          collider.body.transform.rotation.y,
+          collider.body.transform.rotation.z,
+          collider.body.transform.rotation.w
+        );
+      }
     });
 
     if (isClient && Network.instance?.snapshot) {
@@ -170,7 +173,7 @@ export class PhysicsSystem extends System {
         const snapshot = findInterpolationSnapshot(entity, Network.instance.snapshot);
         if (snapshot == null) return;
         const collider = getMutableComponent(entity, ColliderComponent)
-        if (collider) {
+        if (collider && collider.body.type !== BodyType.KINEMATIC) {
           collider.body.updateTransform({
             translation: {
               x: snapshot.x,
@@ -187,6 +190,7 @@ export class PhysicsSystem extends System {
         }
       });
     }
+
     PhysXInstance.instance.update();
   }
 

@@ -111,9 +111,15 @@ export const loadActorAvatarFromURL: Behavior = (entity, avatarURL) => {
 			controller.controller.height = 1;
 		// }
 		actor.mixer = new AnimationMixer(actor.modelContainer.children[0]);
-		// if (hasComponent(entity, IKComponent)) {
-		// 	initiateIK(entity)
-		// }
+		if (hasComponent(entity, IKComponent)) {
+			// initiateIK(entity)
+
+      actor.modelContainer.children[0]?.traverse((child) => {
+        if(child.visible) {
+          child.visible = false;
+        }
+      })
+		}
 	});
 };
 

@@ -1,4 +1,4 @@
-import { Box3, Frustum, Matrix4, Mesh, Object3D, Scene, Vector3 } from "three";
+import { Box3, Frustum, Matrix4, Mesh, Object3D, Quaternion, Scene, Vector3 } from "three";
 import { FollowCameraComponent } from "../../camera/components/FollowCameraComponent";
 import { isClient } from "../../common/functions/isClient";
 import { vectorToScreenXYZ } from "../../common/functions/vectorToScreenXYZ";
@@ -28,6 +28,10 @@ import { InteractBehaviorArguments } from "../types/InteractionTypes";
 import { HaveBeenInteracted } from "../../game/actions/HaveBeenInteracted";
 import { addActionComponent } from '../../game/functions/functionsActions';
 import { EquippedComponent } from "../components/EquippedComponent";
+import { EquippableAttachmentPoint } from "../enums/EquippedEnums";
+
+const vector3 = new Vector3();
+const quat = new Quaternion();
 
 // but is works on client too, i will config out this
 export const interactOnServer: Behavior = (entity: Entity, args: any, delta): void => {
@@ -404,8 +408,20 @@ export class InteractiveSystem extends System {
     this.queryResults.equippable.all?.forEach(entity => {
       const equippedComponent = getComponent(entity, EquippedComponent);
       const equippableTransform = getComponent(equippedComponent.equippedEntity, TransformComponent);
-      equippableTransform.position.copy(equippedComponent.attachmentObject.position).add(equippedComponent.attachmentTransform.position);
-      equippableTransform.rotation.copy(equippedComponent.attachmentObject.quaternion).multiply(equippedComponent.attachmentTransform.rotation);
+      if(Engine.xrSession) {
+        if(equippedComponent.attachmentPoint === EquippableAttachmentPoint.RIGHT_HAND) {
+          Engine.renderer.xr.getController(0).getWorldPosition(vector3);
+          Engine.renderer.xr.getController(0).getWorldQuaternion(quat);
+        }
+      } else {
+        if(equippedComponent.attachmentPoint === EquippableAttachmentPoint.RIGHT_HAND) {
+          Engine.camera.getWorldPosition(vector3);
+          vector3.add(new Vector3(0, -0.3, 0.5))
+          Engine.camera.getWorldQuaternion(quat);
+        }
+      }
+      equippableTransform.position.copy(vector3);
+      equippableTransform.rotation.copy(quat);
     });
   }
 
