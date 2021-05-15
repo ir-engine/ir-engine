@@ -7,16 +7,12 @@ import { NetworkObject } from "../../networking/components/NetworkObject"
 import { sendClientObjectUpdate } from "../../networking/functions/sendClientObjectUpdate"
 import { ColliderComponent } from "../../physics/components/ColliderComponent"
 import { BodyType } from "three-physx"
-import { PhysicsSystem } from "../../physics/systems/PhysicsSystem"
 import { NetworkObjectUpdateType } from "../../networking/templates/NetworkObjectUpdateSchema"
-import { TransformChildComponent } from "../../transform/components/TransformChildComponent"
 import { TransformComponent } from "../../transform/components/TransformComponent"
 import { EquippedComponent } from "../components/EquippedComponent"
 import { EquippableAttachmentPoint, EquippedStateUpdateSchema } from "../enums/EquippedEnums"
-import { Object3DComponent } from "../../scene/components/Object3DComponent"
 
 export const equipEntity = (equipperEntity: Entity, equippedEntity: Entity, attachmentObject?: Object3D, attachmentTransform?: { position: Vector3, rotation: Quaternion }): void => {
-
   if(hasComponent(equipperEntity, EquippedComponent) || !hasComponent(equippedEntity, NetworkObject)) return; // already equipped or has no collider
 
   addComponent(equipperEntity, EquippedComponent, { equippedEntity: equippedEntity, attachmentPoint: EquippableAttachmentPoint.RIGHT_HAND });

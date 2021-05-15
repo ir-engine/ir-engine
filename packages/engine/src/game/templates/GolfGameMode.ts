@@ -23,7 +23,7 @@ import { addTurn } from "./Golf/behaviors/addTurn";
 import { applyTurn } from "./Golf/behaviors/applyTurn";
 import { nextTurn } from "./Golf/behaviors/nextTurn";
 import { addRestitution } from "./Golf/behaviors/addRestitution";
-import { unInteractiveToOthers } from "./Golf/behaviors/unInteractiveToOthers";
+import { disableInteractiveToOthers } from "./Golf/behaviors/disableInteractiveToOthers";
 // checkers
 import { isPlayersInGame } from "./gameDefault/checkers/isPlayersInGame";
 import { ifNamed } from "./gameDefault/checkers/ifNamed";
@@ -31,6 +31,7 @@ import { isOpen, isClosed } from "./gameDefault/checkers/isOpenIsClosed";
 import { isUp, isDown } from "./gameDefault/checkers/isUpIsDown";
 import { addClub } from "./Golf/behaviors/addClub";
 import { grabGolfClub } from "./Golf/behaviors/grabGolfClub";
+import { addGolfBallOwnership } from "./Golf/behaviors/addGolfBallOwnership";
 
 /**
  * @author HydraFire
@@ -58,7 +59,7 @@ export const GolfGameMode: GameMode = {
       behaviors: [addTurn]
     },
     'GolfBall': {
-      behaviors: [addRestitution, unInteractiveToOthers]
+      behaviors: [addRestitution, disableInteractiveToOthers, addGolfBallOwnership]
     },
     'GolfClub': {
       behaviors: [addClub]

@@ -415,9 +415,9 @@ export class InteractiveSystem extends System {
         }
       } else {
         if(equippedComponent.attachmentPoint === EquippableAttachmentPoint.RIGHT_HAND) {
-          Engine.camera.getWorldPosition(vector3);
-          vector3.add(new Vector3(0, -0.3, 0.5))
-          Engine.camera.getWorldQuaternion(quat);
+          const equipperTransform = getComponent(entity, TransformComponent);
+          vector3.copy(equipperTransform.position).add(new Vector3(0, -0.3, 0.5))
+          quat.copy(equipperTransform.rotation)
         }
       }
       equippableTransform.position.copy(vector3);
