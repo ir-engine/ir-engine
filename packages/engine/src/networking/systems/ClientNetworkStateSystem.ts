@@ -279,7 +279,8 @@ export class ClientNetworkStateSystem extends System {
             x: 0, y: 0, z: 0
           },
           characterState: hasComponent(entity, CharacterComponent) ? getComponent(entity, CharacterComponent).state : 0,
-          clientGameAction: Network.instance.clientGameAction
+          clientGameAction: Network.instance.clientGameAction,
+          transforms: []
         }
       });
     }

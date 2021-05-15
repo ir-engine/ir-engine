@@ -134,7 +134,8 @@ export class Network {
     snapShotTime: 0,
     // switchInputs: sendSwitchInputs ? this.switchId : 0,
     characterState: 0,
-    clientGameAction: []
+    clientGameAction: [],
+    transforms: []
   }
   
   /** Tick of the network. */

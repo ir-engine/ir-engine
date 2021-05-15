@@ -31,7 +31,6 @@ import { isOpen, isClosed } from "./gameDefault/checkers/isOpenIsClosed";
 import { isUp, isDown } from "./gameDefault/checkers/isUpIsDown";
 import { addClub } from "./Golf/behaviors/addClub";
 import { grabGolfClub } from "./Golf/behaviors/grabGolfClub";
-import { addGolfBallOwnership } from "./Golf/behaviors/addGolfBallOwnership";
 
 /**
  * @author HydraFire
@@ -59,10 +58,13 @@ export const GolfGameMode: GameMode = {
       behaviors: [addTurn]
     },
     'GolfBall': {
-      behaviors: [addRestitution, disableInteractiveToOthers, addGolfBallOwnership]
+      behaviors: [addRestitution, disableInteractiveToOthers]
     },
     'GolfClub': {
       behaviors: [addClub]
+    },
+    'GolfTee': {
+      behaviors: []
     },
     'StartGamePanel': {
       components: [PanelDown],
@@ -87,7 +89,10 @@ export const GolfGameMode: GameMode = {
     'newPlayer': {},
     '1-Player': {
       'MyTurn': [
-        { behavior: applyTurn, watchers:[ [ NextTurn ] ] }
+        { 
+          behavior: applyTurn,
+          watchers:[ [ NextTurn ] ],
+        }
       ],
       'hitBall': [
         {
@@ -164,6 +169,7 @@ export const GolfGameMode: GameMode = {
   },
   gameObjectRoles: {
     'GolfBall': {},
+    'GolfTee': {},
     'GolfClub': {
       'grab': [
         {

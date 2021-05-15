@@ -3,12 +3,7 @@ import { Entity } from '../../../../ecs/classes/Entity';
 import { Body, BodyType, createShapeFromConfig, Shape, SHAPES, Transform } from 'three-physx';
 import { PhysicsSystem } from '../../../../physics/systems/PhysicsSystem';
 import { createNetworkRigidBody } from '../../../../interaction/prefabs/NetworkRigidBody';
-import { addComponent, getComponent } from '../../../../ecs/functions/EntityFunctions';
-import { onInteraction, onInteractionHover } from '../../../../scene/behaviors/createCommonInteractive';
-import { Interactable } from '../../../../interaction/components/Interactable';
 import { CollisionGroups, DefaultCollisionMask } from '../../../../physics/enums/CollisionGroups';
-import { UserControlledColliderComponent } from '../../../../physics/components/UserControllerObjectComponent';
-import { NetworkObject } from '../../../../networking/components/NetworkObject';
 /**
  * @author HydraFire <github.com/HydraFire>
  */

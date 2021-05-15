@@ -15,5 +15,4 @@ export const handleObjectEquipped = (editObject: NetworkObjectEditInterface): vo
   } else {
     unequipEntity(entityEquipper);
   }
-
 }

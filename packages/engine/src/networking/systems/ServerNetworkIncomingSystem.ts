@@ -26,6 +26,8 @@ import { ClientInputModel } from '../schema/clientInputSchema';
 import { WorldStateModel } from '../schema/worldStateSchema';
 import { GamePlayer } from '../../game/components/GamePlayer';
 import { sendState } from '../../game/functions/functionsState';
+import { StateEntity, StateEntityGroup } from '../types/SnapshotDataTypes';
+import { ColliderComponent } from '../../physics/components/ColliderComponent';
 
 
 // function switchInputs(clientInput) {
@@ -46,9 +48,9 @@ export function cancelAllInputs(entity) {
 const updateCharacterState = (entity: Entity, newState: number) => {
   const actor = getMutableComponent(entity, CharacterComponent);
   const stateChanges = newState ^ actor.state; // xor to get state changes
-  if(getBit(stateChanges, CHARACTER_STATES.VR)) {
+  if (getBit(stateChanges, CHARACTER_STATES.VR)) {
     // do server VR stuff for actor
-    if(getBit(newState, CHARACTER_STATES.VR)) {
+    if (getBit(newState, CHARACTER_STATES.VR)) {
       initiateIK(entity)
     } else {
       stopIK(entity)
@@ -134,7 +136,7 @@ export class ServerNetworkIncomingSystem extends System {
           return;
         }
       }
-      if(!clientInput) return;
+      if (!clientInput) return;
 
       // TODO: Handle client incoming state actions
       // Are they host or not?
@@ -152,7 +154,7 @@ export class ServerNetworkIncomingSystem extends System {
       }
 
       if (clientInput.clientGameAction.length > 0) {
-        clientInput.clientGameAction.forEach( action => {
+        clientInput.clientGameAction.forEach(action => {
           if (action.type === 'require') {
             const entity = Network.instance.networkObjects[clientInput.networkId].component.entity;
             const playerComp = getComponent<GamePlayer>(entity, GamePlayer);
@@ -202,7 +204,7 @@ export class ServerNetworkIncomingSystem extends System {
       // Apply button input
       for (let i = 0; i < clientInput.buttons.length; i++) {
 
-      //  console.warn(clientInput.buttons[i].input, ['start','continue','end'][clientInput.buttons[i].lifecycleState], 'value: '+clientInput.buttons[i].value);
+        //  console.warn(clientInput.buttons[i].input, ['start','continue','end'][clientInput.buttons[i].lifecycleState], 'value: '+clientInput.buttons[i].value);
 
 
         input.data.set(clientInput.buttons[i].input,
@@ -211,7 +213,7 @@ export class ServerNetworkIncomingSystem extends System {
             value: clientInput.buttons[i].value,
             lifecycleState: clientInput.buttons[i].lifecycleState
           });
-        }
+      }
       // Axis 1D input
       for (let i = 0; i < clientInput.axes1d.length; i++)
         input.data.set(clientInput.axes1d[i].input,
@@ -231,7 +233,7 @@ export class ServerNetworkIncomingSystem extends System {
           });
 
       // Axis 6DOF input
-      for (let i = 0; i < clientInput.axes6DOF.length; i++){
+      for (let i = 0; i < clientInput.axes6DOF.length; i++) {
         input.data.set(clientInput.axes6DOF[i].input,
           {
             type: InputType.SIXDOF,
@@ -246,25 +248,46 @@ export class ServerNetworkIncomingSystem extends System {
             },
             lifecycleState: LifecycleValue.CONTINUED
           });
-        }
-
-        handleInputFromNonLocalClients(Network.instance.networkObjects[clientInput.networkId].component.entity, { isLocal: false, isServer: true }, delta);
       }
+
+      handleInputFromNonLocalClients(Network.instance.networkObjects[clientInput.networkId].component.entity, { isLocal: false, isServer: true }, delta);
+
+      clientInput.transforms?.forEach((transform: StateEntity) => {
+        const networkObject = Network.instance.networkObjects[transform.networkId];
+        console.log(transform, networkObject, Network.instance.clients[clientInput.networkId])
+        if(networkObject && networkObject.ownerId === Network.instance.clients[clientInput.networkId].userId) {
+          const collider = getComponent(networkObject.component.entity, ColliderComponent)
+          collider.body.updateTransform({
+            translation: {
+              x: transform.x,
+              y: transform.y,
+              z: transform.z,
+            },
+            rotation: {
+              x: transform.qX,
+              y: transform.qY,
+              z: transform.qZ,
+              w: transform.qW,
+            }
+          })
+        }
+      })
+    }
 
     // Apply input for local user input onto client
     this.queryResults.networkObjectsWithInput.all?.forEach(entity => {
-    //  const actor = getMutableComponent(entity, CharacterComponent);
-    const input = getMutableComponent(entity, Input);
+      //  const actor = getMutableComponent(entity, CharacterComponent);
+      const input = getMutableComponent(entity, Input);
 
-    input.data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
-      // If the input is a button
-      if (value.type === InputType.BUTTON) {
-        // If the input exists on the input map (otherwise ignore it)
-        if (value.lifecycleState === LifecycleValue.ENDED) {
-          input.data.delete(key);
+      input.data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
+        // If the input is a button
+        if (value.type === InputType.BUTTON) {
+          // If the input exists on the input map (otherwise ignore it)
+          if (value.lifecycleState === LifecycleValue.ENDED) {
+            input.data.delete(key);
+          }
         }
-      }
-    });
+      });
 
       // Call behaviors associated with input
       //handleInputFromNonLocalClients(entity, { isLocal: false, isServer: true }, delta);
@@ -299,7 +322,7 @@ export class ServerNetworkIncomingSystem extends System {
 
     this.queryResults.delegatedInputRouting.added?.forEach((entity) => {
       const networkId = getComponent(entity, DelegatedInputReceiver).networkId
-      if(Network.instance.networkObjects[networkId]) {
+      if (Network.instance.networkObjects[networkId]) {
         cancelAllInputs(Network.instance.networkObjects[networkId].component.entity)
       }
       cancelAllInputs(entity)
