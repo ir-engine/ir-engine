@@ -1,5 +1,5 @@
 import { PhysicsSystem } from '../systems/PhysicsSystem';
-import { CollisionGroups } from "../enums/CollisionGroups";
+import { CollisionGroups, DefaultCollisionMask } from "../enums/CollisionGroups";
 import { createShapeFromConfig, Shape, SHAPES, Body, BodyType, getGeometry, arrayOfPointsToArrayOfVector3 } from "three-physx";
 import { Entity } from '../../ecs/classes/Entity';
 import { ColliderComponent } from '../components/ColliderComponent';
@@ -100,7 +100,11 @@ export function addColliderWithoutEntity(userData, pos = new Vector3(), rot = ne
   // console.log('shape', shape);
 
   shape.config.collisionLayer = userData.collisionLayer ?? CollisionGroups.Default;
-  shape.config.collisionMask = userData.collisionMask ?? CollisionGroups.All;
+  shape.config.collisionMask = userData.collisionMask ?? DefaultCollisionMask;
+
+  if(userData.type === 'ground') {
+    shape.config.collisionLayer = CollisionGroups.Ground;
+  }
 
   if(userData.action === 'portal') {
     shape.config.collisionLayer |= CollisionGroups.TriggerCollider;

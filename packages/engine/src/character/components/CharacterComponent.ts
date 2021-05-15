@@ -6,7 +6,7 @@ import { Types } from '../../ecs/types/Types';
 import { RelativeSpringSimulator } from '../../physics/classes/SpringSimulator';
 import { VectorSpringSimulator } from '../../physics/classes/VectorSpringSimulator';
 import { ControllerColliderComponent } from './ControllerColliderComponent';
-import { CollisionGroups } from '../../physics/enums/CollisionGroups';
+import { CollisionGroups, DefaultCollisionMask } from '../../physics/enums/CollisionGroups';
 export class CharacterComponent extends Component<CharacterComponent> {
 
 	dispose(): void {
@@ -110,10 +110,10 @@ export class CharacterComponent extends Component<CharacterComponent> {
 	isJumping: boolean;
 	rotationSpeed: any;
 
-	collisionMask: number = CollisionGroups.Default | CollisionGroups.Car | CollisionGroups.TriggerCollider;
+	collisionMask: number;
 
 	static _schema = {
 		tiltContainer: { type: Types.Ref, default: null },
-		collisionMask: { type: Types.Number, default: CollisionGroups.Default | CollisionGroups.Car | CollisionGroups.TriggerCollider },
+		collisionMask: { type: Types.Number, default: DefaultCollisionMask },
 	};
 }
