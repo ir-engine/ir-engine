@@ -3,10 +3,7 @@ import { Entity } from '../../../../ecs/classes/Entity';
 import { Body, BodyType, createShapeFromConfig, Shape, SHAPES, Transform } from 'three-physx';
 import { PhysicsSystem } from '../../../../physics/systems/PhysicsSystem';
 import { createNetworkRigidBody } from '../../../../interaction/prefabs/NetworkRigidBody';
-import { addComponent } from '../../../../ecs/functions/EntityFunctions';
-import { onInteraction, onInteractionHover } from '../../../../scene/behaviors/createCommonInteractive';
-import { Interactable } from '../../../../interaction/components/Interactable';
-import { CollisionGroups } from '../../../../physics/enums/CollisionGroups';
+import { CollisionGroups, DefaultCollisionMask } from '../../../../physics/enums/CollisionGroups';
 /**
  * @author HydraFire <github.com/HydraFire>
  */
@@ -16,8 +13,8 @@ export const addClub: Behavior = (entity: Entity, args?: any, delta?: number, en
     shape: SHAPES.Box,
     options: { boxExtents: { x: 0.05, y: 0.05, z: 0.25 } },
     config: {
-      collisionLayer: CollisionGroups.Default,
-      collisionMask: CollisionGroups.All
+      collisionLayer: 1 << 6,
+      collisionMask: CollisionGroups.Ground
     }
   });
   const shapeHead: Shape = createShapeFromConfig({
@@ -27,8 +24,8 @@ export const addClub: Behavior = (entity: Entity, args?: any, delta?: number, en
       translation: { x: 0, y: 0.1, z: -1.7 }
     }),
     config: {
-      collisionLayer: CollisionGroups.Default,
-      collisionMask: CollisionGroups.All
+      collisionLayer: 1 << 6,
+      collisionMask: DefaultCollisionMask
     }
   });
   

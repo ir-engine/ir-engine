@@ -11,13 +11,5 @@ import { equipEntity } from '../../../../interaction/functions/equippableFunctio
 
 export const grabGolfClub: Behavior = (golfClubEntity: Entity, args?: any, delta?: number, playerEquippingEntity?: Entity, time?: number, checks?: any): void => {
   console.log('grabGolfClub', golfClubEntity, args, delta, playerEquippingEntity, time, checks)
-  if(Engine.xrSession) {
-    const xrinput = getComponent(playerEquippingEntity, XRInputReceiver)
-    equipEntity(playerEquippingEntity, golfClubEntity, xrinput.controllerGripRight, {
-      position: new Vector3(),
-      rotation: new Quaternion()
-    });
-  } else {
-    equipEntity(playerEquippingEntity, golfClubEntity);
-  }
+  equipEntity(playerEquippingEntity, golfClubEntity);
 };

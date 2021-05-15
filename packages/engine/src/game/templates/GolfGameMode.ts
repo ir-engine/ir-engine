@@ -23,7 +23,7 @@ import { addTurn } from "./Golf/behaviors/addTurn";
 import { applyTurn } from "./Golf/behaviors/applyTurn";
 import { nextTurn } from "./Golf/behaviors/nextTurn";
 import { addRestitution } from "./Golf/behaviors/addRestitution";
-import { unInteractiveToOthers } from "./Golf/behaviors/unInteractiveToOthers";
+import { disableInteractiveToOthers } from "./Golf/behaviors/disableInteractiveToOthers";
 // checkers
 import { isPlayersInGame } from "./gameDefault/checkers/isPlayersInGame";
 import { ifNamed } from "./gameDefault/checkers/ifNamed";
@@ -58,10 +58,13 @@ export const GolfGameMode: GameMode = {
       behaviors: [addTurn]
     },
     'GolfBall': {
-      behaviors: [addRestitution, unInteractiveToOthers]
+      behaviors: [addRestitution, disableInteractiveToOthers]
     },
     'GolfClub': {
       behaviors: [addClub]
+    },
+    'GolfTee': {
+      behaviors: []
     },
     'StartGamePanel': {
       components: [PanelDown],
@@ -86,7 +89,10 @@ export const GolfGameMode: GameMode = {
     'newPlayer': {},
     '1-Player': {
       'MyTurn': [
-        { behavior: applyTurn, watchers:[ [ NextTurn ] ] }
+        { 
+          behavior: applyTurn,
+          watchers:[ [ NextTurn ] ],
+        }
       ],
       'hitBall': [
         {
@@ -163,6 +169,7 @@ export const GolfGameMode: GameMode = {
   },
   gameObjectRoles: {
     'GolfBall': {},
+    'GolfTee': {},
     'GolfClub': {
       'grab': [
         {

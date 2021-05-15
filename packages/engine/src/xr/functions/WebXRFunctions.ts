@@ -36,16 +36,16 @@ export const startXR = async () => {
     // until retargeting is fixed, we can simply just not init IK
     // initiateIK(Network.instance.localClientEntity)
 
-    actor.modelContainer.children[0].traverse((child: Mesh) => {
-      if(child.isMesh) {
+    actor.modelContainer.children[0]?.traverse((child) => {
+      if(child.visible) {
         child.visible = false;
       }
     })
 
 
     head = Engine.renderer.xr.getCamera(Engine.camera);
-    controllerLeft = Engine.renderer.xr.getController(0);
-    controllerRight = Engine.renderer.xr.getController(1);
+    controllerLeft = Engine.renderer.xr.getController(1);
+    controllerRight = Engine.renderer.xr.getController(0);
     dolly.add(controllerLeft);
     dolly.add(controllerRight);
     // dolly.add(head);
@@ -76,8 +76,8 @@ export const startXR = async () => {
 
     })
 
-    controllerGripLeft = Engine.renderer.xr.getControllerGrip(0);
-    controllerGripRight = Engine.renderer.xr.getControllerGrip(1);
+    controllerGripLeft = Engine.renderer.xr.getControllerGrip(1);
+    controllerGripRight = Engine.renderer.xr.getControllerGrip(0);
 
     addComponent(Network.instance.localClientEntity, XRInputReceiver, {
       head: head,
