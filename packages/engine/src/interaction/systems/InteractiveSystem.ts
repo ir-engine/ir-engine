@@ -36,12 +36,13 @@ import { isServer } from "../../common/functions/isServer";
 import { BodyType } from "three-physx";
 import { BinaryValue } from "../../common/enums/BinaryValue";
 import { unequipEntity } from "../functions/equippableFunctions";
+import { ParityValue } from "../../common/enums/ParityValue";
 
 const vector3 = new Vector3();
 const quat = new Quaternion();
 
 // but is works on client too, i will config out this
-export const interactOnServer: Behavior = (entity: Entity, args: any, delta): void => {
+export const interactOnServer: Behavior = (entity: Entity, args: { side: ParityValue}, delta): void => {
   //console.warn('Behavior: interact , networkId ='+getComponent(entity, NetworkObject).networkId);
     let focusedArrays = [];
     for (let i = 0; i < Engine.entities.length; i++) {
@@ -77,17 +78,17 @@ export const interactOnServer: Behavior = (entity: Entity, args: any, delta): vo
     if (interactable.data.interactionType === "gameobject") {
       if (interactionFunction) {
         if (interactionCheck) {
-          addActionComponent(focusedArrays[0][0], HaveBeenInteracted);
+          addActionComponent(focusedArrays[0][0], HaveBeenInteracted, { args });
         }
       } else {
-        addActionComponent(focusedArrays[0][0], HaveBeenInteracted);
+        addActionComponent(focusedArrays[0][0], HaveBeenInteracted, { args });
       }
       return;
     }
     // Not Game Object
     if (interactionFunction && interactionCheck) {
     //  console.warn('start with networkId: '+getComponent(focusedArrays[0][0], NetworkObject).networkId+' seat: '+focusedArrays[0][2]);
-      interactable.onInteraction(entity, { currentFocusedPart: focusedArrays[0][2] }, delta, focusedArrays[0][0]);
+      interactable.onInteraction(entity, { ...args, currentFocusedPart: focusedArrays[0][2] }, delta, focusedArrays[0][0]);
     }
 }
 

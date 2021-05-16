@@ -4,17 +4,13 @@ import { addComponent, getComponent, hasComponent } from "../../ecs/functions/En
 import { Interactable } from "../../interaction/components/Interactable";
 import { InteractiveSystem } from "../../interaction/systems/InteractiveSystem";
 import { Object3DComponent } from "../components/Object3DComponent";
-import { EquippedComponent } from "../../interaction/components/EquippedComponent";
 import { equipEntity } from "../../interaction/functions/equippableFunctions";
-import { initializeNetworkObject } from "../../networking/functions/initializeNetworkObject";
 
 export const onInteraction: Behavior = (entityInitiator, args, delta, entityInteractive, time) => {
   const interactiveComponent = getComponent(entityInteractive, Interactable);
 
   if(interactiveComponent.data.interactionType === 'equippable') {
-    if(!hasComponent(entityInitiator, EquippedComponent)) {
-      equipEntity(entityInitiator, entityInteractive)
-    }
+    equipEntity(entityInitiator, entityInteractive)
   } else {
     EngineEvents.instance.dispatchEvent({type: InteractiveSystem.EVENTS.OBJECT_ACTIVATION, ...interactiveComponent.data });
   }

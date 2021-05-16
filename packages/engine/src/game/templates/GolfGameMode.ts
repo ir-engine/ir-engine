@@ -30,7 +30,9 @@ import { ifNamed } from "./gameDefault/checkers/ifNamed";
 import { isOpen, isClosed } from "./gameDefault/checkers/isOpenIsClosed";
 import { isUp, isDown } from "./gameDefault/checkers/isUpIsDown";
 import { addClub } from "./Golf/behaviors/addClub";
-import { grabGolfClub } from "./Golf/behaviors/grabGolfClub";
+import { grabEquippable } from "../../interaction/functions/grabEquippable";
+import { Interactable } from "../../interaction/components/Interactable";
+import { getComponent } from "../../ecs/functions/EntityFunctions";
 
 /**
  * @author HydraFire
@@ -173,8 +175,8 @@ export const GolfGameMode: GameMode = {
     'GolfClub': {
       'grab': [
         {
-          behavior: grabGolfClub,
-          args: {  },
+          behavior: grabEquippable,
+          args: (entityGolfclub) =>  { return { ...getComponent(entityGolfclub, HaveBeenInteracted).args } },
           watchers:[ [ HaveBeenInteracted ] ],
           takeEffectOn: {
             targetsRole: {
