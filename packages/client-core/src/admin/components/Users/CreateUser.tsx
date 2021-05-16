@@ -17,6 +17,7 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import { validationSchema } from "./validation";
 import { useFormik } from "formik";
 import { selectAuthState } from "../../../user/reducers/auth/selector";
+import { fetchAdminInstances } from '../../reducers/admin/service';
 
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -55,18 +56,18 @@ interface Props {
     handleClose: any;
     adminState?: any;
     createUserAction?: any;
-    authState: any;
+    authState?: any;
     editing: boolean;
     userEdit: any;
     patchUser?: any;
-    projects: Array<any>;
     fetchUserRole?: any;
+    fetchAdminInstances?: any
 }
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
     createUserAction: bindActionCreators(createUserAction, dispatch),
-    fetchUserRole: bindActionCreators(fetchUserRole, dispatch)
-
+    fetchUserRole: bindActionCreators(fetchUserRole, dispatch),
+    fetchAdminInstances: bindActionCreators(fetchAdminInstances, dispatch)
 });
 
 const mapStateToProps = (state: any): any => {
@@ -77,27 +78,43 @@ const mapStateToProps = (state: any): any => {
 };
 
 const CreateUser = (props: Props) => {
-    const { open, handleClose, createUserAction, authState, projects, fetchUserRole, adminState } = props;
+    const { open, handleClose, createUserAction, authState, fetchAdminInstances, fetchUserRole, adminState } = props;
     const classes = useStyles();
     const classesx = useStyle();
     const [status, setStatus] = React.useState('');
-    const [location, setLocation] = React.useState('');
     const [openCreateaUserRole, setOpenCreateUserRole] = React.useState(false);
+    const [instance, setInstance] = React.useState("");
 
     const user = authState.get("user");
     const userRole = adminState.get("userRole");
     const userRoleData = userRole ? userRole.get("userRole") : [];
+    const adminInstances = adminState.get('instances');
+    const instanceData = adminInstances.get("instances");
 
     React.useEffect(() => {
         const fetchData = async () => {
-                await fetchUserRole();
-        }; 
-        if((adminState.get('users').get('updateNeeded') === true) && user.id) fetchData();
+            await fetchUserRole();
+        };
+        if ((adminState.get('users').get('updateNeeded') === true) && user.id) fetchData();
+
+        if (user.id && adminInstances.get("updateNeeded")) {
+            fetchAdminInstances();
+        }
     }, [adminState, user]);
 
     const defaultProps = {
         options: userRoleData,
         getOptionLabel: (option: any) => option.role,
+    };
+
+    const data = [];
+    instanceData.forEach(element => {
+        data.push(element);
+    });
+
+    const InstanceProps = {
+        options: data,
+        getOptionLabel: (option: any) => option.ipAddress
     };
 
     const createUserRole = () => {
@@ -116,9 +133,14 @@ const CreateUser = (props: Props) => {
         onSubmit: async (values, { resetForm }) => {
             const data = {
                 name: values.name,
-                location,
+                instanceId: instance,
                 userRole: status,
             };
+
+            console.log('====================================');
+            console.log(data);
+            console.log('====================================');
+
             await createUserAction(data);
             handleClose(false);
             resetForm();
@@ -136,38 +158,48 @@ const CreateUser = (props: Props) => {
                 <Container maxWidth="sm" className={classes.marginTp}>
                     <DialogTitle id="form-dialog-title" className={classes.texAlign} >Create New User</DialogTitle>
                     <form onSubmit={formik.handleSubmit}>
-                    <TextField
-                        autoFocus
-                        margin="dense"
-                        id="name"
-                        label="Name"
-                        type="text"
-                        fullWidth
-                        value={formik.values.name}
-                        className={classes.marginBottm}
-                        onChange={formik.handleChange}
-                        error={formik.touched.name && Boolean(formik.errors.name)}
-                        helperText={formik.touched.name && formik.errors.name}
-                    />
+                        <TextField
+                            autoFocus
+                            margin="dense"
+                            id="name"
+                            label="Name"
+                            type="text"
+                            fullWidth
+                            value={formik.values.name}
+                            className={classes.marginBottm}
+                            onChange={formik.handleChange}
+                            error={formik.touched.name && Boolean(formik.errors.name)}
+                            helperText={formik.touched.name && formik.errors.name}
+                        />
 
-                    <Autocomplete
-                        onChange={(e, newValue) => setStatus(newValue.name as string)}
-                        {...defaultProps}
-                        id="debug"
-                        debug
-                        renderInput={(params) => <TextField {...params} label="User Role" className={classes.marginBottm} />}
-                    />
+                        <Autocomplete
+                            onChange={(e, newValue) => setStatus(newValue.name as string)}
+                            {...defaultProps}
+                            id="debug"
+                            debug
+                            renderInput={(params) => <TextField {...params} label="User Role" className={classes.marginBottm} />}
+                        />
 
-                    <DialogContentText className={classes.marginBottm}>  Don't see user role? <a href="#h" className={classes.textLink} onClick={createUserRole}>Create One</a>  </DialogContentText>
+                        <DialogContentText className={classes.marginBottm}>  Don't see user role? <a href="#h" className={classes.textLink} onClick={createUserRole}>Create One</a>  </DialogContentText>
 
-                    <DialogActions>
-                        <Button onClick={handleClose(false)} color="primary">
-                            Cancel
+                        <Autocomplete
+                            onChange={(e, newValue) => setInstance(newValue.id as string)}
+                            {...InstanceProps}
+                            id="debug"
+                            debug
+                            renderInput={(params) => <TextField {...params} label="Instance" className={classes.marginBottm} />}
+                        />
+
+                        <DialogContentText className={classes.marginBottm}>  Don't see Instance? <a href="/admin/instance" className={classes.textLink}>Create One</a>  </DialogContentText>
+
+                        <DialogActions>
+                            <Button onClick={handleClose(false)} color="primary">
+                                Cancel
                     </Button>
-                        <Button type="submit" color="primary">
-                            Submit
+                            <Button type="submit" color="primary">
+                                Submit
                     </Button>
-                    </DialogActions>
+                        </DialogActions>
                     </form>
                 </Container>
             </Drawer>
