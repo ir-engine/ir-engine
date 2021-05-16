@@ -6,6 +6,7 @@ import Button from '@material-ui/core/Button';
 import styles from '../Admin.module.scss';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import IntanceTable from './IntanceTable';
+import CreateInstance from "./CreateInstance";
 
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -18,6 +19,16 @@ const useStyles = makeStyles((theme: Theme) =>
 
 const Instance = () => {
     const classes = useStyles();
+    const [instanceModelOpen, setInstanceModelOpen] = React.useState(false);
+
+    const openModalCreate = () => {
+        setInstanceModelOpen(true);
+    };
+
+    const handleCreateInstanceClose = () => {
+        setInstanceModelOpen(false);
+    };
+
     return (
         <div>
             <Grid container spacing={3} className={classes.marginBottom}>
@@ -30,7 +41,7 @@ const Instance = () => {
                         type="submit"
                         variant="contained"
                         color="primary"
-                    // onClick={openModalCreate}
+                        onClick={openModalCreate}
                     >
                         Create New Instance
                     </Button>
@@ -39,9 +50,14 @@ const Instance = () => {
             
            <IntanceTable/>
 
+           <CreateInstance
+                    open={instanceModelOpen}
+                    handleClose={handleCreateInstanceClose}
+                />
+
         </div>
-    )
-}
+    );
+};
 
 
 export default Instance;

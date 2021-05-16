@@ -8,18 +8,22 @@ import TextField from '@material-ui/core/TextField';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from "redux";
 // @ts-ignore
-import styles from './Admin.module.scss';
+import styles from '../Admin.module.scss';
 import classNames from 'classnames';
-import { selectAppState } from '../../common/reducers/app/selector';
-import { selectAuthState } from '../../user/reducers/auth/selector';
-import { selectAdminState } from '../reducers/admin/selector';
-import { createInstance, fetchAdminInstances, patchInstance } from '../reducers/admin/service';
+import { selectAppState } from '../../../common/reducers/app/selector';
+import { selectAuthState } from '../../../user/reducers/auth/selector';
+import { selectAdminState } from '../../reducers/admin/selector';
+import { createInstance, fetchAdminInstances, patchInstance } from '../../reducers/admin/service';
+import Autocomplete from '@material-ui/lab/Autocomplete';
+import { makeStyles, Theme, createStyles } from "@material-ui/core/styles";
+import { fetchAdminLocations } from "../../reducers/admin/service";
+
 
 const mapStateToProps = (state: any): any => {
     return {
         appState: selectAppState(state),
         authState: selectAuthState(state),
-        adminState: selectAdminState(state)
+        adminState: selectAdminState(state),
     };
 };
 
@@ -27,6 +31,7 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
     createInstance: bindActionCreators(createInstance, dispatch),
     fetchAdminInstances: bindActionCreators(fetchAdminInstances, dispatch),
     patchInstance: bindActionCreators(patchInstance, dispatch),
+    fetchAdminLocations: bindActionCreators(fetchAdminLocations, dispatch),
 });
 
 interface Props {
@@ -37,8 +42,18 @@ interface Props {
     fetchAdminInstances?: any;
     editing: any;
     instanceEdit: any;
-    patchInstance?: any
+    patchInstance?: any;
+    fetchAdminLocations?: any;
+    authState?: any;
 }
+
+const useStyles = makeStyles((theme: Theme) =>
+    createStyles({
+        marginBottm: {
+            marginBottom: "15px"
+        }
+    })
+);
 
 /**
  * Function for create instance on admin dashboard 
@@ -49,6 +64,8 @@ interface Props {
  */
 
 function CreateInstance(props: Props) {
+    const classes = useStyles();
+
     const {
         open,
         handleClose,
@@ -56,11 +73,19 @@ function CreateInstance(props: Props) {
         fetchAdminInstances,
         editing,
         instanceEdit,
-        patchInstance
+        patchInstance,
+        authState,
+        fetchAdminLocations,
+        adminState
     } = props;
     const [ipAddress, setIpAddress] = useState('');
     const [curremtUser, setCurrentUser] = useState("");
+    const [location, setLocation] = useState("");
 
+
+    const user = authState.get('user');
+    const adminLocation = adminState.get('locations');
+    const locationData = adminLocation.get("locations");
     useEffect(() => {
         if (editing) {
             setIpAddress(instanceEdit.ipAddress);
@@ -70,13 +95,20 @@ function CreateInstance(props: Props) {
             setCurrentUser("");
         }
     }, [instanceEdit, editing]);
-    
+
+    useEffect(() => {
+        if (user?.id != null && adminLocation.get('updateNeeded') === true) {
+            fetchAdminLocations();
+        }
+    }, [authState, adminState]);
+
     const submitInstance = () => {
         const data = {
             ipAddress: ipAddress,
-            currentUsers: curremtUser
+            currentUsers: curremtUser,
+            locationId: location
         };
-        if(editing){
+        if (editing) {
             patchInstance(instanceEdit.id, data);
         } else {
             createInstance(data);
@@ -86,6 +118,11 @@ function CreateInstance(props: Props) {
 
         fetchAdminInstances();
         handleClose();
+    };
+
+    const defaultProps = {
+        options: locationData,
+        getOptionLabel: (option: any) => option.name,
     };
 
     return (
@@ -142,6 +179,15 @@ function CreateInstance(props: Props) {
                             value={curremtUser}
                             onChange={(e) => setCurrentUser(e.target.value)}
                         />
+
+                        <Autocomplete
+                            onChange={(e, newValue) => setLocation(newValue.id as string)}
+                            {...defaultProps}
+                            id="debug"
+                            debug
+                            renderInput={(params) => <TextField {...params} label="Locations" className={classes.marginBottm} />}
+                        />
+
                         <FormGroup row className={styles.locationModalButtons}>
                             {
                                 editing &&
