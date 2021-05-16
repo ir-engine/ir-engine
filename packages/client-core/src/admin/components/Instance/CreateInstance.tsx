@@ -19,6 +19,7 @@ import { makeStyles, Theme, createStyles } from "@material-ui/core/styles";
 import { fetchAdminLocations } from "../../reducers/admin/service";
 import { useFormik } from "formik";
 import { validationSchema } from "./validation";
+import DialogContentText from '@material-ui/core/DialogContentText';
 
 
 
@@ -54,6 +55,11 @@ const useStyles = makeStyles((theme: Theme) =>
     createStyles({
         marginBottm: {
             marginBottom: "15px"
+        },
+        textLink: {
+            marginLeft: "5px",
+            textDecoration: "none",
+            color: "#ff9966"
         }
     })
 );
@@ -200,6 +206,7 @@ function CreateInstance(props: Props) {
                         />
                         <TextField
                             variant="outlined"
+                            className={classes.marginBottm}
                             margin="normal"
                             fullWidth
                             id="maxUsers"
@@ -218,6 +225,8 @@ function CreateInstance(props: Props) {
                             debug
                             renderInput={(params) => <TextField {...params} label="Locations" className={classes.marginBottm} />}
                         />
+
+                        <DialogContentText className={classes.marginBottm}>  Don't see location? <a href="/admin/locations" className={classes.textLink}>Create new one</a>  </DialogContentText>
 
                         <FormGroup row className={styles.locationModalButtons}>
                             {

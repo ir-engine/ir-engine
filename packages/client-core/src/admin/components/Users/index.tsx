@@ -115,17 +115,17 @@ const Users = (props: Props) => {
         if( user?.id && (adminState.get("locations").get("updateNeeded") === true )) fetchAdminLocations();
     }, [adminState, user, fetchUsersAsAdmin]);
 
-    React.useEffect(()=> {
-        if(authUser?.accessToken != null && authUser.accessToken.length > 0 && user?.id != null) {
-           api.getProjects()
-              .then(project => {
-                 setProjects([...projects ,...project]);
-              })
-              .catch(error => {
-                  console.error(error);                 
-              });
-        }
-    }, [authUser, user]);
+    // React.useEffect(()=> {
+    //     if(authUser?.accessToken != null && authUser.accessToken.length > 0 && user?.id != null) {
+    //        api.getProjects()
+    //           .then(project => {
+    //              setProjects([...projects ,...project]);
+    //           })
+    //           .catch(error => {
+    //               console.error(error);                 
+    //           });
+    //     }
+    // }, [authUser, user]);
 
     const handleChange = (event: React.ChangeEvent<{}>, newValue: number) => {
         setValue(newValue);
@@ -184,12 +184,6 @@ const Users = (props: Props) => {
                         <UserTable adminUsers={adminUsers}/>
                     }
                 </TabPanel>
-                <TabPanel value={value} index={1}>
-                    FootBall
-            </TabPanel>
-                <TabPanel value={value} index={2}>
-                    Club Night
-            </TabPanel>
             </div>
 
             <UserModel
@@ -197,8 +191,6 @@ const Users = (props: Props) => {
                 handleClose={openModalCreate}
                 editing={userEditing}
                 userEdit={userEdit}
-                adminLocations={adminLocations}
-                projects={projects}
             />
         </div>
     );
