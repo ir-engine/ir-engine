@@ -50,6 +50,8 @@ export interface NetworkClientInputInterface extends NetworkInputInterface {
   snapShotTime: number,
   // switchInputs: number,
   characterState: number
+  /** transform of objects controller by user. */
+  transforms: StateEntityGroup
 }
 
 /** Interface for network client input packet. */

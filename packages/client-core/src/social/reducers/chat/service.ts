@@ -13,6 +13,7 @@ import {
   patchedChannel,
   removedChannel
 } from './actions';
+import waitForClientAuthenticated from "../../../util/wait-for-client-authenticated";
 
 import { User } from '@xrengine/common/src/interfaces/User';
 import Store from '../../../store';
@@ -25,14 +26,13 @@ const store = Store.store;
 export function getChannels(skip?: number, limit?: number) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
     try {
-      // console.log('FETCHING CHANNELS');
+      await waitForClientAuthenticated();
       const channelResult = await client.service('channel').find({
         query: {
           $limit: limit != null ? limit : getState().get('chat').get('channels').get('channels').get('limit'),
           $skip: skip != null ? skip : getState().get('chat').get('channels').get('channels').get('skip')
         }
       });
-      // console.log(channelResult);
       dispatch(loadedChannels(channelResult));
     } catch (err) {
       console.log(err);

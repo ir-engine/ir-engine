@@ -164,12 +164,13 @@ export class ActionSystem extends System {
           if (value.type === InputType.BUTTON) {
             const prevValue = input.prevData.get(key);
             if (
-              prevValue.lifecycleState === LifecycleValue.STARTED &&
-              value.lifecycleState === LifecycleValue.STARTED
+              (prevValue.lifecycleState === LifecycleValue.STARTED &&
+              value.lifecycleState === LifecycleValue.STARTED)
+              || (prevValue.lifecycleState === LifecycleValue.CONTINUED &&
+                value.lifecycleState === LifecycleValue.STARTED)
             ) {
               // auto-switch to CONTINUED
               value.lifecycleState = LifecycleValue.CONTINUED;
-              input.data.set(key, value);
             }
             return;
           }
@@ -179,14 +180,9 @@ export class ActionSystem extends System {
             return;
           }
 
-          if (input.prevData.has(key)) {
-            if (JSON.stringify(value.value) === JSON.stringify(input.prevData.get(key).value)) {
-              value.lifecycleState = LifecycleValue.UNCHANGED;
-            } else {
-              value.lifecycleState = LifecycleValue.CHANGED;
-            }
-            input.data.set(key, value);
-          }
+          value.lifecycleState = JSON.stringify(value.value) === JSON.stringify(input.prevData.get(key).value)
+           ? LifecycleValue.UNCHANGED 
+           : LifecycleValue.CHANGED;
         });
 
         // For each input currently on the input object:
@@ -279,70 +275,47 @@ export class ActionSystem extends System {
        input.data.forEach((value, key) => input.lastData.set(key, value));
 
 
-        const inputSnapshot = Vault.instance?.get()
-        if (inputSnapshot !== undefined) {
-          // Create a schema for input to send
-          const inputs: NetworkClientInputInterface = {
-            networkId: Network.instance.localAvatarNetworkId,
-            buttons: [],
-            axes1d: [],
-            axes2d: [],
-            axes6DOF: [],
-            viewVector: {
-              x: 0, y: 0, z: 0
-            },
-            snapShotTime: inputSnapshot.time - Network.instance.timeSnaphotCorrection ?? 0,
-            // switchInputs: sendSwitchInputs ? this.switchId : 0,
-            characterState: hasComponent(entity, CharacterComponent) ? getComponent(entity, CharacterComponent).state : 0,
-            clientGameAction: Network.instance.clientGameAction
-          };
-
-          if (Network.instance.clientGameAction.length) {
-            Network.instance.clientGameAction = [];
+        if (Network.instance.clientGameAction.length) {
+          Network.instance.clientGameAction = [];
+        }
+        //console.warn(inputs.snapShotTime);
+        // Add all values in input component to schema
+        input.data.forEach((value: any, key) => {
+          if (value.type === InputType.BUTTON)
+            Network.instance.clientInputState.buttons.push({ input: key, value: value.value, lifecycleState: value.lifecycleState });
+          else if (value.type === InputType.ONEDIM) // && value.lifecycleState !== LifecycleValue.UNCHANGED
+            Network.instance.clientInputState.axes1d.push({ input: key, value: value.value, lifecycleState: value.lifecycleState });
+          else if (value.type === InputType.TWODIM) //  && value.lifecycleState !== LifecycleValue.UNCHANGED
+            Network.instance.clientInputState.axes2d.push({ input: key, value: value.value, lifecycleState: value.lifecycleState });
+          else if (value.type === InputType.SIXDOF) { //  && value.lifecycleState !== LifecycleValue.UNCHANGED
+            Network.instance.clientInputState.axes6DOF.push({
+              input: key,
+              x: value.value.x,
+              y: value.value.y,
+              z: value.value.z,
+              qX: value.value.qX,
+              qY: value.value.qY,
+              qZ: value.value.qZ,
+              qW: value.value.qW,
+            });
+            // console.log("*********** Pushing 6DOF input from client input system")
           }
-          //console.warn(inputs.snapShotTime);
-          // Add all values in input component to schema
-          input.data.forEach((value: any, key) => {
-            if (value.type === InputType.BUTTON)
-              inputs.buttons.push({ input: key, value: value.value, lifecycleState: value.lifecycleState });
-            else if (value.type === InputType.ONEDIM) // && value.lifecycleState !== LifecycleValue.UNCHANGED
-              inputs.axes1d.push({ input: key, value: value.value, lifecycleState: value.lifecycleState });
-            else if (value.type === InputType.TWODIM) //  && value.lifecycleState !== LifecycleValue.UNCHANGED
-              inputs.axes2d.push({ input: key, value: value.value, lifecycleState: value.lifecycleState });
-            else if (value.type === InputType.SIXDOF) { //  && value.lifecycleState !== LifecycleValue.UNCHANGED
-              inputs.axes6DOF.push({
-                input: key,
-                x: value.value.x,
-                y: value.value.y,
-                z: value.value.z,
-                qX: value.value.qX,
-                qY: value.value.qY,
-                qZ: value.value.qZ,
-                qW: value.value.qW,
-              });
-              // console.log("*********** Pushing 6DOF input from client input system")
-            }
-          });
+        });
 
-          const actor = getComponent(entity, CharacterComponent);
-          if (actor) {
-            inputs.viewVector.x = actor.viewVector.x;
-            inputs.viewVector.y = actor.viewVector.y;
-            inputs.viewVector.z = actor.viewVector.z;
-          }
-          const buffer = ClientInputModel.toBuffer(inputs);
-          EngineEvents.instance.dispatchEvent({ type: ClientNetworkSystem.EVENTS.SEND_DATA, buffer }, false, [buffer]);
-
-          input.data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
-            if (value.type === InputType.BUTTON) {
-              if (value.lifecycleState === LifecycleValue.ENDED) {
-                input.data.delete(key);
-              }
-            }
-          });
-
+        const actor = getComponent(entity, CharacterComponent);
+        if (actor) {
+          Network.instance.clientInputState.viewVector.x = actor.viewVector.x;
+          Network.instance.clientInputState.viewVector.y = actor.viewVector.y;
+          Network.instance.clientInputState.viewVector.z = actor.viewVector.z;
         }
 
+        input.data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
+          if (value.type === InputType.BUTTON) {
+            if (value.lifecycleState === LifecycleValue.ENDED) {
+              input.data.delete(key);
+            }
+          }
+        });
       });
     });
 

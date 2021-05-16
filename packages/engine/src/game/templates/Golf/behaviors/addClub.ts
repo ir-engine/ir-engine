@@ -4,19 +4,19 @@ import { Body, BodyType, createShapeFromConfig, Shape, SHAPES, Transform } from 
 import { PhysicsSystem } from '../../../../physics/systems/PhysicsSystem';
 import { getStorage, setStorage } from '../../../functions/functionsStorage';
 import { createNetworkRigidBody } from '../../../../interaction/prefabs/NetworkRigidBody';
-import { addComponent } from '../../../../ecs/functions/EntityFunctions';
-import { onInteraction, onInteractionHover } from '../../../../scene/behaviors/createCommonInteractive';
-import { Interactable } from '../../../../interaction/components/Interactable';
+import { CollisionGroups, DefaultCollisionMask } from '../../../../physics/enums/CollisionGroups';
 import { TransformComponent } from '../../../../transform/components/TransformComponent';
 import { CollisionGroups } from '../../../../physics/enums/CollisionGroups';
 import { GameObject } from "../../../components/GameObject";
+import { getComponent } from '../../../../ecs/functions/EntityFunctions';
 /**
  * @author HydraFire <github.com/HydraFire>
  */
 
 export const addClub: Behavior = (entity: Entity, args?: any, delta?: number, entityTarget?: Entity, time?: number, checks?: any): void => {
   const uuid = getComponent(entity, GameObject).uuid;
-  const storageTransform = getStorage(entity, TransformComponent);
+
+  const storageTransform = getComponent(entity, TransformComponent);
   const pos = storageTransform.position ?? { x:0, y:0, z:0 };
   const rot = storageTransform.rotation ?? { x:0, y:0, z:0, w:1 };
   const scale = storageTransform.scale  ?? { x:1, y:1, z:1 };
@@ -25,9 +25,8 @@ export const addClub: Behavior = (entity: Entity, args?: any, delta?: number, en
     shape: SHAPES.Box,
     options: { boxExtents: { x: 0.05, y: 0.05, z: 0.25 } },
     config: {
-      collisionLayer: CollisionGroups.Default,
-      collisionMask: CollisionGroups.All
-    }
+      collisionLayer: 1 << 6,
+      collisionMask: CollisionGroups.Ground
   });
   const shapeHead: Shape = createShapeFromConfig({
     shape: SHAPES.Box,
@@ -40,8 +39,8 @@ export const addClub: Behavior = (entity: Entity, args?: any, delta?: number, en
       angularVelocity: { x: 0, y: 0, z: 0 }
     }),
     config: {
-      collisionLayer: CollisionGroups.Default,
-      collisionMask: CollisionGroups.All
+      collisionLayer: 1 << 6,
+      collisionMask: DefaultCollisionMask
     }
   });
 

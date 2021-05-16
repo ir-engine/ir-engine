@@ -1,6 +1,6 @@
 import { PhysicsSystem } from '../systems/PhysicsSystem';
-import { CollisionGroups } from "../enums/CollisionGroups";
-import { createShapeFromConfig, Shape, SHAPES, Body, BodyType, getGeometry, arrayOfPointsToArrayOfVector3, CollisionEvents } from "three-physx";
+import { CollisionGroups, DefaultCollisionMask } from "../enums/CollisionGroups";
+import { createShapeFromConfig, Shape, SHAPES, Body, BodyType, getGeometry, arrayOfPointsToArrayOfVector3 } from "three-physx";
 import { Entity } from '../../ecs/classes/Entity';
 import { ColliderComponent } from '../components/ColliderComponent';
 import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
@@ -98,15 +98,21 @@ export function addColliderWithoutEntity(userData, pos = new Vector3(), rot = ne
   if(userData.type === 'sphere') {
     shape.config.material = { restitution: 0.9, dynamicFriction: 0, staticFriction: 0 };
   }
+ /*
+ shape.config.collisionLayer = model.collisionLayer ?? CollisionGroups.All;
+ switch(model.collisionMask) {
+   case undefined: case -1: case '-1': case '': shape.config.collisionMask = CollisionGroups.All; break;
+   default: if(/all/i.test(model.collisionMask))
+       shape.config.collisionMask = CollisionGroups.All;
+     else
+       shape.config.collisionMask = Number(model.collisionMask);
+     break;
+     */
+  shape.config.collisionLayer = userData.collisionLayer ?? CollisionGroups.Default;
+  shape.config.collisionMask = userData.collisionMask ?? DefaultCollisionMask;
 
-  shape.config.collisionLayer = model.collisionLayer ?? CollisionGroups.All;
-  switch(model.collisionMask) {
-    case undefined: case -1: case '-1': case '': shape.config.collisionMask = CollisionGroups.All; break;
-    default: if(/all/i.test(model.collisionMask))
-        shape.config.collisionMask = CollisionGroups.All;
-      else
-        shape.config.collisionMask = Number(model.collisionMask);
-      break;
+  if(userData.type === 'ground') {
+    shape.config.collisionLayer = CollisionGroups.Ground;
   }
 
   if(userData.action === 'portal') {

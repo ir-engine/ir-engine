@@ -170,7 +170,13 @@ export class GameManagerSystem extends System {
                 if (checkersResult.some(result => result === undefined || result === null || result === false)) return;
               }
 
-              b.args != undefined ? args = b.args :'';
+              if(b.args != undefined) {
+                if(typeof b.args === 'function')  {
+                  args = b.args(entity) 
+                } else {
+                  args = b.args;
+                }
+              }
 
               if (b.takeEffectOn === undefined || b.takeEffectOn.targetsRole === undefined) {
                 //b.behavior(entity, undefined, args, checkersResult);

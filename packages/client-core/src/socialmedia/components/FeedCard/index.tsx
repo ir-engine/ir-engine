@@ -192,7 +192,7 @@ const FeedCard = (props: Props) : any => {
 
 {/*                     <Typography variant="h2" onClick={()=>checkGuest ? setButtonPopup(true) : handleGetFeedFiredUsers(feed.id)}><span className={styles.flamesCount}>{feed.fires}</span>Flames</Typography> */}
                     <Typography variant="subtitle2">{firedCount} flames</Typography>
-                    <Typography variant="h6">{feed.description}</Typography>
+                    <Typography className={styles.cartText} variant="h6">{feed.description}</Typography>
                 </CardContent>
             </Card>
             {/* <SimpleModal type={'feed-fires'} list={feedFiresState.get('feedFires')} open={openFiredModal} onClose={()=>setOpenFiredModal(false)} /> */}

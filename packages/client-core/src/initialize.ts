@@ -6,7 +6,7 @@ import { CharacterControllerSystem } from '@xrengine/engine/src/character/Charac
 import { isMobileOrTablet } from '@xrengine/engine/src/common/functions/isMobile';
 import { Timer } from '@xrengine/engine/src/common/functions/Timer';
 import { DebugHelpersSystem } from '@xrengine/engine/src/debug/systems/DebugHelpersSystem';
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine';
+import { Engine, AudioListener } from '@xrengine/engine/src/ecs/classes/Engine';
 import { EngineEvents, proxyEngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents';
 import { execute } from "@xrengine/engine/src/ecs/functions/EngineFunctions";
 import { registerSystem } from '@xrengine/engine/src/ecs/functions/SystemFunctions';
@@ -33,7 +33,7 @@ import { now } from '@xrengine/engine/src/common/functions/now';
 import { loadScene } from '@xrengine/engine/src/scene/functions/SceneLoading';
 import { UIPanelSystem } from '@xrengine/engine/src/ui/systems/UIPanelSystem';
 
-// import { PositionalAudioSystem } from './audio/systems/PositionalAudioSystem';
+import { PositionalAudioSystem } from '@xrengine/engine/src/audio/systems/PositionalAudioSystem';
 
 Mesh.prototype.raycast = acceleratedRaycast;
 BufferGeometry.prototype["computeBoundsTree"] = computeBoundsTree;
@@ -101,6 +101,7 @@ export const initializeEngine = async (initOptions: InitializeOptions): Promise<
     Network.instance.schema = networkSystemOptions.schema;
     if (!useOfflineMode) {
       registerSystem(ClientNetworkSystem, { ...networkSystemOptions, priority: -1 });
+      registerSystem(ClientNetworkStateSystem);
     }
     registerSystem(MediaStreamSystem);
   }
@@ -126,7 +127,7 @@ export const initializeEngine = async (initOptions: InitializeOptions): Promise<
         // physicsWorker = new PhysXWorker();)
       // }
       new AnimationManager();
-      
+
       // promise in parallel to speed things up
       await Promise.all([
         AnimationManager.instance.getDefaultModel(),
@@ -134,7 +135,6 @@ export const initializeEngine = async (initOptions: InitializeOptions): Promise<
       ]);
       Engine.workers.push(physicsWorker);
 
-      registerSystem(ClientNetworkStateSystem);
       registerSystem(CharacterControllerSystem);
       registerSystem(HighlightSystem);
       registerSystem(ActionSystem);
@@ -142,9 +142,9 @@ export const initializeEngine = async (initOptions: InitializeOptions): Promise<
       registerSystem(PhysicsSystem, { worker: physicsWorker, physicsWorldConfig });
       registerSystem(TransformSystem, { priority: 900 });
       // audio breaks webxr currently
-      // Engine.audioListener = new AudioListener();
-      // Engine.camera.add(Engine.audioListener);
-      // registerSystem(PositionalAudioSystem);
+      Engine.audioListener = new AudioListener();
+      Engine.camera.add(Engine.audioListener);
+      registerSystem(PositionalAudioSystem);
       registerSystem(ParticleSystem);
       registerSystem(DebugHelpersSystem);
       registerSystem(InteractiveSystem);
@@ -160,10 +160,10 @@ export const initializeEngine = async (initOptions: InitializeOptions): Promise<
   }
 
   await Promise.all(Engine.systems.map((system) => { 
-    return new Promise<void>(async (resolve) => { await system.initialize(); system.initialized = true; resolve(); }); 
+    return new Promise<void>(async (resolve) => { await system.initialize(); system.initialized = true; resolve(); });
   }));
 
-  EngineEvents.instance.once(EngineEvents.EVENTS.SCENE_LOADED, () => { 
+  EngineEvents.instance.once(EngineEvents.EVENTS.SCENE_LOADED, () => {
     Engine.engineTimer = Timer({
       networkUpdate: (delta: number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Network),
       fixedUpdate: (delta: number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Fixed),
@@ -221,7 +221,7 @@ export const initializeEditor = async (initOptions: InitializeOptions): Promise<
   registerSystem(GameManagerSystem);
 
   await Promise.all(Engine.systems.map((system) => { 
-    return new Promise<void>(async (resolve) => { await system.initialize(); system.initialized = true; resolve(); }); 
+    return new Promise<void>(async (resolve) => { await system.initialize(); system.initialized = true; resolve(); });
   }));
 
   Engine.engineTimer = Timer({

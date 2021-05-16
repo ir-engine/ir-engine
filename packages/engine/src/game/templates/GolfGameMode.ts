@@ -30,6 +30,7 @@ import { addRole } from "./Golf/behaviors/addRole";
 import { addTurn } from "./Golf/behaviors/addTurn";
 import { applyTurn } from "./Golf/behaviors/applyTurn";
 import { nextTurn } from "./Golf/behaviors/nextTurn";
+
 //
 import { unInteractiveToOthers } from "./Golf/behaviors/unInteractiveToOthers";
 //
@@ -47,6 +48,10 @@ import { ifNamed } from "./gameDefault/checkers/ifNamed";
 import { customChecker } from "./gameDefault/checkers/customChecker";
 import { isDifferent } from "./gameDefault/checkers/isDifferent";
 
+import { grabEquippable } from "../../interaction/functions/grabEquippable";
+import { Interactable } from "../../interaction/components/Interactable";
+import { getComponent } from "../../ecs/functions/EntityFunctions";
+import { disableInteractiveToOthers } from "./Golf/behaviors/disableInteractiveToOthers";
 /**
  * @author HydraFire
  */
@@ -145,13 +150,16 @@ export const GolfGameMode: GameMode = somePrepareFunction({
       behaviors: [initScore]
     },
     'GolfBall': {
-      behaviors: [addBall, addRestitution, unInteractiveToOthers]
+      behaviors: [addBall, addRestitution, disableInteractiveToOthers]
     },
     'GolfClub': {
       behaviors: [addClub],
     },
     'GolfHole': {
       behaviors: [addHole]
+    },
+    'GolfTee': {
+      behaviors: []
     },
     'StartGamePanel GoalPanel 1stTurnPanel 2stTurnPanel': {
       components: [PanelDown],
@@ -176,7 +184,10 @@ export const GolfGameMode: GameMode = somePrepareFunction({
     'newPlayer': {},
     '1-Player': {
       'MyTurn': [
-        { behavior: applyTurn, watchers:[ [ NextTurn ] ] }
+        {
+          behavior: applyTurn,
+          watchers:[ [ NextTurn ] ],
+        }
       ],
       'haveGoal': [
         { behavior: displayScore, watchers:[ [ Goal ] ] }
@@ -405,19 +416,31 @@ export const GolfGameMode: GameMode = somePrepareFunction({
     'GolfClub': {
       'grab': [
         {
-          behavior: grabGolfClub,
-          args: { },
+          behavior: grabEquippable,
+          args: (entityGolfclub) =>  { return { ...getComponent(entityGolfclub, HaveBeenInteracted).args } },
+          watchers:[ [ HaveBeenInteracted ] ],
+    'GolfClub': {
+      'grab': [
+        {
+          behavior: grabEquippable,
+          args: (entityGolfclub) =>  { return { ...getComponent(entityGolfclub, HaveBeenInteracted).args } },
           watchers:[ [ HaveBeenInteracted ] ],
           takeEffectOn: {
             targetsRole: {
               '1-Player': {
-                watchers:[ [ Active ] ],
                 checkers:[{
-                  function: ifNamed,
-                  args: { on: 'me', name: 'NumberRoleName' }
+                  function: isPlayersInGame,
+                  args: { invert: false }
                 }]
               },
-              '2-Player' : {}
+              /*
+              '2-Player' : {
+                checkers:[{
+                  function: isPlayersInGame,
+                  args: { invert: false }
+                }]
+              }
+              */
             }
           }
         },

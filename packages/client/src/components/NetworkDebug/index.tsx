@@ -16,8 +16,13 @@ export const NetworkDebug = ({ reinit  }) => {
 
   function setupListener() {
     window.addEventListener('keydown', downHandler);
-
   }
+  document.addEventListener('keypress', (ev) => {
+    if(ev.key === 'p') {
+      EngineEvents.instance.dispatchEvent({ type: DebugHelpersSystem.EVENTS.TOGGLE_PHYSICS, enabled: !physicsDebug });
+      setPhysicsDebug(!physicsDebug);
+    }
+  });
 
   // If pressed key is our target key then set to true
   function downHandler({ keyCode }) {
@@ -30,9 +35,12 @@ export const NetworkDebug = ({ reinit  }) => {
   // Add event listeners
   useEffect(() => {
     setupListener();
-    setInterval(() => {
+    const interval = setInterval(() => {
       setRemountCount(Math.random());
     }, 1000);
+    return () => {
+      clearInterval(interval);
+    };
   }, []);
 
   const [remountCount, setRemountCount] = useState(0);

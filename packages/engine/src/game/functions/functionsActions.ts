@@ -44,14 +44,14 @@ export const sendActionComponent = (entity: Entity, component: ComponentConstruc
     role: getRole(entity),
     component: component.name,
     uuid: getUuid(entity),
-    componentArgs: JSON.stringify(componentArgs)
+    componentArgs: JSON.stringify(componentArgs).replace(/"/g, '\'') // replace double quotes with single quotes so it is read properly in buffer
   }
-  console.log('sendActionComponent', actionMessage);
+  // console.log('sendActionComponent', actionMessage);
   Network.instance.worldState.gameStateActions.push(actionMessage);
 };
 
 export const applyActionComponent = (actionMessage: GameStateActionMessage): void => {
-  console.warn('applyActionComponent', actionMessage);
+  // console.warn('applyActionComponent', actionMessage);
   const entityGame = getGameEntityFromName(actionMessage.game);
   if(!entityGame) return;
   const game = getComponent(entityGame, Game);
@@ -63,7 +63,7 @@ export const applyActionComponent = (actionMessage: GameStateActionMessage): voi
   const component = gameActionComponents[actionMessage.component]
   let componentArgs = {};
   try {
-    componentArgs = JSON.parse(actionMessage.componentArgs);
+    componentArgs = JSON.parse(actionMessage.componentArgs.replace(/'/g, '"')); // replace single quotes with double quotes
   } catch (e) {}
   addComponent( entity, component, componentArgs);
 };

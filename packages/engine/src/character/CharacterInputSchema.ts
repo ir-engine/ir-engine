@@ -30,6 +30,7 @@ import { unequipEntity } from '../interaction/functions/equippableFunctions';
 import { TransformComponent } from '../transform/components/TransformComponent';
 import { XRUserSettings, XR_ROTATION_MODE } from '../xr/types/XRUserSettings';
 import { BinaryValue } from '../common/enums/BinaryValue';
+import { ParityValue } from '../common/enums/ParityValue';
 
 /**
  *
@@ -38,7 +39,9 @@ import { BinaryValue } from '../common/enums/BinaryValue';
  * @param delta
  */
 
-const interact: Behavior = (entity: Entity, args: any = { }, delta): void => {
+const interact: Behavior = (entity: Entity, args: any = { side: ParityValue }, delta): void => {
+
+  console.log('interact', args)
 
   // TODO: figure out how to best handle equippables & interactables at the same time
   const equippedComponent = getComponent(entity, EquippedComponent)
@@ -47,7 +50,7 @@ const interact: Behavior = (entity: Entity, args: any = { }, delta): void => {
     return;
   }
 
-  interactOnServer(entity); //TODO: figure out all this cases
+  interactOnServer(entity, args); //TODO: figure out all this cases
 
   if (isServer) {
     //TODO: all this function needs to re-think
@@ -495,6 +498,8 @@ export const createCharacterInput = () => {
 
   map.set(GamepadButtons.A, BaseInput.INTERACT);
   map.set(GamepadButtons.B, BaseInput.JUMP);
+  map.set(GamepadButtons.LTrigger, BaseInput.GRAB_LEFT);
+  map.set(GamepadButtons.RTrigger, BaseInput.GRAB_RIGHT);
   map.set(GamepadButtons.DPad1, BaseInput.FORWARD);
   map.set(GamepadButtons.DPad2, BaseInput.BACKWARD);
   map.set(GamepadButtons.DPad3, BaseInput.LEFT);
@@ -573,7 +578,27 @@ export const CharacterInputSchema: InputSchema = {
         {
           behavior: interact,
           args: {
-            phase: LifecycleValue.STARTED
+            side: ParityValue.NONE
+          }
+        }
+      ]
+    },
+    [BaseInput.GRAB_LEFT]: {
+      started: [
+        {
+          behavior: interact,
+          args: {
+            side: ParityValue.LEFT
+          }
+        }
+      ]
+    },
+    [BaseInput.GRAB_RIGHT]: {
+      started: [
+        {
+          behavior: interact,
+          args: {
+            side: ParityValue.RIGHT
           }
         }
       ]

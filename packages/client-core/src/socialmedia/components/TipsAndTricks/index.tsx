@@ -53,7 +53,7 @@ export const TipsAndTricks = ({tipsAndTricksState, getTipsAndTricks, doLoginAuto
                     title={item.title}
                     controls
                 />
-                <CardContent>
+                <CardContent className={styles.cardContent}>
                     <Typography className={styles.tipsTitle}>{item.title}</Typography>
                     <Typography className={styles.tipsDescription}>{item.description}</Typography>
                 </CardContent>
