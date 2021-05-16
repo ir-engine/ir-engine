@@ -5,8 +5,10 @@ import { Entity } from '../../ecs/classes/Entity';
 import { addComponent, getMutableComponent, hasComponent, removeComponent } from '../../ecs/functions/EntityFunctions';
 import { ComponentConstructor } from '../../ecs/interfaces/ComponentInterfaces';
 import { Network } from "../../networking/classes/Network";
+
 import { Game } from "../components/Game";
 import { GamePlayer } from "../components/GamePlayer";
+
 import { ButtonDown } from '../templates/gameDefault/components/ButtonDownTagComponent';
 import { ButtonUp } from '../templates/gameDefault/components/ButtonUpTagComponent';
 import { Closed } from '../templates/gameDefault/components/ClosedTagComponent';
@@ -14,6 +16,10 @@ import { Open } from '../templates/gameDefault/components/OpenTagComponent';
 import { PanelDown } from '../templates/gameDefault/components/PanelDownTagComponent';
 import { PanelUp } from '../templates/gameDefault/components/PanelUpTagComponent';
 import { YourTurn } from '../templates/Golf/components/YourTurnTagComponent';
+import { Active } from "../templates/gameDefault/components/ActiveTagComponent";
+import { Deactive } from "../templates/gameDefault/components/DeactiveTagComponent";
+import { FromPlayer1, FromPlayer2, FromPlayer3 } from "../templates/Golf/components/FromPlayer1TagComponent";
+
 import { GamesSchema } from '../templates/GamesSchema';
 import { ClientGameActionMessage, GameStateUpdateMessage } from "../types/GameMessage";
 import { GameMode, StateObject } from "../types/GameMode";
@@ -30,7 +36,12 @@ const gameStateComponents = {
   'ButtonDown': ButtonDown,
   'PanelDown': PanelDown,
   'PanelUp': PanelUp,
-  'YourTurn': YourTurn
+  'YourTurn': YourTurn,
+  'Active': Active,
+  'Deactive': Deactive,
+  'FromPlayer1': FromPlayer1,
+  'FromPlayer2': FromPlayer2,
+  'FromPlayer3': FromPlayer3
 };
 
 export const initState = (game: Game, gameSchema: GameMode): void => {
@@ -101,13 +112,13 @@ export const applyState = (game: Game): void => {
       //  console.warn(stateObject);
       if (stateObject != undefined) {
         stateObject.components.forEach((componentName: string) => {
-          if(gameStateComponents[componentName]) 
+          if(gameStateComponents[componentName])
             addComponent(entity, gameStateComponents[componentName] );
           else
             console.warn("Couldn't find component", componentName);
         });
       } else {
-        console.warn('state players dont worl yet');
+        console.warn('game.state dont have this object but server have, v.uuid != uuid');
       }
     })
   });

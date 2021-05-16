@@ -2,25 +2,27 @@ import { Vector3, Quaternion } from 'three';
 import { Behavior } from '../../../../common/interfaces/Behavior';
 import { Entity } from '../../../../ecs/classes/Entity';
 import { getComponent } from "../../../../ecs/functions/EntityFunctions";
-import { addStateComponent, removeStateComponent } from '../../../../game/functions/functionsState';
-
+import { addActionComponent, sendActionComponent, applyActionComponent } from '../../../functions/functionsActions';
 import { ColliderComponent } from '../../../../physics/components/ColliderComponent';
+import { Goal } from "../../../../game/actions/Goal";
 import { getStorage, setStorage } from '../functions/functionsStorage';
-
+import { Interactable } from '../../../../interaction/components/Interactable';
+import { GamesSchema } from "../../../../game/templates/GamesSchema";
+import { getGame } from '../../../../game/functions/functions';
 /**
  * @author HydraFire <github.com/HydraFire>
  */
+ function getTargetEntity(entity, entityTarget, args) {
+   return args.on === 'target' ? entityTarget : entity;
+ }
 
 export const giveGoalState: Behavior = (entity: Entity, args?: any, delta?: number, entityTarget?: Entity, time?: number, checks?: any): void => {
-  /*
-  const collider = getComponent(entityTarget, ColliderComponent);
-  const transform = getComponent(entity, TransformComponent);
-  const q = new Quaternion().copy(transform.rotation);
-  const force = new Vector3(0, 0, args.forwardForce).applyQuaternion(q);
-  collider.body.addForce({
-    x: force.x,
-    y: force.y + args.upForce,
-    z: force.z
-   });
-   */
+  const game = getGame(entity);
+  const gameSchema = GamesSchema[game.gameMode];
+  const nameObject = getComponent(entityTarget, Interactable).data.interactionText ?? '1';
+
+  const entityPlayer = game.gamePlayers[Object.keys(gameSchema.gamePlayerRoles)[nameObject]][0];
+
+  addActionComponent( entityPlayer, Goal );
+
 };

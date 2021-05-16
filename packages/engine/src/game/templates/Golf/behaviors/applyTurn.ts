@@ -19,6 +19,5 @@ export const applyTurn: Behavior = (entity: Entity, args?: any, delta?: number, 
     }
   });
 
-  console.warn(entity, YourTurn);
   addStateComponent(entity, YourTurn);
 };

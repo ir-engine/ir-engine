@@ -8,6 +8,7 @@ import { Network } from "../../networking/classes/Network";
 import { HaveBeenInteracted } from "../actions/HaveBeenInteracted";
 import { HasHadCollision } from "../actions/HasHadCollision";
 import { NextTurn } from "../actions/NextTurn";
+import { Goal } from "../actions/Goal";
 import { Game } from "../components/Game";
 import { GameObject } from "../components/GameObject";
 import { GamePlayer } from "../components/GamePlayer";
@@ -20,7 +21,8 @@ import { getEntityFromRoleUuid, getGame, getGameEntityFromName, getRole, getUuid
 const gameActionComponents = {
   'HaveBeenInteracted': HaveBeenInteracted,
   'HasHadCollision': HasHadCollision,
-  'NextTurn': NextTurn
+  'NextTurn': NextTurn,
+  'Goal': Goal
 };
 
 export const addActionComponent = (entity: Entity, component: ComponentConstructor<Component<any>>, componentArgs: any = { }): void => {

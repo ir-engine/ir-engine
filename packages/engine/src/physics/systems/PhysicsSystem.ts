@@ -87,19 +87,19 @@ export class PhysicsSystem extends System {
   execute(delta: number): void {
     this.queryResults.collider.added?.forEach(entity => {
       const collider = getComponent(entity, ColliderComponent);
-      if(!collider.body) {
-        addColliderWithEntity(entity)
-      }
+
       collider.body.addEventListener(CollisionEvents.COLLISION_START, (ev: ColliderHitEvent) => {
-        collider.collisions.push(ev);
+        ev.bodyOther.shapes[0].config.collisionLayer == ev.bodySelf.shapes[0].config.collisionMask ? collider.collisions.push(ev):'';
       })
+      /*
       collider.body.addEventListener(CollisionEvents.COLLISION_PERSIST, (ev: ColliderHitEvent) => {
         collider.collisions.push(ev);
       })
+
       collider.body.addEventListener(CollisionEvents.COLLISION_END, (ev: ColliderHitEvent) => {
         collider.collisions.push(ev);
       })
-
+*/
     });
 
     this.queryResults.collider.all?.forEach(entity => {
@@ -107,11 +107,13 @@ export class PhysicsSystem extends System {
       const collider = getMutableComponent<ColliderComponent>(entity, ColliderComponent);
       // iterate on all collisions since the last update
       collider.collisions.forEach((event) => {
-        const { type, bodySelf, bodyOther, shapeSelf, shapeOther } = event;
-        console.warn(type, bodySelf, bodyOther, shapeSelf, shapeOther);
+
+
         if (hasComponent(entity, GameObject)) {
+        //  const { type, bodySelf, bodyOther, shapeSelf, shapeOther } = event;
+        //  isClient ? console.warn(type, bodySelf, bodyOther, shapeSelf, shapeOther):'';
           addActionComponent(entity, HasHadCollision);
-          console.warn(event, entity);
+      //    console.warn(event, entity);
         }
         // TODO: figure out how we expose specific behaviors like this
       })

@@ -114,7 +114,6 @@ export class GameManagerSystem extends System {
         if (getComponent(entity, GameObject).game != game.name) return;
         getMutableComponent(entity, GameObject).game = game;
         // add to gameObjects list sorted by role
-        console.log(getComponent(entity, GameObject))
         gameObjects[getComponent(entity, GameObject).role].push(entity);
         // add init Tag components for start state of Games
         const schema = gameSchema.initGameState[getComponent(entity, GameObject).role];
@@ -168,7 +167,7 @@ export class GameManagerSystem extends System {
 
               if (b.checkers != undefined && b.checkers.length > 0) {
                 checkersResult = checkCheckers(entity, undefined, b.checkers);
-                if (checkersResult.some(result => result === undefined)) return;
+                if (checkersResult.some(result => result === undefined || result === null || result === false)) return;
               }
 
               b.args != undefined ? args = b.args :'';
@@ -193,7 +192,7 @@ export class GameManagerSystem extends System {
                       complexOtherObj.checkersResult = checkCheckers(entity, complexOtherObj.entity, targetRoleSchema.checkers);
                     });
                     resultObjects = resultObjects.filter(complexOtherObj => {
-                      return !complexOtherObj.checkersResult.some(result => result === undefined);
+                      return !complexOtherObj.checkersResult.some(result => result === undefined || result === null || result === false);
                     })
                   }
 
