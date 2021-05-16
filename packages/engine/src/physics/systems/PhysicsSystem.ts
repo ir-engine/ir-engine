@@ -18,7 +18,9 @@ import { BodyType, ColliderHitEvent, CollisionEvents, PhysXConfig, PhysXInstance
 import { addColliderWithEntity } from '../behaviors/colliderCreateFunctions';
 import { findInterpolationSnapshot } from '../behaviors/findInterpolationSnapshot';
 import { UserControlledColliderComponent } from '../components/UserControllerObjectComponent';
-
+import { HasHadCollision } from "../../game/actions/HasHadCollision";
+import { GameObject } from "../../game/components/GameObject";
+import { addActionComponent } from '../../game/functions/functionsActions';
 /**
  * @author HydraFire <github.com/HydraFire>
  * @author Josh Field <github.com/HexaField>
@@ -86,25 +88,37 @@ export class PhysicsSystem extends System {
   execute(delta: number): void {
     this.queryResults.collider.added?.forEach(entity => {
       const collider = getComponent(entity, ColliderComponent);
+      /*
       if (!collider.body) {
         addColliderWithEntity(entity)
       }
+      */
       collider.body.addEventListener(CollisionEvents.COLLISION_START, (ev: ColliderHitEvent) => {
-        collider.collisions.push(ev);
+        ev.bodyOther.shapes[0].config.collisionLayer == ev.bodySelf.shapes[0].config.collisionMask ? collider.collisions.push(ev):'';
       })
+      /*
       collider.body.addEventListener(CollisionEvents.COLLISION_PERSIST, (ev: ColliderHitEvent) => {
         collider.collisions.push(ev);
       })
+
       collider.body.addEventListener(CollisionEvents.COLLISION_END, (ev: ColliderHitEvent) => {
         collider.collisions.push(ev);
       })
+      */
     });
 
     this.queryResults.collider.all?.forEach(entity => {
       const collider = getMutableComponent<ColliderComponent>(entity, ColliderComponent);
       // iterate on all collisions since the last update
       collider.collisions.forEach((event) => {
-        const { type, bodySelf, bodyOther, shapeSelf, shapeOther } = event;
+
+
+        if (hasComponent(entity, GameObject)) {
+        //  const { type, bodySelf, bodyOther, shapeSelf, shapeOther } = event;
+        //  isClient ? console.warn(type, bodySelf, bodyOther, shapeSelf, shapeOther):'';
+          addActionComponent(entity, HasHadCollision);
+      //    console.warn(event, entity);
+        }
         // TODO: figure out how we expose specific behaviors like this
       })
       collider.collisions = []; // clear for next loop

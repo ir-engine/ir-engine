@@ -20,3 +20,16 @@ export const disableInteractiveToOthers: Behavior = (entity: Entity, args?: any,
     return interactionText === player.role[0];
   }
 };
+
+export const disableInteractive: Behavior = (entity: Entity, args?: any, delta?: number, entityTarget?: Entity, time?: number, checks?: any): void => {
+  const interactable = getMutableComponent(entity, Interactable)//.data.interactionText;
+
+  interactable.onInteractionCheck = (entityPlayer, entityBall) => {
+    return false
+  }
+};
+
+export const disableInteractiveHover: Behavior = (entity: Entity, args?: any, delta?: number, entityTarget?: Entity, time?: number, checks?: any): void => {
+  const interactable = getMutableComponent(entity, Interactable)//.data.interactionText;
+  interactable.onInteractionFocused = '';
+};

@@ -181,7 +181,7 @@ export class ActionSystem extends System {
           }
 
           value.lifecycleState = JSON.stringify(value.value) === JSON.stringify(input.prevData.get(key).value)
-           ? LifecycleValue.UNCHANGED 
+           ? LifecycleValue.UNCHANGED
            : LifecycleValue.CHANGED;
         });
 
@@ -274,10 +274,11 @@ export class ActionSystem extends System {
        input.lastData.clear();
        input.data.forEach((value, key) => input.lastData.set(key, value));
 
-
+/*
         if (Network.instance.clientGameAction.length) {
           Network.instance.clientGameAction = [];
         }
+        */
         //console.warn(inputs.snapShotTime);
         // Add all values in input component to schema
         input.data.forEach((value: any, key) => {
@@ -307,6 +308,11 @@ export class ActionSystem extends System {
           Network.instance.clientInputState.viewVector.x = actor.viewVector.x;
           Network.instance.clientInputState.viewVector.y = actor.viewVector.y;
           Network.instance.clientInputState.viewVector.z = actor.viewVector.z;
+        }
+
+        if (Network.instance.clientGameAction.length > 0) {
+          console.warn(Network.instance.clientGameAction);
+          Network.instance.clientGameAction = [];
         }
 
         input.data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {

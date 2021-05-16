@@ -167,7 +167,7 @@ export class GameManagerSystem extends System {
 
               if (b.checkers != undefined && b.checkers.length > 0) {
                 checkersResult = checkCheckers(entity, undefined, b.checkers);
-                if (checkersResult.some(result => result === undefined)) return;
+                if (checkersResult.some(result => result === undefined || result === null || result === false)) return;
               }
 
               if(b.args != undefined) {
@@ -198,7 +198,7 @@ export class GameManagerSystem extends System {
                       complexOtherObj.checkersResult = checkCheckers(entity, complexOtherObj.entity, targetRoleSchema.checkers);
                     });
                     resultObjects = resultObjects.filter(complexOtherObj => {
-                      return !complexOtherObj.checkersResult.some(result => result === undefined);
+                      return !complexOtherObj.checkersResult.some(result => result === undefined || result === null || result === false);
                     })
                   }
 
