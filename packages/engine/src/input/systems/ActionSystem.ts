@@ -164,12 +164,13 @@ export class ActionSystem extends System {
           if (value.type === InputType.BUTTON) {
             const prevValue = input.prevData.get(key);
             if (
-              prevValue.lifecycleState === LifecycleValue.STARTED &&
-              value.lifecycleState === LifecycleValue.STARTED
+              (prevValue.lifecycleState === LifecycleValue.STARTED &&
+              value.lifecycleState === LifecycleValue.STARTED)
+              || (prevValue.lifecycleState === LifecycleValue.CONTINUED &&
+                value.lifecycleState === LifecycleValue.STARTED)
             ) {
               // auto-switch to CONTINUED
               value.lifecycleState = LifecycleValue.CONTINUED;
-              input.data.set(key, value);
             }
             return;
           }
@@ -179,14 +180,9 @@ export class ActionSystem extends System {
             return;
           }
 
-          if (input.prevData.has(key)) {
-            if (JSON.stringify(value.value) === JSON.stringify(input.prevData.get(key).value)) {
-              value.lifecycleState = LifecycleValue.UNCHANGED;
-            } else {
-              value.lifecycleState = LifecycleValue.CHANGED;
-            }
-            input.data.set(key, value);
-          }
+          value.lifecycleState = JSON.stringify(value.value) === JSON.stringify(input.prevData.get(key).value)
+           ? LifecycleValue.UNCHANGED 
+           : LifecycleValue.CHANGED;
         });
 
         // For each input currently on the input object:

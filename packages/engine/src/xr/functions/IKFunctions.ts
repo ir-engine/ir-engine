@@ -37,7 +37,6 @@ export function initiateIK(entity: Entity) {
   if(Network.instance.localClientEntity === entity) {
     // avatarIK.avatarIKRig.decapitate()
   }
-  actor.state = setBit(actor.state, CHARACTER_STATES.VR);
 
 }
 
@@ -57,6 +56,4 @@ export function stopIK(entity) {
   if(hasComponent(entity, IKComponent)) {
     removeComponent(entity, IKComponent);
   }
-  const actor = getMutableComponent(entity, CharacterComponent);
-  actor.state = clearBit(actor.state, CHARACTER_STATES.VR);
 }

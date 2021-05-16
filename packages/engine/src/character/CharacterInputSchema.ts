@@ -41,6 +41,8 @@ import { ParityValue } from '../common/enums/ParityValue';
 
 const interact: Behavior = (entity: Entity, args: any = { side: ParityValue }, delta): void => {
 
+  console.log('interact', args)
+
   // TODO: figure out how to best handle equippables & interactables at the same time
   const equippedComponent = getComponent(entity, EquippedComponent)
   if(equippedComponent) {

@@ -46,12 +46,14 @@ export enum GamepadButtons {
   RTrigger = 37,
   Back = 38,
   Start = 39,
-  LStick = 40,
-  RStick = 41,
-  DPad1 = 42,
-  DPad2 = 43,
-  DPad3 = 44,
-  DPad4 = 45
+  LPad = 40,
+  RPad = 41,
+  LStick = 42,
+  RStick = 43,
+  DPad1 = 44,
+  DPad2 = 45,
+  DPad3 = 46,
+  DPad4 = 47
 }
 
 export const CameraInput = {
