@@ -117,6 +117,8 @@ const UserTable = (props: Props) => {
         };
     };
 
+    
+
     const rows = adminUsers.map(el => createData(el.name, el.avatarId || "coming soon", el.userRole, el.partyId || "", el.channelInstanceId || "", el.instanceId || "" ));
 
     return (

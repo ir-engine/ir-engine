@@ -12,18 +12,11 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import CreateUserRole from "./CreateUserRole";
 import DialogActions from '@material-ui/core/DialogActions';
 import TextField from '@material-ui/core/TextField';
-import FormControl from '@material-ui/core/FormControl';
-import InputLabel from '@material-ui/core/InputLabel';
-import Select from '@material-ui/core/Select';
-import MenuItem from '@material-ui/core/MenuItem';
 import Container from '@material-ui/core/Container';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import { validationSchema } from "./validation";
 import { useFormik } from "formik";
 import { selectAuthState } from "../../../user/reducers/auth/selector";
-
-
-
 
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -98,7 +91,7 @@ const CreateUser = (props: Props) => {
     React.useEffect(() => {
         const fetchData = async () => {
                 await fetchUserRole();
-        } 
+        }; 
         if((adminState.get('users').get('updateNeeded') === true) && user.id) fetchData();
     }, [adminState, user]);
 

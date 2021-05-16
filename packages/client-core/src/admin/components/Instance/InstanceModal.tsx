@@ -17,16 +17,16 @@ import { useHistory } from "react-router-dom";
 import React, { useEffect, useRef, useState } from 'react';
 import { connect } from 'react-redux';
 import { Dispatch } from "redux";
-import { selectAppState } from '../../common/reducers/app/selector';
-import { client } from '../../feathers';
-import { selectAuthState } from '../../user/reducers/auth/selector';
-import { selectAdminState } from '../reducers/admin/selector';
+import { selectAppState } from '../../../common/reducers/app/selector';
+import { client } from '../../../feathers';
+import { selectAuthState } from '../../../user/reducers/auth/selector';
+import { selectAdminState } from '../../reducers/admin/selector';
 // @ts-ignore
-import styles from './Admin.module.scss';
+import styles from '../Admin.module.scss';
 interface Props {
     open: boolean;
     handleClose: any;
-    instance: any;
+    instance?: any;
     adminState?: any;
 }
 
@@ -169,7 +169,7 @@ const InstanceModal = (props: Props): any => {
                         [styles['modal-content']]: true
                     })}>
                         <div className={styles.instanceUsersHeader}>
-                            <div>Users on instance {instance.id}</div>
+                            {/* <div>Users on instance {instance.id}</div> */}
                             <Button variant="contained" color="primary" onClick={redirectToInstance}>Go to Instance</Button>
                         </div>
                         <TableContainer>

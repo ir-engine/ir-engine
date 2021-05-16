@@ -13,10 +13,8 @@ import { fetchAdminInstances, removeInstance } from '../../reducers/admin/servic
 import { bindActionCreators, Dispatch } from 'redux';
 import { connect } from 'react-redux';
 
-
-
 interface Column {
-    id: 'ipAddress' | 'currentUsers' | 'locationId' | 'groupId' | 'channelId' | 'action';
+    id: 'ipAddress' | 'currentUsers' | 'locationId' | 'channelId' | 'action';
     label: string;
     minWidth?: number;
     align?: 'right';
@@ -28,12 +26,6 @@ const columns: Column[] = [
     {
         id: 'locationId',
         label: 'Location',
-        minWidth: 170,
-        align: 'right',
-    },
-    {
-        id: 'groupId',
-        label: 'Group',
         minWidth: 170,
         align: 'right',
     },
@@ -52,10 +44,10 @@ const columns: Column[] = [
 ];
 
 interface Data {
+    id: string,
     ipAddress: string;
-    currentUsers: string;
-    locationId: string;
-    groupId: string;
+    currentUsers: Number;
+    locationId: any;
     channelId: string,
     action: any
 }
@@ -67,23 +59,24 @@ interface Props {
     fetchAdminInstances?: any
 }
 
-const mapStateToProps = ( state: any ): any => {
+const mapStateToProps = (state: any): any => {
     return {
         authState: selectAuthState(state),
         adminState: selectAdminState(state)
-    }
-}
+    };
+};
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
     fetchAdminInstances: bindActionCreators(fetchAdminInstances, dispatch)
-})
+});
 
 const useStyles = makeStyles({
     root: {
         width: '100%',
+        background: "#fff"
     },
     container: {
-        maxHeight: "80vh",
+        maxHeight: "80vh"
     },
     actionStyle: {
         textDecoration: "none",
@@ -92,6 +85,13 @@ const useStyles = makeStyles({
     }
 });
 
+/**
+ * JSX used to display table of instance 
+ * 
+ * @param props 
+ * @returns DOM Element
+ * @author KIMENYI Kevin
+ */
 const IntanceTable = (props: Props) => {
     const { fetchAdminInstances, adminState, authState } = props;
     const classes = useStyles();
@@ -100,26 +100,39 @@ const IntanceTable = (props: Props) => {
 
     const user = authState.get("user");
     const adminInstances = adminState.get('instances');
-
-    console.log('====================================');
-    console.log(adminInstances);
-    console.log('====================================');
     const handleChangePage = (event: unknown, newPage: number) => {
         setPage(newPage);
     };
-
     const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
         setRowsPerPage(+event.target.value);
         setPage(0);
     };
 
-    React.useEffect(()=> {
-        if(user.id && adminInstances.get("updateNeeded")){
-            fetchAdminInstances()
+    React.useEffect(() => {
+        if (user.id && adminInstances.get("updateNeeded")) {
+            fetchAdminInstances();
         }
     }, [user, adminState]);
 
 
+    const createData = (id: string, ipAddress: string, currentUsers: Number, locationId: any, channelId: string): Data => {
+        return {
+            id,
+            ipAddress,
+            currentUsers,
+            locationId: locationId.name || "",
+            channelId,
+            action: (
+                <>
+                    <a href="#h" className={classes.actionStyle}> View </a>
+                    <a href="#h" className={classes.actionStyle}> Edit </a>
+                    <a href="#h" className={classes.actionStyle}> Delete </a>
+                </>
+            )
+        };
+    };
+
+    const rows = adminInstances.get("instances").map((el: any) => createData(el.id, el.ipAddress, el.currentUsers, el.location, el.channelId || ""));
 
     return (
         <div className={classes.root}>
@@ -139,9 +152,9 @@ const IntanceTable = (props: Props) => {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {/* {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
+                        {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
                             return (
-                                <TableRow hover role="checkbox" tabIndex={-1} key={row.name}>
+                                <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
                                     {columns.map((column) => {
                                         const value = row[column.id];
                                         return (
@@ -152,7 +165,7 @@ const IntanceTable = (props: Props) => {
                                     })}
                                 </TableRow>
                             );
-                        })} */}
+                        })}
                     </TableBody>
                 </Table>
             </TableContainer>
@@ -166,8 +179,8 @@ const IntanceTable = (props: Props) => {
                 onChangeRowsPerPage={handleChangeRowsPerPage}
             />
         </div>
-    )
-}
+    );
+};
 
 
-export default connect(mapStateToProps, mapDispatchToProps)(IntanceTable); 
+export default connect(mapStateToProps, mapDispatchToProps)(IntanceTable);
