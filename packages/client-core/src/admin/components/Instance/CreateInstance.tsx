@@ -17,6 +17,9 @@ import { createInstance, fetchAdminInstances, patchInstance } from '../../reduce
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import { makeStyles, Theme, createStyles } from "@material-ui/core/styles";
 import { fetchAdminLocations } from "../../reducers/admin/service";
+import { useFormik } from "formik";
+import { validationSchema } from "./validation";
+
 
 
 const mapStateToProps = (state: any): any => {
@@ -120,6 +123,31 @@ function CreateInstance(props: Props) {
         handleClose();
     };
 
+    const formik = useFormik({
+       initialValues: {
+           currentUsers: "",
+           ipAddress: ""
+       },
+       validationSchema: validationSchema,
+       onSubmit: async (values, {resetForm }) => {
+        const data = {
+            ipAddress: values.ipAddress,
+            currentUsers: values.currentUsers,
+            locationId: location
+        };
+        if (editing) {
+            patchInstance(instanceEdit.id, data);
+        } else {
+            createInstance(data);
+            setIpAddress("");
+            setCurrentUser("");
+        }
+
+        fetchAdminInstances();
+        handleClose();
+        resetForm();
+       }
+    });
     const defaultProps = {
         options: locationData,
         getOptionLabel: (option: any) => option.name,
@@ -144,6 +172,7 @@ function CreateInstance(props: Props) {
                         [styles.paper]: true,
                         [styles['modal-content']]: true
                     })}>
+                        <form onSubmit={formik.handleSubmit}>
                         {editing && <TextField
                             variant="outlined"
                             margin="normal"
@@ -164,20 +193,22 @@ function CreateInstance(props: Props) {
                             id="ipAddress"
                             label="Ip Address"
                             name="ipAddress"
-                            required
-                            value={ipAddress}
-                            onChange={(e) => setIpAddress(e.target.value)}
+                            value={formik.values.ipAddress}
+                            onChange={formik.handleChange}
+                            error={formik.touched.ipAddress && Boolean(formik.errors.ipAddress)}
+                            helperText={formik.touched.ipAddress && formik.errors.ipAddress}
                         />
                         <TextField
                             variant="outlined"
                             margin="normal"
                             fullWidth
                             id="maxUsers"
-                            label="curremtUser"
-                            name="curremtUser"
-                            required
-                            value={curremtUser}
-                            onChange={(e) => setCurrentUser(e.target.value)}
+                            label="current users"
+                            name="currentUsers"
+                            value={formik.values.currentUsers}
+                            onChange={formik.handleChange}
+                            error={formik.touched.currentUsers && Boolean(formik.errors.currentUsers)}
+                            helperText={formik.touched.currentUsers && formik.errors.currentUsers}
                         />
 
                         <Autocomplete
@@ -206,7 +237,6 @@ function CreateInstance(props: Props) {
                                     type="submit"
                                     variant="contained"
                                     color="primary"
-                                    onClick={submitInstance}
                                 >
                                     Create
                                 </Button>
@@ -219,6 +249,7 @@ function CreateInstance(props: Props) {
                                 Cancel
                             </Button>
                         </FormGroup>
+                        </form>
                     </div>
                 </Fade>
             </Modal>
