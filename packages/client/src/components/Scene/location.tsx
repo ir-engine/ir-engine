@@ -441,7 +441,7 @@ export const EnginePage = (props: Props) => {
   const mobileGamepadProps = { hovered: objectHovered, layout: 'default' };
   const mobileGamepad = isMobileOrTablet() ? <MobileGamepad {...mobileGamepadProps} /> : null;
 
-  if(userBanned) return (<div className="banned">You have been banned from this location</div>)
+  if(userBanned) return (<div className="banned">You have been banned from this location</div>);
   return isInXR ? <></> : (
     <>
       {isValidLocation && <UserMenu />}

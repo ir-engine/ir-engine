@@ -18,7 +18,7 @@ import { Box, CardMedia, makeStyles, Typography } from '@material-ui/core';
 import { useTranslation } from 'react-i18next';
 
 // @ts-ignore
-import classes from './ViewMode.module.scss'
+import classes from './ViewMode.module.scss';
 
 const mapStateToProps = (state: any): any => {
   return {
