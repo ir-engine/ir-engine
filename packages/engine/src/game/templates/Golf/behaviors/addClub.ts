@@ -33,11 +33,7 @@ export const addClub: Behavior = (entity: Entity, args?: any, delta?: number, en
     shape: SHAPES.Box,
     options: { boxExtents: { x: 0.05, y: 0.1, z: 0.05 } },
     transform: new Transform({
-      translation: { x: pos.x, y: pos.y, z: pos.z },
-      rotation: { x: rot.x, y: rot.y, z: rot.z, w: rot.w },
-      scale: { x: scale.x, y: scale.y, z: scale.z },
-      linearVelocity: { x: 0, y: 0, z: 0 },
-      angularVelocity: { x: 0, y: 0, z: 0 }
+      translation: { x: 0, y: 0.1, z: -1.7 }
     }),
     config: {
       collisionLayer: 1 << 6,
@@ -48,7 +44,11 @@ export const addClub: Behavior = (entity: Entity, args?: any, delta?: number, en
   const body = new Body({
     shapes: [shapeHandle, shapeHead],
     type: BodyType.DYNAMIC,
-    transform: new Transform(),
+    transform: new Transform({
+      translation: { x: pos.x, y: pos.y, z: pos.z },
+      rotation: { x: rot.x, y: rot.y, z: rot.z, w: rot.w },
+      scale: { x: scale.x, y: scale.y, z: scale.z }
+    })
   });
 
   PhysicsSystem.instance.addBody(body);

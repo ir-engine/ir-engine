@@ -50,7 +50,7 @@ import { isDifferent } from "./gameDefault/checkers/isDifferent";
 import { grabEquippable } from "../../interaction/functions/grabEquippable";
 import { Interactable } from "../../interaction/components/Interactable";
 import { getComponent } from "../../ecs/functions/EntityFunctions";
-import { disableInteractiveToOthers, disableInteractive } from "./Golf/behaviors/disableInteractiveToOthers";
+import { disableInteractiveToOthers, disableInteractive, disableInteractiveHover } from "./Golf/behaviors/disableInteractiveToOthers";
 /**
  * @author HydraFire
  */
@@ -154,7 +154,7 @@ export const GolfGameMode: GameMode = somePrepareFunction({
       behaviors: [addClub],
     },
     'GolfHole': {
-      behaviors: [addHole]
+      behaviors: [addHole, disableInteractive]
     },
     'GolfTee': {
       behaviors: [disableInteractive]
@@ -163,7 +163,8 @@ export const GolfGameMode: GameMode = somePrepareFunction({
       components: [PanelDown],
       storage:[
         { component: TransformComponent, variables: ['position'] }
-      ]
+      ],
+      behaviors: [disableInteractive]
     },
     'WaitingPanel': {
       components: [PanelUp],
@@ -245,6 +246,46 @@ export const GolfGameMode: GameMode = somePrepareFunction({
               }
             }
           }
+        },
+        {
+          behavior: nextTurn,
+          watchers:[ [ YourTurn ] ],
+          takeEffectOn: {
+            targetsRole: {
+              'GolfBall': {
+                watchers:[ [ HaveBeenInteracted ] ],
+                checkers:[{
+                  function: ifNamed,
+                  args: { on: 'target', name: '1' }
+                }]
+              }
+            }
+          }
+        },
+        {
+          behavior: nextTurn,
+          watchers:[ [ YourTurn ] ],
+          takeEffectOn: {
+            targetsRole: {
+              'GolfBall': {
+                watchers:[ [ HasHadCollision ] ],
+                checkers:[{
+                  function: ifNamed,
+                  args: { on: 'target', name: '1' }
+                },{
+                    function: customChecker,
+                    args: {
+                      on: 'GolfClub',
+                      watchers: [ [ HasHadCollision ] ],
+                      checkers:[{
+                        function: ifNamed,
+                        args: { on: 'me', name: '1' }
+                      }]
+                     }
+                  }]
+              }
+            }
+          }
         }
       ]
     },
@@ -310,6 +351,31 @@ export const GolfGameMode: GameMode = somePrepareFunction({
                   function: ifNamed,
                   args: { on: 'target', name: '2' }
                 }]
+              }
+            }
+          }
+        },
+        {
+          behavior: nextTurn,
+          watchers:[ [ YourTurn ] ],
+          takeEffectOn: {
+            targetsRole: {
+              'GolfBall': {
+                watchers:[ [ HasHadCollision ] ],
+                checkers:[{
+                  function: ifNamed,
+                  args: { on: 'target', name: '2' }
+                },{
+                    function: customChecker,
+                    args: {
+                      on: 'GolfClub',
+                      watchers: [ [ HasHadCollision ] ],
+                      checkers:[{
+                        function: ifNamed,
+                        args: { on: 'me', name: '2' }
+                      }]
+                     }
+                  }]
               }
             }
           }
@@ -423,18 +489,18 @@ export const GolfGameMode: GameMode = somePrepareFunction({
       'objectMove': templates['switchState -> objectMove']( { y:1, stateToMoveBack: PanelDown, stateToMove: PanelUp,  min: 0.2, max: 3 })
     },
     '1stTurnPanel': {
-      'objectMove' : templates['switchState -> objectMove']({ y:1, min: 0.2, max: 3, stateToMoveBack: PanelDown, stateToMove: PanelUp })
+      'objectMove' : templates['switchState -> objectMove']({ y:1, min: 0.2, max: 4, stateToMoveBack: PanelDown, stateToMove: PanelUp })
     },
     '2stTurnPanel': {
-      'objectMove' : templates['switchState -> objectMove']({ y:1, min: 0.2, max: 3, stateToMoveBack: PanelDown, stateToMove: PanelUp })
+      'objectMove' : templates['switchState -> objectMove']({ y:1, min: 0.2, max: 4, stateToMoveBack: PanelDown, stateToMove: PanelUp })
     },
     'StartGamePanel': {
       'switchState': templates['isPlayersInGame -> switchState']({ remove: PanelUp, add: PanelDown }),
-      'objectMove': templates['switchState -> objectMove']({ y:1, min: 0.2, max: 3, stateToMoveBack: PanelDown, stateToMove: PanelUp })
+      'objectMove': templates['switchState -> objectMove']({ y:1, min: 0.2, max: 5, stateToMoveBack: PanelDown, stateToMove: PanelUp })
     },
     'WaitingPanel': {
       'switchState': templates['isPlayersInGame -> switchState']({ remove: PanelDown, add: PanelUp }),
-      'objectMove': templates['switchState -> objectMove']({ y:1, min: 0.2, max: 3, stateToMoveBack: PanelDown, stateToMove: PanelUp })
+      'objectMove': templates['switchState -> objectMove']({ y:1, min: 0.2, max: 5, stateToMoveBack: PanelDown, stateToMove: PanelUp })
     },
     'Door': {
       'switchState': templates['HaveBeenInteracted -> switchState']({ remove: Closed, add: Open }),

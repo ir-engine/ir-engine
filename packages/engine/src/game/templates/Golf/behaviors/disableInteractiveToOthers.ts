@@ -28,3 +28,8 @@ export const disableInteractive: Behavior = (entity: Entity, args?: any, delta?:
     return false
   }
 };
+
+export const disableInteractiveHover: Behavior = (entity: Entity, args?: any, delta?: number, entityTarget?: Entity, time?: number, checks?: any): void => {
+  const interactable = getMutableComponent(entity, Interactable)//.data.interactionText;
+  interactable.onInteractionFocused = '';
+};
