@@ -2,22 +2,45 @@
     display: flex;
     flex-direction: column;
     font-size: 17pt;
-    
+    .cardContent{
+        padding: 0px 16pt;
+    }
     .tipItem{
         width: 100%;
         .previewImage{
-            height: 250px;
+            height: 210pt;
             background-color: rgba(116, 116, 128, 0.08);
+            object-fit: cover;
+            //@media screen and (max-width: 499px){
+            //    height: 167pt;
+            //}
         }
         .tipsTitle{
             font-family: "SFProText-Heavy";
             font-size: 18pt;
+            //@media screen and (max-width: 499px){
+            //    font-size: 16pt;
+            //}
         }
         .tipsDescription{
             font-family: "SFProText-Regular";
             font-size: 17pt;
             line-height: 22pt;
             letter-spacing: -0.41pt;
+            //@media screen and (max-width: 499px){
+            //    font-size: 14pt;
+            //}
+        }
+        @media screen and (max-width: 499px){
+            .previewImage{
+                height: 167pt;
+            }
+            .tipsTitle{
+                font-size: 16pt;
+            }
+            .tipsDescription{
+                font-size: 14pt;
+            }
         }
     }
 }

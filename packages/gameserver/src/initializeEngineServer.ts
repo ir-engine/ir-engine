@@ -24,6 +24,7 @@ import { now } from '@xrengine/engine/src/common/functions/now';
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents';
 import { loadScene } from '@xrengine/engine/src/scene/functions/SceneLoading';
 import { AnimationManager } from '@xrengine/engine/src/character/AnimationManager';
+import { InteractiveSystem } from '@xrengine/engine/src/interaction/systems/InteractiveSystem';
 // import { PositionalAudioSystem } from './audio/systems/PositionalAudioSystem';
 
 const isWindows = process.platform === "win32";
@@ -70,6 +71,7 @@ export const initializeEngineServer = async (initOptions: InitializeOptions = De
   registerSystem(ServerSpawnSystem, { priority: 899 });
   registerSystem(TransformSystem, { priority: 900 });
   registerSystem(GameManagerSystem);// { priority: 901 });
+  registerSystem(InteractiveSystem);
 
   await Promise.all(Engine.systems.map((system) => { 
     return new Promise<void>(async (resolve) => { await system.initialize(); system.initialized = true; resolve(); }); 

@@ -11,6 +11,14 @@ import { CharacterComponent } from "../../character/components/CharacterComponen
 import { XRInputReceiver } from '../../input/components/XRInputReceiver';
 import { initiateIK, stopIK } from "./IKFunctions";
 import { initializeMovingState } from "../../character/animations/MovingAnimations";
+import { CHARACTER_STATES } from "../../character/state/CharacterStates";
+import { clearBit, setBit } from "../../common/functions/bitFunctions";
+import { getBit } from "../../common/functions/bitFunctions";
+import { Entity } from "../../ecs/classes/Entity";
+import { ParityValue } from "../../common/enums/ParityValue";
+import { Input } from "../../input/components/Input";
+import { BaseInput } from "../../input/enums/BaseInput";
+import { SIXDOFType } from "../../common/types/NumericalTypes";
 
 let head, controllerGripLeft, controllerLeft, controllerRight, controllerGripRight;
 
@@ -28,24 +36,26 @@ export const startXR = async () => {
 
     const cameraFollow = getMutableComponent<FollowCameraComponent>(Network.instance.localClientEntity, FollowCameraComponent) as FollowCameraComponent;
     cameraFollow.mode = CameraModes.XR;
-    const actor = getComponent(Network.instance.localClientEntity, CharacterComponent);
+    const actor = getMutableComponent(Network.instance.localClientEntity, CharacterComponent);
     actor.tiltContainer.add(dolly);
     Engine.scene.remove(Engine.camera);
     dolly.add(Engine.camera);
 
+    actor.state = setBit(actor.state, CHARACTER_STATES.VR);
+
     // until retargeting is fixed, we can simply just not init IK
     // initiateIK(Network.instance.localClientEntity)
 
-    actor.modelContainer.children[0].traverse((child: Mesh) => {
-      if(child.isMesh) {
+    actor.modelContainer.children[0]?.traverse((child) => {
+      if(child.visible) {
         child.visible = false;
       }
     })
 
 
     head = Engine.renderer.xr.getCamera(Engine.camera);
-    controllerLeft = Engine.renderer.xr.getController(0);
-    controllerRight = Engine.renderer.xr.getController(1);
+    controllerLeft = Engine.renderer.xr.getController(1);
+    controllerRight = Engine.renderer.xr.getController(0);
     dolly.add(controllerLeft);
     dolly.add(controllerRight);
     // dolly.add(head);
@@ -76,8 +86,8 @@ export const startXR = async () => {
 
     })
 
-    controllerGripLeft = Engine.renderer.xr.getControllerGrip(0);
-    controllerGripRight = Engine.renderer.xr.getControllerGrip(1);
+    controllerGripLeft = Engine.renderer.xr.getControllerGrip(1);
+    controllerGripRight = Engine.renderer.xr.getControllerGrip(0);
 
     addComponent(Network.instance.localClientEntity, XRInputReceiver, {
       head: head,
@@ -129,7 +139,7 @@ export const endXR = () => {
   Engine.xrSession.end();
   Engine.xrSession = null;
   // Engine.renderer.setAnimationLoop(null);
-  const actor = getComponent(Network.instance.localClientEntity, CharacterComponent);
+  const actor = getMutableComponent(Network.instance.localClientEntity, CharacterComponent);
   actor.tiltContainer.remove(XRSystem.instance.cameraDolly);
   Engine.scene.add(Engine.camera);
   stopIK(Network.instance.localClientEntity)
@@ -140,6 +150,8 @@ export const endXR = () => {
       child.visible = true;
     }
   })
+  
+  actor.state = clearBit(actor.state, CHARACTER_STATES.VR);
 
 }
 
@@ -161,3 +173,15 @@ const createController = (data) => {
       return new Mesh( geometry, material );
   }
 };
+
+export const isInXR = (entity: Entity) => {
+  const actor = getMutableComponent(entity, CharacterComponent);
+  return Boolean(getBit(actor.state, CHARACTER_STATES.VR));
+}
+
+export const getHandPosition = (entity: Entity, hand: ParityValue = ParityValue.NONE): Vector3 | undefined => {
+  const input = getComponent(entity, Input).data.get(hand === ParityValue.LEFT ? BaseInput.XR_LEFT_HAND : BaseInput.XR_RIGHT_HAND)
+  if(!input) return;
+  const sixdof = input.value as SIXDOFType;
+  return new Vector3(sixdof.x, sixdof.y, sixdof.z);
+}

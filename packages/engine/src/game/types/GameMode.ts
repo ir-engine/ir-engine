@@ -2,6 +2,7 @@ import { Component } from "../../ecs/classes/Component";
 import { ComponentConstructor } from '../../ecs/interfaces/ComponentInterfaces';
 import { Behavior } from "../../common/interfaces/Behavior";
 import { Checker } from "../../game/types/Checker";
+import { Entity } from "../../ecs/classes/Entity";
 /**
  * @author HydraFire <github.com/HydraFire>
  */
@@ -57,7 +58,7 @@ export interface RoleBehaviorWithTarget {
 export interface RoleBehaviors {
   [key: string]: Array<{
     behavior: Behavior,
-    args?: any,
+    args?: any | ((entity: Entity) => void),
     watchers?: ComponentConstructor<Component<any>>[][],
     checkers?: Array<{
       function: Checker,

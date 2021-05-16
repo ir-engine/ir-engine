@@ -1,5 +1,5 @@
 import { PhysicsSystem } from '../systems/PhysicsSystem';
-import { CollisionGroups } from "../enums/CollisionGroups";
+import { CollisionGroups, DefaultCollisionMask } from "../enums/CollisionGroups";
 import { createShapeFromConfig, Shape, SHAPES, Body, BodyType, getGeometry, arrayOfPointsToArrayOfVector3 } from "three-physx";
 import { Entity } from '../../ecs/classes/Entity';
 import { ColliderComponent } from '../components/ColliderComponent';
@@ -36,7 +36,7 @@ const xVec = new Vector3(1, 0, 0);
 const halfPI = Math.PI / 2;
 
 export function addColliderWithoutEntity(userData, pos = new Vector3(), rot = new Quaternion(), scale = new Vector3(), model = { mesh: null, vertices: null, indices: null }): Body {
-  console.log(userData, pos, rot, scale, model)
+  // console.log(userData, pos, rot, scale, model)
   if(model.mesh && !model.vertices) {
     const mergedGeom = getGeometry(model.mesh);
     model.vertices = Array.from(mergedGeom.attributes.position.array);
@@ -100,7 +100,11 @@ export function addColliderWithoutEntity(userData, pos = new Vector3(), rot = ne
   // console.log('shape', shape);
 
   shape.config.collisionLayer = userData.collisionLayer ?? CollisionGroups.Default;
-  shape.config.collisionMask = userData.collisionMask ?? CollisionGroups.All;
+  shape.config.collisionMask = userData.collisionMask ?? DefaultCollisionMask;
+
+  if(userData.type === 'ground') {
+    shape.config.collisionLayer = CollisionGroups.Ground;
+  }
 
   if(userData.action === 'portal') {
     shape.config.collisionLayer |= CollisionGroups.TriggerCollider;

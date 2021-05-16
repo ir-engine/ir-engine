@@ -64,7 +64,10 @@
             background-color: #000;
             color: #FFF;
             position: fixed;
-            bottom: 110px;
+            bottom: 125pt;
+            @media screen and (max-width: 499px){
+                bottom: 110pt;
+            }
         }
     }
 }
