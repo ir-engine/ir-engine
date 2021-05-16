@@ -13,16 +13,17 @@ export const teleportObject: Behavior = (entity: Entity, args?: any, delta?: num
 
 
   const collider = getComponent(entity, ColliderComponent)
-  const transform = getComponent(entityTarget, TransformComponent).position
+  const position = getComponent(entityTarget, TransformComponent).position
   //console.warn(collider);
   //console.warn(transform);
 
   collider.body.updateTransform({
     translation: {
-      x: 10,
-      y: 10,
-      z: 10
-    }
+      x: position.x,
+      y: position.y,
+      z: position.z
+    },
+    rotation: {}
   })
 
 };

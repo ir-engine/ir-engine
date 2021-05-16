@@ -213,6 +213,7 @@ export const GolfGameMode: GameMode = somePrepareFunction({
             }
           }
         },
+        /*
         {
           behavior: switchState,
           args: { on: 'target' },
@@ -230,6 +231,7 @@ export const GolfGameMode: GameMode = somePrepareFunction({
             }
           }
         },
+        */
         {
           behavior: saveScore,
           args: { on: 'me' },
@@ -287,6 +289,7 @@ export const GolfGameMode: GameMode = somePrepareFunction({
             }
           }
         },
+        /*
         {
           behavior: switchState,
           args: { on: 'target' },
@@ -304,6 +307,7 @@ export const GolfGameMode: GameMode = somePrepareFunction({
             }
           }
         },
+        */
         {
           behavior: saveScore,
           args: { on: 'me' },
