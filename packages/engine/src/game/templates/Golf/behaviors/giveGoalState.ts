@@ -4,7 +4,7 @@ import { Entity } from '../../../../ecs/classes/Entity';
 import { getComponent } from "../../../../ecs/functions/EntityFunctions";
 import { addActionComponent, sendActionComponent, applyActionComponent } from '../../../functions/functionsActions';
 import { ColliderComponent } from '../../../../physics/components/ColliderComponent';
-import { Goal } from "../../../../game/actions/Goal";
+
 import { getStorage, setStorage } from '../functions/functionsStorage';
 import { Interactable } from '../../../../interaction/components/Interactable';
 import { GamesSchema } from "../../../../game/templates/GamesSchema";
@@ -23,6 +23,6 @@ export const giveGoalState: Behavior = (entity: Entity, args?: any, delta?: numb
 
   const entityPlayer = game.gamePlayers[Object.keys(gameSchema.gamePlayerRoles)[nameObject]][0];
 
-  addActionComponent( entityPlayer, Goal );
+  //addStateComponent( entityPlayer, Goal );
 
 };

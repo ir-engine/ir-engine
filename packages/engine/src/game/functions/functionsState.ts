@@ -16,6 +16,7 @@ import { Open } from '../templates/gameDefault/components/OpenTagComponent';
 import { PanelDown } from '../templates/gameDefault/components/PanelDownTagComponent';
 import { PanelUp } from '../templates/gameDefault/components/PanelUpTagComponent';
 import { YourTurn } from '../templates/Golf/components/YourTurnTagComponent';
+import { Goal } from '../templates/Golf/components/GoalTagComponent';
 import { Active } from "../templates/gameDefault/components/ActiveTagComponent";
 import { Deactive } from "../templates/gameDefault/components/DeactiveTagComponent";
 import { FromPlayer1, FromPlayer2, FromPlayer3 } from "../templates/Golf/components/FromPlayer1TagComponent";
@@ -39,9 +40,7 @@ const gameStateComponents = {
   'YourTurn': YourTurn,
   'Active': Active,
   'Deactive': Deactive,
-  'FromPlayer1': FromPlayer1,
-  'FromPlayer2': FromPlayer2,
-  'FromPlayer3': FromPlayer3
+  'Goal': Goal
 };
 
 export const initState = (game: Game, gameSchema: GameMode): void => {
@@ -109,7 +108,7 @@ export const applyState = (game: Game): void => {
       const uuid = getUuid(entity);
 
       const stateObject = game.state.find((v: StateObject) => v.uuid === uuid);
-      //  console.warn(stateObject);
+
       if (stateObject != undefined) {
         stateObject.components.forEach((componentName: string) => {
           if(gameStateComponents[componentName])

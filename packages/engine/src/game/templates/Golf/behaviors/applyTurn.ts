@@ -11,14 +11,15 @@ import { YourTurn } from "../components/YourTurnTagComponent";
 
 export const applyTurn: Behavior = (entity: Entity, args?: any, delta?: number, entityTarget?: Entity, time?: number, checks?: any): void => {
   const game = getComponent(entity, GamePlayer).game;
-
+/*
    Object.keys(game.gamePlayers).forEach(role => {
     const otherPlayerEntity = game.gamePlayers[role].find(entityF => hasComponent(entityF, YourTurn));
     if (otherPlayerEntity) {
-      console.warn('removeStateComponent');
+      console.warn('applyTurn: removeStateComponent');
       removeStateComponent(otherPlayerEntity, YourTurn);
     }
   });
-
+  console.warn('applyTurn: addStateComponent');
   addStateComponent(entity, YourTurn);
+  */
 };

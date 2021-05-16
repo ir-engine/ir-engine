@@ -27,6 +27,7 @@ export const addClub: Behavior = (entity: Entity, args?: any, delta?: number, en
     config: {
       collisionLayer: 1 << 6,
       collisionMask: CollisionGroups.Ground
+    }
   });
   const shapeHead: Shape = createShapeFromConfig({
     shape: SHAPES.Box,

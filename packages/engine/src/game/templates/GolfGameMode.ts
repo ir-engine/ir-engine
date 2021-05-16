@@ -11,16 +11,15 @@ import { PanelUp } from "./gameDefault/components/PanelUpTagComponent";
 import { YourTurn } from "./Golf/components/YourTurnTagComponent";
 import { Active } from "./gameDefault/components/ActiveTagComponent";
 import { Deactive } from "./gameDefault/components/DeactiveTagComponent";
+import { Goal } from "./Golf/components/GoalTagComponent";
 // game Action Tag Component
 import { HaveBeenInteracted } from "../../game/actions/HaveBeenInteracted";
 import { HasHadCollision } from "../../game/actions/HasHadCollision";
-import { NextTurn } from "../../game/actions/NextTurn";
-import { Goal } from "../../game/actions/Goal";
 // game behavior
 import { executeBehaviorArray } from "./gameDefault/behaviors/executeBehaviorArray";
 import { objectMove } from "./gameDefault/behaviors/objectMove";
 import { switchState } from "./gameDefault/behaviors/switchState";
-import { giveAction } from "./gameDefault/behaviors/giveAction";
+import { giveState } from "./gameDefault/behaviors/giveState";
 //
 import { addForce } from "./Golf/behaviors/addForce";
 import { addRestitution } from "./Golf/behaviors/addRestitution";
@@ -51,7 +50,7 @@ import { isDifferent } from "./gameDefault/checkers/isDifferent";
 import { grabEquippable } from "../../interaction/functions/grabEquippable";
 import { Interactable } from "../../interaction/components/Interactable";
 import { getComponent } from "../../ecs/functions/EntityFunctions";
-import { disableInteractiveToOthers } from "./Golf/behaviors/disableInteractiveToOthers";
+import { disableInteractiveToOthers, disableInteractive } from "./Golf/behaviors/disableInteractiveToOthers";
 /**
  * @author HydraFire
  */
@@ -126,9 +125,7 @@ export const GolfGameMode: GameMode = somePrepareFunction({
   priority: 1,
   registerActionTagComponents: [
     HaveBeenInteracted,
-    HasHadCollision,
-    NextTurn,
-    Goal
+    HasHadCollision
   ],
   registerStateTagComponents: [
     Open,
@@ -137,7 +134,8 @@ export const GolfGameMode: GameMode = somePrepareFunction({
     PanelDown,
     YourTurn,
     Active,
-    Deactive
+    Deactive,
+    Goal
   ],
   initGameState: {
     'newPlayer': {
@@ -159,7 +157,7 @@ export const GolfGameMode: GameMode = somePrepareFunction({
       behaviors: [addHole]
     },
     'GolfTee': {
-      behaviors: []
+      behaviors: [disableInteractive]
     },
     'StartGamePanel GoalPanel 1stTurnPanel 2stTurnPanel': {
       components: [PanelDown],
@@ -183,15 +181,6 @@ export const GolfGameMode: GameMode = somePrepareFunction({
   gamePlayerRoles: {
     'newPlayer': {},
     '1-Player': {
-      'MyTurn': [
-        {
-          behavior: applyTurn,
-          watchers:[ [ NextTurn ] ],
-        }
-      ],
-      'haveGoal': [
-        { behavior: displayScore, watchers:[ [ Goal ] ] }
-      ],
       'hitBall': [
         {
           behavior: addForce,
@@ -210,22 +199,6 @@ export const GolfGameMode: GameMode = somePrepareFunction({
           }
         },
         {
-          behavior: nextTurn,
-          watchers:[ [ YourTurn ] ],
-          takeEffectOn: {
-            targetsRole: {
-              'GolfBall': {
-                watchers:[ [ HaveBeenInteracted ] ],
-                checkers:[{
-                  function: ifNamed,
-                  args: { on: 'target', name: '1' }
-                }]
-              }
-            }
-          }
-        },
-        /*
-        {
           behavior: switchState,
           args: { on: 'target' },
           watchers:[ [ YourTurn ] ],
@@ -242,10 +215,24 @@ export const GolfGameMode: GameMode = somePrepareFunction({
             }
           }
         },
-        */
         {
           behavior: saveScore,
           args: { on: 'me' },
+          watchers:[ [ YourTurn ] ],
+          takeEffectOn: {
+            targetsRole: {
+              'GolfBall': {
+                watchers:[ [ HaveBeenInteracted ] ],
+                checkers:[{
+                  function: ifNamed,
+                  args: { on: 'target', name: '1' }
+                }]
+              }
+            }
+          }
+        },
+        {
+          behavior: nextTurn,
           watchers:[ [ YourTurn ] ],
           takeEffectOn: {
             targetsRole: {
@@ -262,12 +249,6 @@ export const GolfGameMode: GameMode = somePrepareFunction({
       ]
     },
     '2-Player': {
-      'MyTurn': [
-        { behavior: applyTurn, watchers:[ [ NextTurn ] ] }
-      ],
-      'haveGoal': [
-        { behavior: displayScore, watchers:[ [ Goal ] ] }
-      ],
       'hitBall': [
         {
           behavior: addForce,
@@ -286,22 +267,6 @@ export const GolfGameMode: GameMode = somePrepareFunction({
           }
         },
         {
-          behavior: nextTurn,
-          watchers:[ [ YourTurn ] ],
-          takeEffectOn: {
-            targetsRole: {
-              'GolfBall': {
-                watchers:[ [ HaveBeenInteracted ] ],
-                checkers:[{
-                  function: ifNamed,
-                  args: { on: 'target', name: '2' }
-                }]
-              }
-            }
-          }
-        },
-        /*
-        {
           behavior: switchState,
           args: { on: 'target' },
           watchers:[ [ YourTurn ] ],
@@ -318,10 +283,24 @@ export const GolfGameMode: GameMode = somePrepareFunction({
             }
           }
         },
-        */
         {
           behavior: saveScore,
           args: { on: 'me' },
+          watchers:[ [ YourTurn ] ],
+          takeEffectOn: {
+            targetsRole: {
+              'GolfBall': {
+                watchers:[ [ HaveBeenInteracted ] ],
+                checkers:[{
+                  function: ifNamed,
+                  args: { on: 'target', name: '2' }
+                }]
+              }
+            }
+          }
+        },
+        {
+          behavior: nextTurn,
           watchers:[ [ YourTurn ] ],
           takeEffectOn: {
             targetsRole: {
@@ -377,8 +356,8 @@ export const GolfGameMode: GameMode = somePrepareFunction({
           }
         },
         {
-          behavior: giveAction,
-          args: { on: 'target', action: Goal },
+          behavior: giveState,
+          args: { on: 'target', component: Goal },
           watchers:[ [ HasHadCollision ] ],
           takeEffectOn: {
             targetsRole: {
@@ -413,12 +392,6 @@ export const GolfGameMode: GameMode = somePrepareFunction({
         },
       ]
     },
-    'GolfClub': {
-      'grab': [
-        {
-          behavior: grabEquippable,
-          args: (entityGolfclub) =>  { return { ...getComponent(entityGolfclub, HaveBeenInteracted).args } },
-          watchers:[ [ HaveBeenInteracted ] ],
     'GolfClub': {
       'grab': [
         {
