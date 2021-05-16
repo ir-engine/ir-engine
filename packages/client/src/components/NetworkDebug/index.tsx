@@ -22,7 +22,7 @@ export const NetworkDebug = ({ reinit  }) => {
       EngineEvents.instance.dispatchEvent({ type: DebugHelpersSystem.EVENTS.TOGGLE_PHYSICS, enabled: !physicsDebug });
       setPhysicsDebug(!physicsDebug);
     }
-  })
+  });
 
   // If pressed key is our target key then set to true
   function downHandler({ keyCode }) {
@@ -40,7 +40,7 @@ export const NetworkDebug = ({ reinit  }) => {
     }, 1000);
     return () => {
       clearInterval(interval);
-    }
+    };
   }, []);
 
   const [remountCount, setRemountCount] = useState(0);

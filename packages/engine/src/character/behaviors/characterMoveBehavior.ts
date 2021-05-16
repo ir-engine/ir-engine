@@ -15,6 +15,7 @@ import { isServer } from '../../common/functions/isServer';
 import { XRUserSettings, XR_FOLLOW_MODE } from '../../xr/types/XRUserSettings';
 import { getBit } from '../../common/functions/bitFunctions';
 import { CHARACTER_STATES } from '../state/CharacterStates';
+import { isInXR } from '../../xr/functions/WebXRFunctions';
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -29,7 +30,7 @@ export const characterMoveBehavior = (entity: Entity, deltaTime): void => {
   const collider = getMutableComponent<ControllerColliderComponent>(entity, ControllerColliderComponent);
   if (!actor.initialized || !collider.controller || !actor.movementEnabled) return;
 
-  if (getBit(actor.state, CHARACTER_STATES.VR)) {
+  if (isInXR(entity)) {
     const inputs = getComponent(entity, Input);
     let rotationVector = null;
     switch (XRUserSettings.moving) {
