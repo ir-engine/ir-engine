@@ -20,6 +20,7 @@ export const NetworkDebug = ({ reinit  }) => {
   document.addEventListener('keypress', (ev) => {
     if(ev.key === 'p') {
       EngineEvents.instance.dispatchEvent({ type: DebugHelpersSystem.EVENTS.TOGGLE_PHYSICS, enabled: !physicsDebug });
+      EngineEvents.instance.dispatchEvent({ type: DebugHelpersSystem.EVENTS.TOGGLE_AVATAR, enabled: !physicsDebug });
       setPhysicsDebug(!physicsDebug);
     }
   });

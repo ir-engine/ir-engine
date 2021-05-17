@@ -233,4 +233,5 @@ export const initializeEditor = async (initOptions: InitializeOptions): Promise<
   Engine.engineTimer.start();
 
   Engine.isInitialized = true;
+  EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.INITIALIZED_ENGINE });
 };

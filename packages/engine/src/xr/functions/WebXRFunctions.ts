@@ -1,5 +1,5 @@
 import { Engine } from "../../ecs/classes/Engine";
-import { AdditiveBlending, BufferGeometry, Float32BufferAttribute, Group, Line, LineBasicMaterial, Material, Mesh, MeshBasicMaterial, MeshPhongMaterial, RingGeometry, Vector3 } from 'three';
+import { AdditiveBlending, BufferGeometry, Float32BufferAttribute, Group, Line, LineBasicMaterial, Material, Mesh, MeshBasicMaterial, MeshPhongMaterial, Quaternion, RingGeometry, Vector3 } from 'three';
 import { getLoader } from "../../assets/functions/LoadGLTF";
 // import { GLTF } from "../../assets/loaders/gltf/GLTFLoader";
 import { FollowCameraComponent } from "../../camera/components/FollowCameraComponent";
@@ -184,4 +184,19 @@ export const getHandPosition = (entity: Entity, hand: ParityValue = ParityValue.
   if(!input) return;
   const sixdof = input.value as SIXDOFType;
   return new Vector3(sixdof.x, sixdof.y, sixdof.z);
+}
+export const getHandRotation = (entity: Entity, hand: ParityValue = ParityValue.NONE): Quaternion | undefined => {
+  const input = getComponent(entity, Input).data.get(hand === ParityValue.LEFT ? BaseInput.XR_LEFT_HAND : BaseInput.XR_RIGHT_HAND)
+  if(!input) return;
+  const sixdof = input.value as SIXDOFType;
+  return new Quaternion(sixdof.qX, sixdof.qY, sixdof.qZ, sixdof.qW);
+}
+export const getHandTransform = (entity: Entity, hand: ParityValue = ParityValue.NONE): { position: Vector3, rotation: Quaternion } | undefined => {
+  const input = getComponent(entity, Input).data.get(hand === ParityValue.LEFT ? BaseInput.XR_LEFT_HAND : BaseInput.XR_RIGHT_HAND)
+  if(!input) return;
+  const sixdof = input.value as SIXDOFType;
+  return { 
+    position: new Vector3(sixdof.x, sixdof.y, sixdof.z),
+    rotation: new Quaternion(sixdof.qX, sixdof.qY, sixdof.qZ, sixdof.qW)
+  }
 }

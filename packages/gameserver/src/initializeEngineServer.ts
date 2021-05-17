@@ -86,4 +86,5 @@ export const initializeEngineServer = async (initOptions: InitializeOptions = De
   Engine.engineTimer.start();
 
   Engine.isInitialized = true;
+  EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.INITIALIZED_ENGINE });
 };

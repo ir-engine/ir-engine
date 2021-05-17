@@ -26,10 +26,11 @@ export const addHole: Behavior = (entity: Entity, args?: any, delta?: number, en
     shape: SHAPES.Box,
     options: { boxExtents: { x: scale.x, y: scale.y, z: scale.z } },
 
-    config: {
+    // TODO: upgrade three-physx and uncomment following commented lines
+    // config: {
       collisionLayer: 42,
       collisionMask: 15
-    }
+    // }
 
   });
 

@@ -32,7 +32,7 @@ const usingThumbstick = () => {
 
 const handleTouchMove = (args: { event: TouchEvent }): void => {
 
-  if(!ClientInputSystem.instance.mouseInputEnabled) {
+  if (!ClientInputSystem.instance.mouseInputEnabled) {
     return;
   }
 
@@ -88,7 +88,7 @@ const handleTouchMove = (args: { event: TouchEvent }): void => {
 
     const usingStick = usingThumbstick();
 
-    if(usingStick) {
+    if (usingStick) {
       if (Engine.inputState.has(scaleMappedInputKey)) {
         const oldValue = Engine.inputState.get(scaleMappedInputKey).value as number;
         Engine.inputState.set(scaleMappedInputKey, {
@@ -145,23 +145,17 @@ const handleTouchMove = (args: { event: TouchEvent }): void => {
  * @param args is argument object
  */
 const handleTouch = ({ event, value }: { event: TouchEvent; value: BinaryType }): void => {
-    if(!ClientInputSystem.instance.mouseInputEnabled) {
-      return;
-    }
-    if (event.targetTouches.length) {
+  if (!ClientInputSystem.instance.mouseInputEnabled) {
+    return;
+  }
+  if (event.targetTouches.length) {
     const mappedInputKey = TouchInputs.Touch;
-    if (!mappedInputKey) {
-      return;
-    }
     if (value === BinaryValue.ON) {
-
-      if(event.targetTouches.length == 1) {
-
+      if (event.targetTouches.length == 1) {
         const timeNow = Date.now();
         const doubleTapInput = TouchInputs.DoubleTouch;
-
-        if(timeNow - lastTap < tapLength) {
-          if(Engine.inputState.has(doubleTapInput)) {
+        if (timeNow - lastTap < tapLength) {
+          if (Engine.inputState.has(doubleTapInput)) {
             Engine.inputState.set(doubleTapInput, {
               type: InputType.BUTTON,
               value: BinaryValue.ON,
@@ -175,7 +169,7 @@ const handleTouch = ({ event, value }: { event: TouchEvent; value: BinaryType })
             });
           }
         } else {
-          if(Engine.inputState.has(doubleTapInput)) {
+          if (Engine.inputState.has(doubleTapInput)) {
             Engine.inputState.set(doubleTapInput, {
               type: InputType.BUTTON,
               value: BinaryValue.OFF,
@@ -205,8 +199,7 @@ const handleTouch = ({ event, value }: { event: TouchEvent; value: BinaryType })
         value: value,
         lifecycleState: LifecycleValue.STARTED
       });
-    }
-    else {
+    } else {
       Engine.inputState.set(mappedInputKey, {
         type: InputType.BUTTON,
         value: value,
@@ -215,10 +208,17 @@ const handleTouch = ({ event, value }: { event: TouchEvent; value: BinaryType })
     }
   } else {
     const doubleTapInput = TouchInputs.DoubleTouch;
-    if(Engine.inputState.has(doubleTapInput)) {
+    if (Engine.inputState.has(doubleTapInput)) {
       Engine.inputState.set(doubleTapInput, {
         type: InputType.BUTTON,
         value: BinaryValue.OFF,
+        lifecycleState: LifecycleValue.ENDED
+      });
+    }
+    if (Engine.inputState.has(TouchInputs.Touch1Movement)) {
+      Engine.inputState.set(TouchInputs.Touch1Movement, {
+        type: InputType.TWODIM,
+        value: [0, 0],
         lifecycleState: LifecycleValue.ENDED
       });
     }
@@ -285,7 +285,7 @@ function handleOnScreenGamepadButton(args: { event: CustomEvent; value: BinaryTy
   if (args.value === BinaryValue.ON) {
     // If the key is in the map but it's in the same state as now, let's skip it (debounce)
     if (Engine.inputState.has(key) &&
-    Engine.inputState.get(key).value === args.value) {
+      Engine.inputState.get(key).value === args.value) {
       if (Engine.inputState.get(key).lifecycleState !== LifecycleValue.CONTINUED) {
         Engine.inputState.set(key, {
           type: InputType.BUTTON,
@@ -318,7 +318,7 @@ function handleOnScreenGamepadButton(args: { event: CustomEvent; value: BinaryTy
  */
 
 const handleMouseWheel = (args: { event: WheelEvent }): void => {
-  if(!ClientInputSystem.instance.mouseInputEnabled) {
+  if (!ClientInputSystem.instance.mouseInputEnabled) {
     return;
   }
   const value = args.event?.deltaY;
@@ -331,7 +331,7 @@ const handleMouseWheel = (args: { event: WheelEvent }): void => {
     });
   } else {
     const oldValue = Engine.inputState.get(MouseInput.MouseScroll).value as number;
-    if(oldValue === value) {
+    if (oldValue === value) {
       Engine.inputState.set(MouseInput.MouseScroll, {
         type: InputType.ONEDIM,
         value: value,
@@ -357,7 +357,7 @@ const handleMouseWheel = (args: { event: WheelEvent }): void => {
  */
 function normalizeMouseMovement(x: number, y: number, elementWidth: number, elementHeight: number): { x: number; y: number } {
   return {
-    x: x / (elementWidth / 2) ,
+    x: x / (elementWidth / 2),
     y: -y / (elementHeight / 2)
   };
 }
@@ -369,12 +369,12 @@ function normalizeMouseMovement(x: number, y: number, elementWidth: number, elem
  */
 
 const handleMouseMovement = (args: { event: MouseEvent }): void => {
-  if(!ClientInputSystem.instance.mouseInputEnabled) {
+  if (!ClientInputSystem.instance.mouseInputEnabled) {
     return;
   }
 
   const normalizedPosition = normalizeMouseCoordinates(args.event.clientX, args.event.clientY, window.innerWidth, window.innerHeight);
-  const mousePosition: [number, number] = [ normalizedPosition.x, normalizedPosition.y ];
+  const mousePosition: [number, number] = [normalizedPosition.x, normalizedPosition.y];
 
   const mappedPositionInput = MouseInput.MousePosition;
   const mappedMovementInput = MouseInput.MouseMovement;
@@ -383,7 +383,7 @@ const handleMouseMovement = (args: { event: MouseEvent }): void => {
   Engine.inputState.set(mappedPositionInput, {
     type: InputType.TWODIM,
     value: mousePosition,
-    lifecycleState: Engine.inputState.has(mappedPositionInput)? LifecycleValue.CHANGED : LifecycleValue.STARTED
+    lifecycleState: Engine.inputState.has(mappedPositionInput) ? LifecycleValue.CHANGED : LifecycleValue.STARTED
   });
 
   const normalizedMovement = normalizeMouseMovement(args.event.movementX, args.event.movementY, window.innerWidth, window.innerHeight)
@@ -392,12 +392,18 @@ const handleMouseMovement = (args: { event: MouseEvent }): void => {
   Engine.inputState.set(mappedMovementInput, {
     type: InputType.TWODIM,
     value: mouseMovement,
-    lifecycleState: Engine.inputState.has(mappedMovementInput)? LifecycleValue.CHANGED : LifecycleValue.STARTED
+    lifecycleState: Engine.inputState.has(mappedMovementInput) ? LifecycleValue.CHANGED : LifecycleValue.STARTED
   });
 
   // TODO: add support for seperate mouse drag events
   const isDragging = Engine.inputState.get(MouseInput.MouseClickDownPosition);
-  if (isDragging && isDragging.lifecycleState !== LifecycleValue.ENDED) {
+  if (!isDragging || isDragging?.lifecycleState === LifecycleValue.ENDED) {
+    Engine.inputState.set(mappedDragMovementInput, {
+      type: InputType.TWODIM,
+      value: [0, 0],
+      lifecycleState: LifecycleValue.ENDED
+    });
+  } else {
     Engine.inputState.set(mappedDragMovementInput, {
       type: InputType.TWODIM,
       value: mouseMovement,
@@ -415,7 +421,7 @@ const handleMouseMovement = (args: { event: MouseEvent }): void => {
 const handleMouseButton = (args: { event: MouseEvent; value: BinaryType }): void => {
 
   // For if mouse is over UI, disable button clicks for engine
-  if(args.value === BinaryValue.ON && !ClientInputSystem.instance.mouseInputEnabled) {
+  if (args.value === BinaryValue.ON && !ClientInputSystem.instance.mouseInputEnabled) {
     return;
   }
 
@@ -471,7 +477,7 @@ const handleMouseButton = (args: { event: MouseEvent; value: BinaryType }): void
 
 const handleKey = (args: { event: KeyboardEvent; value: BinaryType }): any => {
   // For if mouse is over UI, disable button clicks for engine
-  if(args.value === BinaryValue.ON && !ClientInputSystem.instance.keyboardInputEnabled) {
+  if (args.value === BinaryValue.ON && !ClientInputSystem.instance.keyboardInputEnabled) {
     return;
   }
 
@@ -513,9 +519,9 @@ const handleKey = (args: { event: KeyboardEvent; value: BinaryType }): any => {
 }
 
 const handleVisibilityChange = (args: any) => {
-  if(document.visibilityState === 'hidden') {
+  if (document.visibilityState === 'hidden') {
     Engine.inputState.forEach((value, key) => {
-      if(value.type === InputType.BUTTON && value.value === BinaryValue.ON) {
+      if (value.type === InputType.BUTTON && value.value === BinaryValue.ON) {
         Engine.inputState.set(key, {
           type: InputType.BUTTON,
           value: BinaryValue.OFF,
@@ -582,11 +588,11 @@ const handleMouseLeave = (args: { event: MouseEvent }): void => {
 
 const keys = { 37: 1, 38: 1, 39: 1, 40: 1 };
 
-function preventDefault (e) {
+function preventDefault(e) {
   e.preventDefault();
 }
 
-function preventDefaultForScrollKeys (e) {
+function preventDefaultForScrollKeys(e) {
   if (keys[e.keyCode]) {
     preventDefault(e);
     return false;
@@ -610,8 +616,8 @@ function normalizeMouseCoordinates(x: number, y: number, elementWidth: number, e
 
 
 /** Disable the scroll */
-function disableScroll (): void {
-  if(!isClient) return;
+function disableScroll(): void {
+  if (!isClient) return;
   window.addEventListener('DOMMouseScroll', preventDefault, false); // older FF
   // window.addEventListener(wheelEvent, preventDefault, wheelOpt) // modern desktop
   // window.addEventListener('touchmove', preventDefault, wheelOpt); // mobile
@@ -619,8 +625,8 @@ function disableScroll (): void {
 }
 
 /** Enable the scroll */
-function enableScroll (): void {
-  if(!isClient) return
+function enableScroll(): void {
+  if (!isClient) return
   window.removeEventListener('DOMMouseScroll', preventDefault, false);
   // window.removeEventListener(wheelEvent, preventDefault)
   // window.removeEventListener('touchmove', preventDefault);
