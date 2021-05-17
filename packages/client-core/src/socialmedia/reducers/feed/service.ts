@@ -25,7 +25,8 @@ import {
   fetchingMyFeaturedFeeds,
   fetchingAdminFeeds,
   fetchingFiredFeeds,
-  feedsFiredRetrieved
+  feedsFiredRetrieved,
+  reduxClearCreatorFeatured
 } from './actions';
 
 export function getFeeds(type: string, id?: string, limit?: number) {
@@ -193,4 +194,8 @@ export function setFeedNotFeatured(feedId: string) {
       dispatchAlertError(dispatch, err.message);
     }
   };
+}
+
+export function clearCreatorFeatured(){
+  return async (dispatch: Dispatch): Promise<any> => {dispatch(reduxClearCreatorFeatured());}
 }
