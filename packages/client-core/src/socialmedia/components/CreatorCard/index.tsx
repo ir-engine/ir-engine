@@ -20,9 +20,10 @@ import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
 // @ts-ignore
 import styles from './CreatorCard.module.scss';
 import { selectCreatorsState } from '../../reducers/creator/selector';
-import { getCreator} from '../../reducers/creator/service';
+import { getCreator } from '../../reducers/creator/service';
 import { updateCreatorPageState, updateCreatorFormState } from '../../reducers/popupsState/service';
 import { selectPopupsState } from '../../reducers/popupsState/selector';
+import { clearCreatorFeatured } from '../../reducers/feed/service';
 
 const mapStateToProps = (state: any): any => {
     return {
@@ -35,6 +36,7 @@ const mapStateToProps = (state: any): any => {
     getCreator: bindActionCreators(getCreator, dispatch),
     updateCreatorPageState: bindActionCreators(updateCreatorPageState, dispatch),
     updateCreatorFormState: bindActionCreators(updateCreatorFormState, dispatch),
+    clearCreatorFeatured: bindActionCreators(clearCreatorFeatured, dispatch),
     // followCreator: bindActionCreators(followCreator, dispatch),
     // unFollowCreator: bindActionCreators(unFollowCreator, dispatch),
     // getFollowersList: bindActionCreators(getFollowersList, dispatch),
@@ -48,13 +50,14 @@ const mapStateToProps = (state: any): any => {
     getCreator?: typeof getCreator;
     updateCreatorPageState?: typeof updateCreatorPageState,
     updateCreatorFormState?: typeof updateCreatorFormState,
+    clearCreatorFeatured?: typeof clearCreatorFeatured;
     // followCreator?: typeof followCreator;
     // unFollowCreator?: typeof unFollowCreator;
     // getFollowersList?:typeof getFollowersList;
     // getFollowingList?:typeof getFollowingList;
   }
 
-const CreatorCard = ({creator,creatorState, updateCreatorPageState, popupsState, updateCreatorFormState}:Props) => { 
+const CreatorCard = ({creator,creatorState, updateCreatorPageState, clearCreatorFeatured, popupsState, updateCreatorFormState}:Props) => { 
     const isMe = creator?.id === creatorState?.get('currentCreator').id;
 	const { t } = useTranslation();
 
@@ -95,7 +98,7 @@ const CreatorCard = ({creator,creatorState, updateCreatorPageState, popupsState,
 
     const renderEditButton = () => 
         <Button variant="text" className={styles.moreButton} aria-controls="owner-menu" aria-haspopup="true" 
-            onClick={()=>{updateCreatorFormState(true);}}><MoreHorizIcon />
+            onClick={()=>{updateCreatorFormState(true); clearCreatorFeatured();}}><MoreHorizIcon />
         </Button>;
 
     return  creator ?  (

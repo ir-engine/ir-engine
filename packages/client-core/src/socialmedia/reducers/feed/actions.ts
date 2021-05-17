@@ -25,7 +25,8 @@ import {
   MY_FEATURED_FEEDS_FETCH,
   ADMIN_FEEDS_FETCH,
   FIRED_FEEDS_FETCH,
-  FEEDS_FIRED_RETRIEVED
+  FEEDS_FIRED_RETRIEVED,
+  CLEAR_CREATOR_FEATURED
 } from '../actions';
 import { FeedShort, Feed } from '@xrengine/common/src/interfaces/Feed';
 
@@ -212,5 +213,11 @@ export function updateFeedInList(feed: Feed): FeedRetrievedAction{
   return {
     type: UPDATE_FEED,
     feed
+  };
+}
+
+export function reduxClearCreatorFeatured (): FetchingFeedsAction {
+  return {
+    type: CLEAR_CREATOR_FEATURED
   };
 }
