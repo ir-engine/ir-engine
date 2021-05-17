@@ -21,6 +21,8 @@ import { UserControlledColliderComponent } from '../components/UserControllerObj
 import { HasHadCollision } from "../../game/actions/HasHadCollision";
 import { GameObject } from "../../game/components/GameObject";
 import { addActionComponent } from '../../game/functions/functionsActions';
+import { EquippedComponent } from '../../interaction/components/EquippedComponent';
+
 /**
  * @author HydraFire <github.com/HydraFire>
  * @author Josh Field <github.com/HexaField>
@@ -204,26 +206,27 @@ export class PhysicsSystem extends System {
           });
         }
       });
+    } else {
+      // only on server
+      this.queryResults.correctionFromClient.all?.forEach(entity => {
+        const networkObject = getMutableComponent(entity, NetworkObject);
+        // console.log('correctionFromClient', entity, networkObject.ownerId, Network.instance.userId)
+        if(networkObject.ownerId === Network.instance.userId) {
+          const collider = getMutableComponent(entity, ColliderComponent);
+          Network.instance.clientInputState.transforms.push({
+            networkId: networkObject.networkId,
+            x: collider.body.transform.translation.x,
+            y: collider.body.transform.translation.y,
+            z: collider.body.transform.translation.z,
+            qX: collider.body.transform.rotation.x,
+            qY: collider.body.transform.rotation.y,
+            qZ: collider.body.transform.rotation.z,
+            qW: collider.body.transform.rotation.w,
+            snapShotTime: networkObject.snapShotTime ?? 0,
+          });
+        }
+      });
     }
-
-    this.queryResults.correctionFromClient.all?.forEach(entity => {
-      const networkObject = getMutableComponent(entity, NetworkObject);
-      // console.log('correctionFromClient', entity, networkObject.ownerId, Network.instance.userId)
-      if(networkObject.ownerId === Network.instance.userId) {
-        const collider = getMutableComponent(entity, ColliderComponent);
-        Network.instance.clientInputState.transforms.push({
-          networkId: networkObject.networkId,
-          x: collider.body.transform.translation.x,
-          y: collider.body.transform.translation.y,
-          z: collider.body.transform.translation.z,
-          qX: collider.body.transform.rotation.x,
-          qY: collider.body.transform.rotation.y,
-          qZ: collider.body.transform.rotation.z,
-          qW: collider.body.transform.rotation.w,
-          snapShotTime: networkObject.snapShotTime ?? 0,
-        });
-      }
-    });
 
     PhysXInstance.instance.update();
   }

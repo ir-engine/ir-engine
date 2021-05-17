@@ -35,15 +35,22 @@ import { sendClientObjectUpdate } from "../../networking/functions/sendClientObj
 import { isServer } from "../../common/functions/isServer";
 import { BodyType } from "three-physx";
 import { BinaryValue } from "../../common/enums/BinaryValue";
-import { unequipEntity } from "../functions/equippableFunctions";
 import { ParityValue } from "../../common/enums/ParityValue";
+import { getInteractiveIsInReachDistance } from "../../character/functions/getInteractiveIsInReachDistance";
+import { getHandPosition, getHandRotation, isInXR } from "../../xr/functions/WebXRFunctions";
+import { Input } from "../../input/components/Input";
+import { BaseInput } from "../../input/enums/BaseInput";
+import { SIXDOFType } from "../../common/types/NumericalTypes";
 
 const vector3 = new Vector3();
 const quat = new Quaternion();
+const matrix = new Matrix4();
+const PI_2Deg = Math.PI / 180;
 
 // but is works on client too, i will config out this
 export const interactOnServer: Behavior = (entity: Entity, args: { side: ParityValue}, delta): void => {
   //console.warn('Behavior: interact , networkId ='+getComponent(entity, NetworkObject).networkId);
+
     let focusedArrays = [];
     for (let i = 0; i < Engine.entities.length; i++) {
       const isEntityInteractable = Engine.entities[i];
@@ -56,12 +63,12 @@ export const interactOnServer: Behavior = (entity: Entity, args: { side: ParityV
         if (interactive.interactionPartsPosition.length > 0) {
           interactive.interactionPartsPosition.forEach((v,i) => {
             const partPosition = new Vector3(...v).applyQuaternion(intRotation).add(intPosition);
-            if (position.distanceTo(partPosition) < 3) {
+            if (getInteractiveIsInReachDistance(entity, intPosition)) {
               focusedArrays.push([isEntityInteractable, position.distanceTo(partPosition), i])
             }
           })
         } else {
-          if (position.distanceTo(intPosition) < 3) {
+          if (getInteractiveIsInReachDistance(entity, intPosition)) {
             focusedArrays.push([isEntityInteractable, position.distanceTo(intPosition), null])
           }
         }
@@ -426,19 +433,20 @@ export class InteractiveSystem extends System {
     })
 
     this.queryResults.equippable.all?.forEach(entity => {
-      const equippedComponent = getComponent(entity, EquippedComponent);
+      const actor = getComponent(entity, CharacterComponent, true);
+      const equippedComponent = getComponent(entity, EquippedComponent, true);
       const equippableTransform = getComponent(equippedComponent.equippedEntity, TransformComponent);
-      if(Engine.xrSession) {
-        if(equippedComponent.attachmentPoint === EquippableAttachmentPoint.RIGHT_HAND) {
-          Engine.renderer.xr.getController(0).getWorldPosition(vector3);
-          Engine.renderer.xr.getController(0).getWorldQuaternion(quat);
-        }
+      const equipperTransform = getComponent(entity, TransformComponent);
+      if(isInXR(entity)) {
+        const hand = equippedComponent.attachmentPoint === EquippableAttachmentPoint.LEFT_HAND ? ParityValue.LEFT : ParityValue.RIGHT;
+        const input = getComponent(entity, Input).data.get(hand === ParityValue.LEFT ? BaseInput.XR_LEFT_HAND : BaseInput.XR_RIGHT_HAND)
+        if(!input) return;
+        const sixdof = input.value as SIXDOFType;
+        vector3.set(sixdof.x, sixdof.y, sixdof.z).add(equipperTransform.position);
+        quat.set(sixdof.qX, sixdof.qY, sixdof.qZ, sixdof.qW);
       } else {
-        if(equippedComponent.attachmentPoint === EquippableAttachmentPoint.RIGHT_HAND) {
-          const equipperTransform = getComponent(entity, TransformComponent);
-          vector3.copy(equipperTransform.position).add(new Vector3(0, -0.3, 0.5))
-          quat.copy(equipperTransform.rotation)
-        }
+        vector3.set(-0.5, 0, 0).applyQuaternion(actor.tiltContainer.quaternion).add(equipperTransform.position);
+        quat.setFromUnitVectors(new Vector3(0, 0, -1), actor.viewVector);
       }
       equippableTransform.position.copy(vector3);
       equippableTransform.rotation.copy(quat);
@@ -451,8 +459,8 @@ export class InteractiveSystem extends System {
       const collider = getComponent(equippedEntity, ColliderComponent)
       collider.body.type = BodyType.DYNAMIC;
       collider.body.updateTransform({
-        translation: { x: equippedTransform.position.x, y: equippedTransform.position.y, z: equippedTransform.position.z },
-        rotation: { x: equippedTransform.rotation.x, y: equippedTransform.rotation.y, z: equippedTransform.rotation.z, w: equippedTransform.rotation.w }
+        translation: equippedTransform.position,
+        rotation: equippedTransform.rotation,
       })
       // send unequip to clients
       if(isServer) {

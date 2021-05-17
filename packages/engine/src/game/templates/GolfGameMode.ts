@@ -31,7 +31,6 @@ import { applyTurn } from "./Golf/behaviors/applyTurn";
 import { nextTurn } from "./Golf/behaviors/nextTurn";
 
 //
-import { unInteractiveToOthers } from "./Golf/behaviors/unInteractiveToOthers";
 //
 import { initScore, saveScore } from "./Golf/behaviors/saveScore";
 import { displayScore } from "./Golf/behaviors/displayScore";
@@ -40,7 +39,6 @@ import { giveGoalState } from "./Golf/behaviors/giveGoalState";
 import { addClub } from "./Golf/behaviors/addClub";
 import { addBall } from "./Golf/behaviors/addBall";
 import { addHole } from "./Golf/behaviors/addHole";
-import { grabGolfClub } from "./Golf/behaviors/grabGolfClub";
 // checkers
 import { isPlayersInGame } from "./gameDefault/checkers/isPlayersInGame";
 import { ifNamed } from "./gameDefault/checkers/ifNamed";
@@ -472,14 +470,12 @@ export const GolfGameMode: GameMode = somePrepareFunction({
                   args: { invert: false }
                 }]
               },
-              /*
               '2-Player' : {
                 checkers:[{
                   function: isPlayersInGame,
                   args: { invert: false }
                 }]
               }
-              */
             }
           }
         },

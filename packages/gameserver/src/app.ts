@@ -22,6 +22,8 @@ import feathersLogger from 'feathers-logger';
 import { EventEmitter } from 'events';
 import services from '@xrengine/server-core/src/services';
 import sequelize from '@xrengine/server-core/src/sequelize';
+import { awaitSceneLoaded } from '@xrengine/engine/src/scene/functions/SceneLoading';
+import { awaitEngineLoaded } from '@xrengine/engine/src/ecs/classes/Engine';
 
 const emitter = new EventEmitter();
 
@@ -93,10 +95,12 @@ if (config.gameserver.enabled) {
       }
     }, (io) => {
       io.use((socket, next) => {
-        console.log(socket.handshake.query);
-        (socket as any).feathers.socketQuery = socket.handshake.query;
-        (socket as any).socketQuery = socket.handshake.query;
-        next();
+        console.log('GOT SOCKET IO HANDSHAKE', socket.handshake.query);
+        awaitEngineLoaded().then(() =>{ 
+          (socket as any).feathers.socketQuery = socket.handshake.query;
+          (socket as any).socketQuery = socket.handshake.query;
+          next();
+        })
       });
     }));
 
@@ -148,10 +152,10 @@ if (config.gameserver.enabled) {
       // Create new gameserver instance
       const gameServer = new WebRTCGameServer(app);
       gameServer.initialize().then(() => {
-        // Set up event channels (see channels.js)
         console.log("Initialized new gameserver instance");
+        // Set up event channels (see channels.js)
         app.configure(channels);
-      });
+      })
     } else {
       console.warn('Did not create gameserver');
     }

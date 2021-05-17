@@ -6,7 +6,6 @@ import { getStorage, setStorage } from '../../../functions/functionsStorage';
 import { createNetworkRigidBody } from '../../../../interaction/prefabs/NetworkRigidBody';
 import { CollisionGroups, DefaultCollisionMask } from '../../../../physics/enums/CollisionGroups';
 import { TransformComponent } from '../../../../transform/components/TransformComponent';
-import { CollisionGroups } from '../../../../physics/enums/CollisionGroups';
 import { GameObject } from "../../../components/GameObject";
 import { getComponent } from '../../../../ecs/functions/EntityFunctions';
 /**

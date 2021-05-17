@@ -14,9 +14,9 @@ export enum XR_ROTATION_MODE {
 
 export const XRUserSettings = {
   invertRotationAndMoveSticks: true,
-  moving: XR_FOLLOW_MODE.HEAD,
-  rotation: XR_ROTATION_MODE.ANGLED, // same here
+  moving: XR_FOLLOW_MODE.CONTROLLER,
+  rotation: XR_ROTATION_MODE.SMOOTH,
   rotationSmoothSpeed: 0.1, // 0.1, 0.3, 0.5, 0.8, 1 - only for Smooth
   rotationAngle: 30, // 15, 30, 45, 60 - only for Angler
-  rotationInvertAxes: true
+  rotationInvertAxes: false
 }
