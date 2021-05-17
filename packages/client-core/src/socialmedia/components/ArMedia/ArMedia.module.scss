@@ -1,17 +1,18 @@
 .arMediaContainer{
     .switcher{
         background-color: #EEEEEF;
-        padding: 3px;
-        border-radius: 5px;
+        padding: 5px 3px;
         display: flex;
         margin: 10px 20px;
-
+        border-radius: 15px;
         .switchButton{
             margin: 0;
             color: #000000;
-            padding: 0;
+            padding: 7pt;
+            font-size: 17pt;
+            text-transform: capitalize;
             width: 50%;
-
+            border-radius: 15px;
             &.active{
                 background-color: #FFF;
             }
@@ -36,8 +37,13 @@
             border-radius: 10px;
             background-color: #DDDDDD;
         }
-    } 
-    
+    }
+    .backButton{
+        font-size: 19pt;
+        text-transform: capitalize;
+        font-weight: 400;
+        margin: 12pt 7.7pt;
+    }
     .startRecirding{
         background-color: #000;
         position: fixed;
@@ -46,5 +52,26 @@
         width: 80%;
         left: 50%;        
         transform: translate(-50%,0);
+        border-radius: 13px;
+        text-transform: capitalize;
+        font-size: 17pt;
+        padding: 10pt;
+    }
+    @media screen and (max-width: 499px){
+        .backButton{
+            font-size: 15pt;
+            margin: 9pt 6pt;
+        }
+        .startRecirding{
+            font-size: 14pt;
+            padding: 8pt;
+        }
+        .switcher{
+            .switchButton{
+                border-radius: 13px;
+                font-size: 14pt;
+                padding: 5pt;
+            }
+        }
     }
 }

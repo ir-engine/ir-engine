@@ -18,6 +18,10 @@ import { BodyType, ColliderHitEvent, CollisionEvents, PhysXConfig, PhysXInstance
 import { addColliderWithEntity } from '../behaviors/colliderCreateFunctions';
 import { findInterpolationSnapshot } from '../behaviors/findInterpolationSnapshot';
 import { UserControlledColliderComponent } from '../components/UserControllerObjectComponent';
+import { HasHadCollision } from "../../game/actions/HasHadCollision";
+import { GameObject } from "../../game/components/GameObject";
+import { addActionComponent } from '../../game/functions/functionsActions';
+import { EquippedComponent } from '../../interaction/components/EquippedComponent';
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -86,25 +90,37 @@ export class PhysicsSystem extends System {
   execute(delta: number): void {
     this.queryResults.collider.added?.forEach(entity => {
       const collider = getComponent(entity, ColliderComponent);
+      /*
       if (!collider.body) {
         addColliderWithEntity(entity)
       }
+      */
       collider.body.addEventListener(CollisionEvents.COLLISION_START, (ev: ColliderHitEvent) => {
-        collider.collisions.push(ev);
+        ev.bodyOther.shapes[0].config.collisionLayer == ev.bodySelf.shapes[0].config.collisionMask ? collider.collisions.push(ev):'';
       })
+      /*
       collider.body.addEventListener(CollisionEvents.COLLISION_PERSIST, (ev: ColliderHitEvent) => {
         collider.collisions.push(ev);
       })
+
       collider.body.addEventListener(CollisionEvents.COLLISION_END, (ev: ColliderHitEvent) => {
         collider.collisions.push(ev);
       })
+      */
     });
 
     this.queryResults.collider.all?.forEach(entity => {
       const collider = getMutableComponent<ColliderComponent>(entity, ColliderComponent);
       // iterate on all collisions since the last update
       collider.collisions.forEach((event) => {
-        const { type, bodySelf, bodyOther, shapeSelf, shapeOther } = event;
+
+
+        if (hasComponent(entity, GameObject)) {
+        //  const { type, bodySelf, bodyOther, shapeSelf, shapeOther } = event;
+        //  isClient ? console.warn(type, bodySelf, bodyOther, shapeSelf, shapeOther):'';
+          addActionComponent(entity, HasHadCollision);
+      //    console.warn(event, entity);
+        }
         // TODO: figure out how we expose specific behaviors like this
       })
       collider.collisions = []; // clear for next loop
@@ -190,26 +206,27 @@ export class PhysicsSystem extends System {
           });
         }
       });
+    } else {
+      // only on server
+      this.queryResults.correctionFromClient.all?.forEach(entity => {
+        const networkObject = getMutableComponent(entity, NetworkObject);
+        // console.log('correctionFromClient', entity, networkObject.ownerId, Network.instance.userId)
+        if(networkObject.ownerId === Network.instance.userId) {
+          const collider = getMutableComponent(entity, ColliderComponent);
+          Network.instance.clientInputState.transforms.push({
+            networkId: networkObject.networkId,
+            x: collider.body.transform.translation.x,
+            y: collider.body.transform.translation.y,
+            z: collider.body.transform.translation.z,
+            qX: collider.body.transform.rotation.x,
+            qY: collider.body.transform.rotation.y,
+            qZ: collider.body.transform.rotation.z,
+            qW: collider.body.transform.rotation.w,
+            snapShotTime: networkObject.snapShotTime ?? 0,
+          });
+        }
+      });
     }
-
-    this.queryResults.correctionFromClient.all?.forEach(entity => {
-      const networkObject = getMutableComponent(entity, NetworkObject);
-      // console.log('correctionFromClient', entity, networkObject.ownerId, Network.instance.userId)
-      if(networkObject.ownerId === Network.instance.userId) {
-        const collider = getMutableComponent(entity, ColliderComponent);
-        Network.instance.clientInputState.transforms.push({
-          networkId: networkObject.networkId,
-          x: collider.body.transform.translation.x,
-          y: collider.body.transform.translation.y,
-          z: collider.body.transform.translation.z,
-          qX: collider.body.transform.rotation.x,
-          qY: collider.body.transform.rotation.y,
-          qZ: collider.body.transform.rotation.z,
-          qW: collider.body.transform.rotation.w,
-          snapShotTime: networkObject.snapShotTime ?? 0,
-        });
-      }
-    });
 
     PhysXInstance.instance.update();
   }

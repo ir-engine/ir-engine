@@ -92,7 +92,7 @@ export class ClientNetworkStateSystem extends System {
   constructor(attributes: SystemAttributes = {}) {
     super(attributes);
     ClientNetworkStateSystem.instance = this;
-    
+
     EngineEvents.instance.once(EngineEvents.EVENTS.CONNECT_TO_WORLD, ({ worldState }) => {
       this.receivedServerState.push(worldState);
     });
@@ -263,6 +263,15 @@ export class ClientNetworkStateSystem extends System {
       })
     });
 
+    function sendOnes() {
+      let copy = [];
+      if (Network.instance.clientGameAction.length > 0) {
+        copy = Network.instance.clientGameAction;
+        Network.instance.clientGameAction = [];
+      }
+      return copy;
+    }
+
     const inputSnapshot = Vault.instance?.get();
     if (inputSnapshot !== undefined) {
       this.queryResults.localClientInput.all?.forEach((entity) => {
@@ -279,12 +288,13 @@ export class ClientNetworkStateSystem extends System {
             x: 0, y: 0, z: 0
           },
           characterState: hasComponent(entity, CharacterComponent) ? getComponent(entity, CharacterComponent).state : 0,
-          clientGameAction: Network.instance.clientGameAction,
+          clientGameAction: sendOnes(),// Network.instance.clientGameAction,
           transforms: []
         }
       });
     }
   }
+
 
   /** Queries for the system. */
   static queries: any = {

@@ -97,7 +97,7 @@ export class XRSystem extends System {
           if(source.gamepad.axes.length > 2) {
             Engine.inputState.set(mapping.axes, {
               type: InputType.TWODIM,
-              value: [source.gamepad.axes[2], source.gamepad.axes[3]],
+              value: [source.gamepad.axes[2], -source.gamepad.axes[3]],
               lifecycleState: LifecycleValue.STARTED
             })
           } else {

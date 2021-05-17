@@ -36,7 +36,9 @@ const TheFeed = ({theFeedsState, getTheFeedsNew}: Props) => {
     const TheFeedsList = theFeedsState?.get('thefeeds') ? theFeedsState?.get('thefeeds') : [];
 //     useEffect(()=> console.log(TheFeedsList), [TheFeedsList]);
     return <section className={styles.thefeedContainer}>
-            {TheFeedsList && TheFeedsList.length > 0 && TheFeedsList.map((item, key)=> <FeedCard key={key} feed = {item} />)}
+            {TheFeedsList && TheFeedsList.length > 0 ?
+                TheFeedsList.map((item, key)=> <FeedCard key={key} feed = {item} />) :
+                <p className={styles.noContent}>More news will be available soon.</p>}
         </section>;
 };
 

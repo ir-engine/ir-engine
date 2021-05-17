@@ -4,13 +4,13 @@ import { addComponent, getComponent, hasComponent } from "../../ecs/functions/En
 import { Interactable } from "../../interaction/components/Interactable";
 import { InteractiveSystem } from "../../interaction/systems/InteractiveSystem";
 import { Object3DComponent } from "../components/Object3DComponent";
-import { equipEntity } from "../../interaction/functions/equippableFunctions";
+import { grabEquippable } from "../../interaction/functions/grabEquippable";
 
 export const onInteraction: Behavior = (entityInitiator, args, delta, entityInteractive, time) => {
   const interactiveComponent = getComponent(entityInteractive, Interactable);
 
   if(interactiveComponent.data.interactionType === 'equippable') {
-    equipEntity(entityInitiator, entityInteractive)
+    grabEquippable(entityInitiator, args, delta, entityInteractive);
   } else {
     EngineEvents.instance.dispatchEvent({type: InteractiveSystem.EVENTS.OBJECT_ACTIVATION, ...interactiveComponent.data });
   }

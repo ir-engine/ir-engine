@@ -146,7 +146,9 @@ const initializeEngineOffscreen = async ({ canvas, userArgs }, proxy: MainProxy)
     Network.instance.isInitialized = true;
     Network.instance.userId = id;
   });
-
+  
+  Engine.isInitialized = true;
+  EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.INITIALIZED_ENGINE });
 };
 
 receiveWorker(initializeEngineOffscreen);

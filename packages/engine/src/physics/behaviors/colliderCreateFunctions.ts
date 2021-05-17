@@ -18,14 +18,14 @@ export function addColliderWithEntity(entity: Entity) {
   const colliderComponent = getMutableComponent<ColliderComponent>(entity, ColliderComponent);
   const transformComponent = getComponent<TransformComponent>(entity, TransformComponent);
 
-  const { mesh, vertices, indices } = colliderComponent;
+  const { mesh, vertices, indices, collisionLayer, collisionMask } = colliderComponent;
 
   const body = addColliderWithoutEntity(
     { bodytype: colliderComponent.bodytype, type: colliderComponent.type },
     colliderComponent.position,
     colliderComponent.quaternion,
     colliderComponent.scale,
-    { mesh, vertices, indices }
+    { mesh, vertices, indices, collisionLayer, collisionMask }
   );
   colliderComponent.body = body;
 }
@@ -35,8 +35,9 @@ const quat2 = new Quaternion();
 const xVec = new Vector3(1, 0, 0);
 const halfPI = Math.PI / 2;
 
-export function addColliderWithoutEntity(userData, pos = new Vector3(), rot = new Quaternion(), scale = new Vector3(), model = { mesh: null, vertices: null, indices: null }): Body {
-  // console.log(userData, pos, rot, scale, model)
+export function addColliderWithoutEntity(userData, pos = new Vector3(), rot = new Quaternion(), scale = new Vector3(),
+ model = { mesh: null, vertices: null, indices: null, collisionLayer: null, collisionMask: null }): Body {
+  //console.log(userData, pos, rot, scale, model)
   if(model.mesh && !model.vertices) {
     const mergedGeom = getGeometry(model.mesh);
     model.vertices = Array.from(mergedGeom.attributes.position.array);
@@ -97,8 +98,16 @@ export function addColliderWithoutEntity(userData, pos = new Vector3(), rot = ne
   if(userData.type === 'sphere') {
     shape.config.material = { restitution: 0.9, dynamicFriction: 0, staticFriction: 0 };
   }
-  // console.log('shape', shape);
-
+ /*
+ shape.config.collisionLayer = model.collisionLayer ?? CollisionGroups.All;
+ switch(model.collisionMask) {
+   case undefined: case -1: case '-1': case '': shape.config.collisionMask = CollisionGroups.All; break;
+   default: if(/all/i.test(model.collisionMask))
+       shape.config.collisionMask = CollisionGroups.All;
+     else
+       shape.config.collisionMask = Number(model.collisionMask);
+     break;
+     */
   shape.config.collisionLayer = userData.collisionLayer ?? CollisionGroups.Default;
   shape.config.collisionMask = userData.collisionMask ?? DefaultCollisionMask;
 
@@ -124,8 +133,6 @@ export function addColliderWithoutEntity(userData, pos = new Vector3(), rot = ne
       angularVelocity: { x: 0, y: 0, z: 0 },
     },
   });
-//  console.warn(userData.bodytype);
-  //bodyConfig.addEventListener(CollisionEvents.COLLISION_START, (e) => { console.log(e)});
 
   PhysicsSystem.instance.addBody(body);
 

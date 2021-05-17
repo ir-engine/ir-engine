@@ -28,7 +28,9 @@ export const createMeshCollider: Behavior = ( entity: Entity, args: any ) => { /
         {
           mesh: null,
           vertices: args.objArgs.vertices,
-          indices: args.objArgs.indices
+          indices: args.objArgs.indices,
+          collisionLayer: args.objArgs.collisionLayer,
+          collisionMask: args.objArgs.collisionMask
         }
       );
       break;
@@ -43,6 +45,8 @@ export const createMeshCollider: Behavior = ( entity: Entity, args: any ) => { /
         mesh: null,
         vertices: args.objArgs.vertices,
         indices: args.objArgs.indices,
+        collisionLayer: args.objArgs.collisionLayer,
+        collisionMask: args.objArgs.collisionMask,
         mass: args.objArgs.mass ?? 1
       })
       break;
@@ -58,7 +62,9 @@ export const createMeshCollider: Behavior = ( entity: Entity, args: any ) => { /
           mesh: null,
           mass: args.objArgs.mass ?? 1,
           vertices: args.objArgs.vertices,
-          indices: args.objArgs.indices
+          indices: args.objArgs.indices,
+          collisionLayer: args.objArgs.collisionLayer,
+          collisionMask: args.objArgs.collisionMask
         },
         uniqueId: args.objArgs.sceneEntityId,
         entity: entity

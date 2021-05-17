@@ -97,3 +97,32 @@
     margin: 12pt auto 26pt auto;
   }
 }
+@media screen and (max-width: 499px){
+  .onboarding{
+    max-height: 100vh;
+    overflow: hidden;
+    h3{
+      font-size: 22pt;
+      letter-spacing: 0.36pt;
+      font-weight: 600;
+    }
+    p{
+      font-size: 13pt;
+      line-height: 21pt;
+      max-width: 261pt;
+      margin: 12pt auto 26pt auto;
+    }
+  }
+
+}
+@media screen and (max-height: 699px){
+  .secondScreen {
+    padding: 20pt 32pt 37pt 29pt;
+    h3 {
+      margin-top: 15pt;
+    }
+    p{
+      margin: 10pt auto 19pt auto;
+    }
+  }
+}
