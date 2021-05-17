@@ -108,18 +108,23 @@ export function fetchUsersAsAdmin(offset: string) {
     const skip = getState().get('admin').get('users').get('skip');
     const limit = getState().get('admin').get('users').get('limit');
 
-    if (user.userRole === 'admin') {
-      const users = await client.service('user').find({
-        query: {
-          $sort: {
-            name: 1
-          },
-          $skip: offset === 'decrement' ? skip - limit : offset === 'increment' ? skip + limit : skip,
-          $limit: limit,
-          action: 'admin'
-        }
-      });
-      dispatch(loadedUsers(users));
+    try {
+      if (user.userRole === 'admin') {
+        const users = await client.service('user').find({
+          query: {
+            $sort: {
+              name: 1
+            },
+            $skip: offset === 'decrement' ? skip - limit : offset === 'increment' ? skip + limit : skip,
+            $limit: limit,
+            action: 'admin'
+          }
+        });        
+        dispatch(loadedUsers(users));
+      }
+    } catch (err) {
+       console.error(err);
+       dispatchAlertError(dispatch, err.message);
     }
   };
 }

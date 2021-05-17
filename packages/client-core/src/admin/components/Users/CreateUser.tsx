@@ -127,20 +127,17 @@ const CreateUser = (props: Props) => {
 
     const formik = useFormik({
         initialValues: {
-            name: ""
+            name: "",
+            avatar: ""
         },
         validationSchema: validationSchema,
         onSubmit: async (values, { resetForm }) => {
             const data = {
                 name: values.name,
+                avatarId: values.avatar,
                 instanceId: instance,
                 userRole: status,
             };
-
-            console.log('====================================');
-            console.log(data);
-            console.log('====================================');
-
             await createUserAction(data);
             handleClose(false);
             resetForm();
@@ -172,6 +169,20 @@ const CreateUser = (props: Props) => {
                             helperText={formik.touched.name && formik.errors.name}
                         />
 
+                        <TextField
+                            autoFocus
+                            margin="dense"
+                            id="avatar"
+                            label="Avatar"
+                            type="text"
+                            fullWidth
+                            value={formik.values.avatar}
+                            className={classes.marginBottm}
+                            onChange={formik.handleChange}
+                            error={formik.touched.avatar && Boolean(formik.errors.avatar)}
+                            helperText={formik.touched.avatar && formik.errors.avatar}
+                        />
+
                         <Autocomplete
                             onChange={(e, newValue) => setStatus(newValue.name as string)}
                             {...defaultProps}
@@ -193,12 +204,12 @@ const CreateUser = (props: Props) => {
                         <DialogContentText className={classes.marginBottm}>  Don't see Instance? <a href="/admin/instance" className={classes.textLink}>Create One</a>  </DialogContentText>
 
                         <DialogActions>
-                            <Button onClick={handleClose(false)} color="primary">
-                                Cancel
-                    </Button>
                             <Button type="submit" color="primary">
                                 Submit
-                    </Button>
+                            </Button>
+                            <Button onClick={handleClose(false)} color="primary">
+                                Cancel
+                            </Button>
                         </DialogActions>
                     </form>
                 </Container>

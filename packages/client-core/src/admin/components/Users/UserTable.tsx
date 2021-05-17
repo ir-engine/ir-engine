@@ -97,6 +97,9 @@ const UserTable = (props: Props) => {
         setPage(0);
     };
 
+    console.log('====================================');
+    console.log(adminUsers);
+    console.log('====================================');
 
     const createData = (name: string, avatar: string, status: string, party: string, channelInstanceId: string, instanceId: string): Data => {
 

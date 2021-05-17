@@ -2,7 +2,6 @@ import { Service, SequelizeServiceOptions } from 'feathers-sequelize';
 import { Application } from '../../../declarations';
 import { Params } from "@feathersjs/feathers";
 import { extractLoggedInUserFromParams } from "../../user/auth-management/auth-management.utils";
-import { Forbidden } from "@feathersjs/errors";
 
 /**
  * A class for Intance service 
