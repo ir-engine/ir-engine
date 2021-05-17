@@ -25,10 +25,11 @@ export const addBall: Behavior = (entity: Entity, args?: any, delta?: number, en
     shape: SHAPES.Sphere,
     options: { radius: 0.1 },
 
-    config: {
+    // TODO: upgrade three-physx and uncomment following commented lines
+    // config: {
       collisionLayer: 15,
       collisionMask: 42
-    }
+    // }
 
   });
 

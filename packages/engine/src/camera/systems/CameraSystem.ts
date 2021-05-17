@@ -31,37 +31,6 @@ const PI_2Deg = Math.PI / 180;
 const mx = new Matrix4();
 const vec3 = new Vector3();
 
-let prevState;
-const emptyInputValue = [0, 0] as NumericalType;
-
-/**
- * Get Input data from the device.
- *
- * @param inputComponent Input component which is holding input data.
- * @param inputAxes Axes of the input.
- * @param prevValue
- *
- * @returns Input value from input component.
- */
- const getInputData = (inputComponent: Input, inputAxes: number, prevValue: NumericalType ): {
-  currentInputValue: NumericalType;
-  inputValue: NumericalType
-} => {
-  const result = {
-    currentInputValue: emptyInputValue,
-    inputValue: emptyInputValue,
-  }
-  if (!inputComponent?.data.has(inputAxes)) return result;
-
-  const inputData = inputComponent.data.get(inputAxes);
-  result.currentInputValue = inputData.value;
-  result.inputValue = inputData.lifecycleState === LifecycleValue.ENDED ||
-    JSON.stringify(result.currentInputValue) === JSON.stringify(prevValue)
-      ? emptyInputValue : result.currentInputValue;
-  return result;
-}
-
-
 /** System class which provides methods for Camera system. */
 export class CameraSystem extends System {
   static instance: CameraSystem;
@@ -140,8 +109,6 @@ export class CameraSystem extends System {
       // } else {
         const inputAxes = BaseInput.LOOKTURN_PLAYERONE;
       // }
-      // const { inputValue, currentInputValue } = getInputData(inputComponent, inputAxes, prevState);
-      // prevState = currentInputValue;
       const inputValue = inputComponent.data.get(inputAxes)?.value ?? [0, 0] as Vector2Type;
 
       if(followCamera.locked && actor) {

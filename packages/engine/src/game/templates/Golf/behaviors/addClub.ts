@@ -23,10 +23,11 @@ export const addClub: Behavior = (entity: Entity, args?: any, delta?: number, en
   const shapeHandle: Shape = createShapeFromConfig({
     shape: SHAPES.Box,
     options: { boxExtents: { x: 0.05, y: 0.05, z: 0.25 } },
-    config: {
+    // TODO: upgrade three-physx and uncomment following commented lines
+    // config: {
       collisionLayer: 1 << 6,
       collisionMask: CollisionGroups.Ground
-    }
+    // }
   });
   const shapeHead: Shape = createShapeFromConfig({
     shape: SHAPES.Box,
@@ -34,10 +35,10 @@ export const addClub: Behavior = (entity: Entity, args?: any, delta?: number, en
     transform: new Transform({
       translation: { x: 0, y: 0.1, z: -1.7 }
     }),
-    config: {
+    // config: {
       collisionLayer: 1 << 6,
       collisionMask: DefaultCollisionMask
-    }
+    // }
   });
 
   const body = new Body({
