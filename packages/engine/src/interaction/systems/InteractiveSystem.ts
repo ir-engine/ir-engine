@@ -1,4 +1,4 @@
-import { Box3, Frustum, Matrix4, Mesh, Object3D, Scene, Vector3 } from "three";
+import { Box3, Frustum, Matrix4, Mesh, Object3D, Quaternion, Scene, Vector3 } from "three";
 import { FollowCameraComponent } from "../../camera/components/FollowCameraComponent";
 import { isClient } from "../../common/functions/isClient";
 import { vectorToScreenXYZ } from "../../common/functions/vectorToScreenXYZ";
@@ -28,9 +28,21 @@ import { InteractBehaviorArguments } from "../types/InteractionTypes";
 import { HaveBeenInteracted } from "../../game/actions/HaveBeenInteracted";
 import { addActionComponent } from '../../game/functions/functionsActions';
 import { EquippedComponent } from "../components/EquippedComponent";
+import { EquippableAttachmentPoint, EquippedStateUpdateSchema } from "../enums/EquippedEnums";
+import { ColliderComponent } from "../../physics/components/ColliderComponent";
+import { NetworkObjectUpdateType } from "../../networking/templates/NetworkObjectUpdateSchema";
+import { sendClientObjectUpdate } from "../../networking/functions/sendClientObjectUpdate";
+import { isServer } from "../../common/functions/isServer";
+import { BodyType } from "three-physx";
+import { BinaryValue } from "../../common/enums/BinaryValue";
+import { unequipEntity } from "../functions/equippableFunctions";
+import { ParityValue } from "../../common/enums/ParityValue";
+
+const vector3 = new Vector3();
+const quat = new Quaternion();
 
 // but is works on client too, i will config out this
-export const interactOnServer: Behavior = (entity: Entity, args: any, delta): void => {
+export const interactOnServer: Behavior = (entity: Entity, args: { side: ParityValue}, delta): void => {
   //console.warn('Behavior: interact , networkId ='+getComponent(entity, NetworkObject).networkId);
     let focusedArrays = [];
     for (let i = 0; i < Engine.entities.length; i++) {
@@ -66,17 +78,17 @@ export const interactOnServer: Behavior = (entity: Entity, args: any, delta): vo
     if (interactable.data.interactionType === "gameobject") {
       if (interactionFunction) {
         if (interactionCheck) {
-          addActionComponent(focusedArrays[0][0], HaveBeenInteracted);
+          addActionComponent(focusedArrays[0][0], HaveBeenInteracted, { args });
         }
       } else {
-        addActionComponent(focusedArrays[0][0], HaveBeenInteracted);
+        addActionComponent(focusedArrays[0][0], HaveBeenInteracted, { args });
       }
       return;
     }
     // Not Game Object
     if (interactionFunction && interactionCheck) {
     //  console.warn('start with networkId: '+getComponent(focusedArrays[0][0], NetworkObject).networkId+' seat: '+focusedArrays[0][2]);
-      interactable.onInteraction(entity, { currentFocusedPart: focusedArrays[0][2] }, delta, focusedArrays[0][0]);
+      interactable.onInteraction(entity, { ...args, currentFocusedPart: focusedArrays[0][2] }, delta, focusedArrays[0][0]);
     }
 }
 
@@ -401,12 +413,52 @@ export class InteractiveSystem extends System {
       this.newFocused.forEach(e => this.focused.add(e));
     }
 
+    this.queryResults.equippable.added?.forEach(entity => {
+      const equippedEntity = getComponent(entity, EquippedComponent).equippedEntity;
+      // all equippables must have a collider to grab by in VR
+      const collider = getComponent(equippedEntity, ColliderComponent)
+      collider.body.type = BodyType.KINEMATIC;
+      // send equip to clients
+      if(isServer) {
+        const networkObject = getComponent(equippedEntity, NetworkObject)
+        sendClientObjectUpdate(entity, NetworkObjectUpdateType.ObjectEquipped, [BinaryValue.TRUE, networkObject.networkId] as EquippedStateUpdateSchema)
+      }
+    })
+
     this.queryResults.equippable.all?.forEach(entity => {
       const equippedComponent = getComponent(entity, EquippedComponent);
       const equippableTransform = getComponent(equippedComponent.equippedEntity, TransformComponent);
-      equippableTransform.position.copy(equippedComponent.attachmentObject.position).add(equippedComponent.attachmentTransform.position);
-      equippableTransform.rotation.copy(equippedComponent.attachmentObject.quaternion).multiply(equippedComponent.attachmentTransform.rotation);
+      if(Engine.xrSession) {
+        if(equippedComponent.attachmentPoint === EquippableAttachmentPoint.RIGHT_HAND) {
+          Engine.renderer.xr.getController(0).getWorldPosition(vector3);
+          Engine.renderer.xr.getController(0).getWorldQuaternion(quat);
+        }
+      } else {
+        if(equippedComponent.attachmentPoint === EquippableAttachmentPoint.RIGHT_HAND) {
+          const equipperTransform = getComponent(entity, TransformComponent);
+          vector3.copy(equipperTransform.position).add(new Vector3(0, -0.3, 0.5))
+          quat.copy(equipperTransform.rotation)
+        }
+      }
+      equippableTransform.position.copy(vector3);
+      equippableTransform.rotation.copy(quat);
     });
+
+    this.queryResults.equippable.removed?.forEach(entity => {
+      const equippedComponent = getComponent(entity, EquippedComponent, true)
+      const equippedEntity = equippedComponent.equippedEntity;
+      const equippedTransform = getComponent(equippedEntity, TransformComponent)
+      const collider = getComponent(equippedEntity, ColliderComponent)
+      collider.body.type = BodyType.DYNAMIC;
+      collider.body.updateTransform({
+        translation: { x: equippedTransform.position.x, y: equippedTransform.position.y, z: equippedTransform.position.z },
+        rotation: { x: equippedTransform.rotation.x, y: equippedTransform.rotation.y, z: equippedTransform.rotation.z, w: equippedTransform.rotation.w }
+      })
+      // send unequip to clients
+      if(isServer) {
+        sendClientObjectUpdate(entity, NetworkObjectUpdateType.ObjectEquipped, [BinaryValue.FALSE] as EquippedStateUpdateSchema)
+      }
+    })
   }
 
   static queries: any = {

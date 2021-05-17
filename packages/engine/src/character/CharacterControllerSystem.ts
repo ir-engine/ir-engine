@@ -11,7 +11,7 @@ import { LocalInputReceiver } from "../input/components/LocalInputReceiver";
 import { characterMoveBehavior } from "./behaviors/characterMoveBehavior";
 import { ControllerColliderComponent } from "./components/ControllerColliderComponent";
 import { InterpolationComponent } from "../physics/components/InterpolationComponent";
-import { CollisionGroups } from "../physics/enums/CollisionGroups";
+import { CollisionGroups, DefaultCollisionMask } from "../physics/enums/CollisionGroups";
 import { PhysicsSystem } from "../physics/systems/PhysicsSystem";
 import { TransformComponent } from "../transform/components/TransformComponent";
 import { AnimationComponent } from "./components/AnimationComponent";
@@ -64,7 +64,7 @@ export class CharacterControllerSystem extends System {
         origin: new Vector3(),
         direction: new Vector3(0, -1, 0),
         maxDistance: 0.1,
-        collisionMask: CollisionGroups.All,
+        collisionMask: DefaultCollisionMask,
       });
     });
 

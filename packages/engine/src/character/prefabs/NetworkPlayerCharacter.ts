@@ -30,7 +30,7 @@ import { RelativeSpringSimulator } from "../../physics/classes/SpringSimulator";
 import { VectorSpringSimulator } from "../../physics/classes/VectorSpringSimulator";
 import { ControllerColliderComponent } from "../components/ControllerColliderComponent";
 import { InterpolationComponent } from "../../physics/components/InterpolationComponent";
-import { CollisionGroups } from "../../physics/enums/CollisionGroups";
+import { CollisionGroups, DefaultCollisionMask } from "../../physics/enums/CollisionGroups";
 import { InterpolationInterface } from "../../physics/interfaces/InterpolationInterface";
 import { PhysicsSystem } from "../../physics/systems/PhysicsSystem";
 import { addObject3DComponent } from "../../scene/behaviors/addObject3DComponent";
@@ -111,9 +111,15 @@ export const loadActorAvatarFromURL: Behavior = (entity, avatarURL) => {
 			controller.controller.height = 1;
 		// }
 		actor.mixer = new AnimationMixer(actor.modelContainer.children[0]);
-		// if (hasComponent(entity, IKComponent)) {
-		// 	initiateIK(entity)
-		// }
+		if (hasComponent(entity, IKComponent)) {
+			// initiateIK(entity)
+
+      actor.modelContainer.children[0]?.traverse((child) => {
+        if(child.visible) {
+          child.visible = false;
+        }
+      })
+		}
 	});
 };
 
@@ -184,7 +190,7 @@ const initializeCharacter: Behavior = (entity): void => {
 		controller: PhysicsSystem.instance.createController(new Controller({
 			isCapsule: true,
 			collisionLayer: CollisionGroups.Characters,
-			collisionMask: CollisionGroups.All,
+			collisionMask: DefaultCollisionMask,
 			height: actor.actorHeight,
 			contactOffset: actor.contactOffset,
 			radius: actor.capsuleRadius,

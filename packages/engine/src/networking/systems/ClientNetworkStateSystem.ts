@@ -19,6 +19,10 @@ import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType';
 import { System, SystemAttributes } from '../../ecs/classes/System';
 import { EngineEvents } from '../../ecs/classes/EngineEvents';
 import { ClientNetworkSystem } from './ClientNetworkSystem';
+import { ClientInputModel } from '../schema/clientInputSchema';
+import { Input } from '../../input/components/Input';
+import { LocalInputReceiver } from '../../input/components/LocalInputReceiver';
+import { Vault } from '../classes/Vault';
 
 /**
  * Apply State received over the network to the client.
@@ -88,7 +92,7 @@ export class ClientNetworkStateSystem extends System {
   constructor(attributes: SystemAttributes = {}) {
     super(attributes);
     ClientNetworkStateSystem.instance = this;
-    
+
     EngineEvents.instance.once(EngineEvents.EVENTS.CONNECT_TO_WORLD, ({ worldState }) => {
       this.receivedServerState.push(worldState);
     });
@@ -258,8 +262,48 @@ export class ClientNetworkStateSystem extends System {
         delete Network.instance.networkObjects[networkId];
       })
     });
+
+    function sendOnes() {
+      let copy = [];
+      if (Network.instance.clientGameAction.length > 0) {
+        copy = Network.instance.clientGameAction;
+        Network.instance.clientGameAction = [];
+      }
+      return copy;
+    }
+
+    const inputSnapshot = Vault.instance?.get();
+    if (inputSnapshot !== undefined) {
+      this.queryResults.localClientInput.all?.forEach((entity) => {
+        const buffer = ClientInputModel.toBuffer(Network.instance.clientInputState);
+        EngineEvents.instance.dispatchEvent({ type: ClientNetworkSystem.EVENTS.SEND_DATA, buffer }, false, [buffer]);
+        Network.instance.clientInputState = {
+          networkId: Network.instance.localAvatarNetworkId,
+          snapShotTime: inputSnapshot.time - Network.instance.timeSnaphotCorrection ?? 0,
+          buttons: [],
+          axes1d: [],
+          axes2d: [],
+          axes6DOF: [],
+          viewVector: {
+            x: 0, y: 0, z: 0
+          },
+          characterState: hasComponent(entity, CharacterComponent) ? getComponent(entity, CharacterComponent).state : 0,
+          clientGameAction: sendOnes(),// Network.instance.clientGameAction,
+          transforms: []
+        }
+      });
+    }
   }
 
+
   /** Queries for the system. */
-  static queries: any = {}
+  static queries: any = {
+    localClientInput: {
+      components: [Input, LocalInputReceiver, CharacterComponent],
+      listen: {
+        added: true,
+        removed: true
+      }
+    },
+  }
 }

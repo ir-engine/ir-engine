@@ -1,7 +1,7 @@
 import { Vector3 } from 'three';
 import { Component } from '../../ecs/classes/Component';
 import { Types } from '../../ecs/types/Types';
-import { CollisionGroups } from '../../physics/enums/CollisionGroups';
+import { CollisionGroups, DefaultCollisionMask } from '../../physics/enums/CollisionGroups';
 import { SceneQuery } from "three-physx";
 import { CameraModes } from '../types/CameraModes';
 
@@ -44,7 +44,7 @@ export class FollowCameraComponent extends Component<FollowCameraComponent> {
 	raycastQuery: SceneQuery;
   /** Camera physics raycast has hit */
 	rayHasHit = false;
-  collisionMask: CollisionGroups = CollisionGroups.All;
+  collisionMask: CollisionGroups;
 }
 
 
@@ -66,5 +66,5 @@ FollowCameraComponent._schema = {
   locked: { type: Types.Boolean, default: true },
   raycastQuery: { type: Types.Ref, default: null },
   rayHasHit: { type: Types.Boolean, default: false },
-  collisionMask: { type: Types.Number, default: CollisionGroups.All },
+  collisionMask: { type: Types.Number, default: DefaultCollisionMask },
 };

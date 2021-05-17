@@ -10,7 +10,7 @@ export const createGame: Behavior = (entity, args: any) => {
   //console.warn(isServer && !args.objArgs.isGlobal);
 //  if (isServer && !args.objArgs.isGlobal) return;
   console.log("************ GAME CREATED!!!!!!!!!!!!!!");
-  console.log(args.objArgs);
+//  console.log(args.objArgs);
 
   const transform = getMutableComponent(entity, TransformComponent);
 
