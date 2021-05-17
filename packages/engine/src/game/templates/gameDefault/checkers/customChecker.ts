@@ -14,11 +14,11 @@ export const customChecker: Checker = (entity: Entity, args?: any, entityTarget?
     return entityArg.some(entityFinded => {
 
       if (args.watchers != undefined) {
-         if(args.watchers.some( componentArr => componentArr.every( component => hasComponent(entityFinded, component))) ) {} else { return false };
+         if(args.watchers.some( componentArr => componentArr.every( component => hasComponent(entityFinded, component))) ) {} else { return false }
       }
 
       if (args.checkers != undefined) {
-         if(args.checkers.every(checker => checker.function(entityFinded, checker.args, undefined)) ) {} else { return false };
+         if(args.checkers.every(checker => checker.function(entityFinded, checker.args, undefined)) ) {} else { return false }
       }
 
       return true;

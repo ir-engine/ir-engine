@@ -100,7 +100,7 @@ if (config.gameserver.enabled) {
           (socket as any).feathers.socketQuery = socket.handshake.query;
           (socket as any).socketQuery = socket.handshake.query;
           next();
-        })
+        });
       });
     }));
 
@@ -155,7 +155,7 @@ if (config.gameserver.enabled) {
         console.log("Initialized new gameserver instance");
         // Set up event channels (see channels.js)
         app.configure(channels);
-      })
+      });
     } else {
       console.warn('Did not create gameserver');
     }
