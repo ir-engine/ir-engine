@@ -9,3 +9,13 @@
 .fireIcon{
     cursor: pointer;
 }
+.noContent{
+    text-align: center;
+    font-size: 17pt;
+    padding: 17pt 0;
+    max-width: 70%;
+    margin: 0 auto;
+    @media screen and (max-width: 499px){
+        font-size: 14pt;
+    }
+}

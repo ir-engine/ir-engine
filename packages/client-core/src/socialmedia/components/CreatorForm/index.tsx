@@ -70,7 +70,7 @@ const CreatorForm = ({creatorData, creatorsState, updateCreator, updateCreatorFo
                 {!creatorData && <Button variant="text" className={styles.backButton} onClick={()=>updateCreatorFormState(false)}><ArrowBackIosIcon />{t('social:creatorForm.back')}</Button>}
                 {!creatorData && <Typography variant="h2" className={styles.pageTitle}>{t('social:creatorForm.edit')}</Typography>}
                 <Button variant="text" type="submit" className={styles.saveButton}>{t('social:creatorForm.save')}</Button>
-            </nav>  
+            </nav>
             { creator.avatar ? (
             <CardMedia   
                 className={styles.avatarImage}                  
@@ -125,7 +125,7 @@ const CreatorForm = ({creatorData, creatorsState, updateCreator, updateCreatorFo
                     <TextField className={styles.textFieldContainer} onChange={(e)=>setCreator({...creator, instagram: e.target.value})} fullWidth id="instagram" placeholder={t('social:creatorForm.ph-instagram')} value={creator.instagram} />
                 </div>    */}
                 <br />
-                {!creatorData && <Button className={styles.logOutButton} variant="contained">Sign-out</Button>}
+                {!creatorData && <Button className={styles.logOutButton} variant="contained">Sign-Out</Button>}
             </section>    
         </form>        
     </section>;

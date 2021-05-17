@@ -31,12 +31,23 @@
     .textArea{
         min-height: 100px;
     }
+    p{
+        margin: 17pt auto;
+        font-size: 17pt;
+        color: rgba(60, 60, 67, 0.6);
+        text-align: center;
+    }
     .submit{
         display: block;
         margin: 0 auto;
         color: #FFF;
         background-color: #000;
         margin-top: 50px;
+        padding: 10pt;
+        width: 100%;
+        border-radius: 13px;
+        font-size: 17pt;
+        text-transform: capitalize;
     }
 
     .videoWrapper{
@@ -52,6 +63,50 @@
             bottom: 30px;
             left: 50%;
             transform: translate(-50%, 0);
+            padding: 10pt;
+            width: 100%;
+            border-radius: 13px;
+            font-size: 17pt;
+            text-transform: capitalize;
+        }
+    }
+    .backButton{
+        font-size: 19pt;
+        text-transform: capitalize;
+        font-weight: 400;
+        margin: 12pt 7.7pt;
+    }
+    input{
+        font-size: 17pt;
+    }
+    @media screen and (max-width: 499px){
+        .submit{
+            font-size: 14pt;
+            padding: 7pt;
+        }
+        p{
+            margin: 14pt auto;
+            font-size: 14pt;
+        }
+        .backButton{
+            font-size: 15pt;
+            margin: 9pt 6pt;
+        }
+        input{
+            font-size: 14pt;
+        }
+    }
+    @media screen and (max-height: 699px){
+        .submit{
+            margin-top: 20pt;
+        }
+        p{
+            margin: 12pt;
+            line-height: 19px;
+        }
+        .backButton{
+            margin: 0pt 6pt;
+            padding: 0;
         }
     }
 }
