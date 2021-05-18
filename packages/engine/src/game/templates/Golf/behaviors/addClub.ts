@@ -36,10 +36,11 @@ export const addClub: Behavior = (entity: Entity, args?: any, delta?: number, en
       translation: { x: 0, y: 0.1, z: -1.7 }
     }),
     // config: {
-      collisionLayer: 1 << 6,
-      collisionMask: CollisionGroups.Default
+      collisionLayer: 0,//1 << 6,
+      collisionMask: CollisionGroups.Ground
     // }
   });
+  console.log(shapeHandle, shapeHead)
 
   const body = new Body({
     shapes: [shapeHandle, shapeHead],
