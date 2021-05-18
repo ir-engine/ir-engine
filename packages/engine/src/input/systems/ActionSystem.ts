@@ -310,11 +310,6 @@ export class ActionSystem extends System {
           Network.instance.clientInputState.viewVector.z = actor.viewVector.z;
         }
 
-        if (Network.instance.clientGameAction.length > 0) {
-          console.warn(Network.instance.clientGameAction);
-          Network.instance.clientGameAction = [];
-        }
-
         input.data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
           if (value.type === InputType.BUTTON) {
             if (value.lifecycleState === LifecycleValue.ENDED) {

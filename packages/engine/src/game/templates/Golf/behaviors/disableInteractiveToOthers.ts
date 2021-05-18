@@ -33,3 +33,7 @@ export const disableInteractiveHover: Behavior = (entity: Entity, args?: any, de
   const interactable = getMutableComponent(entity, Interactable)//.data.interactionText;
   interactable.onInteractionFocused = () => {};
 };
+
+export const addInteractable: Behavior = (entity: Entity, args?: any, delta?: number, entityTarget?: Entity, time?: number, checks?: any): void => {
+  addComponent(entity, Interactable, { data: { interactionType: "gameobject", interactionText:'1' }});
+};

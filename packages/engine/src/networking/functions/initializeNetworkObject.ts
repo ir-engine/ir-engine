@@ -27,6 +27,7 @@ function createNetworkPrefab( entity: Entity, prefab: NetworkPrefab, ownerId: st
     { action.behavior(entity, action.args); }
   });
 
+
   // prepare override map
   const overrideMaps: {
     localClientComponents?: Map<Component<any>, Record<string, unknown>>;
@@ -120,9 +121,9 @@ function initComponents(entity: Entity, components: Array<{ type: any, data?: an
 }
 
 function checkIfIdHavePrepair( uniqueId ) {
-
-  return Object.keys(Network.instance.networkObjects).map(Number).reduce((result, key) => (Network.instance.networkObjects[key]?.uniqueId === uniqueId ? result = key : result), null) ?? Network.getNetworkId();
-  
+  let r = Object.keys(Network.instance.networkObjects).map(Number).reduce((result, key) => (Network.instance.networkObjects[key]?.uniqueId === uniqueId ? result = key : result), null) ?? Network.getNetworkId();
+  console.warn('checkIfIdHavePrepair',r);
+  return r
 }
 /**
  * Initialize Network object
@@ -141,6 +142,9 @@ export function initializeNetworkObject( args: { entity?: Entity, prefabType?: s
   const ownerId = args.ownerId ?? 'server';
   const networkId = args.networkId ?? checkIfIdHavePrepair(args.uniqueId);
   const uniqueId = args.uniqueId;
+  const url = args.spawn?.url ?? '';
+  const game = args.spawn?.game ?? '';
+  const role = args.spawn?.role ?? '';
 
   const networkEntity = createNetworkPrefab(
     entity,
@@ -169,6 +173,9 @@ export function initializeNetworkObject( args: { entity?: Entity, prefabType?: s
         ownerId: ownerId,
         prefabType: prefabType,
         uniqueId: uniqueId,
+        url,
+        game,
+        role,
         x: 0,
         y: 0,
         z: 0,

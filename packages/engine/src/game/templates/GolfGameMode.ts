@@ -38,6 +38,7 @@ import { giveGoalState } from "./Golf/behaviors/giveGoalState";
 //
 import { addClub } from "./Golf/behaviors/addClub";
 import { addBall } from "./Golf/behaviors/addBall";
+import { spawnBall } from "./Golf/behaviors/spawnBall";
 import { addHole } from "./Golf/behaviors/addHole";
 // checkers
 import { isPlayersInGame } from "./gameDefault/checkers/isPlayersInGame";
@@ -47,7 +48,7 @@ import { isDifferent } from "./gameDefault/checkers/isDifferent";
 
 import { grabEquippable } from "../../interaction/functions/grabEquippable";
 import { getComponent } from "../../ecs/functions/EntityFunctions";
-import { disableInteractiveToOthers, disableInteractive } from "./Golf/behaviors/disableInteractiveToOthers";
+import { disableInteractiveToOthers, disableInteractive, addInteractable } from "./Golf/behaviors/disableInteractiveToOthers";
 import { spawnBall } from "./Golf/behaviors/spawnBall";
 /**
  * @author HydraFire
@@ -140,13 +141,13 @@ export const GolfGameMode: GameMode = somePrepareFunction({
       behaviors: [addRole]//, spawnBall]
     },
     '1-Player': {
-      behaviors: [addTurn, initScore]
+      behaviors: [addTurn, initScore, spawnBall]
     },
     '2-Player': {
       behaviors: [initScore]
     },
     'GolfBall': {
-      behaviors: [addBall, addRestitution, disableInteractiveToOthers]
+      behaviors: [addInteractable] //addRestitution, disableInteractiveToOthers]
     },
     'GolfClub': {
       behaviors: [addClub],

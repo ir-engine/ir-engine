@@ -6,11 +6,11 @@ import { addComponent, getComponent } from '../../../../ecs/functions/EntityFunc
 import { CollisionGroups, DefaultCollisionMask } from '../../../../physics/enums/CollisionGroups';
 import { TransformComponent } from '../../../../transform/components/TransformComponent';
 import { GameObject } from "../../../components/GameObject";
-import { SceneTagComponent, VisibleTagComponent } from '../../../../scene/components/Object3DTagComponents';
+import { addBall } from "./addBall";
 import { Vector3, MathUtils } from 'three';
-import { AssetLoader } from '../../../../assets/classes/AssetLoader';
-import { Engine } from '../../../../ecs/classes/Engine';
-import { NetworkObject } from '../../../../networking/components/NetworkObject';
+
+
+
 import { isServer } from '../../../../common/functions/isServer';
 import { UserControlledColliderComponent } from '../../../../physics/components/UserControllerObjectComponent';
 /**
@@ -19,52 +19,23 @@ import { UserControlledColliderComponent } from '../../../../physics/components/
 
 export const spawnBall = (playerEntity: Entity): void => {
 
-  const playerNetworkObject = getComponent(playerEntity, NetworkObject);
+  if(isServer) {
+    const body = addBall();
+    const uuid = MathUtils.generateUUID();
 
-  const ballEntity = new Entity();
-  addComponent(ballEntity, SceneTagComponent);
-  // TODO: get tee transform once spawnBall is called from nextTurn or whatever
-  // just hardcode for now
-  const teeTransform = {
-    position: new Vector3(4.166, -0.05, -7.9)
-  }
-  addComponent(ballEntity, TransformComponent, teeTransform);
-  addComponent(ballEntity, VisibleTagComponent);
-  AssetLoader.load({
-    url: Engine.publicPath + '/models/golf/golf_ball.glb',
-    entity: ballEntity,
-  }, (group) => {
-    const shape: Shape = createShapeFromConfig({
-      shape: SHAPES.Sphere,
-      options: { radius: 0.1 },
-      config: {
-        material: { staticFriction: 0.3, dynamicFriction: 0.3, restitution: 0.9 },
-        // TODO - bump physx
-        // collisionLayer: CollisionGroups.Default,
-        // collisionMask: DefaultCollisionMask,
-      },
-      collisionLayer: CollisionGroups.Default,
-      collisionMask: DefaultCollisionMask,
-    });
-
-    const body = PhysicsSystem.instance.addBody(new Body({
-      shapes: [shape],
-      type:  BodyType.DYNAMIC,
-      transform: {
-        translation: { x: teeTransform.position.x, y: teeTransform.position.y, z: teeTransform.position.z }
+    createNetworkRigidBody({
+      parameters: { body, bodytype: BodyType.DYNAMIC },
+      uniqueId: uuid,
+      spawn: {
+        game: 'Game',
+        role: 'GolfBall',
+        url: '/models/golf/golf_ball.glb'
       }
-    }));
+    //  ownerId: playerNetworkObject.uniqueId
+    })
+}
+  /*
 
-    if(isServer) {
-      const uuid = MathUtils.generateUUID();
-      createNetworkRigidBody({
-        entity: ballEntity,
-        parameters: { body, bodytype: BodyType.DYNAMIC },
-        uniqueId: uuid,
-        ownerId: playerNetworkObject.uniqueId
-      })
-    }
-  });
 
   const data = {
     game: "Game",
@@ -73,4 +44,5 @@ export const spawnBall = (playerEntity: Entity): void => {
   };
   addComponent(ballEntity, GameObject, data);
   addComponent(ballEntity, UserControlledColliderComponent, { ownerNetworkId: playerNetworkObject.uniqueId });
+  */
 };

@@ -1,4 +1,4 @@
-import { createNetworkRigidBody } from '../../interaction/prefabs/NetworkRigidBody';
+import { createNetworkRigidBody, spawnNetworkRigidBody } from '../../interaction/prefabs/NetworkRigidBody';
 import { NetworkObject } from '../components/NetworkObject';
 import { createNetworkPlayer } from '../../character/prefabs/NetworkPlayerCharacter';
 import { createNetworkVehicle } from '../../vehicle/prefabs/NetworkVehicle';
@@ -172,11 +172,12 @@ export class ClientNetworkStateSystem extends System {
       // Handle all network objects created this frame
       for (const objectToCreateKey in worldStateBuffer.createObjects) {
         const objectToCreate = worldStateBuffer.createObjects[objectToCreateKey];
-
+        console.warn(objectToCreate);
         const isIdEmpty = Network.instance.networkObjects[objectToCreate.networkId] === undefined;
         const isIdFull = Network.instance.networkObjects[objectToCreate.networkId] != undefined;
         const isPlayerPref = objectToCreate.prefabType === PrefabType.Player;
         const isOtherPref = objectToCreate.prefabType != PrefabType.Player;
+
         const isSameOwnerId = isIdFull && Network.instance.networkObjects[objectToCreate.networkId].component.ownerId === objectToCreate.ownerId;
         const isSameUniqueId = isIdFull && Network.instance.networkObjects[objectToCreate.networkId].component.uniqueId === objectToCreate.uniqueId;
 
@@ -202,7 +203,12 @@ export class ClientNetworkStateSystem extends System {
           createNetworkVehicle({ networkId: objectToCreate.networkId, uniqueId: objectToCreate.uniqueId });
         } else if (objectToCreate.prefabType === PrefabType.RigidBody) {
           console.warn('*createObjects* creating space in networkObjects for futured object at id: ' + objectToCreate.networkId);
-          createNetworkRigidBody({ networkId: objectToCreate.networkId, uniqueId: objectToCreate.uniqueId });
+          console.warn(Network.instance.networkObjects);
+          if (objectToCreate.url) {
+            spawnNetworkRigidBody({ url: objectToCreate.url, game: objectToCreate.game, role: objectToCreate.role, networkId: objectToCreate.networkId, uniqueId: objectToCreate.uniqueId });
+          } else {
+            createNetworkRigidBody({ networkId: objectToCreate.networkId, uniqueId: objectToCreate.uniqueId });
+          }
         }
       }
       syncNetworkObjectsTest(worldStateBuffer.createObjects)
