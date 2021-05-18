@@ -214,6 +214,7 @@ const initializeCharacter: Behavior = (entity): void => {
 export function createNetworkPlayer(args: { ownerId: string | number, networkId?: number, entity?: Entity }) {
 	const networkComponent = initializeNetworkObject({
 		ownerId: String(args.ownerId),
+		uniqueId: String(args.ownerId),
 		networkId: args.networkId,
 		prefabType: PrefabType.Player,
 		override: {

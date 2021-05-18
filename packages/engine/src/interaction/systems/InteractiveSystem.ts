@@ -433,8 +433,8 @@ export class InteractiveSystem extends System {
     })
 
     this.queryResults.equippable.all?.forEach(entity => {
-      const actor = getComponent(entity, CharacterComponent, true);
-      const equippedComponent = getComponent(entity, EquippedComponent, true);
+      const actor = getComponent(entity, CharacterComponent);
+      const equippedComponent = getComponent(entity, EquippedComponent);
       const equippableTransform = getComponent(equippedComponent.equippedEntity, TransformComponent);
       const equipperTransform = getComponent(entity, TransformComponent);
       if(isInXR(entity)) {

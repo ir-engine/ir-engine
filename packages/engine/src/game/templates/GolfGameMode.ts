@@ -46,9 +46,9 @@ import { customChecker } from "./gameDefault/checkers/customChecker";
 import { isDifferent } from "./gameDefault/checkers/isDifferent";
 
 import { grabEquippable } from "../../interaction/functions/grabEquippable";
-import { Interactable } from "../../interaction/components/Interactable";
 import { getComponent } from "../../ecs/functions/EntityFunctions";
-import { disableInteractiveToOthers, disableInteractive, disableInteractiveHover } from "./Golf/behaviors/disableInteractiveToOthers";
+import { disableInteractiveToOthers, disableInteractive } from "./Golf/behaviors/disableInteractiveToOthers";
+import { spawnBall } from "./Golf/behaviors/spawnBall";
 /**
  * @author HydraFire
  */
@@ -137,7 +137,7 @@ export const GolfGameMode: GameMode = somePrepareFunction({
   ],
   initGameState: {
     'newPlayer': {
-      behaviors: [addRole]
+      behaviors: [addRole]//, spawnBall]
     },
     '1-Player': {
       behaviors: [addTurn, initScore]

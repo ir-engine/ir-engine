@@ -163,7 +163,8 @@ export class PhysicsSystem extends System {
       }
     });
 
-    if(isClient && Network.instance?.snapshot) {
+    if(isClient) {
+      if(!Network.instance?.snapshot) return;
       // Interpolate between the current client's data with what the server has sent via snapshots
       const snapshots = {
         interpolation: calculateInterpolation('x y z quat velocity'),
@@ -210,7 +211,7 @@ export class PhysicsSystem extends System {
       // only on server
       this.queryResults.correctionFromClient.all?.forEach(entity => {
         const networkObject = getMutableComponent(entity, NetworkObject);
-        // console.log('correctionFromClient', entity, networkObject.ownerId, Network.instance.userId)
+        console.log('correctionFromClient', entity, networkObject.ownerId, Network.instance.userId)
         if(networkObject.ownerId === Network.instance.userId) {
           const collider = getMutableComponent(entity, ColliderComponent);
           Network.instance.clientInputState.transforms.push({

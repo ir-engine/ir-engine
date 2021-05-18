@@ -26,7 +26,7 @@ export const addClub: Behavior = (entity: Entity, args?: any, delta?: number, en
     // TODO: upgrade three-physx and uncomment following commented lines
     // config: {
       collisionLayer: 1 << 6,
-      collisionMask: CollisionGroups.Ground
+      collisionMask: CollisionGroups.Default
     // }
   });
   const shapeHead: Shape = createShapeFromConfig({
@@ -37,7 +37,7 @@ export const addClub: Behavior = (entity: Entity, args?: any, delta?: number, en
     }),
     // config: {
       collisionLayer: 1 << 6,
-      collisionMask: DefaultCollisionMask
+      collisionMask: CollisionGroups.Default
     // }
   });
 
@@ -55,7 +55,7 @@ export const addClub: Behavior = (entity: Entity, args?: any, delta?: number, en
 
   createNetworkRigidBody({
     entity,
-    parameters: { body, bodytype: BodyType.KINEMATIC },
+    parameters: { body, bodytype: BodyType.DYNAMIC },
     uniqueId: uuid
   })
 };

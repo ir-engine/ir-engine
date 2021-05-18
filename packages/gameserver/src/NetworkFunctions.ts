@@ -326,7 +326,7 @@ export async function handleJoinWorld(socket, data, callback, userId, user): Pro
             prefabType: Network.instance.networkObjects[networkId].prefabType,
             networkId: networkId,
             ownerId: Network.instance.networkObjects[networkId].ownerId,
-            uniqueId: Network.instance.networkObjects[networkId].uniqueId ? Network.instance.networkObjects[networkId].uniqueId : '',
+            uniqueId: Network.instance.networkObjects[networkId].uniqueId,
             x: transform.position.x,
             y: transform.position.y,
             z: transform.position.z,
