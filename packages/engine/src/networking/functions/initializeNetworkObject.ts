@@ -134,13 +134,13 @@ function checkIfIdHavePrepair( uniqueId ) {
  *
  * @returns Newly created object.
  */
-export function initializeNetworkObject( args: { entity?: Entity, prefabType?: string | number, ownerId?: string, networkId?: number, uniqueId?: string, override?: any}): NetworkObject {
+export function initializeNetworkObject( args: { entity?: Entity, prefabType?: string | number, ownerId: string, networkId?: number, uniqueId: string, override?: any}): NetworkObject {
   // Instantiate into the world
   const entity = args.entity ?? createEntity();
   const prefabType = args.prefabType ?? Network.instance.schema.defaultClientPrefab;
   const ownerId = args.ownerId ?? 'server';
   const networkId = args.networkId ?? checkIfIdHavePrepair(args.uniqueId);
-  const uniqueId = args.uniqueId ?? 'character';
+  const uniqueId = args.uniqueId;
 
   const networkEntity = createNetworkPrefab(
     entity,

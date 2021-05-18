@@ -94,10 +94,6 @@ export function addColliderWithoutEntity(userData, pos = new Vector3(), rot = ne
 
   const shape: Shape = createShapeFromConfig(shapeArgs);
   shape.config.material = { restitution: userData.restitution ?? 0 };
-  // TEMP
-  if(userData.type === 'sphere') {
-    shape.config.material = { restitution: 0.9, dynamicFriction: 0, staticFriction: 0 };
-  }
  /*
  shape.config.collisionLayer = model.collisionLayer ?? CollisionGroups.All;
  switch(model.collisionMask) {

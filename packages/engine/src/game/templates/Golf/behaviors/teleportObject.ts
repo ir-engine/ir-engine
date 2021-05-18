@@ -11,6 +11,7 @@ import { TransformComponent } from '../../../../transform/components/TransformCo
 
 export const teleportObject: Behavior = (entity: Entity, args?: any, delta?: number, entityTarget?: Entity, time?: number, checks?: any): void => {
 
+  console.log('teleport object')
 
   const collider = getComponent(entity, ColliderComponent)
   const position = getComponent(entityTarget, TransformComponent).position
