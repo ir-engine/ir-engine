@@ -79,7 +79,7 @@ const ShareForm = ({updateShareFormState, popupsState}:Props) => {
    className={classes.media+' '+styles.media}
    image='https://cdn.zeplin.io/601d63dc422d9dad3473e3ab/assets/14A023CD-2A56-4EDF-9D40-7B86746BF447.png'
    title="Arc"
-   style={{maxWidth: 'calc(100% - 36pt)'}}
+   style={{maxWidth: 'calc(100% - 36pt)', maxHeight: '40vh'}}
  />
  </Box>
  <Button size="large" color="primary" onClick={shareVia} className={classes.btn_share}>
