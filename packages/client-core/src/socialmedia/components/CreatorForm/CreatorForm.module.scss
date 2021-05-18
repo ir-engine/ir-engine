@@ -61,8 +61,10 @@
 
         .fieldLabelIcon{
             flex-grow: 0;
-            margin: 0 10px 0 0;
+            margin: auto 10px auto 0;
             color: #C4C4C6;
+            height: 17pt;
+            width: auto;
         }
     }
     .content{
@@ -92,7 +94,7 @@
             }
         }
         .formLine{
-            input{
+            input, textarea{
                 font-size: 14pt;
             }
         }
