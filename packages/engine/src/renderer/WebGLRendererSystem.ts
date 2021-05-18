@@ -101,6 +101,7 @@ export class WebGLRendererSystem extends System {
 
     try {
       context = canvas.getContext("webgl2", { antialias: true });
+      this._supportWebGL2 = true;
     } catch (error) {
       context = canvas.getContext("webgl", { antialias: true });
       this._supportWebGL2 = false;
@@ -113,10 +114,8 @@ export class WebGLRendererSystem extends System {
       antialias: true,
       preserveDrawingBuffer: true
     };
-    
-    const { safariWebBrowser } = window as any;
-    
-    const renderer = safariWebBrowser ? new WebGL1Renderer(options) : new WebGLRenderer(options);
+        
+    const renderer = this._supportWebGL2 ? new WebGLRenderer(options) : new WebGL1Renderer(options);
     renderer.physicallyCorrectLights = true;
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = PCFSoftShadowMap;
@@ -142,6 +141,7 @@ export class WebGLRendererSystem extends System {
     this.onResize();
 
     this.needsResize = true;
+    Engine.renderer.autoClear = true;
 
     // if we turn PostPro off, don't turn it back on, if we turn it on, let engine manage it
     if(!this._supportWebGL2) {
@@ -281,6 +281,7 @@ export class WebGLRendererSystem extends System {
       if (this.usePostProcessing && this.postProcessingSchema) {
         this.composer.render(delta);
       } else {
+        Engine.renderer.autoClear = true;
         Engine.renderer.render(Engine.scene, Engine.camera);
       }
     }
