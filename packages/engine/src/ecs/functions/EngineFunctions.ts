@@ -1,5 +1,6 @@
 /** Functions to provide engine level functionalities. */
 
+import { AssetLoader } from "../../assets/classes/AssetLoader";
 import { disposeDracoLoaderWorkers } from "../../assets/functions/LoadGLTF";
 import { now } from "../../common/functions/now";
 import { Network } from "../../networking/classes/Network";
@@ -89,6 +90,7 @@ export async function reset(): Promise<void> {
   Network.instance.dispose();
 
   Vault.instance.clear();
+  AssetLoader.Cache.clear();
 
   // Engine.enabled = false;
   Engine.gameMode = null;

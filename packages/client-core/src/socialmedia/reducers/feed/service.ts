@@ -197,5 +197,5 @@ export function setFeedNotFeatured(feedId: string) {
 }
 
 export function clearCreatorFeatured(){
-  return async (dispatch: Dispatch): Promise<any> => {dispatch(reduxClearCreatorFeatured());}
+  return async (dispatch: Dispatch): Promise<any> => {dispatch(reduxClearCreatorFeatured());};
 }
