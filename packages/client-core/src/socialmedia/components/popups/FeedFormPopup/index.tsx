@@ -9,6 +9,7 @@ import AppFooter from "../../Footer";
 //@ts-ignore
 import styles from './FeedFormPopup.module.scss';
 import FeedForm from "../../FeedForm";
+import WebXRPlugin from "../../WebXRPlugin";
 
 const mapStateToProps = (state: any): any => {
     return {
@@ -31,14 +32,15 @@ const handleNewFeedClose = () => {
 };
 const renderNewFeedModal = () =>
   popupsState?.get('shareFeedPage') === true &&  
-      <SharedModal 
-          open={popupsState?.get('shareFeedPage')}
-          onClose={handleNewFeedClose} 
-          className={styles.feedFormPopup}
-      >
-          <FeedForm />      
+      // <SharedModal 
+      //     open={popupsState?.get('shareFeedPage')}
+      //     onClose={handleNewFeedClose} 
+      //     className={styles.feedFormPopup}
+      // >
+          <WebXRPlugin/>
+          {/* <FeedForm />       */}
           <AppFooter />
-      </SharedModal>;
+      // </SharedModal>;
 const newFeedPageState = popupsState?.get('shareFeedPage');
 useEffect(()=>{renderNewFeedModal();}, [newFeedPageState]);
     return  renderNewFeedModal();         
