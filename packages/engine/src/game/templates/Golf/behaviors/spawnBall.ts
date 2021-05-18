@@ -13,6 +13,7 @@ import { Engine } from '../../../../ecs/classes/Engine';
 import { NetworkObject } from '../../../../networking/components/NetworkObject';
 import { isServer } from '../../../../common/functions/isServer';
 import { UserControlledColliderComponent } from '../../../../physics/components/UserControllerObjectComponent';
+import { GolfCollisionGroups } from '../GolfGameConstants';
 /**
  * @author HydraFire <github.com/HydraFire>
  */
@@ -34,17 +35,14 @@ export const spawnBall = (playerEntity: Entity): void => {
     url: Engine.publicPath + '/models/golf/golf_ball.glb',
     entity: ballEntity,
   }, (group) => {
-    const shape: Shape = createShapeFromConfig({
+    const shape = createShapeFromConfig({
       shape: SHAPES.Sphere,
       options: { radius: 0.1 },
       config: {
         material: { staticFriction: 0.3, dynamicFriction: 0.3, restitution: 0.9 },
-        // TODO - bump physx
-        // collisionLayer: CollisionGroups.Default,
-        // collisionMask: DefaultCollisionMask,
+        collisionLayer: GolfCollisionGroups.Ball,
+        collisionMask: DefaultCollisionMask | GolfCollisionGroups.Hole | GolfCollisionGroups.Club,
       },
-      collisionLayer: CollisionGroups.Default,
-      collisionMask: DefaultCollisionMask,
     });
 
     const body = PhysicsSystem.instance.addBody(new Body({
@@ -69,7 +67,7 @@ export const spawnBall = (playerEntity: Entity): void => {
   const data = {
     game: "Game",
     role: "GolfTee",
-    uuid,
+    // uuid,
   };
   addComponent(ballEntity, GameObject, data);
   addComponent(ballEntity, UserControlledColliderComponent, { ownerNetworkId: playerNetworkObject.uniqueId });
