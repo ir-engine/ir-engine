@@ -1,4 +1,22 @@
 import {
+  BlendFunction,
+
+
+
+  DepthDownsamplingPass, DepthOfFieldEffect, EffectComposer,
+
+
+
+  EffectPass,
+  NormalPass, OutlineEffect,
+
+
+
+  RenderPass,
+  SSAOEffect,
+  TextureEffect
+} from 'postprocessing';
+import {
   LinearToneMapping,
   NearestFilter,
   PCFSoftShadowMap,
@@ -10,25 +28,13 @@ import {
   WebGLRenderTarget
 } from 'three';
 import { CSM } from '../assets/csm/CSM';
+import { ClientStorage } from '../common/classes/ClientStorage';
 import { now } from '../common/functions/now';
 import { Engine } from '../ecs/classes/Engine';
-import { System, SystemAttributes } from '../ecs/classes/System';
-import { BlendFunction } from './postprocessing/blending/BlendFunction';
-import { EffectComposer } from './postprocessing/core/EffectComposer';
-import { DepthOfFieldEffect } from './postprocessing/DepthOfFieldEffect';
-import { OutlineEffect } from './postprocessing/OutlineEffect';
-import { DepthDownsamplingPass } from './postprocessing/passes/DepthDownsamplingPass';
-import { EffectPass } from './postprocessing/passes/EffectPass';
-import { NormalPass } from './postprocessing/passes/NormalPass';
-import { RenderPass } from './postprocessing/passes/RenderPass';
-import { SSAOEffect } from './postprocessing/SSAOEffect';
-import { TextureEffect } from './postprocessing/TextureEffect';
-import { PostProcessingSchema } from './postprocessing/PostProcessingSchema';
 import { EngineEvents } from '../ecs/classes/EngineEvents';
-import PostProcessing, { defaultPostProcessingSchema, effectType } from '../scene/classes/PostProcessing';
-import { ShaderPass } from './postprocessing/passes/ShaderPass';
-import { isBrowser } from '../common/functions/getEnvironment';
-import { ClientStorage } from '../common/classes/ClientStorage';
+import { System, SystemAttributes } from '../ecs/classes/System';
+import { defaultPostProcessingSchema, effectType } from '../scene/classes/PostProcessing';
+import { PostProcessingSchema } from './interfaces/PostProcessingSchema';
 
 export enum RENDERER_SETTINGS {
   AUTOMATIC = 'automatic',
