@@ -11,7 +11,7 @@ import { PrefabType } from '../../networking/templates/PrefabType';
 * @author HydraFire <github.com/HydraFire>
  */
 
-export function createNetworkRigidBody( args:{ parameters?: any, networkId?: string | number, uniqueId: string, entity?: Entity }) {
+export function createNetworkRigidBody( args:{ parameters?: any, networkId?: string | number, uniqueId: string, entity?: Entity, ownerId?: string }) {
   if (args.parameters === undefined) {
 
     Network.instance.networkObjects[args.networkId] = {
@@ -27,6 +27,7 @@ export function createNetworkRigidBody( args:{ parameters?: any, networkId?: str
       entity: args.entity,
       prefabType: PrefabType.RigidBody,
       uniqueId: args.uniqueId,
+      ownerId: args.ownerId,
       override: {
         networkComponents: [
           {
