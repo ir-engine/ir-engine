@@ -39,7 +39,7 @@ const renderNewFeedModal = () =>
       // >
           <WebXRPlugin/>
           {/* <FeedForm />       */}
-          <AppFooter />
+          // <AppFooter />
       // </SharedModal>;
 const newFeedPageState = popupsState?.get('shareFeedPage');
 useEffect(()=>{renderNewFeedModal();}, [newFeedPageState]);
