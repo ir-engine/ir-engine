@@ -11,7 +11,7 @@ import {getTheFeedsNew} from '@xrengine/client-core/src/socialmedia/reducers/the
 import { selectTheFeedsState } from '@xrengine/client-core/src/socialmedia/reducers/thefeeds/selector';
 
 
-import FeedCard from '../FeedCard';
+import TheFeedsCard from '../TheFeedsCard';
 
 // @ts-ignore
 import styles from './TheFeed.module.scss';
@@ -37,7 +37,7 @@ const TheFeed = ({theFeedsState, getTheFeedsNew}: Props) => {
 //     useEffect(()=> console.log(TheFeedsList), [TheFeedsList]);
     return <section className={styles.thefeedContainer}>
             {TheFeedsList && TheFeedsList.length > 0 ?
-                TheFeedsList.map((item, key)=> <FeedCard key={key} feed = {item} />) :
+                TheFeedsList.map((item, key)=> <TheFeedsCard key={key} feed = {item} />) :
                 <p className={styles.noContent}>More news will be available soon.</p>}
         </section>;
 };
