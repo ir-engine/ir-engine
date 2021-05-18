@@ -6,7 +6,7 @@ import { addComponent, getComponent, hasComponent } from '../../ecs/functions/En
 import { ComponentConstructor } from '../../ecs/interfaces/ComponentInterfaces';
 import { Network } from "../../networking/classes/Network";
 import { HaveBeenInteracted } from "../actions/HaveBeenInteracted";
-import { NextTurn } from "../actions/NextTurn";
+import { HasHadCollision } from "../actions/HasHadCollision";
 import { Game } from "../components/Game";
 import { GameObject } from "../components/GameObject";
 import { GamePlayer } from "../components/GamePlayer";
@@ -15,10 +15,10 @@ import { getEntityFromRoleUuid, getGame, getGameEntityFromName, getRole, getUuid
 /**
  * @author HydraFire <github.com/HydraFire>
  */
-// TODO: create schema actions
+// TODO: create enum actions
 const gameActionComponents = {
   'HaveBeenInteracted': HaveBeenInteracted,
-  'NextTurn': NextTurn
+  'HasHadCollision': HasHadCollision
 };
 
 export const addActionComponent = (entity: Entity, component: ComponentConstructor<Component<any>>, componentArgs: any = { }): void => {
@@ -40,14 +40,14 @@ export const sendActionComponent = (entity: Entity, component: ComponentConstruc
     role: getRole(entity),
     component: component.name,
     uuid: getUuid(entity),
-    componentArgs: JSON.stringify(componentArgs)
+    componentArgs: JSON.stringify(componentArgs).replace(/"/g, '\'') // replace double quotes with single quotes so it is read properly in buffer
   }
-  console.log('sendActionComponent', actionMessage);
+  // console.log('sendActionComponent', actionMessage);
   Network.instance.worldState.gameStateActions.push(actionMessage);
 };
 
 export const applyActionComponent = (actionMessage: GameStateActionMessage): void => {
-  console.warn('applyActionComponent', actionMessage);
+  // console.warn('applyActionComponent', actionMessage);
   const entityGame = getGameEntityFromName(actionMessage.game);
   if(!entityGame) return;
   const game = getComponent(entityGame, Game);
@@ -59,7 +59,7 @@ export const applyActionComponent = (actionMessage: GameStateActionMessage): voi
   const component = gameActionComponents[actionMessage.component]
   let componentArgs = {};
   try {
-    componentArgs = JSON.parse(actionMessage.componentArgs);
+    componentArgs = JSON.parse(actionMessage.componentArgs.replace(/'/g, '"')); // replace single quotes with double quotes
   } catch (e) {}
   addComponent( entity, component, componentArgs);
 };

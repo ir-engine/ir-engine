@@ -29,7 +29,8 @@ const gameStateActionSchema = new Schema({
   game: string,
   role: string,
   component: string,
-  uuid: string
+  uuid: string,
+  componentArgs: string
 })
 
 /** Schema for input. */

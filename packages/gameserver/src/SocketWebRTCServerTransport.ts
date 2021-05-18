@@ -91,6 +91,10 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
         if (this.socketIO != null) this.socketIO.of('/').emit(MessageTypes.Kick.toString(), socket.id);
     }
 
+    close() {
+        this.transport.close();
+    }
+
     public async initialize(): Promise<void> {
         // Set up our gameserver according to our current environment
         const localIp = await getLocalServerIp();

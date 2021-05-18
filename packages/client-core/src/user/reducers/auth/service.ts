@@ -715,7 +715,7 @@ const getAvatarResources = (user) => {
 };
 
 const loadAvatarForUpdatedUser = async (user) => {
-  if (!user || !user.instanceId) Promise.resolve(true);
+  if (user.instanceId == null && user.channelInstanceId == null) return Promise.resolve(true);
 
   return new Promise(async resolve => {
     const networkUser = Network.instance?.clients[user.id];
@@ -799,11 +799,11 @@ const loadXRAvatarForUpdatedUser = async (user) => {
 
 if(!Config.publicRuntimeConfig.offlineMode) {
   client.service('user').on('patched', async (params) => {
-    console.log('User patched');
     const selfUser = (store.getState() as any).get('auth').get('user');
     const user = resolveUser(params.userRelationship);
 
-    await loadAvatarForUpdatedUser(user);
+    console.log('User patched', user);
+    if (Network.instance != null) await loadAvatarForUpdatedUser(user);
 
     if (selfUser.id === user.id) {
       if (selfUser.instanceId !== user.instanceId) store.dispatch(clearLayerUsers());

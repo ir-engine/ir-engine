@@ -30,6 +30,8 @@ import { unequipEntity } from '../interaction/functions/equippableFunctions';
 import { TransformComponent } from '../transform/components/TransformComponent';
 import { XRUserSettings, XR_ROTATION_MODE } from '../xr/types/XRUserSettings';
 import { BinaryValue } from '../common/enums/BinaryValue';
+import { ParityValue } from '../common/enums/ParityValue';
+import { getInteractiveIsInReachDistance } from './functions/getInteractiveIsInReachDistance';
 
 /**
  *
@@ -38,7 +40,7 @@ import { BinaryValue } from '../common/enums/BinaryValue';
  * @param delta
  */
 
-const interact: Behavior = (entity: Entity, args: any = { }, delta): void => {
+const interact: Behavior = (entity: Entity, args: any = { side: ParityValue }, delta): void => {
 
   // TODO: figure out how to best handle equippables & interactables at the same time
   const equippedComponent = getComponent(entity, EquippedComponent)
@@ -47,7 +49,7 @@ const interact: Behavior = (entity: Entity, args: any = { }, delta): void => {
     return;
   }
 
-  interactOnServer(entity); //TODO: figure out all this cases
+  interactOnServer(entity, args); //TODO: figure out all this cases
 
   if (isServer) {
     //TODO: all this function needs to re-think
@@ -89,9 +91,8 @@ const interact: Behavior = (entity: Entity, args: any = { }, delta): void => {
 
   const interactive = getComponent(focusedEntity, Interactable);
   const intPosition = getComponent(focusedEntity, TransformComponent).position;
-  const position = getComponent(entity, TransformComponent).position;
 
-  if (position.distanceTo(intPosition) < 3) {
+  if (getInteractiveIsInReachDistance(entity, intPosition)) {
     if (interactive && typeof interactive.onInteraction === 'function') {
       if (!hasComponent(focusedEntity, VehicleComponent)) {
         interactive.onInteraction(entity, args, delta, focusedEntity);
@@ -355,13 +356,15 @@ const moveFromXRInputs: Behavior = (entity, args): void => {
 //const upDirection = new Vector3(0, 1, 0);
 const diffDamping = 0.2;
 let switchChangedToZero = true;
+const xrLookMultiplier = 0.1;
 
 const lookFromXRInputs: Behavior = (entity, args): void => {
-  if (isServer) return;
+  if (isServer) return; // we only set viewVector here, which is sent to the server
   const actor: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
   const input = getComponent<Input>(entity, Input as any);
   const values = input.data.get(BaseInput.XR_LOOK)?.value;
   const rotationAngle = XRUserSettings.rotationAngle * diffDamping;
+  let newAngleDiff = 0;
   //console.warn(values[0]);
   switch (XRUserSettings.rotation) {
 
@@ -370,25 +373,29 @@ const lookFromXRInputs: Behavior = (entity, args): void => {
         const plus = XRUserSettings.rotationInvertAxes ? -1 : 1;
         const minus = XRUserSettings.rotationInvertAxes ? 1 : -1;
         const directedAngle = values[0] > 0 ? rotationAngle * plus : rotationAngle * minus;
-        actor.changedViewAngle = directedAngle;
+        newAngleDiff = directedAngle;
         switchChangedToZero = false;
       } else if (!switchChangedToZero && values[0] == 0) {
         switchChangedToZero = true;
       } else if (!switchChangedToZero) {
-        actor.changedViewAngle = 0;
+        newAngleDiff = 0;
       } else if (switchChangedToZero && values[0] == 0) {
-        actor.changedViewAngle = 0;
+        newAngleDiff = 0;
       }
       break;
 
     case XR_ROTATION_MODE.SMOOTH:
-      actor.changedViewAngle = (values[0] * XRUserSettings.rotationSmoothSpeed) * (XRUserSettings.rotationInvertAxes ? -1 : 1);
+      newAngleDiff = (values[0] * XRUserSettings.rotationSmoothSpeed) * (XRUserSettings.rotationInvertAxes ? -1 : 1);
       break;
   }
-
-  const viewVectorAngle = Math.atan2(actor.viewVector.z, actor.viewVector.x) - (actor.changedViewAngle * actor.gamepadDamping);
-  actor.viewVector.x = Math.cos(viewVectorAngle);
-  actor.viewVector.z = Math.sin(viewVectorAngle);
+  input.data.set(BaseInput.LOOKTURN_PLAYERONE, {
+    type: InputType.TWODIM,
+    value: [
+      newAngleDiff * xrLookMultiplier,
+      0 // data.value[1] * multiplier
+    ],
+    lifecycleState: LifecycleValue.STARTED
+  });
 };
 
 
@@ -407,8 +414,7 @@ const lookByInputAxis = (
   const multiplier = args.multiplier ?? 1;
   // adding very small noise to trigger same value to be "changed"
   // till axis values is not zero, look input should be treated as changed
-  const noiseX = (Math.random() > 0.5 ? 1 : -1) * 0.0000001;
-  const noiseY = (Math.random() > 0.5 ? 1 : -1) * 0.0000001;
+  const noise = (Math.random() > 0.5 ? 1 : -1) * 0.00001;
 
   if (data.type === InputType.TWODIM) {
     const isEmpty = (Math.abs(data.value[0]) === 0 && Math.abs(data.value[1]) === 0);
@@ -417,8 +423,8 @@ const lookByInputAxis = (
       input.data.set(args.output, {
         type: data.type,
         value: [
-          data.value[0] * multiplier + noiseX,
-          data.value[1] * multiplier + noiseY
+          data.value[0] * multiplier + noise,
+          data.value[1] * multiplier + noise
         ],
         lifecycleState: LifecycleValue.CHANGED
       });
@@ -430,8 +436,8 @@ const lookByInputAxis = (
       input.data.set(args.output, {
         type: data.type,
         value: [
-          data.value[0] * multiplier + noiseX,
-          data.value[2] * multiplier + noiseY
+          data.value[0] * multiplier + noise,
+          data.value[2] * multiplier + noise
         ],
         lifecycleState: LifecycleValue.CHANGED
       });
@@ -495,6 +501,8 @@ export const createCharacterInput = () => {
 
   map.set(GamepadButtons.A, BaseInput.INTERACT);
   map.set(GamepadButtons.B, BaseInput.JUMP);
+  map.set(GamepadButtons.LTrigger, BaseInput.GRAB_LEFT);
+  map.set(GamepadButtons.RTrigger, BaseInput.GRAB_RIGHT);
   map.set(GamepadButtons.DPad1, BaseInput.FORWARD);
   map.set(GamepadButtons.DPad2, BaseInput.BACKWARD);
   map.set(GamepadButtons.DPad3, BaseInput.LEFT);
@@ -573,7 +581,27 @@ export const CharacterInputSchema: InputSchema = {
         {
           behavior: interact,
           args: {
-            phase: LifecycleValue.STARTED
+            side: ParityValue.NONE
+          }
+        }
+      ]
+    },
+    [BaseInput.GRAB_LEFT]: {
+      started: [
+        {
+          behavior: interact,
+          args: {
+            side: ParityValue.LEFT
+          }
+        }
+      ]
+    },
+    [BaseInput.GRAB_RIGHT]: {
+      started: [
+        {
+          behavior: interact,
+          args: {
+            side: ParityValue.RIGHT
           }
         }
       ]

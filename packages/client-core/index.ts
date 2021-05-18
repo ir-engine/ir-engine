@@ -475,6 +475,7 @@ export { default as srcUserComponentsUserMenuMenusShareMenu } from './src/user/c
 export { default as srcUserReducersAuthReducers } from './src/user/reducers/auth/reducers';
 export { default as srcUserReducersIndex } from './src/user/reducers/index';
 export { default as srcUserReducersUserReducers } from './src/user/reducers/user/reducers';
+export { default as srcUtilWaitForClientAuthenticated } from './src/util/wait-for-client-authenticated';
 export { default as srcWorldComponentsAvatarIndex } from './src/world/components/Avatar/index';
 export { default as srcWorldComponentsEditorApi } from './src/world/components/editor/Api';
 export { default as srcWorldComponentsEditorAssetsAssetDropZone } from './src/world/components/editor/assets/AssetDropZone';

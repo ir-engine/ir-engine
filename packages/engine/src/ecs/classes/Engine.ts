@@ -29,6 +29,7 @@ import { PositionalAudioObjectProxy, AudioObjectProxy, AudioListenerProxy, Audio
 import { NumericalType } from '../../common/types/NumericalTypes';
 import { InputValue } from '../../input/interfaces/InputValue';
 import { GameMode } from "../../game/types/GameMode";
+import { EngineEvents } from './EngineEvents';
 
 export const Audio = isWebWorker ? AudioObjectProxy : THREE_Audio;
 export const AudioListener = isWebWorker ? AudioListenerProxy : THREE_AudioListener;
@@ -287,4 +288,13 @@ export class Engine {
 
   static workers = [];
 }
+
+export const awaitEngineLoaded = (): Promise<void> => {
+  return new Promise<void>((resolve) => {
+    if(Engine.isInitialized) resolve();
+    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.INITIALIZED_ENGINE, resolve)
+  })
+}
+
+
 globalThis.Engine = Engine;

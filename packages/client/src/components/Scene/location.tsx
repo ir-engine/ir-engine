@@ -441,7 +441,8 @@ export const EnginePage = (props: Props) => {
   const mobileGamepadProps = { hovered: objectHovered, layout: 'default' };
   const mobileGamepad = isMobileOrTablet() ? <MobileGamepad {...mobileGamepadProps} /> : null;
 
-  return userBanned !== true && !isInXR ? (
+  if(userBanned) return (<div className="banned">You have been banned from this location</div>);
+  return isInXR ? <></> : (
     <>
       {isValidLocation && <UserMenu />}
       <Snackbar open={!isValidLocation}
@@ -474,7 +475,7 @@ export const EnginePage = (props: Props) => {
           timeout={10000}
       />
     </>
-  ) : (<div className="banned">You have been banned from this location</div>);
+  );
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(EnginePage);

@@ -11,10 +11,9 @@ import { BaseInput } from '../../input/enums/BaseInput';
 import { ControllerColliderComponent } from '../components/ControllerColliderComponent';
 import { CharacterComponent } from '../components/CharacterComponent';
 import { TransformComponent } from '../../transform/components/TransformComponent';
-import { isServer } from '../../common/functions/isServer';
 import { XRUserSettings, XR_FOLLOW_MODE } from '../../xr/types/XRUserSettings';
-import { getBit } from '../../common/functions/bitFunctions';
-import { CHARACTER_STATES } from '../state/CharacterStates';
+import { isInXR } from '../../xr/functions/WebXRFunctions';
+import { SIXDOFType } from '../../common/types/NumericalTypes';
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -22,6 +21,7 @@ import { CHARACTER_STATES } from '../state/CharacterStates';
 
 const forwardVector = new Vector3(0, 0, 1);
 const upVector = new Vector3(0, 1, 0);
+const quat = new Quaternion();
 
 export const characterMoveBehavior = (entity: Entity, deltaTime): void => {
   const actor: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
@@ -29,28 +29,29 @@ export const characterMoveBehavior = (entity: Entity, deltaTime): void => {
   const collider = getMutableComponent<ControllerColliderComponent>(entity, ControllerColliderComponent);
   if (!actor.initialized || !collider.controller || !actor.movementEnabled) return;
 
-  if (getBit(actor.state, CHARACTER_STATES.VR)) {
+  if (isInXR(entity)) {
     const inputs = getComponent(entity, Input);
-    let rotationVector = null;
     switch (XRUserSettings.moving) {
       case XR_FOLLOW_MODE.CONTROLLER:
-        rotationVector = XRUserSettings.invertRotationAndMoveSticks ? inputs.data.get(BaseInput.XR_RIGHT_HAND).value : inputs.data.get(BaseInput.XR_LEFT_HAND).value;
-        rotationVector = new Quaternion().set(rotationVector.qX, rotationVector.qY, rotationVector.qZ, rotationVector.qW)//.invert();
-
-        const flatViewVector = new Vector3(actor.viewVector.x, 0, actor.viewVector.z).normalize();
-        const orientationVector = applyVectorMatrixXZ(flatViewVector, forwardVector);
-        const viewVectorFlatQuaternion = new Quaternion().setFromUnitVectors(forwardVector, orientationVector.setY(0));
-        rotationVector.multiply(viewVectorFlatQuaternion);
-
+        const data = XRUserSettings.invertRotationAndMoveSticks ? inputs.data.get(BaseInput.XR_RIGHT_HAND) : inputs.data.get(BaseInput.XR_LEFT_HAND);
+        if(data?.value) {
+          const sixdof = data.value as SIXDOFType;
+          quat.set(sixdof.qX, sixdof.qY, sixdof.qZ, sixdof.qW)//.invert();          
+          const flatViewVector = new Vector3(actor.viewVector.x, 0, actor.viewVector.z).normalize();
+          const orientationVector = applyVectorMatrixXZ(flatViewVector, forwardVector);
+          const viewVectorFlatQuaternion = new Quaternion().setFromUnitVectors(forwardVector, orientationVector.setY(0));
+          quat.multiply(viewVectorFlatQuaternion);
+        }
         break;
       case XR_FOLLOW_MODE.HEAD:
         const headTransform = inputs.data.get(BaseInput.XR_HEAD);
-        if(headTransform) {
-          rotationVector = headTransform.value;
-          rotationVector = new Quaternion().set(rotationVector.qX, rotationVector.qY, rotationVector.qZ, rotationVector.qW);
+        if(headTransform?.value) {
+          const sixdof = headTransform.value as SIXDOFType;
+          quat.set(sixdof.qX, sixdof.qY, sixdof.qZ, sixdof.qW);
         }
         break;
-    }
+      }
+    // TODO - apply quat to camera rotation
   }
   const newVelocity = new Vector3();
   const onGroundVelocity = new Vector3();
@@ -90,6 +91,7 @@ export const characterMoveBehavior = (entity: Entity, deltaTime): void => {
       actor.isGrounded = false;
     }
     // TODO - Move on top of moving objects
+    // physx has a feature for this, we should integrate both
     // if (actor.rayResult.body.mass > 0) {
     // 	const pointVelocity = new Vec3();
     // 	actor.rayResult.body.getVelocityAtWorldPoint(actor.rayResult.hitPointWorld, pointVelocity);

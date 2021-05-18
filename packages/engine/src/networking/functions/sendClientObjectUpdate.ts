@@ -8,7 +8,7 @@ import { NetworkObject } from "../components/NetworkObject";
 export function sendClientObjectUpdate(entity, type, values) {
   if (isClient) return;
 
-  const networkObject = getComponent<NetworkObject>(entity, NetworkObject);
+  const networkObject = getComponent<NetworkObject>(entity, NetworkObject, true);
 
   Network.instance.worldState.editObjects.push({
     networkId: networkObject.networkId,

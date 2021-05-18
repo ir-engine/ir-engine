@@ -214,7 +214,7 @@ export const gamepadMapping = {
       buttons: {
         0: GamepadButtons.LTrigger,
         1: GamepadButtons.LBumper,
-        2: GamepadButtons.LStick,
+        2: GamepadButtons.LPad,
         3: GamepadButtons.LStick,
         4: GamepadButtons.X,
         5: GamepadButtons.Y,
@@ -225,7 +225,7 @@ export const gamepadMapping = {
       buttons: {
         0: GamepadButtons.RTrigger,
         1: GamepadButtons.RBumper,
-        2: GamepadButtons.RStick,
+        2: GamepadButtons.RPad,
         3: GamepadButtons.RStick,
         4: GamepadButtons.A,
         5: GamepadButtons.B,

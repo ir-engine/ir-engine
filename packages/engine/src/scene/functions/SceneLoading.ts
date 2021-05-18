@@ -39,9 +39,16 @@ export function loadScene(scene: SceneData): void {
   });
 
   Promise.all(loadPromises).then(() => {
-    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.SCENE_LOADED });
     Engine.sceneLoaded = true;
+    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.SCENE_LOADED });
   });
+}
+
+export const awaitSceneLoaded = (): Promise<void> => {
+  return new Promise<void>((resolve) => {
+    if(Engine.sceneLoaded) resolve();
+    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.SCENE_LOADED, resolve)
+  })
 }
 
 export function loadComponent(entity: Entity, component: SceneDataComponent): void {

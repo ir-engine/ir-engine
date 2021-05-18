@@ -1,7 +1,7 @@
 import '@feathersjs/transport-commons';
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine';
 import { Network } from '@xrengine/engine/src/networking/classes/Network';
-import { loadScene } from "@xrengine/engine/src/scene/functions/SceneLoading";
+import { awaitSceneLoaded, loadScene } from "@xrengine/engine/src/scene/functions/SceneLoading";
 import config from '@xrengine/server-core/src/appconfig';
 import { Application } from '@xrengine/server-core/declarations';
 import getLocalServerIp from '@xrengine/server-core/src/util/get-local-server-ip';
@@ -17,7 +17,6 @@ export default (app: Application): void => {
 
     app.on('connection', async (connection) => {
         if ((config.kubernetes.enabled && config.gameserver.mode === 'realtime') || (process.env.NODE_ENV === 'development') || config.gameserver.mode === 'local') {
-            if (!Engine.isInitialized) return;
             try {
                 const token = (connection as any).socketQuery?.token;
                 if (token != null) {

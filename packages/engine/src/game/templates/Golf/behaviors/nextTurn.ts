@@ -6,7 +6,6 @@ import { addActionComponent } from '../../../functions/functionsActions';
 import { getGame } from '../../../../game/functions/functions';
 import { GamePlayer } from "../../../components/GamePlayer";
 import { YourTurn } from "../components/YourTurnTagComponent";
-import { NextTurn } from "../../../actions/NextTurn";
 import { isServer } from '../../../../common/functions/isServer';
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -34,13 +33,7 @@ export const nextTurn: Behavior = (entity: Entity, args?: any, delta?: number, e
 
   const roleFullName = arrPlayersInGame.filter(role => parseFloat(role[0]) === chooseNumber)[0];
   const entityP = game.gamePlayers[roleFullName][0];
-
-  if(isServer) {
-    addActionComponent(entityP, NextTurn);
-    addStateComponent(entityP, YourTurn);
-  } else {
-    addActionComponent(entityP, NextTurn);
-  }
-
+  // do not create ctions from game behaviors
+  addStateComponent(entityP, YourTurn);
 
 };

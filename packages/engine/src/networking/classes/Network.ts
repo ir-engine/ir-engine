@@ -4,7 +4,7 @@ import { Entity } from '../../ecs/classes/Entity';
 import { NetworkObjectList } from '../interfaces/NetworkObjectList';
 import { NetworkSchema } from '../interfaces/NetworkSchema';
 import { NetworkTransport } from '../interfaces/NetworkTransport';
-import { WorldStateInterface } from "../interfaces/WorldState";
+import { NetworkClientInputInterface, WorldStateInterface } from "../interfaces/WorldState";
 import { Snapshot } from "../types/SnapshotDataTypes";
 import SocketIO from "socket.io";
 import { GameStateActionMessage, GameStateUpdateMessage, ClientGameActionMessage } from '../../game/types/GameMessage';
@@ -121,6 +121,22 @@ export class Network {
     gameState: [],
     gameStateActions: []
   };
+
+  clientInputState: NetworkClientInputInterface = {
+    networkId: -1,
+    buttons: [],
+    axes1d: [],
+    axes2d: [],
+    axes6DOF: [],
+    viewVector: {
+      x: 0, y: 0, z: 0
+    },
+    snapShotTime: 0,
+    // switchInputs: sendSwitchInputs ? this.switchId : 0,
+    characterState: 0,
+    clientGameAction: [],
+    transforms: []
+  }
   
   /** Tick of the network. */
   tick: any = 0
@@ -129,6 +145,7 @@ export class Network {
   dispose(): void {
     // TODO: needs tests
     this.clients = {};
+    this.transport.close();
     this.transport = null;
     Network.availableNetworkId = 0;
     Network.instance = null;

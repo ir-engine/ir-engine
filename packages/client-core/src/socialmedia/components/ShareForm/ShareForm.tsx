@@ -11,7 +11,7 @@ import { Plugins } from '@capacitor/core';
 import { useTranslation } from 'react-i18next';
 import { selectPopupsState } from '../../reducers/popupsState/selector';
 
-import styles from './ShareForm.module.scss'
+import styles from './ShareForm.module.scss';
 
 const { Share } = Plugins;
 
