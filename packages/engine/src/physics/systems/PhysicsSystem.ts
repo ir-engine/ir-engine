@@ -96,7 +96,7 @@ export class PhysicsSystem extends System {
       }
       */
       collider.body.addEventListener(CollisionEvents.COLLISION_START, (ev: ColliderHitEvent) => {
-        ev.bodyOther.shapes[0].config.collisionLayer == ev.bodySelf.shapes[0].config.collisionMask ? collider.collisions.push(ev):'';
+        (ev.bodyOther as any).shapes[0].config.collisionLayer == (ev.bodySelf as any).shapes[0].config.collisionMask ? collider.collisions.push(ev):'';
       })
       /*
       collider.body.addEventListener(CollisionEvents.COLLISION_PERSIST, (ev: ColliderHitEvent) => {

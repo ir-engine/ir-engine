@@ -5,8 +5,7 @@ import { Component } from '../../ecs/classes/Component';
 import { Types } from '../../ecs/types/Types';
 import { RelativeSpringSimulator } from '../../physics/classes/SpringSimulator';
 import { VectorSpringSimulator } from '../../physics/classes/VectorSpringSimulator';
-import { ControllerColliderComponent } from './ControllerColliderComponent';
-import { CollisionGroups, DefaultCollisionMask } from '../../physics/enums/CollisionGroups';
+import { DefaultCollisionMask } from '../../physics/enums/CollisionGroups';
 export class CharacterComponent extends Component<CharacterComponent> {
 
 	dispose(): void {

@@ -12,7 +12,7 @@ import { executeSystem } from './SystemFunctions';
 import { SystemUpdateType } from "./SystemUpdateType";
 
 /** Reset the engine and remove everything from memory. */
-export function reset(): void {
+export async function reset(): Promise<void> {
   console.log("RESETTING ENGINE");
   // Stop all running workers
   Engine.workers.forEach(w => w.terminate());
@@ -21,16 +21,24 @@ export function reset(): void {
   disposeDracoLoaderWorkers();
 
   // clear all entities components
-  Engine.entities.forEach(entity => {
-    removeAllComponents(entity, false);
+  await new Promise<void>(resolve => {
+    Engine.entities.forEach(entity => {
+      removeAllComponents(entity, false);
+    });
+    setTimeout(() => {
+      executeSystemBeforeReset(); // for systems to handle components deletion
+      resolve();
+    }, 500);
   });
-  execute(0.001); // for systems to handle components deletion
 
-  // delete all entities
-  removeAllEntities();
-
-  // for systems to handle components deletion
-  execute(0.001);
+  await new Promise<void>(resolve => {
+    // delete all entities
+    removeAllEntities();
+    setTimeout(() => {
+      executeSystemBeforeReset(); // for systems to handle components deletion
+      resolve();
+    }, 500);
+  });
 
   if (Engine.entities.length) {
     console.log('Engine.entities.length', Engine.entities.length);
@@ -108,6 +116,19 @@ export function execute (delta?: number, time?: number, updateType = SystemUpdat
   if (Engine.enabled) {
     Engine.systemsToExecute
       .forEach(system => executeSystem(system, delta, time, updateType));
+    processDeferredEntityRemoval();
+  }
+}
+
+function executeSystemBeforeReset() {
+  Engine.tick++;
+  const time = now() / 1000;
+  const delta = 0.001;
+  Engine.lastTime = time;
+
+  if (Engine.enabled) {
+    Engine.systemsToExecute
+      .forEach(system => executeSystem(system, delta, time, system.updateType));
     processDeferredEntityRemoval();
   }
 }
