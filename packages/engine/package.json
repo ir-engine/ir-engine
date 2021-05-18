@@ -48,6 +48,7 @@
     "hls.js": "^1.0.0",
     "idb-keyval": "^5.0.5",
     "mousetrap": "^1.6.5",
+    "postprocessing": "^6.21.5",
     "socket.io": "4.0.1",
     "three": "^0.128.0",
     "three-mesh-bvh": "^0.3.7",

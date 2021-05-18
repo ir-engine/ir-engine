@@ -6,7 +6,7 @@ import {
 	Object3D
   } from "three";
 import SplineHelperNode from "../../editor/nodes/SplineHelperNode";
-import { removeElementFromArray } from "@xr3ngine/engine/src/editor/functions/utils";
+import { removeElementFromArray } from "@xrengine/engine/src/editor/functions/utils";
 
 
 export default class Spline extends Object3D {
@@ -19,6 +19,7 @@ export default class Spline extends Object3D {
 	_point = new Vector3();
 
 	_splines = {} as any;
+	editor: any;
 
 	constructor() {
 		super();
@@ -49,7 +50,7 @@ export default class Spline extends Object3D {
 		const geometry = new BufferGeometry();
 		geometry.setAttribute( 'position', new BufferAttribute( new Float32Array( this.ARC_SEGMENTS * 3 ), 3 ) );
 
-		const curve = new CatmullRomCurve3( this._positions );
+		const curve = new CatmullRomCurve3( this._positions ) as any;
 		curve.curveType = 'catmullrom';
 		curve.mesh = new Line( geometry.clone(), new LineBasicMaterial( {
 			color: 0xff0000,
@@ -108,7 +109,7 @@ export default class Spline extends Object3D {
 
 		object.castShadow = true;
 		object.receiveShadow = true;
-		super.add( object );
+		super.add( object as any );
 		this._splineHelperObjects.push( object );
 		return object;
 
