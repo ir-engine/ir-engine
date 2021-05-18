@@ -11,10 +11,7 @@ import { BaseInput } from '../../input/enums/BaseInput';
 import { ControllerColliderComponent } from '../components/ControllerColliderComponent';
 import { CharacterComponent } from '../components/CharacterComponent';
 import { TransformComponent } from '../../transform/components/TransformComponent';
-import { isServer } from '../../common/functions/isServer';
 import { XRUserSettings, XR_FOLLOW_MODE } from '../../xr/types/XRUserSettings';
-import { getBit } from '../../common/functions/bitFunctions';
-import { CHARACTER_STATES } from '../state/CharacterStates';
 import { isInXR } from '../../xr/functions/WebXRFunctions';
 import { SIXDOFType } from '../../common/types/NumericalTypes';
 
@@ -94,6 +91,7 @@ export const characterMoveBehavior = (entity: Entity, deltaTime): void => {
       actor.isGrounded = false;
     }
     // TODO - Move on top of moving objects
+    // physx has a feature for this, we should integrate both
     // if (actor.rayResult.body.mass > 0) {
     // 	const pointVelocity = new Vec3();
     // 	actor.rayResult.body.getVelocityAtWorldPoint(actor.rayResult.hitPointWorld, pointVelocity);

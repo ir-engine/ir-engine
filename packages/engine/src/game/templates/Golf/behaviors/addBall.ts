@@ -15,6 +15,7 @@ import { GameObject } from "../../../components/GameObject";
  */
 
 export const addBall: Behavior = (entity: Entity, args?: any, delta?: number, entityTarget?: Entity, time?: number, checks?: any): void => {
+  console.log('addBall', entityTarget)
   const uuid = getComponent(entity, GameObject).uuid;
   const storageTransform = getComponent(entity, TransformComponent);//getStorage(entity, TransformComponent);
   const pos = storageTransform.position ?? { x:0, y:0, z:0 };
@@ -43,12 +44,6 @@ export const addBall: Behavior = (entity: Entity, args?: any, delta?: number, en
       linearVelocity: { x: 0, y: 0, z: 0 },
       angularVelocity: { x: 0, y: 0, z: 0 }
     }),
-/*
-    config: {
-      collisionLayer: 15,
-      collisionMask: 42
-    }
-*/
   });
 
   PhysicsSystem.instance.addBody(body);
@@ -56,6 +51,7 @@ export const addBall: Behavior = (entity: Entity, args?: any, delta?: number, en
   createNetworkRigidBody({
     entity,
     parameters: { body, bodytype: BodyType.DYNAMIC },
-    uniqueId: uuid
+    uniqueId: uuid,
+    // ownerId: 
   })
 };

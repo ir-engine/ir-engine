@@ -49,6 +49,7 @@ import { grabEquippable } from "../../interaction/functions/grabEquippable";
 import { Interactable } from "../../interaction/components/Interactable";
 import { getComponent } from "../../ecs/functions/EntityFunctions";
 import { disableInteractiveToOthers, disableInteractive, disableInteractiveHover } from "./Golf/behaviors/disableInteractiveToOthers";
+import { setEntityPlayerOwned } from "./Golf/behaviors/setEntityPlayerOwned";
 /**
  * @author HydraFire
  */
@@ -146,7 +147,7 @@ export const GolfGameMode: GameMode = somePrepareFunction({
       behaviors: [initScore]
     },
     'GolfBall': {
-      behaviors: [addBall, addRestitution, disableInteractiveToOthers]
+      behaviors: [addBall, addRestitution, disableInteractiveToOthers, setEntityPlayerOwned]
     },
     'GolfClub': {
       behaviors: [addClub],
